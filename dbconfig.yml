@@ -1,0 +1,11 @@
+local:
+  dialect: postgres
+  datasource: host=localhost port=15432 user=postgres password=postgres dbname=defipod_local sslmode=disable
+  dir: migrations
+  table: migrations
+
+test:
+  dialect: postgres
+  datasource: host=localhost port=15438 user=test password=test dbname=defipod_test sslmode=disable
+  dir: migrations
+  table: migrations

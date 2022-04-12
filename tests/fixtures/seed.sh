@@ -1,0 +1,1 @@
+for seed in *.sql; do PGPASSWORD=test psql -U test -d defipod_test -f /${seed}; done
