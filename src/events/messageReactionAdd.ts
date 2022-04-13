@@ -3,11 +3,7 @@ import {
   API_SERVER_HOST,
   DISCORD_ALPHA_CHANNEL,
   DISCORD_AMPAWSSADOR_CHANNEL,
-  HIT_AND_BLOW_CHANNEL_ID,
 } from "../env"
-import GameManager from "commands/hit-and-blow/GameManager"
-import { MessageReaction } from "discord.js"
-import { handleEmoji } from "commands/hit-and-blow"
 import Twitter from "../modules/twitter"
 import fetch from "node-fetch"
 
@@ -16,17 +12,6 @@ export default {
   once: false,
   execute: async (reaction, user) => {
     if (user.bot) return
-    if (reaction.message.channel.id === HIT_AND_BLOW_CHANNEL_ID) {
-      const wrapper = GameManager.get(reaction.message.id)
-      if (wrapper || wrapper.rule.id === reaction.message.id) {
-        handleEmoji(
-          reaction as MessageReaction,
-          wrapper,
-          await reaction.message.guild.members.fetch(user.id)
-        )
-      }
-      return
-    }
 
     if (
       [DISCORD_AMPAWSSADOR_CHANNEL, DISCORD_ALPHA_CHANNEL].includes(

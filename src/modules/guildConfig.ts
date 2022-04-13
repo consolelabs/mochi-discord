@@ -1,3 +1,6 @@
+import { Command } from "types/common"
+import { Message } from "discord.js"
+import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { API_SERVER_HOST } from "../env"
 import { logger } from "../logger"
@@ -21,7 +24,11 @@ class GuildConfig {
     this.Guilds = await this.getGuildConfigs()
     setInterval(async () => {
       this.Guilds = await this.getGuildConfigs()
-      logger.info(`reloaded ${this.Guilds.data.length} guild configs: ${this.Guilds.data.map((g) => g.name).join(", ")}`)
+      logger.info(
+        `reloaded ${this.Guilds.data.length} guild configs: ${this.Guilds.data
+          .map((g) => g.name)
+          .join(", ")}`
+      )
     }, 3600000)
   }
 
@@ -92,6 +99,24 @@ class GuildConfig {
       }
     }
     return false
+  }
+
+  public async checkGuildCommandScopes(
+    message: Message,
+    commandObject: Command
+  ) {
+    const isInScoped = await this.commandIsScoped(
+      message.guildId,
+      commandObject.category,
+      commandObject.command
+    )
+    if (!isInScoped) {
+      throw new CommandIsNotScopedError({
+        message,
+        category: commandObject.category.toLowerCase(),
+        command: commandObject.command.toLowerCase(),
+      })
+    }
   }
 
   public async categoryIsScoped(

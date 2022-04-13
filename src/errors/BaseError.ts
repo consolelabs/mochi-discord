@@ -1,7 +1,7 @@
 import { Message, TextChannel } from "discord.js"
 import { logger } from "logger"
 
-export class NekoBotBaseError extends Error {
+export class BotBaseError extends Error {
   constructor(message?: Message) {
     super()
     this.name = "Something went wrong"

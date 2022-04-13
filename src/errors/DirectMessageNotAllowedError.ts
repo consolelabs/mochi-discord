@@ -1,8 +1,8 @@
 import { Message, TextChannel } from "discord.js"
 import { getErrorEmbed } from "utils/discord"
-import { NekoBotBaseError } from "./BaseError"
+import { BotBaseError } from "./BaseError"
 
-export class DirectMessageNotAllowedError extends NekoBotBaseError {
+export class DirectMessageNotAllowedError extends BotBaseError {
   private discordMessage: Message
 
   constructor({ message }: { message: Message }) {

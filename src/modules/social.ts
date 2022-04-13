@@ -5,7 +5,7 @@ import { InsufficientBalanceError } from "errors/InsufficientBalanceError"
 import fetch from "node-fetch"
 import {
   DiscordWalletTransferRequest,
-  Token,
+  Currency,
   DiscordWalletWithdrawRequest,
   DiscordWalletBalances,
 } from "types"
@@ -166,7 +166,7 @@ class Social {
     return json
   }
 
-  public async getSupportedTokens(): Promise<Token[]> {
+  public async getSupportedTokens(): Promise<Currency[]> {
     const resp = await fetch(
       `${API_SERVER_HOST}/api/v1/user/in-discord-wallet/tokens`,
       {

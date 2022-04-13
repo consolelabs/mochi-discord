@@ -15,7 +15,7 @@ import {
   MessageButton,
   MessageEmbed,
 } from "discord.js"
-import { NekoBotBaseError } from "../errors"
+import { BotBaseError } from "../errors"
 
 export type User = {
   address: string
@@ -224,9 +224,9 @@ class Profile {
         case undefined:
           const e2 = new MessageEmbed()
             .setColor("#0099ff")
-            .setTitle("Verify your pod identity")
+            .setTitle("Verify your identity")
             .setDescription(
-              `Please verify your pod identity by clicking the button below.`
+              `Please verify your identity by clicking the button below.`
             )
           const row = new MessageActionRow().addComponents(
             new MessageButton()
@@ -237,7 +237,7 @@ class Profile {
           await interaction.editReply({ embeds: [e2], components: [row] })
           break
         default:
-          throw new NekoBotBaseError(json.error)
+          throw new BotBaseError(json.error)
       }
     } catch (e: any) {
       await interaction.editReply("Something wrong")

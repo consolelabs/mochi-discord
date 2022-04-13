@@ -1,6 +1,6 @@
 import { Client, MessageEmbed, TextChannel } from "discord.js"
 import { LOG_CHANNEL_ID } from "env"
-import { NekoBotBaseError } from "errors"
+import { BotBaseError } from "errors"
 import { logger } from "logger"
 
 export class ChannelLogger {
@@ -8,7 +8,8 @@ export class ChannelLogger {
 
   async ready(client: Client) {
     try {
-      // only send log to our discord server (pod town)
+      // only send log to our discord server
+      // TODO: allow to config log channel
       const guild = await client.guilds.fetch("882287783169896468")
       this.logChannel = (await guild.channels.fetch(
         LOG_CHANNEL_ID
@@ -18,7 +19,7 @@ export class ChannelLogger {
     }
   }
 
-  log(error: NekoBotBaseError) {
+  log(error: BotBaseError) {
     if (this.logChannel) {
       const embed = new MessageEmbed()
         .setTimestamp()

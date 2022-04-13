@@ -32,15 +32,6 @@ export const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN || ""
 export const TWITTER_ACCESS_TOKEN_SECRET =
   process.env.TWITTER_ACCESS_TOKEN_SECRET || ""
 
-// --------
-// DB
-// --------
-export const DB_HOST = process.env.DB_HOST || "localhost"
-export const DB_PORT = process.env.DB_PORT || "15432"
-export const DB_USER = process.env.DB_USER || "postgres"
-export const DB_PASSWORD = process.env.DB_PASSWORD || "postgres"
-export const DB_DATABASE = process.env.DB_DATABASE || "defipod_local"
-
 export const ENV = process.env.ENV || ""
 
 export const API_SERVER_HOST =
@@ -50,18 +41,11 @@ export const API_SERVER_HOST =
 export const PROCESSOR_API_SERVER_HOST =
   process.env.PROCESSOR_API_SERVER_HOST || "http://localhost:4000"
 
-export const BOT_AVATAR =
-  "https://res.cloudinary.com/dffqzkip0/image/upload/v1634371763/neko-bot.png"
-export const PREFIX = "p!"
-export const SECONDARY_PREFIX = "$"
+export const PREFIX = "$"
 export const ADMIN_PREFIX = "p@"
-export const HIT_AND_BLOW_CHANNEL_ID =
-  process.env.HIT_AND_BLOW_CHANNEL_ID || "919101446589403187"
+export const HELP_CMD = `${PREFIX}help`
+export const ADMIN_HELP_CMD = `${ADMIN_PREFIX}help`
 
-export const TOGETHER_COMMAND_THUMBNAIL =
-  "https://cdn.discordapp.com/emojis/920723616277073940.png?size=240"
-export const NEKO_COMMAND_THUMBNAIL =
-  "https://cdn.discordapp.com/emojis/920723615899594752.png?size=240"
 export const PROFILE_THUMBNAIL =
   "https://cdn.discordapp.com/emojis/916737804384485447.png?size=240"
 export const TATSU_API_KEY =

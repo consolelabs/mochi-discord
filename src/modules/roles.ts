@@ -129,8 +129,8 @@ class Roles {
    */
   public async updatePodTogetherRoles(listener: Discord.Client) {
     try {
-      logger.info("start update pod together roles")
-      // get pod together users
+      logger.info("start update roles")
+      // get users
       const podTogetherUsers: PodTogetherUsers = await (await fetch(
         `${API_SERVER_HOST}/api/v1/pod-together/users`,
         {
@@ -150,7 +150,7 @@ class Roles {
       const membersToAdd = membersOnDB.filter((member) => !membersOnDiscord.includes(member))
       const membersToRemove = membersOnDiscord.filter((member) => !membersOnDB.includes(member))
 
-      // remove pod together roles
+      // remove roles
       membersToRemove.forEach(async (m) => {
         let member: Discord.GuildMember
         try {
@@ -166,7 +166,7 @@ class Roles {
         }
       })
 
-      // add pod together roles
+      // add roles
       membersToAdd.forEach(async (m) => {
         let member: Discord.GuildMember
         try {

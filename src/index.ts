@@ -6,10 +6,7 @@ import Discord from "discord.js"
 import { logger } from "./logger"
 import handlers from "./handlers"
 import events from "./events"
-import { DISCORD_CLIENT_ID, DISCORD_BOT_GUILD_ID, DISCORD_TOKEN } from "./env"
-import { REST } from "@discordjs/rest"
-import { Routes } from "discord-api-types/v9"
-import alpha from "./slashCommands/alpha"
+import { DISCORD_TOKEN } from "./env"
 
 const app = new Koa()
 const publicRouter = new Router()
@@ -55,25 +52,6 @@ for (const e of events) {
     client.on(e.name, e.execute as any)
   }
 }
-
-const commands = [alpha.data.toJSON()]
-
-const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
-
-;(async () => {
-  try {
-    console.log("Started refreshing application (/) commands.")
-
-    await rest.put(
-      Routes.applicationGuildCommands(DISCORD_CLIENT_ID, DISCORD_BOT_GUILD_ID),
-      { body: commands }
-    )
-
-    console.log("Successfully reloaded application (/) commands.")
-  } catch (error) {
-    console.error(error)
-  }
-})()
 
 const server = app.listen(3001, () => {
   logger.info("HTTP Server started at 3001")

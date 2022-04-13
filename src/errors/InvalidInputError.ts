@@ -1,8 +1,8 @@
 import { Message, TextChannel } from "discord.js"
 import { getInvalidInputEmbed } from "utils/discord"
-import { NekoBotBaseError } from "./BaseError"
+import { BotBaseError } from "./BaseError"
 
-export class InvalidInputError extends NekoBotBaseError {
+export class InvalidInputError extends BotBaseError {
   private discordMessage: Message
   constructor({ message }: { message: Message }) {
     super()

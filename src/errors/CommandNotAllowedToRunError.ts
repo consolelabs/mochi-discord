@@ -1,7 +1,7 @@
 import { Message, TextChannel } from "discord.js"
-import { NekoBotBaseError } from "./BaseError"
+import { BotBaseError } from "./BaseError"
 
-export class CommandNotAllowedToRunError extends NekoBotBaseError {
+export class CommandNotAllowedToRunError extends BotBaseError {
   constructor({ message, command }: { message: Message; command: string }) {
     super()
     this.name = "Command not allowed to run"

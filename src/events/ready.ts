@@ -27,7 +27,7 @@ export default {
     runAndSetInterval(presence, 600000)
 
     // if (ENV !== "dev") {
-    //   // interval update pod together roles
+    //   // interval update roles
     //   const podTogetherRolesUpdater = async () => {
     //     Roles.updatePodTogetherRoles(listener)
     //   }

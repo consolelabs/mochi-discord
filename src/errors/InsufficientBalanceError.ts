@@ -1,8 +1,8 @@
 import { Message, MessageEmbed, TextChannel } from "discord.js"
 import { getEmbedFooter } from "utils/discord"
-import { NekoBotBaseError } from "./BaseError"
+import { BotBaseError } from "./BaseError"
 
-export class InsufficientBalanceError extends NekoBotBaseError {
+export class InsufficientBalanceError extends BotBaseError {
   private discordMessage: Message
 
   constructor({

@@ -1,7 +1,6 @@
-import { Command, factsAndTipsManager } from "commands"
+import { factsAndTipsManager } from "commands"
 import {
   Message,
-  DiscordAPIError,
   TextChannel,
   MessageEmbed,
   GuildEmoji,
@@ -22,9 +21,10 @@ import {
 } from "discord.js/typings/enums"
 import { TwitterHandleNotFoundError, UserNotFoundError } from "errors"
 import twitter from "modules/twitter"
-import { BOT_AVATAR, DISCORD_ADMIN_GROUP, DOT, VERTICAL_BAR } from "../env"
+import { DISCORD_ADMIN_GROUP, DOT, VERTICAL_BAR } from "../env"
 import guildConfig from "../modules/guildConfig"
 import Profile from "modules/profile"
+import { Command } from "types/common"
 
 export function isInteraction(
   msgOrInteraction: Message | MessageComponentInteraction
@@ -152,15 +152,13 @@ export async function workInProgress(msg: Message): Promise<MessageOptions> {
 
 // typically used in help message
 export function getDefaultEmbed() {
-  return new MessageEmbed()
-    .setColor("#FBCB2D")
-    .setAuthor("Neko Info", BOT_AVATAR)
+  return new MessageEmbed().setColor("#FBCB2D").setAuthor("Neko Info")
 }
 
 export function getHelpEmbed(author?: string) {
   return new MessageEmbed()
     .setColor(msgColors.PRIMARY)
-    .setAuthor(author ?? "Neko Info", BOT_AVATAR)
+    .setAuthor(author ?? "Neko Info")
 }
 
 export async function getLoadingEmbed(msg: Message) {
@@ -216,41 +214,6 @@ export function getInvalidInputEmbed() {
     )
 }
 
-export const rankEmojis = {
-  PODIAN_1: "917358831066046485",
-  ROOKIE_5: "917358829145034763",
-  APPRENTICE_10: "917358830713720934",
-  PODDIE_25: "917358829665148928",
-  PAWGANG_50: "917359230678347786",
-  PAWMASTER_80: "917358832118808626",
-  PAWGRANDMASTER_200: "917358829774209064",
-  PAWLORD_500: "917358832269795388",
-}
-
-export const roleEmojis: { [key: string]: string } = {
-  PODGANGS: "887780705541685258",
-  PODHEADS: "887780705541685258",
-  PODGUARDIANS: "887272973877256222",
-  PODBUILDERS: "887272973877256222",
-  PAWSFELLOWSHIP: "922044644928421888",
-  EARLYTOWNBUILDER: "922449813675606037",
-  AMPAWSSADOR: "922481485452296192",
-  PODIANS: "917358831066046485",
-  ROOKIES: "917358829145034763",
-  APPRENTICES: "917358830713720934",
-  PODDIES: "917358829665148928",
-  PAWGANGS: "917359230678347786",
-  PAWMASTERS: "917358832118808626",
-  PAWGRANDMASTERS: "917358829774209064",
-  PAWLORDS: "917358832269795388",
-  NATIVEGUARDIANS: "887780704207908884",
-  OG: "887780704207908884",
-  PODARCHITECT: "887275176113373194",
-  DEGEN: "",
-  JPEGCOLLECTORS: "",
-  BOOSTER: "",
-}
-
 export const tokenEmojis: Record<string, string> = {
   FTM: "920934041535000637",
   SPIRIT: "920934042021531668",
@@ -269,13 +232,6 @@ export const chainEmojis: Record<string, string> = {
   AVALANCHE: "928216430615355412",
 }
 
-export const xpEmojis: Record<string, string> = {
-  ACADEMY: "932605621730160680",
-  REBELLIO: "932605621914701875",
-  MERCHANT: "932651179593322527",
-  IMPERIAL: "932605622044729344",
-}
-
 export const numberEmojis: Record<string, string> = {
   NUM_0: "932856132869963806",
   NUM_1: "932856133088067604",
@@ -287,11 +243,6 @@ export const numberEmojis: Record<string, string> = {
   NUM_7: "932856132958048276",
   NUM_8: "932856132869976136",
   NUM_9: "932856132832223232",
-}
-
-export const dappEmojis: Record<string, string> = {
-  TOGETHER: "931194309422768168",
-  AUCTION: "931194309661823006",
 }
 
 export const pgBarEmojis: { [key: string]: string } = {
@@ -344,18 +295,9 @@ export const balanceIcons: { [key: string]: string } = {
 
 export const emojis: { [key: string]: string } = {
   GOOD_MORNING: "930840080761880626",
-  DEVFIXPLS: "930840081806266378",
   RED_ENVELOPE: "936234043513638973",
-  ACTIVITY: "933339868212367411",
-  RECEIVE: "933339868224958504",
-  SEND: "933339868233359380",
-  CHEST: "933339868006871070",
-  DASHBOARD: "933339868795404408",
-  CLAIM: "933340602106519552",
   SWAP: "933340602223955998",
-  APPROVE: "933341948402618378",
   REVOKE: "933341948431962172",
-  XP: "933032436814708768",
   STAR: "933281365384908810",
   TRANSACTION: "933341692667506718",
   LEADERBOARD_1: "933281365347151903",
@@ -389,12 +331,8 @@ export const emojis: { [key: string]: string } = {
   NEXT_PAGE: "935053694439936070",
   ...chainEmojis,
   ...tokenEmojis,
-  ...rankEmojis,
-  ...roleEmojis,
-  ...xpEmojis,
   ...numberEmojis,
   ...pgBarEmojis,
-  ...dappEmojis,
   ...dappActionEmojis,
 }
 
@@ -408,15 +346,10 @@ export const thumbnails: Record<string, string> = {
   HELP: "https://i.imgur.com/uuQhOmH.png",
   PORTFOLIO: "https://i.imgur.com/t84U7AA.png",
   PROFILE: "https://i.imgur.com/JTCGRO6.png",
-  TRANSACTION: "https://i.imgur.com/YyuS6RI.png",
-  XP: "https://i.imgur.com/EEUYXgq.gif",
-  ACTIVITY: "https://i.imgur.com/Z5aGdOG.png",
   TIP: "https://i.imgur.com/qj7iPqz.png",
   TOKENS: "https://i.imgur.com/hcqO0Wu.png",
   LOADING:
     "https://cdn.discordapp.com/attachments/895993366960017491/933427920817492028/loading.gif",
-  WALLET: "https://i.imgur.com/3qT5TE7.png",
-  INVENTORY: "https://i.imgur.com/M4iL1Uh.png",
 }
 
 export function getListCommands(

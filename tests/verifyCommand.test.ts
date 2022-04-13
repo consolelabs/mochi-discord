@@ -10,7 +10,7 @@ import {
   User,
 } from "discord.js"
 import { DISCORD_BOT_CHANNEL } from "../src/env"
-import { verify } from "../src/commands/verify"
+import { verify } from "../src/commands/profile/verify"
 import db from "../src/modules/db"
 import { getMessage } from "./mocks"
 
@@ -73,7 +73,7 @@ describe("Verify Command", () => {
     )
   })
 
-  it("user has already had a pod identity", async () => {
+  it("user has already had a identity", async () => {
     messageMock.channel.id = DISCORD_BOT_CHANNEL
     messageMock.author.id = "123"
     jest
@@ -92,7 +92,7 @@ describe("Verify Command", () => {
     expect(messageMock.author.send).toHaveBeenCalledWith({
       embeds: [
         new MessageEmbed()
-          .setTitle("Meowww! You already had a pod identity")
+          .setTitle("You already had a identity")
           .setThumbnail(
             "https://res.cloudinary.com/dffqzkip0/image/upload/v1634371763/neko-bot.png"
           )
@@ -101,7 +101,7 @@ describe("Verify Command", () => {
     })
   })
 
-  it("ask user to verify pod identity", async () => {
+  it("ask user to verify identity", async () => {
     messageMock.channel.id = DISCORD_BOT_CHANNEL
     messageMock.author.id = "456"
     jest
@@ -124,7 +124,7 @@ describe("Verify Command", () => {
     expect(messageMock.author.send).toHaveBeenCalledWith({
       embeds: [
         new MessageEmbed()
-          .setTitle("Meowww! Let's setup your Pod Identity")
+          .setTitle("Let's setup your identity")
           .setDescription("Click the button the verify your address")
           .setThumbnail(
             "https://res.cloudinary.com/dffqzkip0/image/upload/v1634371763/neko-bot.png"

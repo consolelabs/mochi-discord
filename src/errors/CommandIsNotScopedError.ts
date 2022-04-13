@@ -1,7 +1,7 @@
 import { Message, TextChannel } from "discord.js"
-import { NekoBotBaseError } from "./BaseError"
+import { BotBaseError } from "./BaseError"
 
-export class CommandIsNotScopedError extends NekoBotBaseError {
+export class CommandIsNotScopedError extends BotBaseError {
   constructor({
     message,
     category,

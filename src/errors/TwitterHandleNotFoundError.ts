@@ -1,8 +1,8 @@
 import { Message, TextChannel } from "discord.js"
 import { getErrorEmbed } from "utils/discord"
-import { NekoBotBaseError } from "./BaseError"
+import { BotBaseError } from "./BaseError"
 
-export class TwitterHandleNotFoundError extends NekoBotBaseError {
+export class TwitterHandleNotFoundError extends BotBaseError {
   private discordMessage: Message
   constructor({ message }: { message: Message }) {
     super()
@@ -22,8 +22,7 @@ export class TwitterHandleNotFoundError extends NekoBotBaseError {
       embeds: [
         getErrorEmbed({
           title: "Twitter handle missing",
-          message:
-            "Please specify a twitter handle e.g `p!twitter your_handle`",
+          message: "Please specify a twitter handle e.g `$twitter your_handle`",
           discordMsg: this.discordMessage,
           avatarFooter: true,
         }),

@@ -3407,13 +3407,6 @@ hash.js@1.1.7, hash.js@^1.0.0, hash.js@^1.0.3, hash.js@^1.1.7:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
 
-hit-and-blow@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.npmjs.org/hit-and-blow/-/hit-and-blow-0.1.0.tgz"
-  integrity sha512-tt86HMu9DyVE0eHzGvNIrAC7eeBHkWuZAgPsv4RvajxqOvIPSLzartQR98qF0ifR/Y3t2g+lvuybiYekxtRU2w==
-  dependencies:
-    lodash.intersection "^4.4.0"
-
 hmac-drbg@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/hmac-drbg/-/hmac-drbg-1.0.1.tgz"
@@ -4560,11 +4553,6 @@ lodash.includes@^4.3.0:
   version "4.3.0"
   resolved "https://registry.npmjs.org/lodash.includes/-/lodash.includes-4.3.0.tgz"
   integrity sha1-YLuYqHy5I8aMoeUTJUgzFISfVT8=
-
-lodash.intersection@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.npmjs.org/lodash.intersection/-/lodash.intersection-4.4.0.tgz"
-  integrity sha1-ChG6Yx0OlcI8fy9Mu5ppLtF45wU=
 
 lodash.isboolean@^3.0.3:
   version "3.0.3"

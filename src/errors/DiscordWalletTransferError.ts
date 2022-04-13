@@ -1,8 +1,8 @@
 import { Message, MessageEmbed, TextChannel } from "discord.js"
 import { getEmbedFooter } from "utils/discord"
-import { NekoBotBaseError } from "./BaseError"
+import { BotBaseError } from "./BaseError"
 
-export class DiscordWalletTransferError extends NekoBotBaseError {
+export class DiscordWalletTransferError extends BotBaseError {
   private discordMessage: Message
   private errorMsg: string
 

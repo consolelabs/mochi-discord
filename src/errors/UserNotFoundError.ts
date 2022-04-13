@@ -1,8 +1,8 @@
 import { Message, MessageEmbed, TextChannel } from "discord.js"
 import { getEmbedFooter } from "utils/discord"
-import { NekoBotBaseError } from "./BaseError"
+import { BotBaseError } from "./BaseError"
 
-export class UserNotFoundError extends NekoBotBaseError {
+export class UserNotFoundError extends BotBaseError {
   private discordMessage: Message
 
   constructor({
@@ -33,7 +33,7 @@ export class UserNotFoundError extends NekoBotBaseError {
     const embed = new MessageEmbed()
       .setColor("#d91c22")
       .setTitle("User not found")
-      .setDescription("The user is invalid or not a Pod Town's member")
+      .setDescription("The user is invalid or not a member")
       .setFooter(
         getEmbedFooter([`${this.discordMessage.author.tag}`]),
         this.discordMessage.author.avatarURL()

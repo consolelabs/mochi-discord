@@ -1,4 +1,4 @@
-import { Command } from "commands"
+import { Command } from "types/common"
 import maskAddress, {
   composeDiscordExitButton,
   composeDiscordSelectionRow,
@@ -11,7 +11,6 @@ import maskAddress, {
   getListCommands,
   getUserInfoParams,
   onlyRunInAdminGroup,
-  rankEmojis,
   thumbnails,
 } from "utils/discord"
 import Profile, { User } from "modules/profile"
@@ -20,33 +19,6 @@ import { ADMIN_PREFIX, PREFIX } from "env"
 import { UserNotFoundError, UserNotVerifiedError } from "errors"
 import handler from "./profile"
 import { createCanvas, loadImage } from "canvas"
-
-const ranks: Record<number, string> = Object.entries(rankEmojis).reduce(
-  (acc, cur) => {
-    const [name, num] = cur[0].split("_")
-    return { ...acc, [num]: `<:${name.toLowerCase()}:${cur[1]}>` }
-  },
-  {}
-)
-
-function getRank(numOfNekos?: number) {
-  if (!numOfNekos) return null
-  const keys = Object.keys(ranks)
-    .map(Number)
-    .sort((a, b) => a - b)
-  let largest
-  for (let key of keys) {
-    if (numOfNekos >= key) {
-      largest = key
-    }
-  }
-
-  return largest
-    ? `${ranks[largest]} (holding ${numOfNekos} Neko${
-        numOfNekos > 1 ? "s" : ""
-      })`
-    : null
-}
 
 function getXpProgressBar(
   xp: number,
@@ -159,11 +131,7 @@ const command: Command = {
           },
           {
             name: `${getEmoji("blank")} Global Rank`,
-            value: `${
-              getRank(user?.number_of_tokens)
-                ? getRank(user.number_of_tokens)
-                : "Not a Neko owner"
-            }\n\u200B`,
+            value: "-",
             inline: true,
           },
           {
@@ -344,7 +312,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   isComplexCommand: true,
-  experimental: true,
+  alias: ["pro", "prof", "pf", "profiel"],
 }
 
 export default command

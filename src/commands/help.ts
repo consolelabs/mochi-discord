@@ -1,54 +1,54 @@
 import { Message } from "discord.js"
-import { ADMIN_PREFIX, PREFIX } from "../env"
+import { ADMIN_HELP_CMD, HELP_CMD } from "../env"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import { Category, originalCommands, Command } from "../commands"
-import {
-  emojis,
-  getEmbedFooter,
-  getEmoji,
-  getHelpEmbed,
-  thumbnails,
-} from "utils/discord"
+import { originalCommands } from "../commands"
+import { emojis, getEmbedFooter, getHelpEmbed, thumbnails } from "utils/discord"
 import guildConfig from "../modules/guildConfig"
+import { Category, Command } from "types/common"
 dayjs.extend(utc)
 
 const categoryIcons: Record<Category, string> = {
   Admin: emojis.NEKO_COOL,
-  Games: emojis.GAMES,
-  Council: emojis.COUNCIL,
   Profile: emojis.PROFILE,
-  Leaderboard: emojis.LEADERBOARD,
-  Social: emojis.SOCIAL,
+  Config: emojis.NEKO_COOL,
+  Defi: emojis.SOCIAL,
+  Community: emojis.GAMES,
 }
 
 export async function adminHelpMessage(msg: Message) {
   let embedMsg = getHelpEmbed("Admin Commands")
     .setThumbnail(thumbnails.HELP)
     .setDescription(
-      `\nType \`${ADMIN_PREFIX}help <command>\` to learn more about a command e,g \`${ADMIN_PREFIX}help profile\``
+      `\nType \`${ADMIN_HELP_CMD} <command>\` to learn more about a command e,g \`${ADMIN_HELP_CMD} profile\``
     )
-    .setFooter(getEmbedFooter([`Type ${PREFIX}help for normal commands`]))
+    .setFooter(getEmbedFooter([`Type ${HELP_CMD} for normal commands`]))
     .setTimestamp()
 
+  let idx = 0
   for (let [category, emojiId] of Object.entries(categoryIcons)) {
+    // const [category, emojiId] = Object.entries(categoryIcons)[i]
     if (category !== "Admin") continue
     const commandsOfThisCat = Object.values(originalCommands)
       .filter(Boolean)
-      .filter(
-        (c) =>
-          c.category === category || c.id === "profile" || c.id === "together"
-      )
+      .filter((c) => c.category === category || c.id === "profile")
       .map((c) => `[\`${c.id}\`](https://pod.town)`)
       .join(" ")
     if (commandsOfThisCat.trim() === "") continue
     const emoji = msg.client.emojis.cache.get(emojiId)
+    if (idx % 3 === 2) embedMsg.addField("\u200B", "\u200B", true)
     embedMsg.addField(
       `${emoji ? `${emoji} ` : ""}${category}`,
-      `${commandsOfThisCat}\n${getEmoji("blank")}`,
+      `${commandsOfThisCat}`,
       true
     )
+    idx++
   }
+  const nrOfEmptyFields = 3 - (embedMsg.fields.length % 3)
+  new Array(nrOfEmptyFields)
+    .fill(0)
+    .forEach(() => embedMsg.addField("\u200B", "\u200B", true))
+
   return { embeds: [embedMsg] }
 }
 
@@ -57,22 +57,17 @@ const info = {
   command: "help",
   category: "Profile",
   name: "Help Menu",
-  run: async function (msg) {
+  run: async function (msg: Message) {
     const data = await this.getHelpMessage(msg)
     return data
   },
   getHelpMessage: async (msg: Message) => {
     let embedMsg = getHelpEmbed("Standard Commands")
-      .setTitle("Welcome to Pod Town!")
       .setThumbnail(thumbnails.HELP)
       .setDescription(
-        `\nType \`${PREFIX}help <command>\` to learn more about a command e,g \`${PREFIX}help neko\`\n${getEmoji(
-          "blank"
-        )}`
+        `\nType \`${HELP_CMD} <command>\` to learn more about a command e,g \`${HELP_CMD} invite\`\n\n`
       )
-      .setFooter(
-        getEmbedFooter([`Type ${ADMIN_PREFIX}help for admin commands`])
-      )
+      .setFooter(getEmbedFooter([`Type ${ADMIN_HELP_CMD} for admin commands`]))
       .setTimestamp()
 
     const categories = Object.entries(categoryIcons).sort((catA, catB) => {
@@ -86,6 +81,7 @@ const info = {
       return commandsOfThisCatB - commandsOfThisCatA
     })
 
+    let idx = 0
     for (let [category, emojiId] of categories) {
       if (category === "Admin") continue
 
@@ -117,12 +113,19 @@ const info = {
       const emoji = isDefaultEmoji
         ? emojiId
         : msg.client.emojis.cache.get(emojiId)
+
+      if (idx % 3 === 2) embedMsg.addField("\u200B", "\u200B", true)
       embedMsg.addField(
         `${emoji ? `${emoji} ` : ""}${category}`,
-        `${commandsOfThisCat}\n${getEmoji("blank")}`,
+        `${commandsOfThisCat}`,
         true
       )
+      idx++
     }
+    const nrOfEmptyFields = 3 - (embedMsg.fields.length % 3)
+    new Array(nrOfEmptyFields)
+      .fill(0)
+      .forEach(() => embedMsg.addField("\u200B", "\u200B", true))
     return { embeds: [embedMsg] }
   },
 } as Command

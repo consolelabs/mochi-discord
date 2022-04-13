@@ -3,9 +3,9 @@ import { Message, MessageEmbed, TextChannel } from "discord.js"
 import { PREFIX } from "env"
 import guildConfig from "modules/guildConfig"
 import { getEmbedFooter } from "utils/discord"
-import { NekoBotBaseError } from "./BaseError"
+import { BotBaseError } from "./BaseError"
 
-export class UserNotVerifiedError extends NekoBotBaseError {
+export class UserNotVerifiedError extends BotBaseError {
   private discordMessage: Message
   private isAdmin: boolean
 

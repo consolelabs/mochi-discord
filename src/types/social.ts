@@ -18,7 +18,7 @@ export type DiscordWalletWithdrawRequest = {
   channelID: string
 }
 
-export type Token = {
+export type Currency = {
   id: number
   address: string
   symbol: string
