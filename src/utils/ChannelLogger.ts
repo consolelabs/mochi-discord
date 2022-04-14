@@ -8,9 +8,9 @@ export class ChannelLogger {
 
   async ready(client: Client) {
     try {
-      // only send log to our discord server
+      // only send log to our discord server (pod town)
       // TODO: allow to config log channel
-      const guild = await client.guilds.fetch("882287783169896468")
+      const guild = await client.guilds.fetch("963487084969095168")
       this.logChannel = (await guild.channels.fetch(
         LOG_CHANNEL_ID
       )) as TextChannel

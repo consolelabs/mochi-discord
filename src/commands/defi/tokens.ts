@@ -37,7 +37,7 @@ const command: Command = {
     }
   },
   getHelpMessage: async () => {
-    let embedMsg = getHelpEmbed("Tokens")
+    const embedMsg = getHelpEmbed("Tokens")
       .setThumbnail(thumbnails.TOKENS)
       .setTitle(`${PREFIX}tokens`)
       .addField("_Examples_", `\`${PREFIX}tokens\``)

@@ -15,6 +15,7 @@ export interface Guild {
   token_address: string
   bot_scopes: string[]
   verify_channel_id: string
+  log_channel_id: string
 }
 
 class GuildConfig {

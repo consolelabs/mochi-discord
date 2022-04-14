@@ -69,7 +69,7 @@ const command: Command = {
     description +=
       "\nA network fee will be added on top of your withdrawal (or deducted if you can't afford it). You will be asked to confirm it."
     description += `\n\nTo withdraw use \`${PREFIX}withdraw <address> <amount> <token>\`, for example \`${PREFIX}withdraw 0x0000000000000000000000000000000000000000 5 ftm\`.`
-    let embedMsg = getHelpEmbed("Withdraw").setDescription(description)
+    const embedMsg = getHelpEmbed("Withdraw").setDescription(description)
     embedMsg
       .setAuthor("")
       .setFooter(`Use ${PREFIX}tokens for a list of supported tokens`)

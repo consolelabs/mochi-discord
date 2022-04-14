@@ -67,7 +67,7 @@ const command: Command = {
   checkBeforeRun: onlyRunInBotChannel,
   run: reverify,
   getHelpMessage: async function () {
-    let embedMsg = getHelpEmbed("Reverify")
+    const embedMsg = getHelpEmbed("Reverify")
       .setTitle(`${PREFIX}reverify`)
       .addField("_Examples_", `\`${PREFIX}reverify\``, true)
       .setDescription(

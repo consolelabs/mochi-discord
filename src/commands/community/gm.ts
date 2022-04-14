@@ -77,7 +77,7 @@ const command: Command = {
   run: countGm,
   getHelpMessage: async function (msg) {
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
-    let embedMsg = getHelpEmbed("Check GM Streak")
+    const embedMsg = getHelpEmbed("Check GM Streak")
       .setTitle(`${PREFIX}gm`)
       .addField("_Examples_", `\`${PREFIX}gm\``, true)
       .setDescription(

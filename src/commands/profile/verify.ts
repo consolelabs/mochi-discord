@@ -68,7 +68,7 @@ const command: Command = {
   run: verify,
   getHelpMessage: async function (msg) {
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
-    let embedMsg = getHelpEmbed("Verify Address")
+    const embedMsg = getHelpEmbed("Verify Address")
       .setTitle(`${PREFIX}verify`)
       .addField("_Examples_", `\`${PREFIX}verify\``, true)
       .setDescription(
