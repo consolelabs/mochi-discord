@@ -26,7 +26,7 @@ export async function adminHelpMessage(msg: Message) {
     .setTimestamp()
 
   let idx = 0
-  for (let [category, emojiId] of Object.entries(categoryIcons)) {
+  for (const [category, emojiId] of Object.entries(categoryIcons)) {
     // const [category, emojiId] = Object.entries(categoryIcons)[i]
     if (category !== "Admin") continue
     const commandsOfThisCat = Object.values(originalCommands)
@@ -83,7 +83,7 @@ const info = {
     })
 
     let idx = 0
-    for (let [category, emojiId] of categories) {
+    for (const [category, emojiId] of categories) {
       if (category === "Admin") continue
 
       if (!(await guildConfig.categoryIsScoped(msg.guildId, category))) continue
