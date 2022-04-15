@@ -10,11 +10,10 @@ export interface Guilds {
 }
 
 export interface Guild {
-  guild_id: string
+  id: string
   name: string
-  token_address: string
   bot_scopes: string[]
-  verify_channel_id: string
+  alias: string
   log_channel_id: string
 }
 
@@ -47,19 +46,21 @@ class GuildConfig {
   }
 
   public async getGuildConfig(guildId: string): Promise<Guild> {
-    const guilds = await this.getGuildConfigs()
-    const guild = guilds.data.find((g) => g.guild_id === guildId)
-    if (!guild) {
-      throw new Error(`Guild ${guildId} not found`)
-    }
-    return guild
-  }
+    const res = await fetch(API_SERVER_HOST + "/api/v1/guilds/" + guildId, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
 
-  public getVerifyChannelId(guildId: string): string {
-    return (
-      this.Guilds.data.find((g) => g.guild_id === guildId)?.verify_channel_id ??
-      ""
-    )
+    switch (res.status) {
+      case 200:
+        return await res.json()
+      case 404:
+        return null
+      default:
+        throw new Error(`Unexpected status code: ${res.status}`)
+    }
   }
 
   public async getScopes(guildId: string): Promise<string[]> {
@@ -89,14 +90,15 @@ class GuildConfig {
           }
           logger.error("Invalid scope: " + scope)
           break
-        case 2:
+        case 2: {
           const scopeCat = scopeParts[0]
           const scopeCmd = scopeParts[1]
           if (cat === scopeCat && (scopeCmd === "*" || cmd === scopeCmd)) {
             return true
           }
-        default:
           break
+        }
+        default:
       }
     }
     return false
@@ -140,12 +142,13 @@ class GuildConfig {
           }
           logger.error("Invalid scope: " + scope)
           break
-        case 2:
+        case 2: {
           const scopeCat = scopeParts[0]
           if (cat === scopeCat) {
             return true
           }
           break
+        }
         default:
       }
     }
@@ -153,19 +156,19 @@ class GuildConfig {
   }
 
   public async createGuildConfig(guildId: string, name: string) {
-    const guilds = await this.getGuildConfigs()
-    const guild = guilds.data.find((g) => g.guild_id === guildId)
+    const guild = await this.getGuildConfig(guildId)
     if (guild) {
-      throw new Error(`Guild ${guildId} already exists`)
+      logger.warn(`Guild ${guildId} already exists`)
+      return
     }
 
     const newGuild = {
-      guild_id: guildId,
+      id: guildId,
       name: name,
     }
 
     await (
-      await fetch(API_SERVER_HOST + "/api/v1/guild", {
+      await fetch(API_SERVER_HOST + "/api/v1/guilds", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
