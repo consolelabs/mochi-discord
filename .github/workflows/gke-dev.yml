@@ -11,7 +11,7 @@ env:
   GITHUB_SHA: ${{ github.sha }}
   REGISTRY_HOSTNAME: gcr.io
   GKE_PROJECT: console-labs-prod
-  IMAGE: defipod/mochi-api
+  IMAGE: defipod/mochi-bot
   K8S_ENVIRONMENT: dev
 
 jobs:
@@ -53,11 +53,11 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           path: ./infrastructure
           ref: master
-      - name: Update api version
+      - name: Update bot version
         run: |
-          cd ./infrastructure/services/mochi-api/$K8S_ENVIRONMENT
+          cd ./infrastructure/services/mochi-bot/$K8S_ENVIRONMENT
           git config user.name jphuc96
           git config user.email jphuc96@gmail.com
           /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
-          git commit -am "[skip ci] mochi-api ${K8S_ENVIRONMENT} image update"
+          git commit -am "[skip ci] mochi-bot ${K8S_ENVIRONMENT} image update"
           git push origin master
