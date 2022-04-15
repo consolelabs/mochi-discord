@@ -184,7 +184,7 @@ const command: Command = {
         files: [chart],
         embeds: [embedMsg],
         components: [selectRow, exitBtnRow],
-        content: getHeader("View all supported tokens", msg.author),
+        content: getHeader("View historical market chart", msg.author),
       },
       commandChoiceOptions: {
         userId: msg.author.id,

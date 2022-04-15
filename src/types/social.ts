@@ -7,6 +7,7 @@ export type DiscordWalletTransferRequest = {
   channelID: string
   opts?: { duration: number; maxEntries: number }
   each?: boolean
+  all?: boolean
 }
 
 export type DiscordWalletWithdrawRequest = {
