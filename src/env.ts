@@ -26,6 +26,11 @@ export const PRIVATE_KEY = process.env.PRIVATE_KEY || ""
 export const API_SERVER_HOST =
   process.env.API_SERVER_HOST || "http://localhost:8200"
 
+export const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN || ""
+export const TWITTER_ACCESS_TOKEN_SECRET = process.env.TWITTER_ACCESS_TOKEN_SECRET || ""
+export const TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY || ""
+export const TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET || ""
+
 export const PREFIX = "$"
 export const ADMIN_PREFIX = "p@"
 export const HELP_CMD = `${PREFIX}help`
