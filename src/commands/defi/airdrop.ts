@@ -93,7 +93,7 @@ export async function confirmAirdrop(
   airdropCache.set(cacheKey, [], +duration);
 
   // check airdrop expired
-  let description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${amountInUSD}) `;
+  const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${amountInUSD}) `;
   await checkExpiredAirdrop(
     reply as Message,
     cacheKey,
@@ -173,7 +173,7 @@ export async function enterAirdrop(
 
   const participant = `<@${interaction.user.id}>`;
   const cacheKey = `airdrop-${msg.id}`;
-  let participants: string[] = airdropCache.get(cacheKey) ?? [];
+  const participants: string[] = airdropCache.get(cacheKey) ?? [];
   if (participants.includes(participant)) {
     await interaction.reply({
       ephemeral: true,
@@ -275,7 +275,7 @@ const command: Command = {
     };
   },
   getHelpMessage: async (_msg) => {
-    let embedMsg = getHelpEmbed("Airdrop")
+    const embedMsg = getHelpEmbed("Airdrop")
       .setThumbnail(thumbnails.TIP)
       .setTitle(`${PREFIX}airdrop`)
       .addField(

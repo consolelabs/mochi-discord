@@ -172,7 +172,7 @@ class Profile {
     guildId?: string
   }): Promise<Array<UserBalance>> | null {
     try {
-      let reqParam = address ? `address=${address}` : `discord_id=${discordId}`
+      const reqParam = address ? `address=${address}` : `discord_id=${discordId}`
       const resp = await fetch(
         `${API_SERVER_HOST}/api/v1/pod-together/user?${reqParam}&guild_id=${guildId}`,
         {
@@ -272,7 +272,7 @@ class Profile {
   }
 
   public async getUserGMStreak(discordId: string, guildId: string) {
-    let url = `${API_SERVER_HOST}/api/v1/user/gmstreak?discord_id=${discordId}&guild_id=${guildId}`
+    const url = `${API_SERVER_HOST}/api/v1/user/gmstreak?discord_id=${discordId}&guild_id=${guildId}`
 
     const resp = await fetch(url, {
       method: "GET",
@@ -287,7 +287,7 @@ class Profile {
     guildId: string,
     timestamp: number
   ) {
-    let url = `${API_SERVER_HOST}/api/v1/user/gmstreak/new-gm?discord_id=${discordId}&guild_id=${guildId}&timestamp=${timestamp}`
+    const url = `${API_SERVER_HOST}/api/v1/user/gmstreak/new-gm?discord_id=${discordId}&guild_id=${guildId}&timestamp=${timestamp}`
 
     const resp = await fetch(url, {
       method: "POST",

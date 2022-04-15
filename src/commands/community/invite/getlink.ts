@@ -44,7 +44,7 @@ const command: Command = {
     }
   },
   getHelpMessage: async function () {
-    let embedMsg = getHelpEmbed()
+    const embedMsg = getHelpEmbed()
       .setTitle(`${PREFIX}invite getlink`)
       .addField("_Examples_", `\`${PREFIX}invite getlink\``, true)
       .setDescription(`\`\`\`Get your invite link.\`\`\``)

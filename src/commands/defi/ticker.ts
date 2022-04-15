@@ -196,7 +196,7 @@ const command: Command = {
     }
   },
   getHelpMessage: async () => {
-    let embedMsg = getHelpEmbed("Ticker")
+    const embedMsg = getHelpEmbed("Ticker")
       .setThumbnail(thumbnails.TOKENS)
       .setTitle(`${PREFIX}ticker`)
       .addField(

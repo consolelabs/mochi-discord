@@ -47,7 +47,7 @@ function getBalanceIcon(balance?: number) {
     .map(Number)
     .sort((a, b) => a - b)
   let largest
-  for (let key of keys) {
+  for (const key of keys) {
     if (balance >= key) {
       largest = key
     }
@@ -60,7 +60,7 @@ const command: (
   user: User,
   msg: Message
 ) => Promise<CommandChoiceHandlerResult> = async (user, msg) => {
-  let params: Record<string, string> = {
+  const params: Record<string, string> = {
     address: null,
     discordId: null,
     guildId: null,

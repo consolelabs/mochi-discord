@@ -15,7 +15,7 @@ import db from "../src/modules/db"
 import { getMessage } from "./mocks"
 
 describe("Verify Command", () => {
-  let messageMock = getMessage()
+  const messageMock = getMessage()
 
   beforeEach(() => {
     jest.clearAllMocks()

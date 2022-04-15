@@ -104,11 +104,11 @@ const command: Command = {
       .setDescription("**Unknown/Unverified user**")
 
     if (target) {
-      let nobilityXp = getXpProgressBar(user?.xps.nobility_xp, "imperial")
-      let fameXp = getXpProgressBar(user?.xps.fame_xp, "rebellio")
-      let loyaltyXp = getXpProgressBar(user?.xps.loyalty_xp, "merchant")
-      let reputationXp = getXpProgressBar(user?.xps.reputation_xp, "academy")
-      let globalXp =
+      const nobilityXp = getXpProgressBar(user?.xps.nobility_xp, "imperial")
+      const fameXp = getXpProgressBar(user?.xps.fame_xp, "rebellio")
+      const loyaltyXp = getXpProgressBar(user?.xps.loyalty_xp, "merchant")
+      const reputationXp = getXpProgressBar(user?.xps.reputation_xp, "academy")
+      const globalXp =
         user?.xps.nobility_xp +
         user?.xps.fame_xp +
         user?.xps.loyalty_xp +
@@ -286,7 +286,7 @@ const command: Command = {
   },
   getHelpMessage: async function (msg, _action, isAdmin) {
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
-    let embedMsg = getHelpEmbed()
+    const embedMsg = getHelpEmbed()
       .setTitle(`${isAdmin ? ADMIN_PREFIX : PREFIX}profile`)
       .setThumbnail(thumbnails.PROFILE)
       .addField(

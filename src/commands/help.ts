@@ -17,7 +17,7 @@ const categoryIcons: Record<Category, string> = {
 }
 
 export async function adminHelpMessage(msg: Message) {
-  let embedMsg = getHelpEmbed("Admin Commands")
+  const embedMsg = getHelpEmbed("Admin Commands")
     .setThumbnail(thumbnails.HELP)
     .setDescription(
       `\nType \`${ADMIN_HELP_CMD} <command>\` to learn more about a command e,g \`${ADMIN_HELP_CMD} profile\``
@@ -62,7 +62,8 @@ const info = {
     return data
   },
   getHelpMessage: async (msg: Message) => {
-    let embedMsg = getHelpEmbed("Standard Commands")
+    const embedMsg = getHelpEmbed("Standard Commands")
+      .setTitle("Welcome to Mochi!")
       .setThumbnail(thumbnails.HELP)
       .setDescription(
         `\nType \`${HELP_CMD} <command>\` to learn more about a command e,g \`${HELP_CMD} invite\`\n\n`

@@ -136,7 +136,7 @@ export async function onlyRunInAdminGroup(msg: Message) {
 
 export async function workInProgress(msg: Message): Promise<MessageOptions> {
   const emoji = msg.client.emojis.cache.get(emojis.NEKO_COOL)
-  let embed = new MessageEmbed()
+  const embed = new MessageEmbed()
   embed
     .setColor("#F4BE5B")
     .setThumbnail(
@@ -463,7 +463,7 @@ export function getPaginationRow(page: number, totalPages: number) {
   return row
 }
 
-export function roundFloatNumber(n: number, fractionDigits: number = 1) {
+export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
@@ -487,12 +487,12 @@ export async function getUserInfoParams(
       break
     // username#discriminator
     case usernameReg.test(userInfo):
-      let userData = userInfo.split("#")
-      let members = await msg.guild.members.fetch({
+      const userData = userInfo.split("#")
+      const members = await msg.guild.members.fetch({
         query: userData[0],
       })
 
-      for (let member of members.values()) {
+      for (const member of members.values()) {
         if (
           member.user.username === userData[0] &&
           member.user.discriminator === userData[1]
@@ -535,7 +535,7 @@ export async function getUserInfoParams(
     // only username
     default:
       {
-        let members = await msg.guild.members.fetch({
+        const members = await msg.guild.members.fetch({
           query: userInfo,
           limit: 1,
         })

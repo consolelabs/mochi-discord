@@ -386,7 +386,7 @@ class Social {
 
     const canvas = Canvas.createCanvas(width, height)
     const ctx = canvas.getContext("2d")
-    var gradient = ctx.createLinearGradient(0, 0, 0, 400)
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400)
     gradient.addColorStop(0, gradientFrom)
     gradient.addColorStop(1, gradientTo)
     return {

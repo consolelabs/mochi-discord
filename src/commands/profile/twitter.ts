@@ -104,7 +104,7 @@ const command: Command = {
   },
   getHelpMessage: async function (msg, _action) {
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
-    let embedMsg = getHelpEmbed()
+    const embedMsg = getHelpEmbed()
       .setTitle(`${PREFIX}twitter`)
       .setThumbnail(PROFILE_THUMBNAIL)
       .addField("_Examples_", `\`${PREFIX}twitter pod_town\``, true)

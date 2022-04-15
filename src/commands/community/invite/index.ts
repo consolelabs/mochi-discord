@@ -28,7 +28,7 @@ const command: Command = {
       return await actionObj.getHelpMessage(msg)
     } else {
       const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
-      let embed = getHelpEmbed()
+      const embed = getHelpEmbed()
         .setThumbnail(
           "https://cdn.discordapp.com/emojis/900748086513639454.png?size=240"
         )
