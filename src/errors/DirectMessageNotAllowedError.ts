@@ -1,5 +1,5 @@
 import { Message, TextChannel } from "discord.js"
-import { getErrorEmbed } from "utils/discord"
+import { getErrorEmbed } from "utils/discord-embed"
 import { BotBaseError } from "./BaseError"
 
 export class DirectMessageNotAllowedError extends BotBaseError {
@@ -23,10 +23,9 @@ export class DirectMessageNotAllowedError extends BotBaseError {
       content: `${this.discordMessage.author}`,
       embeds: [
         getErrorEmbed({
+          msg: this.discordMessage,
           title: "DM not enabled",
-          message: `<@!${this.discordMessage.author.id}>, could not send you a direct message.\nPlease make sure that you have enabled \`Allow direct messages from server members\` in User Settings.`,
-          discordMsg: this.discordMessage,
-          avatarFooter: true,
+          description: `<@!${this.discordMessage.author.id}>, could not send you a direct message.\nPlease make sure that you have enabled \`Allow direct messages from server members\` in User Settings.`,
           image: "https://i.imgur.com/ctGqgyf.png",
         }),
       ],

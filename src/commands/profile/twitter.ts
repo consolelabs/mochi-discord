@@ -1,20 +1,21 @@
 import { Command } from "types/common"
 import maskAddress, {
   emojis,
+  getCommandArguments,
   getEmbedFooter,
   getEmoji,
-  getHelpEmbed,
   getListCommands,
-} from "utils/discord"
+} from "utils/common"
 import Profile, { User } from "modules/profile"
 import { MessageEmbed } from "discord.js"
-import { PREFIX, PROFILE_THUMBNAIL } from "env"
+import { PREFIX, PROFILE_THUMBNAIL } from "utils/constants"
 import twitter from "modules/twitter"
 import {
   TwitterHandleNotFoundError,
   UserNotFoundError,
   UserNotVerifiedError,
 } from "errors"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 const command: Command = {
   id: "twitter",
@@ -25,7 +26,7 @@ const command: Command = {
     let target
     let user: User
 
-    const args = msg.content.split(" ")
+    const args = getCommandArguments(msg)
     if (args.length < 2) {
       return { messageOptions: await this.getHelpMessage(msg, action, true) }
     }
@@ -104,21 +105,17 @@ const command: Command = {
   },
   getHelpMessage: async function (msg, _action) {
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
-    const embedMsg = getHelpEmbed()
-      .setTitle(`${PREFIX}twitter`)
-      .setThumbnail(PROFILE_THUMBNAIL)
-      .addField("_Examples_", `\`${PREFIX}twitter pod_town\``, true)
-      .setDescription(
-        `\`\`\`${"Link twitter to your profile"}.\`\`\`\n${getListCommands(
-          replyEmoji ?? "╰ ",
-          {
-            twitter: {
-              command: "twitter",
-              name: `Use \`${PREFIX}twitter <@handle | handle | twitter.com/profile>\` to perform this action.`,
-            },
-          }
-        )}`
-      )
+    const embedMsg = composeEmbedMessage(msg, {
+      description: `\`\`\`${"Link twitter to your profile"}.\`\`\`\n${getListCommands(
+        replyEmoji ?? "╰ ",
+        {
+          twitter: {
+            command: "twitter",
+            name: `Use \`${PREFIX}twitter <@handle | handle | twitter.com/profile>\` to perform this action.`,
+          },
+        }
+      )}`,
+    }).addField("_Examples_", `\`${PREFIX}twitter abaddeed\``, true)
     return {
       embeds: [embedMsg],
     }

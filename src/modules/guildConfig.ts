@@ -108,6 +108,7 @@ class GuildConfig {
     message: Message,
     commandObject: Command
   ) {
+    if (message.channel.type === "DM") return
     const isInScoped = await this.commandIsScoped(
       message.guildId,
       commandObject.category,

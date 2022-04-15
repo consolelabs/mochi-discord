@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { workInProgress } from "utils/discord"
+import { workInProgress } from "utils/discord-embed"
 
 const command: Command = {
   id: "invite_leaderboard",

@@ -1,5 +1,5 @@
-import { Message, MessageEmbed, TextChannel } from "discord.js"
-import { getEmbedFooter } from "utils/discord"
+import { Message, TextChannel } from "discord.js"
+import { getErrorEmbed } from "utils/discord-embed"
 import { BotBaseError } from "./BaseError"
 
 export class UserNotFoundError extends BotBaseError {
@@ -13,7 +13,7 @@ export class UserNotFoundError extends BotBaseError {
   }: {
     address?: string
     discordId?: string
-    guildId: string
+    guildId?: string
     message: Message
   }) {
     super()
@@ -21,7 +21,7 @@ export class UserNotFoundError extends BotBaseError {
     this.discordMessage = message
     const channel = message.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild.name,
+      guild: message.guild?.name,
       channel: channel.name,
       user: message.author.tag,
       data: { address, discordId, guildId },
@@ -30,14 +30,14 @@ export class UserNotFoundError extends BotBaseError {
 
   handle() {
     super.handle()
-    const embed = new MessageEmbed()
-      .setColor("#d91c22")
-      .setTitle("User not found")
-      .setDescription("The user is invalid or not a member")
-      .setFooter(
-        getEmbedFooter([`${this.discordMessage.author.tag}`]),
-        this.discordMessage.author.avatarURL()
-      )
-    this.discordMessage.channel.send({ embeds: [embed] })
+    this.discordMessage.channel.send({
+      embeds: [
+        getErrorEmbed({
+          msg: this.discordMessage,
+          title: "User not found",
+          description: "The user is invalid or not a member",
+        }),
+      ],
+    })
   }
 }

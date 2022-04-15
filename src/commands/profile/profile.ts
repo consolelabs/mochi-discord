@@ -1,7 +1,7 @@
 import { Message, SelectMenuInteraction, User } from "discord.js"
 import { InvalidInputError } from "errors"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
-import { isInteraction } from "utils/discord"
+import { isInteraction } from "utils/common"
 import walletAssetAllocation from "./wallet-asset-allocation"
 
 const choices: Record<string, (user: User, msg: Message) => Promise<any>> = {

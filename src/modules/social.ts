@@ -491,7 +491,6 @@ class Social {
   }
 
   getAirdropOptions(args: string[], discordId: string, msg: Message) {
-    const msgContent = msg.content.replace(/  +/g, " ").trim()
     const options: { duration: number; maxEntries: number } = {
       duration: 180, // in secs
       maxEntries: 0,
@@ -507,20 +506,20 @@ class Social {
     }
 
     const durationReg = /in\s+\d+[hms]/
-    const durationIdx = msgContent.search(durationReg)
+    const durationIdx = msg.content.search(durationReg)
     if (durationIdx !== -1) {
-      const timeStr = msgContent
-        .substr(durationIdx)
+      const timeStr = msg.content
+        .substring(durationIdx)
         .replace(/in\s+/, "")
         .split(" ")[0]
       options.duration = this.convertToSeconds(timeStr)
     }
 
     const maxEntriesReg = /for\s+\d+/
-    const maxEntriesIdx = msgContent.search(maxEntriesReg)
+    const maxEntriesIdx = msg.content.search(maxEntriesReg)
     if (maxEntriesIdx !== -1) {
-      options.maxEntries = +msgContent
-        .substr(maxEntriesIdx)
+      options.maxEntries = +msg.content
+        .substring(maxEntriesIdx)
         .replace(/for\s+/, "")
         .split(" ")[0]
     }

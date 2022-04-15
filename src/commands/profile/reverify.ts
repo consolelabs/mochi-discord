@@ -5,14 +5,14 @@ import {
   MessageActionRow,
   MessageButton,
 } from "discord.js"
-import { PREFIX } from "../../env"
-import { getHelpEmbed } from "../../utils/discord"
+import { PREFIX } from "utils/constants"
 import Profile from "modules/profile"
 import {
   DirectMessageNotAllowedError,
   BotBaseError,
   UserNotVerifiedError,
 } from "errors"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 async function reverify(msg: Message) {
   try {
@@ -66,13 +66,10 @@ const command: Command = {
   category: "Profile",
   name: "Reverify",
   run: reverify,
-  getHelpMessage: async function () {
-    const embedMsg = getHelpEmbed("Reverify")
-      .setTitle(`${PREFIX}reverify`)
-      .addField("_Examples_", `\`${PREFIX}reverify\``, true)
-      .setDescription(
-        `\`\`\`In case you need to re-verify with a different address.\`\`\``
-      )
+  getHelpMessage: async function (msg) {
+    const embedMsg = composeEmbedMessage(msg, {
+      description: `\`\`\`In case you need to re-verify with a different address.\`\`\``,
+    }).addField("_Examples_", `\`${PREFIX}reverify\``, true)
     return { embeds: [embedMsg] }
   },
   canRunWithoutAction: true,

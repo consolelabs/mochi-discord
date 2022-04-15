@@ -1,14 +1,9 @@
 import { Command } from "types/common"
-import { Message, MessageEmbed } from "discord.js"
-import { PREFIX, PROFILE_THUMBNAIL, SOCIAL_COLOR } from "env"
-import {
-  getEmbedFooter,
-  getEmoji,
-  getHeader,
-  getHelpEmbed,
-  roundFloatNumber,
-} from "utils/discord"
+import { Message } from "discord.js"
+import { PREFIX } from "utils/constants"
+import { getEmoji, getHeader, roundFloatNumber, thumbnails } from "utils/common"
 import Social from "modules/social"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 const command: Command = {
   id: "balances",
@@ -17,17 +12,13 @@ const command: Command = {
   category: "Defi",
   run: async function balances(msg: Message) {
     const data = await Social.discordWalletBalances(msg.author.id, msg.guildId)
-
-    const description = ""
     const supportedTokens = (await Social.getSupportedTokens()).map((token) =>
       token.symbol.toUpperCase()
     )
 
-    const embedMsg = new MessageEmbed()
-      .setColor(SOCIAL_COLOR)
-      .setAuthor(`${msg.author.username}'s wallet`)
-      .setTitle("Your balances")
-      .setDescription(description)
+    const embedMsg = composeEmbedMessage(msg, {
+      title: "Your balances",
+    })
 
     const blankEmoji = getEmoji("blank")
     for (const tokenSymbol of supportedTokens) {
@@ -45,13 +36,10 @@ const command: Command = {
     const totalBalanceInUSD = Object.values(data.balances_in_usd).reduce(
       (prev, cur) => prev + cur
     )
-    embedMsg
-      .addField(
-        "Estimated total (U.S. dollar)",
-        `**$${roundFloatNumber(totalBalanceInUSD, 4)}**`
-      )
-      .setFooter(getEmbedFooter([msg.author.tag]), msg.author.avatarURL())
-      .setTimestamp()
+    embedMsg.addField(
+      "Estimated total (U.S. dollar)",
+      `**$${roundFloatNumber(totalBalanceInUSD, 4)}**`
+    )
 
     return {
       messageOptions: {
@@ -60,12 +48,11 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async () => {
-    const embedMsg = getHelpEmbed("Balances")
-      .setThumbnail(PROFILE_THUMBNAIL)
-      .setTitle(`${PREFIX}balances`)
-      .addField("_Examples_", `\`${PREFIX}balances\``)
-      .setDescription(`\`\`\`Check your balances.\`\`\``)
+  getHelpMessage: async (msg) => {
+    const embedMsg = composeEmbedMessage(msg, {
+      thumbnail: thumbnails.TOKENS,
+      description: `\`\`\`Check your balances.\`\`\``,
+    }).addField("_Examples_", `\`${PREFIX}balances\``)
     return { embeds: [embedMsg] }
   },
   canRunWithoutAction: true,

@@ -1,4 +1,4 @@
-import { Message, MessageOptions } from "discord.js"
+import { ColorResolvable, Message, MessageOptions } from "discord.js"
 import { SetOptional } from "type-fest"
 import { CommandChoiceHandlerOptions } from "utils/CommandChoiceManager"
 
@@ -33,3 +33,15 @@ export type Command = {
   inactivityTimeout?: number
   isComplexCommand?: boolean
 }
+
+export type EmbedProperties = {
+  title?: string
+  description?: string
+  thumbnail?: string
+  color?: string | ColorResolvable
+  footer?: string[]
+  timestamp?: Date | null
+  image?: string
+  author?: string[]
+}
+

@@ -7,17 +7,20 @@ import {
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { PREFIX } from "env"
+import { PREFIX } from "utils/constants"
 import {
-  composeDiscordExitButton,
-  composeDiscordSelectionRow,
+  getCommandArguments,
   getEmbedFooter,
   getEmoji,
   getHeader,
-  getHelpEmbed,
   roundFloatNumber,
   thumbnails,
-} from "utils/discord"
+} from "utils/common"
+import {
+  composeDiscordSelectionRow,
+  composeDiscordExitButton,
+  composeEmbedMessage,
+} from "utils/discord-embed"
 import Social from "modules/social"
 import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
@@ -66,23 +69,20 @@ const command: Command = {
   name: "Ticker",
   category: "Defi",
   run: async function (msg) {
-    const args = msg.content.split(" ")
+    const args = getCommandArguments(msg)
     const query = !args[1].includes("/") ? `${args[1]}/usd` : args[1]
     const [coinId, currency] = query.split("/")
     const coin = await Social.getCoinCurrentData(msg, coinId)
     const { market_data } = coin
     const blank = getEmoji("blank")
 
-    const embedMsg = new MessageEmbed()
-      .setColor(
-        Social.getChartColorConfig(coin.id, 0, 0).borderColor as HexColorString
-      )
-      .setAuthor(coin.name, coin.image.small)
-      .setFooter(
-        getEmbedFooter(["Data fetched from CoinGecko.com"]),
-        msg.author.avatarURL()
-      )
-      .setTimestamp()
+    const embedMsg = composeEmbedMessage(msg, {
+      color: Social.getChartColorConfig(coin.id, 0, 0)
+        .borderColor as HexColorString,
+      author: [coin.name, coin.image.small],
+      footer: ["Data fetched from CoinGecko.com"],
+      image: "attachment://chart.png",
+    })
       .addField(
         `Market cap (${currency.toUpperCase()})`,
         `${numberWithCommas(
@@ -127,7 +127,7 @@ const command: Command = {
       id: coin.id,
       currency,
     })
-    embedMsg.setImage("attachment://chart.png")
+    // embedMsg.setImage()
 
     const getDropdownOptionDescription = (daysAgo: number) =>
       `${Social.getDateStr(
@@ -195,16 +195,15 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async () => {
-    const embedMsg = getHelpEmbed("Ticker")
-      .setThumbnail(thumbnails.TOKENS)
-      .setTitle(`${PREFIX}ticker`)
+  getHelpMessage: async (msg) => {
+    const embedMsg = composeEmbedMessage(msg, {
+      thumbnail: thumbnails.TOKENS,
+      description: `\`\`\`Display coin price and market cap.\nData is fetched from [CoinGecko](https://coingecko.com/)\`\`\``,
+    })
+      .addField("_Usage_", `\`${PREFIX}ticker <token>\``)
       .addField(
         "_Examples_",
         `\`${PREFIX}ticker fantom\` or \`${PREFIX}ticker ftm\``
-      )
-      .setDescription(
-        `\`\`\`Display coin price and market cap.\nData is fetched from [CoinGecko](https://coingecko.com/)\`\`\``
       )
     return { embeds: [embedMsg] }
   },

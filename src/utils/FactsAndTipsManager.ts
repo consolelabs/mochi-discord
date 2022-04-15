@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "env"
+import { PREFIX } from "utils/constants"
 
 export class FactsAndTipsManager {
   private messages: [string, "fact" | "tip"][] = []

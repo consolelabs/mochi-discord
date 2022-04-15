@@ -1,14 +1,7 @@
 import { Command } from "types/common"
-import { MessageEmbed } from "discord.js"
-import { PREFIX, SOCIAL_COLOR } from "env"
-import {
-  getEmbedFooter,
-  getEmoji,
-  getHeader,
-  getHelpEmbed,
-  thumbnails,
-} from "utils/discord"
+import { getEmoji, getHeader, thumbnails } from "utils/common"
 import Social from "modules/social"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 const command: Command = {
   id: "tokens",
@@ -22,26 +15,24 @@ const command: Command = {
       const tokenEmoji = getEmoji(token.symbol)
       description += `${tokenEmoji} **${token.symbol.toUpperCase()}**\n`
     }
-    const embedMsg = new MessageEmbed()
-      .setColor(SOCIAL_COLOR)
-      .setAuthor("Supported tokens")
-      .setDescription(description)
-      .setFooter(getEmbedFooter([msg.author.tag]), msg.author.avatarURL())
-      .setTimestamp()
 
     return {
       messageOptions: {
-        embeds: [embedMsg],
+        embeds: [
+          composeEmbedMessage(msg, {
+            author: ["Supported tokens"],
+            description,
+          }),
+        ],
         content: getHeader("View all supported tokens", msg.author),
       },
     }
   },
-  getHelpMessage: async () => {
-    const embedMsg = getHelpEmbed("Tokens")
-      .setThumbnail(thumbnails.TOKENS)
-      .setTitle(`${PREFIX}tokens`)
-      .addField("_Examples_", `\`${PREFIX}tokens\``)
-      .setDescription(`\`\`\`Check the list of supported tokens.\`\`\``)
+  getHelpMessage: async (msg) => {
+    const embedMsg = composeEmbedMessage(msg, {
+      thumbnail: thumbnails.TOKENS,
+      description: `\`\`\`Check the list of supported tokens.\`\`\``,
+    })
     return { embeds: [embedMsg] }
   },
   canRunWithoutAction: true,

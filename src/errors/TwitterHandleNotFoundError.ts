@@ -1,5 +1,5 @@
 import { Message, TextChannel } from "discord.js"
-import { getErrorEmbed } from "utils/discord"
+import { getErrorEmbed } from "utils/discord-embed"
 import { BotBaseError } from "./BaseError"
 
 export class TwitterHandleNotFoundError extends BotBaseError {
@@ -21,10 +21,9 @@ export class TwitterHandleNotFoundError extends BotBaseError {
     this.discordMessage.channel.send({
       embeds: [
         getErrorEmbed({
+          msg: this.discordMessage,
           title: "Twitter handle missing",
-          message: "Please specify a twitter handle e.g `$twitter your_handle`",
-          discordMsg: this.discordMessage,
-          avatarFooter: true,
+          description: "Please specify a twitter handle e.g `$twitter your_handle`",
         }),
       ],
     })

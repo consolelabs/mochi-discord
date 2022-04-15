@@ -10,7 +10,7 @@ import {
 } from "discord.js"
 import { SetOptional, SetRequired } from "type-fest"
 import ChannelLogger from "./ChannelLogger"
-import { inactivityResponse } from "./discord"
+import { inactivityResponse } from "./common"
 
 export type CommandChoiceHandlerResult = {
   messageOptions: InteractionReplyOptions | MessageOptions

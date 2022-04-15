@@ -3,12 +3,12 @@ import { CommandChoiceHandlerResult } from "utils/CommandChoiceManager"
 import {
   balanceIcons,
   chainEmojis,
-  composeDiscordExitButton,
   getEmbedFooter,
   getEmoji,
   getHeader,
   thumbnails,
-} from "utils/discord"
+} from "utils/common"
+import { composeDiscordExitButton } from "utils/discord-embed"
 import profile from "./index"
 import Profile from "modules/profile"
 import Portfolio from "modules/portfolio"

@@ -1,5 +1,5 @@
 import { Message, TextChannel } from "discord.js"
-import { getInvalidInputEmbed } from "utils/discord"
+import { getInvalidInputEmbed } from "utils/discord-embed"
 import { BotBaseError } from "./BaseError"
 
 export class InvalidInputError extends BotBaseError {
@@ -20,7 +20,7 @@ export class InvalidInputError extends BotBaseError {
     super.handle()
     this.discordMessage.delete().catch(() => {})
     const msg = await this.discordMessage.channel.send({
-      embeds: [getInvalidInputEmbed()],
+      embeds: [getInvalidInputEmbed(this.discordMessage)],
     })
 
     setTimeout(() => {

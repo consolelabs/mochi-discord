@@ -4,7 +4,7 @@ import { BotBaseError } from "errors"
 import { logger } from "logger"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
-import { getLoadingEmbed } from "utils/discord"
+import { getLoadingEmbed } from "utils/discord-embed"
 import { Event } from "."
 import profile from "../modules/profile"
 
@@ -32,12 +32,7 @@ export default {
             // TODO: refactor this
             await interaction.reply({
               ephemeral: interaction.customId !== "ticker_view_option",
-              embeds: [
-                await getLoadingEmbed({
-                  channel: interaction.channel,
-                  author: interaction.user,
-                } as Message),
-              ],
+              embeds: [await getLoadingEmbed(msg)],
             })
           }
           const { messageOptions, commandChoiceOptions } =
