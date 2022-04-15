@@ -59,7 +59,7 @@ const command: Command = {
     }
   },
   getHelpMessage: async (_msg) => {
-    let embedMsg = getHelpEmbed("Tip")
+    const embedMsg = getHelpEmbed("Tip")
       .setThumbnail(thumbnails.TIP)
       .setTitle(`${PREFIX}tip`)
       .addField("_Usage_", `\`${PREFIX}tip @user <amount> <token>\``)

@@ -5,7 +5,7 @@ import { InsufficientBalanceError } from "errors/InsufficientBalanceError"
 import fetch from "node-fetch"
 import {
   DiscordWalletTransferRequest,
-  Currency,
+  Token,
   DiscordWalletWithdrawRequest,
   DiscordWalletBalances,
 } from "types"
@@ -104,8 +104,9 @@ class Social {
       }
     }
 
-    const amount = parseFloat(args[args.length - 2])
-    if (isNaN(amount) || amount <= 0) {
+    const amountArg = args[args.length - 2].toLowerCase()
+    const amount = parseFloat(amountArg)
+    if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
       throw new DiscordWalletTransferError({
         discordId: fromDiscordId,
         guildId: msg.guildId,
@@ -135,6 +136,7 @@ class Social {
       guildID: msg.guildId,
       channelID: msg.channelId,
       each,
+      all: amountArg === "all",
     }
   }
 
@@ -148,9 +150,9 @@ class Social {
       }
     )
 
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      if (json.error.includes("balance")) {
+    const { errors, data } = await resp.json()
+    if (errors && errors.length && data == undefined) {
+      if (errors[0].includes("balance")) {
         throw new InsufficientBalanceError({
           discordId: msg.author.id,
           guildId: msg.guildId,
@@ -163,10 +165,10 @@ class Social {
         message: msg,
       })
     }
-    return json
+    return data
   }
 
-  public async getSupportedTokens(): Promise<Currency[]> {
+  public async getSupportedTokens(): Promise<Token[]> {
     const resp = await fetch(
       `${API_SERVER_HOST}/api/v1/user/in-discord-wallet/tokens`,
       {
@@ -284,26 +286,20 @@ class Social {
     id: string,
     currency: string,
     days: number
-  ): Promise<any> {
+  ): Promise<{
+    timestamps: string[]
+    prices: number[]
+    from: string
+    to: string
+  }> {
     const resp = await fetch(
-      `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=${currency}&days=${days}`,
+      `${API_SERVER_HOST}/api/v1/defi/market-chart?coin_id=${id}&currency=${currency}&days=${days}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       }
     )
     if (resp.status !== 200) {
-      if (resp.status === 404) {
-        // try to search by symbol
-        const coins = await this.searchForCoins(id)
-        if (coins && coins.length)
-          return await this.getHistoricalMarketData(
-            message,
-            coins[0].id,
-            currency,
-            days
-          )
-      }
       throw new InvalidInputError({ message })
     }
 
@@ -311,7 +307,7 @@ class Social {
     if (json.error !== undefined) {
       throw new Error(json.error)
     }
-    return json
+    return json.data
   }
 
   async searchForCoins(query: string) {
@@ -336,13 +332,6 @@ class Social {
     return json.coins.filter(
       (coin: any) => coin.symbol.toLowerCase() === query.toLowerCase()
     )
-  }
-
-  transformChartData(prices: any[], timeFormat?: string) {
-    return {
-      timestamps: prices.map((p) => dayjs(p[0]).format(timeFormat ?? "MM-DD")),
-      prices: prices.map((p) => +p[1].toString()),
-    }
   }
 
   public getDateStr(timestamp: number) {
@@ -386,7 +375,7 @@ class Social {
 
     const canvas = Canvas.createCanvas(width, height)
     const ctx = canvas.getContext("2d")
-    var gradient = ctx.createLinearGradient(0, 0, 0, 400)
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400)
     gradient.addColorStop(0, gradientFrom)
     gradient.addColorStop(1, gradientTo)
     return {
@@ -406,20 +395,12 @@ class Social {
     currency: string
     days?: number
   }) {
-    const historicalData = await this.getHistoricalMarketData(
+    const { timestamps, prices, from, to } = await this.getHistoricalMarketData(
       msg,
       id,
       currency,
       days
     )
-    const from = this.getDateStr(historicalData.prices[0][0])
-    const to = this.getDateStr(
-      historicalData.prices[historicalData.prices.length - 1][0]
-    )
-    const { timestamps, prices } = this.transformChartData(
-      historicalData.prices
-    )
-
     const width = 970
     const height = 650
 

@@ -10,7 +10,6 @@ import {
   emojis,
   getHelpEmbed,
   getListCommands,
-  onlyRunInBotChannel,
 } from "../../utils/discord"
 import Profile from "modules/profile"
 import { DirectMessageNotAllowedError, BotBaseError } from "errors"
@@ -20,7 +19,7 @@ async function verify(msg: Message) {
     const json = await Profile.generateVerification(msg.author.id, msg.guildId)
 
     switch (json.error) {
-      case "already have a pod identity":
+      case "already have a pod identity": {
         const replyMsg = new MessageEmbed()
           .setTitle("You already had an identity")
           .setDescription(`${json.address}`)
@@ -28,7 +27,8 @@ async function verify(msg: Message) {
         // send
         await msg.author.send({ embeds: [replyMsg] })
         break
-      case undefined:
+      }
+      case undefined: {
         // send
         const verifyMsg = new MessageEmbed()
           .setTitle("Let's setup your identity")
@@ -48,6 +48,7 @@ async function verify(msg: Message) {
           components: [connectMetamask],
         })
         break
+      }
       default:
         throw new BotBaseError(msg)
     }
@@ -64,11 +65,10 @@ const command: Command = {
   command: "verify",
   category: "Profile",
   name: "Verify",
-  checkBeforeRun: onlyRunInBotChannel,
   run: verify,
   getHelpMessage: async function (msg) {
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
-    let embedMsg = getHelpEmbed("Verify Address")
+    const embedMsg = getHelpEmbed("Verify Address")
       .setTitle(`${PREFIX}verify`)
       .addField("_Examples_", `\`${PREFIX}verify\``, true)
       .setDescription(

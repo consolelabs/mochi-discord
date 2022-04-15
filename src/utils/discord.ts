@@ -22,7 +22,6 @@ import {
 import { TwitterHandleNotFoundError, UserNotFoundError } from "errors"
 import twitter from "modules/twitter"
 import { DISCORD_ADMIN_GROUP, DOT, VERTICAL_BAR } from "../env"
-import guildConfig from "../modules/guildConfig"
 import Profile from "modules/profile"
 import { Command } from "types/common"
 
@@ -101,32 +100,18 @@ export function composeDiscordBackButton(customId?: string): MessageActionRow {
 
 export async function inactivityResponse(user: User): Promise<MessageOptions> {
   return {
-    content: `> **${getEmoji("revoke")} ${VERTICAL_BAR} ${
-      user.tag
-    }, the command was closed due to inactivity.**`,
+    content: `> **${getEmoji("revoke")} ${VERTICAL_BAR} ${user.tag
+      }, the command was closed due to inactivity.**`,
   }
 }
 
 export function getHeader(text: string, user: User, ctas?: string) {
-  return `> **${text} ${DOT} [** ${getEmoji("paw")} ${user.tag} **]${
-    typeof ctas === "string" && ctas !== "" ? ` ${DOT}${ctas}` : ""
-  }**`
+  return `> **${text} ${DOT} [** ${getEmoji("paw")} ${user.tag} **]${typeof ctas === "string" && ctas !== "" ? ` ${DOT}${ctas}` : ""
+    }**`
 }
 
 export function getEmbedFooter(texts: string[]): string {
   return texts.join(` ${DOT} `)
-}
-
-export async function onlyRunInBotChannel(msg: Message) {
-  if (msg.channel.id !== guildConfig.getVerifyChannelId(msg.guildId)) {
-    msg.channel.send(
-      `sur! head to <#${guildConfig.getVerifyChannelId(
-        msg.guildId
-      )}> to run your command`
-    )
-    return false
-  }
-  return true
 }
 
 export async function onlyRunInAdminGroup(msg: Message) {
@@ -136,7 +121,7 @@ export async function onlyRunInAdminGroup(msg: Message) {
 
 export async function workInProgress(msg: Message): Promise<MessageOptions> {
   const emoji = msg.client.emojis.cache.get(emojis.NEKO_COOL)
-  let embed = new MessageEmbed()
+  const embed = new MessageEmbed()
   embed
     .setColor("#F4BE5B")
     .setThumbnail(
@@ -381,9 +366,8 @@ export function getEmoji(key: string, animated?: boolean) {
   if (!emojis[key.toUpperCase()]) {
     return ""
   }
-  return `<${animated ? "a" : ""}:${key.replace(/-/g, "_").toLowerCase()}:${
-    emojis[key.toUpperCase()]
-  }>`
+  return `<${animated ? "a" : ""}:${key.replace(/-/g, "_").toLowerCase()}:${emojis[key.toUpperCase()]
+    }>`
 }
 
 export function getPaginatedData<T = any>(
@@ -463,7 +447,7 @@ export function getPaginationRow(page: number, totalPages: number) {
   return row
 }
 
-export function roundFloatNumber(n: number, fractionDigits: number = 1) {
+export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
@@ -486,13 +470,13 @@ export async function getUserInfoParams(
       params.address = userInfo
       break
     // username#discriminator
-    case usernameReg.test(userInfo):
-      let userData = userInfo.split("#")
-      let members = await msg.guild.members.fetch({
+    case usernameReg.test(userInfo): {
+      const userData = userInfo.split("#")
+      const members = await msg.guild.members.fetch({
         query: userData[0],
       })
 
-      for (let member of members.values()) {
+      for (const member of members.values()) {
         if (
           member.user.username === userData[0] &&
           member.user.discriminator === userData[1]
@@ -509,7 +493,7 @@ export async function getUserInfoParams(
         })
       }
       break
-
+    }
     // set twitter handle
     case action === "twitter":
       params.discordId = args[2].match(/\d+/)?.[0]
@@ -535,7 +519,7 @@ export async function getUserInfoParams(
     // only username
     default:
       {
-        let members = await msg.guild.members.fetch({
+        const members = await msg.guild.members.fetch({
           query: userInfo,
           limit: 1,
         })

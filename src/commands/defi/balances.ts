@@ -18,7 +18,7 @@ const command: Command = {
   run: async function balances(msg: Message) {
     const data = await Social.discordWalletBalances(msg.author.id, msg.guildId)
 
-    let description = ""
+    const description = ""
     const supportedTokens = (await Social.getSupportedTokens()).map((token) =>
       token.symbol.toUpperCase()
     )
@@ -33,7 +33,7 @@ const command: Command = {
     for (const tokenSymbol of supportedTokens) {
       const tokenEmoji = getEmoji(tokenSymbol)
       let tokenBalance = roundFloatNumber(data.balances[tokenSymbol] ?? 0, 4)
-      let tokenBalanceInUSD = data.balances_in_usd[tokenSymbol]
+      const tokenBalanceInUSD = data.balances_in_usd[tokenSymbol]
       let balanceInfo = `${tokenEmoji} **${tokenBalance}**`
       if (tokenBalanceInUSD !== undefined)
         balanceInfo += ` (≈ $${roundFloatNumber(tokenBalanceInUSD, 2)})`
@@ -61,7 +61,7 @@ const command: Command = {
     }
   },
   getHelpMessage: async () => {
-    let embedMsg = getHelpEmbed("Balances")
+    const embedMsg = getHelpEmbed("Balances")
       .setThumbnail(PROFILE_THUMBNAIL)
       .setTitle(`${PREFIX}balances`)
       .addField("_Examples_", `\`${PREFIX}balances\``)

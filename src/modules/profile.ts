@@ -1,14 +1,8 @@
-import {
-  API_SERVER_HOST,
-  NEKO_SECRET,
-  PROCESSOR_API_SERVER_HOST,
-  TATSU_API_KEY,
-} from "env"
+import { API_SERVER_HOST, NEKO_SECRET, TATSU_API_KEY } from "env"
 import { logger } from "logger"
 import fetch from "node-fetch"
 import NodeCache from "node-cache"
 import { ethers } from "ethers"
-import dayjs from "dayjs"
 import {
   ButtonInteraction,
   MessageActionRow,
@@ -178,7 +172,7 @@ class Profile {
     guildId?: string
   }): Promise<Array<UserBalance>> | null {
     try {
-      let reqParam = address ? `address=${address}` : `discord_id=${discordId}`
+      const reqParam = address ? `address=${address}` : `discord_id=${discordId}`
       const resp = await fetch(
         `${API_SERVER_HOST}/api/v1/pod-together/user?${reqParam}&guild_id=${guildId}`,
         {
@@ -218,7 +212,9 @@ class Profile {
           const e1 = new MessageEmbed()
             .setColor("#0099ff")
             .setTitle("You already have a pod identity")
-            .setDescription(`\`\`\`${json.address}\`\`\`\nIf you want to change your address, [click here](https://pod.so/verify?code=${reverify.code}) to re-verify.`)
+            .setDescription(
+              `\`\`\`${json.address}\`\`\`\nIf you want to change your address, [click here](https://pod.so/verify?code=${reverify.code}) to re-verify.`
+            )
           await interaction.editReply({ embeds: [e1] })
           break
         case undefined:
@@ -242,7 +238,6 @@ class Profile {
     } catch (e: any) {
       await interaction.editReply("Something wrong")
       throw e
-      return
     }
   }
 
@@ -261,34 +256,6 @@ class Profile {
     return await resp.json()
   }
 
-  public async getUserPtTransactions(
-    discordId: string
-  ): Promise<UserPtTransaction[]> {
-    const resp = await fetch(
-      `${PROCESSOR_API_SERVER_HOST}/user_transactions?user_discord_id=${discordId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-    if (resp.status !== 200) {
-      throw new Error("Cannot get user transactions")
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
-      .map((d: UserPtTransaction) => ({
-        ...d,
-        timestamp: dayjs(d.created_at).unix(),
-      }))
-      .sort((a: any, b: any) => b.timestamp - a.timestamp)
-  }
-
   public async updateTwitterHandle(body: {
     discordId: string
     twitterHandle: string
@@ -305,7 +272,7 @@ class Profile {
   }
 
   public async getUserGMStreak(discordId: string, guildId: string) {
-    let url = `${API_SERVER_HOST}/api/v1/user/gmstreak?discord_id=${discordId}&guild_id=${guildId}`
+    const url = `${API_SERVER_HOST}/api/v1/user/gmstreak?discord_id=${discordId}&guild_id=${guildId}`
 
     const resp = await fetch(url, {
       method: "GET",
@@ -320,7 +287,7 @@ class Profile {
     guildId: string,
     timestamp: number
   ) {
-    let url = `${API_SERVER_HOST}/api/v1/user/gmstreak/new-gm?discord_id=${discordId}&guild_id=${guildId}&timestamp=${timestamp}`
+    const url = `${API_SERVER_HOST}/api/v1/user/gmstreak/new-gm?discord_id=${discordId}&guild_id=${guildId}&timestamp=${timestamp}`
 
     const resp = await fetch(url, {
       method: "POST",

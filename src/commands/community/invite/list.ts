@@ -28,7 +28,7 @@ const command: Command = {
     if (user.is_verified) {
       const invitees = await Invite.getInvitees(user.referral_code)
 
-      let msgEmbed = new MessageEmbed()
+      const msgEmbed = new MessageEmbed()
         .setColor("#f06d85")
         .setThumbnail(
           "https://cdn.discordapp.com/emojis/900748086522048512.png?size=240"
@@ -52,7 +52,7 @@ const command: Command = {
     }
   },
   getHelpMessage: async function () {
-    let embedMsg = getHelpEmbed()
+    const embedMsg = getHelpEmbed()
       .setTitle(`${PREFIX}invite list`)
       .addField("_Examples_", `\`${PREFIX}invite list\``, true)
       .setDescription(

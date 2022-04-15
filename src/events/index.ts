@@ -1,9 +1,12 @@
-import { ClientEvents } from "discord.js"
+import { ClientEvents, Collection } from "discord.js"
 import messageCreate from "./messageCreate"
 import ready from "./ready"
 import interactionCreate from "./interactionCreate"
 import messageReactionAdd from "./messageReactionAdd"
 import guildCreate from "./guildCreate"
+import guildMemberAdd from "./guildMemberAdd"
+import inviteDelete from "./inviteDelete"
+import inviteCreate from "./inviteCreate"
 
 export type Event<T extends keyof ClientEvents> = {
   name: T
@@ -11,4 +14,6 @@ export type Event<T extends keyof ClientEvents> = {
   execute: (...data: ClientEvents[T]) => void | Promise<any>
 }
 
-export default [ready, messageCreate, interactionCreate, messageReactionAdd, guildCreate]
+export const invites = new Collection()
+
+export default [ready, messageCreate, interactionCreate, messageReactionAdd, guildCreate, guildMemberAdd, inviteCreate, inviteDelete]

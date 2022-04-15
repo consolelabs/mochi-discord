@@ -1,7 +1,5 @@
 import { originalCommands } from "commands"
 import { Message, MessageEmbed, TextChannel } from "discord.js"
-import { PREFIX } from "env"
-import guildConfig from "modules/guildConfig"
 import { getEmbedFooter } from "utils/discord"
 import { BotBaseError } from "./BaseError"
 
@@ -25,12 +23,9 @@ export class UserNotVerifiedError extends BotBaseError {
 
   handle() {
     super.handle()
-    const verifyCommand = originalCommands.verify.command
     const description = this.isAdmin
       ? "Cannot get user profile due to unverification"
-      : `Please head to <#${guildConfig.getVerifyChannelId(
-          this.discordMessage.guildId
-        )}> and run \`${PREFIX}${verifyCommand}\``
+      : `Cannot get user profile due to unverification`
     const embed = new MessageEmbed()
       .setColor("#d91c22")
       .setTitle("User not verified")

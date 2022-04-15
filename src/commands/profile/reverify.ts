@@ -6,7 +6,7 @@ import {
   MessageButton,
 } from "discord.js"
 import { PREFIX } from "../../env"
-import { getHelpEmbed, onlyRunInBotChannel } from "../../utils/discord"
+import { getHelpEmbed } from "../../utils/discord"
 import Profile from "modules/profile"
 import {
   DirectMessageNotAllowedError,
@@ -28,7 +28,7 @@ async function reverify(msg: Message) {
           message: msg,
           discordId: msg.author.id,
         })
-      case undefined:
+      case undefined: {
         // send
         const verifyMsg = new MessageEmbed()
           .setTitle("Let's update your identity")
@@ -48,6 +48,7 @@ async function reverify(msg: Message) {
           components: [connectMetamask],
         })
         break
+      }
       default:
         throw new BotBaseError(msg)
     }
@@ -64,10 +65,9 @@ const command: Command = {
   command: "reverify",
   category: "Profile",
   name: "Reverify",
-  checkBeforeRun: onlyRunInBotChannel,
   run: reverify,
   getHelpMessage: async function () {
-    let embedMsg = getHelpEmbed("Reverify")
+    const embedMsg = getHelpEmbed("Reverify")
       .setTitle(`${PREFIX}reverify`)
       .addField("_Examples_", `\`${PREFIX}reverify\``, true)
       .setDescription(

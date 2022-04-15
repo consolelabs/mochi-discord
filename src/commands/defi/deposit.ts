@@ -64,7 +64,7 @@ const command: Command = {
   category: "Defi",
   run: deposit,
   getHelpMessage: async () => {
-    let embedMsg = getHelpEmbed("Deposit")
+    const embedMsg = getHelpEmbed("Deposit")
       .setThumbnail(PROFILE_THUMBNAIL)
       .setTitle(`${PREFIX}deposit`)
       .addField("_Examples_", `\`${PREFIX}deposit\``, true)

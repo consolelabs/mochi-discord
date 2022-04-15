@@ -4,12 +4,16 @@ import { PREFIX } from "../env"
 import { logger } from "../logger"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
+import client from "../index"
+import { invites } from "./index"
+
+const wait = require("timers/promises").setTimeout
 
 export default {
   name: "ready",
   once: false,
   execute: async (listener: Discord.Client) => {
-    logger.info("Bot is ready")
+    logger.info(`Bot [${listener.user.username}] is ready`)
     ChannelLogger.ready(listener)
     CommandChoiceManager.client = listener
     // get balance and show in presence message every 10m
@@ -26,14 +30,12 @@ export default {
     }
     runAndSetInterval(presence, 600000)
 
-    // if (ENV !== "dev") {
-    //   // interval update roles
-    //   const podTogetherRolesUpdater = async () => {
-    //     Roles.updatePodTogetherRoles(listener)
-    //   }
+    client.guilds.cache.forEach(async (guild) => {
+      const firstInvites = await guild.invites.fetch()
+      invites.set(guild.id, new Discord.Collection(firstInvites.map((invite) => [invite.code, invite.uses])))
+    })
 
-    //   runAndSetInterval(podTogetherRolesUpdater, 300000) // 5min
-    // }
+    await wait(1000)
   },
 } as Event<"ready">
 

@@ -184,7 +184,7 @@ const command: Command = {
         files: [chart],
         embeds: [embedMsg],
         components: [selectRow, exitBtnRow],
-        content: getHeader("View all supported tokens", msg.author),
+        content: getHeader("View historical market chart", msg.author),
       },
       commandChoiceOptions: {
         userId: msg.author.id,
@@ -196,7 +196,7 @@ const command: Command = {
     }
   },
   getHelpMessage: async () => {
-    let embedMsg = getHelpEmbed("Ticker")
+    const embedMsg = getHelpEmbed("Ticker")
       .setThumbnail(thumbnails.TOKENS)
       .setTitle(`${PREFIX}ticker`)
       .addField(
