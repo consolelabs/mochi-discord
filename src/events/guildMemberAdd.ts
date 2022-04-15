@@ -2,7 +2,7 @@ import { Event } from "."
 import Discord from "discord.js"
 import client from "../index"
 import { invites } from "./index"
-import { LOG_CHANNEL_ID } from "env"
+import { logger } from "../logger"
 import User, { UserInput } from "../modules/users"
 import InviteHistory, {InviteHistoryInput, InviteeCountInput} from "../modules/inviteHistories"
 import guildConfig from "modules/guildConfig"
@@ -19,14 +19,28 @@ export default {
 		const guild = await guildConfig.getGuildConfig(member.guild.id);
 		const logChannel = member.guild.channels.cache.find(channel => channel.id === guild.log_channel_id) as Discord.TextChannel;
 		
-		const indexUserResponse = await User.indexUser(
+		const indexInviterResponse = await User.indexUser(
+			{
+				id: inviter.id,
+				username: inviter.username,
+				guild_id: member.guild.id,
+			} as UserInput
+		)
+		if (indexInviterResponse.error) {
+			logger.error(`Error indexing inviter: ${indexInviterResponse.error}`)
+			logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
+			return;
+		}
+		
+		const indexInviteeResponse = await User.indexUser(
 			{
 				id: member.user.id,
 				username: member.user.username,
 				guild_id: member.guild.id
 			} as UserInput
 		)
-		if (indexUserResponse.error) {
+		if (indexInviteeResponse.error) {
+			logger.error(`Error indexing invitee: ${indexInviteeResponse.error}`)
 			logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
 			return;
 		}
@@ -40,6 +54,7 @@ export default {
 				} as InviteHistoryInput
 			)
 			if (indexInviteHistoryResponse.error) {
+				logger.error(`Error indexing invite history: ${indexInviteHistoryResponse.error}`)
 				logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
 				return;
 			}
@@ -51,6 +66,7 @@ export default {
 				} as InviteeCountInput
 			)
 			if (inviteAmountResponse.error) {
+				logger.error(`Error getting invite amount: ${inviteAmountResponse.error}`)
 				logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
 				return;
 			}
