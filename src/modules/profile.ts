@@ -1,14 +1,8 @@
-import {
-  API_SERVER_HOST,
-  NEKO_SECRET,
-  PROCESSOR_API_SERVER_HOST,
-  TATSU_API_KEY,
-} from "env"
+import { API_SERVER_HOST, NEKO_SECRET, TATSU_API_KEY } from "env"
 import { logger } from "logger"
 import fetch from "node-fetch"
 import NodeCache from "node-cache"
 import { ethers } from "ethers"
-import dayjs from "dayjs"
 import {
   ButtonInteraction,
   MessageActionRow,
@@ -218,7 +212,9 @@ class Profile {
           const e1 = new MessageEmbed()
             .setColor("#0099ff")
             .setTitle("You already have a pod identity")
-            .setDescription(`\`\`\`${json.address}\`\`\`\nIf you want to change your address, [click here](https://pod.so/verify?code=${reverify.code}) to re-verify.`)
+            .setDescription(
+              `\`\`\`${json.address}\`\`\`\nIf you want to change your address, [click here](https://pod.so/verify?code=${reverify.code}) to re-verify.`
+            )
           await interaction.editReply({ embeds: [e1] })
           break
         case undefined:
@@ -242,7 +238,6 @@ class Profile {
     } catch (e: any) {
       await interaction.editReply("Something wrong")
       throw e
-      return
     }
   }
 
@@ -259,34 +254,6 @@ class Profile {
     })
 
     return await resp.json()
-  }
-
-  public async getUserPtTransactions(
-    discordId: string
-  ): Promise<UserPtTransaction[]> {
-    const resp = await fetch(
-      `${PROCESSOR_API_SERVER_HOST}/user_transactions?user_discord_id=${discordId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-    if (resp.status !== 200) {
-      throw new Error("Cannot get user transactions")
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
-      .map((d: UserPtTransaction) => ({
-        ...d,
-        timestamp: dayjs(d.created_at).unix(),
-      }))
-      .sort((a: any, b: any) => b.timestamp - a.timestamp)
   }
 
   public async updateTwitterHandle(body: {

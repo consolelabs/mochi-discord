@@ -7,8 +7,6 @@ if (process.env.JEST_WORKER_ID !== undefined) {
 
 export const PROD = process.env.NODE_ENV === "production"
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN
-export const DISCORD_BOT_MINT_CHANNEL =
-  process.env.DISCORD_BOT_MINT_CHANNEL || ""
 export const DISCORD_BOT_GUILD_ID = process.env.DISCORD_BOT_GUILD_ID || ""
 export const DISCORD_ADMIN_GROUP = process.env.DISCORD_ADMIN_GROUP || ""
 export const DISCORD_POD_TOGETHER_ROLE_ID =
@@ -38,8 +36,6 @@ export const API_SERVER_HOST =
   process.env.API_SERVER_HOST ||
   "https://backend.pod.so" ||
   "http://localhost:8100"
-export const PROCESSOR_API_SERVER_HOST =
-  process.env.PROCESSOR_API_SERVER_HOST || "http://localhost:4000"
 
 export const PREFIX = "$"
 export const ADMIN_PREFIX = "p@"
