@@ -145,8 +145,8 @@ class GuildConfig {
           if (cat === scopeCat) {
             return true
           }
-        default:
           break
+        default:
       }
     }
     return false

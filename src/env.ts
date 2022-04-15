@@ -5,12 +5,11 @@ if (process.env.JEST_WORKER_ID !== undefined) {
   dotenv.config()
 }
 
+export const ENV = process.env.ENV || ""
 export const PROD = process.env.NODE_ENV === "production"
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN
 export const DISCORD_BOT_GUILD_ID = process.env.DISCORD_BOT_GUILD_ID || ""
 export const DISCORD_ADMIN_GROUP = process.env.DISCORD_ADMIN_GROUP || ""
-export const DISCORD_POD_TOGETHER_ROLE_ID =
-  process.env.DISCORD_POD_TOGETHER_ROLE_ID || ""
 
 export const DISCORD_AMPAWSSADOR_CHANNEL =
   process.env.DISCORD_AMPAWSSADOR_CHANNEL || ""
@@ -24,18 +23,8 @@ export const DISCORD_GM_CHANNEL = process.env.DISCORD_GM_CHANNEL || ""
 export const RPC_PROVIDER_URL = process.env.RPC_PROVIDER_URL || ""
 export const PRIVATE_KEY = process.env.PRIVATE_KEY || ""
 
-export const TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY || ""
-export const TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET || ""
-export const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN || ""
-export const TWITTER_ACCESS_TOKEN_SECRET =
-  process.env.TWITTER_ACCESS_TOKEN_SECRET || ""
-
-export const ENV = process.env.ENV || ""
-
 export const API_SERVER_HOST =
-  process.env.API_SERVER_HOST ||
-  "https://backend.pod.so" ||
-  "http://localhost:8100"
+  process.env.API_SERVER_HOST || "http://localhost:8200"
 
 export const PREFIX = "$"
 export const ADMIN_PREFIX = "p@"
