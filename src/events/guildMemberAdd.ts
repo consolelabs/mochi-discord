@@ -27,7 +27,7 @@ export default {
 			} as UserInput
 		)
 		if (indexUserResponse.error) {
-			logChannel.send(`Failed to index user ${inviter.username}`);
+			logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
 			return;
 		}
 		
@@ -40,7 +40,7 @@ export default {
 				} as InviteHistoryInput
 			)
 			if (indexInviteHistoryResponse.error) {
-				logChannel.send(`Failed to index invite history for ${inviter.username}`);
+				logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
 				return;
 			}
 			
@@ -51,7 +51,7 @@ export default {
 				} as InviteeCountInput
 			)
 			if (inviteAmountResponse.error) {
-				logChannel.send(`Failed to get invite amount for ${inviter.username}`);
+				logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
 				return;
 			}
     	logChannel.send(`<@${member.user.id}> has been invited by <@${inviter.id}> and has now ${inviteAmountResponse.data} invices.`)
