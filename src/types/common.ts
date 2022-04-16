@@ -1,4 +1,4 @@
-import { ColorResolvable, Message, MessageOptions } from "discord.js"
+import { ColorResolvable, Message, MessageOptions, User } from "discord.js"
 import { SetOptional } from "type-fest"
 import { CommandChoiceHandlerOptions } from "utils/CommandChoiceManager"
 
@@ -43,5 +43,5 @@ export type EmbedProperties = {
   timestamp?: Date | null
   image?: string
   author?: string[]
+  originalMsgAuthor?: User
 }
-

@@ -20,7 +20,7 @@ export type DiscordWalletWithdrawRequest = {
   all?: boolean
 }
 
-export type Currency = {
+export type Token = {
   id: number
   address: string
   symbol: string
