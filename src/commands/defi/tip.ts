@@ -4,6 +4,7 @@ import {
   getCommandArguments,
   getEmoji,
   getHeader,
+  roundFloatNumber,
   thumbnails,
 } from "utils/common"
 import Social from "modules/social"
@@ -31,9 +32,11 @@ async function tip(msg: Message, args: string[]) {
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TIP,
         author: ["Generous"],
-        description: `${mentionUser(payload.fromDiscordId)} sent ${users} ${
-          data[0].amount
-        } ${tokenEmoji} ${payload.each ? "each" : ""}`,
+        description: `${mentionUser(
+          payload.fromDiscordId
+        )} sent ${users} ${roundFloatNumber(data[0].amount, 4)} ${tokenEmoji} ${
+          payload.each ? "each" : ""
+        }`,
       }),
     ],
   }

@@ -11,7 +11,7 @@ const command: Command = {
   name: "Balances",
   category: "Defi",
   run: async function balances(msg: Message) {
-    const data = await Social.discordWalletBalances(msg.author.id, msg.guildId)
+    const data = await Social.discordWalletBalances(msg.author.id)
     const supportedTokens = (await Social.getSupportedTokens()).map((token) =>
       token.symbol.toUpperCase()
     )

@@ -8,7 +8,6 @@ import {
   MessageComponentInteraction,
 } from "discord.js"
 import { DISCORD_ADMIN_GROUP } from "../env"
-import guildConfig from "../modules/guildConfig"
 import { Command } from "types/common"
 import { DOT, SPACE, VERTICAL_BAR } from "./constants"
 
@@ -74,6 +73,14 @@ export const dappActionEmojis: { [key: string]: string } = {
   BID: "931194309661823006",
   "CONNECT-TWITTER": "932208655313551420",
   "SHARE-TWITTER": "932208655313551420",
+}
+
+export const defaultEmojis: Record<string, string> = {
+  ERROR: ":no_entry_sign:",
+  AIRPLANE: ":airplane:",
+  CHECK: ":white_check_mark:",
+  ARROW_DOWN: ":arrow_heading_down:",
+  ARROW_UP: ":arrow_heading_up:",
 }
 
 export const balanceIcons: { [key: string]: string } = {
