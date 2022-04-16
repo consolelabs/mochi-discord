@@ -63,6 +63,7 @@ export async function confirmAirdrop(
   const endTime = dayjs()
     .add(+duration, "second")
     .toDate()
+  const originalAuthor = await msg.guild.members.fetch(authorId)
   const airdropEmbed = composeEmbedMessage(msg, {
     title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
     description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${amountInUSD})${
@@ -72,6 +73,7 @@ export async function confirmAirdrop(
     }.`,
     footer: ["Ends"],
     timestamp: endTime,
+    originalMsgAuthor: originalAuthor?.user,
   })
   await msg.delete().catch(() => {})
   const reply = await interaction.reply({
@@ -138,12 +140,14 @@ async function checkExpiredAirdrop(
         await Social.discordWalletTransfer(JSON.stringify(req), msg)
       }
 
+      const originalAuthor = await msg.guild.members.fetch(authorId)
       msg.edit({
         embeds: [
           composeEmbedMessage(msg, {
             title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
             footer: [`${participants.length} users joined, ended`],
             description,
+            originalMsgAuthor: originalAuthor?.user,
           }),
         ],
         components: [],

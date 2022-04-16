@@ -110,7 +110,6 @@ export const emojis: { [key: string]: string } = {
   WALLET: "933281364919349279",
   ADDRESS: "933281365254873128",
   BALANCE: "933341119998210058",
-  PORTFOLIO: "933340734273232957",
   SEARCH: "933341511062552626",
   EXIT: "932296011785863239",
   DASH: "928213014824488990",
@@ -148,7 +147,6 @@ export const msgColors: Record<string, ColorResolvable> = {
 
 export const thumbnails: Record<string, string> = {
   HELP: "https://i.imgur.com/uuQhOmH.png",
-  PORTFOLIO: "https://i.imgur.com/t84U7AA.png",
   PROFILE: "https://i.imgur.com/JTCGRO6.png",
   TIP: "https://i.imgur.com/qj7iPqz.png",
   TOKENS: "https://i.imgur.com/hcqO0Wu.png",
@@ -231,4 +229,4 @@ export const isGmMessage = (message: Message) =>
     message.stickers.get("928509218171006986").name === ":gm")
 
 export const getCommandArguments = (message: Message) =>
-  message.content.split(SPACE)
+  message ? message.content.split(SPACE) : []

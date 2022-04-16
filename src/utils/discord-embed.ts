@@ -75,32 +75,43 @@ export async function workInProgress(msg: Message): Promise<MessageOptions> {
   return { embeds: [embed] }
 }
 
-export function composeEmbedMessage(msg: Message, props: EmbedProperties) {
+export function composeEmbedMessage(
+  msg: Message | null,
+  props: EmbedProperties
+) {
   const {
     title,
     description,
     thumbnail,
     color,
-    footer,
+    footer = [],
     timestamp = null,
     image,
     author,
+    originalMsgAuthor,
   } = props
   const args = getCommandArguments(msg)
   const isHelpCommand = args.length > 1 && args[0].includes("help")
+  let authorTag = msg?.author?.tag
+  let authorAvatarURL = msg?.author?.avatarURL()
+  if (originalMsgAuthor) {
+    authorTag = originalMsgAuthor.tag
+    authorAvatarURL = originalMsgAuthor.avatarURL()
+  }
+
   const embed = new MessageEmbed()
     .setTitle(
-      isHelpCommand
+      isHelpCommand && !!msg?.content
         ? msg.content
             .replace("help", EMPTY)
             .replace(SPACE, EMPTY)
             .split(SPACE)[0]
-        : title ?? "Info"
+        : title ?? ""
     )
     .setColor((color ?? msgColors.PRIMARY) as ColorResolvable)
     .setFooter(
-      getEmbedFooter(footer ? [...footer, msg.author.tag] : [msg.author.tag]),
-      msg.author.avatarURL()
+      getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
+      authorAvatarURL
     )
     .setThumbnail(thumbnail ?? PROFILE_THUMBNAIL)
     .setTimestamp(timestamp ?? new Date())
