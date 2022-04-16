@@ -70,7 +70,7 @@ export default {
 				logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
 				return;
 			}
-    	logChannel.send(`<@${member.user.id}> has been invited by <@${inviter.id}> and has now ${inviteAmountResponse.data} invices.`)
+    	logChannel.send(`<@${member.user.id}> has been invited by <@${inviter.id}> and has now ${inviteAmountResponse.data} invites.`)
 		} else {
 			logChannel.send(`<@${member.user.id}> joined using a vanity invite`)
 		}
