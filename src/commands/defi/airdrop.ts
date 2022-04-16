@@ -7,6 +7,7 @@ import {
 } from "discord.js"
 import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
 import {
+  defaultEmojis,
   getCommandArguments,
   getEmoji,
   roundFloatNumber,
@@ -63,7 +64,7 @@ export async function confirmAirdrop(
     .add(+duration, "second")
     .toDate()
   const airdropEmbed = composeEmbedMessage(msg, {
-    title: ":airplane: An airdrop appears",
+    title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
     description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${amountInUSD})${
       +maxEntries !== 0
         ? ` for  ${maxEntries} ${+maxEntries > 1 ? "people" : "person"}`
@@ -131,8 +132,8 @@ async function checkExpiredAirdrop(
           ),
           amount,
           cryptocurrency,
-          guildID: msg.guildId,
-          channelID: msg.channelId,
+          guildId: msg.guildId,
+          channelId: msg.channelId,
         }
         await Social.discordWalletTransfer(JSON.stringify(req), msg)
       }
@@ -140,7 +141,7 @@ async function checkExpiredAirdrop(
       msg.edit({
         embeds: [
           composeEmbedMessage(msg, {
-            title: ":airplane: An airdrop appears",
+            title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
             footer: [`${participants.length} users joined, ended`],
             description,
           }),
@@ -162,7 +163,7 @@ export async function enterAirdrop(
       ephemeral: true,
       embeds: [
         composeEmbedMessage(msg, {
-          title: ":no_entry_sign: Could not enter airdrop",
+          title: `${defaultEmojis.ERROR} Could not enter airdrop`,
           description: "You cannot enter your own airdrops.",
         }),
       ],
@@ -179,7 +180,7 @@ export async function enterAirdrop(
       ephemeral: true,
       embeds: [
         composeEmbedMessage(msg, {
-          title: ":no_entry_sign: Could not enter airdrop",
+          title: `${defaultEmojis.ERROR} Could not enter airdrop`,
           description: "You are already waiting for this airdrop.",
         }),
       ],
@@ -191,7 +192,7 @@ export async function enterAirdrop(
       ephemeral: true,
       embeds: [
         composeEmbedMessage(msg, {
-          title: ":white_check_mark: Entered airdrop",
+          title: `${defaultEmojis.CHECK} Entered airdrop`,
           description: `You will receive your reward in ${duration}s.`,
           footer: ["You will only receive this notification once"],
         }),
@@ -212,7 +213,28 @@ const command: Command = {
     if (args.length < 3) {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
+
     const payload = await Social.getAirdropPayload(msg, args)
+    // check balance
+    const data = await Social.discordWalletBalances(msg.author.id)
+    const currentBal = data.balances[payload.cryptocurrency.toUpperCase()]
+    if (currentBal < payload.amount && !payload.all) {
+      return {
+        messageOptions: {
+          embeds: [
+            Social.composeInsufficientBalanceEmbed(
+              msg,
+              currentBal,
+              payload.amount,
+              payload.cryptocurrency
+            ),
+          ],
+        },
+      }
+    }
+    if (payload.all) payload.amount = currentBal
+
+    // ---------------
     const tokenEmoji = getEmoji(payload.cryptocurrency)
     const currentPrice = roundFloatNumber(
       await Social.getCoinPrice(msg, payload.cryptocurrency)
@@ -234,7 +256,7 @@ const command: Command = {
       }${secs === 0 ? "" : `${secs}s`}`
     }
     const confirmEmbed = composeEmbedMessage(msg, {
-      title: ":airplane: Confirm airdrop",
+      title: `${defaultEmojis.AIRPLANE} Confirm airdrop`,
       description: `Are you sure you want to spend ${amountDescription} on this airdrop?`,
     }).addFields([
       {

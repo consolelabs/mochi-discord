@@ -1,7 +1,12 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
 import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
-import { getCommandArguments, getEmoji, getHeader } from "utils/common"
+import {
+  defaultEmojis,
+  getCommandArguments,
+  getEmoji,
+  getHeader,
+} from "utils/common"
 import Social from "modules/social"
 import { composeEmbedMessage } from "utils/discord-embed"
 
@@ -55,8 +60,7 @@ const command: Command = {
     }
   },
   getHelpMessage: async (msg) => {
-    let description =
-      ":arrow_heading_up: **Withdrawal - help**\n\n**Send coins to an address.**"
+    let description = `${defaultEmojis.ARROW_UP} **Withdrawal - help**\n\n**Send coins to an address.**`
     description +=
       "\nInstant withdrawal wizard. You will be asked for the address and the amount you want to withdraw."
     description +=

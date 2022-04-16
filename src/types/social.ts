@@ -3,8 +3,8 @@ export type DiscordWalletTransferRequest = {
   toDiscordIds: string[]
   amount: number
   cryptocurrency: string
-  guildID: string
-  channelID: string
+  guildId: string
+  channelId: string
   opts?: { duration: number; maxEntries: number }
   each?: boolean
   all?: boolean
@@ -15,8 +15,9 @@ export type DiscordWalletWithdrawRequest = {
   toAddress: string
   amount: number
   cryptocurrency: string
-  guildID: string
-  channelID: string
+  guildId: string
+  channelId: string
+  all?: boolean
 }
 
 export type Currency = {

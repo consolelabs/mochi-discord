@@ -8,7 +8,7 @@ import {
 } from "errors"
 import Profile from "modules/profile"
 import { composeEmbedMessage } from "utils/discord-embed"
-import { thumbnails } from "utils/common"
+import { defaultEmojis } from "utils/common"
 
 async function deposit(msg: Message) {
   let user
@@ -28,7 +28,7 @@ async function deposit(msg: Message) {
       throw new UserNotVerifiedError({ message: msg, discordId: msg.author.id })
     }
 
-    let description = ":arrow_heading_down: **Deposit Bitcoin**"
+    let description = `${defaultEmojis.ARROW_DOWN} **Deposit Bitcoin**`
     description +=
       "\n\nDeposits need at least 1 confirmation to be credited to your account."
     description += "\n\n**Your deposit address**"
