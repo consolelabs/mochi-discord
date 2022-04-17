@@ -1,4 +1,4 @@
-# Neko Bot
+# Mochi Bot
 
 ## Run project
 
@@ -6,15 +6,6 @@ Run postgres
 
 ```
 docker-compose up -d
-```
-
-Migrate db
-
-```
-# up
-make migrate-up
-#down
-make migrate-down
 ```
 
 Change .env-sample file to .env, fill some required secrets
@@ -54,5 +45,4 @@ make dev
 
 - commands: handle !neko commands on discord
 - events: handle discord events
-- handlers: api endpoints
 - modules: core objects used by components above

@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { getEmoji, getHeader, thumbnails } from "utils/common"
-import Social from "modules/social"
+import Defi from "modules/defi"
 import { composeEmbedMessage } from "utils/discord-embed"
 
 const command: Command = {
@@ -10,7 +10,7 @@ const command: Command = {
   category: "Defi",
   run: async function (msg) {
     let description = ""
-    const supportedTokens = await Social.getSupportedTokens()
+    const supportedTokens = await Defi.getSupportedTokens()
     for (const token of supportedTokens) {
       const tokenEmoji = getEmoji(token.symbol)
       description += `${tokenEmoji} **${token.symbol.toUpperCase()}**\n`

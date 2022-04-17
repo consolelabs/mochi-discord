@@ -11,13 +11,6 @@ export const DISCORD_TOKEN = process.env.DISCORD_TOKEN
 export const DISCORD_BOT_GUILD_ID = process.env.DISCORD_BOT_GUILD_ID || ""
 export const DISCORD_ADMIN_GROUP = process.env.DISCORD_ADMIN_GROUP || ""
 
-export const DISCORD_AMPAWSSADOR_CHANNEL =
-  process.env.DISCORD_AMPAWSSADOR_CHANNEL || ""
-export const DISCORD_ENROLL_AMPAWSSADOR_CHANNEL =
-  process.env.DISCORD_ENROLL_AMPAWSSADOR_CHANNEL || "942116661568372826"
-export const DISCORD_ALPHA_CHANNEL = process.env.DISCORD_ALPHA_CHANNEL || ""
-export const DISCORD_ENROLL_ALPHA_CHANNEL =
-  process.env.DISCORD_ENROLL_ALPHA_CHANNEL || "942113663790243940"
 export const DISCORD_GM_CHANNEL = process.env.DISCORD_GM_CHANNEL || ""
 
 export const RPC_PROVIDER_URL = process.env.RPC_PROVIDER_URL || ""
@@ -25,11 +18,6 @@ export const PRIVATE_KEY = process.env.PRIVATE_KEY || ""
 
 export const API_SERVER_HOST =
   process.env.API_SERVER_HOST || "http://localhost:8200"
-
-export const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN || ""
-export const TWITTER_ACCESS_TOKEN_SECRET = process.env.TWITTER_ACCESS_TOKEN_SECRET || ""
-export const TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY || ""
-export const TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET || ""
 
 export const TATSU_API_KEY =
   process.env.TATSU_API_KEY || "3NSksWTLfb-FRLGNQq4T8r0DO2mcV8BNw"

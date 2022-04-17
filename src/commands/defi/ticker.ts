@@ -3,14 +3,12 @@ import {
   HexColorString,
   Message,
   MessageActionRow,
-  MessageEmbed,
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
 import { PREFIX } from "utils/constants"
 import {
   getCommandArguments,
-  getEmbedFooter,
   getEmoji,
   getHeader,
   roundFloatNumber,
@@ -21,7 +19,7 @@ import {
   composeDiscordExitButton,
   composeEmbedMessage,
 } from "utils/discord-embed"
-import Social from "modules/social"
+import Defi from "modules/defi"
 import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 
@@ -39,7 +37,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const input = interaction.values[0]
   const [id, currency, days] = input.split("_")
 
-  const chart = await Social.renderHistoricalMarketChart({
+  const chart = await Defi.renderHistoricalMarketChart({
     msg: message as Message,
     id,
     currency,
@@ -60,6 +58,14 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       components: message.components as MessageActionRow[],
       content: message.content,
     },
+    commandChoiceOptions: {
+      handler,
+      userId: message.author.id,
+      messageId: message.id,
+      channelId: interaction.channelId,
+      guildId: interaction.guildId,
+      interaction,
+    },
   }
 }
 
@@ -72,12 +78,12 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const query = !args[1].includes("/") ? `${args[1]}/usd` : args[1]
     const [coinId, currency] = query.split("/")
-    const coin = await Social.getCoinCurrentData(msg, coinId)
+    const coin = await Defi.getCoinCurrentData(msg, coinId)
     const { market_data } = coin
     const blank = getEmoji("blank")
 
     const embedMsg = composeEmbedMessage(msg, {
-      color: Social.getChartColorConfig(coin.id, 0, 0)
+      color: Defi.getChartColorConfig(coin.id, 0, 0)
         .borderColor as HexColorString,
       author: [coin.name, coin.image.small],
       footer: ["Data fetched from CoinGecko.com"],
@@ -122,7 +128,7 @@ const command: Command = {
         true
       )
 
-    const chart = await Social.renderHistoricalMarketChart({
+    const chart = await Defi.renderHistoricalMarketChart({
       msg,
       id: coin.id,
       currency,
@@ -130,9 +136,9 @@ const command: Command = {
     // embedMsg.setImage()
 
     const getDropdownOptionDescription = (daysAgo: number) =>
-      `${Social.getDateStr(
+      `${Defi.getDateStr(
         dayjs().subtract(daysAgo, "day").unix() * 1000
-      )} - ${Social.getDateStr(dayjs().unix() * 1000)}`
+      )} - ${Defi.getDateStr(dayjs().unix() * 1000)}`
     const selectRow = composeDiscordSelectionRow({
       customId: "ticker_view_option",
       placeholder: "Make a selection",

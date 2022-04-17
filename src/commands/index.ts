@@ -11,7 +11,6 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/tokens"
-import twitter from "./profile/twitter"
 import gm, { newGm } from "./community/gm"
 import {
   getCommandArguments,
@@ -20,7 +19,6 @@ import {
 } from "utils/common"
 import guildConfig from "../modules/guildConfig"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
-import { FactsAndTipsManager } from "utils/FactsAndTipsManager"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import { sendVerifyMessage } from "./profile/send-verify-message"
 import ticker from "./defi/ticker"
@@ -35,7 +33,6 @@ export const originalCommands: Record<string, Command> = {
   profile,
   verify,
   reverify,
-  twitter,
   // defi
   deposit,
   tip,
@@ -52,8 +49,6 @@ export const originalCommands: Record<string, Command> = {
   reaction,
   channel,
 }
-
-export const factsAndTipsManager = new FactsAndTipsManager(originalCommands)
 
 const aliases: Record<string, Command> = Object.entries(
   originalCommands

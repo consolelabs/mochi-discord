@@ -8,16 +8,13 @@ import {
   MessageSelectMenu,
   MessageSelectMenuOptions,
 } from "discord.js"
-import { EMPTY, PROFILE_THUMBNAIL, SPACE, VERTICAL_BAR } from "./constants"
+import { EMPTY, SPACE, VERTICAL_BAR } from "./constants"
 import {
-  emojis,
   getCommandArguments,
   getEmbedFooter,
   getEmoji,
   msgColors,
-  thumbnails,
 } from "./common"
-import { factsAndTipsManager } from "commands"
 import { EmbedProperties } from "types/common"
 
 /**
@@ -60,7 +57,6 @@ export function composeDiscordExitButton(): MessageActionRow {
 }
 
 export async function workInProgress(msg: Message): Promise<MessageOptions> {
-  const emoji = msg.client.emojis.cache.get(emojis.NEKO_COOL)
   const embed = new MessageEmbed()
   embed
     .setColor("#F4BE5B")
@@ -68,9 +64,7 @@ export async function workInProgress(msg: Message): Promise<MessageOptions> {
       "https://cdn.discordapp.com/emojis/916737804002799699.png?size=240"
     )
     .setTitle("Work In Progress")
-    .setDescription(
-      `${emoji} This command is currently being worked on, stay tuned!`
-    )
+    .setDescription("This command is currently being worked on, stay tuned!")
 
   return { embeds: [embed] }
 }
@@ -113,24 +107,15 @@ export function composeEmbedMessage(
       getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
       authorAvatarURL
     )
-    .setThumbnail(thumbnail ?? PROFILE_THUMBNAIL)
     .setTimestamp(timestamp ?? new Date())
 
   if (description) embed.setDescription(description)
+  if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)
   if (!!author && author.length === 1) embed.setAuthor(author[0])
   if (!!author && author.length === 2) embed.setAuthor(author[0], author[1])
 
   return embed
-}
-
-export async function getLoadingEmbed(msg: Message) {
-  const { message, type, no, total } = factsAndTipsManager.random()
-  return composeEmbedMessage(msg, {
-    title: `${type === "fact" ? "Fact" : "Tip"} ${no}/${total}`,
-    description: message,
-    thumbnail: thumbnails.LOADING,
-  })
 }
 
 export function getErrorEmbed(params: {

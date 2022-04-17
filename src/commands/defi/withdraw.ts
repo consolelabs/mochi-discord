@@ -7,12 +7,12 @@ import {
   getEmoji,
   getHeader,
 } from "utils/common"
-import Social from "modules/social"
+import Defi from "modules/defi"
 import { composeEmbedMessage } from "utils/discord-embed"
 
 async function withdraw(msg: Message, args: string[]) {
-  const payload = await Social.getWithdrawPayload(msg, args)
-  const data = await Social.discordWalletWithdraw(JSON.stringify(payload))
+  const payload = await Defi.getWithdrawPayload(msg, args)
+  const data = await Defi.discordWalletWithdraw(JSON.stringify(payload))
   const ftmEmoji = getEmoji("ftm")
   const tokenEmoji = getEmoji(payload.cryptocurrency)
   const embedMsg = composeEmbedMessage(msg, {
