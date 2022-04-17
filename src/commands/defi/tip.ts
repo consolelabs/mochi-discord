@@ -7,14 +7,14 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import Social from "modules/social"
+import Defi from "modules/defi"
 import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import { Command } from "types/common"
 import { composeEmbedMessage } from "utils/discord-embed"
 
 async function tip(msg: Message, args: string[]) {
-  const payload = await Social.getTransferRequestPayload(msg, args)
-  const data = await Social.discordWalletTransfer(JSON.stringify(payload), msg)
+  const payload = await Defi.getTransferRequestPayload(msg, args)
+  const data = await Defi.discordWalletTransfer(JSON.stringify(payload), msg)
   if (!data || data.length === 0) {
     throw new DiscordWalletTransferError({
       discordId: msg.author.id,

@@ -13,10 +13,10 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import Social from "modules/social"
+import Defi from "modules/defi"
 import NodeCache from "node-cache"
 import dayjs from "dayjs"
-import { DiscordWalletTransferRequest } from "types/social"
+import { DiscordWalletTransferRequest } from "types/defi"
 import { composeEmbedMessage } from "utils/discord-embed"
 
 const airdropCache = new NodeCache({
@@ -66,7 +66,7 @@ export async function confirmAirdrop(
   const originalAuthor = await msg.guild.members.fetch(authorId)
   const airdropEmbed = composeEmbedMessage(msg, {
     title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
-    description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${amountInUSD})${
+    description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(+amountInUSD, 4)})${
       +maxEntries !== 0
         ? ` for  ${maxEntries} ${+maxEntries > 1 ? "people" : "person"}`
         : ""
@@ -94,7 +94,7 @@ export async function confirmAirdrop(
   airdropCache.set(cacheKey, [], +duration)
 
   // check airdrop expired
-  const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${amountInUSD}) `
+  const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(+amountInUSD, 4)}) `
   await checkExpiredAirdrop(
     reply as Message,
     cacheKey,
@@ -137,7 +137,7 @@ async function checkExpiredAirdrop(
           guildId: msg.guildId,
           channelId: msg.channelId,
         }
-        await Social.discordWalletTransfer(JSON.stringify(req), msg)
+        await Defi.discordWalletTransfer(JSON.stringify(req), msg)
       }
 
       const originalAuthor = await msg.guild.members.fetch(authorId)
@@ -218,15 +218,15 @@ const command: Command = {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
 
-    const payload = await Social.getAirdropPayload(msg, args)
+    const payload = await Defi.getAirdropPayload(msg, args)
     // check balance
-    const data = await Social.discordWalletBalances(msg.author.id)
+    const data = await Defi.discordWalletBalances(msg.author.id)
     const currentBal = data.balances[payload.cryptocurrency.toUpperCase()]
     if (currentBal < payload.amount && !payload.all) {
       return {
         messageOptions: {
           embeds: [
-            Social.composeInsufficientBalanceEmbed(
+            Defi.composeInsufficientBalanceEmbed(
               msg,
               currentBal,
               payload.amount,
@@ -241,7 +241,7 @@ const command: Command = {
     // ---------------
     const tokenEmoji = getEmoji(payload.cryptocurrency)
     const currentPrice = roundFloatNumber(
-      await Social.getCoinPrice(msg, payload.cryptocurrency)
+      await Defi.getCoinPrice(msg, payload.cryptocurrency)
     )
     const amountDescription = `${tokenEmoji} **${roundFloatNumber(
       payload.amount,

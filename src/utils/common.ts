@@ -42,39 +42,6 @@ export const numberEmojis: Record<string, string> = {
   NUM_9: "932856132832223232",
 }
 
-export const pgBarEmojis: { [key: string]: string } = {
-  XP_REBELLIO_LEFT: "933606190523490324",
-  XP_REBELLIO: "933606189512683520",
-  XP_REBELLIO_RIGHT: "933606190678679633",
-
-  XP_IMPERIAL_LEFT: "933612077686341672",
-  XP_IMPERIAL: "933612077300473866",
-  XP_IMPERIAL_RIGHT: "933612078856552498",
-
-  XP_MERCHANT_LEFT: "933612151732596786",
-  XP_MERCHANT: "933612151753572393",
-  XP_MERCHANT_RIGHT: "933612151174758401",
-
-  XP_ACADEMY_LEFT: "933606673178820658",
-  XP_ACADEMY: "933606672709074974",
-  XP_ACADEMY_RIGHT: "933606672444817408",
-
-  XP_BAR_LEFT: "933276771133063198",
-  XP_BAR: "933276771107868692",
-  XP_BAR_RIGHT: "933276771141451856",
-}
-
-export const dappActionEmojis: { [key: string]: string } = {
-  TIP: "933384794627248128",
-  BUY: "933341119998210058",
-  DEPOSIT: "933339868224958504",
-  WITHDRAW: "933339868233359380",
-  MINT: "900024905477808140",
-  BID: "931194309661823006",
-  "CONNECT-TWITTER": "932208655313551420",
-  "SHARE-TWITTER": "932208655313551420",
-}
-
 export const defaultEmojis: Record<string, string> = {
   ERROR: ":no_entry_sign:",
   AIRPLANE: ":airplane:",
@@ -83,61 +50,18 @@ export const defaultEmojis: Record<string, string> = {
   ARROW_UP: ":arrow_heading_up:",
 }
 
-export const balanceIcons: { [key: string]: string } = {
-  SHRIMP_0:
-    "https://cdn.discordapp.com/emojis/930107037814259722.png?size=240&quality=lossless",
-  CRAB_1000:
-    "https://cdn.discordapp.com/emojis/930107167573438514.png?size=240&quality=lossless",
-  SQUID_3000:
-    "https://cdn.discordapp.com/emojis/930107225521946704.png?size=240&quality=lossless",
-  DOLPHIN_7000:
-    "https://cdn.discordapp.com/emojis/930107285093638204.png?size=240&quality=lossless",
-  SHARK_13000:
-    "https://cdn.discordapp.com/emojis/930107329305796729.png?size=240&quality=lossless",
-  WHALE_20000:
-    "https://cdn.discordapp.com/emojis/930107395697430588.png?size=240&quality=lossless",
-}
-
 export const emojis: { [key: string]: string } = {
   GOOD_MORNING: "930840080761880626",
-  RED_ENVELOPE: "936234043513638973",
-  SWAP: "933340602223955998",
   REVOKE: "933341948431962172",
-  STAR: "933281365384908810",
-  TRANSACTION: "933341692667506718",
-  LEADERBOARD_1: "933281365347151903",
-  PROFILE_1: "933281365498155038",
-  WALLET: "933281364919349279",
-  ADDRESS: "933281365254873128",
-  BALANCE: "933341119998210058",
-  SEARCH: "933341511062552626",
-  EXIT: "932296011785863239",
-  DASH: "928213014824488990",
   REPLY: "915972703050162237",
-  NEKO: "900024905477808140",
-  NEKO_SAD: "900363887122186310",
-  NEKO_HORRIFIED: "900024905507160154",
-  NEKO_FIRE: "900363886979612682",
-  NEKO_COOL: "900024905486172281",
-  NEKO_TOUCH: "900363887050911784",
-  NEKO_PUKE_WHITE: "900748086522048512",
-  NEKO_STARE: "900024905758834708",
   PROFILE: "916737804384485447",
-  COUNCIL: "916737806137688074",
-  GAMES: "916737806288715807",
-  LEADERBOARD: "916737806129315921",
-  SOCIAL: "933281365586227210",
-  WIP: "916737804002799699",
+  DEFI: "933281365586227210",
   BLANK: "916757233122021376",
-  TWITTER: "932208655313551420",
-  PAW: "887275176113373194",
   PREV_PAGE: "935053694112784424",
   NEXT_PAGE: "935053694439936070",
   ...chainEmojis,
   ...tokenEmojis,
   ...numberEmojis,
-  ...pgBarEmojis,
-  ...dappActionEmojis,
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
@@ -169,7 +93,7 @@ export async function inactivityResponse(user: User): Promise<MessageOptions> {
 }
 
 export function getHeader(text: string, user: User, ctas?: string) {
-  return `> **${text} ${DOT} [** ${getEmoji("paw")} ${user.tag} **]${
+  return `> **${text} ${DOT} [** ${user.tag} **]${
     typeof ctas === "string" && ctas !== "" ? ` ${DOT}${ctas}` : ""
   }**`
 }
@@ -189,7 +113,7 @@ export function getListCommands(
 ) {
   const emoji = getEmoji("reply")
   return Object.values(commands)
-    .map((c) => `[**${c.command}**](https://pod.town)\n${emoji}${c.name}`)
+    .map((c) => `[**${c.command}**](https://google.com)\n${emoji}${c.name}`)
     .join("\n\n")
 }
 

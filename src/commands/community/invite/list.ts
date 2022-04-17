@@ -34,7 +34,7 @@ const command: Command = {
         description: `**Your invite link is**\n\`\`\`https://pod.town?code=${
           user.referral_code
         }\`\`\`\n\nUser that you invited (${invitees.length})\n${invitees.map(
-          (addr) => `[${addr}](https://pod.town)`
+          (addr) => `[${addr}](https://google.com)`
         )}`,
       })
 

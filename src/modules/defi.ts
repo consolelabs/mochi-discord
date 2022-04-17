@@ -16,7 +16,7 @@ import { InvalidInputError } from "errors"
 import { composeEmbedMessage } from "utils/discord-embed"
 import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
 
-class Social {
+class Defi {
   async getTargetDiscordIds(
     msg: Message,
     args: string[],
@@ -587,4 +587,4 @@ class Social {
   }
 }
 
-export default new Social()
+export default new Defi()

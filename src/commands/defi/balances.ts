@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { getEmoji, getHeader, roundFloatNumber, thumbnails } from "utils/common"
-import Social from "modules/social"
+import Defi from "modules/defi"
 import { composeEmbedMessage } from "utils/discord-embed"
 
 const command: Command = {
@@ -11,8 +11,8 @@ const command: Command = {
   name: "Balances",
   category: "Defi",
   run: async function balances(msg: Message) {
-    const data = await Social.discordWalletBalances(msg.author.id)
-    const supportedTokens = (await Social.getSupportedTokens()).map((token) =>
+    const data = await Defi.discordWalletBalances(msg.author.id)
+    const supportedTokens = (await Defi.getSupportedTokens()).map((token) =>
       token.symbol.toUpperCase()
     )
 

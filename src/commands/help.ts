@@ -10,11 +10,11 @@ import { composeEmbedMessage } from "utils/discord-embed"
 dayjs.extend(utc)
 
 const categoryIcons: Record<Category, string> = {
-  Admin: emojis.NEKO_COOL,
+  Admin: emojis.PROFILE,
   Profile: emojis.PROFILE,
-  Config: emojis.NEKO_COOL,
-  Defi: emojis.SOCIAL,
-  Community: emojis.GAMES,
+  Config: emojis.PROFILE,
+  Defi: emojis.DEFI,
+  Community: emojis.DEFI,
 }
 
 function getHelpEmbed(msg: Message, isAdmin: boolean) {
@@ -39,7 +39,7 @@ export async function adminHelpMessage(msg: Message) {
     const commandsOfThisCat = Object.values(originalCommands)
       .filter(Boolean)
       .filter((c) => c.category === category || c.id === "profile")
-      .map((c) => `[\`${c.id}\`](https://pod.town)`)
+      .map((c) => `[\`${c.id}\`](https://google.com)`)
       .join(" ")
     if (commandsOfThisCat.trim() === "") continue
     const emoji = msg.client.emojis.cache.get(emojiId)
@@ -105,7 +105,7 @@ const info = {
       const commandsOfThisCat = Object.values(scopedCommands)
         .filter(Boolean)
         .filter((c) => c.category === category && !c.experimental)
-        .map((c) => `[\`${c.id}\`](https://pod.town)`)
+        .map((c) => `[\`${c.id}\`](https://google.com)`)
         .join(" ")
       if (commandsOfThisCat.trim() === "") continue
 
