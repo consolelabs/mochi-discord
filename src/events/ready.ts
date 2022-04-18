@@ -1,6 +1,6 @@
 import { Event } from "."
 import Discord from "discord.js"
-import { PREFIX } from "../env"
+import { PREFIX } from "utils/constants"
 import { logger } from "../logger"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"

@@ -1,9 +1,11 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
-import { PREFIX, DISCORD_GM_CHANNEL } from "../../env"
-import { emojis, getHelpEmbed, getListCommands } from "../../utils/discord"
+import { DISCORD_GM_CHANNEL } from "../../env"
+import { PREFIX } from "utils/constants"
+import { emojis, getListCommands } from "utils/common"
 import Profile from "modules/profile"
 import { BotBaseError } from "errors"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 export async function newGm(msg: Message) {
   try {
@@ -77,20 +79,17 @@ const command: Command = {
   run: countGm,
   getHelpMessage: async function (msg) {
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
-    const embedMsg = getHelpEmbed("Check GM Streak")
-      .setTitle(`${PREFIX}gm`)
-      .addField("_Examples_", `\`${PREFIX}gm\``, true)
-      .setDescription(
-        `\`\`\`Check how many days you've said gm in a row.\`\`\`\n${getListCommands(
-          replyEmoji ?? "╰ ",
-          {
-            gm: {
-              name: "Check your gm streak `$gm`",
-              command: "gm",
-            },
-          }
-        )}`
-      )
+    const embedMsg = composeEmbedMessage(msg, {
+      description: `\`\`\`Check how many days you've said gm in a row.\`\`\`\n${getListCommands(
+        replyEmoji ?? "╰ ",
+        {
+          gm: {
+            name: "Check your gm streak `$gm`",
+            command: "gm",
+          },
+        }
+      )}`,
+    }).addField("_Examples_", `\`${PREFIX}gm\``, true)
     return { embeds: [embedMsg] }
   },
   canRunWithoutAction: true,

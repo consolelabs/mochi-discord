@@ -1,10 +1,11 @@
 import { Command } from "types/common"
 import { MessageEmbed } from "discord.js"
-import { PREFIX } from "env"
-import { getHeader, getHelpEmbed } from "utils/discord"
+import { PREFIX } from "utils/constants"
+import { getHeader } from "utils/common"
 import Invite from "modules/invite"
 import Profile from "modules/profile"
 import { UserNotFoundError, UserNotVerifiedError } from "errors"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 const command: Command = {
   id: "invite_list",
@@ -27,19 +28,15 @@ const command: Command = {
     }
     if (user.is_verified) {
       const invitees = await Invite.getInvitees(user.referral_code)
-
-      const msgEmbed = new MessageEmbed()
-        .setColor("#f06d85")
-        .setThumbnail(
-          "https://cdn.discordapp.com/emojis/900748086522048512.png?size=240"
-        )
-        .setDescription(
-          `**Your invite link is**\n\`\`\`https://pod.town?code=${
-            user.referral_code
-          }\`\`\`\n\nUser that you invited (${invitees.length})\n${invitees.map(
-            (addr) => `[${addr}](https://pod.town)`
-          )}`
-        )
+      const msgEmbed = composeEmbedMessage(msg, {
+        thumbnail:
+          "https://cdn.discordapp.com/emojis/900748086522048512.png?size=240",
+        description: `**Your invite link is**\n\`\`\`https://pod.town?code=${
+          user.referral_code
+        }\`\`\`\n\nUser that you invited (${invitees.length})\n${invitees.map(
+          (addr) => `[${addr}](https://google.com)`
+        )}`,
+      })
 
       return {
         messageOptions: {
@@ -51,14 +48,14 @@ const command: Command = {
       throw new UserNotVerifiedError({ message: msg, discordId: userId })
     }
   },
-  getHelpMessage: async function () {
-    const embedMsg = getHelpEmbed()
-      .setTitle(`${PREFIX}invite list`)
-      .addField("_Examples_", `\`${PREFIX}invite list\``, true)
-      .setDescription(
-        `\`\`\`Get a list of user that you invited to this server.\`\`\``
-      )
-    return { embeds: [embedMsg] }
+  getHelpMessage: async function (msg) {
+    return {
+      embeds: [
+        composeEmbedMessage(msg, {
+          description: `\`\`\`Get a list of user that you invited to this server.\`\`\``,
+        }).addField("_Examples_", `\`${PREFIX}invite list\``, true),
+      ],
+    }
   },
 }
 

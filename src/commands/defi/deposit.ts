@@ -1,13 +1,14 @@
 import { Command } from "types/common"
-import { Message, MessageEmbed } from "discord.js"
-import { PREFIX, PROFILE_THUMBNAIL, SOCIAL_COLOR } from "env"
+import { Message } from "discord.js"
+import { PREFIX } from "utils/constants"
 import {
   DirectMessageNotAllowedError,
   UserNotFoundError,
   UserNotVerifiedError,
 } from "errors"
 import Profile from "modules/profile"
-import { getHelpEmbed } from "utils/discord"
+import { composeEmbedMessage } from "utils/discord-embed"
+import { defaultEmojis } from "utils/common"
 
 async function deposit(msg: Message) {
   let user
@@ -19,7 +20,7 @@ async function deposit(msg: Message) {
     if (!user) {
       throw new UserNotFoundError({
         message: msg,
-        guildId: msg.guild.id,
+        guildId: msg.guild?.id,
         discordId: msg.author.id,
       })
     }
@@ -27,26 +28,22 @@ async function deposit(msg: Message) {
       throw new UserNotVerifiedError({ message: msg, discordId: msg.author.id })
     }
 
-    let description = ":arrow_heading_down: **Deposit Bitcoin**"
+    let description = `${defaultEmojis.ARROW_DOWN} **Deposit Bitcoin**`
     description +=
       "\n\nDeposits need at least 1 confirmation to be credited to your account."
     description += "\n\n**Your deposit address**"
     description += `\n\`${user.in_discord_wallet_address}\``
-    const dmEmbed = new MessageEmbed()
-      .setThumbnail(PROFILE_THUMBNAIL)
-      .setColor(SOCIAL_COLOR)
-      .setDescription(description)
+    await msg.author.send({
+      embeds: [composeEmbedMessage(msg, { description })],
+    })
 
-    await msg.author.send({ embeds: [dmEmbed] })
-
-    const embed = new MessageEmbed()
-      .setColor(SOCIAL_COLOR)
-      .setDescription(
-        `:information_source: Info\n<@${msg.author.id}>, your deposit address has been sent to you via a DM`
-      )
     return {
       messageOptions: {
-        embeds: [embed],
+        embeds: [
+          composeEmbedMessage(msg, {
+            description: `:information_source: Info\n<@${msg.author.id}>, your deposit address has been sent to you via a DM`,
+          }),
+        ],
       },
     }
   } catch (e: any) {
@@ -63,12 +60,10 @@ const command: Command = {
   name: "Deposit",
   category: "Defi",
   run: deposit,
-  getHelpMessage: async () => {
-    const embedMsg = getHelpEmbed("Deposit")
-      .setThumbnail(PROFILE_THUMBNAIL)
-      .setTitle(`${PREFIX}deposit`)
-      .addField("_Examples_", `\`${PREFIX}deposit\``, true)
-      .setDescription(`\`\`\`Deposit tokens to your discord user\`\`\``)
+  getHelpMessage: async (msg) => {
+    const embedMsg = composeEmbedMessage(msg, {
+      description: `\`\`\`Deposit tokens to your discord user\`\`\``,
+    }).addField("_Examples_", `\`${PREFIX}deposit\``, true)
     return { embeds: [embedMsg] }
   },
   canRunWithoutAction: true,

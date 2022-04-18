@@ -1,45 +1,52 @@
-import Discord from "discord.js"
+import { Message } from "discord.js"
 import handleCommand from "../commands"
-import { PREFIX, ADMIN_PREFIX, LOG_CHANNEL_ID } from "../env"
+import { LOG_CHANNEL_ID } from "../env"
+import { PREFIX, ADMIN_PREFIX, SPACE } from "utils/constants"
 import { Event } from "."
 import { logger } from "../logger"
 import { BotBaseError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
+import { isGmMessage } from "utils/common"
+
+const allowedDMCommands = ["deposit"].map((c) => `${PREFIX}${c}`)
+function normalizeCommand(message: Message) {
+  return message.content.replace(/  +/g, " ").trim().toLowerCase()
+}
+
+function isInBotCommandScopes(message: Message) {
+  if (message.channel.type !== "DM") {
+    return (
+      isGmMessage(message) ||
+      message.content.startsWith(PREFIX) ||
+      message.content.startsWith(ADMIN_PREFIX)
+    )
+  }
+  return (
+    message.channel.type === "DM" &&
+    allowedDMCommands.includes(message.content.split(SPACE)[0])
+  )
+}
 
 export default {
   name: "messageCreate",
   once: false,
-  execute: async (message: Discord.Message) => {
-    if (message.channel.id === LOG_CHANNEL_ID) return
-    try {
-      const messageContent = message.content.toLowerCase()
-      const isGmMessage =
-        messageContent === "gm" ||
-        messageContent === "gn" ||
-        messageContent === "<:gm:930840080761880626>" ||
-        (message.stickers.get("928509218171006986") &&
-          message.stickers.get("928509218171006986").name === ":gm")
+  execute: async (message: Message) => {
+    message.content = normalizeCommand(message)
+    if (
+      message.channel.id === LOG_CHANNEL_ID ||
+      message.author.bot ||
+      !isInBotCommandScopes(message)
+    )
+      return
 
-      // ---------------------------
-      // handle command
-      if (!message.author.bot) {
-        if (message.channel.type !== "DM") {
-          if (
-            messageContent.startsWith(PREFIX) ||
-            messageContent.startsWith(ADMIN_PREFIX) ||
-            isGmMessage
-          ) {
-            const key = `${message.author.id}_${message.guildId}_${message.channelId}`
-            // disable previous command choice handler before executing new command
-            CommandChoiceManager.remove(key)
-            await handleCommand(message)
-          }
-          return
-        } else if (messageContent.startsWith(`${PREFIX}deposit`)) {
-          await handleCommand(message)
-        }
+    try {
+      // disable previous command choice handler before executing new command
+      if (message.channel.type !== "DM") {
+        const key = `${message.author.id}_${message.guildId}_${message.channelId}`
+        CommandChoiceManager.remove(key)
       }
+      await handleCommand(message)
     } catch (e: any) {
       const error = e as BotBaseError
       if (error.handle) {

@@ -6,6 +6,7 @@ import { logger } from "../logger"
 import User, { UserInput } from "../modules/users"
 import InviteHistory, {InviteHistoryInput, InviteeCountInput} from "../modules/inviteHistories"
 import guildConfig from "modules/guildConfig"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 export default {
 	name: "guildMemberAdd",
@@ -27,8 +28,8 @@ export default {
 			} as UserInput
 		)
 		if (indexInviterResponse.error) {
-			logger.error(`Error indexing inviter: ${indexInviterResponse.error}`)
-			logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
+			logger.error(`Error indexing inviter: ${indexInviterResponse.error}`);
+			sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.user.id));
 			return;
 		}
 		
@@ -40,8 +41,8 @@ export default {
 			} as UserInput
 		)
 		if (indexInviteeResponse.error) {
-			logger.error(`Error indexing invitee: ${indexInviteeResponse.error}`)
-			logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
+			logger.error(`Error indexing invitee: ${indexInviteeResponse.error}`);
+			sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.user.id));
 			return;
 		}
 		
@@ -54,8 +55,8 @@ export default {
 				} as InviteHistoryInput
 			)
 			if (indexInviteHistoryResponse.error) {
-				logger.error(`Error indexing invite history: ${indexInviteHistoryResponse.error}`)
-				logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
+				logger.error(`Error indexing invite history: ${indexInviteHistoryResponse.error}`);
+				sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.user.id));
 				return;
 			}
 			
@@ -67,12 +68,32 @@ export default {
 			)
 			if (inviteAmountResponse.error) {
 				logger.error(`Error getting invite amount: ${inviteAmountResponse.error}`)
-				logChannel.send(`I can not figure out how <@${member.user.id}> joined the server`);
+				sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.user.id));
 				return;
 			}
-    	logChannel.send(`<@${member.user.id}> has been invited by <@${inviter.id}> and has now ${inviteAmountResponse.data} invices.`)
+			sendInviteTrackerMessage(logChannel, inviteMsg(member.user.id, inviter.id, inviteAmountResponse.data));
 		} else {
-			logChannel.send(`<@${member.user.id}> joined using a vanity invite`)
+			sendInviteTrackerMessage(logChannel, vantityInviteMsg(member.user.id));
 		}
 	},
 } as Event<"guildMemberAdd">
+
+function unknowErrorMsg(memberID: string) {
+	return `I can not figure out how <@${memberID}> joined the server.`;
+}
+
+function vantityInviteMsg(memberID: string) {
+	return `<@${memberID}> joined using a vanity invite.`;
+}
+
+function inviteMsg(memberID: string, inviterID: string, inviteAmount: number) {
+	return `<@${memberID}> has been invited by <@${inviterID}> and has now ${inviteAmount} invites.`;
+}
+
+function sendInviteTrackerMessage(logChannel: Discord.TextChannel, msg: string) {
+	const embed = composeEmbedMessage(null, {
+		title: "Invite Tracker",
+		description: msg,
+	});
+	logChannel.send({embeds: [embed]});
+}

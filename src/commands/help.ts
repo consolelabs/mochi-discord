@@ -1,30 +1,37 @@
 import { Message } from "discord.js"
-import { ADMIN_HELP_CMD, HELP_CMD } from "../env"
+import { ADMIN_HELP_CMD, HELP_CMD } from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import { originalCommands } from "../commands"
-import { emojis, getEmbedFooter, getHelpEmbed, thumbnails } from "utils/discord"
+import { emojis, thumbnails } from "utils/common"
 import guildConfig from "../modules/guildConfig"
 import { Category, Command } from "types/common"
+import { composeEmbedMessage } from "utils/discord-embed"
 dayjs.extend(utc)
 
 const categoryIcons: Record<Category, string> = {
-  Admin: emojis.NEKO_COOL,
+  Admin: emojis.PROFILE,
   Profile: emojis.PROFILE,
-  Config: emojis.NEKO_COOL,
-  Defi: emojis.SOCIAL,
-  Community: emojis.GAMES,
+  Config: emojis.PROFILE,
+  Defi: emojis.DEFI,
+  Community: emojis.DEFI,
+}
+
+function getHelpEmbed(msg: Message, isAdmin: boolean) {
+  return composeEmbedMessage(msg, {
+    title: `${isAdmin ? "Admin" : "Standard"} Commands`,
+    thumbnail: thumbnails.HELP,
+    description: `\nType \`${
+      isAdmin ? ADMIN_HELP_CMD : HELP_CMD
+    } <command>\` to learn more about a command e,g \`${
+      isAdmin ? ADMIN_HELP_CMD : HELP_CMD
+    } profile\``,
+    footer: [`Type ${HELP_CMD} for normal commands`],
+  })
 }
 
 export async function adminHelpMessage(msg: Message) {
-  const embedMsg = getHelpEmbed("Admin Commands")
-    .setThumbnail(thumbnails.HELP)
-    .setDescription(
-      `\nType \`${ADMIN_HELP_CMD} <command>\` to learn more about a command e,g \`${ADMIN_HELP_CMD} profile\``
-    )
-    .setFooter(getEmbedFooter([`Type ${HELP_CMD} for normal commands`]))
-    .setTimestamp()
-
+  const embedMsg = getHelpEmbed(msg, true)
   let idx = 0
   for (const [category, emojiId] of Object.entries(categoryIcons)) {
     // const [category, emojiId] = Object.entries(categoryIcons)[i]
@@ -32,7 +39,7 @@ export async function adminHelpMessage(msg: Message) {
     const commandsOfThisCat = Object.values(originalCommands)
       .filter(Boolean)
       .filter((c) => c.category === category || c.id === "profile")
-      .map((c) => `[\`${c.id}\`](https://pod.town)`)
+      .map((c) => `[\`${c.id}\`](https://google.com)`)
       .join(" ")
     if (commandsOfThisCat.trim() === "") continue
     const emoji = msg.client.emojis.cache.get(emojiId)
@@ -62,15 +69,7 @@ const info = {
     return data
   },
   getHelpMessage: async (msg: Message) => {
-    const embedMsg = getHelpEmbed("Standard Commands")
-      .setTitle("Welcome to Mochi!")
-      .setThumbnail(thumbnails.HELP)
-      .setDescription(
-        `\nType \`${HELP_CMD} <command>\` to learn more about a command e,g \`${HELP_CMD} invite\`\n\n`
-      )
-      .setFooter(getEmbedFooter([`Type ${ADMIN_HELP_CMD} for admin commands`]))
-      .setTimestamp()
-
+    const embedMsg = getHelpEmbed(msg, false)
     const categories = Object.entries(categoryIcons).sort((catA, catB) => {
       const commandsOfThisCatA = Object.values(originalCommands)
         .filter(Boolean)
@@ -106,7 +105,7 @@ const info = {
       const commandsOfThisCat = Object.values(scopedCommands)
         .filter(Boolean)
         .filter((c) => c.category === category && !c.experimental)
-        .map((c) => `[\`${c.id}\`](https://pod.town)`)
+        .map((c) => `[\`${c.id}\`](https://google.com)`)
         .join(" ")
       if (commandsOfThisCat.trim() === "") continue
 

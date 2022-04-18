@@ -14,50 +14,13 @@ import { BotBaseError } from "../errors"
 export type User = {
   address: string
   discord_id: string
-  twitter_id: string
-  twitter_handle: string
-  twitter_name: string
   referral_code: string
   is_verified: boolean
   number_of_tokens: number
   in_discord_wallet_number: number
   in_discord_wallet_address: string
-  current_rank: Role
-  next_rank: Role
-  xps: UserXps
   ens_record: string
   nom_record: string
-  avatar: NFTToken
-}
-
-type NFTToken = {
-  token_id?: number
-  collection_address?: string
-  name?: string
-  description?: string
-  amount?: number
-  image?: string
-  image_cdn?: string
-  thumbnail_cdn?: string
-  image_content_type?: string
-  rarity_rank?: number
-  rarity_score?: string
-  metadata_id?: string
-  is_show_marketplace: boolean
-}
-
-type UserXps = {
-  nobility_xp: number
-  fame_xp: number
-  loyalty_xp: number
-  reputation_xp: number
-}
-
-export type Role = {
-  id: string
-  name: string
-  guild_id: string
-  number_of_token: number
 }
 
 export type Balance = {
@@ -75,25 +38,6 @@ export type UserBalance = {
   total_balance_usd: number
   balances: Array<Balance>
 }
-
-export type UserPtTransaction = {
-  action: string
-  created_at: Date
-  dapp: string
-  fame_xp: number
-  loyalty_xp: number
-  nobility_xp: number
-  reputation_xp: number
-  user_discord_id: string
-}
-
-const profileCache = new NodeCache({
-  stdTTL: 360,
-  checkperiod: 400,
-  useClones: false,
-})
-
-const provider = new ethers.providers.JsonRpcProvider("https://rpc.ftm.tools")
 
 class Profile {
   public async getTatsuProfile(discordId: string) {
@@ -162,39 +106,6 @@ class Profile {
     }
   }
 
-  public async getTotalBalance({
-    address,
-    discordId,
-    guildId,
-  }: {
-    address?: string
-    discordId?: string
-    guildId?: string
-  }): Promise<Array<UserBalance>> | null {
-    try {
-      const reqParam = address ? `address=${address}` : `discord_id=${discordId}`
-      const resp = await fetch(
-        `${API_SERVER_HOST}/api/v1/pod-together/user?${reqParam}&guild_id=${guildId}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
-      )
-      const json = await resp.json()
-
-      switch (json.error) {
-        case undefined:
-          return json.data ? [...json.data] : null
-        default:
-          console.error(json.error)
-          return null
-      }
-    } catch (e: any) {
-      logger.error(e)
-      return null
-    }
-  }
-
   public async sendVerifyURL(interaction: ButtonInteraction) {
     await interaction.deferReply({ ephemeral: true })
     try {
@@ -251,21 +162,6 @@ class Profile {
     const resp = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-    })
-
-    return await resp.json()
-  }
-
-  public async updateTwitterHandle(body: {
-    discordId: string
-    twitterHandle: string
-    guildId?: string
-    isAdminCommand?: boolean
-  }) {
-    const resp = await fetch(`${API_SERVER_HOST}/api/v1/user/set-twitter`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
     })
 
     return await resp.json()

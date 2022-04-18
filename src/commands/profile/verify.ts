@@ -5,14 +5,11 @@ import {
   MessageActionRow,
   MessageButton,
 } from "discord.js"
-import { PREFIX } from "../../env"
-import {
-  emojis,
-  getHelpEmbed,
-  getListCommands,
-} from "../../utils/discord"
+import { PREFIX } from "utils/constants"
+import { emojis, getListCommands } from "utils/common"
 import Profile from "modules/profile"
 import { DirectMessageNotAllowedError, BotBaseError } from "errors"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 async function verify(msg: Message) {
   try {
@@ -68,20 +65,17 @@ const command: Command = {
   run: verify,
   getHelpMessage: async function (msg) {
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
-    const embedMsg = getHelpEmbed("Verify Address")
-      .setTitle(`${PREFIX}verify`)
-      .addField("_Examples_", `\`${PREFIX}verify\``, true)
-      .setDescription(
-        `\`\`\`Verify your discord profile to receive perks and use other features of the bot.\`\`\`\n${getListCommands(
-          replyEmoji ?? "╰ ",
-          {
-            verify: {
-              name: "Verify yourself, this is the same as `$join`",
-              command: "verify",
-            },
-          }
-        )}\n\n_**Alias**_\n_${this.alias.map((a) => `\`${a}\``).join(", ")}_`
-      )
+    const embedMsg = composeEmbedMessage(msg, {
+      description: `\`\`\`Verify your discord profile to receive perks and use other features of the bot.\`\`\`\n${getListCommands(
+        replyEmoji ?? "╰ ",
+        {
+          verify: {
+            name: "Verify yourself, this is the same as `$join`",
+            command: "verify",
+          },
+        }
+      )}\n\n_**Alias**_\n_${this.alias.map((a) => `\`${a}\``).join(", ")}_`,
+    }).addField("_Examples_", `\`${PREFIX}verify\``, true)
     return { embeds: [embedMsg] }
   },
   alias: ["join"],

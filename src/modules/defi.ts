@@ -13,8 +13,10 @@ import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import dayjs from "dayjs"
 import * as Canvas from "canvas"
 import { InvalidInputError } from "errors"
+import { composeEmbedMessage } from "utils/discord-embed"
+import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
 
-class Social {
+class Defi {
   async getTargetDiscordIds(
     msg: Message,
     args: string[],
@@ -133,22 +135,19 @@ class Social {
       toDiscordIds,
       amount,
       cryptocurrency,
-      guildID: msg.guildId,
-      channelID: msg.channelId,
+      guildId: msg.guildId,
+      channelId: msg.channelId,
       each,
       all: amountArg === "all",
     }
   }
 
   public async discordWalletTransfer(body: string, msg: Message) {
-    const resp = await fetch(
-      `${API_SERVER_HOST}/api/v1/user/in-discord-wallet/transfer`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body,
-      }
-    )
+    const resp = await fetch(`${API_SERVER_HOST}/api/v1/defi/transfer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+    })
 
     const { errors, data } = await resp.json()
     if (errors && errors.length && data == undefined) {
@@ -169,13 +168,10 @@ class Social {
   }
 
   public async getSupportedTokens(): Promise<Token[]> {
-    const resp = await fetch(
-      `${API_SERVER_HOST}/api/v1/user/in-discord-wallet/tokens`,
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      }
-    )
+    const resp = await fetch(`${API_SERVER_HOST}/api/v1/defi/tokens`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    })
     if (resp.status !== 200) {
       throw new Error("Error while fetching supported tokens data")
     }
@@ -196,8 +192,9 @@ class Social {
       throw new Error("Invalid destination address")
     }
 
-    const amount = parseFloat(args[2])
-    if (isNaN(amount) || amount <= 0) {
+    const amountArg = args[2].toLowerCase()
+    const amount = parseFloat(amountArg)
+    if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
       throw new Error("Invalid amount")
     }
 
@@ -213,20 +210,18 @@ class Social {
       toAddress,
       amount,
       cryptocurrency,
-      guildID: msg.guildId,
-      channelID: msg.channelId,
+      guildId: msg.guildId,
+      channelId: msg.channelId,
+      all: amountArg === "all",
     }
   }
 
   public async discordWalletWithdraw(body: string) {
-    const resp = await fetch(
-      `${API_SERVER_HOST}/api/v1/user/in-discord-wallet/withdraw`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body,
-      }
-    )
+    const resp = await fetch(`${API_SERVER_HOST}/api/v1/defi/withdraw`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+    })
 
     const json = await resp.json()
     if (json.error !== undefined) {
@@ -236,11 +231,10 @@ class Social {
   }
 
   public async discordWalletBalances(
-    discordId: string,
-    guildId: string
+    discordId: string
   ): Promise<DiscordWalletBalances> {
     const resp = await fetch(
-      `${API_SERVER_HOST}/api/v1/user/in-discord-wallet/balances?discord_id=${discordId}&guild_id=${guildId}`,
+      `${API_SERVER_HOST}/api/v1/defi/balances?discord_id=${discordId}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -491,7 +485,6 @@ class Social {
   }
 
   getAirdropOptions(args: string[], discordId: string, msg: Message) {
-    const msgContent = msg.content.replace(/  +/g, " ").trim()
     const options: { duration: number; maxEntries: number } = {
       duration: 180, // in secs
       maxEntries: 0,
@@ -507,20 +500,20 @@ class Social {
     }
 
     const durationReg = /in\s+\d+[hms]/
-    const durationIdx = msgContent.search(durationReg)
+    const durationIdx = msg.content.search(durationReg)
     if (durationIdx !== -1) {
-      const timeStr = msgContent
-        .substr(durationIdx)
+      const timeStr = msg.content
+        .substring(durationIdx)
         .replace(/in\s+/, "")
         .split(" ")[0]
       options.duration = this.convertToSeconds(timeStr)
     }
 
     const maxEntriesReg = /for\s+\d+/
-    const maxEntriesIdx = msgContent.search(maxEntriesReg)
+    const maxEntriesIdx = msg.content.search(maxEntriesReg)
     if (maxEntriesIdx !== -1) {
-      options.maxEntries = +msgContent
-        .substr(maxEntriesIdx)
+      options.maxEntries = +msg.content
+        .substring(maxEntriesIdx)
         .replace(/for\s+/, "")
         .split(" ")[0]
     }
@@ -533,8 +526,9 @@ class Social {
   ): Promise<DiscordWalletTransferRequest> {
     const fromDiscordId = msg.author.id
 
-    const amount = parseFloat(args[1])
-    if (isNaN(amount) || amount <= 0) {
+    const amountArg = args[1]
+    const amount = parseFloat(amountArg)
+    if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
       throw new DiscordWalletTransferError({
         discordId: fromDiscordId,
         guildId: msg.guildId,
@@ -561,11 +555,36 @@ class Social {
       toDiscordIds: [],
       amount,
       cryptocurrency,
-      guildID: msg.guildId,
-      channelID: msg.channelId,
+      guildId: msg.guildId,
+      channelId: msg.channelId,
       opts: this.getAirdropOptions(args, fromDiscordId, msg),
+      all: amountArg === "all",
     }
+  }
+
+  public composeInsufficientBalanceEmbed(
+    msg: Message,
+    current: number,
+    required: number,
+    cryptocurrency: string
+  ) {
+    const tokenEmoji = getEmoji(cryptocurrency)
+    const symbol = cryptocurrency.toUpperCase()
+    return composeEmbedMessage(msg, {
+      title: `${defaultEmojis.ERROR} Insufficient balance`,
+      description: `<@${msg.author.id}>, you cannot afford this.`,
+    })
+      .addField(
+        "Required amount",
+        `${tokenEmoji}${roundFloatNumber(required, 4)} ${symbol}`,
+        true
+      )
+      .addField(
+        "Your balance",
+        `${tokenEmoji}${roundFloatNumber(current, 4)} ${symbol}`,
+        true
+      )
   }
 }
 
-export default new Social()
+export default new Defi()

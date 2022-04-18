@@ -1,8 +1,8 @@
 import { Command } from "types/common"
 import {
   onlyRunInAdminGroup,
-	workInProgress,
-} from "utils/discord"
+} from "utils/common"
+import { workInProgress } from "utils/discord-embed"
 
 const command: Command = {
   id: "channel",

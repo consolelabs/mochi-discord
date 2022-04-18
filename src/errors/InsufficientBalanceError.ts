@@ -1,5 +1,6 @@
 import { Message, MessageEmbed, TextChannel } from "discord.js"
-import { getEmbedFooter } from "utils/discord"
+import { getEmbedFooter } from "utils/common"
+import { getErrorEmbed } from "utils/discord-embed"
 import { BotBaseError } from "./BaseError"
 
 export class InsufficientBalanceError extends BotBaseError {
@@ -28,14 +29,14 @@ export class InsufficientBalanceError extends BotBaseError {
 
   handle() {
     super.handle()
-    const embed = new MessageEmbed()
-      .setColor("#d91c22")
-      .setTitle("Insufficient balance")
-      .setDescription("Transaction failed.\nYour balance is not enough.")
-      .setFooter(
-        getEmbedFooter([`${this.discordMessage.author.tag}`]),
-        this.discordMessage.author.avatarURL()
-      )
-    this.discordMessage.channel.send({ embeds: [embed] })
+    this.discordMessage.channel.send({
+      embeds: [
+        getErrorEmbed({
+          msg: this.discordMessage,
+          title: "Insufficient balance",
+          description: "Transaction failed.\nYour balance is not enough.",
+        }),
+      ],
+    })
   }
 }

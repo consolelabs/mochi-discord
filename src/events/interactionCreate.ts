@@ -4,7 +4,6 @@ import { BotBaseError } from "errors"
 import { logger } from "logger"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
-import { getLoadingEmbed } from "utils/discord"
 import { Event } from "."
 import profile from "../modules/profile"
 
@@ -26,20 +25,7 @@ export default {
           CommandChoiceManager.remove(key)
         } else {
           await msg.delete().catch(() => {})
-          if (commandChoice.interaction) {
-            await interaction.deferReply()
-          } else {
-            // TODO: refactor this
-            await interaction.reply({
-              ephemeral: interaction.customId !== "ticker_view_option",
-              embeds: [
-                await getLoadingEmbed({
-                  channel: interaction.channel,
-                  author: interaction.user,
-                } as Message),
-              ],
-            })
-          }
+          await interaction.deferReply()
           const { messageOptions, commandChoiceOptions } =
             await commandChoice.handler(interaction)
 

@@ -1,19 +1,20 @@
-import { Message, MessageEmbed } from "discord.js"
-import { PREFIX, SOCIAL_COLOR } from "env"
+import { Message } from "discord.js"
+import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
 import {
-  getEmbedFooter,
+  getCommandArguments,
   getEmoji,
   getHeader,
-  getHelpEmbed,
+  roundFloatNumber,
   thumbnails,
-} from "utils/discord"
-import Social from "modules/social"
+} from "utils/common"
+import Defi from "modules/defi"
 import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import { Command } from "types/common"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 async function tip(msg: Message, args: string[]) {
-  const payload = await Social.getTransferRequestPayload(msg, args)
-  const data = await Social.discordWalletTransfer(JSON.stringify(payload), msg)
+  const payload = await Defi.getTransferRequestPayload(msg, args)
+  const data = await Defi.discordWalletTransfer(JSON.stringify(payload), msg)
   if (!data || data.length === 0) {
     throw new DiscordWalletTransferError({
       discordId: msg.author.id,
@@ -26,18 +27,19 @@ async function tip(msg: Message, args: string[]) {
   const mentionUser = (discordId: string) => `<@!${discordId}>`
   const users = discordIds.map((id) => mentionUser(id)).join(",")
   const tokenEmoji = getEmoji(payload.cryptocurrency)
-  const embedMsg = new MessageEmbed()
-    .setThumbnail(thumbnails.TIP)
-    .setColor(SOCIAL_COLOR)
-    .setAuthor("Generous")
-    .setDescription(
-      `${mentionUser(payload.fromDiscordId)} sent ${users} ${
-        data[0].amount
-      } ${tokenEmoji} ${payload.each ? "each" : ""}`
-    )
-    .setFooter(getEmbedFooter([msg.author.tag]), msg.author.avatarURL())
-    .setTimestamp()
-  return { embeds: [embedMsg] }
+  return {
+    embeds: [
+      composeEmbedMessage(msg, {
+        thumbnail: thumbnails.TIP,
+        author: ["Generous"],
+        description: `${mentionUser(
+          payload.fromDiscordId
+        )} sent ${users} ${roundFloatNumber(data[0].amount, 4)} ${tokenEmoji} ${
+          payload.each ? "each" : ""
+        }`,
+      }),
+    ],
+  }
 }
 
 const command: Command = {
@@ -46,7 +48,7 @@ const command: Command = {
   name: "Tip",
   category: "Defi",
   run: async function (msg: Message) {
-    const args = msg.content.replace(/  +/g, " ").trim().split(" ")
+    const args = getCommandArguments(msg)
     if (args.length < 4) {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
@@ -58,14 +60,14 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async (_msg) => {
-    const embedMsg = getHelpEmbed("Tip")
-      .setThumbnail(thumbnails.TIP)
-      .setTitle(`${PREFIX}tip`)
+  getHelpMessage: async (msg) => {
+    const embedMsg = composeEmbedMessage(msg, {
+      description: `\`\`\`Tip an amount of tokens to another user\`\`\``,
+      thumbnail: thumbnails.TIP,
+      footer: [DEFI_DEFAULT_FOOTER],
+    })
       .addField("_Usage_", `\`${PREFIX}tip @user <amount> <token>\``)
       .addField("_Examples_", `\`${PREFIX}tip @John 10 ftm\``)
-      .setDescription(`\`\`\`Tip an amount of tokens to another user\`\`\``)
-      .setFooter(`Use ${PREFIX}tokens for a list of supported tokens`)
     return { embeds: [embedMsg] }
   },
   canRunWithoutAction: true,

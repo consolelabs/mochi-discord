@@ -1,5 +1,5 @@
 import { Message } from "discord.js"
-import { ADMIN_HELP_CMD, ADMIN_PREFIX, HELP_CMD, PREFIX } from "../env"
+import { ADMIN_HELP_CMD, ADMIN_PREFIX, HELP_CMD, PREFIX } from "utils/constants"
 import { logger } from "../logger"
 import { adminHelpMessage, help } from "./help"
 import invite from "./community/invite"
@@ -11,12 +11,14 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/tokens"
-import twitter from "./profile/twitter"
 import gm, { newGm } from "./community/gm"
-import { onlyRunInAdminGroup } from "utils/discord"
+import {
+  getCommandArguments,
+  isGmMessage,
+  onlyRunInAdminGroup,
+} from "utils/common"
 import guildConfig from "../modules/guildConfig"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
-import { FactsAndTipsManager } from "utils/FactsAndTipsManager"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import { sendVerifyMessage } from "./profile/send-verify-message"
 import ticker from "./defi/ticker"
@@ -31,7 +33,6 @@ export const originalCommands: Record<string, Command> = {
   profile,
   verify,
   reverify,
-  twitter,
   // defi
   deposit,
   tip,
@@ -48,8 +49,6 @@ export const originalCommands: Record<string, Command> = {
   reaction,
   channel,
 }
-
-export const factsAndTipsManager = new FactsAndTipsManager(originalCommands)
 
 const aliases: Record<string, Command> = Object.entries(
   originalCommands
@@ -71,7 +70,7 @@ const aliases: Record<string, Command> = Object.entries(
   }
 }, {})
 
-const commands: Record<string, Command> = {
+export const commands: Record<string, Command> = {
   ...originalCommands,
   ...aliases,
 }
@@ -87,7 +86,8 @@ async function preauthorizeCommand(
   if (onlyAdmin) {
     ableToRun = await onlyRunInAdminGroup(message)
   } else {
-    const checkBeforeRun = commandObject.checkBeforeRun
+    if (!commandObject) return
+    const { checkBeforeRun } = commandObject
     if (checkBeforeRun) {
       ableToRun = await checkBeforeRun(message)
     }
@@ -122,22 +122,13 @@ async function executeCommand(
 
 export default async function handleCommand(message: Message) {
   try {
-    const messageContent = message.content
-      .replace(/  +/g, " ")
-      .trim()
-      .toLowerCase()
-    const args = messageContent.split(" ")
-    const helpCommand = helpCommands.includes(messageContent)
-
-    const isGmMessage =
-      messageContent === "gm" ||
-      messageContent === "gn" ||
-      messageContent === "<:gm:930840080761880626>" ||
-      (message.stickers.get("928509218171006986") &&
-        message.stickers.get("928509218171006986").name === ":gm")
+    const args = getCommandArguments(message)
+    const helpCommand = helpCommands.includes(message.content)
 
     logger.info(
-      `[${message.guild.name}][${message.author.username}] executing command: ${args}`
+      `[${message.guild?.name ?? "DM"}][${
+        message.author.username
+      }] executing command: ${args}`
     )
 
     let cmd = args[0]
@@ -149,10 +140,11 @@ export default async function handleCommand(message: Message) {
       cmd = commandObject.category === "Admin" ? ADMIN_HELP_CMD : HELP_CMD
     }
     commandObject = !commandObject && action ? commands[action] : commandObject
+    const isAdminCommand = cmd.startsWith(ADMIN_PREFIX)
 
     switch (true) {
       // gm/gn
-      case isGmMessage:
+      case isGmMessage(message):
         await newGm(message)
         break
       case cmd === `${ADMIN_PREFIX}send-verify-message`:
@@ -161,12 +153,10 @@ export default async function handleCommand(message: Message) {
       // return general help message
       case helpCommand: {
         let data
-        if (cmd === `${ADMIN_PREFIX}help`) {
-          await preauthorizeCommand(message, commandObject, true)
-          data = await adminHelpMessage(message)
-        } else {
-          data = await help(message)
-        }
+        await preauthorizeCommand(message, commandObject, isAdminCommand)
+        data = await (isAdminCommand
+          ? adminHelpMessage(message)
+          : help(message))
         await message.reply(data)
         break
       }
@@ -179,14 +169,14 @@ export default async function handleCommand(message: Message) {
           })
         }
         await guildConfig.checkGuildCommandScopes(message, commandObject)
-        if (commandObject.category === "Admin" || cmd === ADMIN_HELP_CMD) {
+        if (commandObject.category === "Admin" || isAdminCommand) {
           await preauthorizeCommand(message, commandObject, true)
         }
 
         const data = await commandObject.getHelpMessage(
           message,
           args[2],
-          cmd === `${ADMIN_PREFIX}help`
+          isAdminCommand
         )
         await message.channel.send(data)
         break

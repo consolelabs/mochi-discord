@@ -1,9 +1,9 @@
 import { Command } from "types/common"
-import { PREFIX } from "env"
-import { getEmbedFooter, getHeader, getHelpEmbed } from "utils/discord"
+import { PREFIX } from "utils/constants"
+import { getHeader } from "utils/common"
 import Profile from "modules/profile"
 import { UserNotFoundError, UserNotVerifiedError } from "errors"
-import { MessageEmbed } from "discord.js"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 const command: Command = {
   id: "invite_getlink",
@@ -25,14 +25,9 @@ const command: Command = {
       })
     }
     if (user.is_verified) {
-      const embed = new MessageEmbed()
-        .setDescription(`https://pod.town?code=${user.referral_code}`)
-        .setFooter(
-          getEmbedFooter([
-            `${msg.author.username}#${msg.author.discriminator}`,
-          ]),
-          msg.author.avatarURL()
-        )
+      const embed = composeEmbedMessage(msg, {
+        description: `https://pod.town?code=${user.referral_code}`,
+      })
       return {
         messageOptions: {
           content: getHeader("Getting invite link for", msg.author),
@@ -43,12 +38,14 @@ const command: Command = {
       throw new UserNotVerifiedError({ message: msg, discordId: userId })
     }
   },
-  getHelpMessage: async function () {
-    const embedMsg = getHelpEmbed()
-      .setTitle(`${PREFIX}invite getlink`)
-      .addField("_Examples_", `\`${PREFIX}invite getlink\``, true)
-      .setDescription(`\`\`\`Get your invite link.\`\`\``)
-    return { embeds: [embedMsg] }
+  getHelpMessage: async function (msg) {
+    return {
+      embeds: [
+        composeEmbedMessage(msg, {
+          description: `\`\`\`Get your invite link.\`\`\``,
+        }).addField("_Examples_", `\`${PREFIX}invite getlink\``, true),
+      ],
+    }
   },
 }
 

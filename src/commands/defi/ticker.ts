@@ -3,22 +3,23 @@ import {
   HexColorString,
   Message,
   MessageActionRow,
-  MessageEmbed,
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { PREFIX } from "env"
+import { PREFIX } from "utils/constants"
 import {
-  composeDiscordExitButton,
-  composeDiscordSelectionRow,
-  getEmbedFooter,
+  getCommandArguments,
   getEmoji,
   getHeader,
-  getHelpEmbed,
   roundFloatNumber,
   thumbnails,
-} from "utils/discord"
-import Social from "modules/social"
+} from "utils/common"
+import {
+  composeDiscordSelectionRow,
+  composeDiscordExitButton,
+  composeEmbedMessage,
+} from "utils/discord-embed"
+import Defi from "modules/defi"
 import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 
@@ -36,7 +37,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const input = interaction.values[0]
   const [id, currency, days] = input.split("_")
 
-  const chart = await Social.renderHistoricalMarketChart({
+  const chart = await Defi.renderHistoricalMarketChart({
     msg: message as Message,
     id,
     currency,
@@ -57,6 +58,14 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       components: message.components as MessageActionRow[],
       content: message.content,
     },
+    commandChoiceOptions: {
+      handler,
+      userId: message.author.id,
+      messageId: message.id,
+      channelId: interaction.channelId,
+      guildId: interaction.guildId,
+      interaction,
+    },
   }
 }
 
@@ -66,23 +75,20 @@ const command: Command = {
   name: "Ticker",
   category: "Defi",
   run: async function (msg) {
-    const args = msg.content.split(" ")
+    const args = getCommandArguments(msg)
     const query = !args[1].includes("/") ? `${args[1]}/usd` : args[1]
     const [coinId, currency] = query.split("/")
-    const coin = await Social.getCoinCurrentData(msg, coinId)
+    const coin = await Defi.getCoinCurrentData(msg, coinId)
     const { market_data } = coin
     const blank = getEmoji("blank")
 
-    const embedMsg = new MessageEmbed()
-      .setColor(
-        Social.getChartColorConfig(coin.id, 0, 0).borderColor as HexColorString
-      )
-      .setAuthor(coin.name, coin.image.small)
-      .setFooter(
-        getEmbedFooter(["Data fetched from CoinGecko.com"]),
-        msg.author.avatarURL()
-      )
-      .setTimestamp()
+    const embedMsg = composeEmbedMessage(msg, {
+      color: Defi.getChartColorConfig(coin.id, 0, 0)
+        .borderColor as HexColorString,
+      author: [coin.name, coin.image.small],
+      footer: ["Data fetched from CoinGecko.com"],
+      image: "attachment://chart.png",
+    })
       .addField(
         `Market cap (${currency.toUpperCase()})`,
         `${numberWithCommas(
@@ -122,17 +128,17 @@ const command: Command = {
         true
       )
 
-    const chart = await Social.renderHistoricalMarketChart({
+    const chart = await Defi.renderHistoricalMarketChart({
       msg,
       id: coin.id,
       currency,
     })
-    embedMsg.setImage("attachment://chart.png")
+    // embedMsg.setImage()
 
     const getDropdownOptionDescription = (daysAgo: number) =>
-      `${Social.getDateStr(
+      `${Defi.getDateStr(
         dayjs().subtract(daysAgo, "day").unix() * 1000
-      )} - ${Social.getDateStr(dayjs().unix() * 1000)}`
+      )} - ${Defi.getDateStr(dayjs().unix() * 1000)}`
     const selectRow = composeDiscordSelectionRow({
       customId: "ticker_view_option",
       placeholder: "Make a selection",
@@ -195,16 +201,15 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async () => {
-    const embedMsg = getHelpEmbed("Ticker")
-      .setThumbnail(thumbnails.TOKENS)
-      .setTitle(`${PREFIX}ticker`)
+  getHelpMessage: async (msg) => {
+    const embedMsg = composeEmbedMessage(msg, {
+      thumbnail: thumbnails.TOKENS,
+      description: `\`\`\`Display coin price and market cap.\nData is fetched from [CoinGecko](https://coingecko.com/)\`\`\``,
+    })
+      .addField("_Usage_", `\`${PREFIX}ticker <token>\``)
       .addField(
         "_Examples_",
         `\`${PREFIX}ticker fantom\` or \`${PREFIX}ticker ftm\``
-      )
-      .setDescription(
-        `\`\`\`Display coin price and market cap.\nData is fetched from [CoinGecko](https://coingecko.com/)\`\`\``
       )
     return { embeds: [embedMsg] }
   },

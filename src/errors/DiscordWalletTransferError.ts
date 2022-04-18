@@ -1,5 +1,6 @@
 import { Message, MessageEmbed, TextChannel } from "discord.js"
-import { getEmbedFooter } from "utils/discord"
+import { getEmbedFooter } from "utils/common"
+import { getErrorEmbed } from "utils/discord-embed"
 import { BotBaseError } from "./BaseError"
 
 export class DiscordWalletTransferError extends BotBaseError {
@@ -32,18 +33,14 @@ export class DiscordWalletTransferError extends BotBaseError {
 
   handle() {
     super.handle()
-    const embed = new MessageEmbed()
-      .setColor("#d91c22")
-      .setTitle("Transaction error")
-      .setDescription(
-        this.errorMsg
-          ? this.errorMsg
-          : "Something went wrong! Please try again or contact administrators"
-      )
-      .setFooter(
-        getEmbedFooter([`${this.discordMessage.author.tag}`]),
-        this.discordMessage.author.avatarURL()
-      )
-    this.discordMessage.channel.send({ embeds: [embed] })
+    this.discordMessage.channel.send({
+      embeds: [
+        getErrorEmbed({
+          msg: this.discordMessage,
+          title: "Transaction error",
+          description: this.errorMsg,
+        }),
+      ],
+    })
   }
 }
