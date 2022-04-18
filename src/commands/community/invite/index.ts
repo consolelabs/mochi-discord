@@ -29,13 +29,13 @@ const command: Command = {
       return await actionObj.getHelpMessage(msg)
     } else {
       const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
+      const subCommandsList = getListCommands(replyEmoji ?? "╰ ", commands)
       const embed = composeEmbedMessage(msg, {
         thumbnail:
           "https://cdn.discordapp.com/emojis/900748086513639454.png?size=240",
-        description: `\`\`\`Invite Tracker, tracks all your invites.\`\`\`\n${getListCommands(
-          replyEmoji ?? "╰ ",
-          commands
-        )}\n\n\nType \`${PREFIX}help invite <action>\` to learn more about a specific action!`,
+        description: `\`\`\`Invite Tracker, tracks all your invites.\`\`\`${
+          subCommandsList.trim() === "" ? "" : `\n${subCommandsList}`
+        }\n\nType \`${PREFIX}help invite <action>\` to learn more about a specific action!`,
       })
       return { embeds: [embed] }
     }

@@ -47,6 +47,7 @@ const command: Command = {
       ],
     }
   },
+  experimental: true,
 }
 
 export default command

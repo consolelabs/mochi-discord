@@ -109,10 +109,11 @@ export async function onlyRunInAdminGroup(msg: Message) {
 
 export function getListCommands(
   _emoji: GuildEmoji | string,
-  commands: Record<string, Pick<Command, "command" | "name">>
+  commands: Record<string, Pick<Command, "command" | "name" | "experimental">>
 ) {
   const emoji = getEmoji("reply")
   return Object.values(commands)
+    .filter((c) => !c.experimental)
     .map((c) => `[**${c.command}**](https://google.com)\n${emoji}${c.name}`)
     .join("\n\n")
 }

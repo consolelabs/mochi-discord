@@ -73,6 +73,7 @@ const command: Command = {
     return { embeds: [embedMsg] }
   },
   canRunWithoutAction: true,
+  experimental: true,
 }
 
 export default command

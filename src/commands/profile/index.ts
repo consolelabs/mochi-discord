@@ -19,6 +19,7 @@ const command: Command = {
   canRunWithoutAction: true,
   isComplexCommand: true,
   alias: ["pro", "prof", "pf", "profiel"],
+  experimental: true,
 }
 
 export default command

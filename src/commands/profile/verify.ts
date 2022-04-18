@@ -80,6 +80,7 @@ const command: Command = {
   },
   alias: ["join"],
   canRunWithoutAction: true,
+  experimental: true,
 }
 
 export default command
