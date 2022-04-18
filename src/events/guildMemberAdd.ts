@@ -7,6 +7,7 @@ import User, { UserInput } from "../modules/users"
 import InviteHistory, {InviteHistoryInput, InviteeCountInput} from "../modules/inviteHistories"
 import guildConfig from "modules/guildConfig"
 import { composeEmbedMessage } from "utils/discord-embed"
+import { DISCORD_DEFAULT_AVATAR } from "env";
 
 export default {
 	name: "guildMemberAdd",
@@ -71,9 +72,9 @@ export default {
 				sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.user.id));
 				return;
 			}
-			sendInviteTrackerMessage(logChannel, inviteMsg(member.user.id, inviter.id, inviteAmountResponse.data));
+			sendInviteTrackerMessage(logChannel, inviteMsg(member.user.id, inviter.id, inviteAmountResponse.data), member.user.avatarURL());
 		} else {
-			sendInviteTrackerMessage(logChannel, vantityInviteMsg(member.user.id));
+			sendInviteTrackerMessage(logChannel, vantityInviteMsg(member.user.id), member.user.avatarURL());
 		}
 	},
 } as Event<"guildMemberAdd">
@@ -90,10 +91,11 @@ function inviteMsg(memberID: string, inviterID: string, inviteAmount: number) {
 	return `<@${memberID}> has been invited by <@${inviterID}> and has now ${inviteAmount} invites.`;
 }
 
-function sendInviteTrackerMessage(logChannel: Discord.TextChannel, msg: string) {
+function sendInviteTrackerMessage(logChannel: Discord.TextChannel, msg: string, thumbnail?: string) {
 	const embed = composeEmbedMessage(null, {
 		title: "Invite Tracker",
 		description: msg,
+		thumbnail: thumbnail || DISCORD_DEFAULT_AVATAR,
 	});
 	logChannel.send({embeds: [embed]});
 }

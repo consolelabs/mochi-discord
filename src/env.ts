@@ -25,3 +25,4 @@ export const TATSU_API_KEY =
 export const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID || "932579148608729118"
 export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || ""
 export const NEKO_SECRET = process.env.NEKO_SECRET || ""
+export const DISCORD_DEFAULT_AVATAR = process.env.DISCORD_DEFAULT_AVATAR || ""
