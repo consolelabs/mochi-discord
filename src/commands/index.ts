@@ -15,7 +15,7 @@ import {
   getCommandArguments,
   onlyAdminsAllowed,
 } from "utils/common"
-import config from "../adapter/config"
+import config from "../adapters/config"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import ticker from "./defi/ticker"

@@ -5,7 +5,7 @@ import { logger } from "logger"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import { Event } from "."
-import profile from "../adapter/profile"
+import profile from "../adapters/profile"
 
 export default {
   name: "interactionCreate",

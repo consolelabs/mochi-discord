@@ -4,7 +4,7 @@ import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import { adminCategories, originalCommands } from "../commands"
 import { emojis, onlyRunInAdminGroup, thumbnails } from "utils/common"
-import config from "../adapter/config"
+import config from "../adapters/config"
 import { Category, Command } from "types/common"
 import { composeEmbedMessage } from "utils/discord-embed"
 dayjs.extend(utc)
