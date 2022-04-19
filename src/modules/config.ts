@@ -4,20 +4,9 @@ import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { API_SERVER_HOST } from "../env"
 import { logger } from "../logger"
+import { Guild, Guilds } from "types/config"
 
-export interface Guilds {
-  data: Guild[]
-}
-
-export interface Guild {
-  id: string
-  name: string
-  bot_scopes: string[]
-  alias: string
-  log_channel_id: string
-}
-
-class GuildConfig {
+class Config {
   public Guilds: Guilds
 
   public async initialize() {
@@ -180,7 +169,7 @@ class GuildConfig {
   }
 }
 
-const guildConfig = new GuildConfig()
-guildConfig.initialize()
+const config = new Config()
+config.initialize()
 
-export default guildConfig
+export default config

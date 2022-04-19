@@ -6,6 +6,7 @@ import {
   MessageOptions,
   ColorResolvable,
   MessageComponentInteraction,
+  Permissions,
 } from "discord.js"
 import { DISCORD_ADMIN_GROUP } from "../env"
 import { Command } from "types/common"
@@ -105,6 +106,10 @@ export function getEmbedFooter(texts: string[]): string {
 export async function onlyRunInAdminGroup(msg: Message) {
   const groupId = (msg.channel as TextChannel).parentId
   return groupId === DISCORD_ADMIN_GROUP
+}
+
+export async function onlyAdminsAllowed(msg: Message) {
+  return msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
 export function getListCommands(

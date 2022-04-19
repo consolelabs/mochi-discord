@@ -7,10 +7,10 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import Defi from "modules/defi"
 import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import { Command } from "types/common"
 import { composeEmbedMessage } from "utils/discord-embed"
+import Defi from "modules/defi"
 
 async function tip(msg: Message, args: string[]) {
   const payload = await Defi.getTransferRequestPayload(msg, args)

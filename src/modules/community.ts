@@ -13,7 +13,7 @@ export interface InviteeCountInput {
   inviter: string
 }
 
-class InviteHistory {
+class Community {
   public async indexInviteHistory(invite: InviteHistoryInput): Promise<any> {
     try {
       const body = JSON.stringify(invite)
@@ -45,4 +45,4 @@ class InviteHistory {
   }
 }
 
-export default new InviteHistory()
+export default new Community()

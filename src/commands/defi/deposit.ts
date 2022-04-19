@@ -4,7 +4,6 @@ import { PREFIX } from "utils/constants"
 import {
   DirectMessageNotAllowedError,
   UserNotFoundError,
-  UserNotVerifiedError,
 } from "errors"
 import Profile from "modules/profile"
 import { composeEmbedMessage } from "utils/discord-embed"
@@ -15,7 +14,6 @@ async function deposit(msg: Message) {
   try {
     user = await Profile.getUser({
       discordId: msg.author.id,
-      guildId: msg.guildId,
     })
     if (!user) {
       throw new UserNotFoundError({
@@ -23,9 +21,6 @@ async function deposit(msg: Message) {
         guildId: msg.guild?.id,
         discordId: msg.author.id,
       })
-    }
-    if (!user.is_verified) {
-      throw new UserNotVerifiedError({ message: msg, discordId: msg.author.id })
     }
 
     let description = `${defaultEmojis.ARROW_DOWN} **Deposit Bitcoin**`

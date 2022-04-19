@@ -3,7 +3,7 @@ import { SetOptional } from "type-fest"
 import { CommandChoiceHandlerOptions } from "utils/CommandChoiceManager"
 
 // Category of commands
-export type Category = "Admin" | "Profile" | "Defi" | "Config" | "Community"
+export type Category = "Profile" | "Defi" | "Config" | "Community"
 
 // All command must conform to this type
 export type Command = {

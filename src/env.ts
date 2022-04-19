@@ -19,9 +19,6 @@ export const PRIVATE_KEY = process.env.PRIVATE_KEY || ""
 export const API_SERVER_HOST =
   process.env.API_SERVER_HOST || "http://localhost:8200"
 
-export const TATSU_API_KEY =
-  process.env.TATSU_API_KEY || "3NSksWTLfb-FRLGNQq4T8r0DO2mcV8BNw"
-
 export const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID || "932579148608729118"
 export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || ""
 export const NEKO_SECRET = process.env.NEKO_SECRET || ""
