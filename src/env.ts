@@ -11,8 +11,6 @@ export const DISCORD_TOKEN = process.env.DISCORD_TOKEN
 export const DISCORD_BOT_GUILD_ID = process.env.DISCORD_BOT_GUILD_ID || ""
 export const DISCORD_ADMIN_GROUP = process.env.DISCORD_ADMIN_GROUP || ""
 
-export const DISCORD_GM_CHANNEL = process.env.DISCORD_GM_CHANNEL || ""
-
 export const RPC_PROVIDER_URL = process.env.RPC_PROVIDER_URL || ""
 export const PRIVATE_KEY = process.env.PRIVATE_KEY || ""
 

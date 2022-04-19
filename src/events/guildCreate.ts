@@ -1,6 +1,6 @@
 import { Event } from "."
 import Discord from "discord.js"
-import config from "../modules/config"
+import config from "../adapter/config"
 
 export default {
 	name: "guildCreate",
@@ -9,7 +9,7 @@ export default {
 		console.log(`Joined guild: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`)
 
 		try {
-			config.createGuildConfig(guild.id, guild.name)
+			config.createGuild(guild.id, guild.name)
 		} catch (err) {
 			console.error(err)
 		}

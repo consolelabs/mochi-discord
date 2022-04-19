@@ -11,13 +11,11 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/tokens"
-import gm, { newGm } from "./community/gm"
 import {
   getCommandArguments,
-  isGmMessage,
   onlyAdminsAllowed,
 } from "utils/common"
-import config from "../modules/config"
+import config from "../adapter/config"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import ticker from "./defi/ticker"
@@ -41,7 +39,6 @@ export const originalCommands: Record<string, Command> = {
   ticker,
   airdrop,
   // community
-  gm,
   invite,
   chat,
   // config
@@ -148,10 +145,6 @@ export default async function handleCommand(message: Message) {
     const adminOnly = commandObject && adminCategories[commandObject.category]
 
     switch (true) {
-      // gm/gn
-      case isGmMessage(message):
-        await newGm(message)
-        break
       // return general help message
       case helpCommand: {
         let data

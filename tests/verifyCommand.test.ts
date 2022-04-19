@@ -11,7 +11,7 @@ import {
 } from "discord.js"
 import { DISCORD_BOT_CHANNEL } from "../src/env"
 import { verify } from "../src/commands/profile/verify"
-import db from "../src/modules/db"
+import db from "../src/adapter/db"
 import { getMessage } from "./mocks"
 
 describe("Verify Command", () => {

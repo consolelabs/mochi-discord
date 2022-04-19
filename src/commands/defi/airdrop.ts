@@ -13,7 +13,7 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import Defi from "modules/defi"
+import Defi from "adapter/defi"
 import NodeCache from "node-cache"
 import dayjs from "dayjs"
 import { DiscordWalletTransferRequest } from "types/defi"
@@ -66,7 +66,10 @@ export async function confirmAirdrop(
   const originalAuthor = await msg.guild.members.fetch(authorId)
   const airdropEmbed = composeEmbedMessage(msg, {
     title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
-    description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(+amountInUSD, 4)})${
+    description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(
+      +amountInUSD,
+      4
+    )})${
       +maxEntries !== 0
         ? ` for  ${maxEntries} ${+maxEntries > 1 ? "people" : "person"}`
         : ""
@@ -94,7 +97,10 @@ export async function confirmAirdrop(
   airdropCache.set(cacheKey, [], +duration)
 
   // check airdrop expired
-  const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(+amountInUSD, 4)}) `
+  const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(
+    +amountInUSD,
+    4
+  )}) `
   await checkExpiredAirdrop(
     reply as Message,
     cacheKey,
@@ -128,8 +134,8 @@ async function checkExpiredAirdrop(
 
       if (participants.length > 0) {
         const req: DiscordWalletTransferRequest = {
-          fromDiscordId: authorId,
-          toDiscordIds: participants.map((p) =>
+          sender: authorId,
+          recipients: participants.map((p) =>
             p.replace("<@!", "").replace("<@", "").replace(">", "")
           ),
           amount,
@@ -218,7 +224,7 @@ const command: Command = {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
 
-    const payload = await Defi.getAirdropPayload(msg, args)
+    const payload = await Defi.getTransferPayload(msg, args)
     // check balance
     const data = await Defi.discordWalletBalances(msg.author.id)
     const currentBal = data.balances[payload.cryptocurrency.toUpperCase()]
@@ -240,9 +246,8 @@ const command: Command = {
 
     // ---------------
     const tokenEmoji = getEmoji(payload.cryptocurrency)
-    const currentPrice = roundFloatNumber(
-      await Defi.getCoinPrice(msg, payload.cryptocurrency)
-    )
+    const coin = await Defi.getCoin(msg, payload.cryptocurrency)
+    const currentPrice = roundFloatNumber(coin.market_data.current_price["usd"])
     const amountDescription = `${tokenEmoji} **${roundFloatNumber(
       payload.amount,
       4

@@ -4,7 +4,7 @@ import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import { adminCategories, originalCommands } from "../commands"
 import { emojis, onlyRunInAdminGroup, thumbnails } from "utils/common"
-import config from "../modules/config"
+import config from "../adapter/config"
 import { Category, Command } from "types/common"
 import { composeEmbedMessage } from "utils/discord-embed"
 dayjs.extend(utc)
@@ -24,35 +24,6 @@ function getHelpEmbed(msg: Message, isAdmin: boolean) {
     footer: [`Type ${HELP_CMD} for normal commands`],
   })
 }
-
-// export async function adminHelpMessage(msg: Message) {
-//   const embedMsg = getHelpEmbed(msg, true)
-//   let idx = 0
-//   for (const [category, emojiId] of Object.entries(categoryIcons)) {
-//     // const [category, emojiId] = Object.entries(categoryIcons)[i]
-//     if (category !== "Admin") continue
-//     const commandsOfThisCat = Object.values(originalCommands)
-//       .filter(Boolean)
-//       .filter((c) => c.category === category || c.id === "profile")
-//       .map((c) => `[\`${c.id}\`](https://google.com)`)
-//       .join(" ")
-//     if (commandsOfThisCat.trim() === "") continue
-//     const emoji = msg.client.emojis.cache.get(emojiId)
-//     if (idx % 3 === 2) embedMsg.addField("\u200B", "\u200B", true)
-//     embedMsg.addField(
-//       `${emoji ? `${emoji} ` : ""}${category}`,
-//       `${commandsOfThisCat}`,
-//       true
-//     )
-//     idx++
-//   }
-//   const nrOfEmptyFields = 3 - (embedMsg.fields.length % 3)
-//   new Array(nrOfEmptyFields)
-//     .fill(0)
-//     .forEach(() => embedMsg.addField("\u200B", "\u200B", true))
-
-//   return { embeds: [embedMsg] }
-// }
 
 const info = {
   id: "help",

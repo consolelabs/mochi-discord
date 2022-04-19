@@ -5,7 +5,7 @@ import {
   DirectMessageNotAllowedError,
   UserNotFoundError,
 } from "errors"
-import Profile from "modules/profile"
+import Profile from "adapter/profile"
 import { composeEmbedMessage } from "utils/discord-embed"
 import { defaultEmojis } from "utils/common"
 

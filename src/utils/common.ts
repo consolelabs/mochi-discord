@@ -10,7 +10,7 @@ import {
 } from "discord.js"
 import { DISCORD_ADMIN_GROUP } from "../env"
 import { Command } from "types/common"
-import { DOT, SPACE, VERTICAL_BAR } from "./constants"
+import { API_BASE_URL, DOT, SPACE, VERTICAL_BAR } from "./constants"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "920934041535000637",
@@ -151,12 +151,25 @@ export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
-export const isGmMessage = (message: Message) =>
-  message.content === "gm" ||
-  message.content === "gn" ||
-  message.content === "<:gm:930840080761880626>" ||
-  (message.stickers.get("928509218171006986") &&
-    message.stickers.get("928509218171006986").name === ":gm")
-
 export const getCommandArguments = (message: Message) =>
   message ? message.content.split(SPACE) : []
+
+export const numberWithCommas = (n: number) =>
+  n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+// TODO: integrate with BE
+export async function handleNormalMessage(_message: Message) {
+  // const resp = await fetch(`${API_BASE_URL}/messages/handle`, {
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify(message),
+  // })
+  // if (resp.status !== 200) {
+  //   throw new Error("Error while handling messages")
+  // }
+  // const json = await resp.json()
+  // if (json.error !== undefined) {
+  //   throw new Error(json.error)
+  // }
+  // return json
+}

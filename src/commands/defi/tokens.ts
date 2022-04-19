@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { getEmoji, getHeader, thumbnails } from "utils/common"
-import Defi from "modules/defi"
+import Defi from "adapter/defi"
 import { composeEmbedMessage } from "utils/discord-embed"
 
 const command: Command = {
