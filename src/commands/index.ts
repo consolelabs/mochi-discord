@@ -1,7 +1,7 @@
 import { Message } from "discord.js"
-import { ADMIN_HELP_CMD, ADMIN_PREFIX, HELP_CMD, PREFIX } from "utils/constants"
+import { HELP_CMD, PREFIX } from "utils/constants"
 import { logger } from "../logger"
-import { adminHelpMessage, help } from "./help"
+import { help } from "./help"
 import invite from "./community/invite"
 import profile from "./profile"
 import verify from "./profile/verify"
@@ -15,18 +15,17 @@ import gm, { newGm } from "./community/gm"
 import {
   getCommandArguments,
   isGmMessage,
-  onlyRunInAdminGroup,
+  onlyAdminsAllowed,
 } from "utils/common"
-import guildConfig from "../modules/guildConfig"
+import config from "../modules/config"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
 import CommandChoiceManager from "utils/CommandChoiceManager"
-import { sendVerifyMessage } from "./profile/send-verify-message"
 import ticker from "./defi/ticker"
 import airdrop from "./defi/airdrop"
 import reaction from "./config/reaction"
 import channel from "./config/channel"
 import chat from "./community/chat"
-import { Command } from "types/common"
+import { Command, Category } from "types/common"
 
 export const originalCommands: Record<string, Command> = {
   // profile
@@ -75,7 +74,12 @@ export const commands: Record<string, Command> = {
   ...aliases,
 }
 
-const helpCommands = [HELP_CMD, ADMIN_HELP_CMD]
+export const adminCategories: Record<Category, boolean> = {
+  Profile: false,
+  Defi: false,
+  Community: false,
+  Config: true,
+}
 
 async function preauthorizeCommand(
   message: Message,
@@ -84,7 +88,7 @@ async function preauthorizeCommand(
 ) {
   let ableToRun = true
   if (onlyAdmin) {
-    ableToRun = await onlyRunInAdminGroup(message)
+    ableToRun = await onlyAdminsAllowed(message)
   } else {
     if (!commandObject) return
     const { checkBeforeRun } = commandObject
@@ -123,7 +127,7 @@ async function executeCommand(
 export default async function handleCommand(message: Message) {
   try {
     const args = getCommandArguments(message)
-    const helpCommand = helpCommands.includes(message.content)
+    const helpCommand = message.content === HELP_CMD
 
     logger.info(
       `[${message.guild?.name ?? "DM"}][${
@@ -137,60 +141,49 @@ export default async function handleCommand(message: Message) {
 
     // show help message if invoking command without action is not supported
     if (!action && commandObject && !commandObject.canRunWithoutAction) {
-      cmd = commandObject.category === "Admin" ? ADMIN_HELP_CMD : HELP_CMD
+      cmd = HELP_CMD
     }
     commandObject = !commandObject && action ? commands[action] : commandObject
-    const isAdminCommand = cmd.startsWith(ADMIN_PREFIX)
+    // const isAdminCommand = cmd.startsWith(ADMIN_PREFIX)
+    const adminOnly = commandObject && adminCategories[commandObject.category]
 
     switch (true) {
       // gm/gn
       case isGmMessage(message):
         await newGm(message)
         break
-      case cmd === `${ADMIN_PREFIX}send-verify-message`:
-        await sendVerifyMessage(message, action)
-        break
       // return general help message
       case helpCommand: {
         let data
-        await preauthorizeCommand(message, commandObject, isAdminCommand)
-        data = await (isAdminCommand
-          ? adminHelpMessage(message)
-          : help(message))
+        await preauthorizeCommand(message, commandObject)
+        data = await help(message)
         await message.reply(data)
         break
       }
       // execute a specific command's 'help()
-      case helpCommands.includes(cmd): {
+      case cmd === HELP_CMD: {
         if (!commandObject) {
           throw new CommandNotFoundError({
             message,
             command: message.content,
           })
         }
-        await guildConfig.checkGuildCommandScopes(message, commandObject)
-        if (commandObject.category === "Admin" || isAdminCommand) {
-          await preauthorizeCommand(message, commandObject, true)
-        }
+        await config.checkGuildCommandScopes(message, commandObject)
+        await preauthorizeCommand(message, commandObject, adminOnly)
 
         const data = await commandObject.getHelpMessage(
           message,
           args[2],
-          isAdminCommand
+          adminOnly
         )
         await message.channel.send(data)
         break
       }
       // execute command's run()
       case Boolean(commandObject):
-        await guildConfig.checkGuildCommandScopes(message, commandObject)
+        await config.checkGuildCommandScopes(message, commandObject)
         await preauthorizeCommand(message, commandObject)
-        await executeCommand(
-          message,
-          action,
-          cmd.startsWith(ADMIN_PREFIX),
-          commandObject
-        )
+        await executeCommand(message, action, adminOnly, commandObject)
         break
       default:
         throw new CommandNotFoundError({

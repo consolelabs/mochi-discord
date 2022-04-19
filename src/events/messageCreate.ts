@@ -1,7 +1,7 @@
 import { Message } from "discord.js"
 import handleCommand from "../commands"
 import { LOG_CHANNEL_ID } from "../env"
-import { PREFIX, ADMIN_PREFIX, SPACE } from "utils/constants"
+import { PREFIX, SPACE } from "utils/constants"
 import { Event } from "."
 import { logger } from "../logger"
 import { BotBaseError } from "errors"
@@ -16,11 +16,7 @@ function normalizeCommand(message: Message) {
 
 function isInBotCommandScopes(message: Message) {
   if (message.channel.type !== "DM") {
-    return (
-      isGmMessage(message) ||
-      message.content.startsWith(PREFIX) ||
-      message.content.startsWith(ADMIN_PREFIX)
-    )
+    return isGmMessage(message) || message.content.startsWith(PREFIX)
   }
   return (
     message.channel.type === "DM" &&

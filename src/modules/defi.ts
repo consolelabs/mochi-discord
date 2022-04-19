@@ -8,7 +8,7 @@ import {
   Token,
   DiscordWalletWithdrawRequest,
   DiscordWalletBalances,
-} from "types"
+} from "types/defi"
 import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import dayjs from "dayjs"
 import * as Canvas from "canvas"

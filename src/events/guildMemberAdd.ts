@@ -3,11 +3,12 @@ import Discord from "discord.js"
 import client from "../index"
 import { invites } from "./index"
 import { logger } from "../logger"
-import User, { UserInput } from "../modules/users"
-import InviteHistory, {InviteHistoryInput, InviteeCountInput} from "../modules/inviteHistories"
-import guildConfig from "modules/guildConfig"
+import Community, {InviteHistoryInput, InviteeCountInput} from "../modules/community"
+import config from "modules/config"
 import { composeEmbedMessage } from "utils/discord-embed"
 import { DISCORD_DEFAULT_AVATAR } from "env";
+import Profile from "../modules/profile"
+import { UserInput } from "types/profile"
 
 export default {
 	name: "guildMemberAdd",
@@ -18,10 +19,10 @@ export default {
 		const invite = newInvites.find(i => i.uses > (oldInvites as Discord.Collection<string, number>).get(i.code));
 		(invites.get(invite.guild.id) as Discord.Collection<string,number>).set(invite.code, invite.uses);
 		const inviter = await client.users.fetch(invite.inviter.id);
-		const guild = await guildConfig.getGuildConfig(member.guild.id);
+		const guild = await config.getGuildConfig(member.guild.id);
 		const logChannel = member.guild.channels.cache.find(channel => channel.id === guild.log_channel_id) as Discord.TextChannel;
 		
-		const indexInviterResponse = await User.indexUser(
+		const indexInviterResponse = await Profile.indexUser(
 			{
 				id: inviter.id,
 				username: inviter.username,
@@ -34,7 +35,7 @@ export default {
 			return;
 		}
 		
-		const indexInviteeResponse = await User.indexUser(
+		const indexInviteeResponse = await Profile.indexUser(
 			{
 				id: member.user.id,
 				username: member.user.username,
@@ -48,7 +49,7 @@ export default {
 		}
 		
 		if (inviter) {
-			const indexInviteHistoryResponse = await InviteHistory.indexInviteHistory(
+			const indexInviteHistoryResponse = await Community.indexInviteHistory(
 				{
 					guild_id: member.guild.id,
 					inviter: inviter.id,
@@ -61,7 +62,7 @@ export default {
 				return;
 			}
 			
-			const inviteAmountResponse = await InviteHistory.getInvitees(
+			const inviteAmountResponse = await Community.getInvitees(
 				{
 					guild_id: member.guild.id,
 					inviter: inviter.id
