@@ -21,7 +21,7 @@ import {
   composeDiscordExitButton,
   composeEmbedMessage,
 } from "utils/discord-embed"
-import Defi from "adapter/defi"
+import Defi from "adapters/defi"
 import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { ChartJSNodeCanvas } from "chartjs-node-canvas"

@@ -1,6 +1,6 @@
 import { Event } from "."
 import Discord from "discord.js"
-import config from "../adapter/config"
+import config from "../adapters/config"
 
 export default {
 	name: "guildCreate",

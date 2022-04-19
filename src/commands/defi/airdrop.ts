@@ -13,7 +13,7 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import Defi from "adapter/defi"
+import Defi from "adapters/defi"
 import NodeCache from "node-cache"
 import dayjs from "dayjs"
 import { DiscordWalletTransferRequest } from "types/defi"

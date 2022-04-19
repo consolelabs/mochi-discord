@@ -7,7 +7,7 @@ import {
   getEmoji,
   getHeader,
 } from "utils/common"
-import Defi from "adapter/defi"
+import Defi from "adapters/defi"
 import { composeEmbedMessage } from "utils/discord-embed"
 
 async function withdraw(msg: Message, args: string[]) {

@@ -10,7 +10,7 @@ import {
 import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import { Command } from "types/common"
 import { composeEmbedMessage } from "utils/discord-embed"
-import Defi from "adapter/defi"
+import Defi from "adapters/defi"
 
 async function tip(msg: Message, args: string[]) {
   const payload = await Defi.getTransferPayload(msg, args)
