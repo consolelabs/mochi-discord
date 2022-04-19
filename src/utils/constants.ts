@@ -1,3 +1,5 @@
+import { API_SERVER_HOST } from "env"
+
 export const DOT = "•"
 export const COMMA = ","
 export const SPACE = " "
@@ -11,4 +13,7 @@ export const PROFILE_THUMBNAIL =
   "https://cdn.discordapp.com/emojis/916737804384485447.png?size=240"
 
 export const DEFI_DEFAULT_FOOTER = `Use ${PREFIX}tokens for a list of supported tokens`
+
+export const DM_COMMANDS = ["deposit"]
+export const API_BASE_URL = `${API_SERVER_HOST}/api/v1`
 

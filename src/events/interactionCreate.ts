@@ -5,7 +5,7 @@ import { logger } from "logger"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import { Event } from "."
-import profile from "../modules/profile"
+import profile from "../adapter/profile"
 
 export default {
   name: "interactionCreate",
@@ -42,9 +42,6 @@ export default {
         if (interaction.isButton()) {
           const buttonInteraction = interaction as ButtonInteraction
           switch (true) {
-            case interaction.customId.startsWith("verify"):
-              profile.sendVerifyURL(buttonInteraction)
-              return
             case interaction.customId === "cancel_airdrop":
               await msg.delete().catch(() => {})
               return
