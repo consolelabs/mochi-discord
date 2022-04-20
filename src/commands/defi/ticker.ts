@@ -27,51 +27,51 @@ import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import * as Canvas from "canvas"
 
-  function getChartColorConfig(id: string, width: number, height: number) {
-    let gradientFrom, gradientTo, borderColor
-    switch (id) {
-      case "bitcoin":
-        borderColor = "#ffa301"
-        gradientFrom = "rgba(159,110,43,0.9)"
-        gradientTo = "rgba(76,66,52,0.5)"
-        break
-      case "ethereum":
-        borderColor = "#ff0421"
-        gradientFrom = "rgba(173,36,43,0.9)"
-        gradientTo = "rgba(77,48,53,0.5)"
-        break
+function getChartColorConfig(id: string, width: number, height: number) {
+  let gradientFrom, gradientTo, borderColor
+  switch (id) {
+    case "bitcoin":
+      borderColor = "#ffa301"
+      gradientFrom = "rgba(159,110,43,0.9)"
+      gradientTo = "rgba(76,66,52,0.5)"
+      break
+    case "ethereum":
+      borderColor = "#ff0421"
+      gradientFrom = "rgba(173,36,43,0.9)"
+      gradientTo = "rgba(77,48,53,0.5)"
+      break
 
-      case "tether":
-        borderColor = "#22a07a"
-        gradientFrom = "rgba(46,78,71,0.9)"
-        gradientTo = "rgba(48,63,63,0.5)"
-        break
-      case "binancecoin" || "terra":
-        borderColor = "#f5bc00"
-        gradientFrom = "rgba(172,136,41,0.9)"
-        gradientTo = "rgba(73,67,55,0.5)"
-        break
-      case "solana":
-        borderColor = "#9945ff"
-        gradientFrom = "rgba(116,62,184,0.9)"
-        gradientTo = "rgba(61,53,83,0.5)"
-        break
-      default:
-        borderColor = "#009cdb"
-        gradientFrom = "rgba(53,83,192,0.9)"
-        gradientTo = "rgba(58,69,110,0.5)"
-    }
-
-    const canvas = Canvas.createCanvas(width, height)
-    const ctx = canvas.getContext("2d")
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400)
-    gradient.addColorStop(0, gradientFrom)
-    gradient.addColorStop(1, gradientTo)
-    return {
-      borderColor,
-      backgroundColor: gradient,
-    }
+    case "tether":
+      borderColor = "#22a07a"
+      gradientFrom = "rgba(46,78,71,0.9)"
+      gradientTo = "rgba(48,63,63,0.5)"
+      break
+    case "binancecoin" || "terra":
+      borderColor = "#f5bc00"
+      gradientFrom = "rgba(172,136,41,0.9)"
+      gradientTo = "rgba(73,67,55,0.5)"
+      break
+    case "solana":
+      borderColor = "#9945ff"
+      gradientFrom = "rgba(116,62,184,0.9)"
+      gradientTo = "rgba(61,53,83,0.5)"
+      break
+    default:
+      borderColor = "#009cdb"
+      gradientFrom = "rgba(53,83,192,0.9)"
+      gradientTo = "rgba(58,69,110,0.5)"
   }
+
+  const canvas = Canvas.createCanvas(width, height)
+  const ctx = canvas.getContext("2d")
+  const gradient = ctx.createLinearGradient(0, 0, 0, 400)
+  gradient.addColorStop(0, gradientFrom)
+  gradient.addColorStop(1, gradientTo)
+  return {
+    borderColor,
+    backgroundColor: gradient,
+  }
+}
 
 async function renderHistoricalMarketChart({
   msg,
@@ -194,12 +194,17 @@ const command: Command = {
     const query = !args[1].includes("/") ? `${args[1]}/usd` : args[1]
     const [coinId, currency] = query.split("/")
     const coin = await Defi.getCoin(msg, coinId)
-    const { market_cap, current_price, price_change_percentage_1h_in_currency, price_change_percentage_24h_in_currency, price_change_percentage_7d_in_currency } = coin.market_data
+    const {
+      market_cap,
+      current_price,
+      price_change_percentage_1h_in_currency,
+      price_change_percentage_24h_in_currency,
+      price_change_percentage_7d_in_currency,
+    } = coin.market_data
     const blank = getEmoji("blank")
 
     const embedMsg = composeEmbedMessage(msg, {
-      color: getChartColorConfig(coin.id, 0, 0)
-        .borderColor as HexColorString,
+      color: getChartColorConfig(coin.id, 0, 0).borderColor as HexColorString,
       author: [coin.name, coin.image.small],
       footer: ["Data fetched from CoinGecko.com"],
       image: "attachment://chart.png",
@@ -207,39 +212,31 @@ const command: Command = {
       .addField(
         `Market cap (${currency.toUpperCase()})`,
         `${numberWithCommas(
-          market_cap[currency.toLowerCase()] ??
-            market_cap["usd"]
+          market_cap[currency.toLowerCase()] ?? market_cap["usd"]
         )} (#${coin.market_cap_rank}) ${blank}`,
         true
       )
       .addField(
         `Price (${currency.toUpperCase()})`,
         `${numberWithCommas(
-          current_price[currency.toLowerCase()] ??
-            current_price["usd"]
+          current_price[currency.toLowerCase()] ?? current_price["usd"]
         )}`,
         true
       )
       .addField("\u200B", "\u200B", true)
       .addField(
         "Change (1h)",
-        getChangePercentage(
-          price_change_percentage_1h_in_currency.usd
-        ),
+        getChangePercentage(price_change_percentage_1h_in_currency.usd),
         true
       )
       .addField(
         `Change (24h) ${blank}`,
-        getChangePercentage(
-          price_change_percentage_24h_in_currency.usd
-        ),
+        getChangePercentage(price_change_percentage_24h_in_currency.usd),
         true
       )
       .addField(
         "Change (7d)",
-        getChangePercentage(
-          price_change_percentage_7d_in_currency.usd
-        ),
+        getChangePercentage(price_change_percentage_7d_in_currency.usd),
         true
       )
 

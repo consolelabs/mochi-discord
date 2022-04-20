@@ -1,10 +1,7 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
-import {
-  DirectMessageNotAllowedError,
-  UserNotFoundError,
-} from "errors"
+import { DirectMessageNotAllowedError, UserNotFoundError } from "errors"
 import Profile from "adapters/profile"
 import { composeEmbedMessage } from "utils/discord-embed"
 import { defaultEmojis } from "utils/common"
@@ -32,15 +29,17 @@ async function deposit(msg: Message) {
       embeds: [composeEmbedMessage(msg, { description })],
     })
 
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            description: `:information_source: Info\n<@${msg.author.id}>, your deposit address has been sent to you via a DM`,
-          }),
-        ],
-      },
-    }
+    return msg.channel.type === "DM"
+      ? null
+      : {
+          messageOptions: {
+            embeds: [
+              composeEmbedMessage(msg, {
+                description: `:information_source: Info\n<@${msg.author.id}>, your deposit address has been sent to you via a DM`,
+              }),
+            ],
+          },
+        }
   } catch (e: any) {
     if (msg.channel.type !== "DM" && e.httpStatus === 403) {
       throw new DirectMessageNotAllowedError({ message: msg })
@@ -63,6 +62,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   alias: ["dep"],
+  allowedDM: true,
 }
 
 export default command

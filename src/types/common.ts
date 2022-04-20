@@ -32,6 +32,7 @@ export type Command = {
   experimental?: boolean
   inactivityTimeout?: number
   isComplexCommand?: boolean
+  allowedDM?: boolean
 }
 
 export type EmbedProperties = {
