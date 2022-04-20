@@ -1,4 +1,4 @@
-import { Message } from "discord.js"
+import { Message, MessageOptions } from "discord.js"
 import { HELP_CMD, PREFIX } from "utils/constants"
 import { logger } from "../logger"
 import { help } from "./help"
@@ -11,10 +11,7 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/tokens"
-import {
-  getCommandArguments,
-  onlyAdminsAllowed,
-} from "utils/common"
+import { getCommandArguments, onlyAdminsAllowed } from "utils/common"
 import config from "../adapters/config"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
 import CommandChoiceManager from "utils/CommandChoiceManager"
@@ -71,6 +68,15 @@ export const commands: Record<string, Command> = {
   ...aliases,
 }
 
+export const allowedDMCommands: Record<string, Command> = Object.entries(
+  commands
+)
+  .filter((c) => c[1].allowedDM)
+  .reduce<Record<string, Command>>((acc, cur) => {
+    acc[cur[0]] = cur[1]
+    return acc
+  }, {})
+
 export const adminCategories: Record<Category, boolean> = {
   Profile: false,
   Defi: false,
@@ -78,27 +84,16 @@ export const adminCategories: Record<Category, boolean> = {
   Config: true,
 }
 
-async function preauthorizeCommand(
-  message: Message,
-  commandObject: Command,
-  onlyAdmin?: boolean
-) {
-  let ableToRun = true
-  if (onlyAdmin) {
-    ableToRun = await onlyAdminsAllowed(message)
-  } else {
-    if (!commandObject) return
-    const { checkBeforeRun } = commandObject
-    if (checkBeforeRun) {
-      ableToRun = await checkBeforeRun(message)
-    }
-  }
-  if (!ableToRun) {
-    throw new CommandNotAllowedToRunError({
-      message,
-      command: message.content,
-    })
-  }
+async function preauthorizeCommand(message: Message, commandObject: Command) {
+  if (!commandObject) return
+  const { checkBeforeRun } = commandObject
+  const ableToRun = !checkBeforeRun || (await checkBeforeRun(message))
+  if (ableToRun) return
+
+  throw new CommandNotAllowedToRunError({
+    message,
+    command: message.content,
+  })
 }
 
 async function executeCommand(
@@ -121,10 +116,11 @@ async function executeCommand(
   }
 }
 
-export default async function handleCommand(message: Message) {
+export default async function handlePrefixedCommand(message: Message) {
   try {
     const args = getCommandArguments(message)
-    const helpCommand = message.content === HELP_CMD
+    let [command, action] = args
+    let commandKey = command.slice(PREFIX.length)
 
     logger.info(
       `[${message.guild?.name ?? "DM"}][${
@@ -132,58 +128,32 @@ export default async function handleCommand(message: Message) {
       }] executing command: ${args}`
     )
 
-    let cmd = args[0]
-    let action = args[1]
-    let commandObject = commands[cmd.slice(PREFIX.length)]
-
-    // show help message if invoking command without action is not supported
-    if (!action && commandObject && !commandObject.canRunWithoutAction) {
-      cmd = HELP_CMD
+    if (message.channel.type === "DM" && !allowedDMCommands[commandKey]) {
+      return
     }
-    commandObject = !commandObject && action ? commands[action] : commandObject
-    // const isAdminCommand = cmd.startsWith(ADMIN_PREFIX)
+
+    // handle help commands
+    let data: MessageOptions
+    if (message.content === HELP_CMD) {
+      // $help
+      data = await help(message)
+    } else if (command === HELP_CMD) {
+      // e.g. $help tip
+      data = await commands[action].getHelpMessage(message, action)
+    }
+
+    if (data) {
+      await message.reply(data)
+      return
+    }
+
+    // run a command e.g. $tick ftm
+    const commandObject = commands[commandKey]
     const adminOnly = commandObject && adminCategories[commandObject.category]
 
-    switch (true) {
-      // return general help message
-      case helpCommand: {
-        let data
-        await preauthorizeCommand(message, commandObject)
-        data = await help(message)
-        await message.reply(data)
-        break
-      }
-      // execute a specific command's 'help()
-      case cmd === HELP_CMD: {
-        if (!commandObject) {
-          throw new CommandNotFoundError({
-            message,
-            command: message.content,
-          })
-        }
-        await config.checkGuildCommandScopes(message, commandObject)
-        await preauthorizeCommand(message, commandObject, adminOnly)
-
-        const data = await commandObject.getHelpMessage(
-          message,
-          args[2],
-          adminOnly
-        )
-        await message.channel.send(data)
-        break
-      }
-      // execute command's run()
-      case Boolean(commandObject):
-        await config.checkGuildCommandScopes(message, commandObject)
-        await preauthorizeCommand(message, commandObject)
-        await executeCommand(message, action, adminOnly, commandObject)
-        break
-      default:
-        throw new CommandNotFoundError({
-          message,
-          command: message.content,
-        })
-    }
+    await config.checkGuildCommandScopes(message, commandObject)
+    await preauthorizeCommand(message, commandObject)
+    await executeCommand(message, action, adminOnly, commandObject)
   } catch (e) {
     throw e
   }

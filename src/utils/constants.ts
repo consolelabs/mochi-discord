@@ -14,6 +14,4 @@ export const PROFILE_THUMBNAIL =
 
 export const DEFI_DEFAULT_FOOTER = `Use ${PREFIX}tokens for a list of supported tokens`
 
-export const DM_COMMANDS = ["deposit"]
 export const API_BASE_URL = `${API_SERVER_HOST}/api/v1`
-
