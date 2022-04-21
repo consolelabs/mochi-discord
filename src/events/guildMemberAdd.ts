@@ -1,96 +1,37 @@
 import { Event } from "."
 import Discord from "discord.js"
-import client from "../index"
-import { invites } from "./index"
-import { logger } from "../logger"
-import Community from "../adapters/community"
-import { InviteHistoryInput, InviteeCountInput } from "types/community"
 import config from "adapters/config"
-import { composeEmbedMessage } from "utils/discord-embed"
+import webhook from "../adapters/webhook"
 import { DISCORD_DEFAULT_AVATAR } from "env"
-import Profile from "../adapters/profile"
-import { UserInput } from "types/profile"
+import { createBEGuildMember } from "../types/webhook"
+import { composeEmbedMessage } from "utils/discord-embed"
 
 export default {
   name: "guildMemberAdd",
   once: false,
   execute: async (member: Discord.GuildMember) => {
-    const newInvites = await member.guild.invites.fetch()
-    const oldInvites = invites.get(member.guild.id)
-    const invite = newInvites.find(
-      (i) =>
-        i.uses > (oldInvites as Discord.Collection<string, number>).get(i.code)
-    )
-    ;(invites.get(invite.guild.id) as Discord.Collection<string, number>).set(
-      invite.code,
-      invite.uses
-    )
-    const inviter = await client.users.fetch(invite.inviter.id)
+    const resp = await webhook.pushDiscordWebhook("guildMemberAdd", createBEGuildMember(member))
     const guild = await config.getGuild(member.guild.id)
     const logChannel = member.guild.channels.cache.find(
       (channel) => channel.id === guild.log_channel_id
     ) as Discord.TextChannel
-
-    const indexInviterResponse = await Profile.createUser({
-      id: inviter.id,
-      username: inviter.username,
-      guild_id: member.guild.id,
-    } as UserInput)
-    if (indexInviterResponse.error) {
-      logger.error(`Error indexing inviter: ${indexInviterResponse.error}`)
-      sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.user.id))
+    
+    if (resp.error) {
+      sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.id))
       return
     }
-
-    const indexInviteeResponse = await Profile.createUser({
-      id: member.user.id,
-      username: member.user.username,
-      guild_id: member.guild.id,
-    } as UserInput)
-    if (indexInviteeResponse.error) {
-      logger.error(`Error indexing invitee: ${indexInviteeResponse.error}`)
-      sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.user.id))
+    
+    const data = resp.data
+    if (data.is_bot) {
+      sendInviteTrackerMessage(logChannel, botInviteMsg(member.id))
       return
     }
-
-    if (inviter) {
-      const createInviteHistoryResponse = await Community.createInviteHistory({
-        guild_id: member.guild.id,
-        inviter: inviter.id,
-        invitee: member.user.id,
-      } as InviteHistoryInput)
-      if (createInviteHistoryResponse.error) {
-        logger.error(
-          `Error indexing invite history: ${createInviteHistoryResponse.error}`
-        )
-        sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.user.id))
-        return
-      }
-
-      const inviteAmountResponse = await Community.getInvitees({
-        guild_id: member.guild.id,
-        inviter: inviter.id,
-      } as InviteeCountInput)
-      if (inviteAmountResponse.error) {
-        logger.error(
-          `Error getting invite amount: ${inviteAmountResponse.error}`
-        )
-        sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.user.id))
-        return
-      }
-      sendInviteTrackerMessage(
-        logChannel,
-        inviteMsg(member.user.id, inviter.id, inviteAmountResponse.data),
-        member.user.avatarURL()
-      )
-    } else {
-      sendInviteTrackerMessage(
-        logChannel,
-        vantityInviteMsg(member.user.id),
-        member.user.avatarURL()
-      )
+    if (data.is_vanity) {
+      sendInviteTrackerMessage(logChannel, vantityInviteMsg(member.id))
+      return
     }
-  },
+    sendInviteTrackerMessage(logChannel, inviteMsg(member.id, data.inviter_id, data.invites_amount))
+  }
 } as Event<"guildMemberAdd">
 
 function unknowErrorMsg(memberID: string) {
@@ -99,6 +40,10 @@ function unknowErrorMsg(memberID: string) {
 
 function vantityInviteMsg(memberID: string) {
   return `<@${memberID}> joined using a vanity invite.`
+}
+
+function botInviteMsg(memberID: string) {
+  return `<@${memberID}> joined using  using OAuth.`
 }
 
 function inviteMsg(memberID: string, inviterID: string, inviteAmount: number) {
@@ -117,4 +62,3 @@ function sendInviteTrackerMessage(
   })
   logChannel.send({ embeds: [embed] })
 }
-
