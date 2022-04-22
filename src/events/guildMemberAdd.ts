@@ -17,20 +17,20 @@ export default {
     ) as Discord.TextChannel
     
     if (resp.error) {
-      sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.id))
+      sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.id), member.user.avatarURL())
       return
     }
     
     const data = resp.data
     if (data.is_bot) {
-      sendInviteTrackerMessage(logChannel, botInviteMsg(member.id))
+      sendInviteTrackerMessage(logChannel, botInviteMsg(member.id), member.user.avatarURL())
       return
     }
     if (data.is_vanity) {
-      sendInviteTrackerMessage(logChannel, vantityInviteMsg(member.id))
+      sendInviteTrackerMessage(logChannel, vantityInviteMsg(member.id), member.user.avatarURL())
       return
     }
-    sendInviteTrackerMessage(logChannel, inviteMsg(member.id, data.inviter_id, data.invites_amount))
+    sendInviteTrackerMessage(logChannel, inviteMsg(member.id, data.inviter_id, data.invites_amount), member.user.avatarURL())
   }
 } as Event<"guildMemberAdd">
 
