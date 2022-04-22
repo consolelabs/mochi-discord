@@ -199,7 +199,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
 const command: Command = {
   id: "ticker",
   command: "ticker",
-  name: "Ticker",
+  name: "Display coin price and market cap",
   category: "Defi",
   run: async function (msg) {
     const args = getCommandArguments(msg)
@@ -297,7 +297,7 @@ const command: Command = {
   getHelpMessage: async (msg) => {
     const embedMsg = composeEmbedMessage(msg, {
       thumbnail: thumbnails.TOKENS,
-      description: `\`\`\`Display coin price and market cap.\nData is fetched from [CoinGecko](https://coingecko.com/)\`\`\``,
+      description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
     })
       .addField("_Usage_", `\`${PREFIX}ticker <token>\``)
       .addField(

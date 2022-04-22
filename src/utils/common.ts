@@ -9,8 +9,9 @@ import {
   Permissions,
 } from "discord.js"
 import { DISCORD_ADMIN_GROUP } from "../env"
+
 import { Command, ReactionRoleConfig } from "types/common"
-import { API_BASE_URL, DOT, SPACE, VERTICAL_BAR } from "./constants"
+import { API_BASE_URL, DOT, HELP_CMD, SPACE, VERTICAL_BAR } from "./constants"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "920934041535000637",
@@ -187,3 +188,7 @@ export async function handleNormalMessage(_message: Message) {
   // }
   // return json
 }
+
+export const specificHelpCommand = (message: Message) =>
+  message.content.startsWith(HELP_CMD) &&
+  getCommandArguments(message).length > 1

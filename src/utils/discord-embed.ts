@@ -8,14 +8,16 @@ import {
   MessageSelectMenu,
   MessageSelectMenuOptions,
 } from "discord.js"
-import { EMPTY, SPACE, VERTICAL_BAR } from "./constants"
+import { EMPTY, PREFIX, SPACE, VERTICAL_BAR } from "./constants"
 import {
   getCommandArguments,
   getEmbedFooter,
   getEmoji,
   msgColors,
+  specificHelpCommand,
 } from "./common"
 import { EmbedProperties } from "types/common"
+import { commands } from "commands"
 
 /**
  * Returns a formatted string of options (maximum 8)
@@ -84,8 +86,14 @@ export function composeEmbedMessage(
     author,
     originalMsgAuthor,
   } = props
+  // display command name as title if this is a command's help embed
+  const isSpecificHelpCommand = specificHelpCommand(msg)
   const args = getCommandArguments(msg)
-  const isHelpCommand = args.length > 1 && args[0].includes("help")
+  const commandKey = isSpecificHelpCommand
+    ? args[1]
+    : args[0].slice(PREFIX.length)
+  const commandName = commands[commandKey]?.name
+
   let authorTag = msg?.author?.tag
   let authorAvatarURL = msg?.author?.avatarURL()
   if (originalMsgAuthor) {
@@ -94,14 +102,7 @@ export function composeEmbedMessage(
   }
 
   const embed = new MessageEmbed()
-    .setTitle(
-      isHelpCommand && !!msg?.content
-        ? msg.content
-            .replace("help", EMPTY)
-            .replace(SPACE, EMPTY)
-            .split(SPACE)[0]
-        : title ?? ""
-    )
+    .setTitle(isSpecificHelpCommand ? commandName : title ?? "")
     .setColor((color ?? msgColors.PRIMARY) as ColorResolvable)
     .setFooter(
       getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),

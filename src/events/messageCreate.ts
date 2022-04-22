@@ -18,15 +18,18 @@ export default {
   once: false,
   execute: async (message: Message) => {
     message.content = normalizeCommand(message)
-    if (message.channel.id === LOG_CHANNEL_ID || message.author.bot) return
+    if (
+      message.channel.id === LOG_CHANNEL_ID ||
+      message.author.bot ||
+      message.channel.type === "DM"
+    )
+      return
 
     try {
       if (message.content.startsWith(PREFIX)) {
         // disable previous command choice handler before executing new command
-        if (message.channel.type !== "DM") {
-          const key = `${message.author.id}_${message.guildId}_${message.channelId}`
-          CommandChoiceManager.remove(key)
-        }
+        const key = `${message.author.id}_${message.guildId}_${message.channelId}`
+        CommandChoiceManager.remove(key)
         await handlePrefixedCommand(message)
         return
       }
