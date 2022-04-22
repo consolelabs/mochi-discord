@@ -90,21 +90,7 @@ const info = {
       .fill(0)
       .forEach(() => embedMsg.addField("\u200B", "\u200B", true))
 
-    // ---------------------
-    const opts: MessageSelectOptionData[] = Object.values(originalCommands)
-      .filter((cmd) => categories.map((c) => c[0]).includes(cmd.category))
-      .map((cmd) => ({
-        label: cmd.name,
-        value: cmd.id,
-      }))
-    const selectRow = composeDiscordSelectionRow({
-      customId: "help_dropdown",
-      placeholder: "Make a selection",
-      options: opts,
-    })
-
-    //
-    return { embeds: [embedMsg], components: [selectRow] }
+    return { embeds: [embedMsg] }
   },
 } as Command
 
