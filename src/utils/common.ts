@@ -9,7 +9,7 @@ import {
   Permissions,
 } from "discord.js"
 import { DISCORD_ADMIN_GROUP } from "../env"
-import { Command } from "types/common"
+import { Command, ReactionRoleConfig } from "types/common"
 import { API_BASE_URL, DOT, SPACE, VERTICAL_BAR } from "./constants"
 
 export const tokenEmojis: Record<string, string> = {
@@ -22,19 +22,17 @@ export const tokenEmojis: Record<string, string> = {
   BTC: "961105849181437952",
 }
 
-// TODO: refactor these configs
-export const reactionRoleEmojis: Record<string, string> = {
-  GREEN_TEAM: '💚',
-  YELLOW_TEAM: '💛',
-  PURPLE_TEAM: '💜',
-}
-
-// TODO: refactor these configs
-export const reactionRoleNames: Record<string, string> = {
-  GREEN_TEAM: 'Green Team',
-  YELLOW_TEAM: 'Yellow Team',
-  PURPLE_TEAM: 'Purple Team',
-}
+export const reactionRoleConfigs: ReactionRoleConfig[] = [
+  {
+    roleName: 'Green Team', roleEmoji: '💚',
+  },
+  {
+    roleName: 'Yellow Team', roleEmoji: '💛'
+  },
+  {
+    roleName: 'Purple Team', roleEmoji: '💜'
+  },
+]
 
 export const chainEmojis: Record<string, string> = {
   ETHEREUM: "928216430451761172",

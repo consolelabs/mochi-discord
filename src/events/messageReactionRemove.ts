@@ -2,7 +2,7 @@ import { Message, MessageReaction, PartialMessageReaction, Role, User } from "di
 import { DISCORD_GET_ROLE_CHANNEL_ID } from "env"
 import { logger } from "logger"
 import { Event } from "."
-import { reactionRoleEmojis, reactionRoleNames } from "utils/common"; 
+import { reactionRoleConfigs} from "utils/common"; 
 import { BotBaseError } from "errors";
 import ChannelLogger from "utils/ChannelLogger";
 
@@ -16,6 +16,7 @@ export default {
   execute: async (_reaction: MessageReaction | PartialMessageReaction, user: User) => {
 
     try {
+
       if (_reaction.message.partial) await _reaction.message.fetch()
       if (_reaction.partial) await _reaction.fetch()
       if (user.bot) return
@@ -24,21 +25,11 @@ export default {
 
       const msg = _reaction.message as Message
 
-      const { GREEN_TEAM, PURPLE_TEAM, YELLOW_TEAM } = reactionRoleEmojis;
-
-      switch (_reaction.emoji.name) {
-        case GREEN_TEAM:
-          await _reaction.message.guild.members.cache.get(user.id).roles.remove(getRoleByName(msg, reactionRoleNames.GREEN_TEAM));
-          break
-        case YELLOW_TEAM:
-          await _reaction.message.guild.members.cache.get(user.id).roles.remove(getRoleByName(msg, reactionRoleNames.YELLOW_TEAM));
-          break
-        case PURPLE_TEAM:
-          await _reaction.message.guild.members.cache.get(user.id).roles.remove(getRoleByName(msg, reactionRoleNames.PURPLE_TEAM));
-          break
-        default:
-          return
-      }
+      reactionRoleConfigs.forEach(async conf => {
+        if (_reaction.emoji.name === conf.roleEmoji) {
+          await _reaction.message.guild.members.cache.get(user.id).roles.remove(getRoleByName(msg, conf.roleName))
+        }
+      });
 
     } catch (e: any) {
       const error = e as BotBaseError

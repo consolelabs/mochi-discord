@@ -45,3 +45,8 @@ export type EmbedProperties = {
   author?: string[]
   originalMsgAuthor?: User
 }
+
+export type ReactionRoleConfig = {
+  roleEmoji: string,
+  roleName: string,
+}
