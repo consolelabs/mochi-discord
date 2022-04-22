@@ -19,7 +19,6 @@ export type Command = {
   ) => Promise<{
     messageOptions: MessageOptions
     commandChoiceOptions?: SetOptional<CommandChoiceHandlerOptions, "messageId">
-    replyOnOriginal?: boolean
   } | void>
   getHelpMessage: (
     msg: Message,

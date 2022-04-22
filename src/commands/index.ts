@@ -2,7 +2,7 @@ import { Message, MessageOptions } from "discord.js"
 import { HELP_CMD, PREFIX } from "utils/constants"
 import { logger } from "../logger"
 import { help } from "./help"
-import invite from "./community/invite"
+import invite from "./community/invite/index"
 import profile from "./profile"
 import verify from "./profile/verify"
 import reverify from "./profile/reverify"
@@ -140,7 +140,7 @@ export default async function handlePrefixedCommand(message: Message) {
       data = await help(message)
     } else if (command === HELP_CMD) {
       // e.g. $help tip
-      data = await commands[action].getHelpMessage(message, action)
+      data = await commands[action].getHelpMessage(message, args[2]) // e.g. $help invite leaderboard
     }
 
     if (data) {
