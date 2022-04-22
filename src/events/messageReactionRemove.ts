@@ -11,13 +11,11 @@ const getRoleByName = (msg: Message, name: string): Role => {
 }
 
 export default {
-  name: "messageReactionAdd",
+  name: "messageReactionRemove",
   once: false,
   execute: async (_reaction: MessageReaction | PartialMessageReaction, user: User) => {
 
     try {
-      const { GREEN_TEAM, PURPLE_TEAM, YELLOW_TEAM } = reactionRoleEmojis;
-
       if (_reaction.message.partial) await _reaction.message.fetch()
       if (_reaction.partial) await _reaction.fetch()
       if (user.bot) return
@@ -26,15 +24,17 @@ export default {
 
       const msg = _reaction.message as Message
 
+      const { GREEN_TEAM, PURPLE_TEAM, YELLOW_TEAM } = reactionRoleEmojis;
+
       switch (_reaction.emoji.name) {
         case GREEN_TEAM:
-          await _reaction.message.guild.members.cache.get(user.id).roles.add(getRoleByName(msg, reactionRoleNames.GREEN_TEAM));
+          await _reaction.message.guild.members.cache.get(user.id).roles.remove(getRoleByName(msg, reactionRoleNames.GREEN_TEAM));
           break
         case YELLOW_TEAM:
-          await _reaction.message.guild.members.cache.get(user.id).roles.add(getRoleByName(msg, reactionRoleNames.YELLOW_TEAM));
+          await _reaction.message.guild.members.cache.get(user.id).roles.remove(getRoleByName(msg, reactionRoleNames.YELLOW_TEAM));
           break
         case PURPLE_TEAM:
-          await _reaction.message.guild.members.cache.get(user.id).roles.add(getRoleByName(msg, reactionRoleNames.PURPLE_TEAM));
+          await _reaction.message.guild.members.cache.get(user.id).roles.remove(getRoleByName(msg, reactionRoleNames.PURPLE_TEAM));
           break
         default:
           return
@@ -50,4 +50,4 @@ export default {
       ChannelLogger.log(e)
     }
   },
-} as Event<"messageReactionAdd">
+} as Event<"messageReactionRemove">

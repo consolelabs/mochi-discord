@@ -22,6 +22,20 @@ export const tokenEmojis: Record<string, string> = {
   BTC: "961105849181437952",
 }
 
+// TODO: refactor these configs
+export const reactionRoleEmojis: Record<string, string> = {
+  GREEN_TEAM: '💚',
+  YELLOW_TEAM: '💛',
+  PURPLE_TEAM: '💜',
+}
+
+// TODO: refactor these configs
+export const reactionRoleNames: Record<string, string> = {
+  GREEN_TEAM: 'Green Team',
+  YELLOW_TEAM: 'Yellow Team',
+  PURPLE_TEAM: 'Purple Team',
+}
+
 export const chainEmojis: Record<string, string> = {
   ETHEREUM: "928216430451761172",
   FANTOM: "928216448902508564",
