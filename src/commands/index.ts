@@ -14,6 +14,8 @@ import tokens from "./defi/tokens"
 import { getCommandArguments } from "utils/common"
 import config from "../adapters/config"
 import { CommandNotAllowedToRunError } from "errors"
+import guildCustomCommand from "../modules/guildCustomCommand"
+import { customCommandsExecute } from "./customCommand"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import ticker from "./defi/ticker"
 import airdrop from "./defi/airdrop"
@@ -40,7 +42,7 @@ export const originalCommands: Record<string, Command> = {
   chat,
   // config
   reaction,
-  channel,
+  channel
 }
 
 const aliases: Record<string, Command> = Object.entries(
@@ -52,26 +54,26 @@ const aliases: Record<string, Command> = Object.entries(
     aliases = commandObj.alias.reduce((aliasObject, alias) => {
       return {
         ...aliasObject,
-        [alias]: commandObj,
+        [alias]: commandObj
       }
     }, {})
   }
 
   return {
     ...acc,
-    ...aliases,
+    ...aliases
   }
 }, {})
 
 export const commands: Record<string, Command> = {
   ...originalCommands,
-  ...aliases,
+  ...aliases
 }
 
 export const allowedDMCommands: Record<string, Command> = Object.entries(
   commands
 )
-  .filter((c) => c[1].allowedDM)
+  .filter(c => c[1].allowedDM)
   .reduce<Record<string, Command>>((acc, cur) => {
     acc[cur[0]] = cur[1]
     return acc
@@ -81,7 +83,7 @@ export const adminCategories: Record<Category, boolean> = {
   Profile: false,
   Defi: false,
   Community: false,
-  Config: true,
+  Config: true
 }
 
 async function preauthorizeCommand(message: Message, commandObject: Command) {
@@ -92,7 +94,7 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
 
   throw new CommandNotAllowedToRunError({
     message,
-    command: message.content,
+    command: message.content
   })
 }
 
@@ -111,7 +113,7 @@ async function executeCommand(
     if (commandObject.isComplexCommand && runResponse.commandChoiceOptions) {
       CommandChoiceManager.add({
         ...runResponse.commandChoiceOptions,
-        messageId: output.id,
+        messageId: output.id
       })
     }
   }
@@ -131,6 +133,18 @@ export default async function handlePrefixedCommand(message: Message) {
 
     if (message.channel.type === "DM" && !allowedDMCommands[commandKey]) {
       return
+    }
+
+    const customCommands = await guildCustomCommand.listGuildCustomCommands(
+      message.guildId
+    )
+
+    // custom command triggered
+    for (let i = 0; i < customCommands.length; i++) {
+      if (customCommands[i].id.toLowerCase() === commandKey.toLowerCase()) {
+        customCommandsExecute(message, customCommands[i])
+        return
+      }
     }
 
     // handle help commands
