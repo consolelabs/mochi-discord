@@ -1,4 +1,4 @@
-import { Message, Permissions } from "discord.js"
+import { Message, MessageSelectOptionData, Permissions } from "discord.js"
 import { HELP_CMD } from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
@@ -6,7 +6,10 @@ import { adminCategories, originalCommands } from "../commands"
 import { emojis, onlyRunInAdminGroup, thumbnails } from "utils/common"
 import config from "../adapters/config"
 import { Category, Command } from "types/common"
-import { composeEmbedMessage } from "utils/discord-embed"
+import {
+  composeDiscordSelectionRow,
+  composeEmbedMessage,
+} from "utils/discord-embed"
 dayjs.extend(utc)
 
 const categoryIcons: Record<Category, string> = {
@@ -86,7 +89,22 @@ const info = {
     new Array(nrOfEmptyFields)
       .fill(0)
       .forEach(() => embedMsg.addField("\u200B", "\u200B", true))
-    return { embeds: [embedMsg] }
+
+    // ---------------------
+    const opts: MessageSelectOptionData[] = Object.values(originalCommands)
+      .filter((cmd) => categories.map((c) => c[0]).includes(cmd.category))
+      .map((cmd) => ({
+        label: cmd.name,
+        value: cmd.id,
+      }))
+    const selectRow = composeDiscordSelectionRow({
+      customId: "help_dropdown",
+      placeholder: "Make a selection",
+      options: opts,
+    })
+
+    //
+    return { embeds: [embedMsg], components: [selectRow] }
   },
 } as Command
 
