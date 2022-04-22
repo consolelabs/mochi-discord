@@ -4,11 +4,14 @@ import {
   Message,
   MessageActionRow,
   MessageAttachment,
+  MessageEmbed,
   MessageSelectMenu,
+  MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
 import { PREFIX } from "utils/constants"
 import {
+  defaultEmojis,
   getCommandArguments,
   getEmoji,
   getHeader,
@@ -142,24 +145,33 @@ async function renderHistoricalMarketChart({
 }
 
 const getChangePercentage = (change: number) => {
-  const trend = change > 0 ? "📈" : change === 0 ? "" : "📉"
+  const trend =
+    change > 0
+      ? defaultEmojis.CHART_WITH_UPWARDS_TREND
+      : change === 0
+      ? ""
+      : defaultEmojis.CHART_WITH_DOWNWARDS_TREND
   return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
 }
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
-  const { message } = interaction
+  const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const [id, currency, days] = input.split("_")
 
   const chart = await renderHistoricalMarketChart({
-    msg: message as Message,
+    msg: message,
     id,
     currency,
     days: +days,
   })
 
-  message.embeds[0].image.url = "attachment://chart.png"
+  // update chart image
+  const [embed] = message.embeds
+  await message.removeAttachments()
+  embed.image.url = "attachment://chart.png"
+
   const selectMenu = message.components[0].components[0] as MessageSelectMenu
   const choices = ["1", "7", "30", "60", "90", "365"]
   selectMenu.options.forEach(
@@ -168,7 +180,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
 
   return {
     messageOptions: {
-      embeds: message.embeds,
+      embeds: [embed],
       files: [chart],
       components: message.components as MessageActionRow[],
       content: message.content,
@@ -246,52 +258,22 @@ const command: Command = {
       currency,
     })
 
-    const getDropdownOptionDescription = (daysAgo: number) =>
+    const getDropdownOptionDescription = (days: number) =>
       `${Defi.getDateStr(
-        dayjs().subtract(daysAgo, "day").unix() * 1000
+        dayjs().subtract(days, "day").unix() * 1000
       )} - ${Defi.getDateStr(dayjs().unix() * 1000)}`
+
+    const opt = (days: number): MessageSelectOptionData => ({
+      label: `${days === 365 ? "1 year" : `${days} day${days > 1 ? "s" : ""}`}`,
+      value: `${coin.id}_${currency}_${days}`,
+      emoji: days > 1 ? "📆" : "🕒",
+      description: getDropdownOptionDescription(days),
+      default: days === 7,
+    })
     const selectRow = composeDiscordSelectionRow({
-      customId: "ticker_view_option",
+      customId: "ticker_dropdown",
       placeholder: "Make a selection",
-      options: [
-        {
-          label: "1 day",
-          value: `${coin.id}_${currency}_1`,
-          emoji: "🕒",
-          description: getDropdownOptionDescription(1),
-        },
-        {
-          label: "7 days",
-          value: `${coin.id}_${currency}_7`,
-          emoji: "📆",
-          default: true,
-          description: getDropdownOptionDescription(7),
-        },
-        {
-          label: "30 days",
-          value: `${coin.id}_${currency}_30`,
-          emoji: "📆",
-          description: getDropdownOptionDescription(30),
-        },
-        {
-          label: "60 days",
-          value: `${coin.id}_${currency}_60`,
-          emoji: "📆",
-          description: getDropdownOptionDescription(60),
-        },
-        {
-          label: "90 days",
-          value: `${coin.id}_${currency}_90`,
-          emoji: "📆",
-          description: getDropdownOptionDescription(90),
-        },
-        {
-          label: "1 year",
-          value: `${coin.id}_${currency}_365`,
-          emoji: "📆",
-          description: getDropdownOptionDescription(365),
-        },
-      ],
+      options: [opt(1), opt(7), opt(30), opt(60), opt(90), opt(365)],
     })
 
     const exitBtnRow = composeDiscordExitButton()
