@@ -7,11 +7,11 @@ import {
   getEmoji,
   getHeader,
 } from "utils/common"
-import Defi from "modules/defi"
+import Defi from "adapters/defi"
 import { composeEmbedMessage } from "utils/discord-embed"
 
 async function withdraw(msg: Message, args: string[]) {
-  const payload = await Defi.getWithdrawPayload(msg, args)
+  const payload = await Defi.getTransferPayload(msg, args)
   const data = await Defi.discordWalletWithdraw(JSON.stringify(payload))
   const ftmEmoji = getEmoji("ftm")
   const tokenEmoji = getEmoji(payload.cryptocurrency)
@@ -20,7 +20,7 @@ async function withdraw(msg: Message, args: string[]) {
     title: `${tokenEmoji} ${payload.cryptocurrency.toUpperCase()} sent`,
     description: "Your withdrawal was processed succesfully!",
   })
-    .addField("Destination address", `\`${payload.toAddress}\``, false)
+    .addField("Destination address", `\`${payload.recipients[0]}\``, false)
     .addField(
       "Withdrawal amount",
       `**${data.withdrawalAmount}** ${tokenEmoji}`,

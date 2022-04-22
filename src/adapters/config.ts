@@ -2,28 +2,17 @@ import { Command } from "types/common"
 import { Message } from "discord.js"
 import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
-import { API_SERVER_HOST } from "../env"
 import { logger } from "../logger"
+import { Guild, Guilds } from "types/config"
+import { API_BASE_URL } from "utils/constants"
 
-export interface Guilds {
-  data: Guild[]
-}
-
-export interface Guild {
-  id: string
-  name: string
-  bot_scopes: string[]
-  alias: string
-  log_channel_id: string
-}
-
-class GuildConfig {
+class Config {
   public Guilds: Guilds
 
   public async initialize() {
-    this.Guilds = await this.getGuildConfigs()
+    this.Guilds = await this.getGuilds()
     setInterval(async () => {
-      this.Guilds = await this.getGuildConfigs()
+      this.Guilds = await this.getGuilds()
       logger.info(
         `reloaded ${this.Guilds.data.length} guild configs: ${this.Guilds.data
           .map((g) => g.name)
@@ -32,9 +21,9 @@ class GuildConfig {
     }, 3600000)
   }
 
-  public async getGuildConfigs(): Promise<Guilds> {
+  public async getGuilds(): Promise<Guilds> {
     const guilds: Guilds = await (
-      await fetch(API_SERVER_HOST + "/api/v1/guilds", {
+      await fetch(`${API_BASE_URL}/guilds`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -45,8 +34,8 @@ class GuildConfig {
     return guilds
   }
 
-  public async getGuildConfig(guildId: string): Promise<Guild> {
-    const res = await fetch(API_SERVER_HOST + "/api/v1/guilds/" + guildId, {
+  public async getGuild(guildId: string): Promise<Guild> {
+    const res = await fetch(`${API_BASE_URL}/guilds/` + guildId, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -63,8 +52,8 @@ class GuildConfig {
     }
   }
 
-  public async getScopes(guildId: string): Promise<string[]> {
-    const guild = await this.getGuildConfig(guildId)
+  public async getGuildScopes(guildId: string): Promise<string[]> {
+    const guild = await this.getGuild(guildId)
     return guild.bot_scopes
   }
 
@@ -73,7 +62,7 @@ class GuildConfig {
     category: string,
     command: string
   ): Promise<boolean> {
-    const scopes = await this.getScopes(guildId)
+    const scopes = await this.getGuildScopes(guildId)
 
     const cat = category.toLowerCase()
     const cmd = command.toLowerCase()
@@ -127,7 +116,7 @@ class GuildConfig {
     guildId: string,
     category: string
   ): Promise<boolean> {
-    const scopes = await this.getScopes(guildId)
+    const scopes = await this.getGuildScopes(guildId)
 
     const cat = category.toLowerCase()
 
@@ -156,8 +145,8 @@ class GuildConfig {
     return false
   }
 
-  public async createGuildConfig(guildId: string, name: string) {
-    const guild = await this.getGuildConfig(guildId)
+  public async createGuild(guildId: string, name: string) {
+    const guild = await this.getGuild(guildId)
     if (guild) {
       logger.warn(`Guild ${guildId} already exists`)
       return
@@ -169,7 +158,7 @@ class GuildConfig {
     }
 
     await (
-      await fetch(API_SERVER_HOST + "/api/v1/guilds", {
+      await fetch(`${API_BASE_URL}/guilds`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -180,7 +169,7 @@ class GuildConfig {
   }
 }
 
-const guildConfig = new GuildConfig()
-guildConfig.initialize()
+const config = new Config()
+config.initialize()
 
-export default guildConfig
+export default config

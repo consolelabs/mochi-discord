@@ -7,13 +7,13 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import Defi from "modules/defi"
 import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import { Command } from "types/common"
 import { composeEmbedMessage } from "utils/discord-embed"
+import Defi from "adapters/defi"
 
 async function tip(msg: Message, args: string[]) {
-  const payload = await Defi.getTransferRequestPayload(msg, args)
+  const payload = await Defi.getTransferPayload(msg, args)
   const data = await Defi.discordWalletTransfer(JSON.stringify(payload), msg)
   if (!data || data.length === 0) {
     throw new DiscordWalletTransferError({
@@ -33,7 +33,7 @@ async function tip(msg: Message, args: string[]) {
         thumbnail: thumbnails.TIP,
         author: ["Generous"],
         description: `${mentionUser(
-          payload.fromDiscordId
+          payload.sender
         )} sent ${users} ${roundFloatNumber(data[0].amount, 4)} ${tokenEmoji} ${
           payload.each ? "each" : ""
         }`,

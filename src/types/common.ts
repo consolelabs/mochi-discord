@@ -3,7 +3,7 @@ import { SetOptional } from "type-fest"
 import { CommandChoiceHandlerOptions } from "utils/CommandChoiceManager"
 
 // Category of commands
-export type Category = "Admin" | "Profile" | "Defi" | "Config" | "Community"
+export type Category = "Profile" | "Defi" | "Config" | "Community"
 
 // All command must conform to this type
 export type Command = {
@@ -19,7 +19,6 @@ export type Command = {
   ) => Promise<{
     messageOptions: MessageOptions
     commandChoiceOptions?: SetOptional<CommandChoiceHandlerOptions, "messageId">
-    replyOnOriginal?: boolean
   } | void>
   getHelpMessage: (
     msg: Message,
@@ -32,6 +31,7 @@ export type Command = {
   experimental?: boolean
   inactivityTimeout?: number
   isComplexCommand?: boolean
+  allowedDM?: boolean
 }
 
 export type EmbedProperties = {

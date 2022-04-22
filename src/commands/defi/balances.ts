@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { getEmoji, getHeader, roundFloatNumber, thumbnails } from "utils/common"
-import Defi from "modules/defi"
+import Defi from "adapters/defi"
 import { composeEmbedMessage } from "utils/discord-embed"
 
 const command: Command = {

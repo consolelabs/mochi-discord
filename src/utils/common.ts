@@ -6,10 +6,11 @@ import {
   MessageOptions,
   ColorResolvable,
   MessageComponentInteraction,
+  Permissions,
 } from "discord.js"
 import { DISCORD_ADMIN_GROUP } from "../env"
 import { Command } from "types/common"
-import { DOT, SPACE, VERTICAL_BAR } from "./constants"
+import { API_BASE_URL, DOT, SPACE, VERTICAL_BAR } from "./constants"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "920934041535000637",
@@ -48,6 +49,8 @@ export const defaultEmojis: Record<string, string> = {
   CHECK: ":white_check_mark:",
   ARROW_DOWN: ":arrow_heading_down:",
   ARROW_UP: ":arrow_heading_up:",
+  CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
+  CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
 }
 
 export const emojis: { [key: string]: string } = {
@@ -107,12 +110,17 @@ export async function onlyRunInAdminGroup(msg: Message) {
   return groupId === DISCORD_ADMIN_GROUP
 }
 
+export async function onlyAdminsAllowed(msg: Message) {
+  return msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
+}
+
 export function getListCommands(
   _emoji: GuildEmoji | string,
-  commands: Record<string, Pick<Command, "command" | "name">>
+  commands: Record<string, Pick<Command, "command" | "name" | "experimental">>
 ) {
   const emoji = getEmoji("reply")
   return Object.values(commands)
+    .filter((c) => !c.experimental)
     .map((c) => `[**${c.command}**](https://google.com)\n${emoji}${c.name}`)
     .join("\n\n")
 }
@@ -145,12 +153,25 @@ export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
-export const isGmMessage = (message: Message) =>
-  message.content === "gm" ||
-  message.content === "gn" ||
-  message.content === "<:gm:930840080761880626>" ||
-  (message.stickers.get("928509218171006986") &&
-    message.stickers.get("928509218171006986").name === ":gm")
-
 export const getCommandArguments = (message: Message) =>
   message ? message.content.split(SPACE) : []
+
+export const numberWithCommas = (n: number) =>
+  n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+// TODO: integrate with BE
+export async function handleNormalMessage(_message: Message) {
+  // const resp = await fetch(`${API_BASE_URL}/messages/handle`, {
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify(message),
+  // })
+  // if (resp.status !== 200) {
+  //   throw new Error("Error while handling messages")
+  // }
+  // const json = await resp.json()
+  // if (json.error !== undefined) {
+  //   throw new Error(json.error)
+  // }
+  // return json
+}
