@@ -53,6 +53,8 @@ export async function confirmAirdrop(
   interaction: ButtonInteraction,
   msg: Message
 ) {
+  await interaction.deferUpdate()
+
   const infos = interaction.customId.split("-")
   const [authorId, amount, amountInUSD, cryptocurrency, duration, maxEntries] =
     infos.slice(1)
@@ -78,8 +80,8 @@ export async function confirmAirdrop(
     timestamp: endTime,
     originalMsgAuthor: originalAuthor?.user,
   })
-  await msg.delete().catch(() => {})
-  const reply = await interaction.reply({
+
+  const reply = await msg.edit({
     embeds: [airdropEmbed],
     components: [
       new MessageActionRow().addComponents(
@@ -91,7 +93,6 @@ export async function confirmAirdrop(
         })
       ),
     ],
-    fetchReply: true,
   })
   const cacheKey = `airdrop-${reply.id}`
   airdropCache.set(cacheKey, [], +duration)

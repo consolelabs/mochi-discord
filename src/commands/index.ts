@@ -11,9 +11,9 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/tokens"
-import { getCommandArguments, onlyAdminsAllowed } from "utils/common"
+import { getCommandArguments } from "utils/common"
 import config from "../adapters/config"
-import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
+import { CommandNotAllowedToRunError } from "errors"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import ticker from "./defi/ticker"
 import airdrop from "./defi/airdrop"
@@ -104,9 +104,10 @@ async function executeCommand(
 ) {
   const runResponse = await commandObject.run(message, action, isAdmin)
   if (runResponse && runResponse.messageOptions) {
-    const output = runResponse.replyOnOriginal
-      ? await message.reply(runResponse.messageOptions)
-      : await message.channel.send(runResponse.messageOptions)
+    // const output = runResponse.replyOnOriginal
+    //   ? await message.reply(runResponse.messageOptions)
+    //   : await message.channel.send(runResponse.messageOptions)
+    const output = await message.reply(runResponse.messageOptions)
     if (commandObject.isComplexCommand && runResponse.commandChoiceOptions) {
       CommandChoiceManager.add({
         ...runResponse.commandChoiceOptions,
