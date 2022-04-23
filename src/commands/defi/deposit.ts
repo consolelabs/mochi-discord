@@ -60,7 +60,6 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   alias: ["dep"],
-  allowedDM: true,
 }
 
 export default command

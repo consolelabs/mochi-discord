@@ -30,8 +30,6 @@ export type Command = {
   // can only run in admin channels & won't be shown in `$help` message
   experimental?: boolean
   inactivityTimeout?: number
-  isComplexCommand?: boolean
-  allowedDM?: boolean
 }
 
 export type EmbedProperties = {

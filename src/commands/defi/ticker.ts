@@ -4,7 +4,6 @@ import {
   Message,
   MessageActionRow,
   MessageAttachment,
-  MessageEmbed,
   MessageSelectMenu,
   MessageSelectOptionData,
   SelectMenuInteraction,
@@ -308,7 +307,6 @@ const command: Command = {
   },
   alias: ["tick"],
   canRunWithoutAction: true,
-  isComplexCommand: true,
 }
 
 export default command
