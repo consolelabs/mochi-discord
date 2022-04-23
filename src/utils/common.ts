@@ -23,18 +23,6 @@ export const tokenEmojis: Record<string, string> = {
   BTC: "961105849181437952",
 }
 
-export const reactionRoleConfigs: ReactionRoleConfig[] = [
-  {
-    roleName: 'Green Team', roleEmoji: '💚',
-  },
-  {
-    roleName: 'Yellow Team', roleEmoji: '💛'
-  },
-  {
-    roleName: 'Purple Team', roleEmoji: '💜'
-  },
-]
-
 export const chainEmojis: Record<string, string> = {
   ETHEREUM: "928216430451761172",
   FANTOM: "928216448902508564",

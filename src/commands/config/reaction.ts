@@ -1,26 +1,21 @@
-import { MessageEmbed, MessageOptions } from "discord.js";
-import { logger } from "logger";
-import { Command, ReactionRoleConfig } from "types/common"
+import { Message, MessageEmbed, MessageOptions } from "discord.js";
+import { Command, ReactionRoleConfig, ReactionRoleConfigResponse, ReactionRole } from "types/common"
 import { workInProgress } from "utils/discord-embed"
-import { reactionRoleConfigs } from "utils/common"; 
+import reactionRole from "adapters/reactionRole";
+import { DISCORD_BOT_GUILD_ID } from "env";
 
-const getReactionEmbed = async (roleConfs: ReactionRoleConfig[]): Promise<MessageOptions> => {
+const getReactionEmbed = async (conf: ReactionRoleConfig, roles: ReactionRole[]): Promise<MessageOptions> => {
+  const description = conf.description.split("\\n").join("\n")
+  let footer = ''
 
-  let footer: string = ''
-  let thumbnail = 'https://media.discordapp.net/stickers/920582158689652746.webp?size=320'
-  
-  const description: string = 'The default roles will grant automatically after verification, based on your neko holding status & faction EXPs.' 
-      + 'Other special roles are granted by mods or self-assign.'
-      + '\nPlease react for associated roles to get **appropriate alerts**'
-      + '\n\n**Choosing a team will allow you to interact with your teammates:**\n'
-  
-  // render footer by passed role configs
-  roleConfs.forEach(conf => footer += `${conf.roleEmoji} for ${conf.roleName}\n`)
+  if (roles?.length) {
+    roles.forEach(r => footer += `${r.reaction} for ${r.role_name}\n`)
+  }
   
   let embed = new MessageEmbed()
     .setColor('#FF6FB5')
-    .setTitle('Self-assign Roles')
-    .setThumbnail(thumbnail)
+    .setTitle(conf.title)
+    .setThumbnail(conf.thumbnail_url)
     .setDescription(description)
     .setFooter(footer)
   
@@ -34,11 +29,22 @@ const command: Command = {
   alias: ["react", "reacts", "reactions"],
   category: "Config",
   canRunWithoutAction: true,
-  run: async (msg) => {
-    const embed = await getReactionEmbed(reactionRoleConfigs);
-    let messageEmbed = await msg.channel.send(embed);
-    logger.info(`Created a new reaction message with ID: ${messageEmbed.id}`)
-    reactionRoleConfigs.forEach(async conf => await messageEmbed.react(conf.roleEmoji))
+  run: async (msg: Message) => {
+    const configs: ReactionRoleConfigResponse = await reactionRole.getAllReactionConfigs(DISCORD_BOT_GUILD_ID)
+
+    // Reconfigure reaction messages by response from BE
+    configs.data.forEach(async conf => {
+      const roles: ReactionRole[] = JSON.parse(conf.reaction_roles);
+      const updateEmbed = await getReactionEmbed(conf, roles)
+      const sentMsg = await msg.channel.messages.fetch({around: conf.message_id, limit: 1})
+      const fetchedMsg = sentMsg.first()
+      await fetchedMsg.edit(updateEmbed)
+      await fetchedMsg.reactions.removeAll();
+
+      if (roles?.length) {
+        roles.forEach(async conf => await fetchedMsg.react(conf.reaction))
+      }
+    }) 
   },
   getHelpMessage: workInProgress,
   experimental: true,

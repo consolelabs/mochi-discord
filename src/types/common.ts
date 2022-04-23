@@ -46,7 +46,25 @@ export type EmbedProperties = {
   originalMsgAuthor?: User
 }
 
+export type ReactionRoleConfigResponse = {
+  data: ReactionRoleConfig[]
+}
+
 export type ReactionRoleConfig = {
-  roleEmoji: string,
-  roleName: string,
+  guild_id: string,
+  channel_id: string,
+  title: string,
+  title_url: string,
+  thumbnail_url: string,
+  description: string,
+  footer_image: string,
+  footer_message: string,
+  message_id: string,
+  reaction_roles: string
+}
+
+export type ReactionRole = {
+  role_id: string,
+  role_name: string,
+  reaction: string,
 }
