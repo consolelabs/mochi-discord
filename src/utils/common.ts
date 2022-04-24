@@ -168,5 +168,5 @@ export async function handleNormalMessage(_message: Message) {
 }
 
 export const specificHelpCommand = (message: Message) =>
-  message.content.startsWith(HELP_CMD) &&
-  getCommandArguments(message).length > 1
+  message && message.content ? message.content.startsWith(HELP_CMD) &&
+  getCommandArguments(message).length > 1 : false
