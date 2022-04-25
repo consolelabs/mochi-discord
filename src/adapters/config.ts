@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { Message } from "discord.js"
+import { Channel, Message } from "discord.js"
 import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
@@ -166,6 +166,25 @@ class Config {
         body: JSON.stringify(newGuild),
       })
     ).json()
+  }
+
+  public async createGmConfig(guild_id: string, channel_id: string) {
+    const resp = await fetch(`${API_BASE_URL}/configs/gm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        guild_id,
+        channel_id,
+      }),
+    })
+
+    const json = await resp.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    if (resp.status !== 200 || json.message != "OK") {
+      throw new Error("failed to config GM channel")
+    }
   }
 }
 
