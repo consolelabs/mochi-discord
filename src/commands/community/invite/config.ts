@@ -47,7 +47,7 @@ const command: Command = {
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Config`,
     })
-    embedMsg.addField(`Successfully`, `Currently, invite tracker logs will be shown at <#${logChannel}>`)
+    embedMsg.addField(`Successfully`, `Currently, Invite Tracker's logs will be shown at <#${logChannel}>`)
     
     return {
       messageOptions: {
