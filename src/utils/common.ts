@@ -10,24 +10,18 @@ import {
 } from "discord.js"
 import { DISCORD_ADMIN_GROUP } from "../env"
 import { Command } from "types/common"
-import { API_BASE_URL, DOT, SPACE, VERTICAL_BAR } from "./constants"
+import { DOT, HELP_CMD, SPACE, VERTICAL_BAR } from "./constants"
+import webhook from "adapters/webhook"
+import dayjs from "dayjs"
 
 export const tokenEmojis: Record<string, string> = {
-  FTM: "920934041535000637",
-  SPIRIT: "920934042021531668",
-  TOMB: "920934042147368960",
-  REAPER: "920934041610502155",
-  BOO: "920934041665011713",
-  SPELL: "926013051730296862",
-  BTC: "961105849181437952",
-}
-
-export const chainEmojis: Record<string, string> = {
-  ETHEREUM: "928216430451761172",
-  FANTOM: "928216448902508564",
-  BINANCE: "928216430632132638",
-  POLYGON: "928216430535671818",
-  AVALANCHE: "928216430615355412",
+  FTM: "967285237686108212",
+  SPIRIT: "967285237962924163",
+  TOMB: "967285237904179211",
+  REAPER: "967285238306857063",
+  BOO: "967285238042599434",
+  SPELL: "967285238063587358",
+  BTC: "967285237879013388",
 }
 
 export const numberEmojis: Record<string, string> = {
@@ -54,15 +48,14 @@ export const defaultEmojis: Record<string, string> = {
 }
 
 export const emojis: { [key: string]: string } = {
-  GOOD_MORNING: "930840080761880626",
-  REVOKE: "933341948431962172",
-  REPLY: "915972703050162237",
-  PROFILE: "916737804384485447",
+  GOOD_MORNING: "967285238306840576",
+  REVOKE: "967285238055174195",
+  REPLY: "967285237983875122",
+  PROFILE: "967285238394925086",
   DEFI: "933281365586227210",
-  BLANK: "916757233122021376",
-  PREV_PAGE: "935053694112784424",
-  NEXT_PAGE: "935053694439936070",
-  ...chainEmojis,
+  BLANK: "967287119448014868",
+  PREV_PAGE: "967285237958705162",
+  NEXT_PAGE: "967285238000676895",
   ...tokenEmojis,
   ...numberEmojis,
 }
@@ -160,18 +153,18 @@ export const numberWithCommas = (n: number) =>
   n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
 // TODO: integrate with BE
-export async function handleNormalMessage(_message: Message) {
-  // const resp = await fetch(`${API_BASE_URL}/messages/handle`, {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify(message),
-  // })
-  // if (resp.status !== 200) {
-  //   throw new Error("Error while handling messages")
-  // }
-  // const json = await resp.json()
-  // if (json.error !== undefined) {
-  //   throw new Error(json.error)
-  // }
-  // return json
+export async function handleNormalMessage(message: Message) {
+  await webhook.pushDiscordWebhook("messageCreate", {
+    author: {
+      id: message.author.id,
+    },
+    guild_id: message.guildId,
+    channel_id: message.channelId,
+    timestamp: message.createdAt,
+    content: message.content,
+  })
 }
+
+export const specificHelpCommand = (message: Message) =>
+  message && message.content ? message.content.startsWith(HELP_CMD) &&
+  getCommandArguments(message).length > 1 : false

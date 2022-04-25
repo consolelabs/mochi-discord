@@ -7,14 +7,19 @@ class Webhook {
     try {
       const body = JSON.stringify({
         event: event,
-        data: data
+        data: data,
       })
       const res = await fetch(`${API_BASE_URL}/webhook/discord`, {
         method: "POST",
-        body: body
+        body: body,
       })
 
-      return await res.json()
+      const json = await res.json()
+      if (json.error !== undefined) {
+        throw new Error(json.error)
+      }
+
+      return json
     } catch (e: any) {
       logger.error(e)
     }

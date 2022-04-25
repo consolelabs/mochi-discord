@@ -18,13 +18,8 @@ export class InvalidInputError extends BotBaseError {
 
   async handle() {
     super.handle()
-    this.discordMessage.delete().catch(() => {})
-    const msg = await this.discordMessage.channel.send({
+    await this.discordMessage.reply({
       embeds: [getInvalidInputEmbed(this.discordMessage)],
     })
-
-    setTimeout(() => {
-      msg.delete()
-    }, 4000)
   }
 }

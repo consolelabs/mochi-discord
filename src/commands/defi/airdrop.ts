@@ -217,7 +217,7 @@ export async function enterAirdrop(
 const command: Command = {
   id: "airdrop",
   command: "airdrop",
-  name: "Airdrop",
+  name: "Leave a packet of coins for anyone to pick up",
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
@@ -302,13 +302,11 @@ const command: Command = {
           ),
         ],
       },
-      replyOnOriginal: true,
     }
   },
   getHelpMessage: async (msg) => {
     const embedMsg = composeEmbedMessage(msg, {
       thumbnail: thumbnails.TIP,
-      description: "Leave a packet of coins for anyone to pick up",
       footer: [DEFI_DEFAULT_FOOTER],
     })
       .addField(

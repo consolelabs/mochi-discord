@@ -45,7 +45,7 @@ async function tip(msg: Message, args: string[]) {
 const command: Command = {
   id: "tip",
   command: "tip",
-  name: "Tip",
+  name: "Sends coins to a user or a group of users",
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
@@ -62,12 +62,14 @@ const command: Command = {
   },
   getHelpMessage: async (msg) => {
     const embedMsg = composeEmbedMessage(msg, {
-      description: `\`\`\`Tip an amount of tokens to another user\`\`\``,
       thumbnail: thumbnails.TIP,
       footer: [DEFI_DEFAULT_FOOTER],
     })
-      .addField("_Usage_", `\`${PREFIX}tip @user <amount> <token>\``)
-      .addField("_Examples_", `\`${PREFIX}tip @John 10 ftm\``)
+      .addField("_Usage_", `\`${PREFIX}tip <users> <amount> <token>\``)
+      .addField(
+        "_Examples_",
+        `\`\`\`${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm\`\`\``
+      )
     return { embeds: [embedMsg] }
   },
   canRunWithoutAction: true,
