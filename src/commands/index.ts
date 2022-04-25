@@ -21,6 +21,7 @@ import ticker from "./defi/ticker"
 import airdrop from "./defi/airdrop"
 import channel from "./config/channel"
 import chat from "./community/chat"
+import gm from "./community/gm"
 import { Command, Category } from "types/common"
 
 export const originalCommands: Record<string, Command> = {
@@ -41,6 +42,7 @@ export const originalCommands: Record<string, Command> = {
   // community
   invite,
   chat,
+  gm,
   // config
   channel,
 }

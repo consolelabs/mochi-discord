@@ -1,21 +1,17 @@
 import { Command } from "types/common"
-import leaderboard from "./leaderboard"
-import codes from "./codes"
-import link from "./link"
 import { emojis, getCommandArguments, getListCommands } from "utils/common"
-import { composeEmbedMessage } from "utils/discord-embed"
 import { PREFIX } from "utils/constants"
+import { composeEmbedMessage } from "utils/discord-embed"
+import config from "./config"
 
 const commands: Record<string, Command> = {
-  leaderboard,
-  codes,
-  link,
+  config,
 }
 
 const command: Command = {
-  id: "invite",
-  command: "invite",
-  name: "Invite",
+  id: "gm",
+  command: "gm",
+  name: "GM/GN",
   category: "Community",
   run: async function (msg, action) {
     const actionObj = commands[action]
@@ -24,15 +20,11 @@ const command: Command = {
     }
 
     const args = getCommandArguments(msg)
-    if (args.length === 1) {
+    if (args.length < 2) {
       return {
         messageOptions: await this.getHelpMessage(msg, action),
       }
     }
-
-    const mentionedUser = args[1]
-    // TODO: handle to show a user's invites'
-    // TODO: validate mentioned user, e.g. <@12312312313>
   },
   getHelpMessage: async (msg, action) => {
     const actionObj = commands[action]
@@ -41,15 +33,14 @@ const command: Command = {
     }
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
     const embed = composeEmbedMessage(msg, {
-      description: `Invite Tracker\n\n**Usage**\`\`\`${PREFIX}invite <action>\`\`\`\n${getListCommands(
+      description: `\n\n**Usage**\`\`\`${PREFIX}gm <action>\`\`\`\n${getListCommands(
         replyEmoji ?? "╰ ",
         commands
-      )}\n\n\nType \`${PREFIX}help invite <action>\` to learn more about a specific action!`,
+      )}\n\n\nType \`${PREFIX}help gm <action>\` to learn more about a specific action!`,
     })
 
     return { embeds: [embed] }
   },
-  alias: ["inv", "invites"],
 }
 
 export default command

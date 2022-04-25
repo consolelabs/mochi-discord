@@ -89,9 +89,11 @@ export function composeEmbedMessage(
   // display command name as title if this is a command's help embed
   const isSpecificHelpCommand = specificHelpCommand(msg)
   const args = getCommandArguments(msg)
-  const commandKey = isSpecificHelpCommand
-    ? args[1]
-    : args[0].slice(PREFIX.length)
+
+  let commandKey = ""
+  if (args.length > 0) {
+    commandKey = isSpecificHelpCommand ? args[1] : args[0].slice(PREFIX.length)
+  }
   const commandName = commands[commandKey]?.name
 
   let authorTag = msg?.author?.tag
@@ -146,6 +148,6 @@ export function getInvalidInputEmbed(msg: Message) {
       "https://cdn.discordapp.com/emojis/933341948431962172.webp?size=240&quality=lossless",
     ],
     description:
-      "That is an invalid response. Please try again. Type 'exit' to leave the menu.",
+      "That is an invalid argument. Please see help message of the command",
   })
 }

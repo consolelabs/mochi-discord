@@ -12,6 +12,8 @@ import { DISCORD_ADMIN_GROUP } from "../env"
 
 import { Command } from "types/common"
 import { DOT, HELP_CMD, SPACE, VERTICAL_BAR } from "./constants"
+import webhook from "adapters/webhook"
+import dayjs from "dayjs"
 
 
 export const tokenEmojis: Record<string, string> = {
@@ -153,22 +155,18 @@ export const numberWithCommas = (n: number) =>
   n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
 // TODO: integrate with BE
-export async function handleNormalMessage(_message: Message) {
-  // const resp = await fetch(`${API_BASE_URL}/messages/handle`, {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify(message),
-  // })
-  // if (resp.status !== 200) {
-  //   throw new Error("Error while handling messages")
-  // }
-  // const json = await resp.json()
-  // if (json.error !== undefined) {
-  //   throw new Error(json.error)
-  // }
-  // return json
+export async function handleNormalMessage(message: Message) {
+  await webhook.pushDiscordWebhook("messageCreate", {
+    author: {
+      id: message.author.id,
+    },
+    guild_id: message.guildId,
+    channel_id: message.channelId,
+    timestamp: message.createdAt,
+    content: message.content,
+  })
 }
 
 export const specificHelpCommand = (message: Message) =>
-  message.content.startsWith(HELP_CMD) &&
-  getCommandArguments(message).length > 1
+  message && message.content ? message.content.startsWith(HELP_CMD) &&
+  getCommandArguments(message).length > 1 : false
