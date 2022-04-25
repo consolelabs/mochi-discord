@@ -3,6 +3,7 @@ import { composeEmbedMessage } from "utils/discord-embed"
 import Community from "adapters/community"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
+import { getHeader } from "utils/common"
 
 const command: Command = {
   id: "invites_leaderboard",
@@ -10,7 +11,16 @@ const command: Command = {
   name: "Show top 10 inviters",
   category: "Community",
   run: async function leaderboard(msg: Message) {
-    const { data }  = await Community.getInvitesLeaderboard(msg.guild.id)
+    const resp  = await Community.getInvitesLeaderboard(msg.guild.id)
+    if (resp.error) {
+      return {
+        messageOptions: {
+          content: `${getHeader(resp.error, msg.author)}`,
+        },
+      }
+    }
+    
+    const data = resp.data
     if (data.length === 0) {
       return {
         messageOptions: {

@@ -19,7 +19,24 @@ class Community {
   public async getInvitesLeaderboard(guildId: string ): Promise<any> {
     try {
       const res = await fetch(
-        `${API_BASE_URL}/community/invite-histories/leaderboard/${guildId}`
+        `${API_BASE_URL}/community/invites/leaderboard/${guildId}`
+      )
+
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
+  
+  public async configureInvites(body: string ): Promise<any> {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/community/invites/config`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+        },
       )
 
       return await res.json()

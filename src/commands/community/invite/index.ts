@@ -2,6 +2,7 @@ import { Command } from "types/common"
 import leaderboard from "./leaderboard"
 import codes from "./codes"
 import link from "./link"
+import config from "./config"
 import { emojis, getCommandArguments, getListCommands } from "utils/common"
 import { composeEmbedMessage } from "utils/discord-embed"
 import { PREFIX } from "utils/constants"
@@ -10,6 +11,7 @@ const commands: Record<string, Command> = {
   leaderboard,
   codes,
   link,
+  config,
 }
 
 const command: Command = {
