@@ -20,6 +20,19 @@ class ReactionRole {
       logger.error(e)
     }
   }
+
+  public async updateReactionConfig(req: RoleReactionEvent) {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/configs/reaction_roles/update-config`, {
+          method: 'POST',
+          body: JSON.stringify(req)
+        })
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
 }
 
 export default new ReactionRole()

@@ -25,7 +25,6 @@ export default {
       const msg = _reaction.message as Message
       
       const event: RoleReactionEvent = {
-        action_type: 'REMOVE',
         guild_id: msg.guild.id,
         message_id: msg.id,
         reaction: _reaction.emoji.name

@@ -60,5 +60,12 @@ export type RoleReactionEvent = {
   guild_id: string,
   message_id: string,
   reaction: string,
-  action_type: string
+  role_id?: string
+}
+
+export type RoleReactionConfigResponse = {
+  guild_id: string,
+  message_id: string,
+  roles: Role[],
+  success: boolean
 }

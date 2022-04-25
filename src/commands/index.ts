@@ -22,6 +22,7 @@ import airdrop from "./defi/airdrop"
 import channel from "./config/channel"
 import chat from "./community/chat"
 import gm from "./community/gm"
+import reactionrole from "./config/roleReaction/roleReaction";
 import { Command, Category } from "types/common"
 
 export const originalCommands: Record<string, Command> = {
@@ -45,6 +46,7 @@ export const originalCommands: Record<string, Command> = {
   gm,
   // config
   channel,
+  reactionrole
 }
 
 const aliases: Record<string, Command> = Object.entries(
