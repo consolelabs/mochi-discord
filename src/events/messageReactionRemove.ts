@@ -4,11 +4,11 @@ import { logger } from "logger"
 import { Event } from "."
 import { BotBaseError } from "errors";
 import ChannelLogger from "utils/ChannelLogger";
-import { ReactionRole, ReactionRoleConfigResponse } from "types/common";
+import { ReactionRoleResponse, RoleReactionEvent } from "types/common";
 import reactionRole from "adapters/reactionRole";
 
-const getRoleByName = (msg: Message, name: string): Role => {
-  return msg.guild.roles.cache.find(role => role.name === name);
+const getRoleById = (msg: Message, roleId: string): Role => {
+  return msg.guild.roles.cache.find(role => role.id === roleId);
 }
 
 export default {
@@ -25,16 +25,18 @@ export default {
       if (_reaction.message.channel.id !== DISCORD_GET_ROLE_CHANNEL_ID) return;
 
       const msg = _reaction.message as Message
-      const configs: ReactionRoleConfigResponse = await reactionRole.getAllReactionConfigs(DISCORD_BOT_GUILD_ID)
-      const currentConf = configs.data.filter(conf => conf.message_id === msg.id)[0]
-      const roles: ReactionRole[] = JSON.parse(currentConf.reaction_roles)
+      
+      const event: RoleReactionEvent = {
+        action_type: 'REMOVE',
+        guild_id: msg.guild.id,
+        message_id: msg.id,
+        reaction: _reaction.emoji.name
+      }
 
-      if (roles?.length) {
-        roles.forEach(async r => {
-          if (_reaction.emoji.name === r.reaction) {
-            await _reaction.message.guild.members.cache.get(user.id).roles.remove(getRoleByName(msg, r.role_name))
-          }
-        });
+      const resData: ReactionRoleResponse = await reactionRole.handleReactionEvent(event)
+      
+      if (resData?.role?.id) {
+        await msg.guild.members.cache.get(user.id).roles.remove(getRoleById(msg, resData.role.id))
       }
 
     } catch (e: any) {

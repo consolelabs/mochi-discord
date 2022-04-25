@@ -1,13 +1,19 @@
 import { logger } from "logger"
 import fetch from "node-fetch"
+import { RoleReactionEvent } from "types/common"
 import { API_BASE_URL } from "utils/constants"
 
 class ReactionRole {
-  public async getAllReactionConfigs(guildId: string): Promise<any> {
+
+  public async handleReactionEvent(event: RoleReactionEvent) {
     try {
+      const body = JSON.stringify(event)
       const res = await fetch(
-        `${API_BASE_URL}/configs/reaction_roles?guild_id=${guildId}`
-      )
+        `${API_BASE_URL}/configs/reaction_roles`
+      , {
+        method: 'POST',
+        body: body
+      })
 
       return await res.json()
     } catch (e: any) {

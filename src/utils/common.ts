@@ -10,7 +10,7 @@ import {
 } from "discord.js"
 import { DISCORD_ADMIN_GROUP } from "../env"
 
-import { Command, ReactionRoleConfig } from "types/common"
+import { Command } from "types/common"
 import { API_BASE_URL, DOT, HELP_CMD, SPACE, VERTICAL_BAR } from "./constants"
 
 export const tokenEmojis: Record<string, string> = {
