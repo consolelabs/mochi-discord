@@ -9,7 +9,6 @@ const command: Command = {
   run: async (msg) => ({ messageOptions: await workInProgress(msg) }),
   getHelpMessage: workInProgress,
   canRunWithoutAction: true,
-  isComplexCommand: true,
   alias: ["pro", "prof", "pf", "profiel"],
   experimental: true,
 }
