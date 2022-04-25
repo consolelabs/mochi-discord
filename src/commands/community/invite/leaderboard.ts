@@ -51,12 +51,14 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       description: "Show top 10 inviters.",
       usage: `${PREFIX}invite leaderboard`,
+      examples: `${PREFIX}invite lb\n${PREFIX}invite leaderboard`,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
+  alias: ["lb", "leaderboard"],
 }
 
 export default command
