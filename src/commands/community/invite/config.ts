@@ -19,7 +19,7 @@ const command: Command = {
         },
       }
     }
-    
+
     const args = getCommandArguments(msg)
     if (args.length < 3) {
       return {
@@ -28,13 +28,13 @@ const command: Command = {
         },
       }
     }
-    
+
     const logChannel = args[2].replace(/<#|>/g, "")
     const body = JSON.stringify({
       guild_id: msg.guild.id,
       log_channel: logChannel,
     })
-    
+
     const resp = await Community.configureInvites(body)
     if (resp.error) {
       return {
@@ -43,12 +43,12 @@ const command: Command = {
         },
       }
     }
-    
+
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Config`,
     })
-    embedMsg.addField(`Successfully`, `Currently, Invite Tracker's logs will be shown at <#${logChannel}>`)
-    
+    embedMsg.addField(`Done`, `logs now display in <#${logChannel}> channel.`)
+
     return {
       messageOptions: {
         embeds: [embedMsg],
