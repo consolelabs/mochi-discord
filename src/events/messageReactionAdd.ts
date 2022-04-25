@@ -1,5 +1,4 @@
 import { Message, MessageReaction, PartialMessageReaction, Role, User } from "discord.js"
-import { DISCORD_GET_ROLE_CHANNEL_ID } from "env"
 import { logger } from "logger"
 import { Event } from "."
 import { BotBaseError } from "errors";
@@ -22,7 +21,6 @@ export default {
       if (_reaction.partial) await _reaction.fetch()
       if (user.bot) return
       if (!_reaction.message.guild) return;
-      if (_reaction.message.channel.id !== DISCORD_GET_ROLE_CHANNEL_ID) return;
 
       const msg = _reaction.message as Message
       
