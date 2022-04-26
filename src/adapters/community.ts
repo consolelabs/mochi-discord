@@ -44,6 +44,18 @@ class Community {
       logger.error(e)
     }
   }
+  
+  public async getUserInvitesAggregation(guildId: string, inviterId: string ): Promise<any> {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/community/invites/aggregation?guild_id=${guildId}&inviter_id=${inviterId}`
+      )
+
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
 }
 
 export default new Community()
