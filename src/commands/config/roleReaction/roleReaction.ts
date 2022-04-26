@@ -3,8 +3,8 @@ import { Command, RoleReactionConfigResponse, RoleReactionEvent } from "types/co
 import { composeEmbedMessage } from "utils/discord-embed"
 import reactionRole from "adapters/reactionRole";
 import { getCommandArguments } from "utils/common";
-import { logger } from "logger";
 import { PREFIX } from "utils/constants";
+import { BotBaseError } from "errors";
 
 const getRoleNameById = (msg: Message, roleId: string) => {
   return msg.guild.roles.cache.find(r => r.id === roleId).name
@@ -12,9 +12,11 @@ const getRoleNameById = (msg: Message, roleId: string) => {
 
 const getHelpMessage = async (msg: Message) => {
   const embed = composeEmbedMessage(msg, {
-    description: "Configure reaction role",
-  }).addField("_Usage_", `\`${PREFIX}reactionrole <message_id> <emoji> <role_id>\`\n`)
-  .addField("_Alias_", `\`${PREFIX}rr <message_id> <emoji> <role_id>\`\n`)
+    title: "Role Reaction",
+    description: "Configure reaction emoji for user to self-assign their roles",
+  }).addField("Usage", `\`${PREFIX}reactionrole <message_id> \\<select_emoji> <role_id>\`\n`)
+    .addField("Alias", `\`rr\`\n`)
+    .addField("Example", `\`${PREFIX}rr 967107573591457832 \\:tada: 967013125847121973\`\n`)
   
   return {
     embeds: [embed],
@@ -23,7 +25,7 @@ const getHelpMessage = async (msg: Message) => {
 
 const command: Command = {
   id: "reaction",
-  name: "Setup reaction emoji for users to self-assign their roles",
+  name: "Role Reaction",
   command: "reactionrole",
   alias: ["rr"],
   category: "Config",
@@ -35,22 +37,29 @@ const command: Command = {
       if (!val) return
     })
     if (args.length === 4) {
+      const reaction = args[2].trim().replace('\\','')
       const requestData: RoleReactionEvent = {
         guild_id: msg.guild.id,
         message_id: args[1],
-        reaction: args[2],
+        reaction: reaction,
         role_id: args[3]
       }
       const config: RoleReactionConfigResponse = await reactionRole.updateReactionConfig(requestData)
-      logger.info(config)
       if (config.success) {
-        description = `Successfully configure emoji ${requestData.reaction} as reaction for role ${getRoleNameById(msg, requestData.role_id)}`
+        description = `${requestData.reaction} is now setting to this role ${getRoleNameById(msg, requestData.role_id)}`
+        msg.channel.messages
+          .fetch(requestData.message_id)
+          .then(val => val.react(requestData.reaction))
+          .catch(err => {
+            throw new BotBaseError(err)
+          })
       } else {
-        description = `Oops, this role was already configured`
+        description = `${requestData.reaction} has already been configured, please try to set another one`
       }
       return {
         messageOptions: {
           embeds: [composeEmbedMessage(msg, {
+            title: 'Reaction Role',
             description,
           })]
         }
