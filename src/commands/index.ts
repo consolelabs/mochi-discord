@@ -19,10 +19,10 @@ import { customCommandsExecute } from "./customCommand"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import ticker from "./defi/ticker"
 import airdrop from "./defi/airdrop"
-import reaction from "./config/reaction"
 import channel from "./config/channel"
 import chat from "./community/chat"
 import gm from "./community/gm"
+import reactionrole from "./config/roleReaction/roleReaction";
 import { Command, Category } from "types/common"
 
 export const originalCommands: Record<string, Command> = {
@@ -45,8 +45,8 @@ export const originalCommands: Record<string, Command> = {
   chat,
   gm,
   // config
-  reaction,
   channel,
+  reactionrole
 }
 
 const aliases: Record<string, Command> = Object.entries(

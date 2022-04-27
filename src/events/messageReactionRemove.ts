@@ -21,7 +21,7 @@ const getReactionIdentifier = (_reaction: MessageReaction | PartialMessageReacti
 }
 
 export default {
-  name: "messageReactionAdd",
+  name: "messageReactionRemove",
   once: false,
   execute: async (_reaction: MessageReaction | PartialMessageReaction, user: User) => {
 
@@ -42,8 +42,9 @@ export default {
       const resData: ReactionRoleResponse = await reactionRole.handleReactionEvent(event)
       
       if (resData?.role?.id) {
-        await msg.guild.members?.cache.get(user.id)?.roles.add(getRoleById(msg, resData.role.id))
+        await msg.guild.members?.cache.get(user.id)?.roles.remove(getRoleById(msg, resData.role.id))
       }
+
     } catch (e: any) {
       const error = e as BotBaseError
       if (error.handle) {
@@ -54,4 +55,4 @@ export default {
       ChannelLogger.log(e)
     }
   },
-} as Event<"messageReactionAdd">
+} as Event<"messageReactionRemove">
