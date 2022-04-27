@@ -72,3 +72,18 @@ export type RoleReactionConfigResponse = {
   roles: Role[],
   success: boolean
 }
+
+export type DefaultRoleEvent = {
+  guild_id: string,
+  role_id: string
+}
+
+export type DefaultRole = {
+  role_id: string,
+  guild_id: string
+}
+
+export type DefaultRoleResponse = {
+  data: DefaultRole[],
+  success: boolean
+}
