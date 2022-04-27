@@ -25,7 +25,7 @@ const getHelpMessage = async (msg: Message) => {
 }
 
 const command: Command = {
-  id: "reaction",
+  id: "reactionrole",
   name: "Role Reaction",
   command: "reactionrole",
   alias: ["rr"],
@@ -69,7 +69,7 @@ const command: Command = {
     }
   },
   getHelpMessage,
-  experimental: true,
+  experimental: false,
 }
 
 export default command
