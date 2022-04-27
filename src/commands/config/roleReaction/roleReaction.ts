@@ -37,7 +37,6 @@ const command: Command = {
     args.forEach(async val => {
       if (!val) return
     })
-    logger.info(args)
     if (args.length === 4) {
       const reaction = args[2].trim()
       const role_id = args[3].trim().replace(/\D/g, '') // Accept number-only characters 
