@@ -5,10 +5,10 @@ import { API_BASE_URL } from "utils/constants"
 
 class DefaultRole {
 
-  public async getAllDefaultRoles() {
+  public async getAllDefaultRoles(guildId: string) {
     try {
       const res = await fetch(
-        `${API_BASE_URL}/configs/default-roles`)
+        `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`)
 
       return await res.json()
     } catch (e: any) {
@@ -18,10 +18,12 @@ class DefaultRole {
 
   public async configureDefaultRole(event: DefaultRoleEvent) {
     try {
+      const reqData = JSON.stringify(event)
       const res = await fetch(
-        `${API_BASE_URL}/configs/default-roles?role_id=${event.role_id}&guild_id=${event.guild_id}`
+        `${API_BASE_URL}/configs/default-roles`
       , {
-        method: 'POST'
+        method: 'POST',
+        body: reqData
       })
 
       return await res.json()

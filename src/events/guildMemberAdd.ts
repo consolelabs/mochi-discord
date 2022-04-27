@@ -68,7 +68,7 @@ function sendInviteTrackerMessage(
 }
 
 async function setUserDefaultRoles(member: Discord.GuildMember) {
-  const resData: DefaultRoleResponse = await defaultRole.getAllDefaultRoles()
+  const resData: DefaultRoleResponse = await defaultRole.getAllDefaultRoles(member.guild.id)
 
   if (resData.success) {
     const defaultRoleIDs: string[] = resData.data.map((r: DefaultRole) => r.role_id)
