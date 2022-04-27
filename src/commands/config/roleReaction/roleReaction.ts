@@ -37,13 +37,15 @@ const command: Command = {
     args.forEach(async val => {
       if (!val) return
     })
+    logger.info(args)
     if (args.length === 4) {
       const reaction = args[2].trim()
+      const role_id = args[3].trim().replace(/\D/g, '') // Accept number-only characters 
       const requestData: RoleReactionEvent = {
         guild_id: msg.guild.id,
         message_id: args[1],
         reaction: reaction,
-        role_id: args[3]
+        role_id: role_id
       }
       const config: RoleReactionConfigResponse = await reactionRole.updateReactionConfig(requestData)
       if (config.success) {
