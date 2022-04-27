@@ -9,7 +9,7 @@ class ReactionRole {
     try {
       const body = JSON.stringify(event)
       const res = await fetch(
-        `${API_BASE_URL}/configs/reaction_roles`
+        `${API_BASE_URL}/configs/reaction-roles`
       , {
         method: 'POST',
         body: body
@@ -24,7 +24,7 @@ class ReactionRole {
   public async updateReactionConfig(req: RoleReactionEvent) {
     try {
       const res = await fetch(
-        `${API_BASE_URL}/configs/reaction_roles/update-config`, {
+        `${API_BASE_URL}/configs/reaction-roles/update-config`, {
           method: 'POST',
           body: JSON.stringify(req)
         })
