@@ -59,6 +59,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       description: "Configure Invite Tracker log channel.",
       usage: `${PREFIX}invite config <channel>`,
+      alias: ["cfg"],
       examples: `${PREFIX}invite config #general\n${PREFIX}invite cfg #general`,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
@@ -66,7 +67,7 @@ const command: Command = {
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
-  alias: ["cfg", "config"],
+  alias: ["cfg"],
 }
 
 export default command

@@ -87,6 +87,7 @@ export function composeEmbedMessage(
     originalMsgAuthor,
     usage,
     examples,
+    alias,
   } = props
   // display command name as title if this is a command's help embed
   const isSpecificHelpCommand = specificHelpCommand(msg)
@@ -120,10 +121,13 @@ export function composeEmbedMessage(
   if (!!author && author.length === 2) embed.setAuthor(author[0], author[1])
 
   // fields
+  if (!alias) {
+    alias = commandObj?.alias
+  }
   if (isSpecificHelpCommand && commandObj?.alias)
     embed.addField(
       "\u200B",
-      `**Alias**: ${commandObj?.alias.map((a) => `\`${a}\``).join(COMMA)}`
+      `**Alias**: ${alias.map((a) => `\`${a}\``).join(COMMA)}`
     )
   if (usage) embed.addField("**Usage**", `\`\`\`${usage}\`\`\``)
   if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)

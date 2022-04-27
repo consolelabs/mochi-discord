@@ -43,7 +43,7 @@ export type EmbedProperties = {
   author?: string[]
   originalMsgAuthor?: User
   usage?: string
-  alias?: string
+  alias?: string[]
   examples?: string
 }
 
