@@ -50,15 +50,16 @@ const command: Command = {
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       description: "Show top 10 inviters.",
+      alias: ["lb"],
       usage: `${PREFIX}invite leaderboard`,
-      examples: `${PREFIX}invite lb\n${PREFIX}invite leaderboard`,
+      examples: `${PREFIX}invite leaderboard\n${PREFIX}invite lb`,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
-  alias: ["lb", "leaderboard"],
+  alias: ["lb"],
 }
 
 export default command
