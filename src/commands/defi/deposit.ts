@@ -48,16 +48,17 @@ async function deposit(msg: Message) {
 
 const command: Command = {
   id: "deposit",
-  command: "deposit",
-  name: "Deposit",
+  command: "Deposit",
+  name: "Deposit tokens to your in-discord wallet",
   category: "Defi",
   run: deposit,
-  getHelpMessage: async (msg) => {
-    const embedMsg = composeEmbedMessage(msg, {
-      description: `\`\`\`Deposit tokens to your discord user\`\`\``,
-    }).addField("_Examples_", `\`${PREFIX}deposit\``, true)
-    return { embeds: [embedMsg] }
-  },
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        usage: `${PREFIX}deposit`,
+      }),
+    ],
+  }),
   canRunWithoutAction: true,
   alias: ["dep"],
 }

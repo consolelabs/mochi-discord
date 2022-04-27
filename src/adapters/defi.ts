@@ -284,6 +284,7 @@ class Defi {
         recipients = await this.parseRecipients(msg, args, sender)
         cryptocurrency = args[args.length - 1].toUpperCase()
         amountArg = args[args.length - 2].toLowerCase()
+        each = each && amountArg !== "all"
         break
       }
 

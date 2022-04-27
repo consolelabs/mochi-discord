@@ -304,23 +304,18 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async (msg) => {
-    const embedMsg = composeEmbedMessage(msg, {
-      thumbnail: thumbnails.TIP,
-      footer: [DEFI_DEFAULT_FOOTER],
-    })
-      .addField(
-        "_Usage_",
-        `\`${PREFIX}airdrop <amount> <token> [in <duration>] [for <max entries>]\``
-      )
-      .addField(
-        "_Examples_",
-        `\`\`\`${PREFIX}airdrop 10 ftm\n${PREFIX}airdrop 10 ftm in 5m\n${PREFIX}airdrop 10 ftm in 5m for 6\`\`\``
-      )
-    return { embeds: [embedMsg] }
-  },
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        thumbnail: thumbnails.TIP,
+        usage: `${PREFIX}airdrop <amount> <token> [in <duration>] [for <max entries>]`,
+        examples: `${PREFIX}airdrop 10 ftm\n${PREFIX}airdrop 10 ftm in 5m\n${PREFIX}airdrop 10 ftm in 5m for 6`,
+        footer: [DEFI_DEFAULT_FOOTER],
+      }),
+    ],
+  }),
   canRunWithoutAction: true,
-  alias: ["drop", "air"],
+  alias: ["drop"],
 }
 
 export default command

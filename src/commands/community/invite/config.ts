@@ -52,17 +52,15 @@ const command: Command = {
     return {
       messageOptions: {
         embeds: [embedMsg],
-      }
+      },
     }
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
-      description: `
-      Configure Invite Tracker log channel.\n
-        **Usage**\`\`\`${PREFIX}invite config <channel> \`\`\`\n
-        **Example**\`\`\`${PREFIX}invite config #general \`\`\`\n
-        Type \`${PREFIX}help invite <action>\` to learn more about a specific action!
-      `,
+      description: "Configure Invite Tracker log channel.",
+      usage: `${PREFIX}invite config <channel>`,
+      examples: `${PREFIX}invite config #general`,
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }

@@ -19,7 +19,7 @@ const commands: Record<string, Command> = {
 const command: Command = {
   id: "invite",
   command: "invite",
-  name: "Invite",
+  name: "Invite Tracker",
   category: "Community",
   run: async function (msg, action) {
     const actionObj = commands[action]
@@ -45,10 +45,8 @@ const command: Command = {
     }
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
     const embed = composeEmbedMessage(msg, {
-      description: `Invite Tracker\n\n**Usage**\`\`\`${PREFIX}invite <action>\`\`\`\n${getListCommands(
-        replyEmoji ?? "╰ ",
-        commands
-      )}\n\n\nType \`${PREFIX}help invite <action>\` to learn more about a specific action!`,
+      description: `${getListCommands(replyEmoji ?? "╰ ", commands)}`,
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }

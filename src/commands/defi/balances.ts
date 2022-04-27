@@ -48,13 +48,15 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async (msg) => {
-    const embedMsg = composeEmbedMessage(msg, {
-      thumbnail: thumbnails.TOKENS,
-      description: `\`\`\`Check your balances.\`\`\``,
-    }).addField("_Examples_", `\`${PREFIX}balances\``)
-    return { embeds: [embedMsg] }
-  },
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        thumbnail: thumbnails.TOKENS,
+        description: `Check your balances.`,
+        usage: `${PREFIX}balances`,
+      }),
+    ],
+  }),
   canRunWithoutAction: true,
   alias: ["balance", "bal", "bals"],
 }
