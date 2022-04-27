@@ -65,9 +65,10 @@ const command: Command = {
       "\nInstant withdrawal wizard. You will be asked for the address and the amount you want to withdraw."
     description +=
       "\nA network fee will be added on top of your withdrawal (or deducted if you can't afford it). You will be asked to confirm it."
-    description += `\n\nTo withdraw use \`${PREFIX}withdraw <address> <amount> <token>\`, for example \`${PREFIX}withdraw 0x0000000000000000000000000000000000000000 5 ftm\`.`
     const embedMsg = composeEmbedMessage(msg, {
       description,
+      usage: `${PREFIX}withdraw <address> <amount> <token>`,
+      examples: `${PREFIX}withdraw 0x0000000000000000000000000000000000000000 5 ftm`,
       footer: [DEFI_DEFAULT_FOOTER],
     })
     return { embeds: [embedMsg] }

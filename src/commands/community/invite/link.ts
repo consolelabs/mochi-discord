@@ -16,7 +16,7 @@ const command: Command = {
       guild_id: msg.guild.id,
       member_id: msg.author.id,
     } as InvitesInput
-    const { data }  = await Community.getInvites(inviteInput)
+    const { data } = await Community.getInvites(inviteInput)
     if (data.length === 0) {
       return {
         messageOptions: {
@@ -24,27 +24,27 @@ const command: Command = {
         },
       }
     }
-    
+
     const embedMsg = composeEmbedMessage(msg, {
       title: `${msg.author.username}'s invite link`,
       thumbnail: msg.author.avatarURL(),
     })
     embedMsg.addField(
       `https://discord.gg/${data[0]}`,
-      `Invite link for this server ${msg.guild.name}`,
+      `Invite link for this server ${msg.guild.name}`
     )
     return {
       messageOptions: {
         embeds: [embedMsg],
-      }
+      },
     }
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
-      description: `
-      Return the first invite link you own found in the guild's invite links.\n
-        **Usage**\`\`\`${PREFIX}invite link \`\`\`\n
-        Type \`${PREFIX}help invite <action>\` to learn more about a specific action!`,
+      description:
+        "Return the first invite link you own found in the guild's invite links.",
+      usage: `${PREFIX}invite link`,
+      footer: [`Type \`${PREFIX}help invite <action>\` for a specific action!`],
     })
 
     return { embeds: [embed] }

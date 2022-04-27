@@ -13,7 +13,6 @@ import { DISCORD_ADMIN_GROUP } from "../env"
 import { Command } from "types/common"
 import { DOT, HELP_CMD, SPACE, VERTICAL_BAR } from "./constants"
 import webhook from "adapters/webhook"
-import dayjs from "dayjs"
 
 
 export const tokenEmojis: Record<string, string> = {
@@ -168,5 +167,7 @@ export async function handleNormalMessage(message: Message) {
 }
 
 export const specificHelpCommand = (message: Message) =>
-  message && message.content ? message.content.startsWith(HELP_CMD) &&
-  getCommandArguments(message).length > 1 : false
+  message && message.content
+    ? message.content.startsWith(HELP_CMD) &&
+      getCommandArguments(message).length > 1
+    : false

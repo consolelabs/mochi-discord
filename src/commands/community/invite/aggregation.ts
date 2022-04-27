@@ -17,7 +17,10 @@ const command: Command = {
       inviterID = args[2].replace(/<@|>/g, "")
     }
 
-    const resp = await Community.getUserInvitesAggregation(msg.guild.id, inviterID)
+    const resp = await Community.getUserInvitesAggregation(
+      msg.guild.id,
+      inviterID
+    )
     if (resp.error) {
       return {
         messageOptions: {
@@ -29,32 +32,34 @@ const command: Command = {
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Aggregation`,
     })
-    
+
     const data = resp.data
     embedMsg.addField(
-      `Successfully`, 
-      `<@${inviterID}> has totally ${data.regular} invites (normal: ${data.regular-data.fake-data.left}, fake: ${data.fake}, left: ${data.left})`
+      `Successfully`,
+      `<@${inviterID}> has totally ${data.regular} invites (normal: ${
+        data.regular - data.fake - data.left
+      }, fake: ${data.fake}, left: ${data.left})`
     )
 
     return {
       messageOptions: {
         embeds: [embedMsg],
-      }
+      },
     }
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
-      description: `
-      Show user invites aggregation.\n
-        **Usage**\`\`\`${PREFIX}invite aggregation <@userId> \`\`\`\n
-        **Example**\`\`\`${PREFIX}invite config @ohagi \`\`\`\n
-        Type \`${PREFIX}help invite <action>\` to learn more about a specific action!
-      `,
+      description: "Show user invites aggregation.",
+      usage: `${PREFIX}invite aggregation <@userId>`,
+      alias: ["aggr"],
+      examples: `${PREFIX}invite aggregation @ohagi\n${PREFIX}invite aggr @ohagi`,
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
+  alias: ["aggr"],
 }
 
 export default command

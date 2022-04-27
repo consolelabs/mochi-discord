@@ -8,7 +8,7 @@ import { emojis, getCommandArguments, getListCommands } from "utils/common"
 import { composeEmbedMessage } from "utils/discord-embed"
 import { PREFIX } from "utils/constants"
 
-const commands: Record<string, Command> = {
+export const originalCommands: Record<string, Command> = {
   leaderboard,
   codes,
   link,
@@ -16,10 +16,33 @@ const commands: Record<string, Command> = {
   aggregation,
 }
 
+const aliases: Record<string, Command> = Object.entries(
+  originalCommands
+).reduce((acc, cur) => {
+  const [_name, commandObj] = cur
+  
+  const als = (commandObj.alias? commandObj.alias : []).reduce((aliasObject, alias) => {
+    return {
+      ...aliasObject,
+      [alias]: commandObj,
+    }
+  }, {})
+
+  return {
+    ...acc,
+    ...als,
+  }
+}, {})
+
+const commands: Record<string, Command> = {
+  ...originalCommands,
+  ...aliases,
+}
+
 const command: Command = {
   id: "invite",
   command: "invite",
-  name: "Invite",
+  name: "Invite Tracker",
   category: "Community",
   run: async function (msg, action) {
     const actionObj = commands[action]
@@ -45,10 +68,8 @@ const command: Command = {
     }
     const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
     const embed = composeEmbedMessage(msg, {
-      description: `Invite Tracker\n\n**Usage**\`\`\`${PREFIX}invite <action>\`\`\`\n${getListCommands(
-        replyEmoji ?? "╰ ",
-        commands
-      )}\n\n\nType \`${PREFIX}help invite <action>\` to learn more about a specific action!`,
+      description: `${getListCommands(replyEmoji ?? "╰ ", originalCommands)}`,
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }

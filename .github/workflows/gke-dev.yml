@@ -11,7 +11,7 @@ env:
   GITHUB_SHA: ${{ github.sha }}
   REGISTRY_HOSTNAME: gcr.io
   GKE_PROJECT: console-labs-prod
-  IMAGE: defipod/mochi-bot
+  IMAGE: consolelabs/mochi-bot
   K8S_ENVIRONMENT: dev
 
 jobs:
@@ -46,18 +46,18 @@ jobs:
           curl -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
           mv kustomize /tmp
-      - name: Checkout defipod/infrastructure
+      - name: Checkout consolelabs/infrastructure
         uses: actions/checkout@master
         with:
-          repository: defipod/infrastructure
+          repository: consolelabs/infrastructure
           token: ${{ secrets.GH_PAT }}
           path: ./infrastructure
-          ref: master
+          ref: main
       - name: Update bot version
         run: |
-          cd ./infrastructure/services/mochi-bot/$K8S_ENVIRONMENT
+          cd ./infrastructure/mochi-bot/$K8S_ENVIRONMENT
           git config user.name jphuc96
           git config user.email jphuc96@gmail.com
           /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
           git commit -am "[skip ci] mochi-bot ${K8S_ENVIRONMENT} image update"
-          git push origin master
+          git push origin main
