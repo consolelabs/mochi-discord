@@ -51,13 +51,14 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       description: "Show user invites aggregation.",
       usage: `${PREFIX}invite aggregation <@userId>`,
-      examples: `${PREFIX}invite config @ohagi`,
+      examples: `${PREFIX}invite aggregation @ohagi\n${PREFIX}invite aggr @ohagi`,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
+  alias: ["aggr", "aggregation"],
 }
 
 export default command
