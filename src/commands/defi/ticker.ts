@@ -293,18 +293,16 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async (msg) => {
-    const embedMsg = composeEmbedMessage(msg, {
-      thumbnail: thumbnails.TOKENS,
-      description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
-    })
-      .addField("_Usage_", `\`${PREFIX}ticker <token>\``)
-      .addField(
-        "_Examples_",
-        `\`${PREFIX}ticker fantom\` or \`${PREFIX}ticker ftm\``
-      )
-    return { embeds: [embedMsg] }
-  },
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        thumbnail: thumbnails.TOKENS,
+        description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
+        usage: `${PREFIX}ticker <token>`,
+        examples: `${PREFIX}ticker fantom\n${PREFIX}ticker ftm`,
+      }),
+    ],
+  }),
   alias: ["tick"],
   canRunWithoutAction: true,
 }

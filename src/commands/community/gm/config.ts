@@ -41,7 +41,9 @@ const command: Command = {
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       description: "Configure gm/gn channel",
-    }).addField("_Usage_", `\`${PREFIX}gm config <#channel>\`\n`)
+      usage: `${PREFIX}gm config <channel>`,
+      examples: `${PREFIX}gm config #general`,
+    })
     return {
       embeds: [embed],
     }

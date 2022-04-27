@@ -42,6 +42,8 @@ export type EmbedProperties = {
   image?: string
   author?: string[]
   originalMsgAuthor?: User
+  usage?: string
+  examples?: string
 }
 
 

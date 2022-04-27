@@ -60,18 +60,16 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async (msg) => {
-    const embedMsg = composeEmbedMessage(msg, {
-      thumbnail: thumbnails.TIP,
-      footer: [DEFI_DEFAULT_FOOTER],
-    })
-      .addField("_Usage_", `\`${PREFIX}tip <users> <amount> <token>\``)
-      .addField(
-        "_Examples_",
-        `\`\`\`${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm\`\`\``
-      )
-    return { embeds: [embedMsg] }
-  },
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        thumbnail: thumbnails.TIP,
+        usage: `${PREFIX}tip <users> <amount> <token>`,
+        examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm`,
+        footer: [DEFI_DEFAULT_FOOTER],
+      }),
+    ],
+  }),
   canRunWithoutAction: true,
 }
 

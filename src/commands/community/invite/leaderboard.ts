@@ -11,7 +11,7 @@ const command: Command = {
   name: "Show top 10 inviters",
   category: "Community",
   run: async function leaderboard(msg: Message) {
-    const resp  = await Community.getInvitesLeaderboard(msg.guild.id)
+    const resp = await Community.getInvitesLeaderboard(msg.guild.id)
     if (resp.error) {
       return {
         messageOptions: {
@@ -19,7 +19,7 @@ const command: Command = {
         },
       }
     }
-    
+
     const data = resp.data
     if (data.length === 0) {
       return {
@@ -28,29 +28,30 @@ const command: Command = {
         },
       }
     }
-    
+
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Leaderboard`,
     })
-    
+
     const respMsg: string[] = []
     data.forEach((d: any) => {
-      respMsg.push(`<@${d.inviter_id}>  (regular: ${d.regular}, fake: ${d.fake}, left: ${d.left})`)
+      respMsg.push(
+        `<@${d.inviter_id}>  (regular: ${d.regular}, fake: ${d.fake}, left: ${d.left})`
+      )
     })
     embedMsg.addField(`Top 10`, respMsg.join("\n"))
-    
+
     return {
       messageOptions: {
         embeds: [embedMsg],
-      }
+      },
     }
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
-      description: `
-      Show top 10 inviters.\n
-        **Usage**\`\`\`${PREFIX}invite leaderboard \`\`\`\n
-        Type \`${PREFIX}help invite <action>\` to learn more about a specific action!`,
+      description: "Show top 10 inviters.",
+      usage: `${PREFIX}invite leaderboard`,
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }

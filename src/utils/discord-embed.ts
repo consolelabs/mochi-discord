@@ -8,7 +8,7 @@ import {
   MessageSelectMenu,
   MessageSelectMenuOptions,
 } from "discord.js"
-import { EMPTY, PREFIX, SPACE, VERTICAL_BAR } from "./constants"
+import { COMMA, EMPTY, PREFIX, SPACE, VERTICAL_BAR } from "./constants"
 import {
   getCommandArguments,
   getEmbedFooter,
@@ -75,7 +75,7 @@ export function composeEmbedMessage(
   msg: Message | null,
   props: EmbedProperties
 ) {
-  const {
+  let {
     title,
     description,
     thumbnail,
@@ -85,16 +85,17 @@ export function composeEmbedMessage(
     image,
     author,
     originalMsgAuthor,
+    usage,
+    examples,
   } = props
   // display command name as title if this is a command's help embed
   const isSpecificHelpCommand = specificHelpCommand(msg)
   const args = getCommandArguments(msg)
 
-  let commandKey = ""
-  if (args.length > 0) {
-    commandKey = isSpecificHelpCommand ? args[1] : args[0].slice(PREFIX.length)
-  }
-  const commandName = commands[commandKey]?.name
+  const commandKey = isSpecificHelpCommand
+    ? args[1]
+    : args[0].slice(PREFIX.length)
+  const commandObj = commands[commandKey]
 
   let authorTag = msg?.author?.tag
   let authorAvatarURL = msg?.author?.avatarURL()
@@ -104,7 +105,7 @@ export function composeEmbedMessage(
   }
 
   const embed = new MessageEmbed()
-    .setTitle(isSpecificHelpCommand ? commandName : title ?? "")
+    .setTitle(isSpecificHelpCommand ? commandObj?.name : title ?? "")
     .setColor((color ?? msgColors.PRIMARY) as ColorResolvable)
     .setFooter(
       getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
@@ -112,11 +113,20 @@ export function composeEmbedMessage(
     )
     .setTimestamp(timestamp ?? new Date())
 
-  if (description) embed.setDescription(description)
+  if (description) embed.setDescription(`${description}`)
   if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)
   if (!!author && author.length === 1) embed.setAuthor(author[0])
   if (!!author && author.length === 2) embed.setAuthor(author[0], author[1])
+
+  // fields
+  if (isSpecificHelpCommand && commandObj?.alias)
+    embed.addField(
+      "\u200B",
+      `**Alias**: ${commandObj?.alias.map((a) => `\`${a}\``).join(COMMA)}`
+    )
+  if (usage) embed.addField("**Usage**", `\`\`\`${usage}\`\`\``)
+  if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)
 
   return embed
 }
