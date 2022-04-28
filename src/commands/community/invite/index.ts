@@ -4,9 +4,10 @@ import codes from "./codes"
 import link from "./link"
 import config from "./config"
 import aggregation from "./aggregation"
-import { getAllAliases, getCommandArguments } from "utils/common"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { getAllAliases } from "utils/commands"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
+import { getCommandArguments } from "utils/commands"
 
 const actions: Record<string, Command> = {
   leaderboard,

@@ -11,11 +11,8 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/tokens"
-import {
-  getAllAliases,
-  getCommandArguments,
-  specificHelpCommand
-} from "utils/common"
+import { getAllAliases } from "utils/commands"
+import { specificHelpCommand } from "utils/commands"
 import config from "../adapters/config"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
 import guildCustomCommand from "../modules/guildCustomCommand"
@@ -29,6 +26,7 @@ import gm from "./community/gm"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import { Command, Category } from "types/common"
+import { getCommandArguments } from "utils/commands"
 
 export const originalCommands: Record<string, Command> = {
   // general help

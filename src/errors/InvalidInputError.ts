@@ -1,5 +1,5 @@
 import { Message, TextChannel } from "discord.js"
-import { getInvalidInputEmbed } from "utils/discord-embed"
+import { getInvalidInputEmbed } from "utils/discordEmbed"
 import { BotBaseError } from "./BaseError"
 
 export class InvalidInputError extends BotBaseError {

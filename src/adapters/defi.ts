@@ -8,13 +8,9 @@ import {
 } from "types/defi"
 import dayjs from "dayjs"
 import { InvalidInputError } from "errors"
-import { composeEmbedMessage } from "utils/discord-embed"
-import {
-  defaultEmojis,
-  getCommandObject,
-  getEmoji,
-  roundFloatNumber
-} from "utils/common"
+import { composeEmbedMessage } from "utils/discordEmbed"
+import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
+import { getCommandObject } from "utils/commands"
 import { API_BASE_URL } from "utils/constants"
 
 class Defi {

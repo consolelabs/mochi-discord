@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { getEmoji, getHeader, thumbnails } from "utils/common"
 import Defi from "adapters/defi"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
 
 const command: Command = {

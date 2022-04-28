@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"

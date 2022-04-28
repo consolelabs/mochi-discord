@@ -1,14 +1,10 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
 import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
-import {
-  defaultEmojis,
-  getCommandArguments,
-  getEmoji,
-  getHeader
-} from "utils/common"
+import { defaultEmojis, getEmoji, getHeader } from "utils/common"
+import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 
 async function withdraw(msg: Message, args: string[]) {
   const payload = await Defi.getTransferPayload(msg, args)

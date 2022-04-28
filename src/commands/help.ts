@@ -1,12 +1,12 @@
-import { Message, Permissions } from "discord.js"
+import { Message } from "discord.js"
 import { HELP_CMD } from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import { adminCategories, originalCommands } from "../commands"
-import { emojis, onlyRunInAdminGroup, thumbnails } from "utils/common"
+import { originalCommands } from "../commands"
+import { emojis, thumbnails } from "utils/common"
 import config from "../adapters/config"
 import { Category, Command } from "types/common"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 dayjs.extend(utc)
 
 const categoryIcons: Record<Category, string> = {

@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { workInProgress } from "utils/discord-embed"
+import { workInProgress } from "utils/discordEmbed"
 
 const command: Command = {
   id: "reverify",

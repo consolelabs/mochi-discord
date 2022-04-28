@@ -8,16 +8,16 @@ import {
 import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
 import {
   defaultEmojis,
-  getCommandArguments,
   getEmoji,
   roundFloatNumber,
   thumbnails
 } from "utils/common"
+import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
 import NodeCache from "node-cache"
 import dayjs from "dayjs"
 import { DiscordWalletTransferRequest } from "types/defi"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 
 const airdropCache = new NodeCache({
   stdTTL: 180,

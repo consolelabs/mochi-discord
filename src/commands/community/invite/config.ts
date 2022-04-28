@@ -2,8 +2,9 @@ import { Command } from "types/common"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import Community from "adapters/community"
-import { composeEmbedMessage } from "utils/discord-embed"
-import { getHeader, onlyAdminsAllowed, getCommandArguments } from "utils/common"
+import { composeEmbedMessage } from "utils/discordEmbed"
+import { getHeader, onlyAdminsAllowed } from "utils/common"
+import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
   id: "invite_config",

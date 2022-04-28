@@ -11,18 +11,18 @@ import {
 import { PREFIX } from "utils/constants"
 import {
   defaultEmojis,
-  getCommandArguments,
   getEmoji,
   getHeader,
   numberWithCommas,
   roundFloatNumber,
   thumbnails
 } from "utils/common"
+import { getCommandArguments } from "utils/commands"
 import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
   composeEmbedMessage
-} from "utils/discord-embed"
+} from "utils/discordEmbed"
 import Defi from "adapters/defi"
 import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"

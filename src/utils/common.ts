@@ -11,9 +11,7 @@ import {
 import { DISCORD_ADMIN_GROUP } from "../env"
 
 import { Command } from "types/common"
-import { DOT, HELP_CMD, PREFIX, SPACE, VERTICAL_BAR } from "./constants"
-import webhook from "adapters/webhook"
-import { commands, originalCommands } from "commands"
+import { DOT, VERTICAL_BAR } from "./constants"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -119,7 +117,7 @@ export function getListCommands(
     .join("\n\n")
 }
 
-export default function maskAddress(str: string, minLen?: number) {
+export function maskAddress(str: string, minLen?: number) {
   const num = minLen || 8
   if (str.length > num && str.length > 3) {
     const a = Math.round((num * 2) / 3)
@@ -147,80 +145,6 @@ export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
-export const getCommandArguments = (message: Message) =>
-  message ? message.content.split(SPACE) : []
-
-export const numberWithCommas = (n: number) =>
-  n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-
-// TODO: integrate with BE
-export const handleNormalMessage = async (message: Message) => {
-  await webhook.pushDiscordWebhook("messageCreate", {
-    author: {
-      id: message.author.id
-    },
-    guild_id: message.guildId,
-    channel_id: message.channelId,
-    timestamp: message.createdAt,
-    content: message.content
-  })
-}
-
-export const specificHelpCommand = (message: Message) =>
-  message?.content?.startsWith(HELP_CMD) &&
-  getCommandArguments(message).length > 1
-
-export const getAllAliases = (
-  commands: Record<string, Command>
-): Record<string, Command> => {
-  return Object.entries(commands).reduce((acc, cur) => {
-    const [_key, commandObj] = cur
-    const aliases = (commandObj.aliases ?? []).reduce(
-      (accAliases, curAlias) => ({
-        ...accAliases,
-        [curAlias]: commandObj
-      }),
-      {}
-    )
-
-    return {
-      ...acc,
-      ...aliases
-    }
-  }, commands)
-}
-
-export const getCommandObject = (msg: Message): Command => {
-  const args = getCommandArguments(msg)
-  if (!args.length) return null
-  const key = specificHelpCommand(msg) ? args[1] : args[0].slice(PREFIX.length)
-  return commands[key]
-}
-
-export const getActionCommand = (msg: Message): Command => {
-  const args = getCommandArguments(msg)
-  if (!args.length) return null
-  let action: string, key: string
-  switch (true) {
-    case specificHelpCommand(msg) && args.length >= 3:
-      key = args[1]
-      action = args[2]
-      break
-    case !specificHelpCommand(msg) && args.length >= 2:
-      key = args[0].slice(PREFIX.length)
-      action = args[1]
-      break
-    default:
-      key = null
-      action = null
-      break
-  }
-
-  if (!key || !action || !commands[key].actions) return null
-  const actions = Object.entries(commands[key].actions).filter(
-    c =>
-      (c[1].aliases && c[1].aliases.includes(action)) || c[1].command === action
-  )
-  if (!actions.length) return null
-  return actions[0][1]
+export function numberWithCommas(n: number) {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 }

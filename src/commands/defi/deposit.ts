@@ -3,7 +3,7 @@ import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { DirectMessageNotAllowedError, UserNotFoundError } from "errors"
 import Profile from "adapters/profile"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis } from "utils/common"
 
 async function deposit(msg: Message) {

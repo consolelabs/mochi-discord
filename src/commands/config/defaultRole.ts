@@ -1,9 +1,9 @@
 import { Message } from "discord.js"
 import { Command, DefaultRoleEvent } from "types/common"
-import { composeEmbedMessage } from "utils/discord-embed"
-import { getCommandArguments } from "utils/common"
+import { composeEmbedMessage } from "utils/discordEmbed"
+import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import defaultRole from "adapters/defaultRole"
+import config from "adapters/config"
 
 const TITLE = "Default role"
 
@@ -30,9 +30,9 @@ const command: Command = {
         guild_id: msg.guild.id,
         role_id
       }
-      const config = await defaultRole.configureDefaultRole(requestData)
+      const roleConfig = await config.configureDefaultRole(requestData)
 
-      if (config.success) {
+      if (roleConfig.success) {
         description = `Role **${getRoleNameById(
           msg,
           requestData.role_id
@@ -68,4 +68,3 @@ const command: Command = {
 }
 
 export default command
-

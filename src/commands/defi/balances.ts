@@ -3,7 +3,7 @@ import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { getEmoji, getHeader, roundFloatNumber, thumbnails } from "utils/common"
 import Defi from "adapters/defi"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 
 const command: Command = {
   id: "balances",

@@ -4,9 +4,9 @@ import {
   RoleReactionConfigResponse,
   RoleReactionEvent
 } from "types/common"
-import { composeEmbedMessage } from "utils/discord-embed"
-import reactionRole from "adapters/reactionRole"
-import { getCommandArguments } from "utils/common"
+import { composeEmbedMessage } from "utils/discordEmbed"
+import config from "adapters/config"
+import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { BotBaseError } from "errors"
 
@@ -36,10 +36,10 @@ const command: Command = {
         reaction,
         role_id
       }
-      const config: RoleReactionConfigResponse = await reactionRole.updateReactionConfig(
+      const rrConfig: RoleReactionConfigResponse = await config.updateReactionConfig(
         requestData
       )
-      if (config.success) {
+      if (rrConfig.success) {
         description = `${
           requestData.reaction
         } is now setting to this role **${getRoleNameById(

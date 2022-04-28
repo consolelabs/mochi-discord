@@ -1,7 +1,9 @@
 import { Command } from "types/common"
-import { emojis, getAllAliases, getCommandArguments } from "utils/common"
+import { emojis } from "utils/common"
+import { getAllAliases } from "utils/commands"
+import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import config from "./config"
 
 const actions: Record<string, Command> = {

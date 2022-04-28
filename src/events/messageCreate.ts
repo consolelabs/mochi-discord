@@ -7,10 +7,25 @@ import { logger } from "../logger"
 import { BotBaseError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
-import { handleNormalMessage } from "utils/common"
+import webhook from "adapters/webhook"
 
 function normalizeCommand(message: Message) {
-  return message.content.replace(/  +/g, " ").trim().toLowerCase()
+  return message.content
+    .replace(/  +/g, " ")
+    .trim()
+    .toLowerCase()
+}
+
+export const handleNormalMessage = async (message: Message) => {
+  await webhook.pushDiscordWebhook("messageCreate", {
+    author: {
+      id: message.author.id
+    },
+    guild_id: message.guildId,
+    channel_id: message.channelId,
+    timestamp: message.createdAt,
+    content: message.content
+  })
 }
 
 export default {
@@ -43,5 +58,5 @@ export default {
       }
       ChannelLogger.log(error)
     }
-  },
+  }
 } as Event<"messageCreate">

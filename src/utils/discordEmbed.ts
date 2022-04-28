@@ -9,15 +9,12 @@ import {
   MessageSelectMenuOptions
 } from "discord.js"
 import { COMMA, VERTICAL_BAR } from "./constants"
+import { getEmbedFooter, getEmoji, getListCommands, msgColors } from "./common"
 import {
-  getActionCommand,
   getCommandObject,
-  getEmbedFooter,
-  getEmoji,
-  getListCommands,
-  msgColors,
+  getActionCommand,
   specificHelpCommand
-} from "./common"
+} from "./commands"
 import { EmbedProperties } from "types/common"
 
 /**
