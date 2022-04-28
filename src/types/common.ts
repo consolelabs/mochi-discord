@@ -10,7 +10,7 @@ export type Command = {
   id: string
   command: string
   category: Category
-  name: string
+  brief: string
   checkBeforeRun?: (msg: Message) => Promise<boolean>
   run: (
     msg: Message,
@@ -25,11 +25,11 @@ export type Command = {
     action?: string,
     isAdmin?: boolean
   ) => Promise<MessageOptions>
-  alias?: string[]
+  aliases?: string[]
   canRunWithoutAction?: boolean
   // can only run in admin channels & won't be shown in `$help` message
   experimental?: boolean
-  inactivityTimeout?: number
+  actions?: Record<string, Command>
 }
 
 export type EmbedProperties = {
@@ -43,33 +43,31 @@ export type EmbedProperties = {
   author?: string[]
   originalMsgAuthor?: User
   usage?: string
-  alias?: string[]
   examples?: string
 }
 
-
 export type Role = {
-  id: string,
-  name: string,
-  reaction: string,
+  id: string
+  name: string
+  reaction: string
 }
 export type ReactionRoleResponse = {
-  guild_id: string,
+  guild_id: string
   message_id: string
-  role: Role,
+  role: Role
 }
 
 export type RoleReactionEvent = {
-  guild_id: string,
-  message_id: string,
-  reaction: string,
+  guild_id: string
+  message_id: string
+  reaction: string
   role_id?: string
 }
 
 export type RoleReactionConfigResponse = {
-  guild_id: string,
-  message_id: string,
-  roles: Role[],
+  guild_id: string
+  message_id: string
+  roles: Role[]
   success: boolean
 }
 

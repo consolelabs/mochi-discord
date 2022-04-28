@@ -8,16 +8,16 @@ import { composeEmbedMessage } from "utils/discord-embed"
 const command: Command = {
   id: "balances",
   command: "balances",
-  name: "Balances",
+  brief: "Show your balances of the supported tokens",
   category: "Defi",
   run: async function balances(msg: Message) {
     const data = await Defi.discordWalletBalances(msg.author.id)
-    const supportedTokens = (await Defi.getSupportedTokens()).map((token) =>
+    const supportedTokens = (await Defi.getSupportedTokens()).map(token =>
       token.symbol.toUpperCase()
     )
 
     const embedMsg = composeEmbedMessage(msg, {
-      title: "Your balances",
+      title: "Your balances"
     })
 
     const blankEmoji = getEmoji("blank")
@@ -27,7 +27,7 @@ const command: Command = {
       const tokenBalanceInUSD = data.balances_in_usd[tokenSymbol]
       let balanceInfo = `${tokenEmoji} **${tokenBalance}**`
       if (tokenBalanceInUSD !== undefined)
-        balanceInfo += ` (≈ $${roundFloatNumber(tokenBalanceInUSD, 2)})`
+        balanceInfo += ` (\u2248 $${roundFloatNumber(tokenBalanceInUSD, 2)})`
       balanceInfo += blankEmoji
       tokenBalance = roundFloatNumber(tokenBalance, 4)
       embedMsg.addField(tokenSymbol, balanceInfo, true)
@@ -44,21 +44,20 @@ const command: Command = {
     return {
       messageOptions: {
         embeds: [embedMsg],
-        content: getHeader("View your tokens' balances", msg.author),
-      },
+        content: getHeader("View your tokens' balances", msg.author)
+      }
     }
   },
-  getHelpMessage: async (msg) => ({
+  getHelpMessage: async msg => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        description: `Check your balances.`,
-        usage: `${PREFIX}balances`,
-      }),
-    ],
+        usage: `${PREFIX}balances`
+      })
+    ]
   }),
   canRunWithoutAction: true,
-  alias: ["balance", "bal", "bals"],
+  aliases: ["balance", "bal", "bals"]
 }
 
 export default command

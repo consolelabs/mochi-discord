@@ -6,17 +6,17 @@ import { composeEmbedMessage } from "utils/discord-embed"
 import { getHeader, onlyAdminsAllowed, getCommandArguments } from "utils/common"
 
 const command: Command = {
-  id: "invites_config",
+  id: "invite_config",
   command: "config",
-  name: "Configure Invite Tracker log channel",
+  brief: "Configure Invite Tracker log channel.",
   category: "Community",
   run: async function config(msg: Message) {
     const isPermitted = await onlyAdminsAllowed(msg)
     if (!isPermitted) {
       return {
         messageOptions: {
-          content: `${getHeader("Only admins can do this", msg.author)}`,
-        },
+          content: `${getHeader("Only admins can do this", msg.author)}`
+        }
       }
     }
 
@@ -24,50 +24,48 @@ const command: Command = {
     if (args.length < 3) {
       return {
         messageOptions: {
-          content: `${getHeader("Missing target channel", msg.author)}`,
-        },
+          content: `${getHeader("Missing target channel", msg.author)}`
+        }
       }
     }
 
     const logChannel = args[2].replace(/<#|>/g, "")
     const body = JSON.stringify({
       guild_id: msg.guild.id,
-      log_channel: logChannel,
+      log_channel: logChannel
     })
 
     const resp = await Community.configureInvites(body)
     if (resp.error) {
       return {
         messageOptions: {
-          content: `${getHeader(resp.error, msg.author)}`,
-        },
+          content: `${getHeader(resp.error, msg.author)}`
+        }
       }
     }
 
     const embedMsg = composeEmbedMessage(msg, {
-      title: `Invites Config`,
+      title: `Invites Config`
     })
     embedMsg.addField(`Done`, `logs now display in <#${logChannel}> channel.`)
 
     return {
       messageOptions: {
-        embeds: [embedMsg],
-      },
+        embeds: [embedMsg]
+      }
     }
   },
-  getHelpMessage: async (msg) => {
+  getHelpMessage: async msg => {
     const embed = composeEmbedMessage(msg, {
-      description: "Configure Invite Tracker log channel.",
       usage: `${PREFIX}invite config <channel>`,
-      alias: ["cfg"],
       examples: `${PREFIX}invite config #general\n${PREFIX}invite cfg #general`,
-      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`]
     })
 
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
-  alias: ["cfg"],
+  aliases: ["cfg"]
 }
 
 export default command

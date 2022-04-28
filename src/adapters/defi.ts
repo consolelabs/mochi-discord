@@ -10,8 +10,13 @@ import {
 import dayjs from "dayjs"
 import { InvalidInputError } from "errors"
 import { composeEmbedMessage } from "utils/discord-embed"
-import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
-import { API_BASE_URL, PREFIX } from "utils/constants"
+import {
+  defaultEmojis,
+  getCommandObject,
+  getEmoji,
+  roundFloatNumber,
+} from "utils/common"
+import { API_BASE_URL } from "utils/constants"
 
 class Defi {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
@@ -270,7 +275,8 @@ class Defi {
     msg: Message,
     args: string[]
   ): Promise<DiscordWalletTransferRequest> {
-    const type = args[0].slice(PREFIX.length)
+    const commandObject = getCommandObject(msg)
+    const type = commandObject.command
     const sender = msg.author.id
     let amountArg: string,
       cryptocurrency: string,
@@ -306,7 +312,7 @@ class Defi {
       }
     }
 
-    if (!recipients || (recipients.length === 0 && type !== "airdrop")) {
+    if ((!recipients || !recipients.length) && type !== "airdrop") {
       throw new DiscordWalletTransferError({
         discordId: sender,
         guildId: msg.guildId,

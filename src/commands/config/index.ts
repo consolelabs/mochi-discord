@@ -3,15 +3,14 @@ import { workInProgress } from "utils/discord-embed"
 
 const command: Command = {
   id: "channel",
-  name: "Guild configurations",
+  brief: "Guild configurations",
   command: "channel",
-  alias: ["chan", "chans", "channels"],
   category: "Config",
   canRunWithoutAction: true,
-  run: async (msg) => ({
-    messageOptions: await workInProgress(msg),
+  run: async _msg => ({
+    messageOptions: await workInProgress()
   }),
-  getHelpMessage: workInProgress,
+  getHelpMessage: workInProgress
 }
 
 export default command

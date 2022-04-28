@@ -6,7 +6,7 @@ import {
   MessageAttachment,
   MessageSelectMenu,
   MessageSelectOptionData,
-  SelectMenuInteraction,
+  SelectMenuInteraction
 } from "discord.js"
 import { PREFIX } from "utils/constants"
 import {
@@ -16,12 +16,12 @@ import {
   getHeader,
   numberWithCommas,
   roundFloatNumber,
-  thumbnails,
+  thumbnails
 } from "utils/common"
 import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
-  composeEmbedMessage,
+  composeEmbedMessage
 } from "utils/discord-embed"
 import Defi from "adapters/defi"
 import dayjs from "dayjs"
@@ -71,7 +71,7 @@ function getChartColorConfig(id: string, width: number, height: number) {
   gradient.addColorStop(1, gradientTo)
   return {
     borderColor,
-    backgroundColor: gradient,
+    backgroundColor: gradient
   }
 }
 
@@ -79,7 +79,7 @@ async function renderHistoricalMarketChart({
   msg,
   id,
   currency,
-  days = 7,
+  days = 7
 }: {
   msg: Message
   id: string
@@ -100,12 +100,12 @@ async function renderHistoricalMarketChart({
   const axisConfig = {
     ticks: {
       font: {
-        size: 20,
-      },
+        size: 20
+      }
     },
     grid: {
-      borderColor: "black",
-    },
+      borderColor: "black"
+    }
   }
   const image = await chartCanvas.renderToBuffer({
     type: "line",
@@ -118,26 +118,26 @@ async function renderHistoricalMarketChart({
           borderWidth: 6,
           pointRadius: 0,
           fill: true,
-          ...getChartColorConfig(id, width, height),
-        },
-      ],
+          ...getChartColorConfig(id, width, height)
+        }
+      ]
     },
     options: {
       scales: {
         y: axisConfig,
-        x: axisConfig,
+        x: axisConfig
       },
       plugins: {
         legend: {
           labels: {
             // This more specific font property overrides the global property
             font: {
-              size: 24,
-            },
-          },
-        },
-      },
-    },
+              size: 24
+            }
+          }
+        }
+      }
+    }
   })
 
   return new MessageAttachment(image, "chart.png")
@@ -153,7 +153,7 @@ const getChangePercentage = (change: number) => {
   return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
 }
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: CommandChoiceHandler = async msgOrInteraction => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
@@ -163,7 +163,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
     msg: message,
     id,
     currency,
-    days: +days,
+    days: +days
   })
 
   // update chart image
@@ -182,7 +182,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       embeds: [embed],
       files: [chart],
       components: message.components as MessageActionRow[],
-      content: message.content,
+      content: message.content
     },
     commandChoiceOptions: {
       handler,
@@ -190,17 +190,17 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       messageId: message.id,
       channelId: interaction.channelId,
       guildId: interaction.guildId,
-      interaction,
-    },
+      interaction
+    }
   }
 }
 
 const command: Command = {
   id: "ticker",
   command: "ticker",
-  name: "Display coin price and market cap",
+  brief: "Display coin price and market cap",
   category: "Defi",
-  run: async function (msg) {
+  run: async function(msg) {
     const args = getCommandArguments(msg)
     const query = !args[1].includes("/") ? `${args[1]}/usd` : args[1]
     const [coinId, currency] = query.split("/")
@@ -210,7 +210,7 @@ const command: Command = {
       current_price,
       price_change_percentage_1h_in_currency,
       price_change_percentage_24h_in_currency,
-      price_change_percentage_7d_in_currency,
+      price_change_percentage_7d_in_currency
     } = coin.market_data
     const blank = getEmoji("blank")
 
@@ -218,7 +218,7 @@ const command: Command = {
       color: getChartColorConfig(coin.id, 0, 0).borderColor as HexColorString,
       author: [coin.name, coin.image.small],
       footer: ["Data fetched from CoinGecko.com"],
-      image: "attachment://chart.png",
+      image: "attachment://chart.png"
     })
       .addField(
         `Market cap (${currency.toUpperCase()})`,
@@ -254,12 +254,14 @@ const command: Command = {
     const chart = await renderHistoricalMarketChart({
       msg,
       id: coin.id,
-      currency,
+      currency
     })
 
     const getDropdownOptionDescription = (days: number) =>
       `${Defi.getDateStr(
-        dayjs().subtract(days, "day").unix() * 1000
+        dayjs()
+          .subtract(days, "day")
+          .unix() * 1000
       )} - ${Defi.getDateStr(dayjs().unix() * 1000)}`
 
     const opt = (days: number): MessageSelectOptionData => ({
@@ -267,12 +269,12 @@ const command: Command = {
       value: `${coin.id}_${currency}_${days}`,
       emoji: days > 1 ? "📆" : "🕒",
       description: getDropdownOptionDescription(days),
-      default: days === 7,
+      default: days === 7
     })
     const selectRow = composeDiscordSelectionRow({
       customId: "ticker_dropdown",
       placeholder: "Make a selection",
-      options: [opt(1), opt(7), opt(30), opt(60), opt(90), opt(365)],
+      options: [opt(1), opt(7), opt(30), opt(60), opt(90), opt(365)]
     })
 
     const exitBtnRow = composeDiscordExitButton()
@@ -282,29 +284,28 @@ const command: Command = {
         files: [chart],
         embeds: [embedMsg],
         components: [selectRow, exitBtnRow],
-        content: getHeader("View historical market chart", msg.author),
+        content: getHeader("View historical market chart", msg.author)
       },
       commandChoiceOptions: {
         userId: msg.author.id,
         guildId: msg.guildId,
         channelId: msg.channelId,
-        timeout: this.inactivityTimeout,
-        handler,
-      },
+        handler
+      }
     }
   },
-  getHelpMessage: async (msg) => ({
+  getHelpMessage: async msg => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
         usage: `${PREFIX}ticker <token>`,
-        examples: `${PREFIX}ticker fantom\n${PREFIX}ticker ftm`,
-      }),
-    ],
+        examples: `${PREFIX}ticker fantom\n${PREFIX}ticker ftm`
+      })
+    ]
   }),
-  alias: ["tick"],
-  canRunWithoutAction: true,
+  aliases: ["tick"],
+  canRunWithoutAction: true
 }
 
 export default command

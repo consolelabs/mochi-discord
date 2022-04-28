@@ -45,7 +45,7 @@ async function tip(msg: Message, args: string[]) {
 const command: Command = {
   id: "tip",
   command: "tip",
-  name: "Sends coins to a user or a group of users",
+  brief: "Sends coins to a user or a group of users",
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)

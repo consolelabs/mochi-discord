@@ -11,7 +11,11 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/tokens"
-import { getCommandArguments, specificHelpCommand } from "utils/common"
+import {
+  getAllAliases,
+  getCommandArguments,
+  specificHelpCommand
+} from "utils/common"
 import config from "../adapters/config"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
 import guildCustomCommand from "../modules/guildCustomCommand"
@@ -22,8 +26,8 @@ import airdrop from "./defi/airdrop"
 import channel from "./config/channel"
 import chat from "./community/chat"
 import gm from "./community/gm"
-import reactionrole from "./config/roleReaction/roleReaction";
 import defaultrole from "./config/defaultRole"
+import reactionrole from "./config/reactionRole"
 import { Command, Category } from "types/common"
 
 export const originalCommands: Record<string, Command> = {
@@ -51,36 +55,13 @@ export const originalCommands: Record<string, Command> = {
   defaultrole
 }
 
-const aliases: Record<string, Command> = Object.entries(
-  originalCommands
-).reduce((acc, cur) => {
-  const [_name, commandObj] = cur
-  let aliases = {}
-  if (commandObj.alias?.length > 0) {
-    aliases = commandObj.alias.reduce((aliasObject, alias) => {
-      return {
-        ...aliasObject,
-        [alias]: commandObj,
-      }
-    }, {})
-  }
-
-  return {
-    ...acc,
-    ...aliases,
-  }
-}, {})
-
-export const commands: Record<string, Command> = {
-  ...originalCommands,
-  ...aliases,
-}
+export const commands: Record<string, Command> = getAllAliases(originalCommands)
 
 export const adminCategories: Record<Category, boolean> = {
   Profile: false,
   Defi: false,
   Community: false,
-  Config: true,
+  Config: true
 }
 
 async function preauthorizeCommand(message: Message, commandObject: Command) {
@@ -94,7 +75,7 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
 
   throw new CommandNotAllowedToRunError({
     message,
-    command: message.content,
+    command: message.content
   })
 }
 
@@ -118,7 +99,7 @@ async function executeCommand(
     if (runResponse.commandChoiceOptions) {
       CommandChoiceManager.add({
         ...runResponse.commandChoiceOptions,
-        messageId: output.id,
+        messageId: output.id
       })
     }
   }

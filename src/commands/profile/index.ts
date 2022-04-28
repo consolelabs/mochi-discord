@@ -4,13 +4,13 @@ import { workInProgress } from "utils/discord-embed"
 const command: Command = {
   id: "profile",
   command: "profile",
-  name: "Profile",
+  brief: "Profile",
   category: "Profile",
-  run: async (msg) => ({ messageOptions: await workInProgress(msg) }),
+  run: async _msg => ({ messageOptions: await workInProgress() }),
   getHelpMessage: workInProgress,
   canRunWithoutAction: true,
-  alias: ["pro", "prof", "pf", "profiel"],
-  experimental: true,
+  aliases: ["pro", "pf"],
+  experimental: true
 }
 
 export default command
