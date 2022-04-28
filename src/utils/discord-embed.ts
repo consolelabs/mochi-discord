@@ -92,6 +92,7 @@ export function composeEmbedMessage(
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
   if (actionObj) description = actionObj.brief
+
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
   if (hasActions) {
