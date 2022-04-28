@@ -2,13 +2,13 @@ import { Command } from "types/common"
 import { workInProgress } from "utils/discord-embed"
 
 const command: Command = {
-  id: "invites_codes",
+  id: "invite_codes",
   command: "codes",
-  name: "Show all your invite codes",
+  brief: "Show all your invite codes",
   category: "Community",
-  run: async (msg) => ({ messageOptions: await workInProgress(msg) }),
+  run: async _msg => ({ messageOptions: await workInProgress() }),
   getHelpMessage: workInProgress,
-  canRunWithoutAction: true,
+  canRunWithoutAction: true
 }
 
 export default command

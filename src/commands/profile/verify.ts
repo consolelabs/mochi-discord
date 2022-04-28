@@ -5,12 +5,11 @@ const command: Command = {
   id: "verify",
   command: "verify",
   category: "Profile",
-  name: "Verify",
-  run: async(msg) => ({messageOptions: await workInProgress(msg)}),
+  brief: "Verify",
+  run: async _msg => ({ messageOptions: await workInProgress() }),
   getHelpMessage: workInProgress,
-  alias: ["join"],
   canRunWithoutAction: true,
-  experimental: true,
+  experimental: true
 }
 
 export default command

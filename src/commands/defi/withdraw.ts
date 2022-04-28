@@ -5,7 +5,7 @@ import {
   defaultEmojis,
   getCommandArguments,
   getEmoji,
-  getHeader,
+  getHeader
 } from "utils/common"
 import Defi from "adapters/defi"
 import { composeEmbedMessage } from "utils/discord-embed"
@@ -18,7 +18,7 @@ async function withdraw(msg: Message, args: string[]) {
   const embedMsg = composeEmbedMessage(msg, {
     author: ["Withdraw"],
     title: `${tokenEmoji} ${payload.cryptocurrency.toUpperCase()} sent`,
-    description: "Your withdrawal was processed succesfully!",
+    description: "Your withdrawal was processed succesfully!"
   })
     .addField("Destination address", `\`${payload.recipients[0]}\``, false)
     .addField(
@@ -34,16 +34,16 @@ async function withdraw(msg: Message, args: string[]) {
     )
 
   return {
-    embeds: [embedMsg],
+    embeds: [embedMsg]
   }
 }
 
 const command: Command = {
   id: "withdraw",
   command: "withdraw",
-  name: "withdraw",
+  brief: `${defaultEmojis.ARROW_UP} **Withdrawal - help**`,
   category: "Defi",
-  run: async function (msg: Message) {
+  run: async function(msg: Message) {
     const args = getCommandArguments(msg)
     if (args.length < 4) {
       const helpMessage = await this.getHelpMessage(msg)
@@ -55,12 +55,12 @@ const command: Command = {
     return {
       messageOptions: {
         ...embeds,
-        content: getHeader("Here is your withdrawal receipt!", msg.author),
-      },
+        content: getHeader("Here is your withdrawal receipt!", msg.author)
+      }
     }
   },
-  getHelpMessage: async (msg) => {
-    let description = `${defaultEmojis.ARROW_UP} **Withdrawal - help**\n\n**Send coins to an address.**`
+  getHelpMessage: async msg => {
+    let description = `**Send coins to an address.**`
     description +=
       "\nInstant withdrawal wizard. You will be asked for the address and the amount you want to withdraw."
     description +=
@@ -68,13 +68,13 @@ const command: Command = {
     const embedMsg = composeEmbedMessage(msg, {
       description,
       usage: `${PREFIX}withdraw <address> <amount> <token>`,
-      examples: `${PREFIX}withdraw 0x0000000000000000000000000000000000000000 5 ftm`,
-      footer: [DEFI_DEFAULT_FOOTER],
+      examples: `${PREFIX}withdraw 0x00000000000000000000000000000000000 5 ftm`,
+      footer: [DEFI_DEFAULT_FOOTER]
     })
     return { embeds: [embedMsg] }
   },
   canRunWithoutAction: true,
-  alias: ["widthraw", "witdraw", "wd"],
+  aliases: ["wd"]
 }
 
 export default command

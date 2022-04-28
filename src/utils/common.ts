@@ -6,14 +6,14 @@ import {
   MessageOptions,
   ColorResolvable,
   MessageComponentInteraction,
-  Permissions,
+  Permissions
 } from "discord.js"
 import { DISCORD_ADMIN_GROUP } from "../env"
 
 import { Command } from "types/common"
-import { DOT, HELP_CMD, SPACE, VERTICAL_BAR } from "./constants"
+import { DOT, HELP_CMD, PREFIX, SPACE, VERTICAL_BAR } from "./constants"
 import webhook from "adapters/webhook"
-
+import { commands, originalCommands } from "commands"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -22,7 +22,7 @@ export const tokenEmojis: Record<string, string> = {
   REAPER: "967285238306857063",
   BOO: "967285238042599434",
   SPELL: "967285238063587358",
-  BTC: "967285237879013388",
+  BTC: "967285237879013388"
 }
 
 export const numberEmojis: Record<string, string> = {
@@ -35,7 +35,7 @@ export const numberEmojis: Record<string, string> = {
   NUM_6: "932856132626710549",
   NUM_7: "932856132958048276",
   NUM_8: "932856132869976136",
-  NUM_9: "932856132832223232",
+  NUM_9: "932856132832223232"
 }
 
 export const defaultEmojis: Record<string, string> = {
@@ -45,7 +45,7 @@ export const defaultEmojis: Record<string, string> = {
   ARROW_DOWN: ":arrow_heading_down:",
   ARROW_UP: ":arrow_heading_up:",
   CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
-  CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
+  CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:"
 }
 
 export const emojis: { [key: string]: string } = {
@@ -58,12 +58,12 @@ export const emojis: { [key: string]: string } = {
   PREV_PAGE: "967285237958705162",
   NEXT_PAGE: "967285238000676895",
   ...tokenEmojis,
-  ...numberEmojis,
+  ...numberEmojis
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
   PRIMARY: "#E88B88", // 500
-  ERROR: "#D73833", // 900
+  ERROR: "#D73833" // 900
 }
 
 export const thumbnails: Record<string, string> = {
@@ -72,7 +72,7 @@ export const thumbnails: Record<string, string> = {
   TIP: "https://i.imgur.com/qj7iPqz.png",
   TOKENS: "https://i.imgur.com/hcqO0Wu.png",
   LOADING:
-    "https://cdn.discordapp.com/attachments/895993366960017491/933427920817492028/loading.gif",
+    "https://cdn.discordapp.com/attachments/895993366960017491/933427920817492028/loading.gif"
 }
 
 export function isInteraction(
@@ -85,7 +85,7 @@ export async function inactivityResponse(user: User): Promise<MessageOptions> {
   return {
     content: `> **${getEmoji("revoke")} ${VERTICAL_BAR} ${
       user.tag
-    }, the command was closed due to inactivity.**`,
+    }, the command was closed due to inactivity.**`
   }
 }
 
@@ -110,12 +110,12 @@ export async function onlyAdminsAllowed(msg: Message) {
 
 export function getListCommands(
   _emoji: GuildEmoji | string,
-  commands: Record<string, Pick<Command, "command" | "name" | "experimental">>
+  commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
 ) {
   const emoji = getEmoji("reply")
   return Object.values(commands)
-    .filter((c) => !c.experimental)
-    .map((c) => `[**${c.command}**](https://google.com)\n${emoji}${c.name}`)
+    .filter(c => !c.experimental)
+    .map(c => `[**${c.command}**](https://google.com)\n${emoji}${c.brief}`)
     .join("\n\n")
 }
 
@@ -154,20 +154,73 @@ export const numberWithCommas = (n: number) =>
   n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
 // TODO: integrate with BE
-export async function handleNormalMessage(message: Message) {
+export const handleNormalMessage = async (message: Message) => {
   await webhook.pushDiscordWebhook("messageCreate", {
     author: {
-      id: message.author.id,
+      id: message.author.id
     },
     guild_id: message.guildId,
     channel_id: message.channelId,
     timestamp: message.createdAt,
-    content: message.content,
+    content: message.content
   })
 }
 
 export const specificHelpCommand = (message: Message) =>
-  message && message.content
-    ? message.content.startsWith(HELP_CMD) &&
-      getCommandArguments(message).length > 1
-    : false
+  message?.content?.startsWith(HELP_CMD) &&
+  getCommandArguments(message).length > 1
+
+export const getAllAliases = (
+  commands: Record<string, Command>
+): Record<string, Command> => {
+  return Object.entries(commands).reduce((acc, cur) => {
+    const [_key, commandObj] = cur
+    const aliases = (commandObj.aliases ?? []).reduce(
+      (accAliases, curAlias) => ({
+        ...accAliases,
+        [curAlias]: commandObj
+      }),
+      {}
+    )
+
+    return {
+      ...acc,
+      ...aliases
+    }
+  }, commands)
+}
+
+export const getCommandObject = (msg: Message): Command => {
+  const args = getCommandArguments(msg)
+  if (!args.length) return null
+  const key = specificHelpCommand(msg) ? args[1] : args[0].slice(PREFIX.length)
+  return commands[key]
+}
+
+export const getActionCommand = (msg: Message): Command => {
+  const args = getCommandArguments(msg)
+  if (!args.length) return null
+  let action: string, key: string
+  switch (true) {
+    case specificHelpCommand(msg) && args.length >= 3:
+      key = args[1]
+      action = args[2]
+      break
+    case !specificHelpCommand(msg) && args.length >= 2:
+      key = args[0].slice(PREFIX.length)
+      action = args[1]
+      break
+    default:
+      key = null
+      action = null
+      break
+  }
+
+  if (!key || !action || !commands[key].actions) return null
+  const actions = Object.entries(commands[key].actions).filter(
+    c =>
+      (c[1].aliases && c[1].aliases.includes(action)) || c[1].command === action
+  )
+  if (!actions.length) return null
+  return actions[0][1]
+}

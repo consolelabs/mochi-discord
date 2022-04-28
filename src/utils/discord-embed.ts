@@ -6,18 +6,19 @@ import {
   MessageEmbed,
   MessageOptions,
   MessageSelectMenu,
-  MessageSelectMenuOptions,
+  MessageSelectMenuOptions
 } from "discord.js"
-import { COMMA, EMPTY, PREFIX, SPACE, VERTICAL_BAR } from "./constants"
+import { COMMA, VERTICAL_BAR } from "./constants"
 import {
-  getCommandArguments,
+  getActionCommand,
+  getCommandObject,
   getEmbedFooter,
   getEmoji,
+  getListCommands,
   msgColors,
-  specificHelpCommand,
+  specificHelpCommand
 } from "./common"
 import { EmbedProperties } from "types/common"
-import { commands } from "commands"
 
 /**
  * Returns a formatted string of options (maximum 8)
@@ -48,7 +49,7 @@ function getExitButton() {
     customId: "exit",
     emoji: getEmoji("revoke"),
     style: "SECONDARY",
-    label: "Exit",
+    label: "Exit"
   })
 }
 
@@ -58,7 +59,7 @@ export function composeDiscordExitButton(): MessageActionRow {
   return row
 }
 
-export async function workInProgress(msg: Message): Promise<MessageOptions> {
+export async function workInProgress(): Promise<MessageOptions> {
   const embed = new MessageEmbed()
   embed
     .setColor("#F4BE5B")
@@ -77,7 +78,7 @@ export function composeEmbedMessage(
 ) {
   let {
     title,
-    description,
+    description = "",
     thumbnail,
     color,
     footer = [],
@@ -86,17 +87,23 @@ export function composeEmbedMessage(
     author,
     originalMsgAuthor,
     usage,
-    examples,
-    alias,
+    examples
   } = props
-  // display command name as title if this is a command's help embed
-  const isSpecificHelpCommand = specificHelpCommand(msg)
-  const args = getCommandArguments(msg)
-
-  const commandKey = isSpecificHelpCommand
-    ? args[1]
-    : args[0].slice(PREFIX.length)
-  const commandObj = commands[commandKey]
+  const commandObj = getCommandObject(msg)
+  const actionObj = getActionCommand(msg)
+  if (actionObj) description = actionObj.brief
+  const hasActions =
+    commandObj?.actions && Object.keys(commandObj.actions).length !== 0
+  if (hasActions) {
+    description += `\n\n${getListCommands(
+      getEmoji("reply" ?? "╰ "),
+      commandObj.actions
+    )}`
+  }
+  const alias = (actionObj ?? commandObj)?.aliases
+  const isSpecificHelpCommand =
+    specificHelpCommand(msg) || (!actionObj && !commandObj?.canRunWithoutAction)
+  title = (isSpecificHelpCommand ? commandObj?.brief : title) ?? ""
 
   let authorTag = msg?.author?.tag
   let authorAvatarURL = msg?.author?.avatarURL()
@@ -106,7 +113,7 @@ export function composeEmbedMessage(
   }
 
   const embed = new MessageEmbed()
-    .setTitle(isSpecificHelpCommand ? commandObj?.name : title ?? "")
+    .setTitle(title)
     .setColor((color ?? msgColors.PRIMARY) as ColorResolvable)
     .setFooter(
       getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
@@ -121,13 +128,10 @@ export function composeEmbedMessage(
   if (!!author && author.length === 2) embed.setAuthor(author[0], author[1])
 
   // fields
-  if (!alias) {
-    alias = commandObj?.alias
-  }
-  if (isSpecificHelpCommand && commandObj?.alias)
+  if (isSpecificHelpCommand && alias)
     embed.addField(
       "\u200B",
-      `**Alias**: ${alias.map((a) => `\`${a}\``).join(COMMA)}`
+      `**Alias**: ${alias.map(a => `\`${a}\``).join(COMMA)}`
     )
   if (usage) embed.addField("**Usage**", `\`\`\`${usage}\`\`\``)
   if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)
@@ -150,7 +154,7 @@ export function getErrorEmbed(params: {
       "Something went wrong! Please try again or contact administrators",
     image,
     thumbnail,
-    color: msgColors.ERROR,
+    color: msgColors.ERROR
   })
 }
 
@@ -159,9 +163,9 @@ export function getInvalidInputEmbed(msg: Message) {
     color: msgColors.ERROR,
     author: [
       "Invalid input!",
-      "https://cdn.discordapp.com/emojis/933341948431962172.webp?size=240&quality=lossless",
+      "https://cdn.discordapp.com/emojis/933341948431962172.webp?size=240&quality=lossless"
     ],
     description:
-      "That is an invalid argument. Please see help message of the command",
+      "That is an invalid argument. Please see help message of the command"
   })
 }

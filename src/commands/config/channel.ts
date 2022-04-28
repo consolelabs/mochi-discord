@@ -3,16 +3,16 @@ import { workInProgress } from "utils/discord-embed"
 
 const command: Command = {
   id: "channel",
-  name: "Setup channels to receive notifications",
+  brief: "Setup channels to receive notifications",
   command: "channel",
-  alias: ["chan", "chans", "channels"],
+  aliases: ["chan", "chans", "channels"],
   category: "Config",
   canRunWithoutAction: true,
-  run: async (msg) => ({
-    messageOptions: await workInProgress(msg),
+  run: async _msg => ({
+    messageOptions: await workInProgress()
   }),
   getHelpMessage: workInProgress,
-  experimental: true,
+  experimental: true
 }
 
 export default command

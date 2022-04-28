@@ -6,9 +6,9 @@ import { composeEmbedMessage } from "utils/discord-embed"
 import Config from "../../../adapters/config"
 
 const command: Command = {
-  id: "gm-config",
+  id: "gm_config",
   command: "config",
-  name: "Configure gm/gn channel",
+  brief: "Configure gm/gn channel",
   category: "Community",
   run: async (msg) => {
     const args = getCommandArguments(msg)
@@ -38,16 +38,15 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async (msg) => {
-    const embed = composeEmbedMessage(msg, {
-      description: "Configure gm/gn channel",
-      usage: `${PREFIX}gm config <channel>`,
-      examples: `${PREFIX}gm config #general`,
-    })
-    return {
-      embeds: [embed],
-    }
-  },
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        description: "Configure gm/gn channel",
+        usage: `${PREFIX}gm config <channel>`,
+        examples: `${PREFIX}gm config #general`,
+      }),
+    ],
+  }),
   canRunWithoutAction: true,
 }
 

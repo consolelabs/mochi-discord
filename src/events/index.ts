@@ -17,4 +17,14 @@ export type Event<T extends keyof ClientEvents> = {
 
 export const invites = new Collection()
 
-export default [ready, messageCreate, interactionCreate, messageReactionAdd, messageReactionRemove, guildCreate, guildMemberAdd, inviteCreate, inviteDelete]
+export default [
+  ready,
+  messageCreate,
+  interactionCreate,
+  messageReactionAdd,
+  messageReactionRemove,
+  guildCreate,
+  guildMemberAdd,
+  inviteCreate,
+  inviteDelete
+]

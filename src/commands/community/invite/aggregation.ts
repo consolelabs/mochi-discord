@@ -6,9 +6,9 @@ import { composeEmbedMessage } from "utils/discord-embed"
 import { getHeader, getCommandArguments } from "utils/common"
 
 const command: Command = {
-  id: "invites_aggregation",
+  id: "invite_aggregation",
   command: "aggregation",
-  name: "Show user invites aggregation",
+  brief: "Show user invites aggregation",
   category: "Community",
   run: async function aggregation(msg: Message) {
     let inviterID = msg.author.id
@@ -49,9 +49,7 @@ const command: Command = {
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
-      description: "Show user invites aggregation.",
       usage: `${PREFIX}invite aggregation <@userId>`,
-      alias: ["aggr"],
       examples: `${PREFIX}invite aggregation @ohagi\n${PREFIX}invite aggr @ohagi`,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
@@ -59,7 +57,7 @@ const command: Command = {
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
-  alias: ["aggr"],
+  aliases: ["aggr"],
 }
 
 export default command
