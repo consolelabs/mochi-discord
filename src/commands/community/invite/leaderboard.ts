@@ -1,36 +1,36 @@
 import { Command } from "types/common"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { getHeader } from "utils/common"
 
 const command: Command = {
-  id: "invites_leaderboard",
+  id: "invite_leaderboard",
   command: "leaderboard",
-  name: "Show top 10 inviters",
+  brief: "Show top 10 inviters.",
   category: "Community",
   run: async function leaderboard(msg: Message) {
     const resp = await Community.getInvitesLeaderboard(msg.guild.id)
     if (resp.error) {
       return {
         messageOptions: {
-          content: `${getHeader(resp.error, msg.author)}`,
-        },
+          content: `${getHeader(resp.error, msg.author)}`
+        }
       }
     }
 
     const data = resp.data
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       return {
         messageOptions: {
-          content: `${"Leaderboard is empty"}`,
-        },
+          content: `${"Leaderboard is empty"}`
+        }
       }
     }
 
     const embedMsg = composeEmbedMessage(msg, {
-      title: `Invites Leaderboard`,
+      title: `Invites Leaderboard`
     })
 
     const respMsg: string[] = []
@@ -43,23 +43,21 @@ const command: Command = {
 
     return {
       messageOptions: {
-        embeds: [embedMsg],
-      },
+        embeds: [embedMsg]
+      }
     }
   },
-  getHelpMessage: async (msg) => {
+  getHelpMessage: async msg => {
     const embed = composeEmbedMessage(msg, {
-      description: "Show top 10 inviters.",
-      alias: ["lb"],
       usage: `${PREFIX}invite leaderboard`,
       examples: `${PREFIX}invite leaderboard\n${PREFIX}invite lb`,
-      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`]
     })
 
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
-  alias: ["lb"],
+  aliases: ["lb"]
 }
 
 export default command

@@ -3,26 +3,26 @@ import {
   ButtonInteraction,
   Message,
   MessageActionRow,
-  MessageButton,
+  MessageButton
 } from "discord.js"
 import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
 import {
   defaultEmojis,
-  getCommandArguments,
   getEmoji,
   roundFloatNumber,
-  thumbnails,
+  thumbnails
 } from "utils/common"
+import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
 import NodeCache from "node-cache"
 import dayjs from "dayjs"
 import { DiscordWalletTransferRequest } from "types/defi"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 
 const airdropCache = new NodeCache({
   stdTTL: 180,
   checkperiod: 1,
-  useClones: false,
+  useClones: false
 })
 
 function composeAirdropButtons(
@@ -38,13 +38,13 @@ function composeAirdropButtons(
       customId: `confirm_airdrop-${authorId}-${amount}-${amountInUSD}-${cryptocurrency}-${duration}-${maxEntries}`,
       emoji: "✅",
       style: "PRIMARY",
-      label: "Confirm",
+      label: "Confirm"
     }),
     new MessageButton({
       customId: `cancel_airdrop`,
       emoji: "❌",
       style: "SECONDARY",
-      label: "Cancel",
+      label: "Cancel"
     })
   )
 }
@@ -56,8 +56,14 @@ export async function confirmAirdrop(
   await interaction.deferUpdate()
 
   const infos = interaction.customId.split("-")
-  const [authorId, amount, amountInUSD, cryptocurrency, duration, maxEntries] =
-    infos.slice(1)
+  const [
+    authorId,
+    amount,
+    amountInUSD,
+    cryptocurrency,
+    duration,
+    maxEntries
+  ] = infos.slice(1)
   if (authorId !== interaction.user.id) {
     return
   }
@@ -78,7 +84,7 @@ export async function confirmAirdrop(
     }.`,
     footer: ["Ends"],
     timestamp: endTime,
-    originalMsgAuthor: originalAuthor?.user,
+    originalMsgAuthor: originalAuthor?.user
   })
 
   const reply = await msg.edit({
@@ -89,10 +95,10 @@ export async function confirmAirdrop(
           customId: `enter_airdrop-${authorId}-${duration}-${maxEntries}`,
           label: "Enter airdrop",
           style: "PRIMARY",
-          emoji: "🎉",
+          emoji: "🎉"
         })
-      ),
-    ],
+      )
+    ]
   })
   const cacheKey = `airdrop-${reply.id}`
   airdropCache.set(cacheKey, [], +duration)
@@ -136,13 +142,16 @@ async function checkExpiredAirdrop(
       if (participants.length > 0) {
         const req: DiscordWalletTransferRequest = {
           sender: authorId,
-          recipients: participants.map((p) =>
-            p.replace("<@!", "").replace("<@", "").replace(">", "")
+          recipients: participants.map(p =>
+            p
+              .replace("<@!", "")
+              .replace("<@", "")
+              .replace(">", "")
           ),
           amount,
           cryptocurrency,
           guildId: msg.guildId,
-          channelId: msg.channelId,
+          channelId: msg.channelId
         }
         await Defi.discordWalletTransfer(JSON.stringify(req), msg)
       }
@@ -154,10 +163,10 @@ async function checkExpiredAirdrop(
             title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
             footer: [`${participants.length} users joined, ended`],
             description,
-            originalMsgAuthor: originalAuthor?.user,
-          }),
+            originalMsgAuthor: originalAuthor?.user
+          })
         ],
-        components: [],
+        components: []
       })
     }
   })
@@ -175,10 +184,10 @@ export async function enterAirdrop(
       embeds: [
         composeEmbedMessage(msg, {
           title: `${defaultEmojis.ERROR} Could not enter airdrop`,
-          description: "You cannot enter your own airdrops.",
-        }),
+          description: "You cannot enter your own airdrops."
+        })
       ],
-      fetchReply: true,
+      fetchReply: true
     })
     return
   }
@@ -192,9 +201,9 @@ export async function enterAirdrop(
       embeds: [
         composeEmbedMessage(msg, {
           title: `${defaultEmojis.ERROR} Could not enter airdrop`,
-          description: "You are already waiting for this airdrop.",
-        }),
-      ],
+          description: "You are already waiting for this airdrop."
+        })
+      ]
     })
     return
   } else {
@@ -205,9 +214,9 @@ export async function enterAirdrop(
         composeEmbedMessage(msg, {
           title: `${defaultEmojis.CHECK} Entered airdrop`,
           description: `You will receive your reward in ${duration}s.`,
-          footer: ["You will only receive this notification once"],
-        }),
-      ],
+          footer: ["You will only receive this notification once"]
+        })
+      ]
     })
     if (participants.length === +maxEntries)
       airdropCache.emit("expired", cacheKey, participants)
@@ -217,9 +226,9 @@ export async function enterAirdrop(
 const command: Command = {
   id: "airdrop",
   command: "airdrop",
-  name: "Leave a packet of coins for anyone to pick up",
+  brief: "Leave a packet of coins for anyone to pick up",
   category: "Defi",
-  run: async function (msg: Message) {
+  run: async function(msg: Message) {
     const args = getCommandArguments(msg)
     if (args.length < 3) {
       return { messageOptions: await this.getHelpMessage(msg) }
@@ -238,9 +247,9 @@ const command: Command = {
               currentBal,
               payload.amount,
               payload.cryptocurrency
-            ),
-          ],
-        },
+            )
+          ]
+        }
       }
     }
     if (payload.all) payload.amount = currentBal
@@ -267,25 +276,25 @@ const command: Command = {
     }
     const confirmEmbed = composeEmbedMessage(msg, {
       title: `${defaultEmojis.AIRPLANE} Confirm airdrop`,
-      description: `Are you sure you want to spend ${amountDescription} on this airdrop?`,
+      description: `Are you sure you want to spend ${amountDescription} on this airdrop?`
     }).addFields([
       {
         name: "Total reward",
         value: amountDescription,
-        inline: true,
+        inline: true
       },
       {
         name: "Run time",
         value: `${describeRunTime(payload.opts?.duration)}`,
-        inline: true,
+        inline: true
       },
       {
         name: "Max entries",
         value: `${
           payload.opts?.maxEntries === 0 ? "-" : payload.opts?.maxEntries
         }`,
-        inline: true,
-      },
+        inline: true
+      }
     ])
 
     return {
@@ -299,23 +308,23 @@ const command: Command = {
             payload.cryptocurrency,
             payload.opts?.duration,
             payload.opts?.maxEntries
-          ),
-        ],
-      },
+          )
+        ]
+      }
     }
   },
-  getHelpMessage: async (msg) => ({
+  getHelpMessage: async msg => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TIP,
         usage: `${PREFIX}airdrop <amount> <token> [in <duration>] [for <max entries>]`,
         examples: `${PREFIX}airdrop 10 ftm\n${PREFIX}airdrop 10 ftm in 5m\n${PREFIX}airdrop 10 ftm in 5m for 6`,
-        footer: [DEFI_DEFAULT_FOOTER],
-      }),
-    ],
+        footer: [DEFI_DEFAULT_FOOTER]
+      })
+    ]
   }),
   canRunWithoutAction: true,
-  alias: ["drop"],
+  aliases: ["drop"]
 }
 
 export default command

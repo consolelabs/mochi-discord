@@ -1,15 +1,15 @@
 import { Command } from "types/common"
-import { workInProgress } from "utils/discord-embed"
+import { workInProgress } from "utils/discordEmbed"
 
 const command: Command = {
   id: "reverify",
   command: "reverify",
   category: "Profile",
-  name: "Reverify",
-  run: async(msg) => ({messageOptions: await workInProgress(msg)}),
+  brief: "Reverify",
+  run: async _msg => ({ messageOptions: await workInProgress() }),
   getHelpMessage: workInProgress,
   canRunWithoutAction: true,
-  experimental: true,
+  experimental: true
 }
 
 export default command

@@ -1,17 +1,21 @@
 import { Command } from "types/common"
-import { emojis, getCommandArguments, getListCommands } from "utils/common"
+import { getAllAliases } from "utils/commands"
+import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import config from "./config"
+import streak from "./streak"
 
-const commands: Record<string, Command> = {
+const actions: Record<string, Command> = {
   config,
+  streak,
 }
+const commands: Record<string, Command> = getAllAliases(actions)
 
 const command: Command = {
   id: "gm",
   command: "gm",
-  name: "GM/GN",
+  brief: "GM/GN",
   category: "Community",
   run: async function (msg, action) {
     const actionObj = commands[action]
@@ -31,16 +35,15 @@ const command: Command = {
     if (actionObj) {
       return actionObj.getHelpMessage(msg)
     }
-    const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
     const embed = composeEmbedMessage(msg, {
-      description: `\n\n**Usage**\`\`\`${PREFIX}gm <action>\`\`\`\n${getListCommands(
-        replyEmoji ?? "╰ ",
-        commands
-      )}\n\n\nType \`${PREFIX}help gm <action>\` to learn more about a specific action!`,
+      usage: `${PREFIX}gm <action>`,
+      footer: [`Type ${PREFIX}help gm <action> for a specific action!`],
     })
 
     return { embeds: [embed] }
   },
+  aliases: ["gn"],
+  actions,
 }
 
 export default command

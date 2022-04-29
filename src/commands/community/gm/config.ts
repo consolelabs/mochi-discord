@@ -1,16 +1,17 @@
 import { InvalidInputError } from "errors"
 import { Command } from "types/common"
-import { getCommandArguments, getEmoji } from "utils/common"
+import { getEmoji } from "utils/common"
+import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 
 const command: Command = {
-  id: "gm-config",
+  id: "gm_config",
   command: "config",
-  name: "Configure gm/gn channel",
+  brief: "Configure gm/gn channel",
   category: "Community",
-  run: async (msg) => {
+  run: async msg => {
     const args = getCommandArguments(msg)
     const channelArg = args[2]
     if (
@@ -32,23 +33,22 @@ const command: Command = {
           composeEmbedMessage(msg, {
             description: `Successfully configure ${channelArg} as GM/GN channel ${getEmoji(
               "good_morning"
-            )}`,
-          }),
-        ],
-      },
+            )}`
+          })
+        ]
+      }
     }
   },
-  getHelpMessage: async (msg) => {
-    const embed = composeEmbedMessage(msg, {
-      description: "Configure gm/gn channel",
-      usage: `${PREFIX}gm config <channel>`,
-      examples: `${PREFIX}gm config #general`,
-    })
-    return {
-      embeds: [embed],
-    }
-  },
-  canRunWithoutAction: true,
+  getHelpMessage: async msg => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        description: "Configure gm/gn channel",
+        usage: `${PREFIX}gm config <channel>`,
+        examples: `${PREFIX}gm config #general`
+      })
+    ]
+  }),
+  canRunWithoutAction: true
 }
 
 export default command

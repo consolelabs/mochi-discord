@@ -6,14 +6,12 @@ import {
   MessageOptions,
   ColorResolvable,
   MessageComponentInteraction,
-  Permissions,
+  Permissions
 } from "discord.js"
 import { DISCORD_ADMIN_GROUP } from "../env"
 
 import { Command } from "types/common"
-import { DOT, HELP_CMD, SPACE, VERTICAL_BAR } from "./constants"
-import webhook from "adapters/webhook"
-
+import { DOT, VERTICAL_BAR } from "./constants"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -22,7 +20,7 @@ export const tokenEmojis: Record<string, string> = {
   REAPER: "967285238306857063",
   BOO: "967285238042599434",
   SPELL: "967285238063587358",
-  BTC: "967285237879013388",
+  BTC: "967285237879013388"
 }
 
 export const numberEmojis: Record<string, string> = {
@@ -35,7 +33,7 @@ export const numberEmojis: Record<string, string> = {
   NUM_6: "932856132626710549",
   NUM_7: "932856132958048276",
   NUM_8: "932856132869976136",
-  NUM_9: "932856132832223232",
+  NUM_9: "932856132832223232"
 }
 
 export const defaultEmojis: Record<string, string> = {
@@ -45,7 +43,7 @@ export const defaultEmojis: Record<string, string> = {
   ARROW_DOWN: ":arrow_heading_down:",
   ARROW_UP: ":arrow_heading_up:",
   CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
-  CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
+  CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:"
 }
 
 export const emojis: { [key: string]: string } = {
@@ -58,12 +56,12 @@ export const emojis: { [key: string]: string } = {
   PREV_PAGE: "967285237958705162",
   NEXT_PAGE: "967285238000676895",
   ...tokenEmojis,
-  ...numberEmojis,
+  ...numberEmojis
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
   PRIMARY: "#E88B88", // 500
-  ERROR: "#D73833", // 900
+  ERROR: "#D73833" // 900
 }
 
 export const thumbnails: Record<string, string> = {
@@ -72,7 +70,7 @@ export const thumbnails: Record<string, string> = {
   TIP: "https://i.imgur.com/qj7iPqz.png",
   TOKENS: "https://i.imgur.com/hcqO0Wu.png",
   LOADING:
-    "https://cdn.discordapp.com/attachments/895993366960017491/933427920817492028/loading.gif",
+    "https://cdn.discordapp.com/attachments/895993366960017491/933427920817492028/loading.gif"
 }
 
 export function isInteraction(
@@ -85,7 +83,7 @@ export async function inactivityResponse(user: User): Promise<MessageOptions> {
   return {
     content: `> **${getEmoji("revoke")} ${VERTICAL_BAR} ${
       user.tag
-    }, the command was closed due to inactivity.**`,
+    }, the command was closed due to inactivity.**`
   }
 }
 
@@ -110,16 +108,16 @@ export async function onlyAdminsAllowed(msg: Message) {
 
 export function getListCommands(
   _emoji: GuildEmoji | string,
-  commands: Record<string, Pick<Command, "command" | "name" | "experimental">>
+  commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
 ) {
   const emoji = getEmoji("reply")
   return Object.values(commands)
-    .filter((c) => !c.experimental)
-    .map((c) => `[**${c.command}**](https://google.com)\n${emoji}${c.name}`)
+    .filter(c => !c.experimental)
+    .map(c => `[**${c.command}**](https://google.com)\n${emoji}${c.brief}`)
     .join("\n\n")
 }
 
-export default function maskAddress(str: string, minLen?: number) {
+export function maskAddress(str: string, minLen?: number) {
   const num = minLen || 8
   if (str.length > num && str.length > 3) {
     const a = Math.round((num * 2) / 3)
@@ -147,27 +145,6 @@ export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
-export const getCommandArguments = (message: Message) =>
-  message ? message.content.split(SPACE) : []
-
-export const numberWithCommas = (n: number) =>
-  n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-
-// TODO: integrate with BE
-export async function handleNormalMessage(message: Message) {
-  await webhook.pushDiscordWebhook("messageCreate", {
-    author: {
-      id: message.author.id,
-    },
-    guild_id: message.guildId,
-    channel_id: message.channelId,
-    timestamp: message.createdAt,
-    content: message.content,
-  })
+export function numberWithCommas(n: number) {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 }
-
-export const specificHelpCommand = (message: Message) =>
-  message && message.content
-    ? message.content.startsWith(HELP_CMD) &&
-      getCommandArguments(message).length > 1
-    : false

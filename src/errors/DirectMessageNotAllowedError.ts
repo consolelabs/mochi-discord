@@ -1,5 +1,5 @@
 import { Message, TextChannel } from "discord.js"
-import { getErrorEmbed } from "utils/discord-embed"
+import { getErrorEmbed } from "utils/discordEmbed"
 import { BotBaseError } from "./BaseError"
 
 export class DirectMessageNotAllowedError extends BotBaseError {

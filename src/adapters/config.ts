@@ -1,4 +1,4 @@
-import { Command } from "types/common"
+import { Command, DefaultRoleEvent, RoleReactionEvent } from "types/common"
 import { Channel, Message } from "discord.js"
 import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
@@ -14,9 +14,9 @@ class Config {
     setInterval(async () => {
       this.Guilds = await this.getGuilds()
       logger.info(
-        `reloaded ${this.Guilds.data.length} guild configs: ${this.Guilds.data
-          .map((g) => g.name)
-          .join(", ")}`
+        `reloaded ${
+          this.Guilds.data.length
+        } guild configs: ${this.Guilds.data.map(g => g.name).join(", ")}`
       )
     }, 3600000)
   }
@@ -26,8 +26,8 @@ class Config {
       await fetch(`${API_BASE_URL}/guilds`, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json"
+        }
       })
     ).json()
 
@@ -38,8 +38,8 @@ class Config {
     const res = await fetch(`${API_BASE_URL}/guilds/` + guildId, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
-      },
+        "Content-Type": "application/json"
+      }
     })
 
     switch (res.status) {
@@ -107,7 +107,7 @@ class Config {
       throw new CommandIsNotScopedError({
         message,
         category: commandObject.category.toLowerCase(),
-        command: commandObject.command.toLowerCase(),
+        command: commandObject.command.toLowerCase()
       })
     }
   }
@@ -154,16 +154,16 @@ class Config {
 
     const newGuild = {
       id: guildId,
-      name: name,
+      name: name
     }
 
     await (
       await fetch(`${API_BASE_URL}/guilds`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(newGuild),
+        body: JSON.stringify(newGuild)
       })
     ).json()
   }
@@ -174,8 +174,8 @@ class Config {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         guild_id,
-        channel_id,
-      }),
+        channel_id
+      })
     })
 
     const json = await resp.json()
@@ -184,6 +184,61 @@ class Config {
     }
     if (resp.status !== 200 || json.message != "OK") {
       throw new Error("failed to config GM channel")
+    }
+  }
+
+  public async getAllDefaultRoles(guildId: string) {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`
+      )
+
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
+
+  public async configureDefaultRole(event: DefaultRoleEvent) {
+    try {
+      const reqData = JSON.stringify(event)
+      const res = await fetch(`${API_BASE_URL}/configs/default-roles`, {
+        method: "POST",
+        body: reqData
+      })
+
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
+
+  public async handleReactionEvent(event: RoleReactionEvent) {
+    try {
+      const body = JSON.stringify(event)
+      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles`, {
+        method: "POST",
+        body: body
+      })
+
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
+
+  public async updateReactionConfig(req: RoleReactionEvent) {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/configs/reaction-roles/update-config`,
+        {
+          method: "POST",
+          body: JSON.stringify(req)
+        }
+      )
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
     }
   }
 }

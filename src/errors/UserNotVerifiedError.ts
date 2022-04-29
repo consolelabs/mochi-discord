@@ -1,6 +1,6 @@
 import { Message, TextChannel } from "discord.js"
 import { BotBaseError } from "./BaseError"
-import { getErrorEmbed } from "utils/discord-embed"
+import { getErrorEmbed } from "utils/discordEmbed"
 
 export class UserNotVerifiedError extends BotBaseError {
   private discordMessage: Message

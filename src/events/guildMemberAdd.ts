@@ -1,36 +1,57 @@
 import { Event } from "."
-import Discord from "discord.js"
+import Discord, { Collection, Role } from "discord.js"
 import config from "adapters/config"
 import webhook from "../adapters/webhook"
 import { DISCORD_DEFAULT_AVATAR } from "env"
 import { createBEGuildMember } from "../types/webhook"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
+import { DefaultRole, DefaultRoleResponse } from "types/common"
 
 export default {
   name: "guildMemberAdd",
   once: false,
   execute: async (member: Discord.GuildMember) => {
-    const resp = await webhook.pushDiscordWebhook("guildMemberAdd", createBEGuildMember(member))
+    await setUserDefaultRoles(member)
+    const resp = await webhook.pushDiscordWebhook(
+      "guildMemberAdd",
+      createBEGuildMember(member)
+    )
     const guild = await config.getGuild(member.guild.id)
     const logChannel = member.guild.channels.cache.find(
-      (channel) => channel.id === guild.log_channel_id
+      channel => channel.id === guild.log_channel_id
     ) as Discord.TextChannel
-    
+
     if (resp.error) {
-      sendInviteTrackerMessage(logChannel, unknowErrorMsg(member.id), member.user.avatarURL())
+      sendInviteTrackerMessage(
+        logChannel,
+        unknowErrorMsg(member.id),
+        member.user.avatarURL()
+      )
       return
     }
-    
+
     const data = resp.data
     if (data.is_bot) {
-      sendInviteTrackerMessage(logChannel, botInviteMsg(member.id), member.user.avatarURL())
+      sendInviteTrackerMessage(
+        logChannel,
+        botInviteMsg(member.id),
+        member.user.avatarURL()
+      )
       return
     }
     if (data.is_vanity) {
-      sendInviteTrackerMessage(logChannel, vantityInviteMsg(member.id), member.user.avatarURL())
+      sendInviteTrackerMessage(
+        logChannel,
+        vantityInviteMsg(member.id),
+        member.user.avatarURL()
+      )
       return
     }
-    sendInviteTrackerMessage(logChannel, inviteMsg(member.id, data.inviter_id, data.invites_amount), member.user.avatarURL())
+    sendInviteTrackerMessage(
+      logChannel,
+      inviteMsg(member.id, data.inviter_id, data.invites_amount),
+      member.user.avatarURL()
+    )
   }
 } as Event<"guildMemberAdd">
 
@@ -58,7 +79,30 @@ function sendInviteTrackerMessage(
   const embed = composeEmbedMessage(null, {
     title: "Invite Tracker",
     description: msg,
-    thumbnail: thumbnail || DISCORD_DEFAULT_AVATAR,
+    thumbnail: thumbnail || DISCORD_DEFAULT_AVATAR
   })
   logChannel.send({ embeds: [embed] })
 }
+
+async function setUserDefaultRoles(member: Discord.GuildMember) {
+  const resData: DefaultRoleResponse = await config.getAllDefaultRoles(
+    member.guild.id
+  )
+
+  if (resData.success) {
+    const defaultRoleIDs: string[] = resData.data.map(
+      (r: DefaultRole) => r.role_id
+    )
+    const roles: Collection<
+      string,
+      Role
+    > = member.guild?.roles?.cache.filter(role =>
+      defaultRoleIDs.includes(role.id)
+    )
+
+    roles.forEach(async r => {
+      await member.roles.add(r)
+    })
+  }
+}
+

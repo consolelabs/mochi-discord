@@ -1,13 +1,13 @@
 import { Command } from "types/common"
 import { getEmoji, getHeader, thumbnails } from "utils/common"
 import Defi from "adapters/defi"
-import { composeEmbedMessage } from "utils/discord-embed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
 
 const command: Command = {
   id: "tokens",
   command: "tokens",
-  name: "Tokens",
+  brief: "Check the list of supported tokens",
   category: "Defi",
   run: async function (msg) {
     let description = ""
@@ -33,13 +33,12 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        description: `Check the list of supported tokens.`,
         usage: `${PREFIX}tokens`,
       }),
     ],
   }),
   canRunWithoutAction: true,
-  alias: ["token", "tkn", "currency", "currencies", "cur", "curs"],
+  aliases: ["token", "tkn", "tk"],
 }
 
 export default command
