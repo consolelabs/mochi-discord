@@ -88,19 +88,20 @@ export function composeEmbedMessage(
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
-  if (actionObj) description = actionObj.brief
+  const isSpecificHelpCommand =
+    specificHelpCommand(msg) || (!actionObj && !commandObj?.canRunWithoutAction)
+  if (actionObj && isSpecificHelpCommand) description = actionObj.brief
 
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
-  if (hasActions) {
+  if (hasActions && isSpecificHelpCommand) {
     description += `\n\n${getListCommands(
       getEmoji("reply" ?? "╰ "),
       commandObj.actions
     )}`
   }
   const alias = (actionObj ?? commandObj)?.aliases
-  const isSpecificHelpCommand =
-    specificHelpCommand(msg) || (!actionObj && !commandObj?.canRunWithoutAction)
+
   title = (isSpecificHelpCommand ? commandObj?.brief : title) ?? ""
 
   let authorTag = msg?.author?.tag

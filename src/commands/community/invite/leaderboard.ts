@@ -21,7 +21,7 @@ const command: Command = {
     }
 
     const data = resp.data
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       return {
         messageOptions: {
           content: `${"Leaderboard is empty"}`
