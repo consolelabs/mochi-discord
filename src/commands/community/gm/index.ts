@@ -1,5 +1,4 @@
 import { Command } from "types/common"
-import { emojis } from "utils/common"
 import { getAllAliases } from "utils/commands"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
@@ -34,7 +33,6 @@ const command: Command = {
     if (actionObj) {
       return actionObj.getHelpMessage(msg)
     }
-    const replyEmoji = msg.client.emojis.cache.get(emojis.REPLY)
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}gm <action>`,
       footer: [`Type ${PREFIX}help gm <action> for a specific action!`]
