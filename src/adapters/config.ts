@@ -213,6 +213,18 @@ class Config {
     }
   }
 
+  public async removeDefaultRoleConfig(guildId: string) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`, {
+        method: "DELETE",
+      })
+
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
+
   public async handleReactionEvent(event: RoleReactionEvent) {
     try {
       const body = JSON.stringify(event)

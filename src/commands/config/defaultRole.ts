@@ -1,4 +1,4 @@
-import { Message } from "discord.js"
+import { Message, MessageOptions } from "discord.js"
 import { Command, DefaultRoleEvent } from "types/common"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
@@ -11,6 +11,65 @@ const getRoleNameById = (msg: Message, roleId: string) => {
   return msg.guild.roles.cache.find(r => r.id === roleId).name
 }
 
+const onSetDefaultRole = async (roleId: string, msg: Message): Promise<MessageOptions> => {
+  let description = ""
+  const requestData: DefaultRoleEvent = {
+    guild_id: msg.guild.id,
+    role_id: roleId
+  }
+  const res = await config.configureDefaultRole(requestData)
+  if (res.success) {
+    description = `Role **${getRoleNameById(
+      msg,
+      requestData.role_id
+    )}** is now configured as user's default role`
+  } else {
+    description = `Role **${getRoleNameById(
+      msg,
+      requestData.role_id
+    )}** has already been configured, please try to set another one`
+  }
+
+  return {
+    embeds: [
+      composeEmbedMessage(msg, {
+        title: TITLE,
+        description
+      })
+    ]
+  }
+}
+
+const onRemoveDefaultRole = async (msg: Message): Promise<MessageOptions> => {
+  let description = ""
+  const res = await config.removeDefaultRoleConfig(msg.guild.id)
+
+  if (res.success) {
+    description = 'Default role is currently unset'
+  } else {
+    description = 'Failed to unset default role configuration'
+  }
+
+  return {
+    embeds: [
+      composeEmbedMessage(msg, {
+        title: TITLE,
+        description
+      })
+    ]
+  }
+}
+
+const getProperAction = (args: string): string => {
+  args = args.trim()
+  switch (args.toUpperCase()) {
+    case "REMOVE":
+      return ''
+    default:
+      return args.replace(/\D/g, "")
+  }
+}
+
 const command: Command = {
   id: "defaultrole",
   brief: "Set user's default role when hopping into the server",
@@ -20,38 +79,21 @@ const command: Command = {
   canRunWithoutAction: true,
   run: async (msg: Message) => {
     const args = getCommandArguments(msg)
-    let description = ""
+    let data: MessageOptions
     args.forEach(async val => {
       if (!val) return
     })
     if (args.length === 2) {
-      const role_id = args[1].trim().replace(/\D/g, "") // Accept number-only characters
-      const requestData: DefaultRoleEvent = {
-        guild_id: msg.guild.id,
-        role_id
-      }
-      const roleConfig = await config.configureDefaultRole(requestData)
+      const val = getProperAction(args[1])
 
-      if (roleConfig.success) {
-        description = `Role **${getRoleNameById(
-          msg,
-          requestData.role_id
-        )}** is now configured as user's default role`
+      if (val) {
+        data = await onSetDefaultRole(val, msg)
       } else {
-        description = `Role **${getRoleNameById(
-          msg,
-          requestData.role_id
-        )}** has already been configured, please try to set another one`
+        data = await onRemoveDefaultRole(msg)
       }
+
       return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              title: TITLE,
-              description
-            })
-          ]
-        }
+        messageOptions: data
       }
     }
   },
@@ -60,8 +102,8 @@ const command: Command = {
       composeEmbedMessage(msg, {
         title: TITLE,
         description: "",
-        usage: `${PREFIX}defaultrole <role_id> (Or @<role_name>)`,
-        examples: `${PREFIX}dr 967013125847121973`
+        usage: `${PREFIX}dr @<role_name> - To set a <role_name> as default \n${PREFIX}dr remove - To unset current default role`,
+        examples: `${PREFIX}dr 967013125847121973\n${PREFIX}dr remove`
       })
     ]
   })
