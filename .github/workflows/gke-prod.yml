@@ -4,11 +4,10 @@ on:
   push:
     branches:
       - cicd
-      - master
-
+    tags:
+      - "v*"
 # Environment variables available to all jobs and steps in this workflow
 env:
-  GITHUB_SHA: ${{ github.sha }}
   REGISTRY_HOSTNAME: gcr.io
   GKE_PROJECT: console-labs-prod
   IMAGE: consolelabs/mochi-bot
@@ -38,8 +37,8 @@ jobs:
       # Build & Push the Docker image
       - name: Build & Push
         run: |
-          docker build -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA} .   
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
+          docker build -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_REF_NAME} .   
+          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_REF_NAME}
       # Setup kustomize
       - name: Setup kustomize
         run: |
@@ -58,6 +57,6 @@ jobs:
           cd ./infrastructure/mochi-bot/$K8S_ENVIRONMENT
           git config user.name jphuc96
           git config user.email jphuc96@gmail.com
-          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
+          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_REF_NAME}
           git commit -am "[skip ci] mochi-bot ${K8S_ENVIRONMENT} image update"
           git push origin main
