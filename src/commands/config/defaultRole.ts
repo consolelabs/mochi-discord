@@ -45,9 +45,9 @@ const onRemoveDefaultRole = async (msg: Message): Promise<MessageOptions> => {
   const res = await config.removeDefaultRoleConfig(msg.guild.id)
 
   if (res.success) {
-    description = 'Default role is currently unset'
+    description = 'Removed default role for newcomers'
   } else {
-    description = 'Failed to unset default role configuration'
+    description = 'Failed to remove default role configuration'
   }
 
   return {
