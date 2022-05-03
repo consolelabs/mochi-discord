@@ -13,7 +13,6 @@ import {
   defaultEmojis,
   getEmoji,
   getHeader,
-  numberWithCommas,
   roundFloatNumber,
   thumbnails
 } from "utils/common"
@@ -212,6 +211,10 @@ const command: Command = {
       price_change_percentage_24h_in_currency,
       price_change_percentage_7d_in_currency
     } = coin.market_data
+    const currentPrice = +(
+      current_price[currency.toLowerCase()] ?? current_price["usd"]
+    )
+    const marketCap = +(market_cap[currency.toLowerCase()] ?? market_cap["usd"])
     const blank = getEmoji("blank")
 
     const embedMsg = composeEmbedMessage(msg, {
@@ -222,16 +225,14 @@ const command: Command = {
     })
       .addField(
         `Market cap (${currency.toUpperCase()})`,
-        `${numberWithCommas(
-          market_cap[currency.toLowerCase()] ?? market_cap["usd"]
-        )} (#${coin.market_cap_rank}) ${blank}`,
+        `${marketCap.toLocaleString()} (#${coin.market_cap_rank}) ${blank}`,
         true
       )
       .addField(
         `Price (${currency.toUpperCase()})`,
-        `${numberWithCommas(
-          current_price[currency.toLowerCase()] ?? current_price["usd"]
-        )}`,
+        `${currentPrice.toLocaleString(undefined, {
+          maximumFractionDigits: 4
+        })}`,
         true
       )
       .addField("\u200B", "\u200B", true)

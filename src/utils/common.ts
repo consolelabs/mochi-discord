@@ -144,7 +144,3 @@ export function getEmoji(key: string, animated?: boolean) {
 export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
-
-export function numberWithCommas(n: number) {
-  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-}
