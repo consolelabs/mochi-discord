@@ -180,7 +180,7 @@ class Config {
     }
   }
 
-  public async getAllDefaultRoles(guildId: string) {
+  public async getCurrentDefaultRole(guildId: string) {
     try {
       const res = await fetch(
         `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`
@@ -198,6 +198,18 @@ class Config {
       const res = await fetch(`${API_BASE_URL}/configs/default-roles`, {
         method: "POST",
         body: reqData
+      })
+
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
+
+  public async removeDefaultRoleConfig(guildId: string) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`, {
+        method: "DELETE",
       })
 
       return await res.json()

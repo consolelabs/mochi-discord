@@ -85,24 +85,12 @@ function sendInviteTrackerMessage(
 }
 
 async function setUserDefaultRoles(member: Discord.GuildMember) {
-  const resData: DefaultRoleResponse = await config.getAllDefaultRoles(
+  const resData: DefaultRoleResponse = await config.getCurrentDefaultRole(
     member.guild.id
   )
 
   if (resData.success) {
-    const defaultRoleIDs: string[] = resData.data.map(
-      (r: DefaultRole) => r.role_id
-    )
-    const roles: Collection<
-      string,
-      Role
-    > = member.guild?.roles?.cache.filter(role =>
-      defaultRoleIDs.includes(role.id)
-    )
-
-    roles.forEach(async r => {
-      await member.roles.add(r)
-    })
+    await member.roles.add(resData.data.role_id)
   }
 }
 

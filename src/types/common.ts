@@ -82,6 +82,6 @@ export type DefaultRole = {
 }
 
 export type DefaultRoleResponse = {
-  data: DefaultRole[],
+  data: DefaultRole,
   success: boolean
 }
