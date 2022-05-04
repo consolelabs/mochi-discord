@@ -187,7 +187,7 @@ class Config {
     }
   }
 
-  public async getAllDefaultRoles(guildId: string) {
+  public async getCurrentDefaultRole(guildId: string) {
     try {
       const res = await fetch(
         `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`

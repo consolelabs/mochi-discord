@@ -7,10 +7,6 @@ import config from "adapters/config"
 
 const TITLE = "Default role"
 
-const getRoleNameById = (msg: Message, roleId: string) => {
-  return msg.guild.roles.cache.find(r => r.id === roleId).name
-}
-
 const onSetDefaultRole = async (roleId: string, msg: Message): Promise<MessageOptions> => {
   let description = ""
   const requestData: DefaultRoleEvent = {
@@ -19,15 +15,9 @@ const onSetDefaultRole = async (roleId: string, msg: Message): Promise<MessageOp
   }
   const res = await config.configureDefaultRole(requestData)
   if (res.success) {
-    description = `Role **${getRoleNameById(
-      msg,
-      requestData.role_id
-    )}** is now configured as user's default role`
+    description = `Role <@&${res.data.role_id}> is now configured as user's default role`
   } else {
-    description = `Role **${getRoleNameById(
-      msg,
-      requestData.role_id
-    )}** has already been configured, please try to set another one`
+    description = `Role <@&${res.data.role_id}> has already been configured, please try to set another one`
   }
 
   return {
@@ -60,13 +50,35 @@ const onRemoveDefaultRole = async (msg: Message): Promise<MessageOptions> => {
   }
 }
 
-const getProperAction = (args: string): string => {
+const onShowDefaultRoleInfo = async (msg: Message): Promise<MessageOptions> => {
+  let description = ""
+  const res = await config.getCurrentDefaultRole(msg.guild.id)
+
+  if (res.success) {
+    description = `Current default role for newcomers is <@&${res.data.role_id}>`
+  } else {
+    description = `Failed to get current default role for newcomers`
+  }
+
+  return {
+    embeds: [
+      composeEmbedMessage(msg, {
+        title: TITLE,
+        description
+      })
+    ]
+  }
+}
+
+const excuteAction = async (args: string, msg: Message): Promise<MessageOptions> => {
   args = args.trim()
   switch (args.toUpperCase()) {
     case "REMOVE":
-      return ''
+      return await onRemoveDefaultRole(msg)
+    case "INFO":
+      return await onShowDefaultRoleInfo(msg)
     default:
-      return args.replace(/\D/g, "")
+      return await onSetDefaultRole(args.replace(/\D/g, ""), msg) 
   }
 }
 
@@ -84,13 +96,7 @@ const command: Command = {
       if (!val) return
     })
     if (args.length === 2) {
-      const val = getProperAction(args[1])
-
-      if (val) {
-        data = await onSetDefaultRole(val, msg)
-      } else {
-        data = await onRemoveDefaultRole(msg)
-      }
+      data = await excuteAction(args[1], msg)
 
       return {
         messageOptions: data
@@ -102,8 +108,8 @@ const command: Command = {
       composeEmbedMessage(msg, {
         title: TITLE,
         description: "",
-        usage: `${PREFIX}dr @<role_name> - To set a <role_name> as default \n${PREFIX}dr remove - To unset current default role`,
-        examples: `${PREFIX}dr 967013125847121973\n${PREFIX}dr remove`
+        usage: `${PREFIX}dr @<role_name> - To set a <role_name> as default \n${PREFIX}dr remove - To remove current default role\n${PREFIX}dr info - To show current default role for newcomers`,
+        examples: `${PREFIX}dr @Friend\n${PREFIX}dr remove \n${PREFIX}dr info`
       })
     ]
   })
