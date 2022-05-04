@@ -14,8 +14,7 @@ class Config {
     setInterval(async () => {
       this.Guilds = await this.getGuilds()
       logger.info(
-        `reloaded ${
-          this.Guilds.data.length
+        `reloaded ${this.Guilds.data.length
         } guild configs: ${this.Guilds.data.map(g => g.name).join(", ")}`
       )
     }, 3600000)
@@ -146,12 +145,6 @@ class Config {
   }
 
   public async createGuild(guildId: string, name: string) {
-    const guild = await this.getGuild(guildId)
-    if (guild) {
-      logger.warn(`Guild ${guildId} already exists`)
-      return
-    }
-
     const newGuild = {
       id: guildId,
       name: name

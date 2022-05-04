@@ -1,5 +1,6 @@
 import { Command } from "types/common"
 import {
+  EmbedFieldData,
   HexColorString,
   Message,
   MessageActionRow,
@@ -13,7 +14,6 @@ import {
   defaultEmojis,
   getEmoji,
   getHeader,
-  numberWithCommas,
   roundFloatNumber,
   thumbnails
 } from "utils/common"
@@ -203,7 +203,7 @@ const command: Command = {
   run: async function(msg) {
     const args = getCommandArguments(msg)
     const query = !args[1].includes("/") ? `${args[1]}/usd` : args[1]
-    const [coinId, currency] = query.split("/")
+    let [coinId, currency] = query.split("/")
     const coin = await Defi.getCoin(msg, coinId)
     const {
       market_cap,
@@ -212,44 +212,52 @@ const command: Command = {
       price_change_percentage_24h_in_currency,
       price_change_percentage_7d_in_currency
     } = coin.market_data
+    currency = current_price[currency.toLowerCase()]
+      ? currency.toLowerCase()
+      : "usd"
+    const currentPrice = +current_price[currency]
+    const marketCap = +market_cap[currency]
     const blank = getEmoji("blank")
+    const currencyPrefix = currency === "usd" ? "$" : ""
+    const fields: EmbedFieldData[] = [
+      {
+        name: `Market cap (${currency.toUpperCase()})`,
+        value: `${currencyPrefix}${marketCap.toLocaleString()} (#${
+          coin.market_cap_rank
+        }) ${blank}`,
+        inline: true
+      },
+      {
+        name: `Price (${currency.toUpperCase()})`,
+        value: `${currencyPrefix}${currentPrice.toLocaleString(undefined, {
+          maximumFractionDigits: 4
+        })}`,
+        inline: true
+      },
+      { name: "\u200B", value: "\u200B", inline: true },
+      {
+        name: "Change (1h)",
+        value: getChangePercentage(price_change_percentage_1h_in_currency.usd),
+        inline: true
+      },
+      {
+        name: `Change (24h) ${blank}`,
+        value: getChangePercentage(price_change_percentage_24h_in_currency.usd),
+        inline: true
+      },
+      {
+        name: "Change (7d)",
+        value: getChangePercentage(price_change_percentage_7d_in_currency.usd),
+        inline: true
+      }
+    ]
 
     const embedMsg = composeEmbedMessage(msg, {
       color: getChartColorConfig(coin.id, 0, 0).borderColor as HexColorString,
       author: [coin.name, coin.image.small],
       footer: ["Data fetched from CoinGecko.com"],
       image: "attachment://chart.png"
-    })
-      .addField(
-        `Market cap (${currency.toUpperCase()})`,
-        `${numberWithCommas(
-          market_cap[currency.toLowerCase()] ?? market_cap["usd"]
-        )} (#${coin.market_cap_rank}) ${blank}`,
-        true
-      )
-      .addField(
-        `Price (${currency.toUpperCase()})`,
-        `${numberWithCommas(
-          current_price[currency.toLowerCase()] ?? current_price["usd"]
-        )}`,
-        true
-      )
-      .addField("\u200B", "\u200B", true)
-      .addField(
-        "Change (1h)",
-        getChangePercentage(price_change_percentage_1h_in_currency.usd),
-        true
-      )
-      .addField(
-        `Change (24h) ${blank}`,
-        getChangePercentage(price_change_percentage_24h_in_currency.usd),
-        true
-      )
-      .addField(
-        "Change (7d)",
-        getChangePercentage(price_change_percentage_7d_in_currency.usd),
-        true
-      )
+    }).addFields(fields)
 
     const chart = await renderHistoricalMarketChart({
       msg,
