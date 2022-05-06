@@ -17,6 +17,8 @@ export type Token = {
   chain_id: number
   decimal: number
   discord_bot_supported: boolean
+  coin_gecko_id: string
+  name: string
 }
 
 export type DiscordWalletBalances = {

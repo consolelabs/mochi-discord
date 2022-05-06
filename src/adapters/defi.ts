@@ -12,6 +12,7 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
 import { getCommandObject } from "utils/commands"
 import { API_BASE_URL } from "utils/constants"
+import Config from "./config"
 
 class Defi {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
@@ -131,10 +132,11 @@ class Defi {
   }
 
   public async discordWalletBalances(
+    guildId: string,
     discordId: string
   ): Promise<DiscordWalletBalances> {
     const resp = await fetch(
-      `${API_BASE_URL}/defi/balances?discord_id=${discordId}`,
+      `${API_BASE_URL}/defi/balances?guild_id=${guildId}&discord_id=${discordId}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" }
@@ -350,10 +352,10 @@ class Defi {
       })
     }
 
-    const supportedTokens = (await this.getSupportedTokens()).map(token =>
+    const guildTokens = (await Config.getGuildTokens(msg.guildId)).map(token =>
       token.symbol.toUpperCase()
     )
-    if (!supportedTokens.includes(cryptocurrency)) {
+    if (!guildTokens.includes(cryptocurrency)) {
       throw new DiscordWalletTransferError({
         discordId: sender,
         guildId: msg.guildId,

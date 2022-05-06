@@ -236,7 +236,7 @@ const command: Command = {
 
     const payload = await Defi.getTransferPayload(msg, args)
     // check balance
-    const data = await Defi.discordWalletBalances(msg.author.id)
+    const data = await Defi.discordWalletBalances(msg.guildId, msg.author.id)
     const currentBal = data.balances[payload.cryptocurrency.toUpperCase()]
     if (currentBal < payload.amount && !payload.all) {
       return {
