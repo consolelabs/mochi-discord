@@ -1,4 +1,5 @@
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
+import { sendVerifyURL } from "commands/profile/verify"
 import { SelectMenuInteraction, ButtonInteraction, Message } from "discord.js"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
@@ -78,6 +79,9 @@ async function handleButtonInteraction(
       return
     case interaction.customId.startsWith("enter_airdrop-"):
       await enterAirdrop(buttonInteraction, msg)
+      return
+    case interaction.customId.startsWith("mochi_verify"):
+      await sendVerifyURL(buttonInteraction)
       return
     default:
       return
