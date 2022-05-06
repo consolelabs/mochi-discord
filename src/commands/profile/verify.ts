@@ -1,15 +1,54 @@
-import { Command } from "types/common"
-import { workInProgress } from "utils/discordEmbed"
+import Profile from "../../adapters/profile"
+import {
+  ButtonInteraction,
+  MessageActionRow,
+  MessageEmbed,
+  MessageButton
+} from "discord.js"
 
-const command: Command = {
-  id: "verify",
-  command: "verify",
-  category: "Profile",
-  brief: "Verify",
-  run: async _msg => ({ messageOptions: await workInProgress() }),
-  getHelpMessage: workInProgress,
-  canRunWithoutAction: true,
-  experimental: true
+export async function sendVerifyURL(interaction: ButtonInteraction) {
+  await interaction.deferReply({ ephemeral: true })
+  try {
+    const json = await Profile.generateVerificationCode(
+      interaction.member.user.id,
+      interaction.guild.id
+    )
+    switch (json.error) {
+      case "already have a verified wallet": {
+        const reverify = await Profile.generateVerificationCode(
+          interaction.member.user.id,
+          interaction.guild.id,
+          true
+        )
+        const e1 = new MessageEmbed()
+          .setColor("#0099ff")
+          .setTitle("You already have verified a wallet address")
+          .setDescription(`\`\`\`${json.address}\`\`\`\nIf you want to change your address, [click here](https://pod.town/verify?code=${reverify.code}) to re-verify.`)
+        await interaction.editReply({ embeds: [e1] })
+        break
+      }
+      case undefined: {
+        const e2 = new MessageEmbed()
+          .setColor("#0099ff")
+          .setTitle("Verify your wallet address")
+          .setDescription(
+            `Please verify your wallet address by clicking the button below.`
+          )
+        const row = new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Verify")
+            .setStyle("LINK")
+            .setURL(`https://pod.town/verify?code=${json.code}`)
+        )
+        await interaction.editReply({ embeds: [e2], components: [row] })
+        break
+      }
+      default:
+        throw new Error(json.error)
+    }
+  } catch (e: any) {
+    await interaction.editReply("Something wrong")
+    throw e
+    return
+  }
 }
-
-export default command

@@ -26,6 +26,24 @@ class Profile {
     )
     return await resp.json()
   }
+
+  public async generateVerificationCode(
+    authorId: string,
+    guildId: string,
+    isReverify?: boolean
+  ) {
+    const resp = await fetch(`${API_BASE_URL}/verify/generate`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        user_discord_id: authorId,
+        guild_id: guildId,
+        is_reverify: isReverify,
+      }),
+    })
+
+    return await resp.json()
+  }
 }
 
 export default new Profile()
