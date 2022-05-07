@@ -1,4 +1,6 @@
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
+import { sendVerifyURL } from "commands/profile/verify"
+import { updateGuildTokenConfig } from "commands/defi/token/config"
 import { SelectMenuInteraction, ButtonInteraction, Message } from "discord.js"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
@@ -12,7 +14,7 @@ export default {
   execute: async (interaction: SelectMenuInteraction | ButtonInteraction) => {
     try {
       const msg = interaction.message as Message
-      if (!interaction.isButton() || interaction.customId === "exit") {
+      if (interaction.isSelectMenu()) {
         await handleSelecMenuInteraction(
           interaction as SelectMenuInteraction,
           msg
@@ -30,7 +32,7 @@ export default {
       }
       ChannelLogger.log(error)
     }
-  },
+  }
 } as Event<"interactionCreate">
 
 async function handleSelecMenuInteraction(
@@ -44,7 +46,6 @@ async function handleSelecMenuInteraction(
     await msg.delete().catch(() => {
       commandChoice.interaction
         ?.editReply({ content: "Exited!", components: [], embeds: [] })
-        .catch(() => {})
     })
     CommandChoiceManager.remove(key)
     return
@@ -59,7 +60,7 @@ async function handleSelecMenuInteraction(
     await CommandChoiceManager.update(key, {
       ...commandChoiceOptions,
       interaction,
-      messageId: output.id,
+      messageId: output.id
     })
   }
 }
@@ -70,14 +71,20 @@ async function handleButtonInteraction(
 ) {
   const buttonInteraction = interaction as ButtonInteraction
   switch (true) {
-    case interaction.customId === "cancel_airdrop":
-      await msg.delete().catch(() => {})
+    case ["exit", "cancel_airdrop"].includes(interaction.customId):
+      await msg.delete()
       return
     case interaction.customId.startsWith("confirm_airdrop-"):
       await confirmAirdrop(buttonInteraction, msg)
       return
     case interaction.customId.startsWith("enter_airdrop-"):
       await enterAirdrop(buttonInteraction, msg)
+      return
+    case interaction.customId.startsWith("mochi_verify"):
+      await sendVerifyURL(buttonInteraction)
+      return
+    case interaction.customId.startsWith("guild_token_config-"):
+      await updateGuildTokenConfig(buttonInteraction, msg)
       return
     default:
       return

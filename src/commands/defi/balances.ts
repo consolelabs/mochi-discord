@@ -4,6 +4,7 @@ import { PREFIX } from "utils/constants"
 import { getEmoji, getHeader, roundFloatNumber, thumbnails } from "utils/common"
 import Defi from "adapters/defi"
 import { composeEmbedMessage } from "utils/discordEmbed"
+import Config from "adapters/config"
 
 const command: Command = {
   id: "balances",
@@ -11,27 +12,24 @@ const command: Command = {
   brief: "Show your balances of the supported tokens",
   category: "Defi",
   run: async function balances(msg: Message) {
-    const data = await Defi.discordWalletBalances(msg.author.id)
-    const supportedTokens = (await Defi.getSupportedTokens()).map(token =>
-      token.symbol.toUpperCase()
-    )
+    const data = await Defi.discordWalletBalances(msg.guildId, msg.author.id)
+    const guildTokens = await Config.getGuildTokens(msg.guildId)
 
     const embedMsg = composeEmbedMessage(msg, {
-      title: "Your balances"
+      author: [`${msg.author.username}'s balances`, msg.author.avatarURL()]
     })
 
-    const blankEmoji = getEmoji("blank")
-    for (const tokenSymbol of supportedTokens) {
+    guildTokens.forEach(gToken => {
+      const tokenSymbol = gToken.symbol
       const tokenEmoji = getEmoji(tokenSymbol)
-      let tokenBalance = roundFloatNumber(data.balances[tokenSymbol] ?? 0, 4)
+      const tokenBalance = roundFloatNumber(data.balances[tokenSymbol] ?? 0, 4)
+      if (tokenBalance === 0) return
       const tokenBalanceInUSD = data.balances_in_usd[tokenSymbol]
-      let balanceInfo = `${tokenEmoji} **${tokenBalance}**`
+      let balanceInfo = `${tokenEmoji} **${tokenBalance} ${tokenSymbol}**`
       if (tokenBalanceInUSD !== undefined)
-        balanceInfo += ` (\u2248 $${roundFloatNumber(tokenBalanceInUSD, 2)})`
-      balanceInfo += blankEmoji
-      tokenBalance = roundFloatNumber(tokenBalance, 4)
-      embedMsg.addField(tokenSymbol, balanceInfo, true)
-    }
+        balanceInfo += ` (\u2248$${roundFloatNumber(tokenBalanceInUSD, 2)})`
+      embedMsg.addField(gToken.name, balanceInfo, true)
+    })
 
     const totalBalanceInUSD = Object.values(data.balances_in_usd).reduce(
       (prev, cur) => prev + cur

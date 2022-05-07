@@ -41,7 +41,7 @@ export function composeDiscordSelectionRow(
   return row
 }
 
-function getExitButton() {
+export function getExitButton() {
   return new MessageButton({
     customId: "exit",
     emoji: getEmoji("revoke"),
@@ -94,7 +94,9 @@ export function composeEmbedMessage(
 
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
-  if (hasActions && isSpecificHelpCommand) {
+
+  // display only when this is help msg of top-level command
+  if (hasActions && isSpecificHelpCommand && !actionObj) {
     description += `\n\n${getListCommands(
       getEmoji("reply" ?? "╰ "),
       commandObj.actions

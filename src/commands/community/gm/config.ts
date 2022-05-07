@@ -26,7 +26,7 @@ const command: Command = {
     const chan = await msg.guild.channels.fetch(channelId).catch(() => {})
     if (!chan) throw new InvalidInputError({ message: msg })
 
-    await Config.createGmConfig(msg.guildId, channelId)
+    await Config.updateGmConfig(msg.guildId, channelId)
     return {
       messageOptions: {
         embeds: [

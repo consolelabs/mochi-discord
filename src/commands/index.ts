@@ -4,13 +4,11 @@ import { logger } from "../logger"
 import help from "./help"
 import invite from "./community/invite/index"
 import profile from "./profile"
-import verify from "./profile/verify"
-import reverify from "./profile/reverify"
 import deposit from "./defi/deposit"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
-import tokens from "./defi/tokens"
+import tokens from "./defi/token"
 import { getAllAliases } from "utils/commands"
 import { specificHelpCommand } from "utils/commands"
 import config from "../adapters/config"
@@ -33,8 +31,6 @@ export const originalCommands: Record<string, Command> = {
   help,
   // profile
   profile,
-  verify,
-  reverify,
   // defi
   deposit,
   tip,
