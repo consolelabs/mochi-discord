@@ -1,10 +1,11 @@
 import { Command, DefaultRoleEvent, RoleReactionEvent } from "types/common"
-import { Channel, Message } from "discord.js"
+import { Message } from "discord.js"
 import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
 import { Guild, Guilds } from "types/config"
 import { API_BASE_URL } from "utils/constants"
+import { Token } from "types/defi"
 
 class Config {
   public Guilds: Guilds
@@ -161,7 +162,7 @@ class Config {
     ).json()
   }
 
-  public async createGmConfig(guild_id: string, channel_id: string) {
+  public async updateGmConfig(guild_id: string, channel_id: string) {
     const resp = await fetch(`${API_BASE_URL}/configs/gm`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -246,9 +247,57 @@ class Config {
       logger.error(e)
     }
   }
+
+  public async getGuildTokens(guildId: string): Promise<Token[]> {
+    const resp = await fetch(
+      `${API_BASE_URL}/configs/tokens?guild_id=${guildId}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      }
+    )
+
+    const json = await resp.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    if (resp.status !== 200) {
+      throw new Error("failed to get guild tokens configuration")
+    }
+    return json.data
+  }
+
+  public async updateTokenConfig({
+    guild_id,
+    symbol,
+    active
+  }: {
+    guild_id: string
+    symbol: string
+    active: boolean
+  }) {
+    const resp = await fetch(`${API_BASE_URL}/configs/tokens`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        guild_id,
+        symbol,
+        active
+      })
+    })
+
+    const json = await resp.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    if (resp.status !== 200) {
+      throw new Error("failed to config guild tokens")
+    }
+  }
 }
 
 const config = new Config()
 config.initialize()
 
 export default config
+

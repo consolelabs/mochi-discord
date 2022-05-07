@@ -20,7 +20,10 @@ export const tokenEmojis: Record<string, string> = {
   REAPER: "967285238306857063",
   BOO: "967285238042599434",
   SPELL: "967285238063587358",
-  BTC: "967285237879013388"
+  BTC: "967285237879013388",
+  ETH: "972205674173972542",
+  BNB: "972205674715054090",
+  CAKE: "972205674371117126"
 }
 
 export const numberEmojis: Record<string, string> = {

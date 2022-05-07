@@ -18,22 +18,24 @@ async function tip(msg: Message, args: string[]) {
     })
   }
 
+  const { txHash = "", txUrl = "" } = data.length === 1 ? data[0] : {}
+
   const discordIds: string[] = data.map((tx: any) => tx.toDiscordID)
   const mentionUser = (discordId: string) => `<@!${discordId}>`
   const users = discordIds.map(id => mentionUser(id)).join(",")
   const tokenEmoji = getEmoji(payload.cryptocurrency)
+  const embed = composeEmbedMessage(msg, {
+    thumbnail: thumbnails.TIP,
+    author: ["Generous"],
+    description: `${mentionUser(
+      payload.sender
+    )} sent ${users} ${roundFloatNumber(data[0].amount, 4)} ${tokenEmoji} ${
+      payload.each ? "each" : ""
+    }`
+  })
+  if (txHash && txUrl) embed.addField("Transaction ID", `[${txHash}](${txUrl})`)
   return {
-    embeds: [
-      composeEmbedMessage(msg, {
-        thumbnail: thumbnails.TIP,
-        author: ["Generous"],
-        description: `${mentionUser(
-          payload.sender
-        )} sent ${users} ${roundFloatNumber(data[0].amount, 4)} ${tokenEmoji} ${
-          payload.each ? "each" : ""
-        }`
-      })
-    ]
+    embeds: [embed]
   }
 }
 
