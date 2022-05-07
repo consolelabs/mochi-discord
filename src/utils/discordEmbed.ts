@@ -90,7 +90,6 @@ export function composeEmbedMessage(
   const actionObj = getActionCommand(msg)
   const isSpecificHelpCommand =
     specificHelpCommand(msg) || (!actionObj && !commandObj?.canRunWithoutAction)
-  if (actionObj && isSpecificHelpCommand) description = actionObj.brief
 
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
@@ -104,7 +103,8 @@ export function composeEmbedMessage(
   }
   const alias = (actionObj ?? commandObj)?.aliases
 
-  title = (isSpecificHelpCommand ? commandObj?.brief : title) ?? ""
+  title =
+    (isSpecificHelpCommand ? (actionObj ?? commandObj)?.brief : title) ?? ""
 
   let authorTag = msg?.author?.tag
   let authorAvatarURL = msg?.author?.avatarURL()

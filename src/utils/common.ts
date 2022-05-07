@@ -105,7 +105,7 @@ export async function onlyRunInAdminGroup(msg: Message) {
   return groupId === DISCORD_ADMIN_GROUP
 }
 
-export async function onlyAdminsAllowed(msg: Message) {
+export function hasAdministrator(msg: Message) {
   return msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
