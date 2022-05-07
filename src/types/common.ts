@@ -11,7 +11,7 @@ export type Command = {
   command: string
   category: Category
   brief: string
-  checkBeforeRun?: (msg: Message) => Promise<boolean>
+  onlyAdministrator?: boolean
   run: (
     msg: Message,
     action?: string,
@@ -72,16 +72,16 @@ export type RoleReactionConfigResponse = {
 }
 
 export type DefaultRoleEvent = {
-  guild_id: string,
+  guild_id: string
   role_id: string
 }
 
 export type DefaultRole = {
-  role_id: string,
+  role_id: string
   guild_id: string
 }
 
 export type DefaultRoleResponse = {
-  data: DefaultRole,
+  data: DefaultRole
   success: boolean
 }

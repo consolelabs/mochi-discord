@@ -3,7 +3,7 @@ import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import Community from "adapters/community"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { getHeader, onlyAdminsAllowed } from "utils/common"
+import { getHeader } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
@@ -11,16 +11,8 @@ const command: Command = {
   command: "config",
   brief: "Configure Invite Tracker log channel.",
   category: "Community",
+  onlyAdministrator: true,
   run: async function config(msg: Message) {
-    const isPermitted = await onlyAdminsAllowed(msg)
-    if (!isPermitted) {
-      return {
-        messageOptions: {
-          content: `${getHeader("Only admins can do this", msg.author)}`
-        }
-      }
-    }
-
     const args = getCommandArguments(msg)
     if (args.length < 3) {
       return {
