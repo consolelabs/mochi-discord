@@ -3,18 +3,22 @@ import { getEmoji, getHeader, thumbnails } from "utils/common"
 import Defi from "adapters/defi"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
-import config from "./config"
+import add from "./add"
+import remove from "./remove"
+import list from "./list"
 import { getAllAliases } from "utils/commands"
 
 const actions: Record<string, Command> = {
-  config
+  list,
+  add,
+  remove
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 
 const command: Command = {
   id: "tokens",
   command: "tokens",
-  brief: "Check the list of supported tokens by Mochi",
+  brief: "Show all supported tokens by Mochi",
   category: "Defi",
   run: async function(msg, action) {
     const actionObj = commands[action]
@@ -33,7 +37,7 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: ["Supported tokens"],
+            author: ["All supported tokens"],
             description
           })
         ],

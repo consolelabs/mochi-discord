@@ -9,7 +9,7 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/token"
-import { getAllAliases } from "utils/commands"
+import { getActionCommand, getAllAliases } from "utils/commands"
 import { specificHelpCommand } from "utils/commands"
 import config from "../adapters/config"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
@@ -25,6 +25,7 @@ import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import { Command, Category } from "types/common"
 import { getCommandArguments } from "utils/commands"
+import { hasAdministrator } from "utils/common"
 
 export const originalCommands: Record<string, Command> = {
   // general help
@@ -63,13 +64,17 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
     throw new CommandNotFoundError({ message, command: message.content })
   }
 
-  const { checkBeforeRun } = commandObject
-  const ableToRun = !checkBeforeRun || (await checkBeforeRun(message))
-  if (ableToRun) return
+  const actionObject = getActionCommand(message)
+  if (
+    !(actionObject ?? commandObject).onlyAdministrator ||
+    hasAdministrator(message)
+  )
+    return
 
   throw new CommandNotAllowedToRunError({
     message,
-    command: message.content
+    command: message.content,
+    missingPermissions: ["Administrator"]
   })
 }
 

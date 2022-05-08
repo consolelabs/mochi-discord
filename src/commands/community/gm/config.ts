@@ -42,7 +42,6 @@ const command: Command = {
   getHelpMessage: async msg => ({
     embeds: [
       composeEmbedMessage(msg, {
-        description: "Configure gm/gn channel",
         usage: `${PREFIX}gm config <channel>`,
         examples: `${PREFIX}gm config #general`
       })

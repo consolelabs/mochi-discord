@@ -9,7 +9,7 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction
 } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { PREFIX, SPACE } from "utils/constants"
 import {
   defaultEmojis,
   getEmoji,
@@ -195,120 +195,168 @@ const handler: CommandChoiceHandler = async msgOrInteraction => {
   }
 }
 
+const tickerSelectionHandler: CommandChoiceHandler = async msgOrInteraction => {
+  const interaction = msgOrInteraction as SelectMenuInteraction
+  const { message } = <{ message: Message }>interaction
+  const input = interaction.values[0]
+  const [id, currency] = input.split("_")
+  return await renderTickerEmbed(message, id, currency)
+}
+
+async function renderTickerEmbed(
+  msg: Message,
+  coinId: string,
+  currency: string
+) {
+  const coin = await Defi.getCoin(msg, coinId)
+  const {
+    market_cap,
+    current_price,
+    price_change_percentage_1h_in_currency,
+    price_change_percentage_24h_in_currency,
+    price_change_percentage_7d_in_currency
+  } = coin.market_data
+  currency = current_price[currency.toLowerCase()]
+    ? currency.toLowerCase()
+    : "usd"
+  const currentPrice = +current_price[currency]
+  const marketCap = +market_cap[currency]
+  const blank = getEmoji("blank")
+  const currencyPrefix = currency === "usd" ? "$" : ""
+  const fields: EmbedFieldData[] = [
+    {
+      name: `Market cap (${currency.toUpperCase()})`,
+      value: `${currencyPrefix}${marketCap.toLocaleString()} (#${
+        coin.market_cap_rank
+      }) ${blank}`,
+      inline: true
+    },
+    {
+      name: `Price (${currency.toUpperCase()})`,
+      value: `${currencyPrefix}${currentPrice.toLocaleString(undefined, {
+        maximumFractionDigits: 4
+      })}`,
+      inline: true
+    },
+    { name: "\u200B", value: "\u200B", inline: true },
+    {
+      name: "Change (1h)",
+      value: getChangePercentage(price_change_percentage_1h_in_currency.usd),
+      inline: true
+    },
+    {
+      name: `Change (24h) ${blank}`,
+      value: getChangePercentage(price_change_percentage_24h_in_currency.usd),
+      inline: true
+    },
+    {
+      name: "Change (7d)",
+      value: getChangePercentage(price_change_percentage_7d_in_currency.usd),
+      inline: true
+    }
+  ]
+
+  const embedMsg = composeEmbedMessage(msg, {
+    color: getChartColorConfig(coin.id, 0, 0).borderColor as HexColorString,
+    author: [coin.name, coin.image.small],
+    footer: ["Data fetched from CoinGecko.com"],
+    image: "attachment://chart.png"
+  }).addFields(fields)
+
+  const chart = await renderHistoricalMarketChart({
+    msg,
+    id: coin.id,
+    currency
+  })
+
+  const getDropdownOptionDescription = (days: number) =>
+    `${Defi.getDateStr(
+      dayjs()
+        .subtract(days, "day")
+        .unix() * 1000
+    )} - ${Defi.getDateStr(dayjs().unix() * 1000)}`
+
+  const opt = (days: number): MessageSelectOptionData => ({
+    label: `${days === 365 ? "1 year" : `${days} day${days > 1 ? "s" : ""}`}`,
+    value: `${coin.id}_${currency}_${days}`,
+    emoji: days > 1 ? "📆" : "🕒",
+    description: getDropdownOptionDescription(days),
+    default: days === 7
+  })
+  const selectRow = composeDiscordSelectionRow({
+    customId: "tickers_range_selection",
+    placeholder: "Make a selection",
+    options: [opt(1), opt(7), opt(30), opt(60), opt(90), opt(365)]
+  })
+
+  return {
+    messageOptions: {
+      files: [chart],
+      embeds: [embedMsg],
+      components: [selectRow, composeDiscordExitButton()],
+      content: getHeader("View historical market chart", msg.author)
+    },
+    commandChoiceOptions: {
+      userId: msg.author.id,
+      guildId: msg.guildId,
+      channelId: msg.channelId,
+      handler
+    }
+  }
+}
+
 const command: Command = {
   id: "ticker",
   command: "ticker",
   brief: "Display coin price and market cap",
   category: "Defi",
   run: async function(msg) {
-    const args = getCommandArguments(msg)
-    const query = !args[1].includes("/") ? `${args[1]}/usd` : args[1]
-    let [coinId, currency] = query.split("/")
-    const coin = await Defi.getCoin(msg, coinId)
-    const {
-      market_cap,
-      current_price,
-      price_change_percentage_1h_in_currency,
-      price_change_percentage_24h_in_currency,
-      price_change_percentage_7d_in_currency
-    } = coin.market_data
-    currency = current_price[currency.toLowerCase()]
-      ? currency.toLowerCase()
-      : "usd"
-    const currentPrice = +current_price[currency]
-    const marketCap = +market_cap[currency]
-    const blank = getEmoji("blank")
-    const currencyPrefix = currency === "usd" ? "$" : ""
-    const fields: EmbedFieldData[] = [
-      {
-        name: `Market cap (${currency.toUpperCase()})`,
-        value: `${currencyPrefix}${marketCap.toLocaleString()} (#${
-          coin.market_cap_rank
-        }) ${blank}`,
-        inline: true
-      },
-      {
-        name: `Price (${currency.toUpperCase()})`,
-        value: `${currencyPrefix}${currentPrice.toLocaleString(undefined, {
-          maximumFractionDigits: 4
-        })}`,
-        inline: true
-      },
-      { name: "\u200B", value: "\u200B", inline: true },
-      {
-        name: "Change (1h)",
-        value: getChangePercentage(price_change_percentage_1h_in_currency.usd),
-        inline: true
-      },
-      {
-        name: `Change (24h) ${blank}`,
-        value: getChangePercentage(price_change_percentage_24h_in_currency.usd),
-        inline: true
-      },
-      {
-        name: "Change (7d)",
-        value: getChangePercentage(price_change_percentage_7d_in_currency.usd),
-        inline: true
-      }
-    ]
+    let query = getCommandArguments(msg)
+      .slice(1)
+      .join(SPACE)
+    query = !query.includes("/") ? `${query}/usd` : query
+    let [coinQ, currency] = query.split("/")
+    const coins = await Defi.searchCoins(msg, coinQ)
+    if (coins.length > 1) {
+      const opt = (coin: any): MessageSelectOptionData => ({
+        label: `${coin.name} (${coin.symbol})`,
+        value: `${coin.id}_${currency}`
+      })
+      const selectRow = composeDiscordSelectionRow({
+        customId: "tickers_selection",
+        placeholder: "Make a selection",
+        options: coins.map(c => opt(c))
+      })
 
-    const embedMsg = composeEmbedMessage(msg, {
-      color: getChartColorConfig(coin.id, 0, 0).borderColor as HexColorString,
-      author: [coin.name, coin.image.small],
-      footer: ["Data fetched from CoinGecko.com"],
-      image: "attachment://chart.png"
-    }).addFields(fields)
-
-    const chart = await renderHistoricalMarketChart({
-      msg,
-      id: coin.id,
-      currency
-    })
-
-    const getDropdownOptionDescription = (days: number) =>
-      `${Defi.getDateStr(
-        dayjs()
-          .subtract(days, "day")
-          .unix() * 1000
-      )} - ${Defi.getDateStr(dayjs().unix() * 1000)}`
-
-    const opt = (days: number): MessageSelectOptionData => ({
-      label: `${days === 365 ? "1 year" : `${days} day${days > 1 ? "s" : ""}`}`,
-      value: `${coin.id}_${currency}_${days}`,
-      emoji: days > 1 ? "📆" : "🕒",
-      description: getDropdownOptionDescription(days),
-      default: days === 7
-    })
-    const selectRow = composeDiscordSelectionRow({
-      customId: "ticker_dropdown",
-      placeholder: "Make a selection",
-      options: [opt(1), opt(7), opt(30), opt(60), opt(90), opt(365)]
-    })
-
-    const exitBtnRow = composeDiscordExitButton()
-
-    return {
-      messageOptions: {
-        files: [chart],
-        embeds: [embedMsg],
-        components: [selectRow, exitBtnRow],
-        content: getHeader("View historical market chart", msg.author)
-      },
-      commandChoiceOptions: {
-        userId: msg.author.id,
-        guildId: msg.guildId,
-        channelId: msg.channelId,
-        handler
+      const found = coins.map(c => `**${c.name}** (${c.symbol})`).join(", ")
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              title: `${defaultEmojis.MAG} Multiple tickers found`,
+              description: `Multiple tickers found for \`${coinQ}\`: ${found}.\nPlease select one of the following tokens`
+            })
+          ],
+          components: [selectRow, composeDiscordExitButton()]
+        },
+        commandChoiceOptions: {
+          userId: msg.author.id,
+          guildId: msg.guildId,
+          channelId: msg.channelId,
+          handler: tickerSelectionHandler
+        }
       }
     }
+
+    return await renderTickerEmbed(msg, coins[0].id, currency)
   },
   getHelpMessage: async msg => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
-        usage: `${PREFIX}ticker <token>`,
-        examples: `${PREFIX}ticker fantom\n${PREFIX}ticker ftm`
+        usage: `${PREFIX}ticker <symbol>\n${PREFIX}ticker <token_full_name>`,
+        examples: `${PREFIX}ticker ftm\n${PREFIX}ticker fantom`
       })
     ]
   }),

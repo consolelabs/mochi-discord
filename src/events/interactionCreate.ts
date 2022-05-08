@@ -1,6 +1,5 @@
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
 import { sendVerifyURL } from "commands/profile/verify"
-import { updateGuildTokenConfig } from "commands/defi/token/config"
 import { SelectMenuInteraction, ButtonInteraction, Message } from "discord.js"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
@@ -44,8 +43,11 @@ async function handleSelecMenuInteraction(
   if (!commandChoice) return
   if (interaction.customId === "exit") {
     await msg.delete().catch(() => {
-      commandChoice.interaction
-        ?.editReply({ content: "Exited!", components: [], embeds: [] })
+      commandChoice.interaction?.editReply({
+        content: "Exited!",
+        components: [],
+        embeds: []
+      })
     })
     CommandChoiceManager.remove(key)
     return
@@ -82,9 +84,6 @@ async function handleButtonInteraction(
       return
     case interaction.customId.startsWith("mochi_verify"):
       await sendVerifyURL(buttonInteraction)
-      return
-    case interaction.customId.startsWith("guild_token_config-"):
-      await updateGuildTokenConfig(buttonInteraction, msg)
       return
     default:
       return

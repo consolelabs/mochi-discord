@@ -46,7 +46,8 @@ export const defaultEmojis: Record<string, string> = {
   ARROW_DOWN: ":arrow_heading_down:",
   ARROW_UP: ":arrow_heading_up:",
   CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
-  CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:"
+  CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
+  MAG: ":mag:"
 }
 
 export const emojis: { [key: string]: string } = {
@@ -105,7 +106,7 @@ export async function onlyRunInAdminGroup(msg: Message) {
   return groupId === DISCORD_ADMIN_GROUP
 }
 
-export async function onlyAdminsAllowed(msg: Message) {
+export function hasAdministrator(msg: Message) {
   return msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
