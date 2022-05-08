@@ -171,6 +171,22 @@ class Defi {
     return json.data
   }
 
+  public async searchCoins(message: Message, query: string): Promise<any[]> {
+    const resp = await fetch(`${API_BASE_URL}/defi/coins?query=${query}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
+    })
+    if (resp.status !== 200) {
+      throw new InvalidInputError({ message })
+    }
+
+    const json = await resp.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
+
   async getHistoricalMarketData(
     message: Message,
     id: string,
@@ -212,11 +228,11 @@ class Defi {
   convertToSeconds(timeStr: string): number {
     switch (true) {
       case timeStr.endsWith("s"):
-        return +timeStr.substr(0, timeStr.length - 1)
+        return +timeStr.substring(0, timeStr.length - 1)
       case timeStr.endsWith("m"):
-        return +timeStr.substr(0, timeStr.length - 1) * 60
+        return +timeStr.substring(0, timeStr.length - 1) * 60
       case timeStr.endsWith("h"):
-        return +timeStr.substr(0, timeStr.length - 1) * 3600
+        return +timeStr.substring(0, timeStr.length - 1) * 3600
     }
   }
 
