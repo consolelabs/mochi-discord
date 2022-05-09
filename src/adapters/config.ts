@@ -219,6 +219,15 @@ class Config {
     }
   }
 
+  public async listAllReactionRoles(guildId: string) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles?guild_id=${guildId}`)
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
+
   public async handleReactionEvent(event: RoleReactionEvent) {
     try {
       const body = JSON.stringify(event)
