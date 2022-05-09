@@ -12,6 +12,17 @@ const command: Command = {
   category: "Community",
   run: async msg => {
     const data = await Config.getGuildTokens(msg.guildId)
+    if (!data || !data.length)
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              title: "No token found",
+              description: `Use \`${PREFIX}token add <symbol>\` to add a token to your server's list`
+            })
+          ]
+        }
+      }
     const description = data
       .map((token: Token) => {
         const tokenEmoji = getEmoji(token.symbol)

@@ -151,7 +151,8 @@ async function checkExpiredAirdrop(
           amount,
           cryptocurrency,
           guildId: msg.guildId,
-          channelId: msg.channelId
+          channelId: msg.channelId,
+          token: null
         }
         await Defi.discordWalletTransfer(JSON.stringify(req), msg)
       }
@@ -256,7 +257,7 @@ const command: Command = {
 
     // ---------------
     const tokenEmoji = getEmoji(payload.cryptocurrency)
-    const coin = await Defi.getCoin(msg, payload.cryptocurrency)
+    const coin = await Defi.getCoin(msg, payload.token.coin_gecko_id)
     const currentPrice = roundFloatNumber(coin.market_data.current_price["usd"])
     const amountDescription = `${tokenEmoji} **${roundFloatNumber(
       payload.amount,
