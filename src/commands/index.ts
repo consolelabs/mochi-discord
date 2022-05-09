@@ -4,6 +4,7 @@ import { logger } from "../logger"
 import help from "./help"
 import invite from "./community/invite/index"
 import profile from "./profile"
+import stats from "./community/stats"
 import deposit from "./defi/deposit"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
@@ -33,6 +34,7 @@ export const originalCommands: Record<string, Command> = {
   // profile
   profile,
   // defi
+  stats,
   deposit,
   tip,
   balances,
