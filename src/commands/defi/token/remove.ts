@@ -1,8 +1,42 @@
+import {
+  Message,
+  MessageSelectOptionData,
+  SelectMenuInteraction
+} from "discord.js"
 import { Command } from "types/common"
-import { getCommandArguments } from "utils/commands"
+import { CommandChoiceHandler } from "utils/CommandChoiceManager"
+import { defaultEmojis } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import {
+  composeDiscordExitButton,
+  composeDiscordSelectionRow,
+  composeEmbedMessage,
+  getErrorEmbed
+} from "utils/discordEmbed"
 import Config from "../../../adapters/config"
+
+const handler: CommandChoiceHandler = async msgOrInteraction => {
+  const interaction = msgOrInteraction as SelectMenuInteraction
+  const { message } = <{ message: Message }>interaction
+  const symbol = interaction.values[0]
+
+  await Config.updateTokenConfig({
+    guild_id: message.guildId,
+    symbol,
+    active: false
+  })
+
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(message, {
+          description: `Successfully removed **${symbol.toUpperCase()}** from server's tokens list`
+        })
+      ],
+      components: []
+    }
+  }
+}
 
 const command: Command = {
   id: "remove_server_token",
@@ -11,26 +45,46 @@ const command: Command = {
   onlyAdministrator: true,
   category: "Community",
   run: async function(msg) {
-    const args = getCommandArguments(msg)
-    const symbol = args[2]
-    if (!symbol)
+    const gTokens = await Config.getGuildTokens(msg.guildId)
+    if (!gTokens || !gTokens.length)
       return {
-        messageOptions: await this.getHelpMessage(msg)
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: `Your server has no tokens.\nUse \`${PREFIX}token add\` to add one to your server.`
+            })
+          ]
+        }
       }
+    const options: MessageSelectOptionData[] = gTokens.map(token => ({
+      label: `${token.name} (${token.symbol})`,
+      value: token.symbol
+    }))
 
-    await Config.updateTokenConfig({
-      guild_id: msg.guildId,
-      symbol,
-      active: false
+    const selectionRow = composeDiscordSelectionRow({
+      customId: "guild_tokens_selection",
+      placeholder: "Make a selection",
+      options
     })
 
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            description: `Successfully removed **${symbol.toUpperCase()}** from server's tokens list`
+            title: "Need action",
+            description:
+              "Select to remove one of the following tokens from your server"
           })
-        ]
+        ],
+        components: [selectionRow, composeDiscordExitButton()]
+      },
+      commandChoiceOptions: {
+        userId: msg.author.id,
+        messageId: msg.id,
+        channelId: msg.channelId,
+        guildId: msg.guildId,
+        handler
       }
     }
   },
@@ -39,7 +93,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}tokens remove <symbol>`,
         examples: `${PREFIX}tokens remove ftm`,
-        footer: ["Type $tokens to see supported tokens by Mochi"]
+        footer: [`Type ${PREFIX}tokens to see supported tokens by Mochi`]
       })
     ]
   }),

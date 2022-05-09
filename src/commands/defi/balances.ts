@@ -3,7 +3,7 @@ import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { getEmoji, getHeader, roundFloatNumber, thumbnails } from "utils/common"
 import Defi from "adapters/defi"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "adapters/config"
 
 const command: Command = {
@@ -22,10 +22,9 @@ const command: Command = {
       return {
         messageOptions: {
           embeds: [
-            composeEmbedMessage(msg, {
-              title: "Info",
-              description:
-                "Your server currently has no tokens.\nUse `$token add <symbol>` to add one"
+            getErrorEmbed({
+              msg,
+              description: `Your server currently has no tokens.\nUse \`${PREFIX}token add <symbol>\` to add one.`
             })
           ]
         }
