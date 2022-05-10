@@ -27,6 +27,18 @@ class Community {
       logger.error(e)
     }
   }
+
+  public async getCurrentInviteTrackerConfig(guildId: string) {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/community/invites/config?guild_id=${guildId}`
+      )
+
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
   
   public async configureInvites(body: string ): Promise<any> {
     try {

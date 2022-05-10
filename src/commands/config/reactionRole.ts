@@ -1,4 +1,4 @@
-import { Message } from "discord.js"
+import { Message, MessageOptions, TextChannel } from "discord.js"
 import {
   Command,
   RoleReactionConfigResponse,
@@ -9,27 +9,55 @@ import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { BotBaseError } from "errors"
+import { logger } from "logger"
 
-const getRoleNameById = (msg: Message, roleId: string) => {
-  return msg.guild.roles.cache.find(r => r.id === roleId).name
+const actionType = {
+  UPDATE_REACTION_CONFIG: 4,
+  LIST_ALL_REACTION_ROLES: 2
 }
 
-const command: Command = {
-  id: "reactionrole",
-  brief: "Configure reaction emoji for user to self-assign their roles",
-  command: "reactionrole",
-  aliases: ["rr"],
-  category: "Config",
-  canRunWithoutAction: true,
-  run: async (msg: Message) => {
-    const args = getCommandArguments(msg)
-    let description = ""
-    args.forEach(async val => {
-      if (!val) return
-    })
-    if (args.length === 4) {
-      const reaction = args[2].trim()
-      const role_id = args[3].trim().replace(/\D/g, "") // Accept number-only characters
+function catchEm(promise: Promise<any>) {
+  return promise.then((data: any) => [null, data])
+    .catch((err: any) => [err]);
+}
+
+const listAllReactionRoles = async (msg: Message): Promise<string> => {
+  let description = ''
+  const rrList = await config.listAllReactionRoles(msg.guild.id)
+  const channelList = msg.guild.channels.cache.filter(c => c.type === 'GUILD_TEXT').map(c => c as TextChannel)
+
+  if (rrList.success) {
+    const values = await Promise.all(
+      rrList.configs.map(
+        async (conf: any) => {
+          const promiseArr = channelList.map(chan => catchEm(chan.messages.fetch(conf.message_id)))
+          for (const prom of promiseArr) {
+            const [err, fetchedMsg] = await prom
+            if (!err) { 
+              const des = `\n[${conf.message_id}](${fetchedMsg.url})\n` + conf.roles.map((role: any) => `+ Reaction ${role.reaction} for role <@&${role.id}>`).join("\n")
+              logger.info(des)
+              return des
+            }
+          }
+        }
+      )
+    )
+    return values.join()
+  } else {
+    description = "This server has no reaction role config"
+  }
+
+  return description
+}
+
+const executeAction = async (args: string[], msg: Message): Promise<MessageOptions>  => {
+  let description = ""
+  args = args.map(s => s.trim())
+  
+  switch (args.length) {
+    case actionType.UPDATE_REACTION_CONFIG: {
+      const reaction = args[2]
+      const role_id = args[3].replace(/\D/g, "") // Accept number-only characters
       const requestData: RoleReactionEvent = {
         guild_id: msg.guild.id,
         message_id: args[1],
@@ -42,10 +70,7 @@ const command: Command = {
       if (rrConfig.success) {
         description = `${
           requestData.reaction
-        } is now setting to this role **${getRoleNameById(
-          msg,
-          requestData.role_id
-        )}**`
+        } is now setting to this role <@&${requestData.role_id}>`
         msg.channel.messages
           .fetch(requestData.message_id)
           .then(val => val.react(requestData.reaction))
@@ -55,24 +80,49 @@ const command: Command = {
       } else {
         description = `${requestData.reaction} has already been configured, please try to set another one`
       }
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              title: "Reaction Role",
-              description
-            })
-          ]
-        }
+    }
+
+    case actionType.LIST_ALL_REACTION_ROLES: {
+      if (args[1].toUpperCase() === 'LIST') {
+        description = await listAllReactionRoles(msg)
       }
+    }
+
+    return {
+      embeds: [
+        composeEmbedMessage(msg, {
+          title: "Reaction Roles",
+          description
+        })
+      ]
+    }
+  }
+}
+
+const command: Command = {
+  id: "reactionrole",
+  brief: "Configure reaction emoji for user to self-assign their roles",
+  command: "reactionrole",
+  aliases: ["rr"],
+  category: "Config",
+  canRunWithoutAction: true,
+  run: async (msg: Message) => {
+    const args = getCommandArguments(msg)
+    args.forEach(async val => {
+      if (!val) return
+    }) 
+    const data = await executeAction(args, msg)
+    
+    return {
+      messageOptions: data
     }
   },
   getHelpMessage: async (msg: Message) => ({
     embeds: [
       composeEmbedMessage(msg, {
         title: "Role Reaction",
-        usage: `${PREFIX}reactionrole <message_id> <select_emoji> <role_id>`,
-        examples: `${PREFIX}rr 967107573591457832 🎉 967013125847121973`
+        usage: `${PREFIX}rr <message_id> <emoji_id> <role_id> - To configure a reaction role\n${PREFIX}rr list - To list active reaction roles`,
+        examples: `${PREFIX}rr 967107573591457832 ✅ 967013125847121973\n${PREFIX}rr list`
       })
     ]
   })

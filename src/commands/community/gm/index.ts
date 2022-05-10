@@ -5,10 +5,12 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import config from "./config"
 import streak from "./streak"
+import info from "./info"
 
 const actions: Record<string, Command> = {
   config,
   streak,
+  info
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 
