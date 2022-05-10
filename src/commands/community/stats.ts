@@ -1,122 +1,155 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
 import { API_BASE_URL } from "utils/constants"
 import { logger } from "logger"
 import fetch from "node-fetch"
-import { MessagePayload, MessageEmbed } from "discord.js"
+import {getHeader} from "utils/common"
+import { MessagePayload, MessageEmbed, MessageSelectOptionData, SelectMenuInteraction, Message } from "discord.js"
+import { CommandChoiceHandler } from "utils/CommandChoiceManager"
+import {
+  composeDiscordSelectionRow,
+  composeDiscordExitButton,
+  composeEmbedMessage
+} from "utils/discordEmbed"
 
 var countType: Array<string> = ['members', 'channels', 'stickers', 'emojis', 'roles'];
 
+const statsSelectionHandler: CommandChoiceHandler = async msgOrInteraction => {
+  const interaction = msgOrInteraction as SelectMenuInteraction
+  const { message } = <{ message: Message }>interaction
+  const input = interaction.values[0]
+  const [id, stat] = input.split("_")
+  return await renderStatEmbed(message, id, stat)
+}
+
+const countStatsHandler: CommandChoiceHandler = async msgOrInteraction => {
+  const interaction = msgOrInteraction as SelectMenuInteraction
+  const { message } = <{ message: Message }>interaction
+  const input = interaction.values[0]
+  const [type, stat] = input.split("_")
+  // call api create channel
+  try {
+    let countTypeReq = type + "_" + stat
+    const res = fetch(
+      `${API_BASE_URL}/guilds/${message.guild.id}/channels?count_type=${countTypeReq}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      },
+    )
+    // return null
+  } catch (e: any) {
+    logger.error(e)
+  }
+  let successEmbeded = composeEmbedMessage(message, {
+    title: `Server Stats\n\n`,
+    description: `Successfully count ` + type + ` ` + stat
+  })
+  return {
+    messageOptions: {
+      embeds: [
+        successEmbeded
+      ],
+      components: []
+    }
+  }
+}
+
+async function renderStatEmbed (
+  msg: Message,
+  statId: string,
+  stat: string
+) {
+  let statType = ''
+  switch (statId) {
+    case 'members':
+      statType = ' all, user, bot'
+      break
+    case 'channels':
+      statType = ' all, text, voice, stage, category, announcement'
+      break
+    case 'emojis':
+      statType = ' all, static, animated'
+      break
+    case 'stickers':
+      statType = ' all, standard, guild'
+      break
+    case 'roles':
+        statType = ' all'
+        break
+    default:
+      statType = ''
+      break
+  }
+  let statTypeReplace = statType.replaceAll(' ', '')
+  var statTypeList: Array<string> = statTypeReplace.split(',')
+
+  const opt = (statType: any): MessageSelectOptionData => ({
+    label: `${statType}`,
+    value: `${statType}_${statId}`
+  })
+  const selectRow = composeDiscordSelectionRow({
+    customId: "tickers_type_selection",
+    placeholder: "Select type",
+    options: statTypeList.map(c => opt(c))
+  })
+
+  msg.content = statId
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(msg, {
+          title: `Server Stats`,
+          description: `Please select what type you want to show`
+        })
+      ],
+      components: [selectRow, composeDiscordExitButton()],
+    },
+    commandChoiceOptions: {
+      userId: msg.author.id,
+      guildId: msg.guildId,
+      channelId: msg.channelId,
+      handler: countStatsHandler
+    }
+  }
+}
 const command: Command = {
   id: "stats",
   command: "stats",
-  brief: "Stats",
+  brief: "Server Stats",
   category: "Community",
   onlyAdministrator: true,
   run: async function (msg, action) { 
-    // check if cmd allows, $count channels -> allow, $count guns -> not
-    const args = getCommandArguments(msg)
-    let statsEmbeded = composeEmbedMessage(msg, {
-      title: `Server Stats\n\n`,
-      description: `Please enter what stat you want to show\n\nSupported Stats:\n- members\n- channels\n- emojis\n- stickers\n- roles`
+    // const args = getCommandArguments(msg)
+    const opt = (countType: any): MessageSelectOptionData => ({
+      label: `${countType}`,
+      value: `${countType}`
     })
-    if (args.length == 1) {
-      msg.channel.send({ embeds: [statsEmbeded] }).then(() => {
-        msg.channel.awaitMessages({
-          max: 1,
-          time: 30000,
-          errors: ['time']
-        })
-        .then(message => {
-          msg = message.first()
-          let stats = msg.content
-          if (countType.indexOf(msg.content) < 0) {
-            let errorEmbeded = composeEmbedMessage(msg, {
-              title: ' Server Stats\n\n',
-              description: `This stats is not supported!`,
-              color: "#FF0000"
-            })
-            msg.channel.send({ embeds: [errorEmbeded] })
-            return null
-          }
-          let statsChild = ''
-          switch (msg.content) {
-            case 'members':
-              statsChild = ' all, user, bot'
-              break
-            case 'channels':
-              statsChild = ' all, text, voice, stage, category, announcement'
-              break
-            case 'emojis':
-              statsChild = ' all, static, animated'
-              break
-            case 'stickers':
-              statsChild = ' all, standard, guild'
-              break
-            case 'roles':
-                statsChild = ' all'
-                break
-            default:
-              statsChild = ''
-              break
-          }
 
-          let stat = statsChild.replaceAll(' ', '')
-          var statType: Array<string> = stat.split(',')
-          // show info after "$count channels"
-          statsChild = statsChild.replaceAll(' ', '- ')
-          statsChild = statsChild.replaceAll(',', '\n')
-          let typeEmbeded = composeEmbedMessage(msg, {
-            title: `Server Stats\n\n`,
-            description: `Please enter what type "` + msg.content + `" you want to show\n\nSupported type:\n` + statsChild
-          })
+    const selectRow = composeDiscordSelectionRow({
+      customId: "tickers_stat_selection",
+      placeholder: "Select stat",
+      options: countType.map(c => opt(c))
+    })
 
-          msg.channel.send({ embeds: [typeEmbeded] }).then(() => {
-            msg.channel.awaitMessages({
-              max: 1,
-              time: 30000,
-              errors: ['time']
-            })
-            .then(message => {
-              msg = message.first()
-              if (statType.indexOf(msg.content) < 0) {
-                let errorEmbed = composeEmbedMessage(msg, {
-                  title: ' Server Stats\n\n',
-                  description: `This stats is not supported!`,
-                  color: "#FF0000"
-                })
-                msg.channel.send({ embeds: [errorEmbed] })
-                return null
-              }
-              try {
-                let countTypeReq = msg.content + "_" + stats
-                const res = fetch(
-                  `${API_BASE_URL}/guilds/${msg.guild.id}/channels?count_type=${countTypeReq}`,
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                  },
-                )
-                // return null
-              } catch (e: any) {
-                logger.error(e)
-              }
-
-              let successEmbeded = composeEmbedMessage(msg, {
-                title: `Server Stats\n\n`,
-                description: `Successfully count ` + msg.content + ` ` + stats
-              })
-              msg.channel.send({ embeds: [successEmbeded] })
-            })
-            .catch(message => {
-                message.channel.send('Timeout');
-            });
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(msg, {
+            title: `Server Stats`,
+            description: `Please select what stat you want to show`
           })
-        })
-          })
-        }
+        ],
+        components: [selectRow, composeDiscordExitButton()]
+      },
+      commandChoiceOptions: {
+        userId: msg.author.id,
+        guildId: msg.guildId,
+        channelId: msg.channelId,
+        handler: statsSelectionHandler
+      }
+    }
   },
   getHelpMessage: async (msg, action) => {
 
