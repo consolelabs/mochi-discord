@@ -15,3 +15,4 @@ export const API_SERVER_HOST =
 export const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID || "932579148608729118"
 export const DISCORD_DEFAULT_AVATAR = process.env.DISCORD_DEFAULT_AVATAR || ""
 export const DISCORD_BOT_GUILD_ID = process.env.DISCORD_BOT_GUILD_ID || ""
+export const WEBSITE_ENDPOINT = process.env.WEBSITE_ENDPOINT || ""
