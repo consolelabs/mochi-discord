@@ -4,6 +4,7 @@ import codes from "./codes"
 import link from "./link"
 import config from "./config"
 import aggregation from "./aggregation"
+import info from "./info"
 import { getAllAliases } from "utils/commands"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
@@ -14,7 +15,8 @@ const actions: Record<string, Command> = {
   codes,
   link,
   config,
-  aggregation
+  aggregation,
+  info
 }
 const commands = getAllAliases(actions)
 

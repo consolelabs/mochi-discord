@@ -7,7 +7,7 @@ import config from "adapters/config"
 const command: Command = {
   id: "gm_info",
   command: "info",
-  brief: "Show current gm/gn channel",
+  brief: "GM/GN Configuration",
   category: "Community",
   run: async msg => {
     try {
