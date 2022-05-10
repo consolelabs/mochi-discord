@@ -21,7 +21,8 @@ import { getCommandArguments } from "utils/commands"
 import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
-  composeEmbedMessage
+  composeEmbedMessage,
+  getErrorEmbed
 } from "utils/discordEmbed"
 import Defi from "adapters/defi"
 import dayjs from "dayjs"
@@ -315,8 +316,15 @@ const command: Command = {
       .slice(1)
       .join(SPACE)
     query = !query.includes("/") ? `${query}/usd` : query
-    let [coinQ, currency] = query.split("/")
+    const [coinQ, currency] = query.split("/")
     const coins = await Defi.searchCoins(msg, coinQ)
+    if (!coins || !coins.length) {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({msg, description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`})]
+        }
+      }
+    }
     if (coins.length > 1) {
       const opt = (coin: any): MessageSelectOptionData => ({
         label: `${coin.name} (${coin.symbol})`,
