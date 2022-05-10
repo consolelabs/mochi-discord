@@ -31,7 +31,7 @@ const handler: CommandChoiceHandler = async msgOrInteraction => {
     messageOptions: {
       embeds: [
         composeEmbedMessage(message, {
-          description: `Successfully added **${symbol.toUpperCase()}** to server's tokens list`
+          description: `Successfully added **${symbol.toUpperCase()}** to server's tokens list.`
         })
       ],
       components: []
@@ -80,7 +80,7 @@ const command: Command = {
           composeEmbedMessage(msg, {
             title: "Need action",
             description:
-              "Select to add one of the following tokens to your server"
+              "Select to add one of the following tokens to your server."
           })
         ],
         components: [selectionRow, composeDiscordExitButton()]

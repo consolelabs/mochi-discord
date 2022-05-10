@@ -48,7 +48,6 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: "Show user's gm/gn streak",
           usage: `${PREFIX}gm streak`,
           examples: `${PREFIX}gm streak`
         })
