@@ -3,8 +3,11 @@ import {
   ButtonInteraction,
   MessageActionRow,
   MessageEmbed,
-  MessageButton
+  MessageButton,
+  ColorResolvable
 } from "discord.js"
+import { msgColors } from "utils/common"
+import { WEBSITE_ENDPOINT } from "../../env"
 
 export async function sendVerifyURL(interaction: ButtonInteraction) {
   await interaction.deferReply({ ephemeral: true })
@@ -21,15 +24,15 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
           true
         )
         const e1 = new MessageEmbed()
-          .setColor("#0099ff")
+          .setColor(msgColors.PRIMARY as ColorResolvable)
           .setTitle("You already have verified a wallet address")
-          .setDescription(`\`\`\`${json.address}\`\`\`\nIf you want to change your address, [click here](https://pod.town/verify?code=${reverify.code}) to re-verify.`)
+          .setDescription(`\`\`\`${json.address}\`\`\`\nIf you want to change your address, [click here](${WEBSITE_ENDPOINT}/verify?code=${reverify.code}) to re-verify.`)
         await interaction.editReply({ embeds: [e1] })
         break
       }
       case undefined: {
         const e2 = new MessageEmbed()
-          .setColor("#0099ff")
+          .setColor(msgColors.PRIMARY as ColorResolvable)
           .setTitle("Verify your wallet address")
           .setDescription(
             `Please verify your wallet address by clicking the button below.`
@@ -38,7 +41,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
           new MessageButton()
             .setLabel("Verify")
             .setStyle("LINK")
-            .setURL(`https://pod.town/verify?code=${json.code}`)
+            .setURL(`${WEBSITE_ENDPOINT}/verify?code=${json.code}`)
         )
         await interaction.editReply({ embeds: [e2], components: [row] })
         break
