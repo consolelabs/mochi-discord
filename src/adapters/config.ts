@@ -162,6 +162,18 @@ class Config {
     ).json()
   }
 
+  public async getCurrentGmConfig(guildId: string) {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/configs/gm?guild_id=${guildId}`
+      )
+
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
+
   public async updateGmConfig(guild_id: string, channel_id: string) {
     const resp = await fetch(`${API_BASE_URL}/configs/gm`, {
       method: "POST",
@@ -213,6 +225,15 @@ class Config {
         method: "DELETE",
       })
 
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
+
+  public async listAllReactionRoles(guildId: string) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles?guild_id=${guildId}`)
       return await res.json()
     } catch (e: any) {
       logger.error(e)
