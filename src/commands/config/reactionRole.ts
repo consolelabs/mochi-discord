@@ -9,10 +9,45 @@ import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { BotBaseError } from "errors"
+import { logger } from "logger"
 
 const actionType = {
   UPDATE_REACTION_CONFIG: 4,
   LIST_ALL_REACTION_ROLES: 2
+}
+
+function catchEm(promise: Promise<any>) {
+  return promise.then((data: any) => [null, data])
+    .catch((err: any) => [err]);
+}
+
+const listAllReactionRoles = async (msg: Message): Promise<string> => {
+  let description = ''
+  const rrList = await config.listAllReactionRoles(msg.guild.id)
+  const channelList = msg.guild.channels.cache.filter(c => c.type === 'GUILD_TEXT').map(c => c as TextChannel)
+
+  if (rrList.success) {
+    const values = await Promise.all(
+      rrList.configs.map(
+        async (conf: any) => {
+          const promiseArr = channelList.map(chan => catchEm(chan.messages.fetch(conf.message_id)))
+          for (const prom of promiseArr) {
+            const [err, fetchedMsg] = await prom
+            if (!err) { 
+              const des = `\n[${conf.message_id}](${fetchedMsg.url})\n` + conf.roles.map((role: any) => `+ Reaction ${role.reaction} for role <@&${role.id}>`).join("\n")
+              logger.info(des)
+              return des
+            }
+          }
+        }
+      )
+    )
+    return values.join()
+  } else {
+    description = "This server has no reaction role config"
+  }
+
+  return description
 }
 
 const executeAction = async (args: string[], msg: Message): Promise<MessageOptions>  => {
@@ -49,22 +84,14 @@ const executeAction = async (args: string[], msg: Message): Promise<MessageOptio
 
     case actionType.LIST_ALL_REACTION_ROLES: {
       if (args[1].toUpperCase() === 'LIST') {
-        const rrList = await config.listAllReactionRoles(msg.guild.id)
-        
-        if (rrList.success) {
-          description = rrList.configs.map((conf: any) => {
-            return `\n**<Message ID -** [${conf.message_id}](https://pod.town/)\n` + conf.roles.map((role: any) => `+ Reaction ${role.reaction} for role <@&${role.id}>`).join("\n")
-          })
-        } else {
-          description = "This server has no reaction role config"
-        }
+        description = await listAllReactionRoles(msg)
       }
     }
 
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          title: "Reaction Role",
+          title: "Reaction Roles",
           description
         })
       ]
