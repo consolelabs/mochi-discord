@@ -368,10 +368,9 @@ class Defi {
       })
     }
 
-    const guildTokens = (await Config.getGuildTokens(msg.guildId)).map(token =>
-      token.symbol.toUpperCase()
-    )
-    if (!guildTokens.includes(cryptocurrency)) {
+    const gTokens = await Config.getGuildTokens(msg.guildId)
+    const supportedSymbols = gTokens.map(token => token.symbol.toUpperCase())
+    if (!supportedSymbols.includes(cryptocurrency)) {
       throw new DiscordWalletTransferError({
         discordId: sender,
         guildId: msg.guildId,
@@ -391,7 +390,8 @@ class Defi {
         type === "airdrop"
           ? this.getAirdropOptions(args, sender, msg)
           : undefined,
-      all: amountArg === "all"
+      all: amountArg === "all",
+      token: gTokens[supportedSymbols.indexOf(cryptocurrency)]
     }
   }
 }

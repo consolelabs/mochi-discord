@@ -9,7 +9,13 @@ import {
   MessageSelectMenuOptions
 } from "discord.js"
 import { COMMA, VERTICAL_BAR } from "./constants"
-import { getEmbedFooter, getEmoji, getListCommands, msgColors } from "./common"
+import {
+  defaultEmojis,
+  getEmbedFooter,
+  getEmoji,
+  getListCommands,
+  msgColors
+} from "./common"
 import {
   getCommandObject,
   getActionCommand,
@@ -141,7 +147,7 @@ export function composeEmbedMessage(
 }
 
 export function getErrorEmbed(params: {
-  title: string
+  title?: string
   description?: string
   thumbnail?: string
   msg: Message
@@ -149,7 +155,7 @@ export function getErrorEmbed(params: {
 }) {
   const { title, description, thumbnail, msg, image } = params
   return composeEmbedMessage(msg, {
-    title,
+    title: title ?? `${defaultEmojis.ERROR} Command error`,
     description:
       description ??
       "Something went wrong! Please try again or contact administrators",
