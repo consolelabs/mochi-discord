@@ -27,7 +27,7 @@ async function deposit(msg: Message) {
     await msg.author.send({
       embeds: [
         composeEmbedMessage(msg, {
-          title: `${defaultEmojis.ARROW_DOWN} **Deposit Bitcoin**`,
+          title: `${defaultEmojis.ARROW_DOWN} **Deposit token**`,
           description
         })
       ]

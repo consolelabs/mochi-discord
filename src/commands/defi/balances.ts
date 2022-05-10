@@ -24,7 +24,7 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: `Your server currently has no tokens.\nUse \`${PREFIX}token add <symbol>\` to add one.`
+              description: `Your server currently has no tokens.\nUse \`${PREFIX}token add\` to add one.`
             })
           ]
         }

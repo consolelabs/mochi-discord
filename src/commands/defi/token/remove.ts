@@ -91,9 +91,8 @@ const command: Command = {
   getHelpMessage: async msg => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}tokens remove <symbol>`,
-        examples: `${PREFIX}tokens remove ftm`,
-        footer: [`Type ${PREFIX}tokens to see supported tokens by Mochi`]
+        usage: `${PREFIX}tokens remove`,
+        examples: `${PREFIX}tokens remove`
       })
     ]
   }),
