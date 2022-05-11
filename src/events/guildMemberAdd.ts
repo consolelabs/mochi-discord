@@ -1,11 +1,11 @@
 import { Event } from "."
-import Discord, { Collection, Role } from "discord.js"
+import Discord from "discord.js"
 import config from "adapters/config"
 import webhook from "../adapters/webhook"
 import { DISCORD_DEFAULT_AVATAR } from "env"
 import { createBEGuildMember } from "../types/webhook"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { DefaultRole, DefaultRoleResponse } from "types/common"
+import { DefaultRoleResponse } from "types/common"
 
 export default {
   name: "guildMemberAdd",
@@ -93,4 +93,3 @@ async function setUserDefaultRoles(member: Discord.GuildMember) {
     await member.roles.add(resData.data.role_id)
   }
 }
-
