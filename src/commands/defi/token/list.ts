@@ -18,7 +18,7 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: "No token found",
-              description: `Use \`${PREFIX}token add <symbol>\` to add one to your server.`
+              description: `Use \`${PREFIX}token add\` to add one to your server.`
             })
           ]
         }

@@ -1,17 +1,32 @@
 import { Event } from "."
 import Discord from "discord.js"
 import config from "../adapters/config"
+import webhook from "adapters/webhook"
+import { BotBaseError } from "errors"
+import { logger } from "logger"
+import ChannelLogger from "utils/ChannelLogger"
 
 export default {
-	name: "guildCreate",
-	once: false,
-	execute: async (guild: Discord.Guild) => {
-		console.log(`Joined guild: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`)
+  name: "guildCreate",
+  once: false,
+  execute: async (guild: Discord.Guild) => {
+    console.log(
+      `Joined guild: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`
+    )
 
-		try {
-			config.createGuild(guild.id, guild.name)
-		} catch (err) {
-			console.error(err)
-		}
-	},
+    try {
+      await config.createGuild(guild.id, guild.name)
+      await webhook.pushDiscordWebhook("guildCreate", {
+        guild_id: guild.id
+      })
+    } catch (e: any) {
+      const error = e as BotBaseError
+      if (error.handle) {
+        error.handle()
+      } else {
+        logger.error(e)
+      }
+      ChannelLogger.log(e)
+    }
+  }
 } as Event<"guildCreate">

@@ -110,14 +110,15 @@ export function hasAdministrator(msg: Message) {
   return msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
-export function getListCommands(
+export function getCommandsList(
   _emoji: GuildEmoji | string,
   commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
 ) {
   const emoji = getEmoji("reply")
+  const correctBrief = (brief: string) => brief.endsWith(".") ? brief : `${brief}.`
   return Object.values(commands)
     .filter(c => !c.experimental)
-    .map(c => `[**${c.command}**](https://google.com)\n${emoji}${c.brief}`)
+    .map(c => `[**${c.command}**](https://google.com)\n${emoji}${correctBrief(c.brief)}`)
     .join("\n\n")
 }
 

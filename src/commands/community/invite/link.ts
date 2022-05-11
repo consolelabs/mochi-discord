@@ -9,8 +9,7 @@ import { PREFIX } from "utils/constants"
 const command: Command = {
   id: "invite_link",
   command: "link",
-  brief:
-    "Return the first invite link you own found in the guild's invite links.",
+  brief: "Return the first invite link you created in the server",
   category: "Community",
   run: async function link(msg: Message) {
     const inviteInput = {

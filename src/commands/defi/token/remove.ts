@@ -5,7 +5,6 @@ import {
 } from "discord.js"
 import { Command } from "types/common"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
-import { defaultEmojis } from "utils/common"
 import { PREFIX } from "utils/constants"
 import {
   composeDiscordExitButton,
@@ -30,7 +29,7 @@ const handler: CommandChoiceHandler = async msgOrInteraction => {
     messageOptions: {
       embeds: [
         composeEmbedMessage(message, {
-          description: `Successfully removed **${symbol.toUpperCase()}** from server's tokens list`
+          description: `Successfully removed **${symbol.toUpperCase()}** from server's tokens list.`
         })
       ],
       components: []
@@ -74,7 +73,7 @@ const command: Command = {
           composeEmbedMessage(msg, {
             title: "Need action",
             description:
-              "Select to remove one of the following tokens from your server"
+              "Select to remove one of the following tokens from your server."
           })
         ],
         components: [selectionRow, composeDiscordExitButton()]
@@ -91,9 +90,8 @@ const command: Command = {
   getHelpMessage: async msg => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}tokens remove <symbol>`,
-        examples: `${PREFIX}tokens remove ftm`,
-        footer: [`Type ${PREFIX}tokens to see supported tokens by Mochi`]
+        usage: `${PREFIX}tokens remove`,
+        examples: `${PREFIX}tokens remove`
       })
     ]
   }),

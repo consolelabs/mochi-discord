@@ -13,7 +13,7 @@ import {
   defaultEmojis,
   getEmbedFooter,
   getEmoji,
-  getListCommands,
+  getCommandsList,
   msgColors
 } from "./common"
 import {
@@ -102,7 +102,7 @@ export function composeEmbedMessage(
 
   // display only when this is help msg of top-level command
   if (hasActions && isSpecificHelpCommand && !actionObj) {
-    description += `\n\n${getListCommands(
+    description += `\n\n${getCommandsList(
       getEmoji("reply" ?? "╰ "),
       commandObj.actions
     )}`
@@ -128,7 +128,10 @@ export function composeEmbedMessage(
     )
     .setTimestamp(timestamp ?? new Date())
 
-  if (description) embed.setDescription(`${description}`)
+  if (description)
+    embed.setDescription(
+      `${description.endsWith(".") ? description : `${description}.`}`
+    )
   if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)
   if (!!author && author.length === 1) embed.setAuthor(author[0])
@@ -138,7 +141,7 @@ export function composeEmbedMessage(
   if (isSpecificHelpCommand && alias)
     embed.addField(
       "\u200B",
-      `**Alias**: ${alias.map(a => `\`${a}\``).join(COMMA)}`
+      `**Alias**: ${alias.map(a => `\`${a}\``).join(COMMA)}.`
     )
   if (usage) embed.addField("**Usage**", `\`\`\`${usage}\`\`\``)
   if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)

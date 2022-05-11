@@ -38,6 +38,7 @@ class Defi {
             .replace("<@", "")
             .replace(">", "")
           switch (true) {
+            // role
             case target.startsWith("<@&"): {
               const members = (await msg.guild.members.fetch()).filter(mem =>
                 mem.roles.cache.map(role => role.id).includes(targetId)
@@ -45,9 +46,11 @@ class Defi {
               return members.map(member => member.user.id)
             }
 
+            // user
             case target.startsWith("<@!") || target.startsWith("<@"):
               return [targetId]
 
+            // special role
             case target === "@everyone": {
               const members = (await msg.guild.members.fetch()).filter(mem =>
                 mem.roles.cache.map(role => role.name).includes("@everyone")
@@ -368,7 +371,7 @@ class Defi {
       })
     }
 
-    const gTokens = await Config.getGuildTokens(msg.guildId)
+    const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
     const supportedSymbols = gTokens.map(token => token.symbol.toUpperCase())
     if (!supportedSymbols.includes(cryptocurrency)) {
       throw new DiscordWalletTransferError({

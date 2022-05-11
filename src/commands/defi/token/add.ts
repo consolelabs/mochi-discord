@@ -31,7 +31,7 @@ const handler: CommandChoiceHandler = async msgOrInteraction => {
     messageOptions: {
       embeds: [
         composeEmbedMessage(message, {
-          description: `Successfully added **${symbol.toUpperCase()}** to server's tokens list`
+          description: `Successfully added **${symbol.toUpperCase()}** to server's tokens list.`
         })
       ],
       components: []
@@ -80,7 +80,7 @@ const command: Command = {
           composeEmbedMessage(msg, {
             title: "Need action",
             description:
-              "Select to add one of the following tokens to your server"
+              "Select to add one of the following tokens to your server."
           })
         ],
         components: [selectionRow, composeDiscordExitButton()]
@@ -97,9 +97,8 @@ const command: Command = {
   getHelpMessage: async msg => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}tokens add <symbol>`,
-        examples: `${PREFIX}tokens add ftm`,
-        footer: [`Type ${PREFIX}tokens to see supported tokens by Mochi`]
+        usage: `${PREFIX}tokens add`,
+        examples: `${PREFIX}tokens add`
       })
     ]
   }),
