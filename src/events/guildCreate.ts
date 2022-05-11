@@ -2,6 +2,9 @@ import { Event } from "."
 import Discord from "discord.js"
 import config from "../adapters/config"
 import webhook from "adapters/webhook"
+import { BotBaseError } from "errors"
+import { logger } from "logger"
+import ChannelLogger from "utils/ChannelLogger"
 
 export default {
   name: "guildCreate",
@@ -16,9 +19,14 @@ export default {
       await webhook.pushDiscordWebhook("guildCreate", {
         guild_id: guild.id
       })
-    } catch (err) {
-      console.error(err)
+    } catch (e: any) {
+      const error = e as BotBaseError
+      if (error.handle) {
+        error.handle()
+      } else {
+        logger.error(e)
+      }
+      ChannelLogger.log(e)
     }
   }
 } as Event<"guildCreate">
-

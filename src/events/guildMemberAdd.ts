@@ -6,52 +6,65 @@ import { DISCORD_DEFAULT_AVATAR } from "env"
 import { createBEGuildMember } from "../types/webhook"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { DefaultRoleResponse } from "types/common"
+import ChannelLogger from "utils/ChannelLogger"
+import { logger } from "logger"
+import { BotBaseError } from "errors"
 
 export default {
   name: "guildMemberAdd",
   once: false,
   execute: async (member: Discord.GuildMember) => {
-    await setUserDefaultRoles(member)
-    const resp = await webhook.pushDiscordWebhook(
-      "guildMemberAdd",
-      createBEGuildMember(member)
-    )
-    const guild = await config.getGuild(member.guild.id)
-    const logChannel = member.guild.channels.cache.find(
-      channel => channel.id === guild.log_channel_id
-    ) as Discord.TextChannel
+    try {
+      await setUserDefaultRoles(member)
+      const resp = await webhook.pushDiscordWebhook(
+        "guildMemberAdd",
+        createBEGuildMember(member)
+      )
+      const guild = await config.getGuild(member.guild.id)
+      const logChannel = member.guild.channels.cache.find(
+        channel => channel.id === guild.log_channel_id
+      ) as Discord.TextChannel
 
-    if (resp.error) {
-      sendInviteTrackerMessage(
-        logChannel,
-        unknowErrorMsg(member.id),
-        member.user.avatarURL()
-      )
-      return
-    }
+      if (resp.error) {
+        sendInviteTrackerMessage(
+          logChannel,
+          unknowErrorMsg(member.id),
+          member.user.avatarURL()
+        )
+        return
+      }
 
-    const data = resp.data
-    if (data.is_bot) {
+      const data = resp.data
+      if (data.is_bot) {
+        sendInviteTrackerMessage(
+          logChannel,
+          botInviteMsg(member.id),
+          member.user.avatarURL()
+        )
+        return
+      }
+      if (data.is_vanity) {
+        sendInviteTrackerMessage(
+          logChannel,
+          vantityInviteMsg(member.id),
+          member.user.avatarURL()
+        )
+        return
+      }
       sendInviteTrackerMessage(
         logChannel,
-        botInviteMsg(member.id),
+        inviteMsg(member.id, data.inviter_id, data.invites_amount),
         member.user.avatarURL()
       )
-      return
+    } catch (e: any) {
+      const error = e as BotBaseError
+      if (error.handle) {
+        error.handle()
+      } else {
+        logger.error(e)
+      }
+      ChannelLogger.log(e)
     }
-    if (data.is_vanity) {
-      sendInviteTrackerMessage(
-        logChannel,
-        vantityInviteMsg(member.id),
-        member.user.avatarURL()
-      )
-      return
-    }
-    sendInviteTrackerMessage(
-      logChannel,
-      inviteMsg(member.id, data.inviter_id, data.invites_amount),
-      member.user.avatarURL()
-    )
   }
 } as Event<"guildMemberAdd">
 
