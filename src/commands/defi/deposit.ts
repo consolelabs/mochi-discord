@@ -1,10 +1,11 @@
 import { Command } from "types/common"
-import { Message } from "discord.js"
+import { Message, MessageActionRow, MessageButton } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { DirectMessageNotAllowedError, UserNotFoundError } from "errors"
 import Profile from "adapters/profile"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis } from "utils/common"
+import { MessageButtonStyles } from "discord.js/typings/enums"
 
 async function deposit(msg: Message) {
   let user
@@ -24,7 +25,7 @@ async function deposit(msg: Message) {
       "This is the wallet address linked with your discord account.\nPlease deposit to the below address only."
     description += "\n\n**Your deposit address**"
     description += `\n\`${user.in_discord_wallet_address}\``
-    await msg.author.send({
+    const dm = await msg.author.send({
       embeds: [
         composeEmbedMessage(msg, {
           title: `${defaultEmojis.ARROW_DOWN} **Deposit token**`,
@@ -39,8 +40,9 @@ async function deposit(msg: Message) {
           composeEmbedMessage(msg, {
             description: `:information_source: Info\n<@${msg.author.id}>, your deposit address has been sent to you via a DM`
           })
-        ]
-      }
+        ],
+        components: [composeButtonLink("See the DM", dm.url)],
+      },
     }
   } catch (e: any) {
     if (msg.channel.type !== "DM" && e.httpStatus === 403) {
