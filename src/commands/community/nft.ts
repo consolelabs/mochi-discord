@@ -43,7 +43,7 @@ const command: Command = {
           var total = data.data.metadata.rarity.total
           var score = data.data.metadata.rarity.score.toString()
           // set rank, rarity score empty if dont have data
-          var rarity = `**rank: ${rank}/${total}**\nrarity score: ${score}`
+          var rarity = `**Rank: ${rank}/${total}**\nRarity Score: ${score}`
           if (rank == "" && total == "" && score == "") {
             rarity = ""
           }
@@ -54,12 +54,12 @@ const command: Command = {
             description: res
           }).addFields([
             {
-              name: "rank",
+              name: "Rank",
               value: `${rank}/${total}`,
               inline: true
             },
             {
-              name: "rarity score",
+              name: "Rarity Score",
               value: score,
               inline: true
             },
