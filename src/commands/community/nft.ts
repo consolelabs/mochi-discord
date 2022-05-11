@@ -41,8 +41,10 @@ const command: Command = {
           var header = `**${name}**`
           // init embed message
           var res = header
+          var titleRaw = args[1]
+          var title = titleRaw.charAt(0).toUpperCase() + titleRaw.slice(1)
           var respEmbed = composeEmbedMessage(msg, {
-            title: `Cyber Neko`,
+            title: title,
             description: res
           })
           if (data.data.metadata.rarity != null) {
