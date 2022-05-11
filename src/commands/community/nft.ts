@@ -39,38 +39,35 @@ const command: Command = {
           var attributes = data.data.metadata.attributes
           // get data rarity and name
           var header = `**${name}**`
-          var rank = data.data.metadata.rarity.rank.toString()
-          var total = data.data.metadata.rarity.total
-          var score = data.data.metadata.rarity.score.toString()
-          // set rank, rarity score empty if dont have data
-          var rarity = `**Rank: ${rank}/${total}**\nRarity Score: ${score}`
-          if (rank == "" && total == "" && score == "") {
-            rarity = ""
-          }
           // init embed message
           var res = header
           var respEmbed = composeEmbedMessage(msg, {
             title: `Cyber Neko`,
             description: res
-          }).addFields([
-            {
-              name: "Rank",
-              value: `${rank}/${total}`,
-              inline: true
-            },
-            {
-              name: "Rarity Score",
-              value: score,
-              inline: true
-            },
-            {
-              name: "\u200B",
-              value: "\u200B",
-              inline: true,
-            },
-          ])
-          // delete 2 last atrribute to get only 9 => more beautiful UI
-          // var attrs = attributes.slice(0, (attributes.length - 2))
+          })
+          if (data.data.metadata.rarity != null) {
+            // set rank, rarity score empty if have data
+            var rank = data.data.metadata.rarity.rank.toString()
+            var total = data.data.metadata.rarity.total
+            var score = data.data.metadata.rarity.score.toString()
+            respEmbed.addFields([
+              {
+                name: "Rank",
+                value: `${rank}/${total}`,
+                inline: true
+              },
+              {
+                name: "Rarity Score",
+                value: score,
+                inline: true
+              },
+              {
+                name: "\u200B",
+                value: "\u200B",
+                inline: true,
+              },
+            ])
+          }
           // loop through list of attributs to add field to embed message
           for (const attr of attributes) {
             const trait_type = attr.trait_type
