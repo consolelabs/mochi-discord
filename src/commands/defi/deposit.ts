@@ -21,7 +21,7 @@ async function deposit(msg: Message) {
     }
 
     let description =
-      "Deposits need at least 1 confirmation to be credited to your account."
+      "This is the wallet address linked with your discord account.\nPlease deposit to the below address only."
     description += "\n\n**Your deposit address**"
     description += `\n\`${user.in_discord_wallet_address}\``
     await msg.author.send({
