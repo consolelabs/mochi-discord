@@ -5,6 +5,7 @@ import help from "./help"
 import invite from "./community/invite/index"
 import profile from "./profile"
 import stats from "./community/stats"
+import nft from "./community/nft"
 import deposit from "./defi/deposit"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
@@ -34,7 +35,6 @@ export const originalCommands: Record<string, Command> = {
   // profile
   profile,
   // defi
-  stats,
   deposit,
   tip,
   balances,
@@ -46,6 +46,8 @@ export const originalCommands: Record<string, Command> = {
   invite,
   chat,
   gm,
+  stats,
+  nft,
   // config
   channel,
   reactionrole,
