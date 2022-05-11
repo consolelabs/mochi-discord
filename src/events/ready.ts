@@ -32,16 +32,15 @@ export default {
       }
       runAndSetInterval(presence, 600000)
 
-      client.guilds.cache.forEach(async guild => {
-        const firstInvites = await guild.invites.fetch()
+			for (const [_, guild] of client.guilds.cache) {
+				const firstInvites = await guild.invites.fetch()
         invites.set(
           guild.id,
           new Discord.Collection(
             firstInvites.map(invite => [invite.code, invite.uses])
           )
         )
-      })
-
+			}
       await wait(1000)
     } catch (e: any) {
       const error = e as BotBaseError
