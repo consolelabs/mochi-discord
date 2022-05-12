@@ -110,6 +110,7 @@ async function executeCommand(
 
 export default async function handlePrefixedCommand(message: Message) {
   try {
+		await message.channel.sendTyping()
     const args = getCommandArguments(message)
     const isSpecificHelpCommand = specificHelpCommand(message)
     const [commandKey, action] = !isSpecificHelpCommand
