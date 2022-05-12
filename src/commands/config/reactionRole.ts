@@ -123,7 +123,8 @@ const command: Command = {
         title: "Role Reaction",
         usage: `${PREFIX}rr <message_id> <emoji_id> <role_id> - To configure a reaction role\n${PREFIX}rr list - To list active reaction roles`,
         examples: `${PREFIX}rr 967107573591457832 ✅ 967013125847121973\n${PREFIX}rr list`
-      })
+        
+      }).addField("Tip", "Make sure that the Mochi bot's role is higher in the role list than the role used in the reaction role command\n", true)
     ]
   })
 }

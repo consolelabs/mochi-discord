@@ -85,3 +85,8 @@ export type DefaultRoleResponse = {
   data: DefaultRole
   success: boolean
 }
+
+export type CampaignWhitelistUser = {
+  discord_id: string
+  whitelist_campaign_id: string
+}
