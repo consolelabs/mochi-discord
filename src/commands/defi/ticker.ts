@@ -312,20 +312,27 @@ const command: Command = {
   brief: "Display coin price and market cap",
   category: "Defi",
   run: async function(msg) {
-    let query = getCommandArguments(msg)
-      .slice(1)
-      .join(SPACE)
+    let args = getCommandArguments(msg)
+    const defaultOpt = args[args.length - 1] === "-d"
+    args = args.slice(0, args.length + (defaultOpt ? -1 : 0))
+    let query = args.slice(1).join(SPACE)
     query = !query.includes("/") ? `${query}/usd` : query
     const [coinQ, currency] = query.split("/")
     const coins = await Defi.searchCoins(msg, coinQ)
     if (!coins || !coins.length) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({msg, description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`})]
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`
+            })
+          ]
         }
       }
     }
-    if (coins.length > 1) {
+
+    if (coins.length > 1 && !defaultOpt) {
       const opt = (coin: any): MessageSelectOptionData => ({
         label: `${coin.name} (${coin.symbol})`,
         value: `${coin.id}_${currency}`
@@ -363,8 +370,8 @@ const command: Command = {
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
-        usage: `${PREFIX}ticker <symbol>\n${PREFIX}ticker <token_full_name>`,
-        examples: `${PREFIX}ticker ftm\n${PREFIX}ticker fantom`
+        usage: `${PREFIX}ticker <symbol> [-d]\n${PREFIX}ticker <full_name> [-d]`,
+        examples: `${PREFIX}ticker ftm\n${PREFIX}ticker fantom\n${PREFIX}ticker ftm -d (for default option)`
       })
     ]
   }),

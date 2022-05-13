@@ -7,7 +7,7 @@ import {
   DiscordWalletBalances
 } from "types/defi"
 import dayjs from "dayjs"
-import { InvalidInputError } from "errors"
+import { BotBaseError, InvalidInputError } from "errors"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
 import { getCommandObject } from "utils/commands"
@@ -185,8 +185,9 @@ class Defi {
 
     const json = await resp.json()
     if (json.error !== undefined) {
-      throw new Error(json.error)
+      throw new BotBaseError(json.error)
     }
+
     return json.data
   }
 
