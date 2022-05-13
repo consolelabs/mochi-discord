@@ -9,7 +9,6 @@ import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { BotBaseError } from "errors"
-import { logger } from "logger"
 
 const actionType = {
   UPDATE_REACTION_CONFIG: 4,
@@ -35,14 +34,13 @@ const listAllReactionRoles = async (msg: Message): Promise<string> => {
             const [err, fetchedMsg] = await prom
             if (!err) { 
               const des = `\n[${conf.message_id}](${fetchedMsg.url})\n` + conf.roles.map((role: any) => `+ Reaction ${role.reaction} for role <@&${role.id}>`).join("\n")
-              logger.info(des)
               return des
             }
           }
         }
       )
     )
-    return values.join()
+    return values.join("")
   } else {
     description = "This server has no reaction role config"
   }
@@ -60,7 +58,7 @@ const executeAction = async (args: string[], msg: Message): Promise<MessageOptio
       const role_id = args[3].replace(/\D/g, "") // Accept number-only characters
       const requestData: RoleReactionEvent = {
         guild_id: msg.guild.id,
-        message_id: args[1],
+        message_id: args[1].replace(/\D/g, ""),
         reaction,
         role_id
       }
@@ -121,8 +119,8 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         title: "Role Reaction",
-        usage: `${PREFIX}rr <message_id> <emoji_id> <role_id> - To configure a reaction role\n${PREFIX}rr list - To list active reaction roles`,
-        examples: `${PREFIX}rr 967107573591457832 ✅ 967013125847121973\n${PREFIX}rr list`
+        usage: `To configure a reaction role\n${PREFIX}rr <message_id> <emoji> <role>\n\nTo list active reaction roles\n${PREFIX}rr list`,
+        examples: `${PREFIX}rr 967107573591457832 ✅ @Visitor\n${PREFIX}rr list`
       })
     ]
   })
