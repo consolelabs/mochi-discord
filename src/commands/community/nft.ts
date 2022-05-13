@@ -15,6 +15,7 @@ const command: Command = {
     run: async function (msg, action) { 
       // get argument from command
       let args = getCommandArguments(msg)
+      // run $nft add command
       if (args[1] == "add") {
         if (args.length < 4 && args.length >= 2) {
           return { messageOptions: await this.getHelpMessage(msg) }
@@ -123,6 +124,7 @@ const command: Command = {
           }
         }
       } else {
+        // currently run $nft neko 1 command, needs refactor
         if (args.length < 3) {
           return { messageOptions: await this.getHelpMessage(msg) }
         }
@@ -158,8 +160,8 @@ const command: Command = {
               title: title,
               description: res
             })
+            // set rank, rarity score empty if have data
             if (data.data.metadata.rarity != null) {
-              // set rank, rarity score empty if have data
               var rank = data.data.metadata.rarity.rank.toString()
               var total = data.data.metadata.rarity.total
               var score = data.data.metadata.rarity.score.toString()
@@ -182,13 +184,14 @@ const command: Command = {
               ])
             }
             // loop through list of attributs to add field to embed message
-            for (const attr of attributes) {
-              const trait_type = attr.trait_type
-              const value = attr.value
-              respEmbed.addField(trait_type, value, true)
+            if (data.data.metadata.attributes != null) {
+              for (const attr of attributes) {
+                const trait_type = attr.trait_type
+                const value = attr.value
+                respEmbed.addField(trait_type, value, true)
+              }
+              respEmbed.addField("\u200B", "\u200B", true)
             }
-            respEmbed.addField("\u200B", "\u200B", true)
-  
             // handle image has "ipfs://"
             let image = data.data.metadata.image
             if (image.includes("ipfs://")) {
@@ -249,7 +252,6 @@ const command: Command = {
             }
         }
       }
-      
     },
     getHelpMessage: async msg => ({
       embeds: [

@@ -25,6 +25,7 @@ import chat from "./community/chat"
 import gm from "./community/gm"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
+import top from "./community/top"
 import { Command, Category } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { hasAdministrator } from "utils/common"
@@ -48,6 +49,7 @@ export const originalCommands: Record<string, Command> = {
   gm,
   stats,
   nft,
+	top,
   // config
   channel,
   reactionrole,

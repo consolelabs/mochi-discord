@@ -46,8 +46,7 @@ export const defaultEmojis: Record<string, string> = {
   ARROW_DOWN: ":arrow_heading_down:",
   ARROW_UP: ":arrow_heading_up:",
   CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
-  CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
-  MAG: ":mag:"
+  CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:"
 }
 
 export const emojis: { [key: string]: string } = {
@@ -115,10 +114,16 @@ export function getCommandsList(
   commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
 ) {
   const emoji = getEmoji("reply")
-  const correctBrief = (brief: string) => brief.endsWith(".") ? brief : `${brief}.`
+  const correctBrief = (brief: string) =>
+    brief.endsWith(".") ? brief : `${brief}.`
   return Object.values(commands)
     .filter(c => !c.experimental)
-    .map(c => `[**${c.command}**](https://google.com)\n${emoji}${correctBrief(c.brief)}`)
+    .map(
+      c =>
+        `[**${c.command}**](https://google.com)\n${emoji}${correctBrief(
+          c.brief
+        )}`
+    )
     .join("\n\n")
 }
 
