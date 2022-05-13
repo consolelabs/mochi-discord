@@ -40,7 +40,7 @@ const listAllReactionRoles = async (msg: Message): Promise<string> => {
         }
       )
     )
-    return values.join()
+    return values.join("")
   } else {
     description = "This server has no reaction role config"
   }
