@@ -2,16 +2,14 @@ import { logger } from "logger"
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { ColorResolvable, Message, MessageEmbed } from "discord.js"
-import { msgColors } from "utils/common"
+import { Message } from "discord.js"
 import { getCommandArguments } from "utils/commands"
-import { BotBaseError } from "errors"
 import community from "adapters/community"
 
 const command: Command = {
   id: "whitelist_create",
   command: "create",
-  brief: "Whitelist Management",
+  brief: "Create a whitelist campaign",
   category: "Community",
   run: async (msg: Message) => {
     try {
@@ -46,7 +44,6 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: "Create a whitelist campaign",
           usage: `${PREFIX}wl create <campaign-name>`,
           examples: `${PREFIX}wl create rabby-whitelist`
         })

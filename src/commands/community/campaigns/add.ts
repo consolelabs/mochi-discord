@@ -11,13 +11,12 @@ import community from "adapters/community"
 const command: Command = {
   id: "whitelist_add",
   command: "add",
-  brief: "Whitelist Management",
+  brief: "Add multiple users to a whitelist campaign",
   category: "Community",
   run: async (msg: Message) => {
     try {
       let description = ''
       const args = getCommandArguments(msg)
-      console.log(args)
       if (args.length < 4) {
         return
       }
@@ -39,7 +38,6 @@ const command: Command = {
 
       const res = await community.addCampaignWhitelistUser(userDiscordIdList)
 
-      console.log(res)
       if (!res?.users?.length) {
         return
       }
@@ -63,7 +61,6 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: "Add multiple users to a whitelist campaign",
           usage: `${PREFIX}wl add <campaign-id> <@user1, @user2, ..>`,
           examples: `${PREFIX}wl add <campaign-id> @mochi1 @mochi2`
         })

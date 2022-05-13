@@ -9,7 +9,7 @@ import { getCommandArguments } from "utils/commands"
 const command: Command = {
   id: "whitelist_info",
   command: "info",
-  brief: "Whitelist Management",
+  brief: "Show detail information of a whitelist campaign",
   category: "Community",
   run: async (msg: Message) => {
     try {
@@ -24,7 +24,7 @@ const command: Command = {
       if (!res.name) {
         return
       }
-      description = `Show detail information of campaign **${res.name}**:\n\n` + `[ID] ${res.role_id}\n` + `[Name] ${res.name}\n`
+      description = `Show detail information of campaign **${res.name}**:\n\n` + `[ID] ${res.role_id}\n` + `[Name] **${res.name}**\n`
 
       return {
         messageOptions: {
@@ -44,7 +44,6 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: "Show detail information of a whitelist campaign",
           usage: `${PREFIX}wl info <campaign_id>`,
           examples: `${PREFIX}wl info 8`
         })

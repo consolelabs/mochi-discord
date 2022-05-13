@@ -7,7 +7,7 @@ import { getCommandArguments } from "utils/commands"
 const command: Command = {
   id: "whitelist_report",
   command: "report",
-  brief: "Download CSV report file for whitelist winners",
+  brief: "Generate a link to download list whitelist winners of a specific campaign (.csv file)",
   category: "Community",
   run: async msg => {
     try {
@@ -24,7 +24,8 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              description: `**Successfully generated whitelist winners report file (.CSV file)**\n\n [__**VISIT HERE TO DOWNLOAD**__](${downloadLink})`,
+              description: `**Whitelist Winners Sheet is now available!**\n\nYou can get it [__**HERE**__](${downloadLink}) (.CSV File)`,
+              thumbnail: msg.guild.iconURL()
             })
           ]
         }
@@ -37,9 +38,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: "To generate a link to download list whitelist winners of a specific campaign (.csv file)",
           usage: `${PREFIX}wl report <campaign_id>`,
-          examples: `${PREFIX}wl report 8`
+          examples: `${PREFIX}wl report 8`,
         })
       ]
     }

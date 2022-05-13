@@ -9,7 +9,7 @@ import { getCommandArguments } from "utils/commands"
 const command: Command = {
   id: "whitelist_check",
   command: "check",
-  brief: "Whitelist Management",
+  brief: "Show whitelist status of a specific user",
   category: "Community",
   run: async (msg: Message) => {
     try {
@@ -18,29 +18,31 @@ const command: Command = {
       if (args.length < 4) {
         return
       }
-      if (parseInt(args[2])) {
+      if (!parseInt(args[2])) {
         return
       }
-      if (!args[3].startsWith("<@") || !args[2].endsWith(">")) {
+      if (!args[3].startsWith("<@") || !args[3].endsWith(">")) {
         return
       }
 
-      const campaignId = args[2]
+      const campaignId = args[2].replace(/\D/g, "")
       const userDiscordId = args[3].replace(/\D/g, "")
 
       const res = await community.getWhitelistWinnerInfo(userDiscordId, campaignId)
 
-      if (!res?.discord_id) {
-        description = `User <@${userDiscordId}> has not been whitelisted yet❌` 
+      if (res?.error) {
+        description = `**User <@${userDiscordId}> has not been whitelisted yet** ❌`
       }
-      description = `User <@${userDiscordId}> is currently whitelisted ✅`
+
+      if (res?.discord_id) {
+        description = `**User <@${userDiscordId}> has already whitelisted** ✅`
+      }
 
       return {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
               description,
-              thumbnail: msg.guild.iconURL()
             })
           ]
         }
@@ -53,7 +55,6 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: "Show whitelist status of a specific user",
           usage: `${PREFIX}wl check <campaign_id> @<username>`,
           examples: `${PREFIX}wl check 8 @mochi01`
         })

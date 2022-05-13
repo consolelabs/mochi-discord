@@ -38,7 +38,7 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: "Create a whitelist campaign",
+          description: "List all active whitelist campaigns",
           usage: `${PREFIX}wl list`,
           examples: `${PREFIX}wl list`
         })
