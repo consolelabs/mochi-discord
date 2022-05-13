@@ -17,7 +17,7 @@ function normalizeCommand(message: Message) {
 }
 
 export const handleNormalMessage = async (message: Message) => {
-  await webhook.pushDiscordWebhook("messageCreate", {
+  const resp = await webhook.pushDiscordWebhook("messageCreate", {
     author: {
       id: message.author.id
     },
@@ -26,6 +26,26 @@ export const handleNormalMessage = async (message: Message) => {
     timestamp: message.createdAt,
     content: message.content
   })
+
+  if (resp.status !== "OK" || resp.error !== undefined) {
+    logger.error(resp.error)
+    throw new BotBaseError(message)
+  }
+
+  const { data, type } = resp
+  if (!type || !data) return
+
+  switch (type) {
+    case "level_up":
+      if (data.level_up) {
+        await message.channel.send(
+          `GG <@${message.author.id}>, you just advanced to level ${data.current_level}`
+        )
+      }
+      return
+    default:
+      return
+  }
 }
 
 export default {

@@ -19,7 +19,7 @@ const command: Command = {
         return
       }
       const campaignId = parseInt(args[2])
-      const res = await community.getWhitelistCampaignInfo(msg.guild.id, campaignId)
+      const res = await community.getWhitelistCampaignInfo(campaignId)
 
       if (!res.name) {
         return
