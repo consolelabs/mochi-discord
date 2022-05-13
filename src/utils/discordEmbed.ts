@@ -63,12 +63,17 @@ export function composeDiscordExitButton(): MessageActionRow {
   return row
 }
 
-export function composeButtonLink(label: string, url: string): MessageActionRow {
-  const row = new MessageActionRow().addComponents(new MessageButton({
-    style: MessageButtonStyles.LINK,
-    label,
-    url,
-  }))
+export function composeButtonLink(
+  label: string,
+  url: string
+): MessageActionRow {
+  const row = new MessageActionRow().addComponents(
+    new MessageButton({
+      style: MessageButtonStyles.LINK,
+      label,
+      url
+    })
+  )
 
   return row
 }
@@ -141,7 +146,11 @@ export function composeEmbedMessage(
 
   if (description)
     embed.setDescription(
-      `${description.endsWith(".") ? description : `${description}.`}`
+      `${
+        description.endsWith(".") || description.endsWith("!")
+          ? description
+          : `${description}.`
+      }`
     )
   if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)

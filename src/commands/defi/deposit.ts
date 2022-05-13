@@ -1,11 +1,10 @@
 import { Command } from "types/common"
-import { Message, MessageActionRow, MessageButton } from "discord.js"
+import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { DirectMessageNotAllowedError, UserNotFoundError } from "errors"
 import Profile from "adapters/profile"
 import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis } from "utils/common"
-import { MessageButtonStyles } from "discord.js/typings/enums"
 
 async function deposit(msg: Message) {
   let user
