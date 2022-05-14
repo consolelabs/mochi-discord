@@ -103,7 +103,7 @@ async function renderLeaderboard(leaderboard: any[]) {
 const command: Command = {
   id: "top",
   command: "top",
-  brief: "All-time Rankings",
+  brief: "Show members with the highest server XP score",
   category: "Community",
   run: async function(msg: Message) {
     const args = getCommandArguments(msg)
@@ -146,8 +146,8 @@ const command: Command = {
   getHelpMessage: async msg => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}top`,
-        examples: `${PREFIX}top`
+        usage: `${PREFIX}top [page]`,
+        examples: `${PREFIX}top\n${PREFIX}top 2`
       })
     ]
   }),
