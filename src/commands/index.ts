@@ -23,6 +23,7 @@ import airdrop from "./defi/airdrop"
 import channel from "./config/channel"
 import chat from "./community/chat"
 import gm from "./community/gm"
+import whitelist from "./community/campaigns"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import top from "./community/top"
@@ -53,7 +54,8 @@ export const originalCommands: Record<string, Command> = {
   // config
   channel,
   reactionrole,
-  defaultrole
+  defaultrole,
+  whitelist
 }
 
 export const commands: Record<string, Command> = getAllAliases(originalCommands)
