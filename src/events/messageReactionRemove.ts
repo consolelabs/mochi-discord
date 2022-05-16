@@ -21,7 +21,7 @@ const getReactionIdentifier = (
 ): string => {
   let reaction = ""
   if (_reaction.emoji.id) {
-    reaction = "<:" + _reaction.emoji.identifier + ">"
+    reaction = "<:" + _reaction.emoji.identifier.toLowerCase() + ">"
   } else {
     reaction = _reaction.emoji.name
   }
