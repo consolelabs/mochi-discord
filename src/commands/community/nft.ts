@@ -196,7 +196,7 @@ const command: Command = {
             let image = data.data.metadata.image
             if (image.includes("ipfs://")) {
               let splittedImage = image.split("ipfs://")
-              image = "https://ipfs.io/ipfs/" + splittedImage[1]
+              image = "https://cloudflare-ipfs.com/ipfs/" + splittedImage[1]
             }
             respEmbed.setImage(image)
             return {

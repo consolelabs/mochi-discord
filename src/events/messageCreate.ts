@@ -8,6 +8,7 @@ import { BotBaseError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import webhook from "adapters/webhook"
+import { composeLevelUpMessage } from "utils/user_xp"
 
 function normalizeCommand(message: Message) {
   return message.content
@@ -34,12 +35,15 @@ export const handleNormalMessage = async (message: Message) => {
 
   const { data, type } = resp
   if (!type || !data) return
-
   switch (type) {
     case "level_up":
       if (data.level_up) {
         await message.channel.send(
-          `GG <@${message.author.id}>, you just advanced to level ${data.current_level}`
+          await composeLevelUpMessage(
+            message.author.id,
+            message.author.avatar,
+            data.current_level
+          )
         )
       }
       return
