@@ -3,6 +3,7 @@ import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { API_BASE_URL } from "utils/constants"
 import fetch from "node-fetch"
+import { getEmoji} from "utils/common"
 import {
   composeEmbedMessage
 } from "utils/discordEmbed"
@@ -181,22 +182,22 @@ const command: Command = {
               var rarityEmoji = ""
               switch (rarityRate) {
                 case "Common":
-                  rarityEmoji = "<:common1~1:976502669462093854>" + "<:common2~1:976502669134946345>" + "<:common3~1:976502669357248574>"
+                  rarityEmoji = getEmoji("COMMON1") + getEmoji("COMMON2") + getEmoji("COMMON3")
                   break
                 case "Rare":
-                  rarityEmoji = "<:rare1~1:976502669248180256>" + "<:rare2~1:976502669868945478>" + "<:rare3~1:976502669730545674>"
+                  rarityEmoji = getEmoji("RARE1") + getEmoji("RARE2") + getEmoji("RARE3")
                   break
                 case "Uncommon":
-                  rarityEmoji = "<:uncommon1~1:976502669688582214>" + "<:uncommon2~1:976502669730541568>" + "<:uncommon3~1:976502669772480592>"
+                  rarityEmoji = getEmoji("UNCOMMON1") + getEmoji("UNCOMMON2") + getEmoji("UNCOMMON3")
                   break
                 case "Legendary":
-                  rarityEmoji = "<:legendary1~1:976502669545967636>" + "<:legendary2~1:976502669571153951>" + "<:legendary3~1:976502669550182430>"
+                  rarityEmoji = getEmoji("LEGENDARY1") + getEmoji("LEGENDARY2") + getEmoji("LEGENDARY3")
                   break
                 case "Mythic":
-                  rarityEmoji = "<:mythic1~1:976502669545967636>" + "<:mythic2~1:976502669571153951>" + "<:mythic3~1:976502669550182430>"
+                  rarityEmoji = getEmoji("MYTHIC1") + getEmoji("MYTHIC2") + getEmoji("MYTHIC3")
                   break
                 default: 
-                  rarityEmoji = "<:common1~1:976502669462093854>" + "<:common2~1:976502669134946345>" + "<:common3~1:976502669357248574>"
+                  rarityEmoji = getEmoji("COMMON1") + getEmoji("COMMON2") + getEmoji("COMMON3")
                   break
               }
               respEmbed.description = respEmbed.description + `\n\n🏆** ・ Rank: ${rank} ・** ${rarityEmoji}`
