@@ -2,10 +2,8 @@ import { logger } from "logger"
 import { CampaignWhitelistUser, Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { ColorResolvable, Message, MessageEmbed } from "discord.js"
-import { msgColors } from "utils/common"
+import { Message } from "discord.js"
 import { getCommandArguments } from "utils/commands"
-import { BotBaseError } from "errors"
 import community from "adapters/community"
 
 const command: Command = {

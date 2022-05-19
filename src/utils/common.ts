@@ -178,3 +178,8 @@ export function getEmoji(key: string, animated?: boolean) {
 export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
+
+export function catchEm(promise: Promise<any>) {
+  return promise.then((data: any) => [null, data])
+    .catch((err: any) => [err]);
+}
