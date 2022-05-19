@@ -39,6 +39,28 @@ export const numberEmojis: Record<string, string> = {
   NUM_9: "932856132832223232"
 }
 
+export const rarityEmojis: Record<string, string> = {
+  COMMON1: "976502669462093854",
+  COMMON2: "976502669134946345",
+  COMMON3: "976502669357248574",
+  
+  RARE1: "976502669248180256",
+  RARE2: "976502669868945478",
+  RARE3: "976502669730545674",
+
+  UNCOMMON1: "976502669688582214",
+  UNCOMMON2: "976502669730541568",
+  UNCOMMON3: "976502669772480592",
+
+  LEGENDARY1: "976502669545967636",
+  LEGENDARY2: "976502669571153951",
+  LEGENDARY3: "976502669550182430",
+
+  MYTHIC1: "976502669600522330",
+  MYTHIC2: "976502669617295441",
+  MYTHIC3: "976502669411758131"
+}
+
 export const defaultEmojis: Record<string, string> = {
   ERROR: ":no_entry_sign:",
   AIRPLANE: ":airplane:",
@@ -60,7 +82,8 @@ export const emojis: { [key: string]: string } = {
   PREV_PAGE: "967285237958705162",
   NEXT_PAGE: "967285238000676895",
   ...tokenEmojis,
-  ...numberEmojis
+  ...numberEmojis,
+  ...rarityEmojis
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
