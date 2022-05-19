@@ -160,29 +160,7 @@ const command: Command = {
               title: title,
               description: res
             })
-            // set rank, rarity score empty if have data
-            if (data.data.metadata.rarity != null) {
-              var rank = data.data.metadata.rarity.rank.toString()
-              var total = data.data.metadata.rarity.total
-              var score = data.data.metadata.rarity.score.toString()
-              respEmbed.addFields([
-                {
-                  name: "Rank",
-                  value: `${rank}/${total}`,
-                  inline: true
-                },
-                {
-                  name: "Rarity Score",
-                  value: score,
-                  inline: true
-                },
-                {
-                  name: "\u200B",
-                  value: "\u200B",
-                  inline: true,
-                },
-              ])
-            }
+            var rarityRate = ""
             // loop through list of attributs to add field to embed message
             if (data.data.metadata.attributes != null) {
               for (const attr of attributes) {
@@ -190,7 +168,56 @@ const command: Command = {
                 const value = attr.value
                 respEmbed.addField(trait_type, value, true)
               }
+              // get rarity rate from list attributes
+              var highestTraitAttr= attributes.reduce(function(prev: typeof attributes[1], curr: typeof attributes[1]) {
+                return prev.count < curr.count ? prev : curr;
+              });
+              rarityRate = highestTraitAttr.rarity
               respEmbed.addField("\u200B", "\u200B", true)
+            }
+            // set rank, rarity score empty if have data
+            if (data.data.metadata.rarity != null) {
+              var rank = data.data.metadata.rarity.rank.toString()
+              var rarityEmoji = ""
+              switch (rarityRate) {
+                case "Common":
+                  rarityEmoji = "<:common1~1:976502669462093854>" + "<:common2~1:976502669134946345>" + "<:common3~1:976502669357248574>"
+                  break
+                case "Rare":
+                  rarityEmoji = "<:rare1~1:976502669248180256>" + "<:rare2~1:976502669868945478>" + "<:rare3~1:976502669730545674>"
+                  break
+                case "Uncommon":
+                  rarityEmoji = "<:uncommon1~1:976502669688582214>" + "<:uncommon2~1:976502669730541568>" + "<:uncommon3~1:976502669772480592>"
+                  break
+                case "Legendary":
+                  rarityEmoji = "<:legendary1~1:976502669545967636>" + "<:legendary2~1:976502669571153951>" + "<:legendary3~1:976502669550182430>"
+                  break
+                case "Mythic":
+                  rarityEmoji = "<:mythic1~1:976502669545967636>" + "<:mythic2~1:976502669571153951>" + "<:mythic3~1:976502669550182430>"
+                  break
+                default: 
+                  rarityEmoji = "<:common1~1:976502669462093854>" + "<:common2~1:976502669134946345>" + "<:common3~1:976502669357248574>"
+                  break
+              }
+              respEmbed.description = respEmbed.description + `\n\n🏆** ・ Rank: ${rank} ・** ${rarityEmoji}`
+              
+              // respEmbed.addFields([
+              //   {
+              //     name: "Rank",
+              //     value: `${rank}/${total}`,
+              //     inline: true
+              //   },
+              //   {
+              //     name: "Rarity Score",
+              //     value: score,
+              //     inline: true
+              //   },
+              //   {
+              //     name: "\u200B",
+              //     value: "\u200B",
+              //     inline: true,
+              //   },
+              // ])
             }
             // handle image has "ipfs://"
             let image = data.data.metadata.image
