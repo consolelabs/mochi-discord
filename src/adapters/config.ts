@@ -243,7 +243,7 @@ class Config {
   public async handleReactionEvent(event: RoleReactionEvent) {
     try {
       const body = JSON.stringify(event)
-      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles`, {
+      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles/filter`, {
         method: "POST",
         body: body
       })
@@ -257,9 +257,24 @@ class Config {
   public async updateReactionConfig(req: RoleReactionEvent) {
     try {
       const res = await fetch(
-        `${API_BASE_URL}/configs/reaction-roles/update-config`,
+        `${API_BASE_URL}/configs/reaction-roles`,
         {
           method: "POST",
+          body: JSON.stringify(req)
+        }
+      )
+      return await res.json()
+    } catch (e: any) {
+      logger.error(e)
+    }
+  }
+
+  public async removeReactionConfig(req: RoleReactionEvent) {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/configs/reaction-roles`,
+        {
+          method: "DELETE",
           body: JSON.stringify(req)
         }
       )

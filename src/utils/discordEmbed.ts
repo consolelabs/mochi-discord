@@ -144,14 +144,10 @@ export function composeEmbedMessage(
     )
     .setTimestamp(timestamp ?? new Date())
 
-  if (description)
-    embed.setDescription(
-      `${
-        description.endsWith(".") || description.endsWith("!")
-          ? description
-          : `${description}.`
-      }`
-    )
+  if (description) {
+    embed.setDescription(description)
+  }
+    
   if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)
   if (!!author && author.length === 1) embed.setAuthor(author[0])
