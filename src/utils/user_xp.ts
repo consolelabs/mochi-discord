@@ -20,7 +20,7 @@ export async function composeLevelUpMessage(
     embeds: [
       new MessageEmbed()
         .setDescription(
-          `<@${authorId}> has leveled up! **(${level - 1}->${level})**`
+          `<@${authorId}> has leveled up! **(${level - 1} → ${level})**`
         )
         .setImage("attachment://level_up.png")
         .setColor(msgColors.PRIMARY as ColorResolvable)
