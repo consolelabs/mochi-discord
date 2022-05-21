@@ -3,7 +3,6 @@ import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { API_BASE_URL } from "utils/constants"
 import fetch from "node-fetch"
-import { getEmoji } from "utils/common"
 import {
   composeEmbedMessage
 } from "utils/discordEmbed"
@@ -131,84 +130,6 @@ const command: Command = {
       }
       let symbolCollection = args[1]
       let tokenId = args[2]
-
-      /////////////////////////////
-      if (symbolCollection == "rabby") {
-
-        let tokenId = args[2]
-        const resp1 = await fetch(`https://backend.pod.so/api/v1/nft/0x7D1070fdbF0eF8752a9627a79b00221b53F231fA/items/${tokenId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json"
-            }
-          })
-
-        let dataRabby = await resp1.json()
-        let rabbyName = dataRabby.name
-        let attributes = dataRabby.attributes
-
-        let header = `**${rabbyName}**`
-        if (rabbyName == "") {
-          header = ``
-        }
-        // init embed message
-        let res = header
-        let titleRaw = args[1]
-        let title = titleRaw.charAt(0).toUpperCase() + titleRaw.slice(1)
-        let respEmbed = composeEmbedMessage(msg, {
-          title: title,
-          description: res
-        })
-        var rarityRate = dataRabby.rarity.rarity
-        // loop through list of attributs to add field to embed message
-        if (attributes != null) {
-          for (const attr of attributes) {
-            const trait_type = attr.trait_type
-            const value = attr.value
-            respEmbed.addField(trait_type, value, true)
-          }
-          rarityRate = highestTraitAttr.rarity
-          respEmbed.addField("\u200B", "\u200B", true)
-        }
-        // set rank, rarity score empty if have data
-        if (dataRabby.rarity != null) {
-          var rank = dataRabby.rarity.rank
-          var rarityEmoji = ""
-          switch (rarityRate) {
-            case "common":
-              rarityEmoji = getEmoji("COMMON1") + getEmoji("COMMON2") + getEmoji("COMMON3")
-              break
-            case "rare":
-              rarityEmoji = getEmoji("RARE1") + getEmoji("RARE2") + getEmoji("RARE3")
-              break
-            case "uncommon":
-              rarityEmoji = getEmoji("UNCOMMON1") + getEmoji("UNCOMMON2") + getEmoji("UNCOMMON3")
-              break
-            case "legendary":
-              rarityEmoji = getEmoji("LEGENDARY1") + getEmoji("LEGENDARY2") + getEmoji("LEGENDARY3")
-              break
-            case "mythic":
-              rarityEmoji = getEmoji("MYTHIC1") + getEmoji("MYTHIC2") + getEmoji("MYTHIC3")
-              break
-            default:
-              rarityEmoji = getEmoji("COMMON1") + getEmoji("COMMON2") + getEmoji("COMMON3")
-              break
-          }
-          respEmbed.description = respEmbed.description + `\n\n🏆** ・ Rank: ${rank} ・** ${rarityEmoji}`
-        }
-
-        respEmbed.setImage(dataRabby.image)
-        return {
-          messageOptions: {
-            embeds: [
-              respEmbed
-            ],
-            components: []
-          },
-        }
-      }
-      ///////////////////////////////
       // get data nft from server
       const resp = await fetch(`${API_BASE_URL}/nfts/${symbolCollection}/${tokenId}`,
         {
@@ -239,7 +160,29 @@ const command: Command = {
             title: title,
             description: res
           })
-          var rarityRate = ""
+          // set rank, rarity score empty if have data
+          if (data.data.metadata.rarity != null) {
+            var rank = data.data.metadata.rarity.rank.toString()
+            var total = data.data.metadata.rarity.total
+            var score = data.data.metadata.rarity.score.toString()
+            respEmbed.addFields([
+              {
+                name: "Rank",
+                value: `${rank}/${total}`,
+                inline: true
+              },
+              {
+                name: "Rarity Score",
+                value: score,
+                inline: true
+              },
+              {
+                name: "\u200B",
+                value: "\u200B",
+                inline: true,
+              },
+            ])
+          }
           // loop through list of attributs to add field to embed message
           if (data.data.metadata.attributes != null) {
             for (const attr of attributes) {
@@ -247,62 +190,13 @@ const command: Command = {
               const value = attr.value
               respEmbed.addField(trait_type, value, true)
             }
-            // get rarity rate from list attributes
-            var highestTraitAttr = attributes.reduce(function (prev: typeof attributes[1], curr: typeof attributes[1]) {
-              return prev.count < curr.count ? prev : curr;
-            });
-            rarityRate = highestTraitAttr.rarity
             respEmbed.addField("\u200B", "\u200B", true)
-          }
-          // set rank, rarity score empty if have data
-          if (data.data.metadata.rarity != null) {
-            var rank = data.data.metadata.rarity.rank.toString()
-            var rarityEmoji = ""
-            switch (rarityRate) {
-              case "Common":
-                rarityEmoji = getEmoji("COMMON1") + getEmoji("COMMON2") + getEmoji("COMMON3")
-                break
-              case "Rare":
-                rarityEmoji = getEmoji("RARE1") + getEmoji("RARE2") + getEmoji("RARE3")
-                break
-              case "Uncommon":
-                rarityEmoji = getEmoji("UNCOMMON1") + getEmoji("UNCOMMON2") + getEmoji("UNCOMMON3")
-                break
-              case "Legendary":
-                rarityEmoji = getEmoji("LEGENDARY1") + getEmoji("LEGENDARY2") + getEmoji("LEGENDARY3")
-                break
-              case "Mythic":
-                rarityEmoji = getEmoji("MYTHIC1") + getEmoji("MYTHIC2") + getEmoji("MYTHIC3")
-                break
-              default:
-                rarityEmoji = getEmoji("COMMON1") + getEmoji("COMMON2") + getEmoji("COMMON3")
-                break
-            }
-            respEmbed.description = respEmbed.description + `\n\n🏆** ・ Rank: ${rank} ・** ${rarityEmoji}`
-
-            // respEmbed.addFields([
-            //   {
-            //     name: "Rank",
-            //     value: `${rank}/${total}`,
-            //     inline: true
-            //   },
-            //   {
-            //     name: "Rarity Score",
-            //     value: score,
-            //     inline: true
-            //   },
-            //   {
-            //     name: "\u200B",
-            //     value: "\u200B",
-            //     inline: true,
-            //   },
-            // ])
           }
           // handle image has "ipfs://"
           let image = data.data.metadata.image
           if (image.includes("ipfs://")) {
             let splittedImage = image.split("ipfs://")
-            image = "https://cloudflare-ipfs.com/ipfs/" + splittedImage[1]
+            image = "https://ipfs.io/ipfs/" + splittedImage[1]
           }
           respEmbed.setImage(image)
           return {
