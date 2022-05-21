@@ -43,7 +43,7 @@ function setRowTextColor(record: any, ctx: Canvas.CanvasRenderingContext2D) {
 }
 
 async function renderLeaderboard(leaderboard: any[]) {
-  const containerWidth = 700
+  const containerWidth = 750
   const containerHeight = 600
   const canvas = Canvas.createCanvas(containerWidth, containerHeight)
   const ctx = canvas.getContext("2d")
