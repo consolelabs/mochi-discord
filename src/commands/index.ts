@@ -27,6 +27,7 @@ import whitelist from "./community/campaigns"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import top from "./community/top"
+import levelrole from "./community/levelrole"
 import { Command, Category } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { hasAdministrator } from "utils/common"
@@ -50,12 +51,13 @@ export const originalCommands: Record<string, Command> = {
   gm,
   stats,
   nft,
-	top,
+  top,
   // config
   channel,
   reactionrole,
   defaultrole,
-  whitelist
+  whitelist,
+  levelrole
 }
 
 export const commands: Record<string, Command> = getAllAliases(originalCommands)
@@ -114,7 +116,7 @@ async function executeCommand(
 
 export default async function handlePrefixedCommand(message: Message) {
   try {
-		await message.channel.sendTyping()
+    await message.channel.sendTyping()
     const args = getCommandArguments(message)
     const isSpecificHelpCommand = specificHelpCommand(message)
     const [commandKey, action] = !isSpecificHelpCommand
