@@ -180,6 +180,5 @@ export function roundFloatNumber(n: number, fractionDigits = 1) {
 }
 
 export function catchEm(promise: Promise<any>) {
-  return promise.then((data: any) => [null, data])
-    .catch((err: any) => [err]);
+  return promise.then((data: any) => [null, data]).catch((err: any) => [err])
 }
