@@ -1,6 +1,6 @@
 import { Command, DefaultRoleEvent, RoleReactionEvent } from "types/common"
 import { Message } from "discord.js"
-import { CommandIsNotScopedError } from "errors"
+import { BotBaseError, CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
 import { Guild, Guilds } from "types/config"
@@ -15,7 +15,8 @@ class Config {
     setInterval(async () => {
       this.Guilds = await this.getGuilds()
       logger.info(
-        `reloaded ${this.Guilds.data.length
+        `reloaded ${
+          this.Guilds.data.length
         } guild configs: ${this.Guilds.data.map(g => g.name).join(", ")}`
       )
     }, 3600000)
@@ -164,9 +165,7 @@ class Config {
 
   public async getCurrentGmConfig(guildId: string) {
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/configs/gm?guild_id=${guildId}`
-      )
+      const res = await fetch(`${API_BASE_URL}/configs/gm?guild_id=${guildId}`)
 
       return await res.json()
     } catch (e: any) {
@@ -221,9 +220,12 @@ class Config {
 
   public async removeDefaultRoleConfig(guildId: string) {
     try {
-      const res = await fetch(`${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`, {
-        method: "DELETE",
-      })
+      const res = await fetch(
+        `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`,
+        {
+          method: "DELETE"
+        }
+      )
 
       return await res.json()
     } catch (e: any) {
@@ -233,7 +235,9 @@ class Config {
 
   public async listAllReactionRoles(guildId: string) {
     try {
-      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles?guild_id=${guildId}`)
+      const res = await fetch(
+        `${API_BASE_URL}/configs/reaction-roles?guild_id=${guildId}`
+      )
       return await res.json()
     } catch (e: any) {
       logger.error(e)
@@ -256,13 +260,10 @@ class Config {
 
   public async updateReactionConfig(req: RoleReactionEvent) {
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/configs/reaction-roles`,
-        {
-          method: "POST",
-          body: JSON.stringify(req)
-        }
-      )
+      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles`, {
+        method: "POST",
+        body: JSON.stringify(req)
+      })
       return await res.json()
     } catch (e: any) {
       logger.error(e)
@@ -271,13 +272,10 @@ class Config {
 
   public async removeReactionConfig(req: RoleReactionEvent) {
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/configs/reaction-roles`,
-        {
-          method: "DELETE",
-          body: JSON.stringify(req)
-        }
-      )
+      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles`, {
+        method: "DELETE",
+        body: JSON.stringify(req)
+      })
       return await res.json()
     } catch (e: any) {
       logger.error(e)
@@ -330,10 +328,27 @@ class Config {
       throw new Error("failed to config guild tokens")
     }
   }
+
+  public async configLevelRole(
+    msg: Message,
+    body: { guild_id: string; role_id: string; level: number }
+  ) {
+    const resp = await fetch(`${API_BASE_URL}/configs/roles/levels`, {
+      method: "POST",
+      body: JSON.stringify(body)
+    })
+    if (resp.status !== 200) {
+      throw new BotBaseError(msg)
+    }
+
+    const json = await resp.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+  }
 }
 
 const config = new Config()
 config.initialize()
 
 export default config
-
