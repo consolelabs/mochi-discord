@@ -372,7 +372,7 @@ class Config {
     msg: Message,
     body: { guild_id: string; role_id: string; level: number }
   ) {
-    const res = await fetch(`${API_BASE_URL}/configs/roles/levels`, {
+    const res = await fetch(`${API_BASE_URL}/configs/level-roles`, {
       method: "POST",
       body: JSON.stringify(body),
     })
@@ -384,6 +384,21 @@ class Config {
     if (json.error !== undefined) {
       throw new Error(json.error)
     }
+  }
+
+  public async getGuildLevelRoleConfigs(msg: Message, guildId: string) {
+    const res = await fetch(`${API_BASE_URL}/configs/level-roles/${guildId}`, {
+      method: "GET",
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to get levelroles configs - guild ${guildId}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
   }
 }
 
