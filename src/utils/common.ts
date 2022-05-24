@@ -1,6 +1,5 @@
 import {
   Message,
-  TextChannel,
   GuildEmoji,
   User,
   MessageOptions,
@@ -8,7 +7,6 @@ import {
   MessageComponentInteraction,
   Permissions
 } from "discord.js"
-import { DISCORD_ADMIN_GROUP } from "../env"
 
 import { Command } from "types/common"
 import { DOT, VERTICAL_BAR } from "./constants"
@@ -124,11 +122,6 @@ export function getEmbedFooter(texts: string[]): string {
   return texts.join(` ${DOT} `)
 }
 
-export async function onlyRunInAdminGroup(msg: Message) {
-  const groupId = (msg.channel as TextChannel).parentId
-  return groupId === DISCORD_ADMIN_GROUP
-}
-
 export function hasAdministrator(msg: Message) {
   return msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
 }
@@ -179,6 +172,6 @@ export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
-export function catchEm(promise: Promise<any>) {
-  return promise.then((data: any) => [null, data]).catch((err: any) => [err])
+export function catchEm(promise: Promise<unknown>) {
+  return promise.then(data => [null, data]).catch(err => [err])
 }

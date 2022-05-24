@@ -23,19 +23,10 @@ const command: Command = {
     }
 
     const logChannel = args[2].replace(/<#|>/g, "")
-    const body = JSON.stringify({
+    await Community.configureInvites({
       guild_id: msg.guild.id,
       log_channel: logChannel
     })
-
-    const resp = await Community.configureInvites(body)
-    if (resp.error) {
-      return {
-        messageOptions: {
-          content: `${getHeader(resp.error, msg.author)}`
-        }
-      }
-    }
 
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Config`

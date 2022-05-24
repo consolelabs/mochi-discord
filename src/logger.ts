@@ -1,13 +1,13 @@
-import pino from "pino";
+import pino from "pino"
 
-import { PROD } from "./env";
+import { PROD } from "./env"
 
 const options = PROD
   ? {}
   : {
       prettyPrint: {
         colorize: true,
-        levelFirst: true,
-      },
-    };
-export const logger = pino(options, process.stdout);
+        levelFirst: true
+      }
+    }
+export const logger = pino(options, process.stdout)

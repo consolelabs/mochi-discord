@@ -10,22 +10,16 @@ const command: Command = {
   brief: "GM/GN Configuration",
   category: "Community",
   run: async msg => {
-    try {
-      const json = await config.getCurrentGmConfig(msg.guildId)
-      if (json.message === 'OK') {
-        return {
-          messageOptions: {
-            embeds: [
-              composeEmbedMessage(msg, {
-                description: `Current Gm/Gn channel is set to <#${json.data.channel_id}>`,
-                title: "GM/GN Configuration"
-              })
-            ]
-          }
-        }
+    const data = await config.getCurrentGmConfig(msg.guildId)
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(msg, {
+            description: `Current Gm/Gn channel is set to <#${data.channel_id}>`,
+            title: "GM/GN Configuration"
+          })
+        ]
       }
-    } catch (err: any) {
-      logger.error(err)
     }
   },
   getHelpMessage: async msg => {

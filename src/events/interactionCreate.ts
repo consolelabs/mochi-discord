@@ -22,12 +22,12 @@ export default {
       }
 
       await handleButtonInteraction(interaction as ButtonInteraction, msg)
-    } catch (e: any) {
+    } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
         error.handle()
       } else {
-        logger.error(e)
+        logger.error(e as string)
       }
       ChannelLogger.log(error)
     }

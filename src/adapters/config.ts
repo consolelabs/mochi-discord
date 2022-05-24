@@ -1,6 +1,6 @@
 import { Command, DefaultRoleEvent, RoleReactionEvent } from "types/common"
 import { Message } from "discord.js"
-import { BotBaseError, CommandIsNotScopedError } from "errors"
+import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
 import { Guild, Guilds } from "types/config"
@@ -23,16 +23,22 @@ class Config {
   }
 
   public async getGuilds(): Promise<Guilds> {
-    const guilds: Guilds = await (
-      await fetch(`${API_BASE_URL}/guilds`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-    ).json()
+    const res = await fetch(`${API_BASE_URL}/guilds`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to get all guilds`)
+    }
 
-    return guilds
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+
+    return json
   }
 
   public async getGuild(guildId: string): Promise<Guild> {
@@ -164,17 +170,20 @@ class Config {
   }
 
   public async getCurrentGmConfig(guildId: string) {
-    try {
-      const res = await fetch(`${API_BASE_URL}/configs/gm?guild_id=${guildId}`)
-
-      return await res.json()
-    } catch (e: any) {
-      logger.error(e)
+    const res = await fetch(`${API_BASE_URL}/configs/gm?guild_id=${guildId}`)
+    if (res.status !== 200) {
+      throw new Error(`failed to get current GM config - guild ${guildId}`)
     }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
   }
 
   public async updateGmConfig(guild_id: string, channel_id: string) {
-    const resp = await fetch(`${API_BASE_URL}/configs/gm`, {
+    const res = await fetch(`${API_BASE_URL}/configs/gm`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -182,121 +191,151 @@ class Config {
         channel_id
       })
     })
+    if (res.status !== 200) {
+      throw new Error("failed to config GM channel")
+    }
 
-    const json = await resp.json()
+    const json = await res.json()
     if (json.error !== undefined) {
       throw new Error(json.error)
-    }
-    if (resp.status !== 200 || json.message != "OK") {
-      throw new Error("failed to config GM channel")
     }
   }
 
   public async getCurrentDefaultRole(guildId: string) {
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`
-      )
-
-      return await res.json()
-    } catch (e: any) {
-      logger.error(e)
+    const res = await fetch(
+      `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to get current default role - guild ${guildId}`)
     }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
   }
 
   public async configureDefaultRole(event: DefaultRoleEvent) {
-    try {
-      const reqData = JSON.stringify(event)
-      const res = await fetch(`${API_BASE_URL}/configs/default-roles`, {
-        method: "POST",
-        body: reqData
-      })
-
-      return await res.json()
-    } catch (e: any) {
-      logger.error(e)
+    const res = await fetch(`${API_BASE_URL}/configs/default-roles`, {
+      method: "POST",
+      body: JSON.stringify(event)
+    })
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to configure default role - guild ${event.guild_id}`
+      )
     }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
   }
 
   public async removeDefaultRoleConfig(guildId: string) {
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`,
-        {
-          method: "DELETE"
-        }
-      )
-
-      return await res.json()
-    } catch (e: any) {
-      logger.error(e)
+    const res = await fetch(
+      `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`,
+      {
+        method: "DELETE"
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to remove default role config - guild ${guildId}`)
     }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
   }
 
   public async listAllReactionRoles(guildId: string) {
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/configs/reaction-roles?guild_id=${guildId}`
-      )
-      return await res.json()
-    } catch (e: any) {
-      logger.error(e)
+    const res = await fetch(
+      `${API_BASE_URL}/configs/reaction-roles?guild_id=${guildId}`
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to list reaction roles - guild ${guildId}`)
     }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
   }
 
   public async handleReactionEvent(event: RoleReactionEvent) {
-    try {
-      const body = JSON.stringify(event)
-      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles/filter`, {
-        method: "POST",
-        body: body
-      })
-
-      return await res.json()
-    } catch (e: any) {
-      logger.error(e)
+    const res = await fetch(`${API_BASE_URL}/configs/reaction-roles/filter`, {
+      method: "POST",
+      body: JSON.stringify(event)
+    })
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to handle reaction event - guild ${event.guild_id}`
+      )
     }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
   }
 
   public async updateReactionConfig(req: RoleReactionEvent) {
-    try {
-      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles`, {
-        method: "POST",
-        body: JSON.stringify(req)
-      })
-      return await res.json()
-    } catch (e: any) {
-      logger.error(e)
+    const res = await fetch(`${API_BASE_URL}/configs/reaction-roles`, {
+      method: "POST",
+      body: JSON.stringify(req)
+    })
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to update reaction config - guild ${req.guild_id}`
+      )
     }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
   }
 
   public async removeReactionConfig(req: RoleReactionEvent) {
-    try {
-      const res = await fetch(`${API_BASE_URL}/configs/reaction-roles`, {
-        method: "DELETE",
-        body: JSON.stringify(req)
-      })
-      return await res.json()
-    } catch (e: any) {
-      logger.error(e)
+    const res = await fetch(`${API_BASE_URL}/configs/reaction-roles`, {
+      method: "DELETE",
+      body: JSON.stringify(req)
+    })
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to remove reaction config - guild ${req.guild_id}`
+      )
     }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
   }
 
   public async getGuildTokens(guildId: string): Promise<Token[]> {
-    const resp = await fetch(
+    const res = await fetch(
       `${API_BASE_URL}/configs/tokens?guild_id=${guildId}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" }
       }
     )
+    if (res.status !== 200) {
+      throw new Error("failed to get guild tokens")
+    }
 
-    const json = await resp.json()
+    const json = await res.json()
     if (json.error !== undefined) {
       throw new Error(json.error)
-    }
-    if (resp.status !== 200) {
-      throw new Error("failed to get guild tokens configuration")
     }
     return json.data
   }
@@ -310,7 +349,7 @@ class Config {
     symbol: string
     active: boolean
   }) {
-    const resp = await fetch(`${API_BASE_URL}/configs/tokens`, {
+    const res = await fetch(`${API_BASE_URL}/configs/tokens`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -319,13 +358,13 @@ class Config {
         active
       })
     })
+    if (res.status !== 200) {
+      throw new Error(`failed to update token config - guild ${guild_id}`)
+    }
 
-    const json = await resp.json()
+    const json = await res.json()
     if (json.error !== undefined) {
       throw new Error(json.error)
-    }
-    if (resp.status !== 200) {
-      throw new Error("failed to config guild tokens")
     }
   }
 
@@ -333,15 +372,15 @@ class Config {
     msg: Message,
     body: { guild_id: string; role_id: string; level: number }
   ) {
-    const resp = await fetch(`${API_BASE_URL}/configs/roles/levels`, {
+    const res = await fetch(`${API_BASE_URL}/configs/roles/levels`, {
       method: "POST",
       body: JSON.stringify(body)
     })
-    if (resp.status !== 200) {
-      throw new BotBaseError(msg)
+    if (res.status !== 200) {
+      throw new Error(`failed to config level role - guild ${body.guild_id}`)
     }
 
-    const json = await resp.json()
+    const json = await res.json()
     if (json.error !== undefined) {
       throw new Error(json.error)
     }

@@ -40,8 +40,8 @@ const command: Command = {
         default:
           throw new Error(json.error)
       }
-    } catch (err: any) {
-      logger.error(err)
+    } catch (err) {
+      logger.error(err as string)
     }
   },
   getHelpMessage: async msg => {

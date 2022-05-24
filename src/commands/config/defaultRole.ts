@@ -7,7 +7,10 @@ import config from "adapters/config"
 
 const TITLE = "Default role"
 
-const onSetDefaultRole = async (roleId: string, msg: Message): Promise<MessageOptions> => {
+const onSetDefaultRole = async (
+  roleId: string,
+  msg: Message
+): Promise<MessageOptions> => {
   let description = ""
   const requestData: DefaultRoleEvent = {
     guild_id: msg.guild.id,
@@ -35,9 +38,9 @@ const onRemoveDefaultRole = async (msg: Message): Promise<MessageOptions> => {
   const res = await config.removeDefaultRoleConfig(msg.guild.id)
 
   if (res.success) {
-    description = 'Removed default role for newcomers'
+    description = "Removed default role for newcomers"
   } else {
-    description = 'Failed to remove default role configuration'
+    description = "Failed to remove default role configuration"
   }
 
   return {
@@ -51,14 +54,10 @@ const onRemoveDefaultRole = async (msg: Message): Promise<MessageOptions> => {
 }
 
 const onShowDefaultRoleInfo = async (msg: Message): Promise<MessageOptions> => {
-  let description = ""
-  const res = await config.getCurrentDefaultRole(msg.guild.id)
-
-  if (res.success) {
-    description = `Current default role for newcomers is <@&${res.data.role_id}>`
-  } else {
-    description = `Failed to get current default role for newcomers`
-  }
+  const json = await config.getCurrentDefaultRole(msg.guild.id)
+  const description = json.success
+    ? `Current default role for newcomers is <@&${json.data.role_id}>`
+    : "Failed to get current default role for newcomers"
 
   return {
     embeds: [
@@ -70,7 +69,10 @@ const onShowDefaultRoleInfo = async (msg: Message): Promise<MessageOptions> => {
   }
 }
 
-const excuteAction = async (args: string, msg: Message): Promise<MessageOptions> => {
+const excuteAction = async (
+  args: string,
+  msg: Message
+): Promise<MessageOptions> => {
   args = args.trim()
   switch (args.toUpperCase()) {
     case "REMOVE":
@@ -78,7 +80,7 @@ const excuteAction = async (args: string, msg: Message): Promise<MessageOptions>
     case "INFO":
       return await onShowDefaultRoleInfo(msg)
     default:
-      return await onSetDefaultRole(args.replace(/\D/g, ""), msg) 
+      return await onSetDefaultRole(args.replace(/\D/g, ""), msg)
   }
 }
 

@@ -13,30 +13,41 @@ const command: Command = {
   category: "Config",
   run: async (msg: Message) => {
     try {
-      let description = ''
+      let description = ""
       const rrList = await config.listAllReactionRoles(msg.guild.id)
-      const channelList = msg.guild.channels.cache.filter(c => c.type === 'GUILD_TEXT').map(c => c as TextChannel)
+      const channelList = msg.guild.channels.cache
+        .filter(c => c.type === "GUILD_TEXT")
+        .map(c => c as TextChannel)
 
       if (rrList.success) {
         const values = await Promise.all(
-          rrList.configs.map(
-            async (conf: any) => {
-              const promiseArr = channelList.map(chan => catchEm(chan.messages.fetch(conf.message_id)))
-              for (const prom of promiseArr) {
-                const [err, fetchedMsg] = await prom
-                if (!err) { 
-                  const des = `\n[${conf.message_id}](${fetchedMsg.url})\n` + conf.roles.map((role: any) => `+ Reaction ${role.reaction} for role <@&${role.id}>`).join("\n")
-                  return des
-                }
+          rrList.configs.map(async (conf: any) => {
+            const promiseArr = channelList.map(chan =>
+              catchEm(chan.messages.fetch(conf.message_id))
+            )
+            for (const prom of promiseArr) {
+              const [err, fetchedMsg] = await prom
+              if (!err) {
+                const des =
+                  `\n[${conf.message_id}](${fetchedMsg.url})\n` +
+                  conf.roles
+                    .map(
+                      (role: any) =>
+                        `+ Reaction ${role.reaction} for role <@&${role.id}>`
+                    )
+                    .join("\n")
+                return des
               }
             }
-          )
+          })
         )
-        description = values.length ? values.join("") : "No reaction role configurations found"
+        description = values.length
+          ? values.join("")
+          : "No reaction role configurations found"
       } else {
         description = "Failed to get reaction role configurations"
       }
-      
+
       return {
         messageOptions: {
           embeds: [
@@ -47,8 +58,8 @@ const command: Command = {
           ]
         }
       }
-    } catch (err: any) {
-      logger.error(err)
+    } catch (err) {
+      logger.error(err as string)
     }
   },
   getHelpMessage: async msg => {

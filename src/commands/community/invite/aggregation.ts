@@ -3,7 +3,6 @@ import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import Community from "adapters/community"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { getHeader } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
@@ -18,23 +17,15 @@ const command: Command = {
       inviterID = args[2].replace(/<@|>/g, "")
     }
 
-    const resp = await Community.getUserInvitesAggregation(
+    const data = await Community.getUserInvitesAggregation(
       msg.guild.id,
       inviterID
     )
-    if (resp.error) {
-      return {
-        messageOptions: {
-          content: `${getHeader(resp.error, msg.author)}`
-        }
-      }
-    }
 
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Aggregation`
     })
 
-    const data = resp.data
     embedMsg.addField(
       `Successfully`,
       `<@${inviterID}> has totally ${

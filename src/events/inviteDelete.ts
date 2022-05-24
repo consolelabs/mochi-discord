@@ -10,19 +10,18 @@ export default {
   once: false,
   execute: async (invite: Discord.Invite) => {
     try {
-      (invites.get(invite.guild.id) as Discord.Collection<
-        string,
-        number
-      >).delete(invite.code)
-    } catch (e: any) {
+      const invitesCollection = invites.get(
+        invite.guild.id
+      ) as Discord.Collection<string, number>
+      invitesCollection.delete(invite.code)
+    } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
         error.handle()
       } else {
-        logger.error(e)
+        logger.error(e as string)
       }
-      ChannelLogger.log(e)
+      ChannelLogger.log(error)
     }
   }
 } as Event<"inviteDelete">
-

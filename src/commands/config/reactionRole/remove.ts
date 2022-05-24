@@ -1,10 +1,12 @@
-import { logger } from "logger"
-import { Command, RoleReactionConfigResponse, RoleReactionEvent } from "types/common"
+import {
+  Command,
+  RoleReactionConfigResponse,
+  RoleReactionEvent
+} from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
-import { BotBaseError } from "errors"
 import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
@@ -13,76 +15,64 @@ const command: Command = {
   brief: "Remove a reaction role configuration",
   category: "Config",
   run: async (msg: Message) => {
-    try {
-      let description = ''
-      const args = getCommandArguments(msg)
-      if (args.length < 3) {
-        return
+    let description = ""
+    const args = getCommandArguments(msg)
+    if (args.length < 3) {
+      return
+    }
+
+    let requestData: RoleReactionEvent
+
+    if (args.length >= 5) {
+      requestData = {
+        guild_id: msg.guild.id,
+        message_id: args[2].replace(/\D/g, ""),
+        reaction: args[3],
+        role_id: args[4].replace(/\D/g, "") // Accept number-only characters
       }
+    } else {
+      requestData = {
+        guild_id: msg.guild.id,
+        message_id: args[2].replace(/\D/g, ""),
+        reaction: "",
+        role_id: ""
+      }
+    }
 
-      let requestData: RoleReactionEvent
+    const res: RoleReactionConfigResponse = await config.removeReactionConfig(
+      requestData
+    )
 
-      if (args.length >= 5) {
-        requestData = {
-          guild_id: msg.guild.id,
-          message_id: args[2].replace(/\D/g, ""),
-          reaction: args[3],
-          role_id: args[4].replace(/\D/g, "") // Accept number-only characters
-        }
+    if (res.success) {
+      const { reaction, role_id } = requestData
+      if (reaction && role_id) {
+        description = `Reaction ${requestData.reaction} for this role <@&${requestData.role_id}> is now unset`
+
+        // Remove a specific reaction
+        msg.channel.messages
+          .fetch(requestData.message_id)
+          .then(val => val.reactions.cache.get(reaction).remove())
       } else {
-        requestData = {
-          guild_id: msg.guild.id,
-          message_id: args[2].replace(/\D/g, ""),
-          reaction: "",
-          role_id: ""
-        }
-      }
+        description = `All reaction role configurations for this message is now clear.`
 
-      const res: RoleReactionConfigResponse = await config.removeReactionConfig(
-        requestData
-      )
-      
-      if (res.success) {
-        const {reaction, role_id} = requestData    
-        if (reaction && role_id) {
-          description = `Reaction ${
-            requestData.reaction
-          } for this role <@&${requestData.role_id}> is now unset`
-          
-          // Remove a specific reaction
-          msg.channel.messages
-            .fetch(requestData.message_id)
-            .then(val => val.reactions.cache.get(reaction).remove())
-            .catch(err => {
-              throw new BotBaseError(err)
-            })
-        } else {
-          description = `All reaction role configurations for this message is now clear.`
-          
-          // Remove all previous reactions
-          msg.channel.messages
-            .fetch(requestData.message_id)
-            .then(val => val.reactions.removeAll())
-            .catch(err => {
-              throw new BotBaseError(err)
-            })
-        }
-      } else {
-        description = `Failed to remove this reaction role configuration.`
+        // Remove all previous reactions
+        msg.channel.messages
+          .fetch(requestData.message_id)
+          .then(val => val.reactions.removeAll())
       }
-      
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              title: "Reaction Roles",
-              description,
-            })
-          ]
-        }
+    } else {
+      description = `Failed to remove this reaction role configuration.`
+    }
+
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(msg, {
+            title: "Reaction Roles",
+            description
+          })
+        ]
       }
-    } catch (err: any) {
-      logger.error(err)
     }
   },
   getHelpMessage: async msg => {
