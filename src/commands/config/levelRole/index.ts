@@ -1,9 +1,14 @@
-import { Message } from "discord.js"
 import { Command } from "types/common"
-import { getCommandArguments } from "utils/commands"
+import { getAllAliases, getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import Config from "../../adapters/config"
+import Config from "../../../adapters/config"
+import list from "./list"
+
+const actions: Record<string, Command> = {
+  list,
+}
+const commands: Record<string, Command> = getAllAliases(actions)
 
 const command: Command = {
   id: "levelrole",
@@ -12,7 +17,12 @@ const command: Command = {
     "Set roles which users will get when reaching levels in current server",
   category: "Config",
   onlyAdministrator: true,
-  run: async function (msg: Message) {
+  run: async function (msg, action) {
+    const actionObj = commands[action]
+    if (actionObj) {
+      return actionObj.run(msg)
+    }
+
     const args = getCommandArguments(msg)
     if (args.length < 3) {
       return {
@@ -63,16 +73,24 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}lr <@role> <level>`,
-        examples: `${PREFIX}lr @Mochi 1`,
-      }),
-    ],
-  }),
+  getHelpMessage: async (msg, action) => {
+    const actionObj = commands[action]
+    if (actionObj) {
+      return actionObj.getHelpMessage(msg)
+    }
+
+    return {
+      embeds: [
+        composeEmbedMessage(msg, {
+          usage: `${PREFIX}lr <role> <level>`,
+          examples: `${PREFIX}lr @Mochi 1`,
+        }),
+      ],
+    }
+  },
   canRunWithoutAction: true,
   aliases: ["lr"],
+  actions,
   experimental: true,
 }
 
