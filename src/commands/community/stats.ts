@@ -4,13 +4,13 @@ import { PREFIX } from "utils/constants"
 import {
   MessageSelectOptionData,
   SelectMenuInteraction,
-  Message
+  Message,
 } from "discord.js"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
-  composeEmbedMessage
+  composeEmbedMessage,
 } from "utils/discordEmbed"
 import Community from "adapters/community"
 
@@ -19,10 +19,12 @@ const countType: Array<string> = [
   "channels",
   "stickers",
   "emojis",
-  "roles"
+  "roles",
 ]
 
-const statsSelectionHandler: CommandChoiceHandler = async msgOrInteraction => {
+const statsSelectionHandler: CommandChoiceHandler = async (
+  msgOrInteraction
+) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
@@ -30,7 +32,7 @@ const statsSelectionHandler: CommandChoiceHandler = async msgOrInteraction => {
   return await renderStatEmbed(message, id)
 }
 
-const countStatsHandler: CommandChoiceHandler = async msgOrInteraction => {
+const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
@@ -39,13 +41,13 @@ const countStatsHandler: CommandChoiceHandler = async msgOrInteraction => {
   await Community.createStatChannel(message.guildId, countTypeReq)
   const successEmbeded = composeEmbedMessage(message, {
     title: `Server Stats\n\n`,
-    description: `Successfully count ` + type + ` ` + stat
+    description: `Successfully count ` + type + ` ` + stat,
   })
   return {
     messageOptions: {
       embeds: [successEmbeded],
-      components: []
-    }
+      components: [],
+    },
   }
 }
 
@@ -76,12 +78,12 @@ async function renderStatEmbed(msg: Message, statId: string) {
 
   const opt = (statType: unknown): MessageSelectOptionData => ({
     label: `${statType}`,
-    value: `${statType}_${statId}`
+    value: `${statType}_${statId}`,
   })
   const selectRow = composeDiscordSelectionRow({
     customId: "tickers_type_selection",
     placeholder: "Select type",
-    options: statTypeList.map(c => opt(c))
+    options: statTypeList.map((c) => opt(c)),
   })
 
   msg.content = statId
@@ -90,17 +92,17 @@ async function renderStatEmbed(msg: Message, statId: string) {
       embeds: [
         composeEmbedMessage(msg, {
           title: `Server Stats`,
-          description: `Please select what type you want to show`
-        })
+          description: `Please select what type you want to show`,
+        }),
       ],
-      components: [selectRow, composeDiscordExitButton()]
+      components: [selectRow, composeDiscordExitButton()],
     },
     commandChoiceOptions: {
       userId: msg.author.id,
       guildId: msg.guildId,
       channelId: msg.channelId,
-      handler: countStatsHandler
-    }
+      handler: countStatsHandler,
+    },
   }
 }
 const command: Command = {
@@ -109,16 +111,16 @@ const command: Command = {
   brief: "Server Stats",
   category: "Community",
   onlyAdministrator: true,
-  run: async function(msg) {
+  run: async function (msg) {
     const opt = (countType: unknown): MessageSelectOptionData => ({
       label: `${countType}`,
-      value: `${countType}`
+      value: `${countType}`,
     })
 
     const selectRow = composeDiscordSelectionRow({
       customId: "tickers_stat_selection",
       placeholder: "Select stat",
-      options: countType.map(c => opt(c))
+      options: countType.map((c) => opt(c)),
     })
 
     return {
@@ -126,28 +128,28 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             title: `Server Stats`,
-            description: `Please select what stat you want to show`
-          })
+            description: `Please select what stat you want to show`,
+          }),
         ],
-        components: [selectRow, composeDiscordExitButton()]
+        components: [selectRow, composeDiscordExitButton()],
       },
       commandChoiceOptions: {
         userId: msg.author.id,
         guildId: msg.guildId,
         channelId: msg.channelId,
-        handler: statsSelectionHandler
-      }
+        handler: statsSelectionHandler,
+      },
     }
   },
-  getHelpMessage: async msg => {
+  getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}stats`,
       footer: [`Type ${PREFIX}help stats`],
-      examples: `${PREFIX}stats`
+      examples: `${PREFIX}stats`,
     })
 
     return { embeds: [embed] }
-  }
+  },
 }
 
 export default command

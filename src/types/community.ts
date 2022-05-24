@@ -9,7 +9,6 @@ export interface InviteeCountInput {
   inviter: string
 }
 
-
 export interface InvitesInput {
   guild_id: string
   member_id: string

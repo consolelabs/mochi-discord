@@ -1,4 +1,4 @@
-import discrod from "discord.js"
+import discrod from 'discord.js'
 
 export interface GuildMember {
   guild_id: string
@@ -25,12 +25,12 @@ export function createBEGuildMember(member: discrod.GuildMember): GuildMember {
     deaf: member.voice.deaf || null,
     mute: member.voice.mute || null,
     user: member.user || null,
-    roles: member.roles.cache.map(role => role.id),
+    roles: member.roles.cache.map((role) => role.id),
     premium_since: member.premiumSinceTimestamp
       ? new Date(member.premiumSinceTimestamp)
       : null,
     pending: member.pending || null,
     permissions: member.permissions.bitfield.toString() || null,
-    communication_disabled_until: null
+    communication_disabled_until: null,
   }
 }
