@@ -61,7 +61,8 @@ const command: Command = {
     const categories = await displayCategories()
 
     let idx = 0
-    for (const category of Object.keys(categories)) {
+    for (const item of Object.values(categories)) {
+      const category = item[0]
       if (!(await config.categoryIsScoped(msg.guildId, category))) continue
 
       const commandsByCat = (

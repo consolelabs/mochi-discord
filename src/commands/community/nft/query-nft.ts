@@ -4,42 +4,42 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import { getEmoji } from "utils/common"
 import { buildDiscordMessage } from "./index"
 export async function executeNftCollection(args: any[], msg: any) {
-  var symbolCollection = args[1]
-  var tokenId = args[2]
+  const symbolCollection = args[1]
+  const tokenId = args[2]
   // get data nft from server
-  var respGetNft = await fetch(
+  const respGetNft = await fetch(
     `${API_BASE_URL}/nfts/${symbolCollection}/${tokenId}`,
     {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     }
   )
-  var dataGetNft = await respGetNft.json()
-  var errorMessageGetNft = dataGetNft.error
+  const dataGetNft = await respGetNft.json()
+  const errorMessageGetNft = dataGetNft.error
 
   // handle case to show discord message
   switch (respGetNft.status) {
-    case 200:
+    case 200: {
       // get name and attribute
-      var name = dataGetNft.data.metadata.name
-      var attributes = dataGetNft.data.metadata.attributes
-      var header = `**${name}**`
+      const name = dataGetNft.data.metadata.name
+      const attributes = dataGetNft.data.metadata.attributes
+      let header = `**${name}**`
       if (name == "") {
-        header = ``
+        header = ""
       }
       // init embed message
-      var titleRaw = args[1]
-      var title = titleRaw.charAt(0).toUpperCase() + titleRaw.slice(1)
-      var respEmbed = composeEmbedMessage(msg, {
+      const titleRaw = args[1]
+      const title = titleRaw.charAt(0).toUpperCase() + titleRaw.slice(1)
+      const respEmbed = composeEmbedMessage(msg, {
         title: title,
-        description: header
+        description: header,
       })
       // get rarity rate from list attributes
-      var rarityRate = ""
+      let rarityRate = ""
       if (attributes != null) {
-        var highestTraitAttr = attributes.reduce(function(
+        const highestTraitAttr = attributes.reduce(function (
           prev: typeof attributes[1],
           curr: typeof attributes[1]
         ) {
@@ -49,8 +49,8 @@ export async function executeNftCollection(args: any[], msg: any) {
       }
       // set rank, rarity score empty if have data
       if (dataGetNft.data.metadata.rarity != null) {
-        var rank = dataGetNft.data.metadata.rarity.rank.toString()
-        var rarityEmoji = ""
+        const rank = dataGetNft.data.metadata.rarity.rank.toString()
+        let rarityEmoji = ""
         switch (rarityRate) {
           case "Common":
             rarityEmoji =
@@ -97,29 +97,31 @@ export async function executeNftCollection(args: any[], msg: any) {
       // handle image has "ipfs://"
       let image = dataGetNft.data.metadata.image
       if (image.includes("ipfs://")) {
-        let splittedImage = image.split("ipfs://")
+        const splittedImage = image.split("ipfs://")
         image = "https://ipfs.io/ipfs/" + splittedImage[1]
       }
       respEmbed.setImage(image)
       return {
         messageOptions: {
           embeds: [respEmbed],
-          components: []
-        }
+          components: [],
+        },
       }
-    default:
+    }
+    default: {
       if (errorMessageGetNft.includes("record not found")) {
         return buildDiscordMessage(
           msg,
           "NFT",
           "Symbol collection not supported"
         )
-      } else {
-        return buildDiscordMessage(
-          msg,
-          "NFT",
-          "Something went wrong, unknown error !!!"
-        )
       }
+
+      return buildDiscordMessage(
+        msg,
+        "NFT",
+        "Something went wrong, unknown error !!!"
+      )
+    }
   }
 }

@@ -56,7 +56,7 @@ async function handleSelecMenuInteraction(
   const { messageOptions, commandChoiceOptions } = await commandChoice.handler(
     interaction
   )
-  await msg.edit(messageOptions)
+
   if (interaction) {
     const output = await interaction.deferUpdate({ fetchReply: true })
     await CommandChoiceManager.update(key, {
@@ -65,6 +65,7 @@ async function handleSelecMenuInteraction(
       messageId: output.id,
     })
   }
+  await msg.edit(messageOptions)
 }
 
 async function handleButtonInteraction(
