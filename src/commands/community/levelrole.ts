@@ -73,6 +73,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   aliases: ["lr"],
+  experimental: true,
 }
 
 export default command
