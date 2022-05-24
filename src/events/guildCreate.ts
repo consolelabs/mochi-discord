@@ -19,14 +19,14 @@ export default {
       await webhook.pushDiscordWebhook("guildCreate", {
         guild_id: guild.id
       })
-    } catch (e: any) {
+    } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
         error.handle()
       } else {
-        logger.error(e)
+        logger.error(e as string)
       }
-      ChannelLogger.log(e)
+      ChannelLogger.log(error)
     }
   }
 } as Event<"guildCreate">

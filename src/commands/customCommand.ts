@@ -1,6 +1,6 @@
 import { Message, TextChannel, DiscordAPIError } from "discord.js"
 import { logger } from "../logger"
-import { CustomCommand } from "../modules/guildCustomCommand"
+import { CustomCommand } from "../adapters/guildCustomCommand"
 import { DirectMessageNotAllowedError, BotBaseError } from "errors"
 
 const ServerCooldown = new Map()

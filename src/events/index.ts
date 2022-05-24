@@ -12,7 +12,7 @@ import messageReactionRemove from "./messageReactionRemove"
 export type Event<T extends keyof ClientEvents> = {
   name: T
   once?: boolean
-  execute: (...data: ClientEvents[T]) => void | Promise<any>
+  execute: (...data: ClientEvents[T]) => void | Promise<unknown>
 }
 
 export const invites = new Collection()

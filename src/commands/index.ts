@@ -15,7 +15,7 @@ import { getActionCommand, getAllAliases } from "utils/commands"
 import { specificHelpCommand } from "utils/commands"
 import config from "../adapters/config"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
-import guildCustomCommand from "../modules/guildCustomCommand"
+import guildCustomCommand from "../adapters/guildCustomCommand"
 import { customCommandsExecute } from "./customCommand"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import ticker from "./defi/ticker"
@@ -115,34 +115,30 @@ async function executeCommand(
 }
 
 export default async function handlePrefixedCommand(message: Message) {
-  try {
-    await message.channel.sendTyping()
-    const args = getCommandArguments(message)
-    const isSpecificHelpCommand = specificHelpCommand(message)
-    const [commandKey, action] = !isSpecificHelpCommand
-      ? [args[0].slice(PREFIX.length), args[1]] // e.g. $invite leaderboard
-      : [args[1], args[2]] // e.g. $help invite leaderboard
-    const commandObject = commands[commandKey]
-    logger.info(
-      `[${message.guild.name}][${message.author.username}] executing command: ${args}`
-    )
+  await message.channel.sendTyping()
+  const args = getCommandArguments(message)
+  const isSpecificHelpCommand = specificHelpCommand(message)
+  const [commandKey, action] = !isSpecificHelpCommand
+    ? [args[0].slice(PREFIX.length), args[1]] // e.g. $invite leaderboard
+    : [args[1], args[2]] // e.g. $help invite leaderboard
+  const commandObject = commands[commandKey]
+  logger.info(
+    `[${message.guild.name}][${message.author.username}] executing command: ${args}`
+  )
 
-    // handle custom commands
-    const customCommands = await guildCustomCommand.listGuildCustomCommands(
-      message.guildId
-    )
-    for (let i = 0; i < customCommands.length; i++) {
-      if (customCommands[i].id.toLowerCase() === commandKey.toLowerCase()) {
-        customCommandsExecute(message, customCommands[i])
-        return
-      }
+  // handle custom commands
+  const customCommands = await guildCustomCommand.listGuildCustomCommands(
+    message.guildId
+  )
+  for (let i = 0; i < customCommands.length; i++) {
+    if (customCommands[i].id.toLowerCase() === commandKey.toLowerCase()) {
+      customCommandsExecute(message, customCommands[i])
+      return
     }
-
-    // handle default commands
-    await preauthorizeCommand(message, commandObject)
-    await config.checkGuildCommandScopes(message, commandObject)
-    await executeCommand(message, commandObject, action, isSpecificHelpCommand)
-  } catch (e) {
-    throw e
   }
+
+  // handle default commands
+  await preauthorizeCommand(message, commandObject)
+  await config.checkGuildCommandScopes(message, commandObject)
+  await executeCommand(message, commandObject, action, isSpecificHelpCommand)
 }

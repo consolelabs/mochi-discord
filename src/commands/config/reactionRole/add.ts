@@ -1,10 +1,12 @@
-import { logger } from "logger"
-import { Command, RoleReactionConfigResponse, RoleReactionEvent } from "types/common"
+import {
+  Command,
+  RoleReactionConfigResponse,
+  RoleReactionEvent
+} from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
-import { BotBaseError, InvalidInputError } from "errors"
 import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
@@ -13,52 +15,43 @@ const command: Command = {
   brief: "Add a new reaction role configuration",
   category: "Config",
   run: async (msg: Message) => {
-    try {
-      let description = ''
-      const args = getCommandArguments(msg)
-      if (args.length < 5) {
-        return
-      }
-      let reaction = args[3]
-      if (reaction.startsWith("<:") && reaction.endsWith(">")) {
-        reaction = reaction.toLowerCase()
-      }
-      const role_id = args[4].replace(/\D/g, "") // Accept number-only characters
-      const requestData: RoleReactionEvent = {
-        guild_id: msg.guild.id,
-        message_id: args[2].replace(/\D/g, ""),
-        reaction,
-        role_id
-      }
-      const rrConfig: RoleReactionConfigResponse = await config.updateReactionConfig(
-        requestData
-      )
-      if (rrConfig.success) {
-        description = `${
-          requestData.reaction
-        } is now setting to this role <@&${requestData.role_id}>`
-        msg.channel.messages
-          .fetch(requestData.message_id)
-          .then(val => val.react(requestData.reaction))
-          .catch(err => {
-            throw new BotBaseError(err)
+    let description = ""
+    const args = getCommandArguments(msg)
+    if (args.length < 5) {
+      return
+    }
+    let reaction = args[3]
+    if (reaction.startsWith("<:") && reaction.endsWith(">")) {
+      reaction = reaction.toLowerCase()
+    }
+    const role_id = args[4].replace(/\D/g, "") // Accept number-only characters
+    const requestData: RoleReactionEvent = {
+      guild_id: msg.guild.id,
+      message_id: args[2].replace(/\D/g, ""),
+      reaction,
+      role_id
+    }
+    const rrConfig: RoleReactionConfigResponse = await config.updateReactionConfig(
+      requestData
+    )
+    if (rrConfig.success) {
+      description = `${requestData.reaction} is now setting to this role <@&${requestData.role_id}>`
+      msg.channel.messages
+        .fetch(requestData.message_id)
+        .then(val => val.react(requestData.reaction))
+    } else {
+      description = `${requestData.reaction} has already been configured, please try to set another one`
+    }
+
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(msg, {
+            title: "Reaction Roles",
+            description
           })
-      } else {
-        description = `${requestData.reaction} has already been configured, please try to set another one`
+        ]
       }
-      
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              title: "Reaction Roles",
-              description,
-            })
-          ]
-        }
-      }
-    } catch (err: any) {
-      logger.error(err)
     }
   },
   getHelpMessage: async msg => {

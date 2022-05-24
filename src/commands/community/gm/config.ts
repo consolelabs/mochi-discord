@@ -23,7 +23,9 @@ const command: Command = {
     }
 
     const channelId = channelArg.slice(2, channelArg.length - 1)
-    const chan = await msg.guild.channels.fetch(channelId).catch(() => {})
+    const chan = await msg.guild.channels
+      .fetch(channelId)
+      .catch(() => undefined)
     if (!chan) throw new InvalidInputError({ message: msg })
 
     await Config.updateGmConfig(msg.guildId, channelId)
@@ -47,7 +49,8 @@ const command: Command = {
       })
     ]
   }),
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
+  aliases: ["cfg"]
 }
 
 export default command

@@ -8,9 +8,7 @@ const command: Command = {
   aliases: ["chan", "chans", "channels"],
   category: "Config",
   canRunWithoutAction: true,
-  run: async _msg => ({
-    messageOptions: await workInProgress()
-  }),
+  run: async () => ({ messageOptions: await workInProgress() }),
   getHelpMessage: workInProgress,
   experimental: true
 }
