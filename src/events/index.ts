@@ -26,5 +26,5 @@ export default [
   guildCreate,
   guildMemberAdd,
   inviteCreate,
-  inviteDelete
+  inviteDelete,
 ]

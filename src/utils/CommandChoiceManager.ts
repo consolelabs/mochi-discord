@@ -6,10 +6,9 @@ import {
   MessageComponentInteraction,
   MessageOptions,
   SelectMenuInteraction,
-  TextChannel
+  TextChannel,
 } from "discord.js"
 import { SetOptional, SetRequired } from "type-fest"
-import ChannelLogger from "./ChannelLogger"
 import { inactivityResponse } from "./common"
 
 export type CommandChoiceHandlerResult = {
@@ -54,15 +53,15 @@ export class CommandChoiceManager {
     const options = this.commands.get(key)
     const updatedValue = {
       ...options,
-      ...newValue
+      ...newValue,
     }
     this.commands.set(key, {
-      ...updatedValue
+      ...updatedValue,
     })
     if (options) {
       await this.queueAutoClose({
         ...updatedValue,
-        key
+        key,
       })
     }
   }
@@ -78,7 +77,7 @@ export class CommandChoiceManager {
       guildId,
       messageId,
       getInactivityResponse = inactivityResponse,
-      timeout = 0
+      timeout = 0,
     } = options
     const key = `${userId}_${guildId}_${channelId}`
     await this.queueAutoClose({
@@ -88,7 +87,7 @@ export class CommandChoiceManager {
       getInactivityResponse,
       userId,
       timeout,
-      key
+      key,
     })
 
     this.commands.set(key, { ...options, timeout, getInactivityResponse })
@@ -103,7 +102,7 @@ export class CommandChoiceManager {
     messageId,
     interaction,
     getInactivityResponse,
-    clearPrevious = true
+    clearPrevious = true,
   }: SetOptional<
     Required<CommandChoiceHandlerOptions>,
     "interaction" | "data" | "handler"
@@ -125,7 +124,7 @@ export class CommandChoiceManager {
         await interaction.editReply({
           content: "Exited!",
           embeds: [],
-          components: []
+          components: [],
         })
       } else {
         const message = await channel.messages.fetch(messageId)

@@ -22,7 +22,7 @@ export default {
       )
       const guild = await config.getGuild(member.guild.id)
       const logChannel = member.guild.channels.cache.find(
-        channel => channel.id === guild.log_channel_id
+        (channel) => channel.id === guild.log_channel_id
       ) as Discord.TextChannel
 
       if (res.error) {
@@ -65,7 +65,7 @@ export default {
       }
       ChannelLogger.log(error)
     }
-  }
+  },
 } as Event<"guildMemberAdd">
 
 function unknowErrorMsg(memberID: string) {
@@ -92,7 +92,7 @@ function sendInviteTrackerMessage(
   const embed = composeEmbedMessage(null, {
     title: "Invite Tracker",
     description: msg,
-    thumbnail: thumbnail || DISCORD_DEFAULT_AVATAR
+    thumbnail: thumbnail || DISCORD_DEFAULT_AVATAR,
   })
   logChannel.send({ embeds: [embed] })
 }

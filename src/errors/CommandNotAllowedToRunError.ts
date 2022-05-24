@@ -10,7 +10,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
   constructor({
     message,
     command,
-    missingPermissions
+    missingPermissions,
   }: {
     message: Message
     command: string
@@ -25,7 +25,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
       guild: message.guild.name,
       channel: channel.name,
       user: message.author.tag,
-      data: { command }
+      data: { command },
     })
   }
 
@@ -36,9 +36,9 @@ export class CommandNotAllowedToRunError extends BotBaseError {
         getErrorEmbed({
           msg: this.discordMessage,
           title: `${defaultEmojis.ERROR} Insufficient permissions`,
-          description: `<@${this.discordMessage.author.id}>, you need the following permissions on this channel to run this command`
-        }).addField("Missing permissions", this.missingPermissions.join(", "))
-      ]
+          description: `<@${this.discordMessage.author.id}>, you need the following permissions on this channel to run this command`,
+        }).addField("Missing permissions", this.missingPermissions.join(", ")),
+      ],
     })
   }
 }

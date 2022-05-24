@@ -11,21 +11,18 @@ import webhook from "adapters/webhook"
 import { composeLevelUpMessage } from "utils/userXP"
 
 function normalizeCommand(message: Message) {
-  return message.content
-    .replace(/  +/g, " ")
-    .trim()
-    .toLowerCase()
+  return message.content.replace(/  +/g, " ").trim().toLowerCase()
 }
 
 export const handleNormalMessage = async (message: Message) => {
   const resp = await webhook.pushDiscordWebhook("messageCreate", {
     author: {
-      id: message.author.id
+      id: message.author.id,
     },
     guild_id: message.guildId,
     channel_id: message.channelId,
     timestamp: message.createdAt,
-    content: message.content
+    content: message.content,
   })
 
   if (resp.status !== "OK" || resp.error !== undefined) {
@@ -82,5 +79,5 @@ export default {
       }
       ChannelLogger.log(error)
     }
-  }
+  },
 } as Event<"messageCreate">

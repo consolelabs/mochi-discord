@@ -3,7 +3,7 @@ import {
   MessageReaction,
   PartialMessageReaction,
   Role,
-  User
+  User,
 } from "discord.js"
 import { logger } from "logger"
 import { Event } from "."
@@ -13,7 +13,7 @@ import { ReactionRoleResponse, RoleReactionEvent } from "types/common"
 import config from "adapters/config"
 
 const getRoleById = (msg: Message, roleId: string): Role => {
-  return msg.guild.roles.cache.find(role => role.id === roleId)
+  return msg.guild.roles.cache.find((role) => role.id === roleId)
 }
 
 const getReactionIdentifier = (
@@ -46,7 +46,7 @@ export default {
       const event: RoleReactionEvent = {
         guild_id: msg.guild.id,
         message_id: msg.id,
-        reaction: getReactionIdentifier(_reaction)
+        reaction: getReactionIdentifier(_reaction),
       }
 
       const resData: ReactionRoleResponse = await config.handleReactionEvent(
@@ -67,5 +67,5 @@ export default {
       }
       ChannelLogger.log(error)
     }
-  }
+  },
 } as Event<"messageReactionRemove">

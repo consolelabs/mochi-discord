@@ -149,7 +149,7 @@ async function actionExecute(message: Message, action: any) {
 
       if (embeds) {
         targetChannel.send({
-          embeds: embeds
+          embeds: embeds,
         })
       } else {
         const msg =
@@ -178,7 +178,7 @@ async function actionExecute(message: Message, action: any) {
     }
     case "dm": {
       if (embeds) {
-        await message.author.send({ embeds: embeds }).catch(e => {
+        await message.author.send({ embeds: embeds }).catch((e) => {
           if (e instanceof DiscordAPIError && e.code === 50007) {
             throw new DirectMessageNotAllowedError({ message })
           }
@@ -190,7 +190,7 @@ async function actionExecute(message: Message, action: any) {
               ? messages[Math.floor(Math.random() * messages.length)]
               : messages[0]
             : ""
-        await message.author.send(msg).catch(e => {
+        await message.author.send(msg).catch((e) => {
           if (e instanceof DiscordAPIError && e.code === 50007) {
             throw new DirectMessageNotAllowedError({ message })
           }

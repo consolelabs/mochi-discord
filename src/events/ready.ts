@@ -24,19 +24,20 @@ export default {
           activities: [
             {
               name: `${PREFIX}help`,
-              type: "WATCHING"
-            }
-          ]
+              type: "WATCHING",
+            },
+          ],
         })
       }
       runAndSetInterval(presence, 600000)
 
-      for (const [_, guild] of client.guilds.cache) {
+      for (const cache of client.guilds.cache) {
+        const guild = cache[1]
         const firstInvites = await guild.invites.fetch()
         invites.set(
           guild.id,
           new Discord.Collection(
-            firstInvites.map(invite => [invite.code, invite.uses])
+            firstInvites.map((invite) => [invite.code, invite.uses])
           )
         )
       }
@@ -50,7 +51,7 @@ export default {
       }
       ChannelLogger.log(error)
     }
-  }
+  },
 } as Event<"ready">
 
 function runAndSetInterval(fn: () => void, ms: number) {

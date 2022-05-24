@@ -12,11 +12,11 @@ const command: Command = {
     "Set roles which users will get when reaching levels in current server",
   category: "Config",
   onlyAdministrator: true,
-  run: async function(msg: Message) {
+  run: async function (msg: Message) {
     const args = getCommandArguments(msg)
     if (args.length < 3) {
       return {
-        messageOptions: await this.getHelpMessage(msg)
+        messageOptions: await this.getHelpMessage(msg),
       }
     }
 
@@ -24,8 +24,8 @@ const command: Command = {
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid role" })]
-        }
+          embeds: [getErrorEmbed({ msg, description: "Invalid role" })],
+        },
       }
     }
 
@@ -34,8 +34,8 @@ const command: Command = {
     if (!role) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Role not found" })]
-        }
+          embeds: [getErrorEmbed({ msg, description: "Role not found" })],
+        },
       }
     }
 
@@ -43,36 +43,36 @@ const command: Command = {
     if (isNaN(level) || level === 0)
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid level" })]
-        }
+          embeds: [getErrorEmbed({ msg, description: "Invalid level" })],
+        },
       }
 
     await Config.configLevelRole(msg, {
       guild_id: msg.guildId,
       role_id: role.id,
-      level
+      level,
     })
 
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            description: `Successfully configured role <@&${role.id}> for level ${level}`
-          })
-        ]
-      }
+            description: `Successfully configured role <@&${role.id}> for level ${level}`,
+          }),
+        ],
+      },
     }
   },
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}lr <@role> <level>`,
-        examples: `${PREFIX}lr @Mochi 1`
-      })
-    ]
+        examples: `${PREFIX}lr @Mochi 1`,
+      }),
+    ],
   }),
   canRunWithoutAction: true,
-  aliases: ["lr"]
+  aliases: ["lr"],
 }
 
 export default command

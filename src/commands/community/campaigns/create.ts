@@ -1,4 +1,3 @@
-import { logger } from "logger"
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
@@ -12,45 +11,44 @@ const command: Command = {
   brief: "Create a whitelist campaign",
   category: "Community",
   run: async (msg: Message) => {
-    try {
-      let description = ''
-      const args = getCommandArguments(msg)
-      if (args.length < 3) {
-        return
-      }
-      const campaignName = args.slice(2).join(" ")
-      const res = await community.createWhitelistCampaign(campaignName, msg.guild.id)
+    let description = ""
+    const args = getCommandArguments(msg)
+    if (args.length < 3) {
+      return
+    }
+    const campaignName = args.slice(2).join(" ")
+    const res = await community.createWhitelistCampaign(
+      campaignName,
+      msg.guild.id
+    )
 
-      if (!res.name) {
-        return
-      }
-      description = `Campaign **${res.name}** is successfully created ✅`
+    if (!res.name) {
+      return
+    }
+    description = `Campaign **${res.name}** is successfully created ✅`
 
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              description,
-              title: "Whitelist Management"
-            })
-          ]
-        }
-      }
-    } catch (err: any) {
-      logger.error(err)
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(msg, {
+            description,
+            title: "Whitelist Management",
+          }),
+        ],
+      },
     }
   },
-  getHelpMessage: async msg => {
+  getHelpMessage: async (msg) => {
     return {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}wl create <campaign-name>`,
-          examples: `${PREFIX}wl create rabby-whitelist`
-        })
-      ]
+          examples: `${PREFIX}wl create rabby-whitelist`,
+        }),
+      ],
     }
   },
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

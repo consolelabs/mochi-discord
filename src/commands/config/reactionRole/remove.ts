@@ -1,7 +1,7 @@
 import {
   Command,
   RoleReactionConfigResponse,
-  RoleReactionEvent
+  RoleReactionEvent,
 } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
@@ -28,14 +28,14 @@ const command: Command = {
         guild_id: msg.guild.id,
         message_id: args[2].replace(/\D/g, ""),
         reaction: args[3],
-        role_id: args[4].replace(/\D/g, "") // Accept number-only characters
+        role_id: args[4].replace(/\D/g, ""), // Accept number-only characters
       }
     } else {
       requestData = {
         guild_id: msg.guild.id,
         message_id: args[2].replace(/\D/g, ""),
         reaction: "",
-        role_id: ""
+        role_id: "",
       }
     }
 
@@ -51,14 +51,14 @@ const command: Command = {
         // Remove a specific reaction
         msg.channel.messages
           .fetch(requestData.message_id)
-          .then(val => val.reactions.cache.get(reaction).remove())
+          .then((val) => val.reactions.cache.get(reaction).remove())
       } else {
         description = `All reaction role configurations for this message is now clear.`
 
         // Remove all previous reactions
         msg.channel.messages
           .fetch(requestData.message_id)
-          .then(val => val.reactions.removeAll())
+          .then((val) => val.reactions.removeAll())
       }
     } else {
       description = `Failed to remove this reaction role configuration.`
@@ -69,23 +69,23 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             title: "Reaction Roles",
-            description
-          })
-        ]
-      }
+            description,
+          }),
+        ],
+      },
     }
   },
-  getHelpMessage: async msg => {
+  getHelpMessage: async (msg) => {
     return {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `To remove a specific configuration in a message\n${PREFIX}rr remove <message_id> <emoji> <role>\n\nTo clear all configurations in a message\n${PREFIX}rr remove <message_id>`,
-          examples: `${PREFIX}rr remove 967107573591457832 @Visitor\n${PREFIX}rr remove 967107573591457832`
-        })
-      ]
+          examples: `${PREFIX}rr remove 967107573591457832 @Visitor\n${PREFIX}rr remove 967107573591457832`,
+        }),
+      ],
     }
   },
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

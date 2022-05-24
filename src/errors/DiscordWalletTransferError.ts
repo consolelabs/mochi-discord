@@ -10,7 +10,7 @@ export class DiscordWalletTransferError extends BotBaseError {
     discordId,
     guildId,
     message,
-    errorMsg
+    errorMsg,
   }: {
     discordId?: string
     guildId: string
@@ -26,7 +26,7 @@ export class DiscordWalletTransferError extends BotBaseError {
       guild: message.guild.name,
       channel: channel.name,
       user: message.author.tag,
-      data: { discordId, guildId }
+      data: { discordId, guildId },
     })
   }
 
@@ -37,9 +37,9 @@ export class DiscordWalletTransferError extends BotBaseError {
         getErrorEmbed({
           msg: this.discordMessage,
           title: "Transaction error",
-          description: this.errorMsg
-        })
-      ]
+          description: this.errorMsg,
+        }),
+      ],
     })
   }
 }

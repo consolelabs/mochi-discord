@@ -1,5 +1,4 @@
 import { Command } from "types/common"
-import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import {
   MessageSelectOptionData,

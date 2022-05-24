@@ -10,7 +10,7 @@ const command: Command = {
   getHelpMessage: workInProgress,
   canRunWithoutAction: true,
   aliases: ["pf"],
-  experimental: true
+  experimental: true,
 }
 
 export default command

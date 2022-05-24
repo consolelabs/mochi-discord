@@ -16,13 +16,13 @@ const command: Command = {
       let description = ""
       const rrList = await config.listAllReactionRoles(msg.guild.id)
       const channelList = msg.guild.channels.cache
-        .filter(c => c.type === "GUILD_TEXT")
-        .map(c => c as TextChannel)
+        .filter((c) => c.type === "GUILD_TEXT")
+        .map((c) => c as TextChannel)
 
       if (rrList.success) {
         const values = await Promise.all(
           rrList.configs.map(async (conf: any) => {
-            const promiseArr = channelList.map(chan =>
+            const promiseArr = channelList.map((chan) =>
               catchEm(chan.messages.fetch(conf.message_id))
             )
             for (const prom of promiseArr) {
@@ -53,26 +53,26 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               description,
-              title: "Reaction Roles"
-            })
-          ]
-        }
+              title: "Reaction Roles",
+            }),
+          ],
+        },
       }
     } catch (err) {
       logger.error(err as string)
     }
   },
-  getHelpMessage: async msg => {
+  getHelpMessage: async (msg) => {
     return {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}rr list`,
-          examples: `${PREFIX}rr list`
-        })
-      ]
+          examples: `${PREFIX}rr list`,
+        }),
+      ],
     }
   },
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

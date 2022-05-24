@@ -10,13 +10,13 @@ async function deposit(msg: Message) {
   let user
   try {
     user = await Profile.getUser({
-      discordId: msg.author.id
+      discordId: msg.author.id,
     })
     if (!user) {
       throw new UserNotFoundError({
         message: msg,
         guildId: msg.guild?.id,
-        discordId: msg.author.id
+        discordId: msg.author.id,
       })
     }
 
@@ -28,17 +28,17 @@ async function deposit(msg: Message) {
       embeds: [
         composeEmbedMessage(msg, {
           title: `${defaultEmojis.ARROW_DOWN} **Deposit token**`,
-          description
-        })
-      ]
+          description,
+        }),
+      ],
     })
 
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            description: `:information_source: Info\n<@${msg.author.id}>, your deposit address has been sent to you via a DM`
-          })
+            description: `:information_source: Info\n<@${msg.author.id}>, your deposit address has been sent to you via a DM`,
+          }),
         ],
         components: [composeButtonLink("See the DM", dm.url)],
       },
@@ -57,15 +57,15 @@ const command: Command = {
   brief: "Deposit tokens to your in-discord wallet",
   category: "Defi",
   run: deposit,
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}deposit`
-      })
-    ]
+        usage: `${PREFIX}deposit`,
+      }),
+    ],
   }),
   canRunWithoutAction: true,
-  aliases: ["dep"]
+  aliases: ["dep"],
 }
 
 export default command

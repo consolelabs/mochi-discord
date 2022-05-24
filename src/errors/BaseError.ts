@@ -13,7 +13,7 @@ export class BotBaseError extends Error {
       this.message = JSON.stringify({
         guild: message.guild.name,
         channel: channel?.name,
-        user: message.author.tag
+        user: message.author.tag,
       })
     }
   }

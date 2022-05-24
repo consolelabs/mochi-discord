@@ -1,7 +1,7 @@
 import fetch from "node-fetch"
 import { API_SERVER_HOST } from "env"
 
-export interface CustomCommand {
+export type CustomCommand = {
   id: string
   guild_id: string
   description: string
@@ -22,8 +22,8 @@ class GuildCustomCommand {
       {
         method: "GET",
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       }
     )
 

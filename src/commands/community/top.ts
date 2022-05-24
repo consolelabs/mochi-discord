@@ -56,14 +56,14 @@ async function renderLeaderboard(leaderboard: any[]) {
     x: 0,
     y: 0,
     paddingLeft: 20,
-    paddingTop: 45
+    paddingTop: 45,
   }
   row.y += row.paddingTop
   const rowGap = 35
   const rankMaxWidth = ctx.measureText(
     `#${leaderboard.slice(-1)[0].guild_rank} `
   ).width
-  leaderboard.forEach(record => {
+  leaderboard.forEach((record) => {
     let x = row.x + row.paddingLeft
     const rank = `#${record.guild_rank} `
     const dot = `${DOT}  `
@@ -105,7 +105,7 @@ const command: Command = {
   command: "top",
   brief: "Show members with the highest server XP score",
   category: "Community",
-  run: async function(msg: Message) {
+  run: async function (msg: Message) {
     const args = getCommandArguments(msg)
     let page = args.length > 1 ? +args[1] : 0
     page = Math.max(isNaN(page) ? 0 : page - 1, 0)
@@ -116,10 +116,10 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: msg.guild.name,
-              description: "No ranking data found"
-            })
-          ]
-        }
+              description: "No ranking data found",
+            }),
+          ],
+        },
       }
 
     const { author, leaderboard } = data
@@ -133,25 +133,25 @@ const command: Command = {
       title: `${msg.guild.name}'s all-time rankings`,
       thumbnail: msg.guild.iconURL(),
       description,
-      image: "attachment://leaderboard.png"
+      image: "attachment://leaderboard.png",
     })
 
     return {
       messageOptions: {
         embeds: [embed],
-        files: [await renderLeaderboard(leaderboard)]
-      }
+        files: [await renderLeaderboard(leaderboard)],
+      },
     }
   },
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}top [page]`,
-        examples: `${PREFIX}top\n${PREFIX}top 2`
-      })
-    ]
+        examples: `${PREFIX}top\n${PREFIX}top 2`,
+      }),
+    ],
   }),
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

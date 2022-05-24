@@ -24,17 +24,17 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: `Your server currently has no tokens.\nUse \`${PREFIX}token add\` to add one.`
-            })
-          ]
-        }
+              description: `Your server currently has no tokens.\nUse \`${PREFIX}token add\` to add one.`,
+            }),
+          ],
+        },
       }
 
     const embedMsg = composeEmbedMessage(msg, {
-      author: [`${msg.author.username}'s balances`, msg.author.avatarURL()]
+      author: [`${msg.author.username}'s balances`, msg.author.avatarURL()],
     })
 
-    guildTokens.forEach(gToken => {
+    guildTokens.forEach((gToken) => {
       const tokenSymbol = gToken.symbol
       const tokenEmoji = getEmoji(tokenSymbol)
       const tokenBalance = roundFloatNumber(balances[tokenSymbol] ?? 0, 4)
@@ -52,10 +52,10 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: "Info",
-              description: `<@${msg.author.id}>, you have no balances.`
-            })
-          ]
-        }
+              description: `<@${msg.author.id}>, you have no balances.`,
+            }),
+          ],
+        },
       }
     }
 
@@ -70,20 +70,20 @@ const command: Command = {
     return {
       messageOptions: {
         embeds: [embedMsg],
-        content: getHeader("View your tokens' balances", msg.author)
-      }
+        content: getHeader("View your tokens' balances", msg.author),
+      },
     }
   },
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        usage: `${PREFIX}balances`
-      })
-    ]
+        usage: `${PREFIX}balances`,
+      }),
+    ],
   }),
   canRunWithoutAction: true,
-  aliases: ["balance", "bal", "bals"]
+  aliases: ["balance", "bal", "bals"],
 }
 
 export default command

@@ -14,7 +14,7 @@ const onSetDefaultRole = async (
   let description = ""
   const requestData: DefaultRoleEvent = {
     guild_id: msg.guild.id,
-    role_id: roleId
+    role_id: roleId,
   }
   const res = await config.configureDefaultRole(requestData)
   if (res.success) {
@@ -27,9 +27,9 @@ const onSetDefaultRole = async (
     embeds: [
       composeEmbedMessage(msg, {
         title: TITLE,
-        description
-      })
-    ]
+        description,
+      }),
+    ],
   }
 }
 
@@ -47,9 +47,9 @@ const onRemoveDefaultRole = async (msg: Message): Promise<MessageOptions> => {
     embeds: [
       composeEmbedMessage(msg, {
         title: TITLE,
-        description
-      })
-    ]
+        description,
+      }),
+    ],
   }
 }
 
@@ -63,9 +63,9 @@ const onShowDefaultRoleInfo = async (msg: Message): Promise<MessageOptions> => {
     embeds: [
       composeEmbedMessage(msg, {
         title: TITLE,
-        description
-      })
-    ]
+        description,
+      }),
+    ],
   }
 }
 
@@ -94,14 +94,14 @@ const command: Command = {
   run: async (msg: Message) => {
     const args = getCommandArguments(msg)
     let data: MessageOptions
-    args.forEach(async val => {
+    args.forEach(async (val) => {
       if (!val) return
     })
     if (args.length === 2) {
       data = await excuteAction(args[1], msg)
 
       return {
-        messageOptions: data
+        messageOptions: data,
       }
     }
   },
@@ -111,10 +111,10 @@ const command: Command = {
         title: TITLE,
         description: "",
         usage: `${PREFIX}dr @<role_name> - To set a <role_name> as default \n${PREFIX}dr remove - To remove current default role\n${PREFIX}dr info - To show current default role for newcomers`,
-        examples: `${PREFIX}dr @Friend\n${PREFIX}dr remove \n${PREFIX}dr info`
-      })
-    ]
-  })
+        examples: `${PREFIX}dr @Friend\n${PREFIX}dr remove \n${PREFIX}dr info`,
+      }),
+    ],
+  }),
 }
 
 export default command

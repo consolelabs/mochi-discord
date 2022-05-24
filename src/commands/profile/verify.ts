@@ -4,7 +4,7 @@ import {
   MessageActionRow,
   MessageEmbed,
   MessageButton,
-  ColorResolvable
+  ColorResolvable,
 } from "discord.js"
 import { msgColors } from "utils/common"
 import { WEBSITE_ENDPOINT } from "../../env"

@@ -1,6 +1,6 @@
-import discrod from 'discord.js'
+import discrod from "discord.js"
 
-export interface GuildMember {
+export type GuildMember = {
   guild_id: string
   joined_at: Date | null
   nick: string | null

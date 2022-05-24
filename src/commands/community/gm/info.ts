@@ -1,4 +1,3 @@
-import { logger } from "logger"
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
@@ -9,31 +8,31 @@ const command: Command = {
   command: "info",
   brief: "GM/GN Configuration",
   category: "Community",
-  run: async msg => {
+  run: async (msg) => {
     const data = await config.getCurrentGmConfig(msg.guildId)
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
             description: `Current Gm/Gn channel is set to <#${data.channel_id}>`,
-            title: "GM/GN Configuration"
-          })
-        ]
-      }
+            title: "GM/GN Configuration",
+          }),
+        ],
+      },
     }
   },
-  getHelpMessage: async msg => {
+  getHelpMessage: async (msg) => {
     return {
       embeds: [
         composeEmbedMessage(msg, {
           description: "Show current gm/gn configuration",
           usage: `${PREFIX}gm info`,
-          examples: `${PREFIX}gm info`
-        })
-      ]
+          examples: `${PREFIX}gm info`,
+        }),
+      ],
     }
   },
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

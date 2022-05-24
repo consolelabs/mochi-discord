@@ -8,7 +8,7 @@ const command: Command = {
   category: "Community",
   run: async () => ({ messageOptions: await workInProgress() }),
   getHelpMessage: workInProgress,
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

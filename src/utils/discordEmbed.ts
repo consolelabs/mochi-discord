@@ -95,10 +95,8 @@ export function composeEmbedMessage(
   msg: Message | null,
   props: EmbedProperties
 ) {
-  const x = 10
-  let {
-    title,
-    description = "",
+  let { title, description = "" } = props
+  const {
     thumbnail,
     color,
     footer = [],

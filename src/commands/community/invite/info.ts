@@ -17,22 +17,22 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             description: `Current Invite Tracker log channel is set to <#${json.data.user_id}>`,
-            title: "Invite Tracker Configuration"
-          })
-        ]
-      }
+            title: "Invite Tracker Configuration",
+          }),
+        ],
+      },
     }
   },
-  getHelpMessage: async msg => {
+  getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite info`,
       examples: `${PREFIX}invite info`,
-      footer: [`Type ${PREFIX}help invite <action> for a specific action!`]
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }
   },
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

@@ -59,7 +59,7 @@ class Community {
     const res = await fetch(`${API_BASE_URL}/community/invites/config`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req)
+      body: JSON.stringify(req),
     })
     if (res.status !== 200) {
       throw new Error(`failed to configure invites - guild ${req.guild_id}`)
@@ -95,8 +95,8 @@ class Community {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: campaignName,
-        guild_id: guildId
-      })
+        guild_id: guildId,
+      }),
     })
     if (res.status !== 200) {
       throw new Error(`failed to create white list campaign - guild ${guildId}`)
@@ -160,7 +160,7 @@ class Community {
     const res = await fetch(`${API_BASE_URL}/whitelist-campaigns/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ users })
+      body: JSON.stringify({ users }),
     })
     if (res.status !== 200) {
       throw new Error("failed to add campaign wl user")
@@ -177,7 +177,7 @@ class Community {
     const resp = await fetch(
       `${API_BASE_URL}/users/top?guild_id=${msg.guildId}&user_id=${msg.author.id}&page=${page}`,
       {
-        method: "GET"
+        method: "GET",
       }
     )
     if (resp.status !== 200) {
@@ -196,7 +196,7 @@ class Community {
       `${API_BASE_URL}/guilds/${guildId}/channels?count_type=${countType}`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       }
     )
     if (res.status !== 200) {

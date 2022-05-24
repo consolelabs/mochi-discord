@@ -7,7 +7,7 @@ const options = PROD
   : {
       prettyPrint: {
         colorize: true,
-        levelFirst: true
-      }
+        levelFirst: true,
+      },
     }
 export const logger = pino(options, process.stdout)

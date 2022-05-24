@@ -23,5 +23,5 @@ export default {
       }
       ChannelLogger.log(error)
     }
-  }
+  },
 } as Event<"inviteDelete">

@@ -8,7 +8,7 @@ const command: Command = {
   category: "Config",
   canRunWithoutAction: true,
   run: async () => ({ messageOptions: await workInProgress() }),
-  getHelpMessage: workInProgress
+  getHelpMessage: workInProgress,
 }
 
 export default command

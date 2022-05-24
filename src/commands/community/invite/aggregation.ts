@@ -23,35 +23,33 @@ const command: Command = {
     )
 
     const embedMsg = composeEmbedMessage(msg, {
-      title: `Invites Aggregation`
+      title: `Invites Aggregation`,
     })
 
     embedMsg.addField(
       `Successfully`,
-      `<@${inviterID}> has totally ${
-        data.regular
-      } invites (normal: ${data.regular - data.fake - data.left}, fake: ${
-        data.fake
-      }, left: ${data.left})`
+      `<@${inviterID}> has totally ${data.regular} invites (normal: ${
+        data.regular - data.fake - data.left
+      }, fake: ${data.fake}, left: ${data.left})`
     )
 
     return {
       messageOptions: {
-        embeds: [embedMsg]
-      }
+        embeds: [embedMsg],
+      },
     }
   },
-  getHelpMessage: async msg => {
+  getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite aggregation <@userId>`,
       examples: `${PREFIX}invite aggregation @ohagi\n${PREFIX}invite aggr @ohagi`,
-      footer: [`Type ${PREFIX}help invite <action> for a specific action!`]
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
-  aliases: ["aggr"]
+  aliases: ["aggr"],
 }
 
 export default command

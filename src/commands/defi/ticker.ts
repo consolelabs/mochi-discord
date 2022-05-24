@@ -7,7 +7,7 @@ import {
   MessageAttachment,
   MessageSelectMenu,
   MessageSelectOptionData,
-  SelectMenuInteraction
+  SelectMenuInteraction,
 } from "discord.js"
 import { PREFIX, SPACE } from "utils/constants"
 import {
@@ -15,14 +15,14 @@ import {
   getEmoji,
   getHeader,
   roundFloatNumber,
-  thumbnails
+  thumbnails,
 } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
   composeEmbedMessage,
-  getErrorEmbed
+  getErrorEmbed,
 } from "utils/discordEmbed"
 import Defi from "adapters/defi"
 import dayjs from "dayjs"
@@ -72,7 +72,7 @@ function getChartColorConfig(id: string, width: number, height: number) {
   gradient.addColorStop(1, gradientTo)
   return {
     borderColor,
-    backgroundColor: gradient
+    backgroundColor: gradient,
   }
 }
 
@@ -80,7 +80,7 @@ async function renderHistoricalMarketChart({
   msg,
   id,
   currency,
-  days = 7
+  days = 7,
 }: {
   msg: Message
   id: string
@@ -101,12 +101,12 @@ async function renderHistoricalMarketChart({
   const axisConfig = {
     ticks: {
       font: {
-        size: 20
-      }
+        size: 20,
+      },
     },
     grid: {
-      borderColor: "black"
-    }
+      borderColor: "black",
+    },
   }
   const image = await chartCanvas.renderToBuffer({
     type: "line",
@@ -119,26 +119,26 @@ async function renderHistoricalMarketChart({
           borderWidth: 6,
           pointRadius: 0,
           fill: true,
-          ...getChartColorConfig(id, width, height)
-        }
-      ]
+          ...getChartColorConfig(id, width, height),
+        },
+      ],
     },
     options: {
       scales: {
         y: axisConfig,
-        x: axisConfig
+        x: axisConfig,
       },
       plugins: {
         legend: {
           labels: {
             // This more specific font property overrides the global property
             font: {
-              size: 24
-            }
-          }
-        }
-      }
-    }
+              size: 24,
+            },
+          },
+        },
+      },
+    },
   })
 
   return new MessageAttachment(image, "chart.png")
@@ -154,7 +154,7 @@ const getChangePercentage = (change: number) => {
   return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
 }
 
-const handler: CommandChoiceHandler = async msgOrInteraction => {
+const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
@@ -164,7 +164,7 @@ const handler: CommandChoiceHandler = async msgOrInteraction => {
     msg: message,
     id,
     currency,
-    days: +days
+    days: +days,
   })
 
   // update chart image
@@ -183,7 +183,7 @@ const handler: CommandChoiceHandler = async msgOrInteraction => {
       embeds: [embed],
       files: [chart],
       components: message.components as MessageActionRow[],
-      content: message.content
+      content: message.content,
     },
     commandChoiceOptions: {
       handler,
@@ -191,12 +191,14 @@ const handler: CommandChoiceHandler = async msgOrInteraction => {
       messageId: message.id,
       channelId: interaction.channelId,
       guildId: interaction.guildId,
-      interaction
-    }
+      interaction,
+    },
   }
 }
 
-const tickerSelectionHandler: CommandChoiceHandler = async msgOrInteraction => {
+const tickerSelectionHandler: CommandChoiceHandler = async (
+  msgOrInteraction
+) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
@@ -215,7 +217,7 @@ async function renderTickerEmbed(
     current_price,
     price_change_percentage_1h_in_currency,
     price_change_percentage_24h_in_currency,
-    price_change_percentage_7d_in_currency
+    price_change_percentage_7d_in_currency,
   } = coin.market_data
   currency = current_price[currency.toLowerCase()]
     ? currency.toLowerCase()
@@ -230,51 +232,49 @@ async function renderTickerEmbed(
       value: `${currencyPrefix}${marketCap.toLocaleString()} (#${
         coin.market_cap_rank
       }) ${blank}`,
-      inline: true
+      inline: true,
     },
     {
       name: `Price (${currency.toUpperCase()})`,
       value: `${currencyPrefix}${currentPrice.toLocaleString(undefined, {
-        maximumFractionDigits: 4
+        maximumFractionDigits: 4,
       })}`,
-      inline: true
+      inline: true,
     },
     { name: "\u200B", value: "\u200B", inline: true },
     {
       name: "Change (1h)",
       value: getChangePercentage(price_change_percentage_1h_in_currency.usd),
-      inline: true
+      inline: true,
     },
     {
       name: `Change (24h) ${blank}`,
       value: getChangePercentage(price_change_percentage_24h_in_currency.usd),
-      inline: true
+      inline: true,
     },
     {
       name: "Change (7d)",
       value: getChangePercentage(price_change_percentage_7d_in_currency.usd),
-      inline: true
-    }
+      inline: true,
+    },
   ]
 
   const embedMsg = composeEmbedMessage(msg, {
     color: getChartColorConfig(coin.id, 0, 0).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
     footer: ["Data fetched from CoinGecko.com"],
-    image: "attachment://chart.png"
+    image: "attachment://chart.png",
   }).addFields(fields)
 
   const chart = await renderHistoricalMarketChart({
     msg,
     id: coin.id,
-    currency
+    currency,
   })
 
   const getDropdownOptionDescription = (days: number) =>
     `${Defi.getDateStr(
-      dayjs()
-        .subtract(days, "day")
-        .unix() * 1000
+      dayjs().subtract(days, "day").unix() * 1000
     )} - ${Defi.getDateStr(dayjs().unix() * 1000)}`
 
   const opt = (days: number): MessageSelectOptionData => ({
@@ -282,12 +282,12 @@ async function renderTickerEmbed(
     value: `${coin.id}_${currency}_${days}`,
     emoji: days > 1 ? "📆" : "🕒",
     description: getDropdownOptionDescription(days),
-    default: days === 7
+    default: days === 7,
   })
   const selectRow = composeDiscordSelectionRow({
     customId: "tickers_range_selection",
     placeholder: "Make a selection",
-    options: [opt(1), opt(7), opt(30), opt(60), opt(90), opt(365)]
+    options: [opt(1), opt(7), opt(30), opt(60), opt(90), opt(365)],
   })
 
   return {
@@ -295,14 +295,14 @@ async function renderTickerEmbed(
       files: [chart],
       embeds: [embedMsg],
       components: [selectRow, composeDiscordExitButton()],
-      content: getHeader("View historical market chart", msg.author)
+      content: getHeader("View historical market chart", msg.author),
     },
     commandChoiceOptions: {
       userId: msg.author.id,
       guildId: msg.guildId,
       channelId: msg.channelId,
-      handler
-    }
+      handler,
+    },
   }
 }
 
@@ -311,7 +311,7 @@ const command: Command = {
   command: "ticker",
   brief: "Display coin price and market cap",
   category: "Defi",
-  run: async function(msg) {
+  run: async function (msg) {
     let args = getCommandArguments(msg)
     const defaultOpt = args[args.length - 1] === "-d"
     args = args.slice(0, args.length + (defaultOpt ? -1 : 0))
@@ -325,58 +325,62 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`
-            })
-          ]
-        }
+              description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`,
+            }),
+          ],
+        },
       }
     }
 
     if (coins.length > 1 && !defaultOpt) {
       const opt = (coin: any): MessageSelectOptionData => ({
         label: `${coin.name} (${coin.symbol})`,
-        value: `${coin.id}_${currency}`
+        value: `${coin.id}_${currency}`,
       })
       const selectRow = composeDiscordSelectionRow({
         customId: "tickers_selection",
         placeholder: "Make a selection",
-        options: coins.map(c => opt(c))
+        options: coins.map((c: any) => opt(c)),
       })
 
-      const found = coins.map(c => `**${c.name}** (${c.symbol})`).join(", ")
+      const found = coins
+        .map(
+          (c: { name: string; symbol: string }) => `**${c.name}** (${c.symbol})`
+        )
+        .join(", ")
       return {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
               title: `${defaultEmojis.MAG} Multiple tickers found`,
-              description: `Multiple tickers found for \`${coinQ}\`: ${found}.\nPlease select one of the following tokens`
-            })
+              description: `Multiple tickers found for \`${coinQ}\`: ${found}.\nPlease select one of the following tokens`,
+            }),
           ],
-          components: [selectRow, composeDiscordExitButton()]
+          components: [selectRow, composeDiscordExitButton()],
         },
         commandChoiceOptions: {
           userId: msg.author.id,
           guildId: msg.guildId,
           channelId: msg.channelId,
-          handler: tickerSelectionHandler
-        }
+          handler: tickerSelectionHandler,
+        },
       }
     }
 
     return await renderTickerEmbed(msg, coins[0].id, currency)
   },
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
         usage: `${PREFIX}ticker <symbol> [-d]\n${PREFIX}ticker <full_name> [-d]`,
-        examples: `${PREFIX}ticker ftm\n${PREFIX}ticker fantom\n${PREFIX}ticker ftm -d (for default option)`
-      })
-    ]
+        examples: `${PREFIX}ticker ftm\n${PREFIX}ticker fantom\n${PREFIX}ticker ftm -d (for default option)`,
+      }),
+    ],
   }),
   aliases: ["tick"],
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

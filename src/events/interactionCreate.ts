@@ -31,7 +31,7 @@ export default {
       }
       ChannelLogger.log(error)
     }
-  }
+  },
 } as Event<"interactionCreate">
 
 async function handleSelecMenuInteraction(
@@ -46,7 +46,7 @@ async function handleSelecMenuInteraction(
       commandChoice.interaction?.editReply({
         content: "Exited!",
         components: [],
-        embeds: []
+        embeds: [],
       })
     })
     CommandChoiceManager.remove(key)
@@ -62,7 +62,7 @@ async function handleSelecMenuInteraction(
     await CommandChoiceManager.update(key, {
       ...commandChoiceOptions,
       interaction,
-      messageId: output.id
+      messageId: output.id,
     })
   }
 }

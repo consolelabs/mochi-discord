@@ -3,15 +3,15 @@ import fetch from "node-fetch"
 import { API_BASE_URL } from "utils/constants"
 
 class Webhook {
-  public async pushDiscordWebhook(event: string, data: any) {
+  public async pushDiscordWebhook(event: string, data: unknown) {
     try {
       const body = JSON.stringify({
         event: event,
-        data: data
+        data: data,
       })
       const res = await fetch(`${API_BASE_URL}/webhook/discord`, {
         method: "POST",
-        body: body
+        body: body,
       })
 
       const json = await res.json()
