@@ -19,11 +19,11 @@ export const buildDiscordMessage = (
       embeds: [
         composeEmbedMessage(msg, {
           title: title,
-          description: description
-        })
+          description: description,
+        }),
       ],
-      components: [] as any[]
-    }
+      components: [] as any[],
+    },
   }
 }
 
@@ -32,9 +32,9 @@ const command: Command = {
   command: "nft",
   brief: "Cyber Neko",
   category: "Community",
-  run: async function(msg, action) {
+  run: async function (msg) {
     // get argument from command
-    let args = getCommandArguments(msg)
+    const args = getCommandArguments(msg)
     // run $nft add command
     if (args[1] == "add") {
       if (args.length < 4 && args.length >= 2) {
@@ -49,16 +49,16 @@ const command: Command = {
       return executeNftCollection(args, msg)
     }
   },
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nft <symbol_collection> <token_id>\n${PREFIX}nft add <address> <chain>`,
         footer: [`Type ${PREFIX}help nft`],
-        examples: `${PREFIX}nft neko 1\n${PREFIX}nft add 0xabcd eth`
-      })
-    ]
+        examples: `${PREFIX}nft neko 1\n${PREFIX}nft add 0xabcd eth`,
+      }),
+    ],
   }),
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command
