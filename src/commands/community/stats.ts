@@ -28,7 +28,7 @@ const statsSelectionHandler: CommandChoiceHandler = async (
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const id = input.split("_")[0]
-  return await renderStatEmbed(message, id)
+  return await renderStatEmbed(message, id, interaction)
 }
 
 const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
@@ -47,10 +47,17 @@ const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
       embeds: [successEmbeded],
       components: [],
     },
+    commandChoiceOptions: {
+      interaction,
+    },
   }
 }
 
-async function renderStatEmbed(msg: Message, statId: string) {
+async function renderStatEmbed(
+  msg: Message,
+  statId: string,
+  interaction: SelectMenuInteraction
+) {
   let statType = ""
   switch (statId) {
     case "members":
@@ -101,6 +108,7 @@ async function renderStatEmbed(msg: Message, statId: string) {
       guildId: msg.guildId,
       channelId: msg.channelId,
       handler: countStatsHandler,
+      interaction,
     },
   }
 }
