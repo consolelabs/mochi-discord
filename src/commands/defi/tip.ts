@@ -14,7 +14,7 @@ async function tip(msg: Message, args: string[]) {
     throw new DiscordWalletTransferError({
       discordId: msg.author.id,
       guildId: msg.guildId,
-      message: msg
+      message: msg,
     })
   }
 
@@ -22,7 +22,7 @@ async function tip(msg: Message, args: string[]) {
 
   const discordIds: string[] = data.map((tx: any) => tx.toDiscordID)
   const mentionUser = (discordId: string) => `<@!${discordId}>`
-  const users = discordIds.map(id => mentionUser(id)).join(",")
+  const users = discordIds.map((id) => mentionUser(id)).join(",")
   const tokenEmoji = getEmoji(payload.cryptocurrency)
   const embed = composeEmbedMessage(msg, {
     thumbnail: thumbnails.TIP,
@@ -31,11 +31,11 @@ async function tip(msg: Message, args: string[]) {
       payload.sender
     )} sent ${users} ${roundFloatNumber(data[0].amount, 4)} ${tokenEmoji} ${
       payload.each ? "each" : ""
-    }`
+    }`,
   })
   if (txHash && txUrl) embed.addField("Transaction ID", `[${txHash}](${txUrl})`)
   return {
-    embeds: [embed]
+    embeds: [embed],
   }
 }
 
@@ -44,7 +44,7 @@ const command: Command = {
   command: "tip",
   brief: "Sends coins to a user or a group of users",
   category: "Defi",
-  run: async function(msg: Message) {
+  run: async function (msg: Message) {
     const args = getCommandArguments(msg)
     if (args.length < 4) {
       return { messageOptions: await this.getHelpMessage(msg) }
@@ -53,21 +53,21 @@ const command: Command = {
     return {
       messageOptions: {
         ...embeds,
-        content: getHeader("Tip from", msg.author)
-      }
+        content: getHeader("Tip from", msg.author),
+      },
     }
   },
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TIP,
         usage: `${PREFIX}tip <@user> <amount> <token>\n${PREFIX}tip <@role> <amount> <token>`,
         examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm\n${PREFIX}tip @RandomRole 10 ftm`,
-        footer: [DEFI_DEFAULT_FOOTER]
-      })
-    ]
+        footer: [DEFI_DEFAULT_FOOTER],
+      }),
+    ],
   }),
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

@@ -15,8 +15,8 @@ const command: Command = {
     if (resp.error) {
       return {
         messageOptions: {
-          content: `${getHeader(resp.error, msg.author)}`
-        }
+          content: `${getHeader(resp.error, msg.author)}`,
+        },
       }
     }
 
@@ -24,13 +24,13 @@ const command: Command = {
     if (!data || data.length === 0) {
       return {
         messageOptions: {
-          content: `${"Leaderboard is empty"}`
-        }
+          content: `${"Leaderboard is empty"}`,
+        },
       }
     }
 
     const embedMsg = composeEmbedMessage(msg, {
-      title: `Invites Leaderboard`
+      title: `Invites Leaderboard`,
     })
 
     const respMsg: string[] = []
@@ -43,21 +43,21 @@ const command: Command = {
 
     return {
       messageOptions: {
-        embeds: [embedMsg]
-      }
+        embeds: [embedMsg],
+      },
     }
   },
-  getHelpMessage: async msg => {
+  getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite leaderboard`,
       examples: `${PREFIX}invite leaderboard\n${PREFIX}invite lb`,
-      footer: [`Type ${PREFIX}help invite <action> for a specific action!`]
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
-  aliases: ["lb"]
+  aliases: ["lb"],
 }
 
 export default command

@@ -8,24 +8,21 @@ import { BotBaseError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import webhook from "adapters/webhook"
-import { composeLevelUpMessage } from "utils/user_xp"
+import { composeLevelUpMessage } from "utils/userXP"
 
 function normalizeCommand(message: Message) {
-  return message.content
-    .replace(/  +/g, " ")
-    .trim()
-    .toLowerCase()
+  return message.content.replace(/  +/g, " ").trim().toLowerCase()
 }
 
 export const handleNormalMessage = async (message: Message) => {
   const resp = await webhook.pushDiscordWebhook("messageCreate", {
     author: {
-      id: message.author.id
+      id: message.author.id,
     },
     guild_id: message.guildId,
     channel_id: message.channelId,
     timestamp: message.createdAt,
-    content: message.content
+    content: message.content,
   })
 
   if (resp.status !== "OK" || resp.error !== undefined) {
@@ -73,14 +70,14 @@ export default {
         return
       }
       await handleNormalMessage(message)
-    } catch (e: any) {
+    } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
         error.handle()
       } else {
-        logger.error(e)
+        logger.error(e as string)
       }
       ChannelLogger.log(error)
     }
-  }
+  },
 } as Event<"messageCreate">

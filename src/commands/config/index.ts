@@ -7,10 +7,8 @@ const command: Command = {
   command: "channel",
   category: "Config",
   canRunWithoutAction: true,
-  run: async _msg => ({
-    messageOptions: await workInProgress()
-  }),
-  getHelpMessage: workInProgress
+  run: async () => ({ messageOptions: await workInProgress() }),
+  getHelpMessage: workInProgress,
 }
 
 export default command

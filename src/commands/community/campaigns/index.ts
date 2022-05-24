@@ -16,7 +16,7 @@ const actions: Record<string, Command> = {
   info,
   add,
   list,
-  check
+  check,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 

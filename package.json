@@ -3,7 +3,8 @@
     "start": "NODE_ENV=production ts-node src/index.ts",
     "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
     "test": "jest",
-    "lint:fix": "eslint --fix --ext .js,.jsx,.ts ."
+    "lint:fix": "eslint --fix --ext .js,.jsx,.ts .",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.15.0",
@@ -21,7 +22,12 @@
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^8.13.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": ">=6",
     "jest": "^27.3.1",
+    "lint-staged": ">=10",
+    "prettier": "^2.6.2",
     "ts-jest": "^27.0.7",
     "ts-node": "^10.2.1",
     "ts-node-dev": "^1.1.8",
@@ -32,7 +38,7 @@
     "@discordjs/builders": "^0.12.0",
     "@discordjs/rest": "^0.3.0",
     "@koa/cors": "^3.1.0",
-    "canvas": "^2.8.0",
+    "canvas": "^2.9.0",
     "casing": "^1.1.0",
     "chart.js": "^3.7.1",
     "chartjs-node-canvas": "^4.1.6",
@@ -47,7 +53,6 @@
     "koa-router": "^10.0.0",
     "lint": "^0.7.0",
     "nanoid": "^3.1.29",
-    "node": "^17.7.2",
     "node-cache": "^5.1.2",
     "node-fetch": "2.6.2",
     "pg": "^8.7.1",
@@ -60,5 +65,9 @@
     "type-fest": "^2.10.0",
     "uuid": "^8.3.2",
     "web3": "^1.6.0"
+  },
+  "lint-staged": {
+    "*.{js,ts}": "eslint --cache --fix",
+    "*.{js,ts,md}": "prettier --write"
   }
 }

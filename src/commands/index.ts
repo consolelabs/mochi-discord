@@ -5,7 +5,7 @@ import help from "./help"
 import invite from "./community/invite/index"
 import profile from "./profile"
 import stats from "./community/stats"
-import nft from "./community/nft"
+import nft from "./community/nft/index"
 import deposit from "./defi/deposit"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
@@ -15,7 +15,7 @@ import { getActionCommand, getAllAliases } from "utils/commands"
 import { specificHelpCommand } from "utils/commands"
 import config from "../adapters/config"
 import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
-import guildCustomCommand from "../modules/guildCustomCommand"
+import guildCustomCommand from "../adapters/guildCustomCommand"
 import { customCommandsExecute } from "./customCommand"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import ticker from "./defi/ticker"
@@ -27,6 +27,7 @@ import whitelist from "./community/campaigns"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import top from "./community/top"
+import levelrole from "./community/levelrole"
 import { Command, Category } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { hasAdministrator } from "utils/common"
@@ -50,12 +51,13 @@ export const originalCommands: Record<string, Command> = {
   gm,
   stats,
   nft,
-	top,
+  top,
   // config
   channel,
   reactionrole,
   defaultrole,
-  whitelist
+  whitelist,
+  levelrole,
 }
 
 export const commands: Record<string, Command> = getAllAliases(originalCommands)
@@ -64,7 +66,7 @@ export const adminCategories: Record<Category, boolean> = {
   Profile: false,
   Defi: false,
   Community: false,
-  Config: true
+  Config: true,
 }
 
 async function preauthorizeCommand(message: Message, commandObject: Command) {
@@ -82,7 +84,7 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
   throw new CommandNotAllowedToRunError({
     message,
     command: message.content,
-    missingPermissions: ["Administrator"]
+    missingPermissions: ["Administrator"],
   })
 }
 
@@ -106,41 +108,37 @@ async function executeCommand(
     if (runResponse.commandChoiceOptions) {
       CommandChoiceManager.add({
         ...runResponse.commandChoiceOptions,
-        messageId: output.id
+        messageId: output.id,
       })
     }
   }
 }
 
 export default async function handlePrefixedCommand(message: Message) {
-  try {
-		await message.channel.sendTyping()
-    const args = getCommandArguments(message)
-    const isSpecificHelpCommand = specificHelpCommand(message)
-    const [commandKey, action] = !isSpecificHelpCommand
-      ? [args[0].slice(PREFIX.length), args[1]] // e.g. $invite leaderboard
-      : [args[1], args[2]] // e.g. $help invite leaderboard
-    const commandObject = commands[commandKey]
-    logger.info(
-      `[${message.guild.name}][${message.author.username}] executing command: ${args}`
-    )
+  await message.channel.sendTyping()
+  const args = getCommandArguments(message)
+  const isSpecificHelpCommand = specificHelpCommand(message)
+  const [commandKey, action] = !isSpecificHelpCommand
+    ? [args[0].slice(PREFIX.length), args[1]] // e.g. $invite leaderboard
+    : [args[1], args[2]] // e.g. $help invite leaderboard
+  const commandObject = commands[commandKey]
+  logger.info(
+    `[${message.guild.name}][${message.author.username}] executing command: ${args}`
+  )
 
-    // handle custom commands
-    const customCommands = await guildCustomCommand.listGuildCustomCommands(
-      message.guildId
-    )
-    for (let i = 0; i < customCommands.length; i++) {
-      if (customCommands[i].id.toLowerCase() === commandKey.toLowerCase()) {
-        customCommandsExecute(message, customCommands[i])
-        return
-      }
+  // handle custom commands
+  const customCommands = await guildCustomCommand.listGuildCustomCommands(
+    message.guildId
+  )
+  for (let i = 0; i < customCommands.length; i++) {
+    if (customCommands[i].id.toLowerCase() === commandKey.toLowerCase()) {
+      customCommandsExecute(message, customCommands[i])
+      return
     }
-
-    // handle default commands
-    await preauthorizeCommand(message, commandObject)
-    await config.checkGuildCommandScopes(message, commandObject)
-    await executeCommand(message, commandObject, action, isSpecificHelpCommand)
-  } catch (e) {
-    throw e
   }
+
+  // handle default commands
+  await preauthorizeCommand(message, commandObject)
+  await config.checkGuildCommandScopes(message, commandObject)
+  await executeCommand(message, commandObject, action, isSpecificHelpCommand)
 }

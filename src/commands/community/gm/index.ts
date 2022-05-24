@@ -10,7 +10,7 @@ import info from "./info"
 const actions: Record<string, Command> = {
   config,
   streak,
-  info
+  info,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 

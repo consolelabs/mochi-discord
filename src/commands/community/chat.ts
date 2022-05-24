@@ -6,10 +6,10 @@ const command: Command = {
   command: "chat",
   brief: "Chat",
   category: "Community",
-  run: async _msg => ({ messageOptions: await workInProgress() }),
+  run: async () => ({ messageOptions: await workInProgress() }),
   getHelpMessage: workInProgress,
   canRunWithoutAction: true,
-  experimental: true
+  experimental: true,
 }
 
 export default command

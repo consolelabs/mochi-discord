@@ -11,7 +11,7 @@ const command: Command = {
   command: "config",
   brief: "Configure gm/gn channel",
   category: "Community",
-  run: async msg => {
+  run: async (msg) => {
     const args = getCommandArguments(msg)
     const channelArg = args[2]
     if (
@@ -23,7 +23,9 @@ const command: Command = {
     }
 
     const channelId = channelArg.slice(2, channelArg.length - 1)
-    const chan = await msg.guild.channels.fetch(channelId).catch(() => {})
+    const chan = await msg.guild.channels
+      .fetch(channelId)
+      .catch(() => undefined)
     if (!chan) throw new InvalidInputError({ message: msg })
 
     await Config.updateGmConfig(msg.guildId, channelId)
@@ -33,21 +35,22 @@ const command: Command = {
           composeEmbedMessage(msg, {
             description: `Successfully configure ${channelArg} as GM/GN channel ${getEmoji(
               "good_morning"
-            )}`
-          })
-        ]
-      }
+            )}`,
+          }),
+        ],
+      },
     }
   },
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}gm config <channel>`,
-        examples: `${PREFIX}gm config #general`
-      })
-    ]
+        examples: `${PREFIX}gm config #general`,
+      }),
+    ],
   }),
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
+  aliases: ["cfg"],
 }
 
 export default command

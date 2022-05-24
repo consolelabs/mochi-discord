@@ -1,6 +1,6 @@
-import pino from "pino";
+import pino from "pino"
 
-import { PROD } from "./env";
+import { PROD } from "./env"
 
 const options = PROD
   ? {}
@@ -9,5 +9,5 @@ const options = PROD
         colorize: true,
         levelFirst: true,
       },
-    };
-export const logger = pino(options, process.stdout);
+    }
+export const logger = pino(options, process.stdout)

@@ -2,13 +2,13 @@ import {
   CanvasRenderingContext2D,
   createCanvas,
   loadImage,
-  registerFont
+  registerFont,
 } from "canvas"
 import { MessageEmbed, MessageAttachment, ColorResolvable } from "discord.js"
 import { msgColors } from "./common"
 
 registerFont("src/assets/DelaGothicOne-Regular.ttf", {
-  family: "Dela Gothic One"
+  family: "Dela Gothic One",
 })
 
 export async function composeLevelUpMessage(
@@ -23,9 +23,9 @@ export async function composeLevelUpMessage(
           `<@${authorId}> has leveled up! **(${level - 1} → ${level})**`
         )
         .setImage("attachment://level_up.png")
-        .setColor(msgColors.PRIMARY as ColorResolvable)
+        .setColor(msgColors.PRIMARY as ColorResolvable),
     ],
-    files: [await renderLevelUpBoard(authorId, avatarId, level)]
+    files: [await renderLevelUpBoard(authorId, avatarId, level)],
   }
 }
 
@@ -99,7 +99,7 @@ function drawHexagon(
   strokeRoundedPath(ctx, cx, cy, hexagon, 3, color, 5, 7 / 20)
 }
 
-interface Point {
+type Point = {
   x: number
   y: number
 }
@@ -120,7 +120,7 @@ const hexagon = [
   { x: 86.60254037844388, y: -49.99999999999998 },
   { x: 1.2246467991473532e-14, y: -100 },
   { x: -86.60254037844385, y: -50.00000000000004 },
-  { x: -86.6025403784439, y: 49.999999999999936 }
+  { x: -86.6025403784439, y: 49.999999999999936 },
 ]
 
 function strokeRoundedPath(

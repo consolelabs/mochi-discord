@@ -9,7 +9,6 @@ import {
   TextChannel,
 } from "discord.js"
 import { SetOptional, SetRequired } from "type-fest"
-import ChannelLogger from "./ChannelLogger"
 import { inactivityResponse } from "./common"
 
 export type CommandChoiceHandlerResult = {
@@ -45,70 +44,53 @@ export class CommandChoiceManager {
   client: Client = null
 
   remove(key: string) {
-    try {
-      this.commands.delete(key)
-      clearTimeout(this.timeouts.get(key))
-      this.timeouts.delete(key)
-    } catch (e: any) {
-      ChannelLogger.log(e)
-    }
+    this.commands.delete(key)
+    clearTimeout(this.timeouts.get(key))
+    this.timeouts.delete(key)
   }
 
   async update(key: string, newValue: Partial<CommandChoiceHandlerOptions>) {
-    try {
-      const options = this.commands.get(key)
-      const updatedValue = {
-        ...options,
-        ...newValue,
-      }
-      this.commands.set(key, {
+    const options = this.commands.get(key)
+    const updatedValue = {
+      ...options,
+      ...newValue,
+    }
+    this.commands.set(key, {
+      ...updatedValue,
+    })
+    if (options) {
+      await this.queueAutoClose({
         ...updatedValue,
+        key,
       })
-      if (options) {
-        await this.queueAutoClose({
-          ...updatedValue,
-          key,
-        })
-      }
-    } catch (e: any) {
-      ChannelLogger.log(e)
     }
   }
 
   async get(key: string) {
-    try {
-      const options = this.commands.get(key)
-      return options
-    } catch (e: any) {
-      ChannelLogger.log(e)
-    }
+    return this.commands.get(key)
   }
 
   async add(options: CommandChoiceHandlerOptions) {
-    try {
-      const {
-        channelId,
-        userId,
-        guildId,
-        messageId,
-        getInactivityResponse = inactivityResponse,
-        timeout = 0,
-      } = options
-      const key = `${userId}_${guildId}_${channelId}`
-      await this.queueAutoClose({
-        guildId,
-        channelId,
-        messageId,
-        getInactivityResponse,
-        userId,
-        timeout,
-        key,
-      })
+    const {
+      channelId,
+      userId,
+      guildId,
+      messageId,
+      getInactivityResponse = inactivityResponse,
+      timeout = 0,
+    } = options
+    const key = `${userId}_${guildId}_${channelId}`
+    await this.queueAutoClose({
+      guildId,
+      channelId,
+      messageId,
+      getInactivityResponse,
+      userId,
+      timeout,
+      key,
+    })
 
-      this.commands.set(key, { ...options, timeout, getInactivityResponse })
-    } catch (e: any) {
-      ChannelLogger.log(e)
-    }
+    this.commands.set(key, { ...options, timeout, getInactivityResponse })
   }
 
   async queueAutoClose({
@@ -145,10 +127,8 @@ export class CommandChoiceManager {
           components: [],
         })
       } else {
-        try {
-          const message = await channel.messages.fetch(messageId)
-          await message.delete()
-        } catch (e: any) {}
+        const message = await channel.messages.fetch(messageId)
+        await message.delete()
       }
 
       channel.send(response)

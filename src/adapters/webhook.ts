@@ -3,7 +3,7 @@ import fetch from "node-fetch"
 import { API_BASE_URL } from "utils/constants"
 
 class Webhook {
-  public async pushDiscordWebhook(event: string, data: any): Promise<any> {
+  public async pushDiscordWebhook(event: string, data: unknown) {
     try {
       const body = JSON.stringify({
         event: event,
@@ -20,8 +20,8 @@ class Webhook {
       }
 
       return json
-    } catch (e: any) {
-      logger.error(e)
+    } catch (e) {
+      logger.error(e as string)
     }
   }
 }

@@ -16,7 +16,7 @@ const actions: Record<string, Command> = {
   link,
   config,
   aggregation,
-  info
+  info,
 }
 const commands = getAllAliases(actions)
 
@@ -25,7 +25,7 @@ const command: Command = {
   command: "invite",
   brief: "Invite Tracker",
   category: "Community",
-  run: async function(msg, action) {
+  run: async function (msg, action) {
     const actionObj = commands[action]
     if (actionObj) {
       return actionObj.run(msg)
@@ -34,11 +34,11 @@ const command: Command = {
     const args = getCommandArguments(msg)
     if (args.length === 1) {
       return {
-        messageOptions: await this.getHelpMessage(msg, action)
+        messageOptions: await this.getHelpMessage(msg, action),
       }
     }
   },
-  getHelpMessage: async function(msg, action) {
+  getHelpMessage: async function (msg, action) {
     const actionObj = commands[action]
     if (actionObj) {
       return actionObj.getHelpMessage(msg)
@@ -47,13 +47,13 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          footer: [`Type ${PREFIX}help invite <action> for a specific action!`]
-        })
-      ]
+          footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
+        }),
+      ],
     }
   },
   aliases: ["inv", "invites"],
-  actions
+  actions,
 }
 
 export default command

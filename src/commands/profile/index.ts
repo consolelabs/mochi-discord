@@ -6,11 +6,11 @@ const command: Command = {
   command: "profile",
   brief: "Profile",
   category: "Profile",
-  run: async _msg => ({ messageOptions: await workInProgress() }),
+  run: async () => ({ messageOptions: await workInProgress() }),
   getHelpMessage: workInProgress,
   canRunWithoutAction: true,
-  aliases: ["pro", "pf"],
-  experimental: true
+  aliases: ["pf"],
+  experimental: true,
 }
 
 export default command

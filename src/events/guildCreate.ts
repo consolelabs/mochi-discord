@@ -10,23 +10,23 @@ export default {
   name: "guildCreate",
   once: false,
   execute: async (guild: Discord.Guild) => {
-    console.log(
+    logger.info(
       `Joined guild: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`
     )
 
     try {
       await config.createGuild(guild.id, guild.name)
       await webhook.pushDiscordWebhook("guildCreate", {
-        guild_id: guild.id
+        guild_id: guild.id,
       })
-    } catch (e: any) {
+    } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
         error.handle()
       } else {
-        logger.error(e)
+        logger.error(e as string)
       }
-      ChannelLogger.log(e)
+      ChannelLogger.log(error)
     }
-  }
+  },
 } as Event<"guildCreate">

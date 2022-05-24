@@ -17,10 +17,7 @@ class Profile {
     return json.data
   }
 
-  public async getUserGmStreak(
-    discordId: string,
-    guildId: string
-  ): Promise<any> {
+  public async getUserGmStreak(discordId: string, guildId: string) {
     const resp = await fetch(
       `${API_BASE_URL}/users/gmstreak?discord_id=${discordId}&guild_id=${guildId}`
     )
@@ -34,7 +31,7 @@ class Profile {
   ) {
     const resp = await fetch(`${API_BASE_URL}/verify/generate`, {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         user_discord_id: authorId,
         guild_id: guildId,

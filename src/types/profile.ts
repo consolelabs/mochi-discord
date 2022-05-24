@@ -21,9 +21,8 @@ export type UserBalance = {
   balances: Array<Balance>
 }
 
-
 export type UserInput = {
   id: string
-  username: string 
+  username: string
   guild_id: string
 }

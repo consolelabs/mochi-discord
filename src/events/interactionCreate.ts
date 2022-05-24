@@ -22,16 +22,16 @@ export default {
       }
 
       await handleButtonInteraction(interaction as ButtonInteraction, msg)
-    } catch (e: any) {
+    } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
         error.handle()
       } else {
-        logger.error(e)
+        logger.error(e as string)
       }
       ChannelLogger.log(error)
     }
-  }
+  },
 } as Event<"interactionCreate">
 
 async function handleSelecMenuInteraction(
@@ -46,7 +46,7 @@ async function handleSelecMenuInteraction(
       commandChoice.interaction?.editReply({
         content: "Exited!",
         components: [],
-        embeds: []
+        embeds: [],
       })
     })
     CommandChoiceManager.remove(key)
@@ -56,15 +56,16 @@ async function handleSelecMenuInteraction(
   const { messageOptions, commandChoiceOptions } = await commandChoice.handler(
     interaction
   )
-  await msg.edit(messageOptions)
+
   if (interaction) {
     const output = await interaction.deferUpdate({ fetchReply: true })
     await CommandChoiceManager.update(key, {
       ...commandChoiceOptions,
       interaction,
-      messageId: output.id
+      messageId: output.id,
     })
   }
+  await msg.edit(messageOptions)
 }
 
 async function handleButtonInteraction(

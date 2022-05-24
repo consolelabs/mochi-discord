@@ -3,7 +3,6 @@ import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import Community from "adapters/community"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { getHeader } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
@@ -18,49 +17,39 @@ const command: Command = {
       inviterID = args[2].replace(/<@|>/g, "")
     }
 
-    const resp = await Community.getUserInvitesAggregation(
+    const data = await Community.getUserInvitesAggregation(
       msg.guild.id,
       inviterID
     )
-    if (resp.error) {
-      return {
-        messageOptions: {
-          content: `${getHeader(resp.error, msg.author)}`
-        }
-      }
-    }
 
     const embedMsg = composeEmbedMessage(msg, {
-      title: `Invites Aggregation`
+      title: `Invites Aggregation`,
     })
 
-    const data = resp.data
     embedMsg.addField(
       `Successfully`,
-      `<@${inviterID}> has totally ${
-        data.regular
-      } invites (normal: ${data.regular - data.fake - data.left}, fake: ${
-        data.fake
-      }, left: ${data.left})`
+      `<@${inviterID}> has totally ${data.regular} invites (normal: ${
+        data.regular - data.fake - data.left
+      }, fake: ${data.fake}, left: ${data.left})`
     )
 
     return {
       messageOptions: {
-        embeds: [embedMsg]
-      }
+        embeds: [embedMsg],
+      },
     }
   },
-  getHelpMessage: async msg => {
+  getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite aggregation <@userId>`,
       examples: `${PREFIX}invite aggregation @ohagi\n${PREFIX}invite aggr @ohagi`,
-      footer: [`Type ${PREFIX}help invite <action> for a specific action!`]
+      footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
-  aliases: ["aggr"]
+  aliases: ["aggr"],
 }
 
 export default command

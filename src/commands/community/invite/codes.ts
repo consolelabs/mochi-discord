@@ -6,9 +6,9 @@ const command: Command = {
   command: "codes",
   brief: "Show all your invite codes",
   category: "Community",
-  run: async _msg => ({ messageOptions: await workInProgress() }),
+  run: async () => ({ messageOptions: await workInProgress() }),
   getHelpMessage: workInProgress,
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

@@ -15,18 +15,18 @@ export const getAllAliases = (
   commands: Record<string, Command>
 ): Record<string, Command> => {
   return Object.entries(commands).reduce((acc, cur) => {
-    const [_key, commandObj] = cur
+    const commandObj = cur[1]
     const aliases = (commandObj.aliases ?? []).reduce(
       (accAliases, curAlias) => ({
         ...accAliases,
-        [curAlias]: commandObj
+        [curAlias]: commandObj,
       }),
       {}
     )
 
     return {
       ...acc,
-      ...aliases
+      ...aliases,
     }
   }, commands)
 }
@@ -59,7 +59,7 @@ export const getActionCommand = (msg: Message): Command => {
 
   if (!key || !action || !commands[key].actions) return null
   const actions = Object.entries(commands[key].actions).filter(
-    c =>
+    (c) =>
       (c[1].aliases && c[1].aliases.includes(action)) || c[1].command === action
   )
   if (!actions.length) return null

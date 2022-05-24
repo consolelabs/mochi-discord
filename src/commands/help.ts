@@ -13,7 +13,7 @@ const categoryIcons: Record<Category, string> = {
   Profile: emojis.PROFILE,
   Config: emojis.PROFILE,
   Defi: emojis.DEFI,
-  Community: emojis.DEFI
+  Community: emojis.DEFI,
 }
 
 function getHelpEmbed(msg: Message, isAdmin: boolean) {
@@ -21,7 +21,7 @@ function getHelpEmbed(msg: Message, isAdmin: boolean) {
     title: `${isAdmin ? "Admin" : "Standard"} Commands`,
     thumbnail: thumbnails.HELP,
     description: `\nType \`${HELP_CMD} <command>\` to learn more about a command`,
-    footer: [`Type ${HELP_CMD} for normal commands`]
+    footer: [`Type ${HELP_CMD} for normal commands`],
   })
 }
 
@@ -30,20 +30,17 @@ function getHelpEmbed(msg: Message, isAdmin: boolean) {
  * Sort categories by number of their commands in DESCENDING order
  *
  */
-async function displayCategories(_msg: Message) {
-  // const isAdmin =
-  //   msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
-  //   (await onlyRunInAdminGroup(msg))
+async function displayCategories() {
   return (
     Object.entries(categoryIcons)
       // .filter((cat) => isAdmin || !adminCategories[cat[0] as Category])
       .sort((catA, catB) => {
         const commandsOfThisCatA = Object.values(originalCommands)
           .filter(Boolean)
-          .filter(c => c.category === catA[0]).length
+          .filter((c) => c.category === catA[0]).length
         const commandsOfThisCatB = Object.values(originalCommands)
           .filter(Boolean)
-          .filter(c => c.category === catB[0]).length
+          .filter((c) => c.category === catB[0]).length
 
         return commandsOfThisCatB - commandsOfThisCatA
       })
@@ -55,24 +52,25 @@ const command: Command = {
   command: "help",
   category: "Profile",
   brief: "Help Menu",
-  run: async function(msg: Message) {
+  run: async function (msg: Message) {
     const data = await this.getHelpMessage(msg)
     return { messageOptions: data }
   },
   getHelpMessage: async (msg: Message) => {
     const embedMsg = getHelpEmbed(msg, false)
-    const categories = await displayCategories(msg)
+    const categories = await displayCategories()
 
     let idx = 0
-    for (const [category, _emojiId] of categories) {
+    for (const item of Object.values(categories)) {
+      const category = item[0]
       if (!(await config.categoryIsScoped(msg.guildId, category))) continue
 
       const commandsByCat = (
         await Promise.all(
           Object.values(originalCommands)
-            .filter(cmd => cmd.id !== "help")
+            .filter((cmd) => cmd.id !== "help")
             .filter(
-              async cmd =>
+              async (cmd) =>
                 await config.commandIsScoped(
                   msg.guildId,
                   cmd.category,
@@ -81,8 +79,8 @@ const command: Command = {
             )
         )
       )
-        .filter(c => c.category === category && !c.experimental)
-        .map(c => `[\`${c.command}\`](https://google.com)`)
+        .filter((c) => c.category === category && !c.experimental)
+        .map((c) => `[\`${c.command}\`](https://google.com)`)
         .join(" ")
 
       if (!commandsByCat) continue
@@ -100,7 +98,7 @@ const command: Command = {
       .forEach(() => embedMsg.addField("\u200B", "\u200B", true))
 
     return { embeds: [embedMsg] }
-  }
+  },
 }
 
 export default command

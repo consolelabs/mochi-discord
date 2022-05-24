@@ -1,14 +1,12 @@
 import {
   Message,
-  TextChannel,
   GuildEmoji,
   User,
   MessageOptions,
   ColorResolvable,
   MessageComponentInteraction,
-  Permissions
+  Permissions,
 } from "discord.js"
-import { DISCORD_ADMIN_GROUP } from "../env"
 
 import { Command } from "types/common"
 import { DOT, VERTICAL_BAR } from "./constants"
@@ -23,7 +21,7 @@ export const tokenEmojis: Record<string, string> = {
   BTC: "967285237879013388",
   ETH: "972205674173972542",
   BNB: "972205674715054090",
-  CAKE: "972205674371117126"
+  CAKE: "972205674371117126",
 }
 
 export const numberEmojis: Record<string, string> = {
@@ -36,7 +34,7 @@ export const numberEmojis: Record<string, string> = {
   NUM_6: "932856132626710549",
   NUM_7: "932856132958048276",
   NUM_8: "932856132869976136",
-  NUM_9: "932856132832223232"
+  NUM_9: "932856132832223232",
 }
 
 export const rarityEmojis: Record<string, string> = {
@@ -58,7 +56,7 @@ export const rarityEmojis: Record<string, string> = {
 
   MYTHIC1: "976765462748741673",
   MYTHIC2: "976765462786498590",
-  MYTHIC3: "976765462845222964"
+  MYTHIC3: "976765462845222964",
 }
 
 export const defaultEmojis: Record<string, string> = {
@@ -69,7 +67,7 @@ export const defaultEmojis: Record<string, string> = {
   ARROW_UP: ":arrow_heading_up:",
   CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
   CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
-  MAG: ":mag:"
+  MAG: ":mag:",
 }
 
 export const emojis: { [key: string]: string } = {
@@ -83,12 +81,12 @@ export const emojis: { [key: string]: string } = {
   NEXT_PAGE: "967285238000676895",
   ...tokenEmojis,
   ...numberEmojis,
-  ...rarityEmojis
+  ...rarityEmojis,
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
   PRIMARY: "#E88B88", // 500
-  ERROR: "#D73833" // 900
+  ERROR: "#D73833", // 900
 }
 
 export const thumbnails: Record<string, string> = {
@@ -97,7 +95,7 @@ export const thumbnails: Record<string, string> = {
   TIP: "https://i.imgur.com/qj7iPqz.png",
   TOKENS: "https://i.imgur.com/hcqO0Wu.png",
   LOADING:
-    "https://cdn.discordapp.com/attachments/895993366960017491/933427920817492028/loading.gif"
+    "https://cdn.discordapp.com/attachments/895993366960017491/933427920817492028/loading.gif",
 }
 
 export function isInteraction(
@@ -110,7 +108,7 @@ export async function inactivityResponse(user: User): Promise<MessageOptions> {
   return {
     content: `> **${getEmoji("revoke")} ${VERTICAL_BAR} ${
       user.tag
-    }, the command was closed due to inactivity.**`
+    }, the command was closed due to inactivity.**`,
   }
 }
 
@@ -122,11 +120,6 @@ export function getHeader(text: string, user: User, ctas?: string) {
 
 export function getEmbedFooter(texts: string[]): string {
   return texts.join(` ${DOT} `)
-}
-
-export async function onlyRunInAdminGroup(msg: Message) {
-  const groupId = (msg.channel as TextChannel).parentId
-  return groupId === DISCORD_ADMIN_GROUP
 }
 
 export function hasAdministrator(msg: Message) {
@@ -141,9 +134,9 @@ export function getCommandsList(
   const correctBrief = (brief: string) =>
     brief.endsWith(".") ? brief : `${brief}.`
   return Object.values(commands)
-    .filter(c => !c.experimental)
+    .filter((c) => !c.experimental)
     .map(
-      c =>
+      (c) =>
         `[**${c.command}**](https://google.com)\n${emoji}${correctBrief(
           c.brief
         )}`
@@ -179,6 +172,6 @@ export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
-export function catchEm(promise: Promise<any>) {
-  return promise.then((data: any) => [null, data]).catch((err: any) => [err])
+export function catchEm(promise: Promise<unknown>) {
+  return promise.then((data) => [null, data]).catch((err) => [err])
 }

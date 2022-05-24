@@ -16,16 +16,16 @@ export default {
   execute: async (member: Discord.GuildMember) => {
     try {
       await setUserDefaultRoles(member)
-      const resp = await webhook.pushDiscordWebhook(
+      const res = await webhook.pushDiscordWebhook(
         "guildMemberAdd",
         createBEGuildMember(member)
       )
       const guild = await config.getGuild(member.guild.id)
       const logChannel = member.guild.channels.cache.find(
-        channel => channel.id === guild.log_channel_id
+        (channel) => channel.id === guild.log_channel_id
       ) as Discord.TextChannel
 
-      if (resp.error) {
+      if (res.error) {
         sendInviteTrackerMessage(
           logChannel,
           unknowErrorMsg(member.id),
@@ -34,7 +34,7 @@ export default {
         return
       }
 
-      const data = resp.data
+      const data = res.data
       if (data.is_bot) {
         sendInviteTrackerMessage(
           logChannel,
@@ -56,16 +56,16 @@ export default {
         inviteMsg(member.id, data.inviter_id, data.invites_amount),
         member.user.avatarURL()
       )
-    } catch (e: any) {
+    } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
         error.handle()
       } else {
-        logger.error(e)
+        logger.error(e as string)
       }
-      ChannelLogger.log(e)
+      ChannelLogger.log(error)
     }
-  }
+  },
 } as Event<"guildMemberAdd">
 
 function unknowErrorMsg(memberID: string) {
@@ -92,17 +92,17 @@ function sendInviteTrackerMessage(
   const embed = composeEmbedMessage(null, {
     title: "Invite Tracker",
     description: msg,
-    thumbnail: thumbnail || DISCORD_DEFAULT_AVATAR
+    thumbnail: thumbnail || DISCORD_DEFAULT_AVATAR,
   })
   logChannel.send({ embeds: [embed] })
 }
 
 async function setUserDefaultRoles(member: Discord.GuildMember) {
-  const resData: DefaultRoleResponse = await config.getCurrentDefaultRole(
+  const json: DefaultRoleResponse = await config.getCurrentDefaultRole(
     member.guild.id
   )
 
-  if (resData.success) {
-    await member.roles.add(resData.data.role_id)
+  if (json.success) {
+    await member.roles.add(json.data.role_id)
   }
 }

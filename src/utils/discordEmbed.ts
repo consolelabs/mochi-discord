@@ -6,7 +6,7 @@ import {
   MessageEmbed,
   MessageOptions,
   MessageSelectMenu,
-  MessageSelectMenuOptions
+  MessageSelectMenuOptions,
 } from "discord.js"
 import { COMMA, VERTICAL_BAR } from "./constants"
 import {
@@ -14,12 +14,12 @@ import {
   getEmbedFooter,
   getEmoji,
   getCommandsList,
-  msgColors
+  msgColors,
 } from "./common"
 import {
   getCommandObject,
   getActionCommand,
-  specificHelpCommand
+  specificHelpCommand,
 } from "./commands"
 import { EmbedProperties } from "types/common"
 import { MessageButtonStyles } from "discord.js/typings/enums"
@@ -53,7 +53,7 @@ export function getExitButton() {
     customId: "exit",
     emoji: getEmoji("revoke"),
     style: "SECONDARY",
-    label: "Exit"
+    label: "Exit",
   })
 }
 
@@ -71,7 +71,7 @@ export function composeButtonLink(
     new MessageButton({
       style: MessageButtonStyles.LINK,
       label,
-      url
+      url,
     })
   )
 
@@ -95,9 +95,8 @@ export function composeEmbedMessage(
   msg: Message | null,
   props: EmbedProperties
 ) {
-  let {
-    title,
-    description = "",
+  let { title, description = "" } = props
+  const {
     thumbnail,
     color,
     footer = [],
@@ -106,7 +105,7 @@ export function composeEmbedMessage(
     author,
     originalMsgAuthor,
     usage,
-    examples
+    examples,
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
@@ -147,7 +146,7 @@ export function composeEmbedMessage(
   if (description) {
     embed.setDescription(description)
   }
-    
+
   if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)
   if (!!author && author.length === 1) embed.setAuthor(author[0])
@@ -157,7 +156,7 @@ export function composeEmbedMessage(
   if (isSpecificHelpCommand && alias)
     embed.addField(
       "\u200B",
-      `**Alias**: ${alias.map(a => `\`${a}\``).join(COMMA)}.`
+      `**Alias**: ${alias.map((a) => `\`${a}\``).join(COMMA)}.`
     )
   if (usage) embed.addField("**Usage**", `\`\`\`${usage}\`\`\``)
   if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)
@@ -180,7 +179,7 @@ export function getErrorEmbed(params: {
       "Something went wrong! Please try again or contact administrators",
     image,
     thumbnail,
-    color: msgColors.ERROR
+    color: msgColors.ERROR,
   })
 }
 
@@ -189,9 +188,9 @@ export function getInvalidInputEmbed(msg: Message) {
     color: msgColors.ERROR,
     author: [
       "Invalid input!",
-      "https://cdn.discordapp.com/emojis/933341948431962172.webp?size=240&quality=lossless"
+      "https://cdn.discordapp.com/emojis/933341948431962172.webp?size=240&quality=lossless",
     ],
     description:
-      "That is an invalid argument. Please see help message of the command"
+      "That is an invalid argument. Please see help message of the command",
   })
 }
