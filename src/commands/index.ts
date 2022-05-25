@@ -3,7 +3,7 @@ import { PREFIX } from "utils/constants"
 import { logger } from "../logger"
 import help from "./help"
 import invite from "./community/invite"
-import profile from "./profile"
+import profile from "./profile/profile"
 import stats from "./community/stats"
 import nft from "./community/nft"
 import deposit from "./defi/deposit"
@@ -95,6 +95,8 @@ async function executeCommand(
   action: string,
   isSpecificHelpCommand?: boolean
 ) {
+  await message.channel.sendTyping()
+
   // e.g. $help invite || $help invite leaderboard
   if (isSpecificHelpCommand) {
     await message.reply(await commandObject.getHelpMessage(message, action))
@@ -115,7 +117,6 @@ async function executeCommand(
 }
 
 export default async function handlePrefixedCommand(message: Message) {
-  await message.channel.sendTyping()
   const args = getCommandArguments(message)
   const isSpecificHelpCommand = specificHelpCommand(message)
   const [commandKey, action] = !isSpecificHelpCommand

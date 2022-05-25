@@ -26,3 +26,17 @@ export type UserInput = {
   username: string
   guild_id: string
 }
+
+type LevelConfig = {
+  level: number
+  min_xp: number
+}
+
+export type UserProfile = {
+  id: string
+  current_level: LevelConfig
+  next_level: LevelConfig
+  guild_xp: number
+  nr_of_actions: number
+  about_me: string
+}

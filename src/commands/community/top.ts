@@ -5,6 +5,7 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 import * as Canvas from "canvas"
 import { getCommandArguments } from "utils/commands"
+import { heightOf, widthOf } from "utils/canvas"
 
 const getFont = (fontSize: number) => `bold ${fontSize}px Manrope`
 
@@ -15,7 +16,7 @@ function adjustFontSize(
   fontSize: number
 ) {
   // minimum font size is 15
-  if (ctx.measureText(str).width >= maxWidth && fontSize >= 15) {
+  if (widthOf(ctx, str) >= maxWidth && fontSize >= 15) {
     adjustFontSize(ctx, str, maxWidth, fontSize - 1)
     return
   }
@@ -48,20 +49,18 @@ function calculateLeaderboardContainerWidth(
   usernameMaxWidth: number
 ) {
   let maxWidth = 0
-  const rankMaxWidth = ctx.measureText(
-    `#${leaderboard.slice(-1)[0].guild_rank} `
-  ).width
+  const rankMaxWidth = widthOf(ctx, `#${leaderboard.slice(-1)[0].guild_rank} `)
   leaderboard.forEach((record) => {
     const level = `lv.${record.level < 10 ? "0" : ""}${record.level}`
     const score = `${record.total_xp} pts`
     const tempW =
       x * 2 + // padding left and right
       rankMaxWidth +
-      ctx.measureText(`${DOT}  `).width +
+      widthOf(ctx, `${DOT}  `) +
       usernameMaxWidth +
-      ctx.measureText(level).width +
+      widthOf(ctx, level) +
       45 + // gap between level + score
-      ctx.measureText(score).width
+      widthOf(ctx, score)
     maxWidth = Math.max(tempW, maxWidth)
   })
   return maxWidth
@@ -95,9 +94,7 @@ async function renderLeaderboard(leaderboard: any[]) {
   ctx.font = getFont(row.fontSize)
 
   const rowGap = 35
-  const rankMaxWidth = ctx.measureText(
-    `#${leaderboard.slice(-1)[0].guild_rank} `
-  ).width
+  const rankMaxWidth = widthOf(ctx, `#${leaderboard.slice(-1)[0].guild_rank}`)
   leaderboard.forEach((record) => {
     let x = row.x + row.paddingLeft
     const rank = `#${record.guild_rank} `
@@ -112,7 +109,7 @@ async function renderLeaderboard(leaderboard: any[]) {
     x += rankMaxWidth
     // seperator
     ctx.fillText(dot, x, row.y)
-    x += ctx.measureText(dot).width
+    x += widthOf(ctx, dot)
     // username
     adjustFontSize(ctx, username, row.usernameMaxWidth, row.fontSize)
     ctx.fillText(username, x, row.y)
@@ -120,14 +117,12 @@ async function renderLeaderboard(leaderboard: any[]) {
     // level
     ctx.font = getFont(row.fontSize)
     ctx.fillText(`lv.${record.level}`, x, row.y)
-    x += ctx.measureText(level).width + 45
+    x += widthOf(ctx, level) + 45
     // XP score
     ctx.fillText(score, x, row.y)
 
     // next row y coordinate
-    const lineHeight =
-      ctx.measureText(score).actualBoundingBoxAscent +
-      ctx.measureText(score).actualBoundingBoxDescent
+    const lineHeight = heightOf(ctx, score)
     row.y += lineHeight + rowGap
   })
 
