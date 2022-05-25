@@ -1,5 +1,5 @@
 import fetch from "node-fetch"
-import { User } from "types/profile"
+import { User, UserProfile } from "types/profile"
 import { API_BASE_URL } from "utils/constants"
 
 class Profile {
@@ -40,6 +40,29 @@ class Profile {
     })
 
     return await resp.json()
+  }
+
+  public async getUserProfile(
+    guildId: string,
+    userId: string
+  ): Promise<UserProfile> {
+    const res = await fetch(
+      `${API_BASE_URL}/profiles?guild_id=${guildId}&user_id=${userId}`,
+      {
+        method: "GET",
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to get profile of user ${userId} - guild ${guildId}`
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
   }
 }
 
