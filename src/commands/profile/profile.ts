@@ -89,7 +89,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
 
   // username
   ctx.fillStyle = getHighestRoleColor(msg)
-  ctx.font = "bold 40px Manrope"
+  ctx.font = "bold 37px Manrope"
   const username = {
     w: widthOf(ctx, msg.author.username),
     h: heightOf(ctx, msg.author.username),
@@ -111,7 +111,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
 
   // level
   ctx.save()
-  ctx.font = "bold 34px Manrope"
+  ctx.font = "bold 31px Manrope"
   const lvlStr = `lvl ${data.current_level.level}`
   const lvl = {
     x: container.w - container.pl - widthOf(ctx, lvlStr),
@@ -139,7 +139,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
   drawProgressBar(pgBar, data, ctx)
 
   // Server XP
-  ctx.font = "bold 33px Manrope"
+  ctx.font = "bold 30px Manrope"
   const xpTitleStr = "Server XP"
   const xpTitle = {
     x: container.pl,
@@ -174,21 +174,20 @@ async function renderProfile(msg: Message, data: UserProfile) {
   ctx.fillText(actStr, act.x, act.y)
 
   // XP to lvlup
-  const lvlupTitleStr = "XP to level up"
-  const lvlupTitle = {
-    x: xp.x + widthOf(ctx, xpStr) + xp.mr,
-    y: xp.y,
-    mr: 70,
-    mb: 50,
-  }
-  ctx.fillText(lvlupTitleStr, lvlupTitle.x, lvlupTitle.y)
-
   const lvlupStr = `${Math.max(0, data.next_level.min_xp - data.guild_xp)}`
   const lvlup = {
-    x: lvlupTitle.x + widthOf(ctx, lvlupTitleStr) + lvlupTitle.mr,
-    y: lvlupTitle.y,
+    x: container.w - container.pl - widthOf(ctx, lvlupStr),
+    y: xp.y,
+    ml: 70,
   }
   ctx.fillText(lvlupStr, lvlup.x, lvlup.y)
+
+  const lvlupTitleStr = "XP to level up"
+  const lvlupTitle = {
+    x: lvlup.x - lvlup.ml - widthOf(ctx, lvlupTitleStr),
+    y: lvlup.y,
+  }
+  ctx.fillText(lvlupTitleStr, lvlupTitle.x, lvlupTitle.y)
 
   // About me
   const aboutMeTitleStr = "About me"
@@ -199,7 +198,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
   }
   ctx.fillText(aboutMeTitleStr, aboutMeTitle.x, aboutMeTitle.y)
 
-  ctx.font = "30px Manrope"
+  ctx.font = "27px Manrope"
   const aboutMeStr =
     data.about_me.trim().length === 0
       ? "I'm a mysterious person"
