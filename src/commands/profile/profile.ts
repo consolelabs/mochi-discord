@@ -21,6 +21,7 @@ async function drawAvatar(
   container: any,
   ctx: Canvas.CanvasRenderingContext2D
 ) {
+  ctx.save()
   const avatarOutlineRadius = avatar.w / 2
   const avatarOuline = {
     x: avatarOutlineRadius + container.pl,
@@ -40,6 +41,7 @@ async function drawAvatar(
     const userAvatar = await Canvas.loadImage(avatarURL)
     ctx.drawImage(userAvatar, container.pl, container.pt, avatar.w, avatar.h)
   }
+  ctx.restore()
 }
 
 function drawProgressBar(
@@ -52,13 +54,12 @@ function drawProgressBar(
   drawRectangle(ctx, pgBar, radius, "#4a4b4e")
 
   // pg bar overlay
-  const xpProgress = data.next_level.min_xp
-    ? Math.min(
-        (data.guild_xp - data.current_level.min_xp) /
-          (data.next_level.min_xp - data.current_level.min_xp),
-        1
-      )
-    : 1
+  let xpProgress =
+    (data.guild_xp - data.current_level.min_xp) /
+    (data.next_level.min_xp - data.current_level.min_xp)
+  // progress = 1 if already reached max level
+  xpProgress = data.next_level.min_xp ? Math.min(xpProgress, 1) : 1
+  if (xpProgress === 0) return
   const overlay = pgBar
   overlay.x.to = Math.max(
     overlay.x.from + radius * 2,
@@ -69,23 +70,40 @@ function drawProgressBar(
 
 async function renderProfile(msg: Message, data: UserProfile) {
   const container = {
-    w: 900,
-    h: 550,
+    x: {
+      from: 0,
+      to: 900,
+    },
+    y: {
+      from: 0,
+      to: 550,
+    },
+    w: 0,
+    h: 0,
     pl: 40,
     pt: 45,
     actualW: 0,
     bgColor: "#303137",
   }
-  container.actualW = container.w - container.pl * 2
+  container.w = container.x.to - container.x.from
+  container.h = container.y.to - container.y.from
   const canvas = Canvas.createCanvas(container.w, container.h)
   const ctx = canvas.getContext("2d")
-  ctx.fillStyle = container.bgColor
-  ctx.fillRect(0, 0, container.w, container.h)
-  ctx.save()
 
+  // background
+  ctx.save()
+  drawRectangle(ctx, container, 30, container.bgColor)
+  ctx.clip()
+  ctx.fillStyle = container.bgColor
+  // ctx.fillRect(0, 0, container.w, container.h)
+  const background = await Canvas.loadImage("src/assets/profile_bg.jpg")
+  ctx.globalAlpha = 0.1
+  ctx.drawImage(background, 0, 0, container.w, container.h)
+  ctx.restore()
+
+  // avatar
   const avatar = { w: 150, h: 150, mr: 40, mb: 65 }
   await drawAvatar(msg, avatar, container, ctx)
-  ctx.restore()
 
   // username
   ctx.fillStyle = getHighestRoleColor(msg)
@@ -101,13 +119,15 @@ async function renderProfile(msg: Message, data: UserProfile) {
   ctx.fillText(msg.author.username, username.x, username.y)
 
   // discriminator
+  ctx.save()
   ctx.fillStyle = "white"
   const discriminator = {
     x: username.x + username.w + username.mr,
     y: username.y,
   }
-  // ctx.fillStyle = "#606468"
+  ctx.fillStyle = "#dcdfe3"
   ctx.fillText(`#${msg.author.discriminator}`, discriminator.x, discriminator.y)
+  ctx.restore()
 
   // level
   ctx.save()
@@ -138,9 +158,10 @@ async function renderProfile(msg: Message, data: UserProfile) {
   pgBar.y.to = pgBar.y.from + pgBar.h
   drawProgressBar(pgBar, data, ctx)
 
-  // Server XP
+  // Local XP
+  ctx.fillStyle = "white"
   ctx.font = "bold 30px Manrope"
-  const xpTitleStr = "Server XP"
+  const xpTitleStr = "Local XP"
   const xpTitle = {
     x: container.pl,
     y: container.pt + avatar.h + avatar.mb + heightOf(ctx, xpTitleStr),
