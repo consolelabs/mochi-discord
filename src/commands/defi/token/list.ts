@@ -10,7 +10,7 @@ const command: Command = {
   command: "list",
   brief: "View your server's tokens list",
   category: "Community",
-  run: async msg => {
+  run: async (msg) => {
     const data = await Config.getGuildTokens(msg.guildId)
     if (!data || !data.length)
       return {
@@ -18,10 +18,10 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: "No token found",
-              description: `Use \`${PREFIX}token add\` to add one to your server.`
-            })
-          ]
-        }
+              description: `Use \`${PREFIX}token add\` to add one to your server.`,
+            }),
+          ],
+        },
       }
     const description = data
       .map((token: Token) => {
@@ -34,21 +34,21 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             author: [`${msg.guild.name}'s tokens list`, msg.guild.iconURL()],
-            description
-          })
-        ]
-      }
+            description,
+          }),
+        ],
+      },
     }
   },
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}tokens list`,
-        examples: `${PREFIX}tokens list`
-      })
-    ]
+        examples: `${PREFIX}tokens list`,
+      }),
+    ],
   }),
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

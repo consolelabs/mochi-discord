@@ -16,11 +16,14 @@ const onSetDefaultRole = async (
     guild_id: msg.guild.id,
     role_id: roleId,
   }
-  const res = await config.configureDefaultRole(requestData)
-  if (res.success) {
-    description = `Role <@&${res.data.role_id}> is now configured as user's default role`
-  } else {
-    description = `Role <@&${res.data.role_id}> has already been configured, please try to set another one`
+
+  try {
+    const res = await config.configureDefaultRole(requestData)
+    if (res.success) {
+      description = `Role <@&${res.data.role_id}> is now configured as user's default role`
+    }
+  } catch (error) {
+    description = `Role <@&${roleId}> has already been configured, please try to set another one`
   }
 
   return {
@@ -35,12 +38,14 @@ const onSetDefaultRole = async (
 
 const onRemoveDefaultRole = async (msg: Message): Promise<MessageOptions> => {
   let description = ""
-  const res = await config.removeDefaultRoleConfig(msg.guild.id)
 
-  if (res.success) {
-    description = "Removed default role for newcomers"
-  } else {
-    description = "Failed to remove default role configuration"
+  try {
+    const res = await config.removeDefaultRoleConfig(msg.guild.id)
+    if (res.success) {
+      description = "Removed default role for newcomers."
+    }
+  } catch (error) {
+    description = "Failed to remove default role configuration."
   }
 
   return {
@@ -54,10 +59,16 @@ const onRemoveDefaultRole = async (msg: Message): Promise<MessageOptions> => {
 }
 
 const onShowDefaultRoleInfo = async (msg: Message): Promise<MessageOptions> => {
-  const json = await config.getCurrentDefaultRole(msg.guild.id)
-  const description = json.success
-    ? `Current default role for newcomers is <@&${json.data.role_id}>`
-    : "Failed to get current default role for newcomers"
+  let description = ""
+
+  try {
+    const json = await config.getCurrentDefaultRole(msg.guild.id)
+    if (json.success) {
+      description = `Current default role for newcomers is <@&${json.data.role_id}>`
+    }
+  } catch (error) {
+    description = "No default role configuration."
+  }
 
   return {
     embeds: [
