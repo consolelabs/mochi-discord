@@ -23,27 +23,25 @@ export function drawRectangle(
   ctx.fillStyle = hexColor
   ctx.moveTo(stats.x.from + radius, stats.y.from)
   ctx.lineTo(stats.x.to - radius, stats.y.from) // top edge
-  ctx.quadraticCurveTo(
-    stats.x.to - radius / 2,
-    stats.y.from + radius / 2,
-    stats.x.to,
-    stats.y.from + radius
-  ) // top-right angle
+  ctx.arc(stats.x.to - radius, stats.y.from + radius, radius, 1.5 * Math.PI, 0) // top-right corner
   ctx.lineTo(stats.x.to, stats.y.to - radius) // right edge
-  ctx.quadraticCurveTo(
-    stats.x.to - radius / 2,
-    stats.y.to - radius / 2,
-    stats.x.to - radius,
-    stats.y.to
-  ) // bottom-right angle
+  ctx.arc(stats.x.to - radius, stats.y.to - radius, radius, 0, 0.5 * Math.PI) // bottom-right corner
   ctx.lineTo(stats.x.from + radius, stats.y.to) // bottom edge
-  ctx.quadraticCurveTo(
-    stats.x.from + radius / 2,
-    stats.y.to - radius / 2,
-    stats.x.from,
-    stats.y.to - radius
-  ) // bottom-left angle
+  ctx.arc(
+    stats.x.from + radius,
+    stats.y.to - radius,
+    radius,
+    0.5 * Math.PI,
+    Math.PI
+  ) // bottom-left corner
   ctx.lineTo(stats.x.from, stats.y.from + radius) // left edge
+  ctx.arc(
+    stats.x.from + radius,
+    stats.y.from + radius,
+    radius,
+    Math.PI,
+    1.5 * Math.PI
+  ) // top-left corner
   ctx.fill()
   ctx.closePath()
 }
