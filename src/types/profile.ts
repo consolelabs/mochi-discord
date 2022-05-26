@@ -1,6 +1,6 @@
 export type User = {
-  discord_id: string
-  referral_code: string
+  id: string
+  username: string
   in_discord_wallet_number: number
   in_discord_wallet_address: string
 }
@@ -39,4 +39,5 @@ export type UserProfile = {
   guild_xp: number
   nr_of_actions: number
   about_me: string
+  progress: number
 }
