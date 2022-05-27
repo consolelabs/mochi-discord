@@ -64,7 +64,7 @@ async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
     if (member) await drawAvatar(ctx, avatar, member.user)
 
     // username
-    Canvas.registerFont("src/assets/Montserrat-600.ttf", {
+    Canvas.registerFont("src/assets/Montserrat-Bold.ttf", {
       family: "Montserrat",
     })
     ctx.font = "30px Montserrat"
