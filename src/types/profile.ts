@@ -7,7 +7,7 @@ export type User = {
   in_discord_wallet_address: string
 }
 
-type UserXps = {
+export type UserXps = {
   nobility_xp: number
   fame_xp: number
   loyalty_xp: number

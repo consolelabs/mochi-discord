@@ -144,6 +144,7 @@ async function checkExpiredAirdrop(
           guildId: msg.guildId,
           channelId: msg.channelId,
           token: null,
+          transferType: "airdrop",
         }
         await Defi.discordWalletTransfer(JSON.stringify(req), msg)
       }

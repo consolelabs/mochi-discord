@@ -1,7 +1,7 @@
 import profile from "adapters/profile"
 import { Message, MessageAttachment } from "discord.js"
 import { Command } from "types/common"
-import { UserProfile } from "types/profile"
+import { UserProfile, UserXps } from "types/profile"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import * as Canvas from "canvas"
 import { getHeader } from "utils/common"
@@ -34,14 +34,8 @@ async function drawFractionProgressBar(
   ctx: Canvas.CanvasRenderingContext2D,
   container: RectangleStats,
   rootComponent: TextStats,
-  discordId: string
+  xps: UserXps
 ) {
-  const ptProfile = await profile.getPodTownUser(discordId)
-  if (!ptProfile) {
-    return
-  }
-
-  const { xps } = ptProfile
   const fXpTitle = {
     x: rootComponent.x,
     y: rootComponent.y + rootComponent.mb,
@@ -120,14 +114,21 @@ async function drawFractionProgressBar(
 }
 
 async function renderProfile(msg: Message, data: UserProfile) {
+  let withFractionXp = data.guild?.global_xp
+  let ptProfile
+  if (data.guild?.global_xp) {
+    ptProfile = await profile.getPodTownUser(msg.author.id)
+  }
+  withFractionXp = withFractionXp && !!ptProfile && ptProfile.is_verified
+
   const container = {
     x: {
       from: 0,
-      to: 950,
+      to: withFractionXp ? 950 : 900,
     },
     y: {
       from: 0,
-      to: 830,
+      to: withFractionXp ? 830 : 550,
     },
     w: 0,
     h: 0,
@@ -301,8 +302,9 @@ async function renderProfile(msg: Message, data: UserProfile) {
   ctx.fillText(aboutMeStr, aboutMe.x, aboutMe.y)
 
   // fraction XPs
-  if (data.guild.global_xp) {
-    await drawFractionProgressBar(ctx, container, aboutMe, msg.author.id)
+  if (withFractionXp) {
+    const { xps } = ptProfile
+    await drawFractionProgressBar(ctx, container, aboutMe, xps)
   }
 
   return new MessageAttachment(canvas.toBuffer(), "profile.png")

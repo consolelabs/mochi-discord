@@ -350,17 +350,18 @@ class Defi {
       })
     }
 
-    for (const recipientId of recipients) {
-      const user = await msg.guild.members.fetch(recipientId)
-      if (!user) {
-        throw new DiscordWalletTransferError({
-          discordId: sender,
-          guildId: msg.guildId,
-          message: msg,
-          errorMsg: `User <@!${recipientId}> not found`,
-        })
+    if (type !== "withdraw")
+      for (const recipientId of recipients) {
+        const user = await msg.guild.members.fetch(recipientId)
+        if (!user) {
+          throw new DiscordWalletTransferError({
+            discordId: sender,
+            guildId: msg.guildId,
+            message: msg,
+            errorMsg: `User <@!${recipientId}> not found`,
+          })
+        }
       }
-    }
 
     const amount = parseFloat(amountArg)
     if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
@@ -396,6 +397,7 @@ class Defi {
           : undefined,
       all: amountArg === "all",
       token: gTokens[supportedSymbols.indexOf(cryptocurrency)],
+      transferType: type,
     }
   }
 }
