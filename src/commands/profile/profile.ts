@@ -5,68 +5,16 @@ import { UserProfile } from "types/profile"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import * as Canvas from "canvas"
 import { getHeader } from "utils/common"
-import { heightOf, widthOf } from "utils/canvas"
+import {
+  drawAvatar,
+  drawProgressBar,
+  getHighestRoleColor,
+  heightOf,
+  widthOf,
+} from "utils/canvas"
 import { drawRectangle } from "utils/canvas"
-import { RectangleStats } from "types/canvas"
+import { CircleleStats, RectangleStats } from "types/canvas"
 import { PREFIX } from "utils/constants"
-
-function getHighestRoleColor(msg: Message) {
-  const { hexColor } = msg.member.roles.highest
-  return hexColor === "#000000" ? "white" : hexColor
-}
-
-async function drawAvatar(
-  msg: Message,
-  avatar: any,
-  container: any,
-  ctx: Canvas.CanvasRenderingContext2D
-) {
-  ctx.save()
-  const avatarOutlineRadius = avatar.w / 2
-  const avatarOuline = {
-    x: avatarOutlineRadius + container.pl,
-    y: container.pt + avatarOutlineRadius,
-  }
-
-  ctx.beginPath()
-  ctx.lineWidth = 10
-  ctx.arc(avatarOuline.x, avatarOuline.y, avatarOutlineRadius, 0, Math.PI * 2)
-  ctx.strokeStyle = getHighestRoleColor(msg)
-  ctx.stroke()
-  ctx.closePath()
-  ctx.clip()
-
-  const avatarURL = msg.author.displayAvatarURL({ format: "jpeg" })
-  if (avatarURL) {
-    const userAvatar = await Canvas.loadImage(avatarURL)
-    ctx.drawImage(userAvatar, container.pl, container.pt, avatar.w, avatar.h)
-  }
-  ctx.restore()
-}
-
-function drawProgressBar(
-  pgBar: RectangleStats,
-  data: UserProfile,
-  ctx: Canvas.CanvasRenderingContext2D
-) {
-  // pg bar container
-  const radius = 10
-  drawRectangle(ctx, pgBar, radius, "#4a4b4e")
-
-  // pg bar overlay
-  let xpProgress =
-    (data.guild_xp - data.current_level.min_xp) /
-    (data.next_level.min_xp - data.current_level.min_xp)
-  // progress = 1 if already reached max level
-  xpProgress = data.next_level.min_xp ? Math.min(xpProgress, 1) : 1
-  if (xpProgress === 0) return
-  const overlay = pgBar
-  overlay.x.to = Math.max(
-    overlay.x.from + radius * 2,
-    overlay.x.from + overlay.w * xpProgress
-  )
-  drawRectangle(ctx, overlay, radius, "white")
-}
 
 async function renderProfile(msg: Message, data: UserProfile) {
   const container = {
@@ -84,6 +32,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
     pt: 45,
     actualW: 0,
     bgColor: "#303137",
+    radius: 30,
   }
   container.w = container.x.to - container.x.from
   container.h = container.y.to - container.y.from
@@ -92,7 +41,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
 
   // background
   ctx.save()
-  drawRectangle(ctx, container, 30, container.bgColor)
+  drawRectangle(ctx, container, container.bgColor)
   ctx.clip()
   ctx.fillStyle = container.bgColor
   // ctx.fillRect(0, 0, container.w, container.h)
@@ -102,16 +51,25 @@ async function renderProfile(msg: Message, data: UserProfile) {
   ctx.restore()
 
   // avatar
-  const avatar = { w: 150, h: 150, mr: 40, mb: 65 }
-  await drawAvatar(msg, avatar, container, ctx)
+  const avatar: CircleleStats = {
+    x: container.pl,
+    y: container.pt,
+    radius: 75,
+    mr: 40,
+    mb: 65,
+    outlineColor: getHighestRoleColor(msg.member),
+  }
+  avatar.x += avatar.radius
+  avatar.y += avatar.radius
+  await drawAvatar(ctx, avatar, msg.author)
 
   // username
-  ctx.fillStyle = getHighestRoleColor(msg)
+  ctx.fillStyle = getHighestRoleColor(msg.member)
   ctx.font = "bold 37px Manrope"
   const username = {
     w: widthOf(ctx, msg.author.username),
     h: heightOf(ctx, msg.author.username),
-    x: container.pl + avatar.w + avatar.mr,
+    x: container.pl + avatar.radius * 2 + avatar.mr,
     y: container.pt + heightOf(ctx, msg.author.username),
     mb: 15,
     mr: 15,
@@ -142,7 +100,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
   ctx.restore()
 
   // XP progress bar
-  const pgBar = {
+  const pgBar: RectangleStats = {
     x: {
       from: username.x,
       to: container.w - container.pl,
@@ -151,12 +109,15 @@ async function renderProfile(msg: Message, data: UserProfile) {
       from: username.y + username.mb + username.h,
       to: 0,
     },
-    w: container.w - container.pl - username.x,
+    w: 0,
     h: 60,
+    radius: 10,
+    overlayColor: "white",
     mb: 10,
   }
+  pgBar.w = pgBar.x.to - pgBar.x.from
   pgBar.y.to = pgBar.y.from + pgBar.h
-  drawProgressBar(pgBar, data, ctx)
+  drawProgressBar(ctx, pgBar, data.progress)
 
   // Local XP
   ctx.fillStyle = "white"
@@ -164,12 +125,14 @@ async function renderProfile(msg: Message, data: UserProfile) {
   const xpTitleStr = "Local XP"
   const xpTitle = {
     x: container.pl,
-    y: container.pt + avatar.h + avatar.mb + heightOf(ctx, xpTitleStr),
+    y: container.pt + avatar.radius * 2 + avatar.mb + heightOf(ctx, xpTitleStr),
     mr: 70,
     mb: 50,
   }
   ctx.fillText(xpTitleStr, xpTitle.x, xpTitle.y)
 
+  ctx.save()
+  ctx.font = "30px Manrope"
   const xpStr = `${data.guild_xp}`
   const xp = {
     x: xpTitle.x + widthOf(ctx, xpTitleStr) + xpTitle.mr,
@@ -177,6 +140,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
     mr: 170,
   }
   ctx.fillText(xpStr, xp.x, xp.y)
+  ctx.restore()
 
   // Server activities
   const actTitleStr = "Activities"
@@ -187,14 +151,19 @@ async function renderProfile(msg: Message, data: UserProfile) {
   }
   ctx.fillText(actTitleStr, actTitle.x, actTitle.y)
 
+  ctx.save()
+  ctx.font = "30px Manrope"
   const actStr = `${data.nr_of_actions}`
   const act = {
     x: xp.x,
     y: actTitle.y,
   }
   ctx.fillText(actStr, act.x, act.y)
+  ctx.restore()
 
   // XP to lvlup
+  ctx.save()
+  ctx.font = "30px Manrope"
   const lvlupStr = `${Math.max(0, data.next_level.min_xp - data.guild_xp)}`
   const lvlup = {
     x: container.w - container.pl - widthOf(ctx, lvlupStr),
@@ -202,6 +171,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
     ml: 70,
   }
   ctx.fillText(lvlupStr, lvlup.x, lvlup.y)
+  ctx.restore()
 
   const lvlupTitleStr = "XP to level up"
   const lvlupTitle = {
