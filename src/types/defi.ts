@@ -9,6 +9,7 @@ export type DiscordWalletTransferRequest = {
   each?: boolean
   all?: boolean
   token: Token
+  transferType: string
 }
 
 export type Token = {

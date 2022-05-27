@@ -1,5 +1,6 @@
+import { PT_API_SERVER_HOST } from "env"
 import fetch from "node-fetch"
-import { User, UserProfile } from "types/profile"
+import { PodTownUser, User, UserProfile } from "types/profile"
 import { API_BASE_URL } from "utils/constants"
 
 class Profile {
@@ -63,6 +64,34 @@ class Profile {
       throw new Error(json.error)
     }
     return json.data
+  }
+
+  public async getPodTownUser(discordId: string): Promise<PodTownUser> | null {
+    const resp = await fetch(
+      `${PT_API_SERVER_HOST}/api/v1/user/info?discord_id=${discordId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: `Bearer ${NEKO_SECRET}`,
+        },
+      }
+    )
+    const json = await resp.json()
+    switch (json.error) {
+      case "unverified user":
+        return {
+          ...json.user,
+          is_verified: false,
+        }
+      case undefined:
+        return {
+          ...json.user,
+          is_verified: true,
+        }
+      default:
+        return null
+    }
   }
 }
 

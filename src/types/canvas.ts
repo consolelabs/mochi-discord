@@ -1,12 +1,12 @@
-export type LineStats = {
+type LineStats = {
   from: number
   to: number
 }
 
-export type Coordinate = {
+export type TextStats = {
   x: number
   y: number
-}
+} & PositionStats
 
 type PositionStats = {
   ml?: number

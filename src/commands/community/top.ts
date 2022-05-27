@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { GuildMember, Message, MessageAttachment } from "discord.js"
-import { DOT, PREFIX } from "utils/constants"
+import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 import * as Canvas from "canvas"
@@ -64,12 +64,12 @@ async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
     if (member) await drawAvatar(ctx, avatar, member.user)
 
     // username
-    Canvas.registerFont("src/assets/Montserrat.ttf", {
+    Canvas.registerFont("src/assets/Montserrat-Bold.ttf", {
       family: "Montserrat",
     })
     ctx.font = "30px Montserrat"
     ctx.fillStyle = "white"
-    const userRankStr = `#${item.guild_rank} ${DOT} ${
+    const userRankStr = `#${item.guild_rank} - ${
       member?.user.username ?? item.user.username
     }`
     const userRank = {
