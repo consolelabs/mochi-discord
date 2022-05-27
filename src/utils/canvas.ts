@@ -50,7 +50,7 @@ export function drawProgressBar(
   drawRectangle(ctx, pgBarContainer, "#4a4a4a")
   // pg bar overlay
   if (progress === 0) return
-  const overlay = pgBarContainer
+  const overlay = JSON.parse(JSON.stringify(pgBarContainer)) // deep copy
   overlay.x.to = Math.max(
     overlay.x.from + overlay.radius * 2,
     overlay.x.from + overlay.w * progress
