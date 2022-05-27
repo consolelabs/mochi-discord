@@ -173,9 +173,13 @@ class Community {
     return json
   }
 
-  public async getTopXPUsers(msg: Message, page: number): Promise<any> {
+  public async getTopXPUsers(
+    msg: Message,
+    page: number,
+    limit = 10
+  ): Promise<any> {
     const resp = await fetch(
-      `${API_BASE_URL}/users/top?guild_id=${msg.guildId}&user_id=${msg.author.id}&page=${page}`,
+      `${API_BASE_URL}/users/top?guild_id=${msg.guildId}&user_id=${msg.author.id}&page=${page}&limit=${limit}`,
       {
         method: "GET",
       }
