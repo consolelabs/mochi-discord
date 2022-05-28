@@ -16,6 +16,21 @@ const command: Command = {
     if (args.length < 4) {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
+    const errorMessage = `Cannot send gift XP. `
+    if (args[3].toLowerCase() != "xp") {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              color: "#D73833",
+              title: "Gift XP",
+              description: `You can only send XP as gift.`
+            })
+          ]
+        }
+      }
+    }
+
     const adminDiscordId = msg.author.id
     const guildId = msg.guildId
     const userDiscordId = args[1].replace("<@", "").replace(">", "")
@@ -51,13 +66,14 @@ const command: Command = {
           }
         }
       case 400:
-        if (errorMessageGiftXp.includes("cannot gift xp for user")) {
+        if (errorMessageGiftXp.includes("not found")) {
           return {
             messageOptions: {
               embeds: [
                 composeEmbedMessage(msg, {
+                  color: "#D73833",
                   title: "Gift XP",
-                  description: `Cannot send gift XP to user.`
+                  description: errorMessage + `User is not in server.`
                 })
               ]
             }
@@ -69,7 +85,7 @@ const command: Command = {
             embeds: [
               composeEmbedMessage(msg, {
                 title: "Gift XP",
-                description: `Cannot send gift XP to user.`
+                description: errorMessage
               })
             ]
           }
