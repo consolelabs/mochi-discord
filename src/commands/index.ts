@@ -6,6 +6,7 @@ import invite from "./community/invite"
 import profile from "./profile/profile"
 import stats from "./community/stats"
 import nft from "./community/nft"
+import gift from "./community/gift"
 import deposit from "./defi/deposit"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
@@ -51,13 +52,14 @@ export const originalCommands: Record<string, Command> = {
   gm,
   stats,
   nft,
+  gift,
   top,
   // config
   channel,
   reactionrole,
   defaultrole,
   whitelist,
-  levelrole,
+  levelrole
 }
 
 export const commands: Record<string, Command> = getAllAliases(originalCommands)
@@ -66,7 +68,7 @@ export const adminCategories: Record<Category, boolean> = {
   Profile: false,
   Defi: false,
   Community: false,
-  Config: true,
+  Config: true
 }
 
 async function preauthorizeCommand(message: Message, commandObject: Command) {
@@ -84,7 +86,7 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
   throw new CommandNotAllowedToRunError({
     message,
     command: message.content,
-    missingPermissions: ["Administrator"],
+    missingPermissions: ["Administrator"]
   })
 }
 
@@ -110,7 +112,7 @@ async function executeCommand(
     if (runResponse.commandChoiceOptions) {
       CommandChoiceManager.add({
         ...runResponse.commandChoiceOptions,
-        messageId: output.id,
+        messageId: output.id
       })
     }
   }
