@@ -31,6 +31,20 @@ const command: Command = {
       }
     }
 
+    if (parseInt(args[2]) <= 0) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              color: "#D73833",
+              title: "Gift XP",
+              description: `Invalid XP amount.`
+            })
+          ]
+        }
+      }
+    }
+
     const adminDiscordId = msg.author.id
     const guildId = msg.guildId
     const userDiscordId = args[1].replace("<@", "").replace(">", "")
