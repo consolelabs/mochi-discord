@@ -29,6 +29,7 @@ import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import top from "./community/top"
 import levelrole from "./config/levelRole"
+import globalxp from "./config/globalxp"
 import { Command, Category } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { hasAdministrator } from "utils/common"
@@ -59,7 +60,8 @@ export const originalCommands: Record<string, Command> = {
   reactionrole,
   defaultrole,
   whitelist,
-  levelrole
+  levelrole,
+  globalxp,
 }
 
 export const commands: Record<string, Command> = getAllAliases(originalCommands)
@@ -68,7 +70,7 @@ export const adminCategories: Record<Category, boolean> = {
   Profile: false,
   Defi: false,
   Community: false,
-  Config: true
+  Config: true,
 }
 
 async function preauthorizeCommand(message: Message, commandObject: Command) {
@@ -86,7 +88,7 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
   throw new CommandNotAllowedToRunError({
     message,
     command: message.content,
-    missingPermissions: ["Administrator"]
+    missingPermissions: ["Administrator"],
   })
 }
 
@@ -112,7 +114,7 @@ async function executeCommand(
     if (runResponse.commandChoiceOptions) {
       CommandChoiceManager.add({
         ...runResponse.commandChoiceOptions,
-        messageId: output.id
+        messageId: output.id,
       })
     }
   }
