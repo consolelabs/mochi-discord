@@ -6,6 +6,7 @@ import invite from "./community/invite"
 import profile from "./profile/profile"
 import stats from "./community/stats"
 import nft from "./community/nft"
+import gift from "./community/gift"
 import deposit from "./defi/deposit"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
@@ -28,6 +29,7 @@ import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import top from "./community/top"
 import levelrole from "./config/levelRole"
+import globalxp from "./config/globalxp"
 import { Command, Category } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { hasAdministrator } from "utils/common"
@@ -51,6 +53,7 @@ export const originalCommands: Record<string, Command> = {
   gm,
   stats,
   nft,
+  gift,
   top,
   // config
   channel,
@@ -58,6 +61,7 @@ export const originalCommands: Record<string, Command> = {
   defaultrole,
   whitelist,
   levelrole,
+  globalxp,
 }
 
 export const commands: Record<string, Command> = getAllAliases(originalCommands)

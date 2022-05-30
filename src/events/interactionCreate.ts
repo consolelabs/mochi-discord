@@ -1,3 +1,4 @@
+import { confirmGlobalXP } from "commands/config/globalxp"
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
 import { sendVerifyURL } from "commands/profile/verify"
 import { SelectMenuInteraction, ButtonInteraction, Message } from "discord.js"
@@ -85,6 +86,9 @@ async function handleButtonInteraction(
       return
     case interaction.customId.startsWith("mochi_verify"):
       await sendVerifyURL(buttonInteraction)
+      return
+    case interaction.customId.startsWith("globalxp"):
+      await confirmGlobalXP(buttonInteraction, msg)
       return
     default:
       return
