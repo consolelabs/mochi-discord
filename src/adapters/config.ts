@@ -400,6 +400,21 @@ class Config {
     }
     return json.data
   }
+
+  public async toggleGuildGlobalXP(guildId: string, global_xp: boolean) {
+    const res = await fetch(`${API_BASE_URL}/guilds/global-xp/${guildId}`, {
+      method: "PUT",
+      body: JSON.stringify({ global_xp }),
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to toggle guild global XP - guild ${guildId}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+  }
 }
 
 const config = new Config()
