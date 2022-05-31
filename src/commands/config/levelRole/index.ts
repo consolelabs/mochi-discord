@@ -4,9 +4,11 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 import list from "./list"
+import remove from "./remove"
 
 const actions: Record<string, Command> = {
   list,
+  remove,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 
@@ -91,7 +93,6 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["lr"],
   actions,
-  experimental: true,
 }
 
 export default command
