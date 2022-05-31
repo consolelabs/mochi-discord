@@ -57,9 +57,8 @@ const command: Command = {
     const components = new MessageActionRow().addComponents(
       new MessageButton({
         customId: `globalxp_confirm-${msg.author.id}-${guild.global_xp}`,
-        emoji: "✅",
-        style: "PRIMARY",
-        label: "Confirm",
+        style: guild.global_xp ? "DANGER" : "PRIMARY",
+        label: guild.global_xp ? "Disable" : "Enable",
       }),
       getExitButton()
     )

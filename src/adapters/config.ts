@@ -401,6 +401,24 @@ class Config {
     return json.data
   }
 
+  public async removeGuildLevelRoleConfig(guildId: string, level: number) {
+    const res = await fetch(
+      `${API_BASE_URL}/configs/level-roles/${guildId}?level=${level}`,
+      {
+        method: "DELETE",
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to remove levelrole config - guild ${guildId}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
+
   public async toggleGuildGlobalXP(guildId: string, global_xp: boolean) {
     const res = await fetch(`${API_BASE_URL}/guilds/global-xp/${guildId}`, {
       method: "PUT",
