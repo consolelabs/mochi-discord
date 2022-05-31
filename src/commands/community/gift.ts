@@ -31,6 +31,7 @@ const command: Command = {
       }
     }
 
+    // check if negative xp or not
     if (parseInt(args[2]) <= 0) {
       return {
         messageOptions: {
