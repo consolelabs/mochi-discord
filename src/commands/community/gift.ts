@@ -82,8 +82,8 @@ const command: Command = {
         if (dataGiftXp.data.level_up) {
           await msg.channel.send(
             await composeLevelUpMessage(
-              msg.author.id,
-              msg.author.avatar,
+              userDiscordId,
+              msg.mentions.users.get(userDiscordId).avatar,
               dataGiftXp.data.current_level
             )
           )
