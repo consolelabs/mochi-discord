@@ -15,6 +15,8 @@ function normalizeCommand(message: Message) {
 }
 
 export const handleNormalMessage = async (message: Message) => {
+  if (message.channel.type === "DM") return
+
   const resp = await webhook.pushDiscordWebhook("messageCreate", {
     author: {
       id: message.author.id,
