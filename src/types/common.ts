@@ -30,6 +30,7 @@ export type Command = {
   // can only run in admin channels & won't be shown in `$help` message
   experimental?: boolean
   actions?: Record<string, Command>
+  allowDM?: boolean
 }
 
 export type EmbedProperties = {

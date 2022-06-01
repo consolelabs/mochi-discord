@@ -15,7 +15,7 @@ async function deposit(msg: Message) {
     if (!user) {
       throw new UserNotFoundError({
         message: msg,
-        guildId: msg.guild?.id,
+        guildId: msg.guildId,
         discordId: msg.author.id,
       })
     }
@@ -32,6 +32,11 @@ async function deposit(msg: Message) {
         }),
       ],
     })
+
+    if (msg.channel.type === "DM")
+      return {
+        messageOptions: null,
+      }
 
     return {
       messageOptions: {
@@ -66,6 +71,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   aliases: ["dep"],
+  allowDM: true,
 }
 
 export default command
