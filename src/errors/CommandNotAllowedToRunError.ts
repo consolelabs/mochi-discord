@@ -14,7 +14,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
   }: {
     message: Message
     command: string
-    missingPermissions: string[]
+    missingPermissions?: string[]
   }) {
     super()
     this.name = "Command not allowed to run"
@@ -22,7 +22,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
     this.missingPermissions = missingPermissions
     const channel = message.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild.name,
+      guild: message.guild?.name,
       channel: channel.name,
       user: message.author.tag,
       data: { command },
@@ -31,14 +31,21 @@ export class CommandNotAllowedToRunError extends BotBaseError {
 
   handle() {
     super.handle()
+    let errorEmbed
+    if (this.missingPermissions) {
+      errorEmbed = getErrorEmbed({
+        msg: this.discordMessage,
+        title: `${defaultEmojis.ERROR} Insufficient permissions`,
+        description: `<@${this.discordMessage.author.id}>, you need the following permissions on this channel to run this command`,
+      }).addField("Missing permissions", this.missingPermissions.join(", "))
+    } else {
+      errorEmbed = getErrorEmbed({
+        msg: this.discordMessage,
+        description: "This command is not allowed to run in DM",
+      })
+    }
     this.discordMessage.reply({
-      embeds: [
-        getErrorEmbed({
-          msg: this.discordMessage,
-          title: `${defaultEmojis.ERROR} Insufficient permissions`,
-          description: `<@${this.discordMessage.author.id}>, you need the following permissions on this channel to run this command`,
-        }).addField("Missing permissions", this.missingPermissions.join(", ")),
-      ],
+      embeds: [errorEmbed],
     })
   }
 }

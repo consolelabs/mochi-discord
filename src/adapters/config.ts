@@ -65,12 +65,13 @@ class Config {
   }
 
   public async commandIsScoped(
-    guildId: string,
+    msg: Message,
     category: string,
     command: string
   ): Promise<boolean> {
-    const scopes = await this.getGuildScopes(guildId)
+    if (msg.channel.type === "DM") return true
 
+    const scopes = await this.getGuildScopes(msg.guildId)
     const cat = category.toLowerCase()
     const cmd = command.toLowerCase()
 
@@ -104,9 +105,9 @@ class Config {
     message: Message,
     commandObject: Command
   ) {
-    if (commandObject.id === "help") return
+    if (commandObject.id === "help" || message.channel.type === "DM") return
     const isInScoped = await this.commandIsScoped(
-      message.guildId,
+      message,
       commandObject.category,
       commandObject.command
     )
@@ -120,11 +121,12 @@ class Config {
   }
 
   public async categoryIsScoped(
-    guildId: string,
+    msg: Message,
     category: string
   ): Promise<boolean> {
-    const scopes = await this.getGuildScopes(guildId)
+    if (msg.channel.type === "DM") return true
 
+    const scopes = await this.getGuildScopes(msg.guildId)
     const cat = category.toLowerCase()
 
     for (const scope of scopes) {

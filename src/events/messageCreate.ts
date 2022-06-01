@@ -54,12 +54,7 @@ export default {
   once: false,
   execute: async (message: Message) => {
     message.content = normalizeCommand(message)
-    if (
-      message.channel.id === LOG_CHANNEL_ID ||
-      message.author.bot ||
-      message.channel.type === "DM"
-    )
-      return
+    if (message.channel.id === LOG_CHANNEL_ID || message.author.bot) return
 
     try {
       if (message.content.startsWith(PREFIX)) {
