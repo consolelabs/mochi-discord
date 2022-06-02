@@ -13,6 +13,7 @@ import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
 import { getCommandObject } from "utils/commands"
 import { API_BASE_URL } from "utils/constants"
 import Config from "./config"
+import { logger } from "logger"
 
 class Defi {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
@@ -350,7 +351,7 @@ class Defi {
       })
     }
 
-    if (type !== "withdraw")
+    if (type !== "withdraw") {
       for (const recipientId of recipients) {
         const user = await msg.guild.members.fetch(recipientId)
         if (!user) {
@@ -362,6 +363,7 @@ class Defi {
           })
         }
       }
+    }
 
     const amount = parseFloat(amountArg)
     if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
@@ -372,6 +374,12 @@ class Defi {
         errorMsg: "Invalid amount",
       })
     }
+
+    logger.info(
+      `[${msg.guildId} / ${
+        msg.channelId
+      }][${type}]: ${sender} - [${recipients.toString()}] | ${amount} ${cryptocurrency}`
+    )
 
     const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
     const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
