@@ -70,7 +70,7 @@ async function renderStatEmbed(
       statType = " all, static, animated"
       break
     case "stickers":
-      statType = " all, standard, guild"
+      statType = " all, custom, server"
       break
     case "roles":
       statType = " all"
@@ -150,7 +150,7 @@ const command: Command = {
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
-      usage: `${PREFIX}stats`,
+      usage: `${PREFIX}stats -> select which stats from dropdown -> select which type from dropdown`,
       footer: [`Type ${PREFIX}help stats`],
       examples: `${PREFIX}stats`,
     })
