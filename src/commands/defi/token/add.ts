@@ -1,7 +1,7 @@
 import {
   Message,
   MessageSelectOptionData,
-  SelectMenuInteraction
+  SelectMenuInteraction,
 } from "discord.js"
 import { Command } from "types/common"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
@@ -11,12 +11,12 @@ import {
   composeDiscordExitButton,
   composeDiscordSelectionRow,
   composeEmbedMessage,
-  getErrorEmbed
+  getErrorEmbed,
 } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 import Defi from "../../../adapters/defi"
 
-const handler: CommandChoiceHandler = async msgOrInteraction => {
+const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const symbol = interaction.values[0]
@@ -24,18 +24,18 @@ const handler: CommandChoiceHandler = async msgOrInteraction => {
   await Config.updateTokenConfig({
     guild_id: message.guildId,
     symbol,
-    active: true
+    active: true,
   })
 
   return {
     messageOptions: {
       embeds: [
         composeEmbedMessage(message, {
-          description: `Successfully added **${symbol.toUpperCase()}** to server's tokens list.`
-        })
+          description: `Successfully added **${symbol.toUpperCase()}** to server's tokens list.`,
+        }),
       ],
-      components: []
-    }
+      components: [],
+    },
   }
 }
 
@@ -45,14 +45,14 @@ const command: Command = {
   brief: "Add a token to your server's list",
   category: "Community",
   onlyAdministrator: true,
-  run: async function(msg) {
+  run: async function (msg) {
     const tokens = await Defi.getSupportedTokens()
     const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
     const options: MessageSelectOptionData[] = tokens
-      .filter(t => !gTokens.map(gToken => gToken.id).includes(t.id))
-      .map(token => ({
+      .filter((t) => !gTokens.map((gToken) => gToken.id).includes(t.id))
+      .map((token) => ({
         label: `${token.name} (${token.symbol})`,
-        value: token.symbol
+        value: token.symbol,
       }))
 
     if (!options.length)
@@ -62,16 +62,16 @@ const command: Command = {
             getErrorEmbed({
               msg,
               title: `${defaultEmojis.ERROR} Command error`,
-              description: "Your server already had all supported tokens."
-            })
-          ]
-        }
+              description: "Your server already had all supported tokens.",
+            }),
+          ],
+        },
       }
 
     const selectionRow = composeDiscordSelectionRow({
       customId: "guild_tokens_selection",
       placeholder: "Make a selection",
-      options
+      options,
     })
 
     return {
@@ -80,29 +80,29 @@ const command: Command = {
           composeEmbedMessage(msg, {
             title: "Need action",
             description:
-              "Select to add one of the following tokens to your server."
-          })
+              "Select to add one of the following tokens to your server.",
+          }),
         ],
-        components: [selectionRow, composeDiscordExitButton()]
+        components: [selectionRow, composeDiscordExitButton()],
       },
       commandChoiceOptions: {
         userId: msg.author.id,
         messageId: msg.id,
         channelId: msg.channelId,
         guildId: msg.guildId,
-        handler
-      }
+        handler,
+      },
     }
   },
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}tokens add`,
-        examples: `${PREFIX}tokens add`
-      })
-    ]
+        examples: `${PREFIX}tokens add`,
+      }),
+    ],
   }),
-  canRunWithoutAction: true
+  canRunWithoutAction: true,
 }
 
 export default command

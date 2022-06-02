@@ -330,13 +330,13 @@ class Defi {
       }
 
       case "withdraw": {
-        const toAddress = args[1]
+        const toAddress = args[3]
         if (!toAddress.startsWith("0x")) {
           throw new Error("Invalid destination address")
         }
         recipients = [toAddress]
-        amountArg = args[2].toLowerCase()
-        cryptocurrency = args[3].toUpperCase()
+        amountArg = args[1].toLowerCase()
+        cryptocurrency = args[2].toUpperCase()
         break
       }
     }

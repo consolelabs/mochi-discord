@@ -63,7 +63,7 @@ const command: Command = {
     let idx = 0
     for (const item of Object.values(categories)) {
       const category = item[0]
-      if (!(await config.categoryIsScoped(msg.guildId, category))) continue
+      if (!(await config.categoryIsScoped(msg, category))) continue
 
       const commandsByCat = (
         await Promise.all(
@@ -71,11 +71,7 @@ const command: Command = {
             .filter((cmd) => cmd.id !== "help")
             .filter(
               async (cmd) =>
-                await config.commandIsScoped(
-                  msg.guildId,
-                  cmd.category,
-                  cmd.command
-                )
+                await config.commandIsScoped(msg, cmd.category, cmd.command)
             )
         )
       )
@@ -99,6 +95,7 @@ const command: Command = {
 
     return { embeds: [embedMsg] }
   },
+  allowDM: true,
 }
 
 export default command

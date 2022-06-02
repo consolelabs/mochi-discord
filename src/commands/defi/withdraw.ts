@@ -1,10 +1,38 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
 import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
-import { defaultEmojis, getEmoji, getHeader } from "utils/common"
+import { defaultEmojis, getEmoji } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import {
+  composeButtonLink,
+  composeEmbedMessage,
+  getErrorEmbed,
+} from "utils/discordEmbed"
+
+async function getDestinationAddress(
+  msg: Message,
+  dm: Message
+): Promise<string> {
+  const filter = (collected: Message) => collected.author.id === msg.author.id
+  const collected = await dm.channel.awaitMessages({
+    max: 1,
+    filter,
+  })
+  const userReply = collected.first()
+  if (!userReply.content.trim().startsWith("0x")) {
+    await userReply.reply({
+      embeds: [
+        getErrorEmbed({
+          msg,
+          description: "Invalid input!\nPlease re-enter a valid address...",
+        }),
+      ],
+    })
+    return await getDestinationAddress(msg, dm)
+  }
+  return userReply.content.trim()
+}
 
 async function withdraw(msg: Message, args: string[]) {
   const payload = await Defi.getTransferPayload(msg, args)
@@ -29,9 +57,7 @@ async function withdraw(msg: Message, args: string[]) {
       false
     )
 
-  return {
-    embeds: [embedMsg],
-  }
+  await msg.author.send({ embeds: [embedMsg] })
 }
 
 const command: Command = {
@@ -41,18 +67,28 @@ const command: Command = {
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
-    if (args.length < 4) {
+    if (args.length < 3) {
       const helpMessage = await this.getHelpMessage(msg)
       msg.channel.send(helpMessage)
       return
     }
 
-    const embeds = await withdraw(msg, args)
+    const dm = await msg.author.send(
+      "Please enter your destination address here.\ne.g. 0xabcdde"
+    )
+    msg.channel.send({
+      embeds: [
+        composeEmbedMessage(msg, {
+          description: `:information_source: Info\n<@${msg.author.id}>, a withdrawal message has been sent to you via a DM`,
+        }),
+      ],
+      components: [composeButtonLink("See the DM", dm.url)],
+    })
+    args[3] = await getDestinationAddress(msg, dm)
+    await withdraw(msg, args)
+
     return {
-      messageOptions: {
-        ...embeds,
-        content: getHeader("Here is your withdrawal receipt!", msg.author),
-      },
+      messageOptions: null,
     }
   },
   getHelpMessage: async (msg) => {
@@ -63,8 +99,8 @@ const command: Command = {
       "\nA network fee will be added on top of your withdrawal (or deducted if you can't afford it). You will be asked to confirm it."
     const embedMsg = composeEmbedMessage(msg, {
       description,
-      usage: `${PREFIX}withdraw <address> <amount> <token>`,
-      examples: `${PREFIX}withdraw 0x00000000000000000000000000000000000 5 ftm`,
+      usage: `${PREFIX}withdraw <amount> <token>`,
+      examples: `${PREFIX}withdraw 5 ftm`,
       footer: [DEFI_DEFAULT_FOOTER],
     })
     return { embeds: [embedMsg] }

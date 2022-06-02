@@ -64,7 +64,7 @@ export const originalCommands: Record<string, Command> = {
   globalxp,
 }
 
-export const commands: Record<string, Command> = getAllAliases(originalCommands)
+export const commands = getAllAliases(originalCommands)
 
 export const adminCategories: Record<Category, boolean> = {
   Profile: false,
@@ -78,17 +78,17 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
     throw new CommandNotFoundError({ message, command: message.content })
   }
 
+  const isDM = message.channel.type === "DM"
   const actionObject = getActionCommand(message)
-  if (
-    !(actionObject ?? commandObject).onlyAdministrator ||
-    hasAdministrator(message)
-  )
+  const executingObj = actionObject ?? commandObject
+  if (isDM && executingObj.allowDM) return
+  if (!isDM && (!executingObj.onlyAdministrator || hasAdministrator(message)))
     return
 
   throw new CommandNotAllowedToRunError({
     message,
     command: message.content,
-    missingPermissions: ["Administrator"],
+    missingPermissions: isDM ? null : ["Administrator"],
   })
 }
 
@@ -127,18 +127,23 @@ export default async function handlePrefixedCommand(message: Message) {
     ? [args[0].slice(PREFIX.length), args[1]] // e.g. $invite leaderboard
     : [args[1], args[2]] // e.g. $help invite leaderboard
   const commandObject = commands[commandKey]
+
   logger.info(
-    `[${message.guild.name}][${message.author.username}] executing command: ${args}`
+    `[${message.guild?.name ?? "DM"}][${
+      message.author.username
+    }] executing command: ${args}`
   )
 
   // handle custom commands
-  const customCommands = await guildCustomCommand.listGuildCustomCommands(
-    message.guildId
-  )
-  for (let i = 0; i < customCommands.length; i++) {
-    if (customCommands[i].id.toLowerCase() === commandKey.toLowerCase()) {
-      customCommandsExecute(message, customCommands[i])
-      return
+  if (message.channel.type !== "DM") {
+    const customCommands = await guildCustomCommand.listGuildCustomCommands(
+      message.guildId
+    )
+    for (let i = 0; i < customCommands.length; i++) {
+      if (customCommands[i].id.toLowerCase() === commandKey.toLowerCase()) {
+        customCommandsExecute(message, customCommands[i])
+        return
+      }
     }
   }
 

@@ -7,7 +7,7 @@ export class CommandNotFoundError extends BotBaseError {
     this.name = "Command not found"
     const channel = message.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild.name,
+      guild: message.guild?.name,
       channel: channel.name,
       user: message.author.tag,
       data: { command },

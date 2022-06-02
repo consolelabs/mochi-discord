@@ -3,6 +3,7 @@ import { PREFIX } from "utils/constants"
 import { API_BASE_URL } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
+import { composeLevelUpMessage } from "utils/userXP"
 import fetch from "node-fetch"
 
 const command: Command = {
@@ -69,16 +70,25 @@ const command: Command = {
     const errorMessageGiftXp = dataGiftXp.error
     switch (respGiftXp.status) {
       case 200:
-        return {
-          messageOptions: {
-            embeds: [
-              composeEmbedMessage(msg, {
-                title: "Gift XP",
-                description: `<@${adminDiscordId}> has sent ${xpAmount} XP as gift for <@${userDiscordId}>`
-              })
-            ]
-          }
+        await msg.channel.send({
+          embeds: [
+            composeEmbedMessage(msg, {
+              title: "Gift XP",
+              description: `<@${adminDiscordId}> has sent ${xpAmount} XP as gift for <@${userDiscordId}>`
+            })
+          ]
+        })
+
+        if (dataGiftXp.data.level_up) {
+          await msg.channel.send(
+            await composeLevelUpMessage(
+              userDiscordId,
+              msg.mentions.users.get(userDiscordId).avatar,
+              dataGiftXp.data.current_level
+            )
+          )
         }
+        return
       case 400:
         if (errorMessageGiftXp.includes("not found")) {
           return {
