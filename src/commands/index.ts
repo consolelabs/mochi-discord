@@ -15,7 +15,11 @@ import tokens from "./defi/token"
 import { getActionCommand, getAllAliases } from "utils/commands"
 import { specificHelpCommand } from "utils/commands"
 import config from "../adapters/config"
-import { CommandNotAllowedToRunError, CommandNotFoundError } from "errors"
+import {
+  BotBaseError,
+  CommandNotAllowedToRunError,
+  CommandNotFoundError,
+} from "errors"
 import guildCustomCommand from "../adapters/guildCustomCommand"
 import { customCommandsExecute } from "./customCommand"
 import CommandChoiceManager from "utils/CommandChoiceManager"
@@ -33,6 +37,8 @@ import globalxp from "./config/globalxp"
 import { Command, Category } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { hasAdministrator } from "utils/common"
+import ChannelLogger from "utils/ChannelLogger"
+import { getErrorEmbed } from "utils/discordEmbed"
 
 export const originalCommands: Record<string, Command> = {
   // general help
@@ -150,5 +156,17 @@ export default async function handlePrefixedCommand(message: Message) {
   // handle default commands
   await preauthorizeCommand(message, commandObject)
   await config.checkGuildCommandScopes(message, commandObject)
-  await executeCommand(message, commandObject, action, isSpecificHelpCommand)
+
+  try {
+    await executeCommand(message, commandObject, action, isSpecificHelpCommand)
+  } catch (e) {
+    const error = e as BotBaseError
+    if (error.handle) {
+      error.handle()
+    } else {
+      logger.error(e as string)
+      await message.reply({ embeds: [getErrorEmbed({ msg: message })] })
+    }
+    ChannelLogger.log(error)
+  }
 }
