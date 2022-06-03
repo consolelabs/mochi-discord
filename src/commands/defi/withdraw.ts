@@ -76,7 +76,7 @@ const command: Command = {
     const dm = await msg.author.send(
       "Please enter your destination address here.\ne.g. 0xabcdde"
     )
-    msg.channel.send({
+    msg.reply({
       embeds: [
         composeEmbedMessage(msg, {
           description: `:information_source: Info\n<@${msg.author.id}>, a withdrawal message has been sent to you via a DM`,
