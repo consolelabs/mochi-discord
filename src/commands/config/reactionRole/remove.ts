@@ -19,30 +19,41 @@ const command: Command = {
   run: async (msg: Message) => {
     let description = ""
     const args = getCommandArguments(msg)
-    if (args.length < 3) {
-      return
+
+    // Validate command syntax
+    if (![3, 5].includes(args.length)) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              usage: `To remove a specific configuration in a message\n${PREFIX}rr remove <message_id> <emoji> <role>\n\nTo clear all configurations in a message\n${PREFIX}rr remove <message_id>`,
+              examples: `${PREFIX}rr remove 967107573591457832 ✅ @Visitor\n${PREFIX}rr remove 967107573591457832`,
+            }),
+          ],
+        },
+      }
     }
 
     let requestData: RoleReactionEvent
 
-    if (args.length >= 5) {
-      let reactionEmoji
-      const emojiSplit = args[3].split(":")
-      reactionEmoji = emojiSplit.length === 1 ? args[3] : args[3].replace(/\D/g, "")
-
-      requestData = {
-        guild_id: msg.guild.id,
-        message_id: args[2].replace(/\D/g, ""),
-        reaction: reactionEmoji,
-        role_id: args[4].replace(/\D/g, ""), // Accept number-only characters
-      }
-    } else {
-      requestData = {
-        guild_id: msg.guild.id,
-        message_id: args[2].replace(/\D/g, ""),
-        reaction: "",
-        role_id: "",
-      }
+    switch (args.length) {
+      case 5:
+        requestData = {
+          guild_id: msg.guild.id,
+          message_id: args[2].replace(/\D/g, ""),
+          reaction: args[3],
+          role_id: args[4].replace(/\D/g, ""), // Accept number-only characters
+        }
+        break
+    
+      case 3:
+        requestData = {
+          guild_id: msg.guild.id,
+          message_id: args[2].replace(/\D/g, ""),
+          reaction: "",
+          role_id: "",
+        }
+        break
     }
 
     try {
@@ -58,12 +69,16 @@ const command: Command = {
 
         if (reaction && role_id) {
           description = `Reaction ${reaction} for this role <@&${role_id}> is now unset`
-  
+
+          let reactionEmoji: string
+          const emojiSplit = reaction.split(":")
+          reactionEmoji = emojiSplit.length === 1 ? reaction : reaction.replace(/\D/g, "")
+
           // Remove a specific reaction
           channelList.forEach((chan) =>
             chan.messages
               .fetch(requestData.message_id)
-              .then((val) => val.reactions.cache.get(reaction).remove())
+              .then((val) => val.reactions.cache.get(reactionEmoji).remove())
               .catch(err => err?.code === 10008 ? null : ChannelLogger.log(err as BotBaseError))
           )
         } else {
