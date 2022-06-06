@@ -29,7 +29,7 @@ const command: Command = {
               const [err, fetchedMsg] = await prom
               if (!err && conf.roles?.length > 0) {
                 const des =
-                  `\n[<#${fetchedMsg.channelId}>](${fetchedMsg.url})\n` +
+                  `\n[<#${fetchedMsg.channelId}>](${fetchedMsg.url}) (${conf.message_id})\n` +
                   conf.roles
                     .map(
                       (role: any) =>

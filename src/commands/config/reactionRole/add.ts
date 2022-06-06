@@ -20,8 +20,17 @@ const command: Command = {
     let description = ""
     const args = getCommandArguments(msg)
 
-    if (args.length < 5) {
-      return
+    if (args.length !== 5) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              usage: `${PREFIX}rr add <message_id> <emoji> <role>`,
+              examples: `${PREFIX}rr add 967107573591457832 ✅ @Visitor`,
+            }),
+          ],
+        },
+      }
     }
 
     let reaction = args[3]
@@ -68,7 +77,6 @@ const command: Command = {
           )
         }
       } catch (error) {
-        console.log("error reaction: ", error)
         ChannelLogger.log(error as BotBaseError)
         description = `${requestData.reaction} has already been configured, please try to set another one`
       }

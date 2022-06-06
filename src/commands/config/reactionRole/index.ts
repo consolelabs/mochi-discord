@@ -31,6 +31,11 @@ const command: Command = {
         messageOptions: await this.getHelpMessage(msg, action),
       }
     }
+    if (!actionObj) {
+      return {
+        messageOptions: await this.getHelpMessage(msg, action),
+      }
+    } 
   },
   getHelpMessage: async (msg, action) => {
     const actionObj = commands[action]
