@@ -41,8 +41,10 @@ const command: Command = {
             }
           })
         )
-        description = values.length
-          ? values.join("")
+
+        const data = values.join("").trim()
+        description = data.length
+          ? data
           : "No reaction role configurations found"
       } else {
         description = "Failed to get reaction role configurations"
