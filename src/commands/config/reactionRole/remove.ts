@@ -16,6 +16,7 @@ const command: Command = {
   command: "remove",
   brief: "Remove a reaction role configuration",
   category: "Config",
+  onlyAdministrator: true,
   run: async (msg: Message) => {
     let description = ""
     const args = getCommandArguments(msg)

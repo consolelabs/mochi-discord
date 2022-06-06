@@ -3,21 +3,21 @@ import { getAllAliases } from "utils/commands"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import list from "./list"
-import add from "./add"
+import set from "./set"
 import remove from "./remove"
+import info from "./info"
 
 const actions: Record<string, Command> = {
-  list,
-  add,
+  set,
   remove,
+  info,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 
 const command: Command = {
-  id: "reactionrole",
-  command: "reactionrole",
-  brief: "Reaction Role Configuration",
+  id: "defaultrole",
+  command: "defaultrole",
+  brief: "Default Role Configuration",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg, action) {
@@ -44,13 +44,13 @@ const command: Command = {
       return actionObj.getHelpMessage(msg)
     }
     const embed = composeEmbedMessage(msg, {
-      usage: `${PREFIX}rr <action>`,
-      footer: [`Type ${PREFIX}help rr <action> for a specific action!`],
+      usage: `${PREFIX}dr <action>`,
+      footer: [`Type ${PREFIX}help dr <action> for a specific action!`],
     })
 
     return { embeds: [embed] }
   },
-  aliases: ["rr"],
+  aliases: ["dr"],
   actions,
 }
 
