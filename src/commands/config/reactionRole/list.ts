@@ -11,6 +11,7 @@ const command: Command = {
   command: "list",
   brief: "List all active reaction role configurations",
   category: "Config",
+  onlyAdministrator: true,
   run: async (msg: Message) => {
     try {
       let description = ""
