@@ -435,6 +435,75 @@ class Config {
       throw new Error(json.error)
     }
   }
+
+  public async newGuildNFTRoleConfig(body: {
+    guild_id: string
+    role_id: string
+    nft_collection_id: string
+    number_of_tokens: number
+    token_id: string | null
+  }) {
+    const res = await fetch(`${API_BASE_URL}/configs/nft-roles`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    })
+    if (res.status !== 201) {
+      throw new Error(`failed to config nft role - guild ${body.guild_id}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+  }
+
+  public async getGuildNFTRoleConfigs(guildId: string) {
+    const res = await fetch(`${API_BASE_URL}/configs/nft-roles/?guild_id=${guildId}`, {
+      method: "GET",
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to get nftroles configs - guild ${guildId}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
+
+  public async removeGuildNFTRoleConfig(roleId: string) {
+    const res = await fetch(
+      `${API_BASE_URL}/configs/nft-roles/${roleId}`,
+      {
+        method: "DELETE",
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to remove nftrole config - role ${roleId}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
+
+  public async getAllNFTCollections() {
+    const res = await fetch(`${API_BASE_URL}/nfts`, {
+      method: "GET",
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to get nft collections`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
 }
 
 const config = new Config()

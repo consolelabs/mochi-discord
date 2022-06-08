@@ -33,6 +33,7 @@ import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import top from "./community/top"
 import levelrole from "./config/levelRole"
+import nftrole from "./config/nftRole"
 import globalxp from "./config/globalxp"
 import { Command, Category } from "types/common"
 import { getCommandArguments } from "utils/commands"
@@ -67,6 +68,7 @@ export const originalCommands: Record<string, Command> = {
   defaultrole,
   whitelist,
   levelrole,
+  nftrole,
   globalxp,
 }
 
