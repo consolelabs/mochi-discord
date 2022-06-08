@@ -5,6 +5,7 @@ import {
   DiscordWalletTransferRequest,
   Token,
   DiscordWalletBalances,
+  Coin,
 } from "types/defi"
 import dayjs from "dayjs"
 import { BotBaseError, InvalidInputError } from "errors"
@@ -159,7 +160,7 @@ class Defi {
     return json.data
   }
 
-  public async getCoin(message: Message, id: string) {
+  public async getCoin(message: Message, id: string): Promise<Coin> {
     const resp = await fetch(`${API_BASE_URL}/defi/coins/${id}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
@@ -194,7 +195,7 @@ class Defi {
 
   async getHistoricalMarketData(
     message: Message,
-    id: string,
+    coin_id: string,
     currency: string,
     days: number
   ): Promise<{
@@ -204,7 +205,7 @@ class Defi {
     to: string
   }> {
     const resp = await fetch(
-      `${API_BASE_URL}/defi/market-chart?coin_id=${id}&currency=${currency}&days=${days}`,
+      `${API_BASE_URL}/defi/market-chart?coin_id=${coin_id}&currency=${currency}&days=${days}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
