@@ -11,6 +11,7 @@ const command: Command = {
   command: "list",
   brief: "List all active reaction role configurations",
   category: "Config",
+  onlyAdministrator: true,
   run: async (msg: Message) => {
     try {
       let description = ""
@@ -27,9 +28,9 @@ const command: Command = {
             )
             for (const prom of promiseArr) {
               const [err, fetchedMsg] = await prom
-              if (!err) {
+              if (!err && conf.roles?.length > 0) {
                 const des =
-                  `\n[${conf.message_id}](${fetchedMsg.url})\n` +
+                  `\n[<#${fetchedMsg.channelId}>](${fetchedMsg.url}) (${conf.message_id})\n` +
                   conf.roles
                     .map(
                       (role: any) =>
@@ -41,8 +42,10 @@ const command: Command = {
             }
           })
         )
-        description = values.length
-          ? values.join("")
+
+        const data = values.join("").trim()
+        description = data.length
+          ? data
           : "No reaction role configurations found"
       } else {
         description = "Failed to get reaction role configurations"
