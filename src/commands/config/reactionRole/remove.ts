@@ -4,7 +4,7 @@ import {
   RoleReactionEvent,
 } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message, TextChannel } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
@@ -35,22 +35,54 @@ const command: Command = {
       }
     }
 
-    let requestData: RoleReactionEvent
+    // Validate message_id
+    const messageId = args[2].replace(/\D/g, "")
+    let message: Message  
+    
+    const channelList = msg.guild.channels.cache
+      .filter((c) => c.type === "GUILD_TEXT")
+      .map((c) => c as TextChannel)
+    
+    await Promise.all(channelList.map((chan) =>
+      chan.messages
+        .fetch(messageId)
+        .then(data => {message = data})
+        .catch(() => null)
+    ))
 
+    if (!message || !messageId) {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Message not found" })]
+        }
+      }
+    }
+
+    let requestData: RoleReactionEvent
     switch (args.length) {
+      // Remove a specific reaction
       case 5:
+        const roleId = args[4].replace(/\D/g, "")
+        const role = await msg.guild.roles.fetch(roleId)
+        if (!role || !roleId) {
+          return {
+            messageOptions: {
+              embeds: [getErrorEmbed({ msg, description: "Role not found" })]
+            }
+          }
+        }
         requestData = {
           guild_id: msg.guild.id,
-          message_id: args[2].replace(/\D/g, ""),
+          message_id: messageId,
           reaction: args[3],
-          role_id: args[4].replace(/\D/g, ""), // Accept number-only characters
+          role_id: roleId,
         }
         break
-    
+      // Remove all reaction from configured message
       case 3:
         requestData = {
           guild_id: msg.guild.id,
-          message_id: args[2].replace(/\D/g, ""),
+          message_id: messageId,
           reaction: "",
           role_id: "",
         }
@@ -58,40 +90,19 @@ const command: Command = {
     }
 
     try {
-      const res: RoleReactionConfigResponse = await config.removeReactionConfig(
-        requestData
-      )
-
+      const res: RoleReactionConfigResponse = await config.removeReactionConfig(requestData)
       if (res.success) {
-        const channelList = msg.guild.channels.cache
-          .filter((c) => c.type === "GUILD_TEXT")
-          .map((c) => c as TextChannel)
         const { reaction, role_id } = requestData
-
         if (reaction && role_id) {
           description = `Reaction ${reaction} for this role <@&${role_id}> is now unset`
 
           let reactionEmoji: string
           const emojiSplit = reaction.split(":")
           reactionEmoji = emojiSplit.length === 1 ? reaction : reaction.replace(/\D/g, "")
-
-          // Remove a specific reaction
-          channelList.forEach((chan) =>
-            chan.messages
-              .fetch(requestData.message_id)
-              .then((val) => val.reactions.cache.get(reactionEmoji).remove())
-              .catch(err => err?.code === 10008 ? null : ChannelLogger.log(err as BotBaseError))
-          )
+          message.reactions.cache.get(reactionEmoji).remove().catch()
         } else {
           description = `All reaction role configurations for this message is now clear.`
-
-          // Remove all reaction from configured message
-          channelList.forEach((chan) =>
-            chan.messages
-              .fetch(requestData.message_id)
-              .then((val) => val.reactions.removeAll())
-              .catch(err => err?.code === 10008 ? null : ChannelLogger.log(err as BotBaseError))
-          )
+          message.reactions.removeAll().catch()
         }
       } else {
         description = `Failed to remove this reaction role configuration.`
