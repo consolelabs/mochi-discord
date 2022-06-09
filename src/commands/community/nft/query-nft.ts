@@ -19,22 +19,12 @@ export async function executeNftCollection(args: any[], msg: any) {
   const dataGetNft = await respGetNft.json()
   const errorMessageGetNft = dataGetNft.error
 
-  const tokenUri = dataGetNft.data.token_uri
-  console.log(tokenUri)
-  const respGetToken = await fetch(tokenUri, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-  const dataGetToken = await respGetToken.json()
-
   // handle case to show discord message
   switch (respGetNft.status) {
     case 200: {
       // get name and attribute
-      const name = dataGetToken.name
-      const attributes = dataGetToken.attributes
+      const name = dataGetNft.data.name
+      const attributes = dataGetNft.data.attributes
       let header = `**${name}**`
       if (name == "") {
         header = ""
@@ -60,8 +50,8 @@ export async function executeNftCollection(args: any[], msg: any) {
         rarityRate = getRarityRateFromAttributes(rarityCount)
       }
       // set rank, rarity score empty if have data
-      if (dataGetToken.rarity != null) {
-        const rank = dataGetToken.rarity.rank.toString()
+      if (dataGetNft.data.rarity != null) {
+        const rank = dataGetNft.data.rarity.rank.toString()
         const rarityEmoji = getEmojiRarity(rarityRate)
         respEmbed.description =
           respEmbed.description +
@@ -77,7 +67,7 @@ export async function executeNftCollection(args: any[], msg: any) {
         respEmbed.addField("\u200B", "\u200B", true)
       }
       // handle image has "ipfs://"
-      let image = dataGetToken.image
+      let image = dataGetNft.data.image
       if (image.includes("ipfs://")) {
         const splittedImage = image.split("ipfs://")
         image = "https://ipfs.io/ipfs/" + splittedImage[1]
