@@ -1,5 +1,4 @@
 import { Message } from "discord.js"
-import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { defaultEmojis } from "utils/common"
@@ -16,20 +15,7 @@ async function add(msg: Message, args: string[]) {
     address,
     chain,
   }
-  const resp = await Config.addToken(req)
-  if (resp !== 200) {
-    const errMsgByStatus = {
-      400: "Unsupport Token",
-      500: "Something went wrong! Please try again or contact administrators",
-    }
-    const defaultErrMsg = "Unsupport Token"
-    throw new DiscordWalletTransferError({
-      discordId: msg.author.id,
-      guildId: msg.guildId,
-      message: msg,
-      errorMsg: (errMsgByStatus as any)[resp] || defaultErrMsg,
-    })
-  }
+  await Config.addToken(req)
   return {
     embeds: [
       composeEmbedMessage(msg, {

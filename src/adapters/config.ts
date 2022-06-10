@@ -381,7 +381,13 @@ class Config {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
-    return resp.status
+    if (resp.status !== 200) {
+      throw new Error(`failed to add new token ${body.symbol}`)
+    }
+    const json = await resp.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
   }
 
   public async configLevelRole(
