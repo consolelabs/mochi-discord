@@ -370,6 +370,15 @@ class Config {
     }
   }
 
+  public async addToken(body: string) {
+    const resp = await fetch(`${API_BASE_URL}/configs/custom-tokens`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: body,
+    })
+    return resp.status
+  }
+
   public async configLevelRole(
     msg: Message,
     body: { guild_id: string; role_id: string; level: number }
@@ -458,9 +467,12 @@ class Config {
   }
 
   public async getGuildNFTRoleConfigs(guildId: string) {
-    const res = await fetch(`${API_BASE_URL}/configs/nft-roles/?guild_id=${guildId}`, {
-      method: "GET",
-    })
+    const res = await fetch(
+      `${API_BASE_URL}/configs/nft-roles/?guild_id=${guildId}`,
+      {
+        method: "GET",
+      }
+    )
     if (res.status !== 200) {
       throw new Error(`failed to get nftroles configs - guild ${guildId}`)
     }
@@ -473,12 +485,9 @@ class Config {
   }
 
   public async removeGuildNFTRoleConfig(roleId: string) {
-    const res = await fetch(
-      `${API_BASE_URL}/configs/nft-roles/${roleId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const res = await fetch(`${API_BASE_URL}/configs/nft-roles/${roleId}`, {
+      method: "DELETE",
+    })
     if (res.status !== 200) {
       throw new Error(`failed to remove nftrole config - role ${roleId}`)
     }

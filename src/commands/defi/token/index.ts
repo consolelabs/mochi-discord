@@ -6,12 +6,14 @@ import { PREFIX } from "utils/constants"
 import add from "./add"
 import remove from "./remove"
 import list from "./list"
+import addcustom from "./addCustom"
 import { getAllAliases } from "utils/commands"
 
 const actions: Record<string, Command> = {
   list,
   add,
-  remove
+  remove,
+  addcustom,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 
@@ -20,14 +22,17 @@ const command: Command = {
   command: "tokens",
   brief: "Show all supported tokens by Mochi",
   category: "Defi",
-  run: async function(msg, action) {
+  run: async function (msg, action) {
+    if (action !== undefined) {
+      action = action.replace("-", "")
+    }
     const actionObj = commands[action]
     if (actionObj) {
       return actionObj.run(msg)
     }
     const supportedTokens = await Defi.getSupportedTokens()
     const description = supportedTokens
-      .map(token => {
+      .map((token) => {
         const tokenEmoji = getEmoji(token.symbol)
         return `${tokenEmoji} **${token.symbol.toUpperCase()}**`
       })
@@ -38,11 +43,11 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             author: ["All supported tokens"],
-            description
-          })
+            description,
+          }),
         ],
-        content: getHeader("View all supported tokens by Mochi", msg.author)
-      }
+        content: getHeader("View all supported tokens by Mochi", msg.author),
+      },
     }
   },
   getHelpMessage: async (msg, action) => {
@@ -54,14 +59,14 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           thumbnail: thumbnails.TOKENS,
-          usage: `${PREFIX}tokens`
-        })
-      ]
+          usage: `${PREFIX}tokens`,
+        }),
+      ],
     }
   },
   canRunWithoutAction: true,
   aliases: ["token", "tkn", "tk"],
-  actions
+  actions,
 }
 
 export default command
