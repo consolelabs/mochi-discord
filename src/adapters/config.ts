@@ -370,11 +370,16 @@ class Config {
     }
   }
 
-  public async addToken(body: string) {
+  public async addToken(body: {
+    guild_id: string
+    symbol: string
+    address: string
+    chain: string
+  }) {
     const resp = await fetch(`${API_BASE_URL}/configs/custom-tokens`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: body,
+      body: JSON.stringify(body),
     })
     return resp.status
   }

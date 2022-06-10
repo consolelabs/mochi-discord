@@ -16,7 +16,7 @@ async function add(msg: Message, args: string[]) {
     address,
     chain,
   }
-  const resp = await Config.addToken(JSON.stringify(req))
+  const resp = await Config.addToken(req)
   if (resp !== 200) {
     const errMsgByStatus = {
       400: "Unsupport Token",
