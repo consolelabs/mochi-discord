@@ -45,6 +45,7 @@ export type EmbedProperties = {
   originalMsgAuthor?: User
   usage?: string
   examples?: string
+  withoutFooter?: boolean
 }
 
 export type Role = {

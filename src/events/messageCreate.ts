@@ -39,9 +39,9 @@ export const handleNormalMessage = async (message: Message) => {
       if (data.level_up) {
         await message.channel.send(
           await composeLevelUpMessage(
-            message.author.id,
-            message.author.avatar,
-            data.current_level
+            message.member,
+            data.current_level,
+            data.current_xp
           )
         )
       }
