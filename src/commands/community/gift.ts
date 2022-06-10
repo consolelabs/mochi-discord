@@ -12,7 +12,7 @@ const command: Command = {
   brief: "Gift",
   category: "Community",
   onlyAdministrator: true,
-  run: async function(msg) {
+  run: async function (msg) {
     const args = getCommandArguments(msg)
     if (args.length < 4) {
       return { messageOptions: await this.getHelpMessage(msg) }
@@ -25,10 +25,10 @@ const command: Command = {
             composeEmbedMessage(msg, {
               color: "#D73833",
               title: "Gift XP",
-              description: `You can only send XP as gift.`
-            })
-          ]
-        }
+              description: `You can only send XP as gift.`,
+            }),
+          ],
+        },
       }
     }
 
@@ -39,10 +39,10 @@ const command: Command = {
             composeEmbedMessage(msg, {
               color: "#D73833",
               title: "Gift XP",
-              description: `Invalid XP amount.`
-            })
-          ]
-        }
+              description: `Invalid XP amount.`,
+            }),
+          ],
+        },
       }
     }
 
@@ -55,16 +55,16 @@ const command: Command = {
       admin_discord_id: adminDiscordId,
       user_discord_id: userDiscordId,
       guild_id: guildId,
-      xp_amount: xpAmount
+      xp_amount: xpAmount,
     }
 
     // get data nft from server
     const respGiftXp = await fetch(`${API_BASE_URL}/gift/xp`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(giftXpRequest)
+      body: JSON.stringify(giftXpRequest),
     })
     const dataGiftXp = await respGiftXp.json()
     const errorMessageGiftXp = dataGiftXp.error
@@ -74,17 +74,17 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: "Gift XP",
-              description: `<@${adminDiscordId}> has sent ${xpAmount} XP as gift for <@${userDiscordId}>`
-            })
-          ]
+              description: `<@${adminDiscordId}> has sent ${xpAmount} XP as gift for <@${userDiscordId}>`,
+            }),
+          ],
         })
 
         if (dataGiftXp.data.level_up) {
           await msg.channel.send(
             await composeLevelUpMessage(
-              userDiscordId,
-              msg.mentions.users.get(userDiscordId).avatar,
-              dataGiftXp.data.current_level
+              msg.mentions.members.get(userDiscordId),
+              dataGiftXp.data.current_level,
+              dataGiftXp.data.current_xp
             )
           )
         }
@@ -97,34 +97,35 @@ const command: Command = {
                 composeEmbedMessage(msg, {
                   color: "#D73833",
                   title: "Gift XP",
-                  description: errorMessage + `User is not in server.`
-                })
-              ]
-            }
+                  description: errorMessage + `User is not in server.`,
+                }),
+              ],
+            },
           }
         }
+        break
       default:
         return {
           messageOptions: {
             embeds: [
               composeEmbedMessage(msg, {
                 title: "Gift XP",
-                description: errorMessage
-              })
-            ]
-          }
+                description: errorMessage,
+              }),
+            ],
+          },
         }
     }
   },
-  getHelpMessage: async msg => {
+  getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}gift`,
       footer: [`Type ${PREFIX}help gift`],
-      examples: `${PREFIX}gift <@user> 5 xp`
+      examples: `${PREFIX}gift <@user> 5 xp`,
     })
 
     return { embeds: [embed] }
-  }
+  },
 }
 
 export default command

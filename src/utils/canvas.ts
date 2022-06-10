@@ -16,13 +16,14 @@ export function heightOf(ctx: CanvasRenderingContext2D, text: string): number {
 export function drawRectangle(
   ctx: CanvasRenderingContext2D,
   stats: RectangleStats,
-  hexColor: string
+  hexColor: string,
+  borderColor?: string
 ) {
   const { radius, x, y } = stats
   ctx.save()
   // --------------
   ctx.beginPath()
-  ctx.lineWidth = 2
+  ctx.lineWidth = 6
   ctx.fillStyle = hexColor
   ctx.moveTo(x.from + radius, y.from)
   ctx.lineTo(x.to - radius, y.from) // top edge
@@ -34,6 +35,10 @@ export function drawRectangle(
   ctx.lineTo(x.from, y.from + radius) // left edge
   ctx.arc(x.from + radius, y.from + radius, radius, Math.PI, 1.5 * Math.PI) // top-left corner
   ctx.fill()
+  if (borderColor) {
+    ctx.strokeStyle = borderColor
+    ctx.stroke()
+  }
   ctx.closePath()
   // --------------
   ctx.restore()
@@ -47,7 +52,7 @@ export function drawProgressBar(
   ctx.save()
   // --------------
   // pg bar container
-  drawRectangle(ctx, pgBarContainer, "#4a4a4a")
+  drawRectangle(ctx, pgBarContainer, "#231E2B", pgBarContainer.overlayColor)
   // pg bar overlay
   if (progress === 0) return
   const overlay = JSON.parse(JSON.stringify(pgBarContainer)) // deep copy

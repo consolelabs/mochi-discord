@@ -66,4 +66,5 @@ export type UserProfile = {
   about_me: string
   progress: number
   guild: Guild
+  guild_rank: number
 }
