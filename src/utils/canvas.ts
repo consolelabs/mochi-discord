@@ -150,3 +150,19 @@ export function calculateWrapperTextHeight(
   }
   return y
 }
+
+export function drawDivider(
+  ctx: CanvasRenderingContext2D,
+  fromX: number,
+  toX: number,
+  y: number
+) {
+  ctx.save()
+  ctx.beginPath()
+  ctx.strokeStyle = "#5C5A5A"
+  ctx.moveTo(fromX, y)
+  ctx.lineTo(toX, y)
+  ctx.stroke()
+  ctx.closePath()
+  ctx.restore()
+}

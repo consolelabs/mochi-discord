@@ -86,6 +86,7 @@ export const emojis: { [key: string]: string } = {
   BADGE2: "985038477487919194",
   BADGE3: "985038479492808715",
   FLAG: "985056775554342973",
+  CUP: "985137841027821589",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
