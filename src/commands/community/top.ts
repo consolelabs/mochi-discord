@@ -1,138 +1,180 @@
 import { Command } from "types/common"
-import { GuildMember, Message } from "discord.js"
+import { GuildMember, Message, MessageAttachment } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { getCommandArguments } from "utils/commands"
-import { getEmoji } from "utils/common"
+import { drawDivider, drawRectangle, heightOf, widthOf } from "utils/canvas"
+import { createCanvas, loadImage } from "canvas"
+import { RectangleStats } from "types/canvas"
+import { LeaderboardItem } from "types/community"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 
-// async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
-//   const container: RectangleStats = {
-//     x: {
-//       from: 0,
-//       to: 700,
-//     },
-//     y: {
-//       from: 0,
-//       to: 600,
-//     },
-//     w: 0,
-//     h: 0,
-//     pt: 10,
-//     pl: 30,
-//     radius: 30,
-//     bgColor: "rgba(0, 0, 0, 0.2)",
-//   }
-//   container.w = container.x.to - container.x.from
-//   container.h = container.y.to - container.y.from
-//   const canvas = Canvas.createCanvas(container.w, container.h)
-//   const ctx = canvas.getContext("2d")
-//   ctx.save()
-//   drawRectangle(ctx, container, container.bgColor)
-//   ctx.clip()
+async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
+  const container: RectangleStats = {
+    x: {
+      from: 0,
+      to: 870,
+    },
+    y: {
+      from: 0,
+      to: 670,
+    },
+    w: 0,
+    h: 0,
+    pt: 50,
+    pl: 30,
+    radius: 30,
+    bgColor: "rgba(0, 0, 0, 0)", // transparent
+  }
+  container.w = container.x.to - container.x.from
+  container.h = container.y.to - container.y.from
+  const canvas = createCanvas(container.w, container.h)
+  const ctx = canvas.getContext("2d")
+  ctx.save()
+  drawRectangle(ctx, container, container.bgColor)
+  ctx.clip()
 
-//   const background = await Canvas.loadImage("src/assets/leaderboard_bg.png")
-//   ctx.globalAlpha = 0.2
-//   ctx.drawImage(background, 0, 0, container.w, container.h)
-//   ctx.restore()
+  // divider
+  drawDivider(
+    ctx,
+    container.x.from + container.pl,
+    container.x.to - container.pl,
+    0
+  )
 
-//   const row = {
-//     ...container,
-//     pt: 15,
-//     h: 110,
-//   }
-//   row.y.from += container.pt
-//   row.y.to = row.h + row.y.from
+  // user title
+  ctx.font = "bold 33px Manrope"
+  ctx.fillStyle = "white"
+  const userTitleStr = "Users"
+  const userTitle = {
+    x: container.x.from + container.pl,
+    y: container.pt,
+    mb: 20,
+  }
+  ctx.fillText(userTitleStr, userTitle.x, userTitle.y)
 
-//   for (const item of leaderboard) {
-//     // avatar
-//     const avatar: CircleleStats = { radius: 40, mr: 40, x: 0, y: 0 }
-//     avatar.x = row.x.from + row.pl + avatar.radius
-//     avatar.y = row.y.from + row.pt + avatar.radius
-//     const member: GuildMember | undefined = await msg.guild.members
-//       .fetch(item.user_id)
-//       .catch(() => undefined)
-//     if (member) await drawAvatar(ctx, avatar, member.user)
+  // level title
+  const lvlTitleStr = "Level (XP)"
+  const lvlTitle = {
+    x: 650,
+    y: userTitle.y,
+  }
+  ctx.fillText(lvlTitleStr, lvlTitle.x, lvlTitle.y)
 
-//     // username
-//     Canvas.registerFont("src/assets/Montserrat-Bold.ttf", {
-//       family: "Montserrat",
-//     })
-//     ctx.font = "30px Montserrat"
-//     ctx.fillStyle = "white"
-//     const userRankStr = `#${item.guild_rank} - ${
-//       member?.user.username ?? item.user.username
-//     }`
-//     const userRank = {
-//       x: avatar.x + avatar.radius + avatar.mr,
-//       y: avatar.y - 10,
-//       mb: 12,
-//     }
-//     ctx.fillText(userRankStr, userRank.x, userRank.y)
+  // users
+  const badgeIcon = {
+    w: 30,
+    h: 40,
+    mr: 30,
+  }
+  const energyIcon = {
+    image: await loadImage(getEmojiURL(emojis.ENERGY)),
+    x: lvlTitle.x,
+    y: lvlTitle.y,
+    w: 20,
+    h: 23,
+  }
+  const line = {
+    x: userTitle.x,
+    y: userTitle.y + userTitle.mb,
+    h: 40,
+    mb: 20,
+  }
+  const username = {
+    x: line.x + badgeIcon.w + badgeIcon.mr,
+    y: line.y,
+    mr: 10,
+  }
+  ctx.font = "27px Manrope"
+  for (const item of leaderboard) {
+    const member: GuildMember | undefined = await msg.guild.members
+      .fetch(item.user_id)
+      .catch(() => undefined)
+    const usernameStr = member?.user?.username ?? item.user?.username
+    username.y +=
+      heightOf(ctx, usernameStr) +
+      (badgeIcon.h - heightOf(ctx, usernameStr)) / 2
+    switch (item.guild_rank) {
+      case 1:
+      case 2:
+      case 3: {
+        // icon
+        const badgeImg = await loadImage(
+          getEmojiURL(emojis[`BADGE${item.guild_rank}`])
+        )
+        ctx.drawImage(badgeImg, line.x, line.y, badgeIcon.w, badgeIcon.h)
+        break
+      }
+      default: {
+        const rankStr = `${
+          item.guild_rank < 10 ? `0${item.guild_rank}.` : `${item.guild_rank}.`
+        }`
+        ctx.fillStyle = "#898A8C"
+        ctx.fillText(rankStr, line.x, username.y)
+        break
+      }
+    }
+    // username
+    ctx.font = "bold 27px Manrope"
+    ctx.fillStyle = "white"
+    // username.y = line.y
+    ctx.fillText(usernameStr, username.x, username.y)
 
-//     // Level
-//     const lvlStr = "LVL"
-//     ctx.save()
-//     ctx.font = "35px Montserrat"
-//     const lvlValueStr = `${item.level}`
-//     const lvlValue = {
-//       x:
-//         container.x.to -
-//         container.pl -
-//         Math.max(widthOf(ctx, lvlValueStr), widthOf(ctx, lvlStr)),
-//       y: avatar.y,
-//       mb: 15,
-//       ml: 20,
-//     }
-//     ctx.fillText(lvlValueStr, lvlValue.x, lvlValue.y)
-//     ctx.restore()
+    // discriminator
+    const discriminator = {
+      x: username.x + widthOf(ctx, usernameStr) + username.mr,
+      y: username.y,
+      mr: 20,
+    }
+    ctx.font = "27px Manrope"
+    ctx.fillStyle = "#888888"
+    ctx.fillText(
+      `#${member?.user?.discriminator}`,
+      discriminator.x,
+      discriminator.y
+    )
 
-//     // LVL
-//     ctx.save()
-//     ctx.font = "23px fantasy"
-//     const lvl = {
-//       x: lvlValue.x,
-//       y: lvlValue.y + lvlValue.mb + heightOf(ctx, lvlStr),
-//     }
-//     ctx.fillText(lvlStr, lvl.x, lvl.y)
-//     ctx.restore()
+    // level
+    const levelStr = `${item.level} `
+    ctx.font = "bold 27px Manrope"
+    ctx.fillStyle = "#BFBFBF"
+    const level = {
+      x: lvlTitle.x,
+      y: discriminator.y,
+      w: widthOf(ctx, levelStr),
+    }
+    ctx.fillText(levelStr, level.x, level.y)
 
-//     // progress bar
-//     const pgBar: RectangleStats = {
-//       x: {
-//         from: userRank.x,
-//         to: lvlValue.x - lvlValue.ml,
-//       },
-//       y: {
-//         from: userRank.y + userRank.mb,
-//         to: 0,
-//       },
-//       w: 0,
-//       h: 10,
-//       radius: 5,
-//       overlayColor: "#4DFFD8",
-//       mb: 9,
-//     }
-//     pgBar.w = pgBar.x.to - pgBar.x.from
-//     pgBar.y.to = pgBar.y.from + pgBar.h
-//     drawProgressBar(ctx, pgBar, item.progress)
+    // open parentheses
+    const openParenthesesStr = "( "
+    ctx.font = "27px Manrope"
+    ctx.fillText(openParenthesesStr, level.x + level.w, level.y)
 
-//     // local xp
-//     ctx.font = "24px serif"
-//     const xpStr = `${item.total_xp}`
-//     const xp = {
-//       x: pgBar.x.from,
-//       y: pgBar.y.to + heightOf(ctx, xpStr) + pgBar.mb,
-//     }
-//     ctx.fillText(xpStr, xp.x, xp.y)
+    // energy icon
+    energyIcon.x = level.x + level.w + widthOf(ctx, openParenthesesStr)
+    energyIcon.y = level.y - energyIcon.h + 2
+    ctx.drawImage(
+      energyIcon.image,
+      energyIcon.x,
+      energyIcon.y,
+      energyIcon.w,
+      energyIcon.h
+    )
 
-//     // next row
-//     row.y.from = row.y.to
-//     row.y.to = row.y.from + row.h
-//   }
+    // current guild xp
+    const xpStr = ` ${item.total_xp})`
+    const xp = {
+      x: energyIcon.x + energyIcon.w,
+      y: level.y,
+    }
+    ctx.fillText(xpStr, xp.x, xp.y)
+    line.y += line.h + line.mb
+    username.y = line.y
+  }
 
-//   return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")
-// }
+  return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")
+}
 
 const command: Command = {
   id: "top",
@@ -157,64 +199,18 @@ const command: Command = {
       }
 
     const { author, leaderboard } = data
-    // let description = "**Your rank**\n"
-    // description += author.guild_rank
-    //   ? `You are rank \`#${author.guild_rank}\` on this server\nwith a total of **${author.total_xp} XP score**`
-    //   : "You are `unranked` on this server"
-
     const blank = getEmoji("blank")
-    const userRanks = (
-      await Promise.all(
-        leaderboard.map(async (item: any) => {
-          const member: GuildMember | undefined = await msg.guild.members
-            .fetch(item.user_id)
-            .catch(() => undefined)
-
-          let suffix: string
-          switch (item.guild_rank) {
-            case 1:
-            case 2:
-            case 3:
-              suffix = `${getEmoji(`badge${item.guild_rank}`)}`
-              break
-            default:
-              suffix = ""
-          }
-          return `\`#${
-            item.guild_rank < 10 ? `0${item.guild_rank}` : `${item.guild_rank}`
-          }.\` **${member?.user?.username ?? item.user?.username}**${suffix}`
-        })
-      )
-    ).join(`${blank}${blank}\n`)
-
-    const levels = leaderboard
-      .map(
-        (item: any) => `${item.level} (${getEmoji("energy")} ${item.total_xp})`
-      )
-      .join("\n")
-
     const embed = composeEmbedMessage(msg, {
-      title: `${msg.guild.name}'s Web3 rankings`,
+      title: `${getEmoji("cup")} ${msg.guild.name}'s Web3 rankings`,
       thumbnail: msg.guild.iconURL(),
-      description: `**Your rank:** #${author.guild_rank}\n**XP:** ${author.total_xp}\n\u200B`,
-      // image: "attachment://leaderboard.png",
-    }).addFields([
-      {
-        name: "Users",
-        value: userRanks,
-        inline: true,
-      },
-      {
-        name: "Level (XP)",
-        value: levels,
-        inline: true,
-      },
-    ])
+      description: `${blank}**Your rank:** #${author.guild_rank}\n${blank}**XP:** ${author.total_xp}\n\u200B`,
+      image: "attachment://leaderboard.png",
+    })
 
     return {
       messageOptions: {
         embeds: [embed],
-        // files: [await renderLeaderboard(msg, leaderboard)],
+        files: [await renderLeaderboard(msg, leaderboard)],
       },
     }
   },

@@ -11,6 +11,7 @@ import {
   widthOf,
   fillWrappedText,
   calculateWrapperTextHeight,
+  drawDivider,
 } from "utils/canvas"
 import { drawRectangle } from "utils/canvas"
 import { CircleleStats, RectangleStats, TextStats } from "types/canvas"
@@ -237,14 +238,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
     y: username.y + username.mb,
     mb: 25,
   }
-  ctx.save()
-  ctx.beginPath()
-  ctx.strokeStyle = "#404040"
-  ctx.moveTo(divider.x.from, divider.y)
-  ctx.lineTo(divider.x.to, divider.y)
-  ctx.stroke()
-  ctx.closePath()
-  ctx.restore()
+  drawDivider(ctx, divider.x.from, divider.x.to, divider.y)
 
   // level
   ctx.font = "bold 33px Manrope"
