@@ -31,6 +31,7 @@ import gm from "./community/gm"
 import whitelist from "./community/campaigns"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
+import repostreaction from "./config/repostableReaction"
 import top from "./community/top"
 import levelrole from "./config/levelRole"
 import nftrole from "./config/nftRole"
@@ -70,6 +71,7 @@ export const originalCommands: Record<string, Command> = {
   levelrole,
   nftrole,
   globalxp,
+  repostreaction,
 }
 
 export const commands = getAllAliases(originalCommands)
