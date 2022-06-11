@@ -4,10 +4,10 @@ import { buildDiscordMessage } from "./index"
 
 export async function executeNftAddCommand(args: any[], msg: any) {
   const address = args[2]
-  const chain = args[3]
+  const chainId = args[3]
   // create store collection payload
   const collection = {
-    chain: chain,
+    chain_id: chainId,
     address: address,
   }
   // run store collection API

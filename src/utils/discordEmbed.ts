@@ -95,10 +95,9 @@ export function composeEmbedMessage(
   msg: Message | null,
   props: EmbedProperties
 ) {
-  let { title, description = "" } = props
+  let { title, description = "", color = msgColors.PRIMARY } = props
   const {
     thumbnail,
-    color,
     footer = [],
     timestamp = null,
     image,
@@ -106,11 +105,14 @@ export function composeEmbedMessage(
     originalMsgAuthor,
     usage,
     examples,
+    withoutFooter,
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
   const isSpecificHelpCommand =
-    specificHelpCommand(msg) || (!actionObj && !commandObj?.canRunWithoutAction)
+    specificHelpCommand(msg) ||
+    (msg && !actionObj && !commandObj?.canRunWithoutAction)
+  if (commandObj?.category === "Defi") color = msgColors.DEFI
 
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
@@ -136,13 +138,16 @@ export function composeEmbedMessage(
 
   const embed = new MessageEmbed()
     .setTitle(title)
-    .setColor((color ?? msgColors.PRIMARY) as ColorResolvable)
-    .setFooter(
-      getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
-      authorAvatarURL
-    )
-    .setTimestamp(timestamp ?? new Date())
+    .setColor(color as ColorResolvable)
 
+  if (!withoutFooter) {
+    embed
+      .setFooter(
+        getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
+        authorAvatarURL
+      )
+      .setTimestamp(timestamp ?? new Date())
+  }
   if (description) {
     embed.setDescription(description)
   }

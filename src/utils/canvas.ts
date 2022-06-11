@@ -1,6 +1,7 @@
-import { CanvasRenderingContext2D, loadImage } from "canvas"
+import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas"
 import { GuildMember, User } from "discord.js"
 import { CircleleStats, RectangleStats } from "types/canvas"
+import { SPACE } from "./constants"
 
 export function widthOf(ctx: CanvasRenderingContext2D, text: string): number {
   return ctx.measureText(text).width
@@ -16,13 +17,14 @@ export function heightOf(ctx: CanvasRenderingContext2D, text: string): number {
 export function drawRectangle(
   ctx: CanvasRenderingContext2D,
   stats: RectangleStats,
-  hexColor: string
+  hexColor: string,
+  borderColor?: string
 ) {
   const { radius, x, y } = stats
   ctx.save()
   // --------------
   ctx.beginPath()
-  ctx.lineWidth = 2
+  ctx.lineWidth = 6
   ctx.fillStyle = hexColor
   ctx.moveTo(x.from + radius, y.from)
   ctx.lineTo(x.to - radius, y.from) // top edge
@@ -34,6 +36,10 @@ export function drawRectangle(
   ctx.lineTo(x.from, y.from + radius) // left edge
   ctx.arc(x.from + radius, y.from + radius, radius, Math.PI, 1.5 * Math.PI) // top-left corner
   ctx.fill()
+  if (borderColor) {
+    ctx.strokeStyle = borderColor
+    ctx.stroke()
+  }
   ctx.closePath()
   // --------------
   ctx.restore()
@@ -47,7 +53,7 @@ export function drawProgressBar(
   ctx.save()
   // --------------
   // pg bar container
-  drawRectangle(ctx, pgBarContainer, "#4a4a4a")
+  drawRectangle(ctx, pgBarContainer, "#231E2B", pgBarContainer.overlayColor)
   // pg bar overlay
   if (progress === 0) return
   const overlay = JSON.parse(JSON.stringify(pgBarContainer)) // deep copy
@@ -95,4 +101,52 @@ export async function drawAvatar(
 export function getHighestRoleColor(member: GuildMember) {
   const { hexColor } = member.roles.highest
   return hexColor === "#000000" ? "white" : hexColor
+}
+
+export function fillWrappedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number
+) {
+  const words = text.split(/ +/g)
+  const lineHeight = heightOf(ctx, text) + 7
+  let lineText = ""
+  for (let i = 0; i < words.length; i++) {
+    const newLine = `${lineText}${words[i]}${SPACE}`
+    if (widthOf(ctx, newLine) > maxWidth) {
+      ctx.fillText(lineText, x, y)
+      lineText = `${words[i]}${SPACE}`
+      y += lineHeight
+      continue
+    }
+    lineText = newLine
+  }
+  ctx.fillText(lineText, x, y)
+  return y
+}
+
+export function calculateWrapperTextHeight(
+  text: string,
+  font: string,
+  maxWidth: number
+) {
+  const canvas = createCanvas(0, 0)
+  const ctx = canvas.getContext("2d")
+  ctx.font = font
+  const words = text.split(/ +/g)
+  const lineHeight = heightOf(ctx, text) + 7
+  let lineText = ""
+  let y = 0
+  for (let i = 0; i < words.length; i++) {
+    const newLine = `${lineText}${words[i]}${SPACE}`
+    if (widthOf(ctx, newLine) > maxWidth) {
+      lineText = `${words[i]}${SPACE}`
+      y += lineHeight
+      continue
+    }
+    lineText = newLine
+  }
+  return y
 }

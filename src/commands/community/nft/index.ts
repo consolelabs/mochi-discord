@@ -52,9 +52,9 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}nft <symbol_collection> <token_id>\n${PREFIX}nft add <address> <chain>`,
+        usage: `${PREFIX}nft <symbol_collection> <token_id>\n${PREFIX}nft add <address> <chain_id>`,
         footer: [`Type ${PREFIX}help nft`],
-        examples: `${PREFIX}nft neko 1\n${PREFIX}nft add 0xabcd eth`,
+        examples: `${PREFIX}nft neko 1\n${PREFIX}nft add 0xabcd 1`,
       }),
     ],
   }),
