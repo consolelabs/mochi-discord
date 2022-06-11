@@ -1,6 +1,7 @@
-import { CanvasRenderingContext2D, loadImage } from "canvas"
+import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas"
 import { GuildMember, User } from "discord.js"
 import { CircleleStats, RectangleStats } from "types/canvas"
+import { SPACE } from "./constants"
 
 export function widthOf(ctx: CanvasRenderingContext2D, text: string): number {
   return ctx.measureText(text).width
@@ -100,4 +101,52 @@ export async function drawAvatar(
 export function getHighestRoleColor(member: GuildMember) {
   const { hexColor } = member.roles.highest
   return hexColor === "#000000" ? "white" : hexColor
+}
+
+export function fillWrappedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number
+) {
+  const words = text.split(/ +/g)
+  const lineHeight = heightOf(ctx, text) + 7
+  let lineText = ""
+  for (let i = 0; i < words.length; i++) {
+    const newLine = `${lineText}${words[i]}${SPACE}`
+    if (widthOf(ctx, newLine) > maxWidth) {
+      ctx.fillText(lineText, x, y)
+      lineText = `${words[i]}${SPACE}`
+      y += lineHeight
+      continue
+    }
+    lineText = newLine
+  }
+  ctx.fillText(lineText, x, y)
+  return y
+}
+
+export function calculateWrapperTextHeight(
+  text: string,
+  font: string,
+  maxWidth: number
+) {
+  const canvas = createCanvas(0, 0)
+  const ctx = canvas.getContext("2d")
+  ctx.font = font
+  const words = text.split(/ +/g)
+  const lineHeight = heightOf(ctx, text) + 7
+  let lineText = ""
+  let y = 0
+  for (let i = 0; i < words.length; i++) {
+    const newLine = `${lineText}${words[i]}${SPACE}`
+    if (widthOf(ctx, newLine) > maxWidth) {
+      lineText = `${words[i]}${SPACE}`
+      y += lineHeight
+      continue
+    }
+    lineText = newLine
+  }
+  return y
 }
