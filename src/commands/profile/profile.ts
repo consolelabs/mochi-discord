@@ -123,7 +123,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
     },
     y: {
       from: 0,
-      to: withFractionXp ? 700 : 420,
+      to: withFractionXp ? 800 : 520,
     },
     w: 0,
     h: 0,
@@ -311,10 +311,67 @@ async function renderProfile(msg: Message, data: UserProfile) {
   }
   ctx.fillText(aboutMeStr, aboutMe.x, aboutMe.y)
 
+  // Role title
+  ctx.font = "bold 33px Manrope"
+  const roleTitleStr = "Role"
+  const roleTitle = {
+    x: aboutMeTitle.x,
+    y: aboutMe.y + aboutMe.mb,
+    mb: 45,
+  }
+  ctx.fillText(roleTitleStr, roleTitle.x, roleTitle.y)
+
+  // Role
+  ctx.save()
+  const highestRole =
+    msg.member.roles.highest.name !== "@everyone"
+      ? msg.member.roles.highest
+      : null
+  ctx.fillStyle = highestRole?.hexColor ?? "white"
+  const roleStr = highestRole?.name ?? "N/A"
+  const role = {
+    x: roleTitle.x,
+    y: roleTitle.y + roleTitle.mb,
+    mb: 80,
+  }
+  ctx.fillText(roleStr, role.x, role.y)
+  ctx.restore()
+
+  // Activity title
+  const activityTitleStr = "Activities"
+  const pgBarWidth = (container.w - 50 - container.pl * 2) / 2
+  const activityTitle = {
+    x: role.x + pgBarWidth + 50,
+    y: roleTitle.y,
+    mb: 45,
+  }
+  ctx.fillText(activityTitleStr, activityTitle.x, activityTitle.y)
+
+  // Activity
+  ctx.save()
+  const activityStr = `${data.nr_of_actions}`
+  const flagIcon = {
+    image: await Canvas.loadImage(getEmojiURL(emojis.FLAG)),
+    h: 35,
+    w: 25,
+    x: activityTitle.x,
+    y: activityTitle.y + 10,
+    mr: 7,
+  }
+  ctx.drawImage(flagIcon.image, flagIcon.x, flagIcon.y, flagIcon.w, flagIcon.h)
+  ctx.fillStyle = "#BFBFBF"
+  ctx.font = "33px Manrope"
+  ctx.fillText(
+    activityStr,
+    flagIcon.x + flagIcon.w + flagIcon.mr,
+    activityTitle.y + activityTitle.mb
+  )
+  ctx.restore()
+
   // fraction XPs
   if (withFractionXp) {
     const { xps } = ptProfile
-    await drawFractionProgressBar(ctx, container, aboutMe, xps)
+    await drawFractionProgressBar(ctx, container, role, xps)
   }
 
   return new MessageAttachment(canvas.toBuffer(), "profile.png")
