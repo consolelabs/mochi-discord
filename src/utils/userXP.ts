@@ -1,6 +1,6 @@
 import { registerFont } from "canvas"
 import { MessageOptions, GuildMember } from "discord.js"
-import { defaultEmojis } from "./common"
+import { getEmoji } from "./common"
 import { composeEmbedMessage } from "./discordEmbed"
 
 registerFont("src/assets/DelaGothicOne-Regular.ttf", {
@@ -22,9 +22,9 @@ export async function composeLevelUpMessage(
   return {
     embeds: [
       composeEmbedMessage(null, {
-        title: `${defaultEmojis.SPARKLES} Level up!`,
+        title: `${getEmoji("SPARKLE")} Level up!`,
         description,
-        thumbnail: author.avatar,
+        thumbnail: author.displayAvatarURL({ format: "png" }),
         withoutFooter: true,
       }),
     ],

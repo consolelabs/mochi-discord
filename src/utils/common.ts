@@ -68,7 +68,6 @@ export const defaultEmojis: Record<string, string> = {
   CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
   CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
   MAG: ":mag:",
-  SPARKLES: ":sparkles:",
 }
 
 export const emojis: { [key: string]: string } = {
