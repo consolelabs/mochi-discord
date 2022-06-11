@@ -1,6 +1,12 @@
 import { Message } from "discord.js"
 import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
-import { getEmoji, getHeader, roundFloatNumber, thumbnails } from "utils/common"
+import {
+  emojis,
+  getEmojiURL,
+  roundFloatNumber,
+  shortenHash,
+  thumbnails,
+} from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import { Command } from "types/common"
@@ -23,17 +29,17 @@ async function tip(msg: Message, args: string[]) {
   const discordIds: string[] = data.map((tx: any) => tx.toDiscordID)
   const mentionUser = (discordId: string) => `<@!${discordId}>`
   const users = discordIds.map((id) => mentionUser(id)).join(",")
-  const tokenEmoji = getEmoji(payload.cryptocurrency)
   const embed = composeEmbedMessage(msg, {
     thumbnail: thumbnails.TIP,
-    author: ["Generous"],
+    author: ["Tips", getEmojiURL(emojis.COIN)],
     description: `${mentionUser(
       payload.sender
-    )} sent ${users} ${roundFloatNumber(data[0].amount, 4)} ${tokenEmoji} ${
-      payload.each ? "each" : ""
-    }`,
+    )} has sent ${users} **${roundFloatNumber(data[0].amount, 4)} ${
+      payload.cryptocurrency
+    }** ${payload.each ? "each" : ""}`,
   })
-  if (txHash && txUrl) embed.addField("Transaction ID", `[${txHash}](${txUrl})`)
+  if (txHash && txUrl)
+    embed.addField("Transaction ID", `[\`${shortenHash(txHash)}\`](${txUrl})`)
   return {
     embeds: [embed],
   }
@@ -53,7 +59,6 @@ const command: Command = {
     return {
       messageOptions: {
         ...embeds,
-        content: getHeader("Tip from", msg.author),
       },
     }
   },
