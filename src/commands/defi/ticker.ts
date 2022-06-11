@@ -11,6 +11,7 @@ import {
 } from "discord.js"
 import { PREFIX, SPACE } from "utils/constants"
 import {
+  capFirst,
   defaultEmojis,
   getEmoji,
   getHeader,
@@ -78,18 +79,18 @@ function getChartColorConfig(id: string, width: number, height: number) {
 
 async function renderHistoricalMarketChart({
   msg,
-  id,
+  coinId,
   currency,
   days = 7,
 }: {
   msg: Message
-  id: string
+  coinId: string
   currency: string
   days?: number
 }) {
   const { timestamps, prices, from, to } = await Defi.getHistoricalMarketData(
     msg,
-    id,
+    coinId,
     currency,
     days
   )
@@ -119,7 +120,7 @@ async function renderHistoricalMarketChart({
           borderWidth: 6,
           pointRadius: 0,
           fill: true,
-          ...getChartColorConfig(id, width, height),
+          ...getChartColorConfig(coinId, width, height),
         },
       ],
     },
@@ -158,11 +159,11 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
-  const [id, currency, days] = input.split("_")
+  const [coinId, currency, days] = input.split("_")
 
   const chart = await renderHistoricalMarketChart({
     msg: message,
-    id,
+    coinId,
     currency,
     days: +days,
   })
@@ -202,13 +203,20 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
-  const [id, currency] = input.split("_")
-  return await renderTickerEmbed(message, id, currency)
+  const [coinId, targetId, currency] = input.split("_")
+  return await renderTickerEmbed(message, coinId, targetId, currency)
+}
+
+function getTicker(tickers: any[], coinId: string, targetId: string) {
+  return tickers.filter(
+    (t) => t.coin_id === coinId && t.target_coin_id === targetId
+  )[0]
 }
 
 async function renderTickerEmbed(
   msg: Message,
   coinId: string,
+  targetId: string,
   currency: string
 ) {
   const coin = await Defi.getCoin(msg, coinId)
@@ -226,6 +234,7 @@ async function renderTickerEmbed(
   const marketCap = +market_cap[currency]
   const blank = getEmoji("blank")
   const currencyPrefix = currency === "usd" ? "$" : ""
+  const ticker = targetId && getTicker(coin.tickers, coinId, targetId)
   const fields: EmbedFieldData[] = [
     {
       name: `Market cap (${currency.toUpperCase()})`,
@@ -241,7 +250,19 @@ async function renderTickerEmbed(
       })}`,
       inline: true,
     },
-    { name: "\u200B", value: "\u200B", inline: true },
+    ...[
+      ticker
+        ? {
+            name: `${capFirst(ticker.coin_id)}/${capFirst(
+              ticker.target_coin_id
+            )}`,
+            value: `${ticker.last.toLocaleString(undefined, {
+              maximumFractionDigits: 4,
+            })}`,
+            inline: true,
+          }
+        : { name: "\u200B", value: "\u200B", inline: true },
+    ],
     {
       name: "Change (1h)",
       value: getChangePercentage(price_change_percentage_1h_in_currency.usd),
@@ -268,7 +289,7 @@ async function renderTickerEmbed(
 
   const chart = await renderHistoricalMarketChart({
     msg,
-    id: coin.id,
+    coinId: coin.id,
     currency,
   })
 
@@ -306,30 +327,42 @@ async function renderTickerEmbed(
   }
 }
 
+function getTickerArguments(msg: Message) {
+  let args = getCommandArguments(msg)
+  const defaultOpt = args[args.length - 1] === "-d"
+  args = args.slice(0, args.length + (defaultOpt ? -1 : 0))
+  const query = args.slice(1).join(SPACE)
+  const [coinQ, currency] = query.split("//")
+  const [coinId, targetId] = coinQ.split("/")
+  return {
+    coinId,
+    targetId,
+    currency: currency ?? "usd",
+    defaultOpt,
+  }
+}
+
 const command: Command = {
   id: "ticker",
   command: "ticker",
   brief: "Display coin price and market cap",
   category: "Defi",
   run: async function (msg) {
-    let args = getCommandArguments(msg)
-    const defaultOpt = args[args.length - 1] === "-d"
-    args = args.slice(0, args.length + (defaultOpt ? -1 : 0))
-    let query = args.slice(1).join(SPACE)
-    query = !query.includes("/") ? `${query}/usd` : query
-    const [coinQ, currency] = query.split("/")
-    const coins = await Defi.searchCoins(msg, coinQ)
+    const { coinId, targetId, currency, defaultOpt } = getTickerArguments(msg)
+    const coins = await Defi.searchCoins(msg, coinId)
+    const targetCoins = targetId ? await Defi.searchCoins(msg, targetId) : null
+    const coinNotFoundResponse = (coinId: string) => ({
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            msg,
+            description: `Cannot find any cryptocurrency with \`${coinId}\`.\nPlease try again with the symbol or full name.`,
+          }),
+        ],
+      },
+    })
     if (!coins || !coins.length) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`,
-            }),
-          ],
-        },
-      }
+      return coinNotFoundResponse(coinId)
     }
 
     if (coins.length > 1 && !defaultOpt) {
@@ -353,7 +386,7 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: `${defaultEmojis.MAG} Multiple tickers found`,
-              description: `Multiple tickers found for \`${coinQ}\`: ${found}.\nPlease select one of the following tokens`,
+              description: `Multiple tickers found for \`${coinId}\`: ${found}.\nPlease select one of the following tokens`,
             }),
           ],
           components: [selectRow, composeDiscordExitButton()],
@@ -367,15 +400,20 @@ const command: Command = {
       }
     }
 
-    return await renderTickerEmbed(msg, coins[0].id, currency)
+    return await renderTickerEmbed(
+      msg,
+      coins[0].id,
+      targetCoins?.[0].id,
+      currency
+    )
   },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
-        usage: `${PREFIX}ticker <symbol> [-d]\n${PREFIX}ticker <full_name> [-d]`,
-        examples: `${PREFIX}ticker ftm\n${PREFIX}ticker fantom\n${PREFIX}ticker ftm -d (for default option)`,
+        usage: `${PREFIX}ticker <base>[/target][//currency] [-d]`,
+        examples: `${PREFIX}ticker ftm\n${PREFIX}ticker ftm -d (for default option)\n${PREFIX}ticker ftm/tomb\n${PREFIX}ticker ftm//eur\n`,
       }),
     ],
   }),

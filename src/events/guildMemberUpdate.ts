@@ -5,11 +5,15 @@ import { BotBaseError } from "errors"
 import { logger } from "../logger"
 import ChannelLogger from "utils/ChannelLogger"
 import { composeLevelUpMessage } from "utils/userXP"
+import Profile from "adapters/profile"
 
 export default {
   name: "guildMemberUpdate",
   once: false,
-  execute: async (oldMember: Discord.GuildMember | Discord.PartialGuildMember, newMember: Discord.GuildMember) => {
+  execute: async (
+    oldMember: Discord.GuildMember | Discord.PartialGuildMember,
+    newMember: Discord.GuildMember
+  ) => {
     if (oldMember.premiumSince !== newMember.premiumSince) {
       return
     }
@@ -36,11 +40,15 @@ export default {
       switch (type) {
         case "level_up":
           if (data.level_up) {
+            const profile = await Profile.getUserProfile(
+              newMember.guild.id,
+              newMember.user.id
+            )
             await systemChannel.send(
               await composeLevelUpMessage(
-                newMember.id,
-                newMember.avatar,
-                data.current_level
+                newMember,
+                data.current_level,
+                profile.guild_xp
               )
             )
           }

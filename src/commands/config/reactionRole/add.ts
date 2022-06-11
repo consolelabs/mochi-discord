@@ -4,7 +4,7 @@ import {
   RoleReactionEvent,
 } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message, TextChannel } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
@@ -18,7 +18,6 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
-    let description = ""
     const args = getCommandArguments(msg)
 
     if (args.length !== 5) {
@@ -34,64 +33,89 @@ const command: Command = {
       }
     }
 
+    // Validate input reaction emoji
     let reaction = args[3]
+    let isValidEmoji = false
     if (reaction.startsWith("<:") && reaction.endsWith(">")) {
       reaction = reaction.toLowerCase()
     }
-
-    const role_id = args[4].replace(/\D/g, "") // Accept number-only characters
-    const requestData: RoleReactionEvent = {
-      guild_id: msg.guild.id,
-      message_id: args[2].replace(/\D/g, ""),
-      reaction,
-      role_id,
-    }
-
-    // Validate input reaction emoji
-    let isValidEmoji = false;
-    const emojiSplit = requestData.reaction.split(":")
+    const emojiSplit = reaction.split(":")
     if (emojiSplit.length === 1) { isValidEmoji = true }
     msg.guild.emojis.cache.forEach(e => {
       if (emojiSplit.includes(e.name.toLowerCase())) {
         isValidEmoji = true
       }
     })
-
     if (!isValidEmoji) {
-      description = `Emoji ${requestData.reaction} is not owned by this server. Please use another one.`
-    } else {
-      try {
-        const channelList = msg.guild.channels.cache
-          .filter((c) => c.type === "GUILD_TEXT")
-          .map((c) => c as TextChannel)
-        const rrConfig: RoleReactionConfigResponse =
-          await config.updateReactionConfig(requestData)
-
-        if (rrConfig.success) {
-          description = `${requestData.reaction} is now setting to this role <@&${requestData.role_id}>`
-          
-          channelList.forEach((chan) =>
-            chan.messages
-              .fetch(requestData.message_id)
-              .then((val) => val.react(requestData.reaction))
-              .catch(err => err?.code === 10008 ? null : ChannelLogger.log(err as BotBaseError))
-          )
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: `Emoji ${reaction} is invalid or not owned by this guild`})]
         }
-      } catch (error) {
-        ChannelLogger.log(error as BotBaseError)
-        description = `${requestData.reaction} has already been configured, please try to set another one`
       }
     }
 
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: "Reaction Roles",
-            description,
-          }),
-        ],
-      },
+    // Validate ROLE_ID args
+    const roleId = args[4].replace(/\D/g, "") // Accept number-only characters
+    const role = await msg.guild.roles.fetch(roleId)
+    if (!role || !roleId) {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Role not found" })]
+        }
+      }
+    }
+
+    // Validate message_id
+    const messageId = args[2].replace(/\D/g, "")
+    let message: Message  
+    const channelList = msg.guild.channels.cache
+      .filter((c) => c.type === "GUILD_TEXT")
+      .map((c) => c as TextChannel)
+    
+    await Promise.all(channelList.map((chan) =>
+      chan.messages
+        .fetch(messageId)
+        .then(data => {message = data})
+        .catch(() => null)
+    ))
+
+    if (!message || !messageId) {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Message not found" })]
+        }
+      }
+    }
+
+    try {
+      const requestData: RoleReactionEvent = {
+        guild_id: msg.guild.id,
+        message_id: messageId,
+        reaction,
+        role_id: roleId,
+      }
+
+      const rrConfig: RoleReactionConfigResponse = await config.updateReactionConfig(requestData)
+      if (rrConfig.success) {
+        message.react(requestData.reaction)
+        return {
+          messageOptions: {
+            embeds: [
+              composeEmbedMessage(msg, {
+                title: "Reaction Roles",
+                description: `${requestData.reaction} is now setting to this role <@&${requestData.role_id}>`,
+              }),
+            ],
+          },
+        }
+      }
+    } catch (error) {
+      ChannelLogger.log(error as BotBaseError)
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Role / emoji was configured, please type `$rr list` to check & try again." })]
+        }
+      }
     }
   },
   getHelpMessage: async (msg) => {

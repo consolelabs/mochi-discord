@@ -79,14 +79,23 @@ export const emojis: { [key: string]: string } = {
   BLANK: "967287119448014868",
   PREV_PAGE: "967285237958705162",
   NEXT_PAGE: "967285238000676895",
+  SPARKLE: "984824963112513607",
+  ENERGY: "984876653090070658",
+  STAR: "984895650623811614",
+  BADGE1: "984908515900547092",
+  BADGE2: "985038477487919194",
+  BADGE3: "985038479492808715",
+  FLAG: "985056775554342973",
+  CUP: "985137841027821589",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
-  PRIMARY: "#E88B88", // 500
-  ERROR: "#D73833", // 900
+  PRIMARY: "#E88B88",
+  ERROR: "#D94F50",
+  DEFI: "#9EFFE8",
 }
 
 export const thumbnails: Record<string, string> = {
@@ -174,4 +183,12 @@ export function roundFloatNumber(n: number, fractionDigits = 1) {
 
 export function catchEm(promise: Promise<unknown>) {
   return promise.then((data) => [null, data]).catch((err) => [err])
+}
+
+export function capFirst(str: string) {
+  return `${str.charAt(0).toUpperCase()}${str.slice(1)}`
+}
+
+export function getEmojiURL(emojiId: string) {
+  return `https://cdn.discordapp.com/emojis/${emojiId}.png?size=240&quality=lossless`
 }
