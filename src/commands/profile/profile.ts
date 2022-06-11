@@ -4,7 +4,14 @@ import { Command } from "types/common"
 import { UserProfile, UserXps } from "types/profile"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import * as Canvas from "canvas"
-import { drawAvatar, drawProgressBar, heightOf, widthOf } from "utils/canvas"
+import {
+  drawAvatar,
+  drawProgressBar,
+  heightOf,
+  widthOf,
+  fillWrappedText,
+  calculateWrapperTextHeight,
+} from "utils/canvas"
 import { drawRectangle } from "utils/canvas"
 import { CircleleStats, RectangleStats, TextStats } from "types/canvas"
 import { PREFIX } from "utils/constants"
@@ -79,7 +86,6 @@ async function drawFractionProgressBar(
     const fXpProgressStr = `${xp} / ${targetXp}`
     fXpProgress.x = fractionPgBar.x.to - widthOf(ctx, fXpProgressStr)
     fXpProgress.y = fXpTitle.y
-    // fractionPgBar.y.to + fractionPgBar.mb + heightOf(ctx, fXpProgressStr)
     ctx.fillText(fXpProgressStr, fXpProgress.x, fXpProgress.y)
 
     if (i % 2 === 0) {
@@ -119,11 +125,11 @@ async function renderProfile(msg: Message, data: UserProfile) {
   const container = {
     x: {
       from: 0,
-      to: withFractionXp ? 950 : 900,
+      to: withFractionXp ? 1200 : 900,
     },
     y: {
       from: 0,
-      to: withFractionXp ? 800 : 520,
+      to: withFractionXp ? 900 : 620,
     },
     w: 0,
     h: 0,
@@ -134,6 +140,23 @@ async function renderProfile(msg: Message, data: UserProfile) {
     radius: 30,
   }
   container.w = container.x.to - container.x.from
+  // add container if long aboutme
+  const aboutMeStr =
+    data.about_me.trim().length === 0
+      ? "I'm a mysterious person"
+      : data.about_me
+  const oneLineHeight = calculateWrapperTextHeight(
+    "Sample text",
+    "33px Manrope",
+    container.w - container.pl * 2
+  )
+  const aboutmeHeight = calculateWrapperTextHeight(
+    aboutMeStr,
+    "33px Manrope",
+    container.w - container.pl * 2
+  )
+  const additionalHeight = Math.max(aboutmeHeight - oneLineHeight, 0)
+  container.y.to += additionalHeight
   container.h = container.y.to - container.y.from
   const canvas = Canvas.createCanvas(container.w, container.h)
   const ctx = canvas.getContext("2d")
@@ -285,7 +308,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
   pgBar.y.to = pgBar.y.from + pgBar.h
   drawProgressBar(ctx, pgBar, data.progress)
 
-  // About me
+  // aboutme title
   const aboutMeTitleStr = "About me"
   const aboutMeTitle = {
     x: container.pl,
@@ -299,29 +322,60 @@ async function renderProfile(msg: Message, data: UserProfile) {
   }
   ctx.fillText(aboutMeTitleStr, aboutMeTitle.x, aboutMeTitle.y)
 
-  ctx.font = "29px Manrope"
-  const aboutMeStr =
-    data.about_me.trim().length === 0
-      ? "I'm a mysterious person"
-      : data.about_me
+  // aboutme
+  ctx.save()
+  ctx.font = "33px Manrope"
   const aboutMe = {
     x: aboutMeTitle.x,
     y: aboutMeTitle.y + aboutMeTitle.mb,
     mb: 80,
   }
-  ctx.fillText(aboutMeStr, aboutMe.x, aboutMe.y)
+  // last line y-coordinate
+  aboutMe.y = fillWrappedText(
+    ctx,
+    aboutMeStr,
+    aboutMe.x,
+    aboutMe.y,
+    container.w - container.pl * 2
+  )
+  ctx.restore()
 
-  // Role title
-  ctx.font = "bold 33px Manrope"
-  const roleTitleStr = "Role"
-  const roleTitle = {
+  // Address title
+  const addressTitleStr = "Address"
+  const addressTitle = {
     x: aboutMeTitle.x,
     y: aboutMe.y + aboutMe.mb,
     mb: 45,
   }
+  ctx.fillText(addressTitleStr, addressTitle.x, addressTitle.y)
+
+  // wallet address
+  ctx.save()
+  ctx.fillStyle = "#0DB4FB"
+  ctx.font = "33px Manrope"
+  let addressStr = data.user_wallet?.address
+  if (!addressStr || !addressStr.length) {
+    ctx.fillStyle = "#BFBFBF"
+    addressStr = "N/A"
+  }
+  const address = {
+    x: addressTitle.x,
+    y: addressTitle.y + addressTitle.mb,
+    mb: 80,
+  }
+  ctx.fillText(addressStr, address.x, address.y)
+  ctx.restore()
+
+  // role title
+  const roleTitleStr = "Role"
+  const roleTitle = {
+    x: address.x,
+    y: address.y + address.mb,
+    mb: 45,
+  }
   ctx.fillText(roleTitleStr, roleTitle.x, roleTitle.y)
 
-  // Role
+  // role
   ctx.save()
   const highestRole =
     msg.member.roles.highest.name !== "@everyone"
@@ -337,7 +391,7 @@ async function renderProfile(msg: Message, data: UserProfile) {
   ctx.fillText(roleStr, role.x, role.y)
   ctx.restore()
 
-  // Activity title
+  // activity title
   const activityTitleStr = "Activities"
   const pgBarWidth = (container.w - 50 - container.pl * 2) / 2
   const activityTitle = {
@@ -347,15 +401,15 @@ async function renderProfile(msg: Message, data: UserProfile) {
   }
   ctx.fillText(activityTitleStr, activityTitle.x, activityTitle.y)
 
-  // Activity
+  // activity
   ctx.save()
   const activityStr = `${data.nr_of_actions}`
   const flagIcon = {
     image: await Canvas.loadImage(getEmojiURL(emojis.FLAG)),
-    h: 35,
+    h: 30,
     w: 25,
     x: activityTitle.x,
-    y: activityTitle.y + 10,
+    y: activityTitle.y + 15,
     mr: 7,
   }
   ctx.drawImage(flagIcon.image, flagIcon.x, flagIcon.y, flagIcon.w, flagIcon.h)
