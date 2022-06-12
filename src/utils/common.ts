@@ -86,6 +86,9 @@ export const emojis: { [key: string]: string } = {
   BADGE2: "985038477487919194",
   BADGE3: "985038479492808715",
   FLAG: "985056775554342973",
+  CUP: "985137841027821589",
+  COIN: "985243708419108914",
+  MONEY: "985245648716697680",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -190,4 +193,8 @@ export function capFirst(str: string) {
 
 export function getEmojiURL(emojiId: string) {
   return `https://cdn.discordapp.com/emojis/${emojiId}.png?size=240&quality=lossless`
+}
+
+export function shortenHash(hash: string) {
+  return `${hash.slice(0, 6)}...${hash.slice(hash.length - 6)}`
 }

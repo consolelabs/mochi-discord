@@ -1,7 +1,13 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
-import { getEmoji, getHeader, roundFloatNumber, thumbnails } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  roundFloatNumber,
+  thumbnails,
+} from "utils/common"
 import Defi from "adapters/defi"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "adapters/config"
@@ -31,18 +37,22 @@ const command: Command = {
       }
 
     const embedMsg = composeEmbedMessage(msg, {
-      author: [`${msg.author.username}'s balances`, msg.author.avatarURL()],
+      author: ["View your balances", getEmojiURL(emojis.COIN)],
     })
-
+    const blank = getEmoji("blank")
     guildTokens.forEach((gToken) => {
       const tokenSymbol = gToken.symbol
       const tokenEmoji = getEmoji(tokenSymbol)
       const tokenBalance = roundFloatNumber(balances[tokenSymbol] ?? 0, 4)
-      if (tokenBalance === 0) return
+      // if (tokenBalance === 0) return
       const tokenBalanceInUSD = balances_in_usd[tokenSymbol]
-      let balanceInfo = `${tokenEmoji} **${tokenBalance} ${tokenSymbol}**`
-      if (tokenBalanceInUSD !== undefined)
-        balanceInfo += ` (\u2248$${roundFloatNumber(tokenBalanceInUSD, 2)})`
+      let balanceInfo = `${tokenEmoji} ${tokenBalance} ${tokenSymbol}`
+      if (tokenBalanceInUSD !== undefined) {
+        balanceInfo += ` \`$${roundFloatNumber(
+          tokenBalanceInUSD,
+          2
+        )}\` ${blank}`
+      }
       embedMsg.addField(gToken.name, balanceInfo, true)
     })
 
@@ -59,18 +69,28 @@ const command: Command = {
       }
     }
 
+    // add blank field to justify 3 cols - 1 row
+    if (embedMsg.fields.length % 3 !== 0) {
+      embedMsg.addFields(
+        Array(3 - (embedMsg.fields.length % 3)).fill({
+          name: "\u200B",
+          value: "\u200B",
+          inline: true,
+        })
+      )
+    }
+
     const totalBalanceInUSD = Object.values(balances_in_usd).reduce(
       (prev, cur) => prev + cur
     )
     embedMsg.addField(
-      "Estimated total (U.S. dollar)",
-      `**$${roundFloatNumber(totalBalanceInUSD, 4)}**`
+      "\u200B\nEstimated total (U.S dollar)",
+      `${getEmoji("money")} \`$${roundFloatNumber(totalBalanceInUSD, 4)}\``
     )
 
     return {
       messageOptions: {
         embeds: [embedMsg],
-        content: getHeader("View your tokens' balances", msg.author),
       },
     }
   },
