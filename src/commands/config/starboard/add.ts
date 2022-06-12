@@ -4,13 +4,11 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
-import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError } from "errors"
 
 const command: Command = {
-  id: "repostreaction_set",
-  command: "set",
-  brief: "Set or update a repost reaction configuration",
+  id: "starboard_add",
+  command: "add",
+  brief: "Add or update a starboard configuration",
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
@@ -21,8 +19,8 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              usage: `${PREFIX}rc set <quantity> <emoji> <repost_channel_id>`,
-              examples: `${PREFIX}rc set 3 ✅ 963716572080406551`,
+              usage: `${PREFIX}sb add <quantity> <emoji> <channel>`,
+              examples: `${PREFIX}sb add 3 ⭐ #starboard`,
             }),
           ],
         },
@@ -84,36 +82,21 @@ const command: Command = {
       }
     }
 
-    try {
-      const requestData: RepostReactionRequest = {
-        guild_id: msg.guild.id,
-        emoji: reaction,
-        quantity: quantity,
-        repost_channel_id: channelId,
-      }
+    const requestData: RepostReactionRequest = {
+      guild_id: msg.guild.id,
+      emoji: reaction,
+      quantity: quantity,
+      repost_channel_id: channelId,
+    }
 
-      const res = await config.updateRepostReactionConfig(requestData)
-      if (res.message === "OK") {
-        return {
-          messageOptions: {
-            embeds: [
-              composeEmbedMessage(msg, {
-                title: "Repost Reaction",
-                description: `Now an article receiving ${requestData.quantity} ${requestData.emoji} will be reposted to channel <#${requestData.repost_channel_id}>`,
-              }),
-            ],
-          },
-        }
-      }
-    } catch (error) {
-      ChannelLogger.log(error as BotBaseError)
+    const res = await config.updateRepostReactionConfig(requestData)
+    if (res.message === "OK") {
       return {
         messageOptions: {
           embeds: [
-            getErrorEmbed({
-              msg,
-              description:
-                "Failed to configure repost reaction, please try again.",
+            composeEmbedMessage(msg, {
+              title: "Starboard Configuration",
+              description: `Now an article receiving ${requestData.quantity} ${requestData.emoji} will be reposted to channel <#${requestData.repost_channel_id}>`,
             }),
           ],
         },
@@ -124,8 +107,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}rc set <quantity> <emoji> <repost_channel_id>`,
-          examples: `${PREFIX}rc set 3 ✅ 963716572080406551`,
+          usage: `${PREFIX}sb add <quantity> <emoji> <channel>`,
+          examples: `${PREFIX}sb add 3 ⭐ #starboard`,
         }),
       ],
     }

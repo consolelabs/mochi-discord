@@ -4,13 +4,11 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
-import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError } from "errors"
 
 const command: Command = {
-  id: "repostreaction_remove",
+  id: "starboard_remove",
   command: "remove",
-  brief: "Remove an repost reaction configuration",
+  brief: "Remove an starboard configuration",
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
@@ -20,8 +18,8 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              usage: `${PREFIX}rc remove <emoji>`,
-              examples: `${PREFIX}rc remove ✅`,
+              usage: `${PREFIX}sb remove <emoji>`,
+              examples: `${PREFIX}sb remove ⭐`,
             }),
           ],
         },
@@ -60,29 +58,15 @@ const command: Command = {
       guild_id: msg.guild.id,
       emoji: reaction,
     }
-    try {
-      const res = await config.removeSpecificRepostReactionConfig(requestData)
-      if (res.message === "OK") {
-        return {
-          messageOptions: {
-            embeds: [
-              composeEmbedMessage(msg, {
-                title: "Repost Reaction",
-                description: `Emoji ${requestData.emoji} is now unset.`,
-              }),
-            ],
-          },
-        }
-      }
-    } catch (error) {
-      ChannelLogger.log(error as BotBaseError)
+
+    const res = await config.removeSpecificRepostReactionConfig(requestData)
+    if (res.message === "OK") {
       return {
         messageOptions: {
           embeds: [
-            getErrorEmbed({
-              msg,
-              description:
-                "Failed to remove this repost reaction, please try again.",
+            composeEmbedMessage(msg, {
+              title: "Starboard Configuration",
+              description: `Emoji ${requestData.emoji} is now unset.`,
             }),
           ],
         },
@@ -93,8 +77,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}rc remove <emoji>`,
-          examples: `${PREFIX}rc remove ✅`,
+          usage: `${PREFIX}sb remove <emoji>`,
+          examples: `${PREFIX}sb remove ⭐`,
         }),
       ],
     }
