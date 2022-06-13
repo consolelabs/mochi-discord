@@ -24,6 +24,12 @@ import {
 import { EmbedProperties } from "types/common"
 import { MessageButtonStyles } from "discord.js/typings/enums"
 
+export const EMPTY_FIELD = {
+  name: "\u200B",
+  value: "\u200B",
+  inline: true,
+}
+
 /**
  * Returns a formatted string of options (maximum 8)
  *
@@ -198,4 +204,12 @@ export function getInvalidInputEmbed(msg: Message) {
     description:
       "That is an invalid argument. Please see help message of the command",
   })
+}
+
+export function justifyEmbedFields(embed: MessageEmbed, cols: number) {
+  if (embed.fields.length % cols === 0) {
+    return embed
+  }
+  embed.addFields(Array(cols - (embed.fields.length % cols)).fill(EMPTY_FIELD))
+  return embed
 }

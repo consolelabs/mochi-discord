@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { Message } from "discord.js"
+import { EmbedFieldData, Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import {
   emojis,
@@ -9,7 +9,11 @@ import {
   thumbnails,
 } from "utils/common"
 import Defi from "adapters/defi"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  justifyEmbedFields,
+} from "utils/discordEmbed"
 import Config from "adapters/config"
 
 const command: Command = {
@@ -24,27 +28,25 @@ const command: Command = {
     )
     const guildTokens = await Config.getGuildTokens(msg.guildId)
 
-    if (!guildTokens)
+    if (!guildTokens) {
+      const errorEmbed = getErrorEmbed({
+        msg,
+        description: `Your server currently has no tokens.\nUse \`${PREFIX}token add\` to add one.`,
+      })
       return {
         messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: `Your server currently has no tokens.\nUse \`${PREFIX}token add\` to add one.`,
-            }),
-          ],
+          embeds: [errorEmbed],
         },
       }
+    }
 
-    const embedMsg = composeEmbedMessage(msg, {
-      author: ["View your balances", getEmojiURL(emojis.COIN)],
-    })
+    const fields: EmbedFieldData[] = []
     const blank = getEmoji("blank")
     guildTokens.forEach((gToken) => {
       const tokenSymbol = gToken.symbol
       const tokenEmoji = getEmoji(tokenSymbol)
       const tokenBalance = roundFloatNumber(balances[tokenSymbol] ?? 0, 4)
-      // if (tokenBalance === 0) return
+      if (tokenBalance === 0) return
       const tokenBalanceInUSD = balances_in_usd[tokenSymbol]
       let balanceInfo = `${tokenEmoji} ${tokenBalance} ${tokenSymbol}`
       if (tokenBalanceInUSD !== undefined) {
@@ -53,44 +55,37 @@ const command: Command = {
           2
         )}\` ${blank}`
       }
-      embedMsg.addField(gToken.name, balanceInfo, true)
+      fields.push({ name: gToken.name, value: balanceInfo, inline: true })
     })
 
-    if (embedMsg.fields.length === 0) {
+    if (!fields.length) {
+      const embed = composeEmbedMessage(msg, {
+        title: "Info",
+        description: `<@${msg.author.id}>, you have no balances.`,
+      })
       return {
         messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              title: "Info",
-              description: `<@${msg.author.id}>, you have no balances.`,
-            }),
-          ],
+          embeds: [embed],
         },
       }
-    }
-
-    // add blank field to justify 3 cols - 1 row
-    if (embedMsg.fields.length % 3 !== 0) {
-      embedMsg.addFields(
-        Array(3 - (embedMsg.fields.length % 3)).fill({
-          name: "\u200B",
-          value: "\u200B",
-          inline: true,
-        })
-      )
     }
 
     const totalBalanceInUSD = Object.values(balances_in_usd).reduce(
       (prev, cur) => prev + cur
     )
-    embedMsg.addField(
+
+    const embed = composeEmbedMessage(msg, {
+      author: ["View your balances", getEmojiURL(emojis.COIN)],
+    }).addFields(fields)
+    justifyEmbedFields(embed, 3)
+    embed.addField(
       "\u200B\nEstimated total (U.S dollar)",
       `${getEmoji("money")} \`$${roundFloatNumber(totalBalanceInUSD, 4)}\``
     )
 
     return {
       messageOptions: {
-        embeds: [embedMsg],
+        embeds: [embed],
       },
     }
   },

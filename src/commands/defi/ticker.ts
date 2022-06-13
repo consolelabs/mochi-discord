@@ -14,7 +14,6 @@ import {
   capFirst,
   defaultEmojis,
   getEmoji,
-  getHeader,
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
@@ -184,7 +183,6 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       embeds: [embed],
       files: [chart],
       components: message.components as MessageActionRow[],
-      content: message.content,
     },
     commandChoiceOptions: {
       handler,
@@ -316,7 +314,6 @@ async function renderTickerEmbed(
       files: [chart],
       embeds: [embedMsg],
       components: [selectRow, composeDiscordExitButton()],
-      content: getHeader("View historical market chart", msg.author),
     },
     commandChoiceOptions: {
       userId: msg.author.id,
