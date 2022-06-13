@@ -2,8 +2,7 @@ import { Command } from "types/common"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import Community from "adapters/community"
-import { composeEmbedMessage } from "utils/discordEmbed"
-import { getHeader } from "utils/common"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
@@ -15,9 +14,13 @@ const command: Command = {
   run: async function config(msg: Message) {
     const args = getCommandArguments(msg)
     if (args.length < 3) {
+      const errorEmbed = getErrorEmbed({
+        msg,
+        description: "Missing target channel",
+      })
       return {
         messageOptions: {
-          content: `${getHeader("Missing target channel", msg.author)}`,
+          embeds: [errorEmbed],
         },
       }
     }

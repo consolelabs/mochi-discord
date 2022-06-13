@@ -6,7 +6,11 @@ import { originalCommands } from "../commands"
 import { emojis, thumbnails } from "utils/common"
 import config from "../adapters/config"
 import { Category, Command } from "types/common"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  EMPTY_FIELD,
+  justifyEmbedFields,
+} from "utils/discordEmbed"
 dayjs.extend(utc)
 
 const categoryIcons: Record<Category, string> = {
@@ -57,7 +61,7 @@ const command: Command = {
     return { messageOptions: data }
   },
   getHelpMessage: async (msg: Message) => {
-    const embedMsg = getHelpEmbed(msg, false)
+    const embed = getHelpEmbed(msg, false)
     const categories = await displayCategories()
 
     let idx = 0
@@ -82,18 +86,12 @@ const command: Command = {
       if (!commandsByCat) continue
 
       // add blank field as the third column
-      if (idx % 3 === 2) embedMsg.addField("\u200B", "\u200B", true)
-      embedMsg.addField(`${category}`, `${commandsByCat}`, true)
+      if (idx % 3 === 2) embed.addFields(EMPTY_FIELD)
+      embed.addField(`${category}`, `${commandsByCat}`, true)
       idx++
     }
 
-    // add blank fields to the last row if not enough 3 cols
-    const nrOfEmptyFields = 3 - (embedMsg.fields.length % 3)
-    new Array(nrOfEmptyFields)
-      .fill(0)
-      .forEach(() => embedMsg.addField("\u200B", "\u200B", true))
-
-    return { embeds: [embedMsg] }
+    return { embeds: [justifyEmbedFields(embed, 3)] }
   },
   allowDM: true,
 }
