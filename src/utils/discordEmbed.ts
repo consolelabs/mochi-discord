@@ -54,17 +54,17 @@ export function composeDiscordSelectionRow(
   return row
 }
 
-export function getExitButton() {
+export function getExitButton(authorId: string, label?: string) {
   return new MessageButton({
-    customId: "exit",
+    customId: `exit-${authorId}`,
     emoji: getEmoji("revoke"),
     style: "SECONDARY",
-    label: "Exit",
+    label: label ?? "Exit",
   })
 }
 
-export function composeDiscordExitButton(): MessageActionRow {
-  const row = new MessageActionRow().addComponents(getExitButton())
+export function composeDiscordExitButton(authorId: string): MessageActionRow {
+  const row = new MessageActionRow().addComponents(getExitButton(authorId))
 
   return row
 }

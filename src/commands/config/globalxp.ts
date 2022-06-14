@@ -60,7 +60,7 @@ const command: Command = {
         style: guild.global_xp ? "DANGER" : "PRIMARY",
         label: guild.global_xp ? "Disable" : "Enable",
       }),
-      getExitButton()
+      getExitButton(msg.author.id)
     )
 
     return {
