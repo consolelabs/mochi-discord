@@ -4,7 +4,7 @@ import {
   emojis,
   getEmojiURL,
   roundFloatNumber,
-  shortenHash,
+  shortenHashOrAddress,
   thumbnails,
 } from "utils/common"
 import { getCommandArguments } from "utils/commands"
@@ -39,7 +39,10 @@ async function tip(msg: Message, args: string[]) {
     }** ${payload.each ? "each" : ""}`,
   })
   if (txHash && txUrl)
-    embed.addField("Transaction ID", `[\`${shortenHash(txHash)}\`](${txUrl})`)
+    embed.addField(
+      "Transaction ID",
+      `[\`${shortenHashOrAddress(txHash)}\`](${txUrl})`
+    )
   return {
     embeds: [embed],
   }

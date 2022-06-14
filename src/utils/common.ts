@@ -195,6 +195,6 @@ export function getEmojiURL(emojiId: string) {
   return `https://cdn.discordapp.com/emojis/${emojiId}.png?size=240&quality=lossless`
 }
 
-export function shortenHash(hash: string) {
+export function shortenHashOrAddress(hash: string) {
   return `${hash.slice(0, 6)}...${hash.slice(hash.length - 6)}`
 }
