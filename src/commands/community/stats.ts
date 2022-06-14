@@ -101,7 +101,7 @@ async function renderStatEmbed(
           description: `Please select what type you want to show`,
         }),
       ],
-      components: [selectRow, composeDiscordExitButton()],
+      components: [selectRow, composeDiscordExitButton(msg.author.id)],
     },
     commandChoiceOptions: {
       userId: msg.author.id,
@@ -138,7 +138,7 @@ const command: Command = {
             description: `Please select what stat you want to show`,
           }),
         ],
-        components: [selectRow, composeDiscordExitButton()],
+        components: [selectRow, composeDiscordExitButton(msg.author.id)],
       },
       commandChoiceOptions: {
         userId: msg.author.id,

@@ -76,7 +76,7 @@ const command: Command = {
             placeholder: "Select a nftrole",
             options,
           }),
-          composeDiscordExitButton(),
+          composeDiscordExitButton(msg.author.id),
         ],
       },
       commandChoiceOptions: {

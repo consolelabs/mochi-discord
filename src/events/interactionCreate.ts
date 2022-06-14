@@ -75,9 +75,15 @@ async function handleButtonInteraction(
 ) {
   const buttonInteraction = interaction as ButtonInteraction
   switch (true) {
-    case ["exit", "cancel_airdrop"].includes(interaction.customId):
+    case interaction.customId.startsWith("exit-"): {
+      const authorId = interaction.customId.split("-")[1]
+      if (interaction.user.id !== authorId) {
+        await interaction.deferUpdate()
+        return
+      }
       await msg.delete()
       return
+    }
     case interaction.customId.startsWith("confirm_airdrop-"):
       await confirmAirdrop(buttonInteraction, msg)
       return

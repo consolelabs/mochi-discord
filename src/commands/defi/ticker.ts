@@ -313,7 +313,7 @@ async function renderTickerEmbed(
     messageOptions: {
       files: [chart],
       embeds: [embedMsg],
-      components: [selectRow, composeDiscordExitButton()],
+      components: [selectRow, composeDiscordExitButton(msg.author.id)],
     },
     commandChoiceOptions: {
       userId: msg.author.id,
@@ -386,7 +386,7 @@ const command: Command = {
               description: `Multiple tickers found for \`${coinId}\`: ${found}.\nPlease select one of the following tokens`,
             }),
           ],
-          components: [selectRow, composeDiscordExitButton()],
+          components: [selectRow, composeDiscordExitButton(msg.author.id)],
         },
         commandChoiceOptions: {
           userId: msg.author.id,
