@@ -92,3 +92,10 @@ export type CampaignWhitelistUser = {
   discord_id: string
   whitelist_campaign_id: string
 }
+
+export type RepostReactionRequest = {
+  guild_id: string
+  emoji: string
+  quantity?: number | 0
+  repost_channel_id?: string | ""
+}

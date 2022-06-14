@@ -1,4 +1,9 @@
-import { Command, DefaultRoleEvent, RoleReactionEvent } from "types/common"
+import {
+  Command,
+  DefaultRoleEvent,
+  RepostReactionRequest,
+  RoleReactionEvent,
+} from "types/common"
 import { Message } from "discord.js"
 import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
@@ -458,9 +463,12 @@ class Config {
   }
 
   public async getGuildNFTRoleConfigs(guildId: string) {
-    const res = await fetch(`${API_BASE_URL}/configs/nft-roles/?guild_id=${guildId}`, {
-      method: "GET",
-    })
+    const res = await fetch(
+      `${API_BASE_URL}/configs/nft-roles/?guild_id=${guildId}`,
+      {
+        method: "GET",
+      }
+    )
     if (res.status !== 200) {
       throw new Error(`failed to get nftroles configs - guild ${guildId}`)
     }
@@ -473,12 +481,9 @@ class Config {
   }
 
   public async removeGuildNFTRoleConfig(roleId: string) {
-    const res = await fetch(
-      `${API_BASE_URL}/configs/nft-roles/${roleId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const res = await fetch(`${API_BASE_URL}/configs/nft-roles/${roleId}`, {
+      method: "DELETE",
+    })
     if (res.status !== 200) {
       throw new Error(`failed to remove nftrole config - role ${roleId}`)
     }
@@ -503,6 +508,57 @@ class Config {
       throw new Error(json.error)
     }
     return json.data
+  }
+
+  public async updateRepostReactionConfig(req: RepostReactionRequest) {
+    const res = await fetch(`${API_BASE_URL}/configs/repost-reactions`, {
+      method: "POST",
+      body: JSON.stringify(req),
+    })
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to update repost reaction config - guild ${req.guild_id}`
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
+  }
+
+  public async listAllRepostReactionConfigs(guildId: string) {
+    const res = await fetch(
+      `${API_BASE_URL}/configs/repost-reactions/${guildId}`
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to list reaction roles - guild ${guildId}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
+  }
+
+  public async removeSpecificRepostReactionConfig(req: RepostReactionRequest) {
+    const res = await fetch(`${API_BASE_URL}/configs/repost-reactions`, {
+      method: "DELETE",
+      body: JSON.stringify(req),
+    })
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to remove repost reaction config - guild ${req.guild_id}`
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
   }
 }
 
