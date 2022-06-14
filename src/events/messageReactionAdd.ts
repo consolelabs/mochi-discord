@@ -1,16 +1,20 @@
 import {
   Message,
+  MessageEmbed,
   MessageReaction,
   PartialMessageReaction,
   Role,
+  TextChannel,
   User,
 } from "discord.js"
 import { logger } from "logger"
 import { Event } from "."
 import { BotBaseError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
-import { ReactionRoleResponse, RoleReactionEvent } from "types/common"
+import { RoleReactionEvent } from "types/common"
 import config from "adapters/config"
+import webhook from "adapters/webhook"
+import { composeEmbedMessage } from "utils/discordEmbed"
 
 const getRoleById = (msg: Message, roleId: string): Role => {
   return msg.guild.roles.cache.find((role) => role.id === roleId)
@@ -28,6 +32,88 @@ const getReactionIdentifier = (
   return reaction
 }
 
+const handleReactionRoleEvent = async (
+  _reaction: MessageReaction | PartialMessageReaction,
+  user: User
+) => {
+  const msg = _reaction.message as Message
+  const roleReactionEvent: RoleReactionEvent = {
+    guild_id: msg.guild.id,
+    message_id: msg.id,
+    reaction: getReactionIdentifier(_reaction),
+  }
+  const res = await config.handleReactionEvent(roleReactionEvent)
+  if (res?.role?.id) {
+    await msg.guild.members?.cache
+      .get(user.id)
+      ?.roles.add(getRoleById(msg, res.role.id))
+  }
+}
+
+const handleRepostableMessageTracking = async (
+  _reaction: MessageReaction | PartialMessageReaction
+) => {
+  const msg = _reaction.message as Message
+  const checkRepostableEvent = {
+    guild_id: msg.guild.id,
+    channel_id: msg.channel.id,
+    message_id: msg.id,
+    reaction: getReactionIdentifier(_reaction),
+    reaction_count: _reaction.count,
+  }
+  const res = await webhook.pushDiscordWebhook(
+    "messageReactionAdd",
+    checkRepostableEvent
+  )
+  if (res?.status === "OK") {
+    const { repost_channel_id: repostChannelId } = res
+    const { channel_id, guild_id, message_id, reaction, reaction_count } =
+      checkRepostableEvent
+
+    const channel = msg.guild.channels.cache.find(
+      (c) => c.id === repostChannelId
+    ) as TextChannel
+
+    if (channel) {
+      const originPostURL = `https://discord.com/channels/${guild_id}/${channel_id}/${message_id}`
+      const attachments = msg.attachments.map((a) => ({
+        url: a.url,
+        type: a.contentType.split("/")[0],
+      }))
+      const attachmentSize = attachments.length
+      let embed: MessageEmbed
+      if (attachmentSize) {
+        const imageURL = attachments.find((a) => a.type === "image")?.url
+        const messageContent = msg.content
+          ? msg.content
+          : "Message contains some attachments"
+        embed = composeEmbedMessage(null, {
+          author: [msg.author.tag, msg.author.avatarURL()],
+          description:
+            `**${reaction_count} ${reaction}** - Jump to message [<#${channel_id}>](${originPostURL})\n\n` +
+            messageContent,
+          originalMsgAuthor: msg.author,
+          image: imageURL,
+        })
+      } else {
+        const messageContent = msg.content
+          ? msg.content
+          : "Message has no content."
+        embed = composeEmbedMessage(null, {
+          author: [msg.author.username, msg.author.avatarURL()],
+          description:
+            `**${reaction_count} ${reaction}** - Jump to message [<#${channel_id}>](${originPostURL})\n\n` +
+            messageContent,
+          originalMsgAuthor: msg.author,
+        })
+      }
+      channel.send({
+        embeds: [embed],
+      })
+    }
+  }
+}
+
 export default {
   name: "messageReactionAdd",
   once: false,
@@ -41,23 +127,10 @@ export default {
       if (user.bot) return
       if (!_reaction.message.guild) return
 
-      const msg = _reaction.message as Message
-
-      const event: RoleReactionEvent = {
-        guild_id: msg.guild.id,
-        message_id: msg.id,
-        reaction: getReactionIdentifier(_reaction),
-      }
-
-      const resData: ReactionRoleResponse = await config.handleReactionEvent(
-        event
-      )
-
-      if (resData?.role?.id) {
-        await msg.guild.members?.cache
-          .get(user.id)
-          ?.roles.add(getRoleById(msg, resData.role.id))
-      }
+      await Promise.all([
+        handleReactionRoleEvent(_reaction, user).catch(() => null),
+        handleRepostableMessageTracking(_reaction).catch(() => null),
+      ])
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {

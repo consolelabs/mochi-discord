@@ -3,7 +3,6 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { InvitesInput } from "types/community"
 import { Message } from "discord.js"
-import { getHeader } from "utils/common"
 import { PREFIX } from "utils/constants"
 
 const command: Command = {
@@ -17,10 +16,14 @@ const command: Command = {
       member_id: msg.author.id,
     } as InvitesInput
     const { data } = await Community.getInvites(inviteInput)
-    if (data.length === 0) {
+    if (!data.length) {
+      const embed = composeEmbedMessage(msg, {
+        title: "Info",
+        description: "No invite links found",
+      })
       return {
         messageOptions: {
-          content: `${getHeader("No invite links found", msg.author)}`,
+          embeds: [embed],
         },
       }
     }
@@ -28,8 +31,7 @@ const command: Command = {
     const embedMsg = composeEmbedMessage(msg, {
       title: `${msg.author.username}'s invite link`,
       thumbnail: msg.author.avatarURL(),
-    })
-    embedMsg.addField(
+    }).addField(
       `https://discord.gg/${data[0]}`,
       `Invite link for this server ${msg.guild.name}`
     )
