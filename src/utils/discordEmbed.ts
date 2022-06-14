@@ -101,7 +101,7 @@ export function composeEmbedMessage(
   msg: Message | null,
   props: EmbedProperties
 ) {
-  let { title, description = "", color = msgColors.PRIMARY } = props
+  let { title, description = "", color } = props
   const {
     thumbnail,
     footer = [],
@@ -118,7 +118,6 @@ export function composeEmbedMessage(
   const isSpecificHelpCommand =
     specificHelpCommand(msg) ||
     (msg && !actionObj && !commandObj?.canRunWithoutAction)
-  if (commandObj?.category === "Defi") color = msgColors.DEFI
 
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
@@ -141,10 +140,11 @@ export function composeEmbedMessage(
     authorTag = originalMsgAuthor.tag
     authorAvatarURL = originalMsgAuthor.avatarURL()
   }
+  if (commandObj?.category === "Defi" && !color) color = msgColors.DEFI
 
   const embed = new MessageEmbed()
     .setTitle(title)
-    .setColor(color as ColorResolvable)
+    .setColor((color ?? msgColors.PRIMARY) as ColorResolvable)
 
   if (!withoutFooter) {
     embed
