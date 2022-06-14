@@ -80,7 +80,7 @@ async function renderHistoricalMarketChart({
   currency: string
   days?: number
 }) {
-  const { timestamps, prices, from, to } = await Defi.getHistoricalMarketData(
+  const { times, prices, from, to } = await Defi.getHistoricalMarketData(
     msg,
     coinId,
     currency,
@@ -91,7 +91,7 @@ async function renderHistoricalMarketChart({
   const colorConfig = getChartColorConfig(coinId)
   const image = await renderChartImage({
     chartLabel: `Price (${currency.toUpperCase()}), ${from} - ${to}`,
-    labels: timestamps,
+    labels: times,
     data: prices,
     colorConfig,
   })
