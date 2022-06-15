@@ -20,7 +20,6 @@ export class DirectMessageNotAllowedError extends BotBaseError {
   handle() {
     super.handle()
     this.discordMessage.channel.send({
-      content: `${this.discordMessage.author}`,
       embeds: [
         getErrorEmbed({
           msg: this.discordMessage,

@@ -213,6 +213,29 @@ class Community {
     }
     return json.data
   }
+
+  public async getNFTDetail(collectionSymbol: string, tokenId: string) {
+    const res = await fetch(
+      `${API_BASE_URL}/nfts/${collectionSymbol}/${tokenId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to get NFT detail - ${collectionSymbol} | ${tokenId}`
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
 }
 
 export default new Community()

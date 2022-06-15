@@ -1,13 +1,17 @@
 import { API_BASE_URL } from "utils/constants"
 import fetch from "node-fetch"
-import { buildDiscordMessage } from "./index"
+import { Message } from "discord.js"
+import { Command } from "types/common"
+import { getCommandArguments } from "utils/commands"
+import { PREFIX } from "utils/constants"
+import { composeEmbedMessage } from "utils/discordEmbed"
 
-export async function executeNftAddCommand(args: any[], msg: any) {
+async function executeNftAddCommand(args: string[], msg: Message) {
   const address = args[2]
-  const chain = args[3]
+  const chainId = args[3]
   // create store collection payload
   const collection = {
-    chain: chain,
+    chain_id: chainId,
     address: address,
   }
   // run store collection API
@@ -67,3 +71,48 @@ export async function executeNftAddCommand(args: any[], msg: any) {
       }
   }
 }
+
+const buildDiscordMessage = (
+  msg: Message,
+  title: string,
+  description: string
+) => {
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(msg, {
+          title: title,
+          description: description,
+        }),
+      ],
+    },
+  }
+}
+
+const command: Command = {
+  id: "add_nft",
+  command: "add",
+  brief: "Add an NFT collection",
+  category: "Community",
+  run: async function (msg) {
+    const args = getCommandArguments(msg)
+
+    if (args.length < 4 && args.length >= 2) {
+      return { messageOptions: await this.getHelpMessage(msg) }
+    }
+    return executeNftAddCommand(args, msg)
+  },
+  getHelpMessage: async (msg) => {
+    return {
+      embeds: [
+        composeEmbedMessage(msg, {
+          usage: `${PREFIX}nft add <address> <chain_id>`,
+          examples: `${PREFIX}nft add 0xabcd 1`,
+        }),
+      ],
+    }
+  },
+  canRunWithoutAction: true,
+}
+
+export default command

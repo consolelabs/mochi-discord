@@ -24,6 +24,12 @@ import {
 import { EmbedProperties } from "types/common"
 import { MessageButtonStyles } from "discord.js/typings/enums"
 
+export const EMPTY_FIELD = {
+  name: "\u200B",
+  value: "\u200B",
+  inline: true,
+}
+
 /**
  * Returns a formatted string of options (maximum 8)
  *
@@ -48,17 +54,17 @@ export function composeDiscordSelectionRow(
   return row
 }
 
-export function getExitButton() {
+export function getExitButton(authorId: string, label?: string) {
   return new MessageButton({
-    customId: "exit",
+    customId: `exit-${authorId}`,
     emoji: getEmoji("revoke"),
     style: "SECONDARY",
-    label: "Exit",
+    label: label ?? "Exit",
   })
 }
 
-export function composeDiscordExitButton(): MessageActionRow {
-  const row = new MessageActionRow().addComponents(getExitButton())
+export function composeDiscordExitButton(authorId: string): MessageActionRow {
+  const row = new MessageActionRow().addComponents(getExitButton(authorId))
 
   return row
 }
@@ -95,10 +101,9 @@ export function composeEmbedMessage(
   msg: Message | null,
   props: EmbedProperties
 ) {
-  let { title, description = "" } = props
+  let { title, description = "", color } = props
   const {
     thumbnail,
-    color,
     footer = [],
     timestamp = null,
     image,
@@ -106,11 +111,13 @@ export function composeEmbedMessage(
     originalMsgAuthor,
     usage,
     examples,
+    withoutFooter,
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
   const isSpecificHelpCommand =
-    specificHelpCommand(msg) || (!actionObj && !commandObj?.canRunWithoutAction)
+    specificHelpCommand(msg) ||
+    (msg && !actionObj && !commandObj?.canRunWithoutAction)
 
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
@@ -133,16 +140,20 @@ export function composeEmbedMessage(
     authorTag = originalMsgAuthor.tag
     authorAvatarURL = originalMsgAuthor.avatarURL()
   }
+  if (commandObj?.category === "Defi" && !color) color = msgColors.DEFI
 
   const embed = new MessageEmbed()
     .setTitle(title)
     .setColor((color ?? msgColors.PRIMARY) as ColorResolvable)
-    .setFooter(
-      getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
-      authorAvatarURL
-    )
-    .setTimestamp(timestamp ?? new Date())
 
+  if (!withoutFooter) {
+    embed
+      .setFooter(
+        getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
+        authorAvatarURL
+      )
+      .setTimestamp(timestamp ?? new Date())
+  }
   if (description) {
     embed.setDescription(description)
   }
@@ -193,4 +204,12 @@ export function getInvalidInputEmbed(msg: Message) {
     description:
       "That is an invalid argument. Please see help message of the command",
   })
+}
+
+export function justifyEmbedFields(embed: MessageEmbed, cols: number) {
+  if (embed.fields.length % cols === 0) {
+    return embed
+  }
+  embed.addFields(Array(cols - (embed.fields.length % cols)).fill(EMPTY_FIELD))
+  return embed
 }

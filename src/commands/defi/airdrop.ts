@@ -17,7 +17,7 @@ import Defi from "adapters/defi"
 import NodeCache from "node-cache"
 import dayjs from "dayjs"
 import { DiscordWalletTransferRequest } from "types/defi"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
 
 const airdropCache = new NodeCache({
   stdTTL: 180,
@@ -40,12 +40,7 @@ function composeAirdropButtons(
       style: "PRIMARY",
       label: "Confirm",
     }),
-    new MessageButton({
-      customId: `cancel_airdrop`,
-      emoji: "❌",
-      style: "SECONDARY",
-      label: "Cancel",
-    })
+    getExitButton(authorId, "Cancel")
   )
 }
 

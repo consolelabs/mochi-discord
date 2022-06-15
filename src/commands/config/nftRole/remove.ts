@@ -1,18 +1,13 @@
 import Config from "adapters/config"
 import { Command } from "types/common"
-import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
   composeEmbedMessage,
-  getErrorEmbed
+  getErrorEmbed,
 } from "utils/discordEmbed"
-import {
-  Message,
-  MessageSelectOptionData,
-  SelectMenuInteraction
-} from "discord.js"
+import { MessageSelectOptionData, SelectMenuInteraction } from "discord.js"
 import { msgColors } from "../../../utils/common"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 
@@ -22,16 +17,15 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
 
   return {
     messageOptions: {
-      content: "** **",
       embeds: [
         {
           description: `Remove NFT role configuration successfully!`,
-          color: msgColors.PRIMARY
-        }
+          color: msgColors.PRIMARY,
+        },
       ],
-      components: []
+      components: [],
     },
-    commandChoiceOptions: {}
+    commandChoiceOptions: {},
   }
 }
 
@@ -41,7 +35,7 @@ const command: Command = {
   brief: "Remove a nft-role configuration",
   category: "Config",
   onlyAdministrator: true,
-  run: async function(msg) {
+  run: async function (msg) {
     const configs: any[] = await Config.getGuildNFTRoleConfigs(msg.guildId)
     if (!configs || !configs.length) {
       return {
@@ -50,54 +44,59 @@ const command: Command = {
             getErrorEmbed({
               msg,
               title: `${msg.guild.name}'s nftroles configuration`,
-              description: "No configuration found!"
-            })
-          ]
-        }
+              description: "No configuration found!",
+            }),
+          ],
+        },
       }
     }
 
     const options: MessageSelectOptionData[] = []
-    configs.forEach(config => {
+    configs.forEach((config) => {
       options.push({
         label: config.role_name,
         value: config.id,
         description: `${config.number_of_tokens} ${
           config.nft_collection.symbol
-        } ${config.token_id ? "`No." + config.token_id + "`" : ""}`
+        } ${config.token_id ? "`No." + config.token_id + "`" : ""}`,
       })
+    })
+
+    const embed = composeEmbedMessage(msg, {
+      title: "Select an option",
+      description: "Which nftrole configuration do you want to remove?",
     })
 
     return {
       messageOptions: {
-        content: "Which nftrole configuration do you want to remove?",
+        embeds: [embed],
         components: [
           composeDiscordSelectionRow({
             customId: "nftrole_remove",
             placeholder: "Select a nftrole",
-            options
+            options,
           }),
-          composeDiscordExitButton()
-        ]
+          composeDiscordExitButton(msg.author.id),
+        ],
       },
       commandChoiceOptions: {
         userId: msg.author.id,
         guildId: msg.guildId,
         channelId: msg.channelId,
         handler,
-      }
+      },
     }
   },
-  getHelpMessage: async msg => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nr remove`,
-        examples: `${PREFIX}nr remove`
-      })
-    ]
+        examples: `${PREFIX}nr remove`,
+      }),
+    ],
   }),
   canRunWithoutAction: true,
-  aliases: ["rm"]
+  aliases: ["rm"],
 }
 
 export default command

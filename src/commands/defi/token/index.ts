@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { getEmoji, getHeader, thumbnails } from "utils/common"
+import { getEmoji, thumbnails } from "utils/common"
 import Defi from "adapters/defi"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
@@ -42,11 +42,10 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: ["All supported tokens"],
+            author: ["All supported tokens by Mochi"],
             description,
           }),
         ],
-        content: getHeader("View all supported tokens by Mochi", msg.author),
       },
     }
   },
@@ -65,7 +64,7 @@ const command: Command = {
     }
   },
   canRunWithoutAction: true,
-  aliases: ["token", "tkn", "tk"],
+  aliases: ["token"],
   actions,
 }
 

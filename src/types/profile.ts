@@ -66,4 +66,13 @@ export type UserProfile = {
   about_me: string
   progress: number
   guild: Guild
+  guild_rank: number
+  user_wallet: UserWallet
+}
+
+export type UserWallet = {
+  user_discord_id: string
+  guild_id: string
+  address: string
+  chain_type: string
 }
