@@ -1,57 +1,18 @@
-import { EmbedFieldData, Message, MessageAttachment } from "discord.js"
+import { EmbedFieldData, Message } from "discord.js"
 import { Command } from "types/common"
 import { getAllAliases, getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import add from "./add"
+import ticker from "./ticker"
 import { getEmojiRarity, getRarityRateFromAttributes } from "utils/rarity"
 import community from "adapters/community"
-import { shortenHashOrAddress } from "utils/common"
-import { renderChartImage } from "utils/canvas"
 
 const actions: Record<string, Command> = {
   add,
+  ticker,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
-
-async function composeCollectionInfo(msg: Message, symbol: string, data: any) {
-  const { floor_price, name, contract_address, chain, platforms = [] } = data
-  const fields = [
-    {
-      name: "Name",
-      value: name,
-    },
-    {
-      name: "Symbol",
-      value: symbol.toUpperCase(),
-    },
-    {
-      name: "Contract",
-      value: shortenHashOrAddress(contract_address),
-    },
-    {
-      name: "Chain",
-      value: chain,
-    },
-    {
-      name: "Platforms",
-      value: platforms.join(", "),
-    },
-    {
-      name: "Floor Price",
-      value: `$${floor_price.toLocaleString()}`,
-    },
-  ].map((f: EmbedFieldData) => ({
-    ...f,
-    inline: true,
-  }))
-
-  const embed = composeEmbedMessage(msg, {
-    title: "NFT Collection",
-    image: "attachment://chart.png",
-  }).addFields(fields)
-  return justifyEmbedFields(embed, 3)
-}
 
 async function composeNFTDetail(
   msg: Message,
@@ -113,7 +74,7 @@ async function composeNFTDetail(
 const command: Command = {
   id: "nft",
   command: "nft",
-  brief: "Check an NFT info",
+  brief: "Check an NFT token info",
   category: "Community",
   run: async function (msg, action) {
     const actionObj = commands[action]
@@ -122,33 +83,16 @@ const command: Command = {
     }
 
     const args = getCommandArguments(msg)
-    const [symbol, tokenId] = args.slice(1)
-    let embed
-    const files = []
-    switch (args.length) {
-      case 2: {
-        const data = await community.getNFTCollectionTickers(symbol)
-        const { prices, times } = data.tickers
-        embed = await composeCollectionInfo(msg, symbol, data)
-        const chart = await renderChartImage({
-          chartLabel: "Floor price (USD)",
-          labels: times,
-          data: prices,
-        })
-        files.push(new MessageAttachment(chart, "chart.png"))
-        break
-      }
-      case 3:
-        embed = await composeNFTDetail(msg, symbol, tokenId)
-        break
-      default:
-        embed = (await this.getHelpMessage(msg)).embeds[0]
+    if (args.length < 3) {
+      return { messageOptions: await this.getHelpMessage(msg, action) }
     }
+
+    const [symbol, tokenId] = args.slice(1)
+    const embed = await composeNFTDetail(msg, symbol, tokenId)
 
     return {
       messageOptions: {
         embeds: [embed],
-        files,
       },
     }
   },
@@ -160,7 +104,7 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}nft <symbol_collection> <token_id>`,
+          usage: `${PREFIX}nft <collection_symbol> <token_id>`,
           examples: `${PREFIX}nft neko 1`,
           footer: [`Type ${PREFIX}help nft <action> for a specific action!`],
         }),
