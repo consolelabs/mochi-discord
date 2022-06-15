@@ -54,7 +54,7 @@ const command: Command = {
       }
     }
 
-    const components = new MessageActionRow().addComponents(
+    const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
         customId: `globalxp_confirm-${msg.author.id}-${guild.global_xp}`,
         style: guild.global_xp ? "DANGER" : "PRIMARY",
@@ -75,7 +75,7 @@ const command: Command = {
             }**?`,
           }),
         ],
-        components: [components],
+        components: [actionRow],
       },
     }
   },
