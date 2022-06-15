@@ -24,14 +24,18 @@ export async function confirmGlobalXP(
   }
   const globalXP = !JSON.parse(currentGlobalXP) // toggle config
 
-  await config.toggleGuildGlobalXP(interaction.guildId, globalXP)
+  await config.updateGuild({
+    guildId: interaction.guildId,
+    globalXP: `${globalXP}`,
+  })
   await msg.edit({
     embeds: [
       composeEmbedMessage(msg, {
-        title: "Configure successfully",
-        description: `Global XP is now ${
-          globalXP ? "enabled" : "disabled"
-        } for server **${interaction.guild.name}**`,
+        author: [
+          `Global XP ${globalXP ? "enabled" : "disabled"}`,
+          msg.guild.iconURL(),
+        ],
+        description: `You can check your global XP with \`$profile\``,
       }),
     ],
     components: [],
