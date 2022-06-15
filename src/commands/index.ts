@@ -36,6 +36,7 @@ import top from "./community/top"
 import levelrole from "./config/levelRole"
 import nftrole from "./config/nftRole"
 import globalxp from "./config/globalxp"
+import log from "./config/log"
 import { Command, Category } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { hasAdministrator } from "utils/common"
@@ -72,6 +73,7 @@ export const originalCommands: Record<string, Command> = {
   nftrole,
   globalxp,
   starboard,
+  log,
 }
 
 export const commands = getAllAliases(originalCommands)
