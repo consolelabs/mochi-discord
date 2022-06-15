@@ -199,7 +199,7 @@ class Defi {
     currency: string,
     days: number
   ): Promise<{
-    timestamps: string[]
+    times: string[]
     prices: number[]
     from: string
     to: string

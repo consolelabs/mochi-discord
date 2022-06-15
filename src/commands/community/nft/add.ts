@@ -15,7 +15,7 @@ async function executeNftAddCommand(args: string[], msg: Message) {
     address: address,
   }
   // run store collection API
-  const respCollection = await fetch(`${API_BASE_URL}/nfts/collection`, {
+  const respCollection = await fetch(`${API_BASE_URL}/nfts/collections`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -83,7 +83,7 @@ const command: Command = {
               "Select to add one of the following tokens to your server.",
           }),
         ],
-        components: [selectionRow, composeDiscordExitButton()],
+        components: [selectionRow, composeDiscordExitButton(msg.author.id)],
       },
       commandChoiceOptions: {
         userId: msg.author.id,

@@ -1,6 +1,13 @@
-import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas"
+import {
+  CanvasGradient,
+  CanvasRenderingContext2D,
+  createCanvas,
+  loadImage,
+} from "canvas"
+import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import { GuildMember, User } from "discord.js"
 import { CircleleStats, RectangleStats } from "types/canvas"
+import { msgColors } from "./common"
 import { SPACE } from "./constants"
 
 export function widthOf(ctx: CanvasRenderingContext2D, text: string): number {
@@ -165,4 +172,84 @@ export function drawDivider(
   ctx.stroke()
   ctx.closePath()
   ctx.restore()
+}
+
+export function getGradientColor(
+  fromColor: string,
+  toColor: string
+): CanvasGradient {
+  const canvas = createCanvas(100, 100)
+  const ctx = canvas.getContext("2d")
+  const backgroundColor = ctx.createLinearGradient(0, 0, 0, 400)
+  backgroundColor.addColorStop(0, fromColor)
+  backgroundColor.addColorStop(1, toColor)
+  return backgroundColor
+}
+
+export async function renderChartImage({
+  chartLabel,
+  labels,
+  data,
+  colorConfig,
+}: {
+  chartLabel: string
+  labels: string[]
+  data: number[]
+  colorConfig?: {
+    borderColor: string
+    backgroundColor: string | CanvasGradient
+  }
+}) {
+  if (!colorConfig) {
+    colorConfig = {
+      borderColor: "#E0615D",
+      backgroundColor: getGradientColor(
+        msgColors.PRIMARY.toString(),
+        "rgba(184, 114, 110,0.5)"
+      ),
+    }
+  }
+  const chartCanvas = new ChartJSNodeCanvas({ width: 970, height: 650 })
+  const axisConfig = {
+    ticks: {
+      font: {
+        size: 20,
+      },
+    },
+    grid: {
+      borderColor: colorConfig.borderColor,
+    },
+  }
+  return chartCanvas.renderToBuffer({
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: chartLabel,
+          data,
+          borderWidth: 6,
+          pointRadius: 0,
+          fill: true,
+          ...colorConfig,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: axisConfig,
+        x: axisConfig,
+      },
+      plugins: {
+        legend: {
+          labels: {
+            // This more specific font property overrides the global property
+            font: {
+              size: 24,
+            },
+          },
+        },
+      },
+    },
+  })
 }
