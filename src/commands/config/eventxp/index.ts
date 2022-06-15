@@ -8,40 +8,33 @@ const command: Command = {
   id: "eventxp",
   command: "eventxp",
   brief:
-    "Toggle event XP. If enabled, users will get XP when they join the event.",
+    "Toggle event XP. If enabled, users will get XP when they host/join the event.",
   category: "Config",
   onlyAdministrator: true,
   run: async function(msg, action) {
 
-    const args = getCommandArguments(msg)
-    if (args.length != 2) {
+    const eventHostConfig = await Config.toggleActivityConfig(msg.guildId, "event_host")
+		const eventParticipantConfig = await Config.toggleActivityConfig(msg.guildId, "event_participant")
+
+    if (eventHostConfig.active != eventParticipantConfig.active) {
       return {
-        messageOptions: await this.getHelpMessage(msg)
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              title: `${msg.guild.name}'s eventxp configuration`,
+              description: "Event host and participant config are not the same!",
+            }),
+          ],
+        },
       }
     }
-
-    const [toggleAction] = args.slice(1)
-		let active = false
-    switch (toggleAction.toLowerCase()) {
-			case "disable":
-				break
-			case "enable":
-				active = true
-				break
-			default:
-				return {
-					messageOptions: await this.getHelpMessage(msg)
-				}
-		}
-
-    await Config.toggleActivityConfig(msg.guildId, "event_host", active)
-		await Config.toggleActivityConfig(msg.guildId, "event_participant", active)
 
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            description: `Successfully ${active ? "enable" : "disable" } eventxp`
+            description: `Successfully ${eventHostConfig.active ? "enable" : "disable" } eventxp`
           })
         ]
       }
@@ -51,8 +44,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}eventxp <enable|disable>`,
-          examples: `${PREFIX}eventxp enable`
+          usage: `${PREFIX}eventxp`,
+          examples: `${PREFIX}eventxp`
         })
       ]
     }

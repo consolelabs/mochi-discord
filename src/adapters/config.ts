@@ -562,9 +562,9 @@ class Config {
     return json
   }
   
-  public async toggleActivityConfig(guildId: string, activity: string, active: boolean) {
+  public async toggleActivityConfig(guildId: string, activity: string) {
     const res = await fetch(
-      `${API_BASE_URL}/configs/activities/${activity}?guild_id=${guildId}&active=${active ? "true" : "false"}`,
+      `${API_BASE_URL}/configs/activities/${activity}?guild_id=${guildId}`,
       {
         method: "POST",
       }
