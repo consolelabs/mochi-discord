@@ -569,7 +569,27 @@ class Config {
     if (json.error !== undefined) {
       throw new Error(json.error)
     }
+
     return json
+  }
+  
+  public async toggleActivityConfig(guildId: string, activity: string) {
+    const res = await fetch(
+      `${API_BASE_URL}/configs/activities/${activity}?guild_id=${guildId}`,
+      {
+        method: "POST",
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to toggle activity config - activity ${activity} - guild ${guildId}: ${res.status}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+
+    return json.data
   }
 }
 
