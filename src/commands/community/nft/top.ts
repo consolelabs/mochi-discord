@@ -6,21 +6,19 @@ import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
 import { TopNFTItem } from "types/community"
 import {
-  capFirst,
   emojis,
   getEmoji,
+  sortNFTListByVolume,
   getEmojiURL,
+  mapSymbolToPrice,
+  getUniqueToken,
   parseNFTTop,
 } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 
-async function renderLeaderboard(
-  msg: Message,
-  leaderboard: TopNFTItem[],
-  action: string
-) {
+async function renderLeaderboard(msg: Message, leaderboard: TopNFTItem[]) {
   const container: RectangleStats = {
     x: {
       from: 0,
@@ -65,7 +63,7 @@ async function renderLeaderboard(
   ctx.fillText(cltTitleStr, cltTitle.x, cltTitle.y)
 
   // volume title
-  const volumeTitleStr = `${capFirst(action)} Volume`
+  const volumeTitleStr = `Volume (USD)`
   const volumeTitle = {
     x: 650,
     y: cltTitle.y,
@@ -90,6 +88,7 @@ async function renderLeaderboard(
     mr: 10,
   }
   ctx.font = "27px Manrope"
+
   for (const item of leaderboard) {
     const collectionName = item.collection_name
     cltName.y +=
@@ -110,16 +109,10 @@ async function renderLeaderboard(
       y: cltName.y,
       mr: 20,
     }
-    ctx.font = "27px Manrope"
-    ctx.fillStyle = "#888888"
-    ctx.fillText(item.symbol, discriminator.x, discriminator.y)
 
     // volume
 
-    const volumeStr =
-      action == "buy"
-        ? `${item.trading_volume.nr_of_buy}`
-        : `${item.trading_volume.nr_of_sell}`
+    const volumeStr = `${item.trading_volume} `
     ctx.font = "bold 27px Manrope"
     ctx.fillStyle = "#BFBFBF"
     const level = {
@@ -143,13 +136,14 @@ const command: Command = {
   category: "Community",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
-    if (args.length != 3) {
+    if (args.length > 3) {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
-
-    const action = args[2] //buy or sell
     const data = await Community.getTopNFTs(msg, 10)
-    const leaderboard = parseNFTTop(data)
+    let leaderboard = parseNFTTop(data)
+    const tokenAvailable = getUniqueToken(leaderboard)
+    const symbolPriceMap = await mapSymbolToPrice(msg, tokenAvailable)
+    leaderboard = sortNFTListByVolume(leaderboard, symbolPriceMap)
     if (!data)
       return {
         messageOptions: {
@@ -165,32 +159,20 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       title: `${getEmoji("cup")} Top NFT rankings`,
       thumbnail: "https://i.postimg.cc/4NT4fs3d/mochi.png", //Need mochi logo url
-      description: `${blank}**Highest Volume**\n${blank}**Category:** ${capFirst(
-        action
-      )}\n\u200B`,
+      description: `${blank}**Highest Trading Volume**\n\u200B`,
       image: "attachment://leaderboard.png",
     })
-
-    if (action == "buy")
-      return {
-        messageOptions: {
-          embeds: [embed],
-          files: [await renderLeaderboard(msg, leaderboard, "buy")],
-        },
-      }
-    else if (action == "sell")
-      return {
-        messageOptions: {
-          embeds: [embed],
-          files: [await renderLeaderboard(msg, leaderboard, "sell")],
-        },
-      }
+    return {
+      messageOptions: {
+        embeds: [embed],
+        files: [await renderLeaderboard(msg, leaderboard)],
+      },
+    }
   },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}nft top buy/sell`,
-        examples: `${PREFIX}nft top buy`,
+        usage: `${PREFIX}nft top`,
       }),
     ],
   }),

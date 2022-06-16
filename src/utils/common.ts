@@ -11,6 +11,7 @@ import {
 import { Command } from "types/common"
 import { DOT, VERTICAL_BAR } from "./constants"
 import { TopNFTItem } from "types/community"
+import Defi from "adapters/defi"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -206,14 +207,49 @@ export function parseNFTTop(resp: any): TopNFTItem[] {
     const ele: TopNFTItem = {
       collection_address: item.collection_address,
       collection_name: item.collection_name,
-      symbol: item.symbol,
-      chain_id: item.chain_id,
-      trading_volume: {
-        nr_of_buy: item.trading_volume.nr_of_buy,
-        nr_of_sell: item.trading_volume.nr_of_sell,
-      },
+      collection_symbol: item.collection_symbol,
+      collection_chain_id: item.collection_chain_id,
+      trading_volume: item.trading_volume,
+      token: item.token,
     }
     nftList.push(ele)
   })
+  return nftList
+}
+
+export function getUniqueToken(nftList: TopNFTItem[]): string[] {
+  let tokenAvailable: string[] = []
+  nftList.forEach((item) => {
+    tokenAvailable.push(item.token)
+  })
+  tokenAvailable = [...new Set(tokenAvailable)]
+  return tokenAvailable
+}
+
+export async function mapSymbolToPrice(
+  msg: Message,
+  tokenList: string[]
+): Promise<Map<string, number>> {
+  const tokenMap = new Map<string, number>()
+  for (const item of tokenList) {
+    const coinList = await Defi.searchCoins(msg, item)
+    const data = await Defi.getCoin(msg, coinList[0].id)
+
+    tokenMap.set(item, data.market_data.current_price.usd)
+  }
+  return tokenMap
+}
+
+export function sortNFTListByVolume(
+  nftList: TopNFTItem[],
+  symbol: Map<string, number>
+): TopNFTItem[] {
+  nftList.forEach((item) => {
+    item.trading_volume = roundFloatNumber(
+      item.trading_volume * symbol.get(item.token),
+      2
+    )
+  })
+  nftList.sort((a, b) => (a.trading_volume > b.trading_volume ? -1 : 1))
   return nftList
 }

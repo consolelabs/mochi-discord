@@ -30,10 +30,8 @@ export type LeaderboardItem = {
 export type TopNFTItem = {
   collection_address: string
   collection_name: string
-  symbol: string
-  chain_id: string
-  trading_volume: {
-    nr_of_buy: number
-    nr_of_sell: number
-  }
+  collection_symbol: string
+  collection_chain_id: number
+  trading_volume: number
+  token: string
 }
