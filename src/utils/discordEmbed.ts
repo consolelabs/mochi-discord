@@ -54,17 +54,17 @@ export function composeDiscordSelectionRow(
   return row
 }
 
-export function getExitButton() {
+export function getExitButton(authorId: string, label?: string) {
   return new MessageButton({
-    customId: "exit",
+    customId: `exit-${authorId}`,
     emoji: getEmoji("revoke"),
     style: "SECONDARY",
-    label: "Exit",
+    label: label ?? "Exit",
   })
 }
 
-export function composeDiscordExitButton(): MessageActionRow {
-  const row = new MessageActionRow().addComponents(getExitButton())
+export function composeDiscordExitButton(authorId: string): MessageActionRow {
+  const row = new MessageActionRow().addComponents(getExitButton(authorId))
 
   return row
 }
@@ -101,7 +101,7 @@ export function composeEmbedMessage(
   msg: Message | null,
   props: EmbedProperties
 ) {
-  let { title, description = "", color = msgColors.PRIMARY } = props
+  let { title, description = "", color } = props
   const {
     thumbnail,
     footer = [],
@@ -118,7 +118,6 @@ export function composeEmbedMessage(
   const isSpecificHelpCommand =
     specificHelpCommand(msg) ||
     (msg && !actionObj && !commandObj?.canRunWithoutAction)
-  if (commandObj?.category === "Defi") color = msgColors.DEFI
 
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
@@ -141,10 +140,11 @@ export function composeEmbedMessage(
     authorTag = originalMsgAuthor.tag
     authorAvatarURL = originalMsgAuthor.avatarURL()
   }
+  if (commandObj?.category === "Defi" && !color) color = msgColors.DEFI
 
   const embed = new MessageEmbed()
     .setTitle(title)
-    .setColor(color as ColorResolvable)
+    .setColor((color ?? msgColors.PRIMARY) as ColorResolvable)
 
   if (!withoutFooter) {
     embed
