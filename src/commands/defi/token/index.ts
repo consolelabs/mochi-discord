@@ -6,12 +6,14 @@ import { PREFIX } from "utils/constants"
 import add from "./add"
 import remove from "./remove"
 import list from "./list"
+import addcustom from "./addCustom"
 import { getAllAliases } from "utils/commands"
 
 const actions: Record<string, Command> = {
   list,
   add,
   remove,
+  addcustom,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 
@@ -21,6 +23,9 @@ const command: Command = {
   brief: "Show all supported tokens by Mochi",
   category: "Defi",
   run: async function (msg, action) {
+    if (action !== undefined) {
+      action = action.replace("-", "")
+    }
     const actionObj = commands[action]
     if (actionObj) {
       return actionObj.run(msg)
