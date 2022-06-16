@@ -10,6 +10,7 @@ import {
 
 import { Command } from "types/common"
 import { DOT, VERTICAL_BAR } from "./constants"
+import { TopNFTItem } from "types/community"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -197,4 +198,22 @@ export function getEmojiURL(emojiId: string) {
 
 export function shortenHashOrAddress(hash: string) {
   return `${hash.slice(0, 6)}...${hash.slice(hash.length - 6)}`
+}
+
+export function parseNFTTop(resp: any): TopNFTItem[] {
+  const nftList: TopNFTItem[] = []
+  resp.data.forEach((item: TopNFTItem) => {
+    const ele: TopNFTItem = {
+      collection_address: item.collection_address,
+      collection_name: item.collection_name,
+      symbol: item.symbol,
+      chain_id: item.chain_id,
+      trading_volume: {
+        nr_of_buy: item.trading_volume.nr_of_buy,
+        nr_of_sell: item.trading_volume.nr_of_sell,
+      },
+    }
+    nftList.push(ele)
+  })
+  return nftList
 }

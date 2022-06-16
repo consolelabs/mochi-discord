@@ -195,6 +195,23 @@ class Community {
     return json.data
   }
 
+  public async getTopNFTs(msg: Message, limit = 10): Promise<any> {
+    const resp = await fetch(
+      `${API_BASE_URL}/nfts/trading-volume?limit=${limit}`,
+      {
+        method: "GET",
+      }
+    )
+    if (resp.status !== 200) {
+      throw new Error(`failed to get top NFTs`)
+    }
+    const json = await resp.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
+  }
+
   public async createStatChannel(guildId: string, countType: string) {
     const res = await fetch(
       `${API_BASE_URL}/guilds/${guildId}/channels?count_type=${countType}`,
