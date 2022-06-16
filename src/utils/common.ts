@@ -198,3 +198,13 @@ export function getEmojiURL(emojiId: string) {
 export function shortenHashOrAddress(hash: string) {
   return `${hash.slice(0, 6)}...${hash.slice(hash.length - 6)}`
 }
+
+export function paginate(arr: any[], size: number) {
+  return arr.reduce((acc, val, i) => {
+    let idx = Math.floor(i / size)
+    let page = acc[idx] || (acc[idx] = [])
+    page.push(val)
+    return acc
+  }, [])
+}
+
