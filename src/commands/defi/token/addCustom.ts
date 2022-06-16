@@ -1,11 +1,10 @@
 import { Message } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
-import Defi from "../../../adapters/defi"
 
 async function add(msg: Message, args: string[]) {
   const [, , address, symbol, chain] = args
@@ -15,7 +14,40 @@ async function add(msg: Message, args: string[]) {
     address,
     chain,
   }
-  await Config.addToken(req)
+  try {
+    await Config.addToken(req)
+  } catch (e) {
+    const err = (e as string).split("Error:")[1]
+    let description = `${err}`
+    if (err.includes("not supported")) {
+      const supportedChains = await Config.getAllChains()
+      description =
+        description +
+        `\nAll suppported chains by Mochi\n` +
+        supportedChains
+          .map((chain: { currency: string }) => {
+            return `**${chain.currency}**`
+          })
+          .join("\n")
+      return {
+        embeds: [getErrorEmbed({ msg: msg, description: description })],
+      }
+    }
+    const supportedTokens = await Config.getAllCustomTokens(msg.guildId)
+    description =
+      description +
+      `\nAll suppported tokens by Mochi\n` +
+      supportedTokens
+        .map((token) => {
+          const tokenEmoji = getEmoji(token.symbol)
+          return `${tokenEmoji} **${token.symbol.toUpperCase()}**`
+        })
+        .join("\n")
+    return {
+      embeds: [getErrorEmbed({ msg: msg, description: description })],
+    }
+  }
+
   return {
     embeds: [
       composeEmbedMessage(msg, {
@@ -35,22 +67,6 @@ const command: Command = {
     const args = getCommandArguments(msg)
     if (args.length !== 5) {
       return { messageOptions: await this.getHelpMessage(msg) }
-    }
-    const symbol = args[3]
-    const tokens = await Defi.getSupportedTokens()
-    const isExisted = tokens.map((v) => v.symbol).includes(symbol.toUpperCase())
-    if (isExisted) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              title: `${defaultEmojis.ERROR} Command error`,
-              description: "Your server already had all supported tokens.",
-            }),
-          ],
-        },
-      }
     }
 
     const embeds = await add(msg, args)
