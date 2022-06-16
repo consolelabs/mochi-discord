@@ -1,7 +1,6 @@
 import { Message } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
@@ -39,8 +38,7 @@ async function add(msg: Message, args: string[]) {
       `\nAll suppported tokens by Mochi\n` +
       supportedTokens
         .map((token) => {
-          const tokenEmoji = getEmoji(token.symbol)
-          return `${tokenEmoji} **${token.symbol.toUpperCase()}**`
+          return `**${token.symbol.toUpperCase()}**`
         })
         .join("\n")
     return {
