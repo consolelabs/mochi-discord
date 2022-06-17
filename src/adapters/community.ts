@@ -195,13 +195,10 @@ class Community {
     return json.data
   }
 
-  public async getTopNFTs(msg: Message, limit = 10): Promise<any> {
-    const resp = await fetch(
-      `${API_BASE_URL}/nfts/trading-volume?limit=${limit}`,
-      {
-        method: "GET",
-      }
-    )
+  public async getTopNFTTradingVolume(): Promise<any> {
+    const resp = await fetch(`${API_BASE_URL}/nfts/trading-volume`, {
+      method: "GET",
+    })
     if (resp.status !== 200) {
       throw new Error(`failed to get top NFTs`)
     }

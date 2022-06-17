@@ -5,14 +5,14 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import add from "./add"
 import ticker from "./ticker"
-import top from "./top"
+import volume from "./top"
 
 import { getEmojiRarity, getRarityRateFromAttributes } from "utils/rarity"
 import community from "adapters/community"
 
 const actions: Record<string, Command> = {
   add,
-  top,
+  volume,
   ticker,
 }
 const commands: Record<string, Command> = getAllAliases(actions)

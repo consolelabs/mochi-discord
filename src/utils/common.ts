@@ -10,7 +10,7 @@ import {
 
 import { Command } from "types/common"
 import { DOT, VERTICAL_BAR } from "./constants"
-import { TopNFTItem } from "types/community"
+import { TopNFTTradingVolumeItem } from "types/community"
 import Defi from "adapters/defi"
 
 export const tokenEmojis: Record<string, string> = {
@@ -201,10 +201,10 @@ export function shortenHashOrAddress(hash: string) {
   return `${hash.slice(0, 6)}...${hash.slice(hash.length - 6)}`
 }
 
-export function parseNFTTop(resp: any): TopNFTItem[] {
-  const nftList: TopNFTItem[] = []
-  resp.data.forEach((item: TopNFTItem) => {
-    const ele: TopNFTItem = {
+export function parseNFTTop(resp: any): TopNFTTradingVolumeItem[] {
+  const nftList: TopNFTTradingVolumeItem[] = []
+  resp.data.forEach((item: TopNFTTradingVolumeItem) => {
+    const ele: TopNFTTradingVolumeItem = {
       collection_address: item.collection_address,
       collection_name: item.collection_name,
       collection_symbol: item.collection_symbol,
@@ -217,7 +217,7 @@ export function parseNFTTop(resp: any): TopNFTItem[] {
   return nftList
 }
 
-export function getUniqueToken(nftList: TopNFTItem[]): string[] {
+export function getUniqueToken(nftList: TopNFTTradingVolumeItem[]): string[] {
   let tokenAvailable: string[] = []
   nftList.forEach((item) => {
     tokenAvailable.push(item.token)
@@ -241,9 +241,9 @@ export async function mapSymbolToPrice(
 }
 
 export function sortNFTListByVolume(
-  nftList: TopNFTItem[],
+  nftList: TopNFTTradingVolumeItem[],
   symbol: Map<string, number>
-): TopNFTItem[] {
+): TopNFTTradingVolumeItem[] {
   nftList.forEach((item) => {
     item.trading_volume = roundFloatNumber(
       item.trading_volume * symbol.get(item.token),

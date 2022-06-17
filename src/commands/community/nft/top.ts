@@ -4,7 +4,7 @@ import { getCommandArguments } from "utils/commands"
 import { drawDivider, drawRectangle, heightOf, widthOf } from "utils/canvas"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
-import { TopNFTItem } from "types/community"
+import { TopNFTTradingVolumeItem } from "types/community"
 import {
   emojis,
   getEmoji,
@@ -18,7 +18,10 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 
-async function renderLeaderboard(msg: Message, leaderboard: TopNFTItem[]) {
+async function renderLeaderboard(
+  msg: Message,
+  leaderboard: TopNFTTradingVolumeItem[]
+) {
   const container: RectangleStats = {
     x: {
       from: 0,
@@ -131,15 +134,15 @@ async function renderLeaderboard(msg: Message, leaderboard: TopNFTItem[]) {
 
 const command: Command = {
   id: "top_nft",
-  command: "top",
-  brief: "Show top NFTs",
+  command: "volume",
+  brief: "Show top NFT volume",
   category: "Community",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
-    if (args.length > 3) {
+    if (args.length > 2) {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
-    const data = await Community.getTopNFTs(msg, 10)
+    const data = await Community.getTopNFTTradingVolume()
     let leaderboard = parseNFTTop(data)
     const tokenAvailable = getUniqueToken(leaderboard)
     const symbolPriceMap = await mapSymbolToPrice(msg, tokenAvailable)
@@ -172,7 +175,7 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}nft top`,
+        usage: `${PREFIX}nft volume`,
       }),
     ],
   }),

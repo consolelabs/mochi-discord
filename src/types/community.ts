@@ -27,7 +27,7 @@ export type LeaderboardItem = {
   progress: number
 }
 
-export type TopNFTItem = {
+export type TopNFTTradingVolumeItem = {
   collection_address: string
   collection_name: string
   collection_symbol: string
