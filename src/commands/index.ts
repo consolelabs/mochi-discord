@@ -6,6 +6,7 @@ import invite from "./community/invite"
 import profile from "./profile/profile"
 import stats from "./community/stats"
 import nft from "./community/nft"
+import sales from "./community/sales"
 import gift from "./community/gift"
 import deposit from "./defi/deposit"
 import tip from "./defi/tip"
@@ -65,6 +66,7 @@ export const originalCommands: Record<string, Command> = {
   nft,
   gift,
   top,
+  sales,
   // config
   channel,
   reactionrole,
