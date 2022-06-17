@@ -1,7 +1,7 @@
 import { Message } from "discord.js"
 import handlePrefixedCommand from "../commands"
 import { LOG_CHANNEL_ID } from "../env"
-import { PREFIX } from "utils/constants"
+import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
 import { Event } from "."
 import { logger } from "../logger"
 import { BotBaseError } from "errors"
@@ -9,6 +9,7 @@ import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import webhook from "adapters/webhook"
 import { composeLevelUpMessage } from "utils/userXP"
+import { MessageTypes } from "discord.js/typings/enums"
 
 function normalizeCommand(message: Message) {
   return message.content.replace(/  +/g, " ").trim().toLowerCase()
@@ -16,7 +17,9 @@ function normalizeCommand(message: Message) {
 
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
-
+  
+  const hasSystemChannel = message.guild.systemChannelId ? true : false
+  const messageType = VALID_BOOST_MESSAGE_TYPES.includes(message.type) ? MessageTypes["USER_PREMIUM_GUILD_SUBSCRIPTION"] : MessageTypes["DEFAULT"]
   const resp = await webhook.pushDiscordWebhook("messageCreate", {
     author: {
       id: message.author.id,
@@ -25,6 +28,7 @@ export const handleNormalMessage = async (message: Message) => {
     channel_id: message.channelId,
     timestamp: message.createdAt,
     content: message.content,
+    type: messageType,
   })
 
   if (resp.status !== "OK" || resp.error !== undefined) {
@@ -36,8 +40,17 @@ export const handleNormalMessage = async (message: Message) => {
   if (!type || !data) return
   switch (type) {
     case "level_up":
-      if (data.level_up) {
+      if (data.level_up && data.action === "chat") {
         await message.channel.send(
+          await composeLevelUpMessage(
+            message.member,
+            data.current_level,
+            data.current_xp
+          )
+        )
+      }
+      if (data.level_up && hasSystemChannel && data.action === "boost") {
+        await message.guild.systemChannel.send(
           await composeLevelUpMessage(
             message.member,
             data.current_level,
