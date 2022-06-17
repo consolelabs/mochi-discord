@@ -165,7 +165,7 @@ const command: Command = {
     return {
       messageOptions: {
         embeds: [embed],
-        files: [await renderLeaderboard(msg, leaderboard)],
+        files: [await renderLeaderboard(msg, leaderboard.slice(0, 10))],
       },
     }
   },
