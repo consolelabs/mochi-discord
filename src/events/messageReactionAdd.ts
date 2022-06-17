@@ -88,27 +88,28 @@ const handleRepostableMessageTracking = async (
           ? msg.content
           : "Message contains some attachments"
         embed = composeEmbedMessage(null, {
-          author: [msg.author.tag, msg.author.avatarURL()],
-          description:
-            `**${reaction_count} ${reaction}** - Jump to message [<#${channel_id}>](${originPostURL})\n\n` +
-            messageContent,
+          author: [msg.author.username, msg.author.avatarURL()],
+          description: messageContent,
           originalMsgAuthor: msg.author,
           image: imageURL,
-        })
+          withoutFooter: true,
+          thumbnail: msg.guild.iconURL(),
+        }).setFields([{name: "Source", value: `[Jump!](${originPostURL})`}])
       } else {
         const messageContent = msg.content
           ? msg.content
           : "Message has no content."
         embed = composeEmbedMessage(null, {
           author: [msg.author.username, msg.author.avatarURL()],
-          description:
-            `**${reaction_count} ${reaction}** - Jump to message [<#${channel_id}>](${originPostURL})\n\n` +
-            messageContent,
+          description: messageContent,
           originalMsgAuthor: msg.author,
-        })
+          withoutFooter: true,
+          thumbnail: msg.guild.iconURL(),
+        }).setFields([{name: "Source", value: `[Jump!](${originPostURL})`}])
       }
       channel.send({
         embeds: [embed],
+        content: `**${reaction} ${reaction_count}** <#${channel_id}>`,
       })
     }
   }
