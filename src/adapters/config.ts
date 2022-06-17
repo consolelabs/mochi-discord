@@ -207,6 +207,38 @@ class Config {
       throw new Error(json.error)
     }
   }
+  public async getCurrentSalesConfig(guildId: string) {
+    const res = await fetch(
+      `${API_BASE_URL}/configs/sales-tracker?guild_id=${guildId}`
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to get current GM config - guild ${guildId}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
+  public async updateSalesConfig(guild_id: string, channel_id: string) {
+    const res = await fetch(`${API_BASE_URL}/configs/sales-tracker`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        guild_id,
+        channel_id,
+      }),
+    })
+    if (res.status !== 200) {
+      throw new Error("failed to config GM channel")
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+  }
 
   public async getCurrentDefaultRole(guildId: string) {
     const res = await fetch(
