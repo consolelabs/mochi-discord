@@ -10,6 +10,8 @@ import {
 
 import { Command } from "types/common"
 import { DOT, VERTICAL_BAR } from "./constants"
+import { TopNFTTradingVolumeItem } from "types/community"
+import Defi from "adapters/defi"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -197,4 +199,57 @@ export function getEmojiURL(emojiId: string) {
 
 export function shortenHashOrAddress(hash: string) {
   return `${hash.slice(0, 6)}...${hash.slice(hash.length - 6)}`
+}
+
+export function parseNFTTop(resp: any): TopNFTTradingVolumeItem[] {
+  const nftList: TopNFTTradingVolumeItem[] = []
+  resp.data.forEach((item: TopNFTTradingVolumeItem) => {
+    const ele: TopNFTTradingVolumeItem = {
+      collection_address: item.collection_address,
+      collection_name: item.collection_name,
+      collection_symbol: item.collection_symbol,
+      collection_chain_id: item.collection_chain_id,
+      trading_volume: item.trading_volume,
+      token: item.token,
+    }
+    nftList.push(ele)
+  })
+  return nftList
+}
+
+export function getUniqueToken(nftList: TopNFTTradingVolumeItem[]): string[] {
+  let tokenAvailable: string[] = []
+  nftList.forEach((item) => {
+    tokenAvailable.push(item.token)
+  })
+  tokenAvailable = [...new Set(tokenAvailable)]
+  return tokenAvailable
+}
+
+export async function mapSymbolToPrice(
+  msg: Message,
+  tokenList: string[]
+): Promise<Map<string, number>> {
+  const tokenMap = new Map<string, number>()
+  for (const item of tokenList) {
+    const coinList = await Defi.searchCoins(msg, item)
+    const data = await Defi.getCoin(msg, coinList[0].id)
+
+    tokenMap.set(item, data.market_data.current_price.usd)
+  }
+  return tokenMap
+}
+
+export function sortNFTListByVolume(
+  nftList: TopNFTTradingVolumeItem[],
+  symbol: Map<string, number>
+): TopNFTTradingVolumeItem[] {
+  nftList.forEach((item) => {
+    item.trading_volume = roundFloatNumber(
+      item.trading_volume * symbol.get(item.token),
+      2
+    )
+  })
+  nftList.sort((a, b) => (a.trading_volume > b.trading_volume ? -1 : 1))
+  return nftList
 }

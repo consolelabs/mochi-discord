@@ -26,3 +26,12 @@ export type LeaderboardItem = {
   nr_of_actions: number
   progress: number
 }
+
+export type TopNFTTradingVolumeItem = {
+  collection_address: string
+  collection_name: string
+  collection_symbol: string
+  collection_chain_id: number
+  trading_volume: number
+  token: string
+}
