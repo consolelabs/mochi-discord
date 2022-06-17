@@ -34,7 +34,7 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             description: `Successfully configure ${channelArg} as sales update channel ${getEmoji(
-              "good_morning"
+              "star"
             )}`,
           }),
         ],
