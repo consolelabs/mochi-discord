@@ -10,6 +10,7 @@ import CommandChoiceManager from "utils/CommandChoiceManager"
 import webhook from "adapters/webhook"
 import { composeLevelUpMessage } from "utils/userXP"
 import { MessageTypes } from "discord.js/typings/enums"
+import { handlePlayTripod } from "commands/games/tripod"
 
 // function normalizeCommand(message: Message) {
 //   return message.content.replace(/  +/g, " ").trim().toLowerCase()
@@ -76,6 +77,7 @@ export default {
         return
       }
       await handleNormalMessage(message)
+      handlePlayTripod(message)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {

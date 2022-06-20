@@ -3724,6 +3724,11 @@ functional-red-black-tree@^1.0.1:
   resolved "https://registry.npmjs.org/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
 
+game-interface@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/game-interface/-/game-interface-1.0.1.tgz#6f669150d70a7451d3f13037b72ec8df6681c522"
+  integrity sha512-1cYdnuW/fy5VI0OqaCmZY6XSK/dyMR2mUjEFAmml9NGi/TfdtCxIPQStM5TRfDVQd2/aU4cxwVofzMElCY9uqg==
+
 gauge@^3.0.0:
   version "3.0.2"
   resolved "https://registry.npmjs.org/gauge/-/gauge-3.0.2.tgz"
@@ -6200,6 +6205,11 @@ postgres-interval@^1.1.0:
   dependencies:
     xtend "^4.0.0"
 
+prando@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/prando/-/prando-6.0.1.tgz#ffa8de84c2adc4975dd9df37ae4ada0458face53"
+  integrity sha512-ghUWxQ1T9IJmPu6eshc3VU0OwveUtXQ33ZLXYUcz1Oc5ppKLDXKp0TBDj6b0epwhEctzcQSNGR2iHyvQSn4W5A==
+
 prelude-ls@^1.2.1:
   version "1.2.1"
   resolved "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz"
@@ -7189,6 +7199,13 @@ tree-kill@^1.2.2:
   version "1.2.2"
   resolved "https://registry.npmjs.org/tree-kill/-/tree-kill-1.2.2.tgz"
   integrity sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==
+
+triple-pod-game-engine@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/triple-pod-game-engine/-/triple-pod-game-engine-2.0.2.tgz#996fab8fd2d33b35b133595bb1469ba72bc1cdf8"
+  integrity sha512-ynIjV4nLuwP9N9sgIAZD7I+nNvwgYAXksC6TyoSjwi2IZR0NUD91ltCMrP2r7qtGBugmf8rYbAb6tf47Q2q/kw==
+  dependencies:
+    prando "^6.0.1"
 
 ts-case-convert@^2.0.2:
   version "2.0.2"
