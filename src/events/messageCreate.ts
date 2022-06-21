@@ -18,7 +18,6 @@ function normalizeCommand(message: Message) {
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
   
-  const hasSystemChannel = message.guild.systemChannelId ? true : false
   const messageType = VALID_BOOST_MESSAGE_TYPES.includes(message.type) ? MessageTypes["USER_PREMIUM_GUILD_SUBSCRIPTION"] : MessageTypes["DEFAULT"]
   const resp = await webhook.pushDiscordWebhook("messageCreate", {
     author: {
@@ -40,23 +39,17 @@ export const handleNormalMessage = async (message: Message) => {
   if (!type || !data) return
   switch (type) {
     case "level_up":
-      if (data.level_up && data.action === "chat") {
-        await message.channel.send(
-          await composeLevelUpMessage(
-            message.member,
-            data.current_level,
-            data.current_xp
+      if (data.level_up) {
+        const channel = message.channel ?? message.guild.systemChannel
+        if (channel) {
+          await channel.send(
+            await composeLevelUpMessage(
+              message.member,
+              data.current_level,
+              data.current_xp
+            )
           )
-        )
-      }
-      if (data.level_up && hasSystemChannel && data.action === "boost") {
-        await message.guild.systemChannel.send(
-          await composeLevelUpMessage(
-            message.member,
-            data.current_level,
-            data.current_xp
-          )
-        )
+        }
       }
       return
     default:
