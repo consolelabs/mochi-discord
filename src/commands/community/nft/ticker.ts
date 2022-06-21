@@ -4,7 +4,7 @@ import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import community from "adapters/community"
-import { shortenHashOrAddress } from "utils/common"
+import { getEmoji, shortenHashOrAddress } from "utils/common"
 import { renderChartImage } from "utils/canvas"
 
 async function composeCollectionInfo(msg: Message, symbol: string, data: any) {
@@ -12,31 +12,30 @@ async function composeCollectionInfo(msg: Message, symbol: string, data: any) {
   const fields = [
     {
       name: "Name",
-      value: name,
+      value: `\`${name}\``,
     },
     {
       name: "Symbol",
-      value: symbol.toUpperCase(),
+      value: `\`${symbol.toUpperCase()}\``,
     },
     {
       name: "Contract",
-      value: shortenHashOrAddress(contract_address),
+      value: `\`${shortenHashOrAddress(contract_address)}\``,
     },
     {
       name: "Chain",
-      value: chain,
+      value: `\`${chain}\``,
     },
     {
       name: "Platforms",
-      value: platforms.join(", "),
+      value: platforms.map((platform: string) => getEmoji(platform)).join(" "),
     },
     {
       name: "Floor Price",
-      value: `$${floor_price.toLocaleString()}`,
+      value: `\`$${(floor_price * 1000).toLocaleString()}\``,
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
-    value: `\`${f.value}\``,
     inline: true,
   }))
 
