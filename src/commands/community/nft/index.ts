@@ -5,14 +5,25 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import add from "./add"
 import ticker from "./ticker"
-import { getEmojiRarity, getRarityRateFromAttributes } from "utils/rarity"
+import volume from "./top"
+
 import community from "adapters/community"
+import { getEmoji } from "utils/common"
 
 const actions: Record<string, Command> = {
   add,
+  volume,
   ticker,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
+
+function getEmojiRarity(rarity: string) {
+  const rarities = ["common", "rare", "uncommon", "legendary", "mythic"]
+  rarity = !rarities.includes(rarity.toLowerCase()) ? "common" : rarity
+  return (
+    getEmoji(`${rarity}1`) + getEmoji(`${rarity}2`) + getEmoji(`${rarity}3`)
+  )
+}
 
 async function composeNFTDetail(
   msg: Message,
@@ -29,23 +40,12 @@ async function composeNFTDetail(
     .charAt(0)
     .toUpperCase()}${collectionSymbol.slice(1)}`
 
-  // get rarity rate from list attributes
-  let rarityRate = ""
-  if (attributes) {
-    const rarityCount = new Map<string, number>()
-    for (const attr of attributes) {
-      const current = rarityCount.get(attr.rarity) ?? 0
-      rarityCount.set(attr.rarity, current + 1)
-    }
-    rarityRate = getRarityRateFromAttributes(rarityCount)
-  }
-
   // set rank, rarity score empty if have data
   let description = name ? `**${name}**` : ""
   if (rarity) {
-    const rank = rarity.rank.toString()
-    const rarityEmoji = getEmojiRarity(rarityRate)
-    description += `\n\n🏆** ・ Rank: ${rank} ・** ${rarityEmoji}`
+    description += `\n\n🏆** ・ Rank: ${rarity.rank} ・** ${getEmojiRarity(
+      rarity.rarity
+    )}`
   }
 
   const fields: EmbedFieldData[] = attributes

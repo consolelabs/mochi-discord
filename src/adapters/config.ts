@@ -207,6 +207,38 @@ class Config {
       throw new Error(json.error)
     }
   }
+  public async getCurrentSalesConfig(guildId: string) {
+    const res = await fetch(
+      `${API_BASE_URL}/configs/sales-tracker?guild_id=${guildId}`
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to get current GM config - guild ${guildId}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
+  public async updateSalesConfig(guild_id: string, channel_id: string) {
+    const res = await fetch(`${API_BASE_URL}/configs/sales-tracker`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        guild_id,
+        channel_id,
+      }),
+    })
+    if (res.status !== 200) {
+      throw new Error("failed to config GM channel")
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+  }
 
   public async getCurrentDefaultRole(guildId: string) {
     const res = await fetch(
@@ -373,6 +405,27 @@ class Config {
     if (json.error !== undefined) {
       throw new Error(json.error)
     }
+  }
+
+  public async addToken(body: {
+    guild_id: string
+    symbol: string
+    address: string
+    chain: string
+  }) {
+    const resp = await fetch(`${API_BASE_URL}/configs/custom-tokens`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+    const json = await resp.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    if (resp.status !== 200) {
+      throw new Error(`failed to add new token ${body.symbol}`)
+    }
+    return json
   }
 
   public async configLevelRole(
@@ -544,7 +597,7 @@ class Config {
       `${API_BASE_URL}/configs/repost-reactions/${guildId}`
     )
     if (res.status !== 200) {
-      throw new Error(`failed to list reaction roles - guild ${guildId}`)
+      throw new Error(`failed to list starboard configuration - guild ${guildId}`)
     }
 
     const json = await res.json()
@@ -572,7 +625,22 @@ class Config {
 
     return json
   }
-  
+
+  public async getAllChains() {
+    const res = await fetch(`${API_BASE_URL}/chains`, {
+      method: "GET",
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to get all chains`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
+
   public async toggleActivityConfig(guildId: string, activity: string) {
     const res = await fetch(
       `${API_BASE_URL}/configs/activities/${activity}?guild_id=${guildId}`,
@@ -581,7 +649,9 @@ class Config {
       }
     )
     if (res.status !== 200) {
-      throw new Error(`failed to toggle activity config - activity ${activity} - guild ${guildId}: ${res.status}`)
+      throw new Error(
+        `failed to toggle activity config - activity ${activity} - guild ${guildId}: ${res.status}`
+      )
     }
 
     const json = await res.json()
@@ -589,6 +659,24 @@ class Config {
       throw new Error(json.error)
     }
 
+    return json.data
+  }
+
+  public async getAllCustomTokens(guild_id: string): Promise<Token[]> {
+    const res = await fetch(
+      `${API_BASE_URL}/guilds/${guild_id}/custom-tokens`,
+      {
+        method: "GET",
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to get all custom tokens of guild: ${guild_id}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw Error(json.error)
+    }
     return json.data
   }
 }

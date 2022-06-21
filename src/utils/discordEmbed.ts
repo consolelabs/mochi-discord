@@ -213,3 +213,33 @@ export function justifyEmbedFields(embed: MessageEmbed, cols: number) {
   embed.addFields(Array(cols - (embed.fields.length % cols)).fill(EMPTY_FIELD))
   return embed
 }
+
+export async function renderPaginator (msg: Message, pages: MessageEmbed[]) {
+  if (!pages.length) return
+  let page = 0    
+  const forwardBtn = new MessageButton().setCustomId("FORWARD_BTN").setEmoji("▶️").setStyle("SECONDARY")
+  const backwardBtn = new MessageButton().setCustomId("BACKWARD_BTN").setEmoji("◀️").setStyle("SECONDARY")
+  const row = new MessageActionRow().addComponents([backwardBtn, forwardBtn])
+
+  const message = await msg.channel.send({
+    embeds: [
+      pages[page],
+    ],
+    components: [row],
+  })
+
+  const collector = message.createMessageComponentCollector({ componentType: 'BUTTON', time: 20000 })
+
+  collector.on('collect', async i => {
+    await i.deferUpdate()
+    if (i.user.id !== msg.author.id) return
+    if (i.customId === "FORWARD_BTN") {
+      page = page > 0 ? page - 1 : pages.length - 1
+      await message.edit({ embeds: [pages[page]], components: [row], })
+    }
+    if (i.customId === "BACKWARD_BTN") {
+      page = page < pages.length - 1 ? page + 1 : 0
+      await message.edit({ embeds: [pages[page]], components: [row], })
+    }
+  })
+}
