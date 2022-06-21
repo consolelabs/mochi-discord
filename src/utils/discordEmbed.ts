@@ -22,7 +22,10 @@ import {
   specificHelpCommand,
 } from "./commands"
 import { EmbedProperties } from "types/common"
-import { MessageButtonStyles } from "discord.js/typings/enums"
+import {
+  MessageButtonStyles,
+  MessageComponentTypes,
+} from "discord.js/typings/enums"
 
 export const EMPTY_FIELD = {
   name: "\u200B",
@@ -214,32 +217,64 @@ export function justifyEmbedFields(embed: MessageEmbed, cols: number) {
   return embed
 }
 
-export async function renderPaginator (msg: Message, pages: MessageEmbed[]) {
+export async function renderPaginator(msg: Message, pages: MessageEmbed[]) {
   if (!pages.length) return
-  let page = 0    
-  const forwardBtn = new MessageButton().setCustomId("FORWARD_BTN").setLabel("Next").setStyle("SECONDARY")
-  const backwardBtn = new MessageButton().setCustomId("BACKWARD_BTN").setLabel("Back").setStyle("SECONDARY")
+  let page = 0
+  const forwardBtn = new MessageButton()
+    .setCustomId("FORWARD_BTN")
+    .setLabel("Next")
+    .setStyle("SECONDARY")
+  const backwardBtn = new MessageButton()
+    .setCustomId("BACKWARD_BTN")
+    .setLabel("Back")
+    .setStyle("SECONDARY")
   const row = new MessageActionRow().addComponents([backwardBtn, forwardBtn])
 
   const message = await msg.channel.send({
-    embeds: [
-      pages[page],
-    ],
+    embeds: [pages[page]],
     components: [row],
   })
 
-  const collector = message.createMessageComponentCollector({ componentType: 'BUTTON', time: 20000 })
+  const collector = message.createMessageComponentCollector({
+    componentType: "BUTTON",
+    time: 20000,
+  })
 
-  collector.on('collect', async i => {
+  collector.on("collect", async (i) => {
     await i.deferUpdate()
     if (i.user.id !== msg.author.id) return
     if (i.customId === "FORWARD_BTN") {
       page = page > 0 ? page - 1 : pages.length - 1
-      await message.edit({ embeds: [pages[page]], components: [row], })
+      await message.edit({ embeds: [pages[page]], components: [row] })
     }
     if (i.customId === "BACKWARD_BTN") {
       page = page < pages.length - 1 ? page + 1 : 0
-      await message.edit({ embeds: [pages[page]], components: [row], })
+      await message.edit({ embeds: [pages[page]], components: [row] })
     }
   })
+}
+
+export function getPaginationRow(page: number, totalPage: number) {
+  if (totalPage === 1) return []
+  const actionRow = new MessageActionRow()
+  if (page !== 0) {
+    actionRow.addComponents(
+      new MessageButton({
+        type: MessageComponentTypes.BUTTON,
+        style: MessageButtonStyles.PRIMARY,
+        label: "Back",
+        customId: `page_${page}_-_${totalPage}`,
+      })
+    )
+  }
+
+  if (page !== totalPage - 1) {
+    actionRow.addComponents({
+      type: MessageComponentTypes.BUTTON,
+      style: MessageButtonStyles.PRIMARY,
+      label: "Next",
+      customId: `page_${page}_+_${totalPage}`,
+    })
+  }
+  return [actionRow]
 }

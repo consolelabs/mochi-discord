@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, renderPaginator, } from "utils/discordEmbed"
+import { composeEmbedMessage, renderPaginator } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { paginate } from "utils/common"
@@ -26,7 +26,7 @@ const command: Command = {
         let quantityVal = ""
         let emojiVal = ""
         let channelVal = ""
-        const embed =  composeEmbedMessage(msg, {
+        const embed = composeEmbedMessage(msg, {
           title: "Starboard Configuration",
           withoutFooter: true,
           thumbnail: msg.guild.iconURL(),
@@ -51,7 +51,7 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: "Starboard Configuration",
-              description: "No configuration found."
+              description: "No configuration found.",
             }),
           ],
         },
