@@ -223,7 +223,6 @@ const command: Command = {
       }),
     ],
   }),
-  aliases: ["ct"],
   canRunWithoutAction: true,
 }
 
