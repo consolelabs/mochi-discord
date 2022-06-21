@@ -7,6 +7,7 @@ import add from "./add"
 import remove from "./remove"
 import list from "./list"
 import addcustom from "./addCustom"
+import compare from "./compare"
 import { getAllAliases } from "utils/commands"
 
 const actions: Record<string, Command> = {
@@ -14,6 +15,7 @@ const actions: Record<string, Command> = {
   add,
   remove,
   addcustom,
+  compare,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 

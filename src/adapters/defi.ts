@@ -222,6 +222,33 @@ class Defi {
     return json.data
   }
 
+  async CompareToken(
+    message: Message,
+    baseCoinId: string,
+    targetCoinId: string,
+    days: number
+  ): Promise<{
+    times: string[]
+    price_compare: number[]
+  }> {
+    const resp = await fetch(
+      `${API_BASE_URL}/defi/coins/compare?source_symbol=${baseCoinId}&interval=${days}&target_symbol=${targetCoinId}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+    if (resp.status !== 200) {
+      throw new InvalidInputError({ message })
+    }
+
+    const json = await resp.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
+
   public getDateStr(timestamp: number) {
     return dayjs(timestamp).format("MMMM DD, YYYY")
   }
