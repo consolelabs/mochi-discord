@@ -41,6 +41,7 @@ export const handleNormalMessage = async (message: Message) => {
     case "level_up":
       if (data.level_up) {
         const channel = message.channel ?? message.guild.systemChannel
+        logger.info(`Channel [${channel?.id}] is ready to send message`)
         if (channel) {
           await channel.send(
             await composeLevelUpMessage(
