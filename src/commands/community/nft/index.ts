@@ -42,10 +42,13 @@ async function composeNFTDetail(
 
   // set rank, rarity score empty if have data
   let description = name ? `**${name}**` : ""
+  let rarityRate = ""
+  // handle for case collection not have rariry
+  if (rarity.rarity) {
+    rarityRate = `**・** ${getEmojiRarity(rarity.rarity)}`
+  }
   if (rarity) {
-    description += `\n\n🏆** ・ Rank: ${rarity.rank} ・** ${getEmojiRarity(
-      rarity.rarity
-    )}`
+    description += `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
   }
 
   const fields: EmbedFieldData[] = attributes
