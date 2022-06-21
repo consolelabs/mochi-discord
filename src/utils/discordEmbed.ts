@@ -217,8 +217,8 @@ export function justifyEmbedFields(embed: MessageEmbed, cols: number) {
 export async function renderPaginator (msg: Message, pages: MessageEmbed[]) {
   if (!pages.length) return
   let page = 0    
-  const forwardBtn = new MessageButton().setCustomId("FORWARD_BTN").setEmoji("▶️").setStyle("SECONDARY")
-  const backwardBtn = new MessageButton().setCustomId("BACKWARD_BTN").setEmoji("◀️").setStyle("SECONDARY")
+  const forwardBtn = new MessageButton().setCustomId("FORWARD_BTN").setLabel("Next").setStyle("SECONDARY")
+  const backwardBtn = new MessageButton().setCustomId("BACKWARD_BTN").setLabel("Back").setStyle("SECONDARY")
   const row = new MessageActionRow().addComponents([backwardBtn, forwardBtn])
 
   const message = await msg.channel.send({
