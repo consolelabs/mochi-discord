@@ -20,7 +20,6 @@ import Defi from "adapters/defi"
 import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { getGradientColor, renderChartImage } from "utils/canvas"
-import { thumbnails } from "utils/common"
 export const coinNotFoundResponse = (msg: Message, coinQ: string) => ({
   messageOptions: {
     embeds: [
@@ -180,7 +179,7 @@ async function composeTokenComparisonEmbed(
   const selectRow = composeDiscordSelectionRow({
     customId: "tickers_range_selection",
     placeholder: "Make a selection",
-    options: [opt(1), opt(7), opt(30), opt(60), opt(90), opt(365)],
+    options: [opt(1), opt(7), opt(14), opt(30), opt(90)],
   })
 
   return {
@@ -199,7 +198,7 @@ async function composeTokenComparisonEmbed(
 }
 
 const command: Command = {
-  id: "ticker_compare",
+  id: "tokens_compare",
   command: "compare",
   brief: "View comparison between 2 tokens",
   category: "Defi",
@@ -217,9 +216,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        thumbnail: thumbnails.TOKENS,
-        usage: `${PREFIX}tokens c <base/target>`,
-        examples: `${PREFIX}tokens c bitcoin/binancecoin\n${PREFIX}tokens bitcoin/binancecoin (for default option)`,
+        usage: `${PREFIX}tokens compare`,
+        examples: `${PREFIX}tokens compare bitcoin/binancecoin`,
       }),
     ],
   }),
