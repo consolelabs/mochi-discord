@@ -6,6 +6,7 @@ import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import add from "./add"
 import ticker from "./ticker"
 import volume from "./top"
+import list from "./list"
 
 import community from "adapters/community"
 import { getEmoji } from "utils/common"
@@ -14,6 +15,7 @@ const actions: Record<string, Command> = {
   add,
   volume,
   ticker,
+  list,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 

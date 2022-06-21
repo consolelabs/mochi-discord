@@ -286,6 +286,129 @@ class Community {
       throw new Error(`failed to create sales tracker`)
     }
   }
+
+  public async getNFTCollections({
+    page = 0,
+    size = 10,
+  }: {
+    page?: number
+    size?: number
+  }) {
+    const res = await fetch(
+      `${API_BASE_URL}/nfts/collections?page=${page}&size=${size}`,
+      {
+        method: "GET",
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to get NFT collections page ${page} of ${size} items`
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    json.data = {
+      page: 0,
+      size: 10,
+      total: 35,
+      data: [
+        {
+          address: "0x7D1070fdbF0eF8752a9627a79b00221b53F231fA",
+          name: "Cyber Rabby",
+          symbol: "rabby",
+          chain_id: 1,
+          erc_format: "721",
+          supply: 2222,
+          is_rarity_calculated: false,
+        },
+        {
+          address: "0x7acee5d0acc520fab33b3ea25d4feef1ffebde73",
+          name: "Cyber Neko",
+          symbol: "neko",
+          chain_id: 250,
+          erc_format: "721",
+          supply: 6666,
+          is_rarity_calculated: false,
+        },
+        {
+          address: "0x97cEDf6e9116f3422b52Ac1ae339685D527721e7",
+          name: "Cyber Fukuro",
+          symbol: "fukuro",
+          chain_id: 1,
+          erc_format: "721",
+          supply: 333,
+          is_rarity_calculated: false,
+        },
+        {
+          address: "0x7D1070fdbF0eF8752a9627a79b00221b53F231fA",
+          name: "Cyber Rabby",
+          symbol: "rabby",
+          chain_id: 1,
+          erc_format: "721",
+          supply: 2222,
+          is_rarity_calculated: false,
+        },
+        {
+          address: "0x7acee5d0acc520fab33b3ea25d4feef1ffebde73",
+          name: "Cyber Neko",
+          symbol: "neko",
+          chain_id: 250,
+          erc_format: "721",
+          supply: 6666,
+          is_rarity_calculated: false,
+        },
+        {
+          address: "0x97cEDf6e9116f3422b52Ac1ae339685D527721e7",
+          name: "Cyber Fukuro",
+          symbol: "fukuro",
+          chain_id: 1,
+          erc_format: "721",
+          supply: 333,
+          is_rarity_calculated: false,
+        },
+        {
+          address: "0x7D1070fdbF0eF8752a9627a79b00221b53F231fA",
+          name: "Cyber Rabby",
+          symbol: "rabby",
+          chain_id: 1,
+          erc_format: "721",
+          supply: 2222,
+          is_rarity_calculated: false,
+        },
+        {
+          address: "0x7acee5d0acc520fab33b3ea25d4feef1ffebde73",
+          name: "Cyber Neko",
+          symbol: "neko",
+          chain_id: 250,
+          erc_format: "721",
+          supply: 6666,
+          is_rarity_calculated: false,
+        },
+        {
+          address: "0x97cEDf6e9116f3422b52Ac1ae339685D527721e7",
+          name: "Cyber Fukuro",
+          symbol: "fukuro",
+          chain_id: 1,
+          erc_format: "721",
+          supply: 333,
+          is_rarity_calculated: false,
+        },
+        {
+          address: "0x7D1070fdbF0eF8752a9627a79b00221b53F231fA",
+          name: "Cyber Rabby",
+          symbol: "rabby",
+          chain_id: 1,
+          erc_format: "721",
+          supply: 2222,
+          is_rarity_calculated: false,
+        },
+      ],
+    }
+    return json.data
+  }
 }
 
 export default new Community()
