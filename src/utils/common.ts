@@ -72,6 +72,11 @@ export const defaultEmojis: Record<string, string> = {
   MAG: ":mag:",
 }
 
+export const marketplaceEmojis: Record<string, string> = {
+  PAINTSWAP: "988744692625707008",
+  OPENSEA: "988748731857911878",
+}
+
 export const emojis: { [key: string]: string } = {
   GOOD_MORNING: "967285238306840576",
   REVOKE: "967285238055174195",
@@ -94,6 +99,7 @@ export const emojis: { [key: string]: string } = {
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
+  ...marketplaceEmojis,
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
