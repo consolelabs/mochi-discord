@@ -152,7 +152,7 @@ async function composeTokenComparisonEmbed(
 ) {
   const embedMsg = composeEmbedMessage(msg, {
     color: getChartColorConfig(baseCoinId).borderColor as HexColorString,
-    author: [`${baseCoinId}/${targetCoinId}`],
+    author: [`Make comparison between ${baseCoinId} and ${targetCoinId}`],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
   })
