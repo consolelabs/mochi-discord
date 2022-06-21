@@ -271,6 +271,21 @@ class Community {
     }
     return json.data
   }
+
+  public async createSalesTracker(addr: string, plat: string, guildId: string) {
+    const res = await fetch(`${API_BASE_URL}/nfts/sales-tracker`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contract_address: addr,
+        platform: plat,
+        guild_id: guildId,
+      }),
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to create sales tracker`)
+    }
+  }
 }
 
 export default new Community()
