@@ -48,7 +48,11 @@ async function composeNFTDetail(
     rarityRate = `**・** ${getEmojiRarity(rarity.rarity)}`
   }
   if (rarity) {
-    description += `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
+    if (rarity.rank == 0 || rarity.total == 0 || rarity.score == "") {
+      description += ``
+    } else {
+      description += `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
+    }
   }
 
   const fields: EmbedFieldData[] = attributes
