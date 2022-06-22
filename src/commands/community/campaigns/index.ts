@@ -52,6 +52,7 @@ const command: Command = {
   },
   aliases: ["wl"],
   actions,
+  colorType: "Command",
 }
 
 export default command

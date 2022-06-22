@@ -1,6 +1,10 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed, renderPaginator } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  renderPaginator,
+} from "utils/discordEmbed"
 import { Message, TextChannel } from "discord.js"
 import config from "adapters/config"
 import { catchEm, paginate } from "utils/common"
@@ -31,12 +35,12 @@ const command: Command = {
                 emoji: role.reaction,
                 channel: `[Jump](${fetchedMsg.url})`,
               }))
-              return f 
+              return f
             }
           }
         })
       )
-      
+
       let pages = paginate(values.flat(), 5)
       pages = pages.map((arr: any, idx: number) => {
         let roleValue = ""
@@ -47,7 +51,7 @@ const command: Command = {
           withoutFooter: true,
           thumbnail: msg.guild.iconURL(),
         }).setFooter(`Page ${idx + 1} / ${pages.length}`)
-        
+
         arr.forEach((f: any) => {
           roleValue = roleValue + f.role + "\n"
           emojiValue = emojiValue + f.emoji + "\n"
@@ -103,6 +107,7 @@ const command: Command = {
     }
   },
   canRunWithoutAction: true,
+  colorType: "Server",
 }
 
 export default command

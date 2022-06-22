@@ -93,6 +93,7 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["lr"],
   actions,
+  colorType: "Server",
 }
 
 export default command

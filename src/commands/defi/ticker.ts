@@ -339,6 +339,7 @@ const command: Command = {
   }),
   aliases: ["tick"],
   canRunWithoutAction: true,
+  colorType: "Defi",
 }
 
 export default command

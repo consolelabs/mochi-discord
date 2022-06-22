@@ -5,6 +5,7 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
 import { composeLevelUpMessage } from "utils/userXP"
 import fetch from "node-fetch"
+import { msgColors } from "utils/common"
 
 const command: Command = {
   id: "gift",
@@ -23,7 +24,7 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              color: "#D73833",
+              color: msgColors.ERROR,
               title: "Gift XP",
               description: `You can only send XP as gift.`,
             }),
@@ -37,7 +38,7 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              color: "#D73833",
+              color: msgColors.ERROR,
               title: "Gift XP",
               description: `Invalid XP amount.`,
             }),
@@ -95,7 +96,7 @@ const command: Command = {
             messageOptions: {
               embeds: [
                 composeEmbedMessage(msg, {
-                  color: "#D73833",
+                  color: msgColors.ERROR,
                   title: "Gift XP",
                   description: errorMessage + `User is not in server.`,
                 }),
@@ -126,6 +127,7 @@ const command: Command = {
 
     return { embeds: [embed] }
   },
+  colorType: "Command",
 }
 
 export default command

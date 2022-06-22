@@ -107,6 +107,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   aliases: ["wd"],
+  colorType: "Defi",
 }
 
 export default command

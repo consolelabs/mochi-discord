@@ -8,7 +8,7 @@ import remove from "./remove"
 
 const actions: Record<string, Command> = {
   list,
-  remove
+  remove,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 
@@ -19,7 +19,7 @@ const command: Command = {
     "Set roles which users will get by holding an amount of selected nft in current server",
   category: "Config",
   onlyAdministrator: true,
-  run: async function(msg, action) {
+  run: async function (msg, action) {
     const actionObj = commands[action]
     if (actionObj) {
       return actionObj.run(msg)
@@ -28,7 +28,7 @@ const command: Command = {
     const args = getCommandArguments(msg)
     if (args.length < 4) {
       return {
-        messageOptions: await this.getHelpMessage(msg)
+        messageOptions: await this.getHelpMessage(msg),
       }
     }
 
@@ -36,8 +36,8 @@ const command: Command = {
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid role" })]
-        }
+          embeds: [getErrorEmbed({ msg, description: "Invalid role" })],
+        },
       }
     }
     const roleId = roleArg.substring(3, roleArg.length - 1)
@@ -45,8 +45,8 @@ const command: Command = {
     if (!role) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Role not found" })]
-        }
+          embeds: [getErrorEmbed({ msg, description: "Role not found" })],
+        },
       }
     }
 
@@ -55,15 +55,15 @@ const command: Command = {
       return {
         messageOptions: {
           embeds: [
-            getErrorEmbed({ msg, description: "amount has to be a number" })
-          ]
-        }
+            getErrorEmbed({ msg, description: "amount has to be a number" }),
+          ],
+        },
       }
     console.log(amount)
 
     const nfts: any[] = await Config.getAllNFTCollections()
     const nft = nfts.find(
-      nft => nft.address.toLowerCase() === nftAddress.toLowerCase()
+      (nft) => nft.address.toLowerCase() === nftAddress.toLowerCase()
     )
     if (!nft) {
       return {
@@ -71,10 +71,10 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: "Unsupported NFT Address"
-            })
-          ]
-        }
+              description: "Unsupported NFT Address",
+            }),
+          ],
+        },
       }
     }
 
@@ -84,10 +84,10 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: "Token ID is required for ERC-1155 NFT"
-            })
-          ]
-        }
+              description: "Token ID is required for ERC-1155 NFT",
+            }),
+          ],
+        },
       }
     }
 
@@ -96,7 +96,7 @@ const command: Command = {
       role_id: roleId,
       nft_collection_id: nft.id,
       number_of_tokens: amount,
-      token_id: tokenId
+      token_id: tokenId,
     })
 
     return {
@@ -105,10 +105,10 @@ const command: Command = {
           composeEmbedMessage(msg, {
             description: `Successfully configured role <@&${
               role.id
-            }> for ${amount} ${nft.symbol} ${tokenId ? `No.${tokenId}` : ""}`
-          })
-        ]
-      }
+            }> for ${amount} ${nft.symbol} ${tokenId ? `No.${tokenId}` : ""}`,
+          }),
+        ],
+      },
     }
   },
   getHelpMessage: async (msg, action) => {
@@ -121,14 +121,15 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}nr <role> <nftAddress> <amount> <tokenId if it's an erc-1155 nft>`,
-          examples: `${PREFIX}nr @Mochi 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73 1`
-        })
-      ]
+          examples: `${PREFIX}nr @Mochi 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73 1`,
+        }),
+      ],
     }
   },
   canRunWithoutAction: true,
   aliases: ["nr"],
-  actions
+  actions,
+  colorType: "Server",
 }
 
 export default command

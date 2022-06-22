@@ -62,6 +62,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   aliases: ["lb"],
+  colorType: "Command",
 }
 
 export default command

@@ -9,6 +9,7 @@ const command: Command = {
   run: async () => ({ messageOptions: await workInProgress() }),
   getHelpMessage: workInProgress,
   canRunWithoutAction: true,
+  colorType: "Command",
 }
 
 export default command

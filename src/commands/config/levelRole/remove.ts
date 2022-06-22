@@ -49,6 +49,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   aliases: ["rm"],
+  colorType: "Server",
 }
 
 export default command

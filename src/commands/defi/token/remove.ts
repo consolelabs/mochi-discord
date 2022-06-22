@@ -97,6 +97,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   aliases: ["rm"],
+  colorType: "Defi",
 }
 
 export default command

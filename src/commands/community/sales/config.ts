@@ -51,6 +51,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   aliases: ["cfg"],
+  colorType: "Marketplace",
 }
 
 export default command
