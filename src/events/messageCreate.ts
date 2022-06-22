@@ -11,14 +11,16 @@ import webhook from "adapters/webhook"
 import { composeLevelUpMessage } from "utils/userXP"
 import { MessageTypes } from "discord.js/typings/enums"
 
-function normalizeCommand(message: Message) {
-  return message.content.replace(/  +/g, " ").trim().toLowerCase()
-}
+// function normalizeCommand(message: Message) {
+//   return message.content.replace(/  +/g, " ").trim().toLowerCase()
+// }
 
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
-  
-  const messageType = VALID_BOOST_MESSAGE_TYPES.includes(message.type) ? MessageTypes["USER_PREMIUM_GUILD_SUBSCRIPTION"] : MessageTypes["DEFAULT"]
+
+  const messageType = VALID_BOOST_MESSAGE_TYPES.includes(message.type)
+    ? MessageTypes["USER_PREMIUM_GUILD_SUBSCRIPTION"]
+    : MessageTypes["DEFAULT"]
   const resp = await webhook.pushDiscordWebhook("messageCreate", {
     author: {
       id: message.author.id,
@@ -62,7 +64,7 @@ export default {
   name: "messageCreate",
   once: false,
   execute: async (message: Message) => {
-    message.content = normalizeCommand(message)
+    // message.content = normalizeCommand(message)
     if (message.channel.id === LOG_CHANNEL_ID || message.author.bot) return
 
     try {
