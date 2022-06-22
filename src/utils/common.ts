@@ -106,6 +106,7 @@ export const msgColors: Record<string, ColorResolvable> = {
   PRIMARY: "#E88B88",
   ERROR: "#D94F50",
   DEFI: "#9EFFE8",
+  MARKET: "#848CD9",
 }
 
 export const thumbnails: Record<string, string> = {
