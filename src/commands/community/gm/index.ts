@@ -46,6 +46,7 @@ const command: Command = {
   },
   aliases: ["gn"],
   actions,
+  colorType: "Command",
 }
 
 export default command

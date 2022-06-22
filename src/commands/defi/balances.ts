@@ -99,6 +99,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   aliases: ["balance", "bal", "bals"],
+  colorType: "Defi",
 }
 
 export default command

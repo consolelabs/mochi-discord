@@ -1,6 +1,6 @@
 import { Message } from "discord.js"
 import { Command } from "types/common"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
+import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
@@ -18,14 +18,20 @@ async function handlePagination(msg: Message) {
   msg
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
-      time: 30000,
+      idle: 30000,
     })
     .on("collect", async (i) => {
       await i.deferUpdate()
       const [pageStr, opStr, totalPage] = i.customId.split("_").slice(1)
       const page = +pageStr + operators[opStr]
       const { embeds } = (await composeNFTListEmbed(msg, page)).messageOptions
-      msg.edit({ embeds, components: getPaginationRow(page, +totalPage) })
+      await msg.edit({
+        embeds,
+        components: getPaginationRow(page, +totalPage),
+      })
+    })
+    .on("end", () => {
+      msg.edit({ components: [] })
     })
 }
 
@@ -47,33 +53,32 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
   }
 
   const blank = getEmoji("blank")
-  const { names, symbols, addresses } = data.reduce(
-    (acc: any, cur: any) => ({
+  const { nrs, names, chains } = data.reduce(
+    (acc: any, cur: any, i: number) => ({
+      nrs: [...acc.nrs, `#${++i}${blank}`],
       names: [...acc.names, `${cur.name}${blank}`],
-      symbols: [...acc.symbols, `${cur.symbol}${blank}`],
-      addresses: [
-        ...acc.addresses,
-        `${shortenHashOrAddress(cur.address)}${blank}`,
-      ],
+      chains: [...acc.chains, ...(cur.chain ? [`${cur.chain.name}`] : ["N/A"])],
     }),
     {
+      nrs: [],
       names: [],
-      symbols: [],
-      addresses: [],
+      chains: [],
     }
   )
 
+  const totalPage = Math.ceil(total / size)
   const embed = composeEmbedMessage(msg, {
     title: "Supported NFT collections",
+    footer: [`Page ${pageIdx + 1} / ${totalPage}`],
   })
-    .addField("Name", names.join("\n"), true)
-    .addField("Symbol", symbols.join("\n"), true)
-    .addField("Address", addresses.join("\n"), true)
+    .addField("No.", nrs.join("\n"), true)
+    .addField("Name", `${names.join("\n")}\n\u200B`, true)
+    .addField("Chain", chains.join("\n"), true)
 
   return {
     messageOptions: {
       embeds: [embed],
-      components: getPaginationRow(page, Math.ceil(total / size)),
+      components: getPaginationRow(page, totalPage),
     },
   }
 }
@@ -86,6 +91,7 @@ const command: Command = {
   run: async function (msg: Message) {
     const msgOpts = await composeNFTListEmbed(msg, 0)
     const message = await msg.reply(msgOpts.messageOptions)
+    message.author = msg.author
     await handlePagination(message)
     return {
       messageOptions: null,
@@ -99,6 +105,7 @@ const command: Command = {
     ],
   }),
   canRunWithoutAction: true,
+  colorType: "Market",
 }
 
 export default command

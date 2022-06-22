@@ -72,6 +72,7 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["dep"],
   allowDM: true,
+  colorType: "Defi",
 }
 
 export default command

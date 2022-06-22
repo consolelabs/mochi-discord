@@ -25,20 +25,15 @@ const command: Command = {
       }
     }
 
-		const fields = [{
-				name: "NFT Roles",
-				value: "Amount",
-				inline: true,
-			}]
+    let roles = ""
+    let amountToken = ""
 
-		let roles = ""
-		let amountToken = ""
-
-
-		configs.forEach(config => {
-			roles += `<@&${config.role_id}>\n`
-			amountToken += `${config.number_of_tokens} ${config.nft_collection.symbol} ${config.token_id ? "`No." + config.token_id +"`" : ""} \n`
-		})
+    configs.forEach((config) => {
+      roles += `<@&${config.role_id}>\n`
+      amountToken += `${config.number_of_tokens} ${
+        config.nft_collection.symbol
+      } ${config.token_id ? "`No." + config.token_id + "`" : ""} \n`
+    })
 
     return {
       messageOptions: {
@@ -47,19 +42,19 @@ const command: Command = {
             author: [
               `${msg.guild.name}'s nftroles configuration`,
               msg.guild.iconURL(),
-            ]
+            ],
           }).addFields([
-						{
-							name: "NFT Roles",
-							value: roles,
-							inline: true,
-						},
-						{
-							name: "Amount of tokens",
-							value: amountToken,
-							inline: true,
-						}
-					]),
+            {
+              name: "NFT Roles",
+              value: roles,
+              inline: true,
+            },
+            {
+              name: "Amount of tokens",
+              value: amountToken,
+              inline: true,
+            },
+          ]),
         ],
       },
     }
@@ -73,6 +68,7 @@ const command: Command = {
     ],
   }),
   canRunWithoutAction: true,
+  colorType: "Server",
 }
 
 export default command

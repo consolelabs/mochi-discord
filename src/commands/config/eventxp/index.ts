@@ -1,5 +1,4 @@
 import { Command } from "types/common"
-import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
@@ -11,10 +10,15 @@ const command: Command = {
     "Toggle event XP. If enabled, users will get XP when they host/join the event.",
   category: "Config",
   onlyAdministrator: true,
-  run: async function(msg, action) {
-
-    const eventHostConfig = await Config.toggleActivityConfig(msg.guildId, "event_host")
-		const eventParticipantConfig = await Config.toggleActivityConfig(msg.guildId, "event_participant")
+  run: async function (msg) {
+    const eventHostConfig = await Config.toggleActivityConfig(
+      msg.guildId,
+      "event_host"
+    )
+    const eventParticipantConfig = await Config.toggleActivityConfig(
+      msg.guildId,
+      "event_participant"
+    )
 
     if (eventHostConfig.active != eventParticipantConfig.active) {
       return {
@@ -23,7 +27,8 @@ const command: Command = {
             getErrorEmbed({
               msg,
               title: `${msg.guild.name}'s eventxp configuration`,
-              description: "Event host and participant config are not the same!",
+              description:
+                "Event host and participant config are not the same!",
             }),
           ],
         },
@@ -34,24 +39,27 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            description: `Successfully ${eventHostConfig.active ? "enable" : "disable" } eventxp`
-          })
-        ]
-      }
+            description: `Successfully ${
+              eventHostConfig.active ? "enable" : "disable"
+            } eventxp`,
+          }),
+        ],
+      },
     }
   },
-  getHelpMessage: async (msg, action) => {
+  getHelpMessage: async (msg) => {
     return {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}eventxp`,
-          examples: `${PREFIX}eventxp`
-        })
-      ]
+          examples: `${PREFIX}eventxp`,
+        }),
+      ],
     }
   },
   canRunWithoutAction: true,
-  aliases: ["eventxp"]
+  aliases: ["eventxp"],
+  colorType: "Server",
 }
 
 export default command

@@ -4,6 +4,24 @@ import { CommandChoiceHandlerOptions } from "utils/CommandChoiceManager"
 
 // Category of commands
 export type Category = "Profile" | "Defi" | "Config" | "Community"
+export type ColorType =
+  | "Profile"
+  | "Server"
+  | "Marketplace" // for sales bot commands
+  | "Market" // for showing NFT market-data commands
+  | "Defi"
+  | "Command"
+  | "Game"
+
+export const embedsColors: Record<string, string> = {
+  Profile: "#62A1FE",
+  Server: "#62A1FE",
+  Marketplace: "#FFDE6A",
+  Market: "#848CD9",
+  Defi: "#9FFFE4",
+  Command: "#62A1FE",
+  Game: "#FFAD83",
+}
 
 // All command must conform to this type
 export type Command = {
@@ -31,6 +49,7 @@ export type Command = {
   experimental?: boolean
   actions?: Record<string, Command>
   allowDM?: boolean
+  colorType: ColorType
 }
 
 export type EmbedProperties = {

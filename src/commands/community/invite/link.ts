@@ -50,6 +50,7 @@ const command: Command = {
     return { embeds: [embed] }
   },
   canRunWithoutAction: true,
+  colorType: "Command",
 }
 
 export default command

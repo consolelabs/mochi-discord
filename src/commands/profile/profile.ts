@@ -449,6 +449,7 @@ const command: Command = {
     }
   },
   canRunWithoutAction: true,
+  colorType: "Profile",
 }
 
 export default command

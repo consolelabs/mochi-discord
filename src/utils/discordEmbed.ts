@@ -21,7 +21,7 @@ import {
   getActionCommand,
   specificHelpCommand,
 } from "./commands"
-import { EmbedProperties } from "types/common"
+import { Command, EmbedProperties, embedsColors } from "types/common"
 import {
   MessageButtonStyles,
   MessageComponentTypes,
@@ -104,8 +104,9 @@ export function composeEmbedMessage(
   msg: Message | null,
   props: EmbedProperties
 ) {
-  let { title, description = "", color } = props
+  let { title, description = "" } = props
   const {
+    color,
     thumbnail,
     footer = [],
     timestamp = null,
@@ -118,9 +119,9 @@ export function composeEmbedMessage(
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
-  const isSpecificHelpCommand =
-    specificHelpCommand(msg) ||
-    (msg && !actionObj && !commandObj?.canRunWithoutAction)
+  const isSpecificHelpCommand = specificHelpCommand(msg)
+  // specificHelpCommand(msg) ||
+  // (msg && !actionObj && !commandObj?.canRunWithoutAction)
 
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
@@ -143,11 +144,10 @@ export function composeEmbedMessage(
     authorTag = originalMsgAuthor.tag
     authorAvatarURL = originalMsgAuthor.avatarURL()
   }
-  if (commandObj?.category === "Defi" && !color) color = msgColors.DEFI
 
   const embed = new MessageEmbed()
     .setTitle(title)
-    .setColor((color ?? msgColors.PRIMARY) as ColorResolvable)
+    .setColor((color ?? getCommandColor(commandObj)) as ColorResolvable)
 
   if (!withoutFooter) {
     embed
@@ -176,6 +176,11 @@ export function composeEmbedMessage(
   if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)
 
   return embed
+}
+
+function getCommandColor(commandObj: Command) {
+  if (!commandObj?.colorType) return msgColors.PRIMARY
+  return embedsColors[commandObj.colorType]
 }
 
 export function getErrorEmbed(params: {

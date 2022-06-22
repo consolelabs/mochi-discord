@@ -43,6 +43,7 @@ const command: Command = {
     return { embeds: [embed] }
   },
   actions,
+  colorType: "Marketplace",
 }
 
 export default command
