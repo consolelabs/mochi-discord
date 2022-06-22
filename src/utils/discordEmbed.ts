@@ -118,9 +118,9 @@ export function composeEmbedMessage(
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
-  const isSpecificHelpCommand =
-    specificHelpCommand(msg) ||
-    (msg && !actionObj && !commandObj?.canRunWithoutAction)
+  const isSpecificHelpCommand = specificHelpCommand(msg)
+  // specificHelpCommand(msg) ||
+  // (msg && !actionObj && !commandObj?.canRunWithoutAction)
 
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
