@@ -10,6 +10,7 @@ const command: Command = {
   getHelpMessage: workInProgress,
   canRunWithoutAction: true,
   experimental: true,
+  colorType: "Command",
 }
 
 export default command

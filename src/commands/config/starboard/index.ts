@@ -43,6 +43,7 @@ const command: Command = {
   },
   aliases: ["sb"],
   actions,
+  colorType: "Server",
 }
 
 export default command

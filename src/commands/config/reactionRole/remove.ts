@@ -37,38 +37,42 @@ const command: Command = {
 
     // Validate message_id
     const messageId = args[2].replace(/\D/g, "")
-    let message: Message  
-    
+    let message: Message
+
     const channelList = msg.guild.channels.cache
       .filter((c) => c.type === "GUILD_TEXT")
       .map((c) => c as TextChannel)
-    
-    await Promise.all(channelList.map((chan) =>
-      chan.messages
-        .fetch(messageId)
-        .then(data => {message = data})
-        .catch(() => null)
-    ))
+
+    await Promise.all(
+      channelList.map((chan) =>
+        chan.messages
+          .fetch(messageId)
+          .then((data) => {
+            message = data
+          })
+          .catch(() => null)
+      )
+    )
 
     if (!message || !messageId) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Message not found" })]
-        }
+          embeds: [getErrorEmbed({ msg, description: "Message not found" })],
+        },
       }
     }
 
     let requestData: RoleReactionEvent
     switch (args.length) {
       // Remove a specific reaction
-      case 5:
+      case 5: {
         const roleId = args[4].replace(/\D/g, "")
         const role = await msg.guild.roles.fetch(roleId)
         if (!role || !roleId) {
           return {
             messageOptions: {
-              embeds: [getErrorEmbed({ msg, description: "Role not found" })]
-            }
+              embeds: [getErrorEmbed({ msg, description: "Role not found" })],
+            },
           }
         }
         requestData = {
@@ -78,6 +82,7 @@ const command: Command = {
           role_id: roleId,
         }
         break
+      }
       // Remove all reaction from configured message
       case 3:
         requestData = {
@@ -90,15 +95,17 @@ const command: Command = {
     }
 
     try {
-      const res: RoleReactionConfigResponse = await config.removeReactionConfig(requestData)
+      const res: RoleReactionConfigResponse = await config.removeReactionConfig(
+        requestData
+      )
       if (res.success) {
         const { reaction, role_id } = requestData
         if (reaction && role_id) {
           description = `Reaction ${reaction} for this role <@&${role_id}> is now unset`
 
-          let reactionEmoji: string
           const emojiSplit = reaction.split(":")
-          reactionEmoji = emojiSplit.length === 1 ? reaction : reaction.replace(/\D/g, "")
+          const reactionEmoji =
+            emojiSplit.length === 1 ? reaction : reaction.replace(/\D/g, "")
           message.reactions.cache.get(reactionEmoji).remove().catch()
         } else {
           description = `All reaction role configurations for this message is now clear.`
@@ -134,6 +141,7 @@ const command: Command = {
     }
   },
   canRunWithoutAction: true,
+  colorType: "Server",
 }
 
 export default command

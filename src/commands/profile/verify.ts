@@ -6,8 +6,8 @@ import {
   MessageButton,
   ColorResolvable,
 } from "discord.js"
-import { msgColors } from "utils/common"
 import { WEBSITE_ENDPOINT } from "../../env"
+import { embedsColors } from "types/common"
 
 export async function sendVerifyURL(interaction: ButtonInteraction) {
   await interaction.deferReply({ ephemeral: true })
@@ -23,7 +23,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
         true
       )
       const e1 = new MessageEmbed()
-        .setColor(msgColors.PRIMARY as ColorResolvable)
+        .setColor(embedsColors.Profile as ColorResolvable)
         .setTitle("You already have verified a wallet address")
         .setDescription(
           `\`\`\`${json.address}\`\`\`\nIf you want to change your address, [click here](${WEBSITE_ENDPOINT}/verify?code=${reverify.code}) to re-verify.`
@@ -33,7 +33,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
     }
     case undefined: {
       const e2 = new MessageEmbed()
-        .setColor(msgColors.PRIMARY as ColorResolvable)
+        .setColor(embedsColors.Profile as ColorResolvable)
         .setTitle("Verify your wallet address")
         .setDescription(
           `Please verify your wallet address by clicking the button below.`

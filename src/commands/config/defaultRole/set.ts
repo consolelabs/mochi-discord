@@ -1,7 +1,4 @@
-import {
-  Command,
-  DefaultRoleEvent,
-} from "types/common"
+import { Command, DefaultRoleEvent } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { Message } from "discord.js"
@@ -70,6 +67,7 @@ const command: Command = {
     }
   },
   canRunWithoutAction: true,
+  colorType: "Server",
 }
 
 export default command

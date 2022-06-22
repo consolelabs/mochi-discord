@@ -40,8 +40,10 @@ const command: Command = {
       reaction = reaction.toLowerCase()
     }
     const emojiSplit = reaction.split(":")
-    if (emojiSplit.length === 1) { isValidEmoji = true }
-    msg.guild.emojis.cache.forEach(e => {
+    if (emojiSplit.length === 1) {
+      isValidEmoji = true
+    }
+    msg.guild.emojis.cache.forEach((e) => {
       if (emojiSplit.includes(e.name.toLowerCase())) {
         isValidEmoji = true
       }
@@ -49,8 +51,13 @@ const command: Command = {
     if (!isValidEmoji) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: `Emoji ${reaction} is invalid or not owned by this guild`})]
-        }
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: `Emoji ${reaction} is invalid or not owned by this guild`,
+            }),
+          ],
+        },
       }
     }
 
@@ -60,30 +67,34 @@ const command: Command = {
     if (!role || !roleId) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Role not found" })]
-        }
+          embeds: [getErrorEmbed({ msg, description: "Role not found" })],
+        },
       }
     }
 
     // Validate message_id
     const messageId = args[2].replace(/\D/g, "")
-    let message: Message  
+    let message: Message
     const channelList = msg.guild.channels.cache
       .filter((c) => c.type === "GUILD_TEXT")
       .map((c) => c as TextChannel)
-    
-    await Promise.all(channelList.map((chan) =>
-      chan.messages
-        .fetch(messageId)
-        .then(data => {message = data})
-        .catch(() => null)
-    ))
+
+    await Promise.all(
+      channelList.map((chan) =>
+        chan.messages
+          .fetch(messageId)
+          .then((data) => {
+            message = data
+          })
+          .catch(() => null)
+      )
+    )
 
     if (!message || !messageId) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Message not found" })]
-        }
+          embeds: [getErrorEmbed({ msg, description: "Message not found" })],
+        },
       }
     }
 
@@ -95,7 +106,8 @@ const command: Command = {
         role_id: roleId,
       }
 
-      const rrConfig: RoleReactionConfigResponse = await config.updateReactionConfig(requestData)
+      const rrConfig: RoleReactionConfigResponse =
+        await config.updateReactionConfig(requestData)
       if (rrConfig.success) {
         message.react(requestData.reaction)
         return {
@@ -113,8 +125,14 @@ const command: Command = {
       ChannelLogger.log(error as BotBaseError)
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Role / emoji was configured, please type `$rr list` to check & try again." })]
-        }
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description:
+                "Role / emoji was configured, please type `$rr list` to check & try again.",
+            }),
+          ],
+        },
       }
     }
   },
@@ -129,6 +147,7 @@ const command: Command = {
     }
   },
   canRunWithoutAction: true,
+  colorType: "Server",
 }
 
 export default command

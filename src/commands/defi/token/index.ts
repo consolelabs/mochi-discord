@@ -68,6 +68,7 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["token"],
   actions,
+  colorType: "Defi",
 }
 
 export default command

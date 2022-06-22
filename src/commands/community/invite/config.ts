@@ -53,6 +53,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   aliases: ["cfg"],
+  colorType: "Command",
 }
 
 export default command

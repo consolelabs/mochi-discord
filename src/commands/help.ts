@@ -94,6 +94,7 @@ const command: Command = {
     return { embeds: [justifyEmbedFields(embed, 3)] }
   },
   allowDM: true,
+  colorType: "Command",
 }
 
 export default command

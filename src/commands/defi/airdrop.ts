@@ -313,6 +313,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   aliases: ["drop"],
+  colorType: "Defi",
 }
 
 export default command

@@ -36,7 +36,7 @@ const command: Command = {
       return {
         messageOptions: await this.getHelpMessage(msg, action),
       }
-    } 
+    }
   },
   getHelpMessage: async (msg, action) => {
     const actionObj = commands[action]
@@ -52,6 +52,7 @@ const command: Command = {
   },
   aliases: ["rr"],
   actions,
+  colorType: "Server",
 }
 
 export default command

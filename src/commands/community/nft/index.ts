@@ -122,6 +122,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   actions,
+  colorType: "Market",
 }
 
 export default command

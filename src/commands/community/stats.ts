@@ -157,6 +157,7 @@ const command: Command = {
 
     return { embeds: [embed] }
   },
+  colorType: "Server",
 }
 
 export default command

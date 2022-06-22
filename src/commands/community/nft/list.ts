@@ -105,6 +105,7 @@ const command: Command = {
     ],
   }),
   canRunWithoutAction: true,
+  colorType: "Market",
 }
 
 export default command

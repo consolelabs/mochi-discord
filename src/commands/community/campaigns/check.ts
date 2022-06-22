@@ -60,6 +60,7 @@ const command: Command = {
     }
   },
   canRunWithoutAction: true,
+  colorType: "Command",
 }
 
 export default command

@@ -54,6 +54,7 @@ const command: Command = {
   },
   aliases: ["inv", "invites"],
   actions,
+  colorType: "Command",
 }
 
 export default command
