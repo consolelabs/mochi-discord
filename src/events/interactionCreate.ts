@@ -1,5 +1,6 @@
 import { confirmGlobalXP } from "commands/config/globalxp"
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
+import { seePokerHand } from "commands/games/poker"
 import { sendVerifyURL } from "commands/profile/verify"
 import { SelectMenuInteraction, ButtonInteraction, Message } from "discord.js"
 import { BotBaseError } from "errors"
@@ -95,6 +96,9 @@ async function handleButtonInteraction(
       return
     case interaction.customId.startsWith("globalxp"):
       await confirmGlobalXP(buttonInteraction, msg)
+      return
+    case interaction.customId.startsWith("poker-see-hand"):
+      await seePokerHand(interaction)
       return
     default:
       return

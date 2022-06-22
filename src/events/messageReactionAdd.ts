@@ -15,6 +15,7 @@ import { RoleReactionEvent } from "types/common"
 import config from "adapters/config"
 import webhook from "adapters/webhook"
 import { composeEmbedMessage } from "utils/discordEmbed"
+import { reactionPoker } from "commands/games/poker"
 
 const getRoleById = (msg: Message, roleId: string): Role => {
   return msg.guild.roles.cache.find((role) => role.id === roleId)
@@ -94,7 +95,7 @@ const handleRepostableMessageTracking = async (
           image: imageURL,
           withoutFooter: true,
           thumbnail: msg.guild.iconURL(),
-        }).setFields([{name: "Source", value: `[Jump!](${originPostURL})`}])
+        }).setFields([{ name: "Source", value: `[Jump!](${originPostURL})` }])
       } else {
         const messageContent = msg.content
           ? msg.content
@@ -105,7 +106,7 @@ const handleRepostableMessageTracking = async (
           originalMsgAuthor: msg.author,
           withoutFooter: true,
           thumbnail: msg.guild.iconURL(),
-        }).setFields([{name: "Source", value: `[Jump!](${originPostURL})`}])
+        }).setFields([{ name: "Source", value: `[Jump!](${originPostURL})` }])
       }
       channel.send({
         embeds: [embed],
@@ -128,10 +129,14 @@ export default {
       if (user.bot) return
       if (!_reaction.message.guild) return
 
-      await Promise.all([
-        handleReactionRoleEvent(_reaction, user).catch(() => null),
-        handleRepostableMessageTracking(_reaction).catch(() => null),
-      ])
+      // TODO: uncomment this
+      // await Promise.all([
+      //   handleReactionRoleEvent(_reaction, user).catch(() => null),
+      //   handleRepostableMessageTracking(_reaction).catch(() => null),
+      // ])
+
+      // join poker game if it's the right message in the right channel
+      reactionPoker(_reaction as MessageReaction, user)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {

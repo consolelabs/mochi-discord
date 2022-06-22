@@ -1,13 +1,22 @@
 import { Message, Snowflake, User } from "discord.js"
 import type { Game as TripodGame } from "triple-pod-game-engine"
+import type { Game as PodkerGame } from "podker-game-engine"
 
-type Session = {
-  name: TripodGame["name"]
-  data: {
-    game: TripodGame
-    message: Message
-  }
-}
+type Session =
+  | {
+      name: TripodGame["name"]
+      data: {
+        game: TripodGame
+        message: Message
+      }
+    }
+  | {
+      name: PodkerGame["name"]
+      data: {
+        game: PodkerGame
+        message: Message
+      }
+    }
 
 class GameSessionManager {
   private sessionByUser: Map<Snowflake, Session> = new Map()

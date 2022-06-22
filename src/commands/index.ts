@@ -35,6 +35,7 @@ import reactionrole from "./config/reactionRole"
 import starboard from "./config/starboard"
 import top from "./community/top"
 import tripod from "./games/tripod"
+import poker from "./games/poker"
 import levelrole from "./config/levelRole"
 import nftrole from "./config/nftRole"
 import globalxp from "./config/globalxp"
@@ -80,6 +81,7 @@ export const originalCommands: Record<string, Command> = {
   eventxp,
   log,
   tripod,
+  poker,
 }
 
 export const commands = getAllAliases(originalCommands)

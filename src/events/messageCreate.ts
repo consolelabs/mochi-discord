@@ -11,6 +11,7 @@ import webhook from "adapters/webhook"
 import { composeLevelUpMessage } from "utils/userXP"
 import { MessageTypes } from "discord.js/typings/enums"
 import { handlePlayTripod } from "commands/games/tripod"
+import { handlePlayPoker } from "commands/games/poker"
 
 // function normalizeCommand(message: Message) {
 //   return message.content.replace(/  +/g, " ").trim().toLowerCase()
@@ -78,6 +79,7 @@ export default {
       }
       await handleNormalMessage(message)
       handlePlayTripod(message)
+      handlePlayPoker(message)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {

@@ -11,6 +11,7 @@ import { BotBaseError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
 import { ReactionRoleResponse, RoleReactionEvent } from "types/common"
 import config from "adapters/config"
+import { reactionPoker } from "commands/games/poker"
 
 const getRoleById = (msg: Message, roleId: string): Role => {
   return msg.guild.roles.cache.find((role) => role.id === roleId)
@@ -41,23 +42,25 @@ export default {
       if (user.bot) return
       if (!_reaction.message.guild) return
 
-      const msg = _reaction.message as Message
+      // TODO: uncomment this
+      // const msg = _reaction.message as Message
 
-      const event: RoleReactionEvent = {
-        guild_id: msg.guild.id,
-        message_id: msg.id,
-        reaction: getReactionIdentifier(_reaction),
-      }
+      // const event: RoleReactionEvent = {
+      //   guild_id: msg.guild.id,
+      //   message_id: msg.id,
+      //   reaction: getReactionIdentifier(_reaction),
+      // }
 
-      const resData: ReactionRoleResponse = await config.handleReactionEvent(
-        event
-      )
-
-      if (resData?.role?.id) {
-        await msg.guild.members?.cache
-          .get(user.id)
-          ?.roles.remove(getRoleById(msg, resData.role.id))
-      }
+      // const resData: ReactionRoleResponse = await config.handleReactionEvent(
+      //   event
+      // )
+      //
+      // if (resData?.role?.id) {
+      //   await msg.guild.members?.cache
+      //     .get(user.id)
+      //     ?.roles.remove(getRoleById(msg, resData.role.id))
+      // }
+      reactionPoker(_reaction as MessageReaction, user)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
