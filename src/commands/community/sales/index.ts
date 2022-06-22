@@ -4,9 +4,11 @@ import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import config from "./config"
+import track from "./track"
 
 const actions: Record<string, Command> = {
   config,
+  track,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 
