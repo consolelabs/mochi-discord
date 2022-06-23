@@ -33,14 +33,27 @@ async function composeNFTDetail(
   tokenId: string
 ) {
   const data = await community.getNFTDetail(collectionSymbol, tokenId)
+
+  // case token not found, token_id == null
+  console.log(data.token_id)
+  if (data.token_id == undefined) {
+    const errorEmbed = composeEmbedMessage(msg, {
+      title: "NFT",
+      description: "Token not found.",
+    })
+    return justifyEmbedFields(errorEmbed, 1)
+  }
+  const dataCollection = await community.getNFTCollectionDetail(
+    collectionSymbol
+  )
   const {
     name,
     attributes,
     rarity,
   }: { name: string; attributes: any[]; rarity: any } = data
-  const title = `${collectionSymbol
+  const title = `${dataCollection.name
     .charAt(0)
-    .toUpperCase()}${collectionSymbol.slice(1)}`
+    .toUpperCase()}${dataCollection.name.slice(1)}`
 
   // set rank, rarity score empty if have data
   let description = name ? `**${name}**` : ""
