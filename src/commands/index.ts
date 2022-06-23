@@ -2,6 +2,7 @@ import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { logger } from "../logger"
 import help from "./help"
+import testdemo from "./renderSalesMessage"
 import invite from "./community/invite"
 import profile from "./profile/profile"
 import stats from "./community/stats"
@@ -49,6 +50,7 @@ export const originalCommands: Record<string, Command> = {
   // general help
   help,
   // profile
+  testdemo,
   profile,
   // defi
   deposit,

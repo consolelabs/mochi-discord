@@ -1,6 +1,5 @@
-import profile from "adapters/profile"
 import { Message, MessageAttachment } from "discord.js"
-import { UserProfile } from "types/profile"
+import { sales } from "types/sales"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import * as Canvas from "canvas"
 import {
@@ -12,23 +11,18 @@ import {
 import { drawRectangle } from "utils/canvas"
 import { CircleleStats, RectangleStats } from "types/canvas"
 import { emojis, getEmojiURL, shortenHashOrAddress } from "utils/common"
+import { PREFIX } from "utils/constants"
+import { Command } from "types/common"
 
-async function renderSalesMessage(msg: Message, data: UserProfile) {
-  let withFractionXp = data.guild?.global_xp
-  let ptProfile
-  if (data.guild?.global_xp) {
-    ptProfile = await profile.getPodTownUser(msg.author.id)
-  }
-  withFractionXp = withFractionXp && !!ptProfile && ptProfile.is_verified
-
+async function renderSalesMessage(msg: Message, data: sales) {
   const container = {
     x: {
       from: 0,
-      to: withFractionXp ? 1350 : 1020,
+      to: 1020,
     },
     y: {
       from: 0,
-      to: withFractionXp ? 1040 : 660,
+      to: 660,
     },
     w: 0,
     h: 0,
@@ -123,7 +117,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   }
   ctx.drawImage(xpIcon.image, xpIcon.x, xpIcon.y, xpIcon.w, xpIcon.h)
 
-  const xpText = "Legendary"
+  const xpText = data.user_level
   const xpTitle = {
     x: xpIcon.x + xpIcon.w + 10,
     y: xpIcon.y + 30,
@@ -147,7 +141,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   ctx.save()
   ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
-  const marketPlaceTextStr = "OpenSea"
+  const marketPlaceTextStr = data.marketplace
   const marketPlaceText = {
     x: container.pl,
     y: marketPlace.y + 2 * heightOf(ctx, "Market"),
@@ -169,7 +163,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
 
   ctx.save()
   ctx.font = "30px Menlo"
-  const fromAddresss = `0x000000000000000000000000000`
+  const fromAddresss = data.fromAddress
   const fromTextStr = `${shortenHashOrAddress(fromAddresss)}`
   const fromText = {
     x: container.pl + 5,
@@ -197,7 +191,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   ctx.save()
   ctx.font = "30px Whitney"
   ctx.fillStyle = "#0DB4FB"
-  const priceTextStr = `0.012 ETH`
+  const priceTextStr = data.price
   const priceText = {
     x: container.pl,
     y: price.y + 2 * heightOf(ctx, priceStr),
@@ -220,7 +214,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   ctx.save()
   ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
-  const hodlTextStr = "44 days"
+  const hodlTextStr = data.hodl
   const hodlText = {
     x: container.pl,
     y: hodl.y + 2 * heightOf(ctx, hodlStr),
@@ -252,7 +246,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   ctx.save()
   ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
-  const rankTextStr = "938"
+  const rankTextStr = String(data.rank)
   const rankText = {
     x: rank.x + 60,
     y: xpTitle.y,
@@ -274,7 +268,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
 
   ctx.save()
   ctx.font = "30px Menlo"
-  const transactionAddress = "0x3fs345458000000004000"
+  const transactionAddress = data.transactionAddress
 
   const transactionTextStr = `${shortenHashOrAddress(transactionAddress)}`
   const transactionText = {
@@ -307,7 +301,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
 
   ctx.save()
   ctx.font = "30px Menlo"
-  const toAddresss = "0x3fs345469999999994000"
+  const toAddresss = data.toAddress
   const toTextStr = `${shortenHashOrAddress(toAddresss)}`
   const toText = {
     x: rank.x + 5,
@@ -335,7 +329,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   ctx.save()
   ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
-  const boughtTextStr = "0.011 ETH"
+  const boughtTextStr = data.bought
   const boughtText = {
     x: rank.x,
     y: priceText.y,
@@ -358,7 +352,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   ctx.save()
   ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
-  const gainTextStr = "0.002 ETH"
+  const gainTextStr = data.gain
   const gainText = {
     x: rank.x,
     y: hodlText.y,
@@ -381,7 +375,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   ctx.save()
   ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
-  const soldTextStr = "0.012 ETH"
+  const soldTextStr = data.sold
   const soldText = {
     x: sold.x,
     y: priceText.y,
@@ -404,7 +398,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   ctx.save()
   ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
-  const pnlTextStr = "$2.19"
+  const pnlTextStr = data.pnl
   const pnlText = {
     x: sold.x,
     y: hodlText.y,
@@ -414,7 +408,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
 
   ctx.save()
   ctx.font = "30px Menlo"
-  const pnlSubTextStr = "+72.66%"
+  const pnlSubTextStr = data.subPnl
   const pnlSubText = {
     x: sold.x + widthOf(ctx, pnlTextStr) + 17,
     y: hodlText.y,
@@ -446,13 +440,7 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   return new MessageAttachment(canvas.toBuffer(), "renderSaleMessages.png")
 }
 
-export async function renderSalesMessages(
-  msg: Message,
-  guildId: string,
-  authorId: string
-) {
-  const data = await profile.getUserProfile(guildId, authorId)
-
+async function renderSalesMessages(msg: Message, sales: sales) {
   const embed = composeEmbedMessage(msg, {
     image: "attachment://renderSaleMessages.png",
   })
@@ -460,7 +448,46 @@ export async function renderSalesMessages(
   return {
     messageOptions: {
       embeds: [embed],
-      files: [await renderSalesMessage(msg, data)],
+      files: [await renderSalesMessage(msg, sales)],
     },
   }
 }
+
+const command: Command = {
+  id: "testdemo",
+  command: "testdemo",
+  brief: "Check test demo",
+  category: "Profile",
+  run: async (msg) => {
+    const sales: sales = {
+      user_level: "Legendary",
+      marketplace: "OpenSea",
+      fromAddress: "0x5646546121321897560",
+      price: "0.012 ETH",
+      hodl: "44 days",
+      rank: 938,
+      transactionAddress: "0x5646546121321897560",
+      toAddress: "0x5646546121321897560",
+      bought: "0.011 ETH",
+      gain: "0.002 ETH",
+      sold: "0.012 ETH",
+      pnl: "$2.19",
+      subPnl: "+72.66%",
+    }
+
+    return renderSalesMessages(msg, sales)
+  },
+  getHelpMessage: async (msg) => {
+    return {
+      embeds: [
+        composeEmbedMessage(msg, {
+          examples: `${PREFIX}testdemo`,
+          usage: `${PREFIX}testdemo`,
+        }),
+      ],
+    }
+  },
+  canRunWithoutAction: true,
+}
+
+export default command
