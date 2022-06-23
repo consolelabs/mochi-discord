@@ -1,6 +1,5 @@
 import profile from "adapters/profile"
 import { Message, MessageAttachment } from "discord.js"
-import { Command } from "types/common"
 import { UserProfile } from "types/profile"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import * as Canvas from "canvas"
@@ -12,7 +11,6 @@ import {
 } from "utils/canvas"
 import { drawRectangle } from "utils/canvas"
 import { CircleleStats, RectangleStats } from "types/canvas"
-import { PREFIX } from "utils/constants"
 import { emojis, getEmojiURL, shortenHashOrAddress } from "utils/common"
 
 async function renderSalesMessage(msg: Message, data: UserProfile) {
@@ -445,37 +443,24 @@ async function renderSalesMessage(msg: Message, data: UserProfile) {
   }
   await drawRectangleAvatar(ctx, bigAvatar, msg.author)
 
-  return new MessageAttachment(canvas.toBuffer(), "testdemo.png")
+  return new MessageAttachment(canvas.toBuffer(), "renderSaleMessages.png")
 }
 
-const command: Command = {
-  id: "testdemo",
-  command: "testdemo",
-  brief: "Check test demo",
-  category: "Profile",
-  run: async (msg) => {
-    const data = await profile.getUserProfile(msg.guildId, msg.author.id)
-    const embed = composeEmbedMessage(msg, {
-      image: "attachment://testdemo.png",
-    })
-    return {
-      messageOptions: {
-        embeds: [embed],
-        files: [await renderSalesMessage(msg, data)],
-      },
-    }
-  },
-  getHelpMessage: async (msg) => {
-    return {
-      embeds: [
-        composeEmbedMessage(msg, {
-          examples: `${PREFIX}testdemo`,
-          usage: `${PREFIX}testdemo`,
-        }),
-      ],
-    }
-  },
-  canRunWithoutAction: true,
-}
+export async function renderSalesMessages(
+  msg: Message,
+  guildId: string,
+  authorId: string
+) {
+  const data = await profile.getUserProfile(guildId, authorId)
 
-export default command
+  const embed = composeEmbedMessage(msg, {
+    image: "attachment://renderSaleMessages.png",
+  })
+
+  return {
+    messageOptions: {
+      embeds: [embed],
+      files: [await renderSalesMessage(msg, data)],
+    },
+  }
+}
