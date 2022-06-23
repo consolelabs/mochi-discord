@@ -35,7 +35,6 @@ async function composeNFTDetail(
   const data = await community.getNFTDetail(collectionSymbol, tokenId)
 
   // case token not found, token_id == null
-  console.log(data.token_id)
   if (data.token_id == undefined) {
     const errorEmbed = composeEmbedMessage(msg, {
       title: "NFT",
