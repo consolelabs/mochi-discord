@@ -68,16 +68,6 @@ async function executeNftAddCommand(args: string[], msg: Message) {
           "NFT",
           "Cannot found metadata for this collection"
         )
-      } else if (
-        errorMessageCollection.includes(
-          "Address does not have correct format. Do not lowercase your address"
-        )
-      ) {
-        return buildDiscordMessage(
-          msg,
-          "NFT",
-          "Address does not have correct format. Do not lowercase your address"
-        )
       }
   }
 }
