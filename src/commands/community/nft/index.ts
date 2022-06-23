@@ -65,6 +65,13 @@ async function composeNFTDetail(
       }))
     : []
 
+  // handle some nft, the value of attribute is "" -> this cannot handle
+  for (const field of fields) {
+    if (field.value == "") {
+      field.value = "0"
+    }
+  }
+
   // handle image has "ipfs://"
   let { image } = data
   if (image.includes("ipfs://")) {
