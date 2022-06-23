@@ -105,6 +105,59 @@ export async function drawAvatar(
   ctx.restore()
 }
 
+export async function drawRectangleAvatar(
+  ctx: CanvasRenderingContext2D,
+  avatar: RectangleStats,
+  user: User
+) {
+  ctx.save()
+  // --------------
+  ctx.beginPath()
+  ctx.lineWidth = 10
+  ctx.moveTo(avatar.x.from + avatar.radius, avatar.y.from)
+  ctx.arcTo(
+    avatar.x.to,
+    avatar.y.from,
+    avatar.x.to,
+    avatar.y.from + avatar.radius,
+    avatar.radius
+  )
+
+  ctx.arcTo(
+    avatar.x.to,
+    avatar.y.to,
+    avatar.x.to - avatar.radius,
+    avatar.y.to,
+    avatar.radius
+  )
+
+  ctx.arcTo(
+    avatar.x.from,
+    avatar.y.to,
+    avatar.x.from,
+    avatar.y.to - avatar.radius,
+    avatar.radius
+  )
+
+  ctx.arcTo(
+    avatar.x.from,
+    avatar.y.from,
+    avatar.x.from + avatar.radius,
+    avatar.y.from,
+    avatar.radius
+  )
+  ctx.closePath()
+  ctx.clip()
+
+  const avatarURL = user.displayAvatarURL({ format: "jpeg" })
+  if (avatarURL) {
+    const userAvatar = await loadImage(avatarURL)
+    ctx.drawImage(userAvatar, avatar.x.from, avatar.y.from, avatar.w, avatar.h)
+  }
+  // --------------
+  ctx.restore()
+}
+
 export function getHighestRoleColor(member: GuildMember) {
   const { hexColor } = member.roles.highest
   return hexColor === "#000000" ? "white" : hexColor
