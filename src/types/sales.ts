@@ -1,5 +1,7 @@
-export type sales = {
-  user_level: string
+export type NftSales = {
+  collection: string
+  name: string
+  rarity: string
   marketplace: string
   fromAddress: string
   price: string
