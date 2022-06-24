@@ -217,7 +217,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}tokens compare`,
-        examples: `${PREFIX}tokens compare bitcoin/binancecoin`,
+        examples: `${PREFIX}tokens compare btc/bnb`,
       }),
     ],
   }),
