@@ -1,20 +1,18 @@
 import { Message, MessageAttachment } from "discord.js"
-import { sales } from "types/sales"
+import { NftSales } from "types/sales"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import * as Canvas from "canvas"
 import {
-  drawAvatar,
+  // drawAvatar,
   heightOf,
   widthOf,
-  drawRectangleAvatar,
+  // drawRectangleAvatar,
 } from "utils/canvas"
 import { drawRectangle } from "utils/canvas"
-import { CircleleStats, RectangleStats } from "types/canvas"
+import { CircleleStats } from "types/canvas"
 import { emojis, getEmojiURL, shortenHashOrAddress } from "utils/common"
-import { PREFIX } from "utils/constants"
-import { Command } from "types/common"
 
-async function renderSalesMessage(msg: Message, data: sales) {
+async function renderSalesMessage(msg: Message, data: NftSales) {
   const container = {
     x: {
       from: 0,
@@ -54,46 +52,42 @@ async function renderSalesMessage(msg: Message, data: sales) {
   }
   avatar.x += avatar.radius
   avatar.y += avatar.radius
-  await drawAvatar(ctx, avatar, msg.author)
+  // await drawAvatar(ctx, avatar, msg.author)
 
   // username
   ctx.fillStyle = "#0DB4FB"
   ctx.font = "680 40px Whitney"
   const username = {
-    w: widthOf(ctx, msg.author.username),
-    h: heightOf(ctx, msg.author.username),
+    w: widthOf(ctx, data.collection),
+    h: heightOf(ctx, data.collection),
     x: container.pl + avatar.radius * 2 + container.pl + 20,
     y: container.pt + avatar.radius * 2 - 10,
     mb: 25,
     mr: 25,
   }
-  ctx.fillText(msg.author.username, username.x, username.y)
+  ctx.fillText(data.collection, username.x, username.y)
 
   ctx.fillStyle = "#BFBFBF"
   ctx.font = "27px Whitney"
   const subUsername = {
-    w: widthOf(ctx, msg.author.username),
-    h: heightOf(ctx, msg.author.username),
+    w: widthOf(ctx, data.collection),
+    h: heightOf(ctx, data.collection),
     x: container.pl,
     y: avatar.y + 2 * avatar.radius + avatar.mb + 15,
     mb: 15,
     mr: 15,
   }
-  ctx.fillText(msg.author.username, subUsername.x, subUsername.y)
+  ctx.fillText(data.collection, subUsername.x, subUsername.y)
 
   //discriminator
   ctx.save()
   ctx.font = "27px Whitney"
   ctx.fillStyle = "#BFBFBF"
   const discriminator = {
-    x: subUsername.x + subUsername.w + subUsername.mr,
+    x: subUsername.x,
     y: subUsername.y,
   }
-  ctx.fillText(
-    `#${msg.author.discriminator} sold!`,
-    discriminator.x,
-    discriminator.y
-  )
+  ctx.fillText(`${data.name} sold!`, discriminator.x, discriminator.y)
   ctx.restore()
 
   //rarity title
@@ -117,7 +111,7 @@ async function renderSalesMessage(msg: Message, data: sales) {
   }
   ctx.drawImage(xpIcon.image, xpIcon.x, xpIcon.y, xpIcon.w, xpIcon.h)
 
-  const xpText = data.user_level
+  const xpText = data.rarity
   const xpTitle = {
     x: xpIcon.x + xpIcon.w + 10,
     y: xpIcon.y + 30,
@@ -426,68 +420,32 @@ async function renderSalesMessage(msg: Message, data: sales) {
   ctx.restore()
 
   // square avatar
-  const bigAvatar: RectangleStats = {
-    x: { from: sold.x - 15, to: sold.x + 235 },
-    y: { from: rank.y, to: rank.y + 250 },
-    w: 250,
-    h: 250,
-    mr: 0,
-    mb: 0,
-    radius: 20,
-  }
-  await drawRectangleAvatar(ctx, bigAvatar, msg.author)
+  // const bigAvatar: RectangleStats = {
+  //   x: { from: sold.x - 15, to: sold.x + 235 },
+  //   y: { from: rank.y, to: rank.y + 250 },
+  //   w: 250,
+  //   h: 250,
+  //   mr: 0,
+  //   mb: 0,
+  //   radius: 20,
+  // }
+  //   await drawRectangleAvatar(ctx, bigAvatar, msg.author)
 
   return new MessageAttachment(canvas.toBuffer(), "renderSaleMessages.png")
 }
 
-async function renderSalesMessages(msg: Message, sales: sales) {
+export async function RenderSalesMessages(msg: Message, sales: NftSales) {
   const embed = composeEmbedMessage(msg, {
     image: "attachment://renderSaleMessages.png",
   })
 
-  return {
-    messageOptions: {
-      embeds: [embed],
-      files: [await renderSalesMessage(msg, sales)],
-    },
-  }
+  const files = [await renderSalesMessage(msg, sales)]
+  const embeds = [embed]
+  //   return {
+  //     messageOptions: {
+  //       embeds: [embed],
+  //       files: [await renderSalesMessage(msg, sales)],
+  //     },
+  //   }
+  return [embeds, files] as const
 }
-
-const command: Command = {
-  id: "testdemo",
-  command: "testdemo",
-  brief: "Check test demo",
-  category: "Profile",
-  run: async (msg) => {
-    const sales: sales = {
-      user_level: "Legendary",
-      marketplace: "OpenSea",
-      fromAddress: "0x5646546121321897560",
-      price: "0.012 ETH",
-      hodl: "44 days",
-      rank: 938,
-      transactionAddress: "0x5646546121321897560",
-      toAddress: "0x5646546121321897560",
-      bought: "0.011 ETH",
-      gain: "0.002 ETH",
-      sold: "0.012 ETH",
-      pnl: "$2.19",
-      subPnl: "+72.66%",
-    }
-
-    return renderSalesMessages(msg, sales)
-  },
-  getHelpMessage: async (msg) => {
-    return {
-      embeds: [
-        composeEmbedMessage(msg, {
-          examples: `${PREFIX}testdemo`,
-          usage: `${PREFIX}testdemo`,
-        }),
-      ],
-    }
-  },
-  canRunWithoutAction: true,
-}
-
-export default command
