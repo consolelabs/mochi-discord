@@ -45,7 +45,7 @@ export default {
       }
       // cronjob to show nft sales
       const job = new CronJob(
-        "* * * * * *",
+        "0 0 0 * * *",
         ShowNftSales,
         null,
         true,
