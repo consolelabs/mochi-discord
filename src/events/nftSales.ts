@@ -48,7 +48,6 @@ export async function ShowNftSales() {
         sold: "0.012" + ` ${sale.nft_price_token}`,
         pnl: "$2.19",
         subPnl: "+72.66%",
-        userID: "#1705",
       }
       const [embeds, files] = await RenderSalesMessages(null, saleModel)
       // embeds.push(saleMess)

@@ -89,7 +89,7 @@ async function renderSalesMessage(msg: Message, data: NftSales) {
     x: subUsername.x + subUsername.w + subUsername.mr,
     y: subUsername.y,
   }
-  ctx.fillText(`#${data.userID} sold!`, discriminator.x, discriminator.y)
+  ctx.fillText(`#${data.name} sold!`, discriminator.x, discriminator.y)
   ctx.restore()
 
   //rarity title
@@ -473,7 +473,6 @@ const command: Command = {
       subPnl: "+72.66%",
       collection: "",
       name: "nminhdai",
-      userID: "#1705",
     }
 
     return renderSalesMessages(msg, sales)

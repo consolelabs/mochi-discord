@@ -2,7 +2,6 @@ export type NftSales = {
   collection: string
   avatar: string
   name: string
-  userID: string
   rarity: string
   marketplace: string
   fromAddress: string
