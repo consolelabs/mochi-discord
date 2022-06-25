@@ -3,13 +3,13 @@ import { NftSales } from "types/sales"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import * as Canvas from "canvas"
 import {
-  //   drawAvatar,
   heightOf,
   widthOf,
-  //   drawRectangleAvatar,
+  drawRectangleAvatar,
+  drawAvatarWithUrl,
 } from "utils/canvas"
 import { drawRectangle } from "utils/canvas"
-import { CircleleStats } from "types/canvas"
+import { CircleleStats, RectangleStats } from "types/canvas"
 import { emojis, getEmojiURL, shortenHashOrAddress } from "utils/common"
 
 async function renderSalesMessage(msg: Message, data: NftSales) {
@@ -52,7 +52,7 @@ async function renderSalesMessage(msg: Message, data: NftSales) {
   }
   avatar.x += avatar.radius
   avatar.y += avatar.radius
-  //   await drawAvatar(ctx, avatar, msg.author)
+  await drawAvatarWithUrl(ctx, avatar, data.avatar)
 
   // username
   ctx.fillStyle = "#0DB4FB"
@@ -77,7 +77,7 @@ async function renderSalesMessage(msg: Message, data: NftSales) {
     mb: 15,
     mr: 15,
   }
-  //   ctx.fillText(msg.author.username, subUsername.x, subUsername.y)
+  ctx.fillText(data.name, subUsername.x, subUsername.y)
 
   //discriminator
   ctx.save()
@@ -222,7 +222,7 @@ async function renderSalesMessage(msg: Message, data: NftSales) {
   ctx.fillStyle = "white"
   const rankStr = "Rank"
   const rank = {
-    x: container.pl + widthOf(ctx, fromTextStr),
+    x: container.pl + widthOf(ctx, fromTextStr) + 30,
     y: rarity.y,
   }
   ctx.fillText(rankStr, rank.x, rank.y)
@@ -360,7 +360,7 @@ async function renderSalesMessage(msg: Message, data: NftSales) {
   ctx.fillStyle = "white"
   const soldStr = "Sold"
   const sold = {
-    x: rank.x + widthOf(ctx, transactionTextStr) + 10,
+    x: rank.x + widthOf(ctx, transactionTextStr) + 40,
     y: price.y,
   }
   ctx.fillText(soldStr, sold.x, sold.y)
@@ -419,17 +419,17 @@ async function renderSalesMessage(msg: Message, data: NftSales) {
   ctx.fillText(`${pnlSubTextStr}`, pnlSubText.x, pnlSubText.y)
   ctx.restore()
 
-  // square avatar
-  //   const bigAvatar: RectangleStats = {
-  //     x: { from: sold.x - 15, to: sold.x + 235 },
-  //     y: { from: rank.y, to: rank.y + 250 },
-  //     w: 250,
-  //     h: 250,
-  //     mr: 0,
-  //     mb: 0,
-  //     radius: 20,
-  //   }
-  //   await drawRectangleAvatar(ctx, bigAvatar, msg.author)
+  //square avatar
+  const bigAvatar: RectangleStats = {
+    x: { from: sold.x - 15, to: sold.x + 235 },
+    y: { from: rank.y, to: rank.y + 250 },
+    w: 250,
+    h: 250,
+    mr: 0,
+    mb: 0,
+    radius: 20,
+  }
+  await drawRectangleAvatar(ctx, bigAvatar, data.avatar)
 
   return new MessageAttachment(canvas.toBuffer(), "renderSaleMessages.png")
 }

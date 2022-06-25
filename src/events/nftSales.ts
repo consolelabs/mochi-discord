@@ -31,6 +31,8 @@ export async function ShowNftSales() {
     // const embeds = []
     for (const sale of dataSales.data) {
       const saleModel: NftSales = {
+        avatar:
+          "https://info-imgs.vgcloud.vn/2022/01/03/13/gap-go-con-meo-hai-mat-ky-la-noi-tieng-khap-mang-xa-hoi.jpg",
         collection: "Cyber Neko",
         name: "Cyber Neko #1",
         rarity: "Legendary",
@@ -46,6 +48,7 @@ export async function ShowNftSales() {
         sold: "0.012" + ` ${sale.nft_price_token}`,
         pnl: "$2.19",
         subPnl: "+72.66%",
+        userID: "#1705",
       }
       const [embeds, files] = await RenderSalesMessages(null, saleModel)
       // embeds.push(saleMess)

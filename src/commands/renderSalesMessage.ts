@@ -1,12 +1,12 @@
 import { Message, MessageAttachment } from "discord.js"
-import { sales } from "types/sales"
+import { NftSales } from "types/sales"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import * as Canvas from "canvas"
 import {
-  drawAvatar,
   heightOf,
   widthOf,
   drawRectangleAvatar,
+  drawAvatarWithUrl,
 } from "utils/canvas"
 import { drawRectangle } from "utils/canvas"
 import { CircleleStats, RectangleStats } from "types/canvas"
@@ -14,7 +14,7 @@ import { emojis, getEmojiURL, shortenHashOrAddress } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { Command } from "types/common"
 
-async function renderSalesMessage(msg: Message, data: sales) {
+async function renderSalesMessage(msg: Message, data: NftSales) {
   const container = {
     x: {
       from: 0,
@@ -54,32 +54,32 @@ async function renderSalesMessage(msg: Message, data: sales) {
   }
   avatar.x += avatar.radius
   avatar.y += avatar.radius
-  await drawAvatar(ctx, avatar, msg.author)
+  await drawAvatarWithUrl(ctx, avatar, data.avatar)
 
   // username
   ctx.fillStyle = "#0DB4FB"
   ctx.font = "680 40px Whitney"
   const username = {
-    w: widthOf(ctx, msg.author.username),
-    h: heightOf(ctx, msg.author.username),
+    w: widthOf(ctx, data.name),
+    h: heightOf(ctx, data.name),
     x: container.pl + avatar.radius * 2 + container.pl + 20,
     y: container.pt + avatar.radius * 2 - 10,
     mb: 25,
     mr: 25,
   }
-  ctx.fillText(msg.author.username, username.x, username.y)
+  ctx.fillText(data.name, username.x, username.y)
 
   ctx.fillStyle = "#BFBFBF"
   ctx.font = "27px Whitney"
   const subUsername = {
-    w: widthOf(ctx, msg.author.username),
-    h: heightOf(ctx, msg.author.username),
+    w: widthOf(ctx, data.name),
+    h: heightOf(ctx, data.name),
     x: container.pl,
     y: avatar.y + 2 * avatar.radius + avatar.mb + 15,
     mb: 15,
     mr: 15,
   }
-  ctx.fillText(msg.author.username, subUsername.x, subUsername.y)
+  ctx.fillText(data.name, subUsername.x, subUsername.y)
 
   //discriminator
   ctx.save()
@@ -89,11 +89,7 @@ async function renderSalesMessage(msg: Message, data: sales) {
     x: subUsername.x + subUsername.w + subUsername.mr,
     y: subUsername.y,
   }
-  ctx.fillText(
-    `#${msg.author.discriminator} sold!`,
-    discriminator.x,
-    discriminator.y
-  )
+  ctx.fillText(`#${data.userID} sold!`, discriminator.x, discriminator.y)
   ctx.restore()
 
   //rarity title
@@ -117,7 +113,7 @@ async function renderSalesMessage(msg: Message, data: sales) {
   }
   ctx.drawImage(xpIcon.image, xpIcon.x, xpIcon.y, xpIcon.w, xpIcon.h)
 
-  const xpText = data.user_level
+  const xpText = data.rarity
   const xpTitle = {
     x: xpIcon.x + xpIcon.w + 10,
     y: xpIcon.y + 30,
@@ -228,7 +224,7 @@ async function renderSalesMessage(msg: Message, data: sales) {
   ctx.fillStyle = "white"
   const rankStr = "Rank"
   const rank = {
-    x: container.pl + widthOf(ctx, fromTextStr),
+    x: container.pl + widthOf(ctx, fromTextStr) + 30,
     y: rarity.y,
   }
   ctx.fillText(rankStr, rank.x, rank.y)
@@ -366,7 +362,7 @@ async function renderSalesMessage(msg: Message, data: sales) {
   ctx.fillStyle = "white"
   const soldStr = "Sold"
   const sold = {
-    x: rank.x + widthOf(ctx, transactionTextStr) + 10,
+    x: rank.x + widthOf(ctx, transactionTextStr) + 40,
     y: price.y,
   }
   ctx.fillText(soldStr, sold.x, sold.y)
@@ -435,12 +431,12 @@ async function renderSalesMessage(msg: Message, data: sales) {
     mb: 0,
     radius: 20,
   }
-  await drawRectangleAvatar(ctx, bigAvatar, msg.author)
+  await drawRectangleAvatar(ctx, bigAvatar, data.avatar)
 
   return new MessageAttachment(canvas.toBuffer(), "renderSaleMessages.png")
 }
 
-async function renderSalesMessages(msg: Message, sales: sales) {
+async function renderSalesMessages(msg: Message, sales: NftSales) {
   const embed = composeEmbedMessage(msg, {
     image: "attachment://renderSaleMessages.png",
   })
@@ -459,8 +455,10 @@ const command: Command = {
   brief: "Check test demo",
   category: "Profile",
   run: async (msg) => {
-    const sales: sales = {
-      user_level: "Legendary",
+    const sales: NftSales = {
+      avatar:
+        "https://info-imgs.vgcloud.vn/2022/01/03/13/gap-go-con-meo-hai-mat-ky-la-noi-tieng-khap-mang-xa-hoi.jpg",
+      rarity: "Legendary",
       marketplace: "OpenSea",
       fromAddress: "0x5646546121321897560",
       price: "0.012 ETH",
@@ -473,6 +471,9 @@ const command: Command = {
       sold: "0.012 ETH",
       pnl: "$2.19",
       subPnl: "+72.66%",
+      collection: "",
+      name: "nminhdai",
+      userID: "#1705",
     }
 
     return renderSalesMessages(msg, sales)
@@ -488,6 +489,7 @@ const command: Command = {
     }
   },
   canRunWithoutAction: true,
+  colorType: "Market",
 }
 
 export default command

@@ -39,6 +39,7 @@ import nftrole from "./config/nftRole"
 import globalxp from "./config/globalxp"
 import eventxp from "./config/eventxp"
 import log from "./config/log"
+import testdemo from "./renderSalesMessage"
 import { Command, Category } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { hasAdministrator } from "utils/common"
@@ -68,6 +69,7 @@ export const originalCommands: Record<string, Command> = {
   top,
   sales,
   // config
+  testdemo,
   channel,
   reactionrole,
   defaultrole,
