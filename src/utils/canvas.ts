@@ -6,7 +6,11 @@ import {
 } from "canvas"
 import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import { GuildMember, User } from "discord.js"
-import { CircleleStats, RectangleStats } from "types/canvas"
+import {
+  CircleleStats,
+  RectangleStats,
+  RoundedRectangleStats,
+} from "types/canvas"
 import { msgColors } from "./common"
 import { SPACE } from "./constants"
 
@@ -103,6 +107,24 @@ export async function drawAvatar(
   }
   // --------------
   ctx.restore()
+}
+
+export function renderRoundedImage(
+  ctx: CanvasRenderingContext2D,
+  conf: RoundedRectangleStats
+) {
+  const { x, y, w, h, radius } = conf
+  ctx.beginPath()
+  ctx.moveTo(x + radius, y)
+  ctx.lineTo(x + w - radius, y)
+  ctx.quadraticCurveTo(x + w, y, x + w, y + radius)
+  ctx.lineTo(x + w, y + h - radius)
+  ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h)
+  ctx.lineTo(x + radius, y + h)
+  ctx.quadraticCurveTo(x, y + h, x, y + h - radius)
+  ctx.lineTo(x, y + radius)
+  ctx.quadraticCurveTo(x, y, x + radius, y)
+  ctx.closePath()
 }
 
 export function getHighestRoleColor(member: GuildMember) {
