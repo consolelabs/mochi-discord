@@ -24,6 +24,7 @@ async function renderTicker(msg: Message, data: any) {
     owner,
     volume,
     item,
+    collection_image,
   } = data
   const container: RectangleStats = {
     x: {
@@ -50,7 +51,7 @@ async function renderTicker(msg: Message, data: any) {
   ctx.clip()
 
   // Draw thumbnail
-  const avatarURL = msg.author.displayAvatarURL({ format: "jpeg" })
+  // const avatarURL = msg.author.displayAvatarURL({ format: "jpeg" })
   const avatarConf: RoundedRectangleStats = {
     x: 690,
     y: 0,
@@ -58,15 +59,15 @@ async function renderTicker(msg: Message, data: any) {
     h: 250,
     radius: 20,
   }
-  if (avatarURL) {
+  if (collection_image) {
     ctx.save()
     renderRoundedImage(ctx, avatarConf)
     ctx.strokeStyle = "#2465D3"
     ctx.stroke()
     ctx.clip()
-    const userAvatar = await loadImage(avatarURL)
+    const collectionImage = await loadImage(collection_image)
     ctx.drawImage(
-      userAvatar,
+      collectionImage,
       avatarConf.x,
       avatarConf.y,
       avatarConf.w,
@@ -333,6 +334,8 @@ const command: Command = {
       owner: "4.15K",
       volume: "955.82 ETH",
       item: "6.97K",
+      collection_image:
+        "https://lh3.googleusercontent.com/lP0ywqisBVutTJZ_Uuhe7JFqvticZjRypfQh4CpXwcljxM_JlO0jT-4-LRil18KPHidXm9slLkTDta1XRC5HAg2IVhwCVohdNF3odQ",
     }
 
     // const data = {
@@ -355,6 +358,7 @@ const command: Command = {
     //   owner: "4.15K",
     //   volume: "955.82 ETH",
     //   item: "6.97K",
+    //   collection_image: "https://lh3.googleusercontent.com/lP0ywqisBVutTJZ_Uuhe7JFqvticZjRypfQh4CpXwcljxM_JlO0jT-4-LRil18KPHidXm9slLkTDta1XRC5HAg2IVhwCVohdNF3odQ",
     // }
 
     const embed = composeEmbedMessage(msg, {
