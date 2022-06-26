@@ -12,7 +12,7 @@ import { drawRectangle } from "utils/canvas"
 import { CircleleStats, RectangleStats } from "types/canvas"
 import { emojis, getEmojiURL, shortenHashOrAddress } from "utils/common"
 
-async function renderSalesMessage(msg: Message, data: NftSales) {
+export async function renderSalesMessage(msg: Message, data: NftSales) {
   const container = {
     x: {
       from: 0,
@@ -20,7 +20,7 @@ async function renderSalesMessage(msg: Message, data: NftSales) {
     },
     y: {
       from: 0,
-      to: 660,
+      to: 700,
     },
     w: 0,
     h: 0,
