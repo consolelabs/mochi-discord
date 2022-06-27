@@ -7,6 +7,7 @@ import { Message } from "discord.js"
 import GameSessionManager from "utils/GameSessionManager"
 import { achievements } from "./achievements"
 import { GAME_TESTSITE_CHANNEL_ID } from "env"
+import { normalizePosition } from "./helpers"
 
 export async function handlePlayTripod(msg: Message) {
   if (msg.channelId === GAME_TESTSITE_CHANNEL_ID) {
@@ -32,10 +33,11 @@ export async function handlePlayTripod(msg: Message) {
           game.nextState({ type: "swap" })
           validMsg = true
         } else {
-          const [_x, _y] = input.split("")
-          const [x, y] = [Number(_x), Number(_y)]
+          const pos = normalizePosition(input)
+          if (!pos) return
+          const [x, y] = pos
           if (!Number.isNaN(x) && !Number.isNaN(y)) {
-            game.nextState({ type: "put", x: x - 1, y: y - 1 })
+            game.nextState({ type: "put", x, y })
             validMsg = true
           }
         }
@@ -98,7 +100,10 @@ const command: Command = {
           data: { message: botMessage, game },
         })
       } else {
-        msg.reply("You're already in a session! Type `end` to quit")
+        const session = GameSessionManager.getSession(msg.author)
+        msg.reply(
+          `You're already in a session (${session.name})! Type \`end\` to quit`
+        )
       }
     }
     return {
