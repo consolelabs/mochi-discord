@@ -105,10 +105,41 @@ export async function drawAvatar(
   ctx.restore()
 }
 
+export async function drawAvatarWithUrl(
+  ctx: CanvasRenderingContext2D,
+  avatar: CircleleStats,
+  avatarURL: string
+) {
+  ctx.save()
+  // --------------
+  ctx.beginPath()
+  ctx.lineWidth = 10
+  ctx.arc(avatar.x, avatar.y, avatar.radius, 0, Math.PI * 2)
+  if (avatar.outlineColor) {
+    ctx.strokeStyle = avatar.outlineColor
+    ctx.stroke()
+  }
+  ctx.closePath()
+  ctx.clip()
+
+  if (avatarURL) {
+    const userAvatar = await loadImage(avatarURL)
+    ctx.drawImage(
+      userAvatar,
+      avatar.x - avatar.radius,
+      avatar.y - avatar.radius,
+      avatar.radius * 2,
+      avatar.radius * 2
+    )
+  }
+  // --------------
+  ctx.restore()
+}
+
 export async function drawRectangleAvatar(
   ctx: CanvasRenderingContext2D,
   avatar: RectangleStats,
-  user: User
+  avatarURL: string
 ) {
   ctx.save()
   // --------------
@@ -149,7 +180,6 @@ export async function drawRectangleAvatar(
   ctx.closePath()
   ctx.clip()
 
-  const avatarURL = user.displayAvatarURL({ format: "jpeg" })
   if (avatarURL) {
     const userAvatar = await loadImage(avatarURL)
     ctx.drawImage(userAvatar, avatar.x.from, avatar.y.from, avatar.w, avatar.h)
