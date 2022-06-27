@@ -35,7 +35,13 @@ async function executeNftAddCommand(args: string[], msg: Message) {
   const errorMessageCollection = dataCollection.error
   const dataChain = await respChain.json()
   switch (respCollection.status) {
-    case 400:
+    case 200:
+      return buildDiscordMessage(
+        msg,
+        "NFT",
+        "Successfully add new collection to queue"
+      )
+    default:
       if (
         errorMessageCollection.includes(
           "Already added. Nft is in sync progress"
@@ -46,21 +52,9 @@ async function executeNftAddCommand(args: string[], msg: Message) {
           "NFT",
           "Already added. Nft is in sync progress"
         )
-      } else {
-        return buildDiscordMessage(
-          msg,
-          "NFT",
-          "Already added. Nft is in sync progress"
-        )
-      }
-    case 200:
-      return buildDiscordMessage(
-        msg,
-        "NFT",
-        "Successfully add new collection to queue"
-      )
-    default:
-      if (errorMessageCollection.includes("chain is not supported/invalid")) {
+      } else if (
+        errorMessageCollection.includes("chain is not supported/invalid")
+      ) {
         // add list chain to description
         const listChainSupportedPrefix = `List chain supported:\n`
         let listChainSupported = ""
