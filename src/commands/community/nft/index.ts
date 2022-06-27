@@ -32,7 +32,26 @@ async function composeNFTDetail(
   collectionSymbol: string,
   tokenId: string
 ) {
-  const data = await community.getNFTDetail(collectionSymbol, tokenId)
+  const res = await community.getNFTDetail(collectionSymbol, tokenId)
+  const data = res.data
+  // handle case record not found
+  switch (res.error) {
+    case "database: record nft collection not found": {
+      const embed = composeEmbedMessage(msg, {
+        title: "NFT",
+        description: `Collection has not been added.`,
+      })
+      return justifyEmbedFields(embed, 1)
+    }
+    case "indexer: record nft not found": {
+      const embed = composeEmbedMessage(msg, {
+        title: "NFT",
+        description: `Sync data in progress.`,
+      })
+      return justifyEmbedFields(embed, 1)
+    }
+    default:
+  }
 
   // case token not found, token_id == null
   if (data.token_id == undefined) {
