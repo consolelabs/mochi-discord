@@ -36,11 +36,23 @@ async function executeNftAddCommand(args: string[], msg: Message) {
   const dataChain = await respChain.json()
   switch (respCollection.status) {
     case 400:
-      return buildDiscordMessage(
-        msg,
-        "NFT",
-        "Already added. Nft is in sync progress"
-      )
+      if (
+        errorMessageCollection.includes(
+          "Already added. Nft is in sync progress"
+        )
+      ) {
+        return buildDiscordMessage(
+          msg,
+          "NFT",
+          "Already added. Nft is in sync progress"
+        )
+      } else {
+        return buildDiscordMessage(
+          msg,
+          "NFT",
+          "Already added. Nft is in sync progress"
+        )
+      }
     case 200:
       return buildDiscordMessage(
         msg,
