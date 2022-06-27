@@ -9,7 +9,7 @@ import volume from "./top"
 import list from "./list"
 
 import community from "adapters/community"
-import { getEmoji } from "utils/common"
+import { capFirst, getEmoji } from "utils/common"
 
 const actions: Record<string, Command> = {
   add,
@@ -32,13 +32,13 @@ async function composeNFTDetail(
   collectionSymbol: string,
   tokenId: string
 ) {
-  const data = await community.getNFTDetail(collectionSymbol, tokenId)
-
+  const res = await community.getNFTDetail(collectionSymbol, tokenId)
+  const data = res.data
   // case token not found, token_id == null
-  if (data.token_id == undefined) {
+  if (res.error != null) {
     const errorEmbed = composeEmbedMessage(msg, {
       title: "NFT",
-      description: "Token not found.",
+      description: `${capFirst(res.error)}.`,
     })
     return justifyEmbedFields(errorEmbed, 1)
   }

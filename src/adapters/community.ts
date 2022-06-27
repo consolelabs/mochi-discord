@@ -238,17 +238,17 @@ class Community {
         },
       }
     )
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to get NFT detail - ${collectionSymbol} | ${tokenId}`
-      )
-    }
+    // if (res.status !== 200) {
+    //   throw new Error(
+    //     `failed to get NFT detail - ${collectionSymbol} | ${tokenId}`
+    //   )
+    // }
 
     const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
+    // if (json.error !== undefined) {
+    //   throw new Error(json.error)
+    // }
+    return json
   }
 
   public async getNFTCollectionDetail(collectionSymbol: string) {
