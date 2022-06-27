@@ -6,7 +6,6 @@ import { renderShop, shop, toCanvas } from "./render"
 import { Message } from "discord.js"
 import GameSessionManager from "utils/GameSessionManager"
 import { achievements } from "./achievements"
-import { getEmoji } from "utils/common"
 import { GAME_TESTSITE_CHANNEL_ID } from "env"
 
 export async function handlePlayTripod(msg: Message) {
@@ -17,48 +16,55 @@ export async function handlePlayTripod(msg: Message) {
       const input = msg.content.trim().toLowerCase()
       if (name === "triple-town") {
         const { game } = data
+        let validMsg = false
         if (input === "end" || game.done) {
           game.nextState({ type: "end" })
           GameSessionManager.leaveSession(msg.author)
           GameSessionManager.removeSession(session)
+          validMsg = true
         } else if (input.startsWith("buy")) {
           const [, num] = input.split(" ")
           if (shop[Number(num) - 1]) {
             game.nextState({ type: "buy", piece: shop[Number(num) - 1] })
+            validMsg = true
           }
         } else if (input === "swap") {
           game.nextState({ type: "swap" })
+          validMsg = true
         } else {
           const [_x, _y] = input.split("")
           const [x, y] = [Number(_x), Number(_y)]
           if (!Number.isNaN(x) && !Number.isNaN(y)) {
             game.nextState({ type: "put", x: x - 1, y: y - 1 })
+            validMsg = true
           }
         }
-        Object.entries(achievements.turn).forEach(([achName, achCheck]) => {
-          if (achCheck(game.state.combos)) {
-            msg.channel.send(`Achievement unlocked: \`${achName}\``)
-          }
-        })
-        await msg.channel.send({
-          embeds: [
-            {
-              title: `Points: ${game.state.points}`,
-              description: renderShop(),
-              image: { url: "attachment://board.png" },
-            },
-          ],
-          files: [await toCanvas(game)],
-        })
-        if (game.done) {
-          msg.channel.send("Game end")
-          Object.entries(achievements.session).forEach(
-            ([achName, achCheck]) => {
-              if (achCheck(game.state.history)) {
-                msg.channel.send(`Achievement unlocked: \`${achName}\``)
-              }
+        if (validMsg) {
+          Object.entries(achievements.turn).forEach(([achName, achCheck]) => {
+            if (achCheck(game.state.combos)) {
+              msg.channel.send(`Achievement unlocked: \`${achName}\``)
             }
-          )
+          })
+          await msg.channel.send({
+            embeds: [
+              {
+                title: `Points: ${game.state.points}`,
+                description: renderShop(),
+                image: { url: "attachment://board.png" },
+              },
+            ],
+            files: [await toCanvas(game)],
+          })
+          if (game.done) {
+            msg.channel.send("Game end")
+            Object.entries(achievements.session).forEach(
+              ([achName, achCheck]) => {
+                if (achCheck(game.state.history)) {
+                  msg.channel.send(`Achievement unlocked: \`${achName}\``)
+                }
+              }
+            )
+          }
         }
       }
     }
@@ -78,7 +84,6 @@ const command: Command = {
         const game = new Game()
         game.start()
         const botMessage = await msg.reply({
-          content: getEmoji("num_1"),
           embeds: [
             {
               title: `Points: ${game.state.points}`,
