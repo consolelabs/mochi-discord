@@ -17,11 +17,11 @@ import { composeSimpleSelection } from "utils/discordEmbed"
 const container: RectangleStats = {
   x: {
     from: 0,
-    to: 1200,
+    to: 1300,
   },
   y: {
     from: 0,
-    to: 1400,
+    to: 1500,
   },
   w: 0,
   h: 0,
@@ -147,6 +147,7 @@ const mappings: Record<PieceEnum, { name: string; image: string }> = {
 }
 
 const images: Partial<Record<PieceEnum, Image>> = {}
+let background: Image
 
 export const shop = [grass, bush, tree, crystal, robot]
 
@@ -173,25 +174,35 @@ export async function toCanvas(game: Game) {
   const canvas = createCanvas(container.w, container.h)
   const ctx = canvas.getContext("2d")
   drawRectangle(ctx, container, container.bgColor)
+  if (!background) {
+    background = await loadImage("src/assets/triple-town/background.jpeg")
+  }
+  ctx.drawImage(background, 0, 200, 1300, 1300)
 
   new Array(6)
     .fill(200)
     .map((t, i) => t * (i + 1))
-    .forEach((t) => {
-      ctx.strokeStyle = "#a1a1a1"
-      ctx.beginPath()
-      ctx.moveTo(t, 200)
-      ctx.lineTo(t, container.h)
-      ctx.stroke()
-      ctx.closePath()
-      ctx.save()
+    .forEach((t, i) => {
+      // vertical
+      if (i !== 5) {
+        ctx.strokeStyle = "#a1a1a1"
+        ctx.beginPath()
+        ctx.moveTo(t + 50, 250)
+        ctx.lineTo(t + 50, container.h - 50)
+        ctx.stroke()
+        ctx.closePath()
+        ctx.save()
+      }
 
-      ctx.beginPath()
-      ctx.moveTo(0, t)
-      ctx.lineTo(container.w, t)
-      ctx.stroke()
-      ctx.closePath()
-      ctx.save()
+      // horizontal
+      if (i !== 0) {
+        ctx.beginPath()
+        ctx.moveTo(50, t + 50)
+        ctx.lineTo(container.w - 50, t + 50)
+        ctx.stroke()
+        ctx.closePath()
+        ctx.save()
+      }
     })
 
   ctx.font = "80px Arial"
@@ -214,13 +225,13 @@ export async function toCanvas(game: Game) {
       if (i === 0 && j === 0) {
         ctx.drawImage(
           images[game.state.swapPiece?.id ?? empty.id],
-          j * 200,
-          i * 200 + 200,
+          j * 200 + 50,
+          i * 200 + 250,
           200,
           200
         )
       } else {
-        ctx.drawImage(images[cell.id], j * 200, i * 200 + 200, 200, 200)
+        ctx.drawImage(images[cell.id], j * 200 + 50, i * 200 + 250, 200, 200)
       }
     })
   })
