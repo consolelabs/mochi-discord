@@ -4,11 +4,13 @@ import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import community from "adapters/community"
-import { getEmoji } from "utils/common"
+import { emojis, getEmojiURL } from "utils/common"
 import {
   drawRectangle,
+  heightOf,
   renderChartImage,
   renderRoundedImage,
+  widthOf,
 } from "utils/canvas"
 import { RectangleStats, RoundedRectangleStats } from "types/canvas"
 import { createCanvas, loadImage } from "canvas"
@@ -25,11 +27,12 @@ async function renderTicker(msg: Message, data: any) {
     volume,
     item,
     collection_image,
+    name,
   } = data
   const container: RectangleStats = {
     x: {
       from: 0,
-      to: 1000,
+      to: 960,
     },
     y: {
       from: 0,
@@ -49,12 +52,47 @@ async function renderTicker(msg: Message, data: any) {
   ctx.save()
   drawRectangle(ctx, container, container.bgColor)
   ctx.clip()
+  ctx.restore()
+
+  // Module title
+  ctx.font = "bold 35px Whitney"
+  ctx.fillStyle = "#FFFFFF"
+  const moduleTitleStr = "NFT Collection"
+  const moduleTitle = {
+    w: widthOf(ctx, moduleTitleStr),
+    h: heightOf(ctx, moduleTitleStr),
+    x: container.x.from + 60,
+    y: container.pt,
+    mb: 60,
+  }
+  ctx.fillText(moduleTitleStr, moduleTitle.x, moduleTitle.y)
+
+  const cupIcon = {
+    image: await loadImage(getEmojiURL(emojis.CUP)),
+    h: 35,
+    w: 45,
+    x: container.x.from,
+    y: 10,
+    mb: 60,
+  }
+  ctx.drawImage(cupIcon.image, cupIcon.x, cupIcon.y, cupIcon.w, cupIcon.h)
+
+  // Collection name
+  ctx.fillStyle = "#0DB4FB"
+  ctx.font = "400 35px Whitney"
+  const collectionName = {
+    w: widthOf(ctx, name),
+    h: heightOf(ctx, name),
+    x: container.x.from,
+    y: moduleTitle.y + moduleTitle.mb,
+    mb: 80,
+  }
+  ctx.fillText(name, collectionName.x, collectionName.y)
 
   // Draw thumbnail
-  // const avatarURL = msg.author.displayAvatarURL({ format: "jpeg" })
   const avatarConf: RoundedRectangleStats = {
     x: 690,
-    y: 0,
+    y: collectionName.y - 25,
     w: 250,
     h: 250,
     radius: 20,
@@ -78,19 +116,19 @@ async function renderTicker(msg: Message, data: any) {
 
   /* DRAW COLUMN 1 */
   // Chain title
-  ctx.font = "bold 27px Manrope"
+  ctx.font = "bold 30px Whitney"
   ctx.fillStyle = "white"
   const chainTitleStr = "Chain"
   const chainTitle = {
     x: container.x.from,
-    y: container.pt,
+    y: collectionName.y + collectionName.mb,
     mb: 45,
   }
   ctx.fillText(chainTitleStr, chainTitle.x, chainTitle.y)
 
   // Chain value
   ctx.save()
-  ctx.font = "27px Manrope"
+  ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
   const chainStr = `${chain}`
   const chainValue = {
@@ -102,7 +140,7 @@ async function renderTicker(msg: Message, data: any) {
   ctx.restore()
 
   // Owner title
-  ctx.font = "bold 27px Manrope"
+  ctx.font = "bold 30px Whitney"
   ctx.fillStyle = "white"
   const ownerTitleStr = "Owner"
   const ownerTitle = {
@@ -114,7 +152,7 @@ async function renderTicker(msg: Message, data: any) {
 
   // Owner value
   ctx.save()
-  ctx.font = "27px Manrope"
+  ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
   const ownerValueStr = `${owner}`
   const ownerValue = {
@@ -126,7 +164,7 @@ async function renderTicker(msg: Message, data: any) {
   ctx.restore()
 
   // Floor Price title
-  ctx.font = "bold 27px Manrope"
+  ctx.font = "bold 30px Whitney"
   ctx.fillStyle = "white"
   const floorPriceTitleStr = "Floor price"
   const floorPriceTitle = {
@@ -138,7 +176,7 @@ async function renderTicker(msg: Message, data: any) {
 
   // Floor Price value
   ctx.save()
-  ctx.font = "27px Manrope"
+  ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
   const floorPriceStr = `$${(floor_price * 1000).toLocaleString()}`
   const floorPrice = {
@@ -150,7 +188,7 @@ async function renderTicker(msg: Message, data: any) {
   ctx.restore()
 
   // Change 1h title
-  ctx.font = "bold 27px Manrope"
+  ctx.font = "bold 30px Whitney"
   ctx.fillStyle = "white"
   const change1hTitleStr = "Change (1h)"
   const change1hTitle = {
@@ -162,7 +200,7 @@ async function renderTicker(msg: Message, data: any) {
 
   // Change 1h value
   ctx.save()
-  ctx.font = "27px Manrope"
+  ctx.font = "30px Whitney"
   ctx.fillStyle = change1h > 0 ? "#93E0E3" : "#F0918D"
   const change1hStr = change1h > 0 ? `+${change1h}%` : `${change1h}%`
   const change1hValue = {
@@ -179,14 +217,14 @@ async function renderTicker(msg: Message, data: any) {
   const itemTitleStr = "Item"
   const itemTitle = {
     x: X_START,
-    y: container.pt,
+    y: collectionName.y + collectionName.mb,
     mb: 45,
   }
   ctx.fillText(itemTitleStr, itemTitle.x, itemTitle.y)
 
   // Item value
   ctx.save()
-  ctx.font = "27px Manrope"
+  ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
   const itemStr = `${item}`
   const itemValue = {
@@ -208,7 +246,7 @@ async function renderTicker(msg: Message, data: any) {
 
   // Volume value
   ctx.save()
-  ctx.font = "27px Manrope"
+  ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
   const volumeStr = `${volume}`
   const volumeValue = {
@@ -230,7 +268,7 @@ async function renderTicker(msg: Message, data: any) {
 
   // Last Price value
   ctx.save()
-  ctx.font = "27px Manrope"
+  ctx.font = "30px Whitney"
   ctx.fillStyle = "#BFBFBF"
   const lastPriceStr = `$${(last_price * 1000).toLocaleString()}`
   const lastPrice = {
@@ -242,7 +280,7 @@ async function renderTicker(msg: Message, data: any) {
   ctx.restore()
 
   // Change 24h title
-  ctx.font = "bold 27px Manrope"
+  ctx.font = "bold 30px Whitney"
   ctx.fillStyle = "white"
   const change24hTitleStr = "Change (24h)"
   const change24hTitle = {
@@ -254,7 +292,7 @@ async function renderTicker(msg: Message, data: any) {
 
   // Change 24h value
   ctx.save()
-  ctx.font = "27px Manrope"
+  ctx.font = "30px Whitney"
   ctx.fillStyle = change24h > 0 ? "#93E0E3" : "#F0918D"
   const change24hStr = change24h > 0 ? `+${change24h}%` : `${change24h}%`
   const change24hValue = {
@@ -266,7 +304,7 @@ async function renderTicker(msg: Message, data: any) {
   ctx.restore()
 
   // Change 7d title
-  ctx.font = "bold 27px Manrope"
+  ctx.font = "bold 30px Whitney"
   ctx.fillStyle = "white"
   const change7dTitleStr = "Change (1d)"
   const change7dTitle = {
@@ -278,7 +316,7 @@ async function renderTicker(msg: Message, data: any) {
 
   // Change 7d value
   ctx.save()
-  ctx.font = "27px Manrope"
+  ctx.font = "30px Whitney"
   ctx.fillStyle = change7d > 0 ? "#93E0E3" : "#F0918D"
   const change7dStr = change7d > 0 ? `+${change7d}%` : `${change7d}%`
   const change7dValue = {
@@ -338,32 +376,7 @@ const command: Command = {
         "https://lh3.googleusercontent.com/lP0ywqisBVutTJZ_Uuhe7JFqvticZjRypfQh4CpXwcljxM_JlO0jT-4-LRil18KPHidXm9slLkTDta1XRC5HAg2IVhwCVohdNF3odQ",
     }
 
-    // const data = {
-    //   tickers: {
-    //     times: ["14-06", "15-06"],
-    //     prices: [4.8, 4.9],
-    //   },
-    //   floor_price: 0.00009,
-    //   name: "Cyber Rabby",
-    //   contract_address: "0x7D1070fdbF0eF8752a9627a79b00221b53F231fA",
-    //   chain: "Ethereum",
-    //   platforms: [
-    //     "Paintswap",
-    //     "OpenSea"
-    //   ],
-    //   last_price: 0.0001,
-    //   change1h: -0.64,
-    //   change24h: -0.01,
-    //   change7d: 2.71,
-    //   owner: "4.15K",
-    //   volume: "955.82 ETH",
-    //   item: "6.97K",
-    //   collection_image: "https://lh3.googleusercontent.com/lP0ywqisBVutTJZ_Uuhe7JFqvticZjRypfQh4CpXwcljxM_JlO0jT-4-LRil18KPHidXm9slLkTDta1XRC5HAg2IVhwCVohdNF3odQ",
-    // }
-
     const embed = composeEmbedMessage(msg, {
-      title: `${getEmoji("cup")} NFT Collection`,
-      description: `[${data.name}](https://google.com.vn)`,
       image: "attachment://ticker.png",
       withoutFooter: true,
     })
