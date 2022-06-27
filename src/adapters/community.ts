@@ -238,16 +238,14 @@ class Community {
         },
       }
     )
-    // if (res.status !== 200) {
-    //   throw new Error(
-    //     `failed to get NFT detail - ${collectionSymbol} | ${tokenId}`
-    //   )
-    // }
-
+    // Indexer will return  code 500 if collection not found
+    if (res.status != 500 && res.status !== 200) {
+      throw new Error(
+        `failed to get NFT detail - ${collectionSymbol} | ${tokenId}`
+      )
+    }
+    // Need to keep json.error for case handling
     const json = await res.json()
-    // if (json.error !== undefined) {
-    //   throw new Error(json.error)
-    // }
     return json
   }
 
