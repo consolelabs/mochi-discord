@@ -238,17 +238,16 @@ class Community {
         },
       }
     )
+    // Need to keep json.error for case handling
+    const json = await res.json()
     if (res.status !== 200) {
-      throw new Error(
-        `failed to get NFT detail - ${collectionSymbol} | ${tokenId}`
-      )
+      if (!(json.error.includes("not found") && res.status == 500))
+        throw new Error(
+          `failed to get NFT detail - ${collectionSymbol} | ${tokenId}`
+        )
     }
 
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
+    return json
   }
 
   public async getNFTCollectionDetail(collectionSymbol: string) {
