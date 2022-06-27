@@ -29,14 +29,6 @@ export type RectangleStats = {
   bgColor?: string
 } & PositionStats
 
-export type RoundedRectangleStats = {
-  x: number
-  y: number
-  w: number
-  h: number
-  radius: number
-} & PositionStats
-
 export type CircleleStats = {
   x: number
   y: number

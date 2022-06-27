@@ -6,11 +6,7 @@ import {
 } from "canvas"
 import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import { GuildMember, User } from "discord.js"
-import {
-  CircleleStats,
-  RectangleStats,
-  RoundedRectangleStats,
-} from "types/canvas"
+import { CircleleStats, RectangleStats } from "types/canvas"
 import { msgColors } from "./common"
 import { SPACE } from "./constants"
 
@@ -109,28 +105,41 @@ export async function drawAvatar(
   ctx.restore()
 }
 
-export function renderRoundedImage(
+export async function drawAvatarWithUrl(
   ctx: CanvasRenderingContext2D,
-  conf: RoundedRectangleStats
+  avatar: CircleleStats,
+  avatarURL: string
 ) {
-  const { x, y, w, h, radius } = conf
+  ctx.save()
+  // --------------
   ctx.beginPath()
-  ctx.moveTo(x + radius, y)
-  ctx.lineTo(x + w - radius, y)
-  ctx.quadraticCurveTo(x + w, y, x + w, y + radius)
-  ctx.lineTo(x + w, y + h - radius)
-  ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h)
-  ctx.lineTo(x + radius, y + h)
-  ctx.quadraticCurveTo(x, y + h, x, y + h - radius)
-  ctx.lineTo(x, y + radius)
-  ctx.quadraticCurveTo(x, y, x + radius, y)
+  ctx.lineWidth = 10
+  ctx.arc(avatar.x, avatar.y, avatar.radius, 0, Math.PI * 2)
+  if (avatar.outlineColor) {
+    ctx.strokeStyle = avatar.outlineColor
+    ctx.stroke()
+  }
   ctx.closePath()
+  ctx.clip()
+
+  if (avatarURL) {
+    const userAvatar = await loadImage(avatarURL)
+    ctx.drawImage(
+      userAvatar,
+      avatar.x - avatar.radius,
+      avatar.y - avatar.radius,
+      avatar.radius * 2,
+      avatar.radius * 2
+    )
+  }
+  // --------------
+  ctx.restore()
 }
 
 export async function drawRectangleAvatar(
   ctx: CanvasRenderingContext2D,
   avatar: RectangleStats,
-  user: User
+  avatarURL: string
 ) {
   ctx.save()
   // --------------
@@ -171,7 +180,6 @@ export async function drawRectangleAvatar(
   ctx.closePath()
   ctx.clip()
 
-  const avatarURL = user.displayAvatarURL({ format: "jpeg" })
   if (avatarURL) {
     const userAvatar = await loadImage(avatarURL)
     ctx.drawImage(userAvatar, avatar.x.from, avatar.y.from, avatar.w, avatar.h)
