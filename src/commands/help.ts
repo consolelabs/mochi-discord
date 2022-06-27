@@ -18,6 +18,7 @@ const categoryIcons: Record<Category, string> = {
   Config: emojis.PROFILE,
   Defi: emojis.DEFI,
   Community: emojis.DEFI,
+  Game: emojis.GAME,
 }
 
 function getHelpEmbed(msg: Message, isAdmin: boolean) {

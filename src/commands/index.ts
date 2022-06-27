@@ -34,6 +34,7 @@ import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import starboard from "./config/starboard"
 import top from "./community/top"
+import tripod from "./games/tripod"
 import levelrole from "./config/levelRole"
 import nftrole from "./config/nftRole"
 import globalxp from "./config/globalxp"
@@ -78,6 +79,7 @@ export const originalCommands: Record<string, Command> = {
   starboard,
   eventxp,
   log,
+  tripod,
 }
 
 export const commands = getAllAliases(originalCommands)
@@ -87,6 +89,7 @@ export const adminCategories: Record<Category, boolean> = {
   Defi: false,
   Community: false,
   Config: true,
+  Game: false,
 }
 
 async function preauthorizeCommand(message: Message, commandObject: Command) {
