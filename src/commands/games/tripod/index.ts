@@ -36,10 +36,8 @@ export async function handlePlayTripod(msg: Message) {
           const pos = normalizePosition(input)
           if (!pos) return
           const [x, y] = pos
-          if (!Number.isNaN(x) && !Number.isNaN(y)) {
-            game.nextState({ type: "put", x, y })
-            validMsg = true
-          }
+          game.nextState({ type: "put", x, y })
+          validMsg = true
         }
         if (validMsg) {
           Object.entries(achievements.turn).forEach(([achName, achCheck]) => {
