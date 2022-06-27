@@ -96,6 +96,7 @@ export const emojis: { [key: string]: string } = {
   CUP: "985137841027821589",
   COIN: "985243708419108914",
   MONEY: "985245648716697680",
+  GAME: "916623575824338974",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
