@@ -11,7 +11,7 @@ import {
   tree,
 } from "triple-pod-game-engine"
 import { RectangleStats } from "types/canvas"
-import { drawRectangle, heightOf, widthOf } from "utils/canvas"
+import { drawRectangle, fillWrappedText, heightOf, widthOf } from "utils/canvas"
 import { composeSimpleSelection } from "utils/discordEmbed"
 
 const container: RectangleStats = {
@@ -236,5 +236,40 @@ export async function toCanvas(game: Game) {
     })
   })
 
+  ctx.font = "70px Arial"
+  ctx.fillStyle = "rgba(255, 255, 255, 0.2)"
+
+  const texts = ["a", "b", "c", "d", "e", "f"]
+
+  for (let i = 0; i < 6; i++) {
+    let text = `${i + 1}${texts[i]}`
+    if (i === 0) {
+      fillWrappedText(
+        ctx,
+        text,
+        240 - widthOf(ctx, text),
+        1310 - heightOf(ctx, text),
+        widthOf(ctx, text)
+      )
+    } else {
+      text = `${i + 1}`
+      fillWrappedText(
+        ctx,
+        text,
+        240 - widthOf(ctx, text),
+        1310 - i * 200 - heightOf(ctx, text),
+        widthOf(ctx, text)
+      )
+
+      text = `${texts[i]}`
+      fillWrappedText(
+        ctx,
+        text,
+        240 + i * 200 - widthOf(ctx, text),
+        1310 - heightOf(ctx, text),
+        widthOf(ctx, text)
+      )
+    }
+  }
   return new MessageAttachment(canvas.toBuffer(), "board.png")
 }
