@@ -46,11 +46,17 @@ async function composeNFTDetail(
     case "indexer: record nft not found": {
       const embed = composeEmbedMessage(msg, {
         title: "NFT",
+        description: `Token not found.`,
+      })
+      return justifyEmbedFields(embed, 1)
+    }
+    case "indexer: data not in sync": {
+      const embed = composeEmbedMessage(msg, {
+        title: "NFT",
         description: `Sync data in progress.`,
       })
       return justifyEmbedFields(embed, 1)
     }
-    default:
   }
 
   // case token not found, token_id == null
@@ -91,7 +97,7 @@ async function composeNFTDetail(
   const fields: EmbedFieldData[] = attributes
     ? attributes.map((attr) => ({
         name: attr.trait_type,
-        value: attr.value,
+        value: `${attr.value}${attr.frequency ? "\n" + attr.frequency : ""}`,
         inline: true,
       }))
     : []
