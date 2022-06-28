@@ -1,11 +1,8 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { API_BASE_URL } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
-import { composeLevelUpMessage } from "utils/userXP"
-import fetch from "node-fetch"
-import { msgColors } from "utils/common"
+import community from "adapters/community"
 
 const command: Command = {
   id: "gift",
@@ -18,104 +15,52 @@ const command: Command = {
     if (args.length < 4) {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
-    const errorMessage = `Cannot send gift XP. `
-    if (args[3].toLowerCase() != "xp") {
+    const [userArg, xpAmountArg, giftType] = args.slice(1)
+    if (giftType.toLowerCase() !== "xp") {
+      const errorEmbed = getErrorEmbed({
+        msg,
+        title: "Gift XP",
+        description: `You can only send XP as gift.`,
+      })
       return {
         messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              color: msgColors.ERROR,
-              title: "Gift XP",
-              description: `You can only send XP as gift.`,
-            }),
-          ],
+          embeds: [errorEmbed],
         },
       }
     }
 
-    if (parseInt(args[2]) <= 0) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              color: msgColors.ERROR,
-              title: "Gift XP",
-              description: `Invalid XP amount.`,
-            }),
-          ],
-        },
-      }
+    const xpAmount = parseInt(xpAmountArg)
+    if (!xpAmount || xpAmount < 0) {
+      const errorEmbed = getErrorEmbed({
+        msg,
+        title: "Gift XP",
+        description: `Invalid XP amount.`,
+      })
+      return { messageOptions: { embeds: [errorEmbed] } }
     }
 
     const adminDiscordId = msg.author.id
     const guildId = msg.guildId
-    const userDiscordId = args[1].replace("<@", "").replace(">", "")
-    const xpAmount = args[2]
+    const userDiscordId = userArg.replace("<@", "").replace(">", "")
 
     const giftXpRequest = {
       admin_discord_id: adminDiscordId,
+      channel_id: msg.channelId,
       user_discord_id: userDiscordId,
       guild_id: guildId,
       xp_amount: xpAmount,
     }
 
-    // get data nft from server
-    const respGiftXp = await fetch(`${API_BASE_URL}/gift/xp`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    await community.giftXp(giftXpRequest)
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(msg, {
+            title: "Gift XP",
+            description: `<@${adminDiscordId}> has sent ${xpAmount} XP as gift for <@${userDiscordId}>`,
+          }),
+        ],
       },
-      body: JSON.stringify(giftXpRequest),
-    })
-    const dataGiftXp = await respGiftXp.json()
-    const errorMessageGiftXp = dataGiftXp.error
-    switch (respGiftXp.status) {
-      case 200:
-        await msg.channel.send({
-          embeds: [
-            composeEmbedMessage(msg, {
-              title: "Gift XP",
-              description: `<@${adminDiscordId}> has sent ${xpAmount} XP as gift for <@${userDiscordId}>`,
-            }),
-          ],
-        })
-
-        if (dataGiftXp.data.level_up) {
-          await msg.channel.send(
-            await composeLevelUpMessage(
-              msg.mentions.members.get(userDiscordId),
-              dataGiftXp.data.current_level,
-              dataGiftXp.data.current_xp
-            )
-          )
-        }
-        return
-      case 400:
-        if (errorMessageGiftXp.includes("not found")) {
-          return {
-            messageOptions: {
-              embeds: [
-                composeEmbedMessage(msg, {
-                  color: msgColors.ERROR,
-                  title: "Gift XP",
-                  description: errorMessage + `User is not in server.`,
-                }),
-              ],
-            },
-          }
-        }
-        break
-      default:
-        return {
-          messageOptions: {
-            embeds: [
-              composeEmbedMessage(msg, {
-                title: "Gift XP",
-                description: errorMessage,
-              }),
-            ],
-          },
-        }
     }
   },
   getHelpMessage: async (msg) => {
