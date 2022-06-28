@@ -4,35 +4,86 @@ import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import community from "adapters/community"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
+import { defaultEmojis, getEmoji } from "utils/common"
 import { renderChartImage } from "utils/canvas"
 
-async function composeCollectionInfo(msg: Message, symbol: string, data: any) {
-  const { floor_price, name, contract_address, chain, platforms = [] } = data
+async function composeCollectionInfo(msg: Message, data: any) {
+  const blank = getEmoji("blank")
+  const {
+    floor_price,
+    chain,
+    item,
+    owner,
+    volume,
+    last_price,
+    change1h,
+    change24h,
+    change7d,
+    name,
+    collection_image,
+  } = data
+  const PriceChange = {
+    change1h:
+      change1h <= 0
+        ? `${defaultEmojis.CHART_WITH_DOWNWARDS_TREND} ${change1h}`
+        : `${defaultEmojis.CHART_WITH_UPWARDS_TREND} +${change1h}`,
+    change24h:
+      change24h <= 0
+        ? `${defaultEmojis.CHART_WITH_DOWNWARDS_TREND} ${change24h}`
+        : `${defaultEmojis.CHART_WITH_UPWARDS_TREND} +${change24h}`,
+    change7d:
+      change7d <= 0
+        ? `${defaultEmojis.CHART_WITH_DOWNWARDS_TREND} ${change7d}`
+        : `${defaultEmojis.CHART_WITH_UPWARDS_TREND} +${change7d}`,
+  }
   const fields = [
     {
-      name: "Name",
-      value: `\`${name}\``,
-    },
-    {
-      name: "Symbol",
-      value: `\`${symbol.toUpperCase()}\``,
-    },
-    {
-      name: "Contract",
-      value: `\`${shortenHashOrAddress(contract_address)}\``,
-    },
-    {
       name: "Chain",
-      value: `\`${chain}\``,
+      value: `${chain}${blank}`,
     },
     {
-      name: "Platforms",
-      value: platforms.map((platform: string) => getEmoji(platform)).join(" "),
+      name: `${blank}Item`,
+      value: `${blank}${item}${blank}`,
     },
     {
-      name: "Floor Price",
-      value: `\`$${(floor_price * 1000).toLocaleString()}\``,
+      name: "\u200b",
+      value: "\u200b" + `${blank}`,
+    },
+    {
+      name: "Owner",
+      value: `${owner}${blank}`,
+    },
+    {
+      name: `${blank}Volume`,
+      value: `${blank}${volume}${blank}`,
+    },
+    {
+      name: "\u200b",
+      value: "\u200b" + `${blank}`,
+    },
+    {
+      name: "Floor price",
+      value: `${floor_price * 1000}${blank}`,
+    },
+    {
+      name: `${blank}Last price`,
+      value: `${blank}${last_price * 1000}${blank}`,
+    },
+    {
+      name: "\u200b",
+      value: "\u200b" + `${blank}`,
+    },
+    {
+      name: "Change (1h)",
+      value: `${PriceChange.change1h}${blank}`,
+    },
+    {
+      name: `${blank}Change (24h)`,
+      value: `${blank}${PriceChange.change24h}${blank}`,
+    },
+    {
+      name: `${blank}Change (7d)`,
+      value: `${blank}${PriceChange.change7d}${blank}`,
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
@@ -40,8 +91,10 @@ async function composeCollectionInfo(msg: Message, symbol: string, data: any) {
   }))
 
   const embed = composeEmbedMessage(msg, {
-    title: "NFT Collection",
+    title: `${getEmoji("cup")} NFT Collection`,
+    description: `[${name}](https://google.com.vn)`,
     image: "attachment://chart.png",
+    thumbnail: collection_image,
   }).addFields(fields)
   return justifyEmbedFields(embed, 3)
 }
@@ -58,9 +111,21 @@ const command: Command = {
     }
 
     const symbol = args[2]
-    const data = await community.getNFTCollectionTickers(symbol)
+    const res = await community.getNFTCollectionTickers(symbol)
+    const data = {
+      last_price: 0.0012,
+      change1h: -0.64,
+      change24h: -0.01,
+      change7d: 2.71,
+      owner: "4.15K",
+      volume: "955.82 ETH",
+      item: "6.97K",
+      collection_image:
+        "https://lh3.googleusercontent.com/lP0ywqisBVutTJZ_Uuhe7JFqvticZjRypfQh4CpXwcljxM_JlO0jT-4-LRil18KPHidXm9slLkTDta1XRC5HAg2IVhwCVohdNF3odQ",
+      ...res,
+    }
     const { prices, times } = data.tickers
-    const embed = await composeCollectionInfo(msg, symbol, data)
+    const embed = await composeCollectionInfo(msg, data)
     const chart = await renderChartImage({
       chartLabel: "Floor price (USD)",
       labels: times,
