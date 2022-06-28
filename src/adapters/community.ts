@@ -241,7 +241,14 @@ class Community {
     // Need to keep json.error for case handling
     const json = await res.json()
     if (res.status !== 200) {
-      if (!(json.error.includes("not found") && res.status == 500))
+      // exclude case where status code is 500 and it's 'not found' or 'insync'
+      if (
+        !(
+          (json.error.includes("not found") ||
+            json.error.includes("in sync")) &&
+          res.status == 500
+        )
+      )
         throw new Error(
           `failed to get NFT detail - ${collectionSymbol} | ${tokenId}`
         )
