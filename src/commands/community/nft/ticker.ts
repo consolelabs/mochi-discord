@@ -8,6 +8,7 @@ import { getEmoji } from "utils/common"
 import { renderChartImage } from "utils/canvas"
 
 async function composeCollectionInfo(msg: Message, data: any) {
+  const blank = getEmoji("blank")
   const {
     floor_price,
     chain,
@@ -21,63 +22,68 @@ async function composeCollectionInfo(msg: Message, data: any) {
     name,
     collection_image,
   } = data
+  const PriceChange = {
+    change1h:
+      change1h <= 0
+        ? "```diff\n" + change1h + "\n```"
+        : "```yaml\n+" + change1h + "\n```",
+    change24h:
+      change24h <= 0
+        ? "```diff\n" + change24h + "\n```"
+        : "```yaml\n+" + change24h + "\n```",
+    change7d:
+      change7d <= 0
+        ? "```diff\n" + change7d + "\n```"
+        : "```yaml\n+" + change7d + "\n```",
+  }
   const fields = [
     {
       name: "Chain",
-      value: `${chain}`,
+      value: `${chain}${blank}`,
     },
     {
       name: "Item",
-      value: `${item}`,
+      value: `${item}${blank}`,
     },
     {
       name: "\u200b",
-      value: "\u200b",
+      value: "\u200b" + `${blank}`,
     },
     {
       name: "Owner",
-      value: `${owner}`,
+      value: `${owner}${blank}`,
     },
     {
       name: "Volume",
-      value: `${volume}`,
+      value: `${volume}${blank}`,
     },
     {
       name: "\u200b",
-      value: "\u200b",
+      value: "\u200b" + `${blank}`,
     },
     {
       name: "Floor price",
-      value: `${floor_price}`,
+      value: `${floor_price * 1000}${blank}`,
     },
     {
       name: "Last price",
-      value: `${last_price}`,
+      value: `${last_price * 1000}${blank}`,
     },
     {
       name: "\u200b",
-      value: "\u200b",
+      value: "\u200b" + `${blank}`,
     },
     {
       name: "Change (1h)",
-      value:
-        change1h <= 0
-          ? "```diff\n" + change1h + "\n```"
-          : "```yaml\n+" + change1h + "\n```",
+      value: `${PriceChange.change1h}${blank}`,
     },
     {
       name: "Change (24h)",
-      value:
-        change24h <= 0
-          ? "```diff\n" + change24h + "\n```"
-          : "```yaml\n+" + change24h + "\n```",
+      value: `${PriceChange.change24h}${blank}`,
     },
     {
       name: "Change (7d)",
-      value:
-        change7d <= 0
-          ? "```diff\n" + change7d + "\n```"
-          : "```yaml\n+" + change7d + "\n```",
+      value: `${PriceChange.change7d}${blank}`,
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
