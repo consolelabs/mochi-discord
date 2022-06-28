@@ -97,7 +97,7 @@ async function composeNFTDetail(
   const fields: EmbedFieldData[] = attributes
     ? attributes.map((attr) => ({
         name: attr.trait_type,
-        value: attr.value,
+        value: `${attr.value}${attr.frequency ? "\n" + attr.frequency : ""}`,
         inline: true,
       }))
     : []
