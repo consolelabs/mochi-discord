@@ -74,7 +74,8 @@ async function composeNFTDetail(
     name,
     attributes,
     rarity,
-  }: { name: string; attributes: any[]; rarity: any } = data
+    image,
+  }: { name: string; attributes: any[]; rarity: any; image: string } = data
   const title = `${dataCollection.name
     .charAt(0)
     .toUpperCase()}${dataCollection.name.slice(1)}`
@@ -107,13 +108,6 @@ async function composeNFTDetail(
     if (field.value == "") {
       field.value = "0"
     }
-  }
-
-  // handle image has "ipfs://"
-  let { image } = data
-  if (image.includes("ipfs://")) {
-    const [imagePath] = image.split("ipfs://").slice(1)
-    image = `https://ipfs.io/ipfs/${imagePath}`
   }
 
   const embed = composeEmbedMessage(msg, {
