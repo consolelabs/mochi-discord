@@ -341,6 +341,32 @@ class Community {
     }
     return json.data
   }
+
+  public async giftXp(req: {
+    admin_discord_id: string
+    user_discord_id: string
+    guild_id: string
+    channel_id: string
+    xp_amount: number
+  }) {
+    const res = await fetch(`${API_BASE_URL}/gift/xp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(req),
+    })
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to gift ${req.xp_amount} XP to user ${req.user_discord_id} from ${req.admin_discord_id}`
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+  }
 }
 
 export default new Community()

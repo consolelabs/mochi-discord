@@ -8,7 +8,6 @@ import { BotBaseError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import webhook from "adapters/webhook"
-import { composeLevelUpMessage } from "utils/userXP"
 import { MessageTypes } from "discord.js/typings/enums"
 import { handlePlayTripod } from "commands/games/tripod"
 
@@ -33,31 +32,8 @@ export const handleNormalMessage = async (message: Message) => {
     type: messageType,
   })
 
-  if (resp.status !== "OK" || resp.error !== undefined) {
-    logger.error(resp.error)
-    throw new BotBaseError(message)
-  }
-
-  const { data, type } = resp
-  if (!type || !data) return
-  switch (type) {
-    case "level_up":
-      if (data.level_up) {
-        const channel = message.channel ?? message.guild.systemChannel
-        logger.info(`Channel [${channel?.id}] is ready to send message`)
-        if (channel) {
-          await channel.send(
-            await composeLevelUpMessage(
-              message.member,
-              data.current_level,
-              data.current_xp
-            )
-          )
-        }
-      }
-      return
-    default:
-      return
+  if (resp.error !== undefined) {
+    logger.error(`failed to handle webhook: ${resp.error}`)
   }
 }
 
