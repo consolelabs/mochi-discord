@@ -4,7 +4,7 @@ import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import community from "adapters/community"
-import { getEmoji } from "utils/common"
+import { defaultEmojis, getEmoji } from "utils/common"
 import { renderChartImage } from "utils/canvas"
 
 async function composeCollectionInfo(msg: Message, data: any) {
@@ -25,16 +25,16 @@ async function composeCollectionInfo(msg: Message, data: any) {
   const PriceChange = {
     change1h:
       change1h <= 0
-        ? "```diff\n" + change1h + "\n```"
-        : "```yaml\n+" + change1h + "\n```",
+        ? `${defaultEmojis.CHART_WITH_DOWNWARDS_TREND} ${change1h}`
+        : `${defaultEmojis.CHART_WITH_UPWARDS_TREND} +${change1h}`,
     change24h:
       change24h <= 0
-        ? "```diff\n" + change24h + "\n```"
-        : "```yaml\n+" + change24h + "\n```",
+        ? `${defaultEmojis.CHART_WITH_DOWNWARDS_TREND} ${change24h}`
+        : `${defaultEmojis.CHART_WITH_UPWARDS_TREND} +${change24h}`,
     change7d:
       change7d <= 0
-        ? "```diff\n" + change7d + "\n```"
-        : "```yaml\n+" + change7d + "\n```",
+        ? `${defaultEmojis.CHART_WITH_DOWNWARDS_TREND} ${change7d}`
+        : `${defaultEmojis.CHART_WITH_UPWARDS_TREND} +${change7d}`,
   }
   const fields = [
     {
@@ -42,8 +42,8 @@ async function composeCollectionInfo(msg: Message, data: any) {
       value: `${chain}${blank}`,
     },
     {
-      name: "Item",
-      value: `${item}${blank}`,
+      name: `${blank}Item`,
+      value: `${blank}${item}${blank}`,
     },
     {
       name: "\u200b",
@@ -54,8 +54,8 @@ async function composeCollectionInfo(msg: Message, data: any) {
       value: `${owner}${blank}`,
     },
     {
-      name: "Volume",
-      value: `${volume}${blank}`,
+      name: `${blank}Volume`,
+      value: `${blank}${volume}${blank}`,
     },
     {
       name: "\u200b",
@@ -66,8 +66,8 @@ async function composeCollectionInfo(msg: Message, data: any) {
       value: `${floor_price * 1000}${blank}`,
     },
     {
-      name: "Last price",
-      value: `${last_price * 1000}${blank}`,
+      name: `${blank}Last price`,
+      value: `${blank}${last_price * 1000}${blank}`,
     },
     {
       name: "\u200b",
@@ -78,12 +78,12 @@ async function composeCollectionInfo(msg: Message, data: any) {
       value: `${PriceChange.change1h}${blank}`,
     },
     {
-      name: "Change (24h)",
-      value: `${PriceChange.change24h}${blank}`,
+      name: `${blank}Change (24h)`,
+      value: `${blank}${PriceChange.change24h}${blank}`,
     },
     {
-      name: "Change (7d)",
-      value: `${PriceChange.change7d}${blank}`,
+      name: `${blank}Change (7d)`,
+      value: `${blank}${PriceChange.change7d}${blank}`,
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
