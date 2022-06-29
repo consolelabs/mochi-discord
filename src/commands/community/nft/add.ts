@@ -53,6 +53,14 @@ async function executeNftAddCommand(args: string[], msg: Message) {
           "Already added. Nft is in sync progress"
         )
       } else if (
+        errorMessageCollection.includes("Already added. Nft is done with sync")
+      ) {
+        return buildDiscordMessage(
+          msg,
+          "NFT",
+          "Already added. Nft is done with sync"
+        )
+      } else if (
         errorMessageCollection.includes("chain is not supported/invalid")
       ) {
         // add list chain to description
