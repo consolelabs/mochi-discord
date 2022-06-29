@@ -55,16 +55,21 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
   }
 
   const blank = getEmoji("blank")
-  const { names, symbols, chains } = data.reduce(
+  const { names, symbols } = data.reduce(
     (acc: any, cur: any, i: number) => ({
-      names: [...acc.names, `#${++i + page * size}. ${cur.name}${blank}`],
+      names: [
+        ...acc.names,
+        `#${++i + page * size}. ${cur.name} ${getEmoji(
+          cur.chain?.currency
+        )}${blank}`,
+      ],
       symbols: [...acc.symbols, `${cur.symbol}${blank}`],
-      chains: [...acc.chains, cur.chain?.name ?? "TBD"],
+      // chains: [...acc.chains, cur.chain?.name ?? "TBD"],
     }),
     {
       names: [],
       symbols: [],
-      chains: [],
+      // chains: [],
     }
   )
 
@@ -74,8 +79,13 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
     footer: [`Page ${pageIdx + 1} / ${totalPage}`],
   })
     .addField("Name", `${names.join("\n")}\n\u200B`, true)
-    .addField("Ticker", `${symbols.join("\n")}\n\u200B`, true)
-    .addField("Chain", chains.join("\n"), true)
+    .addField("Ticker", `${symbols.join("\n")}`, true)
+    .addField(
+      "Details",
+      Array(names.length).fill(`[View](https://getmochi.co)`).join("\n"),
+      true
+    )
+  // .addField("Chain", chains.join("\n"), true)
 
   return {
     messageOptions: {
