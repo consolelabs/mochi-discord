@@ -10,28 +10,30 @@ import {
 import Community from "adapters/community"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 
-async function handlePagination(msg: Message) {
+async function handlePagination(replyMsg: Message, originalMsg: Message) {
   const operators: Record<string, number> = {
     "+": 1,
     "-": -1,
   }
-  msg
+  replyMsg
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
-      idle: 30000,
+      idle: 60000,
     })
     .on("collect", async (i) => {
       await i.deferUpdate()
       const [pageStr, opStr, totalPage] = i.customId.split("_").slice(1)
       const page = +pageStr + operators[opStr]
-      const { embeds } = (await composeNFTListEmbed(msg, page)).messageOptions
-      await msg.edit({
+      const {
+        messageOptions: { embeds },
+      } = await composeNFTListEmbed(originalMsg, page)
+      await replyMsg.edit({
         embeds,
         components: getPaginationRow(page, +totalPage),
       })
     })
     .on("end", () => {
-      msg.edit({ components: [] })
+      replyMsg.edit({ components: [] })
     })
 }
 
@@ -53,16 +55,21 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
   }
 
   const blank = getEmoji("blank")
-  const { nrs, names, chains } = data.reduce(
+  const { names, symbols } = data.reduce(
     (acc: any, cur: any, i: number) => ({
-      nrs: [...acc.nrs, `#${++i}${blank}`],
-      names: [...acc.names, `${cur.name}${blank}`],
-      chains: [...acc.chains, ...(cur.chain ? [`${cur.chain.name}`] : ["N/A"])],
+      names: [
+        ...acc.names,
+        `#${++i + page * size}. ${cur.name} ${getEmoji(
+          cur.chain?.currency
+        )}${blank}`,
+      ],
+      symbols: [...acc.symbols, `${cur.symbol}${blank}`],
+      // chains: [...acc.chains, cur.chain?.name ?? "TBD"],
     }),
     {
-      nrs: [],
       names: [],
-      chains: [],
+      symbols: [],
+      // chains: [],
     }
   )
 
@@ -71,9 +78,14 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
     title: "Supported NFT collections",
     footer: [`Page ${pageIdx + 1} / ${totalPage}`],
   })
-    .addField("No.", nrs.join("\n"), true)
     .addField("Name", `${names.join("\n")}\n\u200B`, true)
-    .addField("Chain", chains.join("\n"), true)
+    .addField("Ticker", `${symbols.join("\n")}`, true)
+    .addField(
+      "Details",
+      Array(names.length).fill(`[View](https://getmochi.co)`).join("\n"),
+      true
+    )
+  // .addField("Chain", chains.join("\n"), true)
 
   return {
     messageOptions: {
@@ -90,9 +102,8 @@ const command: Command = {
   category: "Community",
   run: async function (msg: Message) {
     const msgOpts = await composeNFTListEmbed(msg, 0)
-    const message = await msg.reply(msgOpts.messageOptions)
-    message.author = msg.author
-    await handlePagination(message)
+    const reply = await msg.reply(msgOpts.messageOptions)
+    await handlePagination(reply, msg)
     return {
       messageOptions: null,
     }
