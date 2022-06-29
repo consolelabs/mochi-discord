@@ -120,8 +120,6 @@ export function composeEmbedMessage(
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
   const isSpecificHelpCommand = specificHelpCommand(msg)
-  // specificHelpCommand(msg) ||
-  // (msg && !actionObj && !commandObj?.canRunWithoutAction)
 
   const hasActions =
     commandObj?.actions && Object.keys(commandObj.actions).length !== 0
@@ -163,8 +161,8 @@ export function composeEmbedMessage(
 
   if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)
-  if (!!author && author.length === 1) embed.setAuthor(author[0])
-  if (!!author && author.length === 2) embed.setAuthor(author[0], author[1])
+  if (author?.length === 1) embed.setAuthor(author[0])
+  if (author?.length === 2) embed.setAuthor(author[0], author[1])
 
   // fields
   if (isSpecificHelpCommand && alias)
