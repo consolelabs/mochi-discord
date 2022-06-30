@@ -320,6 +320,9 @@ class Community {
     if (res.status !== 200) {
       throw new Error(`failed to create sales tracker`)
     }
+
+    const json = await res.json()
+    return json
   }
 
   public async getNFTCollections({

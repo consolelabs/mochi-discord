@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { getErrorEmbed, composeEmbedMessage } from "utils/discordEmbed"
 import community from "adapters/community"
 import { capFirst } from "utils/common"
 import { InvalidInputError } from "errors"
@@ -34,7 +34,25 @@ const command: Command = {
     const platform = args[4]
     const guildId = msg.guild.id
 
-    await community.createSalesTracker(addr, platform, guildId, channelArg)
+    const res = await community.createSalesTracker(
+      addr,
+      platform,
+      guildId,
+      channelArg
+    )
+    if (res.error) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description:
+                "Something went wrong! Please try again or contact administrators",
+            }),
+          ],
+        },
+      }
+    }
     return {
       messageOptions: {
         embeds: [
