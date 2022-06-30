@@ -21,7 +21,7 @@ const actions: Record<string, Command> = {
 const commands: Record<string, Command> = getAllAliases(actions)
 
 function getEmojiRarity(rarity: string) {
-  const rarities = ["common", "rare", "uncommon", "legendary", "mythic"]
+  const rarities = ["common", "rare", "uncommon", "legendary", "mythic", "epic"]
   rarity = !rarities.includes(rarity.toLowerCase()) ? "common" : rarity
   return (
     getEmoji(`${rarity}1`) + getEmoji(`${rarity}2`) + getEmoji(`${rarity}3`)

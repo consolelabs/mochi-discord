@@ -59,6 +59,10 @@ export const rarityEmojis: Record<string, string> = {
   MYTHIC1: "976765462748741673",
   MYTHIC2: "976765462786498590",
   MYTHIC3: "976765462845222964",
+
+  EPIC1: "992019141550682122",
+  EPIC2: "992019139738751096",
+  EPIC3: "992019137771602020",
 }
 
 export const defaultEmojis: Record<string, string> = {
