@@ -9,7 +9,7 @@ import {
 } from "discord.js"
 
 import { Command } from "types/common"
-import { DOT, VERTICAL_BAR } from "./constants"
+import { DOT, SPACE, VERTICAL_BAR } from "./constants"
 import { TopNFTTradingVolumeItem } from "types/community"
 import Defi from "adapters/defi"
 
@@ -40,25 +40,35 @@ export const numberEmojis: Record<string, string> = {
 }
 
 export const rarityEmojis: Record<string, string> = {
-  COMMON1: "976765463008776272",
-  COMMON2: "976765462559989811",
-  COMMON3: "976765462576771112",
+  COMMON1: "992087374144225300",
+  COMMON2: "992087372076429433",
+  COMMON3: "992087369647919225",
+  COMMON4: "992087369647919225",
 
-  RARE1: "976765462769713172",
-  RARE2: "976765462916497439",
-  RARE3: "976765462920720394",
+  UNCOMMON1: "992087334675808287",
+  UNCOMMON2: "992087366237966396",
+  UNCOMMON3: "992087364396654733",
+  UNCOMMON4: "992087361624232066",
 
-  UNCOMMON1: "976765462723579956",
-  UNCOMMON2: "976765463029760020",
-  UNCOMMON3: "976765463096852540",
+  RARE1: "992087358981799968",
+  RARE2: "992087357081800774",
+  RARE3: "992087355303411722",
+  RARE4: "992087353160114206",
 
-  LEGENDARY1: "976765462115401749",
-  LEGENDARY2: "976765462698410024",
-  LEGENDARY3: "976765462757117993",
+  EPIC1: "992019141550682122",
+  EPIC2: "992019139738751096",
+  EPIC3: "992019137771602020",
+  EPIC4: "992019353748910091",
 
-  MYTHIC1: "976765462748741673",
-  MYTHIC2: "976765462786498590",
-  MYTHIC3: "976765462845222964",
+  LEGENDARY1: "992087351188803674",
+  LEGENDARY2: "992087349003563028",
+  LEGENDARY3: "992087346646351882",
+  LEGENDARY4: "992087344779907082",
+
+  MYTHIC1: "992087342624014477",
+  MYTHIC2: "992087340480741397",
+  MYTHIC3: "992087338337456249",
+  MYTHIC4: "992087336621973566",
 }
 
 export const defaultEmojis: Record<string, string> = {
@@ -74,7 +84,7 @@ export const defaultEmojis: Record<string, string> = {
 
 export const marketplaceEmojis: Record<string, string> = {
   PAINTSWAP: "988744692625707008",
-  OPENSEA: "988748731857911878",
+  OPENSEA: "991957183522684948",
 }
 
 export const emojis: { [key: string]: string } = {
@@ -97,6 +107,7 @@ export const emojis: { [key: string]: string } = {
   COIN: "985243708419108914",
   MONEY: "985245648716697680",
   GAME: "916623575824338974",
+  HEART: "991939196405174442",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -267,4 +278,11 @@ export function sortNFTListByVolume(
   })
   nftList.sort((a, b) => (a.trading_volume > b.trading_volume ? -1 : 1))
   return nftList
+}
+
+export function capitalizeFirst(str: string) {
+  return str
+    .split(/ +/g)
+    .map((w) => `${w[0].toUpperCase()}${w.slice(1)}`)
+    .join(SPACE)
 }

@@ -65,6 +65,7 @@ export type EmbedProperties = {
   usage?: string
   examples?: string
   withoutFooter?: boolean
+  includeCommandsList?: boolean
 }
 
 export type Role = {

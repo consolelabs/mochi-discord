@@ -46,6 +46,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}whitelist <action>`,
       footer: [`Type ${PREFIX}help whitelist <action> for a specific action!`],
+      includeCommandsList: true,
     })
 
     return { embeds: [embed] }

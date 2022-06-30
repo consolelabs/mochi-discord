@@ -40,10 +40,17 @@ export const EMPTY_FIELD = {
  *
  * @return {string} Formatted string
  * */
-export function composeSimpleSelection(options: string[]): string {
+export function composeSimpleSelection(
+  options: string[],
+  customRender?: (o: string, i: number) => string
+): string {
   return `${options
     .slice(0, 8)
-    .map((o, i) => `${getEmoji(`num_${i + 1}`)} ${VERTICAL_BAR} ${o}`)
+    .map((o, i) =>
+      customRender
+        ? customRender(o, i)
+        : `${getEmoji(`num_${i + 1}`)} ${VERTICAL_BAR} ${o}`
+    )
     .join("\n")}`
 }
 
@@ -55,6 +62,17 @@ export function composeDiscordSelectionRow(
   )
 
   return row
+}
+
+export function composeNameDescriptionList(
+  list: Array<{ name: string; description: string }>
+) {
+  const emoji = getEmoji("reply")
+  return list
+    .map(
+      (c) => `[**${c.name}**](https://getmochi.co)\n${emoji}${c.description}`
+    )
+    .join("\n\n")
 }
 
 export function getExitButton(authorId: string, label?: string) {
@@ -116,16 +134,13 @@ export function composeEmbedMessage(
     usage,
     examples,
     withoutFooter,
+    includeCommandsList,
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
   const isSpecificHelpCommand = specificHelpCommand(msg)
 
-  const hasActions =
-    commandObj?.actions && Object.keys(commandObj.actions).length !== 0
-
-  // display only when this is help msg of top-level command
-  if (hasActions && isSpecificHelpCommand && !actionObj) {
+  if (includeCommandsList) {
     description += `\n\n${getCommandsList(
       getEmoji("reply" ?? "╰ "),
       commandObj.actions

@@ -1350,6 +1350,18 @@
   dependencies:
     "@types/koa" "*"
 
+"@types/lodash.chunk@^4.2.7":
+  version "4.2.7"
+  resolved "https://registry.yarnpkg.com/@types/lodash.chunk/-/lodash.chunk-4.2.7.tgz#df52478072f0673d9fe8d3dd43af8f490d07a56a"
+  integrity sha512-//tmaWHiANgToom/YYYKKqiCtlNz11fwYtMUUbaemNSbWTI+2zHtYW5nt1PHNCRWHPAJHHhn4UVFD9LKUFvatA==
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*":
+  version "4.14.182"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.182.tgz#05301a4d5e62963227eaafe0ce04dd77c54ea5c2"
+  integrity sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==
+
 "@types/luxon@*":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-2.3.2.tgz#8a3f2cdd4858ce698b56cd8597d9243b8e9d3c65"
@@ -4086,6 +4098,11 @@ https-proxy-agent@^5.0.0:
     agent-base "6"
     debug "4"
 
+human-id@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/human-id/-/human-id-4.0.0.tgz#827426125ffd7d8e290b1f1a62a09bca61e2d169"
+  integrity sha512-pui0xZRgeAlaRt0I9r8N2pNlbNmluvn71EfjKRpM7jOpZbuHe5mm76r67gcprjw/Nd+GpvB9C3OlTbh7ZKLg7A==
+
 human-signals@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/human-signals/-/human-signals-2.1.0.tgz"
@@ -5270,6 +5287,11 @@ locate-path@^5.0.0:
   integrity sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==
   dependencies:
     p-locate "^4.1.0"
+
+lodash.chunk@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/lodash.chunk/-/lodash.chunk-4.2.0.tgz#66e5ce1f76ed27b4303d8c6512e8d1216e8106bc"
+  integrity sha512-ZzydJKfUHJwHa+hF5X66zLFCBrWn5GeF28OHEr4WVWtNDXlQ/IjWKPBiikqKo2ne0+v6JgCgJ0GzJp8k8bHC7w==
 
 lodash.includes@^4.3.0:
   version "4.3.0"
@@ -7200,11 +7222,12 @@ tree-kill@^1.2.2:
   resolved "https://registry.npmjs.org/tree-kill/-/tree-kill-1.2.2.tgz"
   integrity sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==
 
-triple-pod-game-engine@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/triple-pod-game-engine/-/triple-pod-game-engine-2.0.2.tgz#996fab8fd2d33b35b133595bb1469ba72bc1cdf8"
-  integrity sha512-ynIjV4nLuwP9N9sgIAZD7I+nNvwgYAXksC6TyoSjwi2IZR0NUD91ltCMrP2r7qtGBugmf8rYbAb6tf47Q2q/kw==
+triple-pod-game-engine@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/triple-pod-game-engine/-/triple-pod-game-engine-2.2.0.tgz#3f321b338e5ad55c53f86e293a45dfae819e2bd6"
+  integrity sha512-lReWfDxgQ817J5w23I+MiUVv8s/4FPH4Jo2Gx/QfygPt0cmg1aQ5WNdkuhlwxJ3O5ksu6mseNuuu8n+nRaYE4w==
   dependencies:
+    human-id "^4.0.0"
     prando "^6.0.1"
 
 ts-case-convert@^2.0.2:

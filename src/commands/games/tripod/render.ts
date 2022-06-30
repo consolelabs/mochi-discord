@@ -13,6 +13,7 @@ import {
 import { RectangleStats } from "types/canvas"
 import { drawRectangle, fillWrappedText, heightOf, widthOf } from "utils/canvas"
 import { composeSimpleSelection } from "utils/discordEmbed"
+import { mappings } from "./mappings"
 
 const container: RectangleStats = {
   x: {
@@ -29,121 +30,6 @@ const container: RectangleStats = {
   pl: 0,
   radius: 0,
   bgColor: "rgba(255, 255, 255, 1)",
-}
-
-const mappings: Record<PieceEnum, { name: string; image: string }> = {
-  [PieceEnum.EMPTY]: {
-    name: "Empty",
-    image: "empty.png",
-  },
-  [PieceEnum.GRASS]: {
-    name: "Grass",
-    image: "grass.png",
-  },
-  [PieceEnum.BUSH]: {
-    name: "Bush",
-    image: "bush.png",
-  },
-  [PieceEnum.SUPER_BUSH]: {
-    name: "Cyber Bush",
-    image: "cyber-bush.png",
-  },
-  [PieceEnum.TREE]: {
-    name: "Tree",
-    image: "tree.png",
-  },
-  [PieceEnum.SUPER_TREE]: {
-    name: "Cyber Tree",
-    image: "cyber-tree.png",
-  },
-  [PieceEnum.HUT]: {
-    name: "hut",
-    image: "hut.png",
-  },
-  [PieceEnum.SUPER_HUT]: {
-    name: "Cyber Hut",
-    image: "cyber-hut.png",
-  },
-  [PieceEnum.HOUSE]: {
-    name: "House",
-    image: "pod.png",
-  },
-  [PieceEnum.SUPER_HOUSE]: {
-    name: "Cyber House",
-    image: "cyber-pod.png",
-  },
-  [PieceEnum.MANSION]: {
-    name: "Condo",
-    image: "condo.png",
-  },
-  [PieceEnum.SUPER_MANSION]: {
-    name: "Cyber Condo",
-    image: "cyber-condo.png",
-  },
-  [PieceEnum.CASTLE]: {
-    name: "Apartment",
-    image: "apartment.png",
-  },
-  [PieceEnum.SUPER_CASTLE]: {
-    name: "Cyber Apartment",
-    image: "cyber-apartment.png",
-  },
-  [PieceEnum.FLOATING_CASTLE]: {
-    name: "Tower",
-    image: "tower.png",
-  },
-  [PieceEnum.SUPER_FLOATING_CASTLE]: {
-    name: "Cyber Tower",
-    image: "cyber-tower.png",
-  },
-  [PieceEnum.TRIPLE_CASTLE]: {
-    name: "Fortress",
-    image: "fortress.png",
-  },
-  [PieceEnum.BEAR]: {
-    name: "Droid",
-    image: "droid.png",
-  },
-  [PieceEnum.NINJA_BEAR]: {
-    name: "Rocket Droid",
-    image: "rocket-droid.png",
-  },
-  [PieceEnum.TOMB]: {
-    name: "Shard",
-    image: "shard.png",
-  },
-  [PieceEnum.CHURCH]: {
-    name: "Gem",
-    image: "gem.png",
-  },
-  [PieceEnum.CATHEDRAL]: {
-    name: "Crystal",
-    image: "crystal.png",
-  },
-  [PieceEnum.CRYSTAL]: {
-    name: "Slime",
-    image: "slime.png",
-  },
-  [PieceEnum.ROCK]: {
-    name: "Marble Piece",
-    image: "marble-piece.png",
-  },
-  [PieceEnum.MOUNTAIN]: {
-    name: "Marble Chunk",
-    image: "marble-chunk.png",
-  },
-  [PieceEnum.TREASURE]: {
-    name: "Chest",
-    image: "chest.png",
-  },
-  [PieceEnum.LARGE_TREASURE]: {
-    name: "Cyber Chest",
-    image: "cyber-chest.png",
-  },
-  [PieceEnum.ROBOT]: {
-    name: "Bomb",
-    image: "bomb.png",
-  },
 }
 
 const images: Partial<Record<PieceEnum, Image>> = {}
@@ -175,9 +61,11 @@ export async function toCanvas(game: Game) {
   const ctx = canvas.getContext("2d")
   drawRectangle(ctx, container, container.bgColor)
   if (!background) {
-    background = await loadImage("src/assets/triple-town/background.jpeg")
+    background = await loadImage("src/assets/triple-town/background.jpg")
   }
-  ctx.drawImage(background, 0, 200, 1300, 1300)
+  ctx.drawImage(background, 0, 0, container.w, container.h)
+
+  const boardPadding = 60
 
   new Array(6)
     .fill(200)
@@ -187,8 +75,8 @@ export async function toCanvas(game: Game) {
       if (i !== 5) {
         ctx.strokeStyle = "#a1a1a1"
         ctx.beginPath()
-        ctx.moveTo(t + 50, 250)
-        ctx.lineTo(t + 50, container.h - 50)
+        ctx.moveTo(t + boardPadding, 200 + boardPadding)
+        ctx.lineTo(t + boardPadding, container.h - boardPadding)
         ctx.stroke()
         ctx.closePath()
         ctx.save()
@@ -197,8 +85,8 @@ export async function toCanvas(game: Game) {
       // horizontal
       if (i !== 0) {
         ctx.beginPath()
-        ctx.moveTo(50, t + 50)
-        ctx.lineTo(container.w - 50, t + 50)
+        ctx.moveTo(boardPadding, t + boardPadding)
+        ctx.lineTo(container.w - boardPadding, t + boardPadding)
         ctx.stroke()
         ctx.closePath()
         ctx.save()
@@ -206,37 +94,45 @@ export async function toCanvas(game: Game) {
     })
 
   ctx.font = "80px Arial"
-  ctx.fillStyle = "#000"
+  ctx.fillStyle = "#ffffff"
   const name = mappings[game.state.currentPiece.id].name
   const widthOfText = widthOf(ctx, name)
   const heightOfText = heightOf(ctx, name)
-  const start = 600 - (widthOfText + 300) / 2
+  const start = 600 - (widthOfText + 200) / 2
 
-  ctx.drawImage(images[game.state.currentPiece.id], start, 0, 200, 200)
+  ctx.drawImage(images[game.state.currentPiece.id], start, 25, 200, 200)
   ctx.fillText(
     name,
     start + 200,
-    heightOfText + (100 - heightOfText / 2),
+    heightOfText + (125 - heightOfText / 2),
     widthOfText
   )
 
+  // highlight last move's position
+  const lastMove = game.history.reverse().find((m) => m.type === "put")
+  if (lastMove?.type === "put") {
+    const { x, y } = lastMove
+    ctx.fillStyle = "rgba(251, 97, 73, 0.4)"
+    ctx.fillRect(x * 200 + boardPadding, y * 200 + 200 + boardPadding, 200, 200)
+  }
+
   game.state.board.forEach((row, i) => {
     row.forEach((cell, j) => {
+      let image = images[cell.id]
       if (i === 0 && j === 0) {
-        ctx.drawImage(
-          images[game.state.swapPiece?.id ?? empty.id],
-          j * 200 + 50,
-          i * 200 + 250,
-          200,
-          200
-        )
-      } else {
-        ctx.drawImage(images[cell.id], j * 200 + 50, i * 200 + 250, 200, 200)
+        image = images[game.state.swapPiece?.id ?? empty.id]
       }
+      ctx.drawImage(
+        image,
+        j * 200 + boardPadding,
+        i * 200 + 200 + boardPadding,
+        200,
+        200
+      )
     })
   })
 
-  ctx.font = "70px Arial"
+  ctx.font = "50px Arial"
   ctx.fillStyle = "rgba(255, 255, 255, 0.2)"
 
   const texts = ["a", "b", "c", "d", "e", "f"]
@@ -247,7 +143,7 @@ export async function toCanvas(game: Game) {
       fillWrappedText(
         ctx,
         text,
-        240 - widthOf(ctx, text),
+        180 + boardPadding - widthOf(ctx, text),
         1310 - heightOf(ctx, text),
         widthOf(ctx, text)
       )
@@ -256,7 +152,7 @@ export async function toCanvas(game: Game) {
       fillWrappedText(
         ctx,
         text,
-        240 - widthOf(ctx, text),
+        180 + boardPadding - widthOf(ctx, text),
         1310 - i * 200 - heightOf(ctx, text),
         widthOf(ctx, text)
       )
@@ -265,11 +161,12 @@ export async function toCanvas(game: Game) {
       fillWrappedText(
         ctx,
         text,
-        240 + i * 200 - widthOf(ctx, text),
+        180 + boardPadding + i * 200 - widthOf(ctx, text),
         1310 - heightOf(ctx, text),
         widthOf(ctx, text)
       )
     }
   }
+
   return new MessageAttachment(canvas.toBuffer(), "board.png")
 }

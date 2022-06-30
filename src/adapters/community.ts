@@ -259,7 +259,7 @@ class Community {
 
   public async getNFTCollectionDetail(collectionSymbol: string) {
     const res = await fetch(
-      `${API_BASE_URL}/nfts/collections/detail?collectionSymbol=${collectionSymbol}`,
+      `${API_BASE_URL}/nfts/collections/${collectionSymbol}/detail`,
       {
         method: "GET",
         headers: {
@@ -301,11 +301,17 @@ class Community {
     return json.data
   }
 
-  public async createSalesTracker(addr: string, plat: string, guildId: string) {
+  public async createSalesTracker(
+    addr: string,
+    plat: string,
+    guildId: string,
+    channelId: string
+  ) {
     const res = await fetch(`${API_BASE_URL}/nfts/sales-tracker`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        channel_id: channelId,
         contract_address: addr,
         platform: plat,
         guild_id: guildId,
@@ -314,6 +320,9 @@ class Community {
     if (res.status !== 200) {
       throw new Error(`failed to create sales tracker`)
     }
+
+    const json = await res.json()
+    return json
   }
 
   public async getNFTCollections({

@@ -5,9 +5,12 @@ import { Game } from "triple-pod-game-engine"
 import { renderShop, shop, toCanvas } from "./render"
 import { Message } from "discord.js"
 import GameSessionManager from "utils/GameSessionManager"
-import { achievements } from "./achievements"
+import ach, { achievements } from "./achievements"
+import quest from "./quest"
+import profile from "./profile"
 import { GAME_TESTSITE_CHANNEL_ID } from "env"
 import { normalizePosition } from "./helpers"
+import { getAllAliases } from "utils/commands"
 
 export async function handlePlayTripod(msg: Message) {
   if (msg.channelId === GAME_TESTSITE_CHANNEL_ID) {
@@ -40,12 +43,7 @@ export async function handlePlayTripod(msg: Message) {
           validMsg = true
         }
         if (validMsg) {
-          Object.entries(achievements.turn).forEach(([achName, achCheck]) => {
-            if (achCheck(game.state.combos)) {
-              msg.channel.send(`Achievement unlocked: \`${achName}\``)
-            }
-          })
-          await msg.channel.send({
+          const reply = await msg.reply({
             embeds: [
               {
                 title: `Points: ${game.state.points}`,
@@ -55,15 +53,20 @@ export async function handlePlayTripod(msg: Message) {
             ],
             files: [await toCanvas(game)],
           })
+          Object.entries(achievements.turn).forEach(([achName, achDetail]) => {
+            if (achDetail.check(game)) {
+              reply.reply(`Achievement unlocked: \`${achName}\``)
+            }
+          })
           if (game.done) {
-            msg.channel.send("Game end")
             Object.entries(achievements.session).forEach(
-              ([achName, achCheck]) => {
-                if (achCheck(game.state.history)) {
-                  msg.channel.send(`Achievement unlocked: \`${achName}\``)
+              ([achName, achDetail]) => {
+                if (achDetail.check(game)) {
+                  reply.reply(`Achievement unlocked: \`${achName}\``)
                 }
               }
             )
+            msg.channel.send("Game end")
           }
         }
       }
@@ -71,14 +74,26 @@ export async function handlePlayTripod(msg: Message) {
   }
 }
 
+const actions: Record<string, Command> = {
+  ach,
+  daily: quest,
+  profile,
+}
+const commands: Record<string, Command> = getAllAliases(actions)
+
 const command: Command = {
   id: "tripod",
   command: "tripod",
   brief: "Triple Town",
   category: "Game",
   colorType: "Game",
-  run: async function (msg) {
+  run: async function (msg, action) {
     if (msg.channel.id === GAME_TESTSITE_CHANNEL_ID) {
+      const actionObj = commands[action]
+      if (actionObj) {
+        return actionObj.run(msg)
+      }
+
       const session = GameSessionManager.getSession(msg.author)
       if (!session) {
         const game = new Game()
@@ -112,8 +127,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          examples: `${PREFIX}tripod @hnh`,
-          usage: `${PREFIX}tripod <@user>`,
+          examples: `${PREFIX}tripod`,
+          usage: `${PREFIX}tripod`,
         }),
       ],
     }
