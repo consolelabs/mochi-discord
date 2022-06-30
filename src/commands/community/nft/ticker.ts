@@ -21,7 +21,9 @@ async function composeCollectionInfo(msg: Message, data: any) {
     change7d,
     name,
     collection_image,
+    marketplaces,
   } = data
+
   const PriceChange = {
     change1h:
       change1h <= 0
@@ -36,54 +38,47 @@ async function composeCollectionInfo(msg: Message, data: any) {
         ? `${defaultEmojis.CHART_WITH_DOWNWARDS_TREND} ${change7d}`
         : `${defaultEmojis.CHART_WITH_UPWARDS_TREND} +${change7d}`,
   }
+
   const fields = [
     {
       name: "Chain",
       value: `${chain}${blank}`,
     },
     {
-      name: `${blank}Item`,
-      value: `${blank}${item}${blank}`,
-    },
-    {
-      name: "\u200b",
-      value: "\u200b" + `${blank}`,
+      name: "Item",
+      value: `${item}${blank}`,
     },
     {
       name: "Owner",
       value: `${owner}${blank}`,
     },
     {
-      name: `${blank}Volume`,
-      value: `${blank}${volume}${blank}`,
-    },
-    {
-      name: "\u200b",
-      value: "\u200b" + `${blank}`,
+      name: "Volume",
+      value: `${volume}${blank}`,
     },
     {
       name: "Floor price",
       value: `${floor_price * 1000}${blank}`,
     },
     {
-      name: `${blank}Last price`,
-      value: `${blank}${last_price * 1000}${blank}`,
-    },
-    {
-      name: "\u200b",
-      value: "\u200b" + `${blank}`,
+      name: "Last price",
+      value: `${last_price * 1000}${blank}`,
     },
     {
       name: "Change (1h)",
       value: `${PriceChange.change1h}${blank}`,
     },
     {
-      name: `${blank}Change (24h)`,
-      value: `${blank}${PriceChange.change24h}${blank}`,
+      name: "Change (24h)",
+      value: `${PriceChange.change24h}${blank}`,
     },
     {
-      name: `${blank}Change (7d)`,
-      value: `${blank}${PriceChange.change7d}${blank}`,
+      name: "Change (7d)",
+      value: `${PriceChange.change7d}${blank}`,
+    },
+    {
+      name: "Marketplace",
+      value: `${marketplaces.map((m: string) => getEmoji(m)).join(" ")}`,
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
@@ -91,7 +86,7 @@ async function composeCollectionInfo(msg: Message, data: any) {
   }))
 
   const embed = composeEmbedMessage(msg, {
-    title: `${getEmoji("cup")} NFT Collection`,
+    title: `${getEmoji("heart")} NFT Collection`,
     description: `[${name}](https://google.com.vn)`,
     image: "attachment://chart.png",
     thumbnail: collection_image,
@@ -122,6 +117,7 @@ const command: Command = {
       item: "6.97K",
       collection_image:
         "https://lh3.googleusercontent.com/lP0ywqisBVutTJZ_Uuhe7JFqvticZjRypfQh4CpXwcljxM_JlO0jT-4-LRil18KPHidXm9slLkTDta1XRC5HAg2IVhwCVohdNF3odQ",
+      marketplaces: ["Opensea", "Paintswap"],
       ...res,
     }
     const { prices, times } = data.tickers
