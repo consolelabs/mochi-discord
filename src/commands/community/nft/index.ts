@@ -7,7 +7,7 @@ import add from "./add"
 import ticker from "./ticker"
 import volume from "./top"
 import list from "./list"
-
+import newListed from "./newListed"
 import community from "adapters/community"
 import { getEmoji } from "utils/common"
 
@@ -16,6 +16,7 @@ const actions: Record<string, Command> = {
   volume,
   ticker,
   list,
+  newListed,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 

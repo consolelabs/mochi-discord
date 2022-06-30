@@ -342,6 +342,32 @@ class Community {
     return json.data
   }
 
+  public async getCurrentNFTCollections({
+    page = 0,
+    size = 10,
+  }: {
+    page?: number
+    size?: number
+  }) {
+    const res = await fetch(
+      `${API_BASE_URL}/nfts/new-listed?interval=7&page=${page}&size=${size}`,
+      {
+        method: "GET",
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to get NFT collections page ${page} of ${size} items`
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
+  }
+
   public async giftXp(req: {
     admin_discord_id: string
     user_discord_id: string
