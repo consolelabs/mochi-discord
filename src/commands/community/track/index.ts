@@ -34,8 +34,9 @@ const command: Command = {
       return actionObj.getHelpMessage(msg)
     }
     const embed = composeEmbedMessage(msg, {
-      usage: `${PREFIX}track <action>`,
-      footer: [`Type ${PREFIX}help track <action> for a specific action!`],
+      usage: `${PREFIX}sales <action>`,
+      footer: [`Type ${PREFIX}help sale <action> for a specific action!`],
+      includeCommandsList: true,
     })
 
     return { embeds: [embed] }
