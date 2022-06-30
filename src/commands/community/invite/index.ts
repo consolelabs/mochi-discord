@@ -48,6 +48,7 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
+          includeCommandsList: true,
         }),
       ],
     }

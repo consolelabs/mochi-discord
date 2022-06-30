@@ -86,6 +86,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}lr <role> <level>`,
           examples: `${PREFIX}lr @Mochi 1`,
+          includeCommandsList: true,
         }),
       ],
     }

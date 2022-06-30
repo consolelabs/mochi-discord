@@ -61,6 +61,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           thumbnail: thumbnails.TOKENS,
           usage: `${PREFIX}tokens`,
+          includeCommandsList: true,
         }),
       ],
     }

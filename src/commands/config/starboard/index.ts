@@ -37,6 +37,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}sb <action>`,
       footer: [`Type ${PREFIX}help sb <action> for a specific action!`],
+      includeCommandsList: true,
     })
 
     return { embeds: [embed] }
