@@ -60,7 +60,7 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
       names: [
         ...acc.names,
         `#${++i + page * size}. ${cur.name} ${getEmoji(
-          cur.chain?.currency
+          cur.chain?.currency ?? ""
         )}${blank}`,
       ],
       symbols: [...acc.symbols, `${cur.symbol}${blank}`],
