@@ -9,7 +9,7 @@ import {
 } from "discord.js"
 
 import { Command } from "types/common"
-import { DOT, VERTICAL_BAR } from "./constants"
+import { DOT, SPACE, VERTICAL_BAR } from "./constants"
 import { TopNFTTradingVolumeItem } from "types/community"
 import Defi from "adapters/defi"
 
@@ -63,6 +63,7 @@ export const rarityEmojis: Record<string, string> = {
   EPIC1: "992019141550682122",
   EPIC2: "992019139738751096",
   EPIC3: "992019137771602020",
+  EPIC4: "992019353748910091",
 }
 
 export const defaultEmojis: Record<string, string> = {
@@ -272,4 +273,11 @@ export function sortNFTListByVolume(
   })
   nftList.sort((a, b) => (a.trading_volume > b.trading_volume ? -1 : 1))
   return nftList
+}
+
+export function capitalizeFirst(str: string) {
+  return str
+    .split(/ +/g)
+    .map((w) => `${w[0].toUpperCase()}${w.slice(1)}`)
+    .join(SPACE)
 }

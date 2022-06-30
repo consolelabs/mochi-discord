@@ -134,16 +134,13 @@ export function composeEmbedMessage(
     usage,
     examples,
     withoutFooter,
+    includeCommandsList,
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
   const isSpecificHelpCommand = specificHelpCommand(msg)
 
-  const hasActions =
-    commandObj?.actions && Object.keys(commandObj.actions).length !== 0
-
-  // display only when this is help msg of top-level command
-  if (hasActions && isSpecificHelpCommand && !actionObj) {
+  if (includeCommandsList) {
     description += `\n\n${getCommandsList(
       getEmoji("reply" ?? "╰ "),
       commandObj.actions
