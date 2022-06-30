@@ -29,20 +29,16 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
 
   const blank = getEmoji("blank")
   const { names, symbols } = data.reduce(
-    (acc: any, cur: any, i: number) => ({
+    (acc: any, cur: any) => ({
       names: [
         ...acc.names,
-        `#${++i + page * size}. ${cur.name} ${getEmoji(
-          cur.chain?.currency ?? ""
-        )}${blank}`,
+        `${getEmoji(cur.chain?.currency ?? "")} ${cur.name}${blank}`,
       ],
       symbols: [...acc.symbols, `${cur.symbol}${blank}`],
-      // chains: [...acc.chains, cur.chain?.name ?? "TBD"],
     }),
     {
       names: [],
       symbols: [],
-      // chains: [],
     }
   )
 
@@ -58,7 +54,6 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
       Array(names.length).fill(`[View](https://getmochi.co)`).join("\n"),
       true
     )
-  // .addField("Chain", chains.join("\n"), true)
 
   return {
     messageOptions: {
