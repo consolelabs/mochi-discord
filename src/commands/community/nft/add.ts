@@ -5,6 +5,7 @@ import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
+import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 
 async function executeNftAddCommand(args: string[], msg: Message) {
   const address = args[2]
@@ -43,6 +44,26 @@ async function executeNftAddCommand(args: string[], msg: Message) {
       )
     default:
       if (
+        errorMessageCollection.includes(
+          "Cannot get name and symbol of contract: This collection does not support collection name"
+        )
+      ) {
+        return buildDiscordMessage(
+          msg,
+          "NFT",
+          "This collection does not support collection name."
+        )
+      } else if (
+        errorMessageCollection.includes(
+          "Cannot get name and symbol of contract: This collection does not support collection symbol"
+        )
+      ) {
+        return buildDiscordMessage(
+          msg,
+          "NFT",
+          "This collection does not support collection symbol."
+        )
+      } else if (
         errorMessageCollection.includes(
           "Already added. Nft is in sync progress"
         )
@@ -120,6 +141,16 @@ const command: Command = {
   category: "Community",
   run: async function (msg) {
     const args = getCommandArguments(msg)
+    // case add markeplacelink
+    // $nft add https://opensea.io/collection/cryptodickbutts-s3
+    if (args.length == 3) {
+      if (CheckMarketplaceLink(args[2])) {
+        const platform = SplitMarketplaceLink(args[2])
+        args.push(platform)
+      } else {
+        return { messageOptions: await this.getHelpMessage(msg) }
+      }
+    }
 
     if (args.length < 4 && args.length >= 2) {
       return { messageOptions: await this.getHelpMessage(msg) }
