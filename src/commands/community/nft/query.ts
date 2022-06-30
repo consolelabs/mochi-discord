@@ -7,12 +7,12 @@ import community from "adapters/community"
 import { capitalizeFirst, getEmoji } from "utils/common"
 
 const rarityColors: Record<string, string> = {
-  COMMON: "#716757",
-  UNCOMMON: "#268f7c",
-  RARE: "#3b73b7",
-  EPIC: "#8502d6",
-  MYTHIC: "#762c90",
-  LEGENDARY: "#b08d24",
+  COMMON: "#939393",
+  UNCOMMON: "#22d489",
+  RARE: "#02b3ff",
+  EPIC: "#9802f6",
+  LEGENDARY: "#ff8001",
+  MYTHIC: "#ed2939",
 }
 
 function getRarityEmoji(rarity: string) {
