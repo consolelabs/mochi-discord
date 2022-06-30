@@ -259,7 +259,7 @@ class Community {
 
   public async getNFTCollectionDetail(collectionSymbol: string) {
     const res = await fetch(
-      `${API_BASE_URL}/nfts/collections/detail?collectionSymbol=${collectionSymbol}`,
+      `${API_BASE_URL}/nfts/collections/${collectionSymbol}/detail`,
       {
         method: "GET",
         headers: {
