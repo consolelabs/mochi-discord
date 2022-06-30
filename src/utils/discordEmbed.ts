@@ -229,7 +229,7 @@ export async function renderPaginator(msg: Message, pages: MessageEmbed[]) {
     .setStyle("SECONDARY")
   const backwardBtn = new MessageButton()
     .setCustomId("BACKWARD_BTN")
-    .setLabel("Back")
+    .setLabel("Previous")
     .setStyle("SECONDARY")
   const row = new MessageActionRow().addComponents([backwardBtn, forwardBtn])
 
@@ -265,7 +265,7 @@ export function getPaginationRow(page: number, totalPage: number) {
       new MessageButton({
         type: MessageComponentTypes.BUTTON,
         style: MessageButtonStyles.PRIMARY,
-        label: "Back",
+        label: "Previous",
         customId: `page_${page}_-_${totalPage}`,
       })
     )
