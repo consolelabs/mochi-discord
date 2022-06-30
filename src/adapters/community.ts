@@ -301,11 +301,17 @@ class Community {
     return json.data
   }
 
-  public async createSalesTracker(addr: string, plat: string, guildId: string) {
+  public async createSalesTracker(
+    addr: string,
+    plat: string,
+    guildId: string,
+    channelId: string
+  ) {
     const res = await fetch(`${API_BASE_URL}/nfts/sales-tracker`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        channel_id: channelId,
         contract_address: addr,
         platform: plat,
         guild_id: guildId,

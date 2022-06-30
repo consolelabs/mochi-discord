@@ -1,18 +1,21 @@
-import { InvalidInputError } from "errors"
 import { Command } from "types/common"
-import { getEmoji } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import Config from "../../../adapters/config"
+import community from "adapters/community"
+import { capFirst } from "utils/common"
+import { InvalidInputError } from "errors"
 
 const command: Command = {
-  id: "sales_config",
-  command: "config",
-  brief: "Configure sales channel",
+  id: "track_sales",
+  command: "sales",
+  brief: "Set a tracker for an NFT",
   category: "Community",
-  run: async (msg) => {
+  run: async function (msg) {
     const args = getCommandArguments(msg)
+    if (args.length != 5) {
+      return { messageOptions: await this.getHelpMessage(msg) }
+    }
     const channelArg = args[2]
     if (
       !channelArg ||
@@ -27,15 +30,18 @@ const command: Command = {
       .fetch(channelId)
       .catch(() => undefined)
     if (!chan) throw new InvalidInputError({ message: msg })
+    const addr = args[3]
+    const platform = args[4]
+    const guildId = msg.guild.id
 
-    await Config.updateSalesConfig(msg.guildId, channelId)
+    await community.createSalesTracker(addr, platform, guildId, channelArg)
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            description: `Successfully configure ${channelArg} as sales update channel ${getEmoji(
-              "star"
-            )}`,
+            description: `Successfully configure ${channelArg} as sales update channel. Tracked contract address ${addr} on platform ${capFirst(
+              platform
+            )}.`,
           }),
         ],
       },
@@ -44,13 +50,12 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}sales config <channel>`,
-        examples: `${PREFIX}sales config #general`,
+        usage: `${PREFIX}track sales <channel> <address> <chain_id>`,
+        examples: `${PREFIX}track sales #general 0x33910F98642914A3CB0dB10f0 250`,
       }),
     ],
   }),
   canRunWithoutAction: true,
-  aliases: ["cfg"],
   colorType: "Marketplace",
 }
 
