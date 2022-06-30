@@ -74,7 +74,7 @@ export const defaultEmojis: Record<string, string> = {
 
 export const marketplaceEmojis: Record<string, string> = {
   PAINTSWAP: "988744692625707008",
-  OPENSEA: "988748731857911878",
+  OPENSEA: "991957183522684948",
 }
 
 export const emojis: { [key: string]: string } = {
@@ -97,6 +97,7 @@ export const emojis: { [key: string]: string } = {
   COIN: "985243708419108914",
   MONEY: "985245648716697680",
   GAME: "916623575824338974",
+  HEART: "991939196405174442",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
