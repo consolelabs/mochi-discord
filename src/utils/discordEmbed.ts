@@ -281,3 +281,37 @@ export function getPaginationRow(page: number, totalPage: number) {
   }
   return [actionRow]
 }
+
+export function listenForPaginateAction(
+  replyMsg: Message,
+  originalMsg: Message,
+  render: (
+    msg: Message,
+    pageIdx: number
+  ) => Promise<{ messageOptions: MessageOptions }>
+) {
+  const operators: Record<string, number> = {
+    "+": 1,
+    "-": -1,
+  }
+  replyMsg
+    .createMessageComponentCollector({
+      componentType: MessageComponentTypes.BUTTON,
+      idle: 60000,
+    })
+    .on("collect", async (i) => {
+      await i.deferUpdate()
+      const [pageStr, opStr, totalPage] = i.customId.split("_").slice(1)
+      const page = +pageStr + operators[opStr]
+      const {
+        messageOptions: { embeds },
+      } = await render(originalMsg, page)
+      await replyMsg.edit({
+        embeds,
+        components: getPaginationRow(page, +totalPage),
+      })
+    })
+    .on("end", () => {
+      replyMsg.edit({ components: [] })
+    })
+}
