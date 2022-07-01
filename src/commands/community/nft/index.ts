@@ -6,7 +6,7 @@ import add from "./add"
 import ticker from "./ticker"
 import volume from "./top"
 import list from "./list"
-import newListed from "./newListed"
+import recent from "./recent"
 import query from "./query"
 
 const actions: Record<string, Command> = {
@@ -14,7 +14,7 @@ const actions: Record<string, Command> = {
   volume,
   ticker,
   list,
-  newListed,
+  recent,
 }
 const commands: Record<string, Command> = getAllAliases(actions)
 

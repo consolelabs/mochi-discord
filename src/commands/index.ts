@@ -1,5 +1,4 @@
 import { Message } from "discord.js"
-import { PREFIX } from "utils/constants"
 import { logger } from "../logger"
 import help from "./help"
 import invite from "./community/invite"
@@ -13,7 +12,11 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/token"
-import { getActionCommand, getAllAliases } from "utils/commands"
+import {
+  getActionCommand,
+  getAllAliases,
+  getCommandMetadata,
+} from "utils/commands"
 import { specificHelpCommand } from "utils/commands"
 import config from "../adapters/config"
 import {
@@ -142,9 +145,7 @@ async function executeCommand(
 export default async function handlePrefixedCommand(message: Message) {
   const args = getCommandArguments(message)
   const isSpecificHelpCommand = specificHelpCommand(message)
-  const [commandKey, action] = !isSpecificHelpCommand
-    ? [args[0].slice(PREFIX.length), args[1]] // e.g. $invite leaderboard
-    : [args[1], args[2]] // e.g. $help invite leaderboard
+  const { commandKey, action } = getCommandMetadata(message)
   const commandObject = commands[commandKey]
 
   logger.info(

@@ -1,15 +1,16 @@
 import { Message } from "discord.js"
 
 import { Command } from "types/common"
-import { HELP_CMD, PREFIX, SPACE } from "./constants"
+import { HELP, HELP_CMD, PREFIX, SPACE } from "./constants"
 import { commands } from "commands"
 
 export const getCommandArguments = (message: Message) =>
-  message ? message.content.split(SPACE) : []
+  message?.content?.split(SPACE) ?? []
 
-export const specificHelpCommand = (message: Message) =>
-  message?.content?.startsWith(HELP_CMD) &&
-  getCommandArguments(message).length > 1
+export const specificHelpCommand = (message: Message) => {
+  const args = getCommandArguments(message)
+  return args.length > 1 && (args[0] === HELP_CMD || args[1] === HELP)
+}
 
 export const getAllAliases = (
   commands: Record<string, Command>
@@ -34,28 +35,14 @@ export const getAllAliases = (
 export const getCommandObject = (msg: Message): Command => {
   const args = getCommandArguments(msg)
   if (!args.length) return null
-  const key = specificHelpCommand(msg) ? args[1] : args[0].slice(PREFIX.length)
-  return commands[key]
+  const { commandKey } = getCommandMetadata(msg)
+  return commands[commandKey]
 }
 
 export const getActionCommand = (msg: Message): Command => {
   const args = getCommandArguments(msg)
   if (!args.length) return null
-  let action: string, key: string
-  switch (true) {
-    case specificHelpCommand(msg) && args.length >= 3:
-      key = args[1]
-      action = args[2]
-      break
-    case !specificHelpCommand(msg) && args.length >= 2:
-      key = args[0].slice(PREFIX.length)
-      action = args[1]
-      break
-    default:
-      key = null
-      action = null
-      break
-  }
+  const { commandKey: key, action } = getCommandMetadata(msg)
 
   if (!key || !action || !commands[key].actions) return null
   const actions = Object.entries(commands[key].actions).filter(
@@ -64,4 +51,26 @@ export const getActionCommand = (msg: Message): Command => {
   )
   if (!actions.length) return null
   return actions[0][1]
+}
+
+export const getCommandMetadata = (msg: Message) => {
+  if (!msg?.content) return {}
+  const args = getCommandArguments(msg)
+  const isSpecificHelpCommand = specificHelpCommand(msg)
+  let commandKey, action
+  switch (true) {
+    case isSpecificHelpCommand && args[0] === HELP_CMD:
+      commandKey = args[1]
+      action = args[2]
+      break
+    case isSpecificHelpCommand && args[1] === HELP:
+      commandKey = args[0].slice(PREFIX.length)
+      action = args[2]
+      break
+    case !isSpecificHelpCommand:
+      commandKey = args[0].slice(PREFIX.length)
+      action = args[1]
+      break
+  }
+  return { commandKey, action }
 }
