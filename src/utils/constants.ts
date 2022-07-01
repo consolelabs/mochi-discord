@@ -7,7 +7,8 @@ export const EMPTY = ""
 export const VERTICAL_BAR = "|"
 
 export const PREFIX = "$"
-export const HELP_CMD = `${PREFIX}help`
+export const HELP = "help"
+export const HELP_CMD = `${PREFIX}${HELP}`
 
 export const PROFILE_THUMBNAIL =
   "https://cdn.discordapp.com/emojis/916737804384485447.png?size=240"
