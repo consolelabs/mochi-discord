@@ -44,7 +44,7 @@ export const rarityEmojis: Record<string, string> = {
   COMMON1: "992087374144225300",
   COMMON2: "992087372076429433",
   COMMON3: "992087369647919225",
-  COMMON4: "992087369647919225",
+  COMMON4: "992087367680786473",
 
   UNCOMMON1: "992087334675808287",
   UNCOMMON2: "992087366237966396",
@@ -84,8 +84,10 @@ export const defaultEmojis: Record<string, string> = {
 }
 
 export const marketplaceEmojis: Record<string, string> = {
-  PAINTSWAP: "988744692625707008",
-  OPENSEA: "991957183522684948",
+  PAINTSWAP: "988743794532958259",
+  OPENSEA: "988748731857911878",
+  LOOKSRARE: "992327588716486676",
+  NFTKEY: "992327591220490350",
 }
 
 export const emojis: { [key: string]: string } = {

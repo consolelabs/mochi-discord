@@ -14,13 +14,13 @@ async function composeCollectionInfo(msg: Message, data: any) {
     chain,
     item,
     owner,
+    unique_owner,
     volume,
     last_price,
     change1h,
     change24h,
     change7d,
     name,
-    collection_image,
     marketplaces,
   } = data
 
@@ -53,16 +53,16 @@ async function composeCollectionInfo(msg: Message, data: any) {
       value: `${owner}${blank}`,
     },
     {
+      name: "Unique Owner",
+      value: `${unique_owner}${blank}`,
+    },
+    {
       name: "Volume",
       value: `${volume}${blank}`,
     },
     {
-      name: "Floor price",
-      value: `${floor_price * 1000}${blank}`,
-    },
-    {
-      name: "Last price",
-      value: `${last_price * 1000}${blank}`,
+      name: "Marketplace",
+      value: `${marketplaces.map((m: string) => getEmoji(m)).join(" ")}`,
     },
     {
       name: "Change (1h)",
@@ -77,8 +77,15 @@ async function composeCollectionInfo(msg: Message, data: any) {
       value: `${PriceChange.change7d}${blank}`,
     },
     {
-      name: "Marketplace",
-      value: `${marketplaces.map((m: string) => getEmoji(m)).join(" ")}`,
+      name: "Last price",
+      value: `${last_price} ETH ${getEmoji("ETH")}
+      \`$1.29\`${blank}`,
+    },
+
+    {
+      name: "Floor price",
+      value: `0.19 ETH ${getEmoji("ETH")}
+      \`$${floor_price}\`${blank}`,
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
@@ -86,10 +93,12 @@ async function composeCollectionInfo(msg: Message, data: any) {
   }))
 
   const embed = composeEmbedMessage(msg, {
-    title: `${getEmoji("heart")} NFT Collection`,
+    author: [
+      "NFT Collection",
+      "https://lh3.googleusercontent.com/lP0ywqisBVutTJZ_Uuhe7JFqvticZjRypfQh4CpXwcljxM_JlO0jT-4-LRil18KPHidXm9slLkTDta1XRC5HAg2IVhwCVohdNF3odQ",
+    ],
     description: `[${name}](https://google.com.vn)`,
     image: "attachment://chart.png",
-    thumbnail: collection_image,
   }).addFields(fields)
   return justifyEmbedFields(embed, 3)
 }
@@ -113,6 +122,7 @@ const command: Command = {
       change24h: -0.01,
       change7d: 2.71,
       owner: "4.15K",
+      unique_owner: "1261",
       volume: "955.82 ETH",
       item: "6.97K",
       collection_image:
