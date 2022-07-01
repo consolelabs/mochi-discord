@@ -7,10 +7,12 @@ import ticker from "./ticker"
 import volume from "./top"
 import list from "./list"
 import recent from "./recent"
+import help from "./help"
 import query from "./query"
 
 const actions: Record<string, Command> = {
   add,
+  help,
   volume,
   ticker,
   list,
