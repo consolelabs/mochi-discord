@@ -57,9 +57,9 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
 }
 
 const command: Command = {
-  id: "nft_newlisted",
-  command: "newListed",
-  brief: "Show list of current added NFTs",
+  id: "nft_recent",
+  command: "recent",
+  brief: "Show list of newly added NFTs",
   category: "Community",
   run: async function (msg: Message) {
     const msgOpts = await composeNFTListEmbed(msg, 0)
