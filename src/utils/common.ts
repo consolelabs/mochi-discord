@@ -83,8 +83,10 @@ export const defaultEmojis: Record<string, string> = {
 }
 
 export const marketplaceEmojis: Record<string, string> = {
-  PAINTSWAP: "988744692625707008",
-  OPENSEA: "991957183522684948",
+  PAINTSWAP: "988743794532958259",
+  OPENSEA: "988748731857911878",
+  LOOKSRARE: "992327588716486676",
+  NFTKEY: "992327591220490350",
 }
 
 export const emojis: { [key: string]: string } = {
