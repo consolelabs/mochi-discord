@@ -8,8 +8,6 @@ import client from "../index"
 import { invites } from "./index"
 import { BotBaseError } from "errors"
 import { setTimeout as wait } from "timers/promises"
-import { ShowNftSales } from "./nftSales"
-import { CronJob } from "cron"
 
 export default {
   name: "ready",
@@ -43,15 +41,6 @@ export default {
           )
         )
       }
-      // cronjob to show nft sales
-      const job = new CronJob(
-        "0 0 0 * * *",
-        ShowNftSales,
-        null,
-        true,
-        "Asia/Ho_Chi_Minh"
-      )
-      job.start()
 
       await wait(1000)
     } catch (e) {
