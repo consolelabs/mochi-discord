@@ -55,9 +55,6 @@ const command: Command = {
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
-    if (args.length < 4) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
     const embeds = await tip(msg, args)
     return {
       messageOptions: {
@@ -77,6 +74,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   colorType: "Defi",
+  minArguments: 4,
 }
 
 export default command

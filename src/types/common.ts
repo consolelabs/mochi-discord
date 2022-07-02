@@ -50,6 +50,7 @@ export type Command = {
   actions?: Record<string, Command>
   allowDM?: boolean
   colorType: ColorType
+  minArguments?: number
 }
 
 export type EmbedProperties = {

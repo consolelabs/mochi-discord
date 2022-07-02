@@ -13,19 +13,6 @@ const command: Command = {
   onlyAdministrator: true,
   run: async (msg: Message) => {
     const args = getCommandArguments(msg)
-    if (args.length !== 3) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              usage: `${PREFIX}sb remove <emoji>`,
-              examples: `${PREFIX}sb remove ⭐`,
-            }),
-          ],
-        },
-      }
-    }
-
     // Validate input reaction emoji
     let reaction = args[2]
     let isValidEmoji = false
@@ -85,6 +72,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Server",
+  minArguments: 3,
 }
 
 export default command

@@ -11,9 +11,6 @@ const command: Command = {
   category: "Community",
   run: async (msg) => {
     const args = getCommandArguments(msg)
-    if (args.length < 3) {
-      return
-    }
     const campaignId = parseInt(args[2])
     if (!campaignId) {
       return
@@ -42,6 +39,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Command",
+  minArguments: 3,
 }
 
 export default command

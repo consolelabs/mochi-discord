@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import Community from "adapters/community"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
@@ -13,18 +13,6 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function config(msg: Message) {
     const args = getCommandArguments(msg)
-    if (args.length < 3) {
-      const errorEmbed = getErrorEmbed({
-        msg,
-        description: "Missing target channel",
-      })
-      return {
-        messageOptions: {
-          embeds: [errorEmbed],
-        },
-      }
-    }
-
     const logChannel = args[2].replace(/<#|>/g, "")
     await Community.configureInvites({
       guild_id: msg.guild.id,
@@ -54,6 +42,7 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["cfg"],
   colorType: "Command",
+  minArguments: 3,
 }
 
 export default command

@@ -13,9 +13,6 @@ const command: Command = {
   category: "Community",
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length != 5) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
     const channelArg = args[2]
     if (
       !channelArg ||
@@ -75,6 +72,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   colorType: "Marketplace",
+  minArguments: 5,
 }
 
 export default command

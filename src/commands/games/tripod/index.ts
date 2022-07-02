@@ -10,7 +10,6 @@ import quest from "./quest"
 import profile from "./profile"
 import { GAME_TESTSITE_CHANNEL_ID } from "env"
 import { normalizePosition } from "./helpers"
-import { getAllAliases } from "utils/commands"
 
 export async function handlePlayTripod(msg: Message) {
   if (msg.channelId === GAME_TESTSITE_CHANNEL_ID) {
@@ -79,7 +78,6 @@ const actions: Record<string, Command> = {
   daily: quest,
   profile,
 }
-const commands: Record<string, Command> = getAllAliases(actions)
 
 const command: Command = {
   id: "tripod",
@@ -87,13 +85,8 @@ const command: Command = {
   brief: "Triple Town",
   category: "Game",
   colorType: "Game",
-  run: async function (msg, action) {
+  run: async function (msg) {
     if (msg.channel.id === GAME_TESTSITE_CHANNEL_ID) {
-      const actionObj = commands[action]
-      if (actionObj) {
-        return actionObj.run(msg)
-      }
-
       const session = GameSessionManager.getSession(msg.author)
       if (!session) {
         const game = new Game()
@@ -135,6 +128,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   experimental: true,
+  actions,
 }
 
 export default command

@@ -10,7 +10,7 @@ import {
 
 import { CanvasRenderingContext2D } from "canvas"
 import { Command } from "types/common"
-import { DOT, SPACE, VERTICAL_BAR } from "./constants"
+import { DOT, HOMEPAGE_URL, SPACE, VERTICAL_BAR } from "./constants"
 import { TopNFTTradingVolumeItem } from "types/community"
 import Defi from "adapters/defi"
 
@@ -170,9 +170,7 @@ export function getCommandsList(
     .filter((c) => !c.experimental)
     .map(
       (c) =>
-        `[**${c.command}**](https://google.com)\n${emoji}${correctBrief(
-          c.brief
-        )}`
+        `[**${c.command}**](${HOMEPAGE_URL})\n${emoji}${correctBrief(c.brief)}`
     )
     .join("\n\n")
 }

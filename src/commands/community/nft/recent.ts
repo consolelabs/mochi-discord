@@ -72,7 +72,7 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}nft newListed`,
+        usage: `${PREFIX}nft recent`,
       }),
     ],
   }),

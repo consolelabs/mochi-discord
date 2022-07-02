@@ -12,9 +12,6 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length < 3) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
     const level = +args[2]
     if (isNaN(level) || level <= 0) {
       return {
@@ -50,6 +47,7 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["rm"],
   colorType: "Server",
+  minArguments: 3,
 }
 
 export default command

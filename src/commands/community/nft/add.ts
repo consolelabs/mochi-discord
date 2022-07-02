@@ -152,9 +152,6 @@ const command: Command = {
       }
     }
 
-    if (args.length < 4 && args.length >= 2) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
     return executeNftAddCommand(args, msg)
   },
   getHelpMessage: async (msg) => {
@@ -169,6 +166,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Market",
+  minArguments: 4,
 }
 
 export default command

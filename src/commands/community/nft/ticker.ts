@@ -110,10 +110,6 @@ const command: Command = {
   category: "Community",
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length < 3) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
-
     const symbol = args[2]
     const res = await community.getNFTCollectionTickers(symbol)
     const data = {
@@ -157,6 +153,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Market",
+  minArguments: 3,
 }
 
 export default command

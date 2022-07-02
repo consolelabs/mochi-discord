@@ -12,9 +12,6 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length < 4) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
     const [userArg, xpAmountArg, giftType] = args.slice(1)
     if (giftType.toLowerCase() !== "xp") {
       const errorEmbed = getErrorEmbed({
@@ -73,6 +70,7 @@ const command: Command = {
     return { embeds: [embed] }
   },
   colorType: "Command",
+  minArguments: 4,
 }
 
 export default command

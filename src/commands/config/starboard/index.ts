@@ -1,5 +1,4 @@
 import { Command } from "types/common"
-import { getAllAliases } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import list from "./list"
@@ -11,40 +10,27 @@ const actions: Record<string, Command> = {
   remove,
   list,
 }
-const commands: Record<string, Command> = getAllAliases(actions)
 
 const command: Command = {
   id: "starboard",
   command: "starboard",
-  brief: "Starboard Configuration",
+  brief: "Starboard configuration",
   category: "Config",
   onlyAdministrator: true,
-  run: async function (msg, action) {
-    const actionObj = commands[action]
-    if (actionObj) {
-      return actionObj.run(msg)
-    } else {
-      return {
-        messageOptions: await this.getHelpMessage(msg, action),
-      }
-    }
-  },
-  getHelpMessage: async (msg, action) => {
-    const actionObj = commands[action]
-    if (actionObj) {
-      return actionObj.getHelpMessage(msg)
-    }
-    const embed = composeEmbedMessage(msg, {
-      usage: `${PREFIX}sb <action>`,
-      footer: [`Type ${PREFIX}help sb <action> for a specific action!`],
-      includeCommandsList: true,
-    })
-
-    return { embeds: [embed] }
-  },
+  run: async () => null,
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        usage: `${PREFIX}sb <action>`,
+        footer: [`Type ${PREFIX}help sb <action> for a specific action!`],
+        includeCommandsList: true,
+      }),
+    ],
+  }),
   aliases: ["sb"],
   actions,
   colorType: "Server",
+  canRunWithoutAction: false,
 }
 
 export default command
