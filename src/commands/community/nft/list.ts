@@ -22,8 +22,9 @@ import {
   handleTextOverflow,
   thumbnails,
 } from "utils/common"
+import { NFTCollection } from "types/community"
 
-async function renderSupportedNFTList(collectionList: any[]) {
+async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   const container: RectangleStats = {
     x: {
       from: 0,
