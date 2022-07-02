@@ -35,3 +35,21 @@ export type TopNFTTradingVolumeItem = {
   trading_volume: number
   token: string
 }
+
+export type NFTCollectionChain = {
+  id: number
+  name: string
+  currency: string
+}
+
+export type NFTCollection = {
+  address: string
+  name: string
+  symbol: string
+  chain_id: number
+  chain: NFTCollectionChain
+  erc_format: string
+  supply: number
+  is_rarity_calculated: boolean
+  image: string
+}
