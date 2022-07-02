@@ -13,10 +13,6 @@ const command: Command = {
   run: async (msg: Message) => {
     let description = ""
     const args = getCommandArguments(msg)
-    if (args.length < 4) {
-      return
-    }
-
     if (!parseInt(args[2])) {
       return
     }
@@ -67,6 +63,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Command",
+  minArguments: 4,
 }
 
 export default command

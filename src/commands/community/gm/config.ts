@@ -14,11 +14,7 @@ const command: Command = {
   run: async (msg) => {
     const args = getCommandArguments(msg)
     const channelArg = args[2]
-    if (
-      !channelArg ||
-      !channelArg.startsWith("<#") ||
-      !channelArg.endsWith(">")
-    ) {
+    if (!channelArg?.startsWith("<#") || !channelArg?.endsWith(">")) {
       throw new InvalidInputError({ message: msg })
     }
 
@@ -52,6 +48,7 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["cfg"],
   colorType: "Command",
+  minArguments: 3,
 }
 
 export default command

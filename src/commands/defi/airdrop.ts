@@ -218,10 +218,6 @@ const command: Command = {
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
-    if (args.length < 3) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
-
     const payload = await Defi.getTransferPayload(msg, args)
     // check balance
     const data = await Defi.discordWalletBalances(msg.guildId, msg.author.id)
@@ -314,6 +310,7 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["drop"],
   colorType: "Defi",
+  minArguments: 3,
 }
 
 export default command

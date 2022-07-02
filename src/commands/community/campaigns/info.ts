@@ -13,9 +13,6 @@ const command: Command = {
   run: async (msg: Message) => {
     let description = ""
     const args = getCommandArguments(msg)
-    if (args.length < 3) {
-      return
-    }
     const campaignId = parseInt(args[2])
     const res = await community.getWhitelistCampaignInfo(campaignId)
 
@@ -50,6 +47,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Command",
+  minArguments: 3,
 }
 
 export default command

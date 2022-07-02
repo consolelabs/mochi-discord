@@ -597,7 +597,9 @@ class Config {
       `${API_BASE_URL}/configs/repost-reactions/${guildId}`
     )
     if (res.status !== 200) {
-      throw new Error(`failed to list starboard configuration - guild ${guildId}`)
+      throw new Error(
+        `failed to list starboard configuration - guild ${guildId}`
+      )
     }
 
     const json = await res.json()

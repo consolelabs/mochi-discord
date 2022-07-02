@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { getAllAliases, getCommandArguments } from "utils/commands"
+import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
@@ -10,28 +10,15 @@ const actions: Record<string, Command> = {
   list,
   remove,
 }
-const commands: Record<string, Command> = getAllAliases(actions)
 
 const command: Command = {
   id: "nftrole",
   command: "nftrole",
-  brief:
-    "Set roles which users will get by holding an amount of selected nft in current server",
+  brief: "Set a role that users will get when they own specific amount of NFT",
   category: "Config",
   onlyAdministrator: true,
-  run: async function (msg, action) {
-    const actionObj = commands[action]
-    if (actionObj) {
-      return actionObj.run(msg)
-    }
-
+  run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length < 4) {
-      return {
-        messageOptions: await this.getHelpMessage(msg),
-      }
-    }
-
     const [roleArg, nftAddress, amountArg, tokenId] = args.slice(1)
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
       return {
@@ -59,7 +46,6 @@ const command: Command = {
           ],
         },
       }
-    console.log(amount)
 
     const nfts: any[] = await Config.getAllNFTCollections()
     const nft = nfts.find(
@@ -111,26 +97,20 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async (msg, action) => {
-    const actionObj = commands[action]
-    if (actionObj) {
-      return actionObj.getHelpMessage(msg)
-    }
-
-    return {
-      embeds: [
-        composeEmbedMessage(msg, {
-          usage: `${PREFIX}nr <role> <nftAddress> <amount> <tokenId if it's an erc-1155 nft>`,
-          examples: `${PREFIX}nr @Mochi 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73 1`,
-          includeCommandsList: true,
-        }),
-      ],
-    }
-  },
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        usage: `${PREFIX}nr <role> <nft_address> <amount> [erc1155_token_id]\n${PREFIX}nr <action>`,
+        examples: `${PREFIX}nr @Mochi 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73 1`,
+        includeCommandsList: true,
+      }),
+    ],
+  }),
   canRunWithoutAction: true,
   aliases: ["nr"],
   actions,
   colorType: "Server",
+  minArguments: 4,
 }
 
 export default command

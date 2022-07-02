@@ -204,10 +204,6 @@ const command: Command = {
   category: "Defi",
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length < 3) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
-
     const [query] = args.slice(2)
     const [baseQ, targetQ] = query.split("/")
 
@@ -223,6 +219,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   colorType: "Defi",
+  minArguments: 3,
 }
 
 export default command

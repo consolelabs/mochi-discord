@@ -277,10 +277,6 @@ const command: Command = {
   category: "Defi",
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length < 2) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
-
     // execute
     const defaultOpt = args[args.length - 1] === "-d"
     const [query] = args.slice(1)
@@ -340,6 +336,7 @@ const command: Command = {
   aliases: ["tick"],
   canRunWithoutAction: true,
   colorType: "Defi",
+  minArguments: 2,
 }
 
 export default command
