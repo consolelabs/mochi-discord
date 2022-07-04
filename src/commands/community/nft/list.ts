@@ -3,10 +3,10 @@ import { Command } from "types/common"
 import {
   drawAvatarWithUrl,
   drawRectangle,
-  heightOf,
   widthOf,
+  handleTextOverflow,
 } from "utils/canvas"
-import { createCanvas, loadImage } from "canvas"
+import { createCanvas } from "canvas"
 import { CircleleStats, RectangleStats } from "types/canvas"
 import { PREFIX } from "utils/constants"
 import {
@@ -16,12 +16,7 @@ import {
   listenForPaginateAction,
 } from "utils/discordEmbed"
 import Community from "adapters/community"
-import {
-  emojis,
-  getEmojiURL,
-  handleTextOverflow,
-  thumbnails,
-} from "utils/common"
+import { getEmoji, thumbnails } from "utils/common"
 import { NFTCollection } from "types/community"
 
 async function renderSupportedNFTList(collectionList: NFTCollection[]) {
@@ -39,7 +34,7 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     pt: 10,
     pl: 30,
     radius: 30,
-    bgColor: "rgba(0, 0, 0, 0)", // transparent
+    bgColor: "#2F3136", // transparent
   }
   container.w = container.x.to - container.x.from
   container.h = container.y.to - container.y.from
@@ -51,36 +46,6 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   drawRectangle(ctx, container, container.bgColor)
   ctx.clip()
   ctx.restore()
-
-  // Title row
-  const moduleTitleStr = "Supported NFT Collections"
-  const heartIcon = {
-    w: 40,
-    h: 35,
-    mr: 15,
-  }
-  const moduleTitle = {
-    x: heartIcon.w + heartIcon.mr,
-    y: container.pt,
-    mb: 50,
-  }
-
-  moduleTitle.y +=
-    heightOf(ctx, moduleTitleStr) +
-    (heartIcon.h - heightOf(ctx, moduleTitleStr)) / 2
-  const heartImg = await loadImage(getEmojiURL(emojis["HEART"]))
-
-  ctx.drawImage(
-    heartImg,
-    container.x.from,
-    container.pt,
-    heartIcon.w,
-    heartIcon.h
-  )
-
-  ctx.font = "bold 33px Whitney"
-  ctx.fillStyle = "white"
-  ctx.fillText(moduleTitleStr, moduleTitle.x, moduleTitle.y)
 
   // split column
   const midIdx = Math.ceil(collectionList.length / 2)
@@ -97,29 +62,39 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   // render 1st col items
   const rowIn1stCol = {
     x: container.x.from,
-    y: moduleTitle.y + moduleTitle.mb,
+    y: container.pt,
     h: cltIconConf.h,
     mb: 20,
   }
 
   const clt1stColConf = {
     x: rowIn1stCol.x + cltIconConf.w + cltIconConf.mr,
-    y: moduleTitle.y + moduleTitle.mb,
+    y: container.pt,
     mr: 10,
     mb: 50,
   }
   ctx.font = "27px Whitney"
   for (const item of firstCol) {
-    const collectionName = item.name
-      ? `${handleTextOverflow(
-          ctx,
-          item.name,
-          250
-        )} (${item.symbol?.toUpperCase()})`
-      : "No data"
+    const colMaxWidth = 300
+    const symbolName = item.symbol?.toUpperCase()
+    const cName = item.name ? item.name : ""
+    const symbolNameWidth = widthOf(ctx, symbolName)
+
+    let collectionName: string
+    if (symbolNameWidth < colMaxWidth) {
+      const maxColNameWidth = colMaxWidth - symbolNameWidth
+      collectionName =
+        handleTextOverflow(ctx, cName, maxColNameWidth) +
+        ` (${item.symbol?.toUpperCase()})`
+    } else {
+      collectionName =
+        handleTextOverflow(ctx, cName, 80) +
+        ` (${handleTextOverflow(ctx, item.symbol?.toUpperCase(), 200)})`
+    }
+
     const chainName = item?.chain?.name
       ? handleTextOverflow(ctx, item?.chain?.name, 320)
-      : "No data"
+      : "TBD  "
     const imageURL = item.image ? item.image : thumbnails.PROFILE
 
     // collection name
@@ -139,18 +114,32 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     ctx.fillText(collectionName, clt1stColConf.x, clt1stColConf.y)
 
     // chain name
+    const rectHeight = 40
+    const rectWidth = widthOf(ctx, chainName)
     const chainNameConf = {
       x: rowIn1stCol.x,
       y: clt1stColConf.y + clt1stColConf.mb,
       mb: 20,
     }
 
+    const col1stRectStats: RectangleStats = {
+      x: {
+        from: chainNameConf.x,
+        to: chainNameConf.x + rectWidth - 6,
+      },
+      y: {
+        from: clt1stColConf.y + 20,
+        to: clt1stColConf.y + 20 + rectHeight,
+      },
+      w: rectWidth,
+      h: rectHeight,
+      radius: 8,
+      bgColor: "#0F0F10",
+    }
+
     ctx.font = "27px Whitney"
-    const rectHeight = 40
-    const rectWidth = widthOf(ctx, chainName) + 10
-    ctx.fillStyle = "#0F0F10"
-    ctx.fillRect(chainNameConf.x, clt1stColConf.y + 20, rectWidth, rectHeight)
-    ctx.fillStyle = "white"
+    drawRectangle(ctx, col1stRectStats, "#0F0F10")
+    ctx.fillStyle = "#BFBFBF"
     ctx.fillText(chainName, chainNameConf.x + 5, chainNameConf.y)
     clt1stColConf.y += fixedChainNameHeight + chainNameConf.mb + rectHeight
     ctx.restore()
@@ -159,14 +148,14 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   // render 2nd col items
   const rowIn2ndCol = {
     x: 440,
-    y: moduleTitle.y + moduleTitle.mb,
+    y: container.pt,
     h: cltIconConf.h,
     mb: 20,
   }
 
   const clt2ndColConf = {
     x: rowIn2ndCol.x + cltIconConf.w + cltIconConf.mr,
-    y: moduleTitle.y + moduleTitle.mb,
+    y: container.pt,
     mr: 10,
     mb: 50,
   }
@@ -178,10 +167,10 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
           item.name,
           250
         )} (${item.symbol?.toUpperCase()})`
-      : "No data"
+      : ""
     const chainName = item?.chain?.name
       ? handleTextOverflow(ctx, item?.chain?.name, 320)
-      : "No data"
+      : "TBD  "
     const imageURL = item.image ? item.image : thumbnails.PROFILE
 
     // collection name
@@ -201,24 +190,36 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     ctx.fillText(collectionName, clt2ndColConf.x, clt2ndColConf.y)
 
     // chain name
+    const rectHeight = 40
+    const rectWidth = widthOf(ctx, chainName)
     const chainNameConf = {
       x: rowIn2ndCol.x,
       y: clt2ndColConf.y + clt2ndColConf.mb,
       mb: 20,
     }
-
+    const col2ndRectStats: RectangleStats = {
+      x: {
+        from: chainNameConf.x,
+        to: chainNameConf.x + rectWidth - 6,
+      },
+      y: {
+        from: clt2ndColConf.y + 20,
+        to: clt2ndColConf.y + 20 + rectHeight,
+      },
+      w: rectWidth,
+      h: rectHeight,
+      radius: 8,
+      bgColor: "#0F0F10",
+    }
     ctx.font = "27px Whitney"
-    const rectHeight = 40
-    const rectWidth = widthOf(ctx, chainName) + 10
-    ctx.fillStyle = "#0F0F10"
-    ctx.fillRect(chainNameConf.x, clt2ndColConf.y + 20, rectWidth, rectHeight)
-    ctx.fillStyle = "white"
+    drawRectangle(ctx, col2ndRectStats, "#0F0F10")
+    ctx.fillStyle = "#BFBFBF"
     ctx.fillText(chainName, chainNameConf.x + 5, chainNameConf.y)
     clt2ndColConf.y += fixedChainNameHeight + chainNameConf.mb + rectHeight
     ctx.restore()
   }
 
-  return new MessageAttachment(canvas.toBuffer(), "nftlist.png")
+  return new MessageAttachment(canvas.toBuffer(), `nftlist.png`)
 }
 
 async function composeNFTListEmbed(msg: Message, pageIdx: number) {
@@ -240,7 +241,8 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
 
   const totalPage = Math.ceil(total / size)
   const embed = composeEmbedMessage(msg, {
-    image: "attachment://nftlist.png",
+    title: `${getEmoji("heart")} Supported NFT Collections`,
+    image: `attachment://nftlist.png`,
     footer: [`Page ${pageIdx + 1} / ${totalPage}`],
   })
 
@@ -261,7 +263,7 @@ const command: Command = {
   run: async function (msg: Message) {
     const msgOpts = await composeNFTListEmbed(msg, 0)
     const reply = await msg.reply(msgOpts.messageOptions)
-    listenForPaginateAction(reply, msg, composeNFTListEmbed)
+    listenForPaginateAction(reply, msg, composeNFTListEmbed, true)
     return {
       messageOptions: null,
     }
