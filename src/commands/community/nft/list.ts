@@ -27,7 +27,7 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     },
     y: {
       from: 0,
-      to: 670,
+      to: 600,
     },
     w: 0,
     h: 0,
@@ -57,6 +57,7 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   ctx.font = "27px Whitney"
   let columnY = container.pt
 
+  collectionList = collectionList.filter((val: NFTCollection) => val.name)
   for (let idx = 0; idx < collectionList.length; idx++) {
     const item = collectionList[idx]
     const colMaxWidth = 300
