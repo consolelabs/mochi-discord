@@ -1,7 +1,7 @@
 import { EmbedFieldData, Message } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { DOT, PREFIX } from "utils/constants"
+import { DOT } from "utils/constants"
 import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import community from "adapters/community"
 import { capitalizeFirst, getEmoji } from "utils/common"
@@ -88,16 +88,12 @@ async function composeNFTDetail(
 }
 
 const command: Command = {
-  id: "nftnft_query",
+  id: "nft_query",
   command: "query",
   brief: "View NFT token info",
   category: "Community",
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length < 3) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
-
     const [symbol, tokenId] = args.slice(1)
     return {
       messageOptions: {
@@ -105,15 +101,10 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}nft <collection_symbol> <token_id>`,
-      }),
-    ],
-  }),
+  getHelpMessage: async () => null,
   canRunWithoutAction: true,
   colorType: "Market",
+  minArguments: 3,
 }
 
 export default command

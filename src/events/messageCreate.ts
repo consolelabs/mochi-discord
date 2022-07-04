@@ -11,10 +11,6 @@ import webhook from "adapters/webhook"
 import { MessageTypes } from "discord.js/typings/enums"
 import { handlePlayTripod } from "commands/games/tripod"
 
-// function normalizeCommand(message: Message) {
-//   return message.content.replace(/  +/g, " ").trim().toLowerCase()
-// }
-
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
 
@@ -41,7 +37,6 @@ export default {
   name: "messageCreate",
   once: false,
   execute: async (message: Message) => {
-    // message.content = normalizeCommand(message)
     if (message.channel.id === LOG_CHANNEL_ID || message.author.bot) return
 
     try {

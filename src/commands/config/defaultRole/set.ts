@@ -10,26 +10,12 @@ import { BotBaseError } from "errors"
 const command: Command = {
   id: "defaultrole_set",
   command: "set",
-  brief: "Configure a default role for newcomers",
+  brief: "Set a default role for newcomers",
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
     let description = ""
     const args = getCommandArguments(msg)
-
-    if (args.length !== 3) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              usage: `${PREFIX}dr set @<role_name>`,
-              examples: `${PREFIX}dr set @Visitor`,
-            }),
-          ],
-        },
-      }
-    }
-
     const requestData: DefaultRoleEvent = {
       guild_id: msg.guild.id,
       role_id: args[2].replace(/\D/g, ""),
@@ -68,6 +54,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Server",
+  minArguments: 3,
 }
 
 export default command

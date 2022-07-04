@@ -11,11 +11,9 @@ const command: Command = {
   brief: "Show user’s aggregated invites.",
   category: "Community",
   run: async function aggregation(msg: Message) {
-    let inviterID = msg.author.id
     const args = getCommandArguments(msg)
-    if (args.length == 3) {
-      inviterID = args[2].replace(/<@|>/g, "")
-    }
+    const inviterID =
+      args.length === 3 ? args[2].replace(/<@|>/g, "") : msg.author.id
 
     const data = await Community.getUserInvitesAggregation(
       msg.guild.id,

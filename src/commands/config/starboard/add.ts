@@ -13,20 +13,6 @@ const command: Command = {
   onlyAdministrator: true,
   run: async (msg: Message) => {
     const args = getCommandArguments(msg)
-
-    if (args.length !== 5) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              usage: `${PREFIX}sb add <quantity> <emoji> <channel>`,
-              examples: `${PREFIX}sb add 3 ⭐ #starboard`,
-            }),
-          ],
-        },
-      }
-    }
-
     // Validate quantity
     const quantity = parseInt(args[2])
     if (!quantity || quantity <= 0) {
@@ -115,6 +101,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Server",
+  minArguments: 5,
 }
 
 export default command

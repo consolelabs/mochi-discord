@@ -12,10 +12,6 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length < 2) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
-
     const logChannelArg = args[1]
     if (!logChannelArg.startsWith("<#") || !logChannelArg.endsWith(">")) {
       return {
@@ -59,6 +55,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   colorType: "Server",
+  minArguments: 2,
 }
 
 export default command

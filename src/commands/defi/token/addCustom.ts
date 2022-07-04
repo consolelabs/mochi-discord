@@ -63,10 +63,6 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length !== 5) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
-
     const embeds = await add(msg, args)
     return {
       messageOptions: {
@@ -84,6 +80,8 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   colorType: "Defi",
+  minArguments: 5,
+  aliases: ["addcustom"],
 }
 
 export default command

@@ -142,6 +142,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Server",
+  minArguments: 3,
 }
 
 export default command

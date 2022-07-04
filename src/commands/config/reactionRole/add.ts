@@ -20,19 +20,6 @@ const command: Command = {
   run: async (msg: Message) => {
     const args = getCommandArguments(msg)
 
-    if (args.length !== 5) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              usage: `${PREFIX}rr add <message_id> <emoji> <role>`,
-              examples: `${PREFIX}rr add 967107573591457832 ✅ @Visitor`,
-            }),
-          ],
-        },
-      }
-    }
-
     // Validate input reaction emoji
     let reaction = args[3]
     let isValidEmoji = false
@@ -148,6 +135,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Server",
+  minArguments: 5,
 }
 
 export default command

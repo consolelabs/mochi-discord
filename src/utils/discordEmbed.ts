@@ -8,7 +8,7 @@ import {
   MessageSelectMenu,
   MessageSelectMenuOptions,
 } from "discord.js"
-import { COMMA, VERTICAL_BAR } from "./constants"
+import { COMMA, HOMEPAGE_URL, VERTICAL_BAR } from "./constants"
 import {
   defaultEmojis,
   getEmbedFooter,
@@ -69,9 +69,7 @@ export function composeNameDescriptionList(
 ) {
   const emoji = getEmoji("reply")
   return list
-    .map(
-      (c) => `[**${c.name}**](https://getmochi.co)\n${emoji}${c.description}`
-    )
+    .map((c) => `[**${c.name}**](${HOMEPAGE_URL})\n${emoji}${c.description}`)
     .join("\n\n")
 }
 
@@ -146,7 +144,6 @@ export function composeEmbedMessage(
       commandObj.actions
     )}`
   }
-  const alias = (actionObj ?? commandObj)?.aliases
 
   title =
     (isSpecificHelpCommand ? (actionObj ?? commandObj)?.brief : title) ?? ""
@@ -162,6 +159,7 @@ export function composeEmbedMessage(
     .setTitle(title)
     .setColor((color ?? getCommandColor(commandObj)) as ColorResolvable)
 
+  // embed options
   if (!withoutFooter) {
     embed
       .setFooter(
@@ -170,30 +168,26 @@ export function composeEmbedMessage(
       )
       .setTimestamp(timestamp ?? new Date())
   }
-  if (description) {
-    embed.setDescription(description)
-  }
-
+  if (description) embed.setDescription(description)
   if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)
   if (author?.length === 1) embed.setAuthor(author[0])
   if (author?.length === 2) embed.setAuthor(author[0], author[1])
 
-  // fields
-  if (isSpecificHelpCommand && alias)
+  // embed fields
+  const aliases = (actionObj ?? commandObj)?.aliases
+  if (isSpecificHelpCommand && aliases)
     embed.addField(
       "\u200B",
-      `**Alias**: ${alias.map((a) => `\`${a}\``).join(COMMA)}.`
+      `**Alias**: ${aliases.map((a) => `\`${a}\``).join(COMMA)}.`
     )
   if (usage) embed.addField("**Usage**", `\`\`\`${usage}\`\`\``)
   if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)
-
   return embed
 }
 
 function getCommandColor(commandObj: Command) {
-  if (!commandObj?.colorType) return msgColors.PRIMARY
-  return embedsColors[commandObj.colorType]
+  return embedsColors[commandObj?.colorType ?? "Command"]
 }
 
 export function getErrorEmbed(params: {

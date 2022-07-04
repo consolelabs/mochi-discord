@@ -3,6 +3,7 @@ import { API_SERVER_HOST } from "env"
 export const DOT = "•"
 export const COMMA = ","
 export const SPACE = " "
+export const SPACES_REGEX = / +/g
 export const EMPTY = ""
 export const VERTICAL_BAR = "|"
 
@@ -23,3 +24,5 @@ export const VALID_BOOST_MESSAGE_TYPES = [
   "USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2",
   "USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3",
 ]
+
+export const HOMEPAGE_URL = "http://getmochi.co"

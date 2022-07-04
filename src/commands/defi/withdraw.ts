@@ -67,12 +67,6 @@ const command: Command = {
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
-    if (args.length < 3) {
-      const helpMessage = await this.getHelpMessage(msg)
-      msg.channel.send(helpMessage)
-      return
-    }
-
     const dm = await msg.author.send(
       "Please enter your destination address here.\ne.g. 0xabcdde"
     )
@@ -108,6 +102,7 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["wd"],
   colorType: "Defi",
+  minArguments: 3,
 }
 
 export default command
