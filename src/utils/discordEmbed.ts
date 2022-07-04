@@ -317,17 +317,17 @@ export function listenForPaginateAction(
         messageOptions: { embeds, files },
       } = await render(originalMsg, page)
 
-      if (!withAttachmentUpdate) {
-        await replyMsg.edit({
-          embeds,
-          components: getPaginationRow(page, +totalPage),
-        })
-      } else {
+      if (withAttachmentUpdate && files?.length) {
         await replyMsg.removeAttachments()
         await replyMsg.edit({
           embeds,
           components: getPaginationRow(page, +totalPage),
           files,
+        })
+      } else {
+        await replyMsg.edit({
+          embeds,
+          components: getPaginationRow(page, +totalPage),
         })
       }
     })

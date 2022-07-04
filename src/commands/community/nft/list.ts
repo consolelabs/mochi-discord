@@ -16,7 +16,7 @@ import {
   listenForPaginateAction,
 } from "utils/discordEmbed"
 import Community from "adapters/community"
-import { getEmoji, thumbnails } from "utils/common"
+import { emojis, getEmojiURL, thumbnails } from "utils/common"
 import { NFTCollection } from "types/community"
 
 async function renderSupportedNFTList(collectionList: NFTCollection[]) {
@@ -34,7 +34,7 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     pt: 10,
     pl: 30,
     radius: 30,
-    bgColor: "#2F3136", // transparent
+    bgColor: "rgba(0, 0, 0, 0)", // transparent
   }
   container.w = container.x.to - container.x.from
   container.h = container.y.to - container.y.from
@@ -47,11 +47,6 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   ctx.clip()
   ctx.restore()
 
-  // split column
-  const midIdx = Math.ceil(collectionList.length / 2)
-  const firstCol = collectionList.splice(0, midIdx)
-  const secondCol = collectionList.splice(-midIdx)
-
   const fixedCollectionNameHeight = 24
   const fixedChainNameHeight = 26
   const cltIconConf = {
@@ -59,22 +54,11 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     h: 30,
     mr: 20,
   }
-  // render 1st col items
-  const rowIn1stCol = {
-    x: container.x.from,
-    y: container.pt,
-    h: cltIconConf.h,
-    mb: 20,
-  }
-
-  const clt1stColConf = {
-    x: rowIn1stCol.x + cltIconConf.w + cltIconConf.mr,
-    y: container.pt,
-    mr: 10,
-    mb: 50,
-  }
   ctx.font = "27px Whitney"
-  for (const item of firstCol) {
+  let columnY = container.pt
+
+  for (let idx = 0; idx < collectionList.length; idx++) {
+    const item = collectionList[idx]
     const colMaxWidth = 300
     const symbolName = item.symbol?.toUpperCase()
     const cName = item.name ? item.name : ""
@@ -93,129 +77,70 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     }
 
     const chainName = item?.chain?.name
-      ? handleTextOverflow(ctx, item?.chain?.name, 320)
-      : "TBD  "
+      ? handleTextOverflow(ctx, item?.chain?.name.trim(), 320)
+      : "TBD"
     const imageURL = item.image ? item.image : thumbnails.PROFILE
 
+    const xStart = idx % 2 === 0 ? container.x.from : 440
+    const colConfig = {
+      x: xStart + cltIconConf.w + cltIconConf.mr,
+      y: container.pt,
+      mr: 10,
+      mb: 50,
+    }
+
     // collection name
-    clt1stColConf.y +=
-      fixedCollectionNameHeight +
-      (cltIconConf.h - fixedCollectionNameHeight) / 2
+    if (idx % 2 === 0) {
+      columnY +=
+        fixedCollectionNameHeight +
+        (cltIconConf.h - fixedCollectionNameHeight) / 2
+    }
 
     const conf: CircleleStats = {
-      x: rowIn1stCol.x + 20,
-      y: clt1stColConf.y - 10,
+      x: xStart + 20,
+      y: columnY - 10,
       radius: 20,
     }
     await drawAvatarWithUrl(ctx, conf, imageURL)
 
     ctx.font = "bold 27px Whitney"
     ctx.fillStyle = "white"
-    ctx.fillText(collectionName, clt1stColConf.x, clt1stColConf.y)
+    ctx.fillText(collectionName, colConfig.x, columnY)
 
     // chain name
     const rectHeight = 40
-    const rectWidth = widthOf(ctx, chainName)
+    const rectWidth =
+      widthOf(ctx, chainName) > 200
+        ? widthOf(ctx, chainName) - 6
+        : widthOf(ctx, chainName) + 6
     const chainNameConf = {
-      x: rowIn1stCol.x,
-      y: clt1stColConf.y + clt1stColConf.mb,
+      x: xStart,
+      y: columnY + colConfig.mb,
       mb: 20,
     }
 
-    const col1stRectStats: RectangleStats = {
+    const rectStats: RectangleStats = {
       x: {
         from: chainNameConf.x,
-        to: chainNameConf.x + rectWidth - 6,
+        to: chainNameConf.x + rectWidth,
       },
       y: {
-        from: clt1stColConf.y + 20,
-        to: clt1stColConf.y + 20 + rectHeight,
+        from: columnY + 20,
+        to: columnY + 20 + rectHeight,
       },
       w: rectWidth,
       h: rectHeight,
-      radius: 8,
+      radius: 2,
       bgColor: "#0F0F10",
     }
 
     ctx.font = "27px Whitney"
-    drawRectangle(ctx, col1stRectStats, "#0F0F10")
+    drawRectangle(ctx, rectStats, "#0F0F10")
     ctx.fillStyle = "#BFBFBF"
     ctx.fillText(chainName, chainNameConf.x + 5, chainNameConf.y)
-    clt1stColConf.y += fixedChainNameHeight + chainNameConf.mb + rectHeight
-    ctx.restore()
-  }
-
-  // render 2nd col items
-  const rowIn2ndCol = {
-    x: 440,
-    y: container.pt,
-    h: cltIconConf.h,
-    mb: 20,
-  }
-
-  const clt2ndColConf = {
-    x: rowIn2ndCol.x + cltIconConf.w + cltIconConf.mr,
-    y: container.pt,
-    mr: 10,
-    mb: 50,
-  }
-  ctx.font = "27px Whitney"
-  for (const item of secondCol) {
-    const collectionName = item.name
-      ? `${handleTextOverflow(
-          ctx,
-          item.name,
-          250
-        )} (${item.symbol?.toUpperCase()})`
-      : ""
-    const chainName = item?.chain?.name
-      ? handleTextOverflow(ctx, item?.chain?.name, 320)
-      : "TBD  "
-    const imageURL = item.image ? item.image : thumbnails.PROFILE
-
-    // collection name
-    clt2ndColConf.y +=
-      fixedCollectionNameHeight +
-      (cltIconConf.h - fixedCollectionNameHeight) / 2
-
-    const conf: CircleleStats = {
-      x: rowIn2ndCol.x + 20,
-      y: clt2ndColConf.y - 10,
-      radius: 20,
+    if (idx % 2 === 1) {
+      columnY += fixedChainNameHeight + chainNameConf.mb + rectHeight
     }
-    await drawAvatarWithUrl(ctx, conf, imageURL)
-
-    ctx.font = "bold 27px Whitney"
-    ctx.fillStyle = "white"
-    ctx.fillText(collectionName, clt2ndColConf.x, clt2ndColConf.y)
-
-    // chain name
-    const rectHeight = 40
-    const rectWidth = widthOf(ctx, chainName)
-    const chainNameConf = {
-      x: rowIn2ndCol.x,
-      y: clt2ndColConf.y + clt2ndColConf.mb,
-      mb: 20,
-    }
-    const col2ndRectStats: RectangleStats = {
-      x: {
-        from: chainNameConf.x,
-        to: chainNameConf.x + rectWidth - 6,
-      },
-      y: {
-        from: clt2ndColConf.y + 20,
-        to: clt2ndColConf.y + 20 + rectHeight,
-      },
-      w: rectWidth,
-      h: rectHeight,
-      radius: 8,
-      bgColor: "#0F0F10",
-    }
-    ctx.font = "27px Whitney"
-    drawRectangle(ctx, col2ndRectStats, "#0F0F10")
-    ctx.fillStyle = "#BFBFBF"
-    ctx.fillText(chainName, chainNameConf.x + 5, chainNameConf.y)
-    clt2ndColConf.y += fixedChainNameHeight + chainNameConf.mb + rectHeight
     ctx.restore()
   }
 
@@ -241,7 +166,7 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
 
   const totalPage = Math.ceil(total / size)
   const embed = composeEmbedMessage(msg, {
-    title: `${getEmoji("heart")} Supported NFT Collections`,
+    author: ["Supported NFT Collections", getEmojiURL(emojis["HEART"])],
     image: `attachment://nftlist.png`,
     footer: [`Page ${pageIdx + 1} / ${totalPage}`],
   })
