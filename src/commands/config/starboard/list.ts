@@ -1,6 +1,10 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, renderPaginator } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getPaginationRow,
+  listenForPaginateAction,
+} from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { paginate } from "utils/common"
@@ -12,7 +16,7 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
-    let fields = []
+    let fields: any[] = []
     const res = await config.listAllRepostReactionConfigs(msg.guild.id)
     if (res?.data?.length > 0) {
       const { data } = res
@@ -44,7 +48,26 @@ const command: Command = {
           { name: "Repost channel", value: channelVal, inline: true },
         ])
       })
-      renderPaginator(msg, fields)
+
+      const msgOpts = {
+        messageOptions: {
+          embeds: [fields[0]],
+          components: getPaginationRow(0, fields.length),
+        },
+      }
+      const reply = await msg.reply(msgOpts.messageOptions)
+      listenForPaginateAction(
+        reply,
+        msg,
+        async (_msg: Message, idx: number) => {
+          return {
+            messageOptions: {
+              embeds: [fields[idx]],
+              components: getPaginationRow(idx, fields.length),
+            },
+          }
+        }
+      )
     } else {
       return {
         messageOptions: {

@@ -123,7 +123,7 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            title: "Reaction Roles",
+            author: ["Reaction roles", msg.guild.iconURL()],
             description,
           }),
         ],

@@ -65,7 +65,7 @@ const handleRepostableMessageTracking = async (
     "messageReactionAdd",
     checkRepostableEvent
   )
-  if (res?.status === "OK") {
+  if (res?.status === "OK" && res?.repost_channel_id) {
     const { repost_channel_id: repostChannelId } = res
     const { channel_id, guild_id, message_id, reaction, reaction_count } =
       checkRepostableEvent
@@ -94,7 +94,7 @@ const handleRepostableMessageTracking = async (
           image: imageURL,
           withoutFooter: true,
           thumbnail: msg.guild.iconURL(),
-        }).setFields([{name: "Source", value: `[Jump!](${originPostURL})`}])
+        }).setFields([{ name: "Source", value: `[Jump!](${originPostURL})` }])
       } else {
         const messageContent = msg.content
           ? msg.content
@@ -105,7 +105,7 @@ const handleRepostableMessageTracking = async (
           originalMsgAuthor: msg.author,
           withoutFooter: true,
           thumbnail: msg.guild.iconURL(),
-        }).setFields([{name: "Source", value: `[Jump!](${originPostURL})`}])
+        }).setFields([{ name: "Source", value: `[Jump!](${originPostURL})` }])
       }
       channel.send({
         embeds: [embed],
