@@ -13,6 +13,7 @@ import { Command } from "types/common"
 import { DOT, HOMEPAGE_URL, SPACE, VERTICAL_BAR } from "./constants"
 import { TopNFTTradingVolumeItem } from "types/community"
 import Defi from "adapters/defi"
+import { marketplaceEmojis, rarityEmojis, traitEmojis } from "./nft"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -40,38 +41,6 @@ export const numberEmojis: Record<string, string> = {
   NUM_9: "932856132832223232",
 }
 
-export const rarityEmojis: Record<string, string> = {
-  COMMON1: "992087374144225300",
-  COMMON2: "992087372076429433",
-  COMMON3: "992087369647919225",
-  COMMON4: "992087367680786473",
-
-  UNCOMMON1: "992087334675808287",
-  UNCOMMON2: "992087366237966396",
-  UNCOMMON3: "992087364396654733",
-  UNCOMMON4: "992087361624232066",
-
-  RARE1: "992087358981799968",
-  RARE2: "992087357081800774",
-  RARE3: "992087355303411722",
-  RARE4: "992087353160114206",
-
-  EPIC1: "992019141550682122",
-  EPIC2: "992019139738751096",
-  EPIC3: "992019137771602020",
-  EPIC4: "992019353748910091",
-
-  LEGENDARY1: "992087351188803674",
-  LEGENDARY2: "992087349003563028",
-  LEGENDARY3: "992087346646351882",
-  LEGENDARY4: "992087344779907082",
-
-  MYTHIC1: "992087342624014477",
-  MYTHIC2: "992087340480741397",
-  MYTHIC3: "992087338337456249",
-  MYTHIC4: "992087336621973566",
-}
-
 export const defaultEmojis: Record<string, string> = {
   ERROR: ":no_entry_sign:",
   AIRPLANE: ":airplane:",
@@ -81,13 +50,6 @@ export const defaultEmojis: Record<string, string> = {
   CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
   CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
   MAG: ":mag:",
-}
-
-export const marketplaceEmojis: Record<string, string> = {
-  PAINTSWAP: "988743794532958259",
-  OPENSEA: "988748731857911878",
-  LOOKSRARE: "992327588716486676",
-  NFTKEY: "992327591220490350",
 }
 
 export const emojis: { [key: string]: string } = {
@@ -115,6 +77,7 @@ export const emojis: { [key: string]: string } = {
   ...numberEmojis,
   ...rarityEmojis,
   ...marketplaceEmojis,
+  ...traitEmojis,
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
