@@ -166,7 +166,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Market",
-  minArguments: 4,
+  minArguments: 3,
 }
 
 export default command
