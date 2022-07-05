@@ -6,7 +6,7 @@ import {
   heightOf,
   widthOf,
   drawRectangleAvatar,
-  drawAvatarWithUrl,
+  drawCircleImage,
 } from "utils/canvas"
 import { drawRectangle } from "utils/canvas"
 import { CircleleStats, RectangleStats } from "types/canvas"
@@ -52,7 +52,7 @@ export async function renderSalesMessage(msg: Message, data: NftSales) {
   }
   avatar.x += avatar.radius
   avatar.y += avatar.radius
-  await drawAvatarWithUrl(ctx, avatar, data.avatar)
+  await drawCircleImage({ ctx, stats: avatar, imageURL: data.avatar })
 
   // username
   ctx.fillStyle = "#0DB4FB"
