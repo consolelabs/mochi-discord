@@ -5,13 +5,13 @@ import { UserProfile, UserXps } from "types/profile"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import * as Canvas from "canvas"
 import {
-  drawAvatar,
   drawProgressBar,
   heightOf,
   widthOf,
   fillWrappedText,
   calculateWrapperTextHeight,
   drawDivider,
+  drawCircleImage,
 } from "utils/canvas"
 import { drawRectangle } from "utils/canvas"
 import { CircleleStats, RectangleStats, TextStats } from "types/canvas"
@@ -178,7 +178,11 @@ async function renderProfile(msg: Message, data: UserProfile) {
   }
   avatar.x += avatar.radius
   avatar.y += avatar.radius
-  await drawAvatar(ctx, avatar, msg.author)
+  await drawCircleImage({
+    ctx,
+    stats: avatar,
+    imageURL: msg.author.displayAvatarURL({ format: "jpeg" }),
+  })
 
   // username
   ctx.fillStyle = "white"

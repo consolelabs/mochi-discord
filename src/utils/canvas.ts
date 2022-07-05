@@ -2,10 +2,11 @@ import {
   CanvasGradient,
   CanvasRenderingContext2D,
   createCanvas,
+  Image,
   loadImage,
 } from "canvas"
 import { ChartJSNodeCanvas } from "chartjs-node-canvas"
-import { GuildMember, User } from "discord.js"
+import { GuildMember } from "discord.js"
 import { CircleleStats, RectangleStats } from "types/canvas"
 import { msgColors } from "./common"
 import { SPACE } from "./constants"
@@ -73,67 +74,84 @@ export function drawProgressBar(
   ctx.restore()
 }
 
-export async function drawAvatar(
-  ctx: CanvasRenderingContext2D,
-  avatar: CircleleStats,
-  user: User
-) {
+// export async function drawAvatar(
+//   ctx: CanvasRenderingContext2D,
+//   avatar: CircleleStats,
+//   user: User
+// ) {
+//   ctx.save()
+//   // --------------
+//   ctx.beginPath()
+//   ctx.lineWidth = 10
+//   ctx.arc(avatar.x, avatar.y, avatar.radius, 0, Math.PI * 2)
+//   if (avatar.outlineColor) {
+//     ctx.strokeStyle = avatar.outlineColor
+//     ctx.stroke()
+//   }
+//   ctx.closePath()
+//   ctx.clip()
+
+//   const avatarURL = user.displayAvatarURL({ format: "jpeg" })
+//   if (avatarURL) {
+//     const userAvatar = await loadImage(avatarURL)
+//     ctx.drawImage(
+//       userAvatar,
+//       avatar.x - avatar.radius,
+//       avatar.y - avatar.radius,
+//       avatar.radius * 2,
+//       avatar.radius * 2
+//     )
+//   }
+//   // --------------
+//   ctx.restore()
+// }
+
+export async function drawCircleImage({
+  ctx,
+  stats,
+  imageURL,
+  image,
+}: {
+  ctx: CanvasRenderingContext2D
+  stats: CircleleStats
+  imageURL?: string
+  image?: Image
+}) {
+  if (!image && !imageURL) return
   ctx.save()
   // --------------
   ctx.beginPath()
   ctx.lineWidth = 10
-  ctx.arc(avatar.x, avatar.y, avatar.radius, 0, Math.PI * 2)
-  if (avatar.outlineColor) {
-    ctx.strokeStyle = avatar.outlineColor
+  ctx.arc(stats.x, stats.y, stats.radius, 0, Math.PI * 2)
+  if (stats.outlineColor) {
+    ctx.strokeStyle = stats.outlineColor
     ctx.stroke()
   }
   ctx.closePath()
   ctx.clip()
 
-  const avatarURL = user.displayAvatarURL({ format: "jpeg" })
-  if (avatarURL) {
-    const userAvatar = await loadImage(avatarURL)
-    ctx.drawImage(
-      userAvatar,
-      avatar.x - avatar.radius,
-      avatar.y - avatar.radius,
-      avatar.radius * 2,
-      avatar.radius * 2
-    )
+  if (!image && imageURL) {
+    image = await loadImage(imageURL)
   }
+  ctx.drawImage(
+    image,
+    stats.x - stats.radius,
+    stats.y - stats.radius,
+    stats.radius * 2,
+    stats.radius * 2
+  )
   // --------------
   ctx.restore()
 }
 
-export async function drawAvatarWithUrl(
-  ctx: CanvasRenderingContext2D,
-  avatar: CircleleStats,
-  avatarURL: string
-) {
-  ctx.save()
-  // --------------
-  ctx.beginPath()
-  ctx.lineWidth = 10
-  ctx.arc(avatar.x, avatar.y, avatar.radius, 0, Math.PI * 2)
-  if (avatar.outlineColor) {
-    ctx.strokeStyle = avatar.outlineColor
-    ctx.stroke()
-  }
-  ctx.closePath()
-  ctx.clip()
-
-  if (avatarURL) {
-    const userAvatar = await loadImage(avatarURL)
-    ctx.drawImage(
-      userAvatar,
-      avatar.x - avatar.radius,
-      avatar.y - avatar.radius,
-      avatar.radius * 2,
-      avatar.radius * 2
-    )
-  }
-  // --------------
-  ctx.restore()
+export function loadImages(urls: string[]) {
+  return urls.reduce(async (prev: { [key: string]: any }, cur) => {
+    const acc = await prev
+    return {
+      ...acc,
+      ...(!acc[cur] ? { [cur]: await loadImage(cur) } : {}),
+    }
+  }, {})
 }
 
 export async function drawRectangleAvatar(
