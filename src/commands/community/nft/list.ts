@@ -1,8 +1,13 @@
 import { Message, MessageAttachment } from "discord.js"
 import { Command } from "types/common"
-import { drawRectangle, widthOf, handleTextOverflow } from "utils/canvas"
-import { createCanvas } from "canvas"
-import { RectangleStats } from "types/canvas"
+import {
+  drawRectangle,
+  widthOf,
+  handleTextOverflow,
+  loadImages,
+  drawCircleImage,
+} from "utils/canvas"
+import { CircleleStats, RectangleStats } from "types/canvas"
 import { PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
@@ -11,8 +16,14 @@ import {
   listenForPaginateAction,
 } from "utils/discordEmbed"
 import Community from "adapters/community"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL, thumbnails } from "utils/common"
 import { NFTCollection } from "types/community"
+import { createCanvas, Image, registerFont } from "canvas"
+
+registerFont("src/assets/fonts/whitneysemibold.otf", {
+  family: "Whitney",
+  weight: "semibold",
+})
 
 async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   const container: RectangleStats = {
@@ -22,11 +33,11 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     },
     y: {
       from: 0,
-      to: 600,
+      to: 420,
     },
     w: 0,
     h: 0,
-    pt: 10,
+    pt: 0,
     pl: 30,
     radius: 30,
     bgColor: "rgba(0, 0, 0, 0)", // transparent
@@ -43,8 +54,8 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   ctx.restore()
 
   const fixedCollectionNameHeight = 24
-  const fixedChainNameHeight = 26
-  const cltIconConf = {
+  // const fixedChainNameHeight = 26
+  const iconConfig = {
     w: 30,
     h: 30,
     mr: 20,
@@ -52,12 +63,20 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   ctx.font = "27px Whitney"
   let columnY = container.pt
 
-  collectionList = collectionList.filter((val: NFTCollection) => val.name)
-  for (let idx = 0; idx < collectionList.length; idx++) {
-    const item = collectionList[idx]
+  collectionList = collectionList
+    .filter((col) => !!col.name)
+    .map((col) => {
+      col.image = col.image ? col.image : thumbnails.PROFILE
+      return col
+    })
+
+  const images: Record<string, Image> = await loadImages(
+    collectionList.map((col) => col.image)
+  )
+  collectionList.forEach((item, idx) => {
     const colMaxWidth = 300
     const symbolName = item.symbol?.toUpperCase()
-    const cName = item.name ? item.name : ""
+    const cName = item.name
     const symbolNameWidth = widthOf(ctx, symbolName)
 
     let collectionName: string
@@ -72,14 +91,9 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
         ` (${handleTextOverflow(ctx, item.symbol?.toUpperCase(), 200)})`
     }
 
-    const chainName = item?.chain?.name
-      ? handleTextOverflow(ctx, item?.chain?.name.trim(), 320)
-      : "TBD"
-    // const imageURL = item.image ? item.image : thumbnails.PROFILE
-
     const xStart = idx % 2 === 0 ? container.x.from : 440
     const colConfig = {
-      x: xStart + cltIconConf.w + cltIconConf.mr,
+      x: xStart + iconConfig.w + iconConfig.mr,
       y: container.pt,
       mr: 10,
       mb: 50,
@@ -89,63 +103,33 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     if (idx % 2 === 0) {
       columnY +=
         fixedCollectionNameHeight +
-        (cltIconConf.h - fixedCollectionNameHeight) / 2
+        (iconConfig.h - fixedCollectionNameHeight) / 2 +
+        20
     }
 
-    // const conf: CircleleStats = {
-    //   x: xStart + 20,
-    //   y: columnY - 10,
-    //   radius: 20,
-    // }
-    // await drawAvatarWithUrl(ctx, conf, imageURL)
+    const conf: CircleleStats = {
+      x: xStart + 20,
+      y: columnY - 10,
+      radius: 20,
+    }
+    if (images[item.image]) {
+      drawCircleImage({ ctx, stats: conf, image: images[item.image] })
+    }
 
-    ctx.font = "bold 27px Whitney"
+    ctx.font = "semibold 27px Whitney"
     ctx.fillStyle = "white"
     ctx.fillText(collectionName, colConfig.x, columnY)
 
-    // chain name
-    const rectHeight = 40
-    const rectWidth =
-      widthOf(ctx, chainName) > 200
-        ? widthOf(ctx, chainName) - 6
-        : widthOf(ctx, chainName) + 6
-    const chainNameConf = {
-      x: xStart,
-      y: columnY + colConfig.mb,
-      mb: 20,
-    }
-
-    const rectStats: RectangleStats = {
-      x: {
-        from: chainNameConf.x,
-        to: chainNameConf.x + rectWidth,
-      },
-      y: {
-        from: columnY + 20,
-        to: columnY + 20 + rectHeight,
-      },
-      w: rectWidth,
-      h: rectHeight,
-      radius: 2,
-      bgColor: "#0F0F10",
-    }
-
-    ctx.font = "27px Whitney"
-    drawRectangle(ctx, rectStats, "#0F0F10")
-    ctx.fillStyle = "#BFBFBF"
-    ctx.fillText(chainName, chainNameConf.x + 5, chainNameConf.y)
-    if (idx % 2 === 1) {
-      columnY += fixedChainNameHeight + chainNameConf.mb + rectHeight
-    }
     ctx.restore()
-  }
+  })
 
-  return new MessageAttachment(canvas.toBuffer(), `nftlist.png`)
+  return new MessageAttachment(canvas.toBuffer(), "nftlist.png")
 }
 
 async function composeNFTListEmbed(msg: Message, pageIdx: number) {
   const { data, page, size, total } = await Community.getNFTCollections({
     page: pageIdx,
+    size: 16,
   })
   if (!data || !data.length) {
     return {
@@ -171,7 +155,7 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
     messageOptions: {
       embeds: [embed],
       components: getPaginationRow(page, totalPage),
-      files: [await renderSupportedNFTList(data.slice(0, 10))],
+      files: [await renderSupportedNFTList(data)],
     },
   }
 }
