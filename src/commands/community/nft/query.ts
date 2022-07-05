@@ -67,13 +67,12 @@ async function composeNFTDetail(
     ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
     : ""
 
-  const blank = getEmoji("blank")
   const fields: EmbedFieldData[] = attributes
     ? attributes.map((attr: any) => {
         const val = `${attr.value}\n${attr.frequency ?? ""}`
         return {
           name: `${getEmoji(attr.trait_type)} ${attr.trait_type}`,
-          value: `${blank} ${val ? val : "-"}`,
+          value: `${val ? val : "-"}`,
           inline: true,
         }
       })

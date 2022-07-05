@@ -1,13 +1,8 @@
 import { Message, MessageAttachment } from "discord.js"
 import { Command } from "types/common"
-import {
-  drawAvatarWithUrl,
-  drawRectangle,
-  widthOf,
-  handleTextOverflow,
-} from "utils/canvas"
+import { drawRectangle, widthOf, handleTextOverflow } from "utils/canvas"
 import { createCanvas } from "canvas"
-import { CircleleStats, RectangleStats } from "types/canvas"
+import { RectangleStats } from "types/canvas"
 import { PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
@@ -16,7 +11,7 @@ import {
   listenForPaginateAction,
 } from "utils/discordEmbed"
 import Community from "adapters/community"
-import { emojis, getEmojiURL, thumbnails } from "utils/common"
+import { emojis, getEmojiURL } from "utils/common"
 import { NFTCollection } from "types/community"
 
 async function renderSupportedNFTList(collectionList: NFTCollection[]) {
@@ -80,7 +75,7 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     const chainName = item?.chain?.name
       ? handleTextOverflow(ctx, item?.chain?.name.trim(), 320)
       : "TBD"
-    const imageURL = item.image ? item.image : thumbnails.PROFILE
+    // const imageURL = item.image ? item.image : thumbnails.PROFILE
 
     const xStart = idx % 2 === 0 ? container.x.from : 440
     const colConfig = {
@@ -97,12 +92,12 @@ async function renderSupportedNFTList(collectionList: NFTCollection[]) {
         (cltIconConf.h - fixedCollectionNameHeight) / 2
     }
 
-    const conf: CircleleStats = {
-      x: xStart + 20,
-      y: columnY - 10,
-      radius: 20,
-    }
-    await drawAvatarWithUrl(ctx, conf, imageURL)
+    // const conf: CircleleStats = {
+    //   x: xStart + 20,
+    //   y: columnY - 10,
+    //   radius: 20,
+    // }
+    // await drawAvatarWithUrl(ctx, conf, imageURL)
 
     ctx.font = "bold 27px Whitney"
     ctx.fillStyle = "white"
