@@ -41,7 +41,7 @@ export async function Track(commands: any) {
   })
 }
 
-export async function slashTrackInteraction(interaction: any, options: any) {
+export async function TrackInteraction(interaction: any, options: any) {
   const addr = options.getString("collection-address")
   const platform = options.getString("chain")
   const channelArg = options.getChannel("channel")

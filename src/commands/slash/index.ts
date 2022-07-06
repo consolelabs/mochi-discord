@@ -1,6 +1,6 @@
 import Discord from "discord.js"
 import { LOG_CHANNEL_ID } from "env"
-import { Track, slashTrackInteraction } from "commands/community/track/slash"
+import { Track, TrackInteraction } from "commands/community/track/slash"
 
 export async function setupSlashCommand(client: Discord.Client<boolean>) {
   client.on("ready", () => {
@@ -31,7 +31,7 @@ export async function setupSlashCommand(client: Discord.Client<boolean>) {
       const { commandName, options } = interaction
 
       if (commandName === "track") {
-        slashTrackInteraction(interaction, options)
+        TrackInteraction(interaction, options)
       }
     }
   )
