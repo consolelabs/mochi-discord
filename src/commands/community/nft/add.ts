@@ -14,7 +14,7 @@ async function executeNftAddCommand(args: string[], msg: Message) {
   const collection = {
     chain_id: chainId,
     address: address,
-    author: msg.author.username,
+    author: msg.author.id,
   }
   // run store collection API
   const respCollection = await fetch(`${API_BASE_URL}/nfts/collections`, {
