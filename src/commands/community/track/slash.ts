@@ -2,10 +2,10 @@ import community from "adapters/community"
 import { capFirst } from "utils/common"
 import { LOG_CHANNEL_ID } from "env"
 
-export async function slashTrack(commands: any) {
+export async function Track(commands: any) {
   commands?.create({
     name: "track",
-    description: "Set a tracker for an NFT.",
+    description: "Set a tracker for NFT sales.",
     options: [
       {
         name: "type",

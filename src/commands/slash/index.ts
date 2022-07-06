@@ -1,11 +1,8 @@
 import Discord from "discord.js"
 import { LOG_CHANNEL_ID } from "env"
-import {
-  slashTrack,
-  slashTrackInteraction,
-} from "commands/community/track/slash"
+import { Track, slashTrackInteraction } from "commands/community/track/slash"
 
-export async function slash(client: Discord.Client<boolean>) {
+export async function setupSlashCommand(client: Discord.Client<boolean>) {
   client.on("ready", () => {
     const guild = client.guilds.cache.get(LOG_CHANNEL_ID)
     let commands
@@ -15,7 +12,7 @@ export async function slash(client: Discord.Client<boolean>) {
       commands = client.application?.commands
     }
 
-    slashTrack(commands)
+    Track(commands)
   })
 
   client.on(
