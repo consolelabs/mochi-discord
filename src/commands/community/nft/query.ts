@@ -44,18 +44,22 @@ async function composeNFTDetail(
   collectionSymbol: string,
   tokenId: string
 ) {
-  const res = await community.getNFTDetail(collectionSymbol, tokenId)
+  let res = await community.getNFTDetail(collectionSymbol, tokenId)
   const errorMsg = handleNftError(res.error)
   if (errorMsg) {
-    const embed = composeEmbedMessage(msg, {
-      title: "NFT",
-      description: errorMsg,
-    })
-    return justifyEmbedFields(embed, 1)
+    res = await community.getNFTDetailByName(collectionSymbol, tokenId)
+    const errorMsg1 = handleNftError(res.error)
+    if (errorMsg1) {
+      const embed = composeEmbedMessage(msg, {
+        title: "NFT",
+        description: errorMsg1,
+      })
+      return justifyEmbedFields(embed, 1)
+    }
   }
 
   const { name: colName, image: colImage } =
-    await community.getNFTCollectionDetail(collectionSymbol)
+    await community.getNFTCollectionDetail(collectionSymbol, !errorMsg)
   const { name, attributes, rarity, image } = res.data
 
   // set rank, rarity score empty if have data
@@ -94,7 +98,11 @@ const command: Command = {
   category: "Community",
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    const [symbol, tokenId] = args.slice(1)
+    const symbol = args
+      .slice(1, args.length - 1)
+      .reduce((prev, next) => prev + "%20" + next)
+    const tokenId = args[args.length - 1]
+
     return {
       messageOptions: {
         embeds: [await composeNFTDetail(msg, symbol, tokenId)],
