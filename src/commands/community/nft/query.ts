@@ -94,7 +94,10 @@ const command: Command = {
   category: "Community",
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    const [symbol, tokenId] = args.slice(1)
+    const symbol = args
+      .slice(1, args.length - 1)
+      .reduce((prev, next) => prev + "%20" + next)
+    const tokenId = args[args.length - 1]
     return {
       messageOptions: {
         embeds: [await composeNFTDetail(msg, symbol, tokenId)],
