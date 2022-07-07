@@ -12,7 +12,12 @@ import { Command } from "types/common"
 import { DOT, HOMEPAGE_URL, SPACE, VERTICAL_BAR } from "./constants"
 import { TopNFTTradingVolumeItem } from "types/community"
 import Defi from "adapters/defi"
-import { marketplaceEmojis, rarityEmojis, traitEmojis } from "./nft"
+import {
+  marketplaceEmojis,
+  rarityEmojis,
+  traitEmojis,
+  traitTypeMapping,
+} from "./nft"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -153,11 +158,19 @@ export function maskAddress(str: string, minLen?: number) {
 }
 
 export function getEmoji(key: string, animated?: boolean) {
-  if (!emojis[key.toUpperCase()]) {
+  const emojiKey = traitTypeMapping[key.toUpperCase()] || key.toUpperCase()
+
+  const emoji = emojis[emojiKey]
+  if (!emoji) {
     return ""
   }
+
+  if (isNaN(+emoji)) {
+    return emoji
+  }
+
   return `<${animated ? "a" : ""}:${key.replace(/-/g, "_").toLowerCase()}:${
-    emojis[key.toUpperCase()]
+    emojis[emojiKey]
   }>`
 }
 
