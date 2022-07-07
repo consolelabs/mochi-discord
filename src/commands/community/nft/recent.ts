@@ -8,12 +8,16 @@ import {
   listenForPaginateAction,
 } from "utils/discordEmbed"
 import Community from "adapters/community"
+import { renderSupportedNFTList } from "utils/canvas"
+import { emojis, getEmojiURL } from "utils/common"
 
 async function composeNFTListEmbed(msg: Message, pageIdx: number) {
-  const data = await Community.getCurrentNFTCollections({
+  const { data, page, size, total } = await Community.getCurrentNFTCollections({
     page: pageIdx,
+    size: 16,
   })
-  if (!data.data || !data.data.length) {
+
+  if (!data || !data.length) {
     return {
       messageOptions: {
         embeds: [
@@ -26,32 +30,18 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
     }
   }
 
-  const { names, symbols, chains } = data.data.reduce(
-    (acc: any, cur: any, i: number) => ({
-      names: [...acc.names, `#${++i + data.page * data.size}. ${cur.name}`],
-      symbols: [...acc.symbols, `${cur.symbol}`],
-      chains: [...acc.chains, `${cur.chain}`],
-    }),
-    {
-      names: [],
-      symbols: [],
-      chains: [],
-    }
-  )
-
-  const totalPage = Math.ceil(data.total / data.size)
+  const totalPage = Math.ceil(total / size)
   const embed = composeEmbedMessage(msg, {
-    title: "Newly Supported NFT collections",
+    author: ["Newly Supported NFT Collections", getEmojiURL(emojis["SPARKLE"])],
+    image: `attachment://nftlist.png`,
     footer: [`Page ${pageIdx + 1} / ${totalPage}`],
   })
-    .addField("Name", `${names.join("\n")}\n\u200B`, true)
-    .addField("Symbol", `${symbols.join("\n")}\n\u200B`, true)
-    .addField("Chain", chains.join("\n"), true)
 
   return {
     messageOptions: {
       embeds: [embed],
-      components: getPaginationRow(data.page, totalPage),
+      components: getPaginationRow(page, totalPage),
+      files: [await renderSupportedNFTList(data)],
     },
   }
 }
@@ -62,8 +52,10 @@ const command: Command = {
   brief: "Show list of newly added NFTs",
   category: "Community",
   run: async function (msg: Message) {
-    const msgOpts = await composeNFTListEmbed(msg, 0)
+    const index = 0
+    const msgOpts = await composeNFTListEmbed(msg, index)
     const reply = await msg.reply(msgOpts.messageOptions)
+
     listenForPaginateAction(reply, msg, composeNFTListEmbed)
     return {
       messageOptions: null,
