@@ -348,7 +348,7 @@ class Community {
     if (json.error !== undefined) {
       throw new Error(json.error)
     }
-    return json.data
+    return json
   }
 
   public async getCurrentNFTCollections({
