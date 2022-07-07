@@ -1,3 +1,4 @@
+import dayjs from "dayjs"
 import { Message } from "discord.js"
 import fetch from "node-fetch"
 import { CampaignWhitelistUser } from "types/common"
@@ -281,8 +282,10 @@ class Community {
   }
 
   public async getNFTCollectionTickers(symbol: string) {
+    const to = dayjs().unix() * 1000
+    const from = dayjs().subtract(1, "day").unix() * 1000
     const res = await fetch(
-      `${API_BASE_URL}/nfts/collections/${symbol}/tickers`,
+      `${API_BASE_URL}/nfts/collections/${symbol}/tickers?from=${from}&to=${to}`,
       {
         method: "GET",
         headers: {
