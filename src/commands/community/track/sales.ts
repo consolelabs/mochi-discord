@@ -35,7 +35,7 @@ const command: Command = {
       addr,
       platform,
       guildId,
-      channelArg
+      channelId
     )
     if (res.error) {
       return {
