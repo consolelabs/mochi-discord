@@ -9,7 +9,7 @@ import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import webhook from "adapters/webhook"
 import { MessageTypes } from "discord.js/typings/enums"
-import { handlePlayTripod } from "commands/games/tripod"
+// import { handlePlayTripod } from "commands/games/tripod"
 
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
@@ -48,7 +48,7 @@ export default {
         return
       }
       await handleNormalMessage(message)
-      handlePlayTripod(message)
+      // handlePlayTripod(message)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
