@@ -2,17 +2,18 @@ import type { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { Game } from "triple-pod-game-engine"
-import { renderShop, shop, toCanvas } from "./render"
-import { Message } from "discord.js"
+import { shopItems, toCanvas } from "./render"
+import { Message, MessageEmbedOptions } from "discord.js"
 import GameSessionManager from "utils/GameSessionManager"
 import ach, { achievements } from "./achievements"
 import quest from "./quest"
 import profile from "./profile"
-import { GAME_TESTSITE_CHANNEL_ID } from "env"
+import { GAME_TESTSITE_CHANNEL_IDS } from "env"
 import { normalizePosition } from "./helpers"
+import { mappings } from "./mappings"
 
 export async function handlePlayTripod(msg: Message) {
-  if (msg.channelId === GAME_TESTSITE_CHANNEL_ID) {
+  if (GAME_TESTSITE_CHANNEL_IDS.includes(msg.channel.id) && msg.content) {
     const session = GameSessionManager.getSession(msg.author)
     if (session) {
       const { name, data } = session
@@ -27,8 +28,8 @@ export async function handlePlayTripod(msg: Message) {
           validMsg = true
         } else if (input.startsWith("buy")) {
           const [, num] = input.split(" ")
-          if (shop[Number(num) - 1]) {
-            game.nextState({ type: "buy", piece: shop[Number(num) - 1] })
+          if (shopItems[Number(num) - 1]) {
+            game.nextState({ type: "buy", piece: shopItems[Number(num) - 1] })
             validMsg = true
           }
         } else if (input === "swap") {
@@ -42,14 +43,26 @@ export async function handlePlayTripod(msg: Message) {
           validMsg = true
         }
         if (validMsg) {
+          const embeds: Array<MessageEmbedOptions> = [
+            {
+              image: { url: "attachment://board.png" },
+              color: "#62A1FE",
+            },
+          ]
+          if (!game.done) {
+            embeds.push({
+              description: `Place a ${
+                mappings[game.state.currentPiece.id].name
+              }`,
+              color: "#62A1FE",
+            })
+          } else {
+            embeds.push({
+              description: "Game end",
+            })
+          }
           const reply = await msg.reply({
-            embeds: [
-              {
-                title: `Points: ${game.state.points}`,
-                description: renderShop(),
-                image: { url: "attachment://board.png" },
-              },
-            ],
+            embeds,
             files: [await toCanvas(game)],
           })
           Object.entries(achievements.turn).forEach(([achName, achDetail]) => {
@@ -65,7 +78,6 @@ export async function handlePlayTripod(msg: Message) {
                 }
               }
             )
-            msg.channel.send("Game end")
           }
         }
       }
@@ -86,7 +98,7 @@ const command: Command = {
   category: "Game",
   colorType: "Game",
   run: async function (msg) {
-    if (msg.channel.id === GAME_TESTSITE_CHANNEL_ID) {
+    if (GAME_TESTSITE_CHANNEL_IDS.includes(msg.channel.id) && msg.content) {
       const session = GameSessionManager.getSession(msg.author)
       if (!session) {
         const game = new Game()
@@ -94,9 +106,14 @@ const command: Command = {
         const botMessage = await msg.reply({
           embeds: [
             {
-              title: `Points: ${game.state.points}`,
-              description: renderShop(),
               image: { url: "attachment://board.png" },
+              color: "#62A1FE",
+            },
+            {
+              description: `Place a ${
+                mappings[game.state.currentPiece.id].name
+              }`,
+              color: "#62A1FE",
             },
           ],
           files: [await toCanvas(game)],

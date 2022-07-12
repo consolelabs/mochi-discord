@@ -2,7 +2,7 @@ const horizontalPos = ["a", "b", "c", "d", "e", "f"]
 
 export function normalizePosition(input: string) {
   const [_a, _b, _c] = input.split("")
-  if (_c) return false
+  if (_c || !_a || !_b) return false
   const a = Number(_a),
     b = Number(_b)
 
