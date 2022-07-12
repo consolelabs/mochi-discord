@@ -65,7 +65,7 @@ export default {
       } else {
         logger.error(e as string)
       }
-      ChannelLogger.log(error)
+      ChannelLogger.log(error, 'Event<"messageReactionRemove">')
     }
   },
 } as Event<"messageReactionRemove">
