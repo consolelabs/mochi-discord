@@ -3,21 +3,50 @@ import {
   Image,
   loadImage,
   CanvasRenderingContext2D,
+  registerFont,
 } from "canvas"
 import { MessageAttachment } from "discord.js"
 import {
-  bush,
-  crystal,
+  airdropper,
+  bomb,
   empty,
   Game,
-  grass,
+  megaBomb,
   PieceEnum,
-  robot,
-  tree,
+  rerollBox,
+  teleportPortal,
+  terraformer,
 } from "triple-pod-game-engine"
 import { RectangleStats } from "types/canvas"
 import { drawRectangle, fillWrappedText, heightOf, widthOf } from "utils/canvas"
 import { mappings } from "./mappings"
+
+export const shopItems = [
+  {
+    ...airdropper,
+    desc: "Clone a piece",
+  },
+  {
+    ...rerollBox,
+    desc: "Get another item randomly",
+  },
+  {
+    ...teleportPortal,
+    desc: "Swap 2 pieces on the board",
+  },
+  {
+    ...terraformer,
+    desc: "Destroy all rocks on the board",
+  },
+  {
+    ...megaBomb,
+    desc: "Destroy a 2x2 area",
+  },
+  {
+    ...bomb,
+    desc: "Destroy a 1x1 area",
+  },
+]
 
 const headerHeight = 190
 const boardPadding = 60
@@ -52,7 +81,7 @@ const container: RectangleStats = {
   h: outerContainer.h - headerHeight,
   pt: 0,
   pl: 0,
-  radius: 0,
+  radius: 30,
   bgColor: "#4C628A",
 }
 
@@ -89,22 +118,57 @@ type Asset = Partial<{
   background: Image
   titleImage: Image
   coin: Image
+  numbers: {
+    one?: Image
+    two?: Image
+    three?: Image
+    four?: Image
+    five?: Image
+    six?: Image
+  }
+  font: boolean
 }>
 
 const assets: Asset = {
   images: {},
+  numbers: {},
+  font: false,
 }
 
+let template: Image
+// template mode means that we're generating a template with no actual data
+const templateMode = false
+
 async function loadAssets() {
+  if (!assets.font) {
+    registerFont("src/assets/fonts/whitneylight.otf", {
+      family: "Whitney",
+      weight: "light",
+    })
+    registerFont("src/assets/fonts/whitneysemibold.otf", {
+      family: "Whitney",
+      weight: "semibold",
+    })
+    assets.font = true
+  }
+  if (!template) {
+    template = await loadImage("src/assets/triple-town/template.png")
+  }
+
   if (Object.keys(assets.images).length === 0) {
     const promises = Object.entries(mappings).map(
       async ([id, { image: imageUrl }]) => {
         const image = await loadImage(
           `src/assets/triple-town/pieces/${imageUrl}`
         )
-        const highlighted = await loadImage(
-          `src/assets/triple-town/pieces/highlighted/${imageUrl}`
-        )
+        let highlighted
+        try {
+          highlighted = await loadImage(
+            `src/assets/triple-town/pieces/highlighted/${imageUrl}`
+          )
+        } catch (e) {
+          console.log("No highlighted version for", id)
+        }
         assets.images[id as unknown as PieceEnum] = {
           image,
           ...(highlighted ? { highlighted } : {}),
@@ -113,21 +177,35 @@ async function loadAssets() {
     )
     await Promise.all(promises)
   }
+  if (templateMode) {
+    if (Object.keys(assets.numbers).length === 0) {
+      const promises = numToText.map(async (n) => {
+        const image = await loadImage(`src/assets/triple-town/${n}.png`)
+        assets.numbers[n as keyof typeof assets.numbers] = image
+      })
+      await Promise.all(promises)
+    }
 
-  if (!assets.background) {
-    assets.background = await loadImage("src/assets/triple-town/background.png")
-  }
+    if (!assets.background) {
+      assets.background = await loadImage(
+        "src/assets/triple-town/background.png"
+      )
+    }
 
-  if (!assets.titleImage) {
-    assets.titleImage = await loadImage("src/assets/triple-town/text.png")
-  }
+    if (!assets.titleImage) {
+      assets.titleImage = await loadImage("src/assets/triple-town/text.png")
+    }
 
-  if (!assets.coin) {
-    assets.coin = await loadImage("src/assets/triple-town/coins.png")
+    if (!assets.coin) {
+      assets.coin = await loadImage("src/assets/triple-town/coins.png")
+    }
   }
 }
 
 function drawBoard(ctx: CanvasRenderingContext2D) {
+  drawRectangle(ctx, container, container.bgColor)
+  ctx.save()
+  ctx.clip()
   ctx.drawImage(
     assets.background,
     container.x.from,
@@ -135,6 +213,7 @@ function drawBoard(ctx: CanvasRenderingContext2D) {
     board.w,
     board.h
   )
+  ctx.restore()
   new Array(6)
     .fill(tileSize)
     .map((t, i) => t * (i + 1))
@@ -142,7 +221,7 @@ function drawBoard(ctx: CanvasRenderingContext2D) {
       // vertical
       if (i !== 5) {
         ctx.lineWidth = 3
-        ctx.strokeStyle = "#9FD0F0"
+        ctx.strokeStyle = "#4C628A"
         ctx.beginPath()
         ctx.moveTo(t + boardPadding, tileSize + boardPadding + container.y.from)
         ctx.lineTo(t + boardPadding, board.h - boardPadding + container.y.from)
@@ -174,8 +253,10 @@ function drawTitle(ctx: CanvasRenderingContext2D) {
   )
 }
 
+const numToText = ["one", "two", "three", "four", "five", "six"]
+
 function drawShop(ctx: CanvasRenderingContext2D) {
-  ctx.font = "bold 90px Arial"
+  ctx.font = "bold 90px Whitney"
   ctx.fillStyle = "#ffffff"
   const padding = 50
   let y = container.y.from + 130
@@ -189,7 +270,7 @@ function drawShop(ctx: CanvasRenderingContext2D) {
     container.w - padding * 2 - board.w
   )
 
-  ctx.font = "60px Arial"
+  ctx.font = "50px Whitney"
   const command = "buy <number>"
   const heightOfCommand = heightOf(ctx, command)
   const widthOfCommand = widthOf(ctx, command)
@@ -204,7 +285,7 @@ function drawShop(ctx: CanvasRenderingContext2D) {
       y: { from: y + 30, to: y + 40 + heightOfCommand },
       h: 0,
       w: 0,
-      radius: 5,
+      radius: 10,
     },
     "#283755"
   )
@@ -212,11 +293,11 @@ function drawShop(ctx: CanvasRenderingContext2D) {
     ctx,
     command,
     shop.x.from + 60,
-    y + heightOfTitle,
+    y + heightOfTitle - 5,
     container.w - padding * 2 - board.w
   )
 
-  ctx.font = "65px Arial"
+  ctx.font = "65px Whitney"
   const description = "to buy specific items for use on your map."
 
   ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
@@ -240,6 +321,53 @@ function drawShop(ctx: CanvasRenderingContext2D) {
     },
     "#283755"
   )
+
+  const itemSize = (outerContainer.h - padding - (y + 50)) / 6
+  const x = shop.x.from + padding + 10
+  y += 50
+
+  shopItems.forEach((item, idx) => {
+    ctx.drawImage(assets.images[item.id].image, x, y, itemSize, itemSize)
+    ctx.font = "45px Whitney"
+    ctx.fillStyle = "#ffffff"
+    fillWrappedText(
+      ctx,
+      mappings[item.id].name,
+      x + itemSize + 20,
+      y + itemSize / 3,
+      shop.w - 50
+    )
+    ctx.font = "35px Whitney"
+    ctx.fillStyle = "rgba(255, 255, 255, 0.6)"
+    fillWrappedText(
+      ctx,
+      item.desc,
+      x + itemSize + 20,
+      y + itemSize / 1.7,
+      shop.w - 50 - itemSize
+    )
+    ctx.drawImage(assets.coin, x + itemSize + 20, y + itemSize / 1.45, 32, 32)
+    ctx.fillStyle = "#FFDE6A"
+    fillWrappedText(
+      ctx,
+      "1,000",
+      x + itemSize + 32 + 20 + 10,
+      y + itemSize / 1.15,
+      shop.w - 50 - itemSize - 32
+    )
+    const numbering =
+      assets.numbers[numToText[idx] as keyof typeof assets.numbers]
+    if (numbering) {
+      ctx.drawImage(
+        numbering,
+        outerContainer.w - 50 - padding - 48,
+        y + itemSize / 3,
+        48,
+        48
+      )
+    }
+    y += itemSize
+  })
 }
 
 function drawPieces(ctx: CanvasRenderingContext2D, game: Game) {
@@ -262,7 +390,7 @@ function drawPieces(ctx: CanvasRenderingContext2D, game: Game) {
 
 function highlightLastMove(ctx: CanvasRenderingContext2D, game: Game) {
   // replace last move's piece with the highlighted version
-  const lastMove = game.history.reverse().find((m) => m.type === "put")
+  const lastMove = game.history.find((m) => m.type === "put")
   if (lastMove?.type === "put") {
     const { x, y } = lastMove
     const lastPiece = game.state.board[y][x]
@@ -280,8 +408,8 @@ function highlightLastMove(ctx: CanvasRenderingContext2D, game: Game) {
 }
 
 function drawAssitMode(ctx: CanvasRenderingContext2D) {
-  ctx.font = "50px Arial"
-  ctx.fillStyle = "rgba(255, 255, 255, 0.4)"
+  ctx.font = "50px Whitney"
+  ctx.fillStyle = "rgba(255, 255, 255, 0.2)"
 
   const texts = ["a", "b", "c", "d", "e", "f"]
 
@@ -317,117 +445,170 @@ function drawAssitMode(ctx: CanvasRenderingContext2D) {
   }
 }
 
-function drawPoints(ctx: CanvasRenderingContext2D, points: number) {
-  drawRectangle(
-    ctx,
-    {
-      x: {
-        from: 0,
-        to: outerContainer.w / 2 - 10,
+function drawCurrentPiece(ctx: CanvasRenderingContext2D, game: Game) {
+  if (templateMode) {
+    drawRectangle(
+      ctx,
+      {
+        x: {
+          from: 0,
+          to: outerContainer.w / 3 - 10,
+        },
+        y: {
+          from: 0,
+          to: 170,
+        },
+        w: 0,
+        h: 0,
+        radius: 20,
       },
-      y: {
-        from: 0,
-        to: 170,
-      },
-      w: 0,
-      h: 0,
-      radius: 20,
-    },
-    "#222428"
-  )
-  ctx.fillStyle = "#ffffff"
-  ctx.font = "bold 90px Arial"
-  const pointsNum = String(points)
-  const widthOfPointsNum = widthOf(ctx, pointsNum)
-  const heightOfPointsNum = heightOf(ctx, pointsNum)
-  fillWrappedText(
-    ctx,
-    pointsNum,
-    50,
-    (170 - 10) / 2 - heightOfPointsNum / 2,
-    widthOfPointsNum
-  )
+      "#222428"
+    )
+  } else {
+    const pieceImage = assets.images[game.state.currentPiece.id].image
+    ctx.drawImage(pieceImage, 0, (170 - 10) / 2 - 96, 192, 192)
+    ctx.fillStyle = "#ffffff"
+    ctx.font = "bold 60px Whitney"
+    const text = mappings[game.state.currentPiece.id].name
+    const numOfNewLines = Math.max(1, text.split(" ").length - 1) - 1
+    const heightOfText = heightOf(ctx, text)
+    fillWrappedText(
+      ctx,
+      text,
+      50 + 140,
+      heightOfText / 2 + 170 / (2 + numOfNewLines),
+      outerContainer.w / 3 - 192 - 50
+    )
+  }
+}
 
-  ctx.font = "semibold 60px Arial"
-  ctx.fillStyle = "#8B8B8B"
-  const pointText = "Points"
-  const widthOfPointText = widthOf(ctx, pointText)
-  const heightOfPointText = heightOf(ctx, pointText)
-  fillWrappedText(
-    ctx,
-    pointText,
-    outerContainer.w / 2 - 10 - 50 - widthOfPointText,
-    (170 - 10) / 2 - heightOfPointText / 2,
-    widthOfPointText
-  )
+function drawPoints(ctx: CanvasRenderingContext2D, points: number) {
+  const x = outerContainer.w / 3 + 10
+  if (templateMode) {
+    drawRectangle(
+      ctx,
+      {
+        x: {
+          from: x,
+          to: (outerContainer.w * 2) / 3 - 10,
+        },
+        y: {
+          from: 0,
+          to: 170,
+        },
+        w: 0,
+        h: 0,
+        radius: 20,
+      },
+      "#222428"
+    )
+  } else {
+    ctx.fillStyle = "#ffffff"
+    ctx.font = "bold 90px Whitney"
+    const pointsNum = String(points)
+    const widthOfPointsNum = widthOf(ctx, pointsNum)
+    const heightOfPointsNum = heightOf(ctx, pointsNum)
+    fillWrappedText(
+      ctx,
+      pointsNum,
+      x + 50,
+      (170 - 10) / 2 - heightOfPointsNum / 2,
+      widthOfPointsNum
+    )
+  }
+
+  if (templateMode) {
+    ctx.font = "semibold 60px Whitney"
+    ctx.fillStyle = "#8B8B8B"
+    const pointText = "Points"
+    const widthOfPointText = widthOf(ctx, pointText)
+    const heightOfPointText = heightOf(ctx, pointText)
+    fillWrappedText(
+      ctx,
+      pointText,
+      (outerContainer.w * 2) / 3 - 10 - 50 - widthOfPointText,
+      (170 - 10) / 2 - heightOfPointText / 2,
+      widthOfPointText
+    )
+  }
 }
 
 function drawCoins(ctx: CanvasRenderingContext2D, coins: number) {
-  const x = outerContainer.w / 2 + 10
-  drawRectangle(
-    ctx,
-    {
-      x: {
-        from: x,
-        to: outerContainer.w,
+  const x = (outerContainer.w * 2) / 3 + 10
+  if (templateMode) {
+    drawRectangle(
+      ctx,
+      {
+        x: {
+          from: x,
+          to: outerContainer.w,
+        },
+        y: {
+          from: 0,
+          to: 170,
+        },
+        w: 0,
+        h: 0,
+        radius: 20,
       },
-      y: {
-        from: 0,
-        to: 170,
-      },
-      w: 0,
-      h: 0,
-      radius: 20,
-    },
-    "#222428"
-  )
-  ctx.fillStyle = "#FFDE6A"
-  ctx.font = "bold 70px Arial"
-  ctx.drawImage(assets.coin, x + 50, 170 / 2 - 32, 64, 64)
-  const coinsNum = String(coins)
-  const widthOfCoinsNum = widthOf(ctx, coinsNum)
-  const heightOfCoinsNum = heightOf(ctx, coinsNum)
-  fillWrappedText(
-    ctx,
-    coinsNum,
-    x + 50 + 90,
-    (170 - 10) / 2 - heightOfCoinsNum / 2,
-    widthOfCoinsNum
-  )
+      "#222428"
+    )
+    ctx.drawImage(assets.coin, x + 50, 170 / 2 - 32, 64, 64)
+  } else {
+    ctx.fillStyle = "#FFDE6A"
+    ctx.font = "bold 70px Whitney"
+    const coinsNum = String(coins)
+    const widthOfCoinsNum = widthOf(ctx, coinsNum)
+    const heightOfCoinsNum = heightOf(ctx, coinsNum)
+    fillWrappedText(
+      ctx,
+      coinsNum,
+      x + 50 + 90,
+      (170 - 10) / 2 - heightOfCoinsNum / 2,
+      widthOfCoinsNum
+    )
+  }
 
-  ctx.font = "semibold 60px Arial"
-  ctx.fillStyle = "#8B8B8B"
-  const coinsText = "Coins"
-  const widthOfCoinsText = widthOf(ctx, coinsText)
-  const heightOfCoinsText = heightOf(ctx, coinsText)
-  fillWrappedText(
-    ctx,
-    coinsText,
-    outerContainer.w - 10 - 50 - widthOfCoinsText,
-    (170 - 10) / 2 - heightOfCoinsText / 2,
-    widthOfCoinsText
-  )
+  if (templateMode) {
+    ctx.font = "semibold 60px Whitney"
+    ctx.fillStyle = "#8B8B8B"
+    const coinsText = "Coins"
+    const widthOfCoinsText = widthOf(ctx, coinsText)
+    const heightOfCoinsText = heightOf(ctx, coinsText)
+    fillWrappedText(
+      ctx,
+      coinsText,
+      outerContainer.w - 10 - 50 - widthOfCoinsText,
+      (170 - 10) / 2 - heightOfCoinsText / 2,
+      widthOfCoinsText
+    )
+  }
 }
-
-export const shopItems = [grass, bush, tree, crystal, robot]
 
 export async function toCanvas(game: Game) {
   await loadAssets()
 
   const canvas = createCanvas(outerContainer.w, outerContainer.h)
   const ctx = canvas.getContext("2d")
-  drawRectangle(ctx, outerContainer, outerContainer.bgColor)
-  drawRectangle(ctx, container, container.bgColor)
+  if (templateMode) {
+    drawRectangle(ctx, outerContainer, outerContainer.bgColor)
+  } else {
+    ctx.drawImage(template, 0, 0, outerContainer.w, outerContainer.h)
+  }
 
+  drawCurrentPiece(ctx, game)
   drawPoints(ctx, game.state.points)
   drawCoins(ctx, 3989)
 
-  drawBoard(ctx)
-  drawTitle(ctx)
-  drawShop(ctx)
-  drawPieces(ctx, game)
-  highlightLastMove(ctx, game)
-  drawAssitMode(ctx)
+  if (templateMode) {
+    drawBoard(ctx)
+    drawTitle(ctx)
+    drawShop(ctx)
+    drawAssitMode(ctx)
+  } else {
+    drawPieces(ctx, game)
+    highlightLastMove(ctx, game)
+  }
 
   return new MessageAttachment(canvas.toBuffer(), "board.png")
 }

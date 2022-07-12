@@ -137,7 +137,10 @@ const achievementsList = [
 const pageSize = 5
 const size = 200
 
-async function composeAchievementListEmbed(msg: Message, pageIdx: number) {
+export async function composeAchievementListEmbed(
+  msg: Message,
+  pageIdx: number
+) {
   const canvas = createCanvas(size, size)
   const ctx = canvas.getContext("2d")
   const avatar = msg.author.displayAvatarURL({ format: "jpeg" })
