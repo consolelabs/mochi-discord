@@ -1,5 +1,5 @@
 import { Client, MessageEmbed, TextChannel } from "discord.js"
-import { LOG_CHANNEL_ID } from "env"
+import { LOG_CHANNEL_ID, MOCHI_GUILD_ID } from "env"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
 
@@ -10,23 +10,36 @@ export class ChannelLogger {
     try {
       // only send log to our discord server (pod town)
       // TODO: allow to config log channel
-      const guild = await client.guilds.fetch("963487084969095168")
-      this.logChannel = (await guild.channels.fetch(
-        LOG_CHANNEL_ID
-      )) as TextChannel
+      const guild = client.guilds.cache.get(MOCHI_GUILD_ID)
+      if (guild) {
+        this.logChannel = guild.channels.cache.get(
+          LOG_CHANNEL_ID
+        ) as TextChannel
+      }
     } catch (e: any) {
       logger.error(e)
     }
   }
 
-  log(error: BotBaseError) {
+  log(error: BotBaseError, funcName?: string) {
     if (this.logChannel) {
-      const embed = new MessageEmbed()
-        .setTimestamp()
-        .setDescription(`\`\`\`${error}\`\`\``)
-      this.logChannel.send({
-        embeds: [embed],
-      })
+      if (funcName) {
+        const embed = new MessageEmbed()
+          .setTimestamp()
+          .setDescription(
+            `\`\`\`bot crashed due to reason: ${funcName} ${error}\`\`\``
+          )
+        this.logChannel.send({
+          embeds: [embed],
+        })
+      } else {
+        const embed = new MessageEmbed()
+          .setTimestamp()
+          .setDescription(`\`\`\`bot crashed due to reason: ${error}\`\`\``)
+        this.logChannel.send({
+          embeds: [embed],
+        })
+      }
     }
   }
 }
