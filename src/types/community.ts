@@ -53,3 +53,10 @@ export type NFTCollection = {
   is_rarity_calculated: boolean
   image: string
 }
+
+export type NFTMetadataAttrIcon = {
+  id: number
+  trait_type: string
+  discord_icon: string
+  unicode_icon: string
+}

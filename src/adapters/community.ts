@@ -405,6 +405,21 @@ class Community {
       throw new Error(json.error)
     }
   }
+
+  public async getNFTMetadataAttrIcon() {
+    const res = await fetch(`${API_BASE_URL}/nfts/icons`, {
+      method: "GET",
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to get NFT icons`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
 }
 
 export default new Community()
