@@ -159,10 +159,9 @@ export function maskAddress(str: string, minLen?: number) {
 
 export function getEmoji(key: string, animated?: boolean) {
   const emojiKey = traitTypeMapping[key.toUpperCase()] || key.toUpperCase()
-
   const emoji = emojis[emojiKey]
   if (!emoji) {
-    return ""
+    return `<:jigsaw:993472696853725248>`
   }
 
   if (isNaN(+emoji)) {
