@@ -51,6 +51,7 @@ function getIcon(iconList: NFTMetadataAttrIcon[], iconName: string): string {
       return lower
     }
   })
+
   return getEmoji(iconName)
 }
 async function composeNFTDetail(
