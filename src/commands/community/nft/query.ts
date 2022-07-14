@@ -5,6 +5,7 @@ import { DOT } from "utils/constants"
 import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import community from "adapters/community"
 import { capitalizeFirst, getEmoji } from "utils/common"
+import { NFTMetadataAttrIcon } from "types/community"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -39,12 +40,27 @@ function handleNftError(error: string) {
   }
 }
 
+function getIcon(iconList: NFTMetadataAttrIcon[], iconName: string): string {
+  if (!iconList) {
+    return getEmoji(iconName)
+  }
+  iconList.forEach((icon) => {
+    // "traits likes "blood type" has whitespace
+    if (icon.trait_type == iconName.replaceAll(" ", "")) {
+      const lower = `<${icon.discord_icon.toLowerCase()}>`
+      return lower
+    }
+  })
+  return getEmoji(iconName)
+}
 async function composeNFTDetail(
   msg: Message,
   collectionSymbol: string,
   tokenId: string
 ) {
   const res = await community.getNFTDetail(collectionSymbol, tokenId)
+  const icons = await community.getNFTMetadataAttrIcon()
+
   const errorMsg = handleNftError(res.error)
   if (errorMsg) {
     const embed = composeEmbedMessage(msg, {
@@ -71,7 +87,7 @@ async function composeNFTDetail(
     ? attributes.map((attr: any) => {
         const val = `${attr.value}\n${attr.frequency ?? ""}`
         return {
-          name: `${getEmoji(attr.trait_type)} ${attr.trait_type}`,
+          name: `${getIcon(icons, attr.trait_type)} ${attr.trait_type}`,
           value: `${val ? val : "-"}`,
           inline: true,
         }

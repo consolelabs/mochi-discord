@@ -37,9 +37,9 @@ function getChartColorConfig(id: string) {
       gradientTo = "rgba(76,66,52,0.5)"
       break
     case "ethereum":
-      borderColor = "#ff0421"
-      gradientFrom = "rgba(173,36,43,0.9)"
-      gradientTo = "rgba(77,48,53,0.5)"
+      borderColor = "#c0c0c0"
+      gradientFrom = "rgba(235,232,232,0.9)"
+      gradientTo = "rgba(195,195,195,0.5)"
       break
 
     case "tether":

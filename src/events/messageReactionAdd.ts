@@ -94,7 +94,7 @@ const handleRepostableMessageTracking = async (
           image: imageURL,
           withoutFooter: true,
           thumbnail: msg.guild.iconURL(),
-        }).setFields([{name: "Source", value: `[Jump!](${originPostURL})`}])
+        }).setFields([{ name: "Source", value: `[Jump!](${originPostURL})` }])
       } else {
         const messageContent = msg.content
           ? msg.content
@@ -105,7 +105,7 @@ const handleRepostableMessageTracking = async (
           originalMsgAuthor: msg.author,
           withoutFooter: true,
           thumbnail: msg.guild.iconURL(),
-        }).setFields([{name: "Source", value: `[Jump!](${originPostURL})`}])
+        }).setFields([{ name: "Source", value: `[Jump!](${originPostURL})` }])
       }
       channel.send({
         embeds: [embed],
@@ -139,7 +139,7 @@ export default {
       } else {
         logger.error(e as string)
       }
-      ChannelLogger.log(error)
+      ChannelLogger.log(error, 'Event<"messageReactionAdd">')
     }
   },
 } as Event<"messageReactionAdd">
