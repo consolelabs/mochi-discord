@@ -113,4 +113,28 @@ export const mappings: Record<PieceEnum, { name: string; image: string }> = {
     name: "Bomb",
     image: "bomb.png",
   },
+  [PieceEnum.AIRDROPPER]: {
+    name: "Airdropper",
+    image: "airdropper.png",
+  },
+  [PieceEnum.REROLL_BOX]: {
+    name: "Reroll Box",
+    image: "reroll-box.png",
+  },
+  [PieceEnum.TELEPORT_PORTAL]: {
+    name: "Teleport Portal",
+    image: "teleport-portal.png",
+  },
+  [PieceEnum.TERRAFORMER]: {
+    name: "Terraformer",
+    image: "terraformer.png",
+  },
+  [PieceEnum.MEGA_BOMB]: {
+    name: "Mega Bomb",
+    image: "mega-bomb.png",
+  },
+  [PieceEnum.BOMB]: {
+    name: "Mini Bomb",
+    image: "mini-bomb.png",
+  },
 }

@@ -9,7 +9,7 @@ import {
 
 const size = 200
 
-async function composeQuestListEmbed(msg: Message) {
+export async function composeQuestListEmbed(msg: Message) {
   const canvas = createCanvas(size, size)
   const ctx = canvas.getContext("2d")
   const avatar = msg.author.displayAvatarURL({ format: "jpeg" })

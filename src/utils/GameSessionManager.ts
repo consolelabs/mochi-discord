@@ -6,6 +6,7 @@ type Session = {
   data: {
     game: TripodGame
     message: Message
+    user: User
   }
 }
 
