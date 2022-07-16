@@ -65,7 +65,7 @@
     "pino": "^6.11.2",
     "pino-pretty": "^4.7.1",
     "pod-room-engine-demo": "^1.0.0",
-    "triple-pod-game-engine": "^2.4.0",
+    "triple-pod-game-engine": "^2.4.1",
     "ts-case-convert": "^2.0.2",
     "twit": "^2.2.11",
     "twitter": "^1.7.1",

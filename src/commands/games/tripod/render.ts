@@ -160,16 +160,19 @@ async function loadAssets(message: Message) {
 
     if (Object.keys(assets.images).length === 0) {
       const promises = Object.entries(mappings).map(
-        async ([id, { image: imageUrl }]) => {
+        async ([id, { noHighlight, image: imageUrl }]) => {
           const image = await loadImage(
             `src/assets/triple-town/pieces/${imageUrl}`
           )
-          const highlighted = await loadImage(
-            `src/assets/triple-town/pieces/highlighted/${imageUrl}`
-          )
+          let highlighted
+          if (!noHighlight) {
+            highlighted = await loadImage(
+              `src/assets/triple-town/pieces/highlighted/${imageUrl}`
+            )
+          }
           assets.images[id as unknown as PieceEnum] = {
             image,
-            ...(highlighted ? { highlighted } : {}),
+            ...(highlighted && !noHighlight ? { highlighted } : {}),
           }
         }
       )

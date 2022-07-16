@@ -340,7 +340,7 @@ export async function handlePlayTripod(msg: Message) {
             },
           ]
           const reply = await msg.reply({
-            components: [!game.done ? buttonRow : null],
+            ...(!game.done ? { components: [buttonRow] } : {}),
             embeds,
             files: [await toCanvas(game, msg)],
           })
