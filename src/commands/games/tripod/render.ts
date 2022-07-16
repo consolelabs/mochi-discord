@@ -5,7 +5,8 @@ import {
   CanvasRenderingContext2D,
   registerFont,
 } from "canvas"
-import { MessageAttachment } from "discord.js"
+import { Message, MessageAttachment } from "discord.js"
+import { AssetNotFoundError } from "errors/AssetNotFoundError"
 import {
   airdropper,
   bomb,
@@ -19,6 +20,7 @@ import {
 } from "triple-pod-game-engine"
 import { RectangleStats } from "types/canvas"
 import { drawRectangle, fillWrappedText, heightOf, widthOf } from "utils/canvas"
+import ChannelLogger from "utils/ChannelLogger"
 import { mappings } from "./mappings"
 
 export const shopItems = [
@@ -139,65 +141,66 @@ let template: Image
 // template mode means that we're generating a template with no actual data
 const templateMode = false
 
-async function loadAssets() {
-  if (!assets.font) {
-    registerFont("src/assets/fonts/whitneylight.otf", {
-      family: "Whitney",
-      weight: "light",
-    })
-    registerFont("src/assets/fonts/whitneysemibold.otf", {
-      family: "Whitney",
-      weight: "semibold",
-    })
-    assets.font = true
-  }
-  if (!template) {
-    template = await loadImage("src/assets/triple-town/template.png")
-  }
+async function loadAssets(message: Message) {
+  try {
+    if (!assets.font) {
+      registerFont("src/assets/fonts/whitneylight.otf", {
+        family: "Whitney",
+        weight: "light",
+      })
+      registerFont("src/assets/fonts/whitneysemibold.otf", {
+        family: "Whitney",
+        weight: "semibold",
+      })
+      assets.font = true
+    }
+    if (!template) {
+      template = await loadImage("src/assets/triple-town/template.png")
+    }
 
-  if (Object.keys(assets.images).length === 0) {
-    const promises = Object.entries(mappings).map(
-      async ([id, { image: imageUrl }]) => {
-        const image = await loadImage(
-          `src/assets/triple-town/pieces/${imageUrl}`
-        )
-        let highlighted
-        try {
-          highlighted = await loadImage(
+    if (Object.keys(assets.images).length === 0) {
+      const promises = Object.entries(mappings).map(
+        async ([id, { image: imageUrl }]) => {
+          const image = await loadImage(
+            `src/assets/triple-town/pieces/${imageUrl}`
+          )
+          const highlighted = await loadImage(
             `src/assets/triple-town/pieces/highlighted/${imageUrl}`
           )
-        } catch (e) {
-          console.log("No highlighted version for", id)
+          assets.images[id as unknown as PieceEnum] = {
+            image,
+            ...(highlighted ? { highlighted } : {}),
+          }
         }
-        assets.images[id as unknown as PieceEnum] = {
-          image,
-          ...(highlighted ? { highlighted } : {}),
-        }
-      }
-    )
-    await Promise.all(promises)
-  }
-  if (templateMode) {
-    if (Object.keys(assets.numbers).length === 0) {
-      const promises = numToText.map(async (n) => {
-        const image = await loadImage(`src/assets/triple-town/${n}.png`)
-        assets.numbers[n as keyof typeof assets.numbers] = image
-      })
+      )
       await Promise.all(promises)
     }
+    if (templateMode) {
+      if (Object.keys(assets.numbers).length === 0) {
+        const promises = numToText.map(async (n) => {
+          const image = await loadImage(`src/assets/triple-town/${n}.png`)
+          assets.numbers[n as keyof typeof assets.numbers] = image
+        })
+        await Promise.all(promises)
+      }
 
-    if (!assets.background) {
-      assets.background = await loadImage(
-        "src/assets/triple-town/background.png"
-      )
+      if (!assets.background) {
+        assets.background = await loadImage(
+          "src/assets/triple-town/background.png"
+        )
+      }
+
+      if (!assets.titleImage) {
+        assets.titleImage = await loadImage("src/assets/triple-town/text.png")
+      }
+
+      if (!assets.coin) {
+        assets.coin = await loadImage("src/assets/triple-town/coins.png")
+      }
     }
-
-    if (!assets.titleImage) {
-      assets.titleImage = await loadImage("src/assets/triple-town/text.png")
-    }
-
-    if (!assets.coin) {
-      assets.coin = await loadImage("src/assets/triple-town/coins.png")
+  } catch (e: any) {
+    if ("path" in e) {
+      ChannelLogger.log(new AssetNotFoundError({ message, assetName: e.path }))
     }
   }
 }
@@ -585,8 +588,8 @@ function drawCoins(ctx: CanvasRenderingContext2D, coins: number) {
   }
 }
 
-export async function toCanvas(game: Game) {
-  await loadAssets()
+export async function toCanvas(game: Game, msg: Message) {
+  await loadAssets(msg)
 
   const canvas = createCanvas(outerContainer.w, outerContainer.h)
   const ctx = canvas.getContext("2d")
