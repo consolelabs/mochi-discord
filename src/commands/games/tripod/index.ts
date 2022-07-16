@@ -342,7 +342,7 @@ export async function handlePlayTripod(msg: Message) {
           const reply = await msg.reply({
             components: [!game.done ? buttonRow : null],
             embeds,
-            files: [await toCanvas(game)],
+            files: [await toCanvas(game, msg)],
           })
           Object.entries(achievements.turn).forEach(([achName, achDetail]) => {
             if (achDetail.check(game)) {
@@ -405,7 +405,7 @@ const command: Command = {
               color,
             },
           ],
-          files: [await toCanvas(game)],
+          files: [await toCanvas(game, msg)],
         })
         GameSessionManager.createSessionIfNotAlready(msg.author, {
           name: "triple-town",
