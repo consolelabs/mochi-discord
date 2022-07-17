@@ -22,6 +22,7 @@ import { RectangleStats } from "types/canvas"
 import { drawRectangle, fillWrappedText, heightOf, widthOf } from "utils/canvas"
 import ChannelLogger from "utils/ChannelLogger"
 import { mappings } from "./mappings"
+import sharp from "sharp"
 
 export const shopItems = [
   {
@@ -120,6 +121,7 @@ type Asset = Partial<{
   background: Image
   titleImage: Image
   coin: Image
+  disk: Image
   numbers: {
     one?: Image
     two?: Image
@@ -199,6 +201,10 @@ async function loadAssets(message: Message) {
 
       if (!assets.coin) {
         assets.coin = await loadImage("src/assets/triple-town/coins.png")
+      }
+
+      if (!assets.disk) {
+        assets.disk = await loadImage("src/assets/triple-town/disk.png")
       }
     }
   } catch (e: any) {
@@ -539,7 +545,7 @@ function drawPoints(ctx: CanvasRenderingContext2D, points: number) {
   }
 }
 
-function drawCoins(ctx: CanvasRenderingContext2D, coins: number) {
+function drawCoins(ctx: CanvasRenderingContext2D, coins: number | string) {
   const x = (outerContainer.w * 2) / 3 + 10
   if (templateMode) {
     drawRectangle(
@@ -591,6 +597,16 @@ function drawCoins(ctx: CanvasRenderingContext2D, coins: number) {
   }
 }
 
+function drawSwapDisk(ctx: CanvasRenderingContext2D) {
+  ctx.drawImage(
+    assets.disk,
+    boardPadding,
+    200 + boardPadding + container.y.from,
+    tileSize,
+    tileSize
+  )
+}
+
 export async function toCanvas(game: Game, msg: Message) {
   await loadAssets(msg)
 
@@ -604,17 +620,27 @@ export async function toCanvas(game: Game, msg: Message) {
 
   drawCurrentPiece(ctx, game)
   drawPoints(ctx, game.state.points)
-  drawCoins(ctx, 3989)
+  drawCoins(ctx, "Unlimited")
 
   if (templateMode) {
     drawBoard(ctx)
     drawTitle(ctx)
     drawShop(ctx)
     drawAssitMode(ctx)
+    drawSwapDisk(ctx)
   } else {
     drawPieces(ctx, game)
     highlightLastMove(ctx, game)
   }
 
-  return new MessageAttachment(canvas.toBuffer(), "board.png")
+  const buffer = canvas.toBuffer()
+
+  const bufferCompressed = await sharp(buffer)
+    .resize(
+      Math.round(outerContainer.w / 2.5),
+      Math.round(outerContainer.h / 2.5)
+    )
+    .toBuffer()
+
+  return new MessageAttachment(bufferCompressed, "board.png")
 }
