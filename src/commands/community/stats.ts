@@ -157,6 +157,7 @@ const command: Command = {
 
     return { embeds: [embed] }
   },
+  canRunWithoutAction: true,
   colorType: "Server",
 }
 

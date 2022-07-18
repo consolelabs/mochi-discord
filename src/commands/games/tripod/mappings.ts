@@ -1,6 +1,9 @@
 import { PieceEnum } from "triple-pod-game-engine"
 
-export const mappings: Record<PieceEnum, { name: string; image: string }> = {
+export const mappings: Record<
+  PieceEnum,
+  { name: string; noHighlight?: boolean; image: string }
+> = {
   [PieceEnum.EMPTY]: {
     name: "Empty",
     image: "empty.png",
@@ -112,5 +115,35 @@ export const mappings: Record<PieceEnum, { name: string; image: string }> = {
   [PieceEnum.ROBOT]: {
     name: "Bomb",
     image: "bomb.png",
+  },
+  [PieceEnum.AIRDROPPER]: {
+    name: "Airdropper",
+    image: "airdropper.png",
+    noHighlight: true,
+  },
+  [PieceEnum.REROLL_BOX]: {
+    name: "Reroll Box",
+    image: "reroll-box.png",
+    noHighlight: true,
+  },
+  [PieceEnum.TELEPORT_PORTAL]: {
+    name: "Teleport Portal",
+    image: "teleport-portal.png",
+    noHighlight: true,
+  },
+  [PieceEnum.TERRAFORMER]: {
+    name: "Terraformer",
+    image: "terraformer.png",
+    noHighlight: true,
+  },
+  [PieceEnum.MEGA_BOMB]: {
+    name: "Mega Bomb",
+    image: "mega-bomb.png",
+    noHighlight: true,
+  },
+  [PieceEnum.BOMB]: {
+    name: "Mini Bomb",
+    image: "mini-bomb.png",
+    noHighlight: true,
   },
 }

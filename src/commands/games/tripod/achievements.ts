@@ -10,7 +10,6 @@ import {
 } from "utils/discordEmbed"
 import { mappings } from "./mappings"
 import chunk from "lodash.chunk"
-import { defaultEmojis } from "utils/common"
 import { createCanvas, loadImage } from "canvas"
 
 export const achievements = {
@@ -137,7 +136,10 @@ const achievementsList = [
 const pageSize = 5
 const size = 200
 
-async function composeAchievementListEmbed(msg: Message, pageIdx: number) {
+export async function composeAchievementListEmbed(
+  msg: Message,
+  pageIdx: number
+) {
   const canvas = createCanvas(size, size)
   const ctx = canvas.getContext("2d")
   const avatar = msg.author.displayAvatarURL({ format: "jpeg" })
@@ -164,9 +166,7 @@ async function composeAchievementListEmbed(msg: Message, pageIdx: number) {
     .setDescription(
       composeNameDescriptionList(
         chunk(achievementsList, 5)[pageIdx].map((a) => ({
-          name: `${a[0]}${
-            Math.random() > 0.5 ? ` ${defaultEmojis.CHECK}` : ""
-          }`,
+          name: `${a[0]}`,
           description: a[1].description,
         }))
       )

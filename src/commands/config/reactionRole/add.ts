@@ -101,8 +101,8 @@ const command: Command = {
           messageOptions: {
             embeds: [
               composeEmbedMessage(msg, {
-                title: "Reaction Roles",
-                description: `${requestData.reaction} is now setting to this role <@&${requestData.role_id}>`,
+                author: ["Reaction roles", msg.guild.iconURL()],
+                description: `Emoji ${requestData.reaction} is now setting to this role <@&${requestData.role_id}>`,
               }),
             ],
           },

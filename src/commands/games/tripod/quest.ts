@@ -9,7 +9,7 @@ import {
 
 const size = 200
 
-async function composeQuestListEmbed(msg: Message) {
+export async function composeQuestListEmbed(msg: Message) {
   const canvas = createCanvas(size, size)
   const ctx = canvas.getContext("2d")
   const avatar = msg.author.displayAvatarURL({ format: "jpeg" })
@@ -32,9 +32,9 @@ async function composeQuestListEmbed(msg: Message) {
   })
     .setDescription(
       composeNameDescriptionList([
-        { name: "[Easy] - a", description: "easy quest" },
-        { name: "[Medium] - b", description: "medium quest" },
-        { name: "[Hard] - c", description: "hard quest" },
+        { name: "[Easy] - WIP", description: "An easy quest" },
+        { name: "[Medium] - WIP", description: "A medium quest" },
+        { name: "[Hard] - WIP", description: "A hard quest" },
       ])
     )
     .setThumbnail("attachment://img.jpeg")
