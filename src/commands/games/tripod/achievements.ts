@@ -10,7 +10,6 @@ import {
 } from "utils/discordEmbed"
 import { mappings } from "./mappings"
 import chunk from "lodash.chunk"
-import { defaultEmojis } from "utils/common"
 import { createCanvas, loadImage } from "canvas"
 
 export const achievements = {
@@ -167,9 +166,7 @@ export async function composeAchievementListEmbed(
     .setDescription(
       composeNameDescriptionList(
         chunk(achievementsList, 5)[pageIdx].map((a) => ({
-          name: `${a[0]}${
-            Math.random() > 0.5 ? ` ${defaultEmojis.CHECK}` : ""
-          }`,
+          name: `${a[0]}`,
           description: a[1].description,
         }))
       )
