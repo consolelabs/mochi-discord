@@ -3,9 +3,10 @@ import { PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
   getErrorEmbed,
-  renderPaginator,
+  getPaginationRow,
+  listenForPaginateAction,
 } from "utils/discordEmbed"
-import { Message, TextChannel } from "discord.js"
+import { Message, MessageEmbed, TextChannel } from "discord.js"
 import config from "adapters/config"
 import { catchEm, paginate } from "utils/common"
 
@@ -42,14 +43,13 @@ const command: Command = {
       )
 
       let pages = paginate(values.flat(), 5)
-      pages = pages.map((arr: any, idx: number) => {
+      pages = pages.map((arr: any, idx: number): MessageEmbed => {
         let roleValue = ""
         let emojiValue = ""
         let channelValue = ""
         const embed = composeEmbedMessage(msg, {
-          title: "Reaction roles",
+          author: ["Reaction roles", msg.guild.iconURL()],
           withoutFooter: true,
-          thumbnail: msg.guild.iconURL(),
         }).setFooter(`Page ${idx + 1} / ${pages.length}`)
 
         arr.forEach((f: any) => {
@@ -67,22 +67,39 @@ const command: Command = {
         return embed
       })
 
-      if (pages.length) {
-        renderPaginator(msg, pages)
-      } else {
+      if (!pages.length) {
         return {
           messageOptions: {
             embeds: [
               composeEmbedMessage(msg, {
                 description: "No configuration found.",
-                title: "Reaction roles",
+                author: ["Reaction roles", msg.guild.iconURL()],
                 withoutFooter: true,
-                thumbnail: msg.guild.iconURL(),
               }),
             ],
           },
         }
       }
+
+      const msgOpts = {
+        messageOptions: {
+          embeds: [pages[0]],
+          components: getPaginationRow(0, pages.length),
+        },
+      }
+      const reply = await msg.reply(msgOpts.messageOptions)
+      listenForPaginateAction(
+        reply,
+        msg,
+        async (_msg: Message, idx: number) => {
+          return {
+            messageOptions: {
+              embeds: [pages[idx]],
+              components: getPaginationRow(idx, pages.length),
+            },
+          }
+        }
+      )
     } else {
       return {
         messageOptions: {
