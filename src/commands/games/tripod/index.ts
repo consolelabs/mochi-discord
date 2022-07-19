@@ -1,7 +1,7 @@
 import type { Command } from "types/common"
 import { PREFIX, VERTICAL_BAR } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { Game, PieceEnum, Position } from "triple-pod-game-engine"
+import { Game, Piece, PieceEnum, Position } from "triple-pod-game-engine"
 import { shopItems, toCanvas } from "./render"
 import {
   ButtonInteraction,
@@ -18,6 +18,7 @@ import profile from "./profile"
 import { GAME_TESTSITE_CHANNEL_IDS } from "env"
 import { fromBoardPosition, toBoardPosition } from "./helpers"
 import { mappings } from "./mappings"
+import { tripodEmojis } from "utils/common"
 
 const getButtonRow = (userId: string) =>
   new MessageActionRow({
@@ -46,7 +47,12 @@ async function getMessageOptions(
           { name: "Activity", value: renderHistory(game), inline: true },
           {
             name: "Hint",
-            value: showHint(game.state.currentPiece.id),
+            value: showHint(game.state.currentPiece),
+            inline: true,
+          },
+          {
+            name: "Game ID",
+            value: `>>> \`${game.id}\`\n(session expires after 5 min)`,
             inline: true,
           },
         ],
@@ -84,7 +90,7 @@ export async function triplePodInteraction(interaction: ButtonInteraction) {
 }
 
 function renderHistory(game: Game) {
-  const lastThreeMoves = game.history.slice(0, 3).map((m) => {
+  const lastMoves = game.history.slice(0, 4).map((m) => {
     switch (m.type) {
       case "put":
         return `Placed ${fromBoardPosition(m.x, m.y)}`
@@ -138,33 +144,73 @@ function renderHistory(game: Game) {
     }
   })
 
-  if (lastThreeMoves.every((p) => !p)) {
-    return ">>> Your action history\nwill be shown here"
+  if (lastMoves.every((p) => !p)) {
+    return ">>> Your action history\nwill be shown here\n(shows last 4 moves)\n\u200B"
   }
 
-  return `>>> ${lastThreeMoves.join("\n")}`
+  return `>>> ${lastMoves.join("\n")}`
 }
 
 function additionalMessage() {
   return `\`<letter><number> e.g a2 b5\` ${VERTICAL_BAR} Place an object on a tile\n\`$tripod ach\` ${VERTICAL_BAR} View triple pod achievements\n\`$tripod daily\` ${VERTICAL_BAR} View your daily quests\n\`end\` ${VERTICAL_BAR} End the game`
 }
 
-function showHint(id: PieceEnum) {
-  switch (id) {
+function showHint(p: Piece) {
+  switch (p.id) {
     case PieceEnum.AIRDROPPER:
-      return ">>> `use <target> <destination>`\ne.g `use a2 b3` means to clone the piece at a2 and place it at b3"
+      return ">>> `use <target> <destination>`\ne.g `use a2 b3` means to clone the piece at a2 and place it at b3\n\u200B"
     case PieceEnum.REROLL_BOX:
-      return ">>> `use`\nThis will overwrite your current piece"
+      return ">>> `use`\nThis will overwrite your current piece\n\u200B\n\u200B"
     case PieceEnum.TELEPORT_PORTAL:
-      return ">>> `use <pos_1> <pos_2>`\ne.g `use d3 d5` means swap d3 with d5"
+      return ">>> `use <pos_1> <pos_2>`\ne.g `use d3 d5` means to swap d3 with d5\n\u200B\n\u200B"
     case PieceEnum.TERRAFORMER:
-      return ">>> `use`\nIf there are no marbles on board, the item will still be consumed"
+      return ">>> `use`\nIf there are no marbles on board, the item will still be consumed\n\u200B\n\u200B"
     case PieceEnum.MEGA_BOMB:
-      return ">>> `use <pos>`\n e.g `use a4` will destroy a4/b4/a3/b3 (the point of origin is a4)"
+      return ">>> `use <pos>`\n e.g `use a4` will destroy a4/b4/a3/b3\n`a4 b4` <- like this\n`a3 b3`"
     case PieceEnum.BOMB:
-      return ">>> `use <pos>`\n e.g `use b3` will destroy the piece at b3"
-    default:
-      return ">>> Specify position e.g `a2`, `d4`, `c3`"
+      return ">>> `use <pos>`\n e.g `use b3` will destroy the piece at b3\n\u200B\n\u200B"
+    case PieceEnum.ROBOT:
+      return ">>> Specify position e.g `a2`, `d4`, `c3`\n\u200B\n\u200B\nThere is a 50% that the bomb will miss and do nothing"
+    case PieceEnum.BEAR:
+      return ">>> Specify position e.g `a2`, `d4`, `c3`\n\u200B\n\u200B\nEvery turn it will move up/down/left/right 1 tile"
+    case PieceEnum.NINJA_BEAR:
+      return ">>> Specify position e.g `a2`, `d4`, `c3`\n\u200B\n\u200B\nRocket Droid jumps to any tile that is empty"
+    case PieceEnum.CRYSTAL:
+      return ">>> Specify position e.g `a2`, `d4`, `c3`\n\u200B\nMimic slime clones the piece adjacent to it to make a match, if there is no match it will turn into a marble"
+    default: {
+      const piece = tripodEmojis[mappings[p?.id]?.emojiName.toUpperCase()]
+      const nextPiece =
+        tripodEmojis[mappings[p.nextTierPiece?.id]?.emojiName.toUpperCase()]
+      const nextSuperPiece =
+        tripodEmojis[
+          mappings[p.nextSuperTierPiece?.id]?.emojiName.toUpperCase()
+        ]
+      let text = ">>> Specify position e.g `a2`, `d4`, `c3`"
+      if (piece && nextPiece && nextSuperPiece) {
+        text += `\n\u200B\n${[
+          `<:_:${piece}>`,
+          " + ",
+          `<:_:${piece}>`,
+          " + ",
+          `<:_:${piece}>`,
+          " = ",
+          `<:_:${nextPiece}>`,
+        ].join("")}\n${[
+          `<:_:${piece}>`,
+          " + ",
+          `<:_:${piece}>`,
+          " + ",
+          `<:_:${piece}>`,
+          " + ",
+          `<:_:${piece}>`,
+          " = ",
+          `<:_:${nextSuperPiece}>`,
+        ].join("")}`
+        return text
+      }
+      text += `\n\u200B`.repeat(3)
+      return text
+    }
   }
 }
 
@@ -329,7 +375,7 @@ const command: Command = {
         await msg.reply(await getMessageOptions(game, msg))
         GameSessionManager.createSessionIfNotAlready(msg.author, {
           name: "triple-town",
-          data: { message: msg, game, user: msg.author },
+          data: { game },
         })
       } else {
         msg.reply(`You're already in a session! Type \`end\` to quit`)

@@ -27,7 +27,7 @@ import sharp from "sharp"
 export const shopItems = [
   {
     ...airdropper,
-    desc: "Clone a piece",
+    desc: "Clone a piece on the board",
   },
   {
     ...rerollBox,
@@ -39,7 +39,7 @@ export const shopItems = [
   },
   {
     ...terraformer,
-    desc: "Destroy all rocks on the board",
+    desc: "Destroy all marbles on the board",
   },
   {
     ...megaBomb,
@@ -392,9 +392,13 @@ function drawPieces(ctx: CanvasRenderingContext2D, game: Game) {
       ctx.drawImage(
         image,
         j * tileSize + boardPadding,
-        i * tileSize + 200 + boardPadding + container.y.from,
+        i * tileSize +
+          200 +
+          boardPadding +
+          container.y.from -
+          (image.height - 200),
         tileSize,
-        tileSize
+        image.height
       )
     })
   })
@@ -419,40 +423,36 @@ function highlightLastMove(ctx: CanvasRenderingContext2D, game: Game) {
   }
 }
 
-function drawAssitMode(ctx: CanvasRenderingContext2D) {
-  ctx.font = "50px Whitney"
+function drawAssitMode(ctx: CanvasRenderingContext2D, fullMap = false) {
+  ctx.font = "40px Whitney"
   ctx.fillStyle = "rgba(255, 255, 255, 0.2)"
 
   const texts = ["a", "b", "c", "d", "e", "f"]
+  const numbers = new Array(6).fill(0).map((_, i) => i + 1)
 
-  for (let i = 0; i < 6; i++) {
-    let text = `${i + 1}${texts[i]}`
-    if (i === 0) {
-      fillWrappedText(
-        ctx,
-        text,
-        180 + boardPadding - widthOf(ctx, text),
-        1310 - heightOf(ctx, text) + container.y.from,
-        widthOf(ctx, text)
-      )
-    } else {
-      text = `${i + 1}`
-      fillWrappedText(
-        ctx,
-        text,
-        180 + boardPadding - widthOf(ctx, text),
-        1310 - i * tileSize - heightOf(ctx, text) + container.y.from,
-        widthOf(ctx, text)
-      )
-
-      text = `${texts[i]}`
-      fillWrappedText(
-        ctx,
-        text,
-        180 + boardPadding + i * tileSize - widthOf(ctx, text),
-        1310 - heightOf(ctx, text) + container.y.from,
-        widthOf(ctx, text)
-      )
+  for (const [y, num] of numbers.entries()) {
+    for (const [x, text] of texts.entries()) {
+      let fullText = `${num}${text}`
+      if ((x === 0 || y === 0) && !fullMap) {
+        if (x !== 0 || y !== 0) {
+          fullText = x === 0 ? String(num) : text
+        }
+        fillWrappedText(
+          ctx,
+          fullText,
+          180 + boardPadding + x * tileSize - widthOf(ctx, fullText),
+          1300 - y * tileSize - heightOf(ctx, fullText) + container.y.from,
+          widthOf(ctx, fullText)
+        )
+      } else if (fullMap) {
+        fillWrappedText(
+          ctx,
+          fullText,
+          180 + boardPadding + x * tileSize - widthOf(ctx, fullText),
+          1300 - y * tileSize - heightOf(ctx, fullText) + container.y.from,
+          widthOf(ctx, fullText)
+        )
+      }
     }
   }
 }
@@ -626,7 +626,7 @@ export async function toCanvas(game: Game, msg: Message) {
     drawBoard(ctx)
     drawTitle(ctx)
     drawShop(ctx)
-    drawAssitMode(ctx)
+    drawAssitMode(ctx, true)
     drawSwapDisk(ctx)
   } else {
     drawPieces(ctx, game)
