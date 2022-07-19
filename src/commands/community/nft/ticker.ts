@@ -48,7 +48,9 @@ async function composeCollectionInfo(msg: Message, data: any) {
     },
     {
       name: "Marketplace",
-      value: `${marketplaces.map((m: string) => getEmoji(m)).join(" ")}`,
+      value: `${
+        marketplaces?.map((m: string) => getEmoji(m)).join(" ") ?? "N/A"
+      }`,
     },
     {
       name: "Floor price",
