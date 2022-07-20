@@ -24,6 +24,7 @@ import levelrole from "./config/levelRole"
 import nftrole from "./config/nftRole"
 // import globalxp from "./config/globalxp"
 // import eventxp from "./config/eventxp"
+import verify from "./community/verify"
 // import log from "./config/log"
 
 // external
@@ -86,6 +87,7 @@ export const originalCommands: Record<string, Command> = {
   // eventxp,
   // log,
   tripod,
+  verify,
 }
 export const commands = getAllAliases(originalCommands)
 
