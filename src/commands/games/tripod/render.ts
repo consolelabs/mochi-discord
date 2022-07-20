@@ -28,32 +28,37 @@ export const shopItems = [
   {
     ...airdropper,
     desc: "Clone a piece on the board",
+    price: 1000,
   },
   {
     ...rerollBox,
     desc: "Get another item randomly",
+    price: 1000,
   },
   {
     ...teleportPortal,
     desc: "Swap 2 pieces on the board",
+    price: 1000,
   },
   {
     ...terraformer,
-    desc: "Destroy all marbles on the board",
+    desc: "Destroy all marbles",
+    price: 1000,
   },
   {
     ...megaBomb,
     desc: "Destroy a 2x2 area",
+    price: 1000,
   },
   {
     ...bomb,
     desc: "Destroy a 1x1 area",
+    price: 1000,
   },
 ]
 
 const headerHeight = 190
-const boardPadding = 60
-const tileSize = 200
+const boardPadding = 80
 
 const outerContainer: RectangleStats = {
   x: {
@@ -91,30 +96,32 @@ const container: RectangleStats = {
 const board: RectangleStats = {
   x: {
     from: 0,
-    to: 1300,
+    to: 1500,
   },
   y: {
     from: 0,
     to: container.h,
   },
-  w: 1300,
+  w: 1500,
   h: 1500,
   radius: 0,
 }
 
 const shop: RectangleStats = {
   x: {
-    from: 1300,
+    from: 1450,
     to: 2300,
   },
   y: {
     from: container.y.from + 400,
     to: outerContainer.h,
   },
-  w: 1000,
+  w: 800,
   h: 0,
   radius: 0,
 }
+
+const tileSize = (board.w - boardPadding * 2) / 6
 
 type Asset = Partial<{
   images: Partial<Record<PieceEnum, { image: Image; highlighted?: Image }>>
@@ -231,11 +238,11 @@ function drawBoard(ctx: CanvasRenderingContext2D) {
     .map((t, i) => t * (i + 1))
     .forEach((t, i) => {
       // vertical
+      ctx.strokeStyle = "#25305A"
+      ctx.lineWidth = 3
       if (i !== 5) {
-        ctx.lineWidth = 3
-        ctx.strokeStyle = "#4C628A"
         ctx.beginPath()
-        ctx.moveTo(t + boardPadding, tileSize + boardPadding + container.y.from)
+        ctx.moveTo(t + boardPadding, boardPadding + container.y.from)
         ctx.lineTo(t + boardPadding, board.h - boardPadding + container.y.from)
         ctx.stroke()
         ctx.closePath()
@@ -243,7 +250,7 @@ function drawBoard(ctx: CanvasRenderingContext2D) {
       }
 
       // horizontal
-      if (i !== 0) {
+      if (i !== 5) {
         ctx.beginPath()
         ctx.moveTo(boardPadding, t + boardPadding + container.y.from)
         ctx.lineTo(board.w - boardPadding, t + boardPadding + container.y.from)
@@ -255,15 +262,15 @@ function drawBoard(ctx: CanvasRenderingContext2D) {
   ctx.lineWidth = 1
 }
 
-function drawTitle(ctx: CanvasRenderingContext2D) {
-  ctx.drawImage(
-    assets.titleImage,
-    board.w / 2 - 853 / 2,
-    headerHeight + 120 - 105 / 2,
-    853,
-    105
-  )
-}
+// function drawTitle(ctx: CanvasRenderingContext2D) {
+//   ctx.drawImage(
+//     assets.titleImage,
+//     board.w / 2 - 853 / 2,
+//     headerHeight + 120 - 105 / 2,
+//     853,
+//     105
+//   )
+// }
 
 const numToText = ["one", "two", "three", "four", "five", "six"]
 
@@ -383,48 +390,40 @@ function drawShop(ctx: CanvasRenderingContext2D) {
 }
 
 function drawPieces(ctx: CanvasRenderingContext2D, game: Game) {
+  const [x, y] = game.state.lastActionPos
+  const lastPiece = game.state.board[y][x]
+
   game.state.board.forEach((row, i) => {
     row.forEach((cell, j) => {
       let image = assets.images[cell.id].image
       if (i === 0 && j === 0) {
         image = assets.images[game.state.swapPiece?.id ?? empty.id].image
+      } else if (j === x && i === y) {
+        const highlighted = assets.images[lastPiece.id].highlighted
+        if (highlighted) {
+          image = highlighted
+        }
       }
-      ctx.drawImage(
-        image,
-        j * tileSize + boardPadding,
-        i * tileSize +
-          200 +
-          boardPadding +
-          container.y.from -
-          (image.height - 200),
-        tileSize,
-        image.height
-      )
+      if (image) {
+        const horizontalOffset = (image.width - tileSize) / 2
+        ctx.drawImage(
+          image,
+          j * tileSize + boardPadding - horizontalOffset,
+          i * tileSize +
+            boardPadding +
+            container.y.from -
+            (image.height - tileSize) +
+            horizontalOffset,
+          image.width,
+          image.height
+        )
+      }
     })
   })
 }
 
-function highlightLastMove(ctx: CanvasRenderingContext2D, game: Game) {
-  // replace last move's piece with the highlighted version
-  const lastMove = game.history.find((m) => m.type === "put")
-  if (lastMove?.type === "put") {
-    const { x, y } = lastMove
-    const lastPiece = game.state.board[y][x]
-    const image = assets.images[lastPiece.id].highlighted
-    if (image) {
-      ctx.drawImage(
-        image,
-        x * tileSize + boardPadding,
-        y * tileSize + 200 + boardPadding + container.y.from,
-        tileSize,
-        tileSize
-      )
-    }
-  }
-}
-
 function drawAssitMode(ctx: CanvasRenderingContext2D, fullMap = false) {
-  ctx.font = "40px Whitney"
+  ctx.font = "50px Whitney"
   ctx.fillStyle = "rgba(255, 255, 255, 0.2)"
 
   const texts = ["a", "b", "c", "d", "e", "f"]
@@ -432,7 +431,7 @@ function drawAssitMode(ctx: CanvasRenderingContext2D, fullMap = false) {
 
   for (const [y, num] of numbers.entries()) {
     for (const [x, text] of texts.entries()) {
-      let fullText = `${num}${text}`
+      let fullText = `${text}${num}`
       if ((x === 0 || y === 0) && !fullMap) {
         if (x !== 0 || y !== 0) {
           fullText = x === 0 ? String(num) : text
@@ -440,16 +439,26 @@ function drawAssitMode(ctx: CanvasRenderingContext2D, fullMap = false) {
         fillWrappedText(
           ctx,
           fullText,
-          180 + boardPadding + x * tileSize - widthOf(ctx, fullText),
-          1300 - y * tileSize - heightOf(ctx, fullText) + container.y.from,
+          tileSize - 10 + boardPadding + x * tileSize - widthOf(ctx, fullText),
+          board.h -
+            180 -
+            boardPadding -
+            y * tileSize -
+            heightOf(ctx, fullText) +
+            container.y.from,
           widthOf(ctx, fullText)
         )
       } else if (fullMap) {
         fillWrappedText(
           ctx,
           fullText,
-          180 + boardPadding + x * tileSize - widthOf(ctx, fullText),
-          1300 - y * tileSize - heightOf(ctx, fullText) + container.y.from,
+          tileSize - 10 + boardPadding + x * tileSize - widthOf(ctx, fullText),
+          board.h -
+            180 -
+            boardPadding -
+            y * tileSize -
+            heightOf(ctx, fullText) +
+            container.y.from,
           widthOf(ctx, fullText)
         )
       }
@@ -601,13 +610,17 @@ function drawSwapDisk(ctx: CanvasRenderingContext2D) {
   ctx.drawImage(
     assets.disk,
     boardPadding,
-    200 + boardPadding + container.y.from,
+    boardPadding + container.y.from,
     tileSize,
     tileSize
   )
 }
 
-export async function toCanvas(game: Game, msg: Message) {
+export async function toCanvas(
+  game: Game,
+  msg: Message,
+  bal: number | string = "Unlimited"
+) {
   await loadAssets(msg)
 
   const canvas = createCanvas(outerContainer.w, outerContainer.h)
@@ -620,17 +633,16 @@ export async function toCanvas(game: Game, msg: Message) {
 
   drawCurrentPiece(ctx, game)
   drawPoints(ctx, game.state.points)
-  drawCoins(ctx, "Unlimited")
+  drawCoins(ctx, bal)
 
   if (templateMode) {
     drawBoard(ctx)
-    drawTitle(ctx)
+    // drawTitle(ctx)
     drawShop(ctx)
     drawAssitMode(ctx, true)
     drawSwapDisk(ctx)
   } else {
     drawPieces(ctx, game)
-    highlightLastMove(ctx, game)
   }
 
   const buffer = canvas.toBuffer()

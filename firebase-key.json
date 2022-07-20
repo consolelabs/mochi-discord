@@ -1,0 +1,11 @@
+{
+  "type": "service_account",
+  "project_id": "mochi-bot-dev",
+  "private_key_id": "e6206676abb103634a9480ed4fb6564e63a5fd8d",
+  "client_email": "firebase-adminsdk-k3qu0@mochi-bot-dev.iam.gserviceaccount.com",
+  "client_id": "113511848713783169773",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-k3qu0%40mochi-bot-dev.iam.gserviceaccount.com"
+}
