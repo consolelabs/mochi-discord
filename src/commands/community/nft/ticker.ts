@@ -18,7 +18,7 @@ import {
 import community from "adapters/community"
 import { getEmoji, shortenHashOrAddress } from "utils/common"
 import { renderChartImage } from "utils/canvas"
-import { NftCollectionTicker } from "types/nft"
+import { NftCollectionTicker, NftPrice } from "types/nft"
 import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 
@@ -51,7 +51,7 @@ async function composeCollectionTickerEmbed({
 
   const floorPriceAmount = floor_price?.amount
   const totalVolumeAmount = total_volume?.amount
-  const priceToken = floor_price?.token?.symbol?.toUpperCase()
+  const priceToken = floor_price?.token?.symbol?.toUpperCase() ?? ""
   const tokenEmoji = getEmoji(priceToken)
 
   const fields = [
@@ -136,9 +136,10 @@ async function renderNftTickerChart({
     return null
   }
 
-  const chartData = prices.map((p) => +p.amount)
+  const decimals = (p: NftPrice) => p.token?.decimals ?? 0
+  const chartData = prices.map((p) => +p.amount / Math.pow(10, decimals(p)))
   const chart = await renderChartImage({
-    chartLabel: "Floor price (USD)",
+    chartLabel: `Floor price`,
     labels: times,
     data: chartData,
   })
