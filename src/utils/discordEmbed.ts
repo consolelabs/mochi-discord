@@ -342,7 +342,8 @@ export function listenForPaginateAction(
 export function composeDaysSelectMenu(
   customId: string,
   optValuePrefix: string,
-  days: number[]
+  days: number[],
+  defaultVal?: number
 ) {
   const getDropdownOptionDescription = (days: number) =>
     `${getDateStr(dayjs().subtract(days, "day").unix() * 1000)} - ${getDateStr(
@@ -353,7 +354,7 @@ export function composeDaysSelectMenu(
     value: `${optValuePrefix}_${days}`,
     emoji: days > 1 ? "📆" : "🕒",
     description: getDropdownOptionDescription(days),
-    default: days === 7,
+    default: days === (defaultVal ?? 7),
   })
   const selectRow = composeDiscordSelectionRow({
     customId,

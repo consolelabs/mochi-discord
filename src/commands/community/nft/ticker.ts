@@ -23,11 +23,12 @@ import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
+const decimals = (p: NftPrice) => p.token?.decimals ?? 0
 
 async function composeCollectionTickerEmbed({
   msg,
   symbol,
-  days = 7,
+  days = 30,
 }: {
   msg: Message
   symbol: string
@@ -49,8 +50,10 @@ async function composeCollectionTickerEmbed({
     collection_image,
   } = data
 
-  const floorPriceAmount = floor_price?.amount
-  const totalVolumeAmount = total_volume?.amount
+  const floorPriceAmount =
+    +floor_price?.amount / Math.pow(10, decimals(floor_price))
+  const totalVolumeAmount =
+    +total_volume?.amount / Math.pow(10, decimals(total_volume))
   const priceToken = floor_price?.token?.symbol?.toUpperCase() ?? ""
   const tokenEmoji = getEmoji(priceToken)
 
@@ -100,7 +103,8 @@ async function composeCollectionTickerEmbed({
   const selectRow = composeDaysSelectMenu(
     "nft_ticker_selection",
     symbol,
-    dayOpts
+    dayOpts,
+    30
   )
   return {
     messageOptions: {
@@ -112,6 +116,7 @@ async function composeCollectionTickerEmbed({
       userId: msg.author.id,
       guildId: msg.guildId,
       channelId: msg.channelId,
+      messageId: msg.id,
       handler,
     },
   }
@@ -119,7 +124,7 @@ async function composeCollectionTickerEmbed({
 
 async function renderNftTickerChart({
   symbol,
-  days = 7,
+  days = 30,
   data,
 }: {
   symbol?: string
@@ -136,7 +141,6 @@ async function renderNftTickerChart({
     return null
   }
 
-  const decimals = (p: NftPrice) => p.token?.decimals ?? 0
   const chartData = prices.map((p) => +p.amount / Math.pow(10, decimals(p)))
   const chart = await renderChartImage({
     chartLabel: `Floor price`,
