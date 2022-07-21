@@ -380,6 +380,29 @@ class Community {
     return json
   }
 
+  public async createVerifyWalletChannel(req: {
+    guild_id: string
+    verify_channel_id: string
+  }) {
+    const res = await fetch(`${API_BASE_URL}/verify/config`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(req),
+    })
+    if (res.status !== 201) {
+      throw new Error(
+        `failed to create verify wallet channel ${req.verify_channel_id}`
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+  }
+
   public async giftXp(req: {
     admin_discord_id: string
     user_discord_id: string
