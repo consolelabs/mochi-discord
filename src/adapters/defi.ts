@@ -7,7 +7,6 @@ import {
   DiscordWalletBalances,
   Coin,
 } from "types/defi"
-import dayjs from "dayjs"
 import { BotBaseError, InvalidInputError } from "errors"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
@@ -247,10 +246,6 @@ class Defi {
       throw new Error(json.error)
     }
     return json.data
-  }
-
-  public getDateStr(timestamp: number) {
-    return dayjs(timestamp).format("MMMM DD, YYYY")
   }
 
   /**

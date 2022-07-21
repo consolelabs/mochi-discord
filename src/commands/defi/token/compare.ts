@@ -5,19 +5,17 @@ import {
   MessageActionRow,
   MessageAttachment,
   MessageSelectMenu,
-  MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
 import { PREFIX } from "utils/constants"
 import { getCommandArguments } from "utils/commands"
 import {
-  composeDiscordSelectionRow,
   composeDiscordExitButton,
   composeEmbedMessage,
   getErrorEmbed,
+  composeDaysSelectMenu,
 } from "utils/discordEmbed"
 import Defi from "adapters/defi"
-import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { getGradientColor, renderChartImage } from "utils/canvas"
 export const coinNotFoundResponse = (msg: Message, coinQ: string) => ({
@@ -164,23 +162,11 @@ async function composeTokenComparisonEmbed(
     days: 7,
   })
 
-  const getDropdownOptionDescription = (days: number) =>
-    `${Defi.getDateStr(
-      dayjs().subtract(days, "day").unix() * 1000
-    )} - ${Defi.getDateStr(dayjs().unix() * 1000)}`
-
-  const opt = (days: number): MessageSelectOptionData => ({
-    label: `${days === 365 ? "1 year" : `${days} day${days > 1 ? "s" : ""}`}`,
-    value: `${baseCoinId}_${targetCoinId}_${days}`,
-    emoji: days > 1 ? "📆" : "🕒",
-    description: getDropdownOptionDescription(days),
-    default: days === 7,
-  })
-  const selectRow = composeDiscordSelectionRow({
-    customId: "tickers_range_selection",
-    placeholder: "Make a selection",
-    options: [opt(1), opt(7), opt(14), opt(30), opt(90)],
-  })
+  const selectRow = composeDaysSelectMenu(
+    "compare_token_selection",
+    `${baseCoinId}_${targetCoinId}`,
+    [1, 7, 14, 30, 90]
+  )
 
   return {
     messageOptions: {

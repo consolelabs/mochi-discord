@@ -18,6 +18,7 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
+import dayjs from "dayjs"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -296,4 +297,8 @@ export function capitalizeFirst(str: string) {
     .split(/ +/g)
     .map((w) => `${w[0].toUpperCase()}${w.slice(1)}`)
     .join(SPACE)
+}
+
+export function getDateStr(timestamp: number) {
+  return dayjs(timestamp).format("MMMM DD, YYYY")
 }
