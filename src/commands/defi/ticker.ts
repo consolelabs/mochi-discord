@@ -22,9 +22,9 @@ import {
   composeDiscordExitButton,
   composeEmbedMessage,
   getErrorEmbed,
+  composeDaysSelectMenu,
 } from "utils/discordEmbed"
 import Defi from "adapters/defi"
-import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { getGradientColor, renderChartImage } from "utils/canvas"
 
@@ -226,23 +226,11 @@ async function composeTickerEmbed(
     currency,
   })
 
-  const getDropdownOptionDescription = (days: number) =>
-    `${Defi.getDateStr(
-      dayjs().subtract(days, "day").unix() * 1000
-    )} - ${Defi.getDateStr(dayjs().unix() * 1000)}`
-
-  const opt = (days: number): MessageSelectOptionData => ({
-    label: `${days === 365 ? "1 year" : `${days} day${days > 1 ? "s" : ""}`}`,
-    value: `${coin.id}_${currency}_${days}`,
-    emoji: days > 1 ? "📆" : "🕒",
-    description: getDropdownOptionDescription(days),
-    default: days === 7,
-  })
-  const selectRow = composeDiscordSelectionRow({
-    customId: "tickers_range_selection",
-    placeholder: "Make a selection",
-    options: [opt(1), opt(7), opt(30), opt(60), opt(90), opt(365)],
-  })
+  const selectRow = composeDaysSelectMenu(
+    "tickers_range_selection",
+    `${coin.id}_${currency}`,
+    [1, 7, 30, 60, 90, 365]
+  )
 
   return {
     messageOptions: {

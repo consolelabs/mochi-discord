@@ -1,8 +1,8 @@
-import dayjs from "dayjs"
 import { Message } from "discord.js"
 import fetch from "node-fetch"
 import { CampaignWhitelistUser } from "types/common"
 import { InvitesInput } from "types/community"
+import { NftCollectionTicker } from "types/nft"
 import { API_BASE_URL } from "utils/constants"
 
 class Community {
@@ -281,9 +281,15 @@ class Community {
     return json.data
   }
 
-  public async getNFTCollectionTickers(symbol: string) {
-    const to = dayjs().unix() * 1000
-    const from = dayjs().subtract(1, "day").unix() * 1000
+  public async getNFTCollectionTickers({
+    symbol,
+    from,
+    to,
+  }: {
+    symbol: string
+    from: number
+    to: number
+  }): Promise<NftCollectionTicker> {
     const res = await fetch(
       `${API_BASE_URL}/nfts/collections/${symbol}/tickers?from=${from}&to=${to}`,
       {

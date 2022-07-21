@@ -7,6 +7,7 @@ import {
   MessageOptions,
   MessageSelectMenu,
   MessageSelectMenuOptions,
+  MessageSelectOptionData,
 } from "discord.js"
 import { COMMA, HOMEPAGE_URL, VERTICAL_BAR } from "./constants"
 import {
@@ -15,6 +16,7 @@ import {
   getEmoji,
   getCommandsList,
   msgColors,
+  getDateStr,
 } from "./common"
 import {
   getCommandObject,
@@ -26,6 +28,7 @@ import {
   MessageButtonStyles,
   MessageComponentTypes,
 } from "discord.js/typings/enums"
+import dayjs from "dayjs"
 
 export const EMPTY_FIELD = {
   name: "\u200B",
@@ -334,4 +337,28 @@ export function listenForPaginateAction(
     .on("end", () => {
       replyMsg.edit({ components: [] })
     })
+}
+
+export function composeDaysSelectMenu(
+  customId: string,
+  optValuePrefix: string,
+  days: number[]
+) {
+  const getDropdownOptionDescription = (days: number) =>
+    `${getDateStr(dayjs().subtract(days, "day").unix() * 1000)} - ${getDateStr(
+      dayjs().unix() * 1000
+    )}`
+  const opt = (days: number): MessageSelectOptionData => ({
+    label: `${days === 365 ? "1 year" : `${days} day${days > 1 ? "s" : ""}`}`,
+    value: `${optValuePrefix}_${days}`,
+    emoji: days > 1 ? "📆" : "🕒",
+    description: getDropdownOptionDescription(days),
+    default: days === 7,
+  })
+  const selectRow = composeDiscordSelectionRow({
+    customId,
+    placeholder: "Make a selection",
+    options: days.map((d) => opt(d)),
+  })
+  return selectRow
 }
