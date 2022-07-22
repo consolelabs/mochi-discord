@@ -334,6 +334,7 @@ export async function renderChartImage({
           pointRadius: 0,
           fill: true,
           ...colorConfig,
+          tension: 0.5,
         },
       ],
     },
