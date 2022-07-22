@@ -10,11 +10,13 @@ import {
   MessageActionRow,
   MessageButton,
   ReplyMessageOptions,
+  TextChannel,
 } from "discord.js"
 import GameSessionManager from "utils/GameSessionManager"
 import ach from "./achievements"
 import quest from "./quest"
 import profile from "./profile"
+import top from "./top"
 import { GAME_TESTSITE_CHANNEL_IDS } from "env"
 import { fromBoardPosition, toBoardPosition } from "./helpers"
 import { mappings } from "./mappings"
@@ -29,6 +31,12 @@ const getButtonRow = (userId: string) =>
         label: "Help",
         style: "SECONDARY",
       }),
+      new MessageButton({
+        customId: `triple-pod-${userId}-cheatsheet`,
+        emoji: "📜",
+        label: "Cheatsheet",
+        style: "SECONDARY",
+      }),
     ],
   })
 
@@ -37,12 +45,23 @@ const color: ColorResolvable = "#62A1FE"
 async function getMessageOptions(
   game: Game,
   msg: Message,
-  showHelp = false
+  bal?: number | string
 ): Promise<ReplyMessageOptions> {
   return {
     components: [getButtonRow(msg.author.id)],
     embeds: [
       {
+        image: {
+          url: "https://media.discordapp.net/attachments/984660970624409630/999250271731462244/tripod-banner.png",
+        },
+        color,
+      },
+      {
+        image: { url: "attachment://board.png" },
+        color,
+      },
+      {
+        description: `\`${game.id}\``,
         fields: [
           { name: "Activity", value: renderHistory(game), inline: true },
           {
@@ -51,37 +70,43 @@ async function getMessageOptions(
             inline: true,
           },
           {
-            name: "Game ID",
-            value: `>>> \`${game.id}\`\n(session expires after 5 min)`,
-            inline: true,
+            name: "\u200B",
+            value: `<:_:974507016536072242> Powered by [Mochi](https://discord.gg/XQR36DQQGh), a product by ConsoleLabs`,
           },
         ],
         color,
       },
-      {
-        image: { url: "attachment://board.png" },
-        color,
-      },
-      ...(showHelp ? [{ description: additionalMessage(), color }] : []),
     ],
-    files: [await toCanvas(game, msg)],
+    files: [await toCanvas(game, msg, bal)],
   }
 }
 
 export async function triplePodInteraction(interaction: ButtonInteraction) {
   if (GAME_TESTSITE_CHANNEL_IDS.includes(interaction.channelId)) {
-    const session = GameSessionManager.getSession(interaction.user)
+    const session = GameSessionManager.getSession(interaction.user.id)
     const action = interaction.customId.split("-").at(-1)
     const userId = interaction.customId.split("-").at(-2)
     if (session && !session.data.game.done && interaction.user.id === userId) {
-      const game = session.data.game
       switch (action) {
         case "help": {
-          interaction.deferUpdate()
-          const msg = interaction.message as Message
-          await msg.edit(await getMessageOptions(game, msg, true))
+          await interaction.reply({
+            ephemeral: true,
+            embeds: [
+              {
+                description: additionalMessage(),
+                color,
+              },
+            ],
+          })
           break
         }
+        case "cheatsheet":
+          await interaction.reply({
+            ephemeral: true,
+            content:
+              "https://media.discordapp.net/attachments/984660970624409630/999223351090348092/cheatsheet.png",
+          })
+          break
         default:
           break
       }
@@ -145,14 +170,14 @@ function renderHistory(game: Game) {
   })
 
   if (lastMoves.every((p) => !p)) {
-    return ">>> Your action history\nwill be shown here\n(shows last 4 moves)\n\u200B"
+    return ">>> Your action history\nwill be shown here\n(last 4 moves)\n\u200B"
   }
 
   return `>>> ${lastMoves.join("\n")}`
 }
 
 function additionalMessage() {
-  return `\`<letter><number> e.g a2 b5\` ${VERTICAL_BAR} Place an object on a tile\n\`$tripod ach\` ${VERTICAL_BAR} View triple pod achievements\n\`$tripod daily\` ${VERTICAL_BAR} View your daily quests\n\`end\` ${VERTICAL_BAR} End the game`
+  return `\`<letter><number> e.g a2 b5\` ${VERTICAL_BAR} Place an object on a tile\n\`${PREFIX}tripod ach\` ${VERTICAL_BAR} View triple pod achievements\n\`${PREFIX}tripod daily\` ${VERTICAL_BAR} View your daily quests\n\`${PREFIX}tripod top\` ${VERTICAL_BAR} View leaderboard\n\`end\` ${VERTICAL_BAR} End the game`
 }
 
 function showHint(p: Piece) {
@@ -170,7 +195,7 @@ function showHint(p: Piece) {
     case PieceEnum.BOMB:
       return ">>> `use <pos>`\n e.g `use b3` will destroy the piece at b3\n\u200B\n\u200B"
     case PieceEnum.ROBOT:
-      return ">>> Specify position e.g `a2`, `d4`, `c3`\n\u200B\n\u200B\nThere is a 50% that the bomb will miss and do nothing"
+      return ">>> Specify position e.g `a2`, `d4`, `c3`\n\u200B\nThere is a 50% that the bomb will miss and do nothing"
     case PieceEnum.BEAR:
       return ">>> Specify position e.g `a2`, `d4`, `c3`\n\u200B\n\u200B\nEvery turn it will move up/down/left/right 1 tile"
     case PieceEnum.NINJA_BEAR:
@@ -216,11 +241,11 @@ function showHint(p: Piece) {
 
 export async function handlePlayTripod(msg: Message) {
   if (GAME_TESTSITE_CHANNEL_IDS.includes(msg.channel.id) && msg.content) {
-    const session = GameSessionManager.getSession(msg.author)
+    const session = GameSessionManager.getSession(msg.author.id)
     if (session) {
       const { name, data } = session
       const input = msg.content.trim().toLowerCase()
-      if (name === "triple-town") {
+      if (name === "triple-pod") {
         msg.channel.sendTyping()
         const { game } = data
         let validMsg = false
@@ -228,10 +253,14 @@ export async function handlePlayTripod(msg: Message) {
           game.nextState({ type: "end" })
           validMsg = true
         } else if (input.startsWith("buy")) {
+          const balance = data.balance
           const [, num] = input.split(" ")
-          if (shopItems[Number(num) - 1]) {
-            game.nextState({ type: "buy", piece: shopItems[Number(num) - 1] })
+          const shopItem = shopItems[Number(num) - 1]
+          if (shopItem && shopItem.price <= balance) {
+            game.nextState({ type: "buy", piece: shopItem })
             validMsg = true
+            const newBalance = Math.max(0, balance - shopItem.price)
+            session.data.balance = newBalance
           }
         } else if (input === "swap") {
           game.nextState({ type: "swap" })
@@ -329,15 +358,17 @@ export async function handlePlayTripod(msg: Message) {
           validMsg = true
         }
         if (validMsg) {
+          // resync session data
+          GameSessionManager.getSession(msg.author.id)
           // TODO: needs BE to persist data
-          await msg.reply(await getMessageOptions(game, msg))
+          await msg.reply(await getMessageOptions(game, msg, data.balance))
           // Object.entries(achievements.turn).forEach(([achName, achDetail]) => {
           //   if (achDetail.check(game)) {
           //     reply.reply(`Achievement unlocked: \`${achName}\``)
           //   }
           // })
           if (game.done) {
-            GameSessionManager.leaveSession(msg.author)
+            GameSessionManager.leaveSession(msg.author.id)
             GameSessionManager.removeSession(session)
             // TODO: needs BE to persist data
             // Object.entries(achievements.session).forEach(
@@ -358,6 +389,7 @@ const actions: Record<string, Command> = {
   ach,
   daily: quest,
   profile,
+  top,
 }
 
 const command: Command = {
@@ -368,14 +400,23 @@ const command: Command = {
   colorType: "Game",
   run: async function (msg) {
     if (GAME_TESTSITE_CHANNEL_IDS.includes(msg.channel.id) && msg.content) {
-      const session = GameSessionManager.getSession(msg.author)
+      const session = GameSessionManager.getSession(msg.author.id)
       if (!session) {
         const game = new Game()
         game.start()
-        await msg.reply(await getMessageOptions(game, msg))
-        GameSessionManager.createSessionIfNotAlready(msg.author, {
-          name: "triple-town",
-          data: { game },
+        const bal = 2000
+        await msg.reply(await getMessageOptions(game, msg, bal))
+        GameSessionManager.createSessionIfNotAlready(msg.author.id, {
+          name: "triple-pod",
+          data: {
+            game,
+            userId: msg.author.id,
+            guild: msg.guild.name,
+            channel: (msg.channel as TextChannel).name,
+            username: msg.author.username,
+            discriminator: msg.author.discriminator,
+            balance: bal,
+          },
         })
       } else {
         msg.reply(`You're already in a session! Type \`end\` to quit`)

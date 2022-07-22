@@ -17,7 +17,7 @@ import {
 } from "utils/discordEmbed"
 import community from "adapters/community"
 import { getEmoji, shortenHashOrAddress } from "utils/common"
-import { renderChartImage } from "utils/canvas"
+import { getGradientColor, renderChartImage } from "utils/canvas"
 import { NftCollectionTicker, NftPrice } from "types/nft"
 import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
@@ -146,6 +146,13 @@ async function renderNftTickerChart({
     chartLabel: `Floor price`,
     labels: times,
     data: chartData,
+    colorConfig: {
+      borderColor: "#f5bc00",
+      backgroundColor: getGradientColor(
+        "rgba(172,136,41,0.9)",
+        "rgba(73,67,55,0.5)"
+      ),
+    },
   })
   return new MessageAttachment(chart, "chart.png")
 }
