@@ -44,7 +44,7 @@ function getIcon(iconList: NFTMetadataAttrIcon[], iconName: string): string {
   if (!iconList) {
     return getEmoji(iconName)
   }
-  const icon = iconList.find((i) => i.discord_icon === iconName)
+  const icon = iconList.find((i) => i.trait_type === iconName)
 
   if (icon) {
     return icon.discord_icon
