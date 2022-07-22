@@ -1,10 +1,14 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import wallet from "./wallet"
+import create from "./create"
+import list from "./list"
+import remove from "./remove"
 
 const actions: Record<string, Command> = {
-  wallet,
+  create,
+  list,
+  remove,
 }
 
 const command: Command = {
