@@ -44,16 +44,15 @@ function getIcon(iconList: NFTMetadataAttrIcon[], iconName: string): string {
   if (!iconList) {
     return getEmoji(iconName)
   }
-  iconList.forEach((icon) => {
-    // "traits likes "blood type" has whitespace
-    if (icon.trait_type == iconName.replaceAll(" ", "")) {
-      const lower = `<${icon.discord_icon.toLowerCase()}>`
-      return lower
-    }
-  })
+  const icon = iconList.find((i) => i.discord_icon === iconName)
+
+  if (icon) {
+    return icon.discord_icon
+  }
 
   return getEmoji(iconName)
 }
+
 async function composeNFTDetail(
   msg: Message,
   collectionSymbol: string,
