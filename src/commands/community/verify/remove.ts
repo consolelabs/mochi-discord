@@ -2,29 +2,20 @@ import { Command } from "types/common"
 import community from "adapters/community"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
-  id: "verify_wallet",
-  command: "wallet",
-  brief: "Verify user wallet",
+  id: "verify_remove",
+  command: "remove",
+  brief: "remove verify channel",
   category: "Community",
   run: async function (msg) {
-    const args = getCommandArguments(msg)
-    const channelId = args[2].slice(2, args[2].length - 1)
-
-    const createVerifyWalletRequest = {
-      verify_channel_id: channelId,
-      guild_id: msg.guildId,
-    }
-
-    await community.createVerifyWalletChannel(createVerifyWalletRequest)
+    await community.deleteVerifyWalletChannel(msg.guildId)
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
             title: "Verify wallet channel",
-            description: `Successfully created a channel for verifying wallet.`,
+            description: `Verify wallet channel successfully removed.`,
           }),
         ],
       },
@@ -33,14 +24,14 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}verify wallet <channel>`,
-        examples: `${PREFIX}verify wallet #general`,
+        usage: `${PREFIX}verify remove`,
+        examples: `${PREFIX}verify remove`,
       }),
     ],
   }),
   canRunWithoutAction: true,
   colorType: "Server",
-  minArguments: 3,
+  minArguments: 2,
 }
 
 export default command
