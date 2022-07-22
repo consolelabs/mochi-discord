@@ -9,7 +9,7 @@ import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import { GuildMember, MessageAttachment } from "discord.js"
 import { CircleleStats, RectangleStats } from "types/canvas"
 import { NFTCollection } from "types/community"
-import { msgColors, thumbnails } from "./common"
+import { emojis, getEmojiURL, msgColors, thumbnails } from "./common"
 import { SPACE } from "./constants"
 
 export function widthOf(ctx: CanvasRenderingContext2D, text: string): number {
@@ -477,4 +477,130 @@ export async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   })
 
   return new MessageAttachment(canvas.toBuffer(), "nftlist.png")
+}
+
+export async function drawLeaderboard(options: {
+  rows: { username: string; discriminator: string; rightValue: string }[]
+  leftHeader: string
+  rightHeader: string
+}) {
+  const container: RectangleStats = {
+    x: {
+      from: 0,
+      to: 870,
+    },
+    y: {
+      from: 0,
+      to: 670,
+    },
+    w: 0,
+    h: 0,
+    pt: 50,
+    pl: 30,
+    radius: 30,
+    bgColor: "rgba(0, 0, 0, 0)", // transparent
+  }
+  container.w = container.x.to - container.x.from
+  container.h = container.y.to - container.y.from
+  const canvas = createCanvas(container.w, container.h)
+  const ctx = canvas.getContext("2d")
+  ctx.save()
+  drawRectangle(ctx, container, container.bgColor)
+  ctx.clip()
+
+  // divider
+  drawDivider(
+    ctx,
+    container.x.from + container.pl,
+    container.x.to - container.pl,
+    0
+  )
+
+  // left title
+  ctx.font = "bold 33px Manrope"
+  ctx.fillStyle = "white"
+  const userTitleStr = options.leftHeader
+  const userTitle = {
+    x: container.x.from + container.pl,
+    y: container.pt,
+    mb: 20,
+  }
+  ctx.fillText(userTitleStr, userTitle.x, userTitle.y)
+
+  // right title
+  const rightTitleStr = options.rightHeader
+  const rightTitle = {
+    x: 650,
+    y: userTitle.y,
+  }
+  ctx.fillText(rightTitleStr, rightTitle.x, rightTitle.y)
+
+  // users
+  const badgeIcon = {
+    w: 30,
+    h: 40,
+    mr: 30,
+  }
+  const line = {
+    x: userTitle.x,
+    y: userTitle.y + userTitle.mb,
+    h: 40,
+    mb: 20,
+  }
+  const username = {
+    x: line.x + badgeIcon.w + badgeIcon.mr,
+    y: line.y,
+    mr: 10,
+  }
+  ctx.font = "27px Manrope"
+  for (const [index, item] of options.rows.entries()) {
+    username.y +=
+      heightOf(ctx, item.username) +
+      (badgeIcon.h - heightOf(ctx, item.username)) / 2
+    switch (index + 1) {
+      case 1:
+      case 2:
+      case 3: {
+        // icon
+        const badgeImg = await loadImage(
+          getEmojiURL(emojis[`BADGE${index + 1}`])
+        )
+        ctx.drawImage(badgeImg, line.x, line.y, badgeIcon.w, badgeIcon.h)
+        break
+      }
+      default: {
+        const rankStr = `${index + 1 < 10 ? `0${index + 1}.` : `${index + 1}.`}`
+        ctx.fillStyle = "#898A8C"
+        ctx.fillText(rankStr, line.x, username.y)
+        break
+      }
+    }
+    // username
+    ctx.font = "bold 27px Manrope"
+    ctx.fillStyle = "white"
+    ctx.fillText(item.username, username.x, username.y)
+
+    // discriminator
+    const discriminator = {
+      x: username.x + widthOf(ctx, item.username) + username.mr,
+      y: username.y,
+      mr: 20,
+    }
+    ctx.font = "27px Manrope"
+    ctx.fillStyle = "#888888"
+    ctx.fillText(`#${item.discriminator}`, discriminator.x, discriminator.y)
+
+    // right value
+    const rightStr = `${item.rightValue} `
+    ctx.font = "bold 27px Manrope"
+    ctx.fillStyle = "#BFBFBF"
+    const rightValue = {
+      x: rightTitle.x,
+      y: discriminator.y,
+      w: widthOf(ctx, rightStr),
+    }
+    ctx.fillText(rightStr, rightValue.x, rightValue.y)
+  }
+
+  return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")
 }

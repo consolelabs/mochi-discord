@@ -1,3 +1,5 @@
+import { Data, Game } from "triple-pod-game-engine"
+
 const horizontalPos = ["a", "b", "c", "d", "e", "f"]
 
 export function toBoardPosition(input: string) {
@@ -26,4 +28,12 @@ export function fromBoardPosition(x: number, y: number) {
   if (x < 0 || x > 5 || y < 0 || y > 5) return false
 
   return `${horizontalPos[x]}${6 - y}`
+}
+
+export function restoreGameState(game: Game, history: Array<Data>) {
+  game.start()
+  history.forEach((d) => {
+    game.nextState(d)
+  })
+  return game
 }

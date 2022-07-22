@@ -1,13 +1,31 @@
-import { Snowflake, User } from "discord.js"
+import { Snowflake } from "discord.js"
 import { logger } from "logger"
-import type { Game as TripodGame } from "triple-pod-game-engine"
+import { Game as TripodGame } from "triple-pod-game-engine"
+import { initializeApp, cert } from "firebase-admin/app"
+import { getFirestore } from "firebase-admin/firestore"
+import serviceAccount from "../../firebase-key.json"
+import ChannelLogger from "./ChannelLogger"
+import { GameSessionPersistError } from "errors/GameSessionPersistError"
+import { restoreGameState } from "commands/games/tripod/helpers"
+import { FIRESTORE_KEY } from "../env"
+
+type GameName = TripodGame["name"]
 
 type Session = {
   name: TripodGame["name"]
   data: {
     game: TripodGame
+    guild: string
+    channel: string
+    userId: string
+    username: string
+    discriminator: string
+    balance: number
   }
 }
+
+const gameSessionsKey = "game-sessions"
+const leaderboardKey = "leaderboard"
 
 // 5 mins
 const DEFAULT_TIMEOUT_DURATION_IN_MS = 300000
@@ -18,6 +36,88 @@ class GameSessionManager {
   private sessions: Array<Session> = []
   private timeoutCheckers: Map<Session, NodeJS.Timeout> = new Map()
   private timeouts: Map<Session, number> = new Map()
+  private store: FirebaseFirestore.Firestore
+  private loading = false
+  private loaded = false
+
+  constructor() {
+    initializeApp({
+      credential: cert({
+        ...serviceAccount,
+        privateKey: FIRESTORE_KEY.replaceAll("\\n", "\n"),
+      }),
+    })
+    this.store = getFirestore()
+    logger.info("Firestore - init OK")
+    this.restoreSession()
+  }
+
+  async restoreSession() {
+    logger.info("Firestore - retrieving session data...")
+    this.loading = true
+    const collections = await this.store.listCollections()
+    const promises = collections.map(async (col) => {
+      if (col.id === gameSessionsKey) {
+        const snapshot = await col.get()
+        snapshot.forEach((doc) => {
+          const data = doc.data()
+          if (!data.ended) {
+            let Game
+            let name: GameName
+            switch (data.game) {
+              case "triple-pod":
+                Game = TripodGame
+                name = "triple-pod"
+                break
+              default:
+                break
+            }
+            if (Game && name) {
+              let game = new Game(data.gameId)
+              const history = JSON.parse(data.history)
+              game = restoreGameState(game, history)
+              this.createSessionIfNotAlready(doc.id, {
+                name,
+                data: {
+                  game,
+                  userId: doc.id,
+                  channel: data.channel,
+                  guild: data.guild,
+                  username: data.username,
+                  discriminator: data.discriminator,
+                  balance: data.balance,
+                },
+              })
+            }
+          }
+        })
+      }
+    })
+
+    await Promise.all(promises)
+    await this.getPoints()
+    this.loading = false
+    this.loaded = true
+    logger.info("Firestore - retrieve OK")
+  }
+
+  async getPoints() {
+    const col = this.store.collection(leaderboardKey)
+    let snapshot = await col.orderBy("pts", "desc").limit(10).get()
+    const leaderboard: any = []
+    snapshot.forEach((doc) => {
+      const data = doc.data()
+      leaderboard.push(data)
+    })
+    const allData: Record<string, any> = {}
+    snapshot = await col.get()
+    snapshot.forEach((doc) => {
+      const data = doc.data()
+      allData[doc.id] = data
+    })
+
+    return { allData, leaderboard }
+  }
 
   // this function checks for session timeout
   // if it is then the session is removed, otherwise it will reschedule another check later
@@ -39,42 +139,87 @@ class GameSessionManager {
 
   refreshSession(session: Session) {
     clearTimeout(this.timeoutCheckers.get(session))
-    this.timeouts.set(session, Date.now() + DEFAULT_TIMEOUT_DURATION_IN_MS)
+    const newExpireAt = Date.now() + DEFAULT_TIMEOUT_DURATION_IN_MS
+    this.timeouts.set(session, newExpireAt)
     this.timeoutCheckers.set(session, this.checkSessionTimeout(session))
+    if (this.store && this.loaded && !this.loading) {
+      const sessionRef = this.store
+        .collection(gameSessionsKey)
+        .doc(session.data.userId)
+      const pointRef = this.store
+        .collection(leaderboardKey)
+        .doc(session.data.userId)
+      try {
+        sessionRef.set({
+          game: session.name,
+          channel: session.data.channel,
+          guild: session.data.guild,
+          gameId: session.data.game.id,
+          expireAt: newExpireAt,
+          history: JSON.stringify([...session.data.game.history].reverse()),
+          ended: session.data.game.done,
+          username: session.data.username,
+          discriminator: session.data.discriminator,
+          balance: session.data.balance,
+        })
+        pointRef.get().then((doc) => {
+          const data = doc.data()
+          const pts = Number(data?.pts ?? 0)
+          if (session.data.game.state.points > pts) {
+            pointRef.set({
+              username: session.data.username,
+              discriminator: session.data.discriminator,
+              pts: session.data.game.state.points,
+            })
+          }
+        })
+      } catch (e: any) {
+        ChannelLogger.log(
+          new GameSessionPersistError({
+            guild: session.data.guild,
+            channel: session.data.channel,
+            gameId: session.data.game.id,
+            gameName: session.name,
+            userId: session.data.userId,
+            err: e?.message ?? "Unknown",
+          })
+        )
+      }
+    }
   }
 
-  createSessionIfNotAlready(initiator: User, session: Session) {
+  createSessionIfNotAlready(initiatorId: string, session: Session) {
     if (
       this.sessions.includes(session) ||
-      this.sessionByUser.get(initiator.id)
+      this.sessionByUser.get(initiatorId)
     ) {
       return false
     }
     this.sessions.push(session)
-    this.sessionByUser.set(initiator.id, session)
-    this.usersBySession.set(session, [initiator.id])
+    this.sessionByUser.set(initiatorId, session)
+    this.usersBySession.set(session, [initiatorId])
     this.refreshSession(session)
     return true
   }
 
-  joinSession(initiator: User, joiner: User) {
-    const session = this.sessionByUser.get(initiator.id)
+  joinSession(initiatorId: string, joinerId: string) {
+    const session = this.sessionByUser.get(initiatorId)
     if (session) {
-      this.sessionByUser.set(joiner.id, session)
-      this.usersBySession.get(session).push(joiner.id)
+      this.sessionByUser.set(joinerId, session)
+      this.usersBySession.get(session).push(joinerId)
       this.refreshSession(session)
       return true
     }
     return false
   }
 
-  leaveSession(user: User) {
-    const session = this.sessionByUser.get(user.id)
+  leaveSession(userId: string) {
+    const session = this.sessionByUser.get(userId)
     if (session) {
-      this.sessionByUser.delete(user.id)
+      this.sessionByUser.delete(userId)
       this.usersBySession.set(
         session,
-        this.usersBySession.get(session).filter((id) => id !== user.id)
+        this.usersBySession.get(session).filter((id) => id !== userId)
       )
       this.refreshSession(session)
       return true
@@ -82,8 +227,8 @@ class GameSessionManager {
     return false
   }
 
-  getSession(user: User) {
-    const session = this.sessionByUser.get(user.id)
+  getSession(userId: string) {
+    const session = this.sessionByUser.get(userId)
     if (session) {
       this.refreshSession(session)
     }
