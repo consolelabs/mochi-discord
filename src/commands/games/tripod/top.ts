@@ -20,7 +20,9 @@ const command: Command = {
       title: `${getEmoji("cup")} ${msg.guild.name}'s Tripod rankings`,
       thumbnail:
         "https://media.discordapp.net/attachments/984660970624409630/999237981250539650/tripod-logo.png",
-      description: `${blank}**Your Points:** ${authorPts.pts}\n\u200B\n\u200B`,
+      description: `${blank}**Your Points:** ${
+        authorPts?.pts ?? 0
+      }\n\u200B\n\u200B`,
       image: "attachment://leaderboard.png",
     })
 
