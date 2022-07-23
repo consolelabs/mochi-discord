@@ -31,12 +31,12 @@ const getButtonRow = (userId: string) =>
         label: "Help",
         style: "SECONDARY",
       }),
-      new MessageButton({
-        customId: `triple-pod-${userId}-cheatsheet`,
-        emoji: "📜",
-        label: "Cheatsheet",
-        style: "SECONDARY",
-      }),
+      // new MessageButton({
+      //   customId: `triple-pod-${userId}-cheatsheet`,
+      //   emoji: "📜",
+      //   label: "Cheatsheet",
+      //   style: "SECONDARY",
+      // }),
     ],
   })
 

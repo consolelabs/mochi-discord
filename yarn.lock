@@ -8059,10 +8059,10 @@ tree-kill@^1.2.2:
   resolved "https://registry.npmjs.org/tree-kill/-/tree-kill-1.2.2.tgz"
   integrity sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==
 
-triple-pod-game-engine@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/triple-pod-game-engine/-/triple-pod-game-engine-4.0.0.tgz#52a2892cc9ec57b17c77155e960f8110b63b59b0"
-  integrity sha512-UoFxBQjJKugHOF1YMaZZDuXUqr+xoN/EJqH2hq0DWGODOIksBZfKSXMr/TLKbJL8ocV+XoWbmOpZxLbJOcUS1Q==
+triple-pod-game-engine@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/triple-pod-game-engine/-/triple-pod-game-engine-4.0.1.tgz#148a0d664fee95d5c56ad84e7bb0b5752225669e"
+  integrity sha512-APR4yPWLie4HHgMJRdyRD7TVk8gTG5dH2On+NnX7xBR0vpOuiwzeCE5aDbgpfBz5alqy35X593h5BIMDb4Nqgw==
   dependencies:
     human-id "^4.0.0"
     prando "^6.0.1"
