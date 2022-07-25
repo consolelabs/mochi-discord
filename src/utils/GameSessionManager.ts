@@ -27,8 +27,8 @@ type Session = {
 const gameSessionsKey = "game-sessions"
 const leaderboardKey = "leaderboard"
 
-// 5 mins
-const DEFAULT_TIMEOUT_DURATION_IN_MS = 300000
+// 15 mins
+const DEFAULT_TIMEOUT_DURATION_IN_MS = 900000
 
 class GameSessionManager {
   private sessionByUser: Map<Snowflake, Session> = new Map()
