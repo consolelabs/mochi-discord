@@ -39,6 +39,7 @@ const command: Command = {
     ],
   }),
   canRunWithoutAction: true,
+  onlyAdministrator: true,
   colorType: "Server",
   minArguments: 3,
 }
