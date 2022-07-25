@@ -424,7 +424,7 @@ function drawPieces(ctx: CanvasRenderingContext2D, game: Game) {
 
 function drawAssitMode(ctx: CanvasRenderingContext2D, fullMap = false) {
   ctx.font = "50px Whitney"
-  ctx.fillStyle = "rgba(255, 255, 255, 0.2)"
+  ctx.fillStyle = "rgba(255, 255, 255, 0.35)"
 
   const texts = ["a", "b", "c", "d", "e", "f"]
   const numbers = new Array(6).fill(0).map((_, i) => i + 1)
