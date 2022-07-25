@@ -23,7 +23,7 @@ import { mappings } from "./mappings"
 import { tripodEmojis } from "utils/common"
 
 function getEmoji(id?: PieceEnum) {
-  return tripodEmojis[mappings[id]?.emojiName.toUpperCase()]
+  return `<:_:${tripodEmojis[mappings[id]?.emojiName.toUpperCase()]}>`
 }
 
 const getButtonRow = (userId: string) =>
@@ -242,23 +242,23 @@ function showHint(p: Piece) {
       let text = ">>> Specify position e.g `a2`, `d4`, `c3`"
       if (piece && nextPiece && nextSuperPiece) {
         text += `\n\u200B\n${[
-          `<:_:${piece}>`,
+          piece,
           " + ",
-          `<:_:${piece}>`,
+          piece,
           " + ",
-          `<:_:${piece}>`,
+          piece,
           " = ",
-          `<:_:${nextPiece}>`,
+          nextPiece,
         ].join("")}\n${[
-          `<:_:${piece}>`,
+          piece,
           " + ",
-          `<:_:${piece}>`,
+          piece,
           " + ",
-          `<:_:${piece}>`,
+          piece,
           " + ",
-          `<:_:${piece}>`,
+          piece,
           " = ",
-          `<:_:${nextSuperPiece}>`,
+          nextSuperPiece,
         ].join("")}`
         return text
       }
