@@ -600,6 +600,8 @@ export async function drawLeaderboard(options: {
       w: widthOf(ctx, rightStr),
     }
     ctx.fillText(rightStr, rightValue.x, rightValue.y)
+    line.y += line.h + line.mb
+    username.y = line.y
   }
 
   return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")

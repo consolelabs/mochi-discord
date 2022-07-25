@@ -25,7 +25,8 @@ export const GAME_TESTSITE_CHANNEL_IDS = process.env
   "999889740520235008",
   "999889800091926609",
   "1000323079156805732",
+  "811572042167222302",
 ]
 export const DISCORD_DEFAULT_AVATAR = process.env.DISCORD_DEFAULT_AVATAR || ""
 export const WEBSITE_ENDPOINT = process.env.WEBSITE_ENDPOINT || ""
-export const FIRESTORE_KEY = process.env.FIRESTORE_KEY
+export const FIRESTORE_KEY = process.env.FIRESTORE_KEY || ""
