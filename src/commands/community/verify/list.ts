@@ -44,6 +44,7 @@ const command: Command = {
   canRunWithoutAction: true,
   colorType: "Server",
   minArguments: 2,
+  onlyAdministrator: true,
 }
 
 export default command

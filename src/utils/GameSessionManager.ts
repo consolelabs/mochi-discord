@@ -27,8 +27,8 @@ type Session = {
 const gameSessionsKey = "game-sessions"
 const leaderboardKey = "leaderboard"
 
-// 5 mins
-const DEFAULT_TIMEOUT_DURATION_IN_MS = 300000
+// 15 mins
+const DEFAULT_TIMEOUT_DURATION_IN_MS = 900000
 
 class GameSessionManager {
   private sessionByUser: Map<Snowflake, Session> = new Map()
@@ -41,15 +41,21 @@ class GameSessionManager {
   private loaded = false
 
   constructor() {
-    initializeApp({
-      credential: cert({
-        ...serviceAccount,
-        privateKey: FIRESTORE_KEY.replaceAll("\\n", "\n"),
-      }),
-    })
-    this.store = getFirestore()
-    logger.info("Firestore - init OK")
-    this.restoreSession()
+    if (!FIRESTORE_KEY) {
+      logger.warn(
+        "Firestore - private key not found, session data will be lost via restarts"
+      )
+    } else {
+      initializeApp({
+        credential: cert({
+          ...serviceAccount,
+          privateKey: FIRESTORE_KEY.replaceAll("\\n", "\n"),
+        }),
+      })
+      this.store = getFirestore()
+      logger.info("Firestore - init OK")
+      this.restoreSession()
+    }
   }
 
   async restoreSession() {
