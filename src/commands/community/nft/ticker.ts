@@ -50,10 +50,12 @@ async function composeCollectionTickerEmbed({
     collection_image,
   } = data
 
-  const floorPriceAmount =
+  const floorPriceAmount = Math.round(
     +floor_price?.amount / Math.pow(10, decimals(floor_price))
-  const totalVolumeAmount =
+  )
+  const totalVolumeAmount = Math.round(
     +total_volume?.amount / Math.pow(10, decimals(total_volume))
+  )
   const priceToken = floor_price?.token?.symbol?.toUpperCase() ?? ""
   const tokenEmoji = getEmoji(priceToken)
 
@@ -76,7 +78,7 @@ async function composeCollectionTickerEmbed({
     },
     {
       name: "Volume",
-      value: `${tokenEmoji} ${totalVolumeAmount} ${priceToken}${blank}`,
+      value: `${tokenEmoji} ${totalVolumeAmount.toLocaleString()} ${priceToken}${blank}`,
     },
     {
       name: "Marketplace",
