@@ -17,7 +17,7 @@ import ach from "./achievements"
 import quest from "./quest"
 import profile from "./profile"
 import top from "./top"
-import { GAME_TESTSITE_CHANNEL_IDS, PROD } from "env"
+import { GAME_TRIPOD_CHANNEL_IDS, GAME_TRIPOD_TEST_CHANNEL_ID, PROD } from "env"
 import { fromBoardPosition, toBoardPosition } from "./helpers"
 import { mappings } from "./mappings"
 import { tripodEmojis } from "utils/common"
@@ -86,7 +86,7 @@ async function getMessageOptions(
 }
 
 export async function triplePodInteraction(interaction: ButtonInteraction) {
-  if (GAME_TESTSITE_CHANNEL_IDS.includes(interaction.channelId)) {
+  if (GAME_TRIPOD_CHANNEL_IDS.includes(interaction.channelId)) {
     const session = GameSessionManager.getSession(interaction.user.id)
     const action = interaction.customId.split("-").at(-1)
     const userId = interaction.customId.split("-").at(-2)
@@ -269,7 +269,7 @@ function showHint(p: Piece) {
 }
 
 export async function handlePlayTripod(msg: Message) {
-  if (GAME_TESTSITE_CHANNEL_IDS.includes(msg.channel.id) && msg.content) {
+  if (GAME_TRIPOD_CHANNEL_IDS.includes(msg.channel.id) && msg.content) {
     const session = GameSessionManager.getSession(msg.author.id)
     if (session) {
       const { name, data } = session
@@ -474,12 +474,13 @@ const command: Command = {
   category: "Game",
   colorType: "Game",
   run: async function (msg) {
-    if (GAME_TESTSITE_CHANNEL_IDS.includes(msg.channel.id) && msg.content) {
+    if (GAME_TRIPOD_CHANNEL_IDS.includes(msg.channel.id) && msg.content) {
       const session = GameSessionManager.getSession(msg.author.id)
       if (!session) {
         const game = new Game()
         game.start()
-        const bal = 2000
+        const bal =
+          msg.channel.id === GAME_TRIPOD_TEST_CHANNEL_ID ? Infinity : 2000
         await msg.reply(await getMessageOptions(game, msg, bal))
         GameSessionManager.createSessionIfNotAlready(msg.author.id, {
           name: "triple-pod",
