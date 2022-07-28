@@ -72,13 +72,16 @@ async function composeNFTDetail(
 
   const { name: colName, image: colImage } =
     await community.getNFTCollectionDetail(collectionSymbol)
-  const { name, attributes, rarity, image } = res.data
+  const { name, attributes, rarity, image, collection_address, token_id } =
+    res.data
 
   // set rank, rarity score empty if have data
   const rarityRate = rarity?.rarity
     ? `**${DOT}** ${getRarityEmoji(rarity.rarity)}`
     : ""
-  let description = `**${name ?? ""}**`
+  let description = `**[${
+    name ?? ""
+  }](https://getmochi.co/nfts/${collection_address}/${token_id})**`
   description += rarity?.rank
     ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
     : ""
