@@ -530,7 +530,7 @@ export async function drawLeaderboard(options: {
   // right title
   const rightTitleStr = options.rightHeader
   const rightTitle = {
-    x: 650,
+    x: 600,
     y: userTitle.y,
   }
   ctx.fillText(rightTitleStr, rightTitle.x, rightTitle.y)

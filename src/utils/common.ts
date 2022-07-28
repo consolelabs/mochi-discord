@@ -31,6 +31,7 @@ export const tokenEmojis: Record<string, string> = {
   ETH: "991657409082830858",
   BNB: "972205674715054090",
   CAKE: "972205674371117126",
+  OP: "1002151912403107930",
 }
 
 export const numberEmojis: Record<string, string> = {

@@ -492,6 +492,20 @@ class Community {
     }
     return json.data
   }
+  public async getCollectionCount() {
+    const res = await fetch(`${API_BASE_URL}/nfts/collections/stats`, {
+      method: "GET",
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to get collection count`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
 }
 
 export default new Community()
