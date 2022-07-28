@@ -15,6 +15,7 @@ async function executeNftAddCommand(args: string[], msg: Message) {
     chain_id: chainId,
     address: address,
     author: msg.author.id,
+    guild_id: msg.guild.id,
   }
   // run store collection API
   const respCollection = await fetch(`${API_BASE_URL}/nfts/collections`, {
@@ -74,6 +75,10 @@ async function executeNftAddCommand(args: string[], msg: Message) {
           "NFT",
           "Already added. Nft is in sync progress"
         )
+      } else if (
+        errorMessageCollection.includes("block number not synced yet")
+      ) {
+        return buildDiscordMessage(msg, "NFT", "Block number is not in sync.")
       } else if (
         errorMessageCollection.includes("Already added. Nft is done with sync")
       ) {
