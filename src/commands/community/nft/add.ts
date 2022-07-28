@@ -4,7 +4,7 @@ import { Message } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 
 async function executeNftAddCommand(args: string[], msg: Message) {
@@ -42,7 +42,8 @@ async function executeNftAddCommand(args: string[], msg: Message) {
       return buildDiscordMessage(
         msg,
         "NFT",
-        "Successfully add new collection to queue"
+        "Successfully add new collection to queue",
+        false
       )
     default:
       if (
@@ -126,8 +127,22 @@ async function executeNftAddCommand(args: string[], msg: Message) {
 const buildDiscordMessage = (
   msg: Message,
   title: string,
-  description: string
+  description: string,
+  err = true
 ) => {
+  if (err) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            msg,
+            title: title,
+            description: description,
+          }),
+        ],
+      },
+    }
+  }
   return {
     messageOptions: {
       embeds: [

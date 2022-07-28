@@ -7,6 +7,7 @@ import volume from "./top"
 import list from "./list"
 import recent from "./recent"
 import query from "./query"
+import stats from "./stats"
 
 const actions: Record<string, Command> = {
   add,
@@ -14,6 +15,7 @@ const actions: Record<string, Command> = {
   ticker,
   list,
   recent,
+  stats,
 }
 
 const command: Command = {
