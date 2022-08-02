@@ -8064,11 +8064,12 @@ tree-kill@^1.2.2:
   resolved "https://registry.npmjs.org/tree-kill/-/tree-kill-1.2.2.tgz"
   integrity sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==
 
-triple-pod-game-engine@^4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/triple-pod-game-engine/-/triple-pod-game-engine-4.1.1.tgz#192f1943673e1c1adb3301ce36e81455b9c683c9"
-  integrity sha512-7VMEb8lp/+cEXcHatBxfgmm2vhFKbu+ObCzyPtiQKnTyCNYfi57cvHMPPwKu2tQ/OaZfN+mqNbJ8Y1hOdKPjTw==
+triple-pod-game-engine@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/triple-pod-game-engine/-/triple-pod-game-engine-6.0.0.tgz#3915db09c48b3eda38a6a675ba8b5b5fecde53c7"
+  integrity sha512-Jexfnwn4MqN+qltxTd853uqI+WiWEuUAgurlhBFMV9qPdAydKCvTjsasTVx/xjbMNfNLtzTR+CLKVH/c3LK9xQ==
   dependencies:
+    deepmerge "^4.2.2"
     human-id "^4.0.0"
     lodash.uniqby "^4.7.0"
     prando "^6.0.1"
