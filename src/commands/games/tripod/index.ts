@@ -13,7 +13,7 @@ import {
   TextChannel,
 } from "discord.js"
 import GameSessionManager from "utils/GameSessionManager"
-import ach from "./achievements"
+import ach, { checkPersistAchievements } from "./achievements"
 import quest from "./quest"
 import profile from "./profile"
 import top from "./top"
@@ -21,6 +21,21 @@ import { GAME_TRIPOD_CHANNEL_IDS, GAME_TRIPOD_TEST_CHANNEL_ID, PROD } from "env"
 import { fromBoardPosition, toBoardPosition } from "./helpers"
 import { mappings } from "./mappings"
 import { tripodEmojis } from "utils/common"
+
+const images = {
+  achievement_unlocked:
+    "https://cdn.discordapp.com/attachments/984660970624409630/1002841687103635476/tripod-ach_unlocked.png",
+  quest_completed:
+    "https://cdn.discordapp.com/attachments/984660970624409630/1002841687397253200/tripod-quest_completed.png",
+  cheatsheet:
+    "https://cdn.discordapp.com/attachments/884726476900036628/1001055367872135298/cheatsheet.png",
+  banner:
+    "https://media.discordapp.net/attachments/984660970624409630/999250271731462244/tripod-banner.png",
+}
+
+const color: ColorResolvable = "#62A1FE"
+const achievementColor: ColorResolvable = "#c9c96c"
+// const questColor: ColorResolvable = "#6bdbca"
 
 function getEmoji(id?: PieceEnum) {
   return `<:_:${tripodEmojis[mappings[id]?.emojiName.toUpperCase()]}>`
@@ -44,8 +59,6 @@ const getButtonRow = (userId: string) =>
     ],
   })
 
-const color: ColorResolvable = "#62A1FE"
-
 async function getMessageOptions(
   game: Game,
   msg: Message,
@@ -56,7 +69,7 @@ async function getMessageOptions(
     embeds: [
       {
         image: {
-          url: "https://media.discordapp.net/attachments/984660970624409630/999250271731462244/tripod-banner.png",
+          url: images.banner,
         },
         color,
       },
@@ -107,8 +120,7 @@ export async function triplePodInteraction(interaction: ButtonInteraction) {
         case "cheatsheet":
           await interaction.reply({
             ephemeral: true,
-            content:
-              "https://cdn.discordapp.com/attachments/884726476900036628/1001055367872135298/cheatsheet.png",
+            content: images.cheatsheet,
           })
           break
         default:
@@ -430,26 +442,34 @@ export async function handlePlayTripod(msg: Message) {
         if (validMsg) {
           // resync session data
           GameSessionManager.getSession(msg.author.id)
-          // TODO: needs BE to persist data
           await msg.reply(await getMessageOptions(game, msg, data.balance))
-          // Object.entries(achievements.turn).forEach(([achName, achDetail]) => {
-          //   if (achDetail.check(game)) {
-          //     reply.reply(`Achievement unlocked: \`${achName}\``)
-          //   }
-          // })
           if (game.done) {
             msg.channel.send(`\`${game.id}\` game ended`)
             GameSessionManager.leaveSession(msg.author.id)
             GameSessionManager.removeSession(session)
-            // TODO: needs BE to persist data
-            // Object.entries(achievements.session).forEach(
-            //   ([achName, achDetail]) => {
-            //     if (achDetail.check(game)) {
-            //       reply.reply(`Achievement unlocked: \`${achName}\``)
-            //     }
-            //   }
-            // )
           }
+          checkPersistAchievements(game).then((achievements) => {
+            if (achievements.length > 0) {
+              msg.channel.send({
+                embeds: [
+                  {
+                    color: achievementColor,
+                    image: {
+                      url: images.achievement_unlocked,
+                    },
+                  },
+                  {
+                    color: achievementColor,
+                    description: `Congrats ${
+                      msg.author
+                    }! You've unlocked the following achievements:\n>>> ${achievements
+                      .map((a) => `**${a[1].name}**`)
+                      .join("\n")}`,
+                  },
+                ],
+              })
+            }
+          })
         } else if (!validMsg && errorMsg) {
           await msg.reply({
             content: errorMsg,
@@ -478,6 +498,7 @@ const command: Command = {
       const session = GameSessionManager.getSession(msg.author.id)
       if (!session) {
         const game = new Game()
+        game.join({ name: msg.author.username, id: msg.author.id })
         game.start()
         const bal =
           msg.channel.id === GAME_TRIPOD_TEST_CHANNEL_ID ? Infinity : 2000
