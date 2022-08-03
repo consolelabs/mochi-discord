@@ -192,9 +192,10 @@ const achievementsList = [
 ]
 
 const achievementsKey = "achievements"
-const achievementsRef = firestore.collection(achievementsKey)
+const achievementsRef = firestore?.collection(achievementsKey)
 
 export async function checkPersistAchievements(game: Game) {
+  if (!achievementsRef) return []
   const docRef = achievementsRef.doc(game.players[0].id)
   const promises = achievementsList.map(async ([achName, ach]) => {
     const doc = await docRef.get()
