@@ -15,6 +15,8 @@ export const PT_API_SERVER_HOST =
   process.env.PT_API_SERVER_HOST || "https://backend.pod.so"
 
 export const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID || "932579148608729118"
+export const SALE_CHANNEL_ID =
+  process.env.SALE_CHANNEL_ID || "1002254978360025149"
 export const MOCHI_GUILD_ID = process.env.MOCHI_GUILD_ID || "962589711841525780"
 export const GAME_TRIPOD_TEST_CHANNEL_ID = "884726476900036628"
 export const GAME_TRIPOD_CHANNEL_IDS = process.env.GAME_TRIPOD_CHANNEL_IDS || [
