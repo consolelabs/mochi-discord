@@ -10,6 +10,7 @@ import { AssetNotFoundError } from "errors/AssetNotFoundError"
 import {
   airdropper,
   bomb,
+  BuyablePiece,
   empty,
   Game,
   megaBomb,
@@ -24,36 +25,42 @@ import ChannelLogger from "utils/ChannelLogger"
 import { mappings } from "./mappings"
 import sharp from "sharp"
 
-export const shopItems = [
+export const shopItems: Array<BuyablePiece & { desc: string }> = [
   {
     ...airdropper,
     desc: "Clone a piece on the board",
     price: 1000,
+    isBuyable: true,
   },
   {
     ...rerollBox,
     desc: "Get another item randomly",
     price: 1000,
+    isBuyable: true,
   },
   {
     ...teleportPortal,
     desc: "Swap 2 pieces on the board",
     price: 1000,
+    isBuyable: true,
   },
   {
     ...terraformer,
     desc: "Destroy all marbles",
     price: 1000,
+    isBuyable: true,
   },
   {
     ...megaBomb,
     desc: "Destroy a 2x2 area",
     price: 1000,
+    isBuyable: true,
   },
   {
     ...bomb,
     desc: "Destroy a 1x1 area",
     price: 1000,
+    isBuyable: true,
   },
 ]
 

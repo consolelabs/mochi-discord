@@ -1,13 +1,10 @@
 import { Snowflake } from "discord.js"
 import { logger } from "logger"
 import { Game as TripodGame } from "triple-pod-game-engine"
-import { initializeApp, cert } from "firebase-admin/app"
-import { getFirestore } from "firebase-admin/firestore"
-import serviceAccount from "../../firebase-key.json"
 import ChannelLogger from "./ChannelLogger"
 import { GameSessionPersistError } from "errors/GameSessionPersistError"
 import { restoreGameState } from "commands/games/tripod/helpers"
-import { FIRESTORE_KEY } from "../env"
+import { firestore } from "./firebase"
 
 type GameName = TripodGame["name"]
 
@@ -41,21 +38,8 @@ class GameSessionManager {
   private loaded = false
 
   constructor() {
-    if (!FIRESTORE_KEY) {
-      logger.warn(
-        "Firestore - private key not found, session data will be lost via restarts"
-      )
-    } else {
-      initializeApp({
-        credential: cert({
-          ...serviceAccount,
-          privateKey: FIRESTORE_KEY.replaceAll("\\n", "\n"),
-        }),
-      })
-      this.store = getFirestore()
-      logger.info("Firestore - init OK")
-      this.restoreSession()
-    }
+    this.store = firestore
+    this.restoreSession()
   }
 
   async restoreSession() {
@@ -80,6 +64,7 @@ class GameSessionManager {
             }
             if (Game && name) {
               let game = new Game(data.gameId)
+              game.join({ name: data.username, id: doc.id })
               const history = JSON.parse(data.history)
               game = restoreGameState(game, history)
               this.createSessionIfNotAlready(doc.id, {

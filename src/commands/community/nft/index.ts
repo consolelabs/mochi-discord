@@ -8,6 +8,7 @@ import list from "./list"
 import recent from "./recent"
 import query from "./query"
 import stats from "./stats"
+import config from "./config"
 
 const actions: Record<string, Command> = {
   add,
@@ -16,6 +17,7 @@ const actions: Record<string, Command> = {
   list,
   recent,
   stats,
+  config,
 }
 
 const command: Command = {
