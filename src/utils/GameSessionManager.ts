@@ -39,7 +39,9 @@ class GameSessionManager {
 
   constructor() {
     this.store = firestore
-    this.restoreSession()
+    if (this.store) {
+      this.restoreSession()
+    }
   }
 
   async restoreSession() {
@@ -93,6 +95,7 @@ class GameSessionManager {
   }
 
   async getPoints() {
+    if (!this.store) return { allData: {}, leaderboard: [] }
     const col = this.store.collection(leaderboardKey)
     let snapshot = await col.orderBy("pts", "desc").limit(10).get()
     const leaderboard: any = []

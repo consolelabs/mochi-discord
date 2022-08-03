@@ -86,8 +86,14 @@ async function composeNFTDetail(
     ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
     : ""
 
-  const fields: EmbedFieldData[] = attributes
-    ? attributes.map((attr: any) => {
+  const attributesFiltered = attributes.filter(
+    (obj: { trait_type: string }) => {
+      return obj.trait_type !== ""
+    }
+  )
+
+  const fields: EmbedFieldData[] = attributesFiltered
+    ? attributesFiltered.map((attr: any) => {
         const val = `${attr.value}\n${attr.frequency ?? ""}`
         return {
           name: `${getIcon(icons, attr.trait_type)} ${attr.trait_type}`,
