@@ -681,6 +681,34 @@ class Config {
     }
     return json.data
   }
+
+  public async createTwitterConfig(
+    guildid: string,
+    csmrKey: string,
+    csmrKeyScrt: string,
+    acsToken: string,
+    acsTokenScrt: string
+  ) {
+    const body = {
+      guild_id: guildid,
+      twitter_consumer_key: csmrKey,
+      twitter_consumer_secret: csmrKeyScrt,
+      twitter_access_token: acsToken,
+      twitter_access_token_secret: acsTokenScrt,
+    }
+    const res = await fetch(`${API_BASE_URL}/configs/twitter`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to create twitter config`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw Error(json.error)
+    }
+  }
 }
 
 const config = new Config()
