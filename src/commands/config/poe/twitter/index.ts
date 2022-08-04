@@ -32,7 +32,7 @@ function getHashtags(tweetContent: string) {
 
 export async function handleNewTweet(msg: Message) {
   const twitterConfig = await config.getTwitterConfig(msg.guildId)
-  if (twitterConfig.channel_id !== msg.channelId) return
+  if (twitterConfig?.channel_id !== msg.channelId) return
   const content = msg.content
   const tweetId = getTweetId(content)
   const tweet = await twitter.tweets.findTweetById(tweetId)
