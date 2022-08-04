@@ -1,24 +1,24 @@
 // commands
 import help from "./help"
-// import invite from "./community/invite"
+import invite from "./community/invite"
 import profile from "./profile/profile"
 import stats from "./community/stats"
 import nft from "./community/nft"
 import track from "./community/track"
-// import gift from "./community/gift"
+import gift from "./community/gift"
 import deposit from "./defi/deposit"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
-// import tokens from "./defi/token"
+import tokens from "./defi/token"
 import ticker from "./defi/ticker"
-// import airdrop from "./defi/airdrop"
-// import gm from "./community/gm"
+import airdrop from "./defi/airdrop"
+import gm from "./community/gm"
 // import whitelist from "./community/campaigns"
 // import defaultrole from "./config/defaultRole"
-// import reactionrole from "./config/reactionRole"
+import reactionrole from "./config/reactionRole"
 // import starboard from "./config/starboard"
-// import top from "./community/top"
+import top from "./community/top"
 import tripod from "./games/tripod"
 import levelrole from "./config/levelRole"
 import nftrole from "./config/nftRole"
@@ -65,19 +65,19 @@ export const originalCommands: Record<string, Command> = {
   tip,
   balances,
   withdraw,
-  // tokens,
+  tokens,
   ticker,
-  // airdrop,
+  airdrop,
   // community
-  // invite,
-  // gm,
+  invite,
+  gm,
   stats,
   nft,
-  // gift,
-  // top,
+  gift,
+  top,
   track,
   // config
-  // reactionrole,
+  reactionrole,
   // defaultrole,
   // whitelist,
   levelrole,
