@@ -12,7 +12,9 @@ import { getCommandArguments } from "utils/commands"
 import { logger } from "logger"
 
 const hashtagReg = new RegExp(/#[a-z0-9_]+/gim)
-const twitterIdReg = new RegExp(/(http|https):\/\/twitter.com\/.*\/(\d*)/gim)
+const twitterIdReg = new RegExp(
+  /(http|https):\/\/twitter.com\/.*\/status\/(\d*)/gim
+)
 
 function lower(ht: string) {
   return ht.toLowerCase()
