@@ -38,3 +38,4 @@ export const GAME_TRIPOD_CHANNEL_IDS =
 export const DISCORD_DEFAULT_AVATAR = process.env.DISCORD_DEFAULT_AVATAR || ""
 export const WEBSITE_ENDPOINT = process.env.WEBSITE_ENDPOINT || ""
 export const FIRESTORE_KEY = process.env.FIRESTORE_KEY || ""
+export const TWITTER_TOKEN = process.env.TWITTER_TOKEN || ""

@@ -26,6 +26,7 @@ import nftrole from "./config/nftRole"
 // import eventxp from "./config/eventxp"
 import verify from "./community/verify"
 // import log from "./config/log"
+import poe from "./config/poe"
 
 // external
 import { Message } from "discord.js"
@@ -86,6 +87,7 @@ export const originalCommands: Record<string, Command> = {
   // starboard,
   // eventxp,
   // log,
+  poe,
   tripod,
   verify,
 }

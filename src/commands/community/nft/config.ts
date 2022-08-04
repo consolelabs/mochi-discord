@@ -15,7 +15,7 @@ const command: Command = {
     const csmrKeyScrt = args[4]
     const acsToken = args[5]
     const acsTokenScrt = args[6]
-    await config.createTwitterConfig(
+    await config.createTwitterAuth(
       msg.guildId,
       csmrKey,
       csmrKeyScrt,

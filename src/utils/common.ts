@@ -79,6 +79,7 @@ export const emojis: { [key: string]: string } = {
   MONEY: "985245648716697680",
   GAME: "916623575824338974",
   HEART: "991939196405174442",
+  APPROVE: "933341948402618378",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

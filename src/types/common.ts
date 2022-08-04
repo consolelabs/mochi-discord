@@ -67,6 +67,7 @@ export type EmbedProperties = {
   examples?: string
   withoutFooter?: boolean
   includeCommandsList?: boolean
+  actions?: Record<string, Command>
 }
 
 export type Role = {
