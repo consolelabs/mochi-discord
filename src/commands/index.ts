@@ -16,7 +16,7 @@ import ticker from "./defi/ticker"
 // import gm from "./community/gm"
 // import whitelist from "./community/campaigns"
 // import defaultrole from "./config/defaultRole"
-// import reactionrole from "./config/reactionRole"
+import reactionrole from "./config/reactionRole"
 // import starboard from "./config/starboard"
 // import top from "./community/top"
 import tripod from "./games/tripod"
@@ -77,7 +77,7 @@ export const originalCommands: Record<string, Command> = {
   // top,
   track,
   // config
-  // reactionrole,
+  reactionrole,
   // defaultrole,
   // whitelist,
   levelrole,

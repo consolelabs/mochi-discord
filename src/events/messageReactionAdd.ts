@@ -61,6 +61,18 @@ const handleRepostableMessageTracking = async (
     reaction: getReactionIdentifier(_reaction),
     reaction_count: _reaction.count,
   }
+
+  const reactionEmoji = getReactionIdentifier(_reaction)
+
+  // check config repost
+  const validateRes = await config.listAllRepostReactionConfigs(msg.guild.id)
+  const isConfiguredEmoji = validateRes?.data?.some(
+    (conf: any) => conf.emoji?.toLowerCase() === reactionEmoji
+  )
+  if (!isConfiguredEmoji) {
+    return
+  }
+
   const res = await webhook.pushDiscordWebhook(
     "messageReactionAdd",
     checkRepostableEvent
@@ -127,6 +139,16 @@ export default {
       if (_reaction.partial) await _reaction.fetch()
       if (user.bot) return
       if (!_reaction.message.guild) return
+
+      // check msg config reactionrole
+      const emojiResp = await config.listAllReactionRoles(
+        _reaction.message.guild.id
+      )
+      const listMessageID =
+        emojiResp?.configs?.map((v: any) => v.message_id) || []
+      if (!listMessageID.includes(_reaction.message.id)) {
+        return
+      }
 
       await Promise.all([
         handleReactionRoleEvent(_reaction, user).catch(() => null),

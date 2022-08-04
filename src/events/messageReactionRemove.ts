@@ -42,6 +42,13 @@ export default {
       if (!_reaction.message.guild) return
 
       const msg = _reaction.message as Message
+      // check msg config reactionrole
+      const emojiResp = await config.listAllReactionRoles(msg.guild.id)
+      const listMessageID =
+        emojiResp?.configs?.map((v: any) => v.message_id) || []
+      if (!listMessageID.includes(msg.id)) {
+        return
+      }
 
       const event: RoleReactionEvent = {
         guild_id: msg.guild.id,
