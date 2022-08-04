@@ -104,7 +104,7 @@ export const rarityEmojis: Record<string, string> = {
 }
 
 export const marketplaceEmojis: Record<string, string> = {
-  PAINTSWAP: "988743794532958259",
+  PAINTSWAP: "988744692625707008",
   OPENSEA: "988748731857911878",
   LOOKSRARE: "992327588716486676",
   NFTKEY: "992327591220490350",

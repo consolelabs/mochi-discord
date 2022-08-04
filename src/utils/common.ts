@@ -80,6 +80,7 @@ export const emojis: { [key: string]: string } = {
   GAME: "916623575824338974",
   HEART: "991939196405174442",
   APPROVE: "933341948402618378",
+  NFTS: "977508805011181638",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -297,7 +298,7 @@ export function sortNFTListByVolume(
 export function capitalizeFirst(str: string) {
   return str
     .split(/ +/g)
-    .map((w) => `${w[0].toUpperCase()}${w.slice(1)}`)
+    .map((w) => `${w[0].toUpperCase()}${w.slice(1).toLowerCase()}`)
     .join(SPACE)
 }
 
