@@ -12,13 +12,15 @@ import { getCommandArguments } from "utils/commands"
 import { logger } from "logger"
 
 const hashtagReg = new RegExp(/#[a-z0-9_]+/gim)
+const twitterIdReg = new RegExp(/(http|https):\/\/twitter.com\/.*\/(\d*)/gim)
 
 function lower(ht: string) {
   return ht.toLowerCase()
 }
 
 function getTweetId(content: string) {
-  return /(http|https):\/\/twitter.com\/.*\/(\d*)/gim.exec(content)[2]
+  twitterIdReg.lastIndex = 0
+  return twitterIdReg.exec(content)[2]
 }
 
 function getHashtags(tweetContent: string) {
