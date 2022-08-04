@@ -6,15 +6,16 @@ export type NftTickers = {
 
 export type NftCollectionTicker = {
   tickers?: NftTickers
-  floor_price?: NftPrice
   name: string
   address: string
-  chain: string
+  chain: Chain
   marketplaces: string[]
-  total_volume?: NftPrice
   items: number
   owners: number
   collection_image: string
+  total_volume?: NftPrice
+  floor_price?: NftPrice
+  last_sale_price?: NftPrice
 }
 
 export type NftPrice = {
@@ -27,4 +28,10 @@ export type IndexerToken = {
   is_native: boolean
   address: string
   decimals: number
+}
+
+type Chain = {
+  symbol: string
+  name: string
+  chain_id: number
 }

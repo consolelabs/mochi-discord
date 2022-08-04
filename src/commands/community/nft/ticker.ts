@@ -16,7 +16,12 @@ import {
   justifyEmbedFields,
 } from "utils/discordEmbed"
 import community from "adapters/community"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  shortenHashOrAddress,
+} from "utils/common"
 import { getGradientColor, renderChartImage } from "utils/canvas"
 import { NftCollectionTicker, NftPrice } from "types/nft"
 import dayjs from "dayjs"
@@ -39,15 +44,16 @@ async function composeCollectionTickerEmbed({
   const data = await community.getNFTCollectionTickers({ symbol, from, to })
   const blank = getEmoji("blank")
   const {
-    floor_price,
     chain,
     items,
     owners,
-    total_volume,
     name,
     marketplaces,
     address,
     collection_image,
+    total_volume,
+    floor_price,
+    last_sale_price,
   } = data
 
   const floorPriceAmount = Math.round(
@@ -56,17 +62,15 @@ async function composeCollectionTickerEmbed({
   const totalVolumeAmount = Math.round(
     +total_volume?.amount / Math.pow(10, decimals(total_volume))
   )
+  const lastSalePriceAmount = Math.round(
+    +last_sale_price?.amount / Math.pow(10, decimals(last_sale_price))
+  )
   const priceToken = floor_price?.token?.symbol?.toUpperCase() ?? ""
-  const tokenEmoji = getEmoji(priceToken)
 
   const fields = [
     {
-      name: "Address",
-      value: shortenHashOrAddress(address),
-    },
-    {
       name: "Chain",
-      value: `${chain}${blank}`,
+      value: `${chain?.name}${blank}`,
     },
     {
       name: "Item",
@@ -78,7 +82,19 @@ async function composeCollectionTickerEmbed({
     },
     {
       name: "Volume",
-      value: `${tokenEmoji} ${totalVolumeAmount.toLocaleString()} ${priceToken}${blank}`,
+      value: `${totalVolumeAmount.toLocaleString()} ${priceToken}${blank}`,
+    },
+    {
+      name: "Floor price",
+      value: `${floorPriceAmount} ${priceToken}${blank}`,
+    },
+    {
+      name: "Last sale",
+      value: `${lastSalePriceAmount} ${priceToken}${blank}`,
+    },
+    {
+      name: "Address",
+      value: shortenHashOrAddress(address),
     },
     {
       name: "Marketplace",
@@ -86,17 +102,14 @@ async function composeCollectionTickerEmbed({
         marketplaces?.map((m: string) => getEmoji(m)).join(" ") ?? "N/A"
       }`,
     },
-    {
-      name: "Floor price",
-      value: `${tokenEmoji} ${floorPriceAmount} ${priceToken}${blank}`,
-    },
   ].map((f: EmbedFieldData) => ({
     ...f,
     inline: true,
   }))
 
   const embed = composeEmbedMessage(msg, {
-    author: ["NFT Collection", ...(collection_image ? [collection_image] : [])],
+    author: ["NFT Collection", getEmojiURL(emojis["NFTS"])],
+    thumbnail: collection_image,
     description: `[**${name}**](${HOMEPAGE_URL})`,
     image: "attachment://chart.png",
   }).addFields(fields)
