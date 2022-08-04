@@ -16,7 +16,7 @@ const command: Command = {
   run: async (msg: Message) => {
     const twitterConfig = await config.getTwitterConfig(msg.guildId)
 
-    if (!twitterConfig || !twitterConfig.channel_id) {
+    if (!twitterConfig || !twitterConfig?.channel_id) {
       return {
         messageOptions: {
           embeds: [
