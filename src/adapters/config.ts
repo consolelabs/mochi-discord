@@ -682,7 +682,7 @@ class Config {
     return json.data
   }
 
-  public async createTwitterConfig(
+  public async createTwitterAuth(
     guildid: string,
     csmrKey: string,
     csmrKeyScrt: string,
@@ -701,7 +701,59 @@ class Config {
       body: JSON.stringify(body),
     })
     if (res.status !== 200) {
-      throw new Error(`failed to create twitter config`)
+      throw new Error(`failed to create twitter auth`)
+    }
+  }
+
+  public async setTwitterConfig(
+    guild_id: string,
+    data: {
+      channel_id: string
+      user_id: string
+      hashtag: Array<string>
+    }
+  ) {
+    const body = {
+      guild_id,
+      ...data,
+    }
+    const res = await fetch(`${API_BASE_URL}/configs/twitter/hashtag`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to set twitter config`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw Error(json.error)
+    }
+  }
+
+  public async getTwitterConfig(guildId: string) {
+    const res = await fetch(
+      `${API_BASE_URL}/configs/twitter/hashtag/${guildId}`
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to get twitter config`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw Error(json.error)
+    }
+
+    return json.data
+  }
+
+  public async removeTwitterConfig(guildId: string) {
+    const res = await fetch(
+      `${API_BASE_URL}/configs/twitter/hashtag/${guildId}`,
+      { method: "DELETE" }
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to remove twitter config`)
     }
 
     const json = await res.json()

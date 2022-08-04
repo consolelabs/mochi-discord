@@ -136,6 +136,7 @@ export function composeEmbedMessage(
     examples,
     withoutFooter,
     includeCommandsList,
+    actions,
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
@@ -144,7 +145,7 @@ export function composeEmbedMessage(
   if (includeCommandsList) {
     description += `\n\n${getCommandsList(
       getEmoji("reply" ?? "╰ "),
-      commandObj.actions
+      actions ?? commandObj.actions
     )}`
   }
 
