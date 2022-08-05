@@ -22,7 +22,7 @@ function lower(ht: string) {
 
 function getTweetId(content: string) {
   twitterIdReg.lastIndex = 0
-  return twitterIdReg.exec(content)[2]
+  return twitterIdReg.exec(content)?.[2]
 }
 
 function getHashtags(tweetContent: string) {
@@ -39,6 +39,7 @@ export async function handleNewTweet(msg: Message) {
   if (twitterConfig?.channel_id !== msg.channelId) return
   const content = msg.content
   const tweetId = getTweetId(content)
+  if (!tweetId) return
   const tweet = await twitter.tweets.findTweetById(tweetId)
   if (!tweet.errors && tweet.data) {
     const hashtags = getHashtags(tweet.data.text).map(lower)
