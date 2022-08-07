@@ -65,7 +65,7 @@ class GameSessionManager {
                 break
             }
             if (Game && name) {
-              let game = new Game(data.gameId)
+              let game = new Game({ id: data.gameId })
               game.join({ name: data.username, id: doc.id })
               const history = JSON.parse(data.history)
               game = restoreGameState(game, history)
