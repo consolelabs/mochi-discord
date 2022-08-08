@@ -4,6 +4,7 @@ import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
+import chunk from "lodash.chunk"
 
 const command: Command = {
   id: "list_server_token",
@@ -11,8 +12,8 @@ const command: Command = {
   brief: "View your server's tokens list",
   category: "Community",
   run: async (msg) => {
-    const data = await Config.getGuildTokens(msg.guildId)
-    if (!data || !data.length)
+    const rawData = await Config.getGuildTokens(msg.guildId)
+    if (!rawData || !rawData.length)
       return {
         messageOptions: {
           embeds: [
@@ -23,19 +24,27 @@ const command: Command = {
           ],
         },
       }
-    const description = data
-      .map((token: Token) => {
-        const tokenEmoji = getEmoji(token.symbol)
-        return `${tokenEmoji} **${token.symbol.toUpperCase()}**`
-      })
-      .join("\n")
+    const data = rawData.map((token: Token) => {
+      const tokenEmoji = getEmoji(token.symbol)
+      return `${tokenEmoji} **${token.symbol.toUpperCase()}**`
+    })
+
+    const fields = chunk(chunk(data, 10), 3).flatMap((row, i) => {
+      return row.flatMap((c) => ({
+        name: "\u200b",
+        value: c.join("\n"),
+        inline: i !== 2,
+      }))
+    })
+
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(msg, {
-            author: [`${msg.guild.name}'s tokens list`, msg.guild.iconURL()],
-            description,
-          }),
+          {
+            color: "#77b255",
+            title: ":dollar: Tokens list",
+            fields,
+          },
         ],
       },
     }
