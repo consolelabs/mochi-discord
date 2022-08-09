@@ -59,6 +59,8 @@ export const tokenEmojis: Record<string, string> = {
   BCH: "1005008800106942525",
   APE: "1005008782486675536",
   DFG: "1005008750916161637",
+  ICE: ":ice_cube:",
+  CARROT: ":carrot:",
 }
 
 export const numberEmojis: Record<string, string> = {
