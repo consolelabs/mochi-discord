@@ -66,6 +66,10 @@ async function composeCollectionTickerEmbed({
     +last_sale_price?.amount / Math.pow(10, decimals(last_sale_price))
   )
   const priceToken = floor_price?.token?.symbol?.toUpperCase() ?? ""
+  const formatPrice = (amount: number) => {
+    if (!amount) return `- ${blank}`
+    return `${amount.toLocaleString()} ${priceToken}${blank}`
+  }
 
   const fields = [
     {
@@ -82,15 +86,15 @@ async function composeCollectionTickerEmbed({
     },
     {
       name: "Volume",
-      value: `${totalVolumeAmount.toLocaleString()} ${priceToken}${blank}`,
+      value: formatPrice(totalVolumeAmount),
     },
     {
       name: "Floor price",
-      value: `${floorPriceAmount} ${priceToken}${blank}`,
+      value: formatPrice(floorPriceAmount),
     },
     {
       name: "Last sale",
-      value: `${lastSalePriceAmount} ${priceToken}${blank}`,
+      value: formatPrice(lastSalePriceAmount),
     },
     {
       name: "Address",
