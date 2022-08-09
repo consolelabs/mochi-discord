@@ -7,7 +7,7 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 
-async function executeNftAddCommand(args: string[], msg: Message) {
+export async function executeNftAddCommand(args: string[], msg: Message) {
   const address = args[2]
   const chainId = args[3]
   // create store collection payload

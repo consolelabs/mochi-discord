@@ -9,6 +9,7 @@ import recent from "./recent"
 import query from "./query"
 import stats from "./stats"
 import config from "./config"
+import intergrate from "./intergrate"
 
 const actions: Record<string, Command> = {
   add,
@@ -18,6 +19,7 @@ const actions: Record<string, Command> = {
   recent,
   stats,
   config,
+  intergrate,
 }
 
 const command: Command = {
