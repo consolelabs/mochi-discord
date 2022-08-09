@@ -28,7 +28,7 @@ import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
-const decimals = (p: NftPrice) => p.token?.decimals ?? 0
+const decimals = (p: NftPrice) => p?.token?.decimals ?? 0
 
 async function composeCollectionTickerEmbed({
   msg,
