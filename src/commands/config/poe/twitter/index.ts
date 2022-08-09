@@ -1,56 +1,11 @@
-import config from "adapters/config"
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import set from "./set"
 import list from "./list"
 import remove from "./remove"
-import { twitter } from "utils/twitter-api"
 import { Message } from "discord.js"
-import { getEmoji } from "utils/common"
 import { getCommandArguments } from "utils/commands"
-import { logger } from "logger"
-
-const hashtagReg = new RegExp(/#[a-z0-9_]+/gim)
-const twitterIdReg = new RegExp(
-  /(http|https):\/\/twitter.com\/.*\/status\/(\d*)/gim
-)
-
-function lower(ht: string) {
-  return ht.toLowerCase()
-}
-
-function getTweetId(content: string) {
-  twitterIdReg.lastIndex = 0
-  return twitterIdReg.exec(content)?.[2]
-}
-
-function getHashtags(tweetContent: string) {
-  const results = []
-  let match
-  while ((match = hashtagReg.exec(tweetContent)) !== null) {
-    results.push(match[0])
-  }
-  return results
-}
-
-export async function handleNewTweet(msg: Message) {
-  const twitterConfig = await config.getTwitterConfig(msg.guildId)
-  if (twitterConfig?.channel_id !== msg.channelId) return
-  const content = msg.content
-  const tweetId = getTweetId(content)
-  if (!tweetId) return
-  const tweet = await twitter.tweets.findTweetById(tweetId)
-  if (!tweet.errors && tweet.data) {
-    const hashtags = getHashtags(tweet.data.text).map(lower)
-    const triggerHashtags = twitterConfig.hashtag.map(lower)
-    const found = hashtags.filter((ht) => triggerHashtags.includes(ht))
-    if (found.length > 0) {
-      msg.react(getEmoji("approve")).catch(() => msg.react("✅"))
-      logger.info(`[poe/twitter]: trigger for post ${msg.url}`)
-    }
-  }
-}
 
 const actions: Record<string, Command> = {
   set,

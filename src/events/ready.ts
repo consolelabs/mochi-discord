@@ -8,6 +8,7 @@ import client from "../index"
 import { invites } from "./index"
 import { BotBaseError } from "errors"
 import { setTimeout as wait } from "timers/promises"
+import TwitterStream from "utils/TwitterStream"
 
 export default {
   name: "ready",
@@ -52,6 +53,9 @@ export default {
       }
       ChannelLogger.log(error, 'Event<"ready">')
     }
+
+    // set the client so the bot can send message
+    TwitterStream.client = listener
   },
 } as Event<"ready">
 
