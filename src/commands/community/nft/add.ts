@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "utils/constants"
-import fetch from "node-fetch"
+import fetch, { Response } from "node-fetch"
 import { Message } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
@@ -7,7 +7,7 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 
-export async function executeNftAddCommand(args: string[], msg: Message) {
+export async function callAPI(args: string[], msg: Message) {
   const address = args[2]
   const chainId = args[3]
   // create store collection payload
@@ -33,11 +33,19 @@ export async function executeNftAddCommand(args: string[], msg: Message) {
     },
   })
 
+  return { storeCollectionRes: respCollection, supportedChainsRes: respChain }
+}
+
+export async function toEmbed(
+  storeCollectionRes: Response,
+  supportedChainsRes: Response,
+  msg: Message
+) {
   // get response and show discord message
-  const dataCollection = await respCollection.json()
+  const dataCollection = await storeCollectionRes.json()
   const errorMessageCollection = dataCollection.error
-  const dataChain = await respChain.json()
-  switch (respCollection.status) {
+  const dataChain = await supportedChainsRes.json()
+  switch (storeCollectionRes.status) {
     case 200:
       return buildDiscordMessage(
         msg,
@@ -45,6 +53,8 @@ export async function executeNftAddCommand(args: string[], msg: Message) {
         "Successfully add new collection to queue",
         false
       )
+    case 500:
+      return buildDiscordMessage(msg, "NFT", "Internal Server Error")
     default:
       if (
         errorMessageCollection.includes(
@@ -124,6 +134,12 @@ export async function executeNftAddCommand(args: string[], msg: Message) {
   }
 }
 
+async function executeNftAddCommand(args: string[], msg: Message) {
+  const { storeCollectionRes, supportedChainsRes } = await callAPI(args, msg)
+
+  return toEmbed(storeCollectionRes, supportedChainsRes, msg)
+}
+
 const buildDiscordMessage = (
   msg: Message,
   title: string,
@@ -162,7 +178,7 @@ const command: Command = {
   category: "Community",
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    // case add markeplacelink
+    // case add marketplace link
     // $nft add https://opensea.io/collection/cryptodickbutts-s3
     if (args.length == 3) {
       if (CheckMarketplaceLink(args[2])) {
