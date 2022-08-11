@@ -1,4 +1,4 @@
-import { API_SERVER_HOST } from "env"
+import { API_SERVER_HOST, PT_API_SERVER_HOST } from "env"
 
 export const DOT = "•"
 export const COMMA = ","
@@ -17,6 +17,7 @@ export const PROFILE_THUMBNAIL =
 export const DEFI_DEFAULT_FOOTER = `Use ${PREFIX}tokens for a list of supported tokens`
 
 export const API_BASE_URL = `${API_SERVER_HOST}/api/v1`
+export const PT_API_BASE_URL = `${PT_API_SERVER_HOST}/api/v1`
 
 export const VALID_BOOST_MESSAGE_TYPES = [
   "USER_PREMIUM_GUILD_SUBSCRIPTION",
