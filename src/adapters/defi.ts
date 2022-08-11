@@ -18,7 +18,7 @@ import { logger } from "logger"
 class Defi {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
     let targets = args
-      .slice(1, args.length - 2)
+      .slice(1, args.length)
       .join("")
       .split(",")
       .map((id) => id.trim())
@@ -340,9 +340,26 @@ class Defi {
       case "tip": {
         each = args[args.length - 1].toLowerCase() === "each"
         args = each ? args.slice(0, args.length - 1) : args
-        recipients = await this.parseRecipients(msg, args, sender)
-        cryptocurrency = args[args.length - 1].toUpperCase()
-        amountArg = args[args.length - 2].toLowerCase()
+        if (Number.isNaN(Number(args[args.length]))) {
+          recipients = await this.parseRecipients(
+            msg,
+            args.slice(0, args.length - 1),
+            sender
+          )
+
+          cryptocurrency = ""
+          amountArg = args[args.length - 1].toLowerCase()
+        } else {
+          recipients = await this.parseRecipients(
+            msg,
+            args.slice(0, args.length - 2),
+            sender
+          )
+
+          cryptocurrency = args[args.length - 1].toUpperCase()
+          amountArg = args[args.length - 2].toLowerCase()
+        }
+
         each = each && amountArg !== "all"
         break
       }
@@ -406,7 +423,7 @@ class Defi {
 
     const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
     const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
-    if (!supportedSymbols.includes(cryptocurrency)) {
+    if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
       throw new DiscordWalletTransferError({
         discordId: sender,
         guildId: msg.guildId,
