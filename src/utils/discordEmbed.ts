@@ -153,7 +153,7 @@ export function composeEmbedMessage(
   title =
     (isSpecificHelpCommand
       ? (actionObj ?? commandObj)?.brief
-      : `${successMsg ? `${getEmoji("approve")} ` : ""}${title}`) ?? ""
+      : `${successMsg ? `${getEmoji("approve")} ` : ""}${title ?? ""}`) ?? ""
 
   let authorTag = msg?.author?.tag
   let authorAvatarURL = msg?.author?.avatarURL()
