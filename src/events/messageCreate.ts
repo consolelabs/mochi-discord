@@ -10,7 +10,6 @@ import CommandChoiceManager from "utils/CommandChoiceManager"
 import webhook from "adapters/webhook"
 import { MessageTypes } from "discord.js/typings/enums"
 import { handlePlayTripod } from "commands/games/tripod"
-import { handleNewTweet } from "commands/config/poe/twitter"
 
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
@@ -85,7 +84,6 @@ export default {
       }
       await handleNormalMessage(message)
       handlePlayTripod(message)
-      handleNewTweet(message)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {

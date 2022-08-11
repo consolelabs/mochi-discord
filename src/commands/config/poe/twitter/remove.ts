@@ -3,6 +3,7 @@ import { Command } from "types/common"
 import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
+import TwitterStream from "utils/TwitterStream"
 
 const command: Command = {
   id: "poe_twitter_remove",
@@ -11,7 +12,13 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
+    const twitterConfig = await config.getTwitterConfig(msg.guildId)
     await config.removeTwitterConfig(msg.guildId)
+
+    await TwitterStream.removeRule({
+      channelId: twitterConfig.channel_id,
+      ruleId: twitterConfig.rule_id,
+    })
 
     msg.react(getEmoji("approve")).catch(() => msg.react("✅"))
 

@@ -38,9 +38,13 @@ const command: Command = {
               twitterConfig.updated_at
             )
               .utc()
-              .format("MMM DD YYYY HH:mm:ss UTC")})\nWatching <#${
+              .format("MMM DD YYYY HH:mm:ss UTC")})\nCheck updates in <#${
               twitterConfig.channel_id
-            }>\nFor tags: ${twitterConfig.hashtag
+            }>\nTags: ${twitterConfig.hashtag
+              .filter((k: string) => k.startsWith("#"))
+              .map((t: string) => `\`${t}\``)
+              .join(", ")}\nMentions: ${twitterConfig.twitter_username
+              .filter((k: string) => k.startsWith("@"))
               .map((t: string) => `\`${t}\``)
               .join(", ")}`,
           }),

@@ -5,6 +5,7 @@ import ChannelLogger from "./ChannelLogger"
 import { GameSessionPersistError } from "errors/GameSessionPersistError"
 import { restoreGameState } from "commands/games/tripod/helpers"
 import { firestore } from "./firebase"
+import { InmemoryStorage } from "types/InmemoryStorage"
 
 type GameName = TripodGame["name"]
 
@@ -27,7 +28,7 @@ const leaderboardKey = "leaderboard"
 // 15 mins
 const DEFAULT_TIMEOUT_DURATION_IN_MS = 900000
 
-class GameSessionManager {
+class GameSessionManager extends InmemoryStorage {
   private sessionByUser: Map<Snowflake, Session> = new Map()
   private usersBySession: Map<Session, Array<Snowflake>> = new Map()
   private sessions: Array<Session> = []
@@ -38,14 +39,15 @@ class GameSessionManager {
   private loaded = false
 
   constructor() {
+    super()
     this.store = firestore
     if (this.store) {
-      this.restoreSession()
+      this.up()
     }
   }
 
-  async restoreSession() {
-    logger.info("Firestore - retrieving session data...")
+  protected async up() {
+    logger.info("[GameSessionManager] - firestore retrieving session data...")
     this.loading = true
     const collections = await this.store.listCollections()
     const promises = collections.map(async (col) => {
@@ -91,7 +93,7 @@ class GameSessionManager {
     await this.getPoints()
     this.loading = false
     this.loaded = true
-    logger.info("Firestore - retrieve OK")
+    logger.info("[GameSessionManager] - firestore retrieve OK")
   }
 
   async getPoints() {
@@ -121,7 +123,9 @@ class GameSessionManager {
       const expireAt = this.timeouts.get(session)
       // expired -> remove
       if (now > expireAt) {
-        logger.info(`[${session.name}/${session.data.game.id}] timed out`)
+        logger.info(
+          `[GameSessionManager] - ${session.name}/${session.data.game.id} timed out`
+        )
         this.removeSession(session)
         this.timeoutCheckers.delete(session)
       } else {
