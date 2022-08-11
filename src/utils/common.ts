@@ -61,6 +61,7 @@ export const tokenEmojis: Record<string, string> = {
   DFG: "1005008750916161637",
   ICY: ":ice_cube:",
   CARROT: ":carrot:",
+  BUTT: "1007247521468403744",
 }
 
 export const numberEmojis: Record<string, string> = {
