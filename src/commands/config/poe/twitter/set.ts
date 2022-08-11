@@ -55,7 +55,9 @@ const command: Command = {
     }
 
     for (const trigger of triggerKeywords) {
-      if (!trigger.startsWith("#") && !trigger.startsWith("@")) {
+      if (
+        ["#", "@", "<#", "<@&"].every((prefix) => !trigger.startsWith(prefix))
+      ) {
         return {
           messageOptions: {
             embeds: [
@@ -69,6 +71,28 @@ const command: Command = {
         }
       }
     }
+
+    // normalize hashtag that get treated as discord channels or
+    // user handle that get treated as discord role
+    triggerKeywords = await Promise.all(
+      triggerKeywords.map(async (keyword) => {
+        if (
+          ["<#", "<@&"].some((p) => keyword.startsWith(p)) &&
+          keyword.endsWith(">")
+        ) {
+          if (keyword.startsWith("<#")) {
+            const id = keyword.substring(2, keyword.length - 1)
+            const chan = await msg.guild.channels.fetch(id)
+            return "#" + chan.name
+          } else {
+            const id = keyword.substring(3, keyword.length - 1)
+            const role = await msg.guild.roles.fetch(id)
+            return "@" + role.name
+          }
+        }
+        return keyword
+      })
+    )
 
     const ruleId = await TwitterStream.upsertRule({
       ruleValue: triggerKeywords,
