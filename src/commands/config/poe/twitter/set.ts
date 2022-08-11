@@ -72,7 +72,7 @@ const command: Command = {
 
     const ruleId = await TwitterStream.upsertRule({
       ruleValue: triggerKeywords,
-      channelId: msg.channelId,
+      channelId: chan.id,
       guildId: msg.guildId,
     })
 
