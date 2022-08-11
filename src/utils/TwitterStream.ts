@@ -29,7 +29,7 @@ type ProcessParam = {
 }
 
 function toTwitterRuleFormat(keywords: Array<string>) {
-  return `(${keywords.filter(Boolean).join(" OR ")}) -is:retweet`
+  return `(${keywords.filter(Boolean).join(" OR ")}) -is:retweet -is:reply`
 }
 
 class TwitterStream extends InmemoryStorage {
@@ -39,12 +39,12 @@ class TwitterStream extends InmemoryStorage {
   constructor() {
     super()
     this.up()
-    this.watchStream()
   }
 
   set client(c: Client) {
     if (this._client?.isReady) return
     this._client = c
+    this.watchStream()
   }
 
   get client() {
@@ -94,7 +94,7 @@ class TwitterStream extends InmemoryStorage {
 
     publishChannels.forEach((channelIds) => {
       channelIds.forEach((channelId) => {
-        this.client?.channels.fetch(channelId).then((channel) => {
+        this._client?.channels.fetch(channelId).then((channel) => {
           // `channel` should be TextChannel, if not then it's probably removed -> warn
           if (channel.isText() && channel instanceof TextChannel) {
             this.process({ channel, tweet, handle })
