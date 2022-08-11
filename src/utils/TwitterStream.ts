@@ -94,7 +94,7 @@ class TwitterStream extends InmemoryStorage {
 
     publishChannels.forEach((channelIds) => {
       channelIds.forEach((channelId) => {
-        this.client.channels.fetch(channelId).then((channel) => {
+        this.client?.channels.fetch(channelId).then((channel) => {
           // `channel` should be TextChannel, if not then it's probably removed -> warn
           if (channel.isText() && channel instanceof TextChannel) {
             this.process({ channel, tweet, handle })
