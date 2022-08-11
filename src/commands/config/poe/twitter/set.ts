@@ -4,6 +4,7 @@ import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import TwitterStream from "utils/TwitterStream"
 
 const command: Command = {
   id: "poe_twitter_set",
@@ -26,33 +27,42 @@ const command: Command = {
     const chan: TextChannel = await msg.guild.channels
       .fetch(logChannel)
       .catch(() => undefined)
-    if (!chan)
+    if (!chan) {
       return {
         messageOptions: {
           embeds: [getErrorEmbed({ msg, description: "Channel not found" })],
         },
       }
-
-    let triggerHashtags = args[4]?.split(",") ?? []
-    triggerHashtags = triggerHashtags.map((t) => t.trim())
-
-    if (triggerHashtags.length === 0 || triggerHashtags.some((t) => !t)) {
+    } else if (!chan.isText()) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Empty hashtag" })],
+          embeds: [
+            getErrorEmbed({ msg, description: "Channel must be text-based" }),
+          ],
         },
       }
     }
 
-    for (const trigger of triggerHashtags) {
-      if (trigger.startsWith("#")) {
+    let triggerKeywords = args[4]?.split(",") ?? []
+    triggerKeywords = triggerKeywords.map((t) => t.trim())
+
+    if (triggerKeywords.length === 0 || triggerKeywords.some((t) => !t)) {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Empty keyword list" })],
+        },
+      }
+    }
+
+    for (const trigger of triggerKeywords) {
+      if (!trigger.startsWith("#") && !trigger.startsWith("@")) {
         return {
           messageOptions: {
             embeds: [
               getErrorEmbed({
                 msg,
                 description:
-                  "Invalid character, maybe drop the (#) hashtag character?",
+                  "Invalid keyword format, only hashtag (#) or mention (@) are supported",
               }),
             ],
           },
@@ -60,12 +70,18 @@ const command: Command = {
       }
     }
 
-    triggerHashtags = triggerHashtags.map((ht) => `#${ht}`)
+    const ruleId = await TwitterStream.upsertRule({
+      ruleValue: triggerKeywords,
+      channelId: msg.channelId,
+      guildId: msg.guildId,
+    })
 
     await config.setTwitterConfig(msg.guildId, {
-      hashtag: triggerHashtags,
+      hashtag: triggerKeywords.filter((k) => k.startsWith("#")),
+      twitter_username: triggerKeywords.filter((k) => k.startsWith("@")),
       user_id: msg.author.id,
       channel_id: chan.id,
+      rule_id: ruleId,
     })
 
     return {
@@ -73,9 +89,13 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             author: [msg.guild.name, msg.guild.iconURL()],
-            description: `Set by: <@${msg.author.id}>\nWatching <#${
+            description: `Set by: <@${msg.author.id}>\nCheck updates in <#${
               chan.id
-            }>\nFor tags: ${triggerHashtags
+            }>\nTags: ${triggerKeywords
+              .filter((k) => k.startsWith("#"))
+              .map((t: string) => `\`${t}\``)
+              .join(", ")}\nMentions: ${triggerKeywords
+              .filter((k) => k.startsWith("@"))
               .map((t: string) => `\`${t}\``)
               .join(", ")}`,
           }),

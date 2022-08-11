@@ -711,6 +711,8 @@ class Config {
       channel_id: string
       user_id: string
       hashtag: Array<string>
+      twitter_username: Array<string>
+      rule_id: string
     }
   ) {
     const body = {
@@ -731,7 +733,7 @@ class Config {
     }
   }
 
-  public async getTwitterConfig(guildId: string) {
+  public async getTwitterConfig(guildId = "") {
     const res = await fetch(
       `${API_BASE_URL}/configs/twitter/hashtag/${guildId}`
     )
@@ -754,6 +756,27 @@ class Config {
     )
     if (res.status !== 200) {
       throw new Error(`failed to remove twitter config`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw Error(json.error)
+    }
+  }
+
+  public async logTweet(data: {
+    twitter_id: string
+    twitter_handle: string
+    tweet_id: string
+    guild_id: string
+  }) {
+    const res = await fetch(`${API_BASE_URL}/twitter`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+
+    if (res.status !== 200) {
+      throw new Error("failed to log tweet")
     }
 
     const json = await res.json()
