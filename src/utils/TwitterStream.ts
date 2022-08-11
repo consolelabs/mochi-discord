@@ -118,7 +118,7 @@ class TwitterStream extends InmemoryStorage {
         this.handle(tweet)
       }
     } catch (e: any) {
-      logger.error(e)
+      logger.error(e.error)
     }
   }
 
