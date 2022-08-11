@@ -102,6 +102,7 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["wd"],
   colorType: "Defi",
+  allowDM: true,
   minArguments: 3,
 }
 
