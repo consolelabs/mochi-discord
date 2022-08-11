@@ -11,12 +11,12 @@ import {
 } from "discord.js"
 import { COMMA, HOMEPAGE_URL, VERTICAL_BAR } from "./constants"
 import {
-  defaultEmojis,
   getEmbedFooter,
   getEmoji,
   getCommandsList,
   msgColors,
   getDateStr,
+  defaultEmojis,
 } from "./common"
 import {
   getCommandObject,
@@ -137,6 +137,7 @@ export function composeEmbedMessage(
     withoutFooter,
     includeCommandsList,
     actions,
+    successMsg,
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
@@ -150,7 +151,9 @@ export function composeEmbedMessage(
   }
 
   title =
-    (isSpecificHelpCommand ? (actionObj ?? commandObj)?.brief : title) ?? ""
+    (isSpecificHelpCommand
+      ? (actionObj ?? commandObj)?.brief
+      : `${successMsg ? `${getEmoji("approve")} ` : ""}${title}`) ?? ""
 
   let authorTag = msg?.author?.tag
   let authorAvatarURL = msg?.author?.avatarURL()
