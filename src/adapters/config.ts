@@ -784,6 +784,22 @@ class Config {
       throw Error(json.error)
     }
   }
+
+  public async setDefaultToken(body: { guild_id: string; symbol: string }) {
+    const resp = await fetch(`${API_BASE_URL}/configs/tokens/default`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+    const json = await resp.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    if (resp.status !== 200) {
+      throw new Error(`failed to set default token ${body.symbol}`)
+    }
+    return json
+  }
 }
 
 const config = new Config()
