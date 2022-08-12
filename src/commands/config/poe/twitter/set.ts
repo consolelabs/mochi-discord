@@ -6,6 +6,13 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import TwitterStream from "utils/TwitterStream"
 
+const hashtagPrefix = "#"
+const handlePrefix = "@"
+const channelPrefix = "<#"
+const rolePrefix = "<@&"
+const twitterAccountLinkPrefix = "https://twitter.com/"
+const twitterAccountLinkRegex = new RegExp("https://twitter.com/(.+)")
+
 const command: Command = {
   id: "poe_twitter_set",
   command: "set",
@@ -15,7 +22,10 @@ const command: Command = {
   run: async function (msg) {
     const args = getCommandArguments(msg)
     const logChannelArg = args[3] ?? ""
-    if (!logChannelArg.startsWith("<#") || !logChannelArg.endsWith(">")) {
+    if (
+      !logChannelArg.startsWith(channelPrefix) ||
+      !logChannelArg.endsWith(">")
+    ) {
       return {
         messageOptions: {
           embeds: [getErrorEmbed({ msg, description: "Invalid channel" })],
@@ -56,7 +66,13 @@ const command: Command = {
 
     for (const trigger of triggerKeywords) {
       if (
-        ["#", "@", "<#", "<@&"].every((prefix) => !trigger.startsWith(prefix))
+        [
+          hashtagPrefix,
+          handlePrefix,
+          channelPrefix,
+          rolePrefix,
+          twitterAccountLinkPrefix,
+        ].every((prefix) => !trigger.startsWith(prefix))
       ) {
         return {
           messageOptions: {
@@ -64,7 +80,7 @@ const command: Command = {
               getErrorEmbed({
                 msg,
                 description:
-                  "Invalid keyword format, only hashtag (#) or mention (@) are supported",
+                  "Invalid keyword format, only hashtag (#) or mention (@) or twitter account link (https://twitter.com/your_handle) are supported",
               }),
             ],
           },
@@ -77,10 +93,16 @@ const command: Command = {
     triggerKeywords = await Promise.all(
       triggerKeywords.map(async (keyword) => {
         if (
-          ["<#", "<@&"].some((p) => keyword.startsWith(p)) &&
+          keyword.startsWith(twitterAccountLinkPrefix) &&
+          twitterAccountLinkRegex.test(keyword)
+        ) {
+          const handle = twitterAccountLinkRegex.exec(keyword)?.[1]
+          return "@" + handle
+        } else if (
+          [channelPrefix, rolePrefix].some((p) => keyword.startsWith(p)) &&
           keyword.endsWith(">")
         ) {
-          if (keyword.startsWith("<#")) {
+          if (keyword.startsWith(channelPrefix)) {
             const id = keyword.substring(2, keyword.length - 1)
             const chan = await msg.guild.channels.fetch(id)
             return "#" + chan.name
