@@ -6,6 +6,7 @@ import remove from "./remove"
 import list from "./list"
 import addcustom from "./addCustom"
 import compare from "./compare"
+import setDefault from "./default"
 import { thumbnails } from "utils/common"
 
 const actions: Record<string, Command> = {
@@ -14,6 +15,7 @@ const actions: Record<string, Command> = {
   remove,
   "add-custom": addcustom,
   compare,
+  default: setDefault,
 }
 
 const command: Command = {
