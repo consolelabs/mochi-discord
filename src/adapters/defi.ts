@@ -340,16 +340,7 @@ class Defi {
       case "tip": {
         each = args[args.length - 1].toLowerCase() === "each"
         args = each ? args.slice(0, args.length - 1) : args
-        if (Number.isNaN(Number(args[args.length]))) {
-          recipients = await this.parseRecipients(
-            msg,
-            args.slice(0, args.length - 1),
-            sender
-          )
-
-          cryptocurrency = ""
-          amountArg = args[args.length - 1].toLowerCase()
-        } else {
+        if (Number.isNaN(Number(args[args.length - 1]))) {
           recipients = await this.parseRecipients(
             msg,
             args.slice(0, args.length - 2),
@@ -358,6 +349,15 @@ class Defi {
 
           cryptocurrency = args[args.length - 1].toUpperCase()
           amountArg = args[args.length - 2].toLowerCase()
+        } else {
+          recipients = await this.parseRecipients(
+            msg,
+            args.slice(0, args.length - 1),
+            sender
+          )
+
+          cryptocurrency = ""
+          amountArg = args[args.length - 1].toLowerCase()
         }
 
         each = each && amountArg !== "all"
