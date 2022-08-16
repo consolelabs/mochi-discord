@@ -4,7 +4,11 @@ import { Message } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "utils/discordEmbed"
 import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 import { callAPI, toEmbed } from "../nft/add"
 
@@ -39,10 +43,11 @@ async function executeNftIntegrateCommand(args: string[], msg: Message) {
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(msg, {
-            successMsg: true,
+          getSuccessEmbed({
+            msg,
             title: "Integrated",
-            description: "The collection integrated successfully",
+            description:
+              "Your collection is now ready to take part in our verse (added + enabled)",
           }),
         ],
       },

@@ -68,10 +68,6 @@ export type EmbedProperties = {
   withoutFooter?: boolean
   includeCommandsList?: boolean
   actions?: Record<string, Command>
-  /**
-   * Whether to add a checkmark icon before the title
-   */
-  successMsg?: boolean
 }
 
 export type Role = {
