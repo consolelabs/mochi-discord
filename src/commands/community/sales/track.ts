@@ -41,7 +41,7 @@ const command: Command = {
       channelId
     )
 
-    if (res.error) {
+    if (!res.ok) {
       return {
         messageOptions: {
           embeds: [

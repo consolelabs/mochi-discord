@@ -231,55 +231,15 @@ class Community extends Fetcher {
   }
 
   public async getNFTDetail(collectionSymbol: string, tokenId: string) {
-    const res = await fetch(
-      `${API_BASE_URL}/nfts/${collectionSymbol}/${tokenId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+    return await this.jsonFetch(
+      `${API_BASE_URL}/nfts/${collectionSymbol}/${tokenId}`
     )
-    // Need to keep json.error for case handling
-    const json = await res.json()
-    if (res.status !== 200) {
-      // exclude case where status code is 500 and it's 'not found' or 'insync'
-      if (
-        !(
-          (json.error.includes("not found") ||
-            json.error.includes("in sync")) &&
-          res.status == 500
-        )
-      )
-        throw new Error(
-          `failed to get NFT detail - ${collectionSymbol} | ${tokenId}`
-        )
-    }
-
-    return json
   }
 
-  public async getNFTCollectionDetail(collectionSymbol: string) {
-    const res = await fetch(
-      `${API_BASE_URL}/nfts/collections/${collectionSymbol}/detail`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+  public async getNFTCollectionDetail(collectionAddress: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/nfts/collections/${collectionAddress}/detail`
     )
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to get NFT Collection detail - ${collectionSymbol}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   public async getNFTCollectionTickers({

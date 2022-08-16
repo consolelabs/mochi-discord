@@ -10,12 +10,30 @@ type RequestInit = NativeRequestInit & {
   autoWrap500Error?: boolean
 }
 
-type OkResponse<T = Record<string, unknown>> = {
-  json: () => Promise<{ data: Record<string, unknown> & T; error: null }>
+type OkPayload<T> = {
+  ok: true
+  data: Record<string, any> & T
+  suggestions?: Array<{
+    name: string
+    symbol: string
+    address: string
+    chain: string
+  }>
+  error: null
+}
+
+type ErrPayload = {
+  ok: false
+  data: null
+  error: string
+}
+
+type OkResponse<T = Record<string, any>> = {
+  json: () => Promise<OkPayload<T>>
 }
 
 type ErrResponse = {
-  json: () => Promise<{ data: null; error: string }>
+  json: () => Promise<ErrPayload>
 }
 
 const defaultInit: RequestInit = {
@@ -27,31 +45,47 @@ const defaultInit: RequestInit = {
 }
 
 export class Fetcher {
-  protected async jsonFetch<T>(url: string, init?: RequestInit) {
-    const mergedInit = deepmerge(defaultInit, init)
-    const { autoWrap500Error, ...validInit } = mergedInit
-    const res = await fetch(url, validInit)
+  protected async jsonFetch<T>(
+    url: string,
+    init: RequestInit = {}
+  ): Promise<OkPayload<T> | ErrPayload> {
+    try {
+      const mergedInit = deepmerge(defaultInit, init)
+      const { autoWrap500Error, ...validInit } = mergedInit
+      const res = await fetch(url, validInit)
 
-    let json
-    if (!res.ok) {
-      logger.error(
-        `[API failed - ${res.status}]: ${url} with params ${validInit.body}`
-      )
+      if (!res.ok) {
+        logger.error(
+          `[API failed - ${res.status}]: ${url} with params ${validInit.body}`
+        )
 
-      json = await (res as ErrResponse).json()
-      if (autoWrap500Error) {
-        json.error =
-          "Something went wrong, out team is notified and is working on the fix, stay tuned."
+        const json = await (res as ErrResponse).json()
+        if (autoWrap500Error) {
+          json.error =
+            "Something went wrong, out team is notified and is working on the fix, stay tuned."
+        } else {
+          json.error = `${json.error[0].toUpperCase}${json.error.slice(1)}`
+        }
+        json.ok = false
+        return json
       } else {
-        json.error = `${json.error[0].toUpperCase}${json.error.slice(1)}`
+        logger.info(
+          `[API ok - ${res.status}]: ${url} with params ${
+            validInit.body ?? "{}"
+          }`
+        )
+        const json = await (res as OkResponse<T>).json()
+        json.ok = true
+        return json
       }
-    } else {
-      logger.info(
-        `[API ok - ${res.status}]: ${url} with params ${validInit.body}`
-      )
-      json = await (res as OkResponse<T>).json()
+    } catch (e: any) {
+      logger.error(`[API failed]: ${e.message}`)
+      return {
+        ok: false,
+        data: null,
+        error:
+          "Something went wrong, out team is notified and is working on the fix, stay tuned.",
+      }
     }
-
-    return json
   }
 }
