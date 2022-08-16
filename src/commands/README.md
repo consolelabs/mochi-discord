@@ -1,5 +1,7 @@
 # Command guideline
 
+## General
+
 | ![command](/images/1.png) | ![command](/images/2.png) | ![command](/images/3.png) | ![command](/images/4.png) |
 | ------------------------- | ------------------------- | ------------------------- | ------------------------- |
 
@@ -38,3 +40,20 @@ Whenever you create a new command or fine-tune existing ones, some rules must ap
 ---
 
 - Command will close after an amount of inactivity has passed (default 5 min)
+
+## Ok/Failed message
+
+A ok/failed message response must have the following properties to be considered standard:
+
+- Color of the embed is either `SUCCESS` or `ERROR` (see [here](https://github.com/consolelabs/mochi-bot/blob/526dfbc30f5fd1e1f53f168b9d60419f365d3286/src/utils/common.ts#L157))
+- The icon is either ![error icon](https://cdn.discordapp.com/emojis/933341948431962172.webp?size=32&quality=lossless) or ![success icon](https://cdn.discordapp.com/emojis/933341948402618378.webp?size=32&quality=lossless)
+
+In short, just use the `getErrorEmbed()` or `getSuccessEmbed()` method to easily conform to the above interface
+
+### Nice to have
+
+Provide better contextual message when responding to users' action, this forces you to think about the bot as a product and what it can do rather than a big chunk of different functions
+
+| Don't                                                                                                                           | Do                                                                                                                                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repeat what the user just did<br/>It's redundant and has a stiff tone when read (too robotic)<br/>![](/images/message-dont.png) | Provide additional info to let users know what is the effect of their action, what to do next, etc...<br/>Also a friendlier tone helps too<br/>![](/images/message-do.png) |
