@@ -59,6 +59,7 @@ export default {
         logger.error(e as string)
       }
       ChannelLogger.log(error, 'Event<"messageCreate">')
+      ChannelLogger.alert(message)
     }
   },
 } as Event<"messageCreate">
