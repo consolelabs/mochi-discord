@@ -111,6 +111,7 @@ export const emojis: { [key: string]: string } = {
   HEART: "991939196405174442",
   APPROVE: "933341948402618378",
   NFTS: "977508805011181638",
+  QUESTION: "1008993149076635698",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

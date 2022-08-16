@@ -195,6 +195,42 @@ function getCommandColor(commandObj: Command) {
   return embedsColors[commandObj?.colorType ?? "Command"]
 }
 
+export function getSuggestionEmbed(params: {
+  title?: string
+  description: string
+  msg: Message
+}) {
+  const { title, description, msg } = params
+  const embed = composeEmbedMessage(msg, {
+    author: [title ?? "Hmm?", getEmojiURL(emojis["QUESTION"])],
+    description,
+    color: "#ffffff",
+  })
+
+  return embed
+}
+
+export function getSuggestionComponents(
+  suggestions: Array<MessageSelectOptionData>
+) {
+  const hasOneSuggestion = suggestions.length === 1
+  const row = new MessageActionRow()
+  if (hasOneSuggestion) {
+    const button = new MessageButton()
+      .setLabel("Yes")
+      .setStyle("PRIMARY")
+      .setCustomId(`suggestion-button-${suggestions[0].value}`)
+    row.addComponents(button)
+  } else {
+    const select = new MessageSelectMenu()
+      .addOptions(suggestions)
+      .setCustomId("suggestion-select")
+    row.addComponents(select)
+  }
+
+  return row
+}
+
 export function getSuccessEmbed(params: {
   title?: string
   description?: string
@@ -308,6 +344,41 @@ export function getPaginationRow(page: number, totalPage: number) {
     })
   }
   return [actionRow]
+}
+
+export function listenForSuggestionAction(
+  replyMsg: Message,
+  onAction: (value: string) => Promise<void>
+) {
+  replyMsg
+    .createMessageComponentCollector({
+      componentType: MessageComponentTypes.BUTTON,
+      idle: 60000,
+    })
+    .on("collect", async (i) => {
+      await i.deferUpdate()
+      const value = i.customId.split("-").pop()
+      onAction(value)
+      replyMsg.edit({ components: [] })
+    })
+    .on("end", () => {
+      replyMsg.edit({ components: [] })
+    })
+
+  replyMsg
+    .createMessageComponentCollector({
+      componentType: MessageComponentTypes.SELECT_MENU,
+      idle: 60000,
+    })
+    .on("collect", async (i) => {
+      await i.deferUpdate()
+      const value = i.values[0]
+      onAction(value)
+      replyMsg.edit({ components: [] })
+    })
+    .on("end", () => {
+      replyMsg.edit({ components: [] })
+    })
 }
 
 export function listenForPaginateAction(
