@@ -1,6 +1,5 @@
 import { Command } from "types/common"
 import {
-  EmbedFieldData,
   HexColorString,
   Message,
   MessageActionRow,
@@ -88,12 +87,11 @@ async function renderHistoricalMarketChart({
   )
 
   // draw chart
-  const colorConfig = getChartColorConfig(coinId)
   const image = await renderChartImage({
     chartLabel: `Price (${currency.toUpperCase()}), ${from} - ${to}`,
     labels: times,
     data: prices,
-    colorConfig,
+    colorConfig: getChartColorConfig(coinId),
   })
 
   return new MessageAttachment(image, "chart.png")
@@ -180,7 +178,13 @@ async function composeTickerEmbed(
   const marketCap = +market_cap[currency]
   const blank = getEmoji("blank")
   const currencyPrefix = currency === "usd" ? "$" : ""
-  const fields: EmbedFieldData[] = [
+
+  const embed = composeEmbedMessage(msg, {
+    color: getChartColorConfig(coin.id).borderColor as HexColorString,
+    author: [coin.name, coin.image.small],
+    footer: ["Data fetched from CoinGecko.com"],
+    image: "attachment://chart.png",
+  }).addFields([
     {
       name: `Market cap (${currency.toUpperCase()})`,
       value: `${currencyPrefix}${marketCap.toLocaleString()} (#${
@@ -211,14 +215,7 @@ async function composeTickerEmbed(
       value: getChangePercentage(price_change_percentage_7d_in_currency.usd),
       inline: true,
     },
-  ]
-
-  const embedMsg = composeEmbedMessage(msg, {
-    color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    author: [coin.name, coin.image.small],
-    footer: ["Data fetched from CoinGecko.com"],
-    image: "attachment://chart.png",
-  }).addFields(fields)
+  ])
 
   const chart = await renderHistoricalMarketChart({
     msg,
@@ -235,7 +232,7 @@ async function composeTickerEmbed(
   return {
     messageOptions: {
       files: [chart],
-      embeds: [embedMsg],
+      embeds: [embed],
       components: [selectRow, composeDiscordExitButton(msg.author.id)],
     },
     commandChoiceOptions: {
