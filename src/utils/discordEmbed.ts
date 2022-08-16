@@ -16,7 +16,8 @@ import {
   getCommandsList,
   msgColors,
   getDateStr,
-  defaultEmojis,
+  getEmojiURL,
+  emojis,
 } from "./common"
 import {
   getCommandObject,
@@ -137,7 +138,6 @@ export function composeEmbedMessage(
     withoutFooter,
     includeCommandsList,
     actions,
-    successMsg,
   } = props
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
@@ -151,9 +151,7 @@ export function composeEmbedMessage(
   }
 
   title =
-    (isSpecificHelpCommand
-      ? (actionObj ?? commandObj)?.brief
-      : `${successMsg ? `${getEmoji("approve")} ` : ""}${title ?? ""}`) ?? ""
+    (isSpecificHelpCommand ? (actionObj ?? commandObj)?.brief : title) ?? ""
 
   let authorTag = msg?.author?.tag
   let authorAvatarURL = msg?.author?.avatarURL()
@@ -197,6 +195,23 @@ function getCommandColor(commandObj: Command) {
   return embedsColors[commandObj?.colorType ?? "Command"]
 }
 
+export function getSuccessEmbed(params: {
+  title?: string
+  description?: string
+  thumbnail?: string
+  msg: Message
+  image?: string
+}) {
+  const { title, description, thumbnail, msg, image } = params
+  return composeEmbedMessage(msg, {
+    author: [title ?? "Successful", getEmojiURL(emojis["APPROVE"])],
+    description: description ?? "The operation finished successfully",
+    image,
+    thumbnail,
+    color: msgColors.SUCCESS,
+  })
+}
+
 export function getErrorEmbed(params: {
   title?: string
   description?: string
@@ -206,10 +221,10 @@ export function getErrorEmbed(params: {
 }) {
   const { title, description, thumbnail, msg, image } = params
   return composeEmbedMessage(msg, {
-    title: title ?? `${defaultEmojis.ERROR} Command error`,
+    author: [title ?? "Error", getEmojiURL(emojis["REVOKE"])],
     description:
       description ??
-      "Something went wrong! Please try again or contact administrators",
+      "Something went wrong, out team is notified and is working on the fix, stay tuned.",
     image,
     thumbnail,
     color: msgColors.ERROR,
@@ -217,12 +232,9 @@ export function getErrorEmbed(params: {
 }
 
 export function getInvalidInputEmbed(msg: Message) {
-  return composeEmbedMessage(msg, {
-    color: msgColors.ERROR,
-    author: [
-      "Invalid input!",
-      "https://cdn.discordapp.com/emojis/933341948431962172.webp?size=240&quality=lossless",
-    ],
+  return getErrorEmbed({
+    msg,
+    title: "Invalid input",
     description:
       "That is an invalid argument. Please see help message of the command",
   })

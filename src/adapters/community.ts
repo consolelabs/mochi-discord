@@ -4,8 +4,9 @@ import { CampaignWhitelistUser } from "types/common"
 import { InvitesInput } from "types/community"
 import { NftCollectionTicker } from "types/nft"
 import { API_BASE_URL } from "utils/constants"
+import { Fetcher } from "./fetcher"
 
-class Community {
+class Community extends Fetcher {
   public async getInvites(input: InvitesInput): Promise<any> {
     const res = await fetch(
       `${API_BASE_URL}/community/invites?guild_id=${input.guild_id}&member_id=${input.member_id}`
@@ -316,9 +317,8 @@ class Community {
     guildId: string,
     channelId: string
   ) {
-    const res = await fetch(`${API_BASE_URL}/nfts/sales-tracker`, {
+    return this.jsonFetch(`${API_BASE_URL}/nfts/sales-tracker`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         channel_id: channelId,
         contract_address: addr,
@@ -326,12 +326,6 @@ class Community {
         guild_id: guildId,
       }),
     })
-    if (res.status !== 200) {
-      throw new Error(`failed to create sales tracker`)
-    }
-
-    const json = await res.json()
-    return json
   }
 
   public async getNFTCollections({

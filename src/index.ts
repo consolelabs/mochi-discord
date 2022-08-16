@@ -1,7 +1,6 @@
 import Discord from "discord.js"
 import events from "./events"
 import { DISCORD_TOKEN } from "./env"
-// import { setupSlashCommand } from "commands/slash"
 
 const client = new Discord.Client({
   intents: [
@@ -14,8 +13,6 @@ const client = new Discord.Client({
   ],
   partials: ["MESSAGE", "REACTION", "CHANNEL"],
 })
-
-// setupSlashCommand(client)
 
 // discord client
 client.login(DISCORD_TOKEN)

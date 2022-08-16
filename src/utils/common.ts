@@ -157,6 +157,7 @@ export const tripodEmojis: Record<string, string> = {
 export const msgColors: Record<string, ColorResolvable> = {
   PRIMARY: "#E88B88",
   ERROR: "#D94F50",
+  SUCCESS: "#5cd97d",
 }
 
 export const thumbnails: Record<string, string> = {
