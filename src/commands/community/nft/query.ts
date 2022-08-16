@@ -179,7 +179,7 @@ const command: Command = {
         components: [components],
       })
 
-      listenForSuggestionAction(replyMsg, async (value) => {
+      listenForSuggestionAction(replyMsg, msg.author.id, async (value) => {
         const [colAddress, tokenId] = value.split("/")
         const res = await community.getNFTDetail(colAddress, tokenId)
         const detailRes = await community.getNFTCollectionDetail(colAddress)

@@ -348,6 +348,7 @@ export function getPaginationRow(page: number, totalPage: number) {
 
 export function listenForSuggestionAction(
   replyMsg: Message,
+  authorId: string,
   onAction: (value: string) => Promise<void>
 ) {
   replyMsg
@@ -356,6 +357,7 @@ export function listenForSuggestionAction(
       idle: 60000,
     })
     .on("collect", async (i) => {
+      if (i.user.id !== authorId) return
       await i.deferUpdate()
       const value = i.customId.split("-").pop()
       onAction(value)
@@ -371,6 +373,7 @@ export function listenForSuggestionAction(
       idle: 60000,
     })
     .on("collect", async (i) => {
+      if (i.user.id !== authorId) return
       await i.deferUpdate()
       const value = i.values[0]
       onAction(value)
