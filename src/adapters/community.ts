@@ -4,8 +4,9 @@ import { CampaignWhitelistUser } from "types/common"
 import { InvitesInput } from "types/community"
 import { NftCollectionTicker } from "types/nft"
 import { API_BASE_URL } from "utils/constants"
+import { Fetcher } from "./fetcher"
 
-class Community {
+class Community extends Fetcher {
   public async getInvites(input: InvitesInput): Promise<any> {
     const res = await fetch(
       `${API_BASE_URL}/community/invites?guild_id=${input.guild_id}&member_id=${input.member_id}`
@@ -230,55 +231,15 @@ class Community {
   }
 
   public async getNFTDetail(collectionSymbol: string, tokenId: string) {
-    const res = await fetch(
-      `${API_BASE_URL}/nfts/${collectionSymbol}/${tokenId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+    return await this.jsonFetch(
+      `${API_BASE_URL}/nfts/${collectionSymbol}/${tokenId}`
     )
-    // Need to keep json.error for case handling
-    const json = await res.json()
-    if (res.status !== 200) {
-      // exclude case where status code is 500 and it's 'not found' or 'insync'
-      if (
-        !(
-          (json.error.includes("not found") ||
-            json.error.includes("in sync")) &&
-          res.status == 500
-        )
-      )
-        throw new Error(
-          `failed to get NFT detail - ${collectionSymbol} | ${tokenId}`
-        )
-    }
-
-    return json
   }
 
-  public async getNFTCollectionDetail(collectionSymbol: string) {
-    const res = await fetch(
-      `${API_BASE_URL}/nfts/collections/${collectionSymbol}/detail`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+  public async getNFTCollectionDetail(collectionAddress: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/nfts/collections/${collectionAddress}/detail`
     )
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to get NFT Collection detail - ${collectionSymbol}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   public async getNFTCollectionTickers({
@@ -316,9 +277,8 @@ class Community {
     guildId: string,
     channelId: string
   ) {
-    const res = await fetch(`${API_BASE_URL}/nfts/sales-tracker`, {
+    return this.jsonFetch(`${API_BASE_URL}/nfts/sales-tracker`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         channel_id: channelId,
         contract_address: addr,
@@ -326,12 +286,6 @@ class Community {
         guild_id: guildId,
       }),
     })
-    if (res.status !== 200) {
-      throw new Error(`failed to create sales tracker`)
-    }
-
-    const json = await res.json()
-    return json
   }
 
   public async getNFTCollections({

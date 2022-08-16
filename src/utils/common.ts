@@ -111,6 +111,7 @@ export const emojis: { [key: string]: string } = {
   HEART: "991939196405174442",
   APPROVE: "933341948402618378",
   NFTS: "977508805011181638",
+  QUESTION: "1008993149076635698",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -157,6 +158,7 @@ export const tripodEmojis: Record<string, string> = {
 export const msgColors: Record<string, ColorResolvable> = {
   PRIMARY: "#E88B88",
   ERROR: "#D94F50",
+  SUCCESS: "#5cd97d",
 }
 
 export const thumbnails: Record<string, string> = {

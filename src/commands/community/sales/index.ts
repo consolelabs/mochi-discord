@@ -1,23 +1,23 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import sales from "./sales"
+import track from "./track"
 
 const actions: Record<string, Command> = {
-  sales,
+  track,
 }
 
 const command: Command = {
-  id: "track",
-  command: "track",
-  brief: "NFT track",
+  id: "sales",
+  command: "sales",
+  brief: "NFT sales tracker",
   category: "Community",
   run: async () => null,
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sales <action>`,
-        footer: [`Type ${PREFIX}help sale <action> for a specific action!`],
+        footer: [`Type ${PREFIX}help sales <action> for a specific action!`],
         includeCommandsList: true,
       }),
     ],
