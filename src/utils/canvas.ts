@@ -9,7 +9,7 @@ import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import { GuildMember, MessageAttachment } from "discord.js"
 import { CircleleStats, RectangleStats } from "types/canvas"
 import { NFTCollection } from "types/community"
-import { emojis, getEmojiURL, msgColors, thumbnails } from "./common"
+import { emojis, getEmojiURL, thumbnails } from "./common"
 import { SPACE } from "./constants"
 
 export function widthOf(ctx: CanvasRenderingContext2D, text: string): number {
@@ -304,10 +304,10 @@ export async function renderChartImage({
 }) {
   if (!colorConfig) {
     colorConfig = {
-      borderColor: "#E0615D",
+      borderColor: "#009cdb",
       backgroundColor: getGradientColor(
-        msgColors.PRIMARY.toString(),
-        "rgba(184, 114, 110,0.5)"
+        "rgba(53,83,192,0.9)",
+        "rgba(58,69,110,0.5)"
       ),
     }
   }
@@ -330,7 +330,7 @@ export async function renderChartImage({
         {
           label: chartLabel,
           data,
-          borderWidth: 6,
+          borderWidth: 2,
           pointRadius: 0,
           fill: true,
           ...colorConfig,
@@ -605,4 +605,45 @@ export async function drawLeaderboard(options: {
   }
 
   return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")
+}
+
+export function getChartColorConfig(id: string) {
+  let gradientFrom, gradientTo, borderColor
+  switch (id) {
+    case "bitcoin":
+      borderColor = "#ffa301"
+      gradientFrom = "rgba(159,110,43,0.9)"
+      gradientTo = "rgba(76,66,52,0.5)"
+      break
+    case "ethereum":
+      borderColor = "#ff0421"
+      gradientFrom = "rgba(173,36,43,0.9)"
+      gradientTo = "rgba(77,48,53,0.5)"
+      break
+
+    case "tether":
+      borderColor = "#22a07a"
+      gradientFrom = "rgba(46,78,71,0.9)"
+      gradientTo = "rgba(48,63,63,0.5)"
+      break
+    case "binancecoin" || "terra":
+      borderColor = "#f5bc00"
+      gradientFrom = "rgba(172,136,41,0.9)"
+      gradientTo = "rgba(73,67,55,0.5)"
+      break
+    case "solana":
+      borderColor = "#9945ff"
+      gradientFrom = "rgba(116,62,184,0.9)"
+      gradientTo = "rgba(61,53,83,0.5)"
+      break
+    default:
+      borderColor = "#009cdb"
+      gradientFrom = "rgba(53,83,192,0.9)"
+      gradientTo = "rgba(58,69,110,0.5)"
+  }
+
+  return {
+    borderColor,
+    backgroundColor: getGradientColor(gradientFrom, gradientTo),
+  }
 }

@@ -62,7 +62,7 @@ export class Fetcher {
         const json = await (res as ErrResponse).json()
         if (autoWrap500Error) {
           json.error =
-            "Something went wrong, out team is notified and is working on the fix, stay tuned."
+            "Something went wrong, our team is notified and is working on the fix, stay tuned."
         } else {
           json.error = `${json.error[0].toUpperCase}${json.error.slice(1)}`
         }
@@ -84,7 +84,7 @@ export class Fetcher {
         ok: false,
         data: null,
         error:
-          "Something went wrong, out team is notified and is working on the fix, stay tuned.",
+          "Something went wrong, our team is notified and is working on the fix, stay tuned.",
       }
     }
   }

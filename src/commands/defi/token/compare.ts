@@ -7,7 +7,6 @@ import {
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { PREFIX } from "utils/constants"
 import { getCommandArguments } from "utils/commands"
 import {
   composeDiscordExitButton,
@@ -17,7 +16,8 @@ import {
 } from "utils/discordEmbed"
 import Defi from "adapters/defi"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
-import { getGradientColor, renderChartImage } from "utils/canvas"
+import { getChartColorConfig, renderChartImage } from "utils/canvas"
+import { Coin } from "types/defi"
 export const coinNotFoundResponse = (msg: Message, coinQ: string) => ({
   messageOptions: {
     embeds: [
@@ -29,74 +29,19 @@ export const coinNotFoundResponse = (msg: Message, coinQ: string) => ({
   },
 })
 
-function getChartColorConfig(id: string) {
-  let gradientFrom, gradientTo, borderColor
-  switch (id) {
-    case "bitcoin":
-      borderColor = "#ffa301"
-      gradientFrom = "rgba(159,110,43,0.9)"
-      gradientTo = "rgba(76,66,52,0.5)"
-      break
-    case "ethereum":
-      borderColor = "#ff0421"
-      gradientFrom = "rgba(173,36,43,0.9)"
-      gradientTo = "rgba(77,48,53,0.5)"
-      break
-
-    case "tether":
-      borderColor = "#22a07a"
-      gradientFrom = "rgba(46,78,71,0.9)"
-      gradientTo = "rgba(48,63,63,0.5)"
-      break
-    case "binancecoin" || "terra":
-      borderColor = "#f5bc00"
-      gradientFrom = "rgba(172,136,41,0.9)"
-      gradientTo = "rgba(73,67,55,0.5)"
-      break
-    case "solana":
-      borderColor = "#9945ff"
-      gradientFrom = "rgba(116,62,184,0.9)"
-      gradientTo = "rgba(61,53,83,0.5)"
-      break
-    default:
-      borderColor = "#009cdb"
-      gradientFrom = "rgba(53,83,192,0.9)"
-      gradientTo = "rgba(58,69,110,0.5)"
-  }
-
-  return {
-    borderColor,
-    backgroundColor: getGradientColor(gradientFrom, gradientTo),
-  }
-}
-
 async function renderCompareTokenChart({
-  msg,
-  baseCoinId,
-  targetCoinId,
-  days = 7,
+  times,
+  ratios,
 }: {
-  msg: Message
-  baseCoinId: string
-  targetCoinId: string
-  days?: number
+  times: string[]
+  ratios: number[]
 }) {
-  const { times, price_compare } = await Defi.CompareToken(
-    msg,
-    baseCoinId,
-    targetCoinId,
-    days
-  )
-
-  // draw chart
-  const colorConfig = getChartColorConfig(baseCoinId)
   const image = await renderChartImage({
     chartLabel: `Price (${"USD".toUpperCase()}), ${times[0]} - ${
       times[times.length - 1]
     }`,
     labels: times,
-    data: price_compare,
-    colorConfig,
+    data: ratios,
   })
 
   return new MessageAttachment(image, "chart.png")
@@ -108,12 +53,14 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const input = interaction.values[0]
   const [baseCoinId, targetCoinId, days] = input.split("_")
 
-  const chart = await renderCompareTokenChart({
-    msg: message,
+  const { times, ratios } = await Defi.CompareToken(
+    message,
     baseCoinId,
     targetCoinId,
-    days: +days,
-  })
+    +days
+  )
+
+  const chart = await renderCompareTokenChart({ times, ratios })
 
   // update chart image
   const [embed] = message.embeds
@@ -148,20 +95,36 @@ async function composeTokenComparisonEmbed(
   baseCoinId: string,
   targetCoinId: string
 ) {
+  const { times, ratios, base_coin, target_coin } = await Defi.CompareToken(
+    msg,
+    baseCoinId,
+    targetCoinId,
+    7
+  )
+
+  const coinInfo = (coin: Coin) =>
+    `Rank: \`#${coin.market_cap_rank}\``
+      .concat(
+        `\nPrice: \`$${coin.market_data.current_price[
+          "usd"
+        ].toLocaleString()}\``
+      )
+      .concat(
+        `\nMarket cap: \`$${coin.market_data.market_cap[
+          "usd"
+        ].toLocaleString()}\``
+      )
+
   const embedMsg = composeEmbedMessage(msg, {
     color: getChartColorConfig(baseCoinId).borderColor as HexColorString,
-    author: [`Make comparison between ${baseCoinId} and ${targetCoinId}`],
+    author: [`${base_coin.name} vs. ${target_coin.name}`],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
   })
+    .addField(base_coin.name, coinInfo(base_coin), true)
+    .addField(target_coin.name, coinInfo(target_coin), true)
 
-  const chart = await renderCompareTokenChart({
-    msg,
-    baseCoinId: baseCoinId,
-    targetCoinId: targetCoinId,
-    days: 7,
-  })
-
+  const chart = await renderCompareTokenChart({ times, ratios })
   const selectRow = composeDaysSelectMenu(
     "compare_token_selection",
     `${baseCoinId}_${targetCoinId}`,
@@ -190,19 +153,11 @@ const command: Command = {
   category: "Defi",
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    const [query] = args.slice(2)
+    const [query] = args.slice(1)
     const [baseQ, targetQ] = query.split("/")
-
     return await composeTokenComparisonEmbed(msg, baseQ, targetQ)
   },
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}tokens compare`,
-        examples: `${PREFIX}tokens compare btc/bnb`,
-      }),
-    ],
-  }),
+  getHelpMessage: async () => null,
   canRunWithoutAction: true,
   colorType: "Defi",
   minArguments: 3,

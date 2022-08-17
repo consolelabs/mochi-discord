@@ -59,3 +59,10 @@ type CoinImage = {
   small: string
   large: string
 }
+
+export type CoinComparisionData = {
+  times: string[]
+  ratios: number[]
+  base_coin: Coin
+  target_coin: Coin
+}
