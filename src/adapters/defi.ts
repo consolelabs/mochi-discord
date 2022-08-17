@@ -7,7 +7,7 @@ import {
   DiscordWalletBalances,
   Coin,
 } from "types/defi"
-import { BotBaseError, InvalidInputError } from "errors"
+import { InvalidInputError } from "errors"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
 import { getCommandObject } from "utils/commands"
@@ -186,7 +186,7 @@ class Defi {
 
     const json = await resp.json()
     if (json.error !== undefined) {
-      throw new BotBaseError(json.error)
+      throw new Error(json.error)
     }
 
     return json.data

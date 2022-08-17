@@ -221,6 +221,7 @@ export default async function handlePrefixedCommand(message: Message) {
     } else {
       logger.error(e as string)
       await message.reply({ embeds: [getErrorEmbed({ msg: message })] })
+      ChannelLogger.alert(message)
     }
     ChannelLogger.log(error)
   }

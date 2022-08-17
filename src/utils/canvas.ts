@@ -311,11 +311,11 @@ export async function renderChartImage({
       ),
     }
   }
-  const chartCanvas = new ChartJSNodeCanvas({ width: 970, height: 650 })
+  const chartCanvas = new ChartJSNodeCanvas({ width: 700, height: 450 })
   const axisConfig = {
     ticks: {
       font: {
-        size: 20,
+        size: 16,
       },
     },
     grid: {
@@ -348,7 +348,7 @@ export async function renderChartImage({
           labels: {
             // This more specific font property overrides the global property
             font: {
-              size: 24,
+              size: 18,
             },
           },
         },
