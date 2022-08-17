@@ -41,11 +41,7 @@ import {
   getCommandArguments,
 } from "utils/commands"
 import config from "../adapters/config"
-import {
-  BotBaseError,
-  CommandNotAllowedToRunError,
-  CommandNotFoundError,
-} from "errors"
+import { BotBaseError, CommandNotAllowedToRunError } from "errors"
 import guildCustomCommand from "../adapters/guildCustomCommand"
 import { customCommandsExecute } from "./customCommand"
 import CommandChoiceManager from "utils/CommandChoiceManager"
@@ -106,7 +102,7 @@ export const adminCategories: Record<Category, boolean> = {
  */
 async function preauthorizeCommand(message: Message, commandObject: Command) {
   if (!commandObject) {
-    throw new CommandNotFoundError({ message, command: message.content })
+    return
   }
   const isDM = message.channel.type === "DM"
   const actionObject = getActionCommand(message)
@@ -192,6 +188,10 @@ export default async function handlePrefixedCommand(message: Message) {
   // handle custom commands
   await handleCustomCommands(message, commandKey)
 
+  // dump command like $BM, $BONE, $test, ...
+  if (commandObject === undefined) {
+    return
+  }
   // handle default commands
   await preauthorizeCommand(message, commandObject)
   await config.checkGuildCommandScopes(message, commandObject)
