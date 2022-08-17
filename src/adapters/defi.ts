@@ -335,7 +335,9 @@ class Defi {
       cryptocurrency: string,
       recipients: string[] = [],
       each = false
-
+    if (!msg.guildId) {
+      msg.guildId = "N/A"
+    }
     switch (type) {
       case "tip": {
         each = args[args.length - 1].toLowerCase() === "each"
