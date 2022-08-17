@@ -260,7 +260,7 @@ export function getErrorEmbed(params: {
     author: [title ?? "Error", getEmojiURL(emojis["REVOKE"])],
     description:
       description ??
-      "Something went wrong, out team is notified and is working on the fix, stay tuned.",
+      "Something went wrong, our team is notified and is working on the fix, stay tuned.",
     image,
     thumbnail,
     color: msgColors.ERROR,

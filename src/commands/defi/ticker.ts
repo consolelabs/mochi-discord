@@ -25,48 +25,8 @@ import {
 } from "utils/discordEmbed"
 import Defi from "adapters/defi"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
-import { getGradientColor, renderChartImage } from "utils/canvas"
-
-function getChartColorConfig(id: string) {
-  let gradientFrom, gradientTo, borderColor
-  switch (id) {
-    case "bitcoin":
-      borderColor = "#ffa301"
-      gradientFrom = "rgba(159,110,43,0.9)"
-      gradientTo = "rgba(76,66,52,0.5)"
-      break
-    case "ethereum":
-      borderColor = "#c0c0c0"
-      gradientFrom = "rgba(235,232,232,0.9)"
-      gradientTo = "rgba(195,195,195,0.5)"
-      break
-
-    case "tether":
-      borderColor = "#22a07a"
-      gradientFrom = "rgba(46,78,71,0.9)"
-      gradientTo = "rgba(48,63,63,0.5)"
-      break
-    case "binancecoin" || "terra":
-      borderColor = "#f5bc00"
-      gradientFrom = "rgba(172,136,41,0.9)"
-      gradientTo = "rgba(73,67,55,0.5)"
-      break
-    case "solana":
-      borderColor = "#9945ff"
-      gradientFrom = "rgba(116,62,184,0.9)"
-      gradientTo = "rgba(61,53,83,0.5)"
-      break
-    default:
-      borderColor = "#009cdb"
-      gradientFrom = "rgba(53,83,192,0.9)"
-      gradientTo = "rgba(58,69,110,0.5)"
-  }
-
-  return {
-    borderColor,
-    backgroundColor: getGradientColor(gradientFrom, gradientTo),
-  }
-}
+import { getChartColorConfig, renderChartImage } from "utils/canvas"
+import compare from "./token/compare"
 
 async function renderHistoricalMarketChart({
   msg,
@@ -153,17 +113,13 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
 ) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
-  const input = interaction.values[0]
-  const [coinId, currency] = input.split("_")
-  return await composeTickerEmbed(message, coinId, currency)
+  const coinId = interaction.values[0]
+  return await composeTickerEmbed(message, coinId)
 }
 
-async function composeTickerEmbed(
-  msg: Message,
-  coinId: string,
-  currency: string
-) {
+async function composeTickerEmbed(msg: Message, coinId: string) {
   const coin = await Defi.getCoin(msg, coinId)
+  const currency = "usd"
   const {
     market_cap,
     current_price,
@@ -171,9 +127,6 @@ async function composeTickerEmbed(
     price_change_percentage_24h_in_currency,
     price_change_percentage_7d_in_currency,
   } = coin.market_data
-  currency = current_price[currency.toLowerCase()]
-    ? currency.toLowerCase()
-    : "usd"
   const currentPrice = +current_price[currency]
   const marketCap = +market_cap[currency]
   const blank = getEmoji("blank")
@@ -258,23 +211,23 @@ export const coinNotFoundResponse = (msg: Message, coinQ: string) => ({
 const command: Command = {
   id: "ticker",
   command: "ticker",
-  brief: "Display coin price and market cap",
+  brief: "Display/Compare coin price and market cap",
   category: "Defi",
   run: async function (msg) {
     const args = getCommandArguments(msg)
     // execute
-    const defaultOpt = args[args.length - 1] === "-d"
     const [query] = args.slice(1)
-    const [coinQ, currency = "usd"] = query.split("/")
+    const [coinQ, targetQ] = query.split("/")
+    if (targetQ) return compare.run(msg)
     const coins = await Defi.searchCoins(msg, coinQ)
     if (!coins || !coins.length) {
       return coinNotFoundResponse(msg, coinQ)
     }
 
-    if (coins.length > 1 && !defaultOpt) {
+    if (coins.length > 1) {
       const opt = (coin: any): MessageSelectOptionData => ({
         label: `${coin.name} (${coin.symbol})`,
-        value: `${coin.id}_${currency}`,
+        value: `${coin.id}`,
       })
       const selectRow = composeDiscordSelectionRow({
         customId: "tickers_selection",
@@ -306,15 +259,15 @@ const command: Command = {
       }
     }
 
-    return await composeTickerEmbed(msg, coins[0].id, currency)
+    return await composeTickerEmbed(msg, coins[0].id)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
-        usage: `${PREFIX}ticker <symbol>[/currency] [-d]`,
-        examples: `${PREFIX}ticker ftm\n${PREFIX}ticker fantom -d (for default option)\n${PREFIX}ticker fantom/eur`,
+        usage: `${PREFIX}ticker <symbol>\n${PREFIX}ticker <base>/<target> (comparison)`,
+        examples: `${PREFIX}ticker eth\n${PREFIX}ticker fantom\n${PREFIX}ticker btc/bnb`,
       }),
     ],
   }),
