@@ -12,7 +12,12 @@ import {
   listenForSuggestionAction,
 } from "utils/discordEmbed"
 import community from "adapters/community"
-import { capitalizeFirst, getEmoji } from "utils/common"
+import {
+  capitalizeFirst,
+  getEmoji,
+  getMarketplaceCollectionUrl,
+  getMarketplaceNftUrl,
+} from "utils/common"
 import { NFTMetadataAttrIcon } from "types/community"
 
 const rarityColors: Record<string, string> = {
@@ -65,9 +70,10 @@ async function composeNFTDetail(
     const rarityRate = rarity?.rarity
       ? `**${DOT}** ${getRarityEmoji(rarity.rarity)}`
       : ""
-    let description = `**[${
-      name ?? ""
-    }](https://getmochi.co/nfts/${collection_address}/${token_id})**`
+    let description = `**[${name ?? ""}](${getMarketplaceNftUrl(
+      collection_address,
+      token_id
+    )})**`
     description += rarity?.rank
       ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
       : ""
@@ -145,7 +151,9 @@ const command: Command = {
       if (res.suggestions.length === 1) {
         embed = getSuggestionEmbed({
           msg,
-          description: `Did you mean [\`${res.suggestions[0].name} (${res.suggestions[0].symbol})\`](https://getmochi.co)?`,
+          description: `Did you mean [\`${res.suggestions[0].name} (${
+            res.suggestions[0].symbol
+          })\`](${getMarketplaceCollectionUrl(res.suggestions[0].address)})?`,
         })
       } else {
         embed = getSuggestionEmbed({
@@ -156,7 +164,7 @@ const command: Command = {
               (s) =>
                 `[\`${s.chain.toUpperCase()}\` - \`${s.name} (${
                   s.symbol
-                })\`](https://getmochi.co)`
+                })\`](${getMarketplaceCollectionUrl(s.address)})`
             )
           )}`,
         })
