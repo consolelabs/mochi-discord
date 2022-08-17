@@ -19,6 +19,7 @@ import {
   traitTypeMapping,
 } from "./nft"
 import dayjs from "dayjs"
+import { MARKETPLACE_BASE_URL } from "env"
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -336,4 +337,15 @@ export function capitalizeFirst(str: string) {
 
 export function getDateStr(timestamp: number) {
   return dayjs(timestamp).format("MMMM DD, YYYY")
+}
+
+export function getMarketplaceCollectionUrl(collectionAddress: string) {
+  return `${MARKETPLACE_BASE_URL}/collections/${collectionAddress}`
+}
+
+export function getMarketplaceNftUrl(
+  collectionAddress: string,
+  tokenId: string
+) {
+  return `${MARKETPLACE_BASE_URL}/asset/${collectionAddress}/${tokenId}`
 }
