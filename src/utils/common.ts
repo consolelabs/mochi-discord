@@ -6,6 +6,7 @@ import {
   ColorResolvable,
   MessageComponentInteraction,
   Permissions,
+  GuildMember,
 } from "discord.js"
 
 import { Command } from "types/common"
@@ -196,8 +197,8 @@ export function getEmbedFooter(texts: string[]): string {
   return texts.join(` ${DOT} `)
 }
 
-export function hasAdministrator(msg: Message) {
-  return msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
+export function hasAdministrator(member: GuildMember) {
+  return member?.permissions?.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
 export function getCommandsList(

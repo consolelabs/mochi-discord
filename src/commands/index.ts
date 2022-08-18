@@ -108,7 +108,10 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
   const actionObject = getActionCommand(message)
   const executingObj = actionObject ?? commandObject
   if (isDM && executingObj.allowDM) return
-  if (!isDM && (!executingObj.onlyAdministrator || hasAdministrator(message)))
+  if (
+    !isDM &&
+    (!executingObj.onlyAdministrator || hasAdministrator(message.member))
+  )
     return
 
   throw new CommandNotAllowedToRunError({
