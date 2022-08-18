@@ -8,11 +8,12 @@ import { Message } from "discord.js"
 import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
-import { DefaultTicker, Guild, Guilds } from "types/config"
+import { Guild, Guilds } from "types/config"
 import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
+import { Fetcher } from "./fetcher"
 
-class Config {
+class Config extends Fetcher {
   public Guilds: Guilds
 
   public async initialize() {
@@ -801,51 +802,49 @@ class Config {
     return json
   }
 
+  // for token
   public async setGuildDefaultTicker(req: {
     guild_id: string
     query: string
     default_ticker: string
   }) {
-    const body = JSON.stringify(req)
-    const res = await fetch(`${API_BASE_URL}/configs/default-ticker`, {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/default-ticker`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body,
+      body: JSON.stringify(req),
     })
-    if (res.status !== 201) {
-      throw new Error(`failed to set default ticker - ${body}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
   }
 
+  // for token
   public async getGuildDefaultTicker(params: {
     guild_id: string
     query: string
-  }): Promise<DefaultTicker | undefined> {
-    const url = `${API_BASE_URL}/configs/default-ticker?guild_id=${params.guild_id}&query=${params.query}`
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to get default ticker - params=${JSON.stringify(params)}`
-      )
-    }
+  }) {
+    return await this.jsonFetch<{ default_ticker: string }>(
+      `${API_BASE_URL}/configs/default-ticker?guild_id=${params.guild_id}&query=${params.query}`
+    )
+  }
 
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
+  // for NFT
+  public async setGuildDefaultSymbol(req: {
+    guild_id: string
+    symbol: string
+    address: string
+    chain: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/default-symbol`, {
+      method: "POST",
+      body: JSON.stringify(req),
+    })
+  }
+
+  // for NFT
+  public async getGuildDefaultSymbol(params: {
+    guild_id: string
+    query: string
+  }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/configs/default-symbol?guild_id=${params.guild_id}&query=${params.query}`
+    )
   }
 }
 

@@ -1,3 +1,4 @@
+import { NFTSymbol } from "./config"
 import { User } from "./profile"
 
 export type InviteHistoryInput = {
@@ -59,4 +60,9 @@ export type NFTMetadataAttrIcon = {
   trait_type: string
   discord_icon: string
   unicode_icon: string
+}
+
+export type NFTDetail = {
+  suggestions?: Array<NFTSymbol>
+  default_symbol: NFTSymbol | null
 }
