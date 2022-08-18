@@ -1,8 +1,10 @@
 import { confirmGlobalXP } from "commands/config/globalxp"
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
+import { backToTickerSelection } from "commands/defi/ticker"
 import { triplePodInteraction } from "commands/games/tripod"
 import { sendVerifyURL } from "commands/profile/verify"
 import { SelectMenuInteraction, ButtonInteraction, Message } from "discord.js"
+import { MessageComponentTypes } from "discord.js/typings/enums"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
 import ChannelLogger from "utils/ChannelLogger"
@@ -55,12 +57,37 @@ async function handleSelecMenuInteraction(
     return
   }
 
-  const { messageOptions, commandChoiceOptions } = await commandChoice.handler(
-    interaction
-  )
+  const { messageOptions, commandChoiceOptions, ephemeralMessage } =
+    await commandChoice.handler(interaction)
 
   if (interaction) {
-    const output = await interaction.deferUpdate({ fetchReply: true })
+    let output: Message
+    if (ephemeralMessage) {
+      output = (await interaction.reply({
+        fetchReply: true,
+        ephemeral: true,
+        embeds: ephemeralMessage.embeds,
+        components: ephemeralMessage.components,
+      })) as Message
+      if (ephemeralMessage.buttonCollector) {
+        output
+          .createMessageComponentCollector({
+            componentType: MessageComponentTypes.BUTTON,
+            idle: 60000,
+          })
+          .on("collect", async (i) => {
+            await i.deferUpdate()
+            const result = await ephemeralMessage.buttonCollector(i)
+            if (!result) return
+            interaction.editReply({
+              embeds: result.embeds,
+              components: result.components ?? [],
+            })
+          })
+      }
+    } else {
+      output = (await interaction.deferUpdate({ fetchReply: true })) as Message
+    }
     await CommandChoiceManager.update(key, {
       ...commandChoiceOptions,
       interaction,
@@ -99,7 +126,10 @@ async function handleButtonInteraction(
       return
     case interaction.customId.startsWith("triple-pod-"):
       await triplePodInteraction(interaction)
-      break
+      return
+    case interaction.customId.startsWith("ticker_selection-"):
+      await backToTickerSelection(interaction, msg)
+      return
     default:
       return
   }

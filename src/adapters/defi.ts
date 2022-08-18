@@ -222,7 +222,7 @@ class Defi {
     return json.data
   }
 
-  async CompareToken(
+  async compareToken(
     message: Message,
     baseQ: string,
     targetQ: string,

@@ -10,3 +10,9 @@ export type Guild = {
   log_channel_id: string
   global_xp: boolean
 }
+
+export type DefaultTicker = {
+  guild_id: string
+  query: string
+  default_ticker: string
+}

@@ -8,7 +8,7 @@ import { Message } from "discord.js"
 import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
-import { Guild, Guilds } from "types/config"
+import { DefaultTicker, Guild, Guilds } from "types/config"
 import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
 
@@ -799,6 +799,53 @@ class Config {
       throw new Error(`failed to set default token ${body.symbol}`)
     }
     return json
+  }
+
+  public async setGuildDefaultTicker(req: {
+    guild_id: string
+    query: string
+    default_ticker: string
+  }) {
+    const body = JSON.stringify(req)
+    const res = await fetch(`${API_BASE_URL}/configs/default-ticker`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    })
+    if (res.status !== 201) {
+      throw new Error(`failed to set default ticker - ${body}`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+  }
+
+  public async getGuildDefaultTicker(params: {
+    guild_id: string
+    query: string
+  }): Promise<DefaultTicker | undefined> {
+    const url = `${API_BASE_URL}/configs/default-ticker?guild_id=${params.guild_id}&query=${params.query}`
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to get default ticker - params=${JSON.stringify(params)}`
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
   }
 }
 
