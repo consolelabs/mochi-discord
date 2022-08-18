@@ -108,7 +108,10 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
   const actionObject = getActionCommand(message)
   const executingObj = actionObject ?? commandObject
   if (isDM && executingObj.allowDM) return
-  if (!isDM && (!executingObj.onlyAdministrator || hasAdministrator(message)))
+  if (
+    !isDM &&
+    (!executingObj.onlyAdministrator || hasAdministrator(message.member))
+  )
     return
 
   throw new CommandNotAllowedToRunError({
@@ -175,15 +178,15 @@ async function handleCustomCommands(message: Message, commandKey: string) {
 
 export default async function handlePrefixedCommand(message: Message) {
   const args = getCommandArguments(message)
-  const isSpecificHelpCommand = specificHelpCommand(message)
-  const { commandKey, action } = getCommandMetadata(message)
-  const commandObject = commands[commandKey]
-
   logger.info(
     `[${message.guild?.name ?? "DM"}][${
       message.author.username
     }] executing command: ${args}`
   )
+
+  const isSpecificHelpCommand = specificHelpCommand(message)
+  const { commandKey, action } = getCommandMetadata(message)
+  const commandObject = commands[commandKey]
 
   // handle custom commands
   await handleCustomCommands(message, commandKey)
