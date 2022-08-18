@@ -1,7 +1,15 @@
 import { PT_API_SERVER_HOST } from "env"
 import fetch from "node-fetch"
-import { PodTownUser, User, UserProfile } from "types/profile"
-import { API_BASE_URL } from "utils/constants"
+import {
+  PodTownUser,
+  User,
+  UserProfile,
+  GetUserNFTResponse,
+  GetUserNFTCollectionResponse,
+  NFTMetadataAttrIcon,
+  UserNFT,
+} from "types/profile"
+import { API_BASE_URL, INDEXER_API_BASE_URL } from "utils/constants"
 
 class Profile {
   public async getUser({ discordId }: { discordId?: string }): Promise<User> {
@@ -92,6 +100,96 @@ class Profile {
       default:
         return null
     }
+  }
+
+  public async getUserNFTCollection(params: {
+    userAddress: string
+    page?: number
+    size?: number
+  }): Promise<GetUserNFTCollectionResponse> {
+    const { userAddress, page = 0, size = 50 } = params
+    const res = await fetch(
+      `${INDEXER_API_BASE_URL}/${userAddress}/collection?page=${page}&size=${size}`,
+      {
+        method: "GET",
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to get collections of user address ${userAddress} `
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
+  }
+
+  public async getUserNFT(params: {
+    userAddress: string
+    collectionAddress?: string
+    page?: number
+    size?: number
+  }): Promise<GetUserNFTResponse> {
+    const { userAddress, collectionAddress, page = 0, size = 50 } = params
+    let url = `${INDEXER_API_BASE_URL}/${userAddress}/nft?page=${page}&size=${size}`
+    if (collectionAddress) {
+      url = `${url}&collection_addresses=${collectionAddress}`
+    }
+    const res = await fetch(url, {
+      method: "GET",
+    })
+    if (res.status !== 200) {
+      throw new Error(`failed to get nfts of user address ${userAddress} `)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json
+  }
+
+  public async getNFTDetails(params: {
+    collectionAddress: string
+    tokenId: string
+  }): Promise<UserNFT> {
+    const { collectionAddress, tokenId } = params
+    const url = `${INDEXER_API_BASE_URL}/nft/${collectionAddress}/${tokenId}`
+    const res = await fetch(url, {
+      method: "GET",
+    })
+    if (res.status !== 200) {
+      throw new Error(
+        `failed to get nft details, address: ${collectionAddress}, id: ${tokenId} `
+      )
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
+  }
+
+  public async getNFTMetadataAttrIcon(): Promise<[NFTMetadataAttrIcon]> {
+    const res = await fetch(
+      `${INDEXER_API_BASE_URL}/nft/metadata/attributes-icon`,
+      {
+        method: "GET",
+      }
+    )
+    if (res.status !== 200) {
+      throw new Error(`failed to get NFT icons`)
+    }
+
+    const json = await res.json()
+    if (json.error !== undefined) {
+      throw new Error(json.error)
+    }
+    return json.data
   }
 }
 
