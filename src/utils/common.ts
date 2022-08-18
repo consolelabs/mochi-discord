@@ -113,6 +113,7 @@ export const emojis: { [key: string]: string } = {
   APPROVE: "933341948402618378",
   NFTS: "977508805011181638",
   QUESTION: "1008993149076635698",
+  SWAP: "933340602223955998",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

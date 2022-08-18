@@ -222,7 +222,7 @@ class Defi {
     return json.data
   }
 
-  async CompareToken(
+  async compareToken(
     message: Message,
     baseQ: string,
     targetQ: string,
@@ -333,7 +333,9 @@ class Defi {
       cryptocurrency: string,
       recipients: string[] = [],
       each = false
-
+    if (!msg.guildId) {
+      msg.guildId = "N/A"
+    }
     switch (type) {
       case "tip": {
         each = args[args.length - 1].toLowerCase() === "each"

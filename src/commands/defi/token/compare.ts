@@ -37,9 +37,7 @@ async function renderCompareTokenChart({
   ratios: number[]
 }) {
   const image = await renderChartImage({
-    chartLabel: `Price (${"USD".toUpperCase()}), ${times[0]} - ${
-      times[times.length - 1]
-    }`,
+    chartLabel: `Price ratio (${times[0]} - ${times[times.length - 1]})`,
     labels: times,
     data: ratios,
   })
@@ -53,7 +51,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const input = interaction.values[0]
   const [baseCoinId, targetCoinId, days] = input.split("_")
 
-  const { times, ratios } = await Defi.CompareToken(
+  const { times, ratios } = await Defi.compareToken(
     message,
     baseCoinId,
     targetCoinId,
@@ -65,7 +63,9 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   // update chart image
   const [embed] = message.embeds
   await message.removeAttachments()
-  embed.image.url = "attachment://chart.png"
+  if (embed.image) {
+    embed.image.url = "attachment://chart.png"
+  }
 
   const selectMenu = message.components[0].components[0] as MessageSelectMenu
   const choices = ["1", "7", "30", "60", "90", "365"]
@@ -95,7 +95,7 @@ async function composeTokenComparisonEmbed(
   baseCoinId: string,
   targetCoinId: string
 ) {
-  const { times, ratios, base_coin, target_coin } = await Defi.CompareToken(
+  const { times, ratios, base_coin, target_coin } = await Defi.compareToken(
     msg,
     baseCoinId,
     targetCoinId,
