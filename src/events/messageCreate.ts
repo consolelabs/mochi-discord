@@ -42,6 +42,11 @@ export default {
     if (message.channel.id === LOG_CHANNEL_ID || message.author.bot) return
 
     try {
+      logger.info(
+        `[${message.guild?.name ?? "DM"}][${
+          message.channel.id
+        }] receives message: ${message.content}`
+      )
       if (message.content.startsWith(PREFIX)) {
         // disable previous command choice handler before executing new command
         const key = `${message.author.id}_${message.guildId}_${message.channelId}`

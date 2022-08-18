@@ -66,7 +66,7 @@ class Config {
 
   public async getGuildScopes(guildId: string): Promise<string[]> {
     const guild = await this.getGuild(guildId)
-    return guild.bot_scopes
+    return guild?.bot_scopes
   }
 
   public async commandIsScoped(
@@ -77,6 +77,7 @@ class Config {
     if (msg.channel.type === "DM") return true
 
     const scopes = await this.getGuildScopes(msg.guildId)
+    if (!scopes) return false
     const cat = category.toLowerCase()
     const cmd = command.toLowerCase()
 
