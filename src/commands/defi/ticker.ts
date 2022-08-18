@@ -124,8 +124,14 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   const { message } = <{ message: Message }>interaction
   const value = interaction.values[0]
   const [coinId, coinName, coinQ, authorId] = value.split("_")
-  message.author.id = authorId
-  return await composeTickerEmbed({ msg: message, coinId, coinName, coinQ })
+  // message.author.id = authorId
+  return await composeTickerEmbed({
+    msg: message,
+    coinId,
+    coinName,
+    coinQ,
+    authorId,
+  })
 }
 
 async function composeTickerEmbed({
@@ -133,12 +139,14 @@ async function composeTickerEmbed({
   coinId,
   coinName,
   coinQ,
+  authorId,
   hasDefault,
 }: {
   msg: Message
   coinId: string
   coinName?: string
   coinQ?: string
+  authorId?: string
   hasDefault?: boolean
 }) {
   const coin = await Defi.getCoin(msg, coinId)
@@ -154,11 +162,13 @@ async function composeTickerEmbed({
   const marketCap = +market_cap[currency]
   const blank = getEmoji("blank")
 
+  const gMember = msg.guild.members.cache.get(authorId ?? msg.author.id)
   const embed = composeEmbedMessage(msg, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
+    originalMsgAuthor: gMember?.user,
   }).addFields([
     {
       name: `Market cap (${currency.toUpperCase()})`,
@@ -202,10 +212,10 @@ async function composeTickerEmbed({
 
   // set server default ticker
   let ephemeralMessage: EphemeralMessage
-  if (hasAdministrator(msg)) {
+  if (hasAdministrator(gMember)) {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `confirm_ticker-${coinQ}-${coinId}-${msg.author.id}`,
+        customId: `confirm_ticker|${coinQ}|${coinId}|${coinName}|${authorId}`,
         emoji: getEmoji("approve"),
         style: "PRIMARY",
         label: "Confirm",
@@ -274,7 +284,7 @@ export async function backToTickerSelection(
 }
 
 export async function setDefaultTicker(i: ButtonInteraction) {
-  const [coinQ, coinId, authorId] = i.customId.split("-").slice(1)
+  const [coinQ, coinId, coinName, authorId] = i.customId.split("|").slice(1)
   if (authorId !== i.user.id) {
     await i.deferUpdate()
     return
@@ -287,7 +297,7 @@ export async function setDefaultTicker(i: ButtonInteraction) {
   const embed = getSuccessEmbed({
     msg: i.message as Message,
     title: "Default ticker ENABLED",
-    description: `Next time your server members use $ticker with \`ftm\`, **Fantom** will be the default selection`,
+    description: `Next time your server members use $ticker with \`${coinQ}\`, **${coinName}** will be the default selection`,
   })
   return {
     embeds: [embed],
@@ -380,38 +390,6 @@ const command: Command = {
 
     // allow selection
     return composeTickerSelectionResponse(coins, coinQ, msg)
-    // const opt = (coin: any): MessageSelectOptionData => ({
-    //   label: `${coin.name} (${coin.symbol})`,
-    //   value: `${coin.id}_${coin.name}_${coinQ}_${msg.author.id}`,
-    // })
-    // const selectRow = composeDiscordSelectionRow({
-    //   customId: "tickers_selection",
-    //   placeholder: "Make a selection",
-    //   options: coins.map((c: any) => opt(c)),
-    // })
-
-    // const found = coins
-    //   .map(
-    //     (c: { name: string; symbol: string }) => `**${c.name}** (${c.symbol})`
-    //   )
-    //   .join(", ")
-    // return {
-    //   messageOptions: {
-    //     embeds: [
-    //       composeEmbedMessage(msg, {
-    //         title: `${defaultEmojis.MAG} Multiple tickers found`,
-    //         description: `Multiple tickers found for \`${coinQ}\`: ${found}.\nPlease select one of the following tokens`,
-    //       }),
-    //     ],
-    //     components: [selectRow, composeDiscordExitButton(msg.author.id)],
-    //   },
-    //   commandChoiceOptions: {
-    //     userId: msg.author.id,
-    //     guildId: msg.guildId,
-    //     channelId: msg.channelId,
-    //     handler: tickerSelectionHandler,
-    //   },
-    // }
   },
   getHelpMessage: async (msg) => ({
     embeds: [
