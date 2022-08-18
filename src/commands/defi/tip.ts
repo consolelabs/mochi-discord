@@ -74,7 +74,6 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   colorType: "Defi",
-  allowDM: true,
   minArguments: 3,
 }
 

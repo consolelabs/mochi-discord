@@ -83,11 +83,10 @@ const command: Command = {
       `${getEmoji("money")} \`$${roundFloatNumber(totalBalanceInUSD, 4)}\``
     )
 
-    return {
-      messageOptions: {
-        embeds: [embed],
-      },
-    }
+    await msg.author.send({
+      embeds: [embed],
+    })
+    return
   },
   getHelpMessage: async (msg) => ({
     embeds: [
@@ -99,7 +98,6 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   aliases: ["balance", "bal", "bals"],
-  allowDM: true,
   colorType: "Defi",
 }
 
