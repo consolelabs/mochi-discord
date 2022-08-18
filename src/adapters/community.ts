@@ -1,7 +1,7 @@
 import { Message } from "discord.js"
 import fetch from "node-fetch"
 import { CampaignWhitelistUser } from "types/common"
-import { InvitesInput } from "types/community"
+import { InvitesInput, NFTDetail } from "types/community"
 import { NftCollectionTicker } from "types/nft"
 import { API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
@@ -230,10 +230,25 @@ class Community extends Fetcher {
     return json.data
   }
 
-  public async getNFTDetail(collectionSymbol: string, tokenId: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/nfts/${collectionSymbol}/${tokenId}`
+  public async getNFTDetail(
+    collectionSymbol: string,
+    tokenId: string,
+    guildId: string
+  ) {
+    const res = await this.jsonFetch<NFTDetail>(
+      `${API_BASE_URL}/nfts/${collectionSymbol}/${tokenId}?guild_id=${guildId}`
     )
+
+    let foundMultipleSameSymbols = false
+
+    if (res.ok) {
+      const firstSymbol = res.suggestions?.[0].symbol
+      foundMultipleSameSymbols =
+        firstSymbol &&
+        (res.suggestions?.every((r) => r.symbol === firstSymbol) ?? false)
+    }
+
+    return { foundMultipleSameSymbols, res }
   }
 
   public async getNFTCollectionDetail(collectionAddress: string) {

@@ -11,8 +11,9 @@ export type Guild = {
   global_xp: boolean
 }
 
-export type DefaultTicker = {
-  guild_id: string
-  query: string
-  default_ticker: string
+export type NFTSymbol = {
+  name: string
+  symbol: string
+  address: string
+  chain: string
 }

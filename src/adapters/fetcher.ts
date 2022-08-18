@@ -10,15 +10,9 @@ type RequestInit = NativeRequestInit & {
   autoWrap500Error?: boolean
 }
 
-type OkPayload<T> = {
+type OkPayload = {
   ok: true
-  data: Record<string, any> & T
-  suggestions?: Array<{
-    name: string
-    symbol: string
-    address: string
-    chain: string
-  }>
+  data: Record<string, any>
   error: null
 }
 
@@ -28,8 +22,8 @@ type ErrPayload = {
   error: string
 }
 
-type OkResponse<T = Record<string, any>> = {
-  json: () => Promise<OkPayload<T>>
+type OkResponse<T> = {
+  json: () => Promise<OkPayload & T>
 }
 
 type ErrResponse = {
@@ -48,7 +42,7 @@ export class Fetcher {
   protected async jsonFetch<T>(
     url: string,
     init: RequestInit = {}
-  ): Promise<OkPayload<T> | ErrPayload> {
+  ): Promise<(OkPayload & T) | ErrPayload> {
     try {
       const mergedInit = deepmerge(defaultInit, init)
       const { autoWrap500Error, ...validInit } = mergedInit
