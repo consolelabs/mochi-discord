@@ -247,14 +247,15 @@ class Config extends Fetcher {
       `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`
     )
     if (res.status !== 200) {
-      throw new Error(`failed to get current default role - guild ${guildId}`)
+      logger.error(`failed to get current default role - guild ${guildId}`)
+      return null
+    } else {
+      const json = await res.json()
+      if (json.error !== undefined) {
+        throw new Error(json.error)
+      }
+      return json
     }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json
   }
 
   public async configureDefaultRole(event: DefaultRoleEvent) {
@@ -714,41 +715,23 @@ class Config extends Fetcher {
       user_id: string
       hashtag: Array<string>
       twitter_username: Array<string>
+      from_twitter: Array<string>
       rule_id: string
     }
   ) {
-    const body = {
-      guild_id,
-      ...data,
-    }
-    const res = await fetch(`${API_BASE_URL}/configs/twitter/hashtag`, {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/twitter/hashtag`, {
       method: "POST",
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        guild_id,
+        ...data,
+      }),
     })
-    if (res.status !== 200) {
-      throw new Error(`failed to set twitter config`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw Error(json.error)
-    }
   }
 
   public async getTwitterConfig(guildId = "") {
-    const res = await fetch(
+    return await this.jsonFetch(
       `${API_BASE_URL}/configs/twitter/hashtag/${guildId}`
     )
-    if (res.status !== 200) {
-      throw new Error(`failed to get twitter config`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw Error(json.error)
-    }
-
-    return json.data
   }
 
   public async removeTwitterConfig(guildId: string) {
@@ -820,7 +803,7 @@ class Config extends Fetcher {
     guild_id: string
     query: string
   }) {
-    return await this.jsonFetch<{ default_ticker: string }>(
+    return await this.jsonFetch<{ data: { default_ticker: string } }>(
       `${API_BASE_URL}/configs/default-ticker?guild_id=${params.guild_id}&query=${params.query}`
     )
   }
