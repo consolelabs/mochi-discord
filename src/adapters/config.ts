@@ -247,14 +247,15 @@ class Config extends Fetcher {
       `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`
     )
     if (res.status !== 200) {
-      throw new Error(`failed to get current default role - guild ${guildId}`)
+      logger.error(`failed to get current default role - guild ${guildId}`)
+      return null
+    } else {
+      const json = await res.json()
+      if (json.error !== undefined) {
+        throw new Error(json.error)
+      }
+      return json
     }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json
   }
 
   public async configureDefaultRole(event: DefaultRoleEvent) {
