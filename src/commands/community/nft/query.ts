@@ -161,12 +161,12 @@ const command: Command = {
     ) {
       const embed = getSuggestionEmbed({
         title:
-          foundMultipleSameSymbols && hasAdministrator(msg)
+          foundMultipleSameSymbols && hasAdministrator(msg.member)
             ? `Set default symbol`
             : `Multiple results for ${symbol}`,
         msg,
         description:
-          foundMultipleSameSymbols && hasAdministrator(msg)
+          foundMultipleSameSymbols && hasAdministrator(msg.member)
             ? `Select one of these symbols, it will also be set as the default symbol from now on (you can change it via another command)`
             : `Did you mean one of these instead:\n\n${composeSimpleSelection(
                 res.suggestions?.map(
@@ -264,7 +264,7 @@ const command: Command = {
         })
       } else {
         // the admin has chosen to set a default symbol
-        if (!res.default_symbol && hasAdministrator(msg)) {
+        if (!res.default_symbol && hasAdministrator(msg.member)) {
           await config.setGuildDefaultSymbol({
             guild_id: msg.guildId,
             chain,
