@@ -1,4 +1,5 @@
 import {
+  ButtonInteraction,
   ColorResolvable,
   Message,
   MessageActionRow,
@@ -8,6 +9,7 @@ import {
   MessageSelectMenu,
   MessageSelectMenuOptions,
   MessageSelectOptionData,
+  SelectMenuInteraction,
 } from "discord.js"
 import { COMMA, HOMEPAGE_URL, VERTICAL_BAR } from "./constants"
 import {
@@ -349,7 +351,10 @@ export function getPaginationRow(page: number, totalPage: number) {
 export function listenForSuggestionAction(
   replyMsg: Message,
   authorId: string,
-  onAction: (value: string) => Promise<void>
+  onAction: (
+    value: string,
+    i: ButtonInteraction | SelectMenuInteraction
+  ) => Promise<void>
 ) {
   replyMsg
     .createMessageComponentCollector({
@@ -360,7 +365,7 @@ export function listenForSuggestionAction(
       if (i.user.id !== authorId) return
       await i.deferUpdate()
       const value = i.customId.split("-").pop()
-      onAction(value)
+      onAction(value, i)
       replyMsg.edit({ components: [] })
     })
     .on("end", () => {
@@ -376,7 +381,7 @@ export function listenForSuggestionAction(
       if (i.user.id !== authorId) return
       await i.deferUpdate()
       const value = i.values[0]
-      onAction(value)
+      onAction(value, i)
       replyMsg.edit({ components: [] })
     })
     .on("end", () => {
@@ -391,7 +396,8 @@ export function listenForPaginateAction(
     msg: Message,
     pageIdx: number
   ) => Promise<{ messageOptions: MessageOptions }>,
-  withAttachmentUpdate?: boolean
+  withAttachmentUpdate?: boolean,
+  withMultipleComponents?: boolean
 ) {
   const operators: Record<string, number> = {
     "+": 1,
@@ -407,20 +413,23 @@ export function listenForPaginateAction(
       const [pageStr, opStr, totalPage] = i.customId.split("_").slice(1)
       const page = +pageStr + operators[opStr]
       const {
-        messageOptions: { embeds, files },
+        messageOptions: { embeds, components, files },
       } = await render(originalMsg, page)
 
+      const msgComponents = withMultipleComponents
+        ? components
+        : getPaginationRow(page, +totalPage)
       if (withAttachmentUpdate && files?.length) {
         await replyMsg.removeAttachments()
         await replyMsg.edit({
           embeds,
-          components: getPaginationRow(page, +totalPage),
+          components: msgComponents,
           files,
         })
       } else {
         await replyMsg.edit({
           embeds,
-          components: getPaginationRow(page, +totalPage),
+          components: msgComponents,
         })
       }
     })

@@ -5,7 +5,36 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import utc from "dayjs/plugin/utc"
 import dayjs from "dayjs"
+import { fromPrefix } from "./set"
 dayjs.extend(utc)
+
+export function getMessageBody({
+  hashtag = [],
+  user_id,
+  channel_id,
+  updated_at,
+  from_username = [],
+  twitter_username = [],
+}: {
+  user_id: string
+  updated_at?: string
+  channel_id: string
+  hashtag?: string[]
+  twitter_username?: string[]
+  from_username?: string[]
+}) {
+  return `Set by: <@${user_id}>${
+    updated_at
+      ? ` (${dayjs(updated_at).utc().format("MMM DD YYYY HH:mm:ss UTC")})`
+      : ""
+  }\nCheck updates in <#${channel_id}>\nTags: ${hashtag
+    .map((t: string) => `\`${t}\``)
+    .join(", ")}\nMentions: ${twitter_username
+    .map((t: string) => `\`${t}\``)
+    .join(", ")}\nTweets from: ${from_username.map(
+    (t: string) => `\`@${t.slice(fromPrefix.length)}\``
+  )}`
+}
 
 const command: Command = {
   id: "poe_twitter_list",
@@ -16,7 +45,11 @@ const command: Command = {
   run: async (msg: Message) => {
     const twitterConfig = await config.getTwitterConfig(msg.guildId)
 
-    if (!twitterConfig || !twitterConfig?.channel_id) {
+    if (
+      !twitterConfig ||
+      !twitterConfig.ok ||
+      !twitterConfig?.data?.channel_id
+    ) {
       return {
         messageOptions: {
           embeds: [
@@ -34,19 +67,14 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             author: [msg.guild.name, msg.guild.iconURL()],
-            description: `Set by: <@${twitterConfig.user_id}> (${dayjs(
-              twitterConfig.updated_at
-            )
-              .utc()
-              .format("MMM DD YYYY HH:mm:ss UTC")})\nCheck updates in <#${
-              twitterConfig.channel_id
-            }>\nTags: ${twitterConfig.hashtag
-              .filter((k: string) => k.startsWith("#"))
-              .map((t: string) => `\`${t}\``)
-              .join(", ")}\nMentions: ${twitterConfig.twitter_username
-              .filter((k: string) => k.startsWith("@"))
-              .map((t: string) => `\`${t}\``)
-              .join(", ")}`,
+            description: getMessageBody({
+              user_id: twitterConfig.data.user_id,
+              updated_at: twitterConfig.data.updated_at,
+              channel_id: twitterConfig.data.channel_id,
+              hashtag: twitterConfig.data.hashtag,
+              twitter_username: twitterConfig.data.twitter_username,
+              from_username: twitterConfig.data.from_username,
+            }),
           }),
         ],
       },

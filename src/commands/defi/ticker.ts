@@ -379,10 +379,10 @@ const command: Command = {
       guild_id: msg.guildId,
       query: coinQ,
     })
-    if (data.ok && data.default_ticker) {
+    if (data.ok && data.data.default_ticker) {
       return await composeTickerEmbed({
         msg,
-        coinId: data.default_ticker,
+        coinId: data.data.default_ticker,
         hasDefault: true,
         coinQ,
       })
