@@ -76,3 +76,76 @@ export type UserWallet = {
   address: string
   chain_type: string
 }
+
+export type GetUserNFTResponse = {
+  page: number
+  size: number
+  sort: string
+  total: number
+  data: UserNFT[]
+}
+
+export type UserNFT = {
+  token_id: string
+  collection_address: string
+  name: string | null
+  description: string | null
+  amount: string | null
+  image: string
+  image_cdn: string | null
+  thumbnail_cdn: string | null
+  rarity_rank: number | null
+  rarity_score: string | null
+  rarity_tier: string | null
+  is_self_hosted: boolean
+  attributes: UserNFTAttribute[] | null
+  rarity: UserNFTRarity | null
+}
+
+type UserNFTAttribute = {
+  trait_type: string
+  value: string
+  count: number
+  rarity: string
+  frequency: string
+}
+
+type UserNFTRarity = {
+  rank: number
+  score: string
+  total: number
+  rarity: string
+}
+
+export type GetUserNFTCollectionResponse = {
+  page: number
+  size: number
+  sort: string
+  total: number
+  data: UserNFTCollection[]
+}
+
+export type UserNFTCollection = {
+  id: number
+  collection_address: string
+  name: string
+  symbol: string
+  chain_id: number
+  erc_format: string | null
+  supply: number
+  is_rariry_calculated: boolean
+  image: string
+  description: string
+  contract_scan: string
+  discord: string
+  twitter: string
+  website: string
+  owners: number
+}
+
+export type NFTMetadataAttrIcon = {
+  id: number
+  trait_type: string
+  discord_icon: string
+  unicode_icon: string
+}

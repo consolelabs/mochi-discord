@@ -391,7 +391,8 @@ export function listenForPaginateAction(
     msg: Message,
     pageIdx: number
   ) => Promise<{ messageOptions: MessageOptions }>,
-  withAttachmentUpdate?: boolean
+  withAttachmentUpdate?: boolean,
+  withMultipleComponents?: boolean
 ) {
   const operators: Record<string, number> = {
     "+": 1,
@@ -407,20 +408,23 @@ export function listenForPaginateAction(
       const [pageStr, opStr, totalPage] = i.customId.split("_").slice(1)
       const page = +pageStr + operators[opStr]
       const {
-        messageOptions: { embeds, files },
+        messageOptions: { embeds, components, files },
       } = await render(originalMsg, page)
 
+      const msgComponents = withMultipleComponents
+        ? components
+        : getPaginationRow(page, +totalPage)
       if (withAttachmentUpdate && files?.length) {
         await replyMsg.removeAttachments()
         await replyMsg.edit({
           embeds,
-          components: getPaginationRow(page, +totalPage),
+          components: msgComponents,
           files,
         })
       } else {
         await replyMsg.edit({
           embeds,
-          components: getPaginationRow(page, +totalPage),
+          components: msgComponents,
         })
       }
     })
