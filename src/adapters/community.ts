@@ -241,8 +241,9 @@ class Community extends Fetcher {
 
     let foundMultipleSameSymbols = false
 
+    console.log(res)
     if (res.ok) {
-      const firstSymbol = res.suggestions?.[0].symbol
+      const firstSymbol = res.suggestions?.[0]?.symbol
       foundMultipleSameSymbols =
         firstSymbol &&
         (res.suggestions?.every((r) => r.symbol === firstSymbol) ?? false)
