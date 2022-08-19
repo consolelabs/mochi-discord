@@ -60,7 +60,7 @@ export const tokenEmojis: Record<string, string> = {
   XMR: "1005008819866312724",
   BCH: "1005008800106942525",
   APE: "1005008782486675536",
-  DFG: "1005008750916161637",
+  DFG: "1007157463256145970",
   ICY: ":ice_cube:",
   CARROT: ":carrot:",
   BUTT: "1007247521468403744",
@@ -77,6 +77,20 @@ export const numberEmojis: Record<string, string> = {
   NUM_7: "932856132958048276",
   NUM_8: "932856132869976136",
   NUM_9: "932856132832223232",
+}
+
+export const progressBarEmojis: Record<string, string> = {
+  BAR_1_EMPTY: "1004837203735756881",
+  BAR_1_HALF: "1004837199851835392",
+  BAR_1_MID: "1004837201630199989",
+  BAR_1_FULL: "1004827891659452438",
+  BAR_2_EMPTY: "1004837205937770658",
+  BAR_2_MID: "1004837197372997782",
+  BAR_2_HIGH: "1004837692984537258",
+  BAR_2_FULL: "1004837191660343336",
+  BAR_3_EMPTY: "1004837207850356847",
+  BAR_3_MID: "1004837195510722630",
+  BAR_3_FULL: "1004837193673613412",
 }
 
 export const defaultEmojis: Record<string, string> = {
@@ -120,6 +134,7 @@ export const emojis: { [key: string]: string } = {
   ...rarityEmojis,
   ...marketplaceEmojis,
   ...traitEmojis,
+  ...progressBarEmojis,
 }
 
 export const tripodEmojis: Record<string, string> = {
@@ -350,4 +365,14 @@ export function getMarketplaceNftUrl(
   tokenId: string
 ) {
   return `${MARKETPLACE_BASE_URL}/asset/${collectionAddress}/${tokenId}`
+}
+
+export function isValidHttpUrl(urlStr: string) {
+  let url
+  try {
+    url = new URL(urlStr)
+  } catch (_) {
+    return false
+  }
+  return url.protocol === "http:" || url.protocol === "https:"
 }
