@@ -23,8 +23,8 @@ export class DiscordWalletTransferError extends BotBaseError {
     this.errorMsg = errorMsg
     const channel = message.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild.name,
-      channel: channel.name,
+      guild: message.guild ? message.guild.name : "",
+      channel: channel ? channel.name : "dm",
       user: message.author.tag,
       data: { discordId, guildId },
     })

@@ -3,7 +3,9 @@ import {
   Client,
   InteractionReplyOptions,
   Message,
+  MessageActionRow,
   MessageComponentInteraction,
+  MessageEmbed,
   MessageOptions,
   SelectMenuInteraction,
   TextChannel,
@@ -11,9 +13,16 @@ import {
 import { SetOptional, SetRequired } from "type-fest"
 import { inactivityResponse } from "./common"
 
+export type EphemeralMessage = {
+  embeds: MessageEmbed[]
+  components?: MessageActionRow[]
+  buttonCollector?: (i: ButtonInteraction) => Promise<MessageOptions>
+}
+
 export type CommandChoiceHandlerResult = {
   messageOptions: InteractionReplyOptions | MessageOptions
   commandChoiceOptions?: Partial<CommandChoiceHandlerOptions>
+  ephemeralMessage?: EphemeralMessage
 }
 
 export type CommandChoiceHandler = (

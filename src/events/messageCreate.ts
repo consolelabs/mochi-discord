@@ -1,6 +1,5 @@
 import { Message } from "discord.js"
 import handlePrefixedCommand from "../commands"
-import { LOG_CHANNEL_ID } from "../env"
 import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
 import { Event } from "."
 import { logger } from "../logger"
@@ -30,7 +29,7 @@ export const handleNormalMessage = async (message: Message) => {
   const msg = "messageCreate"
 
   const resp = await webhook.pushDiscordWebhook(msg, body)
-  if (resp.error != undefined) {
+  if (resp?.error != undefined) {
     logger.error(`failed to handle webhook: ${resp.error}`)
   }
 }
@@ -39,9 +38,14 @@ export default {
   name: "messageCreate",
   once: false,
   execute: async (message: Message) => {
-    if (message.channel.id === LOG_CHANNEL_ID || message.author.bot) return
+    if (message.author.bot) return
 
     try {
+      logger.info(
+        `[${message.guild?.name ?? "DM"}][${
+          message.channel.id
+        }] receives message: ${message.content}`
+      )
       if (message.content.startsWith(PREFIX)) {
         // disable previous command choice handler before executing new command
         const key = `${message.author.id}_${message.guildId}_${message.channelId}`

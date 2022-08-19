@@ -6,6 +6,7 @@ import {
   Token,
   DiscordWalletBalances,
   Coin,
+  CoinComparisionData,
 } from "types/defi"
 import { InvalidInputError } from "errors"
 import { composeEmbedMessage } from "utils/discordEmbed"
@@ -221,17 +222,14 @@ class Defi {
     return json.data
   }
 
-  async CompareToken(
+  async compareToken(
     message: Message,
-    baseCoinId: string,
-    targetCoinId: string,
+    baseQ: string,
+    targetQ: string,
     days: number
-  ): Promise<{
-    times: string[]
-    price_compare: number[]
-  }> {
+  ): Promise<CoinComparisionData> {
     const resp = await fetch(
-      `${API_BASE_URL}/defi/coins/compare?source_symbol=${baseCoinId}&interval=${days}&target_symbol=${targetCoinId}`,
+      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&interval=${days}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -335,7 +333,9 @@ class Defi {
       cryptocurrency: string,
       recipients: string[] = [],
       each = false
-
+    if (!msg.guildId) {
+      msg.guildId = "N/A"
+    }
     switch (type) {
       case "tip": {
         each = args[args.length - 1].toLowerCase() === "each"

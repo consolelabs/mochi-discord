@@ -6,6 +6,7 @@ import {
   ColorResolvable,
   MessageComponentInteraction,
   Permissions,
+  GuildMember,
 } from "discord.js"
 
 import { Command } from "types/common"
@@ -113,6 +114,7 @@ export const emojis: { [key: string]: string } = {
   APPROVE: "933341948402618378",
   NFTS: "977508805011181638",
   QUESTION: "1008993149076635698",
+  SWAP: "933340602223955998",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -195,8 +197,8 @@ export function getEmbedFooter(texts: string[]): string {
   return texts.join(` ${DOT} `)
 }
 
-export function hasAdministrator(msg: Message) {
-  return msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
+export function hasAdministrator(member: GuildMember) {
+  return member?.permissions?.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
 export function getCommandsList(

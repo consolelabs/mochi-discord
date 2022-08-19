@@ -10,15 +10,9 @@ type RequestInit = NativeRequestInit & {
   autoWrap500Error?: boolean
 }
 
-type OkPayload<T> = {
+type OkPayload = {
   ok: true
-  data: Record<string, any> & T
-  suggestions?: Array<{
-    name: string
-    symbol: string
-    address: string
-    chain: string
-  }>
+  data: Record<string, any>
   error: null
 }
 
@@ -28,8 +22,8 @@ type ErrPayload = {
   error: string
 }
 
-type OkResponse<T = Record<string, any>> = {
-  json: () => Promise<OkPayload<T>>
+type OkResponse<T> = {
+  json: () => Promise<OkPayload & T>
 }
 
 type ErrResponse = {
@@ -48,7 +42,7 @@ export class Fetcher {
   protected async jsonFetch<T>(
     url: string,
     init: RequestInit = {}
-  ): Promise<OkPayload<T> | ErrPayload> {
+  ): Promise<(OkPayload & T) | ErrPayload> {
     try {
       const mergedInit = deepmerge(defaultInit, init)
       const { autoWrap500Error, ...validInit } = mergedInit
@@ -62,7 +56,7 @@ export class Fetcher {
         const json = await (res as ErrResponse).json()
         if (autoWrap500Error) {
           json.error =
-            "Something went wrong, out team is notified and is working on the fix, stay tuned."
+            "Something went wrong, our team is notified and is working on the fix, stay tuned."
         } else {
           json.error = `${json.error[0].toUpperCase}${json.error.slice(1)}`
         }
@@ -84,7 +78,7 @@ export class Fetcher {
         ok: false,
         data: null,
         error:
-          "Something went wrong, out team is notified and is working on the fix, stay tuned.",
+          "Something went wrong, our team is notified and is working on the fix, stay tuned.",
       }
     }
   }

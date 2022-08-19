@@ -11,8 +11,9 @@ import { logger } from "../logger"
 import { Guild, Guilds } from "types/config"
 import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
+import { Fetcher } from "./fetcher"
 
-class Config {
+class Config extends Fetcher {
   public Guilds: Guilds
 
   public async initialize() {
@@ -66,7 +67,7 @@ class Config {
 
   public async getGuildScopes(guildId: string): Promise<string[]> {
     const guild = await this.getGuild(guildId)
-    return guild.bot_scopes
+    return guild?.bot_scopes
   }
 
   public async commandIsScoped(
@@ -77,6 +78,7 @@ class Config {
     if (msg.channel.type === "DM") return true
 
     const scopes = await this.getGuildScopes(msg.guildId)
+    if (!scopes) return false
     const cat = category.toLowerCase()
     const cmd = command.toLowerCase()
 
@@ -799,6 +801,51 @@ class Config {
       throw new Error(`failed to set default token ${body.symbol}`)
     }
     return json
+  }
+
+  // for token
+  public async setGuildDefaultTicker(req: {
+    guild_id: string
+    query: string
+    default_ticker: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/default-ticker`, {
+      method: "POST",
+      body: JSON.stringify(req),
+    })
+  }
+
+  // for token
+  public async getGuildDefaultTicker(params: {
+    guild_id: string
+    query: string
+  }) {
+    return await this.jsonFetch<{ default_ticker: string }>(
+      `${API_BASE_URL}/configs/default-ticker?guild_id=${params.guild_id}&query=${params.query}`
+    )
+  }
+
+  // for NFT
+  public async setGuildDefaultSymbol(req: {
+    guild_id: string
+    symbol: string
+    address: string
+    chain: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/default-symbol`, {
+      method: "POST",
+      body: JSON.stringify(req),
+    })
+  }
+
+  // for NFT
+  public async getGuildDefaultSymbol(params: {
+    guild_id: string
+    query: string
+  }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/configs/default-symbol?guild_id=${params.guild_id}&query=${params.query}`
+    )
   }
 }
 

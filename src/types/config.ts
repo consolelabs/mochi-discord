@@ -10,3 +10,10 @@ export type Guild = {
   log_channel_id: string
   global_xp: boolean
 }
+
+export type NFTSymbol = {
+  name: string
+  symbol: string
+  address: string
+  chain: string
+}

@@ -70,14 +70,16 @@ const command: Command = {
     const dm = await msg.author.send(
       "Please enter your destination address here.\ne.g. 0xabcdde"
     )
-    msg.reply({
-      embeds: [
-        composeEmbedMessage(msg, {
-          description: `:information_source: Info\n<@${msg.author.id}>, a withdrawal message has been sent to you via a DM`,
-        }),
-      ],
-      components: [composeButtonLink("See the DM", dm.url)],
-    })
+    if (msg.guild != null) {
+      msg.reply({
+        embeds: [
+          composeEmbedMessage(msg, {
+            description: `:information_source: Info\n<@${msg.author.id}>, a withdrawal message has been sent to you via a DM`,
+          }),
+        ],
+        components: [composeButtonLink("See the DM", dm.url)],
+      })
+    }
     args[3] = await getDestinationAddress(msg, dm)
     await withdraw(msg, args)
 
