@@ -714,41 +714,23 @@ class Config extends Fetcher {
       user_id: string
       hashtag: Array<string>
       twitter_username: Array<string>
+      from_twitter: Array<string>
       rule_id: string
     }
   ) {
-    const body = {
-      guild_id,
-      ...data,
-    }
-    const res = await fetch(`${API_BASE_URL}/configs/twitter/hashtag`, {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/twitter/hashtag`, {
       method: "POST",
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        guild_id,
+        ...data,
+      }),
     })
-    if (res.status !== 200) {
-      throw new Error(`failed to set twitter config`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw Error(json.error)
-    }
   }
 
   public async getTwitterConfig(guildId = "") {
-    const res = await fetch(
+    return await this.jsonFetch(
       `${API_BASE_URL}/configs/twitter/hashtag/${guildId}`
     )
-    if (res.status !== 200) {
-      throw new Error(`failed to get twitter config`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw Error(json.error)
-    }
-
-    return json.data
   }
 
   public async removeTwitterConfig(guildId: string) {

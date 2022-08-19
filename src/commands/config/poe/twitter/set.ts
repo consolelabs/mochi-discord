@@ -4,8 +4,10 @@ import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { getMessageBody } from "./list"
 import TwitterStream from "utils/TwitterStream"
 
+export const fromPrefix = "from:"
 const hashtagPrefix = "#"
 const handlePrefix = "@"
 const channelPrefix = "<#"
@@ -72,6 +74,7 @@ const command: Command = {
           channelPrefix,
           rolePrefix,
           twitterAccountLinkPrefix,
+          fromPrefix,
         ].every((prefix) => !trigger.startsWith(prefix))
       ) {
         return {
@@ -80,7 +83,7 @@ const command: Command = {
               getErrorEmbed({
                 msg,
                 description:
-                  "Invalid keyword format, only hashtag (#) or mention (@) or twitter account link (https://twitter.com/your_handle) are supported",
+                  "Invalid keyword format, run `$help poe twitter set` to see supported formats",
               }),
             ],
           },
@@ -92,27 +95,34 @@ const command: Command = {
     // user handle that get treated as discord role
     triggerKeywords = await Promise.all(
       triggerKeywords.map(async (keyword) => {
-        if (
-          keyword.startsWith(twitterAccountLinkPrefix) &&
-          twitterAccountLinkRegex.test(keyword)
-        ) {
-          const handle = twitterAccountLinkRegex.exec(keyword)?.[1]
-          return "@" + handle
-        } else if (
-          [channelPrefix, rolePrefix].some((p) => keyword.startsWith(p)) &&
-          keyword.endsWith(">")
-        ) {
-          if (keyword.startsWith(channelPrefix)) {
-            const id = keyword.substring(2, keyword.length - 1)
-            const chan = await msg.guild.channels.fetch(id)
-            return "#" + chan.name
-          } else {
-            const id = keyword.substring(3, keyword.length - 1)
-            const role = await msg.guild.roles.fetch(id)
-            return "@" + role.name
+        switch (true) {
+          case keyword.startsWith(twitterAccountLinkPrefix) &&
+            twitterAccountLinkRegex.test(keyword): {
+            const handle = twitterAccountLinkRegex.exec(keyword)?.[1]
+            return handlePrefix + handle
           }
+          case keyword.startsWith(fromPrefix) &&
+            twitterAccountLinkRegex.test(keyword.slice(fromPrefix.length)): {
+            const handle = twitterAccountLinkRegex.exec(
+              keyword.slice(fromPrefix.length)
+            )?.[1]
+            return fromPrefix + handle
+          }
+          case [channelPrefix, rolePrefix].some((p) => keyword.startsWith(p)) &&
+            keyword.endsWith(">"): {
+            if (keyword.startsWith(channelPrefix)) {
+              const id = keyword.substring(2, keyword.length - 1)
+              const chan = await msg.guild.channels.fetch(id)
+              return hashtagPrefix + chan.name
+            } else {
+              const id = keyword.substring(3, keyword.length - 1)
+              const role = await msg.guild.roles.fetch(id)
+              return handlePrefix + role.name
+            }
+          }
+          default:
+            return keyword
         }
-        return keyword
       })
     )
 
@@ -123,8 +133,11 @@ const command: Command = {
     })
 
     await config.setTwitterConfig(msg.guildId, {
-      hashtag: triggerKeywords.filter((k) => k.startsWith("#")),
-      twitter_username: triggerKeywords.filter((k) => k.startsWith("@")),
+      hashtag: triggerKeywords.filter((k) => k.startsWith(hashtagPrefix)),
+      twitter_username: triggerKeywords.filter((k) =>
+        k.startsWith(handlePrefix)
+      ),
+      from_twitter: triggerKeywords.filter((k) => k.startsWith(fromPrefix)),
       user_id: msg.author.id,
       channel_id: chan.id,
       rule_id: ruleId,
@@ -135,15 +148,19 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             author: [msg.guild.name, msg.guild.iconURL()],
-            description: `Set by: <@${msg.author.id}>\nCheck updates in <#${
-              chan.id
-            }>\nTags: ${triggerKeywords
-              .filter((k) => k.startsWith("#"))
-              .map((t: string) => `\`${t}\``)
-              .join(", ")}\nMentions: ${triggerKeywords
-              .filter((k) => k.startsWith("@"))
-              .map((t: string) => `\`${t}\``)
-              .join(", ")}`,
+            description: getMessageBody({
+              user_id: msg.author.id,
+              channel_id: chan.id,
+              hashtag: triggerKeywords.filter((k) =>
+                k.startsWith(hashtagPrefix)
+              ),
+              twitter_username: triggerKeywords.filter((k) =>
+                k.startsWith(handlePrefix)
+              ),
+              from_username: triggerKeywords.filter((k) =>
+                k.startsWith(fromPrefix)
+              ),
+            }),
           }),
         ],
       },
@@ -152,8 +169,9 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}poe twitter set <channel> <a, b, c>`,
-        examples: `${PREFIX}poe twitter set #tweets some,hash,tag`,
+        usage: `${PREFIX}poe twitter set <channel> <keywords>`,
+        examples: `${PREFIX}poe twitter set #tweets #some,#hash,#tag,@user`,
+        description: `\`<keywords>\` can be one of the following:\n\n1. \`#hashtag\`\n2. \`@twitter_username\`\n3. \`https://twitter.com/vincentz\`: same as (2) but in another way\n4. \`from:https://twitter.com/vincentz\`: watch every tweets from this user`,
         title: "Set config",
       }),
     ],
