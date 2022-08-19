@@ -173,40 +173,43 @@ class TwitterStream extends InmemoryStorage {
       const allRuleIds =
         allRules.data?.filter((r) => r.id).map((r) => r.id) ?? []
       const allTwitterConfig = await apiConfig.getTwitterConfig()
-      const promises = allTwitterConfig.map(
-        async (config: {
-          rule_id: string
-          channel_id: string
-          guild_id: string
-          user_id: string
-          hashtag: Array<string>
-          twitter_username: Array<string>
-        }) => {
-          const newRuleId = await this.upsertRule({
-            ruleValue: [...config.hashtag, ...config.twitter_username],
-            guildId: config.guild_id,
-            channelId: config.channel_id,
-            ruleId: config.rule_id,
-          })
-          await apiConfig.setTwitterConfig(config.guild_id, {
-            ...config,
-            rule_id: newRuleId,
-          })
+      if (allTwitterConfig.ok) {
+        const promises = allTwitterConfig.data.map(
+          async (config: {
+            rule_id: string
+            channel_id: string
+            guild_id: string
+            user_id: string
+            hashtag: Array<string>
+            from_twitter: Array<string>
+            twitter_username: Array<string>
+          }) => {
+            const newRuleId = await this.upsertRule({
+              ruleValue: [...config.hashtag, ...config.twitter_username],
+              guildId: config.guild_id,
+              channelId: config.channel_id,
+              ruleId: config.rule_id,
+            })
+            await apiConfig.setTwitterConfig(config.guild_id, {
+              ...config,
+              rule_id: newRuleId,
+            })
 
-          return newRuleId
+            return newRuleId
+          }
+        )
+        const validRuleIds = await Promise.all(promises)
+        const staleRuleIds = allRuleIds.filter(
+          (rid) => !validRuleIds.some((vrid) => vrid === rid)
+        )
+        allRules = await twitter.tweets.getRules()
+        if (staleRuleIds.length > 0) {
+          await twitter.tweets.addOrDeleteRules({
+            delete: {
+              ids: staleRuleIds,
+            },
+          })
         }
-      )
-      const validRuleIds = await Promise.all(promises)
-      const staleRuleIds = allRuleIds.filter(
-        (rid) => !validRuleIds.some((vrid) => vrid === rid)
-      )
-      allRules = await twitter.tweets.getRules()
-      if (staleRuleIds.length > 0) {
-        await twitter.tweets.addOrDeleteRules({
-          delete: {
-            ids: staleRuleIds,
-          },
-        })
       }
     }
     logger.info("[TwitterStream] - backend retrieving data OK")
