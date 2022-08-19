@@ -1,4 +1,10 @@
-import { EmbedFieldData, Message } from "discord.js"
+import {
+  ButtonInteraction,
+  EmbedFieldData,
+  Message,
+  MessageActionRow,
+  MessageButton,
+} from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { DOT } from "utils/constants"
@@ -6,6 +12,7 @@ import {
   composeEmbedMessage,
   composeSimpleSelection,
   getErrorEmbed,
+  getSuccessEmbed,
   getSuggestionComponents,
   getSuggestionEmbed,
   justifyEmbedFields,
@@ -118,6 +125,28 @@ async function composeNFTDetail(
   }
 }
 
+export async function setDefaultSymbol(i: ButtonInteraction) {
+  const [colAddress, symbol, chain, authorId] = i.customId.split("|").slice(1)
+  if (authorId !== i.user.id) {
+    await i.deferUpdate()
+    return
+  }
+  await config.setGuildDefaultSymbol({
+    guild_id: i.guildId,
+    chain,
+    symbol,
+    address: colAddress,
+  })
+  const embed = getSuccessEmbed({
+    msg: i.message as Message,
+    title: "Default NFT symbol ENABLED",
+    description: `Next time your server members use $nft with \`${symbol}\`, **${symbol} (${colAddress}/${chain.toUpperCase()})** will be the default selection`,
+  })
+  return {
+    embeds: [embed],
+  }
+}
+
 const command: Command = {
   id: "nft_query",
   command: "query",
@@ -155,27 +184,24 @@ const command: Command = {
     let components
     let replyMsg
     if (
-      Array.isArray(res.suggestions) &&
-      res.suggestions?.length > 0 &&
-      !res.default_symbol
+      (Array.isArray(res.suggestions) &&
+        res.suggestions?.length > 0 &&
+        !foundMultipleSameSymbols) ||
+      (Array.isArray(res.suggestions) &&
+        res.suggestions?.length > 0 &&
+        !res.default_symbol)
     ) {
       const embed = getSuggestionEmbed({
-        title:
-          foundMultipleSameSymbols && hasAdministrator(msg.member)
-            ? `Set default symbol`
-            : `Multiple results for ${symbol}`,
+        title: `Multiple results for ${symbol}`,
         msg,
-        description:
-          foundMultipleSameSymbols && hasAdministrator(msg.member)
-            ? `Select one of these symbols, it will also be set as the default symbol from now on (you can change it via another command)`
-            : `Did you mean one of these instead:\n\n${composeSimpleSelection(
-                res.suggestions?.map(
-                  (s) =>
-                    `[\`${s.chain.toUpperCase()}\` - \`${s.name} (${
-                      s.symbol
-                    })\`](${getMarketplaceCollectionUrl(s.address)})`
-                )
-              )}`,
+        description: `Did you mean one of these instead:\n\n${composeSimpleSelection(
+          res.suggestions?.map(
+            (s) =>
+              `[\`${s.chain.toUpperCase()}\` - \`${s.name} (${
+                s.symbol
+              })\`](${getMarketplaceCollectionUrl(s.address)})`
+          )
+        )}`,
       })
       components = getSuggestionComponents(
         res.suggestions.map((s, i) => ({
@@ -245,7 +271,7 @@ const command: Command = {
       })
     }
 
-    listenForSuggestionAction(replyMsg, msg.author.id, async (value) => {
+    listenForSuggestionAction(replyMsg, msg.author.id, async (value, i) => {
       const [colAddress, tokenId, symbol, chain] = value.split("/")
       const { res } = await community.getNFTDetail(
         colAddress,
@@ -263,15 +289,6 @@ const command: Command = {
           ],
         })
       } else {
-        // the admin has chosen to set a default symbol
-        if (!res.default_symbol && hasAdministrator(msg.member)) {
-          await config.setGuildDefaultSymbol({
-            guild_id: msg.guildId,
-            chain,
-            symbol,
-            address: colAddress,
-          })
-        }
         msg.reply({
           embeds: [
             await composeNFTDetail(
@@ -282,6 +299,30 @@ const command: Command = {
             ),
           ],
         })
+        if (hasAdministrator(msg.member)) {
+          const actionRow = new MessageActionRow().addComponents(
+            new MessageButton({
+              customId: `confirm_symbol|${colAddress}|${symbol}|${chain}|${msg.author.id}`,
+              emoji: getEmoji("approve"),
+              style: "PRIMARY",
+              label: "Confirm",
+            })
+          )
+          const ephemeralMessage = {
+            embeds: [
+              composeEmbedMessage(msg, {
+                title: "Set default NFT symbol",
+                description: `Do you want to set **${symbol}** as your server default NFT symbol?\nNo further selection next time use \`$nft\``,
+              }),
+            ],
+            components: [actionRow],
+            buttonCollector: setDefaultSymbol,
+          }
+          i.reply({
+            ephemeral: true,
+            ...ephemeralMessage,
+          })
+        }
       }
     })
 
