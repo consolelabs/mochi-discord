@@ -820,7 +820,7 @@ class Config extends Fetcher {
     guild_id: string
     query: string
   }) {
-    return await this.jsonFetch<{ default_ticker: string }>(
+    return await this.jsonFetch<{ data: { default_ticker: string } }>(
       `${API_BASE_URL}/configs/default-ticker?guild_id=${params.guild_id}&query=${params.query}`
     )
   }
