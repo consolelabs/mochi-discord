@@ -102,7 +102,7 @@ async function setUserDefaultRoles(member: Discord.GuildMember) {
     member.guild.id
   )
 
-  if (json.success) {
+  if (json != null && json.success) {
     await member.roles.add(json.data.role_id)
   }
 }
