@@ -215,6 +215,7 @@ export function getSuggestionEmbed(params: {
 export function getSuggestionComponents(
   suggestions: Array<MessageSelectOptionData>
 ) {
+  if (suggestions.length === 0) return
   const hasOneSuggestion = suggestions.length === 1
   const row = new MessageActionRow()
   if (hasOneSuggestion) {
@@ -363,10 +364,8 @@ export function listenForSuggestionAction(
     })
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
-      await i.deferUpdate()
       const value = i.customId.split("-").pop()
-      onAction(value, i)
-      replyMsg.edit({ components: [] })
+      await onAction(value, i)
     })
     .on("end", () => {
       replyMsg.edit({ components: [] })
@@ -379,10 +378,8 @@ export function listenForSuggestionAction(
     })
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
-      await i.deferUpdate()
       const value = i.values[0]
-      onAction(value, i)
-      replyMsg.edit({ components: [] })
+      await onAction(value, i)
     })
     .on("end", () => {
       replyMsg.edit({ components: [] })
