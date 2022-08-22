@@ -25,9 +25,11 @@ import {
   getMarketplaceCollectionUrl,
   getMarketplaceNftUrl,
   hasAdministrator,
+  shortenHashOrAddress,
 } from "utils/common"
 import { NFTMetadataAttrIcon } from "types/community"
 import config from "adapters/config"
+import { MessageComponentTypes } from "discord.js/typings/enums"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -126,9 +128,9 @@ async function composeNFTDetail(
 }
 
 export async function setDefaultSymbol(i: ButtonInteraction) {
+  await i.deferUpdate()
   const [colAddress, symbol, chain, authorId] = i.customId.split("|").slice(1)
   if (authorId !== i.user.id) {
-    await i.deferUpdate()
     return
   }
   await config.setGuildDefaultSymbol({
@@ -140,11 +142,14 @@ export async function setDefaultSymbol(i: ButtonInteraction) {
   const embed = getSuccessEmbed({
     msg: i.message as Message,
     title: "Default NFT symbol ENABLED",
-    description: `Next time your server members use $nft with \`${symbol}\`, **${symbol} (${colAddress}/${chain.toUpperCase()})** will be the default selection`,
+    description: `Next time your server members use $nft with \`${symbol}\`, **${symbol} (${shortenHashOrAddress(
+      colAddress
+    )}/${chain.toUpperCase()})** will be the default selection`,
   })
-  return {
+  i.editReply({
     embeds: [embed],
-  }
+    components: [],
+  })
 }
 
 const command: Command = {
@@ -159,11 +164,7 @@ const command: Command = {
       .reduce((prev, next) => prev + "%20" + next)
       .toUpperCase()
     const tokenId = args[args.length - 1]
-    const { foundMultipleSameSymbols, res } = await community.getNFTDetail(
-      symbol,
-      tokenId,
-      msg.guildId
-    )
+    let res = await community.getNFTDetail(symbol, tokenId, msg.guildId)
 
     if (!res.ok) {
       return {
@@ -181,83 +182,10 @@ const command: Command = {
       }
     }
 
-    let components
-    let replyMsg
-    if (
-      (Array.isArray(res.suggestions) &&
-        res.suggestions?.length > 0 &&
-        !foundMultipleSameSymbols) ||
-      (Array.isArray(res.suggestions) &&
-        res.suggestions?.length > 0 &&
-        !res.default_symbol)
-    ) {
-      const embed = getSuggestionEmbed({
-        title: `Multiple results for ${symbol}`,
-        msg,
-        description: `Did you mean one of these instead:\n\n${composeSimpleSelection(
-          res.suggestions?.map(
-            (s) =>
-              `[\`${s.chain.toUpperCase()}\` - \`${s.name} (${
-                s.symbol
-              })\`](${getMarketplaceCollectionUrl(s.address)})`
-          )
-        )}`,
-      })
-      components = getSuggestionComponents(
-        res.suggestions.map((s, i) => ({
-          label: s.name,
-          value: `${s.address}/${tokenId}/${symbol}/${s.chain}`,
-          emoji:
-            i > 8
-              ? `${getEmoji(`NUM_${Math.floor(i / 9)}`)}${getEmoji(
-                  `NUM_${i % 9}`
-                )}`
-              : getEmoji(`NUM_${i + 1}`),
-        }))
-      )
-
-      replyMsg = await msg.reply({
-        embeds: [embed],
-        components: [components],
-      })
-    } else {
-      const collectionDetailRes = await community.getNFTCollectionDetail(
-        res.default_symbol.address
-      )
-      if (!collectionDetailRes.ok) {
-        return {
-          messageOptions: {
-            embeds: [
-              justifyEmbedFields(
-                getErrorEmbed({
-                  msg,
-                  description: res.error,
-                }),
-                1
-              ),
-            ],
-          },
-        }
-      }
-      components = getSuggestionComponents(
-        res.suggestions
-          .filter(
-            (s) =>
-              s.address !== res.default_symbol.address &&
-              s.chain !== res.default_symbol.chain
-          )
-          .map((s, i) => ({
-            label: s.name,
-            value: `${s.address}/${tokenId}/${symbol}/${s.chain}`,
-            emoji:
-              i > 8
-                ? `${getEmoji(`NUM_${Math.floor(i / 9)}`)}${getEmoji(
-                    `NUM_${i % 9}`
-                  )}`
-                : getEmoji(`NUM_${i + 1}`),
-          }))
-      )
-
+    let replyMsg: Message
+    // great, we have data
+    if (res.data.collection_address) {
+      const collectionDetailRes = await community.getNFTCollectionDetail(symbol)
       replyMsg = await msg.reply({
         embeds: [
           await composeNFTDetail(
@@ -267,21 +195,74 @@ const command: Command = {
             collectionDetailRes.data.image
           ),
         ],
-        components: [components],
       })
+    } else {
+      // ambiguity, check if there is default_symbol first
+      if (res.default_symbol) {
+        // there is, so we use its collection address to get
+        const collectionDetailRes = await community.getNFTCollectionDetail(
+          res.default_symbol.address
+        )
+        res = await community.getNFTDetail(
+          res.default_symbol.address,
+          tokenId,
+          msg.guildId
+        )
+        replyMsg = await msg.reply({
+          embeds: [
+            await composeNFTDetail(
+              res.data,
+              msg,
+              collectionDetailRes.data.name,
+              collectionDetailRes.data.image
+            ),
+          ],
+        })
+      } else {
+        // there isn't, so we continue to check for the `suggestions` property
+        const duplicatedSymbols =
+          res.suggestions?.reduce((acc, s) => acc.add(s.symbol), new Set())
+            .size === 1
+        const components = getSuggestionComponents(
+          res.suggestions.map((s, i) => ({
+            label: s.name,
+            value: `${s.address}/${tokenId}/${symbol}/${s.chain}/${duplicatedSymbols}`,
+            emoji:
+              i > 8
+                ? `${getEmoji(`NUM_${Math.floor(i / 9)}`)}${getEmoji(
+                    `NUM_${i % 9}`
+                  )}`
+                : getEmoji(`NUM_${i + 1}`),
+          }))
+        )
+        const embed = getSuggestionEmbed({
+          title: `Multiple results for ${symbol}`,
+          msg,
+          description: `Did you mean one of these instead:\n\n${composeSimpleSelection(
+            res.suggestions?.map(
+              (s) =>
+                `[\`${s.chain.toUpperCase()}\` - \`${s.name} (${
+                  s.symbol
+                })\`](${getMarketplaceCollectionUrl(s.address)})`
+            )
+          )}`,
+        })
+
+        replyMsg = await msg.reply({
+          embeds: [embed],
+          ...(components ? { components: [components] } : {}),
+        })
+      }
     }
 
     listenForSuggestionAction(replyMsg, msg.author.id, async (value, i) => {
-      const [colAddress, tokenId, symbol, chain] = value.split("/")
-      const { res } = await community.getNFTDetail(
-        colAddress,
-        tokenId,
-        msg.guildId
-      )
+      const [colAddress, tokenId, symbol, chain, hasDuplicatedSymbols] =
+        value.split("/")
+      const res = await community.getNFTDetail(colAddress, tokenId, msg.guildId)
       const detailRes = await community.getNFTCollectionDetail(colAddress)
 
       if (!res.ok || !detailRes.ok || !res.data || !detailRes.data) {
-        msg.reply({
+        await msg.reply({
           embeds: [
             getErrorEmbed({
               msg,
@@ -289,7 +270,7 @@ const command: Command = {
           ],
         })
       } else {
-        msg.reply({
+        await replyMsg.edit({
           embeds: [
             await composeNFTDetail(
               res.data,
@@ -298,8 +279,13 @@ const command: Command = {
               detailRes.data.image
             ),
           ],
+          components: [],
         })
-        if (hasAdministrator(msg.member)) {
+        if (
+          hasAdministrator(msg.member) &&
+          !res.default_symbol &&
+          hasDuplicatedSymbols === "true"
+        ) {
           const actionRow = new MessageActionRow().addComponents(
             new MessageButton({
               customId: `confirm_symbol|${colAddress}|${symbol}|${chain}|${msg.author.id}`,
@@ -316,12 +302,17 @@ const command: Command = {
               }),
             ],
             components: [actionRow],
-            buttonCollector: setDefaultSymbol,
           }
-          i.reply({
+          const interactionReply = (await i.reply({
+            fetchReply: true,
             ephemeral: true,
             ...ephemeralMessage,
+          })) as Message
+          const collector = interactionReply.createMessageComponentCollector({
+            componentType: MessageComponentTypes.BUTTON,
+            idle: 60000,
           })
+          collector.on("collect", setDefaultSymbol)
         }
       }
     })
