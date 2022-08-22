@@ -235,20 +235,9 @@ class Community extends Fetcher {
     tokenId: string,
     guildId: string
   ) {
-    const res = await this.jsonFetch<NFTDetail>(
+    return await this.jsonFetch<NFTDetail>(
       `${API_BASE_URL}/nfts/${collectionSymbol}/${tokenId}?guild_id=${guildId}`
     )
-
-    let foundMultipleSameSymbols = false
-
-    if (res.ok) {
-      const firstSymbol = res.suggestions?.[0]?.symbol
-      foundMultipleSameSymbols =
-        firstSymbol &&
-        (res.suggestions?.every((r) => r.symbol === firstSymbol) ?? false)
-    }
-
-    return { foundMultipleSameSymbols, res }
   }
 
   public async getNFTCollectionDetail(collectionAddress: string) {
