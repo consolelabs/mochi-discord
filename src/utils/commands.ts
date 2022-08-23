@@ -1,7 +1,15 @@
 import { Message } from "discord.js"
 
 import { Command } from "types/common"
-import { HELP, PREFIX, SPACES_REGEX } from "./constants"
+import {
+  CHANNEL_PREFIX,
+  EMOJI_PREFIX,
+  HELP,
+  PREFIX,
+  ROLE_PREFIX,
+  SPACES_REGEX,
+  USER_PREFIX,
+} from "./constants"
 import { commands } from "commands"
 
 export const getCommandArguments = (message: Message) => {
@@ -89,6 +97,18 @@ export const getCommandMetadata = (msg: Message) => {
   const cmdObj = commands[commandKey]
   if (!Object.keys(cmdObj?.actions ?? []).includes(action)) action = undefined
   return { commandKey, action }
+}
+
+export function parseDiscordToken(value: string) {
+  const _value = value.trim()
+  return {
+    isEmoji: _value.startsWith(EMOJI_PREFIX) && _value.endsWith(">"),
+    isUser: _value.startsWith(USER_PREFIX) && _value.endsWith(">"),
+    isRole: _value.startsWith(ROLE_PREFIX) && _value.endsWith(">"),
+    isChannel: _value.startsWith(CHANNEL_PREFIX) && _value.endsWith(">"),
+    isId: /\d+/g.test(_value),
+    id: _value.replace(/\D/g, ""),
+  }
 }
 
 // export const normalizeMessage = (msg: Message) => {

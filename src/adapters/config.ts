@@ -243,55 +243,23 @@ class Config extends Fetcher {
   }
 
   public async getCurrentDefaultRole(guildId: string) {
-    const res = await fetch(
+    return this.jsonFetch(
       `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`
     )
-    if (res.status !== 200) {
-      logger.error(`failed to get current default role - guild ${guildId}`)
-      return null
-    } else {
-      const json = await res.json()
-      if (json.error !== undefined) {
-        throw new Error(json.error)
-      }
-      return json
-    }
   }
 
   public async configureDefaultRole(event: DefaultRoleEvent) {
-    const res = await fetch(`${API_BASE_URL}/configs/default-roles`, {
+    return this.jsonFetch(`${API_BASE_URL}/configs/default-roles`, {
       method: "POST",
       body: JSON.stringify(event),
     })
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to configure default role - guild ${event.guild_id}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json
   }
 
   public async removeDefaultRoleConfig(guildId: string) {
-    const res = await fetch(
+    return this.jsonFetch(
       `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`,
-      {
-        method: "DELETE",
-      }
+      { method: "DELETE" }
     )
-    if (res.status !== 200) {
-      throw new Error(`failed to remove default role config - guild ${guildId}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json
   }
 
   public async listAllReactionRoles(guildId: string) {
