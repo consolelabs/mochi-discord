@@ -25,7 +25,7 @@ import nftrole from "./config/nftRole"
 // import globalxp from "./config/globalxp"
 // import eventxp from "./config/eventxp"
 import verify from "./community/verify"
-// import log from "./config/log"
+import log from "./config/log"
 import poe from "./config/poe"
 
 // external
@@ -82,7 +82,7 @@ export const originalCommands: Record<string, Command> = {
   // globalxp,
   // starboard,
   // eventxp,
-  // log,
+  log,
   poe,
   tripod,
   verify,
