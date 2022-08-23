@@ -22,6 +22,8 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}dr <action>`,
+        description:
+          "Set a default role that will automatically assigned to newcomers when they first join your server",
         footer: [`Type ${PREFIX}help dr <action> for a specific action!`],
         includeCommandsList: true,
       }),
@@ -30,6 +32,7 @@ const command: Command = {
   aliases: ["dr"],
   actions,
   colorType: "Server",
+  canRunWithoutAction: false,
 }
 
 export default command

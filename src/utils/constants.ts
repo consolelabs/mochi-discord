@@ -32,3 +32,7 @@ export const VALID_BOOST_MESSAGE_TYPES = [
 ]
 
 export const HOMEPAGE_URL = "http://getmochi.co"
+export const ROLE_PREFIX = "<@&"
+export const CHANNEL_PREFIX = "<#"
+export const USER_PREFIX = "<@"
+export const EMOJI_PREFIX = "<:"

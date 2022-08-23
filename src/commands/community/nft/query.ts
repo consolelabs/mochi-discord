@@ -20,6 +20,7 @@ import {
 } from "utils/discordEmbed"
 import community from "adapters/community"
 import {
+  capFirst,
   capitalizeFirst,
   getEmoji,
   getMarketplaceCollectionUrl,
@@ -30,6 +31,7 @@ import {
 import { NFTMetadataAttrIcon } from "types/community"
 import config from "adapters/config"
 import { MessageComponentTypes } from "discord.js/typings/enums"
+import { NFTSymbol } from "types/config"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -97,9 +99,11 @@ async function composeNFTDetail(
 
     const fields: EmbedFieldData[] = attributesFiltered
       ? attributesFiltered.map((attr: any) => {
-          const val = `${attr.value}\n${attr.frequency ?? ""}`
+          const val = `${capFirst(attr.value)}\n${attr.frequency ?? ""}`
           return {
-            name: `${getIcon(icons, attr.trait_type)} ${attr.trait_type}`,
+            name: `${getIcon(icons, attr.trait_type)} ${capFirst(
+              attr.trait_type
+            )}`,
             value: `${val ? val : "-"}`,
             inline: true,
           }
@@ -152,6 +156,28 @@ export async function setDefaultSymbol(i: ButtonInteraction) {
   })
 }
 
+function addSuggestionIfAny(
+  symbol: string,
+  tokenId: string,
+  _suggestions?: Array<NFTSymbol>
+) {
+  const suggestions = _suggestions ?? []
+  const duplicatedSymbols =
+    suggestions.reduce((acc, s) => acc.add(s.symbol), new Set()).size === 1
+  const components = getSuggestionComponents(
+    suggestions.map((s, i) => ({
+      label: s.name,
+      value: `${s.address}/${tokenId}/${symbol}/${s.chain}/${duplicatedSymbols}`,
+      emoji:
+        i > 8
+          ? `${getEmoji(`NUM_${Math.floor(i / 9)}`)}${getEmoji(`NUM_${i % 9}`)}`
+          : getEmoji(`NUM_${i + 1}`),
+    }))
+  )
+
+  return components ? { components: [components] } : {}
+}
+
 const command: Command = {
   id: "nft_query",
   command: "query",
@@ -195,6 +221,7 @@ const command: Command = {
             collectionDetailRes.data.image
           ),
         ],
+        ...addSuggestionIfAny(symbol, tokenId),
       })
     } else {
       // ambiguity, check if there is default_symbol first
@@ -202,6 +229,11 @@ const command: Command = {
         // there is, so we use its collection address to get
         const collectionDetailRes = await community.getNFTCollectionDetail(
           res.default_symbol.address
+        )
+        const components = addSuggestionIfAny(
+          res.default_symbol.symbol,
+          tokenId,
+          res.suggestions
         )
         res = await community.getNFTDetail(
           res.default_symbol.address,
@@ -217,24 +249,10 @@ const command: Command = {
               collectionDetailRes.data.image
             ),
           ],
+          ...components,
         })
       } else {
         // there isn't, so we continue to check for the `suggestions` property
-        const duplicatedSymbols =
-          res.suggestions?.reduce((acc, s) => acc.add(s.symbol), new Set())
-            .size === 1
-        const components = getSuggestionComponents(
-          res.suggestions.map((s, i) => ({
-            label: s.name,
-            value: `${s.address}/${tokenId}/${symbol}/${s.chain}/${duplicatedSymbols}`,
-            emoji:
-              i > 8
-                ? `${getEmoji(`NUM_${Math.floor(i / 9)}`)}${getEmoji(
-                    `NUM_${i % 9}`
-                  )}`
-                : getEmoji(`NUM_${i + 1}`),
-          }))
-        )
         const embed = getSuggestionEmbed({
           title: `Multiple results for ${symbol}`,
           msg,
@@ -250,7 +268,7 @@ const command: Command = {
 
         replyMsg = await msg.reply({
           embeds: [embed],
-          ...(components ? { components: [components] } : {}),
+          ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
         })
       }
     }
@@ -262,7 +280,8 @@ const command: Command = {
       const detailRes = await community.getNFTCollectionDetail(colAddress)
 
       if (!res.ok || !detailRes.ok || !res.data || !detailRes.data) {
-        await msg.reply({
+        await i.deferUpdate()
+        await replyMsg.edit({
           embeds: [
             getErrorEmbed({
               msg,
@@ -279,7 +298,7 @@ const command: Command = {
               detailRes.data.image
             ),
           ],
-          components: [],
+          ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
         })
         if (
           hasAdministrator(msg.member) &&

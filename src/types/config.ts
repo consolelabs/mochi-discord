@@ -8,6 +8,7 @@ export type Guild = {
   bot_scopes: string[]
   alias: string
   log_channel_id: string
+  log_channel: string
   global_xp: boolean
 }
 
