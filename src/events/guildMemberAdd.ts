@@ -22,12 +22,13 @@ export default {
       const guild = await config.getGuild(member.guild.id)
       const logChannel = member.guild.channels.cache.find(
         (channel) => channel.id === guild.log_channel_id
-      ) as Discord.TextChannel
+      )
 
       if (res.error) {
         sendInviteTrackerMessage(
-          logChannel,
+          member.guild.id,
           unknowErrorMsg(member.id),
+          logChannel,
           member.user.avatarURL()
         )
         return
@@ -36,23 +37,26 @@ export default {
       const data = res.data
       if (data.is_bot) {
         sendInviteTrackerMessage(
-          logChannel,
+          member.guild.id,
           botInviteMsg(member.id),
+          logChannel,
           member.user.avatarURL()
         )
         return
       }
       if (data.is_vanity) {
         sendInviteTrackerMessage(
-          logChannel,
+          member.guild.id,
           vantityInviteMsg(member.id),
+          logChannel,
           member.user.avatarURL()
         )
         return
       }
       sendInviteTrackerMessage(
-        logChannel,
+        member.guild.id,
         inviteMsg(member.id, data.inviter_id, data.invites_amount),
+        logChannel,
         member.user.avatarURL()
       )
     } catch (e) {
@@ -84,10 +88,16 @@ function inviteMsg(memberID: string, inviterID: string, inviteAmount: number) {
 }
 
 function sendInviteTrackerMessage(
-  logChannel: Discord.TextChannel,
+  guildId: string,
   msg: string,
+  logChannel?: Discord.Channel,
   thumbnail?: string
 ) {
+  if (!logChannel || !logChannel.isText()) {
+    // TODO(tuand): need to handle better e.g show warning to user
+    logger.warn(`[guildMemberAdd/${guildId}] - log channel not set`)
+    return
+  }
   const embed = composeEmbedMessage(null, {
     title: "Invite Tracker",
     description: msg,
