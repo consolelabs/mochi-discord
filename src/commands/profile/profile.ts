@@ -127,7 +127,10 @@ function buildProgressbar(progress: number): string {
 }
 
 async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
-  const userProfile = await profile.getUserProfile(msg.guildId, msg.author.id)
+  const userProfile = await profile.getUserProfile(
+    msg.guildId ?? "",
+    msg.author.id
+  )
   const aboutMeStr =
     userProfile.about_me.trim().length === 0
       ? "I'm a mysterious person"
@@ -160,8 +163,8 @@ async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
   const nftValue = "NFT: `NA`"
   const assetsStr = `${walletValue}\n${protocolValue}\n${nftValue}`
   const highestRole =
-    msg.member.roles.highest.name !== "@everyone"
-      ? msg.member.roles.highest
+    msg.member?.roles.highest.name !== "@everyone"
+      ? msg.member?.roles.highest
       : null
 
   const roleStr = `\`${highestRole?.name ?? "N/A"}\``
@@ -205,7 +208,10 @@ async function composeMyNFTEmbed(
   collectionAddress?: string,
   page = 0
 ): Promise<MessageOptions> {
-  const userProfile = await profile.getUserProfile(msg.guildId, msg.author.id)
+  const userProfile = await profile.getUserProfile(
+    msg.guildId ?? "",
+    msg.author.id
+  )
   let userAddress = userProfile.user_wallet?.address
   if (!userAddress || !userAddress.length) {
     userAddress = "N/A"
@@ -272,7 +278,7 @@ async function composeMyNFTEmbed(
 
   let nftImage = image
   if (!isValidHttpUrl(image)) {
-    nftImage = image_cdn
+    nftImage = image_cdn ?? ""
   }
   // set rank, rarity score empty if have data
   const rarityRate = rarity?.rarity
@@ -285,7 +291,7 @@ async function composeMyNFTEmbed(
     ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
     : ""
 
-  const attributesFiltered = attributes.filter(
+  const attributesFiltered = attributes?.filter(
     (obj: { trait_type: string }) => {
       return obj.trait_type !== ""
     }
@@ -308,7 +314,7 @@ async function composeMyNFTEmbed(
     ],
     description,
     image: nftImage,
-    color: rarityColors[rarity?.rarity?.toUpperCase()],
+    color: rarityColors[rarity?.rarity?.toUpperCase() ?? "COMMON"],
   }).addFields(fields)
   embed = justifyEmbedFields(embed, 3)
 
@@ -406,7 +412,9 @@ const command: Command = {
     )
 
     return {
-      messageOptions: null,
+      messageOptions: {
+        embeds: [],
+      },
     }
   },
   getHelpMessage: async (msg) => {

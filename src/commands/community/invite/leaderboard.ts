@@ -10,7 +10,18 @@ const command: Command = {
   brief: "Show top 10 inviters.",
   category: "Community",
   run: async function leaderboard(msg: Message) {
-    const resp = await Community.getInvitesLeaderboard(msg.guild.id)
+    if (!msg.guild?.id) {
+      const errorEmbed = getErrorEmbed({
+        msg,
+        description: "Guild ID is invalid",
+      })
+      return {
+        messageOptions: {
+          embeds: [errorEmbed],
+        },
+      }
+    }
+    const resp = await Community.getInvitesLeaderboard(msg.guild?.id)
     if (resp.error) {
       const errorEmbed = getErrorEmbed({ msg, description: resp.error })
       return {

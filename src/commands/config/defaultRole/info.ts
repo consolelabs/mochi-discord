@@ -12,6 +12,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     let description = "No default role found, to set one, run `$dr set @<role>`"
     const args = getCommandArguments(msg)
 
@@ -28,7 +40,7 @@ const command: Command = {
       }
     }
 
-    const res = await config.getCurrentDefaultRole(msg.guild.id)
+    const res = await config.getCurrentDefaultRole(msg.guildId)
     if (res.ok) {
       if (res.data.role_id) {
         description = `When people first join your server, their base role will be <@&${res.data.role_id}>`

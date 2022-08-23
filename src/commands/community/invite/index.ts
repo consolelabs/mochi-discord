@@ -22,7 +22,7 @@ const command: Command = {
   command: "invite",
   brief: "Invite Tracker",
   category: "Community",
-  run: async () => null,
+  run: async () => {},
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

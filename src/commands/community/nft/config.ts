@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
 import config from "adapters/config"
 
@@ -10,6 +10,18 @@ const command: Command = {
   brief: "Config twitter sales bot",
   category: "Community",
   run: async function (msg) {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const args = getCommandArguments(msg)
     const csmrKey = args[3]
     const csmrKeyScrt = args[4]

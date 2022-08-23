@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import community from "adapters/community"
 
 const command: Command = {
@@ -11,6 +11,13 @@ const command: Command = {
   category: "Community",
   onlyAdministrator: true,
   run: async function config(msg: Message) {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Guild ID is invalid" })],
+        },
+      }
+    }
     const json = await community.getCurrentInviteTrackerConfig(msg.guildId)
     return {
       messageOptions: {

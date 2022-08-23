@@ -19,7 +19,7 @@ export async function confirmGlobalXP(
 ) {
   await interaction.deferUpdate()
   const [authorId, currentGlobalXP] = interaction.customId.split("-").slice(1)
-  if (authorId !== interaction.user.id) {
+  if (authorId !== interaction.user.id || !interaction.guildId) {
     return
   }
   const globalXP = !JSON.parse(currentGlobalXP) // toggle config
@@ -33,7 +33,7 @@ export async function confirmGlobalXP(
       composeEmbedMessage(msg, {
         author: [
           `Global XP ${globalXP ? "enabled" : "disabled"}`,
-          msg.guild.iconURL(),
+          msg.guild?.iconURL() ?? "",
         ],
         description: `You can check your global XP with \`$profile\``,
       }),
@@ -49,6 +49,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const guild = await config.getGuild(msg.guildId)
     if (!guild) {
       return {
@@ -71,7 +83,10 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: [`${msg.guild.name}'s global XP`, msg.guild.iconURL()],
+            author: [
+              `${msg.guild.name}'s global XP`,
+              msg.guild.iconURL() ?? "",
+            ],
             description: `Global XP is currently ${
               guild.global_xp ? "enabled" : "disabled"
             } for this server.\n Do you want to **${

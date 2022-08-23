@@ -21,7 +21,7 @@ export default {
       )
       const guild = await config.getGuild(member.guild.id)
       const logChannel = member.guild.channels.cache.find(
-        (channel) => channel.id === guild.log_channel_id
+        (channel) => channel.id === guild?.log_channel_id
       )
 
       if (res.error) {
@@ -29,7 +29,7 @@ export default {
           member.guild.id,
           unknowErrorMsg(member.id),
           logChannel,
-          member.user.avatarURL()
+          member.user.avatarURL() ?? ""
         )
         return
       }
@@ -40,7 +40,7 @@ export default {
           member.guild.id,
           botInviteMsg(member.id),
           logChannel,
-          member.user.avatarURL()
+          member.user.avatarURL() ?? ""
         )
         return
       }
@@ -49,7 +49,7 @@ export default {
           member.guild.id,
           vantityInviteMsg(member.id),
           logChannel,
-          member.user.avatarURL()
+          member.user.avatarURL() ?? ""
         )
         return
       }
@@ -57,7 +57,7 @@ export default {
         member.guild.id,
         inviteMsg(member.id, data.inviter_id, data.invites_amount),
         logChannel,
-        member.user.avatarURL()
+        member.user.avatarURL() ?? ""
       )
     } catch (e) {
       const error = e as BotBaseError

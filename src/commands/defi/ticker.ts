@@ -163,7 +163,7 @@ async function composeTickerEmbed({
   const marketCap = +market_cap[currency]
   const blank = getEmoji("blank")
 
-  const gMember = msg.guild.members.cache.get(authorId ?? msg.author.id)
+  const gMember = msg.guild?.members.cache.get(authorId ?? msg.author.id)
   const embed = composeEmbedMessage(msg, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
@@ -212,7 +212,7 @@ async function composeTickerEmbed({
   )
 
   // set server default ticker
-  let ephemeralMessage: EphemeralMessage
+  let ephemeralMessage: EphemeralMessage = { embeds: [] }
   if (hasAdministrator(gMember)) {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
@@ -287,7 +287,7 @@ export async function backToTickerSelection(
 export async function setDefaultTicker(i: ButtonInteraction) {
   const [coinId, coinSymbol, coinName] = i.customId.split("|")
   await config.setGuildDefaultTicker({
-    guild_id: i.guildId,
+    guild_id: i.guildId ?? "",
     query: coinSymbol,
     default_ticker: coinId,
   })
@@ -355,6 +355,18 @@ const command: Command = {
   brief: "Display/Compare coin price and market cap",
   category: "Defi",
   run: async function (msg) {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const args = getCommandArguments(msg)
     // execute
     const [query] = args.slice(1)

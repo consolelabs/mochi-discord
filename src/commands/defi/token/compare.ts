@@ -105,12 +105,12 @@ export async function setDefaultTicker(i: ButtonInteraction) {
     i.customId.split("|")
   await Promise.all([
     config.setGuildDefaultTicker({
-      guild_id: i.guildId,
+      guild_id: i.guildId ?? "",
       query: baseSymbol,
       default_ticker: baseId,
     }),
     config.setGuildDefaultTicker({
-      guild_id: i.guildId,
+      guild_id: i.guildId ?? "",
       query: targetSymbol,
       default_ticker: targetId,
     }),
@@ -141,8 +141,10 @@ const suggestionsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
 
   await composeTokenComparisonEmbed(message, baseCoinId, targetCoinId)
 
-  const gMember = message.guild.members.cache.get(authorId ?? message.author.id)
-  let ephemeralMessage: EphemeralMessage
+  const gMember = message.guild?.members.cache.get(
+    authorId ?? message.author.id
+  )
+  let ephemeralMessage: EphemeralMessage | undefined
   if (hasAdministrator(gMember)) {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
@@ -291,7 +293,9 @@ const command: Command = {
     const [baseQ, targetQ] = query.split("/")
     return await composeTokenComparisonEmbed(msg, baseQ, targetQ)
   },
-  getHelpMessage: async () => null,
+  getHelpMessage: async () => {
+    return {}
+  },
   canRunWithoutAction: true,
   colorType: "Defi",
   minArguments: 3,

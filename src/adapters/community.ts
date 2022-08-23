@@ -1,7 +1,7 @@
 import { Message } from "discord.js"
 import fetch from "node-fetch"
 import { CampaignWhitelistUser } from "types/common"
-import { InvitesInput, NFTDetail } from "types/community"
+import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { NftCollectionTicker } from "types/nft"
 import { API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
@@ -241,7 +241,7 @@ class Community extends Fetcher {
   }
 
   public async getNFTCollectionDetail(collectionAddress: string) {
-    return await this.jsonFetch(
+    return await this.jsonFetch<{ data: NFTCollection }>(
       `${API_BASE_URL}/nfts/collections/${collectionAddress}/detail`
     )
   }
@@ -251,7 +251,7 @@ class Community extends Fetcher {
     from,
     to,
   }: {
-    symbol: string
+    symbol?: string
     from: number
     to: number
   }): Promise<NftCollectionTicker> {

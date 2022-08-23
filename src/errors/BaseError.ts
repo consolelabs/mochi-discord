@@ -3,7 +3,7 @@ import { logger } from "logger"
 import { getErrorEmbed } from "utils/discordEmbed"
 
 export class BotBaseError extends Error {
-  private msg: Message
+  private msg?: Message
   constructor(message?: Message) {
     super()
     this.name = "Something went wrong"

@@ -28,7 +28,7 @@ import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
-const decimals = (p: NftPrice) => p?.token?.decimals ?? 0
+const decimals = (p?: NftPrice) => p?.token?.decimals ?? 0
 
 async function composeCollectionTickerEmbed({
   msg,
@@ -57,13 +57,13 @@ async function composeCollectionTickerEmbed({
   } = data
 
   const floorPriceAmount = Math.round(
-    +floor_price?.amount / Math.pow(10, decimals(floor_price))
+    +(floor_price?.amount ?? 0) / Math.pow(10, decimals(floor_price))
   )
   const totalVolumeAmount = Math.round(
-    +total_volume?.amount / Math.pow(10, decimals(total_volume))
+    +(total_volume?.amount ?? 0) / Math.pow(10, decimals(total_volume))
   )
   const lastSalePriceAmount = Math.round(
-    +last_sale_price?.amount / Math.pow(10, decimals(last_sale_price))
+    +(last_sale_price?.amount ?? 0) / Math.pow(10, decimals(last_sale_price))
   )
   const priceToken = floor_price?.token?.symbol?.toUpperCase() ?? ""
   const formatPrice = (amount: number) => {
@@ -155,15 +155,16 @@ async function renderNftTickerChart({
     const from = dayjs().subtract(days, "day").unix() * 1000
     data = await community.getNFTCollectionTickers({ symbol, from, to })
   }
-  const { prices, times } = data.tickers
-  if (!prices || !times) {
+  if (!data.tickers?.prices || !data.tickers.times) {
     return null
   }
 
-  const chartData = prices.map((p) => +p.amount / Math.pow(10, decimals(p)))
+  const chartData = data.tickers.prices.map(
+    (p) => +p.amount / Math.pow(10, decimals(p))
+  )
   const chart = await renderChartImage({
     chartLabel: `Floor price`,
-    labels: times,
+    labels: data.tickers.times,
     data: chartData,
   })
   return new MessageAttachment(chart, "chart.png")

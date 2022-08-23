@@ -20,7 +20,8 @@ export const getCommandArguments = (message: Message) => {
     .split(SPACES_REGEX)
 }
 
-export const specificHelpCommand = (message: Message) => {
+export const specificHelpCommand = (message: Message | null) => {
+  if (!message) return null
   const args = getCommandArguments(message)
   return (
     args.length > 1 &&
@@ -32,7 +33,7 @@ export const specificHelpCommand = (message: Message) => {
 }
 
 export const getAllAliases = (
-  commands: Record<string, Command>
+  commands?: Record<string, Command>
 ): Record<string, Command> => {
   if (!commands) return {}
   return Object.entries(commands).reduce((acc, cur) => {
@@ -52,20 +53,25 @@ export const getAllAliases = (
   }, commands)
 }
 
-export const getCommandObject = (msg: Message): Command => {
+export const getCommandObject = (msg: Message | null): Command | null => {
+  if (!msg) return null
   const args = getCommandArguments(msg)
   if (!args.length) return null
   const { commandKey } = getCommandMetadata(msg)
-  return commands[commandKey]
+  if (commandKey) return commands[commandKey]
+  return null
 }
 
-export const getActionCommand = (msg: Message): Command => {
+export const getActionCommand = (msg: Message | null): Command | null => {
+  if (!msg) return null
   const args = getCommandArguments(msg)
   if (!args.length) return null
   const { commandKey: key, action } = getCommandMetadata(msg)
 
   if (!key || !action || !commands[key].actions) return null
-  const actions = Object.entries(commands[key].actions).filter(
+  const command = commands[key]
+  if (!command.actions) return null
+  const actions = Object.entries(command.actions).filter(
     (c) =>
       (c[1].aliases && c[1].aliases.includes(action)) || c[1].command === action
   )
@@ -77,7 +83,8 @@ export const getCommandMetadata = (msg: Message) => {
   if (!msg?.content) return {}
   const args = getCommandArguments(msg)
   const isSpecificHelpCommand = specificHelpCommand(msg)
-  let commandKey, action
+  let commandKey: string | undefined
+  let action: string | undefined
   switch (true) {
     case isSpecificHelpCommand && args[0].toLowerCase() === HELP:
       commandKey = args[1]
@@ -92,10 +99,13 @@ export const getCommandMetadata = (msg: Message) => {
       action = args[1]
       break
   }
-  commandKey = commandKey.toLowerCase()
+  commandKey = commandKey?.toLowerCase()
   action = action?.toLowerCase()
-  const cmdObj = commands[commandKey]
-  if (!Object.keys(cmdObj?.actions ?? []).includes(action)) action = undefined
+
+  if (commandKey && action) {
+    const cmdObj = commands[commandKey]
+    if (!Object.keys(cmdObj?.actions ?? []).includes(action)) action = undefined
+  }
   return { commandKey, action }
 }
 

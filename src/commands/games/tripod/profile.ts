@@ -69,9 +69,7 @@ const command: Command = {
     const reply = await msg.reply(msgOpts.messageOptions)
     listenForPaginateAction(reply, msg, composeProfile)
 
-    return {
-      messageOptions: null,
-    }
+    return null
   },
   getHelpMessage: async (msg) => ({
     embeds: [

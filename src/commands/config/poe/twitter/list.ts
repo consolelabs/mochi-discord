@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import utc from "dayjs/plugin/utc"
 import dayjs from "dayjs"
@@ -45,6 +45,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const twitterConfig = await config.getTwitterConfig(msg.guildId)
 
     if (

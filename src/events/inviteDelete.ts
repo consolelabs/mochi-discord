@@ -10,10 +10,12 @@ export default {
   once: false,
   execute: async (invite: Discord.Invite) => {
     try {
-      const invitesCollection = invites.get(
-        invite.guild.id
-      ) as Discord.Collection<string, number>
-      invitesCollection.delete(invite.code)
+      if (invite.guild?.id) {
+        const invitesCollection = invites.get(
+          invite.guild.id
+        ) as Discord.Collection<string, number>
+        invitesCollection.delete(invite.code)
+      }
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {

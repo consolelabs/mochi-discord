@@ -4,6 +4,7 @@ import { InmemoryStorage } from "types/InmemoryStorage"
 import { twitter } from "utils/twitter-api"
 import { logger } from "logger"
 import { PROD } from "env"
+import { PartialDeep } from "type-fest"
 
 type UpsertRuleParams = {
   ruleValue: string[]
@@ -18,9 +19,9 @@ type RemoveRuleParams = {
 }
 
 type Tweet = {
-  data?: { author_id?: string; id: string }
-  includes?: { users?: Array<{ id: string; username: string }> }
-  matching_rules?: Array<{ id: string }>
+  data: { author_id: string; id: string }
+  includes: { users: Array<{ id: string; username: string }> }
+  matching_rules: Array<{ id: string }>
 }
 
 type ProcessParam = {
@@ -35,7 +36,7 @@ function toTwitterRuleFormat(keywords: Array<string>) {
 
 class TwitterStream extends InmemoryStorage {
   private publishChannelsByRuleId: Record<string, Set<string>> = {}
-  private _client: Client
+  private _client: Client | null = null
 
   constructor() {
     super()
@@ -46,10 +47,6 @@ class TwitterStream extends InmemoryStorage {
     if (this._client?.isReady) return
     this._client = c
     this.watchStream()
-  }
-
-  get client() {
-    return this._client
   }
 
   private async sendToChannel({ channel, handle, tweet }: ProcessParam) {
@@ -79,16 +76,16 @@ class TwitterStream extends InmemoryStorage {
     })
   }
 
-  private async handle(tweet: Tweet) {
-    const ruleIds = tweet.matching_rules?.map((mr) => mr.id) ?? []
+  private async handle(tweet: PartialDeep<Tweet>) {
+    const ruleIds = tweet.matching_rules?.map((mr) => mr?.id) ?? []
     const handle = tweet.includes?.users?.find(
-      (u) => u.id === tweet.data?.author_id
+      (u) => u?.id === tweet.data?.author_id
     )?.username
     if (ruleIds.length === 0 || !handle || !tweet.data?.id) return
     logger.info(`[TwitterStream]: handling tweet ${tweet.data?.id}`)
     const publishChannels = []
     for (const ruleId of ruleIds) {
-      if (this.publishChannelsByRuleId[ruleId]) {
+      if (ruleId && this.publishChannelsByRuleId[ruleId]) {
         publishChannels.push(this.publishChannelsByRuleId[ruleId])
       }
     }
@@ -97,11 +94,15 @@ class TwitterStream extends InmemoryStorage {
       channelIds.forEach((channelId) => {
         this._client?.channels.fetch(channelId).then((channel) => {
           // `channel` should be TextChannel, if not then it's probably removed -> warn
-          if (channel.isText() && channel instanceof TextChannel) {
-            this.process({ channel, tweet, handle })
+          if (channel?.isText() && channel instanceof TextChannel) {
+            this.process({ channel, tweet: tweet as Tweet, handle })
+          } else if (!channel) {
+            logger.warn(
+              `[TwitterStream]: matched tweet id ${tweet.data?.id} but unable to process due to removed channel id ${channelId}`
+            )
           } else {
             logger.warn(
-              `[TwitterStream]: matched tweet id ${tweet.data?.id} but unable to process due to removed channel id ${channel.id}`
+              `[TwitterStream]: matched tweet id ${tweet.data?.id} but unable to process due to channel not type text ${channel?.id}`
             )
           }
         })
@@ -147,11 +148,13 @@ class TwitterStream extends InmemoryStorage {
     if (rule.errors?.[0]?.title === "DuplicateRule") {
       ruleId = (rule.errors?.[0] as { id?: string }).id
     } else {
-      ruleId = rule.data[0].id
+      ruleId = rule.data?.[0]?.id
     }
-    const publishChannels = this.publishChannelsByRuleId[ruleId] ?? new Set()
-    publishChannels.add(params.channelId)
-    this.publishChannelsByRuleId[ruleId] = publishChannels
+    if (ruleId) {
+      const publishChannels = this.publishChannelsByRuleId[ruleId] ?? new Set()
+      publishChannels.add(params.channelId)
+      this.publishChannelsByRuleId[ruleId] = publishChannels
+    }
     return ruleId
   }
 
@@ -171,7 +174,7 @@ class TwitterStream extends InmemoryStorage {
     if (PROD) {
       let allRules = await twitter.tweets.getRules()
       const allRuleIds =
-        allRules.data?.filter((r) => r.id).map((r) => r.id) ?? []
+        allRules.data?.filter((r) => r.id).map((r) => r.id ?? "") ?? []
       const allTwitterConfig = await apiConfig.getTwitterConfig()
       if (allTwitterConfig.ok) {
         const promises = allTwitterConfig.data.map(
@@ -194,18 +197,20 @@ class TwitterStream extends InmemoryStorage {
               channelId: config.channel_id,
               ruleId: config.rule_id,
             })
-            await apiConfig.setTwitterConfig(config.guild_id, {
-              ...config,
-              rule_id: newRuleId,
-            })
+            if (newRuleId) {
+              await apiConfig.setTwitterConfig(config.guild_id, {
+                ...config,
+                rule_id: newRuleId,
+              })
+            }
 
             return newRuleId
           }
         )
         const validRuleIds = await Promise.all(promises)
-        const staleRuleIds = allRuleIds.filter(
-          (rid) => !validRuleIds.some((vrid) => vrid === rid)
-        )
+        const staleRuleIds = allRuleIds
+          .filter(Boolean)
+          .filter((rid) => !validRuleIds.some((vrid) => vrid === rid))
         allRules = await twitter.tweets.getRules()
         if (staleRuleIds.length > 0) {
           await twitter.tweets.addOrDeleteRules({

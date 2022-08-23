@@ -26,7 +26,7 @@ export function heightOf(ctx: CanvasRenderingContext2D, text: string): number {
 export function drawRectangle(
   ctx: CanvasRenderingContext2D,
   stats: RectangleStats,
-  hexColor: string,
+  hexColor?: string,
   borderColor?: string
 ) {
   const { radius, x, y } = stats
@@ -34,7 +34,9 @@ export function drawRectangle(
   // --------------
   ctx.beginPath()
   ctx.lineWidth = 6
-  ctx.fillStyle = hexColor
+  if (hexColor) {
+    ctx.fillStyle = hexColor
+  }
   ctx.moveTo(x.from + radius, y.from)
   ctx.lineTo(x.to - radius, y.from) // top edge
   ctx.arc(x.to - radius, y.from + radius, radius, 1.5 * Math.PI, 0) // top-right corner
@@ -146,8 +148,7 @@ export async function drawCircleImage({
 }
 
 export function loadImages(urls: string[]) {
-  return urls.reduce(async (prev: { [key: string]: any }, cur) => {
-    const acc = await prev
+  return urls.reduce(async (acc: { [key: string]: any }, cur) => {
     return {
       ...acc,
       ...(!acc[cur] ? { [cur]: await loadImage(cur) } : {}),
@@ -415,7 +416,7 @@ export async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     mr: 20,
   }
   ctx.font = "27px Whitney"
-  let columnY = container.pt
+  let columnY = container.pt ?? 0
 
   collectionList = collectionList
     .filter((col) => !!col.name)
@@ -424,7 +425,7 @@ export async function renderSupportedNFTList(collectionList: NFTCollection[]) {
       return col
     })
 
-  const images: Record<string, Image> = await loadImages(
+  const images: Record<string, Image> = loadImages(
     collectionList.map((col) => col.image)
   )
   collectionList.forEach((item, idx) => {
@@ -512,8 +513,8 @@ export async function drawLeaderboard(options: {
   // divider
   drawDivider(
     ctx,
-    container.x.from + container.pl,
-    container.x.to - container.pl,
+    container.x.from + (container.pl ?? 0),
+    container.x.to - (container.pl ?? 0),
     0
   )
 
@@ -522,11 +523,11 @@ export async function drawLeaderboard(options: {
   ctx.fillStyle = "white"
   const userTitleStr = options.leftHeader
   const userTitle = {
-    x: container.x.from + container.pl,
+    x: container.x.from + (container.pl ?? 0),
     y: container.pt,
     mb: 20,
   }
-  ctx.fillText(userTitleStr, userTitle.x, userTitle.y)
+  ctx.fillText(userTitleStr, userTitle.x, userTitle.y ?? 0)
 
   // right title
   const rightTitleStr = options.rightHeader
@@ -534,7 +535,7 @@ export async function drawLeaderboard(options: {
     x: 600,
     y: userTitle.y,
   }
-  ctx.fillText(rightTitleStr, rightTitle.x, rightTitle.y)
+  ctx.fillText(rightTitleStr, rightTitle.x, rightTitle.y ?? 0)
 
   // users
   const badgeIcon = {
@@ -544,7 +545,7 @@ export async function drawLeaderboard(options: {
   }
   const line = {
     x: userTitle.x,
-    y: userTitle.y + userTitle.mb,
+    y: (userTitle.y ?? 0) + userTitle.mb,
     h: 40,
     mb: 20,
   }

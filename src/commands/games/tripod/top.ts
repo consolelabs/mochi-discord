@@ -12,6 +12,7 @@ const command: Command = {
   brief: "Show top 10 players of Tripod",
   category: "Game",
   run: async function (msg: Message) {
+    if (!msg.guild) return null
     const { allData, leaderboard } = await GameSessionManager.getPoints()
     const authorPts = allData[msg.author.id]
 

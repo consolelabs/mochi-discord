@@ -213,8 +213,9 @@ export function getEmbedFooter(texts: string[]): string {
   return texts.join(` ${DOT} `)
 }
 
-export function hasAdministrator(member: GuildMember) {
-  return member?.permissions?.has(Permissions.FLAGS.ADMINISTRATOR)
+export function hasAdministrator(member?: GuildMember | null) {
+  if (!member) return false
+  return member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
 export function getCommandsList(
@@ -337,10 +338,8 @@ export function sortNFTListByVolume(
   symbol: Map<string, number>
 ): TopNFTTradingVolumeItem[] {
   nftList.forEach((item) => {
-    item.trading_volume = roundFloatNumber(
-      item.trading_volume * symbol.get(item.token),
-      2
-    )
+    const price = symbol.get(item.token) ?? 0
+    item.trading_volume = roundFloatNumber(item.trading_volume * price, 2)
   })
   nftList.sort((a, b) => (a.trading_volume > b.trading_volume ? -1 : 1))
   return nftList
