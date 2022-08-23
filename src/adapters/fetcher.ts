@@ -2,6 +2,7 @@ import deepmerge from "deepmerge"
 import { logger } from "logger"
 import type { RequestInit as NativeRequestInit } from "node-fetch"
 import fetch from "node-fetch"
+import { capFirst } from "utils/common"
 
 type RequestInit = NativeRequestInit & {
   /**
@@ -54,11 +55,11 @@ export class Fetcher {
         )
 
         const json = await (res as ErrResponse).json()
-        if (autoWrap500Error) {
+        if (autoWrap500Error && res.status === 500) {
           json.error =
             "Something went wrong, our team is notified and is working on the fix, stay tuned."
         } else {
-          json.error = `${json.error[0].toUpperCase}${json.error.slice(1)}`
+          json.error = capFirst(json.error)
         }
         json.ok = false
         return json

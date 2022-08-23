@@ -1,11 +1,13 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
-import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError } from "errors"
 
 const command: Command = {
   id: "defaultrole_remove",
@@ -30,24 +32,21 @@ const command: Command = {
       }
     }
 
-    try {
-      const res = await config.removeDefaultRoleConfig(msg.guild.id)
-      if (res.success) {
-        description = "Successfully removed default role for newcomers."
+    const res = await config.removeDefaultRoleConfig(msg.guild.id)
+    if (res.ok) {
+      description =
+        "Existing users' role will not be affected\nHowever please **NOTE** that from now on new users joining your server won't have a default role anymore.\nTo set a new one, run `$dr set @<role_name>`"
+    } else {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: res.error })],
+        },
       }
-    } catch (error) {
-      ChannelLogger.log(error as BotBaseError)
-      description = "Failed to remove default role configuration."
     }
 
     return {
       messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: "Default Role",
-            description,
-          }),
-        ],
+        embeds: [getSuccessEmbed({ msg, title: "Role removed", description })],
       },
     }
   },

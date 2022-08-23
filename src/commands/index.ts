@@ -15,7 +15,7 @@ import ticker from "./defi/ticker"
 import airdrop from "./defi/airdrop"
 import gm from "./community/gm"
 // import whitelist from "./community/campaigns"
-// import defaultrole from "./config/defaultRole"
+import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 // import starboard from "./config/starboard"
 import top from "./community/top"
@@ -55,9 +55,9 @@ import { HELP } from "utils/constants"
 export const originalCommands: Record<string, Command> = {
   // general help
   help,
-  // profile
+  // profile section
   profile,
-  // defi
+  // defi section
   deposit,
   tip,
   balances,
@@ -65,7 +65,7 @@ export const originalCommands: Record<string, Command> = {
   tokens,
   ticker,
   airdrop,
-  // community
+  // community section
   invite,
   gm,
   stats,
@@ -73,9 +73,10 @@ export const originalCommands: Record<string, Command> = {
   gift,
   top,
   sales,
-  // config
+  verify,
+  // config section
   reactionrole,
-  // defaultrole,
+  defaultrole,
   // whitelist,
   levelrole,
   nftrole,
@@ -84,8 +85,8 @@ export const originalCommands: Record<string, Command> = {
   // eventxp,
   // log,
   poe,
+  // games section
   tripod,
-  verify,
 }
 export const commands = getAllAliases(originalCommands)
 
