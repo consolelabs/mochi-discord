@@ -5,7 +5,6 @@ import webhook from "../adapters/webhook"
 import { DISCORD_DEFAULT_AVATAR } from "env"
 import { createBEGuildMember } from "../types/webhook"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { DefaultRoleResponse } from "types/common"
 import ChannelLogger from "utils/ChannelLogger"
 import { logger } from "logger"
 import { BotBaseError } from "errors"
@@ -98,11 +97,9 @@ function sendInviteTrackerMessage(
 }
 
 async function setUserDefaultRoles(member: Discord.GuildMember) {
-  const json: DefaultRoleResponse = await config.getCurrentDefaultRole(
-    member.guild.id
-  )
+  const res = await config.getCurrentDefaultRole(member.guild.id)
 
-  if (json != null && json.success) {
-    await member.roles.add(json.data.role_id)
+  if (res.ok && res.data.role_id) {
+    await member.roles.add(res.data.role_id)
   }
 }
