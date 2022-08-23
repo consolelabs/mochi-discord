@@ -15,6 +15,7 @@ import { getCommandObject } from "utils/commands"
 import { API_BASE_URL } from "utils/constants"
 import Config from "./config"
 import { logger } from "logger"
+import { InsufficientBalanceError } from "errors/InsufficientBalanceError"
 
 class Defi {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
@@ -122,7 +123,7 @@ class Defi {
     return json.data
   }
 
-  public async discordWalletWithdraw(body: string) {
+  public async discordWalletWithdraw(body: string, msg: Message) {
     const resp = await fetch(`${API_BASE_URL}/defi/withdraw`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -130,6 +131,13 @@ class Defi {
     })
 
     const json = await resp.json()
+    if (json.error.includes("balance is not enough")) {
+      throw new InsufficientBalanceError({
+        discordId: msg.author.id,
+        message: msg,
+        errorMsg: "Your balance is not enough to complete the transaction",
+      })
+    }
     if (json.error !== undefined) {
       throw new Error(json.error)
     }
@@ -333,8 +341,8 @@ class Defi {
       cryptocurrency: string,
       recipients: string[] = [],
       each = false
-    if (!msg.guildId) {
-      msg.guildId = "N/A"
+    if (msg.channel.type === "DM") {
+      msg.guildId = ""
     }
     switch (type) {
       case "tip": {
@@ -420,7 +428,6 @@ class Defi {
         msg.channelId
       }][${type}]: ${sender} - [${recipients.toString()}] | ${amount} ${cryptocurrency}`
     )
-
     const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
     const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
     if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
