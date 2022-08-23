@@ -20,6 +20,7 @@ import {
 } from "utils/discordEmbed"
 import community from "adapters/community"
 import {
+  capFirst,
   capitalizeFirst,
   getEmoji,
   getMarketplaceCollectionUrl,
@@ -98,9 +99,11 @@ async function composeNFTDetail(
 
     const fields: EmbedFieldData[] = attributesFiltered
       ? attributesFiltered.map((attr: any) => {
-          const val = `${attr.value}\n${attr.frequency ?? ""}`
+          const val = `${capFirst(attr.value)}\n${attr.frequency ?? ""}`
           return {
-            name: `${getIcon(icons, attr.trait_type)} ${attr.trait_type}`,
+            name: `${getIcon(icons, attr.trait_type)} ${capFirst(
+              attr.trait_type
+            )}`,
             value: `${val ? val : "-"}`,
             inline: true,
           }
