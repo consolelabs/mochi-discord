@@ -69,7 +69,8 @@ async function composeNFTDetail(
   data: any,
   msg: Message,
   colName: string,
-  colImage: string
+  colImage: string,
+  chainName?: string
 ) {
   try {
     if (!icons) {
@@ -83,10 +84,9 @@ async function composeNFTDetail(
     const rarityRate = rarity?.rarity
       ? `**${DOT}** ${getRarityEmoji(rarity.rarity)}`
       : ""
-    let description = `**[${name ?? ""}](${getMarketplaceNftUrl(
-      collection_address,
-      token_id
-    )})**`
+    let description = `**[${
+      name ?? `${colName}#${token_id}`
+    }](${getMarketplaceNftUrl(collection_address, token_id)})**`
     description += rarity?.rank
       ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
       : ""
@@ -112,7 +112,7 @@ async function composeNFTDetail(
 
     const embed = composeEmbedMessage(msg, {
       author: [
-        capitalizeFirst(colName),
+        `${capitalizeFirst(colName)}${chainName ? ` (${chainName})` : ""}`,
         ...(colImage.length ? [colImage] : []),
       ],
       description,
@@ -218,7 +218,8 @@ const command: Command = {
             res.data,
             msg,
             collectionDetailRes.data.name,
-            collectionDetailRes.data.image
+            collectionDetailRes.data.image,
+            collectionDetailRes.data.chain?.name
           ),
         ],
         ...addSuggestionIfAny(symbol, tokenId),
@@ -246,7 +247,8 @@ const command: Command = {
               res.data,
               msg,
               collectionDetailRes.data.name,
-              collectionDetailRes.data.image
+              collectionDetailRes.data.image,
+              collectionDetailRes.data.chain?.name
             ),
           ],
           ...components,
@@ -295,7 +297,8 @@ const command: Command = {
               res.data,
               msg,
               detailRes.data.name,
-              detailRes.data.image
+              detailRes.data.image,
+              detailRes.data.chain?.name
             ),
           ],
           ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
