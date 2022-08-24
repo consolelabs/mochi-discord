@@ -185,7 +185,11 @@ class TwitterStream extends InmemoryStorage {
             twitter_username: Array<string>
           }) => {
             const newRuleId = await this.upsertRule({
-              ruleValue: [...config.hashtag, ...config.twitter_username],
+              ruleValue: [
+                ...config.hashtag,
+                ...config.twitter_username,
+                ...config.from_twitter,
+              ],
               guildId: config.guild_id,
               channelId: config.channel_id,
               ruleId: config.rule_id,
