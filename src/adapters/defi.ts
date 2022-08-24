@@ -231,20 +231,20 @@ class Defi {
   }
 
   async compareToken(
-    message: Message,
+    msg: Message,
     baseQ: string,
     targetQ: string,
     days: number
   ): Promise<CoinComparisionData> {
     const resp = await fetch(
-      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&interval=${days}`,
+      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${msg.guildId}&interval=${days}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       }
     )
     if (resp.status !== 200) {
-      throw new InvalidInputError({ message })
+      throw new InvalidInputError({ message: msg })
     }
 
     const json = await resp.json()

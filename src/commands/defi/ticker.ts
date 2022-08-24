@@ -36,6 +36,7 @@ import {
 import { getChartColorConfig, renderChartImage } from "utils/canvas"
 import compare from "./token/compare"
 import config from "adapters/config"
+import { Coin } from "types/defi"
 
 async function renderHistoricalMarketChart({
   msg,
@@ -123,13 +124,13 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   interaction
   const { message } = <{ message: Message }>interaction
   const value = interaction.values[0]
-  const [coinId, coinName, coinQ, authorId] = value.split("_")
+  const [coinId, coinSymbol, coinName, authorId] = value.split("_")
   // message.author.id = authorId
   return await composeTickerEmbed({
     msg: message,
     coinId,
+    coinSymbol,
     coinName,
-    coinQ,
     authorId,
   })
 }
@@ -137,15 +138,15 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
 async function composeTickerEmbed({
   msg,
   coinId,
+  coinSymbol,
   coinName,
-  coinQ,
   authorId,
   hasDefault,
 }: {
   msg: Message
   coinId: string
+  coinSymbol?: string
   coinName?: string
-  coinQ?: string
   authorId?: string
   hasDefault?: boolean
 }) {
@@ -215,7 +216,7 @@ async function composeTickerEmbed({
   if (hasAdministrator(gMember)) {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `confirm_ticker|${coinQ}|${coinId}|${coinName}|${authorId}`,
+        customId: `${coinId}|${coinSymbol}|${coinName}`,
         emoji: getEmoji("approve"),
         style: "PRIMARY",
         label: "Confirm",
@@ -284,20 +285,16 @@ export async function backToTickerSelection(
 }
 
 export async function setDefaultTicker(i: ButtonInteraction) {
-  const [coinQ, coinId, coinName, authorId] = i.customId.split("|").slice(1)
-  if (authorId !== i.user.id) {
-    await i.deferUpdate()
-    return
-  }
+  const [coinId, coinSymbol, coinName] = i.customId.split("|")
   await config.setGuildDefaultTicker({
     guild_id: i.guildId,
-    query: coinQ,
+    query: coinSymbol,
     default_ticker: coinId,
   })
   const embed = getSuccessEmbed({
     msg: i.message as Message,
     title: "Default ticker ENABLED",
-    description: `Next time your server members use $ticker with \`${coinQ}\`, **${coinName}** will be the default selection`,
+    description: `Next time your server members use $ticker with \`${coinSymbol}\`, **${coinName}** will be the default selection`,
   })
   return {
     embeds: [embed],
@@ -316,18 +313,18 @@ export const coinNotFoundResponse = (msg: Message, coinQ: string) => ({
 })
 
 async function composeTickerSelectionResponse(
-  coins: any,
-  coinQ: string,
+  coins: Coin[],
+  coinSymbol: string,
   msg: Message
 ) {
-  const opt = (coin: any): MessageSelectOptionData => ({
+  const opt = (coin: Coin): MessageSelectOptionData => ({
     label: `${coin.name} (${coin.symbol})`,
-    value: `${coin.id}_${coin.name}_${coinQ}_${msg.author.id}`,
+    value: `${coin.id}_${coin.symbol}_${coin.name}_${msg.author.id}`,
   })
   const selectRow = composeDiscordSelectionRow({
     customId: "tickers_selection",
     placeholder: "Make a selection",
-    options: coins.map((c: any) => opt(c)),
+    options: coins.map((c: Coin) => opt(c)),
   })
 
   const found = coins
@@ -338,7 +335,7 @@ async function composeTickerSelectionResponse(
       embeds: [
         composeEmbedMessage(msg, {
           title: `${defaultEmojis.MAG} Multiple tickers found`,
-          description: `Multiple tickers found for \`${coinQ}\`: ${found}.\nPlease select one of the following tokens`,
+          description: `Multiple tickers found for \`${coinSymbol}\`: ${found}.\nPlease select one of the following tokens`,
         }),
       ],
       components: [selectRow, composeDiscordExitButton(msg.author.id)],
@@ -373,23 +370,23 @@ const command: Command = {
       return await composeTickerEmbed({ msg, coinId: coins[0].id })
     }
 
-    // multiple tickers found
-    // 1. get server default ticker
+    // if default ticket was set then respond...
+    const coinSymbol = coins[0].symbol
     const data = await config.getGuildDefaultTicker({
       guild_id: msg.guildId,
-      query: coinQ,
+      query: coinSymbol,
     })
     if (data.ok && data.data.default_ticker) {
       return await composeTickerEmbed({
         msg,
         coinId: data.data.default_ticker,
         hasDefault: true,
-        coinQ,
+        coinSymbol: data.data.query,
       })
     }
 
-    // allow selection
-    return composeTickerSelectionResponse(coins, coinQ, msg)
+    // ...else allow selection
+    return composeTickerSelectionResponse(coins, coinSymbol, msg)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
