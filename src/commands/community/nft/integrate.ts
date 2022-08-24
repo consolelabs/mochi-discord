@@ -34,6 +34,8 @@ async function executeNftIntegrateCommand(args: string[], msg: Message) {
     }
   }
 
+  const colDetail = await checkExistRes.json()
+
   const enableVerseRes = await fetch(
     `${PT_API_BASE_URL}/nft/${address}/support-verse-enable`,
     { method: "PUT" }
@@ -45,9 +47,9 @@ async function executeNftIntegrateCommand(args: string[], msg: Message) {
         embeds: [
           getSuccessEmbed({
             msg,
-            title: "Integrated",
-            description:
-              "Your collection is now ready to take part in our verse (added + enabled)",
+            title: `${colDetail.symbol} integrated`,
+            description: `${colDetail.name} collection is now ready to take part in our verse (added + enabled)`,
+            image: colDetail.image,
           }),
         ],
       },
