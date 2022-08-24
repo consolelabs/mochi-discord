@@ -22,6 +22,9 @@ const command: Command = {
   brief: "Show your balances of the supported tokens",
   category: "Defi",
   run: async function balances(msg: Message) {
+    if (msg.channel.type === "DM") {
+      msg.guildId = ""
+    }
     const { balances, balances_in_usd } = await Defi.discordWalletBalances(
       msg.guildId,
       msg.author.id
@@ -83,9 +86,18 @@ const command: Command = {
       `${getEmoji("money")} \`$${roundFloatNumber(totalBalanceInUSD, 4)}\``
     )
 
-    await msg.author.send({
-      embeds: [embed],
-    })
+    if (msg.channel.type === "DM") {
+      await msg.author.send({
+        embeds: [embed],
+      })
+    } else {
+      return {
+        messageOptions: {
+          embeds: [embed],
+        },
+      }
+    }
+
     return
   },
   getHelpMessage: async (msg) => ({
@@ -98,6 +110,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   aliases: ["balance", "bal", "bals"],
+  allowDM: true,
   colorType: "Defi",
 }
 

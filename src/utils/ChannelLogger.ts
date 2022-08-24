@@ -47,14 +47,17 @@ export class ChannelLogger {
     }
   }
 
-  alert(msg: Message) {
+  alert(msg: Message, error: BotBaseError) {
     if (!this.alertChannel || !msg.content.startsWith(PREFIX)) {
       return
     }
+
     const channel = msg.guild.channels.cache.get(msg.channelId)
-    const description = `**Command:** \`${msg.content}\`\n**Guild**: \`${
-      msg.guild.name
-    }\`\n**Channel**: \`${channel?.name ?? msg.channelId}\``
+    const description = `**Command:** \`${msg.content}\`\n**Guild:** \`${
+      msg.channel.type === "DM" ? "DM" : msg.guild.name
+    }\`\n**Channel:** \`${
+      msg.channel.type === "DM" ? "DM" : channel?.name ?? msg.channelId
+    }\`\n**Error:** \`\`\`${error?.message}\`\`\``
     const embed = getErrorEmbed({
       msg,
       title: "Command error",

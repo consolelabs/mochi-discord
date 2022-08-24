@@ -1,11 +1,9 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
-import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError } from "errors"
 
 const command: Command = {
   id: "defaultrole_info",
@@ -14,7 +12,7 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
-    let description = ""
+    let description = "No default role found, to set one, run `$dr set @<role>`"
     const args = getCommandArguments(msg)
 
     if (args.length !== 2) {
@@ -30,21 +28,26 @@ const command: Command = {
       }
     }
 
-    try {
-      const json = await config.getCurrentDefaultRole(msg.guild.id)
-      if (json.success) {
-        description = `Current default role for newcomers is <@&${json.data.role_id}>`
+    const res = await config.getCurrentDefaultRole(msg.guild.id)
+    if (res.ok) {
+      if (res.data.role_id) {
+        description = `When people first join your server, their base role will be <@&${res.data.role_id}>`
+      } else {
+        description = `No default role set`
       }
-    } catch (error) {
-      ChannelLogger.log(error as BotBaseError)
-      description = "No default role configuration."
+    } else {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: res.error })],
+        },
+      }
     }
 
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            title: "Default Role",
+            title: `${msg.guild.name}'s default role`,
             description,
           }),
         ],

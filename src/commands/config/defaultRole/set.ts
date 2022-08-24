@@ -1,11 +1,13 @@
 import { Command, DefaultRoleEvent } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
-import { getCommandArguments } from "utils/commands"
-import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError } from "errors"
+import { getCommandArguments, parseDiscordToken } from "utils/commands"
 
 const command: Command = {
   id: "defaultrole_set",
@@ -16,28 +18,43 @@ const command: Command = {
   run: async (msg: Message) => {
     let description = ""
     const args = getCommandArguments(msg)
-    const requestData: DefaultRoleEvent = {
-      guild_id: msg.guild.id,
-      role_id: args[2].replace(/\D/g, ""),
+    const { isRole, isId, id } = parseDiscordToken(args[2] ?? "")
+
+    if (!isRole || !isId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              title: "Invalid role",
+              description:
+                "Make sure it is really a role in your server, some common mistakes are: role that is not in your server or some username is the same with the role you're setting.",
+            }),
+          ],
+        },
+      }
     }
 
-    try {
-      const res = await config.configureDefaultRole(requestData)
-      if (res.success) {
-        description = `Role <@&${requestData.role_id}> is now configured as newcomer's default role`
+    const requestData: DefaultRoleEvent = {
+      guild_id: msg.guild.id,
+      role_id: id,
+    }
+
+    const res = await config.configureDefaultRole(requestData)
+    if (res.ok) {
+      description = `Role <@&${requestData.role_id}> is now configured as newcomer's default role`
+    } else {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: res.error })],
+        },
       }
-    } catch (error) {
-      ChannelLogger.log(error as BotBaseError)
-      description = `Role <@&${requestData.role_id}> has already been configured, please try to set another one`
     }
 
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(msg, {
-            title: "Default Role",
-            description,
-          }),
+          getSuccessEmbed({ msg, title: "Default role set", description }),
         ],
       },
     }
@@ -47,6 +64,8 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}dr set @<role_name>`,
+          description:
+            "If you know what you're doing, this command also support passing in the role id (maybe you're a power user, maybe you don't want to alert all users that have that role, etc...)",
           examples: `${PREFIX}dr set @Visitor`,
         }),
       ],
