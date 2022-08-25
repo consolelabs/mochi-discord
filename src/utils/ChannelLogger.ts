@@ -52,11 +52,10 @@ export class ChannelLogger {
       return
     }
 
-    const channel = msg.guild.channels.cache.get(msg.channelId)
     const description = `**Command:** \`${msg.content}\`\n**Guild:** \`${
       msg.channel.type === "DM" ? "DM" : msg.guild.name
     }\`\n**Channel:** \`${
-      msg.channel.type === "DM" ? "DM" : channel?.name ?? msg.channelId
+      msg.channel.type === "DM" ? "DM" : msg.channel.name ?? msg.channelId
     }\`\n**Error:** \`\`\`${error?.message}\`\`\``
     const embed = getErrorEmbed({
       msg,
