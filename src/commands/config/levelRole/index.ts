@@ -50,21 +50,32 @@ const command: Command = {
         },
       }
 
-    await Config.configLevelRole(msg, {
+    const res = await Config.configLevelRole(msg, {
       guild_id: msg.guildId,
       role_id: role.id,
       level,
     })
-
-    return {
-      messageOptions: {
-        embeds: [
-          getSuccessEmbed({
-            msg,
-            description: `Successfully configured role <@&${role.id}> for level ${level}`,
-          }),
-        ],
-      },
+    if (res.ok) {
+      return {
+        messageOptions: {
+          embeds: [
+            getSuccessEmbed({
+              msg,
+              description: `Successfully configured role <@&${role.id}> for level ${level}`,
+            }),
+          ],
+        },
+      }
+    } else {
+      let errEmbed = getErrorEmbed({ msg })
+      if (res.error.includes("Role has been used")) {
+        errEmbed = getErrorEmbed({ msg, description: res.error })
+      }
+      return {
+        messageOptions: {
+          embeds: [errEmbed],
+        },
+      }
     }
   },
   getHelpMessage: async (msg) => ({
