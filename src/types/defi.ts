@@ -65,4 +65,6 @@ export type CoinComparisionData = {
   ratios: number[]
   base_coin: Coin
   target_coin: Coin
+  base_coin_suggestions: Coin[]
+  target_coin_suggestions: Coin[]
 }

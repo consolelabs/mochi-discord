@@ -317,6 +317,7 @@ export async function renderChartImage({
       font: {
         size: 16,
       },
+      color: colorConfig.borderColor,
     },
     grid: {
       borderColor: colorConfig.borderColor,

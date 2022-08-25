@@ -134,6 +134,7 @@ class Config extends Fetcher {
     if (msg.channel.type === "DM") return true
 
     const scopes = await this.getGuildScopes(msg.guildId)
+    if (!scopes) return false
     const cat = category.toLowerCase()
 
     for (const scope of scopes) {
@@ -771,7 +772,9 @@ class Config extends Fetcher {
     guild_id: string
     query: string
   }) {
-    return await this.jsonFetch<{ data: { default_ticker: string } }>(
+    return await this.jsonFetch<{
+      data: { default_ticker: string; query: string }
+    }>(
       `${API_BASE_URL}/configs/default-ticker?guild_id=${params.guild_id}&query=${params.query}`
     )
   }
