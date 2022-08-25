@@ -36,7 +36,8 @@ async function getDestinationAddress(
 
 async function withdraw(msg: Message, args: string[]) {
   const payload = await Defi.getTransferPayload(msg, args)
-  const data = await Defi.discordWalletWithdraw(JSON.stringify(payload), msg)
+  const json = await Defi.discordWalletWithdraw(JSON.stringify(payload), msg)
+  const data = json.data
   const ftmEmoji = getEmoji("ftm")
   const tokenEmoji = getEmoji(payload.cryptocurrency)
   const embedMsg = composeEmbedMessage(msg, {
