@@ -77,7 +77,7 @@ const command: Command = {
       }
     }
 
-    await Config.newGuildNFTRoleConfig({
+    const res = await Config.newGuildNFTRoleConfig({
       guild_id: msg.guildId,
       role_id: roleId,
       nft_collection_id: nft.id,
@@ -85,16 +85,28 @@ const command: Command = {
       token_id: tokenId,
     })
 
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            description: `Successfully configured role <@&${
-              role.id
-            }> for ${amount} ${nft.symbol} ${tokenId ? `No.${tokenId}` : ""}`,
-          }),
-        ],
-      },
+    if (res.ok) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              description: `Successfully configured role <@&${
+                role.id
+              }> for ${amount} ${nft.symbol} ${tokenId ? `No.${tokenId}` : ""}`,
+            }),
+          ],
+        },
+      }
+    } else {
+      let errEmbed = getErrorEmbed({ msg })
+      if (res.error.includes("Role has been used")) {
+        errEmbed = getErrorEmbed({ msg, description: res.error })
+      }
+      return {
+        messageOptions: {
+          embeds: [errEmbed],
+        },
+      }
     }
   },
   getHelpMessage: async (msg) => ({
