@@ -19,6 +19,7 @@ import { DOT, PREFIX } from "utils/constants"
 import { getEmoji, capitalizeFirst, isValidHttpUrl } from "utils/common"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { NFTMetadataAttrIcon } from "types/profile"
+import { logger } from "logger"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -259,10 +260,20 @@ async function composeMyNFTEmbed(
     collectionAddress: userNft.collection_address,
     tokenId: userNft.token_id,
   })
-  const { name, attributes, rarity, image, collection_address, token_id } =
-    nftDetail
+  const {
+    name,
+    attributes,
+    rarity,
+    image,
+    image_cdn,
+    collection_address,
+    token_id,
+  } = nftDetail
 
-  const nftImage = isValidHttpUrl(image) ? image : null
+  let nftImage = image
+  if (!isValidHttpUrl(image)) {
+    nftImage = image_cdn
+  }
   // set rank, rarity score empty if have data
   const rarityRate = rarity?.rarity
     ? `**${DOT}** ${getRarityEmoji(rarity.rarity)}`
@@ -332,7 +343,8 @@ async function getCurrentViewEmbed(params: {
     } else {
       return await composeMyProfileEmbed(msg)
     }
-  } catch {
+  } catch (e) {
+    logger.error(e as string)
     return {
       embeds: [getErrorEmbed({ msg })],
       components: [selectOtherViewComponent()],

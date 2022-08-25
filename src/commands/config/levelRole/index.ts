@@ -1,7 +1,11 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 import list from "./list"
 import remove from "./remove"
@@ -46,31 +50,21 @@ const command: Command = {
         },
       }
 
-    const res = await Config.configLevelRole(msg, {
+    await Config.configLevelRole(msg, {
       guild_id: msg.guildId,
       role_id: role.id,
       level,
     })
-    if (res.ok) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              description: `Successfully configured role <@&${role.id}> for level ${level}`,
-            }),
-          ],
-        },
-      }
-    } else {
-      let errEmbed = getErrorEmbed({ msg })
-      if (res.error.includes("Role has been used")) {
-        errEmbed = getErrorEmbed({ msg, description: res.error })
-      }
-      return {
-        messageOptions: {
-          embeds: [errEmbed],
-        },
-      }
+
+    return {
+      messageOptions: {
+        embeds: [
+          getSuccessEmbed({
+            msg,
+            description: `Successfully configured role <@&${role.id}> for level ${level}`,
+          }),
+        ],
+      },
     }
   },
   getHelpMessage: async (msg) => ({

@@ -1,7 +1,11 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 import list from "./list"
 import remove from "./remove"
@@ -89,7 +93,8 @@ const command: Command = {
       return {
         messageOptions: {
           embeds: [
-            composeEmbedMessage(msg, {
+            getSuccessEmbed({
+              msg,
               description: `Successfully configured role <@&${
                 role.id
               }> for ${amount} ${nft.symbol} ${tokenId ? `No.${tokenId}` : ""}`,

@@ -10,6 +10,18 @@ const command: Command = {
   category: "Community",
   run: async (msg) => {
     const data = await config.getCurrentGmConfig(msg.guildId)
+    if (!data) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              description: `No configuration found`,
+              title: "GM/GN Configuration",
+            }),
+          ],
+        },
+      }
+    }
     return {
       messageOptions: {
         embeds: [
