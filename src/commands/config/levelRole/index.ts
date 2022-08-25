@@ -43,7 +43,7 @@ const command: Command = {
     }
 
     const level = +levelArg
-    if (isNaN(level) || level === 0)
+    if (isNaN(level) || level <= 0)
       return {
         messageOptions: {
           embeds: [getErrorEmbed({ msg, description: "Invalid level" })],
