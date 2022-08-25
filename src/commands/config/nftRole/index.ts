@@ -102,16 +102,15 @@ const command: Command = {
           ],
         },
       }
-    } else {
-      let errEmbed = getErrorEmbed({ msg })
-      if (res.error.includes("Role has been used")) {
-        errEmbed = getErrorEmbed({ msg, description: res.error })
-      }
-      return {
-        messageOptions: {
-          embeds: [errEmbed],
-        },
-      }
+    }
+    let description
+    if (res.error.toLowerCase().includes("role has been used")) {
+      description = res.error
+    }
+    return {
+      messageOptions: {
+        embeds: [getErrorEmbed({ msg, description })],
+      },
     }
   },
   getHelpMessage: async (msg) => ({
