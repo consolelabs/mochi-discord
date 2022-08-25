@@ -1,10 +1,13 @@
 import { Command } from "types/common"
 import {
+  ButtonInteraction,
   HexColorString,
   Message,
   MessageActionRow,
   MessageAttachment,
+  MessageButton,
   MessageSelectMenu,
+  MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
 import { getCommandArguments } from "utils/commands"
@@ -13,11 +16,18 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   composeDaysSelectMenu,
+  composeDiscordSelectionRow,
+  getSuccessEmbed,
 } from "utils/discordEmbed"
 import Defi from "adapters/defi"
-import { CommandChoiceHandler } from "utils/CommandChoiceManager"
+import {
+  CommandChoiceHandler,
+  EphemeralMessage,
+} from "utils/CommandChoiceManager"
 import { getChartColorConfig, renderChartImage } from "utils/canvas"
 import { Coin } from "types/defi"
+import { defaultEmojis, getEmoji, hasAdministrator } from "utils/common"
+import config from "adapters/config"
 export const coinNotFoundResponse = (msg: Message, coinQ: string) => ({
   messageOptions: {
     embeds: [
@@ -37,7 +47,7 @@ async function renderCompareTokenChart({
   ratios: number[]
 }) {
   const image = await renderChartImage({
-    chartLabel: `Price ratio (${times[0]} - ${times[times.length - 1]})`,
+    chartLabel: `Price ratio (${times[0]} to ${times[times.length - 1]})`,
     labels: times,
     data: ratios,
   })
@@ -68,7 +78,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   }
 
   const selectMenu = message.components[0].components[0] as MessageSelectMenu
-  const choices = ["1", "7", "30", "60", "90", "365"]
+  const choices = ["1", "7", "30", "90", "180", "365"]
   selectMenu.options.forEach(
     (opt, i) => (opt.default = i === choices.indexOf(days))
   )
@@ -90,17 +100,139 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   }
 }
 
+export async function setDefaultTicker(i: ButtonInteraction) {
+  const [baseId, baseSymbol, baseName, targetId, targetSymbol, targetName] =
+    i.customId.split("|")
+  await Promise.all([
+    config.setGuildDefaultTicker({
+      guild_id: i.guildId,
+      query: baseSymbol,
+      default_ticker: baseId,
+    }),
+    config.setGuildDefaultTicker({
+      guild_id: i.guildId,
+      query: targetSymbol,
+      default_ticker: targetId,
+    }),
+  ])
+  const embed = getSuccessEmbed({
+    msg: i.message as Message,
+    title: "Default ticker ENABLED",
+    description: `Next time your server members use $ticker with \`${baseSymbol}\` and \`${targetSymbol}\`, **${baseName}** and **${targetName}** will be the default selection`,
+  })
+  return {
+    embeds: [embed],
+  }
+}
+
+const suggestionsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
+  const interaction = msgOrInteraction as SelectMenuInteraction
+  const { message } = <{ message: Message }>interaction
+  const input = interaction.values[0]
+  const [
+    baseCoinId,
+    baseCoinSymbol,
+    baseCoinName,
+    targetCoinId,
+    targetCoinSymbol,
+    targetCoinName,
+    authorId,
+  ] = input.split("_")
+
+  await composeTokenComparisonEmbed(message, baseCoinId, targetCoinId)
+
+  const gMember = message.guild.members.cache.get(authorId ?? message.author.id)
+  let ephemeralMessage: EphemeralMessage
+  if (hasAdministrator(gMember)) {
+    const actionRow = new MessageActionRow().addComponents(
+      new MessageButton({
+        customId: `${baseCoinId}|${baseCoinSymbol}|${baseCoinName}|${targetCoinId}|${targetCoinSymbol}|${targetCoinName}`,
+        emoji: getEmoji("approve"),
+        style: "PRIMARY",
+        label: "Confirm",
+      })
+    )
+    ephemeralMessage = {
+      embeds: [
+        composeEmbedMessage(message, {
+          title: "Set default ticker",
+          description: `Do you want to set **${baseCoinName}** and **${targetCoinName}** as your server default tickers?\nNo further selection next time use \`$ticker\``,
+        }),
+      ],
+      components: [actionRow],
+      buttonCollector: setDefaultTicker,
+    }
+  }
+
+  return {
+    ...(await composeTokenComparisonEmbed(message, baseCoinId, targetCoinId)),
+    ephemeralMessage,
+  }
+}
+
+async function composeSuggestionsResponse(
+  msg: Message,
+  baseQ: string,
+  targetQ: string,
+  baseSuggestions: Coin[],
+  targetSuggestions: Coin[]
+) {
+  const opt = (base: Coin, target: Coin): MessageSelectOptionData => ({
+    label: `${base.name} (${base.symbol}) x ${target.name} (${target.symbol})`,
+    value: `${base.id}_${base.symbol}_${base.name}_${target.id}_${target.symbol}_${target.name}_${msg.author.id}`,
+  })
+  const options = baseSuggestions
+    .map((b) => targetSuggestions.map((t) => opt(b, t)))
+    .flat()
+    .slice(0, 25) // discord allow maximum 25 options
+  const selectRow = composeDiscordSelectionRow({
+    customId: "compare_suggestions_selection",
+    placeholder: "Make a selection",
+    options,
+  })
+
+  const embed = composeEmbedMessage(msg, {
+    title: `${defaultEmojis.MAG} Multiple options found`,
+    description: `${options.length} options found for \`${baseQ}/${targetQ}\`.\nPlease select one of the following options below`,
+  })
+
+  return {
+    messageOptions: {
+      embeds: [embed],
+      components: [selectRow, composeDiscordExitButton(msg.author.id)],
+    },
+    commandChoiceOptions: {
+      userId: msg.author.id,
+      guildId: msg.guildId,
+      channelId: msg.channelId,
+      handler: suggestionsHandler,
+    },
+  }
+}
+
 async function composeTokenComparisonEmbed(
   msg: Message,
-  baseCoinId: string,
-  targetCoinId: string
+  baseQ: string,
+  targetQ: string
 ) {
-  const { times, ratios, base_coin, target_coin } = await Defi.compareToken(
-    msg,
-    baseCoinId,
-    targetCoinId,
-    7
-  )
+  const {
+    times,
+    ratios,
+    base_coin,
+    target_coin,
+    base_coin_suggestions,
+    target_coin_suggestions,
+  } = await Defi.compareToken(msg, baseQ, targetQ, 7)
+
+  if (base_coin_suggestions || target_coin_suggestions) {
+    return await composeSuggestionsResponse(
+      msg,
+      baseQ,
+      targetQ,
+      base_coin_suggestions,
+      target_coin_suggestions
+    )
+  }
 
   const coinInfo = (coin: Coin) =>
     `Rank: \`#${coin.market_cap_rank}\``
@@ -114,12 +246,14 @@ async function composeTokenComparisonEmbed(
           "usd"
         ].toLocaleString()}\``
       )
+  const currentRatio = ratios?.[ratios?.length - 1] ?? 0
 
-  const embedMsg = composeEmbedMessage(msg, {
-    color: getChartColorConfig(baseCoinId).borderColor as HexColorString,
+  const embed = composeEmbedMessage(msg, {
+    color: getChartColorConfig(baseQ).borderColor as HexColorString,
     author: [`${base_coin.name} vs. ${target_coin.name}`],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
+    description: `**Ratio**: \`${currentRatio}\``,
   })
     .addField(base_coin.name, coinInfo(base_coin), true)
     .addField(target_coin.name, coinInfo(target_coin), true)
@@ -127,14 +261,14 @@ async function composeTokenComparisonEmbed(
   const chart = await renderCompareTokenChart({ times, ratios })
   const selectRow = composeDaysSelectMenu(
     "compare_token_selection",
-    `${baseCoinId}_${targetCoinId}`,
-    [1, 7, 14, 30, 90]
+    `${baseQ}_${targetQ}`,
+    [1, 7, 30, 90, 180, 365]
   )
 
   return {
     messageOptions: {
       files: [chart],
-      embeds: [embedMsg],
+      embeds: [embed],
       components: [selectRow, composeDiscordExitButton(msg.author.id)],
     },
     commandChoiceOptions: {

@@ -16,8 +16,9 @@ import { API_BASE_URL } from "utils/constants"
 import Config from "./config"
 import { logger } from "logger"
 import { InsufficientBalanceError } from "errors/InsufficientBalanceError"
+import { Fetcher } from "./fetcher"
 
-class Defi {
+class Defi extends Fetcher {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
     let targets = args
       .slice(1, args.length)
@@ -124,21 +125,19 @@ class Defi {
   }
 
   public async discordWalletWithdraw(body: string, msg: Message) {
-    const resp = await fetch(`${API_BASE_URL}/defi/withdraw`, {
+    const json = await this.jsonFetch(`${API_BASE_URL}/defi/withdraw`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
     })
-
-    const json = await resp.json()
-    if (json.error.includes("balance is not enough")) {
-      throw new InsufficientBalanceError({
-        discordId: msg.author.id,
-        message: msg,
-        errorMsg: "Your balance is not enough to complete the transaction",
-      })
-    }
-    if (json.error !== undefined) {
+    if (!json.ok) {
+      if (json.error.includes("balance is not enough")) {
+        throw new InsufficientBalanceError({
+          discordId: msg.author.id,
+          message: msg,
+          errorMsg: "Your balance is not enough to complete the transaction",
+        })
+      }
       throw new Error(json.error)
     }
     return json
@@ -231,20 +230,20 @@ class Defi {
   }
 
   async compareToken(
-    message: Message,
+    msg: Message,
     baseQ: string,
     targetQ: string,
     days: number
   ): Promise<CoinComparisionData> {
     const resp = await fetch(
-      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&interval=${days}`,
+      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${msg.guildId}&interval=${days}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       }
     )
     if (resp.status !== 200) {
-      throw new InvalidInputError({ message })
+      throw new InvalidInputError({ message: msg })
     }
 
     const json = await resp.json()

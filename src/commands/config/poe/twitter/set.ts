@@ -157,7 +157,7 @@ const command: Command = {
               twitter_username: triggerKeywords.filter((k) =>
                 k.startsWith(handlePrefix)
               ),
-              from_username: triggerKeywords.filter((k) =>
+              from_twitter: triggerKeywords.filter((k) =>
                 k.startsWith(fromPrefix)
               ),
             }),
