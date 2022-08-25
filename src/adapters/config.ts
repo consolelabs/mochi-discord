@@ -404,18 +404,11 @@ class Config extends Fetcher {
     msg: Message,
     body: { guild_id: string; role_id: string; level: number }
   ) {
-    const res = await fetch(`${API_BASE_URL}/configs/level-roles`, {
+    return this.jsonFetch(`${API_BASE_URL}/configs/level-roles`, {
+      autoWrap500Error: false,
       method: "POST",
       body: JSON.stringify(body),
     })
-    if (res.status !== 200) {
-      throw new Error(`failed to config level role - guild ${body.guild_id}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
   }
 
   public async getGuildLevelRoleConfigs(msg: Message, guildId: string) {
@@ -484,18 +477,11 @@ class Config extends Fetcher {
     number_of_tokens: number
     token_id: string | null
   }) {
-    const res = await fetch(`${API_BASE_URL}/configs/nft-roles`, {
+    return this.jsonFetch(`${API_BASE_URL}/configs/nft-roles`, {
+      autoWrap500Error: false,
       method: "POST",
       body: JSON.stringify(body),
     })
-    if (res.status !== 201) {
-      throw new Error(`failed to config nft role - guild ${body.guild_id}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
   }
 
   public async getGuildNFTRoleConfigs(guildId: string) {
