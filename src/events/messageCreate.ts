@@ -19,6 +19,8 @@ export const handleNormalMessage = async (message: Message) => {
   const body = {
     author: {
       id: message.author.id,
+      avatar: message.author.avatarURL(),
+      username: message.author.username,
     },
     guild_id: message.guildId,
     channel_id: message.channelId,
