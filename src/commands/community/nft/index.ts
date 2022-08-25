@@ -41,6 +41,7 @@ const command: Command = {
   colorType: "Market",
   minArguments: 3,
   canRunWithoutAction: true,
+  aliases: ["mochi"],
 }
 
 export default command

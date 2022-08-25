@@ -1,6 +1,6 @@
 import { InvalidInputError } from "errors"
 import { Command } from "types/common"
-import { getEmoji } from "utils/common"
+import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
@@ -29,6 +29,7 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
+            author: ["GM / GN", getEmojiURL(emojis["APPROVE"])],
             description: `Successfully configure ${channelArg} as GM/GN channel ${getEmoji(
               "good_morning"
             )}`,
