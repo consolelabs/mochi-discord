@@ -3,7 +3,6 @@ import {
   Message,
   MessageActionRow,
   MessageSelectMenu,
-  EmbedFieldData,
   MessageOptions,
   MessageSelectOptionData,
 } from "discord.js"
@@ -12,44 +11,14 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   getPaginationRow,
-  justifyEmbedFields,
   listenForPaginateAction,
 } from "utils/discordEmbed"
-import { DOT, PREFIX } from "utils/constants"
-import { getEmoji, capitalizeFirst, isValidHttpUrl } from "utils/common"
+import { PREFIX } from "utils/constants"
+import { getEmoji } from "utils/common"
 import { MessageComponentTypes } from "discord.js/typings/enums"
-import { NFTMetadataAttrIcon } from "types/profile"
 import { logger } from "logger"
-
-const rarityColors: Record<string, string> = {
-  COMMON: "#939393",
-  UNCOMMON: "#22d489",
-  RARE: "#02b3ff",
-  EPIC: "#9802f6",
-  LEGENDARY: "#ff8001",
-  MYTHIC: "#ed2939",
-}
-
-function getRarityEmoji(rarity: string) {
-  const rarities = Object.keys(rarityColors)
-  rarity = rarities[rarities.indexOf(rarity.toUpperCase())] ?? "common"
-  return Array.from(Array(4).keys())
-    .map((k) => getEmoji(`${rarity}${k + 1}`))
-    .join("")
-}
-
-function getIcon(iconList: NFTMetadataAttrIcon[], iconName: string): string {
-  if (!iconList) {
-    return getEmoji(iconName)
-  }
-  const icon = iconList.find((i) => i.trait_type === iconName)
-
-  if (icon) {
-    return icon.discord_icon
-  }
-
-  return getEmoji(iconName)
-}
+import { composeNFTDetail } from "commands/community/nft/query"
+import community from "adapters/community"
 
 function selectCollectionComponent(
   collections: {
@@ -212,9 +181,28 @@ async function composeMyNFTEmbed(
     msg.guildId ?? "",
     msg.author.id
   )
-  let userAddress = userProfile.user_wallet?.address
+  const userAddress = userProfile.user_wallet?.address
   if (!userAddress || !userAddress.length) {
-    userAddress = "N/A"
+    const verifyChannel = await community.getVerifyWalletChannel(
+      msg.guildId ?? ""
+    )
+    let verifyCTA = ""
+    if (verifyChannel.data?.verify_channel_id) {
+      verifyCTA = `To link, just go to <#${verifyChannel.data.verify_channel_id}> and follow the instructions.`
+    } else {
+      verifyCTA =
+        "It seems that this server doesn't have a channel to verify wallet, please contact administrators, thank you."
+    }
+
+    return {
+      embeds: [
+        getErrorEmbed({
+          msg,
+          title: "Wallet address needed",
+          description: `Your account doesn't have a wallet associated.\n${verifyCTA}`,
+        }),
+      ],
+    }
   }
 
   const { data: userNftCollections } = await profile.getUserNFTCollection({
@@ -259,64 +247,12 @@ async function composeMyNFTEmbed(
     return { embeds: [embed], components: [selectOtherViewComponent()] }
   }
 
-  const icons = await profile.getNFTMetadataAttrIcon()
-
   const userNft = userNfts[0]
   const nftDetail = await profile.getNFTDetails({
     collectionAddress: userNft.collection_address,
     tokenId: userNft.token_id,
   })
-  const {
-    name,
-    attributes,
-    rarity,
-    image,
-    image_cdn,
-    collection_address,
-    token_id,
-  } = nftDetail
-
-  let nftImage = image
-  if (!isValidHttpUrl(image)) {
-    nftImage = image_cdn ?? ""
-  }
-  // set rank, rarity score empty if have data
-  const rarityRate = rarity?.rarity
-    ? `**${DOT}** ${getRarityEmoji(rarity.rarity)}`
-    : ""
-  let description = `**[${
-    name ?? ""
-  }](https://getmochi.co/nfts/${collection_address}/${token_id})**`
-  description += rarity?.rank
-    ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
-    : ""
-
-  const attributesFiltered = attributes?.filter(
-    (obj: { trait_type: string }) => {
-      return obj.trait_type !== ""
-    }
-  )
-
-  const fields: EmbedFieldData[] = attributesFiltered
-    ? attributesFiltered.map((attr) => {
-        const val = `${attr.value}\n${attr.frequency ?? ""}`
-        return {
-          name: `${getIcon(icons, attr.trait_type)} ${attr.trait_type}`,
-          value: `${val ? val : "-"}`,
-          inline: true,
-        }
-      })
-    : []
-  let embed = composeEmbedMessage(msg, {
-    author: [
-      capitalizeFirst(`${colName} (${page + 1}/${totalPage})`),
-      ...(colImage.length ? [colImage] : []),
-    ],
-    description,
-    image: nftImage,
-    color: rarityColors[rarity?.rarity?.toUpperCase() ?? "COMMON"],
-  }).addFields(fields)
-  embed = justifyEmbedFields(embed, 3)
+  const embed = await composeNFTDetail(nftDetail, msg, colName, colImage)
 
   return {
     embeds: [embed],
@@ -411,11 +347,7 @@ const command: Command = {
       true
     )
 
-    return {
-      messageOptions: {
-        embeds: [],
-      },
-    }
+    return null
   },
   getHelpMessage: async (msg) => {
     return {
