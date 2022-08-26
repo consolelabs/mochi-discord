@@ -54,11 +54,14 @@ const command: Command = {
     }
 
     const amount = +amountArg
-    if (isNaN(amount))
+    if (Number.isNaN(amount) || amount <= 0 || amount >= Infinity)
       return {
         messageOptions: {
           embeds: [
-            getErrorEmbed({ msg, description: "amount has to be a number" }),
+            getErrorEmbed({
+              msg,
+              description: "Amount has to be a positive number",
+            }),
           ],
         },
       }
