@@ -15,7 +15,7 @@ export class CommandIsNotScopedError extends BotBaseError {
     this.name = "Command is not scoped"
     const channel = message.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild.name,
+      guild: message.guild?.name,
       channel: channel.name,
       user: message.author.tag,
       data: { category, command },

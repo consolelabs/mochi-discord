@@ -18,6 +18,18 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const symbol = interaction.values[0]
+  if (!message.guildId) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            msg: message,
+            description: "This command must be run in a Guild",
+          }),
+        ],
+      },
+    }
+  }
 
   await Config.updateTokenConfig({
     guild_id: message.guildId,
@@ -44,6 +56,18 @@ const command: Command = {
   onlyAdministrator: true,
   category: "Community",
   run: async function (msg) {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const gTokens = await Config.getGuildTokens(msg.guildId)
     if (!gTokens || !gTokens.length)
       return {

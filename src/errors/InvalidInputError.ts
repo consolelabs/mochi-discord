@@ -10,7 +10,7 @@ export class InvalidInputError extends BotBaseError {
     this.name = "Invalid input error"
     const channel = message.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild.name,
+      guild: message.guild?.name,
       channel: channel.name,
       user: message.author.tag,
     })

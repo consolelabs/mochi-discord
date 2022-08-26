@@ -10,6 +10,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const data: any[] = await Config.getGuildLevelRoleConfigs(msg, msg.guildId)
     if (!data || !data.length) {
       return {

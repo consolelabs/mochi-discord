@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { Token } from "types/defi"
 import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 import chunk from "lodash.chunk"
 
@@ -12,6 +12,18 @@ const command: Command = {
   brief: "View your server's tokens list",
   category: "Community",
   run: async (msg) => {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const rawData = await Config.getGuildTokens(msg.guildId)
     if (!rawData || !rawData.length)
       return {

@@ -17,7 +17,11 @@ import Defi from "adapters/defi"
 import NodeCache from "node-cache"
 import dayjs from "dayjs"
 import { DiscordWalletTransferRequest } from "types/defi"
-import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getExitButton,
+} from "utils/discordEmbed"
 
 const airdropCache = new NodeCache({
   stdTTL: 180,
@@ -60,7 +64,7 @@ export async function confirmAirdrop(
   const endTime = dayjs()
     .add(+duration, "second")
     .toDate()
-  const originalAuthor = await msg.guild.members.fetch(authorId)
+  const originalAuthor = await msg.guild?.members.fetch(authorId)
   const airdropEmbed = composeEmbedMessage(msg, {
     title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
     description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(
@@ -128,7 +132,7 @@ async function checkExpiredAirdrop(
           ? "has not been collected by anyone :person_shrugging:."
           : `has been collected by ${getParticipantsStr(participants)}!`
 
-      if (participants.length > 0) {
+      if (participants.length > 0 && msg.guildId) {
         const req: DiscordWalletTransferRequest = {
           sender: authorId,
           recipients: participants.map((p) =>
@@ -144,7 +148,7 @@ async function checkExpiredAirdrop(
         await Defi.discordWalletTransfer(JSON.stringify(req), msg)
       }
 
-      const originalAuthor = await msg.guild.members.fetch(authorId)
+      const originalAuthor = await msg.guild?.members.fetch(authorId)
       msg.edit({
         embeds: [
           composeEmbedMessage(msg, {
@@ -217,6 +221,18 @@ const command: Command = {
   brief: "Leave a packet of coins for anyone to pick up",
   category: "Defi",
   run: async function (msg: Message) {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const args = getCommandArguments(msg)
     const payload = await Defi.getTransferPayload(msg, args)
     // check balance
@@ -240,7 +256,7 @@ const command: Command = {
 
     // ---------------
     const tokenEmoji = getEmoji(payload.cryptocurrency)
-    const coin = await Defi.getCoin(msg, payload.token.coin_gecko_id)
+    const coin = await Defi.getCoin(msg, payload.token?.coin_gecko_id ?? "")
     const currentPrice = roundFloatNumber(coin.market_data.current_price["usd"])
     const amountDescription = `${tokenEmoji} **${roundFloatNumber(
       payload.amount,
@@ -250,7 +266,7 @@ const command: Command = {
       4
     )})`
 
-    const describeRunTime = (duration: number) => {
+    const describeRunTime = (duration = 0) => {
       const hours = Math.floor(duration / 3600)
       const mins = Math.floor((duration - hours * 3600) / 60)
       const secs = duration % 60
@@ -290,8 +306,8 @@ const command: Command = {
             payload.amount,
             currentPrice * payload.amount,
             payload.cryptocurrency,
-            payload.opts?.duration,
-            payload.opts?.maxEntries
+            payload.opts?.duration ?? 0,
+            payload.opts?.maxEntries ?? 0
           ),
         ],
       },

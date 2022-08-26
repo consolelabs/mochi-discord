@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import Community from "adapters/community"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
@@ -14,9 +14,15 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const inviterID =
       args.length === 3 ? args[2].replace(/<@|>/g, "") : msg.author.id
-
+    if (!msg.guild?.id) {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Guild ID is invalid" })],
+        },
+      }
+    }
     const data = await Community.getUserInvitesAggregation(
-      msg.guild.id,
+      msg.guild?.id,
       inviterID
     )
 

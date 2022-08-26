@@ -133,7 +133,7 @@ export function composeEmbedMessage(
     footer = [],
     timestamp = null,
     image,
-    author,
+    author: _author = [],
     originalMsgAuthor,
     usage,
     examples,
@@ -141,6 +141,7 @@ export function composeEmbedMessage(
     includeCommandsList,
     actions,
   } = props
+  const author = _author.map((a) => a ?? "").filter(Boolean)
   const commandObj = getCommandObject(msg)
   const actionObj = getActionCommand(msg)
   const isSpecificHelpCommand = specificHelpCommand(msg)
@@ -148,7 +149,7 @@ export function composeEmbedMessage(
   if (includeCommandsList) {
     description += `\n\n${getCommandsList(
       getEmoji("reply" ?? "╰ "),
-      actions ?? commandObj.actions
+      actions ?? commandObj?.actions ?? {}
     )}`
   }
 
@@ -171,15 +172,15 @@ export function composeEmbedMessage(
     embed
       .setFooter(
         getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
-        authorAvatarURL
+        authorAvatarURL || undefined
       )
       .setTimestamp(timestamp ?? new Date())
   }
   if (description) embed.setDescription(description)
   if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)
-  if (author?.length === 1) embed.setAuthor(author[0])
-  if (author?.length === 2) embed.setAuthor(author[0], author[1])
+  if (author.length === 1) embed.setAuthor(author[0])
+  if (author.length === 2) embed.setAuthor(author[0], author[1])
 
   // embed fields
   const aliases = (actionObj ?? commandObj)?.aliases
@@ -193,7 +194,7 @@ export function composeEmbedMessage(
   return embed
 }
 
-function getCommandColor(commandObj: Command) {
+function getCommandColor(commandObj: Command | null) {
   return embedsColors[commandObj?.colorType ?? "Command"]
 }
 
@@ -365,7 +366,7 @@ export function listenForSuggestionAction(
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
       const value = i.customId.split("-").pop()
-      await onAction(value, i)
+      await onAction(value ?? "", i)
     })
     .on("end", () => {
       replyMsg.edit({ components: [] })

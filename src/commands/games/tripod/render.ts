@@ -174,7 +174,7 @@ async function loadAssets(message: Message) {
       template = await loadImage("src/assets/triple-town/template.png")
     }
 
-    if (Object.keys(assets.images).length === 0) {
+    if (Object.keys(assets.images ?? {}).length === 0) {
       const promises = Object.entries(mappings).map(
         async ([id, { noHighlight, image: imageUrl }]) => {
           const image = await loadImage(
@@ -186,19 +186,23 @@ async function loadAssets(message: Message) {
               `src/assets/triple-town/pieces/highlighted/${imageUrl}`
             )
           }
-          assets.images[id as unknown as PieceEnum] = {
-            image,
-            ...(highlighted && !noHighlight ? { highlighted } : {}),
+          if (assets.images) {
+            assets.images[id as unknown as PieceEnum] = {
+              image,
+              ...(highlighted && !noHighlight ? { highlighted } : {}),
+            }
           }
         }
       )
       await Promise.all(promises)
     }
     if (templateMode) {
-      if (Object.keys(assets.numbers).length === 0) {
+      if (Object.keys(assets.numbers ?? {}).length === 0) {
         const promises = numToText.map(async (n) => {
           const image = await loadImage(`src/assets/triple-town/${n}.png`)
-          assets.numbers[n as keyof typeof assets.numbers] = image
+          if (assets.numbers) {
+            assets.numbers[n as keyof typeof assets.numbers] = image
+          }
         })
         await Promise.all(promises)
       }
@@ -353,7 +357,7 @@ function drawShop(ctx: CanvasRenderingContext2D) {
   y += 50
 
   shopItems.forEach((item, idx) => {
-    ctx.drawImage(assets.images[item.id].image, x, y, itemSize, itemSize)
+    ctx.drawImage(assets.images?.[item.id]?.image, x, y, itemSize, itemSize)
     ctx.font = "45px Whitney"
     ctx.fillStyle = "#ffffff"
     fillWrappedText(
@@ -382,7 +386,7 @@ function drawShop(ctx: CanvasRenderingContext2D) {
       shop.w - 50 - itemSize - 32
     )
     const numbering =
-      assets.numbers[numToText[idx] as keyof typeof assets.numbers]
+      assets.numbers?.[numToText[idx] as keyof typeof assets.numbers]
     if (numbering) {
       ctx.drawImage(
         numbering,
@@ -402,11 +406,11 @@ function drawPieces(ctx: CanvasRenderingContext2D, game: Game) {
 
   game.state.board.forEach((row, i) => {
     row.forEach((cell, j) => {
-      let image = assets.images[cell.id].image
+      let image = assets.images?.[cell.id]?.image
       if (i === 0 && j === 0) {
-        image = assets.images[game.state.swapPiece?.id ?? empty.id].image
+        image = assets.images?.[game.state.swapPiece?.id ?? empty.id]?.image
       } else if (j === x && i === y) {
-        const highlighted = assets.images[lastPiece.id].highlighted
+        const highlighted = assets.images?.[lastPiece.id]?.highlighted
         if (highlighted) {
           image = highlighted
         }
@@ -493,7 +497,7 @@ function drawCurrentPiece(ctx: CanvasRenderingContext2D, game: Game) {
       "#222428"
     )
   } else {
-    const pieceImage = assets.images[game.state.currentPiece.id].image
+    const pieceImage = assets.images?.[game.state.currentPiece.id]?.image
     ctx.drawImage(pieceImage, 0, (170 - 10) / 2 - 96, 192, 192)
     ctx.fillStyle = "#ffffff"
     ctx.font = "bold 60px Whitney"

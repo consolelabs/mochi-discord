@@ -12,7 +12,7 @@ const command: Command = {
   category: "Community",
   run: async function link(msg: Message) {
     const inviteInput = {
-      guild_id: msg.guild.id,
+      guild_id: msg.guild?.id,
       member_id: msg.author.id,
     } as InvitesInput
     const { data } = await Community.getInvites(inviteInput)
@@ -30,10 +30,10 @@ const command: Command = {
 
     const embedMsg = composeEmbedMessage(msg, {
       title: `${msg.author.username}'s invite link`,
-      thumbnail: msg.author.avatarURL(),
+      thumbnail: msg.author.avatarURL() || undefined,
     }).addField(
       `https://discord.gg/${data[0]}`,
-      `Invite link for this server ${msg.guild.name}`
+      `Invite link for this server ${msg.guild?.name}`
     )
     return {
       messageOptions: {

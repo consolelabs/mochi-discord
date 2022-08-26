@@ -20,7 +20,7 @@ async function getDestinationAddress(
     filter,
   })
   const userReply = collected.first()
-  if (!userReply.content.trim().startsWith("0x")) {
+  if (userReply && !userReply.content.trim().startsWith("0x")) {
     await userReply.reply({
       embeds: [
         getErrorEmbed({
@@ -31,7 +31,7 @@ async function getDestinationAddress(
     })
     return await getDestinationAddress(msg, dm)
   }
-  return userReply.content.trim()
+  return userReply?.content.trim() ?? ""
 }
 
 async function withdraw(msg: Message, args: string[]) {
@@ -84,9 +84,7 @@ const command: Command = {
     args[3] = await getDestinationAddress(msg, dm)
     await withdraw(msg, args)
 
-    return {
-      messageOptions: null,
-    }
+    return null
   },
   getHelpMessage: async (msg) => {
     let description = `**Send coins to an address.**`

@@ -38,8 +38,8 @@ async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
   // divider
   drawDivider(
     ctx,
-    container.x.from + container.pl,
-    container.x.to - container.pl,
+    container.x.from + (container.pl ?? 0),
+    container.x.to - (container.pl ?? 0),
     0
   )
 
@@ -48,8 +48,8 @@ async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
   ctx.fillStyle = "white"
   const userTitleStr = "Users"
   const userTitle = {
-    x: container.x.from + container.pl,
-    y: container.pt,
+    x: container.x.from + (container.pl ?? 0),
+    y: container.pt ?? 0,
     mb: 20,
   }
   ctx.fillText(userTitleStr, userTitle.x, userTitle.y)
@@ -88,7 +88,7 @@ async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
   }
   ctx.font = "27px Manrope"
   for (const item of leaderboard) {
-    const member: GuildMember | undefined = await msg.guild.members
+    const member: GuildMember | undefined = await msg.guild?.members
       .fetch(item.user_id)
       .catch(() => undefined)
     const usernameStr = member?.user?.username ?? item.user?.username
@@ -191,7 +191,7 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              title: msg.guild.name,
+              title: msg.guild?.name ?? "Ranking",
               description: "No ranking data found",
             }),
           ],
@@ -201,8 +201,8 @@ const command: Command = {
     const { author, leaderboard } = data
     const blank = getEmoji("blank")
     const embed = composeEmbedMessage(msg, {
-      title: `${getEmoji("cup")} ${msg.guild.name}'s Web3 rankings`,
-      thumbnail: msg.guild.iconURL(),
+      title: `${getEmoji("cup")} ${msg.guild?.name}'s Web3 rankings`,
+      thumbnail: msg.guild?.iconURL(),
       description: `${blank}**Your rank:** #${author.guild_rank}\n${blank}**XP:** ${author.total_xp}\n\u200B`,
       image: "attachment://leaderboard.png",
     })

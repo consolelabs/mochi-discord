@@ -43,14 +43,15 @@ async function renderLeaderboard(
   const canvas = createCanvas(container.w, container.h)
   const ctx = canvas.getContext("2d")
   ctx.save()
-  drawRectangle(ctx, container, container.bgColor)
+  const defaultBgColor = "rgba(0, 0, 0, 0)"
+  drawRectangle(ctx, container, container.bgColor ?? defaultBgColor)
   ctx.clip()
 
   // divider
   drawDivider(
     ctx,
-    container.x.from + container.pl,
-    container.x.to - container.pl,
+    container.x.from + (container.pl ?? 0),
+    container.x.to - (container.pl ?? 0),
     0
   )
 
@@ -59,11 +60,11 @@ async function renderLeaderboard(
   ctx.fillStyle = "white"
   const cltTitleStr = "Collection"
   const cltTitle = {
-    x: container.x.from + container.pl,
+    x: container.x.from + (container.pl ?? 0),
     y: container.pt,
     mb: 20,
   }
-  ctx.fillText(cltTitleStr, cltTitle.x, cltTitle.y)
+  ctx.fillText(cltTitleStr, cltTitle.x, cltTitle.y ?? 0)
 
   // volume title
   const volumeTitleStr = `Volume (USD)`
@@ -71,7 +72,7 @@ async function renderLeaderboard(
     x: 650,
     y: cltTitle.y,
   }
-  ctx.fillText(volumeTitleStr, volumeTitle.x, volumeTitle.y)
+  ctx.fillText(volumeTitleStr, volumeTitle.x, volumeTitle.y ?? 0)
 
   // collection name
   const badgeIcon = {
@@ -81,7 +82,7 @@ async function renderLeaderboard(
   }
   const line = {
     x: cltTitle.x,
-    y: cltTitle.y + cltTitle.mb,
+    y: (cltTitle.y ?? 0) + cltTitle.mb,
     h: 40,
     mb: 20,
   }
@@ -152,7 +153,7 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              title: msg.guild.name,
+              title: msg.guild?.name,
               description: "No ranking data found",
             }),
           ],

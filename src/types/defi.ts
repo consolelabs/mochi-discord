@@ -8,7 +8,7 @@ export type DiscordWalletTransferRequest = {
   opts?: { duration: number; maxEntries: number }
   each?: boolean
   all?: boolean
-  token: Token
+  token: Token | null
   transferType: string
 }
 

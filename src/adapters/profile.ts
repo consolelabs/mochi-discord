@@ -74,7 +74,7 @@ class Profile {
     return json.data
   }
 
-  public async getPodTownUser(discordId: string): Promise<PodTownUser> | null {
+  public async getPodTownUser(discordId: string): Promise<PodTownUser | null> {
     const resp = await fetch(
       `${PT_API_SERVER_HOST}/api/v1/user/info?discord_id=${discordId}`,
       {

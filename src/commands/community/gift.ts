@@ -25,6 +25,18 @@ const command: Command = {
         },
       }
     }
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
 
     const xpAmount = parseInt(xpAmountArg)
     if (!xpAmount || xpAmount < 0) {

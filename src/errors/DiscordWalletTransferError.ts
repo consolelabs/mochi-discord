@@ -20,7 +20,7 @@ export class DiscordWalletTransferError extends BotBaseError {
     super()
     this.name = "Discord wallet transfer error"
     this.discordMessage = message
-    this.errorMsg = errorMsg
+    this.errorMsg = errorMsg ?? "Something went wrong"
     const channel = message.channel as TextChannel
     this.message = JSON.stringify({
       guild: message.guild ? message.guild.name : "",

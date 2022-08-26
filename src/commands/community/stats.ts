@@ -5,11 +5,15 @@ import {
   SelectMenuInteraction,
   Message,
 } from "discord.js"
-import { CommandChoiceHandler } from "utils/CommandChoiceManager"
+import {
+  CommandChoiceHandler,
+  CommandChoiceHandlerResult,
+} from "utils/CommandChoiceManager"
 import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
   composeEmbedMessage,
+  getErrorEmbed,
 } from "utils/discordEmbed"
 import Community from "adapters/community"
 
@@ -37,6 +41,15 @@ const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
   const input = interaction.values[0]
   const [type, stat] = input.split("_")
   const countTypeReq = type + "_" + stat
+  if (!message.guildId) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({ msg: message, description: "Guild ID is invalid" }),
+        ],
+      },
+    }
+  }
   await Community.createStatChannel(message.guildId, countTypeReq)
   const successEmbeded = composeEmbedMessage(message, {
     title: `Server Stats\n\n`,
@@ -57,7 +70,7 @@ async function renderStatEmbed(
   msg: Message,
   statId: string,
   interaction: SelectMenuInteraction
-) {
+): Promise<CommandChoiceHandlerResult> {
   let statType = ""
   switch (statId) {
     case "members":
@@ -105,7 +118,7 @@ async function renderStatEmbed(
     },
     commandChoiceOptions: {
       userId: msg.author.id,
-      guildId: msg.guildId,
+      guildId: msg.guildId || undefined,
       channelId: msg.channelId,
       handler: countStatsHandler,
       interaction,
@@ -142,7 +155,7 @@ const command: Command = {
       },
       commandChoiceOptions: {
         userId: msg.author.id,
-        guildId: msg.guildId,
+        guildId: msg.guildId ?? "",
         channelId: msg.channelId,
         handler: statsSelectionHandler,
       },

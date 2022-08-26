@@ -16,6 +16,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     let description = ""
     const args = getCommandArguments(msg)
 
@@ -32,7 +44,7 @@ const command: Command = {
       }
     }
 
-    const res = await config.removeDefaultRoleConfig(msg.guild.id)
+    const res = await config.removeDefaultRoleConfig(msg.guildId)
     if (res.ok) {
       description =
         "Existing users' role will not be affected\nHowever please **NOTE** that from now on new users joining your server won't have a default role anymore.\nTo set a new one, run `$dr set @<role_name>`"

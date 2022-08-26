@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { ColorResolvable, MessageEmbed } from "discord.js"
 import { msgColors } from "utils/common"
 import Profile from "../../../adapters/profile"
@@ -11,6 +11,18 @@ const command: Command = {
   brief: "Show user's gm/gn streak",
   category: "Community",
   run: async (msg) => {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const json = await Profile.getUserGmStreak(msg.author.id, msg.guildId)
     let daysCheckedIcons = ""
 

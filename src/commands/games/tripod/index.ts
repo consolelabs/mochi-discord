@@ -38,6 +38,7 @@ const achievementColor: ColorResolvable = "#c9c96c"
 // const questColor: ColorResolvable = "#6bdbca"
 
 function getEmoji(id?: PieceEnum) {
+  if (!id) return ""
   return `<:_:${tripodEmojis[mappings[id]?.emojiName.toUpperCase()]}>`
 }
 
@@ -494,7 +495,11 @@ const command: Command = {
   category: "Game",
   colorType: "Game",
   run: async function (msg) {
-    if (GAME_TRIPOD_CHANNEL_IDS.includes(msg.channel.id) && msg.content) {
+    if (
+      GAME_TRIPOD_CHANNEL_IDS.includes(msg.channel.id) &&
+      msg.content &&
+      msg.guild
+    ) {
       const session = GameSessionManager.getSession(msg.author.id)
       if (!session) {
         const game = new Game()
@@ -519,9 +524,7 @@ const command: Command = {
         msg.reply(`You're already in a session! Type \`end\` to quit`)
       }
     }
-    return {
-      messageOptions: null,
-    }
+    return null
   },
   getHelpMessage: async (msg) => {
     return {

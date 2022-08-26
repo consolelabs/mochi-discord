@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import community from "adapters/community"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 
 const command: Command = {
   id: "verify_remove",
@@ -9,6 +9,18 @@ const command: Command = {
   brief: "remove verify channel",
   category: "Community",
   run: async function (msg) {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     await community.deleteVerifyWalletChannel(msg.guildId)
     return {
       messageOptions: {
