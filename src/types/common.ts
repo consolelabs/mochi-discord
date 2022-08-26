@@ -34,10 +34,18 @@ export type Command = {
     msg: Message,
     action?: string,
     isAdmin?: boolean
-  ) => Promise<{
-    messageOptions: MessageOptions
-    commandChoiceOptions?: SetOptional<CommandChoiceHandlerOptions, "messageId">
-  } | void>
+  ) => Promise<
+    | {
+        messageOptions: MessageOptions
+        commandChoiceOptions?: SetOptional<
+          CommandChoiceHandlerOptions,
+          "messageId"
+        >
+      }
+    | void
+    | null
+    | undefined
+  >
   getHelpMessage: (
     msg: Message,
     action?: string,
@@ -56,12 +64,12 @@ export type Command = {
 export type EmbedProperties = {
   title?: string
   description?: string
-  thumbnail?: string
+  thumbnail?: string | null
   color?: string | ColorResolvable
   footer?: string[]
   timestamp?: Date | null
   image?: string
-  author?: string[]
+  author?: Array<string | null | undefined>
   originalMsgAuthor?: User
   usage?: string
   examples?: string

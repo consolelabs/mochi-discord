@@ -12,8 +12,8 @@ import ChannelLogger from "utils/ChannelLogger"
 import { ReactionRoleResponse, RoleReactionEvent } from "types/common"
 import config from "adapters/config"
 
-const getRoleById = (msg: Message, roleId: string): Role => {
-  return msg.guild.roles.cache.find((role) => role.id === roleId)
+const getRoleById = (msg: Message, roleId: string): Role | undefined => {
+  return msg.guild?.roles.cache.find((role) => role.id === roleId)
 }
 
 const getReactionIdentifier = (
@@ -23,7 +23,7 @@ const getReactionIdentifier = (
   if (_reaction.emoji.id) {
     reaction = "<:" + _reaction.emoji.identifier.toLowerCase() + ">"
   } else {
-    reaction = _reaction.emoji.name
+    reaction = _reaction.emoji.name ?? ""
   }
   return reaction
 }
@@ -43,7 +43,7 @@ export default {
 
       const msg = _reaction.message as Message
       // check msg config reactionrole
-      const emojiResp = await config.listAllReactionRoles(msg.guild.id)
+      const emojiResp = await config.listAllReactionRoles(msg.guild?.id ?? "")
       const listMessageID =
         emojiResp?.configs?.map((v: any) => v.message_id) || []
       if (!listMessageID.includes(msg.id)) {
@@ -51,7 +51,7 @@ export default {
       }
 
       const event: RoleReactionEvent = {
-        guild_id: msg.guild.id,
+        guild_id: msg.guild?.id ?? "",
         message_id: msg.id,
         reaction: getReactionIdentifier(_reaction),
       }
@@ -60,10 +60,9 @@ export default {
         event
       )
 
-      if (resData?.role?.id) {
-        await msg.guild.members?.cache
-          .get(user.id)
-          ?.roles.remove(getRoleById(msg, resData.role.id))
+      const role = getRoleById(msg, resData.role.id)
+      if (resData?.role?.id && role) {
+        await msg.guild?.members?.cache.get(user.id)?.roles.remove(role)
       }
     } catch (e) {
       const error = e as BotBaseError

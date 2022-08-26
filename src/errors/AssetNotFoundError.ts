@@ -7,7 +7,7 @@ export class AssetNotFoundError extends BotBaseError {
     this.name = `Asset is not found (${assetName})`
     const channel = message.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild.name,
+      guild: message.guild?.name,
       channel: channel.name,
       user: message.author.tag,
       data: { assetName },

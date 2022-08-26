@@ -109,16 +109,13 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
   const actionObject = getActionCommand(message)
   const executingObj = actionObject ?? commandObject
   if (isDM && executingObj.allowDM) return
-  if (
-    !isDM &&
-    (!executingObj.onlyAdministrator || hasAdministrator(message.member))
-  )
-    return
+  const isAdminMember = message.member && hasAdministrator(message.member)
+  if (!isDM && (!executingObj.onlyAdministrator || isAdminMember)) return
 
   throw new CommandNotAllowedToRunError({
     message,
     command: message.content,
-    missingPermissions: isDM ? null : ["Administrator"],
+    missingPermissions: isDM ? undefined : ["Administrator"],
   })
 }
 
@@ -147,7 +144,10 @@ async function executeCommand(
   await message.channel.sendTyping()
   // e.g. $help invite || $invite help || $help invite leaderboard
   if (isSpecificHelpCommand) {
-    await message.reply(await commandObject.getHelpMessage(message, action))
+    const helpMessage = await commandObject.getHelpMessage(message, action)
+    if (helpMessage) {
+      await message.reply(helpMessage)
+    }
     return
   }
 
@@ -166,6 +166,7 @@ async function executeCommand(
 
 async function handleCustomCommands(message: Message, commandKey: string) {
   if (message.channel.type === "DM") return
+  if (message.guildId == null) return
   const customCommands = await guildCustomCommand.listGuildCustomCommands(
     message.guildId
   )
@@ -186,11 +187,14 @@ export default async function handlePrefixedCommand(message: Message) {
   )
 
   const isSpecificHelpCommand = specificHelpCommand(message)
-  const { commandKey, action } = getCommandMetadata(message)
-  const commandObject = commands[commandKey]
+  const { commandKey, action = "" } = getCommandMetadata(message)
+
+  if (!commandKey) return
 
   // handle custom commands
   await handleCustomCommands(message, commandKey)
+
+  const commandObject = commands[commandKey]
 
   // dump command like $BM, $BONE, $test, ...
   if (commandObject === undefined) {
@@ -207,17 +211,24 @@ export default async function handlePrefixedCommand(message: Message) {
     finalCmd,
     args,
     !!actionObject,
-    isSpecificHelpCommand
+    isSpecificHelpCommand ?? false
   )
   if (!valid) {
-    message.content = `${HELP} ${commandKey} ${action ?? ""}`.trimEnd()
+    message.content = `${HELP} ${commandKey} ${action}`.trimEnd()
     const helpMessage = await finalCmd.getHelpMessage(message, action)
-    await message.reply(helpMessage)
+    if (helpMessage) {
+      await message.reply(helpMessage)
+    }
     return
   }
 
   try {
-    await executeCommand(message, finalCmd, action, isSpecificHelpCommand)
+    await executeCommand(
+      message,
+      finalCmd,
+      action,
+      isSpecificHelpCommand ?? false
+    )
   } catch (e) {
     const error = e as BotBaseError
     if (error.handle) {

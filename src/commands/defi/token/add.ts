@@ -12,6 +12,7 @@ import {
   composeDiscordSelectionRow,
   composeEmbedMessage,
   getErrorEmbed,
+  getSuccessEmbed,
 } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 import Defi from "../../../adapters/defi"
@@ -20,6 +21,20 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const symbol = interaction.values[0]
+
+  if (!message.guildId) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            msg: message,
+            description: `Guild ID not found`,
+          }),
+        ],
+        components: [],
+      },
+    }
+  }
 
   await Config.updateTokenConfig({
     guild_id: message.guildId,
@@ -30,7 +45,8 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   return {
     messageOptions: {
       embeds: [
-        composeEmbedMessage(message, {
+        getSuccessEmbed({
+          msg: message,
           description: `Successfully added **${symbol.toUpperCase()}** to server's tokens list.`,
         }),
       ],
@@ -46,6 +62,18 @@ const command: Command = {
   category: "Community",
   onlyAdministrator: true,
   run: async function (msg) {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const tokens = await Defi.getSupportedTokens()
     const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
     const options: MessageSelectOptionData[] = tokens

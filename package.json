@@ -72,7 +72,7 @@
     "triple-pod-game-engine": "^6.0.1",
     "ts-case-convert": "^2.0.2",
     "twitter-api-sdk": "^1.1.0",
-    "type-fest": "^2.10.0",
+    "type-fest": "^2.19.0",
     "uuid": "^8.3.2",
     "web3": "^1.6.0"
   },

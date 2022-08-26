@@ -17,7 +17,19 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
-    const rrList = await config.listAllReactionRoles(msg.guild.id)
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
+    const rrList = await config.listAllReactionRoles(msg.guildId)
     const channelList = msg.guild.channels.cache
       .filter((c) => c.type === "GUILD_TEXT")
       .map((c) => c as TextChannel)
@@ -48,7 +60,7 @@ const command: Command = {
         let emojiValue = ""
         let channelValue = ""
         const embed = composeEmbedMessage(msg, {
-          author: ["Reaction roles", msg.guild.iconURL()],
+          author: ["Reaction roles", msg.guild?.iconURL()],
           withoutFooter: true,
         }).setFooter(`Page ${idx + 1} / ${pages.length}`)
 

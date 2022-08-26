@@ -10,7 +10,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
   constructor({
     message,
     command,
-    missingPermissions,
+    missingPermissions = [],
   }: {
     message: Message
     command: string

@@ -26,6 +26,7 @@ import {
   getMarketplaceCollectionUrl,
   getMarketplaceNftUrl,
   hasAdministrator,
+  isValidHttpUrl,
   shortenHashOrAddress,
 } from "utils/common"
 import { NFTMetadataAttrIcon } from "types/community"
@@ -65,28 +66,39 @@ function getIcon(iconList: NFTMetadataAttrIcon[], iconName: string): string {
   return getEmoji(iconName)
 }
 
-async function composeNFTDetail(
+export async function composeNFTDetail(
   data: any,
   msg: Message,
   colName: string,
-  colImage: string
+  colImage: string,
+  chainName?: string
 ) {
   try {
     if (!icons) {
       icons = await community.getNFTMetadataAttrIcon()
     }
 
-    const { name, attributes, rarity, image, collection_address, token_id } =
-      data
+    const {
+      name,
+      attributes,
+      rarity,
+      image,
+      image_cdn,
+      collection_address,
+      token_id,
+    } = data
 
+    let nftImage = image
+    if (!isValidHttpUrl(image)) {
+      nftImage = image_cdn ?? ""
+    }
     // set rank, rarity score empty if have data
     const rarityRate = rarity?.rarity
       ? `**${DOT}** ${getRarityEmoji(rarity.rarity)}`
       : ""
-    let description = `**[${name ?? ""}](${getMarketplaceNftUrl(
-      collection_address,
-      token_id
-    )})**`
+    let description = `**[${
+      name ?? `${colName}#${token_id}`
+    }](${getMarketplaceNftUrl(collection_address, token_id)})**`
     description += rarity?.rank
       ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
       : ""
@@ -112,22 +124,16 @@ async function composeNFTDetail(
 
     const embed = composeEmbedMessage(msg, {
       author: [
-        capitalizeFirst(colName),
+        `${capitalizeFirst(colName)}${chainName ? ` (${chainName})` : ""}`,
         ...(colImage.length ? [colImage] : []),
       ],
       description,
-      image,
+      image: nftImage,
       color: rarityColors[rarity?.rarity?.toUpperCase()],
     }).addFields(fields)
     return justifyEmbedFields(embed, 3)
   } catch (e: any) {
-    msg.reply({
-      embeds: [
-        getErrorEmbed({
-          msg,
-        }),
-      ],
-    })
+    return getErrorEmbed({ msg, description: e.message })
   }
 }
 
@@ -135,6 +141,9 @@ export async function setDefaultSymbol(i: ButtonInteraction) {
   await i.deferUpdate()
   const [colAddress, symbol, chain, authorId] = i.customId.split("|").slice(1)
   if (authorId !== i.user.id) {
+    return
+  }
+  if (!i.guildId) {
     return
   }
   await config.setGuildDefaultSymbol({
@@ -183,6 +192,9 @@ const command: Command = {
   command: "query",
   brief: "View NFT token info",
   category: "Community",
+  getHelpMessage: async () => {
+    return {}
+  },
   run: async function (msg) {
     const args = getCommandArguments(msg)
     const symbol = args
@@ -190,7 +202,7 @@ const command: Command = {
       .reduce((prev, next) => prev + "%20" + next)
       .toUpperCase()
     const tokenId = args[args.length - 1]
-    let res = await community.getNFTDetail(symbol, tokenId, msg.guildId)
+    let res = await community.getNFTDetail(symbol, tokenId, msg.guildId ?? "")
 
     if (!res.ok) {
       return {
@@ -208,21 +220,24 @@ const command: Command = {
       }
     }
 
-    let replyMsg: Message
+    let replyMsg: Message | null = null
     // great, we have data
     if (res.data.collection_address) {
       const collectionDetailRes = await community.getNFTCollectionDetail(symbol)
-      replyMsg = await msg.reply({
-        embeds: [
-          await composeNFTDetail(
-            res.data,
-            msg,
-            collectionDetailRes.data.name,
-            collectionDetailRes.data.image
-          ),
-        ],
-        ...addSuggestionIfAny(symbol, tokenId),
-      })
+      if (collectionDetailRes.ok) {
+        replyMsg = await msg.reply({
+          embeds: [
+            await composeNFTDetail(
+              res.data,
+              msg,
+              collectionDetailRes.data.name,
+              collectionDetailRes.data.image,
+              collectionDetailRes.data.chain?.name
+            ),
+          ],
+          ...addSuggestionIfAny(symbol, tokenId),
+        })
+      }
     } else {
       // ambiguity, check if there is default_symbol first
       if (res.default_symbol) {
@@ -238,26 +253,29 @@ const command: Command = {
         res = await community.getNFTDetail(
           res.default_symbol.address,
           tokenId,
-          msg.guildId
+          msg.guildId ?? ""
         )
-        replyMsg = await msg.reply({
-          embeds: [
-            await composeNFTDetail(
-              res.data,
-              msg,
-              collectionDetailRes.data.name,
-              collectionDetailRes.data.image
-            ),
-          ],
-          ...components,
-        })
+        if (collectionDetailRes.ok) {
+          replyMsg = await msg.reply({
+            embeds: [
+              await composeNFTDetail(
+                res.data,
+                msg,
+                collectionDetailRes.data.name,
+                collectionDetailRes.data.image,
+                collectionDetailRes.data.chain?.name
+              ),
+            ],
+            ...components,
+          })
+        }
       } else {
         // there isn't, so we continue to check for the `suggestions` property
         const embed = getSuggestionEmbed({
           title: `Multiple results for ${symbol}`,
           msg,
           description: `Did you mean one of these instead:\n\n${composeSimpleSelection(
-            res.suggestions?.map(
+            (res.suggestions ?? []).map(
               (s) =>
                 `[\`${s.chain.toUpperCase()}\` - \`${s.name} (${
                   s.symbol
@@ -273,72 +291,82 @@ const command: Command = {
       }
     }
 
-    listenForSuggestionAction(replyMsg, msg.author.id, async (value, i) => {
-      const [colAddress, tokenId, symbol, chain, hasDuplicatedSymbols] =
-        value.split("/")
-      const res = await community.getNFTDetail(colAddress, tokenId, msg.guildId)
-      const detailRes = await community.getNFTCollectionDetail(colAddress)
+    if (replyMsg) {
+      listenForSuggestionAction(replyMsg, msg.author.id, async (value, i) => {
+        const [colAddress, tokenId, symbol, chain, hasDuplicatedSymbols] =
+          value.split("/")
+        const res = await community.getNFTDetail(
+          colAddress,
+          tokenId,
+          msg.guildId ?? ""
+        )
+        const detailRes = await community.getNFTCollectionDetail(colAddress)
 
-      if (!res.ok || !detailRes.ok || !res.data || !detailRes.data) {
-        await i.deferUpdate()
-        await replyMsg.edit({
-          embeds: [
-            getErrorEmbed({
-              msg,
-            }),
-          ],
-        })
-      } else {
-        await replyMsg.edit({
-          embeds: [
-            await composeNFTDetail(
-              res.data,
-              msg,
-              detailRes.data.name,
-              detailRes.data.image
-            ),
-          ],
-          ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
-        })
-        if (
-          hasAdministrator(msg.member) &&
-          !res.default_symbol &&
-          hasDuplicatedSymbols === "true"
-        ) {
-          const actionRow = new MessageActionRow().addComponents(
-            new MessageButton({
-              customId: `confirm_symbol|${colAddress}|${symbol}|${chain}|${msg.author.id}`,
-              emoji: getEmoji("approve"),
-              style: "PRIMARY",
-              label: "Confirm",
-            })
-          )
-          const ephemeralMessage = {
+        if (!res.ok || !detailRes.ok || !res.data || !detailRes.data) {
+          await i.deferUpdate()
+          await replyMsg?.edit({
             embeds: [
-              composeEmbedMessage(msg, {
-                title: "Set default NFT symbol",
-                description: `Do you want to set **${symbol}** as your server default NFT symbol?\nNo further selection next time use \`$nft\``,
+              getErrorEmbed({
+                msg,
               }),
             ],
-            components: [actionRow],
-          }
-          const interactionReply = (await i.reply({
-            fetchReply: true,
-            ephemeral: true,
-            ...ephemeralMessage,
-          })) as Message
-          const collector = interactionReply.createMessageComponentCollector({
-            componentType: MessageComponentTypes.BUTTON,
-            idle: 60000,
           })
-          collector.on("collect", setDefaultSymbol)
-        }
-      }
-    })
+        } else {
+          const shouldAskDefault =
+            hasAdministrator(msg.member) &&
+            !res.default_symbol &&
+            hasDuplicatedSymbols === "true"
 
-    return null
+          if (!shouldAskDefault) {
+            await i.deferUpdate()
+          }
+          await replyMsg?.edit({
+            embeds: [
+              await composeNFTDetail(
+                res.data,
+                msg,
+                detailRes.data.name,
+                detailRes.data.image,
+                detailRes.data.chain?.name
+              ),
+            ],
+            ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
+          })
+          if (shouldAskDefault) {
+            const actionRow = new MessageActionRow().addComponents(
+              new MessageButton({
+                customId: `confirm_symbol|${colAddress}|${symbol}|${chain}|${msg.author.id}`,
+                emoji: getEmoji("approve"),
+                style: "PRIMARY",
+                label: "Confirm",
+              })
+            )
+            const ephemeralMessage = {
+              embeds: [
+                composeEmbedMessage(msg, {
+                  title: "Set default NFT symbol",
+                  description: `Do you want to set **${symbol}** as your server default NFT symbol?\nNo further selection next time use \`$nft\``,
+                }),
+              ],
+              components: [actionRow],
+            }
+            const interactionReply = (await i.reply({
+              fetchReply: true,
+              ephemeral: true,
+              ...ephemeralMessage,
+            })) as Message
+            const collector = interactionReply.createMessageComponentCollector({
+              componentType: MessageComponentTypes.BUTTON,
+              idle: 60000,
+            })
+            collector.on("collect", setDefaultSymbol)
+          }
+        }
+      })
+    }
+
+    return
   },
-  getHelpMessage: async () => null,
   canRunWithoutAction: true,
   colorType: "Market",
   minArguments: 3,

@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import config from "adapters/config"
 
 const command: Command = {
@@ -9,7 +9,31 @@ const command: Command = {
   brief: "GM/GN Configuration",
   category: "Community",
   run: async (msg) => {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const data = await config.getCurrentGmConfig(msg.guildId)
+    if (!data) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              description: `No configuration found`,
+              title: "GM/GN Configuration",
+            }),
+          ],
+        },
+      }
+    }
     return {
       messageOptions: {
         embeds: [

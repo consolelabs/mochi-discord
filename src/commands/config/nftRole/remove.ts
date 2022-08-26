@@ -6,22 +6,26 @@ import {
   composeDiscordExitButton,
   composeEmbedMessage,
   getErrorEmbed,
+  getSuccessEmbed,
 } from "utils/discordEmbed"
-import { MessageSelectOptionData, SelectMenuInteraction } from "discord.js"
-import { msgColors } from "../../../utils/common"
+import {
+  Message,
+  MessageSelectOptionData,
+  SelectMenuInteraction,
+} from "discord.js"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
+  const msg = msgOrInteraction as Message
   await Config.removeGuildNFTRoleConfig(interaction.values[0])
-
   return {
     messageOptions: {
       embeds: [
-        {
-          description: `Remove NFT role configuration successfully!`,
-          color: msgColors.PRIMARY,
-        },
+        getSuccessEmbed({
+          msg,
+          description: "Remove NFT role configuration successfully!",
+        }),
       ],
       components: [],
     },
@@ -36,6 +40,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const configs: any[] = await Config.getGuildNFTRoleConfigs(msg.guildId)
     if (!configs || !configs.length) {
       return {

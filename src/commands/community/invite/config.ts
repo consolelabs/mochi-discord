@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { Message } from "discord.js"
 import { PREFIX } from "utils/constants"
 import Community from "adapters/community"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
@@ -14,8 +14,15 @@ const command: Command = {
   run: async function config(msg: Message) {
     const args = getCommandArguments(msg)
     const logChannel = args[2].replace(/<#|>/g, "")
+    if (!msg.guild?.id) {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Guild ID is invalid" })],
+        },
+      }
+    }
     await Community.configureInvites({
-      guild_id: msg.guild.id,
+      guild_id: msg.guild?.id,
       log_channel: logChannel,
     })
 

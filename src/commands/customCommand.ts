@@ -135,7 +135,7 @@ async function actionExecute(message: Message, action: any) {
   const { messages, embeds, random } = action
   switch (action.type) {
     case "send": {
-      const targetChannel = message.guild.channels.cache.get(
+      const targetChannel = message.guild?.channels.cache.get(
         action.channel_id
       ) as TextChannel
 

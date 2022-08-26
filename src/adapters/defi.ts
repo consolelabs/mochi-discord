@@ -16,8 +16,9 @@ import { API_BASE_URL } from "utils/constants"
 import Config from "./config"
 import { logger } from "logger"
 import { InsufficientBalanceError } from "errors/InsufficientBalanceError"
+import { Fetcher } from "./fetcher"
 
-class Defi {
+class Defi extends Fetcher {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
     let targets = args
       .slice(1, args.length)
@@ -43,6 +44,7 @@ class Defi {
           switch (true) {
             // role
             case target.startsWith("<@&"): {
+              if (!msg.guild?.members) return []
               const members = (await msg.guild.members.fetch()).filter((mem) =>
                 mem.roles.cache.map((role) => role.id).includes(targetId)
               )
@@ -55,12 +57,14 @@ class Defi {
 
             // special role
             case target === "@everyone": {
+              if (!msg.guild?.members) return []
               const members = (await msg.guild.members.fetch()).filter((mem) =>
                 mem.roles.cache.map((role) => role.name).includes("@everyone")
               )
               return members.map((member) => member.user.id)
             }
           }
+          return []
         })
       )
     )
@@ -95,13 +99,10 @@ class Defi {
       case errors[0].includes("insufficient funds for gas"):
         errorMsg = "Insufficient funds for gas"
         break
-      default:
-        errorMsg = null
-        break
     }
     throw new DiscordWalletTransferError({
       discordId: msg.author.id,
-      guildId: msg.guildId,
+      guildId: msg.guildId ?? "",
       message: msg,
       errorMsg,
     })
@@ -124,21 +125,19 @@ class Defi {
   }
 
   public async discordWalletWithdraw(body: string, msg: Message) {
-    const resp = await fetch(`${API_BASE_URL}/defi/withdraw`, {
+    const json = await this.jsonFetch(`${API_BASE_URL}/defi/withdraw`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
     })
-
-    const json = await resp.json()
-    if (json.error.includes("balance is not enough")) {
-      throw new InsufficientBalanceError({
-        discordId: msg.author.id,
-        message: msg,
-        errorMsg: "Your balance is not enough to complete the transaction",
-      })
-    }
-    if (json.error !== undefined) {
+    if (!json.ok) {
+      if (json.error.includes("balance is not enough")) {
+        throw new InsufficientBalanceError({
+          discordId: msg.author.id,
+          message: msg,
+          errorMsg: "Your balance is not enough to complete the transaction",
+        })
+      }
       throw new Error(json.error)
     }
     return json
@@ -231,20 +230,20 @@ class Defi {
   }
 
   async compareToken(
-    message: Message,
+    msg: Message,
     baseQ: string,
     targetQ: string,
     days: number
   ): Promise<CoinComparisionData> {
     const resp = await fetch(
-      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&interval=${days}`,
+      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${msg.guildId}&interval=${days}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       }
     )
     if (resp.status !== 200) {
-      throw new InvalidInputError({ message })
+      throw new InvalidInputError({ message: msg })
     }
 
     const json = await resp.json()
@@ -268,6 +267,7 @@ class Defi {
       case timeStr.endsWith("h"):
         return +timeStr.substring(0, timeStr.length - 1) * 3600
     }
+    return 0
   }
 
   getAirdropOptions(args: string[], discordId: string, msg: Message) {
@@ -279,7 +279,7 @@ class Defi {
     if (![3, 5, 7].includes(args.length)) {
       throw new DiscordWalletTransferError({
         discordId,
-        guildId: msg.guildId,
+        guildId: msg.guildId ?? "",
         message: msg,
         errorMsg: "Invalid airdrop command",
       })
@@ -335,15 +335,13 @@ class Defi {
     args: string[]
   ): Promise<DiscordWalletTransferRequest> {
     const commandObject = getCommandObject(msg)
-    const type = commandObject.command
+    const type = commandObject?.command
     const sender = msg.author.id
-    let amountArg: string,
-      cryptocurrency: string,
+    let amountArg = "",
+      cryptocurrency = "",
       recipients: string[] = [],
       each = false
-    if (msg.channel.type === "DM") {
-      msg.guildId = ""
-    }
+    const guildId = msg.guildId ?? "DM"
     switch (type) {
       case "tip": {
         each = args[args.length - 1].toLowerCase() === "each"
@@ -393,7 +391,7 @@ class Defi {
     if ((!recipients || !recipients.length) && type !== "airdrop") {
       throw new DiscordWalletTransferError({
         discordId: sender,
-        guildId: msg.guildId,
+        guildId,
         message: msg,
         errorMsg: "No valid recipient found!",
       })
@@ -401,11 +399,11 @@ class Defi {
 
     if (type !== "withdraw") {
       for (const recipientId of recipients) {
-        const user = await msg.guild.members.fetch(recipientId)
+        const user = await msg.guild?.members.fetch(recipientId)
         if (!user) {
           throw new DiscordWalletTransferError({
             discordId: sender,
-            guildId: msg.guildId,
+            guildId,
             message: msg,
             errorMsg: `User <@!${recipientId}> not found`,
           })
@@ -417,7 +415,7 @@ class Defi {
     if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
       throw new DiscordWalletTransferError({
         discordId: sender,
-        guildId: msg.guildId,
+        guildId,
         message: msg,
         errorMsg: "Invalid amount",
       })
@@ -428,12 +426,12 @@ class Defi {
         msg.channelId
       }][${type}]: ${sender} - [${recipients.toString()}] | ${amount} ${cryptocurrency}`
     )
-    const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
+    const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
     const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
     if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
       throw new DiscordWalletTransferError({
         discordId: sender,
-        guildId: msg.guildId,
+        guildId,
         message: msg,
         errorMsg: "Unsupported token",
       })
@@ -444,7 +442,7 @@ class Defi {
       recipients,
       amount,
       cryptocurrency,
-      guildId: msg.guildId,
+      guildId,
       channelId: msg.channelId,
       opts:
         type === "airdrop"
@@ -452,7 +450,7 @@ class Defi {
           : undefined,
       all: amountArg === "all",
       token: gTokens[supportedSymbols.indexOf(cryptocurrency)],
-      transferType: type,
+      transferType: type ?? "",
     }
   }
 }

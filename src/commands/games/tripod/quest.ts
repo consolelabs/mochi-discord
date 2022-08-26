@@ -57,9 +57,7 @@ const command: Command = {
     const msgOpts = await composeQuestListEmbed(msg)
     await msg.reply(msgOpts.messageOptions)
 
-    return {
-      messageOptions: null,
-    }
+    return null
   },
   getHelpMessage: async (msg) => ({
     embeds: [

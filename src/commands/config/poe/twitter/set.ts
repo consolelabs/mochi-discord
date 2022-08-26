@@ -1,5 +1,5 @@
 import config from "adapters/config"
-import { TextChannel } from "discord.js"
+import { Channel } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
@@ -22,6 +22,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const args = getCommandArguments(msg)
     const logChannelArg = args[3] ?? ""
     if (
@@ -36,9 +48,9 @@ const command: Command = {
     }
 
     const logChannel = logChannelArg.substring(2, logChannelArg.length - 1)
-    const chan: TextChannel = await msg.guild.channels
+    const chan: Channel | null = await msg.guild.channels
       .fetch(logChannel)
-      .catch(() => undefined)
+      .catch(() => null)
     if (!chan) {
       return {
         messageOptions: {
@@ -112,12 +124,12 @@ const command: Command = {
             keyword.endsWith(">"): {
             if (keyword.startsWith(channelPrefix)) {
               const id = keyword.substring(2, keyword.length - 1)
-              const chan = await msg.guild.channels.fetch(id)
-              return hashtagPrefix + chan.name
+              const chan = await msg.guild?.channels.fetch(id)
+              return hashtagPrefix + chan?.name
             } else {
               const id = keyword.substring(3, keyword.length - 1)
-              const role = await msg.guild.roles.fetch(id)
-              return handlePrefix + role.name
+              const role = await msg.guild?.roles.fetch(id)
+              return handlePrefix + role?.name
             }
           }
           default:
@@ -132,16 +144,18 @@ const command: Command = {
       guildId: msg.guildId,
     })
 
-    await config.setTwitterConfig(msg.guildId, {
-      hashtag: triggerKeywords.filter((k) => k.startsWith(hashtagPrefix)),
-      twitter_username: triggerKeywords.filter((k) =>
-        k.startsWith(handlePrefix)
-      ),
-      from_twitter: triggerKeywords.filter((k) => k.startsWith(fromPrefix)),
-      user_id: msg.author.id,
-      channel_id: chan.id,
-      rule_id: ruleId,
-    })
+    if (ruleId) {
+      await config.setTwitterConfig(msg.guildId, {
+        hashtag: triggerKeywords.filter((k) => k.startsWith(hashtagPrefix)),
+        twitter_username: triggerKeywords.filter((k) =>
+          k.startsWith(handlePrefix)
+        ),
+        from_twitter: triggerKeywords.filter((k) => k.startsWith(fromPrefix)),
+        user_id: msg.author.id,
+        channel_id: chan.id,
+        rule_id: ruleId,
+      })
+    }
 
     return {
       messageOptions: {
@@ -157,7 +171,7 @@ const command: Command = {
               twitter_username: triggerKeywords.filter((k) =>
                 k.startsWith(handlePrefix)
               ),
-              from_username: triggerKeywords.filter((k) =>
+              from_twitter: triggerKeywords.filter((k) =>
                 k.startsWith(fromPrefix)
               ),
             }),

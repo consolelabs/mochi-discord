@@ -10,7 +10,6 @@ import {
   SelectMenuInteraction,
   TextChannel,
 } from "discord.js"
-import { SetOptional, SetRequired } from "type-fest"
 import { inactivityResponse } from "./common"
 
 export type EphemeralMessage = {
@@ -35,26 +34,23 @@ export type CommandChoiceHandlerOptions = {
   userId: string
   messageId: string
   channelId: string
-  guildId: string
+  guildId: string | null
   timeout?: number
   interaction?: ButtonInteraction | SelectMenuInteraction
   data?: any
 }
 
 export class CommandChoiceManager {
-  commands: Map<
-    string,
-    SetRequired<
-      CommandChoiceHandlerOptions,
-      "timeout" | "getInactivityResponse"
-    >
-  > = new Map()
+  commands: Map<string, Partial<CommandChoiceHandlerOptions>> = new Map()
   timeouts: Map<string, NodeJS.Timeout> = new Map()
-  client: Client = null
+  client: Client | null = null
 
   remove(key: string) {
     this.commands.delete(key)
-    clearTimeout(this.timeouts.get(key))
+    const timeoutId = this.timeouts.get(key)
+    if (timeoutId) {
+      global.clearTimeout(timeoutId)
+    }
     this.timeouts.delete(key)
   }
 
@@ -112,23 +108,25 @@ export class CommandChoiceManager {
     interaction,
     getInactivityResponse,
     clearPrevious = true,
-  }: SetOptional<
-    Required<CommandChoiceHandlerOptions>,
-    "interaction" | "data" | "handler"
-  > & {
+  }: Partial<CommandChoiceHandlerOptions> & {
     key: string
     clearPrevious?: boolean
   }) {
     if (!timeout || timeout <= 0) return
     if (clearPrevious) {
-      clearTimeout(this.timeouts.get(key))
+      const timeoutId = this.timeouts.get(key)
+      if (timeoutId) {
+        global.clearTimeout(timeoutId)
+      }
     }
 
-    const guild = await this.client.guilds.fetch(guildId)
-    const user = await this.client.users.fetch(userId)
-    const channel = (await guild.channels.fetch(channelId)) as TextChannel
-    const timeoutId = setTimeout(async () => {
-      const response = await getInactivityResponse(user)
+    const guild = await this.client?.guilds.fetch(guildId ?? "")
+    const user = await this.client?.users.fetch(userId ?? "")
+    const channel = (await guild?.channels.fetch(
+      channelId ?? ""
+    )) as TextChannel
+    const timeoutId = global.setTimeout(async () => {
+      const response = await getInactivityResponse?.(user)
       if (interaction) {
         await interaction.editReply({
           content: "Exited!",
@@ -136,11 +134,13 @@ export class CommandChoiceManager {
           components: [],
         })
       } else {
-        const message = await channel.messages.fetch(messageId)
+        const message = await channel.messages.fetch(messageId ?? "")
         await message.delete()
       }
 
-      channel.send(response)
+      if (response) {
+        channel.send(response)
+      }
       this.remove(key)
     }, timeout)
 

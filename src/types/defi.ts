@@ -8,7 +8,7 @@ export type DiscordWalletTransferRequest = {
   opts?: { duration: number; maxEntries: number }
   each?: boolean
   all?: boolean
-  token: Token
+  token: Token | null
   transferType: string
 }
 
@@ -65,4 +65,6 @@ export type CoinComparisionData = {
   ratios: number[]
   base_coin: Coin
   target_coin: Coin
+  base_coin_suggestions: Coin[]
+  target_coin_suggestions: Coin[]
 }

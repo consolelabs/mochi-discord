@@ -15,6 +15,18 @@ const command: Command = {
   brief: "Setup a sales tracker for an NFT collection",
   category: "Community",
   run: async function (msg) {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const args = getCommandArguments(msg)
     const channelArg = args[2]
     if (

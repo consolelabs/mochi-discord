@@ -34,19 +34,18 @@ class GameSessionManager extends InmemoryStorage {
   private sessions: Array<Session> = []
   private timeoutCheckers: Map<Session, NodeJS.Timeout> = new Map()
   private timeouts: Map<Session, number> = new Map()
-  private store: FirebaseFirestore.Firestore
+  private store: FirebaseFirestore.Firestore | null
   private loading = false
   private loaded = false
 
   constructor() {
     super()
     this.store = firestore
-    if (this.store) {
-      this.up()
-    }
+    this.up()
   }
 
   protected async up() {
+    if (!this.store) return
     logger.info("[GameSessionManager] - firestore retrieving session data...")
     this.loading = true
     const collections = await this.store.listCollections()
@@ -57,7 +56,7 @@ class GameSessionManager extends InmemoryStorage {
           const data = doc.data()
           if (!data.ended) {
             let Game
-            let name: GameName
+            let name: GameName | null = null
             switch (data.game) {
               case "triple-pod":
                 Game = TripodGame
@@ -120,7 +119,7 @@ class GameSessionManager extends InmemoryStorage {
   checkSessionTimeout(session: Session) {
     return setTimeout(() => {
       const now = Date.now()
-      const expireAt = this.timeouts.get(session)
+      const expireAt = this.timeouts.get(session) ?? 0
       // expired -> remove
       if (now > expireAt) {
         logger.info(
@@ -136,7 +135,10 @@ class GameSessionManager extends InmemoryStorage {
   }
 
   refreshSession(session: Session) {
-    clearTimeout(this.timeoutCheckers.get(session))
+    const timeoutId = this.timeoutCheckers.get(session)
+    if (timeoutId) {
+      global.clearTimeout(timeoutId)
+    }
     const newExpireAt = Date.now() + DEFAULT_TIMEOUT_DURATION_IN_MS
     this.timeouts.set(session, newExpireAt)
     this.timeoutCheckers.set(session, this.checkSessionTimeout(session))
@@ -204,7 +206,7 @@ class GameSessionManager extends InmemoryStorage {
     const session = this.sessionByUser.get(initiatorId)
     if (session) {
       this.sessionByUser.set(joinerId, session)
-      this.usersBySession.get(session).push(joinerId)
+      this.usersBySession.get(session)?.push(joinerId)
       this.refreshSession(session)
       return true
     }
@@ -214,13 +216,15 @@ class GameSessionManager extends InmemoryStorage {
   leaveSession(userId: string) {
     const session = this.sessionByUser.get(userId)
     if (session) {
-      this.sessionByUser.delete(userId)
-      this.usersBySession.set(
-        session,
-        this.usersBySession.get(session).filter((id) => id !== userId)
-      )
-      this.refreshSession(session)
-      return true
+      const newSession = this.usersBySession
+        .get(session)
+        ?.filter((id) => id !== userId)
+      if (newSession) {
+        this.sessionByUser.delete(userId)
+        this.usersBySession.set(session, newSession)
+        this.refreshSession(session)
+        return true
+      }
     }
     return false
   }
