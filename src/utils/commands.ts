@@ -11,6 +11,7 @@ import {
   USER_PREFIX,
 } from "./constants"
 import { commands } from "commands"
+import { utils } from "ethers"
 
 export const getCommandArguments = (message: Message) => {
   const content = message?.content
@@ -117,7 +118,8 @@ export function parseDiscordToken(value: string) {
     isRole: _value.startsWith(ROLE_PREFIX) && _value.endsWith(">"),
     isChannel: _value.startsWith(CHANNEL_PREFIX) && _value.endsWith(">"),
     isId: /\d+/g.test(_value),
-    id: _value.replace(/\D/g, ""),
+    isAddress: utils.isAddress(_value),
+    id: utils.isAddress(_value) ? _value : _value.replace(/\D/g, ""),
   }
 }
 
