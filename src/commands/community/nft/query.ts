@@ -26,6 +26,7 @@ import {
   getMarketplaceCollectionUrl,
   getMarketplaceNftUrl,
   hasAdministrator,
+  isValidHttpUrl,
   shortenHashOrAddress,
 } from "utils/common"
 import { NFTMetadataAttrIcon } from "types/community"
@@ -65,7 +66,7 @@ function getIcon(iconList: NFTMetadataAttrIcon[], iconName: string): string {
   return getEmoji(iconName)
 }
 
-async function composeNFTDetail(
+export async function composeNFTDetail(
   data: any,
   msg: Message,
   colName: string,
@@ -77,9 +78,20 @@ async function composeNFTDetail(
       icons = await community.getNFTMetadataAttrIcon()
     }
 
-    const { name, attributes, rarity, image, collection_address, token_id } =
-      data
+    const {
+      name,
+      attributes,
+      rarity,
+      image,
+      image_cdn,
+      collection_address,
+      token_id,
+    } = data
 
+    let nftImage = image
+    if (!isValidHttpUrl(image)) {
+      nftImage = image_cdn ?? ""
+    }
     // set rank, rarity score empty if have data
     const rarityRate = rarity?.rarity
       ? `**${DOT}** ${getRarityEmoji(rarity.rarity)}`
@@ -116,7 +128,7 @@ async function composeNFTDetail(
         ...(colImage.length ? [colImage] : []),
       ],
       description,
-      image,
+      image: nftImage,
       color: rarityColors[rarity?.rarity?.toUpperCase()],
     }).addFields(fields)
     return justifyEmbedFields(embed, 3)
