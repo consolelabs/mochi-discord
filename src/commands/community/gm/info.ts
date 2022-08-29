@@ -58,6 +58,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Command",
+  onlyAdministrator: true,
 }
 
 export default command
