@@ -62,6 +62,7 @@ const command: Command = {
   aliases: ["cfg"],
   colorType: "Command",
   minArguments: 3,
+  onlyAdministrator: true,
 }
 
 export default command
