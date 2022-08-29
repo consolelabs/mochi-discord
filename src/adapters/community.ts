@@ -348,66 +348,21 @@ class Community extends Fetcher {
     guild_id: string
     verify_channel_id: string
   }) {
-    const res = await fetch(`${API_BASE_URL}/verify/config`, {
+    return await this.jsonFetch(`${API_BASE_URL}/verify/config`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(req),
     })
-    if (res.status !== 201) {
-      throw new Error(
-        `failed to create verify wallet channel ${req.verify_channel_id}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
   }
 
   public async deleteVerifyWalletChannel(guild_id: string) {
-    const res = await fetch(
+    return await this.jsonFetch(
       `${API_BASE_URL}/verify/config?guild_id=${guild_id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+      { method: "DELETE" }
     )
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to delete verify wallet channel from guild ${guild_id}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
   }
 
   public async getVerifyWalletChannel(guild_id: string) {
-    const res = await fetch(`${API_BASE_URL}/verify/config/${guild_id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    if (res.status !== 200 && res.status !== 400) {
-      throw new Error(
-        `failed to get verify wallet config from guild ${guild_id}`
-      )
-    }
-
-    const json = await res.json()
-    // throw all errors except 'record not found'
-    if (json.error !== undefined && !json.error.includes("record not found")) {
-      throw new Error(json.error)
-    }
-    return json
+    return await this.jsonFetch(`${API_BASE_URL}/verify/config/${guild_id}`)
   }
 
   public async giftXp(req: {

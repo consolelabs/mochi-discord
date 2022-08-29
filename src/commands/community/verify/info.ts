@@ -2,12 +2,11 @@ import { Command } from "types/common"
 import community from "adapters/community"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
-  id: "verify_create",
-  command: "create",
-  brief: "Create verify wallet channel",
+  id: "verify_list",
+  command: "list",
+  brief: "show verify channel",
   category: "Community",
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {
@@ -22,21 +21,37 @@ const command: Command = {
         },
       }
     }
-    const args = getCommandArguments(msg)
-    const channelId = args[2].slice(2, args[2].length - 1)
-
-    const createVerifyWalletRequest = {
-      verify_channel_id: channelId,
-      guild_id: msg.guildId,
+    const res = await community.getVerifyWalletChannel(msg.guildId)
+    if (!res.ok) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: res.error,
+            }),
+          ],
+        },
+      }
     }
-
-    await community.createVerifyWalletChannel(createVerifyWalletRequest)
+    if (!res.data) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              title: msg.guild.name,
+              description: `No config found`,
+            }),
+          ],
+        },
+      }
+    }
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            title: "Verify wallet channel",
-            description: `Successfully created a channel for verifying wallet.`,
+            title: msg.guild.name,
+            description: `Channel: <#${res.data.verify_channel_id}>`,
           }),
         ],
       },
@@ -45,15 +60,15 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}verify create <channel>`,
-        examples: `${PREFIX}verify create #general`,
+        usage: `${PREFIX}verify list`,
+        examples: `${PREFIX}verify list`,
       }),
     ],
   }),
   canRunWithoutAction: true,
-  onlyAdministrator: true,
   colorType: "Server",
-  minArguments: 3,
+  minArguments: 2,
+  onlyAdministrator: true,
 }
 
 export default command

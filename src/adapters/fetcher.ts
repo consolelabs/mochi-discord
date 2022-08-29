@@ -51,7 +51,9 @@ export class Fetcher {
 
       if (!res.ok) {
         logger.error(
-          `[API failed - ${res.status}]: ${url} with params ${validInit.body}`
+          `[API failed - ${init.method ?? "GET"}/${
+            res.status
+          }]: ${url} with params ${validInit.body}`
         )
 
         const json = await (res as ErrResponse).json()
@@ -65,16 +67,18 @@ export class Fetcher {
         return json
       } else {
         logger.info(
-          `[API ok - ${res.status}]: ${url} with params ${
-            validInit.body ?? "{}"
-          }`
+          `[API ok - ${init.method ?? "GET"}/${
+            res.status
+          }]: ${url} with params ${validInit.body ?? "{}"}`
         )
         const json = await (res as OkResponse<T>).json()
         json.ok = true
         return json
       }
     } catch (e: any) {
-      logger.error(`[API failed]: ${e.message}`)
+      logger.error(
+        `[API failed ${init.method ?? "GET"}/request_not_sent]: ${e.message}`
+      )
       return {
         ok: false,
         data: null,
