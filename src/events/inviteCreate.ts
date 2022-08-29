@@ -14,7 +14,7 @@ export default {
         const invitesCollection = invites.get(
           invite.guild.id
         ) as Discord.Collection<string, number>
-
+        if (!invitesCollection) return
         invitesCollection.set(invite.code, invite.uses)
       }
     } catch (e) {
