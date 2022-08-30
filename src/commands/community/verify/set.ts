@@ -9,8 +9,8 @@ import {
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 
 const command: Command = {
-  id: "verify_create",
-  command: "create",
+  id: "verify_set",
+  command: "set",
   brief: "Create verify wallet channel",
   category: "Community",
   run: async function (msg) {

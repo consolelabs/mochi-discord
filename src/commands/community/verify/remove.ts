@@ -10,7 +10,7 @@ import {
 const command: Command = {
   id: "verify_remove",
   command: "remove",
-  brief: "remove verify channel",
+  brief: "Unset verify channel",
   category: "Community",
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {

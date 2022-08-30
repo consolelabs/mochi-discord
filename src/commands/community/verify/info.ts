@@ -4,9 +4,9 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 
 const command: Command = {
-  id: "verify_list",
-  command: "list",
-  brief: "show verify channel",
+  id: "verify_info",
+  command: "info",
+  brief: "Show verify channel",
   category: "Community",
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {
