@@ -24,7 +24,7 @@ export default {
         (channel) => channel.id === guild?.log_channel_id
       )
 
-      if (res.error) {
+      if (!res || res.error) {
         sendInviteTrackerMessage(
           member.guild.id,
           unknowErrorMsg(member.id),
