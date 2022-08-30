@@ -39,7 +39,7 @@ function remove(
     community
       .deleteSaleTracker(guildId, contractAddress)
       .then(afterDeleteCallback)
-  }, 5000)
+  }, 8000)
 }
 
 async function undo(i: ButtonInteraction) {
@@ -64,6 +64,8 @@ async function undo(i: ButtonInteraction) {
       embeds: [embed],
       ...(state === "queued-detail" ? { components: [] } : { components }),
     })
+    buttonCollector?.stop()
+    buttonCollector = null
   }
 }
 
@@ -198,7 +200,7 @@ function renderResponse(
 
 const command: Command = {
   id: "track_sales",
-  command: "track",
+  command: "remove",
   brief: "Setup a sales tracker for an NFT collection",
   category: "Community",
   run: async function (msg) {
