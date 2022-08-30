@@ -30,7 +30,6 @@ export class CommandNotAllowedToRunError extends BotBaseError {
   }
 
   handle() {
-    super.handle()
     let errorEmbed
     if (this.missingPermissions) {
       errorEmbed = getErrorEmbed({

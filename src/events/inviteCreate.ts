@@ -11,11 +11,9 @@ export default {
   execute: async (invite: Discord.Invite) => {
     try {
       if (invite.guild?.id && typeof invite.uses === "number") {
-        const invitesCollection = invites.get(
-          invite.guild.id
-        ) as Discord.Collection<string, number>
+        const invitesCollection = invites.get(invite.guild.id)
 
-        invitesCollection.set(invite.code, invite.uses)
+        invitesCollection?.set(invite.code, invite.uses)
       }
     } catch (e) {
       const error = e as BotBaseError
