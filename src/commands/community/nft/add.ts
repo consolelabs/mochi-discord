@@ -130,6 +130,8 @@ export async function toEmbed(
           "NFT",
           "Cannot found metadata for this collection"
         )
+      } else {
+        return buildDiscordMessage(msg, "NFT", errorMessageCollection)
       }
   }
 }
