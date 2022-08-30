@@ -6,7 +6,7 @@ import { capFirst } from "utils/common"
 import querystring from "query-string"
 import { snakeCase } from "change-case"
 
-type SerializableValue = string | number | boolean
+type SerializableValue = string | number | boolean | undefined | null
 
 type RequestInit = NativeRequestInit & {
   /**

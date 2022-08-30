@@ -10,10 +10,10 @@ async function deposit(msg: Message) {
   const guildId = msg.guildId ?? "DM"
   let user
   try {
-    user = await Profile.getUser({
-      discordId: msg.author.id,
-    })
-    if (!user) {
+    const res = await Profile.getUser({ discordId: msg.author.id })
+    if (res.ok) {
+      user = res.data
+    } else {
       throw new UserNotFoundError({
         message: msg,
         guildId,
