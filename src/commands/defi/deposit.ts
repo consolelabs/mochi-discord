@@ -7,6 +7,7 @@ import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis } from "utils/common"
 
 async function deposit(msg: Message) {
+  const guildId = msg.guildId ?? "DM"
   let user
   try {
     user = await Profile.getUser({
@@ -15,7 +16,7 @@ async function deposit(msg: Message) {
     if (!user) {
       throw new UserNotFoundError({
         message: msg,
-        guildId: msg.guildId,
+        guildId,
         discordId: msg.author.id,
       })
     }
@@ -33,10 +34,7 @@ async function deposit(msg: Message) {
       ],
     })
 
-    if (msg.channel.type === "DM")
-      return {
-        messageOptions: null,
-      }
+    if (msg.channel.type === "DM") return null
 
     return {
       messageOptions: {

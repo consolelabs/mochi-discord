@@ -4,7 +4,6 @@ import {
   MessageReaction,
   PartialMessageReaction,
   Role,
-  TextChannel,
   User,
 } from "discord.js"
 import { logger } from "logger"
@@ -16,8 +15,8 @@ import config from "adapters/config"
 import webhook from "adapters/webhook"
 import { composeEmbedMessage } from "utils/discordEmbed"
 
-const getRoleById = (msg: Message, roleId: string): Role => {
-  return msg.guild.roles.cache.find((role) => role.id === roleId)
+const getRoleById = (msg: Message, roleId: string): Role | undefined => {
+  return msg.guild?.roles.cache.find((role) => role.id === roleId)
 }
 
 const getReactionIdentifier = (
@@ -27,7 +26,7 @@ const getReactionIdentifier = (
   if (_reaction.emoji.id) {
     reaction = "<:" + _reaction.emoji.identifier.toLowerCase() + ">"
   } else {
-    reaction = _reaction.emoji.name
+    reaction = _reaction.emoji.name ?? ""
   }
   return reaction
 }
@@ -38,15 +37,14 @@ const handleReactionRoleEvent = async (
 ) => {
   const msg = _reaction.message as Message
   const roleReactionEvent: RoleReactionEvent = {
-    guild_id: msg.guild.id,
+    guild_id: msg.guild?.id ?? "",
     message_id: msg.id,
     reaction: getReactionIdentifier(_reaction),
   }
   const res = await config.handleReactionEvent(roleReactionEvent)
-  if (res?.role?.id) {
-    await msg.guild.members?.cache
-      .get(user.id)
-      ?.roles.add(getRoleById(msg, res.role.id))
+  const role = getRoleById(msg, res.role.id)
+  if (res?.role?.id && role) {
+    await msg.guild?.members?.cache.get(user.id)?.roles.add(role)
   }
 }
 
@@ -55,7 +53,7 @@ const handleRepostableMessageTracking = async (
 ) => {
   const msg = _reaction.message as Message
   const checkRepostableEvent = {
-    guild_id: msg.guild.id,
+    guild_id: msg.guild?.id ?? "",
     channel_id: msg.channel.id,
     message_id: msg.id,
     reaction: getReactionIdentifier(_reaction),
@@ -65,7 +63,9 @@ const handleRepostableMessageTracking = async (
   const reactionEmoji = getReactionIdentifier(_reaction)
 
   // check config repost
-  const validateRes = await config.listAllRepostReactionConfigs(msg.guild.id)
+  const validateRes = await config.listAllRepostReactionConfigs(
+    msg.guild?.id ?? ""
+  )
   const isConfiguredEmoji = validateRes?.data?.some(
     (conf: any) => conf.emoji?.toLowerCase() === reactionEmoji
   )
@@ -82,15 +82,15 @@ const handleRepostableMessageTracking = async (
     const { channel_id, guild_id, message_id, reaction, reaction_count } =
       checkRepostableEvent
 
-    const channel = msg.guild.channels.cache.find(
+    const channel = msg.guild?.channels.cache.find(
       (c) => c.id === repostChannelId
-    ) as TextChannel
+    )
 
     if (channel) {
       const originPostURL = `https://discord.com/channels/${guild_id}/${channel_id}/${message_id}`
       const attachments = msg.attachments.map((a) => ({
         url: a.url,
-        type: a.contentType.split("/")[0],
+        type: a.contentType?.split("/")[0] ?? "",
       }))
       const attachmentSize = attachments.length
       let embed: MessageEmbed
@@ -100,29 +100,31 @@ const handleRepostableMessageTracking = async (
           ? msg.content
           : "Message contains some attachments"
         embed = composeEmbedMessage(null, {
-          author: [msg.author.username, msg.author.avatarURL()],
+          author: [msg.author.username, msg.author.avatarURL() ?? ""],
           description: messageContent,
           originalMsgAuthor: msg.author,
           image: imageURL,
           withoutFooter: true,
-          thumbnail: msg.guild.iconURL(),
+          thumbnail: msg.guild?.iconURL(),
         }).setFields([{ name: "Source", value: `[Jump!](${originPostURL})` }])
       } else {
         const messageContent = msg.content
           ? msg.content
           : "Message has no content."
         embed = composeEmbedMessage(null, {
-          author: [msg.author.username, msg.author.avatarURL()],
+          author: [msg.author.username, msg.author.avatarURL() ?? ""],
           description: messageContent,
           originalMsgAuthor: msg.author,
           withoutFooter: true,
-          thumbnail: msg.guild.iconURL(),
+          thumbnail: msg.guild?.iconURL(),
         }).setFields([{ name: "Source", value: `[Jump!](${originPostURL})` }])
       }
-      channel.send({
-        embeds: [embed],
-        content: `**${reaction} ${reaction_count}** <#${channel_id}>`,
-      })
+      if (channel.isText()) {
+        channel.send({
+          embeds: [embed],
+          content: `**${reaction} ${reaction_count}** <#${channel_id}>`,
+        })
+      }
     }
   }
 }

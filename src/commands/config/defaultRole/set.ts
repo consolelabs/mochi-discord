@@ -16,6 +16,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     let description = ""
     const args = getCommandArguments(msg)
     const { isRole, isId, id } = parseDiscordToken(args[2] ?? "")
@@ -36,7 +48,7 @@ const command: Command = {
     }
 
     const requestData: DefaultRoleEvent = {
-      guild_id: msg.guild.id,
+      guild_id: msg.guildId,
       role_id: id,
     }
 

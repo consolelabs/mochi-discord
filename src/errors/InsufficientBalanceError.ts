@@ -13,7 +13,7 @@ export class InsufficientBalanceError extends BotBaseError {
   }: {
     discordId: string
     message: Message
-    errorMsg?: string
+    errorMsg: string
   }) {
     super()
     this.name = "Insufficient funds error"

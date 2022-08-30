@@ -6,6 +6,16 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 
 async function add(msg: Message, args: string[]) {
+  if (!msg.guildId) {
+    return {
+      embeds: [
+        getErrorEmbed({
+          msg,
+          description: "This command must be run in a Guild",
+        }),
+      ],
+    }
+  }
   const [, , address, symbol, chain] = args
   const req = {
     guild_id: msg.guildId,
@@ -63,10 +73,9 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    const embeds = await add(msg, args)
     return {
       messageOptions: {
-        ...embeds,
+        ...(await add(msg, args)),
       },
     }
   },

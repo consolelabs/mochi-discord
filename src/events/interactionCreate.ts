@@ -44,7 +44,7 @@ async function handleSelecMenuInteraction(
 ) {
   const key = `${interaction.user.id}_${msg.guildId}_${msg.channelId}`
   const commandChoice = await CommandChoiceManager.get(key)
-  if (!commandChoice) return
+  if (!commandChoice || !commandChoice.handler) return
   if (interaction.customId === "exit") {
     await msg.delete().catch(() => {
       commandChoice.interaction?.editReply({
@@ -77,7 +77,7 @@ async function handleSelecMenuInteraction(
           })
           .on("collect", async (i) => {
             await i.deferUpdate()
-            const result = await ephemeralMessage.buttonCollector(i)
+            const result = await ephemeralMessage.buttonCollector?.(i)
             if (!result) return
             interaction.editReply({
               embeds: result.embeds,

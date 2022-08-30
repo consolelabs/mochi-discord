@@ -22,6 +22,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const args = getCommandArguments(msg)
     const [roleArg, levelArg] = args.slice(1)
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
@@ -43,7 +55,7 @@ const command: Command = {
     }
 
     const level = +levelArg
-    if (isNaN(level) || level === 0)
+    if (Number.isNaN(level) || level <= 0 || level >= Infinity)
       return {
         messageOptions: {
           embeds: [getErrorEmbed({ msg, description: "Invalid level" })],

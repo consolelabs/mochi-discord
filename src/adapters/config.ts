@@ -14,7 +14,7 @@ import { Token } from "types/defi"
 import { Fetcher } from "./fetcher"
 
 class Config extends Fetcher {
-  public Guilds: Guilds
+  public Guilds?: Guilds
 
   public async initialize() {
     this.Guilds = await this.getGuilds()
@@ -47,7 +47,7 @@ class Config extends Fetcher {
     return json
   }
 
-  public async getGuild(guildId: string): Promise<Guild> {
+  public async getGuild(guildId: string): Promise<Guild | null> {
     const res = await fetch(`${API_BASE_URL}/guilds/` + guildId, {
       method: "GET",
       headers: {
@@ -67,7 +67,7 @@ class Config extends Fetcher {
 
   public async getGuildScopes(guildId: string): Promise<string[]> {
     const guild = await this.getGuild(guildId)
-    return guild?.bot_scopes
+    return guild?.bot_scopes ?? []
   }
 
   public async commandIsScoped(
@@ -76,7 +76,7 @@ class Config extends Fetcher {
     command: string
   ): Promise<boolean> {
     if (msg.channel.type === "DM") return true
-
+    if (!msg.guildId) return false
     const scopes = await this.getGuildScopes(msg.guildId)
     if (!scopes) return false
     const cat = category.toLowerCase()
@@ -132,7 +132,7 @@ class Config extends Fetcher {
     category: string
   ): Promise<boolean> {
     if (msg.channel.type === "DM") return true
-
+    if (!msg.guildId) return false
     const scopes = await this.getGuildScopes(msg.guildId)
     if (!scopes) return false
     const cat = category.toLowerCase()

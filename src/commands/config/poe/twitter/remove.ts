@@ -12,6 +12,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
+    if (!msg.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const twitterConfig = await config.getTwitterConfig(msg.guildId)
 
     if (twitterConfig.ok) {
@@ -36,9 +48,7 @@ const command: Command = {
       }
     }
 
-    return {
-      messageOptions: null,
-    }
+    return null
   },
   getHelpMessage: async (msg) => ({
     embeds: [

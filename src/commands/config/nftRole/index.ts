@@ -22,6 +22,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const args = getCommandArguments(msg)
     const [roleArg, nftAddress, amountArg, tokenId] = args.slice(1)
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
@@ -42,11 +54,14 @@ const command: Command = {
     }
 
     const amount = +amountArg
-    if (isNaN(amount))
+    if (Number.isNaN(amount) || amount <= 0 || amount >= Infinity)
       return {
         messageOptions: {
           embeds: [
-            getErrorEmbed({ msg, description: "amount has to be a number" }),
+            getErrorEmbed({
+              msg,
+              description: "Amount has to be a positive number",
+            }),
           ],
         },
       }

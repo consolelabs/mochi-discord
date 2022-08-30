@@ -15,7 +15,7 @@ export async function callAPI(args: string[], msg: Message) {
     chain_id: chainId,
     address: address,
     author: msg.author.id,
-    guild_id: msg.guild.id,
+    guild_id: msg.guild?.id,
   }
   // run store collection API
   const respCollection = await fetch(`${API_BASE_URL}/nfts/collections`, {
@@ -130,6 +130,8 @@ export async function toEmbed(
           "NFT",
           "Cannot found metadata for this collection"
         )
+      } else {
+        return buildDiscordMessage(msg, "NFT", errorMessageCollection)
       }
   }
 }

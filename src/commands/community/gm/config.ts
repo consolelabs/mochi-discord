@@ -3,7 +3,7 @@ import { Command } from "types/common"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 
 const command: Command = {
@@ -12,6 +12,18 @@ const command: Command = {
   brief: "Configure gm/gn channel",
   category: "Community",
   run: async (msg) => {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const args = getCommandArguments(msg)
     const channelArg = args[2]
     if (!channelArg?.startsWith("<#") || !channelArg?.endsWith(">")) {
@@ -50,6 +62,7 @@ const command: Command = {
   aliases: ["cfg"],
   colorType: "Command",
   minArguments: 3,
+  onlyAdministrator: true,
 }
 
 export default command

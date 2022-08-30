@@ -13,7 +13,7 @@ const command: Command = {
   brief: "Proof of Engagement",
   category: "Config",
   onlyAdministrator: true,
-  run: () => null,
+  run: async () => null,
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

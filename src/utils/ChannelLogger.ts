@@ -6,8 +6,8 @@ import { PREFIX } from "./constants"
 import { getErrorEmbed } from "./discordEmbed"
 
 export class ChannelLogger {
-  logChannel: TextChannel = null
-  private alertChannel: TextChannel
+  logChannel: TextChannel | null = null
+  private alertChannel: TextChannel | null = null
 
   ready(client: Client) {
     try {
@@ -53,7 +53,7 @@ export class ChannelLogger {
     }
 
     const description = `**Command:** \`${msg.content}\`\n**Guild:** \`${
-      msg.channel.type === "DM" ? "DM" : msg.guild.name
+      msg.channel.type === "DM" ? "DM" : msg.guild?.name
     }\`\n**Channel:** \`${
       msg.channel.type === "DM" ? "DM" : msg.channel.name ?? msg.channelId
     }\`\n**Error:** \`\`\`${error?.message}\`\`\``

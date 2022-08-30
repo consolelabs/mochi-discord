@@ -10,6 +10,7 @@ import { WEBSITE_ENDPOINT } from "../../env"
 import { embedsColors } from "types/common"
 
 export async function sendVerifyURL(interaction: ButtonInteraction) {
+  if (!interaction.member || !interaction.guild) return
   await interaction.deferReply({ ephemeral: true })
   const json = await Profile.generateVerificationCode(
     interaction.member.user.id,

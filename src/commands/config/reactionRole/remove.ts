@@ -18,6 +18,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     let description = ""
     const args = getCommandArguments(msg)
 
@@ -37,22 +49,18 @@ const command: Command = {
 
     // Validate message_id
     const messageId = args[2].replace(/\D/g, "")
-    let message: Message
 
     const channelList = msg.guild.channels.cache
       .filter((c) => c.type === "GUILD_TEXT")
       .map((c) => c as TextChannel)
 
-    await Promise.all(
-      channelList.map((chan) =>
-        chan.messages
-          .fetch(messageId)
-          .then((data) => {
-            message = data
-          })
-          .catch(() => null)
+    const message = (
+      await Promise.all(
+        channelList.map((chan) =>
+          chan.messages.fetch(messageId).catch(() => null)
+        )
       )
-    )
+    ).find((m) => m instanceof Message)
 
     if (!message || !messageId) {
       return {
@@ -62,7 +70,7 @@ const command: Command = {
       }
     }
 
-    let requestData: RoleReactionEvent
+    let requestData: RoleReactionEvent | null = null
     switch (args.length) {
       // Remove a specific reaction
       case 5: {
@@ -94,29 +102,30 @@ const command: Command = {
         break
     }
 
-    try {
-      const res: RoleReactionConfigResponse = await config.removeReactionConfig(
-        requestData
-      )
-      if (res.success) {
-        const { reaction, role_id } = requestData
-        if (reaction && role_id) {
-          description = `Reaction ${reaction} for this role <@&${role_id}> is now unset`
+    if (requestData) {
+      try {
+        const res: RoleReactionConfigResponse =
+          await config.removeReactionConfig(requestData)
+        if (res.success) {
+          const { reaction, role_id } = requestData
+          if (reaction && role_id) {
+            description = `Reaction ${reaction} for this role <@&${role_id}> is now unset`
 
-          const emojiSplit = reaction.split(":")
-          const reactionEmoji =
-            emojiSplit.length === 1 ? reaction : reaction.replace(/\D/g, "")
-          message.reactions.cache.get(reactionEmoji).remove().catch()
+            const emojiSplit = reaction.split(":")
+            const reactionEmoji =
+              emojiSplit.length === 1 ? reaction : reaction.replace(/\D/g, "")
+            message.reactions.cache.get(reactionEmoji)?.remove().catch()
+          } else {
+            description = `All reaction role configurations for this message is now clear.`
+            message.reactions.removeAll().catch()
+          }
         } else {
-          description = `All reaction role configurations for this message is now clear.`
-          message.reactions.removeAll().catch()
+          description = `Failed to remove this reaction role configuration.`
         }
-      } else {
+      } catch (error) {
+        ChannelLogger.log(error as BotBaseError)
         description = `Failed to remove this reaction role configuration.`
       }
-    } catch (error) {
-      ChannelLogger.log(error as BotBaseError)
-      description = `Failed to remove this reaction role configuration.`
     }
 
     return {

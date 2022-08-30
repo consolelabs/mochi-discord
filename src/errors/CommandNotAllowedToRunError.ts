@@ -10,7 +10,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
   constructor({
     message,
     command,
-    missingPermissions,
+    missingPermissions = [],
   }: {
     message: Message
     command: string
@@ -30,7 +30,6 @@ export class CommandNotAllowedToRunError extends BotBaseError {
   }
 
   handle() {
-    super.handle()
     let errorEmbed
     if (this.missingPermissions) {
       errorEmbed = getErrorEmbed({

@@ -11,7 +11,7 @@ export class DirectMessageNotAllowedError extends BotBaseError {
     this.name = "DM not enabled"
     const channel = message.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild.name,
+      guild: message.guild?.name,
       channel: channel.name,
       user: message.author.tag,
     })

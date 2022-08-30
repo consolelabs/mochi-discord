@@ -18,6 +18,18 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
+    if (!msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const args = getCommandArguments(msg)
 
     // Validate input reaction emoji
@@ -31,7 +43,7 @@ const command: Command = {
       isValidEmoji = true
     }
     msg.guild.emojis.cache.forEach((e) => {
-      if (emojiSplit.includes(e.name.toLowerCase())) {
+      if (emojiSplit.includes(e.name?.toLowerCase() ?? "")) {
         isValidEmoji = true
       }
     })
@@ -61,21 +73,17 @@ const command: Command = {
 
     // Validate message_id
     const messageId = args[2].replace(/\D/g, "")
-    let message: Message
     const channelList = msg.guild.channels.cache
       .filter((c) => c.type === "GUILD_TEXT")
       .map((c) => c as TextChannel)
 
-    await Promise.all(
-      channelList.map((chan) =>
-        chan.messages
-          .fetch(messageId)
-          .then((data) => {
-            message = data
-          })
-          .catch(() => null)
+    const message = (
+      await Promise.all(
+        channelList.map((chan) =>
+          chan.messages.fetch(messageId).catch(() => null)
+        )
       )
-    )
+    ).find((m) => m instanceof Message)
 
     if (!message || !messageId) {
       return {

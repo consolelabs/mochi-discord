@@ -1,21 +1,46 @@
 import { Command } from "types/common"
 import community from "adapters/community"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "utils/discordEmbed"
 
 const command: Command = {
   id: "verify_remove",
   command: "remove",
-  brief: "remove verify channel",
+  brief: "Unset verify channel",
   category: "Community",
   run: async function (msg) {
-    await community.deleteVerifyWalletChannel(msg.guildId)
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
+    const res = await community.deleteVerifyWalletChannel(msg.guildId)
+    if (!res.ok) {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: res.error })],
+        },
+      }
+    }
+
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(msg, {
-            title: "Verify wallet channel",
-            description: `Verify wallet channel successfully removed.`,
+          getSuccessEmbed({
+            msg,
+            title: "Channel removed",
+            description: `Instruction message removed\n**NOTE**: not having a channel for verification will limit the capabilities of Mochi, we suggest you set one by running \`$verify set #<channel_name>\``,
           }),
         ],
       },

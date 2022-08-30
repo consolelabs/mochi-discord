@@ -10,10 +10,20 @@ import {
 import { getCommandArguments } from "utils/commands"
 import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import { Command } from "types/common"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Defi from "adapters/defi"
 
 async function tip(msg: Message, args: string[]) {
+  if (!msg.guildId) {
+    return {
+      embeds: [
+        getErrorEmbed({
+          msg,
+          description: "This command must be run in a Guild",
+        }),
+      ],
+    }
+  }
   const payload = await Defi.getTransferPayload(msg, args)
   const data = await Defi.discordWalletTransfer(JSON.stringify(payload), msg)
   if (!data || data.length === 0) {
@@ -55,10 +65,9 @@ const command: Command = {
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
-    const embeds = await tip(msg, args)
     return {
       messageOptions: {
-        ...embeds,
+        ...(await tip(msg, args)),
       },
     }
   },

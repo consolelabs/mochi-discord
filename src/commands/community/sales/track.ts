@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { getCommandArguments } from "utils/commands"
+import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import {
   getErrorEmbed,
@@ -7,31 +7,56 @@ import {
   getSuccessEmbed,
 } from "utils/discordEmbed"
 import community from "adapters/community"
-import { InvalidInputError } from "errors"
 
 const command: Command = {
-  id: "track_sales",
+  id: "sales_track",
   command: "track",
   brief: "Setup a sales tracker for an NFT collection",
   category: "Community",
   run: async function (msg) {
+    if (!msg.guildId || !msg.guild) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "This command must be run in a Guild",
+            }),
+          ],
+        },
+      }
+    }
     const args = getCommandArguments(msg)
-    const channelArg = args[2]
-    if (
-      !channelArg ||
-      !channelArg.startsWith("<#") ||
-      !channelArg.endsWith(">")
-    ) {
-      throw new InvalidInputError({ message: msg })
+    const { isChannel, id: channelId } = parseDiscordToken(args[2])
+    if (!isChannel) {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Invalid channel" })],
+        },
+      }
     }
 
-    const channelId = channelArg.slice(2, channelArg.length - 1)
     const chan = await msg.guild.channels.fetch(channelId).catch(() => null)
-    if (!chan) throw new InvalidInputError({ message: msg })
+    if (!chan)
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Channel not found" })],
+        },
+      }
     const addr = args[3]
-    if (!addr) throw new InvalidInputError({ message: msg })
+    if (!addr)
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Address not found" })],
+        },
+      }
     const platform = args[4]
-    if (!platform) throw new InvalidInputError({ message: msg })
+    if (!platform)
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: "Platform not found" })],
+        },
+      }
     const guildId = msg.guild.id
 
     const res = await community.createSalesTracker(

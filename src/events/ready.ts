@@ -14,13 +14,14 @@ export default {
   name: "ready",
   once: false,
   execute: async (listener: Discord.Client) => {
+    if (!listener.user) return
     try {
       logger.info(`Bot [${listener.user.username}] is ready`)
       ChannelLogger.ready(listener)
       CommandChoiceManager.client = listener
       // get balance and show in presence message every 10m
       const presence = async () => {
-        listener.user.setPresence({
+        listener.user?.setPresence({
           status: "online",
           activities: [
             {
@@ -38,7 +39,7 @@ export default {
         invites.set(
           guild.id,
           new Discord.Collection(
-            firstInvites.map((invite) => [invite.code, invite.uses])
+            firstInvites.map((invite) => [invite.code, invite.uses ?? 0])
           )
         )
       }

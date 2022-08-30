@@ -282,9 +282,7 @@ const command: Command = {
     const reply = await msg.reply(msgOpts.messageOptions)
     listenForPaginateAction(reply, msg, composeAchievementListEmbed)
 
-    return {
-      messageOptions: null,
-    }
+    return null
   },
   getHelpMessage: async (msg) => ({
     embeds: [

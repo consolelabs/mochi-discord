@@ -4,7 +4,7 @@ import { logger } from "logger"
 import serviceAccount from "../../firebase-key.json"
 import { FIRESTORE_KEY } from "../env"
 
-let firestore: Firestore
+let firestore: Firestore | null = null
 
 if (!FIRESTORE_KEY) {
   logger.warn(

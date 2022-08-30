@@ -3,12 +3,26 @@ import { logger } from "logger"
 import type { RequestInit as NativeRequestInit } from "node-fetch"
 import fetch from "node-fetch"
 import { capFirst } from "utils/common"
+import querystring from "query-string"
+import { snakeCase } from "change-case"
+
+type SerializableValue = string | number | boolean
 
 type RequestInit = NativeRequestInit & {
   /**
    * Whether to hide the 500 error with some generic message e.g "Something went wrong"
    * */
   autoWrap500Error?: boolean
+  /**
+   * Query string values, support array format
+   *   Default to empty object
+   * */
+  query?: Record<string, SerializableValue | Array<SerializableValue>>
+  /**
+   * Toggle auto convert camelCase to snake_case when sending request e.g `guildId` will turn into `guild_id`
+   * Default to true
+   * */
+  queryCamelToSnake?: boolean
 }
 
 type OkPayload = {
@@ -37,6 +51,8 @@ const defaultInit: RequestInit = {
   headers: {
     "Content-Type": "application/json",
   },
+  query: {},
+  queryCamelToSnake: true,
 }
 
 export class Fetcher {
@@ -46,12 +62,23 @@ export class Fetcher {
   ): Promise<(OkPayload & T) | ErrPayload> {
     try {
       const mergedInit = deepmerge(defaultInit, init)
-      const { autoWrap500Error, ...validInit } = mergedInit
-      const res = await fetch(url, validInit)
+      const { autoWrap500Error, query: _query, ...validInit } = mergedInit
+      const query: typeof _query = {}
+      for (const [key, value] of Object.entries(_query)) {
+        query[snakeCase(key)] = value
+      }
+      const res = await fetch(
+        querystring.stringifyUrl({ url, query }),
+        validInit
+      )
 
       if (!res.ok) {
         logger.error(
-          `[API failed - ${res.status}]: ${url} with params ${validInit.body}`
+          `[API failed - ${init.method ?? "GET"}/${
+            res.status
+          }]: ${url} with params ${
+            validInit.body
+          }, query ${querystring.stringify(query)}`
         )
 
         const json = await (res as ErrResponse).json()
@@ -65,16 +92,20 @@ export class Fetcher {
         return json
       } else {
         logger.info(
-          `[API ok - ${res.status}]: ${url} with params ${
+          `[API ok - ${init.method ?? "GET"}/${
+            res.status
+          }]: ${url} with params ${
             validInit.body ?? "{}"
-          }`
+          }, query ${querystring.stringify(query)}`
         )
         const json = await (res as OkResponse<T>).json()
         json.ok = true
         return json
       }
     } catch (e: any) {
-      logger.error(`[API failed]: ${e.message}`)
+      logger.error(
+        `[API failed ${init.method ?? "GET"}/request_not_sent]: ${e.message}`
+      )
       return {
         ok: false,
         data: null,

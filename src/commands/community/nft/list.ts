@@ -60,9 +60,6 @@ const command: Command = {
     const msgOpts = await composeNFTListEmbed(msg, 0)
     const reply = await msg.reply(msgOpts.messageOptions)
     listenForPaginateAction(reply, msg, composeNFTListEmbed, true)
-    return {
-      messageOptions: null,
-    }
   },
   getHelpMessage: async (msg) => ({
     embeds: [
