@@ -2,9 +2,13 @@ import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import track from "./track"
+import list from "./list"
+import remove from "./remove"
 
 const actions: Record<string, Command> = {
   track,
+  list,
+  remove,
 }
 
 const command: Command = {
@@ -17,6 +21,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sales <action>`,
+        description: "Receive real-time notification whenever there is a sale",
         footer: [`Type ${PREFIX}help sales <action> for a specific action!`],
         includeCommandsList: true,
       }),
@@ -25,6 +30,7 @@ const command: Command = {
   actions,
   colorType: "Marketplace",
   canRunWithoutAction: false,
+  aliases: ["sale"],
 }
 
 export default command
