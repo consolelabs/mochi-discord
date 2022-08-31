@@ -182,7 +182,7 @@ async function composeMyNFTEmbed(
     msg.author.id
   )
   const userAddress = userProfile.user_wallet?.address
-  if (!userAddress || !userAddress.length) {
+  if (!userAddress || !userAddress.length || userAddress === "N/A") {
     const verifyChannel = await community.getVerifyWalletChannel(
       msg.guildId ?? ""
     )

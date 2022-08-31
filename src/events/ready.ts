@@ -39,7 +39,7 @@ export default {
         invites.set(
           guild.id,
           new Discord.Collection(
-            firstInvites.map((invite) => [invite.code, invite.uses])
+            firstInvites.map((invite) => [invite.code, invite.uses ?? 0])
           )
         )
       }

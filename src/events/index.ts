@@ -15,7 +15,7 @@ export type Event<T extends keyof ClientEvents> = {
   execute: (...data: ClientEvents[T]) => void | Promise<unknown>
 }
 
-export const invites = new Collection()
+export const invites = new Collection<string, Collection<string, number>>()
 
 export default [
   ready,
