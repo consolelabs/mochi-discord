@@ -67,4 +67,6 @@ export type CoinComparisionData = {
   target_coin: Coin
   base_coin_suggestions: Coin[]
   target_coin_suggestions: Coin[]
+  from: string
+  to: string
 }

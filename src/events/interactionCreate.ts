@@ -3,7 +3,12 @@ import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
 import { backToTickerSelection } from "commands/defi/ticker"
 import { triplePodInteraction } from "commands/games/tripod"
 import { sendVerifyURL } from "commands/profile/verify"
-import { SelectMenuInteraction, ButtonInteraction, Message } from "discord.js"
+import {
+  SelectMenuInteraction,
+  ButtonInteraction,
+  Message,
+  Interaction,
+} from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
@@ -15,23 +20,20 @@ export default {
   name: "interactionCreate",
   once: false,
   execute: async (interaction: SelectMenuInteraction | ButtonInteraction) => {
+    const msg = interaction.message as Message
     try {
-      const msg = interaction.message as Message
       if (interaction.isSelectMenu()) {
-        await handleSelecMenuInteraction(
-          interaction as SelectMenuInteraction,
-          msg
-        )
-        return
+        await handleSelecMenuInteraction(interaction, msg)
+      } else if (interaction.isButton()) {
+        await handleButtonInteraction(interaction, msg)
       }
-
-      await handleButtonInteraction(interaction as ButtonInteraction, msg)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
         error.handle()
       } else {
         logger.error(e as string)
+        ChannelLogger.alert(msg, error)
       }
       ChannelLogger.log(error, 'Event<"interactionCreate">')
     }
@@ -39,13 +41,14 @@ export default {
 } as Event<"interactionCreate">
 
 async function handleSelecMenuInteraction(
-  interaction: SelectMenuInteraction,
+  interaction: Interaction,
   msg: Message
 ) {
-  const key = `${interaction.user.id}_${msg.guildId}_${msg.channelId}`
+  const i = interaction as SelectMenuInteraction
+  const key = `${i.user.id}_${msg.guildId}_${msg.channelId}`
   const commandChoice = await CommandChoiceManager.get(key)
   if (!commandChoice || !commandChoice.handler) return
-  if (interaction.customId === "exit") {
+  if (i.customId === "exit") {
     await msg.delete().catch(() => {
       commandChoice.interaction?.editReply({
         content: "Exited!",
@@ -58,77 +61,86 @@ async function handleSelecMenuInteraction(
   }
 
   const { messageOptions, commandChoiceOptions, ephemeralMessage } =
-    await commandChoice.handler(interaction)
+    await commandChoice.handler(i)
 
-  if (interaction) {
-    let output: Message
-    if (ephemeralMessage) {
-      output = (await interaction.reply({
-        fetchReply: true,
-        ephemeral: true,
-        embeds: ephemeralMessage.embeds,
-        components: ephemeralMessage.components,
-      })) as Message
-      if (ephemeralMessage.buttonCollector) {
-        output
-          .createMessageComponentCollector({
-            componentType: MessageComponentTypes.BUTTON,
-            idle: 60000,
-          })
-          .on("collect", async (i) => {
-            await i.deferUpdate()
-            const result = await ephemeralMessage.buttonCollector?.(i)
-            if (!result) return
-            interaction.editReply({
-              embeds: result.embeds,
-              components: result.components ?? [],
-            })
-          })
-      }
-    } else {
-      output = (await interaction.deferUpdate({ fetchReply: true })) as Message
-    }
-    await CommandChoiceManager.update(key, {
-      ...commandChoiceOptions,
-      interaction,
-      messageId: output.id,
+  let output: Message
+  const deferredOrReplied = i.deferred || i.replied
+  if (ephemeralMessage && deferredOrReplied) {
+    // already deferred or replied in commandChoice.handler()
+    // we do this for long-response command (> 3s) to prevent bot from throwing "Unknown interaction" error
+    output = <Message>await i.editReply({
+      embeds: ephemeralMessage.embeds,
+      components: ephemeralMessage.components,
     })
+  } else if (ephemeralMessage && !deferredOrReplied) {
+    output = <Message>await i.reply({
+      ephemeral: true,
+      fetchReply: true,
+      embeds: ephemeralMessage.embeds,
+      components: ephemeralMessage.components,
+    })
+  } else if (!ephemeralMessage && !deferredOrReplied) {
+    // no ephemeral so no need to respond to interaction
+    output = <Message>await i.deferUpdate({ fetchReply: true })
+  } else {
+    // in fact this case should never happen
+    return
   }
+
+  if (ephemeralMessage?.buttonCollector) {
+    output
+      .createMessageComponentCollector({
+        componentType: MessageComponentTypes.BUTTON,
+      })
+      .on("collect", async (i) => {
+        await i.deferUpdate()
+        const result = await ephemeralMessage.buttonCollector?.(i)
+        if (!result) return
+        i.editReply({
+          embeds: result.embeds,
+          components: result.components ?? [],
+        })
+      })
+  }
+
+  await CommandChoiceManager.update(key, {
+    ...commandChoiceOptions,
+    interaction: i,
+    messageId: output?.id,
+  })
+  i
   await msg.edit(messageOptions)
 }
 
-async function handleButtonInteraction(
-  interaction: ButtonInteraction,
-  msg: Message
-) {
-  const buttonInteraction = interaction as ButtonInteraction
+async function handleButtonInteraction(interaction: Interaction, msg: Message) {
+  const i = interaction as ButtonInteraction
   switch (true) {
-    case interaction.customId.startsWith("exit-"): {
-      const authorId = interaction.customId.split("-")[1]
-      if (interaction.user.id !== authorId) {
-        await interaction.deferUpdate()
+    case i.customId.startsWith("exit-"): {
+      const authorId = i.customId.split("-")[1]
+      if (i.user.id !== authorId) {
+        await i.deferUpdate()
         return
       }
       await msg.delete()
       return
     }
-    case interaction.customId.startsWith("confirm_airdrop-"):
-      await confirmAirdrop(buttonInteraction, msg)
+    case i.customId.startsWith("confirm_airdrop-"):
+      await confirmAirdrop(i, msg)
       return
-    case interaction.customId.startsWith("enter_airdrop-"):
-      await enterAirdrop(buttonInteraction, msg)
+    case i.customId.startsWith("enter_airdrop-"):
+      await enterAirdrop(i, msg)
       return
-    case interaction.customId.startsWith("mochi_verify"):
-      await sendVerifyURL(buttonInteraction)
+    case i.customId.startsWith("mochi_verify"):
+      await sendVerifyURL(i)
       return
-    case interaction.customId.startsWith("globalxp"):
-      await confirmGlobalXP(buttonInteraction, msg)
+    case i.customId.startsWith("globalxp"):
+      await confirmGlobalXP(i, msg)
       return
-    case interaction.customId.startsWith("triple-pod-"):
-      await triplePodInteraction(interaction)
+    case i.customId.startsWith("triple-pod-"):
+      await triplePodInteraction(i)
       return
-    case interaction.customId.startsWith("ticker_selection-"):
-      await backToTickerSelection(interaction, msg)
+    case i.customId.startsWith("ticker_selection-"):
+      await backToTickerSelection(i, msg)
       return
     default:
       return

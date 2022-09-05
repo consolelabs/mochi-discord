@@ -39,25 +39,24 @@ import config from "adapters/config"
 import { Coin } from "types/defi"
 
 async function renderHistoricalMarketChart({
-  msg,
   coinId,
   days = 7,
 }: {
-  msg: Message
   coinId: string
   days?: number
 }) {
   const currency = "usd"
-  const { times, prices, from, to } = await Defi.getHistoricalMarketData(
-    msg,
+  const { ok, data } = await Defi.getHistoricalMarketData(
     coinId,
     currency,
     days || 7
   )
+  if (!ok) return null
+  const { times, prices, from, to } = data
 
   // draw chart
   const image = await renderChartImage({
-    chartLabel: `Price (${currency.toUpperCase()}), ${from} - ${to}`,
+    chartLabel: `Price (${currency.toUpperCase()}) | ${from} - ${to}`,
     labels: times,
     data: prices,
     colorConfig: getChartColorConfig(coinId),
@@ -83,7 +82,6 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const [coinId, days] = input.split("_")
 
   const chart = await renderHistoricalMarketChart({
-    msg: message,
     coinId,
     days: +days,
   })
@@ -103,7 +101,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   return {
     messageOptions: {
       embeds: [embed],
-      files: [chart],
+      ...(chart && { files: [chart] }),
       components: message.components as MessageActionRow[],
     },
     commandChoiceOptions: {
@@ -121,12 +119,10 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   msgOrInteraction
 ) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
-  interaction
   const { message } = <{ message: Message }>interaction
   const value = interaction.values[0]
   const [coinId, coinSymbol, coinName, authorId] = value.split("_")
-  // message.author.id = authorId
-  return await composeTickerEmbed({
+  return await composeTickerResponse({
     msg: message,
     coinId,
     coinSymbol,
@@ -135,13 +131,14 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   })
 }
 
-async function composeTickerEmbed({
+async function composeTickerResponse({
   msg,
   coinId,
   coinSymbol,
   coinName,
   authorId,
   hasDefault,
+  interaction,
 }: {
   msg: Message
   coinId: string
@@ -149,8 +146,37 @@ async function composeTickerEmbed({
   coinName?: string
   authorId?: string
   hasDefault?: boolean
+  interaction?: SelectMenuInteraction
 }) {
-  const coin = await Defi.getCoin(msg, coinId)
+  const gMember = msg.guild?.members.cache.get(authorId ?? msg.author.id)
+  // ask admin to set server default ticker
+  let ephemeralMessage: EphemeralMessage | undefined
+  if (hasAdministrator(gMember)) {
+    await interaction?.deferReply({ ephemeral: true })
+    const actionRow = new MessageActionRow().addComponents(
+      new MessageButton({
+        customId: `${coinId}|${coinSymbol}|${coinName}`,
+        emoji: getEmoji("approve"),
+        style: "PRIMARY",
+        label: "Confirm",
+      })
+    )
+    ephemeralMessage = {
+      embeds: [
+        composeEmbedMessage(msg, {
+          title: "Set default ticker",
+          description: `Do you want to set **${coinName}** as your server default ticker?\nNo further selection next time use \`$ticker\``,
+        }),
+      ],
+      components: [actionRow],
+      buttonCollector: setDefaultTicker,
+    }
+  }
+
+  const { ok, data: coin } = await Defi.getCoin(msg, coinId)
+  if (!ok) {
+    return { messageOptions: { embeds: [getErrorEmbed({ msg })] } }
+  }
   const currency = "usd"
   const {
     market_cap,
@@ -163,7 +189,6 @@ async function composeTickerEmbed({
   const marketCap = +market_cap[currency]
   const blank = getEmoji("blank")
 
-  const gMember = msg.guild?.members.cache.get(authorId ?? msg.author.id)
   const embed = composeEmbedMessage(msg, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
@@ -203,36 +228,12 @@ async function composeTickerEmbed({
     },
   ])
 
-  const chart = await renderHistoricalMarketChart({ msg, coinId: coin.id })
-
+  const chart = await renderHistoricalMarketChart({ coinId: coin.id })
   const selectRow = composeDaysSelectMenu(
     "tickers_range_selection",
     `${coin.id}`,
     [1, 7, 30, 60, 90, 365]
   )
-
-  // set server default ticker
-  let ephemeralMessage: EphemeralMessage = { embeds: [] }
-  if (hasAdministrator(gMember)) {
-    const actionRow = new MessageActionRow().addComponents(
-      new MessageButton({
-        customId: `${coinId}|${coinSymbol}|${coinName}`,
-        emoji: getEmoji("approve"),
-        style: "PRIMARY",
-        label: "Confirm",
-      })
-    )
-    ephemeralMessage = {
-      embeds: [
-        composeEmbedMessage(msg, {
-          title: "Set default ticker",
-          description: `Do you want to set **${coinName}** as your server default ticker?\nNo further selection next time use \`$ticker\``,
-        }),
-      ],
-      components: [actionRow],
-      buttonCollector: setDefaultTicker,
-    }
-  }
 
   const buttonRow = new MessageActionRow()
   if (hasDefault) {
@@ -249,7 +250,7 @@ async function composeTickerEmbed({
 
   return {
     messageOptions: {
-      files: [chart],
+      ...(chart && { files: [chart] }),
       embeds: [embed],
       components: [selectRow, buttonRow],
     },
@@ -270,9 +271,10 @@ export async function backToTickerSelection(
   await i.deferUpdate()
   const [coinQ, authorId] = i.customId.split("-").slice(1)
   msg.author.id = authorId
-  const coins = await Defi.searchCoins(msg, coinQ)
+  const { ok, data } = await Defi.searchCoins(msg, coinQ)
+  if (!ok) return
   const { messageOptions } = await composeTickerSelectionResponse(
-    coins,
+    data.coins,
     coinQ,
     msg
   )
@@ -373,13 +375,14 @@ const command: Command = {
     const [coinQ, targetQ] = query.split("/")
     // run token comparison
     if (targetQ) return compare.run(msg)
-    const coins = await Defi.searchCoins(msg, coinQ)
+    const { ok, data: coins } = await Defi.searchCoins(msg, coinQ)
+    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({ msg })] } }
     if (!coins || !coins.length) {
       return coinNotFoundResponse(msg, coinQ)
     }
 
     if (coins.length === 1) {
-      return await composeTickerEmbed({ msg, coinId: coins[0].id })
+      return await composeTickerResponse({ msg, coinId: coins[0].id })
     }
 
     // if default ticket was set then respond...
@@ -389,7 +392,7 @@ const command: Command = {
       query: coinSymbol,
     })
     if (data.ok && data.data.default_ticker) {
-      return await composeTickerEmbed({
+      return await composeTickerResponse({
         msg,
         coinId: data.data.default_ticker,
         hasDefault: true,
@@ -398,7 +401,7 @@ const command: Command = {
     }
 
     // ...else allow selection
-    return composeTickerSelectionResponse(coins, coinSymbol, msg)
+    return composeTickerSelectionResponse(Object.values(coins), coinSymbol, msg)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
