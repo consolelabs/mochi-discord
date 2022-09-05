@@ -70,6 +70,10 @@ export type UserProfile = {
   user_wallet: UserWallet
 }
 
+export type UserProfileResponse = {
+  data: UserProfile
+}
+
 export type UserWallet = {
   user_discord_id: string
   guild_id: string
@@ -77,12 +81,16 @@ export type UserWallet = {
   chain_type: string
 }
 
-export type GetUserNFTResponse = {
+export type GetUserNFTsResponse = {
   page: number
   size: number
   sort: string
   total: number
   data: UserNFT[]
+}
+
+export type GetUserNFTResponse = {
+  data: UserNFT
 }
 
 export type UserNFT = {

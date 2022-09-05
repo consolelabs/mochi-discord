@@ -96,10 +96,21 @@ function buildProgressbar(progress: number): string {
 }
 
 async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
-  const userProfile = await profile.getUserProfile(
+  const userProfileResp = await profile.getUserProfile(
     msg.guildId ?? "",
     msg.author.id
   )
+  if (!userProfileResp.ok) {
+    return {
+      embeds: [
+        getErrorEmbed({
+          msg,
+          description: userProfileResp.error,
+        }),
+      ],
+    }
+  }
+  const userProfile = userProfileResp.data
   const aboutMeStr =
     userProfile.about_me.trim().length === 0
       ? "I'm a mysterious person"
@@ -177,10 +188,22 @@ async function composeMyNFTEmbed(
   collectionAddress?: string,
   page = 0
 ): Promise<MessageOptions> {
-  const userProfile = await profile.getUserProfile(
+  const userProfileResp = await profile.getUserProfile(
     msg.guildId ?? "",
     msg.author.id
   )
+  if (!userProfileResp.ok) {
+    return {
+      embeds: [
+        getErrorEmbed({
+          msg,
+          description: userProfileResp.error,
+        }),
+      ],
+    }
+  }
+
+  const userProfile = userProfileResp.data
   const userAddress = userProfile.user_wallet?.address
   if (!userAddress || !userAddress.length || userAddress === "N/A") {
     const verifyChannel = await community.getVerifyWalletChannel(
@@ -205,10 +228,21 @@ async function composeMyNFTEmbed(
     }
   }
 
-  const { data: userNftCollections } = await profile.getUserNFTCollection({
+  const userNftCollectionResp = await profile.getUserNFTCollection({
     userAddress,
   })
+  if (!userNftCollectionResp.ok) {
+    return {
+      embeds: [
+        getErrorEmbed({
+          msg,
+          description: userNftCollectionResp.error,
+        }),
+      ],
+    }
+  }
 
+  const userNftCollections = userNftCollectionResp.data
   if (userNftCollections.length === 0) {
     const embed = composeEmbedMessage(msg, {
       author: [
@@ -228,12 +262,23 @@ async function composeMyNFTEmbed(
   const { name: colName, image: colImage } = currentSelectedCollection
   const pageSize = 1
 
-  const { total: userNftsTotal, data: userNfts } = await profile.getUserNFT({
+  const getUserNftResp = await profile.getUserNFT({
     userAddress,
     collectionAddress: currentSelectedCollection.collection_address,
     page: page,
     size: pageSize,
   })
+  if (!getUserNftResp.ok) {
+    return {
+      embeds: [
+        getErrorEmbed({
+          msg,
+          description: getUserNftResp.error,
+        }),
+      ],
+    }
+  }
+  const { total: userNftsTotal, data: userNfts } = getUserNftResp
   const totalPage = Math.ceil(userNftsTotal / pageSize)
 
   if (userNfts.length === 0) {
@@ -248,10 +293,21 @@ async function composeMyNFTEmbed(
   }
 
   const userNft = userNfts[0]
-  const nftDetail = await profile.getNFTDetails({
+  const getNftDetailResp = await profile.getNFTDetails({
     collectionAddress: userNft.collection_address,
     tokenId: userNft.token_id,
   })
+  if (!getNftDetailResp.ok) {
+    return {
+      embeds: [
+        getErrorEmbed({
+          msg,
+          description: getNftDetailResp.error,
+        }),
+      ],
+    }
+  }
+  const { data: nftDetail } = getNftDetailResp
   const embed = await composeNFTDetail(nftDetail, msg, colName, colImage)
 
   return {

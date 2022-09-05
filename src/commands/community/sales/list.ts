@@ -6,7 +6,7 @@ import {
   composeSimpleSelection,
 } from "utils/discordEmbed"
 import community from "adapters/community"
-import { shortenHashOrAddress } from "utils/common"
+import { capFirst, shortenHashOrAddress } from "utils/common"
 
 const command: Command = {
   id: "sales_list",
@@ -63,9 +63,9 @@ const command: Command = {
             }>:\n${composeSimpleSelection(
               res.data.collection.map(
                 (c: any) =>
-                  `\`${shortenHashOrAddress(
+                  `\`${capFirst(c.name)} (${shortenHashOrAddress(
                     c.contract_address
-                  )}\` - platform id ${c.platform}`
+                  )}) ${c.chain.name}\``
               )
             )}`,
           }),
