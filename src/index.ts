@@ -1,7 +1,7 @@
 import Discord from "discord.js"
 import events from "./events"
 import { DISCORD_TOKEN } from "./env"
-
+import { registerSlashCommands } from "./commands/slashCommand"
 const client = new Discord.Client({
   intents: [
     Discord.Intents.FLAGS.GUILDS,
@@ -14,7 +14,23 @@ const client = new Discord.Client({
   partials: ["MESSAGE", "REACTION", "CHANNEL"],
 })
 
-// discord client
+// register slash commands
+registerSlashCommands()
+// handle slash commands
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isCommand()) return
+
+  const { commandName } = interaction
+
+  if (commandName === "ping") {
+    await interaction?.reply("Pong!")
+  } else if (commandName === "server") {
+    await interaction?.reply("Server info.")
+  } else if (commandName === "user") {
+    await interaction?.reply("User info.")
+  }
+})
+
 client.login(DISCORD_TOKEN)
 for (const e of events) {
   if (e.once) {

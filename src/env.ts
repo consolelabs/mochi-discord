@@ -7,6 +7,7 @@ if (process.env.JEST_WORKER_ID !== undefined) {
 
 export const PROD = process.env.NODE_ENV === "production"
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN
+export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID
 
 export const API_SERVER_HOST =
   process.env.API_SERVER_HOST || "http://localhost:8200"
