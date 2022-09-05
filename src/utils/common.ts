@@ -319,16 +319,17 @@ export function getUniqueToken(nftList: TopNFTTradingVolumeItem[]): string[] {
   return tokenAvailable
 }
 
+// TODO: move this
 export async function mapSymbolToPrice(
   msg: Message,
   tokenList: string[]
 ): Promise<Map<string, number>> {
   const tokenMap = new Map<string, number>()
   for (const item of tokenList) {
-    const coinList = await Defi.searchCoins(msg, item)
-    const data = await Defi.getCoin(msg, coinList[0].id)
+    const { data: searchData } = await Defi.searchCoins(msg, item)
+    const { data: coin } = await Defi.getCoin(msg, searchData?.[0].id)
 
-    tokenMap.set(item, data.market_data.current_price.usd)
+    tokenMap.set(item, coin?.market_data.current_price.usd)
   }
   return tokenMap
 }

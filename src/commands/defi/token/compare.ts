@@ -28,26 +28,21 @@ import { getChartColorConfig, renderChartImage } from "utils/canvas"
 import { Coin } from "types/defi"
 import { defaultEmojis, getEmoji, hasAdministrator } from "utils/common"
 import config from "adapters/config"
-export const coinNotFoundResponse = (msg: Message, coinQ: string) => ({
-  messageOptions: {
-    embeds: [
-      getErrorEmbed({
-        msg,
-        description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`,
-      }),
-    ],
-  },
-})
 
 async function renderCompareTokenChart({
   times,
   ratios,
+  from,
+  to,
 }: {
   times: string[]
   ratios: number[]
+  from: string
+  to: string
 }) {
+  if (!times || !times.length) return null
   const image = await renderChartImage({
-    chartLabel: `Price ratio (${times[0]} to ${times[times.length - 1]})`,
+    chartLabel: `Price ratio | ${from} - ${to}`,
     labels: times,
     data: ratios,
   })
@@ -61,21 +56,26 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const input = interaction.values[0]
   const [baseCoinId, targetCoinId, days] = input.split("_")
 
-  const { times, ratios } = await Defi.compareToken(
+  const { ok, data } = await Defi.compareToken(
     message,
     baseCoinId,
     targetCoinId,
     +days
   )
+  if (!ok) {
+    await message.removeAttachments()
+    return {
+      messageOptions: { embeds: [getErrorEmbed({ msg: message })] },
+    }
+  }
 
-  const chart = await renderCompareTokenChart({ times, ratios })
+  const { times, ratios, from, to } = data
+  const chart = await renderCompareTokenChart({ times, ratios, from, to })
 
   // update chart image
-  const [embed] = message.embeds
   await message.removeAttachments()
-  if (embed.image) {
-    embed.image.url = "attachment://chart.png"
-  }
+  const [embed] = message.embeds
+  embed.setImage("attachment://chart.png")
 
   const selectMenu = message.components[0].components[0] as MessageSelectMenu
   const choices = ["1", "7", "30", "90", "180", "365"]
@@ -86,7 +86,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   return {
     messageOptions: {
       embeds: [embed],
-      files: [chart],
+      ...(chart && { files: [chart] }),
       components: message.components as MessageActionRow[],
     },
     commandChoiceOptions: {
@@ -139,13 +139,13 @@ const suggestionsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
     authorId,
   ] = input.split("_")
 
-  await composeTokenComparisonEmbed(message, baseCoinId, targetCoinId)
-
   const gMember = message.guild?.members.cache.get(
     authorId ?? message.author.id
   )
+  // ask admin to set server default tickers
   let ephemeralMessage: EphemeralMessage | undefined
   if (hasAdministrator(gMember)) {
+    await interaction.deferReply({ ephemeral: true })
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
         customId: `${baseCoinId}|${baseCoinSymbol}|${baseCoinName}|${targetCoinId}|${targetCoinSymbol}|${targetCoinName}`,
@@ -217,15 +217,14 @@ async function composeTokenComparisonEmbed(
   baseQ: string,
   targetQ: string
 ) {
-  const {
-    times,
-    ratios,
-    base_coin,
-    target_coin,
-    base_coin_suggestions,
-    target_coin_suggestions,
-  } = await Defi.compareToken(msg, baseQ, targetQ, 7)
+  const { ok, data } = await Defi.compareToken(msg, baseQ, targetQ, 7)
+  if (!ok) {
+    return {
+      messageOptions: { embeds: [getErrorEmbed({ msg })] },
+    }
+  }
 
+  const { base_coin_suggestions, target_coin_suggestions } = data
   if (base_coin_suggestions || target_coin_suggestions) {
     return await composeSuggestionsResponse(
       msg,
@@ -241,13 +240,14 @@ async function composeTokenComparisonEmbed(
       .concat(
         `\nPrice: \`$${coin.market_data.current_price[
           "usd"
-        ].toLocaleString()}\``
+        ]?.toLocaleString()}\``
       )
       .concat(
         `\nMarket cap: \`$${coin.market_data.market_cap[
           "usd"
-        ].toLocaleString()}\``
+        ]?.toLocaleString()}\``
       )
+  const { times, ratios, from, to, base_coin, target_coin } = data
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
 
   const embed = composeEmbedMessage(msg, {
@@ -260,7 +260,7 @@ async function composeTokenComparisonEmbed(
     .addField(base_coin.name, coinInfo(base_coin), true)
     .addField(target_coin.name, coinInfo(target_coin), true)
 
-  const chart = await renderCompareTokenChart({ times, ratios })
+  const chart = await renderCompareTokenChart({ times, ratios, from, to })
   const selectRow = composeDaysSelectMenu(
     "compare_token_selection",
     `${baseQ}_${targetQ}`,
@@ -269,7 +269,7 @@ async function composeTokenComparisonEmbed(
 
   return {
     messageOptions: {
-      files: [chart],
+      ...(chart && { files: [chart] }),
       embeds: [embed],
       components: [selectRow, composeDiscordExitButton(msg.author.id)],
     },
