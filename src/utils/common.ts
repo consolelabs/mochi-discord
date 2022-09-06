@@ -326,8 +326,8 @@ export async function mapSymbolToPrice(
 ): Promise<Map<string, number>> {
   const tokenMap = new Map<string, number>()
   for (const item of tokenList) {
-    const { data: searchData } = await Defi.searchCoins(msg, item)
-    const { data: coin } = await Defi.getCoin(msg, searchData?.[0].id)
+    const { data: searchData } = await Defi.searchCoins(item)
+    const { data: coin } = await Defi.getCoin(searchData?.[0].id)
 
     tokenMap.set(item, coin?.market_data.current_price.usd)
   }

@@ -166,11 +166,11 @@ class Defi extends Fetcher {
     return json.data
   }
 
-  public async getCoin(message: Message, id: string) {
+  public async getCoin(id: string) {
     return await this.jsonFetch<Coin>(`${API_BASE_URL}/defi/coins/${id}`)
   }
 
-  public async searchCoins(message: Message, query: string) {
+  public async searchCoins(query: string) {
     return await this.jsonFetch(`${API_BASE_URL}/defi/coins?query=${query}`)
   }
 
@@ -190,13 +190,13 @@ class Defi extends Fetcher {
   }
 
   async compareToken(
-    msg: Message,
+    guildId: string,
     baseQ: string,
     targetQ: string,
     days: number
   ) {
     return await this.jsonFetch<CoinComparisionData>(
-      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${msg.guildId}&interval=${days}`
+      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${guildId}&interval=${days}`
     )
   }
 
