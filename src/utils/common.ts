@@ -80,6 +80,7 @@ export const numberEmojis: Record<string, string> = {
   NUM_9: "932856132832223232",
 }
 
+// TODO(tuand) rename this to expBarEmojis
 export const progressBarEmojis: Record<string, string> = {
   BAR_1_EMPTY: "1004837203735756881",
   BAR_1_HALF: "1004837199851835392",
@@ -92,6 +93,15 @@ export const progressBarEmojis: Record<string, string> = {
   BAR_3_EMPTY: "1004837207850356847",
   BAR_3_MID: "1004837195510722630",
   BAR_3_FULL: "1004837193673613412",
+}
+
+export const progressEmojis: Record<string, string> = {
+  PROGRESS_EMPTY_1: "1016993271051984936",
+  PROGRESS_EMPTY_2: "1016993269202296892",
+  PROGRESS_EMPTY_3: "1016993266371141704",
+  PROGRESS_1: "1016993258380988436",
+  PROGRESS_2: "1016993262101344306",
+  PROGRESS_3: "1016993264357875743",
 }
 
 export const defaultEmojis: Record<string, string> = {
@@ -127,15 +137,20 @@ export const emojis: { [key: string]: string } = {
   GAME: "916623575824338974",
   HEART: "991939196405174442",
   APPROVE: "933341948402618378",
+  APPROVE_GREY: "1016628985351909457",
   NFTS: "977508805011181638",
   QUESTION: "1008993149076635698",
   SWAP: "933340602223955998",
+  LIKE: "900370883594551348",
+  PAWCOIN: "887275176113373194",
+  EXP: "1016985999039016982",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
   ...marketplaceEmojis,
   ...traitEmojis,
   ...progressBarEmojis,
+  ...progressEmojis,
 }
 
 export const tripodEmojis: Record<string, string> = {

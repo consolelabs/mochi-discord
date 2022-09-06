@@ -2,7 +2,6 @@ import { CommandInteraction } from "discord.js"
 import { HELP, HOMEPAGE_URL, SLASH_PREFIX } from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import { slashCommands } from "../index"
 import { emojis, thumbnails } from "utils/common"
 import config from "../adapters/config"
 import { Category, SlashCommand } from "types/common"
@@ -12,6 +11,7 @@ import {
   justifyEmbedFields,
 } from "utils/discordEmbed"
 import { SlashCommandBuilder } from "@discordjs/builders"
+import { slashCommands } from "commands"
 dayjs.extend(utc)
 
 const categoryIcons: Record<Category, string> = {

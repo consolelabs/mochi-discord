@@ -10,9 +10,8 @@ import {
   SPACES_REGEX,
   USER_PREFIX,
 } from "./constants"
-import { commands } from "commands"
+import { commands, slashCommands } from "commands"
 import { utils } from "ethers"
-import { slashCommands } from "index"
 
 export const getCommandArguments = (message: Message) => {
   const content = message?.content
