@@ -4,7 +4,16 @@ import { APPLICATION_ID, DISCORD_TOKEN } from "./env"
 import { REST } from "@discordjs/rest"
 import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
-import { slashCommands } from "commands"
+
+// slash commands
+import help_slash from "./commands/help_slash"
+import ticker_slash from "./commands/defi/ticker_slash"
+import { SlashCommand } from "types/common"
+
+export const slashCommands: Record<string, SlashCommand> = {
+  ticker: ticker_slash,
+  help: help_slash,
+}
 
 const client = new Discord.Client({
   intents: [
@@ -33,14 +42,14 @@ process.on("SIGTERM", () => {
 })
 
 // register slash commands
-const commands = Object.values(slashCommands).map((c) => c.data)
+const body = Object.values(slashCommands).map((c) => c.prepare(slashCommands))
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 
 ;(async () => {
   try {
     logger.info("Started refreshing application (/) commands.")
     await rest.put(Routes.applicationCommands(APPLICATION_ID), {
-      body: commands,
+      body,
     })
     logger.info("Successfully reloaded application (/) commands.")
   } catch (error) {

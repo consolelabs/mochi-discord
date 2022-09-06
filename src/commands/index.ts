@@ -27,7 +27,10 @@ import nftrole from "./config/nftRole"
 import verify from "./community/verify"
 import log from "./config/log"
 import poe from "./config/poe"
-import ticker_slash from "./defi/ticker_slash"
+
+// slash commands
+// import help_slash from "./help_slash"
+// import ticker_slash from "./defi/ticker_slash"
 
 // external
 import { Message } from "discord.js"
@@ -47,15 +50,16 @@ import guildCustomCommand from "../adapters/guildCustomCommand"
 import { customCommandsExecute } from "./customCommand"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 
-import { Command, Category, SlashCommand } from "types/common"
+import { Command, Category } from "types/common"
 import { hasAdministrator } from "utils/common"
 import ChannelLogger from "utils/ChannelLogger"
 import { getErrorEmbed } from "utils/discordEmbed"
 import { HELP } from "utils/constants"
 
-export const slashCommands: Record<string, SlashCommand> = {
-  ticker: ticker_slash,
-}
+// export const slashCommands: Record<string, SlashCommand> = {
+//   ticker: ticker_slash,
+//   help: help_slash,
+// }
 
 export const originalCommands: Record<string, Command> = {
   // general help

@@ -30,6 +30,36 @@ export const embedsColors: Record<string, string> = {
   Game: "#FFAD83",
 }
 
+export type SlashCommandChoiceOption = {
+  name: string
+  description: string
+  required: boolean
+  choices: [string, string][]
+}
+
+export type SlashCommand = {
+  name: string
+  category: Category
+  run: (interaction: CommandInteraction) => Promise<
+    | {
+        messageOptions: MessageOptions
+        commandChoiceOptions?: SetOptional<
+          CommandChoiceHandlerOptions,
+          "messageId"
+        >
+      }
+    | void
+    | null
+    | undefined
+  >
+  help: (interaction: CommandInteraction) => Promise<MessageOptions>
+  prepare: (
+    slashCommands?: Record<string, SlashCommand>
+  ) => Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
+  choiceOptions?: SlashCommandChoiceOption[]
+  colorType: ColorType
+}
+
 // All command must conform to this type
 export type Command = {
   id: string
@@ -135,21 +165,4 @@ export type RepostReactionRequest = {
   emoji: string
   quantity?: number | 0
   repost_channel_id?: string | ""
-}
-
-export type SlashCommand = {
-  command: string
-  run: (interaction: CommandInteraction) => Promise<
-    | {
-        messageOptions: MessageOptions
-        commandChoiceOptions?: SetOptional<
-          CommandChoiceHandlerOptions,
-          "messageId"
-        >
-      }
-    | void
-    | null
-    | undefined
-  >
-  data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
 }

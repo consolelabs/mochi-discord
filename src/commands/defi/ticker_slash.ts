@@ -16,6 +16,7 @@ import {
   getEmoji,
   hasAdministrator,
   roundFloatNumber,
+  thumbnails,
 } from "utils/common"
 import {
   composeDiscordSelectionRow,
@@ -24,6 +25,7 @@ import {
   composeDaysSelectMenu,
   getSuccessEmbed,
   composeDiscordExitButton,
+  composeEmbedMessage2,
 } from "utils/discordEmbed"
 import Defi from "adapters/defi"
 import {
@@ -35,6 +37,7 @@ import config from "adapters/config"
 import { Coin } from "types/defi"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import Compare from "./token/compare_slash"
+import { PREFIX } from "utils/constants"
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -335,27 +338,27 @@ async function composeTickerSelectionResponse(
   }
 }
 
-const data = new SlashCommandBuilder()
-  .setName("ticker")
-  .setDescription("Show/Compare coins price and market cap")
-  .addStringOption((option) =>
-    option
-      .setName("base")
-      .setDescription("the cryptocurrency which you wanna check price.")
-      .setRequired(true)
-  )
-  .addStringOption((option) =>
-    option
-      .setName("target")
-      .setDescription("the second cryptocurrency for comparison.")
-      .setRequired(false)
-  )
-
 const command: SlashCommand = {
-  command: "ticker",
-  data,
+  name: "ticker",
+  category: "Defi",
+  prepare: () => {
+    return new SlashCommandBuilder()
+      .setName("ticker")
+      .setDescription("Show/Compare coins price and market cap")
+      .addStringOption((option) =>
+        option
+          .setName("base")
+          .setDescription("the cryptocurrency which you wanna check price.")
+          .setRequired(true)
+      )
+      .addStringOption((option) =>
+        option
+          .setName("target")
+          .setDescription("the second cryptocurrency for comparison.")
+          .setRequired(false)
+      )
+  },
   run: async function (interaction: CommandInteraction) {
-    await interaction.deferReply()
     const baseQ = interaction.options.getString("base")
     if (!interaction.guildId || !baseQ) return null
     // run token comparison
@@ -392,6 +395,18 @@ const command: SlashCommand = {
       interaction
     )
   },
+  help: async (interaction) => ({
+    embeds: [
+      composeEmbedMessage2(interaction, {
+        thumbnail: thumbnails.TOKENS,
+        title: "Display/Compare coin price and market cap",
+        description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
+        usage: `${PREFIX}ticker <symbol>\n${PREFIX}ticker <base>/<target> (comparison)`,
+        examples: `${PREFIX}ticker eth\n${PREFIX}ticker fantom\n${PREFIX}ticker btc/bnb`,
+      }),
+    ],
+  }),
+  colorType: "Defi",
 }
 
 export default command

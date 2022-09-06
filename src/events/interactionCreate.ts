@@ -1,4 +1,4 @@
-import { slashCommands } from "commands"
+import { slashCommands } from "index"
 import { confirmGlobalXP } from "commands/config/globalxp"
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
 import { backToTickerSelection } from "commands/defi/ticker"
@@ -53,7 +53,9 @@ export default {
 
 async function handleCommandInteraction(interaction: Interaction) {
   const i = interaction as CommandInteraction
-  const response = await slashCommands[i.commandName].run(i)
+  await i.deferReply()
+  const command = slashCommands[i.commandName]
+  const response = await command.run(i)
   if (!response) return
   const { messageOptions, commandChoiceOptions } = response
   const reply = await i.editReply(messageOptions)
