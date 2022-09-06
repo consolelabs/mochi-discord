@@ -1,6 +1,10 @@
 import Discord from "discord.js"
 import events from "./events"
-import { DISCORD_TOKEN } from "./env"
+import { APPLICATION_ID, DISCORD_TOKEN } from "./env"
+import { REST } from "@discordjs/rest"
+import { Routes } from "discord-api-types/v9"
+import { logger } from "logger"
+import { slashCommands } from "commands"
 
 const client = new Discord.Client({
   intents: [
@@ -27,5 +31,21 @@ for (const e of events) {
 process.on("SIGTERM", () => {
   process.exit(0)
 })
+
+// register slash commands
+const commands = Object.values(slashCommands).map((c) => c.data)
+const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
+
+;(async () => {
+  try {
+    logger.info("Started refreshing application (/) commands.")
+    await rest.put(Routes.applicationCommands(APPLICATION_ID), {
+      body: commands,
+    })
+    logger.info("Successfully reloaded application (/) commands.")
+  } catch (error) {
+    logger.error("Failed to refresh application (/) commands.")
+  }
+})()
 
 export default client

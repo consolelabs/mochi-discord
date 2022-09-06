@@ -145,7 +145,8 @@ const command: Command = {
     })
 
     if (ruleId) {
-      await config.setTwitterConfig(msg.guildId, {
+      await config.setTwitterConfig({
+        guild_id: msg.guildId,
         hashtag: triggerKeywords.filter((k) => k.startsWith(hashtagPrefix)),
         twitter_username: triggerKeywords.filter((k) =>
           k.startsWith(handlePrefix)

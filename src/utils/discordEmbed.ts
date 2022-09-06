@@ -123,7 +123,7 @@ export async function workInProgress(): Promise<MessageOptions> {
 }
 
 export function composeEmbedMessage(
-  msg: Message | null,
+  msg: Message | null | undefined,
   props: EmbedProperties
 ) {
   let { title, description = "" } = props
@@ -256,7 +256,7 @@ export function getErrorEmbed(params: {
   title?: string
   description?: string
   thumbnail?: string
-  msg: Message
+  msg?: Message
   image?: string
 }) {
   const { title, description, thumbnail, msg, image } = params

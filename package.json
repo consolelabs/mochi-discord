@@ -4,7 +4,8 @@
     "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
     "test": "jest",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "generate:types": "node ./scripts/generate-types.js"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.15.0",
@@ -71,6 +72,7 @@
     "pod-room-engine-demo": "^1.0.0",
     "query-string": "^7.1.1",
     "sharp": "^0.30.7",
+    "swagger-typescript-api": "^10.0.1",
     "triple-pod-game-engine": "^6.0.1",
     "ts-case-convert": "^2.0.2",
     "twitter-api-sdk": "^1.1.0",
@@ -81,5 +83,8 @@
   "lint-staged": {
     "*.{js,ts}": "eslint --cache --fix",
     "*.{js,ts,md}": "prettier --write"
+  },
+  "resolutions": {
+    "typescript": "4.7.4"
   }
 }

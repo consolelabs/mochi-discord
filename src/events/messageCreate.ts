@@ -40,7 +40,8 @@ export default {
   name: "messageCreate",
   once: false,
   execute: async (message: Message) => {
-    if (message.author.bot) return
+    // deny handling if author is bot or message is empty (new user join server)
+    if (message.author.bot || !message.content) return
 
     try {
       if (message.content.startsWith(PREFIX)) {
