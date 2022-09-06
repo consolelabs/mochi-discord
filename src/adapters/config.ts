@@ -12,6 +12,10 @@ import { Guild, Guilds } from "types/config"
 import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
 import { Fetcher } from "./fetcher"
+import {
+  RequestTwitterHashtag,
+  ResponseGetTwitterHashtagConfigResponse,
+} from "types/api"
 
 class Config extends Fetcher {
   public Guilds?: Guilds
@@ -663,24 +667,14 @@ class Config extends Fetcher {
     }
   }
 
-  public async setTwitterConfig(
-    guild_id: string,
-    data: {
-      channel_id: string
-      user_id: string
-      hashtag: Array<string>
-      twitter_username: Array<string>
-      from_twitter: Array<string>
-      rule_id: string
-    }
-  ) {
-    return await this.jsonFetch(`${API_BASE_URL}/configs/twitter/hashtag`, {
-      method: "POST",
-      body: JSON.stringify({
-        guild_id,
-        ...data,
-      }),
-    })
+  public async setTwitterConfig(data: RequestTwitterHashtag) {
+    return await this.jsonFetch<ResponseGetTwitterHashtagConfigResponse>(
+      `${API_BASE_URL}/configs/twitter/hashtag`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    )
   }
 
   public async getTwitterConfig(guildId = "") {
