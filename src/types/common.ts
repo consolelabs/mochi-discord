@@ -137,6 +137,8 @@ export type RepostReactionRequest = {
   repost_channel_id?: string | ""
 }
 
+export type MochiFilter = (interaction: CommandInteraction) => Promise<void>
+
 export type SlashCommand = {
   command: string
   run: (interaction: CommandInteraction) => Promise<
@@ -151,5 +153,9 @@ export type SlashCommand = {
     | null
     | undefined
   >
+  /*
+   * List of async function, resolve to pass through, reject (optionally with an error message) to exit early and do nothing
+   * */
+  filters?: Array<MochiFilter>
   data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
 }

@@ -16,6 +16,8 @@ import { BotBaseError } from "errors"
 import { logger } from "logger"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
+import { runAll } from "utils/common"
+import { getErrorEmbed } from "utils/discordEmbed"
 import { Event } from "."
 
 export default {
@@ -53,7 +55,23 @@ export default {
 
 async function handleCommandInteraction(interaction: Interaction) {
   const i = interaction as CommandInteraction
-  const response = await slashCommands[i.commandName].run(i)
+  const { run, filters = [] } = slashCommands[i.commandName]
+  if (filters.length > 0) {
+    try {
+      await Promise.all(runAll(filters))
+    } catch (e: any) {
+      if (typeof e === "string") {
+        i.reply({
+          ephemeral: true,
+          embeds: [getErrorEmbed({ description: e })],
+        })
+      } else {
+        logger.warn(e)
+      }
+      return
+    }
+  }
+  const response = await run(i)
   if (!response) return
   const { messageOptions, commandChoiceOptions } = response
   const reply = await i.editReply(messageOptions)

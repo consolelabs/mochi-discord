@@ -377,3 +377,7 @@ export function isValidHttpUrl(urlStr: string) {
   }
   return url.protocol === "http:" || url.protocol === "https:"
 }
+
+export function runAll<T extends (...args: any) => any>(funcs: Array<T>) {
+  return funcs.map((f) => f())
+}
