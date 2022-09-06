@@ -8,11 +8,13 @@ import { logger } from "logger"
 // slash commands
 import help_slash from "./commands/help_slash"
 import ticker_slash from "./commands/defi/ticker_slash"
+import log_slash from "./commands/config/log_slash"
 import { SlashCommand } from "types/common"
 
 export const slashCommands: Record<string, SlashCommand> = {
   ticker: ticker_slash,
   help: help_slash,
+  log: log_slash,
 }
 
 const client = new Discord.Client({
