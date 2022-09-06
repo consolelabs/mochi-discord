@@ -236,8 +236,8 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const payload = await Defi.getTransferPayload(msg, args)
     // check balance
-    const data = await Defi.discordWalletBalances(msg.guildId, msg.author.id)
-    const currentBal = data.balances[payload.cryptocurrency.toUpperCase()]
+    const bals = await Defi.discordWalletBalances(msg.guildId, msg.author.id)
+    const currentBal = bals.balances[payload.cryptocurrency.toUpperCase()]
     if (currentBal < payload.amount && !payload.all) {
       return {
         messageOptions: {
@@ -256,7 +256,12 @@ const command: Command = {
 
     // ---------------
     const tokenEmoji = getEmoji(payload.cryptocurrency)
-    const coin = await Defi.getCoin(msg, payload.token?.coin_gecko_id ?? "")
+    const { ok, data: coin } = await Defi.getCoin(
+      payload.token?.coin_gecko_id ?? ""
+    )
+    if (!ok) {
+      return { messageOptions: { embeds: [getErrorEmbed({ msg })] } }
+    }
     const currentPrice = roundFloatNumber(coin.market_data.current_price["usd"])
     const amountDescription = `${tokenEmoji} **${roundFloatNumber(
       payload.amount,

@@ -8,7 +8,6 @@ import {
   Coin,
   CoinComparisionData,
 } from "types/defi"
-import { InvalidInputError } from "errors"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
 import { getCommandObject } from "utils/commands"
@@ -167,90 +166,38 @@ class Defi extends Fetcher {
     return json.data
   }
 
-  public async getCoin(message: Message, id: string): Promise<Coin> {
-    const resp = await fetch(`${API_BASE_URL}/defi/coins/${id}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    })
-    if (resp.status !== 200) {
-      throw new InvalidInputError({ message })
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
+  public async getCoin(id: string) {
+    return await this.jsonFetch<Coin>(`${API_BASE_URL}/defi/coins/${id}`)
   }
 
-  public async searchCoins(message: Message, query: string) {
-    const resp = await fetch(`${API_BASE_URL}/defi/coins?query=${query}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    })
-    if (resp.status !== 200) {
-      throw new InvalidInputError({ message })
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-
-    return json.data
+  public async searchCoins(query: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/coins?query=${query}`)
   }
 
   async getHistoricalMarketData(
-    message: Message,
     coin_id: string,
     currency: string,
     days: number
-  ): Promise<{
-    times: string[]
-    prices: number[]
-    from: string
-    to: string
-  }> {
-    const resp = await fetch(
-      `${API_BASE_URL}/defi/market-chart?coin_id=${coin_id}&currency=${currency}&days=${days}`,
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      }
+  ) {
+    return await this.jsonFetch<{
+      times: string[]
+      prices: number[]
+      from: string
+      to: string
+    }>(
+      `${API_BASE_URL}/defi/market-chart?coin_id=${coin_id}&currency=${currency}&days=${days}`
     )
-    if (resp.status !== 200) {
-      throw new InvalidInputError({ message })
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   async compareToken(
-    msg: Message,
+    guildId: string,
     baseQ: string,
     targetQ: string,
     days: number
-  ): Promise<CoinComparisionData> {
-    const resp = await fetch(
-      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${msg.guildId}&interval=${days}`,
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      }
+  ) {
+    return await this.jsonFetch<CoinComparisionData>(
+      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${guildId}&interval=${days}`
     )
-    if (resp.status !== 200) {
-      throw new InvalidInputError({ message: msg })
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   /**

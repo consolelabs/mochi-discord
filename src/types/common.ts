@@ -1,4 +1,11 @@
-import { ColorResolvable, Message, MessageOptions, User } from "discord.js"
+import { SlashCommandBuilder } from "@discordjs/builders"
+import {
+  ColorResolvable,
+  CommandInteraction,
+  Message,
+  MessageOptions,
+  User,
+} from "discord.js"
 import { SetOptional } from "type-fest"
 import { CommandChoiceHandlerOptions } from "utils/CommandChoiceManager"
 
@@ -128,4 +135,21 @@ export type RepostReactionRequest = {
   emoji: string
   quantity?: number | 0
   repost_channel_id?: string | ""
+}
+
+export type SlashCommand = {
+  command: string
+  run: (interaction: CommandInteraction) => Promise<
+    | {
+        messageOptions: MessageOptions
+        commandChoiceOptions?: SetOptional<
+          CommandChoiceHandlerOptions,
+          "messageId"
+        >
+      }
+    | void
+    | null
+    | undefined
+  >
+  data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
 }

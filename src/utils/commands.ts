@@ -21,7 +21,7 @@ export const getCommandArguments = (message: Message) => {
     .split(SPACES_REGEX)
 }
 
-export const specificHelpCommand = (message: Message | null) => {
+export const specificHelpCommand = (message?: Message | null) => {
   if (!message) return null
   const args = getCommandArguments(message)
   return (
@@ -54,7 +54,7 @@ export const getAllAliases = (
   }, commands)
 }
 
-export const getCommandObject = (msg: Message | null): Command | null => {
+export const getCommandObject = (msg?: Message | null): Command | null => {
   if (!msg) return null
   const args = getCommandArguments(msg)
   if (!args.length) return null
@@ -63,7 +63,7 @@ export const getCommandObject = (msg: Message | null): Command | null => {
   return null
 }
 
-export const getActionCommand = (msg: Message | null): Command | null => {
+export const getActionCommand = (msg?: Message | null): Command | null => {
   if (!msg) return null
   const args = getCommandArguments(msg)
   if (!args.length) return null
