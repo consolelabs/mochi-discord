@@ -1,6 +1,6 @@
-import { Command } from "types/common"
 import {
   ButtonInteraction,
+  CommandInteraction,
   HexColorString,
   Message,
   MessageActionRow,
@@ -10,7 +10,6 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { getCommandArguments } from "utils/commands"
 import {
   composeDiscordExitButton,
   composeEmbedMessage,
@@ -55,11 +54,13 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const [baseCoinId, targetCoinId, days] = input.split("_")
-  if (!message.guildId) {
-    return { messageOptions: { embeds: [getErrorEmbed({ msg: message })] } }
+  if (!interaction.guildId) {
+    return {
+      messageOptions: { embeds: [getErrorEmbed({})] },
+    }
   }
   const { ok, data } = await Defi.compareToken(
-    message.guildId,
+    interaction.guildId,
     baseCoinId,
     targetCoinId,
     +days
@@ -67,7 +68,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   if (!ok) {
     await message.removeAttachments()
     return {
-      messageOptions: { embeds: [getErrorEmbed({ msg: message })] },
+      messageOptions: { embeds: [getErrorEmbed({})] },
     }
   }
 
@@ -169,13 +170,17 @@ const suggestionsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
   }
 
   return {
-    ...(await composeTokenComparisonEmbed(message, baseCoinId, targetCoinId)),
+    ...(await composeTokenComparisonEmbed(
+      interaction,
+      baseCoinId,
+      targetCoinId
+    )),
     ephemeralMessage,
   }
 }
 
 async function composeSuggestionsResponse(
-  msg: Message,
+  interaction: SelectMenuInteraction | CommandInteraction,
   baseQ: string,
   targetQ: string,
   baseSuggestions: Coin[],
@@ -183,7 +188,7 @@ async function composeSuggestionsResponse(
 ) {
   const opt = (base: Coin, target: Coin): MessageSelectOptionData => ({
     label: `${base.name} (${base.symbol}) x ${target.name} (${target.symbol})`,
-    value: `${base.id}_${base.symbol}_${base.name}_${target.id}_${target.symbol}_${target.name}_${msg.author.id}`,
+    value: `${base.id}_${base.symbol}_${base.name}_${target.id}_${target.symbol}_${target.name}_${interaction.user.id}`,
   })
   const options = baseSuggestions
     .map((b) => targetSuggestions.map((t) => opt(b, t)))
@@ -195,7 +200,7 @@ async function composeSuggestionsResponse(
     options,
   })
 
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     title: `${defaultEmojis.MAG} Multiple options found`,
     description: `${options.length} options found for \`${baseQ}/${targetQ}\`.\nPlease select one of the following options below`,
   })
@@ -203,38 +208,43 @@ async function composeSuggestionsResponse(
   return {
     messageOptions: {
       embeds: [embed],
-      components: [selectRow, composeDiscordExitButton(msg.author.id)],
+      components: [selectRow, composeDiscordExitButton(interaction.user.id)],
     },
     commandChoiceOptions: {
-      userId: msg.author.id,
-      guildId: msg.guildId,
-      channelId: msg.channelId,
+      userId: interaction.user.id,
+      guildId: interaction.guildId,
+      channelId: interaction.channelId,
       handler: suggestionsHandler,
     },
   }
 }
 
 async function composeTokenComparisonEmbed(
-  msg: Message,
+  interaction: SelectMenuInteraction | CommandInteraction,
   baseQ: string,
   targetQ: string
 ) {
-  if (!msg.guildId) {
+  if (!interaction.guildId) {
     return {
-      messageOptions: { embeds: [getErrorEmbed({ msg })] },
+      messageOptions: { embeds: [getErrorEmbed({})] },
     }
   }
-  const { ok, data } = await Defi.compareToken(msg.guildId, baseQ, targetQ, 7)
+  const { ok, data } = await Defi.compareToken(
+    interaction.guildId,
+    baseQ,
+    targetQ,
+    7
+  )
   if (!ok) {
     return {
-      messageOptions: { embeds: [getErrorEmbed({ msg })] },
+      messageOptions: { embeds: [getErrorEmbed({})] },
     }
   }
 
   const { base_coin_suggestions, target_coin_suggestions } = data
   if (base_coin_suggestions || target_coin_suggestions) {
     return await composeSuggestionsResponse(
-      msg,
+      interaction,
       baseQ,
       targetQ,
       base_coin_suggestions,
@@ -257,7 +267,7 @@ async function composeTokenComparisonEmbed(
   const { times, ratios, from, to, base_coin, target_coin } = data
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
 
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(baseQ).borderColor as HexColorString,
     author: [`${base_coin.name} vs. ${target_coin.name}`],
     footer: ["Data fetched from CoinGecko.com"],
@@ -278,34 +288,21 @@ async function composeTokenComparisonEmbed(
     messageOptions: {
       ...(chart && { files: [chart] }),
       embeds: [embed],
-      components: [selectRow, composeDiscordExitButton(msg.author.id)],
+      components: [selectRow, composeDiscordExitButton(interaction.user.id)],
     },
     commandChoiceOptions: {
-      userId: msg.author.id,
-      guildId: msg.guildId,
-      channelId: msg.channelId,
+      userId: interaction.user.id,
+      guildId: interaction.guildId,
+      channelId: interaction.channelId,
       handler,
     },
   }
 }
 
-const command: Command = {
-  id: "tokens_compare",
-  command: "compare",
-  brief: "View comparison between 2 tokens",
-  category: "Defi",
-  run: async function (msg) {
-    const args = getCommandArguments(msg)
-    const [query] = args.slice(1)
-    const [baseQ, targetQ] = query.split("/")
-    return await composeTokenComparisonEmbed(msg, baseQ, targetQ)
-  },
-  getHelpMessage: async () => {
-    return {}
-  },
-  canRunWithoutAction: true,
-  colorType: "Defi",
-  minArguments: 3,
+export default async function Compare(
+  interaction: CommandInteraction,
+  baseQ: string,
+  targetQ: string
+) {
+  return await composeTokenComparisonEmbed(interaction, baseQ, targetQ)
 }
-
-export default command

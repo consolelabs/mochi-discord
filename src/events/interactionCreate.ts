@@ -1,3 +1,4 @@
+import { slashCommands } from "commands"
 import { confirmGlobalXP } from "commands/config/globalxp"
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
 import { backToTickerSelection } from "commands/defi/ticker"
@@ -8,6 +9,7 @@ import {
   ButtonInteraction,
   Message,
   Interaction,
+  CommandInteraction,
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { BotBaseError } from "errors"
@@ -19,13 +21,22 @@ import { Event } from "."
 export default {
   name: "interactionCreate",
   once: false,
-  execute: async (interaction: SelectMenuInteraction | ButtonInteraction) => {
-    const msg = interaction.message as Message
+  execute: async (interaction) => {
+    if (
+      !interaction.isSelectMenu() &&
+      !interaction.isButton() &&
+      !interaction.isCommand()
+    )
+      return
+    const msg = (<SelectMenuInteraction | ButtonInteraction>interaction)
+      .message as Message
     try {
       if (interaction.isSelectMenu()) {
-        await handleSelecMenuInteraction(interaction, msg)
+        await handleSelecMenuInteraction(interaction)
       } else if (interaction.isButton()) {
-        await handleButtonInteraction(interaction, msg)
+        await handleButtonInteraction(interaction)
+      } else if (interaction.isCommand()) {
+        await handleCommandInteraction(interaction)
       }
     } catch (e) {
       const error = e as BotBaseError
@@ -40,11 +51,23 @@ export default {
   },
 } as Event<"interactionCreate">
 
-async function handleSelecMenuInteraction(
-  interaction: Interaction,
-  msg: Message
-) {
+async function handleCommandInteraction(interaction: Interaction) {
+  const i = interaction as CommandInteraction
+  const response = await slashCommands[i.commandName].run(i)
+  if (!response) return
+  const { messageOptions, commandChoiceOptions } = response
+  const reply = await i.editReply(messageOptions)
+  if (commandChoiceOptions) {
+    CommandChoiceManager.add({
+      ...commandChoiceOptions,
+      messageId: reply.id,
+    })
+  }
+}
+
+async function handleSelecMenuInteraction(interaction: Interaction) {
   const i = interaction as SelectMenuInteraction
+  const msg = i.message as Message
   const key = `${i.user.id}_${msg.guildId}_${msg.channelId}`
   const commandChoice = await CommandChoiceManager.get(key)
   if (!commandChoice || !commandChoice.handler) return
@@ -112,8 +135,9 @@ async function handleSelecMenuInteraction(
   await msg.edit(messageOptions)
 }
 
-async function handleButtonInteraction(interaction: Interaction, msg: Message) {
+async function handleButtonInteraction(interaction: Interaction) {
   const i = interaction as ButtonInteraction
+  const msg = i.message as Message
   switch (true) {
     case i.customId.startsWith("exit-"): {
       const authorId = i.customId.split("-")[1]
