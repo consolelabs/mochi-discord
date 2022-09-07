@@ -249,7 +249,7 @@ export function getSuccessEmbed(params: {
   title?: string
   description?: string
   thumbnail?: string
-  msg: Message
+  msg?: Message
   image?: string
 }) {
   const { title, description, thumbnail, msg, image } = params
