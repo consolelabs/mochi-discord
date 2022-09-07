@@ -68,7 +68,10 @@ export class Fetcher {
         query[snakeCase(key)] = value
       }
       const res = await fetch(
-        querystring.stringifyUrl({ url, query }),
+        querystring.stringifyUrl(
+          { url, query },
+          { arrayFormat: "separator", arrayFormatSeparator: "|" }
+        ),
         validInit
       )
 

@@ -1,7 +1,33 @@
 import Config from "adapters/config"
+import { ResponseListGuildGroupNFTRolesResponse } from "types/api"
 import { Command } from "types/common"
+import { getEmoji, shortenHashOrAddress } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+
+export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
+  let description
+  if (data?.length === 0) {
+    description = "No configuration found"
+  } else {
+    description = data
+      ?.map(
+        (c) =>
+          `Group <@&${c.role_id}> - requires \`${
+            c.number_of_tokens
+          }\`\n${c.nft_collection_configs
+            ?.map(
+              (nftCol) =>
+                `${getEmoji("blank")}${getEmoji("reply")}\`${
+                  nftCol.symbol?.toUpperCase() ?? ""
+                } ${shortenHashOrAddress(nftCol.address ?? "")}\``
+            )
+            .join("\n")}`
+      )
+      .join("\n\n")
+  }
+  return description
+}
 
 const command: Command = {
   id: "nr_list",
@@ -22,8 +48,8 @@ const command: Command = {
         },
       }
     }
-    const configs: any[] = await Config.getGuildNFTRoleConfigs(msg.guildId)
-    if (!configs || !configs.length) {
+    const configs = await Config.getGuildNFTRoleConfigs(msg.guildId)
+    if (!configs || !configs.ok) {
       return {
         messageOptions: {
           embeds: [
@@ -37,15 +63,7 @@ const command: Command = {
       }
     }
 
-    let roles = ""
-    let amountToken = ""
-
-    configs.forEach((config) => {
-      roles += `<@&${config.role_id}>\n`
-      amountToken += `${config.number_of_tokens} ${
-        config.nft_collection.symbol
-      } ${config.token_id ? "`No." + config.token_id + "`" : ""} \n`
-    })
+    const description = list(configs)
 
     return {
       messageOptions: {
@@ -55,18 +73,8 @@ const command: Command = {
               `${msg.guild.name}'s nftroles configuration`,
               msg.guild.iconURL(),
             ],
-          }).addFields([
-            {
-              name: "NFT Roles",
-              value: roles,
-              inline: true,
-            },
-            {
-              name: "Amount of tokens",
-              value: amountToken,
-              inline: true,
-            },
-          ]),
+            description,
+          }),
         ],
       },
     }
