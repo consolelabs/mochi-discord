@@ -40,6 +40,9 @@ export type SlashCommandChoiceOption = {
 export type SlashCommand = {
   name: string
   category: Category
+  prepare: (
+    slashCommands?: Record<string, SlashCommand>
+  ) => Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
   run: (interaction: CommandInteraction) => Promise<
     | {
         messageOptions: MessageOptions
@@ -53,14 +56,11 @@ export type SlashCommand = {
     | undefined
   >
   help: (interaction: CommandInteraction) => Promise<MessageOptions>
-  prepare: (
-    slashCommands?: Record<string, SlashCommand>
-  ) => Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
-  choiceOptions?: SlashCommandChoiceOption[]
+  ephemeral?: boolean
   colorType: ColorType
 }
 
-// All command must conform to this type
+// TODO: remove after slash command migration done
 export type Command = {
   id: string
   command: string
@@ -115,6 +115,7 @@ export type EmbedProperties = {
   actions?: Record<string, Command>
 }
 
+// TODO: move all below
 export type Role = {
   id: string
   name: string
