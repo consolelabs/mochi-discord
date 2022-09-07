@@ -15,6 +15,7 @@ export async function logInfo(interaction: CommandInteraction) {
         embeds: [
           getErrorEmbed({
             description: "This command must be run in a Guild",
+            originalMsgAuthor: interaction.user,
           }),
         ],
       },
@@ -29,6 +30,7 @@ export async function logInfo(interaction: CommandInteraction) {
     const embed = composeEmbedMessage(null, {
       author: [interaction.guild.name, interaction.guild.iconURL() ?? ""],
       description: `No logging channel configured for this guild.\nSet one with \`${SLASH_PREFIX}log set <channel>.\``,
+      originalMsgAuthor: interaction.user,
     })
     return { messageOptions: { embeds: [embed] } }
   }
@@ -36,6 +38,7 @@ export async function logInfo(interaction: CommandInteraction) {
   const embed = composeEmbedMessage(null, {
     author: [interaction.guild.name, interaction.guild.iconURL() ?? ""],
     description: `Current monitoring channel is <#${guild.log_channel}>.\nYou can update using \`${SLASH_PREFIX}log set <channel>.\``,
+    originalMsgAuthor: interaction.user,
   })
   return { messageOptions: { embeds: [embed] } }
 }

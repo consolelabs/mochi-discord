@@ -20,6 +20,7 @@ export async function setLog(interaction: CommandInteraction) {
         embeds: [
           getErrorEmbed({
             description: "This command must be run in a Guild",
+            originalMsgAuthor: interaction.user,
           }),
         ],
       },
@@ -46,7 +47,12 @@ export async function setLog(interaction: CommandInteraction) {
   if (!chan)
     return {
       messageOptions: {
-        embeds: [getErrorEmbed({ description: "Channel not found" })],
+        embeds: [
+          getErrorEmbed({
+            description: "Channel not found",
+            originalMsgAuthor: interaction.user,
+          }),
+        ],
       },
     }
 
@@ -55,6 +61,7 @@ export async function setLog(interaction: CommandInteraction) {
   const embed = getSuccessEmbed({
     title: interaction.guild.name,
     description: `Successfully set <#${logChannel}> as log channel`,
+    originalMsgAuthor: interaction.user,
   })
   return { messageOptions: { embeds: [embed] } }
 }

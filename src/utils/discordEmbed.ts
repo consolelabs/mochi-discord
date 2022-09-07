@@ -2,6 +2,7 @@ import {
   ButtonInteraction,
   ColorResolvable,
   CommandInteraction,
+  User,
   Message,
   MessageActionRow,
   MessageButton,
@@ -251,14 +252,17 @@ export function getSuccessEmbed(params: {
   thumbnail?: string
   msg?: Message
   image?: string
+  originalMsgAuthor?: User
 }) {
-  const { title, description, thumbnail, msg, image } = params
+  const { title, description, thumbnail, msg, image, originalMsgAuthor } =
+    params
   return composeEmbedMessage(msg, {
     author: [title ?? "Successful", getEmojiURL(emojis["APPROVE"])],
     description: description ?? "The operation finished successfully",
     image,
     thumbnail,
     color: msgColors.SUCCESS,
+    originalMsgAuthor,
   })
 }
 
@@ -269,8 +273,10 @@ export function getErrorEmbed(params: {
   thumbnail?: string
   msg?: Message
   image?: string
+  originalMsgAuthor?: User
 }) {
-  const { title, description, thumbnail, msg, image } = params
+  const { title, description, thumbnail, msg, image, originalMsgAuthor } =
+    params
   return composeEmbedMessage(msg, {
     author: [title ?? "Error", getEmojiURL(emojis["REVOKE"])],
     description:
@@ -279,6 +285,7 @@ export function getErrorEmbed(params: {
     image,
     thumbnail,
     color: msgColors.ERROR,
+    originalMsgAuthor,
   })
 }
 
