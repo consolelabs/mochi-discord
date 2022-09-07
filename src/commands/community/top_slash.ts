@@ -1,16 +1,19 @@
-import { Command } from "types/common"
-import { GuildMember, Message, MessageAttachment } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { SlashCommand } from "types/common"
+import { GuildMember, MessageAttachment, CommandInteraction } from "discord.js"
+import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
-import { getCommandArguments } from "utils/commands"
 import { drawDivider, drawRectangle, heightOf, widthOf } from "utils/canvas"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
 import { LeaderboardItem } from "types/community"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { SlashCommandBuilder } from "@discordjs/builders"
 
-async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
+async function renderLeaderboard(
+  interaction: CommandInteraction,
+  leaderboard: LeaderboardItem[]
+) {
   const container: RectangleStats = {
     x: {
       from: 0,
@@ -88,7 +91,7 @@ async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
   }
   ctx.font = "27px Manrope"
   for (const item of leaderboard) {
-    const member: GuildMember | undefined = await msg.guild?.members
+    const member: GuildMember | undefined = await interaction.guild?.members
       .fetch(item.user_id)
       .catch(() => undefined)
     const usernameStr = member?.user?.username ?? item.user?.username
@@ -176,18 +179,27 @@ async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
   return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")
 }
 
-const command: Command = {
-  id: "top",
-  command: "top",
-  brief: "Show members with the highest server XP score",
+const command: SlashCommand = {
+  name: "top",
   category: "Community",
-  run: async function (msg: Message) {
-    const args = getCommandArguments(msg)
-    let page = args.length > 1 ? +args[1] : 0
+  prepare: () => {
+    return new SlashCommandBuilder()
+      .setName("top")
+      .setDescription("Show members with the highest server XP score")
+      .addStringOption((option) =>
+        option
+          .setName("page")
+          .setDescription("list page number.")
+          .setRequired(false)
+      )
+  },
+  run: async function (interaction: CommandInteraction) {
+    const pageStr = interaction.options.getString("page")
+    let page = pageStr ? +pageStr : 0
     page = Math.max(isNaN(page) ? 0 : page - 1, 0)
     const data = await Community.getTopXPUsers(
-      msg.guildId || "",
-      msg.author.id,
+      interaction.guildId || "",
+      interaction.user.id,
       page,
       10
     )
@@ -195,9 +207,10 @@ const command: Command = {
       return {
         messageOptions: {
           embeds: [
-            composeEmbedMessage(msg, {
-              title: msg.guild?.name ?? "Ranking",
+            composeEmbedMessage(null, {
+              title: interaction.guild?.name ?? "Ranking",
               description: "No ranking data found",
+              originalMsgAuthor: interaction?.user,
             }),
           ],
         },
@@ -205,29 +218,29 @@ const command: Command = {
 
     const { author, leaderboard } = data
     const blank = getEmoji("blank")
-    const embed = composeEmbedMessage(msg, {
-      title: `${getEmoji("cup")} ${msg.guild?.name}'s Web3 rankings`,
-      thumbnail: msg.guild?.iconURL(),
+    const embed = composeEmbedMessage(null, {
+      title: `${getEmoji("cup")} ${interaction.guild?.name}'s Web3 rankings`,
+      thumbnail: interaction.guild?.iconURL(),
       description: `${blank}**Your rank:** #${author.guild_rank}\n${blank}**XP:** ${author.total_xp}\n\u200B`,
       image: "attachment://leaderboard.png",
+      originalMsgAuthor: interaction?.user,
     })
 
     return {
       messageOptions: {
         embeds: [embed],
-        files: [await renderLeaderboard(msg, leaderboard)],
+        files: [await renderLeaderboard(interaction, leaderboard)],
       },
     }
   },
-  getHelpMessage: async (msg) => ({
+  help: async () => ({
     embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}top [page]`,
-        examples: `${PREFIX}top\n${PREFIX}top 2`,
+      composeEmbedMessage(null, {
+        usage: `${SLASH_PREFIX}top [page]`,
+        examples: `${SLASH_PREFIX}top\n${SLASH_PREFIX}top 2`,
       }),
     ],
   }),
-  canRunWithoutAction: true,
   colorType: "Server",
 }
 
