@@ -13,8 +13,11 @@ import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
 import { Fetcher } from "./fetcher"
 import {
+  ModelGuildConfigNFTRole,
   RequestTwitterHashtag,
   ResponseGetTwitterHashtagConfigResponse,
+  ResponseListGuildNFTRolesResponse,
+  ResponseNewGuildNFTRoleResponse,
 } from "types/api"
 
 class Config extends Fetcher {
@@ -477,51 +480,27 @@ class Config extends Fetcher {
     }
   }
 
-  public async newGuildNFTRoleConfig(body: {
-    guild_id: string
-    role_id: string
-    nft_collection_id: string
-    number_of_tokens: number
-    token_id: string | null
-  }) {
-    return this.jsonFetch(`${API_BASE_URL}/configs/nft-roles`, {
-      autoWrap500Error: false,
-      method: "POST",
-      body: JSON.stringify(body),
-    })
+  public async newGuildNFTRoleConfig(body: ModelGuildConfigNFTRole) {
+    return this.jsonFetch<ResponseNewGuildNFTRoleResponse>(
+      `${API_BASE_URL}/configs/nft-roles`,
+      {
+        autoWrap500Error: false,
+        method: "POST",
+        body: JSON.stringify(body),
+      }
+    )
   }
 
   public async getGuildNFTRoleConfigs(guildId: string) {
-    const res = await fetch(
-      `${API_BASE_URL}/configs/nft-roles/?guild_id=${guildId}`,
-      {
-        method: "GET",
-      }
+    return await this.jsonFetch<ResponseListGuildNFTRolesResponse>(
+      `${API_BASE_URL}/configs/nft-roles/?guild_id=${guildId}`
     )
-    if (res.status !== 200) {
-      throw new Error(`failed to get nftroles configs - guild ${guildId}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   public async removeGuildNFTRoleConfig(roleId: string) {
-    const res = await fetch(`${API_BASE_URL}/configs/nft-roles/${roleId}`, {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/nft-roles/${roleId}`, {
       method: "DELETE",
     })
-    if (res.status !== 200) {
-      throw new Error(`failed to remove nftrole config - role ${roleId}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   public async getAllNFTCollections() {

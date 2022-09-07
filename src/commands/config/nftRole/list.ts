@@ -22,8 +22,8 @@ const command: Command = {
         },
       }
     }
-    const configs: any[] = await Config.getGuildNFTRoleConfigs(msg.guildId)
-    if (!configs || !configs.length) {
+    const configs = await Config.getGuildNFTRoleConfigs(msg.guildId)
+    if (!configs || !configs.ok) {
       return {
         messageOptions: {
           embeds: [
@@ -37,15 +37,12 @@ const command: Command = {
       }
     }
 
-    let roles = ""
-    let amountToken = ""
-
-    configs.forEach((config) => {
-      roles += `<@&${config.role_id}>\n`
-      amountToken += `${config.number_of_tokens} ${
-        config.nft_collection.symbol
-      } ${config.token_id ? "`No." + config.token_id + "`" : ""} \n`
-    })
+    const description = configs.data
+      .map(
+        (c) =>
+          `**${c.nft_collection?.symbol} amount ${c.number_of_tokens}** - <@&${c.role_id}>`
+      )
+      .join("\n")
 
     return {
       messageOptions: {
@@ -55,18 +52,8 @@ const command: Command = {
               `${msg.guild.name}'s nftroles configuration`,
               msg.guild.iconURL(),
             ],
-          }).addFields([
-            {
-              name: "NFT Roles",
-              value: roles,
-              inline: true,
-            },
-            {
-              name: "Amount of tokens",
-              value: amountToken,
-              inline: true,
-            },
-          ]),
+            description,
+          }),
         ],
       },
     }

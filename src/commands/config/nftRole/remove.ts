@@ -52,8 +52,8 @@ const command: Command = {
         },
       }
     }
-    const configs: any[] = await Config.getGuildNFTRoleConfigs(msg.guildId)
-    if (!configs || !configs.length) {
+    const configs = await Config.getGuildNFTRoleConfigs(msg.guildId)
+    if (!configs || !configs.ok) {
       return {
         messageOptions: {
           embeds: [
@@ -68,12 +68,12 @@ const command: Command = {
     }
 
     const options: MessageSelectOptionData[] = []
-    configs.forEach((config) => {
+    configs.data.forEach((config) => {
       options.push({
-        label: config.role_name,
-        value: config.id,
+        label: config.role_name ?? "",
+        value: config.id as string,
         description: `${config.number_of_tokens} ${
-          config.nft_collection.symbol
+          config.nft_collection?.symbol
         } ${config.token_id ? "`No." + config.token_id + "`" : ""}`,
       })
     })
