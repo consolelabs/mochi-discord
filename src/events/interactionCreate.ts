@@ -1,4 +1,4 @@
-import { slashCommands } from "index"
+import { slashCommands } from "commands"
 import { confirmGlobalXP } from "commands/config/globalxp"
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
 import { backToTickerSelection } from "commands/defi/ticker"
