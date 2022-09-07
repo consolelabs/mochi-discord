@@ -37,7 +37,7 @@ import config from "adapters/config"
 import { Coin } from "types/defi"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import Compare from "./token/compare_slash"
-import { PREFIX } from "utils/constants"
+import { SLASH_PREFIX as PREFIX } from "utils/constants"
 
 async function renderHistoricalMarketChart({
   coinId,

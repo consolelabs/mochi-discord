@@ -1,5 +1,5 @@
 import { CommandInteraction } from "discord.js"
-import { HELP_CMD, HOMEPAGE_URL } from "utils/constants"
+import { HELP, HOMEPAGE_URL, SLASH_PREFIX } from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import { slashCommands } from "../index"
@@ -27,7 +27,9 @@ function getHelpEmbed(interaction: CommandInteraction) {
     title: "Mochi's Help",
     thumbnail: thumbnails.HELP,
     // description: `Use \`${HELP_CMD} <command>\` for more details about a specific command`,
-    footer: [`Use ${HELP_CMD} <command> for details on a specific command`],
+    footer: [
+      `Use ${SLASH_PREFIX}${HELP} <command> for details on a specific command`,
+    ],
   })
 }
 
