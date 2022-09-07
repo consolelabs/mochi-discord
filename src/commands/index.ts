@@ -27,7 +27,12 @@ import nftrole from "./config/nftRole"
 import verify from "./community/verify"
 import log from "./config/log"
 import poe from "./config/poe"
+import vote from "./community/vote"
+
+// slash commands
+import help_slash from "./help_slash"
 import ticker_slash from "./defi/ticker_slash"
+import log_slash from "./config/log_slash"
 
 // external
 import { Message } from "discord.js"
@@ -55,6 +60,9 @@ import { HELP } from "utils/constants"
 
 export const slashCommands: Record<string, SlashCommand> = {
   ticker: ticker_slash,
+  help: help_slash,
+  log: log_slash,
+  vote,
 }
 
 export const originalCommands: Record<string, Command> = {

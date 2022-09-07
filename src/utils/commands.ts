@@ -1,6 +1,6 @@
-import { Message } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 
-import { Command } from "types/common"
+import { Command, SlashCommand } from "types/common"
 import {
   CHANNEL_PREFIX,
   EMOJI_PREFIX,
@@ -10,7 +10,7 @@ import {
   SPACES_REGEX,
   USER_PREFIX,
 } from "./constants"
-import { commands } from "commands"
+import { commands, slashCommands } from "commands"
 import { utils } from "ethers"
 
 export const getCommandArguments = (message: Message) => {
@@ -54,6 +54,7 @@ export const getAllAliases = (
   }, commands)
 }
 
+// TODO: remove after slash command migration done
 export const getCommandObject = (msg?: Message | null): Command | null => {
   if (!msg) return null
   const args = getCommandArguments(msg)
@@ -137,3 +138,13 @@ export function parseDiscordToken(value: string) {
 //     })
 //     .join(SPACE)
 // }
+
+export function getSlashCommandObject(
+  interaction: CommandInteraction
+): SlashCommand | null {
+  if (!interaction) return null
+  // const args = getCommandArguments(msg)
+  // if (!args.length) return null
+  // const { commandKey } = getCommandMetadata(msg)
+  return slashCommands[interaction.commandName]
+}

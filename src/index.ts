@@ -33,14 +33,14 @@ process.on("SIGTERM", () => {
 })
 
 // register slash commands
-const commands = Object.values(slashCommands).map((c) => c.data)
+const body = Object.values(slashCommands).map((c) => c.prepare(slashCommands))
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 
 ;(async () => {
   try {
     logger.info("Started refreshing application (/) commands.")
     await rest.put(Routes.applicationCommands(APPLICATION_ID), {
-      body: commands,
+      body,
     })
     logger.info("Successfully reloaded application (/) commands.")
   } catch (error) {

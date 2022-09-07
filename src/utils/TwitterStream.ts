@@ -198,7 +198,7 @@ class TwitterStream extends InmemoryStorage {
               ruleId: config.rule_id,
             })
             if (newRuleId) {
-              await apiConfig.setTwitterConfig(config.guild_id, {
+              await apiConfig.setTwitterConfig({
                 ...config,
                 rule_id: newRuleId,
               })
