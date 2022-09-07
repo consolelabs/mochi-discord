@@ -53,8 +53,8 @@ export default {
 
 async function handleCommandInteraction(interaction: Interaction) {
   const i = interaction as CommandInteraction
-  await i.deferReply()
   const command = slashCommands[i.commandName]
+  await i.deferReply({ ephemeral: command?.ephemeral })
   const response = await command.run(i)
   if (!response) return
   const { messageOptions, commandChoiceOptions } = response
