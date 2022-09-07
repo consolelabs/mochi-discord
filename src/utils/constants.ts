@@ -11,7 +11,8 @@ export const SPACES_REGEX = / +/g
 export const EMPTY = ""
 export const VERTICAL_BAR = "|"
 
-export const PREFIX = "/"
+export const PREFIX = "$"
+export const SLASH_PREFIX = "/"
 export const HELP = "help"
 export const HELP_CMD = `${PREFIX}${HELP}`
 
