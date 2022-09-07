@@ -180,21 +180,12 @@ class Community extends Fetcher {
     page: number,
     limit = 10
   ): Promise<any> {
-    const resp = await fetch(
+    return this.jsonFetch(
       `${API_BASE_URL}/users/top?guild_id=${guildId}&user_id=${authorId}&page=${page}&limit=${limit}`,
       {
         method: "GET",
       }
     )
-    if (resp.status !== 200) {
-      throw new Error(`failed to get top XP users - guild ${guildId}`)
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   public async getTopNFTTradingVolume(): Promise<any> {

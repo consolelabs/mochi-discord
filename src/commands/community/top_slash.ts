@@ -1,7 +1,7 @@
 import { SlashCommand } from "types/common"
 import { GuildMember, MessageAttachment, CommandInteraction } from "discord.js"
 import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { drawDivider, drawRectangle, heightOf, widthOf } from "utils/canvas"
 import { createCanvas, loadImage } from "canvas"
@@ -194,16 +194,29 @@ const command: SlashCommand = {
       )
   },
   run: async function (interaction: CommandInteraction) {
+    if (!interaction.guildId) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              description: `This command must be run in a Guild`,
+            }),
+          ],
+        },
+      }
+    }
+
     const pageStr = interaction.options.getString("page")
     let page = pageStr ? +pageStr : 0
     page = Math.max(isNaN(page) ? 0 : page - 1, 0)
-    const data = await Community.getTopXPUsers(
-      interaction.guildId || "",
+
+    const res = await Community.getTopXPUsers(
+      interaction.guildId,
       interaction.user.id,
       page,
       10
     )
-    if (!data || !data.leaderboard || !data.leaderboard.length)
+    if (!res.ok || !res.data.leaderboard || !res.data.leaderboard.length)
       return {
         messageOptions: {
           embeds: [
@@ -216,7 +229,7 @@ const command: SlashCommand = {
         },
       }
 
-    const { author, leaderboard } = data
+    const { author, leaderboard } = res.data
     const blank = getEmoji("blank")
     const embed = composeEmbedMessage(null, {
       title: `${getEmoji("cup")} ${interaction.guild?.name}'s Web3 rankings`,

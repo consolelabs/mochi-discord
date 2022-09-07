@@ -185,13 +185,13 @@ const command: Command = {
     const args = getCommandArguments(msg)
     let page = args.length > 1 ? +args[1] : 0
     page = Math.max(isNaN(page) ? 0 : page - 1, 0)
-    const data = await Community.getTopXPUsers(
+    const res = await Community.getTopXPUsers(
       msg.guildId || "",
       msg.author.id,
       page,
       10
     )
-    if (!data || !data.leaderboard || !data.leaderboard.length)
+    if (!res.ok || !res.data.leaderboard || !res.data.leaderboard.length)
       return {
         messageOptions: {
           embeds: [
@@ -203,7 +203,7 @@ const command: Command = {
         },
       }
 
-    const { author, leaderboard } = data
+    const { author, leaderboard } = res.data
     const blank = getEmoji("blank")
     const embed = composeEmbedMessage(msg, {
       title: `${getEmoji("cup")} ${msg.guild?.name}'s Web3 rankings`,
