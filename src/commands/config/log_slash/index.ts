@@ -13,13 +13,11 @@ const command: SlashCommand = {
       .setName("log")
       .setDescription("Monitor guild members' activities")
 
-    data
-      .addSubcommand(info)
-      .addSubcommand(set)
+    data.addSubcommand(info).addSubcommand(set)
     return data
   },
   run: async function (interaction: CommandInteraction) {
-    if (interaction.options.getSubcommand() == info.name) {
+    if (interaction.options.getSubcommand() === info.name) {
       return logInfo(interaction)
     }
     return setLog(interaction)

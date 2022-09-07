@@ -14,7 +14,7 @@ export const set = new SlashCommandSubcommandBuilder()
   )
 
 export async function setLog(interaction: CommandInteraction) {
-  if (!interaction.guildId || !interaction.guild) {
+  if (!interaction.guild) {
     return {
       messageOptions: {
         embeds: [
@@ -50,7 +50,7 @@ export async function setLog(interaction: CommandInteraction) {
       },
     }
 
-  await config.updateGuild({ guildId: interaction.guildId, logChannel })
+  await config.updateGuild({ guildId: interaction.guild.id, logChannel })
 
   const embed = getSuccessEmbed({
     title: interaction.guild.name,
