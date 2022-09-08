@@ -1,47 +1,37 @@
-import { SlashCommand } from "types/common"
-import { CommandInteraction } from "discord.js"
+import { Command } from "types/common"
 import { thumbnails } from "utils/common"
-import { composeEmbedMessage2 } from "utils/discordEmbed"
-import {
-  SlashCommandBuilder,
-  SlashCommandSubcommandBuilder,
-} from "@discordjs/builders"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import view from "./view"
 import add from "./add"
 import remove from "./remove"
 
-const subCommands: Record<string, SlashCommand> = {
+const actions: Record<string, Command> = {
   view,
   add,
   remove,
 }
 
-const command: SlashCommand = {
-  name: "watchlist",
+const command: Command = {
+  id: "watchlist",
+  command: "watchlist",
+  brief: "Manage your watchlist",
   category: "Defi",
-  prepare: () => {
-    const data = new SlashCommandBuilder()
-      .setName("watchlist")
-      .setDescription("Show list of your favorite cryptocurrencies")
-    data.addSubcommand(<SlashCommandSubcommandBuilder>view.prepare())
-    data.addSubcommand(<SlashCommandSubcommandBuilder>add.prepare())
-    data.addSubcommand(<SlashCommandSubcommandBuilder>remove.prepare())
-    return data
-  },
-  run: (interaction: CommandInteraction) => {
-    return subCommands[interaction.options.getSubcommand()].run(interaction)
-  },
-  help: async (interaction) => ({
+  run: async () => null,
+  getHelpMessage: async (msg) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         title: "Manage your watchlist",
-        usage: `${PREFIX}watchlist <sub-command>`,
+        usage: `${PREFIX}watchlist <action>`,
       }),
     ],
   }),
+  canRunWithoutAction: false,
   colorType: "Defi",
+  minArguments: 2,
+  actions,
+  aliases: ["wl"],
 }
 
 export default command

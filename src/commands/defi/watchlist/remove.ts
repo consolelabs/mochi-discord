@@ -1,46 +1,33 @@
-import { SlashCommand } from "types/common"
-import { CommandInteraction } from "discord.js"
+import { Command } from "types/common"
 import { thumbnails } from "utils/common"
 import {
   getErrorEmbed,
   getSuccessEmbed,
-  composeEmbedMessage2,
+  composeEmbedMessage,
 } from "utils/discordEmbed"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { SLASH_PREFIX as PREFIX } from "utils/constants"
+import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
+import { getCommandArguments } from "utils/commands"
 
-const command: SlashCommand = {
-  name: "remove",
+const command: Command = {
+  id: "watchlist_remove",
+  command: "remove",
+  brief: "Remove a cryptocurrency from your watchlist.",
   category: "Defi",
-  prepare: () => {
-    return new SlashCommandSubcommandBuilder()
-      .setName("remove")
-      .setDescription("Remove a cryptocurrency from your watchlist.")
-      .addStringOption((option) =>
-        option
-          .setName("symbol")
-          .setDescription(
-            "The cryptocurrency which you wanna remove from your watchlist."
-          )
-          .setRequired(true)
-      )
-  },
-  run: async function (interaction: CommandInteraction) {
-    const symbol = interaction.options.getString("symbol", true)
+  run: async (msg) => {
+    const symbol = getCommandArguments(msg)[2]
     const { ok } = await defi.removeFromWatchlist({
-      userId: interaction.user.id,
+      userId: msg.author.id,
       symbol,
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
-    // no data === add successfully
     return {
       messageOptions: { embeds: [getSuccessEmbed({})] },
     }
   },
-  help: async (interaction) => ({
+  getHelpMessage: async (msg) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         title: "Remove a cryptocurrency from your watchlist.",
         usage: `${PREFIX}watchlist remove <symbol>`,
@@ -48,7 +35,9 @@ const command: SlashCommand = {
       }),
     ],
   }),
+  canRunWithoutAction: true,
   colorType: "Defi",
+  minArguments: 3,
 }
 
 export default command

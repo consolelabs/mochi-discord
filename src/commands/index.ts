@@ -28,12 +28,13 @@ import verify from "./community/verify"
 import log from "./config/log"
 import poe from "./config/poe"
 import vote from "./community/vote"
+import watchlist from "./defi/watchlist"
 
 // slash commands
 import help_slash from "./help_slash"
 import ticker_slash from "./defi/ticker_slash"
 import log_slash from "./config/log_slash"
-import watchlist from "./defi/watchlist/"
+import watchlist_slash from "./defi/watchlist_slash"
 import top_slash from "./community/top_slash"
 import verify_slash from "./community/verify_slash"
 
@@ -68,7 +69,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   top: top_slash,
   verify: verify_slash,
   vote,
-  watchlist,
+  watchlist: watchlist_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -84,6 +85,7 @@ export const originalCommands: Record<string, Command> = {
   tokens,
   ticker,
   airdrop,
+  watchlist,
   // community section
   invite,
   gm,
