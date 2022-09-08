@@ -4,18 +4,7 @@ import { APPLICATION_ID, DISCORD_TOKEN } from "./env"
 import { REST } from "@discordjs/rest"
 import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
-
-// slash commands
-import help_slash from "./commands/help_slash"
-import ticker_slash from "./commands/defi/ticker_slash"
-import top_slash from "./commands/community/top_slash"
-import { SlashCommand } from "types/common"
-
-export const slashCommands: Record<string, SlashCommand> = {
-  ticker: ticker_slash,
-  help: help_slash,
-  top: top_slash,
-}
+import { slashCommands } from "commands"
 
 const client = new Discord.Client({
   intents: [
