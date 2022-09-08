@@ -1,4 +1,3 @@
-import { Message } from "discord.js"
 import fetch from "node-fetch"
 import { CampaignWhitelistUser } from "types/common"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
@@ -176,25 +175,17 @@ class Community extends Fetcher {
   }
 
   public async getTopXPUsers(
-    msg: Message,
+    guildId: string,
+    authorId: string,
     page: number,
     limit = 10
   ): Promise<any> {
-    const resp = await fetch(
-      `${API_BASE_URL}/users/top?guild_id=${msg.guildId}&user_id=${msg.author.id}&page=${page}&limit=${limit}`,
+    return this.jsonFetch(
+      `${API_BASE_URL}/users/top?guild_id=${guildId}&user_id=${authorId}&page=${page}&limit=${limit}`,
       {
         method: "GET",
       }
     )
-    if (resp.status !== 200) {
-      throw new Error(`failed to get top XP users - guild ${msg.guildId}`)
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   public async getTopNFTTradingVolume(): Promise<any> {
