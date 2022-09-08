@@ -48,8 +48,8 @@ async function renderWatchlist(data: any[]) {
   // header
   ctx.font = "bold 33px Manrope"
   ctx.fillStyle = "white"
-  ctx.fillText("Cryptocurrency", itemX - radius, itemY)
-  ctx.fillText("7d change", 340, itemY)
+  ctx.fillText("Tokens", itemX - radius, itemY)
+  ctx.fillText("7d change", 370, itemY)
   const col3Header = "24h price/change"
   const col3HeaderW = widthOf(ctx, col3Header)
   ctx.fillText(
@@ -60,7 +60,7 @@ async function renderWatchlist(data: any[]) {
   itemY += 70
   for (const item of data) {
     const {
-      name,
+      // name,
       symbol,
       current_price,
       sparkline_in_7d,
@@ -77,18 +77,19 @@ async function renderWatchlist(data: any[]) {
     const col2Y = itemY + 30
 
     // name
-    ctx.font = "bold 35px Manrope"
-    ctx.fillStyle = "white"
-    const nameH = heightOf(ctx, name)
-    ctx.fillText(name, col2X, col2Y)
+    // ctx.font = "bold 33px Manrope"
+    // ctx.fillStyle = "white"
+    // const nameH = heightOf(ctx, name)
+    // ctx.fillText(name, col2X, col2Y)
 
     // symbol
-    ctx.font = "33px Manrope"
-    ctx.fillStyle = "#6f778a"
-    ctx.fillText(symbol.toUpperCase(), col2X, col2Y + nameH + 10)
+    ctx.font = "bold 35px Manrope"
+    ctx.fillStyle = "white"
+    // ctx.fillStyle = "#6f778a"
+    ctx.fillText(symbol.toUpperCase(), col2X, col2Y + radius / 2)
 
     // col3 = 7d chart
-    const col3X = col2X + 220
+    const col3X = col2X + 200
     const col3Y = col2Y
     const { price } = sparkline_in_7d
     const labels = price.map((p: number) => `${p}`)
@@ -103,14 +104,14 @@ async function renderWatchlist(data: any[]) {
       },
     })
     const chart = await loadImage(buffer)
-    ctx.drawImage(chart, col3X, col3Y - radius, 300, 70)
+    ctx.drawImage(chart, col3X, col3Y - radius, 320, 70)
 
     // col4 = price + change
     const col4X = container.x.to - (container.pl ?? 0)
     const col4Y = col2Y
 
     // price
-    ctx.font = "bold 35px Manrope"
+    ctx.font = "bold 33px Manrope"
     ctx.fillStyle = "white"
     const currentPrice = `$${current_price.toLocaleString()}`
     const priceH = heightOf(ctx, currentPrice)
@@ -118,11 +119,11 @@ async function renderWatchlist(data: any[]) {
     ctx.fillText(currentPrice, col4X - priceW, col4Y)
 
     // 24h change
-    ctx.font = "33px Manrope"
+    ctx.font = "31px Manrope"
     ctx.fillStyle = price_change_percentage_24h >= 0 ? ascColor : descColor
     const change = `${
       price_change_percentage_24h >= 0 ? "+" : ""
-    }${price_change_percentage_24h}%`
+    }${price_change_percentage_24h.toFixed(2)}%`
     const changeW = widthOf(ctx, change)
     ctx.fillText(change, col4X - changeW, col4Y + priceH + 10)
 
@@ -148,10 +149,21 @@ const command: SlashCommand = {
     return new SlashCommandSubcommandBuilder()
       .setName("view")
       .setDescription("View your watchlist")
+      .addNumberOption((option) =>
+        option
+          .setName("page")
+          .setDescription(
+            "Index of watchlist page you wanna see. Start from 1."
+          )
+          .setRequired(false)
+      )
   },
   run: async function (interaction: CommandInteraction) {
+    let page = interaction.options.getNumber("page") ?? 0
+    page = Math.max(isNaN(page) ? 0 : page - 1, 0)
     const { data, ok } = await defi.getUserWatchlist({
       userId: interaction.user.id,
+      page,
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
     const embed = composeEmbedMessage2(interaction, {
@@ -178,7 +190,7 @@ const command: SlashCommand = {
     embeds: [
       composeEmbedMessage2(interaction, {
         thumbnail: thumbnails.TOKENS,
-        title: "Show list of your favorite cryptocurrencies",
+        title: "Show list of your favorite tokens",
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
         usage: `${PREFIX}watchlist view`,
         examples: `${PREFIX}watchlist view`,

@@ -12,7 +12,7 @@ import { getCommandArguments } from "utils/commands"
 const command: Command = {
   id: "watchlist_remove",
   command: "remove",
-  brief: "Remove a cryptocurrency from your watchlist.",
+  brief: "Remove a token from your watchlist.",
   category: "Defi",
   run: async (msg) => {
     const symbol = getCommandArguments(msg)[2]
@@ -29,7 +29,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        title: "Remove a cryptocurrency from your watchlist.",
+        title: "Remove a token from your watchlist.",
         usage: `${PREFIX}watchlist remove <symbol>`,
         examples: `${PREFIX}watchlist remove eth`,
       }),
