@@ -70,3 +70,12 @@ export type CoinComparisionData = {
   from: string
   to: string
 }
+
+export type CoinMarketItem = {
+  id: string
+  name: string
+  symbol: string
+  current_price: number
+  price_change_percentage_24h: number
+  sparkline_in_7d: { price: number[] }
+}
