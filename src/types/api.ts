@@ -124,7 +124,7 @@ export interface ModelConfigXpLevel {
 export interface ModelDiscordGuildStat {
   created_at?: string;
   guild_id?: string;
-  id?: UuidNullUUID;
+  id?: string;
   nr_of_animated_emojis?: number;
   nr_of_announcement_channels?: number;
   nr_of_bots?: number;
@@ -169,12 +169,12 @@ export interface ModelGuildConfigDefaultTicker {
 export interface ModelGuildConfigGmGn {
   channel_id?: string;
   guild_id?: string;
-  id?: UuidNullUUID;
+  id?: string;
 }
 
 export interface ModelGuildConfigInviteTracker {
   guild_id?: string;
-  id?: UuidNullUUID;
+  id?: string;
   user_id?: string;
   webhook_url?: ModelJSONNullString;
 }
@@ -186,19 +186,10 @@ export interface ModelGuildConfigLevelRole {
   role_id?: string;
 }
 
-export interface ModelGuildConfigNFTRole {
-  guild_id?: string;
-  id?: UuidNullUUID;
-  nft_collection_id?: UuidNullUUID;
-  number_of_tokens?: number;
-  role_id?: string;
-  token_id?: string;
-}
-
 export interface ModelGuildConfigRepostReaction {
   emoji?: string;
   guild_id?: string;
-  id?: UuidNullUUID;
+  id?: string;
   quantity?: number;
   repost_channel_id?: string;
 }
@@ -206,7 +197,7 @@ export interface ModelGuildConfigRepostReaction {
 export interface ModelGuildConfigSalesTracker {
   channel_id?: string;
   guild_id?: string;
-  id?: UuidNullUUID;
+  id?: string;
 }
 
 export interface ModelGuildConfigTwitterFeed {
@@ -251,7 +242,7 @@ export interface ModelNFTCollection {
   chain_id?: string;
   created_at?: string;
   erc_format?: string;
-  id?: UuidNullUUID;
+  id?: string;
   image?: string;
   is_verified?: boolean;
   name?: string;
@@ -265,7 +256,7 @@ export interface ModelNFTCollectionDetail {
   chain_id?: string;
   created_at?: string;
   erc_format?: string;
-  id?: UuidNullUUID;
+  id?: string;
   image?: string;
   is_verified?: boolean;
   name?: string;
@@ -279,7 +270,7 @@ export interface ModelNewListedNFTCollection {
   chain_id?: string;
   created_at?: string;
   erc_format?: string;
-  id?: UuidNullUUID;
+  id?: string;
   image?: string;
   is_verified?: boolean;
   name?: string;
@@ -338,19 +329,18 @@ export interface RequestConfigDefaultTokenRequest {
   symbol?: string;
 }
 
+export interface RequestConfigGroupNFTRoleRequest {
+  collection_address?: string[];
+  group_name?: string;
+  guild_id?: string;
+  number_of_tokens?: number;
+  role_id?: string;
+}
+
 export interface RequestConfigLevelRoleRequest {
   guild_id?: string;
   level?: number;
   role_id?: string;
-}
-
-export interface RequestConfigNFTRoleRequest {
-  guild_id?: string;
-  id?: UuidNullUUID;
-  nft_collection_id?: UuidNullUUID;
-  number_of_tokens?: number;
-  role_id?: string;
-  token_id?: string;
 }
 
 export interface RequestConfigRepostRequest {
@@ -530,8 +520,27 @@ export interface ResponseCollectionSuggestions {
   symbol?: string;
 }
 
+export interface ResponseCompareTokenReponseData {
+  base_coin?: ResponseGetCoinResponse;
+  base_coin_suggestions?: ResponseSearchedCoin[];
+  from?: string;
+  ratios?: number[];
+  target_coin?: ResponseGetCoinResponse;
+  target_coin_suggestions?: ResponseSearchedCoin[];
+  times?: string[];
+  to?: string;
+}
+
 export interface ResponseCompareTokenResponse {
-  data?: ResponseTokenCompareReponse;
+  data?: ResponseCompareTokenReponseData;
+}
+
+export interface ResponseConfigGroupNFTRoleResponse {
+  group_name?: string;
+  guild_id?: string;
+  nft_collection_configs?: ResponseNFTCollectionConfig[];
+  number_of_tokens?: number;
+  role_id?: string;
 }
 
 export interface ResponseConfigureInvitesResponse {
@@ -546,6 +555,10 @@ export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
 }
 
+export interface ResponseCurrentUserUpvoteStreakResponse {
+  data?: ResponseGetUserCurrentUpvoteStreakResponse;
+}
+
 export interface ResponseDefaultRole {
   guild_id?: string;
   role_id?: string;
@@ -554,11 +567,6 @@ export interface ResponseDefaultRole {
 export interface ResponseDefaultRoleResponse {
   data?: ResponseDefaultRole;
   ok?: boolean;
-}
-
-export interface ResponseEditGuildNFTRoleResponse {
-  data?: ModelGuildConfigNFTRole;
-  message?: string;
 }
 
 export interface ResponseGenerateVerificationResponse {
@@ -698,24 +706,20 @@ export interface ResponseGetUserCurrentGMStreakResponse {
   data?: ModelDiscordUserGMStreak;
 }
 
+export interface ResponseGetUserCurrentUpvoteStreakResponse {
+  discord_id?: string;
+  last_streak_time?: string;
+  minutes_until_reset?: number;
+  streak_count?: number;
+  total_count?: number;
+}
+
 export interface ResponseGetUserResponse {
   data?: ResponseUser;
 }
 
 export interface ResponseGiftXpHandlerResponse {
   data?: ResponseHandleUserActivityResponse;
-}
-
-export interface ResponseGuildNFTRolesResponse {
-  color?: number;
-  guild_id?: string;
-  id?: UuidNullUUID;
-  nft_collection?: ModelNFTCollection;
-  nft_collection_id?: UuidNullUUID;
-  number_of_tokens?: number;
-  role_id?: string;
-  role_name?: string;
-  token_id?: string;
 }
 
 export interface ResponseHandleUserActivityResponse {
@@ -868,8 +872,19 @@ export interface ResponseListCustomCommandsResponse {
   data?: ModelGuildCustomCommand[];
 }
 
-export interface ResponseListGuildNFTRolesResponse {
-  data?: ResponseGuildNFTRolesResponse[];
+export interface ResponseListGuildGroupNFTRolesResponse {
+  data?: ResponseListGuildNFTRoleConfigsResponse[];
+}
+
+export interface ResponseListGuildNFTRoleConfigsResponse {
+  color?: number;
+  group_name?: string;
+  guild_id?: string;
+  id?: string;
+  nft_collection_configs?: ResponseNFTCollectionConfig[];
+  number_of_tokens?: number;
+  role_id?: string;
+  role_name?: string;
 }
 
 export interface ResponseListRoleReactionResponse {
@@ -889,6 +904,20 @@ export interface ResponseMarketData {
   price_change_percentage_1h_in_currency?: Record<string, number>;
   price_change_percentage_24h_in_currency?: Record<string, number>;
   price_change_percentage_7d_in_currency?: Record<string, number>;
+}
+
+export interface ResponseNFTCollectionConfig {
+  address?: string;
+  author?: string;
+  chain_id?: string;
+  collection_id?: string;
+  created_at?: string;
+  erc_format?: string;
+  id?: string;
+  image?: string;
+  is_verified?: boolean;
+  name?: string;
+  symbol?: string;
 }
 
 export interface ResponseNFTCollectionCount {
@@ -933,12 +962,12 @@ export interface ResponseNFTTradingVolumeResponse {
 }
 
 export interface ResponseNewGuildConfigWalletVerificationMessageResponse {
-  Data?: ModelGuildConfigWalletVerificationMessage;
+  data?: ModelGuildConfigWalletVerificationMessage;
   status?: string;
 }
 
-export interface ResponseNewGuildNFTRoleResponse {
-  data?: ModelGuildConfigNFTRole;
+export interface ResponseNewGuildGroupNFTRoleResponse {
+  data?: ResponseConfigGroupNFTRoleResponse;
   message?: string;
 }
 
@@ -973,7 +1002,7 @@ export interface ResponseResponseMessage {
 }
 
 export interface ResponseResponseStatus {
-  Status?: string;
+  status?: string;
 }
 
 export interface ResponseResponseSucess {
@@ -1029,15 +1058,6 @@ export interface ResponseToggleActivityConfigResponse {
   message?: string;
 }
 
-export interface ResponseTokenCompareReponse {
-  base_coin?: ResponseGetCoinResponse;
-  base_coin_suggestions?: ResponseSearchedCoin[];
-  ratios?: number[];
-  target_coin?: ResponseGetCoinResponse;
-  target_coin_suggestions?: ResponseSearchedCoin[];
-  times?: string[];
-}
-
 export interface ResponseTwitterHashtag {
   channel_id?: string;
   created_at?: string;
@@ -1072,11 +1092,4 @@ export interface ResponseUserInvitesAggregation {
   inviter_id?: string;
   left?: number;
   regular?: number;
-}
-
-export interface UuidNullUUID {
-  uuid?: string;
-
-  /** Valid is true if UUID is not NULL */
-  valid?: boolean;
 }
