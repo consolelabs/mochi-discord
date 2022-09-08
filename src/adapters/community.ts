@@ -1,4 +1,5 @@
 import fetch from "node-fetch"
+import { ResponseGetUserCurrentGMStreakResponse } from "types/api"
 import { CampaignWhitelistUser } from "types/common"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { NftCollectionTicker } from "types/nft"
@@ -409,6 +410,7 @@ class Community extends Fetcher {
     }
     return json.data
   }
+
   public async getCollectionCount() {
     const res = await fetch(`${API_BASE_URL}/nfts/collections/stats`, {
       method: "GET",
@@ -422,6 +424,15 @@ class Community extends Fetcher {
       throw new Error(json.error)
     }
     return json.data
+  }
+
+  public async getUpvoteStreak(discordId: string) {
+    return await this.jsonFetch<ResponseGetUserCurrentGMStreakResponse>(
+      `${API_BASE_URL}/users/upvote-streak`,
+      {
+        query: { discordId },
+      }
+    )
   }
 }
 
