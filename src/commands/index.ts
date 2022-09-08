@@ -35,6 +35,7 @@ import ticker_slash from "./defi/ticker_slash"
 import log_slash from "./config/log_slash"
 import watchlist from "./defi/watchlist/"
 import top_slash from "./community/top_slash"
+import verify_slash from "./community/verify_slash"
 
 // external
 import { Message } from "discord.js"
@@ -65,6 +66,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   help: help_slash,
   log: log_slash,
   top: top_slash,
+  verify: verify_slash,
   vote,
   watchlist,
 }
