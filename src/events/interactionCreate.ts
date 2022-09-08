@@ -17,6 +17,7 @@ import { logger } from "logger"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import { Event } from "."
+import { getErrorEmbed } from "utils/discordEmbed"
 
 export default {
   name: "interactionCreate",
@@ -53,10 +54,16 @@ export default {
 
 async function handleCommandInteraction(interaction: Interaction) {
   const i = interaction as CommandInteraction
-  const response = await slashCommands[i.commandName].run(i)
+  const command = slashCommands[i.commandName]
+  if (!command) {
+    await i.reply({ embeds: [getErrorEmbed({})] })
+    return
+  }
+  await i.deferReply({ ephemeral: command?.ephemeral })
+  const response = await command.run(i)
   if (!response) return
   const { messageOptions, commandChoiceOptions } = response
-  const reply = await i.editReply(messageOptions)
+  const reply = <Message>await i.editReply(messageOptions)
   if (commandChoiceOptions) {
     CommandChoiceManager.add({
       ...commandChoiceOptions,

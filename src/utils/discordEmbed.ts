@@ -1,6 +1,8 @@
 import {
   ButtonInteraction,
   ColorResolvable,
+  CommandInteraction,
+  User,
   Message,
   MessageActionRow,
   MessageButton,
@@ -25,8 +27,14 @@ import {
   getCommandObject,
   getActionCommand,
   specificHelpCommand,
+  getSlashCommandObject,
 } from "./commands"
-import { Command, EmbedProperties, embedsColors } from "types/common"
+import {
+  Command,
+  EmbedProperties,
+  embedsColors,
+  SlashCommand,
+} from "types/common"
 import {
   MessageButtonStyles,
   MessageComponentTypes,
@@ -122,6 +130,7 @@ export async function workInProgress(): Promise<MessageOptions> {
   return { embeds: [embed] }
 }
 
+// TODO: remove after slash command migration done
 export function composeEmbedMessage(
   msg: Message | null | undefined,
   props: EmbedProperties
@@ -194,6 +203,7 @@ export function composeEmbedMessage(
   return embed
 }
 
+// TODO: remove after slash command migration done
 function getCommandColor(commandObj: Command | null) {
   return embedsColors[commandObj?.colorType ?? "Command"]
 }
@@ -235,31 +245,38 @@ export function getSuggestionComponents(
   return row
 }
 
+// TODO: remove after slash command migration done
 export function getSuccessEmbed(params: {
   title?: string
   description?: string
   thumbnail?: string
-  msg: Message
+  msg?: Message
   image?: string
+  originalMsgAuthor?: User
 }) {
-  const { title, description, thumbnail, msg, image } = params
+  const { title, description, thumbnail, msg, image, originalMsgAuthor } =
+    params
   return composeEmbedMessage(msg, {
     author: [title ?? "Successful", getEmojiURL(emojis["APPROVE"])],
     description: description ?? "The operation finished successfully",
     image,
     thumbnail,
     color: msgColors.SUCCESS,
+    originalMsgAuthor,
   })
 }
 
+// TODO: remove after slash command migration done
 export function getErrorEmbed(params: {
   title?: string
   description?: string
   thumbnail?: string
   msg?: Message
   image?: string
+  originalMsgAuthor?: User
 }) {
-  const { title, description, thumbnail, msg, image } = params
+  const { title, description, thumbnail, msg, image, originalMsgAuthor } =
+    params
   return composeEmbedMessage(msg, {
     author: [title ?? "Error", getEmojiURL(emojis["REVOKE"])],
     description:
@@ -268,6 +285,7 @@ export function getErrorEmbed(params: {
     image,
     thumbnail,
     color: msgColors.ERROR,
+    originalMsgAuthor,
   })
 }
 
@@ -459,4 +477,75 @@ export function composeDaysSelectMenu(
     options: days.map((d) => opt(d)),
   })
   return selectRow
+}
+
+export function composeEmbedMessage2(
+  interaction: CommandInteraction,
+  props: EmbedProperties
+) {
+  const {
+    title,
+    description,
+    color,
+    thumbnail,
+    footer = [],
+    timestamp = null,
+    image,
+    author: _author = [],
+    originalMsgAuthor,
+    usage,
+    examples,
+    withoutFooter,
+    // includeCommandsList,
+    // actions,
+  } = props
+  const author = _author.map((a) => a ?? "").filter(Boolean)
+  const commandObj = getSlashCommandObject(interaction)
+
+  // if (includeCommandsList) {
+  //   description += `\n\n${getCommandsList(
+  //     getEmoji("reply" ?? "╰ "),
+  //     actions ?? commandObj?.actions ?? {}
+  //   )}`
+  // }
+
+  // title =
+  //   (isSpecificHelpCommand ? (actionObj ?? commandObj)?.brief : title) ?? ""
+
+  let authorTag = interaction.user.tag
+  let authorAvatarURL = interaction.user.avatarURL()
+  if (originalMsgAuthor) {
+    authorTag = originalMsgAuthor.tag
+    authorAvatarURL = originalMsgAuthor.avatarURL()
+  }
+
+  const embed = new MessageEmbed()
+    .setTitle(title ?? "")
+    .setColor((color ?? getSlashCommandColor(commandObj)) as ColorResolvable)
+
+  // embed options
+  if (!withoutFooter) {
+    embed
+      .setFooter(
+        getEmbedFooter(
+          authorTag ? [...footer, authorTag] : footer ?? ["Mochi bot"]
+        ),
+        authorAvatarURL || undefined
+      )
+      .setTimestamp(timestamp ?? new Date())
+  }
+  if (description) embed.setDescription(description)
+  if (thumbnail) embed.setThumbnail(thumbnail)
+  if (image) embed.setImage(image)
+  if (author.length === 1) embed.setAuthor(author[0])
+  if (author.length === 2) embed.setAuthor(author[0], author[1])
+
+  // embed fields
+  if (usage) embed.addField("**Usage**", `\`\`\`${usage}\`\`\``)
+  if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)
+  return embed
+}
+
+function getSlashCommandColor(commandObj: SlashCommand | null) {
+  return embedsColors[commandObj?.colorType ?? "Command"]
 }

@@ -14,21 +14,34 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
+import { list } from "./list"
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const msg = msgOrInteraction as Message
-  await Config.removeGuildNFTRoleConfig(interaction.values[0])
+  const [groupId, name] = interaction.values[0].split("|")
+  await Config.removeGuildNFTRoleGroupConfig(groupId)
+  const configs = await Config.getGuildNFTRoleConfigs(
+    msgOrInteraction.guildId ?? ""
+  )
+  if (configs.ok) {
+    const description = list(configs)
+    return {
+      messageOptions: {
+        embeds: [
+          getSuccessEmbed({
+            msg,
+            title: `Remove config ${name}`,
+            description,
+          }),
+        ],
+        components: [],
+      },
+      commandChoiceOptions: {},
+    }
+  }
   return {
-    messageOptions: {
-      embeds: [
-        getSuccessEmbed({
-          msg,
-          description: "Remove NFT role configuration successfully!",
-        }),
-      ],
-      components: [],
-    },
+    messageOptions: { embeds: [getErrorEmbed({})] },
     commandChoiceOptions: {},
   }
 }
@@ -52,8 +65,8 @@ const command: Command = {
         },
       }
     }
-    const configs: any[] = await Config.getGuildNFTRoleConfigs(msg.guildId)
-    if (!configs || !configs.length) {
+    const configs = await Config.getGuildNFTRoleConfigs(msg.guildId)
+    if (!configs || !configs.ok) {
       return {
         messageOptions: {
           embeds: [
@@ -68,19 +81,16 @@ const command: Command = {
     }
 
     const options: MessageSelectOptionData[] = []
-    configs.forEach((config) => {
+    configs.data.forEach((config) => {
       options.push({
-        label: config.role_name,
-        value: config.id,
-        description: `${config.number_of_tokens} ${
-          config.nft_collection.symbol
-        } ${config.token_id ? "`No." + config.token_id + "`" : ""}`,
+        label: config.role_name ?? "",
+        value: `${config.id ?? ""}|${config.role_name ?? ""}`,
       })
     })
 
     const embed = composeEmbedMessage(msg, {
       title: "Select an option",
-      description: "Which nftrole configuration do you want to remove?",
+      description: list(configs),
     })
 
     return {
@@ -112,7 +122,6 @@ const command: Command = {
     ],
   }),
   canRunWithoutAction: true,
-  aliases: ["rm"],
   colorType: "Server",
 }
 

@@ -4,8 +4,8 @@ import {
   RepostReactionRequest,
   RoleReactionEvent,
 } from "types/common"
-import { Message } from "discord.js"
-import { CommandIsNotScopedError } from "errors"
+import { CommandInteraction, Message } from "discord.js"
+import { CommandIsNotScopedError, SlashCommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
 import { Guild, Guilds } from "types/config"
@@ -13,8 +13,10 @@ import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
 import { Fetcher } from "./fetcher"
 import {
+  RequestConfigGroupNFTRoleRequest,
   RequestTwitterHashtag,
   ResponseGetTwitterHashtagConfigResponse,
+  ResponseListGuildGroupNFTRolesResponse,
 } from "types/api"
 
 class Config extends Fetcher {
@@ -74,6 +76,7 @@ class Config extends Fetcher {
     return guild?.bot_scopes ?? []
   }
 
+  // TODO: remove after slash command migration done
   public async commandIsScoped(
     msg: Message,
     category: string,
@@ -112,6 +115,7 @@ class Config extends Fetcher {
     return false
   }
 
+  // TODO: remove after slash command migration done
   public async checkGuildCommandScopes(
     message: Message,
     commandObject: Command
@@ -131,6 +135,7 @@ class Config extends Fetcher {
     }
   }
 
+  // TODO: remove after slash command migration done
   public async categoryIsScoped(
     msg: Message,
     category: string
@@ -474,51 +479,44 @@ class Config extends Fetcher {
     }
   }
 
-  public async newGuildNFTRoleConfig(body: {
-    guild_id: string
-    role_id: string
-    nft_collection_id: string
-    number_of_tokens: number
-    token_id: string | null
-  }) {
-    return this.jsonFetch(`${API_BASE_URL}/configs/nft-roles`, {
-      autoWrap500Error: false,
-      method: "POST",
-      body: JSON.stringify(body),
-    })
+  public async newGuildNFTRoleConfig(body: RequestConfigGroupNFTRoleRequest) {
+    return this.jsonFetch<ResponseListGuildGroupNFTRolesResponse>(
+      `${API_BASE_URL}/configs/nft-roles`,
+      {
+        autoWrap500Error: false,
+        method: "POST",
+        body: JSON.stringify(body),
+      }
+    )
   }
 
   public async getGuildNFTRoleConfigs(guildId: string) {
-    const res = await fetch(
-      `${API_BASE_URL}/configs/nft-roles/?guild_id=${guildId}`,
+    return await this.jsonFetch<ResponseListGuildGroupNFTRolesResponse>(
+      `${API_BASE_URL}/configs/nft-roles`,
       {
-        method: "GET",
+        query: {
+          guildId,
+        },
       }
     )
-    if (res.status !== 200) {
-      throw new Error(`failed to get nftroles configs - guild ${guildId}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
-  public async removeGuildNFTRoleConfig(roleId: string) {
-    const res = await fetch(`${API_BASE_URL}/configs/nft-roles/${roleId}`, {
+  public async removeGuildNFTRoleConfig(configIds: Array<string>) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/nft-roles`, {
       method: "DELETE",
+      query: {
+        configIds,
+      },
     })
-    if (res.status !== 200) {
-      throw new Error(`failed to remove nftrole config - role ${roleId}`)
-    }
+  }
 
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
+  public async removeGuildNFTRoleGroupConfig(groupConfigId: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/nft-roles/group`, {
+      method: "DELETE",
+      query: {
+        groupConfigId,
+      },
+    })
   }
 
   public async getAllNFTCollections() {
@@ -780,6 +778,105 @@ class Config extends Fetcher {
     return await this.jsonFetch(
       `${API_BASE_URL}/configs/default-symbol?guild_id=${params.guild_id}&query=${params.query}`
     )
+  }
+
+  //////////////////// Slash Commands
+  public async slashCommandIsScoped({
+    interaction,
+    category,
+    command,
+  }: {
+    interaction: CommandInteraction
+    category: string
+    command: string
+  }): Promise<boolean> {
+    if (interaction.channel?.type === "DM") return true
+    if (!interaction.guildId) return false
+    const scopes = await this.getGuildScopes(interaction.guildId)
+    if (!scopes) return false
+    const cat = category.toLowerCase()
+    const cmd = command.toLowerCase()
+
+    for (const scope of scopes) {
+      const scopeParts = scope.split("/")
+      switch (scopeParts.length) {
+        case 0:
+          logger.error("Invalid scope: " + scope)
+          return false
+        case 1:
+          if (scopeParts[0] === "*") {
+            return true
+          }
+          logger.error("Invalid scope: " + scope)
+          break
+        case 2: {
+          const scopeCat = scopeParts[0]
+          const scopeCmd = scopeParts[1]
+          if (cat === scopeCat && (scopeCmd === "*" || cmd === scopeCmd)) {
+            return true
+          }
+          break
+        }
+        default:
+      }
+    }
+    return false
+  }
+
+  public async checkGuildSlashCommandScopes(
+    interaction: CommandInteraction,
+    commandObject: Command
+  ) {
+    if (commandObject.id === "help" || interaction.channel?.type === "DM") {
+      return
+    }
+    const isInScoped = await this.slashCommandIsScoped({
+      interaction,
+      category: commandObject.category,
+      command: commandObject.command,
+    })
+    if (!isInScoped) {
+      throw new SlashCommandIsNotScopedError({
+        interaction,
+        category: commandObject.category.toLowerCase(),
+        command: commandObject.command.toLowerCase(),
+      })
+    }
+  }
+
+  public async slashCategoryIsScoped(
+    interaction: CommandInteraction,
+    category: string
+  ): Promise<boolean> {
+    if (interaction.channel?.type === "DM") return true
+    if (!interaction.guildId) return false
+    const scopes = await this.getGuildScopes(interaction.guildId)
+    if (!scopes) return false
+    const cat = category.toLowerCase()
+
+    for (const scope of scopes) {
+      const scopeParts = scope.split("/")
+      switch (scopeParts.length) {
+        case 0:
+          logger.error("Invalid scope: " + scope)
+          return false
+        case 1:
+          if (scopeParts[0] === "*") {
+            return true
+          }
+          logger.error("Invalid scope: " + scope)
+          break
+        case 2: {
+          const scopeCat = scopeParts[0]
+          if (cat === scopeCat) {
+            return true
+          }
+          break
+        }
+        default:
+      }
+    }
+    return false
   }
 }
 
