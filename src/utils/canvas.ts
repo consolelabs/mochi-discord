@@ -265,11 +265,12 @@ export function drawDivider(
   ctx: CanvasRenderingContext2D,
   fromX: number,
   toX: number,
-  y: number
+  y: number,
+  color?: string
 ) {
   ctx.save()
   ctx.beginPath()
-  ctx.strokeStyle = "#5C5A5A"
+  ctx.strokeStyle = color ?? "#918d8d"
   ctx.moveTo(fromX, y)
   ctx.lineTo(toX, y)
   ctx.stroke()
@@ -294,14 +295,16 @@ export async function renderChartImage({
   labels,
   data,
   colorConfig,
+  lineOnly,
 }: {
-  chartLabel: string
+  chartLabel?: string
   labels: string[]
   data: number[]
   colorConfig?: {
     borderColor: string
     backgroundColor: string | CanvasGradient
   }
+  lineOnly?: boolean
 }) {
   if (!colorConfig) {
     colorConfig = {
@@ -311,6 +314,9 @@ export async function renderChartImage({
         "rgba(58,69,110,0.5)"
       ),
     }
+  }
+  if (lineOnly) {
+    colorConfig.backgroundColor = "rgba(0, 0, 0, 0)"
   }
   const chartCanvas = new ChartJSNodeCanvas({ width: 700, height: 450 })
   const axisConfig = {
@@ -332,7 +338,7 @@ export async function renderChartImage({
         {
           label: chartLabel,
           data,
-          borderWidth: 2,
+          borderWidth: lineOnly ? 10 : 2,
           pointRadius: 0,
           fill: true,
           ...colorConfig,
@@ -355,6 +361,27 @@ export async function renderChartImage({
           },
         },
       },
+      ...(lineOnly && {
+        scales: {
+          x: {
+            grid: {
+              display: false,
+            },
+            display: false,
+          },
+          y: {
+            grid: {
+              display: false,
+            },
+            display: false,
+          },
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+        },
+      }),
     },
   })
 }

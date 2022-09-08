@@ -143,8 +143,5 @@ export function getSlashCommandObject(
   interaction: CommandInteraction
 ): SlashCommand | null {
   if (!interaction) return null
-  // const args = getCommandArguments(msg)
-  // if (!args.length) return null
-  // const { commandKey } = getCommandMetadata(msg)
   return slashCommands[interaction.commandName]
 }

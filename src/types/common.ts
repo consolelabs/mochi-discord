@@ -1,4 +1,7 @@
-import { SlashCommandBuilder } from "@discordjs/builders"
+import {
+  SlashCommandBuilder,
+  SlashCommandSubcommandBuilder,
+} from "@discordjs/builders"
 import {
   ColorResolvable,
   CommandInteraction,
@@ -42,7 +45,9 @@ export type SlashCommand = {
   category: Category
   prepare: (
     slashCommands?: Record<string, SlashCommand>
-  ) => Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
+  ) =>
+    | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
+    | SlashCommandSubcommandBuilder
   run: (interaction: CommandInteraction) => Promise<
     | {
         messageOptions: MessageOptions
