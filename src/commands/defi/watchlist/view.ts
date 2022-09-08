@@ -155,8 +155,14 @@ const command: Command = {
         `${msg.author.username}'s watchlist`,
         msg.author.displayAvatarURL({ format: "png" }),
       ],
-      image: "attachment://watchlist.png",
     })
+    if (!data?.length) {
+      embed.setDescription(
+        `No items in your watchlist.\n Please use \`${PREFIX}watchlist add\` to add one.`
+      )
+      return { messageOptions: { embeds: [embed] } }
+    }
+    embed.setImage("attachment://watchlist.png")
     return {
       messageOptions: {
         embeds: [embed],

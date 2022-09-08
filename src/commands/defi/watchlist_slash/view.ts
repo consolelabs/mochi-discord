@@ -159,8 +159,14 @@ const command: SlashCommand = {
         `${interaction.user.username}'s watchlist`,
         interaction.user.displayAvatarURL({ format: "png" }),
       ],
-      image: "attachment://watchlist.png",
     })
+    if (!data?.length) {
+      embed.setDescription(
+        `No items in your watchlist.\n Please use \`${PREFIX}watchlist add\` to add one.`
+      )
+      return { messageOptions: { embeds: [embed] } }
+    }
+    embed.setImage("attachment://watchlist.png")
     return {
       messageOptions: {
         embeds: [embed],
