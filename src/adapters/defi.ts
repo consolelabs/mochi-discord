@@ -400,6 +400,36 @@ class Defi extends Fetcher {
       transferType: type ?? "",
     }
   }
+
+  async getUserWatchlist(query: { userId: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/watchlist`, {
+      query,
+    })
+  }
+
+  async addToWatchlist(req: {
+    user_id: string
+    symbol: string
+    coin_gecko_id?: string
+  }) {
+    return await this.jsonFetch<{ suggestion: Coin[] }>(
+      `${API_BASE_URL}/defi/watchlist`,
+      {
+        method: "POST",
+        body: JSON.stringify(req),
+      }
+    )
+  }
+
+  async removeFromWatchlist(query: { userId: string; symbol: string }) {
+    return await this.jsonFetch<{ suggestion: Coin[] }>(
+      `${API_BASE_URL}/defi/watchlist`,
+      {
+        method: "DELETE",
+        query,
+      }
+    )
+  }
 }
 
 export default new Defi()

@@ -33,6 +33,7 @@ import vote from "./community/vote"
 import help_slash from "./help_slash"
 import ticker_slash from "./defi/ticker_slash"
 import log_slash from "./config/log_slash"
+import watchlist from "./defi/watchlist/"
 
 // external
 import { Message } from "discord.js"
@@ -63,6 +64,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   help: help_slash,
   log: log_slash,
   vote,
+  watchlist,
 }
 
 export const originalCommands: Record<string, Command> = {
