@@ -401,9 +401,21 @@ class Defi extends Fetcher {
     }
   }
 
-  async getUserWatchlist(query: { userId: string }) {
+  async getUserWatchlist({
+    userId,
+    page = 0,
+    size = 5,
+  }: {
+    userId: string
+    page?: number
+    size?: number
+  }) {
     return await this.jsonFetch(`${API_BASE_URL}/defi/watchlist`, {
-      query,
+      query: {
+        userId,
+        page,
+        size,
+      },
     })
   }
 

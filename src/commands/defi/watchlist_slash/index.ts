@@ -23,7 +23,7 @@ const command: SlashCommand = {
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("watchlist")
-      .setDescription("Show list of your favorite cryptocurrencies")
+      .setDescription("Show list of your favorite tokens.")
     data.addSubcommand(<SlashCommandSubcommandBuilder>view.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>add.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>remove.prepare())

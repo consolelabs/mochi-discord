@@ -43,7 +43,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
 const command: Command = {
   id: "watchlist_add",
   command: "add",
-  brief: "Add a cryptocurrency to your watchlist.",
+  brief: "Add a token to your watchlist.",
   category: "Defi",
   run: async (msg) => {
     const symbol = getCommandArguments(msg)[2]
@@ -81,7 +81,7 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             title: `${defaultEmojis.MAG} Multiple options found`,
-            description: `Multiple cryptocurrencies found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
+            description: `Multiple tokens found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
           }),
         ],
         components: [selectRow, composeDiscordExitButton(msg.author.id)],
@@ -98,7 +98,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        title: "Add a cryptocurrency to your watchlist.",
+        title: "Add a token to your watchlist.",
         usage: `${PREFIX}watchlist add <symbol>`,
         examples: `${PREFIX}watchlist add eth`,
       }),
