@@ -54,7 +54,7 @@ const command: Command = {
     }
 
     const amount = +amountArg
-    if (Number.isNaN(amount) || amount <= 0 || amount >= Infinity)
+    if (Number.isNaN(amount) || amount < 0 || amount >= Infinity)
       return {
         messageOptions: {
           embeds: [
