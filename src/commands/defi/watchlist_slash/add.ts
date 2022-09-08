@@ -1,18 +1,22 @@
-import { Command } from "types/common"
-import { MessageSelectOptionData, SelectMenuInteraction } from "discord.js"
+import { SlashCommand } from "types/common"
+import {
+  CommandInteraction,
+  MessageSelectOptionData,
+  SelectMenuInteraction,
+} from "discord.js"
 import { defaultEmojis, thumbnails } from "utils/common"
 import {
   composeDiscordSelectionRow,
   getErrorEmbed,
   getSuccessEmbed,
   composeDiscordExitButton,
-  composeEmbedMessage,
+  composeEmbedMessage2,
 } from "utils/discordEmbed"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { Coin } from "types/defi"
-import { PREFIX } from "utils/constants"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import defi from "adapters/defi"
-import { getCommandArguments } from "utils/commands"
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
@@ -40,15 +44,26 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   }
 }
 
-const command: Command = {
-  id: "watchlist_add",
-  command: "add",
-  brief: "Add a cryptocurrency to your watchlist.",
+const command: SlashCommand = {
+  name: "add",
   category: "Defi",
-  run: async (msg) => {
-    const symbol = getCommandArguments(msg)[2]
+  prepare: () => {
+    return new SlashCommandSubcommandBuilder()
+      .setName("add")
+      .setDescription("Add a cryptocurrency to your watchlist.")
+      .addStringOption((option) =>
+        option
+          .setName("symbol")
+          .setDescription(
+            "The cryptocurrency which you wanna add to your watchlist."
+          )
+          .setRequired(true)
+      )
+  },
+  run: async function (interaction: CommandInteraction) {
+    const symbol = interaction.options.getString("symbol", true)
     const { data, ok } = await defi.addToWatchlist({
-      user_id: msg.author.id,
+      user_id: interaction.user.id,
       symbol,
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
@@ -63,7 +78,7 @@ const command: Command = {
     const { suggestions } = data
     const opt = (coin: Coin): MessageSelectOptionData => ({
       label: `${coin.name} (${coin.symbol})`,
-      value: `${coin.symbol}_${coin.id}_${msg.author.id}`,
+      value: `${coin.symbol}_${coin.id}_${interaction.user.id}`,
     })
     const selectRow = composeDiscordSelectionRow({
       customId: "watchlist_selection",
@@ -79,24 +94,24 @@ const command: Command = {
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(msg, {
+          composeEmbedMessage2(interaction, {
             title: `${defaultEmojis.MAG} Multiple options found`,
             description: `Multiple cryptocurrencies found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
           }),
         ],
-        components: [selectRow, composeDiscordExitButton(msg.author.id)],
+        components: [selectRow, composeDiscordExitButton(interaction.user.id)],
       },
       commandChoiceOptions: {
-        userId: msg.author.id,
-        guildId: msg.guildId,
-        channelId: msg.channelId,
+        userId: interaction.user.id,
+        guildId: interaction.guildId,
+        channelId: interaction.channelId,
         handler,
       },
     }
   },
-  getHelpMessage: async (msg) => ({
+  help: async (interaction) => ({
     embeds: [
-      composeEmbedMessage(msg, {
+      composeEmbedMessage2(interaction, {
         thumbnail: thumbnails.TOKENS,
         title: "Add a cryptocurrency to your watchlist.",
         usage: `${PREFIX}watchlist add <symbol>`,
@@ -104,9 +119,7 @@ const command: Command = {
       }),
     ],
   }),
-  canRunWithoutAction: true,
   colorType: "Defi",
-  minArguments: 3,
 }
 
 export default command

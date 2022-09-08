@@ -1,8 +1,9 @@
-import { Command } from "types/common"
-import { MessageAttachment } from "discord.js"
+import { SlashCommand } from "types/common"
+import { CommandInteraction, MessageAttachment } from "discord.js"
 import { thumbnails } from "utils/common"
-import { getErrorEmbed, composeEmbedMessage } from "utils/discordEmbed"
-import { PREFIX } from "utils/constants"
+import { getErrorEmbed, composeEmbedMessage2 } from "utils/discordEmbed"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
@@ -140,20 +141,23 @@ async function renderWatchlist(data: any[]) {
   return new MessageAttachment(canvas.toBuffer(), "watchlist.png")
 }
 
-const command: Command = {
-  id: "watchlist_view",
-  command: "view",
-  brief: "View your watchlist",
+const command: SlashCommand = {
+  name: "view",
   category: "Defi",
-  run: async (msg) => {
+  prepare: () => {
+    return new SlashCommandSubcommandBuilder()
+      .setName("view")
+      .setDescription("View your watchlist")
+  },
+  run: async function (interaction: CommandInteraction) {
     const { data, ok } = await defi.getUserWatchlist({
-      userId: msg.author.id,
+      userId: interaction.user.id,
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
-    const embed = composeEmbedMessage(msg, {
+    const embed = composeEmbedMessage2(interaction, {
       author: [
-        `${msg.author.username}'s watchlist`,
-        msg.author.displayAvatarURL({ format: "png" }),
+        `${interaction.user.username}'s watchlist`,
+        interaction.user.displayAvatarURL({ format: "png" }),
       ],
       image: "attachment://watchlist.png",
     })
@@ -164,9 +168,9 @@ const command: Command = {
       },
     }
   },
-  getHelpMessage: async (msg) => ({
+  help: async (interaction) => ({
     embeds: [
-      composeEmbedMessage(msg, {
+      composeEmbedMessage2(interaction, {
         thumbnail: thumbnails.TOKENS,
         title: "Show list of your favorite cryptocurrencies",
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
@@ -175,7 +179,6 @@ const command: Command = {
       }),
     ],
   }),
-  canRunWithoutAction: true,
   colorType: "Defi",
 }
 
