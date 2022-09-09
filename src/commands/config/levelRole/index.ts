@@ -62,7 +62,7 @@ const command: Command = {
         },
       }
 
-    const res = await Config.configLevelRole(msg, {
+    const res = await Config.configLevelRole({
       guild_id: msg.guildId,
       role_id: role.id,
       level,

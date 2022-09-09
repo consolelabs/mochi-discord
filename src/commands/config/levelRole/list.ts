@@ -22,8 +22,8 @@ const command: Command = {
         },
       }
     }
-    const data: any[] = await Config.getGuildLevelRoleConfigs(msg, msg.guildId)
-    if (!data || !data.length) {
+    const data = await Config.getGuildLevelRoleConfigs(msg.guildId)
+    if (!data || !data.data?.length) {
       return {
         messageOptions: {
           embeds: [
@@ -37,7 +37,7 @@ const command: Command = {
       }
     }
 
-    const description = data
+    const description = data.data
       .map((c: any) => `**Level ${c.level}** - <@&${c.role_id}>`)
       .join("\n")
     return {
