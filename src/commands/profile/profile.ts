@@ -5,6 +5,7 @@ import {
   MessageSelectMenu,
   MessageOptions,
   MessageSelectOptionData,
+  User,
 } from "discord.js"
 import { Command } from "types/common"
 import {
@@ -19,6 +20,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { logger } from "logger"
 import { composeNFTDetail } from "commands/community/nft/query"
 import community from "adapters/community"
+import { parseDiscordToken, getCommandArguments } from "utils/commands"
 
 function selectCollectionComponent(
   collections: {
@@ -95,10 +97,13 @@ function buildProgressbar(progress: number): string {
   return progressBar.join("")
 }
 
-async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
+async function composeMyProfileEmbed(
+  msg: Message,
+  user: User
+): Promise<MessageOptions> {
   const userProfileResp = await profile.getUserProfile(
     msg.guildId ?? "",
-    msg.author.id
+    user.id
   )
   if (!userProfileResp.ok) {
     return {
@@ -152,8 +157,8 @@ async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
   const rankStr = `:trophy: \`${userProfile.guild_rank ?? 0}\``
 
   const embed = composeEmbedMessage(msg, {
-    thumbnail: msg.author.displayAvatarURL(),
-    author: [`${msg.author.username}'s profile`, msg.author.displayAvatarURL()],
+    thumbnail: user.displayAvatarURL(),
+    author: [`${user.username}'s profile`, user.displayAvatarURL()],
   }).addFields(
     {
       name: "Level",
@@ -185,12 +190,13 @@ async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
 
 async function composeMyNFTEmbed(
   msg: Message,
+  user: User,
   collectionAddress?: string,
   page = 0
 ): Promise<MessageOptions> {
   const userProfileResp = await profile.getUserProfile(
     msg.guildId ?? "",
-    msg.author.id
+    user.id
   )
   if (!userProfileResp.ok) {
     return {
@@ -222,7 +228,7 @@ async function composeMyNFTEmbed(
         getErrorEmbed({
           msg,
           title: "Wallet address needed",
-          description: `Your account doesn't have a wallet associated.\n${verifyCTA}`,
+          description: `Account doesn't have a wallet associated.\n${verifyCTA}`,
         }),
       ],
     }
@@ -245,11 +251,8 @@ async function composeMyNFTEmbed(
   const userNftCollections = userNftCollectionResp.data
   if (userNftCollections.length === 0) {
     const embed = composeEmbedMessage(msg, {
-      author: [
-        `${msg.author.username}'s NFT collection`,
-        msg.author.displayAvatarURL(),
-      ],
-      description: `<@${msg.author.id}>, you have no nfts.`,
+      author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
+      description: `<@${user.id}>, you have no nfts.`,
     })
     return { embeds: [embed], components: [selectOtherViewComponent()] }
   }
@@ -283,11 +286,8 @@ async function composeMyNFTEmbed(
 
   if (userNfts.length === 0) {
     const embed = composeEmbedMessage(msg, {
-      author: [
-        `${msg.author.username}'s NFT collection`,
-        msg.author.displayAvatarURL(),
-      ],
-      description: `<@${msg.author.id}>, you have no nfts.`,
+      author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
+      description: `<@${user.id}>, you have no nfts.`,
     })
     return { embeds: [embed], components: [selectOtherViewComponent()] }
   }
@@ -330,16 +330,17 @@ async function composeMyNFTEmbed(
 
 async function getCurrentViewEmbed(params: {
   msg: Message
+  user: User
   currentView: string
   value?: string
   page?: number
 }): Promise<MessageOptions> {
-  const { msg, currentView, value, page } = params
+  const { msg, user, currentView, value, page } = params
   try {
     if (currentView == "nft") {
-      return await composeMyNFTEmbed(msg, value, page)
+      return await composeMyNFTEmbed(msg, user, value, page)
     } else {
-      return await composeMyProfileEmbed(msg)
+      return await composeMyProfileEmbed(msg, user)
     }
   } catch (e) {
     logger.error(e as string)
@@ -353,13 +354,22 @@ async function getCurrentViewEmbed(params: {
 const command: Command = {
   id: "profile",
   command: "profile",
-  brief: "Check your server profile",
+  brief: "Check user's profile",
   category: "Profile",
   run: async (msg) => {
     let currentView = "profile"
     let currentCollection = ""
+    let user = msg.author
+    const args = getCommandArguments(msg)
+    if (args.length > 1) {
+      const { isUser, id } = parseDiscordToken(args[1])
+      const cachedUser = msg.guild?.members.cache.get(id)?.user
+      if (isUser && cachedUser) {
+        user = cachedUser
+      }
+    }
 
-    const messageOptions = await getCurrentViewEmbed({ msg, currentView })
+    const messageOptions = await getCurrentViewEmbed({ msg, user, currentView })
     const reply = await msg.reply(messageOptions)
 
     reply
@@ -377,6 +387,7 @@ const command: Command = {
 
         const messageOptions = await getCurrentViewEmbed({
           msg,
+          user,
           currentView,
           value: i.values[0],
         })
@@ -393,6 +404,7 @@ const command: Command = {
         return {
           messageOptions: await getCurrentViewEmbed({
             msg,
+            user,
             currentView,
             value: currentCollection,
             page,
