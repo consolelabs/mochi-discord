@@ -106,7 +106,9 @@ function buildXPbar(name: string, value: number) {
   return `${list
     .map((_, i) => {
       if (Math.floor((value / cap) * 10) >= i + 1) {
-        return i === 0 ? getEmoji(`${name}_exp_1`) : getEmoji(`${name}_exp_2`)
+        return i === 0
+          ? getEmoji(`${name}_exp_1`, true)
+          : getEmoji(`${name}_exp_2`, true)
       }
       return _
     })
