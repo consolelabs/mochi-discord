@@ -308,6 +308,13 @@ export interface ModelToken {
   symbol?: string;
 }
 
+export interface ModelUpvoteStreakTier {
+  id?: number;
+  streak_required?: number;
+  vote_interval?: number;
+  xp_per_interval?: number;
+}
+
 export interface ModelUserFactionXpsMapping {
   academy_xp?: number;
   imperial_xp?: number;
@@ -761,6 +768,11 @@ export interface ResponseGetSupportedTokensResponse {
 
 export interface ResponseGetTwitterHashtagConfigResponse {
   data?: ResponseTwitterHashtag;
+}
+
+export interface ResponseGetUpvoteTiersConfig {
+  data?: ModelUpvoteStreakTier[];
+  message?: string;
 }
 
 export interface ResponseGetUserCurrentGMStreakResponse {

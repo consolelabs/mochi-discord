@@ -73,28 +73,44 @@ function selectOtherViewComponent(defaultValue?: string) {
 
 function buildProgressbar(progress: number): string {
   const progressBar = [
-    getEmoji("BAR_1_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_3_EMPTY"),
+    getEmoji("EXP_1_EMPTY"),
+    getEmoji("EXP_2_EMPTY"),
+    getEmoji("EXP_2_EMPTY"),
+    getEmoji("EXP_2_EMPTY"),
+    getEmoji("EXP_2_EMPTY"),
+    getEmoji("EXP_3_EMPTY"),
   ]
   const maxBar = 6
   const progressOutOfMaxBar = Math.round(progress * maxBar)
   for (let i = 0; i <= progressOutOfMaxBar; ++i) {
     if (progressOutOfMaxBar == 0) break
-    let barEmote = "BAR_2_FULL"
+    let barEmote = "EXP_2_FULL"
     if (i == 1) {
-      barEmote = i == progressOutOfMaxBar ? "BAR_1_MID" : "BAR_1_FULL"
+      barEmote = i == progressOutOfMaxBar ? "EXP_1_MID" : "EXP_1_FULL"
     } else if (i > 1 && i < maxBar) {
-      barEmote = i == progressOutOfMaxBar ? "BAR_2_MID" : "BAR_2_FULL"
+      barEmote = i == progressOutOfMaxBar ? "EXP_2_MID" : "EXP_2_FULL"
     } else {
-      barEmote = i == progressOutOfMaxBar ? "BAR_3_MID" : "BAR_3_FULL"
+      barEmote = i == progressOutOfMaxBar ? "EXP_3_MID" : "EXP_3_FULL"
     }
     progressBar[i - 1] = getEmoji(barEmote, true)
   }
   return progressBar.join("")
+}
+
+function buildXPbar(name: string, value: number) {
+  const cap = Math.ceil(value / 1000) * 1000
+  const list = new Array(10).fill(getEmoji("faction_exp_2"))
+  list[0] = getEmoji("faction_exp_1")
+  list[list.length - 1] = getEmoji("faction_exp_3")
+
+  return `${list
+    .map((_, i) => {
+      if (Math.floor((value / cap) * 10) >= i + 1) {
+        return i === 0 ? getEmoji(`${name}_exp_1`) : getEmoji(`${name}_exp_2`)
+      }
+      return _
+    })
+    .join("")}\n\`${value}/${cap}\``
 }
 
 async function composeMyProfileEmbed(
@@ -116,31 +132,29 @@ async function composeMyProfileEmbed(
     }
   }
   const userProfile = userProfileResp.data
-  const aboutMeStr =
-    userProfile.about_me.trim().length === 0
-      ? "I'm a mysterious person"
-      : userProfile.about_me
 
   let addressStr = userProfile.user_wallet?.address
   if (!addressStr || !addressStr.length) {
     addressStr = "N/A"
   }
 
-  const lvlStr = `\`${userProfile.current_level.level}\``
+  const lvlStr = `\`${userProfile.current_level?.level}\``
   const lvlMax = 60
   const levelProgress = buildProgressbar(
-    userProfile.current_level.level / lvlMax
+    (userProfile.current_level?.level ?? 0) / lvlMax
   )
-  const nextLevelMinXp = userProfile.next_level.min_xp
-    ? userProfile.next_level.min_xp
-    : userProfile.current_level.min_xp
+  const nextLevelMinXp = userProfile.next_level?.min_xp
+    ? userProfile.next_level?.min_xp
+    : userProfile.current_level?.min_xp
 
-  const xpProgress = buildProgressbar(userProfile.guild_xp / nextLevelMinXp)
+  const xpProgress = buildProgressbar(
+    (userProfile?.guild_xp ?? 0) / (nextLevelMinXp ?? 0)
+  )
 
   const xpStr = `\`${userProfile.guild_xp}/${
-    userProfile.next_level.min_xp
+    userProfile.next_level?.min_xp
       ? userProfile.next_level.min_xp
-      : userProfile.current_level.min_xp
+      : userProfile.current_level?.min_xp
   }\``
 
   const walletValue = "Wallet: `NA`"
@@ -152,7 +166,7 @@ async function composeMyProfileEmbed(
       ? msg.member?.roles.highest
       : null
 
-  const roleStr = `\`${highestRole?.name ?? "N/A"}\``
+  const roleStr = highestRole?.id ? `<@&${highestRole.id}>` : "`N/A`"
   const activityStr = `${getEmoji("FLAG")} \`${userProfile.nr_of_actions}\``
   const rankStr = `:trophy: \`${userProfile.guild_rank ?? 0}\``
 
@@ -175,11 +189,52 @@ async function composeMyProfileEmbed(
       value: assetsStr,
       inline: true,
     },
-    { name: "About me", value: aboutMeStr },
-    { name: "Address", value: addressStr },
+    { name: "Address", value: `\`${addressStr}\`` },
     { name: "Role", value: roleStr, inline: true },
     { name: "Activities", value: activityStr, inline: true },
-    { name: "Rank", value: rankStr, inline: true }
+    { name: "Rank", value: rankStr, inline: true },
+    {
+      name: `${getEmoji("imperial")} Nobility`,
+      value: buildXPbar(
+        "imperial",
+        userProfileResp.data.user_faction_xps?.imperial_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: `${getEmoji("rebelio")} Fame`,
+      value: buildXPbar(
+        "rebelio",
+        userProfileResp.data.user_faction_xps?.rebellio_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: getEmoji("blank"),
+      value: getEmoji("blank"),
+      inline: true,
+    },
+    {
+      name: `${getEmoji("mercanto")} Loyalty`,
+      value: buildXPbar(
+        "mercanto",
+        userProfileResp.data.user_faction_xps?.merchant_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: `${getEmoji("academia")} Reputation`,
+      value: buildXPbar(
+        "academia",
+        userProfileResp.data.user_faction_xps?.academy_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: getEmoji("blank"),
+      value: getEmoji("blank"),
+      inline: true,
+    }
   )
 
   return {

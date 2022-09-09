@@ -81,18 +81,18 @@ export const numberEmojis: Record<string, string> = {
 }
 
 // TODO(tuand) rename this to expBarEmojis
-export const progressBarEmojis: Record<string, string> = {
-  BAR_1_EMPTY: "1004837203735756881",
-  BAR_1_HALF: "1004837199851835392",
-  BAR_1_MID: "1004837201630199989",
-  BAR_1_FULL: "1004827891659452438",
-  BAR_2_EMPTY: "1004837205937770658",
-  BAR_2_MID: "1004837197372997782",
-  BAR_2_HIGH: "1004837692984537258",
-  BAR_2_FULL: "1004837191660343336",
-  BAR_3_EMPTY: "1004837207850356847",
-  BAR_3_MID: "1004837195510722630",
-  BAR_3_FULL: "1004837193673613412",
+export const expBarEmojis: Record<string, string> = {
+  EXP_1_EMPTY: "1004837203735756881",
+  EXP_1_HALF: "1004837199851835392",
+  EXP_1_MID: "1004837201630199989",
+  EXP_1_FULL: "1004827891659452438",
+  EXP_2_EMPTY: "1004837205937770658",
+  EXP_2_MID: "1004837197372997782",
+  EXP_2_HIGH: "1004837692984537258",
+  EXP_2_FULL: "1004837191660343336",
+  EXP_3_EMPTY: "1004837207850356847",
+  EXP_3_MID: "1004837195510722630",
+  EXP_3_FULL: "1004837193673613412",
 }
 
 export const progressEmojis: Record<string, string> = {
@@ -113,6 +113,28 @@ export const defaultEmojis: Record<string, string> = {
   CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
   CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
   MAG: ":mag:",
+}
+
+export const factionEmojis: Record<string, string> = {
+  IMPERIAL: "932605622044729344",
+  IMPERIAL_EXP_1: "933612077686341672",
+  IMPERIAL_EXP_2: "933612077300473866",
+  IMPERIAL_EXP_3: "933612078856552498",
+  REBELIO: "932605621914701875",
+  REBELIO_EXP_1: "933606190523490324",
+  REBELIO_EXP_2: "933606189512683520",
+  REBELIO_EXP_3: "933606190678679633",
+  MERCANTO: "932651179593322527",
+  MERCANTO_EXP_1: "933612151732596786",
+  MERCANTO_EXP_2: "933612151753572393",
+  MERCANTO_EXP_3: "933612151174758401",
+  ACADEMIA: "932605621730160680",
+  ACADEMIA_EXP_1: "933606673178820658",
+  ACADEMIA_EXP_2: "933606672709074974",
+  ACADEMIA_EXP_3: "933606672444817408",
+  FACTION_EXP_1: "933276771133063198",
+  FACTION_EXP_2: "933276771107868692",
+  FACTION_EXP_3: "933276771141451856",
 }
 
 export const emojis: { [key: string]: string } = {
@@ -149,8 +171,9 @@ export const emojis: { [key: string]: string } = {
   ...rarityEmojis,
   ...marketplaceEmojis,
   ...traitEmojis,
-  ...progressBarEmojis,
+  ...expBarEmojis,
   ...progressEmojis,
+  ...factionEmojis,
 }
 
 export const tripodEmojis: Record<string, string> = {

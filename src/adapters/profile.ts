@@ -1,9 +1,9 @@
 import fetch from "node-fetch"
+import { ResponseGetDataUserProfileResponse } from "types/api"
 import {
   GetUserNFTResponse,
   GetUserNFTsResponse,
   GetUserNFTCollectionResponse,
-  UserProfileResponse,
 } from "types/profile"
 import { API_BASE_URL, INDEXER_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
@@ -41,7 +41,7 @@ class Profile extends Fetcher {
   }
 
   public async getUserProfile(guildId: string, userId: string) {
-    return await this.jsonFetch<UserProfileResponse>(
+    return await this.jsonFetch<ResponseGetDataUserProfileResponse>(
       `${API_BASE_URL}/profiles`,
       {
         query: {
