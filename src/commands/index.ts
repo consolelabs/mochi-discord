@@ -27,8 +27,8 @@ import nftrole from "./config/nftRole"
 import verify from "./community/verify"
 import log from "./config/log"
 import poe from "./config/poe"
-import vote from "./community/vote"
 import watchlist from "./defi/watchlist"
+import vote from "./community/vote"
 
 // slash commands
 import help_slash from "./help_slash"
@@ -38,6 +38,7 @@ import watchlist_slash from "./defi/watchlist_slash"
 import top_slash from "./community/top_slash"
 import verify_slash from "./community/verify_slash"
 import levelrole_slash from "./config/levelRole_slash"
+import vote_slash from "./community/vote_slash"
 
 // external
 import { Message } from "discord.js"
@@ -69,7 +70,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   log: log_slash,
   top: top_slash,
   verify: verify_slash,
-  vote,
+  vote: vote_slash,
   watchlist: watchlist_slash,
   levelrole: levelrole_slash,
 }
@@ -97,6 +98,7 @@ export const originalCommands: Record<string, Command> = {
   top,
   sales,
   verify,
+  vote,
   // config section
   reactionrole,
   defaultrole,
