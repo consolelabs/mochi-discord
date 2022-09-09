@@ -11,11 +11,14 @@ export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
     description = "No configuration found"
   } else {
     description = data
+      ?.sort(
+        (c1, c2) => (c1.number_of_tokens ?? 0) - (c2.number_of_tokens ?? 0)
+      )
       ?.map(
         (c) =>
-          `Group <@&${c.role_id}> - requires \`${
+          `<@&${c.role_id}> - requires \`${
             c.number_of_tokens
-          }\`\n${c.nft_collection_configs
+          }\` tokens\n${c.nft_collection_configs
             ?.map(
               (nftCol) =>
                 `${getEmoji("blank")}${getEmoji("reply")}\`${
