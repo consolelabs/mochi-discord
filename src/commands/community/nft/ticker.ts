@@ -8,7 +8,7 @@ import {
 } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { HOMEPAGE_URL, PREFIX } from "utils/constants"
+import { HOMEPAGE_URL, NFT_TICKER_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeDaysSelectMenu,
   composeDiscordExitButton,
@@ -225,6 +225,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}nft ticker <collection_symbol>`,
           examples: `${PREFIX}nft ticker neko`,
+          document: NFT_TICKER_GITBOOK,
         }),
       ],
     }

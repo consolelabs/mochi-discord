@@ -1,6 +1,6 @@
 import { Command, embedsColors } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
 import {
   getErrorEmbed,
   composeEmbedMessage,
@@ -273,6 +273,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `// Interactively\n${PREFIX}sales remove\n\n// If you already know what to remove\n${PREFIX}sales remove <contract-address>`,
         examples: `${PREFIX}sales remove\n${PREFIX}sales remove 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73`,
+        document: SALE_TRACKER_GITBOOK,
       }),
     ],
   }),

@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { DEFAULT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
@@ -72,6 +72,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}dr info`,
           examples: `${PREFIX}dr info`,
+          document: DEFAULT_ROLE_GITBOOK,
         }),
       ],
     }

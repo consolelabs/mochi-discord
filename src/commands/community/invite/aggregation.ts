@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { INVITE_GITBOOK, PREFIX } from "utils/constants"
 import Community from "adapters/community"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
@@ -47,6 +47,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite aggregation <@userId>`,
       examples: `${PREFIX}invite aggregation @ohagi\n${PREFIX}invite aggr @ohagi`,
+      document: INVITE_GITBOOK,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 

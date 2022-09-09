@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
   getErrorEmbed,
@@ -136,6 +136,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nr <role> <amount> <nft_address1,nft_address2> [erc1155_token_id]`,
         examples: `${PREFIX}nr @Mochi 1 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73\n${PREFIX}nr @SeniorMochian 100 0xAaaa,0xBbbb,0xCccc`,
+        document: NFT_ROLE_GITBOOK,
       }),
     ],
   }),

@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
 import {
   getErrorEmbed,
   composeEmbedMessage,
@@ -96,6 +96,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sales track <channel> <address> <chain_id>`,
         examples: `${PREFIX}sales track #general 0x33910F98642914A3CB0dB10f0 250`,
+        document: SALE_TRACKER_GITBOOK,
       }),
     ],
   }),

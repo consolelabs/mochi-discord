@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import config from "./config"
 import streak from "./streak"
@@ -23,6 +23,7 @@ const command: Command = {
         usage: `${PREFIX}gm <action>`,
         footer: [`Type ${PREFIX}help gm <action> for a specific action!`],
         includeCommandsList: true,
+        document: GM_GITBOOK,
       }),
     ],
   }),

@@ -5,7 +5,7 @@ import {
   MessageActionRow,
   MessageButton,
 } from "discord.js"
-import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
+import { AIRDROP_GITBOOK, DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
 import {
   defaultEmojis,
   getEmoji,
@@ -324,6 +324,7 @@ const command: Command = {
         thumbnail: thumbnails.TIP,
         usage: `${PREFIX}airdrop <amount> <token> [in <duration>] [for <max entries>]`,
         examples: `${PREFIX}airdrop 10 ftm\n${PREFIX}airdrop 10 ftm in 5m\n${PREFIX}airdrop 10 ftm in 5m for 6`,
+        document: AIRDROP_GITBOOK,
         footer: [DEFI_DEFAULT_FOOTER],
       }),
     ],

@@ -149,6 +149,7 @@ export function composeEmbedMessage(
     withoutFooter,
     includeCommandsList,
     actions,
+    document,
   } = props
   const author = _author.map((a) => a ?? "").filter(Boolean)
   const commandObj = getCommandObject(msg)
@@ -200,6 +201,7 @@ export function composeEmbedMessage(
     )
   if (usage) embed.addField("**Usage**", `\`\`\`${usage}\`\`\``)
   if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)
+  if (document) embed.addField("**Document**", `[**Gitbook**](${document})`)
   return embed
 }
 
