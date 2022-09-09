@@ -1,31 +1,30 @@
 import { SlashCommand } from "types/common"
-import { CommandInteraction } from "discord.js"
-import { thumbnails } from "utils/common"
-import { composeEmbedMessage2 } from "utils/discordEmbed"
+import { SLASH_PREFIX } from "utils/constants"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
-import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import view from "./view"
-import add from "./add"
+import { CommandInteraction } from "discord.js"
+import { composeEmbedMessage2 } from "utils/discordEmbed"
+import set from "./set"
 import remove from "./remove"
+import list from "./list"
 
 const subCommands: Record<string, SlashCommand> = {
-  view,
-  add,
+  set,
+  list,
   remove,
 }
 
 const command: SlashCommand = {
-  name: "watchlist",
-  category: "Defi",
+  name: "levelrole",
+  category: "Config",
   prepare: () => {
     const data = new SlashCommandBuilder()
-      .setName("watchlist")
-      .setDescription("Show list of your favorite tokens.")
-    data.addSubcommand(<SlashCommandSubcommandBuilder>view.prepare())
-    data.addSubcommand(<SlashCommandSubcommandBuilder>add.prepare())
+      .setName("levelrole")
+      .setDescription("Level-role configuration")
+    data.addSubcommand(<SlashCommandSubcommandBuilder>set.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>list.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>remove.prepare())
     return data
   },
@@ -35,13 +34,12 @@ const command: SlashCommand = {
   help: async (interaction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        thumbnail: thumbnails.TOKENS,
-        title: "Manage your watchlist",
-        usage: `${PREFIX}watchlist <sub-command>`,
+        title: "Manage your level-role configuration",
+        usage: `${SLASH_PREFIX}levelrole <sub-command>`,
       }),
     ],
   }),
-  colorType: "Defi",
+  colorType: "Server",
 }
 
 export default command

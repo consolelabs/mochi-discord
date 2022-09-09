@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { thumbnails } from "utils/common"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { SLASH_PREFIX as PREFIX } from "utils/constants"
+import { PREFIX } from "utils/constants"
 import view from "./view"
 import add from "./add"
 import remove from "./remove"
@@ -24,6 +24,7 @@ const command: Command = {
         thumbnail: thumbnails.TOKENS,
         title: "Manage your watchlist",
         usage: `${PREFIX}watchlist <action>`,
+        includeCommandsList: true,
       }),
     ],
   }),

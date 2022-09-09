@@ -16,12 +16,12 @@ const command: SlashCommand = {
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
       .setName("remove")
-      .setDescription("Remove a cryptocurrency from your watchlist.")
+      .setDescription("Remove a token from your watchlist.")
       .addStringOption((option) =>
         option
           .setName("symbol")
           .setDescription(
-            "The cryptocurrency which you wanna remove from your watchlist."
+            "The token which you wanna remove from your watchlist."
           )
           .setRequired(true)
       )
@@ -41,7 +41,7 @@ const command: SlashCommand = {
     embeds: [
       composeEmbedMessage2(interaction, {
         thumbnail: thumbnails.TOKENS,
-        title: "Remove a cryptocurrency from your watchlist.",
+        title: "Remove a token from your watchlist.",
         usage: `${PREFIX}watchlist remove <symbol>`,
         examples: `${PREFIX}watchlist remove eth`,
       }),
