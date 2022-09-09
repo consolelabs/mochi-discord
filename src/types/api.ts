@@ -121,6 +121,17 @@ export interface ModelConfigXpLevel {
   min_xp?: number;
 }
 
+export interface ModelDiscordGuild {
+  alias?: string;
+  bot_scopes?: string[];
+  created_at?: string;
+  global_xp?: boolean;
+  id?: string;
+  log_channel?: string;
+  name?: string;
+  roles?: ModelGuildRole[];
+}
+
 export interface ModelDiscordGuildStat {
   created_at?: string;
   guild_id?: string;
@@ -229,6 +240,12 @@ export interface ModelGuildCustomCommand {
   roles_permissions?: number[];
 }
 
+export interface ModelGuildRole {
+  guild_id?: string;
+  name?: string;
+  role_id?: number;
+}
+
 export interface ModelJSONNullString {
   string?: string;
 
@@ -289,6 +306,21 @@ export interface ModelToken {
   is_native?: boolean;
   name?: string;
   symbol?: string;
+}
+
+export interface ModelUserFactionXpsMapping {
+  academy_xp?: number;
+  imperial_xp?: number;
+  merchant_xp?: number;
+  rebellio_xp?: number;
+}
+
+export interface ModelUserWallet {
+  address?: string;
+  chain_type?: ModelJSONNullString;
+  created_at?: string;
+  guild_id?: string;
+  user_discord_id?: string;
 }
 
 export interface ModelWhitelistCampaign {
@@ -635,6 +667,10 @@ export interface ResponseGetCustomCommandResponse {
   data?: ModelGuildCustomCommand;
 }
 
+export interface ResponseGetDataUserProfileResponse {
+  data?: ResponseGetUserProfileResponse;
+}
+
 export interface ResponseGetDefaultTokenResponse {
   data?: ModelToken;
 }
@@ -737,6 +773,20 @@ export interface ResponseGetUserCurrentUpvoteStreakResponse {
   minutes_until_reset?: number;
   streak_count?: number;
   total_count?: number;
+}
+
+export interface ResponseGetUserProfileResponse {
+  about_me?: string;
+  current_level?: ModelConfigXpLevel;
+  guild?: ModelDiscordGuild;
+  guild_rank?: number;
+  guild_xp?: number;
+  id?: string;
+  next_level?: ModelConfigXpLevel;
+  nr_of_actions?: number;
+  progress?: number;
+  user_faction_xps?: ModelUserFactionXpsMapping;
+  user_wallet?: ModelUserWallet;
 }
 
 export interface ResponseGetUserResponse {
