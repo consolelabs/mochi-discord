@@ -99,13 +99,13 @@ function buildProgressbar(progress: number): string {
 
 function buildXPbar(name: string, value: number) {
   const cap = Math.ceil(value / 1000) * 1000
-  const list = new Array(10).fill(getEmoji("faction_exp_2"))
+  const list = new Array(7).fill(getEmoji("faction_exp_2"))
   list[0] = getEmoji("faction_exp_1")
   list[list.length - 1] = getEmoji("faction_exp_3")
 
   return `${list
     .map((_, i) => {
-      if (Math.floor((value / cap) * 10) >= i + 1) {
+      if (Math.floor((value / cap) * 7) >= i + 1) {
         return i === 0
           ? getEmoji(`${name}_exp_1`, true)
           : getEmoji(`${name}_exp_2`, true)
