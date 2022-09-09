@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
-import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
+import { DEFI_DEFAULT_FOOTER, DEPOSIT_GITBOOK, PREFIX } from "utils/constants"
 import { defaultEmojis, getEmoji } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
@@ -96,6 +96,7 @@ const command: Command = {
       description,
       usage: `${PREFIX}withdraw <amount> <token>`,
       examples: `${PREFIX}withdraw 5 ftm`,
+      document: DEPOSIT_GITBOOK,
       footer: [DEFI_DEFAULT_FOOTER],
     })
     return { embeds: [embedMsg] }

@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, STATS_GITBOOK } from "utils/constants"
 import {
   MessageSelectOptionData,
   SelectMenuInteraction,
@@ -165,6 +165,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}stats -> select which stats from dropdown -> select which type from dropdown`,
       footer: [`Type ${PREFIX}help stats`],
+      document: STATS_GITBOOK,
       examples: `${PREFIX}stats`,
     })
 

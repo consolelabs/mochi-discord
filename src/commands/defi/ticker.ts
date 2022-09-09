@@ -10,7 +10,7 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { PREFIX, TICKER_GITBOOK } from "utils/constants"
 import {
   defaultEmojis,
   getEmoji,
@@ -397,6 +397,7 @@ const command: Command = {
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
         usage: `${PREFIX}ticker <symbol>\n${PREFIX}ticker <base>/<target> (comparison)`,
         examples: `${PREFIX}ticker eth\n${PREFIX}ticker fantom\n${PREFIX}ticker btc/bnb`,
+        document: TICKER_GITBOOK,
       }),
     ],
   }),

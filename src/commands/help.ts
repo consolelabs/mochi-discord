@@ -1,5 +1,5 @@
 import { Message } from "discord.js"
-import { HELP_CMD } from "utils/constants"
+import { HELP_CMD, HELP_GITBOOK } from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import { originalCommands } from "../commands"
@@ -91,6 +91,7 @@ const command: Command = {
       embed.addField(`${category}`, `${commandsByCat}`, true)
       idx++
     }
+    embed.addField("**Document**", `[**Gitbook**](${HELP_GITBOOK})`)
 
     return { embeds: [justifyEmbedFields(embed, 3)] }
   },

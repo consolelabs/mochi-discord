@@ -1,5 +1,5 @@
 import { Message } from "discord.js"
-import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
+import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
 import {
   emojis,
   getEmojiURL,
@@ -77,6 +77,7 @@ const command: Command = {
         thumbnail: thumbnails.TIP,
         usage: `${PREFIX}tip <@user> <amount> <token>\n${PREFIX}tip <@role> <amount> <token>`,
         examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm\n${PREFIX}tip @RandomRole 10 ftm`,
+        document: TIP_GITBOOK,
         footer: [DEFI_DEFAULT_FOOTER],
       }),
     ],

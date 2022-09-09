@@ -3,7 +3,7 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { InvitesInput } from "types/community"
 import { Message } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { INVITE_GITBOOK, PREFIX } from "utils/constants"
 
 const command: Command = {
   id: "invite_link",
@@ -44,6 +44,7 @@ const command: Command = {
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite link`,
+      document: INVITE_GITBOOK,
       footer: [`Type \`${PREFIX}help invite <action>\` for a specific action!`],
     })
 

@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { Message } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { INVITE_GITBOOK, PREFIX } from "utils/constants"
 
 const command: Command = {
   id: "invite_leaderboard",
@@ -66,6 +66,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite leaderboard`,
       examples: `${PREFIX}invite leaderboard\n${PREFIX}invite lb`,
+      document: INVITE_GITBOOK,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 

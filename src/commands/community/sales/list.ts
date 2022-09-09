@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
 import {
   getErrorEmbed,
   composeEmbedMessage,
@@ -78,6 +78,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sales list`,
         examples: `${PREFIX}sales list`,
+        document: SALE_TRACKER_GITBOOK,
       }),
     ],
   }),

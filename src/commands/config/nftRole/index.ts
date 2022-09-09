@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import list from "./list"
 import remove from "./remove"
@@ -26,6 +26,7 @@ const command: Command = {
           "Asssign role to a user once they hold a certain amount of NFT\nSupports multiple collections and grouping",
         footer: [`Type ${PREFIX}help nr <action> for a specific action!`],
         includeCommandsList: true,
+        document: NFT_ROLE_GITBOOK,
       }),
     ],
   }),

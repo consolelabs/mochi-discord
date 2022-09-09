@@ -5,6 +5,7 @@ import {
   MessageSelectMenu,
   MessageOptions,
   MessageSelectOptionData,
+  User,
 } from "discord.js"
 import { Command } from "types/common"
 import {
@@ -19,6 +20,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { logger } from "logger"
 import { composeNFTDetail } from "commands/community/nft/query"
 import community from "adapters/community"
+import { parseDiscordToken, getCommandArguments } from "utils/commands"
 
 function selectCollectionComponent(
   collections: {
@@ -71,34 +73,53 @@ function selectOtherViewComponent(defaultValue?: string) {
 
 function buildProgressbar(progress: number): string {
   const progressBar = [
-    getEmoji("BAR_1_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_3_EMPTY"),
+    getEmoji("EXP_1_EMPTY"),
+    getEmoji("EXP_2_EMPTY"),
+    getEmoji("EXP_2_EMPTY"),
+    getEmoji("EXP_2_EMPTY"),
+    getEmoji("EXP_2_EMPTY"),
+    getEmoji("EXP_3_EMPTY"),
   ]
   const maxBar = 6
   const progressOutOfMaxBar = Math.round(progress * maxBar)
   for (let i = 0; i <= progressOutOfMaxBar; ++i) {
     if (progressOutOfMaxBar == 0) break
-    let barEmote = "BAR_2_FULL"
+    let barEmote = "EXP_2_FULL"
     if (i == 1) {
-      barEmote = i == progressOutOfMaxBar ? "BAR_1_MID" : "BAR_1_FULL"
+      barEmote = i == progressOutOfMaxBar ? "EXP_1_MID" : "EXP_1_FULL"
     } else if (i > 1 && i < maxBar) {
-      barEmote = i == progressOutOfMaxBar ? "BAR_2_MID" : "BAR_2_FULL"
+      barEmote = i == progressOutOfMaxBar ? "EXP_2_MID" : "EXP_2_FULL"
     } else {
-      barEmote = i == progressOutOfMaxBar ? "BAR_3_MID" : "BAR_3_FULL"
+      barEmote = i == progressOutOfMaxBar ? "EXP_3_MID" : "EXP_3_FULL"
     }
     progressBar[i - 1] = getEmoji(barEmote, true)
   }
   return progressBar.join("")
 }
 
-async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
+function buildXPbar(name: string, value: number) {
+  const cap = Math.ceil(value / 1000) * 1000
+  const list = new Array(10).fill(getEmoji("faction_exp_2"))
+  list[0] = getEmoji("faction_exp_1")
+  list[list.length - 1] = getEmoji("faction_exp_3")
+
+  return `${list
+    .map((_, i) => {
+      if (Math.floor((value / cap) * 10) >= i + 1) {
+        return i === 0 ? getEmoji(`${name}_exp_1`) : getEmoji(`${name}_exp_2`)
+      }
+      return _
+    })
+    .join("")}\n\`${value}/${cap}\``
+}
+
+async function composeMyProfileEmbed(
+  msg: Message,
+  user: User
+): Promise<MessageOptions> {
   const userProfileResp = await profile.getUserProfile(
     msg.guildId ?? "",
-    msg.author.id
+    user.id
   )
   if (!userProfileResp.ok) {
     return {
@@ -111,31 +132,29 @@ async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
     }
   }
   const userProfile = userProfileResp.data
-  const aboutMeStr =
-    userProfile.about_me.trim().length === 0
-      ? "I'm a mysterious person"
-      : userProfile.about_me
 
   let addressStr = userProfile.user_wallet?.address
   if (!addressStr || !addressStr.length) {
     addressStr = "N/A"
   }
 
-  const lvlStr = `\`${userProfile.current_level.level}\``
+  const lvlStr = `\`${userProfile.current_level?.level}\``
   const lvlMax = 60
   const levelProgress = buildProgressbar(
-    userProfile.current_level.level / lvlMax
+    (userProfile.current_level?.level ?? 0) / lvlMax
   )
-  const nextLevelMinXp = userProfile.next_level.min_xp
-    ? userProfile.next_level.min_xp
-    : userProfile.current_level.min_xp
+  const nextLevelMinXp = userProfile.next_level?.min_xp
+    ? userProfile.next_level?.min_xp
+    : userProfile.current_level?.min_xp
 
-  const xpProgress = buildProgressbar(userProfile.guild_xp / nextLevelMinXp)
+  const xpProgress = buildProgressbar(
+    (userProfile?.guild_xp ?? 0) / (nextLevelMinXp ?? 0)
+  )
 
   const xpStr = `\`${userProfile.guild_xp}/${
-    userProfile.next_level.min_xp
+    userProfile.next_level?.min_xp
       ? userProfile.next_level.min_xp
-      : userProfile.current_level.min_xp
+      : userProfile.current_level?.min_xp
   }\``
 
   const walletValue = "Wallet: `NA`"
@@ -147,13 +166,13 @@ async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
       ? msg.member?.roles.highest
       : null
 
-  const roleStr = `\`${highestRole?.name ?? "N/A"}\``
+  const roleStr = highestRole?.id ? `<@&${highestRole.id}>` : "`N/A`"
   const activityStr = `${getEmoji("FLAG")} \`${userProfile.nr_of_actions}\``
   const rankStr = `:trophy: \`${userProfile.guild_rank ?? 0}\``
 
   const embed = composeEmbedMessage(msg, {
-    thumbnail: msg.author.displayAvatarURL(),
-    author: [`${msg.author.username}'s profile`, msg.author.displayAvatarURL()],
+    thumbnail: user.displayAvatarURL(),
+    author: [`${user.username}'s profile`, user.displayAvatarURL()],
   }).addFields(
     {
       name: "Level",
@@ -170,11 +189,52 @@ async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
       value: assetsStr,
       inline: true,
     },
-    { name: "About me", value: aboutMeStr },
-    { name: "Address", value: addressStr },
+    { name: "Address", value: `\`${addressStr}\`` },
     { name: "Role", value: roleStr, inline: true },
     { name: "Activities", value: activityStr, inline: true },
-    { name: "Rank", value: rankStr, inline: true }
+    { name: "Rank", value: rankStr, inline: true },
+    {
+      name: `${getEmoji("imperial")} Nobility`,
+      value: buildXPbar(
+        "imperial",
+        userProfileResp.data.user_faction_xps?.imperial_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: `${getEmoji("rebelio")} Fame`,
+      value: buildXPbar(
+        "rebelio",
+        userProfileResp.data.user_faction_xps?.rebellio_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: getEmoji("blank"),
+      value: getEmoji("blank"),
+      inline: true,
+    },
+    {
+      name: `${getEmoji("mercanto")} Loyalty`,
+      value: buildXPbar(
+        "mercanto",
+        userProfileResp.data.user_faction_xps?.merchant_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: `${getEmoji("academia")} Reputation`,
+      value: buildXPbar(
+        "academia",
+        userProfileResp.data.user_faction_xps?.academy_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: getEmoji("blank"),
+      value: getEmoji("blank"),
+      inline: true,
+    }
   )
 
   return {
@@ -185,12 +245,13 @@ async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
 
 async function composeMyNFTEmbed(
   msg: Message,
+  user: User,
   collectionAddress?: string,
   page = 0
 ): Promise<MessageOptions> {
   const userProfileResp = await profile.getUserProfile(
     msg.guildId ?? "",
-    msg.author.id
+    user.id
   )
   if (!userProfileResp.ok) {
     return {
@@ -222,7 +283,7 @@ async function composeMyNFTEmbed(
         getErrorEmbed({
           msg,
           title: "Wallet address needed",
-          description: `Your account doesn't have a wallet associated.\n${verifyCTA}`,
+          description: `Account doesn't have a wallet associated.\n${verifyCTA}`,
         }),
       ],
     }
@@ -245,11 +306,8 @@ async function composeMyNFTEmbed(
   const userNftCollections = userNftCollectionResp.data
   if (userNftCollections.length === 0) {
     const embed = composeEmbedMessage(msg, {
-      author: [
-        `${msg.author.username}'s NFT collection`,
-        msg.author.displayAvatarURL(),
-      ],
-      description: `<@${msg.author.id}>, you have no nfts.`,
+      author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
+      description: `<@${user.id}>, you have no nfts.`,
     })
     return { embeds: [embed], components: [selectOtherViewComponent()] }
   }
@@ -283,11 +341,8 @@ async function composeMyNFTEmbed(
 
   if (userNfts.length === 0) {
     const embed = composeEmbedMessage(msg, {
-      author: [
-        `${msg.author.username}'s NFT collection`,
-        msg.author.displayAvatarURL(),
-      ],
-      description: `<@${msg.author.id}>, you have no nfts.`,
+      author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
+      description: `<@${user.id}>, you have no nfts.`,
     })
     return { embeds: [embed], components: [selectOtherViewComponent()] }
   }
@@ -330,16 +385,17 @@ async function composeMyNFTEmbed(
 
 async function getCurrentViewEmbed(params: {
   msg: Message
+  user: User
   currentView: string
   value?: string
   page?: number
 }): Promise<MessageOptions> {
-  const { msg, currentView, value, page } = params
+  const { msg, user, currentView, value, page } = params
   try {
     if (currentView == "nft") {
-      return await composeMyNFTEmbed(msg, value, page)
+      return await composeMyNFTEmbed(msg, user, value, page)
     } else {
-      return await composeMyProfileEmbed(msg)
+      return await composeMyProfileEmbed(msg, user)
     }
   } catch (e) {
     logger.error(e as string)
@@ -353,13 +409,22 @@ async function getCurrentViewEmbed(params: {
 const command: Command = {
   id: "profile",
   command: "profile",
-  brief: "Check your server profile",
+  brief: "Check user's profile",
   category: "Profile",
   run: async (msg) => {
     let currentView = "profile"
     let currentCollection = ""
+    let user = msg.author
+    const args = getCommandArguments(msg)
+    if (args.length > 1) {
+      const { isUser, id } = parseDiscordToken(args[1])
+      const cachedUser = msg.guild?.members.cache.get(id)?.user
+      if (isUser && cachedUser) {
+        user = cachedUser
+      }
+    }
 
-    const messageOptions = await getCurrentViewEmbed({ msg, currentView })
+    const messageOptions = await getCurrentViewEmbed({ msg, user, currentView })
     const reply = await msg.reply(messageOptions)
 
     reply
@@ -377,6 +442,7 @@ const command: Command = {
 
         const messageOptions = await getCurrentViewEmbed({
           msg,
+          user,
           currentView,
           value: i.values[0],
         })
@@ -393,6 +459,7 @@ const command: Command = {
         return {
           messageOptions: await getCurrentViewEmbed({
             msg,
+            user,
             currentView,
             value: currentCollection,
             page,
