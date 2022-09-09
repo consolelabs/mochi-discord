@@ -306,6 +306,12 @@ export interface ModelWhitelistCampaignUser {
   whitelist_campaign_id?: string;
 }
 
+export interface RequestAddToWatchlistRequest {
+  coin_gecko_id?: string;
+  symbol?: string;
+  user_id?: string;
+}
+
 export interface RequestAddWhitelistCampaignUser {
   address?: string;
   discord_id?: string;
@@ -499,10 +505,29 @@ export interface RequestVerifyWalletAddressRequest {
   wallet_address?: string;
 }
 
+export interface ResponseAddToWatchlistResponse {
+  data?: ResponseAddToWatchlistResponseData;
+}
+
+export interface ResponseAddToWatchlistResponseData {
+  suggestions?: ResponseSearchedCoin[];
+}
+
 export interface ResponseCoinImage {
   large?: string;
   small?: string;
   thumb?: string;
+}
+
+export interface ResponseCoinMarketItemData {
+  current_price?: number;
+  id?: string;
+  image?: string;
+  name?: string;
+  price_change_percentage_24h?: number;
+  price_change_percentage_7d_in_currency?: number;
+  sparkline_in_7d?: { price?: number[] };
+  symbol?: string;
 }
 
 export interface ResponseCoinPriceHistoryResponse {
@@ -716,6 +741,10 @@ export interface ResponseGetUserCurrentUpvoteStreakResponse {
 
 export interface ResponseGetUserResponse {
   data?: ResponseUser;
+}
+
+export interface ResponseGetWatchlistResponse {
+  data?: ResponseCoinMarketItemData[];
 }
 
 export interface ResponseGiftXpHandlerResponse {
