@@ -14,7 +14,9 @@ import { Token } from "types/defi"
 import { Fetcher } from "./fetcher"
 import {
   RequestConfigGroupNFTRoleRequest,
+  RequestConfigLevelRoleRequest,
   RequestTwitterHashtag,
+  ResponseGetLevelRoleConfigsResponse,
   ResponseGetTwitterHashtagConfigResponse,
   ResponseListGuildGroupNFTRolesResponse,
 } from "types/api"
@@ -409,48 +411,30 @@ class Config extends Fetcher {
     return json
   }
 
-  public async configLevelRole(
-    msg: Message,
-    body: { guild_id: string; role_id: string; level: number }
-  ) {
-    return this.jsonFetch(`${API_BASE_URL}/configs/level-roles`, {
-      autoWrap500Error: false,
-      method: "POST",
-      body: JSON.stringify(body),
-    })
+  public async configLevelRole(data: RequestConfigLevelRoleRequest) {
+    return this.jsonFetch<ResponseGetLevelRoleConfigsResponse>(
+      `${API_BASE_URL}/configs/level-roles`,
+      {
+        autoWrap500Error: false,
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    )
   }
 
-  public async getGuildLevelRoleConfigs(msg: Message, guildId: string) {
-    const res = await fetch(`${API_BASE_URL}/configs/level-roles/${guildId}`, {
+  public async getGuildLevelRoleConfigs(guildId: string) {
+    return this.jsonFetch(`${API_BASE_URL}/configs/level-roles/${guildId}`, {
       method: "GET",
     })
-    if (res.status !== 200) {
-      throw new Error(`failed to get levelroles configs - guild ${guildId}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   public async removeGuildLevelRoleConfig(guildId: string, level: number) {
-    const res = await fetch(
+    return this.jsonFetch(
       `${API_BASE_URL}/configs/level-roles/${guildId}?level=${level}`,
       {
         method: "DELETE",
       }
     )
-    if (res.status !== 200) {
-      throw new Error(`failed to remove levelrole config - guild ${guildId}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   public async updateGuild({

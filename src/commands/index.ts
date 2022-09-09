@@ -38,6 +38,7 @@ import watchlist_slash from "./defi/watchlist_slash"
 import top_slash from "./community/top_slash"
 import verify_slash from "./community/verify_slash"
 import defaultrole_slash from "./config/defaultRole_slash"
+import levelrole_slash from "./config/levelRole_slash"
 
 // external
 import { Message } from "discord.js"
@@ -72,6 +73,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   vote,
   watchlist: watchlist_slash,
   defaultrole: defaultrole_slash,
+  levelrole: levelrole_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
