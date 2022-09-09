@@ -2,7 +2,7 @@ import Config from "adapters/config"
 import { ResponseListGuildGroupNFTRolesResponse } from "types/api"
 import { Command } from "types/common"
 import { getEmoji, shortenHashOrAddress } from "utils/common"
-import { PREFIX } from "utils/constants"
+import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 
 export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
@@ -84,6 +84,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nr list`,
         examples: `${PREFIX}nr list`,
+        document: NFT_ROLE_GITBOOK,
       }),
     ],
   }),

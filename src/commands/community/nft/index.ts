@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { NFT_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import add from "./add"
 import ticker from "./ticker"
@@ -33,6 +33,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nft <collection_symbol> <token_id>\n${PREFIX}nft <action>`,
         footer: [`Type ${PREFIX}help nft <action> for a specific action!`],
+        document: NFT_GITBOOK,
         includeCommandsList: true,
       }),
     ],

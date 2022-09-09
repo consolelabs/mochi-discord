@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { DEPOSIT_GITBOOK, PREFIX } from "utils/constants"
 import { DirectMessageNotAllowedError, UserNotFoundError } from "errors"
 import Profile from "adapters/profile"
 import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
@@ -64,6 +64,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}deposit`,
+        document: DEPOSIT_GITBOOK,
       }),
     ],
   }),

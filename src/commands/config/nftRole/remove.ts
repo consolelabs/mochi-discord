@@ -1,6 +1,6 @@
 import Config from "adapters/config"
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
@@ -118,6 +118,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nr remove`,
         examples: `${PREFIX}nr remove`,
+        document: NFT_ROLE_GITBOOK,
       }),
     ],
   }),

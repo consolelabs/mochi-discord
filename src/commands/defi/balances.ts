@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { EmbedFieldData, Message } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { BALANCE_GITBOOK, PREFIX } from "utils/constants"
 import {
   emojis,
   getEmoji,
@@ -95,6 +95,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         usage: `${PREFIX}balances`,
+        document: BALANCE_GITBOOK,
       }),
     ],
   }),

@@ -118,6 +118,7 @@ export type EmbedProperties = {
   withoutFooter?: boolean
   includeCommandsList?: boolean
   actions?: Record<string, Command>
+  document?: string
 }
 
 // TODO: move all below

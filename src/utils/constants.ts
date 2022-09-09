@@ -37,3 +37,40 @@ export const ROLE_PREFIX = "<@&"
 export const CHANNEL_PREFIX = "<#"
 export const USER_PREFIX = "<@"
 export const EMOJI_PREFIX = "<:"
+
+export const DEPOSIT_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/deposit-and-withdraw"
+export const BALANCE_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/check-balance"
+export const TICKER_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/crypto-ticker"
+export const TIP_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/tip-bot"
+export const AIRDROP_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/airdrop-token"
+export const DEFAULT_TOKEN_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/set-default-token"
+export const RARITY_CHECKER_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/rarity-checker"
+export const ADD_COLLECTION_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/add-collection"
+export const NFT_TICKER_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/nft-ticker"
+export const SALE_TRACKER_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/sales-tracker"
+export const DEFAULT_COLLECTION_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/set-default-collection"
+export const STATS_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/server-stats"
+export const INVITE_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/invite-tracker"
+export const DEFAULT_ROLE_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/assign-roles-and-default-roles"
+export const NFT_ROLE_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-roles"
+export const GM_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/gm-gn"
+export const NFT_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume"
+export const HELP_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/list-of-commands"

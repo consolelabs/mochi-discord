@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { ColorResolvable, MessageEmbed } from "discord.js"
 import { msgColors } from "utils/common"
@@ -59,6 +59,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}gm streak`,
           examples: `${PREFIX}gm streak`,
+          document: GM_GITBOOK,
         }),
       ],
     }

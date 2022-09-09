@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "utils/constants"
+import { ADD_COLLECTION_GITBOOK, API_BASE_URL } from "utils/constants"
 import fetch, { Response } from "node-fetch"
 import { Message } from "discord.js"
 import { Command } from "types/common"
@@ -199,6 +199,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}nft add <address> <chain_id>`,
           examples: `${PREFIX}nft add 0xabcd 1`,
+          document: ADD_COLLECTION_GITBOOK,
         }),
       ],
     }

@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import config from "adapters/config"
 
@@ -52,6 +52,7 @@ const command: Command = {
           description: "Show current gm/gn configuration",
           usage: `${PREFIX}gm info`,
           examples: `${PREFIX}gm info`,
+          document: GM_GITBOOK,
         }),
       ],
     }

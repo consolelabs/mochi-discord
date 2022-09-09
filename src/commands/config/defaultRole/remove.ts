@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { DEFAULT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
   getErrorEmbed,
@@ -38,6 +38,7 @@ const command: Command = {
             composeEmbedMessage(msg, {
               usage: `${PREFIX}dr remove`,
               examples: `${PREFIX}dr remove`,
+              document: DEFAULT_ROLE_GITBOOK,
             }),
           ],
         },

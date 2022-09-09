@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import track from "./track"
 import list from "./list"
@@ -23,6 +23,7 @@ const command: Command = {
         usage: `${PREFIX}sales <action>`,
         description: "Receive real-time notification whenever there is a sale",
         footer: [`Type ${PREFIX}help sales <action> for a specific action!`],
+        document: SALE_TRACKER_GITBOOK,
         includeCommandsList: true,
       }),
     ],
