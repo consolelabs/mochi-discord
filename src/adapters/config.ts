@@ -8,7 +8,7 @@ import { CommandInteraction, Message } from "discord.js"
 import { CommandIsNotScopedError, SlashCommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
-import { Guild, Guilds } from "types/config"
+import { CustomCommand, Guild, Guilds } from "types/config"
 import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
 import { Fetcher } from "./fetcher"
@@ -255,9 +255,9 @@ class Config extends Fetcher {
   }
 
   public async getCurrentDefaultRole(guildId: string) {
-    return this.jsonFetch(
-      `${API_BASE_URL}/configs/default-roles?guild_id=${guildId}`
-    )
+    return this.jsonFetch(`${API_BASE_URL}/configs/default-roles`, {
+      query: { guildId },
+    })
   }
 
   public async configureDefaultRole(event: DefaultRoleEvent) {
@@ -861,6 +861,12 @@ class Config extends Fetcher {
       }
     }
     return false
+  }
+
+  public async listGuildCustomCommands(guild_id: string) {
+    return await this.jsonFetch<CustomCommand[]>(
+      `${API_BASE_URL}/guilds/${guild_id}/custom-commands?enabled=true`
+    )
   }
 }
 

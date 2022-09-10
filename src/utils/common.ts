@@ -289,7 +289,12 @@ export function catchEm(promise: Promise<unknown>) {
 }
 
 export function capFirst(str: string) {
-  return `${str.charAt(0).toUpperCase()}${str.slice(1)}`
+  if (!str.trim()) return ""
+  return str
+    .trim()
+    .split(/ +/g)
+    .map((w) => `${w[0].toUpperCase()}${w.slice(1).toLowerCase()}`)
+    .join(SPACE)
 }
 
 export function getEmojiURL(emojiId: string) {
@@ -359,13 +364,6 @@ export function sortNFTListByVolume(
   })
   nftList.sort((a, b) => (a.trading_volume > b.trading_volume ? -1 : 1))
   return nftList
-}
-
-export function capitalizeFirst(str: string) {
-  return str
-    .split(/ +/g)
-    .map((w) => `${w[0].toUpperCase()}${w.slice(1).toLowerCase()}`)
-    .join(SPACE)
 }
 
 export function getDateStr(timestamp: number) {

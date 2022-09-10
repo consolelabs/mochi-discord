@@ -5,6 +5,7 @@ import fetch from "node-fetch"
 import { capFirst } from "utils/common"
 import querystring from "query-string"
 import { snakeCase } from "change-case"
+import ChannelLogger from "utils/ChannelLogger"
 
 type SerializableValue = string | number | boolean | undefined | null
 
@@ -60,10 +61,10 @@ export class Fetcher {
     url: string,
     init: RequestInit = {}
   ): Promise<(OkPayload & T) | ErrPayload> {
+    const query: typeof init.query = {}
     try {
       const mergedInit = deepmerge(defaultInit, init)
       const { autoWrap500Error, query: _query, ...validInit } = mergedInit
-      const query: typeof _query = {}
       for (const [key, value] of Object.entries(_query)) {
         query[snakeCase(key)] = value
       }
@@ -85,6 +86,13 @@ export class Fetcher {
         )
 
         const json = await (res as ErrResponse).json()
+        // API alert
+        ChannelLogger.apiAlert({
+          url,
+          query,
+          error: json.error,
+          code: res.status,
+        })
         if (autoWrap500Error && res.status === 500) {
           json.error =
             "Something went wrong, our team is notified and is working on the fix, stay tuned."
@@ -107,8 +115,14 @@ export class Fetcher {
       }
     } catch (e: any) {
       logger.error(
-        `[API failed ${init.method ?? "GET"}/request_not_sent]: ${e.message}`
+        `[API failed - ${init.method ?? "GET"}/request_not_sent]: ${e.message}`
       )
+      // failed API alert
+      ChannelLogger.apiAlert({
+        url,
+        query,
+        error: "Request not sent. Connection refused.",
+      })
       return {
         ok: false,
         data: null,

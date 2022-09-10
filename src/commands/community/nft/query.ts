@@ -21,7 +21,6 @@ import {
 import community from "adapters/community"
 import {
   capFirst,
-  capitalizeFirst,
   getEmoji,
   getMarketplaceCollectionUrl,
   getMarketplaceNftUrl,
@@ -124,7 +123,7 @@ export async function composeNFTDetail(
 
     const embed = composeEmbedMessage(msg, {
       author: [
-        `${capitalizeFirst(colName)}${chainName ? ` (${chainName})` : ""}`,
+        `${capFirst(colName)}${chainName ? ` (${chainName})` : ""}`,
         ...(colImage.length ? [colImage] : []),
       ],
       description,

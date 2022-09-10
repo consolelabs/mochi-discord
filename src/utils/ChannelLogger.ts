@@ -1,5 +1,10 @@
 import { Client, Message, MessageEmbed, TextChannel } from "discord.js"
-import { ALERT_CHANNEL_ID, LOG_CHANNEL_ID, MOCHI_GUILD_ID } from "env"
+import {
+  ALERT_CHANNEL_ID,
+  API_SERVER_HOST,
+  LOG_CHANNEL_ID,
+  MOCHI_GUILD_ID,
+} from "env"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
 import { PREFIX } from "./constants"
@@ -60,6 +65,33 @@ export class ChannelLogger {
     const embed = getErrorEmbed({
       msg,
       title: "Command error",
+      description,
+    }).setTimestamp()
+    this.alertChannel.send({ embeds: [embed] })
+  }
+
+  apiAlert({
+    url,
+    query,
+    error,
+    code,
+  }: {
+    url: string
+    query: Record<string, any>
+    error: string
+    code?: number
+  }) {
+    if (!this.alertChannel) {
+      return
+    }
+    const fields = []
+    fields.push(`**Endpoint:** \`${url.replace(API_SERVER_HOST, "")}\``)
+    fields.push(`**Query:** \`${JSON.stringify(query)}\``)
+    fields.push(`**Code:** \`${code}\``)
+    fields.push(`**Error:** \`\`\`${error}\`\`\``)
+    const description = fields.join("\n")
+    const embed = getErrorEmbed({
+      title: "API error",
       description,
     }).setTimestamp()
     this.alertChannel.send({ embeds: [embed] })

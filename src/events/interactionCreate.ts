@@ -92,6 +92,7 @@ async function handleSelecMenuInteraction(interaction: Interaction) {
 
   const { messageOptions, commandChoiceOptions, ephemeralMessage } =
     await commandChoice.handler(i)
+  await msg.edit(messageOptions)
 
   let output: Message
   const deferredOrReplied = i.deferred || i.replied
@@ -113,7 +114,8 @@ async function handleSelecMenuInteraction(interaction: Interaction) {
     // no ephemeral so no need to respond to interaction
     output = <Message>await i.deferUpdate({ fetchReply: true })
   } else {
-    // in fact this case should never happen
+    // we do not wanna reply to the interaction
+    // only edit previous reply with messageOptions and already deferUpdate() in commandChoice.handler()
     return
   }
 
@@ -138,8 +140,6 @@ async function handleSelecMenuInteraction(interaction: Interaction) {
     interaction: i,
     messageId: output?.id,
   })
-  i
-  await msg.edit(messageOptions)
 }
 
 async function handleButtonInteraction(interaction: Interaction) {
