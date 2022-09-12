@@ -807,6 +807,7 @@ export interface ResponseGetUserResponse {
 
 export interface ResponseGetWatchlistResponse {
   data?: ResponseCoinMarketItemData[];
+  pagination?: ResponsePaginationResponse;
 }
 
 export interface ResponseGiftXpHandlerResponse {
@@ -1086,6 +1087,15 @@ export interface ResponseNftSales {
 
 export interface ResponseNftSalesResponse {
   data?: ResponseNftSales[];
+}
+
+export interface ResponsePaginationResponse {
+  /** page index */
+  page?: number;
+
+  /** page size */
+  size?: number;
+  total?: number;
 }
 
 export interface ResponseResponseMessage {

@@ -416,63 +416,96 @@ const command: Command = {
   run: async (msg) => {
     let currentView = "profile"
     let currentCollection = ""
-    let user = msg.author
+
+    // get users
+    const users: User[] = []
     const args = getCommandArguments(msg)
     if (args.length > 1) {
       const { isUser, id } = parseDiscordToken(args[1])
-      const cachedUser = msg.guild?.members.cache.get(id)?.user
-      if (isUser && cachedUser) {
-        user = cachedUser
+      if (isUser) {
+        const cachedUser = msg.guild?.members.cache.get(id)?.user
+        if (cachedUser) {
+          users.push(cachedUser)
+        }
+      } else {
+        await msg.guild?.members
+          .fetch({ query: args[1], limit: 10 })
+          .then((members) => {
+            members.forEach((member) => {
+              if (member.user.username === args[1]) {
+                users.push(member.user)
+              }
+            })
+          })
       }
+    } else {
+      users.push(msg.author)
     }
 
-    const messageOptions = await getCurrentViewEmbed({ msg, user, currentView })
-    const reply = await msg.reply(messageOptions)
-
-    reply
-      .createMessageComponentCollector({
-        componentType: MessageComponentTypes.SELECT_MENU,
-        idle: 60000,
+    for (const user of users.values()) {
+      const messageOptions = await getCurrentViewEmbed({
+        msg,
+        user,
+        currentView,
       })
-      .on("collect", async (i) => {
-        await i.deferUpdate()
-        if (i.customId === "selectView") {
-          currentView = i.values[0]
-        } else if (i.customId == "selectCollection") {
-          currentCollection = i.values[0]
-        }
+      const reply = await msg.reply(messageOptions)
 
-        const messageOptions = await getCurrentViewEmbed({
-          msg,
-          user,
-          currentView,
-          value: i.values[0],
+      reply
+        .createMessageComponentCollector({
+          componentType: MessageComponentTypes.SELECT_MENU,
+          idle: 60000,
         })
-        await i.editReply(messageOptions)
-      })
-      .on("end", async () => {
-        await reply.edit({ components: [] })
-      })
+        .on("collect", async (i) => {
+          await i.deferUpdate()
+          if (i.customId === "selectView") {
+            currentView = i.values[0]
+          } else if (i.customId == "selectCollection") {
+            currentCollection = i.values[0]
+          }
 
-    listenForPaginateAction(
-      reply,
-      msg,
-      async (msg, page) => {
-        return {
-          messageOptions: await getCurrentViewEmbed({
+          const messageOptions = await getCurrentViewEmbed({
             msg,
             user,
             currentView,
-            value: currentCollection,
-            page,
-          }),
-        }
-      },
-      false,
-      true
-    )
+            value: i.values[0],
+          })
+          await i.editReply(messageOptions)
+        })
+        .on("end", async () => {
+          await reply.edit({ components: [] })
+        })
 
-    return null
+      listenForPaginateAction(
+        reply,
+        msg,
+        async (msg, page) => {
+          return {
+            messageOptions: await getCurrentViewEmbed({
+              msg,
+              user,
+              currentView,
+              value: currentCollection,
+              page,
+            }),
+          }
+        },
+        false,
+        true
+      )
+    }
+
+    if (users.length == 0) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "No profile found",
+            }),
+          ],
+        },
+      }
+    }
   },
   getHelpMessage: async (msg) => {
     return {
