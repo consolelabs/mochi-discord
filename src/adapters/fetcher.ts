@@ -5,6 +5,7 @@ import fetch from "node-fetch"
 import { capFirst } from "utils/common"
 import querystring from "query-string"
 import { snakeCase } from "change-case"
+import { Pagination } from "types/common"
 
 type SerializableValue = string | number | boolean | undefined | null
 
@@ -29,12 +30,14 @@ type OkPayload = {
   ok: true
   data: Record<string, any>
   error: null
+  pagination?: Pagination
 }
 
 type ErrPayload = {
   ok: false
   data: null
   error: string
+  pagination?: Pagination
 }
 
 type OkResponse<T> = {

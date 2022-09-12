@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { MessageAttachment } from "discord.js"
-import { thumbnails } from "utils/common"
+import { getPaginationFooter, thumbnails } from "utils/common"
 import { getErrorEmbed, composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
@@ -19,11 +19,11 @@ async function renderWatchlist(data: any[]) {
   const container: RectangleStats = {
     x: {
       from: 0,
-      to: 900,
+      to: 850,
     },
     y: {
       from: 0,
-      to: 750,
+      to: 500,
     },
     w: 0,
     h: 0,
@@ -42,22 +42,22 @@ async function renderWatchlist(data: any[]) {
 
   const itemX = 50
   let itemY = 30
-  const radius = 35
+  const radius = 30
   const ascColor = "#56c9ac"
   const descColor = "#ed5565"
   // header
   ctx.font = "bold 33px Manrope"
   ctx.fillStyle = "white"
   ctx.fillText("Tokens", itemX - radius, itemY)
-  ctx.fillText("7d change", 370, itemY)
-  const col3Header = "24h price/change"
+  ctx.fillText("Last 7 days", 330, itemY)
+  const col3Header = "Price / 24h"
   const col3HeaderW = widthOf(ctx, col3Header)
   ctx.fillText(
     col3Header,
     container.x.to - (container.pl ?? 0) - col3HeaderW,
     itemY
   )
-  itemY += 70
+  itemY += 35
   for (const item of data) {
     const {
       // name,
@@ -72,25 +72,18 @@ async function renderWatchlist(data: any[]) {
     const image = await loadImage(item.image)
     ctx.drawImage(image, itemX - radius, itemY, radius * 2, radius * 2)
 
-    // col2 = name + symbol
-    const col2X = itemX + radius + 20
-    const col2Y = itemY + 30
-
-    // name
-    // ctx.font = "bold 33px Manrope"
-    // ctx.fillStyle = "white"
-    // const nameH = heightOf(ctx, name)
-    // ctx.fillText(name, col2X, col2Y)
-
-    // symbol
-    ctx.font = "bold 35px Manrope"
+    // col2 symbol
+    ctx.font = "bold 31px Manrope"
     ctx.fillStyle = "white"
-    // ctx.fillStyle = "#6f778a"
-    ctx.fillText(symbol.toUpperCase(), col2X, col2Y + radius / 2)
+    const symbolText = symbol.toUpperCase()
+    const symbolH = heightOf(ctx, symbolText)
+    const col2X = itemX + radius + 20
+    const col2Y = itemY + radius + symbolH / 2
+    ctx.fillText(symbolText, col2X, col2Y)
 
     // col3 = 7d chart
-    const col3X = col2X + 200
-    const col3Y = col2Y
+    const col3X = col2X + 160
+    const col3Y = itemY + radius
     const { price } = sparkline_in_7d
     const labels = price.map((p: number) => `${p}`)
     const buffer = await renderChartImage({
@@ -104,40 +97,40 @@ async function renderWatchlist(data: any[]) {
       },
     })
     const chart = await loadImage(buffer)
-    ctx.drawImage(chart, col3X, col3Y - radius, 320, 70)
+    ctx.drawImage(chart, col3X, col3Y - radius, 320, radius * 2)
 
     // col4 = price + change
     const col4X = container.x.to - (container.pl ?? 0)
-    const col4Y = col2Y
 
     // price
-    ctx.font = "bold 33px Manrope"
+    ctx.font = "bold 30px Manrope"
     ctx.fillStyle = "white"
     const currentPrice = `$${current_price.toLocaleString()}`
-    const priceH = heightOf(ctx, currentPrice)
+    // const priceH = heightOf(ctx, currentPrice)
     const priceW = widthOf(ctx, currentPrice)
-    ctx.fillText(currentPrice, col4X - priceW, col4Y)
+    ctx.fillText(currentPrice, col4X - priceW, itemY + radius - 7)
 
     // 24h change
-    ctx.font = "31px Manrope"
+    ctx.font = "26px Manrope"
     ctx.fillStyle = price_change_percentage_24h >= 0 ? ascColor : descColor
     const change = `${
       price_change_percentage_24h >= 0 ? "+" : ""
     }${price_change_percentage_24h.toFixed(2)}%`
     const changeW = widthOf(ctx, change)
-    ctx.fillText(change, col4X - changeW, col4Y + priceH + 10)
+    const changeH = heightOf(ctx, change)
+    ctx.fillText(change, col4X - changeW, itemY + radius + changeH + 7)
 
     // divider
     drawDivider(
       ctx,
       container.x.from + (container.pl ?? 0),
       container.x.to - (container.pl ?? 0),
-      itemY - 30,
+      itemY - 15,
       "#918d8d"
     )
 
     // next row
-    itemY += 130
+    itemY += 90
   }
   return new MessageAttachment(canvas.toBuffer(), "watchlist.png")
 }
@@ -150,7 +143,7 @@ const command: Command = {
   run: async (msg) => {
     const args = getCommandArguments(msg)
     const page = Math.max(isNaN(+args[2]) ? 0 : +args[2] - 1, 0)
-    const { data, ok } = await defi.getUserWatchlist({
+    const { data, pagination, ok } = await defi.getUserWatchlist({
       userId: msg.author.id,
       page,
     })
@@ -160,6 +153,7 @@ const command: Command = {
         `${msg.author.username}'s watchlist`,
         msg.author.displayAvatarURL({ format: "png" }),
       ],
+      footer: pagination ? getPaginationFooter(pagination) : undefined,
     })
     if (!data?.length) {
       embed.setDescription(
