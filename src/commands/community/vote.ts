@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { Message, User } from "discord.js"
 import Community from "adapters/community"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { getEmoji } from "utils/common"
+import { capFirst, getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 
 const voteLimitCount = 4
@@ -31,7 +31,7 @@ function buildProgressBar(progress: number, scale = 1) {
 function buildStreakBar(progress: number) {
   return [
     ...new Array(progress).fill(getEmoji("approve")),
-    ...new Array(voteLimitCount - progress).fill(getEmoji("approve_grey")),
+    ...new Array(10 - progress).fill(getEmoji("approve_grey")),
   ].join(" ")
 }
 
@@ -45,8 +45,10 @@ export async function handle(user: User) {
     }
   }
   const streak = Math.max(Math.min(res.data?.streak_count ?? 0, 10), 0)
-  // const total = res.data?.total_count ?? 0
-  const total = 1
+  const total = res.data?.total_count ?? 0
+  const timeUntilTopgg = res.data?.minutes_until_reset_topgg ?? 0
+  const timeUntilDiscordBotList =
+    res.data?.minutes_until_reset_discordbotlist ?? 0
   const embed = composeEmbedMessage(null, {
     title: "Call for Mochians!",
     description:
@@ -58,15 +60,27 @@ export async function handle(user: User) {
   })
   embed.setFields([
     {
-      name: `${getEmoji("like")} Vote Available`,
+      name: `${getEmoji("like")} Vote ${capFirst(
+        `${timeUntilTopgg !== 0 ? "un" : ""}available`
+      )}`,
       value:
-        "[Click here to vote on top.gg](https://top.gg/bot/963123183131709480/vote)\n\u200b",
+        timeUntilTopgg === 0
+          ? "[Click here to vote on top.gg](https://top.gg/bot/963123183131709480/vote)\n\u200b"
+          : `You can [vote again on top.gg](https://top.gg/bot/963123183131709480/vote) in \`${Math.floor(
+              timeUntilTopgg / 60
+            )}\`**h**\`${timeUntilTopgg % 60}\`**m**!\n\u200b`,
       inline: true,
     },
     {
-      name: `${getEmoji("like")} Vote Available`,
+      name: `${getEmoji("like")} Vote ${capFirst(
+        `${timeUntilDiscordBotList !== 0 ? "un" : ""}available`
+      )}`,
       value:
-        "[Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/mochi-bot/upvote)\n\u200b",
+        timeUntilTopgg === 0
+          ? "[Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/mochi-bot/upvote)\n\u200b"
+          : `You can [vote again on discordbotlist.com](https://discordbotlist.com/bots/mochi-bot/upvote) in \`${Math.floor(
+              timeUntilDiscordBotList / 60
+            )}\`**h**\`${timeUntilDiscordBotList % 60}\`**m**!\n\u200b`,
       inline: true,
     },
     {
