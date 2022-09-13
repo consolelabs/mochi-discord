@@ -166,15 +166,15 @@ const command: Command = {
       call: () => defi.getUserWatchlist({ userId, page, size: 8 }),
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
-    const isDefaultWl = !!pagination.total
+    const isDefaultWl = !pagination.total
     const embed = composeEmbedMessage(msg, {
       author: [
-        `${isDefaultWl ? `${msg.author.username}'s` : "Default"} watchlist`,
+        `${isDefaultWl ? "Default" : `${msg.author.username}'s`} watchlist`,
         msg.author.displayAvatarURL({ format: "png" }),
       ],
       description: isDefaultWl
-        ? undefined
-        : `<@${userId}>, below is the default watchlist because you have not added any item to yours.\nPlease add one using \`${PREFIX}watchlist add\`.`,
+        ? `<@${userId}>, below is the default watchlist because you have not added any item to yours.\nPlease add one using \`${PREFIX}watchlist add\`.`
+        : undefined,
       footer: pagination ? getPaginationFooter(pagination) : undefined,
     })
     if (!data?.length) {
