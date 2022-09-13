@@ -25,7 +25,7 @@ export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
                   nftCol.symbol?.toUpperCase() ?? ""
                 } ${shortenHashOrAddress(nftCol.address ?? "")}${
                   nftCol.chain_id ? ` (${nftCol.chain_id})` : ""
-                })\`](${nftCol.explorer_url || "https://getmochi.co/"})`
+                }\`](${nftCol.explorer_url || "https://getmochi.co/"})`
             )
             .join("\n")}`
       )
