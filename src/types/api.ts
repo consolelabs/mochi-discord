@@ -228,6 +228,13 @@ export interface ModelGuildConfigWalletVerificationMessage {
   verify_channel_id?: string;
 }
 
+export interface ModelGuildConfigWelcomeChannel {
+  channel_id?: string;
+  guild_id?: string;
+  id?: string;
+  welcome_message?: string;
+}
+
 export interface ModelGuildCustomCommand {
   actions?: number[];
   channels_permissions?: number[];
@@ -432,6 +439,10 @@ export interface RequestCreateWhitelistCampaignRequest {
   name?: string;
 }
 
+export interface RequestDeleteWelcomeConfigRequest {
+  guild_id?: string;
+}
+
 export interface RequestGenerateVerificationRequest {
   guild_id?: string;
   is_reverify?: boolean;
@@ -536,6 +547,12 @@ export interface RequestUpsertGuildTokenConfigRequest {
   active?: boolean;
   guild_id?: string;
   symbol?: string;
+}
+
+export interface RequestUpsertWelcomeConfigRequest {
+  channel_id?: string;
+  guild_id?: string;
+  welcome_message?: string;
 }
 
 export interface RequestVerifyWalletAddressRequest {
@@ -783,6 +800,8 @@ export interface ResponseGetUserCurrentUpvoteStreakResponse {
   discord_id?: string;
   last_streak_time?: string;
   minutes_until_reset?: number;
+  minutes_until_reset_discordbotlist?: number;
+  minutes_until_reset_topgg?: number;
   streak_count?: number;
   total_count?: number;
 }
@@ -808,6 +827,11 @@ export interface ResponseGetUserResponse {
 export interface ResponseGetWatchlistResponse {
   data?: ResponseCoinMarketItemData[];
   pagination?: ResponsePaginationResponse;
+}
+
+export interface ResponseGetWelcomeChannelConfigResponse {
+  data?: ModelGuildConfigWelcomeChannel;
+  message?: string;
 }
 
 export interface ResponseGiftXpHandlerResponse {
