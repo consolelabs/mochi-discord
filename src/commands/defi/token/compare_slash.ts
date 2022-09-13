@@ -62,9 +62,9 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   }
   const { ok, data } = await CacheManager.get({
     pool: "ticker",
-    key: `compare-${interaction.guildId}-${baseId}-${targetId}-${days}`,
+    key: `compare-${message.guildId}-${baseId}-${targetId}-${days}`,
     call: () =>
-      defi.compareToken(interaction.guildId ?? "", baseId, targetId, +days),
+      defi.compareToken(message.guildId ?? "", baseId, targetId, +days),
   })
   if (!ok) {
     await message.removeAttachments()
@@ -107,23 +107,23 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
 export async function setDefaultTicker(i: ButtonInteraction) {
   const [baseId, baseSymbol, baseName, targetId, targetSymbol, targetName] =
     i.customId.split("|")
-  const { ok: ok1 } = await config.setGuildDefaultTicker({
+  const { ok: setDefaultBaseTickerOk } = await config.setGuildDefaultTicker({
     guild_id: i.guildId ?? "",
     query: baseSymbol,
     default_ticker: baseId,
   })
-  if (ok1) {
+  if (setDefaultBaseTickerOk) {
     CacheManager.findAndRemove(
       "ticker",
       `ticker-default-${i.guildId}-${baseSymbol}`
     )
   }
-  const { ok: ok2 } = await config.setGuildDefaultTicker({
+  const { ok: setDefaultTargetTickerOk } = await config.setGuildDefaultTicker({
     guild_id: i.guildId ?? "",
     query: targetSymbol,
     default_ticker: targetId,
   })
-  if (ok2) {
+  if (setDefaultTargetTickerOk) {
     CacheManager.findAndRemove(
       "ticker",
       `ticker-default-${i.guildId}-${targetSymbol}`

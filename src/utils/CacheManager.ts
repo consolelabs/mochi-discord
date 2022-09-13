@@ -44,9 +44,9 @@ export class CacheManager {
     return val as any
   }
 
-  private find(pool: string, str: string) {
+  private find(pool: string, prefix: string) {
     const cache = this.cachePools.get(pool)
-    return cache?.keys().filter((k) => k.includes(str))
+    return cache?.keys().filter((k) => k.startsWith(prefix))
   }
 
   findAndRemove(pool: string, str: string) {

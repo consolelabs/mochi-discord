@@ -57,7 +57,7 @@ async function renderHistoricalMarketChart({
   const { ok, data } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getHistoricalMarketData-${coinId}-${currency}-${days}`,
-    call: () => defi.getHistoricalMarketData(coinId, currency, days),
+    call: () => defi.getHistoricalMarketData(coinId, currency, days || 7),
   })
   if (!ok) return null
   const { times, prices, from, to } = data
