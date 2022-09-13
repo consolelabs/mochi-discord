@@ -198,7 +198,7 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}nft add <address> <chain_id>`,
-          examples: `${PREFIX}nft add 0xabcd 1`,
+          examples: `${PREFIX}nft add 0x51081a152db09d3FfF75807329A3A8b538eCf73b ftm\n${PREFIX}mochi add 0xFBde54764f51415CB0E00765eA4383bc90EDCCE8 5\n${PREFIX}nft add https://opensea.io/collection/tykes`,
           document: ADD_COLLECTION_GITBOOK,
         }),
       ],

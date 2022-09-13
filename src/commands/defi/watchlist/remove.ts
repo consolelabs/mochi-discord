@@ -8,6 +8,7 @@ import {
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
+import CacheManager from "utils/CacheManager"
 
 const command: Command = {
   id: "watchlist_remove",
@@ -16,11 +17,13 @@ const command: Command = {
   category: "Defi",
   run: async (msg) => {
     const symbol = getCommandArguments(msg)[2]
+    const userId = msg.author.id
     const { ok } = await defi.removeFromWatchlist({
-      userId: msg.author.id,
+      userId,
       symbol,
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
+    CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
     return {
       messageOptions: { embeds: [getSuccessEmbed({})] },
     }

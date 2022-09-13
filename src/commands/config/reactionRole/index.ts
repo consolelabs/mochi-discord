@@ -22,6 +22,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}rr <action>`,
+        examples: `${PREFIX}reactionrole list\n${PREFIX}rr list`,
         footer: [`Type ${PREFIX}help rr <action> for a specific action!`],
         includeCommandsList: true,
       }),

@@ -24,6 +24,7 @@ const command: Command = {
         thumbnail: thumbnails.TOKENS,
         title: "Manage your watchlist",
         usage: `${PREFIX}watchlist <action>`,
+        examples: `${PREFIX}watchlist view\n${PREFIX}wl view 2`,
         includeCommandsList: true,
       }),
     ],

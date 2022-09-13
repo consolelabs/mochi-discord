@@ -22,6 +22,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sales <action>`,
         description: "Receive real-time notification whenever there is a sale",
+        examples: `${PREFIX}sales list\n${PREFIX}sale list`,
         footer: [`Type ${PREFIX}help sales <action> for a specific action!`],
         document: SALE_TRACKER_GITBOOK,
         includeCommandsList: true,

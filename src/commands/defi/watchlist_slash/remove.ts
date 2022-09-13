@@ -9,6 +9,7 @@ import {
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import defi from "adapters/defi"
+import CacheManager from "utils/CacheManager"
 
 const command: SlashCommand = {
   name: "remove",
@@ -28,14 +29,14 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     const symbol = interaction.options.getString("symbol", true)
+    const userId = interaction.user.id
     const { ok } = await defi.removeFromWatchlist({
-      userId: interaction.user.id,
+      userId,
       symbol,
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
-    return {
-      messageOptions: { embeds: [getSuccessEmbed({})] },
-    }
+    CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
+    return { messageOptions: { embeds: [getSuccessEmbed({})] } }
   },
   help: async (interaction) => ({
     embeds: [

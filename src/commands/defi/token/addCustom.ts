@@ -83,7 +83,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}tokens add-custom <address> <symbol> <chain>`,
-        examples: `${PREFIX}tokens add-custom 0x123 cake bsc`,
+        examples: `${PREFIX}tokens add-custom 0x22c36BfdCef207F9c0CC941936eff94D4246d14A BACC eth\n${PREFIX}token add-custom 0xFBde54764f51415CB0E00765eA4383bc90EDCCE8 LB eth`,
       }),
     ],
   }),

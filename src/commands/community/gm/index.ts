@@ -21,6 +21,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}gm <action>`,
+        examples: `${PREFIX}gm streak`,
         footer: [`Type ${PREFIX}help gm <action> for a specific action!`],
         includeCommandsList: true,
         document: GM_GITBOOK,

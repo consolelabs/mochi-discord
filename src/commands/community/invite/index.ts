@@ -28,6 +28,8 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
+        usage: `${PREFIX}invite <action>`,
+        examples: `${PREFIX}invite leaderboard\n${PREFIX}inv leaderboard`,
         document: INVITE_GITBOOK,
         includeCommandsList: true,
       }),
