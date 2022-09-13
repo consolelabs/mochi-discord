@@ -44,6 +44,7 @@ const command: Command = {
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite link`,
+      examples: `${PREFIX}invite link\n${PREFIX}inv link`,
       document: INVITE_GITBOOK,
       footer: [`Type \`${PREFIX}help invite <action>\` for a specific action!`],
     })

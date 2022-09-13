@@ -124,6 +124,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}vote`,
+        examples: `${PREFIX}vote`,
         includeCommandsList: true,
       }),
     ],

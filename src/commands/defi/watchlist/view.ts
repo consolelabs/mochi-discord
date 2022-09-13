@@ -198,7 +198,7 @@ const command: Command = {
         title: "Show list of your favorite tokens",
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
         usage: `${PREFIX}watchlist view [page]`,
-        examples: `${PREFIX}watchlist view\n${PREFIX}watchlist view 2`,
+        examples: `${PREFIX}watchlist view\n${PREFIX}wl view 2`,
       }),
     ],
   }),

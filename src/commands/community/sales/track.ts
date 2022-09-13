@@ -95,7 +95,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sales track <channel> <address> <chain_id>`,
-        examples: `${PREFIX}sales track #general 0x33910F98642914A3CB0dB10f0 250`,
+        examples: `${PREFIX}sales track #general 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73 250\n${PREFIX}sales track #general 0x343f999eAACdFa1f201fb8e43ebb35c99D9aE0c1 eth`,
         document: SALE_TRACKER_GITBOOK,
       }),
     ],

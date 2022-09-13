@@ -2,6 +2,7 @@ import { Command } from "types/common"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import set from "./set"
 import info from "./info"
+import { PREFIX } from "utils/constants"
 
 const actions: Record<string, Command> = {
   set,
@@ -16,7 +17,13 @@ const command: Command = {
   onlyAdministrator: true,
   run: async () => null,
   getHelpMessage: async (msg) => ({
-    embeds: [composeEmbedMessage(msg, { includeCommandsList: true })],
+    embeds: [
+      composeEmbedMessage(msg, {
+        includeCommandsList: true,
+        usage: `${PREFIX}log <action>`,
+        examples: `${PREFIX}log info`,
+      }),
+    ],
   }),
   colorType: "Server",
   actions,

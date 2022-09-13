@@ -93,7 +93,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}lr <role> <level>\n${PREFIX}lr <action>`,
-        examples: `${PREFIX}lr @Mochi 1`,
+        examples: `${PREFIX}levelrole list\n${PREFIX}levelrole @Mochi 1\n${PREFIX}lr @admin 2`,
         includeCommandsList: true,
       }),
     ],
