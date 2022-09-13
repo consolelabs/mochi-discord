@@ -76,7 +76,7 @@ export async function handle(user: User) {
         `${timeUntilDiscordBotList !== 0 ? "un" : ""}available`
       )}`,
       value:
-        timeUntilTopgg === 0
+        timeUntilDiscordBotList === 0
           ? "[Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/mochi-bot/upvote)\n\u200b"
           : `You can [vote again on discordbotlist.com](https://discordbotlist.com/bots/mochi-bot/upvote) in \`${Math.floor(
               timeUntilDiscordBotList / 60
