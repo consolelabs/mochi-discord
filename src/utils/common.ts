@@ -417,5 +417,5 @@ export function isValidHttpUrl(urlStr: string) {
 }
 
 export function getPaginationFooter({ page, size, total }: Pagination) {
-  return [`Page ${page + 1} / ${Math.ceil(total / size)}`]
+  return [`Page ${page + 1} / ${Math.ceil(total / size) || 1}`]
 }
