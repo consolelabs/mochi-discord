@@ -91,6 +91,7 @@ const command: Command = {
       embed.addField(`${category}`, `${commandsByCat}`, true)
       idx++
     }
+    embed.addField("**Examples**", `\`\`\`$help invite\`\`\``)
     embed.addField("**Document**", `[**Gitbook**](${HELP_GITBOOK})`)
 
     return { embeds: [justifyEmbedFields(embed, 3)] }

@@ -60,8 +60,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}verify list`,
-        examples: `${PREFIX}verify list`,
+        usage: `${PREFIX}verify info`,
+        examples: `${PREFIX}verify info`,
       }),
     ],
   }),

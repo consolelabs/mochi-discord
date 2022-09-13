@@ -101,7 +101,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           title: this.brief,
           usage: `${PREFIX}nft integrate <address> <chain_id>`,
-          examples: `${PREFIX}nft integrate 0xabcd 1`,
+          examples: `${PREFIX}nft integrate 0xFBde54764f51415CB0E00765eA4383bc90EDCCE8 5\n${PREFIX}mochi integrate 0x51081a152db09d3FfF75807329A3A8b538eCf73b ftm`,
         }),
       ],
     }

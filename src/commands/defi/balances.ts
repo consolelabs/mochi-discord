@@ -94,7 +94,8 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        usage: `${PREFIX}balances`,
+        usage: `${PREFIX}balance`,
+        examples: `${PREFIX}balance\n${PREFIX}bals\n${PREFIX}bal`,
         document: BALANCE_GITBOOK,
       }),
     ],

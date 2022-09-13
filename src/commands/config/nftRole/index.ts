@@ -21,9 +21,10 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}nr <action>`,
+        usage: `${PREFIX}nr <action>\n${PREFIX}nftrole <action>`,
         description:
           "Asssign role to a user once they hold a certain amount of NFT\nSupports multiple collections and grouping",
+        examples: `${PREFIX}nr list\n${PREFIX}nftrole list`,
         footer: [`Type ${PREFIX}help nr <action> for a specific action!`],
         includeCommandsList: true,
         document: NFT_ROLE_GITBOOK,

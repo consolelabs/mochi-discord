@@ -134,8 +134,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}nr <role> <amount> <nft_address1,nft_address2> [erc1155_token_id]`,
-        examples: `${PREFIX}nr @Mochi 1 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73\n${PREFIX}nr @SeniorMochian 100 0xAaaa,0xBbbb,0xCccc`,
+        usage: `${PREFIX}nr <role> <amount> <nft_address1,nft_address2> [erc1155_token_id]\n${PREFIX}nftrole <role> <amount> <nft_address1,nft_address2> [erc1155_token_id]`,
+        examples: `${PREFIX}nftrole @Mochi 1 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73\n${PREFIX}nr @SeniorMochian 100 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73,0xFBde54764f51415CB0E00765eA4383bc90EDCCE8`,
         document: NFT_ROLE_GITBOOK,
       }),
     ],

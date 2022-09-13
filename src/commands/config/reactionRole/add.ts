@@ -136,7 +136,7 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}rr add <message_id> <emoji> <role>`,
-          examples: `${PREFIX}rr add 967107573591457832 ✅ @Visitor`,
+          examples: `${PREFIX}reactionrole add 967107573591457832 ✅ @Visitor\n${PREFIX}rr add 1018789986058895400 ✅ @admin`,
         }),
       ],
     }

@@ -21,7 +21,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}dr <action>`,
+        usage: `${PREFIX}dr <action>\n${PREFIX}defaultrole <action>`,
+        examples: `${PREFIX}defaultrole info\n${PREFIX}dr info`,
         description:
           "Set a default role that will automatically assigned to newcomers when they first join your server",
         footer: [`Type ${PREFIX}help dr <action> for a specific action!`],

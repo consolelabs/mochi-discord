@@ -21,6 +21,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}verify <action>`,
+        examples: `${PREFIX}verify info`,
         footer: [`Type ${PREFIX}help verify for a specific action!`],
         includeCommandsList: true,
       }),

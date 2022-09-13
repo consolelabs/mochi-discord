@@ -64,6 +64,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}deposit`,
+        examples: `${PREFIX}deposit\n${PREFIX}dep`,
         document: DEPOSIT_GITBOOK,
       }),
     ],

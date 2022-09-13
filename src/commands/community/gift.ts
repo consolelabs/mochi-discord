@@ -74,9 +74,9 @@ const command: Command = {
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
-      usage: `${PREFIX}gift`,
+      usage: `${PREFIX}gift <@user> <amount> xp`,
       footer: [`Type ${PREFIX}help gift`],
-      examples: `${PREFIX}gift <@user> 5 xp`,
+      examples: `${PREFIX}gift @John 5 xp`,
     })
 
     return { embeds: [embed] }
