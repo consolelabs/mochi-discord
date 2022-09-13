@@ -15,7 +15,7 @@ import {
   listenForPaginateAction,
 } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
-import { getEmoji } from "utils/common"
+import { getEmoji, hasAdministrator, shortenHashOrAddress } from "utils/common"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { logger } from "logger"
 import { composeNFTDetail } from "commands/community/nft/query"
@@ -117,7 +117,8 @@ function buildXPbar(name: string, value: number) {
 
 async function composeMyProfileEmbed(
   msg: Message,
-  user: User
+  user: User,
+  shouldHidePrivateInfo = false
 ): Promise<MessageOptions> {
   const userProfileResp = await profile.getUserProfile(
     msg.guildId ?? "",
@@ -135,9 +136,13 @@ async function composeMyProfileEmbed(
   }
   const userProfile = userProfileResp.data
 
-  let addressStr = userProfile.user_wallet?.address
-  if (!addressStr || !addressStr.length) {
+  let addressStr = userProfile.user_wallet?.address ?? ""
+  if (!addressStr.length) {
     addressStr = "N/A"
+  } else {
+    addressStr = shouldHidePrivateInfo
+      ? shortenHashOrAddress(addressStr)
+      : addressStr
   }
 
   const lvlStr = `\`${userProfile.current_level?.level}\``
@@ -159,10 +164,10 @@ async function composeMyProfileEmbed(
       : userProfile.current_level?.min_xp
   }\``
 
-  const walletValue = "Wallet: `NA`"
-  const protocolValue = "Protocol: `NA`"
-  const nftValue = "NFT: `NA`"
-  const assetsStr = `${walletValue}\n${protocolValue}\n${nftValue}`
+  const walletValue = shouldHidePrivateInfo ? "`$**`" : "`NA`"
+  const protocolValue = shouldHidePrivateInfo ? "`$**`" : "`NA`"
+  const nftValue = shouldHidePrivateInfo ? "`$**`" : "`NA`"
+  const assetsStr = `Wallet: ${walletValue}\nProtocol: ${protocolValue}\nNFT: ${nftValue}`
   const highestRole =
     msg.member?.roles.highest.name !== "@everyone"
       ? msg.member?.roles.highest
@@ -389,15 +394,16 @@ async function getCurrentViewEmbed(params: {
   msg: Message
   user: User
   currentView: string
+  shouldHidePrivateInfo?: boolean
   value?: string
   page?: number
 }): Promise<MessageOptions> {
-  const { msg, user, currentView, value, page } = params
+  const { msg, user, currentView, shouldHidePrivateInfo, value, page } = params
   try {
     if (currentView == "nft") {
       return await composeMyNFTEmbed(msg, user, value, page)
     } else {
-      return await composeMyProfileEmbed(msg, user)
+      return await composeMyProfileEmbed(msg, user, shouldHidePrivateInfo)
     }
   } catch (e) {
     logger.error(e as string)
@@ -416,6 +422,7 @@ const command: Command = {
   run: async (msg) => {
     let currentView = "profile"
     let currentCollection = ""
+    const shouldHidePrivateInfo = !hasAdministrator(msg.member)
 
     // get users
     const users: User[] = []
@@ -447,6 +454,7 @@ const command: Command = {
         msg,
         user,
         currentView,
+        shouldHidePrivateInfo,
       })
       const reply = await msg.reply(messageOptions)
 
@@ -468,6 +476,7 @@ const command: Command = {
             user,
             currentView,
             value: i.values[0],
+            shouldHidePrivateInfo,
           })
           await i.editReply(messageOptions)
         })
@@ -486,6 +495,7 @@ const command: Command = {
               currentView,
               value: currentCollection,
               page,
+              shouldHidePrivateInfo,
             }),
           }
         },
