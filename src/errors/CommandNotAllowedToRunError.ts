@@ -31,7 +31,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
 
   handle() {
     let errorEmbed
-    if (this.missingPermissions) {
+    if (this.missingPermissions?.length) {
       errorEmbed = getErrorEmbed({
         msg: this.discordMessage,
         title: `${defaultEmojis.ERROR} Insufficient permissions`,

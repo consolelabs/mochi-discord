@@ -173,3 +173,9 @@ export type RepostReactionRequest = {
   quantity?: number | 0
   repost_channel_id?: string | ""
 }
+
+export type Pagination = {
+  page: number
+  size: number
+  total: number
+}

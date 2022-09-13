@@ -9,7 +9,7 @@ import {
   GuildMember,
 } from "discord.js"
 
-import { Command } from "types/common"
+import { Command, Pagination } from "types/common"
 import { DOT, HOMEPAGE_URL, SPACE, VERTICAL_BAR } from "./constants"
 import { TopNFTTradingVolumeItem } from "types/community"
 import Defi from "adapters/defi"
@@ -414,4 +414,8 @@ export function isValidHttpUrl(urlStr: string) {
     return false
   }
   return url.protocol === "http:" || url.protocol === "https:"
+}
+
+export function getPaginationFooter({ page, size, total }: Pagination) {
+  return [`Page ${page + 1} / ${Math.ceil(total / size)}`]
 }
