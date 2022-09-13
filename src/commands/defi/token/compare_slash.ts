@@ -18,7 +18,7 @@ import {
   composeDiscordSelectionRow,
   getSuccessEmbed,
 } from "utils/discordEmbed"
-import Defi from "adapters/defi"
+import defi from "adapters/defi"
 import {
   CommandChoiceHandler,
   EphemeralMessage,
@@ -27,6 +27,7 @@ import { getChartColorConfig, renderChartImage } from "utils/canvas"
 import { Coin } from "types/defi"
 import { defaultEmojis, getEmoji, hasAdministrator } from "utils/common"
 import config from "adapters/config"
+import CacheManager from "utils/CacheManager"
 
 async function renderCompareTokenChart({
   times,
@@ -53,18 +54,18 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
-  const [baseCoinId, targetCoinId, days] = input.split("_")
+  const [baseId, targetId, days] = input.split("_")
   if (!interaction.guildId) {
     return {
       messageOptions: { embeds: [getErrorEmbed({})] },
     }
   }
-  const { ok, data } = await Defi.compareToken(
-    interaction.guildId,
-    baseCoinId,
-    targetCoinId,
-    +days
-  )
+  const { ok, data } = await CacheManager.get({
+    pool: "ticker",
+    key: `compare-${message.guildId}-${baseId}-${targetId}-${days}`,
+    call: () =>
+      defi.compareToken(message.guildId ?? "", baseId, targetId, +days),
+  })
   if (!ok) {
     await message.removeAttachments()
     return {
@@ -106,18 +107,33 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
 export async function setDefaultTicker(i: ButtonInteraction) {
   const [baseId, baseSymbol, baseName, targetId, targetSymbol, targetName] =
     i.customId.split("|")
-  await Promise.all([
-    config.setGuildDefaultTicker({
-      guild_id: i.guildId ?? "",
-      query: baseSymbol,
-      default_ticker: baseId,
-    }),
-    config.setGuildDefaultTicker({
-      guild_id: i.guildId ?? "",
-      query: targetSymbol,
-      default_ticker: targetId,
-    }),
-  ])
+  const { ok: setDefaultBaseTickerOk } = await config.setGuildDefaultTicker({
+    guild_id: i.guildId ?? "",
+    query: baseSymbol,
+    default_ticker: baseId,
+  })
+  if (setDefaultBaseTickerOk) {
+    CacheManager.findAndRemove(
+      "ticker",
+      `ticker-default-${i.guildId}-${baseSymbol}`
+    )
+  }
+  const { ok: setDefaultTargetTickerOk } = await config.setGuildDefaultTicker({
+    guild_id: i.guildId ?? "",
+    query: targetSymbol,
+    default_ticker: targetId,
+  })
+  if (setDefaultTargetTickerOk) {
+    CacheManager.findAndRemove(
+      "ticker",
+      `ticker-default-${i.guildId}-${targetSymbol}`
+    )
+  }
+
+  CacheManager.findAndRemove(
+    "ticker",
+    `ticker-default-${i.guildId}-${targetSymbol}`
+  )
   const embed = getSuccessEmbed({
     msg: i.message as Message,
     title: "Default ticker ENABLED",
@@ -229,12 +245,11 @@ async function composeTokenComparisonEmbed(
       messageOptions: { embeds: [getErrorEmbed({})] },
     }
   }
-  const { ok, data } = await Defi.compareToken(
-    interaction.guildId,
-    baseQ,
-    targetQ,
-    7
-  )
+  const { ok, data } = await CacheManager.get({
+    pool: "ticker",
+    key: `compare-${interaction.guildId}-${baseQ}-${targetQ}-7`,
+    call: () => defi.compareToken(interaction.guildId ?? "", baseQ, targetQ, 7),
+  })
   if (!ok) {
     return {
       messageOptions: { embeds: [getErrorEmbed({})] },

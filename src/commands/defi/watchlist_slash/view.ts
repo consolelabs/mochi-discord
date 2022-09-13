@@ -13,6 +13,7 @@ import {
   renderChartImage,
   widthOf,
 } from "utils/canvas"
+import CacheManager from "utils/CacheManager"
 
 let fontRegistered = false
 
@@ -169,10 +170,11 @@ const command: SlashCommand = {
   run: async function (interaction: CommandInteraction) {
     let page = interaction.options.getNumber("page") ?? 0
     page = Math.max(isNaN(page) ? 0 : page - 1, 0)
-    const { data, pagination, ok } = await defi.getUserWatchlist({
-      userId: interaction.user.id,
-      page,
-      size: 8,
+    const userId = interaction.user.id
+    const { data, pagination, ok } = await CacheManager.get({
+      pool: "watchlist",
+      key: `watchlist-${userId}-${page}`,
+      call: () => defi.getUserWatchlist({ userId, page, size: 8 }),
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
     const embed = composeEmbedMessage2(interaction, {

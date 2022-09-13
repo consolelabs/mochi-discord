@@ -1026,9 +1026,11 @@ export interface ResponseNFTCollectionConfig {
   address?: string;
   author?: string;
   chain_id?: string;
+  chain_name?: string;
   collection_id?: string;
   created_at?: string;
   erc_format?: string;
+  explorer_url?: string;
   id?: string;
   image?: string;
   is_verified?: boolean;

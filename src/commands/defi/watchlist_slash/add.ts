@@ -17,6 +17,7 @@ import { Coin } from "types/defi"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import defi from "adapters/defi"
+import CacheManager from "utils/CacheManager"
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
@@ -35,7 +36,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       },
     }
   }
-  // no data === add successfully
+  CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
   return {
     messageOptions: {
       embeds: [getSuccessEmbed({})],
@@ -60,13 +61,15 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     const symbol = interaction.options.getString("symbol", true)
+    const userId = interaction.user.id
     const { data, ok } = await defi.addToWatchlist({
-      user_id: interaction.user.id,
+      user_id: userId,
       symbol,
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
     // no data === add successfully
     if (!data) {
+      CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
       return {
         messageOptions: { embeds: [getSuccessEmbed({})] },
       }

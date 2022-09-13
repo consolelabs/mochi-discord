@@ -1,7 +1,6 @@
 import { slashCommands } from "commands"
 import { confirmGlobalXP } from "commands/config/globalxp"
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
-import { backToTickerSelection } from "commands/defi/ticker"
 import { triplePodInteraction } from "commands/games/tripod"
 import { sendVerifyURL } from "commands/profile/verify"
 import {
@@ -169,9 +168,6 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("triple-pod-"):
       await triplePodInteraction(i)
-      return
-    case i.customId.startsWith("ticker_selection-"):
-      await backToTickerSelection(i, msg)
       return
     default:
       return
