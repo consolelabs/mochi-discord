@@ -21,9 +21,11 @@ export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
           }\` tokens\n${c.nft_collection_configs
             ?.map(
               (nftCol) =>
-                `${getEmoji("blank")}${getEmoji("reply")}\`${
+                `${getEmoji("blank")}${getEmoji("reply")}[\`${
                   nftCol.symbol?.toUpperCase() ?? ""
-                } ${shortenHashOrAddress(nftCol.address ?? "")}\``
+                } ${shortenHashOrAddress(nftCol.address ?? "")}${
+                  nftCol.chain_id ? ` (${nftCol.chain_id})` : ""
+                })\`](${nftCol.explorer_url || "https://getmochi.co/"})`
             )
             .join("\n")}`
       )
