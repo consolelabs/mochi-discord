@@ -177,11 +177,17 @@ const command: SlashCommand = {
       call: () => defi.getUserWatchlist({ userId, page, size: 8 }),
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
+    const isDefaultWl = !!pagination.total
     const embed = composeEmbedMessage2(interaction, {
       author: [
-        `${interaction.user.username}'s watchlist`,
+        `${
+          isDefaultWl ? `${interaction.user.username}'s` : "Default"
+        } watchlist`,
         interaction.user.displayAvatarURL({ format: "png" }),
       ],
+      description: isDefaultWl
+        ? undefined
+        : `<@${userId}>, below is the default watchlist because you have not added any item to yours.\nPlease add one using \`${PREFIX}watchlist add\`.`,
       footer: pagination ? getPaginationFooter(pagination) : undefined,
     })
     if (!data?.length) {
