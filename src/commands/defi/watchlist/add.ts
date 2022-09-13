@@ -13,6 +13,7 @@ import { Coin } from "types/defi"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
+import CacheManager from "utils/CacheManager"
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
@@ -31,7 +32,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       },
     }
   }
-  // no data === add successfully
+  CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
   return {
     messageOptions: {
       embeds: [getSuccessEmbed({})],
@@ -47,13 +48,15 @@ const command: Command = {
   category: "Defi",
   run: async (msg) => {
     const symbol = getCommandArguments(msg)[2]
+    const userId = msg.author.id
     const { data, ok } = await defi.addToWatchlist({
-      user_id: msg.author.id,
+      user_id: userId,
       symbol,
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
     // no data === add successfully
     if (!data) {
+      CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
       return {
         messageOptions: { embeds: [getSuccessEmbed({})] },
       }

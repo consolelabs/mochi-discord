@@ -27,7 +27,7 @@ import {
   composeDiscordExitButton,
   composeEmbedMessage2,
 } from "utils/discordEmbed"
-import Defi from "adapters/defi"
+import defi from "adapters/defi"
 import {
   CommandChoiceHandler,
   EphemeralMessage,
@@ -38,6 +38,13 @@ import { Coin } from "types/defi"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import Compare from "./token/compare_slash"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
+import CacheManager from "utils/CacheManager"
+
+CacheManager.init({
+  ttl: 0,
+  pool: "ticker",
+  checkperiod: 1,
+})
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -47,11 +54,11 @@ async function renderHistoricalMarketChart({
   days?: number
 }) {
   const currency = "usd"
-  const { ok, data } = await Defi.getHistoricalMarketData(
-    coinId,
-    currency,
-    days || 7
-  )
+  const { ok, data } = await CacheManager.get({
+    pool: "ticker",
+    key: `ticker-getHistoricalMarketData-${coinId}-${currency}-${days}`,
+    call: () => defi.getHistoricalMarketData(coinId, currency, days),
+  })
   if (!ok) return null
   const { times, prices, from, to } = data
 
@@ -174,7 +181,11 @@ async function composeTickerResponse({
     }
   }
 
-  const { ok, data: coin } = await Defi.getCoin(coinId)
+  const { ok, data: coin } = await CacheManager.get({
+    pool: "ticker",
+    key: `ticker-getcoin-${coinId}`,
+    call: () => defi.getCoin(coinId),
+  })
   if (!ok) {
     return { messageOptions: { embeds: [getErrorEmbed({})] } }
   }
@@ -252,39 +263,18 @@ async function composeTickerResponse({
   }
 }
 
-export async function backToTickerSelection(
-  i: ButtonInteraction,
-  msg: Message
-) {
-  await i.deferUpdate()
-  const [coinQ, authorId] = i.customId.split("-").slice(1)
-  msg.author.id = authorId
-  const { ok, data } = await Defi.searchCoins(coinQ)
-  if (!ok) return
-  const { messageOptions } = await composeTickerSelectionResponse(
-    data.coins,
-    coinQ,
-    i
-  )
-  await msg.removeAttachments()
-  msg.edit({
-    embeds: messageOptions.embeds,
-    components: messageOptions.components,
-    files: [],
-  })
-}
-
 export async function setDefaultTicker(i: ButtonInteraction) {
-  const [coinId, coinSymbol, coinName] = i.customId.split("|")
+  const [coinId, symbol, name] = i.customId.split("|")
   await config.setGuildDefaultTicker({
     guild_id: i.guildId ?? "",
-    query: coinSymbol,
+    query: symbol,
     default_ticker: coinId,
   })
+  CacheManager.findAndRemove("ticker", `ticker-default-${i.guildId}-${symbol}`)
   const embed = getSuccessEmbed({
     msg: i.message as Message,
     title: "Default ticker ENABLED",
-    description: `Next time your server members use $ticker with \`${coinSymbol}\`, **${coinName}** will be the default selection`,
+    description: `Next time your server members use $ticker with \`${symbol}\`, **${name}** will be the default selection`,
   })
   return {
     embeds: [embed],
@@ -301,7 +291,7 @@ const coinNotFoundResponse = (coinQ: string) => ({
   },
 })
 
-async function composeTickerSelectionResponse(
+function composeTickerSelectionResponse(
   coins: Coin[],
   coinSymbol: string,
   interaction: CommandInteraction | ButtonInteraction
@@ -364,7 +354,11 @@ const command: SlashCommand = {
     // run token comparison
     const targetQ = interaction.options.getString("target")
     if (targetQ) return await Compare(interaction, baseQ, targetQ)
-    const { ok, data: coins } = await Defi.searchCoins(baseQ)
+    const { ok, data: coins } = await CacheManager.get({
+      pool: "ticker",
+      key: `ticker-search-${baseQ}`,
+      call: () => defi.searchCoins(baseQ),
+    })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
     if (!coins || !coins.length) {
       return coinNotFoundResponse(baseQ)
@@ -375,15 +369,20 @@ const command: SlashCommand = {
     }
 
     // if default ticket was set then respond...
-    const coinSymbol = coins[0].symbol
-    const data = await config.getGuildDefaultTicker({
-      guild_id: interaction.guildId,
-      query: coinSymbol,
+    const { symbol } = coins[0]
+    const defaultTicker = await CacheManager.get({
+      pool: "ticker",
+      key: `ticker-default-${interaction.guildId}-${symbol}`,
+      call: () =>
+        config.getGuildDefaultTicker({
+          guild_id: interaction.guildId ?? "",
+          query: symbol,
+        }),
     })
-    if (data.ok && data.data.default_ticker) {
+    if (defaultTicker.ok && defaultTicker.data.default_ticker) {
       return await composeTickerResponse({
-        coinId: data.data.default_ticker,
-        coinSymbol: data.data.query,
+        coinId: defaultTicker.data.default_ticker,
+        coinSymbol: defaultTicker.data.query,
         interaction,
       })
     }
@@ -391,7 +390,7 @@ const command: SlashCommand = {
     // ...else allow selection
     return composeTickerSelectionResponse(
       Object.values(coins),
-      coinSymbol,
+      symbol,
       interaction
     )
   },

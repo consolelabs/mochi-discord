@@ -10,6 +10,13 @@ import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import view from "./view"
 import add from "./add"
 import remove from "./remove"
+import CacheManager from "utils/CacheManager"
+
+CacheManager.init({
+  ttl: 0,
+  pool: "watchlist",
+  checkperiod: 1,
+})
 
 const subCommands: Record<string, SlashCommand> = {
   view,
