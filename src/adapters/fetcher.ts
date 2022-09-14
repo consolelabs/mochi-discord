@@ -26,19 +26,23 @@ type RequestInit = NativeRequestInit & {
   queryCamelToSnake?: boolean
 }
 
+type Payload = {
+  log: string
+}
+
 type OkPayload = {
   ok: true
   data: Record<string, any>
   error: null
   pagination?: Pagination
-}
+} & Payload
 
 type ErrPayload = {
   ok: false
   data: null
   error: string
   pagination?: Pagination
-}
+} & Payload
 
 type OkResponse<T> = {
   json: () => Promise<OkPayload & T>
@@ -63,6 +67,7 @@ export class Fetcher {
     url: string,
     init: RequestInit = {}
   ): Promise<(OkPayload & T) | ErrPayload> {
+    let log = ""
     try {
       const mergedInit = deepmerge(defaultInit, init)
       const { autoWrap500Error, query: _query, ...validInit } = mergedInit
@@ -79,13 +84,12 @@ export class Fetcher {
       )
 
       if (!res.ok) {
-        logger.error(
-          `[API failed - ${init.method ?? "GET"}/${
-            res.status
-          }]: ${url} with params ${
-            validInit.body
-          }, query ${querystring.stringify(query)}`
-        )
+        log = `[API failed - ${init.method ?? "GET"}/${
+          res.status
+        }]: ${url} with params ${validInit.body}, query ${querystring.stringify(
+          query
+        )}`
+        logger.error(log)
 
         const json = await (res as ErrResponse).json()
         if (autoWrap500Error && res.status === 500) {
@@ -95,28 +99,31 @@ export class Fetcher {
           json.error = capFirst(json.error)
         }
         json.ok = false
+        json.log = log
         return json
       } else {
-        logger.info(
-          `[API ok - ${init.method ?? "GET"}/${
-            res.status
-          }]: ${url} with params ${
-            validInit.body ?? "{}"
-          }, query ${querystring.stringify(query)}`
-        )
+        log = `[API ok - ${init.method ?? "GET"}/${
+          res.status
+        }]: ${url} with params ${
+          validInit.body ?? "{}"
+        }, query ${querystring.stringify(query)}`
+        logger.info(log)
         const json = await (res as OkResponse<T>).json()
         json.ok = true
+        json.log = log
         return json
       }
     } catch (e: any) {
-      logger.error(
-        `[API failed ${init.method ?? "GET"}/request_not_sent]: ${e.message}`
-      )
+      log = `[API failed ${init.method ?? "GET"}/request_not_sent]: ${
+        e.message
+      }`
+      logger.error(log)
       return {
         ok: false,
         data: null,
         error:
           "Something went wrong, our team is notified and is working on the fix, stay tuned.",
+        log,
       }
     }
   }

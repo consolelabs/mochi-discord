@@ -2,13 +2,13 @@ import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
-  getErrorEmbed,
   getPaginationRow,
   listenForPaginateAction,
 } from "utils/discordEmbed"
 import { Message, MessageEmbed, TextChannel } from "discord.js"
 import config from "adapters/config"
 import { catchEm, paginate } from "utils/common"
+import { APIError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "reactionrole_list",
@@ -18,25 +18,16 @@ const command: Command = {
   onlyAdministrator: true,
   run: async (msg: Message) => {
     if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
-    const rrList = await config.listAllReactionRoles(msg.guildId)
+    const rrListRes = await config.listAllReactionRoles(msg.guildId)
     const channelList = msg.guild.channels.cache
       .filter((c) => c.type === "GUILD_TEXT")
       .map((c) => c as TextChannel)
 
-    if (rrList.success) {
+    if (rrListRes.ok) {
       const values = await Promise.all(
-        rrList.configs.map(async (conf: any) => {
+        rrListRes.data.configs.map(async (conf: any) => {
           const promiseArr = channelList.map((chan) =>
             catchEm(chan.messages.fetch(conf.message_id))
           )
@@ -113,16 +104,7 @@ const command: Command = {
         }
       )
     } else {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "Failed to get reaction role configurations",
-            }),
-          ],
-        },
-      }
+      throw new APIError({ message: msg, description: rrListRes.log })
     }
   },
   getHelpMessage: async (msg) => {

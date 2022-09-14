@@ -1,4 +1,11 @@
-import { Client, Message, MessageEmbed, TextChannel } from "discord.js"
+import {
+  Client,
+  Message,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  TextChannel,
+} from "discord.js"
 import { ALERT_CHANNEL_ID, LOG_CHANNEL_ID, MOCHI_GUILD_ID } from "env"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
@@ -59,10 +66,35 @@ export class ChannelLogger {
     }\`\n**Error:** \`\`\`${error?.message}\`\`\``
     const embed = getErrorEmbed({
       msg,
-      title: "Command error",
+      title: error.name || "Command error",
       description,
     }).setTimestamp()
-    this.alertChannel.send({ embeds: [embed] })
+    this.alertChannel.send({
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("LINK")
+            .setURL(msg.url)
+            .setLabel("Jump to message")
+        ),
+      ],
+    })
+  }
+
+  alertWebhook(event: string, data: any) {
+    this.alertChannel?.send({
+      embeds: [
+        getErrorEmbed({
+          title: "Webhook Error",
+          description: `**Event:** ${event}\`\`\`${JSON.stringify(
+            data,
+            null,
+            4
+          )}\`\`\``,
+        }).setTimestamp(),
+      ],
+    })
   }
 }
 

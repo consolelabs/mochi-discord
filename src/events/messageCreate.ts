@@ -54,13 +54,14 @@ export default {
       await handleNormalMessage(message)
       handlePlayTripod(message)
     } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
-        ChannelLogger.alert(message, error)
+      let error = e as BotBaseError
+
+      // something went wrong
+      if (!(error instanceof BotBaseError)) {
+        error = new BotBaseError()
       }
+      error.handle?.()
+      ChannelLogger.alert(message, error)
       ChannelLogger.log(error, 'Event<"messageCreate">')
     }
   },

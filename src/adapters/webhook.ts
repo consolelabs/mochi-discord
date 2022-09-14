@@ -1,5 +1,5 @@
-import { logger } from "logger"
 import fetch from "node-fetch"
+import ChannelLogger from "utils/ChannelLogger"
 import { API_BASE_URL } from "utils/constants"
 
 class Webhook {
@@ -21,7 +21,7 @@ class Webhook {
 
       return json
     } catch (e) {
-      logger.error(e as string)
+      ChannelLogger.alertWebhook(event, data)
     }
   }
 }

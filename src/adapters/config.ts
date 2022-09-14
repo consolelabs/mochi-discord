@@ -315,18 +315,14 @@ class Config extends Fetcher {
   }
 
   public async listAllReactionRoles(guildId: string) {
-    const res = await fetch(
-      `${API_BASE_URL}/configs/reaction-roles?guild_id=${guildId}`
+    return await this.jsonFetch(
+      `${API_BASE_URL}/configs/reaction-roles?guild_id=${guildId}`,
+      {
+        query: {
+          guildId,
+        },
+      }
     )
-    if (res.status !== 200) {
-      throw new Error(`failed to list reaction roles - guild ${guildId}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json
   }
 
   public async handleReactionEvent(event: RoleReactionEvent) {
