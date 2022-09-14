@@ -19,6 +19,7 @@ import {
   ResponseGetLevelRoleConfigsResponse,
   ResponseGetTwitterHashtagConfigResponse,
   ResponseListGuildGroupNFTRolesResponse,
+  ResponseGetWelcomeChannelConfigResponse,
 } from "types/api"
 
 class Config extends Fetcher {
@@ -221,6 +222,45 @@ class Config extends Fetcher {
       throw new Error(json.error)
     }
   }
+
+  public async getCurrentWelcomeConfig(guildId: string) {
+    return await this.jsonFetch<ResponseGetWelcomeChannelConfigResponse>(
+      `${API_BASE_URL}/configs/welcome`,
+      {
+        query: {
+          guildId,
+        },
+      }
+    )
+  }
+
+  public async updateWelcomeConfig(
+    guild_id: string,
+    channel_id: string,
+    welcome_message = ""
+  ) {
+    return this.jsonFetch<ResponseGetWelcomeChannelConfigResponse>(
+      `${API_BASE_URL}/configs/welcome`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          guild_id,
+          channel_id,
+          welcome_message,
+        }),
+      }
+    )
+  }
+
+  public async removeWelcomeConfig(guild_id: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/welcome`, {
+      method: "DELETE",
+      body: JSON.stringify({
+        guild_id,
+      }),
+    })
+  }
+
   public async getCurrentSalesConfig(guildId: string) {
     const res = await fetch(
       `${API_BASE_URL}/configs/sales-tracker?guild_id=${guildId}`
