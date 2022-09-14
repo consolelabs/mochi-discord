@@ -12,11 +12,11 @@ import {
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { BotBaseError } from "errors"
-import { logger } from "logger"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import { Event } from "."
 import { getErrorEmbed } from "utils/discordEmbed"
+import { logger } from "logger"
 
 export default {
   name: "interactionCreate",
@@ -28,8 +28,10 @@ export default {
       !interaction.isCommand()
     )
       return
-    const msg = (<SelectMenuInteraction | ButtonInteraction>interaction)
-      .message as Message
+    let msg = null
+    if ("message" in interaction && interaction.message instanceof Message) {
+      msg = interaction.message
+    }
     try {
       if (interaction.isSelectMenu()) {
         await handleSelecMenuInteraction(interaction)
@@ -39,12 +41,17 @@ export default {
         await handleCommandInteraction(interaction)
       }
     } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
+      let error = e as BotBaseError
+
+      // something went wrong
+      if (!(error instanceof BotBaseError)) {
+        error = new BotBaseError()
+      }
+      error.handle?.()
+      if (msg) {
         ChannelLogger.alert(msg, error)
+      } else {
+        logger.error("Error in interactionCreate", e)
       }
       ChannelLogger.log(error, 'Event<"interactionCreate">')
     }
