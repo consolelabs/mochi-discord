@@ -45,7 +45,7 @@ export default {
       // check msg config reactionrole
       const emojiResp = await config.listAllReactionRoles(msg.guild?.id ?? "")
       const listMessageID =
-        emojiResp?.configs?.map((v: any) => v.message_id) || []
+        emojiResp?.data?.configs.map((v: any) => v.message_id) || []
       if (!listMessageID.includes(msg.id)) {
         return
       }
