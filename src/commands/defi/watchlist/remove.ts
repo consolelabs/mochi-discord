@@ -1,14 +1,11 @@
 import { Command } from "types/common"
 import { thumbnails } from "utils/common"
-import {
-  getErrorEmbed,
-  getSuccessEmbed,
-  composeEmbedMessage,
-} from "utils/discordEmbed"
+import { getSuccessEmbed, composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
 import CacheManager from "utils/CacheManager"
+import { handleUpdateWlError } from "../watchlist_slash"
 
 const command: Command = {
   id: "watchlist_remove",
@@ -18,11 +15,11 @@ const command: Command = {
   run: async (msg) => {
     const symbol = getCommandArguments(msg)[2]
     const userId = msg.author.id
-    const { ok } = await defi.removeFromWatchlist({
+    const { ok, error } = await defi.removeFromWatchlist({
       userId,
       symbol,
     })
-    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
+    if (!ok) return handleUpdateWlError(symbol, error, true)
     CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
     return {
       messageOptions: { embeds: [getSuccessEmbed({})] },

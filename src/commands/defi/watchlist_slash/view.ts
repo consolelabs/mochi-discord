@@ -173,7 +173,7 @@ const command: SlashCommand = {
     const userId = interaction.user.id
     const { data, pagination, ok } = await CacheManager.get({
       pool: "watchlist",
-      key: `watchlist-${userId}-${page}`,
+      key: `watchlist-${userId}-${page}-8`,
       call: () => defi.getUserWatchlist({ userId, page, size: 8 }),
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
