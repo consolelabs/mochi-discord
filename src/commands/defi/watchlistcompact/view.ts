@@ -163,7 +163,7 @@ const command: Command = {
     const userId = msg.author.id
     const { data, ok } = await CacheManager.get({
       pool: "watchlist",
-      key: `watchlist-${userId}-0`,
+      key: `watchlist-${userId}-0-12`,
       call: () => defi.getUserWatchlist({ userId, size: 12 }),
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }

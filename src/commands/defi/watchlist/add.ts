@@ -3,7 +3,6 @@ import { MessageSelectOptionData, SelectMenuInteraction } from "discord.js"
 import { defaultEmojis, thumbnails } from "utils/common"
 import {
   composeDiscordSelectionRow,
-  getErrorEmbed,
   getSuccessEmbed,
   composeDiscordExitButton,
   composeEmbedMessage,
@@ -14,24 +13,18 @@ import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
 import CacheManager from "utils/CacheManager"
+import { handleUpdateWlError } from "../watchlist_slash"
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const value = interaction.values[0]
   const [symbol, coinGeckoId, userId] = value.split("_")
-  const { ok } = await defi.addToWatchlist({
+  const { ok, error } = await defi.addToWatchlist({
     user_id: userId,
     symbol,
     coin_gecko_id: coinGeckoId,
   })
-  if (!ok) {
-    return {
-      messageOptions: {
-        embeds: [getErrorEmbed({})],
-        components: [],
-      },
-    }
-  }
+  if (!ok) return handleUpdateWlError(symbol, error)
   CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
   return {
     messageOptions: {
@@ -49,11 +42,11 @@ const command: Command = {
   run: async (msg) => {
     const symbol = getCommandArguments(msg)[2]
     const userId = msg.author.id
-    const { data, ok } = await defi.addToWatchlist({
+    const { data, ok, error } = await defi.addToWatchlist({
       user_id: userId,
       symbol,
     })
-    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
+    if (!ok) return handleUpdateWlError(symbol, error)
     // no data === add successfully
     if (!data) {
       CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
