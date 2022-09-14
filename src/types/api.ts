@@ -116,6 +116,12 @@ export interface ModelChain {
   short_name?: string;
 }
 
+export interface ModelCoingeckoSupportedTokens {
+  id?: string;
+  name?: string;
+  symbol?: string;
+}
+
 export interface ModelConfigXpLevel {
   level?: number;
   min_xp?: number;
@@ -566,7 +572,7 @@ export interface ResponseAddToWatchlistResponse {
 }
 
 export interface ResponseAddToWatchlistResponseData {
-  suggestions?: ResponseSearchedCoin[];
+  suggestions?: ModelCoingeckoSupportedTokens[];
 }
 
 export interface ResponseCoinImage {
@@ -603,11 +609,11 @@ export interface ResponseCollectionSuggestions {
 
 export interface ResponseCompareTokenReponseData {
   base_coin?: ResponseGetCoinResponse;
-  base_coin_suggestions?: ResponseSearchedCoin[];
+  base_coin_suggestions?: ModelCoingeckoSupportedTokens[];
   from?: string;
   ratios?: number[];
   target_coin?: ResponseGetCoinResponse;
-  target_coin_suggestions?: ResponseSearchedCoin[];
+  target_coin_suggestions?: ModelCoingeckoSupportedTokens[];
   times?: string[];
   to?: string;
 }
@@ -1159,17 +1165,8 @@ export interface ResponseRoleReactionResponse {
   role?: ResponseRole;
 }
 
-export interface ResponseSearchCoinsResponse {
-  data?: ResponseSearchedCoin[];
-}
-
-export interface ResponseSearchedCoin {
-  id?: string;
-  large?: string;
-  market_cap_rank?: number;
-  name?: string;
-  symbol?: string;
-  thumb?: string;
+export interface ResponseSearchCoinResponse {
+  data?: ModelCoingeckoSupportedTokens[];
 }
 
 export interface ResponseTickerData {
