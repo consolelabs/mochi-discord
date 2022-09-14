@@ -435,15 +435,19 @@ const command: Command = {
           users.push(cachedUser)
         }
       } else {
-        await msg.guild?.members
-          .fetch({ query: args[1], limit: 10 })
-          .then((members) => {
-            members.forEach((member) => {
-              if (member.user.username === args[1]) {
-                users.push(member.user)
-              }
-            })
+        const usersFoundByDisplayname: User[] = []
+        const usersFoundByUsername: User[] = []
+        await msg.guild?.members?.fetch()?.then((members) => {
+          members.forEach((member) => {
+            if (member.user.username === args[1]) {
+              usersFoundByUsername.push(member.user)
+            } else if (member.displayName === args[1]) {
+              usersFoundByDisplayname.push(member.user)
+            }
           })
+        })
+
+        users.push(...usersFoundByUsername, ...usersFoundByDisplayname)
       }
     } else {
       users.push(msg.author)
