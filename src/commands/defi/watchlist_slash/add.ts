@@ -7,7 +7,6 @@ import {
 import { defaultEmojis, thumbnails } from "utils/common"
 import {
   composeDiscordSelectionRow,
-  getErrorEmbed,
   getSuccessEmbed,
   composeDiscordExitButton,
   composeEmbedMessage2,
@@ -18,24 +17,18 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import CacheManager from "utils/CacheManager"
+import { handleUpdateWlError } from "."
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const value = interaction.values[0]
   const [symbol, coinGeckoId, userId] = value.split("_")
-  const { ok } = await defi.addToWatchlist({
+  const { ok, error } = await defi.addToWatchlist({
     user_id: userId,
     symbol,
     coin_gecko_id: coinGeckoId,
   })
-  if (!ok) {
-    return {
-      messageOptions: {
-        embeds: [getErrorEmbed({})],
-        components: [],
-      },
-    }
-  }
+  if (!ok) return handleUpdateWlError(symbol, error)
   CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
   return {
     messageOptions: {
@@ -62,11 +55,11 @@ const command: SlashCommand = {
   run: async function (interaction: CommandInteraction) {
     const symbol = interaction.options.getString("symbol", true)
     const userId = interaction.user.id
-    const { data, ok } = await defi.addToWatchlist({
+    const { data, ok, error } = await defi.addToWatchlist({
       user_id: userId,
       symbol,
     })
-    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
+    if (!ok) return handleUpdateWlError(symbol, error)
     // no data === add successfully
     if (!data) {
       CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)

@@ -31,7 +31,7 @@ async function renderWatchlist(data: any[]) {
   const container: RectangleStats = {
     x: {
       from: 0,
-      to: 900,
+      to: 700,
     },
     y: {
       from: 0,
@@ -72,8 +72,8 @@ async function renderWatchlist(data: any[]) {
   for (const [idx, item] of Object.entries(data)) {
     const leftCol = +idx % 2 === 0
     itemContainer.x = {
-      from: leftCol ? 0 : 455,
-      to: leftCol ? 445 : 900,
+      from: leftCol ? 0 : 355,
+      to: leftCol ? 345 : 700,
     }
     drawRectangle(ctx, itemContainer, itemContainer.bgColor)
     const {
@@ -113,7 +113,7 @@ async function renderWatchlist(data: any[]) {
       },
     })
     const chart = await loadImage(buffer)
-    const chartW = 200
+    const chartW = 150
     const chartH = 50
     const chartX = itemContainer.x.to - chartW - 15
     const chartY = itemContainer.y.from + (itemContainer.pt ?? 0)
@@ -162,7 +162,7 @@ const command: Command = {
     const userId = msg.author.id
     const { data, pagination, ok } = await CacheManager.get({
       pool: "watchlist",
-      key: `watchlist-${userId}-${page}`,
+      key: `watchlist-${userId}-${page}-8`,
       call: () => defi.getUserWatchlist({ userId, page, size: 8 }),
     })
     if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }

@@ -1,7 +1,7 @@
 import { SlashCommand } from "types/common"
 import { CommandInteraction } from "discord.js"
 import { thumbnails } from "utils/common"
-import { composeEmbedMessage2 } from "utils/discordEmbed"
+import { composeEmbedMessage2, getErrorEmbed } from "utils/discordEmbed"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
@@ -11,6 +11,33 @@ import view from "./view"
 import add from "./add"
 import remove from "./remove"
 import CacheManager from "utils/CacheManager"
+
+export function handleUpdateWlError(
+  symbol: string,
+  error: string | null,
+  isRemove?: boolean
+) {
+  if (!error) return { messageOptions: { embeds: [getErrorEmbed({})] } }
+  let description
+  switch (true) {
+    case error.toLowerCase().startsWith("record not found"):
+      description = `Token with symbol \`${symbol}\` ${
+        isRemove ? "does not exist in your watchlist" : "is not supported"
+      }.`
+      break
+    case error.toLowerCase().startsWith("conflict") && !isRemove:
+      description = `Token already existed in your watchlist.`
+      break
+    default:
+      break
+  }
+  return {
+    messageOptions: {
+      embeds: [getErrorEmbed({ description })],
+      components: [],
+    },
+  }
+}
 
 CacheManager.init({
   ttl: 0,

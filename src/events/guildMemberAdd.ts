@@ -4,10 +4,11 @@ import config from "adapters/config"
 import webhook from "../adapters/webhook"
 import { DISCORD_DEFAULT_AVATAR } from "env"
 import { createBEGuildMember } from "../types/webhook"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import ChannelLogger from "utils/ChannelLogger"
 import { logger } from "logger"
 import { BotBaseError } from "errors"
+import client from "index"
 
 export default {
   name: "guildMemberAdd",
@@ -59,6 +60,7 @@ export default {
         logChannel,
         member.user.avatarURL() ?? ""
       )
+      welcomeNewMember(member)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
@@ -111,5 +113,59 @@ async function setUserDefaultRoles(member: Discord.GuildMember) {
 
   if (res.ok && res.data.role_id) {
     await member.roles.add(res.data.role_id)
+  }
+}
+
+async function welcomeNewMember(member: Discord.GuildMember) {
+  const welcomeChannel = await config.getCurrentWelcomeConfig(member.guild.id)
+  if (!welcomeChannel.ok) return
+
+  const configData = welcomeChannel.data
+  if (
+    !configData ||
+    !configData.channel_id ||
+    !configData.guild_id ||
+    !configData.welcome_message
+  ) {
+    logger.warn(
+      `[guildMemberAdd/${member.guild.id}] - welcome channel configs invalid`
+    )
+    return
+  }
+  // channel id returned but cannot find in guild
+  const chan = await client.channels.fetch(configData.channel_id)
+  if (!chan) {
+    const guild = await config.getGuild(member.guild.id)
+    if (!guild) {
+      logger.warn(
+        `[guildMemberAdd/${member.guild.id}] - failed to get guild data`
+      )
+      return
+    }
+
+    const logChannel = member.guild.channels.cache.find(
+      (channel) => channel.id === guild?.log_channel_id
+    )
+    if (logChannel?.isText()) {
+      logChannel.send({
+        embeds: [
+          getErrorEmbed({
+            description: "Welcome channel not found",
+          }),
+        ],
+      })
+    }
+    return
+  }
+
+  const embed = composeEmbedMessage(null, {
+    title: "Welcome",
+    description: configData.welcome_message.replaceAll(
+      "$name",
+      member.displayName
+    ),
+  })
+  if (chan.isText()) {
+    chan.send({ embeds: [embed] })
   }
 }

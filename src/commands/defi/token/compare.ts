@@ -103,7 +103,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   }
 }
 
-export async function setDefaultTicker(i: ButtonInteraction) {
+export async function setDefaultTickers(i: ButtonInteraction) {
   const [baseId, baseSymbol, baseName, targetId, targetSymbol, targetName] =
     i.customId.split("|")
   const { ok: setDefaultBaseTickerOk } = await config.setGuildDefaultTicker({
@@ -126,6 +126,12 @@ export async function setDefaultTicker(i: ButtonInteraction) {
     CacheManager.findAndRemove(
       "ticker",
       `ticker-default-${i.guildId}-${targetSymbol}`
+    )
+  }
+  if (setDefaultBaseTickerOk || setDefaultTargetTickerOk) {
+    CacheManager.findAndRemove(
+      "ticker",
+      `compare-${i.guildId}-${baseSymbol}-${baseSymbol}-`
     )
   }
   const embed = getSuccessEmbed({
@@ -175,7 +181,7 @@ const suggestionsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
         }),
       ],
       components: [actionRow],
-      buttonCollector: setDefaultTicker,
+      buttonCollector: setDefaultTickers,
     }
   }
 
