@@ -4,6 +4,7 @@ import Community from "adapters/community"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { capFirst, getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
+import { logger } from "logger"
 
 const voteLimitCount = 4
 const formatter = new Intl.NumberFormat("en-US", { minimumIntegerDigits: 2 })
@@ -114,12 +115,34 @@ export async function handle(user: User) {
   }
 }
 
+export async function setCache(msg: Message) {
+  const userId = msg.author.id,
+    guildId = msg.guildId ?? "",
+    channelId = msg.channelId,
+    msgId = msg.id
+
+  if (!userId || !guildId || !channelId || !msgId) {
+    logger.warn("[setCache] invalid request")
+    return
+  }
+  const req = {
+    user_id: userId,
+    guild_id: guildId,
+    channel_id: channelId,
+    message_id: msgId,
+  }
+  await Community.setUpvoteMessageCache(req)
+}
+
 const command: Command = {
   id: "vote",
   command: "vote",
   brief: "Display voting streaks and links to vote",
   category: "Community",
-  run: async (msg: Message) => handle(msg.author),
+  run: async (msg: Message) => {
+    await setCache(msg)
+    return handle(msg.author)
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

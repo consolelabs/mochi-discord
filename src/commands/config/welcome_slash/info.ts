@@ -29,10 +29,6 @@ export async function welcomeInfo(interaction: CommandInteraction) {
 
   const configData = configs.data
   if (!configData) {
-    throw new Error(`Failed to get welcome channel response`)
-  }
-
-  if (!configData.welcome_message) {
     const embed = composeEmbedMessage(null, {
       author: [interaction.guild.name, interaction.guild.iconURL() ?? ""],
       description: `No welcome channel configured for this guild.\nSet one with \`${SLASH_PREFIX}welcome set <channel>.\``,
