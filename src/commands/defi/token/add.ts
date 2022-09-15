@@ -3,15 +3,14 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
+import { CommandError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
-import { defaultEmojis } from "utils/common"
 import { PREFIX } from "utils/constants"
 import {
   composeDiscordExitButton,
   composeDiscordSelectionRow,
   composeEmbedMessage,
-  getErrorEmbed,
   getSuccessEmbed,
 } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
@@ -23,17 +22,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const symbol = interaction.values[0]
 
   if (!message.guildId) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            msg: message,
-            description: `Guild ID not found`,
-          }),
-        ],
-        components: [],
-      },
-    }
+    throw new GuildIdNotFoundError({ message: msgOrInteraction })
   }
 
   await Config.updateTokenConfig({
@@ -63,16 +52,7 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
     const tokens = await Defi.getSupportedTokens()
     const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
@@ -84,17 +64,10 @@ const command: Command = {
       }))
 
     if (!options.length)
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              title: `${defaultEmojis.ERROR} Command error`,
-              description: "Your server already had all supported tokens.",
-            }),
-          ],
-        },
-      }
+      throw new CommandError({
+        message: msg,
+        description: "Your server already had all supported tokens.",
+      })
 
     const selectionRow = composeDiscordSelectionRow({
       customId: "guild_tokens_selection",

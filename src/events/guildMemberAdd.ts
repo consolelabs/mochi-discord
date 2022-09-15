@@ -36,6 +36,15 @@ export default {
       }
 
       const data = res.data
+      if (data.is_invitee_a_bot) {
+        sendInviteTrackerMessage(
+          member.guild.id,
+          addBotMsg(member.id),
+          logChannel,
+          member.user.avatarURL() ?? ""
+        )
+        return
+      }
       if (data.is_bot) {
         sendInviteTrackerMessage(
           member.guild.id,
@@ -82,7 +91,11 @@ function vantityInviteMsg(memberID: string) {
 }
 
 function botInviteMsg(memberID: string) {
-  return `<@${memberID}> joined using  using OAuth.`
+  return `<@${memberID}> joined using OAuth.`
+}
+
+function addBotMsg(memberID: string) {
+  return `<@${memberID}> has been invited by admin.`
 }
 
 function inviteMsg(memberID: string, inviterID: string, inviteAmount: number) {

@@ -56,15 +56,13 @@ import {
   getCommandArguments,
 } from "utils/commands"
 import config from "../adapters/config"
-import { BotBaseError, CommandNotAllowedToRunError } from "errors"
+import { CommandNotAllowedToRunError } from "errors"
 // import guildCustomCommand from "../adapters/guildCustomCommand"
 // import { customCommandsExecute } from "./customCommand"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 
 import { Command, Category, SlashCommand } from "types/common"
 import { hasAdministrator } from "utils/common"
-import ChannelLogger from "utils/ChannelLogger"
-import { getErrorEmbed } from "utils/discordEmbed"
 import { HELP } from "utils/constants"
 
 export const slashCommands: Record<string, SlashCommand> = {
@@ -253,22 +251,10 @@ export default async function handlePrefixedCommand(message: Message) {
     return
   }
 
-  try {
-    await executeCommand(
-      message,
-      finalCmd,
-      action,
-      isSpecificHelpCommand ?? false
-    )
-  } catch (e) {
-    const error = e as BotBaseError
-    if (error.handle) {
-      error.handle()
-    } else {
-      logger.error(e as string)
-      await message.reply({ embeds: [getErrorEmbed({ msg: message })] })
-      ChannelLogger.alert(message, error)
-    }
-    ChannelLogger.log(error)
-  }
+  await executeCommand(
+    message,
+    finalCmd,
+    action,
+    isSpecificHelpCommand ?? false
+  )
 }
