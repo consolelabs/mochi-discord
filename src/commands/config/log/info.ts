@@ -6,7 +6,7 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 const command: Command = {
   id: "log_info",
   command: "info",
-  brief: "Show current logging channel info",
+  brief: "Show current log channel's info",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {

@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, TWITTER_WATCH_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import set from "./set"
 import list from "./list"
@@ -41,8 +41,11 @@ const command: Command = {
           usage: `${PREFIX}poe twitter <action>`,
           examples: `${PREFIX}poe twitter list`,
           footer: [`Type ${PREFIX}poe twitter <action> for a specific action!`],
+          description:
+            "Forward any tweets that contains a user-specified keyword from Twitter to Discord server",
+          document: TWITTER_WATCH_GITBOOK,
           includeCommandsList: true,
-          title: "PoE > Twitter",
+          title: "PoE - Twitter tweet watcher",
           actions,
         }),
       ],

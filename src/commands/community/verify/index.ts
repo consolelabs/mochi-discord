@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import set from "./set"
 import info from "./info"
@@ -21,8 +21,11 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}verify <action>`,
+        description:
+          "Verify your wallet by connecting a Metamask wallet with your Discord server to use all DeFi functions offered by Mochi",
         examples: `${PREFIX}verify info`,
-        footer: [`Type ${PREFIX}help verify for a specific action!`],
+        document: VERIFY_WALLET_GITBOOK,
+        footer: [`Type ${PREFIX}help verify <action> for a specific action!`],
         includeCommandsList: true,
       }),
     ],

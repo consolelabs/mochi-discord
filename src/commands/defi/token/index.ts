@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { PREFIX } from "utils/constants"
+import { PREFIX, TOKEN_GITBOOK } from "utils/constants"
 import add from "./add"
 import remove from "./remove"
 import list from "./list"
@@ -28,8 +28,11 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
+        description: "Manage all supported tokens by Mochi",
         usage: `${PREFIX}tokens`,
         examples: `${PREFIX}tokens list\n${PREFIX}token list`,
+        document: TOKEN_GITBOOK,
+        footer: [`Type ${PREFIX}help token <action> for a specific action!`],
         includeCommandsList: true,
       }),
     ],

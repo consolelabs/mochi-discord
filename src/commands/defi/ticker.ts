@@ -10,7 +10,7 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { PREFIX, TICKER_GITBOOK } from "utils/constants"
+import { PREFIX, TICKER_GITBOOK, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import {
   defaultEmojis,
   getEmoji,
@@ -326,7 +326,7 @@ function composeTickerSelectionResponse(
 const command: Command = {
   id: "ticker",
   command: "ticker",
-  brief: "Display/Compare coin price and market cap",
+  brief: "Token ticker",
   category: "Defi",
   run: async function (msg) {
     if (!msg.guildId) {
@@ -387,10 +387,11 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
+        description: `Display/Compare coin prices and market cap. Data is fetched from [CoinGecko](https://coingecko.com/)`,
         usage: `${PREFIX}ticker <symbol>\n${PREFIX}ticker <base>/<target> (comparison)`,
         examples: `${PREFIX}ticker eth\n${PREFIX}ticker fantom\n${PREFIX}ticker btc/bnb`,
         document: TICKER_GITBOOK,
+        footer: [DEFI_DEFAULT_FOOTER],
       }),
     ],
   }),

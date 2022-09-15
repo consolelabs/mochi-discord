@@ -68,7 +68,7 @@ async function add(msg: Message, args: string[]) {
 const command: Command = {
   id: "add_custom_server_token",
   command: "add-custom",
-  brief: "Add a token to your server's list",
+  brief: "Add a token to your customized server's list",
   category: "Community",
   onlyAdministrator: true,
   run: async function (msg) {

@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { thumbnails } from "utils/common"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { PREFIX } from "utils/constants"
+import { PREFIX, WATCHLIST_GITBOOK } from "utils/constants"
 import view from "./view"
 import add from "./add"
 import remove from "./remove"
@@ -15,7 +15,7 @@ const actions: Record<string, Command> = {
 const command: Command = {
   id: "watchlist",
   command: "watchlist",
-  brief: "Manage your watchlist",
+  brief: "Watchlist",
   category: "Defi",
   run: async () => null,
   getHelpMessage: async (msg) => ({
@@ -23,8 +23,13 @@ const command: Command = {
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         title: "Manage your watchlist",
+        description: "Manage your watchlist for selected tokens",
         usage: `${PREFIX}watchlist <action>`,
         examples: `${PREFIX}watchlist view\n${PREFIX}wl view 2`,
+        document: WATCHLIST_GITBOOK,
+        footer: [
+          `Type ${PREFIX}help watchlist <action> for a specific action! `,
+        ],
         includeCommandsList: true,
       }),
     ],

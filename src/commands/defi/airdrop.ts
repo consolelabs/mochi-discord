@@ -218,7 +218,7 @@ export async function enterAirdrop(
 const command: Command = {
   id: "airdrop",
   command: "airdrop",
-  brief: "Leave a packet of coins for anyone to pick up",
+  brief: "Token airdrop",
   category: "Defi",
   run: async function (msg: Message) {
     if (!msg.guildId) {
@@ -325,6 +325,8 @@ const command: Command = {
         usage: `${PREFIX}airdrop <amount> <token> [in <duration>] [for <max entries>]`,
         examples: `${PREFIX}airdrop 10 ftm\n${PREFIX}airdrop 10 ftm in 5m\n${PREFIX}airdrop 10 ftm in 5m for 6`,
         document: AIRDROP_GITBOOK,
+        description:
+          "Airdrop tokens for a specified number of users to collect in a given amount of time",
         footer: [DEFI_DEFAULT_FOOTER],
       }),
     ],

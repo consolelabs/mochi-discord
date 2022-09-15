@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, TWITTER_WATCH_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import twitter from "./twitter"
 
@@ -18,7 +18,10 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}poe <twitter>`,
-        examples: `${PREFIX}poe twitter`,
+        description: "Configure your server's PoE to drive engagement",
+        examples: `${PREFIX}poe twitter set #general #mochitag,@Mochi Bot`,
+        document: TWITTER_WATCH_GITBOOK,
+        footer: [`Type ${PREFIX}help poe <action> for a specific action!`],
         includeCommandsList: true,
       }),
     ],
