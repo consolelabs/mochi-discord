@@ -56,7 +56,7 @@ const command: Command = {
     }
     const tokens = await Defi.getSupportedTokens()
     const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
-    const options: MessageSelectOptionData[] = tokens
+    let options: MessageSelectOptionData[] = tokens
       .filter((t) => !gTokens.map((gToken) => gToken.id).includes(t.id))
       .map((token) => ({
         label: `${token.name} (${token.symbol})`,
@@ -68,6 +68,9 @@ const command: Command = {
         message: msg,
         description: "Your server already had all supported tokens.",
       })
+    if (options.length > 25) {
+      options = options.slice(0, 25)
+    }
 
     const selectionRow = composeDiscordSelectionRow({
       customId: "guild_tokens_selection",
