@@ -2,8 +2,9 @@ import { Command } from "types/common"
 import { Message } from "discord.js"
 import { INVITE_GITBOOK, PREFIX } from "utils/constants"
 import Community from "adapters/community"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { getCommandArguments } from "utils/commands"
+import { composeEmbedMessage } from "utils/discordEmbed"
+import { getCommandArguments, parseDiscordToken } from "utils/commands"
+import { CommandError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "invite_config",
@@ -12,24 +13,28 @@ const command: Command = {
   category: "Community",
   onlyAdministrator: true,
   run: async function config(msg: Message) {
-    const args = getCommandArguments(msg)
-    const logChannel = args[2].replace(/<#|>/g, "")
     if (!msg.guild?.id) {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Guild ID is invalid" })],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
+
+    const args = getCommandArguments(msg)
+    const { isChannel, id: log_channel } = parseDiscordToken(args[2])
+    if (!isChannel) {
+      throw new CommandError({
+        message: msg,
+        description: "The argument was not a channel",
+      })
+    }
+
     await Community.configureInvites({
       guild_id: msg.guild?.id,
-      log_channel: logChannel,
+      log_channel,
     })
 
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Config`,
     })
-    embedMsg.addField(`Done`, `logs now display in <#${logChannel}> channel.`)
+    embedMsg.addField(`Done`, `logs now display in <#${log_channel}> channel.`)
 
     return {
       messageOptions: {

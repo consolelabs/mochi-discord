@@ -63,7 +63,11 @@ export class ChannelLogger {
       msg.channel.type === "DM" ? "DM" : msg.guild?.name
     }\`\n**Channel:** \`${
       msg.channel.type === "DM" ? "DM" : msg.channel.name ?? msg.channelId
-    }\`\n**Error:** \`\`\`${error?.message}\`\`\``
+    }\`\n**Error:** ${
+      error?.message
+        ? `\`\`\`${error.message}\`\`\``
+        : "Error without message, this is likely an unexpected error"
+    }`
     const embed = getErrorEmbed({
       msg,
       title: error.name || "Command error",
