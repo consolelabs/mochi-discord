@@ -35,13 +35,15 @@ export default {
 
       for (const cache of client.guilds.cache) {
         const guild = cache[1]
-        const firstInvites = await guild.invites.fetch()
-        invites.set(
-          guild.id,
-          new Discord.Collection(
-            firstInvites.map((invite) => [invite.code, invite.uses ?? 0])
+        if (guild.me?.permissions.has("ADMINISTRATOR")) {
+          const firstInvites = await guild.invites.fetch()
+          invites.set(
+            guild.id,
+            new Discord.Collection(
+              firstInvites.map((invite) => [invite.code, invite.uses ?? 0])
+            )
           )
-        )
+        }
       }
 
       await wait(1000)
