@@ -6,7 +6,7 @@ import config from "adapters/config"
 const command: Command = {
   id: "gm_info",
   command: "info",
-  brief: "GM/GN Configuration",
+  brief: "Show current gm/gn configuration",
   category: "Community",
   run: async (msg) => {
     if (!msg.guildId) {

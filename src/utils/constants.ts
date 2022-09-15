@@ -74,3 +74,19 @@ export const NFT_GITBOOK =
   "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume"
 export const HELP_GITBOOK =
   "https://mochibot.gitbook.io/mochi-bot/functions/list-of-commands"
+export const TOKEN_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/supported-tokens"
+export const WATCHLIST_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/token-watchlist"
+export const REACTION_ROLE_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles"
+export const LEVEL_ROLE_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/level-roles"
+export const LOG_CHANNEL_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/log-channels"
+export const TWITTER_WATCH_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/twitter-tweet-watcher-poe"
+export const VERIFY_WALLET_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/getting-started/wallet"
+export const PROFILE_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/users-profiles"

@@ -201,7 +201,7 @@ function renderResponse(
 const command: Command = {
   id: "track_sales",
   command: "remove",
-  brief: "Setup a sales tracker for an NFT collection",
+  brief: "Remove a sales tracker from an NFT collection",
   category: "Community",
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {

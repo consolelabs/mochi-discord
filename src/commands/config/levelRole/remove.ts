@@ -7,7 +7,7 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 const command: Command = {
   id: "lr_remove",
   command: "remove",
-  brief: "Remove a level-role configuration",
+  brief: "Remove a level role configuration",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {

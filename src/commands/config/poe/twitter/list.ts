@@ -41,7 +41,7 @@ export function getMessageBody({
 const command: Command = {
   id: "poe_twitter_list",
   command: "list",
-  brief: "See your server's PoE config",
+  brief: "List all server's Twitter PoE configurations",
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {

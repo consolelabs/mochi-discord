@@ -1,12 +1,12 @@
 import { Command } from "types/common"
 import community from "adapters/community"
-import { PREFIX } from "utils/constants"
+import { PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 
 const command: Command = {
   id: "verify_info",
   command: "info",
-  brief: "Show verify channel",
+  brief: "Show verify wallet channel",
   category: "Community",
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {
@@ -62,6 +62,8 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}verify info`,
         examples: `${PREFIX}verify info`,
+        document: VERIFY_WALLET_GITBOOK,
+        footer: [`Type ${PREFIX}help verify <action> for a specific action!`],
       }),
     ],
   }),

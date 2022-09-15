@@ -18,7 +18,7 @@ const twitterAccountLinkRegex = new RegExp("https://twitter.com/(.+)")
 const command: Command = {
   id: "poe_twitter_set",
   command: "set",
-  brief: "Set/overwrite a guild's twitter PoE config",
+  brief: "Set a guild's Twitter PoE configurations",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {

@@ -8,7 +8,7 @@ import TwitterStream from "utils/TwitterStream"
 const command: Command = {
   id: "poe_twitter_remove",
   command: "remove",
-  brief: "Remove a guild's twitter PoE config",
+  brief: "Remove a server's Twitter PoE configurations",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {

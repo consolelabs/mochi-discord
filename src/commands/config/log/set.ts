@@ -11,7 +11,7 @@ import {
 const command: Command = {
   id: "log_set",
   command: "set",
-  brief: "Set logging channel to monitor guild members' activities",
+  brief: "Configure a new log channel",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {

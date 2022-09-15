@@ -33,6 +33,8 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nft <collection_symbol> <token_id>\n${PREFIX}nft <action>`,
         footer: [`Type ${PREFIX}help nft <action> for a specific action!`],
+        description:
+          "Show NFT rarity checker in real-time, including volume, ticker, and sales",
         examples: `${PREFIX}nft list\n${PREFIX}nft MUTCATS 1\n${PREFIX}mochi bayc 1`,
         document: NFT_GITBOOK,
         includeCommandsList: true,

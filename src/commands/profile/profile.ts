@@ -2,7 +2,7 @@ import profile from "adapters/profile"
 import { Message, User } from "discord.js"
 import { Command } from "types/common"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { PREFIX } from "utils/constants"
+import { PREFIX, PROFILE_GITBOOK } from "utils/constants"
 import { getEmoji, hasAdministrator, shortenHashOrAddress } from "utils/common"
 import { parseDiscordToken, getCommandArguments } from "utils/commands"
 
@@ -177,7 +177,7 @@ async function composeMyProfileEmbed(
 const command: Command = {
   id: "profile",
   command: "profile",
-  brief: "Check user's profile",
+  brief: "User’s profile",
   category: "Profile",
   run: async (msg) => {
     const shouldHidePrivateInfo = !hasAdministrator(msg.member)
@@ -234,8 +234,12 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          examples: `${PREFIX}profile\n${PREFIX}profile @Mochi Bot\n${PREFIX}profile Mochi Bot`,
-          usage: `${PREFIX}profile`,
+          examples: `${PREFIX}profile\n${PREFIX}profile @Mochi Bot\n${PREFIX}profile John`,
+          usage: `${PREFIX}profile\n${PREFIX}profile <user>`,
+          description:
+            "Display your and other users' profiles along with NFT collections",
+          footer: [`Type ${PREFIX}profile to check your profile`],
+          document: PROFILE_GITBOOK,
         }),
       ],
     }

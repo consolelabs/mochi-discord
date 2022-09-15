@@ -30,6 +30,8 @@ const command: Command = {
         footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
         usage: `${PREFIX}invite <action>`,
         examples: `${PREFIX}invite leaderboard\n${PREFIX}inv leaderboard`,
+        description:
+          "Track the number of successful invites per server's member",
         document: INVITE_GITBOOK,
         includeCommandsList: true,
       }),

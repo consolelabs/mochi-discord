@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
-import { DEPOSIT_GITBOOK, PREFIX } from "utils/constants"
+import { DEPOSIT_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import { DirectMessageNotAllowedError, UserNotFoundError } from "errors"
 import Profile from "adapters/profile"
 import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
@@ -57,14 +57,16 @@ async function deposit(msg: Message) {
 const command: Command = {
   id: "deposit",
   command: "deposit",
-  brief: "Deposit tokens to your in-discord wallet",
+  brief: "Deposit",
   category: "Defi",
   run: deposit,
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}deposit`,
+        description: "Deposit tokens into your in-discord wallet",
         examples: `${PREFIX}deposit\n${PREFIX}dep`,
+        footer: [DEFI_DEFAULT_FOOTER],
         document: DEPOSIT_GITBOOK,
       }),
     ],
