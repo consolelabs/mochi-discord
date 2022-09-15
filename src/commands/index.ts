@@ -28,7 +28,6 @@ import verify from "./community/verify"
 import log from "./config/log"
 import poe from "./config/poe"
 import watchlist from "./defi/watchlist"
-import watchlistcompact from "./defi/watchlistcompact"
 import vote from "./community/vote"
 
 // slash commands
@@ -92,7 +91,6 @@ export const originalCommands: Record<string, Command> = {
   ticker,
   airdrop,
   watchlist,
-  watchlistcompact,
   // community section
   invite,
   gm,

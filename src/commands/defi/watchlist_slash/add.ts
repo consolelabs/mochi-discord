@@ -29,7 +29,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
     coin_gecko_id: coinGeckoId,
   })
   if (!ok) return handleUpdateWlError(symbol, error)
-  CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
+  CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
   return {
     messageOptions: {
       embeds: [getSuccessEmbed({})],
@@ -62,7 +62,7 @@ const command: SlashCommand = {
     if (!ok) return handleUpdateWlError(symbol, error)
     // no data === add successfully
     if (!data) {
-      CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
+      CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
       return {
         messageOptions: { embeds: [getSuccessEmbed({})] },
       }
