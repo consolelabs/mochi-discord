@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { MessageAttachment } from "discord.js"
 import { thumbnails } from "utils/common"
-import { getErrorEmbed, composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { createCanvas, loadImage, registerFont } from "canvas"
@@ -13,6 +13,7 @@ import {
   widthOf,
 } from "utils/canvas"
 import CacheManager from "utils/CacheManager"
+import { APIError } from "errors"
 
 let fontRegistered = false
 
@@ -155,12 +156,12 @@ const command: Command = {
   category: "Defi",
   run: async (msg) => {
     const userId = msg.author.id
-    const { data, ok } = await CacheManager.get({
+    const { data, ok, log } = await CacheManager.get({
       pool: "watchlist",
       key: `watchlist-${userId}`,
       call: () => defi.getUserWatchlist({ userId, size: 12 }),
     })
-    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
+    if (!ok) throw new APIError({ message: msg, description: log })
     const embed = composeEmbedMessage(msg, {
       author: [
         `${msg.author.username}'s watchlist`,

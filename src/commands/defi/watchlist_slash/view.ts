@@ -1,7 +1,7 @@
 import { SlashCommand } from "types/common"
 import { CommandInteraction, MessageAttachment } from "discord.js"
 import { thumbnails } from "utils/common"
-import { getErrorEmbed, composeEmbedMessage2 } from "utils/discordEmbed"
+import { composeEmbedMessage2 } from "utils/discordEmbed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import defi from "adapters/defi"
@@ -14,6 +14,7 @@ import {
   widthOf,
 } from "utils/canvas"
 import CacheManager from "utils/CacheManager"
+import { APIError } from "errors"
 
 let fontRegistered = false
 
@@ -159,12 +160,17 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     const userId = interaction.user.id
-    const { data, ok } = await CacheManager.get({
+    const { data, ok, log } = await CacheManager.get({
       pool: "watchlist",
       key: `watchlist-${userId}`,
       call: () => defi.getUserWatchlist({ userId, size: 12 }),
     })
-    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
+    if (!ok)
+      throw new APIError({
+        user: interaction.user,
+        guild: interaction.guild,
+        description: log,
+      })
     const embed = composeEmbedMessage2(interaction, {
       author: [
         `${interaction.user.username}'s watchlist`,

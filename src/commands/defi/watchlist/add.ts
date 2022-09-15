@@ -24,7 +24,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
     symbol,
     coin_gecko_id: coinGeckoId,
   })
-  if (!ok) return handleUpdateWlError(symbol, error)
+  if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error)
   CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
   return {
     messageOptions: {
@@ -46,7 +46,7 @@ const command: Command = {
       user_id: userId,
       symbol,
     })
-    if (!ok) return handleUpdateWlError(symbol, error)
+    if (!ok) handleUpdateWlError(msg, symbol, error)
     // no data === add successfully
     if (!data) {
       CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)

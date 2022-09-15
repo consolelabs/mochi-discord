@@ -16,7 +16,6 @@ import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import { Event } from "."
 import { getErrorEmbed } from "utils/discordEmbed"
-import { logger } from "logger"
 
 export default {
   name: "interactionCreate",
@@ -50,8 +49,8 @@ export default {
       error.handle?.()
       if (msg) {
         ChannelLogger.alert(msg, error)
-      } else {
-        logger.error("Error in interactionCreate", e)
+      } else if (interaction.isCommand()) {
+        ChannelLogger.alertSlash(interaction, error)
       }
       ChannelLogger.log(error, 'Event<"interactionCreate">')
     }

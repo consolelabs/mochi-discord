@@ -23,7 +23,6 @@ import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
   composeEmbedMessage,
-  getErrorEmbed,
   composeDaysSelectMenu,
   getSuccessEmbed,
   getExitButton,
@@ -38,6 +37,7 @@ import compare from "./token/compare"
 import config from "adapters/config"
 import { Coin } from "types/defi"
 import CacheManager from "utils/CacheManager"
+import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -172,13 +172,17 @@ async function composeTickerResponse({
     }
   }
 
-  const { ok, data: coin } = await CacheManager.get({
+  const {
+    ok,
+    data: coin,
+    log,
+  } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getcoin-${coinId}`,
     call: () => defi.getCoin(coinId),
   })
   if (!ok) {
-    return { messageOptions: { embeds: [getErrorEmbed({ msg })] } }
+    throw new APIError({ message: msg, description: log })
   }
   const currency = "usd"
   const {
@@ -275,17 +279,6 @@ export async function setDefaultTicker(i: ButtonInteraction) {
   }
 }
 
-export const coinNotFoundResponse = (msg: Message, coinQ: string) => ({
-  messageOptions: {
-    embeds: [
-      getErrorEmbed({
-        msg,
-        description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`,
-      }),
-    ],
-  },
-})
-
 function composeTickerSelectionResponse(
   coins: Coin[],
   coinSymbol: string,
@@ -330,16 +323,7 @@ const command: Command = {
   category: "Defi",
   run: async function (msg) {
     if (!msg.guildId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
     // execute
@@ -347,14 +331,21 @@ const command: Command = {
     const [coinQ, targetQ] = query.split("/")
     // run token comparison
     if (targetQ) return compare.run(msg)
-    const { ok, data: coins } = await CacheManager.get({
+    const {
+      ok,
+      data: coins,
+      log,
+    } = await CacheManager.get({
       pool: "ticker",
       key: `ticker-search-${coinQ}`,
       call: () => defi.searchCoins(coinQ),
     })
-    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({ msg })] } }
+    if (!ok) throw new APIError({ message: msg, description: log })
     if (!coins || !coins.length) {
-      return coinNotFoundResponse(msg, coinQ)
+      throw new CommandError({
+        message: msg,
+        description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`,
+      })
     }
 
     if (coins.length === 1) {
