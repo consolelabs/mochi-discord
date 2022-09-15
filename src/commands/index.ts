@@ -5,7 +5,6 @@ import profile from "./profile/profile"
 import stats from "./community/stats"
 import nft from "./community/nft"
 import sales from "./community/sales"
-import gift from "./community/gift"
 import deposit from "./defi/deposit"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
@@ -14,7 +13,6 @@ import tokens from "./defi/token"
 import ticker from "./defi/ticker"
 import airdrop from "./defi/airdrop"
 import gm from "./community/gm"
-// import whitelist from "./community/campaigns"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 // import starboard from "./config/starboard"
@@ -28,7 +26,6 @@ import verify from "./community/verify"
 import log from "./config/log"
 import poe from "./config/poe"
 import watchlist from "./defi/watchlist"
-import watchlistcompact from "./defi/watchlistcompact"
 import vote from "./community/vote"
 
 // slash commands
@@ -92,13 +89,11 @@ export const originalCommands: Record<string, Command> = {
   ticker,
   airdrop,
   watchlist,
-  watchlistcompact,
   // community section
   invite,
   gm,
   stats,
   nft,
-  gift,
   top,
   sales,
   verify,

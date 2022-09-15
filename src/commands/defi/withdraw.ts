@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
 import { DEFI_DEFAULT_FOOTER, DEPOSIT_GITBOOK, PREFIX } from "utils/constants"
-import { defaultEmojis, getEmoji } from "utils/common"
+import { getEmoji } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
 import {
@@ -64,7 +64,7 @@ async function withdraw(msg: Message, args: string[]) {
 const command: Command = {
   id: "withdraw",
   command: "withdraw",
-  brief: `${defaultEmojis.ARROW_UP} **Withdrawal - help**`,
+  brief: `Token withdrawal`,
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
@@ -87,13 +87,9 @@ const command: Command = {
     return null
   },
   getHelpMessage: async (msg) => {
-    let description = `**Send coins to an address.**`
-    description +=
-      "\nInstant withdrawal wizard. You will be asked for the address and the amount you want to withdraw."
-    description +=
-      "\nA network fee will be added on top of your withdrawal (or deducted if you can't afford it). You will be asked to confirm it."
     const embedMsg = composeEmbedMessage(msg, {
-      description,
+      description:
+        "Withdraw tokens to your wallet outside of Discord. A network fee will be added on top of your withdrawal (or deducted if remaining balance is insufficient).\nYou will be asked to confirm it.",
       usage: `${PREFIX}withdraw <amount> <token>`,
       examples: `${PREFIX}withdraw 5 ftm`,
       document: DEPOSIT_GITBOOK,

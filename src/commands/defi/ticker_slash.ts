@@ -21,7 +21,6 @@ import {
 import {
   composeDiscordSelectionRow,
   composeEmbedMessage,
-  getErrorEmbed,
   composeDaysSelectMenu,
   getSuccessEmbed,
   composeDiscordExitButton,
@@ -39,6 +38,7 @@ import { SlashCommandBuilder } from "@discordjs/builders"
 import Compare from "./token/compare_slash"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import CacheManager from "utils/CacheManager"
+import { APIError, CommandError } from "errors"
 
 CacheManager.init({
   ttl: 0,
@@ -181,13 +181,21 @@ async function composeTickerResponse({
     }
   }
 
-  const { ok, data: coin } = await CacheManager.get({
+  const {
+    ok,
+    data: coin,
+    log,
+  } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getcoin-${coinId}`,
     call: () => defi.getCoin(coinId),
   })
   if (!ok) {
-    return { messageOptions: { embeds: [getErrorEmbed({})] } }
+    throw new APIError({
+      guild: interaction.guild,
+      user: interaction.user,
+      description: log,
+    })
   }
   const currency = "usd"
   const {
@@ -281,16 +289,6 @@ export async function setDefaultTicker(i: ButtonInteraction) {
   }
 }
 
-const coinNotFoundResponse = (coinQ: string) => ({
-  messageOptions: {
-    embeds: [
-      getErrorEmbed({
-        description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`,
-      }),
-    ],
-  },
-})
-
 function composeTickerSelectionResponse(
   coins: Coin[],
   coinSymbol: string,
@@ -354,14 +352,27 @@ const command: SlashCommand = {
     // run token comparison
     const targetQ = interaction.options.getString("target")
     if (targetQ) return await Compare(interaction, baseQ, targetQ)
-    const { ok, data: coins } = await CacheManager.get({
+    const {
+      ok,
+      data: coins,
+      log,
+    } = await CacheManager.get({
       pool: "ticker",
       key: `ticker-search-${baseQ}`,
       call: () => defi.searchCoins(baseQ),
     })
-    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
+    if (!ok)
+      throw new APIError({
+        guild: interaction.guild,
+        user: interaction.user,
+        description: log,
+      })
     if (!coins || !coins.length) {
-      return coinNotFoundResponse(baseQ)
+      throw new CommandError({
+        guild: interaction.guild,
+        user: interaction.user,
+        description: `Cannot find any cryptocurrency with \`${baseQ}\`.\nPlease try again with the symbol or full name.`,
+      })
     }
 
     if (coins.length === 1) {

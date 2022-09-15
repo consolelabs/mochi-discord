@@ -1,7 +1,11 @@
 import { SlashCommand } from "types/common"
-import { CommandInteraction } from "discord.js"
+import {
+  CommandInteraction,
+  Message,
+  MessageComponentInteraction,
+} from "discord.js"
 import { thumbnails } from "utils/common"
-import { composeEmbedMessage2, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage2 } from "utils/discordEmbed"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
@@ -11,14 +15,28 @@ import view from "./view"
 import add from "./add"
 import remove from "./remove"
 import CacheManager from "utils/CacheManager"
+import { CommandError } from "errors"
 
 export function handleUpdateWlError(
+  msg: Message | MessageComponentInteraction | CommandInteraction,
   symbol: string,
   error: string | null,
   isRemove?: boolean
 ) {
-  if (!error) return { messageOptions: { embeds: [getErrorEmbed({})] } }
-  let description
+  let description = ""
+  if (!error) {
+    throw new CommandError({
+      message:
+        "message" in msg
+          ? (msg.message as Message)
+          : msg instanceof Message
+          ? msg
+          : undefined,
+      user: "user" in msg ? msg.user : undefined,
+      guild: msg.guild,
+      description,
+    })
+  }
   switch (true) {
     case error.toLowerCase().startsWith("record not found"):
       description = `Token with symbol \`${symbol}\` ${
@@ -31,12 +49,17 @@ export function handleUpdateWlError(
     default:
       break
   }
-  return {
-    messageOptions: {
-      embeds: [getErrorEmbed({ description })],
-      components: [],
-    },
-  }
+  throw new CommandError({
+    message:
+      "message" in msg
+        ? (msg.message as Message)
+        : msg instanceof Message
+        ? msg
+        : undefined,
+    user: "user" in msg ? msg.user : undefined,
+    guild: msg.guild,
+    description,
+  })
 }
 
 CacheManager.init({

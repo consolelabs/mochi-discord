@@ -23,12 +23,16 @@ import {
   shortenHashOrAddress,
 } from "utils/common"
 import { renderChartImage } from "utils/canvas"
-import { NftCollectionTicker, NftPrice } from "types/nft"
 import dayjs from "dayjs"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
+import { APIError } from "errors"
+import {
+  ResponseIndexerNFTCollectionTickersData,
+  ResponseIndexerPrice,
+} from "types/api"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
-const decimals = (p?: NftPrice) => p?.token?.decimals ?? 0
+const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
 
 async function composeCollectionTickerEmbed({
   msg,
@@ -41,7 +45,11 @@ async function composeCollectionTickerEmbed({
 }) {
   const to = dayjs().unix() * 1000
   const from = dayjs().subtract(days, "day").unix() * 1000
-  const data = await community.getNFTCollectionTickers({ symbol, from, to })
+  const res = await community.getNFTCollectionTickers({ symbol, from, to })
+  if (!res.ok) {
+    throw new APIError({ message: msg, description: res.log })
+  }
+  const data = res.data
   const blank = getEmoji("blank")
   const {
     chain,
@@ -98,7 +106,7 @@ async function composeCollectionTickerEmbed({
     },
     {
       name: "Address",
-      value: shortenHashOrAddress(address),
+      value: address ? shortenHashOrAddress(address) : "N/A",
     },
     {
       name: "Marketplace",
@@ -148,19 +156,23 @@ async function renderNftTickerChart({
 }: {
   symbol?: string
   days?: number
-  data?: NftCollectionTicker
+  data?: ResponseIndexerNFTCollectionTickersData
 }) {
   if (!data) {
     const to = dayjs().unix() * 1000
     const from = dayjs().subtract(days, "day").unix() * 1000
-    data = await community.getNFTCollectionTickers({ symbol, from, to })
+    const res = await community.getNFTCollectionTickers({ symbol, from, to })
+    if (!res.ok) {
+      return null
+    }
+    data = res.data
   }
   if (!data.tickers?.prices || !data.tickers.times) {
     return null
   }
 
   const chartData = data.tickers.prices.map(
-    (p) => +p.amount / Math.pow(10, decimals(p))
+    (p) => +(p.amount ?? 0) / Math.pow(10, decimals(p))
   )
   const chart = await renderChartImage({
     chartLabel: `Floor price`,

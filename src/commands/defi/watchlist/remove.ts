@@ -19,8 +19,8 @@ const command: Command = {
       userId,
       symbol,
     })
-    if (!ok) return handleUpdateWlError(symbol, error, true)
-    CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
+    if (!ok) handleUpdateWlError(msg, symbol, error, true)
+    CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
     return {
       messageOptions: { embeds: [getSuccessEmbed({})] },
     }

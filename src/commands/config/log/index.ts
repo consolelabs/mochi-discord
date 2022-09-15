@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import set from "./set"
 import info from "./info"
-import { PREFIX } from "utils/constants"
+import { PREFIX, LOG_CHANNEL_GITBOOK } from "utils/constants"
 
 const actions: Record<string, Command> = {
   set,
@@ -21,6 +21,11 @@ const command: Command = {
       composeEmbedMessage(msg, {
         includeCommandsList: true,
         usage: `${PREFIX}log <action>`,
+        description:
+          "Configure a log channel to monitor guild members' activities",
+        footer: [`Type ${PREFIX}help log <action> for a specific action!`],
+        document: LOG_CHANNEL_GITBOOK,
+        title: "Log channel",
         examples: `${PREFIX}log info`,
       }),
     ],

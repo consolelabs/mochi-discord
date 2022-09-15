@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { PREFIX, LEVEL_ROLE_GITBOOK } from "utils/constants"
 import {
   composeEmbedMessage,
   getErrorEmbed,
@@ -18,7 +18,7 @@ const actions: Record<string, Command> = {
 const command: Command = {
   id: "levelrole",
   command: "levelrole",
-  brief: "Set a role that users will get when they reach specific a level",
+  brief: "Level Role Configuration",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
@@ -94,6 +94,11 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}lr <role> <level>\n${PREFIX}lr <action>`,
         examples: `${PREFIX}levelrole list\n${PREFIX}levelrole @Mochi 1\n${PREFIX}lr @admin 2`,
+        description: "Assign a role to users when they reach a certain level",
+        document: LEVEL_ROLE_GITBOOK,
+        footer: [
+          `Type ${PREFIX}help levelrole <action> for a specific action!`,
+        ],
         includeCommandsList: true,
       }),
     ],

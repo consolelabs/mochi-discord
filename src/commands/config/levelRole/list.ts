@@ -6,7 +6,7 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 const command: Command = {
   id: "lr_list",
   command: "list",
-  brief: "Get server's levelroles configuration",
+  brief: "List all active level role configurations",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {

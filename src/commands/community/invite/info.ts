@@ -1,8 +1,9 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
 import { INVITE_GITBOOK, PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import community from "adapters/community"
+import { APIError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "invite_info",
@@ -12,18 +13,18 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function config(msg: Message) {
     if (!msg.guildId) {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Guild ID is invalid" })],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
-    const json = await community.getCurrentInviteTrackerConfig(msg.guildId)
+    const res = await community.getCurrentInviteTrackerConfig(msg.guildId)
+    if (!res.ok) {
+      throw new APIError({ message: msg, description: res.log })
+    }
+
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            description: `Current Invite Tracker log channel is set to <#${json.data.user_id}>`,
+            description: `Current Invite Tracker log channel is set to <#${res.data.user_id}>`,
             title: "Invite Tracker Configuration",
           }),
         ],

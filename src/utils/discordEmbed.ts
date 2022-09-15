@@ -40,6 +40,8 @@ import {
   MessageComponentTypes,
 } from "discord.js/typings/enums"
 import dayjs from "dayjs"
+import { BotBaseError } from "errors"
+import ChannelLogger from "./ChannelLogger"
 
 export const EMPTY_FIELD = {
   name: "\u200B",
@@ -386,7 +388,23 @@ export function listenForSuggestionAction(
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
       const value = i.customId.split("-").pop()
-      await onAction(value ?? "", i)
+      try {
+        await onAction(value ?? "", i)
+      } catch (e) {
+        let error = e as BotBaseError
+
+        // something went wrong
+        if (!(error instanceof BotBaseError)) {
+          error = new BotBaseError()
+        }
+        error.handle?.()
+        const originalMsg = await i.channel?.messages.fetch(
+          (i.message as Message).reference?.messageId ?? ""
+        )
+        if (originalMsg) {
+          ChannelLogger.alert(originalMsg, error)
+        }
+      }
     })
     .on("end", () => {
       replyMsg.edit({ components: [] })
@@ -400,7 +418,23 @@ export function listenForSuggestionAction(
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
       const value = i.values[0]
-      await onAction(value, i)
+      try {
+        await onAction(value, i)
+      } catch (e) {
+        let error = e as BotBaseError
+
+        // something went wrong
+        if (!(error instanceof BotBaseError)) {
+          error = new BotBaseError()
+        }
+        error.handle?.()
+        const originalMsg = await i.channel?.messages.fetch(
+          (i.message as Message).reference?.messageId ?? ""
+        )
+        if (originalMsg) {
+          ChannelLogger.alert(originalMsg, error)
+        }
+      }
     })
     .on("end", () => {
       replyMsg.edit({ components: [] })

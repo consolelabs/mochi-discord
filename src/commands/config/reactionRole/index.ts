@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, REACTION_ROLE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import list from "./list"
 import add from "./add"
@@ -23,7 +23,9 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}rr <action>`,
         examples: `${PREFIX}reactionrole list\n${PREFIX}rr list`,
+        description: "Assign a role corresponding to users' reaction",
         footer: [`Type ${PREFIX}help rr <action> for a specific action!`],
+        document: REACTION_ROLE_GITBOOK,
         includeCommandsList: true,
       }),
     ],

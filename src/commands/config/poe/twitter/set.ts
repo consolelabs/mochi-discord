@@ -18,7 +18,7 @@ const twitterAccountLinkRegex = new RegExp("https://twitter.com/(.+)")
 const command: Command = {
   id: "poe_twitter_set",
   command: "set",
-  brief: "Set/overwrite a guild's twitter PoE config",
+  brief: "Set a guild's Twitter PoE configurations",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
@@ -185,7 +185,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}poe twitter set <channel> <keywords>`,
-        examples: `${PREFIX}poe twitter set #tweets #some,#hash,#tag,@user`,
+        examples: `${PREFIX}poe twitter set #general #mochitag,@Mochi Bot`,
         description: `\`<keywords>\` can be one of the following:\n\n1. \`#hashtag\`\n2. \`@twitter_username\`\n3. \`https://twitter.com/vincentz\`: same as (2) but in another way\n4. \`from:https://twitter.com/vincentz\`: watch every tweets from this user`,
         title: "Set config",
       }),

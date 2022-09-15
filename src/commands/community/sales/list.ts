@@ -11,7 +11,7 @@ import { capFirst, shortenHashOrAddress } from "utils/common"
 const command: Command = {
   id: "sales_list",
   command: "list",
-  brief: "See trackers",
+  brief: "Show list of trackers",
   category: "Community",
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {

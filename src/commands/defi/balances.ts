@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { EmbedFieldData, Message } from "discord.js"
-import { BALANCE_GITBOOK, PREFIX } from "utils/constants"
+import { BALANCE_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import {
   emojis,
   getEmoji,
@@ -19,7 +19,7 @@ import Config from "adapters/config"
 const command: Command = {
   id: "balances",
   command: "balances",
-  brief: "Show your balances of the supported tokens",
+  brief: "Wallet balances",
   category: "Defi",
   run: async function balances(msg: Message) {
     const guildId = msg.guildId ?? "DM"
@@ -95,6 +95,8 @@ const command: Command = {
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         usage: `${PREFIX}balance`,
+        description: "Show your in-discord balances of supported tokens",
+        footer: [DEFI_DEFAULT_FOOTER],
         examples: `${PREFIX}balance\n${PREFIX}bals\n${PREFIX}bal`,
         document: BALANCE_GITBOOK,
       }),

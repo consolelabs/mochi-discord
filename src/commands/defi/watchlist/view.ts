@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { MessageAttachment } from "discord.js"
-import { getPaginationFooter, thumbnails } from "utils/common"
-import { getErrorEmbed, composeEmbedMessage } from "utils/discordEmbed"
+import { thumbnails } from "utils/common"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { createCanvas, loadImage, registerFont } from "canvas"
@@ -12,8 +12,8 @@ import {
   renderChartImage,
   widthOf,
 } from "utils/canvas"
-import { getCommandArguments } from "utils/commands"
 import CacheManager from "utils/CacheManager"
+import { APIError } from "errors"
 
 let fontRegistered = false
 
@@ -31,11 +31,11 @@ async function renderWatchlist(data: any[]) {
   const container: RectangleStats = {
     x: {
       from: 0,
-      to: 700,
+      to: 900,
     },
     y: {
       from: 0,
-      to: 700,
+      to: 780,
     },
     w: 0,
     h: 0,
@@ -59,11 +59,11 @@ async function renderWatchlist(data: any[]) {
     },
     y: {
       from: 0,
-      to: 160,
+      to: 120,
     },
     mt: 10,
     w: 0,
-    h: 160,
+    h: 120,
     pt: 20,
     pl: 15,
     radius: 7,
@@ -72,8 +72,8 @@ async function renderWatchlist(data: any[]) {
   for (const [idx, item] of Object.entries(data)) {
     const leftCol = +idx % 2 === 0
     itemContainer.x = {
-      from: leftCol ? 0 : 355,
-      to: leftCol ? 345 : 700,
+      from: leftCol ? 0 : 455,
+      to: leftCol ? 445 : 900,
     }
     drawRectangle(ctx, itemContainer, itemContainer.bgColor)
     const {
@@ -99,6 +99,26 @@ async function renderWatchlist(data: any[]) {
     const symbolY = imageY + radius + symbolH / 2
     ctx.fillText(symbolText, symbolX, symbolY)
 
+    // price
+    ctx.font = "bold 30px Inter"
+    ctx.fillStyle = "white"
+    const currentPrice = `$${current_price.toLocaleString()}`
+    const priceW = widthOf(ctx, currentPrice)
+    const priceH = heightOf(ctx, currentPrice)
+    const priceX = imageX
+    const priceY = imageY + priceH + radius * 2 + 10
+    ctx.fillText(currentPrice, priceX, priceY)
+
+    // 24h change
+    ctx.font = "25px Inter"
+    ctx.fillStyle = price_change_percentage_24h >= 0 ? ascColor : descColor
+    const change = `${
+      price_change_percentage_24h >= 0 ? "+" : ""
+    }${price_change_percentage_24h.toFixed(2)}%`
+    const changeX = priceX + priceW + 10
+    const changeY = priceY
+    ctx.fillText(change, changeX, changeY)
+
     // 7d chart
     const { price } = sparkline_in_7d
     const labels = price.map((p: number) => `${p}`)
@@ -116,30 +136,8 @@ async function renderWatchlist(data: any[]) {
     const chartW = 150
     const chartH = 50
     const chartX = itemContainer.x.to - chartW - 15
-    const chartY = itemContainer.y.from + (itemContainer.pt ?? 0)
+    const chartY = itemContainer.y.from + (itemContainer.pt ?? 0) + chartH / 2
     ctx.drawImage(chart, chartX, chartY, chartW, chartH)
-
-    // price
-    ctx.font = "bold 30px Inter"
-    ctx.fillStyle = "white"
-    const currentPrice = `$${current_price.toLocaleString()}`
-    const priceW = widthOf(ctx, currentPrice)
-    const priceH = heightOf(ctx, currentPrice)
-    const priceX = itemContainer.x.to - priceW - 15
-    const priceY = chartY + chartH + 10 + priceH
-    ctx.fillText(currentPrice, priceX, priceY)
-
-    // 24h change
-    ctx.font = "26px Inter"
-    ctx.fillStyle = price_change_percentage_24h >= 0 ? ascColor : descColor
-    const change = `${
-      price_change_percentage_24h >= 0 ? "+" : ""
-    }${price_change_percentage_24h.toFixed(2)}%`
-    const changeW = widthOf(ctx, change)
-    const changeH = heightOf(ctx, change)
-    const changeX = itemContainer.x.to - changeW - 15
-    const changeY = priceY + changeH + 10
-    ctx.fillText(change, changeX, changeY)
 
     // next row
     if (!leftCol) {
@@ -157,25 +155,18 @@ const command: Command = {
   brief: "View your watchlist",
   category: "Defi",
   run: async (msg) => {
-    const args = getCommandArguments(msg)
-    const page = Math.max(isNaN(+args[2]) ? 0 : +args[2] - 1, 0)
     const userId = msg.author.id
-    const { data, pagination, ok } = await CacheManager.get({
+    const { data, ok, log } = await CacheManager.get({
       pool: "watchlist",
-      key: `watchlist-${userId}-${page}-8`,
-      call: () => defi.getUserWatchlist({ userId, page, size: 8 }),
+      key: `watchlist-${userId}`,
+      call: () => defi.getUserWatchlist({ userId, size: 12 }),
     })
-    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
-    const isDefaultWl = !pagination.total
+    if (!ok) throw new APIError({ message: msg, description: log })
     const embed = composeEmbedMessage(msg, {
       author: [
-        `${isDefaultWl ? "Default" : `${msg.author.username}'s`} watchlist`,
+        `${msg.author.username}'s watchlist`,
         msg.author.displayAvatarURL({ format: "png" }),
       ],
-      description: isDefaultWl
-        ? `<@${userId}>, below is the default watchlist because you have not added any item to yours.\nPlease add one using \`${PREFIX}watchlist add\`.`
-        : undefined,
-      footer: pagination ? getPaginationFooter(pagination) : undefined,
     })
     if (!data?.length) {
       embed.setDescription(

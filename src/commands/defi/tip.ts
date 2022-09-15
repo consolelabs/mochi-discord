@@ -61,7 +61,7 @@ async function tip(msg: Message, args: string[]) {
 const command: Command = {
   id: "tip",
   command: "tip",
-  brief: "Sends coins to a user or a group of users",
+  brief: "Tip Bot",
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
@@ -76,9 +76,11 @@ const command: Command = {
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TIP,
         usage: `${PREFIX}tip <@user> <amount> <token>\n${PREFIX}tip <@role> <amount> <token>`,
+        description: "Send coins to a user or a group of users",
         examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm\n${PREFIX}tip @RandomRole 10 ftm`,
         document: TIP_GITBOOK,
         footer: [DEFI_DEFAULT_FOOTER],
+        title: "Tip Bot",
       }),
     ],
   }),

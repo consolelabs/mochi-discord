@@ -31,8 +31,8 @@ const command: SlashCommand = {
       userId,
       symbol,
     })
-    if (!ok) return handleUpdateWlError(symbol, error, true)
-    CacheManager.findAndRemove("watchlist", `watchlist-${userId}-`)
+    if (!ok) handleUpdateWlError(interaction, symbol, error, true)
+    CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
     return { messageOptions: { embeds: [getSuccessEmbed({})] } }
   },
   help: async (interaction) => ({
