@@ -1,5 +1,6 @@
 import {
   Client,
+  CommandInteraction,
   Message,
   MessageActionRow,
   MessageButton,
@@ -52,6 +53,32 @@ export class ChannelLogger {
         })
       }
     }
+  }
+
+  alertSlash(commandInteraction: CommandInteraction, error: BotBaseError) {
+    if (!this.alertChannel) {
+      return
+    }
+
+    const isDM = !!commandInteraction.guildId
+    const channelName = (commandInteraction.channel as TextChannel).name
+
+    const description = `**Slash Command:** \`${
+      commandInteraction.commandName
+    }\`\n**Guild:** \`${
+      isDM ? "DM" : commandInteraction.guild?.name
+    }\`\n**Channel:** \`${isDM ? "DM" : channelName}\`\n**Error:** ${
+      error?.message
+        ? `\`\`\`${error.message}\`\`\``
+        : "Error without message, this is likely an unexpected error"
+    }`
+    const embed = getErrorEmbed({
+      title: error.name || "Slash Command error",
+      description,
+    }).setTimestamp()
+    this.alertChannel.send({
+      embeds: [embed],
+    })
   }
 
   alert(msg: Message, error: BotBaseError) {
