@@ -495,6 +495,13 @@ export interface RequestRoleReactionUpdateRequest {
   role_id?: string;
 }
 
+export interface RequestSetUpvoteMessageCacheRequest {
+  channel_id?: string;
+  guild_id?: string;
+  message_id?: string;
+  user_id?: string;
+}
+
 export interface RequestTransferRequest {
   all?: boolean;
   amount?: number;
