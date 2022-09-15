@@ -1,10 +1,10 @@
 import {
   ButtonInteraction,
   Client,
-  InteractionReplyOptions,
   Message,
   MessageActionRow,
   MessageComponentInteraction,
+  MessageEditOptions,
   MessageEmbed,
   MessageOptions,
   SelectMenuInteraction,
@@ -19,7 +19,7 @@ export type EphemeralMessage = {
 }
 
 export type CommandChoiceHandlerResult = {
-  messageOptions: InteractionReplyOptions | MessageOptions
+  messageOptions: MessageEditOptions
   commandChoiceOptions?: Partial<CommandChoiceHandlerOptions>
   ephemeralMessage?: EphemeralMessage
 }
