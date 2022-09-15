@@ -83,8 +83,8 @@ export async function toEmbed(
       ) {
         return buildDiscordMessage(
           msg,
-          "NFT",
-          "Already added. Nft is in sync progress"
+          "Existing Collection",
+          "Please add another one or view the collection by  `$nft <collection_symbol> <token_id>`."
         )
       } else if (
         errorMessageCollection.includes("block number not synced yet")

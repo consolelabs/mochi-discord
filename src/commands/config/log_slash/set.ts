@@ -35,7 +35,11 @@ export async function setLog(interaction: CommandInteraction) {
   ) {
     return {
       messageOptions: {
-        embeds: [getErrorEmbed({ description: "Invalid channel" })],
+        embeds: [
+          getErrorEmbed({
+            description: "Invalid channel. Please choose another one!",
+          }),
+        ],
       },
     }
   }

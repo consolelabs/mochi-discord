@@ -51,7 +51,14 @@ const command: Command = {
     if (!data) {
       CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
       return {
-        messageOptions: { embeds: [getSuccessEmbed({})] },
+        messageOptions: {
+          embeds: [
+            getSuccessEmbed({
+              title: "Successfully set!",
+              description: `Token has been added successfully!`,
+            }),
+          ],
+        },
       }
     }
 

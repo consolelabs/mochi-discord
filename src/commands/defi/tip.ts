@@ -24,6 +24,20 @@ async function tip(msg: Message, args: string[]) {
       ],
     }
   }
+
+  const userArg = args[1]
+  if (!userArg.startsWith("<@") || !userArg.endsWith(">")) {
+    return {
+      embeds: [
+        getErrorEmbed({
+          msg,
+          description:
+            "Invalid username. Be careful to not be mistaken username with role.",
+        }),
+      ],
+    }
+  }
+
   const payload = await Defi.getTransferPayload(msg, args)
   const data = await Defi.discordWalletTransfer(JSON.stringify(payload), msg)
   if (!data || data.length === 0) {

@@ -75,7 +75,7 @@ const command: Command = {
           messageOptions: {
             embeds: [
               composeEmbedMessage(msg, {
-                description: "No configuration found.",
+                description: "Your reactionrole list is empty.",
                 author: ["Reaction roles", msg.guild.iconURL()],
                 withoutFooter: true,
               }),

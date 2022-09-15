@@ -22,7 +22,7 @@ const command: Command = {
     if (!isChannel) {
       throw new CommandError({
         message: msg,
-        description: "The argument was not a channel",
+        description: "Invalid channel. Please choose another one!",
       })
     }
 
@@ -33,8 +33,8 @@ const command: Command = {
 
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Config`,
+      description: `Configure Invite Tracker's log to <#${log_channel}> channel successfully!`,
     })
-    embedMsg.addField(`Done`, `logs now display in <#${log_channel}> channel.`)
 
     return {
       messageOptions: {

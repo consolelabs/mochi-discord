@@ -47,7 +47,9 @@ const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
   await Community.createStatChannel(message.guildId, countTypeReq)
   const successEmbeded = composeEmbedMessage(message, {
     title: `Server Stats\n\n`,
-    description: `Successfully count ` + type + ` ` + stat,
+    description: `${
+      type.charAt(0).toUpperCase() + type.slice(1)
+    } ${stat} count is shown as a voice channel on top of your server. `,
   })
   return {
     messageOptions: {

@@ -344,7 +344,7 @@ const command: Command = {
     if (!coins || !coins.length) {
       throw new CommandError({
         message: msg,
-        description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease try again with the symbol or full name.`,
+        description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease choose another one!`,
       })
     }
 

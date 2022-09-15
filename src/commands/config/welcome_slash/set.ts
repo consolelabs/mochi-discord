@@ -34,7 +34,11 @@ export async function setWelcome(interaction: CommandInteraction) {
   if (!isChannel) {
     return {
       messageOptions: {
-        embeds: [getErrorEmbed({ description: "Invalid channel" })],
+        embeds: [
+          getErrorEmbed({
+            description: "Invalid channel. Please choose another one!",
+          }),
+        ],
       },
     }
   }

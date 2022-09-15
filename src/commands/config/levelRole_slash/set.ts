@@ -48,7 +48,12 @@ const command: SlashCommand = {
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ description: "Invalid role" })],
+          embeds: [
+            getErrorEmbed({
+              description:
+                "Invalid role. Be careful to not be mistaken role with username while setting.",
+            }),
+          ],
         },
       }
     }

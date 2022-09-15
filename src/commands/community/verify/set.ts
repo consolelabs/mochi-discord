@@ -47,7 +47,7 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: "Invalid channel",
+              description: "Invalid channel. Please choose another one!",
             }),
           ],
         },

@@ -37,14 +37,12 @@ const command: Command = {
 
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Aggregation`,
-    })
-
-    embedMsg.addField(
-      `Successfully`,
-      `<@${inviterId}> has totally ${res.data.regular} invites (normal: ${
+      description: `<@${inviterId}> has totally ${
+        res.data.regular
+      } invites (normal: ${
         res.data.regular - res.data.fake - res.data.left
-      }, fake: ${res.data.fake}, left: ${res.data.left})`
-    )
+      }, fake: ${res.data.fake}, left: ${res.data.left})`,
+    })
 
     return {
       messageOptions: {

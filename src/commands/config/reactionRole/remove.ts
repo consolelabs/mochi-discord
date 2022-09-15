@@ -109,7 +109,7 @@ const command: Command = {
         if (res.success) {
           const { reaction, role_id } = requestData
           if (reaction && role_id) {
-            description = `Reaction ${reaction} for this role <@&${role_id}> is now unset`
+            description = `Reaction ${reaction} is removed for <@&${role_id}>.`
 
             const emojiSplit = reaction.split(":")
             const reactionEmoji =

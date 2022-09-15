@@ -124,7 +124,7 @@ const command: Command = {
             getErrorEmbed({
               msg,
               description:
-                "Role / emoji was configured, please type `$rr list` to check & try again.",
+                "Role / emoji was configured, please type `$rr list` to check.",
             }),
           ],
         },
