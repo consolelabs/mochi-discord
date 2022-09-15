@@ -1,7 +1,7 @@
-import fetch from "node-fetch"
 import {
   ResponseGetUserCurrentGMStreakResponse,
   ResponseIndexerNFTCollectionTickersResponse,
+  ResponseNftMetadataAttrIconResponse,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL } from "utils/constants"
@@ -208,33 +208,13 @@ class Community extends Fetcher {
   }
 
   public async getNFTMetadataAttrIcon() {
-    const res = await fetch(`${API_BASE_URL}/nfts/icons`, {
-      method: "GET",
-    })
-    if (res.status !== 200) {
-      throw new Error(`failed to get NFT icons`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
+    return await this.jsonFetch<ResponseNftMetadataAttrIconResponse>(
+      `${API_BASE_URL}/nfts/icons`
+    )
   }
 
   public async getCollectionCount() {
-    const res = await fetch(`${API_BASE_URL}/nfts/collections/stats`, {
-      method: "GET",
-    })
-    if (res.status !== 200) {
-      throw new Error(`failed to get collection count`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
+    return await this.jsonFetch(`${API_BASE_URL}/nfts/collections/stats`)
   }
 
   public async getUpvoteStreak(discordId: string) {

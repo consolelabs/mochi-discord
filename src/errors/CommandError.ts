@@ -24,7 +24,12 @@ export class CommandError extends BotBaseError {
 
   handle() {
     this.msgOrInteraction?.reply({
-      embeds: [getErrorEmbed({ description: this.customDescription })],
+      embeds: [
+        getErrorEmbed({
+          title: this.name,
+          description: this.customDescription,
+        }),
+      ],
     })
   }
 }

@@ -11,7 +11,6 @@ import { DOT } from "utils/constants"
 import {
   composeEmbedMessage,
   composeSimpleSelection,
-  getErrorEmbed,
   getSuccessEmbed,
   getSuggestionComponents,
   getSuggestionEmbed,
@@ -29,10 +28,11 @@ import {
   isValidHttpUrl,
   shortenHashOrAddress,
 } from "utils/common"
-import { NFTMetadataAttrIcon } from "types/community"
 import config from "adapters/config"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { NFTSymbol } from "types/config"
+import { APIError } from "errors"
+import { ResponseNftMetadataAttrIcon } from "types/api"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -43,7 +43,7 @@ const rarityColors: Record<string, string> = {
   MYTHIC: "#ed2939",
 }
 
-let icons: Array<NFTMetadataAttrIcon>
+let icons: ResponseNftMetadataAttrIcon[]
 
 function getRarityEmoji(rarity: string) {
   const rarities = Object.keys(rarityColors)
@@ -53,88 +53,92 @@ function getRarityEmoji(rarity: string) {
     .join("")
 }
 
-function getIcon(iconList: NFTMetadataAttrIcon[], iconName: string): string {
+function getIcon(
+  iconList: ResponseNftMetadataAttrIcon[],
+  iconName: string
+): string {
   if (!iconList) {
     return getEmoji(iconName)
   }
   const icon = iconList.find((i) => i.trait_type === iconName)
 
   if (icon) {
-    return icon.discord_icon
+    return icon.discord_icon ?? ""
   }
 
   return getEmoji(iconName)
 }
 
-export async function composeNFTDetail(
+async function composeNFTDetail(
   data: any,
   msg: Message,
   colName: string,
   colImage: string,
   chainName?: string
 ) {
-  try {
-    if (!icons) {
-      icons = await community.getNFTMetadataAttrIcon()
+  if (!icons) {
+    const res = await community.getNFTMetadataAttrIcon()
+    if (res.ok) {
+      icons = res.data
+    } else {
+      throw new APIError({ message: msg, description: res.log })
     }
-
-    const {
-      name,
-      attributes,
-      rarity,
-      image,
-      image_cdn,
-      collection_address,
-      token_id,
-    } = data
-
-    let nftImage = image
-    if (!isValidHttpUrl(image)) {
-      nftImage = image_cdn ?? ""
-    }
-    // set rank, rarity score empty if have data
-    const rarityRate = rarity?.rarity
-      ? `**${DOT}** ${getRarityEmoji(rarity.rarity)}`
-      : ""
-    let description = `**[${
-      name ?? `${colName}#${token_id}`
-    }](${getMarketplaceNftUrl(collection_address, token_id)})**`
-    description += rarity?.rank
-      ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
-      : ""
-
-    const attributesFiltered = attributes.filter(
-      (obj: { trait_type: string }) => {
-        return obj.trait_type !== ""
-      }
-    )
-
-    const fields: EmbedFieldData[] = attributesFiltered
-      ? attributesFiltered.map((attr: any) => {
-          const val = `${capFirst(attr.value)}\n${attr.frequency ?? ""}`
-          return {
-            name: `${getIcon(icons, attr.trait_type)} ${capFirst(
-              attr.trait_type
-            )}`,
-            value: `${val ? val : "-"}`,
-            inline: true,
-          }
-        })
-      : []
-
-    const embed = composeEmbedMessage(msg, {
-      author: [
-        `${capitalizeFirst(colName)}${chainName ? ` (${chainName})` : ""}`,
-        ...(colImage.length ? [colImage] : []),
-      ],
-      description,
-      image: nftImage,
-      color: rarityColors[rarity?.rarity?.toUpperCase()],
-    }).addFields(fields)
-    return justifyEmbedFields(embed, 3)
-  } catch (e: any) {
-    return getErrorEmbed({ msg, description: e.message })
   }
+
+  const {
+    name,
+    attributes,
+    rarity,
+    image,
+    image_cdn,
+    collection_address,
+    token_id,
+  } = data
+
+  let nftImage = image
+  if (!isValidHttpUrl(image)) {
+    nftImage = image_cdn ?? ""
+  }
+  // set rank, rarity score empty if have data
+  const rarityRate = rarity?.rarity
+    ? `**${DOT}** ${getRarityEmoji(rarity.rarity)}`
+    : ""
+  let description = `**[${
+    name ?? `${colName}#${token_id}`
+  }](${getMarketplaceNftUrl(collection_address, token_id)})**`
+  description += rarity?.rank
+    ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
+    : ""
+
+  const attributesFiltered = attributes.filter(
+    (obj: { trait_type: string }) => {
+      return obj.trait_type !== ""
+    }
+  )
+
+  const fields: EmbedFieldData[] = attributesFiltered
+    ? attributesFiltered.map((attr: any) => {
+        const val = `${capFirst(attr.value)}\n${attr.frequency ?? ""}`
+        return {
+          name: `${getIcon(icons, attr.trait_type)} ${capFirst(
+            attr.trait_type
+          )}`,
+          value: `${val ? val : "-"}`,
+          inline: true,
+        }
+      })
+    : []
+
+  const embed = composeEmbedMessage(msg, {
+    author: [
+      `${capitalizeFirst(colName)}${chainName ? ` (${chainName})` : ""}`,
+      ...(colImage.length ? [colImage] : []),
+    ],
+    description,
+    image: nftImage,
+    color: rarityColors[rarity?.rarity?.toUpperCase()],
+  }).addFields(fields)
+  return justifyEmbedFields(embed, 3)
 }
 
 export async function setDefaultSymbol(i: ButtonInteraction) {
@@ -205,19 +209,7 @@ const command: Command = {
     let res = await community.getNFTDetail(symbol, tokenId, msg.guildId ?? "")
 
     if (!res.ok) {
-      return {
-        messageOptions: {
-          embeds: [
-            justifyEmbedFields(
-              getErrorEmbed({
-                msg,
-                description: res.error,
-              }),
-              1
-            ),
-          ],
-        },
-      }
+      throw new APIError({ message: msg, description: res.log })
     }
 
     let replyMsg: Message | null = null
@@ -304,12 +296,12 @@ const command: Command = {
 
         if (!res.ok || !detailRes.ok || !res.data || !detailRes.data) {
           await i.deferUpdate()
-          await replyMsg?.edit({
-            embeds: [
-              getErrorEmbed({
-                msg,
-              }),
-            ],
+          throw new APIError({
+            message: msg,
+            description: {
+              nftDetail: res.log,
+              collectionDetail: detailRes.log,
+            },
           })
         } else {
           const shouldAskDefault =

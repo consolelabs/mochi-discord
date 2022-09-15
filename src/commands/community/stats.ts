@@ -13,9 +13,9 @@ import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
   composeEmbedMessage,
-  getErrorEmbed,
 } from "utils/discordEmbed"
 import Community from "adapters/community"
+import { GuildIdNotFoundError } from "errors"
 
 const countType: Array<string> = [
   "members",
@@ -42,13 +42,7 @@ const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
   const [type, stat] = input.split("_")
   const countTypeReq = type + "_" + stat
   if (!message.guildId) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({ msg: message, description: "Guild ID is invalid" }),
-        ],
-      },
-    }
+    throw new GuildIdNotFoundError({ message: msgOrInteraction })
   }
   await Community.createStatChannel(message.guildId, countTypeReq)
   const successEmbeded = composeEmbedMessage(message, {
