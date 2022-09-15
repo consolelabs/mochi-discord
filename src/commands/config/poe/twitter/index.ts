@@ -39,6 +39,7 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}poe twitter <action>`,
+          examples: `${PREFIX}poe twitter list`,
           footer: [`Type ${PREFIX}poe twitter <action> for a specific action!`],
           includeCommandsList: true,
           title: "PoE > Twitter",

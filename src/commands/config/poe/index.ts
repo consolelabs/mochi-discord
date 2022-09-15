@@ -18,7 +18,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}poe <twitter>`,
-        examples: `${PREFIX}poe twitter set #general #mochitag,@Mochi Bot`,
+        examples: `${PREFIX}poe twitter`,
         includeCommandsList: true,
       }),
     ],

@@ -234,7 +234,7 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          examples: `${PREFIX}profile\n${PREFIX}profile @Mochi Bot`,
+          examples: `${PREFIX}profile\n${PREFIX}profile @Mochi Bot\n${PREFIX}profile Mochi Bot`,
           usage: `${PREFIX}profile`,
         }),
       ],
