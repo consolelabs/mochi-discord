@@ -434,6 +434,18 @@ class Community extends Fetcher {
       }
     )
   }
+
+  public async setUpvoteMessageCache(req: {
+    user_id: string
+    guild_id: string
+    channel_id: string
+    message_id: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/cache/upvote`, {
+      method: "POST",
+      body: JSON.stringify(req),
+    })
+  }
 }
 
 export default new Community()
