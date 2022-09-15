@@ -4,6 +4,7 @@ import Community from "adapters/community"
 import { InvitesInput } from "types/community"
 import { Message } from "discord.js"
 import { INVITE_GITBOOK, PREFIX } from "utils/constants"
+import { APIError } from "errors"
 
 const command: Command = {
   id: "invite_link",
@@ -15,8 +16,11 @@ const command: Command = {
       guild_id: msg.guild?.id,
       member_id: msg.author.id,
     } as InvitesInput
-    const { data } = await Community.getInvites(inviteInput)
-    if (!data.length) {
+    const { data, ok, log } = await Community.getInvites(inviteInput)
+    if (!ok) {
+      throw new APIError({ message: msg, description: log })
+    }
+    if (data.length) {
       const embed = composeEmbedMessage(msg, {
         title: "Info",
         description: "No invite links found",

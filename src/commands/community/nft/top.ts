@@ -17,6 +17,7 @@ import {
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
+import { APIError } from "errors"
 
 async function renderLeaderboard(
   msg: Message,
@@ -143,7 +144,11 @@ const command: Command = {
     if (args.length > 2) {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
-    const data = await Community.getTopNFTTradingVolume()
+    const res = await Community.getTopNFTTradingVolume()
+    if (!res.ok) {
+      throw new APIError({ message: msg, description: res.log })
+    }
+    const data = res.data
     let leaderboard = parseNFTTop(data)
     const tokenAvailable = getUniqueToken(leaderboard)
     const symbolPriceMap = await mapSymbolToPrice(msg, tokenAvailable)

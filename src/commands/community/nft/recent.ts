@@ -33,7 +33,7 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
   return {
     messageOptions: {
       embeds: [embed],
-      files: [await renderSupportedNFTList(data)],
+      files: [await renderSupportedNFTList(data.data)],
     },
   }
 }
