@@ -61,6 +61,10 @@ import CommandChoiceManager from "utils/CommandChoiceManager"
 import { Command, Category, SlashCommand } from "types/common"
 import { hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
+import CacheManager from "utils/CacheManager"
+import community from "adapters/community"
+
+CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 
 export const slashCommands: Record<string, SlashCommand> = {
   ticker: ticker_slash,
@@ -175,10 +179,39 @@ async function executeCommand(
     return
   }
 
+  let shouldRemind = await CacheManager.get({
+    pool: "vote",
+    key: `remind-${message.author.id}-vote-again`,
+    // 5 min
+    ttl: 300,
+    call: async () => {
+      const res = await community.getUpvoteStreak(message.author.id)
+      let ttl = 0
+      let shouldRemind = true
+      if (res.ok) {
+        const timeUntilTopgg = res.data?.minutes_until_reset_topgg ?? 0
+        const timeUntilDiscordBotList =
+          res.data?.minutes_until_reset_discordbotlist ?? 0
+        ttl = Math.max(timeUntilTopgg, timeUntilDiscordBotList)
+        shouldRemind = ttl === 0
+      }
+      return shouldRemind
+    },
+  })
+  if (commandObject.id === "vote") {
+    // user is already using $vote, no point in reminding
+    shouldRemind = false
+  }
+
   // execute command in `commands`
   const runResponse = await commandObject.run(message, action)
   if (runResponse && runResponse.messageOptions) {
-    const output = await message.reply(runResponse.messageOptions)
+    const output = await message.reply({
+      ...(shouldRemind
+        ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
+        : {}),
+      ...runResponse.messageOptions,
+    })
     if (runResponse.commandChoiceOptions) {
       CommandChoiceManager.add({
         ...runResponse.commandChoiceOptions,
