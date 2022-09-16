@@ -17,7 +17,7 @@ const command: Command = {
     }
     const args = getCommandArguments(msg)
     const { isUser, id: inviterId } = parseDiscordToken(
-      args.length === 3 ? args[2] : msg.author.id
+      args.length === 3 ? args[2] : `<@${msg.author.id}>`
     )
     if (!isUser) {
       throw new CommandError({
