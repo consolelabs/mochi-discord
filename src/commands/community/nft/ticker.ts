@@ -14,6 +14,7 @@ import {
   composeDiscordExitButton,
   composeEmbedMessage,
   justifyEmbedFields,
+  getErrorEmbed,
 } from "utils/discordEmbed"
 import community from "adapters/community"
 import {
@@ -48,6 +49,22 @@ async function composeCollectionTickerEmbed({
   const res = await community.getNFTCollectionTickers({ symbol, from, to })
   if (!res.ok) {
     throw new APIError({ message: msg, description: res.log })
+  }
+
+  // collection is not exist, mochi has not added it yet
+  if (!res.data) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            msg,
+            title: "Invalid collection",
+            description:
+              "The collection does not existed. Please choose another one.",
+          }),
+        ],
+      },
+    }
   }
   const data = res.data
   const blank = getEmoji("blank")

@@ -35,6 +35,23 @@ const command: Command = {
       }
     }
 
+    // not set level role yet but remove it
+    const configs = await Config.getGuildLevelRoleConfigs(msg.guildId)
+    if (configs.data?.length == 0 || !configs.ok) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              title: `${msg.guild.name}'s nftroles configuration`,
+              description:
+                "No configuration found! To set a new one, run `$lr <role> <level>`.",
+            }),
+          ],
+        },
+      }
+    }
+
     await Config.removeGuildLevelRoleConfig(msg.guildId, level)
 
     if (args)
