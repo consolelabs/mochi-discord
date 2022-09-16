@@ -41,7 +41,7 @@ export async function verifySet(interaction: CommandInteraction) {
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            description: "Invalid channel",
+            description: "Invalid channel. Please choose another one!",
             originalMsgAuthor: interaction.user,
           }),
         ],

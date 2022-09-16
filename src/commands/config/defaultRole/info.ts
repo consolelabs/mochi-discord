@@ -45,7 +45,8 @@ const command: Command = {
       if (res.data.role_id) {
         description = `When people first join your server, their base role will be <@&${res.data.role_id}>`
       } else {
-        description = `No default role set`
+        description =
+          "No default role set. Use `$dr set @rolename` to configure one."
       }
     } else {
       return {

@@ -51,7 +51,7 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             title: msg.guild.name,
-            description: `Channel: <#${res.data.verify_channel_id}>`,
+            description: `Verified channel: <#${res.data.verify_channel_id}>`,
           }),
         ],
       },

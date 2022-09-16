@@ -44,7 +44,7 @@ export function handleUpdateWlError(
       }.`
       break
     case error.toLowerCase().startsWith("conflict") && !isRemove:
-      description = `Token already existed in your watchlist.`
+      description = `Token existed. Please add another one!`
       break
     default:
       break

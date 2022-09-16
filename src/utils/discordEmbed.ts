@@ -127,7 +127,7 @@ export async function workInProgress(): Promise<MessageOptions> {
       "https://cdn.discordapp.com/emojis/916737804002799699.png?size=240"
     )
     .setTitle("Work In Progress")
-    .setDescription("This command is currently being worked on, stay tuned!")
+    .setDescription("We are working on this command. Stay tuned!")
 
   return { embeds: [embed] }
 }
@@ -285,7 +285,7 @@ export function getErrorEmbed(params: {
     author: [title ?? "Error", getEmojiURL(emojis["REVOKE"])],
     description:
       description ??
-      "Something went wrong, our team is notified and is working on the fix, stay tuned.",
+      "There was an error. Our team has been informed and is trying to fix the issue. Stay tuned.",
     image,
     thumbnail,
     color: msgColors.ERROR,

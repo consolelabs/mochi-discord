@@ -31,7 +31,12 @@ const command: Command = {
     if (!isChannel) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid channel" })],
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "Invalid channel. Please choose another one!",
+            }),
+          ],
         },
       }
     }
@@ -84,8 +89,8 @@ const command: Command = {
         embeds: [
           getSuccessEmbed({
             msg,
-            title: "Tracker mode ON",
-            description: `Tracker set, new NFT sales will be posted in <#${channelId}>. To add more collection, just re-run this command`,
+            title: "Tracker set!",
+            description: `New NFT sales information will be posted in <#${channelId}>. To add more collection, just re-run this command.`,
           }),
         ],
       },

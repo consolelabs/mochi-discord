@@ -22,7 +22,14 @@ const command: Command = {
     if (!ok) handleUpdateWlError(msg, symbol, error, true)
     CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
     return {
-      messageOptions: { embeds: [getSuccessEmbed({})] },
+      messageOptions: {
+        embeds: [
+          getSuccessEmbed({
+            title: "Successfully remove!",
+            description: `Token has been deleted successfully!`,
+          }),
+        ],
+      },
     }
   },
   getHelpMessage: async (msg) => ({
