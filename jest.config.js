@@ -1,5 +1,6 @@
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
-export default {
+/* eslint-disable */
+module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
 };

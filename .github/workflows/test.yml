@@ -1,0 +1,15 @@
+name: Run unit tests
+on: [pull_request]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Run tests
+        run: |
+          yarn
+          yarn test
