@@ -32,7 +32,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
           getSuccessEmbed({
             msg,
             title: `Successfully removed ${name}!`,
-            description: `To set a new nft role, run \`$nr set <role> <amount> <nft_address1,nft_address2> [erc1155_token_id]\`.\n\n${description}`,
+            description: `To set a new nft role, run \`$nr set <role> <amount> <nft_address1,nft_address2> \`.\n\n${description}`,
           }),
         ],
         components: [],
