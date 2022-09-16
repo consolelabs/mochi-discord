@@ -56,7 +56,7 @@ const command: Command = {
       }
     }
     const configs = await Config.getGuildNFTRoleConfigs(msg.guildId)
-    if (!configs || !configs.ok) {
+    if (configs.data?.length == 0 || !configs.ok) {
       return {
         messageOptions: {
           embeds: [
@@ -64,7 +64,7 @@ const command: Command = {
               msg,
               title: `${msg.guild.name}'s nftroles configuration`,
               description:
-                "No configuration found! To set a new one, run `$lr <role> <level>`.",
+                "No configuration found! To set a new one, run `$nr set <role> <amount> <nft_address1,nft_address2>`.",
             }),
           ],
         },

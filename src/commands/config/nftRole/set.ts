@@ -112,7 +112,7 @@ const command: Command = {
             embeds: [
               getSuccessEmbed({
                 msg,
-                title: `Added new role config ${role.name}`,
+                title: `Successfully configured ${role.name}!`,
                 description,
               }),
             ],
