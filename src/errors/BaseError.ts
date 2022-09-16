@@ -6,9 +6,13 @@ import { getErrorEmbed } from "utils/discordEmbed"
 export class BotBaseError extends Error {
   protected msgOrInteraction?: Message | MessageComponentInteraction
 
-  constructor(message?: Message | MessageComponentInteraction) {
+  constructor(
+    message?: Message | MessageComponentInteraction,
+    errorMessage?: string
+  ) {
     super()
-    this.name = "Something went wrong"
+    this.name = "Something went wrong (unexpected error)"
+    this.message = errorMessage ?? ""
     if (message) {
       this.msgOrInteraction = message
       const channel = message.channel as TextChannel

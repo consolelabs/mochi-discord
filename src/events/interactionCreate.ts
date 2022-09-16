@@ -27,7 +27,7 @@ export default {
       !interaction.isCommand()
     )
       return
-    let msg = null
+    let msg = undefined
     if ("message" in interaction && interaction.message instanceof Message) {
       msg = interaction.message
     }
@@ -39,12 +39,12 @@ export default {
       } else if (interaction.isCommand()) {
         await handleCommandInteraction(interaction)
       }
-    } catch (e) {
+    } catch (e: any) {
       let error = e as BotBaseError
 
       // something went wrong
       if (!(error instanceof BotBaseError)) {
-        error = new BotBaseError()
+        error = new BotBaseError(msg, e.message as string)
       }
       error.handle?.()
       if (msg) {

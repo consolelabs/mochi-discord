@@ -390,12 +390,12 @@ export function listenForSuggestionAction(
       const value = i.customId.split("-").pop()
       try {
         await onAction(value ?? "", i)
-      } catch (e) {
+      } catch (e: any) {
         let error = e as BotBaseError
 
         // something went wrong
         if (!(error instanceof BotBaseError)) {
-          error = new BotBaseError()
+          error = new BotBaseError(i.message as Message, e.message as string)
         }
         error.handle?.()
         const originalMsg = await i.channel?.messages.fetch(
@@ -420,12 +420,12 @@ export function listenForSuggestionAction(
       const value = i.values[0]
       try {
         await onAction(value, i)
-      } catch (e) {
+      } catch (e: any) {
         let error = e as BotBaseError
 
         // something went wrong
         if (!(error instanceof BotBaseError)) {
-          error = new BotBaseError()
+          error = new BotBaseError(i.message as Message, e.message as string)
         }
         error.handle?.()
         const originalMsg = await i.channel?.messages.fetch(
