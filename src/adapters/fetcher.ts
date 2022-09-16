@@ -4,12 +4,12 @@ import type { RequestInit as NativeRequestInit } from "node-fetch"
 import fetch from "node-fetch"
 import { capFirst } from "utils/common"
 import querystring from "query-string"
-import { snakeCase } from "change-case"
 import { Pagination } from "types/common"
+import { convertToSnakeCase } from "./fetcher-utils"
 
 type SerializableValue = string | number | boolean | undefined | null
 
-type RequestInit = NativeRequestInit & {
+type RequestInit = Omit<NativeRequestInit, "body"> & {
   /**
    * Whether to hide the 500 error with some generic message e.g "Something went wrong"
    * */
@@ -20,10 +20,21 @@ type RequestInit = NativeRequestInit & {
    * */
   query?: Record<string, SerializableValue | Array<SerializableValue>>
   /**
+   *   For querystring
    * Toggle auto convert camelCase to snake_case when sending request e.g `guildId` will turn into `guild_id`
    * Default to true
    * */
   queryCamelToSnake?: boolean
+  /**
+   * For body payload (POST requests)
+   * Toggle auto convert camelCase to snake_case when sending request e.g `guildId` will turn into `guild_id`
+   * Default to true
+   * */
+  bodyCamelToSnake?: boolean
+  /**
+   * The body payload
+   * */
+  body?: string | Record<string, any>
 }
 
 type Payload = {
@@ -60,6 +71,7 @@ const defaultInit: RequestInit = {
   },
   query: {},
   queryCamelToSnake: true,
+  bodyCamelToSnake: true,
 }
 
 export class Fetcher {
@@ -70,25 +82,52 @@ export class Fetcher {
     let log = ""
     try {
       const mergedInit = deepmerge(defaultInit, init)
-      const { autoWrap500Error, query: _query, ...validInit } = mergedInit
-      const query: typeof _query = {}
-      for (const [key, value] of Object.entries(_query)) {
-        query[snakeCase(key)] = value
+      const {
+        autoWrap500Error,
+        query: _query,
+        queryCamelToSnake,
+        bodyCamelToSnake,
+        body: _body,
+        ...validInit
+      } = mergedInit
+      let query: typeof _query = {}
+
+      if (queryCamelToSnake) {
+        query = convertToSnakeCase(_query)
+      } else {
+        query = _query
       }
+
+      let body
+      if (bodyCamelToSnake) {
+        if (typeof _body === "string") {
+          // for backward compability
+          const data = JSON.parse(_body)
+          body = JSON.stringify(convertToSnakeCase(data))
+        } else if (typeof _body === "object" && _body !== null) {
+          body = JSON.stringify(convertToSnakeCase(_body))
+        }
+      } else {
+        if (typeof _body === "object" && _body !== null) {
+          body = JSON.stringify(_body)
+        }
+      }
+
       const res = await fetch(
         querystring.stringifyUrl(
           { url, query },
           { arrayFormat: "separator", arrayFormatSeparator: "|" }
         ),
-        validInit
+        {
+          ...validInit,
+          body,
+        }
       )
 
       if (!res.ok) {
         log = `[API failed - ${init.method ?? "GET"}/${
           res.status
-        }]: ${url} with params ${validInit.body}, query ${querystring.stringify(
-          query
-        )}`
+        }]: ${url} with params ${body}, query ${querystring.stringify(query)}`
         logger.error(log)
 
         const json = await (res as ErrResponse).json()
@@ -104,9 +143,9 @@ export class Fetcher {
       } else {
         log = `[API ok - ${init.method ?? "GET"}/${
           res.status
-        }]: ${url} with params ${
-          validInit.body ?? "{}"
-        }, query ${querystring.stringify(query)}`
+        }]: ${url} with params ${body ?? "{}"}, query ${querystring.stringify(
+          query
+        )}`
         logger.info(log)
         const json = await (res as OkResponse<T>).json()
         json.ok = true

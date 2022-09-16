@@ -3,3 +3,4 @@
 
 npx lint-staged
 yarn generate:types && git add .
+yarn test
