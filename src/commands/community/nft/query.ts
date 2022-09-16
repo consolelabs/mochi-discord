@@ -69,7 +69,7 @@ function getIcon(
   return getEmoji(iconName)
 }
 
-async function composeNFTDetail(
+export async function composeNFTDetail(
   data: any,
   msg: Message,
   colName: string,

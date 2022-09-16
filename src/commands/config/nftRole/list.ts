@@ -24,7 +24,9 @@ export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
                 `${getEmoji("blank")}${getEmoji("reply")}[\`${
                   nftCol.symbol?.toUpperCase() ?? ""
                 } ${shortenHashOrAddress(nftCol.address ?? "")}${
-                  nftCol.chain_id ? ` (${nftCol.chain_id})` : ""
+                  nftCol.chain_name
+                    ? ` (${nftCol.chain_name.toUpperCase()})`
+                    : ""
                 }\`](${nftCol.explorer_url || "https://getmochi.co/"})`
             )
             .join("\n")}`
