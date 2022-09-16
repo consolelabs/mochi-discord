@@ -271,7 +271,7 @@ const command: Command = {
               getErrorEmbed({
                 msg,
                 description:
-                  "The collection does not existed. Please choose another one.",
+                  "The collection is not exist. Please choose another one.",
               }),
             ],
           })

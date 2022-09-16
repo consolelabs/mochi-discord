@@ -60,7 +60,7 @@ async function composeCollectionTickerEmbed({
             msg,
             title: "Invalid collection",
             description:
-              "The collection does not existed. Please choose another one.",
+              "The collection is not exist. Please choose another one.",
           }),
         ],
       },
