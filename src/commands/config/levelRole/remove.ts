@@ -42,9 +42,7 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              description:
-                `Level-role configuration removed for lv${level}.` +
-                " To set a new one, run `$lr <role> <level>`.",
+              description: `Level-role configuration removed for lv${level}.\nTo set a new one, run \`$lr <role> <level>\`.`,
             }),
           ],
         },
