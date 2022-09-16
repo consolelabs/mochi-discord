@@ -16,6 +16,8 @@ import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import { Event } from "."
 import { getErrorEmbed } from "utils/discordEmbed"
+import CacheManager from "utils/CacheManager"
+import community from "adapters/community"
 
 export default {
   name: "interactionCreate",
@@ -27,7 +29,7 @@ export default {
       !interaction.isCommand()
     )
       return
-    let msg = null
+    let msg = undefined
     if ("message" in interaction && interaction.message instanceof Message) {
       msg = interaction.message
     }
@@ -39,12 +41,12 @@ export default {
       } else if (interaction.isCommand()) {
         await handleCommandInteraction(interaction)
       }
-    } catch (e) {
+    } catch (e: any) {
       let error = e as BotBaseError
 
       // something went wrong
       if (!(error instanceof BotBaseError)) {
-        error = new BotBaseError()
+        error = new BotBaseError(msg, e.message as string)
       }
       error.handle?.()
       if (msg) {
@@ -68,7 +70,37 @@ async function handleCommandInteraction(interaction: Interaction) {
   const response = await command.run(i)
   if (!response) return
   const { messageOptions, commandChoiceOptions } = response
-  const reply = <Message>await i.editReply(messageOptions)
+  let shouldRemind = await CacheManager.get({
+    pool: "vote",
+    key: `remind-${i.user.id}-vote-again`,
+    // 5 min
+    ttl: 300,
+    call: async () => {
+      const res = await community.getUpvoteStreak(i.user.id)
+      let ttl = 0
+      let shouldRemind = true
+      if (res.ok) {
+        const timeUntilTopgg = res.data?.minutes_until_reset_topgg ?? 0
+        const timeUntilDiscordBotList =
+          res.data?.minutes_until_reset_discordbotlist ?? 0
+        ttl = Math.max(timeUntilTopgg, timeUntilDiscordBotList)
+
+        // only remind if both timers are 0 meaning both source can be voted again
+        shouldRemind = ttl === 0
+      }
+      return shouldRemind
+    },
+  })
+  if (i.commandName === "vote") {
+    // user is already using $vote, no point in reminding
+    shouldRemind = false
+  }
+  const reply = <Message>await i.editReply({
+    ...(shouldRemind
+      ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
+      : {}),
+    ...messageOptions,
+  })
   if (commandChoiceOptions) {
     CommandChoiceManager.add({
       ...commandChoiceOptions,

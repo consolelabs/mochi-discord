@@ -16,6 +16,7 @@ import {
   getSuggestionEmbed,
   justifyEmbedFields,
   listenForSuggestionAction,
+  getErrorEmbed,
 } from "utils/discordEmbed"
 import community from "adapters/community"
 import {
@@ -69,7 +70,7 @@ function getIcon(
   return getEmoji(iconName)
 }
 
-async function composeNFTDetail(
+export async function composeNFTDetail(
   data: any,
   msg: Message,
   colName: string,
@@ -263,23 +264,36 @@ const command: Command = {
         }
       } else {
         // there isn't, so we continue to check for the `suggestions` property
-        const embed = getSuggestionEmbed({
-          title: `Multiple results for ${symbol}`,
-          msg,
-          description: `Did you mean one of these instead:\n\n${composeSimpleSelection(
-            (res.suggestions ?? []).map(
-              (s) =>
-                `[\`${s.chain.toUpperCase()}\` - \`${s.name} (${
-                  s.symbol
-                })\`](${getMarketplaceCollectionUrl(s.address)})`
-            )
-          )}`,
-        })
+        // if there is not any suggestion, return error
+        if (res.suggestions?.length == 0) {
+          replyMsg = await msg.reply({
+            embeds: [
+              getErrorEmbed({
+                msg,
+                description:
+                  "The collection is not exist. Please choose another one.",
+              }),
+            ],
+          })
+        } else {
+          const embed = getSuggestionEmbed({
+            title: `Multiple results for ${symbol}`,
+            msg,
+            description: `Did you mean one of these instead:\n\n${composeSimpleSelection(
+              (res.suggestions ?? []).map(
+                (s) =>
+                  `[\`${s.chain.toUpperCase()}\` - \`${s.name} (${
+                    s.symbol
+                  })\`](${getMarketplaceCollectionUrl(s.address)})`
+              )
+            )}`,
+          })
 
-        replyMsg = await msg.reply({
-          embeds: [embed],
-          ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
-        })
+          replyMsg = await msg.reply({
+            embeds: [embed],
+            ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
+          })
+        }
       }
     }
 

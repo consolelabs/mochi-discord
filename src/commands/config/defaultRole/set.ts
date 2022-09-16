@@ -40,7 +40,7 @@ const command: Command = {
               msg,
               title: "Invalid role",
               description:
-                "Make sure it is really a role in your server, some common mistakes are: role that is not in your server or some username is the same with the role you're setting.",
+                "The added role must be a valid one. Don’t be mistaken role with username while setting.",
             }),
           ],
         },

@@ -371,7 +371,7 @@ const command: SlashCommand = {
       throw new CommandError({
         guild: interaction.guild,
         user: interaction.user,
-        description: `Cannot find any cryptocurrency with \`${baseQ}\`.\nPlease try again with the symbol or full name.`,
+        description: `Cannot find any cryptocurrency with \`${baseQ}\`.\nPlease choose another one!`,
       })
     }
 

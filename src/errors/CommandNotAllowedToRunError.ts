@@ -1,5 +1,4 @@
 import { Message, TextChannel } from "discord.js"
-import { defaultEmojis } from "utils/common"
 import { getErrorEmbed } from "utils/discordEmbed"
 import { BotBaseError } from "./BaseError"
 
@@ -34,9 +33,9 @@ export class CommandNotAllowedToRunError extends BotBaseError {
     if (this.missingPermissions?.length) {
       errorEmbed = getErrorEmbed({
         msg: this.discordMessage,
-        title: `${defaultEmojis.ERROR} Insufficient permissions`,
-        description: `<@${this.discordMessage.author.id}>, you need the following permissions on this channel to run this command`,
-      }).addField("Missing permissions", this.missingPermissions.join(", "))
+        title: `Insufficient permissions`,
+        description: `Only Administrators of this server can run this command.`,
+      })
     } else {
       errorEmbed = getErrorEmbed({
         msg: this.discordMessage,

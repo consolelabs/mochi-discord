@@ -39,7 +39,13 @@ const command: Command = {
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid role" })],
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description:
+                "Invalid role. Be careful to not be mistaken role with username while setting.",
+            }),
+          ],
         },
       }
     }

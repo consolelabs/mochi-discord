@@ -63,6 +63,15 @@ export default {
         )
         return
       }
+      if (!data.inviter_id) {
+        sendInviteTrackerMessage(
+          member.guild.id,
+          unknowErrorMsg(member.id),
+          logChannel,
+          member.user.avatarURL() ?? ""
+        )
+        return
+      }
       sendInviteTrackerMessage(
         member.guild.id,
         inviteMsg(member.id, data.inviter_id, data.invites_amount),

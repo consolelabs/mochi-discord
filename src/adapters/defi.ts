@@ -380,7 +380,7 @@ class Defi extends Fetcher {
         discordId: sender,
         guildId,
         message: msg,
-        errorMsg: "Unsupported token",
+        errorMsg: "Unsupported token. Please choose another one.",
       })
     }
 

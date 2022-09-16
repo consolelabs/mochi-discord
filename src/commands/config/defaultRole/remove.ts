@@ -8,6 +8,7 @@ import {
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
+import Config from "adapters/config"
 
 const command: Command = {
   id: "defaultrole_remove",
@@ -16,7 +17,7 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
-    if (!msg.guildId) {
+    if (!msg.guildId || !msg.guild) {
       return {
         messageOptions: {
           embeds: [
@@ -41,6 +42,29 @@ const command: Command = {
               document: DEFAULT_ROLE_GITBOOK,
             }),
           ],
+        },
+      }
+    }
+
+    // not set default role yet but remove it
+    const configs = await Config.getCurrentDefaultRole(msg.guildId)
+    if (configs.ok) {
+      if (configs.data.role_id == "") {
+        return {
+          messageOptions: {
+            embeds: [
+              getErrorEmbed({
+                msg,
+                description: `You haven't set any role. To config a new one, run \`$dr set @<role_name>\`.`,
+              }),
+            ],
+          },
+        }
+      }
+    } else {
+      return {
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: configs.error })],
         },
       }
     }

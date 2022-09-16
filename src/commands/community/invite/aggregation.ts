@@ -17,7 +17,7 @@ const command: Command = {
     }
     const args = getCommandArguments(msg)
     const { isUser, id: inviterId } = parseDiscordToken(
-      args.length === 3 ? args[2] : msg.author.id
+      args.length === 3 ? args[2] : `<@${msg.author.id}>`
     )
     if (!isUser) {
       throw new CommandError({
@@ -37,14 +37,12 @@ const command: Command = {
 
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Aggregation`,
-    })
-
-    embedMsg.addField(
-      `Successfully`,
-      `<@${inviterId}> has totally ${res.data.regular} invites (normal: ${
+      description: `<@${inviterId}> has totally ${
+        res.data.regular
+      } invites (normal: ${
         res.data.regular - res.data.fake - res.data.left
-      }, fake: ${res.data.fake}, left: ${res.data.left})`
-    )
+      }, fake: ${res.data.fake}, left: ${res.data.left})`,
+    })
 
     return {
       messageOptions: {

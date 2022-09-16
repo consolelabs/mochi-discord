@@ -30,7 +30,8 @@ const command: Command = {
             getErrorEmbed({
               msg,
               title: `${msg.guild.name}'s levelroles configuration`,
-              description: "No configuration found!",
+              description:
+                "No configuration found! To set a new one, run `$lr <role> <level>`.",
             }),
           ],
         },

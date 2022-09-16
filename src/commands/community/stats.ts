@@ -16,6 +16,7 @@ import {
 } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { GuildIdNotFoundError } from "errors"
+import { capFirst } from "utils/common"
 
 const countType: Array<string> = [
   "members",
@@ -47,7 +48,9 @@ const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
   await Community.createStatChannel(message.guildId, countTypeReq)
   const successEmbeded = composeEmbedMessage(message, {
     title: `Server Stats\n\n`,
-    description: `Successfully count ` + type + ` ` + stat,
+    description: `${capFirst(
+      type
+    )} ${stat} count is shown as a voice channel on top of your server. `,
   })
   return {
     messageOptions: {

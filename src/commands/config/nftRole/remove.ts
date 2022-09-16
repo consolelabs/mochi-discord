@@ -31,8 +31,8 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
         embeds: [
           getSuccessEmbed({
             msg,
-            title: `Remove config ${name}`,
-            description,
+            title: `Successfully removed ${name}!`,
+            description: `To set a new nft role, run \`$nr set <role> <amount> <nft_address1,nft_address2> \`.\n\n${description}`,
           }),
         ],
         components: [],
@@ -73,7 +73,8 @@ const command: Command = {
             getErrorEmbed({
               msg,
               title: `${msg.guild.name}'s nftroles configuration`,
-              description: "No configuration found!",
+              description:
+                "No configuration found! To set a new one, run `$lr <role> <level>`.",
             }),
           ],
         },

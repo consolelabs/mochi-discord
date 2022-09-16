@@ -36,7 +36,7 @@ const command: Command = {
 
     const embed = composeEmbedMessage(msg, {
       author: [msg.guild.name, msg.guild.iconURL() ?? ""],
-      description: `Current monitoring channel is <#${guild.log_channel}>.\nYou can update using \`${PREFIX}log set <channel>.\``,
+      description: `<#${guild.log_channel}> is currently monitored.\nTo change the monitored channel, run \`${PREFIX}log set <channel>.\``,
     })
     return { messageOptions: { embeds: [embed] } }
   },

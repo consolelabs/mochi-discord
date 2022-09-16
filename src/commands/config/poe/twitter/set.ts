@@ -42,7 +42,12 @@ const command: Command = {
     ) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid channel" })],
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "Invalid channel. Please choose another one!",
+            }),
+          ],
         },
       }
     }

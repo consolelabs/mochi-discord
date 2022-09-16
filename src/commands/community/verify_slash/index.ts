@@ -19,7 +19,6 @@ const command: SlashCommand = {
     return data
   },
   run: async function (interaction: CommandInteraction) {
-    console.log(interaction.options.getSubcommand())
     switch (interaction.options.getSubcommand()) {
       case set.name:
         return verifySet(interaction)

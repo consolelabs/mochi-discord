@@ -71,18 +71,18 @@ class Profile extends Fetcher {
 
   public async getUserNFT(params: {
     userAddress: string
-    collectionAddress?: string
+    collectionAddresses?: string[]
     page?: number
     size?: number
   }) {
-    const { userAddress, collectionAddress, page = 0, size = 50 } = params
+    const { userAddress, collectionAddresses, page = 0, size = 50 } = params
     return await this.jsonFetch<GetUserNFTsResponse>(
       `${INDEXER_API_BASE_URL}/${userAddress}/nft`,
       {
         query: {
           page,
           size,
-          collectionAddress,
+          collectionAddresses,
         },
       }
     )
