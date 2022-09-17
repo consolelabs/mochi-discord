@@ -23,7 +23,7 @@ export const handleNormalMessage = async (message: Message) => {
     },
     guild_id: message.guildId,
     channel_id: message.channelId,
-    timestamp: message.createdAt,
+    timestamp: message.createdAt.toISOString(),
     content: message.content,
     type: messageType,
   }
