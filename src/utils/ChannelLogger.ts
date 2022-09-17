@@ -10,7 +10,6 @@ import {
 import { ALERT_CHANNEL_ID, LOG_CHANNEL_ID, MOCHI_GUILD_ID } from "env"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
-import { PREFIX } from "./constants"
 import { getErrorEmbed } from "./discordEmbed"
 
 export class ChannelLogger {
@@ -82,7 +81,7 @@ export class ChannelLogger {
   }
 
   alert(msg: Message, error: BotBaseError) {
-    if (!this.alertChannel || !msg.content.startsWith(PREFIX)) {
+    if (!this.alertChannel) {
       return
     }
 

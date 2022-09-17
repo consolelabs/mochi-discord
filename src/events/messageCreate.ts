@@ -2,7 +2,6 @@ import { Message } from "discord.js"
 import handlePrefixedCommand from "../commands"
 import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
 import { Event } from "."
-import { logger } from "../logger"
 import { BotBaseError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
@@ -28,12 +27,8 @@ export const handleNormalMessage = async (message: Message) => {
     content: message.content,
     type: messageType,
   }
-  const msg = "messageCreate"
 
-  const resp = await webhook.pushDiscordWebhook(msg, body)
-  if (resp?.error != undefined) {
-    logger.error(`failed to handle webhook: ${resp.error}`)
-  }
+  await webhook.pushDiscordWebhook("messageCreate", body)
 }
 
 export default {

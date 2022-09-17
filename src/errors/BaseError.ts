@@ -12,7 +12,6 @@ export class BotBaseError extends Error {
   ) {
     super()
     this.name = "Something went wrong (unexpected error)"
-    this.message = errorMessage ?? ""
     if (message) {
       this.msgOrInteraction = message
       const channel = message.channel as TextChannel
@@ -21,12 +20,16 @@ export class BotBaseError extends Error {
         guild: message.guild?.name,
         channel: channel?.name,
         user,
+        message: errorMessage ?? "",
       })
     }
   }
 
   handle() {
-    logger.error(this)
+    logger.error({
+      name: this.name,
+      message: this.message,
+    })
     this.msgOrInteraction?.reply({
       embeds: [getErrorEmbed({})],
     })

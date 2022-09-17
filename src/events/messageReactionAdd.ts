@@ -77,8 +77,8 @@ const handleRepostableMessageTracking = async (
     "messageReactionAdd",
     checkRepostableEvent
   )
-  if (res?.status === "OK" && res?.repost_channel_id) {
-    const { repost_channel_id: repostChannelId } = res
+  if (res?.data.repost_channel_id) {
+    const { repost_channel_id: repostChannelId } = res.data
     const { channel_id, guild_id, message_id, reaction, reaction_count } =
       checkRepostableEvent
 

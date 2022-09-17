@@ -1,27 +1,26 @@
-import fetch from "node-fetch"
 import ChannelLogger from "utils/ChannelLogger"
 import { API_BASE_URL } from "utils/constants"
+import { Fetcher } from "./fetcher"
 
-class Webhook {
+class Webhook extends Fetcher {
   public async pushDiscordWebhook(event: string, data: unknown) {
     try {
-      const body = JSON.stringify({
+      const body = {
         event: event,
         data: data,
-      })
-      const res = await fetch(`${API_BASE_URL}/webhook/discord`, {
+      }
+      const res = await this.jsonFetch(`${API_BASE_URL}/webhook/discord`, {
         method: "POST",
-        body: body,
+        body,
       })
 
-      const json = await res.json()
-      if (json.error !== undefined) {
-        throw new Error(json.error)
+      if (!res.ok) {
+        throw new Error(res.log)
       }
 
-      return json
-    } catch (e) {
-      ChannelLogger.alertWebhook(event, data)
+      return res
+    } catch (e: any) {
+      ChannelLogger.alertWebhook(event, { data, error: e.message as string })
     }
   }
 }
