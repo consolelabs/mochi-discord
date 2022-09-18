@@ -14,13 +14,14 @@ export type GuildMember = {
   communication_disabled_until: Date | null
 }
 
-export function createBEGuildMember(member: discrod.GuildMember): GuildMember {
+export function createBEGuildMember(member: discrod.GuildMember) {
   member.user.banner = null
   member.user.accentColor = null
+  member.user.flags = null
 
   return {
     guild_id: member.guild.id,
-    joined_at: member.joinedAt ? new Date(member.joinedAt) : null,
+    joined_at: member.joinedAt?.toISOString(),
     nick: member.nickname || null,
     deaf: member.voice.deaf || null,
     mute: member.voice.mute || null,
