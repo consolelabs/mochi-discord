@@ -898,6 +898,16 @@ class Config extends Fetcher {
     }
     return false
   }
+
+  public async linkTelegramAccount(req: {
+    discord_id: string
+    telegram_username: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/telegram`, {
+      method: "POST",
+      body: JSON.stringify(req),
+    })
+  }
 }
 
 const config = new Config()
