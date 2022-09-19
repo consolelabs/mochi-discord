@@ -798,6 +798,10 @@ export interface ResponseGetMyInfoResponse {
   data?: DiscordgoUser;
 }
 
+export interface ResponseGetNFTCollectionByAddressChainResponse {
+  data?: ModelNFTCollection;
+}
+
 export interface ResponseGetRepostReactionConfigsResponse {
   data?: ModelGuildConfigRepostReaction[];
 }
