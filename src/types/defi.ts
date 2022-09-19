@@ -79,3 +79,10 @@ export type CoinMarketItem = {
   price_change_percentage_24h: number
   sparkline_in_7d: { price: number[] }
 }
+
+export type GasPriceData = {
+  LastBlock: string
+  SafeGasPrice: string
+  ProposeGasPrice: string
+  FastGasPrice: string
+}
