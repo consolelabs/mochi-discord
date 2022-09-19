@@ -43,7 +43,7 @@ async function executeNftIntegrateCommand(args: string[], msg: Message) {
             msg,
             title: "Invalid collection",
             description:
-              "The collection is not exist. Please choose another one.",
+              "The collection does not exist. Please choose another one.",
           }),
         ],
       },
