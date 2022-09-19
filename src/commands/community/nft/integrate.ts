@@ -11,6 +11,7 @@ import {
 } from "utils/discordEmbed"
 import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 import { callAPI, toEmbed } from "../nft/add"
+import { CommandError } from "errors"
 
 async function executeNftIntegrateCommand(args: string[], msg: Message) {
   const address = args[2]
@@ -36,18 +37,10 @@ async function executeNftIntegrateCommand(args: string[], msg: Message) {
 
   const colDetail = await checkExistRes.json()
   if (!colDetail.data) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            msg,
-            title: "Invalid collection",
-            description:
-              "The collection does not exist. Please choose another one.",
-          }),
-        ],
-      },
-    }
+    throw new CommandError({
+      message: msg,
+      description: "The collection does not exist. Please choose another one.",
+    })
   }
 
   const enableVerseRes = await fetch(
