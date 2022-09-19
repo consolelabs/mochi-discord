@@ -454,7 +454,7 @@ class Defi extends Fetcher {
     const gasTrackerUrls: Record<string, string> = {
       ftm: FTMSCAN_API,
       bsc: BSCSCAN_API,
-      polygon: POLYGONSCAN_API,
+      matic: POLYGONSCAN_API,
       eth: ETHSCAN_API,
     }
     const url = gasTrackerUrls[chain]

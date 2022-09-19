@@ -21,14 +21,13 @@ export default {
       ChannelLogger.ready(listener)
       CommandChoiceManager.client = listener
       // get gas price and show in presence message every 15s
-      const chains = ["eth", "ftm", "bsc", "polygon"]
+      const chains = ["eth", "ftm", "bsc", "matic"]
       const presence = async () => {
         const chain = chains.shift()
         if (chain) chains.push(chain)
         const res = await defi.getGasPrice(chain ?? "eth")
         if (res.ok) {
           const data = res.result
-          const slowGasPrice = (+data.SafeGasPrice).toFixed()
           const normalGasPrice = (+data.ProposeGasPrice).toFixed()
           const fastGasPrice = (+data.FastGasPrice).toFixed()
           client.user?.setPresence({
@@ -37,7 +36,7 @@ export default {
               {
                 name: `${(
                   chain ?? "eth"
-                ).toUpperCase()}|⚡️${fastGasPrice}|🚶${normalGasPrice}|🐢${slowGasPrice}|${PREFIX}help`,
+                ).toUpperCase()}|⚡️${fastGasPrice}|🚶${normalGasPrice}|${PREFIX}help`,
                 type: "WATCHING",
               },
             ],
