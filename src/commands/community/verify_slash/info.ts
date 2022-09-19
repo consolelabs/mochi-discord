@@ -48,7 +48,7 @@ export async function verifyInfo(interaction: CommandInteraction) {
       embeds: [
         composeEmbedMessage(null, {
           title: interaction.guild.name,
-          description: `Channel: <#${res.data.verify_channel_id}>`,
+          description: `Verified channel: <#${res.data.verify_channel_id}>`,
           originalMsgAuthor: interaction.user,
         }),
       ],

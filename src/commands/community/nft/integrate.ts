@@ -11,6 +11,7 @@ import {
 } from "utils/discordEmbed"
 import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 import { callAPI, toEmbed } from "../nft/add"
+import { CommandError } from "errors"
 
 async function executeNftIntegrateCommand(args: string[], msg: Message) {
   const address = args[2]
@@ -35,21 +36,26 @@ async function executeNftIntegrateCommand(args: string[], msg: Message) {
   }
 
   const colDetail = await checkExistRes.json()
+  if (!colDetail.data) {
+    throw new CommandError({
+      message: msg,
+      description: "The collection does not exist. Please choose another one.",
+    })
+  }
 
   const enableVerseRes = await fetch(
     `${PT_API_BASE_URL}/nft/${address}/support-verse-enable`,
     { method: "PUT" }
   )
-
   if (enableVerseRes.status === 200) {
     return {
       messageOptions: {
         embeds: [
           getSuccessEmbed({
             msg,
-            title: `${colDetail.symbol} integrated`,
-            description: `${colDetail.name} collection is now ready to take part in our verse (added + enabled)`,
-            image: colDetail.image,
+            title: `${colDetail.data.symbol} integrated`,
+            description: `${colDetail.data.name} collection is now ready to take part in our verse (added + enabled)`,
+            image: colDetail.data.image,
           }),
         ],
       },

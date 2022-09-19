@@ -104,7 +104,11 @@ const command: Command = {
         }
       )
     } else {
-      throw new APIError({ message: msg, description: rrListRes.log })
+      throw new APIError({
+        message: msg,
+        curl: rrListRes.curl,
+        description: rrListRes.log,
+      })
     }
   },
   getHelpMessage: async (msg) => {

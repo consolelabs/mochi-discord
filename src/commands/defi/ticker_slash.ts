@@ -185,6 +185,7 @@ async function composeTickerResponse({
     ok,
     data: coin,
     log,
+    curl,
   } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getcoin-${coinId}`,
@@ -195,6 +196,7 @@ async function composeTickerResponse({
       guild: interaction.guild,
       user: interaction.user,
       description: log,
+      curl,
     })
   }
   const currency = "usd"
@@ -356,6 +358,7 @@ const command: SlashCommand = {
       ok,
       data: coins,
       log,
+      curl,
     } = await CacheManager.get({
       pool: "ticker",
       key: `ticker-search-${baseQ}`,
@@ -366,6 +369,7 @@ const command: SlashCommand = {
         guild: interaction.guild,
         user: interaction.user,
         description: log,
+        curl,
       })
     if (!coins || !coins.length) {
       throw new CommandError({

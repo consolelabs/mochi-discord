@@ -24,7 +24,11 @@ const command: Command = {
     }
     const resp = await Community.getInvitesLeaderboard(msg.guild?.id)
     if (!resp.ok) {
-      throw new APIError({ message: msg, description: resp.log })
+      throw new APIError({
+        message: msg,
+        curl: resp.curl,
+        description: resp.log,
+      })
     }
 
     const data = resp.data

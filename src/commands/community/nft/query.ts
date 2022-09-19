@@ -82,7 +82,7 @@ export async function composeNFTDetail(
     if (res.ok) {
       icons = res.data
     } else {
-      throw new APIError({ message: msg, description: res.log })
+      throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
   }
 
@@ -210,7 +210,7 @@ const command: Command = {
     let res = await community.getNFTDetail(symbol, tokenId, msg.guildId ?? "")
 
     if (!res.ok) {
-      throw new APIError({ message: msg, description: res.log })
+      throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
 
     let replyMsg: Message | null = null
@@ -271,7 +271,7 @@ const command: Command = {
               getErrorEmbed({
                 msg,
                 description:
-                  "The collection is not exist. Please choose another one.",
+                  "The collection does not exist. Please choose another one.",
               }),
             ],
           })
@@ -312,6 +312,7 @@ const command: Command = {
           await i.deferUpdate()
           throw new APIError({
             message: msg,
+            curl: detailRes.curl,
             description: {
               nftDetail: res.log,
               collectionDetail: detailRes.log,

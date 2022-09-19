@@ -14,7 +14,6 @@ import {
   composeDiscordExitButton,
   composeEmbedMessage,
   justifyEmbedFields,
-  getErrorEmbed,
 } from "utils/discordEmbed"
 import community from "adapters/community"
 import {
@@ -31,6 +30,7 @@ import {
   ResponseIndexerNFTCollectionTickersData,
   ResponseIndexerPrice,
 } from "types/api"
+import { CommandError } from "errors"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
 const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
@@ -48,23 +48,15 @@ async function composeCollectionTickerEmbed({
   const from = dayjs().subtract(days, "day").unix() * 1000
   const res = await community.getNFTCollectionTickers({ symbol, from, to })
   if (!res.ok) {
-    throw new APIError({ message: msg, description: res.log })
+    throw new APIError({ message: msg, curl: res.curl, description: res.log })
   }
 
   // collection is not exist, mochi has not added it yet
   if (!res.data) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            msg,
-            title: "Invalid collection",
-            description:
-              "The collection is not exist. Please choose another one.",
-          }),
-        ],
-      },
-    }
+    throw new CommandError({
+      message: msg,
+      description: "The collection does not exist. Please choose another one.",
+    })
   }
   const data = res.data
   const blank = getEmoji("blank")

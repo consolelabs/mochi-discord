@@ -28,6 +28,7 @@
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "fetch-to-curl": "^0.5.2",
     "game-interface": "^1.0.1",
     "human-id": "^4.0.0",
     "husky": ">=6",

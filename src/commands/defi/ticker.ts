@@ -176,13 +176,14 @@ async function composeTickerResponse({
     ok,
     data: coin,
     log,
+    curl,
   } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getcoin-${coinId}`,
     call: () => defi.getCoin(coinId),
   })
   if (!ok) {
-    throw new APIError({ message: msg, description: log })
+    throw new APIError({ message: msg, curl, description: log })
   }
   const currency = "usd"
   const {
@@ -335,12 +336,13 @@ const command: Command = {
       ok,
       data: coins,
       log,
+      curl,
     } = await CacheManager.get({
       pool: "ticker",
       key: `ticker-search-${coinQ}`,
       call: () => defi.searchCoins(coinQ),
     })
-    if (!ok) throw new APIError({ message: msg, description: log })
+    if (!ok) throw new APIError({ message: msg, curl, description: log })
     if (!coins || !coins.length) {
       throw new CommandError({
         message: msg,

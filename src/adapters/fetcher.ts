@@ -6,6 +6,7 @@ import { capFirst } from "utils/common"
 import querystring from "query-string"
 import { Pagination } from "types/common"
 import { convertToSnakeCase } from "./fetcher-utils"
+import toCurl from "fetch-to-curl"
 
 type SerializableValue = string | number | boolean | undefined | null
 
@@ -39,6 +40,7 @@ type RequestInit = Omit<NativeRequestInit, "body"> & {
 
 type Payload = {
   log: string
+  curl: string
 }
 
 type OkPayload = {
@@ -80,6 +82,7 @@ export class Fetcher {
     init: RequestInit = {}
   ): Promise<(OkPayload & T) | ErrPayload> {
     let log = ""
+    let curl = "None"
     try {
       const mergedInit = deepmerge(defaultInit, init)
       const {
@@ -113,16 +116,16 @@ export class Fetcher {
         }
       }
 
-      const res = await fetch(
-        querystring.stringifyUrl(
-          { url, query },
-          { arrayFormat: "separator", arrayFormatSeparator: "|" }
-        ),
-        {
-          ...validInit,
-          body,
-        }
+      const requestURL = querystring.stringifyUrl(
+        { url, query },
+        { arrayFormat: "separator", arrayFormatSeparator: "|" }
       )
+      const options = {
+        ...validInit,
+        body,
+      }
+      curl = toCurl(requestURL, options)
+      const res = await fetch(requestURL, options)
 
       if (!res.ok) {
         log = `[API failed - ${init.method ?? "GET"}/${
@@ -139,6 +142,7 @@ export class Fetcher {
         }
         json.ok = false
         json.log = log
+        json.curl = curl
         return json
       } else {
         log = `[API ok - ${init.method ?? "GET"}/${
@@ -150,6 +154,7 @@ export class Fetcher {
         const json = await (res as OkResponse<T>).json()
         json.ok = true
         json.log = log
+        json.curl = curl
         return json
       }
     } catch (e: any) {
@@ -163,6 +168,7 @@ export class Fetcher {
         error:
           "There was an error. Our team has been informed and is trying to fix the issue. Stay tuned.",
         log,
+        curl,
       }
     }
   }

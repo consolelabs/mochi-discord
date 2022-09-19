@@ -90,3 +90,8 @@ export const VERIFY_WALLET_GITBOOK =
   "https://mochibot.gitbook.io/mochi-bot/getting-started/wallet"
 export const PROFILE_GITBOOK =
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/users-profiles"
+
+export const FTMSCAN_API = "https://api.ftmscan.com/api"
+export const BSCSCAN_API = "https://api.bscscan.com/api"
+export const ETHSCAN_API = "https://api.etherscan.io/api"
+export const POLYGONSCAN_API = "https://api.polygonscan.com/api"
