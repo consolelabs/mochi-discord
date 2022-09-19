@@ -156,12 +156,12 @@ const command: Command = {
   category: "Defi",
   run: async (msg) => {
     const userId = msg.author.id
-    const { data, ok, log } = await CacheManager.get({
+    const { data, ok, log, curl } = await CacheManager.get({
       pool: "watchlist",
       key: `watchlist-${userId}`,
       call: () => defi.getUserWatchlist({ userId, size: 12 }),
     })
-    if (!ok) throw new APIError({ message: msg, description: log })
+    if (!ok) throw new APIError({ message: msg, curl, description: log })
     const embed = composeEmbedMessage(msg, {
       author: [
         `${msg.author.username}'s watchlist`,

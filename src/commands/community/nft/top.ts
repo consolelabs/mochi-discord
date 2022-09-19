@@ -146,7 +146,7 @@ const command: Command = {
     }
     const res = await Community.getTopNFTTradingVolume()
     if (!res.ok) {
-      throw new APIError({ message: msg, description: res.log })
+      throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
     const data = res.data
     let leaderboard = parseNFTTop(data)

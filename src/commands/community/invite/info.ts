@@ -17,7 +17,7 @@ const command: Command = {
     }
     const res = await community.getCurrentInviteTrackerConfig(msg.guildId)
     if (!res.ok) {
-      throw new APIError({ message: msg, description: res.log })
+      throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
 
     return {

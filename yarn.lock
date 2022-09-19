@@ -4065,6 +4065,11 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "2.1.1"
 
+fetch-to-curl@^0.5.2:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/fetch-to-curl/-/fetch-to-curl-0.5.2.tgz#9f007ecb3547edeffee49394ff076727dc56d603"
+  integrity sha512-ygmvsJlU+V4GE91lflkRNAJ956xm5MFl6QukIyxkd6yojTxr6gjp4BsYh7hYXlwVw+ffnMlAIXOTWsWJdk017Q==
+
 figures@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/figures/-/figures-2.0.0.tgz#3ab1a2d2a62c8bfb431a0c94cb797a2fce27c962"
