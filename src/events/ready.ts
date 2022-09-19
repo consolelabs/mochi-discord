@@ -9,6 +9,7 @@ import { invites } from "./index"
 import { BotBaseError } from "errors"
 import { setTimeout as wait } from "timers/promises"
 import TwitterStream from "utils/TwitterStream"
+import defi from "adapters/defi"
 
 export default {
   name: "ready",
@@ -19,19 +20,32 @@ export default {
       logger.info(`Bot [${listener.user.username}] is ready`)
       ChannelLogger.ready(listener)
       CommandChoiceManager.client = listener
-      // get balance and show in presence message every 10m
+      // get gas price and show in presence message every 15s
+      const chains = ["eth", "ftm", "bsc", "polygon"]
       const presence = async () => {
-        listener.user?.setPresence({
-          status: "online",
-          activities: [
-            {
-              name: `${PREFIX}help`,
-              type: "WATCHING",
-            },
-          ],
-        })
+        const chain = chains.shift()
+        if (chain) chains.push(chain)
+        const res = await defi.getGasPrice(chain ?? "eth")
+        if (res.ok) {
+          const data = res.result
+          const slowGasPrice = (+data.SafeGasPrice).toFixed()
+          const normalGasPrice = (+data.ProposeGasPrice).toFixed()
+          const fastGasPrice = (+data.FastGasPrice).toFixed()
+          client.user?.setPresence({
+            status: "online",
+            activities: [
+              {
+                name: `${(
+                  chain ?? "eth"
+                ).toUpperCase()}|⚡️${fastGasPrice}|🚶${normalGasPrice}|🐢${slowGasPrice}|${PREFIX}help`,
+                type: "WATCHING",
+              },
+            ],
+          })
+        }
       }
-      runAndSetInterval(presence, 600000)
+
+      runAndSetInterval(presence, 15000)
 
       for (const cache of client.guilds.cache) {
         const guild = cache[1]

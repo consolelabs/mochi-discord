@@ -83,6 +83,7 @@ export interface DiscordgoUser {
 export interface EntitiesDiscordGuild {
   bot_addable?: boolean;
   bot_arrived?: boolean;
+  features?: string[];
   icon?: string;
   id?: string;
   name?: string;
@@ -335,6 +336,11 @@ export interface ModelUserFactionXpsMapping {
   rebellio_xp?: number;
 }
 
+export interface ModelUserTelegramDiscordAssociation {
+  discord_id?: string;
+  telegram_id?: number;
+}
+
 export interface ModelUserWallet {
   address?: string;
   chain_type?: ModelJSONNullString;
@@ -467,6 +473,11 @@ export interface RequestGuildConfigDefaultTickerRequest {
   default_ticker?: string;
   guild_id?: string;
   query?: string;
+}
+
+export interface RequestLinkUserTelegramWithDiscordRequest {
+  discord_id?: string;
+  telegram_id?: number;
 }
 
 export interface RequestLoginRequest {
@@ -653,6 +664,10 @@ export interface ResponseCurrentUserUpvoteStreakResponse {
   data?: ResponseGetUserCurrentUpvoteStreakResponse;
 }
 
+export interface ResponseDataListRoleReactionResponse {
+  data?: ResponseListRoleReactionResponse;
+}
+
 export interface ResponseDefaultRole {
   guild_id?: string;
   role_id?: string;
@@ -771,12 +786,20 @@ export interface ResponseGetLevelRoleConfigsResponse {
   data?: ModelGuildConfigLevelRole[];
 }
 
+export interface ResponseGetLinkedTelegramResponse {
+  data?: ModelUserTelegramDiscordAssociation;
+}
+
 export interface ResponseGetListAllChainsResponse {
   data?: ModelChain[];
 }
 
 export interface ResponseGetMyInfoResponse {
   data?: DiscordgoUser;
+}
+
+export interface ResponseGetNFTCollectionByAddressChainResponse {
+  data?: ModelNFTCollection;
 }
 
 export interface ResponseGetRepostReactionConfigsResponse {
@@ -987,6 +1010,16 @@ export interface ResponseIndexerToken {
 
 export interface ResponseInvitesAggregationResponse {
   data?: ResponseUserInvitesAggregation;
+}
+
+export interface ResponseLinkUserTelegramWithDiscordResponse {
+  data?: ResponseLinkUserTelegramWithDiscordResponseData;
+}
+
+export interface ResponseLinkUserTelegramWithDiscordResponseData {
+  discord_id?: string;
+  discord_username?: string;
+  telegram_id?: number;
 }
 
 export interface ResponseListAllCustomTokenResponse {

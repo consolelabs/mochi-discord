@@ -7,11 +7,18 @@ import {
   DiscordWalletBalances,
   Coin,
   CoinComparisionData,
+  GasPriceData,
 } from "types/defi"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
 import { getCommandObject } from "utils/commands"
-import { API_BASE_URL } from "utils/constants"
+import {
+  API_BASE_URL,
+  BSCSCAN_API,
+  ETHSCAN_API,
+  FTMSCAN_API,
+  POLYGONSCAN_API,
+} from "utils/constants"
 import Config from "./config"
 import { logger } from "logger"
 import { InsufficientBalanceError } from "errors/InsufficientBalanceError"
@@ -441,6 +448,21 @@ class Defi extends Fetcher {
         query,
       }
     )
+  }
+
+  async getGasPrice(chain: string) {
+    const gasTrackerUrls: Record<string, string> = {
+      ftm: FTMSCAN_API,
+      bsc: BSCSCAN_API,
+      polygon: POLYGONSCAN_API,
+      eth: ETHSCAN_API,
+    }
+    const url = gasTrackerUrls[chain]
+    const query = {
+      module: "gastracker",
+      action: "gasoracle",
+    }
+    return await this.jsonFetch<{ result: GasPriceData }>(url, { query })
   }
 }
 
