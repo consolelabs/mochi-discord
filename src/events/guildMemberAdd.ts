@@ -9,6 +9,7 @@ import ChannelLogger from "utils/ChannelLogger"
 import { logger } from "logger"
 import { BotBaseError } from "errors"
 import client from "index"
+import Profile from "adapters/profile"
 
 export default {
   name: "guildMemberAdd",
@@ -79,6 +80,7 @@ export default {
         member.user.avatarURL() ?? ""
       )
       welcomeNewMember(member)
+      sendDMToUser(member.guild.name, data.invitee_id)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
@@ -190,4 +192,29 @@ async function welcomeNewMember(member: Discord.GuildMember) {
   if (chan.isText()) {
     chan.send({ embeds: [embed] })
   }
+}
+
+async function sendDMToUser(guildName: string, inviteeID: string) {
+  const res = await Profile.getUser({ discordId: inviteeID })
+
+  if (!res.ok) return
+
+  if (res.data.nr_of_join > 1) return
+
+  client.users.fetch(inviteeID).then((user) => {
+    user.createDM().then((dm) => {
+      dm.send({
+        embeds: [
+          composeEmbedMessage(null, {
+            title: `Welcome to the ${guildName} server installed Mochi Bot.`,
+            description: `Type \`$help\` in ${guildName} server or read this Instruction on [Gitbook](https://app.gitbook.com/s/nJ8qX0cEj5ph125HugiB/~/changes/SoXaDd3kMCfyXNQDOZ9f/getting-started/permission-and-prefix) to get to know all our features. Now, let us walk you through some of Mochi Bot main functions:\n
+              - **Crypto management:** Managing your crypto portfolio.
+              - **NFT Rarity Ranking & Volume:** Tracking and managing your favorite NFT collections.
+              - **Server Administration:** Building and managing your own community on Discord (For server owners only. Want to use these features? [Install Mochi Bot to your server now!](https://getmochi.co/))
+              \nRemember to use our feature, you need to place \`$\` or \`/\` in every command. Now, back to ${guildName} server, start with $help, and try our features!!!`,
+          }),
+        ],
+      })
+    })
+  })
 }
