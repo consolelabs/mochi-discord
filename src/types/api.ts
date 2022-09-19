@@ -1243,6 +1243,7 @@ export interface ResponseUser {
   id?: string;
   in_discord_wallet_address?: string;
   in_discord_wallet_number?: number;
+  nr_of_join?: number;
   username?: string;
 }
 
