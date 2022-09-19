@@ -16,9 +16,9 @@ const command: Command = {
       guild_id: msg.guild?.id,
       member_id: msg.author.id,
     } as InvitesInput
-    const { data, ok, log } = await Community.getInvites(inviteInput)
+    const { data, ok, curl, log } = await Community.getInvites(inviteInput)
     if (!ok) {
-      throw new APIError({ message: msg, description: log })
+      throw new APIError({ message: msg, curl, description: log })
     }
     if (data.length) {
       const embed = composeEmbedMessage(msg, {

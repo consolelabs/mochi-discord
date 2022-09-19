@@ -160,7 +160,7 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     const userId = interaction.user.id
-    const { data, ok, log } = await CacheManager.get({
+    const { data, ok, curl, log } = await CacheManager.get({
       pool: "watchlist",
       key: `watchlist-${userId}`,
       call: () => defi.getUserWatchlist({ userId, size: 12 }),
@@ -170,6 +170,7 @@ const command: SlashCommand = {
         user: interaction.user,
         guild: interaction.guild,
         description: log,
+        curl,
       })
     const embed = composeEmbedMessage2(interaction, {
       author: [

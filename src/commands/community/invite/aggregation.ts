@@ -32,7 +32,7 @@ const command: Command = {
     )
 
     if (!res.ok) {
-      throw new APIError({ message: msg, description: res.log })
+      throw new APIError({ message: msg, description: res.log, curl: res.curl })
     }
 
     const embedMsg = composeEmbedMessage(msg, {

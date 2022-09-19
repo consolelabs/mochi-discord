@@ -13,7 +13,7 @@ const command: Command = {
   run: async function (msg) {
     const res = await community.getCollectionCount()
     if (!res.ok) {
-      throw new APIError({ message: msg, description: res.log })
+      throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
 
     return {

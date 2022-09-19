@@ -8,7 +8,7 @@ import {
   TextChannel,
 } from "discord.js"
 import { ALERT_CHANNEL_ID, LOG_CHANNEL_ID, MOCHI_GUILD_ID } from "env"
-import { BotBaseError } from "errors"
+import { APIError, BotBaseError } from "errors"
 import { logger } from "logger"
 import { getErrorEmbed } from "./discordEmbed"
 
@@ -80,12 +80,12 @@ export class ChannelLogger {
     })
   }
 
-  alert(msg: Message, error: BotBaseError) {
+  alert<T extends BotBaseError>(msg: Message, error: T) {
     if (!this.alertChannel) {
       return
     }
 
-    const description = `**Command:** \`${msg.content}\`\n**Guild:** \`${
+    let description = `**Command:** \`${msg.content}\`\n**Guild:** \`${
       msg.channel.type === "DM" ? "DM" : msg.guild?.name
     }\`\n**Channel:** \`${
       msg.channel.type === "DM" ? "DM" : msg.channel.name ?? msg.channelId
@@ -94,6 +94,9 @@ export class ChannelLogger {
         ? `\`\`\`${error.message}\`\`\``
         : "Error without message, this is likely an unexpected error"
     }`
+    if (error instanceof APIError) {
+      description = `${description}\n**Curl:**\n\`\`\`${error.curl}\`\`\``
+    }
     const embed = getErrorEmbed({
       msg,
       title: error.name || "Command error",

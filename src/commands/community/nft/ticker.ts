@@ -48,7 +48,7 @@ async function composeCollectionTickerEmbed({
   const from = dayjs().subtract(days, "day").unix() * 1000
   const res = await community.getNFTCollectionTickers({ symbol, from, to })
   if (!res.ok) {
-    throw new APIError({ message: msg, description: res.log })
+    throw new APIError({ message: msg, curl: res.curl, description: res.log })
   }
 
   // collection is not exist, mochi has not added it yet

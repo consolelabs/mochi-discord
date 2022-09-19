@@ -9,6 +9,7 @@ import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
 import { LeaderboardItem } from "types/community"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { APIError } from "errors"
 
 async function renderLeaderboard(msg: Message, leaderboard: LeaderboardItem[]) {
   const container: RectangleStats = {
@@ -191,17 +192,9 @@ const command: Command = {
       page,
       10
     )
-    if (!res.ok || !res.data.leaderboard || !res.data.leaderboard.length)
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              title: msg.guild?.name ?? "Ranking",
-              description: "No ranking data found",
-            }),
-          ],
-        },
-      }
+    if (!res.ok) {
+      throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    }
 
     const { author, leaderboard } = res.data
     const blank = getEmoji("blank")
