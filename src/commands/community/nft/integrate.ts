@@ -35,21 +35,34 @@ async function executeNftIntegrateCommand(args: string[], msg: Message) {
   }
 
   const colDetail = await checkExistRes.json()
+  if (!colDetail.data) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            msg,
+            title: "Invalid collection",
+            description:
+              "The collection is not exist. Please choose another one.",
+          }),
+        ],
+      },
+    }
+  }
 
   const enableVerseRes = await fetch(
     `${PT_API_BASE_URL}/nft/${address}/support-verse-enable`,
     { method: "PUT" }
   )
-
   if (enableVerseRes.status === 200) {
     return {
       messageOptions: {
         embeds: [
           getSuccessEmbed({
             msg,
-            title: `${colDetail.symbol} integrated`,
-            description: `${colDetail.name} collection is now ready to take part in our verse (added + enabled)`,
-            image: colDetail.image,
+            title: `${colDetail.data.symbol} integrated`,
+            description: `${colDetail.data.name} collection is now ready to take part in our verse (added + enabled)`,
+            image: colDetail.data.image,
           }),
         ],
       },
