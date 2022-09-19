@@ -100,7 +100,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   colorType: "Defi",
-  minArguments: 3,
+  minArguments: 4,
 }
 
 export default command

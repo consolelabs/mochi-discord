@@ -282,7 +282,7 @@ export function getErrorEmbed(params: {
   const { title, description, thumbnail, msg, image, originalMsgAuthor } =
     params
   return composeEmbedMessage(msg, {
-    author: [title ?? "Error", getEmojiURL(emojis["REVOKE"])],
+    author: [title ?? "Command error", getEmojiURL(emojis["REVOKE"])],
     description:
       description ??
       "There was an error. Our team has been informed and is trying to fix the issue. Stay tuned.",
