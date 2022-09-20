@@ -44,41 +44,35 @@ export default {
           logChannel,
           member.user.avatarURL() ?? ""
         )
-        return
-      }
-      if (data.is_bot) {
+      } else if (data.is_bot) {
         sendInviteTrackerMessage(
           member.guild.id,
           botInviteMsg(member.id),
           logChannel,
           member.user.avatarURL() ?? ""
         )
-        return
-      }
-      if (data.is_vanity) {
+      } else if (data.is_vanity) {
         sendInviteTrackerMessage(
           member.guild.id,
           vantityInviteMsg(member.id),
           logChannel,
           member.user.avatarURL() ?? ""
         )
-        return
-      }
-      if (!data.inviter_id) {
+      } else if (!data.inviter_id) {
         sendInviteTrackerMessage(
           member.guild.id,
           unknowErrorMsg(member.id),
           logChannel,
           member.user.avatarURL() ?? ""
         )
-        return
+      } else {
+        sendInviteTrackerMessage(
+          member.guild.id,
+          inviteMsg(member.id, data.inviter_id, data.invites_amount),
+          logChannel,
+          member.user.avatarURL() ?? ""
+        )
       }
-      sendInviteTrackerMessage(
-        member.guild.id,
-        inviteMsg(member.id, data.inviter_id, data.invites_amount),
-        logChannel,
-        member.user.avatarURL() ?? ""
-      )
       welcomeNewMember(member)
       sendDMToUser(member.guild.name, data.invitee_id)
     } catch (e) {
