@@ -36,8 +36,8 @@ export default {
               {
                 name: `${(
                   chain ?? "eth"
-                ).toUpperCase()}|⚡️${fastGasPrice}|🚶${normalGasPrice}|${PREFIX}help`,
-                type: "WATCHING",
+                ).toUpperCase()}・⚡️${fastGasPrice}・🚶${normalGasPrice}・${PREFIX}help`,
+                type: "PLAYING",
               },
             ],
           })

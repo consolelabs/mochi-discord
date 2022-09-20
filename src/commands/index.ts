@@ -27,6 +27,7 @@ import log from "./config/log"
 import poe from "./config/poe"
 import watchlist from "./defi/watchlist"
 import vote from "./community/vote"
+import telegram from "./config/telegram"
 
 // slash commands
 import help_slash from "./help_slash"
@@ -38,7 +39,7 @@ import top_slash from "./community/top_slash"
 import verify_slash from "./community/verify_slash"
 import defaultrole_slash from "./config/defaultRole_slash"
 import levelrole_slash from "./config/levelRole_slash"
-import vote_slash from "./community/vote_slash"
+import vote_slash from "./community/vote/vote_slash"
 
 // external
 import { Message } from "discord.js"
@@ -63,6 +64,7 @@ import { hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
+import usage_stats from "adapters/usage_stats"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 
@@ -113,6 +115,7 @@ export const originalCommands: Record<string, Command> = {
   // eventxp,
   log,
   poe,
+  telegram,
   // games section
   tripod,
 }
@@ -175,6 +178,13 @@ async function executeCommand(
     const helpMessage = await commandObject.getHelpMessage(message, action)
     if (helpMessage) {
       await message.reply(helpMessage)
+      // send command to server to store
+      usage_stats.createUsageStat({
+        guild_id: message.guildId !== null ? message.guildId : "DM",
+        user_id: message.author.id,
+        command: "help",
+        args: message.content,
+      })
     }
     return
   }
@@ -219,6 +229,13 @@ async function executeCommand(
       })
     }
   }
+  // send command to server to store
+  usage_stats.createUsageStat({
+    guild_id: message.guildId !== null ? message.guildId : "DM",
+    user_id: message.author.id,
+    command: commandObject.id,
+    args: message.content,
+  })
 }
 
 // async function handleCustomCommands(message: Message, commandKey: string) {

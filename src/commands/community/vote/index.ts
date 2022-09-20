@@ -5,6 +5,17 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { capFirst, getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { logger } from "logger"
+import set from "./set"
+import info from "./info"
+import remove from "./remove"
+import top from "./top"
+
+const actions: Record<string, Command> = {
+  set,
+  info,
+  remove,
+  top,
+}
 
 const voteLimitCount = 4
 const formatter = new Intl.NumberFormat("en-US", { minimumIntegerDigits: 2 })
@@ -93,12 +104,12 @@ export async function handle(user: User) {
     },
     {
       name: "Recurring Vote Progress",
-      value: `\`${formatter.format(total % voteLimitCount)}/${formatter.format(
-        voteLimitCount
-      )}\` ${buildProgressBar(
+      value: `${buildProgressBar(
         ((total % voteLimitCount) / voteLimitCount) * voteLimitCount,
-        3
-      )}`,
+        2.5
+      )} \`${formatter.format(total % voteLimitCount)}/${formatter.format(
+        voteLimitCount
+      )}\``,
       inline: false,
     },
     {
@@ -149,11 +160,14 @@ const command: Command = {
         usage: `${PREFIX}vote`,
         examples: `${PREFIX}vote`,
         includeCommandsList: true,
+        description:
+          "Vote for Mochi Bot on top.gg and discordbotlist.com platform, by voting you can earn rewards, use some premium-only features of Mochi and more benefits to come.",
       }),
     ],
   }),
   canRunWithoutAction: true,
   colorType: "Server",
+  actions,
 }
 
 export default command

@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { ColorResolvable, MessageEmbed } from "discord.js"
-import { msgColors } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import Profile from "../../../adapters/profile"
 
 const command: Command = {
@@ -24,8 +24,6 @@ const command: Command = {
       }
     }
     const res = await Profile.getUserGmStreak(msg.author.id, msg.guildId)
-    let daysCheckedIcons = ""
-
     if (!res.ok) {
       switch (res.error) {
         case "user has no gm streak":
@@ -35,18 +33,16 @@ const command: Command = {
       }
     }
 
-    for (let i = 0; i < res.data.streak_count; i++) {
-      daysCheckedIcons += "<:approve:933341948402618378>"
-    }
+    const daysCheckedIcons = new Array(res.data.streak_count)
+      .fill(getEmoji("approve"))
+      .join("")
     return {
       messageOptions: {
         embeds: [
           new MessageEmbed()
             .setTitle(`GM/GN streak`)
             .setDescription(
-              `GM streak: **${res.data.streak_count}**
-                    ${daysCheckedIcons}
-                    `
+              `GM streak: **${res.data.streak_count}**\n${daysCheckedIcons}`
             )
             .setColor(msgColors.PRIMARY as ColorResolvable),
         ],

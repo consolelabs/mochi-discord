@@ -197,13 +197,22 @@ export function composeEmbedMessage(
   // embed fields
   const aliases = (actionObj ?? commandObj)?.aliases
   if (isSpecificHelpCommand && aliases)
-    embed.addField(
-      "\u200B",
-      `**Alias**: ${aliases.map((a) => `\`${a}\``).join(COMMA)}.`
-    )
-  if (usage) embed.addField("**Usage**", `\`\`\`${usage}\`\`\``)
-  if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)
-  if (document) embed.addField("**Document**", `[**Gitbook**](${document})`)
+    embed.addFields({
+      name: "\u200B",
+      value: `**Alias**: ${aliases.map((a) => `\`${a}\``).join(COMMA)}.`,
+    })
+  if (usage) {
+    embed.addFields({ name: "**Usage**", value: `\`\`\`${usage}\`\`\`` })
+  }
+  if (examples) {
+    embed.addFields({ name: "**Examples**", value: `\`\`\`${examples}\`\`\`` })
+  }
+  if (document) {
+    embed.addFields({
+      name: "**Document**",
+      value: `[**Gitbook**](${document})`,
+    })
+  }
   return embed
 }
 
