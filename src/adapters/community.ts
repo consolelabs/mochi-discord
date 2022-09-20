@@ -1,5 +1,6 @@
 import {
   ResponseGetUserCurrentGMStreakResponse,
+  ResponseGetUserUpvoteLeaderboardResponse,
   ResponseIndexerNFTCollectionTickersResponse,
   ResponseNftMetadataAttrIconResponse,
 } from "types/api"
@@ -222,6 +223,21 @@ class Community extends Fetcher {
       `${API_BASE_URL}/users/upvote-streak`,
       {
         query: { discordId },
+      }
+    )
+  }
+
+  public async getVoteLeaderboard(
+    guildId: string,
+    by: "streak" | "total" = "total"
+  ) {
+    return await this.jsonFetch<ResponseGetUserUpvoteLeaderboardResponse>(
+      `${API_BASE_URL}/users/upvote-leaderboard`,
+      {
+        query: {
+          guildId,
+          by,
+        },
       }
     )
   }
