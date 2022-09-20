@@ -115,16 +115,12 @@ export class ChannelLogger {
     })
   }
 
-  alertWebhook(event: string, data: any) {
+  alertWebhook(event: string, error: APIError) {
     this.alertChannel?.send({
       embeds: [
         getErrorEmbed({
           title: "Webhook Error",
-          description: `**Event:** ${event}\`\`\`${JSON.stringify(
-            data,
-            null,
-            4
-          )}\`\`\``,
+          description: `**Event:** \`${event}\`\n**Message:**\`\`\`${error.message}\`\`\`\n**Curl:**\`\`\`${error.curl}\`\`\``,
         }).setTimestamp(),
       ],
     })
