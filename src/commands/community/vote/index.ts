@@ -6,9 +6,10 @@ import { capFirst, getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { logger } from "logger"
 import set from "./set"
-import info from "./info"
+import info, { handle as handleInfo } from "./info"
 import remove from "./remove"
 import top from "./top"
+import { GuildIdNotFoundError } from "errors"
 
 const actions: Record<string, Command> = {
   set,
@@ -151,8 +152,25 @@ const command: Command = {
   brief: "Display voting streaks and links to vote",
   category: "Community",
   run: async (msg: Message) => {
-    await setCache(msg)
-    return handle(msg.author)
+    if (!msg.guild) {
+      throw new GuildIdNotFoundError({ message: msg })
+    }
+    const res = await handleInfo(msg.guild, msg.author)
+    if (res?.channel_id) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              title: "Vote channel",
+              description: `This guild has a dedicated vote channel, please go to <#${res.channel_id}> and rerun this command.`,
+            }),
+          ],
+        },
+      }
+    } else {
+      await setCache(msg)
+      return handle(msg.author)
+    }
   },
   getHelpMessage: async (msg) => ({
     embeds: [
