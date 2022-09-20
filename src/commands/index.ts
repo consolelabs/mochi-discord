@@ -27,6 +27,7 @@ import log from "./config/log"
 import poe from "./config/poe"
 import watchlist from "./defi/watchlist"
 import vote from "./community/vote"
+import telegram from "./config/telegram"
 
 // slash commands
 import help_slash from "./help_slash"
@@ -113,6 +114,7 @@ export const originalCommands: Record<string, Command> = {
   // eventxp,
   log,
   poe,
+  telegram,
   // games section
   tripod,
 }
