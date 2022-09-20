@@ -8,11 +8,13 @@ import { logger } from "logger"
 import set from "./set"
 import info from "./info"
 import remove from "./remove"
+import top from "./top"
 
 const actions: Record<string, Command> = {
   set,
   info,
   remove,
+  top,
 }
 
 const voteLimitCount = 4

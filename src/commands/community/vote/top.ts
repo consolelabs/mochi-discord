@@ -1,19 +1,11 @@
-import config from "adapters/config"
-import { Guild, Message, User } from "discord.js"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import community from "adapters/community"
+import { Message } from "discord.js"
+import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { getCommandArguments, parseDiscordToken } from "utils/commands"
+import { drawLeaderboard } from "utils/canvas"
+import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
-import { handle as handleInfo } from "./info"
-
-async function handle(channelId: string, guild: Guild, user: User) {
-  const res = await config.setVoteChannel(guild.id, channelId)
-
-  if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log, guild, user })
-  }
-}
+import { composeEmbedMessage } from "utils/discordEmbed"
 
 const command: Command = {
   id: "vote_top",
@@ -25,25 +17,45 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
 
-    const args = getCommandArguments(msg)
-    const { isChannel, id: channelId } = parseDiscordToken(args[2])
-    if (!isChannel) {
-      throw new CommandError({
-        message: msg,
-        description: "The argument is not a channel",
-      })
+    const res = await community.getVoteLeaderboard(msg.guild.id)
+
+    if (!res.ok) {
+      throw new APIError({ curl: res.curl, description: res.log, message: msg })
     }
 
-    await handle(channelId, msg.guild, msg.author)
-    const info = await handleInfo(msg.guild, msg.author)
+    const embed = composeEmbedMessage(msg, {
+      title: `${getEmoji("cup")} ${msg.guild.name}'s top 10 voters`,
+      thumbnail:
+        "https://media.discordapp.net/attachments/984660970624409630/1016614817433395210/Pump_eet.png",
+      description: `\u200B\n\u200B\n\u200B`,
+      image: "attachment://leaderboard.png",
+    })
 
     return {
       messageOptions: {
-        embeds: [
-          getSuccessEmbed({
-            msg,
-            title: "Successfully set!",
-            description: `<#${info.channel_id}> is currently set.\nTo change channel, run \`${PREFIX}vote set <channel>.\``,
+        embeds: [embed],
+        files: [
+          await drawLeaderboard({
+            rows: await Promise.all(
+              res.data.map(async (d) => {
+                const user = await msg.guild?.members.fetch(d.discord_id ?? "")
+                if (user) {
+                  return {
+                    username: user.user.username,
+                    discriminator: user.user.discriminator,
+                    rightValue: `${d.streak_count ?? 0}/${d.total_count ?? 0}`,
+                  }
+                } else {
+                  return {
+                    username: "Unknown",
+                    discriminator: "#?",
+                    rightValue: `${d.streak_count ?? 0}/${d.total_count ?? 0}`,
+                  }
+                }
+              })
+            ),
+            leftHeader: "Voters",
+            rightHeader: "Streak/Total",
           }),
         ],
       },
