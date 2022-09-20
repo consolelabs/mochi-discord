@@ -306,8 +306,8 @@ async function composeMyProfileEmbed(
     { name: "Role", value: roleStr, inline: true },
     { name: "Activities", value: activityStr, inline: true },
     {
-      name: getEmoji("blank"),
-      value: getEmoji("blank"),
+      name: "\u200B",
+      value: "\u200B",
       inline: true,
     },
     {
@@ -321,8 +321,8 @@ async function composeMyProfileEmbed(
       inline: true,
     },
     {
-      name: getEmoji("blank"),
-      value: getEmoji("blank"),
+      name: "\u200B",
+      value: "\u200B",
       inline: true,
     },
     {
@@ -342,8 +342,8 @@ async function composeMyProfileEmbed(
       inline: true,
     },
     {
-      name: getEmoji("blank"),
-      value: getEmoji("blank"),
+      name: "\u200B",
+      value: "\u200B",
       inline: true,
     },
     {
