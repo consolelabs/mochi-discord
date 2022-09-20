@@ -10,7 +10,7 @@ class UsageStats extends Fetcher {
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/usage-stats`, {
       method: "POST",
-      body: JSON.stringify(req),
+      body: req,
     })
   }
 }

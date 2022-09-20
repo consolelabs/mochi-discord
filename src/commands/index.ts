@@ -178,6 +178,13 @@ async function executeCommand(
     const helpMessage = await commandObject.getHelpMessage(message, action)
     if (helpMessage) {
       await message.reply(helpMessage)
+      // send command to server to store
+      usage_stats.createUsageStat({
+        guild_id: message.guildId !== null ? message.guildId : "DM",
+        user_id: message.author.id,
+        command: "help",
+        args: message.content,
+      })
     }
     return
   }
@@ -222,7 +229,6 @@ async function executeCommand(
       })
     }
   }
-
   // send command to server to store
   usage_stats.createUsageStat({
     guild_id: message.guildId !== null ? message.guildId : "DM",
