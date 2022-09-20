@@ -8,6 +8,30 @@ import { Pagination } from "types/common"
 import { convertToSnakeCase } from "./fetcher-utils"
 import toCurl from "fetch-to-curl"
 
+function makeLog({
+  query,
+  ok,
+  notSent = false,
+  body = "",
+  url,
+  status,
+  method = "GET",
+}: {
+  url: string
+  ok: boolean
+  notSent?: boolean
+  status: number
+  method?: string
+  body?: string
+  query: string
+}) {
+  if (notSent)
+    return `[API failed ${method ?? "GET"}/request_not_sent]: ${body}`
+  return `[API ${
+    ok ? "ok" : "failed"
+  } - ${method}/${status}]: ${url} with body ${body}, query ${query}`
+}
+
 type SerializableValue = string | number | boolean | undefined | null
 
 type RequestInit = Omit<NativeRequestInit, "body"> & {
@@ -81,7 +105,6 @@ export class Fetcher {
     url: string,
     init: RequestInit = {}
   ): Promise<(OkPayload & T) | ErrPayload> {
-    let log = ""
     let curl = "None"
     try {
       const mergedInit = deepmerge(defaultInit, init)
@@ -106,13 +129,13 @@ export class Fetcher {
         if (typeof _body === "string") {
           // for backward compability
           const data = JSON.parse(_body)
-          body = JSON.stringify(convertToSnakeCase(data))
+          body = JSON.stringify(convertToSnakeCase(data), null, 4)
         } else if (typeof _body === "object" && _body !== null) {
-          body = JSON.stringify(convertToSnakeCase(_body))
+          body = JSON.stringify(convertToSnakeCase(_body), null, 4)
         }
       } else {
         if (typeof _body === "object" && _body !== null) {
-          body = JSON.stringify(_body)
+          body = JSON.stringify(_body, null, 4)
         }
       }
 
@@ -127,10 +150,15 @@ export class Fetcher {
       curl = toCurl(requestURL, options)
       const res = await fetch(requestURL, options)
 
+      const log = makeLog({
+        ok: res.ok,
+        method: init.method,
+        status: res.status,
+        url,
+        body,
+        query: querystring.stringify(query),
+      })
       if (!res.ok) {
-        log = `[API failed - ${init.method ?? "GET"}/${
-          res.status
-        }]: ${url} with params ${body}, query ${querystring.stringify(query)}`
         logger.error(log)
 
         const json = await (res as ErrResponse).json()
@@ -145,11 +173,6 @@ export class Fetcher {
         json.curl = curl
         return json
       } else {
-        log = `[API ok - ${init.method ?? "GET"}/${
-          res.status
-        }]: ${url} with params ${body ?? "{}"}, query ${querystring.stringify(
-          query
-        )}`
         logger.info(log)
         const json = await (res as OkResponse<T>).json()
         json.ok = true
@@ -158,9 +181,15 @@ export class Fetcher {
         return json
       }
     } catch (e: any) {
-      log = `[API failed ${init.method ?? "GET"}/request_not_sent]: ${
-        e.message
-      }`
+      const log = makeLog({
+        notSent: true,
+        ok: false,
+        method: init.method,
+        status: 0,
+        url,
+        body: e.message,
+        query: querystring.stringify({}),
+      })
       logger.error(log)
       return {
         ok: false,

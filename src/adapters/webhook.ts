@@ -1,3 +1,4 @@
+import { APIError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
 import { API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
@@ -15,12 +16,12 @@ class Webhook extends Fetcher {
       })
 
       if (!res.ok) {
-        throw new Error(res.log)
+        throw new APIError({ curl: res.curl, description: res.log })
       }
 
       return res
     } catch (e: any) {
-      ChannelLogger.alertWebhook(event, { data, error: e.message as string })
+      ChannelLogger.alertWebhook(event, e)
     }
   }
 }

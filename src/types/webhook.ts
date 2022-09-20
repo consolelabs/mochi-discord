@@ -27,9 +27,7 @@ export function createBEGuildMember(member: discrod.GuildMember) {
     mute: member.voice.mute || null,
     user: member.user || null,
     roles: member.roles.cache.map((role) => role.id),
-    premium_since: member.premiumSinceTimestamp
-      ? new Date(member.premiumSinceTimestamp)
-      : null,
+    premium_since: member.premiumSince?.toISOString(),
     pending: member.pending || null,
     permissions: member.permissions.bitfield.toString() || null,
     communication_disabled_until: null,

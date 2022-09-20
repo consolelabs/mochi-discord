@@ -5,7 +5,8 @@
     "test": "jest",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts .",
     "prepare": "husky install",
-    "generate:types": "node ./scripts/generate-types.js"
+    "generate:types": "node ./scripts/generate-types.js",
+    "guilds:prune": "node ./scripts/leave-server.js"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.15.0",
