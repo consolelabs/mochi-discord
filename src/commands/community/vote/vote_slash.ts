@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { handle } from "./vote"
+import { handle } from "./"
 
 const command: SlashCommand = {
   name: "vote",

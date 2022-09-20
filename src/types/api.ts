@@ -171,6 +171,15 @@ export interface ModelDiscordUserGMStreak {
   updated_at?: string;
 }
 
+export interface ModelDiscordUserUpvoteStreak {
+  created_at?: string;
+  discord_id?: string;
+  last_streak_date?: string;
+  streak_count?: number;
+  total_count?: number;
+  updated_at?: string;
+}
+
 export interface ModelGuildConfigActivity {
   active?: boolean;
   activity?: ModelActivity;
@@ -224,6 +233,12 @@ export interface ModelGuildConfigTwitterFeed {
   twitter_access_token_secret?: string;
   twitter_consumer_key?: string;
   twitter_consumer_secret?: string;
+}
+
+export interface ModelGuildConfigVoteChannel {
+  channel_id?: string;
+  guild_id?: string;
+  id?: string;
 }
 
 export interface ModelGuildConfigWalletVerificationMessage {
@@ -338,7 +353,7 @@ export interface ModelUserFactionXpsMapping {
 
 export interface ModelUserTelegramDiscordAssociation {
   discord_id?: string;
-  telegram_id?: number;
+  telegram_username?: string;
 }
 
 export interface ModelUserWallet {
@@ -451,6 +466,10 @@ export interface RequestCreateWhitelistCampaignRequest {
   name?: string;
 }
 
+export interface RequestDeleteVoteChannelConfigRequest {
+  guild_id?: string;
+}
+
 export interface RequestDeleteWelcomeConfigRequest {
   guild_id?: string;
 }
@@ -477,7 +496,7 @@ export interface RequestGuildConfigDefaultTickerRequest {
 
 export interface RequestLinkUserTelegramWithDiscordRequest {
   discord_id?: string;
-  telegram_id?: number;
+  telegram_username?: string;
 }
 
 export interface RequestLoginRequest {
@@ -571,6 +590,11 @@ export interface RequestUpsertGuildTokenConfigRequest {
   active?: boolean;
   guild_id?: string;
   symbol?: string;
+}
+
+export interface RequestUpsertVoteChannelConfigRequest {
+  channel_id?: string;
+  guild_id?: string;
 }
 
 export interface RequestUpsertWelcomeConfigRequest {
@@ -860,6 +884,16 @@ export interface ResponseGetUserResponse {
   data?: ResponseUser;
 }
 
+export interface ResponseGetUserUpvoteLeaderboardResponse {
+  data?: ModelDiscordUserUpvoteStreak[];
+  message?: string;
+}
+
+export interface ResponseGetVoteChannelConfigResponse {
+  data?: ModelGuildConfigVoteChannel;
+  message?: string;
+}
+
 export interface ResponseGetWatchlistResponse {
   data?: ResponseCoinMarketItemData[];
   pagination?: ResponsePaginationResponse;
@@ -1019,7 +1053,7 @@ export interface ResponseLinkUserTelegramWithDiscordResponse {
 export interface ResponseLinkUserTelegramWithDiscordResponseData {
   discord_id?: string;
   discord_username?: string;
-  telegram_id?: number;
+  telegram_username?: string;
 }
 
 export interface ResponseListAllCustomTokenResponse {
