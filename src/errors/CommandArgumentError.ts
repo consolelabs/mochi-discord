@@ -35,7 +35,8 @@ export class CommandArgumentError extends BotBaseError {
     // only reply if there is a help message of that command
     if ((embeds?.length ?? 0) > 0) {
       this.msgOrInteraction?.reply({
-        content: "> Incorrect command, here's a help reference for you 👇",
+        content:
+          "> It may be incorrect command, here's a help reference for you 👇",
         embeds,
       })
     }
