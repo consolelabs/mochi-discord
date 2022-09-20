@@ -53,7 +53,7 @@ import {
   getCommandArguments,
 } from "utils/commands"
 import config from "../adapters/config"
-import { CommandNotAllowedToRunError } from "errors"
+import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
 // import guildCustomCommand from "../adapters/guildCustomCommand"
 // import { customCommandsExecute } from "./customCommand"
 import CommandChoiceManager from "utils/CommandChoiceManager"
@@ -272,11 +272,10 @@ export default async function handlePrefixedCommand(message: Message) {
   )
   if (!valid) {
     message.content = `${HELP} ${commandKey} ${action}`.trimEnd()
-    const helpMessage = await finalCmd.getHelpMessage(message, action)
-    if (helpMessage) {
-      await message.reply(helpMessage)
-    }
-    return
+    throw new CommandArgumentError({
+      message: message,
+      getHelpMessage: () => finalCmd.getHelpMessage(message, action),
+    })
   }
 
   await executeCommand(
