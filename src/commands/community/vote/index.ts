@@ -156,7 +156,7 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
     const res = await handleInfo(msg.guild, msg.author)
-    if (res?.channel_id) {
+    if (res?.channel_id && msg.channel.id !== res?.channel_id) {
       return {
         messageOptions: {
           embeds: [
