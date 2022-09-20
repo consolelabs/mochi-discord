@@ -20,6 +20,7 @@ import {
   ResponseGetTwitterHashtagConfigResponse,
   ResponseListGuildGroupNFTRolesResponse,
   ResponseGetWelcomeChannelConfigResponse,
+  ResponseGetVoteChannelConfigResponse,
 } from "types/api"
 
 class Config extends Fetcher {
@@ -907,6 +908,33 @@ class Config extends Fetcher {
       method: "POST",
       body: JSON.stringify(req),
     })
+  }
+
+  public async setVoteChannel(guildId: string, channelId: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/upvote`, {
+      method: "POST",
+      body: { guildId, channelId },
+    })
+  }
+
+  public async removeVoteChannel(guildId: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/upvote`, {
+      method: "DELETE",
+      body: {
+        guildId,
+      },
+    })
+  }
+
+  public async getVoteChannel(guildId: string) {
+    return await this.jsonFetch<ResponseGetVoteChannelConfigResponse>(
+      `${API_BASE_URL}/configs/upvote`,
+      {
+        query: {
+          guildId,
+        },
+      }
+    )
   }
 }
 

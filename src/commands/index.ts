@@ -39,7 +39,7 @@ import top_slash from "./community/top_slash"
 import verify_slash from "./community/verify_slash"
 import defaultrole_slash from "./config/defaultRole_slash"
 import levelrole_slash from "./config/levelRole_slash"
-import vote_slash from "./community/vote_slash"
+import vote_slash from "./community/vote/vote_slash"
 
 // external
 import { Message } from "discord.js"
