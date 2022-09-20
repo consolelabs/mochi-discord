@@ -79,10 +79,13 @@ const command: Command = {
       author: ["View your balances", getEmojiURL(emojis.COIN)],
     }).addFields(fields)
     justifyEmbedFields(embed, 3)
-    embed.addField(
-      "\u200B\nEstimated total (U.S dollar)",
-      `${getEmoji("money")} \`$${roundFloatNumber(totalBalanceInUSD, 4)}\``
-    )
+    embed.addFields({
+      name: `Estimated total (U.S dollar)`,
+      value: `${getEmoji("money")} \`$${roundFloatNumber(
+        totalBalanceInUSD,
+        4
+      )}\``,
+    })
 
     return {
       messageOptions: {

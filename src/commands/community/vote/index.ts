@@ -104,12 +104,12 @@ export async function handle(user: User) {
     },
     {
       name: "Recurring Vote Progress",
-      value: `\`${formatter.format(total % voteLimitCount)}/${formatter.format(
-        voteLimitCount
-      )}\` ${buildProgressBar(
+      value: `${buildProgressBar(
         ((total % voteLimitCount) / voteLimitCount) * voteLimitCount,
-        3
-      )}`,
+        2.5
+      )} \`${formatter.format(total % voteLimitCount)}/${formatter.format(
+        voteLimitCount
+      )}\``,
       inline: false,
     },
     {

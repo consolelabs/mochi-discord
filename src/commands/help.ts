@@ -6,11 +6,7 @@ import { originalCommands } from "../commands"
 import { emojis, thumbnails } from "utils/common"
 import config from "../adapters/config"
 import { Category, Command } from "types/common"
-import {
-  composeEmbedMessage,
-  EMPTY_FIELD,
-  justifyEmbedFields,
-} from "utils/discordEmbed"
+import { composeEmbedMessage, EMPTY_FIELD } from "utils/discordEmbed"
 dayjs.extend(utc)
 
 const categoryIcons: Record<Category, string> = {
@@ -88,13 +84,25 @@ const command: Command = {
 
       // add blank field as the third column
       if (idx % 3 === 2) embed.addFields(EMPTY_FIELD)
-      embed.addField(`${category}`, `${commandsByCat}`, true)
+      embed.addFields({
+        name: `${category}`,
+        value: `${commandsByCat}`,
+        inline: true,
+      })
       idx++
     }
-    embed.addField("**Examples**", `\`\`\`$help invite\`\`\``)
-    embed.addField("**Document**", `[**Gitbook**](${HELP_GITBOOK})`)
+    embed.addFields(
+      {
+        name: "**Examples**",
+        value: `\`\`\`$help invite\`\`\``,
+      },
+      {
+        name: "**Document**",
+        value: `[**Gitbook**](${HELP_GITBOOK})`,
+      }
+    )
 
-    return { embeds: [justifyEmbedFields(embed, 3)] }
+    return { embeds: [embed] }
   },
   allowDM: true,
   colorType: "Command",
