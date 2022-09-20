@@ -64,6 +64,7 @@ import { hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
+import usage_stats from "adapters/usage_stats"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 
@@ -221,6 +222,14 @@ async function executeCommand(
       })
     }
   }
+
+  // send command to server to store
+  usage_stats.createUsageStat({
+    guild_id: message.guildId !== null ? message.guildId : "DM",
+    user_id: message.author.id,
+    command: commandObject.id,
+    args: message.content,
+  })
 }
 
 // async function handleCustomCommands(message: Message, commandKey: string) {
