@@ -21,7 +21,7 @@ export default {
       await webhook.pushDiscordWebhook("guildCreate", {
         guild_id: guild.id,
       })
-      IntroduceMochiToAdmin(guild)
+      introduceMochiToAdmin(guild)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
@@ -34,7 +34,7 @@ export default {
   },
 } as Event<"guildCreate">
 
-async function IntroduceMochiToAdmin(guild: Discord.Guild) {
+async function introduceMochiToAdmin(guild: Discord.Guild) {
   const introduceChannel = guild.channels.cache
     .filter((c) => c.type == "GUILD_TEXT")
     .map((c) => c as TextChannel)[0]
