@@ -1,10 +1,11 @@
 import Discord from "discord.js"
 import events from "./events"
-import { APPLICATION_ID, DISCORD_TOKEN } from "./env"
+import { APPLICATION_ID, DISCORD_TOKEN, PORT } from "./env"
 import { REST } from "@discordjs/rest"
 import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
 import { slashCommands } from "commands"
+import { createServer, IncomingMessage, ServerResponse } from "http"
 
 const client = new Discord.Client({
   intents: [
@@ -43,9 +44,37 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
       body,
     })
     logger.info("Successfully reloaded application (/) commands.")
+
+    await runHttpServer()
   } catch (error) {
     logger.error("Failed to refresh application (/) commands.")
   }
 })()
+
+async function runHttpServer() {
+  const server = createServer(
+    (request: IncomingMessage, response: ServerResponse) => {
+      if (request.url === "/healthz") {
+        if (client.isReady()) {
+          response.statusCode = 200
+          response.setHeader("Content-Type", "text/plain")
+          response.end("OK")
+          return
+        }
+
+        response.statusCode = 503
+        response.end()
+        return
+      }
+
+      response.statusCode = 404
+      response.end()
+    }
+  )
+
+  server.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`)
+  })
+}
 
 export default client

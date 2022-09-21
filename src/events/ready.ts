@@ -10,7 +10,6 @@ import { BotBaseError } from "errors"
 import { setTimeout as wait } from "timers/promises"
 import TwitterStream from "utils/TwitterStream"
 import defi from "adapters/defi"
-import { createServer, IncomingMessage, ServerResponse } from "http"
 
 export default {
   name: "ready",
@@ -73,30 +72,8 @@ export default {
 
     // set the client so the bot can send message
     TwitterStream.client = listener
-
-    await runHttpServer()
   },
 } as Event<"ready">
-
-async function runHttpServer() {
-  const port = 5000
-  const server = createServer(
-    (request: IncomingMessage, response: ServerResponse) => {
-      if (request.url === "/healthz") {
-        response.statusCode = 200
-        response.setHeader("Content-Type", "text/plain")
-        response.end("OK")
-      } else {
-        response.statusCode = 404
-        response.end()
-      }
-    }
-  )
-
-  server.listen(port, () => {
-    console.log(`Server listening on port ${port}`)
-  })
-}
 
 function runAndSetInterval(fn: () => void, ms: number) {
   fn()

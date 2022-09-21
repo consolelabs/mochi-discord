@@ -8,6 +8,7 @@ if (process.env.JEST_WORKER_ID !== undefined) {
 export const PROD = process.env.NODE_ENV === "production"
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN || ""
 export const APPLICATION_ID = process.env.APPLICATION_ID || ""
+export const PORT = Number(process.env.PORT || "5000")
 
 export const API_SERVER_HOST =
   process.env.API_SERVER_HOST || "http://localhost:8200"
