@@ -6,6 +6,7 @@ import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
 import { slashCommands } from "commands"
 import { createServer, IncomingMessage, ServerResponse } from "http"
+import { IS_READY } from "events/ready"
 
 const client = new Discord.Client({
   intents: [
@@ -55,7 +56,7 @@ async function runHttpServer() {
   const server = createServer(
     (request: IncomingMessage, response: ServerResponse) => {
       if (request.url === "/healthz") {
-        if (client.isReady()) {
+        if (IS_READY) {
           response.statusCode = 200
           response.setHeader("Content-Type", "text/plain")
           response.end("OK")
