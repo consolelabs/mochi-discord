@@ -71,7 +71,7 @@ const command: Command = {
     ],
   }),
   colorType: "Server",
-  onlyAdministrator: true,
+  aliases: ["leaderboard"],
 }
 
 export default command
