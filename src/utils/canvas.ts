@@ -559,7 +559,10 @@ export async function drawLeaderboard(options: {
   // right title
   const rightTitleStr = options.rightHeader
   const rightTitle = {
-    x: 600,
+    x:
+      container.w -
+      widthOf(ctx, rightTitleStr) -
+      (container.pr ?? container.pl ?? 0),
     y: userTitle.y,
   }
   ctx.fillText(rightTitleStr, rightTitle.x, rightTitle.y ?? 0)
@@ -624,7 +627,10 @@ export async function drawLeaderboard(options: {
     ctx.font = "bold 27px Manrope"
     ctx.fillStyle = "#BFBFBF"
     const rightValue = {
-      x: rightTitle.x,
+      x:
+        container.w -
+        widthOf(ctx, rightStr) -
+        (container.pr ?? container.pl ?? 0),
       y: discriminator.y,
       w: widthOf(ctx, rightStr),
     }

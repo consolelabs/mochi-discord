@@ -37,7 +37,7 @@ const command: Command = {
         files: [
           await drawLeaderboard({
             rows: await Promise.all(
-              res.data.map(async (d) => {
+              res.data?.map(async (d) => {
                 const user = await msg.guild?.members.fetch(d.discord_id ?? "")
                 if (user) {
                   return {
@@ -52,7 +52,7 @@ const command: Command = {
                     rightValue: `${d.streak_count ?? 0}/${d.total_count ?? 0}`,
                   }
                 }
-              })
+              }) ?? []
             ),
             leftHeader: "Voters",
             rightHeader: "Streak/Total",
