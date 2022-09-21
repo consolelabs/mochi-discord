@@ -21,6 +21,7 @@ import {
   ResponseListGuildGroupNFTRolesResponse,
   ResponseGetWelcomeChannelConfigResponse,
   ResponseGetVoteChannelConfigResponse,
+  ResponseDataListRoleReactionResponse,
 } from "types/api"
 
 class Config extends Fetcher {
@@ -316,8 +317,8 @@ class Config extends Fetcher {
   }
 
   public async listAllReactionRoles(guildId: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/configs/reaction-roles?guild_id=${guildId}`,
+    return await this.jsonFetch<ResponseDataListRoleReactionResponse>(
+      `${API_BASE_URL}/configs/reaction-roles`,
       {
         query: {
           guildId,
