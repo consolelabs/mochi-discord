@@ -822,6 +822,15 @@ export interface ResponseGetMyInfoResponse {
   data?: DiscordgoUser;
 }
 
+export interface ResponseGetNFTActivityData {
+  data?: ResponseIndexerNFTActivityData[];
+  metadata?: UtilPagination;
+}
+
+export interface ResponseGetNFTActivityResponse {
+  data?: ResponseGetNFTActivityData;
+}
+
 export interface ResponseGetNFTCollectionByAddressChainResponse {
   data?: ModelNFTCollection;
 }
@@ -971,6 +980,28 @@ export interface ResponseIndexerGetNFTTokensResponse {
   total?: number;
 }
 
+export interface ResponseIndexerNFTActivityData {
+  chain_id?: number;
+  contract_address?: string;
+  created_time?: string;
+  event_type?: string;
+  from_address?: string;
+  id?: number;
+  last_update_time?: string;
+  listing_price?: string;
+  listing_price_obj?: ResponseIndexerPrice;
+  listing_status?: string;
+  listing_type?: string;
+  payment_token?: number;
+  platform_id?: number;
+  quantity?: string;
+  sold_price?: string;
+  sold_price_obj?: ResponseIndexerPrice;
+  to_address?: string;
+  token_id?: string;
+  transaction_hash?: string;
+}
+
 export interface ResponseIndexerNFTCollectionTickersData {
   address?: string;
   chain?: ResponseIndexerChain;
@@ -1009,6 +1040,7 @@ export interface ResponseIndexerNFTTokenDetailData {
   image_content_type?: string;
   metadata_id?: string;
   name?: string;
+  owner?: ResponseIndexerNftTokenOwner;
   rarity?: ResponseIndexerNFTTokenRarity;
   rarity_rank?: number;
   rarity_score?: string;
@@ -1022,6 +1054,12 @@ export interface ResponseIndexerNFTTokenRarity {
   rarity?: string;
   score?: string;
   total?: number;
+}
+
+export interface ResponseIndexerNftTokenOwner {
+  collection_address?: string;
+  owner_address?: string;
+  token_id?: string;
 }
 
 export interface ResponseIndexerPrice {
@@ -1125,11 +1163,13 @@ export interface ResponseNFTCollectionCount {
   total?: number;
 }
 
-export interface ResponseNFTCollectionsResponse {
+export interface ResponseNFTCollectionsData {
   data?: ModelNFTCollection[];
-  page?: number;
-  size?: number;
-  total?: number;
+  metadata?: UtilPagination;
+}
+
+export interface ResponseNFTCollectionsResponse {
+  data?: ResponseNFTCollectionsData;
 }
 
 export interface ResponseNFTNewListedResponse {
@@ -1291,4 +1331,10 @@ export interface ResponseUserInvitesAggregation {
   inviter_id?: string;
   left?: number;
   regular?: number;
+}
+
+export interface UtilPagination {
+  page?: number;
+  size?: number;
+  total?: number;
 }
