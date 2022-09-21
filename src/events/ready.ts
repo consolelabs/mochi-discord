@@ -11,6 +11,8 @@ import { setTimeout as wait } from "timers/promises"
 import TwitterStream from "utils/TwitterStream"
 import defi from "adapters/defi"
 
+export let IS_READY = false
+
 export default {
   name: "ready",
   once: false,
@@ -72,6 +74,7 @@ export default {
 
     // set the client so the bot can send message
     TwitterStream.client = listener
+    IS_READY = true
   },
 } as Event<"ready">
 
