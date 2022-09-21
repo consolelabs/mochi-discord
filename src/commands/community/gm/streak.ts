@@ -25,9 +25,18 @@ const command: Command = {
     }
     const res = await Profile.getUserGmStreak(msg.author.id, msg.guildId)
     if (!res.ok) {
-      switch (res.error) {
+      switch (res.error.toLowerCase()) {
         case "user has no gm streak":
-          return null
+          return {
+            messageOptions: {
+              embeds: [
+                composeEmbedMessage(msg, {
+                  title: `GM/GN streak`,
+                  description: `Please configure gm/gn channel first. Type ${PREFIX}help gm config for more information.`,
+                }),
+              ],
+            },
+          }
         default:
           throw new Error(res.error)
       }
