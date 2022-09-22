@@ -226,6 +226,8 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
               \nRemember to use our feature, you need to place \`$\` or \`/\` in every command. Now, back to ${guildName} server, start with $help, and try our features!!!`,
           }),
         ],
+      }).catch((e) => {
+        logger.info(e)
       })
       dm.send({
         ...((embedTickerEth.messageOptions.files?.length ?? 0) > 0
@@ -243,6 +245,8 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
           }),
           embedVote,
         ],
+      }).catch((e) => {
+        logger.info(e)
       })
     })
   })

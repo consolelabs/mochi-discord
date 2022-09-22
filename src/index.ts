@@ -74,7 +74,7 @@ async function runHttpServer() {
   )
 
   server.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`)
+    logger.info(`Server listening on port ${PORT}`)
   })
 }
 

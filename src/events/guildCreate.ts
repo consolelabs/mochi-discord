@@ -5,7 +5,6 @@ import webhook from "adapters/webhook"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
 import ChannelLogger from "utils/ChannelLogger"
-import { TextChannel } from "discord.js"
 import { composeEmbedMessage } from "utils/discordEmbed"
 
 export default {
@@ -35,12 +34,8 @@ export default {
 } as Event<"guildCreate">
 
 async function introduceMochiToAdmin(guild: Discord.Guild) {
-  const introduceChannel = guild.channels.cache
-    .filter((c) => c.type == "GUILD_TEXT")
-    .map((c) => c as TextChannel)[0]
-
-  if (introduceChannel) {
-    introduceChannel.send({
+  if (guild.systemChannel) {
+    guild.systemChannel.send({
       embeds: [
         composeEmbedMessage(null, {
           title: `Hi ${guild.name} administrators!!!`,

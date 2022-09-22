@@ -1,16 +1,36 @@
 import community from "adapters/community"
-import { getErrorEmbed, getSuccessEmbed } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "utils/discordEmbed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { APIError, GuildIdNotFoundError } from "errors"
 
 export async function verifyRemove(interaction: CommandInteraction) {
   if (!interaction.guild) {
+    throw new GuildIdNotFoundError({})
+  }
+
+  const infoRes = await community.getVerifyWalletChannel(interaction.guild.id)
+
+  if (!infoRes.ok) {
+    throw new APIError({
+      curl: infoRes.curl,
+      description: infoRes.log,
+      user: interaction.user,
+      guild: interaction.guild,
+    })
+  }
+
+  if (!infoRes.data) {
     return {
       messageOptions: {
         embeds: [
-          getErrorEmbed({
-            description: "This command must be run in a Guild",
-            originalMsgAuthor: interaction.user,
+          composeEmbedMessage(null, {
+            title: "No config found",
+            description: "No verify channel to remove",
           }),
         ],
       },

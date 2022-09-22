@@ -25,10 +25,10 @@ const command: Command = {
         title: "Manage your watchlist",
         description: "Manage your watchlist for selected tokens",
         usage: `${PREFIX}watchlist <action>`,
-        examples: `${PREFIX}watchlist view\n${PREFIX}wl view 2`,
+        examples: `${PREFIX}wl view`,
         document: WATCHLIST_GITBOOK,
         footer: [
-          `Type ${PREFIX}help watchlist <action> for a specific action! `,
+          `Type ${PREFIX}help watchlist <action> for a specific action!.`,
         ],
         includeCommandsList: true,
       }),

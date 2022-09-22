@@ -39,12 +39,12 @@ export function handleUpdateWlError(
   }
   switch (true) {
     case error.toLowerCase().startsWith("record not found"):
-      description = `Token with symbol \`${symbol}\` ${
+      description = `Ticker/pair \`${symbol}\` ${
         isRemove ? "does not exist in your watchlist" : "is not supported"
       }.`
       break
     case error.toLowerCase().startsWith("conflict") && !isRemove:
-      description = `Token existed. Please add another one!`
+      description = `Ticker/pair existed. Please add another one!`
       break
     default:
       break
