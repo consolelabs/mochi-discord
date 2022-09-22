@@ -15,7 +15,7 @@ import airdrop from "./defi/airdrop"
 import gm from "./community/gm"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
-// import starboard from "./config/starboard"
+import starboard from "./config/starboard"
 import top from "./community/top"
 import prune from "./community/prune"
 import tripod from "./games/tripod"
@@ -115,7 +115,7 @@ export const originalCommands: Record<string, Command> = {
   levelrole,
   nftrole,
   // globalxp,
-  // starboard,
+  starboard,
   // eventxp,
   log,
   poe,

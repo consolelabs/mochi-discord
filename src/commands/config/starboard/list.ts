@@ -5,6 +5,7 @@ import {
   getPaginationRow,
   listenForPaginateAction,
 } from "utils/discordEmbed"
+import { GuildIdNotFoundError } from "errors"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { paginate } from "utils/common"
@@ -16,6 +17,11 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
+    if (!msg.guild) {
+      throw new GuildIdNotFoundError({ message: msg })
+    }
+
+    const guild = msg.guild
     let fields: any[] = []
     const res = await config.listAllRepostReactionConfigs(msg.guild.id)
     if (res?.data?.length > 0) {
@@ -33,7 +39,7 @@ const command: Command = {
         const embed = composeEmbedMessage(msg, {
           title: "Starboard Configuration",
           withoutFooter: true,
-          thumbnail: msg.guild.iconURL(),
+          thumbnail: guild.iconURL(),
         }).setFooter(`Page ${idx + 1} / ${fields.length}`)
 
         batch.forEach((f: any) => {

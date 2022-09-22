@@ -969,6 +969,22 @@ class Config extends Fetcher {
       },
     })
   }
+
+  public async editMessageRepost(req: {
+    guild_id: string
+    origin_message_id: string
+    origin_channel_id: string
+    repost_channel_id: string
+    repost_message_id: string
+  }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/configs/repost-reactions/message-repost`,
+      {
+        method: "PUT",
+        body: req,
+      }
+    )
+  }
 }
 
 const config = new Config()
