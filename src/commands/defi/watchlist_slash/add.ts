@@ -48,7 +48,9 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("symbol")
-          .setDescription("The token which you wanna add to your watchlist.")
+          .setDescription(
+            "The ticker/pair which you wanna add to your watchlist."
+          )
           .setRequired(true)
       )
   },

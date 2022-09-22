@@ -77,44 +77,51 @@ async function renderWatchlist(data: any[]) {
     }
     drawRectangle(ctx, itemContainer, itemContainer.bgColor)
     const {
+      name,
       symbol,
       current_price,
       sparkline_in_7d,
-      price_change_percentage_24h,
       price_change_percentage_7d_in_currency,
+      image: imageUrl,
+      is_pair,
     } = item
     // image
-    const image = await loadImage(item.image)
     const radius = 20
     const imageX = itemContainer.x.from + (itemContainer.pl ?? 0)
     const imageY = itemContainer.y.from + (itemContainer.pt ?? 0)
-    ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
+    if (imageUrl) {
+      const image = await loadImage(imageUrl)
+      ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
+    }
 
-    // symbol
+    // symbol OR name
     ctx.font = "bold 29px Inter"
     ctx.fillStyle = "white"
-    const symbolText = symbol.toUpperCase()
+    const symbolText = (is_pair ? name : symbol).toUpperCase()
     const symbolH = heightOf(ctx, symbolText)
-    const symbolX = imageX + radius * 2 + 10
+    const symbolX = imageX + (is_pair ? 0 : radius * 2 + 10)
     const symbolY = imageY + radius + symbolH / 2
     ctx.fillText(symbolText, symbolX, symbolY)
 
     // price
     ctx.font = "bold 30px Inter"
     ctx.fillStyle = "white"
-    const currentPrice = `$${current_price.toLocaleString()}`
+    const currentPrice = `${
+      is_pair ? "" : "$"
+    }${current_price.toLocaleString()}`
     const priceW = widthOf(ctx, currentPrice)
     const priceH = heightOf(ctx, currentPrice)
     const priceX = imageX
     const priceY = imageY + priceH + radius * 2 + 10
     ctx.fillText(currentPrice, priceX, priceY)
 
-    // 24h change
+    // 7d change percentage
     ctx.font = "25px Inter"
-    ctx.fillStyle = price_change_percentage_24h >= 0 ? ascColor : descColor
+    ctx.fillStyle =
+      price_change_percentage_7d_in_currency >= 0 ? ascColor : descColor
     const change = `${
-      price_change_percentage_24h >= 0 ? "+" : ""
-    }${price_change_percentage_24h.toFixed(2)}%`
+      price_change_percentage_7d_in_currency >= 0 ? "+" : ""
+    }${price_change_percentage_7d_in_currency.toFixed(2)}%`
     const changeX = priceX + priceW + 10
     const changeY = priceY
     ctx.fillText(change, changeX, changeY)
@@ -189,7 +196,7 @@ const command: Command = {
         title: "Show list of your favorite tokens",
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
         usage: `${PREFIX}watchlist view [page]`,
-        examples: `${PREFIX}watchlist view\n${PREFIX}wl view 2`,
+        examples: `${PREFIX}wl view`,
       }),
     ],
   }),
