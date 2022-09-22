@@ -1,21 +1,12 @@
 import community from "adapters/community"
 import { getErrorEmbed, getSuccessEmbed } from "utils/discordEmbed"
-import { parseDiscordToken } from "utils/commands"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { GuildIdNotFoundError } from "errors"
 
 export async function verifySet(interaction: CommandInteraction) {
   if (!interaction.guild) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: "This command must be run in a Guild",
-            originalMsgAuthor: interaction.user,
-          }),
-        ],
-      },
-    }
+    throw new GuildIdNotFoundError({})
   }
 
   const existChannel = await community.getVerifyWalletChannel(
@@ -33,10 +24,9 @@ export async function verifySet(interaction: CommandInteraction) {
       },
     }
   }
-  const { isChannel, id: channelId } = parseDiscordToken(
-    interaction.options.getString("channel", true)
-  )
-  if (!isChannel) {
+  const channel = interaction.options.getChannel("channel", true)
+  const channelId = channel.id
+  if (channel.type !== "GUILD_TEXT") {
     return {
       messageOptions: {
         embeds: [
@@ -49,9 +39,13 @@ export async function verifySet(interaction: CommandInteraction) {
     }
   }
 
+  const role = interaction.options.getRole("role", false)
+  const roleId = role?.id
+
   const createVerifyWalletRequest = {
     verify_channel_id: channelId,
     guild_id: interaction.guild.id,
+    ...(roleId ? { verify_role_id: roleId } : {}),
   }
 
   const res = await community.createVerifyWalletChannel(
@@ -75,7 +69,11 @@ export async function verifySet(interaction: CommandInteraction) {
       embeds: [
         getSuccessEmbed({
           title: "Channel set",
-          description: `Mochi sent verify instructions to <#${channelId}> channel`,
+          description: `Mochi sent verify instructions to <#${channelId}> channel${
+            roleId
+              ? `. In addition, user will be assigned role <@&${roleId}> upon successful verification`
+              : ""
+          }`,
           originalMsgAuthor: interaction.user,
         }),
       ],
@@ -86,9 +84,15 @@ export async function verifySet(interaction: CommandInteraction) {
 export const set = new SlashCommandSubcommandBuilder()
   .setName("set")
   .setDescription("Create verify wallet channel")
-  .addStringOption((option) =>
+  .addChannelOption((option) =>
     option
       .setName("channel")
       .setDescription("the channel which you wanna create verify wallet.")
       .setRequired(true)
+  )
+  .addRoleOption((option) =>
+    option
+      .setName("role")
+      .setDescription("the role to assign to user when they are verified")
+      .setRequired(false)
   )

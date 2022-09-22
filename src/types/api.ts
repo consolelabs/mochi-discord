@@ -248,6 +248,7 @@ export interface ModelGuildConfigWalletVerificationMessage {
   embedded_message?: number[];
   guild_id?: string;
   verify_channel_id?: string;
+  verify_role_id?: string;
 }
 
 export interface ModelGuildConfigWelcomeChannel {
@@ -510,6 +511,7 @@ export interface RequestNewGuildConfigWalletVerificationMessageRequest {
   embedded_message?: number[];
   guild_id?: string;
   verify_channel_id?: string;
+  verify_role_id?: string;
 }
 
 export interface RequestRoleReactionRequest {

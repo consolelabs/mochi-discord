@@ -1,11 +1,8 @@
 import { Command } from "types/common"
 import community from "adapters/community"
 import { PREFIX } from "utils/constants"
-import {
-  composeEmbedMessage,
-  getErrorEmbed,
-  getSuccessEmbed,
-} from "utils/discordEmbed"
+import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
+import { APIError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "verify_remove",
@@ -13,25 +10,35 @@ const command: Command = {
   brief: "Unset verify channel",
   category: "Community",
   run: async function (msg) {
-    if (!msg.guildId || !msg.guild) {
+    if (!msg.guild) {
+      throw new GuildIdNotFoundError({ message: msg })
+    }
+    const infoRes = await community.getVerifyWalletChannel(msg.guild.id)
+
+    if (!infoRes.ok) {
+      throw new APIError({
+        message: msg,
+        curl: infoRes.curl,
+        description: infoRes.log,
+      })
+    }
+
+    if (!infoRes.data) {
       return {
         messageOptions: {
           embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
+            composeEmbedMessage(msg, {
+              title: "No config found",
+              description: "No verify channel to remove",
             }),
           ],
         },
       }
     }
-    const res = await community.deleteVerifyWalletChannel(msg.guildId)
+
+    const res = await community.deleteVerifyWalletChannel(msg.guild.id)
     if (!res.ok) {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: res.error })],
-        },
-      }
+      throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
 
     return {

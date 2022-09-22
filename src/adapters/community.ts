@@ -206,10 +206,11 @@ class Community extends Fetcher {
   public async createVerifyWalletChannel(req: {
     guild_id: string
     verify_channel_id: string
+    verify_role_id?: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/verify/config`, {
       method: "POST",
-      body: JSON.stringify(req),
+      body: req,
     })
   }
 
