@@ -17,6 +17,7 @@ import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 // import starboard from "./config/starboard"
 import top from "./community/top"
+import prune from "./community/prune"
 import tripod from "./games/tripod"
 import levelrole from "./config/levelRole"
 import nftrole from "./config/nftRole"
@@ -37,6 +38,7 @@ import welcome_slash from "./config/welcome_slash"
 import watchlist_slash from "./defi/watchlist_slash"
 import top_slash from "./community/top_slash"
 import verify_slash from "./community/verify_slash"
+import prune_slash from "./community/prune_slash"
 import defaultrole_slash from "./config/defaultRole_slash"
 import levelrole_slash from "./config/levelRole_slash"
 import vote_slash from "./community/vote/vote_slash"
@@ -79,6 +81,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   watchlist: watchlist_slash,
   defaultrole: defaultrole_slash,
   levelrole: levelrole_slash,
+  prune: prune_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -104,6 +107,7 @@ export const originalCommands: Record<string, Command> = {
   sales,
   verify,
   vote,
+  prune,
   // config section
   reactionrole,
   defaultrole,
