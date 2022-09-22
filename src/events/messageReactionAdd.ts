@@ -147,7 +147,7 @@ export default {
         _reaction.message.guild.id
       )
       const listMessageID =
-        emojiResp?.data?.configs.map((v: any) => v.message_id) || []
+        emojiResp?.data?.configs?.map((v: any) => v.message_id) || []
       if (!listMessageID.includes(_reaction.message.id)) {
         return
       }

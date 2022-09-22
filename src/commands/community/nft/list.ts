@@ -22,7 +22,7 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
     page: pageIdx,
     size: 16,
   })
-  if (!res.data || !res.data.length) {
+  if (!res.data?.data || !res.data.data.length) {
     return {
       messageOptions: {
         embeds: [
@@ -34,8 +34,9 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
       },
     }
   }
-
-  const totalPage = Math.ceil(res.data.total / res.data.size)
+  const totalPage = Math.ceil(
+    (res.data.metadata?.total || 0) / (res.data.metadata?.size || 1)
+  )
   const embed = composeEmbedMessage(msg, {
     author: ["Supported NFT Collections", getEmojiURL(emojis["HEART"])],
     image: `attachment://nftlist.png`,
@@ -45,7 +46,7 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
   return {
     messageOptions: {
       embeds: [embed],
-      components: getPaginationRow(res.data.page, totalPage),
+      components: getPaginationRow(res.data.metadata?.page || 0, totalPage),
       files: [await renderSupportedNFTList(res.data.data)],
     },
   }

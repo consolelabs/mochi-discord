@@ -27,7 +27,7 @@ const command: Command = {
 
     if (rrListRes.ok) {
       const values = await Promise.all(
-        rrListRes.data.configs.map(async (conf: any) => {
+        rrListRes.data.configs?.map(async (conf: any) => {
           const promiseArr = channelList.map((chan) =>
             catchEm(chan.messages.fetch(conf.message_id))
           )
@@ -42,10 +42,10 @@ const command: Command = {
               return f
             }
           }
-        })
+        }) ?? []
       )
 
-      let pages = paginate(values.flat(), 5)
+      let pages = paginate(values.flat().filter(Boolean), 5)
       pages = pages.map((arr: any, idx: number): MessageEmbed => {
         let roleValue = ""
         let emojiValue = ""
