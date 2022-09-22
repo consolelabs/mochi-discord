@@ -25,8 +25,10 @@ import {
   getEmoji,
   getMarketplaceCollectionUrl,
   getMarketplaceNftUrl,
+  getTimeFromNowStr,
   hasAdministrator,
   isValidHttpUrl,
+  maskAddress,
   shortenHashOrAddress,
 } from "utils/common"
 import config from "adapters/config"
@@ -94,6 +96,7 @@ export async function composeNFTDetail(
     image_cdn,
     collection_address,
     token_id,
+    owner,
   } = data
 
   let nftImage = image
@@ -107,6 +110,9 @@ export async function composeNFTDetail(
   let description = `**[${
     name ?? `${colName}#${token_id}`
   }](${getMarketplaceNftUrl(collection_address, token_id)})**`
+  description += owner?.owner_address
+    ? ` **・Owner:** \`${shortenHashOrAddress(owner.owner_address)}\``
+    : ""
   description += rarity?.rank
     ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
     : ""
@@ -117,7 +123,7 @@ export async function composeNFTDetail(
     }
   )
 
-  const fields: EmbedFieldData[] = attributesFiltered
+  const attributeFields: EmbedFieldData[] = attributesFiltered
     ? attributesFiltered.map((attr: any) => {
         const val = `${capFirst(attr.value)}\n${attr.frequency ?? ""}`
         return {
@@ -130,7 +136,7 @@ export async function composeNFTDetail(
       })
     : []
 
-  const embed = composeEmbedMessage(msg, {
+  let embed = composeEmbedMessage(msg, {
     author: [
       `${capitalizeFirst(colName)}${chainName ? ` (${chainName})` : ""}`,
       ...(colImage.length ? [colImage] : []),
@@ -138,8 +144,40 @@ export async function composeNFTDetail(
     description,
     image: nftImage,
     color: rarityColors[rarity?.rarity?.toUpperCase()],
-  }).addFields(fields)
-  return justifyEmbedFields(embed, 3)
+  }).addFields(attributeFields)
+
+  embed = justifyEmbedFields(embed, 3)
+
+  const {
+    ok,
+    data: activityData,
+    log,
+    curl,
+  } = await community.getNFTActivity({
+    collectionAddress: collection_address,
+    tokenId: token_id,
+  })
+  if (!ok) throw new APIError({ message: msg, curl, description: log })
+  const txHistoryTitle = `${getEmoji("swap")} Transaction History`
+  const txHistoryValue = (activityData.data ?? [])
+    .map((tx) => {
+      const event = tx.event_type?.toUpperCase() ?? ""
+      const fromAddress =
+        tx.from_address === undefined ? "-" : maskAddress(tx.from_address, 5)
+      const toAddress =
+        tx.to_address === undefined ? "-" : maskAddress(tx.to_address, 5)
+      const time = getTimeFromNowStr(tx.created_time ?? "")
+      return `**${DOT} ${event}** \`${fromAddress}\` to \`${toAddress}\` (${time})`
+    })
+    .join("\n")
+  const txHistoryFields: EmbedFieldData[] = [
+    {
+      name: txHistoryTitle,
+      value: `${txHistoryValue}`,
+    },
+  ]
+  if (txHistoryValue.length !== 0) embed.addFields(txHistoryFields)
+  return embed
 }
 
 export async function setDefaultSymbol(i: ButtonInteraction) {

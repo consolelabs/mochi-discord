@@ -20,7 +20,9 @@ import {
   traitTypeMapping,
 } from "./nft"
 import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
 import { MARKETPLACE_BASE_URL } from "env"
+dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -385,6 +387,10 @@ export function capitalizeFirst(str: string) {
 
 export function getDateStr(timestamp: number) {
   return dayjs(timestamp).format("MMMM DD, YYYY")
+}
+
+export function getTimeFromNowStr(timestamp: string) {
+  return dayjs(timestamp).fromNow()
 }
 
 export function getMarketplaceCollectionUrl(collectionAddress: string) {
