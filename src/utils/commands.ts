@@ -10,8 +10,9 @@ import {
   SPACES_REGEX,
   USER_PREFIX,
 } from "./constants"
-import { commands, slashCommands } from "commands"
+import { commands, fuzzySet, slashCommands } from "commands"
 import { utils } from "ethers"
+import { composeEmbedMessage } from "./discordEmbed"
 
 export const getCommandArguments = (message: Message) => {
   const content = message?.content
@@ -144,4 +145,36 @@ export function getSlashCommandObject(
 ): SlashCommand | null {
   if (!interaction) return null
   return slashCommands[interaction.commandName]
+}
+
+/**
+ * Find the closest match to the command key
+ * If not found then reply with help message
+ */
+export async function sendCommandSuggestionMessage(
+  userInput: string,
+  msg: Message
+) {
+  const results = fuzzySet.get(userInput, null, 0.5)
+
+  if (!results || results.length == 0) {
+    await msg.reply({
+      embeds: [
+        composeEmbedMessage(null, {
+          title: "Mochi is confused",
+          description: `Mochi doesn't understand what command you are trying to use.\nPerhaps you can reference \`${PREFIX}help\` for more info`,
+        }),
+      ],
+    })
+  } else {
+    const result = results[0][1]
+    await msg.reply({
+      embeds: [
+        composeEmbedMessage(null, {
+          title: "Mochi is confused",
+          description: `Mochi doesn't understand what command you are trying to use.\nDo you mean \`${PREFIX}${result}\`?`,
+        }),
+      ],
+    })
+  }
 }
