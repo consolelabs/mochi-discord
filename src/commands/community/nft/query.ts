@@ -72,6 +72,13 @@ function getIcon(
   return getEmoji(iconName)
 }
 
+const txHistoryEmojiMap: Record<string, string> = {
+  sale: getEmoji("cash"),
+  transfer: getEmoji("right_arrow"),
+  cancelled: getEmoji("revoke"),
+  listing: getEmoji("listing"),
+}
+
 export async function composeNFTDetail(
   data: any,
   msg: Message,
@@ -167,7 +174,9 @@ export async function composeNFTDetail(
       const toAddress =
         tx.to_address === undefined ? "-" : maskAddress(tx.to_address, 5)
       const time = getTimeFromNowStr(tx.created_time ?? "")
-      return `**${DOT} ${event}** \`${fromAddress}\` to \`${toAddress}\` (${time})`
+      return `**${
+        txHistoryEmojiMap[event.toLowerCase()] ?? DOT
+      } ${event}** \`${fromAddress}\` to \`${toAddress}\` (${time})`
     })
     .join("\n")
   const txHistoryFields: EmbedFieldData[] = [
