@@ -417,3 +417,13 @@ export function isValidHttpUrl(urlStr: string) {
 export function getPaginationFooter({ page, size, total }: Pagination) {
   return [`Page ${page + 1} / ${Math.ceil(total / size) || 1}`]
 }
+
+/**
+ * Returns result as boolean based on the `percentage` passed in.
+ * @param percentage: range is [0-1] or [1-100]. Returns false if out of range
+ */
+export function getChance(percentage: number) {
+  if (percentage >= 100 || percentage <= 0) return false
+  if (percentage > 1 && percentage < 100) percentage /= 100
+  return Math.random() < percentage
+}
