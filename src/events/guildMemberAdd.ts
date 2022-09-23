@@ -213,42 +213,47 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
 
   client.users.fetch(inviteeID).then(async (user) => {
     const embedVote = await handle(user)
-    user.createDM().then((dm) => {
-      dm.send({
-        embeds: [
-          composeEmbedMessage(null, {
-            title: `Welcome to the ${guildName} server installed Mochi Bot.`,
-            color: `0xFCD3C1`,
-            description: `Type \`$help\` in ${guildName} server or read this Instruction on [Gitbook](https://app.gitbook.com/s/nJ8qX0cEj5ph125HugiB/~/changes/SoXaDd3kMCfyXNQDOZ9f/getting-started/permission-and-prefix) to get to know all our features. Now, let us walk you through some of Mochi Bot main functions:\n
+    user
+      .createDM()
+      .then((dm) => {
+        dm.send({
+          embeds: [
+            composeEmbedMessage(null, {
+              title: `Welcome to the ${guildName} server installed Mochi Bot.`,
+              color: `0xFCD3C1`,
+              description: `Type \`$help\` in ${guildName} server or read this Instruction on [Gitbook](https://app.gitbook.com/s/nJ8qX0cEj5ph125HugiB/~/changes/SoXaDd3kMCfyXNQDOZ9f/getting-started/permission-and-prefix) to get to know all our features. Now, let us walk you through some of Mochi Bot main functions:\n
               - **Crypto management:** Managing your crypto portfolio.
               - **NFT Rarity Ranking & Volume:** Tracking and managing your favorite NFT collections.
               - **Server Administration:** Building and managing your own community on Discord (For server owners only. Want to use these features? [Install Mochi Bot to your server now!](https://getmochi.co/))
               \nRemember to use our feature, you need to place \`$\` or \`/\` in every command. Now, back to ${guildName} server, start with $help, and try our features!!!`,
-          }),
-        ],
-      }).catch((e) => {
+            }),
+          ],
+        }).catch((e) => {
+          logger.info(e)
+        })
+        dm.send({
+          ...((embedTickerEth.messageOptions.files?.length ?? 0) > 0
+            ? { files: embedTickerEth.messageOptions.files }
+            : {}),
+          embeds: [
+            composeEmbedMessage(null, {
+              description: `For instance, you can view your favorite token price by \`$ticker eth\`.`,
+              color: `0xFCD3C1`,
+            }),
+            embedTickerEth.messageOptions.embeds[0],
+            composeEmbedMessage(null, {
+              description: `Or vote for Mochi Bot to get rewards by running \`$vote\`.`,
+              color: `0xFCD3C1`,
+            }),
+            embedVote,
+          ],
+        }).catch((e) => {
+          logger.info(e)
+        })
+      })
+      .catch((e) => {
         logger.info(e)
       })
-      dm.send({
-        ...((embedTickerEth.messageOptions.files?.length ?? 0) > 0
-          ? { files: embedTickerEth.messageOptions.files }
-          : {}),
-        embeds: [
-          composeEmbedMessage(null, {
-            description: `For instance, you can view your favorite token price by \`$ticker eth\`.`,
-            color: `0xFCD3C1`,
-          }),
-          embedTickerEth.messageOptions.embeds[0],
-          composeEmbedMessage(null, {
-            description: `Or vote for Mochi Bot to get rewards by running \`$vote\`.`,
-            color: `0xFCD3C1`,
-          }),
-          embedVote,
-        ],
-      }).catch((e) => {
-        logger.info(e)
-      })
-    })
   })
 }
 
