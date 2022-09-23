@@ -629,7 +629,8 @@ export interface ResponseAddToWatchlistResponse {
 }
 
 export interface ResponseAddToWatchlistResponseData {
-  suggestions?: ModelCoingeckoSupportedTokens[];
+  base_suggestions?: ModelCoingeckoSupportedTokens[];
+  target_suggestions?: ModelCoingeckoSupportedTokens[];
 }
 
 export interface ResponseCoinImage {
