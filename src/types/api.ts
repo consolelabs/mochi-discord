@@ -475,6 +475,14 @@ export interface RequestDeleteWelcomeConfigRequest {
   guild_id?: string;
 }
 
+export interface RequestEditMessageRepostRequest {
+  guild_id?: string;
+  origin_channel_id?: string;
+  origin_message_id?: string;
+  repost_channel_id?: string;
+  repost_message_id?: string;
+}
+
 export interface RequestGenerateVerificationRequest {
   guild_id?: string;
   is_reverify?: boolean;
