@@ -250,6 +250,7 @@ export function getSuggestionComponents(
     row.addComponents(button)
   } else {
     const select = new MessageSelectMenu()
+      .setPlaceholder("Other options")
       .addOptions(suggestions)
       .setCustomId("suggestion-select")
     row.addComponents(select)

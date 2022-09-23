@@ -3,10 +3,14 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import inactive from "./inactive"
 import without from "./without"
+import whitelist from "./whitelist"
+import remove from "./remove"
 
 const actions: Record<string, Command> = {
   inactive,
   without,
+  whitelist,
+  remove,
 }
 
 const command: Command = {
@@ -20,7 +24,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}prune <option>`,
         description: "Options to prune a group of members",
-        examples: `${PREFIX}prune inactive\n${PREFIX}prune norole`,
+        examples: `${PREFIX}prune inactive\n${PREFIX}prune whitelist`,
         footer: [`Type ${PREFIX}help prune for a specific action!`],
         //document: gitbook,
         includeCommandsList: true,

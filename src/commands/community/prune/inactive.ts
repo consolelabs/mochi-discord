@@ -12,10 +12,13 @@ export async function pruneInactiveExecute(i: ButtonInteraction) {
   ) {
     return
   }
-  const pruned = await i.guild?.members.prune({
+  if (!i.guild) throw new GuildIdNotFoundError({})
+
+  const pruned = await i.guild.members.prune({
     days: 30,
     reason: `Inactive User`,
   })
+
   await i.reply({
     ephemeral: true,
     embeds: [
@@ -33,7 +36,7 @@ const command: Command = {
   brief: "Remove 30-day inactive users",
   category: "Community",
   run: async (msg) => {
-    if (!msg.guildId) {
+    if (!msg.guild) {
       throw new GuildIdNotFoundError({ message: msg })
     }
 

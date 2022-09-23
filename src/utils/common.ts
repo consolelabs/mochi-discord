@@ -160,6 +160,10 @@ export const emojis: { [key: string]: string } = {
   LIKE: "900370883594551348",
   PAWCOIN: "887275176113373194",
   EXP: "1016985999039016982",
+  LEFT_ARROW: "933339868224958504",
+  RIGHT_ARROW: "933339868233359380",
+  CASH: "933341119998210058",
+  BUBBLE_CASH: "1022765345875968040",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -381,7 +385,9 @@ export function sortNFTListByVolume(
 export function capitalizeFirst(str: string) {
   return str
     .split(/ +/g)
-    .map((w) => `${w[0].toUpperCase()}${w.slice(1).toLowerCase()}`)
+    .map(
+      (w) => `${w[0]?.toUpperCase() ?? ""}${w.slice(1)?.toLowerCase() ?? ""}`
+    )
     .join(SPACE)
 }
 

@@ -12,10 +12,12 @@ import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
+import { getExcludedRoles } from "./whitelist"
 
 export async function pruneRoleExecute(
   i: ButtonInteraction,
-  pruneList: Collection<string, GuildMember>
+  pruneList: Collection<string, GuildMember>,
+  roleName: string
 ) {
   if (
     i.customId !== "confirm_prune_inactive" ||
@@ -23,19 +25,32 @@ export async function pruneRoleExecute(
   ) {
     return
   }
-  const invite = i.guild?.invites.cache.first()
+  if (!i.guild) throw new GuildIdNotFoundError({})
+
+  let count = 0
+  const whitelistRole = await getExcludedRoles(i.guild)
+  const whitelistIds: string[] = whitelistRole.map((r) => r.id)
+  const invite = i.guild.invites.cache.first()
+
   pruneList.forEach(async (mem) => {
-    await mem.kick("Missing role")
+    if (
+      mem.roles.cache.hasAny(...whitelistIds) ||
+      mem.permissions.has("ADMINISTRATOR")
+    )
+      return
     await mem.send({
       content: `Sorry to say this but you haven't had a role yet, so we have to remove you from ${i.guild?.name}\nYou are welcome to join again: ${invite?.url}`,
     })
+    await mem.kick(`Missing role ${roleName}`)
+    count++
   })
-  await i.reply({
+
+  i.reply({
     ephemeral: true,
     embeds: [
       composeEmbedMessage(null, {
         title: "Prune successful",
-        description: `You have pruned ${pruneList.size} members`,
+        description: `You have pruned ${count} members`,
       }),
     ],
   })
@@ -44,7 +59,7 @@ export async function pruneRoleExecute(
 export async function getUsersWithoutRole(guild: Guild, roleId: string) {
   const members = await guild.members.fetch()
   const membersWithoutRole = members.filter((mem) => {
-    return !mem.roles.cache.has(roleId)
+    return !mem.roles.cache.has(roleId) && !mem.user.bot
   })
   return membersWithoutRole
 }
@@ -59,14 +74,23 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
 
-    const role = getCommandArguments(msg)[2]
-    const { isRole, id } = parseDiscordToken(role)
+    const roleArg = getCommandArguments(msg)[2]
+    const { isRole, id } = parseDiscordToken(roleArg)
     if (!isRole) {
       throw new CommandError({
         message: msg,
         description: "Please enter a valid role",
       })
     }
+
+    const role = msg.guild.roles.cache.get(id)
+    if (!role) {
+      throw new CommandError({
+        message: msg,
+        description: "Please enter a valid role",
+      })
+    }
+
     const willPrune = await getUsersWithoutRole(msg.guild, id)
     if (willPrune.size == 0) {
       return {
@@ -74,7 +98,7 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: "No users to prune",
-              description: `Everyone has the role ${role}, let's put down the prune stick`,
+              description: `Everyone has the role ${role.name}, let's put down the prune stick`,
             }),
           ],
         },
@@ -83,7 +107,7 @@ const command: Command = {
 
     const embed = composeEmbedMessage(msg, {
       title: "Confirm Pruning",
-      description: `You will prune **${willPrune.size}** members without role ${role}, do you want to continue?`,
+      description: `There are **${willPrune.size}** members without role ${role.name}, do you want to continue?`,
     })
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
@@ -106,7 +130,7 @@ const command: Command = {
       idle: 60000,
     })
     collector.on("collect", (i) => {
-      pruneRoleExecute(i, willPrune)
+      pruneRoleExecute(i, willPrune, role.name)
     })
   },
   getHelpMessage: async (msg) => {
@@ -123,6 +147,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Server",
+  minArguments: 3,
   onlyAdministrator: true,
 }
 

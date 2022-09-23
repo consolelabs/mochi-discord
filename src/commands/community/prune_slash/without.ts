@@ -63,7 +63,7 @@ export async function pruneWithoutRole(interaction: CommandInteraction) {
     idle: 60000,
   })
   collector?.on("collect", (i) => {
-    pruneRoleExecute(i, willPrune)
+    pruneRoleExecute(i, willPrune, role.name)
   })
 }
 
