@@ -67,6 +67,7 @@ import { HELP } from "utils/constants"
 import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
 import usage_stats from "adapters/usage_stats"
+import { isAcceptableCmdToHelp } from "./index-utils"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 
@@ -264,7 +265,7 @@ export default async function handlePrefixedCommand(message: Message) {
     }] executing command: ${args}`
   )
 
-  const isSpecificHelpCommand = specificHelpCommand(message)
+  let isSpecificHelpCommand = specificHelpCommand(message)
   const { commandKey, action = "" } = getCommandMetadata(message)
 
   if (!commandKey) return
@@ -285,12 +286,30 @@ export default async function handlePrefixedCommand(message: Message) {
   const actions = getAllAliases(commandObject.actions)
   const actionObject = actions[action]
   const finalCmd = actionObject ?? commandObject
-  const valid = validateCommand(
-    finalCmd,
-    args,
-    !!actionObject,
-    isSpecificHelpCommand ?? false
-  )
+  const valid =
+    validateCommand(
+      finalCmd,
+      args,
+      !!actionObject,
+      isSpecificHelpCommand ?? false
+    ) ||
+    isAcceptableCmdToHelp(
+      commandObject.command,
+      commandObject.aliases ?? [],
+      actionObject?.command ?? "",
+      message.content
+    )
+  if (
+    isAcceptableCmdToHelp(
+      commandObject.command,
+      commandObject.aliases ?? [],
+      actionObject?.command ?? "",
+      message.content
+    )
+  ) {
+    message.content = `${HELP} ${commandKey} ${action}`.trimEnd()
+    isSpecificHelpCommand = true
+  }
   if (!valid) {
     message.content = `${HELP} ${commandKey} ${action}`.trimEnd()
     throw new CommandArgumentError({
