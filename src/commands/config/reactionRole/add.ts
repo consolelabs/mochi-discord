@@ -42,11 +42,13 @@ const command: Command = {
     if (emojiSplit.length === 1) {
       isValidEmoji = true
     }
-    msg.guild.emojis.cache.forEach((e) => {
-      if (emojiSplit.includes(e.name?.toLowerCase() ?? "")) {
-        isValidEmoji = true
-      }
-    })
+    if (emojiSplit.length === 3) {
+      isValidEmoji = true
+      const emojiId = emojiSplit[2].replace(/\D/g, "")
+      await msg.guild.emojis.fetch(emojiId).catch(() => {
+        isValidEmoji = false
+      })
+    }
     if (!isValidEmoji) {
       return {
         messageOptions: {
