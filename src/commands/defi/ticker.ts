@@ -13,6 +13,7 @@ import {
 import { PREFIX, TICKER_GITBOOK, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import {
   defaultEmojis,
+  getChance,
   getEmoji,
   hasAdministrator,
   roundFloatNumber,
@@ -32,12 +33,18 @@ import {
   CommandChoiceHandler,
   EphemeralMessage,
 } from "utils/CommandChoiceManager"
-import { getChartColorConfig, renderChartImage } from "utils/canvas"
+import {
+  drawRectangle,
+  getChartColorConfig,
+  renderChartImage,
+} from "utils/canvas"
 import compare from "./token/compare"
 import config from "adapters/config"
 import { Coin } from "types/defi"
 import CacheManager from "utils/CacheManager"
 import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { createCanvas, loadImage } from "canvas"
+import { RectangleStats } from "types/canvas"
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -56,14 +63,49 @@ async function renderHistoricalMarketChart({
   const { times, prices, from, to } = data
 
   // draw chart
-  const image = await renderChartImage({
+  const chart = await renderChartImage({
     chartLabel: `Price (${currency.toUpperCase()}) | ${from} - ${to}`,
     labels: times,
     data: prices,
     colorConfig: getChartColorConfig(coinId),
   })
 
-  return new MessageAttachment(image, "chart.png")
+  // 80% to show chart only
+  if (getChance(80)) {
+    return new MessageAttachment(chart, "chart.png")
+  }
+
+  // 20% to show chart with bear/bull
+
+  const container: RectangleStats = {
+    x: { from: 0, to: 900 },
+    y: { from: 0, to: 600 },
+    w: 900,
+    h: 600,
+    radius: 0,
+    bgColor: "rgba(0, 0, 0, 0)",
+  }
+  const canvas = createCanvas(container.w, container.h)
+  const ctx = canvas.getContext("2d")
+  drawRectangle(ctx, container, container.bgColor)
+  // chart
+  const chartImg = await loadImage(chart)
+  ctx.drawImage(
+    chartImg,
+    container.x.from,
+    container.y.from,
+    container.w - 75,
+    container.h
+  )
+
+  // bull/bear
+  const isAsc = prices[prices.length - 1] >= prices[0]
+  const leftObj = await loadImage(`src/assets/${isAsc ? "blul" : "bera"}1.png`)
+  ctx.drawImage(leftObj, container.x.from, container.y.to - 230, 150, 230)
+  const rightObj = await loadImage(`src/assets/${isAsc ? "blul" : "bera"}2.png`)
+  ctx.drawImage(rightObj, container.x.to - 150, container.y.to - 230, 150, 230)
+
+  return new MessageAttachment(canvas.toBuffer(), "chart.png")
 }
 
 const getChangePercentage = (change: number) => {
@@ -203,6 +245,7 @@ async function composeTickerResponse({
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
     originalMsgAuthor: gMember?.user,
+    description: "_Give credit to Tsuki bot for the idea._",
   }).addFields([
     {
       name: `Market cap (${currency.toUpperCase()})`,
