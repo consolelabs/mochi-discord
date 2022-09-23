@@ -22,6 +22,7 @@ import {
   ResponseGetWelcomeChannelConfigResponse,
   ResponseGetVoteChannelConfigResponse,
   ResponseDataListRoleReactionResponse,
+  ResponseGetGuildPruneExcludeResponse,
 } from "types/api"
 
 class Config extends Fetcher {
@@ -936,6 +937,37 @@ class Config extends Fetcher {
         },
       }
     )
+  }
+
+  public async getExcludedRole({ guild_id }: { guild_id: string }) {
+    return await this.jsonFetch<ResponseGetGuildPruneExcludeResponse>(
+      `${API_BASE_URL}/configs/whitelist-prune`,
+      {
+        query: {
+          guild_id,
+        },
+      }
+    )
+  }
+
+  public async createExcludedRole(role_id: string, guild_id: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/whitelist-prune`, {
+      method: "POST",
+      body: {
+        role_id,
+        guild_id,
+      },
+    })
+  }
+
+  public async removeExcludedRole(role_id: string, guild_id: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/whitelist-prune`, {
+      method: "DELETE",
+      body: {
+        role_id,
+        guild_id,
+      },
+    })
   }
 }
 
