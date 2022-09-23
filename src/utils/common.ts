@@ -381,7 +381,9 @@ export function sortNFTListByVolume(
 export function capitalizeFirst(str: string) {
   return str
     .split(/ +/g)
-    .map((w) => `${w[0].toUpperCase()}${w.slice(1).toLowerCase()}`)
+    .map(
+      (w) => `${w[0]?.toUpperCase() ?? ""}${w.slice(1)?.toLowerCase() ?? ""}`
+    )
     .join(SPACE)
 }
 
