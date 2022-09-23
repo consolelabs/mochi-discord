@@ -5,11 +5,15 @@ import { PREFIX, WATCHLIST_GITBOOK } from "utils/constants"
 import view from "./view"
 import add from "./add"
 import remove from "./remove"
+import addNFT from "./add-nft"
+import removeNFT from "./remove-nft"
 
 const actions: Record<string, Command> = {
   view,
   add,
+  "add-nft": addNFT,
   remove,
+  "remove-nft": removeNFT,
 }
 
 const command: Command = {
@@ -27,7 +31,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         title: "Manage your watchlist",
-        description: "Manage your watchlist for selected tokens",
+        description: "Manage your watchlist for selected tokens/nfts",
         usage: `${PREFIX}watchlist <action>`,
         examples: `${PREFIX}wl view`,
         document: WATCHLIST_GITBOOK,

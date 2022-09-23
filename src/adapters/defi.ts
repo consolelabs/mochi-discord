@@ -23,6 +23,10 @@ import Config from "./config"
 import { logger } from "logger"
 import { InsufficientBalanceError } from "errors/InsufficientBalanceError"
 import { Fetcher } from "./fetcher"
+import {
+  ResponseGetNftWatchlistResponse,
+  ResponseNftWatchlistSuggestResponse,
+} from "types/api"
 
 class Defi extends Fetcher {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
@@ -463,6 +467,49 @@ class Defi extends Fetcher {
       action: "gasoracle",
     }
     return await this.jsonFetch<{ result: GasPriceData }>(url, { query })
+  }
+
+  async getUserNFTWatchlist({
+    userId,
+    page = 0,
+    size = 5,
+  }: {
+    userId: string
+    page?: number
+    size?: number
+  }) {
+    return await this.jsonFetch<ResponseGetNftWatchlistResponse>(
+      `${API_BASE_URL}/nfts/watchlist`,
+      {
+        query: {
+          userId,
+          page,
+          size,
+        },
+      }
+    )
+  }
+
+  async addNFTToWatchlist(req: {
+    user_id: string
+    collection_symbol: string
+    collection_address?: string
+    chain?: string
+  }) {
+    return await this.jsonFetch<ResponseNftWatchlistSuggestResponse>(
+      `${API_BASE_URL}/nfts/watchlist`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
+  }
+
+  async removeNFTFromWatchlist(query: { userId: string; symbol: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/nfts/watchlist`, {
+      method: "DELETE",
+      query,
+    })
   }
 }
 

@@ -14,6 +14,8 @@ import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import view from "./view"
 import add from "./add"
 import remove from "./remove"
+import addNFT from "./add-nft"
+import removeNFT from "./remove-nft"
 import CacheManager from "utils/CacheManager"
 import { CommandError } from "errors"
 
@@ -39,12 +41,12 @@ export function handleUpdateWlError(
   }
   switch (true) {
     case error.toLowerCase().startsWith("record not found"):
-      description = `Ticker/pair \`${symbol}\` ${
+      description = `Token with symbol \`${symbol}\` ${
         isRemove ? "does not exist in your watchlist" : "is not supported"
       }.`
       break
     case error.toLowerCase().startsWith("conflict") && !isRemove:
-      description = `Ticker/pair existed. Please add another one!`
+      description = `Token existed. Please add another one!`
       break
     default:
       break
@@ -71,7 +73,9 @@ CacheManager.init({
 const subCommands: Record<string, SlashCommand> = {
   view,
   add,
+  "add-nft": addNFT,
   remove,
+  "remove-nft": removeNFT,
 }
 
 const command: SlashCommand = {
@@ -80,10 +84,12 @@ const command: SlashCommand = {
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("watchlist")
-      .setDescription("Show list of your favorite tokens.")
+      .setDescription("Show list of your favorite tokens/nfts.")
     data.addSubcommand(<SlashCommandSubcommandBuilder>view.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>add.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>addNFT.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>remove.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>removeNFT.prepare())
     return data
   },
   run: (interaction: CommandInteraction) => {
