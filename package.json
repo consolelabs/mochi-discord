@@ -11,6 +11,7 @@
   "devDependencies": {
     "@babel/preset-typescript": "^7.15.0",
     "@types/cron": "^2.0.0",
+    "@types/fuzzyset": "^1.0.4",
     "@types/jest": "^27.0.2",
     "@types/koa": "^2.13.1",
     "@types/koa-bodyparser": "^4.3.3",
@@ -59,6 +60,7 @@
     "dotenv": "^10.0.0",
     "ethers": "^5.4.7",
     "firebase-admin": "^11.0.0",
+    "fuzzyset": "^1.0.7",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0",
     "koa-jwt": "^4.0.1",

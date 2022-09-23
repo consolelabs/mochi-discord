@@ -1493,6 +1493,11 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
+"@types/fuzzyset@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@types/fuzzyset/-/fuzzyset-1.0.4.tgz#23c139db81a98796c5498165fe6e7d4b38fa02bc"
+  integrity sha512-i0/7X4Pulqo/2QDpq+FKQsh1SDrKAQvi4kiPn56WcAQbmZbJbOIYK/KupA+BVD3dCbU4mvB3exk22v9QsIVt1Q==
+
 "@types/geojson@*":
   version "7946.0.10"
   resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.10.tgz#6dfbf5ea17142f7f9a043809f1cd4c448cb68249"
@@ -4302,6 +4307,11 @@ functions-have-names@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/functions-have-names/-/functions-have-names-1.2.3.tgz#0404fe4ee2ba2f607f0e0ec3c80bae994133b834"
   integrity sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==
+
+fuzzyset@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/fuzzyset/-/fuzzyset-1.0.7.tgz#dbef22072ab3315b0ded28a235c1006ec9abd3fe"
+  integrity sha512-RjcvWPK6v+FHwierTqnjXjtF6fgZCOVucORlOt4ZEJRrHUqt4tRiCIzg1Zm0XMSAZGMTBCSHPx4IgdBH3m0VZg==
 
 game-interface@^1.0.1:
   version "1.2.0"

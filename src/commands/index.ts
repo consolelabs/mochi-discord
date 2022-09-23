@@ -54,19 +54,20 @@ import {
   getCommandMetadata,
   specificHelpCommand,
   getCommandArguments,
+  sendCommandSuggestionMessage,
 } from "utils/commands"
 import config from "../adapters/config"
 import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
 // import guildCustomCommand from "../adapters/guildCustomCommand"
 // import { customCommandsExecute } from "./customCommand"
 import CommandChoiceManager from "utils/CommandChoiceManager"
-
 import { Command, Category, SlashCommand } from "types/common"
 import { hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
 import usage_stats from "adapters/usage_stats"
+import FuzzySet from "fuzzyset"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 
@@ -124,7 +125,7 @@ export const originalCommands: Record<string, Command> = {
   tripod,
 }
 export const commands = getAllAliases(originalCommands)
-
+export const fuzzySet = FuzzySet(Object.keys(commands))
 export const adminCategories: Record<Category, boolean> = {
   Profile: false,
   Defi: false,
@@ -274,8 +275,9 @@ export default async function handlePrefixedCommand(message: Message) {
 
   const commandObject = commands[commandKey]
 
-  // dump command like $BM, $BONE, $test, ...
+  // send suggest embed if command not found
   if (commandObject === undefined) {
+    sendCommandSuggestionMessage(commandKey, message)
     return
   }
   // handle default commands
