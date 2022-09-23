@@ -8,6 +8,7 @@ import defi from "adapters/defi"
 import { createCanvas, loadImage, registerFont } from "canvas"
 import { RectangleStats } from "types/canvas"
 import {
+  drawCircleImage,
   drawRectangle,
   heightOf,
   renderChartImage,
@@ -78,7 +79,6 @@ async function renderWatchlist(data: any[]) {
     }
     drawRectangle(ctx, itemContainer, itemContainer.bgColor)
     const {
-      name,
       symbol,
       current_price,
       sparkline_in_7d,
@@ -91,16 +91,40 @@ async function renderWatchlist(data: any[]) {
     const imageX = itemContainer.x.from + (itemContainer.pl ?? 0)
     const imageY = itemContainer.y.from + (itemContainer.pt ?? 0)
     if (imageUrl) {
-      const image = await loadImage(imageUrl)
-      ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
+      if (!is_pair) {
+        const image = await loadImage(imageUrl)
+        ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
+      } else {
+        const imageUrls = imageUrl.split("||")
+        const baseImage = await loadImage(imageUrls[0])
+        drawCircleImage({
+          ctx,
+          stats: {
+            x: imageX + radius,
+            y: imageY + radius,
+            radius,
+          },
+          image: baseImage,
+        })
+        const targetImage = await loadImage(imageUrls[1])
+        drawCircleImage({
+          ctx,
+          stats: {
+            x: imageX + radius * 2.5,
+            y: imageY + radius,
+            radius,
+          },
+          image: targetImage,
+        })
+      }
     }
 
-    // symbol OR name
+    // symbol
     ctx.font = "bold 29px Inter"
     ctx.fillStyle = "white"
-    const symbolText = (is_pair ? name : symbol).toUpperCase()
+    const symbolText = symbol.toUpperCase()
     const symbolH = heightOf(ctx, symbolText)
-    const symbolX = imageX + (is_pair ? 0 : radius * 2 + 10)
+    const symbolX = imageX + radius * (is_pair ? 3.5 : 2) + 10
     const symbolY = imageY + radius + symbolH / 2
     ctx.fillText(symbolText, symbolX, symbolY)
 
