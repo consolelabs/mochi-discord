@@ -588,6 +588,11 @@ export interface RequestUpsertGmConfigRequest {
   guild_id?: string;
 }
 
+export interface RequestUpsertGuildPruneExcludeRequest {
+  guild_id?: string;
+  role_id?: string;
+}
+
 export interface RequestUpsertGuildTokenConfigRequest {
   active?: boolean;
   guild_id?: string;
@@ -629,6 +634,7 @@ export interface ResponseCoinMarketItemData {
   current_price?: number;
   id?: string;
   image?: string;
+  is_pair?: boolean;
   name?: string;
   price_change_percentage_24h?: number;
   price_change_percentage_7d_in_currency?: number;
@@ -764,6 +770,11 @@ export interface ResponseGetGmConfigResponse {
 
 export interface ResponseGetGuildDefaultTickerResponse {
   data?: ModelGuildConfigDefaultTicker;
+}
+
+export interface ResponseGetGuildPruneExcludeResponse {
+  data?: ResponseGuildPruneExcludeList;
+  message?: string;
 }
 
 export interface ResponseGetGuildResponse {
@@ -906,8 +917,8 @@ export interface ResponseGetVoteChannelConfigResponse {
 }
 
 export interface ResponseGetWatchlistResponse {
+  /** Pagination *PaginationResponse  `json:"pagination"` */
   data?: ResponseCoinMarketItemData[];
-  pagination?: ResponsePaginationResponse;
 }
 
 export interface ResponseGetWelcomeChannelConfigResponse {
@@ -917,6 +928,11 @@ export interface ResponseGetWelcomeChannelConfigResponse {
 
 export interface ResponseGiftXpHandlerResponse {
   data?: ResponseHandleUserActivityResponse;
+}
+
+export interface ResponseGuildPruneExcludeList {
+  guild_id?: string;
+  roles?: string[];
 }
 
 export interface ResponseHandleUserActivityResponse {
@@ -1235,15 +1251,6 @@ export interface ResponseNftSales {
 
 export interface ResponseNftSalesResponse {
   data?: ResponseNftSales[];
-}
-
-export interface ResponsePaginationResponse {
-  /** page index */
-  page?: number;
-
-  /** page size */
-  size?: number;
-  total?: number;
 }
 
 export interface ResponseResponseMessage {
