@@ -63,28 +63,36 @@ const command: Command = {
     }
 
     // allow selection
-    const { suggestions } = data
-    const opt = (coin: Coin): MessageSelectOptionData => ({
-      label: `${coin.name} (${coin.symbol})`,
-      value: `${coin.symbol}_${coin.id}_${msg.author.id}`,
-    })
+    const { base_suggestions, target_suggestions } = data
+    let options: MessageSelectOptionData[]
+    if (!target_suggestions) {
+      const opt = (coin: Coin): MessageSelectOptionData => ({
+        label: `${coin.name}`,
+        value: `${coin.symbol}_${coin.id}_${msg.author.id}`,
+      })
+      options = base_suggestions.map((b: Coin) => opt(b))
+    } else {
+      const opt = (base: Coin, target: Coin): MessageSelectOptionData => ({
+        label: `${base.name} / ${target.name}`,
+        value: `${base.symbol}/${target.symbol}_${base.id}/${target.id}_${msg.author.id}`,
+      })
+      options = base_suggestions
+        .map((b: Coin) => target_suggestions.map((t: Coin) => opt(b, t)))
+        .flat()
+        .slice(0, 25) // discord allow maximum 25 options
+    }
     const selectRow = composeDiscordSelectionRow({
       customId: "watchlist_selection",
       placeholder: "Make a selection",
-      options: suggestions.map((c: Coin) => opt(c)),
+      options,
     })
 
-    const found = suggestions
-      .map(
-        (c: { name: string; symbol: string }) => `**${c.name}** (${c.symbol})`
-      )
-      .join(", ")
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
             title: `${defaultEmojis.MAG} Multiple options found`,
-            description: `Multiple tokens found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
+            description: `Multiple tokens found for \`${symbol}\`.\nPlease select one of the following`,
           }),
         ],
         components: [selectRow, composeDiscordExitButton(msg.author.id)],
