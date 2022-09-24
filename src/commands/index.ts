@@ -288,27 +288,20 @@ export default async function handlePrefixedCommand(message: Message) {
   const actions = getAllAliases(commandObject.actions)
   const actionObject = actions[action]
   const finalCmd = actionObject ?? commandObject
+  const shouldShowHelp = isAcceptableCmdToHelp(
+    commandObject.command,
+    commandObject.aliases ?? [],
+    actionObject?.command ?? "",
+    message.content
+  )
   const valid =
     validateCommand(
       finalCmd,
       args,
       !!actionObject,
       isSpecificHelpCommand ?? false
-    ) ||
-    isAcceptableCmdToHelp(
-      commandObject.command,
-      commandObject.aliases ?? [],
-      actionObject?.command ?? "",
-      message.content
-    )
-  if (
-    isAcceptableCmdToHelp(
-      commandObject.command,
-      commandObject.aliases ?? [],
-      actionObject?.command ?? "",
-      message.content
-    )
-  ) {
+    ) || shouldShowHelp
+  if (shouldShowHelp) {
     message.content = `${HELP} ${commandKey} ${action}`.trimEnd()
     isSpecificHelpCommand = true
   }
