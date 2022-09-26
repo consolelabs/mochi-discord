@@ -12,9 +12,9 @@ import ChannelLogger from "utils/ChannelLogger"
 import { BotBaseError } from "errors"
 
 const command: Command = {
-  id: "reactionrole_add",
-  command: "add",
-  brief: "Add a new reaction role configuration",
+  id: "reactionrole_set",
+  command: "set",
+  brief: "Set a new reaction role configuration",
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
@@ -137,8 +137,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}rr add <message_id> <emoji> <role>`,
-          examples: `${PREFIX}reactionrole add 967107573591457832 ✅ @Visitor\n${PREFIX}rr add 1018789986058895400 ✅ @admin`,
+          usage: `${PREFIX}rr set <message_id> <emoji> <role>`,
+          examples: `${PREFIX}reactionrole set 967107573591457832 ✅ @Visitor\n${PREFIX}rr set 1018789986058895400 ✅ @admin`,
         }),
       ],
     }

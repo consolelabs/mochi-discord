@@ -42,9 +42,11 @@ const handleReactionRoleEvent = async (
     reaction: getReactionIdentifier(_reaction),
   }
   const res = await config.handleReactionEvent(roleReactionEvent)
-  const role = getRoleById(msg, res.role.id)
-  if (res?.role?.id && role) {
-    await msg.guild?.members?.cache.get(user.id)?.roles.add(role)
+  if (res.data) {
+    const role = getRoleById(msg, res.data.role.id)
+    if (res.data.role?.id && role) {
+      await msg.guild?.members?.cache.get(user.id)?.roles.add(role.id)
+    }
   }
 }
 
