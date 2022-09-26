@@ -848,15 +848,6 @@ export interface ResponseGetMyInfoResponse {
   data?: DiscordgoUser;
 }
 
-export interface ResponseGetNFTActivityData {
-  data?: ResponseIndexerNFTActivityData[];
-  metadata?: UtilPagination;
-}
-
-export interface ResponseGetNFTActivityResponse {
-  data?: ResponseGetNFTActivityData;
-}
-
 export interface ResponseGetNFTCollectionByAddressChainResponse {
   data?: ModelNFTCollection;
 }
@@ -1004,6 +995,10 @@ export interface ResponseIndexerGetNFTTokenDetailResponseWithSuggestions {
   suggestions?: ResponseCollectionSuggestions[];
 }
 
+export interface ResponseIndexerGetNFTTokenTxHistoryResponse {
+  data?: ResponseIndexerGetNftTokenTxHistory[];
+}
+
 export interface ResponseIndexerGetNFTTokensResponse {
   data?: ResponseIndexerNFTTokenDetailData[];
   page?: number;
@@ -1011,24 +1006,14 @@ export interface ResponseIndexerGetNFTTokensResponse {
   total?: number;
 }
 
-export interface ResponseIndexerNFTActivityData {
-  chain_id?: number;
+export interface ResponseIndexerGetNftTokenTxHistory {
+  block_number?: number;
   contract_address?: string;
   created_time?: string;
-  event_type?: string;
-  from_address?: string;
-  id?: number;
-  last_update_time?: string;
-  listing_price?: string;
-  listing_price_obj?: ResponseIndexerPrice;
-  listing_status?: string;
-  listing_type?: string;
-  payment_token?: number;
-  platform_id?: number;
-  quantity?: string;
-  sold_price?: string;
-  sold_price_obj?: ResponseIndexerPrice;
-  to_address?: string;
+  event_time?: number;
+  from?: string;
+  last_updated_time?: string;
+  to?: string;
   token_id?: string;
   transaction_hash?: string;
 }
