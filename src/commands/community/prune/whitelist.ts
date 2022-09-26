@@ -8,7 +8,7 @@ import {
 } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 
 async function createWhitelist(roleId: string, guild: Guild, user: User) {
@@ -100,6 +100,7 @@ const command: Command = {
         usage: `${PREFIX}prune whitelist <role>\n${PREFIX}prune whitelist`,
         examples: `${PREFIX}prune whitelist\n${PREFIX}prune whitelist @Mochi`,
         includeCommandsList: true,
+        document: PRUNE_GITBOOK,
       }),
     ],
   }),

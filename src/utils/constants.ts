@@ -96,6 +96,8 @@ export const VOTE_GITBOOK =
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/vote-for-mochi"
 export const STARBOARD_GITBOOK =
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/starboard"
+export const PRUNE_GITBOOK =
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/prune-inactive-users"
 
 export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"
