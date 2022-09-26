@@ -4,7 +4,7 @@ import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { drawLeaderboard } from "utils/canvas"
 import { getEmoji } from "utils/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, VOTE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 
 const command: Command = {
@@ -67,6 +67,7 @@ const command: Command = {
         usage: `${PREFIX}vote set <channel>`,
         examples: `${PREFIX}vote set #vote`,
         includeCommandsList: true,
+        document: VOTE_GITBOOK,
       }),
     ],
   }),

@@ -2,7 +2,7 @@ import config from "adapters/config"
 import { Guild, Message, User } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, VOTE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 
 async function handle(guild: Guild, user: User) {
@@ -43,6 +43,7 @@ const command: Command = {
         usage: `${PREFIX}vote remove`,
         examples: `${PREFIX}vote remove`,
         includeCommandsList: true,
+        document: VOTE_GITBOOK,
       }),
     ],
   }),

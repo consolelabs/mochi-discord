@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { thumbnails } from "utils/common"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
-import { PREFIX } from "utils/constants"
+import { PREFIX, TELEGRAM_GITBOOK } from "utils/constants"
 import { getCommandArguments } from "utils/commands"
 import config from "adapters/config"
 import { APIError } from "errors"
@@ -9,7 +9,7 @@ import { APIError } from "errors"
 const command: Command = {
   id: "telegram_config",
   command: "config",
-  brief: "Link telegram to your discord",
+  brief: "Link your Telegram account to Discord one",
   category: "Config",
   run: async (msg) => {
     const args = getCommandArguments(msg)
@@ -36,10 +36,10 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        title: "Link telegram to your discord",
+        title: "Link your Telegram account to Discord one",
         usage: `${PREFIX}telegram config <telegram_username>`,
         examples: `${PREFIX}telegram config anhnh`,
-        includeCommandsList: true,
+        document: TELEGRAM_GITBOOK,
       }),
     ],
   }),
