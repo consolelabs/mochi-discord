@@ -1,4 +1,5 @@
 import { Command } from "types/common"
+import { getEmoji } from "utils/common"
 import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import list from "./list"
@@ -18,6 +19,11 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async () => null,
+  featured: {
+    title: `${getEmoji("")} NFT role`,
+    description:
+      "Asssign role to a user once they hold a certain amount of NFT\nSupports multiple collections and grouping",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

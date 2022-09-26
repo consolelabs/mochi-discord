@@ -4,6 +4,7 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import list from "./list"
 import set from "./set"
 import remove from "./remove"
+import { getEmoji } from "utils/common"
 
 const actions: Record<string, Command> = {
   list,
@@ -18,6 +19,10 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async () => null,
+  featured: {
+    title: `${getEmoji("")} Reaction role`,
+    description: "Assign a role corresponding to users' reaction",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
