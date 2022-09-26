@@ -294,18 +294,16 @@ export default async function handlePrefixedCommand(message: Message) {
     actionObject?.command ?? "",
     message.content
   )
-  const valid =
-    validateCommand(
-      finalCmd,
-      args,
-      !!actionObject,
-      isSpecificHelpCommand ?? false
-    ) || shouldShowHelp
-  if (shouldShowHelp) {
+  const valid = validateCommand(
+    finalCmd,
+    args,
+    !!actionObject,
+    isSpecificHelpCommand ?? false
+  )
+  if (shouldShowHelp && !valid) {
     message.content = `${HELP} ${commandKey} ${action}`.trimEnd()
     isSpecificHelpCommand = true
-  }
-  if (!valid) {
+  } else if (!valid) {
     message.content = `${HELP} ${commandKey} ${action}`.trimEnd()
     throw new CommandArgumentError({
       message: message,
