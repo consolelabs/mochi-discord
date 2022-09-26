@@ -2,12 +2,12 @@ import { Command } from "types/common"
 import { PREFIX, REACTION_ROLE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import list from "./list"
-import add from "./add"
+import set from "./set"
 import remove from "./remove"
 
 const actions: Record<string, Command> = {
   list,
-  add,
+  set,
   remove,
 }
 
