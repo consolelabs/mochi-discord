@@ -166,7 +166,6 @@ export async function composeNFTDetail(
   })
   if (!ok) throw new APIError({ message: msg, curl, description: log })
 
-  console.log(activityData)
   const txHistoryTitle = `${getEmoji("swap")} Transaction History`
   const txHistoryValue = (activityData ?? [])
     .map((tx) => {
