@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { thumbnails } from "utils/common"
+import { getEmoji, thumbnails } from "utils/common"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX, WATCHLIST_GITBOOK } from "utils/constants"
 import view from "./view"
@@ -18,6 +18,10 @@ const command: Command = {
   brief: "Watchlist",
   category: "Defi",
   run: async () => null,
+  featured: {
+    title: `${getEmoji("search")} Watchlist`,
+    description: "Manage your watchlist for selected tokens",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

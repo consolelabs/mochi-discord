@@ -419,6 +419,10 @@ const command: Command = {
     // ...else allow selection
     return composeTickerSelectionResponse(Object.values(coins), symbol, msg)
   },
+  featured: {
+    title: `📈 Ticker`,
+    description: `Display/Compare coin prices and market cap`,
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

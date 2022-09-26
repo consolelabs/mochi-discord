@@ -2,6 +2,7 @@ import { Message } from "discord.js"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
 import {
   emojis,
+  getEmoji,
   getEmojiURL,
   roundFloatNumber,
   shortenHashOrAddress,
@@ -84,6 +85,10 @@ const command: Command = {
         ...(await tip(msg, args)),
       },
     }
+  },
+  featured: {
+    title: `${getEmoji("tip")} Tip`,
+    description: "Send coins to a user or a group of users",
   },
   getHelpMessage: async (msg) => ({
     embeds: [

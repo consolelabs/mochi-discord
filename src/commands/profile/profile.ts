@@ -577,6 +577,11 @@ const command: Command = {
 
     return null
   },
+  featured: {
+    title: `${getEmoji("exp")} Profile`,
+    description:
+      "Display your and other users' profiles along with NFT collections",
+  },
   getHelpMessage: async (msg) => {
     return {
       embeds: [
