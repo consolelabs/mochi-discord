@@ -3,6 +3,7 @@ import { CommandInteraction, Message } from "discord.js"
 import { Command, SlashCommand } from "types/common"
 import {
   CHANNEL_PREFIX,
+  DEFAULT_COLLECTION_GITBOOK,
   EMOJI_PREFIX,
   HELP,
   PREFIX,
@@ -13,6 +14,7 @@ import {
 import { commands, fuzzySet, slashCommands } from "commands"
 import { utils } from "ethers"
 import { composeEmbedMessage } from "./discordEmbed"
+import { defaultEmojis } from "./common"
 
 export const getCommandArguments = (message: Message) => {
   const content = message?.content
@@ -153,6 +155,7 @@ export function getSlashCommandObject(
  */
 export async function sendCommandSuggestionMessage(
   userInput: string,
+  commands: Record<string, Command>,
   msg: Message
 ) {
   const results = fuzzySet.get(userInput, null, 0.5)
@@ -162,17 +165,29 @@ export async function sendCommandSuggestionMessage(
       embeds: [
         composeEmbedMessage(null, {
           title: "Mochi is confused",
-          description: `Mochi doesn't understand what command you are trying to use.\nPerhaps you can reference \`${PREFIX}help\` for more info`,
+          description: `Mochi doesn't understand what command you are trying to use.\n:point_right: Perhaps you can reference \`${PREFIX}help\` for more info`,
         }),
       ],
     })
   } else {
     const result = results[0][1]
+    const cmd = commands[result]
+    const act = cmd.actions
+    if (!act) return
+    const actions = Object.keys(act)
+    let actionNoArg = "help"
+    for (const i in actions) {
+      if (act[actions[i]].minArguments == 2) {
+        actionNoArg = actions[i]
+        break
+      }
+    }
     await msg.reply({
       embeds: [
         composeEmbedMessage(null, {
-          title: "Mochi is confused",
-          description: `Mochi doesn't understand what command you are trying to use.\nDo you mean \`${PREFIX}${result}\`?`,
+          title: `${defaultEmojis.X} This command doesn't exist`,
+          description: `Are you trying to say \`${PREFIX}${result}\`?\n\n**Example**\nFor more specific action: \`${PREFIX}help ${result}\`\nOr try this: \`${PREFIX}${result} ${actionNoArg}\`\n`,
+          document: DEFAULT_COLLECTION_GITBOOK,
         }),
       ],
     })
