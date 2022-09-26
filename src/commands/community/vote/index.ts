@@ -3,7 +3,7 @@ import { Message, User } from "discord.js"
 import Community from "adapters/community"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { capFirst, getEmoji } from "utils/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, VOTE_GITBOOK } from "utils/constants"
 import { logger } from "logger"
 import set from "./set"
 import info, { handle as handleInfo } from "./info"
@@ -183,6 +183,7 @@ const command: Command = {
         usage: `${PREFIX}vote`,
         examples: `${PREFIX}vote`,
         includeCommandsList: true,
+        document: VOTE_GITBOOK,
         description:
           "Vote for Mochi Bot on top.gg and discordbotlist.com platform, by voting you can earn rewards, use some premium-only features of Mochi and more benefits to come.",
       }),

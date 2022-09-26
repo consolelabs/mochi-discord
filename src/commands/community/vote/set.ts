@@ -3,7 +3,7 @@ import { Guild, Message, User } from "discord.js"
 import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { PREFIX, VOTE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 import { handle as handleInfo } from "./info"
 
@@ -55,6 +55,7 @@ const command: Command = {
         usage: `${PREFIX}vote set <channel>`,
         examples: `${PREFIX}vote set #vote`,
         includeCommandsList: true,
+        document: VOTE_GITBOOK,
       }),
     ],
   }),

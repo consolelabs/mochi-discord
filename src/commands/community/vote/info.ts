@@ -2,7 +2,7 @@ import config from "adapters/config"
 import { Guild, Message, User } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, VOTE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 
 export async function handle(guild: Guild, user: User) {
@@ -56,6 +56,7 @@ const command: Command = {
         usage: `${PREFIX}vote set <channel>`,
         examples: `${PREFIX}vote set #vote`,
         includeCommandsList: true,
+        document: VOTE_GITBOOK,
       }),
     ],
   }),

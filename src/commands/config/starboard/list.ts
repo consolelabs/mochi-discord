@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, STARBOARD_GITBOOK } from "utils/constants"
 import {
   composeEmbedMessage,
   getPaginationRow,
@@ -93,6 +93,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}sb list`,
           examples: `${PREFIX}sb list`,
+          document: STARBOARD_GITBOOK,
         }),
       ],
     }
