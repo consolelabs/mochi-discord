@@ -1,7 +1,7 @@
 import { ButtonInteraction, MessageActionRow, MessageButton } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { GuildIdNotFoundError } from "errors"
 
@@ -89,7 +89,7 @@ const command: Command = {
           description: "Remove all users that were inactive for 30 days",
           usage: `${PREFIX}prune inactive`,
           examples: `${PREFIX}prune inactive`,
-          //document: gitbook,
+          document: PRUNE_GITBOOK,
         }),
       ],
     }

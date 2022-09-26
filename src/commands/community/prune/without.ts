@@ -10,7 +10,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { CommandError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getExcludedRoles } from "./whitelist"
 
@@ -140,7 +140,7 @@ const command: Command = {
           description: "Remove all users without a specific role",
           usage: `${PREFIX}prune without <role>`,
           examples: `${PREFIX}prune without @roles`,
-          //document: gitbook,
+          document: PRUNE_GITBOOK,
         }),
       ],
     }

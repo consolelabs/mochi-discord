@@ -3,7 +3,7 @@ import { Guild, Message, User } from "discord.js"
 import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 
 async function deleteWhitelist(roleId: string, guild: Guild, user: User) {
@@ -52,6 +52,7 @@ const command: Command = {
         usage: `${PREFIX}prune remove <role>`,
         examples: `${PREFIX}prune remove @Mochi`,
         includeCommandsList: true,
+        document: PRUNE_GITBOOK,
       }),
     ],
   }),

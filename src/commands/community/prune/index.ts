@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import inactive from "./inactive"
 import without from "./without"
@@ -26,7 +26,7 @@ const command: Command = {
         description: "Options to prune a group of members",
         examples: `${PREFIX}prune inactive\n${PREFIX}prune whitelist`,
         footer: [`Type ${PREFIX}help prune for a specific action!`],
-        //document: gitbook,
+        document: PRUNE_GITBOOK,
         includeCommandsList: true,
       }),
     ],
