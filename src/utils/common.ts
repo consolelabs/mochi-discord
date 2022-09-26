@@ -107,6 +107,7 @@ export const defaultEmojis: Record<string, string> = {
   CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
   CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
   MAG: ":mag:",
+  X: ":x:",
 }
 
 export const factionEmojis: Record<string, string> = {
@@ -164,6 +165,8 @@ export const emojis: { [key: string]: string } = {
   RIGHT_ARROW: "933339868233359380",
   CASH: "933341119998210058",
   BUBBLE_CASH: "1022765345875968040",
+  TIP: "933384794627248128",
+  SEARCH: "933341511062552626",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

@@ -4,7 +4,7 @@ import { DEPOSIT_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import { DirectMessageNotAllowedError, UserNotFoundError } from "errors"
 import Profile from "adapters/profile"
 import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
-import { defaultEmojis } from "utils/common"
+import { defaultEmojis, getEmoji } from "utils/common"
 
 async function deposit(msg: Message) {
   const guildId = msg.guildId ?? "DM"
@@ -60,6 +60,10 @@ const command: Command = {
   brief: "Deposit",
   category: "Defi",
   run: deposit,
+  featured: {
+    title: `${getEmoji("left_arrow")} Deposit`,
+    description: "Deposit tokens into your in-discord wallet",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

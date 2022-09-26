@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, STARBOARD_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import list from "./list"
 import set from "./set"
@@ -23,7 +23,10 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sb <action>`,
         footer: [`Type ${PREFIX}help sb <action> for a specific action!`],
+        description: "Hornor and share well-rated posts with your community",
+        examples: `${PREFIX}starboard list\n${PREFIX}sb list`,
         includeCommandsList: true,
+        document: STARBOARD_GITBOOK,
       }),
     ],
   }),

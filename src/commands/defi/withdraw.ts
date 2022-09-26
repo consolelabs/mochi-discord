@@ -86,6 +86,10 @@ const command: Command = {
 
     return null
   },
+  featured: {
+    title: `${getEmoji("right_arrow")} Withdraw`,
+    description: "Withdraw tokens to your wallet outside of Discord",
+  },
   getHelpMessage: async (msg) => {
     const embedMsg = composeEmbedMessage(msg, {
       description:

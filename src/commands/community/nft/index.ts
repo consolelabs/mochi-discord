@@ -10,6 +10,7 @@ import query from "./query"
 import stats from "./stats"
 import config from "./config"
 import integrate from "./integrate"
+import { getEmoji } from "utils/common"
 
 const actions: Record<string, Command> = {
   add,
@@ -23,11 +24,16 @@ const actions: Record<string, Command> = {
 }
 
 const command: Command = {
-  id: "nft",
+  id: "NFT",
   command: "nft",
   brief: "NFT",
   category: "Community",
   run: async (msg) => query.run(msg),
+  featured: {
+    title: `${getEmoji("nfts")} NFT`,
+    description:
+      "Show NFT rarity checker in real-time, including volume, ticker, and sales",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

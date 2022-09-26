@@ -1,5 +1,6 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
+import { getEmoji } from "utils/common"
 import { PREFIX, LEVEL_ROLE_GITBOOK } from "utils/constants"
 import {
   composeEmbedMessage,
@@ -94,6 +95,10 @@ const command: Command = {
         embeds: [getErrorEmbed({ msg, description })],
       },
     }
+  },
+  featured: {
+    title: `${getEmoji("")} Level role`,
+    description: "Assign a role to users when they reach a certain level",
   },
   getHelpMessage: async (msg) => ({
     embeds: [

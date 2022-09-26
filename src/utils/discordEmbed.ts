@@ -209,7 +209,7 @@ export function composeEmbedMessage(
   }
   if (document) {
     embed.addFields({
-      name: "**Document**",
+      name: "**Instructions**",
       value: `[**Gitbook**](${document})`,
     })
   }

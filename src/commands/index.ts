@@ -223,7 +223,7 @@ async function executeCommand(
   const runResponse = await commandObject.run(message, action)
   if (runResponse && runResponse.messageOptions) {
     const output = await message.reply({
-      ...(shouldRemind
+      ...(shouldRemind && Math.random() < 0.3
         ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
         : {}),
       ...runResponse.messageOptions,
@@ -278,7 +278,7 @@ export default async function handlePrefixedCommand(message: Message) {
 
   // send suggest embed if command not found
   if (commandObject === undefined) {
-    sendCommandSuggestionMessage(commandKey, message)
+    sendCommandSuggestionMessage(commandKey, commands, message)
     return
   }
   // handle default commands
