@@ -8,6 +8,7 @@ import guildMemberAdd from "./guildMemberAdd"
 import inviteDelete from "./inviteDelete"
 import inviteCreate from "./inviteCreate"
 import messageReactionRemove from "./messageReactionRemove"
+import messageDelete from "./messageDelete"
 
 export type Event<T extends keyof ClientEvents> = {
   name: T
@@ -20,6 +21,7 @@ export const invites = new Collection<string, Collection<string, number>>()
 export default [
   ready,
   messageCreate,
+  messageDelete,
   interactionCreate,
   messageReactionAdd,
   messageReactionRemove,

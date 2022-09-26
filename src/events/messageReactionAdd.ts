@@ -3,86 +3,35 @@ import {
   MessageEmbed,
   MessageReaction,
   PartialMessageReaction,
-  Role,
   User,
 } from "discord.js"
 import { logger } from "logger"
 import { Event } from "."
 import { BotBaseError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
-import { RoleReactionEvent } from "types/common"
 import config from "adapters/config"
 import webhook from "adapters/webhook"
 import { composeEmbedMessage } from "utils/discordEmbed"
+import { getReactionIdentifier } from "utils/commands"
 
-const getRoleById = (msg: Message, roleId: string): Role | undefined => {
-  return msg.guild?.roles.cache.find((role) => role.id === roleId)
-}
-
-const getReactionIdentifier = (
-  _reaction: MessageReaction | PartialMessageReaction
-): string => {
-  let reaction = ""
-  if (_reaction.emoji.id) {
-    reaction = "<:" + _reaction.emoji.identifier.toLowerCase() + ">"
-  } else {
-    reaction = _reaction.emoji.name ?? ""
-  }
-  return reaction
-}
-
-const handleReactionRoleEvent = async (
+const handleRepostableMessageTracking = async (
   _reaction: MessageReaction | PartialMessageReaction,
   user: User
 ) => {
   const msg = _reaction.message as Message
-  const roleReactionEvent: RoleReactionEvent = {
-    guild_id: msg.guild?.id ?? "",
-    message_id: msg.id,
-    reaction: getReactionIdentifier(_reaction),
-  }
-  const res = await config.handleReactionEvent(roleReactionEvent)
-  if (res.data) {
-    const role = getRoleById(msg, res.data.role.id)
-    if (res.data.role?.id && role) {
-      await msg.guild?.members?.cache.get(user.id)?.roles.add(role.id)
-    }
-  }
-}
-
-const handleRepostableMessageTracking = async (
-  _reaction: MessageReaction | PartialMessageReaction
-) => {
-  const msg = _reaction.message as Message
-  const checkRepostableEvent = {
+  const body = {
     guild_id: msg.guild?.id ?? "",
     channel_id: msg.channel.id,
     message_id: msg.id,
     reaction: getReactionIdentifier(_reaction),
     reaction_count: _reaction.count,
+    user_id: user.id,
   }
 
-  const reactionEmoji = getReactionIdentifier(_reaction)
-
-  // check config repost
-  const validateRes = await config.listAllRepostReactionConfigs(
-    msg.guild?.id ?? ""
-  )
-  const isConfiguredEmoji = validateRes?.data?.some(
-    (conf: any) => conf.emoji?.toLowerCase() === reactionEmoji
-  )
-  if (!isConfiguredEmoji) {
-    return
-  }
-
-  const res = await webhook.pushDiscordWebhook(
-    "messageReactionAdd",
-    checkRepostableEvent
-  )
-  if (res?.data.repost_channel_id) {
+  const res = await webhook.pushDiscordWebhook("messageReactionAdd", body)
+  if (res?.data?.repost_channel_id) {
     const { repost_channel_id: repostChannelId } = res.data
-    const { channel_id, guild_id, message_id, reaction, reaction_count } =
-      checkRepostableEvent
+    const { channel_id, guild_id, message_id, reaction, reaction_count } = body
 
     const channel = msg.guild?.channels.cache.find(
       (c) => c.id === repostChannelId
@@ -166,10 +115,7 @@ export default {
       if (user.bot) return
       if (!_reaction.message.guild) return
 
-      await Promise.all([
-        handleReactionRoleEvent(_reaction, user).catch(() => null),
-        handleRepostableMessageTracking(_reaction).catch(() => null),
-      ])
+      await handleRepostableMessageTracking(_reaction, user).catch(() => null)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {

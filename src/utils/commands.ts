@@ -1,4 +1,9 @@
-import { CommandInteraction, Message } from "discord.js"
+import {
+  CommandInteraction,
+  Message,
+  MessageReaction,
+  PartialMessageReaction,
+} from "discord.js"
 
 import { Command, SlashCommand } from "types/common"
 import {
@@ -192,4 +197,16 @@ export async function sendCommandSuggestionMessage(
       ],
     })
   }
+}
+
+export const getReactionIdentifier = (
+  _reaction: MessageReaction | PartialMessageReaction
+): string => {
+  let reaction = ""
+  if (_reaction.emoji.id) {
+    reaction = "<:" + _reaction.emoji.identifier.toLowerCase() + ">"
+  } else {
+    reaction = _reaction.emoji.name ?? ""
+  }
+  return reaction
 }
