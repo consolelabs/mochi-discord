@@ -93,6 +93,10 @@ const command: Command = {
       },
     }
   },
+  featured: {
+    title: `${getEmoji("cash")} Balance`,
+    description: "Show your in-discord balances of supported tokens",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

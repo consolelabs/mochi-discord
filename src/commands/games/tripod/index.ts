@@ -526,6 +526,10 @@ const command: Command = {
     }
     return null
   },
+  featured: {
+    title: `${getEmoji(PieceEnum.NINJA_BEAR)} Tripod`,
+    description: "A match-3 game in the PodTown Metaverse",
+  },
   getHelpMessage: async (msg) => {
     return {
       embeds: [

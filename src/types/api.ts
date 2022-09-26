@@ -705,6 +705,10 @@ export interface ResponseCurrentUserUpvoteStreakResponse {
   data?: ResponseGetUserCurrentUpvoteStreakResponse;
 }
 
+export interface ResponseDataFilterConfigByReaction {
+  data?: ResponseRoleReactionResponse;
+}
+
 export interface ResponseDataListRoleReactionResponse {
   data?: ResponseListRoleReactionResponse;
 }

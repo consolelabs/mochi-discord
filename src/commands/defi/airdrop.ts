@@ -11,6 +11,7 @@ import {
   getEmoji,
   roundFloatNumber,
   thumbnails,
+  tripodEmojis,
 } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
@@ -317,6 +318,11 @@ const command: Command = {
         ],
       },
     }
+  },
+  featured: {
+    title: `<:_:${tripodEmojis.AIRDROPPER}> Airdrop`,
+    description:
+      "Airdrop tokens for a specified number of users to collect in a given amount of time",
   },
   getHelpMessage: async (msg) => ({
     embeds: [

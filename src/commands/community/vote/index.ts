@@ -172,6 +172,11 @@ const command: Command = {
       return handle(msg.author)
     }
   },
+  featured: {
+    title: `${getEmoji("like")} Vote`,
+    description:
+      "Vote for us on top.gg and discordbotlist.com and earn rewards",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
