@@ -1,8 +1,4 @@
-import {
-  Command,
-  RoleReactionConfigResponse,
-  RoleReactionEvent,
-} from "types/common"
+import { Command, RoleReactionEvent } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message, TextChannel } from "discord.js"
@@ -103,9 +99,8 @@ const command: Command = {
         role_id: roleId,
       }
 
-      const rrConfig: RoleReactionConfigResponse =
-        await config.updateReactionConfig(requestData)
-      if (rrConfig.success) {
+      const res = await config.updateReactionConfig(requestData)
+      if (res.ok) {
         message.react(requestData.reaction)
         return {
           messageOptions: {
@@ -117,6 +112,18 @@ const command: Command = {
             ],
           },
         }
+      }
+
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description:
+                "Role / emoji was configured, please type `$rr list` to check.",
+            }),
+          ],
+        },
       }
     } catch (error) {
       ChannelLogger.log(error as BotBaseError)

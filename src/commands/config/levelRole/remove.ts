@@ -2,7 +2,11 @@ import Config from "adapters/config"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "utils/discordEmbed"
 
 const command: Command = {
   id: "lr_remove",
@@ -58,7 +62,8 @@ const command: Command = {
       return {
         messageOptions: {
           embeds: [
-            composeEmbedMessage(msg, {
+            getSuccessEmbed({
+              msg,
               description: `Level role configuration removed for lv${level}.\nTo set a new one, run \`$lr <role> <level>\`.`,
             }),
           ],
