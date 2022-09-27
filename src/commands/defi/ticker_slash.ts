@@ -258,7 +258,6 @@ async function composeTickerResponse({
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
     originalMsgAuthor: gMember?.user,
-    description: "_Give credit to Tsuki bot for the idea._",
   }).addFields([
     {
       name: `Market cap (${currency.toUpperCase()})`,
