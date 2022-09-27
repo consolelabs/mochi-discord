@@ -10,7 +10,7 @@ import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
 import ChannelLogger from "utils/ChannelLogger"
 import { BotBaseError } from "errors"
-import { logger } from "ethers"
+import { logger } from "logger"
 
 const command: Command = {
   id: "reactionrole_remove",
