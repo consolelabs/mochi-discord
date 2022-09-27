@@ -3,7 +3,7 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
-import { getCommandArguments, parseDiscordToken } from "utils/commands"
+import { getCommandArguments } from "utils/commands"
 import { GuildIdNotFoundError } from "errors"
 
 const command: Command = {
@@ -15,13 +15,17 @@ const command: Command = {
   run: async (msg: Message) => {
     const args = getCommandArguments(msg)
     // Validate input reaction emoji
-    const reaction = args[2]
+    let reaction = args[2]
     let isValidEmoji = false
-
-    const { id } = parseDiscordToken(reaction)
-
+    if (reaction.startsWith("<:") && reaction.endsWith(">")) {
+      reaction = reaction.toLowerCase()
+    }
+    const emojiSplit = reaction.split(":")
+    if (emojiSplit.length === 1) {
+      isValidEmoji = true
+    }
     msg.guild?.emojis.cache.forEach((e) => {
-      if (id == e.id) {
+      if (emojiSplit.includes(e.name!.toLowerCase())) {
         isValidEmoji = true
       }
     })
