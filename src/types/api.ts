@@ -1007,12 +1007,11 @@ export interface ResponseIndexerGetNFTTokensResponse {
 }
 
 export interface ResponseIndexerGetNftTokenTxHistory {
-  block_number?: number;
   contract_address?: string;
   created_time?: string;
-  event_time?: number;
+  event_type?: string;
   from?: string;
-  last_updated_time?: string;
+  listing_status?: string;
   to?: string;
   token_id?: string;
   transaction_hash?: string;
@@ -1054,6 +1053,7 @@ export interface ResponseIndexerNFTTokenDetailData {
   image?: string;
   image_cdn?: string;
   image_content_type?: string;
+  marketplace?: ResponseNftListingMarketplace[];
   metadata_id?: string;
   name?: string;
   owner?: ResponseIndexerNftTokenOwner;
@@ -1223,6 +1223,14 @@ export interface ResponseNewGuildConfigWalletVerificationMessageResponse {
 export interface ResponseNewGuildGroupNFTRoleResponse {
   data?: ResponseConfigGroupNFTRoleResponse;
   message?: string;
+}
+
+export interface ResponseNftListingMarketplace {
+  contract_address?: string;
+  item_url?: string;
+  platform_id?: number;
+  platform_name?: string;
+  token_id?: string;
 }
 
 export interface ResponseNftMetadataAttrIcon {

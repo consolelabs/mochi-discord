@@ -104,6 +104,7 @@ export async function composeNFTDetail(
     collection_address,
     token_id,
     owner,
+    marketplace,
   } = data
 
   let nftImage = image
@@ -130,6 +131,7 @@ export async function composeNFTDetail(
     }
   )
 
+  // Attributes fields
   const attributeFields: EmbedFieldData[] = attributesFiltered
     ? attributesFiltered.map((attr: any) => {
         const val = `${capFirst(attr.value)}\n${attr.frequency ?? ""}`
@@ -155,6 +157,7 @@ export async function composeNFTDetail(
 
   embed = justifyEmbedFields(embed, 3)
 
+  // Tx history fields
   const {
     ok,
     data: activityData,
@@ -186,6 +189,24 @@ export async function composeNFTDetail(
     },
   ]
   if (txHistoryValue.length !== 0) embed.addFields(txHistoryFields)
+
+  // Listing fields
+  const listingTitle = `${getEmoji("tip")} Listing On`
+  const listingValue = (marketplace ?? [])
+    .map(({ platform_name = "", item_url = "" }) => {
+      return `${getEmoji(
+        platform_name
+      )} **[${platform_name.toUpperCase()}](${item_url})**`
+    })
+    .join("\n")
+  const listingFields: EmbedFieldData[] = [
+    {
+      name: listingTitle,
+      value: listingValue,
+    },
+  ]
+  if (marketplace.length !== 0) embed.addFields(listingFields)
+
   return embed
 }
 
