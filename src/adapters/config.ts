@@ -318,7 +318,7 @@ class Config extends Fetcher {
   }
 
   public async listAllReactionRoles(guildId: string) {
-    return await this.jsonFetch<ResponseDataListRoleReactionResponse>(
+    return this.jsonFetch<ResponseDataListRoleReactionResponse>(
       `${API_BASE_URL}/configs/reaction-roles`,
       {
         query: {

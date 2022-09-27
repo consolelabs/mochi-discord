@@ -91,53 +91,42 @@ const command: Command = {
       }
     }
 
-    try {
-      const requestData: RoleReactionEvent = {
-        guild_id: msg.guild.id,
-        message_id: messageId,
-        reaction,
-        role_id: roleId,
-      }
+    const requestData: RoleReactionEvent = {
+      guild_id: msg.guild.id,
+      message_id: messageId,
+      reaction,
+      role_id: roleId,
+    }
 
-      const res = await config.updateReactionConfig(requestData)
-      if (res.ok) {
-        message.react(requestData.reaction)
-        return {
-          messageOptions: {
-            embeds: [
-              composeEmbedMessage(msg, {
-                author: ["Reaction roles", msg.guild.iconURL()],
-                description: `Emoji ${requestData.reaction} is now setting to this role <@&${requestData.role_id}>`,
-              }),
-            ],
-          },
-        }
-      }
-
+    const res = await config.updateReactionConfig(requestData)
+    if (res.ok) {
+      message.react(requestData.reaction)
       return {
         messageOptions: {
           embeds: [
-            getErrorEmbed({
-              msg,
-              description:
-                "Role / emoji was configured, please type `$rr list` to check.",
+            composeEmbedMessage(msg, {
+              author: ["Reaction roles", msg.guild.iconURL()],
+              description: `Emoji ${requestData.reaction} is now setting to this role <@&${requestData.role_id}>`,
             }),
           ],
         },
       }
-    } catch (error) {
-      ChannelLogger.log(error as BotBaseError)
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description:
-                "Role / emoji was configured, please type `$rr list` to check.",
-            }),
-          ],
-        },
-      }
+    }
+
+    if (res.error) {
+      ChannelLogger.log(new Error(res.error) as BotBaseError)
+    }
+
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(msg, {
+            author: ["Reaction roles", msg.guild.iconURL()],
+            description:
+              "Role / emoji was configured, please type `$rr list` to check.",
+          }),
+        ],
+      },
     }
   },
   getHelpMessage: async (msg) => {
