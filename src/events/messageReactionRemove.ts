@@ -2,31 +2,14 @@ import {
   Message,
   MessageReaction,
   PartialMessageReaction,
-  Role,
   User,
 } from "discord.js"
 import { logger } from "logger"
 import { Event } from "."
 import { BotBaseError } from "errors"
 import ChannelLogger from "utils/ChannelLogger"
-import { ReactionRoleResponse, RoleReactionEvent } from "types/common"
-import config from "adapters/config"
-
-const getRoleById = (msg: Message, roleId: string): Role | undefined => {
-  return msg.guild?.roles.cache.find((role) => role.id === roleId)
-}
-
-const getReactionIdentifier = (
-  _reaction: MessageReaction | PartialMessageReaction
-): string => {
-  let reaction = ""
-  if (_reaction.emoji.id) {
-    reaction = "<:" + _reaction.emoji.identifier.toLowerCase() + ">"
-  } else {
-    reaction = _reaction.emoji.name ?? ""
-  }
-  return reaction
-}
+import webhook from "adapters/webhook"
+import { getReactionIdentifier } from "utils/commands"
 
 export default {
   name: "messageReactionRemove",
@@ -42,28 +25,16 @@ export default {
       if (!_reaction.message.guild) return
 
       const msg = _reaction.message as Message
-      // check msg config reactionrole
-      const emojiResp = await config.listAllReactionRoles(msg.guild?.id ?? "")
-      const listMessageID =
-        emojiResp?.data?.configs?.map((v: any) => v.message_id) || []
-      if (!listMessageID.includes(msg.id)) {
-        return
-      }
-
-      const event: RoleReactionEvent = {
+      const body = {
         guild_id: msg.guild?.id ?? "",
+        channel_id: msg.channel.id,
         message_id: msg.id,
-        reaction: getReactionIdentifier(_reaction),
+        reaction: getReactionIdentifier(_reaction.emoji.id,_reaction.emoji.name,_reaction.emoji.identifier.toLowerCase()),
+        reaction_count: _reaction.count,
+        user_id: user.id,
       }
 
-      const resData: ReactionRoleResponse = await config.handleReactionEvent(
-        event
-      )
-
-      const role = getRoleById(msg, resData.role.id)
-      if (resData?.role?.id && role) {
-        await msg.guild?.members?.cache.get(user.id)?.roles.remove(role)
-      }
+      await webhook.pushDiscordWebhook("messageReactionRemove", body)
     } catch (e) {
       const error = e as BotBaseError
       if (error.handle) {
