@@ -199,14 +199,12 @@ export async function sendCommandSuggestionMessage(
   }
 }
 
-export const getReactionIdentifier = (
-  _reaction: MessageReaction | PartialMessageReaction
-): string => {
+export const getReactionIdentifier = (emojiId: string | null, emojiName: string | null, identifier: string): string => {
   let reaction = ""
-  if (_reaction.emoji.id) {
-    reaction = "<:" + _reaction.emoji.identifier.toLowerCase() + ">"
+  if (emojiId) {
+    reaction = "<:" + identifier + ">"
   } else {
-    reaction = _reaction.emoji.name ?? ""
+    reaction = emojiName ?? ""
   }
   return reaction
 }
