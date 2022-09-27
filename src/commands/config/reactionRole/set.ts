@@ -114,14 +114,14 @@ const command: Command = {
     }
 
     if (res.error) {
-      ChannelLogger.log(new Error(res.error) as BotBaseError)
+      ChannelLogger.alert(msg, new Error(res.error) as BotBaseError)
     }
 
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(msg, {
-            author: ["Reaction roles", msg.guild.iconURL()],
+          getErrorEmbed({
+            msg,
             description:
               "Role / emoji was configured, please type `$rr list` to check.",
           }),
