@@ -167,6 +167,8 @@ export const emojis: { [key: string]: string } = {
   BUBBLE_CASH: "1022765345875968040",
   TIP: "933384794627248128",
   SEARCH: "933341511062552626",
+  PREDICTION: "931194309385003058",
+  FELLOWSHIP: "922044644928421888",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

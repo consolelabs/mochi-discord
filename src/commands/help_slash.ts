@@ -1,53 +1,23 @@
-import { CommandInteraction } from "discord.js"
-import { HELP, HOMEPAGE_URL, SLASH_PREFIX } from "utils/constants"
+import { ColorResolvable, CommandInteraction } from "discord.js"
+import { HELP_GITBOOK, HOMEPAGE_URL } from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import { emojis, thumbnails } from "utils/common"
-import config from "../adapters/config"
-import { Category, SlashCommand } from "types/common"
-import {
-  composeEmbedMessage2,
-  EMPTY_FIELD,
-  justifyEmbedFields,
-} from "utils/discordEmbed"
+import { thumbnails } from "utils/common"
+import { embedsColors, SlashCommand } from "types/common"
+import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { slashCommands } from "commands"
+import { buildHelpInterface } from "./help"
 dayjs.extend(utc)
 
-const categoryIcons: Record<Category, string> = {
-  Profile: emojis.PROFILE,
-  Config: emojis.PROFILE,
-  Defi: emojis.DEFI,
-  Community: emojis.DEFI,
-  Game: emojis.GAME,
-}
+const image =
+  "https://cdn.discordapp.com/attachments/984660970624409630/1023869479521882193/help2.png"
 
-function getHelpEmbed(interaction: CommandInteraction) {
-  return composeEmbedMessage2(interaction, {
-    title: "Mochi's Help",
-    thumbnail: thumbnails.HELP,
-    // description: `Use \`${HELP_CMD} <command>\` for more details about a specific command`,
-    footer: [
-      `Use ${SLASH_PREFIX}${HELP} <command> for details on a specific command`,
-    ],
-  })
-}
-
-/**
- * Validate if categories for admin can be displayed.
- * Sort categories by number of their commands in DESCENDING order
- *
- */
-async function displayCategories() {
-  return Object.entries(categoryIcons).sort((catA, catB) => {
-    const commandsOfThisCatA: number = Object.values(slashCommands)
-      .filter(Boolean)
-      .filter((c) => c.category === catA[0]).length
-    const commandsOfThisCatB: number = Object.values(slashCommands)
-      .filter(Boolean)
-      .filter((c) => c.category === catB[0]).length
-
-    return commandsOfThisCatB - commandsOfThisCatA
+function getHelpEmbed() {
+  return composeEmbedMessage(null, {
+    title: `Mochi Bot Commands`,
+    author: ["Mochi Bot", thumbnails.HELP],
+    image,
   })
 }
 
@@ -76,42 +46,31 @@ const command: SlashCommand = {
     )
     return { messageOptions }
   },
-  help: async (interaction: CommandInteraction) => {
-    const embed = getHelpEmbed(interaction)
-    const categories = await displayCategories()
+  help: async () => {
+    const embed = getHelpEmbed()
+    buildHelpInterface(embed, "/")
 
-    let idx = 0
-    for (const item of Object.values(categories)) {
-      const category = item[0]
-      if (!(await config.slashCategoryIsScoped(interaction, category))) continue
+    embed.addFields(
+      {
+        name: "**Examples**",
+        value: `\`\`\`/help invite\`\`\``,
+      },
+      {
+        name: "**Document**",
+        value: `[**Gitbook**](${HELP_GITBOOK})`,
+        inline: true,
+      },
+      {
+        name: "**Bring the Web3 universe to your Discord**",
+        value: `[**Website**](${HOMEPAGE_URL})`,
+        inline: true,
+      }
+    )
 
-      const commandsByCat = (
-        await Promise.all(
-          Object.values(slashCommands)
-            .filter((cmd) => cmd.name !== "help")
-            .filter(
-              async (cmd) =>
-                await config.slashCommandIsScoped({
-                  interaction,
-                  category: cmd.category,
-                  command: cmd.name,
-                })
-            )
-        )
-      )
-        .filter((c) => c.category === category)
-        .map((c) => `[\`${c.name}\`](${HOMEPAGE_URL})`)
-        .join(" ")
-
-      if (!commandsByCat) continue
-
-      // add blank field as the third column
-      if (idx % 3 === 2) embed.addFields(EMPTY_FIELD)
-      embed.addField(`${category}`, `${commandsByCat}`, true)
-      idx++
+    embed.setColor(embedsColors.Game as ColorResolvable)
+    return {
+      embeds: [justifyEmbedFields(embed, 3)],
     }
-
-    return { embeds: [justifyEmbedFields(embed, 3)] }
   },
   colorType: "Command",
 }
