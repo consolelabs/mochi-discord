@@ -194,7 +194,7 @@ async function welcomeNewMember(member: Discord.GuildMember) {
     title: "Welcome",
     description: configData.welcome_message.replaceAll(
       "$name",
-      member.displayName
+      `<@${member.id}>`
     ),
   })
   if (chan.isText()) {

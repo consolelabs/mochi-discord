@@ -10,6 +10,7 @@ import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
 import ChannelLogger from "utils/ChannelLogger"
 import { BotBaseError } from "errors"
+import { logger } from "logger"
 
 const command: Command = {
   id: "reactionrole_remove",
@@ -114,10 +115,17 @@ const command: Command = {
             const emojiSplit = reaction.split(":")
             const reactionEmoji =
               emojiSplit.length === 1 ? reaction : reaction.replace(/\D/g, "")
-            message.reactions.cache.get(reactionEmoji)?.remove().catch()
+            message.reactions.cache
+              .get(reactionEmoji)
+              ?.remove()
+              .catch((e) => {
+                logger.info(e)
+              })
           } else {
             description = `All reaction role configurations for this message is now clear.`
-            message.reactions.removeAll().catch()
+            message.reactions.removeAll().catch((e) => {
+              logger.info(e)
+            })
           }
         } else {
           description = `Failed to remove this reaction role configuration.`

@@ -193,3 +193,18 @@ export async function sendCommandSuggestionMessage(
     })
   }
 }
+
+// TODO: add test (Tuan)
+export const getReactionIdentifier = (
+  emojiId: string | null,
+  emojiName: string | null,
+  identifier: string
+): string => {
+  let reaction = ""
+  if (emojiId) {
+    reaction = "<:" + identifier + ">"
+  } else {
+    reaction = emojiName ?? ""
+  }
+  return reaction
+}
