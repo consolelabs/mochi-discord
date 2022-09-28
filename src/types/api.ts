@@ -380,6 +380,14 @@ export interface ModelWhitelistCampaignUser {
   whitelist_campaign_id?: string;
 }
 
+export interface RequestAddNftWatchlistRequest {
+  chain?: string;
+  collection_address?: string;
+  collection_symbol?: string;
+  guild_id?: string;
+  user_id?: string;
+}
+
 export interface RequestAddToWatchlistRequest {
   coin_gecko_id?: string;
   symbol?: string;
@@ -852,6 +860,23 @@ export interface ResponseGetNFTCollectionByAddressChainResponse {
   data?: ModelNFTCollection;
 }
 
+export interface ResponseGetNftWatchlist {
+  floor_price?: number;
+  id?: string;
+  image?: string;
+  is_pair?: boolean;
+  name?: string;
+  price_change_percentage_24h?: number;
+  price_change_percentage_7d_in_currency?: number;
+  sparkline_in_7d?: ResponseSparkLineIn7D;
+  symbol?: string;
+  token?: ResponseIndexerToken;
+}
+
+export interface ResponseGetNftWatchlistResponse {
+  data?: ResponseGetNftWatchlist[];
+}
+
 export interface ResponseGetRepostReactionConfigsResponse {
   data?: ModelGuildConfigRepostReaction[];
 }
@@ -1007,12 +1032,11 @@ export interface ResponseIndexerGetNFTTokensResponse {
 }
 
 export interface ResponseIndexerGetNftTokenTxHistory {
-  block_number?: number;
   contract_address?: string;
   created_time?: string;
-  event_time?: number;
+  event_type?: string;
   from?: string;
-  last_updated_time?: string;
+  listing_status?: string;
   to?: string;
   token_id?: string;
   transaction_hash?: string;
@@ -1054,6 +1078,7 @@ export interface ResponseIndexerNFTTokenDetailData {
   image?: string;
   image_cdn?: string;
   image_content_type?: string;
+  marketplace?: ResponseNftListingMarketplace[];
   metadata_id?: string;
   name?: string;
   owner?: ResponseIndexerNftTokenOwner;
@@ -1225,6 +1250,14 @@ export interface ResponseNewGuildGroupNFTRoleResponse {
   message?: string;
 }
 
+export interface ResponseNftListingMarketplace {
+  contract_address?: string;
+  item_url?: string;
+  platform_id?: number;
+  platform_name?: string;
+  token_id?: string;
+}
+
 export interface ResponseNftMetadataAttrIcon {
   discord_icon?: string;
   id?: number;
@@ -1249,6 +1282,15 @@ export interface ResponseNftSales {
 
 export interface ResponseNftSalesResponse {
   data?: ResponseNftSales[];
+}
+
+export interface ResponseNftWatchlistSuggest {
+  default_symbol?: ResponseCollectionSuggestions;
+  suggestions?: ResponseCollectionSuggestions[];
+}
+
+export interface ResponseNftWatchlistSuggestResponse {
+  data?: ResponseNftWatchlistSuggest;
 }
 
 export interface ResponseResponseMessage {
@@ -1288,6 +1330,10 @@ export interface ResponseRoleReactionResponse {
 
 export interface ResponseSearchCoinResponse {
   data?: ModelCoingeckoSupportedTokens[];
+}
+
+export interface ResponseSparkLineIn7D {
+  price?: number[];
 }
 
 export interface ResponseTickerData {
