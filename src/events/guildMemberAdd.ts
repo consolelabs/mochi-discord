@@ -22,6 +22,7 @@ import { getChartColorConfig, renderChartImage } from "utils/canvas"
 import { HexColorString, User, MessageAttachment } from "discord.js"
 import Community from "adapters/community"
 import { EphemeralMessage } from "utils/CommandChoiceManager"
+import { PREFIX } from "utils/constants"
 
 const voteLimitCount = 4
 const formatter = new Intl.NumberFormat("en-US", { minimumIntegerDigits: 2 })
@@ -191,11 +192,11 @@ async function welcomeNewMember(member: Discord.GuildMember) {
   }
 
   const embed = composeEmbedMessage(null, {
-    title: "Welcome",
-    description: configData.welcome_message.replaceAll(
-      "$name",
-      `<@${member.id}>`
-    ),
+    title: "Nice to meet you",
+    description: configData.welcome_message
+      .replaceAll("$name", `<@${member.id}>`)
+      .replaceAll(`\\n`, "\n"),
+    footer: [`Type ${PREFIX}help to explore features`],
   })
   if (chan.isText()) {
     chan.send({ embeds: [embed] })
