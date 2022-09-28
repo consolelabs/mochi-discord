@@ -462,7 +462,10 @@ class Defi extends Fetcher {
       module: "gastracker",
       action: "gasoracle",
     }
-    return await this.jsonFetch<{ result: GasPriceData }>(url, { query })
+    return await this.jsonFetch<{ result: GasPriceData }>(url, {
+      query,
+      silent: true,
+    })
   }
 }
 
