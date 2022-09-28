@@ -56,9 +56,11 @@ CacheManager.init({
 async function renderHistoricalMarketChart({
   coinId,
   days = 7,
+  bb, // show bear/bull meme
 }: {
   coinId: string
   days?: number
+  bb: boolean
 }) {
   const currency = "usd"
   const { ok, data } = await CacheManager.get({
@@ -76,11 +78,7 @@ async function renderHistoricalMarketChart({
     data: prices,
     colorConfig: getChartColorConfig(coinId),
   })
-
-  // 80% to show chart only
-  if (getChance(80)) {
-    return new MessageAttachment(chart, "chart.png")
-  }
+  if (!bb) return new MessageAttachment(chart, "chart.png")
 
   // 20% to show chart with bear/bull
   const container: RectangleStats = {
@@ -129,17 +127,18 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const [coinId, days] = input.split("_")
-
+  const bb = getChance(20)
   const chart = await renderHistoricalMarketChart({
     coinId,
     days: +days,
+    bb,
   })
 
   // update chart image
   const [embed] = message.embeds
   await message.removeAttachments()
-  // embed.image.url = "attachment://chart.png"
   embed.setImage("attachment://chart.png")
+  if (bb) embed.setDescription("Give credit to Tsuki Bot for the idea.")
 
   const selectMenu = message.components[0].components[0] as MessageSelectMenu
   const choices = ["1", "7", "30", "60", "90", "365"]
@@ -251,13 +250,14 @@ async function composeTickerResponse({
   const currentPrice = +current_price[currency]
   const marketCap = +market_cap[currency]
   const blank = getEmoji("blank")
-
+  const bb = getChance(20)
   const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
     originalMsgAuthor: gMember?.user,
+    ...(bb && { description: "Give credit to Tsuki Bot for the idea." }),
   }).addFields([
     {
       name: `Market cap (${currency.toUpperCase()})`,
@@ -291,7 +291,7 @@ async function composeTickerResponse({
     },
   ])
 
-  const chart = await renderHistoricalMarketChart({ coinId: coin.id })
+  const chart = await renderHistoricalMarketChart({ coinId: coin.id, bb })
   const selectRow = composeDaysSelectMenu(
     "tickers_range_selection",
     `${coin.id}`,
