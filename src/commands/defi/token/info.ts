@@ -4,7 +4,6 @@ import {
   Message,
   MessageSelectOptionData,
   SelectMenuInteraction,
-  Util,
 } from "discord.js"
 import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
@@ -43,37 +42,19 @@ async function composeTokenInfoResponse({
     throw new APIError({ message: msg, curl, description: log })
   }
   const embed = composeEmbedMessage(msg, {
+    thumbnail: coin.image.large,
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    author: [coin.name, coin.image.small],
+    title: "About " + coin.name,
     footer: ["Data fetched from CoinGecko.com"],
   })
   const tdService = new TurnDown()
-  if (coin.description.en.length > 1024) {
-    const [first, ...rest] = Util.splitMessage(coin.description.en, {
-      maxLength: 1024,
-      // char: "\n",
-      // prepend: "",
-      // append: "",
+  const content = coin.description.en
+    .split("\r\n\r\n")
+    .map((v: any) => {
+      return tdService.turndown(v)
     })
-    embed.addFields([
-      {
-        name: `About ${coin.name}`,
-        value: tdService.turndown(first),
-      },
-    ])
-    rest.forEach((v) =>
-      embed.addFields([{ name: "\u200B", value: tdService.turndown(v) }])
-    )
-  } else {
-    embed.addFields([
-      {
-        name: `About ${coin.name}`,
-        value:
-          tdService.turndown(coin.description.en) ||
-          "This token has not updated description yet",
-      },
-    ])
-  }
+    .join("\r\n\r\n")
+  embed.setDescription(content || "This token has not updated description yet")
   return {
     messageOptions: {
       embeds: [embed],
@@ -92,7 +73,7 @@ function composeTokenInfoSelectionResponse(
   })
   const selectRow = composeDiscordSelectionRow({
     customId: "tokens_info_selection",
-    placeholder: "Make a selection",
+    placeholder: "Select a token",
     options: coins.map((c: Coin) => opt(c)),
   })
   const found = coins
