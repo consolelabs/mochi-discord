@@ -60,6 +60,10 @@ type RequestInit = Omit<NativeRequestInit, "body"> & {
    * The body payload
    * */
   body?: string | Record<string, any>
+  /**
+   * Only log when there is an error
+   * */
+  silent?: boolean
 }
 
 type Payload = {
@@ -98,6 +102,7 @@ const defaultInit: RequestInit = {
   query: {},
   queryCamelToSnake: true,
   bodyCamelToSnake: true,
+  silent: false,
 }
 
 export class Fetcher {
@@ -114,6 +119,7 @@ export class Fetcher {
         queryCamelToSnake,
         bodyCamelToSnake,
         body: _body,
+        silent,
         ...validInit
       } = mergedInit
       let query: typeof _query = {}
@@ -173,7 +179,9 @@ export class Fetcher {
         json.curl = curl
         return json
       } else {
-        logger.info(log)
+        if (!silent) {
+          logger.info(log)
+        }
         const json = await (res as OkResponse<T>).json()
         json.ok = true
         json.log = log
