@@ -15,7 +15,7 @@ export class BotBaseError extends Error {
     if (message) {
       this.msgOrInteraction = message
       const channel = message.channel as TextChannel
-      const user = "author" in message ? message.author.tag : message.user.tag
+      const user = "author" in message ? message.author?.tag : message.user?.tag
       this.message = JSON.stringify({
         guild: message.guild?.name,
         channel: channel?.name,
