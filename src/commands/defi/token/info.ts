@@ -114,7 +114,6 @@ const command: Command = {
   id: "info_server_token",
   command: "info",
   brief: "Information of a token",
-  onlyAdministrator: true,
   category: "Community",
   run: async function (msg) {
     if (!msg.guildId) {
