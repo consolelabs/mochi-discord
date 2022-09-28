@@ -36,6 +36,7 @@ export type Coin = {
   image: CoinImage
   market_data: MarketData
   tickers: TickerData[]
+  description: CoinDescription
 }
 
 export type TickerData = {
@@ -58,6 +59,10 @@ type CoinImage = {
   thumb: string
   small: string
   large: string
+}
+
+type CoinDescription = {
+  en: string
 }
 
 export type CoinComparisionData = {

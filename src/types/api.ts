@@ -641,6 +641,10 @@ export interface ResponseAddToWatchlistResponseData {
   target_suggestions?: ModelCoingeckoSupportedTokens[];
 }
 
+export interface ResponseCoinDescription {
+  en?: string;
+}
+
 export interface ResponseCoinImage {
   large?: string;
   small?: string;
@@ -751,6 +755,7 @@ export interface ResponseGetAllTwitterHashtagConfigResponse {
 
 export interface ResponseGetCoinResponse {
   asset_platform_id?: string;
+  description?: ResponseCoinDescription;
   id?: string;
   image?: ResponseCoinImage;
   market_cap_rank?: number;
