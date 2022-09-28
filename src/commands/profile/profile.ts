@@ -115,7 +115,7 @@ function collectButton(
       }
     })
     .on("end", () => {
-      msg.edit({ components: [] })
+      msg.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -141,10 +141,12 @@ async function switchView(
       ))
       break
   }
-  await i.editReply({
-    embeds: [embed],
-    components: components,
-  })
+  await i
+    .editReply({
+      embeds: [embed],
+      components: components,
+    })
+    .catch(() => null)
 }
 
 async function handlePagination(
@@ -164,10 +166,12 @@ async function handlePagination(
     currentCollectionAddress,
     page
   )
-  await i.editReply({
-    embeds: [embed],
-    components: components,
-  })
+  await i
+    .editReply({
+      embeds: [embed],
+      components: components,
+    })
+    .catch(() => null)
 }
 
 function collectSelectMenu(msg: Message, authorId: string, user: User) {
@@ -181,7 +185,7 @@ function collectSelectMenu(msg: Message, authorId: string, user: User) {
       await selectCollection(i, msg, user)
     })
     .on("end", () => {
-      msg.edit({ components: [] })
+      msg.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -196,10 +200,12 @@ async function selectCollection(
     user,
     currentCollectionAddress
   )
-  await i.editReply({
-    embeds: [embed],
-    components: components,
-  })
+  await i
+    .editReply({
+      embeds: [embed],
+      components: components,
+    })
+    .catch(() => null)
 }
 
 function buildProgressbar(progress: number): string {
