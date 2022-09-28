@@ -53,12 +53,14 @@ function buildSelectCollectionActionRow(
     new MessageSelectMenu({
       customId: "profile-select-nft-collection",
       placeholder: "Select nft collection",
-      options: options.map((o) => ({
-        label: o.collectionName,
-        description: `${o.collectionName} collection`,
-        value: o.collectionAddress,
-        default: o.collectionAddress === currentCollectionAddress,
-      })),
+      options: options
+        .filter((o) => o.collectionName && o.collectionAddress)
+        .map((o) => ({
+          label: o.collectionName,
+          description: `${o.collectionName} collection`,
+          value: o.collectionAddress,
+          default: o.collectionAddress === currentCollectionAddress,
+        })),
     })
   )
   return row
@@ -113,7 +115,7 @@ function collectButton(
       }
     })
     .on("end", () => {
-      msg.edit({ components: [] })
+      msg.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -139,10 +141,12 @@ async function switchView(
       ))
       break
   }
-  await i.editReply({
-    embeds: [embed],
-    components: components,
-  })
+  await i
+    .editReply({
+      embeds: [embed],
+      components: components,
+    })
+    .catch(() => null)
 }
 
 async function handlePagination(
@@ -162,10 +166,12 @@ async function handlePagination(
     currentCollectionAddress,
     page
   )
-  await i.editReply({
-    embeds: [embed],
-    components: components,
-  })
+  await i
+    .editReply({
+      embeds: [embed],
+      components: components,
+    })
+    .catch(() => null)
 }
 
 function collectSelectMenu(msg: Message, authorId: string, user: User) {
@@ -179,7 +185,7 @@ function collectSelectMenu(msg: Message, authorId: string, user: User) {
       await selectCollection(i, msg, user)
     })
     .on("end", () => {
-      msg.edit({ components: [] })
+      msg.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -194,10 +200,12 @@ async function selectCollection(
     user,
     currentCollectionAddress
   )
-  await i.editReply({
-    embeds: [embed],
-    components: components,
-  })
+  await i
+    .editReply({
+      embeds: [embed],
+      components: components,
+    })
+    .catch(() => null)
 }
 
 function buildProgressbar(progress: number): string {

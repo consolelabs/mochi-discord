@@ -350,11 +350,15 @@ export async function renderPaginator(msg: Message, pages: MessageEmbed[]) {
     if (i.user.id !== msg.author.id) return
     if (i.customId === "FORWARD_BTN") {
       page = page > 0 ? page - 1 : pages.length - 1
-      await message.edit({ embeds: [pages[page]], components: [row] })
+      await message
+        .edit({ embeds: [pages[page]], components: [row] })
+        .catch(() => null)
     }
     if (i.customId === "BACKWARD_BTN") {
       page = page < pages.length - 1 ? page + 1 : 0
-      await message.edit({ embeds: [pages[page]], components: [row] })
+      await message
+        .edit({ embeds: [pages[page]], components: [row] })
+        .catch(() => null)
     }
   })
 }
@@ -419,7 +423,7 @@ export function listenForSuggestionAction(
       }
     })
     .on("end", () => {
-      replyMsg.edit({ components: [] })
+      replyMsg.edit({ components: [] }).catch(() => null)
     })
 
   replyMsg
@@ -449,7 +453,7 @@ export function listenForSuggestionAction(
       }
     })
     .on("end", () => {
-      replyMsg.edit({ components: [] })
+      replyMsg.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -485,20 +489,24 @@ export function listenForPaginateAction(
         : getPaginationRow(page, +totalPage)
       if (withAttachmentUpdate && files?.length) {
         await replyMsg.removeAttachments()
-        await replyMsg.edit({
-          embeds,
-          components: msgComponents,
-          files,
-        })
+        await replyMsg
+          .edit({
+            embeds,
+            components: msgComponents,
+            files,
+          })
+          .catch(() => null)
       } else {
-        await replyMsg.edit({
-          embeds,
-          components: msgComponents,
-        })
+        await replyMsg
+          .edit({
+            embeds,
+            components: msgComponents,
+          })
+          .catch(() => null)
       }
     })
     .on("end", () => {
-      replyMsg.edit({ components: [] })
+      replyMsg.edit({ components: [] }).catch(() => null)
     })
 }
 

@@ -81,19 +81,22 @@ export async function confirmAirdrop(
     originalMsgAuthor: originalAuthor?.user,
   })
 
-  const reply = await msg.edit({
-    embeds: [airdropEmbed],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageButton({
-          customId: `enter_airdrop-${authorId}-${duration}-${maxEntries}`,
-          label: "Enter airdrop",
-          style: "PRIMARY",
-          emoji: "🎉",
-        })
-      ),
-    ],
-  })
+  const reply = await msg
+    .edit({
+      embeds: [airdropEmbed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton({
+            customId: `enter_airdrop-${authorId}-${duration}-${maxEntries}`,
+            label: "Enter airdrop",
+            style: "PRIMARY",
+            emoji: "🎉",
+          })
+        ),
+      ],
+    })
+    .catch(() => null)
+  if (!reply) return
   const cacheKey = `airdrop-${reply.id}`
   airdropCache.set(cacheKey, [], +duration)
 
@@ -150,17 +153,19 @@ async function checkExpiredAirdrop(
       }
 
       const originalAuthor = await msg.guild?.members.fetch(authorId)
-      msg.edit({
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
-            footer: [`${participants.length} users joined, ended`],
-            description,
-            originalMsgAuthor: originalAuthor?.user,
-          }),
-        ],
-        components: [],
-      })
+      msg
+        .edit({
+          embeds: [
+            composeEmbedMessage(msg, {
+              title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
+              footer: [`${participants.length} users joined, ended`],
+              description,
+              originalMsgAuthor: originalAuthor?.user,
+            }),
+          ],
+          components: [],
+        })
+        .catch(() => null)
     }
   })
 }

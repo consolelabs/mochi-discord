@@ -95,12 +95,14 @@ async function handleCommandInteraction(interaction: Interaction) {
     // user is already using $vote, no point in reminding
     shouldRemind = false
   }
-  const reply = <Message>await i.editReply({
-    ...(shouldRemind
-      ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
-      : {}),
-    ...messageOptions,
-  })
+  const reply = <Message>await i
+    .editReply({
+      ...(shouldRemind
+        ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
+        : {}),
+      ...messageOptions,
+    })
+    .catch(() => null)
   if (commandChoiceOptions) {
     CommandChoiceManager.add({
       ...commandChoiceOptions,
@@ -116,13 +118,16 @@ async function handleSelecMenuInteraction(interaction: Interaction) {
   const commandChoice = await CommandChoiceManager.get(key)
   if (!commandChoice || !commandChoice.handler) return
   if (i.customId === "exit") {
-    await msg.delete().catch(() => {
-      commandChoice.interaction?.editReply({
-        content: "Exited!",
-        components: [],
-        embeds: [],
+    await msg
+      .delete()
+      .catch(() => {
+        commandChoice.interaction?.editReply({
+          content: "Exited!",
+          components: [],
+          embeds: [],
+        })
       })
-    })
+      .catch(() => null)
     CommandChoiceManager.remove(key)
     return
   }
@@ -135,10 +140,12 @@ async function handleSelecMenuInteraction(interaction: Interaction) {
   if (ephemeralMessage && deferredOrReplied) {
     // already deferred or replied in commandChoice.handler()
     // we do this for long-response command (> 3s) to prevent bot from throwing "Unknown interaction" error
-    output = <Message>await i.editReply({
-      embeds: ephemeralMessage.embeds,
-      components: ephemeralMessage.components,
-    })
+    output = <Message>await i
+      .editReply({
+        embeds: ephemeralMessage.embeds,
+        components: ephemeralMessage.components,
+      })
+      .catch(() => null)
   } else if (ephemeralMessage && !deferredOrReplied) {
     output = <Message>await i.reply({
       ephemeral: true,
@@ -166,7 +173,7 @@ async function handleSelecMenuInteraction(interaction: Interaction) {
         i.editReply({
           embeds: result.embeds,
           components: result.components ?? [],
-        })
+        }).catch(() => null)
       })
   }
 
@@ -176,7 +183,7 @@ async function handleSelecMenuInteraction(interaction: Interaction) {
     messageId: output?.id,
   })
   i
-  await msg.edit(messageOptions)
+  await msg.edit(messageOptions).catch(() => null)
 }
 
 async function handleButtonInteraction(interaction: Interaction) {

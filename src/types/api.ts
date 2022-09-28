@@ -719,10 +719,24 @@ export interface ResponseCurrentUserUpvoteStreakResponse {
 
 export interface ResponseDataFilterConfigByReaction {
   data?: ResponseRoleReactionResponse;
+
+  /** page index */
+  page?: number;
+
+  /** page size */
+  size?: number;
+  total?: number;
 }
 
 export interface ResponseDataListRoleReactionResponse {
   data?: ResponseListRoleReactionResponse;
+
+  /** page index */
+  page?: number;
+
+  /** page size */
+  size?: number;
+  total?: number;
 }
 
 export interface ResponseDefaultRole {
@@ -847,6 +861,13 @@ export interface ResponseGetInvitesResponse {
 
 export interface ResponseGetLevelRoleConfigsResponse {
   data?: ModelGuildConfigLevelRole[];
+
+  /** page index */
+  page?: number;
+
+  /** page size */
+  size?: number;
+  total?: number;
 }
 
 export interface ResponseGetLinkedTelegramResponse {
