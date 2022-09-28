@@ -1,4 +1,4 @@
-import { ColorResolvable, CommandInteraction } from "discord.js"
+import { ColorResolvable, CommandInteraction, User } from "discord.js"
 import { HELP_GITBOOK, HOMEPAGE_URL } from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
@@ -13,12 +13,12 @@ dayjs.extend(utc)
 const image =
   "https://cdn.discordapp.com/attachments/984660970624409630/1023869479521882193/help2.png"
 
-function getHelpEmbed() {
+function getHelpEmbed(user: User) {
   return composeEmbedMessage(null, {
     title: `Mochi Bot Commands`,
     author: ["Mochi Bot", thumbnails.HELP],
     image,
-  })
+  }).setFooter(user?.tag, user.avatarURL() || undefined)
 }
 
 const command: SlashCommand = {
@@ -46,8 +46,8 @@ const command: SlashCommand = {
     )
     return { messageOptions }
   },
-  help: async () => {
-    const embed = getHelpEmbed()
+  help: async (interaction) => {
+    const embed = getHelpEmbed(interaction.user)
     buildHelpInterface(embed, "/")
 
     embed.addFields(

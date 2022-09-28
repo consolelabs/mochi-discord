@@ -25,7 +25,6 @@ const commands: Record<
     description: string
     features: Array<{
       value: string
-      slashId?: string
       onlySlash?: boolean
       url: string
     }>
@@ -38,7 +37,6 @@ const commands: Record<
       {
         value: "verify",
         url: "https://mochibot.gitbook.io/mochi-bot/getting-started/wallet",
-        slashId: "</verify info:1017319180166500374>",
       },
     ],
   },
@@ -59,14 +57,12 @@ const commands: Record<
       {
         value: "vote",
         url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/vote-for-mochi",
-        slashId: "</vote:1016984541291888662>",
       },
     ],
   },
   "Server Insight": {
     emoji: getEmoji("prediction"),
-    description:
-      "Gain more server insight of channel, member, emoji, sticker statistic",
+    description: "Gain more server insight",
     features: [
       {
         value: "stat",
@@ -76,7 +72,7 @@ const commands: Record<
   },
   "Track NFT": {
     emoji: getEmoji("nfts"),
-    description: "Check NFT rarity, track NFT sales and ranking",
+    description: "Check NFT rarity, sales, and ranking",
     features: [
       {
         value: "sales",
@@ -90,17 +86,30 @@ const commands: Record<
   },
   Welcome: {
     emoji: "<:hello:899666094112010350>",
-    description: "Send welcome message automatically",
+    description: "Automate welcome message",
     features: [
       {
         value: "welcome",
         url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/welcome-message",
-        slashId: "</welcome info:1019526882972143696>",
         onlySlash: true,
       },
     ],
   },
-  "Develop Community": {
+  "Member Profile": {
+    emoji: getEmoji("exp"),
+    description: "Tracking member profile and ranking",
+    features: [
+      {
+        value: "profile",
+        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/users-profiles",
+      },
+      {
+        value: "top",
+        url: "https://mochibot.gitbook.io/mochi-bot/functions/list-of-commands",
+      },
+    ],
+  },
+  Community: {
     emoji: getEmoji("fellowship"),
     description: "Set up channels and other add-ins to facilitate activities",
     features: [
@@ -115,7 +124,6 @@ const commands: Record<
       {
         value: "log",
         url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/log-channels",
-        slashId: "</log info:1017017855134400512>",
       },
       {
         value: "poe",
@@ -123,21 +131,7 @@ const commands: Record<
       },
     ],
   },
-  "Manage Member Profile": {
-    emoji: getEmoji("exp"),
-    description: "Tracking member profile and ranking",
-    features: [
-      {
-        value: "profile",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/users-profiles",
-      },
-      {
-        value: "top",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/list-of-commands",
-      },
-    ],
-  },
-  "Manage Server Memeber": {
+  "Server Member": {
     emoji: "<a:pepepolicedog:974757344900681758>",
     description: "Grow the number of members or remove inactive ones",
     features: [
@@ -148,7 +142,6 @@ const commands: Record<
       {
         value: "prune",
         url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/prune-inactive-users",
-        slashId: "</prune inactive:1022427257819643924>",
       },
     ],
   },
@@ -163,12 +156,10 @@ const commands: Record<
       {
         value: "ticker",
         url: "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/crypto-ticker",
-        slashId: "</ticker:1016610378542764082>",
       },
       {
         value: "watchlist",
         url: "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/token-watchlist",
-        slashId: "</watchlist view:1017319180166500375>",
       },
     ],
   },
@@ -205,7 +196,6 @@ const commands: Record<
       {
         value: "defaultrole",
         url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/default-roles",
-        slashId: "</defaultrole info:1017636940406857789>",
       },
       {
         value: "reactionrole",
@@ -214,7 +204,6 @@ const commands: Record<
       {
         value: "levelrole",
         url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/level-roles",
-        slashId: "</levelrole list:1017636940406857790>",
       },
       {
         value: "nftrole",
@@ -243,13 +232,9 @@ export function buildHelpInterface(
         name: `${cmdData.emoji} ${capFirst(cmdName)}`,
         value: `${cmdData.features
           .map((f) => {
-            if (f.slashId) {
-              return f.slashId
-            } else {
-              return `[\`${version}${f.value}\`](${f.url})`
-            }
+            return `[\`${version}${f.value}\`](${f.url})`
           })
-          .join(" ")}\n${cmdData.description}\n${getEmoji("blank")}`,
+          .join(" ")}\n${cmdData.description}`,
         inline: true,
       })
     })
