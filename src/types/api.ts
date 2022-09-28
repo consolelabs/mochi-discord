@@ -380,6 +380,14 @@ export interface ModelWhitelistCampaignUser {
   whitelist_campaign_id?: string;
 }
 
+export interface RequestAddNftWatchlistRequest {
+  chain?: string;
+  collection_address?: string;
+  collection_symbol?: string;
+  guild_id?: string;
+  user_id?: string;
+}
+
 export interface RequestAddToWatchlistRequest {
   coin_gecko_id?: string;
   symbol?: string;
@@ -633,6 +641,10 @@ export interface ResponseAddToWatchlistResponseData {
   target_suggestions?: ModelCoingeckoSupportedTokens[];
 }
 
+export interface ResponseCoinDescription {
+  en?: string;
+}
+
 export interface ResponseCoinImage {
   large?: string;
   small?: string;
@@ -743,6 +755,7 @@ export interface ResponseGetAllTwitterHashtagConfigResponse {
 
 export interface ResponseGetCoinResponse {
   asset_platform_id?: string;
+  description?: ResponseCoinDescription;
   id?: string;
   image?: ResponseCoinImage;
   market_cap_rank?: number;
@@ -850,6 +863,23 @@ export interface ResponseGetMyInfoResponse {
 
 export interface ResponseGetNFTCollectionByAddressChainResponse {
   data?: ModelNFTCollection;
+}
+
+export interface ResponseGetNftWatchlist {
+  floor_price?: number;
+  id?: string;
+  image?: string;
+  is_pair?: boolean;
+  name?: string;
+  price_change_percentage_24h?: number;
+  price_change_percentage_7d_in_currency?: number;
+  sparkline_in_7d?: ResponseSparkLineIn7D;
+  symbol?: string;
+  token?: ResponseIndexerToken;
+}
+
+export interface ResponseGetNftWatchlistResponse {
+  data?: ResponseGetNftWatchlist[];
 }
 
 export interface ResponseGetRepostReactionConfigsResponse {
@@ -1259,6 +1289,15 @@ export interface ResponseNftSalesResponse {
   data?: ResponseNftSales[];
 }
 
+export interface ResponseNftWatchlistSuggest {
+  default_symbol?: ResponseCollectionSuggestions;
+  suggestions?: ResponseCollectionSuggestions[];
+}
+
+export interface ResponseNftWatchlistSuggestResponse {
+  data?: ResponseNftWatchlistSuggest;
+}
+
 export interface ResponseResponseMessage {
   message?: string;
 }
@@ -1296,6 +1335,10 @@ export interface ResponseRoleReactionResponse {
 
 export interface ResponseSearchCoinResponse {
   data?: ModelCoingeckoSupportedTokens[];
+}
+
+export interface ResponseSparkLineIn7D {
+  price?: number[];
 }
 
 export interface ResponseTickerData {

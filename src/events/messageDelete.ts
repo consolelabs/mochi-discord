@@ -18,9 +18,9 @@ export default {
         : MessageTypes["DEFAULT"]
       const body = {
         author: {
-          id: message.author.id,
-          avatar: message.author.avatarURL(),
-          username: message.author.username,
+          id: message.author?.id,
+          avatar: message.author?.avatarURL(),
+          username: message.author?.username,
         },
         id: message.id,
         guild_id: message.guildId,

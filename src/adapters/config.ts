@@ -318,7 +318,7 @@ class Config extends Fetcher {
   }
 
   public async listAllReactionRoles(guildId: string) {
-    return await this.jsonFetch<ResponseDataListRoleReactionResponse>(
+    return this.jsonFetch<ResponseDataListRoleReactionResponse>(
       `${API_BASE_URL}/configs/reaction-roles`,
       {
         query: {
@@ -347,39 +347,17 @@ class Config extends Fetcher {
   }
 
   public async updateReactionConfig(req: RoleReactionEvent) {
-    const res = await fetch(`${API_BASE_URL}/configs/reaction-roles`, {
+    return this.jsonFetch(`${API_BASE_URL}/configs/reaction-roles`, {
       method: "POST",
       body: JSON.stringify(req),
     })
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to update reaction config - guild ${req.guild_id}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json
   }
 
   public async removeReactionConfig(req: RoleReactionEvent) {
-    const res = await fetch(`${API_BASE_URL}/configs/reaction-roles`, {
+    return this.jsonFetch(`${API_BASE_URL}/configs/reaction-roles`, {
       method: "DELETE",
       body: JSON.stringify(req),
     })
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to remove reaction config - guild ${req.guild_id}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json
   }
 
   public async getGuildTokens(guildId: string): Promise<Token[]> {

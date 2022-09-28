@@ -1,8 +1,4 @@
-import {
-  Command,
-  RoleReactionConfigResponse,
-  RoleReactionEvent,
-} from "types/common"
+import { Command, RoleReactionEvent } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message, TextChannel } from "discord.js"
@@ -105,9 +101,8 @@ const command: Command = {
 
     if (requestData) {
       try {
-        const res: RoleReactionConfigResponse =
-          await config.removeReactionConfig(requestData)
-        if (res.success) {
+        const res = await config.removeReactionConfig(requestData)
+        if (res.ok) {
           const { reaction, role_id } = requestData
           if (reaction && role_id) {
             description = `Reaction ${reaction} is removed for <@&${role_id}>.`

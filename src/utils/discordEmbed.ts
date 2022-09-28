@@ -183,7 +183,9 @@ export function composeEmbedMessage(
   if (!withoutFooter) {
     embed
       .setFooter(
-        getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
+        getEmbedFooter(
+          authorTag ? [...footer, authorTag] : [...footer, "Mochi bot"]
+        ),
         authorAvatarURL || undefined
       )
       .setTimestamp(timestamp ?? new Date())
