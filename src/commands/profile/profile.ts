@@ -53,12 +53,14 @@ function buildSelectCollectionActionRow(
     new MessageSelectMenu({
       customId: "profile-select-nft-collection",
       placeholder: "Select nft collection",
-      options: options.map((o) => ({
-        label: o.collectionName,
-        description: `${o.collectionName} collection`,
-        value: o.collectionAddress,
-        default: o.collectionAddress === currentCollectionAddress,
-      })),
+      options: options
+        .filter((o) => o.collectionName && o.collectionAddress)
+        .map((o) => ({
+          label: o.collectionName,
+          description: `${o.collectionName} collection`,
+          value: o.collectionAddress,
+          default: o.collectionAddress === currentCollectionAddress,
+        })),
     })
   )
   return row

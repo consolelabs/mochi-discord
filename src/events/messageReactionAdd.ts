@@ -23,7 +23,11 @@ const handleRepostableMessageTracking = async (
     guild_id: msg.guild?.id ?? "",
     channel_id: msg.channel.id,
     message_id: msg.id,
-    reaction: getReactionIdentifier(_reaction.emoji.id,_reaction.emoji.name,_reaction.emoji.identifier.toLowerCase()),
+    reaction: getReactionIdentifier(
+      _reaction.emoji.id,
+      _reaction.emoji.name,
+      _reaction.emoji.identifier.toLowerCase()
+    ),
     reaction_count: _reaction.count,
     user_id: user.id,
   }
