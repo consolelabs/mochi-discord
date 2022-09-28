@@ -129,6 +129,7 @@ export interface ModelConfigXpLevel {
 }
 
 export interface ModelDiscordGuild {
+  active?: boolean;
   alias?: string;
   bot_scopes?: string[];
   created_at?: string;
@@ -580,7 +581,8 @@ export interface RequestTwitterPost {
 }
 
 export interface RequestUpdateGuildRequest {
-  global_xp?: string;
+  active?: boolean;
+  global_xp?: boolean;
   log_channel?: string;
 }
 
@@ -818,6 +820,7 @@ export interface ResponseGetGuildPruneExcludeResponse {
 }
 
 export interface ResponseGetGuildResponse {
+  active?: boolean;
   alias?: string;
   bot_scopes?: string[];
   global_xp?: boolean;

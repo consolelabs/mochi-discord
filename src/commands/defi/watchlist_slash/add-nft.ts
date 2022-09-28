@@ -30,7 +30,7 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
     chain,
   })
   if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error)
-  CacheManager.findAndRemove("watchlist-nft", `watchlist-nft-${userId}`)
+  CacheManager.findAndRemove("watchlist", `watchlist-nft-${userId}`)
   return {
     messageOptions: {
       embeds: [
@@ -68,7 +68,7 @@ const command: SlashCommand = {
     if (!ok) handleUpdateWlError(interaction, symbol, error)
     // no data === add successfully
     if (!data) {
-      CacheManager.findAndRemove("watchlist-nft", `watchlist-nft-${userId}`)
+      CacheManager.findAndRemove("watchlist", `watchlist-nft-${userId}`)
       return {
         messageOptions: {
           embeds: [

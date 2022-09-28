@@ -26,7 +26,6 @@ import { APIError } from "errors"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 
 let fontRegistered = false
-let currentView = "token"
 
 const filter = (authorId: string) => async (i: MessageComponentInteraction) => {
   await i.deferUpdate()
@@ -382,7 +381,7 @@ async function switchView(
   let embeds: MessageEmbed[]
   let components: MessageActionRow[] | undefined
   let files: MessageAttachment[] | undefined
-  currentView = i.customId.split("/").pop() ?? "token"
+  const currentView = i.customId.split("/").pop() ?? "token"
   switch (currentView) {
     case "nft":
       ;({ embeds, files, components } = await composeNFTWatchlist(originMsg))
@@ -417,7 +416,11 @@ async function composeTokenWatchlist(msg: Message) {
     embed.setDescription(
       `No items in your watchlist.\n Please use \`${PREFIX}watchlist add\` to add one.`
     )
-    return { embeds: [embed] }
+    return {
+      embeds: [embed],
+      files: [],
+      components: [buildSwitchViewActionRow("token")],
+    }
   }
   embed.setImage("attachment://watchlist.png")
   return {
@@ -445,7 +448,11 @@ async function composeNFTWatchlist(msg: Message) {
     embed.setDescription(
       `No items in your watchlist.\n Please use \`${PREFIX}watchlist add-nft\` to add one.`
     )
-    return { embeds: [embed] }
+    return {
+      embeds: [embed],
+      files: [],
+      components: [buildSwitchViewActionRow("nft")],
+    }
   }
   embed.setImage("attachment://watchlist.png")
   return {
