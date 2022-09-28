@@ -283,7 +283,7 @@ const command: Command = {
 
     let replyMsg: Message | null = null
     // great, we have data
-    if (res.data.collection_address) {
+    if (res.data?.collection_address) {
       const collectionDetailRes = await community.getNFTCollectionDetail(symbol)
       if (collectionDetailRes.ok) {
         replyMsg = await msg.reply({
@@ -316,7 +316,12 @@ const command: Command = {
           tokenId,
           msg.guildId ?? ""
         )
-        if (collectionDetailRes.ok) {
+        if (
+          collectionDetailRes.ok &&
+          res.ok &&
+          collectionDetailRes.data &&
+          res.data
+        ) {
           replyMsg = await msg.reply({
             embeds: [
               await composeNFTDetail(
@@ -328,6 +333,15 @@ const command: Command = {
               ),
             ],
             ...components,
+          })
+        } else {
+          await msg.reply({
+            embeds: [
+              composeEmbedMessage(msg, {
+                title: "NFT Query",
+                description: "Token not found",
+              }),
+            ],
           })
         }
       } else {
@@ -376,7 +390,7 @@ const command: Command = {
         )
         const detailRes = await community.getNFTCollectionDetail(colAddress)
 
-        if (!res.ok || !detailRes.ok || !res.data || !detailRes.data) {
+        if (!res.ok || !detailRes.ok) {
           await i.deferUpdate()
           throw new APIError({
             message: msg,
@@ -395,20 +409,34 @@ const command: Command = {
           if (!shouldAskDefault) {
             await i.deferUpdate()
           }
-          await replyMsg
-            ?.edit({
-              embeds: [
-                await composeNFTDetail(
-                  res.data,
-                  msg,
-                  detailRes.data.name,
-                  detailRes.data.image,
-                  detailRes.data.chain?.name
-                ),
-              ],
-              ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
-            })
-            .catch(() => null)
+          // the token might not be synced yet
+          if (!res.data) {
+            await replyMsg
+              ?.edit({
+                embeds: [
+                  composeEmbedMessage(null, {
+                    title: detailRes?.data?.name ?? "NFT Query",
+                    description: "The token is being synced",
+                  }),
+                ],
+              })
+              .catch(() => null)
+          } else {
+            await replyMsg
+              ?.edit({
+                embeds: [
+                  await composeNFTDetail(
+                    res.data,
+                    msg,
+                    detailRes.data.name,
+                    detailRes.data.image,
+                    detailRes.data.chain?.name
+                  ),
+                ],
+                ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
+              })
+              .catch(() => null)
+          }
           if (shouldAskDefault) {
             const actionRow = new MessageActionRow().addComponents(
               new MessageButton({
