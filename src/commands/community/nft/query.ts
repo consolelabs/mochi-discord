@@ -235,7 +235,7 @@ export async function setDefaultSymbol(i: ButtonInteraction) {
   i.editReply({
     embeds: [embed],
     components: [],
-  })
+  }).catch(() => null)
 }
 
 function addSuggestionIfAny(
@@ -395,18 +395,20 @@ const command: Command = {
           if (!shouldAskDefault) {
             await i.deferUpdate()
           }
-          await replyMsg?.edit({
-            embeds: [
-              await composeNFTDetail(
-                res.data,
-                msg,
-                detailRes.data.name,
-                detailRes.data.image,
-                detailRes.data.chain?.name
-              ),
-            ],
-            ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
-          })
+          await replyMsg
+            ?.edit({
+              embeds: [
+                await composeNFTDetail(
+                  res.data,
+                  msg,
+                  detailRes.data.name,
+                  detailRes.data.image,
+                  detailRes.data.chain?.name
+                ),
+              ],
+              ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
+            })
+            .catch(() => null)
           if (shouldAskDefault) {
             const actionRow = new MessageActionRow().addComponents(
               new MessageButton({

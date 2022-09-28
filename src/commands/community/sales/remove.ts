@@ -63,7 +63,7 @@ async function undo(i: ButtonInteraction) {
     i.editReply({
       embeds: [embed],
       ...(state === "queued-detail" ? { components: [] } : { components }),
-    })
+    }).catch(() => null)
     buttonCollector?.stop()
     buttonCollector = null
   }
@@ -76,7 +76,9 @@ async function selectRemove(i: SelectMenuInteraction) {
     if (res.ok) {
       const timeoutId = remove(i.guildId, contractAddress, () => {
         if (i.message instanceof Message) {
-          i.message.edit({ components: [i.message.components[0]] })
+          i.message
+            .edit({ components: [i.message.components[0]] })
+            .catch(() => null)
         }
       })
       const { embed, components } = renderResponse(
@@ -89,10 +91,12 @@ async function selectRemove(i: SelectMenuInteraction) {
         i.channelId,
         timeoutId
       )
-      const msg = await i.editReply({
-        embeds: [embed],
-        components,
-      })
+      const msg = await i
+        .editReply({
+          embeds: [embed],
+          components,
+        })
+        .catch(() => null)
       buttonCollector = collectButton(msg as Message, i.user.id)
     }
   }
@@ -121,7 +125,7 @@ function collectSelect(msg: Message, authorId: string) {
     })
     .on("collect", selectRemove)
     .on("end", () => {
-      msg.edit({ components: [] })
+      msg.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -235,7 +239,7 @@ const command: Command = {
     let replyMsg: Message | null = null
     if (isAddress && id) {
       const timeoutId = remove(msg.guildId, id, () => {
-        replyMsg?.edit({ components: [] })
+        replyMsg?.edit({ components: [] }).catch(() => null)
       })
 
       const { embed, components } = renderResponse(

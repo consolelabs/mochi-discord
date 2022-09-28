@@ -128,11 +128,13 @@ export class CommandChoiceManager {
     const timeoutId = global.setTimeout(async () => {
       const response = await getInactivityResponse?.(user)
       if (interaction) {
-        await interaction.editReply({
-          content: "Exited!",
-          embeds: [],
-          components: [],
-        })
+        await interaction
+          .editReply({
+            content: "Exited!",
+            embeds: [],
+            components: [],
+          })
+          .catch(() => null)
       } else {
         const message = await channel.messages.fetch(messageId ?? "")
         await message.delete()

@@ -62,10 +62,12 @@ const handleRepostableMessageTracking = async (
           channel.messages
             .fetch(`${res?.data.repost_message_id}`)
             .then((msg) => {
-              msg.edit({
-                embeds: [embed],
-                content: `**${reaction} ${reaction_count}** <#${channel_id}>`,
-              })
+              msg
+                .edit({
+                  embeds: [embed],
+                  content: `**${reaction} ${reaction_count}** <#${channel_id}>`,
+                })
+                .catch(() => null)
             })
         }
       }

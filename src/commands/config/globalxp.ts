@@ -28,18 +28,20 @@ export async function confirmGlobalXP(
     guildId: interaction.guildId,
     globalXP: `${globalXP}`,
   })
-  await msg.edit({
-    embeds: [
-      composeEmbedMessage(msg, {
-        author: [
-          `Global XP ${globalXP ? "enabled" : "disabled"}`,
-          msg.guild?.iconURL() ?? "",
-        ],
-        description: `You can check your global XP with \`$profile\``,
-      }),
-    ],
-    components: [],
-  })
+  await msg
+    .edit({
+      embeds: [
+        composeEmbedMessage(msg, {
+          author: [
+            `Global XP ${globalXP ? "enabled" : "disabled"}`,
+            msg.guild?.iconURL() ?? "",
+          ],
+          description: `You can check your global XP with \`$profile\``,
+        }),
+      ],
+      components: [],
+    })
+    .catch(() => null)
 }
 
 const command: Command = {
