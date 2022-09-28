@@ -463,21 +463,13 @@ class Config extends Fetcher {
     globalXP?: string
     logChannel?: string
   }) {
-    const res = await fetch(`${API_BASE_URL}/guilds/${guildId}`, {
+    return await this.jsonFetch(`${API_BASE_URL}/guilds/${guildId}`, {
       method: "PUT",
-      body: JSON.stringify({
-        global_xp: globalXP ?? "",
-        log_channel: logChannel ?? "",
-      }),
+      body: {
+        ...(globalXP && { global_xp: globalXP }),
+        ...(logChannel && { log_channel: logChannel }),
+      },
     })
-    if (res.status !== 200) {
-      throw new Error(`failed to toggle guild global XP - guild ${guildId}`)
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
   }
 
   public async newGuildNFTRoleConfig(body: RequestConfigGroupNFTRoleRequest) {
