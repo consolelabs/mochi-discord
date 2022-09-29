@@ -4,8 +4,7 @@ import { PREFIX } from "utils/constants"
 import { logger } from "../logger"
 import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
-import client from "../index"
-import { invites } from "./index"
+import { invites } from "utils/invites"
 import { setTimeout as wait } from "timers/promises"
 import TwitterStream from "utils/TwitterStream"
 import defi from "adapters/defi"
@@ -16,12 +15,12 @@ export let IS_READY = false
 const event: DiscordEvent<"ready"> = {
   name: "ready",
   once: false,
-  execute: async (listener) => {
+  execute: async (client) => {
     wrapError(null, async () => {
-      if (!listener.user) return
-      logger.info(`Bot [${listener.user.username}] is ready`)
-      ChannelLogger.ready(listener)
-      CommandChoiceManager.client = listener
+      if (!client.user) return
+      logger.info(`Bot [${client.user.username}] is ready`)
+      ChannelLogger.ready(client)
+      CommandChoiceManager.client = client
       // get gas price and show in presence message every 15s
       const chains = ["eth", "ftm", "bsc", "matic"]
       const presence = async () => {
@@ -64,7 +63,7 @@ const event: DiscordEvent<"ready"> = {
       await wait(1000)
 
       // set the client so the bot can send message
-      TwitterStream.client = listener
+      TwitterStream.client = client
       IS_READY = true
     })
   },

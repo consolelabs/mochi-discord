@@ -92,5 +92,12 @@
   },
   "resolutions": {
     "typescript": "4.7.4"
+  },
+  "madge": {
+    "detectiveOptions": {
+      "ts": {
+        "skipTypeImports": true
+      }
+    }
   }
 }

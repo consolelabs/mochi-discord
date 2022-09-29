@@ -9,8 +9,18 @@ import {
   MessageOptions,
   SelectMenuInteraction,
   TextChannel,
+  User,
 } from "discord.js"
-import { inactivityResponse } from "./common"
+import { getEmoji } from "./common"
+import { VERTICAL_BAR } from "./constants"
+
+async function inactivityResponse(user: User): Promise<MessageOptions> {
+  return {
+    content: `> **${getEmoji("revoke")} ${VERTICAL_BAR} ${
+      user.tag
+    }, the command was closed due to inactivity.**`,
+  }
+}
 
 export type EphemeralMessage = {
   embeds: MessageEmbed[]

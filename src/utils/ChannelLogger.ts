@@ -10,7 +10,6 @@ import {
 import { ALERT_CHANNEL_ID, LOG_CHANNEL_ID, MOCHI_GUILD_ID } from "env"
 import { APIError, BotBaseError } from "errors"
 import { logger } from "logger"
-import { getErrorEmbed } from "./discordEmbed"
 
 export class ChannelLogger {
   logChannel: TextChannel | null = null
@@ -71,7 +70,7 @@ export class ChannelLogger {
         ? `\`\`\`${error.message}\`\`\``
         : "Error without message, this is likely an unexpected error"
     }`
-    const embed = getErrorEmbed({
+    const embed = new MessageEmbed({
       title: error.name || "Slash Command error",
       description,
     }).setTimestamp()
@@ -97,10 +96,13 @@ export class ChannelLogger {
     if (error instanceof APIError) {
       description = `${description}\n**Curl:**\n\`\`\`${error.curl}\`\`\``
     }
-    const embed = getErrorEmbed({
-      msg,
+    const embed = new MessageEmbed({
       title: error.name || "Command error",
       description,
+      footer: {
+        text: msg?.author?.tag ?? "Unknown User",
+        iconURL: msg?.author?.avatarURL() ?? undefined,
+      },
     }).setTimestamp()
     this.alertChannel.send({
       embeds: [embed],
@@ -118,7 +120,7 @@ export class ChannelLogger {
   alertWebhook(event: string, error: APIError) {
     this.alertChannel?.send({
       embeds: [
-        getErrorEmbed({
+        new MessageEmbed({
           title: "Webhook Error",
           description: `**Event:** \`${event}\`\n**Message:**\`\`\`${error.message}\`\`\`\n**Curl:**\`\`\`${error.curl}\`\`\``,
         }).setTimestamp(),
@@ -129,7 +131,7 @@ export class ChannelLogger {
   alertStackTrace(stack: string) {
     this.alertChannel?.send({
       embeds: [
-        getErrorEmbed({
+        new MessageEmbed({
           title: "Internal Error",
           description: `**Trace:** \`\`\`${stack}\`\`\``,
         }).setTimestamp(),
