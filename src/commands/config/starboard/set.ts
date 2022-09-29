@@ -81,7 +81,7 @@ const command: Command = {
     }
 
     const res = await config.updateRepostReactionConfig(requestData)
-    if (res.message === "OK") {
+    if (res.ok) {
       return {
         messageOptions: {
           embeds: [

@@ -528,21 +528,10 @@ class Config extends Fetcher {
   }
 
   public async updateRepostReactionConfig(req: RepostReactionRequest) {
-    const res = await fetch(`${API_BASE_URL}/configs/repost-reactions`, {
+    return this.jsonFetch(`${API_BASE_URL}/configs/repost-reactions`, {
       method: "POST",
       body: JSON.stringify(req),
     })
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to update repost reaction config - guild ${req.guild_id}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json
   }
 
   public async listAllRepostReactionConfigs(guildId: string) {
@@ -563,22 +552,10 @@ class Config extends Fetcher {
   }
 
   public async removeSpecificRepostReactionConfig(req: RepostReactionRequest) {
-    const res = await fetch(`${API_BASE_URL}/configs/repost-reactions`, {
+    return this.jsonFetch(`${API_BASE_URL}/configs/repost-reactions`, {
       method: "DELETE",
       body: JSON.stringify(req),
     })
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to remove repost reaction config - guild ${req.guild_id}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-
-    return json
   }
 
   public async getAllChains() {

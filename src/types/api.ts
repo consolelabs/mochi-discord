@@ -80,23 +80,6 @@ export interface DiscordgoUser {
   verified?: boolean;
 }
 
-export interface EntitiesDiscordGuild {
-  bot_addable?: boolean;
-  bot_arrived?: boolean;
-  features?: string[];
-  icon?: string;
-  id?: string;
-  name?: string;
-  owner?: boolean;
-
-  /** @example 0 */
-  permissions?: string;
-}
-
-export interface EntitiesListMyGuildsResponse {
-  data?: EntitiesDiscordGuild[];
-}
-
 export interface EntitiesLoginResponse {
   access_token?: string;
   expires_at?: number;
@@ -751,6 +734,19 @@ export interface ResponseDefaultRoleResponse {
   ok?: boolean;
 }
 
+export interface ResponseDiscordGuildResponse {
+  bot_addable?: boolean;
+  bot_arrived?: boolean;
+  features?: string[];
+  icon?: string;
+  id?: string;
+  name?: string;
+  owner?: boolean;
+
+  /** @example 0 */
+  permissions?: string;
+}
+
 export interface ResponseGenerateVerificationResponse {
   code?: string;
   status?: string;
@@ -1191,6 +1187,10 @@ export interface ResponseListGuildNFTRoleConfigsResponse {
   role_name?: string;
 }
 
+export interface ResponseListMyGuildsResponse {
+  data?: ResponseDiscordGuildResponse[];
+}
+
 export interface ResponseListRoleReactionResponse {
   configs?: ResponseRoleReactionByMessage[];
   guild_id?: string;
@@ -1242,11 +1242,13 @@ export interface ResponseNFTCollectionsResponse {
   data?: ResponseNFTCollectionsData;
 }
 
-export interface ResponseNFTNewListedResponse {
+export interface ResponseNFTNewListed {
   data?: ModelNewListedNFTCollection[];
-  page?: number;
-  size?: number;
-  total?: number;
+  metadata?: UtilPagination;
+}
+
+export interface ResponseNFTNewListedResponse {
+  data?: ResponseNFTNewListed;
 }
 
 export interface ResponseNFTSalesTrackerResponse {
