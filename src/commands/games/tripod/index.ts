@@ -282,7 +282,7 @@ function showHint(p: Piece) {
 }
 
 export async function handlePlayTripod(msg: Message) {
-  if (GAME_TRIPOD_CHANNEL_IDS.includes(msg.channel.id) && msg.content) {
+  if (GAME_TRIPOD_CHANNEL_IDS.includes(msg.channelId) && msg.content) {
     const session = GameSessionManager.getSession(msg.author.id)
     if (session) {
       const { name, data } = session

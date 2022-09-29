@@ -1,4 +1,4 @@
-import { Event } from "."
+import { DiscordEvent } from "."
 import Discord from "discord.js"
 import { PREFIX } from "utils/constants"
 import { logger } from "../logger"
@@ -6,19 +6,19 @@ import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import client from "../index"
 import { invites } from "./index"
-import { BotBaseError } from "errors"
 import { setTimeout as wait } from "timers/promises"
 import TwitterStream from "utils/TwitterStream"
 import defi from "adapters/defi"
+import { wrapError } from "utils/wrapError"
 
 export let IS_READY = false
 
-export default {
+const event: DiscordEvent<"ready"> = {
   name: "ready",
   once: false,
-  execute: async (listener: Discord.Client) => {
-    if (!listener.user) return
-    try {
+  execute: async (listener) => {
+    wrapError(null, async () => {
+      if (!listener.user) return
       logger.info(`Bot [${listener.user.username}] is ready`)
       ChannelLogger.ready(listener)
       CommandChoiceManager.client = listener
@@ -62,21 +62,15 @@ export default {
       }
 
       await wait(1000)
-    } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
-      }
-      ChannelLogger.log(error, 'Event<"ready">')
-    }
 
-    // set the client so the bot can send message
-    TwitterStream.client = listener
-    IS_READY = true
+      // set the client so the bot can send message
+      TwitterStream.client = listener
+      IS_READY = true
+    })
   },
-} as Event<"ready">
+}
+
+export default event
 
 function runAndSetInterval(fn: () => void, ms: number) {
   fn()

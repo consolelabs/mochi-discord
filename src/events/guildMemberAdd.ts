@@ -1,13 +1,12 @@
-import { Event } from "."
+import { DiscordEvent } from "."
 import Discord from "discord.js"
 import config from "adapters/config"
 import webhook from "../adapters/webhook"
 import { DISCORD_DEFAULT_AVATAR } from "env"
 import { createBEGuildMember } from "../types/webhook"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import ChannelLogger from "utils/ChannelLogger"
 import { logger } from "logger"
-import { BotBaseError, APIError } from "errors"
+import { APIError } from "errors"
 import client from "index"
 import Profile from "adapters/profile"
 import CacheManager from "utils/CacheManager"
@@ -23,14 +22,16 @@ import { HexColorString, User, MessageAttachment } from "discord.js"
 import Community from "adapters/community"
 import { EphemeralMessage } from "utils/CommandChoiceManager"
 import { PREFIX } from "utils/constants"
+import { wrapError } from "utils/wrapError"
 
 const voteLimitCount = 4
 const formatter = new Intl.NumberFormat("en-US", { minimumIntegerDigits: 2 })
-export default {
+
+const event: DiscordEvent<"guildMemberAdd"> = {
   name: "guildMemberAdd",
   once: false,
-  execute: async (member: Discord.GuildMember) => {
-    try {
+  execute: async (member) => {
+    wrapError(null, async () => {
       await setUserDefaultRoles(member)
       const res = await webhook.pushDiscordWebhook(
         "guildMemberAdd",
@@ -90,17 +91,11 @@ export default {
       }
       welcomeNewMember(member)
       sendDMToUser(member.guild.name, data.invitee_id)
-    } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
-      }
-      ChannelLogger.log(error, 'Event<"guildMemberAdd">')
-    }
+    })
   },
-} as Event<"guildMemberAdd">
+}
+
+export default event
 
 function unknowErrorMsg(memberID: string) {
   return `I can not figure out how <@${memberID}> joined the server.`

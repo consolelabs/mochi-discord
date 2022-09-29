@@ -125,6 +125,17 @@ export class ChannelLogger {
       ],
     })
   }
+
+  alertStackTrace(stack: string) {
+    this.alertChannel?.send({
+      embeds: [
+        getErrorEmbed({
+          title: "Internal Error",
+          description: `**Trace:** \`\`\`${stack}\`\`\``,
+        }).setTimestamp(),
+      ],
+    })
+  }
 }
 
 export default new ChannelLogger()
