@@ -10,6 +10,7 @@ import {
   getSuccessEmbed,
   composeDiscordExitButton,
   composeEmbedMessage2,
+  getErrorEmbed,
 } from "utils/discordEmbed"
 import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
@@ -83,6 +84,19 @@ const command: SlashCommand = {
 
     // allow selection
     const { suggestions = [] } = data
+    if (!suggestions.length) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              title: "Collection not found",
+              description:
+                "The collection is not supported yet. Please contact us for the support. Thank you!",
+            }),
+          ],
+        },
+      }
+    }
     const opt = (
       collection: ResponseCollectionSuggestions
     ): MessageSelectOptionData => ({
