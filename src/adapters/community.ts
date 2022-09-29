@@ -79,7 +79,8 @@ class Community extends Fetcher {
   }
 
   public async createStatChannel(guildId: string, countType: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/guilds/${guildId}/channels`, {
+    return this.jsonFetch(`${API_BASE_URL}/guilds/${guildId}/channels`, {
+      method: "POST",
       query: {
         countType,
       },
