@@ -12,7 +12,7 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
     size: 16,
   })
 
-  if (!data || (Array.isArray(data) && data.length === 0)) {
+  if (!data || !Array.isArray(data.data) || data.data.length === 0) {
     return {
       messageOptions: {
         embeds: [
