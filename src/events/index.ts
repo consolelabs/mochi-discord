@@ -9,6 +9,7 @@ import inviteDelete from "./inviteDelete"
 import inviteCreate from "./inviteCreate"
 import messageReactionRemove from "./messageReactionRemove"
 import messageDelete from "./messageDelete"
+import guildDelete from "./guildDelete"
 
 export type Event<T extends keyof ClientEvents> = {
   name: T
@@ -25,8 +26,9 @@ export default [
   interactionCreate,
   messageReactionAdd,
   messageReactionRemove,
-  guildCreate,
   guildMemberAdd,
   inviteCreate,
   inviteDelete,
+  guildCreate,
+  guildDelete,
 ]

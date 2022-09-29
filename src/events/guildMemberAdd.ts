@@ -192,7 +192,7 @@ async function welcomeNewMember(member: Discord.GuildMember) {
   }
 
   const embed = composeEmbedMessage(null, {
-    title: "Nice to meet you",
+    title: ":wave: Nice to meet you :wave:",
     description: configData.welcome_message
       .replaceAll("$name", `<@${member.id}>`)
       .replaceAll(`\\n`, "\n"),
