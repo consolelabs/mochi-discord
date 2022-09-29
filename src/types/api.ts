@@ -1242,11 +1242,13 @@ export interface ResponseNFTCollectionsResponse {
   data?: ResponseNFTCollectionsData;
 }
 
-export interface ResponseNFTNewListedResponse {
+export interface ResponseNFTNewListed {
   data?: ModelNewListedNFTCollection[];
-  page?: number;
-  size?: number;
-  total?: number;
+  metadata?: UtilPagination;
+}
+
+export interface ResponseNFTNewListedResponse {
+  data?: ResponseNFTNewListed;
 }
 
 export interface ResponseNFTSalesTrackerResponse {
