@@ -1,28 +1,19 @@
-import { Event } from "."
-import Discord from "discord.js"
+import { DiscordEvent } from "."
 import { invites } from "./index"
-import { logger } from "logger"
-import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError } from "errors"
+import { wrapError } from "utils/wrapError"
 
-export default {
+const event: DiscordEvent<"inviteCreate"> = {
   name: "inviteCreate",
   once: false,
-  execute: async (invite: Discord.Invite) => {
-    try {
+  execute: async (invite) => {
+    wrapError(null, async () => {
       if (invite.guild?.id && typeof invite.uses === "number") {
         const invitesCollection = invites.get(invite.guild.id)
 
         invitesCollection?.set(invite.code, invite.uses)
       }
-    } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
-      }
-      ChannelLogger.log(error, 'Event<"inviteCreate">')
-    }
+    })
   },
-} as Event<"inviteCreate">
+}
+
+export default event

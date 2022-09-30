@@ -1,31 +1,23 @@
-import { Event } from "."
-import Discord from "discord.js"
+import { DiscordEvent } from "."
 import webhook from "adapters/webhook"
-import { BotBaseError } from "errors"
 import { logger } from "logger"
-import ChannelLogger from "utils/ChannelLogger"
+import { wrapError } from "utils/wrapError"
 
-export default {
+const event: DiscordEvent<"guildDelete"> = {
   name: "guildDelete",
   once: false,
-  execute: async (guild: Discord.Guild) => {
+  execute: async (guild) => {
     logger.info(`Left guild: ${guild.name} (id: ${guild.id}).`)
 
-    try {
+    wrapError(null, async () => {
       const data = {
         guild_id: guild.id,
         guild_name: guild.name,
         icon_url: guild.iconURL({ format: "png" }),
       }
       await webhook.pushDiscordWebhook("guildDelete", data)
-    } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
-      }
-      ChannelLogger.log(error, 'Event<"guildDelete">')
-    }
+    })
   },
-} as Event<"guildDelete">
+}
+
+export default event
