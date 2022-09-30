@@ -27,6 +27,7 @@ import {
   ResponseGetNftWatchlistResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
+import { commands } from "commands"
 
 class Defi extends Fetcher {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
@@ -292,7 +293,7 @@ class Defi extends Fetcher {
     msg: Message,
     args: string[]
   ): Promise<DiscordWalletTransferRequest> {
-    const commandObject = getCommandObject(msg)
+    const commandObject = getCommandObject(commands, msg)
     const type = commandObject?.command
     const sender = msg.author.id
     let amountArg = "",

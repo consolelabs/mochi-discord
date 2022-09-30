@@ -731,7 +731,6 @@ export interface ResponseDefaultRole {
 
 export interface ResponseDefaultRoleResponse {
   data?: ResponseDefaultRole;
-  ok?: boolean;
 }
 
 export interface ResponseDiscordGuildResponse {
@@ -908,7 +907,6 @@ export interface ResponseGetRepostReactionConfigsResponse {
 
 export interface ResponseGetSalesTrackerConfigResponse {
   data?: ModelGuildConfigSalesTracker;
-  message?: string;
 }
 
 export interface ResponseGetSupportedChains {
