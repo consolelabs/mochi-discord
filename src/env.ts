@@ -1,11 +1,8 @@
 import dotenv from "dotenv"
-if (process.env.JEST_WORKER_ID !== undefined) {
-  dotenv.config({ path: process.cwd() + "/.env.test" })
-} else {
-  dotenv.config()
-}
+dotenv.config()
 
 export const PROD = process.env.NODE_ENV === "production"
+export const TEST = process.env.NODE_ENV === "test"
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN || ""
 export const APPLICATION_ID = process.env.APPLICATION_ID || ""
 export const PORT = Number(process.env.PORT || "5001")
