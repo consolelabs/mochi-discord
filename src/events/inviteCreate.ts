@@ -1,5 +1,5 @@
 import { DiscordEvent } from "."
-import { invites } from "./index"
+import { invites } from "utils/invites"
 import { wrapError } from "utils/wrapError"
 
 const event: DiscordEvent<"inviteCreate"> = {

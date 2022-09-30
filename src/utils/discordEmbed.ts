@@ -41,6 +41,7 @@ import {
 } from "discord.js/typings/enums"
 import dayjs from "dayjs"
 import { wrapError } from "./wrapError"
+import { commands, slashCommands } from "commands"
 
 export const EMPTY_FIELD = {
   name: "\u200B",
@@ -153,8 +154,8 @@ export function composeEmbedMessage(
     document,
   } = props
   const author = _author.map((a) => a ?? "").filter(Boolean)
-  const commandObj = getCommandObject(msg)
-  const actionObj = getActionCommand(msg)
+  const commandObj = getCommandObject(commands, msg)
+  const actionObj = getActionCommand(commands, msg)
   const isSpecificHelpCommand = specificHelpCommand(msg)
 
   if (includeCommandsList) {
@@ -527,7 +528,7 @@ export function composeEmbedMessage2(
     // actions,
   } = props
   const author = _author.map((a) => a ?? "").filter(Boolean)
-  const commandObj = getSlashCommandObject(interaction)
+  const commandObj = getSlashCommandObject(slashCommands, interaction)
 
   // if (includeCommandsList) {
   //   description += `\n\n${getCommandsList(

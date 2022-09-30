@@ -54,7 +54,7 @@ import {
   getCommandMetadata,
   specificHelpCommand,
   getCommandArguments,
-  sendCommandSuggestionMessage,
+  getCommandSuggestion,
 } from "utils/commands"
 import config from "../adapters/config"
 import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
@@ -69,6 +69,7 @@ import community from "adapters/community"
 import usage_stats from "adapters/usage_stats"
 import { isAcceptableCmdToHelp } from "./index-utils"
 import FuzzySet from "fuzzyset"
+import { composeEmbedMessage } from "utils/discordEmbed"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 
@@ -143,7 +144,7 @@ async function preauthorizeCommand(message: Message, commandObject: Command) {
     return
   }
   const isDM = message.channel.type === "DM"
-  const actionObject = getActionCommand(message)
+  const actionObject = getActionCommand(commands, message)
   const executingObj = actionObject ?? commandObject
   if (isDM && executingObj.allowDM) return
   const isAdminMember = message.member && hasAdministrator(message.member)
@@ -267,7 +268,7 @@ export default async function handlePrefixedCommand(message: Message) {
   )
 
   let isSpecificHelpCommand = specificHelpCommand(message)
-  const { commandKey, action = "" } = getCommandMetadata(message)
+  const { commandKey, action = "" } = getCommandMetadata(commands, message)
 
   if (!commandKey) return
 
@@ -278,7 +279,14 @@ export default async function handlePrefixedCommand(message: Message) {
 
   // send suggest embed if command not found
   if (commandObject === undefined) {
-    sendCommandSuggestionMessage(commandKey, commands, message)
+    const embedProps = getCommandSuggestion(fuzzySet, commandKey, commands)
+    if (embedProps) {
+      await message
+        .reply({
+          embeds: [composeEmbedMessage(message, embedProps)],
+        })
+        .catch(() => null)
+    }
     return
   }
   // handle default commands

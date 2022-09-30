@@ -1,4 +1,4 @@
-import { Awaitable, ClientEvents, Collection } from "discord.js"
+import { Awaitable, ClientEvents } from "discord.js"
 import messageCreate from "./messageCreate"
 import ready from "./ready"
 import interactionCreate from "./interactionCreate"
@@ -16,8 +16,6 @@ export type DiscordEvent<T extends keyof ClientEvents> = {
   once?: boolean
   execute: (...data: ClientEvents[T]) => Awaitable<void>
 }
-
-export const invites = new Collection<string, Collection<string, number>>()
 
 export default [
   ready,
