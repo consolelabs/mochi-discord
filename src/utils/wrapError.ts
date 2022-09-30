@@ -3,6 +3,10 @@ import { BotBaseError } from "errors"
 import { logger } from "logger"
 import ChannelLogger from "./ChannelLogger"
 
+function catchAll(e: any) {
+  logger.error(e)
+}
+
 export async function wrapError(
   msg: Message | Interaction | null,
   func: () => Promise<void>
@@ -30,14 +34,12 @@ export async function wrapError(
           error = new BotBaseError(message, e.message as string)
         }
         error.handle?.()
-        ChannelLogger.alert(message, error)
+        ChannelLogger.alert(message, error).catch(catchAll)
       } else if (message.isCommand()) {
-        ChannelLogger.alertSlash(message, error)
+        ChannelLogger.alertSlash(message, error).catch(catchAll)
       }
     } else if (e instanceof Error && e.stack) {
-      ChannelLogger.alertStackTrace(e.stack)
-    } else {
-      logger.error(e)
+      ChannelLogger.alertStackTrace(e.stack).catch(catchAll)
     }
   }
 }

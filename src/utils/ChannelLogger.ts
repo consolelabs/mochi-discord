@@ -53,9 +53,12 @@ export class ChannelLogger {
     }
   }
 
-  alertSlash(commandInteraction: CommandInteraction, error: BotBaseError) {
+  async alertSlash(
+    commandInteraction: CommandInteraction,
+    error: BotBaseError
+  ) {
     if (!this.alertChannel) {
-      return
+      return {}
     }
 
     const isDM = !!commandInteraction.guildId
@@ -74,14 +77,14 @@ export class ChannelLogger {
       title: error.name || "Slash Command error",
       description,
     }).setTimestamp()
-    this.alertChannel.send({
+    return this.alertChannel.send({
       embeds: [embed],
     })
   }
 
-  alert<T extends BotBaseError>(msg: Message, error: T) {
+  async alert<T extends BotBaseError>(msg: Message, error: T) {
     if (!this.alertChannel) {
-      return
+      return {}
     }
 
     let description = `**Command:** \`${msg.content}\`\n**Guild:** \`${
@@ -104,7 +107,7 @@ export class ChannelLogger {
         iconURL: msg?.author?.avatarURL() ?? undefined,
       },
     }).setTimestamp()
-    this.alertChannel.send({
+    return this.alertChannel.send({
       embeds: [embed],
       components: [
         new MessageActionRow().addComponents(
@@ -117,8 +120,11 @@ export class ChannelLogger {
     })
   }
 
-  alertWebhook(event: string, error: APIError) {
-    this.alertChannel?.send({
+  async alertWebhook(event: string, error: APIError) {
+    if (!this.alertChannel) {
+      return {}
+    }
+    return this.alertChannel?.send({
       embeds: [
         new MessageEmbed({
           title: "Webhook Error",
@@ -128,8 +134,11 @@ export class ChannelLogger {
     })
   }
 
-  alertStackTrace(stack: string) {
-    this.alertChannel?.send({
+  async alertStackTrace(stack: string) {
+    if (!this.alertChannel) {
+      return {}
+    }
+    return this.alertChannel?.send({
       embeds: [
         new MessageEmbed({
           title: "Internal Error",

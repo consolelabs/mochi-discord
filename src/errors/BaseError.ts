@@ -1,6 +1,5 @@
 import { Message, MessageComponentInteraction, TextChannel } from "discord.js"
 import { logger } from "logger"
-import { getErrorEmbed } from "utils/discordEmbed"
 
 // Base or "catch-all" error, do not throw this directly
 export class BotBaseError extends Error {
@@ -30,8 +29,21 @@ export class BotBaseError extends Error {
       name: this.name,
       message: this.message,
     })
-    this.msgOrInteraction?.reply({
-      embeds: [getErrorEmbed({})],
-    })
+    this.msgOrInteraction
+      ?.reply({
+        embeds: [
+          {
+            author: {
+              name: "Error",
+              iconURL:
+                "https://cdn.discordapp.com/emojis/967285238055174195.png?size=240&quality=lossless",
+            },
+            description:
+              "There was an error. Our team has been informed and is trying to fix the issue. Stay tuned.",
+            color: "#D94F50",
+          },
+        ],
+      })
+      .catch(() => null)
   }
 }

@@ -24,20 +24,23 @@ import {
   ResponseDataListRoleReactionResponse,
   ResponseGetGuildPruneExcludeResponse,
 } from "types/api"
+import { TEST } from "env"
 
 class Config extends Fetcher {
   public Guilds?: Guilds
 
   public async initialize() {
-    this.Guilds = await this.getGuilds()
-    setInterval(async () => {
+    if (!TEST) {
       this.Guilds = await this.getGuilds()
-      logger.info(
-        `reloaded ${this.Guilds.data.length} guild configs: ${this.Guilds.data
-          .map((g) => g.name)
-          .join(", ")}`
-      )
-    }, 3600000)
+      setInterval(async () => {
+        this.Guilds = await this.getGuilds()
+        logger.info(
+          `reloaded ${this.Guilds.data.length} guild configs: ${this.Guilds.data
+            .map((g) => g.name)
+            .join(", ")}`
+        )
+      }, 3600000)
+    }
   }
 
   public async getGuilds(): Promise<Guilds> {
