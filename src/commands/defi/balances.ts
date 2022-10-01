@@ -23,10 +23,20 @@ const command: Command = {
   category: "Defi",
   run: async function balances(msg: Message) {
     const guildId = msg.guildId ?? "DM"
-    const { balances, balances_in_usd } = await Defi.discordWalletBalances(
-      guildId,
-      msg.author.id
-    )
+    //{ balances, balances_in_usd }
+    const res = await Defi.discordWalletBalances(guildId, msg.author.id)
+    if (!res.ok || !res.data.balances || !res.data.balances_in_usd) {
+      const errorEmbed = getErrorEmbed({
+        msg,
+        description: `Failed to get user balances`,
+      })
+      return {
+        messageOptions: {
+          embeds: [errorEmbed],
+        },
+      }
+    }
+    const { balances, balances_in_usd } = res.data
     const guildTokens = await Config.getGuildTokens(guildId)
 
     if (!guildTokens) {
