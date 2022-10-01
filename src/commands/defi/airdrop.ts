@@ -243,7 +243,18 @@ const command: Command = {
     const payload = await Defi.getTransferPayload(msg, args)
     // check balance
     const bals = await Defi.discordWalletBalances(msg.guildId, msg.author.id)
-    const currentBal = bals.balances[payload.cryptocurrency.toUpperCase()]
+    if (!bals.ok || !bals.data.balances || !bals.data.balances_in_usd) {
+      const errorEmbed = getErrorEmbed({
+        msg,
+        description: `Failed to get user balances`,
+      })
+      return {
+        messageOptions: {
+          embeds: [errorEmbed],
+        },
+      }
+    }
+    const currentBal = bals.data.balances[payload.cryptocurrency.toUpperCase()]
     if (currentBal < payload.amount && !payload.all) {
       return {
         messageOptions: {
