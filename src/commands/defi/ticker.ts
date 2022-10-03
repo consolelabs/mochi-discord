@@ -6,6 +6,7 @@ import {
   MessageActionRow,
   MessageAttachment,
   MessageButton,
+  // MessageEmbed,
   MessageSelectMenu,
   MessageSelectOptionData,
   SelectMenuInteraction,
@@ -45,6 +46,8 @@ import CacheManager from "utils/CacheManager"
 import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
+import TurnDown from "turndown"
+import client from "index"
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -150,7 +153,6 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       messageId: message.id,
       channelId: interaction.channelId,
       guildId: interaction.guildId,
-      interaction,
     },
   }
 }
@@ -285,12 +287,36 @@ async function composeTickerResponse({
 
   const buttonRow = new MessageActionRow()
   buttonRow.addComponents(getExitButton(msg.author.id))
+  const viewBtnRow = buildSwitchViewActionRow("ticker")
 
+  client.once("interactionCreate", async (interaction) => {
+    if (interaction.isButton()) {
+      const clickView = interaction.customId.split("/").pop() ?? "ticker"
+      if (clickView === "info") {
+        const m = await composeTokenInfoEmbed(msg, coinId)
+        if (msg.author.bot) {
+          await msg.removeAttachments()
+          await msg.edit({
+            embeds: m.messageOptions.embeds,
+            components: m.messageOptions.components,
+          })
+          return
+        }
+        const lastMsg = await (
+          await msg.channel.messages.fetch({ limit: 1 })
+        ).last()
+        if (lastMsg?.author.bot) {
+          await lastMsg?.removeAttachments()
+          await lastMsg?.edit(m.messageOptions)
+        }
+      }
+    }
+  })
   return {
     messageOptions: {
       ...(chart && { files: [chart] }),
       embeds: [embed],
-      components: [selectRow, buttonRow],
+      components: [selectRow, buttonRow, viewBtnRow],
     },
     commandChoiceOptions: {
       userId: msg.author.id,
@@ -353,6 +379,82 @@ function composeTickerSelectionResponse(
       guildId: msg.guildId,
       channelId: msg.channelId,
       handler: tickerSelectionHandler,
+    },
+  }
+}
+
+function buildSwitchViewActionRow(currentView: string) {
+  const myProfileButton = new MessageButton({
+    label: "🪪 Ticker",
+    customId: `ticker-switch-view-button/ticker`,
+    style: "SECONDARY",
+    disabled: currentView === "ticker",
+  })
+  const myNftButton = new MessageButton({
+    label: "🖼 Info",
+    customId: `ticker-switch-view-button/info`,
+    style: "SECONDARY",
+    disabled: currentView === "info",
+  })
+  const row = new MessageActionRow()
+  row.addComponents([myProfileButton, myNftButton])
+  return row
+}
+
+async function composeTokenInfoEmbed(msg: Message, coinId: string) {
+  const {
+    ok,
+    data: coin,
+    log,
+    curl,
+  } = await CacheManager.get({
+    pool: "ticker",
+    key: `ticker-getcoin-${coinId}`,
+    call: () => defi.getCoin(coinId),
+  })
+  if (!ok) {
+    throw new APIError({ message: msg, curl, description: log })
+  }
+  const embed = composeEmbedMessage(msg, {
+    thumbnail: coin.image.large,
+    color: getChartColorConfig(coin.id).borderColor as HexColorString,
+    title: "About " + coin.name,
+    footer: ["Data fetched from CoinGecko.com"],
+  })
+  const tdService = new TurnDown()
+  const content = coin.description.en
+    .split("\r\n\r\n")
+    .map((v: any) => {
+      return tdService.turndown(v)
+    })
+    .join("\r\n\r\n")
+  embed.setDescription(content || "This token has not updated description yet")
+  const viewBtnRow = buildSwitchViewActionRow("info")
+  client.once("interactionCreate", async (interaction) => {
+    if (interaction.isButton()) {
+      const clickView = interaction.customId.split("/").pop() ?? "ticker"
+      if (clickView === "ticker") {
+        const m = await composeTickerResponse({ msg, coinId })
+        if (msg.author.bot) {
+          await msg.removeAttachments()
+          await msg.edit(m.messageOptions)
+          return
+        }
+        const lastMsg = await (
+          await msg.channel.messages.fetch({ limit: 1 })
+        ).last()
+        if (lastMsg?.author.bot) {
+          await lastMsg?.removeAttachments()
+          await lastMsg?.edit(m.messageOptions)
+        }
+      }
+    }
+  })
+
+  return {
+    messageOptions: {
+      embeds: [embed],
+      components: [viewBtnRow],
     },
   }
 }
