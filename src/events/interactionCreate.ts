@@ -17,6 +17,7 @@ import { getErrorEmbed } from "utils/discordEmbed"
 import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
 import { wrapError } from "utils/wrapError"
+import { handleTickerViews } from "commands/defi/ticker"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -196,6 +197,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("triple-pod-"):
       await triplePodInteraction(i)
+      return
+    case i.customId.startsWith("ticker_view_"):
+      await handleTickerViews(i)
       return
     default:
       return

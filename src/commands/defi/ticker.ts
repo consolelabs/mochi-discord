@@ -47,7 +47,6 @@ import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
 import TurnDown from "turndown"
-import client from "index"
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -140,6 +139,14 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   selectMenu.options.forEach(
     (opt, i) => (opt.default = i === choices.indexOf(days))
   )
+  // this code block stores current day selection
+  message.components[1].components.forEach((b) => {
+    const customId = b.customId
+    if (!customId?.startsWith("ticker_view_")) return
+    const params = customId?.split("-")
+    params[2] = days
+    b.customId = params.join("-")
+  })
 
   return {
     messageOptions: {
@@ -179,6 +186,7 @@ async function composeTickerResponse({
   coinSymbol,
   coinName,
   authorId,
+  days,
   interaction,
 }: {
   msg: Message
@@ -186,6 +194,7 @@ async function composeTickerResponse({
   coinSymbol?: string
   coinName?: string
   authorId?: string
+  days?: number
   interaction?: SelectMenuInteraction
 }) {
   const gMember = msg.guild?.members.cache.get(authorId ?? msg.author.id)
@@ -278,45 +287,24 @@ async function composeTickerResponse({
     },
   ])
 
-  const chart = await renderHistoricalMarketChart({ coinId: coin.id, bb })
+  const chart = await renderHistoricalMarketChart({ coinId: coin.id, bb, days })
   const selectRow = composeDaysSelectMenu(
     "tickers_range_selection",
     `${coin.id}`,
-    [1, 7, 30, 60, 90, 365]
+    [1, 7, 30, 60, 90, 365],
+    days
   )
 
-  const buttonRow = new MessageActionRow()
-  buttonRow.addComponents(getExitButton(msg.author.id))
-  const viewBtnRow = buildSwitchViewActionRow("ticker")
+  const buttonRow = buildSwitchViewActionRow("ticker", {
+    coinId: coin.id,
+    days: days ?? 7,
+  }).addComponents(getExitButton(msg.author.id))
 
-  client.once("interactionCreate", async (interaction) => {
-    if (interaction.isButton()) {
-      const clickView = interaction.customId.split("/").pop() ?? "ticker"
-      if (clickView === "info") {
-        const m = await composeTokenInfoEmbed(msg, coinId)
-        if (msg.author.bot) {
-          await msg.removeAttachments()
-          await msg.edit({
-            embeds: m.messageOptions.embeds,
-            components: m.messageOptions.components,
-          })
-          return
-        }
-        const lastMsg = await (
-          await msg.channel.messages.fetch({ limit: 1 })
-        ).last()
-        if (lastMsg?.author.bot) {
-          await lastMsg?.removeAttachments()
-          await lastMsg?.edit(m.messageOptions)
-        }
-      }
-    }
-  })
   return {
     messageOptions: {
       ...(chart && { files: [chart] }),
       embeds: [embed],
-      components: [selectRow, buttonRow, viewBtnRow],
+      components: [selectRow, buttonRow],
     },
     commandChoiceOptions: {
       userId: msg.author.id,
@@ -383,25 +371,57 @@ function composeTickerSelectionResponse(
   }
 }
 
-function buildSwitchViewActionRow(currentView: string) {
-  const myProfileButton = new MessageButton({
+function buildSwitchViewActionRow(
+  currentView: string,
+  params: { coinId: string; days: number }
+) {
+  const tickerBtn = new MessageButton({
     label: "🪪 Ticker",
-    customId: `ticker-switch-view-button/ticker`,
+    customId: `ticker_view_chart-${params.coinId}-${params.days}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
-  const myNftButton = new MessageButton({
+  const infoBtn = new MessageButton({
     label: "🖼 Info",
-    customId: `ticker-switch-view-button/info`,
+    customId: `ticker_view_info-${params.coinId}-${params.days}`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
-  const row = new MessageActionRow()
-  row.addComponents([myProfileButton, myNftButton])
-  return row
+  return new MessageActionRow().addComponents([tickerBtn, infoBtn])
 }
 
-async function composeTokenInfoEmbed(msg: Message, coinId: string) {
+export async function handleTickerViews(interaction: ButtonInteraction) {
+  const msg = <Message>interaction.message
+  if (interaction.customId.startsWith("ticker_view_chart")) {
+    await viewTickerChart(interaction, msg)
+    return
+  }
+  await viewTickerInfo(interaction, msg)
+}
+
+async function viewTickerChart(interaction: ButtonInteraction, msg: Message) {
+  await interaction.deferUpdate()
+  const [coinId, days] = interaction.customId.split("-").slice(1)
+  const { messageOptions } = await composeTickerResponse({
+    msg,
+    coinId,
+    ...(days && { days: +days }),
+  })
+  await msg.edit(messageOptions)
+}
+
+async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
+  const [coinId, days] = interaction.customId.split("-").slice(1)
+  const { messageOptions } = await composeTokenInfoEmbed(msg, coinId, +days)
+  await msg.edit(messageOptions)
+  await msg.removeAttachments()
+}
+
+async function composeTokenInfoEmbed(
+  msg: Message,
+  coinId: string,
+  days: number
+) {
   const {
     ok,
     data: coin,
@@ -429,32 +449,15 @@ async function composeTokenInfoEmbed(msg: Message, coinId: string) {
     })
     .join("\r\n\r\n")
   embed.setDescription(content || "This token has not updated description yet")
-  const viewBtnRow = buildSwitchViewActionRow("info")
-  client.once("interactionCreate", async (interaction) => {
-    if (interaction.isButton()) {
-      const clickView = interaction.customId.split("/").pop() ?? "ticker"
-      if (clickView === "ticker") {
-        const m = await composeTickerResponse({ msg, coinId })
-        if (msg.author.bot) {
-          await msg.removeAttachments()
-          await msg.edit(m.messageOptions)
-          return
-        }
-        const lastMsg = await (
-          await msg.channel.messages.fetch({ limit: 1 })
-        ).last()
-        if (lastMsg?.author.bot) {
-          await lastMsg?.removeAttachments()
-          await lastMsg?.edit(m.messageOptions)
-        }
-      }
-    }
-  })
+  const buttonRow = buildSwitchViewActionRow("info", {
+    coinId,
+    days,
+  }).addComponents(getExitButton(msg.author.id))
 
   return {
     messageOptions: {
       embeds: [embed],
-      components: [viewBtnRow],
+      components: [buttonRow],
     },
   }
 }
