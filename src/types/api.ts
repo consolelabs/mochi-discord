@@ -193,9 +193,9 @@ export interface ModelGuildConfigGmGn {
 }
 
 export interface ModelGuildConfigInviteTracker {
+  channel_id?: string;
   guild_id?: string;
   id?: string;
-  user_id?: string;
   webhook_url?: ModelJSONNullString;
 }
 
@@ -902,8 +902,25 @@ export interface ResponseGetMyInfoResponse {
   data?: DiscordgoUser;
 }
 
+export interface ResponseGetNFTCollectionByAddressChain {
+  address?: string;
+  author?: string;
+  chain_id?: string;
+  created_at?: string;
+  description?: string;
+  discord?: string;
+  erc_format?: string;
+  id?: string;
+  image?: string;
+  is_verified?: boolean;
+  name?: string;
+  symbol?: string;
+  twitter?: string;
+  website?: string;
+}
+
 export interface ResponseGetNFTCollectionByAddressChainResponse {
-  data?: ModelNFTCollection;
+  data?: ResponseGetNFTCollectionByAddressChain;
 }
 
 export interface ResponseGetNftWatchlist {
