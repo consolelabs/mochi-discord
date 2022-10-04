@@ -24,20 +24,23 @@ import {
   ResponseDataListRoleReactionResponse,
   ResponseGetGuildPruneExcludeResponse,
 } from "types/api"
+import { TEST } from "env"
 
 class Config extends Fetcher {
   public Guilds?: Guilds
 
   public async initialize() {
-    this.Guilds = await this.getGuilds()
-    setInterval(async () => {
+    if (!TEST) {
       this.Guilds = await this.getGuilds()
-      logger.info(
-        `reloaded ${this.Guilds.data.length} guild configs: ${this.Guilds.data
-          .map((g) => g.name)
-          .join(", ")}`
-      )
-    }, 3600000)
+      setInterval(async () => {
+        this.Guilds = await this.getGuilds()
+        logger.info(
+          `reloaded ${this.Guilds.data.length} guild configs: ${this.Guilds.data
+            .map((g) => g.name)
+            .join(", ")}`
+        )
+      }, 3600000)
+    }
   }
 
   public async getGuilds(): Promise<Guilds> {
@@ -528,21 +531,10 @@ class Config extends Fetcher {
   }
 
   public async updateRepostReactionConfig(req: RepostReactionRequest) {
-    const res = await fetch(`${API_BASE_URL}/configs/repost-reactions`, {
+    return this.jsonFetch(`${API_BASE_URL}/configs/repost-reactions`, {
       method: "POST",
       body: JSON.stringify(req),
     })
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to update repost reaction config - guild ${req.guild_id}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json
   }
 
   public async listAllRepostReactionConfigs(guildId: string) {
@@ -563,22 +555,10 @@ class Config extends Fetcher {
   }
 
   public async removeSpecificRepostReactionConfig(req: RepostReactionRequest) {
-    const res = await fetch(`${API_BASE_URL}/configs/repost-reactions`, {
+    return this.jsonFetch(`${API_BASE_URL}/configs/repost-reactions`, {
       method: "DELETE",
       body: JSON.stringify(req),
     })
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to remove repost reaction config - guild ${req.guild_id}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-
-    return json
   }
 
   public async getAllChains() {

@@ -10,7 +10,6 @@ import {
 import { ALERT_CHANNEL_ID, LOG_CHANNEL_ID, MOCHI_GUILD_ID } from "env"
 import { APIError, BotBaseError } from "errors"
 import { logger } from "logger"
-import { getErrorEmbed } from "./discordEmbed"
 
 export class ChannelLogger {
   logChannel: TextChannel | null = null
@@ -54,9 +53,12 @@ export class ChannelLogger {
     }
   }
 
-  alertSlash(commandInteraction: CommandInteraction, error: BotBaseError) {
+  async alertSlash(
+    commandInteraction: CommandInteraction,
+    error: BotBaseError
+  ) {
     if (!this.alertChannel) {
-      return
+      return {}
     }
 
     const isDM = !!commandInteraction.guildId
@@ -71,18 +73,18 @@ export class ChannelLogger {
         ? `\`\`\`${error.message}\`\`\``
         : "Error without message, this is likely an unexpected error"
     }`
-    const embed = getErrorEmbed({
+    const embed = new MessageEmbed({
       title: error.name || "Slash Command error",
       description,
     }).setTimestamp()
-    this.alertChannel.send({
+    return this.alertChannel.send({
       embeds: [embed],
     })
   }
 
-  alert<T extends BotBaseError>(msg: Message, error: T) {
+  async alert<T extends BotBaseError>(msg: Message, error: T) {
     if (!this.alertChannel) {
-      return
+      return {}
     }
 
     let description = `**Command:** \`${msg.content}\`\n**Guild:** \`${
@@ -97,12 +99,15 @@ export class ChannelLogger {
     if (error instanceof APIError) {
       description = `${description}\n**Curl:**\n\`\`\`${error.curl}\`\`\``
     }
-    const embed = getErrorEmbed({
-      msg,
+    const embed = new MessageEmbed({
       title: error.name || "Command error",
       description,
+      footer: {
+        text: msg?.author?.tag ?? "Unknown User",
+        iconURL: msg?.author?.avatarURL() ?? undefined,
+      },
     }).setTimestamp()
-    this.alertChannel.send({
+    return this.alertChannel.send({
       embeds: [embed],
       components: [
         new MessageActionRow().addComponents(
@@ -115,12 +120,29 @@ export class ChannelLogger {
     })
   }
 
-  alertWebhook(event: string, error: APIError) {
-    this.alertChannel?.send({
+  async alertWebhook(event: string, error: APIError) {
+    if (!this.alertChannel) {
+      return {}
+    }
+    return this.alertChannel?.send({
       embeds: [
-        getErrorEmbed({
+        new MessageEmbed({
           title: "Webhook Error",
           description: `**Event:** \`${event}\`\n**Message:**\`\`\`${error.message}\`\`\`\n**Curl:**\`\`\`${error.curl}\`\`\``,
+        }).setTimestamp(),
+      ],
+    })
+  }
+
+  async alertStackTrace(stack: string) {
+    if (!this.alertChannel) {
+      return {}
+    }
+    return this.alertChannel?.send({
+      embeds: [
+        new MessageEmbed({
+          title: "Internal Error",
+          description: `**Trace:** \`\`\`${stack}\`\`\``,
         }).setTimestamp(),
       ],
     })

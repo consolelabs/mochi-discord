@@ -1,34 +1,26 @@
-import {
-  Message,
-  MessageEmbed,
-  MessageReaction,
-  PartialMessageReaction,
-  User,
-} from "discord.js"
-import { logger } from "logger"
-import { Event } from "."
-import { BotBaseError } from "errors"
-import ChannelLogger from "utils/ChannelLogger"
+import { Message, MessageEmbed, MessageReaction, User } from "discord.js"
+import { DiscordEvent } from "."
 import config from "adapters/config"
 import webhook from "adapters/webhook"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getReactionIdentifier } from "utils/commands"
+import { wrapError } from "utils/wrapError"
 
 const handleRepostableMessageTracking = async (
-  _reaction: MessageReaction | PartialMessageReaction,
-  user: User
+  reaction: MessageReaction,
+  user: User,
+  msg: Message
 ) => {
-  const msg = _reaction.message as Message
   const body = {
     guild_id: msg.guild?.id ?? "",
     channel_id: msg.channel.id,
     message_id: msg.id,
     reaction: getReactionIdentifier(
-      _reaction.emoji.id,
-      _reaction.emoji.name,
-      _reaction.emoji.identifier.toLowerCase()
+      reaction.emoji.id,
+      reaction.emoji.name,
+      reaction.emoji.identifier.toLowerCase()
     ),
-    reaction_count: _reaction.count,
+    reaction_count: reaction.count,
     user_id: user.id,
   }
 
@@ -108,28 +100,36 @@ function starboardEmbed(msg: Message) {
   return embed
 }
 
-export default {
+const event: DiscordEvent<"messageReactionAdd"> = {
   name: "messageReactionAdd",
   once: false,
-  execute: async (
-    _reaction: MessageReaction | PartialMessageReaction,
-    user: User
-  ) => {
-    try {
-      if (_reaction.message.partial) await _reaction.message.fetch()
-      if (_reaction.partial) await _reaction.fetch()
-      if (user.bot) return
-      if (!_reaction.message.guild) return
+  execute: async (_reaction, _user) => {
+    _reaction
+      .fetch()
+      .then((reaction) => {
+        _user
+          .fetch()
+          .then((user) => {
+            reaction.message
+              .fetch()
+              .then(async (msg) => {
+                wrapError(msg, async () => {
+                  if (user.bot) return
+                  if (!msg.guild) return
 
-      await handleRepostableMessageTracking(_reaction, user).catch(() => null)
-    } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
-      }
-      ChannelLogger.log(error, 'Event<"messageReactionAdd">')
-    }
+                  await handleRepostableMessageTracking(
+                    reaction,
+                    user,
+                    msg
+                  ).catch(() => null)
+                })
+              })
+              .catch(() => null)
+          })
+          .catch(() => null)
+      })
+      .catch(() => null)
   },
-} as Event<"messageReactionAdd">
+}
+
+export default event

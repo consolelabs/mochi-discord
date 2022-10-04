@@ -4,7 +4,6 @@ import fetch from "node-fetch"
 import {
   DiscordWalletTransferRequest,
   Token,
-  DiscordWalletBalances,
   Coin,
   CoinComparisionData,
   GasPriceData,
@@ -25,8 +24,10 @@ import { InsufficientBalanceError } from "errors/InsufficientBalanceError"
 import { Fetcher } from "./fetcher"
 import {
   ResponseGetNftWatchlistResponse,
+  ResponseInDiscordWalletBalancesResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
+import { commands } from "commands"
 
 class Defi extends Fetcher {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
@@ -153,28 +154,16 @@ class Defi extends Fetcher {
     return json
   }
 
-  public async discordWalletBalances(
-    guildId: string,
-    discordId: string
-  ): Promise<DiscordWalletBalances> {
-    const resp = await fetch(
+  public async discordWalletBalances(guildId: string, discordId: string) {
+    return await this.jsonFetch<ResponseInDiscordWalletBalancesResponse>(
       `${API_BASE_URL}/defi/balances?guild_id=${guildId}&discord_id=${discordId}`,
       {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
+        query: {
+          guildId,
+          discordId,
+        },
       }
     )
-    if (resp.status !== 200) {
-      throw new Error(
-        "Error while fetching user balances: " + (await resp.json()).error
-      )
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   public async getCoin(id: string) {
@@ -292,7 +281,7 @@ class Defi extends Fetcher {
     msg: Message,
     args: string[]
   ): Promise<DiscordWalletTransferRequest> {
-    const commandObject = getCommandObject(msg)
+    const commandObject = getCommandObject(commands, msg)
     const type = commandObject?.command
     const sender = msg.author.id
     let amountArg = "",

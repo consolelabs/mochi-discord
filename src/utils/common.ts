@@ -2,17 +2,15 @@ import {
   Message,
   GuildEmoji,
   User,
-  MessageOptions,
   ColorResolvable,
   MessageComponentInteraction,
   Permissions,
   GuildMember,
 } from "discord.js"
 
-import { Command, Pagination } from "types/common"
-import { DOT, HOMEPAGE_URL, SPACE, VERTICAL_BAR } from "./constants"
+import type { Command, Pagination } from "types/common"
+import { DOT, HOMEPAGE_URL, SPACE } from "./constants"
 import { TopNFTTradingVolumeItem } from "types/community"
-import Defi from "adapters/defi"
 import {
   marketplaceEmojis,
   rarityEmojis,
@@ -236,14 +234,6 @@ export function isInteraction(
   return "message" in msgOrInteraction
 }
 
-export async function inactivityResponse(user: User): Promise<MessageOptions> {
-  return {
-    content: `> **${getEmoji("revoke")} ${VERTICAL_BAR} ${
-      user.tag
-    }, the command was closed due to inactivity.**`,
-  }
-}
-
 export function getHeader(text: string, user: User, ctas?: string) {
   return `> **${text} ${DOT} [** ${user.tag} **]${
     typeof ctas === "string" && ctas !== "" ? ` ${DOT}${ctas}` : ""
@@ -358,21 +348,6 @@ export function getUniqueToken(nftList: TopNFTTradingVolumeItem[]): string[] {
   })
   tokenAvailable = [...new Set(tokenAvailable)]
   return tokenAvailable
-}
-
-// TODO: move this
-export async function mapSymbolToPrice(
-  msg: Message,
-  tokenList: string[]
-): Promise<Map<string, number>> {
-  const tokenMap = new Map<string, number>()
-  for (const item of tokenList) {
-    const { data: searchData } = await Defi.searchCoins(item)
-    const { data: coin } = await Defi.getCoin(searchData?.[0].id)
-
-    tokenMap.set(item, coin?.market_data.current_price.usd)
-  }
-  return tokenMap
 }
 
 export function sortNFTListByVolume(

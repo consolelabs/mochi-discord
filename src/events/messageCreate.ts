@@ -1,13 +1,12 @@
 import { Message } from "discord.js"
 import handlePrefixedCommand from "../commands"
 import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
-import { Event } from "."
-import { BotBaseError } from "errors"
-import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
 import webhook from "adapters/webhook"
 import { MessageTypes } from "discord.js/typings/enums"
 import { handlePlayTripod } from "commands/games/tripod"
+import { DiscordEvent } from "./index"
+import { wrapError } from "utils/wrapError"
 
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
@@ -31,14 +30,13 @@ export const handleNormalMessage = async (message: Message) => {
   await webhook.pushDiscordWebhook("messageCreate", body)
 }
 
-export default {
+const events: DiscordEvent<"messageCreate"> = {
   name: "messageCreate",
   once: false,
-  execute: async (message: Message) => {
+  execute: async (message) => {
     // deny handling if author is bot or message is empty (new user join server)
-    if (message.author.bot || !message.content) return
-
-    try {
+    wrapError(message, async () => {
+      if (message.author.bot || !message.content) return
       if (message.content.startsWith(PREFIX)) {
         // disable previous command choice handler before executing new command
         const key = `${message.author.id}_${message.guildId}_${message.channelId}`
@@ -48,16 +46,8 @@ export default {
       }
       await handleNormalMessage(message)
       handlePlayTripod(message)
-    } catch (e: any) {
-      let error = e as BotBaseError
-
-      // something went wrong
-      if (!(error instanceof BotBaseError)) {
-        error = new BotBaseError(message, e.message as string)
-      }
-      error.handle?.()
-      ChannelLogger.alert(message, error)
-      ChannelLogger.log(error, 'Event<"messageCreate">')
-    }
+    })
   },
-} as Event<"messageCreate">
+}
+
+export default events

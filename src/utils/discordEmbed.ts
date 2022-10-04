@@ -40,8 +40,8 @@ import {
   MessageComponentTypes,
 } from "discord.js/typings/enums"
 import dayjs from "dayjs"
-import { BotBaseError } from "errors"
-import ChannelLogger from "./ChannelLogger"
+import { wrapError } from "./wrapError"
+import { commands, slashCommands } from "commands"
 
 export const EMPTY_FIELD = {
   name: "\u200B",
@@ -154,8 +154,8 @@ export function composeEmbedMessage(
     document,
   } = props
   const author = _author.map((a) => a ?? "").filter(Boolean)
-  const commandObj = getCommandObject(msg)
-  const actionObj = getActionCommand(msg)
+  const commandObj = getCommandObject(commands, msg)
+  const actionObj = getActionCommand(commands, msg)
   const isSpecificHelpCommand = specificHelpCommand(msg)
 
   if (includeCommandsList) {
@@ -404,23 +404,9 @@ export function listenForSuggestionAction(
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
       const value = i.customId.split("-").pop()
-      try {
+      wrapError(i, async () => {
         await onAction(value ?? "", i)
-      } catch (e: any) {
-        let error = e as BotBaseError
-
-        // something went wrong
-        if (!(error instanceof BotBaseError)) {
-          error = new BotBaseError(i.message as Message, e.message as string)
-        }
-        error.handle?.()
-        const originalMsg = await i.channel?.messages.fetch(
-          (i.message as Message).reference?.messageId ?? ""
-        )
-        if (originalMsg) {
-          ChannelLogger.alert(originalMsg, error)
-        }
-      }
+      })
     })
     .on("end", () => {
       replyMsg.edit({ components: [] }).catch(() => null)
@@ -434,23 +420,9 @@ export function listenForSuggestionAction(
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
       const value = i.values[0]
-      try {
+      wrapError(i, async () => {
         await onAction(value, i)
-      } catch (e: any) {
-        let error = e as BotBaseError
-
-        // something went wrong
-        if (!(error instanceof BotBaseError)) {
-          error = new BotBaseError(i.message as Message, e.message as string)
-        }
-        error.handle?.()
-        const originalMsg = await i.channel?.messages.fetch(
-          (i.message as Message).reference?.messageId ?? ""
-        )
-        if (originalMsg) {
-          ChannelLogger.alert(originalMsg, error)
-        }
-      }
+      })
     })
     .on("end", () => {
       replyMsg.edit({ components: [] }).catch(() => null)
@@ -556,7 +528,7 @@ export function composeEmbedMessage2(
     // actions,
   } = props
   const author = _author.map((a) => a ?? "").filter(Boolean)
-  const commandObj = getSlashCommandObject(interaction)
+  const commandObj = getSlashCommandObject(slashCommands, interaction)
 
   // if (includeCommandsList) {
   //   description += `\n\n${getCommandsList(

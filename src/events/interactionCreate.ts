@@ -11,29 +11,25 @@ import {
   CommandInteraction,
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
-import { BotBaseError } from "errors"
-import ChannelLogger from "utils/ChannelLogger"
 import CommandChoiceManager from "utils/CommandChoiceManager"
-import { Event } from "."
+import { DiscordEvent } from "."
 import { getErrorEmbed } from "utils/discordEmbed"
 import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
+import { wrapError } from "utils/wrapError"
+import { handleTickerViews } from "commands/defi/ticker"
 
-export default {
+const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
   once: false,
   execute: async (interaction) => {
-    if (
-      !interaction.isSelectMenu() &&
-      !interaction.isButton() &&
-      !interaction.isCommand()
-    )
-      return
-    let msg = undefined
-    if ("message" in interaction && interaction.message instanceof Message) {
-      msg = interaction.message
-    }
-    try {
+    wrapError(interaction, async () => {
+      if (
+        !interaction.isSelectMenu() &&
+        !interaction.isButton() &&
+        !interaction.isCommand()
+      )
+        return
       if (interaction.isSelectMenu()) {
         await handleSelecMenuInteraction(interaction)
       } else if (interaction.isButton()) {
@@ -41,23 +37,11 @@ export default {
       } else if (interaction.isCommand()) {
         await handleCommandInteraction(interaction)
       }
-    } catch (e: any) {
-      let error = e as BotBaseError
-
-      // something went wrong
-      if (!(error instanceof BotBaseError)) {
-        error = new BotBaseError(msg, e.message as string)
-      }
-      error.handle?.()
-      if (msg) {
-        ChannelLogger.alert(msg, error)
-      } else if (interaction.isCommand()) {
-        ChannelLogger.alertSlash(interaction, error)
-      }
-      ChannelLogger.log(error, 'Event<"interactionCreate">')
-    }
+    })
   },
-} as Event<"interactionCreate">
+}
+
+export default event
 
 async function handleCommandInteraction(interaction: Interaction) {
   const i = interaction as CommandInteraction
@@ -213,6 +197,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("triple-pod-"):
       await triplePodInteraction(i)
+      return
+    case i.customId.startsWith("ticker_view_"):
+      await handleTickerViews(i)
       return
     default:
       return

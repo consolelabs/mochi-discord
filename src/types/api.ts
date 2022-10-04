@@ -80,23 +80,6 @@ export interface DiscordgoUser {
   verified?: boolean;
 }
 
-export interface EntitiesDiscordGuild {
-  bot_addable?: boolean;
-  bot_arrived?: boolean;
-  features?: string[];
-  icon?: string;
-  id?: string;
-  name?: string;
-  owner?: boolean;
-
-  /** @example 0 */
-  permissions?: string;
-}
-
-export interface EntitiesListMyGuildsResponse {
-  data?: EntitiesDiscordGuild[];
-}
-
 export interface EntitiesLoginResponse {
   access_token?: string;
   expires_at?: number;
@@ -188,6 +171,15 @@ export interface ModelGuildConfigActivity {
   guild_id?: string;
 }
 
+export interface ModelGuildConfigDefaultCollection {
+  address?: string;
+  chain_id?: string;
+  created_at?: string;
+  guild_id?: string;
+  symbol?: string;
+  updated_at?: string;
+}
+
 export interface ModelGuildConfigDefaultTicker {
   default_ticker?: string;
   guild_id?: string;
@@ -201,9 +193,9 @@ export interface ModelGuildConfigGmGn {
 }
 
 export interface ModelGuildConfigInviteTracker {
+  channel_id?: string;
   guild_id?: string;
   id?: string;
-  user_id?: string;
   webhook_url?: ModelJSONNullString;
 }
 
@@ -506,6 +498,14 @@ export interface RequestGiftXPRequest {
   xp_amount?: number;
 }
 
+export interface RequestGuildConfigDefaultNftTickerRequest {
+  chain_id?: number;
+  collection_address?: string;
+  guild_id?: string;
+  query?: string;
+  symbol?: string;
+}
+
 export interface RequestGuildConfigDefaultTickerRequest {
   default_ticker?: string;
   guild_id?: string;
@@ -676,6 +676,7 @@ export interface ResponseCoinPriceHistoryResponse {
 export interface ResponseCollectionSuggestions {
   address?: string;
   chain?: string;
+  chain_id?: number;
   name?: string;
   symbol?: string;
 }
@@ -748,7 +749,19 @@ export interface ResponseDefaultRole {
 
 export interface ResponseDefaultRoleResponse {
   data?: ResponseDefaultRole;
-  ok?: boolean;
+}
+
+export interface ResponseDiscordGuildResponse {
+  bot_addable?: boolean;
+  bot_arrived?: boolean;
+  features?: string[];
+  icon?: string;
+  id?: string;
+  name?: string;
+  owner?: boolean;
+
+  /** @example 0 */
+  permissions?: string;
 }
 
 export interface ResponseGenerateVerificationResponse {
@@ -808,6 +821,10 @@ export interface ResponseGetDetailNftCollectionResponse {
 export interface ResponseGetGmConfigResponse {
   data?: ModelGuildConfigGmGn;
   message?: string;
+}
+
+export interface ResponseGetGuildDefaultNftTickerResponse {
+  data?: ModelGuildConfigDefaultCollection;
 }
 
 export interface ResponseGetGuildDefaultTickerResponse {
@@ -885,8 +902,25 @@ export interface ResponseGetMyInfoResponse {
   data?: DiscordgoUser;
 }
 
+export interface ResponseGetNFTCollectionByAddressChain {
+  address?: string;
+  author?: string;
+  chain_id?: string;
+  created_at?: string;
+  description?: string;
+  discord?: string;
+  erc_format?: string;
+  id?: string;
+  image?: string;
+  is_verified?: boolean;
+  name?: string;
+  symbol?: string;
+  twitter?: string;
+  website?: string;
+}
+
 export interface ResponseGetNFTCollectionByAddressChainResponse {
-  data?: ModelNFTCollection;
+  data?: ResponseGetNFTCollectionByAddressChain;
 }
 
 export interface ResponseGetNftWatchlist {
@@ -912,7 +946,10 @@ export interface ResponseGetRepostReactionConfigsResponse {
 
 export interface ResponseGetSalesTrackerConfigResponse {
   data?: ModelGuildConfigSalesTracker;
-  message?: string;
+}
+
+export interface ResponseGetSuggestionNFTCollectionsResponse {
+  data?: ResponseCollectionSuggestions[];
 }
 
 export interface ResponseGetSupportedChains {
@@ -1081,6 +1118,9 @@ export interface ResponseIndexerNFTCollectionTickersData {
   marketplaces?: string[];
   name?: string;
   owners?: number;
+  price_change_1d?: string;
+  price_change_30d?: string;
+  price_change_7d?: string;
   tickers?: ResponseIndexerTickers;
   total_volume?: ResponseIndexerPrice;
 }
@@ -1191,6 +1231,10 @@ export interface ResponseListGuildNFTRoleConfigsResponse {
   role_name?: string;
 }
 
+export interface ResponseListMyGuildsResponse {
+  data?: ResponseDiscordGuildResponse[];
+}
+
 export interface ResponseListRoleReactionResponse {
   configs?: ResponseRoleReactionByMessage[];
   guild_id?: string;
@@ -1242,11 +1286,13 @@ export interface ResponseNFTCollectionsResponse {
   data?: ResponseNFTCollectionsData;
 }
 
-export interface ResponseNFTNewListedResponse {
+export interface ResponseNFTNewListed {
   data?: ModelNewListedNFTCollection[];
-  page?: number;
-  size?: number;
-  total?: number;
+  metadata?: UtilPagination;
+}
+
+export interface ResponseNFTNewListedResponse {
+  data?: ResponseNFTNewListed;
 }
 
 export interface ResponseNFTSalesTrackerResponse {
@@ -1320,6 +1366,10 @@ export interface ResponseNftWatchlistSuggest {
 
 export interface ResponseNftWatchlistSuggestResponse {
   data?: ResponseNftWatchlistSuggest;
+}
+
+export interface ResponseResponseDataMessage {
+  data?: ResponseResponseMessage;
 }
 
 export interface ResponseResponseMessage {

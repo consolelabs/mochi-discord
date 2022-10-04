@@ -1,37 +1,30 @@
-import { Event } from "."
+import { DiscordEvent } from "."
 import Discord from "discord.js"
 import config from "../adapters/config"
 import webhook from "adapters/webhook"
-import { BotBaseError } from "errors"
 import { logger } from "logger"
-import ChannelLogger from "utils/ChannelLogger"
 import { composeEmbedMessage } from "utils/discordEmbed"
+import { wrapError } from "utils/wrapError"
 
-export default {
+const event: DiscordEvent<"guildCreate"> = {
   name: "guildCreate",
   once: false,
-  execute: async (guild: Discord.Guild) => {
+  execute: async (guild) => {
     logger.info(
       `Joined guild: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`
     )
 
-    try {
+    wrapError(null, async () => {
       await config.createGuild(guild.id, guild.name)
       await webhook.pushDiscordWebhook("guildCreate", {
         guild_id: guild.id,
       })
       introduceMochiToAdmin(guild)
-    } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
-      }
-      ChannelLogger.log(error, 'Event<"guildCreate">')
-    }
+    })
   },
-} as Event<"guildCreate">
+}
+
+export default event
 
 async function introduceMochiToAdmin(guild: Discord.Guild) {
   if (guild.systemChannel) {
