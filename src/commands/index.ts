@@ -70,6 +70,7 @@ import usage_stats from "adapters/usage_stats"
 import { isAcceptableCmdToHelp } from "./index-utils"
 import FuzzySet from "fuzzyset"
 import { composeEmbedMessage } from "utils/discordEmbed"
+import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 
@@ -289,6 +290,16 @@ export default async function handlePrefixedCommand(message: Message) {
     }
     return
   }
+
+  // if this command is experimental -> only allow it to run inside certain channels
+  if (commandObject.experimental) {
+    const isTextChannel = message.channel.type === "GUILD_TEXT"
+    if (!isTextChannel) return
+    const parentId = message.channel.parentId
+    if (!parentId || !EXPERIMENTAL_CATEGORY_CHANNEL_IDS.includes(parentId))
+      return
+  }
+
   // handle default commands
   await preauthorizeCommand(message, commandObject)
   await config.checkGuildCommandScopes(message, commandObject)

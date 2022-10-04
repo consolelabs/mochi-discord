@@ -99,7 +99,7 @@ export type Command = {
   ) => Promise<MessageOptions>
   aliases?: string[]
   canRunWithoutAction?: boolean
-  // can only run in admin channels & won't be shown in `$help` message
+  // can only run in admin channels
   experimental?: boolean
   actions?: Record<string, Command>
   allowDM?: boolean

@@ -1,9 +1,11 @@
 import pino from "pino"
 
-import { PROD } from "./env"
+import { PROD, TEST } from "./env"
 
 const options = PROD
   ? {}
+  : TEST
+  ? { enabled: false }
   : {
       prettyPrint: {
         colorize: true,
