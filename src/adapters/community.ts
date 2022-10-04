@@ -4,6 +4,8 @@ import {
   ResponseGetUserUpvoteLeaderboardResponse,
   ResponseIndexerNFTCollectionTickersResponse,
   ResponseNftMetadataAttrIconResponse,
+  ResponseGetSuggestionNFTCollectionsResponse,
+  ResponseGetNFTCollectionByAddressChainResponse,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL } from "utils/constants"
@@ -124,20 +126,32 @@ class Community extends Fetcher {
   }
 
   public async getNFTCollectionTickers({
-    symbol,
+    collectionAddress,
     from,
     to,
   }: {
-    symbol?: string
+    collectionAddress: string
     from: number
     to: number
   }) {
     return await this.jsonFetch<ResponseIndexerNFTCollectionTickersResponse>(
-      `${API_BASE_URL}/nfts/collections/${symbol}/tickers`,
+      `${API_BASE_URL}/nfts/collections/tickers`,
       {
         query: {
+          collectionAddress,
           from,
           to,
+        },
+      }
+    )
+  }
+
+  public async getNFTCollectionSuggestions(query: string) {
+    return await this.jsonFetch<ResponseGetSuggestionNFTCollectionsResponse>(
+      `${API_BASE_URL}/nfts/collections/suggestion`,
+      {
+        query: {
+          query,
         },
       }
     )
@@ -202,6 +216,17 @@ class Community extends Fetcher {
         size,
       },
     })
+  }
+
+  public async getNFTCollectionMetadata(address: string, chain: string) {
+    return await this.jsonFetch<ResponseGetNFTCollectionByAddressChainResponse>(
+      `${API_BASE_URL}/nfts/collections/address/${address}`,
+      {
+        query: {
+          chain,
+        },
+      }
+    )
   }
 
   public async createVerifyWalletChannel(req: {
