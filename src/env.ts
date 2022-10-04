@@ -16,6 +16,14 @@ export const PT_API_SERVER_HOST =
 export const INDEXER_API_SERVER_HOST =
   process.env.INDEXER_API_SERVER_HOST || "https://api.indexer.console.so"
 
+// these are category ids (category = a group of channels), not channel ids
+export const EXPERIMENTAL_CATEGORY_CHANNEL_IDS = [
+  // pod office
+  "886545596222156841",
+  // mochi projects
+  "904331724970926120",
+]
+
 export const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID || "932579148608729118"
 export const ALERT_CHANNEL_ID =
   process.env.ALERT_CHANNEL_ID || "1003709369973735535"
