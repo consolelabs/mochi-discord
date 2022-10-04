@@ -1,4 +1,4 @@
-import { Message, Sticker } from "discord.js"
+import { Message } from "discord.js"
 import handlePrefixedCommand from "../commands"
 import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
 import CommandChoiceManager from "utils/CommandChoiceManager"
@@ -15,10 +15,7 @@ export const handleNormalMessage = async (message: Message) => {
     ? MessageTypes["USER_PREMIUM_GUILD_SUBSCRIPTION"]
     : MessageTypes["DEFAULT"]
 
-  const stickers = Array<Sticker>()
-  message.stickers.forEach((value: Sticker) => {
-    stickers.push(value)
-  })
+  const stickers = Array.from(message.stickers.values())
 
   const body = {
     author: {
@@ -43,7 +40,8 @@ const events: DiscordEvent<"messageCreate"> = {
   execute: async (message) => {
     // deny handling if author is bot or message is empty (new user join server)
     wrapError(message, async () => {
-      if (message.author.bot || (!message.content && !message.stickers)) return
+      if (message.author.bot || (!message.content && !message.stickers.size))
+        return
       if (message.content.startsWith(PREFIX)) {
         // disable previous command choice handler before executing new command
         const key = `${message.author.id}_${message.guildId}_${message.channelId}`
