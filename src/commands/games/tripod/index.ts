@@ -541,7 +541,6 @@ const command: Command = {
     }
   },
   canRunWithoutAction: true,
-  experimental: true,
   actions,
 }
 
