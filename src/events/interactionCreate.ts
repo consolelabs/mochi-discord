@@ -18,6 +18,7 @@ import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
 import { wrapError } from "utils/wrapError"
 import { handleTickerViews } from "commands/defi/ticker"
+import { handleNFTTickerViews } from "commands/community/nft/ticker"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -200,6 +201,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("ticker_view_"):
       await handleTickerViews(i)
+      return
+    case i.customId.startsWith("nft_ticker_view"):
+      await handleNFTTickerViews(i)
       return
     default:
       return
