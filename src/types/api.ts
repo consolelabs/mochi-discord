@@ -913,6 +913,7 @@ export interface ResponseGetNFTCollectionByAddressChain {
   id?: string;
   image?: string;
   is_verified?: boolean;
+  marketplace?: string[];
   name?: string;
   symbol?: string;
   twitter?: string;
@@ -1328,6 +1329,10 @@ export interface ResponseNewGuildGroupNFTRoleResponse {
 export interface ResponseNftListingMarketplace {
   contract_address?: string;
   item_url?: string;
+  listing_price?: string;
+  listing_status?: string;
+  payment_token?: string;
+  payment_token_decimals?: string;
   platform_id?: number;
   platform_name?: string;
   token_id?: string;

@@ -167,6 +167,7 @@ export const emojis: { [key: string]: string } = {
   SEARCH: "933341511062552626",
   PREDICTION: "931194309385003058",
   FELLOWSHIP: "922044644928421888",
+  TRADE: "1026414280498757652",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

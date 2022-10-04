@@ -29,6 +29,7 @@ import poe from "./config/poe"
 import watchlist from "./defi/watchlist"
 import vote from "./community/vote"
 import telegram from "./config/telegram"
+import trade from "./community/trade"
 
 // slash commands
 import help_slash from "./help_slash"
@@ -103,6 +104,7 @@ export const originalCommands: Record<string, Command> = {
   airdrop,
   watchlist,
   // community section
+  trade,
   invite,
   gm,
   stats,
