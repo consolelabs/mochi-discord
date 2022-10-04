@@ -17,16 +17,23 @@ export async function wrapError(
     let error = e as BotBaseError
 
     if (msg instanceof Message || msg instanceof Interaction) {
-      let message
-      if (msg instanceof Message) {
-        message = msg
-      } else {
-        if (msg.isSelectMenu() || msg.isButton() || msg.isCommand()) {
-          if ("message" in msg && msg.message instanceof Message) {
-            message = await msg.message.fetchReference()
+      let message = msg
+      if (
+        msg instanceof Interaction &&
+        (msg.isSelectMenu() || msg.isButton() || msg.isCommand())
+      ) {
+        if (
+          "message" in msg &&
+          msg.message instanceof Message &&
+          msg.message.reference
+        ) {
+          const originalMsg = await msg.message
+            .fetchReference()
+            .catch(() => null)
+          if (originalMsg && !originalMsg.author.bot) {
+            message = originalMsg
           }
         }
-        message = msg
       }
       if (message instanceof Message) {
         // something went wrong
@@ -35,10 +42,15 @@ export async function wrapError(
         }
         error.handle?.()
         ChannelLogger.alert(message, error).catch(catchAll)
+        return
       } else if (message.isCommand()) {
         ChannelLogger.alertSlash(message, error).catch(catchAll)
+        return
       }
-    } else if (e instanceof Error && e.stack) {
+    }
+
+    // if it reaches here then we're screwed
+    if (e instanceof Error && e.stack) {
       ChannelLogger.alertStackTrace(e.stack).catch(catchAll)
     }
   }
