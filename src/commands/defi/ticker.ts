@@ -6,7 +6,6 @@ import {
   MessageActionRow,
   MessageAttachment,
   MessageButton,
-  // MessageEmbed,
   MessageSelectMenu,
   MessageSelectOptionData,
   SelectMenuInteraction,

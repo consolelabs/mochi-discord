@@ -171,6 +171,15 @@ export interface ModelGuildConfigActivity {
   guild_id?: string;
 }
 
+export interface ModelGuildConfigDefaultCollection {
+  address?: string;
+  chain_id?: string;
+  created_at?: string;
+  guild_id?: string;
+  symbol?: string;
+  updated_at?: string;
+}
+
 export interface ModelGuildConfigDefaultTicker {
   default_ticker?: string;
   guild_id?: string;
@@ -489,6 +498,14 @@ export interface RequestGiftXPRequest {
   xp_amount?: number;
 }
 
+export interface RequestGuildConfigDefaultNftTickerRequest {
+  chain_id?: number;
+  collection_address?: string;
+  guild_id?: string;
+  query?: string;
+  symbol?: string;
+}
+
 export interface RequestGuildConfigDefaultTickerRequest {
   default_ticker?: string;
   guild_id?: string;
@@ -659,6 +676,7 @@ export interface ResponseCoinPriceHistoryResponse {
 export interface ResponseCollectionSuggestions {
   address?: string;
   chain?: string;
+  chain_id?: number;
   name?: string;
   symbol?: string;
 }
@@ -805,6 +823,10 @@ export interface ResponseGetGmConfigResponse {
   message?: string;
 }
 
+export interface ResponseGetGuildDefaultNftTickerResponse {
+  data?: ModelGuildConfigDefaultCollection;
+}
+
 export interface ResponseGetGuildDefaultTickerResponse {
   data?: ModelGuildConfigDefaultTicker;
 }
@@ -907,6 +929,10 @@ export interface ResponseGetRepostReactionConfigsResponse {
 
 export interface ResponseGetSalesTrackerConfigResponse {
   data?: ModelGuildConfigSalesTracker;
+}
+
+export interface ResponseGetSuggestionNFTCollectionsResponse {
+  data?: ResponseCollectionSuggestions[];
 }
 
 export interface ResponseGetSupportedChains {
@@ -1075,6 +1101,9 @@ export interface ResponseIndexerNFTCollectionTickersData {
   marketplaces?: string[];
   name?: string;
   owners?: number;
+  price_change_1d?: string;
+  price_change_30d?: string;
+  price_change_7d?: string;
   tickers?: ResponseIndexerTickers;
   total_volume?: ResponseIndexerPrice;
 }
@@ -1320,6 +1349,10 @@ export interface ResponseNftWatchlistSuggest {
 
 export interface ResponseNftWatchlistSuggestResponse {
   data?: ResponseNftWatchlistSuggest;
+}
+
+export interface ResponseResponseDataMessage {
+  data?: ResponseResponseMessage;
 }
 
 export interface ResponseResponseMessage {
