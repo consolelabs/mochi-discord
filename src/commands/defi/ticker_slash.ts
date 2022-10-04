@@ -26,6 +26,7 @@ import {
   getSuccessEmbed,
   composeDiscordExitButton,
   composeEmbedMessage2,
+  getExitButton,
 } from "utils/discordEmbed"
 import defi from "adapters/defi"
 import {
@@ -145,6 +146,14 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   selectMenu.options.forEach(
     (opt, i) => (opt.default = i === choices.indexOf(days))
   )
+  // this code block stores current day selection
+  message.components[1].components.forEach((b) => {
+    const customId = b.customId
+    if (!customId?.startsWith("ticker_view_")) return
+    const params = customId?.split("-")
+    params[2] = days
+    b.customId = params.join("-")
+  })
 
   return {
     messageOptions: {
@@ -184,12 +193,14 @@ async function composeTickerResponse({
   coinSymbol,
   coinName,
   authorId,
+  days,
   interaction,
 }: {
   coinId: string
   coinSymbol?: string
   coinName?: string
   authorId?: string
+  days?: number
   interaction: SelectMenuInteraction | CommandInteraction
 }) {
   const gMember = interaction?.guild?.members.cache.get(
@@ -295,14 +306,20 @@ async function composeTickerResponse({
   const selectRow = composeDaysSelectMenu(
     "tickers_range_selection",
     `${coin.id}`,
-    [1, 7, 30, 60, 90, 365]
+    [1, 7, 30, 60, 90, 365],
+    days
   )
+
+  const buttonRow = buildSwitchViewActionRow("ticker", {
+    coinId: coin.id,
+    days: days ?? 7,
+  }).addComponents(getExitButton(interaction.user.id))
 
   return {
     messageOptions: {
       ...(chart && { files: [chart] }),
       embeds: [embed],
-      components: [selectRow, composeDiscordExitButton(interaction.user.id)],
+      components: [selectRow, buttonRow],
     },
     commandChoiceOptions: {
       userId: interaction?.user.id,
@@ -367,6 +384,25 @@ function composeTickerSelectionResponse(
       handler: tickerSelectionHandler,
     },
   }
+}
+
+function buildSwitchViewActionRow(
+  currentView: string,
+  params: { coinId: string; days: number }
+) {
+  const tickerBtn = new MessageButton({
+    label: "🪪 Ticker",
+    customId: `ticker_view_chart-${params.coinId}-${params.days}`,
+    style: "SECONDARY",
+    disabled: currentView === "ticker",
+  })
+  const infoBtn = new MessageButton({
+    label: "🖼 Info",
+    customId: `ticker_view_info-${params.coinId}-${params.days}`,
+    style: "SECONDARY",
+    disabled: currentView === "info",
+  })
+  return new MessageActionRow().addComponents([tickerBtn, infoBtn])
 }
 
 const command: SlashCommand = {
