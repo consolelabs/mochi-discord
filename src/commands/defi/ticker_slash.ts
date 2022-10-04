@@ -176,7 +176,6 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   msgOrInteraction
 ) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
-  // const { message } = <{ message: Message }>interaction
   const value = interaction.values[0]
   const [coinId, coinSymbol, coinName, authorId] = value.split("_")
   return await composeTickerResponse({

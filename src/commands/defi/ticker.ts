@@ -410,6 +410,7 @@ async function viewTickerChart(interaction: ButtonInteraction, msg: Message) {
 }
 
 async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
+  await interaction.deferUpdate()
   const [coinId, days] = interaction.customId.split("-").slice(1)
   const { messageOptions } = await composeTokenInfoEmbed(msg, coinId, +days)
   await msg.edit(messageOptions)
