@@ -24,7 +24,7 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            description: `Current Invite Tracker log channel is set to <#${res.data.user_id}>`,
+            description: `Current Invite Tracker log channel is set to <#${res.data.channel_id}>`,
             title: "Invite Tracker Configuration",
           }),
         ],
