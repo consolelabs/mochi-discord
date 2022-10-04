@@ -375,13 +375,13 @@ function buildSwitchViewActionRow(
   params: { coinId: string; days: number }
 ) {
   const tickerBtn = new MessageButton({
-    label: "🪪 Ticker",
+    label: "📈 Ticker",
     customId: `ticker_view_chart-${params.coinId}-${params.days}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const infoBtn = new MessageButton({
-    label: "🖼 Info",
+    label: "🔎 Info",
     customId: `ticker_view_info-${params.coinId}-${params.days}`,
     style: "SECONDARY",
     disabled: currentView === "info",
