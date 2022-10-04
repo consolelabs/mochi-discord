@@ -172,7 +172,6 @@ async function composeCollectionInfoEmbed(
       description: "The collection does not exist. Please choose another one.",
     })
   }
-  const blank = getEmoji("blank")
   const symbol = `${data.symbol?.toUpperCase() ?? "-"}`
   const address = data.address ? `${shortenHashOrAddress(data.address)}` : "-"
   const name = `${data.name ?? "-"}`
@@ -191,39 +190,39 @@ async function composeCollectionInfoEmbed(
   const fields = [
     {
       name: "Symbol",
-      value: `${symbol}`,
+      value: symbol,
     },
     {
       name: "Address",
-      value: `${address}`,
+      value: address,
     },
     {
       name: "Chain",
-      value: `${getEmoji(chain)}${blank}`,
+      value: `${getEmoji(chain)}`,
     },
     {
       name: "Marketplace",
-      value: `${marketplaces}${blank}`,
+      value: marketplaces,
     },
     {
       name: "Format",
-      value: `${ercFormat}${blank}`,
+      value: ercFormat,
     },
     {
       name: "Created at",
-      value: `${createdTime}`,
+      value: createdTime,
     },
     {
       name: `Website`,
-      value: `[link](${website})${blank}`,
+      value: `[link](${website})`,
     },
     {
       name: `Discord`,
-      value: `[link](${discord})${blank}`,
+      value: `[link](${discord})`,
     },
     {
       name: `Twitter`,
-      value: `[link](${twitter})${blank}`,
+      value: `[link](${twitter})`,
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
