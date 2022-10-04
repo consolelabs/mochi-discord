@@ -65,7 +65,7 @@ const commands: Record<
     description: "Gain more server insight",
     features: [
       {
-        value: "stat",
+        value: "stats",
         url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/server-stats",
       },
     ],
