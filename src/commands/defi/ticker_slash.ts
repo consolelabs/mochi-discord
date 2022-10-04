@@ -125,6 +125,7 @@ const getChangePercentage = (change: number) => {
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
+  await interaction.deferUpdate()
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const [coinId, days] = input.split("_")
@@ -176,6 +177,7 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   msgOrInteraction
 ) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
+  await interaction.deferUpdate()
   // const { message } = <{ message: Message }>interaction
   const value = interaction.values[0]
   const [coinId, coinSymbol, coinName, authorId] = value.split("_")

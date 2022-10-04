@@ -114,7 +114,7 @@ function addBotMsg(memberID: string) {
 }
 
 function inviteMsg(memberID: string, inviterID: string, inviteAmount: number) {
-  return `<@${memberID}> has been invited by <@${inviterID}> and has now ${inviteAmount} invites.`
+  return `<@${memberID}> has been invited by <@${inviterID}> and now has ${inviteAmount} invites.`
 }
 
 function sendInviteTrackerMessage(
