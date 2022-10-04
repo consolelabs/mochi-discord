@@ -45,6 +45,7 @@ import CacheManager from "utils/CacheManager"
 import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
+import TurnDown from "turndown"
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -137,6 +138,14 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   selectMenu.options.forEach(
     (opt, i) => (opt.default = i === choices.indexOf(days))
   )
+  // this code block stores current day selection
+  message.components[1].components.forEach((b) => {
+    const customId = b.customId
+    if (!customId?.startsWith("ticker_view_")) return
+    const params = customId?.split("-")
+    params[2] = days
+    b.customId = params.join("-")
+  })
 
   return {
     messageOptions: {
@@ -150,7 +159,6 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       messageId: message.id,
       channelId: interaction.channelId,
       guildId: interaction.guildId,
-      interaction,
     },
   }
 }
@@ -177,6 +185,7 @@ async function composeTickerResponse({
   coinSymbol,
   coinName,
   authorId,
+  days,
   interaction,
 }: {
   msg: Message
@@ -184,6 +193,7 @@ async function composeTickerResponse({
   coinSymbol?: string
   coinName?: string
   authorId?: string
+  days?: number
   interaction?: SelectMenuInteraction
 }) {
   const gMember = msg.guild?.members.cache.get(authorId ?? msg.author.id)
@@ -276,15 +286,18 @@ async function composeTickerResponse({
     },
   ])
 
-  const chart = await renderHistoricalMarketChart({ coinId: coin.id, bb })
+  const chart = await renderHistoricalMarketChart({ coinId: coin.id, bb, days })
   const selectRow = composeDaysSelectMenu(
     "tickers_range_selection",
     `${coin.id}`,
-    [1, 7, 30, 60, 90, 365]
+    [1, 7, 30, 60, 90, 365],
+    days
   )
 
-  const buttonRow = new MessageActionRow()
-  buttonRow.addComponents(getExitButton(msg.author.id))
+  const buttonRow = buildSwitchViewActionRow("ticker", {
+    coinId: coin.id,
+    days: days ?? 7,
+  }).addComponents(getExitButton(msg.author.id))
 
   return {
     messageOptions: {
@@ -353,6 +366,97 @@ function composeTickerSelectionResponse(
       guildId: msg.guildId,
       channelId: msg.channelId,
       handler: tickerSelectionHandler,
+    },
+  }
+}
+
+function buildSwitchViewActionRow(
+  currentView: string,
+  params: { coinId: string; days: number }
+) {
+  const tickerBtn = new MessageButton({
+    label: "🪪 Ticker",
+    customId: `ticker_view_chart-${params.coinId}-${params.days}`,
+    style: "SECONDARY",
+    disabled: currentView === "ticker",
+  })
+  const infoBtn = new MessageButton({
+    label: "🖼 Info",
+    customId: `ticker_view_info-${params.coinId}-${params.days}`,
+    style: "SECONDARY",
+    disabled: currentView === "info",
+  })
+  return new MessageActionRow().addComponents([tickerBtn, infoBtn])
+}
+
+export async function handleTickerViews(interaction: ButtonInteraction) {
+  const msg = <Message>interaction.message
+  if (interaction.customId.startsWith("ticker_view_chart")) {
+    await viewTickerChart(interaction, msg)
+    return
+  }
+  await viewTickerInfo(interaction, msg)
+}
+
+async function viewTickerChart(interaction: ButtonInteraction, msg: Message) {
+  await interaction.deferUpdate()
+  const [coinId, days] = interaction.customId.split("-").slice(1)
+  const { messageOptions } = await composeTickerResponse({
+    msg,
+    coinId,
+    ...(days && { days: +days }),
+  })
+  await msg.edit(messageOptions)
+}
+
+async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
+  const [coinId, days] = interaction.customId.split("-").slice(1)
+  const { messageOptions } = await composeTokenInfoEmbed(msg, coinId, +days)
+  await msg.edit(messageOptions)
+  await msg.removeAttachments()
+}
+
+async function composeTokenInfoEmbed(
+  msg: Message,
+  coinId: string,
+  days: number
+) {
+  const {
+    ok,
+    data: coin,
+    log,
+    curl,
+  } = await CacheManager.get({
+    pool: "ticker",
+    key: `ticker-getcoin-${coinId}`,
+    call: () => defi.getCoin(coinId),
+  })
+  if (!ok) {
+    throw new APIError({ message: msg, curl, description: log })
+  }
+  const embed = composeEmbedMessage(msg, {
+    thumbnail: coin.image.large,
+    color: getChartColorConfig(coin.id).borderColor as HexColorString,
+    title: "About " + coin.name,
+    footer: ["Data fetched from CoinGecko.com"],
+  })
+  const tdService = new TurnDown()
+  const content = coin.description.en
+    .split("\r\n\r\n")
+    .map((v: any) => {
+      return tdService.turndown(v)
+    })
+    .join("\r\n\r\n")
+  embed.setDescription(content || "This token has not updated description yet")
+  const buttonRow = buildSwitchViewActionRow("info", {
+    coinId,
+    days,
+  }).addComponents(getExitButton(msg.author.id))
+
+  return {
+    messageOptions: {
+      embeds: [embed],
+      components: [buttonRow],
     },
   }
 }
