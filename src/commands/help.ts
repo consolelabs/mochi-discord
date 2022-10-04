@@ -41,7 +41,7 @@ const commands: Record<
     ],
   },
   Telegram: {
-    emoji: "<:telegram:970991964474445834>",
+    emoji: "<:telegram:1026746501659103252>",
     description: "Link Telegram to Discord account",
     features: [
       {
