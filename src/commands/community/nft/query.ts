@@ -199,10 +199,21 @@ export async function composeNFTDetail(
       )} **[${platform_name.toUpperCase()}](${item_url})**`
     })
     .join("\n")
+
+  const listingPrice = `${getEmoji("MONEY")} Price`
+  const listingPriceValue = (marketplace ?? [])
+    .map(({ listing_price = "", payment_token = "" }) => {
+      return `${listing_price} ${payment_token}`
+    })
+    .join("\n")
   const listingFields: EmbedFieldData[] = [
     {
       name: listingTitle,
       value: listingValue,
+    },
+    {
+      name: listingPrice,
+      value: listingPriceValue,
     },
   ]
   if (marketplace.length !== 0) embed.addFields(listingFields)
