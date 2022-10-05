@@ -17,7 +17,6 @@ import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { list } from "./list"
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
-  console.log("here 3")
   const interaction = msgOrInteraction as SelectMenuInteraction
   const msg = msgOrInteraction as Message
   const [groupId, name] = interaction.values[0].split("|")
@@ -81,7 +80,6 @@ const command: Command = {
         },
       }
     }
-    console.log("here 0")
 
     const options: MessageSelectOptionData[] = []
     configs.data.forEach((config) => {
@@ -90,13 +88,11 @@ const command: Command = {
         value: `${config.id ?? ""}|${config.role_name ?? ""}`,
       })
     })
-    console.log("here 1")
 
     const embed = composeEmbedMessage(msg, {
       title: "Select an option",
       description: list(configs),
     })
-    console.log("here 2")
 
     return {
       messageOptions: {
