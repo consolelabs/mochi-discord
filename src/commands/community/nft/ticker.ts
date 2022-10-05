@@ -27,6 +27,7 @@ import {
   emojis,
   getEmoji,
   getEmojiURL,
+  roundFloatNumber,
   shortenHashOrAddress,
 } from "utils/common"
 import { renderChartImage } from "utils/canvas"
@@ -173,12 +174,14 @@ async function composeCollectionInfoEmbed(
     })
   }
   const symbol = `${data.symbol?.toUpperCase() ?? "-"}`
-  const address = data.address ? `${shortenHashOrAddress(data.address)}` : "-"
+  const address = data.address
+    ? `\`${shortenHashOrAddress(data.address)}\``
+    : "-"
   const name = `${data.name ?? "-"}`
   const desc = `${data.description ?? "-"}`
-  const discord = `${data.discord ?? "-"}`
-  const twitter = `${data.twitter ?? "-"}`
-  const website = `${data.website ?? "-"}`
+  const discord = data.discord ? `[Link](${data.discord})` : "-"
+  const twitter = data.twitter ? `[Link](${data.twitter})` : "-"
+  const website = data.website ? `[Link](${data.website})` : "-"
   const ercFormat = `${data.erc_format ?? "-"}`
   const marketplaces = data.marketplaces
     ? data.marketplaces.map((m: string) => getEmoji(m)).join(" ")
@@ -214,15 +217,15 @@ async function composeCollectionInfoEmbed(
     },
     {
       name: `Website`,
-      value: `[link](${website})`,
+      value: website,
     },
     {
       name: `Discord`,
-      value: `[link](${discord})`,
+      value: discord,
     },
     {
       name: `Twitter`,
-      value: `[link](${twitter})`,
+      value: twitter,
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
@@ -265,23 +268,22 @@ async function composeCollectionTickerEmbed({
 }) {
   const to = dayjs().unix() * 1000
   const from = dayjs().subtract(days, "day").unix() * 1000
-  const res = await community.getNFTCollectionTickers({
+  const { data, ok, log, curl } = await community.getNFTCollectionTickers({
     collectionAddress,
     from,
     to,
   })
-  if (!res.ok) {
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+  if (!ok) {
+    throw new APIError({ message: msg, curl: curl, description: log })
   }
 
   // collection is not exist, mochi has not added it yet
-  if (!res.data) {
+  if (!data) {
     throw new CommandError({
       message: msg,
       description: "The collection does not exist. Please choose another one.",
     })
   }
-  const data = res.data
 
   const blank = getEmoji("blank")
   const {
@@ -292,6 +294,9 @@ async function composeCollectionTickerEmbed({
     total_volume,
     floor_price,
     last_sale_price,
+    price_change_1d,
+    price_change_7d,
+    price_change_30d,
   } = data
 
   const floorPriceAmount = Math.round(
@@ -310,12 +315,18 @@ async function composeCollectionTickerEmbed({
     const formatter = Intl.NumberFormat("en", { notation: "compact" })
     return `${formatter.format(amount)}${blank}`
   }
+  const getChangePercentage = (changeStr: string | undefined) => {
+    const change = changeStr ? +changeStr : 0
+    const trend =
+      change > 0
+        ? defaultEmojis.CHART_WITH_UPWARDS_TREND
+        : change === 0
+        ? ""
+        : defaultEmojis.CHART_WITH_DOWNWARDS_TREND
+    return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
+  }
 
   const fields = [
-    {
-      name: `Market cap (${priceToken})`,
-      value: formatPrice(marketcap),
-    },
     {
       name: "Item",
       value: `${items}${blank}`,
@@ -323,6 +334,10 @@ async function composeCollectionTickerEmbed({
     {
       name: "Owner",
       value: `${owners}${blank}`,
+    },
+    {
+      name: `Market cap (${priceToken})`,
+      value: formatPrice(marketcap),
     },
     {
       name: `Volume (${priceToken})`,
@@ -335,6 +350,18 @@ async function composeCollectionTickerEmbed({
     {
       name: `Last sale (${priceToken})`,
       value: formatPrice(lastSalePriceAmount),
+    },
+    {
+      name: "Change (24h)",
+      value: getChangePercentage(price_change_1d),
+    },
+    {
+      name: "Change (7d)",
+      value: getChangePercentage(price_change_7d),
+    },
+    {
+      name: "Change (1M)",
+      value: getChangePercentage(price_change_30d),
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
