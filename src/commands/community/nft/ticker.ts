@@ -176,9 +176,9 @@ async function composeCollectionInfoEmbed(
   }
   const symbol = `${data.symbol?.toUpperCase() ?? "-"}`
   const address = data.address
-    ? `[${shortenHashOrAddress(data.address)}](${getMarketplaceCollectionUrl(
+    ? `[\`${shortenHashOrAddress(
         data.address
-      )})`
+      )}\`](${getMarketplaceCollectionUrl(data.address)})`
     : "-"
   const name = `${data.name ?? "-"}`
   const desc = `${data.description ?? "-"}`
