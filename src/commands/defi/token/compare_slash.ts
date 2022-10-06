@@ -132,7 +132,7 @@ export async function setDefaultTickers(i: ButtonInteraction) {
   if (setDefaultBaseTickerOk || setDefaultTargetTickerOk) {
     CacheManager.findAndRemove(
       "ticker",
-      `compare-${i.guildId}-${baseSymbol}-${baseSymbol}-`
+      `compare-${i.guildId}-${baseSymbol}-${targetSymbol}-`
     )
   }
 
@@ -141,9 +141,7 @@ export async function setDefaultTickers(i: ButtonInteraction) {
     title: "Default ticker ENABLED",
     description: `Next time your server members use $ticker with \`${baseSymbol}\` and \`${targetSymbol}\`, **${baseName}** and **${targetName}** will be the default selection`,
   })
-  return {
-    embeds: [embed],
-  }
+  return { embeds: [embed] }
 }
 
 const suggestionsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
@@ -185,6 +183,8 @@ const suggestionsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
       components: [actionRow],
       buttonCollector: setDefaultTickers,
     }
+  } else {
+    await interaction.deferUpdate()
   }
 
   return {
@@ -205,7 +205,9 @@ async function composeSuggestionsResponse(
   targetSuggestions: Coin[]
 ) {
   const opt = (base: Coin, target: Coin): MessageSelectOptionData => ({
-    label: `${base.name} (${base.symbol}) x ${target.name} (${target.symbol})`,
+    label: `${base.name} (${base.symbol.toUpperCase()}) x ${
+      target.name
+    } (${target.symbol.toUpperCase()})`,
     value: `${base.id}_${base.symbol}_${base.name}_${target.id}_${target.symbol}_${target.name}_${interaction.user.id}`,
   })
   const options = baseSuggestions
@@ -285,14 +287,15 @@ async function composeTokenComparisonEmbed(
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
 
   const embed = composeEmbedMessage(null, {
-    color: getChartColorConfig(baseQ).borderColor as HexColorString,
+    color: getChartColorConfig().borderColor as HexColorString,
     author: [`${base_coin.name} vs. ${target_coin.name}`],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
     description: `**Ratio**: \`${currentRatio}\``,
-  })
-    .addField(base_coin.name, coinInfo(base_coin), true)
-    .addField(target_coin.name, coinInfo(target_coin), true)
+  }).addFields(
+    { name: base_coin.name, value: coinInfo(base_coin), inline: true },
+    { name: target_coin.name, value: coinInfo(target_coin), inline: true }
+  )
 
   const chart = await renderCompareTokenChart({ times, ratios, from, to })
   const selectRow = composeDaysSelectMenu(

@@ -131,7 +131,11 @@ export async function setDefaultTickers(i: ButtonInteraction) {
   if (setDefaultBaseTickerOk || setDefaultTargetTickerOk) {
     CacheManager.findAndRemove(
       "ticker",
-      `compare-${i.guildId}-${baseSymbol}-${baseSymbol}-`
+      `compare-${i.guildId}-${baseSymbol}-${targetSymbol}-`
+    )
+    CacheManager.findAndRemove(
+      "ticker",
+      `compare-${i.guildId}-${targetSymbol}-${baseSymbol}-`
     )
   }
   const embed = getSuccessEmbed({
@@ -183,6 +187,8 @@ const suggestionsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
       components: [actionRow],
       buttonCollector: setDefaultTickers,
     }
+  } else {
+    await interaction.deferUpdate()
   }
 
   return {
@@ -199,7 +205,9 @@ async function composeSuggestionsResponse(
   targetSuggestions: Coin[]
 ) {
   const opt = (base: Coin, target: Coin): MessageSelectOptionData => ({
-    label: `${base.name} (${base.symbol}) x ${target.name} (${target.symbol})`,
+    label: `${base.name} (${base.symbol.toUpperCase()}) x ${
+      target.name
+    } (${target.symbol.toUpperCase()})`,
     value: `${base.id}_${base.symbol}_${base.name}_${target.id}_${target.symbol}_${target.name}_${msg.author.id}`,
   })
   const options = baseSuggestions
@@ -279,7 +287,7 @@ async function composeTokenComparisonEmbed(
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
 
   const embed = composeEmbedMessage(msg, {
-    color: getChartColorConfig(baseQ).borderColor as HexColorString,
+    color: getChartColorConfig().borderColor as HexColorString,
     author: [`${base_coin.name} vs. ${target_coin.name}`],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
