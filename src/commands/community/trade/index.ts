@@ -45,9 +45,12 @@ export async function handleReplyTradeOffer(msg: Message): Promise<boolean> {
                   name: tradeId,
                   autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
                 })
+              } else {
+                return false
               }
+            } else {
+              return false
             }
-            return false
           }
 
           const data: SessionData = {
@@ -103,13 +106,21 @@ export async function handleReplyTradeOffer(msg: Message): Promise<boolean> {
               ...data,
               userA: {
                 ...data.userA,
-                confirmed: isConfirm && i.user.id === data.userA.id,
-                cancelled: isCancel && i.user.id === data.userA.id,
+                confirmed:
+                  sessionData?.userA.confirmed ||
+                  (isConfirm && i.user.id === data.userA.id),
+                cancelled:
+                  sessionData?.userA.cancelled ||
+                  (isCancel && i.user.id === data.userA.id),
               },
               userB: {
                 ...data.userB,
-                confirmed: isConfirm && i.user.id === data.userB?.id,
-                cancelled: isCancel && i.user.id === data.userB?.id,
+                confirmed:
+                  sessionData?.userB?.confirmed ||
+                  (isConfirm && i.user.id === data.userB?.id),
+                cancelled:
+                  sessionData?.userB?.cancelled ||
+                  (isCancel && i.user.id === data.userB?.id),
               },
               state: "done",
             })
@@ -119,16 +130,13 @@ export async function handleReplyTradeOffer(msg: Message): Promise<boolean> {
             await i.editReply(ui)
 
             sessionData = userData.threads.get(tradeId)
-            if (i.customId === "trade-confirm") {
-              if (
-                (sessionData?.userA.confirmed &&
-                  sessionData?.userB?.confirmed) ||
-                sessionData?.userA.cancelled ||
-                sessionData?.userB?.cancelled
-              ) {
-                await thread.setLocked(true)
-                await thread.setArchived(true)
-              }
+            if (
+              (sessionData?.userA.confirmed && sessionData?.userB?.confirmed) ||
+              sessionData?.userA.cancelled ||
+              sessionData?.userB?.cancelled
+            ) {
+              await thread.setLocked(true)
+              await thread.setArchived(true)
             }
           })
         }

@@ -338,7 +338,7 @@ export async function renderChartImage({
         {
           label: chartLabel,
           data,
-          borderWidth: lineOnly ? 10 : 2,
+          borderWidth: lineOnly ? 10 : 3,
           pointRadius: 0,
           fill: true,
           ...colorConfig,
@@ -651,11 +651,11 @@ export function getChartColorConfig(id?: string) {
       gradientTo = "rgba(76,66,52,0.5)"
       break
     case "ethereum":
-      borderColor = "#ff0421"
-      gradientFrom = "rgba(173,36,43,0.9)"
-      gradientTo = "rgba(77,48,53,0.5)"
+    case "ethereum-pow-iou":
+      borderColor = "#a996f2"
+      gradientFrom = "rgba(108,136,217,0.9)"
+      gradientTo = "rgba(74,93,148,0.5)"
       break
-
     case "tether":
       borderColor = "#22a07a"
       gradientFrom = "rgba(46,78,71,0.9)"

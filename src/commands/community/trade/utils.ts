@@ -122,9 +122,13 @@ export function renderUI(userId: string, tradeId: string): any | null {
   } else {
     fields = [
       {
-        name: `${userA.confirmed ? `${getEmoji("approve")} ` : ""}**${
-          userA.tag
-        }**`,
+        name: `${
+          userA.cancelled
+            ? `${getEmoji("revoke")} `
+            : userA.confirmed
+            ? `${getEmoji("approve")} `
+            : ""
+        }**${userA.tag}**`,
         value: `${
           userA.offerItems.size > 0
             ? `\n${Array.from(userA.offerItems.values())
@@ -135,9 +139,13 @@ export function renderUI(userId: string, tradeId: string): any | null {
         inline: true,
       },
       {
-        name: `${userB.confirmed ? `${getEmoji("approve")} ` : ""}**${
-          userB.tag
-        }**`,
+        name: `${
+          userB.cancelled
+            ? `${getEmoji("revoke")} `
+            : userB.confirmed
+            ? `${getEmoji("approve")} `
+            : ""
+        }**${userB.tag}**`,
         value: `${
           (userA.wantItems?.size ?? 0) > 0
             ? `\n${Array.from(userA.wantItems?.values() ?? [])
@@ -172,7 +180,7 @@ export function renderUI(userId: string, tradeId: string): any | null {
         author: {
           name: "Trade",
           icon_url:
-            state === "done" && userB.confirmed
+            state === "done" && userA.confirmed && userB.confirmed
               ? getEmojiURL(emojis["APPROVE"])
               : state === "cancelled"
               ? getEmojiURL(emojis["REVOKE"])

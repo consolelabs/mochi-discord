@@ -9,11 +9,11 @@ import { CommandInteraction } from "discord.js"
 const command: SlashCommand = {
   name: "prune",
   category: "Community",
+  onlyAdministrator: true,
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("prune")
       .setDescription("Prune members")
-      .setDefaultPermission(false)
 
     data.addSubcommand(inactive).addSubcommand(without)
     return data

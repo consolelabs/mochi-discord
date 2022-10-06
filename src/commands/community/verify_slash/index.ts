@@ -10,6 +10,7 @@ import { CommandInteraction } from "discord.js"
 const command: SlashCommand = {
   name: "verify",
   category: "Community",
+  onlyAdministrator: true,
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("verify")
