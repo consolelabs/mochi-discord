@@ -32,13 +32,7 @@ export class APIError extends BotBaseError {
 
   handle() {
     this.msgOrInteraction?.reply({
-      embeds: [
-        getErrorEmbed({
-          title: this.name,
-          description:
-            "There was something wrong with the API, please contact the admins",
-        }),
-      ],
+      embeds: [getErrorEmbed({})],
     })
   }
 }
