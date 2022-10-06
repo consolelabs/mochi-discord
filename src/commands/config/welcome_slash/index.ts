@@ -10,11 +10,11 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 const command: SlashCommand = {
   name: "welcome",
   category: "Config",
+  onlyAdministrator: true,
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("welcome")
       .setDescription("Welcome new members to the guild")
-      .setDefaultPermission(false) //hide command from everyone but admin
 
     data
       .addSubcommand(info)

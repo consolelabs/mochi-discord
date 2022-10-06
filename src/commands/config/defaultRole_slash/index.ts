@@ -19,6 +19,7 @@ const subCommands: Record<string, SlashCommand> = {
 const command: SlashCommand = {
   name: "defaultrole",
   category: "Config",
+  onlyAdministrator: true,
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("defaultrole")

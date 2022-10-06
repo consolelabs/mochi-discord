@@ -9,6 +9,7 @@ import {
   Message,
   Interaction,
   CommandInteraction,
+  Permissions,
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import CommandChoiceManager from "utils/CommandChoiceManager"
@@ -49,6 +50,21 @@ async function handleCommandInteraction(interaction: Interaction) {
   const command = slashCommands[i.commandName]
   if (!command) {
     await i.reply({ embeds: [getErrorEmbed({})] })
+    return
+  }
+  if (
+    command.onlyAdministrator &&
+    !i.memberPermissions?.has(Permissions.FLAGS.ADMINISTRATOR)
+  ) {
+    await i.reply({
+      embeds: [
+        getErrorEmbed({
+          title: "Insufficient permissions",
+          description:
+            "Only Administrators of this server can run this command.",
+        }),
+      ],
+    })
     return
   }
   await i.deferReply({ ephemeral: command?.ephemeral })

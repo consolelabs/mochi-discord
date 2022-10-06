@@ -43,6 +43,7 @@ export type SlashCommandChoiceOption = {
 export type SlashCommand = {
   name: string
   category: Category
+  onlyAdministrator?: boolean
   prepare: (
     slashCommands?: Record<string, SlashCommand>
   ) =>

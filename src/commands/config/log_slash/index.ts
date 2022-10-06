@@ -8,6 +8,7 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 const command: SlashCommand = {
   name: "log",
   category: "Config",
+  onlyAdministrator: true,
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("log")
