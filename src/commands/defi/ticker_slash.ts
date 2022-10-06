@@ -125,6 +125,7 @@ const getChangePercentage = (change: number) => {
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
+  await interaction.deferUpdate()
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const [coinId, days] = input.split("_")
@@ -150,9 +151,9 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   message.components[1].components.forEach((b) => {
     const customId = b.customId
     if (!customId?.startsWith("ticker_view_")) return
-    const params = customId?.split("-")
+    const params = customId?.split("|")
     params[2] = days
-    b.customId = params.join("-")
+    b.customId = params.join("|")
   })
 
   return {
@@ -178,39 +179,13 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   const interaction = msgOrInteraction as SelectMenuInteraction
   const value = interaction.values[0]
   const [coinId, coinSymbol, coinName, authorId] = value.split("_")
-  return await composeTickerResponse({
-    coinId,
-    coinSymbol,
-    coinName,
-    authorId,
-    interaction: interaction,
-  })
-}
-
-async function composeTickerResponse({
-  coinId,
-  coinSymbol,
-  coinName,
-  authorId,
-  days,
-  interaction,
-}: {
-  coinId: string
-  coinSymbol?: string
-  coinName?: string
-  authorId?: string
-  days?: number
-  interaction: SelectMenuInteraction | CommandInteraction
-}) {
   const gMember = interaction?.guild?.members.cache.get(
     authorId ?? interaction?.user.id
   )
   // ask admin to set server default ticker
   let ephemeralMessage: EphemeralMessage | undefined
   if (hasAdministrator(gMember)) {
-    if (!interaction.deferred) {
-      await interaction.deferReply({ ephemeral: true })
-    }
+    await interaction.deferReply({ ephemeral: true })
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
         customId: `${coinId}|${coinSymbol}|${coinName}`,
@@ -229,8 +204,24 @@ async function composeTickerResponse({
       components: [actionRow],
       buttonCollector: setDefaultTicker,
     }
+  } else {
+    await interaction.deferUpdate()
   }
+  return {
+    ...(await composeTickerResponse({ coinId, interaction: interaction })),
+    ephemeralMessage,
+  }
+}
 
+async function composeTickerResponse({
+  coinId,
+  days,
+  interaction,
+}: {
+  coinId: string
+  days?: number
+  interaction: SelectMenuInteraction | CommandInteraction
+}) {
   const {
     ok,
     data: coin,
@@ -266,7 +257,7 @@ async function composeTickerResponse({
     author: [coin.name, coin.image.small],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
-    originalMsgAuthor: gMember?.user,
+    // originalMsgAuthor: gMember?.user,
     ...(bb && { description: "Give credit to Tsuki Bot for the idea." }),
   }).addFields([
     {
@@ -326,7 +317,6 @@ async function composeTickerResponse({
       channelId: interaction?.channelId,
       handler,
     },
-    ephemeralMessage,
   }
 }
 
@@ -343,9 +333,7 @@ export async function setDefaultTicker(i: ButtonInteraction) {
     title: "Default ticker ENABLED",
     description: `Next time your server members use $ticker with \`${symbol}\`, **${name}** will be the default selection`,
   })
-  return {
-    embeds: [embed],
-  }
+  return { embeds: [embed] }
 }
 
 function composeTickerSelectionResponse(
@@ -354,7 +342,7 @@ function composeTickerSelectionResponse(
   interaction: CommandInteraction | ButtonInteraction
 ) {
   const opt = (coin: Coin): MessageSelectOptionData => ({
-    label: `${coin.name} (${coin.symbol})`,
+    label: `${coin.name} (${coin.symbol.toUpperCase()})`,
     value: `${coin.id}_${coin.symbol}_${coin.name}_${interaction?.user.id}`,
   })
   const selectRow = composeDiscordSelectionRow({
@@ -364,7 +352,10 @@ function composeTickerSelectionResponse(
   })
 
   const found = coins
-    .map((c: { name: string; symbol: string }) => `**${c.name}** (${c.symbol})`)
+    .map(
+      (c: { name: string; symbol: string }) =>
+        `**${c.name}** (${c.symbol.toUpperCase()})`
+    )
     .join(", ")
   return {
     messageOptions: {
@@ -391,13 +382,13 @@ function buildSwitchViewActionRow(
 ) {
   const tickerBtn = new MessageButton({
     label: "📈 Ticker",
-    customId: `ticker_view_chart-${params.coinId}-${params.days}`,
+    customId: `ticker_view_chart|${params.coinId}|${params.days}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const infoBtn = new MessageButton({
     label: "🔎 Info",
-    customId: `ticker_view_info-${params.coinId}-${params.days}`,
+    customId: `ticker_view_info|${params.coinId}|${params.days}`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
@@ -473,7 +464,6 @@ const command: SlashCommand = {
     if (defaultTicker.ok && defaultTicker.data.default_ticker) {
       return await composeTickerResponse({
         coinId: defaultTicker.data.default_ticker,
-        coinSymbol: defaultTicker.data.query,
         interaction,
       })
     }

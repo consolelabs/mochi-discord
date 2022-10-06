@@ -642,7 +642,7 @@ export async function drawLeaderboard(options: {
   return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")
 }
 
-export function getChartColorConfig(id: string) {
+export function getChartColorConfig(id?: string) {
   let gradientFrom, gradientTo, borderColor
   switch (id) {
     case "bitcoin":

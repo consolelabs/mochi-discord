@@ -117,6 +117,7 @@ const getChangePercentage = (change: number) => {
 
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
+  await interaction.deferUpdate()
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const [coinId, days] = input.split("_")
@@ -142,9 +143,9 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   message.components[1].components.forEach((b) => {
     const customId = b.customId
     if (!customId?.startsWith("ticker_view_")) return
-    const params = customId?.split("-")
+    const params = customId?.split("|")
     params[2] = days
-    b.customId = params.join("-")
+    b.customId = params.join("|")
   })
 
   return {
@@ -170,33 +171,9 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   const { message } = <{ message: Message }>interaction
   const value = interaction.values[0]
   const [coinId, coinSymbol, coinName, authorId] = value.split("_")
-  return await composeTickerResponse({
-    msg: message,
-    coinId,
-    coinSymbol,
-    coinName,
-    authorId,
-  })
-}
-
-async function composeTickerResponse({
-  msg,
-  coinId,
-  coinSymbol,
-  coinName,
-  authorId,
-  days,
-  interaction,
-}: {
-  msg: Message
-  coinId: string
-  coinSymbol?: string
-  coinName?: string
-  authorId?: string
-  days?: number
-  interaction?: SelectMenuInteraction
-}) {
-  const gMember = msg.guild?.members.cache.get(authorId ?? msg.author.id)
+  const gMember = message.guild?.members.cache.get(
+    authorId ?? message.author.id
+  )
   // ask admin to set server default ticker
   let ephemeralMessage: EphemeralMessage | undefined
   if (hasAdministrator(gMember)) {
@@ -211,7 +188,7 @@ async function composeTickerResponse({
     )
     ephemeralMessage = {
       embeds: [
-        composeEmbedMessage(msg, {
+        composeEmbedMessage(message, {
           title: "Set default ticker",
           description: `Do you want to set **${coinName}** as your server default ticker?\nNo further selection next time use \`$ticker\``,
         }),
@@ -219,8 +196,24 @@ async function composeTickerResponse({
       components: [actionRow],
       buttonCollector: setDefaultTicker,
     }
+  } else {
+    await interaction.deferUpdate()
   }
+  return {
+    ...(await composeTickerResponse({ msg: message, coinId })),
+    ephemeralMessage,
+  }
+}
 
+async function composeTickerResponse({
+  msg,
+  coinId,
+  days,
+}: {
+  msg: Message
+  coinId: string
+  days?: number
+}) {
   const {
     ok,
     data: coin,
@@ -251,7 +244,6 @@ async function composeTickerResponse({
     author: [coin.name, coin.image.small],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
-    originalMsgAuthor: gMember?.user,
     ...(bb && { description: "Give credit to Tsuki Bot for the idea." }),
   }).addFields([
     {
@@ -311,7 +303,6 @@ async function composeTickerResponse({
       channelId: msg.channelId,
       handler,
     },
-    ephemeralMessage,
   }
 }
 
@@ -328,9 +319,7 @@ export async function setDefaultTicker(i: ButtonInteraction) {
     title: "Default ticker ENABLED",
     description: `Next time your server members use $ticker with \`${symbol}\`, **${name}** will be the default selection`,
   })
-  return {
-    embeds: [embed],
-  }
+  return { embeds: [embed] }
 }
 
 function composeTickerSelectionResponse(
@@ -339,7 +328,7 @@ function composeTickerSelectionResponse(
   msg: Message
 ) {
   const opt = (coin: Coin): MessageSelectOptionData => ({
-    label: `${coin.name} (${coin.symbol})`,
+    label: `${coin.name} (${coin.symbol.toUpperCase()})`,
     value: `${coin.id}_${coin.symbol}_${coin.name}_${msg.author.id}`,
   })
   const selectRow = composeDiscordSelectionRow({
@@ -349,7 +338,10 @@ function composeTickerSelectionResponse(
   })
 
   const found = coins
-    .map((c: { name: string; symbol: string }) => `**${c.name}** (${c.symbol})`)
+    .map(
+      (c: { name: string; symbol: string }) =>
+        `**${c.name}** (${c.symbol.toUpperCase()})`
+    )
     .join(", ")
   return {
     messageOptions: {
@@ -376,13 +368,13 @@ function buildSwitchViewActionRow(
 ) {
   const tickerBtn = new MessageButton({
     label: "📈 Ticker",
-    customId: `ticker_view_chart-${params.coinId}-${params.days}`,
+    customId: `ticker_view_chart|${params.coinId}|${params.days}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const infoBtn = new MessageButton({
     label: "🔎 Info",
-    customId: `ticker_view_info-${params.coinId}-${params.days}`,
+    customId: `ticker_view_info|${params.coinId}|${params.days}`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
@@ -400,7 +392,7 @@ export async function handleTickerViews(interaction: ButtonInteraction) {
 
 async function viewTickerChart(interaction: ButtonInteraction, msg: Message) {
   await interaction.deferUpdate()
-  const [coinId, days] = interaction.customId.split("-").slice(1)
+  const [coinId, days] = interaction.customId.split("|").slice(1)
   const { messageOptions } = await composeTickerResponse({
     msg,
     coinId,
@@ -411,7 +403,7 @@ async function viewTickerChart(interaction: ButtonInteraction, msg: Message) {
 
 async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
   await interaction.deferUpdate()
-  const [coinId, days] = interaction.customId.split("-").slice(1)
+  const [coinId, days] = interaction.customId.split("|").slice(1)
   const { messageOptions } = await composeTokenInfoEmbed(msg, coinId, +days)
   await msg.edit(messageOptions)
   await msg.removeAttachments()
@@ -514,7 +506,6 @@ const command: Command = {
       return await composeTickerResponse({
         msg,
         coinId: defaultTicker.data.default_ticker,
-        coinSymbol: defaultTicker.data.query,
       })
     }
 

@@ -142,8 +142,7 @@ async function handleSelecMenuInteraction(interaction: Interaction) {
     // no ephemeral so no need to respond to interaction
     output = <Message>await i.deferUpdate({ fetchReply: true })
   } else {
-    // in fact this case should never happen
-    return
+    output = <Message>i.message
   }
 
   if (ephemeralMessage?.buttonCollector) {
@@ -167,7 +166,6 @@ async function handleSelecMenuInteraction(interaction: Interaction) {
     interaction: i,
     messageId: output?.id,
   })
-  i
   await msg.edit(messageOptions).catch(() => null)
 }
 
