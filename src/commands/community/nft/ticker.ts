@@ -27,6 +27,7 @@ import {
   emojis,
   getEmoji,
   getEmojiURL,
+  getMarketplaceCollectionUrl,
   roundFloatNumber,
   shortenHashOrAddress,
 } from "utils/common"
@@ -175,21 +176,24 @@ async function composeCollectionInfoEmbed(
   }
   const symbol = `${data.symbol?.toUpperCase() ?? "-"}`
   const address = data.address
-    ? `\`${shortenHashOrAddress(data.address)}\``
+    ? `[${shortenHashOrAddress(data.address)}](${getMarketplaceCollectionUrl(
+        data.address
+      )})`
     : "-"
   const name = `${data.name ?? "-"}`
   const desc = `${data.description ?? "-"}`
-  const discord = data.discord ? `[Link](${data.discord})` : "-"
-  const twitter = data.twitter ? `[Link](${data.twitter})` : "-"
-  const website = data.website ? `[Link](${data.website})` : "-"
+  const discord = data.discord
+    ? `[${getEmoji("discord")}](${data.discord})`
+    : ""
+  const twitter = data.twitter
+    ? `[${getEmoji("twitter")}](${data.twitter})`
+    : ""
+  const website = data.website ? `[🌐](${data.website})` : ""
+  const more = `${discord} ${twitter} ${website}`
   const ercFormat = `${data.erc_format ?? "-"}`
   const marketplaces = data.marketplaces
     ? data.marketplaces.map((m: string) => getEmoji(m)).join(" ")
     : "-"
-  let createdTime = "-"
-  if (data.created_at) {
-    createdTime = dayjs(data.created_at).format("DD/MM/YYYY")
-  }
   const fields = [
     {
       name: "Symbol",
@@ -212,20 +216,8 @@ async function composeCollectionInfoEmbed(
       value: ercFormat,
     },
     {
-      name: "Created at",
-      value: createdTime,
-    },
-    {
-      name: `Website`,
-      value: website,
-    },
-    {
-      name: `Discord`,
-      value: discord,
-    },
-    {
-      name: `Twitter`,
-      value: twitter,
+      name: "Find More",
+      value: more,
     },
   ].map((f: EmbedFieldData) => ({
     ...f,

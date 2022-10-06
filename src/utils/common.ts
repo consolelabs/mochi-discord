@@ -168,6 +168,8 @@ export const emojis: { [key: string]: string } = {
   PREDICTION: "931194309385003058",
   FELLOWSHIP: "922044644928421888",
   TRADE: "1026414280498757652",
+  DISCORD: "1027525031451967498",
+  TWITTER: "1027525033280680026",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
