@@ -9,7 +9,6 @@ import {
   Message,
   Interaction,
   CommandInteraction,
-  Permissions,
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import CommandChoiceManager from "utils/CommandChoiceManager"
@@ -20,6 +19,7 @@ import community from "adapters/community"
 import { wrapError } from "utils/wrapError"
 import { handleTickerViews } from "commands/defi/ticker"
 import { handleNFTTickerViews } from "commands/community/nft/ticker"
+import { hasAdministrator } from "utils/common"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -52,10 +52,8 @@ async function handleCommandInteraction(interaction: Interaction) {
     await i.reply({ embeds: [getErrorEmbed({})] })
     return
   }
-  if (
-    command.onlyAdministrator &&
-    !i.memberPermissions?.has(Permissions.FLAGS.ADMINISTRATOR)
-  ) {
+  const gMember = interaction?.guild?.members.cache.get(interaction?.user.id)
+  if (command.onlyAdministrator && !hasAdministrator(gMember)) {
     await i.reply({
       embeds: [
         getErrorEmbed({
