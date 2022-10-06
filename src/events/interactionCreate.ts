@@ -19,6 +19,7 @@ import community from "adapters/community"
 import { wrapError } from "utils/wrapError"
 import { handleTickerViews } from "commands/defi/ticker"
 import { handleNFTTickerViews } from "commands/community/nft/ticker"
+import { hasAdministrator } from "utils/common"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -49,6 +50,19 @@ async function handleCommandInteraction(interaction: Interaction) {
   const command = slashCommands[i.commandName]
   if (!command) {
     await i.reply({ embeds: [getErrorEmbed({})] })
+    return
+  }
+  const gMember = interaction?.guild?.members.cache.get(interaction?.user.id)
+  if (command.onlyAdministrator && !hasAdministrator(gMember)) {
+    await i.reply({
+      embeds: [
+        getErrorEmbed({
+          title: "Insufficient permissions",
+          description:
+            "Only Administrators of this server can run this command.",
+        }),
+      ],
+    })
     return
   }
   await i.deferReply({ ephemeral: command?.ephemeral })
