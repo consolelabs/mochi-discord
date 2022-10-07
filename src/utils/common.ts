@@ -170,6 +170,7 @@ export const emojis: { [key: string]: string } = {
   TRADE: "1026414280498757652",
   DISCORD: "1027525031451967498",
   TWITTER: "1027525033280680026",
+  HORIZONTAL_LINE: "928213014824488990",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
