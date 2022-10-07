@@ -7,7 +7,6 @@ import { MessageTypes } from "discord.js/typings/enums"
 import { handlePlayTripod } from "commands/games/tripod"
 import { DiscordEvent } from "./index"
 import { wrapError } from "utils/wrapError"
-import { handleReplyTradeOffer } from "commands/community/trade"
 
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
@@ -47,8 +46,6 @@ const events: DiscordEvent<"messageCreate"> = {
         // disable previous command choice handler before executing new command
         const key = `${message.author.id}_${message.guildId}_${message.channelId}`
         CommandChoiceManager.remove(key)
-        const isTradeInput = await handleReplyTradeOffer(message)
-        if (isTradeInput) return
         await handlePrefixedCommand(message)
         return
       }

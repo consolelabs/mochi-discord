@@ -1,55 +1,50 @@
 import {
-  EmbedFieldData,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
   MessageOptions,
+  User,
 } from "discord.js"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
 
-type UserA = {
+export type TradeRequest = {
+  offerItems: Set<string>
+  wantItems: Set<string>
+}
+
+export type UserA = {
   id: string
   tag: string
   avatar: string | null
-  offerItems: Set<string>
-  wantItems?: Set<string>
   confirmed: boolean
   cancelled: boolean
 }
 
-type UserB = {
+export type UserB = {
   id: string
   tag: string
-  offerItems: Set<string>
   confirmed: boolean
   cancelled: boolean
 }
 
-export type SessionData =
-  | {
-      threadId: string
-      state: "waiting"
-      userA: UserA
-      userB?: UserB
-    }
-  | {
-      threadId: string
-      state: "trading" | "done" | "cancelled"
-      userA: UserA
-      userB: UserB
-    }
+export type SessionData = {
+  threadId: string
+  state: "trading" | "done" | "cancelled"
+  userB: UserB
+} & TradeRequest
 
 type UserData = {
-  // trade id -> session data
-  threads: Map<string, SessionData>
-  // message id -> items id
-  offeringItemsId: Map<string, Set<string>>
+  userA: UserA
+  // list of deals opened by user A, waiting for anyone to submit offer
+  tradeRequests: Map<string, TradeRequest>
+  // list of trading deals
+  tradingDeals: Map<string, SessionData>
 }
 
 // user id -> UserData
 export const session = new Map<string, UserData>()
 
-const components = [
+const inSessionComponents = [
   new MessageActionRow().addComponents([
     new MessageButton()
       .setCustomId("trade-cancel")
@@ -62,115 +57,84 @@ const components = [
   ]),
 ]
 
-export function renderUI(userId: string, tradeId: string): any | null {
-  const userData = session.get(userId)
-  if (!userData) return null
+const getBeforeSessionComponents = (userId: string, requestId: string) => [
+  new MessageActionRow().addComponents([
+    new MessageButton()
+      .setCustomId(`trade-offer_${userId}_${requestId}`)
+      .setLabel("Offer")
+      .setStyle("SECONDARY")
+      .setEmoji("👋"),
+  ]),
+]
 
-  const sessionData = userData.threads.get(tradeId)
+type RenderTradeRequestParams = {
+  user: User
+  requestId: string
+  request: TradeRequest
+}
+
+export function renderTradeRequest(params: RenderTradeRequestParams) {
+  const { user, requestId, request } = params
+
+  return {
+    content: `> ${user} **wants to trade**`,
+    embeds: [
+      new MessageEmbed({
+        color: "#379c6f" as any,
+        author: {
+          name: "Trade Request",
+        },
+        thumbnail: {
+          url: getEmojiURL(emojis["TRADE"]),
+        },
+        description: `${user}'s items are open for trade, click button to submit your offer.`,
+        fields: [
+          {
+            name: "Have",
+            value: `\n${Array.from(request.offerItems.values() ?? [])
+              .map((i) => `> [${i}](https://getmochi.co)`)
+              .join("\n")}`,
+            inline: true,
+          },
+          {
+            name: "Want",
+            value: `\n${Array.from(request.wantItems?.values() ?? [])
+              .map((i) => `> [${i}](https://getmochi.co)`)
+              .join("\n")}`,
+            inline: true,
+          },
+        ],
+        footer: {
+          text: user.tag,
+          iconURL: user.avatarURL() ?? "",
+        },
+      }).setTimestamp(),
+    ],
+    components: getBeforeSessionComponents(user.id, requestId),
+  }
+}
+
+type RenderTradeParams = {
+  tradeId: string
+  userData: UserData
+}
+
+export function renderTrade(params: RenderTradeParams): any | null {
+  const { userData, tradeId } = params
+
+  const sessionData = userData.tradingDeals.get(tradeId)
   if (!sessionData) return null
 
-  const { userA, userB, state } = sessionData
+  const { userA } = userData
+  const { userB, state, offerItems, wantItems } = sessionData
 
   let description = ""
-  if (state === "waiting") {
-    description = `<@${userA.id}>'s items are open for trade, reply ${
-      (userA.wantItems?.size ?? 0) > 0 ? "`$offer`" : "`$offer <item>`"
-    } to this message to submit your offer.`
-  } else if (state === "trading") {
+  if (state === "trading") {
     description = `Deal will auto-cancel after 1 hour of inactivity.`
   } else if (state === "done") {
     description = "Trade finished"
   } else {
     description = "Trade cancelled"
-  }
-
-  let fields: Array<EmbedFieldData> = []
-  if (state === "waiting") {
-    fields = [
-      {
-        name: "Have",
-        value: `${
-          (userA.offerItems?.size ?? 0) > 0
-            ? `\n${Array.from(userA.offerItems?.values() ?? [])
-                .map((i) => `> [${i}](https://getmochi.co)`)
-                .join("\n")}`
-            : ``
-        }`,
-        inline: true,
-      },
-      {
-        name: "Want",
-        value: `${`\n${Array.from(userA.wantItems?.values() ?? [])
-          .map((i) => `> [${i}](https://getmochi.co)`)
-          .join("\n")}`}`,
-        inline: true,
-      },
-      {
-        name: "Accept Platform",
-        value: [
-          "988748731857911878",
-          "1024207812395544617",
-          "1024207718338281514",
-          "992327591220490350",
-          "1007236418164236298",
-        ]
-          .map((e) => `<:_:${e}>`)
-          .join(" "),
-        inline: true,
-      },
-    ]
-  } else {
-    fields = [
-      {
-        name: `${
-          userA.cancelled
-            ? `${getEmoji("revoke")} `
-            : userA.confirmed
-            ? `${getEmoji("approve")} `
-            : ""
-        }**${userA.tag}**`,
-        value: `${
-          userA.offerItems.size > 0
-            ? `\n${Array.from(userA.offerItems.values())
-                .map((i) => `> [${i}](https://getmochi.co)`)
-                .join("\n")}`
-            : ``
-        }`,
-        inline: true,
-      },
-      {
-        name: `${
-          userB.cancelled
-            ? `${getEmoji("revoke")} `
-            : userB.confirmed
-            ? `${getEmoji("approve")} `
-            : ""
-        }**${userB.tag}**`,
-        value: `${
-          (userA.wantItems?.size ?? 0) > 0
-            ? `\n${Array.from(userA.wantItems?.values() ?? [])
-                .map((i) => `> [${i}](https://getmochi.co)`)
-                .join("\n")}`
-            : `\n${Array.from(userB.offerItems.values())
-                .map((i) => `> [${i}](https://getmochi.co)`)
-                .join("\n")}`
-        }`,
-        inline: true,
-      },
-      {
-        name: "Accept Platform",
-        value: [
-          "988748731857911878",
-          "1024207812395544617",
-          "1024207718338281514",
-          "992327591220490350",
-          "1007236418164236298",
-        ]
-          .map((e) => `<:_:${e}>`)
-          .join(" "),
-        inline: true,
-      },
-    ]
   }
 
   const options: MessageOptions = {
@@ -190,14 +154,51 @@ export function renderUI(userId: string, tradeId: string): any | null {
           url: getEmojiURL(emojis["TRADE"]),
         },
         description,
-        fields,
+        fields: [
+          {
+            name: `${
+              userA.cancelled
+                ? `${getEmoji("revoke")} `
+                : userA.confirmed
+                ? `${getEmoji("approve")} `
+                : ""
+            }**${userA.tag}**`,
+            value: `${
+              offerItems.size > 0
+                ? `\n${Array.from(offerItems.values())
+                    .map((i) => `> [${i}](https://getmochi.co)`)
+                    .join("\n")}`
+                : ``
+            }`,
+            inline: true,
+          },
+          {
+            name: `${
+              userB.cancelled
+                ? `${getEmoji("revoke")} `
+                : userB.confirmed
+                ? `${getEmoji("approve")} `
+                : ""
+            }**${userB.tag}**`,
+            value: `${
+              (wantItems.size ?? 0) > 0
+                ? `\n${Array.from(wantItems.values() ?? [])
+                    .map((i) => `> [${i}](https://getmochi.co)`)
+                    .join("\n")}`
+                : `\n${Array.from(offerItems.values())
+                    .map((i) => `> [${i}](https://getmochi.co)`)
+                    .join("\n")}`
+            }`,
+            inline: true,
+          },
+        ],
         footer: {
           text: userA.tag,
           iconURL: userA.avatar ?? "",
         },
       }).setTimestamp(),
     ],
-    ...(state === "trading" && { components }),
+    components: inSessionComponents,
   }
 
   return options

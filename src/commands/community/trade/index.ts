@@ -1,151 +1,160 @@
 import { ChannelType, ThreadAutoArchiveDuration } from "discord-api-types/v9"
-import { DiscordAPIError, Message, ThreadChannel } from "discord.js"
+import {
+  ButtonInteraction,
+  DiscordAPIError,
+  Message,
+  TextChannel,
+  ThreadChannel,
+} from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { CommandError } from "errors"
 import humanId from "human-id"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { renderUI, session, SessionData } from "./utils"
+import {
+  renderTradeRequest,
+  renderTrade,
+  session,
+  SessionData,
+  UserB,
+} from "./utils"
+import type { SetRequired } from "type-fest"
 
-export async function handleReplyTradeOffer(msg: Message): Promise<boolean> {
-  const args = getCommandArguments(msg)
-  if (msg.reference && args[0] === "offer") {
-    const botMsg = await msg.fetchReference()
-    if (botMsg.reference) {
-      const offerMsg = await botMsg.fetchReference()
-      const nonce = String(botMsg.nonce)
-      if (nonce.startsWith("trade_")) {
-        if (msg.channel.type === "GUILD_TEXT") {
-          const channel = msg.channel
-          const nonceParts = nonce.split("_")
-          const userId = offerMsg?.author.id
-          const userTag = offerMsg?.author.tag
-          const tradeId = nonceParts[1]
-          if (!userId || !userTag || !tradeId) return false
-          const userData = session.get(userId)
-          const offerItems = userData?.offeringItemsId.get(tradeId)
-          if (!userData || !offerItems) return false
+type BeginSessionParams = {
+  channel: TextChannel
+  userAid: string
+  userB?: SetRequired<Partial<UserB>, "id" | "tag">
+  requestId: string
+}
 
-          let sessionData = userData.threads.get(tradeId)
-          if (!sessionData) return false
+async function handleBeginSession(params: BeginSessionParams) {
+  const { userB, channel, userAid, requestId } = params
 
-          let thread: ThreadChannel
-          try {
-            // try to create a private thread
-            thread = await channel.threads.create({
-              name: tradeId,
-              type: ChannelType.GuildPrivateThread,
-              autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
-            })
-          } catch (e: any) {
-            if (e instanceof DiscordAPIError) {
-              // nitro level too low -> create public thread
-              if (e.code === 20035) {
-                thread = await channel.threads.create({
-                  name: tradeId,
-                  autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
-                })
-              } else {
-                return false
-              }
-            } else {
-              return false
-            }
-          }
+  if (!userB?.id || !userB?.tag) return
+  const userData = session.get(userAid)
+  if (!userData) return
+  const { userA, tradeRequests } = userData
+  const request = tradeRequests.get(requestId)
+  if (!request) return
+  const { wantItems, offerItems } = request
 
-          const data: SessionData = {
-            threadId: thread.id,
-            state: "trading",
-            userA: {
-              ...sessionData?.userA,
-              id: userId,
-              tag: userTag,
-              avatar: offerMsg.author.avatarURL(),
-              offerItems,
-              confirmed: false,
-              cancelled: false,
-            },
-            userB: {
-              id: msg.author.id,
-              tag: msg.author.tag,
-              offerItems:
-                offerItems.size > 0
-                  ? new Set(offerItems)
-                  : new Set((args[1] ?? "").split(",")),
-              confirmed: false,
-              cancelled: false,
-            },
-          }
-
-          userData.threads.set(tradeId, data)
-
-          const ui = renderUI(userId, tradeId)
-
-          const confirmMsg = await thread.send(ui)
-
-          await thread.members.add(userId)
-          await thread.members.add(msg.author.id)
-
-          await thread.send(
-            `${msg.author}, <@${userId}>, click confirm once you're done with your transaction.`
-          )
-
-          const collector = confirmMsg.createMessageComponentCollector({
-            filter: (i) =>
-              i.customId === "trade-confirm" || i.customId === "trade-cancel",
-            componentType: MessageComponentTypes.BUTTON,
-            time: 1800000,
-          })
-
-          collector.on("collect", async (i) => {
-            await i.deferUpdate()
-            const isConfirm = i.customId === "trade-confirm"
-            const isCancel = i.customId === "trade-cancel"
-
-            userData.threads.set(tradeId, {
-              ...data,
-              userA: {
-                ...data.userA,
-                confirmed:
-                  sessionData?.userA.confirmed ||
-                  (isConfirm && i.user.id === data.userA.id),
-                cancelled:
-                  sessionData?.userA.cancelled ||
-                  (isCancel && i.user.id === data.userA.id),
-              },
-              userB: {
-                ...data.userB,
-                confirmed:
-                  sessionData?.userB?.confirmed ||
-                  (isConfirm && i.user.id === data.userB?.id),
-                cancelled:
-                  sessionData?.userB?.cancelled ||
-                  (isCancel && i.user.id === data.userB?.id),
-              },
-              state: "done",
-            })
-
-            const ui = renderUI(userId, tradeId)
-
-            await i.editReply(ui)
-
-            sessionData = userData.threads.get(tradeId)
-            if (
-              (sessionData?.userA.confirmed && sessionData?.userB?.confirmed) ||
-              sessionData?.userA.cancelled ||
-              sessionData?.userB?.cancelled
-            ) {
-              await thread.setLocked(true)
-              await thread.setArchived(true)
-            }
-          })
-        }
-
-        return true
+  const tradeId = humanId({ capitalize: false, separator: "-" })
+  let thread: ThreadChannel
+  try {
+    // try to create a private thread
+    thread = await channel.threads.create({
+      name: tradeId,
+      type: ChannelType.GuildPrivateThread,
+      autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
+    })
+  } catch (e: any) {
+    if (e instanceof DiscordAPIError) {
+      // nitro level too low -> create public thread
+      if (e.code === 20035) {
+        thread = await channel.threads.create({
+          name: tradeId,
+          autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
+        })
+      } else {
+        return false
       }
+    } else {
+      return false
     }
   }
-  return false
+
+  const data: SessionData = {
+    threadId: thread.id,
+    state: "trading",
+    offerItems: new Set(offerItems),
+    wantItems: new Set(wantItems),
+    userB: {
+      ...userB,
+      confirmed: false,
+      cancelled: false,
+    },
+  }
+
+  userData.tradingDeals.set(tradeId, data)
+
+  const ui = renderTrade({ userData, tradeId })
+
+  const confirmMsg = await thread.send(ui)
+
+  await thread.members.add(userA.id)
+  await thread.members.add(userB.id)
+
+  await thread.send(
+    `> <@${userB.id}>, <@${userA.id}>, click confirm once you're done with your transaction.`
+  )
+
+  const collector = confirmMsg.createMessageComponentCollector({
+    filter: (i) =>
+      i.customId === "trade-confirm" || i.customId === "trade-cancel",
+    componentType: MessageComponentTypes.BUTTON,
+    time: 1800000,
+  })
+
+  collector.on("collect", async (i) => {
+    await i.deferUpdate()
+    const isConfirm = i.customId === "trade-confirm"
+    const isCancel = i.customId === "trade-cancel"
+    const data = userData.tradingDeals.get(tradeId)
+    if (!data) return
+
+    const newData: SessionData = {
+      ...data,
+      userB: {
+        ...data.userB,
+        confirmed:
+          data.userB?.confirmed || (isConfirm && i.user.id === data.userB?.id),
+        cancelled:
+          data.userB?.cancelled || (isCancel && i.user.id === data.userB?.id),
+      },
+      state: "done",
+    }
+
+    userData.userA = {
+      ...userA,
+      confirmed: userA.confirmed || (isConfirm && i.user.id === userA.id),
+      cancelled: userA.cancelled || (isCancel && i.user.id === userA.id),
+    }
+    userData.tradingDeals.set(tradeId, newData)
+
+    const ui = renderTrade({ userData, tradeId })
+
+    await i.editReply(ui)
+
+    if (
+      (userData.userA.confirmed && newData.userB.confirmed) ||
+      userData.userA.cancelled ||
+      newData.userB?.cancelled
+    ) {
+      await thread.setLocked(true)
+      await thread.setArchived(true)
+    }
+  })
+}
+
+export async function handleButtonOffer(i: ButtonInteraction) {
+  await i.deferUpdate()
+  const msg = i.message as Message
+  if (msg.channel.type === "GUILD_TEXT") {
+    const [, userAid, requestId] = i.customId.split("_")
+    const member = await i.guild?.members.fetch(userAid).catch(() => null)
+    if (!member) return
+    const channel = msg.channel
+
+    await handleBeginSession({
+      channel,
+      userAid,
+      requestId,
+      userB: {
+        id: i.user.id,
+        tag: i.user.tag,
+      },
+    })
+  }
 }
 
 const command: Command = {
@@ -165,69 +174,34 @@ const command: Command = {
     const wantItems = new Set((args[2] ?? "").split(","))
 
     const userA = msg.author
-    if (
-      Array.from(offerItems.values()).some((i) =>
-        session.get(userA.id)?.offeringItemsId?.has(i)
-      )
-    ) {
-      throw new CommandError({
-        message: msg,
-        description: "Item already in offer list",
-      })
+
+    const userData = session.get(userA.id)
+    const request = {
+      offerItems,
+      wantItems,
     }
 
-    const tradeId = humanId({
-      capitalize: false,
-      separator: "-",
-      adjectiveCount: 0,
-    })
-    const userData = session.get(userA.id)
+    const requestId = humanId({ capitalize: false, separator: "-" })
     if (!userData) {
       session.set(userA.id, {
-        threads: new Map<string, SessionData>([
-          [
-            tradeId,
-            {
-              threadId: "",
-              userA: {
-                id: msg.author.id,
-                tag: msg.author.tag,
-                avatar: msg.author.avatarURL(),
-                offerItems,
-                wantItems,
-                confirmed: false,
-                cancelled: false,
-              },
-              state: "waiting",
-            },
-          ],
-        ]),
-        offeringItemsId: new Map([[tradeId, new Set(offerItems)]]),
-      })
-    } else {
-      userData.threads.set(tradeId, {
-        threadId: "",
         userA: {
-          id: msg.author.id,
-          tag: msg.author.tag,
-          avatar: msg.author.avatarURL(),
-          offerItems,
-          wantItems,
+          id: userA.id,
+          tag: userA.tag,
+          avatar: userA.avatarURL(),
           confirmed: false,
           cancelled: false,
         },
-        state: "waiting",
+        tradeRequests: new Map([[requestId, request]]),
+        tradingDeals: new Map(),
       })
-      userData.offeringItemsId.set(tradeId, new Set(offerItems))
+    } else {
+      userData.tradeRequests.set(requestId, request)
     }
 
-    const ui = renderUI(msg.author.id, tradeId)
+    const ui = renderTradeRequest({ user: msg.author, requestId, request })
 
     return {
-      messageOptions: {
-        ...ui,
-        nonce: `trade_${tradeId}`,
-      },
+      messageOptions: ui,
     }
   },
   colorType: "Defi",
