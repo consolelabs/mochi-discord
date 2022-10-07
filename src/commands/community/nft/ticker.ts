@@ -19,6 +19,7 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   getExitButton,
+  getSuccessEmbed,
   justifyEmbedFields,
 } from "utils/discordEmbed"
 import community from "adapters/community"
@@ -28,12 +29,16 @@ import {
   getEmoji,
   getEmojiURL,
   getMarketplaceCollectionUrl,
+  hasAdministrator,
   roundFloatNumber,
   shortenHashOrAddress,
 } from "utils/common"
 import { renderChartImage } from "utils/canvas"
 import dayjs from "dayjs"
-import { CommandChoiceHandler } from "utils/CommandChoiceManager"
+import {
+  CommandChoiceHandler,
+  EphemeralMessage,
+} from "utils/CommandChoiceManager"
 import { APIError } from "errors"
 import {
   ResponseCollectionSuggestions,
@@ -41,6 +46,7 @@ import {
   ResponseIndexerPrice,
 } from "types/api"
 import { CommandError } from "errors"
+import config from "adapters/config"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
 const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
@@ -122,12 +128,12 @@ async function viewTickerInfo(
 
 function composeTickerSelectionResponse(
   suggestions: ResponseCollectionSuggestions[],
-  symbol: string,
+  query: string,
   msg: Message
 ) {
   const opt = (s: ResponseCollectionSuggestions): MessageSelectOptionData => ({
     label: `${s.name} (${s.symbol})`,
-    value: `${s.address}_${s.chain}_${msg.author.id}`,
+    value: `${query}_${s.name}_${s.symbol}_${s.address}_${s.chain}_${s.chain_id}_${msg.author.id}`,
   })
   const selectRow = composeDiscordSelectionRow({
     customId: "nft_tickers_selection",
@@ -141,7 +147,7 @@ function composeTickerSelectionResponse(
       embeds: [
         composeEmbedMessage(msg, {
           title: `${defaultEmojis.MAG} Multiple collections found`,
-          description: `Multiple collections found for \`${symbol}\`: ${found}.\nPlease select one of the following collection`,
+          description: `Multiple collections found for \`${query}\`: ${found}.\nPlease select one of the following collection`,
         }),
       ],
       components: [selectRow, composeDiscordExitButton(msg.author.id)],
@@ -189,7 +195,10 @@ async function composeCollectionInfoEmbed(
     ? `[${getEmoji("twitter")}](${data.twitter})`
     : ""
   const website = data.website ? `[🌐](${data.website})` : ""
-  const more = `${discord} ${twitter} ${website}`
+  let more = "-"
+  if (discord || twitter || website) {
+    more = `${discord} ${twitter} ${website}`
+  }
   const ercFormat = `${data.erc_format ?? "-"}`
   const marketplaces = data.marketplaces
     ? data.marketplaces.map((m: string) => getEmoji(m)).join(" ")
@@ -480,20 +489,69 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   }
 }
 
+async function setDefaultTicker(i: ButtonInteraction) {
+  const [query, name, symbol, collectionAddress, chainId] =
+    i.customId.split("|")
+  await config.setGuildDefaultNFTTicker({
+    guild_id: i.guildId ?? "",
+    query: query,
+    symbol: symbol,
+    collection_address: collectionAddress,
+    chain_id: +chainId,
+  })
+  const embed = getSuccessEmbed({
+    msg: i.message as Message,
+    title: "Default ticker ENABLED",
+    description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
+  })
+  return { embeds: [embed] }
+}
+
 const tickerSelectionHandler: CommandChoiceHandler = async (
   msgOrInteraction
 ) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
-  await interaction.deferUpdate()
   const { message } = <{ message: Message }>interaction
   const value = interaction.values[0]
-  const [collectionAddress, chain, authorId] = value.split("_")
-  return await composeCollectionTickerEmbed({
-    msg: message,
-    collectionAddress,
-    chain,
-    authorId,
-  })
+  const [query, name, symbol, collectionAddress, chain, chainId, authorId] =
+    value.split("_")
+  const gMember = message.guild?.members.cache.get(
+    authorId ?? message.author.id
+  )
+  // ask admin to set server default ticker
+  let ephemeralMessage: EphemeralMessage | undefined
+  if (hasAdministrator(gMember)) {
+    await interaction.deferReply({ ephemeral: true })
+    const actionRow = new MessageActionRow().addComponents(
+      new MessageButton({
+        customId: `${query}|${name}|${symbol}|${collectionAddress}|${chainId}`,
+        emoji: getEmoji("approve"),
+        style: "PRIMARY",
+        label: "Confirm",
+      })
+    )
+    ephemeralMessage = {
+      embeds: [
+        composeEmbedMessage(message, {
+          title: "Set default nft ticker",
+          description: `Do you want to set **${name}** as your server default nft ticker?\nNo further selection next time use \`$nft ticker\``,
+        }),
+      ],
+      components: [actionRow],
+      buttonCollector: setDefaultTicker,
+    }
+  } else {
+    await interaction.deferUpdate()
+  }
+  return {
+    ...(await composeCollectionTickerEmbed({
+      msg: message,
+      collectionAddress,
+      chain,
+      authorId,
+    })),
+    ephemeralMessage,
+  }
 }
 
 const command: Command = {
@@ -532,6 +590,27 @@ const command: Command = {
         authorId: msg.author.id,
       })
     }
+
+    // if default ticker was set then respond
+    const getDefaultRes = await config.getGuildDefaultNFTTicker({
+      guild_id: msg.guildId ?? "",
+      query: symbol,
+    })
+    if (
+      getDefaultRes.ok &&
+      getDefaultRes.data.address &&
+      getDefaultRes.data.chain_id
+    ) {
+      const { address, chain_id } = getDefaultRes.data
+      return await composeCollectionTickerEmbed({
+        msg,
+        collectionAddress: address,
+        chain: chain_id,
+        authorId: msg.author.id,
+      })
+    }
+
+    // else show selection
     return composeTickerSelectionResponse(suggestions, symbol, msg)
   },
   getHelpMessage: async (msg) => {
