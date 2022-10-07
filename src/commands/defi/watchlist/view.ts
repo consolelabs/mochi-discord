@@ -369,7 +369,7 @@ function collectButton(msg: Message, originMsg: Message) {
       await switchView(i, msg, originMsg)
     })
     .on("end", () => {
-      msg.edit({ components: [] })
+      msg.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -391,11 +391,13 @@ async function switchView(
       ;({ embeds, files, components } = await composeTokenWatchlist(originMsg))
       break
   }
-  await i.editReply({
-    embeds,
-    files,
-    components: components,
-  })
+  await i
+    .editReply({
+      embeds,
+      files,
+      components: components,
+    })
+    .catch(() => null)
 }
 
 async function composeTokenWatchlist(msg: Message) {

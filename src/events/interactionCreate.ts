@@ -20,6 +20,7 @@ import { wrapError } from "utils/wrapError"
 import { handleTickerViews } from "commands/defi/ticker"
 import { handleNFTTickerViews } from "commands/community/nft/ticker"
 import { hasAdministrator } from "utils/common"
+import { handleButtonOffer } from "commands/community/trade"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -216,6 +217,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("nft_ticker_view"):
       await handleNFTTickerViews(i)
+      return
+    case i.customId.startsWith("trade-offer"):
+      await handleButtonOffer(i)
       return
     default:
       return
