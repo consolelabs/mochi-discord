@@ -131,14 +131,40 @@ function composeTickerSelectionResponse(
   query: string,
   msg: Message
 ) {
-  const opt = (s: ResponseCollectionSuggestions): MessageSelectOptionData => ({
-    label: `${s.name} (${s.symbol})`,
-    value: `${query}_${s.name}_${s.symbol}_${s.address}_${s.chain}_${s.chain_id}_${msg.author.id}`,
+  const opt = (
+    s: ResponseCollectionSuggestions
+  ): MessageSelectOptionData | null => {
+    const valueMaxLength = 100
+    const value = `${query}_${s.name}_${s.symbol}_${s.address}_${s.chain}_${s.chain_id}_${msg.author.id}`
+    if (value.length > valueMaxLength) return null
+    return {
+      label: `${s.name} (${s.symbol})`,
+      value,
+    }
+  }
+  const options = suggestions.flatMap((s) => {
+    const option = opt(s)
+    return option ? [option] : []
   })
+
+  if (!options.length) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            title: "Collection not found",
+            description:
+              "The collection is not supported yet. Please contact us for the support. Thank you!",
+          }),
+        ],
+      },
+    }
+  }
+
   const selectRow = composeDiscordSelectionRow({
     customId: "nft_tickers_selection",
     placeholder: "Make a selection",
-    options: suggestions.map(opt),
+    options,
   })
 
   const found = suggestions.map((s) => `**${s.name}** (${s.symbol})`).join(", ")
@@ -494,8 +520,8 @@ async function setDefaultTicker(i: ButtonInteraction) {
     i.customId.split("|")
   await config.setGuildDefaultNFTTicker({
     guild_id: i.guildId ?? "",
-    query: query,
-    symbol: symbol,
+    query,
+    symbol,
     collection_address: collectionAddress,
     chain_id: +chainId,
   })
