@@ -104,7 +104,7 @@ export async function composeNFTDetail(
     collection_address,
     token_id,
     owner,
-    marketplace,
+    marketplace = [],
   } = data
 
   let nftImage = image
@@ -184,37 +184,52 @@ export async function composeNFTDetail(
     .join("\n")
   const txHistoryFields: EmbedFieldData[] = [
     {
+      name: "\u200b",
+      value: getEmoji("horizontal_line").repeat(5),
+    },
+    {
       name: txHistoryTitle,
       value: `${txHistoryValue}`,
     },
   ]
   if (txHistoryValue.length !== 0) embed.addFields(txHistoryFields)
 
-  // Listing fields
-  const listingTitle = `${getEmoji("tip")} Listing On`
-  const listingValue = (marketplace ?? [])
-    .map(({ platform_name = "", item_url = "" }) => {
-      return `${getEmoji(
-        platform_name
-      )} **[${platform_name.toUpperCase()}](${item_url})**`
-    })
-    .join("\n")
+  const firstListing = marketplace[0]
+  const restListing = marketplace.slice(1)
+  const firstHalf = restListing.slice(0, Math.ceil(restListing.length / 2))
+  const secondHalf = restListing.slice(Math.ceil(restListing.length / 2))
+  const renderMarket = (m: any) => {
+    return `[${getEmoji(m.platform_name)} **${capFirst(m.platform_name)}**](${
+      m.item_url
+    })\n${getEmoji("reply")}${getEmoji(m.payment_token)} ${m.listing_price}`
+  }
 
-  const listingPrice = `${getEmoji("MONEY")} Price`
-  const listingPriceValue = (marketplace ?? [])
-    .map(({ listing_price = "", payment_token = "" }) => {
-      return `${listing_price} ${payment_token}`
-    })
-    .join("\n")
   const listingFields: EmbedFieldData[] = [
     {
-      name: listingTitle,
-      value: listingValue,
+      name: "\u200b",
+      value: getEmoji("horizontal_line").repeat(5),
     },
-    {
-      name: listingPrice,
-      value: listingPriceValue,
-    },
+    ...(marketplace.length > 0 && firstListing
+      ? [
+          {
+            name: "Listed on",
+            value: `${renderMarket(firstListing)}\n\n${firstHalf
+              .map(renderMarket)
+              .join("\n\n")}`,
+            inline: true,
+          },
+        ].concat(
+          secondHalf.length > 0
+            ? [
+                {
+                  name: "\u200b",
+                  value: secondHalf.map(renderMarket).join("\n\n"),
+                  inline: true,
+                },
+              ]
+            : []
+        )
+      : []),
   ]
   if (marketplace.length !== 0) embed.addFields(listingFields)
 
