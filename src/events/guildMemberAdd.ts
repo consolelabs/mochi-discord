@@ -208,6 +208,8 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
   const embedTickerEth = await defaultTickerEth()
 
   client.users.fetch(inviteeID).then(async (user) => {
+    if (user.bot) return
+
     const embedVote = await handle(user)
     user
       .createDM()
