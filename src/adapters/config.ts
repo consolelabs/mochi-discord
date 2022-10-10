@@ -23,6 +23,7 @@ import {
   ResponseGetVoteChannelConfigResponse,
   ResponseDataListRoleReactionResponse,
   ResponseGetGuildPruneExcludeResponse,
+  ResponseGetGuildDefaultNftTickerResponse,
 } from "types/api"
 import { TEST } from "env"
 
@@ -443,9 +444,12 @@ class Config extends Fetcher {
   }
 
   public async getGuildLevelRoleConfigs(guildId: string) {
-    return this.jsonFetch(`${API_BASE_URL}/configs/level-roles/${guildId}`, {
-      method: "GET",
-    })
+    return this.jsonFetch<ResponseGetLevelRoleConfigsResponse>(
+      `${API_BASE_URL}/configs/level-roles/${guildId}`,
+      {
+        method: "GET",
+      }
+    )
   }
 
   public async removeGuildLevelRoleConfig(guildId: string, level: number) {
@@ -750,6 +754,31 @@ class Config extends Fetcher {
   }) {
     return await this.jsonFetch(
       `${API_BASE_URL}/configs/default-symbol?guild_id=${params.guild_id}&query=${params.query}`
+    )
+  }
+
+  public async setGuildDefaultNFTTicker(req: {
+    guild_id: string
+    query: string
+    collection_address: string
+    symbol: string
+    chain_id: number
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/default-nft-ticker`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  public async getGuildDefaultNFTTicker(query: {
+    guild_id: string
+    query: string
+  }) {
+    return await this.jsonFetch<ResponseGetGuildDefaultNftTickerResponse>(
+      `${API_BASE_URL}/configs/default-nft-ticker`,
+      {
+        query,
+      }
     )
   }
 

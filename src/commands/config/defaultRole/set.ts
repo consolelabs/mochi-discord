@@ -54,7 +54,7 @@ const command: Command = {
 
     const res = await config.configureDefaultRole(requestData)
     if (res.ok) {
-      description = `Role <@&${requestData.role_id}> is now configured as newcomer's default role`
+      description = `<@&${requestData.role_id}> is now configured as newcomer's default role.`
     } else {
       return {
         messageOptions: {
