@@ -13,10 +13,10 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { list } from "./list"
+import { InteractionHandler } from "utils/InteractionManager"
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const msg = msgOrInteraction as Message
   const [groupId, name] = interaction.values[0].split("|")
@@ -37,12 +37,10 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
         ],
         components: [],
       },
-      commandChoiceOptions: {},
     }
   }
   return {
     messageOptions: { embeds: [getErrorEmbed({})] },
-    commandChoiceOptions: {},
   }
 }
 
@@ -106,10 +104,7 @@ const command: Command = {
           composeDiscordExitButton(msg.author.id),
         ],
       },
-      commandChoiceOptions: {
-        userId: msg.author.id,
-        guildId: msg.guildId,
-        channelId: msg.channelId,
+      interactionOptions: {
         handler,
       },
     }

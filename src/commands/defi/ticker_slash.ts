@@ -30,10 +30,6 @@ import {
 } from "utils/discordEmbed"
 import defi from "adapters/defi"
 import {
-  CommandChoiceHandler,
-  EphemeralMessage,
-} from "utils/CommandChoiceManager"
-import {
   drawRectangle,
   getChartColorConfig,
   renderChartImage,
@@ -47,6 +43,7 @@ import CacheManager from "utils/CacheManager"
 import { APIError, CommandError } from "errors"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
+import { InteractionHandler } from "utils/InteractionManager"
 
 CacheManager.init({
   ttl: 0,
@@ -123,7 +120,7 @@ const getChangePercentage = (change: number) => {
   return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
 }
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   await interaction.deferUpdate()
   const { message } = <{ message: Message }>interaction
@@ -162,54 +159,47 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       ...(chart && { files: [chart] }),
       components: message.components as MessageActionRow[],
     },
-    commandChoiceOptions: {
+    interactionOptions: {
       handler,
-      userId: message.author.id,
-      messageId: message.id,
-      channelId: interaction.channelId,
-      guildId: interaction.guildId,
-      interaction,
     },
   }
 }
 
-const tickerSelectionHandler: CommandChoiceHandler = async (
-  msgOrInteraction
-) => {
+const tickerSelectionHandler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const value = interaction.values[0]
   const [coinId, coinSymbol, coinName, authorId] = value.split("_")
   const gMember = interaction?.guild?.members.cache.get(
     authorId ?? interaction?.user.id
   )
+  // TODO(tuan)
   // ask admin to set server default ticker
-  let ephemeralMessage: EphemeralMessage | undefined
-  if (hasAdministrator(gMember)) {
-    await interaction.deferReply({ ephemeral: true })
-    const actionRow = new MessageActionRow().addComponents(
-      new MessageButton({
-        customId: `${coinId}|${coinSymbol}|${coinName}`,
-        emoji: getEmoji("approve"),
-        style: "PRIMARY",
-        label: "Confirm",
-      })
-    )
-    ephemeralMessage = {
-      embeds: [
-        composeEmbedMessage(null, {
-          title: "Set default ticker",
-          description: `Do you want to set **${coinName}** as your server default ticker?\nNo further selection next time use \`$ticker\``,
-        }),
-      ],
-      components: [actionRow],
-      buttonCollector: setDefaultTicker,
-    }
-  } else {
-    await interaction.deferUpdate()
-  }
+  // let ephemeralMessage: EphemeralMessage | undefined
+  // if (hasAdministrator(gMember)) {
+  //   await interaction.deferReply({ ephemeral: true })
+  //   const actionRow = new MessageActionRow().addComponents(
+  //     new MessageButton({
+  //       customId: `${coinId}|${coinSymbol}|${coinName}`,
+  //       emoji: getEmoji("approve"),
+  //       style: "PRIMARY",
+  //       label: "Confirm",
+  //     })
+  //   )
+  //   ephemeralMessage = {
+  //     embeds: [
+  //       composeEmbedMessage(null, {
+  //         title: "Set default ticker",
+  //         description: `Do you want to set **${coinName}** as your server default ticker?\nNo further selection next time use \`$ticker\``,
+  //       }),
+  //     ],
+  //     components: [actionRow],
+  //     buttonCollector: setDefaultTicker,
+  //   }
+  // } else {
+  //   await interaction.deferUpdate()
+  // }
   return {
     ...(await composeTickerResponse({ coinId, interaction: interaction })),
-    ephemeralMessage,
   }
 }
 
@@ -311,10 +301,7 @@ async function composeTickerResponse({
       embeds: [embed],
       components: [selectRow, buttonRow],
     },
-    commandChoiceOptions: {
-      userId: interaction?.user.id,
-      guildId: interaction?.guildId,
-      channelId: interaction?.channelId,
+    interactionOptions: {
       handler,
     },
   }
@@ -367,10 +354,7 @@ function composeTickerSelectionResponse(
       ],
       components: [selectRow, composeDiscordExitButton(interaction.user.id)],
     },
-    commandChoiceOptions: {
-      userId: interaction.user.id,
-      guildId: interaction.guildId,
-      channelId: interaction.channelId,
+    interactionOptions: {
       handler: tickerSelectionHandler,
     },
   }

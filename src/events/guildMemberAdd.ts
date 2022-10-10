@@ -20,7 +20,6 @@ import {
 import { getChartColorConfig, renderChartImage } from "utils/canvas"
 import { HexColorString, User, MessageAttachment } from "discord.js"
 import Community from "adapters/community"
-import { EphemeralMessage } from "utils/CommandChoiceManager"
 import { PREFIX } from "utils/constants"
 import { wrapError } from "utils/wrapError"
 
@@ -391,7 +390,6 @@ async function handle(user: User): Promise<Discord.MessageEmbed> {
 }
 
 async function defaultTickerEth() {
-  let ephemeralMessage: EphemeralMessage | undefined
   const {
     ok,
     data: coin,
@@ -462,6 +460,5 @@ async function defaultTickerEth() {
       ...(chart && { files: [chart] }),
       embeds: [embed],
     },
-    ephemeralMessage,
   }
 }

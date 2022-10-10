@@ -12,15 +12,15 @@ import {
   composeEmbedMessage2,
   getErrorEmbed,
 } from "utils/discordEmbed"
-import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import CacheManager from "utils/CacheManager"
 import { handleUpdateWlError } from "."
 import { ResponseCollectionSuggestions } from "types/api"
+import { InteractionHandler } from "utils/InteractionManager"
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const value = interaction.values[0]
   const [symbol, address, chain, userId] = value.split("_")
@@ -123,10 +123,7 @@ const command: SlashCommand = {
         ],
         components: [selectRow, composeDiscordExitButton(interaction.user.id)],
       },
-      commandChoiceOptions: {
-        userId: interaction.user.id,
-        guildId: interaction.guildId,
-        channelId: interaction.channelId,
+      interactionOptions: {
         handler,
       },
     }

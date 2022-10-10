@@ -6,10 +6,6 @@ import {
   Message,
 } from "discord.js"
 import {
-  CommandChoiceHandler,
-  CommandChoiceHandlerResult,
-} from "utils/CommandChoiceManager"
-import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
   composeEmbedMessage,
@@ -17,6 +13,10 @@ import {
 import Community from "adapters/community"
 import { GuildIdNotFoundError } from "errors"
 import { capFirst } from "utils/common"
+import {
+  InteractionHandler,
+  InteractionHandlerResult,
+} from "utils/InteractionManager"
 
 const countType: Array<string> = [
   "members",
@@ -26,17 +26,15 @@ const countType: Array<string> = [
   "roles",
 ]
 
-const statsSelectionHandler: CommandChoiceHandler = async (
-  msgOrInteraction
-) => {
+const statsSelectionHandler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const id = input.split("_")[0]
-  return await renderStatEmbed(message, id, interaction)
+  return await renderStatEmbed(message, id)
 }
 
-const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
+const countStatsHandler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
@@ -65,9 +63,8 @@ const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
 
 async function renderStatEmbed(
   msg: Message,
-  statId: string,
-  interaction: SelectMenuInteraction
-): Promise<CommandChoiceHandlerResult> {
+  statId: string
+): Promise<InteractionHandlerResult> {
   let statType = ""
   switch (statId) {
     case "members":
@@ -113,12 +110,8 @@ async function renderStatEmbed(
       ],
       components: [selectRow, composeDiscordExitButton(msg.author.id)],
     },
-    commandChoiceOptions: {
-      userId: msg.author.id,
-      guildId: msg.guildId || undefined,
-      channelId: msg.channelId,
+    interactionOptions: {
       handler: countStatsHandler,
-      interaction,
     },
   }
 }
@@ -150,10 +143,7 @@ const command: Command = {
         ],
         components: [selectRow, composeDiscordExitButton(msg.author.id)],
       },
-      commandChoiceOptions: {
-        userId: msg.author.id,
-        guildId: msg.guildId ?? "",
-        channelId: msg.channelId,
+      interactionOptions: {
         handler: statsSelectionHandler,
       },
     }

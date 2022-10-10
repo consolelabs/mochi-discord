@@ -10,8 +10,6 @@ import {
   Interaction,
   CommandInteraction,
 } from "discord.js"
-import { MessageComponentTypes } from "discord.js/typings/enums"
-import CommandChoiceManager from "utils/CommandChoiceManager"
 import { DiscordEvent } from "."
 import { getErrorEmbed } from "utils/discordEmbed"
 import CacheManager from "utils/CacheManager"
@@ -21,6 +19,7 @@ import { handleTickerViews } from "commands/defi/ticker"
 import { handleNFTTickerViews } from "commands/community/nft/ticker"
 import { hasAdministrator } from "utils/common"
 import { handleButtonOffer } from "commands/community/trade"
+import InteractionManager from "utils/InteractionManager"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -69,7 +68,7 @@ async function handleCommandInteraction(interaction: Interaction) {
   await i.deferReply({ ephemeral: command?.ephemeral })
   const response = await command.run(i)
   if (!response) return
-  const { messageOptions, commandChoiceOptions } = response
+  const { messageOptions, interactionOptions } = response
   let shouldRemind = await CacheManager.get({
     pool: "vote",
     key: `remind-${i.user.id}-vote-again`,
@@ -95,7 +94,7 @@ async function handleCommandInteraction(interaction: Interaction) {
     // user is already using $vote, no point in reminding
     shouldRemind = false
   }
-  const reply = <Message>await i
+  const msg = await i
     .editReply({
       ...(shouldRemind
         ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
@@ -103,84 +102,29 @@ async function handleCommandInteraction(interaction: Interaction) {
       ...messageOptions,
     })
     .catch(() => null)
-  if (commandChoiceOptions) {
-    CommandChoiceManager.add({
-      ...commandChoiceOptions,
-      messageId: reply.id,
-    })
+  if (interactionOptions && msg) {
+    InteractionManager.add(msg.id, interactionOptions)
   }
 }
 
-async function handleSelecMenuInteraction(interaction: Interaction) {
-  const i = interaction as SelectMenuInteraction
+async function handleSelecMenuInteraction(i: SelectMenuInteraction) {
+  await i.deferUpdate().catch(() => null)
   const msg = i.message as Message
-  const key = `${i.user.id}_${msg.guildId}_${msg.channelId}`
-  const commandChoice = await CommandChoiceManager.get(key)
-  if (!commandChoice || !commandChoice.handler) return
-  if (i.customId === "exit") {
-    await msg
-      .delete()
-      .catch(() => {
-        commandChoice.interaction?.editReply({
-          content: "Exited!",
-          components: [],
-          embeds: [],
-        })
-      })
-      .catch(() => null)
-    CommandChoiceManager.remove(key)
-    return
-  }
+  const oldInteractionOptions = await InteractionManager.get(msg.id)
+  if (!oldInteractionOptions?.handler) return
 
-  const { messageOptions, commandChoiceOptions, ephemeralMessage } =
-    await commandChoice.handler(i)
+  const { messageOptions, interactionOptions, replyMessage } =
+    await oldInteractionOptions.handler(i)
 
-  let output: Message
-  const deferredOrReplied = i.deferred || i.replied
-  if (ephemeralMessage && deferredOrReplied) {
+  if (replyMessage) {
     // already deferred or replied in commandChoice.handler()
     // we do this for long-response command (> 3s) to prevent bot from throwing "Unknown interaction" error
-    output = <Message>await i
-      .editReply({
-        embeds: ephemeralMessage.embeds,
-        components: ephemeralMessage.components,
-      })
-      .catch(() => null)
-  } else if (ephemeralMessage && !deferredOrReplied) {
-    output = <Message>await i.reply({
-      ephemeral: true,
-      fetchReply: true,
-      embeds: ephemeralMessage.embeds,
-      components: ephemeralMessage.components,
-    })
-  } else if (!ephemeralMessage && !deferredOrReplied) {
-    // no ephemeral so no need to respond to interaction
-    output = <Message>await i.deferUpdate({ fetchReply: true })
-  } else {
-    output = <Message>i.message
+    await i.editReply(replyMessage).catch(() => null)
   }
 
-  if (ephemeralMessage?.buttonCollector) {
-    output
-      .createMessageComponentCollector({
-        componentType: MessageComponentTypes.BUTTON,
-      })
-      .on("collect", async (i) => {
-        await i.deferUpdate()
-        const result = await ephemeralMessage.buttonCollector?.(i)
-        if (!result) return
-        i.editReply({
-          embeds: result.embeds,
-          components: result.components ?? [],
-        }).catch(() => null)
-      })
+  if (interactionOptions) {
+    await InteractionManager.update(msg.id, interactionOptions)
   }
-
-  await CommandChoiceManager.update(key, {
-    ...commandChoiceOptions,
-    interaction: i,
-    messageId: output?.id,
-  })
   await msg.edit(messageOptions).catch(() => null)
 }
 
