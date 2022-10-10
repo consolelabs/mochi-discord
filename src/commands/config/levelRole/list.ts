@@ -1,55 +1,50 @@
 import Config from "adapters/config"
+import { APIError, GuildIdNotFoundError } from "errors"
+import { ResponseGetLevelRoleConfigsResponse } from "types/api"
 import { Command } from "types/common"
+import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
+
+function list({ data }: ResponseGetLevelRoleConfigsResponse) {
+  if (data?.length === 0) {
+    return `No level roles found! To set a new one, run \`\`\`$lr <role> <level>\`\`\``
+  }
+  return data
+    ?.map(
+      (item) =>
+        `**Level ${item.level}** - requires \`${
+          item.level_config?.min_xp
+        }\` XP\n${getEmoji("blank")}${getEmoji("reply")} <@&${item.role_id}>`
+    )
+    .join("\n")
+}
 
 const command: Command = {
   id: "lr_list",
   command: "list",
-  brief: "List all active level role configurations",
+  brief: "List all active level roles",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
-    const data = await Config.getGuildLevelRoleConfigs(msg.guildId)
-    if (!data || !data.data?.length) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              title: `${msg.guild.name}'s levelroles configuration`,
-              description:
-                "No configuration found! To set a new one, run `$lr <role> <level>`.",
-            }),
-          ],
-        },
-      }
+    const res = await Config.getGuildLevelRoleConfigs(msg.guildId)
+    if (!res.ok) {
+      throw new APIError({
+        message: msg,
+        curl: res.curl,
+        description: res.log,
+      })
     }
 
-    const description = data.data
-      .map((c: any) => `**Level ${c.level}** - <@&${c.role_id}>`)
-      .join("\n")
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: [
-              `${msg.guild.name}'s levelroles configuration`,
-              msg.guild.iconURL(),
-            ],
-            description,
+            author: [`${msg.guild.name}'s level roles`, msg.guild.iconURL()],
+            description: list(res),
           }),
         ],
       },
