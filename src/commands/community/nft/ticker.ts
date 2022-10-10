@@ -50,6 +50,7 @@ import config from "adapters/config"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
 const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
+let originAuthorId: string
 
 function buildSwitchViewActionRow(
   currentView: string,
@@ -57,19 +58,18 @@ function buildSwitchViewActionRow(
     collectionAddress: string
     chain: string
     days?: number
-    authorId: string
   }
 ) {
-  const { collectionAddress, chain, days = 7, authorId } = params
+  const { collectionAddress, chain, days = 7 } = params
   const tickerButton = new MessageButton({
     label: "📈 Ticker",
-    customId: `nft_ticker_view_chart-${collectionAddress}-${chain}-${days}-${authorId}`,
+    customId: `nft_ticker_view_chart-${collectionAddress}-${chain}-${days}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const nftButton = new MessageButton({
     label: "🔎 Info",
-    customId: `nft_ticker_view_info-${collectionAddress}-${chain}-${days}-${authorId}`,
+    customId: `nft_ticker_view_info-${collectionAddress}-${chain}-${days}`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
@@ -80,29 +80,27 @@ function buildSwitchViewActionRow(
 
 export async function handleNFTTickerViews(interaction: ButtonInteraction) {
   const msg = <Message>interaction.message
-  const [collectionAddress, chain, days, authorId] = interaction.customId
+  const [collectionAddress, chain, days] = interaction.customId
     .split("-")
     .slice(1)
   await interaction.deferUpdate()
-  if (authorId !== interaction.user.id) {
+  if (interaction.user.id !== originAuthorId) {
     return
   }
   if (interaction.customId.startsWith("nft_ticker_view_chart")) {
-    await viewTickerChart(msg, authorId, { collectionAddress, chain, days })
+    await viewTickerChart(msg, { collectionAddress, chain, days })
     return
   }
-  await viewTickerInfo(msg, authorId, { collectionAddress, chain })
+  await viewTickerInfo(msg, { collectionAddress, chain })
 }
 
 async function viewTickerChart(
   msg: Message,
-  authorId: string,
   params: { collectionAddress: string; chain: string; days: string }
 ) {
   const { collectionAddress, chain, days } = params
   const { messageOptions } = await composeCollectionTickerEmbed({
     msg,
-    authorId,
     collectionAddress,
     chain,
     ...(days && { days: +days }),
@@ -112,13 +110,11 @@ async function viewTickerChart(
 
 async function viewTickerInfo(
   msg: Message,
-  authorId: string,
   params: { collectionAddress: string; chain: string }
 ) {
   const { collectionAddress, chain } = params
   const { messageOptions } = await composeCollectionInfoEmbed(
     msg,
-    authorId,
     collectionAddress,
     chain
   )
@@ -135,7 +131,7 @@ function composeTickerSelectionResponse(
     s: ResponseCollectionSuggestions
   ): MessageSelectOptionData | null => {
     const valueMaxLength = 100
-    const value = `${query}_${s.name}_${s.symbol}_${s.address}_${s.chain}_${s.chain_id}_${msg.author.id}`
+    const value = `${query}_${s.name}_${s.symbol}_${s.address}_${s.chain}_${s.chain_id}`
     if (value.length > valueMaxLength) return null
     return {
       label: `${s.name} (${s.symbol})`,
@@ -176,7 +172,7 @@ function composeTickerSelectionResponse(
           description: `Multiple collections found for \`${query}\`: ${found}.\nPlease select one of the following collection`,
         }),
       ],
-      components: [selectRow, composeDiscordExitButton(msg.author.id)],
+      components: [selectRow, composeDiscordExitButton(originAuthorId)],
     },
     commandChoiceOptions: {
       userId: msg.author.id,
@@ -189,7 +185,6 @@ function composeTickerSelectionResponse(
 
 async function composeCollectionInfoEmbed(
   msg: Message,
-  authorId: string,
   collectionAddress: string,
   chain: string
 ) {
@@ -270,8 +265,7 @@ async function composeCollectionInfoEmbed(
   const buttonRow = buildSwitchViewActionRow("info", {
     collectionAddress,
     chain,
-    authorId: authorId,
-  }).addComponents(getExitButton(authorId))
+  }).addComponents(getExitButton(originAuthorId))
   return {
     messageOptions: {
       embeds: [justifyEmbedFields(embed, 3)],
@@ -282,13 +276,11 @@ async function composeCollectionInfoEmbed(
 
 async function composeCollectionTickerEmbed({
   msg,
-  authorId,
   collectionAddress,
   chain,
   days = 30,
 }: {
   msg: Message
-  authorId: string
   collectionAddress: string
   chain: string
   days?: number
@@ -411,9 +403,8 @@ async function composeCollectionTickerEmbed({
   const buttonRow = buildSwitchViewActionRow("ticker", {
     collectionAddress,
     days: days ?? 7,
-    authorId,
     chain,
-  }).addComponents(getExitButton(authorId))
+  }).addComponents(getExitButton(originAuthorId))
   return {
     messageOptions: {
       files: chart ? [chart] : [],
@@ -421,7 +412,7 @@ async function composeCollectionTickerEmbed({
       components: [selectRow, buttonRow],
     },
     commandChoiceOptions: {
-      userId: authorId,
+      userId: msg.author.id,
       guildId: msg.guildId,
       channelId: msg.channelId,
       handler,
@@ -471,6 +462,11 @@ async function renderNftTickerChart({
 const handler: CommandChoiceHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   await interaction.deferUpdate()
+  if (interaction.user.id !== originAuthorId) {
+    return {
+      messageOptions: {},
+    }
+  }
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const [collectionAddress, days] = input.split("_")
@@ -539,11 +535,9 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const value = interaction.values[0]
-  const [query, name, symbol, collectionAddress, chain, chainId, authorId] =
+  const [query, name, symbol, collectionAddress, chain, chainId] =
     value.split("_")
-  const gMember = message.guild?.members.cache.get(
-    authorId ?? message.author.id
-  )
+  const gMember = message.guild?.members.cache.get(interaction.user.id)
   // ask admin to set server default ticker
   let ephemeralMessage: EphemeralMessage | undefined
   if (hasAdministrator(gMember)) {
@@ -568,13 +562,17 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
     }
   } else {
     await interaction.deferUpdate()
+    if (interaction.user.id !== originAuthorId) {
+      return {
+        messageOptions: {},
+      }
+    }
   }
   return {
     ...(await composeCollectionTickerEmbed({
       msg: message,
       collectionAddress,
       chain,
-      authorId,
     })),
     ephemeralMessage,
   }
@@ -588,6 +586,7 @@ const command: Command = {
   run: async function (msg) {
     const args = getCommandArguments(msg)
     const symbol = args[2]
+    originAuthorId = msg.author.id
     const {
       data: suggestions,
       ok,
@@ -613,7 +612,6 @@ const command: Command = {
         msg,
         collectionAddress: suggestions[0].address ?? "",
         chain: suggestions[0].chain ?? "",
-        authorId: msg.author.id,
       })
     }
 
@@ -632,7 +630,6 @@ const command: Command = {
         msg,
         collectionAddress: address,
         chain: chain_id,
-        authorId: msg.author.id,
       })
     }
 
