@@ -417,3 +417,11 @@ export function getChance(percentage: number) {
   if (percentage > 1 && percentage < 100) percentage /= 100
   return Math.random() < percentage
 }
+
+export function getFirstWords(str: string, n: number) {
+  if (!str) return ""
+  const words = str.trim().split(/ +/g)
+  return `${words.slice(0, Math.max(n, 0)).join(" ")} ${
+    words.length > n ? "..." : ""
+  }`
+}

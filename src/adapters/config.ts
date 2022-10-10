@@ -444,9 +444,12 @@ class Config extends Fetcher {
   }
 
   public async getGuildLevelRoleConfigs(guildId: string) {
-    return this.jsonFetch(`${API_BASE_URL}/configs/level-roles/${guildId}`, {
-      method: "GET",
-    })
+    return this.jsonFetch<ResponseGetLevelRoleConfigsResponse>(
+      `${API_BASE_URL}/configs/level-roles/${guildId}`,
+      {
+        method: "GET",
+      }
+    )
   }
 
   public async removeGuildLevelRoleConfig(guildId: string, level: number) {

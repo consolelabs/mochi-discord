@@ -47,7 +47,7 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              title: `${msg.guild.name}'s nftroles configuration`,
+              title: `${msg.guild.name}'s nft roles`,
               description:
                 "No configuration found! To set a new one, run `$lr <role> <level>`.",
             }),
