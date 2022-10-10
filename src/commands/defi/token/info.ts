@@ -10,7 +10,6 @@ import { Command } from "types/common"
 import { Coin } from "types/defi"
 import CacheManager from "utils/CacheManager"
 import { getChartColorConfig } from "utils/canvas"
-import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { getCommandArguments } from "utils/commands"
 import { defaultEmojis } from "utils/common"
 import { PREFIX } from "utils/constants"
@@ -20,6 +19,7 @@ import {
   composeEmbedMessage,
 } from "utils/discordEmbed"
 import TurnDown from "turndown"
+import { InteractionHandler } from "utils/InteractionManager"
 
 async function composeTokenInfoResponse({
   msg,
@@ -89,16 +89,13 @@ function composeTokenInfoSelectionResponse(
       ],
       components: [selectRow, composeDiscordExitButton(msg.author.id)],
     },
-    commandChoiceOptions: {
-      userId: msg.author.id,
-      guildId: msg.guildId,
-      channelId: msg.channelId,
+    interactionOptions: {
       handler: tokenInfoSelectionHandler,
     },
   }
 }
 
-const tokenInfoSelectionHandler: CommandChoiceHandler = async (
+const tokenInfoSelectionHandler: InteractionHandler = async (
   msgOrInteraction
 ) => {
   const interaction = msgOrInteraction as SelectMenuInteraction

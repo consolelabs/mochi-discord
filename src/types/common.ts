@@ -6,11 +6,12 @@ import {
   ColorResolvable,
   CommandInteraction,
   Message,
+  MessageEditOptions,
   MessageOptions,
+  MessagePayload,
   User,
 } from "discord.js"
-import { SetOptional } from "type-fest"
-import { CommandChoiceHandlerOptions } from "utils/CommandChoiceManager"
+import type { InteractionOptions } from "utils/InteractionManager"
 
 // Category of commands
 export type Category = "Profile" | "Defi" | "Config" | "Community" | "Game"
@@ -40,6 +41,12 @@ export type SlashCommandChoiceOption = {
   choices: [string, string][]
 }
 
+export type RunResult<T = MessageOptions | MessageEditOptions> = {
+  messageOptions: T
+  interactionOptions?: InteractionOptions
+  replyMessage?: MessagePayload
+}
+
 export type SlashCommand = {
   name: string
   category: Category
@@ -49,18 +56,9 @@ export type SlashCommand = {
   ) =>
     | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
     | SlashCommandSubcommandBuilder
-  run: (interaction: CommandInteraction) => Promise<
-    | {
-        messageOptions: MessageOptions
-        commandChoiceOptions?: SetOptional<
-          CommandChoiceHandlerOptions,
-          "messageId"
-        >
-      }
-    | void
-    | null
-    | undefined
-  >
+  run: (
+    interaction: CommandInteraction
+  ) => Promise<RunResult<MessageOptions> | void | null | undefined>
   help: (interaction: CommandInteraction) => Promise<MessageOptions>
   ephemeral?: boolean
   colorType: ColorType
@@ -81,18 +79,7 @@ export type Command = {
     msg: Message,
     action?: string,
     isAdmin?: boolean
-  ) => Promise<
-    | {
-        messageOptions: MessageOptions
-        commandChoiceOptions?: SetOptional<
-          CommandChoiceHandlerOptions,
-          "messageId"
-        >
-      }
-    | void
-    | null
-    | undefined
-  >
+  ) => Promise<RunResult<MessageOptions> | void | null | undefined>
   getHelpMessage: (
     msg: Message,
     action?: string,

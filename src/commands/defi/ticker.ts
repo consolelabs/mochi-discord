@@ -31,10 +31,6 @@ import {
 } from "utils/discordEmbed"
 import defi from "adapters/defi"
 import {
-  CommandChoiceHandler,
-  EphemeralMessage,
-} from "utils/CommandChoiceManager"
-import {
   drawRectangle,
   getChartColorConfig,
   renderChartImage,
@@ -47,6 +43,7 @@ import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
 import TurnDown from "turndown"
+import { InteractionHandler } from "utils/InteractionManager"
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -116,7 +113,7 @@ const getChangePercentage = (change: number) => {
   return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
 }
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   await interaction.deferUpdate()
   const { message } = <{ message: Message }>interaction
@@ -155,19 +152,13 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       ...(chart && { files: [chart] }),
       components: message.components as MessageActionRow[],
     },
-    commandChoiceOptions: {
+    interactionHandlerOptions: {
       handler,
-      userId: message.author.id,
-      messageId: message.id,
-      channelId: interaction.channelId,
-      guildId: interaction.guildId,
     },
   }
 }
 
-const tickerSelectionHandler: CommandChoiceHandler = async (
-  msgOrInteraction
-) => {
+const tickerSelectionHandler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const value = interaction.values[0]
@@ -175,34 +166,34 @@ const tickerSelectionHandler: CommandChoiceHandler = async (
   const gMember = message.guild?.members.cache.get(
     authorId ?? message.author.id
   )
+  // TODO(tuan)
   // ask admin to set server default ticker
-  let ephemeralMessage: EphemeralMessage | undefined
-  if (hasAdministrator(gMember)) {
-    await interaction?.deferReply({ ephemeral: true })
-    const actionRow = new MessageActionRow().addComponents(
-      new MessageButton({
-        customId: `${coinId}|${coinSymbol}|${coinName}`,
-        emoji: getEmoji("approve"),
-        style: "PRIMARY",
-        label: "Confirm",
-      })
-    )
-    ephemeralMessage = {
-      embeds: [
-        composeEmbedMessage(message, {
-          title: "Set default ticker",
-          description: `Do you want to set **${coinName}** as your server default ticker?\nNo further selection next time use \`$ticker\``,
-        }),
-      ],
-      components: [actionRow],
-      buttonCollector: setDefaultTicker,
-    }
-  } else {
-    await interaction.deferUpdate()
-  }
+  // let ephemeralMessage: EphemeralMessage | undefined
+  // if (hasAdministrator(gMember)) {
+  //   await interaction?.deferReply({ ephemeral: true })
+  //   const actionRow = new MessageActionRow().addComponents(
+  //     new MessageButton({
+  //       customId: `${coinId}|${coinSymbol}|${coinName}`,
+  //       emoji: getEmoji("approve"),
+  //       style: "PRIMARY",
+  //       label: "Confirm",
+  //     })
+  //   )
+  //   ephemeralMessage = {
+  //     embeds: [
+  //       composeEmbedMessage(message, {
+  //         title: "Set default ticker",
+  //         description: `Do you want to set **${coinName}** as your server default ticker?\nNo further selection next time use \`$ticker\``,
+  //       }),
+  //     ],
+  //     components: [actionRow],
+  //     buttonCollector: setDefaultTicker,
+  //   }
+  // } else {
+  //   await interaction.deferUpdate()
+  // }
   return {
     ...(await composeTickerResponse({ msg: message, coinId })),
-    ephemeralMessage,
   }
 }
 
@@ -298,30 +289,27 @@ async function composeTickerResponse({
       embeds: [embed],
       components: [selectRow, buttonRow],
     },
-    commandChoiceOptions: {
-      userId: msg.author.id,
-      guildId: msg.guildId,
-      channelId: msg.channelId,
+    interactionOptions: {
       handler,
     },
   }
 }
 
-export async function setDefaultTicker(i: ButtonInteraction) {
-  const [coinId, symbol, name] = i.customId.split("|")
-  await config.setGuildDefaultTicker({
-    guild_id: i.guildId ?? "",
-    query: symbol,
-    default_ticker: coinId,
-  })
-  CacheManager.findAndRemove("ticker", `ticker-default-${i.guildId}-${symbol}`)
-  const embed = getSuccessEmbed({
-    msg: i.message as Message,
-    title: "Default ticker ENABLED",
-    description: `Next time your server members use $ticker with \`${symbol}\`, **${name}** will be the default selection`,
-  })
-  return { embeds: [embed] }
-}
+// async function setDefaultTicker(i: ButtonInteraction) {
+//   const [coinId, symbol, name] = i.customId.split("|")
+//   await config.setGuildDefaultTicker({
+//     guild_id: i.guildId ?? "",
+//     query: symbol,
+//     default_ticker: coinId,
+//   })
+//   CacheManager.findAndRemove("ticker", `ticker-default-${i.guildId}-${symbol}`)
+//   const embed = getSuccessEmbed({
+//     msg: i.message as Message,
+//     title: "Default ticker ENABLED",
+//     description: `Next time your server members use $ticker with \`${symbol}\`, **${name}** will be the default selection`,
+//   })
+//   return { embeds: [embed] }
+// }
 
 function composeTickerSelectionResponse(
   coins: Coin[],
@@ -354,10 +342,7 @@ function composeTickerSelectionResponse(
       ],
       components: [selectRow, composeDiscordExitButton(msg.author.id)],
     },
-    commandChoiceOptions: {
-      userId: msg.author.id,
-      guildId: msg.guildId,
-      channelId: msg.channelId,
+    interactionOptions: {
       handler: tickerSelectionHandler,
     },
   }

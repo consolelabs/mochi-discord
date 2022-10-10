@@ -36,10 +36,6 @@ import {
 } from "utils/common"
 import { renderChartImage } from "utils/canvas"
 import dayjs from "dayjs"
-import {
-  CommandChoiceHandler,
-  EphemeralMessage,
-} from "utils/CommandChoiceManager"
 import { APIError } from "errors"
 import {
   ResponseCollectionSuggestions,
@@ -48,6 +44,7 @@ import {
 } from "types/api"
 import { CommandError } from "errors"
 import config from "adapters/config"
+import { InteractionHandler } from "utils/InteractionManager"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
 const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
@@ -86,7 +83,7 @@ export async function handleNFTTickerViews(interaction: ButtonInteraction) {
   const [collectionAddress, chain, days] = interaction.customId
     .split("-")
     .slice(1)
-  await interaction.deferUpdate()
+  await interaction.deferUpdate().catch(() => null)
   if (interaction.user.id !== originAuthorId) {
     return
   }
@@ -177,10 +174,7 @@ function composeTickerSelectionResponse(
       ],
       components: [selectRow, composeDiscordExitButton(originAuthorId)],
     },
-    commandChoiceOptions: {
-      userId: msg.author.id,
-      guildId: msg.guildId,
-      channelId: msg.channelId,
+    interactionOptions: {
       handler: tickerSelectionHandler,
     },
   }
@@ -413,10 +407,7 @@ async function composeCollectionTickerEmbed({
       embeds: [justifyEmbedFields(embed, 3)],
       components: [selectRow, buttonRow],
     },
-    commandChoiceOptions: {
-      userId: msg.author.id,
-      guildId: msg.guildId,
-      channelId: msg.channelId,
+    interactionOptions: {
       handler,
     },
   }
@@ -461,9 +452,9 @@ async function renderNftTickerChart({
   return new MessageAttachment(chart, "chart.png")
 }
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
-  await interaction.deferUpdate()
+  await interaction.deferUpdate().catch(() => null)
   if (interaction.user.id !== originAuthorId) {
     return {
       messageOptions: {},
@@ -502,81 +493,74 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       files: chart ? [chart] : [],
       components: message.components as MessageActionRow[],
     },
-    commandChoiceOptions: {
+    interactionHandlerOptions: {
       handler,
-      userId: message.author.id,
-      messageId: message.id,
-      channelId: interaction.channelId,
-      guildId: interaction.guildId,
-      interaction,
     },
   }
 }
 
-async function setDefaultTicker(i: ButtonInteraction) {
-  const [query, name, symbol, collectionAddress, chainId] =
-    i.customId.split("|")
-  await config.setGuildDefaultNFTTicker({
-    guild_id: i.guildId ?? "",
-    query,
-    symbol,
-    collection_address: collectionAddress,
-    chain_id: +chainId,
-  })
-  const embed = getSuccessEmbed({
-    msg: i.message as Message,
-    title: "Default ticker ENABLED",
-    description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
-  })
-  return { embeds: [embed] }
-}
+// async function setDefaultTicker(i: ButtonInteraction) {
+//   const [query, name, symbol, collectionAddress, chainId] =
+//     i.customId.split("|")
+//   await config.setGuildDefaultNFTTicker({
+//     guild_id: i.guildId ?? "",
+//     query,
+//     symbol,
+//     collection_address: collectionAddress,
+//     chain_id: +chainId,
+//   })
+//   const embed = getSuccessEmbed({
+//     msg: i.message as Message,
+//     title: "Default ticker ENABLED",
+//     description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
+//   })
+//   return { embeds: [embed] }
+// }
 
-const tickerSelectionHandler: CommandChoiceHandler = async (
-  msgOrInteraction
-) => {
+const tickerSelectionHandler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const value = interaction.values[0]
   const [query, name, symbol, collectionAddress, chain, chainId] =
     value.split("_")
   const gMember = message.guild?.members.cache.get(interaction.user.id)
+  // TODO(tuan)
   // ask admin to set server default ticker
-  let ephemeralMessage: EphemeralMessage | undefined
-  if (hasAdministrator(gMember)) {
-    await interaction.deferReply({ ephemeral: true })
-    const actionRow = new MessageActionRow().addComponents(
-      new MessageButton({
-        customId: `${query}|${name}|${symbol}|${collectionAddress}|${chainId}`,
-        emoji: getEmoji("approve"),
-        style: "PRIMARY",
-        label: "Confirm",
-      })
-    )
-    ephemeralMessage = {
-      embeds: [
-        composeEmbedMessage(message, {
-          title: "Set default nft ticker",
-          description: `Do you want to set **${name}** as your server default nft ticker?\nNo further selection next time use \`$nft ticker\``,
-        }),
-      ],
-      components: [actionRow],
-      buttonCollector: setDefaultTicker,
-    }
-  } else {
-    await interaction.deferUpdate()
-    if (interaction.user.id !== originAuthorId) {
-      return {
-        messageOptions: {},
-      }
-    }
-  }
+  // let ephemeralMessage: EphemeralMessage | undefined
+  // if (hasAdministrator(gMember)) {
+  //   await interaction.deferReply({ ephemeral: true })
+  //   const actionRow = new MessageActionRow().addComponents(
+  //     new MessageButton({
+  //       customId: `${query}|${name}|${symbol}|${collectionAddress}|${chainId}`,
+  //       emoji: getEmoji("approve"),
+  //       style: "PRIMARY",
+  //       label: "Confirm",
+  //     })
+  //   )
+  //   ephemeralMessage = {
+  //     embeds: [
+  //       composeEmbedMessage(message, {
+  //         title: "Set default nft ticker",
+  //         description: `Do you want to set **${name}** as your server default nft ticker?\nNo further selection next time use \`$nft ticker\``,
+  //       }),
+  //     ],
+  //     components: [actionRow],
+  //     buttonCollector: setDefaultTicker,
+  //   }
+  // } else {
+  //   await interaction.deferUpdate()
+  //   if (interaction.user.id !== originAuthorId) {
+  //     return {
+  //       messageOptions: {},
+  //     }
+  //   }
+  // }
   return {
     ...(await composeCollectionTickerEmbed({
       msg: message,
       collectionAddress,
       chain,
     })),
-    ephemeralMessage,
   }
 }
 

@@ -61,7 +61,6 @@ import config from "../adapters/config"
 import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
 // import guildCustomCommand from "../adapters/guildCustomCommand"
 // import { customCommandsExecute } from "./customCommand"
-import CommandChoiceManager from "utils/CommandChoiceManager"
 import { Command, Category, SlashCommand } from "types/common"
 import { hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
@@ -72,6 +71,7 @@ import { isAcceptableCmdToHelp } from "./index-utils"
 import FuzzySet from "fuzzyset"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
+import InteractionManager from "utils/InteractionManager"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 
@@ -226,17 +226,14 @@ async function executeCommand(
   // execute command in `commands`
   const runResponse = await commandObject.run(message, action)
   if (runResponse && runResponse.messageOptions) {
-    const output = await message.reply({
+    const msg = await message.reply({
       ...(shouldRemind && Math.random() < 0.3
         ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
         : {}),
       ...runResponse.messageOptions,
     })
-    if (runResponse.commandChoiceOptions) {
-      CommandChoiceManager.add({
-        ...runResponse.commandChoiceOptions,
-        messageId: output.id,
-      })
+    if (runResponse.interactionOptions && msg) {
+      InteractionManager.add(msg.id, runResponse.interactionOptions)
     }
   }
   // send command to server to store
