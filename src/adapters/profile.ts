@@ -1,7 +1,6 @@
 import fetch from "node-fetch"
 import { ResponseGetDataUserProfileResponse } from "types/api"
 import {
-  GetUserNFTResponse,
   GetUserNFTsResponse,
   GetUserNFTCollectionResponse,
 } from "types/profile"
@@ -85,16 +84,6 @@ class Profile extends Fetcher {
           collectionAddresses,
         },
       }
-    )
-  }
-
-  public async getNFTDetails(params: {
-    collectionAddress: string
-    tokenId: string
-  }) {
-    const { collectionAddress, tokenId } = params
-    return await this.jsonFetch<GetUserNFTResponse>(
-      `${INDEXER_API_BASE_URL}/nft/${collectionAddress}/${tokenId}`
     )
   }
 }

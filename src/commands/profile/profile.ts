@@ -484,10 +484,11 @@ async function composeMyNFTEmbed(
   }
 
   const userNft = userNfts[0]
-  const getNftDetailResp = await profile.getNFTDetails({
-    collectionAddress: userNft.collection_address,
-    tokenId: userNft.token_id,
-  })
+  const getNftDetailResp = await community.getNFTDetail(
+    userNft.collection_address,
+    userNft.token_id,
+    msg.guildId ?? ""
+  )
   if (!getNftDetailResp.ok) {
     return {
       embed: getErrorEmbed({

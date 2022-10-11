@@ -26,6 +26,7 @@ import community from "adapters/community"
 import {
   defaultEmojis,
   emojis,
+  getCompactFormatedNumber,
   getEmoji,
   getEmojiURL,
   getMarketplaceCollectionUrl,
@@ -183,7 +184,7 @@ function composeTickerSelectionResponse(
   }
 }
 
-async function composeCollectionInfoEmbed(
+export async function composeCollectionInfoEmbed(
   msg: Message,
   collectionAddress: string,
   chain: string
@@ -331,8 +332,7 @@ async function composeCollectionTickerEmbed({
   const marketcap = floorPriceAmount * (items ?? 0)
   const formatPrice = (amount: number) => {
     if (!amount) return `- ${blank}`
-    const formatter = Intl.NumberFormat("en", { notation: "compact" })
-    return `${formatter.format(amount)}${blank}`
+    return `${getCompactFormatedNumber(amount)}${blank}`
   }
   const getChangePercentage = (changeStr: string | undefined) => {
     const change = changeStr ? +changeStr : 0
