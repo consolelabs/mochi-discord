@@ -6,6 +6,7 @@ import {
   ResponseNftMetadataAttrIconResponse,
   ResponseGetSuggestionNFTCollectionsResponse,
   ResponseGetNFTCollectionByAddressChainResponse,
+  ResponseIndexerGetNFTTokenTickersResponse,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL } from "utils/constants"
@@ -295,6 +296,30 @@ class Community extends Fetcher {
       method: "POST",
       body: JSON.stringify(req),
     })
+  }
+
+  public async getNFTTickers({
+    collectionAddress,
+    tokenId,
+    from,
+    to,
+  }: {
+    collectionAddress: string
+    tokenId: string
+    from: number
+    to: number
+  }) {
+    return await this.jsonFetch<ResponseIndexerGetNFTTokenTickersResponse>(
+      `${API_BASE_URL}/nfts/tickers`,
+      {
+        query: {
+          collectionAddress,
+          tokenId,
+          from,
+          to,
+        },
+      }
+    )
   }
 }
 

@@ -3,7 +3,10 @@ import {
   EmbedFieldData,
   Message,
   MessageActionRow,
+  MessageAttachment,
   MessageButton,
+  MessageComponentInteraction,
+  MessageOptions,
 } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
@@ -22,20 +25,32 @@ import community from "adapters/community"
 import {
   capFirst,
   capitalizeFirst,
+  defaultEmojis,
+  emojis,
+  getCompactFormatedNumber,
   getEmoji,
+  getEmojiURL,
   getMarketplaceCollectionUrl,
   getMarketplaceNftUrl,
   getTimeFromNowStr,
   hasAdministrator,
   isValidHttpUrl,
   maskAddress,
+  roundFloatNumber,
   shortenHashOrAddress,
 } from "utils/common"
 import config from "adapters/config"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { NFTSymbol } from "types/config"
 import { APIError } from "errors"
-import { ResponseNftMetadataAttrIcon } from "types/api"
+import {
+  ResponseIndexerNFTCollectionTickersData,
+  ResponseIndexerPrice,
+  ResponseNftMetadataAttrIcon,
+} from "types/api"
+import { composeCollectionInfoEmbed } from "./ticker"
+import dayjs from "dayjs"
+import { renderChartImage } from "utils/canvas"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -47,6 +62,13 @@ const rarityColors: Record<string, string> = {
 }
 
 let icons: ResponseNftMetadataAttrIcon[]
+
+const filter = (authorId: string) => async (i: MessageComponentInteraction) => {
+  await i.deferUpdate().catch(() => null)
+  return i.user.id === authorId
+}
+
+const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
 
 function getRarityEmoji(rarity: string) {
   const rarities = Object.keys(rarityColors)
@@ -77,6 +99,295 @@ const txHistoryEmojiMap: Record<string, string> = {
   transfer: getEmoji("right_arrow"),
   cancelled: getEmoji("revoke"),
   listing: getEmoji("listing"),
+}
+
+function buildSwitchViewActionRow(
+  currentView: string,
+  symbol: string,
+  collectionAddress: string,
+  tokenId: string,
+  chain: string
+) {
+  const nftButton = new MessageButton({
+    label: "NFT",
+    emoji: emojis.NFT,
+    customId: `nft-view/nft/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
+    style: "SECONDARY",
+    disabled: currentView === "nft",
+  })
+  const tickerButton = new MessageButton({
+    label: "Ticker",
+    emoji: emojis.TICKER,
+    customId: `nft-view/ticker/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
+    style: "SECONDARY",
+    disabled: currentView === "ticker",
+  })
+  const collectionInfoButton = new MessageButton({
+    label: "Collection Info",
+    emoji: emojis.INFO,
+    customId: `nft-view/info/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
+    style: "SECONDARY",
+    disabled: currentView === "info",
+  })
+  const row = new MessageActionRow()
+  row.addComponents([nftButton, tickerButton, collectionInfoButton])
+  return row
+}
+
+function collectButton(msg: Message, originMsg: Message) {
+  return msg
+    .createMessageComponentCollector({
+      componentType: MessageComponentTypes.BUTTON,
+      idle: 60000,
+      filter: filter(originMsg.author.id),
+    })
+    .on("collect", async (i) => {
+      await switchView(i, originMsg)
+    })
+    .on("end", () => {
+      msg.edit({ components: [] }).catch(() => null)
+    })
+}
+
+async function switchView(i: ButtonInteraction, msg: Message) {
+  if (i.customId.startsWith("suggestion-button")) return
+  let messageOptions: MessageOptions
+  const [currentView, symbol, collectionAddress, tokenId, chain] = i.customId
+    .split("/")
+    .slice(1)
+  switch (currentView) {
+    case "info":
+      messageOptions = await composeCollectionInfo(
+        msg,
+        symbol,
+        collectionAddress,
+        tokenId,
+        chain
+      )
+      break
+    case "ticker":
+      messageOptions = await composeNFTTicker(
+        msg,
+        symbol,
+        collectionAddress,
+        tokenId,
+        chain
+      )
+      break
+    case "nft":
+    default:
+      messageOptions = await fetchAndComposeNFTDetail(
+        msg,
+        symbol,
+        collectionAddress,
+        tokenId,
+        chain
+      )
+      break
+  }
+  await i.editReply({ ...messageOptions }).catch(() => null)
+}
+
+async function composeCollectionInfo(
+  msg: Message,
+  symbol: string,
+  collectionAddress: string,
+  tokenId: string,
+  chain: string
+) {
+  const { messageOptions } = await composeCollectionInfoEmbed(
+    msg,
+    collectionAddress,
+    chain
+  )
+  return {
+    ...messageOptions,
+    files: [],
+    components: [
+      buildSwitchViewActionRow(
+        "info",
+        symbol,
+        collectionAddress,
+        tokenId,
+        chain
+      ),
+    ],
+  }
+}
+
+async function renderNftTickerChart(
+  data: ResponseIndexerNFTCollectionTickersData
+) {
+  if (!data?.tickers?.prices || !data?.tickers?.times) {
+    return null
+  }
+  const to = dayjs().unix() * 1000
+  const from = dayjs().subtract(365, "day").unix() * 1000
+  const token = data.last_sale_price?.token?.symbol ?? ""
+  const fromLabel = dayjs(from).format("MMMM DD, YYYY")
+  const toLabel = dayjs(to).format("MMMM DD, YYYY")
+  const chartData = data.tickers.prices.map(
+    (p) => +(p.amount ?? 0) / Math.pow(10, decimals(p))
+  )
+  const chart = await renderChartImage({
+    chartLabel: `Sold price (${token}) | ${fromLabel} - ${toLabel}`,
+    labels: data.tickers.times,
+    data: chartData,
+  })
+  return new MessageAttachment(chart, "chart.png")
+}
+
+// Get nft ticker data for 1 year
+async function composeNFTTicker(
+  msg: Message,
+  symbol: string,
+  collectionAddress: string,
+  tokenId: string,
+  chain: string
+) {
+  const to = dayjs().unix() * 1000
+  const from = dayjs().subtract(365, "day").unix() * 1000
+  const { data, ok, log, curl } = await community.getNFTTickers({
+    collectionAddress,
+    tokenId,
+    from,
+    to,
+  })
+  if (!ok) {
+    throw new APIError({ message: msg, curl: curl, description: log })
+  }
+
+  // collection is not exist, mochi has not added it yet
+  if (!data) {
+    return {
+      embeds: [
+        getErrorEmbed({
+          title: "Collection not found",
+          description:
+            "The collection is not supported yet. Please contact us for the support. Thank you!",
+        }),
+      ],
+    }
+  }
+
+  const {
+    name,
+    image_cdn,
+    price_change_1d,
+    price_change_7d,
+    price_change_30d,
+  } = data
+
+  const getChangePercentage = (changeStr: string | undefined) => {
+    const change = changeStr ? +changeStr : 0
+    const trend =
+      change > 0
+        ? defaultEmojis.CHART_WITH_UPWARDS_TREND
+        : change === 0
+        ? ""
+        : defaultEmojis.CHART_WITH_DOWNWARDS_TREND
+    return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
+  }
+
+  const fields = [
+    {
+      name: "Change (24h)",
+      value: getChangePercentage(price_change_1d),
+    },
+    {
+      name: "Change (7d)",
+      value: getChangePercentage(price_change_7d),
+    },
+    {
+      name: "Change (1M)",
+      value: getChangePercentage(price_change_30d),
+    },
+  ].map((f: EmbedFieldData) => ({
+    ...f,
+    inline: true,
+  }))
+
+  const collectionImage = image_cdn ?? getEmojiURL(emojis["NFTS"])
+  const embed = composeEmbedMessage(msg, {
+    author: [`${name}`, collectionImage],
+    image: "attachment://chart.png",
+  }).addFields(fields)
+
+  const chart = await renderNftTickerChart(data)
+  const switchViewActionRow = buildSwitchViewActionRow(
+    "ticker",
+    symbol,
+    collectionAddress,
+    tokenId,
+    chain
+  )
+  return {
+    files: chart ? [chart] : [],
+    embeds: [justifyEmbedFields(embed, 3)],
+    components: [switchViewActionRow],
+  }
+}
+
+async function fetchAndComposeNFTDetail(
+  msg: Message,
+  symbol: string,
+  collectionAddress: string,
+  tokenId: string,
+  chain: string
+) {
+  const collectionDetailRes = await community.getNFTCollectionDetail(
+    collectionAddress
+  )
+  const res = await community.getNFTDetail(
+    collectionAddress,
+    tokenId,
+    msg.guildId ?? ""
+  )
+  if (!res.ok) {
+    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+  }
+  const addSuggestioncomponents = addSuggestionIfAny(
+    symbol,
+    tokenId,
+    res.suggestions
+  )
+  const switchViewActionRow = buildSwitchViewActionRow(
+    "nft",
+    symbol,
+    collectionAddress,
+    tokenId,
+    chain
+  )
+  if (
+    collectionDetailRes.ok &&
+    res.ok &&
+    collectionDetailRes.data &&
+    res.data
+  ) {
+    return {
+      embeds: [
+        await composeNFTDetail(
+          res.data,
+          msg,
+          collectionDetailRes.data.name,
+          collectionDetailRes.data.image,
+          collectionDetailRes.data.chain?.name
+        ),
+      ],
+      files: [],
+      components: [...addSuggestioncomponents, switchViewActionRow],
+    }
+  }
+  return {
+    embeds: [
+      composeEmbedMessage(msg, {
+        title: "NFT Query",
+        description: "Token not found",
+      }),
+    ],
+    files: [],
+    components: [],
+  }
 }
 
 export async function composeNFTDetail(
@@ -199,9 +510,9 @@ export async function composeNFTDetail(
   const firstHalf = restListing.slice(0, Math.ceil(restListing.length / 2))
   const secondHalf = restListing.slice(Math.ceil(restListing.length / 2))
   const renderMarket = (m: any) => {
-    return `[${getEmoji(m.platform_name)} **${capFirst(m.platform_name)}**](${
-      m.item_url
-    })\n${getEmoji("reply")}${getEmoji(m.payment_token)} ${m.listing_price}`
+    return `[${getEmoji(m.platform_name)}](${m.item_url}) ${getEmoji(
+      m.payment_token
+    )} ${getCompactFormatedNumber(m.listing_price)}`
   }
 
   const listingFields: EmbedFieldData[] = [
@@ -237,11 +548,7 @@ export async function composeNFTDetail(
 }
 
 export async function setDefaultSymbol(i: ButtonInteraction) {
-  await i.deferUpdate()
-  const [colAddress, symbol, chain, authorId] = i.customId.split("|").slice(1)
-  if (authorId !== i.user.id) {
-    return
-  }
+  const [colAddress, symbol, chain] = i.customId.split("|").slice(1)
   if (!i.guildId) {
     return
   }
@@ -283,7 +590,7 @@ function addSuggestionIfAny(
     }))
   )
 
-  return components ? { components: [components] } : {}
+  return components ? [components] : []
 }
 
 const command: Command = {
@@ -301,7 +608,7 @@ const command: Command = {
       .reduce((prev, next) => prev + "%20" + next)
       .toUpperCase()
     const tokenId = args[args.length - 1]
-    let res = await community.getNFTDetail(symbol, tokenId, msg.guildId ?? "")
+    const res = await community.getNFTDetail(symbol, tokenId, msg.guildId ?? "")
 
     if (!res.ok) {
       throw new APIError({ message: msg, curl: res.curl, description: res.log })
@@ -322,54 +629,30 @@ const command: Command = {
               collectionDetailRes.data.chain?.name
             ),
           ],
-          ...addSuggestionIfAny(symbol, tokenId),
+          components: [
+            ...addSuggestionIfAny(symbol, tokenId),
+            buildSwitchViewActionRow(
+              "nft",
+              symbol,
+              res.data.collection_address,
+              tokenId,
+              collectionDetailRes.data.chain?.short_name ?? ""
+            ),
+          ],
         })
       }
     } else {
       // ambiguity, check if there is default_symbol first
       if (res.default_symbol) {
         // there is, so we use its collection address to get
-        const collectionDetailRes = await community.getNFTCollectionDetail(
-          res.default_symbol.address
-        )
-        const components = addSuggestionIfAny(
-          res.default_symbol.symbol,
-          tokenId,
-          res.suggestions
-        )
-        res = await community.getNFTDetail(
+        const messageOptions = await fetchAndComposeNFTDetail(
+          msg,
+          res.default_symbol.name,
           res.default_symbol.address,
           tokenId,
-          msg.guildId ?? ""
+          res.default_symbol.chain
         )
-        if (
-          collectionDetailRes.ok &&
-          res.ok &&
-          collectionDetailRes.data &&
-          res.data
-        ) {
-          replyMsg = await msg.reply({
-            embeds: [
-              await composeNFTDetail(
-                res.data,
-                msg,
-                collectionDetailRes.data.name,
-                collectionDetailRes.data.image,
-                collectionDetailRes.data.chain?.name
-              ),
-            ],
-            ...components,
-          })
-        } else {
-          await msg.reply({
-            embeds: [
-              composeEmbedMessage(msg, {
-                title: "NFT Query",
-                description: "Token not found",
-              }),
-            ],
-          })
-        }
+        replyMsg = await msg.reply({ ...messageOptions })
       } else {
         // there isn't, so we continue to check for the `suggestions` property
         // if there is not any suggestion, return error
@@ -399,7 +682,9 @@ const command: Command = {
 
           replyMsg = await msg.reply({
             embeds: [embed],
-            ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
+            components: [
+              ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
+            ],
           })
         }
       }
@@ -407,6 +692,10 @@ const command: Command = {
 
     if (replyMsg) {
       listenForSuggestionAction(replyMsg, msg.author.id, async (value, i) => {
+        // ignore if user click to switch view button
+        if (i.customId.startsWith("nft-view")) return
+
+        await i.deferUpdate().catch(() => null)
         const [colAddress, tokenId, symbol, chain, hasDuplicatedSymbols] =
           value.split("/")
         const res = await community.getNFTDetail(
@@ -417,7 +706,6 @@ const command: Command = {
         const detailRes = await community.getNFTCollectionDetail(colAddress)
 
         if (!res.ok || !detailRes.ok) {
-          await i.deferUpdate()
           throw new APIError({
             message: msg,
             curl: detailRes.curl,
@@ -432,9 +720,6 @@ const command: Command = {
             !res.default_symbol &&
             hasDuplicatedSymbols === "true"
 
-          if (!shouldAskDefault) {
-            await i.deferUpdate()
-          }
           // the token might not be synced yet
           if (!res.data) {
             await replyMsg
@@ -459,7 +744,16 @@ const command: Command = {
                     detailRes.data.chain?.name
                   ),
                 ],
-                ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
+                components: [
+                  ...addSuggestionIfAny(symbol, tokenId, res.suggestions),
+                  buildSwitchViewActionRow(
+                    "nft",
+                    symbol,
+                    detailRes.data.address,
+                    tokenId,
+                    detailRes.data.chain?.short_name ?? ""
+                  ),
+                ],
               })
               .catch(() => null)
           }
@@ -481,19 +775,22 @@ const command: Command = {
               ],
               components: [actionRow],
             }
-            const interactionReply = (await i.reply({
-              fetchReply: true,
-              ephemeral: true,
-              ...ephemeralMessage,
-            })) as Message
-            const collector = interactionReply.createMessageComponentCollector({
-              componentType: MessageComponentTypes.BUTTON,
-              idle: 60000,
-            })
-            collector.on("collect", setDefaultSymbol)
+            const askDefaultMsg = await msg
+              .reply(ephemeralMessage)
+              .catch(() => null)
+
+            askDefaultMsg
+              ?.createMessageComponentCollector({
+                componentType: MessageComponentTypes.BUTTON,
+                idle: 60000,
+                filter: filter(msg.author.id),
+              })
+              .on("collect", setDefaultSymbol)
           }
         }
       })
+
+      collectButton(replyMsg, msg)
     }
 
     return
