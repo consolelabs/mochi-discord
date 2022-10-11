@@ -150,6 +150,7 @@ function collectButton(msg: Message, originMsg: Message) {
 }
 
 async function switchView(i: ButtonInteraction, msg: Message) {
+  if (i.customId.startsWith("suggestion-button")) return
   let messageOptions: MessageOptions
   const [currentView, symbol, collectionAddress, tokenId, chain] = i.customId
     .split("/")
@@ -547,11 +548,7 @@ export async function composeNFTDetail(
 }
 
 export async function setDefaultSymbol(i: ButtonInteraction) {
-  await i.deferUpdate().catch(() => null)
-  const [colAddress, symbol, chain, authorId] = i.customId.split("|").slice(1)
-  if (authorId !== i.user.id) {
-    return
-  }
+  const [colAddress, symbol, chain] = i.customId.split("|").slice(1)
   if (!i.guildId) {
     return
   }
@@ -698,6 +695,7 @@ const command: Command = {
         // ignore if user click to switch view button
         if (i.customId.startsWith("nft-view")) return
 
+        await i.deferUpdate().catch(() => null)
         const [colAddress, tokenId, symbol, chain, hasDuplicatedSymbols] =
           value.split("/")
         const res = await community.getNFTDetail(
@@ -708,7 +706,6 @@ const command: Command = {
         const detailRes = await community.getNFTCollectionDetail(colAddress)
 
         if (!res.ok || !detailRes.ok) {
-          await i.deferUpdate().catch(() => null)
           throw new APIError({
             message: msg,
             curl: detailRes.curl,
@@ -723,9 +720,6 @@ const command: Command = {
             !res.default_symbol &&
             hasDuplicatedSymbols === "true"
 
-          if (!shouldAskDefault) {
-            await i.deferUpdate().catch(() => null)
-          }
           // the token might not be synced yet
           if (!res.data) {
             await replyMsg
@@ -781,16 +775,17 @@ const command: Command = {
               ],
               components: [actionRow],
             }
-            const interactionReply = (await i.reply({
-              fetchReply: true,
-              ephemeral: true,
-              ...ephemeralMessage,
-            })) as Message
-            const collector = interactionReply.createMessageComponentCollector({
-              componentType: MessageComponentTypes.BUTTON,
-              idle: 60000,
-            })
-            collector.on("collect", setDefaultSymbol)
+            const askDefaultMsg = await msg
+              .reply(ephemeralMessage)
+              .catch(() => null)
+
+            askDefaultMsg
+              ?.createMessageComponentCollector({
+                componentType: MessageComponentTypes.BUTTON,
+                idle: 60000,
+                filter: filter(msg.author.id),
+              })
+              .on("collect", setDefaultSymbol)
           }
         }
       })
