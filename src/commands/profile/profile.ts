@@ -13,7 +13,12 @@ import {
 import { Command } from "types/common"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { PREFIX, PROFILE_GITBOOK } from "utils/constants"
-import { getEmoji, hasAdministrator, shortenHashOrAddress } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  hasAdministrator,
+  shortenHashOrAddress,
+} from "utils/common"
 import { parseDiscordToken, getCommandArguments } from "utils/commands"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import community from "adapters/community"
@@ -29,13 +34,15 @@ const filter = (authorId: string) => async (i: MessageComponentInteraction) => {
 
 function buildSwitchViewActionRow(currentView: string) {
   const myProfileButton = new MessageButton({
-    label: "🪪 My Profile",
+    label: "My Profile",
+    emoji: emojis.IDENTITY,
     customId: `profile-switch-view-button/my-profile}`,
     style: "SECONDARY",
     disabled: currentView === "my-profile",
   })
   const myNftButton = new MessageButton({
-    label: "🖼 My NFT",
+    label: "My NFT",
+    emoji: emojis.NFT,
     customId: `profile-switch-view-button/my-nft`,
     style: "SECONDARY",
     disabled: currentView === "my-nft",
@@ -484,10 +491,11 @@ async function composeMyNFTEmbed(
   }
 
   const userNft = userNfts[0]
-  const getNftDetailResp = await profile.getNFTDetails({
-    collectionAddress: userNft.collection_address,
-    tokenId: userNft.token_id,
-  })
+  const getNftDetailResp = await community.getNFTDetail(
+    userNft.collection_address,
+    userNft.token_id,
+    msg.guildId ?? ""
+  )
   if (!getNftDetailResp.ok) {
     return {
       embed: getErrorEmbed({

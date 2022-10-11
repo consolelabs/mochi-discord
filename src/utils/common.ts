@@ -171,6 +171,11 @@ export const emojis: { [key: string]: string } = {
   DISCORD: "1027525031451967498",
   TWITTER: "1027525033280680026",
   HORIZONTAL_LINE: "928213014824488990",
+  ASSET: "💰",
+  IDENTITY: "🪪",
+  NFT: "🖼",
+  TICKER: "📈",
+  INFO: "🔎",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -424,4 +429,13 @@ export function getFirstWords(str: string, n: number) {
   return `${words.slice(0, Math.max(n, 0)).join(" ")} ${
     words.length > n ? "..." : ""
   }`
+}
+
+/**
+ * Returns the compact formated string
+ * e.g 1_000 -> 1K, 1_000_000 -> 1M
+ */
+export function getCompactFormatedNumber(value: number) {
+  const formatter = Intl.NumberFormat("en", { notation: "compact" })
+  return formatter.format(value)
 }
