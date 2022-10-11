@@ -213,8 +213,9 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
     const embedVote = await handle(user)
     user
       .createDM()
+      .catch(() => null)
       .then((dm) => {
-        dm.send({
+        dm?.send({
           embeds: [
             composeEmbedMessage(null, {
               title: `Welcome to the ${guildName} server installed Mochi Bot.`,
@@ -226,10 +227,8 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
               \nRemember to use our feature, you need to place \`$\` or \`/\` in every command. Now, back to ${guildName} server, start with $help, and try our features!!!`,
             }),
           ],
-        }).catch((e) => {
-          logger.info(e)
-        })
-        dm.send({
+        }).catch(() => null)
+        dm?.send({
           ...((embedTickerEth.messageOptions.files?.length ?? 0) > 0
             ? { files: embedTickerEth.messageOptions.files }
             : {}),
@@ -245,13 +244,9 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
             }),
             embedVote,
           ],
-        }).catch((e) => {
-          logger.info(e)
-        })
+        }).catch(() => null)
       })
-      .catch((e) => {
-        logger.info(e)
-      })
+      .catch(() => null)
   })
 }
 
