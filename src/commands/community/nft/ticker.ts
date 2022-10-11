@@ -6,7 +6,6 @@ import {
   MessageAttachment,
   MessageButton,
   MessageSelectMenu,
-  MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
 import { Command } from "types/common"
@@ -14,12 +13,9 @@ import { getCommandArguments } from "utils/commands"
 import { NFT_TICKER_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeDaysSelectMenu,
-  composeDiscordExitButton,
-  composeDiscordSelectionRow,
   composeEmbedMessage,
   getErrorEmbed,
   getExitButton,
-  getSuccessEmbed,
   justifyEmbedFields,
 } from "utils/discordEmbed"
 import community from "adapters/community"
@@ -29,7 +25,6 @@ import {
   getEmoji,
   getEmojiURL,
   getMarketplaceCollectionUrl,
-  hasAdministrator,
   roundFloatNumber,
   shortenHashOrAddress,
 } from "utils/common"
@@ -37,13 +32,13 @@ import { renderChartImage } from "utils/canvas"
 import dayjs from "dayjs"
 import { APIError } from "errors"
 import {
-  ResponseCollectionSuggestions,
   ResponseIndexerNFTCollectionTickersData,
   ResponseIndexerPrice,
 } from "types/api"
 import { CommandError } from "errors"
 import config from "adapters/config"
 import { InteractionHandler } from "utils/InteractionManager"
+import { getDefaultSetter } from "utils/default-setters"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
 const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
@@ -117,64 +112,6 @@ async function viewTickerInfo(
   )
   await msg.edit(messageOptions)
   await msg.removeAttachments()
-}
-
-function composeTickerSelectionResponse(
-  suggestions: ResponseCollectionSuggestions[],
-  query: string,
-  msg: Message
-) {
-  const opt = (
-    s: ResponseCollectionSuggestions
-  ): MessageSelectOptionData | null => {
-    const valueMaxLength = 100
-    const value = `${query}_${s.name}_${s.symbol}_${s.address}_${s.chain}_${s.chain_id}`
-    if (value.length > valueMaxLength) return null
-    return {
-      label: `${s.name} (${s.symbol})`,
-      value,
-    }
-  }
-  const options = suggestions.flatMap((s) => {
-    const option = opt(s)
-    return option ? [option] : []
-  })
-
-  if (!options.length) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            title: "Collection not found",
-            description:
-              "The collection is not supported yet. Please contact us for the support. Thank you!",
-          }),
-        ],
-      },
-    }
-  }
-
-  const selectRow = composeDiscordSelectionRow({
-    customId: "nft_tickers_selection",
-    placeholder: "Make a selection",
-    options,
-  })
-
-  const found = suggestions.map((s) => `**${s.name}** (${s.symbol})`).join(", ")
-  return {
-    messageOptions: {
-      embeds: [
-        composeEmbedMessage(msg, {
-          title: `${defaultEmojis.MAG} Multiple collections found`,
-          description: `Multiple collections found for \`${query}\`: ${found}.\nPlease select one of the following collection`,
-        }),
-      ],
-      components: [selectRow, composeDiscordExitButton(originAuthorId)],
-    },
-    interactionOptions: {
-      handler: tickerSelectionHandler,
-    },
-  }
 }
 
 async function composeCollectionInfoEmbed(
@@ -497,71 +434,6 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
-// async function setDefaultTicker(i: ButtonInteraction) {
-//   const [query, name, symbol, collectionAddress, chainId] =
-//     i.customId.split("|")
-//   await config.setGuildDefaultNFTTicker({
-//     guild_id: i.guildId ?? "",
-//     query,
-//     symbol,
-//     collection_address: collectionAddress,
-//     chain_id: +chainId,
-//   })
-//   const embed = getSuccessEmbed({
-//     msg: i.message as Message,
-//     title: "Default ticker ENABLED",
-//     description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
-//   })
-//   return { embeds: [embed] }
-// }
-
-const tickerSelectionHandler: InteractionHandler = async (msgOrInteraction) => {
-  const interaction = msgOrInteraction as SelectMenuInteraction
-  const { message } = <{ message: Message }>interaction
-  const value = interaction.values[0]
-  const [query, name, symbol, collectionAddress, chain, chainId] =
-    value.split("_")
-  const gMember = message.guild?.members.cache.get(interaction.user.id)
-  // TODO(tuan)
-  // ask admin to set server default ticker
-  // let ephemeralMessage: EphemeralMessage | undefined
-  // if (hasAdministrator(gMember)) {
-  //   await interaction.deferReply({ ephemeral: true })
-  //   const actionRow = new MessageActionRow().addComponents(
-  //     new MessageButton({
-  //       customId: `${query}|${name}|${symbol}|${collectionAddress}|${chainId}`,
-  //       emoji: getEmoji("approve"),
-  //       style: "PRIMARY",
-  //       label: "Confirm",
-  //     })
-  //   )
-  //   ephemeralMessage = {
-  //     embeds: [
-  //       composeEmbedMessage(message, {
-  //         title: "Set default nft ticker",
-  //         description: `Do you want to set **${name}** as your server default nft ticker?\nNo further selection next time use \`$nft ticker\``,
-  //       }),
-  //     ],
-  //     components: [actionRow],
-  //     buttonCollector: setDefaultTicker,
-  //   }
-  // } else {
-  //   await interaction.deferUpdate()
-  //   if (interaction.user.id !== originAuthorId) {
-  //     return {
-  //       messageOptions: {},
-  //     }
-  //   }
-  // }
-  return {
-    ...(await composeCollectionTickerEmbed({
-      msg: message,
-      collectionAddress,
-      chain,
-    })),
-  }
-}
-
 const command: Command = {
   id: "nft_ticker",
   command: "ticker",
@@ -617,8 +489,59 @@ const command: Command = {
       })
     }
 
-    // else show selection
-    return composeTickerSelectionResponse(suggestions, symbol, msg)
+    const options = suggestions.flatMap((s: any) => {
+      const valueMaxLength = 100
+      const value = `${symbol}_${s.name}_${s.symbol}_${s.address}_${s.chain}_${s.chain_id}`
+      if (value.length > valueMaxLength) return []
+      return {
+        label: `${s.name} (${s.symbol})`,
+        value,
+      }
+    })
+
+    if (!options.length) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              title: "Collection not found",
+              description:
+                "The collection is not supported yet. Please contact us for the support. Thank you!",
+            }),
+          ],
+        },
+      }
+    }
+
+    // render embed to show multiple results
+    return {
+      select: {
+        options,
+        placeholder: "Select a ticker",
+      },
+      onDefaultSet: async (i) => {
+        const [query, name, symbol, collectionAddress, chainId] =
+          i.customId.split("_")
+        getDefaultSetter({
+          updateAPI: config.setGuildDefaultNFTTicker.bind(null, {
+            guild_id: i.guildId ?? "",
+            query,
+            symbol,
+            collection_address: collectionAddress,
+            chain_id: +chainId,
+          }),
+          description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
+        })(i)
+      },
+      render: ({ msgOrInteraction: msg, value }) => {
+        const [, , , collectionAddress, chain] = value.split("_")
+        return composeCollectionTickerEmbed({ msg, collectionAddress, chain })
+      },
+      ambiguousResultText: symbol.toUpperCase(),
+      multipleResultText: suggestions
+        .map((s) => `**${s.name}** (${s.symbol})`)
+        .join(", "),
+    }
   },
   getHelpMessage: async (msg) => {
     return {

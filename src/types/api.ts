@@ -438,8 +438,8 @@ export interface RequestConfigureInviteRequest {
 }
 
 export interface RequestCreateDefaultRoleRequest {
-  guild_id?: string;
-  role_id?: string;
+  guild_id: string;
+  role_id: string;
 }
 
 export interface RequestCreateGuildRequest {
@@ -513,8 +513,8 @@ export interface RequestGuildConfigDefaultTickerRequest {
 }
 
 export interface RequestLinkUserTelegramWithDiscordRequest {
-  discord_id?: string;
-  telegram_username?: string;
+  discord_id: string;
+  telegram_username: string;
 }
 
 export interface RequestLoginRequest {
@@ -913,7 +913,7 @@ export interface ResponseGetNFTCollectionByAddressChain {
   id?: string;
   image?: string;
   is_verified?: boolean;
-  marketplace?: string[];
+  marketplaces?: string[];
   name?: string;
   symbol?: string;
   twitter?: string;
@@ -1087,6 +1087,10 @@ export interface ResponseIndexerGetNFTTokenDetailResponseWithSuggestions {
   suggestions?: ResponseCollectionSuggestions[];
 }
 
+export interface ResponseIndexerGetNFTTokenTickersResponse {
+  data?: ResponseIndexerNFTTokenTickersData;
+}
+
 export interface ResponseIndexerGetNFTTokenTxHistoryResponse {
   data?: ResponseIndexerGetNftTokenTxHistory[];
 }
@@ -1165,6 +1169,24 @@ export interface ResponseIndexerNFTTokenRarity {
   rarity?: string;
   score?: string;
   total?: number;
+}
+
+export interface ResponseIndexerNFTTokenTickersData {
+  collection_address?: string;
+  description?: string;
+  floor_price?: ResponseIndexerPrice;
+  image?: string;
+  image_cdn?: string;
+  last_sale_price?: ResponseIndexerPrice;
+  name?: string;
+  price_change_1d?: string;
+  price_change_30d?: string;
+  price_change_7d?: string;
+  rarity_rank?: number;
+  rarity_score?: string;
+  rarity_tier?: string;
+  tickers?: ResponseIndexerTickers;
+  token_id?: string;
 }
 
 export interface ResponseIndexerNftTokenOwner {

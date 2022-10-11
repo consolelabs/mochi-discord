@@ -69,7 +69,13 @@ import community from "adapters/community"
 import usage_stats from "adapters/usage_stats"
 import { isAcceptableCmdToHelp } from "./index-utils"
 import FuzzySet from "fuzzyset"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import {
+  composeDiscordExitButton,
+  composeDiscordSelectionRow,
+  composeEmbedMessage,
+  getMultipleResultEmbed,
+  setDefaultMiddleware,
+} from "utils/discordEmbed"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import InteractionManager from "utils/InteractionManager"
 
@@ -225,15 +231,49 @@ async function executeCommand(
 
   // execute command in `commands`
   const runResponse = await commandObject.run(message, action)
-  if (runResponse && runResponse.messageOptions) {
-    const msg = await message.reply({
-      ...(shouldRemind && Math.random() < 0.3
-        ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
-        : {}),
-      ...runResponse.messageOptions,
-    })
-    if (runResponse.interactionOptions && msg) {
-      InteractionManager.add(msg.id, runResponse.interactionOptions)
+  if (runResponse) {
+    if ("messageOptions" in runResponse) {
+      const msg = await message.reply({
+        ...(shouldRemind && Math.random() < 0.3
+          ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
+          : {}),
+        ...runResponse.messageOptions,
+      })
+      if (runResponse.interactionOptions && msg) {
+        InteractionManager.add(msg.id, runResponse.interactionOptions)
+      }
+    } else if ("select" in runResponse) {
+      // ask default case
+      const {
+        ambiguousResultText,
+        multipleResultText,
+        select,
+        onDefaultSet,
+        render,
+      } = runResponse
+      const multipleEmbed = getMultipleResultEmbed({
+        msg: message,
+        ambiguousResultText,
+        multipleResultText,
+      })
+      const selectRow = composeDiscordSelectionRow({
+        customId: `mutliple-results-${message.id}`,
+        ...select,
+      })
+      const msg = await message.reply({
+        embeds: [multipleEmbed],
+        components: [selectRow, composeDiscordExitButton(message.author.id)],
+      })
+
+      if (onDefaultSet && render) {
+        InteractionManager.add(msg.id, {
+          handler: setDefaultMiddleware<Message>({
+            onDefaultSet,
+            label: ambiguousResultText,
+            render,
+          }),
+        })
+      }
     }
   }
   // send command to server to store

@@ -3,13 +3,15 @@ import {
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
 import {
+  ButtonInteraction,
   ColorResolvable,
   CommandInteraction,
   Message,
   MessageEditOptions,
   MessageOptions,
-  MessagePayload,
+  MessageSelectOptionData,
   User,
+  WebhookEditMessageOptions,
 } from "discord.js"
 import type { InteractionOptions } from "utils/InteractionManager"
 
@@ -44,7 +46,32 @@ export type SlashCommandChoiceOption = {
 export type RunResult<T = MessageOptions | MessageEditOptions> = {
   messageOptions: T
   interactionOptions?: InteractionOptions
-  replyMessage?: MessagePayload
+  replyMessage?: WebhookEditMessageOptions
+  buttonCollector?: (i: ButtonInteraction) => Promise<void>
+}
+
+export type SetDefaultRenderList<T> = (p: {
+  msgOrInteraction: T
+  value: string
+}) => Promise<any>
+
+export type SetDefaultButtonHandler = (i: ButtonInteraction) => Promise<void>
+
+export type MultipleResult<T> = {
+  // the select menu
+  select: {
+    placeholder?: string
+    options: MessageSelectOptionData[]
+  }
+  // e.g "...we found multiple values for {ambiguousResultText}..."
+  ambiguousResultText: string
+  // e.g "...some multiple results such as {multipleResultText}"
+  multipleResultText: string
+  // handler to run when the admin confirm to set default
+  onDefaultSet?: SetDefaultButtonHandler
+  // this function is used to render the actual embed with data when the admin
+  // choose one of the option in the select menu
+  render?: SetDefaultRenderList<T>
 }
 
 export type SlashCommand = {
@@ -58,7 +85,13 @@ export type SlashCommand = {
     | SlashCommandSubcommandBuilder
   run: (
     interaction: CommandInteraction
-  ) => Promise<RunResult<MessageOptions> | void | null | undefined>
+  ) => Promise<
+    | RunResult<MessageOptions>
+    | MultipleResult<CommandInteraction>
+    | void
+    | null
+    | undefined
+  >
   help: (interaction: CommandInteraction) => Promise<MessageOptions>
   ephemeral?: boolean
   colorType: ColorType
@@ -79,7 +112,13 @@ export type Command = {
     msg: Message,
     action?: string,
     isAdmin?: boolean
-  ) => Promise<RunResult<MessageOptions> | void | null | undefined>
+  ) => Promise<
+    | RunResult<MessageOptions>
+    | MultipleResult<Message>
+    | void
+    | null
+    | undefined
+  >
   getHelpMessage: (
     msg: Message,
     action?: string,
