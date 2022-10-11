@@ -13,6 +13,7 @@ import {
 } from "discord.js"
 import {
   defaultEmojis,
+  emojis,
   getChance,
   getEmoji,
   hasAdministrator,
@@ -381,13 +382,15 @@ function buildSwitchViewActionRow(
   params: { coinId: string; days: number }
 ) {
   const tickerBtn = new MessageButton({
-    label: "📈 Ticker",
+    label: "Ticker",
+    emoji: emojis.TICKER,
     customId: `ticker_view_chart|${params.coinId}|${params.days}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const infoBtn = new MessageButton({
-    label: "🔎 Info",
+    label: "Info",
+    emoji: emojis.INFO,
     customId: `ticker_view_info|${params.coinId}|${params.days}`,
     style: "SECONDARY",
     disabled: currentView === "info",

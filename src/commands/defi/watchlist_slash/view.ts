@@ -9,7 +9,7 @@ import {
   MessageComponentInteraction,
   MessageEmbed,
 } from "discord.js"
-import { getEmojiURL, thumbnails, tokenEmojis } from "utils/common"
+import { emojis, getEmojiURL, thumbnails, tokenEmojis } from "utils/common"
 import { composeEmbedMessage2 } from "utils/discordEmbed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
@@ -345,13 +345,15 @@ async function renderNFTWatchlist(data: any[]) {
 
 function buildSwitchViewActionRow(currentView: string) {
   const tokenButton = new MessageButton({
-    label: "💰 Token",
+    label: "Token",
+    emoji: emojis.ASSET,
     customId: `watchlist-switch-view-button/token}`,
     style: "SECONDARY",
     disabled: currentView === "token",
   })
   const nftButton = new MessageButton({
-    label: "🖼 NFT",
+    label: "NFT",
+    emoji: emojis.NFT,
     customId: `watchlist-switch-view-button/nft`,
     style: "SECONDARY",
     disabled: currentView === "nft",

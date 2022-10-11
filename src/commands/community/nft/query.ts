@@ -64,7 +64,7 @@ const rarityColors: Record<string, string> = {
 let icons: ResponseNftMetadataAttrIcon[]
 
 const filter = (authorId: string) => async (i: MessageComponentInteraction) => {
-  await i.deferUpdate()
+  await i.deferUpdate().catch(() => null)
   return i.user.id === authorId
 }
 
@@ -110,21 +110,21 @@ function buildSwitchViewActionRow(
 ) {
   const nftButton = new MessageButton({
     label: "NFT",
-    emoji: "🖼",
+    emoji: emojis.NFT,
     customId: `nft-view/nft/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
     style: "SECONDARY",
     disabled: currentView === "nft",
   })
   const tickerButton = new MessageButton({
     label: "Ticker",
-    emoji: "📈",
+    emoji: emojis.TICKER,
     customId: `nft-view/ticker/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const collectionInfoButton = new MessageButton({
     label: "Collection Info",
-    emoji: "🔎",
+    emoji: emojis.INFO,
     customId: `nft-view/info/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
     style: "SECONDARY",
     disabled: currentView === "info",
@@ -547,7 +547,7 @@ export async function composeNFTDetail(
 }
 
 export async function setDefaultSymbol(i: ButtonInteraction) {
-  await i.deferUpdate()
+  await i.deferUpdate().catch(() => null)
   const [colAddress, symbol, chain, authorId] = i.customId.split("|").slice(1)
   if (authorId !== i.user.id) {
     return
@@ -708,7 +708,7 @@ const command: Command = {
         const detailRes = await community.getNFTCollectionDetail(colAddress)
 
         if (!res.ok || !detailRes.ok) {
-          await i.deferUpdate()
+          await i.deferUpdate().catch(() => null)
           throw new APIError({
             message: msg,
             curl: detailRes.curl,
@@ -724,7 +724,7 @@ const command: Command = {
             hasDuplicatedSymbols === "true"
 
           if (!shouldAskDefault) {
-            await i.deferUpdate()
+            await i.deferUpdate().catch(() => null)
           }
           // the token might not be synced yet
           if (!res.data) {
