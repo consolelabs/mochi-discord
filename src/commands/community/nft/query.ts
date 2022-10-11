@@ -217,7 +217,7 @@ async function composeCollectionInfo(
 async function renderNftTickerChart(
   data: ResponseIndexerNFTCollectionTickersData
 ) {
-  if (!data?.tickers?.prices || !data?.tickers.times) {
+  if (!data?.tickers?.prices || !data?.tickers?.times) {
     return null
   }
   const to = dayjs().unix() * 1000
