@@ -1,15 +1,15 @@
 import config from "adapters/config"
-import { Guild, Message, User } from "discord.js"
+import { Message, User } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { PREFIX, VOTE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 
-async function handle(guild: Guild, user: User) {
-  const res = await config.removeVoteChannel(guild.id)
+async function handle(guildId: string, user: User) {
+  const res = await config.removeVoteChannel(guildId)
 
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log, user, guild })
+    throw new APIError({ curl: res.curl, description: res.log, user })
   }
 }
 
@@ -19,11 +19,11 @@ const command: Command = {
   brief: "Remove the configured vote channel",
   category: "Community",
   run: async (msg: Message) => {
-    if (!msg.guild) {
+    if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
     }
 
-    await handle(msg.guild, msg.author)
+    await handle(msg.guildId, msg.author)
 
     return {
       messageOptions: {
