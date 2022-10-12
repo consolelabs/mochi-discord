@@ -176,6 +176,7 @@ export const emojis: { [key: string]: string } = {
   NFT: "🖼",
   TICKER: "📈",
   INFO: "🔎",
+  FLOORPRICE: "1029662833144766464",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

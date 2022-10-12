@@ -509,10 +509,15 @@ export async function composeNFTDetail(
   const restListing = marketplace.slice(1)
   const firstHalf = restListing.slice(0, Math.ceil(restListing.length / 2))
   const secondHalf = restListing.slice(Math.ceil(restListing.length / 2))
+
   const renderMarket = (m: any) => {
-    return `[${getEmoji(m.platform_name)}](${m.item_url}) ${getEmoji(
+    return `[${getEmoji(m.platform_name)} **${capFirst(m.platform_name)}**](${
+      m.item_url
+    })\n${getEmoji("reply")}${getEmoji(
       m.payment_token
-    )} ${getCompactFormatedNumber(m.listing_price)}`
+    )} ${getCompactFormatedNumber(m.listing_price)} (${getEmoji(
+      "floorprice"
+    )} ${getCompactFormatedNumber(m.floor_price)})`
   }
 
   const listingFields: EmbedFieldData[] = [
