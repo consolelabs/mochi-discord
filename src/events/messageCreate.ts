@@ -1,7 +1,6 @@
 import { Message } from "discord.js"
 import handlePrefixedCommand from "../commands"
 import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
-import CommandChoiceManager from "utils/CommandChoiceManager"
 import webhook from "adapters/webhook"
 import { MessageTypes } from "discord.js/typings/enums"
 import { handlePlayTripod } from "commands/games/tripod"
@@ -43,9 +42,6 @@ const events: DiscordEvent<"messageCreate"> = {
       if (message.author.bot || (!message.content && !message.stickers.size))
         return
       if (message.content.startsWith(PREFIX)) {
-        // disable previous command choice handler before executing new command
-        const key = `${message.author.id}_${message.guildId}_${message.channelId}`
-        CommandChoiceManager.remove(key)
         await handlePrefixedCommand(message)
         return
       }

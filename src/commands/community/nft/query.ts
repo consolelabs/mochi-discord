@@ -607,6 +607,7 @@ const command: Command = {
     return {}
   },
   run: async function (msg) {
+    // TODO(tuan): refactor set default handler
     const args = getCommandArguments(msg)
     const symbol = args
       .slice(1, args.length - 1)

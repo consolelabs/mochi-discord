@@ -80,7 +80,6 @@ export const numberEmojis: Record<string, string> = {
   NUM_9: "932856132832223232",
 }
 
-// TODO(tuand) rename this to expBarEmojis
 export const expBarEmojis: Record<string, string> = {
   XP_FILLED_LEFT: "933278893559918602",
   XP_FILLED: "933278891450187816",

@@ -3,12 +3,12 @@ import Discord from "discord.js"
 import { PREFIX } from "utils/constants"
 import { logger } from "../logger"
 import ChannelLogger from "utils/ChannelLogger"
-import CommandChoiceManager from "utils/CommandChoiceManager"
 import { invites } from "utils/invites"
 import { setTimeout as wait } from "timers/promises"
 import TwitterStream from "utils/TwitterStream"
 import defi from "adapters/defi"
 import { wrapError } from "utils/wrapError"
+import InteractionManager from "utils/InteractionManager"
 
 export let IS_READY = false
 
@@ -20,7 +20,7 @@ const event: DiscordEvent<"ready"> = {
       if (!client.user) return
       logger.info(`Bot [${client.user.username}] is ready`)
       ChannelLogger.ready(client)
-      CommandChoiceManager.client = client
+      InteractionManager.client = client
       // get gas price and show in presence message every 15s
       const chains = ["eth", "ftm", "bsc", "matic"]
       const presence = async () => {

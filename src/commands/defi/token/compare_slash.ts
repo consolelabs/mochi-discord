@@ -5,9 +5,7 @@ import {
   Message,
   MessageActionRow,
   MessageAttachment,
-  MessageButton,
   MessageSelectMenu,
-  MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
 import {
@@ -15,19 +13,14 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   composeDaysSelectMenu,
-  composeDiscordSelectionRow,
-  getSuccessEmbed,
 } from "utils/discordEmbed"
 import defi from "adapters/defi"
-import {
-  CommandChoiceHandler,
-  EphemeralMessage,
-} from "utils/CommandChoiceManager"
 import { getChartColorConfig, renderChartImage } from "utils/canvas"
 import { Coin } from "types/defi"
-import { defaultEmojis, getEmoji, hasAdministrator } from "utils/common"
 import config from "adapters/config"
 import CacheManager from "utils/CacheManager"
+import { InteractionHandler } from "utils/InteractionManager"
+import { getDefaultSetter } from "utils/default-setters"
 
 async function renderCompareTokenChart({
   times,
@@ -50,7 +43,7 @@ async function renderCompareTokenChart({
   return new MessageAttachment(image, "chart.png")
 }
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
@@ -93,148 +86,8 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
       ...(chart && { files: [chart] }),
       components: message.components as MessageActionRow[],
     },
-    commandChoiceOptions: {
+    interactionOptions: {
       handler,
-      userId: message.author.id,
-      messageId: message.id,
-      channelId: interaction.channelId,
-      guildId: interaction.guildId,
-      interaction,
-    },
-  }
-}
-
-export async function setDefaultTickers(i: ButtonInteraction) {
-  const [baseId, baseSymbol, baseName, targetId, targetSymbol, targetName] =
-    i.customId.split("|")
-  const { ok: setDefaultBaseTickerOk } = await config.setGuildDefaultTicker({
-    guild_id: i.guildId ?? "",
-    query: baseSymbol,
-    default_ticker: baseId,
-  })
-  if (setDefaultBaseTickerOk) {
-    CacheManager.findAndRemove(
-      "ticker",
-      `ticker-default-${i.guildId}-${baseSymbol}`
-    )
-  }
-  const { ok: setDefaultTargetTickerOk } = await config.setGuildDefaultTicker({
-    guild_id: i.guildId ?? "",
-    query: targetSymbol,
-    default_ticker: targetId,
-  })
-  if (setDefaultTargetTickerOk) {
-    CacheManager.findAndRemove(
-      "ticker",
-      `ticker-default-${i.guildId}-${targetSymbol}`
-    )
-  }
-  if (setDefaultBaseTickerOk || setDefaultTargetTickerOk) {
-    CacheManager.findAndRemove(
-      "ticker",
-      `compare-${i.guildId}-${baseSymbol}-${targetSymbol}-`
-    )
-  }
-
-  const embed = getSuccessEmbed({
-    msg: i.message as Message,
-    title: "Default ticker ENABLED",
-    description: `Next time your server members use $ticker with \`${baseSymbol}\` and \`${targetSymbol}\`, **${baseName}** and **${targetName}** will be the default selection`,
-  })
-  return { embeds: [embed] }
-}
-
-const suggestionsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
-  const interaction = msgOrInteraction as SelectMenuInteraction
-  const { message } = <{ message: Message }>interaction
-  const input = interaction.values[0]
-  const [
-    baseCoinId,
-    baseCoinSymbol,
-    baseCoinName,
-    targetCoinId,
-    targetCoinSymbol,
-    targetCoinName,
-    authorId,
-  ] = input.split("_")
-
-  const gMember = message.guild?.members.cache.get(
-    authorId ?? message.author.id
-  )
-  // ask admin to set server default tickers
-  let ephemeralMessage: EphemeralMessage | undefined
-  if (hasAdministrator(gMember)) {
-    await interaction.deferReply({ ephemeral: true })
-    const actionRow = new MessageActionRow().addComponents(
-      new MessageButton({
-        customId: `${baseCoinId}|${baseCoinSymbol}|${baseCoinName}|${targetCoinId}|${targetCoinSymbol}|${targetCoinName}`,
-        emoji: getEmoji("approve"),
-        style: "PRIMARY",
-        label: "Confirm",
-      })
-    )
-    ephemeralMessage = {
-      embeds: [
-        composeEmbedMessage(message, {
-          title: "Set default ticker",
-          description: `Do you want to set **${baseCoinName}** and **${targetCoinName}** as your server default tickers?\nNo further selection next time use \`$ticker\``,
-        }),
-      ],
-      components: [actionRow],
-      buttonCollector: setDefaultTickers,
-    }
-  } else {
-    await interaction.deferUpdate()
-  }
-
-  return {
-    ...(await composeTokenComparisonEmbed(
-      interaction,
-      baseCoinId,
-      targetCoinId
-    )),
-    ephemeralMessage,
-  }
-}
-
-async function composeSuggestionsResponse(
-  interaction: SelectMenuInteraction | CommandInteraction,
-  baseQ: string,
-  targetQ: string,
-  baseSuggestions: Coin[],
-  targetSuggestions: Coin[]
-) {
-  const opt = (base: Coin, target: Coin): MessageSelectOptionData => ({
-    label: `${base.name} (${base.symbol.toUpperCase()}) x ${
-      target.name
-    } (${target.symbol.toUpperCase()})`,
-    value: `${base.id}_${base.symbol}_${base.name}_${target.id}_${target.symbol}_${target.name}_${interaction.user.id}`,
-  })
-  const options = baseSuggestions
-    .map((b) => targetSuggestions.map((t) => opt(b, t)))
-    .flat()
-    .slice(0, 25) // discord allow maximum 25 options
-  const selectRow = composeDiscordSelectionRow({
-    customId: "compare_suggestions_selection",
-    placeholder: "Make a selection",
-    options,
-  })
-
-  const embed = composeEmbedMessage(null, {
-    title: `${defaultEmojis.MAG} Multiple options found`,
-    description: `${options.length} options found for \`${baseQ}/${targetQ}\`.\nPlease select one of the following options below`,
-  })
-
-  return {
-    messageOptions: {
-      embeds: [embed],
-      components: [selectRow, composeDiscordExitButton(interaction.user.id)],
-    },
-    commandChoiceOptions: {
-      userId: interaction.user.id,
-      guildId: interaction.guildId,
-      channelId: interaction.channelId,
-      handler: suggestionsHandler,
     },
   }
 }
@@ -261,14 +114,75 @@ async function composeTokenComparisonEmbed(
   }
 
   const { base_coin_suggestions, target_coin_suggestions } = data
+
+  // multiple resutls found
   if (base_coin_suggestions || target_coin_suggestions) {
-    return await composeSuggestionsResponse(
-      interaction,
-      baseQ,
-      targetQ,
-      base_coin_suggestions,
-      target_coin_suggestions
-    )
+    const options = base_coin_suggestions
+      .map((base: any) =>
+        target_coin_suggestions.map((target: any) => {
+          return {
+            label: `${base.name} (${base.symbol.toUpperCase()}) x ${
+              target.name
+            } (${target.symbol.toUpperCase()})`,
+            value: `${base.id}_${base.symbol}_${base.name}_${target.id}_${target.symbol}_${target.name}`,
+          }
+        })
+      )
+      .flat()
+      .slice(0, 25)
+
+    return {
+      select: {
+        options,
+        placeholder: "Select a pair",
+      },
+      onDefaultSet: async (i: ButtonInteraction) => {
+        const [
+          baseId,
+          baseSymbol,
+          baseName,
+          targetId,
+          targetSymbol,
+          targetName,
+        ] = i.customId.split("_")
+
+        getDefaultSetter({
+          updateAPI: async () => {
+            ;[
+              {
+                guild_id: i.guildId ?? "",
+                query: baseSymbol,
+                default_ticker: baseId,
+              },
+              {
+                guild_id: i.guildId ?? "",
+                query: targetSymbol,
+                default_ticker: targetId,
+              },
+            ].forEach((p) => {
+              config.setGuildDefaultTicker(p)
+            })
+          },
+          updateCache: () => {
+            ;(<Array<[string, string]>>[
+              ["ticker", `ticker-default-${i.guildId}-${baseSymbol}`],
+              ["ticker", `ticker-default-${i.guildId}-${targetSymbol}`],
+              ["ticker", `compare-${i.guildId}-${baseSymbol}-${targetSymbol}-`],
+              ["ticker", `compare-${i.guildId}-${targetSymbol}-${baseSymbol}-`],
+            ]).forEach((args) => {
+              CacheManager.findAndRemove.apply(null, args)
+            })
+          },
+          description: `Next time your server members use \`$ticker\` with \`${baseSymbol}\` and \`${targetSymbol}\`, **${baseName}** and **${targetName}** will be the default selection`,
+        })(i)
+      },
+      render: ({ msgOrInteraction: msg, value }: any) => {
+        const [baseCoinId, , , targetCoinId] = value.split("_")
+        return composeTokenComparisonEmbed(msg, baseCoinId, targetCoinId)
+      },
+      ambiguousResultText: `${baseQ}/${targetQ}`.toUpperCase(),
+      multipleResultText: "",
+    }
   }
 
   const coinInfo = (coin: Coin) =>
@@ -310,10 +224,7 @@ async function composeTokenComparisonEmbed(
       embeds: [embed],
       components: [selectRow, composeDiscordExitButton(interaction.user.id)],
     },
-    commandChoiceOptions: {
-      userId: interaction.user.id,
-      guildId: interaction.guildId,
-      channelId: interaction.channelId,
+    interactionOptions: {
       handler,
     },
   }
