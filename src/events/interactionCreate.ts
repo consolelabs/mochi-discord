@@ -11,7 +11,13 @@ import {
   CommandInteraction,
 } from "discord.js"
 import { DiscordEvent } from "."
-import { getErrorEmbed } from "utils/discordEmbed"
+import {
+  composeDiscordExitButton,
+  composeDiscordSelectionRow,
+  getErrorEmbed,
+  getMultipleResultEmbed,
+  setDefaultMiddleware,
+} from "utils/discordEmbed"
 import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
 import { wrapError } from "utils/wrapError"
@@ -20,6 +26,7 @@ import { handleNFTTickerViews } from "commands/community/nft/ticker"
 import { hasAdministrator } from "utils/common"
 import { handleButtonOffer } from "commands/community/trade"
 import InteractionManager from "utils/InteractionManager"
+import { MessageComponentTypes } from "discord.js/typings/enums"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -33,7 +40,7 @@ const event: DiscordEvent<"interactionCreate"> = {
       )
         return
       if (interaction.isSelectMenu()) {
-        await handleSelecMenuInteraction(interaction)
+        await handleSelectMenuInteraction(interaction)
       } else if (interaction.isButton()) {
         await handleButtonInteraction(interaction)
       } else if (interaction.isCommand()) {
@@ -68,7 +75,6 @@ async function handleCommandInteraction(interaction: Interaction) {
   await i.deferReply({ ephemeral: command?.ephemeral })
   const response = await command.run(i)
   if (!response) return
-  const { messageOptions, interactionOptions } = response
   let shouldRemind = await CacheManager.get({
     pool: "vote",
     key: `remind-${i.user.id}-vote-again`,
@@ -94,32 +100,78 @@ async function handleCommandInteraction(interaction: Interaction) {
     // user is already using $vote, no point in reminding
     shouldRemind = false
   }
-  const msg = await i
-    .editReply({
-      ...(shouldRemind
-        ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
-        : {}),
-      ...messageOptions,
+  if ("messageOptions" in response) {
+    const { messageOptions, interactionOptions } = response
+    const msg = await i
+      .editReply({
+        ...(shouldRemind
+          ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
+          : {}),
+        ...messageOptions,
+      })
+      .catch(() => null)
+    if (interactionOptions && msg) {
+      InteractionManager.add(msg.id, interactionOptions)
+    }
+  } else if ("select" in response) {
+    // ask default case
+    const {
+      ambiguousResultText,
+      multipleResultText,
+      select,
+      onDefaultSet,
+      render,
+    } = response
+    const multipleEmbed = getMultipleResultEmbed({
+      msg: null,
+      ambiguousResultText,
+      multipleResultText,
     })
-    .catch(() => null)
-  if (interactionOptions && msg) {
-    InteractionManager.add(msg.id, interactionOptions)
+    const selectRow = composeDiscordSelectionRow({
+      customId: `mutliple-results-${i.id}`,
+      ...select,
+    })
+    const msg = await i.reply({
+      fetchReply: true,
+      embeds: [multipleEmbed],
+      components: [selectRow, composeDiscordExitButton(i.user.id)],
+    })
+
+    if (onDefaultSet && render) {
+      InteractionManager.add(msg.id, {
+        handler: setDefaultMiddleware<CommandInteraction>({
+          onDefaultSet,
+          label: ambiguousResultText,
+          render,
+          commandInteraction: i,
+        }),
+      })
+    }
   }
 }
 
-async function handleSelecMenuInteraction(i: SelectMenuInteraction) {
-  await i.deferUpdate().catch(() => null)
+async function handleSelectMenuInteraction(i: SelectMenuInteraction) {
   const msg = i.message as Message
   const oldInteractionOptions = await InteractionManager.get(msg.id)
   if (!oldInteractionOptions?.handler) return
 
-  const { messageOptions, interactionOptions, replyMessage } =
+  const { messageOptions, interactionOptions, replyMessage, buttonCollector } =
     await oldInteractionOptions.handler(i)
 
   if (replyMessage) {
-    // already deferred or replied in commandChoice.handler()
-    // we do this for long-response command (> 3s) to prevent bot from throwing "Unknown interaction" error
-    await i.editReply(replyMessage).catch(() => null)
+    const msg = await i.editReply(replyMessage)
+    if (msg && msg instanceof Message && buttonCollector) {
+      const collector = msg.createMessageComponentCollector({
+        time: 300000,
+        componentType: MessageComponentTypes.BUTTON,
+      })
+
+      collector.on("collect", buttonCollector).on("end", () => {
+        msg.edit({ components: [] }).catch(() => null)
+      })
+    }
+  } else if (!i.deferred) {
+    await i.deferUpdate().catch(() => null)
   }
 
   if (interactionOptions) {

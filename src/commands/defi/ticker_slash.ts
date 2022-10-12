@@ -1,6 +1,5 @@
 import { SlashCommand } from "types/common"
 import {
-  ButtonInteraction,
   CommandInteraction,
   HexColorString,
   Message,
@@ -8,7 +7,6 @@ import {
   MessageAttachment,
   MessageButton,
   MessageSelectMenu,
-  MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
 import {
@@ -16,16 +14,12 @@ import {
   emojis,
   getChance,
   getEmoji,
-  hasAdministrator,
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
 import {
-  composeDiscordSelectionRow,
   composeEmbedMessage,
   composeDaysSelectMenu,
-  getSuccessEmbed,
-  composeDiscordExitButton,
   composeEmbedMessage2,
   getExitButton,
 } from "utils/discordEmbed"
@@ -36,7 +30,6 @@ import {
   renderChartImage,
 } from "utils/canvas"
 import config from "adapters/config"
-import { Coin } from "types/defi"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import Compare from "./token/compare_slash"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
@@ -45,6 +38,7 @@ import { APIError, CommandError } from "errors"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
 import { InteractionHandler } from "utils/InteractionManager"
+import { getDefaultSetter } from "utils/default-setters"
 
 CacheManager.init({
   ttl: 0,
@@ -166,44 +160,6 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
-const tickerSelectionHandler: InteractionHandler = async (msgOrInteraction) => {
-  const interaction = msgOrInteraction as SelectMenuInteraction
-  const value = interaction.values[0]
-  const [coinId, coinSymbol, coinName, authorId] = value.split("_")
-  const gMember = interaction?.guild?.members.cache.get(
-    authorId ?? interaction?.user.id
-  )
-  // TODO(tuan)
-  // ask admin to set server default ticker
-  // let ephemeralMessage: EphemeralMessage | undefined
-  // if (hasAdministrator(gMember)) {
-  //   await interaction.deferReply({ ephemeral: true })
-  //   const actionRow = new MessageActionRow().addComponents(
-  //     new MessageButton({
-  //       customId: `${coinId}|${coinSymbol}|${coinName}`,
-  //       emoji: getEmoji("approve"),
-  //       style: "PRIMARY",
-  //       label: "Confirm",
-  //     })
-  //   )
-  //   ephemeralMessage = {
-  //     embeds: [
-  //       composeEmbedMessage(null, {
-  //         title: "Set default ticker",
-  //         description: `Do you want to set **${coinName}** as your server default ticker?\nNo further selection next time use \`$ticker\``,
-  //       }),
-  //     ],
-  //     components: [actionRow],
-  //     buttonCollector: setDefaultTicker,
-  //   }
-  // } else {
-  //   await interaction.deferUpdate()
-  // }
-  return {
-    ...(await composeTickerResponse({ coinId, interaction: interaction })),
-  }
-}
-
 async function composeTickerResponse({
   coinId,
   days,
@@ -308,59 +264,6 @@ async function composeTickerResponse({
   }
 }
 
-export async function setDefaultTicker(i: ButtonInteraction) {
-  const [coinId, symbol, name] = i.customId.split("|")
-  await config.setGuildDefaultTicker({
-    guild_id: i.guildId ?? "",
-    query: symbol,
-    default_ticker: coinId,
-  })
-  CacheManager.findAndRemove("ticker", `ticker-default-${i.guildId}-${symbol}`)
-  const embed = getSuccessEmbed({
-    msg: i.message as Message,
-    title: "Default ticker ENABLED",
-    description: `Next time your server members use $ticker with \`${symbol}\`, **${name}** will be the default selection`,
-  })
-  return { embeds: [embed] }
-}
-
-function composeTickerSelectionResponse(
-  coins: Coin[],
-  coinSymbol: string,
-  interaction: CommandInteraction | ButtonInteraction
-) {
-  const opt = (coin: Coin): MessageSelectOptionData => ({
-    label: `${coin.name} (${coin.symbol.toUpperCase()})`,
-    value: `${coin.id}_${coin.symbol}_${coin.name}_${interaction?.user.id}`,
-  })
-  const selectRow = composeDiscordSelectionRow({
-    customId: "tickers_selection",
-    placeholder: "Make a selection",
-    options: coins.map((c: Coin) => opt(c)),
-  })
-
-  const found = coins
-    .map(
-      (c: { name: string; symbol: string }) =>
-        `**${c.name}** (${c.symbol.toUpperCase()})`
-    )
-    .join(", ")
-  return {
-    messageOptions: {
-      embeds: [
-        composeEmbedMessage(null, {
-          title: `${defaultEmojis.MAG} Multiple tickers found`,
-          description: `Multiple tickers found for \`${coinSymbol}\`: ${found}.\nPlease select one of the following tokens`,
-        }),
-      ],
-      components: [selectRow, composeDiscordExitButton(interaction.user.id)],
-    },
-    interactionOptions: {
-      handler: tickerSelectionHandler,
-    },
-  }
-}
-
 function buildSwitchViewActionRow(
   currentView: string,
   params: { coinId: string; days: number }
@@ -455,12 +358,41 @@ const command: SlashCommand = {
       })
     }
 
-    // ...else allow selection
-    return composeTickerSelectionResponse(
-      Object.values(coins),
-      symbol,
-      interaction
-    )
+    return {
+      select: {
+        options: Object.values(coins).map((coin: any) => {
+          return {
+            label: `${coin.name} (${coin.symbol.toUpperCase()})`,
+            value: `${coin.id}_${coin.symbol}_${coin.name}`,
+          }
+        }),
+        placeholder: "Select a token",
+      },
+      onDefaultSet: async (i) => {
+        const [coinId, symbol, name] = i.customId.split("_")
+        getDefaultSetter({
+          updateAPI: config.setGuildDefaultTicker.bind(null, {
+            guild_id: i.guildId ?? "",
+            query: symbol,
+            default_ticker: coinId,
+          }),
+          updateCache: CacheManager.findAndRemove.bind(
+            null,
+            "ticker",
+            `ticker-default-${i.guildId}-${symbol}`
+          ),
+          description: `Next time your server members use \`$ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
+        })(i)
+      },
+      render: ({ msgOrInteraction: interaction, value }) => {
+        const [coinId] = value.split("_")
+        return composeTickerResponse({ interaction, coinId })
+      },
+      ambiguousResultText: baseQ.toUpperCase(),
+      multipleResultText: Object.values(coins)
+        .map((c: any) => `**${c.name}** (${c.symbol.toUpperCase()})`)
+        .join(", "),
+    }
   },
   help: async (interaction) => ({
     embeds: [
