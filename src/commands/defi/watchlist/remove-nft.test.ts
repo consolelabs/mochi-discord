@@ -1,23 +1,24 @@
 import Discord, { MessageOptions } from "discord.js"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { getSuccessEmbed } from "utils/discordEmbed"
 import defi from "adapters/defi"
 import { mockClient } from "../../../../tests/mocks"
-import { defaultEmojis } from "utils/common"
-import { RunResult } from "types/common"
-import { commands } from "commands"
 import { CommandError } from "errors"
+import { commands } from "commands"
+import { RunResult } from "types/common"
+import CacheManager from "utils/CacheManager"
 
 jest.mock("adapters/defi")
+jest.mock("utils/CacheManager")
 const commandKey = "watchlist"
-const commandAction = "add"
+const commandAction = "remove-nft"
 
-describe("watchlist add", () => {
+describe("watchlist remove nft", () => {
   const guild = Reflect.construct(Discord.Guild, [mockClient, {}])
   const userId = Discord.SnowflakeUtil.generate()
   const msg = Reflect.construct(Discord.Message, [
     mockClient,
     {
-      content: "$watchlist add eth",
+      content: "$watchlist remove-nft eth",
       author: {
         id: userId,
         username: "tester",
@@ -43,28 +44,25 @@ describe("watchlist add", () => {
     return
   const command = commands[commandKey].actions[commandAction]
 
-  test("success", async () => {
+  test("remove successfully", async () => {
+    const symbol = "eth"
     const res = {
       ok: true,
-      data: {
-        base_suggestions: [{}],
-        target_suggestions: "",
-        symbol: "eth",
-      },
       error: null,
     }
-    defi.addToWatchlist = jest.fn().mockResolvedValueOnce(res)
+    defi.removeNFTFromWatchlist = jest.fn().mockResolvedValueOnce(res)
+    CacheManager.findAndRemove = jest.fn().mockResolvedValue(null)
 
     const output = await command.run(msg)
-    const expected = composeEmbedMessage(msg, {
-      title: `${defaultEmojis.MAG} Multiple options found`,
-      description: `Multiple tokens found for \`${res.data.symbol}\`.\nPlease select one of the following`,
+    const expected = getSuccessEmbed({
+      title: "Successfully remove!",
+      description: `${symbol} has been removed from your watchlist successfully!`,
     })
 
-    expect(defi.addToWatchlist).toHaveBeenCalled()
-    expect(defi.addToWatchlist).toHaveBeenCalledWith({
-      user_id: userId,
-      symbol: res.data.symbol,
+    expect(defi.removeNFTFromWatchlist).toHaveBeenCalled()
+    expect(defi.removeNFTFromWatchlist).toHaveBeenCalledWith({
+      userId,
+      symbol,
     })
     expect(expected.title).toStrictEqual(
       (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].title
@@ -78,15 +76,14 @@ describe("watchlist add", () => {
   test("fail", async () => {
     const res = {
       ok: false,
-      data: null,
       error: "error",
     }
-    defi.addToWatchlist = jest.fn().mockResolvedValueOnce(res)
+    defi.removeNFTFromWatchlist = jest.fn().mockResolvedValueOnce(res)
 
     try {
       await command.run(msg)
     } catch (e) {
-      expect(defi.addToWatchlist).toHaveBeenCalled()
+      expect(defi.removeNFTFromWatchlist).toHaveBeenCalled()
       expect(e).toBeInstanceOf(CommandError)
     }
   })
