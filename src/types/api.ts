@@ -1350,6 +1350,7 @@ export interface ResponseNewGuildGroupNFTRoleResponse {
 
 export interface ResponseNftListingMarketplace {
   contract_address?: string;
+  floor_price?: string;
   item_url?: string;
   listing_price?: string;
   listing_status?: string;
