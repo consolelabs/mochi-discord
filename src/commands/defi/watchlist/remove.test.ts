@@ -1,15 +1,16 @@
-import Discord from "discord.js"
+import Discord, { MessageOptions } from "discord.js"
 import { getSuccessEmbed } from "utils/discordEmbed"
 import defi from "adapters/defi"
 import { mockClient } from "../../../../tests/mocks"
 import { CommandError } from "errors"
 import { commands } from "commands"
+import { RunResult } from "types/common"
 
 jest.mock("adapters/defi")
 const commandKey = "watchlist"
 const commandAction = "remove"
 
-describe("watchlist_remove", () => {
+describe("watchlist remove", () => {
   const guild = Reflect.construct(Discord.Guild, [mockClient, {}])
   const userId = Discord.SnowflakeUtil.generate()
   const msg = Reflect.construct(Discord.Message, [
@@ -33,7 +34,12 @@ describe("watchlist_remove", () => {
     ]),
   ])
 
-  if (!commands[commandKey] || !commands[commandKey].actions) return
+  if (
+    !commands[commandKey] ||
+    !commands[commandKey].actions ||
+    !commands[commandKey].actions[commandAction]
+  )
+    return
   const command = commands[commandKey].actions[commandAction]
 
   test("success", async () => {
@@ -56,10 +62,11 @@ describe("watchlist_remove", () => {
       symbol: "eth",
     })
     expect(expected.title).toStrictEqual(
-      output?.messageOptions?.embeds?.[0].title
+      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].title
     )
     expect(expected.description).toStrictEqual(
-      output?.messageOptions?.embeds?.[0].description
+      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
+        .description
     )
   })
 
