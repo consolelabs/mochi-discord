@@ -2,7 +2,6 @@ import Discord, { MessageOptions } from "discord.js"
 import { commands } from "commands"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { mockClient } from "../../../../tests/mocks"
-import config from "adapters/config"
 import community from "adapters/community"
 import { getEmoji } from "utils/common"
 import { RunResult } from "types/common"
@@ -14,7 +13,10 @@ const actionKey = "top"
 
 describe("vote top", () => {
   const guildId = Discord.SnowflakeUtil.generate()
-  const guild = Reflect.construct(Discord.Guild, [mockClient, { id: guildId }])
+  const guild = Reflect.construct(Discord.Guild, [
+    mockClient,
+    { id: guildId, name: "Test Server" },
+  ])
 
   const userId = Discord.SnowflakeUtil.generate()
   const message = Reflect.construct(Discord.Message, [
@@ -39,11 +41,14 @@ describe("vote top", () => {
       },
     ]),
   ])
+
+  // bypass the readonly guard
+  Object.defineProperty(message, "guild", { value: guild })
+
   if (!commands[commandKey] || !commands[commandKey].actions) return
   const command = commands[commandKey].actions[actionKey]
 
   test("success", async () => {
-    return
     const ldboard = {
       ok: true,
       data: [
@@ -77,16 +82,18 @@ describe("vote top", () => {
       curl: "",
     }
     community.getVoteLeaderboard = jest.fn().mockResolvedValueOnce(ldboard)
+    message.guild.members.fetch = jest.fn().mockResolvedValue(undefined)
 
     const output = await command.run(message)
     const embed = composeEmbedMessage(message, {
-      title: `${getEmoji("cup")} ${message.guild.name}'s top 10 voters`,
+      title: `${getEmoji("cup")} ${guild.name}'s top 10 voters`,
       thumbnail:
         "https://media.discordapp.net/attachments/984660970624409630/1016614817433395210/Pump_eet.png",
       description: `\u200B\n\u200B\n\u200B`,
       image: "attachment://leaderboard.png",
     })
-    expect(config.removeVoteChannel).toHaveBeenCalled()
+    expect(community.getVoteLeaderboard).toHaveBeenCalled()
+    expect(message.guild.members.fetch).toHaveBeenCalledTimes(3)
     expect(embed.title).toStrictEqual(
       (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].title
     )
