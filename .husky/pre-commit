@@ -2,5 +2,5 @@
 . "$(dirname "$0")/_/husky.sh"
 
 npx lint-staged
-yarn generate:types && git add .
+yarn generate:types && git add src/types/api.ts
 yarn test
