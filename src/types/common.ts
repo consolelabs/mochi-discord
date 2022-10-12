@@ -3,14 +3,17 @@ import {
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
 import {
+  ButtonInteraction,
   ColorResolvable,
   CommandInteraction,
   Message,
+  MessageEditOptions,
   MessageOptions,
+  MessageSelectOptionData,
   User,
+  WebhookEditMessageOptions,
 } from "discord.js"
-import { SetOptional } from "type-fest"
-import { CommandChoiceHandlerOptions } from "utils/CommandChoiceManager"
+import type { InteractionOptions } from "utils/InteractionManager"
 
 // Category of commands
 export type Category = "Profile" | "Defi" | "Config" | "Community" | "Game"
@@ -40,6 +43,37 @@ export type SlashCommandChoiceOption = {
   choices: [string, string][]
 }
 
+export type RunResult<T = MessageOptions | MessageEditOptions> = {
+  messageOptions: T
+  interactionOptions?: InteractionOptions
+  replyMessage?: WebhookEditMessageOptions
+  buttonCollector?: (i: ButtonInteraction) => Promise<void>
+}
+
+export type SetDefaultRenderList<T> = (p: {
+  msgOrInteraction: T
+  value: string
+}) => Promise<any>
+
+export type SetDefaultButtonHandler = (i: ButtonInteraction) => Promise<void>
+
+export type MultipleResult<T> = {
+  // the select menu
+  select: {
+    placeholder?: string
+    options: MessageSelectOptionData[]
+  }
+  // e.g "...we found multiple values for {ambiguousResultText}..."
+  ambiguousResultText: string
+  // e.g "...some multiple results such as {multipleResultText}"
+  multipleResultText: string
+  // handler to run when the admin confirm to set default
+  onDefaultSet?: SetDefaultButtonHandler
+  // this function is used to render the actual embed with data when the admin
+  // choose one of the option in the select menu
+  render?: SetDefaultRenderList<T>
+}
+
 export type SlashCommand = {
   name: string
   category: Category
@@ -49,14 +83,11 @@ export type SlashCommand = {
   ) =>
     | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
     | SlashCommandSubcommandBuilder
-  run: (interaction: CommandInteraction) => Promise<
-    | {
-        messageOptions: MessageOptions
-        commandChoiceOptions?: SetOptional<
-          CommandChoiceHandlerOptions,
-          "messageId"
-        >
-      }
+  run: (
+    interaction: CommandInteraction
+  ) => Promise<
+    | RunResult<MessageOptions>
+    | MultipleResult<CommandInteraction>
     | void
     | null
     | undefined
@@ -82,13 +113,8 @@ export type Command = {
     action?: string,
     isAdmin?: boolean
   ) => Promise<
-    | {
-        messageOptions: MessageOptions
-        commandChoiceOptions?: SetOptional<
-          CommandChoiceHandlerOptions,
-          "messageId"
-        >
-      }
+    | RunResult<MessageOptions>
+    | MultipleResult<Message>
     | void
     | null
     | undefined

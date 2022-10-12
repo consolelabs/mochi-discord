@@ -37,8 +37,8 @@ const command: Command = {
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         title: "Remove a NFT from your watchlist.",
-        usage: `${PREFIX}watchlist nft-remove <symbol>`,
-        examples: `${PREFIX}watchlist nft-remove neko`,
+        usage: `${PREFIX}watchlist remove-nft <symbol>`,
+        examples: `${PREFIX}watchlist remove-nft neko`,
       }),
     ],
   }),

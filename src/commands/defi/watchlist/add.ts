@@ -7,15 +7,15 @@ import {
   composeDiscordExitButton,
   composeEmbedMessage,
 } from "utils/discordEmbed"
-import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { Coin } from "types/defi"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
 import CacheManager from "utils/CacheManager"
 import { handleUpdateWlError } from "../watchlist_slash"
+import { InteractionHandler } from "utils/InteractionManager"
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const value = interaction.values[0]
   const [symbol, coinGeckoId, userId] = value.split("_")
@@ -97,10 +97,7 @@ const command: Command = {
         ],
         components: [selectRow, composeDiscordExitButton(msg.author.id)],
       },
-      commandChoiceOptions: {
-        userId: msg.author.id,
-        guildId: msg.guildId,
-        channelId: msg.channelId,
+      interactionOptions: {
         handler,
       },
     }

@@ -22,6 +22,8 @@ import {
   getDateStr,
   getEmojiURL,
   emojis,
+  defaultEmojis,
+  hasAdministrator,
 } from "./common"
 import {
   getCommandObject,
@@ -33,6 +35,8 @@ import {
   Command,
   EmbedProperties,
   embedsColors,
+  SetDefaultButtonHandler,
+  SetDefaultRenderList,
   SlashCommand,
 } from "types/common"
 import {
@@ -42,11 +46,92 @@ import {
 import dayjs from "dayjs"
 import { wrapError } from "./wrapError"
 import { commands, slashCommands } from "commands"
+import { InteractionHandler } from "./InteractionManager"
 
 export const EMPTY_FIELD = {
   name: "\u200B",
   value: "\u200B",
   inline: true,
+}
+
+type SetDefaultMiddlewareParams<T> = {
+  render: SetDefaultRenderList<T>
+  label: string
+  onDefaultSet: SetDefaultButtonHandler
+  // for slash command case
+  commandInteraction?: CommandInteraction
+}
+
+export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
+  return <InteractionHandler>(async (i: SelectMenuInteraction) => {
+    const selectedValue = i.values[0]
+    const interactionMsg = i.message as Message
+    const member = await interactionMsg.guild?.members.fetch(i.user.id)
+    const isAdmin = hasAdministrator(member)
+    let originalMsg = null
+    let replyMessage
+    if (interactionMsg.reference) {
+      originalMsg = await interactionMsg.fetchReference()
+    } else if (params.commandInteraction) {
+      originalMsg = params.commandInteraction
+    }
+
+    if (!originalMsg) return
+    const render = await params.render({
+      // TODO(tuan): i don't know how to solve this (yet)
+      msgOrInteraction: originalMsg as any,
+      value: selectedValue,
+    })
+    if (isAdmin) {
+      await i.deferReply({ ephemeral: true }).catch(() => null)
+
+      const actionRow = new MessageActionRow().addComponents(
+        new MessageButton({
+          customId: selectedValue,
+          emoji: getEmoji("approve"),
+          style: "PRIMARY",
+          label: "Confirm",
+        })
+      )
+
+      const embedProps = {
+        title: "Set default",
+        description: `Do you want to set **${params.label}** as the default value for this command?\nNo further selection next time use command`,
+      }
+
+      replyMessage = {
+        embeds: [
+          originalMsg instanceof Message
+            ? composeEmbedMessage(originalMsg, embedProps)
+            : composeEmbedMessage2(originalMsg, embedProps),
+        ],
+        components: [actionRow],
+      }
+    }
+
+    return {
+      ...render,
+      replyMessage,
+      buttonCollector: params.onDefaultSet,
+    }
+  })
+}
+
+export function getMultipleResultEmbed({
+  msg,
+  ambiguousResultText,
+  multipleResultText,
+}: {
+  msg: Message | null
+  ambiguousResultText: string
+  multipleResultText: string
+}) {
+  return composeEmbedMessage(msg, {
+    title: `${defaultEmojis.MAG} Multiple results found`,
+    description: `Multiple results found for \`${ambiguousResultText}\`${
+      multipleResultText ? `: ${multipleResultText}` : ""
+    }.\nPlease select one of the following`,
+  })
 }
 
 /**
