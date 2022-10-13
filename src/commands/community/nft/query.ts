@@ -5,7 +5,6 @@ import {
   MessageActionRow,
   MessageAttachment,
   MessageButton,
-  MessageComponentInteraction,
   MessageOptions,
 } from "discord.js"
 import { Command } from "types/common"
@@ -23,6 +22,7 @@ import {
 } from "utils/discordEmbed"
 import community from "adapters/community"
 import {
+  authorFilter,
   capFirst,
   capitalizeFirst,
   defaultEmojis,
@@ -62,11 +62,6 @@ const rarityColors: Record<string, string> = {
 }
 
 let icons: ResponseNftMetadataAttrIcon[]
-
-const filter = (authorId: string) => async (i: MessageComponentInteraction) => {
-  await i.deferUpdate().catch(() => null)
-  return i.user.id === authorId
-}
 
 const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
 
@@ -139,7 +134,7 @@ function collectButton(msg: Message, originMsg: Message) {
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
-      filter: filter(originMsg.author.id),
+      filter: authorFilter(originMsg.author.id),
     })
     .on("collect", async (i) => {
       await switchView(i, originMsg)
@@ -789,7 +784,7 @@ const command: Command = {
               ?.createMessageComponentCollector({
                 componentType: MessageComponentTypes.BUTTON,
                 idle: 60000,
-                filter: filter(msg.author.id),
+                filter: authorFilter(msg.author.id),
               })
               .on("collect", setDefaultSymbol)
           }

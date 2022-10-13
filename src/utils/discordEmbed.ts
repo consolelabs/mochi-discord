@@ -24,6 +24,7 @@ import {
   emojis,
   defaultEmojis,
   hasAdministrator,
+  authorFilter,
 } from "./common"
 import {
   getCommandObject,
@@ -485,6 +486,7 @@ export function listenForSuggestionAction(
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
+      filter: authorFilter(authorId),
     })
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
@@ -501,6 +503,7 @@ export function listenForSuggestionAction(
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.SELECT_MENU,
       idle: 60000,
+      filter: authorFilter(authorId),
     })
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
@@ -532,6 +535,7 @@ export function listenForPaginateAction(
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
+      filter: authorFilter(replyMsg.author.id),
     })
     .on("collect", async (i) => {
       await i.deferUpdate()

@@ -14,21 +14,15 @@ import {
   Message,
   MessageActionRow,
   MessageButton,
-  MessageComponentInteraction,
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
+import { authorFilter, getEmoji, shortenHashOrAddress } from "utils/common"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 
 type State = "idle" | "queued" | "queued-detail" | "undo" | "undo-detail"
 
 let buttonCollector: InteractionCollector<ButtonInteraction> | null = null
-
-const filter = (authorId: string) => async (i: MessageComponentInteraction) => {
-  await i.deferUpdate()
-  return i.user.id === authorId
-}
 
 function remove(
   guildId: string,
@@ -106,7 +100,7 @@ function collectButton(msg: Message, authorId: string) {
   if (buttonCollector) return buttonCollector
   return msg
     .createMessageComponentCollector({
-      filter: filter(authorId),
+      filter: authorFilter(authorId),
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
     })
@@ -119,7 +113,7 @@ function collectButton(msg: Message, authorId: string) {
 function collectSelect(msg: Message, authorId: string) {
   msg
     .createMessageComponentCollector({
-      filter: filter(authorId),
+      filter: authorFilter(authorId),
       componentType: MessageComponentTypes.SELECT_MENU,
       idle: 60000,
     })

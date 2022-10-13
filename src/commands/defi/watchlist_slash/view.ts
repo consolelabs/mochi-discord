@@ -6,10 +6,15 @@ import {
   MessageActionRow,
   MessageAttachment,
   MessageButton,
-  MessageComponentInteraction,
   MessageEmbed,
 } from "discord.js"
-import { emojis, getEmojiURL, thumbnails, tokenEmojis } from "utils/common"
+import {
+  authorFilter,
+  emojis,
+  getEmojiURL,
+  thumbnails,
+  tokenEmojis,
+} from "utils/common"
 import { composeEmbedMessage2 } from "utils/discordEmbed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
@@ -29,11 +34,6 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 
 let fontRegistered = false
 let interaction: CommandInteraction
-
-const filter = (authorId: string) => async (i: MessageComponentInteraction) => {
-  await i.deferUpdate()
-  return i.user.id === authorId
-}
 
 async function renderWatchlist(data: any[]) {
   if (!fontRegistered) {
@@ -368,7 +368,7 @@ function collectButton(msg: Message) {
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
-      filter: filter(interaction.user.id),
+      filter: authorFilter(interaction.user.id),
     })
     .on("collect", async (i) => {
       await switchView(i)

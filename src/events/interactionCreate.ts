@@ -23,7 +23,7 @@ import community from "adapters/community"
 import { wrapError } from "utils/wrapError"
 import { handleTickerViews } from "commands/defi/ticker"
 import { handleNFTTickerViews } from "commands/community/nft/ticker"
-import { hasAdministrator } from "utils/common"
+import { authorFilter, hasAdministrator } from "utils/common"
 import { handleButtonOffer } from "commands/community/trade"
 import InteractionManager from "utils/InteractionManager"
 import { MessageComponentTypes } from "discord.js/typings/enums"
@@ -164,6 +164,7 @@ async function handleSelectMenuInteraction(i: SelectMenuInteraction) {
       const collector = msg.createMessageComponentCollector({
         time: 300000,
         componentType: MessageComponentTypes.BUTTON,
+        filter: authorFilter(i.user.id),
       })
 
       collector.on("collect", buttonCollector).on("end", () => {
