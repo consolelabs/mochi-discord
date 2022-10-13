@@ -525,7 +525,7 @@ const command: Command = {
         const [query, name, symbol, collectionAddress, chainId] =
           i.customId.split("_")
         getDefaultSetter({
-          updateAPI: config.setGuildDefaultNFTTicker.bind(null, {
+          updateAPI: config.setGuildDefaultNFTTicker.bind(config, {
             guild_id: i.guildId ?? "",
             query,
             symbol,
