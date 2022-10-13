@@ -534,6 +534,21 @@ class Config extends Fetcher {
     return json.data
   }
 
+  public async CreateConfigRepostReactionStartStop(data: {
+    guild_id: string
+    emoji_start: string
+    emoji_stop: string
+    repost_channel_id: string
+  }) {
+    return this.jsonFetch(
+      `${API_BASE_URL}/configs/repost-reactions/start-stop`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    )
+  }
+
   public async updateRepostReactionConfig(req: RepostReactionRequest) {
     return this.jsonFetch(`${API_BASE_URL}/configs/repost-reactions`, {
       method: "POST",
