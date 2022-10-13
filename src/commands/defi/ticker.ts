@@ -414,13 +414,13 @@ const command: Command = {
       onDefaultSet: async (i) => {
         const [coinId, symbol, name] = i.customId.split("_")
         getDefaultSetter({
-          updateAPI: config.setGuildDefaultTicker.bind(null, {
+          updateAPI: config.setGuildDefaultTicker.bind(config, {
             guild_id: i.guildId ?? "",
             query: symbol,
             default_ticker: coinId,
           }),
           updateCache: CacheManager.findAndRemove.bind(
-            null,
+            CacheManager,
             "ticker",
             `ticker-default-${i.guildId}-${symbol}`
           ),
