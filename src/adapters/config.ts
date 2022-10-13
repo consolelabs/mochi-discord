@@ -417,19 +417,11 @@ class Config extends Fetcher {
     address: string
     chain: string
   }) {
-    const resp = await fetch(`${API_BASE_URL}/configs/custom-tokens`, {
+    return this.jsonFetch(`${API_BASE_URL}/configs/custom-tokens`, {
+      autoWrap500Error: false,
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    if (resp.status !== 200) {
-      throw new Error(`failed to add new token ${body.symbol}`)
-    }
-    return json
   }
 
   public async configLevelRole(data: RequestConfigLevelRoleRequest) {
