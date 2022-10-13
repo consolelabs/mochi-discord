@@ -41,12 +41,17 @@ const command: Command = {
         )
         for (const prom of promiseArr) {
           const [err, fetchedMsg] = await prom
+          const title =
+            fetchedMsg.content ||
+            fetchedMsg.embeds?.[0]?.title ||
+            fetchedMsg.embeds?.[0]?.description ||
+            "Embed Message"
           if (!err && conf.roles?.length > 0) {
             const f = conf.roles.map((role: any) => ({
               role: `<@&${role.id}>`,
               emoji: role.reaction,
               url: fetchedMsg.url,
-              title: fetchedMsg.content,
+              title,
             }))
             return f
           }

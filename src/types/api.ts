@@ -208,6 +208,8 @@ export interface ModelGuildConfigLevelRole {
 
 export interface ModelGuildConfigRepostReaction {
   emoji?: string;
+  emoji_start?: string;
+  emoji_stop?: string;
   guild_id?: string;
   id?: string;
   quantity?: number;
@@ -317,6 +319,56 @@ export interface ModelNewListedNFTCollection {
   symbol?: string;
 }
 
+export interface ModelQuest {
+  action?: string;
+  frequency?: number;
+  id?: string;
+  routine?: string;
+  title?: string;
+}
+
+export interface ModelQuestReward {
+  id?: string;
+  pass_id?: string;
+  quest?: ModelQuest;
+  quest_id?: string;
+  reward_amount?: number;
+  reward_type?: ModelQuestRewardType;
+  reward_type_id?: string;
+}
+
+export interface ModelQuestRewardType {
+  id?: string;
+  name?: string;
+}
+
+export interface ModelQuestUserList {
+  action?: string;
+  current?: number;
+  end_time?: string;
+  id?: string;
+  is_claimed?: boolean;
+  is_completed?: boolean;
+  quest?: ModelQuest;
+  quest_id?: string;
+  routine?: string;
+  start_time?: string;
+  target?: number;
+  user_id?: string;
+}
+
+export interface ModelQuestUserReward {
+  claimed_at?: string;
+  pass_id?: string;
+  quest_id?: string;
+  reward?: ModelQuestReward;
+  reward_amount?: number;
+  reward_id?: string;
+  reward_type_id?: string;
+  start_time?: string;
+  user_id?: string;
+}
+
 export interface ModelToken {
   address?: string;
   chain?: ModelChain;
@@ -396,6 +448,11 @@ export interface RequestAddWhitelistCampaignUser {
 
 export interface RequestAddWhitelistCampaignUserRequest {
   users?: RequestAddWhitelistCampaignUser[];
+}
+
+export interface RequestClaimQuestsRewardsRequest {
+  routine?: string;
+  user_id?: string;
 }
 
 export interface RequestConfigDefaultCollection {
@@ -586,6 +643,12 @@ export interface RequestUpdateGuildRequest {
   log_channel?: string;
 }
 
+export interface RequestUpdateQuestProgressRequest {
+  action?: string;
+  guild_id?: string;
+  user_id?: string;
+}
+
 export interface RequestUpsertCustomTokenConfigRequest {
   active?: boolean;
   address?: string;
@@ -641,6 +704,10 @@ export interface ResponseAddToWatchlistResponse {
 export interface ResponseAddToWatchlistResponseData {
   base_suggestions?: ModelCoingeckoSupportedTokens[];
   target_suggestions?: ModelCoingeckoSupportedTokens[];
+}
+
+export interface ResponseClaimQuestsRewardsResponse {
+  data?: ModelQuestUserReward[];
 }
 
 export interface ResponseCoinDescription {
@@ -996,6 +1063,10 @@ export interface ResponseGetUserProfileResponse {
   progress?: number;
   user_faction_xps?: ModelUserFactionXpsMapping;
   user_wallet?: ModelUserWallet;
+}
+
+export interface ResponseGetUserQuestListResponse {
+  data?: ModelQuestUserList[];
 }
 
 export interface ResponseGetUserResponse {
