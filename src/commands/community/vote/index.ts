@@ -21,7 +21,7 @@ const actions: Record<string, Command> = {
 const voteLimitCount = 4
 const formatter = new Intl.NumberFormat("en-US", { minimumIntegerDigits: 2 })
 
-function buildProgressBar(progress: number, scale = 1) {
+export function buildProgressBar(progress: number, scale = 1) {
   const list = new Array(Math.ceil(voteLimitCount * scale)).fill(
     getEmoji("progress_empty_2")
   )
@@ -41,7 +41,7 @@ function buildProgressBar(progress: number, scale = 1) {
   return filled.join("")
 }
 
-function buildStreakBar(progress: number) {
+export function buildStreakBar(progress: number) {
   return [
     ...new Array(progress).fill(getEmoji("approve")),
     ...new Array(10 - progress).fill(getEmoji("approve_grey")),
@@ -152,11 +152,11 @@ const command: Command = {
   brief: "Display voting streaks and links to vote",
   category: "Community",
   run: async (msg: Message) => {
-    if (!msg.guild) {
+    if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
     }
-    const res = await handleInfo(msg.guild, msg.author)
-    if (res?.channel_id && msg.channel.id !== res?.channel_id) {
+    const res = await handleInfo(msg.guildId, msg.author)
+    if (res?.channel_id && msg.channelId !== res?.channel_id) {
       return {
         messageOptions: {
           embeds: [

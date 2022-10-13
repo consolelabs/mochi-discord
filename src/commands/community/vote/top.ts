@@ -38,7 +38,7 @@ const command: Command = {
           await drawLeaderboard({
             rows: await Promise.all(
               res.data?.map(async (d) => {
-                const user = await msg.guild?.members.fetch(d.discord_id ?? "")
+                const user = await msg.guild?.members?.fetch(d.discord_id ?? "")
                 if (user) {
                   return {
                     username: user.user.username,
