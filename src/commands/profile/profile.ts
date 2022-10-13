@@ -4,7 +4,6 @@ import {
   Message,
   MessageActionRow,
   MessageButton,
-  MessageComponentInteraction,
   MessageEmbed,
   MessageSelectMenu,
   SelectMenuInteraction,
@@ -14,6 +13,7 @@ import { Command } from "types/common"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { PREFIX, PROFILE_GITBOOK } from "utils/constants"
 import {
+  authorFilter,
   emojis,
   getEmoji,
   hasAdministrator,
@@ -26,11 +26,6 @@ import { composeNFTDetail } from "commands/community/nft/query"
 
 let currentView = "my-profile"
 let currentCollectionAddress: string | undefined
-
-const filter = (authorId: string) => async (i: MessageComponentInteraction) => {
-  await i.deferUpdate()
-  return i.user.id === authorId
-}
 
 function buildSwitchViewActionRow(currentView: string) {
   const myProfileButton = new MessageButton({
@@ -108,7 +103,7 @@ function collectButton(
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
-      filter: filter(authorId),
+      filter: authorFilter(authorId),
     })
     .on("collect", async (i) => {
       const buttonType = i.customId.split("/").shift()
@@ -186,7 +181,7 @@ function collectSelectMenu(msg: Message, authorId: string, user: User) {
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.SELECT_MENU,
       idle: 60000,
-      filter: filter(authorId),
+      filter: authorFilter(authorId),
     })
     .on("collect", async (i) => {
       await selectCollection(i, msg, user)
