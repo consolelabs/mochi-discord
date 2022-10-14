@@ -1,4 +1,4 @@
-import { Command } from "types/common"
+import { Command, RequestConfigRepostReactionStartStop } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
@@ -91,7 +91,7 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
 
-    const requestData = {
+    const requestData: RequestConfigRepostReactionStartStop = {
       guild_id: msg.guild.id,
       emoji_start: reactionStart,
       emoji_stop: reactionStop,

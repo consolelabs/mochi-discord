@@ -3,6 +3,7 @@ import {
   DefaultRoleEvent,
   RepostReactionRequest,
   RoleReactionEvent,
+  RequestConfigRepostReactionStartStop,
 } from "types/common"
 import { CommandInteraction, Message } from "discord.js"
 import { CommandIsNotScopedError, SlashCommandIsNotScopedError } from "errors"
@@ -534,17 +535,14 @@ class Config extends Fetcher {
     return json.data
   }
 
-  public async CreateConfigRepostReactionStartStop(data: {
-    guild_id: string
-    emoji_start: string
-    emoji_stop: string
-    repost_channel_id: string
-  }) {
+  public async CreateConfigRepostReactionStartStop(
+    req: RequestConfigRepostReactionStartStop
+  ) {
     return this.jsonFetch(
       `${API_BASE_URL}/configs/repost-reactions/start-stop`,
       {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(req),
       }
     )
   }

@@ -205,3 +205,10 @@ export type Pagination = {
   size: number
   total: number
 }
+
+export type RequestConfigRepostReactionStartStop = {
+  emoji_start?: string
+  emoji_stop?: string
+  guild_id?: string
+  repost_channel_id?: string
+}
