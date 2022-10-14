@@ -1,25 +1,15 @@
 import defi from "adapters/defi"
-import {
-  HexColorString,
-  Message,
-  MessageSelectOptionData,
-  SelectMenuInteraction,
-} from "discord.js"
+import { HexColorString, Message } from "discord.js"
 import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { Coin } from "types/defi"
 import CacheManager from "utils/CacheManager"
 import { getChartColorConfig } from "utils/canvas"
 import { getCommandArguments } from "utils/commands"
-import { defaultEmojis } from "utils/common"
 import { PREFIX } from "utils/constants"
-import {
-  composeDiscordExitButton,
-  composeDiscordSelectionRow,
-  composeEmbedMessage,
-} from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import TurnDown from "turndown"
-import { InteractionHandler } from "utils/InteractionManager"
+import config from "adapters/config"
+import { getDefaultSetter } from "utils/default-setters"
 
 async function composeTokenInfoResponse({
   msg,
@@ -62,51 +52,6 @@ async function composeTokenInfoResponse({
   }
 }
 
-function composeTokenInfoSelectionResponse(
-  coins: Coin[],
-  coinSymbol: string,
-  msg: Message
-) {
-  const opt = (coin: Coin): MessageSelectOptionData => ({
-    label: `${coin.name} (${coin.symbol})`,
-    value: `${coin.id}`,
-  })
-  const selectRow = composeDiscordSelectionRow({
-    customId: "tokens_info_selection",
-    placeholder: "Select a token",
-    options: coins.map((c: Coin) => opt(c)),
-  })
-  const found = coins
-    .map((c: { name: string; symbol: string }) => `**${c.name}** (${c.symbol})`)
-    .join(", ")
-  return {
-    messageOptions: {
-      embeds: [
-        composeEmbedMessage(msg, {
-          title: `${defaultEmojis.MAG} Multiple tokens found`,
-          description: `Multiple tokens found for \`${coinSymbol}\`: ${found}.\nPlease select one of the following tokens`,
-        }),
-      ],
-      components: [selectRow, composeDiscordExitButton(msg.author.id)],
-    },
-    interactionOptions: {
-      handler: tokenInfoSelectionHandler,
-    },
-  }
-}
-
-const tokenInfoSelectionHandler: InteractionHandler = async (
-  msgOrInteraction
-) => {
-  const interaction = msgOrInteraction as SelectMenuInteraction
-  const { message } = <{ message: Message }>interaction
-  const coinId = interaction.values[0]
-  return await composeTokenInfoResponse({
-    msg: message,
-    coinId,
-  })
-}
-
 const command: Command = {
   id: "info_server_token",
   command: "info",
@@ -138,8 +83,60 @@ const command: Command = {
     if (coins.length === 1) {
       return await composeTokenInfoResponse({ msg, coinId: coins[0].id })
     }
+    // if default was set then respond...
     const { symbol } = coins[0]
-    return composeTokenInfoSelectionResponse(Object.values(coins), symbol, msg)
+    const defaultToken = await CacheManager.get({
+      pool: "ticker",
+      key: `ticker-default-${msg.guildId}-${symbol}`,
+      call: () =>
+        config.getGuildDefaultTicker({
+          guild_id: msg.guildId ?? "",
+          query: symbol,
+        }),
+    })
+    if (defaultToken.ok && defaultToken.data.default_ticker) {
+      return await composeTokenInfoResponse({
+        msg,
+        coinId: defaultToken.data.default_ticker,
+      })
+    }
+
+    // else render embed to show multiple results
+    return {
+      select: {
+        options: Object.values(coins).map((coin: any) => {
+          return {
+            label: `${coin.name} (${coin.symbol.toUpperCase()})`,
+            value: `${coin.id}_${coin.symbol}_${coin.name}`,
+          }
+        }),
+        placeholder: "Select a token",
+      },
+      onDefaultSet: async (i) => {
+        const [coinId, symbol, name] = i.customId.split("_")
+        getDefaultSetter({
+          updateAPI: config.setGuildDefaultTicker.bind(config, {
+            guild_id: i.guildId ?? "",
+            query: symbol,
+            default_ticker: coinId,
+          }),
+          updateCache: CacheManager.findAndRemove.bind(
+            CacheManager,
+            "ticker",
+            `ticker-default-${i.guildId}-${symbol}`
+          ),
+          description: `Next time your server members use \`$token info\` with \`${symbol}\`, **${name}** will be the default selection`,
+        })(i)
+      },
+      render: ({ msgOrInteraction: msg, value }) => {
+        const [coinId] = value.split("_")
+        return composeTokenInfoResponse({ msg, coinId })
+      },
+      ambiguousResultText: token.toUpperCase(),
+      multipleResultText: Object.values(coins)
+        .map((c: any) => `**${c.name}** (${c.symbol.toUpperCase()})`)
+        .join(", "),
+    }
   },
   getHelpMessage: async (msg) => ({
     embeds: [

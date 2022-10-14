@@ -439,3 +439,9 @@ export function getCompactFormatedNumber(value: number) {
   const formatter = Intl.NumberFormat("en", { notation: "compact" })
   return formatter.format(value)
 }
+
+export const authorFilter =
+  (authorId: string) => async (i: MessageComponentInteraction) => {
+    await i.deferUpdate().catch(() => null)
+    return i.user.id === authorId
+  }
