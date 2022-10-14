@@ -27,6 +27,10 @@ import { authorFilter, hasAdministrator } from "utils/common"
 import { handleButtonOffer } from "commands/community/trade"
 import InteractionManager from "utils/InteractionManager"
 import { MessageComponentTypes } from "discord.js/typings/enums"
+import {
+  handleBackToQuestList,
+  handleClaimReward,
+} from "commands/community/quest/daily"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -217,6 +221,12 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("trade-offer"):
       await handleButtonOffer(i)
+      return
+    case i.customId.startsWith("claim-rewards"):
+      await handleClaimReward(i)
+      return
+    case i.customId.startsWith("back-to-quest-list"):
+      await handleBackToQuestList(i)
       return
     default:
       return
