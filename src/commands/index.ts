@@ -30,6 +30,7 @@ import watchlist from "./defi/watchlist"
 import vote from "./community/vote"
 import telegram from "./config/telegram"
 import trade from "./community/trade"
+import quest from "./community/quest"
 
 // slash commands
 import help_slash from "./help_slash"
@@ -43,6 +44,7 @@ import prune_slash from "./community/prune_slash"
 import defaultrole_slash from "./config/defaultRole_slash"
 import levelrole_slash from "./config/levelRole_slash"
 import vote_slash from "./community/vote/vote_slash"
+import quest_slash from "./community/quest_slash"
 
 // external
 import { Message } from "discord.js"
@@ -93,6 +95,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   defaultrole: defaultrole_slash,
   levelrole: levelrole_slash,
   prune: prune_slash,
+  quest: quest_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -120,6 +123,7 @@ export const originalCommands: Record<string, Command> = {
   verify,
   vote,
   prune,
+  quest,
   // config section
   reactionrole,
   defaultrole,

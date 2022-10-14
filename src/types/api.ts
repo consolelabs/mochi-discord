@@ -213,6 +213,7 @@ export interface ModelGuildConfigRepostReaction {
   guild_id?: string;
   id?: string;
   quantity?: number;
+  reaction_type?: string;
   repost_channel_id?: string;
 }
 
@@ -479,6 +480,13 @@ export interface RequestConfigLevelRoleRequest {
   guild_id?: string;
   level?: number;
   role_id?: string;
+}
+
+export interface RequestConfigRepostReactionStartStop {
+  emoji_start?: string;
+  emoji_stop?: string;
+  guild_id?: string;
+  repost_channel_id?: string;
 }
 
 export interface RequestConfigRepostRequest {

@@ -176,6 +176,7 @@ export const emojis: { [key: string]: string } = {
   TICKER: "📈",
   INFO: "🔎",
   FLOORPRICE: "1029662833144766464",
+  CHEST: "933339868006871070",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -445,3 +446,46 @@ export const authorFilter =
     await i.deferUpdate().catch(() => null)
     return i.user.id === authorId
   }
+
+type BuildProgressBarParams = {
+  total: number
+  progress: number
+  // scale the total and progress e.g scale = 2 => double the amount of emojis and so forth
+  // default to 1
+  scale?: number
+  emoji: {
+    leftEmpty: string
+    empty: string
+    rightEmpty: string
+    leftFilled: string
+    filled: string
+    rightFilled: string
+  }
+}
+
+/**
+ * Return a progress bar represented by emojis
+ * */
+export function buildProgressBar(params: BuildProgressBarParams) {
+  const { total, progress, scale = 1, emoji } = params
+  const list = new Array(Math.ceil(total * scale)).fill(emoji.empty)
+  const filled = list.map((empty, index) => {
+    if (index < Math.ceil(progress * scale)) {
+      return emoji.filled
+    }
+    return empty
+  })
+  // trim 2 ends
+  if (progress > 0) {
+    filled[0] = emoji.leftFilled
+  } else {
+    filled[0] = emoji.leftEmpty
+  }
+
+  if (progress === total) {
+    filled[filled.length - 1] = emoji.rightFilled
+  } else {
+    filled[filled.length - 1] = emoji.rightEmpty
+  }
+  return filled.join("")
+}
