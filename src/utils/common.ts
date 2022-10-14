@@ -450,9 +450,9 @@ export const authorFilter =
 type BuildProgressBarParams = {
   total: number
   progress: number
-  // scale the total and progress e.g scale = 2 => double the amount of emojis and so forth
-  // default to 1
-  scale?: number
+  // the number of emojis used to render the progress bar
+  // defaults to 8 (looks nice on one line on Discord)
+  length?: number
   emoji: {
     leftEmpty: string
     empty: string
@@ -467,15 +467,16 @@ type BuildProgressBarParams = {
  * Return a progress bar represented by emojis
  * */
 export function buildProgressBar(params: BuildProgressBarParams) {
-  const { total, progress, scale = 1, emoji } = params
-  const list = new Array(Math.ceil(total * scale)).fill(emoji.empty)
+  const { total, progress, length = 8, emoji } = params
+  const list = new Array(Math.ceil(length)).fill(emoji.empty)
   const filled = list.map((empty, index) => {
-    if (index < Math.ceil(progress * scale)) {
+    if (index < Math.ceil((progress / total) * length)) {
       return emoji.filled
     }
     return empty
   })
-  // trim 2 ends
+
+  // convert 2 ends to rounded version
   if (progress > 0) {
     filled[0] = emoji.leftFilled
   } else {
@@ -487,5 +488,6 @@ export function buildProgressBar(params: BuildProgressBarParams) {
   } else {
     filled[filled.length - 1] = emoji.rightEmpty
   }
+
   return filled.join("")
 }
