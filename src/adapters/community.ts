@@ -7,6 +7,7 @@ import {
   ResponseGetSuggestionNFTCollectionsResponse,
   ResponseGetNFTCollectionByAddressChainResponse,
   ResponseIndexerGetNFTTokenTickersResponse,
+  ResponseClaimQuestsRewardsResponse,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL } from "utils/constants"
@@ -317,6 +318,27 @@ class Community extends Fetcher {
           tokenId,
           from,
           to,
+        },
+      }
+    )
+  }
+
+  public async getListQuest(user_id: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/quests`, {
+      query: {
+        user_id,
+      },
+    })
+  }
+
+  public async claimAllReward(user_id: string, routine = "daily") {
+    return await this.jsonFetch<ResponseClaimQuestsRewardsResponse>(
+      `${API_BASE_URL}/quests/claim`,
+      {
+        method: "POST",
+        body: {
+          routine,
+          user_id,
         },
       }
     )
