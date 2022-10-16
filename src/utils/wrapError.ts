@@ -1,7 +1,10 @@
+import usage_stats from "adapters/usage_stats"
+import { commands } from "commands"
 import { Interaction, Message } from "discord.js"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
 import ChannelLogger from "./ChannelLogger"
+import { getCommandMetadata } from "./commands"
 
 function catchAll(e: any) {
   logger.error(e)
@@ -15,9 +18,12 @@ export async function wrapError(
     await func()
   } catch (e: any) {
     let error = e as BotBaseError
-
     if (msg instanceof Message || msg instanceof Interaction) {
       let message = msg
+      const guildId = msg.guildId ?? "DM"
+      let userId = ""
+      let commandStr = ""
+      let args = ""
       if (
         msg instanceof Interaction &&
         (msg.isSelectMenu() || msg.isButton() || msg.isCommand())
@@ -36,17 +42,42 @@ export async function wrapError(
         }
       }
       if (message instanceof Message) {
+        // get command info
+        const { commandKey } = getCommandMetadata(commands, message)
+        if (commandKey) {
+          const commandObject = commands[commandKey]
+          userId = message.author.id
+          commandStr = commandObject.id
+          args = message.content
+        }
+        //
+
         // something went wrong
         if (!(error instanceof BotBaseError)) {
           error = new BotBaseError(message, e.message as string)
         }
         error.handle?.()
         ChannelLogger.alert(message, error).catch(catchAll)
-        return
       } else if (message.isCommand()) {
+        // get command info
+        userId = message.user.id
+        commandStr =
+          message.commandName + message.options.getSubcommand()
+            ? "_" + message.options.getSubcommand()
+            : ""
+        args = commandStr
+        //
         ChannelLogger.alertSlash(message, error).catch(catchAll)
-        return
       }
+      // send command info to store
+      usage_stats.createUsageStat({
+        guild_id: guildId,
+        user_id: userId,
+        command: commandStr,
+        args: args,
+        success: false,
+      })
+      return
     }
 
     // if it reaches here then we're screwed
