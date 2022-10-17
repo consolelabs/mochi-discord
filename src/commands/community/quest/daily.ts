@@ -92,8 +92,12 @@ export async function handleClaimReward(i: ButtonInteraction) {
 
   embed.fields = Object.values(data).map((d: any) => {
     return {
-      name: `\`${d.total}\` ${d.reward_type}`,
-      value: d.list.map((e: any) => `${getEmoji("blank")} ${e}`).join("\n"),
+      name: `${getEmoji(d.reward_type, d.reward_type === "xp")} \`${
+        d.total
+      }\` ${d.reward_type}`,
+      value: d.list
+        .map((e: any) => `${getEmoji("blank")}${getEmoji("reply")} ${e}`)
+        .join("\n"),
       inline: false,
     }
   })
@@ -143,15 +147,23 @@ export async function run(userId: string, msg: Message | null) {
   embed.fields = res.data
     .filter((d: any) => d.action !== "bonus")
     .map((d: any) => {
+      const rewards = d.quest.rewards
+        .map(
+          (r: any) =>
+            `${getEmoji(r.reward_type.name, r.reward_type.name === "xp")} \`${
+              r.reward_amount
+            }\` ${r.reward_type.name}`
+        )
+        .join(" and ")
       return {
         name: `**${d.quest.title}**`,
         value: `${getEmoji(
           d.is_completed ? "approve" : "approve_grey"
         )} ${buildProgressBar({
           emoji,
-          total: d.quest.frequency,
-          progress: d.quest.current,
-        })} \`${d.current}/${d.quest.frequency}\`\n**Rewards:**`,
+          total: d.target,
+          progress: d.current,
+        })} \`${d.current}/${d.target}\`\n**Rewards:** ${rewards}`,
         inline: false,
       }
     })

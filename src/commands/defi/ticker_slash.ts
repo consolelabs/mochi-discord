@@ -48,18 +48,21 @@ CacheManager.init({
 
 async function renderHistoricalMarketChart({
   coinId,
-  days = 7,
   bb, // show bear/bull meme
+  days = 7,
+  discordId,
 }: {
   coinId: string
-  days?: number
   bb: boolean
+  days?: number
+  discordId?: string
 }) {
   const currency = "usd"
   const { ok, data } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getHistoricalMarketData-${coinId}-${currency}-${days}`,
-    call: () => defi.getHistoricalMarketData(coinId, currency, days || 7),
+    call: () =>
+      defi.getHistoricalMarketData({ coinId, currency, days, discordId }),
   })
   if (!ok) return null
   const { times, prices, from, to } = data
@@ -162,12 +165,14 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
 
 async function composeTickerResponse({
   coinId,
-  days,
   interaction,
+  days,
+  discordId,
 }: {
   coinId: string
-  days?: number
   interaction: SelectMenuInteraction | CommandInteraction
+  days?: number
+  discordId?: string
 }) {
   const {
     ok,
@@ -239,7 +244,11 @@ async function composeTickerResponse({
     },
   ])
 
-  const chart = await renderHistoricalMarketChart({ coinId: coin.id, bb })
+  const chart = await renderHistoricalMarketChart({
+    coinId: coin.id,
+    bb,
+    discordId,
+  })
   const selectRow = composeDaysSelectMenu(
     "tickers_range_selection",
     `${coin.id}`,
@@ -337,7 +346,11 @@ const command: SlashCommand = {
     }
 
     if (coins.length === 1) {
-      return await composeTickerResponse({ coinId: coins[0].id, interaction })
+      return await composeTickerResponse({
+        coinId: coins[0].id,
+        interaction,
+        discordId: interaction.user.id,
+      })
     }
 
     // if default ticket was set then respond...
@@ -355,6 +368,7 @@ const command: SlashCommand = {
       return await composeTickerResponse({
         coinId: defaultTicker.data.default_ticker,
         interaction,
+        discordId: interaction.user.id,
       })
     }
 
@@ -386,7 +400,11 @@ const command: SlashCommand = {
       },
       render: ({ msgOrInteraction: interaction, value }) => {
         const [coinId] = value.split("_")
-        return composeTickerResponse({ interaction, coinId })
+        return composeTickerResponse({
+          interaction,
+          coinId,
+          discordId: interaction.user.id,
+        })
       },
       ambiguousResultText: baseQ.toUpperCase(),
       multipleResultText: Object.values(coins)

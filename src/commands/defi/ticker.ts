@@ -42,18 +42,22 @@ import { getDefaultSetter } from "utils/default-setters"
 
 async function renderHistoricalMarketChart({
   coinId,
-  days = 7,
   bb, // show bear/bull meme
+  days = 7,
+  discordId,
 }: {
   coinId: string
-  days?: number
   bb: boolean
+  days?: number
+  discordId?: string
 }) {
   const currency = "usd"
   const { ok, data } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getHistoricalMarketData-${coinId}-${currency}-${days}`,
-    call: () => defi.getHistoricalMarketData(coinId, currency, days || 7),
+    call: () =>
+      defi.getHistoricalMarketData({ coinId, currency, days, discordId }),
+    ttl: 60,
   })
   if (!ok) return null
   const { times, prices, from, to } = data
@@ -157,10 +161,12 @@ async function composeTickerResponse({
   msg,
   coinId,
   days,
+  discordId,
 }: {
   msg: Message
   coinId: string
   days?: number
+  discordId?: string
 }) {
   const {
     ok,
@@ -226,7 +232,12 @@ async function composeTickerResponse({
     },
   ])
 
-  const chart = await renderHistoricalMarketChart({ coinId: coin.id, bb, days })
+  const chart = await renderHistoricalMarketChart({
+    coinId: coin.id,
+    bb,
+    days,
+    discordId,
+  })
   const selectRow = composeDaysSelectMenu(
     "tickers_range_selection",
     `${coin.id}`,
@@ -379,7 +390,11 @@ const command: Command = {
     }
 
     if (coins.length === 1) {
-      return await composeTickerResponse({ msg, coinId: coins[0].id })
+      return await composeTickerResponse({
+        msg,
+        coinId: coins[0].id,
+        discordId: msg.author.id,
+      })
     }
 
     // if default ticket was set then respond...
@@ -397,6 +412,7 @@ const command: Command = {
       return await composeTickerResponse({
         msg,
         coinId: defaultTicker.data.default_ticker,
+        discordId: msg.author.id,
       })
     }
 
@@ -429,7 +445,7 @@ const command: Command = {
       },
       render: ({ msgOrInteraction: msg, value }) => {
         const [coinId] = value.split("_")
-        return composeTickerResponse({ msg, coinId })
+        return composeTickerResponse({ msg, coinId, discordId: msg.author.id })
       },
       ambiguousResultText: coinQ.toUpperCase(),
       multipleResultText: Object.values(coins)

@@ -204,6 +204,7 @@ async function executeCommand(
         user_id: message.author.id,
         command: "help",
         args: message.content,
+        success: true,
       })
     }
     return
@@ -286,6 +287,7 @@ async function executeCommand(
     user_id: message.author.id,
     command: commandObject.id,
     args: message.content,
+    success: true,
   })
 }
 
