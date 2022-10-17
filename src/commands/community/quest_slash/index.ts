@@ -28,7 +28,6 @@ const command: SlashCommand = {
 
     return data
   },
-  ephemeral: true,
   run: async (interaction) => {
     if (interaction.options.getSubcommand() === dailyMetadata.name) {
       return daily(interaction)

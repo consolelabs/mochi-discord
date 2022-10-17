@@ -27,11 +27,13 @@ export class CacheManager {
     pool,
     key,
     call,
+    callIfCached,
     ttl = 120,
   }: {
     pool: string
     key: string
     call: () => Promise<any>
+    callIfCached?: () => Promise<any>
     ttl?: number
   }) {
     const cache = this.cachePools.get(pool)
@@ -40,6 +42,8 @@ export class CacheManager {
     if (!val) {
       val = await call()
       cache.set(key, val, ttl)
+    } else if (callIfCached) {
+      await callIfCached()
     }
     return val as any
   }
