@@ -666,3 +666,36 @@ export function composeEmbedMessage2(
 function getSlashCommandColor(commandObj: SlashCommand | null) {
   return embedsColors[commandObj?.colorType ?? "Command"]
 }
+
+export function starboardEmbed(msg: Message) {
+  const attachments = msg.attachments.map((a) => ({
+    url: a.url,
+    type: a.contentType?.split("/")[0] ?? "",
+  }))
+  const attachmentSize = attachments.length
+  let embed: MessageEmbed
+  if (attachmentSize) {
+    const imageURL = attachments.find((a) => a.type === "image")?.url
+    const messageContent = msg.content
+      ? msg.content
+      : "Message contains some attachments"
+    embed = composeEmbedMessage(null, {
+      author: [msg.author.username, msg.author.avatarURL() ?? ""],
+      description: messageContent,
+      originalMsgAuthor: msg.author,
+      image: imageURL,
+      withoutFooter: true,
+      thumbnail: msg.guild?.iconURL(),
+    }).setFields([{ name: "Source", value: `[Jump!](${msg.url})` }])
+  } else {
+    const messageContent = msg.content ? msg.content : "Message has no content."
+    embed = composeEmbedMessage(null, {
+      author: [msg.author.username, msg.author.avatarURL() ?? ""],
+      description: messageContent,
+      originalMsgAuthor: msg.author,
+      withoutFooter: true,
+      thumbnail: msg.guild?.iconURL(),
+    }).setFields([{ name: "Source", value: `[Jump!](${msg.url})` }])
+  }
+  return embed
+}

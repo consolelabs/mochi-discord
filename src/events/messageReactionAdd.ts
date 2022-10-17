@@ -1,6 +1,5 @@
 import {
   Message,
-  MessageEmbed,
   MessageReaction,
   User,
   ChannelLogsQueryOptions,
@@ -8,7 +7,7 @@ import {
 import { DiscordEvent } from "."
 import config from "adapters/config"
 import webhook from "adapters/webhook"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, starboardEmbed } from "utils/discordEmbed"
 import { getReactionIdentifier } from "utils/commands"
 import { wrapError } from "utils/wrapError"
 
@@ -132,39 +131,6 @@ const handleRepostableMessageTracking = async (
       }
     }
   }
-}
-
-function starboardEmbed(msg: Message) {
-  const attachments = msg.attachments.map((a) => ({
-    url: a.url,
-    type: a.contentType?.split("/")[0] ?? "",
-  }))
-  const attachmentSize = attachments.length
-  let embed: MessageEmbed
-  if (attachmentSize) {
-    const imageURL = attachments.find((a) => a.type === "image")?.url
-    const messageContent = msg.content
-      ? msg.content
-      : "Message contains some attachments"
-    embed = composeEmbedMessage(null, {
-      author: [msg.author.username, msg.author.avatarURL() ?? ""],
-      description: messageContent,
-      originalMsgAuthor: msg.author,
-      image: imageURL,
-      withoutFooter: true,
-      thumbnail: msg.guild?.iconURL(),
-    }).setFields([{ name: "Source", value: `[Jump!](${msg.url})` }])
-  } else {
-    const messageContent = msg.content ? msg.content : "Message has no content."
-    embed = composeEmbedMessage(null, {
-      author: [msg.author.username, msg.author.avatarURL() ?? ""],
-      description: messageContent,
-      originalMsgAuthor: msg.author,
-      withoutFooter: true,
-      thumbnail: msg.guild?.iconURL(),
-    }).setFields([{ name: "Source", value: `[Jump!](${msg.url})` }])
-  }
-  return embed
 }
 
 const event: DiscordEvent<"messageReactionAdd"> = {
