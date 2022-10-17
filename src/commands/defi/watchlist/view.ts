@@ -29,6 +29,7 @@ import {
 import CacheManager from "utils/CacheManager"
 import { APIError } from "errors"
 import { MessageComponentTypes } from "discord.js/typings/enums"
+import community from "adapters/community"
 
 let fontRegistered = false
 
@@ -402,12 +403,19 @@ async function switchView(
     .catch(() => null)
 }
 
-async function composeTokenWatchlist(msg: Message) {
+async function composeTokenWatchlist(msg: Message, authorId?: string) {
   const userId = msg.author.id
   const { data, ok, log, curl } = await CacheManager.get({
     pool: "watchlist",
     key: `watchlist-${userId}`,
     call: () => defi.getUserWatchlist({ userId, size: 12 }),
+    ...(authorId && {
+      callIfCached: () =>
+        community.updateQuestProgress({
+          userId: authorId,
+          action: "watchlist",
+        }),
+    }),
   })
   if (!ok) throw new APIError({ message: msg, curl, description: log })
   const embed = composeEmbedMessage(msg, {
@@ -472,7 +480,10 @@ const command: Command = {
   brief: "View your watchlist",
   category: "Defi",
   run: async (msg) => {
-    const { embeds, files, components } = await composeTokenWatchlist(msg)
+    const { embeds, files, components } = await composeTokenWatchlist(
+      msg,
+      msg.author.id
+    )
     const replyMsg = await msg.reply({
       embeds,
       components,

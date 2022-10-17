@@ -39,6 +39,7 @@ import { RectangleStats } from "types/canvas"
 import TurnDown from "turndown"
 import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
+import community from "adapters/community"
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -57,7 +58,10 @@ async function renderHistoricalMarketChart({
     key: `ticker-getHistoricalMarketData-${coinId}-${currency}-${days}`,
     call: () =>
       defi.getHistoricalMarketData({ coinId, currency, days, discordId }),
-    ttl: 60,
+    ...(discordId && {
+      callIfCached: () =>
+        community.updateQuestProgress({ userId: discordId, action: "ticker" }),
+    }),
   })
   if (!ok) return null
   const { times, prices, from, to } = data

@@ -13,13 +13,13 @@ const command: Command = {
   brief: "Shows the quests you currently have",
   category: "Community",
   onlyAdministrator: true,
-  run: async function () {
-    return null
+  run: async function (msg, action) {
+    if (!action) return daily.run(msg)
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       description: "Check on your quests and what rewards you can claim",
-      usage: `${PREFIX}quest `,
+      usage: `${PREFIX}quest`,
       footer: [`Type ${PREFIX}help quest`],
       examples: `${PREFIX}quest`,
     })
@@ -29,6 +29,7 @@ const command: Command = {
   actions,
   experimental: true,
   colorType: "Server",
+  canRunWithoutAction: true,
 }
 
 export default command

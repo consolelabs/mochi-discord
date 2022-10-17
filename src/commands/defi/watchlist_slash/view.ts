@@ -31,6 +31,7 @@ import {
 import CacheManager from "utils/CacheManager"
 import { APIError } from "errors"
 import { MessageComponentTypes } from "discord.js/typings/enums"
+import community from "adapters/community"
 
 let fontRegistered = false
 let interaction: CommandInteraction
@@ -401,12 +402,19 @@ async function switchView(i: ButtonInteraction) {
     .catch(() => null)
 }
 
-async function composeTokenWatchlist() {
+async function composeTokenWatchlist(authorId?: string) {
   const userId = interaction.user.id
   const { data, ok, curl, log } = await CacheManager.get({
     pool: "watchlist",
     key: `watchlist-${userId}`,
     call: () => defi.getUserWatchlist({ userId, size: 12 }),
+    ...(authorId && {
+      callIfCached: () =>
+        community.updateQuestProgress({
+          userId: authorId,
+          action: "watchlist",
+        }),
+    }),
   })
   if (!ok)
     throw new APIError({
@@ -488,7 +496,9 @@ const command: SlashCommand = {
   },
   run: async function (i: CommandInteraction) {
     interaction = i
-    const { embeds, files, components } = await composeTokenWatchlist()
+    const { embeds, files, components } = await composeTokenWatchlist(
+      interaction.user.id
+    )
     const replyMsg = await interaction.fetchReply()
     if (replyMsg instanceof Message) {
       collectButton(replyMsg)

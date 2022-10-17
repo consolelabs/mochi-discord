@@ -331,6 +331,17 @@ class Community extends Fetcher {
     })
   }
 
+  public async updateQuestProgress(body: {
+    userId: string
+    action: string
+    guildId?: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/quests/progress`, {
+      method: "POST",
+      body,
+    })
+  }
+
   public async claimAllReward(user_id: string, routine = "daily") {
     return await this.jsonFetch<ResponseClaimQuestsRewardsResponse>(
       `${API_BASE_URL}/quests/claim`,
