@@ -155,9 +155,10 @@ export async function composeCollectionInfoEmbed(
     more = `${discord} ${twitter} ${website}`
   }
   const ercFormat = `${data.erc_format ?? "-"}`
-  const marketplaces = data.marketplaces
+  const marketplaces = data.marketplaces?.length
     ? data.marketplaces.map((m: string) => getEmoji(m)).join(" ")
     : "-"
+
   const fields = [
     {
       name: "Symbol",
