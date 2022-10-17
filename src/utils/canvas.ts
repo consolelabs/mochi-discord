@@ -293,7 +293,7 @@ export function getGradientColor(
 export async function renderChartImage({
   chartLabel,
   labels,
-  data,
+  data = [],
   colorConfig,
   lineOnly,
 }: {

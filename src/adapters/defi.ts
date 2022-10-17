@@ -174,19 +174,30 @@ class Defi extends Fetcher {
     return await this.jsonFetch(`${API_BASE_URL}/defi/coins?query=${query}`)
   }
 
-  async getHistoricalMarketData(
-    coin_id: string,
-    currency: string,
-    days: number
-  ) {
+  async getHistoricalMarketData({
+    coinId,
+    currency,
+    days = 7,
+    discordId,
+  }: {
+    coinId: string
+    currency: string
+    days?: number
+    discordId?: string
+  }) {
     return await this.jsonFetch<{
       times: string[]
       prices: number[]
       from: string
       to: string
-    }>(
-      `${API_BASE_URL}/defi/market-chart?coin_id=${coin_id}&currency=${currency}&days=${days}`
-    )
+    }>(`${API_BASE_URL}/defi/market-chart`, {
+      query: {
+        coin_id: coinId,
+        currency,
+        days,
+        ...(discordId && { discordId }),
+      },
+    })
   }
 
   async compareToken(
