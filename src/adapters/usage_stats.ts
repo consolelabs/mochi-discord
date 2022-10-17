@@ -6,6 +6,7 @@ class UsageStats extends Fetcher {
     guild_id: string
     user_id: string
     command: string
+    success: boolean
     args: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/usage-stats`, {
