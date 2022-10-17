@@ -177,6 +177,7 @@ export const emojis: { [key: string]: string } = {
   INFO: "🔎",
   FLOORPRICE: "1029662833144766464",
   CHEST: "933339868006871070",
+  XP: "933032436814708768",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
