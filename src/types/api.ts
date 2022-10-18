@@ -648,6 +648,7 @@ export interface RequestTwitterPost {
 export interface RequestUpdateGuildRequest {
   active?: boolean;
   global_xp?: boolean;
+  left_at?: string;
   log_channel?: string;
 }
 

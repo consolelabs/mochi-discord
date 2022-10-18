@@ -546,21 +546,13 @@ class Config extends Fetcher {
     })
   }
 
-  public async listAllRepostReactionConfigs(guildId: string) {
-    const res = await fetch(
-      `${API_BASE_URL}/configs/repost-reactions/${guildId}`
+  public async listAllRepostReactionConfigs(
+    guildId: string,
+    reactionType: string
+  ) {
+    return this.jsonFetch(
+      `${API_BASE_URL}/configs/repost-reactions/${guildId}?reaction_type=${reactionType}`
     )
-    if (res.status !== 200) {
-      throw new Error(
-        `failed to list starboard configuration - guild ${guildId}`
-      )
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json
   }
 
   public async removeSpecificRepostReactionConfig(req: RepostReactionRequest) {
