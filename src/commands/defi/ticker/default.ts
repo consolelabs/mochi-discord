@@ -3,6 +3,7 @@ import defi from "adapters/defi"
 import { Message } from "discord.js"
 import { APIError, CommandError } from "errors"
 import { Command } from "types/common"
+import CacheManager from "utils/CacheManager"
 import { getCommandArguments } from "utils/commands"
 import { thumbnails } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TICKER_GITBOOK } from "utils/constants"
@@ -22,6 +23,11 @@ async function setDefaultTicker(
   if (!ok) {
     throw new APIError({ message: msg, curl: curl, description: log })
   }
+  CacheManager.findAndRemove(
+    "ticker",
+    `ticker-default-${msg.guildId}-${symbol}`
+  )
+  CacheManager.findAndRemove("ticker", `compare-${msg.guildId}`, `-${symbol}-`)
   return {
     messageOptions: {
       embeds: [
