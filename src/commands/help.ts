@@ -1,5 +1,33 @@
 import { Message, MessageEmbed } from "discord.js"
-import { HELP_GITBOOK, HOMEPAGE_URL } from "utils/constants"
+import {
+  AIRDROP_GITBOOK,
+  BALANCE_GITBOOK,
+  DEFAULT_ROLE_GITBOOK,
+  DEPOSIT_GITBOOK,
+  GM_GITBOOK,
+  HELP_GITBOOK,
+  HOMEPAGE_URL,
+  INVITE_GITBOOK,
+  LEVEL_ROLE_GITBOOK,
+  LOG_CHANNEL_GITBOOK,
+  NFT_GITBOOK,
+  NFT_ROLE_GITBOOK,
+  PROFILE_GITBOOK,
+  PRUNE_GITBOOK,
+  REACTION_ROLE_GITBOOK,
+  SALE_TRACKER_GITBOOK,
+  STARBOARD_GITBOOK,
+  STATS_GITBOOK,
+  TELEGRAM_GITBOOK,
+  TICKER_GITBOOK,
+  TIP_GITBOOK,
+  TOKEN_GITBOOK,
+  TWITTER_WATCH_GITBOOK,
+  VERIFY_WALLET_GITBOOK,
+  VOTE_GITBOOK,
+  WATCHLIST_GITBOOK,
+  WELCOME_GITBOOK,
+} from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import { capFirst, getEmoji, thumbnails } from "utils/common"
@@ -36,7 +64,7 @@ const commands: Record<
     features: [
       {
         value: "verify",
-        url: "https://mochibot.gitbook.io/mochi-bot/getting-started/wallet",
+        url: VERIFY_WALLET_GITBOOK,
       },
     ],
   },
@@ -46,7 +74,7 @@ const commands: Record<
     features: [
       {
         value: "telegram",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/config-to-telegram-account",
+        url: TELEGRAM_GITBOOK,
       },
     ],
   },
@@ -56,7 +84,7 @@ const commands: Record<
     features: [
       {
         value: "vote",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/vote-for-mochi",
+        url: VOTE_GITBOOK,
       },
     ],
   },
@@ -66,7 +94,7 @@ const commands: Record<
     features: [
       {
         value: "stats",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/server-stats",
+        url: STATS_GITBOOK,
       },
     ],
   },
@@ -76,11 +104,11 @@ const commands: Record<
     features: [
       {
         value: "sales",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/sales-tracker",
+        url: SALE_TRACKER_GITBOOK,
       },
       {
         value: "nft",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume",
+        url: NFT_GITBOOK,
       },
     ],
   },
@@ -90,7 +118,7 @@ const commands: Record<
     features: [
       {
         value: "welcome",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/welcome-message",
+        url: WELCOME_GITBOOK,
         onlySlash: true,
       },
     ],
@@ -101,11 +129,11 @@ const commands: Record<
     features: [
       {
         value: "profile",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/users-profiles",
+        url: PROFILE_GITBOOK,
       },
       {
         value: "top",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/list-of-commands",
+        url: HELP_GITBOOK + "&command=top",
       },
     ],
   },
@@ -115,19 +143,19 @@ const commands: Record<
     features: [
       {
         value: "gm",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/gm-gn",
+        url: GM_GITBOOK,
       },
       {
         value: "starboard",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/starboard",
+        url: STARBOARD_GITBOOK,
       },
       {
         value: "log",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/log-channels",
+        url: LOG_CHANNEL_GITBOOK,
       },
       {
         value: "poe",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/twitter-tweet-watcher-poe",
+        url: TWITTER_WATCH_GITBOOK,
       },
     ],
   },
@@ -137,11 +165,11 @@ const commands: Record<
     features: [
       {
         value: "invite",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/invite-tracker",
+        url: INVITE_GITBOOK,
       },
       {
         value: "prune",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/prune-inactive-users",
+        url: PRUNE_GITBOOK,
       },
     ],
   },
@@ -151,15 +179,15 @@ const commands: Record<
     features: [
       {
         value: "tokens",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/supported-tokens",
+        url: TOKEN_GITBOOK,
       },
       {
         value: "ticker",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/crypto-ticker",
+        url: TICKER_GITBOOK,
       },
       {
         value: "watchlist",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/token-watchlist",
+        url: WATCHLIST_GITBOOK,
       },
     ],
   },
@@ -169,23 +197,23 @@ const commands: Record<
     features: [
       {
         value: "tip",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/tip-bot",
+        url: TIP_GITBOOK,
       },
       {
         value: "deposit",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/deposit-and-withdraw",
+        url: DEPOSIT_GITBOOK + "&command=deposit",
       },
       {
         value: "withdraw",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/deposit-and-withdraw",
+        url: DEPOSIT_GITBOOK + "&command=withdraw",
       },
       {
         value: "balances",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/check-balance",
+        url: BALANCE_GITBOOK,
       },
       {
         value: "airdrop",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/airdrop-tokens",
+        url: AIRDROP_GITBOOK,
       },
     ],
   },
@@ -195,19 +223,19 @@ const commands: Record<
     features: [
       {
         value: "defaultrole",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/default-roles",
+        url: DEFAULT_ROLE_GITBOOK,
       },
       {
         value: "reactionrole",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles",
+        url: REACTION_ROLE_GITBOOK,
       },
       {
         value: "levelrole",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/level-roles",
+        url: LEVEL_ROLE_GITBOOK,
       },
       {
         value: "nftrole",
-        url: "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-roles",
+        url: NFT_ROLE_GITBOOK,
       },
     ],
   },
@@ -264,7 +292,7 @@ const command: Command = {
       },
       {
         name: "**Document**",
-        value: `[**Gitbook**](${HELP_GITBOOK})`,
+        value: `[**Gitbook**](${HELP_GITBOOK}&command=help)`,
         inline: true,
       },
       {

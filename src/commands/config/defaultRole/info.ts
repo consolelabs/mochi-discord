@@ -72,7 +72,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}dr info`,
           examples: `${PREFIX}dr info`,
-          document: DEFAULT_ROLE_GITBOOK,
+          document: `${DEFAULT_ROLE_GITBOOK}&action=info`,
         }),
       ],
     }

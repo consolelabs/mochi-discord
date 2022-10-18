@@ -114,7 +114,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nr remove`,
         examples: `${PREFIX}nr remove`,
-        document: NFT_ROLE_GITBOOK,
+        document: `${NFT_ROLE_GITBOOK}&action=remove`,
       }),
     ],
   }),

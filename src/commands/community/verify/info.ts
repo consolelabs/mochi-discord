@@ -49,7 +49,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}verify info`,
         examples: `${PREFIX}verify info`,
-        document: VERIFY_WALLET_GITBOOK,
+        document: `${VERIFY_WALLET_GITBOOK}&action=info`,
         footer: [`Type ${PREFIX}help verify <action> for a specific action!`],
       }),
     ],

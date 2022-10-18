@@ -43,7 +43,7 @@ const command: Command = {
         usage: `${PREFIX}vote remove`,
         examples: `${PREFIX}vote remove`,
         includeCommandsList: true,
-        document: VOTE_GITBOOK,
+        document: `${VOTE_GITBOOK}&action=remove`,
       }),
     ],
   }),

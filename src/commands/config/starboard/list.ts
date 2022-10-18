@@ -279,7 +279,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}sb list`,
           examples: `${PREFIX}sb list`,
-          document: STARBOARD_GITBOOK,
+          document: `${STARBOARD_GITBOOK}&action=list`,
         }),
       ],
     }

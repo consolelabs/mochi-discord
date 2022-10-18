@@ -96,7 +96,7 @@ const command: Command = {
         "Withdraw tokens to your wallet outside of Discord. A network fee will be added on top of your withdrawal (or deducted if remaining balance is insufficient).\nYou will be asked to confirm it.",
       usage: `${PREFIX}withdraw <amount> <token>`,
       examples: `${PREFIX}withdraw 5 ftm`,
-      document: DEPOSIT_GITBOOK,
+      document: `${DEPOSIT_GITBOOK}&command=withdraw`,
       footer: [DEFI_DEFAULT_FOOTER],
     })
     return { embeds: [embedMsg] }

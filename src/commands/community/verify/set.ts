@@ -79,7 +79,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}verify set <channel> [<verified_role>]`,
         examples: `${PREFIX}verify set #general\n${PREFIX}verify set #connect-wallet @verified`,
-        document: VERIFY_WALLET_GITBOOK,
+        document: `${VERIFY_WALLET_GITBOOK}&action=set`,
         footer: [`Type ${PREFIX}help verify <action> for a specific action!`],
       }),
     ],

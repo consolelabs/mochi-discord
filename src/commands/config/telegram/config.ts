@@ -39,7 +39,7 @@ const command: Command = {
         title: "Link your Telegram account to Discord one",
         usage: `${PREFIX}telegram config <telegram_username>`,
         examples: `${PREFIX}telegram config anhnh`,
-        document: TELEGRAM_GITBOOK,
+        document: `${TELEGRAM_GITBOOK}&action=config`,
       }),
     ],
   }),

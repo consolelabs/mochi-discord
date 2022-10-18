@@ -56,7 +56,7 @@ const command: Command = {
         usage: `${PREFIX}vote set <channel>`,
         examples: `${PREFIX}vote set #vote`,
         includeCommandsList: true,
-        document: VOTE_GITBOOK,
+        document: `${VOTE_GITBOOK}&action=info`,
       }),
     ],
   }),

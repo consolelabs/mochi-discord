@@ -89,7 +89,7 @@ const command: Command = {
           description: "Remove all users that were inactive for 30 days",
           usage: `${PREFIX}prune inactive`,
           examples: `${PREFIX}prune inactive`,
-          document: PRUNE_GITBOOK,
+          document: `${PRUNE_GITBOOK}&action=inactive`,
         }),
       ],
     }

@@ -72,7 +72,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nr list`,
         examples: `${PREFIX}nr list`,
-        document: NFT_ROLE_GITBOOK,
+        document: `${NFT_ROLE_GITBOOK}&action=list`,
       }),
     ],
   }),
