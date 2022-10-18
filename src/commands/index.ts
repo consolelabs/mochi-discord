@@ -192,18 +192,24 @@ async function executeCommand(
   action: string,
   isSpecificHelpCommand?: boolean
 ) {
+  const benchmarkStart = process.hrtime()
+
   await message.channel.sendTyping()
   // e.g. $help invite || $invite help || $help invite leaderboard
   if (isSpecificHelpCommand) {
     const helpMessage = await commandObject.getHelpMessage(message, action)
     if (helpMessage) {
       await message.reply(helpMessage)
+
+      // stop benchmark for help message
+      const benchmarkStop = process.hrtime(benchmarkStart)
       // send command to server to store
       usage_stats.createUsageStat({
         guild_id: message.guildId !== null ? message.guildId : "DM",
         user_id: message.author.id,
         command: "help",
         args: message.content,
+        execution_time_ms: Math.round(benchmarkStop[1] / 1000000),
         success: true,
       })
     }
@@ -281,12 +287,16 @@ async function executeCommand(
       }
     }
   }
+
+  // stop benchmark for commands
+  const benchmarkStop = process.hrtime(benchmarkStart)
   // send command to server to store
   usage_stats.createUsageStat({
     guild_id: message.guildId !== null ? message.guildId : "DM",
     user_id: message.author.id,
     command: commandObject.id,
     args: message.content,
+    execution_time_ms: Math.round(benchmarkStop[1] / 1000000),
     success: true,
   })
 }
