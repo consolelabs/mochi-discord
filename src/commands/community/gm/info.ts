@@ -52,7 +52,7 @@ const command: Command = {
           description: "Show current gm/gn configuration",
           usage: `${PREFIX}gm info`,
           examples: `${PREFIX}gm info`,
-          document: GM_GITBOOK,
+          document: `${GM_GITBOOK}&action=info`,
         }),
       ],
     }

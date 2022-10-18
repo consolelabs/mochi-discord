@@ -54,7 +54,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite aggregation <@userId>`,
       examples: `${PREFIX}invite aggregation @ohagi\n${PREFIX}invite aggr @ohagi`,
-      document: INVITE_GITBOOK,
+      document: `${INVITE_GITBOOK}&action=aggregation`,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 

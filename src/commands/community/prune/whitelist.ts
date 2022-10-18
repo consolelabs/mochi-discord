@@ -100,7 +100,7 @@ const command: Command = {
         usage: `${PREFIX}prune whitelist <role>\n${PREFIX}prune whitelist`,
         examples: `${PREFIX}prune whitelist\n${PREFIX}prune whitelist @Mochi`,
         includeCommandsList: true,
-        document: PRUNE_GITBOOK,
+        document: `${PRUNE_GITBOOK}&action=whitelist`,
       }),
     ],
   }),

@@ -271,7 +271,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `// Interactively\n${PREFIX}sales remove\n\n// If you already know what to remove\n${PREFIX}sales remove <contract-address>`,
         examples: `${PREFIX}sales remove\n${PREFIX}sales remove 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73`,
-        document: SALE_TRACKER_GITBOOK,
+        document: `${SALE_TRACKER_GITBOOK}&action=remove`,
       }),
     ],
   }),

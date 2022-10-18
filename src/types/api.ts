@@ -324,6 +324,7 @@ export interface ModelQuest {
   action?: string;
   frequency?: number;
   id?: string;
+  rewards?: ModelQuestReward[];
   routine?: string;
   title?: string;
 }
@@ -533,6 +534,10 @@ export interface RequestCreateWhitelistCampaignRequest {
   name?: string;
 }
 
+export interface RequestDeleteJoinLeaveChannelConfigRequest {
+  guild_id?: string;
+}
+
 export interface RequestDeleteVoteChannelConfigRequest {
   guild_id?: string;
 }
@@ -687,6 +692,11 @@ export interface RequestUpsertGuildTokenConfigRequest {
   active?: boolean;
   guild_id?: string;
   symbol?: string;
+}
+
+export interface RequestUpsertJoinLeaveChannelConfigRequest {
+  channel_id?: string;
+  guild_id?: string;
 }
 
 export interface RequestUpsertVoteChannelConfigRequest {

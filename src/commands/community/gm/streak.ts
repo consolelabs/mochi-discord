@@ -55,7 +55,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}gm streak`,
           examples: `${PREFIX}gm streak`,
-          document: GM_GITBOOK,
+          document: `${GM_GITBOOK}&action=streak`,
         }),
       ],
     }

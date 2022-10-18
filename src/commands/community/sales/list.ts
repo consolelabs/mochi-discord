@@ -78,7 +78,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sales list`,
         examples: `${PREFIX}sales list`,
-        document: SALE_TRACKER_GITBOOK,
+        document: `${SALE_TRACKER_GITBOOK}&action=list`,
       }),
     ],
   }),

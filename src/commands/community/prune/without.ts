@@ -140,7 +140,7 @@ const command: Command = {
           description: "Remove all users without a specific role",
           usage: `${PREFIX}prune without <role>`,
           examples: `${PREFIX}prune without @roles`,
-          document: PRUNE_GITBOOK,
+          document: `${PRUNE_GITBOOK}&action=without`,
         }),
       ],
     }

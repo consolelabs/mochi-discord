@@ -57,7 +57,7 @@ const command: SlashCommand = {
       },
       {
         name: "**Document**",
-        value: `[**Gitbook**](${HELP_GITBOOK})`,
+        value: `[**Gitbook**](${HELP_GITBOOK}&command=help)`,
         inline: true,
       },
       {
