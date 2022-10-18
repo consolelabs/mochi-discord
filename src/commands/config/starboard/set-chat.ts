@@ -7,8 +7,8 @@ import { getCommandArguments } from "utils/commands"
 import { GuildIdNotFoundError } from "errors"
 
 const command: Command = {
-  id: "starboard_set_start_stop",
-  command: "set-start-stop",
+  id: "starboard_set_chat",
+  command: "set-chat",
   brief: "Set or update a starboard configuration start stop",
   category: "Config",
   onlyAdministrator: true,
@@ -116,8 +116,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}sb set-start-stop <emoji-start> <emoji-stop> <channel>`,
-          examples: `${PREFIX}sb set-start-stop <:stonks_up:> <:stonks_down:> #starboard `,
+          usage: `${PREFIX}sb set-chat <emoji-start> <emoji-stop> <channel>`,
+          examples: `${PREFIX}sb set-chat <:stonks_up:> <:stonks_down:> #starboard `,
         }),
       ],
     }

@@ -8,6 +8,7 @@ class UsageStats extends Fetcher {
     command: string
     success: boolean
     args: string
+    execution_time_ms?: number
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/usage-stats`, {
       method: "POST",

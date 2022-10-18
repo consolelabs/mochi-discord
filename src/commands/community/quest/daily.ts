@@ -23,7 +23,7 @@ const emoji = {
   rightEmpty: getEmoji("faction_exp_3"),
 }
 
-const getClaimButton = (disabled = false) => {
+const getClaimButton = (disabled = false, authorId: string) => {
   return {
     components: [
       new MessageActionRow().addComponents(
@@ -31,7 +31,7 @@ const getClaimButton = (disabled = false) => {
           .setDisabled(disabled)
           .setStyle("SECONDARY")
           .setEmoji(getEmoji("approve"))
-          .setCustomId("claim-rewards-daily")
+          .setCustomId(`claim-rewards-daily_${authorId}`)
           .setLabel(disabled ? "No rewards to claim" : "Claim rewards")
       ),
     ],
@@ -40,33 +40,32 @@ const getClaimButton = (disabled = false) => {
 
 export async function handleBackToQuestList(i: ButtonInteraction) {
   await i.deferUpdate().catch(() => null)
+  const authorId = i.customId.split("_")[1]
+  if (authorId !== i.user.id) return
+
   const msg = await (i.message as Message).fetchReference().catch(() => null)
-
-  if (msg?.author.id !== i.user.id) return
-
   const {
     messageOptions: { embeds },
   } = await run(i.user.id, msg)
 
   i.editReply({
     embeds,
-    ...getClaimButton(true),
+    ...getClaimButton(true, authorId),
   })
 }
 
 export async function handleClaimReward(i: ButtonInteraction) {
   await i.deferUpdate().catch(() => null)
+  const authorId = i.customId.split("_")[1]
+  if (authorId !== i.user.id) return
+
   const res = await community.claimAllReward(i.user.id)
   if (!res.ok) {
     throw new APIError({ curl: res.curl, description: res.log })
   }
-
   if (!res.data) return
 
   const msg = await (i.message as Message).fetchReference().catch(() => null)
-
-  if (msg?.author.id !== i.user.id) return
-
   const embed = composeEmbedMessage(msg, {
     title: "Rewards Claimed!",
     description:
@@ -107,7 +106,7 @@ export async function handleClaimReward(i: ButtonInteraction) {
     components: [
       new MessageActionRow().addComponents(
         new MessageButton()
-          .setCustomId("back-to-quest-list")
+          .setCustomId(`back-to-quest-list_${authorId}`)
           .setEmoji(getEmoji("left_arrow"))
           .setStyle("SECONDARY")
           .setLabel("Back to quest list")
@@ -173,7 +172,7 @@ export async function run(userId: string, msg: Message | null) {
   return {
     messageOptions: {
       embeds: [embed],
-      ...getClaimButton(!claimable),
+      ...getClaimButton(!claimable, userId),
     },
   }
 }

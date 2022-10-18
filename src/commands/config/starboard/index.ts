@@ -3,14 +3,14 @@ import { PREFIX, STARBOARD_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import list from "./list"
 import set from "./set"
-import setStartStop from "./set-start-stop"
+import setChat from "./set-chat"
 import remove from "./remove"
 
 const actions: Record<string, Command> = {
   set,
   remove,
   list,
-  "set-start-stop": setStartStop,
+  "set-chat": setChat,
 }
 
 const command: Command = {

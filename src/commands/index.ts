@@ -10,12 +10,13 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/token"
-import ticker from "./defi/ticker"
+import ticker from "./defi/ticker/ticker"
 import airdrop from "./defi/airdrop"
 import gm from "./community/gm"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import starboard from "./config/starboard"
+import joinleave from "./config/joinleave"
 import top from "./community/top"
 import prune from "./community/prune"
 import tripod from "./games/tripod"
@@ -34,7 +35,7 @@ import quest from "./community/quest"
 
 // slash commands
 import help_slash from "./help_slash"
-import ticker_slash from "./defi/ticker_slash"
+import ticker_slash from "./defi/ticker_slash/ticker_slash"
 import log_slash from "./config/log_slash"
 import welcome_slash from "./config/welcome_slash"
 import watchlist_slash from "./defi/watchlist_slash"
@@ -127,6 +128,7 @@ export const originalCommands: Record<string, Command> = {
   // config section
   reactionrole,
   defaultrole,
+  joinleave,
   // whitelist,
   levelrole,
   nftrole,
@@ -192,18 +194,24 @@ async function executeCommand(
   action: string,
   isSpecificHelpCommand?: boolean
 ) {
+  const benchmarkStart = process.hrtime()
+
   await message.channel.sendTyping()
   // e.g. $help invite || $invite help || $help invite leaderboard
   if (isSpecificHelpCommand) {
     const helpMessage = await commandObject.getHelpMessage(message, action)
     if (helpMessage) {
       await message.reply(helpMessage)
+
+      // stop benchmark for help message
+      const benchmarkStop = process.hrtime(benchmarkStart)
       // send command to server to store
       usage_stats.createUsageStat({
         guild_id: message.guildId !== null ? message.guildId : "DM",
         user_id: message.author.id,
         command: "help",
         args: message.content,
+        execution_time_ms: Math.round(benchmarkStop[1] / 1000000),
         success: true,
       })
     }
@@ -270,7 +278,7 @@ async function executeCommand(
         components: [selectRow, composeDiscordExitButton(message.author.id)],
       })
 
-      if (onDefaultSet && render) {
+      if (render) {
         InteractionManager.add(msg.id, {
           handler: setDefaultMiddleware<Message>({
             onDefaultSet,
@@ -281,12 +289,16 @@ async function executeCommand(
       }
     }
   }
+
+  // stop benchmark for commands
+  const benchmarkStop = process.hrtime(benchmarkStart)
   // send command to server to store
   usage_stats.createUsageStat({
     guild_id: message.guildId !== null ? message.guildId : "DM",
     user_id: message.author.id,
     command: commandObject.id,
     args: message.content,
+    execution_time_ms: Math.round(benchmarkStop[1] / 1000000),
     success: true,
   })
 }

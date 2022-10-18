@@ -30,7 +30,7 @@ import {
   getChartColorConfig,
   renderChartImage,
 } from "utils/canvas"
-import compare from "./token/compare"
+import compare from "./compare"
 import config from "adapters/config"
 import CacheManager from "utils/CacheManager"
 import { APIError, CommandError, GuildIdNotFoundError } from "errors"
@@ -39,6 +39,12 @@ import { RectangleStats } from "types/canvas"
 import TurnDown from "turndown"
 import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
+import community from "adapters/community"
+import _default from "./default"
+
+const actions: Record<string, Command> = {
+  default: _default,
+}
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -57,7 +63,10 @@ async function renderHistoricalMarketChart({
     key: `ticker-getHistoricalMarketData-${coinId}-${currency}-${days}`,
     call: () =>
       defi.getHistoricalMarketData({ coinId, currency, days, discordId }),
-    ttl: 60,
+    ...(discordId && {
+      callIfCached: () =>
+        community.updateQuestProgress({ userId: discordId, action: "ticker" }),
+    }),
   })
   if (!ok) return null
   const { times, prices, from, to } = data
@@ -440,7 +449,7 @@ const command: Command = {
             "ticker",
             `ticker-default-${i.guildId}-${symbol}`
           ),
-          description: `Next time your server members use \`$ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
+          description: `Next time your server members use \`$ticker\` with \`${symbol}\`, **${name}** will be the default selection.`,
         })(i)
       },
       render: ({ msgOrInteraction: msg, value }) => {
@@ -462,10 +471,11 @@ const command: Command = {
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         description: `Display/Compare coin prices and market cap. Data is fetched from [CoinGecko](https://coingecko.com/)`,
-        usage: `${PREFIX}ticker <symbol>\n${PREFIX}ticker <base>/<target> (comparison)`,
+        usage: `${PREFIX}ticker <symbol>\n${PREFIX}ticker <base>/<target> (comparison)\n${PREFIX}ticker <action>`,
         examples: `${PREFIX}ticker eth\n${PREFIX}ticker fantom\n${PREFIX}ticker btc/bnb`,
         document: TICKER_GITBOOK,
         footer: [DEFI_DEFAULT_FOOTER],
+        includeCommandsList: true,
       }),
     ],
   }),
@@ -473,6 +483,7 @@ const command: Command = {
   canRunWithoutAction: true,
   colorType: "Defi",
   minArguments: 2,
+  actions,
 }
 
 export default command

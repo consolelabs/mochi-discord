@@ -4,6 +4,7 @@ import ready from "./ready"
 import interactionCreate from "./interactionCreate"
 import messageReactionAdd from "./messageReactionAdd"
 import guildCreate from "./guildCreate"
+import guildMemberRemove from "./guildMemberRemove"
 import guildMemberAdd from "./guildMemberAdd"
 import inviteDelete from "./inviteDelete"
 import inviteCreate from "./inviteCreate"
@@ -29,4 +30,5 @@ export default [
   inviteDelete,
   guildCreate,
   guildDelete,
+  guildMemberRemove,
 ]
