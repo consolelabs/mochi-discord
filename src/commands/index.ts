@@ -16,6 +16,7 @@ import gm from "./community/gm"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import starboard from "./config/starboard"
+import joinleave from "./config/joinleave"
 import top from "./community/top"
 import prune from "./community/prune"
 import tripod from "./games/tripod"
@@ -127,6 +128,7 @@ export const originalCommands: Record<string, Command> = {
   // config section
   reactionrole,
   defaultrole,
+  joinleave,
   // whitelist,
   levelrole,
   nftrole,
