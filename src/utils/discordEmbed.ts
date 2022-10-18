@@ -58,7 +58,7 @@ export const EMPTY_FIELD = {
 type SetDefaultMiddlewareParams<T> = {
   render: SetDefaultRenderList<T>
   label: string
-  onDefaultSet: SetDefaultButtonHandler
+  onDefaultSet?: SetDefaultButtonHandler
   // for slash command case
   commandInteraction?: CommandInteraction
 }
@@ -84,6 +84,10 @@ export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
       value: selectedValue,
     })
     if (isAdmin) {
+      if (!params.onDefaultSet) {
+        await i.deferUpdate()
+        return { ...render }
+      }
       await i.deferReply({ ephemeral: true }).catch(() => null)
 
       const actionRow = new MessageActionRow().addComponents(

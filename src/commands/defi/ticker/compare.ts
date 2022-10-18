@@ -228,7 +228,7 @@ async function composeTokenComparisonEmbed(
 }
 
 const command: Command = {
-  id: "tokens_compare",
+  id: "ticker_compare",
   command: "compare",
   brief: "View comparison between 2 tokens",
   category: "Defi",
