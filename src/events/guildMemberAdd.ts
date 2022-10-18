@@ -145,11 +145,10 @@ async function setUserDefaultRoles(member: Discord.GuildMember) {
 
 async function welcomeNewMember(member: Discord.GuildMember) {
   const welcomeChannel = await config.getCurrentWelcomeConfig(member.guild.id)
-  if (!welcomeChannel.ok) return
+  if (!welcomeChannel.ok || !welcomeChannel.data) return
 
   const configData = welcomeChannel.data
   if (
-    !configData ||
     !configData.channel_id ||
     !configData.guild_id ||
     !configData.welcome_message

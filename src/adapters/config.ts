@@ -923,6 +923,33 @@ class Config extends Fetcher {
     )
   }
 
+  public async setJoinLeaveChannel(guildId: string, channelId: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/join-leave`, {
+      method: "POST",
+      body: { guildId, channelId },
+    })
+  }
+
+  public async removeJoinLeaveChannel(guildId: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/join-leave`, {
+      method: "DELETE",
+      body: {
+        guildId,
+      },
+    })
+  }
+
+  public async getJoinLeaveChannel(guildId: string) {
+    return await this.jsonFetch<ResponseGetVoteChannelConfigResponse>(
+      `${API_BASE_URL}/configs/join-leave`,
+      {
+        query: {
+          guildId,
+        },
+      }
+    )
+  }
+
   public async getExcludedRole({ guild_id }: { guild_id: string }) {
     return await this.jsonFetch<ResponseGetGuildPruneExcludeResponse>(
       `${API_BASE_URL}/configs/whitelist-prune`,
