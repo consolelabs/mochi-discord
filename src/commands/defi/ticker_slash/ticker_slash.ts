@@ -1,6 +1,6 @@
-import { Command } from "types/common"
+import { SlashCommand } from "types/common"
 import {
-  ButtonInteraction,
+  CommandInteraction,
   HexColorString,
   Message,
   MessageActionRow,
@@ -9,7 +9,6 @@ import {
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { PREFIX, TICKER_GITBOOK, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import {
   defaultEmojis,
   emojis,
@@ -18,10 +17,10 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import { getCommandArguments } from "utils/commands"
 import {
   composeEmbedMessage,
   composeDaysSelectMenu,
+  composeEmbedMessage2,
   getExitButton,
 } from "utils/discordEmbed"
 import defi from "adapters/defi"
@@ -30,16 +29,23 @@ import {
   getChartColorConfig,
   renderChartImage,
 } from "utils/canvas"
-import compare from "./token/compare"
 import config from "adapters/config"
+import { SlashCommandBuilder } from "@discordjs/builders"
+import Compare from "./compare_slash"
+import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import CacheManager from "utils/CacheManager"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { APIError, CommandError } from "errors"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
-import TurnDown from "turndown"
 import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
 import community from "adapters/community"
+
+CacheManager.init({
+  ttl: 0,
+  pool: "ticker",
+  checkperiod: 1,
+})
 
 async function renderHistoricalMarketChart({
   coinId,
@@ -75,6 +81,7 @@ async function renderHistoricalMarketChart({
   })
   if (!bb) return new MessageAttachment(chart, "chart.png")
 
+  // 20% to show chart with bear/bull
   const container: RectangleStats = {
     x: { from: 0, to: 900 },
     y: { from: 0, to: 600 },
@@ -92,16 +99,16 @@ async function renderHistoricalMarketChart({
     chartImg,
     container.x.from,
     container.y.from,
-    container.w - 75,
+    container.w - 68,
     container.h
   )
 
   // bull/bear
   const isAsc = prices[prices.length - 1] >= prices[0]
   const leftObj = await loadImage(`src/assets/${isAsc ? "blul" : "bera"}1.png`)
-  ctx.drawImage(leftObj, container.x.from, container.y.to - 230, 150, 230)
+  ctx.drawImage(leftObj, container.x.from, container.y.to - 230, 130, 230)
   const rightObj = await loadImage(`src/assets/${isAsc ? "blul" : "bera"}2.png`)
-  ctx.drawImage(rightObj, container.x.to - 150, container.y.to - 230, 150, 230)
+  ctx.drawImage(rightObj, container.x.to - 130, container.y.to - 230, 130, 230)
 
   return new MessageAttachment(canvas.toBuffer(), "chart.png")
 }
@@ -155,20 +162,20 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       ...(chart && { files: [chart] }),
       components: message.components as MessageActionRow[],
     },
-    interactionHandlerOptions: {
+    interactionOptions: {
       handler,
     },
   }
 }
 
 async function composeTickerResponse({
-  msg,
   coinId,
+  interaction,
   days,
   discordId,
 }: {
-  msg: Message
   coinId: string
+  interaction: SelectMenuInteraction | CommandInteraction
   days?: number
   discordId?: string
 }) {
@@ -183,7 +190,12 @@ async function composeTickerResponse({
     call: () => defi.getCoin(coinId),
   })
   if (!ok) {
-    throw new APIError({ message: msg, curl, description: log })
+    throw new APIError({
+      guild: interaction.guild,
+      user: interaction.user,
+      description: log,
+      curl,
+    })
   }
   const currency = "usd"
   const {
@@ -197,11 +209,12 @@ async function composeTickerResponse({
   const marketCap = +market_cap[currency]
   const blank = getEmoji("blank")
   const bb = getChance(20)
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
+    // originalMsgAuthor: gMember?.user,
     ...(bb && { description: "Give credit to Tsuki Bot for the idea." }),
   }).addFields([
     {
@@ -239,7 +252,6 @@ async function composeTickerResponse({
   const chart = await renderHistoricalMarketChart({
     coinId: coin.id,
     bb,
-    days,
     discordId,
   })
   const selectRow = composeDaysSelectMenu(
@@ -252,7 +264,7 @@ async function composeTickerResponse({
   const buttonRow = buildSwitchViewActionRow("ticker", {
     coinId: coin.id,
     days: days ?? 7,
-  }).addComponents(getExitButton(msg.author.id))
+  }).addComponents(getExitButton(interaction.user.id))
 
   return {
     messageOptions: {
@@ -287,94 +299,32 @@ function buildSwitchViewActionRow(
   return new MessageActionRow().addComponents([tickerBtn, infoBtn])
 }
 
-export async function handleTickerViews(interaction: ButtonInteraction) {
-  const msg = <Message>interaction.message
-  if (interaction.customId.startsWith("ticker_view_chart")) {
-    await viewTickerChart(interaction, msg)
-    return
-  }
-  await viewTickerInfo(interaction, msg)
-}
-
-async function viewTickerChart(interaction: ButtonInteraction, msg: Message) {
-  await interaction.deferUpdate()
-  const [coinId, days] = interaction.customId.split("|").slice(1)
-  const { messageOptions } = await composeTickerResponse({
-    msg,
-    coinId,
-    ...(days && { days: +days }),
-  })
-  await msg.edit(messageOptions)
-}
-
-async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
-  await interaction.deferUpdate()
-  const [coinId, days] = interaction.customId.split("|").slice(1)
-  const { messageOptions } = await composeTokenInfoEmbed(msg, coinId, +days)
-  await msg.edit(messageOptions)
-  await msg.removeAttachments()
-}
-
-async function composeTokenInfoEmbed(
-  msg: Message,
-  coinId: string,
-  days: number
-) {
-  const {
-    ok,
-    data: coin,
-    log,
-    curl,
-  } = await CacheManager.get({
-    pool: "ticker",
-    key: `ticker-getcoin-${coinId}`,
-    call: () => defi.getCoin(coinId),
-  })
-  if (!ok) {
-    throw new APIError({ message: msg, curl, description: log })
-  }
-  const embed = composeEmbedMessage(msg, {
-    thumbnail: coin.image.large,
-    color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    title: "About " + coin.name,
-    footer: ["Data fetched from CoinGecko.com"],
-  })
-  const tdService = new TurnDown()
-  const content = coin.description.en
-    .split("\r\n\r\n")
-    .map((v: any) => {
-      return tdService.turndown(v)
-    })
-    .join("\r\n\r\n")
-  embed.setDescription(content || "This token has not updated description yet")
-  const buttonRow = buildSwitchViewActionRow("info", {
-    coinId,
-    days,
-  }).addComponents(getExitButton(msg.author.id))
-
-  return {
-    messageOptions: {
-      embeds: [embed],
-      components: [buttonRow],
-    },
-  }
-}
-
-const command: Command = {
-  id: "ticker",
-  command: "ticker",
-  brief: "Token ticker",
+const command: SlashCommand = {
+  name: "ticker",
   category: "Defi",
-  run: async function (msg) {
-    if (!msg.guildId) {
-      throw new GuildIdNotFoundError({ message: msg })
-    }
-    const args = getCommandArguments(msg)
-    // execute
-    const [query] = args.slice(1)
-    const [coinQ, targetQ] = query.split("/")
+  prepare: () => {
+    return new SlashCommandBuilder()
+      .setName("ticker")
+      .setDescription("Show/Compare coins price and market cap")
+      .addStringOption((option) =>
+        option
+          .setName("base")
+          .setDescription("the cryptocurrency which you wanna check price.")
+          .setRequired(true)
+      )
+      .addStringOption((option) =>
+        option
+          .setName("target")
+          .setDescription("the second cryptocurrency for comparison.")
+          .setRequired(false)
+      )
+  },
+  run: async function (interaction: CommandInteraction) {
+    const baseQ = interaction.options.getString("base")
+    if (!interaction.guildId || !baseQ) return null
     // run token comparison
-    if (targetQ) return compare.run(msg)
+    const targetQ = interaction.options.getString("target")
+    if (targetQ) return await Compare(interaction, baseQ, targetQ)
     const {
       ok,
       data: coins,
@@ -382,22 +332,29 @@ const command: Command = {
       curl,
     } = await CacheManager.get({
       pool: "ticker",
-      key: `ticker-search-${coinQ}`,
-      call: () => defi.searchCoins(coinQ),
+      key: `ticker-search-${baseQ}`,
+      call: () => defi.searchCoins(baseQ),
     })
-    if (!ok) throw new APIError({ message: msg, curl, description: log })
+    if (!ok)
+      throw new APIError({
+        guild: interaction.guild,
+        user: interaction.user,
+        description: log,
+        curl,
+      })
     if (!coins || !coins.length) {
       throw new CommandError({
-        message: msg,
-        description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease choose another one!`,
+        guild: interaction.guild,
+        user: interaction.user,
+        description: `Cannot find any cryptocurrency with \`${baseQ}\`.\nPlease choose another one!`,
       })
     }
 
     if (coins.length === 1) {
       return await composeTickerResponse({
-        msg,
         coinId: coins[0].id,
-        discordId: msg.author.id,
+        interaction,
+        discordId: interaction.user.id,
       })
     }
 
@@ -405,22 +362,21 @@ const command: Command = {
     const { symbol } = coins[0]
     const defaultTicker = await CacheManager.get({
       pool: "ticker",
-      key: `ticker-default-${msg.guildId}-${symbol}`,
+      key: `ticker-default-${interaction.guildId}-${symbol}`,
       call: () =>
         config.getGuildDefaultTicker({
-          guild_id: msg.guildId ?? "",
+          guild_id: interaction.guildId ?? "",
           query: symbol,
         }),
     })
     if (defaultTicker.ok && defaultTicker.data.default_ticker) {
       return await composeTickerResponse({
-        msg,
         coinId: defaultTicker.data.default_ticker,
-        discordId: msg.author.id,
+        interaction,
+        discordId: interaction.user.id,
       })
     }
 
-    // else render embed to show multiple results
     return {
       select: {
         options: Object.values(coins).map((coin: any) => {
@@ -447,36 +403,32 @@ const command: Command = {
           description: `Next time your server members use \`$ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
         })(i)
       },
-      render: ({ msgOrInteraction: msg, value }) => {
+      render: ({ msgOrInteraction: interaction, value }) => {
         const [coinId] = value.split("_")
-        return composeTickerResponse({ msg, coinId, discordId: msg.author.id })
+        return composeTickerResponse({
+          interaction,
+          coinId,
+          discordId: interaction.user.id,
+        })
       },
-      ambiguousResultText: coinQ.toUpperCase(),
+      ambiguousResultText: baseQ.toUpperCase(),
       multipleResultText: Object.values(coins)
         .map((c: any) => `**${c.name}** (${c.symbol.toUpperCase()})`)
         .join(", "),
     }
   },
-  featured: {
-    title: `📈 Ticker`,
-    description: `Display/Compare coin prices and market cap`,
-  },
-  getHelpMessage: async (msg) => ({
+  help: async (interaction) => ({
     embeds: [
-      composeEmbedMessage(msg, {
+      composeEmbedMessage2(interaction, {
         thumbnail: thumbnails.TOKENS,
-        description: `Display/Compare coin prices and market cap. Data is fetched from [CoinGecko](https://coingecko.com/)`,
+        title: "Display/Compare coin price and market cap",
+        description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
         usage: `${PREFIX}ticker <symbol>\n${PREFIX}ticker <base>/<target> (comparison)`,
         examples: `${PREFIX}ticker eth\n${PREFIX}ticker fantom\n${PREFIX}ticker btc/bnb`,
-        document: TICKER_GITBOOK,
-        footer: [DEFI_DEFAULT_FOOTER],
       }),
     ],
   }),
-  aliases: ["tick"],
-  canRunWithoutAction: true,
   colorType: "Defi",
-  minArguments: 2,
 }
 
 export default command

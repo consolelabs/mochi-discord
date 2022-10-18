@@ -1,5 +1,5 @@
 import Discord, { HexColorString, MessageOptions } from "discord.js"
-import { mockClient } from "../../../tests/mocks"
+import { mockClient } from "../../../../tests/mocks"
 import { commands } from "commands"
 import CacheManager from "utils/CacheManager"
 import { composeEmbedMessage } from "utils/discordEmbed"

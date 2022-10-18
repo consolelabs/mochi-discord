@@ -10,7 +10,7 @@ import tip from "./defi/tip"
 import balances from "./defi/balances"
 import withdraw from "./defi/withdraw"
 import tokens from "./defi/token"
-import ticker from "./defi/ticker"
+import ticker from "./defi/ticker/ticker"
 import airdrop from "./defi/airdrop"
 import gm from "./community/gm"
 import defaultrole from "./config/defaultRole"
@@ -34,7 +34,7 @@ import quest from "./community/quest"
 
 // slash commands
 import help_slash from "./help_slash"
-import ticker_slash from "./defi/ticker_slash"
+import ticker_slash from "./defi/ticker_slash/ticker_slash"
 import log_slash from "./config/log_slash"
 import welcome_slash from "./config/welcome_slash"
 import watchlist_slash from "./defi/watchlist_slash"
@@ -276,7 +276,7 @@ async function executeCommand(
         components: [selectRow, composeDiscordExitButton(message.author.id)],
       })
 
-      if (onDefaultSet && render) {
+      if (render) {
         InteractionManager.add(msg.id, {
           handler: setDefaultMiddleware<Message>({
             onDefaultSet,

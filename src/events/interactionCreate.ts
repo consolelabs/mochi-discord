@@ -21,7 +21,7 @@ import {
 import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
 import { wrapError } from "utils/wrapError"
-import { handleTickerViews } from "commands/defi/ticker"
+import { handleTickerViews } from "commands/defi/ticker/ticker"
 import { handleNFTTickerViews } from "commands/community/nft/ticker"
 import { authorFilter, hasAdministrator } from "utils/common"
 import { handleButtonOffer } from "commands/community/trade"
