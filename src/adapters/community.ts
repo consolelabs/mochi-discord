@@ -354,6 +354,19 @@ class Community extends Fetcher {
       }
     )
   }
+
+  public async sendFeedback(req: {
+    discord_id: string
+    username: string
+    avatar: string
+    command: string
+    feedback: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/feedback`, {
+      method: "POST",
+      body: req,
+    })
+  }
 }
 
 export default new Community()
