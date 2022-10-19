@@ -3,7 +3,7 @@ import {
   DefaultRoleEvent,
   RepostReactionRequest,
   RoleReactionEvent,
-  RequestConfigRepostReactionStartStop,
+  RequestConfigRepostReactionConversation,
 } from "types/common"
 import { CommandInteraction, Message } from "discord.js"
 import { CommandIsNotScopedError, SlashCommandIsNotScopedError } from "errors"
@@ -528,10 +528,10 @@ class Config extends Fetcher {
   }
 
   public async CreateConfigRepostReactionStartStop(
-    req: RequestConfigRepostReactionStartStop
+    req: RequestConfigRepostReactionConversation
   ) {
     return this.jsonFetch(
-      `${API_BASE_URL}/configs/repost-reactions/start-stop`,
+      `${API_BASE_URL}/configs/repost-reactions/conversation`,
       {
         method: "POST",
         body: JSON.stringify(req),
@@ -560,6 +560,18 @@ class Config extends Fetcher {
       method: "DELETE",
       body: JSON.stringify(req),
     })
+  }
+
+  public async removeRepostReactionConversationConfig(
+    req: RequestConfigRepostReactionConversation
+  ) {
+    return this.jsonFetch(
+      `${API_BASE_URL}/configs/repost-reactions/conversation`,
+      {
+        method: "DELETE",
+        body: req,
+      }
+    )
   }
 
   public async getAllChains() {

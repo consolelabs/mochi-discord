@@ -206,7 +206,7 @@ export type Pagination = {
   total: number
 }
 
-export type RequestConfigRepostReactionStartStop = {
+export type RequestConfigRepostReactionConversation = {
   emoji_start?: string
   emoji_stop?: string
   guild_id?: string

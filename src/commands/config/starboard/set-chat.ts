@@ -1,32 +1,33 @@
-import { Command, RequestConfigRepostReactionStartStop } from "types/common"
+import { Command, RequestConfigRepostReactionConversation } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
-import { getCommandArguments } from "utils/commands"
+import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "starboard_set_chat",
   command: "set-chat",
-  brief: "Set or update a starboard configuration start stop",
+  brief: "Set or update a conversation bookmark.",
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
     const args = getCommandArguments(msg)
     // Validate input reaction emoji start
-    let reactionStart = args[2]
-    let isValidEmojiStart = false
-    if (reactionStart.startsWith("<:") && reactionStart.endsWith(">")) {
-      reactionStart = reactionStart.toLowerCase()
-    }
-    const emojiStartSplit = reactionStart.split(":")
-    if (emojiStartSplit.length === 1) {
-      isValidEmojiStart = true
-    }
+    const reactionStart = args[2]
+    const {
+      isEmoji: isEmojiStart,
+      isNativeEmoji: isNativeEmojiStart,
+      isAnimatedEmoji: isAnimatedEmojiStart,
+      value: valueStart,
+    } = parseDiscordToken(reactionStart)
+    let isValidEmojiStart =
+      isEmojiStart || isNativeEmojiStart || isAnimatedEmojiStart
+
     msg.guild?.emojis.cache.forEach((e) => {
-      if (emojiStartSplit.includes(e.name!.toLowerCase())) {
-        isValidEmojiStart = true
+      if (valueStart.includes(e.name!.toLowerCase())) {
+        isValidEmojiStart = isValidEmojiStart && true
       }
     })
     if (!isValidEmojiStart) {
@@ -35,7 +36,7 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: `Emoji ${reactionStart} is invalid or not owned by this guild`,
+              description: `Emoji ${valueStart} is invalid or not owned by this guild`,
             }),
           ],
         },
@@ -43,18 +44,19 @@ const command: Command = {
     }
 
     // Validate input reaction emoji stop
-    let reactionStop = args[3]
-    let isValidEmojiStop = false
-    if (reactionStop.startsWith("<:") && reactionStop.endsWith(">")) {
-      reactionStop = reactionStop.toLowerCase()
-    }
-    const emojiStopSplit = reactionStop.split(":")
-    if (emojiStopSplit.length === 1) {
-      isValidEmojiStop = true
-    }
+    const reactionStop = args[3]
+    const {
+      isEmoji: isEmojiStop,
+      isNativeEmoji: isNativeEmojiStop,
+      isAnimatedEmoji: isAnimatedEmojiStop,
+      value: valueStop,
+    } = parseDiscordToken(reactionStop)
+    let isValidEmojiStop =
+      isEmojiStop || isNativeEmojiStop || isAnimatedEmojiStop
+
     msg.guild?.emojis.cache.forEach((e) => {
-      if (emojiStopSplit.includes(e.name!.toLowerCase())) {
-        isValidEmojiStop = true
+      if (valueStop.includes(e.name!.toLowerCase())) {
+        isValidEmojiStop = isValidEmojiStop && true
       }
     })
     if (!isValidEmojiStop) {
@@ -63,7 +65,7 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: `Emoji ${reactionStop} is invalid or not owned by this guild`,
+              description: `Emoji ${valueStop} is invalid or not owned by this guild`,
             }),
           ],
         },
@@ -91,7 +93,7 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
 
-    const requestData: RequestConfigRepostReactionStartStop = {
+    const requestData: RequestConfigRepostReactionConversation = {
       guild_id: msg.guild.id,
       emoji_start: reactionStart,
       emoji_stop: reactionStop,
@@ -117,7 +119,7 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}sb set-chat <emoji-start> <emoji-stop> <channel>`,
-          examples: `${PREFIX}sb set-chat <:stonks_up:> <:stonks_down:> #starboard `,
+          examples: `${PREFIX}sb set-chat 🌟 ❣️ #starboard`,
         }),
       ],
     }
