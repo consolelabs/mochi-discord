@@ -93,6 +93,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}dr remove`,
           examples: `${PREFIX}dr remove`,
+          document: `${DEFAULT_ROLE_GITBOOK}&action=remove`,
         }),
       ],
     }

@@ -46,7 +46,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite config <channel>`,
       examples: `${PREFIX}invite config #general\n${PREFIX}invite cfg #general`,
-      document: INVITE_GITBOOK,
+      document: `${INVITE_GITBOOK}&action=config`,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 

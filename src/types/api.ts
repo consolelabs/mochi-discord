@@ -320,10 +320,21 @@ export interface ModelNewListedNFTCollection {
   symbol?: string;
 }
 
+export interface ModelOffchainTipBotAssignContract {
+  chain_id?: string;
+  contract_id?: string;
+  expired_time?: string;
+  id?: string;
+  status?: number;
+  token_id?: string;
+  user_id?: string;
+}
+
 export interface ModelQuest {
   action?: string;
   frequency?: number;
   id?: string;
+  rewards?: ModelQuestReward[];
   routine?: string;
   title?: string;
 }
@@ -502,6 +513,11 @@ export interface RequestConfigureInviteRequest {
   webhook_url?: string;
 }
 
+export interface RequestCreateAssignContract {
+  token_symbol?: string;
+  user_id?: string;
+}
+
 export interface RequestCreateDefaultRoleRequest {
   guild_id: string;
   role_id: string;
@@ -531,6 +547,10 @@ export interface RequestCreateUserRequest {
 export interface RequestCreateWhitelistCampaignRequest {
   guild_id?: string;
   name?: string;
+}
+
+export interface RequestDeleteJoinLeaveChannelConfigRequest {
+  guild_id?: string;
 }
 
 export interface RequestDeleteVoteChannelConfigRequest {
@@ -689,6 +709,11 @@ export interface RequestUpsertGuildTokenConfigRequest {
   symbol?: string;
 }
 
+export interface RequestUpsertJoinLeaveChannelConfigRequest {
+  channel_id?: string;
+  guild_id?: string;
+}
+
 export interface RequestUpsertVoteChannelConfigRequest {
   channel_id?: string;
   guild_id?: string;
@@ -698,6 +723,14 @@ export interface RequestUpsertWelcomeConfigRequest {
   channel_id?: string;
   guild_id?: string;
   welcome_message?: string;
+}
+
+export interface RequestUserFeedbackRequest {
+  avatar?: string;
+  command?: string;
+  discord_id?: string;
+  feedback?: string;
+  username?: string;
 }
 
 export interface RequestVerifyWalletAddressRequest {
@@ -856,6 +889,10 @@ export interface ResponseGetAllTwitterConfigResponse {
 
 export interface ResponseGetAllTwitterHashtagConfigResponse {
   data?: ResponseTwitterHashtag[];
+}
+
+export interface ResponseGetAssignedContract {
+  data?: ModelOffchainTipBotAssignContract;
 }
 
 export interface ResponseGetCoinResponse {

@@ -52,7 +52,7 @@ const command: Command = {
         usage: `${PREFIX}prune remove <role>`,
         examples: `${PREFIX}prune remove @Mochi`,
         includeCommandsList: true,
-        document: PRUNE_GITBOOK,
+        document: `${PRUNE_GITBOOK}&action=remove`,
       }),
     ],
   }),

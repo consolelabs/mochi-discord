@@ -55,7 +55,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}gm config <channel>`,
         examples: `${PREFIX}gm config #general`,
-        document: GM_GITBOOK,
+        document: `${GM_GITBOOK}&action=config`,
       }),
     ],
   }),

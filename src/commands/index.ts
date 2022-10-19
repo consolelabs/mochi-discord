@@ -29,6 +29,7 @@ import log from "./config/log"
 import poe from "./config/poe"
 import watchlist from "./defi/watchlist"
 import vote from "./community/vote"
+import feedback from "./community/feedback"
 import telegram from "./config/telegram"
 import trade from "./community/trade"
 import quest from "./community/quest"
@@ -39,6 +40,7 @@ import ticker_slash from "./defi/ticker_slash/ticker_slash"
 import log_slash from "./config/log_slash"
 import welcome_slash from "./config/welcome_slash"
 import watchlist_slash from "./defi/watchlist_slash"
+import feedback_slash from "./community/feedback_slash"
 import top_slash from "./community/top_slash"
 import verify_slash from "./community/verify_slash"
 import prune_slash from "./community/prune_slash"
@@ -85,6 +87,7 @@ import InteractionManager from "utils/InteractionManager"
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 
 export const slashCommands: Record<string, SlashCommand> = {
+  feedback: feedback_slash,
   ticker: ticker_slash,
   help: help_slash,
   log: log_slash,
@@ -123,6 +126,7 @@ export const originalCommands: Record<string, Command> = {
   sales,
   verify,
   vote,
+  feedback,
   prune,
   quest,
   // config section

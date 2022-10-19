@@ -71,7 +71,7 @@ const command: Command = {
         description: "Deposit tokens into your in-discord wallet",
         examples: `${PREFIX}deposit\n${PREFIX}dep`,
         footer: [DEFI_DEFAULT_FOOTER],
-        document: DEPOSIT_GITBOOK,
+        document: `${DEPOSIT_GITBOOK}&command=deposit`,
       }),
     ],
   }),

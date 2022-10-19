@@ -38,66 +38,129 @@ export const CHANNEL_PREFIX = "<#"
 export const USER_PREFIX = "<@"
 export const EMOJI_PREFIX = "<:"
 
+const USAGE_STATS_URL = API_BASE_URL + "/usage-stats/gitbook?url="
 export const DEPOSIT_GITBOOK =
+  USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/deposit-and-withdraw"
 export const BALANCE_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/check-balance"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/check-balance" +
+  "&command=balance"
 export const TICKER_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/crypto-ticker"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/crypto-ticker" +
+  "&command=ticker"
 export const TIP_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/tip-bot"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/tip-bot" +
+  "&command=tip"
 export const AIRDROP_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/airdrop-token"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/airdrop-token" +
+  "&command=airdrop"
 export const DEFAULT_TOKEN_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/set-default-token"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/set-default-token" +
+  "&command=ticker"
 export const RARITY_CHECKER_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/rarity-checker"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/rarity-checker" +
+  "&command=nft"
 export const ADD_COLLECTION_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/add-collection"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/add-collection" +
+  "&command=nft&action=add"
 export const NFT_TICKER_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/nft-ticker"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/nft-ticker" +
+  "&command=nft&action=ticker"
 export const SALE_TRACKER_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/sales-tracker"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/sales-tracker" +
+  "&command=sales"
 export const DEFAULT_COLLECTION_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/set-default-collection"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/set-default-collection" +
+  "&command=nft"
 export const STATS_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/server-stats"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/server-stats" +
+  "&command=stats"
 export const INVITE_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/invite-tracker"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/invite-tracker" +
+  "&command=invite"
 export const DEFAULT_ROLE_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/assign-roles-and-default-roles"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/default-roles" +
+  "&command=defaultrole"
 export const NFT_ROLE_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-roles"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-roles" +
+  "&command=nftrole"
 export const GM_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/gm-gn"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/gm-gn" +
+  "&command=gm"
 export const NFT_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume" +
+  "&command=nft"
 export const HELP_GITBOOK =
+  USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/list-of-commands"
 export const TOKEN_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/supported-tokens"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/supported-tokens" +
+  "&command=token"
 export const WATCHLIST_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/token-watchlist"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/token-watchlist" +
+  "&command=watchlist"
 export const REACTION_ROLE_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles" +
+  "&command=reactionrole"
 export const LEVEL_ROLE_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/level-roles"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/level-roles" +
+  "&command=levelrole"
 export const LOG_CHANNEL_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/log-channels"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/log-channels" +
+  "&command=log"
 export const TWITTER_WATCH_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/twitter-tweet-watcher-poe"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/twitter-tweet-watcher-poe" +
+  "&command=poetwitter"
 export const VERIFY_WALLET_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/getting-started/wallet"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/getting-started/wallet" +
+  "&command=verify"
 export const PROFILE_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/users-profiles"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/users-profiles" +
+  "&command=profile"
 export const TELEGRAM_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/config-to-telegram-account"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/config-to-telegram-account" +
+  "&command=telegram"
 export const VOTE_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/vote-for-mochi"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/vote-for-mochi" +
+  "&command=vote"
 export const STARBOARD_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/starboard"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/starboard" +
+  "&command=starboard"
 export const PRUNE_GITBOOK =
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/prune-inactive-users"
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/prune-inactive-users" +
+  "&command=prune"
+export const WELCOME_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/welcome-message" +
+  "&command=welcome"
 
 export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"

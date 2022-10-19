@@ -49,7 +49,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite link`,
       examples: `${PREFIX}invite link\n${PREFIX}inv link`,
-      document: INVITE_GITBOOK,
+      document: `${INVITE_GITBOOK}&action=link`,
       footer: [`Type \`${PREFIX}help invite <action>\` for a specific action!`],
     })
 

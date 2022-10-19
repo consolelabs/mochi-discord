@@ -79,7 +79,7 @@ const command: Command = {
           description:
             "If you know what you're doing, this command also support passing in the role id (maybe you're a power user, maybe you don't want to alert all users that have that role, etc...)",
           examples: `${PREFIX}dr set @Visitor`,
-          document: DEFAULT_ROLE_GITBOOK,
+          document: `${DEFAULT_ROLE_GITBOOK}&action=set`,
         }),
       ],
     }
