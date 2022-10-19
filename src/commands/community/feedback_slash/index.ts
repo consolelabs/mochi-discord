@@ -8,7 +8,7 @@ import { handleFeedback } from "../feedback"
 const command: SlashCommand = {
   name: "feedback",
   category: "Community",
-  onlyAdministrator: true,
+  onlyAdministrator: false,
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("feedback")

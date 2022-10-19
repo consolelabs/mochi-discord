@@ -725,6 +725,14 @@ export interface RequestUpsertWelcomeConfigRequest {
   welcome_message?: string;
 }
 
+export interface RequestUserFeedbackRequest {
+  avatar?: string;
+  command?: string;
+  discord_id?: string;
+  feedback?: string;
+  username?: string;
+}
+
 export interface RequestVerifyWalletAddressRequest {
   code?: string;
   signature?: string;
