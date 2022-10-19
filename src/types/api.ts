@@ -320,6 +320,16 @@ export interface ModelNewListedNFTCollection {
   symbol?: string;
 }
 
+export interface ModelOffchainTipBotAssignContract {
+  chain_id?: string;
+  contract_id?: string;
+  expired_time?: string;
+  id?: string;
+  status?: number;
+  token_id?: string;
+  user_id?: string;
+}
+
 export interface ModelQuest {
   action?: string;
   frequency?: number;
@@ -501,6 +511,11 @@ export interface RequestConfigureInviteRequest {
   guild_id?: string;
   log_channel?: string;
   webhook_url?: string;
+}
+
+export interface RequestCreateAssignContract {
+  token_symbol?: string;
+  user_id?: string;
 }
 
 export interface RequestCreateDefaultRoleRequest {
@@ -866,6 +881,10 @@ export interface ResponseGetAllTwitterConfigResponse {
 
 export interface ResponseGetAllTwitterHashtagConfigResponse {
   data?: ResponseTwitterHashtag[];
+}
+
+export interface ResponseGetAssignedContract {
+  data?: ModelOffchainTipBotAssignContract;
 }
 
 export interface ResponseGetCoinResponse {
