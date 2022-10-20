@@ -104,9 +104,9 @@ async function renderHistoricalMarketChart({
   // bull/bear
   const isAsc = prices[prices.length - 1] >= prices[0]
   const leftObj = await loadImage(`src/assets/${isAsc ? "blul" : "bera"}1.png`)
-  ctx.drawImage(leftObj, container.x.from, container.y.to - 230, 150, 230)
+  ctx.drawImage(leftObj, container.x.from, container.y.to - 230, 130, 230)
   const rightObj = await loadImage(`src/assets/${isAsc ? "blul" : "bera"}2.png`)
-  ctx.drawImage(rightObj, container.x.to - 150, container.y.to - 230, 150, 230)
+  ctx.drawImage(rightObj, container.x.to - 130, container.y.to - 230, 130, 230)
 
   return new MessageAttachment(canvas.toBuffer(), "chart.png")
 }
