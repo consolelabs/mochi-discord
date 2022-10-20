@@ -33,10 +33,13 @@ export const VALID_BOOST_MESSAGE_TYPES = [
 ]
 
 export const HOMEPAGE_URL = "http://getmochi.co"
-export const ROLE_PREFIX = "<@&"
-export const CHANNEL_PREFIX = "<#"
-export const USER_PREFIX = "<@"
-export const EMOJI_PREFIX = "<:"
+
+export const EMOJI_REGEX = /<:(.+|_):(\d+)>/i
+export const ANIMATED_EMOJI_REGEX = /<a:(.+|_):(\d+)>/i
+export const NATIVE_EMOJI_REGEX = /<:(.+):>/i
+export const USER_REGEX = /<@(\d+)>/i
+export const CHANNEL_REGEX = /<#(\d+)>/i
+export const ROLE_REGEX = /<@&(\d+)>/i
 
 const USAGE_STATS_URL = API_BASE_URL + "/usage-stats/gitbook?url="
 export const DEPOSIT_GITBOOK =

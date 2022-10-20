@@ -8,6 +8,7 @@ import { RunResult } from "types/common"
 
 jest.mock("adapters/config")
 jest.mock("adapters/community")
+jest.setTimeout(10000)
 const commandKey = "vote"
 const actionKey = "top"
 

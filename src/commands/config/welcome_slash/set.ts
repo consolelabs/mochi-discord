@@ -28,7 +28,7 @@ export async function setWelcome(interaction: CommandInteraction) {
     }
   }
 
-  const { isChannel, id: channelId } = parseDiscordToken(
+  const { isChannel, value: channelId } = parseDiscordToken(
     interaction.options.getString("channel") ?? ""
   )
   if (!isChannel) {
