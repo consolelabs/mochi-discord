@@ -16,7 +16,7 @@ async function handle(channelId: string, guildId: string, user: User) {
 }
 
 const command: Command = {
-  id: "join-leave_set",
+  id: "joinleave_set",
   command: "set",
   brief: "Set a specific channel to log members joining and leaving",
   category: "Config",
@@ -43,7 +43,7 @@ const command: Command = {
           getSuccessEmbed({
             msg,
             title: "Successfully set!",
-            description: `<#${info.channel_id}> is currently set.\nTo change channel, run \`${PREFIX}join-leave set <channel>.\``,
+            description: `<#${info.channel_id}> is currently set.\nTo change channel, run \`${PREFIX}joinleave set <channel>.\``,
           }),
         ],
       },
@@ -52,8 +52,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}join-leave set <channel>`,
-        examples: `${PREFIX}join-leave set #general`,
+        usage: `${PREFIX}joinleave set <channel>`,
+        examples: `${PREFIX}joinleave set #general`,
         includeCommandsList: true,
       }),
     ],

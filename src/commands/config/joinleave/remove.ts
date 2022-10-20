@@ -14,9 +14,9 @@ async function handle(guildId: string, user: User) {
 }
 
 const command: Command = {
-  id: "join-leave_remove",
+  id: "joinleave_remove",
   command: "remove",
-  brief: "Remove the configured join-leave channel",
+  brief: "Remove the configured joinleave channel",
   category: "Community",
   run: async (msg: Message) => {
     if (!msg.guildId) {
@@ -31,7 +31,7 @@ const command: Command = {
           getSuccessEmbed({
             msg,
             title: "Successfully removed!",
-            description: `No join-leave channel configured for this guild.\nSet one with \`${PREFIX}join-leave set <channel>.\``,
+            description: `No joinleave channel configured for this guild.\nSet one with \`${PREFIX}joinleave set <channel>.\``,
           }),
         ],
       },
@@ -40,8 +40,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}join-leave remove`,
-        examples: `${PREFIX}join-leave remove`,
+        usage: `${PREFIX}joinleave remove`,
+        examples: `${PREFIX}joinleave remove`,
         includeCommandsList: true,
       }),
     ],

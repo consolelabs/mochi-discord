@@ -12,8 +12,8 @@ const actions: Record<string, Command> = {
 }
 
 const command: Command = {
-  id: "join-leave",
-  command: "join-leave",
+  id: "joinleave",
+  command: "joinleave",
   brief: "Notify guild members joining and leaving",
   category: "Config",
   onlyAdministrator: true,
@@ -22,15 +22,15 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         includeCommandsList: true,
-        usage: `${PREFIX}join-leave <action>`,
+        usage: `${PREFIX}joinleave <action>`,
         description:
           "Configure a channel to monitor guild members joining and leaving",
         footer: [
-          `Type ${PREFIX}help join-leave <action> for a specific action!`,
+          `Type ${PREFIX}help joinleave <action> for a specific action!`,
         ],
         document: LOG_CHANNEL_GITBOOK,
-        title: "Join-leave channel",
-        examples: `${PREFIX}join-leave info`,
+        title: "Join-Leave channel",
+        examples: `${PREFIX}joinleave info`,
       }),
     ],
   }),

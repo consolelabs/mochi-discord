@@ -15,9 +15,9 @@ export async function handle(guildId: string, user: User) {
 }
 
 const command: Command = {
-  id: "join-leave_info",
+  id: "joinleave_info",
   command: "info",
-  brief: "Show this server's configured join-leave channel",
+  brief: "Show this server's configured joinleave channel",
   category: "Community",
   run: async (msg: Message) => {
     if (!msg.guildId) {
@@ -32,7 +32,7 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: "Join-Leave channel",
-              description: `No join-leave channel configured for this guild.\nSet one with \`${PREFIX}join-leave set <channel>.\``,
+              description: `No joinleave channel configured for this guild.\nSet one with \`${PREFIX}joinleave set <channel>.\``,
             }),
           ],
         },
@@ -44,7 +44,7 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             title: "Join-Leave channel",
-            description: `<#${info.channel_id}> is currently set.\nTo change channel, run \`${PREFIX}join-leave set <channel>.\``,
+            description: `<#${info.channel_id}> is currently set.\nTo change channel, run \`${PREFIX}joinleave set <channel>.\``,
           }),
         ],
       },
@@ -53,8 +53,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}join-leave set <channel>`,
-        examples: `${PREFIX}join-leave set #vote`,
+        usage: `${PREFIX}joinleave set <channel>`,
+        examples: `${PREFIX}joinleave set #vote`,
         includeCommandsList: true,
       }),
     ],
