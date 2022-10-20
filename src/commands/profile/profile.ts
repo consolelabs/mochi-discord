@@ -534,7 +534,7 @@ const command: Command = {
     const users: User[] = []
     const args = getCommandArguments(msg)
     if (args.length > 1) {
-      const { isUser, id } = parseDiscordToken(args[1])
+      const { isUser, value: id } = parseDiscordToken(args[1])
       if (isUser) {
         const cachedUser = msg.guild?.members.cache.get(id)?.user
         if (cachedUser) {

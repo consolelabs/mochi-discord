@@ -229,10 +229,10 @@ const command: Command = {
       }
     }
     const args = getCommandArguments(msg)
-    const { isAddress, id } = parseDiscordToken(args[2] ?? "")
+    const { isAddress, value } = parseDiscordToken(args[2] ?? "")
     let replyMsg: Message | null = null
-    if (isAddress && id) {
-      const timeoutId = remove(msg.guildId, id, () => {
+    if (isAddress && value) {
+      const timeoutId = remove(msg.guildId, value, () => {
         replyMsg?.edit({ components: [] }).catch(() => null)
       })
 
@@ -240,7 +240,7 @@ const command: Command = {
         msg,
         "queued-detail",
         "Tracker removed",
-        res.data.collection.filter((c: any) => c.contract_address !== id),
+        res.data.collection.filter((c: any) => c.contract_address !== value),
         res.data.channel_id,
         timeoutId
       )

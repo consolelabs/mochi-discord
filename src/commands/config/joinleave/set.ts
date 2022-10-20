@@ -26,7 +26,7 @@ const command: Command = {
     }
 
     const args = getCommandArguments(msg)
-    const { isChannel, id: channelId } = parseDiscordToken(args[2])
+    const { isChannel, value: channelId } = parseDiscordToken(args[2])
     if (!isChannel) {
       throw new CommandError({
         message: msg,

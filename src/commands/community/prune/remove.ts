@@ -24,7 +24,7 @@ const command: Command = {
     }
 
     const args = getCommandArguments(msg)
-    const { isRole, id } = parseDiscordToken(args[2])
+    const { isRole, value: id } = parseDiscordToken(args[2])
     if (!isRole) {
       throw new CommandError({
         message: msg,
