@@ -3,13 +3,13 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
-import { getCommandArguments } from "utils/commands"
+import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "starboard_set",
   command: "set",
-  brief: "Set or update a starboard configuration",
+  brief: "Set or update a message bookmark.",
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
@@ -25,18 +25,13 @@ const command: Command = {
     }
 
     // Validate input reaction emoji
-    let reaction = args[3]
-    let isValidEmoji = false
-    if (reaction.startsWith("<:") && reaction.endsWith(">")) {
-      reaction = reaction.toLowerCase()
-    }
-    const emojiSplit = reaction.split(":")
-    if (emojiSplit.length === 1) {
-      isValidEmoji = true
-    }
+    const reaction = args[3]
+    const { isEmoji, isNativeEmoji, isAnimatedEmoji, value } =
+      parseDiscordToken(reaction)
+    let isValidEmoji = isEmoji || isNativeEmoji || isAnimatedEmoji
     msg.guild?.emojis.cache.forEach((e) => {
-      if (emojiSplit.includes(e.name!.toLowerCase())) {
-        isValidEmoji = true
+      if (value.includes(e.name!.toLowerCase())) {
+        isValidEmoji = isValidEmoji && true
       }
     })
     if (!isValidEmoji) {
@@ -45,7 +40,7 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: `Emoji ${reaction} is invalid or not owned by this guild`,
+              description: `Emoji ${value} is invalid or not owned by this guild`,
             }),
           ],
         },

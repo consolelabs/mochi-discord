@@ -82,7 +82,6 @@ async function composeMessage(
   })
 
   let fields: any[] = []
-  console.log(data)
   fields = data.map((conf: any) => ({
     quantity: conf.quantity,
     emoji: conf.emoji,
@@ -235,7 +234,7 @@ async function handlePagination(i: ButtonInteraction, msg: Message) {
 const command: Command = {
   id: "starboard_list",
   command: "list",
-  brief: "List all active starboard configurations",
+  brief: "List all bookmark in the starboard.",
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
