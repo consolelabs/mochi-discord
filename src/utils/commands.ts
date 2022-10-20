@@ -1,4 +1,5 @@
 import { CommandInteraction, Message } from "discord.js"
+import getEmojiRegex from "emoji-regex"
 
 import type { Command, EmbedProperties, SlashCommand } from "types/common"
 import {
@@ -7,7 +8,6 @@ import {
   DEFAULT_COLLECTION_GITBOOK,
   EMOJI_REGEX,
   HELP,
-  NATIVE_EMOJI_REGEX,
   PREFIX,
   ROLE_REGEX,
   SPACES_REGEX,
@@ -16,6 +16,8 @@ import {
 import { utils } from "ethers"
 import { defaultEmojis } from "./common"
 import type FuzzySet from "fuzzyset"
+
+const NATIVE_EMOJI_REGEX = getEmojiRegex()
 
 export const getCommandArguments = (message: Message) => {
   const content = message?.content
@@ -132,29 +134,39 @@ export const getCommandMetadata = (
  * */
 export function parseDiscordToken(value: string) {
   const _value = value.trim()
-  const emoji = EMOJI_REGEX.exec(_value)?.at(2)
-  const animatedEmoji = ANIMATED_EMOJI_REGEX.exec(_value)?.at(2)
-  const nativeEmoji = NATIVE_EMOJI_REGEX.exec(_value)?.at(1)
-  const user = USER_REGEX.exec(_value)?.at(1)
-  const channel = CHANNEL_REGEX.exec(_value)?.at(1)
-  const role = ROLE_REGEX.exec(_value)?.at(1)
-  const id = /^(\d+)$/i.exec(_value)?.at(1)
+  const emoji = _value.match(EMOJI_REGEX)?.at(2)
+  const animatedEmoji = _value.match(ANIMATED_EMOJI_REGEX)?.at(2)
+  const nativeEmoji = _value.match(NATIVE_EMOJI_REGEX)?.at(0)
+  const user = _value.match(USER_REGEX)?.at(1)
+  const channel = _value.match(CHANNEL_REGEX)?.at(1)
+  const role = _value.match(ROLE_REGEX)?.at(1)
+  const id = _value.match(/^(\d+)$/i)?.at(1)
+
+  const isUnknown =
+    [
+      emoji,
+      animatedEmoji,
+      Boolean(nativeEmoji) && nativeEmoji === _value,
+      user,
+      channel,
+      role,
+      id,
+    ].findIndex(Boolean) === -1
 
   return {
     isEmoji: Boolean(emoji),
     isAnimatedEmoji: Boolean(animatedEmoji),
-    isNativeEmoji: Boolean(nativeEmoji),
+    isNativeEmoji: Boolean(nativeEmoji) && nativeEmoji === _value,
     isUser: Boolean(user),
     isRole: Boolean(role),
     isChannel: Boolean(channel),
     isId: Boolean(id),
     isAddress: utils.isAddress(_value),
-    isUnknown:
-      [emoji, animatedEmoji, nativeEmoji, user, channel, role, id].findIndex(
-        Boolean
-      ) === -1,
+    isUnknown,
     value: utils.isAddress(_value)
       ? _value
+      : isUnknown
+      ? ""
       : // because these values are mutually exclusive
         // => find the first value that is not undefined
         [emoji, animatedEmoji, nativeEmoji, user, channel, role, id].find(

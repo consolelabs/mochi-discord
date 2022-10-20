@@ -60,6 +60,7 @@
     "discord-api-types": "^0.36.0",
     "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
+    "emoji-regex": "^10.2.1",
     "ethers": "^5.4.7",
     "firebase-admin": "^11.0.0",
     "fuzzyset": "^1.0.7",
