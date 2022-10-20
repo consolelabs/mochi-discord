@@ -26,7 +26,7 @@ const command: Command = {
         usage: `${PREFIX}sb <action>`,
         footer: [`Type ${PREFIX}help sb <action> for a specific action!`],
         description: "Hornor and share well-rated posts with your community",
-        examples: `${PREFIX}starboard list\n${PREFIX}sb list`,
+        examples: `${PREFIX}starboard list\n${PREFIX}sb list\n${PREFIX}starboard set 2 🌟 #starboard\n${PREFIX}sb set-chat 🌟 ❣️ #starboard`,
         includeCommandsList: true,
         document: STARBOARD_GITBOOK,
       }),

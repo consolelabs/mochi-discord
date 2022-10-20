@@ -38,7 +38,7 @@ const command: SlashCommand = {
     }
 
     const roleArg = interaction.options.getString("role", true)
-    const { isRole, isId, id } = parseDiscordToken(roleArg ?? "")
+    const { isRole, isId, value: id } = parseDiscordToken(roleArg ?? "")
     if (!isRole || !isId) {
       return {
         messageOptions: {

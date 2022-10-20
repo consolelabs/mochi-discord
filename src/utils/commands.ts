@@ -1,19 +1,23 @@
 import { CommandInteraction, Message } from "discord.js"
+import getEmojiRegex from "emoji-regex"
 
 import type { Command, EmbedProperties, SlashCommand } from "types/common"
 import {
-  CHANNEL_PREFIX,
+  ANIMATED_EMOJI_REGEX,
+  CHANNEL_REGEX,
   DEFAULT_COLLECTION_GITBOOK,
-  EMOJI_PREFIX,
+  EMOJI_REGEX,
   HELP,
   PREFIX,
-  ROLE_PREFIX,
+  ROLE_REGEX,
   SPACES_REGEX,
-  USER_PREFIX,
+  USER_REGEX,
 } from "./constants"
 import { utils } from "ethers"
 import { defaultEmojis } from "./common"
 import type FuzzySet from "fuzzyset"
+
+const NATIVE_EMOJI_REGEX = getEmojiRegex()
 
 export const getCommandArguments = (message: Message) => {
   const content = message?.content
@@ -122,16 +126,52 @@ export const getCommandMetadata = (
   return { commandKey, action }
 }
 
+/**
+ * Parse a discord "token" (a string in some special format) and
+ * return what type that token is + the extracted value (empty string if no types were found)
+ *  @param {string} value - The discord token
+ *  @returns {object} The object containing boolean flags to check the token type and the extracted value
+ * */
 export function parseDiscordToken(value: string) {
   const _value = value.trim()
+  const emoji = _value.match(EMOJI_REGEX)?.at(2)
+  const animatedEmoji = _value.match(ANIMATED_EMOJI_REGEX)?.at(2)
+  const nativeEmoji = _value.match(NATIVE_EMOJI_REGEX)?.at(0)
+  const user = _value.match(USER_REGEX)?.at(1)
+  const channel = _value.match(CHANNEL_REGEX)?.at(1)
+  const role = _value.match(ROLE_REGEX)?.at(1)
+  const id = _value.match(/^(\d+)$/i)?.at(1)
+
+  const isUnknown =
+    [
+      emoji,
+      animatedEmoji,
+      Boolean(nativeEmoji) && nativeEmoji === _value,
+      user,
+      channel,
+      role,
+      id,
+    ].findIndex(Boolean) === -1
+
   return {
-    isEmoji: _value.startsWith(EMOJI_PREFIX) && _value.endsWith(">"),
-    isUser: _value.startsWith(USER_PREFIX) && _value.endsWith(">"),
-    isRole: _value.startsWith(ROLE_PREFIX) && _value.endsWith(">"),
-    isChannel: _value.startsWith(CHANNEL_PREFIX) && _value.endsWith(">"),
-    isId: /\d+/g.test(_value),
+    isEmoji: Boolean(emoji),
+    isAnimatedEmoji: Boolean(animatedEmoji),
+    isNativeEmoji: Boolean(nativeEmoji) && nativeEmoji === _value,
+    isUser: Boolean(user),
+    isRole: Boolean(role),
+    isChannel: Boolean(channel),
+    isId: Boolean(id),
     isAddress: utils.isAddress(_value),
-    id: utils.isAddress(_value) ? _value : _value.replace(/\D/g, ""),
+    isUnknown,
+    value: utils.isAddress(_value)
+      ? _value
+      : isUnknown
+      ? ""
+      : // because these values are mutually exclusive
+        // => find the first value that is not undefined
+        [emoji, animatedEmoji, nativeEmoji, user, channel, role, id].find(
+          Boolean
+        ) ?? "",
   }
 }
 

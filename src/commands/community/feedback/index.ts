@@ -2,7 +2,7 @@ import community from "adapters/community"
 import { CommandError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { FEEDBACK_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
   getErrorEmbed,
@@ -96,11 +96,13 @@ const command: Command = {
         footer: [`Type ${PREFIX}help for more actions!`],
         description:
           "Give feedback for the Mochi team about a specific command or in general",
+        document: FEEDBACK_GITBOOK,
       }),
     ],
   }),
   colorType: "Command",
   canRunWithoutAction: true,
+
   allowDM: true,
 }
 

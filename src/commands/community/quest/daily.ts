@@ -72,17 +72,17 @@ export async function handleClaimReward(i: ButtonInteraction) {
       "Congrats! Rewards sent to you, here's the summary of what you just received:",
     footer: ["Daily quests reset at 00:00 UTC"],
   })
-  const data = res.data.reduce((acc: any, d: any) => {
-    const { reward } = d
+  const data = res.data.rewards.reduce((acc: any, d: any) => {
+    const { reward, reward_amount } = d
     const found = acc[reward.reward_type.id]
     if (found) {
-      found.total += Number(reward.reward_amount)
-      found.list.push(`\`${reward.reward_amount}\` - ${reward.quest.title}`)
+      found.total += Number(reward_amount)
+      found.list.push(`\`${reward_amount}\` - ${reward.quest.title}`)
     } else {
       acc[reward.reward_type.id] = {
         reward_type: reward.reward_type.name,
-        total: reward.reward_amount,
-        list: [`\`${reward.reward_amount}\` - ${reward.quest.title}`],
+        total: reward_amount,
+        list: [`\`${reward_amount}\` - ${reward.quest.title}`],
       }
     }
 

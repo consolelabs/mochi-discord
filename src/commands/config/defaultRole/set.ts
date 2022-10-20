@@ -30,7 +30,7 @@ const command: Command = {
     }
     let description = ""
     const args = getCommandArguments(msg)
-    const { isRole, isId, id } = parseDiscordToken(args[2] ?? "")
+    const { isRole, isId, value: id } = parseDiscordToken(args[2] ?? "")
 
     if (!isRole || !isId) {
       return {

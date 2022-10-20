@@ -16,7 +16,7 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
-    const { isUser, id: inviterId } = parseDiscordToken(
+    const { isUser, value: inviterId } = parseDiscordToken(
       args.length === 3 ? args[2] : `<@${msg.author.id}>`
     )
     if (!isUser) {

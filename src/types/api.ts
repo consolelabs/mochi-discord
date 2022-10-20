@@ -395,6 +395,24 @@ export interface ModelToken {
   symbol?: string;
 }
 
+export interface ModelTradeItem {
+  id?: string;
+  is_from?: boolean;
+  token_address?: string;
+  token_ids?: string[];
+  trade_offer_id?: string;
+}
+
+export interface ModelTradeOffer {
+  created_at?: string;
+  from_address?: string;
+  from_items?: ModelTradeItem[];
+  id?: string;
+  to_address?: string;
+  to_items?: ModelTradeItem[];
+  updated_at?: string;
+}
+
 export interface ModelUpvoteStreakTier {
   id?: number;
   streak_required?: number;
@@ -536,6 +554,13 @@ export interface RequestCreateNFTCollectionRequest {
   guild_id?: string;
 }
 
+export interface RequestCreateTradeOfferRequest {
+  from_address: string;
+  from_items?: RequestTradeOfferItem[];
+  to_address: string;
+  to_items?: RequestTradeOfferItem[];
+}
+
 export interface RequestCreateUserRequest {
   guild_id?: string;
   id?: string;
@@ -634,6 +659,11 @@ export interface RequestSetUpvoteMessageCacheRequest {
   guild_id?: string;
   message_id?: string;
   user_id?: string;
+}
+
+export interface RequestTradeOfferItem {
+  token_address: string;
+  token_ids: string[];
 }
 
 export interface RequestTransferRequest {
@@ -823,6 +853,10 @@ export interface ResponseCreateCustomCommandResponse {
 
 export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
+}
+
+export interface ResponseCreateTradeOfferResponse {
+  data?: ModelTradeOffer;
 }
 
 export interface ResponseCurrentUserUpvoteStreakResponse {
@@ -1072,6 +1106,10 @@ export interface ResponseGetSupportedChains {
 
 export interface ResponseGetSupportedTokensResponse {
   data?: ModelToken[];
+}
+
+export interface ResponseGetTradeOfferResponse {
+  data?: ModelTradeOffer;
 }
 
 export interface ResponseGetTwitterHashtagConfigResponse {
