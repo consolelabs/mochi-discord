@@ -502,6 +502,7 @@ export interface RequestConfigRepostReactionStartStop {
 
 export interface RequestConfigRepostRequest {
   emoji?: string;
+  emoji_stop?: string;
   guild_id?: string;
   quantity?: number;
   repost_channel_id?: string;
