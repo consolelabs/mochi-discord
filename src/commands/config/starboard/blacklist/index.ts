@@ -44,7 +44,7 @@ const command: Command = {
             `Type ${PREFIX}help sb blacklist <action> for a specific action!`,
           ],
           description: "Config channel that cannot repost when reacting",
-          examples: `${PREFIX}starboard blacklist list\n${PREFIX}sb blacklist list\n${PREFIX}starboard blacklist set 2 #secret`,
+          examples: `${PREFIX}starboard blacklist list\n${PREFIX}sb blacklist list\n${PREFIX}starboard blacklist set #secret`,
           includeCommandsList: true,
           actions,
           document: STARBOARD_GITBOOK,
