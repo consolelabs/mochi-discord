@@ -17,8 +17,21 @@ export async function pruneInactive(interaction: CommandInteraction) {
       },
     }
   }
+  const days = interaction.options.getInteger("day")
+  if (!days) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            description: "Inactive days should be a number from 5 and higher",
+            originalMsgAuthor: interaction.user,
+          }),
+        ],
+      },
+    }
+  }
   const pruned = await interaction.guild.members.prune({ dry: true, days: 30 })
-  if (!pruned || pruned == 0) {
+  if (!pruned || pruned === 0) {
     return {
       messageOptions: {
         embeds: [
@@ -64,3 +77,10 @@ export async function pruneInactive(interaction: CommandInteraction) {
 export const inactive = new SlashCommandSubcommandBuilder()
   .setName("inactive")
   .setDescription("Prune all inactive users")
+  .addIntegerOption((option) =>
+    option
+      .setName("day")
+      .setDescription("specific inactive days, must be higher than 5")
+      .setMinValue(5)
+      .setRequired(true)
+  )

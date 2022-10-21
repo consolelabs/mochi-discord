@@ -137,7 +137,9 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: "Remove all users without a specific role",
+          title: "Choose a role to remove users who don't have that one",
+          description:
+            "Only users who have a role in the safelist won't be removed",
           usage: `${PREFIX}prune without <role>`,
           examples: `${PREFIX}prune without @roles`,
           document: `${PRUNE_GITBOOK}&action=without`,

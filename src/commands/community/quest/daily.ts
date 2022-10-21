@@ -72,7 +72,7 @@ export async function handleClaimReward(i: ButtonInteraction) {
       "Congrats! Rewards sent to you, here's the summary of what you just received:",
     footer: ["Daily quests reset at 00:00 UTC"],
   })
-  const data = res.data.rewards.reduce((acc: any, d: any) => {
+  const data = res.data.rewards?.reduce((acc: any, d: any) => {
     const { reward, reward_amount } = d
     const found = acc[reward.reward_type.id]
     if (found) {

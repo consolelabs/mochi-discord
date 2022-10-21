@@ -69,10 +69,10 @@ export async function pruneWithoutRole(interaction: CommandInteraction) {
 
 export const without = new SlashCommandSubcommandBuilder()
   .setName("without")
-  .setDescription("Prune users without a specific role")
+  .setDescription("Choose a role to remove users who don't have that one")
   .addRoleOption((option) =>
     option
       .setName("role")
-      .setDescription("prune all users without this role")
+      .setDescription("Users without this role will be pruned")
       .setRequired(true)
   )
