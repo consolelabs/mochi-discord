@@ -4,6 +4,7 @@ import {
   RepostReactionRequest,
   RoleReactionEvent,
   RequestConfigRepostReactionConversation,
+  BlacklistChannelRepostConfigRequest,
 } from "types/common"
 import { CommandInteraction, Message } from "discord.js"
 import { CommandIsNotScopedError, SlashCommandIsNotScopedError } from "errors"
@@ -997,6 +998,41 @@ class Config extends Fetcher {
       {
         method: "PUT",
         body: req,
+      }
+    )
+  }
+
+  public async setBlacklistChannelRepostConfig(
+    req: BlacklistChannelRepostConfigRequest
+  ) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/configs/repost-reactions/blacklist-channel`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
+  }
+
+  public async removeBlacklistChannelRepostConfig(
+    req: BlacklistChannelRepostConfigRequest
+  ) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/configs/repost-reactions/blacklist-channel`,
+      {
+        method: "DELETE",
+        body: req,
+      }
+    )
+  }
+
+  public async getBlacklistChannelRepostConfig(guild_id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/configs/repost-reactions/blacklist-channel`,
+      {
+        query: {
+          guild_id,
+        },
       }
     )
   }
