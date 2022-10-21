@@ -17,9 +17,6 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
-    if (args.length === 3) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
     const channelArg = args[3]
     const { isChannel, value } = parseDiscordToken(channelArg)
     const channel = await msg.guild?.channels.fetch(value)

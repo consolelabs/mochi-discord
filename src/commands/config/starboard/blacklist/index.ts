@@ -36,7 +36,6 @@ const command: Command = {
     if (action) {
       return action.getHelpMessage(msg)
     }
-    console.log("-- this --", this)
     return {
       embeds: [
         composeEmbedMessage(msg, {
