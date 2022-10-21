@@ -361,6 +361,7 @@ export interface ModelQuestUserList {
   id?: string;
   is_claimed?: boolean;
   is_completed?: boolean;
+  multiplier?: number;
   quest?: ModelQuest;
   quest_id?: string;
   routine?: string;
@@ -779,7 +780,11 @@ export interface ResponseAddToWatchlistResponseData {
 }
 
 export interface ResponseClaimQuestsRewardsResponse {
-  data?: ModelQuestUserReward[];
+  data?: ResponseClaimQuestsRewardsResponseData;
+}
+
+export interface ResponseClaimQuestsRewardsResponseData {
+  rewards?: ModelQuestUserReward[];
 }
 
 export interface ResponseCoinDescription {
@@ -1119,6 +1124,18 @@ export interface ResponseGetTwitterHashtagConfigResponse {
 export interface ResponseGetUpvoteTiersConfig {
   data?: ModelUpvoteStreakTier[];
   message?: string;
+}
+
+export interface ResponseGetUserBalances {
+  balances?: number;
+  balances_in_usd?: number;
+  id?: string;
+  name?: string;
+  symbol?: string;
+}
+
+export interface ResponseGetUserBalancesResponse {
+  data?: ResponseGetUserBalances[];
 }
 
 export interface ResponseGetUserCurrentGMStreakResponse {

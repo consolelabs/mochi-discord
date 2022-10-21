@@ -5,11 +5,13 @@ import list from "./list"
 import set from "./set"
 import setChat from "./set-chat"
 import remove from "./remove"
+import blacklist from "./blacklist/index"
 
 const actions: Record<string, Command> = {
   set,
   remove,
   list,
+  blacklist,
   "set-chat": setChat,
 }
 

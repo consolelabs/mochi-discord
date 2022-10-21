@@ -212,3 +212,8 @@ export type RequestConfigRepostReactionConversation = {
   guild_id?: string
   repost_channel_id?: string
 }
+
+export type BlacklistChannelRepostConfigRequest = {
+  guild_id: string
+  channel_id: string
+}
