@@ -28,13 +28,14 @@ import { wrapError } from "utils/wrapError"
 import { handleTickerViews } from "commands/defi/ticker/ticker"
 import { handleNFTTickerViews } from "commands/community/nft/ticker"
 import { authorFilter, hasAdministrator } from "utils/common"
-import { handleButtonOffer } from "commands/community/trade"
+import { handleButtonOffer, handleCreateSwap } from "commands/community/swap"
 import InteractionManager from "utils/InteractionManager"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import {
   handleBackToQuestList,
   handleClaimReward,
 } from "commands/community/quest/daily"
+import ConversationManager from "utils/ConversationManager"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -53,6 +54,22 @@ const event: DiscordEvent<"interactionCreate"> = {
         await handleButtonInteraction(interaction)
       } else if (interaction.isCommand()) {
         await handleCommandInteraction(interaction)
+      }
+
+      if (interaction.isSelectMenu() || interaction.isButton()) {
+        if (
+          ConversationManager.hasConversation(
+            interaction.user.id,
+            interaction.channelId,
+            interaction
+          )
+        ) {
+          ConversationManager.continueConversation(
+            interaction.user.id,
+            interaction.channelId,
+            interaction
+          )
+        }
       }
     })
   },
@@ -229,6 +246,9 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("nft_ticker_view"):
       await handleNFTTickerViews(i)
       return
+    case i.customId.startsWith("create-trade"):
+      await handleCreateSwap(i)
+      break
     case i.customId.startsWith("trade-offer"):
       await handleButtonOffer(i)
       return
