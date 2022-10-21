@@ -3,28 +3,28 @@ import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import inactive from "./inactive"
 import without from "./without"
-import whitelist from "./whitelist"
+import safelist from "./whitelist"
 import remove from "./remove"
 
 const actions: Record<string, Command> = {
   inactive,
   without,
-  whitelist,
+  safelist,
   remove,
 }
 
 const command: Command = {
   id: "prune",
   command: "prune",
-  brief: "Member Pruning",
+  brief: "Remove a group of users",
   category: "Community",
   run: async () => null,
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}prune <option>`,
-        description: "Options to prune a group of members",
-        examples: `${PREFIX}prune inactive\n${PREFIX}prune whitelist`,
+        description: "Remove a group of users",
+        examples: `${PREFIX}prune inactive 7\n${PREFIX}prune safelist @role1`,
         footer: [`Type ${PREFIX}help prune for a specific action!`],
         document: PRUNE_GITBOOK,
         includeCommandsList: true,

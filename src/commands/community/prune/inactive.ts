@@ -3,7 +3,8 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { Command } from "types/common"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { GuildIdNotFoundError } from "errors"
+import { CommandError, GuildIdNotFoundError } from "errors"
+import { getCommandArguments } from "utils/commands"
 
 export async function pruneInactiveExecute(i: ButtonInteraction) {
   if (
@@ -33,21 +34,29 @@ export async function pruneInactiveExecute(i: ButtonInteraction) {
 const command: Command = {
   id: "prune_inactive",
   command: "inactive",
-  brief: "Remove 30-day inactive users",
+  brief: "Remove users with specific inactive days",
   category: "Community",
   run: async (msg) => {
     if (!msg.guild) {
       throw new GuildIdNotFoundError({ message: msg })
     }
 
-    const pruned = await msg.guild?.members.prune({ dry: true, days: 30 })
-    if (!pruned || pruned == 0) {
+    const args = getCommandArguments(msg)
+    if (args.length < 3 || parseInt(args[2]) < 5) {
+      throw new CommandError({
+        message: msg,
+        description: "Inactive days should be a number from 5 and higher",
+      })
+    }
+    const days = parseInt(args[2], 10)
+    const pruned = await msg.guild?.members.prune({ dry: true, days: days })
+    if (!pruned || pruned === 0) {
       return {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
               title: "No users to prune",
-              description: `No one is inactive for 30 days, let's put down the prune stick`,
+              description: `No one is inactive for ${days} days, let's put down the prune stick`,
             }),
           ],
         },
@@ -86,7 +95,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: "Remove all users that were inactive for 30 days",
+          description: "Users having roles won't be removed.",
+          title: "Remove roleless users with specific inactive days",
           usage: `${PREFIX}prune inactive`,
           examples: `${PREFIX}prune inactive`,
           document: `${PRUNE_GITBOOK}&action=inactive`,
@@ -94,9 +104,10 @@ const command: Command = {
       ],
     }
   },
-  canRunWithoutAction: true,
+  canRunWithoutAction: false,
   colorType: "Server",
   onlyAdministrator: true,
+  minArguments: 3,
 }
 
 export default command
