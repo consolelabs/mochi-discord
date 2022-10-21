@@ -56,8 +56,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}sb blacklist remove <channel>`,
-          examples: `${PREFIX}sb blacklist remove #secret`,
+          usage: `${PREFIX}sb blacklist set <channel>`,
+          examples: `${PREFIX}sb blacklist set #secret`,
         }),
       ],
     }
