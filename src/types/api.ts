@@ -481,6 +481,11 @@ export interface RequestAddWhitelistCampaignUserRequest {
   users?: RequestAddWhitelistCampaignUser[];
 }
 
+export interface RequestBalcklistChannelRepostConfigRequest {
+  channel_id?: string;
+  guild_id?: string;
+}
+
 export interface RequestClaimQuestsRewardsRequest {
   routine?: string;
   user_id?: string;
@@ -1566,6 +1571,17 @@ export interface ResponseNftWatchlistSuggest {
 
 export interface ResponseNftWatchlistSuggestResponse {
   data?: ResponseNftWatchlistSuggest;
+}
+
+export interface ResponseOffchainTipBotWithdrawResponse {
+  amount?: number;
+  cryptocurrency?: string;
+  from_discord_id?: string;
+  to_address?: string;
+  transaction_fee?: number;
+  tx_hash?: string;
+  tx_url?: string;
+  withdraw_amount?: number;
 }
 
 export interface ResponseResponseDataMessage {
