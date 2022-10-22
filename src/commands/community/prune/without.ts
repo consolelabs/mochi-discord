@@ -11,8 +11,10 @@ import { CommandError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
 import { getExcludedRoles } from "./whitelist"
+
+export const CONFIRM_PRUNE_WITHOUT = "confirm_prune_without"
 
 export async function pruneRoleExecute(
   i: ButtonInteraction,
@@ -20,30 +22,37 @@ export async function pruneRoleExecute(
   roleName: string
 ) {
   if (
-    i.customId !== "confirm_prune_inactive" ||
-    i.user.id !== "567326528216760320" //hnh
+    i.customId !== CONFIRM_PRUNE_WITHOUT ||
+    (i.user.id !== "567326528216760320" && //hnh
+      i.user.id !== "463379262620041226") //hollow
   ) {
     return
   }
   if (!i.guild) throw new GuildIdNotFoundError({})
 
-  let count = 0
   const whitelistRole = await getExcludedRoles(i.guild)
   const whitelistIds: string[] = whitelistRole.map((r) => r.id)
   const invite = i.guild.invites.cache.first()
 
-  pruneList.forEach(async (mem) => {
+  const kicked = pruneList.map(async (mem) => {
     if (
       mem.roles.cache.hasAny(...whitelistIds) ||
       mem.permissions.has("ADMINISTRATOR")
     )
       return
-    await mem.send({
-      content: `Sorry to say this but you haven't had a role yet, so we have to remove you from ${i.guild?.name}\nYou are welcome to join again: ${invite?.url}`,
-    })
+
+    await mem
+      .send({
+        content: `Sorry to say this but you haven't had a role yet, so we have to remove you from ${i.guild?.name}\nYou are welcome to join again: ${invite?.url}`,
+      })
+      // handle user disable DM
+      .catch(() => null)
     await mem.kick(`Missing role ${roleName}`)
-    count++
   })
+
+  const count = (await Promise.allSettled(kicked)).filter(
+    (p) => p.status === "fulfilled"
+  ).length
 
   i.reply({
     ephemeral: true,
@@ -111,15 +120,11 @@ const command: Command = {
     })
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `confirm_prune_inactive`,
+        customId: CONFIRM_PRUNE_WITHOUT,
         style: "PRIMARY",
         label: "Confirm",
       }),
-      new MessageButton({
-        customId: `cancel_prune_inactive`,
-        style: "SECONDARY",
-        label: "Cancel",
-      })
+      getExitButton(msg.author.id)
     )
     const msgReply = await msg.reply({
       embeds: [embed],
@@ -137,7 +142,9 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: "Remove all users without a specific role",
+          title: "Choose a role to remove users who don't have that one",
+          description:
+            "Only users who have a role in the safelist won't be removed",
           usage: `${PREFIX}prune without <role>`,
           examples: `${PREFIX}prune without @roles`,
           document: `${PRUNE_GITBOOK}&action=without`,

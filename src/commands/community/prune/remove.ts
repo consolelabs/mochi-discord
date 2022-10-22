@@ -16,7 +16,7 @@ async function deleteWhitelist(roleId: string, guild: Guild, user: User) {
 const command: Command = {
   id: "prune_remove",
   command: "remove",
-  brief: "Remove a whitelisted role",
+  brief: "Remove a role from the safelist",
   category: "Community",
   run: async (msg: Message) => {
     if (!msg.guild) {
@@ -51,7 +51,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}prune remove <role>`,
         examples: `${PREFIX}prune remove @Mochi`,
-        includeCommandsList: true,
+        description: `Remove a role from the safelist`,
         document: `${PRUNE_GITBOOK}&action=remove`,
       }),
     ],

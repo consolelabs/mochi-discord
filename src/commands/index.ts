@@ -251,7 +251,7 @@ async function executeCommand(
   if (runResponse) {
     if ("messageOptions" in runResponse) {
       const msg = await message.reply({
-        ...(shouldRemind && Math.random() < 0.3
+        ...(shouldRemind && Math.random() < 0.1
           ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
           : {}),
         ...runResponse.messageOptions,

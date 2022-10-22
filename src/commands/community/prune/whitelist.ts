@@ -40,20 +40,28 @@ export async function getExcludedRoles(guild: Guild): Promise<Role[]> {
 }
 
 export async function whitelistRolesEmbed(roles: Role[]) {
+  if (roles.length === 0) {
+    return composeEmbedMessage(null, {
+      title: "Prune Safelisted Roles",
+      description: `You haven't added any role to the safelist. Run \`$prune safelist @role\` to exclude a role when running \`$prune without\`.\n\n_Note: When pruning users in Server Settings, these roles are not protected!_ :cry:`,
+    })
+  }
+
   let roleStr = ""
   roles.forEach((role) => {
-    roleStr += role.name + ", "
+    roleStr += `<@&${role.id}> `
   })
+
   return composeEmbedMessage(null, {
-    title: "Prune Whitelisted Roles",
-    description: `Roles that are excluded when performing \`$prune\`: ${roleStr}`,
+    title: "Prune Safelisted Roles",
+    description: `Roles are excluded when running \`${PREFIX}prune without\`: ${roleStr}\nRun \`${PREFIX}prune safelist @role\` to add role in safelist.\n\n_Note: When pruning users in Server Settings, these roles are not protected!_ :cry:`,
   })
 }
 
 const command: Command = {
-  id: "prune_whitelist",
-  command: "whitelist",
-  brief: "Whitelist a role from being pruned",
+  id: "prune_safelist",
+  command: "safelist",
+  brief: "Safelist a role from being pruned",
   category: "Community",
   run: async (msg: Message) => {
     if (!msg.guild) {
@@ -88,7 +96,7 @@ const command: Command = {
           getSuccessEmbed({
             msg,
             title: "Successfully set!",
-            description: `<@&${id}> successfully whitelisted`,
+            description: `<@&${id}> successfully safelisted`,
           }),
         ],
       },
@@ -97,8 +105,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}prune whitelist <role>\n${PREFIX}prune whitelist`,
-        examples: `${PREFIX}prune whitelist\n${PREFIX}prune whitelist @Mochi`,
+        usage: `${PREFIX}prune safelist <role>\n${PREFIX}prune safelist`,
+        examples: `${PREFIX}prune safelist\n${PREFIX}prune safelist @Mochi`,
         includeCommandsList: true,
         document: `${PRUNE_GITBOOK}&action=whitelist`,
       }),
