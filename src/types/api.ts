@@ -322,12 +322,25 @@ export interface ModelNewListedNFTCollection {
 
 export interface ModelOffchainTipBotAssignContract {
   chain_id?: string;
+  contract?: ModelOffchainTipBotContract;
   contract_id?: string;
   expired_time?: string;
   id?: string;
   status?: number;
   token_id?: string;
   user_id?: string;
+}
+
+export interface ModelOffchainTipBotContract {
+  assign_status?: number;
+  centralize_wallet?: string;
+  chain_id?: string;
+  contract_address?: string;
+  created_at?: string;
+  id?: string;
+  status?: number;
+  sweeped_time?: string;
+  updated_at?: string;
 }
 
 export interface ModelQuest {
@@ -479,6 +492,11 @@ export interface RequestAddWhitelistCampaignUser {
 
 export interface RequestAddWhitelistCampaignUserRequest {
   users?: RequestAddWhitelistCampaignUser[];
+}
+
+export interface RequestBalcklistChannelRepostConfigRequest {
+  channel_id?: string;
+  guild_id?: string;
 }
 
 export interface RequestClaimQuestsRewardsRequest {
@@ -1566,6 +1584,17 @@ export interface ResponseNftWatchlistSuggest {
 
 export interface ResponseNftWatchlistSuggestResponse {
   data?: ResponseNftWatchlistSuggest;
+}
+
+export interface ResponseOffchainTipBotWithdrawResponse {
+  amount?: number;
+  cryptocurrency?: string;
+  from_discord_id?: string;
+  to_address?: string;
+  transaction_fee?: number;
+  tx_hash?: string;
+  tx_url?: string;
+  withdraw_amount?: number;
 }
 
 export interface ResponseResponseDataMessage {

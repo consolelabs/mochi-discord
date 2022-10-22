@@ -2,14 +2,17 @@ import { ButtonInteraction, MessageActionRow, MessageButton } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { Command } from "types/common"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
 import { CommandError, GuildIdNotFoundError } from "errors"
 import { getCommandArguments } from "utils/commands"
 
+export const CONFIRM_PRUNE_INACTIVE = "confirm_prune_inactive"
+
 export async function pruneInactiveExecute(i: ButtonInteraction) {
   if (
-    i.customId !== "confirm_prune_inactive" ||
-    i.user.id !== "567326528216760320" //hnh
+    i.customId !== CONFIRM_PRUNE_INACTIVE ||
+    (i.user.id !== "567326528216760320" && //hnh
+      i.user.id !== "463379262620041226") //hollow
   ) {
     return
   }
@@ -69,15 +72,11 @@ const command: Command = {
     })
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `confirm_prune_inactive`,
+        customId: CONFIRM_PRUNE_INACTIVE,
         style: "PRIMARY",
         label: "Confirm",
       }),
-      new MessageButton({
-        customId: `cancel_prune_inactive`,
-        style: "SECONDARY",
-        label: "Cancel",
-      })
+      getExitButton(msg.author.id)
     )
     const msgReply = await msg.reply({
       embeds: [embed],
@@ -97,8 +96,8 @@ const command: Command = {
         composeEmbedMessage(msg, {
           description: "Users having roles won't be removed.",
           title: "Remove roleless users with specific inactive days",
-          usage: `${PREFIX}prune inactive`,
-          examples: `${PREFIX}prune inactive`,
+          usage: `${PREFIX}prune inactive <days>`,
+          examples: `${PREFIX}prune inactive 10`,
           document: `${PRUNE_GITBOOK}&action=inactive`,
         }),
       ],

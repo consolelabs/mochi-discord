@@ -1,8 +1,16 @@
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getExitButton,
+} from "utils/discordEmbed"
 import { CommandInteraction, MessageActionRow, MessageButton } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { MessageComponentTypes } from "discord.js/typings/enums"
-import { getUsersWithoutRole, pruneRoleExecute } from "../prune/without"
+import {
+  CONFIRM_PRUNE_WITHOUT,
+  getUsersWithoutRole,
+  pruneRoleExecute,
+} from "../prune/without"
 import { CommandError } from "errors"
 
 export async function pruneWithoutRole(interaction: CommandInteraction) {
@@ -43,20 +51,15 @@ export async function pruneWithoutRole(interaction: CommandInteraction) {
   })
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
-      customId: `confirm_prune_inactive`,
+      customId: CONFIRM_PRUNE_WITHOUT,
       style: "PRIMARY",
       label: "Confirm",
     }),
-    new MessageButton({
-      customId: `cancel_prune_inactive`,
-      style: "SECONDARY",
-      label: "Cancel",
-    })
+    getExitButton(interaction.user.id)
   )
-  await interaction.reply({
+  await interaction.editReply({
     embeds: [embed],
     components: [actionRow],
-    ephemeral: true,
   })
   const collector = interaction.channel?.createMessageComponentCollector({
     componentType: MessageComponentTypes.BUTTON,

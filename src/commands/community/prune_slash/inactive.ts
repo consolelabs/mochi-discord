@@ -1,8 +1,12 @@
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getExitButton,
+} from "utils/discordEmbed"
 import { CommandInteraction, MessageActionRow, MessageButton } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { MessageComponentTypes } from "discord.js/typings/enums"
-import { pruneInactiveExecute } from "../prune/inactive"
+import { CONFIRM_PRUNE_INACTIVE, pruneInactiveExecute } from "../prune/inactive"
 
 export async function pruneInactive(interaction: CommandInteraction) {
   if (!interaction.guild) {
@@ -50,20 +54,15 @@ export async function pruneInactive(interaction: CommandInteraction) {
   })
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
-      customId: `confirm_prune_inactive`,
+      customId: CONFIRM_PRUNE_INACTIVE,
       style: "PRIMARY",
       label: "Confirm",
     }),
-    new MessageButton({
-      customId: `cancel_prune_inactive`,
-      style: "SECONDARY",
-      label: "Cancel",
-    })
+    getExitButton(interaction.user.id)
   )
-  await interaction.reply({
+  await interaction.editReply({
     embeds: [embed],
     components: [actionRow],
-    ephemeral: true,
   })
   const collector = interaction.channel?.createMessageComponentCollector({
     componentType: MessageComponentTypes.BUTTON,
