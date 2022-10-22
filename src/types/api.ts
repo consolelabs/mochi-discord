@@ -660,6 +660,20 @@ export interface RequestNewGuildConfigWalletVerificationMessageRequest {
   verify_role_id?: string;
 }
 
+export interface RequestOffchainTransferRequest {
+  all?: boolean;
+  amount?: number;
+  channel_id?: string;
+  duration?: number;
+  each?: boolean;
+  full_command?: string;
+  guild_id?: string;
+  recipients?: string[];
+  sender?: string;
+  token?: string;
+  transfer_type?: string;
+}
+
 export interface RequestRoleReactionRequest {
   guild_id?: string;
   message_id?: string;
@@ -1584,6 +1598,17 @@ export interface ResponseNftWatchlistSuggest {
 
 export interface ResponseNftWatchlistSuggestResponse {
   data?: ResponseNftWatchlistSuggest;
+}
+
+export interface ResponseOffchainTipBotTransferToken {
+  amount?: number;
+  recipient_id?: string;
+  sender_id?: string;
+  symbol?: string;
+}
+
+export interface ResponseOffchainTipBotTransferTokenResponse {
+  data?: ResponseOffchainTipBotTransferToken[];
 }
 
 export interface ResponseOffchainTipBotWithdrawResponse {

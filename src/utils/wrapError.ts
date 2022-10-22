@@ -42,6 +42,12 @@ export async function wrapError(
         }
       }
       if (message instanceof Message) {
+        // something went wrong
+        if (!(error instanceof BotBaseError)) {
+          error = new BotBaseError(message, e.message as string)
+        }
+        error.handle?.()
+        ChannelLogger.alert(message, error).catch(catchAll)
         // get command info
         const { commandKey } = getCommandMetadata(commands, message)
         if (commandKey) {
@@ -51,32 +57,19 @@ export async function wrapError(
           args = message.content
         }
         //
-
-        // something went wrong
-        if (!(error instanceof BotBaseError)) {
-          error = new BotBaseError(message, e.message as string)
-        }
-        error.handle?.()
-        ChannelLogger.alert(message, error).catch(catchAll)
+        // send command info to store
+        usage_stats.createUsageStat({
+          guild_id: guildId,
+          user_id: userId,
+          command: commandStr,
+          args: args,
+          success: false,
+        })
       } else if (message.isCommand()) {
-        // get command info
-        userId = message.user.id
-        commandStr =
-          message.commandName + message.options.getSubcommand()
-            ? "_" + message.options.getSubcommand()
-            : ""
-        args = commandStr
-        //
+        // TODO:
+        // log failed slash commands
         ChannelLogger.alertSlash(message, error).catch(catchAll)
       }
-      // send command info to store
-      usage_stats.createUsageStat({
-        guild_id: guildId,
-        user_id: userId,
-        command: commandStr,
-        args: args,
-        success: false,
-      })
       return
     }
 
