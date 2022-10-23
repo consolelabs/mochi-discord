@@ -12,7 +12,6 @@ const command: Command = {
   command: "quest",
   brief: "Shows the quests you currently have",
   category: "Community",
-  onlyAdministrator: true,
   run: async function (msg, action) {
     if (!action) return daily.run(msg)
   },
@@ -27,7 +26,6 @@ const command: Command = {
     return { embeds: [embed] }
   },
   actions,
-  experimental: true,
   colorType: "Server",
   canRunWithoutAction: true,
 }

@@ -7,7 +7,6 @@ import { daily, dailyMetadata } from "./daily"
 const command: SlashCommand = {
   name: "quest",
   category: "Community",
-  onlyAdministrator: true,
   help: async () => {
     const embed = composeEmbedMessage(null, {
       description: "Check on your quests and what rewards you can claim",
