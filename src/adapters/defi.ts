@@ -3,6 +3,7 @@ import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import fetch from "node-fetch"
 import {
   DiscordWalletTransferRequest,
+  OffchainTipBotTransferRequest,
   Token,
   Coin,
   CoinComparisionData,
@@ -26,6 +27,8 @@ import {
   ResponseGetNftWatchlistResponse,
   ResponseInDiscordWalletBalancesResponse,
   ResponseNftWatchlistSuggestResponse,
+  RequestCreateAssignContract,
+  RequestOffchainTransferRequest,
 } from "types/api"
 import { commands } from "commands"
 
@@ -288,6 +291,205 @@ class Defi extends Fetcher {
       )
   }
 
+  public async getTipPayload(
+    msg: Message,
+    args: string[]
+  ): Promise<OffchainTipBotTransferRequest> {
+    const commandObject = getCommandObject(commands, msg)
+    const type = commandObject?.command
+    const sender = msg.author.id
+    let amountArg = "",
+      cryptocurrency = "",
+      recipients: string[] = []
+
+    const guildId = msg.guildId ?? "DM"
+
+    // parse recipients
+    recipients = await this.parseRecipients(
+      msg,
+      args.slice(0, args.length - 2),
+      sender
+    )
+
+    cryptocurrency = args[args.length - 1].toUpperCase()
+    amountArg = args[args.length - 2].toLowerCase()
+
+    // check if recipient is valid or not
+    if (!recipients || !recipients.length) {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        guildId,
+        message: msg,
+        errorMsg: "No valid recipient found!",
+      })
+    }
+
+    // check recipients exist in discord server or not
+    for (const recipientId of recipients) {
+      const user = await msg.guild?.members.fetch(recipientId)
+      if (!user) {
+        throw new DiscordWalletTransferError({
+          discordId: sender,
+          guildId,
+          message: msg,
+          errorMsg: `User <@!${recipientId}> not found`,
+        })
+      }
+    }
+
+    // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
+    const amount = parseFloat(amountArg)
+    if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        guildId,
+        message: msg,
+        errorMsg: "Invalid amount",
+      })
+    }
+
+    // check if tip token is in guild config
+    // const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
+    // const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
+    // if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
+    //   throw new DiscordWalletTransferError({
+    //     discordId: sender,
+    //     guildId,
+    //     message: msg,
+    //     errorMsg: "Unsupported token. Please choose another one.",
+    //   })
+    // }
+
+    return {
+      sender,
+      recipients,
+      guildId,
+      channelId: msg.channelId,
+      amount,
+      token: cryptocurrency,
+      each: false,
+      all: amountArg === "all",
+      transferType: type ?? "",
+      duration: 0,
+      fullCommand: "",
+    }
+  }
+
+  public async getWithdrawPayload(
+    msg: Message,
+    args: string[]
+  ): Promise<DiscordWalletTransferRequest> {
+    const commandObject = getCommandObject(commands, msg)
+    const type = commandObject?.command
+    const sender = msg.author.id
+    const guildId = msg.guildId ?? "DM"
+
+    const toAddress = args[3]
+    if (!toAddress.startsWith("0x")) {
+      throw new Error("Invalid destination address")
+    }
+    const recipients = [toAddress]
+    const amountArg = args[1].toLowerCase()
+    const cryptocurrency = args[2].toUpperCase()
+
+    // check if recipient is valid or not
+    if (!recipients || !recipients.length) {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        guildId,
+        message: msg,
+        errorMsg: "No valid recipient found!",
+      })
+    }
+
+    // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
+    const amount = parseFloat(amountArg)
+    if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        guildId,
+        message: msg,
+        errorMsg: "Invalid amount",
+      })
+    }
+
+    // // check if tip token is in guild config
+    const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
+    const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
+    // if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
+    //   throw new DiscordWalletTransferError({
+    //     discordId: sender,
+    //     guildId,
+    //     message: msg,
+    //     errorMsg: "Unsupported token. Please choose another one.",
+    //   })
+    // }
+
+    return {
+      sender,
+      recipients,
+      amount,
+      cryptocurrency,
+      guildId,
+      channelId: msg.channelId,
+      all: amountArg === "all",
+      token: gTokens[supportedSymbols.indexOf(cryptocurrency)],
+      transferType: type ?? "",
+    }
+  }
+
+  public async getAirdropPayload(
+    msg: Message,
+    args: string[]
+  ): Promise<OffchainTipBotTransferRequest> {
+    const commandObject = getCommandObject(commands, msg)
+    const type = commandObject?.command
+    const sender = msg.author.id
+    const recipients: string[] = []
+    const amountArg = args[1]
+    const cryptocurrency = args[2].toUpperCase()
+    const guildId = msg.guildId ?? "DM"
+
+    // validate airdrop amount
+    const amount = parseFloat(amountArg)
+    if (isNaN(amount) || amount <= 0) {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        guildId,
+        message: msg,
+        errorMsg: "Invalid amount",
+      })
+    }
+
+    // check if tip token is in guild config
+    // const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
+    // const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
+    // if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
+    //   throw new DiscordWalletTransferError({
+    //     discordId: sender,
+    //     guildId,
+    //     message: msg,
+    //     errorMsg: "Unsupported token. Please choose another one.",
+    //   })
+    // }
+    const options = this.getAirdropOptions(args, sender, msg)
+
+    return {
+      sender,
+      recipients,
+      guildId,
+      channelId: msg.channelId,
+      amount,
+      all: amountArg === "all",
+      each: false,
+      fullCommand: "",
+      duration: options.duration,
+      token: cryptocurrency,
+      transferType: type ?? "",
+      opts: options,
+    }
+  }
+
   public async getTransferPayload(
     msg: Message,
     args: string[]
@@ -512,6 +714,36 @@ class Defi extends Fetcher {
     return await this.jsonFetch(`${API_BASE_URL}/nfts/watchlist`, {
       method: "DELETE",
       query,
+    })
+  }
+
+  async offchainTipBotAssignContract(req: RequestCreateAssignContract) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/offchain-tip-bot/assign-contract`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
+  }
+
+  async offchainGetUserBalances(query: { userId: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/balances`, {
+      method: "GET",
+      query,
+    })
+  }
+
+  async offchainDiscordTransfer(req: RequestOffchainTransferRequest) {
+    return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/transfer`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  async offchainDiscordWithdraw() {
+    return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/withdraw`, {
+      method: "POST",
     })
   }
 }
