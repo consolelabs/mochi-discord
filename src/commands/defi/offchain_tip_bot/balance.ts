@@ -30,7 +30,7 @@ const command: Command = {
     if (!res.data || res.data.length === 0) {
       const embed = composeEmbedMessage(msg, {
         title: "Info",
-        description: `<@${msg.author}>, you have no balances.`,
+        description: `<@${msg.author.id}>, you have no balances.`,
       })
       return {
         messageOptions: {
