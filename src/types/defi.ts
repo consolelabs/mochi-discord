@@ -12,6 +12,21 @@ export type DiscordWalletTransferRequest = {
   transferType: string
 }
 
+export type OffchainTipBotTransferRequest = {
+  sender: string // discordId
+  recipients: string[] // can be array of discordIds or addresses
+  guildId: string
+  channelId: string
+  amount: number
+  token: string
+  each?: boolean
+  all?: boolean
+  transferType: string
+  duration: number
+  fullCommand: string
+  opts?: { duration: number; maxEntries: number }
+}
+
 export type Token = {
   id: number
   address: string
@@ -90,4 +105,12 @@ export type GasPriceData = {
   SafeGasPrice: string
   ProposeGasPrice: string
   FastGasPrice: string
+}
+
+export type UserBalances = {
+  id: string
+  name: string
+  symbol: string
+  balances: number
+  balances_in_usd: number
 }

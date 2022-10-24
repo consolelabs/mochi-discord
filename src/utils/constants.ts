@@ -37,6 +37,7 @@ export const HOMEPAGE_URL = "http://getmochi.co"
 export const EMOJI_REGEX = /^<:(.+|_):(\d+)>$/i
 export const ANIMATED_EMOJI_REGEX = /^<a:(.+|_):(\d+)>$/i
 export const USER_REGEX = /^<@(\d+)>$/i
+export const USER_NICKNAME_REGEX = /^<@!(\d+)>$/i
 export const CHANNEL_REGEX = /^<#(\d+)>$/i
 export const ROLE_REGEX = /^<@&(\d+)>$/i
 

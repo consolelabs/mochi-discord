@@ -11,6 +11,7 @@ import {
   PREFIX,
   ROLE_REGEX,
   SPACES_REGEX,
+  USER_NICKNAME_REGEX,
   USER_REGEX,
 } from "./constants"
 import { utils } from "ethers"
@@ -138,6 +139,7 @@ export function parseDiscordToken(value: string) {
   const animatedEmoji = _value.match(ANIMATED_EMOJI_REGEX)?.at(2)
   const nativeEmoji = _value.match(NATIVE_EMOJI_REGEX)?.at(0)
   const user = _value.match(USER_REGEX)?.at(1)
+  const userNickname = _value.match(USER_NICKNAME_REGEX)?.at(1)
   const channel = _value.match(CHANNEL_REGEX)?.at(1)
   const role = _value.match(ROLE_REGEX)?.at(1)
   const id = _value.match(/^(\d+)$/i)?.at(1)
@@ -148,6 +150,7 @@ export function parseDiscordToken(value: string) {
       animatedEmoji,
       Boolean(nativeEmoji) && nativeEmoji === _value,
       user,
+      userNickname,
       channel,
       role,
       id,
@@ -157,7 +160,7 @@ export function parseDiscordToken(value: string) {
     isEmoji: Boolean(emoji),
     isAnimatedEmoji: Boolean(animatedEmoji),
     isNativeEmoji: Boolean(nativeEmoji) && nativeEmoji === _value,
-    isUser: Boolean(user),
+    isUser: Boolean(user) || Boolean(userNickname),
     isRole: Boolean(role),
     isChannel: Boolean(channel),
     isId: Boolean(id),
@@ -169,9 +172,16 @@ export function parseDiscordToken(value: string) {
       ? ""
       : // because these values are mutually exclusive
         // => find the first value that is not undefined
-        [emoji, animatedEmoji, nativeEmoji, user, channel, role, id].find(
-          Boolean
-        ) ?? "",
+        [
+          emoji,
+          animatedEmoji,
+          nativeEmoji,
+          user,
+          userNickname,
+          channel,
+          role,
+          id,
+        ].find(Boolean) ?? "",
   }
 }
 

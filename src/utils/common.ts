@@ -105,6 +105,7 @@ export const defaultEmojis: Record<string, string> = {
   CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
   MAG: ":mag:",
   X: ":x:",
+  GREY_QUESTION: ":grey_question:",
 }
 
 export const factionEmojis: Record<string, string> = {

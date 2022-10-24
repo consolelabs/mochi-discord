@@ -5,13 +5,18 @@ import profile from "./profile/profile"
 import stats from "./community/stats"
 import nft from "./community/nft"
 import sales from "./community/sales"
-import deposit from "./defi/deposit"
+import depositoff from "./defi/offchain_tip_bot/deposit"
+import balancesoff from "./defi/offchain_tip_bot/balance"
+import tipoff from "./defi/offchain_tip_bot/tip"
+import withdrawoff from "./defi/offchain_tip_bot/withdraw"
+import airdropoff from "./defi/offchain_tip_bot/airdrop"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
+import deposit from "./defi/deposit"
 import withdraw from "./defi/withdraw"
+import airdrop from "./defi/airdrop"
 import tokens from "./defi/token"
 import ticker from "./defi/ticker/ticker"
-import airdrop from "./defi/airdrop"
 import gm from "./community/gm"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
@@ -107,14 +112,20 @@ export const originalCommands: Record<string, Command> = {
   help,
   // profile section
   profile,
+  // defi offchain section
+  depositoff,
+  tipoff,
+  balancesoff,
+  withdrawoff,
+  airdropoff,
   // defi section
   deposit,
   tip,
   balances,
   withdraw,
+  airdrop,
   tokens,
   ticker,
-  airdrop,
   watchlist,
   // community section
   trade,

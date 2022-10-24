@@ -34,14 +34,17 @@ export async function pruneInactive(interaction: CommandInteraction) {
       },
     }
   }
-  const pruned = await interaction.guild.members.prune({ dry: true, days: 30 })
+  const pruned = await interaction.guild.members.prune({
+    dry: true,
+    days: days,
+  })
   if (!pruned || pruned === 0) {
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
             title: "No users to prune",
-            description: `No one is inactive for 30 days, let's put down the prune stick`,
+            description: `No one is inactive for ${days} days, let's put down the prune stick`,
           }),
         ],
       },
@@ -69,7 +72,7 @@ export async function pruneInactive(interaction: CommandInteraction) {
     idle: 60000,
   })
   collector?.on("collect", (i) => {
-    pruneInactiveExecute(i)
+    pruneInactiveExecute(i, days)
   })
 }
 

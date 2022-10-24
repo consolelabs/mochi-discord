@@ -8,6 +8,7 @@ test.each<
   ["<a:animated_emoji:1299178283>", "isAnimatedEmoji", "1299178283"],
   ["🍎", "isNativeEmoji", "🍎"],
   ["<@91827>", "isUser", "91827"],
+  ["<@!91827>", "isUser", "91827"],
   ["<@&91827908>", "isRole", "91827908"],
   ["<#456321>", "isChannel", "456321"],
   ["671526", "isId", "671526"],
@@ -23,12 +24,14 @@ test.each<
   ["<w>", "isUnknown", ""],
   ["<:w>", "isUnknown", ""],
   ["<@wqwe>", "isUnknown", ""],
+  ["<@!a91827>", "isUnknown", ""],
   ["<:_:1", "isUnknown", ""],
   ["<#:_:1", "isUnknown", ""],
   // invalid with prefix/suffix
   ["error<#123>", "isUnknown", ""],
   ["<#123>thiswillfail", "isUnknown", ""],
   ["notgonnawork🍐", "isUnknown", ""],
+  ["ehh<@!91827>", "isUnknown", ""],
 ])(
   "parseDiscordToken(%s), %s = true, value is '%s'",
   (input, expectedType, expectedValue) => {
