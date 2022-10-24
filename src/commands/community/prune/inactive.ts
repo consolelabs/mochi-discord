@@ -8,7 +8,7 @@ import { getCommandArguments } from "utils/commands"
 
 export const CONFIRM_PRUNE_INACTIVE = "confirm_prune_inactive"
 
-export async function pruneInactiveExecute(i: ButtonInteraction) {
+export async function pruneInactiveExecute(i: ButtonInteraction, days: number) {
   if (
     i.customId !== CONFIRM_PRUNE_INACTIVE ||
     (i.user.id !== "567326528216760320" && //hnh
@@ -19,7 +19,7 @@ export async function pruneInactiveExecute(i: ButtonInteraction) {
   if (!i.guild) throw new GuildIdNotFoundError({})
 
   const pruned = await i.guild.members.prune({
-    days: 30,
+    days: days,
     reason: `Inactive User`,
   })
 
@@ -87,7 +87,7 @@ const command: Command = {
       idle: 60000,
     })
     collector.on("collect", (i) => {
-      pruneInactiveExecute(i)
+      pruneInactiveExecute(i, days)
     })
   },
   getHelpMessage: async (msg) => {

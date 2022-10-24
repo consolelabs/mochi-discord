@@ -76,7 +76,7 @@ export async function getUsersWithoutRole(guild: Guild, roleId: string) {
 const command: Command = {
   id: "prune_without",
   command: "without",
-  brief: "Remove users without a specific role",
+  brief: "Choose a role to remove users without that one",
   category: "Community",
   run: async (msg) => {
     if (!msg.guild) {
@@ -142,7 +142,7 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          title: "Choose a role to remove users who don't have that one",
+          title: "Choose a role to remove users without that one",
           description:
             "Only users who have a role in the safelist won't be removed",
           usage: `${PREFIX}prune without <role>`,

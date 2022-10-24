@@ -62,8 +62,8 @@ export async function wrapError(
         // get command info
         userId = message.user.id
         commandStr =
-          message.commandName + message.options.getSubcommand()
-            ? "_" + message.options.getSubcommand()
+          message.commandName + message.options.getSubcommand(false)
+            ? "_" + message.options.getSubcommand(false)
             : ""
         args = commandStr
         //
