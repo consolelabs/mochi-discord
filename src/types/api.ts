@@ -689,6 +689,20 @@ export interface RequestOffchainTransferRequest {
   transfer_type?: string;
 }
 
+export interface RequestOffchainWithdrawRequest {
+  all?: boolean;
+  amount?: number;
+  channel_id?: string;
+  duration?: number;
+  each?: boolean;
+  full_command?: string;
+  guild_id?: string;
+  recipient?: string;
+  recipient_address?: string;
+  token?: string;
+  transfer_type?: string;
+}
+
 export interface RequestRoleReactionRequest {
   guild_id?: string;
   message_id?: string;
@@ -1630,15 +1644,19 @@ export interface ResponseOffchainTipBotTransferTokenResponse {
   data?: ResponseOffchainTipBotTransferToken[];
 }
 
-export interface ResponseOffchainTipBotWithdrawResponse {
+export interface ResponseOffchainTipBotWithdraw {
   amount?: number;
-  cryptocurrency?: string;
-  from_discord_id?: string;
+  symbol?: string;
   to_address?: string;
   transaction_fee?: number;
   tx_hash?: string;
   tx_url?: string;
-  withdraw_amount?: number;
+  user_discord_id?: string;
+  withdraw_amount?: BigFloat;
+}
+
+export interface ResponseOffchainTipBotWithdrawResponse {
+  data?: ResponseOffchainTipBotWithdraw;
 }
 
 export interface ResponseResponseDataMessage {
