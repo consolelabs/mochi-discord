@@ -9,7 +9,6 @@ import {
   getErrorEmbed,
 } from "utils/discordEmbed"
 import { getEmoji, defaultEmojis } from "utils/common"
-import { APIError } from "errors"
 
 async function getDestinationAddress(
   msg: Message,
@@ -40,12 +39,9 @@ async function withdraw(msg: Message, args: string[]) {
   payload.fullCommand = msg.content
   const res = await Defi.offchainDiscordWithdraw(payload)
   if (!res.ok) {
-    if (res.error) {
-      return {
-        embeds: [getErrorEmbed({ msg, description: res.error })],
-      }
+    return {
+      embeds: [getErrorEmbed({ msg, description: res.error })],
     }
-    throw new APIError({ curl: res.curl, description: res.log })
   }
 
   const ftmEmoji = getEmoji("ftm")
