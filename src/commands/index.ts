@@ -47,6 +47,8 @@ import verify_slash from "./community/verify_slash"
 import prune_slash from "./community/prune_slash"
 import defaultrole_slash from "./config/defaultRole_slash"
 import levelrole_slash from "./config/levelRole_slash"
+import reactionrole_slash from "./config/reactionRole_slash"
+import nftrole_slash from "./config/nftRole_slash"
 import vote_slash from "./community/vote/vote_slash"
 import quest_slash from "./community/quest_slash"
 import stats_slash from "./community/stats_slash"
@@ -101,6 +103,8 @@ export const slashCommands: Record<string, SlashCommand> = {
   watchlist: watchlist_slash,
   defaultrole: defaultrole_slash,
   levelrole: levelrole_slash,
+  reactionrole: reactionrole_slash,
+  nftrole: nftrole_slash,
   prune: prune_slash,
   quest: quest_slash,
   stats: stats_slash,
