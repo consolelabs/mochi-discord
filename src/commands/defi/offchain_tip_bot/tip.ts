@@ -10,7 +10,7 @@ import {
 import { getCommandArguments } from "utils/commands"
 import { Command } from "types/common"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { GuildIdNotFoundError, APIError } from "errors"
+import { GuildIdNotFoundError } from "errors"
 import { parseDiscordToken } from "utils/commands"
 import Defi from "adapters/defi"
 
@@ -40,12 +40,9 @@ async function tip(msg: Message, args: string[]) {
   const res = await Defi.offchainDiscordTransfer(payload)
 
   if (!res.ok) {
-    if (res.error) {
-      return {
-        embeds: [getErrorEmbed({ msg, description: res.error })],
-      }
+    return {
+      embeds: [getErrorEmbed({ msg, description: res.error })],
     }
-    throw new APIError({ curl: res.curl, description: res.log })
   }
 
   const recipientIds: string[] = res.data.map((tx: any) => tx.recipient_id)
