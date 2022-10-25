@@ -27,6 +27,20 @@ export type OffchainTipBotTransferRequest = {
   opts?: { duration: number; maxEntries: number }
 }
 
+export type OffchainTipBotWithdrawRequest = {
+  recipient: string // withdraw's discordID
+  recipientAddress: string // withdraw's address
+  guildId: string
+  channelId: string
+  amount: number
+  token: string
+  each?: boolean
+  all?: boolean
+  transferType: string
+  duration: number
+  fullCommand: string
+}
+
 export type Token = {
   id: number
   address: string

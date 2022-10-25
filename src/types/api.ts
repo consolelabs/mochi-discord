@@ -710,6 +710,7 @@ export interface RequestRoleReactionRequest {
 }
 
 export interface RequestRoleReactionUpdateRequest {
+  channel_id?: string;
   guild_id?: string;
   message_id?: string;
   reaction?: string;
@@ -1681,11 +1682,13 @@ export interface ResponseRole {
 }
 
 export interface ResponseRoleReactionByMessage {
+  channel_id?: string;
   message_id?: string;
   roles?: ResponseRole[];
 }
 
 export interface ResponseRoleReactionConfigResponse {
+  channel_id?: string;
   guild_id?: string;
   message_id?: string;
   roles?: ResponseRole[];
@@ -1693,6 +1696,7 @@ export interface ResponseRoleReactionConfigResponse {
 }
 
 export interface ResponseRoleReactionResponse {
+  channel_id?: string;
   guild_id?: string;
   message_id?: string;
   role?: ResponseRole;
