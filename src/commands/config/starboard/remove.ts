@@ -10,7 +10,7 @@ import { RequestConfigRepostReactionConversation } from "types/common"
 const command: Command = {
   id: "starboard_remove",
   command: "remove",
-  brief: "Set or update a message bookmark.",
+  brief: "Remove a bookmark from the starboard.",
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
