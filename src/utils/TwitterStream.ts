@@ -5,6 +5,8 @@ import { twitter } from "utils/twitter-api"
 import { logger } from "logger"
 import { PROD } from "env"
 import { PartialDeep } from "type-fest"
+import config from "adapters/config"
+import { APIError } from "errors"
 
 type UpsertRuleParams = {
   ruleValue: string[]
@@ -90,6 +92,24 @@ class TwitterStream extends InmemoryStorage {
       })
   }
 
+  private async isAuthorBlacklisted(
+    guildId: string,
+    twitterId: string | undefined
+  ) {
+    if (!twitterId) return true
+    const {
+      data: blacklist,
+      ok,
+      curl,
+      log,
+    } = await config.getTwitterBlackList(guildId)
+    if (!ok) {
+      throw new APIError({ curl, description: log })
+    }
+    const blocked = blacklist.find((item: any) => item.twitter_id === twitterId)
+    return !!blocked
+  }
+
   private async handle(tweet: PartialDeep<Tweet>) {
     try {
       const ruleIds = tweet.matching_rules?.map((mr) => mr?.id) ?? []
@@ -107,9 +127,20 @@ class TwitterStream extends InmemoryStorage {
 
       publishChannels.forEach((channelIds) => {
         channelIds.forEach((channelId) => {
-          this._client?.channels.fetch(channelId).then((channel) => {
+          this._client?.channels.fetch(channelId).then(async (channel) => {
             // `channel` should be TextChannel, if not then it's probably removed -> warn
             if (channel?.isText() && channel instanceof TextChannel) {
+              const guildId = (channel as TextChannel).guild.id
+              const isBlocked = await this.isAuthorBlacklisted(
+                guildId,
+                tweet.data?.author_id
+              )
+              if (isBlocked) {
+                logger.info(
+                  `[TwitterStream]: User ${tweet.data?.author_id} has already been blocked`
+                )
+                return
+              }
               this.process({ channel, tweet: tweet as Tweet, handle })
             } else if (!channel) {
               logger.warn(
