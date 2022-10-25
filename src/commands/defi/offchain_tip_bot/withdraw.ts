@@ -37,22 +37,27 @@ async function getDestinationAddress(
 
 async function withdraw(msg: Message, args: string[]) {
   const payload = await Defi.getWithdrawPayload(msg, args)
-
-  const res = await Defi.offchainDiscordWithdraw()
-  if (!res.ok || !res.data) {
+  payload.fullCommand = msg.content
+  const res = await Defi.offchainDiscordWithdraw(payload)
+  if (!res.ok) {
+    if (res.error) {
+      return {
+        embeds: [getErrorEmbed({ msg, description: res.error })],
+      }
+    }
     throw new APIError({ curl: res.curl, description: res.log })
   }
 
   const ftmEmoji = getEmoji("ftm")
-  const tokenEmoji = getEmoji(payload.cryptocurrency)
+  const tokenEmoji = getEmoji(payload.token)
   const embedMsg = composeEmbedMessage(msg, {
     author: ["Withdraw"],
-    title: `${tokenEmoji} ${payload.cryptocurrency.toUpperCase()} sent`,
+    title: `${tokenEmoji} ${payload.token.toUpperCase()} sent`,
     description: "Your withdrawal was processed succesfully!",
   }).addFields(
     {
       name: "Destination address",
-      value: `\`${payload.recipients[0]}\``,
+      value: `\`${payload.recipientAddress}\``,
       inline: false,
     },
     {

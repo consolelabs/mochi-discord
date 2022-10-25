@@ -4,6 +4,7 @@ import fetch from "node-fetch"
 import {
   DiscordWalletTransferRequest,
   OffchainTipBotTransferRequest,
+  OffchainTipBotWithdrawRequest,
   Token,
   Coin,
   CoinComparisionData,
@@ -29,6 +30,7 @@ import {
   ResponseNftWatchlistSuggestResponse,
   RequestCreateAssignContract,
   RequestOffchainTransferRequest,
+  RequestOffchainWithdrawRequest,
 } from "types/api"
 import { commands } from "commands"
 
@@ -378,7 +380,7 @@ class Defi extends Fetcher {
   public async getWithdrawPayload(
     msg: Message,
     args: string[]
-  ): Promise<DiscordWalletTransferRequest> {
+  ): Promise<OffchainTipBotWithdrawRequest> {
     const commandObject = getCommandObject(commands, msg)
     const type = commandObject?.command
     const sender = msg.author.id
@@ -414,8 +416,8 @@ class Defi extends Fetcher {
     }
 
     // // check if tip token is in guild config
-    const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
-    const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
+    // const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
+    // const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
     // if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
     //   throw new DiscordWalletTransferError({
     //     discordId: sender,
@@ -426,15 +428,17 @@ class Defi extends Fetcher {
     // }
 
     return {
-      sender,
-      recipients,
-      amount,
-      cryptocurrency,
+      recipient: msg.author.id,
+      recipientAddress: toAddress,
       guildId,
       channelId: msg.channelId,
+      amount,
+      token: cryptocurrency,
+      each: false,
       all: amountArg === "all",
-      token: gTokens[supportedSymbols.indexOf(cryptocurrency)],
       transferType: type ?? "",
+      duration: 0,
+      fullCommand: "",
     }
   }
 
@@ -741,9 +745,10 @@ class Defi extends Fetcher {
     })
   }
 
-  async offchainDiscordWithdraw() {
+  async offchainDiscordWithdraw(req: RequestOffchainWithdrawRequest) {
     return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/withdraw`, {
       method: "POST",
+      body: req,
     })
   }
 }

@@ -106,21 +106,21 @@ function buildSwitchViewActionRow(
   const nftButton = new MessageButton({
     label: "NFT",
     emoji: emojis.NFT,
-    customId: `nft-view/nft/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
+    customId: `nft-view/nft/${symbol}/${tokenId}/${chain}`,
     style: "SECONDARY",
     disabled: currentView === "nft",
   })
   const tickerButton = new MessageButton({
     label: "Ticker",
     emoji: emojis.TICKER,
-    customId: `nft-view/ticker/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
+    customId: `nft-view/ticker/${symbol}/${tokenId}/${chain}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const collectionInfoButton = new MessageButton({
     label: "Collection Info",
     emoji: emojis.INFO,
-    customId: `nft-view/info/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
+    customId: `nft-view/info/${symbol}/${tokenId}/${chain}`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
