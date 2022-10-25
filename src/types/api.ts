@@ -223,6 +223,14 @@ export interface ModelGuildConfigSalesTracker {
   id?: string;
 }
 
+export interface ModelGuildConfigTwitterBlacklist {
+  created_at?: string;
+  created_by?: string;
+  guild_id?: string;
+  twitter_id?: string;
+  twitter_username?: string;
+}
+
 export interface ModelGuildConfigTwitterFeed {
   guild_id?: string;
   twitter_access_token?: string;
@@ -475,6 +483,13 @@ export interface RequestAddNftWatchlistRequest {
   collection_symbol?: string;
   guild_id?: string;
   user_id?: string;
+}
+
+export interface RequestAddToTwitterBlackListRequest {
+  created_by?: string;
+  guild_id?: string;
+  twitter_id?: string;
+  twitter_username?: string;
 }
 
 export interface RequestAddToWatchlistRequest {
@@ -1147,6 +1162,10 @@ export interface ResponseGetSupportedTokensResponse {
 
 export interface ResponseGetTradeOfferResponse {
   data?: ModelTradeOffer;
+}
+
+export interface ResponseGetTwitterBlackListResponse {
+  data?: ModelGuildConfigTwitterBlacklist[];
 }
 
 export interface ResponseGetTwitterHashtagConfigResponse {
