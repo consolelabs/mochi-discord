@@ -40,6 +40,11 @@ async function tip(msg: Message, args: string[]) {
   const res = await Defi.offchainDiscordTransfer(payload)
 
   if (!res.ok) {
+    if (res.error) {
+      return {
+        embeds: [getErrorEmbed({ msg, description: res.error })],
+      }
+    }
     throw new APIError({ curl: res.curl, description: res.log })
   }
 
