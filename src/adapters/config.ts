@@ -704,6 +704,34 @@ class Config extends Fetcher {
     }
   }
 
+  public async addToTwitterBlackList(body: {
+    guild_id: string
+    twitter_id: string
+    twitter_username: string
+    created_by: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/twitter/blacklist`, {
+      method: "POST",
+      body,
+    })
+  }
+
+  public async removeFromTwitterBlackList(query: {
+    guild_id: string
+    twitter_id: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/twitter/blacklist`, {
+      method: "DELETE",
+      query,
+    })
+  }
+
+  public async getTwitterBlackList(guildId: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/twitter/blacklist`, {
+      query: { guildId },
+    })
+  }
+
   public async setDefaultToken(body: { guild_id: string; symbol: string }) {
     const resp = await fetch(`${API_BASE_URL}/configs/tokens/default`, {
       method: "POST",

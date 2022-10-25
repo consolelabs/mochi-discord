@@ -223,6 +223,14 @@ export interface ModelGuildConfigSalesTracker {
   id?: string;
 }
 
+export interface ModelGuildConfigTwitterBlacklist {
+  created_at?: string;
+  created_by?: string;
+  guild_id?: string;
+  twitter_id?: string;
+  twitter_username?: string;
+}
+
 export interface ModelGuildConfigTwitterFeed {
   guild_id?: string;
   twitter_access_token?: string;
@@ -477,6 +485,13 @@ export interface RequestAddNftWatchlistRequest {
   user_id?: string;
 }
 
+export interface RequestAddToTwitterBlackListRequest {
+  created_by?: string;
+  guild_id?: string;
+  twitter_id?: string;
+  twitter_username?: string;
+}
+
 export interface RequestAddToWatchlistRequest {
   coin_gecko_id?: string;
   symbol?: string;
@@ -674,6 +689,20 @@ export interface RequestOffchainTransferRequest {
   transfer_type?: string;
 }
 
+export interface RequestOffchainWithdrawRequest {
+  all?: boolean;
+  amount?: number;
+  channel_id?: string;
+  duration?: number;
+  each?: boolean;
+  full_command?: string;
+  guild_id?: string;
+  recipient?: string;
+  recipient_address?: string;
+  token?: string;
+  transfer_type?: string;
+}
+
 export interface RequestRoleReactionRequest {
   guild_id?: string;
   message_id?: string;
@@ -681,6 +710,7 @@ export interface RequestRoleReactionRequest {
 }
 
 export interface RequestRoleReactionUpdateRequest {
+  channel_id?: string;
   guild_id?: string;
   message_id?: string;
   reaction?: string;
@@ -1149,6 +1179,10 @@ export interface ResponseGetTradeOfferResponse {
   data?: ModelTradeOffer;
 }
 
+export interface ResponseGetTwitterBlackListResponse {
+  data?: ModelGuildConfigTwitterBlacklist[];
+}
+
 export interface ResponseGetTwitterHashtagConfigResponse {
   data?: ResponseTwitterHashtag;
 }
@@ -1611,15 +1645,19 @@ export interface ResponseOffchainTipBotTransferTokenResponse {
   data?: ResponseOffchainTipBotTransferToken[];
 }
 
-export interface ResponseOffchainTipBotWithdrawResponse {
+export interface ResponseOffchainTipBotWithdraw {
   amount?: number;
-  cryptocurrency?: string;
-  from_discord_id?: string;
+  symbol?: string;
   to_address?: string;
   transaction_fee?: number;
   tx_hash?: string;
   tx_url?: string;
-  withdraw_amount?: number;
+  user_discord_id?: string;
+  withdraw_amount?: BigFloat;
+}
+
+export interface ResponseOffchainTipBotWithdrawResponse {
+  data?: ResponseOffchainTipBotWithdraw;
 }
 
 export interface ResponseResponseDataMessage {
@@ -1644,11 +1682,13 @@ export interface ResponseRole {
 }
 
 export interface ResponseRoleReactionByMessage {
+  channel_id?: string;
   message_id?: string;
   roles?: ResponseRole[];
 }
 
 export interface ResponseRoleReactionConfigResponse {
+  channel_id?: string;
   guild_id?: string;
   message_id?: string;
   roles?: ResponseRole[];
@@ -1656,6 +1696,7 @@ export interface ResponseRoleReactionConfigResponse {
 }
 
 export interface ResponseRoleReactionResponse {
+  channel_id?: string;
   guild_id?: string;
   message_id?: string;
   role?: ResponseRole;

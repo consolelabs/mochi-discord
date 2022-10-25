@@ -9,7 +9,6 @@ import {
   getErrorEmbed,
 } from "utils/discordEmbed"
 import { getEmoji, defaultEmojis } from "utils/common"
-import { APIError } from "errors"
 
 async function getDestinationAddress(
   msg: Message,
@@ -37,22 +36,24 @@ async function getDestinationAddress(
 
 async function withdraw(msg: Message, args: string[]) {
   const payload = await Defi.getWithdrawPayload(msg, args)
-
-  const res = await Defi.offchainDiscordWithdraw()
-  if (!res.ok || !res.data) {
-    throw new APIError({ curl: res.curl, description: res.log })
+  payload.fullCommand = msg.content
+  const res = await Defi.offchainDiscordWithdraw(payload)
+  if (!res.ok) {
+    return {
+      embeds: [getErrorEmbed({ msg, description: res.error })],
+    }
   }
 
   const ftmEmoji = getEmoji("ftm")
-  const tokenEmoji = getEmoji(payload.cryptocurrency)
+  const tokenEmoji = getEmoji(payload.token)
   const embedMsg = composeEmbedMessage(msg, {
     author: ["Withdraw"],
-    title: `${tokenEmoji} ${payload.cryptocurrency.toUpperCase()} sent`,
+    title: `${tokenEmoji} ${payload.token.toUpperCase()} sent`,
     description: "Your withdrawal was processed succesfully!",
   }).addFields(
     {
       name: "Destination address",
-      value: `\`${payload.recipients[0]}\``,
+      value: `\`${payload.recipientAddress}\``,
       inline: false,
     },
     {

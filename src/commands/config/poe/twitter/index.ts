@@ -4,6 +4,7 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import set from "./set"
 import list from "./list"
 import remove from "./remove"
+import block from "./block"
 import { Message } from "discord.js"
 import { getCommandArguments } from "utils/commands"
 
@@ -11,6 +12,7 @@ const actions: Record<string, Command> = {
   set,
   list,
   remove,
+  block,
 }
 
 const command: Command = {

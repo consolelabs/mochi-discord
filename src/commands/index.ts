@@ -72,7 +72,7 @@ import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
 // import guildCustomCommand from "../adapters/guildCustomCommand"
 // import { customCommandsExecute } from "./customCommand"
 import { Command, Category, SlashCommand } from "types/common"
-import { hasAdministrator } from "utils/common"
+import { getEmoji, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
@@ -256,15 +256,20 @@ async function executeCommand(
     // user is already using $vote, no point in reminding
     shouldRemind = false
   }
-
+  const reminderEmbed = composeEmbedMessage(message, {
+    title: "Vote for Mochi!",
+    description: `Vote for Mochi to gain rewards. Run \`$vote\` now! ${getEmoji(
+      "CLAIM"
+    )}`,
+  })
   // execute command in `commands`
   const runResponse = await commandObject.run(message, action)
   if (runResponse) {
     if ("messageOptions" in runResponse) {
+      if (shouldRemind && Math.random() < 0.1) {
+        runResponse.messageOptions.embeds?.push(reminderEmbed)
+      }
       const msg = await message.reply({
-        ...(shouldRemind && Math.random() < 0.1
-          ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
-          : {}),
         ...runResponse.messageOptions,
       })
       if (runResponse.interactionOptions && msg) {
