@@ -496,3 +496,9 @@ export function buildProgressBar(params: BuildProgressBarParams) {
 
   return filled.join("")
 }
+
+export function isDiscordMessageLink(url: string): boolean {
+  return /(http(s)?:\/\/\.)?(www\.)?discord\.com\/channels\/[0-9]*\/[0-9]*\/[0-9]*/g.test(
+    url
+  )
+}
