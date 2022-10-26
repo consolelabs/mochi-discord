@@ -71,20 +71,22 @@ const command: Command = {
         }
       })
     )
-    let pages = paginate(values.flat().filter(Boolean), 5)
-    pages = pages.map((arr: any, idx: number): MessageEmbed => {
-      const col1 = arr
-        .map(
-          (item: any) =>
-            `**${getFirstWords(item.title, 3)}**\n${getEmoji(
-              "blank"
-            )}${getEmoji("reply")} ${item.emoji} ${item.role}`
-        )
-        .join("\n\n")
+    let pages = paginate(values, 5)
 
-      const col2 = arr
-        .map((item: any) => `**[Jump](${item.url})**`)
-        .join("\n\n\n")
+    pages = pages.map((arr: any, idx: number): MessageEmbed => {
+      let col1 = ""
+      let col2 = ""
+      arr.forEach((group: any) => {
+        let roleCount = 0
+        col1 += `\n**${getFirstWords(group[0].title, 3)}**\n`
+        group.forEach((item: any) => {
+          col1 += `${getEmoji("blank")}${getEmoji("reply")} ${item.emoji} ${
+            item.role
+          }\n`
+          roleCount++
+        })
+        col2 += `**[Jump](${group[0].url})**\n\n` + "\n".repeat(roleCount)
+      })
       return composeEmbedMessage(msg, {
         author: [`${msg.guild?.name}'s reaction roles`, msg.guild?.iconURL()],
         footer: [`Page ${idx + 1} / ${pages.length}`],
