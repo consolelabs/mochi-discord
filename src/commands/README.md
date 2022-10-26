@@ -45,7 +45,7 @@ Whenever you create a new command or fine-tune existing ones, some rules must ap
 
 A ok/failed message response must have the following properties to be considered standard:
 
-- Color of the embed is either `SUCCESS` or `ERROR` (see [here](https://github.com/consolelabs/mochi-bot/blob/526dfbc30f5fd1e1f53f168b9d60419f365d3286/src/utils/common.ts#L157))
+- Color of the embed is either `SUCCESS` or `ERROR` (see [here](https://github.com/consolelabs/mochi-discord/blob/526dfbc30f5fd1e1f53f168b9d60419f365d3286/src/utils/common.ts#L157))
 - The icon is either ![error icon](https://cdn.discordapp.com/emojis/933341948431962172.webp?size=32&quality=lossless) or ![success icon](https://cdn.discordapp.com/emojis/933341948402618378.webp?size=32&quality=lossless)
 
 In short, just use the `getErrorEmbed()` or `getSuccessEmbed()` method to easily conform to the above interface
