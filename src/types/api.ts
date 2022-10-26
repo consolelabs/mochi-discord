@@ -427,12 +427,11 @@ export interface ModelTradeItem {
 
 export interface ModelTradeOffer {
   created_at?: string;
-  from_address?: string;
-  from_items?: ModelTradeItem[];
+  have_items?: ModelTradeItem[];
   id?: string;
-  to_address?: string;
-  to_items?: ModelTradeItem[];
+  owner_address?: string;
   updated_at?: string;
+  want_items?: ModelTradeItem[];
 }
 
 export interface ModelUpvoteStreakTier {
@@ -589,10 +588,9 @@ export interface RequestCreateNFTCollectionRequest {
 }
 
 export interface RequestCreateTradeOfferRequest {
-  from_address: string;
-  from_items?: RequestTradeOfferItem[];
-  to_address: string;
-  to_items?: RequestTradeOfferItem[];
+  have_items?: RequestTradeOfferItem[];
+  owner_address: string;
+  want_items?: RequestTradeOfferItem[];
 }
 
 export interface RequestCreateUserRequest {
