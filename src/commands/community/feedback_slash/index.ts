@@ -22,7 +22,9 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("command")
-          .setDescription("a specific command to give feedback")
+          .setDescription(
+            "a specific command to give feedback. Example: ticker"
+          )
           .setRequired(false)
       )
     return data

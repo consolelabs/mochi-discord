@@ -34,7 +34,9 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("command")
-          .setDescription("Command to provide details about.")
+          .setDescription(
+            "Command to provide details about. Example: watchlist"
+          )
           .setRequired(false)
           .setChoices(choices)
       )

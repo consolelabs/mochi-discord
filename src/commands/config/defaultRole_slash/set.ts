@@ -20,7 +20,7 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("role")
-          .setDescription("role for newcomers")
+          .setDescription("role for newcomers. Example: @admin")
           .setRequired(true)
       )
   },

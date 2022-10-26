@@ -10,7 +10,9 @@ export const set = new SlashCommandSubcommandBuilder()
   .addStringOption((option) =>
     option
       .setName("channel")
-      .setDescription("the channel which you want to welcome new members")
+      .setDescription(
+        "the channel which you want to welcome new members. #general"
+      )
       .setRequired(true)
   )
 
