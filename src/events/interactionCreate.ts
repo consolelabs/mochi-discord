@@ -1,7 +1,10 @@
 import { slashCommands } from "commands"
 import { confirmGlobalXP } from "commands/config/globalxp"
+import {
+  confirmAirdropOff,
+  enterAirdropOff,
+} from "commands/defi/offchain_tip_bot/airdrop"
 import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
-import { backToTickerSelection } from "commands/defi/ticker"
 import { triplePodInteraction } from "commands/games/tripod"
 import { sendVerifyURL } from "commands/profile/verify"
 import {
@@ -11,46 +14,68 @@ import {
   Interaction,
   CommandInteraction,
 } from "discord.js"
+import { DiscordEvent } from "."
+import {
+  composeDiscordExitButton,
+  composeDiscordSelectionRow,
+  getErrorEmbed,
+  getMultipleResultEmbed,
+  setDefaultMiddleware,
+} from "utils/discordEmbed"
+import CacheManager from "utils/CacheManager"
+import community from "adapters/community"
+import { wrapError } from "utils/wrapError"
+import { handleTickerViews } from "commands/defi/ticker/ticker"
+import { handleNFTTickerViews } from "commands/community/nft/ticker"
+import { authorFilter, hasAdministrator } from "utils/common"
+import { handleButtonOffer, handleCreateSwap } from "commands/community/swap"
+import InteractionManager from "utils/InteractionManager"
 import { MessageComponentTypes } from "discord.js/typings/enums"
-import { BotBaseError } from "errors"
-import { logger } from "logger"
-import ChannelLogger from "utils/ChannelLogger"
-import CommandChoiceManager from "utils/CommandChoiceManager"
-import { Event } from "."
-import { getErrorEmbed } from "utils/discordEmbed"
+import {
+  handleBackToQuestList,
+  handleClaimReward,
+} from "commands/community/quest/daily"
+import ConversationManager from "utils/ConversationManager"
 
-export default {
+const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
   once: false,
   execute: async (interaction) => {
-    if (
-      !interaction.isSelectMenu() &&
-      !interaction.isButton() &&
-      !interaction.isCommand()
-    )
-      return
-    const msg = (<SelectMenuInteraction | ButtonInteraction>interaction)
-      .message as Message
-    try {
+    wrapError(interaction, async () => {
+      if (
+        !interaction.isSelectMenu() &&
+        !interaction.isButton() &&
+        !interaction.isCommand()
+      )
+        return
       if (interaction.isSelectMenu()) {
-        await handleSelecMenuInteraction(interaction)
+        await handleSelectMenuInteraction(interaction)
       } else if (interaction.isButton()) {
         await handleButtonInteraction(interaction)
       } else if (interaction.isCommand()) {
         await handleCommandInteraction(interaction)
       }
-    } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
-        ChannelLogger.alert(msg, error)
+
+      if (interaction.isSelectMenu() || interaction.isButton()) {
+        if (
+          ConversationManager.hasConversation(
+            interaction.user.id,
+            interaction.channelId,
+            interaction
+          )
+        ) {
+          ConversationManager.continueConversation(
+            interaction.user.id,
+            interaction.channelId,
+            interaction
+          )
+        }
       }
-      ChannelLogger.log(error, 'Event<"interactionCreate">')
-    }
+    })
   },
-} as Event<"interactionCreate">
+}
+
+export default event
 
 async function handleCommandInteraction(interaction: Interaction) {
   const i = interaction as CommandInteraction
@@ -59,87 +84,126 @@ async function handleCommandInteraction(interaction: Interaction) {
     await i.reply({ embeds: [getErrorEmbed({})] })
     return
   }
+  const gMember = interaction?.guild?.members.cache.get(interaction?.user.id)
+  if (command.onlyAdministrator && !hasAdministrator(gMember)) {
+    await i.reply({
+      embeds: [
+        getErrorEmbed({
+          title: "Insufficient permissions",
+          description:
+            "Only Administrators of this server can run this command.",
+        }),
+      ],
+    })
+    return
+  }
   await i.deferReply({ ephemeral: command?.ephemeral })
   const response = await command.run(i)
   if (!response) return
-  const { messageOptions, commandChoiceOptions } = response
-  const reply = <Message>await i.editReply(messageOptions)
-  if (commandChoiceOptions) {
-    CommandChoiceManager.add({
-      ...commandChoiceOptions,
-      messageId: reply.id,
+  let shouldRemind = await CacheManager.get({
+    pool: "vote",
+    key: `remind-${i.user.id}-vote-again`,
+    // 5 min
+    ttl: 300,
+    call: async () => {
+      const res = await community.getUpvoteStreak(i.user.id)
+      let ttl = 0
+      let shouldRemind = true
+      if (res.ok) {
+        const timeUntilTopgg = res.data?.minutes_until_reset_topgg ?? 0
+        const timeUntilDiscordBotList =
+          res.data?.minutes_until_reset_discordbotlist ?? 0
+        ttl = Math.max(timeUntilTopgg, timeUntilDiscordBotList)
+
+        // only remind if both timers are 0 meaning both source can be voted again
+        shouldRemind = ttl === 0
+      }
+      return shouldRemind
+    },
+  })
+  if (i.commandName === "vote") {
+    // user is already using $vote, no point in reminding
+    shouldRemind = false
+  }
+  if ("messageOptions" in response) {
+    const { messageOptions, interactionOptions } = response
+    const msg = await i
+      .editReply({
+        ...(shouldRemind
+          ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
+          : {}),
+        ...messageOptions,
+      })
+      .catch(() => null)
+    if (interactionOptions && msg) {
+      InteractionManager.add(msg.id, interactionOptions)
+    }
+  } else if ("select" in response) {
+    // ask default case
+    const {
+      ambiguousResultText,
+      multipleResultText,
+      select,
+      onDefaultSet,
+      render,
+    } = response
+    const multipleEmbed = getMultipleResultEmbed({
+      msg: null,
+      ambiguousResultText,
+      multipleResultText,
     })
+    const selectRow = composeDiscordSelectionRow({
+      customId: `mutliple-results-${i.id}`,
+      ...select,
+    })
+    const msg = await i.reply({
+      fetchReply: true,
+      embeds: [multipleEmbed],
+      components: [selectRow, composeDiscordExitButton(i.user.id)],
+    })
+
+    if (onDefaultSet && render) {
+      InteractionManager.add(msg.id, {
+        handler: setDefaultMiddleware<CommandInteraction>({
+          onDefaultSet,
+          label: ambiguousResultText,
+          render,
+          commandInteraction: i,
+        }),
+      })
+    }
   }
 }
 
-async function handleSelecMenuInteraction(interaction: Interaction) {
-  const i = interaction as SelectMenuInteraction
+async function handleSelectMenuInteraction(i: SelectMenuInteraction) {
   const msg = i.message as Message
-  const key = `${i.user.id}_${msg.guildId}_${msg.channelId}`
-  const commandChoice = await CommandChoiceManager.get(key)
-  if (!commandChoice || !commandChoice.handler) return
-  if (i.customId === "exit") {
-    await msg.delete().catch(() => {
-      commandChoice.interaction?.editReply({
-        content: "Exited!",
-        components: [],
-        embeds: [],
-      })
-    })
-    CommandChoiceManager.remove(key)
-    return
-  }
+  const oldInteractionOptions = await InteractionManager.get(msg.id)
+  if (!oldInteractionOptions?.handler) return
 
-  const { messageOptions, commandChoiceOptions, ephemeralMessage } =
-    await commandChoice.handler(i)
+  const { messageOptions, interactionOptions, replyMessage, buttonCollector } =
+    await oldInteractionOptions.handler(i)
 
-  let output: Message
-  const deferredOrReplied = i.deferred || i.replied
-  if (ephemeralMessage && deferredOrReplied) {
-    // already deferred or replied in commandChoice.handler()
-    // we do this for long-response command (> 3s) to prevent bot from throwing "Unknown interaction" error
-    output = <Message>await i.editReply({
-      embeds: ephemeralMessage.embeds,
-      components: ephemeralMessage.components,
-    })
-  } else if (ephemeralMessage && !deferredOrReplied) {
-    output = <Message>await i.reply({
-      ephemeral: true,
-      fetchReply: true,
-      embeds: ephemeralMessage.embeds,
-      components: ephemeralMessage.components,
-    })
-  } else if (!ephemeralMessage && !deferredOrReplied) {
-    // no ephemeral so no need to respond to interaction
-    output = <Message>await i.deferUpdate({ fetchReply: true })
-  } else {
-    // in fact this case should never happen
-    return
-  }
-
-  if (ephemeralMessage?.buttonCollector) {
-    output
-      .createMessageComponentCollector({
+  if (replyMessage) {
+    const msg = await i.editReply(replyMessage)
+    if (msg && msg instanceof Message && buttonCollector) {
+      const collector = msg.createMessageComponentCollector({
+        time: 300000,
         componentType: MessageComponentTypes.BUTTON,
+        filter: authorFilter(i.user.id),
       })
-      .on("collect", async (i) => {
-        await i.deferUpdate()
-        const result = await ephemeralMessage.buttonCollector?.(i)
-        if (!result) return
-        i.editReply({
-          embeds: result.embeds,
-          components: result.components ?? [],
-        })
+
+      collector.on("collect", buttonCollector).on("end", () => {
+        msg.edit({ components: [] }).catch(() => null)
       })
+    }
+  } else if (!i.deferred) {
+    await i.deferUpdate().catch(() => null)
   }
 
-  await CommandChoiceManager.update(key, {
-    ...commandChoiceOptions,
-    interaction: i,
-    messageId: output?.id,
-  })
-  i
-  await msg.edit(messageOptions)
+  if (interactionOptions) {
+    await InteractionManager.update(msg.id, interactionOptions)
+  }
+  await msg.edit(messageOptions).catch(() => null)
 }
 
 async function handleButtonInteraction(interaction: Interaction) {
@@ -155,6 +219,12 @@ async function handleButtonInteraction(interaction: Interaction) {
       await msg.delete()
       return
     }
+    case i.customId.startsWith("confirm_airdrop_off-"):
+      await confirmAirdropOff(i, msg)
+      return
+    case i.customId.startsWith("enter_airdrop_off-"):
+      await enterAirdropOff(i, msg)
+      return
     case i.customId.startsWith("confirm_airdrop-"):
       await confirmAirdrop(i, msg)
       return
@@ -170,8 +240,23 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("triple-pod-"):
       await triplePodInteraction(i)
       return
-    case i.customId.startsWith("ticker_selection-"):
-      await backToTickerSelection(i, msg)
+    case i.customId.startsWith("ticker_view_"):
+      await handleTickerViews(i)
+      return
+    case i.customId.startsWith("nft_ticker_view"):
+      await handleNFTTickerViews(i)
+      return
+    case i.customId.startsWith("create-trade"):
+      await handleCreateSwap(i)
+      break
+    case i.customId.startsWith("trade-offer"):
+      await handleButtonOffer(i)
+      return
+    case i.customId.startsWith("claim-rewards"):
+      await handleClaimReward(i)
+      return
+    case i.customId.startsWith("back-to-quest-list"):
+      await handleBackToQuestList(i)
       return
     default:
       return

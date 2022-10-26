@@ -6,7 +6,7 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 const command: Command = {
   id: "log_info",
   command: "info",
-  brief: "Show current logging channel info",
+  brief: "Show current log channel's info",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
@@ -36,7 +36,7 @@ const command: Command = {
 
     const embed = composeEmbedMessage(msg, {
       author: [msg.guild.name, msg.guild.iconURL() ?? ""],
-      description: `Current monitoring channel is <#${guild.log_channel}>.\nYou can update using \`${PREFIX}log set <channel>.\``,
+      description: `<#${guild.log_channel}> is currently monitored.\nTo change the monitored channel, run \`${PREFIX}log set <channel>.\``,
     })
     return { messageOptions: { embeds: [embed] } }
   },

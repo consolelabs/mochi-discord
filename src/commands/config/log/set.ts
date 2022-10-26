@@ -11,7 +11,7 @@ import {
 const command: Command = {
   id: "log_set",
   command: "set",
-  brief: "Set logging channel to monitor guild members' activities",
+  brief: "Configure a new log channel",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
@@ -32,7 +32,12 @@ const command: Command = {
     if (!channelArg.startsWith("<#") || !channelArg.endsWith(">")) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid channel" })],
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "Invalid channel. Please choose another one!",
+            }),
+          ],
         },
       }
     }
@@ -52,8 +57,8 @@ const command: Command = {
 
     const embed = getSuccessEmbed({
       msg,
-      title: msg.guild.name,
-      description: `Successfully set <#${logChannel}> as log channel`,
+      title: "Successfully set!",
+      description: `<#${logChannel}> is now being monitored.`,
     })
     return { messageOptions: { embeds: [embed] } }
   },

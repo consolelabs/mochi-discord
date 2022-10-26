@@ -29,7 +29,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
         .setDescription(
           `\`\`\`${json.address}\`\`\`\nIf you want to change your address, [click here](${WEBSITE_ENDPOINT}/verify?code=${reverify.code}) to re-verify.`
         )
-      await interaction.editReply({ embeds: [e1] })
+      await interaction.editReply({ embeds: [e1] }).catch(() => null)
       break
     }
     case undefined: {
@@ -45,7 +45,9 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
           .setStyle("LINK")
           .setURL(`${WEBSITE_ENDPOINT}/verify?code=${json.code}`)
       )
-      await interaction.editReply({ embeds: [e2], components: [row] })
+      await interaction
+        .editReply({ embeds: [e2], components: [row] })
+        .catch(() => null)
       break
     }
     default:

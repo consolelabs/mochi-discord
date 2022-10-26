@@ -3,37 +3,26 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
+import { CommandError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { CommandChoiceHandler } from "utils/CommandChoiceManager"
-import { defaultEmojis } from "utils/common"
 import { PREFIX } from "utils/constants"
 import {
   composeDiscordExitButton,
   composeDiscordSelectionRow,
   composeEmbedMessage,
-  getErrorEmbed,
   getSuccessEmbed,
 } from "utils/discordEmbed"
+import { InteractionHandler } from "utils/InteractionManager"
 import Config from "../../../adapters/config"
 import Defi from "../../../adapters/defi"
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const symbol = interaction.values[0]
 
   if (!message.guildId) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            msg: message,
-            description: `Guild ID not found`,
-          }),
-        ],
-        components: [],
-      },
-    }
+    throw new GuildIdNotFoundError({ message: msgOrInteraction })
   }
 
   await Config.updateTokenConfig({
@@ -63,20 +52,11 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
     const tokens = await Defi.getSupportedTokens()
     const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
-    const options: MessageSelectOptionData[] = tokens
+    let options: MessageSelectOptionData[] = tokens
       .filter((t) => !gTokens.map((gToken) => gToken.id).includes(t.id))
       .map((token) => ({
         label: `${token.name} (${token.symbol})`,
@@ -84,17 +64,13 @@ const command: Command = {
       }))
 
     if (!options.length)
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              title: `${defaultEmojis.ERROR} Command error`,
-              description: "Your server already had all supported tokens.",
-            }),
-          ],
-        },
-      }
+      throw new CommandError({
+        message: msg,
+        description: "Your server already had all supported tokens.",
+      })
+    if (options.length > 25) {
+      options = options.slice(0, 25)
+    }
 
     const selectionRow = composeDiscordSelectionRow({
       customId: "guild_tokens_selection",
@@ -113,11 +89,7 @@ const command: Command = {
         ],
         components: [selectionRow, composeDiscordExitButton(msg.author.id)],
       },
-      commandChoiceOptions: {
-        userId: msg.author.id,
-        messageId: msg.id,
-        channelId: msg.channelId,
-        guildId: msg.guildId,
+      interactionOptions: {
         handler,
       },
     }

@@ -1,12 +1,12 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import config from "adapters/config"
 
 const command: Command = {
   id: "gm_info",
   command: "info",
-  brief: "GM/GN Configuration",
+  brief: "Show current gm/gn configuration",
   category: "Community",
   run: async (msg) => {
     if (!msg.guildId) {
@@ -52,6 +52,7 @@ const command: Command = {
           description: "Show current gm/gn configuration",
           usage: `${PREFIX}gm info`,
           examples: `${PREFIX}gm info`,
+          document: `${GM_GITBOOK}&action=info`,
         }),
       ],
     }

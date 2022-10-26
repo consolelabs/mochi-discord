@@ -1,27 +1,18 @@
-import { Event } from "."
-import Discord from "discord.js"
-import { invites } from "./index"
-import { BotBaseError } from "errors"
-import { logger } from "logger"
-import ChannelLogger from "utils/ChannelLogger"
+import { DiscordEvent } from "."
+import { invites } from "utils/invites"
+import { wrapError } from "utils/wrapError"
 
-export default {
+const event: DiscordEvent<"inviteDelete"> = {
   name: "inviteDelete",
   once: false,
-  execute: async (invite: Discord.Invite) => {
-    try {
+  execute: async (invite) => {
+    wrapError(null, async () => {
       if (invite.guild?.id) {
         const invitesCollection = invites.get(invite.guild.id)
         invitesCollection?.delete(invite.code)
       }
-    } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
-      }
-      ChannelLogger.log(error, 'Event<"inviteDelete">')
-    }
+    })
   },
-} as Event<"inviteDelete">
+}
+
+export default event

@@ -1,9 +1,10 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { INVITE_GITBOOK, PREFIX } from "utils/constants"
 import Community from "adapters/community"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { getCommandArguments } from "utils/commands"
+import { composeEmbedMessage } from "utils/discordEmbed"
+import { getCommandArguments, parseDiscordToken } from "utils/commands"
+import { CommandError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "invite_config",
@@ -12,24 +13,28 @@ const command: Command = {
   category: "Community",
   onlyAdministrator: true,
   run: async function config(msg: Message) {
-    const args = getCommandArguments(msg)
-    const logChannel = args[2].replace(/<#|>/g, "")
     if (!msg.guild?.id) {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Guild ID is invalid" })],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
+
+    const args = getCommandArguments(msg)
+    const { isChannel, value: log_channel } = parseDiscordToken(args[2])
+    if (!isChannel) {
+      throw new CommandError({
+        message: msg,
+        description: "Invalid channel. Please choose another one!",
+      })
+    }
+
     await Community.configureInvites({
       guild_id: msg.guild?.id,
-      log_channel: logChannel,
+      log_channel,
     })
 
     const embedMsg = composeEmbedMessage(msg, {
       title: `Invites Config`,
+      description: `Configure Invite Tracker's log to <#${log_channel}> channel successfully!`,
     })
-    embedMsg.addField(`Done`, `logs now display in <#${logChannel}> channel.`)
 
     return {
       messageOptions: {
@@ -41,6 +46,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite config <channel>`,
       examples: `${PREFIX}invite config #general\n${PREFIX}invite cfg #general`,
+      document: `${INVITE_GITBOOK}&action=config`,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 

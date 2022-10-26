@@ -1,6 +1,6 @@
 import { Command, embedsColors } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
 import {
   getErrorEmbed,
   composeEmbedMessage,
@@ -14,21 +14,15 @@ import {
   Message,
   MessageActionRow,
   MessageButton,
-  MessageComponentInteraction,
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
+import { authorFilter, getEmoji, shortenHashOrAddress } from "utils/common"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 
 type State = "idle" | "queued" | "queued-detail" | "undo" | "undo-detail"
 
 let buttonCollector: InteractionCollector<ButtonInteraction> | null = null
-
-const filter = (authorId: string) => async (i: MessageComponentInteraction) => {
-  await i.deferUpdate()
-  return i.user.id === authorId
-}
 
 function remove(
   guildId: string,
@@ -63,7 +57,7 @@ async function undo(i: ButtonInteraction) {
     i.editReply({
       embeds: [embed],
       ...(state === "queued-detail" ? { components: [] } : { components }),
-    })
+    }).catch(() => null)
     buttonCollector?.stop()
     buttonCollector = null
   }
@@ -76,7 +70,9 @@ async function selectRemove(i: SelectMenuInteraction) {
     if (res.ok) {
       const timeoutId = remove(i.guildId, contractAddress, () => {
         if (i.message instanceof Message) {
-          i.message.edit({ components: [i.message.components[0]] })
+          i.message
+            .edit({ components: [i.message.components[0]] })
+            .catch(() => null)
         }
       })
       const { embed, components } = renderResponse(
@@ -89,10 +85,12 @@ async function selectRemove(i: SelectMenuInteraction) {
         i.channelId,
         timeoutId
       )
-      const msg = await i.editReply({
-        embeds: [embed],
-        components,
-      })
+      const msg = await i
+        .editReply({
+          embeds: [embed],
+          components,
+        })
+        .catch(() => null)
       buttonCollector = collectButton(msg as Message, i.user.id)
     }
   }
@@ -102,7 +100,7 @@ function collectButton(msg: Message, authorId: string) {
   if (buttonCollector) return buttonCollector
   return msg
     .createMessageComponentCollector({
-      filter: filter(authorId),
+      filter: authorFilter(authorId),
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
     })
@@ -115,13 +113,13 @@ function collectButton(msg: Message, authorId: string) {
 function collectSelect(msg: Message, authorId: string) {
   msg
     .createMessageComponentCollector({
-      filter: filter(authorId),
+      filter: authorFilter(authorId),
       componentType: MessageComponentTypes.SELECT_MENU,
       idle: 60000,
     })
     .on("collect", selectRemove)
     .on("end", () => {
-      msg.edit({ components: [] })
+      msg.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -201,7 +199,7 @@ function renderResponse(
 const command: Command = {
   id: "track_sales",
   command: "remove",
-  brief: "Setup a sales tracker for an NFT collection",
+  brief: "Remove a sales tracker from an NFT collection",
   category: "Community",
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {
@@ -231,18 +229,18 @@ const command: Command = {
       }
     }
     const args = getCommandArguments(msg)
-    const { isAddress, id } = parseDiscordToken(args[2] ?? "")
+    const { isAddress, value } = parseDiscordToken(args[2] ?? "")
     let replyMsg: Message | null = null
-    if (isAddress && id) {
-      const timeoutId = remove(msg.guildId, id, () => {
-        replyMsg?.edit({ components: [] })
+    if (isAddress && value) {
+      const timeoutId = remove(msg.guildId, value, () => {
+        replyMsg?.edit({ components: [] }).catch(() => null)
       })
 
       const { embed, components } = renderResponse(
         msg,
         "queued-detail",
         "Tracker removed",
-        res.data.collection.filter((c: any) => c.contract_address !== id),
+        res.data.collection.filter((c: any) => c.contract_address !== value),
         res.data.channel_id,
         timeoutId
       )
@@ -273,6 +271,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `// Interactively\n${PREFIX}sales remove\n\n// If you already know what to remove\n${PREFIX}sales remove <contract-address>`,
         examples: `${PREFIX}sales remove\n${PREFIX}sales remove 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73`,
+        document: `${SALE_TRACKER_GITBOOK}&action=remove`,
       }),
     ],
   }),

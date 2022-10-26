@@ -6,7 +6,7 @@ import config from "./config"
 import aggregation from "./aggregation"
 import info from "./info"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { PREFIX } from "utils/constants"
+import { INVITE_GITBOOK, PREFIX } from "utils/constants"
 
 const actions: Record<string, Command> = {
   leaderboard,
@@ -22,11 +22,17 @@ const command: Command = {
   command: "invite",
   brief: "Invite Tracker",
   category: "Community",
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   run: async () => {},
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
+        usage: `${PREFIX}invite <action>`,
+        examples: `${PREFIX}invite leaderboard\n${PREFIX}inv leaderboard`,
+        description:
+          "Track the number of successful invites per server's member",
+        document: INVITE_GITBOOK,
         includeCommandsList: true,
       }),
     ],

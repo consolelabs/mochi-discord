@@ -1,34 +1,22 @@
 import community from "adapters/community"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { APIError, GuildIdNotFoundError } from "errors"
 
 export async function verifyInfo(interaction: CommandInteraction) {
   if (!interaction.guild) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: "This command must be run in a Guild",
-            originalMsgAuthor: interaction.user,
-          }),
-        ],
-      },
-    }
+    throw new GuildIdNotFoundError({})
   }
 
   const res = await community.getVerifyWalletChannel(interaction.guild.id)
   if (!res.ok) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: res.error,
-            originalMsgAuthor: interaction.user,
-          }),
-        ],
-      },
-    }
+    throw new APIError({
+      curl: res.curl,
+      description: res.log,
+      user: interaction.user,
+      guild: interaction.guild,
+    })
   }
   if (!res.data) {
     return {
@@ -48,7 +36,11 @@ export async function verifyInfo(interaction: CommandInteraction) {
       embeds: [
         composeEmbedMessage(null, {
           title: interaction.guild.name,
-          description: `Channel: <#${res.data.verify_channel_id}>`,
+          description: `Verify channel: <#${res.data.verify_channel_id}>${
+            res.data.verify_role_id
+              ? `. Verify role: <@&${res.data.verify_role_id}>`
+              : ""
+          }`,
           originalMsgAuthor: interaction.user,
         }),
       ],

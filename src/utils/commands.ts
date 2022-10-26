@@ -1,17 +1,24 @@
 import { CommandInteraction, Message } from "discord.js"
+import getEmojiRegex from "emoji-regex"
 
-import { Command, SlashCommand } from "types/common"
+import type { Command, EmbedProperties, SlashCommand } from "types/common"
 import {
-  CHANNEL_PREFIX,
-  EMOJI_PREFIX,
+  ANIMATED_EMOJI_REGEX,
+  CHANNEL_REGEX,
+  DEFAULT_COLLECTION_GITBOOK,
+  EMOJI_REGEX,
   HELP,
   PREFIX,
-  ROLE_PREFIX,
+  ROLE_REGEX,
   SPACES_REGEX,
-  USER_PREFIX,
+  USER_NICKNAME_REGEX,
+  USER_REGEX,
 } from "./constants"
-import { commands, slashCommands } from "commands"
 import { utils } from "ethers"
+import { defaultEmojis } from "./common"
+import type FuzzySet from "fuzzyset"
+
+const NATIVE_EMOJI_REGEX = getEmojiRegex()
 
 export const getCommandArguments = (message: Message) => {
   const content = message?.content
@@ -55,20 +62,26 @@ export const getAllAliases = (
 }
 
 // TODO: remove after slash command migration done
-export const getCommandObject = (msg?: Message | null): Command | null => {
+export const getCommandObject = (
+  commands: Record<string, Command>,
+  msg?: Message | null
+): Command | null => {
   if (!msg) return null
   const args = getCommandArguments(msg)
   if (!args.length) return null
-  const { commandKey } = getCommandMetadata(msg)
+  const { commandKey } = getCommandMetadata(commands, msg)
   if (commandKey) return commands[commandKey]
   return null
 }
 
-export const getActionCommand = (msg?: Message | null): Command | null => {
+export const getActionCommand = (
+  commands: Record<string, Command>,
+  msg?: Message | null
+): Command | null => {
   if (!msg) return null
   const args = getCommandArguments(msg)
   if (!args.length) return null
-  const { commandKey: key, action } = getCommandMetadata(msg)
+  const { commandKey: key, action } = getCommandMetadata(commands, msg)
 
   if (!key || !action || !commands[key].actions) return null
   const command = commands[key]
@@ -81,7 +94,10 @@ export const getActionCommand = (msg?: Message | null): Command | null => {
   return actions[0][1]
 }
 
-export const getCommandMetadata = (msg: Message) => {
+export const getCommandMetadata = (
+  commands: Record<string, Command>,
+  msg: Message
+) => {
   if (!msg?.content) return {}
   const args = getCommandArguments(msg)
   const isSpecificHelpCommand = specificHelpCommand(msg)
@@ -111,16 +127,61 @@ export const getCommandMetadata = (msg: Message) => {
   return { commandKey, action }
 }
 
+/**
+ * Parse a discord "token" (a string in some special format) and
+ * return what type that token is + the extracted value (empty string if no types were found)
+ *  @param {string} value - The discord token
+ *  @returns {object} The object containing boolean flags to check the token type and the extracted value
+ * */
 export function parseDiscordToken(value: string) {
   const _value = value.trim()
+  const emoji = _value.match(EMOJI_REGEX)?.at(2)
+  const animatedEmoji = _value.match(ANIMATED_EMOJI_REGEX)?.at(2)
+  const nativeEmoji = _value.match(NATIVE_EMOJI_REGEX)?.at(0)
+  const user = _value.match(USER_REGEX)?.at(1)
+  const userNickname = _value.match(USER_NICKNAME_REGEX)?.at(1)
+  const channel = _value.match(CHANNEL_REGEX)?.at(1)
+  const role = _value.match(ROLE_REGEX)?.at(1)
+  const id = _value.match(/^(\d+)$/i)?.at(1)
+
+  const isUnknown =
+    [
+      emoji,
+      animatedEmoji,
+      Boolean(nativeEmoji) && nativeEmoji === _value,
+      user,
+      userNickname,
+      channel,
+      role,
+      id,
+    ].findIndex(Boolean) === -1
+
   return {
-    isEmoji: _value.startsWith(EMOJI_PREFIX) && _value.endsWith(">"),
-    isUser: _value.startsWith(USER_PREFIX) && _value.endsWith(">"),
-    isRole: _value.startsWith(ROLE_PREFIX) && _value.endsWith(">"),
-    isChannel: _value.startsWith(CHANNEL_PREFIX) && _value.endsWith(">"),
-    isId: /\d+/g.test(_value),
+    isEmoji: Boolean(emoji),
+    isAnimatedEmoji: Boolean(animatedEmoji),
+    isNativeEmoji: Boolean(nativeEmoji) && nativeEmoji === _value,
+    isUser: Boolean(user) || Boolean(userNickname),
+    isRole: Boolean(role),
+    isChannel: Boolean(channel),
+    isId: Boolean(id),
     isAddress: utils.isAddress(_value),
-    id: utils.isAddress(_value) ? _value : _value.replace(/\D/g, ""),
+    isUnknown,
+    value: utils.isAddress(_value)
+      ? _value
+      : isUnknown
+      ? ""
+      : // because these values are mutually exclusive
+        // => find the first value that is not undefined
+        [
+          emoji,
+          animatedEmoji,
+          nativeEmoji,
+          user,
+          userNickname,
+          channel,
+          role,
+          id,
+        ].find(Boolean) ?? "",
   }
 }
 
@@ -140,8 +201,61 @@ export function parseDiscordToken(value: string) {
 // }
 
 export function getSlashCommandObject(
+  slashCommands: Record<string, SlashCommand>,
   interaction: CommandInteraction
 ): SlashCommand | null {
   if (!interaction) return null
   return slashCommands[interaction.commandName]
+}
+
+/**
+ * Find the closest match to the command key
+ * If not found then reply with help message
+ */
+export function getCommandSuggestion(
+  fuzzySet: FuzzySet,
+  userInput: string,
+  commands: Record<string, Command>
+): EmbedProperties | null {
+  const results = fuzzySet.get(userInput, null, 0.5)
+
+  if (!results || results.length == 0) {
+    return {
+      title: "Mochi is confused",
+      description: `Mochi doesn't understand what command you are trying to use.\n:point_right: Perhaps you can reference \`${PREFIX}help\` for more info`,
+    }
+  } else {
+    const result = results[0][1]
+    const cmd = commands[result]
+    const act = cmd.actions
+    if (!act) return null
+    const actions = Object.keys(act)
+    let actionNoArg = "help"
+    for (const i in actions) {
+      if (act[actions[i]].minArguments == 2) {
+        actionNoArg = actions[i]
+        break
+      }
+    }
+    return {
+      title: `${defaultEmojis.X} This command doesn't exist`,
+      description: `Are you trying to say \`${PREFIX}${result}\`?\n\n**Example**\nFor more specific action: \`${PREFIX}help ${result}\`\nOr try this: \`${PREFIX}${result} ${actionNoArg}\`\n`,
+      document: DEFAULT_COLLECTION_GITBOOK,
+    }
+  }
+}
+
+// TODO: add test (Tuan)
+export const getReactionIdentifier = (
+  emojiId: string | null,
+  emojiName: string | null,
+  identifier: string
+): string => {
+  let reaction = ""
+  if (emojiId) {
+    reaction = "<:" + identifier + ">"
+  } else {
+    reaction = emojiName ?? ""
+  }
+  return reaction
 }

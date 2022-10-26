@@ -2,7 +2,8 @@ import { Command } from "types/common"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { Message } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { INVITE_GITBOOK, PREFIX } from "utils/constants"
+import { APIError } from "errors"
 
 const command: Command = {
   id: "invite_leaderboard",
@@ -22,13 +23,12 @@ const command: Command = {
       }
     }
     const resp = await Community.getInvitesLeaderboard(msg.guild?.id)
-    if (resp.error) {
-      const errorEmbed = getErrorEmbed({ msg, description: resp.error })
-      return {
-        messageOptions: {
-          embeds: [errorEmbed],
-        },
-      }
+    if (!resp.ok) {
+      throw new APIError({
+        message: msg,
+        curl: resp.curl,
+        description: resp.log,
+      })
     }
 
     const data = resp.data
@@ -66,6 +66,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite leaderboard`,
       examples: `${PREFIX}invite leaderboard\n${PREFIX}invite lb`,
+      document: `${INVITE_GITBOOK}&action=leaderboard`,
       footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
     })
 

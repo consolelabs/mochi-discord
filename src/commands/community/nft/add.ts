@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "utils/constants"
+import { ADD_COLLECTION_GITBOOK, API_BASE_URL } from "utils/constants"
 import fetch, { Response } from "node-fetch"
 import { Message } from "discord.js"
 import { Command } from "types/common"
@@ -83,8 +83,8 @@ export async function toEmbed(
       ) {
         return buildDiscordMessage(
           msg,
-          "NFT",
-          "Already added. Nft is in sync progress"
+          "Existing Collection",
+          "Please add another one or view the collection by `$nft <collection_symbol> <token_id>`."
         )
       } else if (
         errorMessageCollection.includes("block number not synced yet")
@@ -198,7 +198,8 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}nft add <address> <chain_id>`,
-          examples: `${PREFIX}nft add 0xabcd 1`,
+          examples: `${PREFIX}nft add 0x51081a152db09d3FfF75807329A3A8b538eCf73b ftm\n${PREFIX}mochi add 0xFBde54764f51415CB0E00765eA4383bc90EDCCE8 5\n${PREFIX}nft add https://opensea.io/collection/tykes`,
+          document: ADD_COLLECTION_GITBOOK,
         }),
       ],
     }

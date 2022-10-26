@@ -10,18 +10,29 @@ import {
   getEmoji,
   sortNFTListByVolume,
   getEmojiURL,
-  mapSymbolToPrice,
   getUniqueToken,
   parseNFTTop,
 } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
+import { APIError } from "errors"
+import Defi from "adapters/defi"
 
-async function renderLeaderboard(
-  msg: Message,
-  leaderboard: TopNFTTradingVolumeItem[]
-) {
+export async function mapSymbolToPrice(
+  tokenList: string[]
+): Promise<Map<string, number>> {
+  const tokenMap = new Map<string, number>()
+  for (const item of tokenList) {
+    const { data: searchData } = await Defi.searchCoins(item)
+    const { data: coin } = await Defi.getCoin(searchData?.[0].id)
+
+    tokenMap.set(item, coin?.market_data.current_price.usd)
+  }
+  return tokenMap
+}
+
+async function renderLeaderboard(leaderboard: TopNFTTradingVolumeItem[]) {
   const container: RectangleStats = {
     x: {
       from: 0,
@@ -143,10 +154,14 @@ const command: Command = {
     if (args.length > 2) {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
-    const data = await Community.getTopNFTTradingVolume()
+    const res = await Community.getTopNFTTradingVolume()
+    if (!res.ok) {
+      throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    }
+    const data = res.data
     let leaderboard = parseNFTTop(data)
     const tokenAvailable = getUniqueToken(leaderboard)
-    const symbolPriceMap = await mapSymbolToPrice(msg, tokenAvailable)
+    const symbolPriceMap = await mapSymbolToPrice(tokenAvailable)
     leaderboard = sortNFTListByVolume(leaderboard, symbolPriceMap)
     if (!data)
       return {
@@ -169,7 +184,7 @@ const command: Command = {
     return {
       messageOptions: {
         embeds: [embed],
-        files: [await renderLeaderboard(msg, leaderboard.slice(0, 10))],
+        files: [await renderLeaderboard(leaderboard.slice(0, 10))],
       },
     }
   },

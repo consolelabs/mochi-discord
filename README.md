@@ -84,3 +84,5 @@ await handleNormalMessage(message)
 - commands: handle !neko commands on discord
 - events: handle discord events
 - modules: core objects used by components above
+- adapters: create api call
+- errors: define errors

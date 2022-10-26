@@ -2,128 +2,131 @@ import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
-  getErrorEmbed,
   getPaginationRow,
   listenForPaginateAction,
 } from "utils/discordEmbed"
-import { Message, MessageEmbed, TextChannel } from "discord.js"
+import { Message, MessageEmbed } from "discord.js"
 import config from "adapters/config"
-import { catchEm, paginate } from "utils/common"
+import { getEmoji, getFirstWords, paginate } from "utils/common"
+import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "reactionrole_list",
   command: "list",
-  brief: "List all active reaction role configurations",
+  brief: "List all active reaction roles",
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
     if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
-    const rrList = await config.listAllReactionRoles(msg.guildId)
-    const channelList = msg.guild.channels.cache
-      .filter((c) => c.type === "GUILD_TEXT")
-      .map((c) => c as TextChannel)
-
-    if (rrList.success) {
-      const values = await Promise.all(
-        rrList.configs.map(async (conf: any) => {
-          const promiseArr = channelList.map((chan) =>
-            catchEm(chan.messages.fetch(conf.message_id))
-          )
-          for (const prom of promiseArr) {
-            const [err, fetchedMsg] = await prom
-            if (!err && conf.roles?.length > 0) {
-              const f = conf.roles.map((role: any) => ({
-                role: `<@&${role.id}>`,
-                emoji: role.reaction,
-                channel: `[Jump](${fetchedMsg.url})`,
-              }))
-              return f
-            }
-          }
-        })
-      )
-
-      let pages = paginate(values.flat(), 5)
-      pages = pages.map((arr: any, idx: number): MessageEmbed => {
-        let roleValue = ""
-        let emojiValue = ""
-        let channelValue = ""
-        const embed = composeEmbedMessage(msg, {
-          author: ["Reaction roles", msg.guild?.iconURL()],
-          withoutFooter: true,
-        }).setFooter(`Page ${idx + 1} / ${pages.length}`)
-
-        arr.forEach((f: any) => {
-          roleValue = roleValue + f.role + "\n"
-          emojiValue = emojiValue + f.emoji + "\n"
-          channelValue = channelValue + f.channel + "\n"
-        })
-
-        embed.setFields([
-          { name: "Role", value: roleValue, inline: true },
-          { name: "Emoji", value: emojiValue, inline: true },
-          { name: "Message", value: channelValue, inline: true },
-        ])
-
-        return embed
+    const res = await config.listAllReactionRoles(msg.guildId)
+    if (!res.ok) {
+      throw new APIError({
+        message: msg,
+        curl: res.curl,
+        description: res.log,
       })
+    }
 
-      if (!pages.length) {
-        return {
-          messageOptions: {
-            embeds: [
-              composeEmbedMessage(msg, {
-                description: "No configuration found.",
-                author: ["Reaction roles", msg.guild.iconURL()],
-                withoutFooter: true,
-              }),
-            ],
-          },
-        }
-      }
+    const data = res.data.configs
+    if (!data) {
+      throw new CommandError({ message: msg })
+    }
 
-      const msgOpts = {
-        messageOptions: {
-          embeds: [pages[0]],
-          components: getPaginationRow(0, pages.length),
-        },
-      }
-      const reply = await msg.reply(msgOpts.messageOptions)
-      listenForPaginateAction(
-        reply,
-        msg,
-        async (_msg: Message, idx: number) => {
-          return {
-            messageOptions: {
-              embeds: [pages[idx]],
-              components: getPaginationRow(idx, pages.length),
-            },
-          }
+    const values = await Promise.all(
+      data.map(async (cfg) => {
+        const channel = msg.guild?.channels.cache.get(cfg.channel_id ?? "") // user already has message in the channel => channel in cache
+        if (!channel || !channel.isText()) {
+          throw new CommandError({
+            message: msg,
+            description: "Channel not found",
+          })
         }
+
+        const reactMessage = await channel.messages
+          .fetch(cfg.message_id ?? "")
+          .catch(() => null)
+        if (!reactMessage) {
+          throw new CommandError({
+            message: msg,
+            description: "Message not found",
+          })
+        }
+
+        if (cfg.roles && cfg.roles.length > 0) {
+          const title =
+            reactMessage.content ||
+            reactMessage.embeds?.[0]?.title ||
+            reactMessage.embeds?.[0]?.description ||
+            "Embed Message"
+
+          const f = cfg.roles.map((role: any) => ({
+            role: `<@&${role.id}>`,
+            emoji: role.reaction,
+            url: reactMessage.url,
+            title,
+          }))
+          return f
+        }
+      })
+    )
+    let pages = paginate(values, 5)
+
+    pages = pages.map((arr: any, idx: number): MessageEmbed => {
+      let col1 = ""
+      let col2 = ""
+      arr.forEach((group: any) => {
+        let roleCount = 0
+        col1 += `\n**${getFirstWords(group[0].title, 3)}**\n`
+        group.forEach((item: any) => {
+          col1 += `${getEmoji("blank")}${getEmoji("reply")} ${item.emoji} ${
+            item.role
+          }\n`
+          roleCount++
+        })
+        col2 += `**[Jump](${group[0].url})**\n\n` + "\n".repeat(roleCount)
+      })
+      return composeEmbedMessage(msg, {
+        author: [`${msg.guild?.name}'s reaction roles`, msg.guild?.iconURL()],
+        footer: [`Page ${idx + 1} / ${pages.length}`],
+      }).addFields(
+        { name: "\u200B", value: col1, inline: true },
+        { name: "\u200B", value: col2, inline: true }
       )
-    } else {
+    })
+
+    if (!pages.length) {
       return {
         messageOptions: {
           embeds: [
-            getErrorEmbed({
-              msg,
-              description: "Failed to get reaction role configurations",
+            composeEmbedMessage(msg, {
+              author: [
+                `${msg.guild?.name}'s reaction roles`,
+                msg.guild?.iconURL(),
+              ],
+              description: `No reaction roles found! To set a new one, run \`\`\`${PREFIX}rr set <message_id> <emoji> <role>\`\`\``,
             }),
           ],
         },
       }
     }
+
+    const msgOpts = {
+      messageOptions: {
+        embeds: [pages[0]],
+        components: getPaginationRow(0, pages.length),
+      },
+    }
+    const reply = await msg.reply(msgOpts.messageOptions)
+    listenForPaginateAction(reply, msg, async (_msg: Message, idx: number) => {
+      return {
+        messageOptions: {
+          embeds: [pages[idx]],
+          components: getPaginationRow(idx, pages.length),
+        },
+      }
+    })
   },
   getHelpMessage: async (msg) => {
     return {

@@ -1,4 +1,5 @@
 import { Message } from "discord.js"
+import { GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
@@ -7,14 +8,7 @@ import Config from "../../../adapters/config"
 
 async function add(msg: Message, args: string[]) {
   if (!msg.guildId) {
-    return {
-      embeds: [
-        getErrorEmbed({
-          msg,
-          description: "This command must be run in a Guild",
-        }),
-      ],
-    }
+    throw new GuildIdNotFoundError({ message: msg })
   }
   const [, , address, symbol, chain] = args
   const req = {
@@ -23,52 +17,53 @@ async function add(msg: Message, args: string[]) {
     address,
     chain,
   }
-  try {
-    await Config.addToken(req)
-  } catch (e) {
-    const err = (e as string).split("Error:")[1]
-    let description = `${err}`
-    if (err.includes("not supported")) {
-      const supportedChains = await Config.getAllChains()
-      description =
-        description +
-        `\nAll suppported chains by Mochi\n` +
-        supportedChains
-          .map((chain: { currency: string }) => {
-            return `**${chain.currency}**`
-          })
-          .join("\n")
-      return {
-        embeds: [getErrorEmbed({ msg: msg, description: description })],
-      }
+  const res = await Config.addToken(req)
+  if (res.ok) {
+    return {
+      embeds: [
+        composeEmbedMessage(msg, {
+          description: `Successfully added **${symbol.toUpperCase()}** to server's token lists`,
+        }),
+      ],
     }
-    const supportedTokens = await Config.getAllCustomTokens(msg.guildId)
+  }
+
+  let description = `${res.error}`
+  if (res.error.toLowerCase().includes("error getting chain")) {
+    const supportedChains = await Config.getAllChains()
     description =
-      description +
-      `\nAll suppported tokens by Mochi\n` +
-      supportedTokens
-        .map((token) => {
-          return `**${token.symbol.toUpperCase()}**`
+      "Chain is not found" +
+      `\nAll suppported chains by Mochi\n` +
+      supportedChains
+        .map((chain: { currency: string }) => {
+          return `**${chain.currency}**`
         })
         .join("\n")
     return {
       embeds: [getErrorEmbed({ msg: msg, description: description })],
     }
   }
-
+  if (res.error.toLowerCase().includes("error getting coin")) {
+    description = "Token is not found"
+  }
+  const supportedTokens = await Config.getAllCustomTokens(msg.guildId)
+  description =
+    description +
+    `\nAll suppported tokens by Mochi\n` +
+    supportedTokens
+      .map((token) => {
+        return `**${token.symbol.toUpperCase()}**`
+      })
+      .join("\n")
   return {
-    embeds: [
-      composeEmbedMessage(msg, {
-        description: `Successfully added **${symbol.toUpperCase()}** to server's token lists`,
-      }),
-    ],
+    embeds: [getErrorEmbed({ msg: msg, description: description })],
   }
 }
 
 const command: Command = {
   id: "add_custom_server_token",
   command: "add-custom",
-  brief: "Add a token to your server's list",
+  brief: "Add a token to your customized server's list",
   category: "Community",
   onlyAdministrator: true,
   run: async function (msg) {
@@ -83,7 +78,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}tokens add-custom <address> <symbol> <chain>`,
-        examples: `${PREFIX}tokens add-custom 0x123 cake bsc`,
+        examples: `${PREFIX}tokens add-custom 0x22c36BfdCef207F9c0CC941936eff94D4246d14A BACC eth\n${PREFIX}token add-custom 0xFBde54764f51415CB0E00765eA4383bc90EDCCE8 LB eth`,
       }),
     ],
   }),

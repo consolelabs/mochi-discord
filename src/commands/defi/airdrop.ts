@@ -5,12 +5,13 @@ import {
   MessageActionRow,
   MessageButton,
 } from "discord.js"
-import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
+import { AIRDROP_GITBOOK, DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
 import {
   defaultEmojis,
   getEmoji,
   roundFloatNumber,
   thumbnails,
+  tripodEmojis,
 } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
@@ -80,19 +81,22 @@ export async function confirmAirdrop(
     originalMsgAuthor: originalAuthor?.user,
   })
 
-  const reply = await msg.edit({
-    embeds: [airdropEmbed],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageButton({
-          customId: `enter_airdrop-${authorId}-${duration}-${maxEntries}`,
-          label: "Enter airdrop",
-          style: "PRIMARY",
-          emoji: "🎉",
-        })
-      ),
-    ],
-  })
+  const reply = await msg
+    .edit({
+      embeds: [airdropEmbed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton({
+            customId: `enter_airdrop-${authorId}-${duration}-${maxEntries}`,
+            label: "Enter airdrop",
+            style: "PRIMARY",
+            emoji: "🎉",
+          })
+        ),
+      ],
+    })
+    .catch(() => null)
+  if (!reply) return
   const cacheKey = `airdrop-${reply.id}`
   airdropCache.set(cacheKey, [], +duration)
 
@@ -149,17 +153,19 @@ async function checkExpiredAirdrop(
       }
 
       const originalAuthor = await msg.guild?.members.fetch(authorId)
-      msg.edit({
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
-            footer: [`${participants.length} users joined, ended`],
-            description,
-            originalMsgAuthor: originalAuthor?.user,
-          }),
-        ],
-        components: [],
-      })
+      msg
+        .edit({
+          embeds: [
+            composeEmbedMessage(msg, {
+              title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
+              footer: [`${participants.length} users joined, ended`],
+              description,
+              originalMsgAuthor: originalAuthor?.user,
+            }),
+          ],
+          components: [],
+        })
+        .catch(() => null)
     }
   })
 }
@@ -218,7 +224,7 @@ export async function enterAirdrop(
 const command: Command = {
   id: "airdrop",
   command: "airdrop",
-  brief: "Leave a packet of coins for anyone to pick up",
+  brief: "Token airdrop",
   category: "Defi",
   run: async function (msg: Message) {
     if (!msg.guildId) {
@@ -237,7 +243,18 @@ const command: Command = {
     const payload = await Defi.getTransferPayload(msg, args)
     // check balance
     const bals = await Defi.discordWalletBalances(msg.guildId, msg.author.id)
-    const currentBal = bals.balances[payload.cryptocurrency.toUpperCase()]
+    if (!bals.ok || !bals.data.balances || !bals.data.balances_in_usd) {
+      const errorEmbed = getErrorEmbed({
+        msg,
+        description: `Failed to get user balances`,
+      })
+      return {
+        messageOptions: {
+          embeds: [errorEmbed],
+        },
+      }
+    }
+    const currentBal = bals.data.balances[payload.cryptocurrency.toUpperCase()]
     if (currentBal < payload.amount && !payload.all) {
       return {
         messageOptions: {
@@ -318,12 +335,20 @@ const command: Command = {
       },
     }
   },
+  featured: {
+    title: `<:_:${tripodEmojis.AIRDROPPER}> Airdrop`,
+    description:
+      "Airdrop tokens for a specified number of users to collect in a given amount of time",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TIP,
         usage: `${PREFIX}airdrop <amount> <token> [in <duration>] [for <max entries>]`,
         examples: `${PREFIX}airdrop 10 ftm\n${PREFIX}airdrop 10 ftm in 5m\n${PREFIX}airdrop 10 ftm in 5m for 6`,
+        document: AIRDROP_GITBOOK,
+        description:
+          "Airdrop tokens for a specified number of users to collect in a given amount of time",
         footer: [DEFI_DEFAULT_FOOTER],
       }),
     ],

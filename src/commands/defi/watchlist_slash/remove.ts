@@ -1,14 +1,12 @@
 import { SlashCommand } from "types/common"
 import { CommandInteraction } from "discord.js"
 import { thumbnails } from "utils/common"
-import {
-  getErrorEmbed,
-  getSuccessEmbed,
-  composeEmbedMessage2,
-} from "utils/discordEmbed"
+import { getSuccessEmbed, composeEmbedMessage2 } from "utils/discordEmbed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import defi from "adapters/defi"
+import CacheManager from "utils/CacheManager"
+import { handleUpdateWlError } from "."
 
 const command: SlashCommand = {
   name: "remove",
@@ -16,32 +14,32 @@ const command: SlashCommand = {
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
       .setName("remove")
-      .setDescription("Remove a cryptocurrency from your watchlist.")
+      .setDescription("Remove a token from your watchlist.")
       .addStringOption((option) =>
         option
           .setName("symbol")
           .setDescription(
-            "The cryptocurrency which you wanna remove from your watchlist."
+            "The token which you wanna remove from your watchlist."
           )
           .setRequired(true)
       )
   },
   run: async function (interaction: CommandInteraction) {
     const symbol = interaction.options.getString("symbol", true)
-    const { ok } = await defi.removeFromWatchlist({
-      userId: interaction.user.id,
+    const userId = interaction.user.id
+    const { ok, error } = await defi.removeFromWatchlist({
+      userId,
       symbol,
     })
-    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
-    return {
-      messageOptions: { embeds: [getSuccessEmbed({})] },
-    }
+    if (!ok) handleUpdateWlError(interaction, symbol, error, true)
+    CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
+    return { messageOptions: { embeds: [getSuccessEmbed({})] } }
   },
   help: async (interaction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
         thumbnail: thumbnails.TOKENS,
-        title: "Remove a cryptocurrency from your watchlist.",
+        title: "Remove a token from your watchlist.",
         usage: `${PREFIX}watchlist remove <symbol>`,
         examples: `${PREFIX}watchlist remove eth`,
       }),

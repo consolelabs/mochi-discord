@@ -1,6 +1,6 @@
 import Config from "adapters/config"
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
@@ -13,10 +13,10 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { list } from "./list"
+import { InteractionHandler } from "utils/InteractionManager"
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const msg = msgOrInteraction as Message
   const [groupId, name] = interaction.values[0].split("|")
@@ -31,18 +31,16 @@ const handler: CommandChoiceHandler = async (msgOrInteraction) => {
         embeds: [
           getSuccessEmbed({
             msg,
-            title: `Remove config ${name}`,
-            description,
+            title: `Successfully removed ${name}!`,
+            description: `To set a new nft role, run \`$nr set <role> <amount> <nft_address1,nft_address2> \`.\n\n${description}`,
           }),
         ],
         components: [],
       },
-      commandChoiceOptions: {},
     }
   }
   return {
     messageOptions: { embeds: [getErrorEmbed({})] },
-    commandChoiceOptions: {},
   }
 }
 
@@ -72,8 +70,9 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              title: `${msg.guild.name}'s nftroles configuration`,
-              description: "No configuration found!",
+              title: `${msg.guild.name}'s nft roles`,
+              description:
+                "No configuration found! To set a new one, run `$lr <role> <level>`.",
             }),
           ],
         },
@@ -105,10 +104,7 @@ const command: Command = {
           composeDiscordExitButton(msg.author.id),
         ],
       },
-      commandChoiceOptions: {
-        userId: msg.author.id,
-        guildId: msg.guildId,
-        channelId: msg.channelId,
+      interactionOptions: {
         handler,
       },
     }
@@ -118,6 +114,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nr remove`,
         examples: `${PREFIX}nr remove`,
+        document: `${NFT_ROLE_GITBOOK}&action=remove`,
       }),
     ],
   }),

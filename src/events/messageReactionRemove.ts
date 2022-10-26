@@ -1,77 +1,99 @@
-import {
-  Message,
-  MessageReaction,
-  PartialMessageReaction,
-  Role,
-  User,
-} from "discord.js"
-import { logger } from "logger"
-import { Event } from "."
-import { BotBaseError } from "errors"
-import ChannelLogger from "utils/ChannelLogger"
-import { ReactionRoleResponse, RoleReactionEvent } from "types/common"
+import { DiscordEvent } from "."
+import webhook from "adapters/webhook"
+import { getReactionIdentifier } from "utils/commands"
+import { wrapError } from "utils/wrapError"
+import { Message } from "discord.js"
+import { starboardEmbed } from "utils/discordEmbed"
 import config from "adapters/config"
 
-const getRoleById = (msg: Message, roleId: string): Role | undefined => {
-  return msg.guild?.roles.cache.find((role) => role.id === roleId)
-}
+async function repostMessage(data: any, msg: Message) {
+  if (data?.repost_channel_id) {
+    const channel = msg.guild?.channels.cache.find(
+      (c) => c.id === data.repost_channel_id
+    )
 
-const getReactionIdentifier = (
-  _reaction: MessageReaction | PartialMessageReaction
-): string => {
-  let reaction = ""
-  if (_reaction.emoji.id) {
-    reaction = "<:" + _reaction.emoji.identifier.toLowerCase() + ">"
-  } else {
-    reaction = _reaction.emoji.name ?? ""
+    const embed = starboardEmbed(msg)
+    if (channel) {
+      if (channel.isText()) {
+        // if repost message not exist, create one and store to db
+        if (!data.repost_message_id) {
+          const sentMsg = await channel.send({
+            embeds: [embed],
+            content: `**${data.reaction} ${data.reaction_count}** <#${data.channel_id}>`,
+          })
+
+          config.editMessageRepost({
+            guild_id: data.guild_id,
+            origin_message_id: data.message_id,
+            origin_channel_id: data.channel_id,
+            repost_channel_id: data.repost_channel_id,
+            repost_message_id: sentMsg.id,
+          })
+        } else {
+          channel.messages.fetch(`${data.repost_message_id}`).then((msg) => {
+            msg
+              .edit({
+                embeds: [embed],
+                content: `**${data.reaction} ${data.reaction_count}** <#${data.channel_id}>`,
+              })
+              .catch(() => null)
+          })
+        }
+      }
+    }
   }
-  return reaction
 }
 
-export default {
+const event: DiscordEvent<"messageReactionRemove"> = {
   name: "messageReactionRemove",
   once: false,
-  execute: async (
-    _reaction: MessageReaction | PartialMessageReaction,
-    user: User
-  ) => {
-    try {
-      if (_reaction.message.partial) await _reaction.message.fetch()
-      if (_reaction.partial) await _reaction.fetch()
-      if (user.bot) return
-      if (!_reaction.message.guild) return
+  execute: async (_reaction, _user) => {
+    _reaction
+      .fetch()
+      .then((reaction) => {
+        _user
+          .fetch()
+          .then((user) => {
+            reaction.message
+              .fetch()
+              .then(async (msg) => {
+                wrapError(msg, async () => {
+                  if (user.bot) return
+                  if (!msg.guild) return
 
-      const msg = _reaction.message as Message
-      // check msg config reactionrole
-      const emojiResp = await config.listAllReactionRoles(msg.guild?.id ?? "")
-      const listMessageID =
-        emojiResp?.configs?.map((v: any) => v.message_id) || []
-      if (!listMessageID.includes(msg.id)) {
-        return
-      }
+                  const body = {
+                    guild_id: msg.guildId ?? "",
+                    channel_id: msg.channelId,
+                    message_id: msg.id,
+                    reaction: getReactionIdentifier(
+                      reaction.emoji.id,
+                      reaction.emoji.name,
+                      reaction.emoji.identifier.toLowerCase()
+                    ),
+                    reaction_count: reaction.count,
+                    user_id: user.id,
+                  }
 
-      const event: RoleReactionEvent = {
-        guild_id: msg.guild?.id ?? "",
-        message_id: msg.id,
-        reaction: getReactionIdentifier(_reaction),
-      }
-
-      const resData: ReactionRoleResponse = await config.handleReactionEvent(
-        event
-      )
-
-      const role = getRoleById(msg, resData.role.id)
-      if (resData?.role?.id && role) {
-        await msg.guild?.members?.cache.get(user.id)?.roles.remove(role)
-      }
-    } catch (e) {
-      const error = e as BotBaseError
-      if (error.handle) {
-        error.handle()
-      } else {
-        logger.error(e as string)
-      }
-      ChannelLogger.log(error, 'Event<"messageReactionRemove">')
-    }
+                  const res = await webhook.pushDiscordWebhook(
+                    "messageReactionRemove",
+                    body
+                  )
+                  if (res?.ok) {
+                    const data = {
+                      ...body,
+                      repost_channel_id: res?.data?.repost_channel_id,
+                      repost_message_id: res?.data?.repost_message_id,
+                    }
+                    repostMessage(data, msg)
+                  }
+                })
+              })
+              .catch(() => null)
+          })
+          .catch(() => null)
+      })
+      .catch(() => null)
   },
-} as Event<"messageReactionRemove">
+}
+
+export default event

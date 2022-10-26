@@ -4,7 +4,6 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { Command } from "types/common"
-import { CommandChoiceHandler } from "utils/CommandChoiceManager"
 import { PREFIX } from "utils/constants"
 import {
   composeDiscordExitButton,
@@ -12,9 +11,10 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
 } from "utils/discordEmbed"
+import { InteractionHandler } from "utils/InteractionManager"
 import Config from "../../../adapters/config"
 
-const handler: CommandChoiceHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const symbol = interaction.values[0]
@@ -102,11 +102,7 @@ const command: Command = {
         ],
         components: [selectionRow, composeDiscordExitButton(msg.author.id)],
       },
-      commandChoiceOptions: {
-        userId: msg.author.id,
-        messageId: msg.id,
-        channelId: msg.channelId,
-        guildId: msg.guildId,
+      interactionOptions: {
         handler,
       },
     }

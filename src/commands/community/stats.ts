@@ -1,21 +1,22 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, STATS_GITBOOK } from "utils/constants"
 import {
   MessageSelectOptionData,
   SelectMenuInteraction,
   Message,
 } from "discord.js"
 import {
-  CommandChoiceHandler,
-  CommandChoiceHandlerResult,
-} from "utils/CommandChoiceManager"
-import {
   composeDiscordSelectionRow,
   composeDiscordExitButton,
   composeEmbedMessage,
-  getErrorEmbed,
 } from "utils/discordEmbed"
 import Community from "adapters/community"
+import { GuildIdNotFoundError } from "errors"
+import { capFirst } from "utils/common"
+import {
+  InteractionHandler,
+  InteractionHandlerResult,
+} from "utils/InteractionManager"
 
 const countType: Array<string> = [
   "members",
@@ -25,35 +26,29 @@ const countType: Array<string> = [
   "roles",
 ]
 
-const statsSelectionHandler: CommandChoiceHandler = async (
-  msgOrInteraction
-) => {
+const statsSelectionHandler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const id = input.split("_")[0]
-  return await renderStatEmbed(message, id, interaction)
+  return await renderStatEmbed(message, id)
 }
 
-const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
+const countStatsHandler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const [type, stat] = input.split("_")
   const countTypeReq = type + "_" + stat
   if (!message.guildId) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({ msg: message, description: "Guild ID is invalid" }),
-        ],
-      },
-    }
+    throw new GuildIdNotFoundError({ message: msgOrInteraction })
   }
   await Community.createStatChannel(message.guildId, countTypeReq)
   const successEmbeded = composeEmbedMessage(message, {
     title: `Server Stats\n\n`,
-    description: `Successfully count ` + type + ` ` + stat,
+    description: `${capFirst(
+      type
+    )} ${stat} count is shown as a voice channel on top of your server. `,
   })
   return {
     messageOptions: {
@@ -68,9 +63,8 @@ const countStatsHandler: CommandChoiceHandler = async (msgOrInteraction) => {
 
 async function renderStatEmbed(
   msg: Message,
-  statId: string,
-  interaction: SelectMenuInteraction
-): Promise<CommandChoiceHandlerResult> {
+  statId: string
+): Promise<InteractionHandlerResult> {
   let statType = ""
   switch (statId) {
     case "members":
@@ -116,12 +110,8 @@ async function renderStatEmbed(
       ],
       components: [selectRow, composeDiscordExitButton(msg.author.id)],
     },
-    commandChoiceOptions: {
-      userId: msg.author.id,
-      guildId: msg.guildId || undefined,
-      channelId: msg.channelId,
+    interactionOptions: {
       handler: countStatsHandler,
-      interaction,
     },
   }
 }
@@ -153,10 +143,7 @@ const command: Command = {
         ],
         components: [selectRow, composeDiscordExitButton(msg.author.id)],
       },
-      commandChoiceOptions: {
-        userId: msg.author.id,
-        guildId: msg.guildId ?? "",
-        channelId: msg.channelId,
+      interactionOptions: {
         handler: statsSelectionHandler,
       },
     }
@@ -165,6 +152,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}stats -> select which stats from dropdown -> select which type from dropdown`,
       footer: [`Type ${PREFIX}help stats`],
+      document: STATS_GITBOOK,
       examples: `${PREFIX}stats`,
     })
 

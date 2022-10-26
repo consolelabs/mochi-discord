@@ -2,14 +2,17 @@
   "scripts": {
     "start": "NODE_OPTIONS=--max-old-space-size=4096 ts-node src/index.ts",
     "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
-    "test": "jest",
+    "test": "jest --detectOpenHandles",
+    "test:ci": "jest --silent --detectOpenHandles",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts .",
     "prepare": "husky install",
-    "generate:types": "node ./scripts/generate-types.js"
+    "generate:types": "node ./scripts/generate-types.js",
+    "guilds:prune": "node ./scripts/leave-server.js"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.15.0",
     "@types/cron": "^2.0.0",
+    "@types/fuzzyset": "^1.0.4",
     "@types/jest": "^27.0.2",
     "@types/koa": "^2.13.1",
     "@types/koa-bodyparser": "^4.3.3",
@@ -28,6 +31,7 @@
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "fetch-to-curl": "^0.5.2",
     "game-interface": "^1.0.1",
     "human-id": "^4.0.0",
     "husky": ">=6",
@@ -35,15 +39,17 @@
     "lint-staged": ">=10",
     "prettier": "^2.6.2",
     "ts-jest": "^27.0.7",
-    "ts-node": "^10.2.1",
-    "ts-node-dev": "^1.1.8",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^3.12.0",
     "typescript": "^4.4.3"
   },
   "dependencies": {
     "@discordjs/builders": "^0.12.0",
     "@discordjs/rest": "^0.5.0",
+    "@haileybot/captcha-generator": "^1.7.0",
     "@koa/cors": "^3.1.0",
+    "@types/turndown": "^5.0.1",
     "canvas": "^2.9.0",
     "casing": "^1.1.0",
     "change-case": "^4.1.2",
@@ -53,10 +59,12 @@
     "dayjs": "^1.10.7",
     "deepmerge": "^4.2.2",
     "discord-api-types": "^0.36.0",
-    "discord.js": "^13.1.0",
+    "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
+    "emoji-regex": "^10.2.1",
     "ethers": "^5.4.7",
     "firebase-admin": "^11.0.0",
+    "fuzzyset": "^1.0.7",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0",
     "koa-jwt": "^4.0.1",
@@ -75,6 +83,7 @@
     "swagger-typescript-api": "^10.0.1",
     "triple-pod-game-engine": "^6.0.1",
     "ts-case-convert": "^2.0.2",
+    "turndown": "^7.1.1",
     "twitter-api-sdk": "^1.1.0",
     "type-fest": "^2.19.0",
     "uuid": "^8.3.2",
@@ -86,5 +95,12 @@
   },
   "resolutions": {
     "typescript": "4.7.4"
+  },
+  "madge": {
+    "detectiveOptions": {
+      "ts": {
+        "skipTypeImports": true
+      }
+    }
   }
 }

@@ -1,12 +1,9 @@
 import { Command } from "types/common"
 import community from "adapters/community"
-import { PREFIX } from "utils/constants"
-import {
-  composeEmbedMessage,
-  getErrorEmbed,
-  getSuccessEmbed,
-} from "utils/discordEmbed"
+import { PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"
+import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
+import { APIError, CommandError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "verify_set",
@@ -14,65 +11,51 @@ const command: Command = {
   brief: "Create verify wallet channel",
   category: "Community",
   run: async function (msg) {
-    if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+    if (!msg.guild) {
+      throw new GuildIdNotFoundError({ message: msg })
     }
-    const existChannel = await community.getVerifyWalletChannel(msg.guildId)
+    const existChannel = await community.getVerifyWalletChannel(msg.guild.id)
     if (existChannel.ok && existChannel.data?.verify_channel_id) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: `Your server already setup a channel for that -> <#${existChannel.data.verify_channel_id}>`,
-            }),
-          ],
-        },
-      }
+      throw new CommandError({
+        message: msg,
+        description: `Your server already setup a channel for that -> <#${existChannel.data.verify_channel_id}>`,
+      })
     }
     const args = getCommandArguments(msg)
-    const { isChannel, id: channelId } = parseDiscordToken(args[2])
+    const { isChannel, value: channelId } = parseDiscordToken(args[2])
     if (!isChannel) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "Invalid channel",
-            }),
-          ],
-        },
+      throw new CommandError({
+        message: msg,
+        description: "Invalid channel. Please choose another one!",
+      })
+    }
+
+    let roleId
+    if (args[3]) {
+      const { isRole, value: id } = parseDiscordToken(args[3])
+      if (id) {
+        if (isRole) {
+          roleId = id
+        } else {
+          throw new CommandError({
+            message: msg,
+            description: "Invalid role. Please choose another one!",
+          })
+        }
       }
     }
 
     const createVerifyWalletRequest = {
       verify_channel_id: channelId,
-      guild_id: msg.guildId,
+      guild_id: msg.guild.id,
+      ...(roleId ? { verify_role_id: roleId } : {}),
     }
 
     const res = await community.createVerifyWalletChannel(
       createVerifyWalletRequest
     )
     if (!res.ok) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: res.error,
-            }),
-          ],
-        },
-      }
+      throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
 
     return {
@@ -81,7 +64,11 @@ const command: Command = {
           getSuccessEmbed({
             msg,
             title: "Channel set",
-            description: `Mochi sent verify instructions to <#${channelId}> channel`,
+            description: `Mochi sent verify instructions to <#${channelId}> channel${
+              roleId
+                ? `. In addition, user will be assigned role <@&${roleId}> upon successful verification`
+                : ""
+            }`,
           }),
         ],
       },
@@ -90,8 +77,10 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}verify create <channel>`,
-        examples: `${PREFIX}verify create #general`,
+        usage: `${PREFIX}verify set <channel> [<verified_role>]`,
+        examples: `${PREFIX}verify set #general\n${PREFIX}verify set #connect-wallet @verified`,
+        document: `${VERIFY_WALLET_GITBOOK}&action=set`,
+        footer: [`Type ${PREFIX}help verify <action> for a specific action!`],
       }),
     ],
   }),

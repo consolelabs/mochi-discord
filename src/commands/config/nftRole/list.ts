@@ -1,26 +1,34 @@
 import Config from "adapters/config"
+import { APIError, GuildIdNotFoundError } from "errors"
 import { ResponseListGuildGroupNFTRolesResponse } from "types/api"
 import { Command } from "types/common"
 import { getEmoji, shortenHashOrAddress } from "utils/common"
-import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
+import { composeEmbedMessage } from "utils/discordEmbed"
 
 export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
   let description
   if (data?.length === 0) {
-    description = "No configuration found"
+    description = `No nft roles found! To set a new one, run \`\`\`${PREFIX}nr set <role> <amount> <nft_address1,nft_address2>\`\`\``
   } else {
     description = data
+      ?.sort(
+        (c1, c2) => (c1.number_of_tokens ?? 0) - (c2.number_of_tokens ?? 0)
+      )
       ?.map(
         (c) =>
-          `Group <@&${c.role_id}> - requires \`${
+          `<@&${c.role_id}> - requires \`${
             c.number_of_tokens
-          }\`\n${c.nft_collection_configs
+          }\` tokens\n${c.nft_collection_configs
             ?.map(
               (nftCol) =>
-                `${getEmoji("blank")}${getEmoji("reply")}\`${
+                `${getEmoji("blank")}${getEmoji("reply")}[\`${
                   nftCol.symbol?.toUpperCase() ?? ""
-                } ${shortenHashOrAddress(nftCol.address ?? "")}\``
+                } ${shortenHashOrAddress(nftCol.address ?? "")}${
+                  nftCol.chain_name
+                    ? ` (${nftCol.chain_name.toUpperCase()})`
+                    : ""
+                }\`](${nftCol.explorer_url || "https://getmochi.co/"})`
             )
             .join("\n")}`
       )
@@ -37,43 +45,23 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
-    const configs = await Config.getGuildNFTRoleConfigs(msg.guildId)
-    if (!configs || !configs.ok) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              title: `${msg.guild.name}'s nftroles configuration`,
-              description: "No configuration found!",
-            }),
-          ],
-        },
-      }
+    const res = await Config.getGuildNFTRoleConfigs(msg.guildId)
+    if (!res.ok) {
+      throw new APIError({
+        message: msg,
+        curl: res.curl,
+        description: res.log,
+      })
     }
-
-    const description = list(configs)
 
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: [
-              `${msg.guild.name}'s nftroles configuration`,
-              msg.guild.iconURL(),
-            ],
-            description,
+            author: [`${msg.guild.name}'s nft roles`, msg.guild.iconURL()],
+            description: list(res),
           }),
         ],
       },
@@ -84,6 +72,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}nr list`,
         examples: `${PREFIX}nr list`,
+        document: `${NFT_ROLE_GITBOOK}&action=list`,
       }),
     ],
   }),

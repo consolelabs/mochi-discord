@@ -1,6 +1,7 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { getEmoji } from "utils/common"
+import { PREFIX, LEVEL_ROLE_GITBOOK } from "utils/constants"
 import {
   composeEmbedMessage,
   getErrorEmbed,
@@ -18,7 +19,7 @@ const actions: Record<string, Command> = {
 const command: Command = {
   id: "levelrole",
   command: "levelrole",
-  brief: "Set a role that users will get when they reach specific a level",
+  brief: "Level Role Configuration",
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg) {
@@ -39,7 +40,13 @@ const command: Command = {
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid role" })],
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description:
+                "Invalid role. Be careful to not be mistaken role with username while setting.",
+            }),
+          ],
         },
       }
     }
@@ -62,7 +69,7 @@ const command: Command = {
         },
       }
 
-    const res = await Config.configLevelRole(msg, {
+    const res = await Config.configLevelRole({
       guild_id: msg.guildId,
       role_id: role.id,
       level,
@@ -89,11 +96,20 @@ const command: Command = {
       },
     }
   },
+  featured: {
+    title: `${getEmoji("")} Level role`,
+    description: "Assign a role to users when they reach a certain level",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}lr <role> <level>\n${PREFIX}lr <action>`,
-        examples: `${PREFIX}lr @Mochi 1`,
+        examples: `${PREFIX}levelrole list\n${PREFIX}levelrole @Mochi 1\n${PREFIX}lr @admin 2`,
+        description: "Assign a role to users when they reach a certain level",
+        document: LEVEL_ROLE_GITBOOK,
+        footer: [
+          `Type ${PREFIX}help levelrole <action> for a specific action!`,
+        ],
         includeCommandsList: true,
       }),
     ],

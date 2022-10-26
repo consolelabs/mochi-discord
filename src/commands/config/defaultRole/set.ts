@@ -1,5 +1,5 @@
 import { Command, DefaultRoleEvent } from "types/common"
-import { PREFIX } from "utils/constants"
+import { DEFAULT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
   getErrorEmbed,
@@ -30,7 +30,7 @@ const command: Command = {
     }
     let description = ""
     const args = getCommandArguments(msg)
-    const { isRole, isId, id } = parseDiscordToken(args[2] ?? "")
+    const { isRole, isId, value: id } = parseDiscordToken(args[2] ?? "")
 
     if (!isRole || !isId) {
       return {
@@ -40,7 +40,7 @@ const command: Command = {
               msg,
               title: "Invalid role",
               description:
-                "Make sure it is really a role in your server, some common mistakes are: role that is not in your server or some username is the same with the role you're setting.",
+                "The added role must be a valid one. Don’t be mistaken role with username while setting.",
             }),
           ],
         },
@@ -54,7 +54,7 @@ const command: Command = {
 
     const res = await config.configureDefaultRole(requestData)
     if (res.ok) {
-      description = `Role <@&${requestData.role_id}> is now configured as newcomer's default role`
+      description = `<@&${requestData.role_id}> is now configured as newcomer's default role.`
     } else {
       return {
         messageOptions: {
@@ -79,6 +79,7 @@ const command: Command = {
           description:
             "If you know what you're doing, this command also support passing in the role id (maybe you're a power user, maybe you don't want to alert all users that have that role, etc...)",
           examples: `${PREFIX}dr set @Visitor`,
+          document: `${DEFAULT_ROLE_GITBOOK}&action=set`,
         }),
       ],
     }

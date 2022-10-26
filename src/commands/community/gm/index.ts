@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import config from "./config"
 import streak from "./streak"
@@ -21,8 +21,12 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}gm <action>`,
+        examples: `${PREFIX}gm streak`,
         footer: [`Type ${PREFIX}help gm <action> for a specific action!`],
+        description:
+          "Configure a good morning/good night channel for users to engage and keep streaks",
         includeCommandsList: true,
+        document: GM_GITBOOK,
       }),
     ],
   }),

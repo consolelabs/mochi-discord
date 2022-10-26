@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
   getErrorEmbed,
@@ -34,7 +34,13 @@ const command: Command = {
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid role" })],
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description:
+                "Invalid role. Be careful to not be mistaken role with username while setting.",
+            }),
+          ],
         },
       }
     }
@@ -106,7 +112,7 @@ const command: Command = {
             embeds: [
               getSuccessEmbed({
                 msg,
-                title: `Added new role config ${role.name}`,
+                title: `Successfully configured ${role.name}!`,
                 description,
               }),
             ],
@@ -134,14 +140,15 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}nr <role> <amount> <nft_address1,nft_address2> [erc1155_token_id]`,
-        examples: `${PREFIX}nr @Mochi 1 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73\n${PREFIX}nr @SeniorMochian 100 0xAaaa,0xBbbb,0xCccc`,
+        usage: `${PREFIX}nr set <role> <amount> <nft_address1,nft_address2> [erc1155_token_id]\n${PREFIX}nftrole set <role> <amount> <nft_address1,nft_address2> [erc1155_token_id]`,
+        examples: `${PREFIX}nftrole set @Mochi 1 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73\n${PREFIX}nr set @SeniorMochian 100 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73,0xFBde54764f51415CB0E00765eA4383bc90EDCCE8`,
+        document: `${NFT_ROLE_GITBOOK}&action=set`,
       }),
     ],
   }),
   canRunWithoutAction: true,
   colorType: "Server",
-  minArguments: 4,
+  minArguments: 5,
 }
 
 export default command

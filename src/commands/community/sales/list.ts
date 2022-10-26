@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
 import {
   getErrorEmbed,
   composeEmbedMessage,
@@ -11,7 +11,7 @@ import { capFirst, shortenHashOrAddress } from "utils/common"
 const command: Command = {
   id: "sales_list",
   command: "list",
-  brief: "See trackers",
+  brief: "Show list of trackers",
   category: "Community",
   run: async function (msg) {
     if (!msg.guildId || !msg.guild) {
@@ -78,6 +78,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sales list`,
         examples: `${PREFIX}sales list`,
+        document: `${SALE_TRACKER_GITBOOK}&action=list`,
       }),
     ],
   }),

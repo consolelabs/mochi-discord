@@ -2,7 +2,7 @@ import { InvalidInputError } from "errors"
 import { Command } from "types/common"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import { getCommandArguments } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 
@@ -55,6 +55,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}gm config <channel>`,
         examples: `${PREFIX}gm config #general`,
+        document: `${GM_GITBOOK}&action=config`,
       }),
     ],
   }),

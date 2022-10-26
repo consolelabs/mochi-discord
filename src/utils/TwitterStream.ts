@@ -5,6 +5,8 @@ import { twitter } from "utils/twitter-api"
 import { logger } from "logger"
 import { PROD } from "env"
 import { PartialDeep } from "type-fest"
+import config from "adapters/config"
+import { APIError } from "errors"
 
 type UpsertRuleParams = {
   ruleValue: string[]
@@ -50,64 +52,111 @@ class TwitterStream extends InmemoryStorage {
   }
 
   private async sendToChannel({ channel, handle, tweet }: ProcessParam) {
-    await channel.send(`https://twitter.com/${handle}/status/${tweet.data?.id}`)
-    logger.info(
-      `[TwitterStream]: tweet ${tweet.data?.id} of ${handle} sent to channel`
-    )
+    try {
+      await channel.send(
+        `https://twitter.com/${handle}/status/${tweet.data?.id}`
+      )
+      logger.info(
+        `[TwitterStream]: tweet ${tweet.data?.id} of ${handle} sent to channel`
+      )
+    } catch (e) {
+      logger.error(`[TwitterStream] - error in sendToChannel ${e}`)
+    }
   }
 
   private async logToDB({ channel, tweet, handle }: ProcessParam) {
-    await apiConfig.logTweet({
-      guild_id: channel.guildId,
-      tweet_id: tweet.data?.id,
-      twitter_id: tweet.data?.author_id,
-      twitter_handle: handle,
-    })
-    logger.info(
-      `[TwitterStream]: tweet ${tweet.data?.id} of ${handle} logged to db`
-    )
+    try {
+      await apiConfig.logTweet({
+        guild_id: channel.guildId,
+        tweet_id: tweet.data?.id,
+        twitter_id: tweet.data?.author_id,
+        twitter_handle: handle,
+      })
+      logger.info(
+        `[TwitterStream]: tweet ${tweet.data?.id} of ${handle} logged to db`
+      )
+    } catch (e) {
+      logger.error(`[TwitterStream] - error in logToDB ${e}`)
+    }
   }
 
   private async process(data: ProcessParam) {
-    Promise.all([this.sendToChannel(data), this.logToDB(data)]).then(() => {
-      logger.info(
-        `[TwitterStream]: tweet ${data.tweet.data?.id} of ${data.handle} processed`
-      )
-    })
+    Promise.all([this.sendToChannel(data), this.logToDB(data)])
+      .then(() => {
+        logger.info(
+          `[TwitterStream]: tweet ${data.tweet.data?.id} of ${data.handle} processed`
+        )
+      })
+      .catch((e) => {
+        logger.error(`[TwitterStream] - error in process ${e}`)
+      })
+  }
+
+  private async isAuthorBlacklisted(
+    guildId: string,
+    twitterId: string | undefined
+  ) {
+    if (!twitterId) return true
+    const {
+      data: blacklist,
+      ok,
+      curl,
+      log,
+    } = await config.getTwitterBlackList(guildId)
+    if (!ok) {
+      throw new APIError({ curl, description: log })
+    }
+    const blocked = blacklist.find((item: any) => item.twitter_id === twitterId)
+    return !!blocked
   }
 
   private async handle(tweet: PartialDeep<Tweet>) {
-    const ruleIds = tweet.matching_rules?.map((mr) => mr?.id) ?? []
-    const handle = tweet.includes?.users?.find(
-      (u) => u?.id === tweet.data?.author_id
-    )?.username
-    if (ruleIds.length === 0 || !handle || !tweet.data?.id) return
-    logger.info(`[TwitterStream]: handling tweet ${tweet.data?.id}`)
-    const publishChannels = []
-    for (const ruleId of ruleIds) {
-      if (ruleId && this.publishChannelsByRuleId[ruleId]) {
-        publishChannels.push(this.publishChannelsByRuleId[ruleId])
+    try {
+      const ruleIds = tweet.matching_rules?.map((mr) => mr?.id) ?? []
+      const handle = tweet.includes?.users?.find(
+        (u) => u?.id === tweet.data?.author_id
+      )?.username
+      if (ruleIds.length === 0 || !handle || !tweet.data?.id) return
+      logger.info(`[TwitterStream]: handling tweet ${tweet.data?.id}`)
+      const publishChannels = []
+      for (const ruleId of ruleIds) {
+        if (ruleId && this.publishChannelsByRuleId[ruleId]) {
+          publishChannels.push(this.publishChannelsByRuleId[ruleId])
+        }
       }
-    }
 
-    publishChannels.forEach((channelIds) => {
-      channelIds.forEach((channelId) => {
-        this._client?.channels.fetch(channelId).then((channel) => {
-          // `channel` should be TextChannel, if not then it's probably removed -> warn
-          if (channel?.isText() && channel instanceof TextChannel) {
-            this.process({ channel, tweet: tweet as Tweet, handle })
-          } else if (!channel) {
-            logger.warn(
-              `[TwitterStream]: matched tweet id ${tweet.data?.id} but unable to process due to removed channel id ${channelId}`
-            )
-          } else {
-            logger.warn(
-              `[TwitterStream]: matched tweet id ${tweet.data?.id} but unable to process due to channel not type text ${channel?.id}`
-            )
-          }
+      publishChannels.forEach((channelIds) => {
+        channelIds.forEach((channelId) => {
+          this._client?.channels.fetch(channelId).then(async (channel) => {
+            // `channel` should be TextChannel, if not then it's probably removed -> warn
+            if (channel?.isText() && channel instanceof TextChannel) {
+              const guildId = (channel as TextChannel).guild.id
+              const isBlocked = await this.isAuthorBlacklisted(
+                guildId,
+                tweet.data?.author_id
+              )
+              if (isBlocked) {
+                logger.info(
+                  `[TwitterStream]: User ${tweet.data?.author_id} has already been blocked`
+                )
+                return
+              }
+              this.process({ channel, tweet: tweet as Tweet, handle })
+            } else if (!channel) {
+              logger.warn(
+                `[TwitterStream]: matched tweet id ${tweet.data?.id} but unable to process due to removed channel id ${channelId}`
+              )
+            } else {
+              logger.warn(
+                `[TwitterStream]: matched tweet id ${tweet.data?.id} but unable to process due to channel not type text ${channel?.id}`
+              )
+            }
+          })
         })
       })
-    })
+    } catch (e) {
+      logger.error(`[TwitterStream] - error in handle ${e}`)
+    }
   }
 
   private async watchStream() {
@@ -118,8 +167,8 @@ class TwitterStream extends InmemoryStorage {
       for await (const tweet of stream) {
         this.handle(tweet)
       }
-    } catch (e: any) {
-      logger.error(e.error)
+    } catch (e) {
+      logger.error(`[TwitterStream] - error in watchStream ${e}`)
     }
   }
 
@@ -128,34 +177,39 @@ class TwitterStream extends InmemoryStorage {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/integrate/build-a-rule
    */
   async upsertRule(params: UpsertRuleParams) {
-    let ruleId = params.ruleId
-    // if there is a ruleId, it means that we are updating a current rule -> need to call twitter API
-    // or else we will be listening to stale rules in the same guild
-    if (ruleId) {
-      await twitter.tweets.addOrDeleteRules({
-        delete: {
-          ids: [ruleId],
-        },
+    try {
+      let ruleId = params.ruleId
+      // if there is a ruleId, it means that we are updating a current rule -> need to call twitter API
+      // or else we will be listening to stale rules in the same guild
+      if (ruleId) {
+        await twitter.tweets.addOrDeleteRules({
+          delete: {
+            ids: [ruleId],
+          },
+        })
+      }
+      const rule = await twitter.tweets.addOrDeleteRules({
+        add: [
+          {
+            value: toTwitterRuleFormat(params.ruleValue),
+          },
+        ],
       })
+      if (rule.errors?.[0]?.title === "DuplicateRule") {
+        ruleId = (rule.errors?.[0] as { id?: string }).id
+      } else {
+        ruleId = rule.data?.[0]?.id
+      }
+      if (ruleId) {
+        const publishChannels =
+          this.publishChannelsByRuleId[ruleId] ?? new Set()
+        publishChannels.add(params.channelId)
+        this.publishChannelsByRuleId[ruleId] = publishChannels
+      }
+      return ruleId
+    } catch (e) {
+      logger.error(`[TwitterStream] - error in upsertRule ${e}`)
     }
-    const rule = await twitter.tweets.addOrDeleteRules({
-      add: [
-        {
-          value: toTwitterRuleFormat(params.ruleValue),
-        },
-      ],
-    })
-    if (rule.errors?.[0]?.title === "DuplicateRule") {
-      ruleId = (rule.errors?.[0] as { id?: string }).id
-    } else {
-      ruleId = rule.data?.[0]?.id
-    }
-    if (ruleId) {
-      const publishChannels = this.publishChannelsByRuleId[ruleId] ?? new Set()
-      publishChannels.add(params.channelId)
-      this.publishChannelsByRuleId[ruleId] = publishChannels
-    }
-    return ruleId
   }
 
   async removeRule(params: RemoveRuleParams) {
@@ -171,57 +225,61 @@ class TwitterStream extends InmemoryStorage {
 
   protected async up() {
     logger.info("[TwitterStream] - backend retrieving data...")
-    if (PROD) {
-      let allRules = await twitter.tweets.getRules()
-      const allRuleIds =
-        allRules.data?.filter((r) => r.id).map((r) => r.id ?? "") ?? []
-      const allTwitterConfig = await apiConfig.getTwitterConfig()
-      if (allTwitterConfig.ok) {
-        const promises = allTwitterConfig.data.map(
-          async (config: {
-            rule_id: string
-            channel_id: string
-            guild_id: string
-            user_id: string
-            hashtag: Array<string>
-            from_twitter: Array<string>
-            twitter_username: Array<string>
-          }) => {
-            const newRuleId = await this.upsertRule({
-              ruleValue: [
-                ...config.hashtag,
-                ...config.twitter_username,
-                ...config.from_twitter,
-              ],
-              guildId: config.guild_id,
-              channelId: config.channel_id,
-              ruleId: config.rule_id,
-            })
-            if (newRuleId) {
-              await apiConfig.setTwitterConfig({
-                ...config,
-                rule_id: newRuleId,
+    try {
+      if (PROD) {
+        let allRules = await twitter.tweets.getRules()
+        const allRuleIds =
+          allRules.data?.filter((r) => r.id).map((r) => r.id ?? "") ?? []
+        const allTwitterConfig = await apiConfig.getTwitterConfig()
+        if (allTwitterConfig.ok) {
+          const promises = allTwitterConfig.data.map(
+            async (config: {
+              rule_id: string
+              channel_id: string
+              guild_id: string
+              user_id: string
+              hashtag: Array<string>
+              from_twitter: Array<string>
+              twitter_username: Array<string>
+            }) => {
+              const newRuleId = await this.upsertRule({
+                ruleValue: [
+                  ...config.hashtag,
+                  ...config.twitter_username,
+                  ...config.from_twitter,
+                ],
+                guildId: config.guild_id,
+                channelId: config.channel_id,
+                ruleId: config.rule_id,
               })
-            }
+              if (newRuleId) {
+                await apiConfig.setTwitterConfig({
+                  ...config,
+                  rule_id: newRuleId,
+                })
+              }
 
-            return newRuleId
+              return newRuleId
+            }
+          )
+          const validRuleIds = await Promise.all(promises)
+          const staleRuleIds = allRuleIds
+            .filter(Boolean)
+            .filter((rid) => !validRuleIds.some((vrid) => vrid === rid))
+          allRules = await twitter.tweets.getRules()
+          if (staleRuleIds.length > 0) {
+            await twitter.tweets.addOrDeleteRules({
+              delete: {
+                ids: staleRuleIds,
+              },
+            })
           }
-        )
-        const validRuleIds = await Promise.all(promises)
-        const staleRuleIds = allRuleIds
-          .filter(Boolean)
-          .filter((rid) => !validRuleIds.some((vrid) => vrid === rid))
-        allRules = await twitter.tweets.getRules()
-        if (staleRuleIds.length > 0) {
-          await twitter.tweets.addOrDeleteRules({
-            delete: {
-              ids: staleRuleIds,
-            },
-          })
         }
       }
+      logger.info("[TwitterStream] - backend retrieving data OK")
+    } catch (e) {
+      logger.error("[TwitterStream] - error in Twitter")
     }
-    logger.info("[TwitterStream] - backend retrieving data OK")
   }
 }
 

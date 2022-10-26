@@ -1,5 +1,9 @@
 import { SlashCommand } from "types/common"
-import { CommandInteraction } from "discord.js"
+import {
+  CommandInteraction,
+  Message,
+  MessageComponentInteraction,
+} from "discord.js"
 import { thumbnails } from "utils/common"
 import { composeEmbedMessage2 } from "utils/discordEmbed"
 import {
@@ -10,11 +14,68 @@ import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import view from "./view"
 import add from "./add"
 import remove from "./remove"
+import addNFT from "./add-nft"
+import removeNFT from "./remove-nft"
+import CacheManager from "utils/CacheManager"
+import { CommandError } from "errors"
+
+export function handleUpdateWlError(
+  msg: Message | MessageComponentInteraction | CommandInteraction,
+  symbol: string,
+  error: string | null,
+  isRemove?: boolean
+) {
+  let description = ""
+  if (!error) {
+    throw new CommandError({
+      message:
+        "message" in msg
+          ? (msg.message as Message)
+          : msg instanceof Message
+          ? msg
+          : undefined,
+      user: "user" in msg ? msg.user : undefined,
+      guild: msg.guild,
+      description,
+    })
+  }
+  switch (true) {
+    case error.toLowerCase().startsWith("record not found"):
+      description = `Token with symbol \`${symbol}\` ${
+        isRemove ? "does not exist in your watchlist" : "is not supported"
+      }.`
+      break
+    case error.toLowerCase().startsWith("conflict") && !isRemove:
+      description = `Token existed. Please add another one!`
+      break
+    default:
+      break
+  }
+  throw new CommandError({
+    message:
+      "message" in msg
+        ? (msg.message as Message)
+        : msg instanceof Message
+        ? msg
+        : undefined,
+    user: "user" in msg ? msg.user : undefined,
+    guild: msg.guild,
+    description,
+  })
+}
+
+CacheManager.init({
+  ttl: 0,
+  pool: "watchlist",
+  checkperiod: 1,
+})
 
 const subCommands: Record<string, SlashCommand> = {
   view,
   add,
+  "add-nft": addNFT,
   remove,
+  "remove-nft": removeNFT,
 }
 
 const command: SlashCommand = {
@@ -23,10 +84,12 @@ const command: SlashCommand = {
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("watchlist")
-      .setDescription("Show list of your favorite cryptocurrencies")
+      .setDescription("Show list of your favorite tokens/nfts.")
     data.addSubcommand(<SlashCommandSubcommandBuilder>view.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>add.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>addNFT.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>remove.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>removeNFT.prepare())
     return data
   },
   run: (interaction: CommandInteraction) => {

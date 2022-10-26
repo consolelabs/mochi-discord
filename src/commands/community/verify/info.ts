@@ -1,38 +1,21 @@
 import { Command } from "types/common"
 import community from "adapters/community"
-import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"
+import { composeEmbedMessage } from "utils/discordEmbed"
+import { APIError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "verify_info",
   command: "info",
-  brief: "Show verify channel",
+  brief: "Show verify wallet channel",
   category: "Community",
   run: async function (msg) {
-    if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+    if (!msg.guild) {
+      throw new GuildIdNotFoundError({ message: msg })
     }
-    const res = await community.getVerifyWalletChannel(msg.guildId)
+    const res = await community.getVerifyWalletChannel(msg.guild.id)
     if (!res.ok) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: res.error,
-            }),
-          ],
-        },
-      }
+      throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
     if (!res.data) {
       return {
@@ -51,7 +34,11 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             title: msg.guild.name,
-            description: `Channel: <#${res.data.verify_channel_id}>`,
+            description: `Verify channel: <#${res.data.verify_channel_id}>${
+              res.data.verify_role_id
+                ? `. Verify role: <@&${res.data.verify_role_id}>`
+                : ""
+            }`,
           }),
         ],
       },
@@ -60,8 +47,10 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}verify list`,
-        examples: `${PREFIX}verify list`,
+        usage: `${PREFIX}verify info`,
+        examples: `${PREFIX}verify info`,
+        document: `${VERIFY_WALLET_GITBOOK}&action=info`,
+        footer: [`Type ${PREFIX}help verify <action> for a specific action!`],
       }),
     ],
   }),

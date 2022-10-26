@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { EmbedFieldData, Message } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { BALANCE_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import {
   emojis,
   getEmoji,
@@ -19,14 +19,24 @@ import Config from "adapters/config"
 const command: Command = {
   id: "balances",
   command: "balances",
-  brief: "Show your balances of the supported tokens",
+  brief: "Wallet balances",
   category: "Defi",
   run: async function balances(msg: Message) {
     const guildId = msg.guildId ?? "DM"
-    const { balances, balances_in_usd } = await Defi.discordWalletBalances(
-      guildId,
-      msg.author.id
-    )
+    //{ balances, balances_in_usd }
+    const res = await Defi.discordWalletBalances(guildId, msg.author.id)
+    if (!res.ok || !res.data.balances || !res.data.balances_in_usd) {
+      const errorEmbed = getErrorEmbed({
+        msg,
+        description: `Failed to get user balances`,
+      })
+      return {
+        messageOptions: {
+          embeds: [errorEmbed],
+        },
+      }
+    }
+    const { balances, balances_in_usd } = res.data
     const guildTokens = await Config.getGuildTokens(guildId)
 
     if (!guildTokens) {
@@ -79,10 +89,13 @@ const command: Command = {
       author: ["View your balances", getEmojiURL(emojis.COIN)],
     }).addFields(fields)
     justifyEmbedFields(embed, 3)
-    embed.addField(
-      "\u200B\nEstimated total (U.S dollar)",
-      `${getEmoji("money")} \`$${roundFloatNumber(totalBalanceInUSD, 4)}\``
-    )
+    embed.addFields({
+      name: `Estimated total (U.S dollar)`,
+      value: `${getEmoji("money")} \`$${roundFloatNumber(
+        totalBalanceInUSD,
+        4
+      )}\``,
+    })
 
     return {
       messageOptions: {
@@ -90,11 +103,19 @@ const command: Command = {
       },
     }
   },
+  featured: {
+    title: `${getEmoji("cash")} Balance`,
+    description: "Show your in-discord balances of supported tokens",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        usage: `${PREFIX}balances`,
+        usage: `${PREFIX}balance`,
+        description: "Show your in-discord balances of supported tokens",
+        footer: [DEFI_DEFAULT_FOOTER],
+        examples: `${PREFIX}balance\n${PREFIX}bals\n${PREFIX}bal`,
+        document: BALANCE_GITBOOK,
       }),
     ],
   }),

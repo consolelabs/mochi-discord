@@ -22,6 +22,9 @@ import {
   getDateStr,
   getEmojiURL,
   emojis,
+  defaultEmojis,
+  hasAdministrator,
+  authorFilter,
 } from "./common"
 import {
   getCommandObject,
@@ -33,6 +36,8 @@ import {
   Command,
   EmbedProperties,
   embedsColors,
+  SetDefaultButtonHandler,
+  SetDefaultRenderList,
   SlashCommand,
 } from "types/common"
 import {
@@ -40,11 +45,98 @@ import {
   MessageComponentTypes,
 } from "discord.js/typings/enums"
 import dayjs from "dayjs"
+import { wrapError } from "./wrapError"
+import { commands, slashCommands } from "commands"
+import { InteractionHandler } from "./InteractionManager"
 
 export const EMPTY_FIELD = {
   name: "\u200B",
   value: "\u200B",
   inline: true,
+}
+
+type SetDefaultMiddlewareParams<T> = {
+  render: SetDefaultRenderList<T>
+  label: string
+  onDefaultSet?: SetDefaultButtonHandler
+  // for slash command case
+  commandInteraction?: CommandInteraction
+}
+
+export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
+  return <InteractionHandler>(async (i: SelectMenuInteraction) => {
+    const selectedValue = i.values[0]
+    const interactionMsg = i.message as Message
+    const member = await interactionMsg.guild?.members.fetch(i.user.id)
+    const isAdmin = hasAdministrator(member)
+    let originalMsg = null
+    let replyMessage
+    if (interactionMsg.reference) {
+      originalMsg = await interactionMsg.fetchReference()
+    } else if (params.commandInteraction) {
+      originalMsg = params.commandInteraction
+    }
+
+    if (!originalMsg) return
+    const render = await params.render({
+      // TODO(tuan): i don't know how to solve this (yet)
+      msgOrInteraction: originalMsg as any,
+      value: selectedValue,
+    })
+    if (isAdmin) {
+      if (!params.onDefaultSet) {
+        await i.deferUpdate()
+        return { ...render }
+      }
+      await i.deferReply({ ephemeral: true }).catch(() => null)
+
+      const actionRow = new MessageActionRow().addComponents(
+        new MessageButton({
+          customId: selectedValue,
+          emoji: getEmoji("approve"),
+          style: "PRIMARY",
+          label: "Confirm",
+        })
+      )
+
+      const embedProps = {
+        title: "Set default",
+        description: `Do you want to set **${params.label}** as the default value for this command?\nNo further selection next time use command`,
+      }
+
+      replyMessage = {
+        embeds: [
+          originalMsg instanceof Message
+            ? composeEmbedMessage(originalMsg, embedProps)
+            : composeEmbedMessage2(originalMsg, embedProps),
+        ],
+        components: [actionRow],
+      }
+    }
+
+    return {
+      ...render,
+      replyMessage,
+      buttonCollector: params.onDefaultSet,
+    }
+  })
+}
+
+export function getMultipleResultEmbed({
+  msg,
+  ambiguousResultText,
+  multipleResultText,
+}: {
+  msg: Message | null
+  ambiguousResultText: string
+  multipleResultText: string
+}) {
+  return composeEmbedMessage(msg, {
+    title: `${defaultEmojis.MAG} Multiple results found`,
+    description: `Multiple results found for \`${ambiguousResultText}\`${
+      multipleResultText ? `: ${multipleResultText}` : ""
+    }.\nPlease select one of the following`,
+  })
 }
 
 /**
@@ -124,8 +216,10 @@ export async function workInProgress(): Promise<MessageOptions> {
     .setThumbnail(
       "https://cdn.discordapp.com/emojis/916737804002799699.png?size=240"
     )
-    .setTitle("Work In Progress")
-    .setDescription("This command is currently being worked on, stay tuned!")
+    .setTitle(`${emojis.RED_FLAG} Work In Progress`)
+    .setDescription(
+      `The command is in maintenance. Stay tuned! ${getEmoji("touch")}`
+    )
 
   return { embeds: [embed] }
 }
@@ -149,10 +243,11 @@ export function composeEmbedMessage(
     withoutFooter,
     includeCommandsList,
     actions,
+    document,
   } = props
   const author = _author.map((a) => a ?? "").filter(Boolean)
-  const commandObj = getCommandObject(msg)
-  const actionObj = getActionCommand(msg)
+  const commandObj = getCommandObject(commands, msg)
+  const actionObj = getActionCommand(commands, msg)
   const isSpecificHelpCommand = specificHelpCommand(msg)
 
   if (includeCommandsList) {
@@ -180,7 +275,9 @@ export function composeEmbedMessage(
   if (!withoutFooter) {
     embed
       .setFooter(
-        getEmbedFooter(authorTag ? [...footer, authorTag] : ["Mochi bot"]),
+        getEmbedFooter(
+          authorTag ? [...footer, authorTag] : [...footer, "Mochi bot"]
+        ),
         authorAvatarURL || undefined
       )
       .setTimestamp(timestamp ?? new Date())
@@ -194,12 +291,22 @@ export function composeEmbedMessage(
   // embed fields
   const aliases = (actionObj ?? commandObj)?.aliases
   if (isSpecificHelpCommand && aliases)
-    embed.addField(
-      "\u200B",
-      `**Alias**: ${aliases.map((a) => `\`${a}\``).join(COMMA)}.`
-    )
-  if (usage) embed.addField("**Usage**", `\`\`\`${usage}\`\`\``)
-  if (examples) embed.addField("**Examples**", `\`\`\`${examples}\`\`\``)
+    embed.addFields({
+      name: "\u200B",
+      value: `**Alias**: ${aliases.map((a) => `\`${a}\``).join(COMMA)}.`,
+    })
+  if (usage) {
+    embed.addFields({ name: "**Usage**", value: `\`\`\`${usage}\`\`\`` })
+  }
+  if (examples) {
+    embed.addFields({ name: "**Examples**", value: `\`\`\`${examples}\`\`\`` })
+  }
+  if (document) {
+    embed.addFields({
+      name: "**Instructions**",
+      value: `[**Gitbook**](${document})`,
+    })
+  }
   return embed
 }
 
@@ -237,6 +344,7 @@ export function getSuggestionComponents(
     row.addComponents(button)
   } else {
     const select = new MessageSelectMenu()
+      .setPlaceholder("Other options")
       .addOptions(suggestions)
       .setCustomId("suggestion-select")
     row.addComponents(select)
@@ -278,10 +386,10 @@ export function getErrorEmbed(params: {
   const { title, description, thumbnail, msg, image, originalMsgAuthor } =
     params
   return composeEmbedMessage(msg, {
-    author: [title ?? "Error", getEmojiURL(emojis["REVOKE"])],
+    author: [title ?? "Command error", getEmojiURL(emojis["REVOKE"])],
     description:
       description ??
-      "Something went wrong, our team is notified and is working on the fix, stay tuned.",
+      "There was an error. Our team has been informed and is trying to fix the issue. Stay tuned.",
     image,
     thumbnail,
     color: msgColors.ERROR,
@@ -334,11 +442,15 @@ export async function renderPaginator(msg: Message, pages: MessageEmbed[]) {
     if (i.user.id !== msg.author.id) return
     if (i.customId === "FORWARD_BTN") {
       page = page > 0 ? page - 1 : pages.length - 1
-      await message.edit({ embeds: [pages[page]], components: [row] })
+      await message
+        .edit({ embeds: [pages[page]], components: [row] })
+        .catch(() => null)
     }
     if (i.customId === "BACKWARD_BTN") {
       page = page < pages.length - 1 ? page + 1 : 0
-      await message.edit({ embeds: [pages[page]], components: [row] })
+      await message
+        .edit({ embeds: [pages[page]], components: [row] })
+        .catch(() => null)
     }
   })
 }
@@ -380,28 +492,34 @@ export function listenForSuggestionAction(
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
+      filter: authorFilter(authorId),
     })
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
       const value = i.customId.split("-").pop()
-      await onAction(value ?? "", i)
+      wrapError(i, async () => {
+        await onAction(value ?? "", i)
+      })
     })
     .on("end", () => {
-      replyMsg.edit({ components: [] })
+      replyMsg.edit({ components: [] }).catch(() => null)
     })
 
   replyMsg
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.SELECT_MENU,
       idle: 60000,
+      filter: authorFilter(authorId),
     })
     .on("collect", async (i) => {
       if (i.user.id !== authorId) return
       const value = i.values[0]
-      await onAction(value, i)
+      wrapError(i, async () => {
+        await onAction(value, i)
+      })
     })
     .on("end", () => {
-      replyMsg.edit({ components: [] })
+      replyMsg.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -423,6 +541,7 @@ export function listenForPaginateAction(
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
+      filter: authorFilter(replyMsg.author.id),
     })
     .on("collect", async (i) => {
       await i.deferUpdate()
@@ -437,20 +556,24 @@ export function listenForPaginateAction(
         : getPaginationRow(page, +totalPage)
       if (withAttachmentUpdate && files?.length) {
         await replyMsg.removeAttachments()
-        await replyMsg.edit({
-          embeds,
-          components: msgComponents,
-          files,
-        })
+        await replyMsg
+          .edit({
+            embeds,
+            components: msgComponents,
+            files,
+          })
+          .catch(() => null)
       } else {
-        await replyMsg.edit({
-          embeds,
-          components: msgComponents,
-        })
+        await replyMsg
+          .edit({
+            embeds,
+            components: msgComponents,
+          })
+          .catch(() => null)
       }
     })
     .on("end", () => {
-      replyMsg.edit({ components: [] })
+      replyMsg.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -500,7 +623,7 @@ export function composeEmbedMessage2(
     // actions,
   } = props
   const author = _author.map((a) => a ?? "").filter(Boolean)
-  const commandObj = getSlashCommandObject(interaction)
+  const commandObj = getSlashCommandObject(slashCommands, interaction)
 
   // if (includeCommandsList) {
   //   description += `\n\n${getCommandsList(
@@ -548,4 +671,37 @@ export function composeEmbedMessage2(
 
 function getSlashCommandColor(commandObj: SlashCommand | null) {
   return embedsColors[commandObj?.colorType ?? "Command"]
+}
+
+export function starboardEmbed(msg: Message) {
+  const attachments = msg.attachments.map((a) => ({
+    url: a.url,
+    type: a.contentType?.split("/")[0] ?? "",
+  }))
+  const attachmentSize = attachments.length
+  let embed: MessageEmbed
+  if (attachmentSize) {
+    const imageURL = attachments.find((a) => a.type === "image")?.url
+    const messageContent = msg.content
+      ? msg.content
+      : "Message contains some attachments"
+    embed = composeEmbedMessage(null, {
+      author: [msg.author.username, msg.author.avatarURL() ?? ""],
+      description: messageContent,
+      originalMsgAuthor: msg.author,
+      image: imageURL,
+      withoutFooter: true,
+      thumbnail: msg.guild?.iconURL(),
+    }).setFields([{ name: "Source", value: `[Jump!](${msg.url})` }])
+  } else {
+    const messageContent = msg.content ? msg.content : "Message has no content."
+    embed = composeEmbedMessage(null, {
+      author: [msg.author.username, msg.author.avatarURL() ?? ""],
+      description: messageContent,
+      originalMsgAuthor: msg.author,
+      withoutFooter: true,
+      thumbnail: msg.guild?.iconURL(),
+    }).setFields([{ name: "Source", value: `[Jump!](${msg.url})` }])
+  }
+  return embed
 }

@@ -1,205 +1,407 @@
 import profile from "adapters/profile"
 import {
+  ButtonInteraction,
   Message,
   MessageActionRow,
+  MessageButton,
+  MessageEmbed,
   MessageSelectMenu,
-  MessageOptions,
-  MessageSelectOptionData,
+  SelectMenuInteraction,
+  User,
 } from "discord.js"
 import { Command } from "types/common"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { PREFIX, PROFILE_GITBOOK } from "utils/constants"
 import {
-  composeEmbedMessage,
-  getErrorEmbed,
-  getPaginationRow,
-  listenForPaginateAction,
-} from "utils/discordEmbed"
-import { PREFIX } from "utils/constants"
-import { getEmoji } from "utils/common"
+  authorFilter,
+  emojis,
+  getEmoji,
+  hasAdministrator,
+  shortenHashOrAddress,
+} from "utils/common"
+import { parseDiscordToken, getCommandArguments } from "utils/commands"
 import { MessageComponentTypes } from "discord.js/typings/enums"
-import { logger } from "logger"
-import { composeNFTDetail } from "commands/community/nft/query"
 import community from "adapters/community"
+import { composeNFTDetail } from "commands/community/nft/query"
 
-function selectCollectionComponent(
-  collections: {
-    name: string
-    collectionAddress: string
-    default: boolean
-  }[]
-) {
-  const options: MessageSelectOptionData[] = []
-  collections.forEach((collection) => {
-    options.push({
-      label: collection.name,
-      description: `${collection.name} collection`,
-      value: collection.collectionAddress,
-      default: collection.default,
-    })
+let currentView = "my-profile"
+let currentCollectionAddress: string | undefined
+
+function buildSwitchViewActionRow(currentView: string) {
+  const myProfileButton = new MessageButton({
+    label: "My Profile",
+    emoji: emojis.IDENTITY,
+    customId: `profile-switch-view-button/my-profile}`,
+    style: "SECONDARY",
+    disabled: currentView === "my-profile",
   })
+  const myNftButton = new MessageButton({
+    label: "My NFT",
+    emoji: emojis.NFT,
+    customId: `profile-switch-view-button/my-nft`,
+    style: "SECONDARY",
+    disabled: currentView === "my-nft",
+  })
+  const row = new MessageActionRow()
+  row.addComponents([myProfileButton, myNftButton])
+  return row
+}
 
+function buildSelectCollectionActionRow(
+  currentCollectionAddress: string,
+  options: Array<{ collectionName: string; collectionAddress: string }>
+) {
   const row = new MessageActionRow().addComponents(
-    new MessageSelectMenu()
-      .setCustomId("selectCollection")
-      .setPlaceholder("Other collections...")
-      .addOptions(options)
+    new MessageSelectMenu({
+      customId: "profile-select-nft-collection",
+      placeholder: "Select nft collection",
+      options: options
+        .filter((o) => o.collectionName && o.collectionAddress)
+        .map((o) => ({
+          label: o.collectionName,
+          description: `${o.collectionName} collection`,
+          value: o.collectionAddress,
+          default: o.collectionAddress === currentCollectionAddress,
+        })),
+    })
   )
   return row
 }
 
-function selectOtherViewComponent(defaultValue?: string) {
-  const row = new MessageActionRow().addComponents(
-    new MessageSelectMenu()
-      .setCustomId("selectView")
-      .setPlaceholder("Other views...")
-      .addOptions([
-        {
-          label: "My NFT Collections",
-          description: "NFT details",
-          value: "nft",
-          default: defaultValue == "nft",
-        },
-        {
-          label: "My profile",
-          description: "My Profile Info",
-          value: "profile",
-          default: defaultValue == "profile",
-        },
-      ])
+function buildPaginationActionRow(page: number, totalPage: number) {
+  if (totalPage === 1) return []
+  const row = new MessageActionRow()
+  if (page !== 0) {
+    row.addComponents(
+      new MessageButton({
+        type: MessageComponentTypes.BUTTON,
+        style: "PRIMARY",
+        label: "Previous",
+        customId: `profile-pagination-button/${page}/-/${totalPage}`,
+      })
+    )
+  }
+
+  if (page !== totalPage - 1) {
+    row.addComponents({
+      type: MessageComponentTypes.BUTTON,
+      style: "PRIMARY",
+      label: "Next",
+      customId: `profile-pagination-button/${page}/+/${totalPage}`,
+    })
+  }
+  return [row]
+}
+
+function collectButton(
+  msg: Message,
+  authorId: string,
+  user: User,
+  shouldHidePrivateInfo?: boolean
+) {
+  return msg
+    .createMessageComponentCollector({
+      componentType: MessageComponentTypes.BUTTON,
+      idle: 60000,
+      filter: authorFilter(authorId),
+    })
+    .on("collect", async (i) => {
+      const buttonType = i.customId.split("/").shift()
+      switch (buttonType) {
+        case "profile-switch-view-button":
+          await switchView(i, msg, user, shouldHidePrivateInfo)
+          break
+        case "profile-pagination-button":
+          await handlePagination(i, msg, user)
+          break
+      }
+    })
+    .on("end", () => {
+      msg.edit({ components: [] }).catch(() => null)
+    })
+}
+
+async function switchView(
+  i: ButtonInteraction,
+  msg: Message,
+  user: User,
+  shouldHidePrivateInfo?: boolean
+) {
+  let embed: MessageEmbed
+  let components: MessageActionRow[] = []
+  currentView = i.customId.split("/").pop() ?? "my-profile"
+  switch (currentView) {
+    case "my-nft":
+      ;({ embed, components } = await composeMyNFTEmbed(msg, user))
+      break
+    case "my-profile":
+    default:
+      ;({ embed, components } = await composeMyProfileEmbed(
+        msg,
+        user,
+        shouldHidePrivateInfo
+      ))
+      break
+  }
+  await i
+    .editReply({
+      embeds: [embed],
+      components: components,
+    })
+    .catch(() => null)
+}
+
+async function handlePagination(
+  i: ButtonInteraction,
+  msg: Message,
+  user: User
+) {
+  const operators: Record<string, number> = {
+    "+": 1,
+    "-": -1,
+  }
+  const [pageStr, opStr] = i.customId.split("/").slice(1)
+  const page = +pageStr + operators[opStr]
+  const { embed, components } = await composeMyNFTEmbed(
+    msg,
+    user,
+    currentCollectionAddress,
+    page
   )
-  return row
+  await i
+    .editReply({
+      embeds: [embed],
+      components: components,
+    })
+    .catch(() => null)
+}
+
+function collectSelectMenu(msg: Message, authorId: string, user: User) {
+  return msg
+    .createMessageComponentCollector({
+      componentType: MessageComponentTypes.SELECT_MENU,
+      idle: 60000,
+      filter: authorFilter(authorId),
+    })
+    .on("collect", async (i) => {
+      await selectCollection(i, msg, user)
+    })
+    .on("end", () => {
+      msg.edit({ components: [] }).catch(() => null)
+    })
+}
+
+async function selectCollection(
+  i: SelectMenuInteraction,
+  msg: Message,
+  user: User
+) {
+  currentCollectionAddress = i.values[0]
+  const { embed, components } = await composeMyNFTEmbed(
+    msg,
+    user,
+    currentCollectionAddress
+  )
+  await i
+    .editReply({
+      embeds: [embed],
+      components: components,
+    })
+    .catch(() => null)
 }
 
 function buildProgressbar(progress: number): string {
-  const progressBar = [
-    getEmoji("BAR_1_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_2_EMPTY"),
-    getEmoji("BAR_3_EMPTY"),
-  ]
-  const maxBar = 6
-  const progressOutOfMaxBar = Math.round(progress * maxBar)
-  for (let i = 0; i <= progressOutOfMaxBar; ++i) {
-    if (progressOutOfMaxBar == 0) break
-    let barEmote = "BAR_2_FULL"
-    if (i == 1) {
-      barEmote = i == progressOutOfMaxBar ? "BAR_1_MID" : "BAR_1_FULL"
-    } else if (i > 1 && i < maxBar) {
-      barEmote = i == progressOutOfMaxBar ? "BAR_2_MID" : "BAR_2_FULL"
-    } else {
-      barEmote = i == progressOutOfMaxBar ? "BAR_3_MID" : "BAR_3_FULL"
-    }
-    progressBar[i - 1] = getEmoji(barEmote, true)
-  }
-  return progressBar.join("")
+  const list = new Array(7).fill(getEmoji("faction_exp_2"))
+  list[0] = getEmoji("faction_exp_1")
+  list[list.length - 1] = getEmoji("faction_exp_3")
+
+  return list
+    .map((_, i) => {
+      if (Math.floor(progress * 7) >= i + 1) {
+        switch (i) {
+          case 0:
+            return getEmoji("xp_filled_left", true)
+          case 6:
+            return getEmoji("xp_filled_right", true)
+          default:
+            return getEmoji("xp_filled", true)
+        }
+      }
+      return _
+    })
+    .join("")
 }
 
-async function composeMyProfileEmbed(msg: Message): Promise<MessageOptions> {
+function buildXPbar(name: string, value: number) {
+  const cap = Math.ceil(value / 1000) * 1000
+  const list = new Array(7).fill(getEmoji("faction_exp_2"))
+  list[0] = getEmoji("faction_exp_1")
+  list[list.length - 1] = getEmoji("faction_exp_3")
+
+  return `${list
+    .map((_, i) => {
+      if (Math.floor((value / cap) * 7) >= i + 1) {
+        return i === 0
+          ? getEmoji(`${name}_exp_1`, true)
+          : getEmoji(`${name}_exp_2`, true)
+      }
+      return _
+    })
+    .join("")}\n\`${value}/${cap}\``
+}
+
+async function composeMyProfileEmbed(
+  msg: Message,
+  user: User,
+  shouldHidePrivateInfo = false
+) {
   const userProfileResp = await profile.getUserProfile(
     msg.guildId ?? "",
-    msg.author.id
+    user.id
   )
   if (!userProfileResp.ok) {
+    const embed = getErrorEmbed({
+      msg,
+      description: userProfileResp.error,
+    })
     return {
-      embeds: [
-        getErrorEmbed({
-          msg,
-          description: userProfileResp.error,
-        }),
-      ],
+      embed,
+      components: [],
     }
   }
+
   const userProfile = userProfileResp.data
-  const aboutMeStr =
-    userProfile.about_me.trim().length === 0
-      ? "I'm a mysterious person"
-      : userProfile.about_me
+  let addressStr = userProfile.user_wallet?.address ?? ""
+  addressStr = addressStr.length ? shortenHashOrAddress(addressStr) : "N/A"
 
-  let addressStr = userProfile.user_wallet?.address
-  if (!addressStr || !addressStr.length) {
-    addressStr = "N/A"
-  }
-
-  const lvlStr = `\`${userProfile.current_level.level}\``
-  const lvlMax = 60
+  const lvlMax = 100
+  const lvlStr = `\`${userProfile.current_level?.level}/${lvlMax}\``
   const levelProgress = buildProgressbar(
-    userProfile.current_level.level / lvlMax
+    (userProfile.current_level?.level ?? 0) / lvlMax
   )
-  const nextLevelMinXp = userProfile.next_level.min_xp
-    ? userProfile.next_level.min_xp
-    : userProfile.current_level.min_xp
+  const nextLevelMinXp = userProfile.next_level?.min_xp
+    ? userProfile.next_level?.min_xp
+    : userProfile.current_level?.min_xp
 
-  const xpProgress = buildProgressbar(userProfile.guild_xp / nextLevelMinXp)
+  const xpProgress = buildProgressbar(
+    (userProfile?.guild_xp ?? 0) / (nextLevelMinXp ?? 1)
+  )
 
-  const xpStr = `\`${userProfile.guild_xp}/${
-    userProfile.next_level.min_xp
-      ? userProfile.next_level.min_xp
-      : userProfile.current_level.min_xp
-  }\``
+  const xpStr = `\`${userProfile.guild_xp}/${nextLevelMinXp}\``
 
-  const walletValue = "Wallet: `NA`"
-  const protocolValue = "Protocol: `NA`"
-  const nftValue = "NFT: `NA`"
-  const assetsStr = `${walletValue}\n${protocolValue}\n${nftValue}`
+  const walletValue = shouldHidePrivateInfo ? "`$**`" : "`NA`"
+  const protocolValue = shouldHidePrivateInfo ? "`$**`" : "`NA`"
+  const nftValue = shouldHidePrivateInfo ? "`$**`" : "`NA`"
+  const assetsStr = `Wallet: ${walletValue}\nProtocol: ${protocolValue}\nNFT: ${nftValue}`
   const highestRole =
     msg.member?.roles.highest.name !== "@everyone"
       ? msg.member?.roles.highest
       : null
 
-  const roleStr = `\`${highestRole?.name ?? "N/A"}\``
+  const roleStr = highestRole?.id ? `<@&${highestRole.id}>` : "`N/A`"
   const activityStr = `${getEmoji("FLAG")} \`${userProfile.nr_of_actions}\``
   const rankStr = `:trophy: \`${userProfile.guild_rank ?? 0}\``
 
   const embed = composeEmbedMessage(msg, {
-    thumbnail: msg.author.displayAvatarURL(),
-    author: [`${msg.author.username}'s profile`, msg.author.displayAvatarURL()],
+    thumbnail: user.displayAvatarURL(),
+    author: [`${user.username}'s profile`, user.displayAvatarURL()],
   }).addFields(
-    {
-      name: "Level",
-      value: `${lvlStr} \n ${levelProgress}`,
-      inline: true,
-    },
-    {
-      name: "Experience",
-      value: `${xpStr} \n ${xpProgress}`,
-      inline: true,
-    },
+    { name: "Rank", value: rankStr, inline: true },
+    { name: "Address", value: `\`${addressStr}\``, inline: true },
     {
       name: "Assets",
       value: assetsStr,
       inline: true,
     },
-    { name: "About me", value: aboutMeStr },
-    { name: "Address", value: addressStr },
     { name: "Role", value: roleStr, inline: true },
     { name: "Activities", value: activityStr, inline: true },
-    { name: "Rank", value: rankStr, inline: true }
+    {
+      name: "\u200B",
+      value: "\u200B",
+      inline: true,
+    },
+    {
+      name: "Engagement Level",
+      value: `${levelProgress}\n${lvlStr}`,
+      inline: true,
+    },
+    {
+      name: "Engagement XP",
+      value: `${xpProgress}\n${xpStr}`,
+      inline: true,
+    },
+    {
+      name: "\u200B",
+      value: "\u200B",
+      inline: true,
+    },
+    {
+      name: `${getEmoji("imperial")} Nobility`,
+      value: buildXPbar(
+        "imperial",
+        userProfileResp.data.user_faction_xps?.imperial_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: `${getEmoji("rebelio")} Fame`,
+      value: buildXPbar(
+        "rebelio",
+        userProfileResp.data.user_faction_xps?.rebellio_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: "\u200B",
+      value: "\u200B",
+      inline: true,
+    },
+    {
+      name: `${getEmoji("mercanto")} Loyalty`,
+      value: buildXPbar(
+        "mercanto",
+        userProfileResp.data.user_faction_xps?.merchant_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: `${getEmoji("academia")} Reputation`,
+      value: buildXPbar(
+        "academia",
+        userProfileResp.data.user_faction_xps?.academy_xp ?? 0
+      ),
+      inline: true,
+    },
+    {
+      name: getEmoji("blank"),
+      value: getEmoji("blank"),
+      inline: true,
+    }
   )
 
   return {
-    embeds: [embed],
-    components: [selectOtherViewComponent("profile")],
+    embed,
+    components: [buildSwitchViewActionRow("my-profile")],
   }
 }
 
 async function composeMyNFTEmbed(
   msg: Message,
+  user: User,
   collectionAddress?: string,
-  page = 0
-): Promise<MessageOptions> {
+  pageIdx = 0
+) {
   const userProfileResp = await profile.getUserProfile(
     msg.guildId ?? "",
-    msg.author.id
+    user.id
   )
   if (!userProfileResp.ok) {
     return {
-      embeds: [
-        getErrorEmbed({
-          msg,
-          description: userProfileResp.error,
-        }),
-      ],
+      embed: getErrorEmbed({
+        msg,
+        description: userProfileResp.error,
+      }),
+      components: [],
     }
   }
 
@@ -218,13 +420,12 @@ async function composeMyNFTEmbed(
     }
 
     return {
-      embeds: [
-        getErrorEmbed({
-          msg,
-          title: "Wallet address needed",
-          description: `Your account doesn't have a wallet associated.\n${verifyCTA}`,
-        }),
-      ],
+      embed: getErrorEmbed({
+        msg,
+        title: "Wallet address needed",
+        description: `Account doesn't have a wallet associated.\n${verifyCTA}`,
+      }),
+      components: [],
     }
   }
 
@@ -233,25 +434,21 @@ async function composeMyNFTEmbed(
   })
   if (!userNftCollectionResp.ok) {
     return {
-      embeds: [
-        getErrorEmbed({
-          msg,
-          description: userNftCollectionResp.error,
-        }),
-      ],
+      embed: getErrorEmbed({
+        msg,
+        description: userNftCollectionResp.error,
+      }),
+      components: [],
     }
   }
 
   const userNftCollections = userNftCollectionResp.data
   if (userNftCollections.length === 0) {
     const embed = composeEmbedMessage(msg, {
-      author: [
-        `${msg.author.username}'s NFT collection`,
-        msg.author.displayAvatarURL(),
-      ],
-      description: `<@${msg.author.id}>, you have no nfts.`,
+      author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
+      description: `<@${user.id}>, you have no nfts.`,
     })
-    return { embeds: [embed], components: [selectOtherViewComponent()] }
+    return { embed: embed, components: [] }
   }
 
   const currentSelectedCollection =
@@ -264,18 +461,17 @@ async function composeMyNFTEmbed(
 
   const getUserNftResp = await profile.getUserNFT({
     userAddress,
-    collectionAddress: currentSelectedCollection.collection_address,
-    page: page,
+    collectionAddresses: [currentSelectedCollection.collection_address],
+    page: pageIdx,
     size: pageSize,
   })
   if (!getUserNftResp.ok) {
     return {
-      embeds: [
-        getErrorEmbed({
-          msg,
-          description: getUserNftResp.error,
-        }),
-      ],
+      embed: getErrorEmbed({
+        msg,
+        description: getUserNftResp.error,
+      }),
+      components: [],
     }
   }
   const { total: userNftsTotal, data: userNfts } = getUserNftResp
@@ -283,134 +479,130 @@ async function composeMyNFTEmbed(
 
   if (userNfts.length === 0) {
     const embed = composeEmbedMessage(msg, {
-      author: [
-        `${msg.author.username}'s NFT collection`,
-        msg.author.displayAvatarURL(),
-      ],
-      description: `<@${msg.author.id}>, you have no nfts.`,
+      author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
+      description: `<@${user.id}>, you have no nfts.`,
     })
-    return { embeds: [embed], components: [selectOtherViewComponent()] }
+    return { embed, components: [] }
   }
 
   const userNft = userNfts[0]
-  const getNftDetailResp = await profile.getNFTDetails({
-    collectionAddress: userNft.collection_address,
-    tokenId: userNft.token_id,
-  })
+  const getNftDetailResp = await community.getNFTDetail(
+    userNft.collection_address,
+    userNft.token_id,
+    msg.guildId ?? ""
+  )
   if (!getNftDetailResp.ok) {
     return {
-      embeds: [
-        getErrorEmbed({
-          msg,
-          description: getNftDetailResp.error,
-        }),
-      ],
+      embed: getErrorEmbed({
+        msg,
+        description: getNftDetailResp.error,
+      }),
+      components: [],
     }
   }
   const { data: nftDetail } = getNftDetailResp
   const embed = await composeNFTDetail(nftDetail, msg, colName, colImage)
+  embed.setFooter(`Page ${pageIdx + 1} / ${totalPage}`)
+
+  const options = userNftCollections.map((c) => ({
+    collectionName: c.name,
+    collectionAddress: c.collection_address,
+  }))
 
   return {
-    embeds: [embed],
+    embed,
     components: [
-      ...getPaginationRow(page, totalPage),
-      selectCollectionComponent(
-        userNftCollections.map((collection) => ({
-          name: collection.name,
-          collectionAddress: collection.collection_address,
-          default:
-            collection.collection_address ===
-            currentSelectedCollection.collection_address,
-        }))
+      ...buildPaginationActionRow(pageIdx, totalPage),
+      buildSelectCollectionActionRow(
+        currentSelectedCollection.collection_address,
+        options
       ),
-      selectOtherViewComponent("nft"),
+      buildSwitchViewActionRow("my-nft"),
     ],
-  }
-}
-
-async function getCurrentViewEmbed(params: {
-  msg: Message
-  currentView: string
-  value?: string
-  page?: number
-}): Promise<MessageOptions> {
-  const { msg, currentView, value, page } = params
-  try {
-    if (currentView == "nft") {
-      return await composeMyNFTEmbed(msg, value, page)
-    } else {
-      return await composeMyProfileEmbed(msg)
-    }
-  } catch (e) {
-    logger.error(e as string)
-    return {
-      embeds: [getErrorEmbed({ msg })],
-      components: [selectOtherViewComponent()],
-    }
   }
 }
 
 const command: Command = {
   id: "profile",
   command: "profile",
-  brief: "Check your server profile",
+  brief: "User’s profile",
   category: "Profile",
   run: async (msg) => {
-    let currentView = "profile"
-    let currentCollection = ""
+    const shouldHidePrivateInfo = !hasAdministrator(msg.member)
 
-    const messageOptions = await getCurrentViewEmbed({ msg, currentView })
-    const reply = await msg.reply(messageOptions)
-
-    reply
-      .createMessageComponentCollector({
-        componentType: MessageComponentTypes.SELECT_MENU,
-        idle: 60000,
-      })
-      .on("collect", async (i) => {
-        await i.deferUpdate()
-        if (i.customId === "selectView") {
-          currentView = i.values[0]
-        } else if (i.customId == "selectCollection") {
-          currentCollection = i.values[0]
+    // get users
+    const users: User[] = []
+    const args = getCommandArguments(msg)
+    if (args.length > 1) {
+      const { isUser, value: id } = parseDiscordToken(args[1])
+      if (isUser) {
+        const cachedUser = msg.guild?.members.cache.get(id)?.user
+        if (cachedUser) {
+          users.push(cachedUser)
         }
-
-        const messageOptions = await getCurrentViewEmbed({
-          msg,
-          currentView,
-          value: i.values[0],
+      } else {
+        const usersFoundByDisplayname: User[] = []
+        const usersFoundByUsername: User[] = []
+        await msg.guild?.members?.fetch()?.then((members) => {
+          members.forEach((member) => {
+            if (member.user.username === args[1]) {
+              usersFoundByUsername.push(member.user)
+            } else if (member.displayName === args[1]) {
+              usersFoundByDisplayname.push(member.user)
+            }
+          })
         })
-        await i.editReply(messageOptions)
-      })
-      .on("end", async () => {
-        await reply.edit({ components: [] })
-      })
 
-    listenForPaginateAction(
-      reply,
-      msg,
-      async (msg, page) => {
-        return {
-          messageOptions: await getCurrentViewEmbed({
-            msg,
-            currentView,
-            value: currentCollection,
-            page,
-          }),
-        }
-      },
-      false,
-      true
-    )
+        users.push(...usersFoundByUsername, ...usersFoundByDisplayname)
+      }
+    } else {
+      users.push(msg.author)
+    }
+
+    for (const user of users.values()) {
+      const { embed, components } = await composeMyProfileEmbed(
+        msg,
+        user,
+        shouldHidePrivateInfo
+      )
+      const replyMsg = await msg.reply({
+        embeds: [embed],
+        components: components,
+      })
+      collectButton(replyMsg, msg.author.id, user, shouldHidePrivateInfo)
+      collectSelectMenu(replyMsg, msg.author.id, user)
+    }
+
+    if (users.length == 0) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "No profile found",
+            }),
+          ],
+        },
+      }
+    }
 
     return null
+  },
+  featured: {
+    title: `${getEmoji("exp")} Profile`,
+    description:
+      "Display your and other users' profiles along with NFT collections",
   },
   getHelpMessage: async (msg) => {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          examples: `${PREFIX}profile`,
-          usage: `${PREFIX}profile`,
+          examples: `${PREFIX}profile\n${PREFIX}profile @Mochi Bot\n${PREFIX}profile John`,
+          usage: `${PREFIX}profile\n${PREFIX}profile <user>`,
+          description:
+            "Display your and other users' profiles along with NFT collections",
+          footer: [`Type ${PREFIX}profile to check your profile`],
+          document: PROFILE_GITBOOK,
         }),
       ],
     }

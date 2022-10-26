@@ -1,14 +1,18 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, STARBOARD_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import list from "./list"
-import add from "./add"
+import set from "./set"
+import setChat from "./set-chat"
 import remove from "./remove"
+import blacklist from "./blacklist/index"
 
 const actions: Record<string, Command> = {
-  add,
+  set,
   remove,
   list,
+  blacklist,
+  "set-chat": setChat,
 }
 
 const command: Command = {
@@ -23,7 +27,10 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sb <action>`,
         footer: [`Type ${PREFIX}help sb <action> for a specific action!`],
+        description: "Hornor and share well-rated posts with your community",
+        examples: `${PREFIX}starboard list\n${PREFIX}sb list\n${PREFIX}starboard set 2 🌟 #starboard\n${PREFIX}sb set-chat 🌟 ❣️ #starboard`,
         includeCommandsList: true,
+        document: STARBOARD_GITBOOK,
       }),
     ],
   }),

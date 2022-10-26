@@ -1,7 +1,8 @@
 import { Message } from "discord.js"
-import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
+import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
 import {
   emojis,
+  getEmoji,
   getEmojiURL,
   roundFloatNumber,
   shortenHashOrAddress,
@@ -24,6 +25,20 @@ async function tip(msg: Message, args: string[]) {
       ],
     }
   }
+
+  const userArg = args[1]
+  if (!userArg.startsWith("<@") || !userArg.endsWith(">")) {
+    return {
+      embeds: [
+        getErrorEmbed({
+          msg,
+          description:
+            "Invalid username. Be careful to not be mistaken username with role.",
+        }),
+      ],
+    }
+  }
+
   const payload = await Defi.getTransferPayload(msg, args)
   const data = await Defi.discordWalletTransfer(JSON.stringify(payload), msg)
   if (!data || data.length === 0) {
@@ -61,7 +76,7 @@ async function tip(msg: Message, args: string[]) {
 const command: Command = {
   id: "tip",
   command: "tip",
-  brief: "Sends coins to a user or a group of users",
+  brief: "Tip Bot",
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
@@ -71,19 +86,26 @@ const command: Command = {
       },
     }
   },
+  featured: {
+    title: `${getEmoji("tip")} Tip`,
+    description: "Send coins to a user or a group of users",
+  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TIP,
         usage: `${PREFIX}tip <@user> <amount> <token>\n${PREFIX}tip <@role> <amount> <token>`,
+        description: "Send coins to a user or a group of users",
         examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm\n${PREFIX}tip @RandomRole 10 ftm`,
+        document: TIP_GITBOOK,
         footer: [DEFI_DEFAULT_FOOTER],
+        title: "Tip Bot",
       }),
     ],
   }),
   canRunWithoutAction: true,
   colorType: "Defi",
-  minArguments: 3,
+  minArguments: 4,
 }
 
 export default command

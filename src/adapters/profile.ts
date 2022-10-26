@@ -1,9 +1,8 @@
 import fetch from "node-fetch"
+import { ResponseGetDataUserProfileResponse } from "types/api"
 import {
-  GetUserNFTResponse,
   GetUserNFTsResponse,
   GetUserNFTCollectionResponse,
-  UserProfileResponse,
 } from "types/profile"
 import { API_BASE_URL, INDEXER_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
@@ -41,7 +40,7 @@ class Profile extends Fetcher {
   }
 
   public async getUserProfile(guildId: string, userId: string) {
-    return await this.jsonFetch<UserProfileResponse>(
+    return await this.jsonFetch<ResponseGetDataUserProfileResponse>(
       `${API_BASE_URL}/profiles`,
       {
         query: {
@@ -71,30 +70,20 @@ class Profile extends Fetcher {
 
   public async getUserNFT(params: {
     userAddress: string
-    collectionAddress?: string
+    collectionAddresses?: string[]
     page?: number
     size?: number
   }) {
-    const { userAddress, collectionAddress, page = 0, size = 50 } = params
+    const { userAddress, collectionAddresses, page = 0, size = 50 } = params
     return await this.jsonFetch<GetUserNFTsResponse>(
       `${INDEXER_API_BASE_URL}/${userAddress}/nft`,
       {
         query: {
           page,
           size,
-          collectionAddress,
+          collectionAddresses,
         },
       }
-    )
-  }
-
-  public async getNFTDetails(params: {
-    collectionAddress: string
-    tokenId: string
-  }) {
-    const { collectionAddress, tokenId } = params
-    return await this.jsonFetch<GetUserNFTResponse>(
-      `${INDEXER_API_BASE_URL}/nft/${collectionAddress}/${tokenId}`
     )
   }
 }

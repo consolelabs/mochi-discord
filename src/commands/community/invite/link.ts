@@ -3,7 +3,8 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { InvitesInput } from "types/community"
 import { Message } from "discord.js"
-import { PREFIX } from "utils/constants"
+import { INVITE_GITBOOK, PREFIX } from "utils/constants"
+import { APIError } from "errors"
 
 const command: Command = {
   id: "invite_link",
@@ -15,8 +16,11 @@ const command: Command = {
       guild_id: msg.guild?.id,
       member_id: msg.author.id,
     } as InvitesInput
-    const { data } = await Community.getInvites(inviteInput)
-    if (!data.length) {
+    const { data, ok, curl, log } = await Community.getInvites(inviteInput)
+    if (!ok) {
+      throw new APIError({ message: msg, curl, description: log })
+    }
+    if (data.length) {
       const embed = composeEmbedMessage(msg, {
         title: "Info",
         description: "No invite links found",
@@ -44,6 +48,8 @@ const command: Command = {
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
       usage: `${PREFIX}invite link`,
+      examples: `${PREFIX}invite link\n${PREFIX}inv link`,
+      document: `${INVITE_GITBOOK}&action=link`,
       footer: [`Type \`${PREFIX}help invite <action>\` for a specific action!`],
     })
 

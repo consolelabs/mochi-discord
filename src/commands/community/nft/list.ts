@@ -18,11 +18,11 @@ registerFont("src/assets/fonts/whitneysemibold.otf", {
 })
 
 async function composeNFTListEmbed(msg: Message, pageIdx: number) {
-  const { data, page, size, total } = await Community.getNFTCollections({
+  const res = await Community.getNFTCollections({
     page: pageIdx,
     size: 16,
   })
-  if (!data || !data.length) {
+  if (!res.data?.data || !res.data.data.length) {
     return {
       messageOptions: {
         embeds: [
@@ -34,8 +34,9 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
       },
     }
   }
-
-  const totalPage = Math.ceil(total / size)
+  const totalPage = Math.ceil(
+    (res.data.metadata?.total || 0) / (res.data.metadata?.size || 1)
+  )
   const embed = composeEmbedMessage(msg, {
     author: ["Supported NFT Collections", getEmojiURL(emojis["HEART"])],
     image: `attachment://nftlist.png`,
@@ -45,8 +46,8 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
   return {
     messageOptions: {
       embeds: [embed],
-      components: getPaginationRow(page, totalPage),
-      files: [await renderSupportedNFTList(data)],
+      components: getPaginationRow(res.data.metadata?.page || 0, totalPage),
+      files: [await renderSupportedNFTList(res.data.data)],
     },
   }
 }

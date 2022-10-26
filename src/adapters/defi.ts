@@ -3,19 +3,36 @@ import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import fetch from "node-fetch"
 import {
   DiscordWalletTransferRequest,
+  OffchainTipBotTransferRequest,
+  OffchainTipBotWithdrawRequest,
   Token,
-  DiscordWalletBalances,
   Coin,
   CoinComparisionData,
+  GasPriceData,
 } from "types/defi"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
 import { getCommandObject } from "utils/commands"
-import { API_BASE_URL } from "utils/constants"
+import {
+  API_BASE_URL,
+  BSCSCAN_API,
+  ETHSCAN_API,
+  FTMSCAN_API,
+  POLYGONSCAN_API,
+} from "utils/constants"
 import Config from "./config"
 import { logger } from "logger"
 import { InsufficientBalanceError } from "errors/InsufficientBalanceError"
 import { Fetcher } from "./fetcher"
+import {
+  ResponseGetNftWatchlistResponse,
+  ResponseInDiscordWalletBalancesResponse,
+  ResponseNftWatchlistSuggestResponse,
+  RequestCreateAssignContract,
+  RequestOffchainTransferRequest,
+  RequestOffchainWithdrawRequest,
+} from "types/api"
+import { commands } from "commands"
 
 class Defi extends Fetcher {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
@@ -142,28 +159,16 @@ class Defi extends Fetcher {
     return json
   }
 
-  public async discordWalletBalances(
-    guildId: string,
-    discordId: string
-  ): Promise<DiscordWalletBalances> {
-    const resp = await fetch(
+  public async discordWalletBalances(guildId: string, discordId: string) {
+    return await this.jsonFetch<ResponseInDiscordWalletBalancesResponse>(
       `${API_BASE_URL}/defi/balances?guild_id=${guildId}&discord_id=${discordId}`,
       {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
+        query: {
+          guildId,
+          discordId,
+        },
       }
     )
-    if (resp.status !== 200) {
-      throw new Error(
-        "Error while fetching user balances: " + (await resp.json()).error
-      )
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
   }
 
   public async getCoin(id: string) {
@@ -174,19 +179,30 @@ class Defi extends Fetcher {
     return await this.jsonFetch(`${API_BASE_URL}/defi/coins?query=${query}`)
   }
 
-  async getHistoricalMarketData(
-    coin_id: string,
-    currency: string,
-    days: number
-  ) {
+  async getHistoricalMarketData({
+    coinId,
+    currency,
+    days = 7,
+    discordId,
+  }: {
+    coinId: string
+    currency: string
+    days?: number
+    discordId?: string
+  }) {
     return await this.jsonFetch<{
       times: string[]
       prices: number[]
       from: string
       to: string
-    }>(
-      `${API_BASE_URL}/defi/market-chart?coin_id=${coin_id}&currency=${currency}&days=${days}`
-    )
+    }>(`${API_BASE_URL}/defi/market-chart`, {
+      query: {
+        coin_id: coinId,
+        currency,
+        days,
+        ...(discordId && { discordId }),
+      },
+    })
   }
 
   async compareToken(
@@ -277,11 +293,212 @@ class Defi extends Fetcher {
       )
   }
 
+  public async getTipPayload(
+    msg: Message,
+    args: string[]
+  ): Promise<OffchainTipBotTransferRequest> {
+    const commandObject = getCommandObject(commands, msg)
+    const type = commandObject?.command
+    const sender = msg.author.id
+    let amountArg = "",
+      cryptocurrency = "",
+      recipients: string[] = []
+
+    const guildId = msg.guildId ?? "DM"
+
+    // parse recipients
+    recipients = await this.parseRecipients(
+      msg,
+      args.slice(0, args.length - 2),
+      sender
+    )
+
+    cryptocurrency = args[args.length - 1].toUpperCase()
+    amountArg = args[args.length - 2].toLowerCase()
+
+    // check if recipient is valid or not
+    if (!recipients || !recipients.length) {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        guildId,
+        message: msg,
+        errorMsg: "No valid recipient found!",
+      })
+    }
+
+    // check recipients exist in discord server or not
+    for (const recipientId of recipients) {
+      const user = await msg.guild?.members.fetch(recipientId)
+      if (!user) {
+        throw new DiscordWalletTransferError({
+          discordId: sender,
+          guildId,
+          message: msg,
+          errorMsg: `User <@!${recipientId}> not found`,
+        })
+      }
+    }
+
+    // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
+    const amount = parseFloat(amountArg)
+    if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        guildId,
+        message: msg,
+        errorMsg: "Invalid amount",
+      })
+    }
+
+    // check if tip token is in guild config
+    // const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
+    // const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
+    // if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
+    //   throw new DiscordWalletTransferError({
+    //     discordId: sender,
+    //     guildId,
+    //     message: msg,
+    //     errorMsg: "Unsupported token. Please choose another one.",
+    //   })
+    // }
+
+    return {
+      sender,
+      recipients,
+      guildId,
+      channelId: msg.channelId,
+      amount,
+      token: cryptocurrency,
+      each: false,
+      all: amountArg === "all",
+      transferType: type ?? "",
+      duration: 0,
+      fullCommand: "",
+    }
+  }
+
+  public async getWithdrawPayload(
+    msg: Message,
+    args: string[]
+  ): Promise<OffchainTipBotWithdrawRequest> {
+    const commandObject = getCommandObject(commands, msg)
+    const type = commandObject?.command
+    const sender = msg.author.id
+    const guildId = msg.guildId ?? "DM"
+
+    const toAddress = args[3]
+    if (!toAddress.startsWith("0x")) {
+      throw new Error("Invalid destination address")
+    }
+    const recipients = [toAddress]
+    const amountArg = args[1].toLowerCase()
+    const cryptocurrency = args[2].toUpperCase()
+
+    // check if recipient is valid or not
+    if (!recipients || !recipients.length) {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        guildId,
+        message: msg,
+        errorMsg: "No valid recipient found!",
+      })
+    }
+
+    // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
+    const amount = parseFloat(amountArg)
+    if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        guildId,
+        message: msg,
+        errorMsg: "Invalid amount",
+      })
+    }
+
+    // // check if tip token is in guild config
+    // const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
+    // const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
+    // if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
+    //   throw new DiscordWalletTransferError({
+    //     discordId: sender,
+    //     guildId,
+    //     message: msg,
+    //     errorMsg: "Unsupported token. Please choose another one.",
+    //   })
+    // }
+
+    return {
+      recipient: msg.author.id,
+      recipientAddress: toAddress,
+      guildId,
+      channelId: msg.channelId,
+      amount,
+      token: cryptocurrency,
+      each: false,
+      all: amountArg === "all",
+      transferType: type ?? "",
+      duration: 0,
+      fullCommand: "",
+    }
+  }
+
+  public async getAirdropPayload(
+    msg: Message,
+    args: string[]
+  ): Promise<OffchainTipBotTransferRequest> {
+    const commandObject = getCommandObject(commands, msg)
+    const type = commandObject?.command
+    const sender = msg.author.id
+    const recipients: string[] = []
+    const amountArg = args[1]
+    const cryptocurrency = args[2].toUpperCase()
+    const guildId = msg.guildId ?? "DM"
+
+    // validate airdrop amount
+    const amount = parseFloat(amountArg)
+    if (isNaN(amount) || amount <= 0) {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        guildId,
+        message: msg,
+        errorMsg: "Invalid amount",
+      })
+    }
+
+    // check if tip token is in guild config
+    // const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
+    // const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
+    // if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
+    //   throw new DiscordWalletTransferError({
+    //     discordId: sender,
+    //     guildId,
+    //     message: msg,
+    //     errorMsg: "Unsupported token. Please choose another one.",
+    //   })
+    // }
+    const options = this.getAirdropOptions(args, sender, msg)
+
+    return {
+      sender,
+      recipients,
+      guildId,
+      channelId: msg.channelId,
+      amount,
+      all: amountArg === "all",
+      each: false,
+      fullCommand: "",
+      duration: options.duration,
+      token: cryptocurrency,
+      transferType: type ?? "",
+      opts: options,
+    }
+  }
+
   public async getTransferPayload(
     msg: Message,
     args: string[]
   ): Promise<DiscordWalletTransferRequest> {
-    const commandObject = getCommandObject(msg)
+    const commandObject = getCommandObject(commands, msg)
     const type = commandObject?.command
     const sender = msg.author.id
     let amountArg = "",
@@ -380,7 +597,7 @@ class Defi extends Fetcher {
         discordId: sender,
         guildId,
         message: msg,
-        errorMsg: "Unsupported token",
+        errorMsg: "Unsupported token. Please choose another one.",
       })
     }
 
@@ -401,9 +618,21 @@ class Defi extends Fetcher {
     }
   }
 
-  async getUserWatchlist(query: { userId: string }) {
+  async getUserWatchlist({
+    userId,
+    page = 0,
+    size = 5,
+  }: {
+    userId: string
+    page?: number
+    size?: number
+  }) {
     return await this.jsonFetch(`${API_BASE_URL}/defi/watchlist`, {
-      query,
+      query: {
+        userId,
+        page,
+        size,
+      },
     })
   }
 
@@ -429,6 +658,98 @@ class Defi extends Fetcher {
         query,
       }
     )
+  }
+
+  async getGasPrice(chain: string) {
+    const gasTrackerUrls: Record<string, string> = {
+      ftm: FTMSCAN_API,
+      bsc: BSCSCAN_API,
+      matic: POLYGONSCAN_API,
+      eth: ETHSCAN_API,
+    }
+    const url = gasTrackerUrls[chain]
+    const query = {
+      module: "gastracker",
+      action: "gasoracle",
+    }
+    return await this.jsonFetch<{ result: GasPriceData }>(url, {
+      query,
+      silent: true,
+    })
+  }
+
+  async getUserNFTWatchlist({
+    userId,
+    page = 0,
+    size = 5,
+  }: {
+    userId: string
+    page?: number
+    size?: number
+  }) {
+    return await this.jsonFetch<ResponseGetNftWatchlistResponse>(
+      `${API_BASE_URL}/nfts/watchlist`,
+      {
+        query: {
+          userId,
+          page,
+          size,
+        },
+      }
+    )
+  }
+
+  async addNFTToWatchlist(req: {
+    user_id: string
+    collection_symbol: string
+    collection_address?: string
+    chain?: string
+  }) {
+    return await this.jsonFetch<ResponseNftWatchlistSuggestResponse>(
+      `${API_BASE_URL}/nfts/watchlist`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
+  }
+
+  async removeNFTFromWatchlist(query: { userId: string; symbol: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/nfts/watchlist`, {
+      method: "DELETE",
+      query,
+    })
+  }
+
+  async offchainTipBotAssignContract(req: RequestCreateAssignContract) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/offchain-tip-bot/assign-contract`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
+  }
+
+  async offchainGetUserBalances(query: { userId: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/balances`, {
+      method: "GET",
+      query,
+    })
+  }
+
+  async offchainDiscordTransfer(req: RequestOffchainTransferRequest) {
+    return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/transfer`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  async offchainDiscordWithdraw(req: RequestOffchainWithdrawRequest) {
+    return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/withdraw`, {
+      method: "POST",
+      body: req,
+    })
   }
 }
 

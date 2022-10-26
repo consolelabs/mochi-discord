@@ -1,15 +1,13 @@
-import {
-  Command,
-  RoleReactionConfigResponse,
-  RoleReactionEvent,
-} from "types/common"
+import { Command, RoleReactionEvent } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { Message, TextChannel } from "discord.js"
+import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
 import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError } from "errors"
+import { BotBaseError, CommandError, GuildIdNotFoundError } from "errors"
+import { logger } from "logger"
+import { isDiscordMessageLink } from "utils/common"
 
 const command: Command = {
   id: "reactionrole_remove",
@@ -19,16 +17,7 @@ const command: Command = {
   onlyAdministrator: true,
   run: async (msg: Message) => {
     if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
     let description = ""
     const args = getCommandArguments(msg)
@@ -48,21 +37,40 @@ const command: Command = {
     }
 
     // Validate message_id
-    const messageId = args[2].replace(/\D/g, "")
+    if (!isDiscordMessageLink(args[2])) {
+      throw new CommandError({
+        message: msg,
+        description:
+          "Invalid message link, use `$help rr` to learn how to get message link",
+      })
+    }
 
-    const channelList = msg.guild.channels.cache
-      .filter((c) => c.type === "GUILD_TEXT")
-      .map((c) => c as TextChannel)
+    const [guildId, channelId, messageId] = args[2].split("/").slice(-3)
+    if (guildId !== msg.guildId) {
+      throw new CommandError({
+        message: msg,
+        description:
+          "Guild ID invalid, please choose a message belongs to your guild",
+      })
+    }
 
-    const message = (
-      await Promise.all(
-        channelList.map((chan) =>
-          chan.messages.fetch(messageId).catch(() => null)
-        )
-      )
-    ).find((m) => m instanceof Message)
+    const channel = msg.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
+    if (!channel || !channel.isText()) {
+      throw new CommandError({
+        message: msg,
+        description: "Channel not found",
+      })
+    }
 
-    if (!message || !messageId) {
+    const message = await channel.messages.fetch(messageId).catch(() => null)
+    if (!message) {
+      throw new CommandError({
+        message: msg,
+        description: "Message not found",
+      })
+    }
+
+    if (!message || !message.id) {
       return {
         messageOptions: {
           embeds: [getErrorEmbed({ msg, description: "Message not found" })],
@@ -85,9 +93,10 @@ const command: Command = {
         }
         requestData = {
           guild_id: msg.guild.id,
-          message_id: messageId,
+          message_id: message.id,
           reaction: args[3],
           role_id: roleId,
+          channel_id: channel.id,
         }
         break
       }
@@ -95,29 +104,36 @@ const command: Command = {
       case 3:
         requestData = {
           guild_id: msg.guild.id,
-          message_id: messageId,
+          message_id: message.id,
           reaction: "",
           role_id: "",
+          channel_id: "",
         }
         break
     }
 
     if (requestData) {
       try {
-        const res: RoleReactionConfigResponse =
-          await config.removeReactionConfig(requestData)
-        if (res.success) {
+        const res = await config.removeReactionConfig(requestData)
+        if (res.ok) {
           const { reaction, role_id } = requestData
           if (reaction && role_id) {
-            description = `Reaction ${reaction} for this role <@&${role_id}> is now unset`
+            description = `Reaction ${reaction} is removed for <@&${role_id}>.`
 
             const emojiSplit = reaction.split(":")
             const reactionEmoji =
               emojiSplit.length === 1 ? reaction : reaction.replace(/\D/g, "")
-            message.reactions.cache.get(reactionEmoji)?.remove().catch()
+            message.reactions.cache
+              .get(reactionEmoji)
+              ?.remove()
+              .catch((e) => {
+                logger.info(e)
+              })
           } else {
             description = `All reaction role configurations for this message is now clear.`
-            message.reactions.removeAll().catch()
+            message.reactions.removeAll().catch((e) => {
+              logger.info(e)
+            })
           }
         } else {
           description = `Failed to remove this reaction role configuration.`
@@ -143,8 +159,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `To remove a specific configuration in a message\n${PREFIX}rr remove <message_id> <emoji> <role>\n\nTo clear all configurations in a message\n${PREFIX}rr remove <message_id>`,
-          examples: `${PREFIX}rr remove 967107573591457832 ✅ @Visitor\n${PREFIX}rr remove 967107573591457832`,
+          usage: `To remove a specific configuration in a message\n${PREFIX}rr remove <message_link> <emoji> <role>\n\nTo clear all configurations in a message\n${PREFIX}rr remove <message_link>`,
+          examples: `${PREFIX}rr remove https://discord.com/channels/...4875 ✅ @Visitor\n${PREFIX}rr remove https://discord.com/channels/...4875`,
         }),
       ],
     }

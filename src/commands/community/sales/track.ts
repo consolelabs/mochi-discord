@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
 import {
   getErrorEmbed,
   composeEmbedMessage,
@@ -27,11 +27,16 @@ const command: Command = {
       }
     }
     const args = getCommandArguments(msg)
-    const { isChannel, id: channelId } = parseDiscordToken(args[2])
+    const { isChannel, value: channelId } = parseDiscordToken(args[2])
     if (!isChannel) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid channel" })],
+          embeds: [
+            getErrorEmbed({
+              msg,
+              description: "Invalid channel. Please choose another one!",
+            }),
+          ],
         },
       }
     }
@@ -84,8 +89,8 @@ const command: Command = {
         embeds: [
           getSuccessEmbed({
             msg,
-            title: "Tracker mode ON",
-            description: `Tracker set, new NFT sales will be posted in <#${channelId}>. To add more collection, just re-run this command`,
+            title: "Tracker set!",
+            description: `New NFT sales information will be posted in <#${channelId}>. To add more collection, just re-run this command.`,
           }),
         ],
       },
@@ -94,8 +99,9 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}sales track <channel> <address> <chain_id>`,
-        examples: `${PREFIX}sales track #general 0x33910F98642914A3CB0dB10f0 250`,
+        usage: `${PREFIX}sales track <channel> <address> <chain_id>\n${PREFIX}sales track <channel> <address> <chain_symbol>`,
+        examples: `${PREFIX}sales track #general 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73 250\n${PREFIX}sales track #general 0x343f999eAACdFa1f201fb8e43ebb35c99D9aE0c1 eth`,
+        document: `${SALE_TRACKER_GITBOOK}&action=track`,
       }),
     ],
   }),

@@ -2,17 +2,15 @@ import {
   Message,
   GuildEmoji,
   User,
-  MessageOptions,
   ColorResolvable,
   MessageComponentInteraction,
   Permissions,
   GuildMember,
 } from "discord.js"
 
-import { Command } from "types/common"
-import { DOT, HOMEPAGE_URL, SPACE, VERTICAL_BAR } from "./constants"
+import type { Command, Pagination } from "types/common"
+import { DOT, HOMEPAGE_URL, SPACE } from "./constants"
 import { TopNFTTradingVolumeItem } from "types/community"
-import Defi from "adapters/defi"
 import {
   marketplaceEmojis,
   rarityEmojis,
@@ -20,7 +18,9 @@ import {
   traitTypeMapping,
 } from "./nft"
 import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
 import { MARKETPLACE_BASE_URL } from "env"
+dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
   FTM: "967285237686108212",
@@ -80,19 +80,10 @@ export const numberEmojis: Record<string, string> = {
   NUM_9: "932856132832223232",
 }
 
-// TODO(tuand) rename this to expBarEmojis
-export const progressBarEmojis: Record<string, string> = {
-  BAR_1_EMPTY: "1004837203735756881",
-  BAR_1_HALF: "1004837199851835392",
-  BAR_1_MID: "1004837201630199989",
-  BAR_1_FULL: "1004827891659452438",
-  BAR_2_EMPTY: "1004837205937770658",
-  BAR_2_MID: "1004837197372997782",
-  BAR_2_HIGH: "1004837692984537258",
-  BAR_2_FULL: "1004837191660343336",
-  BAR_3_EMPTY: "1004837207850356847",
-  BAR_3_MID: "1004837195510722630",
-  BAR_3_FULL: "1004837193673613412",
+export const expBarEmojis: Record<string, string> = {
+  XP_FILLED_LEFT: "933278893559918602",
+  XP_FILLED: "933278891450187816",
+  XP_FILLED_RIGHT: "933278892435836948",
 }
 
 export const progressEmojis: Record<string, string> = {
@@ -113,6 +104,30 @@ export const defaultEmojis: Record<string, string> = {
   CHART_WITH_UPWARDS_TREND: ":chart_with_upwards_trend:",
   CHART_WITH_DOWNWARDS_TREND: ":chart_with_downwards_trend:",
   MAG: ":mag:",
+  X: ":x:",
+  GREY_QUESTION: ":grey_question:",
+}
+
+export const factionEmojis: Record<string, string> = {
+  IMPERIAL: "932605622044729344",
+  IMPERIAL_EXP_1: "933612077686341672",
+  IMPERIAL_EXP_2: "933612077300473866",
+  IMPERIAL_EXP_3: "933612078856552498",
+  REBELIO: "932605621914701875",
+  REBELIO_EXP_1: "933606190523490324",
+  REBELIO_EXP_2: "933606189512683520",
+  REBELIO_EXP_3: "933606190678679633",
+  MERCANTO: "932651179593322527",
+  MERCANTO_EXP_1: "933612151732596786",
+  MERCANTO_EXP_2: "933612151753572393",
+  MERCANTO_EXP_3: "933612151174758401",
+  ACADEMIA: "932605621730160680",
+  ACADEMIA_EXP_1: "933606673178820658",
+  ACADEMIA_EXP_2: "933606672709074974",
+  ACADEMIA_EXP_3: "933606672444817408",
+  FACTION_EXP_1: "933276771133063198",
+  FACTION_EXP_2: "933276771107868692",
+  FACTION_EXP_3: "933276771141451856",
 }
 
 export const emojis: { [key: string]: string } = {
@@ -120,6 +135,7 @@ export const emojis: { [key: string]: string } = {
   REVOKE: "967285238055174195",
   REPLY: "967285237983875122",
   PROFILE: "967285238394925086",
+  CLAIM: "933340602106519552",
   DEFI: "933281365586227210",
   BLANK: "967287119448014868",
   PREV_PAGE: "967285237958705162",
@@ -144,13 +160,38 @@ export const emojis: { [key: string]: string } = {
   LIKE: "900370883594551348",
   PAWCOIN: "887275176113373194",
   EXP: "1016985999039016982",
+  LEFT_ARROW: "933339868224958504",
+  RIGHT_ARROW: "933339868233359380",
+  CASH: "933341119998210058",
+  BUBBLE_CASH: "1022765345875968040",
+  TIP: "933384794627248128",
+  SEARCH: "933341511062552626",
+  PREDICTION: "931194309385003058",
+  FELLOWSHIP: "922044644928421888",
+  TRADE: "1026414280498757652",
+  DISCORD: "1027525031451967498",
+  TWITTER: "1027525033280680026",
+  HORIZONTAL_LINE: "928213014824488990",
+  ASSET: "💰",
+  IDENTITY: "🪪",
+  NFT: "🖼",
+  TICKER: "📈",
+  INFO: "🔎",
+  RED_FLAG: "🚩",
+  FLOORPRICE: "1029662833144766464",
+  CHEST: "933339868006871070",
+  XP: "933032436814708768",
+  MESSAGE: "1032608821534806056",
+  CONVERSATION: "1032608818930139249",
+  TOUCH: "900363887050911784",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
   ...marketplaceEmojis,
   ...traitEmojis,
-  ...progressBarEmojis,
+  ...expBarEmojis,
   ...progressEmojis,
+  ...factionEmojis,
 }
 
 export const tripodEmojis: Record<string, string> = {
@@ -208,14 +249,6 @@ export function isInteraction(
   msgOrInteraction: Message | MessageComponentInteraction
 ): msgOrInteraction is MessageComponentInteraction {
   return "message" in msgOrInteraction
-}
-
-export async function inactivityResponse(user: User): Promise<MessageOptions> {
-  return {
-    content: `> **${getEmoji("revoke")} ${VERTICAL_BAR} ${
-      user.tag
-    }, the command was closed due to inactivity.**`,
-  }
 }
 
 export function getHeader(text: string, user: User, ctas?: string) {
@@ -334,21 +367,6 @@ export function getUniqueToken(nftList: TopNFTTradingVolumeItem[]): string[] {
   return tokenAvailable
 }
 
-// TODO: move this
-export async function mapSymbolToPrice(
-  msg: Message,
-  tokenList: string[]
-): Promise<Map<string, number>> {
-  const tokenMap = new Map<string, number>()
-  for (const item of tokenList) {
-    const { data: searchData } = await Defi.searchCoins(item)
-    const { data: coin } = await Defi.getCoin(searchData?.[0].id)
-
-    tokenMap.set(item, coin?.market_data.current_price.usd)
-  }
-  return tokenMap
-}
-
 export function sortNFTListByVolume(
   nftList: TopNFTTradingVolumeItem[],
   symbol: Map<string, number>
@@ -364,12 +382,18 @@ export function sortNFTListByVolume(
 export function capitalizeFirst(str: string) {
   return str
     .split(/ +/g)
-    .map((w) => `${w[0].toUpperCase()}${w.slice(1).toLowerCase()}`)
+    .map(
+      (w) => `${w[0]?.toUpperCase() ?? ""}${w.slice(1)?.toLowerCase() ?? ""}`
+    )
     .join(SPACE)
 }
 
 export function getDateStr(timestamp: number) {
   return dayjs(timestamp).format("MMMM DD, YYYY")
+}
+
+export function getTimeFromNowStr(timestamp: string) {
+  return dayjs(timestamp).fromNow()
 }
 
 export function getMarketplaceCollectionUrl(collectionAddress: string) {
@@ -391,4 +415,92 @@ export function isValidHttpUrl(urlStr: string) {
     return false
   }
   return url.protocol === "http:" || url.protocol === "https:"
+}
+
+export function getPaginationFooter({ page, size, total }: Pagination) {
+  return [`Page ${page + 1} / ${Math.ceil(total / size) || 1}`]
+}
+
+/**
+ * Returns result as boolean based on the `percentage` passed in.
+ * @param percentage: range is [0-1] or [1-100]. Returns false if out of range
+ */
+export function getChance(percentage: number) {
+  if (percentage >= 100 || percentage <= 0) return false
+  if (percentage > 1 && percentage < 100) percentage /= 100
+  return Math.random() < percentage
+}
+
+export function getFirstWords(str: string, n: number) {
+  if (!str) return ""
+  const words = str.trim().split(/ +/g)
+  return `${words.slice(0, Math.max(n, 0)).join(" ")} ${
+    words.length > n ? "..." : ""
+  }`
+}
+
+/**
+ * Returns the compact formated string
+ * e.g 1_000 -> 1K, 1_000_000 -> 1M
+ */
+export function getCompactFormatedNumber(value: number) {
+  const formatter = Intl.NumberFormat("en", { notation: "compact" })
+  return formatter.format(value)
+}
+
+export const authorFilter =
+  (authorId: string) => async (i: MessageComponentInteraction) => {
+    await i.deferUpdate().catch(() => null)
+    return i.user.id === authorId
+  }
+
+type BuildProgressBarParams = {
+  total: number
+  progress: number
+  // the number of emojis used to render the progress bar
+  // defaults to 8 (looks nice on one line on Discord)
+  length?: number
+  emoji: {
+    leftEmpty: string
+    empty: string
+    rightEmpty: string
+    leftFilled: string
+    filled: string
+    rightFilled: string
+  }
+}
+
+/**
+ * Return a progress bar represented by emojis
+ * */
+export function buildProgressBar(params: BuildProgressBarParams) {
+  const { total, progress, length = 8, emoji } = params
+  const list = new Array(Math.ceil(length)).fill(emoji.empty)
+  const filled = list.map((empty, index) => {
+    if (index < Math.ceil((progress / total) * length)) {
+      return emoji.filled
+    }
+    return empty
+  })
+
+  // convert 2 ends to rounded version
+  if (progress > 0) {
+    filled[0] = emoji.leftFilled
+  } else {
+    filled[0] = emoji.leftEmpty
+  }
+
+  if (progress === total) {
+    filled[filled.length - 1] = emoji.rightFilled
+  } else {
+    filled[filled.length - 1] = emoji.rightEmpty
+  }
+
+  return filled.join("")
+}
+
+export function isDiscordMessageLink(url: string): boolean {
+  return /(http(s)?:\/\/\.)?(www\.)?discord\.com\/channels\/[0-9]*\/[0-9]*\/[0-9]*/g.test(
+    url
+  )
 }

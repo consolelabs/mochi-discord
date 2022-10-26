@@ -293,7 +293,7 @@ export function getGradientColor(
 export async function renderChartImage({
   chartLabel,
   labels,
-  data,
+  data = [],
   colorConfig,
   lineOnly,
 }: {
@@ -338,7 +338,7 @@ export async function renderChartImage({
         {
           label: chartLabel,
           data,
-          borderWidth: lineOnly ? 10 : 2,
+          borderWidth: lineOnly ? 10 : 3,
           pointRadius: 0,
           fill: true,
           ...colorConfig,
@@ -559,7 +559,10 @@ export async function drawLeaderboard(options: {
   // right title
   const rightTitleStr = options.rightHeader
   const rightTitle = {
-    x: 600,
+    x:
+      container.w -
+      widthOf(ctx, rightTitleStr) -
+      (container.pr ?? container.pl ?? 0),
     y: userTitle.y,
   }
   ctx.fillText(rightTitleStr, rightTitle.x, rightTitle.y ?? 0)
@@ -624,7 +627,10 @@ export async function drawLeaderboard(options: {
     ctx.font = "bold 27px Manrope"
     ctx.fillStyle = "#BFBFBF"
     const rightValue = {
-      x: rightTitle.x,
+      x:
+        container.w -
+        widthOf(ctx, rightStr) -
+        (container.pr ?? container.pl ?? 0),
       y: discriminator.y,
       w: widthOf(ctx, rightStr),
     }
@@ -636,7 +642,7 @@ export async function drawLeaderboard(options: {
   return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")
 }
 
-export function getChartColorConfig(id: string) {
+export function getChartColorConfig(id?: string) {
   let gradientFrom, gradientTo, borderColor
   switch (id) {
     case "bitcoin":
@@ -645,11 +651,11 @@ export function getChartColorConfig(id: string) {
       gradientTo = "rgba(76,66,52,0.5)"
       break
     case "ethereum":
-      borderColor = "#ff0421"
-      gradientFrom = "rgba(173,36,43,0.9)"
-      gradientTo = "rgba(77,48,53,0.5)"
+    case "ethereum-pow-iou":
+      borderColor = "#a996f2"
+      gradientFrom = "rgba(108,136,217,0.9)"
+      gradientTo = "rgba(74,93,148,0.5)"
       break
-
     case "tether":
       borderColor = "#22a07a"
       gradientFrom = "rgba(46,78,71,0.9)"

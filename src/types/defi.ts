@@ -12,6 +12,35 @@ export type DiscordWalletTransferRequest = {
   transferType: string
 }
 
+export type OffchainTipBotTransferRequest = {
+  sender: string // discordId
+  recipients: string[] // can be array of discordIds or addresses
+  guildId: string
+  channelId: string
+  amount: number
+  token: string
+  each?: boolean
+  all?: boolean
+  transferType: string
+  duration: number
+  fullCommand: string
+  opts?: { duration: number; maxEntries: number }
+}
+
+export type OffchainTipBotWithdrawRequest = {
+  recipient: string // withdraw's discordID
+  recipientAddress: string // withdraw's address
+  guildId: string
+  channelId: string
+  amount: number
+  token: string
+  each?: boolean
+  all?: boolean
+  transferType: string
+  duration: number
+  fullCommand: string
+}
+
 export type Token = {
   id: number
   address: string
@@ -36,6 +65,7 @@ export type Coin = {
   image: CoinImage
   market_data: MarketData
   tickers: TickerData[]
+  description: CoinDescription
 }
 
 export type TickerData = {
@@ -60,6 +90,10 @@ type CoinImage = {
   large: string
 }
 
+type CoinDescription = {
+  en: string
+}
+
 export type CoinComparisionData = {
   times: string[]
   ratios: number[]
@@ -78,4 +112,19 @@ export type CoinMarketItem = {
   current_price: number
   price_change_percentage_24h: number
   sparkline_in_7d: { price: number[] }
+}
+
+export type GasPriceData = {
+  LastBlock: string
+  SafeGasPrice: string
+  ProposeGasPrice: string
+  FastGasPrice: string
+}
+
+export type UserBalances = {
+  id: string
+  name: string
+  symbol: string
+  balances: number
+  balances_in_usd: number
 }

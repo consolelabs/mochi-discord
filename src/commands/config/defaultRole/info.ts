@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { DEFAULT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
@@ -24,7 +24,7 @@ const command: Command = {
         },
       }
     }
-    let description = "No default role found, to set one, run `$dr set @<role>`"
+    let description = `No default role found! To set, run \`\`\`${PREFIX}dr set @<role>\`\`\``
     const args = getCommandArguments(msg)
 
     if (args.length !== 2) {
@@ -43,9 +43,9 @@ const command: Command = {
     const res = await config.getCurrentDefaultRole(msg.guildId)
     if (res.ok) {
       if (res.data.role_id) {
-        description = `When people first join your server, their base role will be <@&${res.data.role_id}>`
+        description = `<@&${res.data.role_id}> will be their base role when people join your server.`
       } else {
-        description = `No default role set`
+        description = `No default role found! To set, run \`\`\`${PREFIX}dr set @<role>\`\`\``
       }
     } else {
       return {
@@ -72,6 +72,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}dr info`,
           examples: `${PREFIX}dr info`,
+          document: `${DEFAULT_ROLE_GITBOOK}&action=info`,
         }),
       ],
     }

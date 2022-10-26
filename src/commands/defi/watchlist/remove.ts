@@ -1,35 +1,42 @@
 import { Command } from "types/common"
 import { thumbnails } from "utils/common"
-import {
-  getErrorEmbed,
-  getSuccessEmbed,
-  composeEmbedMessage,
-} from "utils/discordEmbed"
+import { getSuccessEmbed, composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
+import CacheManager from "utils/CacheManager"
+import { handleUpdateWlError } from "../watchlist_slash"
 
 const command: Command = {
   id: "watchlist_remove",
   command: "remove",
-  brief: "Remove a cryptocurrency from your watchlist.",
+  brief: "Remove a token from your watchlist.",
   category: "Defi",
   run: async (msg) => {
     const symbol = getCommandArguments(msg)[2]
-    const { ok } = await defi.removeFromWatchlist({
-      userId: msg.author.id,
+    const userId = msg.author.id
+    const { ok, error } = await defi.removeFromWatchlist({
+      userId,
       symbol,
     })
-    if (!ok) return { messageOptions: { embeds: [getErrorEmbed({})] } }
+    if (!ok) handleUpdateWlError(msg, symbol, error, true)
+    CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
     return {
-      messageOptions: { embeds: [getSuccessEmbed({})] },
+      messageOptions: {
+        embeds: [
+          getSuccessEmbed({
+            title: "Successfully remove!",
+            description: `Token has been deleted successfully!`,
+          }),
+        ],
+      },
     }
   },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        title: "Remove a cryptocurrency from your watchlist.",
+        title: "Remove a token from your watchlist.",
         usage: `${PREFIX}watchlist remove <symbol>`,
         examples: `${PREFIX}watchlist remove eth`,
       }),
