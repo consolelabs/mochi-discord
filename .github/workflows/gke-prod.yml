@@ -10,7 +10,7 @@ on:
 env:
   REGISTRY_HOSTNAME: gcr.io
   GKE_PROJECT: console-labs-prod
-  IMAGE: consolelabs/mochi-bot
+  IMAGE: consolelabs/mochi-discord
   K8S_ENVIRONMENT: prod
 
 jobs:
@@ -52,11 +52,11 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           path: ./infrastructure
           ref: main
-      - name: Update api version
+      - name: Update discord version
         run: |
-          cd ./infrastructure/mochi-bot/$K8S_ENVIRONMENT
+          cd ./infrastructure/mochi-discord/$K8S_ENVIRONMENT
           git config user.name jphuc96
           git config user.email jphuc96@gmail.com
           /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_REF_NAME}
-          git commit -am "[skip ci] mochi-bot ${K8S_ENVIRONMENT} image update"
+          git commit -am "[skip ci] mochi-discord ${K8S_ENVIRONMENT} image update"
           git push origin main
