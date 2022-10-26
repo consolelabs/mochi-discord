@@ -309,13 +309,17 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("base")
-          .setDescription("the cryptocurrency which you wanna check price.")
+          .setDescription(
+            "the cryptocurrency which you wanna check price. Example: FTM"
+          )
           .setRequired(true)
       )
       .addStringOption((option) =>
         option
           .setName("target")
-          .setDescription("the second cryptocurrency for comparison.")
+          .setDescription(
+            "the second cryptocurrency for comparison. Example: BTC"
+          )
           .setRequired(false)
       )
   },

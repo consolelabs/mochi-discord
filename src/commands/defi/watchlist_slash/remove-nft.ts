@@ -18,7 +18,9 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("symbol")
-          .setDescription("The NFT which you wanna remove from your watchlist.")
+          .setDescription(
+            "The NFT which you wanna remove from your watchlist. Example: Neko"
+          )
           .setRequired(true)
       )
   },

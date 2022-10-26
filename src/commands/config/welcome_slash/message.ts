@@ -11,7 +11,7 @@ export const message = new SlashCommandSubcommandBuilder()
     option
       .setName("message")
       .setDescription(
-        "use $name in place of new member's name, leave empty to use default message"
+        "use $name in place of new member's name. Example: Hi $name, welcome to Mochi!"
       )
       .setRequired(false)
   )

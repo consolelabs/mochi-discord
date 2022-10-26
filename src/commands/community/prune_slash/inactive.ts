@@ -82,7 +82,9 @@ export const inactive = new SlashCommandSubcommandBuilder()
   .addIntegerOption((option) =>
     option
       .setName("day")
-      .setDescription("specific inactive days, must be higher than 5")
+      .setDescription(
+        "specific inactive days, must be higher than 5. Example: 7"
+      )
       .setMinValue(5)
       .setRequired(true)
   )
