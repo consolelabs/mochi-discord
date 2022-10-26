@@ -8,6 +8,9 @@ import {
   ResponseGetNFTCollectionByAddressChainResponse,
   ResponseIndexerGetNFTTokenTickersResponse,
   ResponseClaimQuestsRewardsResponse,
+  RequestCreateTradeOfferRequest,
+  ResponseCreateTradeOfferResponse,
+  ResponseGetTradeOfferResponse,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL } from "utils/constants"
@@ -366,6 +369,22 @@ class Community extends Fetcher {
       method: "POST",
       body: req,
     })
+  }
+
+  public async createTradeOffer(body: RequestCreateTradeOfferRequest) {
+    return await this.jsonFetch<ResponseCreateTradeOfferResponse>(
+      `${API_BASE_URL}/trades`,
+      {
+        method: "POST",
+        body,
+      }
+    )
+  }
+
+  public async getTradeOffer(id: string) {
+    return await this.jsonFetch<ResponseGetTradeOfferResponse>(
+      `${API_BASE_URL}/trades/${id}`
+    )
   }
 }
 

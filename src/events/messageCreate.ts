@@ -6,6 +6,7 @@ import { MessageTypes } from "discord.js/typings/enums"
 import { handlePlayTripod } from "commands/games/tripod"
 import { DiscordEvent } from "./index"
 import { wrapError } from "utils/wrapError"
+import ConversationManager from "utils/ConversationManager"
 
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
@@ -46,7 +47,20 @@ const events: DiscordEvent<"messageCreate"> = {
         return
       }
       await handleNormalMessage(message)
-      handlePlayTripod(message)
+      if (
+        ConversationManager.hasConversation(
+          message.author.id,
+          message.channelId
+        )
+      ) {
+        ConversationManager.continueConversation(
+          message.author.id,
+          message.channelId,
+          message
+        )
+      } else {
+        handlePlayTripod(message)
+      }
     })
   },
 }

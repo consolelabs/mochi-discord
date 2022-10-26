@@ -36,7 +36,7 @@ import watchlist from "./defi/watchlist"
 import vote from "./community/vote"
 import feedback from "./community/feedback"
 import telegram from "./config/telegram"
-import trade from "./community/trade"
+import swap from "./community/swap"
 import quest from "./community/quest"
 
 // slash commands
@@ -128,7 +128,7 @@ export const originalCommands: Record<string, Command> = {
   ticker,
   watchlist,
   // community section
-  trade,
+  swap,
   invite,
   gm,
   stats,

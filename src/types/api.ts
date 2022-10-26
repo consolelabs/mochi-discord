@@ -14,68 +14,53 @@ export type BigFloat = object;
 export interface DiscordgoUser {
   /** User's banner color, encoded as an integer representation of hexadecimal color code */
   accent_color?: number;
-
   /**
    * The hash of the user's avatar. Use Session.UserAvatar
    * to retrieve the avatar itself.
    */
   avatar?: string;
-
   /** The hash of the user's banner image. */
   banner?: string;
-
   /** Whether the user is a bot. */
   bot?: boolean;
-
   /** The discriminator of the user (4 numbers after name). */
   discriminator?: string;
-
   /**
    * The email of the user. This is only present when
    * the application possesses the email scope for the user.
    */
   email?: string;
-
   /**
    * The flags on a user's account.
    * Only available when the request is authorized via a Bearer token.
    */
   flags?: number;
-
   /** The ID of the user. */
   id?: string;
-
   /** The user's chosen language option. */
   locale?: string;
-
   /** Whether the user has multi-factor authentication enabled. */
   mfa_enabled?: boolean;
-
   /**
    * The type of Nitro subscription on a user's account.
    * Only available when the request is authorized via a Bearer token.
    */
   premium_type?: number;
-
   /**
    * The public flags on a user's account.
    * This is a combination of bit masks; the presence of a certain flag can
    * be checked by performing a bitwise AND between this int and the flag.
    */
   public_flags?: number;
-
   /** Whether the user is an Official Discord System user (part of the urgent message system). */
   system?: boolean;
-
   /**
    * The token of the user. This is only present for
    * the user represented by the current session.
    */
   token?: string;
-
   /** The user's username. */
   username?: string;
-
   /** Whether the user's email is verified. */
   verified?: boolean;
 }
@@ -282,7 +267,6 @@ export interface ModelGuildRole {
 
 export interface ModelJSONNullString {
   string?: string;
-
   /** Valid is true if String is not NULL */
   valid?: boolean;
 }
@@ -865,7 +849,9 @@ export interface ResponseCoinMarketItemData {
   name?: string;
   price_change_percentage_24h?: number;
   price_change_percentage_7d_in_currency?: number;
-  sparkline_in_7d?: { price?: number[] };
+  sparkline_in_7d?: {
+    price?: number[];
+  };
   symbol?: string;
 }
 
@@ -930,10 +916,8 @@ export interface ResponseCurrentUserUpvoteStreakResponse {
 
 export interface ResponseDataFilterConfigByReaction {
   data?: ResponseRoleReactionResponse;
-
   /** page index */
   page?: number;
-
   /** page size */
   size?: number;
   total?: number;
@@ -941,10 +925,8 @@ export interface ResponseDataFilterConfigByReaction {
 
 export interface ResponseDataListRoleReactionResponse {
   data?: ResponseListRoleReactionResponse;
-
   /** page index */
   page?: number;
-
   /** page size */
   size?: number;
   total?: number;
@@ -967,7 +949,6 @@ export interface ResponseDiscordGuildResponse {
   id?: string;
   name?: string;
   owner?: boolean;
-
   /** @example 0 */
   permissions?: string;
 }
@@ -1093,10 +1074,8 @@ export interface ResponseGetInvitesResponse {
 
 export interface ResponseGetLevelRoleConfigsResponse {
   data?: ModelGuildConfigLevelRole[];
-
   /** page index */
   page?: number;
-
   /** page size */
   size?: number;
   total?: number;
