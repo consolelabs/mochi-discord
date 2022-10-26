@@ -1,15 +1,17 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
-import { DEFI_DEFAULT_FOOTER, DEPOSIT_GITBOOK, PREFIX } from "utils/constants"
+// import { DEFI_DEFAULT_FOOTER, DEPOSIT_GITBOOK, PREFIX } from "utils/constants"
 import { getEmoji } from "utils/common"
-import { getCommandArguments } from "utils/commands"
+// import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
 import {
-  composeButtonLink,
+  // composeButtonLink,
   composeEmbedMessage,
   getErrorEmbed,
+  workInProgress,
 } from "utils/discordEmbed"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getDestinationAddress(
   msg: Message,
   dm: Message
@@ -34,6 +36,7 @@ async function getDestinationAddress(
   return userReply?.content.trim() ?? ""
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function withdraw(msg: Message, args: string[]) {
   const payload = await Defi.getTransferPayload(msg, args)
   const json = await Defi.discordWalletWithdraw(JSON.stringify(payload), msg)
@@ -66,41 +69,50 @@ const command: Command = {
   command: "withdraw",
   brief: `Token withdrawal`,
   category: "Defi",
-  run: async function (msg: Message) {
-    const args = getCommandArguments(msg)
-    const dm = await msg.author.send(
-      "Please enter your destination address here.\ne.g. 0xabcdde"
-    )
-    if (msg.guild != null) {
-      msg.reply({
-        embeds: [
-          composeEmbedMessage(msg, {
-            description: `:information_source: Info\n<@${msg.author.id}>, a withdrawal message has been sent to you via a DM`,
-          }),
-        ],
-        components: [composeButtonLink("See the DM", dm.url)],
-      })
-    }
-    args[3] = await getDestinationAddress(msg, dm)
-    await withdraw(msg, args)
+  run: async () => ({ messageOptions: await workInProgress() }),
+  // run: async function (msg: Message) {
+  //   return {
+  //     messageOptions: {
+  //       embeds: [
+  //         com
+  //       ],
+  //     },
+  //   }
+  // const args = getCommandArguments(msg)
+  // const dm = await msg.author.send(
+  //   "Please enter your destination address here.\ne.g. 0xabcdde"
+  // )
+  // if (msg.guild != null) {
+  //   msg.reply({
+  //     embeds: [
+  //       composeEmbedMessage(msg, {
+  //         description: `:information_source: Info\n<@${msg.author.id}>, a withdrawal message has been sent to you via a DM`,
+  //       }),
+  //     ],
+  //     components: [composeButtonLink("See the DM", dm.url)],
+  //   })
+  // }
+  // args[3] = await getDestinationAddress(msg, dm)
+  // await withdraw(msg, args)
 
-    return null
-  },
+  // return null
+  // },
   featured: {
     title: `${getEmoji("right_arrow")} Withdraw`,
     description: "Withdraw tokens to your wallet outside of Discord",
   },
-  getHelpMessage: async (msg) => {
-    const embedMsg = composeEmbedMessage(msg, {
-      description:
-        "Withdraw tokens to your wallet outside of Discord. A network fee will be added on top of your withdrawal (or deducted if remaining balance is insufficient).\nYou will be asked to confirm it.",
-      usage: `${PREFIX}withdraw <amount> <token>`,
-      examples: `${PREFIX}withdraw 5 ftm`,
-      document: `${DEPOSIT_GITBOOK}&command=withdraw`,
-      footer: [DEFI_DEFAULT_FOOTER],
-    })
-    return { embeds: [embedMsg] }
-  },
+  getHelpMessage: workInProgress,
+  // getHelpMessage: async (msg) => {
+  //   const embedMsg = composeEmbedMessage(msg, {
+  //     description:
+  //       "Withdraw tokens to your wallet outside of Discord. A network fee will be added on top of your withdrawal (or deducted if remaining balance is insufficient).\nYou will be asked to confirm it.",
+  //     usage: `${PREFIX}withdraw <amount> <token>`,
+  //     examples: `${PREFIX}withdraw 5 ftm`,
+  //     document: `${DEPOSIT_GITBOOK}&command=withdraw`,
+  //     footer: [DEFI_DEFAULT_FOOTER],
+  //   })
+  //   return { embeds: [embedMsg] }
+  // },
   canRunWithoutAction: true,
   aliases: ["wd"],
   colorType: "Defi",
