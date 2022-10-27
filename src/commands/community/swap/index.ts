@@ -126,7 +126,7 @@ export async function handleButtonOffer(i: ButtonInteraction) {
                 .setLabel("Swap link")
                 .setStyle("LINK")
                 .setURL(
-                  `https://mochi-web-git-feat-trade-podso.vercel.app/trade/${requestId}`
+                  `https://mochi-web-git-feat-trade-podso.vercel.app/swap/${requestId}`
                 )
             ),
           ],
@@ -146,8 +146,7 @@ export async function handleCreateSwap(i: ButtonInteraction) {
     i.guildId ?? "",
     i.user.id
   )
-  let wallet = userProfileRes.data?.user_wallet?.address
-  wallet = "0x6497b5580A58f2B890B3AD66bC459341312AcC23"
+  const wallet = userProfileRes.data?.user_wallet?.address
 
   if (!wallet) {
     i.editReply({
