@@ -11,6 +11,8 @@ type HandlerResult = {
   nextHandler: Handler | null
 }
 
+const DEFAULT_TIMEOUT = 300000
+
 export type Handler = (
   msgOrInteraction: Message | ButtonInteraction | SelectMenuInteraction,
   originalMessage: Message
@@ -22,6 +24,24 @@ class ConversationManager {
     string,
     Map<string, { msg: Message; handler: Handler }>
   > = new Map()
+
+  private timeouts: Map<string, Map<string, NodeJS.Timeout>> = new Map()
+
+  scheduleTimeout(userId: string, channelId: string, msg: Message) {
+    globalThis.clearTimeout(this.timeouts.get(userId)?.get(channelId))
+    const timeout = globalThis.setTimeout(() => {
+      this.conversations.get(userId)?.delete(channelId)
+      if (msg.deletable) {
+        msg.delete()
+      }
+    }, DEFAULT_TIMEOUT)
+
+    if (this.timeouts.has(userId)) {
+      this.timeouts.get(userId)?.set(channelId, timeout)
+    } else {
+      this.timeouts.set(userId, new Map([[channelId, timeout]]))
+    }
+  }
 
   startConversation(
     userId: string,
@@ -35,6 +55,8 @@ class ConversationManager {
       const newChannelsMap = new Map([[channelId, data]])
       this.conversations.set(userId, newChannelsMap)
     }
+
+    this.scheduleTimeout(userId, channelId, data.msg)
   }
 
   hasConversation(
@@ -57,13 +79,13 @@ class ConversationManager {
     if (msgOrInteraction instanceof Message) {
       if (!this.hasConversation(userId, channelId)) return
       if (msgOrInteraction.content.toLowerCase().trim() === "exit") {
-        this.conversations.delete(userId)
+        this.conversations.get(userId)?.delete(channelId)
         return
       }
     } else {
       if (!this.hasConversation(userId, channelId, msgOrInteraction)) return
       if (msgOrInteraction?.customId.startsWith("exit-")) {
-        this.conversations.delete(userId)
+        this.conversations.get(userId)?.delete(channelId)
         return
       }
     }
@@ -81,7 +103,12 @@ class ConversationManager {
           msgOrInteraction.delete()
         }
 
-        if (end || !nextHandler) return
+        if (end || !nextHandler) {
+          this.conversations.get(userId)?.delete(channelId)
+          return
+        }
+
+        this.scheduleTimeout(userId, channelId, originalMsg)
 
         this.conversations
           .get(userId)
