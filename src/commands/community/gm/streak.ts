@@ -1,9 +1,38 @@
 import { Command } from "types/common"
 import { GM_GITBOOK, PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { ColorResolvable, MessageEmbed } from "discord.js"
 import { getEmoji, msgColors } from "utils/common"
 import Profile from "../../../adapters/profile"
+import { GuildIdNotFoundError } from "errors"
+
+export async function handle(authorId: string, guildId: string) {
+  const res = await Profile.getUserGmStreak(authorId, guildId)
+  if (!res.ok) {
+    switch (res.error) {
+      case "user has no gm streak":
+        return null
+      default:
+        throw new Error(res.error)
+    }
+  }
+
+  const daysCheckedIcons = new Array(res.data.streak_count)
+    .fill(getEmoji("approve"))
+    .join("")
+  return {
+    messageOptions: {
+      embeds: [
+        new MessageEmbed()
+          .setTitle(`GM/GN streak`)
+          .setDescription(
+            `GM streak: **${res.data.streak_count}**\n${daysCheckedIcons}`
+          )
+          .setColor(msgColors.PRIMARY as ColorResolvable),
+      ],
+    },
+  }
+}
 
 const command: Command = {
   id: "gm_streak",
@@ -12,42 +41,10 @@ const command: Command = {
   category: "Community",
   run: async (msg) => {
     if (!msg.guildId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
-    }
-    const res = await Profile.getUserGmStreak(msg.author.id, msg.guildId)
-    if (!res.ok) {
-      switch (res.error) {
-        case "user has no gm streak":
-          return null
-        default:
-          throw new Error(res.error)
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
 
-    const daysCheckedIcons = new Array(res.data.streak_count)
-      .fill(getEmoji("approve"))
-      .join("")
-    return {
-      messageOptions: {
-        embeds: [
-          new MessageEmbed()
-            .setTitle(`GM/GN streak`)
-            .setDescription(
-              `GM streak: **${res.data.streak_count}**\n${daysCheckedIcons}`
-            )
-            .setColor(msgColors.PRIMARY as ColorResolvable),
-        ],
-      },
-    }
+    return await handle(msg.author.id, msg.guildId)
   },
   getHelpMessage: async (msg) => {
     return {
