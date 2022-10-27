@@ -4,6 +4,7 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
   Message,
+  CommandInteraction,
 } from "discord.js"
 import {
   composeDiscordSelectionRow,
@@ -18,7 +19,7 @@ import {
   InteractionHandlerResult,
 } from "utils/InteractionManager"
 
-const countType: Array<string> = [
+export const countType: Array<string> = [
   "members",
   "channels",
   "stickers",
@@ -26,7 +27,9 @@ const countType: Array<string> = [
   "roles",
 ]
 
-const statsSelectionHandler: InteractionHandler = async (msgOrInteraction) => {
+export const statsSelectionHandler: InteractionHandler = async (
+  msgOrInteraction
+) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
@@ -34,7 +37,9 @@ const statsSelectionHandler: InteractionHandler = async (msgOrInteraction) => {
   return await renderStatEmbed(message, id)
 }
 
-const countStatsHandler: InteractionHandler = async (msgOrInteraction) => {
+export const countStatsHandler: InteractionHandler = async (
+  msgOrInteraction
+) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
@@ -61,7 +66,7 @@ const countStatsHandler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
-async function renderStatEmbed(
+export async function renderStatEmbed(
   msg: Message,
   statId: string
 ): Promise<InteractionHandlerResult> {
@@ -115,6 +120,40 @@ async function renderStatEmbed(
     },
   }
 }
+
+export async function handle(msg: Message | CommandInteraction) {
+  const opt = (countType: unknown): MessageSelectOptionData => ({
+    label: `${countType}`,
+    value: `${countType}`,
+  })
+
+  const selectRow = composeDiscordSelectionRow({
+    customId: "tickers_stat_selection",
+    placeholder: "Select stat",
+    options: countType.map((c) => opt(c)),
+  })
+
+  let authorId = ""
+  if (msg instanceof Message) {
+    authorId = msg.author.id
+  } else {
+    authorId = msg.user.id
+  }
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(null, {
+          title: `Server Stats`,
+          description: `Please select what stat you want to show`,
+        }),
+      ],
+      components: [selectRow, composeDiscordExitButton(authorId)],
+    },
+    interactionOptions: {
+      handler: statsSelectionHandler,
+    },
+  }
+}
 const command: Command = {
   id: "stats",
   command: "stats",
@@ -122,31 +161,8 @@ const command: Command = {
   category: "Community",
   onlyAdministrator: true,
   run: async function (msg) {
-    const opt = (countType: unknown): MessageSelectOptionData => ({
-      label: `${countType}`,
-      value: `${countType}`,
-    })
-
-    const selectRow = composeDiscordSelectionRow({
-      customId: "tickers_stat_selection",
-      placeholder: "Select stat",
-      options: countType.map((c) => opt(c)),
-    })
-
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: `Server Stats`,
-            description: `Please select what stat you want to show`,
-          }),
-        ],
-        components: [selectRow, composeDiscordExitButton(msg.author.id)],
-      },
-      interactionOptions: {
-        handler: statsSelectionHandler,
-      },
-    }
+    if (!msg.guild?.id) throw new GuildIdNotFoundError({ message: msg })
+    return await handle(msg)
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
@@ -160,6 +176,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Server",
+  aliases: ["stat"],
 }
 
 export default command

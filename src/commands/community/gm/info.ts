@@ -1,7 +1,34 @@
 import { Command } from "types/common"
 import { GM_GITBOOK, PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import config from "adapters/config"
+import { GuildIdNotFoundError } from "errors"
+
+export async function handle(guildId: string) {
+  const data = await config.getCurrentGmConfig(guildId)
+  if (!data) {
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            description: `No configuration found`,
+            title: "GM/GN Configuration",
+          }),
+        ],
+      },
+    }
+  }
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(null, {
+          description: `Current Gm/Gn channel is set to <#${data.channel_id}>`,
+          title: "GM/GN Configuration",
+        }),
+      ],
+    },
+  }
+}
 
 const command: Command = {
   id: "gm_info",
@@ -10,40 +37,10 @@ const command: Command = {
   category: "Community",
   run: async (msg) => {
     if (!msg.guildId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
-    const data = await config.getCurrentGmConfig(msg.guildId)
-    if (!data) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              description: `No configuration found`,
-              title: "GM/GN Configuration",
-            }),
-          ],
-        },
-      }
-    }
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            description: `Current Gm/Gn channel is set to <#${data.channel_id}>`,
-            title: "GM/GN Configuration",
-          }),
-        ],
-      },
-    }
+
+    return await handle(msg.guildId)
   },
   getHelpMessage: async (msg) => {
     return {
