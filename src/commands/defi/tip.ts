@@ -1,5 +1,5 @@
 import { Message } from "discord.js"
-import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
+// import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
 import {
   emojis,
   getEmoji,
@@ -8,12 +8,17 @@ import {
   shortenHashOrAddress,
   thumbnails,
 } from "utils/common"
-import { getCommandArguments } from "utils/commands"
+// import { getCommandArguments } from "utils/commands"
 import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import { Command } from "types/common"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  workInProgress,
+} from "utils/discordEmbed"
 import Defi from "adapters/defi"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function tip(msg: Message, args: string[]) {
   if (!msg.guildId) {
     return {
@@ -78,31 +83,33 @@ const command: Command = {
   command: "tip",
   brief: "Tip Bot",
   category: "Defi",
-  run: async function (msg: Message) {
-    const args = getCommandArguments(msg)
-    return {
-      messageOptions: {
-        ...(await tip(msg, args)),
-      },
-    }
-  },
+  run: async () => ({ messageOptions: await workInProgress() }),
+  // run: async function (msg: Message) {
+  //   const args = getCommandArguments(msg)
+  //   return {
+  //     messageOptions: {
+  //       ...(await tip(msg, args)),
+  //     },
+  //   }
+  // },
   featured: {
     title: `${getEmoji("tip")} Tip`,
     description: "Send coins to a user or a group of users",
   },
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        thumbnail: thumbnails.TIP,
-        usage: `${PREFIX}tip <@user> <amount> <token>\n${PREFIX}tip <@role> <amount> <token>`,
-        description: "Send coins to a user or a group of users",
-        examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm\n${PREFIX}tip @RandomRole 10 ftm`,
-        document: TIP_GITBOOK,
-        footer: [DEFI_DEFAULT_FOOTER],
-        title: "Tip Bot",
-      }),
-    ],
-  }),
+  getHelpMessage: workInProgress,
+  // getHelpMessage: async (msg) => ({
+  //   embeds: [
+  //     composeEmbedMessage(msg, {
+  //       thumbnail: thumbnails.TIP,
+  //       usage: `${PREFIX}tip <@user> <amount> <token>\n${PREFIX}tip <@role> <amount> <token>`,
+  //       description: "Send coins to a user or a group of users",
+  //       examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm\n${PREFIX}tip @RandomRole 10 ftm`,
+  //       document: TIP_GITBOOK,
+  //       footer: [DEFI_DEFAULT_FOOTER],
+  //       title: "Tip Bot",
+  //     }),
+  //   ],
+  // }),
   canRunWithoutAction: true,
   colorType: "Defi",
   minArguments: 4,
