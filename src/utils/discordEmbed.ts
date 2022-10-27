@@ -216,8 +216,10 @@ export async function workInProgress(): Promise<MessageOptions> {
     .setThumbnail(
       "https://cdn.discordapp.com/emojis/916737804002799699.png?size=240"
     )
-    .setTitle("Work In Progress")
-    .setDescription("We are working on this command. Stay tuned!")
+    .setTitle(`${emojis.RED_FLAG} Work In Progress`)
+    .setDescription(
+      `The command is in maintenance. Stay tuned! ${getEmoji("touch")}`
+    )
 
   return { embeds: [embed] }
 }

@@ -87,12 +87,16 @@ export const set = new SlashCommandSubcommandBuilder()
   .addChannelOption((option) =>
     option
       .setName("channel")
-      .setDescription("the channel which you wanna create verify wallet.")
+      .setDescription(
+        "the channel which you wanna create verify wallet. Example: #general"
+      )
       .setRequired(true)
   )
   .addRoleOption((option) =>
     option
       .setName("role")
-      .setDescription("the role to assign to user when they are verified")
+      .setDescription(
+        "the role to assign to user when they are verified. Example: @verified"
+      )
       .setRequired(false)
   )

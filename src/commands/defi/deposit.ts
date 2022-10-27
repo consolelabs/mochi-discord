@@ -1,11 +1,16 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
-import { DEPOSIT_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
+// import { DEPOSIT_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import { DirectMessageNotAllowedError, UserNotFoundError } from "errors"
 import Profile from "adapters/profile"
-import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
+import {
+  composeButtonLink,
+  composeEmbedMessage,
+  workInProgress,
+} from "utils/discordEmbed"
 import { defaultEmojis, getEmoji } from "utils/common"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function deposit(msg: Message) {
   const guildId = msg.guildId ?? "DM"
   let user
@@ -59,22 +64,24 @@ const command: Command = {
   command: "deposit",
   brief: "Deposit",
   category: "Defi",
-  run: deposit,
+  // run: deposit,
+  run: async () => ({ messageOptions: await workInProgress() }),
   featured: {
     title: `${getEmoji("left_arrow")} Deposit`,
     description: "Deposit tokens into your in-discord wallet",
   },
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}deposit`,
-        description: "Deposit tokens into your in-discord wallet",
-        examples: `${PREFIX}deposit\n${PREFIX}dep`,
-        footer: [DEFI_DEFAULT_FOOTER],
-        document: `${DEPOSIT_GITBOOK}&command=deposit`,
-      }),
-    ],
-  }),
+  getHelpMessage: workInProgress,
+  // getHelpMessage: async (msg) => ({
+  //   embeds: [
+  //     composeEmbedMessage(msg, {
+  //       usage: `${PREFIX}deposit`,
+  //       description: "Deposit tokens into your in-discord wallet",
+  //       examples: `${PREFIX}deposit\n${PREFIX}dep`,
+  //       footer: [DEFI_DEFAULT_FOOTER],
+  //       document: `${DEPOSIT_GITBOOK}&command=deposit`,
+  //     }),
+  //   ],
+  // }),
   canRunWithoutAction: true,
   aliases: ["dep"],
   allowDM: true,

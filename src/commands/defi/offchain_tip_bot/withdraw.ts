@@ -39,9 +39,10 @@ async function withdraw(msg: Message, args: string[]) {
   payload.fullCommand = msg.content
   const res = await Defi.offchainDiscordWithdraw(payload)
   if (!res.ok) {
-    return {
+    await msg.author.send({
       embeds: [getErrorEmbed({ msg, description: res.error })],
-    }
+    })
+    return
   }
 
   const ftmEmoji = getEmoji("ftm")
@@ -58,7 +59,7 @@ async function withdraw(msg: Message, args: string[]) {
     },
     {
       name: "Withdrawal amount",
-      value: `**${res.data.withdrawal_amount}** ${tokenEmoji}`,
+      value: `**${res.data.withdraw_amount}** ${tokenEmoji}`,
       inline: true,
     },
     {

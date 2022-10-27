@@ -19,7 +19,7 @@ const command: SlashCommand = {
         option
           .setName("symbol")
           .setDescription(
-            "The token which you wanna remove from your watchlist."
+            "The token which you wanna remove from your watchlist. Example: FTM"
           )
           .setRequired(true)
       )

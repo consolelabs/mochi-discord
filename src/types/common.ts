@@ -169,6 +169,7 @@ export type RoleReactionEvent = {
   message_id: string
   reaction: string
   role_id?: string
+  channel_id: string
 }
 
 export type RoleReactionConfigResponse = {

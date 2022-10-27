@@ -49,7 +49,7 @@ const command: SlashCommand = {
         option
           .setName("symbol")
           .setDescription(
-            "The ticker/pair which you wanna add to your watchlist."
+            "The ticker/pair which you wanna add to your watchlist. Example: FTM"
           )
           .setRequired(true)
       )

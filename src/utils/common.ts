@@ -87,12 +87,12 @@ export const expBarEmojis: Record<string, string> = {
 }
 
 export const progressEmojis: Record<string, string> = {
-  PROGRESS_EMPTY_1: "1016993271051984936",
-  PROGRESS_EMPTY_2: "1016993269202296892",
-  PROGRESS_EMPTY_3: "1016993266371141704",
-  PROGRESS_1: "1016993258380988436",
-  PROGRESS_2: "1016993262101344306",
-  PROGRESS_3: "1016993264357875743",
+  PROGRESS_EMPTY_1: "1035038442767265882",
+  PROGRESS_EMPTY_2: "1035038440426848306",
+  PROGRESS_EMPTY_3: "1035038437989961808",
+  PROGRESS_1: "1035038429894942761",
+  PROGRESS_2: "1035038432294080523",
+  PROGRESS_3: "1035038434714206238",
 }
 
 export const defaultEmojis: Record<string, string> = {
@@ -177,11 +177,13 @@ export const emojis: { [key: string]: string } = {
   NFT: "🖼",
   TICKER: "📈",
   INFO: "🔎",
+  RED_FLAG: "🚩",
   FLOORPRICE: "1029662833144766464",
   CHEST: "933339868006871070",
   XP: "933032436814708768",
   MESSAGE: "1032608821534806056",
   CONVERSATION: "1032608818930139249",
+  TOUCH: "900363887050911784",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -495,4 +497,10 @@ export function buildProgressBar(params: BuildProgressBarParams) {
   }
 
   return filled.join("")
+}
+
+export function isDiscordMessageLink(url: string): boolean {
+  return /(http(s)?:\/\/\.)?(www\.)?discord\.com\/channels\/[0-9]*\/[0-9]*\/[0-9]*/g.test(
+    url
+  )
 }

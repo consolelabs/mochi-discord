@@ -55,7 +55,9 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("symbol")
-          .setDescription("The NFT which you wanna add to your watchlist.")
+          .setDescription(
+            "The NFT which you wanna add to your watchlist. Example: Neko"
+          )
           .setRequired(true)
       )
   },
