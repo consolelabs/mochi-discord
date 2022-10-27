@@ -111,6 +111,7 @@ class TwitterStream extends InmemoryStorage {
   }
 
   private async handle(tweet: PartialDeep<Tweet>) {
+    logger.info(`[TwitterStream]: new tweet detected ${JSON.stringify(tweet)}`)
     try {
       const ruleIds = tweet.matching_rules?.map((mr) => mr?.id) ?? []
       const handle = tweet.includes?.users?.find(
@@ -181,13 +182,6 @@ class TwitterStream extends InmemoryStorage {
       let ruleId = params.ruleId
       // if there is a ruleId, it means that we are updating a current rule -> need to call twitter API
       // or else we will be listening to stale rules in the same guild
-      if (ruleId) {
-        await twitter.tweets.addOrDeleteRules({
-          delete: {
-            ids: [ruleId],
-          },
-        })
-      }
       const rule = await twitter.tweets.addOrDeleteRules({
         add: [
           {
@@ -227,7 +221,7 @@ class TwitterStream extends InmemoryStorage {
     logger.info("[TwitterStream] - backend retrieving data...")
     try {
       if (PROD) {
-        let allRules = await twitter.tweets.getRules()
+        const allRules = await twitter.tweets.getRules()
         const allRuleIds =
           allRules.data?.filter((r) => r.id).map((r) => r.id ?? "") ?? []
         const allTwitterConfig = await apiConfig.getTwitterConfig()
@@ -266,7 +260,6 @@ class TwitterStream extends InmemoryStorage {
           const staleRuleIds = allRuleIds
             .filter(Boolean)
             .filter((rid) => !validRuleIds.some((vrid) => vrid === rid))
-          allRules = await twitter.tweets.getRules()
           if (staleRuleIds.length > 0) {
             await twitter.tweets.addOrDeleteRules({
               delete: {
