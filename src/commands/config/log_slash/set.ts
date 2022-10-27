@@ -9,7 +9,9 @@ export const set = new SlashCommandSubcommandBuilder()
   .addStringOption((option) =>
     option
       .setName("channel")
-      .setDescription("the channel which you wanna log members' activities.")
+      .setDescription(
+        "the channel which you wanna log members' activities. Example: #general"
+      )
       .setRequired(true)
   )
 

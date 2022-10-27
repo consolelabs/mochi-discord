@@ -76,6 +76,8 @@ export const without = new SlashCommandSubcommandBuilder()
   .addRoleOption((option) =>
     option
       .setName("role")
-      .setDescription("Users without this role will be pruned")
+      .setDescription(
+        "Users without this role will be pruned. Example: @default"
+      )
       .setRequired(true)
   )

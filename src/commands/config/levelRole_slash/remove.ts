@@ -19,7 +19,9 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("level")
-          .setDescription("level which you want to remove configuration role")
+          .setDescription(
+            "level which you want to remove configuration role. Example: 1"
+          )
           .setRequired(true)
       )
   },

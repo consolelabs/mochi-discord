@@ -21,13 +21,17 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("role")
-          .setDescription("role which you want to set configuration for level")
+          .setDescription(
+            "role which you want to set configuration for level. Example: @admin"
+          )
           .setRequired(true)
       )
       .addStringOption((option) =>
         option
           .setName("level")
-          .setDescription("level which you want to set configuration role")
+          .setDescription(
+            "level which you want to set configuration role. Example: 1"
+          )
           .setRequired(true)
       )
   },

@@ -189,7 +189,7 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("page")
-          .setDescription("list page number.")
+          .setDescription("list page number. Example: 1")
           .setRequired(false)
       )
   },
