@@ -55,22 +55,6 @@ const event: DiscordEvent<"interactionCreate"> = {
       } else if (interaction.isCommand()) {
         await handleCommandInteraction(interaction)
       }
-
-      if (interaction.isSelectMenu() || interaction.isButton()) {
-        if (
-          ConversationManager.hasConversation(
-            interaction.user.id,
-            interaction.channelId,
-            interaction
-          )
-        ) {
-          ConversationManager.continueConversation(
-            interaction.user.id,
-            interaction.channelId,
-            interaction
-          )
-        }
-      }
     })
   },
 }
@@ -258,7 +242,11 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("back-to-quest-list"):
       await handleBackToQuestList(i)
       return
-    default:
+    default: {
+      if (ConversationManager.hasConversation(i.user.id, i.channelId, i)) {
+        ConversationManager.continueConversation(i.user.id, i.channelId, i)
+      }
       return
+    }
   }
 }
