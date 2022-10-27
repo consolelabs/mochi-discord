@@ -8,13 +8,10 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
+import { APIError } from "errors"
 import Defi from "adapters/defi"
-import {
-  composeEmbedMessage,
-  getErrorEmbed,
-  justifyEmbedFields,
-} from "utils/discordEmbed"
-import Config from "adapters/config"
+import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
+import { UserBalances } from "types/defi"
 
 const command: Command = {
   id: "balances",
@@ -22,54 +19,15 @@ const command: Command = {
   brief: "Wallet balances",
   category: "Defi",
   run: async function balances(msg: Message) {
-    const guildId = msg.guildId ?? "DM"
-    //{ balances, balances_in_usd }
-    const res = await Defi.discordWalletBalances(guildId, msg.author.id)
-    if (!res.ok || !res.data.balances || !res.data.balances_in_usd) {
-      const errorEmbed = getErrorEmbed({
-        msg,
-        description: `Failed to get user balances`,
-      })
-      return {
-        messageOptions: {
-          embeds: [errorEmbed],
-        },
-      }
-    }
-    const { balances, balances_in_usd } = res.data
-    const guildTokens = await Config.getGuildTokens(guildId)
-
-    if (!guildTokens) {
-      const errorEmbed = getErrorEmbed({
-        msg,
-        description: `Your server currently has no tokens.\nUse \`${PREFIX}token add\` to add one.`,
-      })
-      return {
-        messageOptions: {
-          embeds: [errorEmbed],
-        },
-      }
+    // case API return 500 or unpected result
+    const userId = msg.author.id
+    const res = await Defi.offchainGetUserBalances({ userId })
+    if (!res.ok) {
+      throw new APIError({ curl: res.curl, description: res.log })
     }
 
-    const fields: EmbedFieldData[] = []
-    const blank = getEmoji("blank")
-    guildTokens.forEach((gToken) => {
-      const tokenSymbol = gToken.symbol
-      const tokenEmoji = getEmoji(tokenSymbol)
-      const tokenBalance = roundFloatNumber(balances[tokenSymbol] ?? 0, 4)
-      if (tokenBalance === 0) return
-      const tokenBalanceInUSD = balances_in_usd[tokenSymbol]
-      let balanceInfo = `${tokenEmoji} ${tokenBalance} ${tokenSymbol}`
-      if (tokenBalanceInUSD !== undefined) {
-        balanceInfo += ` \`$${roundFloatNumber(
-          tokenBalanceInUSD,
-          2
-        )}\` ${blank}`
-      }
-      fields.push({ name: gToken.name, value: balanceInfo, inline: true })
-    })
-
-    if (!fields.length) {
+    // case data = null || []
+    if (!res.data || res.data.length === 0) {
       const embed = composeEmbedMessage(msg, {
         title: "Info",
         description: `<@${msg.author.id}>, you have no balances.`,
@@ -81,8 +39,24 @@ const command: Command = {
       }
     }
 
-    const totalBalanceInUSD = Object.values(balances_in_usd).reduce(
-      (prev, cur) => prev + cur
+    // case data normal
+    const fields: EmbedFieldData[] = []
+    const blank = getEmoji("blank")
+    res.data.forEach((balance: UserBalances) => {
+      const tokenName = balance["name"]
+      const tokenEmoji = getEmoji(balance["symbol"])
+      const tokenBalance = roundFloatNumber(balance["balances"], 4)
+      const tokenBalanceInUSD = roundFloatNumber(balance["balances_in_usd"], 4)
+
+      const balanceInfo = `${tokenEmoji} ${tokenBalance} ${balance["symbol"]} \`$${tokenBalanceInUSD}\` ${blank}`
+      fields.push({ name: tokenName, value: balanceInfo, inline: true })
+    })
+
+    const totalBalanceInUSD = res.data.reduce(
+      (accumulator: number, balance: UserBalances) => {
+        return accumulator + balance["balances_in_usd"]
+      },
+      0
     )
 
     const embed = composeEmbedMessage(msg, {
@@ -105,14 +79,14 @@ const command: Command = {
   },
   featured: {
     title: `${getEmoji("cash")} Balance`,
-    description: "Show your in-discord balances of supported tokens",
+    description: "Show your balances",
   },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
         usage: `${PREFIX}balance`,
-        description: "Show your in-discord balances of supported tokens",
+        description: "Show your offchain balances",
         footer: [DEFI_DEFAULT_FOOTER],
         examples: `${PREFIX}balance\n${PREFIX}bals\n${PREFIX}bal`,
         document: BALANCE_GITBOOK,

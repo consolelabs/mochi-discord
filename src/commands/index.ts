@@ -6,9 +6,6 @@ import stats from "./community/stats"
 import nft from "./community/nft"
 import sales from "./community/sales"
 import depositoff from "./defi/offchain_tip_bot/deposit"
-import balancesoff from "./defi/offchain_tip_bot/balance"
-import tipoff from "./defi/offchain_tip_bot/tip"
-import withdrawoff from "./defi/offchain_tip_bot/withdraw"
 import airdropoff from "./defi/offchain_tip_bot/airdrop"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
@@ -114,9 +111,6 @@ export const originalCommands: Record<string, Command> = {
   profile,
   // defi offchain section
   depositoff,
-  tipoff,
-  balancesoff,
-  withdrawoff,
   airdropoff,
   // defi section
   deposit,
