@@ -1,16 +1,24 @@
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX, GM_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { set, gmSet } from "./set"
-import { info, gmInfo } from "./info"
-import { streak, gmStreak } from "./streak"
-import { SlashCommandBuilder } from "@discordjs/builders"
+import set from "./set"
+import info from "./info"
+import streak from "./streak"
+import {
+  SlashCommandBuilder,
+  SlashCommandSubcommandBuilder,
+} from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
+
+const subCommands: Record<string, SlashCommand> = {
+  info,
+  set,
+  streak,
+}
 
 const command: SlashCommand = {
   name: "gm",
   category: "Community",
-  onlyAdministrator: true,
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("gm")
@@ -18,18 +26,13 @@ const command: SlashCommand = {
         "Configure a good morning/good night channel for users to engage and keep streaks"
       )
 
-    data.addSubcommand(set).addSubcommand(info).addSubcommand(streak)
+    data.addSubcommand(<SlashCommandSubcommandBuilder>info.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>set.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>streak.prepare())
     return data
   },
   run: async function (interaction: CommandInteraction) {
-    switch (interaction.options.getSubcommand()) {
-      case set.name:
-        return gmSet(interaction)
-      case info.name:
-        return gmInfo(interaction)
-      case streak.name:
-        return gmStreak(interaction)
-    }
+    return subCommands[interaction.options.getSubcommand()].run(interaction)
   },
   help: async () => ({
     embeds: [

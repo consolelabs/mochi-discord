@@ -9,9 +9,10 @@ import { handle } from "./stats"
 const command: SlashCommand = {
   name: "stats",
   category: "Community",
+  onlyAdministrator: true,
   prepare: () => {
     return new SlashCommandBuilder()
-      .setName("stat")
+      .setName("stats")
       .setDescription("Shows different server stats")
   },
   run: async function (interaction: CommandInteraction) {
