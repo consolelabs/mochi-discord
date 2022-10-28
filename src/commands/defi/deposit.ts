@@ -1,40 +1,33 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
-// import { DEPOSIT_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
-import { DirectMessageNotAllowedError, UserNotFoundError } from "errors"
-import Profile from "adapters/profile"
-import {
-  composeButtonLink,
-  composeEmbedMessage,
-  workInProgress,
-} from "utils/discordEmbed"
-import { defaultEmojis, getEmoji } from "utils/common"
+import { DEPOSIT_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
+import { DirectMessageNotAllowedError } from "errors"
+import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
+import { APIError } from "errors"
+import { getEmoji, defaultEmojis } from "utils/common"
+import defi from "adapters/defi"
+import { getCommandArguments } from "utils/commands"
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function deposit(msg: Message) {
-  const guildId = msg.guildId ?? "DM"
-  let user
   try {
-    const res = await Profile.getUser({ discordId: msg.author.id })
-    if (res.ok) {
-      user = res.data
-    } else {
-      throw new UserNotFoundError({
-        message: msg,
-        guildId,
-        discordId: msg.author.id,
-      })
+    const tokenSymbol = getCommandArguments(msg)[1]
+    const res = await defi.offchainTipBotAssignContract({
+      user_id: msg.author.id,
+      token_symbol: tokenSymbol,
+    })
+
+    if (!res.ok) {
+      throw new APIError({ curl: res.curl, description: res.log })
     }
 
-    let description =
-      "This is the wallet address linked with your discord account.\nPlease deposit to the below address only."
-    description += "\n\n**Your deposit address**"
-    description += `\n\`${user.in_discord_wallet_address}\``
     const dm = await msg.author.send({
       embeds: [
         composeEmbedMessage(msg, {
-          title: `${defaultEmojis.ARROW_DOWN} **Deposit token**`,
-          description,
+          title: `${defaultEmojis.ARROW_DOWN} **Deposit ${tokenSymbol}**`,
+          description: `This is the wallet address linked with your discord account.
+          Please deposit to the below address only.\n\nYour deposit address\n${getEmoji(
+            tokenSymbol.toUpperCase()
+          )}\`${res.data.contract.contract_address}\``,
         }),
       ],
     })
@@ -64,28 +57,27 @@ const command: Command = {
   command: "deposit",
   brief: "Deposit",
   category: "Defi",
-  // run: deposit,
-  run: async () => ({ messageOptions: await workInProgress() }),
+  run: deposit,
   featured: {
     title: `${getEmoji("left_arrow")} Deposit`,
     description: "Deposit tokens into your in-discord wallet",
   },
-  getHelpMessage: workInProgress,
-  // getHelpMessage: async (msg) => ({
-  //   embeds: [
-  //     composeEmbedMessage(msg, {
-  //       usage: `${PREFIX}deposit`,
-  //       description: "Deposit tokens into your in-discord wallet",
-  //       examples: `${PREFIX}deposit\n${PREFIX}dep`,
-  //       footer: [DEFI_DEFAULT_FOOTER],
-  //       document: `${DEPOSIT_GITBOOK}&command=deposit`,
-  //     }),
-  //   ],
-  // }),
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        usage: `${PREFIX}deposit <currency>`,
+        description: "Offchain deposit token",
+        examples: `${PREFIX}deposit eth`,
+        footer: [DEFI_DEFAULT_FOOTER],
+        document: DEPOSIT_GITBOOK,
+      }),
+    ],
+  }),
   canRunWithoutAction: true,
   aliases: ["dep"],
   allowDM: true,
   colorType: "Defi",
+  minArguments: 2,
 }
 
 export default command
