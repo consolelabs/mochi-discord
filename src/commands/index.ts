@@ -53,7 +53,7 @@ import defaultrole_slash from "./config/defaultRole_slash"
 import levelrole_slash from "./config/levelRole_slash"
 import vote_slash from "./community/vote/vote_slash"
 import quest_slash from "./community/quest_slash"
-import stats_slash from "./community/stat_slash"
+import stats_slash from "./community/stats_slash"
 import gm_slash from "./community/gm_slash"
 
 // external
