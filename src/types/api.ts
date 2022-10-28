@@ -130,6 +130,13 @@ export interface ModelDiscordGuildStat {
   nr_of_voice_channels?: number;
 }
 
+export interface ModelDiscordUserDevice {
+  created_at?: string;
+  id?: string;
+  ios_noti_token?: string;
+  updated_at?: string;
+}
+
 export interface ModelDiscordUserGMStreak {
   created_at?: string;
   discord_id?: string;
@@ -137,6 +144,18 @@ export interface ModelDiscordUserGMStreak {
   last_streak_date?: string;
   streak_count?: number;
   total_count?: number;
+  updated_at?: string;
+}
+
+export interface ModelDiscordUserTokenAlert {
+  created_at?: string;
+  device?: ModelDiscordUserDevice;
+  device_id?: string;
+  discord_id?: string;
+  id?: string;
+  price_set?: number;
+  token_id?: string;
+  trend?: string;
   updated_at?: string;
 }
 
@@ -590,8 +609,18 @@ export interface RequestCreateWhitelistCampaignRequest {
   name?: string;
 }
 
+export interface RequestDeleteDiscordUserAlertRequest {
+  discord_id?: string;
+  token_id?: string;
+  trend?: string;
+}
+
 export interface RequestDeleteJoinLeaveChannelConfigRequest {
   guild_id?: string;
+}
+
+export interface RequestDeleteUserDeviceRequest {
+  device_id?: string;
 }
 
 export interface RequestDeleteVoteChannelConfigRequest {
@@ -768,6 +797,14 @@ export interface RequestUpsertCustomTokenConfigRequest {
   symbol?: string;
 }
 
+export interface RequestUpsertDiscordUserAlertRequest {
+  device_id?: string;
+  discord_id?: string;
+  price_set?: number;
+  token_id?: string;
+  trend?: string;
+}
+
 export interface RequestUpsertGmConfigRequest {
   channel_id?: string;
   guild_id?: string;
@@ -787,6 +824,11 @@ export interface RequestUpsertGuildTokenConfigRequest {
 export interface RequestUpsertJoinLeaveChannelConfigRequest {
   channel_id?: string;
   guild_id?: string;
+}
+
+export interface RequestUpsertUserDeviceRequest {
+  device_id?: string;
+  ios_noti_token?: string;
 }
 
 export interface RequestUpsertVoteChannelConfigRequest {
@@ -951,6 +993,10 @@ export interface ResponseDiscordGuildResponse {
   owner?: boolean;
   /** @example 0 */
   permissions?: string;
+}
+
+export interface ResponseDiscordUserTokenAlertResponse {
+  data?: ModelDiscordUserTokenAlert[];
 }
 
 export interface ResponseGenerateVerificationResponse {
@@ -1728,6 +1774,11 @@ export interface ResponseUser {
 export interface ResponseUserBalancesResponse {
   balances?: Record<string, number>;
   balances_in_usd?: Record<string, number>;
+}
+
+export interface ResponseUserDeviceResponse {
+  device_id?: string;
+  ios_noti_token?: string;
 }
 
 export interface ResponseUserInvitesAggregation {

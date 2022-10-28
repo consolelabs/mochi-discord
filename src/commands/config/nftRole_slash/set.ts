@@ -19,13 +19,13 @@ const command: SlashCommand = {
       .setDescription(
         "Set a role that users will get when they own specific amount of NFT"
       )
-      .addStringOption((option) =>
+      .addRoleOption((option) =>
         option
           .setName("role")
           .setDescription("role which you want to configure")
           .setRequired(true)
       )
-      .addStringOption((option) =>
+      .addNumberOption((option) =>
         option
           .setName("amount")
           .setDescription("number of nft addresses")
@@ -58,41 +58,12 @@ const command: SlashCommand = {
       }
     }
 
-    const roleArg = interaction.options.getString("role", true)
-    const amountArg = interaction.options.getString("amount", true)
     const nftAddresses = interaction.options
       .getString("addresses", true)
       .split(",")
     const tokenId = interaction.options.getString("tokenid", false)
-    if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              description:
-                "Invalid role. Be careful to not be mistaken role with username while setting.",
-              originalMsgAuthor: interaction.user,
-            }),
-          ],
-        },
-      }
-    }
-    const roleId = roleArg.substring(3, roleArg.length - 1)
-    const role = await interaction.guild.roles.fetch(roleId)
-    if (!role) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              description: "Role not found",
-              originalMsgAuthor: interaction.user,
-            }),
-          ],
-        },
-      }
-    }
-
-    const amount = +amountArg
+    const role = interaction.options.getRole("role", true)
+    const amount = interaction.options.getNumber("amount", true)
     if (Number.isNaN(amount) || amount < 0 || amount >= Infinity)
       return {
         messageOptions: {
@@ -135,7 +106,7 @@ const command: SlashCommand = {
 
     const res = await Config.newGuildNFTRoleConfig({
       guild_id: interaction.guildId,
-      role_id: roleId,
+      role_id: role.id,
       group_name: role.name,
       collection_address: nftAddresses,
       number_of_tokens: amount,

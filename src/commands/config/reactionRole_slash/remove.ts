@@ -1,12 +1,13 @@
 import { RoleReactionEvent, SlashCommand } from "types/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import { composeEmbedMessage2, getErrorEmbed } from "utils/discordEmbed"
-import { CommandInteraction, Message, TextChannel } from "discord.js"
+import { CommandInteraction } from "discord.js"
 import config from "adapters/config"
 import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError } from "errors"
+import { BotBaseError, CommandError } from "errors"
 import { logger } from "logger"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { isDiscordMessageLink } from "utils/common"
 
 const command: SlashCommand = {
   name: "remove",
@@ -17,8 +18,10 @@ const command: SlashCommand = {
       .setDescription("Remove a reaction role configuration")
       .addStringOption((option) =>
         option
-          .setName("message_id")
-          .setDescription("message which you want to configure for role")
+          .setName("message_link")
+          .setDescription(
+            "link of message which you want to configure for role"
+          )
           .setRequired(true)
       )
       .addStringOption((option) =>
@@ -66,20 +69,43 @@ const command: SlashCommand = {
     }
 
     // Validate message_id
-    const messageId = interaction.options
-      .getString("message_id", true)
-      .replace(/\D/g, "")
-    const channelList = interaction.guild.channels.cache
-      .filter((c) => c.type === "GUILD_TEXT")
-      .map((c) => c as TextChannel)
+    const messageLink = interaction.options.getString("message_link", true)
+    if (!isDiscordMessageLink(messageLink)) {
+      throw new CommandError({
+        user: interaction.user,
+        guild: interaction.guild,
+        description:
+          "Invalid message link, use `$help rr` to learn how to get message link",
+      })
+    }
 
-    const message = (
-      await Promise.all(
-        channelList.map((chan) =>
-          chan.messages.fetch(messageId).catch(() => null)
-        )
-      )
-    ).find((m) => m instanceof Message)
+    const [guildId, channelId, messageId] = messageLink.split("/").slice(-3)
+    if (guildId !== interaction.guildId) {
+      throw new CommandError({
+        user: interaction.user,
+        guild: interaction.guild,
+        description:
+          "Guild ID invalid, please choose a message belongs to your guild",
+      })
+    }
+
+    const channel = interaction.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
+    if (!channel || !channel.isText()) {
+      throw new CommandError({
+        user: interaction.user,
+        guild: interaction.guild,
+        description: "Channel not found",
+      })
+    }
+
+    const message = await channel.messages.fetch(messageId).catch(() => null)
+    if (!message) {
+      throw new CommandError({
+        user: interaction.user,
+        guild: interaction.guild,
+        description: "Message not found",
+      })
+    }
 
     if (!message || !messageId) {
       return {
@@ -99,9 +125,10 @@ const command: SlashCommand = {
       // Remove all reaction from configured message
       requestData = {
         guild_id: interaction.guild.id,
-        message_id: messageId,
+        message_id: message.id,
         reaction: "",
         role_id: "",
+        channel_id: channel.id,
       }
     } else if (emoji && role) {
       // Remove a specific reaction
@@ -121,9 +148,10 @@ const command: SlashCommand = {
       }
       requestData = {
         guild_id: interaction.guild.id,
-        message_id: messageId,
+        message_id: message.id,
         reaction: emoji,
         role_id: roleId,
+        channel_id: channel.id,
       }
     }
 
@@ -173,8 +201,8 @@ const command: SlashCommand = {
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        usage: `To remove a specific configuration in a message\n${PREFIX}reactionrole remove <message_id> <emoji> <role>\n\nTo clear all configurations in a message\n${PREFIX}reactionrole remove <message_id>`,
-        examples: `${PREFIX}reactionrole remove 967107573591457832 ✅ @Visitor\n${PREFIX}reactionrole remove 967107573591457832`,
+        usage: `To remove a specific configuration in a message\n${PREFIX}reactionrole remove <message_link> <emoji> <role>\n\nTo clear all configurations in a message\n${PREFIX}reactionrole remove <message_link>`,
+        examples: `${PREFIX}reactionrole remove https://discord.com/channels/...4875 ✅ @Visitor\n${PREFIX}reactionrole remove https://discord.com/channels/...4875`,
       }),
     ],
   }),

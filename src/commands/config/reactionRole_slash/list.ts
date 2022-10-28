@@ -6,10 +6,10 @@ import {
   getPaginationRow,
   listenForPaginateInteraction,
 } from "utils/discordEmbed"
-import { CommandInteraction, MessageEmbed, TextChannel } from "discord.js"
+import { CommandInteraction, MessageEmbed } from "discord.js"
 import config from "adapters/config"
-import { catchEm, getEmoji, getFirstWords, paginate } from "utils/common"
-import { APIError } from "errors"
+import { getEmoji, getFirstWords, paginate } from "utils/common"
+import { APIError, CommandError } from "errors"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
 const command: SlashCommand = {
@@ -38,55 +38,79 @@ const command: SlashCommand = {
     const res = await config.listAllReactionRoles(interaction.guildId)
     if (!res.ok) {
       throw new APIError({
+        user: interaction.user,
+        guild: interaction.guild,
         curl: res.curl,
         description: res.log,
       })
     }
 
-    const channels = interaction.guild.channels.cache
-      .filter((c) => c.type === "GUILD_TEXT")
-      .map((c) => c as TextChannel)
+    const data = res.data.configs
+    if (!data) {
+      throw new CommandError({
+        user: interaction.user,
+        guild: interaction.guild,
+        description: "No configuration found",
+      })
+    }
 
-    // TODO: refactor
     const values = await Promise.all(
-      res.data.configs?.map(async (conf: any) => {
-        const promiseArr = channels.map((chan) =>
-          catchEm(chan.messages.fetch(conf.message_id))
-        )
-        for (const prom of promiseArr) {
-          const [err, fetchedMsg] = await prom
-          if (!err && conf.roles?.length > 0) {
-            const title =
-              fetchedMsg.content ||
-              fetchedMsg.embeds?.[0]?.title ||
-              fetchedMsg.embeds?.[0]?.description ||
-              "Embed Message"
-            const f = conf.roles.map((role: any) => ({
-              role: `<@&${role.id}>`,
-              emoji: role.reaction,
-              url: fetchedMsg.url,
-              title,
-            }))
-            return f
-          }
+      data.map(async (cfg) => {
+        const channel = interaction.guild?.channels.cache.get(
+          cfg.channel_id ?? ""
+        ) // user already has message in the channel => channel in cache
+        if (!channel || !channel.isText()) {
+          throw new CommandError({
+            user: interaction.user,
+            guild: interaction.guild,
+            description: "Channel not found",
+          })
         }
-      }) ?? []
+
+        const reactMessage = await channel.messages
+          .fetch(cfg.message_id ?? "")
+          .catch(() => null)
+        if (!reactMessage) {
+          throw new CommandError({
+            user: interaction.user,
+            guild: interaction.guild,
+            description: "Message not found",
+          })
+        }
+
+        if (cfg.roles && cfg.roles.length > 0) {
+          const title =
+            reactMessage.content ||
+            reactMessage.embeds?.[0]?.title ||
+            reactMessage.embeds?.[0]?.description ||
+            "Embed Message"
+
+          const f = cfg.roles.map((role: any) => ({
+            role: `<@&${role.id}>`,
+            emoji: role.reaction,
+            url: reactMessage.url,
+            title,
+          }))
+          return f
+        }
+      })
     )
+    let pages = paginate(values, 5)
 
-    let pages = paginate(values.flat().filter(Boolean), 5)
     pages = pages.map((arr: any, idx: number): MessageEmbed => {
-      const col1 = arr
-        .map(
-          (item: any) =>
-            `**${getFirstWords(item.title, 3)}**\n${getEmoji(
-              "blank"
-            )}${getEmoji("reply")} ${item.emoji} ${item.role}`
-        )
-        .join("\n\n")
-
-      const col2 = arr
-        .map((item: any) => `**[Jump](${item.url})**`)
-        .join("\n\n\n")
+      let col1 = ""
+      let col2 = ""
+      arr.forEach((group: any) => {
+        let roleCount = 0
+        col1 += `\n**${getFirstWords(group[0].title, 3)}**\n`
+        group.forEach((item: any) => {
+          col1 += `${getEmoji("blank")}${getEmoji("reply")} ${item.emoji} ${
+            item.role
+          }\n`
+          roleCount++
+        })
+        col2 += `**[Jump](${group[0].url})**\n\n` + "\n".repeat(roleCount)
+      })
       return composeEmbedMessage2(interaction, {
         author: [
           `${interaction.guild?.name}'s reaction roles`,

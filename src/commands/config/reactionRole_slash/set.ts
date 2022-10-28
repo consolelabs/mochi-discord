@@ -1,11 +1,16 @@
 import { RoleReactionEvent, SlashCommand } from "types/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage2, getErrorEmbed } from "utils/discordEmbed"
-import { CommandInteraction, Message, TextChannel } from "discord.js"
+import {
+  composeEmbedMessage2,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "utils/discordEmbed"
+import { CommandInteraction } from "discord.js"
 import config from "adapters/config"
-import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError } from "errors"
+import { APIError, CommandError } from "errors"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { isDiscordMessageLink } from "utils/common"
+import { parseDiscordToken } from "utils/commands"
 
 const command: SlashCommand = {
   name: "set",
@@ -16,8 +21,10 @@ const command: SlashCommand = {
       .setDescription("Set a new reaction role configuration")
       .addStringOption((option) =>
         option
-          .setName("message_id")
-          .setDescription("message which you want to configure for role")
+          .setName("message_link")
+          .setDescription(
+            "link of message which you want to configure for role"
+          )
           .setRequired(true)
       )
       .addStringOption((option) =>
@@ -26,7 +33,7 @@ const command: SlashCommand = {
           .setDescription("emoji which you want to configure for role")
           .setRequired(true)
       )
-      .addStringOption((option) =>
+      .addRoleOption((option) =>
         option
           .setName("role")
           .setDescription("role which you want to configure")
@@ -34,7 +41,7 @@ const command: SlashCommand = {
       )
   },
   run: async (interaction: CommandInteraction) => {
-    if (!interaction.guild) {
+    if (!interaction.guildId || !interaction.guild) {
       return {
         messageOptions: {
           embeds: [
@@ -48,28 +55,19 @@ const command: SlashCommand = {
     }
 
     // Validate input reaction emoji
-    let reaction = interaction.options.getString("emoji", true)
-    let isValidEmoji = false
-    if (reaction.startsWith("<:") && reaction.endsWith(">")) {
-      reaction = reaction.toLowerCase()
-    }
-    const emojiSplit = reaction.split(":")
-    if (emojiSplit.length === 1) {
-      isValidEmoji = true
-    }
-    if (emojiSplit.length === 3) {
-      isValidEmoji = true
-      const emojiId = emojiSplit[2].replace(/\D/g, "")
-      await interaction.guild.emojis.fetch(emojiId).catch(() => {
-        isValidEmoji = false
-      })
-    }
-    if (!isValidEmoji) {
+    const emojiArg = interaction.options.getString("emoji", true)
+    const {
+      isEmoji,
+      isNativeEmoji,
+      isAnimatedEmoji,
+      value: reaction,
+    } = parseDiscordToken(emojiArg)
+    if (!isEmoji && !isNativeEmoji && !isAnimatedEmoji) {
       return {
         messageOptions: {
           embeds: [
             getErrorEmbed({
-              description: `Emoji ${reaction} is invalid or not owned by this guild`,
+              description: `Emoji ${emojiArg} is invalid or not owned by this guild. Pick another emoji! 💪`,
               originalMsgAuthor: interaction.user,
             }),
           ],
@@ -77,81 +75,75 @@ const command: SlashCommand = {
       }
     }
 
-    // Validate ROLE_ID args
-    const roleId = interaction.options
-      .getString("role", true)
-      .replace(/\D/g, "") // Accept number-only characters
-    const role = await interaction.guild.roles.fetch(roleId)
-    if (!role || !roleId) {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ description: "Role not found" })],
-          originalMsgAuthor: interaction.user,
-        },
-      }
+    // Validate message link https://discord.com/channels/guild_id/chan_id/msg_id
+    const messageLink = interaction.options.getString("message_link", true)
+    if (!isDiscordMessageLink(messageLink)) {
+      throw new CommandError({
+        user: interaction.user,
+        guild: interaction.guild,
+        description:
+          "Can't find the messages.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+      })
     }
 
-    // Validate message_id
-    const messageId = interaction.options
-      .getString("message_id", true)
-      .replace(/\D/g, "")
-    const channelList = interaction.guild.channels.cache
-      .filter((c) => c.type === "GUILD_TEXT")
-      .map((c) => c as TextChannel)
-
-    const message = (
-      await Promise.all(
-        channelList.map((chan) =>
-          chan.messages.fetch(messageId).catch(() => null)
-        )
-      )
-    ).find((m) => m instanceof Message)
-
-    if (!message || !messageId) {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ description: "Message not found" })],
-          originalMsgAuthor: interaction.user,
-        },
-      }
+    const [guildId, channelId, messageId] = messageLink.split("/").slice(-3)
+    if (guildId !== interaction.guildId) {
+      throw new CommandError({
+        user: interaction.user,
+        guild: interaction.guild,
+        description:
+          "Guild ID invalid, please choose a message belongs to your guild.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+      })
     }
 
+    const channel = interaction.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
+    if (!channel || !channel.isText()) {
+      throw new CommandError({
+        user: interaction.user,
+        guild: interaction.guild,
+        description:
+          "Channel invalid, please choose a message in a text channel.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+      })
+    }
+
+    const reactMessage = await channel.messages
+      .fetch(messageId)
+      .catch(() => null)
+    if (!reactMessage) {
+      throw new CommandError({
+        user: interaction.user,
+        guild: interaction.guild,
+        description:
+          "Message not found, please choose another valid message. \n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+      })
+    }
+
+    const role = interaction.options.getRole("role", true)
     const requestData: RoleReactionEvent = {
       guild_id: interaction.guild.id,
-      message_id: messageId,
+      message_id: reactMessage.id,
       reaction,
-      role_id: roleId,
+      role_id: role.id,
+      channel_id: channel.id,
     }
 
     const res = await config.updateReactionConfig(requestData)
-    if (res.ok) {
-      message.react(requestData.reaction)
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage2(interaction, {
-              author: ["Reaction roles", interaction.guild.iconURL()],
-              description: `Emoji ${requestData.reaction} is now setting to this role <@&${requestData.role_id}>`,
-              originalMsgAuthor: interaction.user,
-            }),
-          ],
-        },
-      }
+    if (!res.ok) {
+      throw new APIError({
+        user: interaction.user,
+        guild: interaction.guild,
+        curl: res.curl,
+        description:
+          "Failed to set reaction role. \n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+      })
     }
-
-    if (res.error) {
-      ChannelLogger.alertSlash(
-        interaction,
-        new Error(res.error) as BotBaseError
-      )
-    }
-
+    await reactMessage.react(requestData.reaction)
     return {
       messageOptions: {
         embeds: [
-          getErrorEmbed({
-            description:
-              "Role / emoji was configured, please type `/reactionrole list` to check.",
+          getSuccessEmbed({
+            title: "Reaction role set!",
+            description: `Emoji ${requestData.reaction} is now set to this role <@&${requestData.role_id}>`,
             originalMsgAuthor: interaction.user,
           }),
         ],
@@ -161,8 +153,10 @@ const command: SlashCommand = {
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        usage: `${PREFIX}reactionrole set <message_id> <emoji> <role>`,
-        examples: `${PREFIX}reactionrole set 967107573591457832 ✅ @Visitor\n${PREFIX}reactionrole set 1018789986058895400 ✅ @admin`,
+        description:
+          "Don't know where to get the message link?\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+        usage: `${PREFIX}rr set <message_link> <emoji> <role>`,
+        examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
       }),
     ],
   }),
