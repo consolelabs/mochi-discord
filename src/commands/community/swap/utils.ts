@@ -40,12 +40,12 @@ export function renderTrade(params: RenderTradeRequestParams) {
       new MessageEmbed({
         color: "#379c6f" as any,
         author: {
-          name: "Trade Request",
+          name: "Swap Request",
         },
         thumbnail: {
           url: getEmojiURL(emojis["TRADE"]),
         },
-        description: `${user}'s items are open for trade, click button to submit your offer.`,
+        description: `${user} just submitted a new request, think you've got the items? Click the button 🤝`,
         fields: [
           {
             name: "Have",
@@ -84,9 +84,15 @@ export function renderTrade(params: RenderTradeRequestParams) {
       new MessageActionRow().addComponents([
         new MessageButton()
           .setCustomId(`trade-offer_${user.id}_${requestId}`)
-          .setLabel("Offer")
+          .setLabel("Let's talk")
           .setStyle("SECONDARY")
-          .setEmoji("👋"),
+          .setEmoji("🤝"),
+        new MessageButton()
+          .setLabel("Swap link")
+          .setStyle("LINK")
+          .setURL(
+            `https://mochi-web-git-feat-trade-podso.vercel.app/swap/${requestId}`
+          ),
       ]),
     ],
   }

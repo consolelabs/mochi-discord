@@ -109,9 +109,10 @@ export async function handleButtonOffer(i: ButtonInteraction) {
       })
       const channel = msg.channel
       const embed = i.message.embeds[0]
+      const buttonLink = msg.components[0].components[1]
 
       embed.description =
-        "Thread created for extra discussion, otherwise follow the link to complete your swap"
+        "Thread created for extra discussion, otherwise follow the link to complete your swap."
 
       await handleBeginSession({
         channel,
@@ -120,16 +121,7 @@ export async function handleButtonOffer(i: ButtonInteraction) {
         threadName: i.user.tag,
         msgOpts: {
           embeds: [embed],
-          components: [
-            new MessageActionRow().addComponents(
-              new MessageButton()
-                .setLabel("Swap link")
-                .setStyle("LINK")
-                .setURL(
-                  `https://mochi-web-git-feat-trade-podso.vercel.app/swap/${requestId}`
-                )
-            ),
-          ],
+          components: [new MessageActionRow().addComponents(buttonLink)],
         },
       })
       i.editReply({
@@ -154,9 +146,10 @@ export async function handleCreateSwap(i: ButtonInteraction) {
         composeEmbedMessage(null, {
           title: "Only for verified users",
           description:
-            "This feature requires you being verified a.k.a have a wallet address, please verify first",
+            "This feature requires you being verified a.k.a have a wallet address, please verify first.",
         }),
       ],
+      components: [],
     })
     return
   }
@@ -171,8 +164,7 @@ export async function handleCreateSwap(i: ButtonInteraction) {
 
   const embed = composeEmbedMessage(null, {
     title: "What items do you have?",
-    description:
-      "Select your NFT then input your token id, when you're done, click Next",
+    description: `Select your NFT then input your token id, when you're done, click Next`,
     thumbnail:
       "https://cdn.discordapp.com/attachments/1010131326256558110/1034414418303397928/give.png",
   })
@@ -341,7 +333,7 @@ function createSwap({
           const embed = originalMessage.embeds[0]
 
           embed.title = "What items do you want?"
-          embed.description = "Paste your link"
+          embed.description = `You can add item by following the format \`address/token_id\` e.g \`0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73/271\``
           embed.thumbnail = {
             url: "https://cdn.discordapp.com/attachments/1010131326256558110/1034414418668298320/receive.png",
           }
