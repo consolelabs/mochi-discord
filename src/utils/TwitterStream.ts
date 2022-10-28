@@ -24,6 +24,12 @@ type Tweet = {
   data: { author_id: string; id: string }
   includes: { users: Array<{ id: string; username: string }> }
   matching_rules: Array<{ id: string }>
+  errors: Array<{
+    title: string
+    disconnect_type: string
+    detail: string
+    type: string
+  }>
 }
 
 type ProcessParam = {
@@ -111,6 +117,14 @@ class TwitterStream extends InmemoryStorage {
   }
 
   private async handle(tweet: PartialDeep<Tweet>) {
+    if (tweet.errors?.length) {
+      logger.error(
+        `[TwitterStream]: stream connection error detected ${JSON.stringify(
+          tweet.errors
+        )}`
+      )
+      return
+    }
     logger.info(`[TwitterStream]: new tweet detected ${JSON.stringify(tweet)}`)
     try {
       const ruleIds = tweet.matching_rules?.map((mr) => mr?.id) ?? []
@@ -169,7 +183,9 @@ class TwitterStream extends InmemoryStorage {
         this.handle(tweet)
       }
     } catch (e) {
-      logger.error(`[TwitterStream] - error in watchStream ${e}`)
+      logger.error(
+        `[TwitterStream] - error in watchStream ${JSON.stringify(e)}`
+      )
     }
   }
 
