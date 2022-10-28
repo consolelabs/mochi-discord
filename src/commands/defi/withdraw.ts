@@ -38,9 +38,11 @@ async function getDestinationAddress(
 async function withdraw(msg: Message, args: string[]) {
   const payload = await Defi.getWithdrawPayload(msg, args)
   payload.fullCommand = msg.content
-  const { data, ok, log, curl } = await Defi.offchainDiscordWithdraw(payload)
+  const { data, ok, error, log, curl } = await Defi.offchainDiscordWithdraw(
+    payload
+  )
   if (!ok) {
-    throw new APIError({ message: msg, description: log, curl })
+    throw new APIError({ message: msg, description: log, curl, error })
   }
 
   const ftmEmoji = getEmoji("ftm")

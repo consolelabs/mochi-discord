@@ -37,10 +37,12 @@ async function tip(msg: Message, args: string[]) {
   // preprocess command arguments
   const payload = await Defi.getTipPayload(msg, args)
   payload.fullCommand = msg.content
-  const { data, ok, curl, log } = await Defi.offchainDiscordTransfer(payload)
+  const { data, ok, error, curl, log } = await Defi.offchainDiscordTransfer(
+    payload
+  )
 
   if (!ok) {
-    throw new APIError({ message: msg, curl, description: log })
+    throw new APIError({ message: msg, curl, description: log, error })
   }
 
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
