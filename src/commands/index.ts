@@ -5,7 +5,6 @@ import profile from "./profile/profile"
 import stats from "./community/stats"
 import nft from "./community/nft"
 import sales from "./community/sales"
-import depositoff from "./defi/offchain_tip_bot/deposit"
 import airdropoff from "./defi/offchain_tip_bot/airdrop"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
@@ -110,7 +109,6 @@ export const originalCommands: Record<string, Command> = {
   // profile section
   profile,
   // defi offchain section
-  depositoff,
   airdropoff,
   // defi section
   deposit,

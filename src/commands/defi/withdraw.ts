@@ -7,9 +7,9 @@ import {
   composeButtonLink,
   composeEmbedMessage,
   getErrorEmbed,
-  // workInProgress,
 } from "utils/discordEmbed"
 import { getEmoji, defaultEmojis } from "utils/common"
+import { APIError } from "errors"
 
 async function getDestinationAddress(
   msg: Message,
@@ -38,12 +38,9 @@ async function getDestinationAddress(
 async function withdraw(msg: Message, args: string[]) {
   const payload = await Defi.getWithdrawPayload(msg, args)
   payload.fullCommand = msg.content
-  const res = await Defi.offchainDiscordWithdraw(payload)
-  if (!res.ok) {
-    await msg.author.send({
-      embeds: [getErrorEmbed({ msg, description: res.error })],
-    })
-    return
+  const { data, ok, log, curl } = await Defi.offchainDiscordWithdraw(payload)
+  if (!ok) {
+    throw new APIError({ message: msg, description: log, curl })
   }
 
   const ftmEmoji = getEmoji("ftm")
@@ -60,17 +57,17 @@ async function withdraw(msg: Message, args: string[]) {
     },
     {
       name: "Withdrawal amount",
-      value: `**${res.data.withdraw_amount}** ${tokenEmoji}`,
+      value: `**${data.withdraw_amount}** ${tokenEmoji}`,
       inline: true,
     },
     {
       name: "Transaction fee",
-      value: `**${res.data.transaction_fee}** ${ftmEmoji}`,
+      value: `**${data.transaction_fee}** ${ftmEmoji}`,
       inline: true,
     },
     {
       name: "Withdrawal Transaction ID",
-      value: `[${res.data.tx_hash}](${res.data.tx_url})`,
+      value: `[${data.tx_hash}](${data.tx_url})`,
       inline: false,
     }
   )
@@ -83,7 +80,6 @@ const command: Command = {
   command: "withdraw",
   brief: `Token withdrawal`,
   category: "Defi",
-  // run: async () => ({ messageOptions: await workInProgress() }),
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
     const dm = await msg.author.send({
@@ -116,7 +112,6 @@ const command: Command = {
     title: `${getEmoji("right_arrow")} Withdraw`,
     description: "Withdraw tokens to your wallet outside of Discord",
   },
-  // getHelpMessage: workInProgress,
   getHelpMessage: async (msg) => {
     const embedMsg = composeEmbedMessage(msg, {
       description:

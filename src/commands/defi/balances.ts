@@ -19,7 +19,7 @@ const command: Command = {
   brief: "Wallet balances",
   category: "Defi",
   run: async function balances(msg: Message) {
-    // case API return 500 or unpected result
+    // case API return 500 or unexpected result
     const userId = msg.author.id
     const res = await Defi.offchainGetUserBalances({ userId })
     if (!res.ok) {
