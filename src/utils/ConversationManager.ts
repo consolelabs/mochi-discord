@@ -27,19 +27,21 @@ class ConversationManager {
 
   private timeouts: Map<string, Map<string, NodeJS.Timeout>> = new Map()
 
-  scheduleTimeout(userId: string, channelId: string, msg: Message) {
+  scheduleTimeout(userId: string, channelId: string, msg: Message | null) {
     globalThis.clearTimeout(this.timeouts.get(userId)?.get(channelId))
-    const timeout = globalThis.setTimeout(() => {
-      this.conversations.get(userId)?.delete(channelId)
-      if (msg.deletable) {
-        msg.delete()
-      }
-    }, DEFAULT_TIMEOUT)
+    if (msg) {
+      const timeout = globalThis.setTimeout(() => {
+        this.conversations.get(userId)?.delete(channelId)
+        if (msg.deletable) {
+          msg.delete()
+        }
+      }, DEFAULT_TIMEOUT)
 
-    if (this.timeouts.has(userId)) {
-      this.timeouts.get(userId)?.set(channelId, timeout)
-    } else {
-      this.timeouts.set(userId, new Map([[channelId, timeout]]))
+      if (this.timeouts.has(userId)) {
+        this.timeouts.get(userId)?.set(channelId, timeout)
+      } else {
+        this.timeouts.set(userId, new Map([[channelId, timeout]]))
+      }
     }
   }
 
@@ -105,6 +107,8 @@ class ConversationManager {
 
         if (end || !nextHandler) {
           this.conversations.get(userId)?.delete(channelId)
+          // clear timeout only
+          this.scheduleTimeout(userId, channelId, null)
           return
         }
 
