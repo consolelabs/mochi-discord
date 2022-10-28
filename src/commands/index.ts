@@ -53,6 +53,8 @@ import defaultrole_slash from "./config/defaultRole_slash"
 import levelrole_slash from "./config/levelRole_slash"
 import vote_slash from "./community/vote/vote_slash"
 import quest_slash from "./community/quest_slash"
+import stats_slash from "./community/stat_slash"
+import gm_slash from "./community/gm_slash"
 
 // external
 import { Message } from "discord.js"
@@ -105,6 +107,8 @@ export const slashCommands: Record<string, SlashCommand> = {
   levelrole: levelrole_slash,
   prune: prune_slash,
   quest: quest_slash,
+  stats: stats_slash,
+  gm: gm_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
