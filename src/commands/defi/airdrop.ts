@@ -22,7 +22,7 @@ import { OffchainTipBotTransferRequest } from "types/defi"
 import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
 
 const airdropCache = new NodeCache({
-  stdTTL: 180,
+  stdTTL: 30,
   checkperiod: 1,
   useClones: false,
 })
@@ -237,9 +237,10 @@ const command: Command = {
     if (!res.ok) {
       throw new APIError({ curl: res.curl, description: res.log })
     }
-
-    const bals = res.data.map((bal: any) => bal.balances)
-
+    const bals: { [key: string]: number } = {}
+    res.data.forEach((bal: any) => {
+      bals[bal.symbol] = bal.balances
+    })
     const currentBal = bals[payload.token]
     if (currentBal < payload.amount && !payload.all) {
       return {
