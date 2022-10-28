@@ -19,6 +19,22 @@ const command: Command = {
     if (!ok) {
       throw new APIError({ message: msg, curl: curl, description: log })
     }
+    if (!data?.length) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(msg, {
+              author: [
+                `${msg.guild.name}'s twitter blacklist`,
+                msg.guild.iconURL(),
+              ],
+              description:
+                "The list is empty.\nYou can add one to your server using `$poe twitter block <twitter username or ID>`",
+            }),
+          ],
+        },
+      }
+    }
     const description = data
       .map(
         (item: any) =>

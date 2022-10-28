@@ -1,11 +1,26 @@
-import { InvalidInputError } from "errors"
+import { GuildIdNotFoundError, InvalidInputError } from "errors"
 import { Command } from "types/common"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import { GM_GITBOOK, PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 
+export async function handle(guildId: string, channelId: string) {
+  await Config.updateGmConfig(guildId, channelId)
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["GM / GN", getEmojiURL(emojis["APPROVE"])],
+          description: `Successfully configure <#${channelId}> as GM/GN channel ${getEmoji(
+            "good_morning"
+          )}`,
+        }),
+      ],
+    },
+  }
+}
 const command: Command = {
   id: "gm_config",
   command: "config",
@@ -13,16 +28,7 @@ const command: Command = {
   category: "Community",
   run: async (msg) => {
     if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
     const channelArg = args[2]
@@ -35,20 +41,7 @@ const command: Command = {
       .fetch(channelId)
       .catch(() => undefined)
     if (!chan) throw new InvalidInputError({ message: msg })
-
-    await Config.updateGmConfig(msg.guildId, channelId)
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            author: ["GM / GN", getEmojiURL(emojis["APPROVE"])],
-            description: `Successfully configure ${channelArg} as GM/GN channel ${getEmoji(
-              "good_morning"
-            )}`,
-          }),
-        ],
-      },
-    }
+    return await handle(msg.guildId, chan.id)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
