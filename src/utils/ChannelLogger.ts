@@ -61,7 +61,7 @@ export class ChannelLogger {
       return {}
     }
 
-    const isDM = !!commandInteraction.guildId
+    const isDM = !commandInteraction.guildId
     const channelName = (commandInteraction.channel as TextChannel).name
 
     const description = `**Slash Command:** \`${
