@@ -48,14 +48,15 @@ async function tip(msg: Message, args: string[]) {
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
   const mentionUser = (discordId: string) => `<@!${discordId}>`
   const users = recipientIds.map((id) => mentionUser(id)).join(",")
+  const showAmount = payload.all ? "ALL" : roundFloatNumber(data[0].amount, 4)
   const embed = composeEmbedMessage(msg, {
     thumbnail: thumbnails.TIP,
     author: ["Tips", getEmojiURL(emojis.COIN)],
     description: `${mentionUser(
       payload.sender
-    )} has sent ${users} **${roundFloatNumber(data[0].amount, 4)} ${
-      payload.token
-    }** ${payload.each ? "each" : ""}`,
+    )} has sent ${users} **${showAmount} ${payload.token}** ${
+      payload.each ? "each" : ""
+    }`,
   })
 
   return {
