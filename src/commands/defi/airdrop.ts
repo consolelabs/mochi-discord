@@ -22,7 +22,7 @@ import { OffchainTipBotTransferRequest } from "types/defi"
 import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
 
 const airdropCache = new NodeCache({
-  stdTTL: 30,
+  stdTTL: 180,
   checkperiod: 1,
   useClones: false,
 })
@@ -37,7 +37,7 @@ function composeAirdropButtons(
 ) {
   return new MessageActionRow().addComponents(
     new MessageButton({
-      customId: `confirm_airdrop_off-${authorId}-${amount}-${amountInUSD}-${cryptocurrency}-${duration}-${maxEntries}`,
+      customId: `confirm_airdrop-${authorId}-${amount}-${amountInUSD}-${cryptocurrency}-${duration}-${maxEntries}`,
       emoji: "✅",
       style: "PRIMARY",
       label: "Confirm",
@@ -46,7 +46,7 @@ function composeAirdropButtons(
   )
 }
 
-export async function confirmAirdropOff(
+export async function confirmAirdrop(
   interaction: ButtonInteraction,
   msg: Message
 ) {
@@ -84,7 +84,7 @@ export async function confirmAirdropOff(
       components: [
         new MessageActionRow().addComponents(
           new MessageButton({
-            customId: `enter_airdrop_off-${authorId}-${duration}-${maxEntries}`,
+            customId: `enter_airdrop-${authorId}-${duration}-${maxEntries}`,
             label: "Enter airdrop",
             style: "PRIMARY",
             emoji: "🎉",
@@ -170,7 +170,7 @@ async function checkExpiredAirdrop(
   })
 }
 
-export async function enterAirdropOff(
+export async function enterAirdrop(
   interaction: ButtonInteraction,
   msg: Message
 ) {

@@ -1,6 +1,6 @@
 import { slashCommands } from "commands"
 import { confirmGlobalXP } from "commands/config/globalxp"
-import { confirmAirdropOff, enterAirdropOff } from "commands/defi/airdrop"
+import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
 import { triplePodInteraction } from "commands/games/tripod"
 import { sendVerifyURL } from "commands/profile/verify"
 import {
@@ -199,11 +199,11 @@ async function handleButtonInteraction(interaction: Interaction) {
       await msg.delete()
       return
     }
-    case i.customId.startsWith("confirm_airdrop_off-"):
-      await confirmAirdropOff(i, msg)
+    case i.customId.startsWith("confirm_airdrop"):
+      await confirmAirdrop(i, msg)
       return
-    case i.customId.startsWith("enter_airdrop_off-"):
-      await enterAirdropOff(i, msg)
+    case i.customId.startsWith("enter_airdrop"):
+      await enterAirdrop(i, msg)
       return
     case i.customId.startsWith("mochi_verify"):
       await sendVerifyURL(i)
