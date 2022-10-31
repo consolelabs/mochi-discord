@@ -86,3 +86,11 @@ await handleNormalMessage(message)
 - modules: core objects used by components above
 - adapters: create api call
 - errors: define errors
+
+## Credits
+
+A big thank to all who contributed to this project!
+
+If you'd like to contribute, please check out the [contributing guide](CONTRIBUTING.md) first.
+
+[![Contributing](https://contrib.rocks/image?repo=consolelabs/mochi-discord)](https://github.com/consolelabs/mochi-discord/graphs/contributors)
