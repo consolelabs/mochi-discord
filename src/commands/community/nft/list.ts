@@ -17,7 +17,10 @@ registerFont("src/assets/fonts/whitneysemibold.otf", {
   weight: "semibold",
 })
 
-async function composeNFTListEmbed(msg: Message, pageIdx: number) {
+export async function composeNFTListEmbed(
+  msg: Message | undefined,
+  pageIdx: number
+) {
   const res = await Community.getNFTCollections({
     page: pageIdx,
     size: 16,

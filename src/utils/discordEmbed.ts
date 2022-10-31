@@ -541,7 +541,6 @@ export function listenForPaginateAction(
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
-      filter: authorFilter(replyMsg.author.id),
     })
     .on("collect", async (i) => {
       await i.deferUpdate()
