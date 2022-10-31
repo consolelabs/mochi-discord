@@ -21,14 +21,13 @@ async function tip(msg: Message, args: string[]) {
   }
 
   // validate valid user
-  const { isUser } = parseDiscordToken(args[1])
-  if (!isUser) {
+  const { isUser, isRole } = parseDiscordToken(args[1])
+  if (!isUser && !isRole) {
     return {
       embeds: [
         getErrorEmbed({
           msg,
-          description:
-            "Invalid username. Be careful to not be mistaken username with role.",
+          description: "Invalid recipients.",
         }),
       ],
     }
@@ -55,7 +54,7 @@ async function tip(msg: Message, args: string[]) {
     description: `${mentionUser(
       payload.sender
     )} has sent ${users} **${showAmount} ${payload.token}** ${
-      payload.each ? "each" : ""
+      recipientIds.length > 1 ? "each" : ""
     }`,
   })
 
