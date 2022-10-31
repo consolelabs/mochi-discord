@@ -30,9 +30,9 @@ const command: Command = {
     }
     let description = ""
     const args = getCommandArguments(msg)
-    const { isRole, isId, value: id } = parseDiscordToken(args[2] ?? "")
+    const { isRole, value: id } = parseDiscordToken(args[2] ?? "")
 
-    if (!isRole || !isId) {
+    if (!isRole) {
       return {
         messageOptions: {
           embeds: [
