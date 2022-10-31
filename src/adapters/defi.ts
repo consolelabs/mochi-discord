@@ -12,7 +12,7 @@ import {
 } from "types/defi"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
-import { getCommandObject } from "utils/commands"
+import { getCommandObject, parseDiscordToken } from "utils/commands"
 import {
   API_BASE_URL,
   BSCSCAN_API,
@@ -49,45 +49,53 @@ class Defi extends Fetcher {
       }
     })
 
-    return (
-      await Promise.all(
-        targets.map(async (target) => {
-          const targetId = target
-            .replace("<@!", "")
-            .replace("<@&", "")
-            .replace("<@", "")
-            .replace(">", "")
-          switch (true) {
-            // role
-            case target.startsWith("<@&"): {
-              if (!msg.guild?.members) return []
-              const members = (await msg.guild.members.fetch()).filter((mem) =>
-                mem.roles.cache.map((role) => role.id).includes(targetId)
-              )
-              return members.map((member) => member.user.id)
-            }
+    return Array.from(
+      new Set(
+        (
+          await Promise.all(
+            targets.map(async (target) => {
+              const {
+                isUser,
+                isRole,
+                value: targetId,
+              } = parseDiscordToken(target)
+              switch (true) {
+                // role
+                case isRole: {
+                  if (!msg.guild?.members) return []
+                  const members = (await msg.guild.members.fetch()).filter(
+                    (mem) =>
+                      mem.roles.cache.map((role) => role.id).includes(targetId)
+                  )
+                  return members.map((member) => member.user.id)
+                }
 
-            // user
-            case target.startsWith("<@!") || target.startsWith("<@"):
-              return [targetId]
+                // user
+                case isUser:
+                  return [targetId]
 
-            // special role
-            case target === "@everyone": {
-              if (!msg.guild?.members) return []
-              const members = (await msg.guild.members.fetch()).filter((mem) =>
-                mem.roles.cache.map((role) => role.name).includes("@everyone")
-              )
-              return members.map((member) => member.user.id)
-            }
-          }
-          return []
-        })
+                // special role
+                case target === "@everyone": {
+                  if (!msg.guild?.members) return []
+                  const members = (await msg.guild.members.fetch()).filter(
+                    (mem) =>
+                      mem.roles.cache
+                        .map((role) => role.name)
+                        .includes("@everyone")
+                  )
+                  return members.map((member) => member.user.id)
+                }
+              }
+              return []
+            })
+          )
+        )
+          .flat()
+          .filter(
+            (toDiscordId) => toDiscordId !== "" && toDiscordId !== fromDiscordId
+          )
       )
     )
-      .flat()
-      .filter(
-        (toDiscordId) => toDiscordId !== "" && toDiscordId !== fromDiscordId
-      )
   }
 
   public async discordWalletTransfer(body: string, msg: Message) {
@@ -305,6 +313,8 @@ class Defi extends Fetcher {
       recipients: string[] = []
 
     const guildId = msg.guildId ?? "DM"
+    let each = args[args.length - 1].toLowerCase() === "each"
+    args = each ? args.slice(0, args.length - 1) : args
 
     // parse recipients
     recipients = await this.parseRecipients(
@@ -340,7 +350,7 @@ class Defi extends Fetcher {
     }
 
     // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
-    const amount = parseFloat(amountArg)
+    let amount = parseFloat(amountArg)
     if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
       throw new DiscordWalletTransferError({
         discordId: sender,
@@ -349,6 +359,8 @@ class Defi extends Fetcher {
         errorMsg: "Invalid amount",
       })
     }
+    each = each && amountArg !== "all"
+    amount = each ? amount * recipients.length : amount
 
     // check if tip token is in guild config
     // const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
@@ -369,7 +381,7 @@ class Defi extends Fetcher {
       channelId: msg.channelId,
       amount,
       token: cryptocurrency,
-      each: false,
+      each,
       all: amountArg === "all",
       transferType: type ?? "",
       duration: 0,
