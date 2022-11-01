@@ -1,8 +1,35 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 import { getCommandArguments } from "utils/commands"
 import config from "adapters/config"
+import { GuildIdNotFoundError } from "errors"
+
+export async function handle(
+  csmrKey: string,
+  csmrKeyScrt: string,
+  acsToken: string,
+  acsTokenScrt: string,
+  guildId: string
+) {
+  await config.createTwitterAuth(
+    guildId,
+    csmrKey,
+    csmrKeyScrt,
+    acsToken,
+    acsTokenScrt
+  )
+  return {
+    messageOptions: {
+      embeds: [
+        getSuccessEmbed({
+          title: "Twitter sale config",
+          description: `Successfully set configs.`,
+        }),
+      ],
+    },
+  }
+}
 
 const command: Command = {
   id: "nft_config_twitter-sale",
@@ -11,39 +38,20 @@ const command: Command = {
   category: "Community",
   run: async function (msg) {
     if (!msg.guildId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
     const csmrKey = args[3]
     const csmrKeyScrt = args[4]
     const acsToken = args[5]
     const acsTokenScrt = args[6]
-    await config.createTwitterAuth(
-      msg.guildId,
+    return await handle(
       csmrKey,
       csmrKeyScrt,
       acsToken,
-      acsTokenScrt
+      acsTokenScrt,
+      msg.guildId
     )
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: "Twitter sale config",
-            description: `Successfully set configs.`,
-          }),
-        ],
-      },
-    }
   },
   getHelpMessage: async (msg) => ({
     embeds: [

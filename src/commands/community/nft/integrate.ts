@@ -13,9 +13,13 @@ import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 import { callAPI, toEmbed } from "../nft/add"
 import { CommandError } from "errors"
 
-async function executeNftIntegrateCommand(args: string[], msg: Message) {
-  const address = args[2]
-  const chainId = args[3]
+export async function executeNftIntegrateCommand(
+  address: string,
+  chainId: string,
+  authorId: string,
+  guildId: string,
+  msg: Message | undefined
+) {
   // check existed collection address - chainId
   const checkExistRes = await fetch(
     `${API_BASE_URL}/nfts/collections/address/${address}?chain=${chainId}`,
@@ -28,7 +32,12 @@ async function executeNftIntegrateCommand(args: string[], msg: Message) {
   )
 
   if (checkExistRes.status !== 200) {
-    const { storeCollectionRes, supportedChainsRes } = await callAPI(args, msg)
+    const { storeCollectionRes, supportedChainsRes } = await callAPI(
+      address,
+      chainId,
+      authorId,
+      guildId
+    )
     // return early if the `add` command didn't succeed
     if (storeCollectionRes.status !== 200) {
       return toEmbed(storeCollectionRes, supportedChainsRes, msg)
@@ -99,7 +108,13 @@ const command: Command = {
         return { messageOptions: await this.getHelpMessage(msg) }
       }
     }
-    return executeNftIntegrateCommand(args, msg)
+    return executeNftIntegrateCommand(
+      args[2],
+      args[3],
+      msg.author.id,
+      msg.guildId ?? "",
+      msg
+    )
   },
   getHelpMessage: async function (msg) {
     return {
