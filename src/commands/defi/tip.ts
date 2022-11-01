@@ -47,15 +47,14 @@ async function tip(msg: Message, args: string[]) {
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
   const mentionUser = (discordId: string) => `<@!${discordId}>`
   const users = recipientIds.map((id) => mentionUser(id)).join(",")
-  const showAmount = payload.all ? "ALL" : roundFloatNumber(data[0].amount, 4)
   const embed = composeEmbedMessage(msg, {
     thumbnail: thumbnails.TIP,
     author: ["Tips", getEmojiURL(emojis.COIN)],
     description: `${mentionUser(
       payload.sender
-    )} has sent ${users} **${showAmount} ${payload.token}** ${
-      recipientIds.length > 1 ? "each" : ""
-    }`,
+    )} has sent ${users} **${roundFloatNumber(data[0].amount, 4)} ${
+      payload.token
+    }** ${recipientIds.length > 1 ? "each" : ""}`,
   })
 
   return {
@@ -84,9 +83,9 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TIP,
-        usage: `${PREFIX}tip <@user> <amount> <token>\n${PREFIX}tip <@role> <amount> <token>`,
+        usage: `${PREFIX}tip <@user> <amount> <token> [each]\n${PREFIX}tip <@role> <amount> <token> [each]`,
         description: "Send coins offchain to a user or a group of users",
-        examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm\n${PREFIX}tip @RandomRole 10 ftm`,
+        examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John , @Hank 10 ftm\n${PREFIX}tip @RandomRole 10 ftm`,
         document: TIP_GITBOOK,
         footer: [DEFI_DEFAULT_FOOTER],
         title: "Tip Bot",
