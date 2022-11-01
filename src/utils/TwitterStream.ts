@@ -21,7 +21,7 @@ type RemoveRuleParams = {
 }
 
 type Tweet = {
-  data: { author_id: string; id: string }
+  data: { author_id: string; id: string; entities: { mentions: Array<any> } }
   includes: { users: Array<{ id: string; username: string }> }
   matching_rules: Array<{ id: string }>
   errors: Array<{
@@ -37,6 +37,8 @@ type ProcessParam = {
   handle: string
   tweet: Tweet
 }
+
+const MENTION_LIMIT = 7
 
 function toTwitterRuleFormat(keywords: Array<string>) {
   return `(${keywords.filter(Boolean).join(" OR ")}) -is:retweet -is:reply`
@@ -122,6 +124,16 @@ class TwitterStream extends InmemoryStorage {
         `[TwitterStream]: stream connection error detected ${JSON.stringify(
           tweet.errors
         )}`
+      )
+      return
+    }
+    if (
+      tweet.data?.entities?.mentions &&
+      Array.isArray(tweet.data.entities.mentions) &&
+      tweet.data.entities.mentions.length >= MENTION_LIMIT
+    ) {
+      logger.info(
+        `[TwitterStream]: tweet skipped because of >= ${MENTION_LIMIT} mentions ${tweet.data.id}`
       )
       return
     }
