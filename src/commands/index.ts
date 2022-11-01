@@ -53,6 +53,7 @@ import vote_slash from "./community/vote/vote_slash"
 import quest_slash from "./community/quest_slash"
 import stats_slash from "./community/stats_slash"
 import gm_slash from "./community/gm_slash"
+import nft_slash from "./community/nft_slash"
 
 // external
 import { Message } from "discord.js"
@@ -109,6 +110,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   quest: quest_slash,
   stats: stats_slash,
   gm: gm_slash,
+  nft: nft_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
