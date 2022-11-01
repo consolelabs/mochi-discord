@@ -90,5 +90,8 @@
         "skipTypeImports": true
       }
     }
+  },
+  "engines": {
+    "node": "16.x"
   }
 }
