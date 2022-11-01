@@ -153,6 +153,7 @@ export interface ModelDiscordUserTokenAlert {
   device_id?: string;
   discord_id?: string;
   id?: string;
+  is_enable?: boolean;
   price_set?: number;
   token_id?: string;
   trend?: string;
@@ -610,9 +611,7 @@ export interface RequestCreateWhitelistCampaignRequest {
 }
 
 export interface RequestDeleteDiscordUserAlertRequest {
-  discord_id?: string;
-  token_id?: string;
-  trend?: string;
+  id?: string;
 }
 
 export interface RequestDeleteJoinLeaveChannelConfigRequest {

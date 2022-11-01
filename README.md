@@ -3,6 +3,27 @@
   <img height="100" src="./images/mochi.png" />
 </a>
 
+<p align="center" style="margin: 15px 20%">
+<img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" />
+<a href="https://github.com/consolelabs/mochi-discord/tags">
+<img src="https://img.shields.io/github/v/tag/consolelabs/mochi-discord" />
+</a>
+<img src="https://img.shields.io/badge/strategy-gitflow-%23561D25" />
+<a href="https://github.com/consolelabs/mochi-discord/blob/main/LICENSE">
+<img src="https://img.shields.io/badge/license-GNU-blue" />
+</a>
+<a href="https://discord.gg/DMVyp5Fr8Q">
+<img src="https://img.shields.io/badge/platform-discord-blueviolet" />
+</a>
+<img src="https://img.shields.io/github/issues-pr-raw/consolelabs/mochi-discord" />
+<img src="https://img.shields.io/github/contributors/consolelabs/mochi-discord" />
+<img src="https://img.shields.io/badge/we%20love-contributors-yellowgreen" />
+<img src="https://img.shields.io/website?label=bot%20status&down_message=offline&up_message=online&url=https%3A%2F%2Fgetmochi.co" />
+<a href="https://twitter.com/getmochi_bot">
+<img src="https://img.shields.io/twitter/follow/getmochi_bot?style=social" />
+</a>
+</p>
+
 ## :gear: Setup
 
 If you're already familiar with the discord bot development workflow, skip right to step 8, otherwise follow these steps below:
@@ -57,6 +78,12 @@ Run bot in dev mode (incremental build on file changes)
 
 ```
 yarn dev
+```
+
+Run tests
+
+```
+yarn test
 ```
 
 ## :scroll: Logging
