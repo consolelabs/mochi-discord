@@ -245,7 +245,7 @@ const command: Command = {
     data.forEach((bal: any) => {
       if (payload.token === bal.symbol) {
         currentBal = bal.balances
-        currentPrice = roundFloatNumber(bal.rate_in_usd)
+        currentPrice = bal.rate_in_usd
       }
     })
     if (currentBal < payload.amount && !payload.all) {
