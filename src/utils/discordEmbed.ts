@@ -541,7 +541,6 @@ export function listenForPaginateAction(
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
-      filter: authorFilter(replyMsg.author.id),
     })
     .on("collect", async (i) => {
       await i.deferUpdate()
@@ -574,6 +573,58 @@ export function listenForPaginateAction(
     })
     .on("end", () => {
       replyMsg.edit({ components: [] }).catch(() => null)
+    })
+}
+
+export function listenForPaginateInteraction(
+  interaction: CommandInteraction,
+  render: (
+    interaction: CommandInteraction,
+    pageIdx: number
+  ) => Promise<{ messageOptions: MessageOptions }>,
+  withAttachmentUpdate?: boolean,
+  withMultipleComponents?: boolean
+) {
+  const operators: Record<string, number> = {
+    "+": 1,
+    "-": -1,
+  }
+
+  interaction.channel
+    ?.createMessageComponentCollector({
+      componentType: MessageComponentTypes.BUTTON,
+      idle: 60000,
+      filter: authorFilter(interaction.user.id),
+    })
+    .on("collect", async (i) => {
+      const [pageStr, opStr, totalPage] = i.customId.split("_").slice(1)
+      const page = +pageStr + operators[opStr]
+      const {
+        messageOptions: { embeds, components, files },
+      } = await render(interaction, page)
+
+      const msgComponents = withMultipleComponents
+        ? components
+        : getPaginationRow(page, +totalPage)
+      if (withAttachmentUpdate && files?.length) {
+        await interaction
+          .editReply({
+            embeds,
+            components: msgComponents,
+            files,
+          })
+          .catch(() => null)
+      } else {
+        await interaction
+          .editReply({
+            embeds,
+            components: msgComponents,
+          })
+          .catch(() => null)
+      }
+    })
+    .on("end", () => {
+      interaction.editReply({ components: [] }).catch(() => null)
     })
 }
 

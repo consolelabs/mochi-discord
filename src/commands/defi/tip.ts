@@ -21,14 +21,13 @@ async function tip(msg: Message, args: string[]) {
   }
 
   // validate valid user
-  const { isUser } = parseDiscordToken(args[1])
-  if (!isUser) {
+  const { isUser, isRole } = parseDiscordToken(args[1])
+  if (!isUser && !isRole) {
     return {
       embeds: [
         getErrorEmbed({
           msg,
-          description:
-            "Invalid username. Be careful to not be mistaken username with role.",
+          description: "Invalid recipients.",
         }),
       ],
     }
@@ -55,7 +54,9 @@ async function tip(msg: Message, args: string[]) {
       payload.sender
     )} has sent ${users} **${roundFloatNumber(data[0].amount, 4)} ${
       payload.token
-    }** ${payload.each ? "each" : ""}`,
+    }** (\u2248 $${roundFloatNumber(data[0].amount_in_usd, 4)}) ${
+      recipientIds.length > 1 ? "each" : ""
+    }`,
   })
 
   return {
@@ -84,9 +85,9 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TIP,
-        usage: `${PREFIX}tip <@user> <amount> <token>\n${PREFIX}tip <@role> <amount> <token>`,
+        usage: `${PREFIX}tip <@user> <amount> <token> [each]\n${PREFIX}tip <@role> <amount> <token> [each]`,
         description: "Send coins offchain to a user or a group of users",
-        examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John,@Hank 10 ftm\n${PREFIX}tip @RandomRole 10 ftm`,
+        examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John , @Hank 10 ftm\n${PREFIX}tip @RandomRole 10 ftm`,
         document: TIP_GITBOOK,
         footer: [DEFI_DEFAULT_FOOTER],
         title: "Tip Bot",

@@ -7,15 +7,18 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 
-export async function callAPI(args: string[], msg: Message) {
-  const address = args[2]
-  const chainId = args[3]
+export async function callAPI(
+  address: string,
+  chainId: string,
+  userId: string,
+  guildId: string
+) {
   // create store collection payload
   const collection = {
     chain_id: chainId,
     address: address,
-    author: msg.author.id,
-    guild_id: msg.guild?.id,
+    author: userId,
+    guild_id: guildId,
   }
   // run store collection API
   const respCollection = await fetch(`${API_BASE_URL}/nfts/collections`, {
@@ -39,7 +42,7 @@ export async function callAPI(args: string[], msg: Message) {
 export async function toEmbed(
   storeCollectionRes: Response,
   supportedChainsRes: Response,
-  msg: Message
+  msg?: Message | undefined
 ) {
   // get response and show discord message
   const dataCollection = await storeCollectionRes.json()
@@ -136,14 +139,19 @@ export async function toEmbed(
   }
 }
 
-async function executeNftAddCommand(args: string[], msg: Message) {
-  const { storeCollectionRes, supportedChainsRes } = await callAPI(args, msg)
+export async function executeNftAddCommand(args: string[], msg: Message) {
+  const { storeCollectionRes, supportedChainsRes } = await callAPI(
+    args[2],
+    args[3],
+    msg.author.id,
+    msg.guildId ?? ""
+  )
 
   return toEmbed(storeCollectionRes, supportedChainsRes, msg)
 }
 
 const buildDiscordMessage = (
-  msg: Message,
+  msg: Message | undefined,
   title: string,
   description: string,
   err = true

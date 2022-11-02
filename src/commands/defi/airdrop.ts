@@ -6,6 +6,7 @@ import {
   MessageButton,
 } from "discord.js"
 import { AIRDROP_GITBOOK, DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
+import { GuildIdNotFoundError, APIError } from "errors"
 import {
   defaultEmojis,
   getEmoji,
@@ -13,16 +14,12 @@ import {
   thumbnails,
   tripodEmojis,
 } from "utils/common"
-import { getCommandArguments } from "utils/commands"
+import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import Defi from "adapters/defi"
 import NodeCache from "node-cache"
 import dayjs from "dayjs"
-import { DiscordWalletTransferRequest } from "types/defi"
-import {
-  composeEmbedMessage,
-  getErrorEmbed,
-  getExitButton,
-} from "utils/discordEmbed"
+import { OffchainTipBotTransferRequest } from "types/defi"
+import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
 
 const airdropCache = new NodeCache({
   stdTTL: 180,
@@ -111,7 +108,8 @@ export async function confirmAirdrop(
     description,
     authorId,
     +amount,
-    cryptocurrency
+    cryptocurrency,
+    duration
   )
 }
 
@@ -121,7 +119,8 @@ async function checkExpiredAirdrop(
   description: string,
   authorId: string,
   amount: number,
-  cryptocurrency: string
+  cryptocurrency: string,
+  duration: string
 ) {
   const getParticipantsStr = (list: string[]) =>
     list
@@ -137,19 +136,20 @@ async function checkExpiredAirdrop(
           : `has been collected by ${getParticipantsStr(participants)}!`
 
       if (participants.length > 0 && msg.guildId) {
-        const req: DiscordWalletTransferRequest = {
+        const req: OffchainTipBotTransferRequest = {
           sender: authorId,
-          recipients: participants.map((p) =>
-            p.replace("<@!", "").replace("<@", "").replace(">", "")
-          ),
-          amount,
-          cryptocurrency,
+          recipients: participants.map((p) => parseDiscordToken(p).value),
           guildId: msg.guildId,
           channelId: msg.channelId,
-          token: null,
+          amount,
+          token: cryptocurrency,
+          each: false,
+          all: false,
           transferType: "airdrop",
+          fullCommand: msg.content,
+          duration: +duration,
         }
-        await Defi.discordWalletTransfer(JSON.stringify(req), msg)
+        await Defi.offchainDiscordTransfer(req)
       }
 
       const originalAuthor = await msg.guild?.members.fetch(authorId)
@@ -224,37 +224,30 @@ export async function enterAirdrop(
 const command: Command = {
   id: "airdrop",
   command: "airdrop",
-  brief: "Token airdrop",
+  brief: "Token airdrop offchain",
   category: "Defi",
   run: async function (msg: Message) {
     if (!msg.guildId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
-    const payload = await Defi.getTransferPayload(msg, args)
+    const payload = await Defi.getAirdropPayload(msg, args)
     // check balance
-    const bals = await Defi.discordWalletBalances(msg.guildId, msg.author.id)
-    if (!bals.ok || !bals.data.balances || !bals.data.balances_in_usd) {
-      const errorEmbed = getErrorEmbed({
-        msg,
-        description: `Failed to get user balances`,
-      })
-      return {
-        messageOptions: {
-          embeds: [errorEmbed],
-        },
-      }
+    const { ok, data, log, curl } = await Defi.offchainGetUserBalances({
+      userId: payload.sender,
+    })
+    if (!ok) {
+      throw new APIError({ curl: curl, description: log })
     }
-    const currentBal = bals.data.balances[payload.cryptocurrency.toUpperCase()]
+    // get balance and price in usd
+    let currentBal = 0
+    let currentPrice = 0
+    data.forEach((bal: any) => {
+      if (payload.token === bal.symbol) {
+        currentBal = bal.balances
+        currentPrice = roundFloatNumber(bal.rate_in_usd)
+      }
+    })
     if (currentBal < payload.amount && !payload.all) {
       return {
         messageOptions: {
@@ -263,7 +256,7 @@ const command: Command = {
               msg,
               currentBal,
               payload.amount,
-              payload.cryptocurrency
+              payload.token
             ),
           ],
         },
@@ -271,19 +264,11 @@ const command: Command = {
     }
     if (payload.all) payload.amount = currentBal
 
-    // ---------------
-    const tokenEmoji = getEmoji(payload.cryptocurrency)
-    const { ok, data: coin } = await Defi.getCoin(
-      payload.token?.coin_gecko_id ?? ""
-    )
-    if (!ok) {
-      return { messageOptions: { embeds: [getErrorEmbed({ msg })] } }
-    }
-    const currentPrice = roundFloatNumber(coin.market_data.current_price["usd"])
+    const tokenEmoji = getEmoji(payload.token)
     const amountDescription = `${tokenEmoji} **${roundFloatNumber(
       payload.amount,
       4
-    )} ${payload.cryptocurrency}** (\u2248 $${roundFloatNumber(
+    )} ${payload.token}** (\u2248 $${roundFloatNumber(
       currentPrice * payload.amount,
       4
     )})`
@@ -307,7 +292,7 @@ const command: Command = {
       },
       {
         name: "Run time",
-        value: `${describeRunTime(payload.opts?.duration)}`,
+        value: `${describeRunTime(payload.duration)}`,
         inline: true,
       },
       {
@@ -327,8 +312,8 @@ const command: Command = {
             msg.author.id,
             payload.amount,
             currentPrice * payload.amount,
-            payload.cryptocurrency,
-            payload.opts?.duration ?? 0,
+            payload.token,
+            payload.duration ?? 0,
             payload.opts?.maxEntries ?? 0
           ),
         ],
@@ -348,7 +333,7 @@ const command: Command = {
         examples: `${PREFIX}airdrop 10 ftm\n${PREFIX}airdrop 10 ftm in 5m\n${PREFIX}airdrop 10 ftm in 5m for 6`,
         document: AIRDROP_GITBOOK,
         description:
-          "Airdrop tokens for a specified number of users to collect in a given amount of time",
+          "Airdrop offchain tokens for a specified number of users to collect in a given amount of time",
         footer: [DEFI_DEFAULT_FOOTER],
       }),
     ],

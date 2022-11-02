@@ -1,6 +1,6 @@
 import config from "adapters/config"
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, TWITTER_PROFILE_REGEX } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import { getCommandArguments } from "utils/commands"
@@ -27,23 +27,53 @@ const command: Command = {
 
     if (!msg.guildId) throw new GuildIdNotFoundError({ message: msg })
     const arg = getCommandArguments(msg)[3]
-    const isUsername = arg.startsWith("@")
-    const twitterRes = await (isUsername
-      ? twitter.users.findUserByUsername(arg.slice(1))
-      : twitter.users.findUserById(arg))
-    if (twitterRes.errors || !twitterRes.data) {
+    if (!arg)
       throw new CommandArgumentError({
         message: msg,
         user: msg.author,
         guild: msg.guild,
-        description: "Invalid twitter ID or username",
+        description: "Please specify a twitter handle",
+        getHelpMessage: () => this.getHelpMessage(msg),
+      })
+    const handle = TWITTER_PROFILE_REGEX.exec(arg)?.at(2)
+    if (!handle)
+      throw new CommandArgumentError({
+        message: msg,
+        user: msg.author,
+        guild: msg.guild,
+        description: "Invalid twitter profile url",
+        getHelpMessage: () => this.getHelpMessage(msg),
+      })
+    const twitterData: Record<"id" | "username", string | undefined> = {
+      id: "",
+      username: "",
+    }
+    try {
+      const twitterRes = await twitter.users.findUserByUsername(handle)
+      twitterData.id = twitterRes.data?.id
+      twitterData.username = twitterRes.data?.username
+    } catch (e) {
+      throw new CommandArgumentError({
+        message: msg,
+        user: msg.author,
+        guild: msg.guild,
+        description: "Invalid username",
+        getHelpMessage: () => this.getHelpMessage(msg),
+      })
+    }
+    if (!twitterData.id || !twitterData.username) {
+      throw new CommandArgumentError({
+        message: msg,
+        user: msg.author,
+        guild: msg.guild,
+        description: "Invalid username",
         getHelpMessage: () => this.getHelpMessage(msg),
       })
     }
     const { ok, log, curl } = await config.addToTwitterBlackList({
       guild_id: msg.guildId,
-      twitter_id: twitterRes.data.id,
-      twitter_username: twitterRes.data.username,
+      twitter_id: twitterData.id,
+      twitter_username: twitterData.username,
       created_by: msg.author.id,
     })
     if (!ok) {
@@ -55,7 +85,7 @@ const command: Command = {
         embeds: [
           getSuccessEmbed({
             msg,
-            description: `Twitter user \`${twitterRes.data.username}\` has been added to server's black list`,
+            description: `Twitter user \`${twitterData.username}\` has been added to server's black list`,
           }),
         ],
       },
@@ -68,8 +98,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}poe twitter block <twitter ID or username>\n${PREFIX}poe twitter block <action>`,
-          examples: `${PREFIX}poe twitter block @randomeuser\n${PREFIX}poe twitter block 123123123123\n${PREFIX}poe twitter block list`,
+          usage: `${PREFIX}poe twitter block <twitter profile link>\n${PREFIX}poe twitter block <action>`,
+          examples: `${PREFIX}poe twitter block https://twitter.com/vincentzepanda\n${PREFIX}poe twitter block list`,
           footer: [`Type ${PREFIX}help poe twitter block`],
           includeCommandsList: true,
           actions,
