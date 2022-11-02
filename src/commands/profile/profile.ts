@@ -24,10 +24,12 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import community from "adapters/community"
 import { composeNFTDetail } from "commands/community/nft/query"
 
-let currentView = "my-profile"
+// TODO: this is a global var (one bot instance but multiple users are changing it - could lead to unpredictable error)
 let currentCollectionAddress: string | undefined
 
-function buildSwitchViewActionRow(currentView: string) {
+type ViewType = "my-profile" | "my-nft"
+
+function buildSwitchViewActionRow(currentView: ViewType) {
   const myProfileButton = new MessageButton({
     label: "My Profile",
     emoji: emojis.IDENTITY,
@@ -129,8 +131,8 @@ async function switchView(
 ) {
   let embed: MessageEmbed
   let components: MessageActionRow[] = []
-  currentView = i.customId.split("/").pop() ?? "my-profile"
-  switch (currentView) {
+  const nextView = (i.customId.split("/").pop() ?? "my-profile") as ViewType
+  switch (nextView) {
     case "my-nft":
       ;({ embed, components } = await composeMyNFTEmbed(msg, user))
       break
@@ -448,7 +450,7 @@ async function composeMyNFTEmbed(
       author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
       description: `<@${user.id}>, you have no nfts.`,
     })
-    return { embed: embed, components: [] }
+    return { embed: embed, components: [buildSwitchViewActionRow("my-nft")] }
   }
 
   const currentSelectedCollection =
@@ -482,7 +484,7 @@ async function composeMyNFTEmbed(
       author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
       description: `<@${user.id}>, you have no nfts.`,
     })
-    return { embed, components: [] }
+    return { embed, components: [buildSwitchViewActionRow("my-nft")] }
   }
 
   const userNft = userNfts[0]
