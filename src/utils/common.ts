@@ -317,10 +317,6 @@ export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
-export function catchEm(promise: Promise<unknown>) {
-  return promise.then((data) => [null, data]).catch((err) => [err])
-}
-
 export function capFirst(str: string) {
   return `${str.charAt(0).toUpperCase()}${str.slice(1)}`
 }

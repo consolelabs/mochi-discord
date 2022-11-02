@@ -26,6 +26,7 @@ import {
   ResponseDataListRoleReactionResponse,
   ResponseGetGuildPruneExcludeResponse,
   ResponseGetGuildDefaultNftTickerResponse,
+  ResponseGetRepostReactionConfigsResponse,
 } from "types/api"
 import { TEST } from "env"
 
@@ -551,7 +552,7 @@ class Config extends Fetcher {
     guildId: string,
     reactionType: string
   ) {
-    return this.jsonFetch(
+    return this.jsonFetch<ResponseGetRepostReactionConfigsResponse>(
       `${API_BASE_URL}/configs/repost-reactions/${guildId}?reaction_type=${reactionType}`
     )
   }

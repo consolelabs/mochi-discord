@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { PREFIX, STARBOARD_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { GuildIdNotFoundError } from "errors"
+import { APIError, GuildIdNotFoundError } from "errors"
 import {
   ButtonInteraction,
   Message,
@@ -10,13 +10,48 @@ import {
   MessageEmbed,
 } from "discord.js"
 import config from "adapters/config"
-import { authorFilter, paginate, emojis } from "utils/common"
+import { authorFilter, emojis, getEmoji } from "utils/common"
 import { MessageComponentTypes } from "discord.js/typings/enums"
+import { ModelGuildConfigRepostReaction } from "types/api"
+import chunk from "lodash.chunk"
 
 const pageSize = 10
-let currentView = "message"
 
-function buildSwitchViewActionRow(currentView: string) {
+type ReactionType = "message" | "conversation"
+
+// repost_channel_id -> list of configs
+type AggregatedData = Record<
+  string,
+  Array<{ start: string; stop: string } | { quantity: number; emoji: string }>
+>
+
+function aggregateData(
+  data: Array<ModelGuildConfigRepostReaction>
+): AggregatedData {
+  return data.reduce((acc, c) => {
+    let channel = acc[c.repost_channel_id ?? ""]
+    if (!channel) {
+      channel = []
+      acc[c.repost_channel_id ?? ""] = channel
+    }
+
+    if (c.reaction_type === "message") {
+      channel.push({
+        emoji: c.emoji ?? "",
+        quantity: c.quantity ?? 0,
+      })
+    } else {
+      channel.push({
+        start: c.emoji_start ?? "",
+        stop: c.emoji_stop ?? "",
+      })
+    }
+
+    return acc
+  }, {} as AggregatedData)
+}
+
+function buildSwitchViewActionRow(currentView: ReactionType) {
   const messageButton = new MessageButton({
     label: "Message",
     emoji: emojis.MESSAGE,
@@ -38,7 +73,7 @@ function buildSwitchViewActionRow(currentView: string) {
 }
 
 function buildPaginationActionRow(
-  currentView: string,
+  currentView: ReactionType,
   page: number,
   totalPage: number
 ) {
@@ -66,71 +101,92 @@ function buildPaginationActionRow(
   return [row]
 }
 
+function renderSingleView(data: AggregatedData) {
+  return Object.entries(data)
+    ?.sort((a, b) => {
+      return a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0
+    })
+    ?.map(
+      (c) =>
+        `<#${c[0]}>\n${c[1]
+          ?.map((config) => {
+            if ("emoji" in config) {
+              return `${getEmoji("blank")}${getEmoji("reply")} ${
+                config.quantity
+              } emoji${config.quantity > 1 ? "es" : ""} ${config.emoji}`
+            }
+          })
+          .filter(Boolean)
+          .join("\n")}`
+    )
+    .join("\n\n")
+}
+
+function renderStartStopView(data: AggregatedData) {
+  return Object.entries(data)
+    ?.sort((a, b) => {
+      return a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0
+    })
+    ?.map(
+      (c) =>
+        `<#${c[0]}>\n${c[1]
+          ?.map((config) => {
+            if ("start" in config) {
+              return `${getEmoji("blank")}${getEmoji("reply")} Start with ${
+                config.start
+              } End with ${config.stop}`
+            }
+          })
+          .filter(Boolean)
+          .join("\n")}`
+    )
+    .join("\n\n")
+}
+
 async function composeMessage(
   msg: Message,
-  data: any[],
-  type: string,
+  data: Array<ModelGuildConfigRepostReaction>,
+  type: ReactionType,
   page: number
 ) {
   data.sort((a, b) => {
-    const aName = msg.guild?.channels.cache.get(a.repost_channel_id)?.name
-    const bName = msg.guild?.channels.cache.get(b.repost_channel_id)?.name
+    const aName = msg.guild?.channels.cache.get(
+      a?.repost_channel_id ?? ""
+    )?.name
+    const bName = msg.guild?.channels.cache.get(
+      b?.repost_channel_id ?? ""
+    )?.name
     if (aName && bName) {
       return aName.localeCompare(bName)
     }
     return 0
   })
 
-  let fields: any[] = []
-  fields = data.map((conf: any) => ({
-    quantity: conf.quantity,
-    emoji: conf.emoji,
-    emojiStart: conf.emoji_start,
-    emojiStop: conf.emoji_stop ?? "",
-    channel: `<#${conf.repost_channel_id}>`,
-  }))
-
-  fields = paginate(fields, pageSize)
-  fields = fields.map((batch: any[], idx: number) => {
-    let quantityVal = ""
-    let emojiVal = ""
-    let emojiStartVal = ""
-    let emojiStopVal = ""
-    let channelVal = ""
+  const paginated = chunk(data, pageSize)
+  const pages = paginated.map((pageData, idx: number) => {
     const embed = composeEmbedMessage(msg, {
       title: "Starboard Configuration",
       withoutFooter: true,
       thumbnail: msg.guild?.iconURL(),
-    }).setFooter(`Page ${idx + 1} / ${fields.length}`)
-
-    batch.forEach((f: any) => {
-      quantityVal = quantityVal + f.quantity + "\n"
-      emojiVal = emojiVal + f.emoji + "\n"
-      emojiStartVal = emojiStartVal + f.emojiStart + "\n"
-      emojiStopVal = emojiStopVal + f.emojiStop + "\n"
-      channelVal = channelVal + f.channel + "\n"
     })
 
-    if (type == "conversation") {
-      return embed.setFields([
-        { name: "Repost channel", value: channelVal, inline: true },
-        { name: "Emoji Start", value: emojiStartVal, inline: true },
-        { name: "Emoji Stop", value: emojiStopVal, inline: true },
-      ])
+    if (type === "conversation") {
+      embed.setDescription(renderStartStopView(aggregateData(pageData)))
+    } else {
+      embed.setDescription(renderSingleView(aggregateData(pageData)))
     }
-    return embed.setFields([
-      { name: "Repost channel", value: channelVal, inline: true },
-      { name: "Emoji", value: emojiVal, inline: true },
-      { name: "Quantity", value: quantityVal, inline: true },
-    ])
+
+    embed.setDescription(`**Repost channel**\n${embed.description}`)
+    embed.setFooter(`Page ${idx + 1} / ${paginated.length}`)
+    return embed
   })
 
   const totalPage = Math.ceil(data.length / pageSize)
   return {
-    embeds: [fields[page]],
+    embeds: [pages[page]],
     components: [
-      ...buildPaginationActionRow(currentView, page, totalPage),
-      buildSwitchViewActionRow(currentView),
+      ...buildPaginationActionRow(type, page, totalPage),
+      buildSwitchViewActionRow(type),
     ],
   }
 }
@@ -161,27 +217,27 @@ function collectButton(msg: Message, authorId: string) {
 async function switchView(i: ButtonInteraction, msg: Message) {
   let embeds: MessageEmbed[] = []
   let components: MessageActionRow[] = []
-  currentView = i.customId.split("/").pop() ?? "message"
+  const nextView = (i.customId.split("/").pop() ?? "message") as ReactionType
 
   const res = await config.listAllRepostReactionConfigs(
     msg.guild?.id ?? "",
-    currentView
+    nextView
   )
-  if (!res.ok || !res.data?.length) {
+
+  if (!res.ok) {
+    throw new APIError({ curl: res.curl, description: res.log })
+  }
+
+  if (!res.data?.length) {
     embeds = [
       composeEmbedMessage(msg, {
         title: "Starboard Configuration",
         description: "No configuration found.",
       }),
     ]
-    components = [buildSwitchViewActionRow(currentView)]
+    components = [buildSwitchViewActionRow(nextView)]
   } else {
-    ;({ embeds, components } = await composeMessage(
-      msg,
-      res.data as any[],
-      currentView,
-      0
-    ))
+    ;({ embeds, components } = await composeMessage(msg, res.data, nextView, 0))
   }
 
   await i
@@ -193,7 +249,11 @@ async function switchView(i: ButtonInteraction, msg: Message) {
 }
 
 async function handlePagination(i: ButtonInteraction, msg: Message) {
-  const [currentView, pageStr, opStr] = i.customId.split("/").slice(1)
+  const [currentView, pageStr, opStr] = i.customId.split("/").slice(1) as [
+    ReactionType,
+    string,
+    string
+  ]
   let embeds: MessageEmbed[] = []
   let components: MessageActionRow[] = []
   const operators: Record<string, number> = {
@@ -217,7 +277,7 @@ async function handlePagination(i: ButtonInteraction, msg: Message) {
   } else {
     ;({ embeds, components } = await composeMessage(
       msg,
-      res.data as any[],
+      res.data,
       currentView,
       page
     ))
@@ -241,35 +301,42 @@ const command: Command = {
     if (!msg.guild) {
       throw new GuildIdNotFoundError({ message: msg })
     }
+    const defaultView: ReactionType = "message"
 
     const res = await config.listAllRepostReactionConfigs(
       msg.guild?.id ?? "",
-      currentView ?? "message"
+      defaultView
     )
-    if (!res.ok || !res.data?.length) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              title: "Starboard Configuration",
-              description: "No configuration found.",
-            }),
-          ],
-          components: [buildSwitchViewActionRow(currentView)],
-        },
-      }
+    if (!res.ok) {
+      throw new APIError({
+        curl: res.curl,
+        description: res.log,
+      })
+    }
+    let reply
+    if (!res.data?.length) {
+      reply = await msg.reply({
+        embeds: [
+          composeEmbedMessage(msg, {
+            title: "Starboard Configuration",
+            description: "No configuration found.",
+          }),
+        ],
+        components: [buildSwitchViewActionRow(defaultView)],
+      })
+    } else {
+      const { embeds, components } = await composeMessage(
+        msg,
+        res.data,
+        defaultView,
+        0
+      )
+      reply = await msg.reply({
+        embeds: embeds,
+        components: components,
+      })
     }
 
-    const { embeds, components } = await composeMessage(
-      msg,
-      res.data as any[],
-      currentView,
-      0
-    )
-    const reply = await msg.reply({
-      embeds: embeds,
-      components: components,
-    })
     collectButton(reply, msg.author.id)
   },
   getHelpMessage: async (msg) => {
