@@ -287,12 +287,12 @@ class Defi extends Fetcher {
     })
       .addField(
         "Required amount",
-        `${tokenEmoji}${roundFloatNumber(required, 4)} ${symbol}`,
+        `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
         true
       )
       .addField(
         "Your balance",
-        `${tokenEmoji}${roundFloatNumber(current, 4)} ${symbol}`,
+        `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
         true
       )
   }

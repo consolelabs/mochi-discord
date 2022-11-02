@@ -233,7 +233,12 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const payload = await Defi.getAirdropPayload(msg, args)
     // check balance
-    const { ok, data, log, curl } = await Defi.offchainGetUserBalances({
+    const {
+      ok,
+      data = [],
+      log,
+      curl,
+    } = await Defi.offchainGetUserBalances({
       userId: payload.sender,
     })
     if (!ok) {
@@ -242,7 +247,7 @@ const command: Command = {
     // get balance and price in usd
     let currentBal = 0
     let currentPrice = 0
-    data.forEach((bal: any) => {
+    data?.forEach((bal: any) => {
       if (payload.token === bal.symbol) {
         currentBal = bal.balances
         currentPrice = bal.rate_in_usd
