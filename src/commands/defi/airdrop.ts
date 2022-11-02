@@ -233,15 +233,21 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const payload = await Defi.getAirdropPayload(msg, args)
     // check balance
-    const res = await Defi.offchainGetUserBalances({ userId: payload.sender })
-    if (!res.ok) {
-      throw new APIError({ curl: res.curl, description: res.log })
-    }
-    const bals: { [key: string]: number } = {}
-    res.data.forEach((bal: any) => {
-      bals[bal.symbol] = bal.balances
+    const { ok, data, log, curl } = await Defi.offchainGetUserBalances({
+      userId: payload.sender,
     })
-    const currentBal = bals[payload.token]
+    if (!ok) {
+      throw new APIError({ curl: curl, description: log })
+    }
+    // get balance and price in usd
+    let currentBal = 0
+    let currentPrice = 0
+    data.forEach((bal: any) => {
+      if (payload.token === bal.symbol) {
+        currentBal = bal.balances
+        currentPrice = roundFloatNumber(bal.rate_in_usd)
+      }
+    })
     if (currentBal < payload.amount && !payload.all) {
       return {
         messageOptions: {
@@ -259,11 +265,6 @@ const command: Command = {
     if (payload.all) payload.amount = currentBal
 
     const tokenEmoji = getEmoji(payload.token)
-    const { ok, data: coin } = await Defi.getCoin("ethereum" ?? "")
-    if (!ok) {
-      throw new APIError({ curl: res.curl, description: res.log })
-    }
-    const currentPrice = roundFloatNumber(coin.market_data.current_price["usd"])
     const amountDescription = `${tokenEmoji} **${roundFloatNumber(
       payload.amount,
       4

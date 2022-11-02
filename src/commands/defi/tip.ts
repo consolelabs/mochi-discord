@@ -54,7 +54,9 @@ async function tip(msg: Message, args: string[]) {
       payload.sender
     )} has sent ${users} **${roundFloatNumber(data[0].amount, 4)} ${
       payload.token
-    }** ${recipientIds.length > 1 ? "each" : ""}`,
+    }** (\u2248 $${roundFloatNumber(data[0].amount_in_usd, 4)}) ${
+      recipientIds.length > 1 ? "each" : ""
+    }`,
   })
 
   return {
