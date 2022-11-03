@@ -184,6 +184,7 @@ export const emojis: { [key: string]: string } = {
   MESSAGE: "1032608821534806056",
   CONVERSATION: "1032608818930139249",
   TOUCH: "900363887050911784",
+  MOCHI_SQUARE: "974507016536072242",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

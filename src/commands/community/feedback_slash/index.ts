@@ -2,8 +2,9 @@ import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { SlashCommandBuilder } from "@discordjs/builders"
-import { CommandInteraction } from "discord.js"
-import { handleFeedback } from "../feedback"
+import { CommandInteraction, MessageActionRow, MessageButton } from "discord.js"
+import { handleFeedback, inviteUserToJoin } from "../feedback"
+import { getEmoji } from "utils/common"
 
 const command: SlashCommand = {
   name: "feedback",
@@ -59,6 +60,17 @@ const command: SlashCommand = {
             command: commandArg,
             feedback,
           }),
+          await inviteUserToJoin(),
+        ],
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton({
+              label: "Join Mochi",
+              style: "LINK",
+              url: "https://discord.gg/XQR36DQQGh",
+              emoji: getEmoji("MOCHI_SQUARE"),
+            })
+          ),
         ],
       },
     }

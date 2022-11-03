@@ -1,7 +1,9 @@
 import community from "adapters/community"
+import { MessageActionRow, MessageButton } from "discord.js"
 import { CommandError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { FEEDBACK_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
@@ -27,6 +29,16 @@ export async function handleFeedback(req: {
     description:
       "We're so happy to hear from you! Thank you for valuable feedback. :pray:",
   })
+}
+
+export async function inviteUserToJoin() {
+  const embed = composeEmbedMessage(null, {
+    author: ["Build with us!", getEmojiURL(emojis.DEFI)],
+    description:
+      "Join our Discord server for more support and to contribute your idea to Mochi Bot",
+  })
+
+  return embed
 }
 
 const command: Command = {
@@ -74,6 +86,7 @@ const command: Command = {
     }
 
     const avatar = msg.author.avatarURL() ?? ""
+
     return {
       messageOptions: {
         embeds: [
@@ -84,6 +97,17 @@ const command: Command = {
             command: commandArg,
             feedback,
           }),
+          await inviteUserToJoin(),
+        ],
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton({
+              label: "Join Mochi",
+              style: "LINK",
+              url: "https://discord.gg/XQR36DQQGh",
+              emoji: getEmoji("MOCHI_SQUARE"),
+            })
+          ),
         ],
       },
     }
