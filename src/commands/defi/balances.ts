@@ -45,7 +45,8 @@ const command: Command = {
     res.data.forEach((balance: UserBalances) => {
       const tokenName = balance["name"]
       const tokenEmoji = getEmoji(balance["symbol"])
-      const tokenBalance = roundFloatNumber(balance["balances"], 4)
+      const tokenBalance = roundFloatNumber(balance["balances"] ?? 0, 4)
+      if (tokenBalance === 0) return
       const tokenBalanceInUSD = roundFloatNumber(balance["balances_in_usd"], 4)
 
       const balanceInfo = `${tokenEmoji} ${tokenBalance} ${balance["symbol"]} \`$${tokenBalanceInUSD}\` ${blank}`
