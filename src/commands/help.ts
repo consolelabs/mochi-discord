@@ -1,4 +1,10 @@
-import { Message, MessageEmbed } from "discord.js"
+import {
+  ColorResolvable,
+  Message,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+} from "discord.js"
 import {
   AIRDROP_GITBOOK,
   BALANCE_GITBOOK,
@@ -27,16 +33,20 @@ import {
   VOTE_GITBOOK,
   WATCHLIST_GITBOOK,
   WELCOME_GITBOOK,
+  QUEST_GITBOOK,
 } from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import { capFirst, getEmoji, thumbnails } from "utils/common"
-import { Command } from "types/common"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { Command, embedsColors } from "types/common"
+import { composeEmbedMessage, EMPTY_FIELD } from "utils/discordEmbed"
+import chunk from "lodash.chunk"
 dayjs.extend(utc)
 
 const image =
   "https://cdn.discordapp.com/attachments/984660970624409630/1023869479521882193/help2.png"
+
+const PAGE_SIZE = 6
 
 function getHelpEmbed(msg: Message) {
   return composeEmbedMessage(msg, {
@@ -46,7 +56,7 @@ function getHelpEmbed(msg: Message) {
   })
 }
 
-const commands: Record<
+const _commands: Record<
   string,
   {
     emoji: string
@@ -78,13 +88,17 @@ const commands: Record<
       },
     ],
   },
-  Vote: {
+  "Earning Reward": {
     emoji: getEmoji("like"),
-    description: "Vote for us and earn more reward",
+    description: "Complete these tasks to earn more rewards",
     features: [
       {
         value: "vote",
         url: VOTE_GITBOOK,
+      },
+      {
+        value: "quest",
+        url: QUEST_GITBOOK,
       },
     ],
   },
@@ -241,31 +255,79 @@ const commands: Record<
   },
 }
 
+const textCommands = chunk(
+  Object.entries(_commands).filter((c) =>
+    c[1].features.every((f) => !f.onlySlash)
+  ),
+  PAGE_SIZE
+)
+
+const slashCommands = chunk(Object.entries(_commands), PAGE_SIZE)
+
+export const pagination = (currentPage: number, version: "$" | "/" = "$") => [
+  new MessageActionRow().addComponents(
+    new Array(version === "$" ? textCommands.length : slashCommands.length)
+      .fill(0)
+      .map(
+        (_, i) =>
+          new MessageButton({
+            customId: `${i + 1}`,
+            style: "SECONDARY",
+            label: `Page ${i + 1}`,
+            disabled: i + 1 === currentPage,
+          })
+      )
+  ),
+]
+
 export function buildHelpInterface(
   embed: MessageEmbed,
+  page: number,
   version: "$" | "/" = "$"
 ) {
-  Object.entries(commands)
-    .filter((c) => {
-      if (version === "$") {
-        const [, cmdData] = c
-        // if viewing text version but only slash available then exclude it out
-        if (cmdData.features.every((f) => f.onlySlash)) return false
-      }
-      return true
+  const commands = version === "$" ? textCommands : slashCommands
+  const length = commands[page - 1]?.length ?? PAGE_SIZE
+  commands[page - 1]?.forEach((cmd) => {
+    const [cmdName, cmdData] = cmd
+    embed.addFields({
+      name: `${cmdData.emoji} ${capFirst(cmdName)}`,
+      value: `${cmdData.features
+        .map((f) => {
+          return `[\`${version}${f.value}\`](${f.url})`
+        })
+        .join(" ")}\n${cmdData.description}`,
+      inline: true,
     })
-    .forEach((cmd) => {
-      const [cmdName, cmdData] = cmd
-      embed.addFields({
-        name: `${cmdData.emoji} ${capFirst(cmdName)}`,
-        value: `${cmdData.features
-          .map((f) => {
-            return `[\`${version}${f.value}\`](${f.url})`
-          })
-          .join(" ")}\n${cmdData.description}`,
-        inline: true,
-      })
-    })
+  })
+
+  const missingCols = PAGE_SIZE % length
+
+  if (missingCols > 0) {
+    embed.addFields(new Array(missingCols).fill(EMPTY_FIELD))
+  }
+
+  embed.addFields(
+    {
+      name: "**Examples**",
+      value: `\`\`\`${version}help invite\`\`\``,
+    },
+    {
+      name: "**Feedback**",
+      value: `You can send feedbacks to the team to improve Mochi Bot\`\`\`${version}feedback I really like Mochi Bot's watch list feature\`\`\``,
+    },
+    {
+      name: "**Document**",
+      value: `[**Gitbook**](${HELP_GITBOOK}&command=help)`,
+      inline: true,
+    },
+    {
+      name: "**Bring the Web3 universe to your Discord**",
+      value: `[**Website**](${HOMEPAGE_URL})`,
+      inline: true,
+    }
+  )
+
+  embed.setColor(embedsColors.Game as ColorResolvable)
 }
 
 const command: Command = {
@@ -274,35 +336,40 @@ const command: Command = {
   category: "Profile",
   brief: "Help Menu",
   run: async function (msg: Message) {
-    const data = await this.getHelpMessage(msg)
-    return { messageOptions: data }
+    await this.getHelpMessage(msg)
+    return null
   },
   getHelpMessage: async (msg: Message) => {
     const embed = getHelpEmbed(msg)
-    buildHelpInterface(embed)
-    embed.addFields(
-      {
-        name: "\u200b",
-        value: getEmoji("blank"),
-        inline: true,
-      },
-      {
-        name: "**Examples**",
-        value: `\`\`\`$help invite\`\`\``,
-      },
-      {
-        name: "**Document**",
-        value: `[**Gitbook**](${HELP_GITBOOK}&command=help)`,
-        inline: true,
-      },
-      {
-        name: "**Bring the Web3 universe to your Discord**",
-        value: `[**Website**](${HOMEPAGE_URL})`,
-        inline: true,
-      }
-    )
+    buildHelpInterface(embed, 1)
 
-    return { embeds: [embed] }
+    const replyMsg = await msg.reply({
+      embeds: [embed],
+      components: pagination(1),
+    })
+
+    replyMsg
+      .createMessageComponentCollector({
+        filter: (i) => i.user.id === msg.author.id,
+      })
+      .on("collect", (i) => {
+        i.deferUpdate()
+        const pageNum = Number(i.customId)
+        const embed = getHelpEmbed(msg)
+        buildHelpInterface(embed, pageNum)
+
+        replyMsg
+          .edit({
+            embeds: [embed],
+            components: pagination(pageNum),
+          })
+          .catch(() => null)
+      })
+      .on("end", () => {
+        replyMsg.edit({ components: [] }).catch(() => null)
+      })
+
+    return {}
   },
   allowDM: true,
   colorType: "Game",
