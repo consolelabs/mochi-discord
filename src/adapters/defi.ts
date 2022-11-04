@@ -228,11 +228,17 @@ class Defi extends Fetcher {
   convertToSeconds(timeStr: string): number {
     switch (true) {
       case timeStr.endsWith("s"):
-        return +timeStr.substring(0, timeStr.length - 1)
+        return +timeStr.substring(0, timeStr.length - 1) | 0
       case timeStr.endsWith("m"):
-        return +timeStr.substring(0, timeStr.length - 1) * 60
+        return (+timeStr.substring(0, timeStr.length - 1) * 60) | 0
       case timeStr.endsWith("h"):
-        return +timeStr.substring(0, timeStr.length - 1) * 3600
+        return (+timeStr.substring(0, timeStr.length - 1) * 3600) | 0
+      case timeStr.endsWith("sec"):
+        return +timeStr.substring(0, timeStr.length - 3) | 0
+      case timeStr.endsWith("min"):
+        return (+timeStr.substring(0, timeStr.length - 3) * 60) | 0
+      case timeStr.endsWith("hour"):
+        return (+timeStr.substring(0, timeStr.length - 4) * 3600) | 0
     }
     return 0
   }
