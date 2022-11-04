@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" />
+  <img src="https://img.shields.io/badge/node-16-brightgreen" />
   <a href="https://github.com/consolelabs/mochi-discord/tags">
     <img src="https://img.shields.io/github/v/tag/consolelabs/mochi-discord" />
   </a>

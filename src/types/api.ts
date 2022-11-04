@@ -355,6 +355,20 @@ export interface ModelOffchainTipBotContract {
   updated_at?: string;
 }
 
+export interface ModelOffchainTipBotTransferHistory {
+  action?: string;
+  amount?: number;
+  created_at?: string;
+  guild_id?: string;
+  id?: string;
+  log_id?: string;
+  receiver_id?: string;
+  sender_id?: string;
+  status?: string;
+  token?: string;
+  updated_at?: string;
+}
+
 export interface ModelQuest {
   action?: string;
   frequency?: number;
@@ -518,6 +532,7 @@ export interface RequestBalcklistChannelRepostConfigRequest {
 }
 
 export interface RequestClaimQuestsRewardsRequest {
+  quest_id?: string;
   routine?: string;
   user_id?: string;
 }
@@ -1219,6 +1234,7 @@ export interface ResponseGetUserBalances {
   balances_in_usd?: number;
   id?: string;
   name?: string;
+  rate_in_usd?: number;
   symbol?: string;
 }
 
@@ -1265,6 +1281,10 @@ export interface ResponseGetUserResponse {
 export interface ResponseGetUserUpvoteLeaderboardResponse {
   data?: ModelDiscordUserUpvoteStreak[];
   message?: string;
+}
+
+export interface ResponseGetUserWalletByGuildIDAddressResponse {
+  data?: ModelUserWallet;
 }
 
 export interface ResponseGetVoteChannelConfigResponse {
@@ -1658,6 +1678,7 @@ export interface ResponseNftWatchlistSuggestResponse {
 
 export interface ResponseOffchainTipBotTransferToken {
   amount?: number;
+  amount_in_usd?: number;
   recipient_id?: string;
   sender_id?: string;
   symbol?: string;
@@ -1785,6 +1806,10 @@ export interface ResponseUserInvitesAggregation {
   inviter_id?: string;
   left?: number;
   regular?: number;
+}
+
+export interface ResponseUserTransactionResponse {
+  data?: ModelOffchainTipBotTransferHistory[];
 }
 
 export interface UtilPagination {

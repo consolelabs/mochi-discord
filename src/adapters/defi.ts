@@ -36,11 +36,7 @@ import { commands } from "commands"
 
 class Defi extends Fetcher {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
-    let targets = args
-      .slice(1, args.length)
-      .join("")
-      .split(",")
-      .map((id) => id.trim())
+    let targets = args.slice(1, args.length).map((id) => id.trim())
     targets = [...new Set(targets)]
 
     targets.forEach((u) => {
@@ -291,12 +287,12 @@ class Defi extends Fetcher {
     })
       .addField(
         "Required amount",
-        `${tokenEmoji}${roundFloatNumber(required, 4)} ${symbol}`,
+        `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
         true
       )
       .addField(
         "Your balance",
-        `${tokenEmoji}${roundFloatNumber(current, 4)} ${symbol}`,
+        `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
         true
       )
   }

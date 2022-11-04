@@ -34,15 +34,10 @@ const command: Command = {
       throw new CommandError({ message: msg })
     }
 
-    const values = await Promise.all(
+    let values = await Promise.all(
       data.map(async (cfg) => {
         const channel = msg.guild?.channels.cache.get(cfg.channel_id ?? "") // user already has message in the channel => channel in cache
-        if (!channel || !channel.isText()) {
-          throw new CommandError({
-            message: msg,
-            description: "Channel not found",
-          })
-        }
+        if (!channel || !channel.isText()) return null
 
         const reactMessage = await channel.messages
           .fetch(cfg.message_id ?? "")
@@ -71,6 +66,7 @@ const command: Command = {
         }
       })
     )
+    values = values.filter((v) => Boolean(v))
     let pages = paginate(values, 5)
 
     pages = pages.map((arr: any, idx: number): MessageEmbed => {

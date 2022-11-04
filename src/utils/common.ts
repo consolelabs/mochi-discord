@@ -184,6 +184,7 @@ export const emojis: { [key: string]: string } = {
   MESSAGE: "1032608821534806056",
   CONVERSATION: "1032608818930139249",
   TOUCH: "900363887050911784",
+  MOCHI_SQUARE: "974507016536072242",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -315,10 +316,6 @@ export function getEmoji(key: string, animated?: boolean) {
 
 export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
-}
-
-export function catchEm(promise: Promise<unknown>) {
-  return promise.then((data) => [null, data]).catch((err) => [err])
 }
 
 export function capFirst(str: string) {
