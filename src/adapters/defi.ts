@@ -33,6 +33,7 @@ import {
   RequestOffchainWithdrawRequest,
 } from "types/api"
 import { commands } from "commands"
+import parse from "parse-duration"
 
 class Defi extends Fetcher {
   async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
@@ -220,29 +221,6 @@ class Defi extends Fetcher {
     )
   }
 
-  /**
-   * Returns number of seconds convert from a timestring
-   *
-   * e.g. convertToSeconds("5m") = 300s
-   */
-  convertToSeconds(timeStr: string): number {
-    switch (true) {
-      case timeStr.endsWith("s"):
-        return +timeStr.substring(0, timeStr.length - 1) | 0
-      case timeStr.endsWith("m"):
-        return (+timeStr.substring(0, timeStr.length - 1) * 60) | 0
-      case timeStr.endsWith("h"):
-        return (+timeStr.substring(0, timeStr.length - 1) * 3600) | 0
-      case timeStr.endsWith("sec"):
-        return +timeStr.substring(0, timeStr.length - 3) | 0
-      case timeStr.endsWith("min"):
-        return (+timeStr.substring(0, timeStr.length - 3) * 60) | 0
-      case timeStr.endsWith("hour"):
-        return (+timeStr.substring(0, timeStr.length - 4) * 3600) | 0
-    }
-    return 0
-  }
-
   getAirdropOptions(args: string[], discordId: string, msg: Message) {
     const options: { duration: number; maxEntries: number } = {
       duration: 180, // in secs
@@ -265,7 +243,7 @@ class Defi extends Fetcher {
         .substring(durationIdx)
         .replace(/in\s+/, "")
         .split(" ")[0]
-      options.duration = this.convertToSeconds(timeStr)
+      options.duration = parse(timeStr) / 1000
     }
 
     const maxEntriesReg = /for\s+\d+/
