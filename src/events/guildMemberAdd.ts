@@ -159,7 +159,9 @@ async function welcomeNewMember(member: Discord.GuildMember) {
     return
   }
   // channel id returned but cannot find in guild
-  const chan = await client.channels.fetch(configData.channel_id)
+  const chan = await client.channels
+    .fetch(configData.channel_id)
+    .catch(() => null)
   if (!chan) {
     const guild = await config.getGuild(member.guild.id)
     if (!guild) {
