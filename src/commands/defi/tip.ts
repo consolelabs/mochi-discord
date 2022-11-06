@@ -1,4 +1,4 @@
-import { Message } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
 import {
   emojis,
@@ -10,23 +10,22 @@ import {
 import { getCommandArguments } from "utils/commands"
 import { Command } from "types/common"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { APIError, GuildIdNotFoundError } from "errors"
 import { parseDiscordToken } from "utils/commands"
 import Defi from "adapters/defi"
+import { GuildIdNotFoundError } from "errors/GuildIdNotFoundError"
 
-async function tip(msg: Message, args: string[]) {
-  // validate valid guild
-  if (!msg.guildId) {
-    throw new GuildIdNotFoundError({ message: msg })
-  }
-
+export async function handleTip(
+  args: string[],
+  authorId: string,
+  fullCmd: string,
+  msg: Message | CommandInteraction
+) {
   // validate valid user
   const { isUser, isRole } = parseDiscordToken(args[1])
   if (!isUser && !isRole) {
     return {
       embeds: [
         getErrorEmbed({
-          msg,
           description: "Invalid recipients.",
         }),
       ],
@@ -34,29 +33,27 @@ async function tip(msg: Message, args: string[]) {
   }
 
   // preprocess command arguments
-  const payload = await Defi.getTipPayload(msg, args)
-  payload.fullCommand = msg.content
-  const { data, ok, error, curl, log } = await Defi.offchainDiscordTransfer(
-    payload
-  )
+  const payload = await Defi.getTipPayload(msg, args, authorId, args[0])
+  payload.fullCommand = fullCmd
+  const res = await Defi.offchainDiscordTransfer(payload)
 
-  if (!ok) {
-    throw new APIError({ message: msg, curl, description: log, error })
+  if (!res.ok) {
+    return {
+      embeds: [getErrorEmbed({ description: res.error })],
+    }
   }
 
-  const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
+  const recipientIds: string[] = res.data.map((tx: any) => tx.recipient_id)
   const mentionUser = (discordId: string) => `<@!${discordId}>`
   const users = recipientIds.map((id) => mentionUser(id)).join(",")
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     thumbnail: thumbnails.TIP,
     author: ["Tips", getEmojiURL(emojis.COIN)],
     description: `${mentionUser(
       payload.sender
-    )} has sent ${users} **${roundFloatNumber(data[0].amount, 4)} ${
+    )} has sent ${users} **${roundFloatNumber(res.data[0].amount, 4)} ${
       payload.token
-    }** (\u2248 $${roundFloatNumber(data[0].amount_in_usd, 4)}) ${
-      recipientIds.length > 1 ? "each" : ""
-    }`,
+    }** ${payload.each ? "each" : ""}`,
   })
 
   return {
@@ -71,9 +68,13 @@ const command: Command = {
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
+    // validate valid guild
+    if (!msg.guildId) {
+      throw new GuildIdNotFoundError({})
+    }
     return {
       messageOptions: {
-        ...(await tip(msg, args)),
+        ...(await handleTip(args, msg.author.id, msg.content, msg)),
       },
     }
   },

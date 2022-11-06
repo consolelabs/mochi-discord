@@ -1,5 +1,8 @@
-import { Message } from "discord.js"
-import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
+import { CommandInteraction, Message } from "discord.js"
+import {
+  DiscordWalletTransferError,
+  DiscordWalletTransferSlashError,
+} from "errors/DiscordWalletTransferError"
 import fetch from "node-fetch"
 import {
   DiscordWalletTransferRequest,
@@ -33,9 +36,14 @@ import {
   RequestOffchainWithdrawRequest,
 } from "types/api"
 import { commands } from "commands"
+import parse from "parse-duration"
 
 class Defi extends Fetcher {
-  async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
+  async parseRecipients(
+    msg: Message | CommandInteraction,
+    args: string[],
+    fromDiscordId: string
+  ) {
     let targets = args.slice(1, args.length).map((id) => id.trim())
     targets = [...new Set(targets)]
 
@@ -220,23 +228,6 @@ class Defi extends Fetcher {
     )
   }
 
-  /**
-   * Returns number of seconds convert from a timestring
-   *
-   * e.g. convertToSeconds("5m") = 300s
-   */
-  convertToSeconds(timeStr: string): number {
-    switch (true) {
-      case timeStr.endsWith("s"):
-        return +timeStr.substring(0, timeStr.length - 1)
-      case timeStr.endsWith("m"):
-        return +timeStr.substring(0, timeStr.length - 1) * 60
-      case timeStr.endsWith("h"):
-        return +timeStr.substring(0, timeStr.length - 1) * 3600
-    }
-    return 0
-  }
-
   getAirdropOptions(args: string[], discordId: string, msg: Message) {
     const options: { duration: number; maxEntries: number } = {
       duration: 180, // in secs
@@ -259,7 +250,7 @@ class Defi extends Fetcher {
         .substring(durationIdx)
         .replace(/in\s+/, "")
         .split(" ")[0]
-      options.duration = this.convertToSeconds(timeStr)
+      options.duration = parse(timeStr) / 1000
     }
 
     const maxEntriesReg = /for\s+\d+/
@@ -298,12 +289,12 @@ class Defi extends Fetcher {
   }
 
   public async getTipPayload(
-    msg: Message,
-    args: string[]
+    msg: Message | CommandInteraction,
+    args: string[],
+    authorId: string,
+    type: string
   ): Promise<OffchainTipBotTransferRequest> {
-    const commandObject = getCommandObject(commands, msg)
-    const type = commandObject?.command
-    const sender = msg.author.id
+    const sender = authorId
     let amountArg = "",
       cryptocurrency = "",
       recipients: string[] = []
@@ -324,10 +315,18 @@ class Defi extends Fetcher {
 
     // check if recipient is valid or not
     if (!recipients || !recipients.length) {
-      throw new DiscordWalletTransferError({
+      if (msg instanceof Message) {
+        throw new DiscordWalletTransferError({
+          discordId: sender,
+          guildId,
+          message: msg,
+          errorMsg: "No valid recipient found!",
+        })
+      }
+      throw new DiscordWalletTransferSlashError({
         discordId: sender,
         guildId,
-        message: msg,
+        interaction: msg,
         errorMsg: "No valid recipient found!",
       })
     }
@@ -336,10 +335,18 @@ class Defi extends Fetcher {
     for (const recipientId of recipients) {
       const user = await msg.guild?.members.fetch(recipientId)
       if (!user) {
-        throw new DiscordWalletTransferError({
+        if (msg instanceof Message) {
+          throw new DiscordWalletTransferError({
+            discordId: sender,
+            guildId,
+            message: msg,
+            errorMsg: `User <@!${recipientId}> not found`,
+          })
+        }
+        throw new DiscordWalletTransferSlashError({
           discordId: sender,
           guildId,
-          message: msg,
+          interaction: msg,
           errorMsg: `User <@!${recipientId}> not found`,
         })
       }
@@ -348,10 +355,18 @@ class Defi extends Fetcher {
     // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
     let amount = parseFloat(amountArg)
     if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
-      throw new DiscordWalletTransferError({
+      if (msg instanceof Message) {
+        throw new DiscordWalletTransferError({
+          discordId: sender,
+          guildId,
+          message: msg,
+          errorMsg: "Invalid amount",
+        })
+      }
+      throw new DiscordWalletTransferSlashError({
         discordId: sender,
         guildId,
-        message: msg,
+        interaction: msg,
         errorMsg: "Invalid amount",
       })
     }
