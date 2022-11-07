@@ -171,6 +171,10 @@ export const FEEDBACK_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/feedback-for-our-mochi" +
   "&command=feedback"
+export const QUEST_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/user-engagement/daily-quest" +
+  "&command=quest"
 
 export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"

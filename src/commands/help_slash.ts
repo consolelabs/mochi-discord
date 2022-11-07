@@ -1,13 +1,12 @@
-import { ColorResolvable, CommandInteraction, User } from "discord.js"
-import { HELP_GITBOOK, HOMEPAGE_URL } from "utils/constants"
+import { CommandInteraction, Message, User } from "discord.js"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import { thumbnails } from "utils/common"
-import { embedsColors, SlashCommand } from "types/common"
-import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
+import { SlashCommand } from "types/common"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { slashCommands } from "commands"
-import { buildHelpInterface } from "./help"
+import { buildHelpInterface, pagination } from "./help"
 dayjs.extend(utc)
 
 const image =
@@ -18,7 +17,7 @@ function getHelpEmbed(user: User) {
     title: `Mochi Bot Commands`,
     author: ["Mochi Bot", thumbnails.HELP],
     image,
-  }).setFooter(user?.tag, user.avatarURL() || undefined)
+  }).setFooter(user?.tag, user.avatarURL() ?? undefined)
 }
 
 const command: SlashCommand = {
@@ -43,36 +42,40 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     const command = interaction.options.getString("command")
-    const messageOptions = await (slashCommands[command ?? ""] ?? this).help(
-      interaction
-    )
-    return { messageOptions }
+    await (slashCommands[command ?? ""] ?? this).help(interaction)
+    return null
   },
   help: async (interaction) => {
     const embed = getHelpEmbed(interaction.user)
-    buildHelpInterface(embed, "/")
+    buildHelpInterface(embed, 1, "/")
 
-    embed.addFields(
-      {
-        name: "**Examples**",
-        value: `\`\`\`/help invite\`\`\``,
-      },
-      {
-        name: "**Document**",
-        value: `[**Gitbook**](${HELP_GITBOOK}&command=help)`,
-        inline: true,
-      },
-      {
-        name: "**Bring the Web3 universe to your Discord**",
-        value: `[**Website**](${HOMEPAGE_URL})`,
-        inline: true,
-      }
-    )
+    const replyMsg = (await interaction.editReply({
+      embeds: [embed],
+      components: pagination(1, "/"),
+    })) as Message
 
-    embed.setColor(embedsColors.Game as ColorResolvable)
-    return {
-      embeds: [justifyEmbedFields(embed, 3)],
-    }
+    replyMsg
+      .createMessageComponentCollector({
+        filter: (i) => i.user.id === interaction.user.id,
+      })
+      .on("collect", (i) => {
+        i.deferUpdate()
+        const pageNum = Number(i.customId)
+        const embed = getHelpEmbed(interaction.user)
+        buildHelpInterface(embed, pageNum, "/")
+
+        interaction
+          .editReply({
+            embeds: [embed],
+            components: pagination(pageNum, "/"),
+          })
+          .catch(() => null)
+      })
+      .on("end", () => {
+        interaction.editReply({ components: [] }).catch(() => null)
+      })
+
+    return {}
   },
   colorType: "Command",
 }
