@@ -221,7 +221,7 @@ async function executeCommand(
   // e.g. $help invite || $invite help || $help invite leaderboard
   if (isSpecificHelpCommand) {
     const helpMessage = await commandObject.getHelpMessage(message, action)
-    if (helpMessage) {
+    if (helpMessage && Object.keys(helpMessage).length) {
       await message.reply(helpMessage)
 
       // stop benchmark for help message

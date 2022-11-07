@@ -41,12 +41,9 @@ import parse from "parse-duration"
 class Defi extends Fetcher {
   async parseRecipients(
     msg: Message | CommandInteraction,
-    args: string[],
+    targets: string[],
     fromDiscordId: string
   ) {
-    let targets = args.slice(1, args.length).map((id) => id.trim())
-    targets = [...new Set(targets)]
-
     targets.forEach((u) => {
       if (u !== "@everyone" && !u.startsWith("<@")) {
         throw new Error("Invalid user")
@@ -288,6 +285,16 @@ class Defi extends Fetcher {
       )
   }
 
+  public parseTipParameters(args: string[]) {
+    const each = args[args.length - 1].toLowerCase() === "each"
+    args = each ? args.slice(0, args.length - 1) : args
+    let targets = args.slice(1, args.length - 2).map((id) => id.trim())
+    targets = [...new Set(targets)]
+    const cryptocurrency = args[args.length - 1].toUpperCase()
+    const amountArg = args[args.length - 2].toLowerCase()
+    return { each, targets, cryptocurrency, amountArg }
+  }
+
   public async getTipPayload(
     msg: Message | CommandInteraction,
     args: string[],
@@ -295,23 +302,18 @@ class Defi extends Fetcher {
     type: string
   ): Promise<OffchainTipBotTransferRequest> {
     const sender = authorId
-    let amountArg = "",
-      cryptocurrency = "",
-      recipients: string[] = []
+    let recipients: string[] = []
 
     const guildId = msg.guildId ?? "DM"
-    let each = args[args.length - 1].toLowerCase() === "each"
-    args = each ? args.slice(0, args.length - 1) : args
 
     // parse recipients
-    recipients = await this.parseRecipients(
-      msg,
-      args.slice(0, args.length - 2),
-      sender
-    )
-
-    cryptocurrency = args[args.length - 1].toUpperCase()
-    amountArg = args[args.length - 2].toLowerCase()
+    const {
+      each: eachParse,
+      targets,
+      cryptocurrency,
+      amountArg,
+    } = this.parseTipParameters(args)
+    recipients = await this.parseRecipients(msg, targets, sender)
 
     // check if recipient is valid or not
     if (!recipients || !recipients.length) {
@@ -370,7 +372,7 @@ class Defi extends Fetcher {
         errorMsg: "Invalid amount",
       })
     }
-    each = each && amountArg !== "all"
+    const each = eachParse && amountArg !== "all"
     amount = each ? amount * recipients.length : amount
 
     // check if tip token is in guild config
