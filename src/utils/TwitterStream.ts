@@ -189,7 +189,7 @@ class TwitterStream extends InmemoryStorage {
   private async watchStream() {
     try {
       const stream = twitter.tweets.searchStream({
-        expansions: ["author_id"],
+        expansions: ["author_id", "entities.mentions.username"],
       })
       for await (const tweet of stream) {
         this.handle(tweet)
