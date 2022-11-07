@@ -216,8 +216,10 @@ export async function enterAirdrop(
         }),
       ],
     })
-    if (participants.length === +maxEntries)
+    if (participants.length === +maxEntries) {
       airdropCache.emit("expired", cacheKey, participants)
+      airdropCache.del(cacheKey)
+    }
   }
 }
 
