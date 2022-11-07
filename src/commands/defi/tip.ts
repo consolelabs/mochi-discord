@@ -13,6 +13,7 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { parseDiscordToken } from "utils/commands"
 import Defi from "adapters/defi"
 import { GuildIdNotFoundError } from "errors/GuildIdNotFoundError"
+import { APIError } from "errors/APIError"
 
 export async function handleTip(
   args: string[],
@@ -35,25 +36,31 @@ export async function handleTip(
   // preprocess command arguments
   const payload = await Defi.getTipPayload(msg, args, authorId, args[0])
   payload.fullCommand = fullCmd
-  const res = await Defi.offchainDiscordTransfer(payload)
+  const { data, ok, error, curl, log } = await Defi.offchainDiscordTransfer(
+    payload
+  )
 
-  if (!res.ok) {
-    return {
-      embeds: [getErrorEmbed({ description: res.error })],
-    }
+  if (!ok) {
+    throw new APIError({ curl, description: log, error })
   }
 
-  const recipientIds: string[] = res.data.map((tx: any) => tx.recipient_id)
+  const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
   const mentionUser = (discordId: string) => `<@!${discordId}>`
   const users = recipientIds.map((id) => mentionUser(id)).join(",")
+  let recipientDescription = users
+  if (isRole) {
+    const { targets } = Defi.preParseTipRecipient(args)
+    recipientDescription = `**${data.length} users** in ${targets.join(",")}`
+  }
   const embed = composeEmbedMessage(null, {
     thumbnail: thumbnails.TIP,
     author: ["Tips", getEmojiURL(emojis.COIN)],
     description: `${mentionUser(
       payload.sender
-    )} has sent ${users} **${roundFloatNumber(res.data[0].amount, 4)} ${
-      payload.token
-    }** ${payload.each ? "each" : ""}`,
+    )} has sent ${recipientDescription} **${roundFloatNumber(
+      data[0].amount,
+      4
+    )} ${payload.token}** ${recipientIds.length > 1 ? "each" : ""}`,
   })
 
   return {
