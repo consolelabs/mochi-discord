@@ -285,12 +285,14 @@ class Defi extends Fetcher {
       )
   }
 
-  public preParseTipRecipient(args: string[]) {
+  public parseTipParameters(args: string[]) {
     const each = args[args.length - 1].toLowerCase() === "each"
     args = each ? args.slice(0, args.length - 1) : args
     let targets = args.slice(1, args.length - 2).map((id) => id.trim())
     targets = [...new Set(targets)]
-    return { each, args, targets }
+    const cryptocurrency = args[args.length - 1].toUpperCase()
+    const amountArg = args[args.length - 2].toLowerCase()
+    return { each, targets, cryptocurrency, amountArg }
   }
 
   public async getTipPayload(
@@ -300,19 +302,18 @@ class Defi extends Fetcher {
     type: string
   ): Promise<OffchainTipBotTransferRequest> {
     const sender = authorId
-    let amountArg = "",
-      cryptocurrency = "",
-      recipients: string[] = []
+    let recipients: string[] = []
 
     const guildId = msg.guildId ?? "DM"
 
     // parse recipients
-    // eslint-disable-next-line prefer-const
-    let { each, args: newArgs, targets } = this.preParseTipRecipient(args)
+    const {
+      each: eachParse,
+      targets,
+      cryptocurrency,
+      amountArg,
+    } = this.parseTipParameters(args)
     recipients = await this.parseRecipients(msg, targets, sender)
-
-    cryptocurrency = newArgs[newArgs.length - 1].toUpperCase()
-    amountArg = newArgs[newArgs.length - 2].toLowerCase()
 
     // check if recipient is valid or not
     if (!recipients || !recipients.length) {
@@ -371,7 +372,7 @@ class Defi extends Fetcher {
         errorMsg: "Invalid amount",
       })
     }
-    each = each && amountArg !== "all"
+    const each = eachParse && amountArg !== "all"
     amount = each ? amount * recipients.length : amount
 
     // check if tip token is in guild config

@@ -49,7 +49,7 @@ export async function handleTip(
   const users = recipientIds.map((id) => mentionUser(id)).join(",")
   let recipientDescription = users
   if (isRole) {
-    const { targets } = Defi.preParseTipRecipient(args)
+    const { targets } = Defi.parseTipParameters(args)
     recipientDescription = `**${data.length} users** in ${targets.join(",")}`
   }
   const embed = composeEmbedMessage(null, {
