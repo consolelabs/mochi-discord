@@ -6,7 +6,7 @@ import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { slashCommands } from "commands"
-import { buildHelpInterface, pagination } from "./help"
+import { buildHelpInterface, PageType, pagination } from "./help"
 dayjs.extend(utc)
 
 const image =
@@ -47,11 +47,11 @@ const command: SlashCommand = {
   },
   help: async (interaction) => {
     const embed = getHelpEmbed(interaction.user)
-    buildHelpInterface(embed, 1, "/")
+    buildHelpInterface(embed, "social", "/")
 
     const replyMsg = (await interaction.editReply({
       embeds: [embed],
-      components: pagination(1, "/"),
+      components: pagination("social"),
     })) as Message
 
     replyMsg
@@ -60,14 +60,14 @@ const command: SlashCommand = {
       })
       .on("collect", (i) => {
         i.deferUpdate()
-        const pageNum = Number(i.customId)
+        const pageType = i.customId as PageType
         const embed = getHelpEmbed(interaction.user)
-        buildHelpInterface(embed, pageNum, "/")
+        buildHelpInterface(embed, pageType, "/")
 
         interaction
           .editReply({
             embeds: [embed],
-            components: pagination(pageNum, "/"),
+            components: pagination(pageType),
           })
           .catch(() => null)
       })

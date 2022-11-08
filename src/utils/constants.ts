@@ -33,6 +33,8 @@ export const VALID_BOOST_MESSAGE_TYPES = [
 ]
 
 export const HOMEPAGE_URL = "http://getmochi.co"
+export const TWITTER_URL = "https://twitter.com/getmochi_bot"
+export const DISCORD_URL = "https://discord.gg/XQR36DQQGh"
 
 export const EMOJI_REGEX = /^<:(.+|_):(\d+)>$/i
 export const ANIMATED_EMOJI_REGEX = /^<a:(.+|_):(\d+)>$/i
