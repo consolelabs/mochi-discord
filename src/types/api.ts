@@ -359,11 +359,13 @@ export interface ModelOffchainTipBotTransferHistory {
   action?: string;
   amount?: number;
   created_at?: string;
+  fee_amount?: number;
   guild_id?: string;
   id?: string;
   log_id?: string;
   receiver_id?: string;
   sender_id?: string;
+  service_fee?: number;
   status?: string;
   token?: string;
   updated_at?: string;
@@ -464,6 +466,18 @@ export interface ModelUserFactionXpsMapping {
   imperial_xp?: number;
   merchant_xp?: number;
   rebellio_xp?: number;
+}
+
+export interface ModelUserFeedback {
+  command?: string;
+  completed_at?: string;
+  confirmed_at?: string;
+  created_at?: string;
+  discord_id?: string;
+  feedback?: string;
+  id?: UuidNullUUID;
+  message_id?: string;
+  status?: string;
 }
 
 export interface ModelUserTelegramDiscordAssociation {
@@ -796,6 +810,11 @@ export interface RequestUpdateQuestProgressRequest {
   user_id?: string;
 }
 
+export interface RequestUpdateUserFeedbackRequest {
+  id?: string;
+  status?: string;
+}
+
 export interface RequestUpsertCustomTokenConfigRequest {
   active?: boolean;
   address?: string;
@@ -861,6 +880,7 @@ export interface RequestUserFeedbackRequest {
   command?: string;
   discord_id?: string;
   feedback?: string;
+  message_id?: string;
   username?: string;
 }
 
@@ -1782,6 +1802,10 @@ export interface ResponseUpdateCustomCommandResponse {
   data?: ModelGuildCustomCommand;
 }
 
+export interface ResponseUpdateUserFeedbackResponse {
+  data?: ModelUserFeedback;
+}
+
 export interface ResponseUser {
   guild_users?: ResponseGetGuildUserResponse[];
   id?: string;
@@ -1801,6 +1825,10 @@ export interface ResponseUserDeviceResponse {
   ios_noti_token?: string;
 }
 
+export interface ResponseUserFeedbackResponse {
+  data?: ModelUserFeedback[];
+}
+
 export interface ResponseUserInvitesAggregation {
   fake?: number;
   inviter_id?: string;
@@ -1816,4 +1844,10 @@ export interface UtilPagination {
   page?: number;
   size?: number;
   total?: number;
+}
+
+export interface UuidNullUUID {
+  uuid?: string;
+  /** Valid is true if UUID is not NULL */
+  valid?: boolean;
 }
