@@ -1,6 +1,16 @@
 import community from "adapters/community"
-import { MessageActionRow, MessageButton } from "discord.js"
+import {
+  ButtonInteraction,
+  GuildChannelManager,
+  Message,
+  MessageActionRow,
+  MessageButton,
+  User,
+} from "discord.js"
+import { FEEDBACK_PUBLIC_CHANNEL_ID } from "env"
 import { CommandError } from "errors"
+import { logger } from "logger"
+import { ModelUserFeedback, RequestUserFeedbackRequest } from "types/api"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
@@ -11,13 +21,134 @@ import {
   getSuccessEmbed,
 } from "utils/discordEmbed"
 
-export async function handleFeedback(req: {
-  discord_id: string
-  username: string
-  avatar: string
-  command: string
-  feedback: string
-}) {
+async function sendProgressToPublicFeedbackChannel(
+  feedback: ModelUserFeedback,
+  user: User,
+  channels?: GuildChannelManager
+) {
+  const embed = composeEmbedMessage(null, {
+    title: `${getEmoji(
+      feedback.status === "completed" ? "approve" : "approve_grey"
+    )} This feedback is ${
+      feedback.status === "completed" ? "resolved" : "being worked on"
+    }`,
+    description: `${user} has something to say${
+      feedback.command ? ` for command ${feedback.command.toUpperCase()}` : ""
+    }\n\`${feedback.feedback}\``,
+    color: "#fcd3c1",
+  }).setFooter(user?.tag, user.avatarURL() ?? undefined)
+
+  logger.info("[handleFeedback] - fetching public channel")
+  const channel = await channels?.fetch(FEEDBACK_PUBLIC_CHANNEL_ID)
+  if (!channel || !channel.isText()) {
+    logger.error("[handleFeedback] - no public feedback channel found")
+    return
+  }
+
+  logger.info(
+    `[handleFeedback] - sending update in-progress to public feedback channel ${feedback.id}`
+  )
+
+  channel.send({ embeds: [embed] })
+}
+
+export async function handleFeedbackSetInProgress(i: ButtonInteraction) {
+  if (!i.deferred) {
+    i.deferUpdate()
+  }
+
+  const feedbackId = i.customId.split("_").pop()
+  if (!feedbackId) {
+    logger.error(`[handleFeedback] - unable to get feedback id ${i.message.id}`)
+    return
+  }
+  logger.info(
+    `[handleFeedback] - updating status to in-progress of feedback ${feedbackId}`
+  )
+  const updateRes = await community.updateFeedback(feedbackId, "confirmed")
+  if (!updateRes.ok) {
+    logger.error(
+      `[handleFeedback] - unable to set in-progress feedback ${feedbackId}`
+    )
+    return
+  }
+  const feedback = updateRes.data
+  const msg = i.message as Message
+  msg.edit({
+    components: [
+      new MessageActionRow().addComponents(
+        new MessageButton({
+          label: "Resolved",
+          style: "SECONDARY",
+          emoji: getEmoji("approve"),
+          customId: `handle-feedback-set-resolved_${feedbackId}`,
+        })
+      ),
+    ],
+  })
+
+  sendProgressToPublicFeedbackChannel(feedback, i.user, i.guild?.channels)
+}
+
+export async function handleFeedbackSetResolved(i: ButtonInteraction) {
+  if (!i.deferred) {
+    i.deferUpdate()
+  }
+
+  if (!i.deferred) {
+    i.deferUpdate()
+  }
+
+  const feedbackId = i.customId.split("_").pop()
+  if (!feedbackId) {
+    logger.error(`[handleFeedback] - unable to get feedback id ${i.message.id}`)
+    return
+  }
+  logger.info(
+    `[handleFeedback] - updating status to in-progress of feedback ${feedbackId}`
+  )
+  const updateRes = await community.updateFeedback(feedbackId, "completed")
+  if (!updateRes.ok) {
+    logger.error(
+      `[handleFeedback] - unable to set in-progress feedback ${feedbackId}`
+    )
+    return
+  }
+  const feedback = updateRes.data
+
+  sendProgressToPublicFeedbackChannel(feedback, i.user, i.guild?.channels)
+
+  // user used text version of the feedback command -> reply
+  if (feedback.message_id) {
+    const [channelId, msgId] = feedback.message_id.split("/")
+    logger.info(
+      "[handleFeedback] - begin send resolved reply, fetching channel"
+    )
+    i.client.channels.fetch(channelId).then((channel) => {
+      if (channel?.isText()) {
+        logger.info(
+          "[handleFeedback] - channel found, fetching original message"
+        )
+        channel.messages.fetch(msgId).then((msg) => {
+          logger.info(
+            "[handleFeedback] - message found, sending resolved reply"
+          )
+          msg.reply({
+            embeds: [
+              composeEmbedMessage(null, {
+                author: ["Feedback solved", getEmojiURL(emojis.APPROVE)],
+                description:
+                  "We've solved your feedback. Thanks again for your contribution :pray:",
+              }),
+            ],
+          })
+        })
+      }
+    })
+  }
+}
+
+export async function handleFeedback(req: RequestUserFeedbackRequest) {
   const res = await community.sendFeedback(req)
   if (!res.ok) {
     throw new CommandError({
@@ -96,6 +227,7 @@ const command: Command = {
             avatar,
             command: commandArg,
             feedback,
+            message_id: `${msg.channelId}/${msg.id}`,
           }),
           await inviteUserToJoin(),
         ],

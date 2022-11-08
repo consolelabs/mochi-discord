@@ -11,6 +11,9 @@ import {
   RequestCreateTradeOfferRequest,
   ResponseCreateTradeOfferResponse,
   ResponseGetTradeOfferResponse,
+  ResponseUpdateUserFeedbackResponse,
+  ResponseUserFeedbackResponse,
+  RequestUserFeedbackRequest,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL } from "utils/constants"
@@ -358,17 +361,30 @@ class Community extends Fetcher {
     )
   }
 
-  public async sendFeedback(req: {
-    discord_id: string
-    username: string
-    avatar: string
-    command: string
-    feedback: string
-  }) {
+  public async sendFeedback(req: RequestUserFeedbackRequest) {
     return await this.jsonFetch(`${API_BASE_URL}/feedback`, {
       method: "POST",
       body: req,
     })
+  }
+
+  public async updateFeedback(id: string, status: "confirmed" | "completed") {
+    return await this.jsonFetch<ResponseUpdateUserFeedbackResponse>(
+      `${API_BASE_URL}/feedback`,
+      {
+        method: "PUT",
+        body: {
+          id,
+          status,
+        },
+      }
+    )
+  }
+
+  public async getFeedbackList() {
+    return await this.jsonFetch<ResponseUserFeedbackResponse>(
+      `${API_BASE_URL}/feedback`
+    )
   }
 
   public async createTradeOffer(body: RequestCreateTradeOfferRequest) {
