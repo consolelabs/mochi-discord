@@ -56,3 +56,6 @@ export const FIRESTORE_KEY = process.env.FIRESTORE_KEY || ""
 export const TWITTER_TOKEN = process.env.TWITTER_TOKEN || ""
 export const MARKETPLACE_BASE_URL =
   process.env.MARKETPLACE_BASE_URL || "https://rarepepe.gg"
+
+export const FEEDBACK_PUBLIC_CHANNEL_ID =
+  process.env.FEEDBACK_PUBLIC_CHANNEL_ID || ""
