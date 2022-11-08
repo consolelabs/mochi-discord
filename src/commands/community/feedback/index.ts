@@ -95,10 +95,6 @@ export async function handleFeedbackSetResolved(i: ButtonInteraction) {
     i.deferUpdate()
   }
 
-  if (!i.deferred) {
-    i.deferUpdate()
-  }
-
   const feedbackId = i.customId.split("_").pop()
   if (!feedbackId) {
     logger.error(`[handleFeedback] - unable to get feedback id ${i.message.id}`)
@@ -115,6 +111,20 @@ export async function handleFeedbackSetResolved(i: ButtonInteraction) {
     return
   }
   const feedback = updateRes.data
+  const msg = i.message as Message
+
+  msg.edit({
+    components: [
+      new MessageActionRow().addComponents(
+        new MessageButton({
+          label: "Already done",
+          style: "SECONDARY",
+          customId: `handle-feedback-already-done`,
+          disabled: true,
+        })
+      ),
+    ],
+  })
 
   sendProgressToPublicFeedbackChannel(feedback, i.user, i.guild?.channels)
 
