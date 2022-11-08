@@ -4,7 +4,7 @@ import { CommandError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
-import { FEEDBACK_GITBOOK, PREFIX } from "utils/constants"
+import { DISCORD_URL, FEEDBACK_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
   getErrorEmbed,
@@ -104,7 +104,7 @@ const command: Command = {
             new MessageButton({
               label: "Join Mochi",
               style: "LINK",
-              url: "https://discord.gg/XQR36DQQGh",
+              url: DISCORD_URL,
               emoji: getEmoji("MOCHI_SQUARE"),
             })
           ),

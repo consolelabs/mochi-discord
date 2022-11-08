@@ -1,5 +1,5 @@
 import { SlashCommand } from "types/common"
-import { SLASH_PREFIX } from "utils/constants"
+import { DISCORD_URL, SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { CommandInteraction, MessageActionRow, MessageButton } from "discord.js"
@@ -67,7 +67,7 @@ const command: SlashCommand = {
             new MessageButton({
               label: "Join Mochi",
               style: "LINK",
-              url: "https://discord.gg/XQR36DQQGh",
+              url: DISCORD_URL,
               emoji: getEmoji("MOCHI_SQUARE"),
             })
           ),
