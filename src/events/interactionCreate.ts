@@ -32,6 +32,10 @@ import {
   handleClaimReward,
 } from "commands/community/quest/daily"
 import ConversationManager from "utils/ConversationManager"
+import {
+  handleFeedbackSetInProgress,
+  handleFeedbackSetResolved,
+} from "commands/community/feedback"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -231,6 +235,12 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("back-to-quest-list"):
       await handleBackToQuestList(i)
+      return
+    case i.customId.startsWith("handle-feedback-set-in-progress"):
+      await handleFeedbackSetInProgress(i)
+      return
+    case i.customId.startsWith("handle-feedback-set-resolved"):
+      await handleFeedbackSetResolved(i)
       return
     default: {
       if (ConversationManager.hasConversation(i.user.id, i.channelId, i)) {
