@@ -9,6 +9,7 @@ import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import { GuildMember, MessageAttachment } from "discord.js"
 import { CircleleStats, RectangleStats } from "types/canvas"
 import { NFTCollection } from "types/community"
+import CacheManager from "./CacheManager"
 import { emojis, getEmojiURL, thumbnails } from "./common"
 import { SPACE } from "./constants"
 
@@ -681,4 +682,25 @@ export function getChartColorConfig(id?: string) {
     borderColor,
     backgroundColor: getGradientColor(gradientFrom, gradientTo),
   }
+}
+
+export async function loadAndCacheImage(
+  imageUrl: string,
+  w: number,
+  h: number,
+  ttl?: number
+): Promise<Image> {
+  const base64Str = await CacheManager.get({
+    pool: "imagepool",
+    key: `img-${imageUrl.trim()}`,
+    call: async () => {
+      const img = await loadImage(imageUrl)
+      const imgCanvas = createCanvas(w, h)
+      const imgCtx = imgCanvas.getContext("2d")
+      imgCtx.drawImage(img, 0, 0, w, h)
+      return imgCanvas.toDataURL("image/png")
+    },
+    ttl: ttl ?? 86400,
+  })
+  return await loadImage(base64Str)
 }
