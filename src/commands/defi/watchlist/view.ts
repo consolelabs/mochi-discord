@@ -23,6 +23,7 @@ import {
   drawCircleImage,
   drawRectangle,
   heightOf,
+  loadAndCacheImage,
   renderChartImage,
   widthOf,
 } from "utils/canvas"
@@ -106,11 +107,15 @@ async function renderWatchlist(data: any[]) {
     const imageY = itemContainer.y.from + (itemContainer.pt ?? 0)
     if (imageUrl) {
       if (!is_pair) {
-        const image = await loadImage(imageUrl)
-        ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
+        const image = await loadAndCacheImage(imageUrl, radius * 2, radius * 2)
+        ctx.drawImage(image, imageX, imageY)
       } else {
         const imageUrls = imageUrl.split("||")
-        const baseImage = await loadImage(imageUrls[0])
+        const baseImage = await loadAndCacheImage(
+          imageUrls[0],
+          radius * 2,
+          radius * 2
+        )
         drawCircleImage({
           ctx,
           stats: {
@@ -120,7 +125,11 @@ async function renderWatchlist(data: any[]) {
           },
           image: baseImage,
         })
-        const targetImage = await loadImage(imageUrls[1])
+        const targetImage = await loadAndCacheImage(
+          imageUrls[1],
+          radius * 2,
+          radius * 2
+        )
         drawCircleImage({
           ctx,
           stats: {
@@ -263,8 +272,8 @@ async function renderNFTWatchlist(data: any[]) {
       token,
     } = item
     // image
-    const image = await loadImage(item.image)
     const radius = 20
+    const image = await loadAndCacheImage(item.image, radius * 2, radius * 2)
     const imageX = itemContainer.x.from + (itemContainer.pl ?? 0)
     const imageY = itemContainer.y.from + (itemContainer.pt ?? 0)
     ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
@@ -282,11 +291,13 @@ async function renderNFTWatchlist(data: any[]) {
     const fallbackTokenLogoURL = "https://i.imgur.com/2MdXSOd.png"
     const tokenEmojiId = tokenEmojis[token?.symbol ?? ""] ?? ""
     const tokenLogoURL = getEmojiURL(tokenEmojiId)
-    const tokenLogo = await loadImage(
-      tokenEmojiId ? tokenLogoURL : fallbackTokenLogoURL
-    )
     const tokenH = 25
     const tokenW = 25
+    const tokenLogo = await loadAndCacheImage(
+      tokenEmojiId ? tokenLogoURL : fallbackTokenLogoURL,
+      tokenW,
+      tokenH
+    )
     const tokenX = imageX
     const tokenY = imageY + tokenH + radius + 20
     ctx.drawImage(tokenLogo, tokenX, tokenY, tokenW, tokenH)

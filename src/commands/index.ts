@@ -93,6 +93,11 @@ import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import InteractionManager from "utils/InteractionManager"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
+CacheManager.init({
+  ttl: 0,
+  pool: "imagepool",
+  checkperiod: 3600,
+})
 
 export const slashCommands: Record<string, SlashCommand> = {
   feedback: feedback_slash,
