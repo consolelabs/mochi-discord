@@ -1,6 +1,7 @@
 import { Command } from "types/common"
 import {
   ButtonInteraction,
+  Message,
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
@@ -10,7 +11,6 @@ import {
   getSuccessEmbed,
   composeDiscordExitButton,
   composeEmbedMessage,
-  getErrorEmbed,
 } from "utils/discordEmbed"
 import { Coin } from "types/defi"
 import { PREFIX } from "utils/constants"
@@ -19,34 +19,41 @@ import { getCommandArguments } from "utils/commands"
 import CacheManager from "utils/CacheManager"
 import { handleUpdateWlError } from "../watchlist_slash"
 import { InteractionHandler } from "utils/InteractionManager"
+import { APIError } from "errors"
 
 export async function addToWatchlist(interaction: ButtonInteraction) {
+  // deferUpdate because we will edit the message later
+  if (!interaction.deferred) {
+    interaction.deferUpdate()
+  }
   const [coinId] = interaction.customId.split("|").slice(1)
-  const { ok, error } = await defi.addToWatchlist({
+  const { ok, error, curl, log } = await defi.addToWatchlist({
     user_id: interaction.user.id,
     symbol: "",
     coin_gecko_id: coinId,
   })
   if (!ok) {
-    if (error.toLowerCase().startsWith("conflict")) {
-      interaction.reply({
-        embeds: [
-          getErrorEmbed({
-            title: "Token already exists",
-            description: "You already have this token in your watchlist",
-          }),
-        ],
-      })
-      return
+    // only consider it an error if it's not about existed token
+    if (!error.toLowerCase().startsWith("conflict")) {
+      throw new APIError({ curl, description: log })
     }
   }
-  interaction.reply({
-    embeds: [
-      getSuccessEmbed({
-        description: "Token has been added to your watchlist",
-      }),
-    ],
-  })
+
+  // disable + change the label of the add button
+  const addButton = interaction.message.components?.at(1)?.components.at(2)
+  if (
+    addButton?.type === "BUTTON" &&
+    addButton.customId?.startsWith("ticker_add_wl")
+  ) {
+    addButton.setDisabled(true)
+    addButton.setLabel("Added to watchlist")
+
+    const msg = interaction.message as Message
+    msg.components?.at(1)?.components.splice(2, 1, addButton)
+    msg.edit({
+      components: msg.components,
+    })
+  }
 }
 
 const handler: InteractionHandler = async (msgOrInteraction) => {
