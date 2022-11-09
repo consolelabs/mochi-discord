@@ -83,7 +83,7 @@ export const getComponentsNormalState = (
       label: "Join Mochi",
       style: "LINK",
       url: DISCORD_URL,
-      emoji: getEmoji("MOCHI_SQUARE"),
+      emoji: getEmoji("MOCHI_CIRCLE"),
       disabled: disableIndex === 1,
     }),
     new MessageButton({
@@ -301,11 +301,11 @@ export async function handleFeedback(req: RequestUserFeedbackRequest) {
   return successEmbed()
 }
 
-export async function inviteUserToJoin() {
+export function inviteUserToJoin() {
   const embed = composeEmbedMessage(null, {
-    author: ["Build with us!", getEmojiURL(emojis.DEFI)],
+    author: ["You might need more help", getEmojiURL(emojis.DEFI)],
     description:
-      "Join our Discord server for more support and to contribute your idea to Mochi Bot",
+      "Join our Discord server for more support and to contribute your idea to Mochi Bot.",
   })
 
   return embed
@@ -415,7 +415,7 @@ const command: Command = {
             feedback,
             message_id: `${msg.channelId}/${msg.id}`,
           }),
-          await inviteUserToJoin(),
+          inviteUserToJoin(),
         ],
         components: [getComponentsNormalState(msg.author.id, true)],
       },

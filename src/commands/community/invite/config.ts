@@ -5,6 +5,7 @@ import Community from "adapters/community"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { CommandError, GuildIdNotFoundError } from "errors"
+import { emojis, getEmojiURL } from "utils/common"
 
 const command: Command = {
   id: "invite_config",
@@ -32,8 +33,8 @@ const command: Command = {
     })
 
     const embedMsg = composeEmbedMessage(msg, {
-      title: `Invites Config`,
-      description: `Configure Invite Tracker's log to <#${log_channel}> channel successfully!`,
+      author: ["Successfully configured!", getEmojiURL(emojis.APPROVE)],
+      description: `Invite Tracker is now set to <#${log_channel}>.`,
     })
 
     return {

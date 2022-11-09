@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { Message, User } from "discord.js"
 import Community from "adapters/community"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { capFirst, getEmoji } from "utils/common"
+import { capFirst, emojis, getEmoji, getEmojiURL } from "utils/common"
 import { PREFIX, VOTE_GITBOOK } from "utils/constants"
 import { logger } from "logger"
 import set from "./set"
@@ -161,8 +161,8 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              title: "Vote channel",
-              description: `This guild has a dedicated vote channel, please go to <#${res.channel_id}> and rerun this command.`,
+              author: ["Go to the vote channel", getEmojiURL(emojis.SOCIAL)],
+              description: `You can only vote in <#${res.channel_id}>.`,
             }),
           ],
         },

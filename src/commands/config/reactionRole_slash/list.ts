@@ -8,7 +8,13 @@ import {
 } from "utils/discordEmbed"
 import { CommandInteraction, MessageEmbed } from "discord.js"
 import config from "adapters/config"
-import { getEmoji, getFirstWords, paginate } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  getFirstWords,
+  paginate,
+} from "utils/common"
 import { APIError, CommandError } from "errors"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
@@ -54,18 +60,12 @@ const command: SlashCommand = {
       })
     }
 
-    const values = await Promise.all(
+    let values = await Promise.all(
       data.map(async (cfg) => {
         const channel = interaction.guild?.channels.cache.get(
           cfg.channel_id ?? ""
         ) // user already has message in the channel => channel in cache
-        if (!channel || !channel.isText()) {
-          throw new CommandError({
-            user: interaction.user,
-            guild: interaction.guild,
-            description: "Channel not found",
-          })
-        }
+        if (!channel || !channel.isText()) return null
 
         const reactMessage = await channel.messages
           .fetch(cfg.message_id ?? "")
@@ -95,6 +95,7 @@ const command: SlashCommand = {
         }
       })
     )
+    values = values.filter((v) => Boolean(v))
     let pages = paginate(values, 5)
 
     pages = pages.map((arr: any, idx: number): MessageEmbed => {
@@ -112,10 +113,8 @@ const command: SlashCommand = {
         col2 += `**[Jump](${group[0].url})**\n\n` + "\n".repeat(roleCount)
       })
       return composeEmbedMessage2(interaction, {
-        author: [
-          `${interaction.guild?.name}'s reaction roles`,
-          interaction.guild?.iconURL(),
-        ],
+        author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
+        description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
         footer: [`Page ${idx + 1} / ${pages.length}`],
       }).addFields(
         { name: "\u200B", value: col1, inline: true },
@@ -128,11 +127,8 @@ const command: SlashCommand = {
         messageOptions: {
           embeds: [
             composeEmbedMessage2(interaction, {
-              author: [
-                `${interaction.guild?.name}'s reaction roles`,
-                interaction.guild?.iconURL(),
-              ],
-              description: `No reaction roles found! To set a new one, run \`\`\`${PREFIX}reactionrole set <message_id> <emoji> <role>\`\`\``,
+              author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
+              description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
             }),
           ],
         },

@@ -4,6 +4,7 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
+import { emojis, getEmojiURL } from "utils/common"
 
 const command: Command = {
   id: "defaultrole_info",
@@ -43,7 +44,7 @@ const command: Command = {
     const res = await config.getCurrentDefaultRole(msg.guildId)
     if (res.ok) {
       if (res.data.role_id) {
-        description = `<@&${res.data.role_id}> will be their base role when people join your server.`
+        description = `When people first join your server, their base role will be <@&${res.data.role_id}>`
       } else {
         description = `No default role found! To set, run \`\`\`${PREFIX}dr set @<role>\`\`\``
       }
@@ -59,7 +60,7 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            title: `${msg.guild.name}'s default role`,
+            author: ["Default role", getEmojiURL(emojis.NEKO1)],
             description,
           }),
         ],

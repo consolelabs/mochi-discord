@@ -16,7 +16,7 @@ export class CommandError extends BotBaseError {
     description?: string
   }) {
     super(message)
-    this.name = "Command error"
+    this.name = "Internal error"
     this.customDescription = description
     const channel = (message?.channel as TextChannel)?.name
     this.message = JSON.stringify({

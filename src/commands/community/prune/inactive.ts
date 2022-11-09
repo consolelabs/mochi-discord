@@ -5,6 +5,7 @@ import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
 import { CommandError, GuildIdNotFoundError } from "errors"
 import { getCommandArguments } from "utils/commands"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 
 export const CONFIRM_PRUNE_INACTIVE = "confirm_prune_inactive"
 
@@ -58,8 +59,10 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              title: "No users to prune",
-              description: `No one is inactive for ${days} days, let's put down the prune stick`,
+              author: ["No users to prune", getEmojiURL(emojis.REVOKE)],
+              description: `No one is inactive for ${days} days, let's put down the prune stick! ${getEmoji(
+                "touch"
+              )}`,
             }),
           ],
         },

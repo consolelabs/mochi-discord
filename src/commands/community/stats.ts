@@ -13,7 +13,7 @@ import {
 } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { GuildIdNotFoundError } from "errors"
-import { capFirst } from "utils/common"
+import { capFirst, emojis, getEmojiURL } from "utils/common"
 import {
   InteractionHandler,
   InteractionHandlerResult,
@@ -50,7 +50,7 @@ export const countStatsHandler: InteractionHandler = async (
   }
   await Community.createStatChannel(message.guildId, countTypeReq)
   const successEmbeded = composeEmbedMessage(message, {
-    title: `Server Stats\n\n`,
+    author: ["Server Stats", getEmojiURL(emojis.AMPAWSSADORBADGE)],
     description: `${capFirst(
       type
     )} ${stat} count is shown as a voice channel on top of your server. `,
@@ -109,8 +109,8 @@ export async function renderStatEmbed(
     messageOptions: {
       embeds: [
         composeEmbedMessage(msg, {
-          title: `Server Stats`,
-          description: `Please select what type you want to show`,
+          author: ["Server Stats", getEmojiURL(emojis.AMPAWSSADORBADGE)],
+          description: "Please select what type you want to display",
         }),
       ],
       components: [selectRow, composeDiscordExitButton(msg.author.id)],
@@ -143,8 +143,8 @@ export async function handle(msg: Message | CommandInteraction) {
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
-          title: `Server Stats`,
-          description: `Please select what stat you want to show`,
+          author: ["Server Stats", getEmojiURL(emojis.AMPAWSSADORBADGE)],
+          description: "Please select what stat you want to display",
         }),
       ],
       components: [selectRow, composeDiscordExitButton(authorId)],

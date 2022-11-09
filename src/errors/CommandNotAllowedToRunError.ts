@@ -1,29 +1,37 @@
-import { Message, TextChannel } from "discord.js"
-import { getErrorEmbed } from "utils/discordEmbed"
+import { CommandInteraction, Message, TextChannel, User } from "discord.js"
+import { getEmoji } from "utils/common"
+import { PERMANENT_MOCHI_INVITE_URL } from "utils/constants"
+import { composeButtonLink, getErrorEmbed } from "utils/discordEmbed"
 import { BotBaseError } from "./BaseError"
 
 export class CommandNotAllowedToRunError extends BotBaseError {
-  private discordMessage: Message
+  private discordMessage: Message | undefined
+  private interaction: CommandInteraction | undefined
   private missingPermissions: string[]
+  private author: User | undefined
 
   constructor({
     message,
+    interaction,
     command,
     missingPermissions = [],
   }: {
-    message: Message
+    message?: Message
+    interaction?: CommandInteraction
     command: string
     missingPermissions?: string[]
   }) {
     super()
     this.name = "Command not allowed to run"
     this.discordMessage = message
+    this.interaction = interaction
     this.missingPermissions = missingPermissions
-    const channel = message.channel as TextChannel
+    this.author = message?.author ?? interaction?.user
+    const channel = (message ?? interaction)?.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild?.name,
+      guild: (message ?? interaction)?.guild?.name,
       channel: channel.name,
-      user: message.author.tag,
+      user: this.author?.tag,
       data: { command },
     })
   }
@@ -32,18 +40,32 @@ export class CommandNotAllowedToRunError extends BotBaseError {
     let errorEmbed
     if (this.missingPermissions?.length) {
       errorEmbed = getErrorEmbed({
-        msg: this.discordMessage,
-        title: `Insufficient permissions`,
-        description: `Only Administrators of this server can run this command.`,
+        title: `Permissions required`,
+        description: `Only Administrators can use this command ${getEmoji(
+          "nekosad"
+        )}.`,
       })
     } else {
       errorEmbed = getErrorEmbed({
-        msg: this.discordMessage,
-        description: "This command is not allowed to run in DM",
+        description: `This command is not allowed to run in DM ${getEmoji(
+          "nekosad"
+        )}.`,
       })
     }
-    this.discordMessage.reply({
+    const msgOptions = {
       embeds: [errorEmbed],
-    })
+      components: [
+        composeButtonLink(
+          "Support",
+          PERMANENT_MOCHI_INVITE_URL,
+          getEmoji("defi")
+        ),
+      ],
+    }
+    if (this.discordMessage) {
+      this.discordMessage.reply(msgOptions)
+      return
+    }
+    this.interaction?.reply(msgOptions)
   }
 }

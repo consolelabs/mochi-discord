@@ -3,6 +3,7 @@ import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import config from "adapters/config"
 import { GuildIdNotFoundError } from "errors"
+import { emojis, getEmojiURL } from "utils/common"
 
 export async function handle(guildId: string) {
   const data = await config.getCurrentGmConfig(guildId)
@@ -12,7 +13,7 @@ export async function handle(guildId: string) {
         embeds: [
           composeEmbedMessage(null, {
             description: `No configuration found`,
-            title: "GM/GN Configuration",
+            author: ["GM/GN Channel", getEmojiURL(emojis.GOOD_MORNING)],
           }),
         ],
       },
@@ -23,7 +24,8 @@ export async function handle(guildId: string) {
       embeds: [
         composeEmbedMessage(null, {
           description: `Current Gm/Gn channel is set to <#${data.channel_id}>`,
-          title: "GM/GN Configuration",
+          author: ["GM/GN Channel", getEmojiURL(emojis.GOOD_MORNING)],
+          footer: ["To change the channel, use $gm config"],
         }),
       ],
     },

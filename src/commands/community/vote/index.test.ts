@@ -3,7 +3,7 @@ import { commands } from "commands"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { mockClient } from "../../../../tests/mocks"
 import config from "adapters/config"
-import { getEmoji } from "utils/common"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { buildProgressBar, buildStreakBar } from "."
 import community from "adapters/community"
 import { RunResult } from "types/common"
@@ -116,8 +116,8 @@ describe("vote", () => {
 
     const output = await command.run(message)
     const expected = composeEmbedMessage(message, {
-      title: "Vote channel",
-      description: `This guild has a dedicated vote channel, please go to <#${channelId}> and rerun this command.`,
+      author: ["Go to the vote channel", getEmojiURL(emojis.SOCIAL)],
+      description: `You can only vote in <#${channelId}>.`,
     })
 
     expect(config.getVoteChannel).toHaveBeenCalled()

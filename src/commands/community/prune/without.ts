@@ -115,7 +115,7 @@ const command: Command = {
     }
 
     const embed = composeEmbedMessage(msg, {
-      title: "Confirm Pruning",
+      title: ":wave: Confirm Pruning",
       description: `There are **${willPrune.size}** members without role ${role.name}, do you want to continue?`,
     })
     const actionRow = new MessageActionRow().addComponents(

@@ -46,7 +46,7 @@ export async function pruneWithoutRole(interaction: CommandInteraction) {
   }
 
   const embed = composeEmbedMessage(null, {
-    title: "Confirm Pruning",
+    title: ":wave: Confirm Pruning",
     description: `You will prune **${willPrune.size}** members without role ${role}, do you want to continue?`,
   })
   const actionRow = new MessageActionRow().addComponents(

@@ -6,6 +6,7 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { getMessageBody } from "./list"
 import TwitterStream from "utils/TwitterStream"
+import { emojis, getEmojiURL } from "utils/common"
 
 export const fromPrefix = "from:"
 const hashtagPrefix = "#"
@@ -167,7 +168,7 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: [msg.guild.name, msg.guild.iconURL()],
+            author: ["Successfully set", getEmojiURL(emojis.APPROVE)],
             description: getMessageBody({
               user_id: msg.author.id,
               channel_id: chan.id,

@@ -2,7 +2,7 @@ import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandError, GuildIdNotFoundError } from "errors"
 import { handle } from "../gm/config"
-import { composeEmbedMessage2, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage2 } from "utils/discordEmbed"
 import { SlashCommand } from "types/common"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 
@@ -26,18 +26,6 @@ const command: SlashCommand = {
   run: async function (interaction: CommandInteraction) {
     if (!interaction.guildId || !interaction.guild) {
       throw new GuildIdNotFoundError({})
-    }
-    if (!interaction.memberPermissions?.has("ADMINISTRATOR", true)) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              title: "Insufficient permissions",
-              description: `Only Administrators of this server can run this command.`,
-            }),
-          ],
-        },
-      }
     }
     const chanArg = interaction.options.getChannel("channel")
     if (!chanArg) {

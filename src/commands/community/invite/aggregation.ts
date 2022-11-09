@@ -5,6 +5,7 @@ import Community from "adapters/community"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { emojis, getEmojiURL } from "utils/common"
 
 const command: Command = {
   id: "invite_aggregation",
@@ -36,7 +37,7 @@ const command: Command = {
     }
 
     const embedMsg = composeEmbedMessage(msg, {
-      title: `Invites Aggregation`,
+      author: ["Invites Aggregation", getEmojiURL(emojis.HELLO)],
       description: `<@${inviterId}> has totally ${
         res.data.regular
       } invites (normal: ${
