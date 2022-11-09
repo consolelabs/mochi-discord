@@ -1,12 +1,17 @@
-import { CommandInteraction, Message, User } from "discord.js"
+import { CommandInteraction, GuildMember, Message, User } from "discord.js"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import { thumbnails } from "utils/common"
+import { hasAdministrator, thumbnails } from "utils/common"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { slashCommands } from "commands"
-import { buildHelpInterface, PageType, pagination } from "./help"
+import {
+  buildHelpInterface,
+  defaultPageType,
+  PageType,
+  pagination,
+} from "./help"
 dayjs.extend(utc)
 
 const image =
@@ -46,12 +51,13 @@ const command: SlashCommand = {
     return null
   },
   help: async (interaction) => {
+    const member = interaction.member as GuildMember
     const embed = getHelpEmbed(interaction.user)
-    buildHelpInterface(embed, "social", "/")
+    buildHelpInterface(embed, defaultPageType, hasAdministrator(member), "/")
 
     const replyMsg = (await interaction.editReply({
       embeds: [embed],
-      components: pagination("social"),
+      components: pagination(defaultPageType, hasAdministrator(member)),
     })) as Message
 
     replyMsg
@@ -62,12 +68,12 @@ const command: SlashCommand = {
         i.deferUpdate()
         const pageType = i.customId as PageType
         const embed = getHelpEmbed(interaction.user)
-        buildHelpInterface(embed, pageType, "/")
+        buildHelpInterface(embed, pageType, hasAdministrator(member), "/")
 
         interaction
           .editReply({
             embeds: [embed],
-            components: pagination(pageType),
+            components: pagination(pageType, hasAdministrator(member)),
           })
           .catch(() => null)
       })

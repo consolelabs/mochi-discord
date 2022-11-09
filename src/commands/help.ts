@@ -40,7 +40,7 @@ import {
 } from "utils/constants"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import { capFirst, getEmoji, thumbnails } from "utils/common"
+import { capFirst, getEmoji, hasAdministrator, thumbnails } from "utils/common"
 import { Command, embedsColors } from "types/common"
 import { composeEmbedMessage, EMPTY_FIELD } from "utils/discordEmbed"
 dayjs.extend(utc)
@@ -156,10 +156,6 @@ const allCommands: Record<PageType, HelpPage> = {
         description: "Check NFT rarity, sales, and ranking",
         features: [
           {
-            value: "sales",
-            url: SALE_TRACKER_GITBOOK,
-          },
-          {
             value: "nft",
             url: NFT_GITBOOK,
           },
@@ -242,6 +238,16 @@ const allCommands: Record<PageType, HelpPage> = {
           },
         ],
       },
+      "Sales Update": {
+        emoji: "<:mask:974519850644930582>",
+        description: "Quick catch-up on NFT market movement",
+        features: [
+          {
+            value: "sales",
+            url: SALE_TRACKER_GITBOOK,
+          },
+        ],
+      },
       Community: {
         emoji: getEmoji("fellowship"),
         description:
@@ -291,15 +297,10 @@ const allCommands: Record<PageType, HelpPage> = {
   },
 }
 
-export const pagination = (currentPage: PageType) => [
+export const defaultPageType: PageType = "crypto_and_nft"
+
+export const pagination = (currentPage: PageType, isAdmin: boolean) => [
   new MessageActionRow().addComponents(
-    new MessageButton({
-      label: "Social",
-      emoji: getEmoji("defi"),
-      style: "SECONDARY",
-      customId: "social",
-      disabled: currentPage === "social",
-    }),
     new MessageButton({
       label: "Crypto & NFT",
       emoji: getEmoji("ticker"),
@@ -308,21 +309,37 @@ export const pagination = (currentPage: PageType) => [
       disabled: currentPage === "crypto_and_nft",
     }),
     new MessageButton({
-      label: "Server Management",
-      emoji: getEmoji("prediction"),
+      label: "Social",
+      emoji: getEmoji("defi"),
       style: "SECONDARY",
-      customId: "server_management",
-      disabled: currentPage === "server_management",
-    })
+      customId: "social",
+      disabled: currentPage === "social",
+    }),
+    ...(isAdmin
+      ? [
+          new MessageButton({
+            label: "Server Management",
+            emoji: getEmoji("prediction"),
+            style: "SECONDARY",
+            customId: "server_management",
+            disabled: currentPage === "server_management",
+          }),
+        ]
+      : [])
   ),
 ]
 
 export function buildHelpInterface(
   embed: MessageEmbed,
   page: PageType,
+  isAdmin: boolean,
   version: "$" | "/" = "$"
 ) {
-  const commands = Object.entries(allCommands[page].category)
+  const commandsByCategory =
+    allCommands[
+      !isAdmin && page === "server_management" ? defaultPageType : page
+    ]
+  const commands = Object.entries(commandsByCategory.category)
     .filter((c) => {
       if (version === "$" && c[1].features.every((f) => f.onlySlash))
         return false
@@ -362,7 +379,7 @@ export function buildHelpInterface(
   embed.addFields(
     {
       name: "**Examples**",
-      value: `\`\`\`${allCommands[page].example}\`\`\``,
+      value: `\`\`\`${commandsByCategory.example}\`\`\``,
     },
     {
       name: "**Instructions**",
@@ -395,11 +412,11 @@ const command: Command = {
   },
   getHelpMessage: async (msg: Message) => {
     const embed = getHelpEmbed(msg)
-    buildHelpInterface(embed, "social")
+    buildHelpInterface(embed, defaultPageType, hasAdministrator(msg.member))
 
     const replyMsg = await msg.reply({
       embeds: [embed],
-      components: pagination("social"),
+      components: pagination(defaultPageType, hasAdministrator(msg.member)),
     })
 
     replyMsg
@@ -410,12 +427,12 @@ const command: Command = {
         i.deferUpdate()
         const pageType = i.customId as PageType
         const embed = getHelpEmbed(msg)
-        buildHelpInterface(embed, pageType)
+        buildHelpInterface(embed, pageType, hasAdministrator(msg.member))
 
         replyMsg
           .edit({
             embeds: [embed],
-            components: pagination(pageType),
+            components: pagination(pageType, hasAdministrator(msg.member)),
           })
           .catch(() => null)
       })
