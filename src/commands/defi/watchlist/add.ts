@@ -1,11 +1,16 @@
 import { Command } from "types/common"
-import { MessageSelectOptionData, SelectMenuInteraction } from "discord.js"
+import {
+  ButtonInteraction,
+  MessageSelectOptionData,
+  SelectMenuInteraction,
+} from "discord.js"
 import { defaultEmojis, thumbnails } from "utils/common"
 import {
   composeDiscordSelectionRow,
   getSuccessEmbed,
   composeDiscordExitButton,
   composeEmbedMessage,
+  getErrorEmbed,
 } from "utils/discordEmbed"
 import { Coin } from "types/defi"
 import { PREFIX } from "utils/constants"
@@ -14,6 +19,35 @@ import { getCommandArguments } from "utils/commands"
 import CacheManager from "utils/CacheManager"
 import { handleUpdateWlError } from "../watchlist_slash"
 import { InteractionHandler } from "utils/InteractionManager"
+
+export async function addToWatchlist(interaction: ButtonInteraction) {
+  const [coinId] = interaction.customId.split("|").slice(1)
+  const { ok, error } = await defi.addToWatchlist({
+    user_id: interaction.user.id,
+    symbol: "",
+    coin_gecko_id: coinId,
+  })
+  if (!ok) {
+    if (error.toLowerCase().startsWith("conflict")) {
+      interaction.reply({
+        embeds: [
+          getErrorEmbed({
+            title: "Token already exists",
+            description: "You already have this token in your watchlist",
+          }),
+        ],
+      })
+      return
+    }
+  }
+  interaction.reply({
+    embeds: [
+      getSuccessEmbed({
+        description: "Token has been added to your watchlist",
+      }),
+    ],
+  })
+}
 
 const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction

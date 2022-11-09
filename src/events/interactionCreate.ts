@@ -32,6 +32,7 @@ import {
   handleClaimReward,
 } from "commands/community/quest/daily"
 import ConversationManager from "utils/ConversationManager"
+import { addToWatchlist } from "commands/defi/watchlist/add"
 import {
   handleFeedbackSetInProgress,
   handleFeedbackSetResolved,
@@ -220,6 +221,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("ticker_view_"):
       await handleTickerViews(i)
+      return
+    case i.customId.startsWith("ticker_add_wl"):
+      await addToWatchlist(i)
       return
     case i.customId.startsWith("nft_ticker_view"):
       await handleNFTTickerViews(i)

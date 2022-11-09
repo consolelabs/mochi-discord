@@ -289,7 +289,13 @@ function buildSwitchViewActionRow(
     style: "SECONDARY",
     disabled: currentView === "info",
   })
-  return new MessageActionRow().addComponents([tickerBtn, infoBtn])
+  const wlPromptBtn = new MessageButton({
+    label: "Add to Watchlist",
+    emoji: emojis.LIKE,
+    customId: `ticker_add_wl|${params.coinId}`,
+    style: "SECONDARY",
+  })
+  return new MessageActionRow().addComponents([tickerBtn, infoBtn, wlPromptBtn])
 }
 
 export async function handleTickerViews(interaction: ButtonInteraction) {
