@@ -4,7 +4,7 @@ import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
-import chunk from "lodash.chunk"
+import chunk from "lodash/chunk"
 
 const command: Command = {
   id: "list_server_token",
