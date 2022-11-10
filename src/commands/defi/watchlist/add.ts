@@ -48,7 +48,11 @@ export async function addToWatchlist(interaction: ButtonInteraction) {
 }
 
 export async function addUserWatchlist(
-  msgOrInteraction: Message | MessageComponentInteraction | CommandInteraction,
+  msgOrInteraction:
+    | Message
+    | MessageComponentInteraction
+    | CommandInteraction
+    | undefined,
   userId: string,
   symbol: string,
   coinId = ""
@@ -65,38 +69,41 @@ export async function addUserWatchlist(
 
 const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
+  const remainingSymbols = interaction.customId
+    .slice(interaction.customId.indexOf("|") + 1)
+    .split("|")
+    .filter((s) => !!s)
   const value = interaction.values[0]
   const [symbol, coinGeckoId, userId] = value.split("_")
+  const { message } = <{ message: Message }>interaction
   await addUserWatchlist(msgOrInteraction, userId, symbol, coinGeckoId)
   return {
-    messageOptions: {
-      embeds: [getSuccessEmbed({})],
-      components: [],
+    ...(await viewWatchlist({
+      msg: message,
+      symbols: remainingSymbols,
+      userId,
+    })),
+    interactionHandlerOptions: {
+      handler,
     },
   }
 }
 
-const command: Command = {
-  id: "watchlist_add",
-  command: "add",
-  brief: "Add a token to your watchlist.",
-  category: "Defi",
-  run: async (msg) => {
-    const symbol = getCommandArguments(msg)[2]
-    const userId = msg.author.id
-    const data = await addUserWatchlist(msg, userId, symbol)
-    if (!data) {
-      return {
-        messageOptions: {
-          embeds: [
-            getSuccessEmbed({
-              title: "Successfully set!",
-              description: `Token has been added successfully!`,
-            }),
-          ],
-        },
-      }
-    }
+export async function viewWatchlist({
+  msg,
+  interaction,
+  symbols,
+  userId,
+}: {
+  msg?: Message
+  interaction?: CommandInteraction
+  symbols: string[]
+  userId: string
+}) {
+  for (const [i, symbol] of symbols.entries()) {
+    const data = await addUserWatchlist(msg ?? interaction, userId, symbol)
+    // no data === add successfully
+    if (!data) continue
 
     // allow selection
     const { base_suggestions, target_suggestions } = data
@@ -104,13 +111,13 @@ const command: Command = {
     if (!target_suggestions) {
       const opt = (coin: Coin): MessageSelectOptionData => ({
         label: `${coin.name}`,
-        value: `${coin.symbol}_${coin.id}_${msg.author.id}`,
+        value: `${coin.symbol}_${coin.id}_${userId}`,
       })
       options = base_suggestions.map((b: Coin) => opt(b))
     } else {
       const opt = (base: Coin, target: Coin): MessageSelectOptionData => ({
         label: `${base.name} / ${target.name}`,
-        value: `${base.symbol}/${target.symbol}_${base.id}/${target.id}_${msg.author.id}`,
+        value: `${base.symbol}/${target.symbol}_${base.id}/${target.id}_${userId}`,
       })
       options = base_suggestions
         .map((b: Coin) => target_suggestions.map((t: Coin) => opt(b, t)))
@@ -118,7 +125,7 @@ const command: Command = {
         .slice(0, 25) // discord allow maximum 25 options
     }
     const selectRow = composeDiscordSelectionRow({
-      customId: "watchlist_selection",
+      customId: `watchlist_selection|${symbols.slice(i + 1).join("|")}`,
       placeholder: "Make a selection",
       options,
     })
@@ -131,20 +138,47 @@ const command: Command = {
             description: `Multiple tokens found for \`${symbol}\`.\nPlease select one of the following`,
           }),
         ],
-        components: [selectRow, composeDiscordExitButton(msg.author.id)],
+        components: [selectRow, composeDiscordExitButton(userId)],
       },
       interactionOptions: {
         handler,
       },
     }
+  }
+
+  CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
+  return {
+    messageOptions: {
+      embeds: [
+        getSuccessEmbed({
+          title: "Successfully set!",
+          description: `Token(s) has been added successfully!`,
+        }),
+      ],
+      components: [],
+    },
+  }
+}
+
+const command: Command = {
+  id: "watchlist_add",
+  command: "add",
+  brief: "Add token(s0) to your watchlist.",
+  category: "Defi",
+  run: async (msg) => {
+    const symbols = getCommandArguments(msg)
+      .slice(2)
+      .map((s) => s.trim())
+      .filter((s) => !!s)
+    return await viewWatchlist({ msg, symbols, userId: msg.author.id })
   },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TOKENS,
-        title: "Add a token to your watchlist.",
-        usage: `${PREFIX}watchlist add <symbol>`,
-        examples: `${PREFIX}watchlist add eth`,
+        title: "Add token(s) to your watchlist.",
+        usage: `${PREFIX}wl add <symbol1 symbol2 ...>`,
+        examples: `${PREFIX}wl add eth\n${PREFIX}wl add ftm btc/sol matic`,
       }),
     ],
   }),
