@@ -59,7 +59,6 @@ export async function wrapError(
         error.handle?.()
         ChannelLogger.alert(message, error).catch(catchAll)
       } else if (message.isCommand()) {
-        console.log({ error })
         // get command info
         userId = message.user.id
         commandStr =

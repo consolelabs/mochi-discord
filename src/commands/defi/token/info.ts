@@ -1,6 +1,6 @@
 import defi from "adapters/defi"
 import { HexColorString, Message } from "discord.js"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import CacheManager from "utils/CacheManager"
 import { getChartColorConfig } from "utils/canvas"
@@ -75,7 +75,7 @@ const command: Command = {
     })
     if (!ok) throw new APIError({ message: msg, curl, description: log })
     if (!coins || !coins.length) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: `Cannot find any cryptocurrency with \`${token}\`.\nPlease choose another one!`,
       })

@@ -2,7 +2,7 @@ import { Guild, Message, TextChannel, User } from "discord.js"
 import { getErrorEmbed } from "utils/discordEmbed"
 import { BotBaseError } from "./BaseError"
 
-export class CommandError extends BotBaseError {
+export class InternalError extends BotBaseError {
   private customDescription: string | undefined
   constructor({
     message,

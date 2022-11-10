@@ -34,7 +34,7 @@ import { SlashCommandBuilder } from "@discordjs/builders"
 import Compare from "./compare_slash"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import CacheManager from "utils/CacheManager"
-import { APIError, CommandError } from "errors"
+import { APIError, InternalError } from "errors"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
 import { InteractionHandler } from "utils/InteractionManager"
@@ -356,7 +356,7 @@ const command: SlashCommand = {
         curl,
       })
     if (!coins || !coins.length) {
-      throw new CommandError({
+      throw new InternalError({
         guild: interaction.guild,
         user: interaction.user,
         description: `Cannot find any cryptocurrency with \`${baseQ}\`.\nPlease choose another one!`,

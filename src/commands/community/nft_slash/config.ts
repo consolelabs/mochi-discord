@@ -3,7 +3,7 @@ import {
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandGroupBuilder,
 } from "@discordjs/builders"
-import { CommandError, GuildIdNotFoundError } from "errors"
+import { InternalError, GuildIdNotFoundError } from "errors"
 import { composeEmbedMessage2 } from "utils/discordEmbed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
@@ -62,7 +62,7 @@ const command: SlashCommand = {
     const acsTokenScrt = interaction.options.getString(ACCESS_TOKEN_SECRET)
 
     if (!csmrKey || !csmrKeyScrt || !acsToken || !acsTokenScrt) {
-      throw new CommandError({
+      throw new InternalError({
         description:
           "Missing arguments. Please enter all 4 Twitter credentials",
       })

@@ -7,7 +7,7 @@ import {
   getSuccessEmbed,
 } from "utils/discordEmbed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
 
 export async function runVerifySet({
@@ -25,7 +25,7 @@ export async function runVerifySet({
     const args = getCommandArguments(msg)
     const { isChannel, value } = parseDiscordToken(args[2])
     if (!isChannel) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "Invalid channel. Please choose another one!",
       })
@@ -36,7 +36,7 @@ export async function runVerifySet({
       const { isRole, value } = parseDiscordToken(args[3])
       if (value) {
         if (!isRole) {
-          throw new CommandError({
+          throw new InternalError({
             message: msg,
             description: "Invalid role. Please choose another one!",
           })

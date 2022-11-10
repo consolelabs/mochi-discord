@@ -11,7 +11,7 @@ import {
   getUsersWithoutRole,
   pruneRoleExecute,
 } from "../prune/without"
-import { CommandError } from "errors"
+import { InternalError } from "errors"
 
 export async function pruneWithoutRole(interaction: CommandInteraction) {
   if (!interaction.guild) {
@@ -28,7 +28,7 @@ export async function pruneWithoutRole(interaction: CommandInteraction) {
   }
   const role = interaction.options.getRole("role")
   if (!role) {
-    throw new CommandError({ description: "Please enter a valid role" })
+    throw new InternalError({ description: "Please enter a valid role" })
   }
 
   const willPrune = await getUsersWithoutRole(interaction.guild, role?.id)

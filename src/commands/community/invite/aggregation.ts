@@ -4,7 +4,7 @@ import { INVITE_GITBOOK, PREFIX } from "utils/constants"
 import Community from "adapters/community"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { emojis, getEmojiURL } from "utils/common"
 
 const command: Command = {
@@ -21,7 +21,7 @@ const command: Command = {
       args.length === 3 ? args[2] : `<@${msg.author.id}>`
     )
     if (!isUser) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "The argument was not a valid user",
       })

@@ -7,5 +7,5 @@ export const info = new SlashCommandSubcommandBuilder()
   .setDescription("Show current logging channel info")
 
 export async function logInfo(interaction: CommandInteraction) {
-  return await runLogInfo({ guild: interaction.guild ?? undefined })
+  return await runLogInfo({ guildId: interaction.guildId ?? undefined })
 }

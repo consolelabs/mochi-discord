@@ -8,7 +8,7 @@ import {
   User,
 } from "discord.js"
 import { FEEDBACK_PUBLIC_CHANNEL_ID } from "env"
-import { APIError, CommandError } from "errors"
+import { APIError, InternalError } from "errors"
 import { logger } from "logger"
 import { ModelUserFeedback, RequestUserFeedbackRequest } from "types/api"
 import { Command } from "types/common"
@@ -294,7 +294,7 @@ async function handleViewFeedbackList(i: ButtonInteraction, page = 0) {
 export async function handleFeedback(req: RequestUserFeedbackRequest) {
   const res = await community.sendFeedback(req)
   if (!res.ok) {
-    throw new CommandError({
+    throw new InternalError({
       description: "Failed to send your feedback, please try again later",
     })
   }

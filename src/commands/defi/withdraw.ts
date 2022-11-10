@@ -98,7 +98,7 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(msg, {
             author: ["Withdraw tokens", getEmojiURL(emojis.WALLET)],
-            description: `<@${msg.author.id}>, a withdrawal message has been sent to you. Check your DM!`,
+            description: `${msg.author}, a withdrawal message has been sent to you. Check your DM!`,
           }),
         ],
         components: [composeButtonLink("See the DM", dm.url)],

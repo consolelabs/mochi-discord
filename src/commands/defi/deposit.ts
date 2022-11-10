@@ -44,7 +44,7 @@ async function deposit(msg: Message) {
         embeds: [
           composeEmbedMessage(msg, {
             author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
-            description: `<@${msg.author.id}>, your deposit address has been sent to you. Check your DM!`,
+            description: `${msg.author}, your deposit address has been sent to you. Check your DM!`,
           }),
         ],
         components: [composeButtonLink("See the DM", dm.url)],

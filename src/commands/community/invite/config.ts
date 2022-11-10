@@ -4,7 +4,7 @@ import { INVITE_GITBOOK, PREFIX } from "utils/constants"
 import Community from "adapters/community"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { CommandError, GuildIdNotFoundError } from "errors"
+import { InternalError, GuildIdNotFoundError } from "errors"
 import { emojis, getEmojiURL } from "utils/common"
 
 const command: Command = {
@@ -21,7 +21,7 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const { isChannel, value: log_channel } = parseDiscordToken(args[2])
     if (!isChannel) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "Invalid channel. Please choose another one!",
       })

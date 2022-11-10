@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandError, GuildIdNotFoundError } from "errors"
+import { InternalError, GuildIdNotFoundError } from "errors"
 import { handle } from "../gm/config"
 import { composeEmbedMessage2 } from "utils/discordEmbed"
 import { SlashCommand } from "types/common"
@@ -29,7 +29,7 @@ const command: SlashCommand = {
     }
     const chanArg = interaction.options.getChannel("channel")
     if (!chanArg) {
-      throw new CommandError({
+      throw new InternalError({
         description: "Invalid channel, please choose a text channel.",
       })
     }
@@ -38,7 +38,7 @@ const command: SlashCommand = {
       .fetch(chanArg?.id ?? "")
       .catch(() => undefined)
     if (!chan || !chan.isText()) {
-      throw new CommandError({
+      throw new InternalError({
         description: "Invalid channel, please choose a text channel.",
       })
     }

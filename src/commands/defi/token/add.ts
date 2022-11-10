@@ -3,7 +3,7 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { CommandError, GuildIdNotFoundError } from "errors"
+import { InternalError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import {
@@ -64,7 +64,7 @@ const command: Command = {
       }))
 
     if (!options.length)
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "Your server already had all supported tokens.",
       })

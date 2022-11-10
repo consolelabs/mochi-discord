@@ -14,7 +14,7 @@ import {
   getFirstWords,
   paginate,
 } from "utils/common"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "reactionrole_list",
@@ -37,7 +37,7 @@ const command: Command = {
 
     const data = res.data.configs
     if (!data) {
-      throw new CommandError({ message: msg })
+      throw new InternalError({ message: msg })
     }
 
     let values = await Promise.all(
@@ -49,7 +49,7 @@ const command: Command = {
           .fetch(cfg.message_id ?? "")
           .catch(() => null)
         if (!reactMessage) {
-          throw new CommandError({
+          throw new InternalError({
             message: msg,
             description: "Message not found",
           })

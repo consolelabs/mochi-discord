@@ -5,7 +5,7 @@ import { mockClient } from "../../../../tests/mocks"
 import { defaultEmojis } from "utils/common"
 import { RunResult } from "types/common"
 import { commands } from "commands"
-import { CommandError } from "errors"
+import { InternalError } from "errors"
 
 jest.mock("adapters/defi")
 const commandKey = "watchlist"
@@ -88,7 +88,7 @@ describe("watchlist add", () => {
       await command.run(msg)
     } catch (e) {
       expect(defi.addToWatchlist).toHaveBeenCalled()
-      expect(e).toBeInstanceOf(CommandError)
+      expect(e).toBeInstanceOf(InternalError)
     }
   })
 })

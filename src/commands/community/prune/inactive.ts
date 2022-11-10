@@ -3,7 +3,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { Command } from "types/common"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
-import { CommandError, GuildIdNotFoundError } from "errors"
+import { InternalError, GuildIdNotFoundError } from "errors"
 import { getCommandArguments } from "utils/commands"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
 
@@ -47,7 +47,7 @@ const command: Command = {
 
     const args = getCommandArguments(msg)
     if (args.length < 3 || parseInt(args[2]) < 5) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "Inactive days should be a number from 5 and higher",
       })

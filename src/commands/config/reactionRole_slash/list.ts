@@ -15,7 +15,7 @@ import {
   getFirstWords,
   paginate,
 } from "utils/common"
-import { APIError, CommandError } from "errors"
+import { APIError, InternalError } from "errors"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
 const command: SlashCommand = {
@@ -53,7 +53,7 @@ const command: SlashCommand = {
 
     const data = res.data.configs
     if (!data) {
-      throw new CommandError({
+      throw new InternalError({
         user: interaction.user,
         guild: interaction.guild,
         description: "No configuration found",
@@ -71,7 +71,7 @@ const command: SlashCommand = {
           .fetch(cfg.message_id ?? "")
           .catch(() => null)
         if (!reactMessage) {
-          throw new CommandError({
+          throw new InternalError({
             user: interaction.user,
             guild: interaction.guild,
             description: "Message not found",
