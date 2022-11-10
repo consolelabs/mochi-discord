@@ -37,6 +37,36 @@ import { addToWatchlist } from "commands/defi/watchlist/add"
 import { feedbackDispatcher } from "commands/community/feedback"
 import { CommandNotAllowedToRunError } from "errors"
 
+CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
+
+async function questReminder(userId: string, command: string) {
+  let isReminded = true
+  await CacheManager.get({
+    pool: "quest",
+    key: `remind-quest-${userId}-${command}`,
+    // 24h
+    ttl: 86400,
+    call: async () => {
+      isReminded = false
+      return true
+    },
+    callIfCached: async () => {
+      isReminded = true
+    },
+  })
+  if (!isReminded) {
+    switch (command) {
+      case "watchlist":
+        return `> Check your watchlist thrice a day to get more XP! ${getEmoji(
+          "CLAIM"
+        )}`
+      case "ticker":
+        return `> Run /ticker thrice a day to get more XP! ${getEmoji("CLAIM")}`
+    }
+  }
+  return undefined
+}
+
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
   once: false,
@@ -119,6 +149,7 @@ async function handleCommandInteraction(interaction: Interaction) {
       }
       const msg = await i
         .editReply({
+          content: await questReminder(i.user.id, i.commandName),
           ...messageOptions,
         })
         .catch(() => null)
