@@ -2,7 +2,7 @@
 require("dotenv").config();
 const Discord = require("discord.js");
 const ids = require("./leave-server-ids.json");
-const chunk = require("lodash.chunk");
+const chunk = require("lodash/chunk");
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN || "";
 
 const client = new Discord.Client({

@@ -9,7 +9,7 @@ import {
   listenForPaginateAction,
 } from "utils/discordEmbed"
 import humanId from "human-id"
-import chunk from "lodash.chunk"
+import chunk from "lodash/chunk"
 import { getEmoji } from "utils/common"
 
 const size = 200
