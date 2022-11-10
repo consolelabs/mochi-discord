@@ -34,10 +34,7 @@ import {
 } from "commands/community/quest/daily"
 import ConversationManager from "utils/ConversationManager"
 import { addToWatchlist } from "commands/defi/watchlist/add"
-import {
-  handleFeedbackSetInProgress,
-  handleFeedbackSetResolved,
-} from "commands/community/feedback"
+import { feedbackDispatcher } from "commands/community/feedback"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -247,11 +244,8 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("back-to-quest-list"):
       await handleBackToQuestList(i)
       return
-    case i.customId.startsWith("handle-feedback-set-in-progress"):
-      await handleFeedbackSetInProgress(i)
-      return
-    case i.customId.startsWith("handle-feedback-set-resolved"):
-      await handleFeedbackSetResolved(i)
+    case i.customId.startsWith("feedback"):
+      await feedbackDispatcher(i)
       return
     default: {
       if (ConversationManager.hasConversation(i.user.id, i.channelId, i)) {

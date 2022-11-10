@@ -381,9 +381,14 @@ class Community extends Fetcher {
     )
   }
 
-  public async getFeedbackList() {
+  public async getFeedbackList(discordId?: string) {
     return await this.jsonFetch<ResponseUserFeedbackResponse>(
-      `${API_BASE_URL}/feedback`
+      `${API_BASE_URL}/feedback`,
+      {
+        query: {
+          discordId,
+        },
+      }
     )
   }
 
