@@ -20,11 +20,12 @@ import CacheManager from "utils/CacheManager"
 import { CommandError } from "errors"
 
 export function handleUpdateWlError(
-  msg: Message | MessageComponentInteraction | CommandInteraction,
+  msg: Message | MessageComponentInteraction | CommandInteraction | undefined,
   symbol: string,
   error: string | null,
   isRemove?: boolean
 ) {
+  if (!msg) return
   let description = ""
   if (!error) {
     throw new CommandError({

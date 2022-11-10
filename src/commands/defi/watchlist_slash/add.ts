@@ -1,42 +1,10 @@
 import { SlashCommand } from "types/common"
-import {
-  CommandInteraction,
-  MessageSelectOptionData,
-  SelectMenuInteraction,
-} from "discord.js"
-import { defaultEmojis, thumbnails } from "utils/common"
-import {
-  composeDiscordSelectionRow,
-  getSuccessEmbed,
-  composeDiscordExitButton,
-  composeEmbedMessage2,
-} from "utils/discordEmbed"
-import { Coin } from "types/defi"
+import { CommandInteraction } from "discord.js"
+import { thumbnails } from "utils/common"
+import { composeEmbedMessage2 } from "utils/discordEmbed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import defi from "adapters/defi"
-import CacheManager from "utils/CacheManager"
-import { handleUpdateWlError } from "."
-import { InteractionHandler } from "utils/InteractionManager"
-
-const handler: InteractionHandler = async (msgOrInteraction) => {
-  const interaction = msgOrInteraction as SelectMenuInteraction
-  const value = interaction.values[0]
-  const [symbol, coinGeckoId, userId] = value.split("_")
-  const { ok, error } = await defi.addToWatchlist({
-    user_id: userId,
-    symbol,
-    coin_gecko_id: coinGeckoId,
-  })
-  if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error)
-  CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
-  return {
-    messageOptions: {
-      embeds: [getSuccessEmbed({})],
-      components: [],
-    },
-  }
-}
+import { SLASH_PREFIX as PREFIX, SPACES_REGEX } from "utils/constants"
+import { viewWatchlist } from "../watchlist/add"
 
 const command: SlashCommand = {
   name: "add",
@@ -44,79 +12,32 @@ const command: SlashCommand = {
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
       .setName("add")
-      .setDescription("Add a token to your watchlist.")
+      .setDescription("Add token(s) to your watchlist.")
       .addStringOption((option) =>
         option
-          .setName("symbol")
+          .setName("symbols")
           .setDescription(
-            "The ticker/pair which you wanna add to your watchlist. Example: FTM"
+            "The tickers/pairs space-separated list you wanna add to your watchlist. Example: ftm eth"
           )
           .setRequired(true)
       )
   },
   run: async function (interaction: CommandInteraction) {
-    const symbol = interaction.options.getString("symbol", true)
+    const opt = interaction.options.getString("symbols", true)
+    const symbols = opt
+      .split(SPACES_REGEX)
+      .map((s) => s.trim())
+      .filter((s) => !!s)
     const userId = interaction.user.id
-    const { data, ok, error } = await defi.addToWatchlist({
-      user_id: userId,
-      symbol,
-    })
-    if (!ok) handleUpdateWlError(interaction, symbol, error)
-    // no data === add successfully
-    if (!data) {
-      CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
-      return {
-        messageOptions: { embeds: [getSuccessEmbed({})] },
-      }
-    }
-
-    // allow selection
-    const { base_suggestions, target_suggestions } = data
-    let options: MessageSelectOptionData[]
-    if (!target_suggestions) {
-      const opt = (coin: Coin): MessageSelectOptionData => ({
-        label: `${coin.name}`,
-        value: `${coin.symbol}_${coin.id}_${interaction.user.id}`,
-      })
-      options = base_suggestions.map((b: Coin) => opt(b))
-    } else {
-      const opt = (base: Coin, target: Coin): MessageSelectOptionData => ({
-        label: `${base.name} / ${target.name}`,
-        value: `${base.symbol}/${target.symbol}_${base.id}/${target.id}_${interaction.user.id}`,
-      })
-      options = base_suggestions
-        .map((b: Coin) => target_suggestions.map((t: Coin) => opt(b, t)))
-        .flat()
-        .slice(0, 25) // discord allow maximum 25 options
-    }
-    const selectRow = composeDiscordSelectionRow({
-      customId: "watchlist_selection",
-      placeholder: "Make a selection",
-      options,
-    })
-
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage2(interaction, {
-            title: `${defaultEmojis.MAG} Multiple options found`,
-            description: `Multiple tokens found for \`${symbol}\`.\nPlease select one of the following`,
-          }),
-        ],
-        components: [selectRow, composeDiscordExitButton(interaction.user.id)],
-      },
-      interactionOptions: {
-        handler,
-      },
-    }
+    return await viewWatchlist({ interaction, symbols, userId })
   },
   help: async (interaction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
         thumbnail: thumbnails.TOKENS,
-        title: "Add a token to your watchlist.",
-        usage: `${PREFIX}watchlist add <symbol>`,
-        examples: `${PREFIX}watchlist add eth`,
+        title: "Add token(s) to your watchlist.",
+        usage: `${PREFIX}watchlist add <symbol1 symbol2 ...>`,
+        examples: `${PREFIX}watchlist add eth\n${PREFIX}watchlist add ftm btc/sol matic`,
       }),
     ],
   }),
