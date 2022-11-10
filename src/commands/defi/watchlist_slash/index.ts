@@ -17,7 +17,7 @@ import remove from "./remove"
 import addNFT from "./add-nft"
 import removeNFT from "./remove-nft"
 import CacheManager from "utils/CacheManager"
-import { CommandError } from "errors"
+import { InternalError } from "errors"
 
 export function handleUpdateWlError(
   msg: Message | MessageComponentInteraction | CommandInteraction,
@@ -27,7 +27,7 @@ export function handleUpdateWlError(
 ) {
   let description = ""
   if (!error) {
-    throw new CommandError({
+    throw new InternalError({
       message:
         "message" in msg
           ? (msg.message as Message)
@@ -51,7 +51,7 @@ export function handleUpdateWlError(
     default:
       break
   }
-  throw new CommandError({
+  throw new InternalError({
     message:
       "message" in msg
         ? (msg.message as Message)

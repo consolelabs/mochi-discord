@@ -6,6 +6,7 @@ import { Message } from "discord.js"
 import utc from "dayjs/plugin/utc"
 import dayjs from "dayjs"
 import { fromPrefix } from "./set"
+import { emojis, getEmojiURL } from "utils/common"
 dayjs.extend(utc)
 
 export function getMessageBody({
@@ -68,7 +69,7 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              author: [msg.guild.name, msg.guild.iconURL()],
+              author: ["Proof of Engagement list", getEmojiURL(emojis.TWITTER)],
               description: `No available config`,
             }),
           ],
@@ -80,7 +81,7 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: [msg.guild.name, msg.guild.iconURL()],
+            author: ["Proof of Engagement list", getEmojiURL(emojis.TWITTER)],
             description: getMessageBody({
               user_id: twitterConfig.data.user_id,
               updated_at: twitterConfig.data.updated_at,

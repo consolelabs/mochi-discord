@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import defi from "adapters/defi"
 import { Message } from "discord.js"
-import { APIError, CommandError } from "errors"
+import { APIError, InternalError } from "errors"
 import { Command } from "types/common"
 import CacheManager from "utils/CacheManager"
 import { getCommandArguments } from "utils/commands"
@@ -54,7 +54,7 @@ const command: Command = {
       throw new APIError({ message: msg, curl, description: log })
     }
     if (!coins.length) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: `Cannot find any cryptocurrency with \`${query}\`.\nPlease choose another one!`,
       })

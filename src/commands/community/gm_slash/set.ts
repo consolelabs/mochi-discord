@@ -1,8 +1,8 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandError, GuildIdNotFoundError } from "errors"
+import { InternalError, GuildIdNotFoundError } from "errors"
 import { handle } from "../gm/config"
-import { composeEmbedMessage2, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage2 } from "utils/discordEmbed"
 import { SlashCommand } from "types/common"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 
@@ -27,21 +27,9 @@ const command: SlashCommand = {
     if (!interaction.guildId || !interaction.guild) {
       throw new GuildIdNotFoundError({})
     }
-    if (!interaction.memberPermissions?.has("ADMINISTRATOR", true)) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              title: "Insufficient permissions",
-              description: `Only Administrators of this server can run this command.`,
-            }),
-          ],
-        },
-      }
-    }
     const chanArg = interaction.options.getChannel("channel")
     if (!chanArg) {
-      throw new CommandError({
+      throw new InternalError({
         description: "Invalid channel, please choose a text channel.",
       })
     }
@@ -50,7 +38,7 @@ const command: SlashCommand = {
       .fetch(chanArg?.id ?? "")
       .catch(() => undefined)
     if (!chan || !chan.isText()) {
-      throw new CommandError({
+      throw new InternalError({
         description: "Invalid channel, please choose a text channel.",
       })
     }

@@ -2,15 +2,15 @@ import Config from "adapters/config"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { ResponseGetLevelRoleConfigsResponse } from "types/api"
 import { Command } from "types/common"
-import { getEmoji } from "utils/common"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 
-function list({ data }: ResponseGetLevelRoleConfigsResponse) {
+export function list({ data }: ResponseGetLevelRoleConfigsResponse) {
   if (data?.length === 0) {
     return `No level roles found! To set a new one, run \`\`\`$lr <role> <level>\`\`\``
   }
-  return data
+  const description = data
     ?.map(
       (item) =>
         `**Level ${item.level}** - requires \`${
@@ -18,6 +18,7 @@ function list({ data }: ResponseGetLevelRoleConfigsResponse) {
         }\` XP\n${getEmoji("blank")}${getEmoji("reply")} <@&${item.role_id}>`
     )
     .join("\n")
+  return `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.\n\n${description}`
 }
 
 const command: Command = {
@@ -43,7 +44,7 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: [`${msg.guild.name}'s level roles`, msg.guild.iconURL()],
+            author: ["Level role list", getEmojiURL(emojis.BADGE2)],
             description: list(res),
           }),
         ],

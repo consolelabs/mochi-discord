@@ -67,6 +67,7 @@ export async function wrapError(
             : ""
         args = commandStr
         //
+        error.handle?.()
         ChannelLogger.alertSlash(message, error).catch(catchAll)
       }
       // send command info to store

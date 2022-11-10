@@ -4,7 +4,7 @@ import { DEPOSIT_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import { DirectMessageNotAllowedError } from "errors"
 import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
 import { APIError } from "errors"
-import { getEmoji, defaultEmojis } from "utils/common"
+import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
 
@@ -23,11 +23,16 @@ async function deposit(msg: Message) {
     const dm = await msg.author.send({
       embeds: [
         composeEmbedMessage(msg, {
-          title: `${defaultEmojis.ARROW_DOWN} **Deposit ${tokenSymbol}**`,
-          description: `This is the wallet address linked with your discord account.
-          Please deposit to the below address only.\n\nYour deposit address\n${getEmoji(
-            tokenSymbol.toUpperCase()
-          )}\`${res.data.contract.contract_address}\``,
+          author: [
+            `Deposit ${tokenSymbol.toUpperCase()}`,
+            getEmojiURL(emojis.WALLET),
+          ],
+          description: `Below is the wallet address linked to your Discord account.
+          Please deposit to the following address only ${getEmoji(
+            "ok1"
+          )}.\n\n**Your deposit address**\n\`\`\`${
+            res.data.contract.contract_address
+          }\`\`\``,
         }),
       ],
     })
@@ -38,7 +43,8 @@ async function deposit(msg: Message) {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            description: `:information_source: Info\n<@${msg.author.id}>, your deposit address has been sent to you via a DM`,
+            author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
+            description: `${msg.author}, your deposit address has been sent to you. Check your DM!`,
           }),
         ],
         components: [composeButtonLink("See the DM", dm.url)],

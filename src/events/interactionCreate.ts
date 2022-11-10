@@ -35,6 +35,7 @@ import {
 import ConversationManager from "utils/ConversationManager"
 import { addToWatchlist } from "commands/defi/watchlist/add"
 import { feedbackDispatcher } from "commands/community/feedback"
+import { CommandNotAllowedToRunError } from "errors"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -61,107 +62,105 @@ const event: DiscordEvent<"interactionCreate"> = {
 export default event
 
 async function handleCommandInteraction(interaction: Interaction) {
-  const i = interaction as CommandInteraction
-  const command = slashCommands[i.commandName]
-  if (!command) {
-    await i.reply({ embeds: [getErrorEmbed({})] })
-    return
-  }
-  const gMember = interaction?.guild?.members.cache.get(interaction?.user.id)
-  if (command.onlyAdministrator && !hasAdministrator(gMember)) {
-    await i.reply({
-      embeds: [
-        getErrorEmbed({
-          title: "Insufficient permissions",
-          description:
-            "Only Administrators of this server can run this command.",
-        }),
-      ],
-    })
-    return
-  }
-  await i.deferReply({ ephemeral: command?.ephemeral })
-  const response = await command.run(i)
-  if (!response) return
-  let shouldRemind = await CacheManager.get({
-    pool: "vote",
-    key: `remind-${i.user.id}-vote-again`,
-    // 5 min
-    ttl: 300,
-    call: async () => {
-      const res = await community.getUpvoteStreak(i.user.id)
-      let ttl = 0
-      let shouldRemind = true
-      if (res.ok) {
-        const timeUntilTopgg = res.data?.minutes_until_reset_topgg ?? 0
-        const timeUntilDiscordBotList =
-          res.data?.minutes_until_reset_discordbotlist ?? 0
-        ttl = Math.max(timeUntilTopgg, timeUntilDiscordBotList)
+  wrapError(interaction, async () => {
+    const i = interaction as CommandInteraction
+    const command = slashCommands[i.commandName]
+    if (!command) {
+      await i.reply({ embeds: [getErrorEmbed({})] })
+      return
+    }
+    const gMember = interaction?.guild?.members.cache.get(interaction?.user.id)
+    if (command.onlyAdministrator && !hasAdministrator(gMember)) {
+      throw new CommandNotAllowedToRunError({
+        interaction: i,
+        command: i.commandName,
+        missingPermissions:
+          i.channel?.type === "DM" ? undefined : ["Administrator"],
+      })
+    }
+    await i.deferReply({ ephemeral: command?.ephemeral })
+    const response = await command.run(i)
+    if (!response) return
+    let shouldRemind = await CacheManager.get({
+      pool: "vote",
+      key: `remind-${i.user.id}-vote-again`,
+      // 5 min
+      ttl: 300,
+      call: async () => {
+        const res = await community.getUpvoteStreak(i.user.id)
+        let ttl = 0
+        let shouldRemind = true
+        if (res.ok) {
+          const timeUntilTopgg = res.data?.minutes_until_reset_topgg ?? 0
+          const timeUntilDiscordBotList =
+            res.data?.minutes_until_reset_discordbotlist ?? 0
+          ttl = Math.max(timeUntilTopgg, timeUntilDiscordBotList)
 
-        // only remind if both timers are 0 meaning both source can be voted again
-        shouldRemind = ttl === 0
+          // only remind if both timers are 0 meaning both source can be voted again
+          shouldRemind = ttl === 0
+        }
+        return shouldRemind
+      },
+    })
+    if (i.commandName === "vote") {
+      // user is already using $vote, no point in reminding
+      shouldRemind = false
+    }
+    if ("messageOptions" in response) {
+      const reminderEmbed = composeEmbedMessage(null, {
+        title: "Vote for Mochi!",
+        description: `Vote for Mochi to gain rewards. Run \`$vote\` now! ${getEmoji(
+          "CLAIM"
+        )}`,
+      })
+      const { messageOptions, interactionOptions } = response
+      if (shouldRemind && Math.random() < 0.1) {
+        messageOptions.embeds?.push(reminderEmbed)
       }
-      return shouldRemind
-    },
-  })
-  if (i.commandName === "vote") {
-    // user is already using $vote, no point in reminding
-    shouldRemind = false
-  }
-  if ("messageOptions" in response) {
-    const reminderEmbed = composeEmbedMessage(null, {
-      title: "Vote for Mochi!",
-      description: `Vote for Mochi to gain rewards. Run \`$vote\` now! ${getEmoji(
-        "CLAIM"
-      )}`,
-    })
-    const { messageOptions, interactionOptions } = response
-    if (shouldRemind && Math.random() < 0.1) {
-      messageOptions.embeds?.push(reminderEmbed)
-    }
-    const msg = await i
-      .editReply({
-        ...messageOptions,
+      const msg = await i
+        .editReply({
+          ...messageOptions,
+        })
+        .catch(() => null)
+      if (interactionOptions && msg) {
+        InteractionManager.add(msg.id, interactionOptions)
+      }
+    } else if ("select" in response) {
+      // ask default case
+      const {
+        ambiguousResultText,
+        multipleResultText,
+        select,
+        onDefaultSet,
+        render,
+      } = response
+      const multipleEmbed = getMultipleResultEmbed({
+        msg: null,
+        ambiguousResultText,
+        multipleResultText,
       })
-      .catch(() => null)
-    if (interactionOptions && msg) {
-      InteractionManager.add(msg.id, interactionOptions)
-    }
-  } else if ("select" in response) {
-    // ask default case
-    const {
-      ambiguousResultText,
-      multipleResultText,
-      select,
-      onDefaultSet,
-      render,
-    } = response
-    const multipleEmbed = getMultipleResultEmbed({
-      msg: null,
-      ambiguousResultText,
-      multipleResultText,
-    })
-    const selectRow = composeDiscordSelectionRow({
-      customId: `mutliple-results-${i.id}`,
-      ...select,
-    })
-    const msg = await i.reply({
-      fetchReply: true,
-      embeds: [multipleEmbed],
-      components: [selectRow, composeDiscordExitButton(i.user.id)],
-    })
+      const selectRow = composeDiscordSelectionRow({
+        customId: `mutliple-results-${i.id}`,
+        ...select,
+      })
+      const msg = await i.reply({
+        fetchReply: true,
+        embeds: [multipleEmbed],
+        components: [selectRow, composeDiscordExitButton(i.user.id)],
+      })
 
-    if (onDefaultSet && render) {
-      InteractionManager.add(msg.id, {
-        handler: setDefaultMiddleware<CommandInteraction>({
-          onDefaultSet,
-          label: ambiguousResultText,
-          render,
-          commandInteraction: i,
-        }),
-      })
+      if (onDefaultSet && render) {
+        InteractionManager.add(msg.id, {
+          handler: setDefaultMiddleware<CommandInteraction>({
+            onDefaultSet,
+            label: ambiguousResultText,
+            render,
+            commandInteraction: i,
+          }),
+        })
+      }
     }
-  }
+  })
 }
 
 async function handleSelectMenuInteraction(i: SelectMenuInteraction) {

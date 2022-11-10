@@ -10,7 +10,7 @@ import {
   TextChannel,
   ThreadChannel,
 } from "discord.js"
-import { APIError, CommandError } from "errors"
+import { APIError, InternalError } from "errors"
 import { Command } from "types/common"
 import { getInventory, newCaptcha, renderTrade, session } from "./utils"
 import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
@@ -613,7 +613,7 @@ const command: Command = {
   command: "swap",
   run: async (msg: Message) => {
     if (msg.channel.isThread()) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "Swap request must be in a text channel",
       })

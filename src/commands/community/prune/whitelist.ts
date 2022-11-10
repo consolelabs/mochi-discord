@@ -3,7 +3,7 @@ import { Guild, Message, Role, User } from "discord.js"
 import {
   APIError,
   BotBaseError,
-  CommandError,
+  InternalError,
   GuildIdNotFoundError,
 } from "errors"
 import { Command } from "types/common"
@@ -82,7 +82,7 @@ const command: Command = {
 
     const { isRole, value: id } = parseDiscordToken(args[2])
     if (!isRole) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "The argument is not a role",
       })

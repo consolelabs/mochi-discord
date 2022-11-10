@@ -4,7 +4,7 @@ import { commands } from "commands"
 import CacheManager from "utils/CacheManager"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getChartColorConfig } from "utils/canvas"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { RunResult } from "types/common"
 
 jest.mock("adapters/defi")
@@ -309,7 +309,7 @@ describe("ticker", () => {
       await command.run(msg)
     } catch (e) {
       expect(CacheManager.get).toHaveBeenCalled()
-      expect(e).toBeInstanceOf(CommandError)
+      expect(e).toBeInstanceOf(InternalError)
     }
   })
 
@@ -349,7 +349,7 @@ describe("ticker", () => {
       await command.run(msg)
     } catch (e) {
       expect(CacheManager.get).toHaveBeenCalled()
-      expect(e).toBeInstanceOf(CommandError)
+      expect(e).toBeInstanceOf(InternalError)
     }
   })
 

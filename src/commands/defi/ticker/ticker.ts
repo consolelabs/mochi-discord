@@ -33,7 +33,7 @@ import {
 import compare from "./compare"
 import config from "adapters/config"
 import CacheManager from "utils/CacheManager"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { createCanvas, loadImage } from "canvas"
 import { RectangleStats } from "types/canvas"
 import TurnDown from "turndown"
@@ -409,7 +409,7 @@ const command: Command = {
     })
     if (!ok) throw new APIError({ message: msg, curl, description: log })
     if (!coins || !coins.length) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease choose another one!`,
       })

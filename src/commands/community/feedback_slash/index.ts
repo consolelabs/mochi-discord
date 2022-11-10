@@ -63,7 +63,7 @@ const command: SlashCommand = {
             command: commandArg,
             feedback,
           }),
-          await inviteUserToJoin(),
+          inviteUserToJoin(),
         ],
         components: [getComponentsNormalState(interaction.user.id, true)],
       },

@@ -9,7 +9,9 @@ import { AIRDROP_GITBOOK, DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
 import { GuildIdNotFoundError, APIError } from "errors"
 import {
   defaultEmojis,
+  emojis,
   getEmoji,
+  getEmojiURL,
   roundFloatNumber,
   thumbnails,
   tripodEmojis,
@@ -64,7 +66,7 @@ export async function confirmAirdrop(
     .toDate()
   const originalAuthor = await msg.guild?.members.fetch(authorId)
   const airdropEmbed = composeEmbedMessage(msg, {
-    title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
+    author: ["An airdrop appears", getEmojiURL(emojis.WALLET)],
     description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(
       +amountInUSD,
       4
@@ -157,7 +159,7 @@ async function checkExpiredAirdrop(
         .edit({
           embeds: [
             composeEmbedMessage(msg, {
-              title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
+              author: ["An airdrop appears", getEmojiURL(emojis.WALLET)],
               footer: [`${participants.length} users joined, ended`],
               description,
               originalMsgAuthor: originalAuthor?.user,

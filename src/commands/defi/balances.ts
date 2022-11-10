@@ -20,19 +20,6 @@ export async function handleBal(userId: string) {
     throw new APIError({ curl: res.curl, description: res.log })
   }
 
-  // case data = null || []
-  if (!res.data || res.data.length === 0) {
-    const embed = composeEmbedMessage(null, {
-      title: "Info",
-      description: `<@${userId}>, you have no balances.`,
-    })
-    return {
-      messageOptions: {
-        embeds: [embed],
-      },
-    }
-  }
-
   // case data normal
   const fields: EmbedFieldData[] = []
   const blank = getEmoji("blank")
@@ -47,6 +34,19 @@ export async function handleBal(userId: string) {
     fields.push({ name: tokenName, value: balanceInfo, inline: true })
   })
 
+  // case data = null || []
+  if (!fields.length) {
+    const embed = composeEmbedMessage(null, {
+      author: ["Your balances", getEmojiURL(emojis.WALLET)],
+      description: "No balance. Try `$deposit` more into your wallet.",
+    })
+    return {
+      messageOptions: {
+        embeds: [embed],
+      },
+    }
+  }
+
   const totalBalanceInUSD = res.data.reduce(
     (accumulator: number, balance: UserBalances) => {
       return accumulator + balance["balances_in_usd"]
@@ -55,7 +55,7 @@ export async function handleBal(userId: string) {
   )
 
   const embed = composeEmbedMessage(null, {
-    author: ["View your balances", getEmojiURL(emojis.COIN)],
+    author: ["Your balances", getEmojiURL(emojis.WALLET)],
   }).addFields(fields)
   justifyEmbedFields(embed, 3)
   embed.addFields({

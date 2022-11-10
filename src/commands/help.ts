@@ -214,7 +214,7 @@ const allCommands: Record<PageType, HelpPage> = {
         ],
       },
       Welcome: {
-        emoji: "<:hello:899666094112010350>",
+        emoji: getEmoji("hello"),
         description: "Automate welcome message",
         features: [
           {

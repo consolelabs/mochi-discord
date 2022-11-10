@@ -4,6 +4,9 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
+import { emojis, getEmojiURL } from "utils/common"
+import { list } from "../levelRole/list"
+import { APIError } from "errors"
 
 const command: SlashCommand = {
   name: "list",
@@ -25,33 +28,20 @@ const command: SlashCommand = {
         },
       }
     }
-    const lrConfig = await config.getGuildLevelRoleConfigs(interaction.guildId)
+    const res = await config.getGuildLevelRoleConfigs(interaction.guildId)
 
-    if (!lrConfig || !lrConfig.ok || !lrConfig.data?.length) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              title: `${interaction.guild.name}'s levelroles configuration`,
-              description:
-                "No configuration found! To set a new one, run `$lr <role> <level>`.",
-            }),
-          ],
-        },
-      }
+    if (!res.ok) {
+      throw new APIError({
+        curl: res.curl,
+        description: res.log,
+      })
     }
-    const description = lrConfig.data
-      .map((c: any) => `**Level ${c.level}** - <@&${c.role_id}>`)
-      .join("\n")
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage2(interaction, {
-            author: [
-              `${interaction.guild.name}'s levelroles configuration`,
-              interaction.guild.iconURL(),
-            ],
-            description,
+            author: ["Level role list", getEmojiURL(emojis.BADGE2)],
+            description: list(res),
           }),
         ],
       },

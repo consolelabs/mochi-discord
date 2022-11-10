@@ -8,7 +8,7 @@ import {
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { isDiscordMessageLink } from "utils/common"
 
 const command: Command = {
@@ -61,7 +61,7 @@ const command: Command = {
 
     // Validate message link https://discord.com/channels/guild_id/chan_id/msg_id
     if (!isDiscordMessageLink(args[2])) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description:
           "Can't find the messages.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
@@ -70,7 +70,7 @@ const command: Command = {
 
     const [guildId, channelId, messageId] = args[2].split("/").slice(-3)
     if (guildId !== msg.guildId) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description:
           "Guild ID invalid, please choose a message belongs to your guild.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
@@ -79,7 +79,7 @@ const command: Command = {
 
     const channel = msg.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
     if (!channel || !channel.isText()) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description:
           "Channel invalid, please choose a message in a text channel.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
@@ -90,7 +90,7 @@ const command: Command = {
       .fetch(messageId)
       .catch(() => null)
     if (!reactMessage) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description:
           "Message not found, please choose another valid message. \n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
