@@ -14,6 +14,7 @@ import { DiscordEvent } from "."
 import {
   composeDiscordExitButton,
   composeDiscordSelectionRow,
+  composeEmbedMessage,
   getErrorEmbed,
   getMultipleResultEmbed,
   setDefaultMiddleware,
@@ -23,7 +24,7 @@ import community from "adapters/community"
 import { wrapError } from "utils/wrapError"
 import { handleTickerViews } from "commands/defi/ticker/ticker"
 import { handleNFTTickerViews } from "commands/community/nft/ticker"
-import { authorFilter, hasAdministrator } from "utils/common"
+import { authorFilter, getEmoji, hasAdministrator } from "utils/common"
 import { handleButtonOffer, handleCreateSwap } from "commands/community/swap"
 import InteractionManager from "utils/InteractionManager"
 import { MessageComponentTypes } from "discord.js/typings/enums"
@@ -32,6 +33,7 @@ import {
   handleClaimReward,
 } from "commands/community/quest/daily"
 import ConversationManager from "utils/ConversationManager"
+import { addToWatchlist } from "commands/defi/watchlist/add"
 import {
   handleFeedbackSetInProgress,
   handleFeedbackSetResolved,
@@ -110,12 +112,18 @@ async function handleCommandInteraction(interaction: Interaction) {
     shouldRemind = false
   }
   if ("messageOptions" in response) {
+    const reminderEmbed = composeEmbedMessage(null, {
+      title: "Vote for Mochi!",
+      description: `Vote for Mochi to gain rewards. Run \`$vote\` now! ${getEmoji(
+        "CLAIM"
+      )}`,
+    })
     const { messageOptions, interactionOptions } = response
+    if (shouldRemind && Math.random() < 0.1) {
+      messageOptions.embeds?.push(reminderEmbed)
+    }
     const msg = await i
       .editReply({
-        ...(shouldRemind
-          ? { content: "> 👋 Psst! You can vote now, try `$vote`. 😉" }
-          : {}),
         ...messageOptions,
       })
       .catch(() => null)
@@ -220,6 +228,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("ticker_view_"):
       await handleTickerViews(i)
+      return
+    case i.customId.startsWith("ticker_add_wl"):
+      await addToWatchlist(i)
       return
     case i.customId.startsWith("nft_ticker_view"):
       await handleNFTTickerViews(i)

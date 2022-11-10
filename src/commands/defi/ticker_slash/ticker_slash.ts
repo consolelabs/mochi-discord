@@ -171,11 +171,13 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
 async function composeTickerResponse({
   coinId,
   interaction,
+  symbol,
   days,
   discordId,
 }: {
   coinId: string
   interaction: SelectMenuInteraction | CommandInteraction
+  symbol: string
   days?: number
   discordId?: string
 }) {
@@ -264,6 +266,7 @@ async function composeTickerResponse({
   const buttonRow = buildSwitchViewActionRow("ticker", {
     coinId: coin.id,
     days: days ?? 7,
+    symbol,
   }).addComponents(getExitButton(interaction.user.id))
 
   return {
@@ -280,23 +283,29 @@ async function composeTickerResponse({
 
 function buildSwitchViewActionRow(
   currentView: string,
-  params: { coinId: string; days: number }
+  params: { coinId: string; days: number; symbol: string }
 ) {
   const tickerBtn = new MessageButton({
     label: "Ticker",
     emoji: emojis.TICKER,
-    customId: `ticker_view_chart|${params.coinId}|${params.days}`,
+    customId: `ticker_view_chart|${params.coinId}|${params.days}|${params.symbol}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const infoBtn = new MessageButton({
     label: "Info",
     emoji: emojis.INFO,
-    customId: `ticker_view_info|${params.coinId}|${params.days}`,
+    customId: `ticker_view_info|${params.coinId}|${params.days}|${params.symbol}`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
-  return new MessageActionRow().addComponents([tickerBtn, infoBtn])
+  const wlPromptBtn = new MessageButton({
+    label: "Add to Watchlist",
+    emoji: emojis.LIKE,
+    customId: `ticker_add_wl|${params.coinId}|${params.symbol}`,
+    style: "SECONDARY",
+  })
+  return new MessageActionRow().addComponents([tickerBtn, infoBtn, wlPromptBtn])
 }
 
 const command: SlashCommand = {
@@ -359,6 +368,7 @@ const command: SlashCommand = {
         coinId: coins[0].id,
         interaction,
         discordId: interaction.user.id,
+        symbol: baseQ,
       })
     }
 
@@ -378,6 +388,7 @@ const command: SlashCommand = {
         coinId: defaultTicker.data.default_ticker,
         interaction,
         discordId: interaction.user.id,
+        symbol: baseQ,
       })
     }
 
@@ -413,6 +424,7 @@ const command: SlashCommand = {
           interaction,
           coinId,
           discordId: interaction.user.id,
+          symbol: baseQ,
         })
       },
       ambiguousResultText: baseQ.toUpperCase(),
