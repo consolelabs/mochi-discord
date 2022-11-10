@@ -171,9 +171,11 @@ async function composeTickerResponse({
   coinId,
   days,
   discordId,
+  symbol,
 }: {
   msg: Message
   coinId: string
+  symbol: string
   days?: number
   discordId?: string
 }) {
@@ -257,6 +259,7 @@ async function composeTickerResponse({
   const buttonRow = buildSwitchViewActionRow("ticker", {
     coinId: coin.id,
     days: days ?? 7,
+    symbol,
   }).addComponents(getExitButton(msg.author.id))
 
   return {
@@ -273,26 +276,26 @@ async function composeTickerResponse({
 
 function buildSwitchViewActionRow(
   currentView: string,
-  params: { coinId: string; days: number }
+  params: { coinId: string; days: number; symbol: string }
 ) {
   const tickerBtn = new MessageButton({
     label: "Ticker",
     emoji: emojis.TICKER,
-    customId: `ticker_view_chart|${params.coinId}|${params.days}`,
+    customId: `ticker_view_chart|${params.coinId}|${params.days}|${params.symbol}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const infoBtn = new MessageButton({
     label: "Info",
     emoji: emojis.INFO,
-    customId: `ticker_view_info|${params.coinId}|${params.days}`,
+    customId: `ticker_view_info|${params.coinId}|${params.days}|${params.symbol}`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
   const wlPromptBtn = new MessageButton({
     label: "Add to Watchlist",
     emoji: emojis.LIKE,
-    customId: `ticker_add_wl|${params.coinId}`,
+    customId: `ticker_add_wl|${params.coinId}|${params.symbol}`,
     style: "SECONDARY",
   })
   return new MessageActionRow().addComponents([tickerBtn, infoBtn, wlPromptBtn])
@@ -309,19 +312,25 @@ export async function handleTickerViews(interaction: ButtonInteraction) {
 
 async function viewTickerChart(interaction: ButtonInteraction, msg: Message) {
   await interaction.deferUpdate()
-  const [coinId, days] = interaction.customId.split("|").slice(1)
+  const [coinId, days, symbol] = interaction.customId.split("|").slice(1)
   const { messageOptions } = await composeTickerResponse({
     msg,
     coinId,
     ...(days && { days: +days }),
+    symbol,
   })
   await msg.edit(messageOptions)
 }
 
 async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
   await interaction.deferUpdate()
-  const [coinId, days] = interaction.customId.split("|").slice(1)
-  const { messageOptions } = await composeTokenInfoEmbed(msg, coinId, +days)
+  const [coinId, days, symbol] = interaction.customId.split("|").slice(1)
+  const { messageOptions } = await composeTokenInfoEmbed(
+    msg,
+    coinId,
+    +days,
+    symbol
+  )
   await msg.edit(messageOptions)
   await msg.removeAttachments()
 }
@@ -329,7 +338,8 @@ async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
 async function composeTokenInfoEmbed(
   msg: Message,
   coinId: string,
-  days: number
+  days: number,
+  symbol: string
 ) {
   const {
     ok,
@@ -361,6 +371,7 @@ async function composeTokenInfoEmbed(
   const buttonRow = buildSwitchViewActionRow("info", {
     coinId,
     days,
+    symbol,
   }).addComponents(getExitButton(msg.author.id))
 
   return {
@@ -409,6 +420,7 @@ const command: Command = {
         msg,
         coinId: coins[0].id,
         discordId: msg.author.id,
+        symbol: coinQ,
       })
     }
 
@@ -428,6 +440,7 @@ const command: Command = {
         msg,
         coinId: defaultTicker.data.default_ticker,
         discordId: msg.author.id,
+        symbol: coinQ,
       })
     }
 
@@ -460,7 +473,12 @@ const command: Command = {
       },
       render: ({ msgOrInteraction: msg, value }) => {
         const [coinId] = value.split("_")
-        return composeTickerResponse({ msg, coinId, discordId: msg.author.id })
+        return composeTickerResponse({
+          msg,
+          coinId,
+          discordId: msg.author.id,
+          symbol: coinQ,
+        })
       },
       ambiguousResultText: coinQ.toUpperCase(),
       multipleResultText: Object.values(coins)
