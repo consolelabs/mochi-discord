@@ -2,7 +2,12 @@ import Config from "adapters/config"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { ResponseListGuildGroupNFTRolesResponse } from "types/api"
 import { Command } from "types/common"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  shortenHashOrAddress,
+} from "utils/common"
 import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 
@@ -34,7 +39,7 @@ export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
       )
       .join("\n\n")
   }
-  return description
+  return `Run \`$nr set\` to add an NFT role.\n\n${description}`
 }
 
 const command: Command = {
@@ -60,7 +65,7 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: [`${msg.guild.name}'s nft roles`, msg.guild.iconURL()],
+            author: ["NFT role list", getEmojiURL(emojis.NFTS)],
             description: list(res),
           }),
         ],

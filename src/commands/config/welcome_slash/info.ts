@@ -3,6 +3,7 @@ import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { emojis, getEmojiURL } from "utils/common"
 
 export const info = new SlashCommandSubcommandBuilder()
   .setName("info")
@@ -30,7 +31,7 @@ export async function welcomeInfo(interaction: CommandInteraction) {
   const configData = configs.data
   if (!configData) {
     const embed = composeEmbedMessage(null, {
-      author: [interaction.guild.name, interaction.guild.iconURL() ?? ""],
+      author: ["Welcome Info", getEmojiURL(emojis.HELLO)],
       description: `No welcome channel configured for this guild.\nSet one with \`${SLASH_PREFIX}welcome set <channel>.\``,
       originalMsgAuthor: interaction.user,
     })
@@ -38,7 +39,7 @@ export async function welcomeInfo(interaction: CommandInteraction) {
   }
 
   const embed = composeEmbedMessage(null, {
-    author: [interaction.guild.name, interaction.guild.iconURL() ?? ""],
+    author: ["Welcome Info", getEmojiURL(emojis.HELLO)],
     description: `Current welcome channel is <#${configData.channel_id}>.\nYou can update using \`${SLASH_PREFIX}welcome set <channel>.\` \n\n The current welcome message is "${configData.welcome_message}"\nYou can update using \`${SLASH_PREFIX}welcome message <channel>.\``,
     originalMsgAuthor: interaction.user,
   })

@@ -1,5 +1,6 @@
 import { Message, MessageComponentInteraction, TextChannel } from "discord.js"
 import { logger } from "logger"
+import { getEmoji } from "utils/common"
 
 // Base or "catch-all" error, do not throw this directly
 export class BotBaseError extends Error {
@@ -38,8 +39,9 @@ export class BotBaseError extends Error {
               iconURL:
                 "https://cdn.discordapp.com/emojis/967285238055174195.png?size=240&quality=lossless",
             },
-            description:
-              "There was an error. Our team has been informed and is trying to fix the issue. Stay tuned.",
+            description: `Our team is fixing the issue. Stay tuned ${getEmoji(
+              "nekosad"
+            )}.`,
             color: "#D94F50",
           },
         ],

@@ -1,6 +1,6 @@
 import config from "adapters/config"
 import { Message, User } from "discord.js"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { PREFIX, VOTE_GITBOOK } from "utils/constants"
@@ -28,7 +28,7 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const { isChannel, value: channelId } = parseDiscordToken(args[2])
     if (!isChannel) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "The argument is not a channel",
       })

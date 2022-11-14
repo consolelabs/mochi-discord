@@ -4,7 +4,12 @@ import { CommandInteraction } from "discord.js"
 import { APIError } from "errors"
 import { ResponseListGuildGroupNFTRolesResponse } from "types/api"
 import { SlashCommand } from "types/common"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  shortenHashOrAddress,
+} from "utils/common"
 import { NFT_ROLE_GITBOOK, SLASH_PREFIX as PREFIX } from "utils/constants"
 import { composeEmbedMessage2, getErrorEmbed } from "utils/discordEmbed"
 
@@ -36,7 +41,7 @@ export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
       )
       .join("\n\n")
   }
-  return description
+  return `Run \`$nr set\` to add an NFT role.\n\n${description}`
 }
 
 const command: SlashCommand = {
@@ -75,10 +80,7 @@ const command: SlashCommand = {
       messageOptions: {
         embeds: [
           composeEmbedMessage2(interaction, {
-            author: [
-              `${interaction.guild.name}'s nft roles`,
-              interaction.guild.iconURL(),
-            ],
+            author: ["NFT role list", getEmojiURL(emojis.NFTS)],
             description: list(res),
           }),
         ],

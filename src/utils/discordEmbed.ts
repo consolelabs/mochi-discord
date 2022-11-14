@@ -196,13 +196,15 @@ export function composeDiscordExitButton(authorId: string): MessageActionRow {
 
 export function composeButtonLink(
   label: string,
-  url: string
+  url: string,
+  emoji?: string
 ): MessageActionRow {
   const row = new MessageActionRow().addComponents(
     new MessageButton({
       style: MessageButtonStyles.LINK,
       label,
       url,
+      emoji,
     })
   )
 
@@ -210,17 +212,15 @@ export function composeButtonLink(
 }
 
 export async function workInProgress(): Promise<MessageOptions> {
-  const embed = new MessageEmbed()
-  embed
-    .setColor("#F4BE5B")
-    .setThumbnail(
-      "https://cdn.discordapp.com/emojis/916737804002799699.png?size=240"
-    )
-    .setTitle(`${emojis.RED_FLAG} Work In Progress`)
-    .setDescription(
-      `The command is in maintenance. Stay tuned! ${getEmoji("touch")}`
-    )
-
+  const embed = composeEmbedMessage(null, {
+    color: "#F4BE5B",
+    thumbnail:
+      "https://cdn.discordapp.com/emojis/916737804002799699.png?size=240",
+    title: `${emojis.RED_FLAG} Work In Progress`,
+    description: `The command is in maintenance. Stay tuned! ${getEmoji(
+      "touch"
+    )}`,
+  })
   return { embeds: [embed] }
 }
 
@@ -229,11 +229,10 @@ export function composeEmbedMessage(
   msg: Message | null | undefined,
   props: EmbedProperties
 ) {
-  let { title, description = "" } = props
+  let { title, description = "", footer = [] } = props
   const {
     color,
     thumbnail,
-    footer = [],
     timestamp = null,
     image,
     author: _author = [],
@@ -257,8 +256,12 @@ export function composeEmbedMessage(
     )}`
   }
 
-  title =
-    (isSpecificHelpCommand ? (actionObj ?? commandObj)?.brief : title) ?? ""
+  if (isSpecificHelpCommand) {
+    title = (actionObj ?? commandObj)?.brief
+  } else if (!footer.length) {
+    footer = ["Type /feedback to report"]
+  }
+  title = title ?? ""
 
   let authorTag = msg?.author?.tag
   let authorAvatarURL = msg?.author?.avatarURL()
@@ -274,12 +277,12 @@ export function composeEmbedMessage(
   // embed options
   if (!withoutFooter) {
     embed
-      .setFooter(
-        getEmbedFooter(
+      .setFooter({
+        text: getEmbedFooter(
           authorTag ? [...footer, authorTag] : [...footer, "Mochi bot"]
         ),
-        authorAvatarURL || undefined
-      )
+        iconURL: authorAvatarURL || undefined,
+      })
       .setTimestamp(timestamp ?? new Date())
   }
   if (description) embed.setDescription(description)
@@ -361,11 +364,19 @@ export function getSuccessEmbed(params: {
   msg?: Message
   image?: string
   originalMsgAuthor?: User
+  emojiId?: string
 }) {
-  const { title, description, thumbnail, msg, image, originalMsgAuthor } =
-    params
+  const {
+    title,
+    description,
+    thumbnail,
+    msg,
+    image,
+    originalMsgAuthor,
+    emojiId,
+  } = params
   return composeEmbedMessage(msg, {
-    author: [title ?? "Successful", getEmojiURL(emojis["APPROVE"])],
+    author: [title ?? "Successful", getEmojiURL(emojiId ?? emojis["APPROVE"])],
     description: description ?? "The operation finished successfully",
     image,
     thumbnail,
@@ -389,7 +400,7 @@ export function getErrorEmbed(params: {
     author: [title ?? "Command error", getEmojiURL(emojis["REVOKE"])],
     description:
       description ??
-      "There was an error. Our team has been informed and is trying to fix the issue. Stay tuned.",
+      `Our team is fixing the issue. Stay tuned ${getEmoji("nekosad")}.`,
     image,
     thumbnail,
     color: msgColors.ERROR,
@@ -662,7 +673,7 @@ export function composeEmbedMessage2(
     description,
     color,
     thumbnail,
-    footer = [],
+    footer = ["Type /feedback to report"],
     timestamp = null,
     image,
     author: _author = [],

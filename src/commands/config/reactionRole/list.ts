@@ -7,8 +7,14 @@ import {
 } from "utils/discordEmbed"
 import { Message, MessageEmbed } from "discord.js"
 import config from "adapters/config"
-import { getEmoji, getFirstWords, paginate } from "utils/common"
-import { APIError, CommandError, GuildIdNotFoundError } from "errors"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  getFirstWords,
+  paginate,
+} from "utils/common"
+import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
   id: "reactionrole_list",
@@ -31,7 +37,7 @@ const command: Command = {
 
     const data = res.data.configs
     if (!data) {
-      throw new CommandError({ message: msg })
+      throw new InternalError({ message: msg })
     }
 
     let values = await Promise.all(
@@ -43,7 +49,7 @@ const command: Command = {
           .fetch(cfg.message_id ?? "")
           .catch(() => null)
         if (!reactMessage) {
-          throw new CommandError({
+          throw new InternalError({
             message: msg,
             description: "Message not found",
           })
@@ -84,7 +90,8 @@ const command: Command = {
         col2 += `**[Jump](${group[0].url})**\n\n` + "\n".repeat(roleCount)
       })
       return composeEmbedMessage(msg, {
-        author: [`${msg.guild?.name}'s reaction roles`, msg.guild?.iconURL()],
+        author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
+        description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
         footer: [`Page ${idx + 1} / ${pages.length}`],
       }).addFields(
         { name: "\u200B", value: col1, inline: true },
@@ -97,10 +104,7 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              author: [
-                `${msg.guild?.name}'s reaction roles`,
-                msg.guild?.iconURL(),
-              ],
+              author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
               description: `No reaction roles found! To set a new one, run \`\`\`${PREFIX}rr set <message_id> <emoji> <role>\`\`\``,
             }),
           ],

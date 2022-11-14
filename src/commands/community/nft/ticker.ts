@@ -36,7 +36,7 @@ import {
   ResponseIndexerNFTCollectionTickersData,
   ResponseIndexerPrice,
 } from "types/api"
-import { CommandError } from "errors"
+import { InternalError } from "errors"
 import config from "adapters/config"
 import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
@@ -130,7 +130,7 @@ export async function composeCollectionInfoEmbed(
     throw new APIError({ message: msg, curl: curl, description: log })
   }
   if (!data) {
-    throw new CommandError({
+    throw new InternalError({
       message: msg,
       description: "The collection does not exist. Please choose another one.",
     })
@@ -233,7 +233,7 @@ async function composeCollectionTickerEmbed({
 
   // collection is not exist, mochi has not added it yet
   if (!data) {
-    throw new CommandError({
+    throw new InternalError({
       message: msg,
       description: "The collection does not exist. Please choose another one.",
     })

@@ -7,7 +7,7 @@ import {
 } from "utils/discordEmbed"
 import { CommandInteraction } from "discord.js"
 import config from "adapters/config"
-import { APIError, CommandError } from "errors"
+import { APIError, InternalError } from "errors"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { isDiscordMessageLink } from "utils/common"
 import { parseDiscordToken } from "utils/commands"
@@ -78,7 +78,7 @@ const command: SlashCommand = {
     // Validate message link https://discord.com/channels/guild_id/chan_id/msg_id
     const messageLink = interaction.options.getString("message_link", true)
     if (!isDiscordMessageLink(messageLink)) {
-      throw new CommandError({
+      throw new InternalError({
         user: interaction.user,
         guild: interaction.guild,
         description:
@@ -88,7 +88,7 @@ const command: SlashCommand = {
 
     const [guildId, channelId, messageId] = messageLink.split("/").slice(-3)
     if (guildId !== interaction.guildId) {
-      throw new CommandError({
+      throw new InternalError({
         user: interaction.user,
         guild: interaction.guild,
         description:
@@ -98,7 +98,7 @@ const command: SlashCommand = {
 
     const channel = interaction.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
     if (!channel || !channel.isText()) {
-      throw new CommandError({
+      throw new InternalError({
         user: interaction.user,
         guild: interaction.guild,
         description:
@@ -110,7 +110,7 @@ const command: SlashCommand = {
       .fetch(messageId)
       .catch(() => null)
     if (!reactMessage) {
-      throw new CommandError({
+      throw new InternalError({
         user: interaction.user,
         guild: interaction.guild,
         description:

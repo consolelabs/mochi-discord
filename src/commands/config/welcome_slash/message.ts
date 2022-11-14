@@ -3,6 +3,7 @@ import { getErrorEmbed, getSuccessEmbed } from "utils/discordEmbed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX } from "utils/constants"
+import { emojis } from "utils/common"
 
 export const message = new SlashCommandSubcommandBuilder()
   .setName("message")
@@ -72,7 +73,8 @@ export async function setWelcomeMessage(interaction: CommandInteraction) {
     msg = msg.replace(msg.slice(49, msg.length), "...")
   }
   const embed = getSuccessEmbed({
-    title: interaction.guild.name,
+    title: "Welcome message",
+    emojiId: emojis.HELLO,
     description: `Successfully set new welcome message: ${msg}\nWelcome channel: <#${newConfig.data.channel_id}>`,
     originalMsgAuthor: interaction.user,
   })

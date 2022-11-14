@@ -25,7 +25,7 @@ export async function composeNFTListEmbed(
     page: pageIdx,
     size: 16,
   })
-  if (!res.data?.data || !res.data.data.length) {
+  if (!res.data?.data?.length) {
     return {
       messageOptions: {
         embeds: [
@@ -41,7 +41,8 @@ export async function composeNFTListEmbed(
     (res.data.metadata?.total || 0) / (res.data.metadata?.size || 1)
   )
   const embed = composeEmbedMessage(msg, {
-    author: ["Supported NFT Collections", getEmojiURL(emojis["HEART"])],
+    author: ["NFT collections list", getEmojiURL(emojis.NFTS)],
+    description: "To add new collection, run `$nft add <address> <chain_id>`.",
     image: `attachment://nftlist.png`,
     footer: [`Page ${pageIdx + 1} / ${totalPage}`],
   })

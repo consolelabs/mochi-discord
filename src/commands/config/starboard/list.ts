@@ -13,7 +13,7 @@ import config from "adapters/config"
 import { authorFilter, emojis, getEmoji } from "utils/common"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { ModelGuildConfigRepostReaction } from "types/api"
-import chunk from "lodash.chunk"
+import chunk from "lodash/chunk"
 
 const pageSize = 10
 

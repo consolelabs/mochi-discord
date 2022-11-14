@@ -31,6 +31,7 @@ import CacheManager from "utils/CacheManager"
 import { APIError } from "errors"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import community from "adapters/community"
+import { wrapError } from "utils/wrapError"
 
 let fontRegistered = false
 
@@ -379,8 +380,10 @@ function collectButton(msg: Message, originMsg: Message) {
       idle: 60000,
       filter: authorFilter(originMsg.author.id),
     })
-    .on("collect", async (i) => {
-      await switchView(i, msg, originMsg)
+    .on("collect", (i) => {
+      wrapError(originMsg, async () => {
+        await switchView(i, msg, originMsg)
+      })
     })
     .on("end", () => {
       msg.edit({ components: [] }).catch(() => null)
@@ -437,13 +440,18 @@ async function composeTokenWatchlist(msg: Message, authorId?: string) {
   })
   if (!data?.length) {
     embed.setDescription(
-      `No items in your watchlist.\n Please use \`${PREFIX}watchlist add\` to add one.`
+      `No items in your watchlist.Run \`${PREFIX}wl add\` to add one.`
     )
     return {
       embeds: [embed],
       files: [],
       components: [buildSwitchViewActionRow("token")],
     }
+  }
+  if (data[0].is_default) {
+    embed.setDescription(
+      `No items in your watchlist. Run \`${PREFIX}wl add\` to add one.\nBelow is the **default watchlist**`
+    )
   }
   embed.setImage("attachment://watchlist.png")
   return {

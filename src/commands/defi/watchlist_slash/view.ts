@@ -442,13 +442,18 @@ async function composeTokenWatchlist(authorId?: string) {
   })
   if (!data?.length) {
     embed.setDescription(
-      `No items in your watchlist.\n Please use \`${PREFIX}watchlist add\` to add one.`
+      `No items in your watchlist.Run \`${PREFIX}watchlist add\` to add one.`
     )
     return {
       embeds: [embed],
       files: [],
       components: [buildSwitchViewActionRow("token")],
     }
+  }
+  if (data[0].is_default) {
+    embed.setDescription(
+      `No items in your watchlist. Run \`${PREFIX}watchlist add\` to add one.\nBelow is the **default watchlist**`
+    )
   }
   embed.setImage("attachment://watchlist.png")
   return {

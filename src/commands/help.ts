@@ -191,7 +191,7 @@ const allCommands: Record<PageType, HelpPage> = {
   },
   server_management: {
     name: "Server Management",
-    example: "default role set\n$stats",
+    example: "$default role set\n$stats",
     category: {
       Verify: {
         emoji: getEmoji("approve"),
@@ -214,7 +214,7 @@ const allCommands: Record<PageType, HelpPage> = {
         ],
       },
       Welcome: {
-        emoji: "<:hello:899666094112010350>",
+        emoji: getEmoji("hello"),
         description: "Automate welcome message",
         features: [
           {

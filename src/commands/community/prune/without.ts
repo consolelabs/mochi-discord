@@ -7,7 +7,7 @@ import {
   MessageButton,
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
-import { CommandError, GuildIdNotFoundError } from "errors"
+import { InternalError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
@@ -86,7 +86,7 @@ const command: Command = {
     const roleArg = getCommandArguments(msg)[2]
     const { isRole, value: id } = parseDiscordToken(roleArg)
     if (!isRole) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "Please enter a valid role",
       })
@@ -94,7 +94,7 @@ const command: Command = {
 
     const role = msg.guild.roles.cache.get(id)
     if (!role) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "Please enter a valid role",
       })
@@ -115,7 +115,7 @@ const command: Command = {
     }
 
     const embed = composeEmbedMessage(msg, {
-      title: "Confirm Pruning",
+      title: ":wave: Confirm Pruning",
       description: `There are **${willPrune.size}** members without role ${role.name}, do you want to continue?`,
     })
     const actionRow = new MessageActionRow().addComponents(

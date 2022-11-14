@@ -5,7 +5,7 @@ import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
 import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError, CommandError, GuildIdNotFoundError } from "errors"
+import { BotBaseError, InternalError, GuildIdNotFoundError } from "errors"
 import { logger } from "logger"
 import { isDiscordMessageLink } from "utils/common"
 
@@ -38,7 +38,7 @@ const command: Command = {
 
     // Validate message_id
     if (!isDiscordMessageLink(args[2])) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description:
           "Invalid message link, use `$help rr` to learn how to get message link",
@@ -47,7 +47,7 @@ const command: Command = {
 
     const [guildId, channelId, messageId] = args[2].split("/").slice(-3)
     if (guildId !== msg.guildId) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description:
           "Guild ID invalid, please choose a message belongs to your guild",
@@ -56,7 +56,7 @@ const command: Command = {
 
     const channel = msg.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
     if (!channel || !channel.isText()) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "Channel not found",
       })
@@ -64,7 +64,7 @@ const command: Command = {
 
     const message = await channel.messages.fetch(messageId).catch(() => null)
     if (!message) {
-      throw new CommandError({
+      throw new InternalError({
         message: msg,
         description: "Message not found",
       })
