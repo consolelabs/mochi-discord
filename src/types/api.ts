@@ -921,6 +921,7 @@ export interface ResponseCoinMarketItemData {
   current_price?: number;
   id?: string;
   image?: string;
+  is_default?: boolean;
   is_pair?: boolean;
   name?: string;
   price_change_percentage_24h?: number;
