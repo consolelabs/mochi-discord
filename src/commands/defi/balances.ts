@@ -60,10 +60,7 @@ export async function handleBal(userId: string) {
   justifyEmbedFields(embed, 3)
   embed.addFields({
     name: `Estimated total (U.S dollar)`,
-    value: `${getEmoji("money")} \`$${roundFloatNumber(
-      totalBalanceInUSD,
-      4
-    )}\``,
+    value: `${getEmoji("cash")} \`$${roundFloatNumber(totalBalanceInUSD, 4)}\``,
   })
 
   return {
