@@ -776,6 +776,20 @@ class Defi extends Fetcher {
       body: req,
     })
   }
+
+  async getFiatHistoricalData(query: {
+    base: string
+    target: string
+    days?: string
+  }) {
+    query.days = query.days ?? "7"
+    return await this.jsonFetch(
+      `${API_BASE_URL}/fiat/historical-exchange-rates`,
+      {
+        query,
+      }
+    )
+  }
 }
 
 export default new Defi()

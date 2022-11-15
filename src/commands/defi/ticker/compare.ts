@@ -22,21 +22,20 @@ import config from "adapters/config"
 import CacheManager from "utils/CacheManager"
 import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
+import comparefiat from "./compare_fiat"
 
-async function renderCompareTokenChart({
+export async function renderCompareTokenChart({
   times,
   ratios,
-  from,
-  to,
+  chartLabel,
 }: {
   times: string[]
   ratios: number[]
-  from: string
-  to: string
+  chartLabel: string
 }) {
   if (!times || !times.length) return null
   const image = await renderChartImage({
-    chartLabel: `Price ratio | ${from} - ${to}`,
+    chartLabel,
     labels: times,
     data: ratios,
   })
@@ -66,7 +65,11 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 
   const { times, ratios, from, to } = data
-  const chart = await renderCompareTokenChart({ times, ratios, from, to })
+  const chart = await renderCompareTokenChart({
+    times,
+    ratios,
+    chartLabel: `Price ratio | ${from} - ${to}`,
+  })
 
   // update chart image
   await message.removeAttachments()
@@ -208,7 +211,11 @@ async function composeTokenComparisonEmbed(
     .addField(base_coin.name, coinInfo(base_coin), true)
     .addField(target_coin.name, coinInfo(target_coin), true)
 
-  const chart = await renderCompareTokenChart({ times, ratios, from, to })
+  const chart = await renderCompareTokenChart({
+    times,
+    ratios,
+    chartLabel: `Price ratio | ${from} - ${to}`,
+  })
   const selectRow = composeDaysSelectMenu(
     "compare_token_selection",
     `${baseQ}_${targetQ}`,
@@ -236,6 +243,13 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const [query] = args.slice(1)
     const [baseQ, targetQ] = query.split("/")
+    const allowedCurrencies = ["gbp", "usd", "eur", "sgd"]
+    if (
+      allowedCurrencies.includes(baseQ.toLowerCase()) ||
+      allowedCurrencies.includes(targetQ.toLowerCase())
+    ) {
+      return comparefiat.run(msg)
+    }
     return await composeTokenComparisonEmbed(msg, baseQ, targetQ)
   },
   getHelpMessage: async () => {
