@@ -448,14 +448,6 @@ export function getChance(percentage: number) {
   return Math.random() < percentage
 }
 
-export function getFirstWords(str: string, n: number) {
-  if (!str) return ""
-  const words = str.trim().split(/ +/g)
-  return `${words.slice(0, Math.max(n, 0)).join(" ")} ${
-    words.length > n ? "..." : ""
-  }`
-}
-
 /**
  * Returns the compact formated string
  * e.g 1_000 -> 1K, 1_000_000 -> 1M

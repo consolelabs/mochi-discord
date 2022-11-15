@@ -28,7 +28,7 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
-              usage: `To remove a specific configuration in a message\n${PREFIX}rr remove <message_id> <emoji> <role>\n\nTo clear all configurations in a message\n${PREFIX}rr remove <message_id>`,
+              usage: `To remove a specific configuration in a message\n${PREFIX}rr remove <message_link> <emoji> <role>\n\nTo clear all configurations in a message\n${PREFIX}rr remove <message_link>`,
               examples: `${PREFIX}rr remove 967107573591457832 ✅ @Visitor\n${PREFIX}rr remove 967107573591457832`,
             }),
           ],
@@ -36,7 +36,7 @@ const command: Command = {
       }
     }
 
-    // Validate message_id
+    // Validate message_link
     if (!isDiscordMessageLink(args[2])) {
       throw new InternalError({
         message: msg,

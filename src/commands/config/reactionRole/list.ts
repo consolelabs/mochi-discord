@@ -7,14 +7,9 @@ import {
 } from "utils/discordEmbed"
 import { Message, MessageEmbed } from "discord.js"
 import config from "adapters/config"
-import {
-  emojis,
-  getEmoji,
-  getEmojiURL,
-  getFirstWords,
-  paginate,
-} from "utils/common"
+import { emojis, getEmoji, getEmojiURL, paginate } from "utils/common"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
+import truncate from "lodash/truncate"
 
 const command: Command = {
   id: "reactionrole_list",
@@ -48,12 +43,7 @@ const command: Command = {
         const reactMessage = await channel.messages
           .fetch(cfg.message_id ?? "")
           .catch(() => null)
-        if (!reactMessage) {
-          throw new InternalError({
-            message: msg,
-            description: "Message not found",
-          })
-        }
+        if (!reactMessage) return null
 
         if (cfg.roles && cfg.roles.length > 0) {
           const title =
@@ -80,7 +70,7 @@ const command: Command = {
       let col2 = ""
       arr.forEach((group: any) => {
         let roleCount = 0
-        col1 += `\n**${getFirstWords(group[0].title, 3)}**\n`
+        col1 += `\n**${truncate(group[0].title, { length: 20 })}**\n`
         group.forEach((item: any) => {
           col1 += `${getEmoji("blank")}${getEmoji("reply")} ${item.emoji} ${
             item.role
@@ -91,11 +81,11 @@ const command: Command = {
       })
       return composeEmbedMessage(msg, {
         author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
-        description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
+        description: `Run \`$rr set <message_link> <emoji> <role>\` to add a reaction role.`,
         footer: [`Page ${idx + 1} / ${pages.length}`],
       }).addFields(
-        { name: "\u200B", value: col1, inline: true },
-        { name: "\u200B", value: col2, inline: true }
+        { name: "Message, Emoji & Role", value: col1, inline: true },
+        { name: "Action", value: col2, inline: true }
       )
     })
 
@@ -105,7 +95,7 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
-              description: `No reaction roles found! To set a new one, run \`\`\`${PREFIX}rr set <message_id> <emoji> <role>\`\`\``,
+              description: `No reaction roles found! To set a new one, run \`\`\`${PREFIX}rr set <message_link> <emoji> <role>\`\`\``,
             }),
           ],
         },

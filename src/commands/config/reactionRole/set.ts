@@ -11,6 +11,8 @@ import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { isDiscordMessageLink } from "utils/common"
 
+const troubleshootMsg = `\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._`
+
 const command: Command = {
   id: "reactionrole_set",
   command: "set",
@@ -22,6 +24,14 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
+
+    // Validate message link https://discord.com/channels/guild_id/chan_id/msg_id
+    if (!isDiscordMessageLink(args[2])) {
+      throw new InternalError({
+        message: msg,
+        description: `Can't find the messages.${troubleshootMsg}`,
+      })
+    }
 
     // Validate input reaction emoji
     const {
@@ -43,7 +53,7 @@ const command: Command = {
       }
     }
 
-    // Validate ROLE_ID args
+    // Validate role id args
     const { isRole, value: roleId } = parseDiscordToken(args[4])
     if (!isRole || !roleId) {
       return {
@@ -59,21 +69,11 @@ const command: Command = {
       }
     }
 
-    // Validate message link https://discord.com/channels/guild_id/chan_id/msg_id
-    if (!isDiscordMessageLink(args[2])) {
-      throw new InternalError({
-        message: msg,
-        description:
-          "Can't find the messages.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
-      })
-    }
-
     const [guildId, channelId, messageId] = args[2].split("/").slice(-3)
     if (guildId !== msg.guildId) {
       throw new InternalError({
         message: msg,
-        description:
-          "Guild ID invalid, please choose a message belongs to your guild.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+        description: `Guild ID invalid, please choose a message belongs to your guild.${troubleshootMsg}`,
       })
     }
 
@@ -81,8 +81,7 @@ const command: Command = {
     if (!channel || !channel.isText()) {
       throw new InternalError({
         message: msg,
-        description:
-          "Channel invalid, please choose a message in a text channel.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+        description: `Channel invalid, please choose a message in a text channel.${troubleshootMsg}`,
       })
     }
 
@@ -92,8 +91,7 @@ const command: Command = {
     if (!reactMessage) {
       throw new InternalError({
         message: msg,
-        description:
-          "Message not found, please choose another valid message. \n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+        description: `Message not found, please choose another valid message.${troubleshootMsg}`,
       })
     }
 
@@ -110,11 +108,13 @@ const command: Command = {
       throw new APIError({
         message: msg,
         curl: res.curl,
-        description:
-          "Failed to set reaction role. \n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+        description: res.log,
+        error: `Failed to set reaction role.${troubleshootMsg}`,
       })
     }
+
     await reactMessage.react(requestData.reaction)
+
     return {
       messageOptions: {
         embeds: [
@@ -131,8 +131,7 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description:
-            "Don't know where to get the message link?\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+          description: `Don't know where to get the message link?${troubleshootMsg}`,
           usage: `${PREFIX}rr set <message_link> <emoji> <role>`,
           examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
         }),
