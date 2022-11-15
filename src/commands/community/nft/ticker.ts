@@ -213,7 +213,7 @@ async function composeCollectionTickerEmbed({
   msg,
   collectionAddress,
   chain,
-  days = 30,
+  days = 90,
 }: {
   msg: Message
   collectionAddress: string
@@ -332,7 +332,7 @@ async function composeCollectionTickerEmbed({
     "nft_ticker_selection",
     collectionAddress,
     dayOpts,
-    30
+    90
   )
   const buttonRow = buildSwitchViewActionRow("ticker", {
     collectionAddress,
@@ -353,7 +353,7 @@ async function composeCollectionTickerEmbed({
 
 async function renderNftTickerChart({
   collectionAddress,
-  days = 30,
+  days = 90,
   data,
 }: {
   collectionAddress?: string
