@@ -20,8 +20,13 @@ import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import Defi from "adapters/defi"
 import NodeCache from "node-cache"
 import dayjs from "dayjs"
+import duration from "dayjs/plugin/duration"
+import relativeTime from "dayjs/plugin/relativeTime"
 import { OffchainTipBotTransferRequest } from "types/defi"
 import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
+
+dayjs.extend(duration)
+dayjs.extend(relativeTime)
 
 const airdropCache = new NodeCache({
   stdTTL: 180,
@@ -177,7 +182,8 @@ export async function enterAirdrop(
   msg: Message
 ) {
   const infos = interaction.customId.split("-")
-  const [authorId, duration, maxEntries] = infos.slice(1)
+  const [authorId, durationStr, maxEntries] = infos.slice(1)
+  const duration = Number(durationStr)
   if (authorId === interaction.user.id) {
     await interaction.reply({
       ephemeral: true,
@@ -213,7 +219,11 @@ export async function enterAirdrop(
       embeds: [
         composeEmbedMessage(msg, {
           title: `${defaultEmojis.CHECK} Entered airdrop`,
-          description: `You will receive your reward in ${duration}s.`,
+          description: `You will receive your reward ${
+            Number.isNaN(duration)
+              ? `shortly`
+              : `in ${dayjs.duration(duration, "seconds").humanize(true)}.`
+          }`,
           footer: ["You will only receive this notification once"],
         }),
       ],
