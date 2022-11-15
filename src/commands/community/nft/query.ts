@@ -91,7 +91,7 @@ function getIcon(
 }
 
 const txHistoryEmojiMap: Record<string, string> = {
-  sale: getEmoji("cash"),
+  sold: getEmoji("cash"),
   transfer: getEmoji("right_arrow"),
   cancelled: getEmoji("revoke"),
   listing: getEmoji("listing"),
@@ -496,14 +496,19 @@ export async function composeNFTDetail(
   const txHistoryValue = (activityData.data ?? [])
     .map((tx) => {
       const event = tx.event_type
-      const fromAddress =
-        tx.from_address === undefined ? "-" : maskAddress(tx.from_address, 5)
+      const soldPriceAmount = Math.round(
+        +(tx.sold_price_obj?.amount ?? 0) /
+          Math.pow(10, decimals(tx.sold_price_obj))
+      )
+
       const toAddress =
         tx.to_address === undefined ? "-" : maskAddress(tx.to_address, 5)
       const time = getTimeFromNowStr(tx.created_time ?? "")
       return `**${
         txHistoryEmojiMap[event!.toLowerCase()] ?? DOT
-      } ${event}** \`${fromAddress}\` to \`${toAddress}\` (${time})`
+      }** ${capitalizeFirst(event!)} ${soldPriceAmount} ${
+        tx.sold_price_obj?.token?.symbol
+      } to ${toAddress} (${time})`
     })
     .join("\n")
   const txHistoryFields: EmbedFieldData[] = [
