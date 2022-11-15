@@ -1,5 +1,5 @@
 import {
-  ResponseIndexerGetNFTTokenTxHistoryResponse,
+  ResponseGetNFTActivityResponse,
   ResponseGetUserCurrentGMStreakResponse,
   ResponseGetUserUpvoteLeaderboardResponse,
   ResponseIndexerNFTCollectionTickersResponse,
@@ -119,7 +119,7 @@ class Community extends Fetcher {
     size?: number
   }) {
     const { collectionAddress, tokenId, page = 0, size = 5 } = params
-    return await this.jsonFetch<ResponseIndexerGetNFTTokenTxHistoryResponse>(
+    return await this.jsonFetch<ResponseGetNFTActivityResponse>(
       `${API_BASE_URL}/nfts/${collectionAddress}/${tokenId}/activity`,
       {
         query: { page, size },
