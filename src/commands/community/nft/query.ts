@@ -51,6 +51,7 @@ import {
 import { composeCollectionInfoEmbed } from "./ticker"
 import dayjs from "dayjs"
 import { renderChartImage } from "utils/canvas"
+import { wrapError } from "utils/wrapError"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -151,7 +152,9 @@ function collectButton(msg: Message, originMsg: Message) {
       filter: authorFilter(originMsg.author.id),
     })
     .on("collect", async (i) => {
-      await switchView(i, originMsg)
+      wrapError(originMsg, async () => {
+        await switchView(i, originMsg)
+      })
     })
     .on("end", () => {
       msg.edit({ components: [] }).catch(() => null)
@@ -490,15 +493,16 @@ export async function composeNFTDetail(
   if (!ok) throw new APIError({ message: msg, curl, description: log })
 
   const txHistoryTitle = `${getEmoji("swap")} Transaction History`
-  const txHistoryValue = (activityData ?? [])
+  const txHistoryValue = (activityData.data ?? [])
     .map((tx) => {
-      // temporary hardcode event type because indexer only have this
-      const event = "TRANSFER"
-      const fromAddress = tx.from === undefined ? "-" : maskAddress(tx.from, 5)
-      const toAddress = tx.to === undefined ? "-" : maskAddress(tx.to, 5)
+      const event = tx.event_type
+      const fromAddress =
+        tx.from_address === undefined ? "-" : maskAddress(tx.from_address, 5)
+      const toAddress =
+        tx.to_address === undefined ? "-" : maskAddress(tx.to_address, 5)
       const time = getTimeFromNowStr(tx.created_time ?? "")
       return `**${
-        txHistoryEmojiMap[event.toLowerCase()] ?? DOT
+        txHistoryEmojiMap[event!.toLowerCase()] ?? DOT
       } ${event}** \`${fromAddress}\` to \`${toAddress}\` (${time})`
     })
     .join("\n")
