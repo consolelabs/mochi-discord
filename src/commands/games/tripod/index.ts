@@ -1,5 +1,5 @@
 import type { Command } from "types/common"
-import { PREFIX, VERTICAL_BAR } from "utils/constants"
+import { DISCORD_URL, PREFIX, VERTICAL_BAR } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { Game, Piece, PieceEnum, Position } from "triple-pod-game-engine"
 import { shopItems, toCanvas } from "./render"
@@ -89,7 +89,7 @@ async function getMessageOptions(
           },
           {
             name: "\u200B",
-            value: `<:_:974507016536072242> Powered by [Mochi](https://discord.gg/XQR36DQQGh)`,
+            value: `<:_:974507016536072242> Powered by [Mochi](${DISCORD_URL})`,
           },
         ],
         color,

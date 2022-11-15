@@ -20,7 +20,6 @@ import {
 import { getChartColorConfig, renderChartImage } from "utils/canvas"
 import { HexColorString, User, MessageAttachment } from "discord.js"
 import Community from "adapters/community"
-import { PREFIX } from "utils/constants"
 import { wrapError } from "utils/wrapError"
 
 const voteLimitCount = 4
@@ -159,7 +158,9 @@ async function welcomeNewMember(member: Discord.GuildMember) {
     return
   }
   // channel id returned but cannot find in guild
-  const chan = await client.channels.fetch(configData.channel_id)
+  const chan = await client.channels
+    .fetch(configData.channel_id)
+    .catch(() => null)
   if (!chan) {
     const guild = await config.getGuild(member.guild.id)
     if (!guild) {
@@ -184,15 +185,12 @@ async function welcomeNewMember(member: Discord.GuildMember) {
     return
   }
 
-  const embed = composeEmbedMessage(null, {
-    title: ":wave: Nice to meet you :wave:",
-    description: configData.welcome_message
-      .replaceAll("$name", `<@${member.id}>`)
-      .replaceAll(`\\n`, "\n"),
-    footer: [`Type ${PREFIX}help to explore features`],
-  })
+  const welcomeMsg = configData.welcome_message
+    .replaceAll("$name", `<@${member.id}>`)
+    .replaceAll(`\\n`, "\n")
+
   if (chan.isText()) {
-    chan.send({ embeds: [embed] })
+    chan.send({ content: welcomeMsg })
   }
 }
 

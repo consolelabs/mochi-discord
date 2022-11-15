@@ -355,6 +355,22 @@ export interface ModelOffchainTipBotContract {
   updated_at?: string;
 }
 
+export interface ModelOffchainTipBotTransferHistory {
+  action?: string;
+  amount?: number;
+  created_at?: string;
+  fee_amount?: number;
+  guild_id?: string;
+  id?: string;
+  log_id?: string;
+  receiver_id?: string;
+  sender_id?: string;
+  service_fee?: number;
+  status?: string;
+  token?: string;
+  updated_at?: string;
+}
+
 export interface ModelQuest {
   action?: string;
   frequency?: number;
@@ -452,6 +468,18 @@ export interface ModelUserFactionXpsMapping {
   rebellio_xp?: number;
 }
 
+export interface ModelUserFeedback {
+  command?: string;
+  completed_at?: string;
+  confirmed_at?: string;
+  created_at?: string;
+  discord_id?: string;
+  feedback?: string;
+  id?: UuidNullUUID;
+  message_id?: string;
+  status?: string;
+}
+
 export interface ModelUserTelegramDiscordAssociation {
   discord_id?: string;
   telegram_username?: string;
@@ -518,6 +546,7 @@ export interface RequestBalcklistChannelRepostConfigRequest {
 }
 
 export interface RequestClaimQuestsRewardsRequest {
+  quest_id?: string;
   routine?: string;
   user_id?: string;
 }
@@ -781,6 +810,11 @@ export interface RequestUpdateQuestProgressRequest {
   user_id?: string;
 }
 
+export interface RequestUpdateUserFeedbackRequest {
+  id?: string;
+  status?: string;
+}
+
 export interface RequestUpsertCustomTokenConfigRequest {
   active?: boolean;
   address?: string;
@@ -846,6 +880,7 @@ export interface RequestUserFeedbackRequest {
   command?: string;
   discord_id?: string;
   feedback?: string;
+  message_id?: string;
   username?: string;
 }
 
@@ -886,6 +921,7 @@ export interface ResponseCoinMarketItemData {
   current_price?: number;
   id?: string;
   image?: string;
+  is_default?: boolean;
   is_pair?: boolean;
   name?: string;
   price_change_percentage_24h?: number;
@@ -1219,6 +1255,7 @@ export interface ResponseGetUserBalances {
   balances_in_usd?: number;
   id?: string;
   name?: string;
+  rate_in_usd?: number;
   symbol?: string;
 }
 
@@ -1265,6 +1302,10 @@ export interface ResponseGetUserResponse {
 export interface ResponseGetUserUpvoteLeaderboardResponse {
   data?: ModelDiscordUserUpvoteStreak[];
   message?: string;
+}
+
+export interface ResponseGetUserWalletByGuildIDAddressResponse {
+  data?: ModelUserWallet;
 }
 
 export interface ResponseGetVoteChannelConfigResponse {
@@ -1658,6 +1699,7 @@ export interface ResponseNftWatchlistSuggestResponse {
 
 export interface ResponseOffchainTipBotTransferToken {
   amount?: number;
+  amount_in_usd?: number;
   recipient_id?: string;
   sender_id?: string;
   symbol?: string;
@@ -1761,6 +1803,10 @@ export interface ResponseUpdateCustomCommandResponse {
   data?: ModelGuildCustomCommand;
 }
 
+export interface ResponseUpdateUserFeedbackResponse {
+  data?: ModelUserFeedback;
+}
+
 export interface ResponseUser {
   guild_users?: ResponseGetGuildUserResponse[];
   id?: string;
@@ -1780,6 +1826,10 @@ export interface ResponseUserDeviceResponse {
   ios_noti_token?: string;
 }
 
+export interface ResponseUserFeedbackResponse {
+  data?: ModelUserFeedback[];
+}
+
 export interface ResponseUserInvitesAggregation {
   fake?: number;
   inviter_id?: string;
@@ -1787,8 +1837,18 @@ export interface ResponseUserInvitesAggregation {
   regular?: number;
 }
 
+export interface ResponseUserTransactionResponse {
+  data?: ModelOffchainTipBotTransferHistory[];
+}
+
 export interface UtilPagination {
   page?: number;
   size?: number;
   total?: number;
+}
+
+export interface UuidNullUUID {
+  uuid?: string;
+  /** Valid is true if UUID is not NULL */
+  valid?: boolean;
 }

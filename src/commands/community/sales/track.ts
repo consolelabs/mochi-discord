@@ -1,12 +1,9 @@
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
-import {
-  getErrorEmbed,
-  composeEmbedMessage,
-  getSuccessEmbed,
-} from "utils/discordEmbed"
+import { getErrorEmbed, composeEmbedMessage } from "utils/discordEmbed"
 import community from "adapters/community"
+import { emojis, getEmojiURL } from "utils/common"
 
 const command: Command = {
   id: "sales_track",
@@ -87,10 +84,9 @@ const command: Command = {
     return {
       messageOptions: {
         embeds: [
-          getSuccessEmbed({
-            msg,
-            title: "Tracker set!",
-            description: `New NFT sales information will be posted in <#${channelId}>. To add more collection, just re-run this command.`,
+          composeEmbedMessage(msg, {
+            author: ["Sales Tracker", getEmojiURL(emojis.LEADERBOARD)],
+            description: `NFT sales information will be updated in <#${channelId}>.`,
           }),
         ],
       },

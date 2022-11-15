@@ -4,6 +4,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
+import { emojis, getEmojiURL } from "utils/common"
 
 const command: SlashCommand = {
   name: "info",
@@ -44,7 +45,7 @@ const command: SlashCommand = {
       messageOptions: {
         embeds: [
           composeEmbedMessage2(interaction, {
-            title: `${interaction.guild.name}'s default role`,
+            author: ["Default role", getEmojiURL(emojis.NEKO1)],
             description,
           }),
         ],

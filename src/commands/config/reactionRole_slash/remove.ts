@@ -4,7 +4,7 @@ import { composeEmbedMessage2, getErrorEmbed } from "utils/discordEmbed"
 import { CommandInteraction } from "discord.js"
 import config from "adapters/config"
 import ChannelLogger from "utils/ChannelLogger"
-import { BotBaseError, CommandError } from "errors"
+import { BotBaseError, InternalError } from "errors"
 import { logger } from "logger"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { isDiscordMessageLink } from "utils/common"
@@ -71,7 +71,7 @@ const command: SlashCommand = {
     // Validate message_id
     const messageLink = interaction.options.getString("message_link", true)
     if (!isDiscordMessageLink(messageLink)) {
-      throw new CommandError({
+      throw new InternalError({
         user: interaction.user,
         guild: interaction.guild,
         description:
@@ -81,7 +81,7 @@ const command: SlashCommand = {
 
     const [guildId, channelId, messageId] = messageLink.split("/").slice(-3)
     if (guildId !== interaction.guildId) {
-      throw new CommandError({
+      throw new InternalError({
         user: interaction.user,
         guild: interaction.guild,
         description:
@@ -91,7 +91,7 @@ const command: SlashCommand = {
 
     const channel = interaction.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
     if (!channel || !channel.isText()) {
-      throw new CommandError({
+      throw new InternalError({
         user: interaction.user,
         guild: interaction.guild,
         description: "Channel not found",
@@ -100,7 +100,7 @@ const command: SlashCommand = {
 
     const message = await channel.messages.fetch(messageId).catch(() => null)
     if (!message) {
-      throw new CommandError({
+      throw new InternalError({
         user: interaction.user,
         guild: interaction.guild,
         description: "Message not found",

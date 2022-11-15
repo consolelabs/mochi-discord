@@ -15,7 +15,7 @@ import {
   USER_REGEX,
 } from "./constants"
 import { utils } from "ethers"
-import { defaultEmojis } from "./common"
+import { getEmoji, getEmojiURL } from "./common"
 import type FuzzySet from "fuzzyset"
 
 const NATIVE_EMOJI_REGEX = getEmojiRegex()
@@ -238,7 +238,7 @@ export function getCommandSuggestion(
       }
     }
     return {
-      title: `${defaultEmojis.X} This command doesn't exist`,
+      author: ["This command doesn't exist", getEmojiURL(getEmoji("huh"))],
       description: `Are you trying to say \`${PREFIX}${result}\`?\n\n**Example**\nFor more specific action: \`${PREFIX}help ${result}\`\nOr try this: \`${PREFIX}${result} ${actionNoArg}\`\n`,
       document: DEFAULT_COLLECTION_GITBOOK,
     }

@@ -3,7 +3,11 @@ import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
-import { handleFeedback } from "../feedback"
+import {
+  getComponentsNormalState,
+  handleFeedback,
+  inviteUserToJoin,
+} from "../feedback"
 
 const command: SlashCommand = {
   name: "feedback",
@@ -59,7 +63,9 @@ const command: SlashCommand = {
             command: commandArg,
             feedback,
           }),
+          inviteUserToJoin(),
         ],
+        components: [getComponentsNormalState(interaction.user.id, true)],
       },
     }
   },

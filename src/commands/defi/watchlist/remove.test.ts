@@ -2,7 +2,7 @@ import Discord, { MessageOptions } from "discord.js"
 import { getSuccessEmbed } from "utils/discordEmbed"
 import defi from "adapters/defi"
 import { mockClient } from "../../../../tests/mocks"
-import { CommandError } from "errors"
+import { InternalError } from "errors"
 import { commands } from "commands"
 import { RunResult } from "types/common"
 
@@ -82,7 +82,7 @@ describe("watchlist remove", () => {
       await command.run(msg)
     } catch (e) {
       expect(defi.removeFromWatchlist).toHaveBeenCalled()
-      expect(e).toBeInstanceOf(CommandError)
+      expect(e).toBeInstanceOf(InternalError)
     }
   })
 })

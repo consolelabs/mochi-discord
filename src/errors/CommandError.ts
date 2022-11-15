@@ -2,7 +2,7 @@ import { Guild, Message, TextChannel, User } from "discord.js"
 import { getErrorEmbed } from "utils/discordEmbed"
 import { BotBaseError } from "./BaseError"
 
-export class CommandError extends BotBaseError {
+export class InternalError extends BotBaseError {
   private customDescription: string | undefined
   constructor({
     message,
@@ -16,7 +16,7 @@ export class CommandError extends BotBaseError {
     description?: string
   }) {
     super(message)
-    this.name = "Command error"
+    this.name = "Internal error"
     this.customDescription = description
     const channel = (message?.channel as TextChannel)?.name
     this.message = JSON.stringify({

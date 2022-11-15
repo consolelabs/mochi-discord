@@ -1,13 +1,17 @@
-import { ColorResolvable, CommandInteraction, User } from "discord.js"
-import { HELP_GITBOOK, HOMEPAGE_URL } from "utils/constants"
+import { CommandInteraction, GuildMember, Message, User } from "discord.js"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import { thumbnails } from "utils/common"
-import { embedsColors, SlashCommand } from "types/common"
-import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
+import { hasAdministrator, thumbnails } from "utils/common"
+import { SlashCommand } from "types/common"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { slashCommands } from "commands"
-import { buildHelpInterface } from "./help"
+import {
+  buildHelpInterface,
+  defaultPageType,
+  PageType,
+  pagination,
+} from "./help"
 dayjs.extend(utc)
 
 const image =
@@ -18,7 +22,7 @@ function getHelpEmbed(user: User) {
     title: `Mochi Bot Commands`,
     author: ["Mochi Bot", thumbnails.HELP],
     image,
-  }).setFooter(user?.tag, user.avatarURL() || undefined)
+  }).setFooter(user?.tag, user.avatarURL() ?? undefined)
 }
 
 const command: SlashCommand = {
@@ -43,36 +47,41 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     const command = interaction.options.getString("command")
-    const messageOptions = await (slashCommands[command ?? ""] ?? this).help(
-      interaction
-    )
-    return { messageOptions }
+    await (slashCommands[command ?? ""] ?? this).help(interaction)
+    return null
   },
   help: async (interaction) => {
+    const member = interaction.member as GuildMember
     const embed = getHelpEmbed(interaction.user)
-    buildHelpInterface(embed, "/")
+    buildHelpInterface(embed, defaultPageType, hasAdministrator(member), "/")
 
-    embed.addFields(
-      {
-        name: "**Examples**",
-        value: `\`\`\`/help invite\`\`\``,
-      },
-      {
-        name: "**Document**",
-        value: `[**Gitbook**](${HELP_GITBOOK}&command=help)`,
-        inline: true,
-      },
-      {
-        name: "**Bring the Web3 universe to your Discord**",
-        value: `[**Website**](${HOMEPAGE_URL})`,
-        inline: true,
-      }
-    )
+    const replyMsg = (await interaction.editReply({
+      embeds: [embed],
+      components: pagination(defaultPageType, hasAdministrator(member)),
+    })) as Message
 
-    embed.setColor(embedsColors.Game as ColorResolvable)
-    return {
-      embeds: [justifyEmbedFields(embed, 3)],
-    }
+    replyMsg
+      .createMessageComponentCollector({
+        filter: (i) => i.user.id === interaction.user.id,
+      })
+      .on("collect", (i) => {
+        i.deferUpdate()
+        const pageType = i.customId as PageType
+        const embed = getHelpEmbed(interaction.user)
+        buildHelpInterface(embed, pageType, hasAdministrator(member), "/")
+
+        interaction
+          .editReply({
+            embeds: [embed],
+            components: pagination(pageType, hasAdministrator(member)),
+          })
+          .catch(() => null)
+      })
+      .on("end", () => {
+        interaction.editReply({ components: [] }).catch(() => null)
+      })
+
+    return {}
   },
   colorType: "Command",
 }

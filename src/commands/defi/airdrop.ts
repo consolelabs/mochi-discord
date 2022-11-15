@@ -9,7 +9,9 @@ import { AIRDROP_GITBOOK, DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
 import { GuildIdNotFoundError, APIError } from "errors"
 import {
   defaultEmojis,
+  emojis,
   getEmoji,
+  getEmojiURL,
   roundFloatNumber,
   thumbnails,
   tripodEmojis,
@@ -64,7 +66,7 @@ export async function confirmAirdrop(
     .toDate()
   const originalAuthor = await msg.guild?.members.fetch(authorId)
   const airdropEmbed = composeEmbedMessage(msg, {
-    title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
+    author: ["An airdrop appears", getEmojiURL(emojis.WALLET)],
     description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(
       +amountInUSD,
       4
@@ -157,7 +159,7 @@ async function checkExpiredAirdrop(
         .edit({
           embeds: [
             composeEmbedMessage(msg, {
-              title: `${defaultEmojis.AIRPLANE} An airdrop appears`,
+              author: ["An airdrop appears", getEmojiURL(emojis.WALLET)],
               footer: [`${participants.length} users joined, ended`],
               description,
               originalMsgAuthor: originalAuthor?.user,
@@ -216,8 +218,10 @@ export async function enterAirdrop(
         }),
       ],
     })
-    if (participants.length === +maxEntries)
+    if (participants.length === +maxEntries) {
       airdropCache.emit("expired", cacheKey, participants)
+      airdropCache.del(cacheKey)
+    }
   }
 }
 
@@ -233,7 +237,12 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const payload = await Defi.getAirdropPayload(msg, args)
     // check balance
-    const { ok, data, log, curl } = await Defi.offchainGetUserBalances({
+    const {
+      ok,
+      data = [],
+      log,
+      curl,
+    } = await Defi.offchainGetUserBalances({
       userId: payload.sender,
     })
     if (!ok) {
@@ -242,10 +251,10 @@ const command: Command = {
     // get balance and price in usd
     let currentBal = 0
     let currentPrice = 0
-    data.forEach((bal: any) => {
+    data?.forEach((bal: any) => {
       if (payload.token === bal.symbol) {
         currentBal = bal.balances
-        currentPrice = roundFloatNumber(bal.rate_in_usd)
+        currentPrice = bal.rate_in_usd
       }
     })
     if (currentBal < payload.amount && !payload.all) {

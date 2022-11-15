@@ -33,6 +33,8 @@ export const VALID_BOOST_MESSAGE_TYPES = [
 ]
 
 export const HOMEPAGE_URL = "http://getmochi.co"
+export const TWITTER_URL = "https://twitter.com/getmochi_bot"
+export const DISCORD_URL = "https://discord.gg/XQR36DQQGh"
 
 export const EMOJI_REGEX = /^<:(.+|_):(\d+)>$/i
 export const ANIMATED_EMOJI_REGEX = /^<a:(.+|_):(\d+)>$/i
@@ -171,8 +173,14 @@ export const FEEDBACK_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/feedback-for-our-mochi" +
   "&command=feedback"
+export const QUEST_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/user-engagement/daily-quest" +
+  "&command=quest"
 
 export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"
 export const ETHSCAN_API = "https://api.etherscan.io/api"
 export const POLYGONSCAN_API = "https://api.polygonscan.com/api"
+
+export const PERMANENT_MOCHI_INVITE_URL = "https://discord.gg/CuJxnGYf9U"

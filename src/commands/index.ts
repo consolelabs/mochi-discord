@@ -5,7 +5,6 @@ import profile from "./profile/profile"
 import stats from "./community/stats"
 import nft from "./community/nft"
 import sales from "./community/sales"
-import airdropoff from "./defi/offchain_tip_bot/airdrop"
 import tip from "./defi/tip"
 import balances from "./defi/balances"
 import deposit from "./defi/deposit"
@@ -54,6 +53,8 @@ import quest_slash from "./community/quest_slash"
 import stats_slash from "./community/stats_slash"
 import gm_slash from "./community/gm_slash"
 import nft_slash from "./community/nft_slash"
+import tip_slash from "./defi/tip_bot_slash/tip"
+import balances_slash from "./defi/tip_bot_slash/balances"
 
 // external
 import { Message } from "discord.js"
@@ -91,6 +92,11 @@ import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import InteractionManager from "utils/InteractionManager"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
+CacheManager.init({
+  ttl: 0,
+  pool: "imagepool",
+  checkperiod: 3600,
+})
 
 export const slashCommands: Record<string, SlashCommand> = {
   feedback: feedback_slash,
@@ -111,6 +117,8 @@ export const slashCommands: Record<string, SlashCommand> = {
   stats: stats_slash,
   gm: gm_slash,
   nft: nft_slash,
+  tip: tip_slash,
+  balances: balances_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -118,8 +126,6 @@ export const originalCommands: Record<string, Command> = {
   help,
   // profile section
   profile,
-  // defi offchain section
-  airdropoff,
   // defi section
   deposit,
   tip,
@@ -217,7 +223,7 @@ async function executeCommand(
   // e.g. $help invite || $invite help || $help invite leaderboard
   if (isSpecificHelpCommand) {
     const helpMessage = await commandObject.getHelpMessage(message, action)
-    if (helpMessage) {
+    if (helpMessage && Object.keys(helpMessage).length) {
       await message.reply(helpMessage)
 
       // stop benchmark for help message

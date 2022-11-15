@@ -1,5 +1,8 @@
-import { Message } from "discord.js"
-import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
+import { CommandInteraction, Message } from "discord.js"
+import {
+  DiscordWalletTransferError,
+  DiscordWalletTransferSlashError,
+} from "errors/DiscordWalletTransferError"
 import fetch from "node-fetch"
 import {
   DiscordWalletTransferRequest,
@@ -33,16 +36,14 @@ import {
   RequestOffchainWithdrawRequest,
 } from "types/api"
 import { commands } from "commands"
+import parse from "parse-duration"
 
 class Defi extends Fetcher {
-  async parseRecipients(msg: Message, args: string[], fromDiscordId: string) {
-    let targets = args
-      .slice(1, args.length)
-      .join("")
-      .split(",")
-      .map((id) => id.trim())
-    targets = [...new Set(targets)]
-
+  async parseRecipients(
+    msg: Message | CommandInteraction,
+    targets: string[],
+    fromDiscordId: string
+  ) {
     targets.forEach((u) => {
       if (u !== "@everyone" && !u.startsWith("<@")) {
         throw new Error("Invalid user")
@@ -224,23 +225,6 @@ class Defi extends Fetcher {
     )
   }
 
-  /**
-   * Returns number of seconds convert from a timestring
-   *
-   * e.g. convertToSeconds("5m") = 300s
-   */
-  convertToSeconds(timeStr: string): number {
-    switch (true) {
-      case timeStr.endsWith("s"):
-        return +timeStr.substring(0, timeStr.length - 1)
-      case timeStr.endsWith("m"):
-        return +timeStr.substring(0, timeStr.length - 1) * 60
-      case timeStr.endsWith("h"):
-        return +timeStr.substring(0, timeStr.length - 1) * 3600
-    }
-    return 0
-  }
-
   getAirdropOptions(args: string[], discordId: string, msg: Message) {
     const options: { duration: number; maxEntries: number } = {
       duration: 180, // in secs
@@ -263,7 +247,7 @@ class Defi extends Fetcher {
         .substring(durationIdx)
         .replace(/in\s+/, "")
         .split(" ")[0]
-      options.duration = this.convertToSeconds(timeStr)
+      options.duration = parse(timeStr) / 1000
     }
 
     const maxEntriesReg = /for\s+\d+/
@@ -291,47 +275,60 @@ class Defi extends Fetcher {
     })
       .addField(
         "Required amount",
-        `${tokenEmoji}${roundFloatNumber(required, 4)} ${symbol}`,
+        `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
         true
       )
       .addField(
         "Your balance",
-        `${tokenEmoji}${roundFloatNumber(current, 4)} ${symbol}`,
+        `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
         true
       )
   }
 
+  public parseTipParameters(args: string[]) {
+    const each = args[args.length - 1].toLowerCase() === "each"
+    args = each ? args.slice(0, args.length - 1) : args
+    let targets = args.slice(1, args.length - 2).map((id) => id.trim())
+    targets = [...new Set(targets)]
+    const cryptocurrency = args[args.length - 1].toUpperCase()
+    const amountArg = args[args.length - 2].toLowerCase()
+    return { each, targets, cryptocurrency, amountArg }
+  }
+
   public async getTipPayload(
-    msg: Message,
-    args: string[]
+    msg: Message | CommandInteraction,
+    args: string[],
+    authorId: string,
+    type: string
   ): Promise<OffchainTipBotTransferRequest> {
-    const commandObject = getCommandObject(commands, msg)
-    const type = commandObject?.command
-    const sender = msg.author.id
-    let amountArg = "",
-      cryptocurrency = "",
-      recipients: string[] = []
+    const sender = authorId
+    let recipients: string[] = []
 
     const guildId = msg.guildId ?? "DM"
-    let each = args[args.length - 1].toLowerCase() === "each"
-    args = each ? args.slice(0, args.length - 1) : args
 
     // parse recipients
-    recipients = await this.parseRecipients(
-      msg,
-      args.slice(0, args.length - 2),
-      sender
-    )
-
-    cryptocurrency = args[args.length - 1].toUpperCase()
-    amountArg = args[args.length - 2].toLowerCase()
+    const {
+      each: eachParse,
+      targets,
+      cryptocurrency,
+      amountArg,
+    } = this.parseTipParameters(args)
+    recipients = await this.parseRecipients(msg, targets, sender)
 
     // check if recipient is valid or not
     if (!recipients || !recipients.length) {
-      throw new DiscordWalletTransferError({
+      if (msg instanceof Message) {
+        throw new DiscordWalletTransferError({
+          discordId: sender,
+          guildId,
+          message: msg,
+          errorMsg: "No valid recipient found!",
+        })
+      }
+      throw new DiscordWalletTransferSlashError({
         discordId: sender,
         guildId,
-        message: msg,
+        interaction: msg,
         errorMsg: "No valid recipient found!",
       })
     }
@@ -340,10 +337,18 @@ class Defi extends Fetcher {
     for (const recipientId of recipients) {
       const user = await msg.guild?.members.fetch(recipientId)
       if (!user) {
-        throw new DiscordWalletTransferError({
+        if (msg instanceof Message) {
+          throw new DiscordWalletTransferError({
+            discordId: sender,
+            guildId,
+            message: msg,
+            errorMsg: `User <@!${recipientId}> not found`,
+          })
+        }
+        throw new DiscordWalletTransferSlashError({
           discordId: sender,
           guildId,
-          message: msg,
+          interaction: msg,
           errorMsg: `User <@!${recipientId}> not found`,
         })
       }
@@ -352,14 +357,22 @@ class Defi extends Fetcher {
     // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
     let amount = parseFloat(amountArg)
     if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
-      throw new DiscordWalletTransferError({
+      if (msg instanceof Message) {
+        throw new DiscordWalletTransferError({
+          discordId: sender,
+          guildId,
+          message: msg,
+          errorMsg: "Invalid amount",
+        })
+      }
+      throw new DiscordWalletTransferSlashError({
         discordId: sender,
         guildId,
-        message: msg,
+        interaction: msg,
         errorMsg: "Invalid amount",
       })
     }
-    each = each && amountArg !== "all"
+    const each = eachParse && amountArg !== "all"
     amount = each ? amount * recipients.length : amount
 
     // check if tip token is in guild config

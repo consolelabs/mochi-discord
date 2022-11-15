@@ -9,7 +9,7 @@ import {
   listenForPaginateAction,
 } from "utils/discordEmbed"
 import { mappings } from "./mappings"
-import chunk from "lodash.chunk"
+import chunk from "lodash/chunk"
 import { createCanvas, loadImage } from "canvas"
 import { firestore } from "utils/firebase"
 

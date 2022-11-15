@@ -23,6 +23,7 @@ import {
   drawCircleImage,
   drawRectangle,
   heightOf,
+  loadAndCacheImage,
   renderChartImage,
   widthOf,
 } from "utils/canvas"
@@ -30,6 +31,7 @@ import CacheManager from "utils/CacheManager"
 import { APIError } from "errors"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import community from "adapters/community"
+import { wrapError } from "utils/wrapError"
 
 let fontRegistered = false
 
@@ -106,11 +108,15 @@ async function renderWatchlist(data: any[]) {
     const imageY = itemContainer.y.from + (itemContainer.pt ?? 0)
     if (imageUrl) {
       if (!is_pair) {
-        const image = await loadImage(imageUrl)
-        ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
+        const image = await loadAndCacheImage(imageUrl, radius * 2, radius * 2)
+        ctx.drawImage(image, imageX, imageY)
       } else {
         const imageUrls = imageUrl.split("||")
-        const baseImage = await loadImage(imageUrls[0])
+        const baseImage = await loadAndCacheImage(
+          imageUrls[0],
+          radius * 2,
+          radius * 2
+        )
         drawCircleImage({
           ctx,
           stats: {
@@ -120,7 +126,11 @@ async function renderWatchlist(data: any[]) {
           },
           image: baseImage,
         })
-        const targetImage = await loadImage(imageUrls[1])
+        const targetImage = await loadAndCacheImage(
+          imageUrls[1],
+          radius * 2,
+          radius * 2
+        )
         drawCircleImage({
           ctx,
           stats: {
@@ -263,8 +273,8 @@ async function renderNFTWatchlist(data: any[]) {
       token,
     } = item
     // image
-    const image = await loadImage(item.image)
     const radius = 20
+    const image = await loadAndCacheImage(item.image, radius * 2, radius * 2)
     const imageX = itemContainer.x.from + (itemContainer.pl ?? 0)
     const imageY = itemContainer.y.from + (itemContainer.pt ?? 0)
     ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
@@ -282,11 +292,13 @@ async function renderNFTWatchlist(data: any[]) {
     const fallbackTokenLogoURL = "https://i.imgur.com/2MdXSOd.png"
     const tokenEmojiId = tokenEmojis[token?.symbol ?? ""] ?? ""
     const tokenLogoURL = getEmojiURL(tokenEmojiId)
-    const tokenLogo = await loadImage(
-      tokenEmojiId ? tokenLogoURL : fallbackTokenLogoURL
-    )
     const tokenH = 25
     const tokenW = 25
+    const tokenLogo = await loadAndCacheImage(
+      tokenEmojiId ? tokenLogoURL : fallbackTokenLogoURL,
+      tokenW,
+      tokenH
+    )
     const tokenX = imageX
     const tokenY = imageY + tokenH + radius + 20
     ctx.drawImage(tokenLogo, tokenX, tokenY, tokenW, tokenH)
@@ -368,8 +380,10 @@ function collectButton(msg: Message, originMsg: Message) {
       idle: 60000,
       filter: authorFilter(originMsg.author.id),
     })
-    .on("collect", async (i) => {
-      await switchView(i, msg, originMsg)
+    .on("collect", (i) => {
+      wrapError(originMsg, async () => {
+        await switchView(i, msg, originMsg)
+      })
     })
     .on("end", () => {
       msg.edit({ components: [] }).catch(() => null)
@@ -426,13 +440,18 @@ async function composeTokenWatchlist(msg: Message, authorId?: string) {
   })
   if (!data?.length) {
     embed.setDescription(
-      `No items in your watchlist.\n Please use \`${PREFIX}watchlist add\` to add one.`
+      `No items in your watchlist.Run \`${PREFIX}wl add\` to add one.`
     )
     return {
       embeds: [embed],
       files: [],
       components: [buildSwitchViewActionRow("token")],
     }
+  }
+  if (data[0].is_default) {
+    embed.setDescription(
+      `No items in your watchlist. Run \`${PREFIX}wl add\` to add one.\nBelow is the **default watchlist**`
+    )
   }
   embed.setImage("attachment://watchlist.png")
   return {

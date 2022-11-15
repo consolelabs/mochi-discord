@@ -3,47 +3,56 @@ import community from "adapters/community"
 import { PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { APIError, GuildIdNotFoundError } from "errors"
+import { emojis, getEmojiURL } from "utils/common"
+import { Message } from "discord.js"
+
+export async function runVerify(msg: Message | null, guildId: string | null) {
+  if (!guildId) {
+    throw new GuildIdNotFoundError({ message: msg ?? undefined })
+  }
+  const res = await community.getVerifyWalletChannel(guildId)
+  if (!res.ok) {
+    throw new APIError({
+      message: msg ?? undefined,
+      curl: res.curl,
+      description: res.log,
+    })
+  }
+  if (!res.data) {
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(msg, {
+            author: ["Verify", getEmojiURL(emojis.APPROVE)],
+            description: `No config found`,
+          }),
+        ],
+      },
+    }
+  }
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(msg, {
+          author: ["Verify", getEmojiURL(emojis.APPROVE)],
+          description: `Verify channel: <#${res.data.verify_channel_id}>${
+            res.data.verify_role_id
+              ? `\nVerify role: <@&${res.data.verify_role_id}>`
+              : ""
+          }`,
+          footer: ["To change verify channel and role, use $verify remove"],
+        }),
+      ],
+    },
+  }
+}
 
 const command: Command = {
   id: "verify_info",
   command: "info",
   brief: "Show verify wallet channel",
   category: "Community",
-  run: async function (msg) {
-    if (!msg.guild) {
-      throw new GuildIdNotFoundError({ message: msg })
-    }
-    const res = await community.getVerifyWalletChannel(msg.guild.id)
-    if (!res.ok) {
-      throw new APIError({ message: msg, curl: res.curl, description: res.log })
-    }
-    if (!res.data) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              title: msg.guild.name,
-              description: `No config found`,
-            }),
-          ],
-        },
-      }
-    }
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: msg.guild.name,
-            description: `Verify channel: <#${res.data.verify_channel_id}>${
-              res.data.verify_role_id
-                ? `. Verify role: <@&${res.data.verify_role_id}>`
-                : ""
-            }`,
-          }),
-        ],
-      },
-    }
-  },
+  run: (msg) => runVerify(msg, msg.guildId),
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

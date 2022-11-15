@@ -2,7 +2,7 @@ import deepmerge from "deepmerge"
 import { logger } from "logger"
 import type { RequestInit as NativeRequestInit } from "node-fetch"
 import fetch from "node-fetch"
-import { capFirst } from "utils/common"
+import { capFirst, getEmoji } from "utils/common"
 import querystring from "query-string"
 import { Pagination } from "types/common"
 import { convertToSnakeCase } from "./fetcher-utils"
@@ -111,6 +111,7 @@ export class Fetcher {
     init: RequestInit = {}
   ): Promise<(OkPayload & T) | ErrPayload> {
     let curl = "None"
+    const nekoSad = getEmoji("nekosad")
     try {
       const mergedInit = deepmerge(defaultInit, init)
       const {
@@ -169,8 +170,7 @@ export class Fetcher {
 
         const json = await (res as ErrResponse).json()
         if (autoWrap500Error && res.status === 500) {
-          json.error =
-            "There was an error. Our team has been informed and is trying to fix the issue. Stay tuned."
+          json.error = `Our team is fixing the issue. Stay tuned ${nekoSad}.`
         } else {
           json.error = capFirst(json.error)
         }
@@ -202,8 +202,7 @@ export class Fetcher {
       return {
         ok: false,
         data: null,
-        error:
-          "There was an error. Our team has been informed and is trying to fix the issue. Stay tuned.",
+        error: `Our team is fixing the issue. Stay tuned  ${nekoSad}.`,
         log,
         curl,
       }

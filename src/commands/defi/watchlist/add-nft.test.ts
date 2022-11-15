@@ -3,7 +3,7 @@ import { getSuccessEmbed, getErrorEmbed } from "utils/discordEmbed"
 import defi from "adapters/defi"
 import { mockClient } from "../../../../tests/mocks"
 import { commands } from "commands"
-import { CommandError } from "errors"
+import { InternalError } from "errors"
 import { RunResult } from "types/common"
 
 jest.mock("adapters/defi")
@@ -113,7 +113,7 @@ describe("watchlist add-nft", () => {
       await command.run(msg)
     } catch (e) {
       expect(defi.addNFTToWatchlist).toHaveBeenCalled()
-      expect(e).toBeInstanceOf(CommandError)
+      expect(e).toBeInstanceOf(InternalError)
     }
   })
 })

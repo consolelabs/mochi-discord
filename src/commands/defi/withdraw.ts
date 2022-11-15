@@ -8,7 +8,7 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
 } from "utils/discordEmbed"
-import { getEmoji, defaultEmojis } from "utils/common"
+import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import { APIError } from "errors"
 
 async function getDestinationAddress(
@@ -87,10 +87,8 @@ const command: Command = {
     const dm = await msg.author.send({
       embeds: [
         composeEmbedMessage(msg, {
-          title: `${
-            defaultEmojis.GREY_QUESTION
-          } Enter your **${args[2].toUpperCase()}** destination address.`,
-          description: ``,
+          author: ["Withdraw message", getEmojiURL(emojis.WALLET)],
+          description: `Please enter your **${args[2].toUpperCase()}** destination address that you want to withdraw your tokens below.`,
         }),
       ],
     })
@@ -99,7 +97,8 @@ const command: Command = {
       msg.reply({
         embeds: [
           composeEmbedMessage(msg, {
-            description: `:information_source: Info\n<@${msg.author.id}>, a withdrawal message has been sent to you via a DM`,
+            author: ["Withdraw tokens", getEmojiURL(emojis.WALLET)],
+            description: `${msg.author}, a withdrawal message has been sent to you. Check your DM!`,
           }),
         ],
         components: [composeButtonLink("See the DM", dm.url)],

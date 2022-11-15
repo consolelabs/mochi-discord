@@ -7,6 +7,7 @@ import { CommandInteraction, MessageActionRow, MessageButton } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { CONFIRM_PRUNE_INACTIVE, pruneInactiveExecute } from "../prune/inactive"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 
 export async function pruneInactive(interaction: CommandInteraction) {
   if (!interaction.guild) {
@@ -43,8 +44,10 @@ export async function pruneInactive(interaction: CommandInteraction) {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            title: "No users to prune",
-            description: `No one is inactive for ${days} days, let's put down the prune stick`,
+            author: ["No users to prune", getEmojiURL(emojis.REVOKE)],
+            description: `No one is inactive for ${days} days, let's put down the prune stick! ${getEmoji(
+              "touch"
+            )}`,
           }),
         ],
       },

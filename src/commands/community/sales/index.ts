@@ -29,6 +29,7 @@ const command: Command = {
       }),
     ],
   }),
+  onlyAdministrator: true,
   actions,
   colorType: "Marketplace",
   canRunWithoutAction: false,
