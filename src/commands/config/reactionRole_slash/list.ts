@@ -8,15 +8,10 @@ import {
 } from "utils/discordEmbed"
 import { CommandInteraction, MessageEmbed } from "discord.js"
 import config from "adapters/config"
-import {
-  emojis,
-  getEmoji,
-  getEmojiURL,
-  getFirstWords,
-  paginate,
-} from "utils/common"
+import { emojis, getEmoji, getEmojiURL, paginate } from "utils/common"
 import { APIError, InternalError } from "errors"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import truncate from "lodash/truncate"
 
 const command: SlashCommand = {
   name: "list",
@@ -103,7 +98,7 @@ const command: SlashCommand = {
       let col2 = ""
       arr.forEach((group: any) => {
         let roleCount = 0
-        col1 += `\n**${getFirstWords(group[0].title, 3)}**\n`
+        col1 += `\n**${truncate(group[0].title, { length: 20 })}**\n`
         group.forEach((item: any) => {
           col1 += `${getEmoji("blank")}${getEmoji("reply")} ${item.emoji} ${
             item.role
