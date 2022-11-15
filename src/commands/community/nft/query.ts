@@ -51,6 +51,7 @@ import {
 import { composeCollectionInfoEmbed } from "./ticker"
 import dayjs from "dayjs"
 import { renderChartImage } from "utils/canvas"
+import { wrapError } from "utils/wrapError"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -151,7 +152,9 @@ function collectButton(msg: Message, originMsg: Message) {
       filter: authorFilter(originMsg.author.id),
     })
     .on("collect", async (i) => {
-      await switchView(i, originMsg)
+      wrapError(originMsg, async () => {
+        await switchView(i, originMsg)
+      })
     })
     .on("end", () => {
       msg.edit({ components: [] }).catch(() => null)
