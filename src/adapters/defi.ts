@@ -5,7 +5,6 @@ import {
 } from "errors/DiscordWalletTransferError"
 import fetch from "node-fetch"
 import {
-  DiscordWalletTransferRequest,
   OffchainTipBotTransferRequest,
   OffchainTipBotWithdrawRequest,
   Token,
@@ -23,13 +22,9 @@ import {
   FTMSCAN_API,
   POLYGONSCAN_API,
 } from "utils/constants"
-import Config from "./config"
-import { logger } from "logger"
-import { InsufficientBalanceError } from "errors/InsufficientBalanceError"
 import { Fetcher } from "./fetcher"
 import {
   ResponseGetNftWatchlistResponse,
-  ResponseInDiscordWalletBalancesResponse,
   ResponseNftWatchlistSuggestResponse,
   RequestCreateAssignContract,
   RequestOffchainTransferRequest,
@@ -45,8 +40,9 @@ class Defi extends Fetcher {
     fromDiscordId: string
   ) {
     targets.forEach((u) => {
-      if (u !== "@everyone" && !u.startsWith("<@")) {
-        throw new Error("Invalid user")
+      const { isUser, isRole, isChannel } = parseDiscordToken(u)
+      if (u !== "@everyone" && !isUser && !isRole && !isChannel) {
+        throw new Error("Invalid recipients")
       }
     })
 
@@ -58,32 +54,56 @@ class Defi extends Fetcher {
               const {
                 isUser,
                 isRole,
+                isChannel,
                 value: targetId,
               } = parseDiscordToken(target)
               switch (true) {
                 // role
                 case isRole: {
                   if (!msg.guild?.members) return []
-                  const members = (await msg.guild.members.fetch()).filter(
-                    (mem) =>
+                  const members = (await msg.guild.members.fetch())
+                    .filter((m) => !m.user.bot)
+                    .filter((mem) =>
                       mem.roles.cache.map((role) => role.id).includes(targetId)
-                  )
+                    )
                   return members.map((member) => member.user.id)
                 }
 
                 // user
-                case isUser:
+                case isUser: {
+                  const member = await msg.guild?.members.fetch(targetId)
+                  if (!member || member.user.bot) return []
                   return [targetId]
+                }
+
+                case isChannel: {
+                  if (!msg.guild?.members) return []
+                  // fetch guild members otherwise the list will not be full (cached)
+                  await msg.guild.members.fetch()
+                  const channel = await msg.guild.channels.fetch(targetId)
+                  if (!channel) return []
+                  if (channel.isText() && !channel.isThread()) {
+                    return Array.from(
+                      channel.members.filter((m) => !m.user.bot).keys()
+                    )
+                  }
+                  return []
+                }
 
                 // special role
-                case target === "@everyone": {
+                case ["@everyone", "@here"].includes(target): {
                   if (!msg.guild?.members) return []
-                  const members = (await msg.guild.members.fetch()).filter(
-                    (mem) =>
-                      mem.roles.cache
-                        .map((role) => role.name)
-                        .includes("@everyone")
-                  )
+                  const members = (await msg.guild.members.fetch())
+                    .filter((m) => !m.user.bot)
+                    .filter(
+                      (mem) =>
+                        mem.roles.cache
+                          .map((role) => role.name)
+                          .includes("@everyone") ||
+                        mem.roles.cache
+                          .map((role) => role.name)
+                          .includes("@here")
+                    )
                   return members.map((member) => member.user.id)
                 }
               }
@@ -97,40 +117,6 @@ class Defi extends Fetcher {
           )
       )
     )
-  }
-
-  public async discordWalletTransfer(body: string, msg: Message) {
-    const resp = await fetch(`${API_BASE_URL}/defi/transfer`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body,
-    })
-
-    const { errors, data } = await resp.json()
-    this.handleTransferError(msg, errors)
-
-    return data
-  }
-
-  handleTransferError(msg: Message, errors: string[]) {
-    if (!errors || !errors.length) {
-      return
-    }
-    let errorMsg
-    switch (true) {
-      case errors[0].includes("balance is not enough"):
-        errorMsg = "Your balance is not enough to proceed this transaction"
-        break
-      case errors[0].includes("insufficient funds for gas"):
-        errorMsg = "Insufficient funds for gas"
-        break
-    }
-    throw new DiscordWalletTransferError({
-      discordId: msg.author.id,
-      guildId: msg.guildId ?? "",
-      message: msg,
-      errorMsg,
-    })
   }
 
   public async getSupportedTokens(): Promise<Token[]> {
@@ -147,37 +133,6 @@ class Defi extends Fetcher {
       throw new Error(json.error)
     }
     return json.data
-  }
-
-  public async discordWalletWithdraw(body: string, msg: Message) {
-    const json = await this.jsonFetch(`${API_BASE_URL}/defi/withdraw`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body,
-    })
-    if (!json.ok) {
-      if (json.error.includes("balance is not enough")) {
-        throw new InsufficientBalanceError({
-          discordId: msg.author.id,
-          message: msg,
-          errorMsg: "Your balance is not enough to complete the transaction",
-        })
-      }
-      throw new Error(json.error)
-    }
-    return json
-  }
-
-  public async discordWalletBalances(guildId: string, discordId: string) {
-    return await this.jsonFetch<ResponseInDiscordWalletBalancesResponse>(
-      `${API_BASE_URL}/defi/balances?guild_id=${guildId}&discord_id=${discordId}`,
-      {
-        query: {
-          guildId,
-          discordId,
-        },
-      }
-    )
   }
 
   public async getCoin(id: string) {
@@ -375,18 +330,6 @@ class Defi extends Fetcher {
     const each = eachParse && amountArg !== "all"
     amount = each ? amount * recipients.length : amount
 
-    // check if tip token is in guild config
-    // const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
-    // const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
-    // if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
-    //   throw new DiscordWalletTransferError({
-    //     discordId: sender,
-    //     guildId,
-    //     message: msg,
-    //     errorMsg: "Unsupported token. Please choose another one.",
-    //   })
-    // }
-
     return {
       sender,
       recipients,
@@ -516,130 +459,6 @@ class Defi extends Fetcher {
       token: cryptocurrency,
       transferType: type ?? "",
       opts: options,
-    }
-  }
-
-  public async getTransferPayload(
-    msg: Message,
-    args: string[]
-  ): Promise<DiscordWalletTransferRequest> {
-    const commandObject = getCommandObject(commands, msg)
-    const type = commandObject?.command
-    const sender = msg.author.id
-    let amountArg = "",
-      cryptocurrency = "",
-      recipients: string[] = [],
-      each = false
-    const guildId = msg.guildId ?? "DM"
-    switch (type) {
-      case "tip": {
-        each = args[args.length - 1].toLowerCase() === "each"
-        args = each ? args.slice(0, args.length - 1) : args
-        if (Number.isNaN(Number(args[args.length - 1]))) {
-          recipients = await this.parseRecipients(
-            msg,
-            args.slice(0, args.length - 2),
-            sender
-          )
-
-          cryptocurrency = args[args.length - 1].toUpperCase()
-          amountArg = args[args.length - 2].toLowerCase()
-        } else {
-          recipients = await this.parseRecipients(
-            msg,
-            args.slice(0, args.length - 1),
-            sender
-          )
-
-          cryptocurrency = ""
-          amountArg = args[args.length - 1].toLowerCase()
-        }
-
-        each = each && amountArg !== "all"
-        break
-      }
-
-      case "airdrop": {
-        amountArg = args[1]
-        cryptocurrency = args[2].toUpperCase()
-        break
-      }
-
-      case "withdraw": {
-        const toAddress = args[3]
-        if (!toAddress.startsWith("0x")) {
-          throw new Error("Invalid destination address")
-        }
-        recipients = [toAddress]
-        amountArg = args[1].toLowerCase()
-        cryptocurrency = args[2].toUpperCase()
-        break
-      }
-    }
-
-    if ((!recipients || !recipients.length) && type !== "airdrop") {
-      throw new DiscordWalletTransferError({
-        discordId: sender,
-        guildId,
-        message: msg,
-        errorMsg: "No valid recipient found!",
-      })
-    }
-
-    if (type !== "withdraw") {
-      for (const recipientId of recipients) {
-        const user = await msg.guild?.members.fetch(recipientId)
-        if (!user) {
-          throw new DiscordWalletTransferError({
-            discordId: sender,
-            guildId,
-            message: msg,
-            errorMsg: `User <@!${recipientId}> not found`,
-          })
-        }
-      }
-    }
-
-    const amount = parseFloat(amountArg)
-    if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
-      throw new DiscordWalletTransferError({
-        discordId: sender,
-        guildId,
-        message: msg,
-        errorMsg: "Invalid amount",
-      })
-    }
-
-    logger.info(
-      `[${msg.guildId} / ${
-        msg.channelId
-      }][${type}]: ${sender} - [${recipients.toString()}] | ${amount} ${cryptocurrency}`
-    )
-    const gTokens = (await Config.getGuildTokens(msg.guildId ?? "")) ?? []
-    const supportedSymbols = gTokens.map((token) => token.symbol.toUpperCase())
-    if (cryptocurrency != "" && !supportedSymbols.includes(cryptocurrency)) {
-      throw new DiscordWalletTransferError({
-        discordId: sender,
-        guildId,
-        message: msg,
-        errorMsg: "Unsupported token. Please choose another one.",
-      })
-    }
-
-    return {
-      sender,
-      recipients,
-      amount,
-      cryptocurrency,
-      guildId,
-      channelId: msg.channelId,
-      opts:
-        type === "airdrop"
-          ? this.getAirdropOptions(args, sender, msg)
-          : undefined,
-      all: amountArg === "all",
-      token: gTokens[supportedSymbols.indexOf(cryptocurrency)],
-      transferType: type ?? "",
     }
   }
 

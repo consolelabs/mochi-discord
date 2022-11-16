@@ -22,8 +22,8 @@ export async function handleTip(
   msg: Message | CommandInteraction
 ) {
   // validate valid user
-  const { isUser, isRole } = parseDiscordToken(args[1])
-  if (!isUser && !isRole) {
+  const { isUser, isRole, isChannel } = parseDiscordToken(args[1])
+  if (!isUser && !isRole && !isChannel) {
     return {
       embeds: [
         getErrorEmbed({
@@ -48,7 +48,7 @@ export async function handleTip(
   const mentionUser = (discordId: string) => `<@!${discordId}>`
   const users = recipientIds.map((id) => mentionUser(id)).join(",")
   let recipientDescription = users
-  if (isRole) {
+  if (isRole || isChannel) {
     const { targets } = Defi.parseTipParameters(args)
     recipientDescription = `**${data.length} users** in ${targets.join(",")}`
   }
