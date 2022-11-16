@@ -53,7 +53,7 @@ function buildSwitchViewActionRow(
     days?: number
   }
 ) {
-  const { collectionAddress, chain, days = 7 } = params
+  const { collectionAddress, chain, days = 90 } = params
   const tickerButton = new MessageButton({
     label: "Ticker",
     emoji: emojis.TICKER,
@@ -298,11 +298,11 @@ async function composeCollectionTickerEmbed({
     },
     {
       name: `Floor price (${priceToken})`,
-      value: formatPrice(floorPriceAmount),
+      value: `${formatPrice(floorPriceAmount)} ${getEmoji(priceToken)}`,
     },
     {
       name: `Last sale (${priceToken})`,
-      value: formatPrice(lastSalePriceAmount),
+      value: `${formatPrice(lastSalePriceAmount)} ${getEmoji(priceToken)}`,
     },
     {
       name: "Change (24h)",
