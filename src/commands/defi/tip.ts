@@ -23,7 +23,12 @@ export async function handleTip(
 ) {
   // validate valid user
   const { isUser, isRole, isChannel } = parseDiscordToken(args[1])
-  if (!isUser && !isRole && !isChannel) {
+  if (
+    !isUser &&
+    !isRole &&
+    !isChannel &&
+    !(args[1].toLowerCase() === "online")
+  ) {
     return {
       embeds: [
         getErrorEmbed({
@@ -47,10 +52,13 @@ export async function handleTip(
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
   const mentionUser = (discordId: string) => `<@!${discordId}>`
   const users = recipientIds.map((id) => mentionUser(id)).join(",")
+  const isOnline = args[1].toLowerCase() === "online"
   let recipientDescription = users
-  if (isRole || isChannel) {
+  if (isRole || isChannel || isOnline || data.length >= 30) {
     const { targets } = Defi.parseTipParameters(args)
-    recipientDescription = `**${data.length} users** in ${targets.join(",")}`
+    recipientDescription = `**${data.length}${
+      isOnline ? ` online` : ""
+    } user(s)**${isOnline ? "" : ` in ${targets.join(",")}`}`
   }
   const embed = composeEmbedMessage(null, {
     thumbnail: thumbnails.TIP,

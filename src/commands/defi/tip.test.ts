@@ -383,7 +383,7 @@ describe("tip", () => {
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@!${userId}> has sent **2 users** in <@&1039124250004574208> **1.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@!${userId}> has sent **2 user(s)** in <@&1039124250004574208> **1.5 CAKE** (\u2248 $1.5) each`,
     })
     const output = await command.run(msg)
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
@@ -488,7 +488,7 @@ describe("tip", () => {
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@!${userId}> has sent **4 users** in <@&1039124250004574208>,<@&1041914485251788800> **0.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@!${userId}> has sent **4 user(s)** in <@&1039124250004574208>,<@&1041914485251788800> **0.5 CAKE** (\u2248 $1.5) each`,
     })
     const output = await command.run(msg)
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
@@ -592,7 +592,111 @@ describe("tip", () => {
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@!${userId}> has sent **4 users** in <#984660970624409630> **0.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@!${userId}> has sent **4 user(s)** in <#984660970624409630> **0.5 CAKE** (\u2248 $1.5) each`,
+    })
+    const output = await command.run(msg)
+    expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
+    expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
+    expect(expected.thumbnail).toStrictEqual(
+      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
+        .thumbnail
+    )
+    expect(expected.author).toStrictEqual(
+      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
+    )
+    expect(expected.description).toStrictEqual(
+      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
+        .description
+    )
+  })
+
+  test("tip online status", async () => {
+    const msg = Reflect.construct(Discord.Message, [
+      mockClient,
+      {
+        content: "$tip online 0.5 cake each",
+        author: {
+          id: userId,
+          username: "tester",
+          discriminator: 1234,
+        },
+        id: Discord.SnowflakeUtil.generate(),
+        guild_id: Discord.SnowflakeUtil.generate(),
+        channel_id: Discord.SnowflakeUtil.generate(),
+      },
+      Reflect.construct(Discord.TextChannel, [
+        guild,
+        {
+          client: mockClient,
+          guild: guild,
+          id: Discord.SnowflakeUtil.generate(),
+        },
+      ]),
+    ])
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: [
+        "760874365037314100",
+        "580788681967665173",
+        "753995829559165044",
+        "205167514731151360",
+      ],
+      guildId: msg.guild_id,
+      channelId: msg.channel_id,
+      amount: 2,
+      token: "CAKE",
+      each: true,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const transferResp = {
+      ok: true,
+      data: [
+        {
+          amount: 0.5,
+          amount_in_usd: 1.5,
+          recipient_id: "760874365037314100",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 0.5,
+          amount_in_usd: 1.5,
+          recipient_id: "580788681967665173",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 0.5,
+          amount_in_usd: 1.5,
+          recipient_id: "753995829559165044",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 0.5,
+          amount_in_usd: 1.5,
+          recipient_id: "205167514731151360",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+      ],
+    }
+    const params = {
+      each: true,
+      targets: ["<#984660970624409630>"],
+      cryptocurrency: "CAKE",
+      amountArg: 0.5,
+    }
+    defi.parseTipParameters = jest.fn().mockReturnValue(params)
+    defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+    const expected = composeEmbedMessage(null, {
+      thumbnail: thumbnails.TIP,
+      author: ["Tips", getEmojiURL(emojis.COIN)],
+      description: `<@!${userId}> has sent **4 online user(s)** **0.5 CAKE** (\u2248 $1.5) each`,
     })
     const output = await command.run(msg)
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)

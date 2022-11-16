@@ -16,6 +16,7 @@ const client = new Discord.Client({
     Discord.Intents.FLAGS.GUILD_MEMBERS,
     Discord.Intents.FLAGS.DIRECT_MESSAGES,
     Discord.Intents.FLAGS.GUILD_INVITES,
+    Discord.Intents.FLAGS.GUILD_PRESENCES,
   ],
   partials: ["MESSAGE", "REACTION", "CHANNEL"],
 })

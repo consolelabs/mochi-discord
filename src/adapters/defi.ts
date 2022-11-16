@@ -39,9 +39,17 @@ class Defi extends Fetcher {
     targets: string[],
     fromDiscordId: string
   ) {
-    targets.forEach((u) => {
+    targets.forEach((t) => {
+      const u = t.toLowerCase()
       const { isUser, isRole, isChannel } = parseDiscordToken(u)
-      if (u !== "@everyone" && !isUser && !isRole && !isChannel) {
+      if (
+        u !== "@everyone" &&
+        u !== "@here" &&
+        u !== "online" &&
+        !isUser &&
+        !isRole &&
+        !isChannel
+      ) {
         throw new Error("Invalid recipients")
       }
     })
@@ -88,6 +96,19 @@ class Defi extends Fetcher {
                     )
                   }
                   return []
+                }
+
+                case target.toLowerCase() === "online": {
+                  if (!msg.guild?.members) return []
+                  const members = (await msg.guild.members.fetch())
+                    .filter((m) => !m.user.bot)
+                    .filter(
+                      (mem) =>
+                        Boolean(mem.presence?.status) &&
+                        mem.presence?.status !== "offline" &&
+                        mem.presence?.status !== "invisible"
+                    )
+                  return members.map((member) => member.user.id)
                 }
 
                 // special role
