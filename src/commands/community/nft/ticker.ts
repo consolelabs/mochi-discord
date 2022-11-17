@@ -256,7 +256,7 @@ async function composeCollectionTickerEmbed({
     +(floor_price?.amount ?? 0) / Math.pow(10, decimals(floor_price))
   )
   const totalVolumeAmount = Math.round(
-    +(total_volume?.amount ?? 0) / Math.pow(10, decimals(total_volume))
+    +(total_volume?.amount ?? 0) / Math.pow(10, decimals(floor_price))
   )
   const lastSalePriceAmount = Math.round(
     +(last_sale_price?.amount ?? 0) / Math.pow(10, decimals(last_sale_price))
