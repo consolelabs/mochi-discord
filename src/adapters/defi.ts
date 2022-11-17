@@ -505,6 +505,7 @@ class Defi extends Fetcher {
     user_id: string
     symbol: string
     coin_gecko_id?: string
+    is_fiat: boolean
   }) {
     return await this.jsonFetch<{ suggestion: Coin[] }>(
       `${API_BASE_URL}/defi/watchlist`,

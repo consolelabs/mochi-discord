@@ -21,6 +21,7 @@ import { getCommandArguments } from "utils/commands"
 import CacheManager from "utils/CacheManager"
 import { handleUpdateWlError } from "../watchlist_slash"
 import { InteractionHandler } from "utils/InteractionManager"
+import { allowedCurrencies } from "../ticker/compare"
 
 export async function addToWatchlist(interaction: ButtonInteraction) {
   // deferUpdate because we will edit the message later
@@ -57,10 +58,23 @@ export async function addUserWatchlist(
   symbol: string,
   coinId = ""
 ) {
+  const symbols = symbol.split("/")
+  let is_fiat = false
+
+  // currently only fully support base USD, TODO: update this when better supported
+  if (
+    symbols.length === 2 &&
+    symbols[0] === "usd" &&
+    allowedCurrencies.includes(symbols[1].toLowerCase())
+  ) {
+    is_fiat = true
+  }
+
   const { data, ok, error } = await defi.addToWatchlist({
     user_id: userId,
     symbol,
     coin_gecko_id: coinId,
+    is_fiat,
   })
   if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error)
   CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
