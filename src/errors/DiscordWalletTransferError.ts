@@ -3,80 +3,45 @@ import { getErrorEmbed } from "utils/discordEmbed"
 import { BotBaseError } from "./BaseError"
 
 export class DiscordWalletTransferError extends BotBaseError {
-  private discordMessage: Message
+  private discordMessageOrInteraction: Message | CommandInteraction
   private errorMsg: string
 
   constructor({
     discordId,
     guildId,
-    message,
+    messageOrInteraction,
     errorMsg,
   }: {
     discordId?: string
     guildId: string
-    message: Message
+    messageOrInteraction: Message | CommandInteraction
     errorMsg?: string
   }) {
     super()
     this.name = "Discord wallet transfer error"
-    this.discordMessage = message
+    this.discordMessageOrInteraction = messageOrInteraction
     this.errorMsg = errorMsg ?? "Something went wrong"
-    const channel = message.channel as TextChannel
+    const channel = messageOrInteraction.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild ? message.guild.name : "",
+      guild: messageOrInteraction.guild ? messageOrInteraction.guild.name : "",
       channel: channel ? channel.name : "dm",
-      user: message.author.tag,
+      user:
+        messageOrInteraction instanceof Message
+          ? messageOrInteraction.author.tag
+          : messageOrInteraction.user.tag,
       data: { discordId, guildId },
     })
   }
 
   handle() {
     super.handle()
-    this.discordMessage.channel.send({
+    this.discordMessageOrInteraction.channel?.send({
       embeds: [
         getErrorEmbed({
-          msg: this.discordMessage,
-          title: "Transaction error",
-          description: this.errorMsg,
-        }),
-      ],
-    })
-  }
-}
-
-export class DiscordWalletTransferSlashError extends BotBaseError {
-  private interaction: CommandInteraction
-  private errorMsg: string
-
-  constructor({
-    discordId,
-    guildId,
-    interaction,
-    errorMsg,
-  }: {
-    discordId?: string
-    guildId: string
-    interaction: CommandInteraction
-    errorMsg?: string
-  }) {
-    super()
-    this.name = "Discord wallet transfer error"
-    this.interaction = interaction
-    this.errorMsg = errorMsg ?? "Something went wrong"
-    const channel = interaction.channel as TextChannel
-    this.message = JSON.stringify({
-      guild: interaction.guild ? interaction.guild.name : "",
-      channel: channel ? channel.name : "dm",
-      user: interaction.user.tag,
-      data: { discordId, guildId },
-    })
-  }
-
-  handle() {
-    super.handle()
-    this.interaction.channel?.send({
-      embeds: [
-        getErrorEmbed({
+          msg:
+            this.discordMessageOrInteraction instanceof Message
+              ? this.discordMessageOrInteraction
+              : undefined,
           title: "Transaction error",
           description: this.errorMsg,
         }),

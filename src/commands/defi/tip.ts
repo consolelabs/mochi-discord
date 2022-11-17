@@ -7,13 +7,13 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import { getCommandArguments } from "utils/commands"
+import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { Command } from "types/common"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { parseDiscordToken } from "utils/commands"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import Defi from "adapters/defi"
 import { GuildIdNotFoundError } from "errors/GuildIdNotFoundError"
 import { APIError } from "errors/APIError"
+import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 
 export async function handleTip(
   args: string[],
@@ -21,25 +21,24 @@ export async function handleTip(
   fullCmd: string,
   msg: Message | CommandInteraction
 ) {
-  // validate valid user
-  const { isUser, isRole, isChannel } = parseDiscordToken(args[1])
-  if (
-    !isUser &&
-    !isRole &&
-    !isChannel &&
-    !(args[1].toLowerCase() === "online")
-  ) {
-    return {
-      embeds: [
-        getErrorEmbed({
-          description: "Invalid recipients.",
-        }),
-      ],
-    }
+  const { isValid, targets } = Defi.classifyTipSyntaxTargets(
+    fullCmd
+      .split(" ")
+      .slice(1, fullCmd.toLowerCase().endsWith("each") ? -3 : -2)
+      .join(" ")
+  )
+
+  if (!isValid) {
+    throw new DiscordWalletTransferError({
+      guildId: msg.guildId ?? "DM",
+      errorMsg: "Incorrect recipients",
+      discordId: authorId,
+      messageOrInteraction: msg,
+    })
   }
 
   // preprocess command arguments
-  const payload = await Defi.getTipPayload(msg, args, authorId, args[0])
+  const payload = await Defi.getTipPayload(msg, args, authorId, targets)
   payload.fullCommand = fullCmd
   const { data, ok, error, curl, log } = await Defi.offchainDiscordTransfer(
     payload
@@ -51,14 +50,21 @@ export async function handleTip(
 
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
   const mentionUser = (discordId: string) => `<@!${discordId}>`
-  const users = recipientIds.map((id) => mentionUser(id)).join(",")
-  const isOnline = args[1].toLowerCase() === "online"
+  const users = recipientIds.map((id) => mentionUser(id)).join(", ")
+  const isOnline = targets.includes("online")
+  const hasRole = targets.some((t) => parseDiscordToken(t).isRole)
+  const hasChannel = targets.some((t) => parseDiscordToken(t).isChannel)
   let recipientDescription = users
-  if (isRole || isChannel || isOnline || data.length >= 30) {
-    const { targets } = Defi.parseTipParameters(args)
+  if (hasRole || hasChannel || isOnline) {
     recipientDescription = `**${data.length}${
       isOnline ? ` online` : ""
-    } user(s)**${isOnline ? "" : ` in ${targets.join(",")}`}`
+    } user(s)${data.length >= 20 ? "" : ` (${users})`}**${
+      isOnline && !hasRole && !hasChannel
+        ? ""
+        : ` in ${targets
+            .filter((t) => t.toLowerCase() !== "online")
+            .join(", ")}`
+    }`
   }
   const embed = composeEmbedMessage(null, {
     thumbnail: thumbnails.TIP,
