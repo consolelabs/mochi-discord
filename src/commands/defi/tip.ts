@@ -98,7 +98,12 @@ const command: Command = {
     }
     return {
       messageOptions: {
-        ...(await handleTip(args, msg.author.id, msg.content, msg)),
+        ...(await handleTip(
+          args,
+          msg.author.id,
+          msg.content.replaceAll(/\s{2,}/gim, " "),
+          msg
+        )),
       },
     }
   },
