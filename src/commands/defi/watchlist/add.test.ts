@@ -65,6 +65,7 @@ describe("watchlist add", () => {
     expect(defi.addToWatchlist).toHaveBeenCalledWith({
       user_id: userId,
       coin_gecko_id: "",
+      is_fiat: false,
       symbol: res.data.symbol,
     })
     expect(expected.title).toStrictEqual(

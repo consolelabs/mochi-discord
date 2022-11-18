@@ -24,6 +24,8 @@ import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
 import comparefiat from "./compare_fiat"
 
+export const allowedCurrencies = ["gbp", "usd", "eur", "sgd"]
+
 export async function renderCompareTokenChart({
   times,
   ratios,
@@ -243,7 +245,7 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const [query] = args.slice(1)
     const [baseQ, targetQ] = query.split("/")
-    const allowedCurrencies = ["gbp", "usd", "eur", "sgd"]
+
     if (
       allowedCurrencies.includes(baseQ.toLowerCase()) ||
       allowedCurrencies.includes(targetQ.toLowerCase())

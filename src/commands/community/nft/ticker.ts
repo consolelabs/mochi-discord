@@ -239,7 +239,6 @@ async function composeCollectionTickerEmbed({
     })
   }
 
-  const blank = getEmoji("blank")
   const {
     items,
     owners,
@@ -257,7 +256,7 @@ async function composeCollectionTickerEmbed({
     +(floor_price?.amount ?? 0) / Math.pow(10, decimals(floor_price))
   )
   const totalVolumeAmount = Math.round(
-    +(total_volume?.amount ?? 0) / Math.pow(10, decimals(total_volume))
+    +(total_volume?.amount ?? 0) / Math.pow(10, decimals(floor_price))
   )
   const lastSalePriceAmount = Math.round(
     +(last_sale_price?.amount ?? 0) / Math.pow(10, decimals(last_sale_price))
@@ -265,8 +264,8 @@ async function composeCollectionTickerEmbed({
   const priceToken = floor_price?.token?.symbol?.toUpperCase() ?? ""
   const marketcap = floorPriceAmount * (items ?? 0)
   const formatPrice = (amount: number) => {
-    if (!amount) return `- ${blank}`
-    return `${getCompactFormatedNumber(amount)}${blank}`
+    if (!amount) return `-`
+    return `${getCompactFormatedNumber(amount)}`
   }
   const getChangePercentage = (changeStr: string | undefined) => {
     const change = changeStr ? +changeStr : 0
@@ -282,11 +281,11 @@ async function composeCollectionTickerEmbed({
   const fields = [
     {
       name: "Item",
-      value: `${items}${blank}`,
+      value: `${items}`,
     },
     {
       name: "Owner",
-      value: `${owners}${blank}`,
+      value: `${owners}`,
     },
     {
       name: `Market cap (${priceToken})`,
