@@ -1,8 +1,5 @@
-import { CommandInteraction, Message } from "discord.js"
-import {
-  DiscordWalletTransferError,
-  DiscordWalletTransferSlashError,
-} from "errors/DiscordWalletTransferError"
+import { CommandInteraction, GuildMember, Message } from "discord.js"
+import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import fetch from "node-fetch"
 import {
   OffchainTipBotTransferRequest,
@@ -34,26 +31,29 @@ import { commands } from "commands"
 import parse from "parse-duration"
 
 class Defi extends Fetcher {
+  protected hasRole(roleId: string) {
+    return (m: GuildMember) => m.roles.cache.some((r) => r.id === roleId)
+  }
+
+  protected isStatus(shouldBeOnline: boolean) {
+    return (m: GuildMember) =>
+      shouldBeOnline
+        ? m.presence?.status !== "offline" &&
+          m.presence?.status !== "invisible" &&
+          Boolean(m.presence?.status)
+        : true // if not specify online then default to get all
+  }
+
+  protected isNotBot(m: GuildMember) {
+    return !m.user.bot
+  }
+
   async parseRecipients(
     msg: Message | CommandInteraction,
     targets: string[],
     fromDiscordId: string
   ) {
-    targets.forEach((t) => {
-      const u = t.toLowerCase()
-      const { isUser, isRole, isChannel } = parseDiscordToken(u)
-      if (
-        u !== "@everyone" &&
-        u !== "@here" &&
-        u !== "online" &&
-        !isUser &&
-        !isRole &&
-        !isChannel
-      ) {
-        throw new Error("Invalid recipients")
-      }
-    })
-
+    const isOnline = targets.includes("online")
     return Array.from(
       new Set(
         (
@@ -70,17 +70,16 @@ class Defi extends Fetcher {
                 case isRole: {
                   if (!msg.guild?.members) return []
                   const members = (await msg.guild.members.fetch())
-                    .filter((m) => !m.user.bot)
-                    .filter((mem) =>
-                      mem.roles.cache.map((role) => role.id).includes(targetId)
-                    )
+                    .filter(this.isNotBot)
+                    .filter(this.hasRole(targetId))
+                    .filter(this.isStatus(isOnline))
                   return members.map((member) => member.user.id)
                 }
 
                 // user
                 case isUser: {
                   const member = await msg.guild?.members.fetch(targetId)
-                  if (!member || member.user.bot) return []
+                  if (!member || !this.isNotBot(member)) return []
                   return [targetId]
                 }
 
@@ -92,13 +91,21 @@ class Defi extends Fetcher {
                   if (!channel) return []
                   if (channel.isText() && !channel.isThread()) {
                     return Array.from(
-                      channel.members.filter((m) => !m.user.bot).keys()
+                      channel.members
+                        .filter(this.isNotBot)
+                        .filter(this.isStatus(isOnline))
+                        .keys()
                     )
                   }
                   return []
                 }
 
-                case target.toLowerCase() === "online": {
+                case target.toLowerCase() === "online" &&
+                  targets.every(
+                    (t) =>
+                      !parseDiscordToken(t).isChannel &&
+                      !parseDiscordToken(t).isRole
+                  ): {
                   if (!msg.guild?.members) return []
                   const members = (await msg.guild.members.fetch())
                     .filter((m) => !m.user.bot)
@@ -115,7 +122,8 @@ class Defi extends Fetcher {
                 case ["@everyone", "@here"].includes(target): {
                   if (!msg.guild?.members) return []
                   const members = (await msg.guild.members.fetch())
-                    .filter((m) => !m.user.bot)
+                    .filter(this.isNotBot)
+                    .filter(this.isStatus(isOnline))
                     .filter(
                       (mem) =>
                         mem.roles.cache
@@ -211,7 +219,7 @@ class Defi extends Fetcher {
       throw new DiscordWalletTransferError({
         discordId,
         guildId: msg.guildId ?? "",
-        message: msg,
+        messageOrInteraction: msg,
         errorMsg: "Invalid airdrop command",
       })
     }
@@ -264,19 +272,53 @@ class Defi extends Fetcher {
   public parseTipParameters(args: string[]) {
     const each = args[args.length - 1].toLowerCase() === "each"
     args = each ? args.slice(0, args.length - 1) : args
-    let targets = args.slice(1, args.length - 2).map((id) => id.trim())
-    targets = [...new Set(targets)]
     const cryptocurrency = args[args.length - 1].toUpperCase()
     const amountArg = args[args.length - 2].toLowerCase()
-    return { each, targets, cryptocurrency, amountArg }
+    return { each, cryptocurrency, amountArg }
+  }
+
+  public classifyTipSyntaxTargets(msgContent: string): {
+    targets: Array<string>
+    isValid: boolean
+  } {
+    const components = msgContent.split(" ")
+    const result: {
+      targets: Array<string>
+      isValid: boolean
+    } = {
+      targets: [],
+      isValid: false,
+    }
+
+    result.targets = components.reduce<Array<string>>((targets, c) => {
+      const { isRole, isChannel, isUser, isUnknown } = parseDiscordToken(c)
+
+      if (isUnknown) {
+        if (["online", "@everyone", "@here"].includes(c.toLowerCase())) {
+          return [...targets, c.toLowerCase()]
+        }
+      }
+
+      if (isRole || isChannel || isUser) {
+        return [...targets, c]
+      }
+
+      return targets
+    }, [])
+
+    // all syntax are correct
+    if (result.targets.length === components.length) result.isValid = true
+
+    return result
   }
 
   public async getTipPayload(
     msg: Message | CommandInteraction,
     args: string[],
     authorId: string,
-    type: string
+    targets: string[]
   ): Promise<OffchainTipBotTransferRequest> {
+    const type = args[0]
     const sender = authorId
     let recipients: string[] = []
 
@@ -285,7 +327,6 @@ class Defi extends Fetcher {
     // parse recipients
     const {
       each: eachParse,
-      targets,
       cryptocurrency,
       amountArg,
     } = this.parseTipParameters(args)
@@ -293,18 +334,10 @@ class Defi extends Fetcher {
 
     // check if recipient is valid or not
     if (!recipients || !recipients.length) {
-      if (msg instanceof Message) {
-        throw new DiscordWalletTransferError({
-          discordId: sender,
-          guildId,
-          message: msg,
-          errorMsg: "No valid recipient found!",
-        })
-      }
-      throw new DiscordWalletTransferSlashError({
+      throw new DiscordWalletTransferError({
         discordId: sender,
         guildId,
-        interaction: msg,
+        messageOrInteraction: msg,
         errorMsg: "No valid recipient found!",
       })
     }
@@ -313,18 +346,10 @@ class Defi extends Fetcher {
     for (const recipientId of recipients) {
       const user = await msg.guild?.members.fetch(recipientId)
       if (!user) {
-        if (msg instanceof Message) {
-          throw new DiscordWalletTransferError({
-            discordId: sender,
-            guildId,
-            message: msg,
-            errorMsg: `User <@!${recipientId}> not found`,
-          })
-        }
-        throw new DiscordWalletTransferSlashError({
+        throw new DiscordWalletTransferError({
           discordId: sender,
           guildId,
-          interaction: msg,
+          messageOrInteraction: msg,
           errorMsg: `User <@!${recipientId}> not found`,
         })
       }
@@ -333,18 +358,10 @@ class Defi extends Fetcher {
     // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
     let amount = parseFloat(amountArg)
     if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
-      if (msg instanceof Message) {
-        throw new DiscordWalletTransferError({
-          discordId: sender,
-          guildId,
-          message: msg,
-          errorMsg: "Invalid amount",
-        })
-      }
-      throw new DiscordWalletTransferSlashError({
+      throw new DiscordWalletTransferError({
         discordId: sender,
         guildId,
-        interaction: msg,
+        messageOrInteraction: msg,
         errorMsg: "Invalid amount",
       })
     }
@@ -388,7 +405,7 @@ class Defi extends Fetcher {
       throw new DiscordWalletTransferError({
         discordId: sender,
         guildId,
-        message: msg,
+        messageOrInteraction: msg,
         errorMsg: "No valid recipient found!",
       })
     }
@@ -399,7 +416,7 @@ class Defi extends Fetcher {
       throw new DiscordWalletTransferError({
         discordId: sender,
         guildId,
-        message: msg,
+        messageOrInteraction: msg,
         errorMsg: "Invalid amount",
       })
     }
@@ -449,7 +466,7 @@ class Defi extends Fetcher {
       throw new DiscordWalletTransferError({
         discordId: sender,
         guildId,
-        message: msg,
+        messageOrInteraction: msg,
         errorMsg: "Invalid amount",
       })
     }

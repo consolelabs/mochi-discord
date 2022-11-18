@@ -1,4 +1,4 @@
-import Discord, { MessageOptions } from "discord.js"
+import Discord, { MessageEmbed, MessageOptions } from "discord.js"
 import { mockClient } from "../../../tests/mocks"
 import { commands } from "commands"
 import { composeEmbedMessage } from "utils/discordEmbed"
@@ -17,14 +17,14 @@ describe("tip", () => {
   if (!commands[commandKey]) return
   const command = commands[commandKey]
 
-  test("tip user successfully", async () => {
-    const msg = Reflect.construct(Discord.Message, [
+  function makeTipMessage(content: string) {
+    return Reflect.construct(Discord.Message, [
       mockClient,
       {
-        content: "$tip <@!760874365037314100> 1.5 cake",
+        content,
         author: {
           id: userId,
-          username: "tester",
+          username: "doesnt matter",
           discriminator: 1234,
         },
         id: Discord.SnowflakeUtil.generate(),
@@ -40,6 +40,35 @@ describe("tip", () => {
         },
       ]),
     ])
+  }
+
+  function assertThumbnail(
+    output: RunResult<MessageOptions>,
+    expected: MessageEmbed
+  ) {
+    expect(output?.messageOptions?.embeds?.[0].thumbnail).toStrictEqual(
+      expected.thumbnail
+    )
+  }
+  function assertAuthor(
+    output: RunResult<MessageOptions>,
+    expected: MessageEmbed
+  ) {
+    expect(output?.messageOptions?.embeds?.[0].author).toStrictEqual(
+      expected.author
+    )
+  }
+  function assertDescription(
+    output: RunResult<MessageOptions>,
+    expected: MessageEmbed
+  ) {
+    expect(output?.messageOptions?.embeds?.[0].description).toStrictEqual(
+      expected.description
+    )
+  }
+
+  test("tip user successfully", async () => {
+    const msg = makeTipMessage("$tip <@!760874365037314100> 1.5 cake")
     const tipPayload: OffchainTipBotTransferRequest = {
       sender: userId,
       recipients: ["760874365037314100"],
@@ -65,52 +94,33 @@ describe("tip", () => {
         },
       ],
     }
+    const syntaxTargets = {
+      targets: ["<@!760874365037314100>"],
+      isValid: true,
+    }
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@!${userId}> has sent <@!760874365037314100> **1.5 CAKE** (\u2248 $1.5) `,
     })
-    const output = await command.run(msg)
+    const output = (await command.run(msg)) as RunResult<MessageOptions>
+
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
-    expect(expected.thumbnail).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .thumbnail
-    )
-    expect(expected.author).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.description).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    )
+
+    assertThumbnail(output, expected)
+    assertAuthor(output, expected)
+    assertDescription(output, expected)
   })
 
   test("tip users successfully", async () => {
-    const msg = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content: "$tip <@!760874365037314100> <@!580788681967665173> 2 cake",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-        guild_id: Discord.SnowflakeUtil.generate(),
-        channel_id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
+    const msg = makeTipMessage(
+      "$tip <@!760874365037314100> <@!580788681967665173> 2 cake"
+    )
     const tipPayload: OffchainTipBotTransferRequest = {
       sender: userId,
       recipients: ["760874365037314100", "580788681967665173"],
@@ -143,52 +153,29 @@ describe("tip", () => {
         },
       ],
     }
+    const syntaxTargets = {
+      targets: ["<@!760874365037314100>", "<@!580788681967665173>"],
+      isValid: true,
+    }
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@!${userId}> has sent <@!760874365037314100>,<@!580788681967665173> **1 CAKE** (\u2248 $1.5) each`,
+      description: `<@!${userId}> has sent <@!760874365037314100>, <@!580788681967665173> **1 CAKE** (\u2248 $1.5) each`,
     })
-    const output = await command.run(msg)
+    const output = (await command.run(msg)) as RunResult<MessageOptions>
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
-    expect(expected.thumbnail).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .thumbnail
-    )
-    expect(expected.author).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.description).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    )
+
+    assertThumbnail(output, expected)
+    assertAuthor(output, expected)
+    assertDescription(output, expected)
   })
 
   test("tip user all", async () => {
-    const msg = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content: "$tip <@!760874365037314100> all cake",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-        guild_id: Discord.SnowflakeUtil.generate(),
-        channel_id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
+    const msg = makeTipMessage("$tip <@!760874365037314100> all cake")
     const tipPayload: OffchainTipBotTransferRequest = {
       sender: userId,
       recipients: ["760874365037314100"],
@@ -214,6 +201,11 @@ describe("tip", () => {
         },
       ],
     }
+    const syntaxTargets = {
+      targets: ["<@!760874365037314100>"],
+      isValid: true,
+    }
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     const expected = composeEmbedMessage(null, {
@@ -221,46 +213,19 @@ describe("tip", () => {
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@!${userId}> has sent <@!760874365037314100> **10 CAKE** (\u2248 $20.5) `,
     })
-    const output = await command.run(msg)
+    const output = (await command.run(msg)) as RunResult<MessageOptions>
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
-    expect(expected.thumbnail).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .thumbnail
-    )
-    expect(expected.author).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.description).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    )
+
+    assertThumbnail(output, expected)
+    assertAuthor(output, expected)
+    assertDescription(output, expected)
   })
 
   test("tip users each", async () => {
-    const msg = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content:
-          "$tip <@!760874365037314100> <@!580788681967665173> 1.5 cake each",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-        guild_id: Discord.SnowflakeUtil.generate(),
-        channel_id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
+    const msg = makeTipMessage(
+      "$tip <@!760874365037314100> <@!580788681967665173> 1.5 cake each"
+    )
     const tipPayload: OffchainTipBotTransferRequest = {
       sender: userId,
       recipients: ["760874365037314100", "580788681967665173"],
@@ -293,52 +258,29 @@ describe("tip", () => {
         },
       ],
     }
+    const syntaxTargets = {
+      targets: ["<@!760874365037314100>", "<@!580788681967665173>"],
+      isValid: true,
+    }
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@!${userId}> has sent <@!760874365037314100>,<@!580788681967665173> **1.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@!${userId}> has sent <@!760874365037314100>, <@!580788681967665173> **1.5 CAKE** (\u2248 $1.5) each`,
     })
-    const output = await command.run(msg)
+    const output = (await command.run(msg)) as RunResult<MessageOptions>
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
-    expect(expected.thumbnail).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .thumbnail
-    )
-    expect(expected.author).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.description).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    )
+
+    assertThumbnail(output, expected)
+    assertAuthor(output, expected)
+    assertDescription(output, expected)
   })
 
   test("tip role succesfully", async () => {
-    const msg = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content: "$tip <@&1039124250004574208> 3 cake",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-        guild_id: Discord.SnowflakeUtil.generate(),
-        channel_id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
+    const msg = makeTipMessage("$tip <@&1039124250004574208> 3 cake")
     const tipPayload: OffchainTipBotTransferRequest = {
       sender: userId,
       recipients: ["760874365037314100", "580788681967665173"],
@@ -377,54 +319,32 @@ describe("tip", () => {
       cryptocurrency: "CAKE",
       amountArg: 3,
     }
+    const syntaxTargets = {
+      targets: ["<@&1039124250004574208>"],
+      isValid: true,
+    }
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.parseTipParameters = jest.fn().mockReturnValue(params)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@!${userId}> has sent **2 user(s)** in <@&1039124250004574208> **1.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@!${userId}> has sent **2 user(s) (<@!760874365037314100>, <@!580788681967665173>)** in <@&1039124250004574208> **1.5 CAKE** (\u2248 $1.5) each`,
     })
-    const output = await command.run(msg)
+    const output = (await command.run(msg)) as RunResult<MessageOptions>
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
-    expect(expected.thumbnail).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .thumbnail
-    )
-    expect(expected.author).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.description).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    )
+
+    assertThumbnail(output, expected)
+    assertAuthor(output, expected)
+    assertDescription(output, expected)
   })
 
   test("tip role each", async () => {
-    const msg = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content:
-          "$tip <@&1039124250004574208> <@&1041914485251788800> 0.5 cake each",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-        guild_id: Discord.SnowflakeUtil.generate(),
-        channel_id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
+    const msg = makeTipMessage(
+      "$tip <@&1039124250004574208> <@&1041914485251788800> 0.5 cake each"
+    )
     const tipPayload: OffchainTipBotTransferRequest = {
       sender: userId,
       recipients: [
@@ -482,53 +402,30 @@ describe("tip", () => {
       cryptocurrency: "CAKE",
       amountArg: 0.5,
     }
+    const syntaxTargets = {
+      targets: ["<@&1039124250004574208>", "<@&1041914485251788800>"],
+      isValid: true,
+    }
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.parseTipParameters = jest.fn().mockReturnValue(params)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@!${userId}> has sent **4 user(s)** in <@&1039124250004574208>,<@&1041914485251788800> **0.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@!${userId}> has sent **4 user(s) (<@!760874365037314100>, <@!580788681967665173>, <@!753995829559165044>, <@!205167514731151360>)** in <@&1039124250004574208>, <@&1041914485251788800> **0.5 CAKE** (\u2248 $1.5) each`,
     })
-    const output = await command.run(msg)
+    const output = (await command.run(msg)) as RunResult<MessageOptions>
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
-    expect(expected.thumbnail).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .thumbnail
-    )
-    expect(expected.author).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.description).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    )
+
+    assertThumbnail(output, expected)
+    assertAuthor(output, expected)
+    assertDescription(output, expected)
   })
 
   test("tip text channel", async () => {
-    const msg = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content: "$tip <#984660970624409630> 0.5 cake each",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-        guild_id: Discord.SnowflakeUtil.generate(),
-        channel_id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
+    const msg = makeTipMessage("$tip <#984660970624409630> 0.5 cake each")
     const tipPayload: OffchainTipBotTransferRequest = {
       sender: userId,
       recipients: [
@@ -586,53 +483,30 @@ describe("tip", () => {
       cryptocurrency: "CAKE",
       amountArg: 0.5,
     }
+    const syntaxTargets = {
+      targets: ["<#984660970624409630>"],
+      isValid: true,
+    }
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.parseTipParameters = jest.fn().mockReturnValue(params)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@!${userId}> has sent **4 user(s)** in <#984660970624409630> **0.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@!${userId}> has sent **4 user(s) (<@!760874365037314100>, <@!580788681967665173>, <@!753995829559165044>, <@!205167514731151360>)** in <#984660970624409630> **0.5 CAKE** (\u2248 $1.5) each`,
     })
-    const output = await command.run(msg)
+    const output = (await command.run(msg)) as RunResult<MessageOptions>
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
-    expect(expected.thumbnail).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .thumbnail
-    )
-    expect(expected.author).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.description).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    )
+
+    assertThumbnail(output, expected)
+    assertAuthor(output, expected)
+    assertDescription(output, expected)
   })
 
   test("tip online status", async () => {
-    const msg = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content: "$tip online 0.5 cake each",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-        guild_id: Discord.SnowflakeUtil.generate(),
-        channel_id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
+    const msg = makeTipMessage("$tip online 0.5 cake each")
     const tipPayload: OffchainTipBotTransferRequest = {
       sender: userId,
       recipients: [
@@ -690,53 +564,30 @@ describe("tip", () => {
       cryptocurrency: "CAKE",
       amountArg: 0.5,
     }
+    const syntaxTargets = {
+      targets: ["online"],
+      isValid: true,
+    }
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.parseTipParameters = jest.fn().mockReturnValue(params)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@!${userId}> has sent **4 online user(s)** **0.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@!${userId}> has sent **4 online user(s) (<@!760874365037314100>, <@!580788681967665173>, <@!753995829559165044>, <@!205167514731151360>)** **0.5 CAKE** (\u2248 $1.5) each`,
     })
-    const output = await command.run(msg)
+    const output = (await command.run(msg)) as RunResult<MessageOptions>
     expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
-    expect(expected.thumbnail).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .thumbnail
-    )
-    expect(expected.author).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.description).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    )
+
+    assertThumbnail(output, expected)
+    assertAuthor(output, expected)
+    assertDescription(output, expected)
   })
 
   test("insufficient balance", async () => {
-    const msg = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content: "$tip <@!760874365037314100> 5 cake",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-        guild_id: Discord.SnowflakeUtil.generate(),
-        channel_id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
+    const msg = makeTipMessage("$tip <@!760874365037314100> 5 cake")
     const tipPayload: OffchainTipBotTransferRequest = {
       sender: userId,
       recipients: ["760874365037314100"],
@@ -753,6 +604,11 @@ describe("tip", () => {
     const transferResp = {
       error: "Not enough balance",
     }
+    const syntaxTargets = {
+      targets: ["<@!760874365037314100>"],
+      isValid: true,
+    }
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     try {
@@ -765,28 +621,7 @@ describe("tip", () => {
   })
 
   test("token not supported", async () => {
-    const msg = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content: "$tip <@!760874365037314100> 1.5 alt",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-        guild_id: Discord.SnowflakeUtil.generate(),
-        channel_id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
+    const msg = makeTipMessage("$tip <@!760874365037314100> 1.5 alt")
     const tipPayload: OffchainTipBotTransferRequest = {
       sender: userId,
       recipients: ["760874365037314100"],
@@ -803,6 +638,11 @@ describe("tip", () => {
     const transferResp = {
       error: "Token not supported",
     }
+    const syntaxTargets = {
+      targets: ["<@!760874365037314100>"],
+      isValid: true,
+    }
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     try {
