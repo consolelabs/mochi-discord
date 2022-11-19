@@ -45,7 +45,11 @@ export async function handleTip(
   )
 
   if (!ok) {
-    throw new APIError({ curl, description: log, error })
+    let message
+    if (msg instanceof Message) {
+      message = msg
+    }
+    throw new APIError({ message, curl, description: log, error })
   }
 
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
