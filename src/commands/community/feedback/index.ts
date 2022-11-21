@@ -317,6 +317,12 @@ export async function feedbackDispatcher(i: ButtonInteraction) {
   }
   const stripPrefix = i.customId.slice("feedback-".length)
   const msg = i.message as Message
+  const refMsg = await msg.fetchReference().catch(() => null)
+  let authorId = refMsg?.author.id
+  if (!refMsg) {
+    authorId = msg.interaction?.user.id
+  }
+  if (authorId !== i.user.id) return
   switch (true) {
     case stripPrefix.startsWith("handle-set-in-progress"):
       await handleFeedbackSetInProgress(i)
