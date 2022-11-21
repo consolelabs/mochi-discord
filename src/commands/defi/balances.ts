@@ -8,16 +8,16 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import { APIError } from "errors"
+import { APIError, OriginalMessage } from "errors"
 import Defi from "adapters/defi"
 import { composeEmbedMessage, justifyEmbedFields } from "utils/discordEmbed"
 import { UserBalances } from "types/defi"
 
-export async function handleBal(userId: string) {
+export async function handleBal(userId: string, message: OriginalMessage) {
   // case API return 500 or unexpected result
   const res = await Defi.offchainGetUserBalances({ userId })
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log })
+    throw new APIError({ message, curl: res.curl, description: res.log })
   }
 
   // case data normal
@@ -76,7 +76,7 @@ const command: Command = {
   brief: "Wallet balances",
   category: "Defi",
   run: async function balances(msg: Message) {
-    return handleBal(msg.author.id)
+    return handleBal(msg.author.id, msg)
   },
   featured: {
     title: `${getEmoji("cash")} Balance`,

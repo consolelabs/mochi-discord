@@ -525,6 +525,7 @@ export interface RequestAddToTwitterBlackListRequest {
 
 export interface RequestAddToWatchlistRequest {
   coin_gecko_id?: string;
+  is_fiat?: boolean;
   symbol?: string;
   user_id?: string;
 }

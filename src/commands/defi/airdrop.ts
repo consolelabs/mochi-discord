@@ -256,7 +256,7 @@ const command: Command = {
       userId: payload.sender,
     })
     if (!ok) {
-      throw new APIError({ curl: curl, description: log })
+      throw new APIError({ message: msg, curl: curl, description: log })
     }
     // get balance and price in usd
     let currentBal = 0

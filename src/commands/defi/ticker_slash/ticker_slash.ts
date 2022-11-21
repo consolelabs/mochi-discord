@@ -193,8 +193,6 @@ async function composeTickerResponse({
   })
   if (!ok) {
     throw new APIError({
-      guild: interaction.guild,
-      user: interaction.user,
       description: log,
       curl,
     })
@@ -350,15 +348,13 @@ const command: SlashCommand = {
     })
     if (!ok)
       throw new APIError({
-        guild: interaction.guild,
-        user: interaction.user,
+        message: interaction,
         description: log,
         curl,
       })
     if (!coins || !coins.length) {
       throw new InternalError({
-        guild: interaction.guild,
-        user: interaction.user,
+        message: interaction,
         description: `Cannot find any cryptocurrency with \`${baseQ}\`.\nPlease choose another one!`,
       })
     }

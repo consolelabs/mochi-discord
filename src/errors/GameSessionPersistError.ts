@@ -2,12 +2,12 @@ import { BotBaseError } from "./BaseError"
 
 export class GameSessionPersistError extends BotBaseError {
   constructor({
-    guild,
-    channel,
-    userId,
     gameName,
     gameId,
     err,
+    guild,
+    channel,
+    userId,
   }: {
     guild: string
     channel: string
@@ -21,7 +21,8 @@ export class GameSessionPersistError extends BotBaseError {
     this.message = JSON.stringify({
       guild,
       channel,
-      data: { userId, gameName, gameId },
+      userId,
+      data: { gameName, gameId },
     })
   }
 }

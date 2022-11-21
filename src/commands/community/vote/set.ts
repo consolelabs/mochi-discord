@@ -1,5 +1,5 @@
 import config from "adapters/config"
-import { Message, User } from "discord.js"
+import { Message } from "discord.js"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
@@ -7,11 +7,14 @@ import { PREFIX, VOTE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 import { handle as handleInfo } from "./info"
 
-async function handle(channelId: string, guildId: string, user: User) {
-  const res = await config.setVoteChannel(guildId, channelId)
+async function handle(channelId: string, message: Message) {
+  if (!message.guildId) {
+    throw new GuildIdNotFoundError({ message })
+  }
+  const res = await config.setVoteChannel(message.guildId, channelId)
 
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log, user })
+    throw new APIError({ curl: res.curl, description: res.log })
   }
 }
 
@@ -34,8 +37,8 @@ const command: Command = {
       })
     }
 
-    await handle(channelId, msg.guildId, msg.author)
-    const info = await handleInfo(msg.guildId, msg.author)
+    await handle(channelId, msg)
+    const info = await handleInfo(msg.guildId, msg)
 
     return {
       messageOptions: {

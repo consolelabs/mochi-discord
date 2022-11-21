@@ -1,15 +1,15 @@
 import config from "adapters/config"
-import { Message, User } from "discord.js"
+import { Message } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 
-async function handle(guildId: string, user: User) {
+async function handle(guildId: string, message: Message) {
   const res = await config.removeJoinLeaveChannel(guildId)
 
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log, user })
+    throw new APIError({ message, curl: res.curl, description: res.log })
   }
 }
 
@@ -23,7 +23,7 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
 
-    await handle(msg.guildId, msg.author)
+    await handle(msg.guildId, msg)
 
     return {
       messageOptions: {

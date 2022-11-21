@@ -6,8 +6,8 @@ import {
   RequestConfigRepostReactionConversation,
   BlacklistChannelRepostConfigRequest,
 } from "types/common"
-import { CommandInteraction, Message } from "discord.js"
-import { CommandIsNotScopedError, SlashCommandIsNotScopedError } from "errors"
+import { Message } from "discord.js"
+import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
 import { Guild, Guilds } from "types/config"
@@ -819,105 +819,6 @@ class Config extends Fetcher {
         query,
       }
     )
-  }
-
-  //////////////////// Slash Commands
-  public async slashCommandIsScoped({
-    interaction,
-    category,
-    command,
-  }: {
-    interaction: CommandInteraction
-    category: string
-    command: string
-  }): Promise<boolean> {
-    if (interaction.channel?.type === "DM") return true
-    if (!interaction.guildId) return false
-    const scopes = await this.getGuildScopes(interaction.guildId)
-    if (!scopes) return false
-    const cat = category.toLowerCase()
-    const cmd = command.toLowerCase()
-
-    for (const scope of scopes) {
-      const scopeParts = scope.split("/")
-      switch (scopeParts.length) {
-        case 0:
-          logger.error("Invalid scope: " + scope)
-          return false
-        case 1:
-          if (scopeParts[0] === "*") {
-            return true
-          }
-          logger.error("Invalid scope: " + scope)
-          break
-        case 2: {
-          const scopeCat = scopeParts[0]
-          const scopeCmd = scopeParts[1]
-          if (cat === scopeCat && (scopeCmd === "*" || cmd === scopeCmd)) {
-            return true
-          }
-          break
-        }
-        default:
-      }
-    }
-    return false
-  }
-
-  public async checkGuildSlashCommandScopes(
-    interaction: CommandInteraction,
-    commandObject: Command
-  ) {
-    if (commandObject.id === "help" || interaction.channel?.type === "DM") {
-      return
-    }
-    const isInScoped = await this.slashCommandIsScoped({
-      interaction,
-      category: commandObject.category,
-      command: commandObject.command,
-    })
-    if (!isInScoped) {
-      throw new SlashCommandIsNotScopedError({
-        interaction,
-        category: commandObject.category.toLowerCase(),
-        command: commandObject.command.toLowerCase(),
-      })
-    }
-  }
-
-  public async slashCategoryIsScoped(
-    interaction: CommandInteraction,
-    category: string
-  ): Promise<boolean> {
-    if (interaction.channel?.type === "DM") return true
-    if (!interaction.guildId) return false
-    const scopes = await this.getGuildScopes(interaction.guildId)
-    if (!scopes) return false
-    const cat = category.toLowerCase()
-
-    for (const scope of scopes) {
-      const scopeParts = scope.split("/")
-      switch (scopeParts.length) {
-        case 0:
-          logger.error("Invalid scope: " + scope)
-          return false
-        case 1:
-          if (scopeParts[0] === "*") {
-            return true
-          }
-          logger.error("Invalid scope: " + scope)
-          break
-        case 2: {
-          const scopeCat = scopeParts[0]
-          if (cat === scopeCat) {
-            return true
-          }
-          break
-        }
-        default:
-      }
-    }
-    return false
   }
 
   public async linkTelegramAccount(req: {

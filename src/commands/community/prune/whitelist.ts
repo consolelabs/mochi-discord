@@ -1,5 +1,5 @@
 import config from "adapters/config"
-import { Guild, Message, Role, User } from "discord.js"
+import { Guild, Message, Role } from "discord.js"
 import {
   APIError,
   BotBaseError,
@@ -11,10 +11,13 @@ import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 
-async function createWhitelist(roleId: string, guild: Guild, user: User) {
-  const res = await config.createExcludedRole(roleId, guild.id)
+async function createWhitelist(roleId: string, message: Message) {
+  if (!message.guildId) {
+    throw new GuildIdNotFoundError({ message })
+  }
+  const res = await config.createExcludedRole(roleId, message.guildId)
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log, guild, user })
+    throw new APIError({ message, curl: res.curl, description: res.log })
   }
 }
 
@@ -88,7 +91,7 @@ const command: Command = {
       })
     }
 
-    await createWhitelist(id, msg.guild, msg.author)
+    await createWhitelist(id, msg)
 
     return {
       messageOptions: {

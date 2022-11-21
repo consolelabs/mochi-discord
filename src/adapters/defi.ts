@@ -218,9 +218,8 @@ class Defi extends Fetcher {
     if (![3, 5, 7].includes(args.length)) {
       throw new DiscordWalletTransferError({
         discordId,
-        guildId: msg.guildId ?? "",
-        messageOrInteraction: msg,
-        errorMsg: "Invalid airdrop command",
+        message: msg,
+        error: "Invalid airdrop command",
       })
     }
 
@@ -336,9 +335,8 @@ class Defi extends Fetcher {
     if (!recipients || !recipients.length) {
       throw new DiscordWalletTransferError({
         discordId: sender,
-        guildId,
-        messageOrInteraction: msg,
-        errorMsg: "No valid recipient found!",
+        message: msg,
+        error: "No valid recipient found!",
       })
     }
 
@@ -348,9 +346,8 @@ class Defi extends Fetcher {
       if (!user) {
         throw new DiscordWalletTransferError({
           discordId: sender,
-          guildId,
-          messageOrInteraction: msg,
-          errorMsg: `User <@!${recipientId}> not found`,
+          message: msg,
+          error: `User <@!${recipientId}> not found`,
         })
       }
     }
@@ -360,9 +357,8 @@ class Defi extends Fetcher {
     if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
       throw new DiscordWalletTransferError({
         discordId: sender,
-        guildId,
-        messageOrInteraction: msg,
-        errorMsg: "Invalid amount",
+        message: msg,
+        error: "Invalid amount",
       })
     }
     const each = eachParse && amountArg !== "all"
@@ -404,9 +400,8 @@ class Defi extends Fetcher {
     if (!recipients || !recipients.length) {
       throw new DiscordWalletTransferError({
         discordId: sender,
-        guildId,
-        messageOrInteraction: msg,
-        errorMsg: "No valid recipient found!",
+        message: msg,
+        error: "No valid recipient found!",
       })
     }
 
@@ -415,9 +410,8 @@ class Defi extends Fetcher {
     if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
       throw new DiscordWalletTransferError({
         discordId: sender,
-        guildId,
-        messageOrInteraction: msg,
-        errorMsg: "Invalid amount",
+        message: msg,
+        error: "Invalid amount",
       })
     }
 
@@ -465,9 +459,8 @@ class Defi extends Fetcher {
     if (isNaN(amount) || amount <= 0) {
       throw new DiscordWalletTransferError({
         discordId: sender,
-        guildId,
-        messageOrInteraction: msg,
-        errorMsg: "Invalid amount",
+        message: msg,
+        error: "Invalid amount",
       })
     }
 

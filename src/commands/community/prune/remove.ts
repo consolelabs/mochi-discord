@@ -1,15 +1,18 @@
 import config from "adapters/config"
-import { Guild, Message, User } from "discord.js"
+import { Message } from "discord.js"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 
-async function deleteWhitelist(roleId: string, guild: Guild, user: User) {
-  const res = await config.removeExcludedRole(roleId, guild.id)
+async function deleteWhitelist(roleId: string, message: Message) {
+  if (!message.guildId) {
+    throw new GuildIdNotFoundError({ message })
+  }
+  const res = await config.removeExcludedRole(roleId, message.guildId)
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log, guild, user })
+    throw new APIError({ message, curl: res.curl, description: res.log })
   }
 }
 
@@ -32,7 +35,7 @@ const command: Command = {
       })
     }
 
-    await deleteWhitelist(id, msg.guild, msg.author)
+    await deleteWhitelist(id, msg)
 
     return {
       messageOptions: {

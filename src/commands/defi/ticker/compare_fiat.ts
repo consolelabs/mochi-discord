@@ -132,8 +132,6 @@ const command: Command = {
     if (base === target) {
       throw new CommandArgumentError({
         message: msg,
-        user: msg.author,
-        guild: msg.guild,
         description: "Base and target currencies cannot be the same",
         getHelpMessage: () => this.getHelpMessage(msg),
       })
