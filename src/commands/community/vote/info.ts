@@ -1,14 +1,14 @@
 import config from "adapters/config"
-import { Message, User } from "discord.js"
+import { Message } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { PREFIX, VOTE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 
-export async function handle(guildId: string, user: User) {
+export async function handle(guildId: string, message: Message) {
   const res = await config.getVoteChannel(guildId)
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log, user })
+    throw new APIError({ message, curl: res.curl, description: res.log })
   }
 
   return res.data
@@ -24,7 +24,7 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
 
-    const info = await handle(msg.guildId, msg.author)
+    const info = await handle(msg.guildId, msg)
 
     if (!info) {
       return {

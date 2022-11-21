@@ -17,10 +17,9 @@ export async function verifyRemove(interaction: CommandInteraction) {
 
   if (!infoRes.ok) {
     throw new APIError({
+      message: interaction,
       curl: infoRes.curl,
       description: infoRes.log,
-      user: interaction.user,
-      guild: interaction.guild,
     })
   }
 

@@ -29,14 +29,7 @@ export function handleUpdateWlError(
   let description = ""
   if (!error) {
     throw new InternalError({
-      message:
-        "message" in msg
-          ? (msg.message as Message)
-          : msg instanceof Message
-          ? msg
-          : undefined,
-      user: "user" in msg ? msg.user : undefined,
-      guild: msg.guild,
+      message: msg,
       description,
     })
   }
@@ -53,14 +46,7 @@ export function handleUpdateWlError(
       break
   }
   throw new InternalError({
-    message:
-      "message" in msg
-        ? (msg.message as Message)
-        : msg instanceof Message
-        ? msg
-        : undefined,
-    user: "user" in msg ? msg.user : undefined,
-    guild: msg.guild,
+    message: msg,
     description,
   })
 }

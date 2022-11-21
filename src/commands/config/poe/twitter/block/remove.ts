@@ -23,8 +23,6 @@ const command: Command = {
     if (twitterRes.errors || !twitterRes.data) {
       throw new CommandArgumentError({
         message: msg,
-        user: msg.author,
-        guild: msg.guild,
         description: "Invalid twitter ID or username",
         getHelpMessage: () => this.getHelpMessage(msg),
       })

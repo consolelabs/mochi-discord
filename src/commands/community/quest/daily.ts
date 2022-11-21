@@ -43,7 +43,9 @@ export async function handleBackToQuestList(i: ButtonInteraction) {
   const authorId = i.customId.split("_")[1]
   if (authorId !== i.user.id) return
 
-  const msg = await (i.message as Message).fetchReference().catch(() => null)
+  const msg = await (i.message as Message)
+    .fetchReference()
+    .catch(() => undefined)
   const {
     messageOptions: { embeds },
   } = await run(i.user.id, msg)
@@ -115,12 +117,12 @@ export async function handleClaimReward(i: ButtonInteraction) {
   })
 }
 
-export async function run(userId: string, msg: Message | null) {
+export async function run(userId: string, msg?: Message) {
   const res = await community.getListQuest(userId)
   if (!res.ok) {
     throw new APIError({
       curl: res.curl,
-      message: msg || undefined,
+      message: msg,
       description: res.log,
     })
   }

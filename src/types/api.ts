@@ -525,6 +525,7 @@ export interface RequestAddToTwitterBlackListRequest {
 
 export interface RequestAddToWatchlistRequest {
   coin_gecko_id?: string;
+  is_fiat?: boolean;
   symbol?: string;
   user_id?: string;
 }
@@ -833,6 +834,8 @@ export interface RequestUpsertCustomTokenConfigRequest {
 export interface RequestUpsertDiscordUserAlertRequest {
   device_id?: string;
   discord_id?: string;
+  id?: string;
+  is_enable?: boolean;
   price_set?: number;
   token_id?: string;
   trend?: string;
@@ -1007,6 +1010,10 @@ export interface ResponseDataListRoleReactionResponse {
   /** page size */
   size?: number;
   total?: number;
+}
+
+export interface ResponseDataMetric {
+  data?: ResponseMetric;
 }
 
 export interface ResponseDefaultRole {
@@ -1602,6 +1609,13 @@ export interface ResponseMarketData {
   price_change_percentage_7d_in_currency?: Record<string, number>;
 }
 
+export interface ResponseMetric {
+  nft_collections?: number;
+  server_active_users?: number;
+  total_active_users?: number;
+  total_servers?: number;
+}
+
 export interface ResponseNFTCollectionConfig {
   address?: string;
   author?: string;
@@ -1852,6 +1866,9 @@ export interface ResponseUserDeviceResponse {
 
 export interface ResponseUserFeedbackResponse {
   data?: ModelUserFeedback[];
+  page?: number;
+  size?: number;
+  total?: number;
 }
 
 export interface ResponseUserInvitesAggregation {

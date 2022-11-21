@@ -19,7 +19,7 @@ const command: SlashCommand = {
       .setDescription("Show your balances")
   },
   run: async function (interaction: CommandInteraction) {
-    return handleBal(interaction.user.id)
+    return handleBal(interaction.user.id, interaction)
   },
   help: async () => ({
     embeds: [

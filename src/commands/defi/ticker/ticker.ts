@@ -30,7 +30,7 @@ import {
   getChartColorConfig,
   renderChartImage,
 } from "utils/canvas"
-import compare from "./compare"
+import compare, { allowedCurrencies } from "./compare"
 import config from "adapters/config"
 import CacheManager from "utils/CacheManager"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
@@ -41,6 +41,7 @@ import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
 import community from "adapters/community"
 import _default from "./default"
+import { isValidFiatPair } from "utils/defi"
 
 const actions: Record<string, Command> = {
   default: _default,
@@ -394,7 +395,30 @@ const command: Command = {
     const args = getCommandArguments(msg)
     // execute
     const [query] = args.slice(1)
-    const [coinQ, targetQ] = query.split("/")
+    let [coinQ, targetQ] = query.split("/")
+
+    // case single fiat -> assume target is usd
+    if (
+      allowedCurrencies.includes(coinQ.toLowerCase()) &&
+      coinQ.length === 3 &&
+      coinQ != "usd"
+    ) {
+      msg.content.trimEnd()
+      msg.content += "/usd"
+      targetQ = "usd"
+    }
+    // case usdvnd
+    // fiat symbols are 3 letters long
+    if (coinQ.length == 6) {
+      const b = coinQ.slice(0, 3)
+      const t = coinQ.slice(3, 6)
+      if (isValidFiatPair([b, t])) {
+        msg.content = msg.content.replace(coinQ, b + "/" + t)
+        coinQ = b
+        targetQ = t
+      }
+    }
+
     // run token comparison
     if (targetQ) return compare.run(msg)
     const {

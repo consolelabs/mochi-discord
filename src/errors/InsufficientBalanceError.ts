@@ -1,41 +1,35 @@
-import { Message, TextChannel } from "discord.js"
 import { getErrorEmbed } from "utils/discordEmbed"
-import { BotBaseError } from "./BaseError"
+import { BotBaseError, OriginalMessage } from "./BaseError"
 
 export class InsufficientBalanceError extends BotBaseError {
-  private discordMessage: Message
-  private errorMsg: string
+  private error: string
 
   constructor({
     discordId,
     message,
-    errorMsg,
+    error,
   }: {
     discordId: string
-    message: Message
-    errorMsg: string
+    message: OriginalMessage
+    error: string
   }) {
-    super()
+    super(message)
     this.name = "Insufficient funds error"
-    this.discordMessage = message
-    this.errorMsg = errorMsg
-    const channel = message.channel as TextChannel
+    this.error = error
     this.message = JSON.stringify({
-      guild: message.guild ? message.guild.name : "",
-      channel: channel ? channel.name : "dm",
-      user: message.author.tag,
+      guild: this.guild,
+      channel: this.channel,
+      user: this.user,
       data: { discordId },
     })
   }
 
   handle() {
-    super.handle()
-    this.discordMessage.channel.send({
+    this.reply?.({
       embeds: [
         getErrorEmbed({
-          msg: this.discordMessage,
           title: "Insufficient funds",
-          description: this.errorMsg,
+          description: this.error,
         }),
       ],
     })

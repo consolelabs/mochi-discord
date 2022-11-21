@@ -72,8 +72,7 @@ const command: SlashCommand = {
     const messageLink = interaction.options.getString("message_link", true)
     if (!isDiscordMessageLink(messageLink)) {
       throw new InternalError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         description:
           "Invalid message link, use `$help rr` to learn how to get message link",
       })
@@ -82,8 +81,7 @@ const command: SlashCommand = {
     const [guildId, channelId, messageId] = messageLink.split("/").slice(-3)
     if (guildId !== interaction.guildId) {
       throw new InternalError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         description:
           "Guild ID invalid, please choose a message belongs to your guild",
       })
@@ -92,8 +90,7 @@ const command: SlashCommand = {
     const channel = interaction.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
     if (!channel || !channel.isText()) {
       throw new InternalError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         description: "Channel not found",
       })
     }
@@ -101,8 +98,7 @@ const command: SlashCommand = {
     const message = await channel.messages.fetch(messageId).catch(() => null)
     if (!message) {
       throw new InternalError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         description: "Message not found",
       })
     }

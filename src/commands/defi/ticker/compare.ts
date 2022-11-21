@@ -24,7 +24,7 @@ import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
 import comparefiat from "./compare_fiat"
 
-export const allowedCurrencies = ["gbp", "usd", "eur", "sgd"]
+export const allowedCurrencies = ["gbp", "usd", "eur", "sgd", "vnd"]
 
 export async function renderCompareTokenChart({
   times,

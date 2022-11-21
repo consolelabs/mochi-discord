@@ -79,8 +79,7 @@ const command: SlashCommand = {
     const messageLink = interaction.options.getString("message_link", true)
     if (!isDiscordMessageLink(messageLink)) {
       throw new InternalError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         description:
           "Can't find the messages.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
       })
@@ -89,8 +88,7 @@ const command: SlashCommand = {
     const [guildId, channelId, messageId] = messageLink.split("/").slice(-3)
     if (guildId !== interaction.guildId) {
       throw new InternalError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         description:
           "Guild ID invalid, please choose a message belongs to your guild.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
       })
@@ -99,8 +97,7 @@ const command: SlashCommand = {
     const channel = interaction.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
     if (!channel || !channel.isText()) {
       throw new InternalError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         description:
           "Channel invalid, please choose a message in a text channel.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
       })
@@ -111,8 +108,7 @@ const command: SlashCommand = {
       .catch(() => null)
     if (!reactMessage) {
       throw new InternalError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         description:
           "Message not found, please choose another valid message. \n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
       })
@@ -130,8 +126,7 @@ const command: SlashCommand = {
     const res = await config.updateReactionConfig(requestData)
     if (!res.ok) {
       throw new APIError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         curl: res.curl,
         description:
           "Failed to set reaction role. \n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",

@@ -39,8 +39,7 @@ const command: SlashCommand = {
     const res = await config.listAllReactionRoles(interaction.guildId)
     if (!res.ok) {
       throw new APIError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         curl: res.curl,
         description: res.log,
       })
@@ -49,8 +48,7 @@ const command: SlashCommand = {
     const data = res.data.configs
     if (!data) {
       throw new InternalError({
-        user: interaction.user,
-        guild: interaction.guild,
+        message: interaction,
         description: "No configuration found",
       })
     }
@@ -67,8 +65,7 @@ const command: SlashCommand = {
           .catch(() => null)
         if (!reactMessage) {
           throw new InternalError({
-            user: interaction.user,
-            guild: interaction.guild,
+            message: interaction,
             description: "Message not found",
           })
         }

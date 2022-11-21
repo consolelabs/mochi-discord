@@ -291,10 +291,14 @@ async function handleViewFeedbackList(i: ButtonInteraction, page = 0) {
   })
 }
 
-export async function handleFeedback(req: RequestUserFeedbackRequest) {
+export async function handleFeedback(
+  req: RequestUserFeedbackRequest,
+  message?: Message
+) {
   const res = await community.sendFeedback(req)
   if (!res.ok) {
     throw new InternalError({
+      message,
       description: "Failed to send your feedback, please try again later",
     })
   }
@@ -317,6 +321,12 @@ export async function feedbackDispatcher(i: ButtonInteraction) {
   }
   const stripPrefix = i.customId.slice("feedback-".length)
   const msg = i.message as Message
+  const refMsg = await msg.fetchReference().catch(() => null)
+  let authorId = refMsg?.author.id
+  if (!refMsg) {
+    authorId = msg.interaction?.user.id
+  }
+  if (authorId !== i.user.id) return
   switch (true) {
     case stripPrefix.startsWith("handle-set-in-progress"):
       await handleFeedbackSetInProgress(i)

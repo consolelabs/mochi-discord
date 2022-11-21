@@ -729,14 +729,17 @@ const command: Command = {
         )
         const detailRes = await community.getNFTCollectionDetail(colAddress)
 
-        if (!res.ok || !detailRes.ok) {
+        if (!res.ok) {
+          throw new APIError({
+            message: msg,
+            curl: res.curl,
+            description: res.log,
+          })
+        } else if (!detailRes.ok) {
           throw new APIError({
             message: msg,
             curl: detailRes.curl,
-            description: {
-              nftDetail: res.log,
-              collectionDetail: detailRes.log,
-            },
+            description: detailRes.log,
           })
         } else {
           const shouldAskDefault =

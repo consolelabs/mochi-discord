@@ -32,6 +32,7 @@ const command: SlashCommand = {
 
     if (!res.ok) {
       throw new APIError({
+        message: interaction,
         curl: res.curl,
         description: res.log,
       })

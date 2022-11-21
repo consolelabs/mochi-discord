@@ -546,7 +546,11 @@ function createSwap({
                 })),
               })
               if (!offer.ok || !offer.data.id) {
-                throw new APIError({ curl: offer.curl, description: offer.log })
+                throw new APIError({
+                  message: msg,
+                  curl: offer.curl,
+                  description: offer.log,
+                })
               }
 
               if (!userData) {

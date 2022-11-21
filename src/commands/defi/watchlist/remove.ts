@@ -6,6 +6,8 @@ import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
 import CacheManager from "utils/CacheManager"
 import { handleUpdateWlError } from "../watchlist_slash"
+import { allowedCurrencies } from "../ticker/compare"
+import { isValidFiatPair } from "utils/defi"
 
 const command: Command = {
   id: "watchlist_remove",
@@ -13,7 +15,25 @@ const command: Command = {
   brief: "Remove a token from your watchlist.",
   category: "Defi",
   run: async (msg) => {
-    const symbol = getCommandArguments(msg)[2]
+    let symbol = getCommandArguments(msg)[2]
+    const symbols = symbol.split("/")
+
+    // fiat case: gbpusd, vnd
+    if (symbols.length === 1) {
+      if (allowedCurrencies.includes(symbols[0].toLowerCase())) {
+        symbol += "/usd"
+      }
+
+      // fiat symbols are 3 letters long
+      if (symbol.length === 6) {
+        const b = symbol.slice(0, 3)
+        const t = symbol.slice(3, 6)
+        if (isValidFiatPair([b, t])) {
+          symbol = symbol.replace(symbols[0], b + "/" + t)
+        }
+      }
+    }
+
     const userId = msg.author.id
     const { ok, error } = await defi.removeFromWatchlist({
       userId,
