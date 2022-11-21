@@ -30,6 +30,16 @@ import {
 import { commands } from "commands"
 import parse from "parse-duration"
 
+const TIP_TARGET_TEXT_SELECTOR_MAPPINGS = {
+  online: "online",
+  "@everyone": "all",
+  "@here": "all",
+  voice: "voice",
+  "voice channel": "voice",
+  "in voice channel": "voice",
+  "in my voice channel": "voice",
+}
+
 class Defi extends Fetcher {
   protected hasRole(roleId: string) {
     return (m: GuildMember) => m.roles.cache.some((r) => r.id === roleId)
@@ -118,8 +128,26 @@ class Defi extends Fetcher {
                   return members.map((member) => member.user.id)
                 }
 
-                // special role
-                case ["@everyone", "@here"].includes(target): {
+                // voice channel
+                case target.toLowerCase() === "voice": {
+                  if (!msg.guild?.members || msg instanceof CommandInteraction)
+                    return []
+                  // fetch guild members otherwise the list will not be full (cached)
+                  const members = await msg.guild.members.fetch({ force: true })
+
+                  const voiceChannelId = msg.member?.voice.channelId
+
+                  const recipients = Array.from(
+                    members
+                      .filter((m) => m.voice.channelId === voiceChannelId)
+                      .mapValues((m) => m.user.id)
+                      .values()
+                  )
+                  return recipients
+                }
+
+                // get all
+                case target === "all": {
                   if (!msg.guild?.members) return []
                   const members = (await msg.guild.members.fetch())
                     .filter(this.isNotBot)
@@ -280,7 +308,8 @@ class Defi extends Fetcher {
     targets: Array<string>
     isValid: boolean
   } {
-    const components = msgContent.split(" ")
+    let content = msgContent
+    const targetSet = new Set<string>()
     const result: {
       targets: Array<string>
       isValid: boolean
@@ -288,25 +317,31 @@ class Defi extends Fetcher {
       targets: [],
       isValid: false,
     }
+    let selector
+    while (
+      (selector = Object.entries(TIP_TARGET_TEXT_SELECTOR_MAPPINGS).find((s) =>
+        content.toLowerCase().includes(s[0])
+      )) !== undefined
+    ) {
+      const [s, translatedSelector] = selector
+      content = content.replace(s, "").replaceAll(/\s{2,}/gim, " ")
+      targetSet.add(translatedSelector)
+    }
 
-    result.targets = components.reduce<Array<string>>((targets, c) => {
-      const { isRole, isChannel, isUser, isUnknown } = parseDiscordToken(c)
-
-      if (isUnknown) {
-        if (["online", "@everyone", "@here"].includes(c.toLowerCase())) {
-          return [...targets, c.toLowerCase()]
-        }
-      }
+    const components = content.split(" ")
+    const invalidTargets = components.filter((c) => {
+      const { isRole, isChannel, isUser } = parseDiscordToken(c)
 
       if (isRole || isChannel || isUser) {
-        return [...targets, c]
+        targetSet.add(c)
+        return false
       }
+      return true
+    })
 
-      return targets
-    }, [])
-
+    result.targets = Array.from<string>(targetSet)
     // all syntax are correct
-    if (result.targets.length === components.length) result.isValid = true
+    if (invalidTargets.length > 0) result.isValid = true
 
     return result
   }
