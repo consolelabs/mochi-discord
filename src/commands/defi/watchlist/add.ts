@@ -22,6 +22,7 @@ import CacheManager from "utils/CacheManager"
 import { handleUpdateWlError } from "../watchlist_slash"
 import { InteractionHandler } from "utils/InteractionManager"
 import { allowedCurrencies } from "../ticker/compare"
+import { isValidFiatPair } from "utils/defi"
 
 export async function addToWatchlist(interaction: ButtonInteraction) {
   // deferUpdate because we will edit the message later
@@ -61,13 +62,36 @@ export async function addUserWatchlist(
   const symbols = symbol.split("/")
   let is_fiat = false
 
-  // currently only fully support base USD, TODO: update this when better supported
-  if (
-    symbols.length === 2 &&
-    symbols[0] === "usd" &&
-    allowedCurrencies.includes(symbols[1].toLowerCase())
-  ) {
-    is_fiat = true
+  // check for fiat
+  switch (symbols.length) {
+    case 2:
+      if (isValidFiatPair(symbols)) {
+        is_fiat = true
+      }
+      break
+    case 1:
+      // if use shortcut $ticker fiat, assume target is USD
+      if (
+        allowedCurrencies.includes(symbols[0].toLowerCase()) &&
+        symbol.length === 3 &&
+        symbols[0] != "usd"
+      ) {
+        symbol += "/usd"
+        is_fiat = true
+      }
+
+      // fiat symbols are 3 letters long
+      if (symbol.length === 6) {
+        const b = symbol.slice(0, 3)
+        const t = symbol.slice(3, 6)
+        if (isValidFiatPair([b, t])) {
+          symbol = symbol.replace(symbols[0], b + "/" + t)
+          is_fiat = true
+        }
+      }
+      break
+    default:
+      break
   }
 
   const { data, ok, error } = await defi.addToWatchlist({
