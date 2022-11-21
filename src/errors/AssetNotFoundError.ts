@@ -1,15 +1,19 @@
-import { Message, TextChannel } from "discord.js"
-import { BotBaseError } from "./BaseError"
+import { BotBaseError, OriginalMessage } from "./BaseError"
 
 export class AssetNotFoundError extends BotBaseError {
-  constructor({ message, assetName }: { message: Message; assetName: string }) {
-    super()
+  constructor({
+    message,
+    assetName,
+  }: {
+    message: OriginalMessage
+    assetName: string
+  }) {
+    super(message)
     this.name = `Asset is not found (${assetName})`
-    const channel = message.channel as TextChannel
     this.message = JSON.stringify({
-      guild: message.guild?.name,
-      channel: channel.name,
-      user: message.author.tag,
+      guild: this.guild,
+      channel: this.channel,
+      user: this.user,
       data: { assetName },
     })
   }

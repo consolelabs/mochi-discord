@@ -1,4 +1,4 @@
-import { GuildIdNotFoundError, InvalidInputError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { Command } from "types/common"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import { getCommandArguments } from "utils/commands"
@@ -33,14 +33,14 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const channelArg = args[2]
     if (!channelArg?.startsWith("<#") || !channelArg?.endsWith(">")) {
-      throw new InvalidInputError({ message: msg })
+      throw new InternalError({ message: msg })
     }
 
     const channelId = channelArg.slice(2, channelArg.length - 1)
     const chan = await msg.guild.channels
       .fetch(channelId)
       .catch(() => undefined)
-    if (!chan) throw new InvalidInputError({ message: msg })
+    if (!chan) throw new InternalError({ message: msg })
     return await handle(msg.guildId, chan.id)
   },
   getHelpMessage: async (msg) => ({

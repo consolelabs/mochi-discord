@@ -225,7 +225,7 @@ async function switchView(i: ButtonInteraction, msg: Message) {
   )
 
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log })
+    throw new APIError({ message: msg, curl: res.curl, description: res.log })
   }
 
   if (!res.data?.length) {
@@ -309,6 +309,7 @@ const command: Command = {
     )
     if (!res.ok) {
       throw new APIError({
+        message: msg,
         curl: res.curl,
         description: res.log,
       })

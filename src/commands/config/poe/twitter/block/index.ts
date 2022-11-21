@@ -30,8 +30,6 @@ const command: Command = {
     if (!arg)
       throw new CommandArgumentError({
         message: msg,
-        user: msg.author,
-        guild: msg.guild,
         description: "Please specify a twitter handle",
         getHelpMessage: () => this.getHelpMessage(msg),
       })
@@ -39,8 +37,6 @@ const command: Command = {
     if (!handle)
       throw new CommandArgumentError({
         message: msg,
-        user: msg.author,
-        guild: msg.guild,
         description: "Invalid twitter profile url",
         getHelpMessage: () => this.getHelpMessage(msg),
       })
@@ -55,8 +51,6 @@ const command: Command = {
     } catch (e) {
       throw new CommandArgumentError({
         message: msg,
-        user: msg.author,
-        guild: msg.guild,
         description: "Invalid username",
         getHelpMessage: () => this.getHelpMessage(msg),
       })
@@ -64,8 +58,6 @@ const command: Command = {
     if (!twitterData.id || !twitterData.username) {
       throw new CommandArgumentError({
         message: msg,
-        user: msg.author,
-        guild: msg.guild,
         description: "Invalid username",
         getHelpMessage: () => this.getHelpMessage(msg),
       })

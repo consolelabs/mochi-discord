@@ -429,8 +429,7 @@ async function composeTokenWatchlist(authorId?: string) {
   })
   if (!ok)
     throw new APIError({
-      user: interaction.user,
-      guild: interaction.guild,
+      message: interaction,
       description: log,
       curl,
     })
@@ -472,8 +471,7 @@ async function composeNFTWatchlist() {
   })
   if (!ok)
     throw new APIError({
-      user: interaction.user,
-      guild: interaction.guild,
+      message: interaction,
       description: log,
       curl,
     })

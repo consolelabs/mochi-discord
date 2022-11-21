@@ -12,5 +12,5 @@ export async function daily(interaction: CommandInteraction) {
     throw new GuildIdNotFoundError({})
   }
 
-  return run(interaction.user.id, null)
+  return run(interaction.user.id)
 }

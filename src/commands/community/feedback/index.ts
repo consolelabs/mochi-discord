@@ -291,10 +291,14 @@ async function handleViewFeedbackList(i: ButtonInteraction, page = 0) {
   })
 }
 
-export async function handleFeedback(req: RequestUserFeedbackRequest) {
+export async function handleFeedback(
+  req: RequestUserFeedbackRequest,
+  message?: Message
+) {
   const res = await community.sendFeedback(req)
   if (!res.ok) {
     throw new InternalError({
+      message,
       description: "Failed to send your feedback, please try again later",
     })
   }

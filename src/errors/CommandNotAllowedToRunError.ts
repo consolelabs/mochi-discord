@@ -1,37 +1,27 @@
-import { CommandInteraction, Message, TextChannel, User } from "discord.js"
 import { getEmoji } from "utils/common"
 import { PERMANENT_MOCHI_INVITE_URL } from "utils/constants"
 import { composeButtonLink, getErrorEmbed } from "utils/discordEmbed"
-import { BotBaseError } from "./BaseError"
+import { BotBaseError, OriginalMessage } from "./BaseError"
 
 export class CommandNotAllowedToRunError extends BotBaseError {
-  private discordMessage: Message | undefined
-  private interaction: CommandInteraction | undefined
   private missingPermissions: string[]
-  private author: User | undefined
 
   constructor({
     message,
-    interaction,
     command,
     missingPermissions = [],
   }: {
-    message?: Message
-    interaction?: CommandInteraction
+    message: OriginalMessage
     command: string
     missingPermissions?: string[]
   }) {
-    super()
+    super(message)
     this.name = "Command not allowed to run"
-    this.discordMessage = message
-    this.interaction = interaction
     this.missingPermissions = missingPermissions
-    this.author = message?.author ?? interaction?.user
-    const channel = (message ?? interaction)?.channel as TextChannel
     this.message = JSON.stringify({
-      guild: (message ?? interaction)?.guild?.name,
-      channel: channel.name,
-      user: this.author?.tag,
+      guild: this.guild,
+      channel: this.channel,
+      user: this.user,
       data: { command },
     })
   }
@@ -62,10 +52,6 @@ export class CommandNotAllowedToRunError extends BotBaseError {
         ),
       ],
     }
-    if (this.discordMessage) {
-      this.discordMessage.reply(msgOptions)
-      return
-    }
-    this.interaction?.reply(msgOptions)
+    this.reply?.(msgOptions)
   }
 }

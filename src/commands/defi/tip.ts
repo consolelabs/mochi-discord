@@ -30,10 +30,9 @@ export async function handleTip(
 
   if (!isValid) {
     throw new DiscordWalletTransferError({
-      guildId: msg.guildId ?? "DM",
-      errorMsg: "Incorrect recipients",
+      error: "Incorrect recipients",
       discordId: authorId,
-      messageOrInteraction: msg,
+      message: msg,
     })
   }
 
@@ -45,7 +44,7 @@ export async function handleTip(
   )
 
   if (!ok) {
-    throw new APIError({ curl, description: log, error })
+    throw new APIError({ message: msg, curl, description: log, error })
   }
 
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)

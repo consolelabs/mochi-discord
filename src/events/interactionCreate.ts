@@ -102,7 +102,7 @@ async function handleCommandInteraction(interaction: Interaction) {
     const gMember = interaction?.guild?.members.cache.get(interaction?.user.id)
     if (command.onlyAdministrator && !hasAdministrator(gMember)) {
       throw new CommandNotAllowedToRunError({
-        interaction: i,
+        message: i,
         command: i.commandName,
         missingPermissions:
           i.channel?.type === "DM" ? undefined : ["Administrator"],
