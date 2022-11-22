@@ -30,15 +30,17 @@ import {
 import { commands } from "commands"
 import parse from "parse-duration"
 
-const TIP_TARGET_TEXT_SELECTOR_MAPPINGS = {
-  online: "online",
-  "@everyone": "all",
-  "@here": "all",
-  voice: "voice",
-  "voice channel": "voice",
-  "in voice channel": "voice",
-  "in my voice channel": "voice",
-}
+const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
+  //
+  ["in my voice channel", "voice"],
+  ["in voice channel", "voice"],
+  ["voice channel", "voice"],
+  ["voice", "voice"],
+  //
+  ["online", "online"],
+  ["@everyone", "all"],
+  ["@here", "all"],
+]
 
 class Defi extends Fetcher {
   protected hasRole(roleId: string) {
@@ -136,6 +138,7 @@ class Defi extends Fetcher {
                   const members = await msg.guild.members.fetch({ force: true })
 
                   const voiceChannelId = msg.member?.voice.channelId
+                  if (!voiceChannelId) return []
 
                   const recipients = Array.from(
                     members
@@ -319,7 +322,7 @@ class Defi extends Fetcher {
     }
     let selector
     while (
-      (selector = Object.entries(TIP_TARGET_TEXT_SELECTOR_MAPPINGS).find((s) =>
+      (selector = TIP_TARGET_TEXT_SELECTOR_MAPPINGS.find((s) =>
         content.toLowerCase().includes(s[0])
       )) !== undefined
     ) {
@@ -327,8 +330,9 @@ class Defi extends Fetcher {
       content = content.replace(s, "").replaceAll(/\s{2,}/gim, " ")
       targetSet.add(translatedSelector)
     }
+    content = content.trim()
 
-    const components = content.split(" ")
+    const components = content.length ? content.split(" ") : []
     const invalidTargets = components.filter((c) => {
       const { isRole, isChannel, isUser } = parseDiscordToken(c)
 
@@ -341,7 +345,7 @@ class Defi extends Fetcher {
 
     result.targets = Array.from<string>(targetSet)
     // all syntax are correct
-    if (invalidTargets.length > 0) result.isValid = true
+    if (invalidTargets.length === 0) result.isValid = true
 
     return result
   }

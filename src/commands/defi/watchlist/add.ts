@@ -21,7 +21,7 @@ import { getCommandArguments } from "utils/commands"
 import CacheManager from "utils/CacheManager"
 import { handleUpdateWlError } from "../watchlist_slash"
 import { InteractionHandler } from "utils/InteractionManager"
-import { allowedCurrencies } from "../ticker/compare"
+import { allowedFiats } from "../ticker/compare"
 import { isValidFiatPair } from "utils/defi"
 
 export async function addToWatchlist(interaction: ButtonInteraction) {
@@ -72,7 +72,7 @@ export async function addUserWatchlist(
     case 1:
       // if use shortcut $ticker fiat, assume target is USD
       if (
-        allowedCurrencies.includes(symbols[0].toLowerCase()) &&
+        allowedFiats.includes(symbols[0].toLowerCase()) &&
         symbol.length === 3 &&
         symbols[0] != "usd"
       ) {

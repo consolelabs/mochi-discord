@@ -17,7 +17,9 @@ type ReplyFunc = (otps: any) => Promise<void>
 // Base or "catch-all" error, do not throw this directly
 export class BotBaseError extends Error {
   protected msgOrInteraction?: OriginalMessage
-  protected reply?: ReplyFunc
+  protected reply: ReplyFunc = async () => {
+    return
+  }
   protected user = "Unknown"
   protected userId = ""
   protected channel = "DM"
@@ -27,7 +29,10 @@ export class BotBaseError extends Error {
     super()
     this.name = "Something went wrong (unexpected error)"
     if (message) {
-      this.reply = (message.reply as ReplyFunc).bind(message)
+      const reply = (message.reply as ReplyFunc).bind(message)
+      this.reply = async (...args) => {
+        reply(...args).catch(() => null)
+      }
       this.msgOrInteraction = message
       this.channel = (message.channel as TextChannel)?.name ?? "DM"
       this.guild = message.guild?.name ?? "DM"
@@ -47,7 +52,7 @@ export class BotBaseError extends Error {
       name: this.name,
       message: this.message,
     })
-    this.reply?.({
+    this.reply({
       embeds: [
         {
           author: {
@@ -61,6 +66,6 @@ export class BotBaseError extends Error {
           color: "#D94F50",
         },
       ],
-    }).catch(() => null)
+    })
   }
 }

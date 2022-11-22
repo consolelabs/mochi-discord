@@ -21,7 +21,6 @@ import {
   getSuccessEmbed,
 } from "utils/discordEmbed"
 import truncate from "lodash/truncate"
-import chunk from "lodash/chunk"
 
 const successEmbed = () =>
   getSuccessEmbed({
@@ -218,19 +217,18 @@ async function handleFeedbackSetResolved(i: ButtonInteraction) {
 async function handleViewFeedbackList(i: ButtonInteraction, page = 0) {
   const [, discordId] = i.customId.split("_")
 
-  const ownListRes = await community.getFeedbackList(discordId)
-  if (!ownListRes.ok) {
-    throw new APIError({ curl: ownListRes.curl, description: ownListRes.log })
+  const res = await community.getFeedbackList(discordId, page)
+  if (!res.ok) {
+    throw new APIError({ curl: res.curl, description: res.log })
   }
 
-  const ownList = ownListRes.data
-  const paginated = chunk(ownList, 5)
+  const data = res.data.data ?? []
 
   const msg = i.message as Message
 
   const embed = composeEmbedMessage(null, {
     title: `${discordId ? "Your" : "All"} Feedback list`,
-    footer: [`Page ${page + 1}/${paginated.length}`],
+    footer: [`Page ${page + 1}/${(res.data.total ?? 0) + 1}`],
   })
 
   embed.setFields(
@@ -252,7 +250,7 @@ async function handleViewFeedbackList(i: ButtonInteraction, page = 0) {
   )
 
   embed.addFields(
-    paginated[page].flatMap((f) => {
+    data.flatMap((f) => {
       return [
         {
           name: getEmoji("blank"),
@@ -282,8 +280,8 @@ async function handleViewFeedbackList(i: ButtonInteraction, page = 0) {
     embeds: [embed, ...msg.embeds.slice(1)],
     components: [
       getArrowButtons({
-        disableLeft: page === 0 || paginated.length === 1,
-        disableRight: !paginated[page] || paginated.length === 1,
+        disableLeft: page === 0,
+        disableRight: page === (res.data.total ?? 0),
         page,
       }),
       getComponentsNormalState(i.user.id, true, discordId ? 2 : 3),
@@ -326,7 +324,7 @@ export async function feedbackDispatcher(i: ButtonInteraction) {
   if (!refMsg) {
     authorId = msg.interaction?.user.id
   }
-  if (authorId !== i.user.id) return
+  if (authorId !== i.user.id && !stripPrefix.startsWith("handle-set")) return
   switch (true) {
     case stripPrefix.startsWith("handle-set-in-progress"):
       await handleFeedbackSetInProgress(i)

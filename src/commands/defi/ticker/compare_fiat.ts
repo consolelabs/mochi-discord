@@ -39,9 +39,8 @@ async function composeFiatComparisonEmbed(
     }
   }
 
-  const { times, rates, latest_rate, from, to } = data
+  const { times, rates: ratios, latest_rate, from, to } = data
   const embed = composeEmbedMessage(msg, {
-    // color: "white",
     author: [`${base.toUpperCase()} vs. ${target.toUpperCase()}`],
     image: "attachment://chart.png",
     description: `**Current rate:** \`${latest_rate}\``,
@@ -49,7 +48,7 @@ async function composeFiatComparisonEmbed(
 
   const chart = await renderCompareTokenChart({
     times,
-    ratios: rates,
+    ratios,
     chartLabel: `Exchange rates | ${from} - ${to}`,
   })
   const selectRow = composeDaysSelectMenu(
@@ -72,6 +71,7 @@ async function composeFiatComparisonEmbed(
 
 const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
+  await interaction.deferUpdate()
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
   const [base, target, days] = input.split("_")
@@ -128,7 +128,23 @@ const command: Command = {
   run: async function (msg) {
     const args = getCommandArguments(msg)
     const [query] = args.slice(1)
-    const [base, target] = query.split("/")
+    let [base, target] = query.split("/")
+    if (!target) {
+      switch (base.length) {
+        case 3:
+          target = "usd"
+          break
+        case 6:
+          ;[base, target] = [base.slice(0, 3), base.slice(3)]
+          break
+        default:
+          throw new CommandArgumentError({
+            message: msg,
+            description: "Fiat not supported",
+            getHelpMessage: () => this.getHelpMessage(msg),
+          })
+      }
+    }
     if (base === target) {
       throw new CommandArgumentError({
         message: msg,

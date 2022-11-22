@@ -62,6 +62,10 @@ export async function handleTip(
         ? ""
         : ` in ${targets
             .filter((t) => t.toLowerCase() !== "online")
+            .filter(
+              (t) =>
+                parseDiscordToken(t).isChannel || parseDiscordToken(t).isRole
+            )
             .join(", ")}`
     }`
   }
