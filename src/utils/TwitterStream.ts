@@ -5,8 +5,8 @@ import { twitter } from "utils/twitter-api"
 import { logger } from "logger"
 import { PROD } from "env"
 import { PartialDeep } from "type-fest"
-import config from "adapters/config"
 import { APIError } from "errors"
+import retry from "retry"
 
 type UpsertRuleParams = {
   ruleValue: string[]
@@ -110,7 +110,7 @@ class TwitterStream extends InmemoryStorage {
       ok,
       curl,
       log,
-    } = await config.getTwitterBlackList(guildId)
+    } = await apiConfig.getTwitterBlackList(guildId)
     if (!ok) {
       throw new APIError({ curl, description: log })
     }
@@ -187,18 +187,31 @@ class TwitterStream extends InmemoryStorage {
   }
 
   private async watchStream() {
-    try {
-      const stream = twitter.tweets.searchStream({
-        expansions: ["author_id", "entities.mentions.username"],
-      })
-      for await (const tweet of stream) {
-        this.handle(tweet)
+    logger.info(`[TwitterStream] - begin watch stream`)
+    const operation = retry.operation()
+    operation.attempt(async () => {
+      try {
+        const stream = twitter.tweets.searchStream({
+          expansions: ["author_id", "entities.mentions.username"],
+        })
+        for await (const tweet of stream) {
+          this.handle(tweet)
+        }
+        logger.warn(
+          `[TwitterStream] - Stream disconnected by Twitter, reconnecting...`
+        )
+        this.watchStream()
+      } catch (e) {
+        logger.error(
+          `[TwitterStream] - stream disconnected with error, retrying ${JSON.stringify(
+            e
+          )}`
+        )
+        if (operation.retry(e as Error)) {
+          return
+        }
       }
-    } catch (e) {
-      logger.error(
-        `[TwitterStream] - error in watchStream ${JSON.stringify(e)}`
-      )
-    }
+    })
   }
 
   /*
@@ -249,52 +262,17 @@ class TwitterStream extends InmemoryStorage {
     logger.info("[TwitterStream] - backend retrieving data...")
     try {
       if (PROD) {
-        const allRules = await twitter.tweets.getRules()
-        const allRuleIds =
-          allRules.data?.filter((r) => r.id).map((r) => r.id ?? "") ?? []
         const allTwitterConfig = await apiConfig.getTwitterConfig()
         if (allTwitterConfig.ok) {
-          const promises = allTwitterConfig.data.map(
-            async (config: {
-              rule_id: string
-              channel_id: string
-              guild_id: string
-              user_id: string
-              hashtag: Array<string>
-              from_twitter: Array<string>
-              twitter_username: Array<string>
-            }) => {
-              const newRuleId = await this.upsertRule({
-                ruleValue: [
-                  ...config.hashtag,
-                  ...config.twitter_username,
-                  ...config.from_twitter,
-                ],
-                guildId: config.guild_id,
-                channelId: config.channel_id,
-                ruleId: config.rule_id,
-              })
-              if (newRuleId) {
-                await apiConfig.setTwitterConfig({
-                  ...config,
-                  rule_id: newRuleId,
-                })
-              }
-
-              return newRuleId
+          allTwitterConfig.data.forEach((config) => {
+            const { rule_id: ruleId, channel_id: channelId } = config
+            if (ruleId && channelId) {
+              const publishChannels =
+                this.publishChannelsByRuleId[ruleId] ?? new Set()
+              publishChannels.add(channelId)
+              this.publishChannelsByRuleId[ruleId] = publishChannels
             }
-          )
-          const validRuleIds = await Promise.all(promises)
-          const staleRuleIds = allRuleIds
-            .filter(Boolean)
-            .filter((rid) => !validRuleIds.some((vrid) => vrid === rid))
-          if (staleRuleIds.length > 0) {
-            await twitter.tweets.addOrDeleteRules({
-              delete: {
-                ids: staleRuleIds,
-              },
-            })
-          }
+          })
         }
       }
       logger.info("[TwitterStream] - backend retrieving data OK")

@@ -388,6 +388,7 @@ class Community extends Fetcher {
         query: {
           discordId,
           page,
+          size: 5,
         },
       }
     )

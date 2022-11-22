@@ -30,7 +30,7 @@ async function composeFiatComparisonEmbed(
   }
   const { ok, data } = await CacheManager.get({
     pool: "ticker",
-    key: `comparefiat-${base}-${target}-7`,
+    key: `comparefiat-${base}-${target}-30`,
     call: () => defi.getFiatHistoricalData({ base, target }),
   })
   if (!ok) {
@@ -54,7 +54,8 @@ async function composeFiatComparisonEmbed(
   const selectRow = composeDaysSelectMenu(
     "compare_fiat_selection",
     `${base}_${target}`,
-    [7, 30, 90, 180, 365]
+    [7, 30, 90, 180, 365],
+    30
   )
 
   return {

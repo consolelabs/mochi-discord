@@ -125,7 +125,7 @@ export async function drawCircleImage({
   ctx.save()
   // --------------
   ctx.beginPath()
-  ctx.lineWidth = 10
+  ctx.lineWidth = stats.outlineWidth ?? 10
   ctx.arc(stats.x, stats.y, stats.radius, 0, Math.PI * 2)
   if (stats.outlineColor) {
     ctx.strokeStyle = stats.outlineColor

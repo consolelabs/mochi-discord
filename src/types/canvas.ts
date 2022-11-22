@@ -34,4 +34,5 @@ export type CircleleStats = {
   y: number
   radius: number
   outlineColor?: string
+  outlineWidth?: number
 } & PositionStats

@@ -27,6 +27,7 @@ import {
   ResponseGetGuildPruneExcludeResponse,
   ResponseGetGuildDefaultNftTickerResponse,
   ResponseGetRepostReactionConfigsResponse,
+  ResponseGetAllTwitterHashtagConfigResponse,
 } from "types/api"
 import { TEST } from "env"
 
@@ -664,7 +665,7 @@ class Config extends Fetcher {
   }
 
   public async getTwitterConfig(guildId = "") {
-    return await this.jsonFetch(
+    return await this.jsonFetch<ResponseGetAllTwitterHashtagConfigResponse>(
       `${API_BASE_URL}/configs/twitter/hashtag/${guildId}`
     )
   }
