@@ -103,19 +103,24 @@ export const getArrowButtons = (opts?: {
   disableLeft?: boolean
   disableRight?: boolean
   page?: number
+  discordId?: string
 }) =>
   new MessageActionRow().addComponents(
     new MessageButton({
       label: "\u200b",
       emoji: getEmoji("left_arrow"),
-      customId: `feedback-list-view-back_${opts?.page ?? 0}`,
+      customId: `feedback-list-view-back_${opts?.page ?? 0}_${
+        opts?.discordId ?? ""
+      }`,
       style: "SECONDARY",
       disabled: opts?.disableLeft ?? true,
     }),
     new MessageButton({
       label: "\u200b",
       emoji: getEmoji("right_arrow"),
-      customId: `feedback-list-view-next_${opts?.page ?? 0}`,
+      customId: `feedback-list-view-next_${opts?.page ?? 0}_${
+        opts?.discordId ?? ""
+      }`,
       style: "SECONDARY",
       disabled: opts?.disableRight ?? false,
     })
@@ -214,9 +219,11 @@ async function handleFeedbackSetResolved(i: ButtonInteraction) {
   }
 }
 
-async function handleViewFeedbackList(i: ButtonInteraction, page = 0) {
-  const [, discordId] = i.customId.split("_")
-
+async function handleViewFeedbackList(
+  i: ButtonInteraction,
+  page: number,
+  discordId?: string
+) {
   const res = await community.getFeedbackList(discordId, page)
   if (!res.ok) {
     throw new APIError({ curl: res.curl, description: res.log })
@@ -226,31 +233,39 @@ async function handleViewFeedbackList(i: ButtonInteraction, page = 0) {
 
   const msg = i.message as Message
 
+  const totalPage = ((res.data.total ?? 0) + 1) / 5
   const embed = composeEmbedMessage(null, {
     title: `${discordId ? "Your" : "All"} Feedback list`,
-    footer: [`Page ${page + 1}/${(res.data.total ?? 0) + 1}`],
+    footer: [`Page ${page + 1}/${Math.ceil(totalPage)}`],
   })
 
-  embed.setFields(
+  const firstRow = data[0]
+
+  embed.addFields([
     {
       name: "Command",
-      value: getEmoji("blank"),
+      value: firstRow.command || "General",
       inline: true,
     },
     {
       name: "Feedback",
-      value: getEmoji("blank"),
+      value: `\`${truncate(firstRow.feedback || "...")}\``,
       inline: true,
     },
     {
       name: "Progress",
-      value: getEmoji("blank"),
+      value:
+        firstRow.status?.toLowerCase() === "completed"
+          ? getEmoji("approve")
+          : firstRow.status?.toLowerCase() === "confirmed"
+          ? getEmoji("approve_grey")
+          : "None",
       inline: true,
-    }
-  )
+    },
+  ])
 
   embed.addFields(
-    data.flatMap((f) => {
+    data.slice(1).flatMap((f) => {
       return [
         {
           name: getEmoji("blank"),
@@ -281,8 +296,9 @@ async function handleViewFeedbackList(i: ButtonInteraction, page = 0) {
     components: [
       getArrowButtons({
         disableLeft: page === 0,
-        disableRight: page === (res.data.total ?? 0),
+        disableRight: page + 1 === totalPage,
         page,
+        discordId,
       }),
       getComponentsNormalState(i.user.id, true, discordId ? 2 : 3),
     ],
@@ -332,19 +348,26 @@ export async function feedbackDispatcher(i: ButtonInteraction) {
     case stripPrefix.startsWith("handle-set-resolved"):
       await handleFeedbackSetResolved(i)
       break
-    case stripPrefix.startsWith("view-list"):
-      await handleViewFeedbackList(i)
-      break
-    case stripPrefix.startsWith("list-view-next"): {
-      const [, page] = i.customId.split("_")
+    case stripPrefix.startsWith("view-list"): {
+      const parts = i.customId.split("_")
 
-      await handleViewFeedbackList(i, Number(page) + 1)
+      await handleViewFeedbackList(
+        i,
+        0,
+        parts.length === 2 ? parts.pop() : undefined
+      )
+      break
+    }
+    case stripPrefix.startsWith("list-view-next"): {
+      const [, page, discordId] = i.customId.split("_")
+
+      await handleViewFeedbackList(i, Number(page) + 1, discordId || undefined)
       break
     }
     case stripPrefix.startsWith("list-view-back"): {
-      const [, page] = i.customId.split("_")
+      const [, page, discordId] = i.customId.split("_")
 
-      await handleViewFeedbackList(i, Number(page) - 1)
+      await handleViewFeedbackList(i, Number(page) - 1, discordId || undefined)
       break
     }
     case stripPrefix.startsWith("back"): {
