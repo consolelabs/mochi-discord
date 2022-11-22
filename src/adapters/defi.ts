@@ -35,9 +35,6 @@ const TIP_TARGET_TEXT_SELECTOR_MAPPINGS = {
   "@everyone": "all",
   "@here": "all",
   voice: "voice",
-  "voice channel": "voice",
-  "in voice channel": "voice",
-  "in my voice channel": "voice",
 }
 
 class Defi extends Fetcher {
@@ -327,8 +324,9 @@ class Defi extends Fetcher {
       content = content.replace(s, "").replaceAll(/\s{2,}/gim, " ")
       targetSet.add(translatedSelector)
     }
+    content = content.trim()
 
-    const components = content.split(" ")
+    const components = content.length ? content.split(" ") : []
     const invalidTargets = components.filter((c) => {
       const { isRole, isChannel, isUser } = parseDiscordToken(c)
 
@@ -341,7 +339,7 @@ class Defi extends Fetcher {
 
     result.targets = Array.from<string>(targetSet)
     // all syntax are correct
-    if (invalidTargets.length > 0) result.isValid = true
+    if (invalidTargets.length === 0) result.isValid = true
 
     return result
   }
