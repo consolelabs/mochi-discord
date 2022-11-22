@@ -213,6 +213,7 @@ export const emojis: { [key: string]: string } = {
   NEKOLOVE: "900363887025721374",
   AMPAWSSADORBADGE: "922481485452296192",
   LEADERBOARD: "933281365347151903",
+  STATEMENTS: "933341692667506718",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

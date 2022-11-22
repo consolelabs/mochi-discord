@@ -524,7 +524,7 @@ class Defi extends Fetcher {
       amount,
       all: amountArg === "all",
       each: false,
-      fullCommand: "",
+      fullCommand: msg.content,
       duration: options.duration,
       token: cryptocurrency,
       transferType: type ?? "",
@@ -675,6 +675,19 @@ class Defi extends Fetcher {
     query.days = query.days ?? "30"
     return await this.jsonFetch(
       `${API_BASE_URL}/fiat/historical-exchange-rates`,
+      {
+        query,
+      }
+    )
+  }
+
+  async getTransactionsHistories(query: {
+    sender_id?: string
+    receiver_id?: string
+    token: string
+  }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/offchain-tip-bot/transactions`,
       {
         query,
       }
