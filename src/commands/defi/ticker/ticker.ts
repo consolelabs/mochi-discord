@@ -49,7 +49,7 @@ const actions: Record<string, Command> = {
 async function renderHistoricalMarketChart({
   coinId,
   bb, // show bear/bull meme
-  days = 7,
+  days = 30,
   discordId,
 }: {
   coinId: string
@@ -253,12 +253,12 @@ async function composeTickerResponse({
     "tickers_range_selection",
     `${coin.id}`,
     [1, 7, 30, 60, 90, 365],
-    days
+    days ?? 30
   )
 
   const buttonRow = buildSwitchViewActionRow("ticker", {
     coinId: coin.id,
-    days: days ?? 7,
+    days: days ?? 30,
     symbol,
   }).addComponents(getExitButton(msg.author.id))
 

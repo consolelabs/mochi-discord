@@ -109,8 +109,8 @@ async function composeTokenComparisonEmbed(
   }
   const { ok, data } = await CacheManager.get({
     pool: "ticker",
-    key: `compare-${msg.guildId}-${baseQ}-${targetQ}-7`,
-    call: () => defi.compareToken(msg.guildId ?? "", baseQ, targetQ, 7),
+    key: `compare-${msg.guildId}-${baseQ}-${targetQ}-30`,
+    call: () => defi.compareToken(msg.guildId ?? "", baseQ, targetQ, 30),
   })
   if (!ok) {
     return {
@@ -222,7 +222,8 @@ async function composeTokenComparisonEmbed(
   const selectRow = composeDaysSelectMenu(
     "compare_token_selection",
     `${baseQ}_${targetQ}`,
-    [1, 7, 30, 90, 180, 365]
+    [1, 7, 30, 90, 180, 365],
+    30
   )
 
   return {
