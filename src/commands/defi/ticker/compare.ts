@@ -23,8 +23,9 @@ import CacheManager from "utils/CacheManager"
 import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
 import comparefiat from "./compare_fiat"
+import { CommandArgumentError } from "errors"
 
-export const allowedCurrencies = ["gbp", "usd", "eur", "sgd", "vnd"]
+export const allowedFiats = ["gbp", "usd", "eur", "sgd", "vnd"]
 
 export async function renderCompareTokenChart({
   times,
@@ -244,15 +245,22 @@ const command: Command = {
   run: async function (msg) {
     const args = getCommandArguments(msg)
     const [query] = args.slice(1)
-    const [baseQ, targetQ] = query.split("/")
+    const [base, target] = query.split("/")
 
-    if (
-      allowedCurrencies.includes(baseQ.toLowerCase()) ||
-      allowedCurrencies.includes(targetQ.toLowerCase())
-    ) {
-      return comparefiat.run(msg)
+    const isFiat =
+      allowedFiats.includes(base.toLowerCase()) || base.length === 6
+    // fiat comparision ...
+    if (isFiat) return comparefiat.run(msg)
+
+    if (base.toLowerCase() === target.toLowerCase()) {
+      throw new CommandArgumentError({
+        message: msg,
+        description: "Base and target tokens cannot be the same",
+        getHelpMessage: () => this.getHelpMessage(msg),
+      })
     }
-    return await composeTokenComparisonEmbed(msg, baseQ, targetQ)
+    // ... or token comparison
+    return await composeTokenComparisonEmbed(msg, base, target)
   },
   getHelpMessage: async () => {
     return {}

@@ -6,7 +6,7 @@ import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
 import CacheManager from "utils/CacheManager"
 import { handleUpdateWlError } from "../watchlist_slash"
-import { allowedCurrencies } from "../ticker/compare"
+import { allowedFiats } from "../ticker/compare"
 import { isValidFiatPair } from "utils/defi"
 
 const command: Command = {
@@ -20,7 +20,7 @@ const command: Command = {
 
     // fiat case: gbpusd, vnd
     if (symbols.length === 1) {
-      if (allowedCurrencies.includes(symbols[0].toLowerCase())) {
+      if (allowedFiats.includes(symbols[0].toLowerCase())) {
         symbol += "/usd"
       }
 

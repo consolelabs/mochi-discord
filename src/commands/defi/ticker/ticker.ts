@@ -30,7 +30,7 @@ import {
   getChartColorConfig,
   renderChartImage,
 } from "utils/canvas"
-import compare, { allowedCurrencies } from "./compare"
+import compare, { allowedFiats } from "./compare"
 import config from "adapters/config"
 import CacheManager from "utils/CacheManager"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
@@ -41,7 +41,6 @@ import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
 import community from "adapters/community"
 import _default from "./default"
-import { isValidFiatPair } from "utils/defi"
 
 const actions: Record<string, Command> = {
   default: _default,
@@ -395,32 +394,14 @@ const command: Command = {
     const args = getCommandArguments(msg)
     // execute
     const [query] = args.slice(1)
-    let [coinQ, targetQ] = query.split("/")
+    const [base, target] = query.split("/")
 
-    // case single fiat -> assume target is usd
-    if (
-      allowedCurrencies.includes(coinQ.toLowerCase()) &&
-      coinQ.length === 3 &&
-      coinQ != "usd"
-    ) {
-      msg.content.trimEnd()
-      msg.content += "/usd"
-      targetQ = "usd"
-    }
-    // case usdvnd
-    // fiat symbols are 3 letters long
-    if (coinQ.length == 6) {
-      const b = coinQ.slice(0, 3)
-      const t = coinQ.slice(3, 6)
-      if (isValidFiatPair([b, t])) {
-        msg.content = msg.content.replace(coinQ, b + "/" + t)
-        coinQ = b
-        targetQ = t
-      }
-    }
+    // run token comparison ...
+    const isCompare =
+      !!target || base.length === 6 || allowedFiats.includes(base.toLowerCase()) // ... e.g. gbp/eur|| gbpeur || gbp
+    if (isCompare) return compare.run(msg)
 
-    // run token comparison
-    if (targetQ) return compare.run(msg)
+    // ... otherwise run ticker normally
     const {
       ok,
       data: coins,
@@ -428,14 +409,14 @@ const command: Command = {
       curl,
     } = await CacheManager.get({
       pool: "ticker",
-      key: `ticker-search-${coinQ}`,
-      call: () => defi.searchCoins(coinQ),
+      key: `ticker-search-${base}`,
+      call: () => defi.searchCoins(base),
     })
     if (!ok) throw new APIError({ message: msg, curl, description: log })
     if (!coins || !coins.length) {
       throw new InternalError({
         message: msg,
-        description: `Cannot find any cryptocurrency with \`${coinQ}\`.\nPlease choose another one!`,
+        description: `Cannot find any cryptocurrency with \`${base}\`.\nPlease choose another one!`,
       })
     }
 
@@ -444,7 +425,7 @@ const command: Command = {
         msg,
         coinId: coins[0].id,
         discordId: msg.author.id,
-        symbol: coinQ,
+        symbol: base,
       })
     }
 
@@ -464,7 +445,7 @@ const command: Command = {
         msg,
         coinId: defaultTicker.data.default_ticker,
         discordId: msg.author.id,
-        symbol: coinQ,
+        symbol: base,
       })
     }
 
@@ -501,10 +482,10 @@ const command: Command = {
           msg,
           coinId,
           discordId: msg.author.id,
-          symbol: coinQ,
+          symbol: base,
         })
       },
-      ambiguousResultText: coinQ.toUpperCase(),
+      ambiguousResultText: base.toUpperCase(),
       multipleResultText: Object.values(coins)
         .map((c: any) => `**${c.name}** (${c.symbol.toUpperCase()})`)
         .join(", "),
