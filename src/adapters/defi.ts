@@ -30,12 +30,17 @@ import {
 import { commands } from "commands"
 import parse from "parse-duration"
 
-const TIP_TARGET_TEXT_SELECTOR_MAPPINGS = {
-  online: "online",
-  "@everyone": "all",
-  "@here": "all",
-  voice: "voice",
-}
+const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
+  //
+  ["in my voice channel", "voice"],
+  ["in voice channel", "voice"],
+  ["voice channel", "voice"],
+  ["voice", "voice"],
+  //
+  ["online", "online"],
+  ["@everyone", "all"],
+  ["@here", "all"],
+]
 
 class Defi extends Fetcher {
   protected hasRole(roleId: string) {
@@ -133,6 +138,7 @@ class Defi extends Fetcher {
                   const members = await msg.guild.members.fetch({ force: true })
 
                   const voiceChannelId = msg.member?.voice.channelId
+                  if (!voiceChannelId) return []
 
                   const recipients = Array.from(
                     members
@@ -316,7 +322,7 @@ class Defi extends Fetcher {
     }
     let selector
     while (
-      (selector = Object.entries(TIP_TARGET_TEXT_SELECTOR_MAPPINGS).find((s) =>
+      (selector = TIP_TARGET_TEXT_SELECTOR_MAPPINGS.find((s) =>
         content.toLowerCase().includes(s[0])
       )) !== undefined
     ) {
