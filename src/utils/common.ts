@@ -140,6 +140,14 @@ export const factionEmojis: Record<string, string> = {
   FACTION_EXP_3: "933276771141451856",
 }
 
+const fiatEmojis: Record<string, string> = {
+  USD: "1044548311606099969",
+  VND: "1044548314735050842",
+  EUR: "1044547468404207647",
+  SGD: "1044548308363911201",
+  GBP: "1044548789433802762",
+}
+
 export const emojis: { [key: string]: string } = {
   GOOD_MORNING: "967285238306840576",
   REVOKE: "967285238055174195",
@@ -213,6 +221,7 @@ export const emojis: { [key: string]: string } = {
   ...expBarEmojis,
   ...progressEmojis,
   ...factionEmojis,
+  ...fiatEmojis,
 }
 
 export const tripodEmojis: Record<string, string> = {

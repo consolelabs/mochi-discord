@@ -99,17 +99,41 @@ async function renderWatchlist(data: any[]) {
       current_price,
       sparkline_in_7d,
       price_change_percentage_7d_in_currency,
-      image: imageUrl,
+      image,
       is_pair,
     } = item
+    let imageUrl = image
     // image
     const radius = 20
     const imageX = itemContainer.x.from + (itemContainer.pl ?? 0)
     const imageY = itemContainer.y.from + (itemContainer.pt ?? 0)
+    // if no imageUrl then find and use discord emoji URL
+    if (!imageUrl && is_pair) {
+      const [base, target] = symbol
+        .split("/")
+        .map((s: string) => emojis[s.toUpperCase()])
+      imageUrl =
+        base && target
+          ? [getEmojiURL(base), getEmojiURL(target)].join("||")
+          : ""
+    }
     if (imageUrl) {
+      const imageStats = {
+        radius,
+        outlineColor: "white",
+        outlineWidth: 5,
+      }
       if (!is_pair) {
         const image = await loadAndCacheImage(imageUrl, radius * 2, radius * 2)
-        ctx.drawImage(image, imageX, imageY)
+        drawCircleImage({
+          ctx,
+          image,
+          stats: {
+            x: imageX + radius,
+            y: imageY + radius,
+            ...imageStats,
+          },
+        })
       } else {
         const imageUrls = imageUrl.split("||")
         const baseImage = await loadAndCacheImage(
@@ -122,7 +146,7 @@ async function renderWatchlist(data: any[]) {
           stats: {
             x: imageX + radius,
             y: imageY + radius,
-            radius,
+            ...imageStats,
           },
           image: baseImage,
         })
@@ -136,7 +160,7 @@ async function renderWatchlist(data: any[]) {
           stats: {
             x: imageX + radius * 2.5,
             y: imageY + radius,
-            radius,
+            ...imageStats,
           },
           image: targetImage,
         })

@@ -206,7 +206,7 @@ class Defi extends Fetcher {
   async getHistoricalMarketData({
     coinId,
     currency,
-    days = 7,
+    days = 30,
     discordId,
   }: {
     coinId: string
@@ -672,7 +672,7 @@ class Defi extends Fetcher {
     target: string
     days?: string
   }) {
-    query.days = query.days ?? "7"
+    query.days = query.days ?? "30"
     return await this.jsonFetch(
       `${API_BASE_URL}/fiat/historical-exchange-rates`,
       {
