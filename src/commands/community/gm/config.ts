@@ -1,4 +1,4 @@
-import { GuildIdNotFoundError, InternalError } from "errors"
+import { GuildIdNotFoundError, InternalError, APIError } from "errors"
 import { Command } from "types/common"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import { getCommandArguments } from "utils/commands"
@@ -6,8 +6,23 @@ import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 
-export async function handle(guildId: string, channelId: string) {
-  await Config.updateGmConfig(guildId, channelId)
+export async function handle(
+  guildId: string,
+  channelId: string,
+  msg: string,
+  emoji: string,
+  sticker: string
+) {
+  const config = await Config.updateGmConfig({
+    guild_id: guildId,
+    channel_id: channelId,
+    msg: msg,
+    emoji: emoji,
+    sticker: sticker,
+  })
+  if (!config.ok) {
+    throw new APIError({ curl: config.curl, description: config.log })
+  }
   return {
     messageOptions: {
       embeds: [
@@ -32,6 +47,7 @@ const command: Command = {
     }
     const args = getCommandArguments(msg)
     const channelArg = args[2]
+    const stickerArg = msg.stickers.size > 0 ? msg.stickers.first()?.id : ""
     if (!channelArg?.startsWith("<#") || !channelArg?.endsWith(">")) {
       throw new InternalError({ message: msg })
     }
@@ -41,7 +57,7 @@ const command: Command = {
       .fetch(channelId)
       .catch(() => undefined)
     if (!chan) throw new InternalError({ message: msg })
-    return await handle(msg.guildId, chan.id)
+    return await handle(msg.guildId, chan.id, args[3], args[4], stickerArg!)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
