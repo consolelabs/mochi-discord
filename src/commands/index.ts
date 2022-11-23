@@ -33,6 +33,7 @@ import feedback from "./community/feedback"
 import telegram from "./config/telegram"
 import swap from "./community/swap"
 import quest from "./community/quest"
+import statements from "./defi/statements"
 
 // slash commands
 import help_slash from "./help_slash"
@@ -55,6 +56,7 @@ import gm_slash from "./community/gm_slash"
 import nft_slash from "./community/nft_slash"
 import tip_slash from "./defi/tip_bot_slash/tip"
 import balances_slash from "./defi/tip_bot_slash/balances"
+import statements_slash from "./defi/tip_bot_slash/statements"
 
 // external
 import { Message } from "discord.js"
@@ -119,6 +121,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   nft: nft_slash,
   tip: tip_slash,
   balances: balances_slash,
+  statements: statements_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -135,6 +138,7 @@ export const originalCommands: Record<string, Command> = {
   tokens,
   ticker,
   watchlist,
+  statements,
   // community section
   swap,
   invite,
