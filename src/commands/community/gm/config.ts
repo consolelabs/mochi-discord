@@ -27,10 +27,10 @@ export async function handle(
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
-          author: ["GM / GN", getEmojiURL(emojis["APPROVE"])],
-          description: `Successfully configure <#${channelId}> as GM/GN channel ${getEmoji(
+          author: ["Successfully set", getEmojiURL(emojis["APPROVE"])],
+          description: `${getEmoji(
             "good_morning"
-          )}`,
+          )} Let your members repeat the phrase "${msg}", or ${emoji} in <#${channelId}> to join the streak.`,
         }),
       ],
     },
