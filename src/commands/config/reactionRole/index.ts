@@ -27,7 +27,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}rr <action>`,
-        examples: `${PREFIX}reactionrole list\n${PREFIX}rr list`,
+        examples: `${PREFIX}reactionrole list\n${PREFIX}rr list\n${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
         description: "Assign a role corresponding to users' reaction",
         footer: [`Type ${PREFIX}help rr <action> for a specific action!`],
         document: REACTION_ROLE_GITBOOK,

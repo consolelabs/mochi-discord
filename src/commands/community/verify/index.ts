@@ -23,7 +23,7 @@ const command: Command = {
         usage: `${PREFIX}verify <action>`,
         description:
           "Verify your wallet by connecting a Metamask wallet with your Discord server to use all DeFi functions offered by Mochi",
-        examples: `${PREFIX}verify info`,
+        examples: `${PREFIX}verify info\n${PREFIX}verify set #connect-wallet @verified`,
         document: VERIFY_WALLET_GITBOOK,
         footer: [`Type ${PREFIX}help verify <action> for a specific action!`],
         includeCommandsList: true,
