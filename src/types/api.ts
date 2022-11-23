@@ -193,8 +193,11 @@ export interface ModelGuildConfigDefaultTicker {
 
 export interface ModelGuildConfigGmGn {
   channel_id?: string;
+  emoji?: string;
   guild_id?: string;
   id?: string;
+  msg?: string;
+  sticker?: string;
 }
 
 export interface ModelGuildConfigInviteTracker {
@@ -843,7 +846,10 @@ export interface RequestUpsertDiscordUserAlertRequest {
 
 export interface RequestUpsertGmConfigRequest {
   channel_id?: string;
+  emoji?: string;
   guild_id?: string;
+  msg?: string;
+  sticker?: string;
 }
 
 export interface RequestUpsertGuildPruneExcludeRequest {
