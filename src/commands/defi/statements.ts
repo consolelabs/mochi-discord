@@ -11,7 +11,6 @@ import {
   MessageComponentTypes,
 } from "discord.js/typings/enums"
 import { APIError } from "errors"
-import truncate from "lodash/truncate"
 import { ModelOffchainTipBotTransferHistory } from "types/api"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
@@ -65,18 +64,14 @@ export async function handleStatement(
     let col2 = ""
     arr.forEach((item: any) => {
       if (item.action === "withdraw") {
-        col1 += `<@!${authorId}>\n${getEmoji("reply")} **${
-          item.action
-        }:** ${truncate(item.full_command, { length: 25 })}\n\n`
+        col1 += `<@!${authorId}>\n${getEmoji("reply")} **${item.action}**\n\n`
         col2 += `**- ${roundFloatNumber(item.amount, 4)} ${
           item.token
         }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
         return
       }
       if (item.action === "deposit") {
-        col1 += `<@!${authorId}>\n${getEmoji("reply")} **${
-          item.action
-        }:** ${truncate(item.full_command, { length: 20 })}\n\n`
+        col1 += `<@!${authorId}>\n${getEmoji("reply")} **${item.action}**\n\n`
         col2 += `**+ ${roundFloatNumber(item.amount, 4)} ${
           item.token
         }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
@@ -85,21 +80,21 @@ export async function handleStatement(
       if (item.sender_id === authorId) {
         col1 += `<@!${item.receiver_id}>\n${getEmoji("reply")} **${
           item.action
-        }:** ${truncate(item.full_command, { length: 20 })}\n\n`
+        }**\n\n`
         col2 += `**- ${roundFloatNumber(item.amount, 4)} ${
           item.token
         }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
       } else {
         col1 += `<@!${item.sender_id}>\n${getEmoji("reply")} **${
           item.action
-        }:** ${truncate(item.full_command, { length: 20 })}\n\n`
+        }**\n\n`
         col2 += `**+ ${roundFloatNumber(item.amount, 4)} ${
           item.token
         }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
       }
     })
     return composeEmbedMessage(null, {
-      title: `${getEmoji("STATEMENTS")} Transaction histories`,
+      title: `${getEmoji("STATEMENTS")} Transaction history`,
       description: `**Balance: ${roundFloatNumber(
         currentBal,
         4
@@ -109,8 +104,8 @@ export async function handleStatement(
       )})`,
       footer: [`Page ${idx + 1} / ${pages.length}`],
     }).addFields(
-      { name: "\u200B", value: col1, inline: true },
-      { name: "\u200B", value: col2, inline: true }
+      { name: "User", value: col1, inline: true },
+      { name: "Amount", value: col2, inline: true }
     )
   })
   if (!pages.length) {
