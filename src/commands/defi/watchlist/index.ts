@@ -33,7 +33,7 @@ const command: Command = {
         title: "Manage your watchlist",
         description: "Manage your watchlist for selected tokens/nfts",
         usage: `${PREFIX}watchlist <action>`,
-        examples: `${PREFIX}wl view`,
+        examples: `${PREFIX}wl view\n${PREFIX}watchlist add eth\n${PREFIX}watchlist add-nft neko`,
         document: WATCHLIST_GITBOOK,
         footer: [
           `Type ${PREFIX}help watchlist <action> for a specific action!.`,

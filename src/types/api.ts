@@ -1833,6 +1833,10 @@ export interface ResponseToggleActivityConfigResponse {
   message?: string;
 }
 
+export interface ResponseTransactionsResponse {
+  data?: ResponseTransactionsResponse[];
+}
+
 export interface ResponseTwitterHashtag {
   channel_id?: string;
   created_at?: string;

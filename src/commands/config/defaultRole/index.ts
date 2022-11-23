@@ -28,7 +28,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}dr <action>\n${PREFIX}defaultrole <action>`,
-        examples: `${PREFIX}defaultrole info\n${PREFIX}dr info`,
+        examples: `${PREFIX}defaultrole info\n${PREFIX}dr info\n${PREFIX}defaultrole set @visitor`,
         description:
           "Set a default role that will automatically assigned to newcomers when they first join your server",
         footer: [`Type ${PREFIX}help dr <action> for a specific action!`],

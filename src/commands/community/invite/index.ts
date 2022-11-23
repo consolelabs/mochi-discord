@@ -29,7 +29,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         footer: [`Type ${PREFIX}help invite <action> for a specific action!`],
         usage: `${PREFIX}invite <action>`,
-        examples: `${PREFIX}invite leaderboard\n${PREFIX}inv leaderboard`,
+        examples: `${PREFIX}invite leaderboard\n${PREFIX}inv leaderboard\n${PREFIX}invite config #general`,
         description:
           "Track the number of successful invites per server's member",
         document: INVITE_GITBOOK,

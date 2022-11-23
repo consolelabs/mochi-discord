@@ -181,7 +181,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}vote`,
-        examples: `${PREFIX}vote`,
+        examples: `${PREFIX}vote\n${PREFIX}vote top\n${PREFIX}vote set #vote`,
         includeCommandsList: true,
         document: VOTE_GITBOOK,
         description:

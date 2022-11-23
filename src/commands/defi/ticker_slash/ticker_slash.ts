@@ -436,7 +436,7 @@ const command: SlashCommand = {
         title: "Display/Compare coin price and market cap",
         description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
         usage: `${PREFIX}ticker <symbol>\n${PREFIX}ticker <base>/<target> (comparison)`,
-        examples: `${PREFIX}ticker eth\n${PREFIX}ticker fantom\n${PREFIX}ticker btc/bnb`,
+        examples: `${PREFIX}ticker eth\n${PREFIX}ticker fantom\n${PREFIX}ticker btc/bnb\n${PREFIX}ticker default eth`,
       }),
     ],
   }),

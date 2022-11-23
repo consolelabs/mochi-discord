@@ -36,7 +36,7 @@ const command: SlashCommand = {
     embeds: [
       composeEmbedMessage2(interaction, {
         usage: `${PREFIX}reactionrole <action>`,
-        examples: `${PREFIX}reactionrole list`,
+        examples: `${PREFIX}reactionrole list\n${PREFIX}rr list\n${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
         description: "Assign a role corresponding to users' reaction",
         footer: [
           `Type ${PREFIX}help reactionrole <action> for a specific action!`,
