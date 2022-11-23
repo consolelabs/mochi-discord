@@ -22,6 +22,18 @@ const command: SlashCommand = {
           )
           .setRequired(true)
       )
+      .addStringOption((option) =>
+        option
+          .setName("msg")
+          .setDescription("the msg which you wanna set as gm. Example: gm")
+          .setRequired(true)
+      )
+      .addStringOption((option) =>
+        option
+          .setName("emoji")
+          .setDescription("the emoji which you wanna set as gm. Example: 🎲")
+          .setRequired(true)
+      )
   },
   run: async function (interaction: CommandInteraction) {
     if (!interaction.guildId || !interaction.guild) {
@@ -45,7 +57,14 @@ const command: SlashCommand = {
       })
     }
 
-    return await handle(interaction.guildId, chan.id)
+    return await handle(
+      interaction.guildId,
+      chan.id,
+      interaction.options.getString("msg", true),
+      interaction.options.getString("emoji", true),
+      // TODO(trkhoi): find way to set sticker with slash command
+      ""
+    )
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [

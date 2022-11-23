@@ -193,8 +193,11 @@ export interface ModelGuildConfigDefaultTicker {
 
 export interface ModelGuildConfigGmGn {
   channel_id?: string;
+  emoji?: string;
   guild_id?: string;
   id?: string;
+  msg?: string;
+  sticker?: string;
 }
 
 export interface ModelGuildConfigInviteTracker {
@@ -843,7 +846,10 @@ export interface RequestUpsertDiscordUserAlertRequest {
 
 export interface RequestUpsertGmConfigRequest {
   channel_id?: string;
+  emoji?: string;
   guild_id?: string;
+  msg?: string;
+  sticker?: string;
 }
 
 export interface RequestUpsertGuildPruneExcludeRequest {
@@ -1612,8 +1618,16 @@ export interface ResponseMarketData {
 export interface ResponseMetric {
   nft_collections?: number;
   server_active_users?: number;
+  server_command_usage?: number;
+  server_token?: string[];
+  server_token_supported?: number;
+  server_verified_wallets?: number;
   total_active_users?: number;
+  total_command_usage?: number;
   total_servers?: number;
+  total_token?: string[];
+  total_token_supported?: number;
+  total_verified_wallets?: number;
 }
 
 export interface ResponseNFTCollectionConfig {
@@ -1823,6 +1837,10 @@ export interface ResponseTickerData {
 export interface ResponseToggleActivityConfigResponse {
   data?: ModelGuildConfigActivity;
   message?: string;
+}
+
+export interface ResponseTransactionsResponse {
+  data?: ResponseTransactionsResponse[];
 }
 
 export interface ResponseTwitterHashtag {

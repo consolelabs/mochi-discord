@@ -21,7 +21,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}gm <action>`,
-        examples: `${PREFIX}gm streak`,
+        examples: `${PREFIX}gm streak\n${PREFIX}gm config #general`,
         footer: [`Type ${PREFIX}help gm <action> for a specific action!`],
         description:
           "Configure a good morning/good night channel for users to engage and keep streaks",

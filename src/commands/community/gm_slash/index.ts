@@ -38,7 +38,7 @@ const command: SlashCommand = {
     embeds: [
       composeEmbedMessage(null, {
         usage: `${SLASH_PREFIX}gm <action>`,
-        examples: `${SLASH_PREFIX}gm streak`,
+        examples: `${SLASH_PREFIX}gm streak\n${SLASH_PREFIX}gm config #general`,
         footer: [`Type ${SLASH_PREFIX}help gm <action> for a specific action!`],
         description:
           "Configure a good morning/good night channel for users to engage and keep streaks",

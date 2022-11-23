@@ -21,7 +21,7 @@ const command: Command = {
         title: "Telegram configuration",
         description: "Manage your linked Telegram account",
         usage: `${PREFIX}telegram <action>`,
-        examples: `${PREFIX}telegram config`,
+        examples: `${PREFIX}telegram config\n${PREFIX}telegram config anhnhhhh`,
         document: TELEGRAM_GITBOOK,
         includeCommandsList: true,
       }),

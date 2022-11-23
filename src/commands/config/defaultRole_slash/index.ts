@@ -36,6 +36,7 @@ const command: SlashCommand = {
     embeds: [
       composeEmbedMessage2(interaction, {
         usage: `${SLASH_PREFIX}defaultrole <sub-command>`,
+        examples: `${SLASH_PREFIX}defaultrole info\n${SLASH_PREFIX}dr info\n${SLASH_PREFIX}defaultrole set @visitor`,
         description:
           "Set a default role that will automatically assigned to newcomers when they first join your server",
         footer: [`Type ${SLASH_PREFIX}help dr <action> for a specific action!`],

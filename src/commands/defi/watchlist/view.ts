@@ -120,8 +120,6 @@ async function renderWatchlist(data: any[]) {
     if (imageUrl) {
       const imageStats = {
         radius,
-        outlineColor: "white",
-        outlineWidth: 5,
       }
       if (!is_pair) {
         const image = await loadAndCacheImage(imageUrl, radius * 2, radius * 2)

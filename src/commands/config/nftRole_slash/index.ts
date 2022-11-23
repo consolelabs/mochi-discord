@@ -38,7 +38,7 @@ const command: SlashCommand = {
         usage: `${PREFIX}nftrole <action>\n${PREFIX}nftrole <action>`,
         description:
           "Asssign role to a user once they hold a certain amount of NFT\nSupports multiple collections and grouping",
-        examples: `${PREFIX}nftrole list\n${PREFIX}nftrole list`,
+        examples: `${PREFIX}nr list\n${PREFIX}nftrole list\n${PREFIX}nftrole set @Mochi 1 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73`,
         footer: [`Type ${PREFIX}help nftrole <action> for a specific action!`],
         includeCommandsList: true,
         document: NFT_ROLE_GITBOOK,

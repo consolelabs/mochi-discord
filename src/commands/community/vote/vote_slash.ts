@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
-import { PREFIX } from "utils/constants"
+import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { handle } from "./"
 
@@ -12,6 +12,7 @@ const command: SlashCommand = {
       embeds: [
         composeEmbedMessage(null, {
           usage: `${PREFIX}vote`,
+          examples: `${PREFIX}vote\n${PREFIX}vote top\n${PREFIX}vote set #vote`,
           includeCommandsList: true,
         }),
       ],

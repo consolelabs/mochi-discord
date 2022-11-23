@@ -33,6 +33,7 @@ import CacheManager from "utils/CacheManager"
 import { APIError } from "errors"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import community from "adapters/community"
+import { wrapError } from "utils/wrapError"
 
 let fontRegistered = false
 let interaction: CommandInteraction
@@ -382,8 +383,10 @@ function collectButton(msg: Message) {
       idle: 60000,
       filter: authorFilter(interaction.user.id),
     })
-    .on("collect", async (i) => {
-      await switchView(i)
+    .on("collect", (i) => {
+      wrapError(msg, async () => {
+        await switchView(i)
+      })
     })
     .on("end", () => {
       msg.edit({ components: [] }).catch(() => null)

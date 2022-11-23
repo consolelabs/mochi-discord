@@ -33,6 +33,7 @@ const command: SlashCommand = {
     embeds: [
       composeEmbedMessage(null, {
         usage: `${SLASH_PREFIX}verify <action>`,
+        examples: `${SLASH_PREFIX}verify info\n${SLASH_PREFIX}verify set #connect-wallet @verified`,
         footer: [`Type ${SLASH_PREFIX}help verify for a specific action!`],
         includeCommandsList: true,
         originalMsgAuthor: interaction.user,

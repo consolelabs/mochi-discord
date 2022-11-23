@@ -26,7 +26,7 @@ const command: Command = {
         footer: [`Type ${PREFIX}help log <action> for a specific action!`],
         document: LOG_CHANNEL_GITBOOK,
         title: "Log channel",
-        examples: `${PREFIX}log info`,
+        examples: `${PREFIX}log info\n${PREFIX}log set #log-channel`,
       }),
     ],
   }),

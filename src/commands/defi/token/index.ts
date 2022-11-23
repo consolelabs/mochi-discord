@@ -32,7 +32,7 @@ const command: Command = {
         thumbnail: thumbnails.TOKENS,
         description: "Manage all supported tokens by Mochi",
         usage: `${PREFIX}tokens`,
-        examples: `${PREFIX}tokens list\n${PREFIX}token list`,
+        examples: `${PREFIX}tokens list\n${PREFIX}token list\n${PREFIX}tokens add-custom 0x22c36BfdCef207F9c0CC941936eff94D4246d14A BACC eth`,
         document: TOKEN_GITBOOK,
         footer: [`Type ${PREFIX}help token <action> for a specific action!`],
         includeCommandsList: true,

@@ -28,6 +28,7 @@ import {
   ResponseGetGuildDefaultNftTickerResponse,
   ResponseGetRepostReactionConfigsResponse,
   ResponseGetAllTwitterHashtagConfigResponse,
+  RequestUpsertGmConfigRequest,
 } from "types/api"
 import { TEST } from "env"
 
@@ -215,23 +216,14 @@ class Config extends Fetcher {
     return json.data
   }
 
-  public async updateGmConfig(guild_id: string, channel_id: string) {
-    const res = await fetch(`${API_BASE_URL}/configs/gm`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        guild_id,
-        channel_id,
-      }),
-    })
-    if (res.status !== 200) {
-      throw new Error("failed to config GM channel")
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
+  public async updateGmConfig(body: RequestUpsertGmConfigRequest) {
+    return await this.jsonFetch<RequestUpsertGmConfigRequest>(
+      `${API_BASE_URL}/configs/gm`,
+      {
+        method: "POST",
+        body,
+      }
+    )
   }
 
   public async getCurrentWelcomeConfig(guildId: string) {

@@ -88,6 +88,7 @@ const command: SlashCommand = {
         thumbnail: thumbnails.TOKENS,
         title: "Manage your watchlist",
         usage: `${PREFIX}watchlist <sub-command>`,
+        examples: `${PREFIX}wl view\n${PREFIX}watchlist add eth\n${PREFIX}watchlist add-nft neko`,
       }),
     ],
   }),
