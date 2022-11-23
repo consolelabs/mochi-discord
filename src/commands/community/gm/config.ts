@@ -16,9 +16,9 @@ export async function handle(
   const config = await Config.updateGmConfig({
     guild_id: guildId,
     channel_id: channelId,
-    msg: msg,
-    emoji: emoji,
-    sticker: sticker,
+    msg,
+    emoji,
+    sticker,
   })
   if (!config.ok) {
     throw new APIError({ curl: config.curl, description: config.log })
@@ -47,7 +47,7 @@ const command: Command = {
     }
     const args = getCommandArguments(msg)
     const channelArg = args[2]
-    const stickerArg = msg.stickers.size > 0 ? msg.stickers.first()?.id : ""
+    const stickerArg = msg.stickers.first()?.id ?? ""
     if (!channelArg?.startsWith("<#") || !channelArg?.endsWith(">")) {
       throw new InternalError({ message: msg })
     }
@@ -57,7 +57,7 @@ const command: Command = {
       .fetch(channelId)
       .catch(() => undefined)
     if (!chan) throw new InternalError({ message: msg })
-    return await handle(msg.guildId, chan.id, args[3], args[4], stickerArg!)
+    return await handle(msg.guildId, chan.id, args[3], args[4], stickerArg)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
