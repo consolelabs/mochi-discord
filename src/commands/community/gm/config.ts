@@ -62,8 +62,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}gm config <channel>`,
-        examples: `${PREFIX}gm config #general`,
+        usage: `To set a gm channel with gm/gn:\n${PREFIX}gm config <channel>\n\nTo set customize the repeated phrase:\n${PREFIX}gm config <channel> [phrase] [emoji] [insert sticker]`,
+        examples: `${PREFIX}gm config #general\n${PREFIX}gm config #whoop-channel whoop ⛅`,
         document: `${GM_GITBOOK}&action=config`,
       }),
     ],
