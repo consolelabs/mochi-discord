@@ -10,11 +10,7 @@ import { emojis, getEmoji, getEmojiURL } from "utils/common"
 export const CONFIRM_PRUNE_INACTIVE = "confirm_prune_inactive"
 
 export async function pruneInactiveExecute(i: ButtonInteraction, days: number) {
-  if (
-    i.customId !== CONFIRM_PRUNE_INACTIVE ||
-    (i.user.id !== "567326528216760320" && //hnh
-      i.user.id !== "463379262620041226") //hollow
-  ) {
+  if (i.customId !== CONFIRM_PRUNE_INACTIVE) {
     return
   }
   if (!i.guild) throw new GuildIdNotFoundError({})
