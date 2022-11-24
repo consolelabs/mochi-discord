@@ -21,7 +21,12 @@ type RemoveRuleParams = {
 }
 
 type Tweet = {
-  data: { author_id: string; id: string; entities: { mentions: Array<any> } }
+  data: {
+    author_id: string
+    id: string
+    entities: { mentions: Array<any> }
+    text: string
+  }
   includes: { users: Array<{ id: string; username: string }> }
   matching_rules: Array<{ id: string }>
   errors: Array<{
@@ -79,6 +84,7 @@ class TwitterStream extends InmemoryStorage {
         tweet_id: tweet.data?.id,
         twitter_id: tweet.data?.author_id,
         twitter_handle: handle,
+        content: tweet.data?.text,
       })
       logger.info(
         `[TwitterStream]: tweet ${tweet.data?.id} of ${handle} logged to db`

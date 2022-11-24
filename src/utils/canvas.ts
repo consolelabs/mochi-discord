@@ -619,9 +619,11 @@ export async function drawLeaderboard(options: {
       y: username.y,
       mr: 20,
     }
-    ctx.font = "27px Manrope"
-    ctx.fillStyle = "#888888"
-    ctx.fillText(`#${item.discriminator}`, discriminator.x, discriminator.y)
+    if (item.discriminator) {
+      ctx.font = "27px Manrope"
+      ctx.fillStyle = "#888888"
+      ctx.fillText(`#${item.discriminator}`, discriminator.x, discriminator.y)
+    }
 
     // right value
     const rightStr = `${item.rightValue} `

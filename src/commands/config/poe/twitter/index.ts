@@ -5,6 +5,7 @@ import set from "./set"
 import list from "./list"
 import remove from "./remove"
 import block from "./block"
+import stats from "./stats"
 import { Message } from "discord.js"
 import { getCommandArguments } from "utils/commands"
 
@@ -13,6 +14,7 @@ const actions: Record<string, Command> = {
   list,
   remove,
   block,
+  stats,
 }
 
 const command: Command = {

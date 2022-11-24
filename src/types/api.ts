@@ -294,6 +294,18 @@ export interface ModelJSONNullString {
   valid?: boolean;
 }
 
+export interface ModelMonikerConfig {
+  amount?: number;
+  created_at?: string;
+  guild_id?: string;
+  id?: string;
+  moniker?: string;
+  plural?: string;
+  token?: ModelOffchainTipBotToken;
+  token_id?: string;
+  updated_at?: string;
+}
+
 export interface ModelNFTCollection {
   address?: string;
   author?: string;
@@ -355,6 +367,19 @@ export interface ModelOffchainTipBotContract {
   id?: string;
   status?: number;
   sweeped_time?: string;
+  updated_at?: string;
+}
+
+export interface ModelOffchainTipBotToken {
+  coin_gecko_id?: string;
+  created_at?: string;
+  icon?: string;
+  id?: string;
+  service_fee?: number;
+  status?: number;
+  token_id?: string;
+  token_name?: string;
+  token_symbol?: string;
   updated_at?: string;
 }
 
@@ -651,6 +676,11 @@ export interface RequestDeleteJoinLeaveChannelConfigRequest {
   guild_id?: string;
 }
 
+export interface RequestDeleteMonikerConfigRequest {
+  guild_id: string;
+  moniker: string;
+}
+
 export interface RequestDeleteUserDeviceRequest {
   device_id?: string;
 }
@@ -866,6 +896,14 @@ export interface RequestUpsertGuildTokenConfigRequest {
 export interface RequestUpsertJoinLeaveChannelConfigRequest {
   channel_id?: string;
   guild_id?: string;
+}
+
+export interface RequestUpsertMonikerConfigRequest {
+  amount: number;
+  guild_id: string;
+  moniker: string;
+  plural?: string;
+  token: string;
 }
 
 export interface RequestUpsertUserDeviceRequest {
@@ -1628,6 +1666,15 @@ export interface ResponseMetric {
   total_token?: string[];
   total_token_supported?: number;
   total_verified_wallets?: number;
+}
+
+export interface ResponseMonikerConfigData {
+  moniker?: ModelMonikerConfig;
+  value?: number;
+}
+
+export interface ResponseMonikerConfigResponse {
+  data?: ResponseMonikerConfigData[];
 }
 
 export interface ResponseNFTCollectionConfig {
