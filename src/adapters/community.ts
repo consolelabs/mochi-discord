@@ -386,7 +386,7 @@ class Community extends Fetcher {
       `${API_BASE_URL}/feedback`,
       {
         query: {
-          discordId,
+          ...(discordId ? { filter: "discord_id", value: discordId } : {}),
           page,
           size: 5,
         },
