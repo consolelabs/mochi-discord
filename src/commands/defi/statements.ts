@@ -235,7 +235,7 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: `${getEmoji("STATEMENTS")} Transaction histories`,
-              description: `You have not had any transactions with **${args[1].toUpperCase()}** yet.`,
+              description: `You haven't made any transaction with **${args[1].toUpperCase()}** yet. Run ${PREFIX}tip <@username/@role> <amount> <token> to transfer token.`,
             }),
           ],
         },
