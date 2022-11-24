@@ -56,7 +56,7 @@ export async function handleStatement(
     throw new APIError({ curl, description: log })
   }
 
-  const values = data as ModelOffchainTipBotTransferHistory[]
+  const values = (data as ModelOffchainTipBotTransferHistory[]) ?? []
 
   let pages = paginate(values, 5)
   pages = pages.map((arr: any, idx: number): MessageEmbed => {
@@ -235,7 +235,7 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: `${getEmoji("STATEMENTS")} Transaction histories`,
-              description: "You have not had any transactions yet.",
+              description: `You haven't made any transaction with **${args[1].toUpperCase()}** yet. Run ${PREFIX}tip <@username/@role> <amount> <token> to transfer token.`,
             }),
           ],
         },

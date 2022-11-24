@@ -94,7 +94,7 @@ const command: SlashCommand = {
           embeds: [
             composeEmbedMessage(null, {
               title: `${getEmoji("STATEMENTS")} Transaction histories`,
-              description: "You have not had any transactions yet.",
+              description: `You haven't made any transaction with **${token.toUpperCase()}** yet. Run ${SLASH_PREFIX} <@username/@role> <amount> <token> to transfer token.`,
             }),
           ],
         },
