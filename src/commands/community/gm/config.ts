@@ -30,7 +30,9 @@ export async function handle(
           author: ["Successfully set", getEmojiURL(emojis["APPROVE"])],
           description: `${getEmoji(
             "good_morning"
-          )} Let your members repeat the phrase "${msg}", or ${emoji} in <#${channelId}> to join the streak.`,
+          )} Let your members repeat the phrase "${msg ?? "gm/gn"}", or ${
+            emoji ?? getEmoji("gm")
+          } in <#${channelId}> to join the streak.`,
         }),
       ],
     },

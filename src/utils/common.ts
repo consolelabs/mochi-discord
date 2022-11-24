@@ -214,6 +214,7 @@ export const emojis: { [key: string]: string } = {
   AMPAWSSADORBADGE: "922481485452296192",
   LEADERBOARD: "933281365347151903",
   STATEMENTS: "933341692667506718",
+  GM: "930840080761880626",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
