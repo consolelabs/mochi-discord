@@ -233,63 +233,47 @@ async function handleViewFeedbackList(
 
   const msg = i.message as Message
 
-  const totalPage = ((res.data.total ?? 0) + 1) / 5
+  const totalPage = Math.ceil(((res.data.total ?? 0) + 1) / 5)
   const embed = composeEmbedMessage(null, {
     title: `${discordId ? "Your" : "All"} Feedback list`,
-    footer: [`Page ${page + 1}/${Math.ceil(totalPage)}`],
+    footer: [`Page ${page + 1}/${totalPage}`],
   })
-
-  const firstRow = data[0]
 
   embed.addFields([
     {
       name: "Command",
-      value: firstRow.command || "General",
+      value: data
+        .map((d) => {
+          return `**${d.command || "General"}**`
+        })
+        .join("\n"),
       inline: true,
     },
     {
       name: "Feedback",
-      value: `\`${truncate(firstRow.feedback || "...")}\``,
+      value: data
+        .map((d) => {
+          return `\`${truncate(d.feedback || "...", { length: 15 })}\``
+        })
+        .join("\n"),
       inline: true,
     },
     {
       name: "Progress",
-      value:
-        firstRow.status?.toLowerCase() === "completed"
-          ? getEmoji("approve")
-          : firstRow.status?.toLowerCase() === "confirmed"
-          ? getEmoji("approve_grey")
-          : "None",
+      value: data
+        .map((d) => {
+          return `${
+            d.status?.toLowerCase() === "completed"
+              ? getEmoji("approve")
+              : d.status?.toLowerCase() === "confirmed"
+              ? getEmoji("approve_grey")
+              : "None"
+          }`
+        })
+        .join("\n"),
       inline: true,
     },
   ])
-
-  embed.addFields(
-    data.slice(1).flatMap((f) => {
-      return [
-        {
-          name: getEmoji("blank"),
-          value: f.command || "General",
-          inline: true,
-        },
-        {
-          name: getEmoji("blank"),
-          value: `\`${truncate(f.feedback || "...")}\``,
-          inline: true,
-        },
-        {
-          name: getEmoji("blank"),
-          value:
-            f.status?.toLowerCase() === "completed"
-              ? getEmoji("approve")
-              : f.status?.toLowerCase() === "confirmed"
-              ? getEmoji("approve_grey")
-              : "None",
-          inline: true,
-        },
-      ]
-    })
-  )
 
   msg.edit({
     embeds: [embed, ...msg.embeds.slice(1)],
