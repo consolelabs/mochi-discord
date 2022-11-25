@@ -34,6 +34,7 @@ import telegram from "./config/telegram"
 import swap from "./community/swap"
 import quest from "./community/quest"
 import statements from "./defi/statements"
+import monikers from "./config/moniker"
 
 // slash commands
 import help_slash from "./help_slash"
@@ -57,6 +58,7 @@ import nft_slash from "./community/nft_slash"
 import tip_slash from "./defi/tip_bot_slash/tip"
 import balances_slash from "./defi/tip_bot_slash/balances"
 import statements_slash from "./defi/tip_bot_slash/statements"
+import moniker_slash from "./config/moniker_slash"
 
 // external
 import { Message } from "discord.js"
@@ -122,6 +124,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   tip: tip_slash,
   balances: balances_slash,
   statements: statements_slash,
+  monikers: moniker_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -156,6 +159,7 @@ export const originalCommands: Record<string, Command> = {
   reactionrole,
   defaultrole,
   joinleave,
+  monikers,
   // whitelist,
   levelrole,
   nftrole,

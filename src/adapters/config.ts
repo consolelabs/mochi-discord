@@ -29,6 +29,9 @@ import {
   ResponseGetRepostReactionConfigsResponse,
   ResponseGetAllTwitterHashtagConfigResponse,
   RequestUpsertGmConfigRequest,
+  ResponseMonikerConfigResponse,
+  RequestDeleteMonikerConfigRequest,
+  RequestUpsertMonikerConfigRequest,
 } from "types/api"
 import { TEST } from "env"
 
@@ -682,6 +685,7 @@ class Config extends Fetcher {
     twitter_handle: string
     tweet_id: string
     guild_id: string
+    content: string
   }) {
     const res = await fetch(`${API_BASE_URL}/twitter`, {
       method: "POST",
@@ -696,6 +700,18 @@ class Config extends Fetcher {
     if (json.error !== undefined) {
       throw Error(json.error)
     }
+  }
+
+  public async getTwitterLeaderboard(query: {
+    guild_id: string
+    page: number
+    size?: number
+  }) {
+    query.size = query.size ?? 10
+    return await this.jsonFetch(`${API_BASE_URL}/twitter/top`, {
+      method: "GET",
+      query,
+    })
   }
 
   public async addToTwitterBlackList(body: {
@@ -958,6 +974,26 @@ class Config extends Fetcher {
         },
       }
     )
+  }
+
+  public async getMonikerConfig(guild_id: string) {
+    return await this.jsonFetch<ResponseMonikerConfigResponse>(
+      `${API_BASE_URL}/configs/monikers/${guild_id}`
+    )
+  }
+
+  public async deleteMonikerConfig(req: RequestDeleteMonikerConfigRequest) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/monikers`, {
+      method: "DELETE",
+      body: req,
+    })
+  }
+
+  public async setMonikerConfig(req: RequestUpsertMonikerConfigRequest) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/monikers`, {
+      method: "POST",
+      body: req,
+    })
   }
 }
 

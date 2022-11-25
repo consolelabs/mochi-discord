@@ -30,7 +30,9 @@ export async function handle(
           author: ["Successfully set", getEmojiURL(emojis["APPROVE"])],
           description: `${getEmoji(
             "good_morning"
-          )} Let your members repeat the phrase "${msg}", or ${emoji} in <#${channelId}> to join the streak.`,
+          )} Let your members repeat the phrase "${msg ?? "gm/gn"}", or ${
+            emoji ?? getEmoji("gm")
+          } in <#${channelId}> to join the streak.`,
         }),
       ],
     },
@@ -62,8 +64,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}gm config <channel>`,
-        examples: `${PREFIX}gm config #general`,
+        usage: `To set a gm channel with gm/gn:\n${PREFIX}gm config <channel>\n\nTo set customize the repeated phrase:\n${PREFIX}gm config <channel> [phrase] [emoji] [insert sticker]`,
+        examples: `${PREFIX}gm config #general\n${PREFIX}gm config #whoop-channel whoop ⛅`,
         document: `${GM_GITBOOK}&action=config`,
       }),
     ],

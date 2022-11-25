@@ -33,7 +33,6 @@ function listenButtonsRow(
       let page = +pageStr + operators[opStr]
       if (i.customId.includes("statement_cash")) {
         const [flow] = i.customId.split("_").slice(2)
-        console.log("---flow cash---", flow)
         const newPages = await handleStatement(
           args,
           interaction.user.id,
@@ -94,7 +93,7 @@ const command: SlashCommand = {
           embeds: [
             composeEmbedMessage(null, {
               title: `${getEmoji("STATEMENTS")} Transaction histories`,
-              description: "You have not had any transactions yet.",
+              description: `You haven't made any transaction with **${token.toUpperCase()}** yet. Run ${SLASH_PREFIX} <@username/@role> <amount> <token> to transfer token.`,
             }),
           ],
         },
