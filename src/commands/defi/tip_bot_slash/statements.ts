@@ -33,7 +33,6 @@ function listenButtonsRow(
       let page = +pageStr + operators[opStr]
       if (i.customId.includes("statement_cash")) {
         const [flow] = i.customId.split("_").slice(2)
-        console.log("---flow cash---", flow)
         const newPages = await handleStatement(
           args,
           interaction.user.id,

@@ -29,6 +29,9 @@ import {
   ResponseGetRepostReactionConfigsResponse,
   ResponseGetAllTwitterHashtagConfigResponse,
   RequestUpsertGmConfigRequest,
+  ResponseMonikerConfigResponse,
+  RequestDeleteMonikerConfigRequest,
+  RequestUpsertMonikerConfigRequest,
 } from "types/api"
 import { TEST } from "env"
 
@@ -958,6 +961,26 @@ class Config extends Fetcher {
         },
       }
     )
+  }
+
+  public async getMonikerConfig(guild_id: string) {
+    return await this.jsonFetch<ResponseMonikerConfigResponse>(
+      `${API_BASE_URL}/configs/monikers/${guild_id}`
+    )
+  }
+
+  public async deleteMonikerConfig(req: RequestDeleteMonikerConfigRequest) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/monikers`, {
+      method: "DELETE",
+      body: req,
+    })
+  }
+
+  public async setMonikerConfig(req: RequestUpsertMonikerConfigRequest) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/monikers`, {
+      method: "POST",
+      body: req,
+    })
   }
 }
 
