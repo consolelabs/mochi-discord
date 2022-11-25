@@ -215,6 +215,7 @@ export const emojis: { [key: string]: string } = {
   LEADERBOARD: "933281365347151903",
   STATEMENTS: "933341692667506718",
   GM: "930840080761880626",
+  BUCKET_CASH: "933020342035820604",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

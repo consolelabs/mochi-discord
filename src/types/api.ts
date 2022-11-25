@@ -729,6 +729,10 @@ export interface RequestGuildConfigDefaultTickerRequest {
   query?: string;
 }
 
+export interface RequestGuildIDRequest {
+  guild_id?: string;
+}
+
 export interface RequestLinkUserTelegramWithDiscordRequest {
   discord_id: string;
   telegram_username: string;
@@ -880,6 +884,11 @@ export interface RequestUpsertGmConfigRequest {
   guild_id?: string;
   msg?: string;
   sticker?: string;
+}
+
+export interface RequestUpsertGuildDefaultCurrencyRequest {
+  Symbol?: string;
+  guild_id?: string;
 }
 
 export interface RequestUpsertGuildPruneExcludeRequest {
@@ -1393,6 +1402,13 @@ export interface ResponseGetWelcomeChannelConfigResponse {
 
 export interface ResponseGiftXpHandlerResponse {
   data?: ResponseHandleUserActivityResponse;
+}
+
+export interface ResponseGuildConfigDefaultCurrencyResponse {
+  created_at?: string;
+  guild_id?: string;
+  tip_bot_token?: ModelOffchainTipBotToken;
+  updated_at?: string;
 }
 
 export interface ResponseGuildPruneExcludeList {
