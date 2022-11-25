@@ -9,6 +9,7 @@ import { CommandArgumentError } from "errors"
 import { Command } from "types/common"
 import CacheManager from "utils/CacheManager"
 import { getCommandArguments } from "utils/commands"
+import { DEFI_DEFAULT_FOOTER, PREFIX, TICKER_GITBOOK } from "utils/constants"
 import {
   composeDaysSelectMenu,
   composeDiscordExitButton,
@@ -124,12 +125,12 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
 const command: Command = {
   id: "ticker_compare_fiat",
   command: "compare",
-  brief: "View comparison between 2 fiat currencies",
+  brief: "Fiat historical exchange rates",
   category: "Defi",
   run: async function (msg) {
     const args = getCommandArguments(msg)
     const [query] = args.slice(1)
-    let [base, target] = query.split("/")
+    let [base, target] = query.toLowerCase().split("/")
     if (!target) {
       switch (base.length) {
         case 3:
@@ -155,9 +156,17 @@ const command: Command = {
     }
     return await composeFiatComparisonEmbed(msg, base, target)
   },
-  getHelpMessage: async () => {
-    return {}
-  },
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        description: "**Error**: Base and target currencies cannot be the same",
+        usage: `${PREFIX}ticker <base>/<target> (default target = usd)`,
+        examples: `${PREFIX}ticker eur\n${PREFIX}ticker gbp/sgd`,
+        document: TICKER_GITBOOK,
+        footer: [DEFI_DEFAULT_FOOTER],
+      }),
+    ],
+  }),
   canRunWithoutAction: true,
   colorType: "Defi",
   minArguments: 3,
