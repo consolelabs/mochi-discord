@@ -21,11 +21,7 @@ export async function pruneRoleExecute(
   pruneList: Collection<string, GuildMember>,
   roleName: string
 ) {
-  if (
-    i.customId !== CONFIRM_PRUNE_WITHOUT ||
-    (i.user.id !== "567326528216760320" && //hnh
-      i.user.id !== "463379262620041226") //hollow
-  ) {
+  if (i.customId !== CONFIRM_PRUNE_WITHOUT) {
     return
   }
   if (!i.guild) throw new GuildIdNotFoundError({})
