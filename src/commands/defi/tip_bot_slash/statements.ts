@@ -117,9 +117,9 @@ const command: SlashCommand = {
   help: async () => ({
     embeds: [
       composeEmbedMessage(null, {
-        usage: `${SLASH_PREFIX}statements <token>`,
+        usage: `${SLASH_PREFIX}statements [token]`,
         description: "Show your statements",
-        examples: `${SLASH_PREFIX}statements ftm`,
+        examples: `${SLASH_PREFIX}statements\n${SLASH_PREFIX}statements ftm`,
         footer: [DEFI_DEFAULT_FOOTER],
         title: "Statements",
       }),

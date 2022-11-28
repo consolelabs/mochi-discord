@@ -13,6 +13,7 @@ import {
 import { APIError } from "errors"
 import { ModelOffchainTipBotTransferHistory } from "types/api"
 import { Command } from "types/common"
+import { UserBalances } from "types/defi"
 import { getCommandArguments } from "utils/commands"
 import { getEmoji, paginate, roundFloatNumber } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
@@ -93,20 +94,32 @@ export async function handleStatement(
         }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
       }
     })
+    let des = `**Balance: ${roundFloatNumber(
+      currentBal,
+      4
+    )} ${symbol}** (\u2248 $${roundFloatNumber(currentPrice * currentBal, 4)})`
+    if (symbol === "") {
+      des = ""
+      bals.data?.forEach((balance: UserBalances) => {
+        const tokenBalance = roundFloatNumber(balance["balances"] ?? 0, 4)
+        if (tokenBalance === 0) return
+        const tokenBalanceInUSD = roundFloatNumber(
+          balance["balances_in_usd"],
+          4
+        )
+
+        des += `**${balance["name"]}: ${tokenBalance} ${balance["symbol"]}** (\u2248 $${tokenBalanceInUSD})\n`
+      })
+    }
     return composeEmbedMessage(null, {
       title: `${getEmoji("STATEMENTS")} Transaction history`,
-      description: `**Balance: ${roundFloatNumber(
-        currentBal,
-        4
-      )} ${symbol}** (\u2248 $${roundFloatNumber(
-        currentPrice * currentBal,
-        4
-      )})`,
       footer: [`Page ${idx + 1} / ${pages.length}`],
-    }).addFields(
-      { name: "User", value: col1, inline: true },
-      { name: "Amount", value: col2, inline: true }
-    )
+    })
+      .setDescription(des)
+      .addFields(
+        { name: "User", value: col1, inline: true },
+        { name: "Amount", value: col2, inline: true }
+      )
   })
   if (!pages.length) {
     return []
