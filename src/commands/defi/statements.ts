@@ -13,6 +13,7 @@ import {
 import { APIError } from "errors"
 import { ModelOffchainTipBotTransferHistory } from "types/api"
 import { Command } from "types/common"
+import { UserBalances } from "types/defi"
 import { getCommandArguments } from "utils/commands"
 import { getEmoji, paginate, roundFloatNumber } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
@@ -93,20 +94,32 @@ export async function handleStatement(
         }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
       }
     })
+    let des = `**Balance: ${roundFloatNumber(
+      currentBal,
+      4
+    )} ${symbol}** (\u2248 $${roundFloatNumber(currentPrice * currentBal, 4)})`
+    if (symbol === "") {
+      des = ""
+      bals.data?.forEach((balance: UserBalances) => {
+        const tokenBalance = roundFloatNumber(balance["balances"] ?? 0, 4)
+        if (tokenBalance === 0) return
+        const tokenBalanceInUSD = roundFloatNumber(
+          balance["balances_in_usd"],
+          4
+        )
+
+        des += `**${balance["name"]}: ${tokenBalance} ${balance["symbol"]}** (\u2248 $${tokenBalanceInUSD})\n`
+      })
+    }
     return composeEmbedMessage(null, {
       title: `${getEmoji("STATEMENTS")} Transaction history`,
-      description: `**Balance: ${roundFloatNumber(
-        currentBal,
-        4
-      )} ${symbol}** (\u2248 $${roundFloatNumber(
-        currentPrice * currentBal,
-        4
-      )})`,
       footer: [`Page ${idx + 1} / ${pages.length}`],
-    }).addFields(
-      { name: "User", value: col1, inline: true },
-      { name: "Amount", value: col2, inline: true }
-    )
+    })
+      .setDescription(des)
+      .addFields(
+        { name: "User", value: col1, inline: true },
+        { name: "Amount", value: col2, inline: true }
+      )
   })
   if (!pages.length) {
     return []
@@ -228,14 +241,17 @@ const command: Command = {
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
-    const pages = await handleStatement(args[1], msg.author.id)
+    const token = args.length > 1 ? args[1] : ""
+    const pages = await handleStatement(token, msg.author.id)
     if (pages.length === 0) {
       return {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
               title: `${getEmoji("STATEMENTS")} Transaction histories`,
-              description: `You haven't made any transaction with **${args[1].toUpperCase()}** yet. Run ${PREFIX}tip <@username/@role> <amount> <token> to transfer token.`,
+              description: `You haven't made any transaction ${
+                token !== "" ? `with **${token.toUpperCase()}** yet` : ""
+              }. Run ${PREFIX}tip <@username/@role> <amount> <token> to transfer token.`,
             }),
           ],
         },
@@ -270,17 +286,17 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}statements <token>`,
+        usage: `${PREFIX}statements [token]`,
         description: "Show your statements",
         footer: [DEFI_DEFAULT_FOOTER],
-        examples: `${PREFIX}statements ftm`,
+        examples: `${PREFIX}$statement\n{PREFIX}statements ftm`,
       }),
     ],
   }),
   aliases: ["statement"],
   canRunWithoutAction: true,
   colorType: "Defi",
-  minArguments: 2,
+  minArguments: 1,
 }
 
 export default command

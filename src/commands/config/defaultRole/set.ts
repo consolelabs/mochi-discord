@@ -1,13 +1,16 @@
 import { Command, DefaultRoleEvent } from "types/common"
 import { DEFAULT_ROLE_GITBOOK, PREFIX } from "utils/constants"
-import {
-  composeEmbedMessage,
-  getErrorEmbed,
-  getSuccessEmbed,
-} from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
+import {
+  APIError,
+  CommandArgumentError,
+  GuildIdNotFoundError,
+  InternalError,
+} from "errors"
+import { handle } from "./info"
 
 const command: Command = {
   id: "defaultrole_set",
@@ -15,35 +18,28 @@ const command: Command = {
   brief: "Set a default role for newcomers",
   category: "Config",
   onlyAdministrator: true,
-  run: async (msg: Message) => {
+  run: async function (msg: Message) {
     if (!msg.guildId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({})
     }
-    let description = ""
     const args = getCommandArguments(msg)
-    const { isRole, value: id } = parseDiscordToken(args[2] ?? "")
+    const { isRole, isId, value: id } = parseDiscordToken(args[2] ?? "")
 
-    if (!isRole) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              title: "Invalid role",
-              description:
-                "The added role must be a valid one. Don’t be mistaken role with username while setting.",
-            }),
-          ],
-        },
+    if (!isRole && !isId) {
+      throw new CommandArgumentError({
+        message: msg,
+        getHelpMessage: () => this.getHelpMessage(msg),
+      })
+    }
+
+    // if it's id then check if that role exist
+    if (isId) {
+      const role = await msg.guild?.roles.fetch(id).catch(() => null)
+      if (!role) {
+        throw new InternalError({
+          message: msg,
+          description: "This role was either deleted or does not exist",
+        })
       }
     }
 
@@ -53,29 +49,23 @@ const command: Command = {
     }
 
     const res = await config.configureDefaultRole(requestData)
-    if (res.ok) {
-      description = `<@&${requestData.role_id}> is now configured as newcomer's default role.`
-    } else {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: res.error })],
-        },
-      }
+    if (!res.ok) {
+      throw new APIError({
+        error: res.error,
+        message: msg,
+        description: res.log,
+        curl: res.curl,
+      })
     }
 
-    return {
-      messageOptions: {
-        embeds: [
-          getSuccessEmbed({ msg, title: "Default role set", description }),
-        ],
-      },
-    }
+    return handle(msg, "Default role updated")
   },
   getHelpMessage: async (msg) => {
     return {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}dr set @<role_name>`,
+          title: "Setting a default role",
           description:
             "If you know what you're doing, this command also support passing in the role id (maybe you're a power user, maybe you don't want to alert all users that have that role, etc...)",
           examples: `${PREFIX}dr set @Visitor`,

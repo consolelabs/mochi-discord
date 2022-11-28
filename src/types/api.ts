@@ -155,6 +155,7 @@ export interface ModelDiscordUserTokenAlert {
   id?: string;
   is_enable?: boolean;
   price_set?: number;
+  symbol?: string;
   token_id?: string;
   trend?: string;
   updated_at?: string;
@@ -482,6 +483,17 @@ export interface ModelTradeOffer {
   want_items?: ModelTradeItem[];
 }
 
+export interface ModelTwitterPostStreak {
+  created_at?: string;
+  guild_id?: string;
+  last_streak_date?: string;
+  streak_count?: number;
+  total_count?: number;
+  twitter_handle?: string;
+  twitter_id?: string;
+  updated_at?: string;
+}
+
 export interface ModelUpvoteStreakTier {
   id?: number;
   streak_required?: number;
@@ -760,6 +772,7 @@ export interface RequestOffchainTransferRequest {
   each?: boolean;
   full_command?: string;
   guild_id?: string;
+  platform?: string;
   recipients?: string[];
   sender?: string;
   token?: string;
@@ -829,6 +842,7 @@ export interface RequestTwitterHashtag {
 }
 
 export interface RequestTwitterPost {
+  content?: string;
   guild_id?: string;
   tweet_id?: string;
   twitter_handle?: string;
@@ -874,6 +888,7 @@ export interface RequestUpsertDiscordUserAlertRequest {
   id?: string;
   is_enable?: boolean;
   price_set?: number;
+  symbol?: string;
   token_id?: string;
   trend?: string;
 }
@@ -1320,6 +1335,15 @@ export interface ResponseGetTwitterBlackListResponse {
 
 export interface ResponseGetTwitterHashtagConfigResponse {
   data?: ResponseTwitterHashtag;
+}
+
+export interface ResponseGetTwitterLeaderboardResponse {
+  data?: ResponseGetTwitterLeaderboardResponseData;
+}
+
+export interface ResponseGetTwitterLeaderboardResponseData {
+  data?: ModelTwitterPostStreak[];
+  metadata?: ResponsePaginationResponse;
 }
 
 export interface ResponseGetUpvoteTiersConfig {
@@ -1839,6 +1863,14 @@ export interface ResponseOffchainTipBotWithdrawResponse {
   data?: ResponseOffchainTipBotWithdraw;
 }
 
+export interface ResponsePaginationResponse {
+  /** page index */
+  page?: number;
+  /** page size */
+  size?: number;
+  total?: number;
+}
+
 export interface ResponseResponseDataMessage {
   data?: ResponseResponseMessage;
 }
@@ -1903,7 +1935,7 @@ export interface ResponseToggleActivityConfigResponse {
 }
 
 export interface ResponseTransactionsResponse {
-  data?: ResponseTransactionsResponse[];
+  data?: ModelOffchainTipBotTransferHistory[];
 }
 
 export interface ResponseTwitterHashtag {

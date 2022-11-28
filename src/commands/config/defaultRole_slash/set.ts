@@ -1,14 +1,11 @@
 import config from "adapters/config"
-import {
-  composeEmbedMessage2,
-  getErrorEmbed,
-  getSuccessEmbed,
-} from "utils/discordEmbed"
+import { composeEmbedMessage2 } from "utils/discordEmbed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandInteraction } from "discord.js"
+import { CommandInteraction, Role } from "discord.js"
 import { DefaultRoleEvent, SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { parseDiscordToken } from "utils/commands"
+import { APIError, GuildIdNotFoundError } from "errors"
+import { handle } from "../defaultRole/info"
 
 const command: SlashCommand = {
   name: "set",
@@ -17,7 +14,7 @@ const command: SlashCommand = {
     return new SlashCommandSubcommandBuilder()
       .setName("set")
       .setDescription("Set a default role for newcomers")
-      .addStringOption((option) =>
+      .addRoleOption((option) =>
         option
           .setName("role")
           .setDescription("role for newcomers. Example: @admin")
@@ -25,54 +22,26 @@ const command: SlashCommand = {
       )
   },
   run: async function (interaction: CommandInteraction) {
-    if (!interaction.guildId || !interaction.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+    if (!interaction.guildId) {
+      throw new GuildIdNotFoundError({})
     }
 
-    const roleArg = interaction.options.getString("role", true)
-    const { isRole, isId, value: id } = parseDiscordToken(roleArg ?? "")
-    if (!isRole || !isId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              title: "Invalid role",
-              description:
-                "The added role must be a valid one. Don’t be mistaken role with username while setting.",
-            }),
-          ],
-        },
-      }
-    }
-    let description = ""
+    const roleArg = interaction.options.getRole("role", true) as Role
     const requestData: DefaultRoleEvent = {
       guild_id: interaction.guildId,
-      role_id: id,
+      role_id: roleArg.id,
     }
     const res = await config.configureDefaultRole(requestData)
-    if (res.ok) {
-      description = `Role <@&${requestData.role_id}> is now configured as newcomer's default role`
-    } else {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ description: res.error })],
-        },
-      }
+    if (!res.ok) {
+      throw new APIError({
+        curl: res.curl,
+        description: res.log,
+        message: interaction,
+        error: res.error,
+      })
     }
 
-    return {
-      messageOptions: {
-        embeds: [getSuccessEmbed({ title: "Default role set", description })],
-      },
-    }
+    return handle(interaction, "Default role updated")
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
