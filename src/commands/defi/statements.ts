@@ -228,14 +228,17 @@ const command: Command = {
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
-    const pages = await handleStatement(args[1], msg.author.id)
+    const token = args.length > 1 ? args[1] : ""
+    const pages = await handleStatement(token, msg.author.id)
     if (pages.length === 0) {
       return {
         messageOptions: {
           embeds: [
             composeEmbedMessage(msg, {
               title: `${getEmoji("STATEMENTS")} Transaction histories`,
-              description: `You haven't made any transaction with **${args[1].toUpperCase()}** yet. Run ${PREFIX}tip <@username/@role> <amount> <token> to transfer token.`,
+              description: `You haven't made any transaction ${
+                token !== "" ? `with **${token.toUpperCase()}** yet` : ""
+              }. Run ${PREFIX}tip <@username/@role> <amount> <token> to transfer token.`,
             }),
           ],
         },
@@ -270,17 +273,17 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}statements <token>`,
+        usage: `${PREFIX}statements [token]`,
         description: "Show your statements",
         footer: [DEFI_DEFAULT_FOOTER],
-        examples: `${PREFIX}statements ftm`,
+        examples: `${PREFIX}$statement\n{PREFIX}statements ftm`,
       }),
     ],
   }),
   aliases: ["statement"],
   canRunWithoutAction: true,
   colorType: "Defi",
-  minArguments: 2,
+  minArguments: 1,
 }
 
 export default command
