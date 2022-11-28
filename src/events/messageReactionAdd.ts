@@ -126,6 +126,7 @@ const handleRepostableMessageTracking = async (
                   })
                   .catch(() => null)
               })
+              .catch(() => null)
           }
         }
       }
