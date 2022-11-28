@@ -1,14 +1,12 @@
 import { Command } from "types/common"
 import { DEFAULT_ROLE_GITBOOK, PREFIX } from "utils/constants"
-import {
-  composeEmbedMessage,
-  getErrorEmbed,
-  getSuccessEmbed,
-} from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
 import Config from "adapters/config"
+import { handle } from "./info"
+import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 
 const command: Command = {
   id: "defaultrole_remove",
@@ -18,18 +16,8 @@ const command: Command = {
   onlyAdministrator: true,
   run: async (msg: Message) => {
     if (!msg.guildId || !msg.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "This command must be run in a Guild",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({})
     }
-    let description = ""
     const args = getCommandArguments(msg)
 
     if (args.length !== 2) {
@@ -50,42 +38,31 @@ const command: Command = {
     const configs = await Config.getCurrentDefaultRole(msg.guildId)
     if (configs.ok) {
       if (configs.data.role_id == "") {
-        return {
-          messageOptions: {
-            embeds: [
-              getErrorEmbed({
-                msg,
-                description: `You haven't set any role. To config a new one, run \`$dr set @<role_name>\`.`,
-              }),
-            ],
-          },
-        }
+        throw new InternalError({
+          message: msg,
+          description: `You haven't set any role. To config a new one, run \`$dr set @<role_name>\`.`,
+        })
       }
     } else {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: configs.error })],
-        },
-      }
+      throw new APIError({
+        message: msg,
+        error: configs.error,
+        description: configs.log,
+        curl: configs.curl,
+      })
     }
 
     const res = await config.removeDefaultRoleConfig(msg.guildId)
-    if (res.ok) {
-      description =
-        "Existing users' role will not be affected\nHowever please **NOTE** that from now on new users joining your server won't have a default role anymore.\nTo set a new one, run `$dr set @<role_name>`"
-    } else {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: res.error })],
-        },
-      }
+    if (!res.ok) {
+      throw new APIError({
+        message: msg,
+        error: res.error,
+        description: res.log,
+        curl: res.curl,
+      })
     }
 
-    return {
-      messageOptions: {
-        embeds: [getSuccessEmbed({ msg, title: "Role removed", description })],
-      },
-    }
+    return handle(msg, "Default role removed")
   },
   getHelpMessage: async (msg) => {
     return {

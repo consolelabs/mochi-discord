@@ -1,5 +1,5 @@
-import { Message, MessageOptions } from "discord.js"
-import { BotBaseError } from "./BaseError"
+import { MessageOptions } from "discord.js"
+import { BotBaseError, OriginalMessage } from "./BaseError"
 
 export class CommandArgumentError extends BotBaseError {
   private getHelpMessage: () => Promise<MessageOptions>
@@ -9,7 +9,7 @@ export class CommandArgumentError extends BotBaseError {
     getHelpMessage,
     description,
   }: {
-    message?: Message
+    message?: OriginalMessage
     getHelpMessage: () => Promise<MessageOptions>
     description?: string
   }) {
