@@ -1935,7 +1935,7 @@ export interface ResponseToggleActivityConfigResponse {
 }
 
 export interface ResponseTransactionsResponse {
-  data?: ResponseTransactionsResponse[];
+  data?: ModelOffchainTipBotTransferHistory[];
 }
 
 export interface ResponseTwitterHashtag {
