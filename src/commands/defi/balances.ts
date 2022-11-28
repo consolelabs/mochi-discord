@@ -23,7 +23,7 @@ export async function handleBal(userId: string, message: OriginalMessage) {
   // case data normal
   const fields: EmbedFieldData[] = []
   const blank = getEmoji("blank")
-  res.data.forEach((balance: UserBalances) => {
+  res.data?.forEach((balance: UserBalances) => {
     const tokenName = balance["name"]
     const tokenEmoji = getEmoji(balance["symbol"])
     const tokenBalance = roundFloatNumber(balance["balances"] ?? 0, 4)
