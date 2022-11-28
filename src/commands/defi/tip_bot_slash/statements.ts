@@ -4,7 +4,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { SlashCommand } from "types/common"
 import { authorFilter, getEmoji } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { buildButtonsRow, handleStatement } from "../statements"
 
 function listenButtonsRow(
@@ -70,21 +70,13 @@ const command: SlashCommand = {
         option
           .setName("token")
           .setDescription("symbol of token. Example: FTM")
-          .setRequired(true)
+          .setRequired(false)
       )
   },
   run: async function (interaction: CommandInteraction) {
-    const token = interaction.options.getString("token")
+    let token = interaction.options.getString("token")
     if (!token) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              description: "Missing arguments",
-            }),
-          ],
-        },
-      }
+      token = ""
     }
     const pages = await handleStatement(token, interaction.user.id)
     if (pages.length === 0) {
@@ -93,7 +85,9 @@ const command: SlashCommand = {
           embeds: [
             composeEmbedMessage(null, {
               title: `${getEmoji("STATEMENTS")} Transaction histories`,
-              description: `You haven't made any transaction with **${token.toUpperCase()}** yet. Run ${SLASH_PREFIX} <@username/@role> <amount> <token> to transfer token.`,
+              description: `You haven't made any transaction ${
+                token !== "" ? `with **${token.toUpperCase()}** yet` : ""
+              }. Run ${SLASH_PREFIX} <@username/@role> <amount> <token> to transfer token.`,
             }),
           ],
         },
@@ -123,9 +117,9 @@ const command: SlashCommand = {
   help: async () => ({
     embeds: [
       composeEmbedMessage(null, {
-        usage: `${SLASH_PREFIX}statements <token>`,
+        usage: `${SLASH_PREFIX}statements [token]`,
         description: "Show your statements",
-        examples: `${SLASH_PREFIX}statements ftm`,
+        examples: `${SLASH_PREFIX}statements\n${SLASH_PREFIX}statements ftm`,
         footer: [DEFI_DEFAULT_FOOTER],
         title: "Statements",
       }),
