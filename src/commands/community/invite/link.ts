@@ -2,9 +2,45 @@ import { Command } from "types/common"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { InvitesInput } from "types/community"
-import { Message } from "discord.js"
+import { CommandInteraction, Message, User } from "discord.js"
 import { INVITE_GITBOOK, PREFIX } from "utils/constants"
-import { APIError } from "errors"
+import { APIError, GuildIdNotFoundError } from "errors"
+
+export async function handleInviteLink(msg: Message | CommandInteraction, guildId: string, user: User){
+  const inviteInput = {
+    guild_id: guildId,
+    member_id: user.id,
+  } as InvitesInput
+  const { data, ok, curl, log } = await Community.getInvites(inviteInput)
+  if (!ok) {
+    throw new APIError({ message: msg, curl, description: log })
+  }
+
+  if (!data || !data.webhook_url) {
+    const embed = composeEmbedMessage(null, {
+      title: "Info",
+      description: "No invite links found",
+    })
+    return {
+      messageOptions: {
+        embeds: [embed],
+      },
+    }
+  }
+
+  const embedMsg = composeEmbedMessage(null, {
+    title: `${user.username}'s invite link`,
+    thumbnail: user.avatarURL() || undefined,
+  }).addField(
+    `https://discord.gg/${data[0]}`,
+    `Invite link for this server ${msg.guild?.name}`
+  )
+  return {
+    messageOptions: {
+      embeds: [embedMsg],
+    },
+  }
+}
 
 const command: Command = {
   id: "invite_link",
@@ -12,38 +48,11 @@ const command: Command = {
   brief: "Return the first invite link you created in the server",
   category: "Community",
   run: async function link(msg: Message) {
-    const inviteInput = {
-      guild_id: msg.guild?.id,
-      member_id: msg.author.id,
-    } as InvitesInput
-    const { data, ok, curl, log } = await Community.getInvites(inviteInput)
-    if (!ok) {
-      throw new APIError({ message: msg, curl, description: log })
-    }
-    if (data.length) {
-      const embed = composeEmbedMessage(msg, {
-        title: "Info",
-        description: "No invite links found",
-      })
-      return {
-        messageOptions: {
-          embeds: [embed],
-        },
-      }
+    if (!msg.guildId) {
+      throw new GuildIdNotFoundError({ message: msg })
     }
 
-    const embedMsg = composeEmbedMessage(msg, {
-      title: `${msg.author.username}'s invite link`,
-      thumbnail: msg.author.avatarURL() || undefined,
-    }).addField(
-      `https://discord.gg/${data[0]}`,
-      `Invite link for this server ${msg.guild?.name}`
-    )
-    return {
-      messageOptions: {
-        embeds: [embedMsg],
-      },
-    }
+    return await handleInviteLink(msg, msg.guildId, msg.author)
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {

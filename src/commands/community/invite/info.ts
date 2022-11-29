@@ -1,9 +1,39 @@
 import { Command } from "types/common"
-import { Message } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { INVITE_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import community from "adapters/community"
 import { APIError, GuildIdNotFoundError } from "errors"
+
+export async function handleInviteInfo(msg: Message | CommandInteraction, guildId: string){
+  const res = await community.getCurrentInviteTrackerConfig(guildId)
+  if (!res.ok) {
+    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+  }
+
+  if (!res.data){
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            description: "Invite Tracker log channel has not been set, use `invite config` to set one",
+            title: "Invite Tracker log channel not set",
+          }),
+        ],
+      },
+    }
+  }
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(null, {
+          description: `Current Invite Tracker log channel is set to <#${res.data.channel_id}>`,
+          title: "Invite Tracker Configuration",
+        }),
+      ],
+    },
+  }
+}
 
 const command: Command = {
   id: "invite_info",
@@ -15,21 +45,7 @@ const command: Command = {
     if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
     }
-    const res = await community.getCurrentInviteTrackerConfig(msg.guildId)
-    if (!res.ok) {
-      throw new APIError({ message: msg, curl: res.curl, description: res.log })
-    }
-
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            description: `Current Invite Tracker log channel is set to <#${res.data.channel_id}>`,
-            title: "Invite Tracker Configuration",
-          }),
-        ],
-      },
-    }
+    return await handleInviteInfo(msg, msg.guildId)
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {
