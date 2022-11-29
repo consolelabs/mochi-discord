@@ -1,10 +1,11 @@
 import { Command, RepostReactionRequest } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
+import { throwOnInvalidEmoji } from "utils/emoji"
 
 const command: Command = {
   id: "starboard_set",
@@ -13,59 +14,30 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
+    if (!msg.guild) {
+      throw new GuildIdNotFoundError({ message: msg })
+    }
+
     const args = getCommandArguments(msg)
     // Validate quantity
-    const quantity = parseInt(args[2])
-    if (!quantity || quantity <= 0) {
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Invalid quantity." })],
-        },
-      }
+    const quantity = Number(args[2])
+    if (Number.isNaN(quantity) || quantity <= 0) {
+      throw new InternalError({
+        description: "Invalid quantity",
+      })
     }
 
     // Validate input reaction emoji
     const reaction = args[3]
-    const { isEmoji, isNativeEmoji, isAnimatedEmoji, value } =
-      parseDiscordToken(reaction)
-    let isValidEmoji = isEmoji || isNativeEmoji || isAnimatedEmoji
-    msg.guild?.emojis.cache.forEach((e) => {
-      if (value.includes(e.name!.toLowerCase())) {
-        isValidEmoji = isValidEmoji && true
-      }
-    })
-    if (!isValidEmoji) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: `Emoji ${value} is invalid or not owned by this guild`,
-            }),
-          ],
-        },
-      }
-    }
+    throwOnInvalidEmoji(reaction, msg)
 
-    // Validate repost_channel_id args
-    const channelId = args[4].replace(/\D/g, "")
-    const channel = await msg.guild?.channels.fetch(channelId)
-    if (!channel || !channelId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description:
-                "Cannot find a channel that match to your input channel ID.",
-            }),
-          ],
-        },
-      }
-    }
-
-    if (!msg.guild) {
-      throw new GuildIdNotFoundError({ message: msg })
+    const { isChannel, value: channelId } = parseDiscordToken(args[4])
+    if (!isChannel) {
+      throw new InternalError({
+        message: msg,
+        description:
+          "Cannot find a channel that match to your input channel ID.",
+      })
     }
 
     const requestData: RepostReactionRequest = {
@@ -94,6 +66,7 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}sb set <quantity> <emoji> <channel>`,
+          description: `*Note:\n👉 Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
           examples: `${PREFIX}sb set 3 ⭐ #starboard`,
         }),
       ],

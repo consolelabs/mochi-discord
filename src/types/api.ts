@@ -359,6 +359,15 @@ export interface ModelOffchainTipBotAssignContract {
   user_id?: string;
 }
 
+export interface ModelOffchainTipBotConfigNotify {
+  channel_id?: string;
+  created_at?: string;
+  guild_id?: string;
+  id?: string;
+  token?: string;
+  updated_at?: string;
+}
+
 export interface ModelOffchainTipBotContract {
   assign_status?: number;
   centralize_wallet?: string;
@@ -659,6 +668,12 @@ export interface RequestCreateNFTCollectionRequest {
   chain?: string;
   chain_id?: string;
   guild_id?: string;
+}
+
+export interface RequestCreateTipConfigNotify {
+  channel_id?: string;
+  guild_id?: string;
+  token?: string;
 }
 
 export interface RequestCreateTradeOfferRequest {
@@ -1649,6 +1664,10 @@ export interface ResponseListAllCustomTokenResponse {
 
 export interface ResponseListAllNFTCollectionsResponse {
   data?: ModelNFTCollection[];
+}
+
+export interface ResponseListConfigNotifyResponse {
+  data?: ModelOffchainTipBotConfigNotify[];
 }
 
 export interface ResponseListCustomCommandsResponse {
