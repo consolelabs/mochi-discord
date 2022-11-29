@@ -6,6 +6,7 @@ import set from "./set"
 import setChat from "./set-chat"
 import remove from "./remove"
 import blacklist from "./blacklist/index"
+import { getEmoji } from "utils/common"
 
 const actions: Record<string, Command> = {
   set,
@@ -27,7 +28,9 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}sb <action>`,
         footer: [`Type ${PREFIX}help sb <action> for a specific action!`],
-        description: "Hornor and share well-rated posts with your community",
+        description: `Hornor and share well-rated posts with your community\n\n*Note:\n👉 When setting a new starboard, please use the **custom emoji from this server** and the **Discord default emoji**.* ${getEmoji(
+          "nekosad"
+        )}`,
         examples: `${PREFIX}starboard list\n${PREFIX}sb list\n${PREFIX}starboard set 2 🌟 #starboard\n${PREFIX}sb set-chat 🌟 ❣️ #starboard`,
         includeCommandsList: true,
         document: STARBOARD_GITBOOK,

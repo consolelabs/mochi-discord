@@ -240,35 +240,23 @@ class Defi extends Fetcher {
     )
   }
 
-  getAirdropOptions(args: string[], discordId: string, msg: Message) {
+  getAirdropOptions(duration: string, entry: string) {
     const options: { duration: number; maxEntries: number } = {
       duration: 180, // in secs
       maxEntries: 0,
     }
 
-    if (![3, 5, 7].includes(args.length)) {
-      throw new DiscordWalletTransferError({
-        discordId,
-        message: msg,
-        error: "Invalid airdrop command",
-      })
-    }
-
     const durationReg = /in\s+\d+[hms]/
-    const durationIdx = msg.content.search(durationReg)
-    if (durationIdx !== -1) {
-      const timeStr = msg.content
-        .substring(durationIdx)
+    if (durationReg.test(duration)) {
+      const timeStr = duration
         .replace(/in\s+/, "")
         .split(" ")[0]
       options.duration = parse(timeStr) / 1000
     }
 
     const maxEntriesReg = /for\s+\d+/
-    const maxEntriesIdx = msg.content.search(maxEntriesReg)
-    if (maxEntriesIdx !== -1) {
-      options.maxEntries = +msg.content
-        .substring(maxEntriesIdx)
+    if (maxEntriesReg.test(entry)) {
+      options.maxEntries = +entry
         .replace(/for\s+/, "")
         .split(" ")[0]
     }
@@ -276,16 +264,17 @@ class Defi extends Fetcher {
   }
 
   public composeInsufficientBalanceEmbed(
-    msg: Message,
+    msgOrInteraction: Message | CommandInteraction,
     current: number,
     required: number,
     cryptocurrency: string
   ) {
     const tokenEmoji = getEmoji(cryptocurrency)
     const symbol = cryptocurrency.toUpperCase()
-    return composeEmbedMessage(msg, {
+    const authorId = msgOrInteraction instanceof Message?msgOrInteraction.author.id : msgOrInteraction.user.id
+    return composeEmbedMessage(null, {
       title: `${defaultEmojis.ERROR} Insufficient balance`,
-      description: `<@${msg.author.id}>, you cannot afford this.`,
+      description: `<@${authorId}>, you cannot afford this.`,
     })
       .addField(
         "Required amount",
@@ -419,21 +408,29 @@ class Defi extends Fetcher {
   }
 
   public async getWithdrawPayload(
-    msg: Message,
-    args: string[]
+    msg: Message | CommandInteraction,
+    amountArg: string,
+    token: string,
+    toAddress: string
   ): Promise<OffchainTipBotWithdrawRequest> {
-    const commandObject = getCommandObject(commands, msg)
-    const type = commandObject?.command
-    const sender = msg.author.id
+    let type
+    let sender
+    if (msg instanceof Message){
+      const commandObject = getCommandObject(commands, msg)
+      type = commandObject?.command
+      sender = msg.author.id
+    }
+    else {
+      type = msg.commandName
+      sender = msg.user.id
+    }
     const guildId = msg.guildId ?? "DM"
 
-    const toAddress = args[3]
     if (!toAddress.startsWith("0x")) {
       throw new Error("Invalid destination address")
     }
     const recipients = [toAddress]
-    const amountArg = args[1].toLowerCase()
-    const cryptocurrency = args[2].toUpperCase()
+    const cryptocurrency = token.toUpperCase()
 
     // check if recipient is valid or not
     if (!recipients || !recipients.length) {
@@ -445,7 +442,7 @@ class Defi extends Fetcher {
     }
 
     // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
-    const amount = parseFloat(amountArg)
+    const amount = parseFloat(amountArg.toLowerCase())
     if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
       throw new DiscordWalletTransferError({
         discordId: sender,
@@ -465,9 +462,9 @@ class Defi extends Fetcher {
     //     errorMsg: "Unsupported token. Please choose another one.",
     //   })
     // }
-
+    
     return {
-      recipient: msg.author.id,
+      recipient: sender,
       recipientAddress: toAddress,
       guildId,
       channelId: msg.channelId,
@@ -477,20 +474,30 @@ class Defi extends Fetcher {
       all: amountArg === "all",
       transferType: type ?? "",
       duration: 0,
-      fullCommand: "",
+      fullCommand: msg instanceof Message? msg.content : `${msg.commandName} ${amountArg} ${token} ${toAddress}`,
     }
   }
 
   public async getAirdropPayload(
-    msg: Message,
-    args: string[]
+    msg: Message | CommandInteraction,
+    amountArg: string,
+    token: string,
+    duration: string,
+    entries: string,
   ): Promise<OffchainTipBotTransferRequest> {
-    const commandObject = getCommandObject(commands, msg)
-    const type = commandObject?.command
-    const sender = msg.author.id
+    let type
+    let sender
+    if (msg instanceof Message){
+      const commandObject = getCommandObject(commands, msg)
+      type = commandObject?.command
+      sender = msg.author.id
+    }
+    else {
+      type = msg.commandName
+      sender = msg.user.id
+    }
     const recipients: string[] = []
-    const amountArg = args[1]
-    const cryptocurrency = args[2].toUpperCase()
+    const cryptocurrency = token.toUpperCase()
     const guildId = msg.guildId ?? "DM"
 
     // validate airdrop amount
@@ -514,7 +521,9 @@ class Defi extends Fetcher {
     //     errorMsg: "Unsupported token. Please choose another one.",
     //   })
     // }
-    const options = this.getAirdropOptions(args, sender, msg)
+
+    //
+    const options = this.getAirdropOptions(duration, entries)
 
     return {
       sender,
@@ -524,7 +533,7 @@ class Defi extends Fetcher {
       amount,
       all: amountArg === "all",
       each: false,
-      fullCommand: msg.content,
+      fullCommand: msg instanceof Message? msg.content : `${msg.commandName} ${amountArg} ${token} ${duration} ${entries}`,
       duration: options.duration,
       token: cryptocurrency,
       transferType: type ?? "",
