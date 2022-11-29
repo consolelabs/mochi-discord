@@ -7,12 +7,14 @@ export class InternalError extends BotBaseError {
   constructor({
     message,
     description,
+    title,
   }: {
     message?: OriginalMessage
     description?: string
+    title?: string
   }) {
     super(message, description)
-    this.name = "Internal error"
+    this.name = title ?? "Internal error"
     this.customDescription = description
   }
 

@@ -1,15 +1,12 @@
 import { Command, RoleReactionEvent } from "types/common"
 import { PREFIX } from "utils/constants"
-import {
-  composeEmbedMessage,
-  getErrorEmbed,
-  getSuccessEmbed,
-} from "utils/discordEmbed"
+import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { isDiscordMessageLink } from "utils/common"
+import { throwOnInvalidEmoji } from "utils/emoji"
 
 const troubleshootMsg = `\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._`
 
@@ -34,39 +31,16 @@ const command: Command = {
     }
 
     // Validate input reaction emoji
-    const {
-      isEmoji,
-      isNativeEmoji,
-      isAnimatedEmoji,
-      value: reaction,
-    } = parseDiscordToken(args[3])
-    if (!isEmoji && !isNativeEmoji && !isAnimatedEmoji) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: `Emoji ${args[3]} is invalid or not owned by this guild. Pick another emoji! 💪`,
-            }),
-          ],
-        },
-      }
-    }
+    const reaction = args[3]
+    throwOnInvalidEmoji(reaction, msg)
 
     // Validate role id args
     const { isRole, value: roleId } = parseDiscordToken(args[4])
     if (!isRole || !roleId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              title: "Can't find the role",
-              description: "Be careful not to mix up role and username 😬",
-            }),
-          ],
-        },
-      }
+      throw new InternalError({
+        title: "Can't find the role",
+        description: "Be careful not to mix up role and username 😬",
+      })
     }
 
     const [guildId, channelId, messageId] = args[2].split("/").slice(-3)
@@ -113,7 +87,7 @@ const command: Command = {
       })
     }
 
-    await reactMessage.react(requestData.reaction)
+    await reactMessage.react(requestData.reaction).catch(() => null)
 
     return {
       messageOptions: {
@@ -131,7 +105,7 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          description: `Don't know where to get the message link?${troubleshootMsg}`,
+          description: `Don't know where to get the message link?${troubleshootMsg}\n\n*Note:\n👉 Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
           usage: `${PREFIX}rr set <message_link> <emoji> <role>`,
           examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
         }),

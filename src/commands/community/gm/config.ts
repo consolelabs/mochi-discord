@@ -1,10 +1,11 @@
 import { GuildIdNotFoundError, InternalError, APIError } from "errors"
 import { Command } from "types/common"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
-import { getCommandArguments } from "utils/commands"
+import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
+import { throwOnInvalidEmoji } from "utils/emoji"
 
 export async function handle(
   guildId: string,
@@ -30,9 +31,7 @@ export async function handle(
           author: ["Successfully set", getEmojiURL(emojis["APPROVE"])],
           description: `${getEmoji(
             "good_morning"
-          )} Let your members repeat the phrase "${msg ?? "gm/gn"}", or ${
-            emoji ?? getEmoji("gm")
-          } in <#${channelId}> to join the streak.`,
+          )} Let your members repeat the phrase "${msg}", or ${emoji} in <#${channelId}> to join the streak.`,
         }),
       ],
     },
@@ -49,23 +48,39 @@ const command: Command = {
     }
     const args = getCommandArguments(msg)
     const channelArg = args[2]
-    const stickerArg = msg.stickers.first()?.id ?? ""
-    if (!channelArg?.startsWith("<#") || !channelArg?.endsWith(">")) {
-      throw new InternalError({ message: msg })
+    const { isChannel, value: channelId } = parseDiscordToken(channelArg)
+    if (!isChannel) {
+      throw new InternalError({ message: msg, description: "Invalid channel" })
     }
+    const messageText = args[3] ?? "gm/gn"
+    const emoji = args[4] ?? getEmoji("gm")
+    const stickerArg = msg.stickers.first()?.id ?? ""
 
-    const channelId = channelArg.slice(2, channelArg.length - 1)
-    const chan = await msg.guild.channels
-      .fetch(channelId)
-      .catch(() => undefined)
-    if (!chan) throw new InternalError({ message: msg })
-    return await handle(msg.guildId, chan.id, args[3], args[4], stickerArg)
+    const { isEmoji, isNativeEmoji, isAnimatedEmoji } = parseDiscordToken(emoji)
+    if (!isEmoji && !isNativeEmoji && !isAnimatedEmoji) {
+      throw new InternalError({
+        message: msg,
+        description: "Invalid emoji",
+      })
+    }
+    throwOnInvalidEmoji(emoji, msg)
+
+    return await handle(
+      msg.guildId,
+      channelId,
+      messageText,
+      args[4],
+      stickerArg
+    )
   },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
         usage: `To set a gm channel with gm/gn:\n${PREFIX}gm config <channel>\n\nTo set customize the repeated phrase:\n${PREFIX}gm config <channel> [phrase] [emoji] [insert sticker]`,
         examples: `${PREFIX}gm config #general\n${PREFIX}gm config #whoop-channel whoop ⛅`,
+        description: `*Note:\n👉 When setting a new starboard, please use the **custom emoji, sticker from this server** and the **Discord default emoji, sticker**.* ${getEmoji(
+          "nekosad"
+        )}`,
         document: `${GM_GITBOOK}&action=config`,
       }),
     ],

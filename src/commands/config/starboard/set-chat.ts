@@ -1,10 +1,11 @@
 import { Command, RequestConfigRepostReactionConversation } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
+import { throwOnInvalidEmoji } from "utils/emoji"
 
 const command: Command = {
   id: "starboard_set_chat",
@@ -13,84 +14,27 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async (msg: Message) => {
+    if (!msg.guild) {
+      throw new GuildIdNotFoundError({ message: msg })
+    }
+
     const args = getCommandArguments(msg)
     // Validate input reaction emoji start
     const reactionStart = args[2]
-    const {
-      isEmoji: isEmojiStart,
-      isNativeEmoji: isNativeEmojiStart,
-      isAnimatedEmoji: isAnimatedEmojiStart,
-      value: valueStart,
-    } = parseDiscordToken(reactionStart)
-    let isValidEmojiStart =
-      isEmojiStart || isNativeEmojiStart || isAnimatedEmojiStart
-
-    msg.guild?.emojis.cache.forEach((e) => {
-      if (valueStart.includes(e.name!.toLowerCase())) {
-        isValidEmojiStart = isValidEmojiStart && true
-      }
-    })
-    if (!isValidEmojiStart) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: `Emoji ${valueStart} is invalid or not owned by this guild`,
-            }),
-          ],
-        },
-      }
-    }
+    throwOnInvalidEmoji(reactionStart, msg)
 
     // Validate input reaction emoji stop
     const reactionStop = args[3]
-    const {
-      isEmoji: isEmojiStop,
-      isNativeEmoji: isNativeEmojiStop,
-      isAnimatedEmoji: isAnimatedEmojiStop,
-      value: valueStop,
-    } = parseDiscordToken(reactionStop)
-    let isValidEmojiStop =
-      isEmojiStop || isNativeEmojiStop || isAnimatedEmojiStop
-
-    msg.guild?.emojis.cache.forEach((e) => {
-      if (valueStop.includes(e.name!.toLowerCase())) {
-        isValidEmojiStop = isValidEmojiStop && true
-      }
-    })
-    if (!isValidEmojiStop) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: `Emoji ${valueStop} is invalid or not owned by this guild`,
-            }),
-          ],
-        },
-      }
-    }
+    throwOnInvalidEmoji(reactionStop, msg)
 
     // Validate repost_channel_id args
-    const channelId = args[4].replace(/\D/g, "")
-    const channel = await msg.guild?.channels.fetch(channelId)
-    if (!channel || !channelId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description:
-                "Cannot find a channel that match to your input channel ID.",
-            }),
-          ],
-        },
-      }
-    }
-
-    if (!msg.guild) {
-      throw new GuildIdNotFoundError({ message: msg })
+    const { isChannel, value: channelId } = parseDiscordToken(args[4])
+    if (!isChannel) {
+      throw new InternalError({
+        message: msg,
+        description:
+          "Cannot find a channel that match to your input channel ID.",
+      })
     }
 
     const requestData: RequestConfigRepostReactionConversation = {
@@ -119,6 +63,7 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}sb set-chat <emoji-start> <emoji-stop> <channel>`,
+          description: `*Note:\n👉 Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
           examples: `${PREFIX}sb set-chat 🌟 ❣️ #starboard`,
         }),
       ],
