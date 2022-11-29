@@ -1,11 +1,29 @@
 import { Command } from "types/common"
-import { Message } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { INVITE_GITBOOK, PREFIX } from "utils/constants"
 import Community from "adapters/community"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { InternalError, GuildIdNotFoundError } from "errors"
 import { emojis, getEmojiURL } from "utils/common"
+
+export async function handleInviteConfig(guild_id: string, log_channel: string){
+  await Community.configureInvites({
+    guild_id,
+    log_channel,
+  })
+
+  const embedMsg = composeEmbedMessage(null, {
+    author: ["Successfully configured!", getEmojiURL(emojis.APPROVE)],
+    description: `Invite Tracker is now set to <#${log_channel}>.`,
+  })
+
+  return {
+    messageOptions: {
+      embeds: [embedMsg],
+    },
+  } 
+}
 
 const command: Command = {
   id: "invite_config",
@@ -14,7 +32,7 @@ const command: Command = {
   category: "Community",
   onlyAdministrator: true,
   run: async function config(msg: Message) {
-    if (!msg.guild?.id) {
+    if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
     }
 
@@ -26,22 +44,7 @@ const command: Command = {
         description: "Invalid channel. Please choose another one!",
       })
     }
-
-    await Community.configureInvites({
-      guild_id: msg.guild?.id,
-      log_channel,
-    })
-
-    const embedMsg = composeEmbedMessage(msg, {
-      author: ["Successfully configured!", getEmojiURL(emojis.APPROVE)],
-      description: `Invite Tracker is now set to <#${log_channel}>.`,
-    })
-
-    return {
-      messageOptions: {
-        embeds: [embedMsg],
-      },
-    }
+    return await handleInviteConfig(msg.guildId, log_channel)
   },
   getHelpMessage: async (msg) => {
     const embed = composeEmbedMessage(msg, {

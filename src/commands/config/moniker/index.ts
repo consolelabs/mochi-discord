@@ -14,7 +14,7 @@ const actions: Record<string, Command> = {
 const command: Command = {
   id: "monikers",
   command: "monikers",
-  brief: "Moniker Confgiuration",
+  brief: "Moniker Configuration",
   category: "Config",
   run: async () => null,
   featured: {

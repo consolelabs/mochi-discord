@@ -18,6 +18,7 @@ import {
   ETHSCAN_API,
   FTMSCAN_API,
   POLYGONSCAN_API,
+  SPACES_REGEX,
 } from "utils/constants"
 import { Fetcher } from "./fetcher"
 import {
@@ -26,9 +27,12 @@ import {
   RequestCreateAssignContract,
   RequestOffchainTransferRequest,
   RequestOffchainWithdrawRequest,
+  ResponseMonikerConfigData,
 } from "types/api"
 import { commands } from "commands"
 import parse from "parse-duration"
+import config from "./config"
+import { APIError } from "errors"
 
 const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
   //
@@ -248,17 +252,13 @@ class Defi extends Fetcher {
 
     const durationReg = /in\s+\d+[hms]/
     if (durationReg.test(duration)) {
-      const timeStr = duration
-        .replace(/in\s+/, "")
-        .split(" ")[0]
+      const timeStr = duration.replace(/in\s+/, "").split(" ")[0]
       options.duration = parse(timeStr) / 1000
     }
 
     const maxEntriesReg = /for\s+\d+/
     if (maxEntriesReg.test(entry)) {
-      options.maxEntries = +entry
-        .replace(/for\s+/, "")
-        .split(" ")[0]
+      options.maxEntries = +entry.replace(/for\s+/, "").split(" ")[0]
     }
     return options
   }
@@ -271,7 +271,10 @@ class Defi extends Fetcher {
   ) {
     const tokenEmoji = getEmoji(cryptocurrency)
     const symbol = cryptocurrency.toUpperCase()
-    const authorId = msgOrInteraction instanceof Message?msgOrInteraction.author.id : msgOrInteraction.user.id
+    const authorId =
+      msgOrInteraction instanceof Message
+        ? msgOrInteraction.author.id
+        : msgOrInteraction.user.id
     return composeEmbedMessage(null, {
       title: `${defaultEmojis.ERROR} Insufficient balance`,
       description: `<@${authorId}>, you cannot afford this.`,
@@ -382,12 +385,18 @@ class Defi extends Fetcher {
 
     // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
     let amount = parseFloat(amountArg)
-    if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
+    if (
+      (isNaN(amount) || amount <= 0) &&
+      !["all", "a", "an"].includes(amountArg)
+    ) {
       throw new DiscordWalletTransferError({
         discordId: sender,
         message: msg,
         error: "Invalid amount",
       })
+    }
+    if (amountArg === "a" || amountArg === "an") {
+      amount = 1
     }
     const each = eachParse && amountArg !== "all"
     amount = each ? amount * recipients.length : amount
@@ -415,12 +424,11 @@ class Defi extends Fetcher {
   ): Promise<OffchainTipBotWithdrawRequest> {
     let type
     let sender
-    if (msg instanceof Message){
+    if (msg instanceof Message) {
       const commandObject = getCommandObject(commands, msg)
       type = commandObject?.command
       sender = msg.author.id
-    }
-    else {
+    } else {
       type = msg.commandName
       sender = msg.user.id
     }
@@ -462,7 +470,7 @@ class Defi extends Fetcher {
     //     errorMsg: "Unsupported token. Please choose another one.",
     //   })
     // }
-    
+
     return {
       recipient: sender,
       recipientAddress: toAddress,
@@ -474,7 +482,10 @@ class Defi extends Fetcher {
       all: amountArg === "all",
       transferType: type ?? "",
       duration: 0,
-      fullCommand: msg instanceof Message? msg.content : `${msg.commandName} ${amountArg} ${token} ${toAddress}`,
+      fullCommand:
+        msg instanceof Message
+          ? msg.content
+          : `${msg.commandName} ${amountArg} ${token} ${toAddress}`,
     }
   }
 
@@ -483,16 +494,15 @@ class Defi extends Fetcher {
     amountArg: string,
     token: string,
     duration: string,
-    entries: string,
+    entries: string
   ): Promise<OffchainTipBotTransferRequest> {
     let type
     let sender
-    if (msg instanceof Message){
+    if (msg instanceof Message) {
       const commandObject = getCommandObject(commands, msg)
       type = commandObject?.command
       sender = msg.author.id
-    }
-    else {
+    } else {
       type = msg.commandName
       sender = msg.user.id
     }
@@ -533,11 +543,43 @@ class Defi extends Fetcher {
       amount,
       all: amountArg === "all",
       each: false,
-      fullCommand: msg instanceof Message? msg.content : `${msg.commandName} ${amountArg} ${token} ${duration} ${entries}`,
+      fullCommand:
+        msg instanceof Message
+          ? msg.content
+          : `${msg.commandName} ${amountArg} ${token} ${duration} ${entries}`,
       duration: options.duration,
       token: cryptocurrency,
       transferType: type ?? "",
       opts: options,
+    }
+  }
+
+  public async parseMonikerinCmd(args: string[], guildId: string) {
+    const { ok, data, log, curl } = await config.getMonikerConfig(guildId)
+    if (!ok) {
+      throw new APIError({
+        description: log,
+        curl,
+      })
+    }
+    let newArgs = args
+    let moniker
+    if (data && Array.isArray(data)) {
+      const content = args.join(" ").trim()
+      data.forEach((v: ResponseMonikerConfigData) => {
+        const tmp = v.moniker?.moniker
+        if (!tmp) return
+        const sym = v.moniker?.token?.token_symbol
+        if (!sym) return
+        if (content.includes(tmp)) {
+          moniker = v
+          newArgs = content.replace(tmp, sym).split(SPACES_REGEX)
+        }
+      })
+    }
+    return {
+      newArgs,
+      moniker,
     }
   }
 
