@@ -1,6 +1,7 @@
 import { Command } from "types/common"
 import {
   ButtonInteraction,
+  CommandInteraction,
   Message,
   MessageActionRow,
   MessageButton,
@@ -24,11 +25,12 @@ import duration from "dayjs/plugin/duration"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { OffchainTipBotTransferRequest } from "types/defi"
 import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
+import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
-const airdropCache = new NodeCache({
+export const airdropCache = new NodeCache({
   stdTTL: 180,
   checkperiod: 1,
   useClones: false,
@@ -235,6 +237,90 @@ export async function enterAirdrop(
   }
 }
 
+export async function handleAirdrop(msgOrInteraction: Message | CommandInteraction, payload: OffchainTipBotTransferRequest, data: Record<string, any>){
+  const userId = msgOrInteraction instanceof Message?msgOrInteraction.author.id:msgOrInteraction.user.id
+  // get balance and price in usd
+  let currentBal = 0
+  let currentPrice = 0
+  data?.forEach((bal: any) => {
+    if (payload.token === bal.symbol) {
+      currentBal = bal.balances
+      currentPrice = bal.rate_in_usd
+    }
+  })
+  if (currentBal < payload.amount && !payload.all) {
+    return {
+      messageOptions: {
+        embeds: [
+          Defi.composeInsufficientBalanceEmbed(
+            msgOrInteraction,
+            currentBal,
+            payload.amount,
+            payload.token
+          ),
+        ],
+      },
+    }
+  }
+  if (payload.all) payload.amount = currentBal
+
+  const tokenEmoji = getEmoji(payload.token)
+  const amountDescription = `${tokenEmoji} **${roundFloatNumber(
+    payload.amount,
+    4
+  )} ${payload.token}** (\u2248 $${roundFloatNumber(
+    currentPrice * payload.amount,
+    4
+  )})`
+
+  const describeRunTime = (duration = 0) => {
+    const hours = Math.floor(duration / 3600)
+    const mins = Math.floor((duration - hours * 3600) / 60)
+    const secs = duration % 60
+    return `${hours === 0 ? "" : `${hours}h`}${
+      hours === 0 && mins === 0 ? "" : `${mins}m`
+    }${secs === 0 ? "" : `${secs}s`}`
+  }
+  const confirmEmbed = composeEmbedMessage(null, {
+    title: `${defaultEmojis.AIRPLANE} Confirm airdrop`,
+    description: `Are you sure you want to spend ${amountDescription} on this airdrop?`,
+  }).addFields([
+    {
+      name: "Total reward",
+      value: amountDescription,
+      inline: true,
+    },
+    {
+      name: "Run time",
+      value: `${describeRunTime(payload.duration)}`,
+      inline: true,
+    },
+    {
+      name: "Max entries",
+      value: `${
+        payload.opts?.maxEntries === 0 ? "-" : payload.opts?.maxEntries
+      }`,
+      inline: true,
+    },
+  ])
+
+  return {
+    messageOptions: {
+      embeds: [confirmEmbed],
+      components: [
+        composeAirdropButtons(
+          userId,
+          payload.amount,
+          currentPrice * payload.amount,
+          payload.token,
+          payload.duration ?? 0,
+          payload.opts?.maxEntries ?? 0
+        ),
+      ],
+    },
+  }
+}
+
 const command: Command = {
   id: "airdrop",
   command: "airdrop",
@@ -245,7 +331,17 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
-    const payload = await Defi.getAirdropPayload(msg, args)
+    // airdrop 1 ftm in 1m for 1
+    if (![3, 5, 7].includes(args.length)) {
+      throw new DiscordWalletTransferError({
+        discordId: msg.author.id,
+        message: msg,
+        error: "Invalid airdrop command",
+      })
+    }
+    let duration = args[4]??"5m" 
+    let entries = args[6]??"5" 
+    const payload = await Defi.getAirdropPayload(msg, args[1], args[2], duration,  entries)
     // check balance
     const {
       ok,
@@ -255,89 +351,13 @@ const command: Command = {
     } = await Defi.offchainGetUserBalances({
       userId: payload.sender,
     })
-    if (!ok) {
-      throw new APIError({ message: msg, curl: curl, description: log })
-    }
-    // get balance and price in usd
-    let currentBal = 0
-    let currentPrice = 0
-    data?.forEach((bal: any) => {
-      if (payload.token === bal.symbol) {
-        currentBal = bal.balances
-        currentPrice = bal.rate_in_usd
-      }
-    })
-    if (currentBal < payload.amount && !payload.all) {
-      return {
-        messageOptions: {
-          embeds: [
-            Defi.composeInsufficientBalanceEmbed(
-              msg,
-              currentBal,
-              payload.amount,
-              payload.token
-            ),
-          ],
-        },
-      }
-    }
-    if (payload.all) payload.amount = currentBal
 
-    const tokenEmoji = getEmoji(payload.token)
-    const amountDescription = `${tokenEmoji} **${roundFloatNumber(
-      payload.amount,
-      4
-    )} ${payload.token}** (\u2248 $${roundFloatNumber(
-      currentPrice * payload.amount,
-      4
-    )})`
-
-    const describeRunTime = (duration = 0) => {
-      const hours = Math.floor(duration / 3600)
-      const mins = Math.floor((duration - hours * 3600) / 60)
-      const secs = duration % 60
-      return `${hours === 0 ? "" : `${hours}h`}${
-        hours === 0 && mins === 0 ? "" : `${mins}m`
-      }${secs === 0 ? "" : `${secs}s`}`
+    // tipbot response shouldn't be null
+    if (!ok || !data) {
+      throw new APIError({ curl: curl, description: log })
     }
-    const confirmEmbed = composeEmbedMessage(msg, {
-      title: `${defaultEmojis.AIRPLANE} Confirm airdrop`,
-      description: `Are you sure you want to spend ${amountDescription} on this airdrop?`,
-    }).addFields([
-      {
-        name: "Total reward",
-        value: amountDescription,
-        inline: true,
-      },
-      {
-        name: "Run time",
-        value: `${describeRunTime(payload.duration)}`,
-        inline: true,
-      },
-      {
-        name: "Max entries",
-        value: `${
-          payload.opts?.maxEntries === 0 ? "-" : payload.opts?.maxEntries
-        }`,
-        inline: true,
-      },
-    ])
-
-    return {
-      messageOptions: {
-        embeds: [confirmEmbed],
-        components: [
-          composeAirdropButtons(
-            msg.author.id,
-            payload.amount,
-            currentPrice * payload.amount,
-            payload.token,
-            payload.duration ?? 0,
-            payload.opts?.maxEntries ?? 0
-          ),
-        ],
-      },
-    }
+    
+    return await handleAirdrop(msg, payload, data)
   },
   featured: {
     title: `<:_:${tripodEmojis.AIRDROPPER}> Airdrop`,
