@@ -61,6 +61,7 @@ import statements_slash from "./defi/tip_bot_slash/statements"
 import moniker_slash from "./config/moniker_slash"
 import withdraw_slash from "./defi/tip_bot_slash/withdraw"
 import airdrop_slash from "./defi/tip_bot_slash/airdrop"
+import invite_slash from "./community/invite_slash"
 
 // external
 import { Message } from "discord.js"
@@ -129,6 +130,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   monikers: moniker_slash,
   withdraw: withdraw_slash,
   airdrop: airdrop_slash,
+  invite: invite_slash
 }
 
 export const originalCommands: Record<string, Command> = {
