@@ -14,6 +14,8 @@ import Defi from "adapters/defi"
 import { GuildIdNotFoundError } from "errors/GuildIdNotFoundError"
 import { APIError } from "errors/APIError"
 import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
+import { ResponseMonikerConfigData } from "types/api"
+import defi from "adapters/defi"
 
 export async function handleTip(
   args: string[],
@@ -21,10 +23,16 @@ export async function handleTip(
   fullCmd: string,
   msg: Message | CommandInteraction
 ) {
+  const { newArgs, moniker } = await defi.parseMonikerinCmd(
+    args,
+    msg.guildId ?? ""
+  )
+  const newCmd = newArgs.join(" ").trim()
+
   const { isValid, targets } = Defi.classifyTipSyntaxTargets(
-    fullCmd
+    newCmd
       .split(" ")
-      .slice(1, fullCmd.toLowerCase().endsWith("each") ? -3 : -2)
+      .slice(1, newCmd.toLowerCase().endsWith("each") ? -3 : -2)
       .join(" ")
   )
 
@@ -37,7 +45,11 @@ export async function handleTip(
   }
 
   // preprocess command arguments
-  const payload = await Defi.getTipPayload(msg, args, authorId, targets)
+  const payload = await Defi.getTipPayload(msg, newArgs, authorId, targets)
+  if (moniker) {
+    payload.amount *=
+      (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
+  }
   payload.fullCommand = fullCmd
   const { data, ok, error, curl, log } = await Defi.offchainDiscordTransfer(
     payload
