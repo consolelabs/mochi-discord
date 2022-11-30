@@ -75,6 +75,7 @@ export const tokenEmojis: Record<string, string> = {
   MKR: "1037985596964081696",
   ANC: "1037985575334051901",
   BRUSH: "1037985582162378783",
+  SOL: "1006838270862295080",
 }
 
 export const numberEmojis: Record<string, string> = {
