@@ -131,7 +131,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   monikers: moniker_slash,
   withdraw: withdraw_slash,
   airdrop: airdrop_slash,
-  invite: invite_slash
+  invite: invite_slash,
 }
 
 export const originalCommands: Record<string, Command> = {

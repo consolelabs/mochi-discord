@@ -25,7 +25,6 @@ import duration from "dayjs/plugin/duration"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { OffchainTipBotTransferRequest } from "types/defi"
 import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
-import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -237,8 +236,15 @@ export async function enterAirdrop(
   }
 }
 
-export async function handleAirdrop(msgOrInteraction: Message | CommandInteraction, payload: OffchainTipBotTransferRequest, data: Record<string, any>){
-  const userId = msgOrInteraction instanceof Message?msgOrInteraction.author.id:msgOrInteraction.user.id
+export async function handleAirdrop(
+  msgOrInteraction: Message | CommandInteraction,
+  payload: OffchainTipBotTransferRequest,
+  data: Record<string, any>
+) {
+  const userId =
+    msgOrInteraction instanceof Message
+      ? msgOrInteraction.author.id
+      : msgOrInteraction.user.id
   // get balance and price in usd
   let currentBal = 0
   let currentPrice = 0
@@ -331,17 +337,7 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
-    // airdrop 1 ftm in 1m for 1
-    if (![3, 5, 7].includes(args.length)) {
-      throw new DiscordWalletTransferError({
-        discordId: msg.author.id,
-        message: msg,
-        error: "Invalid airdrop command",
-      })
-    }
-    let duration = args[4]??"5m" 
-    let entries = args[6]??"5" 
-    const payload = await Defi.getAirdropPayload(msg, args[1], args[2], duration,  entries)
+    const payload = await Defi.getAirdropPayload(msg, args)
     // check balance
     const {
       ok,
@@ -356,7 +352,7 @@ const command: Command = {
     if (!ok || !data) {
       throw new APIError({ curl: curl, description: log })
     }
-    
+
     return await handleAirdrop(msg, payload, data)
   },
   featured: {
