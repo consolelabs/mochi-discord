@@ -2,9 +2,9 @@ import { SlashCommand } from "types/common"
 import {
   SLASH_PREFIX,
   DEFI_DEFAULT_FOOTER,
-  AIRDROP_GITBOOK
+  AIRDROP_GITBOOK,
 } from "utils/constants"
-import {  composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { thumbnails } from "utils/common"
@@ -35,7 +35,9 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("duration")
-          .setDescription("duration of airdrop in seconds, minutes, hours. Example: 5m")
+          .setDescription(
+            "duration of airdrop in seconds, minutes, hours. Example: 5m"
+          )
           .setRequired(true)
       )
       .addStringOption((option) =>
@@ -46,46 +48,54 @@ const command: SlashCommand = {
       )
   },
   run: async function (interaction: CommandInteraction) {
-    if (!interaction.guild || !interaction.guildId){
-        throw new GuildIdNotFoundError({})
+    if (!interaction.guild || !interaction.guildId) {
+      throw new GuildIdNotFoundError({})
     }
 
     const amount = interaction.options.getString("amount")
     const token = interaction.options.getString("token")
     const duration = interaction.options.getString("duration")
     const entries = interaction.options.getString("entries")
-    if (!amount || !token || !duration || !entries){
-        throw new DiscordWalletTransferError({
-            discordId: interaction.user.id,
-            message: interaction,
-            error: "Invalid airdrop command",
-          })
+    if (!amount || !token || !duration || !entries) {
+      throw new DiscordWalletTransferError({
+        discordId: interaction.user.id,
+        message: interaction,
+        error: "Invalid airdrop command",
+      })
     }
 
-    const payload = await Defi.getAirdropPayload(interaction, amount,token,duration,entries)
+    const payload = await Defi.getAirdropPayload(interaction, [
+      "airdrop",
+      amount,
+      token,
+      "in",
+      duration,
+      "for",
+      entries,
+    ])
     // check balance
     const {
-        ok,
-        data = [],
-        log,
-        curl,
+      ok,
+      data = [],
+      log,
+      curl,
     } = await Defi.offchainGetUserBalances({
-        userId: payload.sender,
+      userId: payload.sender,
     })
     // tipbot response shouldn't be null
     if (!ok || !data) {
-        throw new APIError({ curl: curl, description: log })
+      throw new APIError({ curl: curl, description: log })
     }
 
     return await handleAirdrop(interaction, payload, data)
-
   },
   help: async () => ({
     embeds: [
       composeEmbedMessage(null, {
         thumbnail: thumbnails.TOKENS,
         usage: `${SLASH_PREFIX}airdrop <amount> <token> <duration> <max entries>`,
-        description: "Airdrop offchain tokens for a specified number of users to collect in a given amount of time",
+        description:
+          "Airdrop offchain tokens for a specified number of users to collect in a given amount of time",
         footer: [DEFI_DEFAULT_FOOTER],
         examples: `${SLASH_PREFIX}airdrop 10 ftm\n${SLASH_PREFIX}airdrop 10 ftm in 5m\n${SLASH_PREFIX}airdrop 10 ftm in 5m for 6`,
         document: AIRDROP_GITBOOK,

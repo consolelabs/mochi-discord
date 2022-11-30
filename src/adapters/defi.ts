@@ -28,6 +28,7 @@ import {
   RequestOffchainTransferRequest,
   RequestOffchainWithdrawRequest,
   ResponseMonikerConfigData,
+  RequestCreateTipConfigNotify,
 } from "types/api"
 import { commands } from "commands"
 import parse from "parse-duration"
@@ -244,21 +245,31 @@ class Defi extends Fetcher {
     )
   }
 
-  getAirdropOptions(duration: string, entry: string) {
+  getAirdropOptions(args: string[]) {
     const options: { duration: number; maxEntries: number } = {
       duration: 180, // in secs
       maxEntries: 0,
     }
 
+    const content = args.join(" ").trim()
+
     const durationReg = /in\s+\d+[hms]/
-    if (durationReg.test(duration)) {
-      const timeStr = duration.replace(/in\s+/, "").split(" ")[0]
+    const durationIdx = content.search(durationReg)
+    if (durationIdx !== -1) {
+      const timeStr = content
+        .substring(durationIdx)
+        .replace(/in\s+/, "")
+        .split(" ")[0]
       options.duration = parse(timeStr) / 1000
     }
 
     const maxEntriesReg = /for\s+\d+/
-    if (maxEntriesReg.test(entry)) {
-      options.maxEntries = +entry.replace(/for\s+/, "").split(" ")[0]
+    const maxEntriesIdx = content.search(maxEntriesReg)
+    if (maxEntriesIdx !== -1) {
+      options.maxEntries = +content
+        .substring(maxEntriesIdx)
+        .replace(/for\s+/, "")
+        .split(" ")
     }
     return options
   }
@@ -491,10 +502,7 @@ class Defi extends Fetcher {
 
   public async getAirdropPayload(
     msg: Message | CommandInteraction,
-    amountArg: string,
-    token: string,
-    duration: string,
-    entries: string
+    args: string[]
   ): Promise<OffchainTipBotTransferRequest> {
     let type
     let sender
@@ -506,18 +514,37 @@ class Defi extends Fetcher {
       type = msg.commandName
       sender = msg.user.id
     }
-    const recipients: string[] = []
-    const cryptocurrency = token.toUpperCase()
     const guildId = msg.guildId ?? "DM"
+    const { newArgs, moniker } = await this.parseMonikerinCmd(args, guildId)
+    if (![3, 5, 7].includes(newArgs.length)) {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        message: msg,
+        error: "Invalid airdrop command",
+      })
+    }
+    // airdrop 1 ftm in 1m for 1
+    const amountArg = newArgs[1]
+    const recipients: string[] = []
+    const cryptocurrency = newArgs[2].toUpperCase()
 
     // validate airdrop amount
-    const amount = parseFloat(amountArg)
-    if (isNaN(amount) || amount <= 0) {
+    let amount = parseFloat(amountArg)
+    if (
+      (isNaN(amount) || amount <= 0) &&
+      !["all", "a", "an"].includes(amountArg)
+    ) {
       throw new DiscordWalletTransferError({
         discordId: sender,
         message: msg,
         error: "Invalid amount",
       })
+    }
+    if (amountArg === "a" || amountArg === "an") {
+      amount = 1
+    }
+    if (moniker) {
+      amount *= (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
     }
 
     // check if tip token is in guild config
@@ -533,7 +560,7 @@ class Defi extends Fetcher {
     // }
 
     //
-    const options = this.getAirdropOptions(duration, entries)
+    const options = this.getAirdropOptions(newArgs)
 
     return {
       sender,
@@ -543,10 +570,7 @@ class Defi extends Fetcher {
       amount,
       all: amountArg === "all",
       each: false,
-      fullCommand:
-        msg instanceof Message
-          ? msg.content
-          : `${msg.commandName} ${amountArg} ${token} ${duration} ${entries}`,
+      fullCommand: args.join(" ").trim(),
       duration: options.duration,
       token: cryptocurrency,
       transferType: type ?? "",
@@ -739,6 +763,34 @@ class Defi extends Fetcher {
   }) {
     return await this.jsonFetch(
       `${API_BASE_URL}/offchain-tip-bot/transactions`,
+      {
+        query,
+      }
+    )
+  }
+
+  async createConfigNofityTransaction(req: RequestCreateTipConfigNotify) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/offchain-tip-bot/config-notify`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
+  }
+
+  async deleteConfigNofityTransaction(id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/offchain-tip-bot/config-notify/${id}`,
+      {
+        method: "DELETE",
+      }
+    )
+  }
+
+  async getListConfigNofityTransaction(query: { guild_id: string }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/offchain-tip-bot/config-notify`,
       {
         query,
       }

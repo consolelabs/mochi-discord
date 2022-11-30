@@ -35,6 +35,7 @@ import swap from "./community/swap"
 import quest from "./community/quest"
 import statements from "./defi/statements"
 import monikers from "./config/moniker"
+import transaction from "./transaction"
 
 // slash commands
 import help_slash from "./help_slash"
@@ -130,7 +131,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   monikers: moniker_slash,
   withdraw: withdraw_slash,
   airdrop: airdrop_slash,
-  invite: invite_slash
+  invite: invite_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -148,6 +149,7 @@ export const originalCommands: Record<string, Command> = {
   ticker,
   watchlist,
   statements,
+  transaction,
   // community section
   swap,
   invite,
