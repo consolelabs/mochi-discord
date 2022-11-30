@@ -125,6 +125,10 @@ export const WATCHLIST_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/token-watchlist" +
   "&command=watchlist"
+export const TRANSACTION_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/transaction-tracking" +
+  "&command=tracking"
 export const REACTION_ROLE_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles" +

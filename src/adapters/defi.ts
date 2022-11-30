@@ -28,6 +28,7 @@ import {
   RequestOffchainTransferRequest,
   RequestOffchainWithdrawRequest,
   ResponseMonikerConfigData,
+  RequestCreateTipConfigNotify,
 } from "types/api"
 import { commands } from "commands"
 import parse from "parse-duration"
@@ -739,6 +740,34 @@ class Defi extends Fetcher {
   }) {
     return await this.jsonFetch(
       `${API_BASE_URL}/offchain-tip-bot/transactions`,
+      {
+        query,
+      }
+    )
+  }
+
+  async createConfigNofityTransaction(req: RequestCreateTipConfigNotify) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/offchain-tip-bot/config-notify`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
+  }
+
+  async deleteConfigNofityTransaction(id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/offchain-tip-bot/config-notify/${id}`,
+      {
+        method: "DELETE",
+      }
+    )
+  }
+
+  async getListConfigNofityTransaction(query: { guild_id: string }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/offchain-tip-bot/config-notify`,
       {
         query,
       }
