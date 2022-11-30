@@ -80,6 +80,7 @@ const command: Command = {
   canRunWithoutAction: true,
   colorType: "Defi",
   minArguments: 4,
+  onlyAdministrator: true,
 }
 
 export default command
