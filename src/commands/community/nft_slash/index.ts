@@ -2,6 +2,10 @@ import { SlashCommand } from "types/common"
 import { SLASH_PREFIX, NFT_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import add from "./add"
+import stats from "./stats"
+import recent from "./recent"
+import volume from "./volume"
+import ticker from "./ticker"
 import config from "./config"
 import integrate from "./integrate"
 import {
@@ -15,6 +19,10 @@ const subCommands: Record<string, SlashCommand> = {
   add,
   "config_twitter-sale": config,
   integrate,
+  stats,
+  recent,
+  volume,
+  ticker
 }
 
 const command: SlashCommand = {
@@ -32,6 +40,10 @@ const command: SlashCommand = {
       <SlashCommandSubcommandGroupBuilder>config.prepare()
     )
     data.addSubcommand(<SlashCommandSubcommandBuilder>integrate.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>stats.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>recent.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>volume.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>ticker.prepare())
     return data
   },
   run: async function (interaction: CommandInteraction) {

@@ -6,7 +6,7 @@ import Community from "adapters/community"
 import { renderSupportedNFTList } from "utils/canvas"
 import { emojis, getEmojiURL } from "utils/common"
 
-async function composeNFTListEmbed(msg: Message, pageIdx: number) {
+export async function composeNFTListEmbed(pageIdx: number) {
   const { data } = await Community.getCurrentNFTCollections({
     page: pageIdx,
     size: 16,
@@ -17,7 +17,6 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            msg,
             description: "No NFT collections found",
           }),
         ],
@@ -25,7 +24,7 @@ async function composeNFTListEmbed(msg: Message, pageIdx: number) {
     }
   }
 
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     author: ["Newly Supported NFT Collections", getEmojiURL(emojis["SPARKLE"])],
     image: `attachment://nftlist.png`,
   })
@@ -44,7 +43,7 @@ const command: Command = {
   brief: "Show list of newly added NFTs",
   category: "Community",
   run: async function (msg: Message) {
-    const msgOpts = await composeNFTListEmbed(msg, 0)
+    const msgOpts = await composeNFTListEmbed(0)
     return msgOpts
   },
   getHelpMessage: async (msg) => ({

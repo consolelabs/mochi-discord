@@ -4,14 +4,10 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { getEmoji } from "utils/common"
 import { APIError } from "errors"
+import { CommandInteraction, Message } from "discord.js"
 
-const command: Command = {
-  id: "nft_stats",
-  command: "stats",
-  brief: "show total collections added",
-  category: "Community",
-  run: async function (msg) {
-    const res = await community.getCollectionCount()
+export async function handleNftStats(msg: Message | CommandInteraction){
+  const res = await community.getCollectionCount()
     if (!res.ok) {
       throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
@@ -27,13 +23,22 @@ const command: Command = {
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(msg, {
+          composeEmbedMessage(null, {
             title: "Collections supported",
             description: description,
           }),
         ],
       },
     }
+}
+
+const command: Command = {
+  id: "nft_stats",
+  command: "stats",
+  brief: "show total collections added",
+  category: "Community",
+  run: async function (msg) {
+    return await handleNftStats(msg)
   },
   getHelpMessage: async (msg) => ({
     embeds: [

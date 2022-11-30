@@ -1,4 +1,4 @@
-import { Message, MessageAttachment } from "discord.js"
+import { CommandInteraction, Message, MessageAttachment } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { drawDivider, drawRectangle, heightOf, widthOf } from "utils/canvas"
@@ -144,17 +144,8 @@ async function renderLeaderboard(leaderboard: TopNFTTradingVolumeItem[]) {
   return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")
 }
 
-const command: Command = {
-  id: "top_nft",
-  command: "volume",
-  brief: "Show top NFT volume",
-  category: "Community",
-  run: async function (msg: Message) {
-    const args = getCommandArguments(msg)
-    if (args.length > 2) {
-      return { messageOptions: await this.getHelpMessage(msg) }
-    }
-    const res = await Community.getTopNFTTradingVolume()
+export async function handleNftVolume(msg: Message | CommandInteraction){
+  const res = await Community.getTopNFTTradingVolume()
     if (!res.ok) {
       throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
@@ -167,7 +158,7 @@ const command: Command = {
       return {
         messageOptions: {
           embeds: [
-            composeEmbedMessage(msg, {
+            composeEmbedMessage(null, {
               title: msg.guild?.name,
               description: "No ranking data found",
             }),
@@ -175,7 +166,7 @@ const command: Command = {
         },
       }
     const blank = getEmoji("blank")
-    const embed = composeEmbedMessage(msg, {
+    const embed = composeEmbedMessage(null, {
       title: `${getEmoji("cup")} Top NFT rankings`,
       thumbnail: "https://i.postimg.cc/4NT4fs3d/mochi.png", //Need mochi logo url
       description: `${blank}**Highest Trading Volume**\n\u200B`,
@@ -187,6 +178,20 @@ const command: Command = {
         files: [await renderLeaderboard(leaderboard.slice(0, 10))],
       },
     }
+}
+
+const command: Command = {
+  id: "top_nft",
+  command: "volume",
+  brief: "Show top NFT volume",
+  category: "Community",
+  run: async function (msg: Message) {
+    const args = getCommandArguments(msg)
+    if (args.length > 2) {
+      return { messageOptions: await this.getHelpMessage(msg) }
+    }
+    
+    return await handleNftVolume(msg)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
