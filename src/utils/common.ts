@@ -76,6 +76,8 @@ export const tokenEmojis: Record<string, string> = {
   ANC: "1037985575334051901",
   BRUSH: "1037985582162378783",
   SOL: "1006838270862295080",
+  APT: "1047707078183096320",
+  RONIN: "1047707529884483614",
 }
 
 export const numberEmojis: Record<string, string> = {
