@@ -1,14 +1,16 @@
 import {
   ButtonInteraction,
+  CommandInteraction,
   EmbedFieldData,
   Message,
   MessageActionRow,
   MessageAttachment,
   MessageButton,
+  MessageOptions,
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { Command } from "types/common"
+import { Command, MultipleResult, RunResult } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { NFT_TICKER_GITBOOK, PREFIX } from "utils/constants"
 import {
@@ -215,7 +217,7 @@ async function composeCollectionTickerEmbed({
   chain,
   days = 90,
 }: {
-  msg: Message
+  msg: Message | CommandInteraction
   collectionAddress: string
   chain: string
   days?: number
@@ -230,7 +232,6 @@ async function composeCollectionTickerEmbed({
   if (!ok) {
     throw new APIError({ message: msg, curl: curl, description: log })
   }
-
   // collection is not exist, mochi has not added it yet
   if (!data) {
     throw new InternalError({
@@ -321,7 +322,7 @@ async function composeCollectionTickerEmbed({
   }))
 
   const collectionImage = collection_image ?? getEmojiURL(emojis["NFTS"])
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     author: [`${name}`, collectionImage],
     image: "attachment://chart.png",
   }).addFields(fields)
@@ -436,6 +437,113 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
+export async function handleNftTicker(msg: Message | CommandInteraction, symbol: string, authorId: string): Promise<
+| RunResult<MessageOptions>
+| MultipleResult<Message | CommandInteraction>
+>{
+  originAuthorId = authorId
+
+  const {
+    data: suggestions,
+    ok,
+    log,
+    curl,
+  } = await community.getNFTCollectionSuggestions(symbol)
+  if (!ok) throw new APIError({ message: msg, curl, description: log })
+  if (!suggestions.length) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            title: "Collection not found",
+            description:
+              "The collection is not supported yet. Please contact us for the support. Thank you!",
+          }),
+        ],
+      },
+    }
+  }
+  if (suggestions.length === 1) {
+    return await composeCollectionTickerEmbed({
+      msg,
+      collectionAddress: suggestions[0].address ?? "",
+      chain: suggestions[0].chain ?? "",
+    })
+  }
+
+  // if default ticker was set then respond
+  const getDefaultRes = await config.getGuildDefaultNFTTicker({
+    guild_id: msg.guildId ?? "",
+    query: symbol,
+  })
+  if (
+    getDefaultRes.ok &&
+    getDefaultRes.data.address &&
+    getDefaultRes.data.chain_id
+  ) {
+    const { address, chain_id } = getDefaultRes.data
+    return await composeCollectionTickerEmbed({
+      msg,
+      collectionAddress: address,
+      chain: chain_id,
+    })
+  }
+
+  const options = suggestions.flatMap((s: any) => {
+    const valueMaxLength = 100
+    const value = `${symbol}_${s.name}_${s.symbol}_${s.address}_${s.chain}_${s.chain_id}`
+    if (value.length > valueMaxLength) return []
+    return {
+      label: `${s.name} (${s.symbol})`,
+      value,
+    }
+  })
+
+  if (!options.length) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            title: "Collection not found",
+            description:
+              "The collection is not supported yet. Please contact us for the support. Thank you!",
+          }),
+        ],
+      },
+    }
+  }
+
+  // render embed to show multiple results
+  return {
+    select: {
+      options,
+      placeholder: "Select a ticker",
+    },
+    onDefaultSet: async (i) => {
+      const [query, name, symbol, collectionAddress, chainId] =
+        i.customId.split("_")
+      getDefaultSetter({
+        updateAPI: config.setGuildDefaultNFTTicker.bind(config, {
+          guild_id: i.guildId ?? "",
+          query,
+          symbol,
+          collection_address: collectionAddress,
+          chain_id: +chainId,
+        }),
+        description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
+      })(i)
+    },
+    render: ({ msgOrInteraction: msg, value }) => {
+      const [, , , collectionAddress, chain] = value.split("_")
+      return composeCollectionTickerEmbed({ msg, collectionAddress, chain })
+    },
+    ambiguousResultText: symbol.toUpperCase(),
+    multipleResultText: suggestions
+      .map((s) => `**${s.name}** (${s.symbol})`)
+      .join(", "),
+  }
+}
+
 const command: Command = {
   id: "nft_ticker",
   command: "ticker",
@@ -443,107 +551,12 @@ const command: Command = {
   category: "Community",
   run: async function (msg) {
     const args = getCommandArguments(msg)
+    if (args.length<3){
+      return { messageOptions: await this.getHelpMessage(msg) }
+    }
     const symbol = args[2]
-    originAuthorId = msg.author.id
-    const {
-      data: suggestions,
-      ok,
-      log,
-      curl,
-    } = await community.getNFTCollectionSuggestions(symbol)
-    if (!ok) throw new APIError({ message: msg, curl, description: log })
-    if (!suggestions.length) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              title: "Collection not found",
-              description:
-                "The collection is not supported yet. Please contact us for the support. Thank you!",
-            }),
-          ],
-        },
-      }
-    }
-    if (suggestions.length === 1) {
-      return await composeCollectionTickerEmbed({
-        msg,
-        collectionAddress: suggestions[0].address ?? "",
-        chain: suggestions[0].chain ?? "",
-      })
-    }
-
-    // if default ticker was set then respond
-    const getDefaultRes = await config.getGuildDefaultNFTTicker({
-      guild_id: msg.guildId ?? "",
-      query: symbol,
-    })
-    if (
-      getDefaultRes.ok &&
-      getDefaultRes.data.address &&
-      getDefaultRes.data.chain_id
-    ) {
-      const { address, chain_id } = getDefaultRes.data
-      return await composeCollectionTickerEmbed({
-        msg,
-        collectionAddress: address,
-        chain: chain_id,
-      })
-    }
-
-    const options = suggestions.flatMap((s: any) => {
-      const valueMaxLength = 100
-      const value = `${symbol}_${s.name}_${s.symbol}_${s.address}_${s.chain}_${s.chain_id}`
-      if (value.length > valueMaxLength) return []
-      return {
-        label: `${s.name} (${s.symbol})`,
-        value,
-      }
-    })
-
-    if (!options.length) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              title: "Collection not found",
-              description:
-                "The collection is not supported yet. Please contact us for the support. Thank you!",
-            }),
-          ],
-        },
-      }
-    }
-
     // render embed to show multiple results
-    return {
-      select: {
-        options,
-        placeholder: "Select a ticker",
-      },
-      onDefaultSet: async (i) => {
-        const [query, name, symbol, collectionAddress, chainId] =
-          i.customId.split("_")
-        getDefaultSetter({
-          updateAPI: config.setGuildDefaultNFTTicker.bind(config, {
-            guild_id: i.guildId ?? "",
-            query,
-            symbol,
-            collection_address: collectionAddress,
-            chain_id: +chainId,
-          }),
-          description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
-        })(i)
-      },
-      render: ({ msgOrInteraction: msg, value }) => {
-        const [, , , collectionAddress, chain] = value.split("_")
-        return composeCollectionTickerEmbed({ msg, collectionAddress, chain })
-      },
-      ambiguousResultText: symbol.toUpperCase(),
-      multipleResultText: suggestions
-        .map((s) => `**${s.name}** (${s.symbol})`)
-        .join(", "),
-    }
+    return await handleNftTicker(msg, symbol, msg.author.id)
   },
   getHelpMessage: async (msg) => {
     return {
