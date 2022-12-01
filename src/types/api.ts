@@ -359,15 +359,6 @@ export interface ModelOffchainTipBotAssignContract {
   user_id?: string;
 }
 
-export interface ModelOffchainTipBotConfigNotify {
-  channel_id?: string;
-  created_at?: string;
-  guild_id?: string;
-  id?: string;
-  token?: string;
-  updated_at?: string;
-}
-
 export interface ModelOffchainTipBotContract {
   assign_status?: number;
   centralize_wallet?: string;
@@ -1057,6 +1048,16 @@ export interface ResponseConfigGroupNFTRoleResponse {
   role_id?: string;
 }
 
+export interface ResponseConfigNotifyResponse {
+  channel_id?: string;
+  created_at?: string;
+  guild_id?: string;
+  id?: string;
+  token?: string;
+  total_transaction?: number;
+  updated_at?: string;
+}
+
 export interface ResponseConfigureInvitesResponse {
   data?: string;
 }
@@ -1667,7 +1668,7 @@ export interface ResponseListAllNFTCollectionsResponse {
 }
 
 export interface ResponseListConfigNotifyResponse {
-  data?: ModelOffchainTipBotConfigNotify[];
+  data?: ResponseConfigNotifyResponse[];
 }
 
 export interface ResponseListCustomCommandsResponse {
@@ -1736,6 +1737,11 @@ export interface ResponseMonikerConfigResponse {
   data?: ResponseMonikerConfigData[];
 }
 
+export interface ResponseNFTChainCollectionCount {
+  chain?: ModelChain;
+  count?: number;
+}
+
 export interface ResponseNFTCollectionConfig {
   address?: string;
   author?: string;
@@ -1753,9 +1759,7 @@ export interface ResponseNFTCollectionConfig {
 }
 
 export interface ResponseNFTCollectionCount {
-  eth_collection?: number;
-  ftm_collection?: number;
-  op_collection?: number;
+  data?: ResponseNFTChainCollectionCount[];
   total?: number;
 }
 

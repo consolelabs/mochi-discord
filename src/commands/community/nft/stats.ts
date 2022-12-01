@@ -18,9 +18,9 @@ const command: Command = {
     let description = ``
     if (res.data) {
       res.data.data?.forEach((v: any) => {
-        description += `${getEmoji(v.chain.currency)} ${v.chain.currency}: ${
-          v.count
-        } collections\n`
+        description += `${getEmoji(v.chain.currency)} **${
+          v.chain.currency
+        }**: ${v.count} collections\n\n`
       })
     }
 
