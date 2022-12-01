@@ -15,16 +15,21 @@ const command: Command = {
     if (!res.ok) {
       throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
+    let description = ``
+    if (res.data) {
+      res.data.data?.forEach((v: any) => {
+        description += `${getEmoji(v.chain.currency)} ${v.chain.currency}: ${
+          v.count
+        } collections\n`
+      })
+    }
 
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
             title: "Collections supported",
-            description: `
-            ${getEmoji("ETH")} ETH: ${res.data.eth_collection} collections\n
-            ${getEmoji("FTM")} FTM: ${res.data.ftm_collection} collections\n
-            ${getEmoji("OP")} OP: ${res.data.op_collection} collections`,
+            description: description,
           }),
         ],
       },
