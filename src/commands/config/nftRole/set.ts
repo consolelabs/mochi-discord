@@ -1,5 +1,7 @@
+import { InternalError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
+import { defaultEmojis } from "utils/common"
 import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
@@ -32,17 +34,11 @@ const command: Command = {
     const [, roleArg, amountArg, nftAddressesArg, tokenId] = args.slice(1)
     const nftAddresses = nftAddressesArg.split(",")
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description:
-                "Invalid role. Be careful to not be mistaken role with username while setting.",
-            }),
-          ],
-        },
-      }
+      throw new InternalError({
+        message: msg,
+        title: "Can't find the role",
+        description: `Invalid role. Be careful not to be mistaken role with username while setting.\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} Add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+      })
     }
     const roleId = roleArg.substring(3, roleArg.length - 1)
     const role = await msg.guild.roles.fetch(roleId)
@@ -61,7 +57,7 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: "Amount has to be a positive number",
+              description: `Please enter a natural number!${defaultEmojis.POINT_RIGHT} 1; 3; 5; 7`,
             }),
           ],
         },
@@ -70,16 +66,11 @@ const command: Command = {
     const nfts: any[] = await Config.getAllNFTCollections()
     const nft = nfts.find((nft) => nftAddresses.includes(nft.address))
     if (!nft) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "Unsupported NFT Address",
-            }),
-          ],
-        },
-      }
+      throw new InternalError({
+        message: msg,
+        title: "Can't find the NFT",
+        description: `The NFT must be added to the supported list before being used to assign a role.\n${defaultEmojis.POINT_RIGHT} Please choose one in the \`$nft list\`.\n${defaultEmojis.POINT_RIGHT} To add your NFT, run \`$nft add\`.`,
+      })
     }
 
     if (nft.erc_format == "1155" && !tokenId) {
@@ -126,14 +117,15 @@ const command: Command = {
         }
       }
     } else {
-      let description
       if (res.error.toLowerCase().includes("role has been used")) {
-        description = res.error
+        throw new InternalError({
+          message: msg,
+          title: "Role has been used",
+          description: `${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+        })
       }
       return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description })],
-        },
+        messageOptions: { embeds: [getErrorEmbed({ msg })] },
       }
     }
   },

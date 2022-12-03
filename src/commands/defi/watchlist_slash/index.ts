@@ -4,7 +4,7 @@ import {
   Message,
   MessageComponentInteraction,
 } from "discord.js"
-import { thumbnails } from "utils/common"
+import { defaultEmojis, thumbnails } from "utils/common"
 import { composeEmbedMessage2 } from "utils/discordEmbed"
 import {
   SlashCommandBuilder,
@@ -35,9 +35,15 @@ export function handleUpdateWlError(
   }
   switch (true) {
     case error.toLowerCase().startsWith("record not found"):
-      description = `Token with symbol \`${symbol}\` ${
-        isRemove ? "does not exist in your watchlist" : "is not supported"
-      }.`
+      description = `\`${symbol}\` ${
+        isRemove
+          ? "didn't exist in your watchlist. Add new one by `$wl add <symbol>`"
+          : "hasn't been supported"
+      }.\n${
+        defaultEmojis.POINT_RIGHT
+      } Please choose one in our supported \`$token list\`!\n${
+        defaultEmojis.POINT_RIGHT
+      } Add your token by \`$token add-custom\` or \`$token add\`.`
       break
     case error.toLowerCase().startsWith("conflict") && !isRemove:
       description = `Token existed. Please add another one!`

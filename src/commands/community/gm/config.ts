@@ -50,7 +50,11 @@ const command: Command = {
     const channelArg = args[2]
     const { isChannel, value: channelId } = parseDiscordToken(channelArg)
     if (!isChannel) {
-      throw new InternalError({ message: msg, description: "Invalid channel" })
+      throw new InternalError({
+        title: "Command Error",
+        message: msg,
+        description: "Invalid channel. Type #, then choose the valid one!",
+      })
     }
     const messageText = args[3] ?? "gm/gn"
     const emoji = args[4] ?? getEmoji("gm")

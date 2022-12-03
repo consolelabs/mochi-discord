@@ -38,7 +38,8 @@ export async function runVerifySet({
         if (!isRole) {
           throw new InternalError({
             message: msg,
-            description: "Invalid role. Please choose another one!",
+            description:
+              "Invalid role. Be careful not to be mistaken role with username while using `@`.",
           })
         }
       }

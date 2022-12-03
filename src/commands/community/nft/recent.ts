@@ -4,7 +4,7 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Community from "adapters/community"
 import { renderSupportedNFTList } from "utils/canvas"
-import { emojis, getEmojiURL } from "utils/common"
+import { defaultEmojis, emojis, getEmojiURL } from "utils/common"
 
 export async function composeNFTListEmbed(pageIdx: number) {
   const { data } = await Community.getCurrentNFTCollections({
@@ -17,7 +17,8 @@ export async function composeNFTListEmbed(pageIdx: number) {
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            description: "No NFT collections found",
+            title: "No collections recently added",
+            description: `${defaultEmojis.POINT_RIGHT} Run \`$nft add\` to add a new NFT collection!`,
           }),
         ],
       },
@@ -42,7 +43,7 @@ const command: Command = {
   command: "recent",
   brief: "Show list of newly added NFTs",
   category: "Community",
-  run: async function (msg: Message) {
+  run: async () => {
     const msgOpts = await composeNFTListEmbed(0)
     return msgOpts
   },

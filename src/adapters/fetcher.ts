@@ -69,6 +69,7 @@ type RequestInit = Omit<NativeRequestInit, "body"> & {
 type Payload = {
   log: string
   curl: string
+  status?: number
 }
 
 type OkPayload = {
@@ -177,6 +178,7 @@ export class Fetcher {
         json.ok = false
         json.log = log
         json.curl = curl
+        json.status = res.status
         return json
       } else {
         if (!silent) {
@@ -186,6 +188,7 @@ export class Fetcher {
         json.ok = true
         json.log = log
         json.curl = curl
+        json.status = res.status
         return json
       }
     } catch (e: any) {

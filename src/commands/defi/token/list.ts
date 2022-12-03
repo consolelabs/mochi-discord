@@ -6,23 +6,28 @@ import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 import chunk from "lodash/chunk"
 import { MessageOptions } from "discord.js"
+import { APIError } from "errors"
 
 export async function handleTokenList(
   guildId: string
 ): Promise<RunResult<MessageOptions>> {
-  const rawData = await Config.getGuildTokens(guildId)
-  if (!rawData || !rawData.length)
+  const { data: gTokens, ok, curl, log } = await Config.getGuildTokens(guildId)
+  if (!ok) {
+    throw new APIError({ curl, description: log })
+  }
+  if (!gTokens || !gTokens.length)
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
             title: "No token found",
-            description: `Use \`${PREFIX}token add\` to add one to your server.`,
+            description:
+              "👉 To add more token to the list, use `$token add` or `$token add-custom`",
           }),
         ],
       },
     }
-  const data = rawData.map((token: Token) => {
+  const data = gTokens.map((token: Token) => {
     const tokenEmoji = getEmoji(token.symbol)
     return `${tokenEmoji} **${token.symbol.toUpperCase()}**`
   })

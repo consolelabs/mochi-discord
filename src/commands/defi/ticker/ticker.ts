@@ -415,8 +415,9 @@ const command: Command = {
     if (!ok) throw new APIError({ message: msg, curl, description: log })
     if (!coins || !coins.length) {
       throw new InternalError({
+        title: "Invalid symbol",
         message: msg,
-        description: `Cannot find any cryptocurrency with \`${base}\`.\nPlease choose another one!`,
+        description: `${defaultEmojis.POINT_RIGHT} Cannot find any token with \`${base}\`.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`!`,
       })
     }
 

@@ -363,23 +363,11 @@ class Config extends Fetcher {
     })
   }
 
-  public async getGuildTokens(guildId: string): Promise<Token[]> {
-    const res = await fetch(
-      `${API_BASE_URL}/configs/tokens?guild_id=${guildId}`,
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      }
-    )
-    if (res.status !== 200) {
-      throw new Error("failed to get guild tokens")
-    }
-
-    const json = await res.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
+  public async getGuildTokens(guildId: string) {
+    return await this.jsonFetch<Token[]>(`${API_BASE_URL}/configs/tokens`, {
+      method: "GET",
+      query: { guildId },
+    })
   }
 
   public async updateTokenConfig({
@@ -743,19 +731,10 @@ class Config extends Fetcher {
   }
 
   public async setDefaultToken(body: { guild_id: string; symbol: string }) {
-    const resp = await fetch(`${API_BASE_URL}/configs/tokens/default`, {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/tokens/default`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body,
     })
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    if (resp.status !== 200) {
-      throw new Error(`failed to set default token ${body.symbol}`)
-    }
-    return json
   }
 
   // for token

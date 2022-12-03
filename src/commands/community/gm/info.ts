@@ -12,8 +12,9 @@ export async function handle(guildId: string) {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            description: `No configuration found`,
             author: ["GM/GN Channel", getEmojiURL(emojis.GOOD_MORNING)],
+            description:
+              "No GM/GN channel configured. To set one, run `$gm config <#channel> [phrase] [emoji] [sticker]`.",
           }),
         ],
       },

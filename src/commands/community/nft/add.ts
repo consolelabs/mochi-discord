@@ -6,6 +6,7 @@ import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
+import { InternalError } from "errors"
 
 export async function callAPI(
   address: string,
@@ -46,7 +47,7 @@ export async function toEmbed(
 ) {
   // get response and show discord message
   const dataCollection = await storeCollectionRes.json()
-  const errorMessageCollection = dataCollection.error
+  const error = dataCollection.error
   const dataChain = await supportedChainsRes.json()
   switch (storeCollectionRes.status) {
     case 200:
@@ -60,7 +61,7 @@ export async function toEmbed(
       return buildDiscordMessage(msg, "NFT", "Internal Server Error")
     default:
       if (
-        errorMessageCollection.includes(
+        error.includes(
           "Cannot get name and symbol of contract: This collection does not support collection name"
         )
       ) {
@@ -70,7 +71,7 @@ export async function toEmbed(
           "This collection does not support collection name."
         )
       } else if (
-        errorMessageCollection.includes(
+        error.includes(
           "Cannot get name and symbol of contract: This collection does not support collection symbol"
         )
       ) {
@@ -80,30 +81,31 @@ export async function toEmbed(
           "This collection does not support collection symbol."
         )
       } else if (
-        errorMessageCollection.includes(
-          "Already added. Nft is in sync progress"
+        error.includes(
+          "Cannot get name and symbol of contract: no contract code at given address"
         )
       ) {
+        throw new InternalError({
+          message: msg,
+          title: "Can't find the NFT collection",
+          description:
+            "The NFT Address and NFT Chain must be valid. Go to the collection's official website/ marketplace to find this information. ",
+        })
+      } else if (error.includes("Already added. Nft is in sync progress")) {
         return buildDiscordMessage(
           msg,
           "Existing Collection",
           "Please add another one or view the collection by `$nft <collection_symbol> <token_id>`."
         )
-      } else if (
-        errorMessageCollection.includes("block number not synced yet")
-      ) {
+      } else if (error.includes("block number not synced yet")) {
         return buildDiscordMessage(msg, "NFT", "Block number is not in sync.")
-      } else if (
-        errorMessageCollection.includes("Already added. Nft is done with sync")
-      ) {
+      } else if (error.includes("Already added. Nft is done with sync")) {
         return buildDiscordMessage(
           msg,
           "NFT",
           "Already added. Nft is done with sync"
         )
-      } else if (
-        errorMessageCollection.includes("chain is not supported/invalid")
-      ) {
+      } else if (error.includes("chain is not supported/invalid")) {
         // add list chain to description
         const listChainSupportedPrefix = `List chain supported:\n`
         let listChainSupported = ""
@@ -118,23 +120,21 @@ export async function toEmbed(
           "```"
         return buildDiscordMessage(msg, "NFT", listChainDescription)
       } else if (
-        errorMessageCollection.includes(
-          "duplicate key value violates unique constraint"
-        )
+        error.includes("duplicate key value violates unique constraint")
       ) {
         return buildDiscordMessage(
           msg,
           "NFT",
           "This collection is already added"
         )
-      } else if (errorMessageCollection.includes("No metadata found")) {
+      } else if (error.includes("No metadata found")) {
         return buildDiscordMessage(
           msg,
           "NFT",
           "Cannot found metadata for this collection"
         )
       } else {
-        return buildDiscordMessage(msg, "NFT", errorMessageCollection)
+        return buildDiscordMessage(msg, "NFT", error)
       }
   }
 }
@@ -205,7 +205,7 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}nft add <address> <chain_id>`,
+          usage: `To add a collection on EVM chain (ETH and FTM), use:\n${PREFIX}nft add <address> <chain_id/chain_symbol>\n\nTo add a collection on Solana:\n$nft add <collection_id> <chain_id/chain_symbol>`,
           examples: `${PREFIX}nft add 0x51081a152db09d3FfF75807329A3A8b538eCf73b ftm\n${PREFIX}mochi add 0xFBde54764f51415CB0E00765eA4383bc90EDCCE8 5\n${PREFIX}nft add https://opensea.io/collection/tykes`,
           document: ADD_COLLECTION_GITBOOK,
         }),

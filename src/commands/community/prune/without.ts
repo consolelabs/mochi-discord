@@ -84,7 +84,8 @@ const command: Command = {
     if (!isRole) {
       throw new InternalError({
         message: msg,
-        description: "Please enter a valid role",
+        description:
+          "Invalid role. Be careful not to be mistaken role with username while using `@`.",
       })
     }
 
@@ -92,7 +93,8 @@ const command: Command = {
     if (!role) {
       throw new InternalError({
         message: msg,
-        description: "Please enter a valid role",
+        description:
+          "Invalid role. Be careful not to be mistaken role with username while using `@`.",
       })
     }
 
