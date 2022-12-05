@@ -4,6 +4,50 @@ import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
 import { getErrorEmbed, composeEmbedMessage } from "utils/discordEmbed"
 import community from "adapters/community"
 import { emojis, getEmojiURL } from "utils/common"
+import { APIError } from "errors"
+import { CommandInteraction, Message } from "discord.js"
+
+export async function handleSalesTrack(
+  msg: Message | CommandInteraction,
+  addr: string | null,
+  platform: string | null,
+  guildId: string,
+  channelId: string | null
+) {
+  if (!channelId || !addr || !platform)
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            description: `${
+              !channelId ? "Channel" : !addr ? "Address" : "Platform"
+            } not found`,
+          }),
+        ],
+      },
+    }
+  const res = await community.createSalesTracker(
+    addr,
+    platform,
+    guildId,
+    channelId
+  )
+
+  if (!res.ok) {
+    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+  }
+
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Sales Tracker", getEmojiURL(emojis.LEADERBOARD)],
+          description: `NFT sales information will be updated in <#${channelId}>.`,
+        }),
+      ],
+    },
+  }
+}
 
 const command: Command = {
   id: "sales_track",
@@ -39,58 +83,15 @@ const command: Command = {
     }
 
     const chan = await msg.guild.channels.fetch(channelId).catch(() => null)
-    if (!chan)
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Channel not found" })],
-        },
-      }
     const addr = args[3]
-    if (!addr)
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Address not found" })],
-        },
-      }
     const platform = args[4]
-    if (!platform)
-      return {
-        messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Platform not found" })],
-        },
-      }
-    const guildId = msg.guild.id
-
-    const res = await community.createSalesTracker(
+    return await handleSalesTrack(
+      msg,
       addr,
       platform,
-      guildId,
-      channelId
+      msg.guildId,
+      chan ? chan.id : ""
     )
-
-    if (!res.ok) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: res.error,
-            }),
-          ],
-        },
-      }
-    }
-
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            author: ["Sales Tracker", getEmojiURL(emojis.LEADERBOARD)],
-            description: `NFT sales information will be updated in <#${channelId}>.`,
-          }),
-        ],
-      },
-    }
   },
   getHelpMessage: async (msg) => ({
     embeds: [
