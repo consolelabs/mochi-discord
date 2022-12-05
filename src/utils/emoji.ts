@@ -13,7 +13,13 @@ export function throwOnInvalidEmoji(emoji: string, msg: OriginalMessage) {
       }
     }
   })
-  isValidEmoji = isValidEmoji && (isEmoji || isNativeEmoji || isAnimatedEmoji)
+
+  if (isNativeEmoji) {
+    isValidEmoji = true
+  } else {
+    isValidEmoji = isValidEmoji && (isEmoji || isAnimatedEmoji)
+  }
+
   if (!isValidEmoji) {
     throw new InternalError({
       message: msg,
