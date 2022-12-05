@@ -7,6 +7,48 @@ import {
 } from "utils/discordEmbed"
 import community from "adapters/community"
 import { capFirst, shortenHashOrAddress } from "utils/common"
+import { APIError } from "errors"
+import { CommandInteraction, Message } from "discord.js"
+
+export async function handleSalesList(
+  msg: Message | CommandInteraction,
+  guildId: string
+) {
+  const res = await community.getSalesTrackers(guildId)
+  if (!res.ok) {
+    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+  }
+  if (!res.data) {
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            description: `You have no tracker setup`,
+          }),
+        ],
+      },
+    }
+  }
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(null, {
+          title: "Trackers",
+          description: `Sending notifications to channel <#${
+            res.data.channel_id
+          }>:\n${composeSimpleSelection(
+            res.data.collection.map(
+              (c: any) =>
+                `\`${capFirst(c.name)} (${shortenHashOrAddress(
+                  c.contract_address
+                )}) ${c.chain.name}\``
+            )
+          )}`,
+        }),
+      ],
+    },
+  }
+}
 
 const command: Command = {
   id: "sales_list",
@@ -26,52 +68,7 @@ const command: Command = {
         },
       }
     }
-    const res = await community.getSalesTrackers(msg.guildId)
-
-    if (!res.ok) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: res.error,
-            }),
-          ],
-        },
-      }
-    }
-
-    if (!res.data) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              description: `You have no tracker setup`,
-            }),
-          ],
-        },
-      }
-    }
-
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: "Trackers",
-            description: `Sending notifications to channel <#${
-              res.data.channel_id
-            }>:\n${composeSimpleSelection(
-              res.data.collection.map(
-                (c: any) =>
-                  `\`${capFirst(c.name)} (${shortenHashOrAddress(
-                    c.contract_address
-                  )}) ${c.chain.name}\``
-              )
-            )}`,
-          }),
-        ],
-      },
-    }
+    return await handleSalesList(msg, msg.guildId)
   },
   getHelpMessage: async (msg) => ({
     embeds: [

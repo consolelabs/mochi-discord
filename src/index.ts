@@ -37,7 +37,7 @@ process.on("SIGTERM", () => {
 })
 
 // register slash commands
-const body = Object.values(slashCommands).map((c) => c.prepare(slashCommands))
+const body = Object.values(slashCommands).map((c) => c.prepare().toJSON())
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 
 ;(async () => {
