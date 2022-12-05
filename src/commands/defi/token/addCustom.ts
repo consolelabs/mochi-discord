@@ -1,4 +1,4 @@
-import { Message } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
@@ -6,13 +6,10 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 
-async function add(msg: Message, args: string[]) {
-  if (!msg.guildId) {
-    throw new GuildIdNotFoundError({ message: msg })
-  }
+export async function handleTokenAddCustom(guild_id: string, args: string[]) {
   const [, , address, symbol, chain] = args
   const req = {
-    guild_id: msg.guildId,
+    guild_id,
     symbol,
     address,
     chain,
@@ -21,7 +18,7 @@ async function add(msg: Message, args: string[]) {
   if (res.ok) {
     return {
       embeds: [
-        composeEmbedMessage(msg, {
+        composeEmbedMessage(null, {
           description: `Successfully added **${symbol.toUpperCase()}** to server's token lists`,
         }),
       ],
@@ -40,13 +37,13 @@ async function add(msg: Message, args: string[]) {
         })
         .join("\n")
     return {
-      embeds: [getErrorEmbed({ msg: msg, description: description })],
+      embeds: [getErrorEmbed({ description: description })],
     }
   }
   if (res.error.toLowerCase().includes("error getting coin")) {
     description = "Token is not found"
   }
-  const supportedTokens = await Config.getAllCustomTokens(msg.guildId)
+  const supportedTokens = await Config.getAllCustomTokens(guild_id)
   description =
     description +
     `\nAll suppported tokens by Mochi\n` +
@@ -56,7 +53,7 @@ async function add(msg: Message, args: string[]) {
       })
       .join("\n")
   return {
-    embeds: [getErrorEmbed({ msg: msg, description: description })],
+    embeds: [getErrorEmbed({ description: description })],
   }
 }
 
@@ -67,10 +64,13 @@ const command: Command = {
   category: "Community",
   onlyAdministrator: true,
   run: async function (msg) {
+    if (!msg.guildId) {
+      throw new GuildIdNotFoundError({ message: msg })
+    }
     const args = getCommandArguments(msg)
     return {
       messageOptions: {
-        ...(await add(msg, args)),
+        ...(await handleTokenAddCustom(msg.guildId, args)),
       },
     }
   },
