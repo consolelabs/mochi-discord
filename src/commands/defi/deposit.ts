@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { Message } from "discord.js"
+import { CommandInteraction, Message, User } from "discord.js"
 import { DEPOSIT_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import { DirectMessageNotAllowedError } from "errors"
 import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
@@ -8,11 +8,14 @@ import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
 
-async function deposit(msg: Message) {
+export async function handleDeposit(
+  msg: Message | CommandInteraction,
+  user: User,
+  tokenSymbol: string
+) {
   try {
-    const tokenSymbol = getCommandArguments(msg)[1]
     const res = await defi.offchainTipBotAssignContract({
-      user_id: msg.author.id,
+      user_id: user.id,
       token_symbol: tokenSymbol,
     })
 
@@ -20,9 +23,9 @@ async function deposit(msg: Message) {
       throw new APIError({ message: msg, curl: res.curl, description: res.log })
     }
 
-    const dm = await msg.author.send({
+    const dm = await user.send({
       embeds: [
-        composeEmbedMessage(msg, {
+        composeEmbedMessage(null, {
           author: [
             `Deposit ${tokenSymbol.toUpperCase()}`,
             getEmojiURL(emojis.WALLET),
@@ -37,21 +40,21 @@ async function deposit(msg: Message) {
       ],
     })
 
-    if (msg.channel.type === "DM") return null
+    if (msg.channel?.type === "DM") return null
 
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(msg, {
+          composeEmbedMessage(null, {
             author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
-            description: `${msg.author}, your deposit address has been sent to you. Check your DM!`,
+            description: `${user}, your deposit address has been sent to you. Check your DM!`,
           }),
         ],
         components: [composeButtonLink("See the DM", dm.url)],
       },
     }
   } catch (e: any) {
-    if (msg.channel.type !== "DM" && e.httpStatus === 403) {
+    if (msg.channel?.type !== "DM" && e.httpStatus === 403) {
       throw new DirectMessageNotAllowedError({ message: msg })
     }
     throw e
@@ -63,7 +66,13 @@ const command: Command = {
   command: "deposit",
   brief: "Deposit",
   category: "Defi",
-  run: deposit,
+  run: async function (msg: Message) {
+    const res = getCommandArguments(msg)
+    if (res.length < 2) {
+      return { messageOptions: await this.getHelpMessage(msg) }
+    }
+    return await handleDeposit(msg, msg.author, res[1])
+  },
   featured: {
     title: `${getEmoji("left_arrow")} Deposit`,
     description: "Deposit tokens into your in-discord wallet",
