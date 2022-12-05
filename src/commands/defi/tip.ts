@@ -1,5 +1,10 @@
 import { CommandInteraction, Message } from "discord.js"
-import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
+import {
+  DEFI_DEFAULT_FOOTER,
+  PREFIX,
+  SPACES_REGEX,
+  TIP_GITBOOK,
+} from "utils/constants"
 import {
   emojis,
   getEmoji,
@@ -23,8 +28,9 @@ export async function handleTip(
   fullCmd: string,
   msg: Message | CommandInteraction
 ) {
+  const [cmdWithoutMsg, messageTip] = args.join(" ").split('"')
   const { newArgs, moniker } = await defi.parseMonikerinCmd(
-    args,
+    cmdWithoutMsg.trim().split(SPACES_REGEX),
     msg.guildId ?? ""
   )
   const newCmd = newArgs.join(" ").trim()
@@ -50,7 +56,13 @@ export async function handleTip(
     payload.amount *=
       (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
   }
+  let imageUrl
+  if (msg instanceof Message) {
+    imageUrl = msg.attachments.first()?.url
+  }
   payload.fullCommand = fullCmd
+  payload.image = imageUrl
+  payload.message = messageTip
   const { data, ok, error, curl, log } = await Defi.offchainDiscordTransfer(
     payload
   )

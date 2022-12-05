@@ -25,6 +25,8 @@ export type OffchainTipBotTransferRequest = {
   duration: number
   fullCommand: string
   opts?: { duration: number; maxEntries: number }
+  image?: string
+  message?: string
 }
 
 export type OffchainTipBotWithdrawRequest = {
