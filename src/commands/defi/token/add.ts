@@ -1,10 +1,12 @@
 import {
+  CommandInteraction,
   Message,
+  MessageOptions,
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
 import { InternalError, GuildIdNotFoundError } from "errors"
-import { Command } from "types/common"
+import { Command, MultipleResult, RunResult } from "types/common"
 import { PREFIX } from "utils/constants"
 import {
   composeDiscordExitButton,
@@ -44,6 +46,54 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
+export async function handleTokenAdd(
+  msg: Message | CommandInteraction,
+  guildId: string,
+  authorId: string
+): Promise<
+  RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
+> {
+  const tokens = await Defi.getSupportedTokens()
+  const gTokens = (await Config.getGuildTokens(guildId)) ?? []
+  let options: MessageSelectOptionData[] = tokens
+    .filter((t) => !gTokens.map((gToken) => gToken.id).includes(t.id))
+    .map((token) => ({
+      label: `${token.name} (${token.symbol})`,
+      value: token.symbol,
+    }))
+
+  if (!options.length)
+    throw new InternalError({
+      message: msg,
+      description: "Your server already had all supported tokens.",
+    })
+  if (options.length > 25) {
+    options = options.slice(0, 25)
+  }
+
+  const selectionRow = composeDiscordSelectionRow({
+    customId: "guild_tokens_selection",
+    placeholder: "Make a selection",
+    options,
+  })
+
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(null, {
+          title: "Need action",
+          description:
+            "Select to add one of the following tokens to your server.",
+        }),
+      ],
+      components: [selectionRow, composeDiscordExitButton(authorId)],
+    },
+    interactionOptions: {
+      handler,
+    },
+  }
+}
+
 const command: Command = {
   id: "add_server_token",
   command: "add",
@@ -54,45 +104,7 @@ const command: Command = {
     if (!msg.guildId || !msg.guild) {
       throw new GuildIdNotFoundError({ message: msg })
     }
-    const tokens = await Defi.getSupportedTokens()
-    const gTokens = (await Config.getGuildTokens(msg.guildId)) ?? []
-    let options: MessageSelectOptionData[] = tokens
-      .filter((t) => !gTokens.map((gToken) => gToken.id).includes(t.id))
-      .map((token) => ({
-        label: `${token.name} (${token.symbol})`,
-        value: token.symbol,
-      }))
-
-    if (!options.length)
-      throw new InternalError({
-        message: msg,
-        description: "Your server already had all supported tokens.",
-      })
-    if (options.length > 25) {
-      options = options.slice(0, 25)
-    }
-
-    const selectionRow = composeDiscordSelectionRow({
-      customId: "guild_tokens_selection",
-      placeholder: "Make a selection",
-      options,
-    })
-
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: "Need action",
-            description:
-              "Select to add one of the following tokens to your server.",
-          }),
-        ],
-        components: [selectionRow, composeDiscordExitButton(msg.author.id)],
-      },
-      interactionOptions: {
-        handler,
-      },
-    }
+    return await handleTokenAdd(msg, msg.guildId, msg.author.id)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
