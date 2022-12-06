@@ -18,7 +18,13 @@ import {
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { authorFilter, getEmoji, shortenHashOrAddress } from "utils/common"
+import {
+  authorFilter,
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  shortenHashOrAddress,
+} from "utils/common"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { APIError, InternalError } from "errors"
 
@@ -204,14 +210,15 @@ export async function handleSalesRemove(
   if (!res.ok) {
     throw new APIError({ message: msg, curl: res.curl, description: res.log })
   }
-  if (!res.data) {
+  if (!res.data?.length) {
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(null, {
-            title: "No tracker set",
+          getErrorEmbed({
+            title: "Remove Sales Tracker",
+            emojiUrl: getEmojiURL(emojis.LEADERBOARD),
             description:
-              "You currently have no trackers set, start tracking with `sales track`",
+              "There is no collection tracked. You can add a collection to track sales by `$sales track <channel> <address> <chain_id/chain_symbol>`.",
           }),
         ],
       },

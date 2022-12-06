@@ -3,7 +3,9 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
+import { APIError } from "errors"
 import { Command } from "types/common"
+import { Token } from "types/defi"
 import { PREFIX } from "utils/constants"
 import {
   composeDiscordExitButton,
@@ -50,7 +52,10 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
 }
 
 export async function handleTokenRemove(guildId: string, authorId: string) {
-  const gTokens = await Config.getGuildTokens(guildId)
+  const { data: gTokens, ok, curl, log } = await Config.getGuildTokens(guildId)
+  if (!ok) {
+    throw new APIError({ curl, description: log })
+  }
   if (!gTokens || !gTokens.length)
     return {
       messageOptions: {
@@ -61,7 +66,7 @@ export async function handleTokenRemove(guildId: string, authorId: string) {
         ],
       },
     }
-  const options: MessageSelectOptionData[] = gTokens.map((token) => ({
+  const options: MessageSelectOptionData[] = gTokens.map((token: Token) => ({
     label: `${token.name} (${token.symbol})`,
     value: token.symbol,
   }))

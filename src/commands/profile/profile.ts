@@ -23,6 +23,7 @@ import { parseDiscordToken, getCommandArguments } from "utils/commands"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import community from "adapters/community"
 import { composeNFTDetail } from "commands/community/nft/query"
+import { InternalError } from "errors"
 
 // TODO: this is a global var (one bot instance but multiple users are changing it - could lead to unpredictable error)
 let currentCollectionAddress: string | undefined
@@ -527,7 +528,7 @@ async function composeMyNFTEmbed(
 const command: Command = {
   id: "profile",
   command: "profile",
-  brief: "User’s profile",
+  brief: "User's profile",
   category: "Profile",
   run: async (msg) => {
     const shouldHidePrivateInfo = !hasAdministrator(msg.member)
@@ -575,17 +576,12 @@ const command: Command = {
       collectSelectMenu(replyMsg, msg.author.id, user)
     }
 
-    if (users.length == 0) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: "No profile found",
-            }),
-          ],
-        },
-      }
+    if (!users.length) {
+      throw new InternalError({
+        message: msg,
+        title: "Can't find the user",
+        description: `The username doesn't exist. Type \`@\` to see the members list.`,
+      })
     }
 
     return null

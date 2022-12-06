@@ -133,7 +133,7 @@ export function getMultipleResultEmbed({
 }) {
   return composeEmbedMessage(msg, {
     title: `${defaultEmojis.MAG} Multiple results found`,
-    description: `Multiple results found for \`${ambiguousResultText}\`${
+    description: `Relevant results found for \`${ambiguousResultText}\`${
       multipleResultText ? `: ${multipleResultText}` : ""
     }.\nPlease select one of the following`,
   })
@@ -393,11 +393,22 @@ export function getErrorEmbed(params: {
   msg?: Message
   image?: string
   originalMsgAuthor?: User
+  emojiUrl?: string
 }) {
-  const { title, description, thumbnail, msg, image, originalMsgAuthor } =
-    params
+  const {
+    title,
+    description,
+    thumbnail,
+    msg,
+    image,
+    originalMsgAuthor,
+    emojiUrl,
+  } = params
   return composeEmbedMessage(msg, {
-    author: [title ?? "Command error", getEmojiURL(emojis["REVOKE"])],
+    author: [
+      title ?? "Command error",
+      emojiUrl ?? getEmojiURL(emojis["REVOKE"]),
+    ],
     description:
       description ??
       `Our team is fixing the issue. Stay tuned ${getEmoji("nekosad")}.`,

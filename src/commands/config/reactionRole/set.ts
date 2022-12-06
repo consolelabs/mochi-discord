@@ -4,8 +4,8 @@ import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { APIError, InternalError, GuildIdNotFoundError } from "errors"
-import { isDiscordMessageLink } from "utils/common"
+import { InternalError, GuildIdNotFoundError } from "errors"
+import { defaultEmojis, isDiscordMessageLink } from "utils/common"
 import { throwOnInvalidEmoji } from "utils/emoji"
 
 const troubleshootMsg = `\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._`
@@ -26,6 +26,7 @@ const command: Command = {
     if (!isDiscordMessageLink(args[2])) {
       throw new InternalError({
         message: msg,
+        title: "Invalid message address",
         description: `Can't find the messages.${troubleshootMsg}`,
       })
     }
@@ -39,7 +40,7 @@ const command: Command = {
     if (!isRole || !roleId) {
       throw new InternalError({
         title: "Can't find the role",
-        description: "Be careful not to mix up role and username 😬",
+        description: `Invalid role. Be careful not to be mistaken role with username while setting.\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
       })
     }
 
@@ -79,11 +80,10 @@ const command: Command = {
 
     const res = await config.updateReactionConfig(requestData)
     if (!res.ok) {
-      throw new APIError({
+      throw new InternalError({
         message: msg,
-        curl: res.curl,
-        description: res.log,
-        error: `Failed to set reaction role.${troubleshootMsg}`,
+        title: "Role has been used",
+        description: `Use another role to set the reaction role\n${defaultEmojis.POINT_RIGHT} To see used roles, run $rr list\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
       })
     }
 

@@ -5,7 +5,7 @@ import { APIError, InternalError } from "errors"
 import { Command } from "types/common"
 import CacheManager from "utils/CacheManager"
 import { getCommandArguments } from "utils/commands"
-import { thumbnails } from "utils/common"
+import { defaultEmojis, thumbnails } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TICKER_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 
@@ -55,8 +55,9 @@ const command: Command = {
     }
     if (!coins.length) {
       throw new InternalError({
+        title: "Invalid symbol",
         message: msg,
-        description: `Cannot find any cryptocurrency with \`${query}\`.\nPlease choose another one!`,
+        description: `${defaultEmojis.POINT_RIGHT} Cannot find any cryptocurrency with \`${query}\`.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`!`,
       })
     }
     return {

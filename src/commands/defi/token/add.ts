@@ -5,8 +5,9 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { InternalError, GuildIdNotFoundError } from "errors"
 import { Command, MultipleResult, RunResult } from "types/common"
+import { InternalError, GuildIdNotFoundError, APIError } from "errors"
+import { Token } from "types/defi"
 import { PREFIX } from "utils/constants"
 import {
   composeDiscordExitButton,
@@ -54,9 +55,12 @@ export async function handleTokenAdd(
   RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
 > {
   const tokens = await Defi.getSupportedTokens()
-  const gTokens = (await Config.getGuildTokens(guildId)) ?? []
+  const { data: gTokens, ok, curl, log } = await Config.getGuildTokens(guildId)
+  if (!ok) {
+    throw new APIError({ curl, description: log })
+  }
   let options: MessageSelectOptionData[] = tokens
-    .filter((t) => !gTokens.map((gToken) => gToken.id).includes(t.id))
+    .filter((t) => !gTokens.map((gToken: Token) => gToken.id).includes(t.id))
     .map((token) => ({
       label: `${token.name} (${token.symbol})`,
       value: token.symbol,

@@ -40,7 +40,8 @@ const command: Command = {
       if (configs.data.role_id == "") {
         throw new InternalError({
           message: msg,
-          description: `You haven't set any role. To config a new one, run \`$dr set @<role_name>\`.`,
+          title: "No default role found",
+          description: `You haven't set any default role yet. To set a new one, run \`$dr set @<role_name>\``,
         })
       }
     } else {

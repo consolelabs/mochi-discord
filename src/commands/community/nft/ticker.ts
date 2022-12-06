@@ -437,10 +437,13 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
-export async function handleNftTicker(msg: Message | CommandInteraction, symbol: string, authorId: string): Promise<
-| RunResult<MessageOptions>
-| MultipleResult<Message | CommandInteraction>
->{
+export async function handleNftTicker(
+  msg: Message | CommandInteraction,
+  symbol: string,
+  authorId: string
+): Promise<
+  RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
+> {
   originAuthorId = authorId
 
   const {
@@ -456,8 +459,7 @@ export async function handleNftTicker(msg: Message | CommandInteraction, symbol:
         embeds: [
           getErrorEmbed({
             title: "Collection not found",
-            description:
-              "The collection is not supported yet. Please contact us for the support. Thank you!",
+            description: `The collection hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in the supported \`$nft list\`.\n${defaultEmojis.POINT_RIGHT} To add your NFT, run \`$nft add\`.`,
           }),
         ],
       },
@@ -551,7 +553,7 @@ const command: Command = {
   category: "Community",
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    if (args.length<3){
+    if (args.length < 3) {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
     const symbol = args[2]

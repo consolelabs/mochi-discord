@@ -2,6 +2,7 @@ import { CommandInteraction, Message } from "discord.js"
 import { CommandArgumentError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
+import { defaultEmojis } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
@@ -24,9 +25,18 @@ export async function handleTokenDefault(
     symbol,
   }
   try {
-    await Config.setDefaultToken(req)
+    const { ok, status } = await Config.setDefaultToken(req)
+    if (!ok && status === 404) {
+      return {
+        embeds: [
+          getErrorEmbed({
+            description: `\`${symbol}\` hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`\n${defaultEmojis.POINT_RIGHT} To add your token, run $token add-custom or $token add.`,
+          }),
+        ],
+      }
+    }
   } catch (e) {
-    const err = (e as string).split("Error:")[1]
+    const err = (e as string)?.split("Error:")[1]
     let description = `${err}`
     if (err.includes("not supported")) {
       const supportedChains = await Config.getAllChains()
