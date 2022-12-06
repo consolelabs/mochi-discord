@@ -10,10 +10,7 @@ import {
 } from "utils/discordEmbed"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import { APIError, CommandArgumentError } from "errors"
-import {
-  OffchainTipBotWithdrawRequest,
-} from "types/defi"
-
+import { OffchainTipBotWithdrawRequest } from "types/defi"
 
 export async function getDestinationAddress(
   msg: Message | CommandInteraction,
@@ -40,10 +37,10 @@ export async function getDestinationAddress(
 }
 
 export async function withdraw(msg: Message, args: string[]) {
-  if (args.length < 4){
+  if (args.length < 4) {
     throw new CommandArgumentError({
       message: msg,
-      getHelpMessage: ()=>command.getHelpMessage(msg)
+      getHelpMessage: () => command.getHelpMessage(msg),
     })
   }
   const payload = await Defi.getWithdrawPayload(msg, args[1], args[2], args[3])
@@ -53,14 +50,16 @@ export async function withdraw(msg: Message, args: string[]) {
   if (!ok) {
     throw new APIError({ message: msg, description: log, curl, error })
   }
-  
+
   const embedMsg = composeWithdrawEmbed(payload, data)
 
   await msg.author.send({ embeds: [embedMsg] })
 }
 
-export function composeWithdrawEmbed(payload: OffchainTipBotWithdrawRequest, data: Record<string, any>){
-  const ftmEmoji = getEmoji("ftm")
+export function composeWithdrawEmbed(
+  payload: OffchainTipBotWithdrawRequest,
+  data: Record<string, any>
+) {
   const tokenEmoji = getEmoji(payload.token)
   return composeEmbedMessage(null, {
     author: ["Withdraw"],
@@ -74,12 +73,7 @@ export function composeWithdrawEmbed(payload: OffchainTipBotWithdrawRequest, dat
     },
     {
       name: "Withdrawal amount",
-      value: `**${data.withdraw_amount}** ${tokenEmoji}`,
-      inline: true,
-    },
-    {
-      name: "Transaction fee",
-      value: `**${data.transaction_fee}** ${ftmEmoji}`,
+      value: `**${data.amount}** ${tokenEmoji}`,
       inline: true,
     },
     {
