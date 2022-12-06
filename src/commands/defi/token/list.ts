@@ -1,10 +1,52 @@
-import { Command } from "types/common"
+import { Command, RunResult } from "types/common"
 import { Token } from "types/defi"
 import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 import chunk from "lodash/chunk"
+import { MessageOptions } from "discord.js"
+
+export async function handleTokenList(
+  guildId: string
+): Promise<RunResult<MessageOptions>> {
+  const rawData = await Config.getGuildTokens(guildId)
+  if (!rawData || !rawData.length)
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "No token found",
+            description: `Use \`${PREFIX}token add\` to add one to your server.`,
+          }),
+        ],
+      },
+    }
+  const data = rawData.map((token: Token) => {
+    const tokenEmoji = getEmoji(token.symbol)
+    return `${tokenEmoji} **${token.symbol.toUpperCase()}**`
+  })
+
+  const fields = chunk(chunk(data, 10), 3).flatMap((row, i) => {
+    return row.flatMap((c) => ({
+      name: "\u200b",
+      value: c.join("\n"),
+      inline: i !== 2,
+    }))
+  })
+
+  return {
+    messageOptions: {
+      embeds: [
+        {
+          color: "#77b255",
+          title: ":dollar: Tokens list",
+          fields,
+        },
+      ],
+    },
+  }
+}
 
 const command: Command = {
   id: "list_server_token",
@@ -24,42 +66,7 @@ const command: Command = {
         },
       }
     }
-    const rawData = await Config.getGuildTokens(msg.guildId)
-    if (!rawData || !rawData.length)
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              title: "No token found",
-              description: `Use \`${PREFIX}token add\` to add one to your server.`,
-            }),
-          ],
-        },
-      }
-    const data = rawData.map((token: Token) => {
-      const tokenEmoji = getEmoji(token.symbol)
-      return `${tokenEmoji} **${token.symbol.toUpperCase()}**`
-    })
-
-    const fields = chunk(chunk(data, 10), 3).flatMap((row, i) => {
-      return row.flatMap((c) => ({
-        name: "\u200b",
-        value: c.join("\n"),
-        inline: i !== 2,
-      }))
-    })
-
-    return {
-      messageOptions: {
-        embeds: [
-          {
-            color: "#77b255",
-            title: ":dollar: Tokens list",
-            fields,
-          },
-        ],
-      },
-    }
+    return await handleTokenList(msg.guildId)
   },
   getHelpMessage: async (msg) => ({
     embeds: [

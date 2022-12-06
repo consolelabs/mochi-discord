@@ -1,22 +1,24 @@
-import { Message } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
+import { CommandArgumentError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import Config from "../../../adapters/config"
 
-async function setDefault(msg: Message, args: string[]) {
+export async function handleTokenDefault(
+  msg: Message | CommandInteraction,
+  symbol: string
+) {
   if (!msg.guildId) {
     return {
       embeds: [
         getErrorEmbed({
-          msg,
           description: "This command must be run in a Guild",
         }),
       ],
     }
   }
-  const [, , symbol] = args
   const req = {
     guild_id: msg.guildId,
     symbol,
@@ -37,7 +39,7 @@ async function setDefault(msg: Message, args: string[]) {
           })
           .join("\n")
       return {
-        embeds: [getErrorEmbed({ msg: msg, description: description })],
+        embeds: [getErrorEmbed({ description: description })],
       }
     }
     const supportedTokens = await Config.getAllCustomTokens(msg.guildId)
@@ -50,13 +52,13 @@ async function setDefault(msg: Message, args: string[]) {
         })
         .join("\n")
     return {
-      embeds: [getErrorEmbed({ msg: msg, description: description })],
+      embeds: [getErrorEmbed({ description: description })],
     }
   }
 
   return {
     embeds: [
-      composeEmbedMessage(msg, {
+      composeEmbedMessage(null, {
         description: `Successfully set **${symbol.toUpperCase()}** as default token for server`,
       }),
     ],
@@ -71,7 +73,13 @@ const command: Command = {
   onlyAdministrator: true,
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    const embeds = await setDefault(msg, args)
+    if (args.length < 3) {
+      throw new CommandArgumentError({
+        message: msg,
+        getHelpMessage: () => command.getHelpMessage(msg),
+      })
+    }
+    const embeds = await handleTokenDefault(msg, args[2])
     return {
       messageOptions: {
         ...embeds,

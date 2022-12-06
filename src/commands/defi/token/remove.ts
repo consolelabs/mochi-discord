@@ -49,6 +49,46 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
+export async function handleTokenRemove(guildId: string, authorId: string) {
+  const gTokens = await Config.getGuildTokens(guildId)
+  if (!gTokens || !gTokens.length)
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            description: `Your server has no tokens.\nUse \`${PREFIX}token add\` to add one to your server.`,
+          }),
+        ],
+      },
+    }
+  const options: MessageSelectOptionData[] = gTokens.map((token) => ({
+    label: `${token.name} (${token.symbol})`,
+    value: token.symbol,
+  }))
+
+  const selectionRow = composeDiscordSelectionRow({
+    customId: "guild_tokens_selection",
+    placeholder: "Make a selection",
+    options,
+  })
+
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(null, {
+          title: "Need action",
+          description:
+            "Select to remove one of the following tokens from your server.",
+        }),
+      ],
+      components: [selectionRow, composeDiscordExitButton(authorId)],
+    },
+    interactionOptions: {
+      handler,
+    },
+  }
+}
+
 const command: Command = {
   id: "remove_server_token",
   command: "remove",
@@ -68,44 +108,7 @@ const command: Command = {
         },
       }
     }
-    const gTokens = await Config.getGuildTokens(msg.guildId)
-    if (!gTokens || !gTokens.length)
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: `Your server has no tokens.\nUse \`${PREFIX}token add\` to add one to your server.`,
-            }),
-          ],
-        },
-      }
-    const options: MessageSelectOptionData[] = gTokens.map((token) => ({
-      label: `${token.name} (${token.symbol})`,
-      value: token.symbol,
-    }))
-
-    const selectionRow = composeDiscordSelectionRow({
-      customId: "guild_tokens_selection",
-      placeholder: "Make a selection",
-      options,
-    })
-
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: "Need action",
-            description:
-              "Select to remove one of the following tokens from your server.",
-          }),
-        ],
-        components: [selectionRow, composeDiscordExitButton(msg.author.id)],
-      },
-      interactionOptions: {
-        handler,
-      },
-    }
+    return await handleTokenRemove(msg.guildId, msg.author.id)
   },
   getHelpMessage: async (msg) => ({
     embeds: [

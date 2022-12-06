@@ -10,6 +10,7 @@ import {
 import community from "adapters/community"
 import {
   ButtonInteraction,
+  CommandInteraction,
   InteractionCollector,
   Message,
   MessageActionRow,
@@ -19,6 +20,7 @@ import {
 } from "discord.js"
 import { authorFilter, getEmoji, shortenHashOrAddress } from "utils/common"
 import { MessageComponentTypes } from "discord.js/typings/enums"
+import { APIError, InternalError } from "errors"
 
 type State = "idle" | "queued" | "queued-detail" | "undo" | "undo-detail"
 
@@ -48,7 +50,6 @@ async function undo(i: ButtonInteraction) {
       }
     }
     const { embed, components } = renderResponse(
-      i.message as Message,
       state === "queued-detail" ? "undo-detail" : "undo",
       "Choose 1 from the list",
       options,
@@ -76,7 +77,6 @@ async function selectRemove(i: SelectMenuInteraction) {
         }
       })
       const { embed, components } = renderResponse(
-        i.message as Message,
         "queued",
         "Tracker removed",
         res.data.collection.filter(
@@ -124,7 +124,6 @@ function collectSelect(msg: Message, authorId: string) {
 }
 
 function renderResponse(
-  msg: Message,
   state: State,
   title: string,
   options: Array<{ contract_address: string; platform: string }>,
@@ -167,13 +166,12 @@ function renderResponse(
   const embed =
     state === "queued-detail"
       ? getSuccessEmbed({
-          msg,
           title,
           description: `Alternatively, you can remove the trackers interactively by running \`${PREFIX}sale remove\``,
         })
       : state === "undo-detail"
-      ? getSuccessEmbed({ msg, title, description: "Action cancelled" })
-      : composeEmbedMessage(msg, {
+      ? getSuccessEmbed({ title, description: "Action cancelled" })
+      : composeEmbedMessage(null, {
           color: embedsColors["Marketplace"],
           title,
           description:
@@ -196,6 +194,68 @@ function renderResponse(
   }
 }
 
+export async function handleSalesRemove(
+  msg: Message | CommandInteraction,
+  guildId: string,
+  addressArg: string,
+  authorId: string
+) {
+  const res = await community.getSalesTrackers(guildId)
+  if (!res.ok) {
+    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+  }
+  if (!res.data) {
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "No tracker set",
+            description:
+              "You currently have no trackers set, start tracking with `sales track`",
+          }),
+        ],
+      },
+    }
+  }
+  const { isAddress, value } = parseDiscordToken(addressArg)
+  let replyMsg: Message
+  if (isAddress && value) {
+    const timeoutId = remove(guildId, value, () => {
+      replyMsg?.edit({ components: [] }).catch(() => null)
+    })
+
+    const { embed, components } = renderResponse(
+      "queued-detail",
+      "Tracker removed",
+      res.data.collection.filter((c: any) => c.contract_address !== value),
+      res.data.channel_id,
+      timeoutId
+    )
+    replyMsg = (await msg.reply({
+      embeds: [embed],
+      components,
+    })) as Message
+    if (!replyMsg) {
+      throw new InternalError({})
+    }
+  } else {
+    const { embed, components } = renderResponse(
+      "idle",
+      "Choose 1 from the list",
+      res.data.collection,
+      res.data.channel_id
+    )
+    replyMsg = (await msg.reply({
+      embeds: [embed],
+      components,
+    })) as Message
+  }
+
+  buttonCollector = collectButton(replyMsg, authorId)
+  collectSelect(replyMsg, authorId)
+  return null
+}
+
 const command: Command = {
   id: "track_sales",
   command: "remove",
@@ -214,57 +274,13 @@ const command: Command = {
         },
       }
     }
-
-    const res = await community.getSalesTrackers(msg.guildId)
-    if (!res.ok) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              msg,
-              description: res.error,
-            }),
-          ],
-        },
-      }
-    }
     const args = getCommandArguments(msg)
-    const { isAddress, value } = parseDiscordToken(args[2] ?? "")
-    let replyMsg: Message | null = null
-    if (isAddress && value) {
-      const timeoutId = remove(msg.guildId, value, () => {
-        replyMsg?.edit({ components: [] }).catch(() => null)
-      })
-
-      const { embed, components } = renderResponse(
-        msg,
-        "queued-detail",
-        "Tracker removed",
-        res.data.collection.filter((c: any) => c.contract_address !== value),
-        res.data.channel_id,
-        timeoutId
-      )
-      replyMsg = await msg.reply({
-        embeds: [embed],
-        components,
-      })
-    } else {
-      const { embed, components } = renderResponse(
-        msg,
-        "idle",
-        "Choose 1 from the list",
-        res.data.collection,
-        res.data.channel_id
-      )
-      replyMsg = await msg.reply({
-        embeds: [embed],
-        components,
-      })
-    }
-
-    buttonCollector = collectButton(replyMsg, msg.author.id)
-    collectSelect(replyMsg, msg.author.id)
-    return null
+    return await handleSalesRemove(
+      msg,
+      msg.guildId,
+      args[2] ?? "",
+      msg.author.id
+    )
   },
   getHelpMessage: async (msg) => ({
     embeds: [
