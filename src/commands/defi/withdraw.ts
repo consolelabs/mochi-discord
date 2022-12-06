@@ -73,7 +73,7 @@ export function composeWithdrawEmbed(
     },
     {
       name: "Withdrawal amount",
-      value: `**${data.withdraw_amount}** ${tokenEmoji}`,
+      value: `**${data.amount}** ${tokenEmoji}`,
       inline: true,
     },
     {
