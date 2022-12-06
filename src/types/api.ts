@@ -778,6 +778,8 @@ export interface RequestOffchainTransferRequest {
   each?: boolean;
   full_command?: string;
   guild_id?: string;
+  image?: string;
+  message?: string;
   platform?: string;
   recipients?: string[];
   sender?: string;

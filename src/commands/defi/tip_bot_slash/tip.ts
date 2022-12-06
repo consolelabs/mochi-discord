@@ -40,12 +40,19 @@ const command: SlashCommand = {
           )
           .setRequired(false)
       )
+      .addStringOption((option) =>
+        option
+          .setName("message")
+          .setDescription("message when tip recipients")
+          .setRequired(false)
+      )
   },
   run: async function (interaction: CommandInteraction) {
     const users = interaction.options.getString("users")?.trimEnd()
     const amount = interaction.options.getNumber("amount")
     const token = interaction.options.getString("token")
     const isEach = interaction.options.getBoolean("each") ?? false
+    const message = interaction.options.getString("message")
 
     if (!users || !amount || !token) {
       return {
@@ -59,9 +66,13 @@ const command: SlashCommand = {
       }
     }
     const args = users.split(" ")
-    const fullCmd = `/tip ${users} ${amount} ${token}`
+    let fullCmd = `/tip ${users} ${amount} ${token}`
     args.push(amount.toString(), token)
     if (isEach) args.push("each")
+    if (message) {
+      fullCmd += ` "${message}"`
+      args.concat(`"${message}"`.split(" "))
+    }
     args.unshift("tip")
     return {
       messageOptions: {
