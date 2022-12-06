@@ -14,7 +14,19 @@ export async function handleSalesTrack(
   guildId: string,
   channelId: string | null
 ) {
-  if (!channelId || !addr || !platform)
+  if (!platform) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            description:
+              "The chain hasn't been supported. Take a look at our supported chain by `$token list`",
+          }),
+        ],
+      },
+    }
+  }
+  if (!channelId || !addr)
     return {
       messageOptions: {
         embeds: [

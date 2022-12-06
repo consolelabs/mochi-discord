@@ -7,7 +7,7 @@ import { getCommandArguments } from "utils/commands"
 import ChannelLogger from "utils/ChannelLogger"
 import { BotBaseError, InternalError, GuildIdNotFoundError } from "errors"
 import { logger } from "logger"
-import { isDiscordMessageLink } from "utils/common"
+import { defaultEmojis, isDiscordMessageLink } from "utils/common"
 
 const command: Command = {
   id: "reactionrole_remove",
@@ -40,8 +40,8 @@ const command: Command = {
     if (!isDiscordMessageLink(args[2])) {
       throw new InternalError({
         message: msg,
-        description:
-          "Invalid message link, use `$help rr` to learn how to get message link",
+        title: "Wrong message address",
+        description: `${defaultEmojis.POINT_RIGHT} Run \`$rr list\` to find a role then Click “Jump” to jump to the message\n${defaultEmojis.POINT_RIGHT} *Click “More” on your messages then choose “Copy Message Link”*\n${defaultEmojis.POINT_RIGHT} *Or go [here*](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) *for instructions.*`,
       })
     }
 
@@ -85,6 +85,11 @@ const command: Command = {
         const roleId = args[4].replace(/\D/g, "")
         const role = await msg.guild.roles.fetch(roleId)
         if (!role || !roleId) {
+          throw new InternalError({
+            message: msg,
+            title: "Can't find the role",
+            description: `Invalid role. Be careful not to be mistaken role with username while using \`@\`.\n${defaultEmojis.POINT_RIGHT} Run \`$rr list\` to find a configured role then Click “Jump” to jump to the message.`,
+          })
           return {
             messageOptions: {
               embeds: [getErrorEmbed({ msg, description: "Role not found" })],

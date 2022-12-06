@@ -36,7 +36,7 @@ export async function getDestinationAddress(
   return userReply?.content.trim() ?? ""
 }
 
-export async function withdraw(msg: Message, args: string[]) {
+async function withdraw(msg: Message, args: string[]) {
   if (args.length < 4) {
     throw new CommandArgumentError({
       message: msg,

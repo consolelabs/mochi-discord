@@ -1,23 +1,30 @@
 import { Command } from "types/common"
 import { Message } from "discord.js"
 import { DEPOSIT_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
-import { DirectMessageNotAllowedError } from "errors"
+import { DirectMessageNotAllowedError, InternalError } from "errors"
 import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
 import { APIError } from "errors"
-import { getEmoji, getEmojiURL, emojis } from "utils/common"
+import { getEmoji, getEmojiURL, emojis, defaultEmojis } from "utils/common"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
 
 async function deposit(msg: Message) {
   try {
     const tokenSymbol = getCommandArguments(msg)[1]
-    const res = await defi.offchainTipBotAssignContract({
-      user_id: msg.author.id,
-      token_symbol: tokenSymbol,
-    })
-
-    if (!res.ok) {
-      throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    const { ok, status, curl, log, data } =
+      await defi.offchainTipBotAssignContract({
+        user_id: msg.author.id,
+        token_symbol: tokenSymbol,
+      })
+    if (!ok && status === 404) {
+      throw new InternalError({
+        title: "Command error",
+        message: msg,
+        description: `${tokenSymbol} hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`!\n${defaultEmojis.POINT_RIGHT} To add your token, run \`$token add-custom\` or \`$token add\`.`,
+      })
+    }
+    if (!ok) {
+      throw new APIError({ message: msg, curl, description: log })
     }
 
     const dm = await msg.author.send({
@@ -31,7 +38,7 @@ async function deposit(msg: Message) {
           Please deposit to the following address only ${getEmoji(
             "ok1"
           )}.\n\n**Your deposit address**\n\`\`\`${
-            res.data.contract.contract_address
+            data.contract.contract_address
           }\`\`\``,
         }),
       ],

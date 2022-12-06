@@ -48,7 +48,8 @@ export async function executeNftIntegrateCommand(
   if (!colDetail.data) {
     throw new InternalError({
       message: msg,
-      description: "The collection does not exist. Please choose another one.",
+      title: "Can't find the NFT collection",
+      description: `The NFT Address and NFT Chain must be valid. Go to the collection's official website/marketplace to find this information.\n👉 **Marketplace Examples:** [Opensea](http://Opensea.io), [Nftkey](https://nftkey.app/), [Paintswap](https://paintswap.finance/)`,
     })
   }
 

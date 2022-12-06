@@ -18,9 +18,9 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import Defi from "adapters/defi"
 import { GuildIdNotFoundError } from "errors/GuildIdNotFoundError"
 import { APIError } from "errors/APIError"
-import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
 import { ResponseMonikerConfigData } from "types/api"
 import defi from "adapters/defi"
+import { InternalError } from "errors"
 
 export async function handleTip(
   args: string[],
@@ -43,9 +43,10 @@ export async function handleTip(
   )
 
   if (!isValid) {
-    throw new DiscordWalletTransferError({
-      error: "Incorrect recipients",
-      discordId: authorId,
+    throw new InternalError({
+      title: "Incorrect recipients",
+      description:
+        "Cannot find the recipients. Type @, then choose the valid role or username of the recipients!",
       message: msg,
     })
   }

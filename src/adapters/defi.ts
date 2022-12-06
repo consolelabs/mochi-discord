@@ -10,7 +10,7 @@ import {
   GasPriceData,
 } from "types/defi"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { defaultEmojis, getEmoji, roundFloatNumber } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
 import { getCommandObject, parseDiscordToken } from "utils/commands"
 import {
   API_BASE_URL,
@@ -287,8 +287,8 @@ class Defi extends Fetcher {
         ? msgOrInteraction.author.id
         : msgOrInteraction.user.id
     return composeEmbedMessage(null, {
-      title: `${defaultEmojis.ERROR} Insufficient balance`,
-      description: `<@${authorId}>, you cannot afford this.`,
+      author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
+      description: `<@${authorId}>, you cannot afford this.\nYou can deposit by \`$deposit ${cryptocurrency}\``,
     })
       .addField(
         "Required amount",
@@ -403,7 +403,7 @@ class Defi extends Fetcher {
       throw new DiscordWalletTransferError({
         discordId: sender,
         message: msg,
-        error: "Invalid amount",
+        error: "The amount is invalid. Please insert a natural number.",
       })
     }
     if (amountArg === "a" || amountArg === "an") {
@@ -466,7 +466,7 @@ class Defi extends Fetcher {
       throw new DiscordWalletTransferError({
         discordId: sender,
         message: msg,
-        error: "Invalid amount",
+        error: "The amount is invalid. Please insert a natural number.",
       })
     }
 
@@ -537,7 +537,7 @@ class Defi extends Fetcher {
       throw new DiscordWalletTransferError({
         discordId: sender,
         message: msg,
-        error: "Invalid amount",
+        error: "The amount is invalid. Please insert a natural number.",
       })
     }
     if (amountArg === "a" || amountArg === "an") {

@@ -11,6 +11,7 @@ import {
   InternalError,
 } from "errors"
 import { handle } from "./info"
+import { defaultEmojis } from "utils/common"
 
 const command: Command = {
   id: "defaultrole_set",
@@ -38,7 +39,8 @@ const command: Command = {
       if (!role) {
         throw new InternalError({
           message: msg,
-          description: "This role was either deleted or does not exist",
+          title: "Can't find the role",
+          description: `Invalid role. Be careful not to be mistaken role with username while setting.\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
         })
       }
     }

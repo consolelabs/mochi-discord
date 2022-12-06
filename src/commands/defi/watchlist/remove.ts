@@ -45,8 +45,9 @@ const command: Command = {
       messageOptions: {
         embeds: [
           getSuccessEmbed({
-            title: "Successfully remove!",
-            description: `Token has been deleted successfully!`,
+            title: "Remove token successfully",
+            description:
+              "The token is deleted successfully! Add new one by `$wl add <symbol>`.",
           }),
         ],
       },

@@ -9,6 +9,7 @@ import {
 } from "discord.js"
 import {
   authorFilter,
+  defaultEmojis,
   emojis,
   getEmojiURL,
   thumbnails,
@@ -459,6 +460,7 @@ async function composeTokenWatchlist(msg: Message, authorId?: string) {
       `${msg.author.username}'s watchlist`,
       msg.author.displayAvatarURL({ format: "png" }),
     ],
+    description: `${defaultEmojis.POINT_RIGHT} Take a look at our supported token list by \`$token list\`.\n${defaultEmojis.POINT_RIGHT} Add token to track by \`$wl add <symbol>\`.`,
   })
   if (!data?.length) {
     embed.setDescription(

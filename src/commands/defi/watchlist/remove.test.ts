@@ -53,7 +53,8 @@ describe("watchlist remove", () => {
     const output = await command.run(msg)
     const expected = getSuccessEmbed({
       title: "Successfully remove!",
-      description: `Token has been deleted successfully!`,
+      description:
+        "The token is deleted successfully! Add new one by `$wl add <symbol>`.",
     })
 
     expect(defi.removeFromWatchlist).toHaveBeenCalled()
