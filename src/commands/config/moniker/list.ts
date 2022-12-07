@@ -53,13 +53,13 @@ export async function handleMonikerList(guildId: string) {
         )
     }
     return res.addFields(
-      { name: "Moniker", value: col1, inline: true },
-      { name: "Value", value: col2, inline: true },
       {
         name: "\u200B",
         value:
           "👉To set more monikers, run `$monikers set <moniker> <amount_token> <token>`!\n👉 For example, try `$monikers set tea 1 BUTT`",
-      }
+      },
+      { name: "Moniker", value: col1, inline: true },
+      { name: "Value", value: col2, inline: true }
     )
   })
   return pages
