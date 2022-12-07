@@ -36,7 +36,8 @@ export async function executeNftIntegrateCommand(
       address,
       chainId,
       authorId,
-      guildId
+      guildId,
+      msg
     )
     // return early if the `add` command didn't succeed
     if (storeCollectionRes.status !== 200) {
