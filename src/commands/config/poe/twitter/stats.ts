@@ -34,36 +34,34 @@ const command: Command = {
 
     const data = _data?.data ?? []
 
-    const handles = data.map((d: any) => {
-      return `\`${DOT} ${d.twitter_handle}    =>\``
-    })
+    const handles = data.map((d: any) => d.twitter_handle)
 
     const longestHandle =
       handles.sort((a: string, b: string) => b.length - a.length)[0]?.length ??
       0
 
     const formattedHandles = data.map((d: any) => {
-      return `\`${DOT} ${d.twitter_handle}${Array(
-        longestHandle - 6 - d.twitter_handle.length
+      return `${DOT} ${d.twitter_handle}${Array(
+        longestHandle - d.twitter_handle.length + 4
       )
         .fill(" ")
-        .join("")}=>\``
+        .join("")}=>`
     })
 
     const topScore = data[0].total_count
     const topDigits = topScore.toString().length
 
     const formattedScores = data.map((d: any) => {
-      return `\`${Array(topDigits - d.total_count.toString().length)
+      return `${Array(topDigits - d.total_count.toString().length)
         .fill(" ")
-        .join("")}${d.total_count}\``
+        .join("")}${d.total_count}`
     })
 
     return {
       messageOptions: {
         content: `__Top 10 Twitter users__:\n${formattedHandles
           .map((fh: string, i: number) => {
-            return `${fh} ${formattedScores[i]}`
+            return `\`${fh} ${formattedScores[i]}\``
           })
           .join("\n")}`,
       },
