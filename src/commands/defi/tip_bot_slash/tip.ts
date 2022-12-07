@@ -84,13 +84,30 @@ const command: SlashCommand = {
     embeds: [
       composeEmbedMessage(null, {
         thumbnail: thumbnails.TIP,
-        usage: `- To tip a user or role:\n${SLASH_PREFIX}tip <@user> <amount> <token>\n${SLASH_PREFIX}tip <@role> <amount> <token>\n- To tip multiple users or roles\n${SLASH_PREFIX}tip <@user(s)> <amount> <token> [each]\n${SLASH_PREFIX}tip <@role(s)> <amount> <token> [each]`,
+        usage: `${SLASH_PREFIX}tip <recipient(s)> <amount> <token> [each]\n${SLASH_PREFIX}tip <recipient(s)> <amount> <token> [each] ["message"]`,
         description: "Send coins offchain to a user or a group of users",
-        examples: `${SLASH_PREFIX}tip @John 10 ftm\n${SLASH_PREFIX}tip @John all ftm\n${SLASH_PREFIX}tip @John @Hank 10 ftm\n${SLASH_PREFIX}tip @John @Hank 10 ftm each\n${SLASH_PREFIX}tip @RandomRole 10 ftm\n${SLASH_PREFIX}tip @role1 @role2 10 ftm\n${SLASH_PREFIX}tip @role1 @role2 1 ftm each`,
-        document: TIP_GITBOOK,
         footer: [DEFI_DEFAULT_FOOTER],
         title: "Tip Bot",
-      }),
+      }).addFields(
+        {
+          name: "You can send to the recipient by:",
+          value:
+            "👉 Username(s): `@minh`, `@tom`\n👉 Role(s): `@Staff`, `@Dev`\n👉 #Text_channel: `#mochi`, `#channel`\n👉 In voice channel: mention “`in voice channel`” to tip members currently in\n👉 Online status: add the active status “`online`” before mentioning recipients",
+        },
+        {
+          name: "Tip with token:",
+          value:
+            "👉 Tip by the cryptocurrencies, choose one in the `$token list`.\n👉 To tip by moniker, choose one in the `$moniker list`.",
+        },
+        {
+          name: "**Examples**",
+          value: `\`\`\`${SLASH_PREFIX}tip @John 10 ftm\n${SLASH_PREFIX}tip @John @Hank all ftm\n${SLASH_PREFIX}tip @RandomRole 10 ftm\n${SLASH_PREFIX}tip @role1 @role2 1 ftm each\n${SLASH_PREFIX}tip in voice channel 1 ftm each\n${SLASH_PREFIX}tip online #mochi 1 ftm\n${SLASH_PREFIX}tip @John 1 ftm "Thank you"\`\`\``,
+        },
+        {
+          name: "**Instructions**",
+          value: `[**Gitbook**](${TIP_GITBOOK})`,
+        }
+      ),
     ],
   }),
   colorType: "Defi",
