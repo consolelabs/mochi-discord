@@ -65,13 +65,13 @@ const command: SlashCommand = {
         },
       }
     }
-    const args = users.split(" ")
+    let args = users.split(" ")
     let fullCmd = `/tip ${users} ${amount} ${token}`
     args.push(amount.toString(), token)
     if (isEach) args.push("each")
     if (message) {
       fullCmd += ` "${message}"`
-      args.concat(`"${message}"`.split(" "))
+      args = args.concat(`"${message}"`.split(" "))
     }
     args.unshift("tip")
     return {

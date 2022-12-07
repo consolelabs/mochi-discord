@@ -94,19 +94,28 @@ export async function handleTip(
             .join(", ")}`
     }`
   }
+  let description = `${mentionUser(
+    payload.sender
+  )} has sent ${recipientDescription} **${roundFloatNumber(
+    data[0].amount,
+    4
+  )} ${payload.token}** (\u2248 $${roundFloatNumber(
+    data[0].amount_in_usd,
+    4
+  )}) ${recipientIds.length > 1 ? "each" : ""}`
+  if (messageTip) {
+    description += `with message\n\n${getEmoji(
+      "conversation"
+    )} **${messageTip}**`
+  }
   const embed = composeEmbedMessage(null, {
     thumbnail: thumbnails.TIP,
     author: ["Tips", getEmojiURL(emojis.COIN)],
-    description: `${mentionUser(
-      payload.sender
-    )} has sent ${recipientDescription} **${roundFloatNumber(
-      data[0].amount,
-      4
-    )} ${payload.token}** (\u2248 $${roundFloatNumber(
-      data[0].amount_in_usd,
-      4
-    )}) ${recipientIds.length > 1 ? "each" : ""}`,
+    description: description,
   })
+  if (imageUrl) {
+    embed.setImage(imageUrl)
+  }
 
   return {
     embeds: [embed],
