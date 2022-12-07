@@ -64,6 +64,7 @@ import withdraw_slash from "./defi/tip_bot_slash/withdraw"
 import airdrop_slash from "./defi/tip_bot_slash/airdrop"
 import invite_slash from "./community/invite_slash"
 import sales_slash from "./community/sales_slash"
+import profile_slash from "./profile_slash/profile"
 import token_slash from "./defi/token_slash"
 
 // external
@@ -136,6 +137,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   invite: invite_slash,
   sales: sales_slash,
   token: token_slash,
+  profile: profile_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
