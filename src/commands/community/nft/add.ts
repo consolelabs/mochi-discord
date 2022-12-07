@@ -12,7 +12,8 @@ export async function callAPI(
   address: string,
   chainId: string,
   userId: string,
-  guildId: string
+  guildId: string,
+  msg: Message | undefined
 ) {
   // create store collection payload
   const collection = {
@@ -20,6 +21,8 @@ export async function callAPI(
     address: address,
     author: userId,
     guild_id: guildId,
+    message_id: msg?.id,
+    channel_id: msg?.channelId,
   }
   // run store collection API
   const respCollection = await fetch(`${API_BASE_URL}/nfts/collections`, {
@@ -144,7 +147,8 @@ export async function executeNftAddCommand(args: string[], msg: Message) {
     args[2],
     args[3],
     msg.author.id,
-    msg.guildId ?? ""
+    msg.guildId ?? "",
+    msg
   )
 
   return toEmbed(storeCollectionRes, supportedChainsRes, msg)
