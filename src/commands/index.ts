@@ -66,7 +66,6 @@ import invite_slash from "./community/invite_slash"
 import sales_slash from "./community/sales_slash"
 import profile_slash from "./profile_slash/profile"
 import token_slash from "./defi/token_slash"
-import poe_slash from "./config/poe_slash"
 
 // external
 import { Message } from "discord.js"
@@ -139,7 +138,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   sales: sales_slash,
   token: token_slash,
   profile: profile_slash,
-  poe: poe_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
