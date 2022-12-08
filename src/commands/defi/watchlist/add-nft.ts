@@ -76,9 +76,8 @@ const command: Command = {
         messageOptions: {
           embeds: [
             getErrorEmbed({
-              title: "Collection not found",
-              description:
-                "The collection is not supported yet. Please contact us for the support. Thank you!",
+              title: "Command Error",
+              description: `\`${symbol}\` hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$nft list\`!\n${defaultEmojis.POINT_RIGHT} To add your collection, run \`$nft add\`.`,
             }),
           ],
         },

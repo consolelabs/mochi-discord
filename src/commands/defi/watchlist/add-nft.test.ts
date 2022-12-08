@@ -5,6 +5,7 @@ import { mockClient } from "../../../../tests/mocks"
 import { commands } from "commands"
 import { InternalError } from "errors"
 import { RunResult } from "types/common"
+import { defaultEmojis } from "utils/common"
 
 jest.mock("adapters/defi")
 const commandKey = "watchlist"
@@ -82,9 +83,8 @@ describe("watchlist add-nft", () => {
 
     const output = await command.run(msg)
     const expected = getErrorEmbed({
-      title: "Collection not found",
-      description:
-        "The collection is not supported yet. Please contact us for the support. Thank you!",
+      title: "Command Error",
+      description: `\`${symbol}\` hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$nft list\`!\n${defaultEmojis.POINT_RIGHT} To add your collection, run \`$nft add\`.`,
     })
 
     expect(defi.addNFTToWatchlist).toHaveBeenCalled()
