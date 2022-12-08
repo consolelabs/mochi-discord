@@ -588,7 +588,7 @@ class Defi extends Fetcher {
     }
     let newArgs = args
     let moniker
-    if (data && Array.isArray(data)) {
+    if (data && Array.isArray(data) && data.length !== 0) {
       const content = args.join(" ").trim()
       data.forEach((v: ResponseMonikerConfigData) => {
         const tmp = v.moniker?.moniker
@@ -600,6 +600,36 @@ class Defi extends Fetcher {
           newArgs = content.replace(tmp, sym).split(SPACES_REGEX)
         }
       })
+    } else {
+      const {
+        ok: okDefault,
+        data: dataDefault,
+        log: logDefault,
+        curl: curlDefault,
+      } = await config.getDefaultMoniker()
+      if (!okDefault) {
+        throw new APIError({
+          description: logDefault,
+          curl: curlDefault,
+        })
+      }
+      if (
+        dataDefault &&
+        Array.isArray(dataDefault) &&
+        dataDefault.length !== 0
+      ) {
+        const content = args.join(" ").trim()
+        dataDefault.forEach((v: ResponseMonikerConfigData) => {
+          const tmp = v.moniker?.moniker
+          if (!tmp) return
+          const sym = v.moniker?.token?.token_symbol
+          if (!sym) return
+          if (content.includes(tmp)) {
+            moniker = v
+            newArgs = content.replace(tmp, sym).split(SPACES_REGEX)
+          }
+        })
+      }
     }
     return {
       newArgs,

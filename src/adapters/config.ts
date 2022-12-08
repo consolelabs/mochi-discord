@@ -974,6 +974,12 @@ class Config extends Fetcher {
       body: req,
     })
   }
+
+  public async getDefaultMoniker() {
+    return await this.jsonFetch<ResponseMonikerConfigResponse>(
+      `${API_BASE_URL}/configs/monikers/default`
+    )
+  }
 }
 
 const config = new Config()
