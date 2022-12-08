@@ -66,10 +66,10 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}dr set @<role_name>`,
+          usage: `${PREFIX}dr set <@role_name/roleID>`,
           title: "Setting a default role",
           description:
-            "If you know what you're doing, this command also support passing in the role id (maybe you're a power user, maybe you don't want to alert all users that have that role, etc...)",
+            "If you don't want to notify users when setting up the default role, you can use role ID instead of role name.\n\nNote: To get the roleID\n👉 _Go to Server Setting, and choose Roles_\n👉 _Select a role, and copy its ID_",
           examples: `${PREFIX}dr set @Visitor`,
           document: `${DEFAULT_ROLE_GITBOOK}&action=set`,
         }),
