@@ -8,6 +8,8 @@ import block from "./block"
 import stats from "./stats"
 import { Message } from "discord.js"
 import { getCommandArguments } from "utils/commands"
+import { hasAdministrator } from "utils/common"
+import { CommandNotAllowedToRunError } from "errors"
 
 const actions: Record<string, Command> = {
   set,
@@ -22,14 +24,25 @@ const command: Command = {
   command: "twitter",
   brief: "Configure your server's PoE through twitter",
   category: "Config",
-  onlyAdministrator: true,
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
     const action = actions[args[2]]
-    if (action) {
-      return action.run(msg)
+    if (
+      (action.onlyAdministrator && hasAdministrator(msg.member)) ||
+      !action.onlyAdministrator
+    ) {
+      if (action) {
+        return action.run(msg)
+      } else {
+        return { messageOptions: await this.getHelpMessage(msg) }
+      }
     } else {
-      return { messageOptions: await this.getHelpMessage(msg) }
+      throw new CommandNotAllowedToRunError({
+        message: msg,
+        command: msg.content,
+        missingPermissions:
+          msg.channel.type === "DM" ? undefined : ["Administrator"],
+      })
     }
   },
   getHelpMessage: async (msg) => {
