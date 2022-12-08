@@ -41,7 +41,7 @@ export function handleUpdateWlError(
           : "hasn't been supported"
       }.\n${
         defaultEmojis.POINT_RIGHT
-      } Please choose one in our supported \`$token list\`!\n${
+      } Please choose a token supported by [Coingecko](https://www.coingecko.com/)\n${
         defaultEmojis.POINT_RIGHT
       } Add your token by \`$token add-custom\` or \`$token add\`.`
       break
