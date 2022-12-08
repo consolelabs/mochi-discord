@@ -56,26 +56,32 @@ const command: Command = {
         description: "Invalid channel. Type #, then choose the valid one!",
       })
     }
-    const messageText = args[3] ?? "gm/gn"
-    const emoji = args[4] ?? getEmoji("gm")
     const stickerArg = msg.stickers.first()?.id ?? ""
+    let messageText = "gm/gn"
+    let emoji = getEmoji("gm")
 
-    const { isEmoji, isNativeEmoji, isAnimatedEmoji } = parseDiscordToken(emoji)
+    let { isEmoji, isNativeEmoji, isAnimatedEmoji } = parseDiscordToken(
+      args[4] ?? ""
+    )
     if (!isEmoji && !isNativeEmoji && !isAnimatedEmoji) {
-      throw new InternalError({
-        message: msg,
-        description: "Invalid emoji",
-      })
+      // maybe the user is only setting emoji and no phrase -> check if the 3rd argument is emoji
+      ;({ isEmoji, isNativeEmoji, isAnimatedEmoji } = parseDiscordToken(
+        args[3] ?? ""
+      ))
+
+      if (!isEmoji && !isNativeEmoji && !isAnimatedEmoji) {
+        // maybe user is only setting phrase ->
+        messageText = args[3]
+      } else {
+        emoji = args[3]
+      }
+    } else {
+      messageText = args[3]
+      emoji = args[4]
     }
     throwOnInvalidEmoji(emoji, msg)
 
-    return await handle(
-      msg.guildId,
-      channelId,
-      messageText,
-      args[4],
-      stickerArg
-    )
+    return await handle(msg.guildId, channelId, messageText, emoji, stickerArg)
   },
   getHelpMessage: async (msg) => ({
     embeds: [

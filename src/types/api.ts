@@ -658,7 +658,9 @@ export interface RequestCreateNFTCollectionRequest {
   author?: string;
   chain?: string;
   chain_id?: string;
+  channel_id?: string;
   guild_id?: string;
+  message_id?: string;
 }
 
 export interface RequestCreateTipConfigNotify {

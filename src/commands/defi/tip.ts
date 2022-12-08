@@ -94,19 +94,28 @@ export async function handleTip(
             .join(", ")}`
     }`
   }
+  let description = `${mentionUser(
+    payload.sender
+  )} has sent ${recipientDescription} **${roundFloatNumber(
+    data[0].amount,
+    4
+  )} ${payload.token}** (\u2248 $${roundFloatNumber(
+    data[0].amount_in_usd,
+    4
+  )}) ${recipientIds.length > 1 ? "each" : ""}`
+  if (messageTip) {
+    description += `with message\n\n${getEmoji(
+      "conversation"
+    )} **${messageTip}**`
+  }
   const embed = composeEmbedMessage(null, {
     thumbnail: thumbnails.TIP,
     author: ["Tips", getEmojiURL(emojis.COIN)],
-    description: `${mentionUser(
-      payload.sender
-    )} has sent ${recipientDescription} **${roundFloatNumber(
-      data[0].amount,
-      4
-    )} ${payload.token}** (\u2248 $${roundFloatNumber(
-      data[0].amount_in_usd,
-      4
-    )}) ${recipientIds.length > 1 ? "each" : ""}`,
+    description: description,
   })
+  if (imageUrl) {
+    embed.setImage(imageUrl)
+  }
 
   return {
     embeds: [embed],
@@ -143,13 +152,30 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TIP,
-        usage: `- To tip a user or role:\n${PREFIX}tip <@user> <amount> <token>\n${PREFIX}tip <@role> <amount> <token>\n- To tip multiple users or roles\n${PREFIX}tip <@user(s)> <amount> <token> [each]\n${PREFIX}tip <@role(s)> <amount> <token> [each]`,
+        usage: `${PREFIX}tip <recipient(s)> <amount> <token> [each]\n${PREFIX}tip <recipient(s)> <amount> <token> [each] ["message"]`,
         description: "Send coins offchain to a user or a group of users",
-        examples: `${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John all ftm\n${PREFIX}tip @John @Hank 10 ftm\n${PREFIX}tip @John @Hank 10 ftm each\n${PREFIX}tip @RandomRole 10 ftm\n${PREFIX}tip @role1 @role2 10 ftm\n${PREFIX}tip @role1 @role2 1 ftm each`,
-        document: TIP_GITBOOK,
         footer: [DEFI_DEFAULT_FOOTER],
         title: "Tip Bot",
-      }),
+      }).addFields(
+        {
+          name: "You can send to the recipient by:",
+          value:
+            "👉 Username(s): `@minh`, `@tom`\n👉 Role(s): `@Staff`, `@Dev`\n👉 #Text_channel: `#mochi`, `#channel`\n👉 In voice channel: mention “`in voice channel`” to tip members currently in\n👉 Online status: add the active status “`online`” before mentioning recipients",
+        },
+        {
+          name: "Tip with token:",
+          value:
+            "👉 Tip by the cryptocurrencies, choose one in the `$token list`.\n👉 To tip by moniker, choose one in the `$moniker list`.",
+        },
+        {
+          name: "**Examples**",
+          value: `\`\`\`${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John @Hank all ftm\n${PREFIX}tip @RandomRole 10 ftm\n${PREFIX}tip @role1 @role2 1 ftm each\n${PREFIX}tip in voice channel 1 ftm each\n${PREFIX}tip online #mochi 1 ftm\n${PREFIX}tip @John 1 ftm "Thank you"\`\`\``,
+        },
+        {
+          name: "**Instructions**",
+          value: `[**Gitbook**](${TIP_GITBOOK})`,
+        }
+      ),
     ],
   }),
   canRunWithoutAction: true,

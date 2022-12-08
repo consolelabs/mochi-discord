@@ -46,7 +46,8 @@ const command: SlashCommand = {
       address,
       chain,
       interaction.user.id,
-      interaction.guildId
+      interaction.guildId,
+      undefined
     )
 
     return await toEmbed(storeCollectionRes, supportedChainsRes)

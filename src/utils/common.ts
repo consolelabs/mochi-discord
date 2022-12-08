@@ -221,6 +221,7 @@ export const emojis: { [key: string]: string } = {
   TRANSACTIONS: "933341692667506718",
   GM: "930840080761880626",
   BUCKET_CASH: "933020342035820604",
+  BOO: "920934041665011713",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

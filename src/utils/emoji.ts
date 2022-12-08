@@ -7,8 +7,8 @@ export function throwOnInvalidEmoji(emoji: string, msg: OriginalMessage) {
   let isValidEmoji = false
 
   msg.guild?.emojis.cache?.forEach((e) => {
-    if (e.name) {
-      if (value.includes(e.name.toLowerCase())) {
+    if (e.id) {
+      if (value === e.id) {
         isValidEmoji = true
       }
     }

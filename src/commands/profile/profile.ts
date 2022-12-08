@@ -1,6 +1,9 @@
 import profile from "adapters/profile"
 import {
   ButtonInteraction,
+  CommandInteraction,
+  GuildMember,
+  GuildMemberRoleManager,
   Message,
   MessageActionRow,
   MessageButton,
@@ -254,7 +257,7 @@ function buildXPbar(name: string, value: number) {
 }
 
 async function composeMyProfileEmbed(
-  msg: Message,
+  msg: Message | CommandInteraction,
   user: User,
   shouldHidePrivateInfo = false
 ) {
@@ -264,7 +267,6 @@ async function composeMyProfileEmbed(
   )
   if (!userProfileResp.ok) {
     const embed = getErrorEmbed({
-      msg,
       description: userProfileResp.error,
     })
     return {
@@ -296,16 +298,14 @@ async function composeMyProfileEmbed(
   const protocolValue = shouldHidePrivateInfo ? "`$**`" : "`NA`"
   const nftValue = shouldHidePrivateInfo ? "`$**`" : "`NA`"
   const assetsStr = `Wallet: ${walletValue}\nProtocol: ${protocolValue}\nNFT: ${nftValue}`
-  const highestRole =
-    msg.member?.roles.highest.name !== "@everyone"
-      ? msg.member?.roles.highest
-      : null
+  const roles = msg.member?.roles as GuildMemberRoleManager
+  const highestRole = roles.highest.name !== "@everyone" ? roles.highest : null
 
   const roleStr = highestRole?.id ? `<@&${highestRole.id}>` : "`N/A`"
   const activityStr = `${getEmoji("FLAG")} \`${userProfile.nr_of_actions}\``
   const rankStr = `:trophy: \`${userProfile.guild_rank ?? 0}\``
 
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     thumbnail: user.displayAvatarURL(),
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
   }).addFields(
@@ -525,66 +525,87 @@ async function composeMyNFTEmbed(
   }
 }
 
+export async function handleProfile(
+  msg: Message | CommandInteraction,
+  args: string[]
+) {
+  const shouldHidePrivateInfo = !hasAdministrator(<GuildMember>msg.member)
+
+  // get users
+  const users: User[] = []
+  if (args.length > 1) {
+    const { isUser, value: id } = parseDiscordToken(args[1])
+    if (isUser) {
+      const cachedUser = msg.guild?.members.cache.get(id)?.user
+      if (cachedUser) {
+        users.push(cachedUser)
+      }
+    } else {
+      const usersFoundByDisplayname: User[] = []
+      const usersFoundByUsername: User[] = []
+      await msg.guild?.members?.fetch()?.then((members) => {
+        members.forEach((member) => {
+          if (member.user.username === args[1]) {
+            usersFoundByUsername.push(member.user)
+          } else if (member.displayName === args[1]) {
+            usersFoundByDisplayname.push(member.user)
+          }
+        })
+      })
+
+      users.push(...usersFoundByUsername, ...usersFoundByDisplayname)
+    }
+  } else {
+    const author = msg instanceof Message ? msg.author : msg.user
+    users.push(author)
+  }
+
+  for (const user of users.values()) {
+    const author = msg instanceof Message ? msg.author : msg.user
+    const { embed, components } = await composeMyProfileEmbed(
+      msg,
+      user,
+      shouldHidePrivateInfo
+    )
+    let replyMsg
+    if (msg instanceof CommandInteraction) {
+      replyMsg = (await msg.editReply({
+        embeds: [embed],
+        components: components,
+      })) as Message
+    } else {
+      replyMsg = (await msg.reply({
+        embeds: [embed],
+        components: components,
+      })) as Message
+    }
+    collectButton(replyMsg, author.id, user, shouldHidePrivateInfo)
+    collectSelectMenu(replyMsg, author.id, user)
+  }
+
+  if (users.length == 0) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            description: "No profile found",
+          }),
+        ],
+      },
+    }
+  }
+
+  return null
+}
+
 const command: Command = {
   id: "profile",
   command: "profile",
   brief: "User's profile",
   category: "Profile",
   run: async (msg) => {
-    const shouldHidePrivateInfo = !hasAdministrator(msg.member)
-
-    // get users
-    const users: User[] = []
     const args = getCommandArguments(msg)
-    if (args.length > 1) {
-      const { isUser, value: id } = parseDiscordToken(args[1])
-      if (isUser) {
-        const cachedUser = msg.guild?.members.cache.get(id)?.user
-        if (cachedUser) {
-          users.push(cachedUser)
-        }
-      } else {
-        const usersFoundByDisplayname: User[] = []
-        const usersFoundByUsername: User[] = []
-        await msg.guild?.members?.fetch()?.then((members) => {
-          members.forEach((member) => {
-            if (member.user.username === args[1]) {
-              usersFoundByUsername.push(member.user)
-            } else if (member.displayName === args[1]) {
-              usersFoundByDisplayname.push(member.user)
-            }
-          })
-        })
-
-        users.push(...usersFoundByUsername, ...usersFoundByDisplayname)
-      }
-    } else {
-      users.push(msg.author)
-    }
-
-    for (const user of users.values()) {
-      const { embed, components } = await composeMyProfileEmbed(
-        msg,
-        user,
-        shouldHidePrivateInfo
-      )
-      const replyMsg = await msg.reply({
-        embeds: [embed],
-        components: components,
-      })
-      collectButton(replyMsg, msg.author.id, user, shouldHidePrivateInfo)
-      collectSelectMenu(replyMsg, msg.author.id, user)
-    }
-
-    if (!users.length) {
-      throw new InternalError({
-        message: msg,
-        title: "Can't find the user",
-        description: `The username doesn't exist. Type \`@\` to see the members list.`,
-      })
-    }
-
-    return null
+    return await handleProfile(msg, args)
   },
   featured: {
     title: `${getEmoji("exp")} Profile`,
