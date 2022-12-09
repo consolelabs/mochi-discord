@@ -1,0 +1,36 @@
+version: "3"
+services:
+  zookeeper:
+    image: bitnami/zookeeper:3.8
+    ports:
+      - "2181:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+
+  kafka1:
+    image: bitnami/kafka:3.2
+    ports:
+      - "9092:9092"
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,CLIENT:PLAINTEXT,DOCKER_INTERNAL:PLAINTEXT
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CFG_LISTENERS: INTERNAL://:9093,CLIENT://:9092,DOCKER_INTERNAL://:19092
+      KAFKA_CFG_ADVERTISED_LISTENERS: INTERNAL://kafka1:9093,CLIENT://localhost:9092,DOCKER_INTERNAL://kafka1:19092
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_BROKER_ID: 1
+    depends_on:
+      - zookeeper
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    depends_on:
+      - zookeeper
+      - kafka1
+    ports:
+      - "30004:8080"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka1:9093
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
