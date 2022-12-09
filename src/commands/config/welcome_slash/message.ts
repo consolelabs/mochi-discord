@@ -4,6 +4,7 @@ import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX } from "utils/constants"
 import { emojis } from "utils/common"
+import { parseWelcomeMessage } from "./info"
 
 export const message = new SlashCommandSubcommandBuilder()
   .setName("message")
@@ -12,7 +13,7 @@ export const message = new SlashCommandSubcommandBuilder()
     option
       .setName("message")
       .setDescription(
-        "use $name in place of new member's name. Example: Hi $name, welcome to Mochi!"
+        `Use $name to mention username and \\n to add a paragraph`
       )
       .setRequired(false)
   )
@@ -68,14 +69,12 @@ export async function setWelcomeMessage(interaction: CommandInteraction) {
     throw new Error(`Failed to update welcome message`)
   }
 
-  let msg = newConfigData.welcome_message ?? "Not found"
-  if (msg.length > 50) {
-    msg = msg.replace(msg.slice(49, msg.length), "...")
-  }
   const embed = getSuccessEmbed({
     title: "Welcome message",
     emojiId: emojis.HELLO,
-    description: `Successfully set new welcome message: ${msg}\nWelcome channel: <#${newConfig.data.channel_id}>`,
+    description: `Successfully set new welcome message:\n\n${parseWelcomeMessage(
+      newConfigData.welcome_message ?? ""
+    )}\n\nWelcome channel: <#${newConfig.data.channel_id}>`,
     originalMsgAuthor: interaction.user,
   })
   return { messageOptions: { embeds: [embed] } }
