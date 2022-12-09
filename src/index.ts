@@ -7,6 +7,10 @@ import { logger } from "logger"
 import { slashCommands } from "commands"
 import { createServer, IncomingMessage, ServerResponse } from "http"
 import { IS_READY } from "events/ready"
+import { run } from "producer"
+import Queue from "utils/Queue"
+
+export let kafkaQueue: Queue
 
 const client = new Discord.Client({
   intents: [
@@ -51,6 +55,16 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
     await runHttpServer()
   } catch (error) {
     logger.error("Failed to refresh application (/) commands.")
+  }
+})()
+;(async () => {
+  try {
+    logger.info("Connecting to Kafka.")
+    // start queue
+    kafkaQueue = await run()
+    logger.info("Successfully connected to Kafka.")
+  } catch (error) {
+    logger.error("Failed to connect to Kafka.")
   }
 })()
 
