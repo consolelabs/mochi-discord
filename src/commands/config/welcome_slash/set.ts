@@ -3,6 +3,7 @@ import { getErrorEmbed, getSuccessEmbed } from "utils/discordEmbed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { parseDiscordToken } from "utils/commands"
+import { parseWelcomeMessage } from "./info"
 
 export const set = new SlashCommandSubcommandBuilder()
   .setName("set")
@@ -82,13 +83,11 @@ export async function setWelcome(interaction: CommandInteraction) {
     throw new Error(`Failed to update welcome message`)
   }
 
-  let msg = newConfigData.welcome_message ?? "Not found"
-  if (msg.length > 50) {
-    msg = msg.replace(msg.slice(49, msg.length), "...")
-  }
   const embed = getSuccessEmbed({
     title: interaction.guild.name,
-    description: `Successfully set <#${channelId}> as welcome channel.\nWelcome message: ${msg}`,
+    description: `Successfully set <#${channelId}> as welcome channel.\nWelcome message:\n\n${parseWelcomeMessage(
+      newConfigData.welcome_message ?? ""
+    )}`,
     originalMsgAuthor: interaction.user,
   })
   return { messageOptions: { embeds: [embed] } }
