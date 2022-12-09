@@ -5,6 +5,10 @@ import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { emojis, getEmojiURL } from "utils/common"
 
+export function parseWelcomeMessage(msg: string) {
+  return msg.replaceAll(`\\n`, "\n")
+}
+
 export const info = new SlashCommandSubcommandBuilder()
   .setName("info")
   .setDescription("Show current welcome channel info")
@@ -40,7 +44,9 @@ export async function welcomeInfo(interaction: CommandInteraction) {
 
   const embed = composeEmbedMessage(null, {
     author: ["Welcome Info", getEmojiURL(emojis.HELLO)],
-    description: `Current welcome channel is <#${configData.channel_id}>.\nYou can update using \`${SLASH_PREFIX}welcome set <channel>.\` \n\n The current welcome message is "${configData.welcome_message}"\nYou can update using \`${SLASH_PREFIX}welcome message <channel>.\``,
+    description: `The current welcome message is:\n\n${parseWelcomeMessage(
+      configData.welcome_message ?? ""
+    )}"\n\nWelcome channel<#${configData.channel_id}>.`,
     originalMsgAuthor: interaction.user,
   })
   return { messageOptions: { embeds: [embed] } }
