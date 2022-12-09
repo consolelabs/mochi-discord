@@ -220,3 +220,8 @@ export type BlacklistChannelRepostConfigRequest = {
   guild_id: string
   channel_id: string
 }
+
+export type KafkaQueueMessage = {
+  platform: string
+  data: Message
+}

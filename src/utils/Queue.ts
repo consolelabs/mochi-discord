@@ -1,9 +1,10 @@
 import { Kafka, Partitioners, Producer } from "kafkajs"
-import { KAFKA_BROKERS, KAFKA_CLIENT_ID } from "../env"
+import { KAFKA_BROKERS, KAFKA_CLIENT_ID, KAFKA_TOPIC } from "../env"
 
 export default class Queue {
   private producer: Producer
   private kafka: Kafka
+  private topic: string = KAFKA_TOPIC
 
   constructor() {
     this.kafka = new Kafka({
@@ -25,7 +26,7 @@ export default class Queue {
     await this.producer.disconnect()
   }
 
-  async produceBatch(topic: string, messages: string[]) {
+  async produceBatch(messages: string[]) {
     // check if message is json
     for (const message of messages) {
       try {
@@ -36,7 +37,7 @@ export default class Queue {
     }
 
     await this.producer.send({
-      topic: topic,
+      topic: this.topic,
       messages: messages.map((m) => ({ value: m })),
     })
   }
