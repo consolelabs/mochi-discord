@@ -58,6 +58,7 @@
     "ethers": "^5.4.7",
     "firebase-admin": "^11.0.0",
     "fuzzyset": "^1.0.7",
+    "kafkajs": "^2.2.3",
     "lodash": "^4.17.21",
     "node-cache": "^5.1.2",
     "node-fetch": "2.6.2",
