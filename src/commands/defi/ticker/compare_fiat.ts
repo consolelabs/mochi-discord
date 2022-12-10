@@ -10,6 +10,7 @@ import { Command } from "types/common"
 import CacheManager from "utils/CacheManager"
 import { getCommandArguments } from "utils/commands"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TICKER_GITBOOK } from "utils/constants"
+import { parseFiatQuery } from "utils/defi"
 import {
   composeDaysSelectMenu,
   composeDiscordExitButton,
@@ -130,24 +131,8 @@ const command: Command = {
   run: async function (msg) {
     const args = getCommandArguments(msg)
     const [query] = args.slice(1)
-    let [base, target] = query.toLowerCase().split("/")
-    if (!target) {
-      switch (base.length) {
-        case 3:
-          target = "usd"
-          break
-        case 6:
-          ;[base, target] = [base.slice(0, 3), base.slice(3)]
-          break
-        default:
-          throw new CommandArgumentError({
-            message: msg,
-            description: "Fiat not supported",
-            getHelpMessage: () => this.getHelpMessage(msg),
-          })
-      }
-    }
-    if (base === target) {
+    const [base, target] = parseFiatQuery(query)
+    if (!base) {
       throw new CommandArgumentError({
         message: msg,
         description: "Base and target currencies cannot be the same",
