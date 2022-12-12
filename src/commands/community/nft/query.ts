@@ -105,8 +105,8 @@ function buildSwitchViewActionRow(
   chain: string
 ) {
   const row = new MessageActionRow()
-  // aptos not have chain yet
-  if (chain === "") {
+  // TODO(trkhoi): handle aptos address too long
+  if (chain === "apt") {
     const nftButton = new MessageButton({
       label: "NFT",
       emoji: emojis.NFT,

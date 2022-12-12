@@ -24,8 +24,7 @@ import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
 import comparefiat from "./compare_fiat"
 import { CommandArgumentError } from "errors"
-
-export const allowedFiats = ["gbp", "usd", "eur", "sgd", "vnd"]
+import { parseFiatQuery } from "utils/defi"
 
 export async function renderCompareTokenChart({
   times,
@@ -174,7 +173,7 @@ async function composeTokenComparisonEmbed(
               ["ticker", `compare-${i.guildId}-${baseSymbol}-${targetSymbol}-`],
               ["ticker", `compare-${i.guildId}-${targetSymbol}-${baseSymbol}-`],
             ]).forEach((args) => {
-              CacheManager.findAndRemove.apply(null, args)
+              CacheManager.findAndRemove(args[0], args[1])
             })
           },
           description: `Next time your server members use \`$ticker\` with \`${baseSymbol}\` and \`${targetSymbol}\`, **${baseName}** and **${targetName}** will be the default selection`,
@@ -248,11 +247,11 @@ const command: Command = {
     const [query] = args.slice(1)
     const [base, target] = query.split("/")
 
-    const isFiat =
-      allowedFiats.includes(base.toLowerCase()) || base.length === 6
-    // fiat comparision ...
+    // fiat case
+    const isFiat = !!parseFiatQuery(query).length
     if (isFiat) return comparefiat.run(msg)
 
+    // validate
     if (base.toLowerCase() === target.toLowerCase()) {
       throw new CommandArgumentError({
         message: msg,
@@ -260,7 +259,7 @@ const command: Command = {
         getHelpMessage: () => this.getHelpMessage(msg),
       })
     }
-    // ... or token comparison
+    // crypto case
     return await composeTokenComparisonEmbed(msg, base, target)
   },
   getHelpMessage: async () => {
