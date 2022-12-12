@@ -30,7 +30,7 @@ import {
   getChartColorConfig,
   renderChartImage,
 } from "utils/canvas"
-import compare, { allowedFiats } from "./compare"
+import compare from "./compare"
 import config from "adapters/config"
 import CacheManager from "utils/CacheManager"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
@@ -41,6 +41,7 @@ import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
 import community from "adapters/community"
 import _default from "./default"
+import { parseFiatQuery } from "utils/defi"
 
 const actions: Record<string, Command> = {
   default: _default,
@@ -397,8 +398,8 @@ const command: Command = {
     const [base, target] = query.split("/")
 
     // run token comparison ...
-    const isCompare =
-      !!target || base.length === 6 || allowedFiats.includes(base.toLowerCase()) // ... e.g. gbp/eur|| gbpeur || gbp
+    const isFiat = !!parseFiatQuery(query).length // ... e.g. gbp/eur|| gbpeur || gbp
+    const isCompare = !!target || isFiat
     if (isCompare) return compare.run(msg)
 
     // ... otherwise run ticker normally
