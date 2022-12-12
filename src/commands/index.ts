@@ -82,8 +82,6 @@ import {
 } from "utils/commands"
 import config from "../adapters/config"
 import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
-// import guildCustomCommand from "../adapters/guildCustomCommand"
-// import { customCommandsExecute } from "./customCommand"
 import { Command, Category, SlashCommand } from "types/common"
 import { getEmoji, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
@@ -174,7 +172,6 @@ export const originalCommands: Record<string, Command> = {
   defaultrole,
   joinleave,
   monikers,
-  // whitelist,
   levelrole,
   nftrole,
   // globalxp,
@@ -353,20 +350,6 @@ async function executeCommand(
   })
 }
 
-// async function handleCustomCommands(message: Message, commandKey: string) {
-//   if (message.channel.type === "DM") return
-//   if (message.guildId == null) return
-//   const customCommands = await guildCustomCommand.listGuildCustomCommands(
-//     message.guildId
-//   )
-//   for (let i = 0; i < customCommands.length; i++) {
-//     if (customCommands[i].id.toLowerCase() === commandKey) {
-//       customCommandsExecute(message, customCommands[i])
-//       return
-//     }
-//   }
-// }
-
 export default async function handlePrefixedCommand(message: Message) {
   const args = getCommandArguments(message)
   logger.info(
@@ -379,9 +362,6 @@ export default async function handlePrefixedCommand(message: Message) {
   const { commandKey, action = "" } = getCommandMetadata(commands, message)
 
   if (!commandKey) return
-
-  // handle custom commands
-  // await handleCustomCommands(message, commandKey)
 
   const commandObject = commands[commandKey]
 
