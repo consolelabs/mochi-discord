@@ -637,6 +637,45 @@ class Defi extends Fetcher {
     }
   }
 
+  public async parseMessageTip(args: string[]) {
+    const { ok, data, log, curl } = await this.getAllTipBotTokens()
+    if (!ok) {
+      throw new APIError({ description: log, curl })
+    }
+    let tokenIdx = -1
+    if (data && Array.isArray(data) && data.length !== 0) {
+      data.forEach((token: any) => {
+        const idx = args.findIndex(
+          (element) =>
+            element.toLowerCase() === token.token_symbol.toLowerCase()
+        )
+        if (idx !== -1) {
+          tokenIdx = idx
+        }
+      })
+    }
+    let messageTip = ""
+    let newArgs = args
+    if (tokenIdx !== -1 && args.length > tokenIdx + 1) {
+      const messageTipArr = args.slice(tokenIdx + 1)
+      newArgs = args.slice(0, tokenIdx + 1)
+      if (args[tokenIdx + 1].toLowerCase() === "each") {
+        messageTipArr.shift()
+        newArgs.push(args[tokenIdx + 1])
+      }
+      messageTip = messageTipArr
+        .join(" ")
+        .replaceAll('"', "")
+        .replaceAll("”", "")
+        .replaceAll("“", "")
+        .trim()
+    }
+    return {
+      newArgs,
+      messageTip,
+    }
+  }
+
   async getUserWatchlist({
     userId,
     page = 0,
@@ -825,6 +864,10 @@ class Defi extends Fetcher {
         query,
       }
     )
+  }
+
+  async getAllTipBotTokens() {
+    return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/tokens`)
   }
 }
 

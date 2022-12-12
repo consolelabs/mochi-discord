@@ -102,6 +102,11 @@ describe("tip", () => {
       newArgs: ["tip", "<@!760874365037314100>", "1.5", "cake"],
       moniker: undefined,
     }
+    const msgTip = {
+      newArgs: ["tip", "<@!760874365037314100>", "1.5", "cake"],
+      messageTip: "",
+    }
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
@@ -172,6 +177,17 @@ describe("tip", () => {
       ],
       moniker: undefined,
     }
+    const msgTip = {
+      newArgs: [
+        "tip",
+        "<@!760874365037314100>",
+        "<@!580788681967665173>",
+        "2",
+        "cake",
+      ],
+      messageTip: "",
+    }
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
@@ -225,6 +241,11 @@ describe("tip", () => {
       newArgs: ["tip", "<@!760874365037314100>", "all", "cake"],
       moniker: undefined,
     }
+    const msgTip = {
+      newArgs: ["tip", "<@!760874365037314100>", "all", "cake"],
+      messageTip: "",
+    }
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
@@ -294,6 +315,18 @@ describe("tip", () => {
       ],
       moniker: undefined,
     }
+    const msgTip = {
+      newArgs: [
+        "tip",
+        "<@!760874365037314100>",
+        "<@!580788681967665173>",
+        "1.5",
+        "cake",
+        "each",
+      ],
+      messageTip: "",
+    }
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
@@ -360,6 +393,11 @@ describe("tip", () => {
       newArgs: ["tip", "<@&1039124250004574208>", "3", "cake"],
       moniker: undefined,
     }
+    const msgTip = {
+      newArgs: ["tip", "<@&1039124250004574208>", "3", "cake"],
+      messageTip: "",
+    }
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.parseTipParameters = jest.fn().mockReturnValue(params)
@@ -455,6 +493,18 @@ describe("tip", () => {
       ],
       moniker: undefined,
     }
+    const msgTip = {
+      newArgs: [
+        "tip",
+        "<@&1039124250004574208>",
+        "<@&1041914485251788800>",
+        "0.5",
+        "cake",
+        "each",
+      ],
+      messageTip: "",
+    }
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.parseTipParameters = jest.fn().mockReturnValue(params)
@@ -541,6 +591,11 @@ describe("tip", () => {
       newArgs: ["tip", "<#984660970624409630>", "0.5", "cake", "each"],
       moniker: undefined,
     }
+    const msgTip = {
+      newArgs: ["tip", "<#984660970624409630>", "0.5", "cake", "each"],
+      messageTip: "",
+    }
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.parseTipParameters = jest.fn().mockReturnValue(params)
@@ -627,6 +682,11 @@ describe("tip", () => {
       newArgs: ["tip", "online", "0.5", "cake", "each"],
       moniker: undefined,
     }
+    const msgTip = {
+      newArgs: ["tip", "online", "0.5", "cake", "each"],
+      messageTip: "",
+    }
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.parseTipParameters = jest.fn().mockReturnValue(params)
@@ -672,6 +732,11 @@ describe("tip", () => {
       newArgs: ["tip", "<@!760874365037314100>", "5", "cake"],
       moniker: undefined,
     }
+    const msgTip = {
+      newArgs: ["tip", "<@!760874365037314100>", "5", "cake"],
+      messageTip: "",
+    }
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
@@ -711,6 +776,11 @@ describe("tip", () => {
       newArgs: ["tip", "<@!760874365037314100>", "1.5", "alt"],
       moniker: undefined,
     }
+    const msgTip = {
+      newArgs: ["tip", "<@!760874365037314100>", "1.5", "alt"],
+      messageTip: "",
+    }
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
