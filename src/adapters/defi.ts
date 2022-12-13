@@ -742,31 +742,28 @@ class Defi extends Fetcher {
   }
 
   async offchainTipBotAssignContract(req: RequestCreateAssignContract) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/offchain-tip-bot/assign-contract`,
-      {
-        method: "POST",
-        body: req,
-      }
-    )
+    return await this.jsonFetch(`${API_BASE_URL}/tip/assign-contract`, {
+      method: "POST",
+      body: req,
+    })
   }
 
   async offchainGetUserBalances(query: { userId: string }) {
-    return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/balances`, {
+    return await this.jsonFetch(`${API_BASE_URL}/tip/balances`, {
       method: "GET",
       query,
     })
   }
 
   async offchainDiscordTransfer(req: RequestOffchainTransferRequest) {
-    return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/transfer`, {
+    return await this.jsonFetch(`${API_BASE_URL}/tip/transfer`, {
       method: "POST",
       body: req,
     })
   }
 
   async offchainDiscordWithdraw(req: RequestOffchainWithdrawRequest) {
-    return await this.jsonFetch(`${API_BASE_URL}/offchain-tip-bot/withdraw`, {
+    return await this.jsonFetch(`${API_BASE_URL}/tip/withdraw`, {
       method: "POST",
       body: req,
     })
@@ -791,27 +788,21 @@ class Defi extends Fetcher {
     receiver_id?: string
     token: string
   }) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/offchain-tip-bot/transactions`,
-      {
-        query,
-      }
-    )
+    return await this.jsonFetch(`${API_BASE_URL}/tip/transactions`, {
+      query,
+    })
   }
 
   async createConfigNofityTransaction(req: RequestCreateTipConfigNotify) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/offchain-tip-bot/config-notify`,
-      {
-        method: "POST",
-        body: req,
-      }
-    )
+    return await this.jsonFetch(`${API_BASE_URL}/config-channels/tip-notify`, {
+      method: "POST",
+      body: req,
+    })
   }
 
   async deleteConfigNofityTransaction(id: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/offchain-tip-bot/config-notify/${id}`,
+      `${API_BASE_URL}/config-channels/tip-notify/${id}`,
       {
         method: "DELETE",
       }
@@ -819,12 +810,9 @@ class Defi extends Fetcher {
   }
 
   async getListConfigNofityTransaction(query: { guild_id: string }) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/offchain-tip-bot/config-notify`,
-      {
-        query,
-      }
-    )
+    return await this.jsonFetch(`${API_BASE_URL}/config-channels/tip-notify`, {
+      query,
+    })
   }
 }
 
