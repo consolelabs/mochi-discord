@@ -1,10 +1,5 @@
 import { CommandInteraction, Message } from "discord.js"
-import {
-  DEFI_DEFAULT_FOOTER,
-  PREFIX,
-  SPACES_REGEX,
-  TIP_GITBOOK,
-} from "utils/constants"
+import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
 import {
   emojis,
   getEmoji,
@@ -28,12 +23,13 @@ export async function handleTip(
   fullCmd: string,
   msg: Message | CommandInteraction
 ) {
-  const [cmdWithoutMsg, messageTip] = args.join(" ").split('"')
-  const { newArgs, moniker } = await defi.parseMonikerinCmd(
-    cmdWithoutMsg.trim().split(SPACES_REGEX),
-    msg.guildId ?? ""
-  )
-  const newCmd = newArgs.join(" ").trim()
+  const { newArgs: argsAfterParseMoniker, moniker } =
+    await defi.parseMonikerinCmd(args, msg.guildId ?? "")
+
+  const { newArgs: agrsAfterParseMessage, messageTip } =
+    await defi.parseMessageTip(argsAfterParseMoniker)
+
+  const newCmd = agrsAfterParseMessage.join(" ").trim()
 
   const { isValid, targets } = Defi.classifyTipSyntaxTargets(
     newCmd
@@ -52,7 +48,12 @@ export async function handleTip(
   }
 
   // preprocess command arguments
-  const payload = await Defi.getTipPayload(msg, newArgs, authorId, targets)
+  const payload = await Defi.getTipPayload(
+    msg,
+    agrsAfterParseMessage,
+    authorId,
+    targets
+  )
   if (moniker) {
     payload.amount *=
       (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
@@ -104,7 +105,7 @@ export async function handleTip(
     4
   )}) ${recipientIds.length > 1 ? "each" : ""}`
   if (messageTip) {
-    description += `with message\n\n${getEmoji(
+    description += ` with message\n\n${getEmoji(
       "conversation"
     )} **${messageTip}**`
   }
