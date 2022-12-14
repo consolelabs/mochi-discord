@@ -253,14 +253,20 @@ async function composeCollectionTickerEmbed({
     price_change_30d,
   } = data
 
-  const floorPriceAmount = Math.round(
-    +(floor_price?.amount ?? 0) / Math.pow(10, decimals(floor_price))
+  const floorPriceAmount = Number(
+    (+(floor_price?.amount ?? 0) / Math.pow(10, decimals(floor_price))).toFixed(
+      2
+    )
   )
-  const totalVolumeAmount = Math.round(
-    +(total_volume?.amount ?? 0) / Math.pow(10, decimals(floor_price))
+  const totalVolumeAmount = Number(
+    (
+      +(total_volume?.amount ?? 0) / Math.pow(10, decimals(floor_price))
+    ).toFixed(2)
   )
-  const lastSalePriceAmount = Math.round(
-    +(last_sale_price?.amount ?? 0) / Math.pow(10, decimals(last_sale_price))
+  const lastSalePriceAmount = Number(
+    (
+      +(last_sale_price?.amount ?? 0) / Math.pow(10, decimals(last_sale_price))
+    ).toFixed(2)
   )
   const priceToken = floor_price?.token?.symbol?.toUpperCase() ?? ""
   const marketcap = floorPriceAmount * (items ?? 0)
