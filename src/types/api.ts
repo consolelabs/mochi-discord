@@ -980,6 +980,10 @@ export interface ResponseAddToWatchlistResponseData {
   target_suggestions?: ModelCoingeckoSupportedTokens[];
 }
 
+export interface ResponseAllTipBotTokensResponse {
+  data?: ModelOffchainTipBotToken[];
+}
+
 export interface ResponseClaimQuestsRewardsResponse {
   data?: ResponseClaimQuestsRewardsResponseData;
 }
