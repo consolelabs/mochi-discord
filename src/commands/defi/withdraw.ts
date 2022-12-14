@@ -3,11 +3,7 @@ import { CommandInteraction, Message } from "discord.js"
 import { DEFI_DEFAULT_FOOTER, DEPOSIT_GITBOOK, PREFIX } from "utils/constants"
 import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
-import {
-  composeButtonLink,
-  composeEmbedMessage,
-  getErrorEmbed,
-} from "utils/discordEmbed"
+import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import { APIError, CommandArgumentError } from "errors"
 import { OffchainTipBotWithdrawRequest } from "types/defi"
@@ -23,17 +19,17 @@ export async function getDestinationAddress(
     filter,
   })
   const userReply = collected.first()
-  if (userReply && !userReply.content.trim().startsWith("0x")) {
-    await userReply.reply({
-      embeds: [
-        getErrorEmbed({
-          description: "Invalid input!\nPlease re-enter a valid address...",
-        }),
-      ],
-    })
-    return await getDestinationAddress(msg, dm)
-  }
-  return userReply?.content.trim() ?? ""
+  // if (userReply && !userReply.content.trim().startsWith("0x")) {
+  //   await userReply.reply({
+  //     embeds: [
+  //       getErrorEmbed({
+  //         description: "Invalid input!\nPlease re-enter a valid address...",
+  //       }),
+  //     ],
+  //   })
+  //   return await getDestinationAddress(msg, dm)
+  // }
+  return userReply?.content?.trim() ?? ""
 }
 
 async function withdraw(msg: Message, args: string[]) {

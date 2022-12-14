@@ -445,9 +445,9 @@ class Defi extends Fetcher {
     }
     const guildId = msg.guildId ?? "DM"
 
-    if (!toAddress.startsWith("0x")) {
-      throw new Error("Invalid destination address")
-    }
+    // if (!toAddress.startsWith("0x")) {
+    //   throw new Error("Invalid destination address")
+    // }
     const recipients = [toAddress]
     const cryptocurrency = token.toUpperCase()
 
