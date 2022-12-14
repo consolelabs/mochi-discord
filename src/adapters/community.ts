@@ -330,7 +330,7 @@ class Community extends Fetcher {
   }
 
   public async getListQuest(user_id: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/quests`, {
+    return await this.jsonFetch(`${API_BASE_URL}/community/quests`, {
       query: {
         user_id,
       },
@@ -342,7 +342,7 @@ class Community extends Fetcher {
     action: string
     guildId?: string
   }) {
-    return await this.jsonFetch(`${API_BASE_URL}/quests/progress`, {
+    return await this.jsonFetch(`${API_BASE_URL}/community/quests/progress`, {
       method: "POST",
       body,
     })
@@ -350,7 +350,7 @@ class Community extends Fetcher {
 
   public async claimAllReward(user_id: string, routine = "daily") {
     return await this.jsonFetch<ResponseClaimQuestsRewardsResponse>(
-      `${API_BASE_URL}/quests/claim`,
+      `${API_BASE_URL}/community/quests/claim`,
       {
         method: "POST",
         body: {
@@ -362,7 +362,7 @@ class Community extends Fetcher {
   }
 
   public async sendFeedback(req: RequestUserFeedbackRequest) {
-    return await this.jsonFetch(`${API_BASE_URL}/feedback`, {
+    return await this.jsonFetch(`${API_BASE_URL}/community/feedback`, {
       method: "POST",
       body: req,
     })
@@ -370,7 +370,7 @@ class Community extends Fetcher {
 
   public async updateFeedback(id: string, status: "confirmed" | "completed") {
     return await this.jsonFetch<ResponseUpdateUserFeedbackResponse>(
-      `${API_BASE_URL}/feedback`,
+      `${API_BASE_URL}/community/feedback`,
       {
         method: "PUT",
         body: {
@@ -383,7 +383,7 @@ class Community extends Fetcher {
 
   public async getFeedbackList(discordId?: string, page = 0) {
     return await this.jsonFetch<{ data: ResponseUserFeedbackResponse }>(
-      `${API_BASE_URL}/feedback`,
+      `${API_BASE_URL}/community/feedback`,
       {
         query: {
           ...(discordId ? { filter: "discord_id", value: discordId } : {}),
@@ -396,7 +396,7 @@ class Community extends Fetcher {
 
   public async createTradeOffer(body: RequestCreateTradeOfferRequest) {
     return await this.jsonFetch<ResponseCreateTradeOfferResponse>(
-      `${API_BASE_URL}/trades`,
+      `${API_BASE_URL}/nfts/trades`,
       {
         method: "POST",
         body,
@@ -406,7 +406,7 @@ class Community extends Fetcher {
 
   public async getTradeOffer(id: string) {
     return await this.jsonFetch<ResponseGetTradeOfferResponse>(
-      `${API_BASE_URL}/trades/${id}`
+      `${API_BASE_URL}/nfts/trades/${id}`
     )
   }
 }

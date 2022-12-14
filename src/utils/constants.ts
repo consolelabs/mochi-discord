@@ -46,7 +46,7 @@ export const ROLE_REGEX = /^<@&(\d+)>$/i
 export const TWITTER_PROFILE_REGEX =
   /(https:\/\/twitter.com\/(?![a-zA-Z0-9_]+\/)([a-zA-Z0-9_]+))/g
 
-const USAGE_STATS_URL = API_BASE_URL + "/usage-stats/gitbook?url="
+const USAGE_STATS_URL = API_BASE_URL + "/data/usage-stats/gitbook?url="
 export const DEPOSIT_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/deposit-and-withdraw"

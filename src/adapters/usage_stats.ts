@@ -10,7 +10,7 @@ class UsageStats extends Fetcher {
     args: string
     execution_time_ms?: number
   }) {
-    return await this.jsonFetch(`${API_BASE_URL}/usage-stats`, {
+    return await this.jsonFetch(`${API_BASE_URL}/data/usage-stats`, {
       method: "POST",
       body: req,
     })
