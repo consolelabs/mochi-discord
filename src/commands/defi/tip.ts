@@ -130,9 +130,9 @@ export async function handleTip(
       payload.sender
     )} has sent ${recipientDescription} **${amountMoniker} ${
       monikerVal?.moniker?.moniker
-    }** (= ${roundFloatNumber(
+    }** (= **${roundFloatNumber(
       amountMoniker * (monikerVal?.moniker?.amount || 1)
-    )} ${monikerVal?.moniker?.token?.token_symbol} \u2248 $${roundFloatNumber(
+    )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${roundFloatNumber(
       data[0].amount_in_usd,
       4
     )}) ${recipientIds.length > 1 ? "each" : ""}`
