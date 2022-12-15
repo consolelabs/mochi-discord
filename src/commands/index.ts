@@ -103,7 +103,7 @@ import {
 } from "utils/discordEmbed"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import InteractionManager from "utils/InteractionManager"
-import { kafkaQueue } from "index"
+import { kafkaQueue } from "utils/kafka"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 CacheManager.init({

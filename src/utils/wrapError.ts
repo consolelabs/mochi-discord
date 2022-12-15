@@ -1,7 +1,7 @@
 import { commands } from "commands"
 import { Interaction, Message } from "discord.js"
 import { BotBaseError } from "errors"
-import { kafkaQueue } from "index"
+import { kafkaQueue } from "utils/kafka"
 import { logger } from "logger"
 import { KafkaQueueMessage } from "types/common"
 import ChannelLogger from "./ChannelLogger"
