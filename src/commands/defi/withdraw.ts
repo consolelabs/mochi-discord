@@ -5,7 +5,7 @@ import { getCommandArguments } from "utils/commands"
 import Defi from "adapters/defi"
 import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
-import { APIError, CommandArgumentError } from "errors"
+import { APIError, CommandArgumentError, InternalError } from "errors"
 import { OffchainTipBotWithdrawRequest } from "types/defi"
 
 export async function getDestinationAddress(
@@ -44,7 +44,22 @@ async function withdraw(msg: Message, args: string[]) {
     payload
   )
   if (!ok) {
-    throw new APIError({ message: msg, description: log, curl, error })
+    switch (error) {
+      case "Token not supported":
+        throw new InternalError({
+          message: msg,
+          title: "Unsupported token",
+          description: `${payload.token} hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+        })
+      case "Not enough balance":
+        throw new InternalError({
+          message: msg,
+          title: "Transaction error",
+          description: `<@${msg.author.id}>, your balance is insufficient.`,
+        })
+      default:
+        throw new APIError({ message: msg, curl, description: log, error })
+    }
   }
 
   const embedMsg = composeWithdrawEmbed(payload, data)

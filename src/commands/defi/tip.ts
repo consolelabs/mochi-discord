@@ -42,7 +42,7 @@ export async function handleTip(
     throw new InternalError({
       title: "Incorrect recipients",
       description:
-        "Cannot find the recipients. Type @, then choose the valid role or username of the recipients!",
+        "Mochi cannot find the recipients. Type @ to choose valid roles or usernames!",
       message: msg,
     })
   }
@@ -70,7 +70,22 @@ export async function handleTip(
   )
 
   if (!ok) {
-    throw new APIError({ message: msg, curl, description: log, error })
+    switch (error) {
+      case "Token not supported":
+        throw new InternalError({
+          message: msg,
+          title: "Unsupported token",
+          description: `${payload.token} hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+        })
+      case "Not enough balance":
+        throw new InternalError({
+          message: msg,
+          title: "Transaction error",
+          description: `<@${authorId}>, your balance is insufficient.`,
+        })
+      default:
+        throw new APIError({ message: msg, curl, description: log, error })
+    }
   }
 
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
