@@ -271,18 +271,6 @@ export interface ModelGuildConfigWelcomeChannel {
   welcome_message?: string;
 }
 
-export interface ModelGuildCustomCommand {
-  actions?: number[];
-  channels_permissions?: number[];
-  cooldown?: number;
-  cooldown_duration?: number;
-  description?: string;
-  enabled?: boolean;
-  guild_id?: string;
-  id?: string;
-  roles_permissions?: number[];
-}
-
 export interface ModelGuildRole {
   guild_id?: string;
   name?: string;
@@ -533,21 +521,6 @@ export interface ModelUserWallet {
   user_discord_id?: string;
 }
 
-export interface ModelWhitelistCampaign {
-  created_at?: string;
-  guild_id?: string;
-  name?: string;
-  role_id?: number;
-}
-
-export interface ModelWhitelistCampaignUser {
-  address?: string;
-  created_at?: string;
-  discord_id?: string;
-  notes?: string;
-  whitelist_campaign_id?: string;
-}
-
 export interface RequestAddNftWatchlistRequest {
   chain?: string;
   collection_address?: string;
@@ -568,17 +541,6 @@ export interface RequestAddToWatchlistRequest {
   is_fiat?: boolean;
   symbol?: string;
   user_id?: string;
-}
-
-export interface RequestAddWhitelistCampaignUser {
-  address?: string;
-  discord_id?: string;
-  notes?: string;
-  whitelist_campaign_id?: string;
-}
-
-export interface RequestAddWhitelistCampaignUserRequest {
-  users?: RequestAddWhitelistCampaignUser[];
 }
 
 export interface RequestBalcklistChannelRepostConfigRequest {
@@ -683,11 +645,6 @@ export interface RequestCreateUserRequest {
   username?: string;
 }
 
-export interface RequestCreateWhitelistCampaignRequest {
-  guild_id?: string;
-  name?: string;
-}
-
 export interface RequestDeleteDiscordUserAlertRequest {
   id?: string;
 }
@@ -725,14 +682,6 @@ export interface RequestGenerateVerificationRequest {
   guild_id?: string;
   is_reverify?: boolean;
   user_discord_id?: string;
-}
-
-export interface RequestGiftXPRequest {
-  admin_discord_id?: string;
-  channel_id?: string;
-  guild_id?: string;
-  user_discord_id?: string;
-  xp_amount?: number;
 }
 
 export interface RequestGuildConfigDefaultNftTickerRequest {
@@ -827,18 +776,6 @@ export interface RequestSetUpvoteMessageCacheRequest {
 export interface RequestTradeOfferItem {
   token_address: string;
   token_ids: string[];
-}
-
-export interface RequestTransferRequest {
-  all?: boolean;
-  amount?: number;
-  channelId?: string;
-  cryptocurrency?: string;
-  each?: boolean;
-  guildId?: string;
-  recipients?: string[];
-  sender?: string;
-  transferType?: string;
 }
 
 export interface RequestTwitterHashtag {
@@ -1070,10 +1007,6 @@ export interface ResponseConfigureInvitesResponse {
   data?: string;
 }
 
-export interface ResponseCreateCustomCommandResponse {
-  data?: ModelGuildCustomCommand;
-}
-
 export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
 }
@@ -1173,10 +1106,6 @@ export interface ResponseGetCoinResponseWrapper {
 
 export interface ResponseGetCollectionCountResponse {
   data?: ResponseNFTCollectionCount;
-}
-
-export interface ResponseGetCustomCommandResponse {
-  data?: ModelGuildCustomCommand;
 }
 
 export interface ResponseGetDataUserProfileResponse {
@@ -1448,10 +1377,6 @@ export interface ResponseGetWelcomeChannelConfigResponse {
   message?: string;
 }
 
-export interface ResponseGiftXpHandlerResponse {
-  data?: ResponseHandleUserActivityResponse;
-}
-
 export interface ResponseGuildConfigDefaultCurrencyResponse {
   created_at?: string;
   guild_id?: string;
@@ -1462,49 +1387,6 @@ export interface ResponseGuildConfigDefaultCurrencyResponse {
 export interface ResponseGuildPruneExcludeList {
   guild_id?: string;
   roles?: string[];
-}
-
-export interface ResponseHandleUserActivityResponse {
-  action?: string;
-  added_xp?: number;
-  channel_id?: string;
-  current_level?: number;
-  current_xp?: number;
-  guild_id?: string;
-  level_up?: boolean;
-  timestamp?: string;
-  user_id?: string;
-}
-
-export interface ResponseInDiscordWalletBalancesResponse {
-  data?: ResponseUserBalancesResponse;
-  status?: string;
-}
-
-export interface ResponseInDiscordWalletTransferResponse {
-  amount?: number;
-  cryptocurrency?: string;
-  fromDiscordID?: string;
-  toDiscordID?: string;
-  transactionFee?: number;
-  txHash?: string;
-  txUrl?: string;
-}
-
-export interface ResponseInDiscordWalletTransferResponseWrapper {
-  data?: ResponseInDiscordWalletTransferResponse[];
-  errors?: string[];
-}
-
-export interface ResponseInDiscordWalletWithdrawResponse {
-  amount?: number;
-  cryptocurrency?: string;
-  fromDiscordId?: string;
-  toAddress?: string;
-  transactionFee?: number;
-  txHash?: string;
-  txURL?: string;
-  withdrawalAmount?: BigFloat;
 }
 
 export interface ResponseIndexerChain {
@@ -1677,10 +1559,6 @@ export interface ResponseListAllNFTCollectionsResponse {
 
 export interface ResponseListConfigNotifyResponse {
   data?: ResponseConfigNotifyResponse[];
-}
-
-export interface ResponseListCustomCommandsResponse {
-  data?: ModelGuildCustomCommand[];
 }
 
 export interface ResponseListGuildGroupNFTRolesResponse {
@@ -1981,10 +1859,6 @@ export interface ResponseTwitterHashtag {
   user_id?: string;
 }
 
-export interface ResponseUpdateCustomCommandResponse {
-  data?: ModelGuildCustomCommand;
-}
-
 export interface ResponseUpdateUserFeedbackResponse {
   data?: ModelUserFeedback;
 }
@@ -1996,11 +1870,6 @@ export interface ResponseUser {
   in_discord_wallet_number?: number;
   nr_of_join?: number;
   username?: string;
-}
-
-export interface ResponseUserBalancesResponse {
-  balances?: Record<string, number>;
-  balances_in_usd?: Record<string, number>;
 }
 
 export interface ResponseUserDeviceResponse {
