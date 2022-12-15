@@ -373,12 +373,20 @@ class Defi extends Fetcher {
     } = this.parseTipParameters(args)
     recipients = await this.parseRecipients(msg, targets, sender)
 
+    // check if only tip author
+    if (targets.length === 1 && targets[0] === `<@${authorId}>`) {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        message: msg,
+        error: "Users cannot tip themselves!",
+      })
+    }
     // check if recipient is valid or not
     if (!recipients || !recipients.length) {
       throw new DiscordWalletTransferError({
         discordId: sender,
         message: msg,
-        error: "No valid recipient found!",
+        error: "No valid recipient was found!",
       })
     }
 
