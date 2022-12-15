@@ -82,12 +82,16 @@ import {
 } from "utils/commands"
 import config from "../adapters/config"
 import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
-import { Command, Category, SlashCommand } from "types/common"
+import {
+  Command,
+  Category,
+  SlashCommand,
+  KafkaQueueMessage,
+} from "types/common"
 import { getEmoji, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import CacheManager from "utils/CacheManager"
 import community from "adapters/community"
-import usage_stats from "adapters/usage_stats"
 import { isAcceptableCmdToHelp } from "./index-utils"
 import FuzzySet from "fuzzyset"
 import {
@@ -99,6 +103,7 @@ import {
 } from "utils/discordEmbed"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import InteractionManager from "utils/InteractionManager"
+import { kafkaQueue } from "index"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 CacheManager.init({
@@ -247,15 +252,27 @@ async function executeCommand(
 
       // stop benchmark for help message
       const benchmarkStop = process.hrtime(benchmarkStart)
-      // send command to server to store
-      usage_stats.createUsageStat({
-        guild_id: message.guildId !== null ? message.guildId : "DM",
-        user_id: message.author.id,
-        command: "help",
-        args: message.content,
-        execution_time_ms: Math.round(benchmarkStop[1] / 1000000),
-        success: true,
-      })
+      // send command tracking
+      try {
+        const kafkaMsg: KafkaQueueMessage = {
+          platform: "discord",
+          data: {
+            command: "help",
+            subcommand: commandObject.id,
+            full_text_command: message.content,
+            command_type: "$",
+            channel_id: message.channelId,
+            guild_id: message.guildId !== null ? message.guildId : "DM",
+            author_id: message.author.id,
+            execution_time_ms: Math.round(benchmarkStop[1] / 1000000),
+            success: true,
+            message: message,
+          },
+        }
+        await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+      } catch (error) {
+        logger.error("[KafkaQueue] - failed to enqueue")
+      }
     }
     return
   }
@@ -339,15 +356,31 @@ async function executeCommand(
 
   // stop benchmark for commands
   const benchmarkStop = process.hrtime(benchmarkStart)
-  // send command to server to store
-  usage_stats.createUsageStat({
-    guild_id: message.guildId !== null ? message.guildId : "DM",
-    user_id: message.author.id,
-    command: commandObject.id,
-    args: message.content,
-    execution_time_ms: Math.round(benchmarkStop[1] / 1000000),
-    success: true,
-  })
+  try {
+    let command = commandObject.id
+    let subcommand = ""
+    if (commandObject.id.includes("_")) {
+      ;[command, subcommand] = commandObject.id.split("_")
+    }
+    const kafkaMsg: KafkaQueueMessage = {
+      platform: "discord",
+      data: {
+        command,
+        subcommand,
+        full_text_command: message.content,
+        command_type: "$",
+        channel_id: message.channelId,
+        guild_id: message.guildId !== null ? message.guildId : "DM",
+        author_id: message.author.id,
+        execution_time_ms: Math.round(benchmarkStop[1] / 1000000),
+        success: true,
+        message: message,
+      },
+    }
+    await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+  } catch (error) {
+    logger.error("[KafkaQueue] - failed to enqueue")
+  }
 }
 
 export default async function handlePrefixedCommand(message: Message) {
