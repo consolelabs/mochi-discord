@@ -288,7 +288,7 @@ class Defi extends Fetcher {
         : msgOrInteraction.user.id
     return composeEmbedMessage(null, {
       author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
-      description: `<@${authorId}>, you cannot afford this.\nYou can deposit by \`$deposit ${cryptocurrency}\``,
+      description: `<@${authorId}>, your balance is insufficient.\nYou can deposit more by using \`$deposit ${cryptocurrency}\``,
     })
       .addField(
         "Required amount",

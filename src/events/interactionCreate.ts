@@ -1,6 +1,10 @@
 import { slashCommands } from "commands"
 import { confirmGlobalXP } from "commands/config/globalxp"
-import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
+import {
+  cancelAirdrop,
+  confirmAirdrop,
+  enterAirdrop,
+} from "commands/defi/airdrop"
 import { triplePodInteraction } from "commands/games/tripod"
 import { sendVerifyURL } from "commands/profile/verify"
 import {
@@ -296,6 +300,9 @@ async function handleButtonInteraction(interaction: Interaction) {
     }
     case i.customId.startsWith("confirm_airdrop"):
       await confirmAirdrop(i, msg)
+      return
+    case i.customId.startsWith("cancel_airdrop"):
+      await cancelAirdrop(i, msg)
       return
     case i.customId.startsWith("enter_airdrop"):
       await enterAirdrop(i, msg)
