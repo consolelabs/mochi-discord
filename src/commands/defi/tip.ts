@@ -54,6 +54,7 @@ export async function handleTip(
     authorId,
     targets
   )
+  const amountBeforeMoniker = payload.amount
   if (moniker) {
     payload.amount *=
       (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
@@ -119,6 +120,23 @@ export async function handleTip(
     data[0].amount_in_usd,
     4
   )}) ${recipientIds.length > 1 ? "each" : ""}`
+  if (moniker) {
+    const monikerVal = moniker as ResponseMonikerConfigData
+    const amountMoniker = roundFloatNumber(
+      amountBeforeMoniker / payload.recipients.length,
+      4
+    )
+    description = `${mentionUser(
+      payload.sender
+    )} has sent ${recipientDescription} **${amountMoniker} ${
+      monikerVal?.moniker?.moniker
+    }** (= **${roundFloatNumber(
+      amountMoniker * (monikerVal?.moniker?.amount || 1)
+    )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${roundFloatNumber(
+      data[0].amount_in_usd,
+      4
+    )}) ${recipientIds.length > 1 ? "each" : ""}`
+  }
   if (messageTip) {
     description += ` with message\n\n${getEmoji(
       "conversation"
