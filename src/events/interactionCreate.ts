@@ -41,8 +41,8 @@ import { addToWatchlist } from "commands/defi/watchlist/add"
 import { feedbackDispatcher } from "commands/community/feedback"
 import { CommandNotAllowedToRunError } from "errors"
 import { KafkaQueueMessage } from "types/common"
-import { kafkaQueue } from "index"
 import { logger } from "logger"
+import { kafkaQueue } from "utils/kafka"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
