@@ -6,7 +6,7 @@ import { RunResult } from "types/common"
 import defi from "adapters/defi"
 import { emojis, getEmojiURL, thumbnails } from "utils/common"
 import { OffchainTipBotTransferRequest } from "types/defi"
-import { APIError, InternalError } from "errors"
+import { InternalError } from "errors"
 
 jest.mock("adapters/defi")
 const commandKey = "tip"
