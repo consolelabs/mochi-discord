@@ -7,6 +7,7 @@ import {
   ButtonInteraction,
   ColorResolvable,
   CommandInteraction,
+  Interaction,
   Message,
   MessageEditOptions,
   MessageOptions,
@@ -49,6 +50,7 @@ export type RunResult<T = MessageOptions | MessageEditOptions> = {
   interactionOptions?: InteractionOptions
   replyMessage?: WebhookEditMessageOptions
   buttonCollector?: (i: ButtonInteraction) => Promise<void>
+  fullCommand?: string
 }
 
 export type SetDefaultRenderList<T> = (p: {
@@ -73,6 +75,7 @@ export type MultipleResult<T> = {
   // this function is used to render the actual embed with data when the admin
   // choose one of the option in the select menu
   render?: SetDefaultRenderList<T>
+  fullCommand?: string
 }
 
 export type SlashCommand = {
@@ -223,5 +226,19 @@ export type BlacklistChannelRepostConfigRequest = {
 
 export type KafkaQueueMessage = {
   platform: string
-  data: Message
+  data: KafkaQueueMessageData
+}
+
+export type KafkaQueueMessageData = {
+  command: string
+  subcommand: string
+  full_text_command: string
+  command_type: string
+  channel_id: string
+  guild_id: string
+  author_id: string
+  execution_time_ms: number
+  success: boolean
+  message?: Message | null
+  interaction?: Interaction | null
 }
