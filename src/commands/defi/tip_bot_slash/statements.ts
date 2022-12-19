@@ -4,6 +4,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { SlashCommand } from "types/common"
 import { authorFilter, getEmoji } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, SLASH_PREFIX } from "utils/constants"
+import { tipTokenIsSupported } from "utils/defi"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { buildButtonsRow, handleStatement } from "../statements"
 
@@ -75,19 +76,36 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     let token = interaction.options.getString("token")
-    if (!token) {
+    if (token) {
+      const tokenValid = await tipTokenIsSupported(token)
+      if (!tokenValid) {
+        return {
+          messageOptions: {
+            embeds: [
+              composeEmbedMessage(null, {
+                title: "Unsupported token",
+                description: `**${token.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+              }),
+            ],
+          },
+        }
+      }
+    } else {
       token = ""
     }
+
     const pages = await handleStatement(token, interaction.user.id)
     if (pages.length === 0) {
       return {
         messageOptions: {
           embeds: [
             composeEmbedMessage(null, {
-              title: `${getEmoji("STATEMENTS")} Transaction histories`,
+              title: `${getEmoji("STATEMENTS")} No transaction history`,
               description: `You haven't made any transaction ${
                 token !== "" ? `with **${token.toUpperCase()}** yet` : ""
-              }. Run ${SLASH_PREFIX} <@username/@role> <amount> <token> to transfer token.`,
+              }. You can try \`${SLASH_PREFIX}tip <@username/@role> <amount> <token>\` to transfer ${
+                token !== "" ? `**${token.toUpperCase()}**` : "token"
+              } to other users.`,
             }),
           ],
         },

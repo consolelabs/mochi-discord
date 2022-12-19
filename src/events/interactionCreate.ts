@@ -1,6 +1,10 @@
 import { slashCommands } from "commands"
 import { confirmGlobalXP } from "commands/config/globalxp"
-import { confirmAirdrop, enterAirdrop } from "commands/defi/airdrop"
+import {
+  cancelAirdrop,
+  confirmAirdrop,
+  enterAirdrop,
+} from "commands/defi/airdrop"
 import { triplePodInteraction } from "commands/games/tripod"
 import { sendVerifyURL } from "commands/profile/verify"
 import {
@@ -36,6 +40,9 @@ import ConversationManager from "utils/ConversationManager"
 import { addToWatchlist } from "commands/defi/watchlist/add"
 import { feedbackDispatcher } from "commands/community/feedback"
 import { CommandNotAllowedToRunError } from "errors"
+import { KafkaQueueMessage } from "types/common"
+import { logger } from "logger"
+import { kafkaQueue } from "utils/kafka"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -93,14 +100,41 @@ export default event
 
 async function handleCommandInteraction(interaction: Interaction) {
   wrapError(interaction, async () => {
+    const benchmarkStart = process.hrtime()
     const i = interaction as CommandInteraction
     const command = slashCommands[i.commandName]
     if (!command) {
       await i.reply({ embeds: [getErrorEmbed({})] })
       return
     }
+    let subcommand = ""
+    let args = ""
+    if (interaction.isCommand()) {
+      subcommand = interaction.options.getSubcommand(false) || ""
+      args = interaction.commandName + " " + subcommand
+    }
     const gMember = interaction?.guild?.members.cache.get(interaction?.user.id)
     if (command.onlyAdministrator && !hasAdministrator(gMember)) {
+      try {
+        const kafkaMsg: KafkaQueueMessage = {
+          platform: "discord",
+          data: {
+            command: command.name,
+            subcommand,
+            full_text_command: "",
+            command_type: "/",
+            channel_id: interaction.channelId || "DM",
+            guild_id: interaction.guildId || "DM",
+            author_id: interaction.user.id,
+            success: false,
+            execution_time_ms: 0,
+            interaction: interaction,
+          },
+        }
+        await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+      } catch (error) {
+        logger.error("[KafkaQueue] - failed to enqueue")
+      }
       throw new CommandNotAllowedToRunError({
         message: i,
         command: i.commandName,
@@ -111,6 +145,32 @@ async function handleCommandInteraction(interaction: Interaction) {
     await i.deferReply({ ephemeral: command?.ephemeral })
     const response = await command.run(i)
     if (!response) return
+    const benchmarkStop = process.hrtime(benchmarkStart)
+    // send command tracking to kafka
+    try {
+      const kafkaMsg: KafkaQueueMessage = {
+        platform: "discord",
+        data: {
+          command: command.name,
+          subcommand: subcommand,
+          full_text_command: args,
+          command_type: "/",
+          channel_id: interaction.channelId || "DM",
+          guild_id: interaction.guildId || "DM",
+          author_id: interaction.user.id,
+          success: true,
+          execution_time_ms: Math.round(benchmarkStop[1] / 1000000),
+          interaction: interaction,
+        },
+      }
+      await kafkaQueue?.produceBatch([
+        JSON.stringify(kafkaMsg, (_, v) =>
+          typeof v === "bigint" ? v.toString() : v
+        ),
+      ])
+    } catch (error) {
+      logger.error("[KafkaQueue] - failed to enqueue")
+    }
     let shouldRemind = await CacheManager.get({
       pool: "vote",
       key: `remind-${i.user.id}-vote-again`,
@@ -240,6 +300,9 @@ async function handleButtonInteraction(interaction: Interaction) {
     }
     case i.customId.startsWith("confirm_airdrop"):
       await confirmAirdrop(i, msg)
+      return
+    case i.customId.startsWith("cancel_airdrop"):
+      await cancelAirdrop(i, msg)
       return
     case i.customId.startsWith("enter_airdrop"):
       await enterAirdrop(i, msg)

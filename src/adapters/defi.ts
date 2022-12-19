@@ -288,7 +288,7 @@ class Defi extends Fetcher {
         : msgOrInteraction.user.id
     return composeEmbedMessage(null, {
       author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
-      description: `<@${authorId}>, you cannot afford this.\nYou can deposit by \`$deposit ${cryptocurrency}\``,
+      description: `<@${authorId}>, your balance is insufficient.\nYou can deposit more by using \`$deposit ${cryptocurrency}\``,
     })
       .addField(
         "Required amount",
@@ -373,12 +373,20 @@ class Defi extends Fetcher {
     } = this.parseTipParameters(args)
     recipients = await this.parseRecipients(msg, targets, sender)
 
+    // check if only tip author
+    if (targets.length === 1 && targets[0] === `<@${authorId}>`) {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        message: msg,
+        error: "Users cannot tip themselves!",
+      })
+    }
     // check if recipient is valid or not
     if (!recipients || !recipients.length) {
       throw new DiscordWalletTransferError({
         discordId: sender,
         message: msg,
-        error: "No valid recipient found!",
+        error: "No valid recipient was found!",
       })
     }
 
@@ -445,9 +453,9 @@ class Defi extends Fetcher {
     }
     const guildId = msg.guildId ?? "DM"
 
-    // if (!toAddress.startsWith("0x")) {
-    //   throw new Error("Invalid destination address")
-    // }
+    if (!toAddress.startsWith("0x") || toAddress.length < 16) {
+      throw new Error("The wallet address is invalid. Please check again.")
+    }
     const recipients = [toAddress]
     const cryptocurrency = token.toUpperCase()
 

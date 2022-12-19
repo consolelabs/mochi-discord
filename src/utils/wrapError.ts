@@ -1,8 +1,9 @@
-import usage_stats from "adapters/usage_stats"
 import { commands } from "commands"
 import { Interaction, Message } from "discord.js"
 import { BotBaseError } from "errors"
+import { kafkaQueue } from "utils/kafka"
 import { logger } from "logger"
+import { KafkaQueueMessage } from "types/common"
 import ChannelLogger from "./ChannelLogger"
 import { getCommandMetadata } from "./commands"
 
@@ -24,6 +25,10 @@ export async function wrapError(
       let userId = ""
       let commandStr = ""
       let args = ""
+      let commandType = ""
+      let subcommand = ""
+      let msgToKafka = null
+      let interactionToKafka = null
       if (
         msg instanceof Interaction &&
         (msg.isSelectMenu() || msg.isButton() || msg.isCommand())
@@ -50,7 +55,8 @@ export async function wrapError(
           commandStr = commandObject.id
           args = message.content
         }
-        //
+        commandType = "$"
+        msgToKafka = message
 
         // something went wrong
         if (!(error instanceof BotBaseError)) {
@@ -61,23 +67,39 @@ export async function wrapError(
       } else if (message.isCommand()) {
         // get command info
         userId = message.user.id
-        commandStr =
-          message.commandName + message.options.getSubcommand(false)
-            ? "_" + message.options.getSubcommand(false)
-            : ""
+        commandStr = message.options.getSubcommand(false)
+          ? message.commandName + " " + message.options.getSubcommand(false)
+          : message.commandName
         args = commandStr
-        //
+        subcommand = message.options.getSubcommand(false) || ""
+        commandType = "/"
+        interactionToKafka = message
+
         error.handle?.()
         ChannelLogger.alertSlash(message, error).catch(catchAll)
       }
-      // send command info to store
-      usage_stats.createUsageStat({
-        guild_id: guildId,
-        user_id: userId,
-        command: commandStr,
-        args: args,
-        success: false,
-      })
+      // send command info to kafka
+      try {
+        const kafkaMsg: KafkaQueueMessage = {
+          platform: "discord",
+          data: {
+            command: commandStr,
+            subcommand,
+            full_text_command: args,
+            command_type: commandType,
+            channel_id: msg.channelId || "DM",
+            guild_id: guildId,
+            author_id: userId,
+            success: false,
+            execution_time_ms: 0,
+            message: msgToKafka,
+            interaction: interactionToKafka,
+          },
+        }
+        await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+      } catch (error) {
+        logger.error("[KafkaQueue] - failed to enqueue")
+      }
       return
     }
 

@@ -7,9 +7,6 @@ import { handlePlayTripod } from "commands/games/tripod"
 import { DiscordEvent } from "./index"
 import { wrapError } from "utils/wrapError"
 import ConversationManager from "utils/ConversationManager"
-import { kafkaQueue } from "index"
-import { KafkaQueueMessage } from "../types/common"
-import { logger } from "logger"
 
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
@@ -41,18 +38,6 @@ const events: DiscordEvent<"messageCreate"> = {
   name: "messageCreate",
   once: false,
   execute: async (message) => {
-    // keep outside wrapErr() to prevent sending error msg to discord
-    if (message.content.startsWith(PREFIX)) {
-      try {
-        const kafkaMsg: KafkaQueueMessage = {
-          platform: "discord",
-          data: message,
-        }
-        await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
-      } catch (error) {
-        logger.error("[KafkaQueue] - failed to enqueue")
-      }
-    }
     // deny handling if author is bot or message is empty (new user join server)
     wrapError(message, async () => {
       if (message.author.bot || (!message.content && !message.stickers.size))

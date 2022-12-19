@@ -6,7 +6,7 @@ import { RunResult } from "types/common"
 import defi from "adapters/defi"
 import { emojis, getEmojiURL, thumbnails } from "utils/common"
 import { OffchainTipBotTransferRequest } from "types/defi"
-import { APIError } from "errors"
+import { InternalError } from "errors"
 
 jest.mock("adapters/defi")
 const commandKey = "tip"
@@ -746,7 +746,7 @@ describe("tip", () => {
     } catch (e) {
       expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
       expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
-      expect(e).toBeInstanceOf(APIError)
+      expect(e).toBeInstanceOf(InternalError)
     }
   })
 
@@ -790,7 +790,7 @@ describe("tip", () => {
     } catch (e) {
       expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
       expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
-      expect(e).toBeInstanceOf(APIError)
+      expect(e).toBeInstanceOf(InternalError)
     }
   })
 })

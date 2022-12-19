@@ -42,7 +42,7 @@ export async function handleTip(
     throw new InternalError({
       title: "Incorrect recipients",
       description:
-        "Cannot find the recipients. Type @, then choose the valid role or username of the recipients!",
+        "Mochi cannot find the recipients. Type @ to choose valid roles or usernames!",
       message: msg,
     })
   }
@@ -54,6 +54,7 @@ export async function handleTip(
     authorId,
     targets
   )
+  const amountBeforeMoniker = payload.amount
   if (moniker) {
     payload.amount *=
       (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
@@ -70,7 +71,22 @@ export async function handleTip(
   )
 
   if (!ok) {
-    throw new APIError({ message: msg, curl, description: log, error })
+    switch (error) {
+      case "Token not supported":
+        throw new InternalError({
+          message: msg,
+          title: "Unsupported token",
+          description: `${payload.token} hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+        })
+      case "Not enough balance":
+        throw new InternalError({
+          message: msg,
+          title: "Transaction error",
+          description: `<@${authorId}>, your balance is insufficient.`,
+        })
+      default:
+        throw new APIError({ message: msg, curl, description: log, error })
+    }
   }
 
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
@@ -104,6 +120,23 @@ export async function handleTip(
     data[0].amount_in_usd,
     4
   )}) ${recipientIds.length > 1 ? "each" : ""}`
+  if (moniker) {
+    const monikerVal = moniker as ResponseMonikerConfigData
+    const amountMoniker = roundFloatNumber(
+      amountBeforeMoniker / payload.recipients.length,
+      4
+    )
+    description = `${mentionUser(
+      payload.sender
+    )} has sent ${recipientDescription} **${amountMoniker} ${
+      monikerVal?.moniker?.moniker
+    }** (= **${roundFloatNumber(
+      amountMoniker * (monikerVal?.moniker?.amount || 1)
+    )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${roundFloatNumber(
+      data[0].amount_in_usd,
+      4
+    )}) ${recipientIds.length > 1 ? "each" : ""}`
+  }
   if (messageTip) {
     description += ` with message\n\n${getEmoji(
       "conversation"

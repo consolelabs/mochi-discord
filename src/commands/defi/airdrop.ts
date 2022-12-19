@@ -24,7 +24,7 @@ import dayjs from "dayjs"
 import duration from "dayjs/plugin/duration"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { OffchainTipBotTransferRequest } from "types/defi"
-import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
+import { composeEmbedMessage } from "utils/discordEmbed"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -50,8 +50,28 @@ function composeAirdropButtons(
       style: "PRIMARY",
       label: "Confirm",
     }),
-    getExitButton(authorId, "Cancel")
+    new MessageButton({
+      customId: `cancel_airdrop-${authorId}`,
+      emoji: getEmoji("revoke"),
+      style: "SECONDARY",
+      label: "Cancel",
+    })
   )
+}
+export async function cancelAirdrop(
+  interaction: ButtonInteraction,
+  msg: Message
+) {
+  await interaction.deferUpdate()
+  await msg.edit({
+    embeds: [
+      composeEmbedMessage(msg, {
+        title: "Airdrop canceled",
+        description: "Your airdrop was successfully canceled.",
+      }),
+    ],
+    components: [],
+  })
 }
 
 export async function confirmAirdrop(
@@ -190,8 +210,8 @@ export async function enterAirdrop(
       ephemeral: true,
       embeds: [
         composeEmbedMessage(msg, {
-          title: `${defaultEmojis.ERROR} Could not enter airdrop`,
-          description: "You cannot enter your own airdrops.",
+          title: `${defaultEmojis.ERROR} Airdrop error`,
+          description: "Users cannot enter their own airdrops!",
         }),
       ],
       fetchReply: true,

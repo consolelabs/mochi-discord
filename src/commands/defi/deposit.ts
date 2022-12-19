@@ -20,7 +20,7 @@ async function deposit(msg: Message) {
       throw new InternalError({
         title: "Command error",
         message: msg,
-        description: `${tokenSymbol} hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`!\n${defaultEmojis.POINT_RIGHT} To add your token, run \`$token add-custom\` or \`$token add\`.`,
+        description: `${tokenSymbol} hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
       })
     }
     if (!ok) {
