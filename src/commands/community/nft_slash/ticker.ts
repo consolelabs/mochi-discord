@@ -4,7 +4,7 @@ import { composeEmbedMessage2 } from "utils/discordEmbed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { CommandArgumentError } from "errors"
-import { handleNftTicker } from "../nft/ticker"
+import { ChartStyle, handleNftTicker } from "../nft/ticker"
 
 const command: SlashCommand = {
   name: "ticker",
@@ -19,15 +19,36 @@ const command: SlashCommand = {
           .setDescription("NFT symbol. Example: neko")
           .setRequired(true)
       )
+      .addStringOption((option) =>
+        option
+          .setName("chart")
+          .setDescription("Chart style")
+          .setRequired(false)
+          .addChoices([
+            ["Plot", "plot"],
+            ["Line", "line"],
+          ])
+      )
   },
   run: async function (interaction: CommandInteraction) {
     const symbol = interaction.options.getString("symbol")
-    if(!symbol){
-        throw new CommandArgumentError({message: interaction, getHelpMessage: () => this.help(interaction)})
+    if (!symbol) {
+      throw new CommandArgumentError({
+        message: interaction,
+        getHelpMessage: () => this.help(interaction),
+      })
     }
 
-    return await handleNftTicker(interaction, symbol, interaction.user.id)
+    const chartStyleInput = interaction.options.getString("chart") ?? "plot"
+    const chartStyle =
+      chartStyleInput === "plot" ? ChartStyle.Plot : ChartStyle.Line
 
+    return await handleNftTicker(
+      interaction,
+      symbol,
+      interaction.user.id,
+      chartStyle
+    )
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
