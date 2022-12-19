@@ -33,7 +33,8 @@ import {
 import { commands } from "commands"
 import parse from "parse-duration"
 import config from "./config"
-import { APIError } from "errors"
+import { APIError, InternalError } from "errors"
+import { tipTokenIsSupported } from "utils/defi"
 
 const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
   //
@@ -536,6 +537,13 @@ class Defi extends Fetcher {
     const recipients: string[] = []
     const cryptocurrency = newArgs[2].toUpperCase()
 
+    if (!moniker && !(await tipTokenIsSupported(cryptocurrency))) {
+      throw new InternalError({
+        message: msg,
+        title: "Unsupported token",
+        description: `${cryptocurrency} hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+      })
+    }
     // validate airdrop amount
     let amount = parseFloat(amountArg)
     if (

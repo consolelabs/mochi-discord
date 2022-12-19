@@ -31,8 +31,13 @@ export class BotBaseError extends Error {
     if (message) {
       const reply = (message.reply as ReplyFunc).bind(message)
       this.reply = async (...args) => {
-        reply(...args).catch(() => null)
+        if (message instanceof CommandInteraction) {
+          message.editReply(...args).catch(() => null)
+        } else {
+          reply(...args).catch(() => null)
+        }
       }
+
       this.msgOrInteraction = message
       this.channel = (message.channel as TextChannel)?.name ?? "DM"
       this.guild = message.guild?.name ?? "DM"

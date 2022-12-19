@@ -75,6 +75,10 @@ export async function wrapError(
         commandType = "/"
         interactionToKafka = message
 
+        // something went wrong
+        if (!(error instanceof BotBaseError)) {
+          error = new BotBaseError(message, e.message as string)
+        }
         error.handle?.()
         ChannelLogger.alertSlash(message, error).catch(catchAll)
       }
