@@ -31,7 +31,7 @@ import {
   roundFloatNumber,
   shortenHashOrAddress,
 } from "utils/common"
-import { renderChartImage } from "utils/canvas"
+import { renderChartImage, renderPlotChartImage } from "utils/canvas"
 import dayjs from "dayjs"
 import { APIError } from "errors"
 import {
@@ -46,6 +46,11 @@ import { getDefaultSetter } from "utils/default-setters"
 const dayOpts = [1, 7, 30, 60, 90, 365]
 const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
 let originAuthorId: string
+
+export enum ChartStyle {
+  Line = "LINE",
+  Plot = "PLOT",
+}
 
 function buildSwitchViewActionRow(
   currentView: string,
@@ -101,6 +106,7 @@ async function viewTickerChart(
     collectionAddress,
     chain,
     ...(days && { days: +days }),
+    chartStyle: ChartStyle.Plot,
   })
   await msg.edit(messageOptions)
 }
@@ -216,11 +222,13 @@ async function composeCollectionTickerEmbed({
   collectionAddress,
   chain,
   days = 90,
+  chartStyle,
 }: {
   msg: Message | CommandInteraction
   collectionAddress: string
   chain: string
   days?: number
+  chartStyle: ChartStyle
 }) {
   const to = dayjs().unix() * 1000
   const from = dayjs().subtract(days, "day").unix() * 1000
@@ -255,18 +263,18 @@ async function composeCollectionTickerEmbed({
 
   const floorPriceAmount = Number(
     (+(floor_price?.amount ?? 0) / Math.pow(10, decimals(floor_price))).toFixed(
-      2
+      3
     )
   )
   const totalVolumeAmount = Number(
     (
       +(total_volume?.amount ?? 0) / Math.pow(10, decimals(floor_price))
-    ).toFixed(2)
+    ).toFixed(3)
   )
   const lastSalePriceAmount = Number(
     (
       +(last_sale_price?.amount ?? 0) / Math.pow(10, decimals(last_sale_price))
-    ).toFixed(2)
+    ).toFixed(3)
   )
   const priceToken = floor_price?.token?.symbol?.toUpperCase() ?? ""
   const marketcap = floorPriceAmount * (items ?? 0)
@@ -290,10 +298,16 @@ async function composeCollectionTickerEmbed({
       name: "Item",
       value: `${items}`,
     },
-    {
+  ]
+  if (owners && owners > 0) {
+    fields.push({
       name: "Owner",
       value: `${owners}`,
-    },
+    })
+  }
+
+  const embedFields = [
+    ...fields,
     {
       name: `Market cap (${priceToken})`,
       value: formatPrice(marketcap),
@@ -331,9 +345,9 @@ async function composeCollectionTickerEmbed({
   const embed = composeEmbedMessage(null, {
     author: [`${name}`, collectionImage],
     image: "attachment://chart.png",
-  }).addFields(fields)
+  }).addFields(embedFields)
 
-  const chart = await renderNftTickerChart({ data })
+  const chart = await renderNftTickerChart({ data, chartStyle })
   const selectRow = composeDaysSelectMenu(
     "nft_ticker_selection",
     collectionAddress,
@@ -352,7 +366,7 @@ async function composeCollectionTickerEmbed({
       components: [selectRow, buttonRow],
     },
     interactionOptions: {
-      handler,
+      handler: handler(chartStyle),
     },
   }
 }
@@ -361,10 +375,12 @@ async function renderNftTickerChart({
   collectionAddress,
   days = 90,
   data,
+  chartStyle,
 }: {
   collectionAddress?: string
   days?: number
   data?: ResponseIndexerNFTCollectionTickersData
+  chartStyle: ChartStyle
 }) {
   const to = dayjs().unix() * 1000
   const from = dayjs().subtract(days, "day").unix() * 1000
@@ -385,68 +401,104 @@ async function renderNftTickerChart({
   const token = data.floor_price?.token?.symbol ?? ""
   const fromLabel = dayjs(from).format("MMMM DD, YYYY")
   const toLabel = dayjs(to).format("MMMM DD, YYYY")
-  const chartData = data.tickers.prices.map(
-    (p) => +(p.amount ?? 0) / Math.pow(10, decimals(p))
-  )
-  const chart = await renderChartImage({
-    chartLabel: `Floor price (${token}) | ${fromLabel} - ${toLabel}`,
-    labels: data.tickers.times,
-    data: chartData,
-  })
+  let chart: Buffer
+  switch (chartStyle) {
+    case ChartStyle.Line: {
+      const chartData = data.tickers.prices.map(
+        (p) => +(p.amount ?? 0) / Math.pow(10, decimals(p))
+      )
+      chart = await renderChartImage({
+        chartLabel: `Floor price (${token}) | ${fromLabel} - ${toLabel}`,
+        labels: data.tickers.times,
+        data: chartData,
+      })
+      break
+    }
+    case ChartStyle.Plot: {
+      const prices = data.tickers.prices.map(
+        (p) => +(p.amount ?? 0) / Math.pow(10, decimals(p))
+      )
+      const times = data.tickers.timestamps ?? []
+      let plotChartData: { x: number; y: number }[]
+      if (prices.length < times.length) {
+        plotChartData = prices.map((value, index) => {
+          return {
+            x: times[index],
+            y: value,
+          }
+        })
+      } else {
+        plotChartData = times.map((value, index) => {
+          return {
+            x: value,
+            y: prices[index],
+          }
+        })
+      }
+      chart = await renderPlotChartImage({
+        chartLabel: `Floor price (${token}) | ${fromLabel} - ${toLabel}`,
+        data: plotChartData,
+      })
+      break
+    }
+  }
   return new MessageAttachment(chart, "chart.png")
 }
 
-const handler: InteractionHandler = async (msgOrInteraction) => {
-  const interaction = msgOrInteraction as SelectMenuInteraction
-  await interaction.deferUpdate().catch(() => null)
-  if (interaction.user.id !== originAuthorId) {
+const handler: (chartStyle: ChartStyle) => InteractionHandler =
+  (chartStyle) => async (msgOrInteraction) => {
+    const interaction = msgOrInteraction as SelectMenuInteraction
+    await interaction.deferUpdate().catch(() => null)
+    if (interaction.user.id !== originAuthorId) {
+      return {
+        messageOptions: {},
+      }
+    }
+    const { message } = <{ message: Message }>interaction
+    const input = interaction.values[0]
+    const [collectionAddress, days] = input.split("_")
+
+    const chart = await renderNftTickerChart({
+      collectionAddress,
+      days: +days,
+      chartStyle: chartStyle,
+    })
+
+    // update chart image
+    const [embed] = message.embeds
+    await message.removeAttachments()
+    embed.setImage("attachment://chart.png")
+
+    const selectMenu = message.components[0].components[0] as MessageSelectMenu
+    selectMenu.options.forEach(
+      (opt, i) => (opt.default = i === dayOpts.indexOf(+days))
+    )
+    // this code block stores current day selection
+    message.components[1].components.forEach((b) => {
+      const customId = b.customId
+      if (!customId?.startsWith("nft_ticker_view")) return
+      const params = customId?.split("-")
+      params[3] = days
+      b.customId = params.join("-")
+    })
+
     return {
-      messageOptions: {},
+      messageOptions: {
+        embeds: [embed],
+        files: chart ? [chart] : [],
+        components: message.components as MessageActionRow[],
+      },
+      interactionHandlerOptions: {
+        handler: handler(chartStyle),
+      },
     }
   }
-  const { message } = <{ message: Message }>interaction
-  const input = interaction.values[0]
-  const [collectionAddress, days] = input.split("_")
-
-  const chart = await renderNftTickerChart({
-    collectionAddress,
-    days: +days,
-  })
-
-  // update chart image
-  const [embed] = message.embeds
-  await message.removeAttachments()
-  embed.setImage("attachment://chart.png")
-
-  const selectMenu = message.components[0].components[0] as MessageSelectMenu
-  selectMenu.options.forEach(
-    (opt, i) => (opt.default = i === dayOpts.indexOf(+days))
-  )
-  // this code block stores current day selection
-  message.components[1].components.forEach((b) => {
-    const customId = b.customId
-    if (!customId?.startsWith("nft_ticker_view")) return
-    const params = customId?.split("-")
-    params[3] = days
-    b.customId = params.join("-")
-  })
-
-  return {
-    messageOptions: {
-      embeds: [embed],
-      files: chart ? [chart] : [],
-      components: message.components as MessageActionRow[],
-    },
-    interactionHandlerOptions: {
-      handler,
-    },
-  }
-}
 
 export async function handleNftTicker(
   msg: Message | CommandInteraction,
   symbol: string,
-  authorId: string
+  authorId: string,
+  chartStyle: ChartStyle
 ): Promise<
   RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
 > {
@@ -476,6 +528,7 @@ export async function handleNftTicker(
       msg,
       collectionAddress: suggestions[0].address ?? "",
       chain: suggestions[0].chain ?? "",
+      chartStyle,
     })
   }
 
@@ -494,6 +547,7 @@ export async function handleNftTicker(
       msg,
       collectionAddress: address,
       chain: chain_id,
+      chartStyle,
     })
   }
 
@@ -543,7 +597,12 @@ export async function handleNftTicker(
     },
     render: ({ msgOrInteraction: msg, value }) => {
       const [, , , collectionAddress, chain] = value.split("_")
-      return composeCollectionTickerEmbed({ msg, collectionAddress, chain })
+      return composeCollectionTickerEmbed({
+        msg,
+        collectionAddress,
+        chain,
+        chartStyle,
+      })
     },
     ambiguousResultText: symbol.toUpperCase(),
     multipleResultText: suggestions
@@ -563,8 +622,10 @@ const command: Command = {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
     const symbol = args[2]
+    const chartInput = args[3] ?? "plot"
+    const chartStyle = chartInput === "plot" ? ChartStyle.Plot : ChartStyle.Line
     // render embed to show multiple results
-    return await handleNftTicker(msg, symbol, msg.author.id)
+    return await handleNftTicker(msg, symbol, msg.author.id, chartStyle)
   },
   getHelpMessage: async (msg) => {
     return {
