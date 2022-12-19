@@ -33,7 +33,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
         title: `Permissions required`,
         description: `Only Administrators can use this command ${getEmoji(
           "nekosad"
-        )}.`,
+        )}. Please contact your server admins if you need help.`,
       })
     } else {
       errorEmbed = getErrorEmbed({

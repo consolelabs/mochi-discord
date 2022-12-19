@@ -4,12 +4,7 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import {
-  APIError,
-  CommandArgumentError,
-  GuildIdNotFoundError,
-  InternalError,
-} from "errors"
+import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 import { handle } from "./info"
 import { defaultEmojis } from "utils/common"
 
@@ -27,9 +22,10 @@ const command: Command = {
     const { isRole, isId, value: id } = parseDiscordToken(args[2] ?? "")
 
     if (!isRole && !isId) {
-      throw new CommandArgumentError({
+      throw new InternalError({
         message: msg,
-        getHelpMessage: () => this.getHelpMessage(msg),
+        title: "Invalid roles",
+        description: `Invalid role. Be careful not to be mistaken role with username while setting.\n\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
       })
     }
 
@@ -39,8 +35,8 @@ const command: Command = {
       if (!role) {
         throw new InternalError({
           message: msg,
-          title: "Can't find the role",
-          description: `Invalid role. Be careful not to be mistaken role with username while setting.\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+          title: "Invalid roles",
+          description: `Invalid role. Be careful not to be mistaken role with username while setting.\n\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
         })
       }
     }

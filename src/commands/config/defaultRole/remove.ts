@@ -41,7 +41,7 @@ const command: Command = {
         throw new InternalError({
           message: msg,
           title: "No default role found",
-          description: `You haven't set any default role yet. To set a new one, run \`$dr set @<role_name>\``,
+          description: `You haven't set any default role yet. To set a new one, run \`\`\`$dr set @<role_name>\`\`\`\n You can remove it later using \`$dr remove\`.`,
         })
       }
     } else {

@@ -26,8 +26,8 @@ const command: Command = {
     if (!isDiscordMessageLink(args[2])) {
       throw new InternalError({
         message: msg,
-        title: "Invalid message address",
-        description: `Can't find the messages.${troubleshootMsg}`,
+        title: "Invalid message link",
+        description: `Your message link is invalid. Make sure that message exists, or that you have entered the link correctly.${troubleshootMsg}`,
       })
     }
 
@@ -39,8 +39,9 @@ const command: Command = {
     const { isRole, value: roleId } = parseDiscordToken(args[4])
     if (!isRole || !roleId) {
       throw new InternalError({
-        title: "Can't find the role",
-        description: `Invalid role. Be careful not to be mistaken role with username while setting.\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+        message: msg,
+        title: "Invalid roles",
+        description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
       })
     }
 
