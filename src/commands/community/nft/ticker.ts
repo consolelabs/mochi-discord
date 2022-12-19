@@ -298,16 +298,14 @@ async function composeCollectionTickerEmbed({
       name: "Item",
       value: `${items}`,
     },
-  ]
-  if (owners && owners > 0) {
-    fields.push({
-      name: "Owner",
-      value: `${owners}`,
-    })
-  }
-
-  const embedFields = [
-    ...fields,
+    ...(owners && owners > 0
+      ? [
+          {
+            name: "Owner",
+            value: `${owners}`,
+          },
+        ]
+      : []),
     {
       name: `Market cap (${priceToken})`,
       value: formatPrice(marketcap),
@@ -345,7 +343,7 @@ async function composeCollectionTickerEmbed({
   const embed = composeEmbedMessage(null, {
     author: [`${name}`, collectionImage],
     image: "attachment://chart.png",
-  }).addFields(embedFields)
+  }).addFields(fields)
 
   const chart = await renderNftTickerChart({ data, chartStyle })
   const selectRow = composeDaysSelectMenu(
