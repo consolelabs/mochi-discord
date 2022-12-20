@@ -175,11 +175,19 @@ const command: SlashCommand = {
             })
           }
         } else {
-          description = `Failed to remove this reaction role configuration.`
+          throw new InternalError({
+            message,
+            title: "Unsuccessful",
+            description: `You haven't set this reaction role yet. To set a new one, run \`\`\`${PREFIX}rr set <message_link> <emoji> <role>\`\`\`\n You can remove it later using \`${PREFIX}rr remove\`.`,
+          })
         }
       } catch (error) {
         ChannelLogger.log(error as BotBaseError)
-        description = `Failed to remove this reaction role configuration.`
+        throw new InternalError({
+          message,
+          title: "Unsuccessful",
+          description: `You haven't set this reaction role yet. To set a new one, run \`\`\`${PREFIX}rr set <message_link> <emoji> <role>\`\`\`\n You can remove it later using \`${PREFIX}rr remove\`.`,
+        })
       }
     }
 
