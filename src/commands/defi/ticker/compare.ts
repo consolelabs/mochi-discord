@@ -23,8 +23,9 @@ import CacheManager from "utils/CacheManager"
 import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
 import comparefiat from "./compare_fiat"
-import { CommandArgumentError } from "errors"
+import { InternalError } from "errors"
 import { parseFiatQuery } from "utils/defi"
+import { defaultEmojis } from "utils/common"
 
 export async function renderCompareTokenChart({
   times,
@@ -112,9 +113,11 @@ async function composeTokenComparisonEmbed(
     call: () => defi.compareToken(msg.guildId ?? "", baseQ, targetQ, 30),
   })
   if (!ok) {
-    return {
-      messageOptions: { embeds: [getErrorEmbed({ msg })] },
-    }
+    throw new InternalError({
+      title: "Unsupported token/fiat",
+      message: msg,
+      description: `Token is invalid or hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${defaultEmojis.POINT_RIGHT} or Please choose a valid fiat currency.`,
+    })
   }
 
   const { base_coin_suggestions, target_coin_suggestions } = data
@@ -253,10 +256,10 @@ const command: Command = {
 
     // validate
     if (base.toLowerCase() === target.toLowerCase()) {
-      throw new CommandArgumentError({
+      throw new InternalError({
         message: msg,
-        description: "Base and target tokens cannot be the same",
-        getHelpMessage: () => this.getHelpMessage(msg),
+        title: "Ticker error",
+        description: `${defaultEmojis.POINT_RIGHT} You need to enter **different** tokens/fiats for the base and target.\n${defaultEmojis.POINT_RIGHT} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }
     // crypto case

@@ -5,10 +5,11 @@ import {
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { CommandArgumentError } from "errors"
+import { InternalError } from "errors"
 import { Command } from "types/common"
 import CacheManager from "utils/CacheManager"
 import { getCommandArguments } from "utils/commands"
+import { defaultEmojis } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TICKER_GITBOOK } from "utils/constants"
 import { parseFiatQuery } from "utils/defi"
 import {
@@ -36,9 +37,11 @@ async function composeFiatComparisonEmbed(
     call: () => defi.getFiatHistoricalData({ base, target }),
   })
   if (!ok) {
-    return {
-      messageOptions: { embeds: [getErrorEmbed({ msg })] },
-    }
+    throw new InternalError({
+      title: "Unsupported token/fiat",
+      message: msg,
+      description: `Token is invalid or hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${defaultEmojis.POINT_RIGHT} or Please choose a valid fiat currency.`,
+    })
   }
 
   const { times, rates: ratios, latest_rate, from, to } = data
@@ -132,11 +135,11 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const [query] = args.slice(1)
     const [base, target] = parseFiatQuery(query)
-    if (!base) {
-      throw new CommandArgumentError({
+    if (base === target) {
+      throw new InternalError({
         message: msg,
-        description: "Base and target currencies cannot be the same",
-        getHelpMessage: () => this.getHelpMessage(msg),
+        title: "Ticker error",
+        description: `${defaultEmojis.POINT_RIGHT} You need to enter **different** tokens/fiats for the base and target.\n${defaultEmojis.POINT_RIGHT} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }
     return await composeFiatComparisonEmbed(msg, base, target)

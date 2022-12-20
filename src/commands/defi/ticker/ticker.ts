@@ -416,9 +416,13 @@ const command: Command = {
     if (!ok) throw new APIError({ message: msg, curl, description: log })
     if (!coins || !coins.length) {
       throw new InternalError({
-        title: "Invalid symbol",
+        title: "Unsupported token/fiat",
         message: msg,
-        description: `${defaultEmojis.POINT_RIGHT} Cannot find any token with \`${base}\`.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`!`,
+        description: `**${base.toUpperCase()}** is invalid or hasn't been supported.\n${
+          defaultEmojis.POINT_RIGHT
+        } Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${
+          defaultEmojis.POINT_RIGHT
+        } or Please choose a valid fiat currency.`,
       })
     }
 
