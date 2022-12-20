@@ -26,7 +26,6 @@ import { parseDiscordToken, getCommandArguments } from "utils/commands"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import community from "adapters/community"
 import { composeNFTDetail } from "commands/community/nft/query"
-import { InternalError } from "errors"
 
 // TODO: this is a global var (one bot instance but multiple users are changing it - could lead to unpredictable error)
 let currentCollectionAddress: string | undefined
@@ -492,7 +491,8 @@ async function composeMyNFTEmbed(
   const getNftDetailResp = await community.getNFTDetail(
     userNft.collection_address,
     userNft.token_id,
-    msg.guildId ?? ""
+    msg.guildId ?? "",
+    true
   )
   if (!getNftDetailResp.ok) {
     return {

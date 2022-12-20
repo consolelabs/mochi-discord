@@ -100,13 +100,15 @@ class Community extends Fetcher {
   public async getNFTDetail(
     collectionSymbol: string,
     tokenId: string,
-    guildId: string
+    guildId: string,
+    queryAddress: boolean
   ) {
     return await this.jsonFetch<NFTDetail>(
       `${API_BASE_URL}/nfts/${collectionSymbol}/${tokenId}`,
       {
         query: {
           guildId,
+          queryAddress,
         },
       }
     )
@@ -127,9 +129,20 @@ class Community extends Fetcher {
     )
   }
 
-  public async getNFTCollectionDetail(collectionAddress: string) {
+  public async getNFTCollectionDetail({
+    collectionAddress,
+    queryAddress,
+  }: {
+    collectionAddress: string
+    queryAddress: boolean
+  }) {
     return await this.jsonFetch<{ data: NFTCollection }>(
-      `${API_BASE_URL}/nfts/collections/${collectionAddress}/detail`
+      `${API_BASE_URL}/nfts/collections/${collectionAddress}/detail`,
+      {
+        query: {
+          queryAddress,
+        },
+      }
     )
   }
 

@@ -347,13 +347,15 @@ async function fetchAndComposeNFTDetail(
   tokenId: string,
   chain: string
 ) {
-  const collectionDetailRes = await community.getNFTCollectionDetail(
-    collectionAddress
-  )
+  const collectionDetailRes = await community.getNFTCollectionDetail({
+    collectionAddress,
+    queryAddress: true,
+  })
   const res = await community.getNFTDetail(
     collectionAddress,
     tokenId,
-    msg.guildId ?? ""
+    msg.guildId ?? "",
+    true
   )
   if (!res.ok) {
     throw new APIError({ message: msg, curl: res.curl, description: res.log })
@@ -632,7 +634,12 @@ const command: Command = {
       .reduce((prev, next) => prev + "%20" + next)
       .toUpperCase()
     const tokenId = args[args.length - 1]
-    const res = await community.getNFTDetail(symbol, tokenId, msg.guildId ?? "")
+    const res = await community.getNFTDetail(
+      symbol,
+      tokenId,
+      msg.guildId ?? "",
+      false
+    )
 
     if (!res.ok) {
       throw new APIError({ message: msg, curl: res.curl, description: res.log })
@@ -641,7 +648,10 @@ const command: Command = {
     let replyMsg: Message | null = null
     // great, we have data
     if (res.data?.collection_address) {
-      const collectionDetailRes = await community.getNFTCollectionDetail(symbol)
+      const collectionDetailRes = await community.getNFTCollectionDetail({
+        collectionAddress: res.data.collection_address,
+        queryAddress: true,
+      })
       if (collectionDetailRes.ok) {
         replyMsg = await msg.reply({
           embeds: [
@@ -725,9 +735,13 @@ const command: Command = {
         const res = await community.getNFTDetail(
           colAddress,
           tokenId,
-          msg.guildId ?? ""
+          msg.guildId ?? "",
+          true
         )
-        const detailRes = await community.getNFTCollectionDetail(colAddress)
+        const detailRes = await community.getNFTCollectionDetail({
+          collectionAddress: colAddress,
+          queryAddress: true,
+        })
 
         if (!res.ok) {
           throw new APIError({
