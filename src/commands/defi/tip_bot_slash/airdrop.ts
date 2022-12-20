@@ -20,10 +20,11 @@ const command: SlashCommand = {
     return new SlashCommandBuilder()
       .setName("airdrop")
       .setDescription("Airdrop tokens for a specified number of users.")
-      .addStringOption((option) =>
+      .addNumberOption((option) =>
         option
           .setName("amount")
           .setDescription("amount you want to airdrop. Example: 5")
+          .setMinValue(0.0001)
           .setRequired(true)
       )
       .addStringOption((option) =>
@@ -52,7 +53,7 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({})
     }
 
-    const amount = interaction.options.getString("amount")
+    const amount = interaction.options.getNumber("amount")
     const token = interaction.options.getString("token")
     const duration = interaction.options.getString("duration")
     const entries = interaction.options.getString("entries")
@@ -66,7 +67,7 @@ const command: SlashCommand = {
 
     const payload = await Defi.getAirdropPayload(interaction, [
       "airdrop",
-      amount,
+      amount.toString(),
       token,
       "in",
       duration,

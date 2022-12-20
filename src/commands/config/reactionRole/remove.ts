@@ -40,8 +40,8 @@ const command: Command = {
     if (!isDiscordMessageLink(args[2])) {
       throw new InternalError({
         message: msg,
-        title: "Wrong message address",
-        description: `${defaultEmojis.POINT_RIGHT} Run \`$rr list\` to find a role then Click “Jump” to jump to the message\n${defaultEmojis.POINT_RIGHT} *Click “More” on your messages then choose “Copy Message Link”*\n${defaultEmojis.POINT_RIGHT} *Or go [here*](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) *for instructions.*`,
+        title: "Invalid message link",
+        description: `Your message link is invalid. Make sure that message exists, or that you have entered the link correctly.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions.`,
       })
     }
 
@@ -90,11 +90,6 @@ const command: Command = {
             title: "Can't find the role",
             description: `Invalid role. Be careful not to be mistaken role with username while using \`@\`.\n${defaultEmojis.POINT_RIGHT} Run \`$rr list\` to find a configured role then Click “Jump” to jump to the message.`,
           })
-          return {
-            messageOptions: {
-              embeds: [getErrorEmbed({ msg, description: "Role not found" })],
-            },
-          }
         }
         requestData = {
           guild_id: msg.guild.id,
@@ -141,11 +136,19 @@ const command: Command = {
             })
           }
         } else {
-          description = `Failed to remove this reaction role configuration.`
+          throw new InternalError({
+            message: msg,
+            title: "Unsuccessful",
+            description: `You haven't set this reaction role yet. To set a new one, run \`\`\`${PREFIX}rr set <message_link> <emoji> <role>\`\`\`\n You can remove it later using \`${PREFIX}rr remove\`.`,
+          })
         }
       } catch (error) {
         ChannelLogger.log(error as BotBaseError)
-        description = `Failed to remove this reaction role configuration.`
+        throw new InternalError({
+          message: msg,
+          title: "Unsuccessful",
+          description: `You haven't set this reaction role yet. To set a new one, run \`\`\`${PREFIX}rr set <message_link> <emoji> <role>\`\`\`\n You can remove it later using \`${PREFIX}rr remove\`.`,
+        })
       }
     }
 

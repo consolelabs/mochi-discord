@@ -23,9 +23,9 @@ export function throwOnInvalidEmoji(emoji: string, msg: OriginalMessage) {
   if (!isValidEmoji) {
     throw new InternalError({
       message: msg,
-      title: "Unsupported Emoji",
+      title: "Unsupported emojis",
       description:
-        "👉 Please use the **custom emoji/sticker from this server** and the **Discord default emoji/sticker**",
+        "👉 Please use an emoji from this server or in the Discord default list.",
     })
   }
 }

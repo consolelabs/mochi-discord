@@ -12,14 +12,16 @@ export async function handle(msg: OriginalMessage, statusText = "") {
     throw new GuildIdNotFoundError({})
   }
 
-  let description = `No default role found! To set, run \`\`\`${PREFIX}dr set @<role>\`\`\``
+  const result = {
+    isError: true,
+    description: `You haven't set any default roles yet! To set a new one, run \`\`\`${PREFIX}dr set @<role>\`\`\`\nThen re-check your configuration with \`${PREFIX}dr info\`\nOr you can remove it later using \`${PREFIX}dr remove\`.`,
+  }
 
   const res = await config.getCurrentDefaultRole(msg.guildId)
   if (res.ok) {
     if (res.data.role_id) {
-      description = `When people first join your server, their base role will be <@&${res.data.role_id}>`
-    } else {
-      description = `No default role found! To set, run \`\`\`${PREFIX}dr set @<role>\`\`\``
+      result.description = `When people first join your server, their base role will be <@&${res.data.role_id}>`
+      result.isError = false
     }
   } else {
     throw new APIError({
@@ -30,14 +32,21 @@ export async function handle(msg: OriginalMessage, statusText = "") {
     })
   }
 
+  const { description, isError } = result
   const embed =
     msg instanceof Message
       ? composeEmbedMessage(msg, {
-          author: ["Default role", getEmojiURL(emojis.NEKO1)],
+          author: [
+            isError ? "No default roles found" : "Default role",
+            isError ? getEmojiURL(emojis.REVOKE) : getEmojiURL(emojis.NEKO1),
+          ],
           description,
         })
       : composeEmbedMessage2(msg as CommandInteraction, {
-          author: ["Default role", getEmojiURL(emojis.NEKO1)],
+          author: [
+            isError ? "No default roles found" : "Default role",
+            isError ? getEmojiURL(emojis.REVOKE) : getEmojiURL(emojis.NEKO1),
+          ],
           description,
         })
 
