@@ -21,6 +21,8 @@ import config from "adapters/config"
 import CacheManager from "utils/CacheManager"
 import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
+import { InternalError } from "errors"
+import { defaultEmojis } from "utils/common"
 
 async function renderCompareTokenChart({
   times,
@@ -108,9 +110,11 @@ async function composeTokenComparisonEmbed(
     call: () => defi.compareToken(interaction.guildId ?? "", baseQ, targetQ, 7),
   })
   if (!ok) {
-    return {
-      messageOptions: { embeds: [getErrorEmbed({})] },
-    }
+    throw new InternalError({
+      title: "Unsupported token/fiat",
+      message: interaction,
+      description: `Token is invalid or hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${defaultEmojis.POINT_RIGHT} or Please choose a valid fiat currency.`,
+    })
   }
 
   const { base_coin_suggestions, target_coin_suggestions } = data

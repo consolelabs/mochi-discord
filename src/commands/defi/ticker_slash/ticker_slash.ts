@@ -354,8 +354,9 @@ const command: SlashCommand = {
       })
     if (!coins || !coins.length) {
       throw new InternalError({
+        title: "Unsupported token/fiat",
         message: interaction,
-        description: `Cannot find any cryptocurrency with \`${baseQ}\`.\nPlease choose another one!`,
+        description: `Token is invalid or hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${defaultEmojis.POINT_RIGHT} or Please choose a valid fiat currency.`,
       })
     }
 

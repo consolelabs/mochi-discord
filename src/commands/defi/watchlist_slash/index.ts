@@ -46,7 +46,9 @@ export function handleUpdateWlError(
       } Add your token by \`$token add-custom\` or \`$token add\`.`
       break
     case error.toLowerCase().startsWith("conflict") && !isRemove:
-      description = `Token existed. Please add another one!`
+      description = `**${symbol.toUpperCase()}** has already been added to your watchlist.\n${
+        defaultEmojis.POINT_RIGHT
+      } Please choose another one listed on [CoinGecko](https://www.coingecko.com).`
       break
     default:
       break
