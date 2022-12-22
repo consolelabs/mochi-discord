@@ -6,7 +6,7 @@ import { RunResult } from "types/common"
 import defi from "adapters/defi"
 import { emojis, getEmojiURL, thumbnails } from "utils/common"
 import { OffchainTipBotTransferRequest } from "types/defi"
-import { InternalError } from "errors"
+import { APIError, InternalError } from "errors"
 
 jest.mock("adapters/defi")
 const commandKey = "tip"
@@ -713,52 +713,50 @@ describe("tip", () => {
     assertDescription(output, expected)
   })
 
-  // test("insufficient balance", async () => {
-  //   const msg = makeTipMessage("$tip <@!760874365037314100> 10 cake")
-  //   const tipPayload: OffchainTipBotTransferRequest = {
-  //     sender: userId,
-  //     recipients: ["760874365037314100"],
-  //     guildId: msg.guild_id,
-  //     channelId: msg.channel_id,
-  //     amount: 5,
-  //     token: "CAKE",
-  //     each: false,
-  //     all: false,
-  //     transferType: "tip",
-  //     duration: 0,
-  //     fullCommand: "",
-  //   }
-  //   const syntaxTargets = {
-  //     targets: ["<@!760874365037314100>"],
-  //     isValid: true,
-  //   }
-  //   const transferResp = {
-  //     error: "Not enough balance",
-  //   }
-  //   const moniker = {
-  //     newArgs: ["tip", "<@!760874365037314100>", "10", "cake"],
-  //     moniker: undefined,
-  //   }
-  //   const msgTip = {
-  //     newArgs: ["tip", "<@!760874365037314100>", "10", "cake"],
-  //     messageTip: "",
-  //   }
-  //   const expected = defi.composeInsufficientBalanceEmbed(msg, 5, 10, "CAKE")
-  //   defi.tipTokenIsSupported = jest.fn().mockResolvedValueOnce(true)
-  //   defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
-  //   defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
-  //   defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
-  //   defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
-  //   //defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
-  //   //defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+  test("insufficient balance", async () => {
+    const msg = makeTipMessage("$tip <@!760874365037314100> 10 cake")
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: ["760874365037314100"],
+      guildId: msg.guild_id,
+      channelId: msg.channel_id,
+      amount: 5,
+      token: "CAKE",
+      each: false,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const syntaxTargets = {
+      targets: ["<@!760874365037314100>"],
+      isValid: true,
+    }
+    const transferResp = {
+      error: "Not enough balance",
+    }
+    const moniker = {
+      newArgs: ["tip", "<@!760874365037314100>", "10", "cake"],
+      moniker: undefined,
+    }
+    const msgTip = {
+      newArgs: ["tip", "<@!760874365037314100>", "10", "cake"],
+      messageTip: "",
+    }
+    defi.tipTokenIsSupported = jest.fn().mockResolvedValueOnce(true)
+    defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
+    defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
+    defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
+    defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
+    defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
 
-  //   const output = (await command.run(msg)) as RunResult<MessageOptions>
-  //   expect(defi.getInsuffientBalanceEmbed).toHaveBeenCalledTimes(1)
-  //   expect(defi.getTipPayload).toHaveBeenCalledTimes(1)
-  //   expect(defi.offchainGetUserBalances).toHaveBeenCalledTimes(1)
-
-  //   assertDescription(output, expected)
-  // })
+    try {
+      await command.run(msg)
+    } catch (e) {
+      expect(e).toBeInstanceOf(APIError)
+    }
+  })
 
   test("token not supported", async () => {
     const msg = makeTipMessage("$tip <@!760874365037314100> 1.5 alt")
