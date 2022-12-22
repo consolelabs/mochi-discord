@@ -24,7 +24,7 @@ export async function pruneInactiveExecute(i: ButtonInteraction, days: number) {
     ephemeral: true,
     embeds: [
       composeEmbedMessage(null, {
-        title: "Prune successful",
+        title: `${getEmoji("APPROVE")} Successfully pruned`,
         description: `You have pruned ${pruned} members`,
       }),
     ],
@@ -57,7 +57,7 @@ const command: Command = {
             composeEmbedMessage(msg, {
               author: ["No users to prune", getEmojiURL(emojis.REVOKE)],
               description: `No one is inactive for ${days} days, let's put down the prune stick! ${getEmoji(
-                "touch"
+                "TOUCH"
               )}`,
             }),
           ],
@@ -66,8 +66,8 @@ const command: Command = {
     }
 
     const embed = composeEmbedMessage(msg, {
-      title: "Confirm Pruning",
-      description: `You will prune **${pruned}** inactive members, do you want to continue?`,
+      title: `${getEmoji("APPROVE_GREY")} Confirm Pruning`,
+      description: `You will remove **${pruned}** inactive members, do you want to continue?`,
     })
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({

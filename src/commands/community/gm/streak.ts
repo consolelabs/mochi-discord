@@ -24,7 +24,7 @@ export async function handle(authorId: string, guildId: string) {
     messageOptions: {
       embeds: [
         new MessageEmbed()
-          .setTitle(`GM/GN streak`)
+          .setTitle(`${getEmoji("GM")} GM/GN streak`)
           .setDescription(
             `GM streak: **${res.data.streak_count}**\n${daysCheckedIcons}`
           )

@@ -12,6 +12,7 @@ import {
   pruneRoleExecute,
 } from "../prune/without"
 import { InternalError } from "errors"
+import { getEmoji } from "utils/common"
 
 export async function pruneWithoutRole(interaction: CommandInteraction) {
   if (!interaction.guild) {
@@ -41,7 +42,9 @@ export async function pruneWithoutRole(interaction: CommandInteraction) {
         embeds: [
           composeEmbedMessage(null, {
             title: "No users to prune",
-            description: `Everyone has the role ${role}, let's put down the prune stick`,
+            description: `Everyone has the role ${
+              role.name
+            }, let's put down the prune stick ${getEmoji("TOUCH")}`,
           }),
         ],
       },
@@ -49,7 +52,7 @@ export async function pruneWithoutRole(interaction: CommandInteraction) {
   }
 
   const embed = composeEmbedMessage(null, {
-    title: ":wave: Confirm Pruning",
+    title: `${getEmoji("APPROVE_GREY")} Confirm Pruning`,
     description: `You will prune **${willPrune.size}** members without role ${role}, do you want to continue?`,
   })
   const actionRow = new MessageActionRow().addComponents(
