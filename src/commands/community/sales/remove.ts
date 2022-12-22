@@ -20,6 +20,7 @@ import {
 } from "discord.js"
 import {
   authorFilter,
+  defaultEmojis,
   emojis,
   getEmoji,
   getEmojiURL,
@@ -215,10 +216,9 @@ export async function handleSalesRemove(
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            title: "Remove Sales Tracker",
+            title: "No tracker found!",
             emojiUrl: getEmojiURL(emojis.LEADERBOARD),
-            description:
-              "There is no collection tracked. You can add a collection to track sales by `$sales track <channel> <address> <chain_id/chain_symbol>`.",
+            description: `You haven't set up any sales trackers yet. \n${defaultEmojis.POINT_RIGHT} To set a new one, run \`sales track <channel> <address> <chain_id>\` (or \`<chain_symbol>\`). \n${defaultEmojis.POINT_RIGHT} You can remove it later using \`sales remove.\``,
           }),
         ],
       },

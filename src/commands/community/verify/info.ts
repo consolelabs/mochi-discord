@@ -3,7 +3,7 @@ import community from "adapters/community"
 import { PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { APIError, GuildIdNotFoundError } from "errors"
-import { emojis, getEmojiURL } from "utils/common"
+import { defaultEmojis, emojis, getEmojiURL } from "utils/common"
 import { Message } from "discord.js"
 
 export async function runVerify(msg: Message | null, guildId: string | null) {
@@ -23,8 +23,9 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
+            title: "No verified channel found",
             author: ["Verify", getEmojiURL(emojis.APPROVE)],
-            description: `No config found`,
+            description: `You haven't set a channel for verification.\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${defaultEmojis.POINT_RIGHT} Then re-check your configuration using \`verify info.\``,
           }),
         ],
       },
