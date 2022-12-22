@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders"
+import defi from "adapters/defi"
 import { CommandInteraction, MessageOptions } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { SlashCommand } from "types/common"
 import { authorFilter, getEmoji } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, SLASH_PREFIX } from "utils/constants"
-import { tipTokenIsSupported } from "utils/defi"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import { buildButtonsRow, handleStatement } from "../statements"
 
@@ -77,7 +77,7 @@ const command: SlashCommand = {
   run: async function (interaction: CommandInteraction) {
     let token = interaction.options.getString("token")
     if (token) {
-      const tokenValid = await tipTokenIsSupported(token)
+      const tokenValid = await defi.tipTokenIsSupported(token)
       if (!tokenValid) {
         return {
           messageOptions: {
