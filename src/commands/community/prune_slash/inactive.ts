@@ -46,7 +46,7 @@ export async function pruneInactive(interaction: CommandInteraction) {
           composeEmbedMessage(null, {
             author: ["No users to prune", getEmojiURL(emojis.REVOKE)],
             description: `No one is inactive for ${days} days, let's put down the prune stick! ${getEmoji(
-              "touch"
+              "TOUCH"
             )}`,
           }),
         ],
@@ -55,8 +55,8 @@ export async function pruneInactive(interaction: CommandInteraction) {
   }
 
   const embed = composeEmbedMessage(null, {
-    title: "Confirm Pruning",
-    description: `You will prune **${pruned}** inactive members, do you want to continue?`,
+    title: `${getEmoji("APPROVE_GREY")} Confirm Pruning`,
+    description: `You will remove **${pruned}** inactive members, do you want to continue?`,
   })
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({

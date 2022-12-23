@@ -3,8 +3,8 @@ import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
 import { getErrorEmbed, composeEmbedMessage } from "utils/discordEmbed"
 import community from "adapters/community"
-import { emojis, getEmojiURL } from "utils/common"
-import { APIError } from "errors"
+import { defaultEmojis, emojis, getEmojiURL } from "utils/common"
+import { APIError, InternalError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
 
 export async function handleSalesTrack(
@@ -46,6 +46,12 @@ export async function handleSalesTrack(
   )
 
   if (!res.ok) {
+    if (res.error === "invalid contract address")
+      throw new InternalError({
+        title: "Invalid address",
+        description:
+          "The NFT collection address is invalid. Please check again.",
+      })
     throw new APIError({ message: msg, curl: res.curl, description: res.log })
   }
 
@@ -87,7 +93,8 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: "Invalid channel. Please choose another one!",
+              title: "Invalid channel",
+              description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${defaultEmojis.POINT_RIGHT} Type # to see channel list.\n${defaultEmojis.POINT_RIGHT} To add a new channel: 1. Create channel → 2. Confirm`,
             }),
           ],
         },

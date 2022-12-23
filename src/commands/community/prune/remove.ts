@@ -31,6 +31,7 @@ const command: Command = {
     if (!isRole) {
       throw new InternalError({
         message: msg,
+        title: "Command error",
         description:
           "Invalid role. Be careful not to be mistaken role with username while using `@`.",
       })
@@ -44,7 +45,7 @@ const command: Command = {
           getSuccessEmbed({
             msg,
             title: "Successfully removed!",
-            description: `<@&${id}> is no longer whitelisted.`,
+            description: `<@&${id}> is no longer safelisted.`,
           }),
         ],
       },

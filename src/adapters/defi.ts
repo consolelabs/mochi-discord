@@ -34,7 +34,6 @@ import { commands } from "commands"
 import parse from "parse-duration"
 import config from "./config"
 import { APIError, InternalError } from "errors"
-import { tipTokenIsSupported } from "utils/defi"
 
 const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
   //
@@ -66,6 +65,46 @@ class Defi extends Fetcher {
     return !m.user.bot
   }
 
+  public async tipTokenIsSupported(symbol: string): Promise<boolean> {
+    const { ok, error, curl, log, data } = await this.getAllTipBotTokens()
+    if (!ok) {
+      throw new APIError({ curl, description: log, error })
+    }
+    const tokens = data.map((t: any) => t.token_symbol.toUpperCase())
+    if (tokens.includes(symbol.toUpperCase())) return true
+    return false
+  }
+
+  public async getInsuffientBalanceEmbed(
+    msg: Message | CommandInteraction,
+    userId: string,
+    token: string,
+    amount: number,
+    isAll: boolean
+  ) {
+    // check balance
+    const { ok, data, curl, error } = await this.offchainGetUserBalances({
+      userId,
+    })
+    if (!ok) {
+      throw new APIError({ message: msg, curl: curl, error: error })
+    }
+    let currentBal = 0
+    data?.forEach((bal: any) => {
+      if (token.toUpperCase() === bal.symbol.toUpperCase()) {
+        currentBal = bal.balances
+      }
+    })
+    if (currentBal < amount && !isAll) {
+      return this.composeInsufficientBalanceEmbed(
+        msg,
+        currentBal,
+        amount,
+        token
+      )
+    }
+    return null
+  }
   async parseRecipients(
     msg: Message | CommandInteraction,
     targets: string[],
@@ -534,11 +573,11 @@ class Defi extends Fetcher {
     const recipients: string[] = []
     const cryptocurrency = newArgs[2].toUpperCase()
 
-    if (!moniker && !(await tipTokenIsSupported(cryptocurrency))) {
+    if (!moniker && !(await this.tipTokenIsSupported(cryptocurrency))) {
       throw new InternalError({
         message: msg,
         title: "Unsupported token",
-        description: `${cryptocurrency} hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+        description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
       })
     }
     // validate airdrop amount

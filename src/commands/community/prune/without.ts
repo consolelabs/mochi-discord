@@ -10,6 +10,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { InternalError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
+import { getEmoji } from "utils/common"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getExitButton } from "utils/discordEmbed"
 import { getExcludedRoles } from "./whitelist"
@@ -84,6 +85,7 @@ const command: Command = {
     if (!isRole) {
       throw new InternalError({
         message: msg,
+        title: "Command error",
         description:
           "Invalid role. Be careful not to be mistaken role with username while using `@`.",
       })
@@ -93,6 +95,7 @@ const command: Command = {
     if (!role) {
       throw new InternalError({
         message: msg,
+        title: "Command error",
         description:
           "Invalid role. Be careful not to be mistaken role with username while using `@`.",
       })
@@ -105,7 +108,9 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: "No users to prune",
-              description: `Everyone has the role ${role.name}, let's put down the prune stick`,
+              description: `Everyone has the role ${
+                role.name
+              }, let's put down the prune stick ${getEmoji("TOUCH")}`,
             }),
           ],
         },
@@ -113,7 +118,7 @@ const command: Command = {
     }
 
     const embed = composeEmbedMessage(msg, {
-      title: ":wave: Confirm Pruning",
+      title: `${getEmoji("APPROVE_GREY")} Confirm Pruning`,
       description: `There are **${willPrune.size}** members without role ${role.name}, do you want to continue?`,
     })
     const actionRow = new MessageActionRow().addComponents(

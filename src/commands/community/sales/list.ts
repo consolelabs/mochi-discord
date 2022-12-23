@@ -6,7 +6,7 @@ import {
   composeSimpleSelection,
 } from "utils/discordEmbed"
 import community from "adapters/community"
-import { capFirst, shortenHashOrAddress } from "utils/common"
+import { capFirst, defaultEmojis, shortenHashOrAddress } from "utils/common"
 import { APIError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
 
@@ -23,7 +23,8 @@ export async function handleSalesList(
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            description: `You have no tracker setup`,
+            title: "No tracker found!",
+            description: `You haven't set up any sales trackers yet.\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`sales track <channel> <address> <chain_id>\` (or \`<chain_symbol>\`).\n${defaultEmojis.POINT_RIGHT} Then re-check your configuration using \`sales list\`.`,
           }),
         ],
       },
