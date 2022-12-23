@@ -13,7 +13,8 @@ export async function callAPI(
   chainId: string,
   userId: string,
   guildId: string,
-  msg: Message | undefined
+  msg: Message | undefined,
+  priorityFlag: boolean
 ) {
   // create store collection payload
   const collection = {
@@ -23,6 +24,7 @@ export async function callAPI(
     guild_id: guildId,
     message_id: msg?.id,
     channel_id: msg?.channelId,
+    priority_flag: priorityFlag,
   }
   // run store collection API
   const respCollection = await fetch(`${API_BASE_URL}/nfts/collections`, {
@@ -148,7 +150,8 @@ export async function executeNftAddCommand(args: string[], msg: Message) {
     args[3],
     msg.author.id,
     msg.guildId ?? "",
-    msg
+    msg,
+    args[4] === "priority"
   )
 
   return toEmbed(storeCollectionRes, supportedChainsRes, msg)
