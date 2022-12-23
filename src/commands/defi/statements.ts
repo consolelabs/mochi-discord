@@ -17,7 +17,6 @@ import { UserBalances } from "types/defi"
 import { getCommandArguments } from "utils/commands"
 import { getEmoji, paginate, roundFloatNumber } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX } from "utils/constants"
-import { tipTokenIsSupported } from "utils/defi"
 import { composeEmbedMessage } from "utils/discordEmbed"
 
 export async function handleStatement(
@@ -243,7 +242,7 @@ const command: Command = {
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
     const token = args.length > 1 ? args[1] : ""
-    const tokenValid = await tipTokenIsSupported(token)
+    const tokenValid = await defi.tipTokenIsSupported(token)
     if (args.length > 1 && !tokenValid) {
       return {
         messageOptions: {

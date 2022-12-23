@@ -33,29 +33,32 @@ export async function getDestinationAddress(
 }
 
 async function withdraw(msg: Message, args: string[]) {
-  if (args.length < 4) {
-    throw new CommandArgumentError({
-      message: msg,
-      getHelpMessage: () => command.getHelpMessage(msg),
-    })
-  }
   const payload = await Defi.getWithdrawPayload(msg, args[1], args[2], args[3])
+  // check balance
+  const invalidBalEmbed = await Defi.getInsuffientBalanceEmbed(
+    msg,
+    payload.recipient,
+    payload.token,
+    payload.amount,
+    payload.all ?? false
+  )
+  if (invalidBalEmbed) {
+    return {
+      embeds: [invalidBalEmbed],
+    }
+  }
+
   const { data, ok, error, log, curl } = await Defi.offchainDiscordWithdraw(
     payload
   )
+
   if (!ok) {
     switch (error) {
       case "Token not supported":
         throw new InternalError({
           message: msg,
           title: "Unsupported token",
-          description: `${payload.token} hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
-        })
-      case "Not enough balance":
-        throw new InternalError({
-          message: msg,
-          title: "Transaction error",
-          description: `<@${msg.author.id}>, your balance is insufficient.`,
+          description: `**${payload.token.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
         })
       default:
         throw new APIError({ message: msg, curl, description: log, error })
@@ -102,6 +105,28 @@ const command: Command = {
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
+    // $withdraw n <token>
+    if (args.length < 3 || Number.isNaN(args[1])) {
+      throw new CommandArgumentError({
+        message: msg,
+        getHelpMessage: () => command.getHelpMessage(msg),
+      })
+    }
+    // check balance
+    const invalidBalEmbed = await Defi.getInsuffientBalanceEmbed(
+      msg,
+      msg.author.id,
+      args[2],
+      Number(args[1]),
+      false
+    )
+    if (invalidBalEmbed) {
+      return {
+        messageOptions: {
+          embeds: [invalidBalEmbed],
+        },
+      }
+    }
     const dm = await msg.author.send({
       embeds: [
         composeEmbedMessage(msg, {

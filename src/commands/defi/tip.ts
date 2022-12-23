@@ -25,7 +25,14 @@ export async function handleTip(
 ) {
   const { newArgs: argsAfterParseMoniker, moniker } =
     await defi.parseMonikerinCmd(args, msg.guildId ?? "")
-
+  // check currency is moniker or supported
+  if (!moniker && !(await defi.tipTokenIsSupported(args[3]))) {
+    throw new InternalError({
+      message: msg,
+      title: "Unsupported token",
+      description: `**${args[3].toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+    })
+  }
   const { newArgs: agrsAfterParseMessage, messageTip } =
     await defi.parseMessageTip(argsAfterParseMoniker)
 
@@ -66,27 +73,26 @@ export async function handleTip(
   payload.fullCommand = fullCmd
   payload.image = imageUrl
   payload.message = messageTip
+
+  // check balance
+  const invalidBalEmbed = await defi.getInsuffientBalanceEmbed(
+    msg,
+    payload.sender,
+    payload.token,
+    payload.amount,
+    payload.all ?? false
+  )
+  if (invalidBalEmbed) {
+    return {
+      embeds: [invalidBalEmbed],
+    }
+  }
+  // transfer
   const { data, ok, error, curl, log } = await Defi.offchainDiscordTransfer(
     payload
   )
-
   if (!ok) {
-    switch (error) {
-      case "Token not supported":
-        throw new InternalError({
-          message: msg,
-          title: "Unsupported token",
-          description: `${payload.token} hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
-        })
-      case "Not enough balance":
-        throw new InternalError({
-          message: msg,
-          title: "Transaction error",
-          description: `<@${authorId}>, your balance is insufficient.`,
-        })
-      default:
-        throw new APIError({ message: msg, curl, description: log, error })
-    }
+    throw new APIError({ message: msg, curl, description: log, error })
   }
 
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)

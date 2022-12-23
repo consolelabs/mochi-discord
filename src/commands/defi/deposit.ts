@@ -4,7 +4,7 @@ import { DEPOSIT_GITBOOK, PREFIX, DEFI_DEFAULT_FOOTER } from "utils/constants"
 import { DirectMessageNotAllowedError, InternalError } from "errors"
 import { composeButtonLink, composeEmbedMessage } from "utils/discordEmbed"
 import { APIError } from "errors"
-import { getEmoji, getEmojiURL, emojis, defaultEmojis } from "utils/common"
+import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
 
@@ -20,7 +20,7 @@ async function deposit(msg: Message) {
       throw new InternalError({
         title: "Command error",
         message: msg,
-        description: `${tokenSymbol} hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+        description: `**${tokenSymbol.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
       })
     }
     if (!ok) {
