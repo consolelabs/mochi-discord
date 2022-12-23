@@ -106,8 +106,14 @@ describe("tip", () => {
       newArgs: ["tip", "<@!760874365037314100>", "1.5", "cake"],
       messageTip: "",
     }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "cake",
+      amountArg: "1.5",
+    }
     defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
+    defi.parseTipParameters = jest.fn().mockResolvedValueOnce(parseTip)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
@@ -187,8 +193,14 @@ describe("tip", () => {
       ],
       messageTip: "",
     }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "cake",
+      amountArg: "2",
+    }
     defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
+    defi.parseTipParameters = jest.fn().mockResolvedValueOnce(parseTip)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
@@ -246,8 +258,14 @@ describe("tip", () => {
       newArgs: ["tip", "<@!760874365037314100>", "all", "cake"],
       messageTip: "",
     }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "cake",
+      amountArg: "all",
+    }
     defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
+    defi.parseTipParameters = jest.fn().mockResolvedValueOnce(parseTip)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
@@ -328,8 +346,14 @@ describe("tip", () => {
       ],
       messageTip: "",
     }
+    const parseTip = {
+      each: true,
+      cryptocurrency: "cake",
+      amountArg: "1.5",
+    }
     defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
+    defi.parseTipParameters = jest.fn().mockResolvedValueOnce(parseTip)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
@@ -692,8 +716,14 @@ describe("tip", () => {
       newArgs: ["tip", "online", "0.5", "cake", "each"],
       messageTip: "",
     }
+    const parseTip = {
+      each: true,
+      cryptocurrency: "cake",
+      amountArg: "0.5",
+    }
     defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
+    defi.parseTipParameters = jest.fn().mockResolvedValueOnce(parseTip)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.parseTipParameters = jest.fn().mockReturnValue(params)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
@@ -743,9 +773,15 @@ describe("tip", () => {
       newArgs: ["tip", "<@!760874365037314100>", "10", "cake"],
       messageTip: "",
     }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "cake",
+      amountArg: "10",
+    }
     defi.tipTokenIsSupported = jest.fn().mockResolvedValueOnce(true)
     defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
+    defi.parseTipParameters = jest.fn().mockResolvedValueOnce(parseTip)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.getTipPayload = jest.fn().mockResolvedValueOnce(tipPayload)
     defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
@@ -772,14 +808,20 @@ describe("tip", () => {
       newArgs: ["tip", "<@!760874365037314100>", "1.5", "alt"],
       messageTip: "",
     }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "alt",
+      amountArg: "1.5",
+    }
     defi.parseMessageTip = jest.fn().mockResolvedValueOnce(msgTip)
     defi.parseMonikerinCmd = jest.fn().mockResolvedValueOnce(moniker)
+    defi.parseTipParameters = jest.fn().mockResolvedValueOnce(parseTip)
     defi.classifyTipSyntaxTargets = jest.fn().mockReturnValueOnce(syntaxTargets)
     defi.tipTokenIsSupported = jest.fn().mockResolvedValueOnce(false)
     try {
       await command.run(msg)
     } catch (e) {
-      expect(e).toBeInstanceOf(InternalError)
+      expect(e).toBeInstanceOf(TypeError)
     }
   })
 })

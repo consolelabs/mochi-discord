@@ -26,11 +26,13 @@ export async function handleTip(
   const { newArgs: argsAfterParseMoniker, moniker } =
     await defi.parseMonikerinCmd(args, msg.guildId ?? "")
   // check currency is moniker or supported
-  if (!moniker && !(await defi.tipTokenIsSupported(args[3]))) {
+  // parse recipients
+  const { cryptocurrency } = defi.parseTipParameters(args)
+  if (!moniker && !(await defi.tipTokenIsSupported(cryptocurrency))) {
     throw new InternalError({
       message: msg,
       title: "Unsupported token",
-      description: `**${args[3].toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+      description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
     })
   }
   const { newArgs: agrsAfterParseMessage, messageTip } =
