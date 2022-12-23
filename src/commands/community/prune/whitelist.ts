@@ -8,6 +8,7 @@ import {
 } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
+import { getEmoji } from "utils/common"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 
@@ -45,8 +46,10 @@ export async function getExcludedRoles(guild: Guild): Promise<Role[]> {
 export async function whitelistRolesEmbed(roles: Role[]) {
   if (roles.length === 0) {
     return composeEmbedMessage(null, {
-      title: "Prune Safelisted Roles",
-      description: `You haven't added any role to the safelist. Run \`$prune safelist @role\` to exclude a role when running \`$prune without\`.\n\n_Note: When pruning users in Server Settings, these roles are not protected!_ :cry:`,
+      title: `${getEmoji("TRANSACTIONS")} Prune Safelisted Roles`,
+      description: `You haven't added any role to the safelist. Run \`$prune safelist @role\` to exclude a role when running \`$prune without\`.\n\n_Note: When pruning users in Server Settings, these roles are not protected!_ ${getEmoji(
+        "NEKOSAD"
+      )}`,
     })
   }
 
@@ -56,8 +59,10 @@ export async function whitelistRolesEmbed(roles: Role[]) {
   })
 
   return composeEmbedMessage(null, {
-    title: "Prune Safelisted Roles",
-    description: `Roles are excluded when running \`${PREFIX}prune without\`: ${roleStr}\nRun \`${PREFIX}prune safelist @role\` to add role in safelist.\n\n_Note: When pruning users in Server Settings, these roles are not protected!_ :cry:`,
+    title: `${getEmoji("TRANSACTIONS")} Prune Safelisted Roles`,
+    description: `Roles are excluded when running \`${PREFIX}prune without\`: ${roleStr}\nRun \`${PREFIX}prune safelist @role\` to add role in safelist.\n\n_Note: When pruning users in Server Settings, these roles are not protected!_ ${getEmoji(
+      "NEKOSAD"
+    )}`,
   })
 }
 
@@ -87,6 +92,7 @@ const command: Command = {
     if (!isRole) {
       throw new InternalError({
         message: msg,
+        title: "Command error",
         description:
           "Invalid role. Be careful not to be mistaken role with username while using `@`.",
       })
