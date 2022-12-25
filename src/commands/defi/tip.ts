@@ -23,23 +23,15 @@ export async function handleTip(
   fullCmd: string,
   msg: Message | CommandInteraction
 ) {
+  // check currency is moniker or supported
   const { newArgs: argsAfterParseMoniker, moniker } =
     await defi.parseMonikerinCmd(args, msg.guildId ?? "")
-  // check currency is moniker or supported
-  // parse recipients
-  const { cryptocurrency } = defi.parseTipParameters(args)
-  if (!moniker && !(await defi.tipTokenIsSupported(cryptocurrency))) {
-    throw new InternalError({
-      message: msg,
-      title: "Unsupported token",
-      description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
-    })
-  }
+
+  // parse tip message
   const { newArgs: agrsAfterParseMessage, messageTip } =
     await defi.parseMessageTip(argsAfterParseMoniker)
 
   const newCmd = agrsAfterParseMessage.join(" ").trim()
-
   const { isValid, targets } = Defi.classifyTipSyntaxTargets(
     newCmd
       .split(" ")
@@ -53,6 +45,16 @@ export async function handleTip(
       description:
         "Mochi cannot find the recipients. Type @ to choose valid roles or usernames!",
       message: msg,
+    })
+  }
+
+  // check token supported
+  const { cryptocurrency } = defi.parseTipParameters(agrsAfterParseMessage)
+  if (!moniker && !(await defi.tipTokenIsSupported(cryptocurrency))) {
+    throw new InternalError({
+      message: msg,
+      title: "Unsupported token",
+      description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
     })
   }
 
