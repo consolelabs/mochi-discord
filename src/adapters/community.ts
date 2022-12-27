@@ -14,6 +14,7 @@ import {
   ResponseUpdateUserFeedbackResponse,
   ResponseUserFeedbackResponse,
   RequestUserFeedbackRequest,
+  ResponseGetCollectionCountResponse,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL } from "utils/constants"
@@ -279,7 +280,9 @@ class Community extends Fetcher {
   }
 
   public async getCollectionCount() {
-    return await this.jsonFetch(`${API_BASE_URL}/nfts/collections/stats`)
+    return await this.jsonFetch<ResponseGetCollectionCountResponse>(
+      `${API_BASE_URL}/nfts/collections/stats`
+    )
   }
 
   public async getUpvoteStreak(discordId: string) {
