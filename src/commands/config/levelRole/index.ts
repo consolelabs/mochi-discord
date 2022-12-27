@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { getEmoji } from "utils/common"
+import { defaultEmojis, getEmoji } from "utils/common"
 import { PREFIX, LEVEL_ROLE_GITBOOK } from "utils/constants"
 import {
   composeEmbedMessage,
@@ -43,8 +43,8 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description:
-                "Invalid role. Be careful to not be mistaken role with username while setting.",
+              title: "Invalid role format",
+              description: `Your role is in an invalid format. Make sure an “@” symbol is put before the role.\n\n${defaultEmojis.POINT_RIGHT} Type @ to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
             }),
           ],
         },
@@ -87,12 +87,14 @@ const command: Command = {
       }
     }
     let description
+    let title
     if (res.error.toLowerCase().includes("role has been used")) {
-      description = res.error
+      description = `Your role has been used for an existing NFT role. Please choose another one.\n\n${defaultEmojis.POINT_RIGHT} Type @ to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`
+      title = "Invalid roles"
     }
     return {
       messageOptions: {
-        embeds: [getErrorEmbed({ msg, description })],
+        embeds: [getErrorEmbed({ msg, description, title })],
       },
     }
   },
