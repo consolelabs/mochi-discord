@@ -158,7 +158,7 @@ export async function viewWatchlist({
       embeds: [
         getSuccessEmbed({
           title: "Successfully set!",
-          description: `Token(s) has been added successfully!`,
+          description: `**${symbols[0].toUpperCase()}** has been added successfully! Track it by \`$watchlist view\`.`,
         }),
       ],
       components: [],

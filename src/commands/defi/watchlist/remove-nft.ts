@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { thumbnails } from "utils/common"
+import { defaultEmojis, thumbnails } from "utils/common"
 import { getSuccessEmbed, composeEmbedMessage } from "utils/discordEmbed"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
@@ -26,7 +26,7 @@ const command: Command = {
         embeds: [
           getSuccessEmbed({
             title: "Successfully remove!",
-            description: `${symbol} has been removed from your watchlist successfully!`,
+            description: `**${symbol}** has been removed from your watchlist successfully!\n${defaultEmojis.POINT_RIGHT} You can add the new one by \`$watchlist add-nft <symbol>\`!`,
           }),
         ],
       },

@@ -6,6 +6,7 @@ import { InternalError } from "errors"
 import { commands } from "commands"
 import { RunResult } from "types/common"
 import CacheManager from "utils/CacheManager"
+import { defaultEmojis } from "utils/common"
 
 jest.mock("adapters/defi")
 jest.mock("utils/CacheManager")
@@ -56,7 +57,7 @@ describe("watchlist remove nft", () => {
     const output = await command.run(msg)
     const expected = getSuccessEmbed({
       title: "Successfully remove!",
-      description: `${symbol} has been removed from your watchlist successfully!`,
+      description: `**${symbol}** has been removed from your watchlist successfully!\n${defaultEmojis.POINT_RIGHT} You can add the new one by \`$watchlist add-nft <symbol>\`!`,
     })
 
     expect(defi.removeNFTFromWatchlist).toHaveBeenCalled()

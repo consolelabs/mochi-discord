@@ -15,6 +15,7 @@ import CacheManager from "utils/CacheManager"
 import { handleUpdateWlError } from "../watchlist_slash"
 import { ResponseCollectionSuggestions } from "types/api"
 import { InteractionHandler } from "utils/InteractionManager"
+import { InternalError } from "errors"
 
 const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
@@ -53,7 +54,15 @@ const command: Command = {
       user_id: userId,
       collection_symbol: symbol,
     })
-    if (!ok) handleUpdateWlError(msg, symbol, error)
+    if (!ok) {
+      if (error.toLowerCase().startsWith("conflict"))
+        throw new InternalError({
+          message: msg,
+          title: "Command Error",
+          description: `**${symbol}** has already been added.\n${defaultEmojis.POINT_RIGHT} Please choose another one in \`$nft list!\``,
+        })
+      else handleUpdateWlError(msg, symbol, error)
+    }
     // no data === add successfully
     if (!data) {
       CacheManager.findAndRemove("watchlist", `watchlist-nft-${userId}`)
