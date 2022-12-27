@@ -35,15 +35,13 @@ export function handleUpdateWlError(
   }
   switch (true) {
     case error.toLowerCase().startsWith("record not found"):
-      description = `\`${symbol}\` ${
+      description = `**${symbol.toUpperCase()}** ${
         isRemove
           ? "didn't exist in your watchlist. Add new one by `$wl add <symbol>`"
           : "hasn't been supported"
       }.\n${
         defaultEmojis.POINT_RIGHT
-      } Please choose a token supported by [Coingecko](https://www.coingecko.com/)\n${
-        defaultEmojis.POINT_RIGHT
-      } Add your token by \`$token add-custom\` or \`$token add\`.`
+      } Please choose a token supported by [Coingecko](https://www.coingecko.com/)`
       break
     case error.toLowerCase().startsWith("conflict") && !isRemove:
       description = `**${symbol.toUpperCase()}** has already been added to your watchlist.\n${
@@ -55,6 +53,7 @@ export function handleUpdateWlError(
   }
   throw new InternalError({
     message: msg,
+    title: "Command Error",
     description,
   })
 }

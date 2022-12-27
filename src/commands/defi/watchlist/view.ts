@@ -460,7 +460,7 @@ async function composeTokenWatchlist(msg: Message, authorId?: string) {
       `${msg.author.username}'s watchlist`,
       msg.author.displayAvatarURL({ format: "png" }),
     ],
-    description: `${defaultEmojis.POINT_RIGHT} Take a look at our supported token list by \`$token list\`.\n${defaultEmojis.POINT_RIGHT} Add token to track by \`$wl add <symbol>\`.`,
+    description: `_All information are supported by Coingecko_\n\n${defaultEmojis.POINT_RIGHT} Choose a token supported by [Coingecko](https://www.coingecko.com/) to add to the list.\n${defaultEmojis.POINT_RIGHT} Add token to track by \`$wl add <symbol>\`.`,
   })
   if (!data?.length) {
     embed.setDescription(
@@ -487,27 +487,30 @@ async function composeTokenWatchlist(msg: Message, authorId?: string) {
 
 async function composeNFTWatchlist(msg: Message) {
   const userId = msg.author.id
-  const { data, ok, log, curl } = await CacheManager.get({
-    pool: "watchlist",
-    key: `watchlist-nft-${userId}`,
-    call: () => defi.getUserNFTWatchlist({ userId, size: 12 }),
-  })
-  if (!ok) throw new APIError({ message: msg, curl, description: log })
   const embed = composeEmbedMessage(msg, {
     author: [
       `${msg.author.username}'s watchlist`,
       msg.author.displayAvatarURL({ format: "png" }),
     ],
   })
-  if (!data?.length) {
-    embed.setDescription(
-      `No items in your watchlist.\n Please use \`${PREFIX}watchlist add-nft\` to add one.`
-    )
-    return {
-      embeds: [embed],
-      files: [],
-      components: [buildSwitchViewActionRow("nft")],
+  const { data, ok, log, curl } = await CacheManager.get({
+    pool: "watchlist",
+    key: `watchlist-nft-${userId}`,
+    call: () => defi.getUserNFTWatchlist({ userId, size: 12 }),
+  })
+  if (!ok) {
+    if (!data?.length) {
+      console.log("nft")
+      embed.setDescription(
+        `You can add an NFT to your portfolio by \`$watchlist add-nft <symbol>\`.`
+      )
+      return {
+        embeds: [embed],
+        files: [],
+        components: [buildSwitchViewActionRow("nft")],
+      }
     }
+    throw new APIError({ message: msg, curl, description: log })
   }
   embed.setImage("attachment://watchlist.png")
   return {
