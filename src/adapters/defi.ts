@@ -720,6 +720,7 @@ class Defi extends Fetcher {
         .replaceAll('"', "")
         .replaceAll("”", "")
         .replaceAll("“", "")
+        .replaceAll("'", "")
         .trim()
     }
     return {
