@@ -277,6 +277,21 @@ export interface ModelGuildRole {
   role_id?: number;
 }
 
+export interface ModelGuildUser {
+  guild_id?: string;
+  id?: string;
+  invited_by?: string;
+  nickname?: string;
+  roles?: ModelGuildRole[];
+  user_id?: string;
+}
+
+export interface ModelJSONNullInt64 {
+  int64?: number;
+  /** Valid is true if Int64 is not NULL */
+  valid?: boolean;
+}
+
 export interface ModelJSONNullString {
   string?: string;
   /** Valid is true if String is not NULL */
@@ -489,6 +504,15 @@ export interface ModelUpvoteStreakTier {
   xp_per_interval?: number;
 }
 
+export interface ModelUser {
+  guild_users?: ModelGuildUser[];
+  id?: string;
+  in_discord_wallet_address?: ModelJSONNullString;
+  in_discord_wallet_number?: ModelJSONNullInt64;
+  nr_of_join?: number;
+  username?: string;
+}
+
 export interface ModelUserFactionXpsMapping {
   academy_xp?: number;
   imperial_xp?: number;
@@ -518,6 +542,8 @@ export interface ModelUserWallet {
   chain_type?: ModelJSONNullString;
   created_at?: string;
   guild_id?: string;
+  /** preload user */
+  user?: ModelUser;
   user_discord_id?: string;
 }
 
@@ -623,6 +649,7 @@ export interface RequestCreateNFTCollectionRequest {
   channel_id?: string;
   guild_id?: string;
   message_id?: string;
+  priority_flag?: boolean;
 }
 
 export interface RequestCreateTipConfigNotify {
