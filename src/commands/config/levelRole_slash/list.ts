@@ -37,12 +37,14 @@ const command: SlashCommand = {
         description: res.log,
       })
     }
+
+    const { title, description } = list(res)
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage2(interaction, {
-            author: ["Level role list", getEmojiURL(emojis.BADGE2)],
-            description: list(res),
+            author: [title, getEmojiURL(emojis.BADGE2)],
+            description,
           }),
         ],
       },

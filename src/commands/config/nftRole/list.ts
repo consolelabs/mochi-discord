@@ -12,34 +12,36 @@ import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 
 export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
-  let description
   if (data?.length === 0) {
-    description = `No nft roles found! To set a new one, run \`\`\`${PREFIX}nr set <role> <amount> <nft_address1,nft_address2>\`\`\``
-  } else {
-    description = data
-      ?.sort(
-        (c1, c2) => (c1.number_of_tokens ?? 0) - (c2.number_of_tokens ?? 0)
-      )
-      ?.map(
-        (c) =>
-          `<@&${c.role_id}> - requires \`${
-            c.number_of_tokens
-          }\` tokens\n${c.nft_collection_configs
-            ?.map(
-              (nftCol) =>
-                `${getEmoji("blank")}${getEmoji("reply")}[\`${
-                  nftCol.symbol?.toUpperCase() ?? ""
-                } ${shortenHashOrAddress(nftCol.address ?? "")}${
-                  nftCol.chain_name
-                    ? ` (${nftCol.chain_name.toUpperCase()})`
-                    : ""
-                }\`](${nftCol.explorer_url || "https://getmochi.co/"})`
-            )
-            .join("\n")}`
-      )
-      .join("\n\n")
+    return {
+      title: "No NFT roles found",
+      description: `No NFT roles found! To set a new one, run \`\`\`${PREFIX}nr set <role> <amount> <nft_address1,nft_address2>\`\`\``,
+    }
   }
-  return `Run \`$nr set\` to add an NFT role.\n\n${description}`
+
+  const description = data
+    ?.sort((c1, c2) => (c1.number_of_tokens ?? 0) - (c2.number_of_tokens ?? 0))
+    ?.map(
+      (c) =>
+        `<@&${c.role_id}> - requires \`${
+          c.number_of_tokens
+        }\` tokens\n${c.nft_collection_configs
+          ?.map(
+            (nftCol) =>
+              `${getEmoji("blank")}${getEmoji("reply")}[\`${
+                nftCol.symbol?.toUpperCase() ?? ""
+              } ${shortenHashOrAddress(nftCol.address ?? "")}${
+                nftCol.chain_name ? ` (${nftCol.chain_name.toUpperCase()})` : ""
+              }\`](${nftCol.explorer_url || "https://getmochi.co/"})`
+          )
+          .join("\n")}`
+    )
+    .join("\n\n")
+
+  return {
+    title: "NFT role list",
+    description: `Run \`$nr set\` to add an NFT role.\n\n${description}`,
+  }
 }
 
 const command: Command = {
@@ -61,12 +63,13 @@ const command: Command = {
       })
     }
 
+    const { title, description } = list(res)
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: ["NFT role list", getEmojiURL(emojis.NFTS)],
-            description: list(res),
+            author: [title, getEmojiURL(emojis.NFTS)],
+            description,
           }),
         ],
       },
