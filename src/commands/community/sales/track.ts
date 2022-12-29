@@ -6,6 +6,7 @@ import community from "adapters/community"
 import { defaultEmojis, emojis, getEmojiURL } from "utils/common"
 import { APIError, InternalError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
+import config from "adapters/config"
 
 export async function handleSalesTrack(
   msg: Message | CommandInteraction,
@@ -14,7 +15,11 @@ export async function handleSalesTrack(
   guildId: string,
   channelId: string | null
 ) {
-  if (!platform) {
+  const supportedChains = await config.getAllChains()
+  const chain = supportedChains.map((chain: { currency: string }) => {
+    return chain.currency.toUpperCase()
+  })
+  if (!platform || !chain.includes(platform.toUpperCase())) {
     return {
       messageOptions: {
         embeds: [
@@ -44,14 +49,18 @@ export async function handleSalesTrack(
     guildId,
     channelId
   )
-
   if (!res.ok) {
-    if (res.error === "invalid contract address")
+    if (
+      res.error.includes("invalid contract address") ||
+      res.error.includes("Collection has not been added")
+    ) {
       throw new InternalError({
+        message: msg,
         title: "Invalid address",
         description:
           "The NFT collection address is invalid. Please check again.",
       })
+    }
     throw new APIError({ message: msg, curl: res.curl, description: res.log })
   }
 
