@@ -6,6 +6,7 @@ import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { throwOnInvalidEmoji } from "utils/emoji"
+import { defaultEmojis } from "utils/common"
 
 const command: Command = {
   id: "starboard_set",
@@ -20,10 +21,17 @@ const command: Command = {
 
     const args = getCommandArguments(msg)
     // Validate quantity
-    const quantity = Number(args[2])
-    if (Number.isNaN(quantity) || quantity <= 0) {
+    const quantity = +args[2]
+    if (
+      Number.isNaN(quantity) ||
+      quantity <= 0 ||
+      quantity >= Infinity ||
+      quantity !== Math.floor(quantity)
+    ) {
       throw new InternalError({
-        description: "Invalid quantity",
+        message: msg,
+        title: "Command error",
+        description: "The amount is invalid. Please insert a natural number.",
       })
     }
 
@@ -35,8 +43,8 @@ const command: Command = {
     if (!isChannel) {
       throw new InternalError({
         message: msg,
-        description:
-          "Cannot find a channel that match to your input channel ID.",
+        title: "Invalid channel",
+        description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n\n${defaultEmojis.POINT_RIGHT} Type \`#\` to see the channel list. \n${defaultEmojis.POINT_RIGHT} To add a new channel: 1. Create channel → 2. Confirm`,
       })
     }
 
