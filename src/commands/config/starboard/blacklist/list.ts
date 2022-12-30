@@ -2,16 +2,23 @@ import config from "adapters/config"
 import { Message } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
+import { defaultEmojis } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 
 function composeListConfig(data: any) {
   if (!data || data?.length === 0) {
-    return `Blacklist is empty! To set a channel to blacklist, run \`\`\`$sb blacklist set <channel>\`\`\``
+    return {
+      title: "No starboard blacklists found",
+      description: `You haven't configured any starboard blacklist channels.\n\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`\`\`$sb blacklist set <channel>\`\`\``,
+    }
   }
-  return data
-    ?.map((item: any, idx: number) => `**${idx + 1}.** <#${item.channel_id}>`)
-    .join("\n")
+  return {
+    title: "Starboard Blacklist Channel Configuration",
+    description: data
+      ?.map((item: any, idx: number) => `**${idx + 1}.** <#${item.channel_id}>`)
+      .join("\n"),
+  }
 }
 
 const command: Command = {
@@ -29,12 +36,14 @@ const command: Command = {
     if (!ok) {
       throw new APIError({ message: msg, curl, description: log })
     }
+
+    const { title, description } = composeListConfig(data)
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            title: "Starboard Blacklist Channel Configuration",
-            description: composeListConfig(data),
+            title,
+            description,
           }),
         ],
       },
