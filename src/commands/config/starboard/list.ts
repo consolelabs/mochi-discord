@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { PREFIX, STARBOARD_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 import { APIError, GuildIdNotFoundError } from "errors"
 import {
   ButtonInteraction,
@@ -10,7 +10,7 @@ import {
   MessageEmbed,
 } from "discord.js"
 import config from "adapters/config"
-import { authorFilter, emojis, getEmoji } from "utils/common"
+import { authorFilter, defaultEmojis, emojis, getEmoji } from "utils/common"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { ModelGuildConfigRepostReaction } from "types/api"
 import chunk from "lodash/chunk"
@@ -230,9 +230,10 @@ async function switchView(i: ButtonInteraction, msg: Message) {
 
   if (!res.data?.length) {
     embeds = [
-      composeEmbedMessage(msg, {
-        title: "Starboard Configuration",
-        description: "No configuration found.",
+      getErrorEmbed({
+        msg,
+        title: "No starboards found",
+        description: `You haven't configured any emojis in the starboard.\n\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
       }),
     ]
     components = [buildSwitchViewActionRow(nextView)]
@@ -268,9 +269,10 @@ async function handlePagination(i: ButtonInteraction, msg: Message) {
   )
   if (!res.ok || !res.data?.length) {
     embeds = [
-      composeEmbedMessage(msg, {
-        title: "Starboard Configuration",
-        description: "No configuration found.",
+      getErrorEmbed({
+        msg,
+        title: "No starboards found",
+        description: `You haven't configured any emojis in the starboard.\n\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
       }),
     ]
     components = [buildSwitchViewActionRow(currentView)]
@@ -318,9 +320,10 @@ const command: Command = {
     if (!res.data?.length) {
       reply = await msg.reply({
         embeds: [
-          composeEmbedMessage(msg, {
-            title: "Starboard Configuration",
-            description: "No configuration found.",
+          getErrorEmbed({
+            msg,
+            title: "No starboards found",
+            description: `You haven't configured any emojis in the starboard.\n\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
           }),
         ],
         components: [buildSwitchViewActionRow(defaultView)],

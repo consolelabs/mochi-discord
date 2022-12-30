@@ -6,7 +6,7 @@ import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 import { RequestConfigRepostReactionConversation } from "types/common"
-import { defaultEmojis, emojis, getEmojiURL } from "utils/common"
+import { defaultEmojis } from "utils/common"
 import { throwOnInvalidEmoji } from "utils/emoji"
 
 const command: Command = {
@@ -60,9 +60,8 @@ const command: Command = {
     if (!ok && status === 404) {
       throw new InternalError({
         message: msg,
-        title: "Remove a starboard config",
-        description: `The emoji didn't exist.\n${defaultEmojis.POINT_RIGHT} To check emojis in the starboard list, run \`$sb list\`.\n${defaultEmojis.POINT_RIGHT} To set a new starboard, run \`$sb set <quantity> <emoji> <#channel>\` or \`$sb set-chat <start_emoji> <stop_emoji> <#channel>\`.`,
-        emojiUrl: getEmojiURL(emojis.FELLOWSHIP),
+        title: "Unsuccessful",
+        description: `You haven't configured this emoji in the starboard.\n\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
       })
     }
     if (!ok) {

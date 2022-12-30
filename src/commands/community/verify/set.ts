@@ -36,14 +36,12 @@ export async function runVerifySet({
 
     if (args[3]) {
       const { isRole, value } = parseDiscordToken(args[3])
-      if (value) {
-        if (!isRole) {
-          throw new InternalError({
-            message: msg,
-            title: "Invalid role",
-            description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n${defaultEmojis.POINT_RIGHT} Type @ to see the role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
-          })
-        }
+      if (!isRole || !value) {
+        throw new InternalError({
+          message: msg,
+          title: "Invalid role",
+          description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n${defaultEmojis.POINT_RIGHT} Type @ to see the role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
+        })
       }
       roleId = value
     }

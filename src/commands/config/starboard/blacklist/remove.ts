@@ -3,6 +3,7 @@ import { Message } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { BlacklistChannelRepostConfigRequest, Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
+import { defaultEmojis } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
 
@@ -26,8 +27,8 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description:
-                "Cannot find a channel that match to your input channel ID.",
+              title: "Invalid channel",
+              description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n\n${defaultEmojis.POINT_RIGHT} Type \`#\` to see the channel list. \n${defaultEmojis.POINT_RIGHT} To add a new channel: 1. Create channel → 2. Confirm`,
             }),
           ],
         },

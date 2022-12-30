@@ -95,7 +95,7 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               author: ["No reaction roles found", getEmojiURL(emojis.NEKOLOVE)],
-              description: `You have't set any reaction roles yet. To set a new one, run \`\`\`${PREFIX}rr set <message_link> <emoji> <role>\`\`\``,
+              description: `You haven't set any reaction roles yet. To set a new one, run \`\`\`${PREFIX}rr set <message_link> <emoji> <role>\`\`\``,
             }),
           ],
         },

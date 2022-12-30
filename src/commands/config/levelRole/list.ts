@@ -8,7 +8,10 @@ import { composeEmbedMessage } from "utils/discordEmbed"
 
 export function list({ data }: ResponseGetLevelRoleConfigsResponse) {
   if (data?.length === 0) {
-    return `No level roles found! To set a new one, run \`\`\`$lr <role> <level>\`\`\``
+    return {
+      title: "No level roles found",
+      description: `You haven't set any roles for this level yet. \n\nTo set a new one, run \`$lr @<role> <level>\`. \nThen re-check your configuration using \`$lr list\`.`,
+    }
   }
   const description = data
     ?.map(
@@ -18,7 +21,10 @@ export function list({ data }: ResponseGetLevelRoleConfigsResponse) {
         }\` XP\n${getEmoji("blank")}${getEmoji("reply")} <@&${item.role_id}>`
     )
     .join("\n")
-  return `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.\n\n${description}`
+  return {
+    title: "Level role list",
+    description: `Run \`$lr <role> <level>\` to add a level role.\n\n${description}`,
+  }
 }
 
 const command: Command = {
@@ -40,12 +46,13 @@ const command: Command = {
       })
     }
 
+    const { description, title } = list(res)
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: ["Level role list", getEmojiURL(emojis.BADGE2)],
-            description: list(res),
+            author: [title, getEmojiURL(emojis.BADGE2)],
+            description,
           }),
         ],
       },

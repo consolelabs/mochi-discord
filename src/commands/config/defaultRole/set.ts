@@ -25,7 +25,7 @@ const command: Command = {
       throw new InternalError({
         message: msg,
         title: "Invalid roles",
-        description: `Invalid role. Be careful not to be mistaken role with username while setting.\n\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+        description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
       })
     }
 
@@ -36,7 +36,7 @@ const command: Command = {
         throw new InternalError({
           message: msg,
           title: "Invalid roles",
-          description: `Invalid role. Be careful not to be mistaken role with username while setting.\n\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+          description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
         })
       }
     }

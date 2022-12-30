@@ -84,7 +84,7 @@ const command: SlashCommand = {
         embeds: [
           composeEmbedMessage(null, {
             title: `${getEmoji("approve")} Moniker successfully set`,
-            description: `1 **${moniker}** is set as ${amount} **${token}. To tip your friend moniker, use $tip <@users> <amount> <moniker>. ${getEmoji(
+            description: `1 **${moniker}** is set as ${amount} **${token}**. To tip your friend moniker, use $tip <@users> <amount> <moniker>. ${getEmoji(
               "bucket_cash",
               true
             )}`,

@@ -25,7 +25,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
     msgOrInteraction.guildId ?? ""
   )
   if (configs.ok) {
-    const description = list(configs)
+    const { description } = list(configs)
     return {
       messageOptions: {
         embeds: [
@@ -70,9 +70,8 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              title: `${msg.guild.name}'s nft roles`,
-              description:
-                "No configuration found! To set a new one, run `$lr <role> <level>`.",
+              title: `No NFT roles found`,
+              description: `No NFT roles found! To set a new one, run \`\`\`${PREFIX}nr set <role> <amount> <nft_address1,nft_address2>\`\`\``,
             }),
           ],
         },
@@ -87,9 +86,10 @@ const command: Command = {
       })
     })
 
+    const { description } = list(configs)
     const embed = composeEmbedMessage(msg, {
       title: "Select an option",
-      description: list(configs),
+      description,
     })
 
     return {

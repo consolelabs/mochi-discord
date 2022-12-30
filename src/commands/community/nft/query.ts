@@ -81,7 +81,9 @@ function getIcon(
   if (!iconList) {
     return getEmoji(iconName)
   }
-  const icon = iconList.find((i) => i.trait_type === iconName)
+  const icon = iconList.find(
+    (i) => i.trait_type?.toLowerCase() === iconName.toLowerCase()
+  )
 
   if (icon) {
     return icon.discord_icon ?? ""

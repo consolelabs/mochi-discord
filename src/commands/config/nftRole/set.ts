@@ -36,8 +36,8 @@ const command: Command = {
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
       throw new InternalError({
         message: msg,
-        title: "Can't find the role",
-        description: `Invalid role. Be careful not to be mistaken role with username while setting.\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} Add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+        title: "Invalid role format",
+        description: `Your role is in an invalid format. Make sure an “@” symbol is put before the role.\n\n${defaultEmojis.POINT_RIGHT} Type @ to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
       })
     }
     const roleId = roleArg.substring(3, roleArg.length - 1)
@@ -45,7 +45,13 @@ const command: Command = {
     if (!role) {
       return {
         messageOptions: {
-          embeds: [getErrorEmbed({ msg, description: "Role not found" })],
+          embeds: [
+            getErrorEmbed({
+              msg,
+              title: "Invalid roles",
+              description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${defaultEmojis.POINT_RIGHT} Type @ to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
+            }),
+          ],
         },
       }
     }
@@ -57,7 +63,8 @@ const command: Command = {
           embeds: [
             getErrorEmbed({
               msg,
-              description: `Please enter a natural number!${defaultEmojis.POINT_RIGHT} 1; 3; 5; 7`,
+              description:
+                "The amount is invalid. Please insert a natural number.",
             }),
           ],
         },
@@ -68,8 +75,8 @@ const command: Command = {
     if (!nft) {
       throw new InternalError({
         message: msg,
-        title: "Can't find the NFT",
-        description: `The NFT must be added to the supported list before being used to assign a role.\n${defaultEmojis.POINT_RIGHT} Please choose one in the \`$nft list\`.\n${defaultEmojis.POINT_RIGHT} To add your NFT, run \`$nft add\`.`,
+        title: "Unsupported NFT",
+        description: `This collection has NOT been supported yet.\n\n${defaultEmojis.POINT_RIGHT} Please choose one in the \`$nft list\`.\n${defaultEmojis.POINT_RIGHT} To add your NFT, run \`$nft add\`.`,
       })
     }
 
@@ -97,7 +104,7 @@ const command: Command = {
     if (res.ok) {
       const configs = await Config.getGuildNFTRoleConfigs(msg.guildId)
       if (configs.ok) {
-        const description = list(configs)
+        const { description } = list(configs)
         return {
           messageOptions: {
             embeds: [
@@ -120,8 +127,8 @@ const command: Command = {
       if (res.error.toLowerCase().includes("role has been used")) {
         throw new InternalError({
           message: msg,
-          title: "Role has been used",
-          description: `${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+          title: "Duplicated roles",
+          description: `Your role has been used for another role configuration. Please choose another role or remove the existing one using \`$nr remove\`.\n\n${defaultEmojis.POINT_RIGHT} Type @ to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
         })
       }
       return {
