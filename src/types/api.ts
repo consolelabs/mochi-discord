@@ -177,6 +177,20 @@ export interface ModelGuildConfigActivity {
   guild_id?: string;
 }
 
+export interface ModelGuildConfigDaoProposal {
+  address?: string;
+  chain_id?: number;
+  created_at?: string;
+  guideline_channel_id?: string;
+  guild_id?: string;
+  id?: number;
+  proposal_channel_id?: string;
+  required_amount?: number;
+  symbol?: string;
+  type?: string;
+  updated_at?: string;
+}
+
 export interface ModelGuildConfigDefaultCollection {
   address?: string;
   chain_id?: string;
@@ -362,9 +376,26 @@ export interface ModelOffchainTipBotAssignContract {
   user_id?: string;
 }
 
+export interface ModelOffchainTipBotChain {
+  chain_id?: number;
+  chain_name?: string;
+  contracts?: ModelOffchainTipBotContract[];
+  created_at?: string;
+  currency?: string;
+  explorer_url?: string;
+  id?: string;
+  is_evm?: boolean;
+  rpc_url?: string;
+  status?: number;
+  support_deposit?: boolean;
+  tokens?: ModelOffchainTipBotToken[];
+  updated_at?: string;
+}
+
 export interface ModelOffchainTipBotContract {
   assign_status?: number;
   centralize_wallet?: string;
+  chain?: ModelOffchainTipBotChain;
   chain_id?: string;
   contract_address?: string;
   created_at?: string;
@@ -673,6 +704,10 @@ export interface RequestCreateUserRequest {
 }
 
 export interface RequestDeleteDiscordUserAlertRequest {
+  id?: string;
+}
+
+export interface RequestDeleteGuildConfigDaoProposal {
   id?: string;
 }
 
@@ -1158,6 +1193,10 @@ export interface ResponseGetFiatHistoricalExchangeRatesResponse {
 export interface ResponseGetGmConfigResponse {
   data?: ModelGuildConfigGmGn;
   message?: string;
+}
+
+export interface ResponseGetGuildConfigDaoProposal {
+  data?: ModelGuildConfigDaoProposal;
 }
 
 export interface ResponseGetGuildDefaultNftTickerResponse {
