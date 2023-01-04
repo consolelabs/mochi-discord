@@ -694,6 +694,15 @@ export interface RequestCreateAssignContract {
   user_id?: string;
 }
 
+export interface RequestCreateDaoProposalRequest {
+  creator_id?: string;
+  description?: string;
+  guild_id?: string;
+  title?: string;
+  vote_option?: RequestVoteOptionRequest;
+  voting_channel_id?: string;
+}
+
 export interface RequestCreateDaoVoteRequest {
   choice: string;
   proposal_id: number;
@@ -1018,6 +1027,14 @@ export interface RequestVerifyWalletAddressRequest {
   wallet_address?: string;
 }
 
+export interface RequestVoteOptionRequest {
+  address?: string;
+  chain_id?: number;
+  id?: number;
+  required_amount?: number;
+  symbol?: string;
+}
+
 export interface ResponseAddToWatchlistResponse {
   data?: ResponseAddToWatchlistResponseData;
 }
@@ -1115,6 +1132,10 @@ export interface ResponseConfigNotifyResponse {
 
 export interface ResponseConfigureInvitesResponse {
   data?: string;
+}
+
+export interface ResponseCreateDaoProposalResponse {
+  data?: ModelDaoProposal;
 }
 
 export interface ResponseCreateNFTCollectionResponse {

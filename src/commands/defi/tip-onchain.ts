@@ -80,7 +80,9 @@ async function handleTipOnchain(
   )
   if (invalidBalEmbed) {
     return {
-      embeds: [invalidBalEmbed],
+      messageOptions: {
+        embeds: [invalidBalEmbed],
+      },
     }
   }
   // transfer
@@ -183,17 +185,13 @@ const command: Command = {
       filter: (collected: Message) => collected.author.id === msg.author.id,
     })
     const userReply = collected.first()
-    return {
-      messageOptions: {
-        ...(await handleTipOnchain(
-          args,
-          msg.author.id,
-          msg.content.replaceAll(/\s{2,}/gim, " "),
-          msg,
-          userReply
-        )),
-      },
-    }
+    return await handleTipOnchain(
+      args,
+      msg.author.id,
+      msg.content.replaceAll(/\s{2,}/gim, " "),
+      msg,
+      userReply
+    )
   },
   featured: {
     title: `${getEmoji("tip")} Tip onchain`,
