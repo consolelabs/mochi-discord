@@ -15,7 +15,6 @@ import { APIError } from "errors/APIError"
 import { ResponseMonikerConfigData } from "types/api"
 import defi from "adapters/defi"
 import { InternalError } from "errors"
-import tiponchain from "./tip-onchain"
 
 export async function handleTip(
   args: string[],
@@ -23,6 +22,9 @@ export async function handleTip(
   fullCmd: string,
   msg: Message | CommandInteraction
 ) {
+  const onchain = args.at(-1) === "--onchain"
+  args = args.slice(0, onchain ? -1 : undefined) // remove --onchain if any
+
   // check currency is moniker or supported
   const { newArgs: argsAfterParseMoniker, moniker } =
     await defi.parseMonikerinCmd(args, msg.guildId ?? "")
@@ -92,9 +94,11 @@ export async function handleTip(
     }
   }
   // transfer
-  const { data, ok, error, curl, log } = await defi.offchainDiscordTransfer(
-    payload
-  )
+  const transfer = (req: any) =>
+    onchain
+      ? defi.submitOnchainTransfer(req)
+      : defi.offchainDiscordTransfer(req)
+  const { data, ok, error, curl, log } = await transfer(payload)
   if (!ok) {
     throw new APIError({ message: msg, curl, description: log, error })
   }
@@ -177,9 +181,6 @@ const command: Command = {
     if (!msg.guildId) {
       throw new GuildIdNotFoundError({})
     }
-    if (args.at(-1) === "--onchain") {
-      return tiponchain.run(msg)
-    }
     return {
       messageOptions: {
         ...(await handleTip(
@@ -195,42 +196,36 @@ const command: Command = {
     title: `${getEmoji("tip")} Tip`,
     description: "Send coins to a user or a group of users",
   },
-  getHelpMessage: async (msg) => {
-    const args = getCommandArguments(msg)
-    if (args.at(-1) === "--onchain") {
-      return tiponchain.getHelpMessage(msg)
-    }
-    return {
-      embeds: [
-        composeEmbedMessage(msg, {
-          thumbnail: thumbnails.TIP,
-          usage: `${PREFIX}tip <recipient(s)> <amount> <token> [each]\n${PREFIX}tip <recipient(s)> <amount> <token> [each] ["message"]`,
-          description: "Send coins offchain to a user or a group of users",
-          footer: [DEFI_DEFAULT_FOOTER],
-          title: "Tip Bot",
-        }).addFields(
-          {
-            name: "You can send to the recipient by:",
-            value:
-              "👉 Username(s): `@minh`, `@tom`\n👉 Role(s): `@Staff`, `@Dev`\n👉 #Text_channel: `#mochi`, `#channel`\n👉 In voice channel: mention “`in voice channel`” to tip members currently in\n👉 Online status: add the active status “`online`” before mentioning recipients",
-          },
-          {
-            name: "Tip with token:",
-            value:
-              "👉 Tip by the cryptocurrencies, choose one in the `$token list`.\n👉 To tip by moniker, choose one in the `$moniker list`.",
-          },
-          {
-            name: "**Examples**",
-            value: `\`\`\`${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John @Hank all ftm\n${PREFIX}tip @RandomRole 10 ftm\n${PREFIX}tip @role1 @role2 1 ftm each\n${PREFIX}tip in voice channel 1 ftm each\n${PREFIX}tip online #mochi 1 ftm\n${PREFIX}tip @John 1 ftm "Thank you"\`\`\``,
-          },
-          {
-            name: "**Instructions**",
-            value: `[**Gitbook**](${TIP_GITBOOK})`,
-          }
-        ),
-      ],
-    }
-  },
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        thumbnail: thumbnails.TIP,
+        usage: `${PREFIX}tip <recipient(s)> <amount> <token> [each]\n${PREFIX}tip <recipient(s)> <amount> <token> [each] ["message"] [--onchain]`,
+        description: "Send coins offchain to a user or a group of users",
+        footer: [DEFI_DEFAULT_FOOTER],
+        title: "Tip Bot",
+      }).addFields(
+        {
+          name: "You can send to the recipient by:",
+          value:
+            "👉 Username(s): `@minh`, `@tom`\n👉 Role(s): `@Staff`, `@Dev`\n👉 #Text_channel: `#mochi`, `#channel`\n👉 In voice channel: mention “`in voice channel`” to tip members currently in\n👉 Online status: add the active status “`online`” before mentioning recipients",
+        },
+        {
+          name: "Tip with token:",
+          value:
+            "👉 Tip by the cryptocurrencies, choose one in the `$token list`.\n👉 To tip by moniker, choose one in the `$moniker list`.",
+        },
+        {
+          name: "**Examples**",
+          value: `\`\`\`${PREFIX}tip @John 10 ftm\n${PREFIX}tip @John @Hank all ftm\n${PREFIX}tip @RandomRole 10 ftm\n${PREFIX}tip @role1 @role2 1 ftm each\n${PREFIX}tip in voice channel 1 ftm each\n${PREFIX}tip online #mochi 1 ftm\n${PREFIX}tip @John 1 ftm "Thank you"\`\`\``,
+        },
+        {
+          name: "**Instructions**",
+          value: `[**Gitbook**](${TIP_GITBOOK})`,
+        }
+      ),
+    ],
+  }),
   canRunWithoutAction: true,
   colorType: "Defi",
   minArguments: 4,
