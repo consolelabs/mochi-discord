@@ -15,6 +15,8 @@ import {
   ResponseUserFeedbackResponse,
   RequestUserFeedbackRequest,
   ResponseGetCollectionCountResponse,
+  ModelDaoProposal,
+  ResponseGetGuildConfigDaoProposal,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL } from "utils/constants"
@@ -423,6 +425,38 @@ class Community extends Fetcher {
   public async getTradeOffer(id: string) {
     return await this.jsonFetch<ResponseGetTradeOfferResponse>(
       `${API_BASE_URL}/nfts/trades/${id}`
+    )
+  }
+
+  public async createProposal(body: {
+    creator_id: string
+    description: string
+    guild_id: string
+    title: string
+    voting_channel_id: string
+    vote_option?: {
+      id: string
+      address: string
+      symbol: string
+      chain_id: string
+      required_amount: string
+    }
+  }) {
+    return await this.jsonFetch<ModelDaoProposal>(
+      `${API_BASE_URL}/dao-voting/proposals`,
+      {
+        method: "POST",
+        body,
+      }
+    )
+  }
+
+  public async getGuildConfigDaoProposal(guild_id: string) {
+    return await this.jsonFetch<ResponseGetGuildConfigDaoProposal>(
+      `${API_BASE_URL}/config-channels/${guild_id}/proposal`,
+      {
+        method: "GET",
+      }
     )
   }
 }

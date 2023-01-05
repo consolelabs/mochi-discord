@@ -43,6 +43,11 @@ import { CommandNotAllowedToRunError } from "errors"
 import { KafkaQueueMessage } from "types/common"
 import { logger } from "logger"
 import { kafkaQueue } from "utils/kafka"
+import {
+  handleProposalCancel,
+  handleProposalCreate,
+  handleProposalForm,
+} from "commands/community/dao-voting/proposal"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -339,6 +344,15 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("feedback"):
       await feedbackDispatcher(i)
+      return
+    case i.customId.startsWith("proposal-create"):
+      await handleProposalForm(i)
+      return
+    case i.customId.startsWith("proposal-confirm"):
+      await handleProposalCreate(i)
+      return
+    case i.customId.startsWith("proposal-cancel"):
+      await handleProposalCancel(i)
       return
     default: {
       if (ConversationManager.hasConversation(i.user.id, i.channelId, i)) {
