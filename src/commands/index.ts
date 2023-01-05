@@ -6,6 +6,7 @@ import stats from "./community/stats"
 import nft from "./community/nft"
 import sales from "./community/sales"
 import tip from "./defi/tip"
+import claim from "./defi/claim"
 import balances from "./defi/balances"
 import deposit from "./defi/deposit"
 import withdraw from "./defi/withdraw"
@@ -151,6 +152,7 @@ export const originalCommands: Record<string, Command> = {
   // defi section
   deposit,
   tip,
+  claim,
   balances,
   withdraw,
   airdrop,

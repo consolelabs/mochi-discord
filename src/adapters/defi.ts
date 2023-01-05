@@ -911,8 +911,15 @@ class Defi extends Fetcher {
     return await this.jsonFetch(`${API_BASE_URL}/tip/tokens`)
   }
 
-  async onchainDiscordTransfer(req: any) {
-    return await this.jsonFetch(`${API_BASE_URL}/tip/onchain/transfer`, {
+  async submitOnchainTransfer(req: any) {
+    return await this.jsonFetch(`${API_BASE_URL}/tip/onchain/submit`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  async claimOnchainTransfer(req: any) {
+    return await this.jsonFetch(`${API_BASE_URL}/tip/onchain/claim`, {
       method: "POST",
       body: req,
     })
