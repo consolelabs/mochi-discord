@@ -997,6 +997,21 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config-defi/monikers/default`
     )
   }
+
+  public async createProposalChannel(req: {
+    guild_id: string
+    channel_id: string
+    authority: string
+    type?: string
+    address?: string
+    chain?: string
+    required_amount?: number
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-channels/proposal`, {
+      method: "POST",
+      body: req,
+    })
+  }
 }
 
 const config = new Config()
