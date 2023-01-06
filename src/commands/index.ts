@@ -37,6 +37,7 @@ import quest from "./community/quest"
 import statements from "./defi/statements"
 import monikers from "./config/moniker"
 import transaction from "./transaction"
+import daovote from "./config/daovote"
 
 // slash commands
 import help_slash from "./help_slash"
@@ -181,6 +182,7 @@ export const originalCommands: Record<string, Command> = {
   monikers,
   levelrole,
   nftrole,
+  daovote,
   // globalxp,
   starboard,
   // eventxp,

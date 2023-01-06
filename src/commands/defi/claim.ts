@@ -4,15 +4,13 @@ import { APIError, InternalError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import {
-  emojis,
   getEmoji,
-  getEmojiURL,
   roundFloatNumber,
   shortenHashOrAddress,
   thumbnails,
 } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage, getSuccessEmbed } from "utils/discordEmbed"
 
 async function claim(msg: Message, args: string[]) {
   const [claimId, address] = args.slice(1)
@@ -29,36 +27,54 @@ async function claim(msg: Message, args: string[]) {
       address,
       user_id: msg.author.id,
     })
+  const pointingright = getEmoji("pointingright")
   if (!ok) {
     if (status === 404) {
+      const { data, ok, log } = await defi.getUserOnchainTransfers(
+        msg.author.id,
+        "pending"
+      )
+      if (!ok) {
+        throw new InternalError({
+          message: msg,
+          title: "Fail to claim tip!",
+          description: log,
+        })
+      }
+      const description = (
+        data?.length
+          ? [
+              `${pointingright} You may enter an invalid \`claim ID\` or claimed one!`,
+              `${pointingright} You can pick one of these \`claim ID\`: ${data
+                .map((tx: any) => tx.id)
+                .join(", ")}`,
+              `${pointingright} You can only claim one transaction at once.`,
+            ]
+          : [
+              "You don't have any unclaimed tips. You can try to tip other by using `$tip`.",
+            ]
+      ).join("\n")
       throw new InternalError({
         message: msg,
-        title: "Claiming failed!",
-        description:
-          "Invalid `claim ID` or you already claimed the transaction.",
+        title: "Fail to claim tip!",
+        description,
       })
     }
     throw new APIError({ message: msg, curl, description: log, error })
   }
-  const {
-    amount,
-    symbol,
+  const { amount, symbol, amount_in_usd, tx_hash, tx_url, recipient_address } =
+    data
+
+  const description = `${pointingright} **${amount} ${symbol}** (≈ $${roundFloatNumber(
     amount_in_usd,
-    tx_hash,
-    tx_url,
-    sender_id,
-    recipient_address,
-  } = data
-  const embed = composeEmbedMessage(msg, {
-    author: ["Transfer claimed!", getEmojiURL(emojis.WALLET)],
-    description: `<@${
-      msg.author.id
-    }>, **${amount} ${symbol}** (≈ $${roundFloatNumber(
-      amount_in_usd,
-      4
-    )}) has been successfully transferred to address\n\`${shortenHashOrAddress(
-      recipient_address
-    )}\`.\n**Sender:** <@${sender_id}>`,
+    4
+  )}) was sent to your address \`${shortenHashOrAddress(
+    recipient_address
+  )}\`! Check your wallet!\n${pointingright} You can claim another tip by using\n\`$claim <Claim ID> <your recipient address>\`.`
+  const embed = getSuccessEmbed({
+    msg,
+    title: "Succesfully claimed!",
+    description,
   }).addFields([{ name: "Transaction", value: `[\`${tx_hash}\`](${tx_url})` }])
   return { messageOptions: { embeds: [embed] } }
 }
