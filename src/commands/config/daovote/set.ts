@@ -109,6 +109,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
             )} All proposals will be posted and voted in the <#${channelId}>`,
           }),
         ],
+        components: [],
       },
     }
   }
