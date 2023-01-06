@@ -10,7 +10,6 @@ import {
   composeEmbedMessage,
 } from "utils/discordEmbed"
 import { InteractionHandler } from "utils/InteractionManager"
-import { ChannelTypes } from "discord.js/typings/enums"
 import { PREFIX } from "utils/constants"
 
 const command: Command = {
@@ -75,7 +74,7 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}daovote set <#channel> <network> <token_contract>`,
-          examples: `${PREFIX}daovote set #channel evm 0xad29abb318791d579433d831ed122afeaf29dcfe`,
+          examples: `${PREFIX}daovote set #channel eth 0xad29abb318791d579433d831ed122afeaf29dcfe`,
         }),
       ],
     }
@@ -107,7 +106,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
             title: `${getEmoji("approve")} Successfully set`,
             description: `${getEmoji(
               "point_right"
-            )} You can start to post a proposal in #<guideline channel>\n`,
+            )} All proposals will be posted and voted in the <#${channelId}>`,
           }),
         ],
       },
@@ -170,25 +169,13 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
         throw new APIError({ curl, description: log })
     }
   }
-  const channel = interaction.guild?.channels.cache.find(
-    (channel) => channel.id === channelId
-  )
-  const newChannel = await interaction.guild?.channels.create(
-    `guildline-${channel?.name}`,
-    {
-      type: ChannelTypes.GUILD_TEXT,
-    }
-  )
+
   return {
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
           title: `${getEmoji("approve")} Successfully set`,
           description: `${getEmoji(
-            "point_right"
-          )} You can start to post a proposal in <#${
-            newChannel?.id
-          }>\n${getEmoji(
             "point_right"
           )} All proposals will be posted and voted in the <#${channelId}>`,
         }),

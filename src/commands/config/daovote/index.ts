@@ -23,7 +23,7 @@ const command: Command = {
         title: "DAO Voting",
         description: "Manage to post proposals and their voting space",
         usage: `${PREFIX}daovote <action>`,
-        examples: `${PREFIX}daovote info\n${PREFIX}daovote set #channel evm 0xad29abb318791d579433d831ed122afeaf29dcfe`,
+        examples: `${PREFIX}daovote info\n${PREFIX}daovote set #channel eth 0xad29abb318791d579433d831ed122afeaf29dcfe`,
         includeCommandsList: true,
       }),
     ],
