@@ -95,6 +95,9 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
+let listSymbol: string
+let idx = 1
+
 export async function viewWatchlist({
   msg,
   interaction,
@@ -106,6 +109,16 @@ export async function viewWatchlist({
   symbols: string[]
   userId: string
 }) {
+  const symbolString = symbols
+    .map(function (s) {
+      return s.toUpperCase()
+    })
+    .join(" ")
+  if (symbolString !== "" && idx === 1) {
+    listSymbol = symbolString
+    idx++
+  }
+
   for (const [i, symbol] of symbols.entries()) {
     const data = await addUserWatchlist(msg ?? interaction, userId, symbol)
     // no data === add successfully
@@ -158,7 +171,7 @@ export async function viewWatchlist({
       embeds: [
         getSuccessEmbed({
           title: "Successfully set!",
-          description: `**${symbols[0].toUpperCase()}** has been added successfully! Track it by \`$watchlist view\`.`,
+          description: `**${listSymbol}** has been added successfully! Track it by \`$watchlist view\`.`,
         }),
       ],
       components: [],
