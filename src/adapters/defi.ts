@@ -924,6 +924,16 @@ class Defi extends Fetcher {
       body: req,
     })
   }
+
+  async getUserOnchainTransfers(userId: string, status?: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/tip/onchain/${userId}/transfers`,
+      {
+        method: "GET",
+        query: { status },
+      }
+    )
+  }
 }
 
 export default new Defi()
