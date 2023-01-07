@@ -21,7 +21,7 @@ async function claim(msg: Message, args: string[]) {
       description: "`claim ID` must be a number",
     })
   }
-  const { data, ok, error, curl, log, status } =
+  const { data, ok, error, curl, log, status, originalError } =
     await defi.claimOnchainTransfer({
       claim_id: +claimId,
       address,
@@ -29,38 +29,48 @@ async function claim(msg: Message, args: string[]) {
     })
   const pointingright = getEmoji("pointingright")
   if (!ok) {
-    if (status === 404) {
-      const { data, ok, log } = await defi.getUserOnchainTransfers(
-        msg.author.id,
-        "pending"
-      )
-      if (!ok) {
+    switch (true) {
+      case status === 404: {
+        const { data, ok, log } = await defi.getUserOnchainTransfers(
+          msg.author.id,
+          "pending"
+        )
+        if (!ok) {
+          throw new InternalError({
+            message: msg,
+            title: "Fail to claim tip!",
+            description: log,
+          })
+        }
+        const description = (
+          data?.length
+            ? [
+                `${pointingright} You may enter an invalid \`claim ID\` or claimed one!`,
+                `${pointingright} You can pick one of these \`claim ID\`: ${data
+                  .map((tx: any) => tx.id)
+                  .join(", ")}`,
+                `${pointingright} You can only claim one transaction at once.`,
+              ]
+            : [
+                "You don't have any unclaimed tips. You can try to tip other by using `$tip`.",
+              ]
+        ).join("\n")
         throw new InternalError({
           message: msg,
           title: "Fail to claim tip!",
-          description: log,
+          description,
         })
       }
-      const description = (
-        data?.length
-          ? [
-              `${pointingright} You may enter an invalid \`claim ID\` or claimed one!`,
-              `${pointingright} You can pick one of these \`claim ID\`: ${data
-                .map((tx: any) => tx.id)
-                .join(", ")}`,
-              `${pointingright} You can only claim one transaction at once.`,
-            ]
-          : [
-              "You don't have any unclaimed tips. You can try to tip other by using `$tip`.",
-            ]
-      ).join("\n")
-      throw new InternalError({
-        message: msg,
-        title: "Fail to claim tip!",
-        description,
-      })
+      case originalError?.toLowerCase().includes("balance is not enough"):
+        throw new InternalError({
+          message: msg,
+          title: "Claim failed!",
+          description:
+            "Mochi wallet's balance is insufficient to proceed this transaction. Please try again later or contact administrators.",
+        })
+      default:
+        throw new APIError({ message: msg, curl, description: log, error })
     }
-    throw new APIError({ message: msg, curl, description: log, error })
   }
   const { amount, symbol, amount_in_usd, tx_hash, tx_url, recipient_address } =
     data

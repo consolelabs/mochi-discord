@@ -76,6 +76,7 @@ type OkPayload = {
   ok: true
   data: Record<string, any>
   error: null
+  originalError?: string
   pagination?: Pagination
 } & Payload
 
@@ -83,6 +84,7 @@ type ErrPayload = {
   ok: false
   data: null
   error: string
+  originalError?: string
   pagination?: Pagination
 } & Payload
 
@@ -170,6 +172,7 @@ export class Fetcher {
         logger.error(log)
 
         const json = await (res as ErrResponse).json()
+        json.originalError = json.error
         if (autoWrap500Error && res.status === 500) {
           json.error = `Our team is fixing the issue. Stay tuned ${nekoSad}.`
         } else {
@@ -208,6 +211,7 @@ export class Fetcher {
         error: `Our team is fixing the issue. Stay tuned  ${nekoSad}.`,
         log,
         curl,
+        originalError: e?.message,
       }
     }
   }
