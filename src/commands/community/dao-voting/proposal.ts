@@ -8,7 +8,9 @@ import {
 import { MessageButtonStyles } from "discord.js/typings/enums"
 import { APIError } from "errors"
 import client from "index"
-import { defaultEmojis, getEmoji, intToMonth, intToWeekday } from "utils/common"
+import NodeCache from "node-cache"
+import { ModelDaoProposalVoteCount } from "types/api"
+import { defaultEmojis, getEmoji } from "utils/common"
 import {
   composeButtonLink,
   composeEmbedMessage,
@@ -19,6 +21,12 @@ import {
 let proposalTitle = ""
 let proposalDesc = ""
 let proposalExpireIn = ""
+
+export const proposalCache = new NodeCache({
+  stdTTL: 3600,
+  checkperiod: 60,
+  useClones: false,
+})
 
 export async function handleProposalCancel(i: ButtonInteraction) {
   i.deferUpdate()
@@ -50,6 +58,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
   i.deferUpdate()
   const args = i.customId.split("-")
   const guild_id = args[2]
+  const duration = args[3]
 
   // get dao voting channel configs
   const {
@@ -91,17 +100,17 @@ export async function handleProposalCreate(i: ButtonInteraction) {
   )
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
-      customId: `test`,
+      customId: `proposal-vote-Yes-${data.id}-${i.user.id}`,
       style: "PRIMARY",
       label: "Yes",
     }),
     new MessageButton({
-      customId: `test1`,
+      customId: `proposal-vote-No-${data.id}-${i.user.id}`,
       style: "PRIMARY",
       label: "No",
     }),
     new MessageButton({
-      customId: `test2`,
+      customId: `proposal-vote-Abstain-${data.id}-${i.user.id}`,
       style: "PRIMARY",
       label: "Abstain",
     }),
@@ -124,7 +133,75 @@ export async function handleProposalCreate(i: ButtonInteraction) {
       ],
       components: [actionRow],
     })
+    const cacheKey = `proposal-${msg.id}`
+    proposalCache.set(cacheKey, [], +duration)
+    await checkExpiredProposal(
+      cacheKey,
+      msg,
+      data.id,
+      data.creator_id,
+      (+proposalExpireIn - +duration).toString(),
+      proposalExpireIn,
+      proposalTitle.toUpperCase()
+    )
   }
+}
+
+async function checkExpiredProposal(
+  cacheKey: string,
+  msg: Message,
+  proposal_id: string,
+  creator_id: string,
+  startTime: string,
+  stopTime: string,
+  title: string
+) {
+  proposalCache.on("expired", async (key) => {
+    // get vote results
+    const { data, ok, error, curl } = await community.getProposalResults(
+      proposal_id,
+      creator_id
+    )
+    if (!ok) {
+      throw new APIError({ curl, error })
+    }
+
+    const voteYes = data.proposal.points.map(
+      (votes: ModelDaoProposalVoteCount) => {
+        if (votes.choice === "Yes") return votes.sum
+      }
+    )
+    const voteNo = data.proposal.points.map(
+      (votes: ModelDaoProposalVoteCount) => {
+        if (votes.choice === "No") return votes.sum
+      }
+    )
+    const voteAbstain = data.proposal.points.map(
+      (votes: ModelDaoProposalVoteCount) => {
+        if (votes.choice === "Abstain") return votes.sum
+      }
+    )
+    const voteTotal = +voteYes + +voteNo + +voteAbstain
+    if (key === cacheKey) {
+      msg.edit({
+        content: null,
+        embeds: [
+          msg.embeds[0],
+          composeEmbedMessage(null, {
+            title: `**${title}** Vote results`,
+            description: `The vote result is recorded from <t:${startTime}> to <t:${stopTime}>\nYes: ${
+              (voteYes / voteTotal) * 100
+            }% (${voteYes} votes)\nNo: ${
+              (voteNo / voteTotal) * 100
+            }% (${voteNo} votes)\nAbstain: ${
+              (voteAbstain / voteTotal) * 100
+            }% (${voteAbstain} votes)`,
+          }),
+        ],
+        components: [],
+      })
+    }
+  })
 }
 
 // clicked from guild
@@ -134,47 +211,53 @@ export async function handleProposalForm(i: ButtonInteraction) {
   // TODO: check if user connect wallet
   const userConnected = true
   if (!userConnected) {
-    i.reply({
-      ephemeral: true,
-      embeds: [
-        getErrorEmbed({
-          title: "Wallet not connected",
-          description:
-            "Please [Connect your wallet](https://www.google.com/) to gain the authority to create a proposal. ",
-        }),
-      ],
-    }).catch(() => null)
+    await i
+      .reply({
+        ephemeral: true,
+        embeds: [
+          getErrorEmbed({
+            title: "Wallet not connected",
+            description:
+              "Please [Connect your wallet](https://www.google.com/) to gain the authority to create a proposal. ",
+          }),
+        ],
+      })
+      .catch(() => null)
   }
 
   // TODO: check user met token requirements to post proposal
   const userValidated = true
   if (!userValidated) {
-    i.reply({
-      ephemeral: true,
-      embeds: [
-        getErrorEmbed({
-          title: "Insufficient token amount",
-          description:
-            "You need to own at least 50 **FTM** to post a proposal.",
-        }),
-      ],
-    }).catch(() => null)
+    await i
+      .reply({
+        ephemeral: true,
+        embeds: [
+          getErrorEmbed({
+            title: "Insufficient token amount",
+            description:
+              "You need to own at least 50 **FTM** to post a proposal.",
+          }),
+        ],
+      })
+      .catch(() => null)
   }
 
   // TODO: check user need admin permission to post proposal
-  const userIsAdmin = false
+  const userIsAdmin = true
   if (!userIsAdmin) {
-    i.reply({
-      ephemeral: true,
-      embeds: [
-        getErrorEmbed({
-          title: "Permissions required",
-          description: `Only Administrators can use this command ${getEmoji(
-            "NEKOSAD"
-          )}.\nPlease contact your server admins if you need help.`,
-        }),
-      ],
-    }).catch(() => null)
+    await i
+      .reply({
+        ephemeral: true,
+        embeds: [
+          getErrorEmbed({
+            title: "Permissions required",
+            description: `Only Administrators can use this command ${getEmoji(
+              "NEKOSAD"
+            )}.\nPlease contact your server admins if you need help.`,
+          }),
+        ],
+      })
+      .catch(() => null)
   }
 
   const dm = await i.user.send({
@@ -188,17 +271,32 @@ export async function handleProposalForm(i: ButtonInteraction) {
     ],
   })
 
-  i.reply({
-    ephemeral: true,
-    embeds: [
-      composeEmbedMessage(null, {
-        title: `${getEmoji("MAIL")} Proposal Submission`,
-        description:
-          "The proposal submission will be processed in your DM. Please check your DM!",
-      }),
-    ],
-    components: [composeButtonLink("See the DM", dm.url)],
-  }).catch(() => null)
+  await i
+    .reply({
+      ephemeral: true,
+      embeds: [
+        composeEmbedMessage(null, {
+          title: `${getEmoji("MAIL")} Proposal Submission`,
+          description:
+            "The proposal submission will be processed in your DM. Please check your DM!",
+        }),
+      ],
+      components: [composeButtonLink("See the DM", dm.url)],
+    })
+    .catch(async () => {
+      await i.followUp({
+        ephemeral: true,
+        embeds: [
+          composeEmbedMessage(null, {
+            title: `${getEmoji("MAIL")} Proposal Submission`,
+            description:
+              "The proposal submission will be processed in your DM. Please check your DM!",
+          }),
+        ],
+        components: [composeButtonLink("See the DM", dm.url)],
+      })
+    })
+
   // get data from dm messages
   proposalTitle = await getProposalTitle(i.user.id, dm)
   proposalDesc = await getProposalDescription(i.user.id, dm)
@@ -206,6 +304,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
     await getProposalDuration(i.user.id, dm)
   ).toLowerCase()
   const currentTime = Date.now()
+  var durationSeconds = 0 // seconds vote available
   // duration ends in hH or dD
   if (proposalDuration.includes("h")) {
     const hours = parseInt(
@@ -215,6 +314,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
       Math.floor(currentTime / 1000) +
       hours * 3600
     ).toString()
+    durationSeconds = hours * 3600
   } else {
     const days = parseInt(
       proposalDuration.slice(0, proposalDuration.length - 1)
@@ -223,12 +323,13 @@ export async function handleProposalForm(i: ButtonInteraction) {
       Math.floor(currentTime / 1000) +
       days * 24 * 3600
     ).toString()
+    durationSeconds = days * 24 * 3600
   }
 
   // send confirmation
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
-      customId: `proposal-confirm-${i.guildId}`,
+      customId: `proposal-confirm-${i.guildId}-${durationSeconds}`,
       style: "PRIMARY",
       label: "Submit",
     }),

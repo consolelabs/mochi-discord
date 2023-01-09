@@ -17,6 +17,8 @@ import {
   ResponseGetCollectionCountResponse,
   ModelDaoProposal,
   ResponseGetGuildConfigDaoProposal,
+  ModelDaoVote,
+  ResponseGetAllDaoProposalVotes,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL } from "utils/constants"
@@ -451,11 +453,67 @@ class Community extends Fetcher {
     )
   }
 
+  public async createUserProposalVote(body: {
+    user_id: string
+    proposal_id: number
+    choice: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/dao-voting/proposals/votes`, {
+      method: "POST",
+      body,
+    })
+  }
+
+  public async UpdateUserProposalVote(
+    vote_id: string,
+    body: {
+      user_id: string
+      choice: string
+    }
+  ) {
+    return await this.jsonFetch<ModelDaoVote>(
+      `${API_BASE_URL}/dao-voting/proposals/votes/${vote_id}`,
+      {
+        method: "PUT",
+        body,
+      }
+    )
+  }
+
+  public async getUserProposalVote(
+    user_discord_id: string,
+    proposal_id: string
+  ) {
+    return await this.jsonFetch<ModelDaoVote>(
+      `${API_BASE_URL}/dao-voting/proposals/votes`,
+      {
+        method: "GET",
+        query: {
+          user_discord_id,
+          proposal_id,
+        },
+      }
+    )
+  }
+
   public async getGuildConfigDaoProposal(guild_id: string) {
     return await this.jsonFetch<ResponseGetGuildConfigDaoProposal>(
       `${API_BASE_URL}/config-channels/${guild_id}/proposal`,
       {
         method: "GET",
+      }
+    )
+  }
+
+  public async getProposalResults(
+    proposal_id: string,
+    user_discord_id: string
+  ) {
+    return await this.jsonFetch<ResponseGetAllDaoProposalVotes>(
+      `${API_BASE_URL}/dao-voting/proposals/${proposal_id}`,
+      {
+        method: "GET",
+        query: { user_discord_id },
       }
     )
   }
