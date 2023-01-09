@@ -16,7 +16,7 @@ const command: Command = {
   id: "daovote_set",
   command: "set",
   brief: "Configuration channel proposal",
-  category: "Defi",
+  category: "Config",
   run: async function (msg) {
     if (!msg.guild) {
       throw new GuildIdNotFoundError({})
@@ -32,9 +32,9 @@ const command: Command = {
             composeEmbedMessage(null, {
               title: `${getEmoji("revoke")} Invalid channels`,
               description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
-                "pointing_right"
+                "pointingright"
               )} Type # to see the channel list.\n${getEmoji(
-                "pointing_right"
+                "pointingright"
               )} To add a new channel: 1. Create channel → 2. Confirm`,
             }),
           ],
@@ -163,7 +163,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
         throw new InternalError({
           title: `${getEmoji("revoke")} Unsupported network`,
           description: `${getEmoji(
-            "pointing_right"
+            "pointingright"
           )} Only tokens on EVM, Polygon, and Solana are supported. You can choose one of these networks.`,
         })
       default:

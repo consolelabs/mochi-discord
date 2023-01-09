@@ -2,16 +2,20 @@ import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
 import set from "./set"
+import info from "./info"
+import remove from "./remove"
 
 const actions: Record<string, Command> = {
   set,
+  info,
+  remove,
 }
 
 const command: Command = {
   id: "daovote",
   command: "daovote",
   brief: "DAO Voting",
-  category: "Defi",
+  category: "Config",
   run: async () => null,
   featured: {
     title: "DAO Voting",
