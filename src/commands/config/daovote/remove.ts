@@ -9,6 +9,7 @@ const command: Command = {
   id: "daovote_remove",
   command: "remove",
   brief: "Remove DAO vote channel",
+  onlyAdministrator: true,
   category: "Config",
   run: async (msg) => {
     if (!msg.guild) {
