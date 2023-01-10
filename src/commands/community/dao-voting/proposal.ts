@@ -208,55 +208,57 @@ async function checkExpiredProposal(
 
 // clicked from guild
 export async function handleProposalForm(i: ButtonInteraction) {
-  i.deferReply({ ephemeral: true })
+  await i.deferReply({ ephemeral: true })
   const guidelineChannelId = i.customId.split("-")[2]
 
-  // TODO: check if user connect wallet
-  const userConnected = true
-  if (!userConnected) {
-    await i
-      .reply({
-        ephemeral: true,
+  //check user's balance has met token requirements to post proposal
+  const { data, ok, error, curl, log } = await community.getDaoVoterStatus(
+    null,
+    i.user.id,
+    i.guildId ?? "",
+    "create_proposal"
+  )
+  if (!ok) {
+    throw new APIError({ curl, description: log, error })
+  }
+  if (!data.is_wallet_connected) {
+    return await i
+      .editReply({
         embeds: [
           getErrorEmbed({
             title: "Wallet not connected",
             description:
-              "Please [Connect your wallet](https://www.google.com/) to gain the authority to create a proposal. ",
+              "Please [Connect your wallet](https://mochi.gg/verify?code=30a5bf5f-20d2-434f-a20f-2c03dc5e386f) to gain the authority to create a proposal. ",
           }),
         ],
       })
       .catch(() => null)
   }
-
-  // TODO: check user met token requirements to post proposal
-  const userValidated = true
-  if (!userValidated) {
-    await i
-      .reply({
-        ephemeral: true,
+  if (!data.is_qualified) {
+    if (
+      data.guild_config.authority === "admin" &&
+      !i.memberPermissions?.has("ADMINISTRATOR")
+    ) {
+      return await i
+        .reply({
+          ephemeral: true,
+          embeds: [
+            getErrorEmbed({
+              title: "Permissions required",
+              description: `Only Administrators can use this command ${getEmoji(
+                "NEKOSAD"
+              )}.\nPlease contact your server admins if you need help.`,
+            }),
+          ],
+        })
+        .catch(() => null)
+    }
+    return await i
+      .editReply({
         embeds: [
           getErrorEmbed({
             title: "Insufficient token amount",
-            description:
-              "You need to own at least 50 **FTM** to post a proposal.",
-          }),
-        ],
-      })
-      .catch(() => null)
-  }
-
-  // TODO: check user need admin permission to post proposal
-  const userIsAdmin = true
-  if (!userIsAdmin) {
-    await i
-      .reply({
-        ephemeral: true,
-        embeds: [
-          getErrorEmbed({
-            title: "Permissions required",
-            description: `Only Administrators can use this command ${getEmoji(
-              "NEKOSAD"
-            )}.\nPlease contact your server admins if you need help.`,
+            description: `You need to own at least ${data.vote_config.required_amount} **${data.vote_config.symbol}** to post a proposal.`,
           }),
         ],
       })

@@ -517,6 +517,21 @@ class Community extends Fetcher {
       }
     )
   }
+
+  public async getDaoVoterStatus(
+    proposal_id: string | null,
+    user_id: string,
+    guild_id: string,
+    action: string
+  ) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/dao-voting/token-holder/status`,
+      {
+        method: "GET",
+        query: { user_id, proposal_id, guild_id, action },
+      }
+    )
+  }
 }
 
 export default new Community()

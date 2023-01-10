@@ -2,7 +2,7 @@ import community from "adapters/community"
 import { ButtonInteraction } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji } from "utils/common"
-import { getSuccessEmbed } from "utils/discordEmbed"
+import { getErrorEmbed, getSuccessEmbed } from "utils/discordEmbed"
 
 export async function handleProposalVote(i: ButtonInteraction) {
   await i.deferReply({ ephemeral: true })
@@ -10,6 +10,37 @@ export async function handleProposalVote(i: ButtonInteraction) {
   const choice = args[2]
   const proposal_id = args[3]
   const user_id = args[4]
+
+  // check if user connect wallet
+  const {
+    data: wData,
+    ok: wOk,
+    error: wError,
+    curl: wCurl,
+    log: wLog,
+  } = await community.getDaoVoterStatus(
+    proposal_id,
+    user_id,
+    i.guildId ?? "",
+    "vote"
+  )
+  if (!wOk) {
+    throw new APIError({ curl: wCurl, description: wLog, error: wError })
+  }
+  if (!wData.is_wallet_connected) {
+    return await i
+      .editReply({
+        embeds: [
+          getErrorEmbed({
+            title: "Wallet not connected",
+            description:
+              "Please [Connect your wallet](https://mochi.gg/verify?code=30a5bf5f-20d2-434f-a20f-2c03dc5e386f) to gain the authority to vote. ",
+          }),
+        ],
+      })
+      .catch(() => null)
+  }
+
   // get user vote
   const { data, error: getProposalErr } = await community.getUserProposalVote(
     user_id,
