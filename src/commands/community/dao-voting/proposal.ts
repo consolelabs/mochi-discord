@@ -30,23 +30,22 @@ export const proposalCache = new NodeCache({
 
 export async function handleProposalCancel(i: ButtonInteraction) {
   i.deferUpdate()
+  const channelId = i.customId.split("-")[2]
   const msg = i.message as Message
-  // TODO: attach guideline channel id to button id
   msg.edit({
     embeds: [
       getErrorEmbed({
         title: "Proposal canceled",
-        description:
-          "The proposal is canceled. Start a new proposal in the <#guideline_channel>",
+        description: `The proposal is canceled. Start a new proposal in the <#${channelId}>`,
       }),
     ],
     components: [],
   })
 }
 
-function composeProposalCancelButton(): MessageButton {
+function composeProposalCancelButton(guidelineId: string): MessageButton {
   return new MessageButton({
-    customId: `proposal-cancel`,
+    customId: `proposal-cancel-${guidelineId}`,
     emoji: getEmoji("revoke"),
     style: "SECONDARY",
     label: "Cancel",
@@ -185,8 +184,11 @@ async function checkExpiredProposal(
     if (key === cacheKey) {
       msg.edit({
         content: null,
+        components: [],
+      })
+      await msg.channel.send({
+        content: "> @everyone",
         embeds: [
-          msg.embeds[0],
           composeEmbedMessage(null, {
             title: `**${title}** Vote results`,
             description: `The vote result is recorded from <t:${startTime}> to <t:${stopTime}>\nYes: ${
@@ -195,7 +197,7 @@ async function checkExpiredProposal(
               (voteNo / voteTotal) * 100
             }% (${voteNo} votes)\nAbstain: ${
               (voteAbstain / voteTotal) * 100
-            }% (${voteAbstain} votes)`,
+            }% (${voteAbstain} votes)\n\nTotal votes: ${voteTotal}`,
           }),
         ],
         components: [],
@@ -206,7 +208,8 @@ async function checkExpiredProposal(
 
 // clicked from guild
 export async function handleProposalForm(i: ButtonInteraction) {
-  i.deferReply()
+  i.deferReply({ ephemeral: true })
+  const guidelineChannelId = i.customId.split("-")[2]
 
   // TODO: check if user connect wallet
   const userConnected = true
@@ -267,44 +270,31 @@ export async function handleProposalForm(i: ButtonInteraction) {
       }),
     ],
     components: [
-      new MessageActionRow().addComponents(composeProposalCancelButton()),
+      new MessageActionRow().addComponents(
+        composeProposalCancelButton(guidelineChannelId)
+      ),
     ],
   })
 
-  await i
-    .reply({
-      ephemeral: true,
-      embeds: [
-        composeEmbedMessage(null, {
-          title: `${getEmoji("MAIL")} Proposal Submission`,
-          description:
-            "The proposal submission will be processed in your DM. Please check your DM!",
-        }),
-      ],
-      components: [composeButtonLink("See the DM", dm.url)],
-    })
-    .catch(async () => {
-      await i.followUp({
-        ephemeral: true,
-        embeds: [
-          composeEmbedMessage(null, {
-            title: `${getEmoji("MAIL")} Proposal Submission`,
-            description:
-              "The proposal submission will be processed in your DM. Please check your DM!",
-          }),
-        ],
-        components: [composeButtonLink("See the DM", dm.url)],
-      })
-    })
+  await i.editReply({
+    embeds: [
+      composeEmbedMessage(null, {
+        title: `${getEmoji("MAIL")} Proposal Submission`,
+        description:
+          "The proposal submission will be processed in your DM. Please check your DM!",
+      }),
+    ],
+    components: [composeButtonLink("See the DM", dm.url)],
+  })
 
   // get data from dm messages
-  proposalTitle = await getProposalTitle(i.user.id, dm)
-  proposalDesc = await getProposalDescription(i.user.id, dm)
+  proposalTitle = await getProposalTitle(i.user.id, guidelineChannelId, dm)
+  proposalDesc = await getProposalDescription(i.user.id, guidelineChannelId, dm)
   const proposalDuration = (
     await getProposalDuration(i.user.id, dm)
   ).toLowerCase()
   const currentTime = Date.now()
-  var durationSeconds = 0 // seconds vote available
+  let durationSeconds = 0 // seconds vote available
   // duration ends in hH or dD
   if (proposalDuration.includes("h")) {
     const hours = parseInt(
@@ -333,7 +323,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
       style: "PRIMARY",
       label: "Submit",
     }),
-    composeProposalCancelButton()
+    composeProposalCancelButton(guidelineChannelId)
   )
   await i.user.send({
     content: "> Proposal preview",
@@ -349,6 +339,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
 
 async function getProposalTitle(
   authorId: string,
+  guidelineChannelId: string,
   dm: Message
 ): Promise<string> {
   const filter = (collected: Message) => collected.author.id === authorId
@@ -369,7 +360,9 @@ async function getProposalTitle(
       }),
     ],
     components: [
-      new MessageActionRow().addComponents(composeProposalCancelButton()),
+      new MessageActionRow().addComponents(
+        composeProposalCancelButton(guidelineChannelId)
+      ),
     ],
   })
   return userReply?.content?.trim() ?? ""
@@ -377,6 +370,7 @@ async function getProposalTitle(
 
 async function getProposalDescription(
   authorId: string,
+  guidelineChannelId: string,
   dm: Message
 ): Promise<string> {
   const filter = (collected: Message) => collected.author.id === authorId
@@ -397,7 +391,9 @@ async function getProposalDescription(
       }),
     ],
     components: [
-      new MessageActionRow().addComponents(composeProposalCancelButton()),
+      new MessageActionRow().addComponents(
+        composeProposalCancelButton(guidelineChannelId)
+      ),
     ],
   })
   return userReply?.content?.trim() ?? ""
