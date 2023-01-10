@@ -197,6 +197,7 @@ export const emojis: { [key: string]: string } = {
   DISCORD: "1039475287169183744",
   TWITTER: "932208655313551420",
   HORIZONTAL_LINE: "928213014824488990",
+  MAIL: "1058304339237666866",
   ASSET: "💰",
   IDENTITY: "🪪",
   NFT: "🖼",
@@ -226,7 +227,6 @@ export const emojis: { [key: string]: string } = {
   BUCKET_CASH: "933020342035820604",
   BOO: "920934041665011713",
   POINTINGRIGHT: "1058304352944656384",
-  MAIL: "1058304339237666866",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -535,4 +535,37 @@ export function isDiscordMessageLink(url: string): boolean {
   return /(http(s)?:\/\/\.)?(www\.)?discord\.com\/channels\/[0-9]*\/[0-9]*\/[0-9]*/g.test(
     url
   )
+}
+
+export function intToWeekday(idx: number) {
+  const week = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ]
+  if (idx > 6 || idx < 0) return ""
+  return week[idx]
+}
+
+export function intToMonth(idx: number) {
+  const year = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ]
+  if (idx > 11 || idx < 0) return ""
+  return year[idx]
 }
