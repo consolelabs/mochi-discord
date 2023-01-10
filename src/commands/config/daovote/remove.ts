@@ -14,8 +14,17 @@ const command: Command = {
     if (!msg.guild) {
       throw new GuildIdNotFoundError({})
     }
+    const {
+      ok: okGet,
+      data,
+      log: logGet,
+      curl: curlGet,
+    } = await config.getProposalChannelConfig(msg.guildId || "")
+    if (!okGet) {
+      throw new APIError({ message: msg, description: logGet, curl: curlGet })
+    }
     const { ok, log, curl } = await config.deleteProposalChannelConfig({
-      id: msg.guildId || "",
+      id: `${data.id}`,
     })
     if (!ok) {
       throw new APIError({ message: msg, description: log, curl })
