@@ -226,6 +226,7 @@ export const emojis: { [key: string]: string } = {
   BUCKET_CASH: "933020342035820604",
   BOO: "920934041665011713",
   POINTINGRIGHT: "1058304352944656384",
+  MAIL: "1058304339237666866",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
