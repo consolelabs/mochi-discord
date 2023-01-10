@@ -43,13 +43,17 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(null, {
             title: `${getEmoji("mail")} DAO voting information`,
-            description: `- **Channel**: <#${
+            description: `${getEmoji("pointingright")} **Channel**: <#${
               data.proposal_channel_id
-            }>\n- **Token**: ${
+            }>\n${getEmoji("pointingright")} **Token**: ${
               data.symbol
-            }\n- **Proposal creator**: ${authority}\n${
+            }\n${getEmoji(
+              "pointingright"
+            )} **Proposal creator**: ${authority}\n${
               data.required_amount
-                ? `- **Minimum token amount**: ${data.required_amount}`
+                ? `${getEmoji("pointingright")} **Minimum token amount**: ${
+                    data.required_amount
+                  }`
                 : ""
             }`,
           }),
