@@ -127,7 +127,6 @@ As for the format, the log generally need to show 2 **W**s and 1 **H**:
 ## :chains: Third-party services
 
 - Twitter API: used in the tweet watcher module, create rules and receive tweets in real-time
-- Firebase: used in Tripod game, persists user session game data
 
 ## :microscope: Experimental commands
 

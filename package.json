@@ -55,7 +55,6 @@
     "dotenv": "^10.0.0",
     "emoji-regex": "^10.2.1",
     "ethers": "^5.4.7",
-    "firebase-admin": "^11.0.0",
     "fuzzyset": "^1.0.7",
     "kafkajs": "^2.2.3",
     "lodash": "^4.17.21",
