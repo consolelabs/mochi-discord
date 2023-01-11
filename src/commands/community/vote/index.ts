@@ -2,14 +2,13 @@ import { Command } from "types/common"
 import { Message, User } from "discord.js"
 import Community from "adapters/community"
 import { composeEmbedMessage, getErrorEmbed } from "utils/discordEmbed"
-import { capFirst, emojis, getEmoji, getEmojiURL } from "utils/common"
+import { capFirst, getEmoji } from "utils/common"
 import { PREFIX, VOTE_GITBOOK } from "utils/constants"
 import { logger } from "logger"
 import set from "./set"
-import info, { handle as handleInfo } from "./info"
+import info from "./info"
 import remove from "./remove"
 import top from "./top"
-import { GuildIdNotFoundError } from "errors"
 
 const actions: Record<string, Command> = {
   set,
@@ -146,30 +145,46 @@ export async function setCache(msg: Message) {
   await Community.setUpvoteMessageCache(req)
 }
 
+export function disabledVoteEmbed() {
+  return composeEmbedMessage(null, {
+    title: "Vote is temporarily closed!",
+    description: `Thanks for voting for our Bot on [Top.gg/DiscordBotlist](http://Top.gg/DiscordBotlist) in the past few months. ${getEmoji(
+      "HEART2"
+    )}\n\nHowever, so many spam servers installed Mochi from these platforms, which affected our verification process. So we decided to close the $vote for a while, we will inform you once the vote is opened ${getEmoji(
+      "SOON"
+    )}`,
+  })
+}
+
 const command: Command = {
   id: "vote",
   command: "vote",
   brief: "Display voting streaks and links to vote",
   category: "Community",
-  run: async (msg: Message) => {
-    if (!msg.guildId) {
-      throw new GuildIdNotFoundError({ message: msg })
-    }
-    const res = await handleInfo(msg.guildId, msg)
-    if (res?.channel_id && msg.channelId !== res?.channel_id) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage(msg, {
-              author: ["Go to the vote channel", getEmojiURL(emojis.SOCIAL)],
-              description: `You can only vote in <#${res.channel_id}>.`,
-            }),
-          ],
-        },
-      }
-    } else {
-      await setCache(msg)
-      return handle(msg.author)
+  run: async () => {
+    // if (!msg.guildId) {
+    //   throw new GuildIdNotFoundError({ message: msg })
+    // }
+    // const res = await handleInfo(msg.guildId, msg)
+    // if (res?.channel_id && msg.channelId !== res?.channel_id) {
+    //   return {
+    //     messageOptions: {
+    //       embeds: [
+    //         composeEmbedMessage(msg, {
+    //           author: ["Go to the vote channel", getEmojiURL(emojis.SOCIAL)],
+    //           description: `You can only vote in <#${res.channel_id}>.`,
+    //         }),
+    //       ],
+    //     },
+    //   }
+    // } else {
+    //   await setCache(msg)
+    //   return handle(msg.author)
+    // }
+    return {
+      messageOptions: {
+        embeds: [disabledVoteEmbed()],
+      },
     }
   },
   featured: {

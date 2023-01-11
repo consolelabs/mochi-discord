@@ -229,6 +229,8 @@ export const emojis: { [key: string]: string } = {
   POINTINGRIGHT: "1058304352944656384",
   MOONING: "930840083278487562",
   GLOWINGHEDGE: "998929183122141194",
+  SOON: "932544052698701844",
+  HEART2: "900748086635278386",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
