@@ -12,7 +12,7 @@ import Community from "adapters/community"
 import { emojis, getEmojiURL } from "utils/common"
 import { registerFont } from "canvas"
 
-registerFont("src/assets/fonts/whitneysemibold.otf", {
+registerFont("assets/fonts/whitneysemibold.otf", {
   family: "Whitney",
   weight: "semibold",
 })

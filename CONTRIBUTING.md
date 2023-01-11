@@ -59,7 +59,7 @@ make dev
    - `In Review`: Task done = PR has been merged to `develop` branch at least
    - `Completed`: Confirmation from the team that the TODO is completely finished
 4. When switching your TODO to `In Review`, remember to fill these in
-   ![Untitled](/images/5.png)
+   ![Untitled](/assets/images/5.png)
 
 ### PR Template
 

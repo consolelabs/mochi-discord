@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://getmochi.co">
-    <img width="700" src="./images/mochi.png" />
+    <img width="700" src="./assets/images/mochi.png" />
   </a>
 </p>
 
@@ -96,7 +96,7 @@ There are 2 streams/kinds of logs that we use to debug whenever something happen
    <details>
      <summary>Example</summary>
 
-   ![terminal-log](./images/terminal-log.png)
+   ![terminal-log](./assets/images/terminal-log.png)
    </details>
    <br/>
 
@@ -105,7 +105,7 @@ There are 2 streams/kinds of logs that we use to debug whenever something happen
    <details>
      <summary>Example</summary>
 
-   ![alert](./images/alert.png)
+   ![alert](./assets/images/alert.png)
    </details>
 
 ### :pencil: Log format

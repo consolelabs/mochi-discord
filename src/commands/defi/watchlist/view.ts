@@ -38,10 +38,10 @@ let fontRegistered = false
 
 async function renderWatchlist(data: any[]) {
   if (!fontRegistered) {
-    registerFont("src/assets/fonts/inter/Inter-Regular.ttf", {
+    registerFont("assets/fonts/inter/Inter-Regular.ttf", {
       family: "Inter",
     })
-    registerFont("src/assets/fonts/inter/Inter-Bold.ttf", {
+    registerFont("assets/fonts/inter/Inter-Bold.ttf", {
       family: "Inter",
       weight: "bold",
     })
@@ -230,10 +230,10 @@ async function renderWatchlist(data: any[]) {
 
 async function renderNFTWatchlist(data: any[]) {
   if (!fontRegistered) {
-    registerFont("src/assets/fonts/inter/Inter-Regular.ttf", {
+    registerFont("assets/fonts/inter/Inter-Regular.ttf", {
       family: "Inter",
     })
-    registerFont("src/assets/fonts/inter/Inter-Bold.ttf", {
+    registerFont("assets/fonts/inter/Inter-Bold.ttf", {
       family: "Inter",
       weight: "bold",
     })
