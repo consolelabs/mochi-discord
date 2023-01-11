@@ -13,7 +13,6 @@ import {
   GM_GITBOOK,
   HELP_GITBOOK,
   HOMEPAGE_URL,
-  INVITE_GITBOOK,
   LEVEL_ROLE_GITBOOK,
   LOG_CHANNEL_GITBOOK,
   NFT_GITBOOK,
@@ -23,7 +22,6 @@ import {
   REACTION_ROLE_GITBOOK,
   SALE_TRACKER_GITBOOK,
   STARBOARD_GITBOOK,
-  STATS_GITBOOK,
   TELEGRAM_GITBOOK,
   TICKER_GITBOOK,
   TIP_GITBOOK,
@@ -95,15 +93,11 @@ const allCommands: Record<PageType, HelpPage> = {
       },
       "Member Profile": {
         emoji: getEmoji("exp"),
-        description: "Tracking member profile and ranking",
+        description: "Tracking member profile",
         features: [
           {
             value: "profile",
             url: PROFILE_GITBOOK,
-          },
-          {
-            value: "top",
-            url: HELP_GITBOOK + "&command=top",
           },
         ],
       },
@@ -203,16 +197,6 @@ const allCommands: Record<PageType, HelpPage> = {
           },
         ],
       },
-      "Server Insight": {
-        emoji: getEmoji("prediction"),
-        description: "Gain more server insight",
-        features: [
-          {
-            value: "stats",
-            url: STATS_GITBOOK,
-          },
-        ],
-      },
       Welcome: {
         emoji: getEmoji("hello"),
         description: "Automate welcome message",
@@ -228,10 +212,6 @@ const allCommands: Record<PageType, HelpPage> = {
         emoji: "<a:pepepolicedog:974757344900681758>",
         description: "Grow the number of members or remove inactive ones",
         features: [
-          {
-            value: "invite",
-            url: INVITE_GITBOOK,
-          },
           {
             value: "prune",
             url: PRUNE_GITBOOK,
