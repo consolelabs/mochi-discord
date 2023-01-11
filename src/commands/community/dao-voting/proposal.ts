@@ -210,61 +210,61 @@ async function checkExpiredProposal(
 export async function handleProposalForm(i: ButtonInteraction) {
   await i.deferReply({ ephemeral: true })
   const guidelineChannelId = i.customId.split("-")[2]
+  const authority = i.customId.split("-")[3]
 
-  //check user's balance has met token requirements to post proposal
-  const { data, ok, error, curl, log } = await community.getDaoVoterStatus(
-    null,
-    i.user.id,
-    i.guildId ?? "",
-    "create_proposal"
-  )
-  if (!ok) {
-    throw new APIError({ curl, description: log, error })
-  }
-  if (!data.is_wallet_connected) {
+  // check proposal requirements
+  if (authority === "admin" && !i.memberPermissions?.has("ADMINISTRATOR")) {
     return await i
       .editReply({
         embeds: [
           getErrorEmbed({
-            title: "Wallet not connected",
-            description:
-              "Please [Connect your wallet](https://mochi.gg/verify?code=30a5bf5f-20d2-434f-a20f-2c03dc5e386f) to gain the authority to create a proposal. ",
+            title: "Permissions required",
+            description: `Only Administrators can use this command ${getEmoji(
+              "NEKOSAD"
+            )}.\nPlease contact your server admins if you need help.`,
           }),
         ],
       })
       .catch(() => null)
   }
-  if (!data.is_qualified) {
-    if (
-      data.guild_config.authority === "admin" &&
-      !i.memberPermissions?.has("ADMINISTRATOR")
-    ) {
+
+  //check user's balance has met token requirements to post proposal
+  if (authority === "tokenholder") {
+    const { data, ok, error, curl, log } = await community.getDaoVoterStatus(
+      null,
+      i.user.id,
+      i.guildId ?? "",
+      "create_proposal"
+    )
+    if (!ok) {
+      throw new APIError({ curl, description: log, error })
+    }
+    if (!data.is_wallet_connected) {
       return await i
-        .reply({
-          ephemeral: true,
+        .editReply({
           embeds: [
             getErrorEmbed({
-              title: "Permissions required",
-              description: `Only Administrators can use this command ${getEmoji(
-                "NEKOSAD"
-              )}.\nPlease contact your server admins if you need help.`,
+              title: "Wallet not connected",
+              description:
+                "Please [Connect your wallet](https://mochi.gg/verify?code=30a5bf5f-20d2-434f-a20f-2c03dc5e386f) to gain the authority to create a proposal. ",
             }),
           ],
         })
         .catch(() => null)
     }
-    return await i
-      .editReply({
-        embeds: [
-          getErrorEmbed({
-            title: "Insufficient token amount",
-            description: `You need to own at least ${data.vote_config.required_amount} **${data.vote_config.symbol}** to post a proposal.`,
-          }),
-        ],
-      })
-      .catch(() => null)
+    if (!data.is_qualified) {
+      return await i
+        .editReply({
+          embeds: [
+            getErrorEmbed({
+              title: "Insufficient token amount",
+              description: `You need to own at least ${data.vote_config.required_amount} **${data.vote_config.symbol}** to post a proposal.`,
+            }),
+          ],
+        })
+        .catch(() => null)
+    }
   }
-
   const dm = await i.user.send({
     embeds: [
       composeEmbedMessage(null, {
