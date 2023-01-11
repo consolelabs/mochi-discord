@@ -15,7 +15,6 @@ import {
   getEmojiURL,
   roundFloatNumber,
   thumbnails,
-  tripodEmojis,
 } from "utils/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import Defi from "adapters/defi"
@@ -376,7 +375,7 @@ const command: Command = {
     return await handleAirdrop(msg, payload, data)
   },
   featured: {
-    title: `<:_:${tripodEmojis.AIRDROPPER}> Airdrop`,
+    title: `<:_:${emojis.AIRDROPPER}> Airdrop`,
     description:
       "Airdrop tokens for a specified number of users to collect in a given amount of time",
   },

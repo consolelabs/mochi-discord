@@ -1,8 +1,6 @@
 // commands
 import help from "./help"
-import invite from "./community/invite"
 import profile from "./profile/profile"
-import stats from "./community/stats"
 import nft from "./community/nft"
 import sales from "./community/sales"
 import tip from "./defi/tip"
@@ -17,14 +15,11 @@ import gm from "./community/gm"
 import defaultrole from "./config/defaultRole"
 import reactionrole from "./config/reactionRole"
 import starboard from "./config/starboard"
-import joinleave from "./config/joinleave"
 import top from "./community/top"
 import prune from "./community/prune"
-import tripod from "./games/tripod"
 import levelrole from "./config/levelRole"
 import nftrole from "./config/nftRole"
 // import globalxp from "./config/globalxp"
-// import eventxp from "./config/eventxp"
 import verify from "./community/verify"
 import log from "./config/log"
 import poe from "./config/poe"
@@ -32,11 +27,9 @@ import watchlist from "./defi/watchlist"
 import vote from "./community/vote"
 import feedback from "./community/feedback"
 import telegram from "./config/telegram"
-import swap from "./community/swap"
 import quest from "./community/quest"
 import statements from "./defi/statements"
 import monikers from "./config/moniker"
-import transaction from "./transaction"
 import daovote from "./config/daovote"
 import sendxp from "./community/sendxp"
 
@@ -56,7 +49,6 @@ import reactionrole_slash from "./config/reactionRole_slash"
 import nftrole_slash from "./config/nftRole_slash"
 import vote_slash from "./community/vote/vote_slash"
 import quest_slash from "./community/quest_slash"
-import stats_slash from "./community/stats_slash"
 import gm_slash from "./community/gm_slash"
 import nft_slash from "./community/nft_slash"
 import tip_slash from "./defi/tip_bot_slash/tip"
@@ -65,7 +57,6 @@ import statements_slash from "./defi/tip_bot_slash/statements"
 import moniker_slash from "./config/moniker_slash"
 import withdraw_slash from "./defi/tip_bot_slash/withdraw"
 import airdrop_slash from "./defi/tip_bot_slash/airdrop"
-import invite_slash from "./community/invite_slash"
 import sales_slash from "./community/sales_slash"
 import sendxp_slash from "./community/sendxp-slash"
 import profile_slash from "./profile_slash/profile"
@@ -132,7 +123,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   nftrole: nftrole_slash,
   prune: prune_slash,
   quest: quest_slash,
-  stats: stats_slash,
   gm: gm_slash,
   nft: nft_slash,
   tip: tip_slash,
@@ -141,7 +131,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   monikers: moniker_slash,
   withdraw: withdraw_slash,
   airdrop: airdrop_slash,
-  invite: invite_slash,
   sales: sales_slash,
   token: token_slash,
   profile: profile_slash,
@@ -164,12 +153,7 @@ export const originalCommands: Record<string, Command> = {
   ticker,
   watchlist,
   statements,
-  transaction,
-  // community section
-  swap,
-  invite,
   gm,
-  stats,
   nft,
   top,
   sales,
@@ -181,7 +165,6 @@ export const originalCommands: Record<string, Command> = {
   // config section
   reactionrole,
   defaultrole,
-  joinleave,
   monikers,
   levelrole,
   nftrole,
@@ -189,12 +172,9 @@ export const originalCommands: Record<string, Command> = {
   // globalxp,
   sendxp,
   starboard,
-  // eventxp,
   log,
   poe,
   telegram,
-  // games section
-  tripod,
 }
 export const commands = getAllAliases(originalCommands)
 export const fuzzySet = FuzzySet(Object.keys(commands))

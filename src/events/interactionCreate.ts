@@ -5,7 +5,6 @@ import {
   confirmAirdrop,
   enterAirdrop,
 } from "commands/defi/airdrop"
-import { triplePodInteraction } from "commands/games/tripod"
 import { sendVerifyURL } from "commands/profile/verify"
 import {
   SelectMenuInteraction,
@@ -29,14 +28,12 @@ import { wrapError } from "utils/wrapError"
 import { handleTickerViews } from "commands/defi/ticker/ticker"
 import { handleNFTTickerViews } from "commands/community/nft/ticker"
 import { authorFilter, getEmoji, hasAdministrator } from "utils/common"
-import { handleButtonOffer, handleCreateSwap } from "commands/community/swap"
 import InteractionManager from "utils/InteractionManager"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import {
   handleBackToQuestList,
   handleClaimReward,
 } from "commands/community/quest/daily"
-import ConversationManager from "utils/ConversationManager"
 import { addToWatchlist } from "commands/defi/watchlist/add"
 import { feedbackDispatcher } from "commands/community/feedback"
 import { CommandNotAllowedToRunError } from "errors"
@@ -319,8 +316,6 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("globalxp"):
       await confirmGlobalXP(i, msg)
       return
-    case i.customId.startsWith("triple-pod-"):
-      await triplePodInteraction(i)
       return
     case i.customId.startsWith("ticker_view_"):
       await handleTickerViews(i)
@@ -330,12 +325,6 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("nft_ticker_view"):
       await handleNFTTickerViews(i)
-      return
-    case i.customId.startsWith("create-trade"):
-      await handleCreateSwap(i)
-      break
-    case i.customId.startsWith("trade-offer"):
-      await handleButtonOffer(i)
       return
     case i.customId.startsWith("claim-rewards"):
       await handleClaimReward(i)
@@ -359,9 +348,6 @@ async function handleButtonInteraction(interaction: Interaction) {
       await handleProposalVote(i)
       return
     default: {
-      if (ConversationManager.hasConversation(i.user.id, i.channelId, i)) {
-        ConversationManager.continueConversation(i.user.id, i.channelId, i)
-      }
       return
     }
   }

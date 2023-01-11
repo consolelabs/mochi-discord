@@ -6,8 +6,6 @@ import messageReactionAdd from "./messageReactionAdd"
 import guildCreate from "./guildCreate"
 import guildMemberRemove from "./guildMemberRemove"
 import guildMemberAdd from "./guildMemberAdd"
-import inviteDelete from "./inviteDelete"
-import inviteCreate from "./inviteCreate"
 import messageReactionRemove from "./messageReactionRemove"
 import messageDelete from "./messageDelete"
 import guildDelete from "./guildDelete"
@@ -26,8 +24,6 @@ export default [
   messageReactionAdd,
   messageReactionRemove,
   guildMemberAdd,
-  inviteCreate,
-  inviteDelete,
   guildCreate,
   guildDelete,
   guildMemberRemove,
