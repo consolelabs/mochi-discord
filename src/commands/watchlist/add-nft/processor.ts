@@ -2,7 +2,7 @@ import { SelectMenuInteraction } from "discord.js"
 import { getSuccessEmbed } from "ui/discord/embed"
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
-import { InteractionHandler } from "utils/InteractionManager"
+import { InteractionHandler } from "handlers/discord/select-menu"
 import { handleUpdateWlError } from "../processor"
 
 export const handler: InteractionHandler = async (msgOrInteraction) => {

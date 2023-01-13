@@ -15,7 +15,7 @@ import {
   User,
   WebhookEditMessageOptions,
 } from "discord.js"
-import type { InteractionOptions } from "utils/InteractionManager"
+import type { InteractionOptions } from "handlers/discord/select-menu"
 
 // Category of commands
 export type Category = "Profile" | "Defi" | "Config" | "Community" | "Game"

@@ -21,7 +21,7 @@ import {
   ResponseGetAllDaoProposalVotes,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
-import { API_BASE_URL } from "utils/constants"
+import { API_BASE_URL, PT_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
 
 class Community extends Fetcher {
@@ -544,6 +544,55 @@ class Community extends Fetcher {
       method: "POST",
       body,
     })
+  }
+
+  public async addNftCollection(body: {
+    chain_id: string
+    address: string
+    author: string
+    guild_id: string
+    message_id?: string
+    channel_id?: string
+    priority_flag: boolean
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/nfts/collections`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    })
+  }
+
+  public async getSupportedChains() {
+    return await this.jsonFetch(`${API_BASE_URL}/nfts/supported-chains`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }
+
+  public async getNftCollectionInfo(params: {
+    address: string
+    chainId: string
+  }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/nfts/collections/address/${params.address}`,
+      {
+        method: "GET",
+        query: { chainId: params.chainId },
+      }
+    )
+  }
+
+  public async updateSupportVerse(address: string) {
+    return await this.jsonFetch(
+      `${PT_API_BASE_URL}/nft/${address}/support-verse-enable`,
+      {
+        method: "PUT",
+      }
+    )
   }
 }
 

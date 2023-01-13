@@ -12,7 +12,7 @@ import {
 import { InternalError } from "errors"
 import { Coin } from "types/defi"
 import CacheManager from "cache/node-cache"
-import { InteractionHandler } from "utils/InteractionManager"
+import { InteractionHandler } from "handlers/discord/select-menu"
 import { renderChartImage } from "ui/canvas/chart"
 import { defaultEmojis } from "utils/common"
 import { getDefaultSetter } from "utils/default-setters"

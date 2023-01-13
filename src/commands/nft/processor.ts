@@ -9,7 +9,6 @@ import {
   shortenHashOrAddress,
   thumbnails,
 } from "utils/common"
-import { API_BASE_URL } from "utils/constants"
 import {
   composeEmbedMessage,
   getErrorEmbed,
@@ -63,8 +62,7 @@ export async function callAPI(
   msg: Message | undefined,
   priorityFlag: boolean
 ) {
-  // create store collection payload
-  const collection = {
+  const respCollection = await community.addNftCollection({
     chain_id: chainId,
     address: address,
     author: userId,
@@ -72,35 +70,19 @@ export async function callAPI(
     message_id: msg?.id,
     channel_id: msg?.channelId,
     priority_flag: priorityFlag,
-  }
-  // run store collection API
-  const respCollection = await fetch(`${API_BASE_URL}/nfts/collections`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(collection),
   })
-  // get supported chain
-  const respChain = await fetch(`${API_BASE_URL}/nfts/supported-chains`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-
+  const respChain = await community.getSupportedChains()
   return { storeCollectionRes: respCollection, supportedChainsRes: respChain }
 }
 
 export async function toEmbed(
-  storeCollectionRes: Response,
-  supportedChainsRes: Response,
+  storeCollectionRes: any,
+  supportedChainsRes: any,
   msg?: Message | undefined
 ) {
   // get response and show discord message
-  const dataCollection = await storeCollectionRes.json()
-  const error = dataCollection.error
-  const dataChain = await supportedChainsRes.json()
+  const { error } = storeCollectionRes
+  const { data: chainData } = await supportedChainsRes
   switch (storeCollectionRes.status) {
     case 200:
       return buildDiscordMessage(
@@ -161,7 +143,7 @@ export async function toEmbed(
         // add list chain to description
         const listChainSupportedPrefix = `List chain supported:\n`
         let listChainSupported = ""
-        for (const chainItm of dataChain.data) {
+        for (const chainItm of chainData) {
           listChainSupported = listChainSupported + `${chainItm}\n`
         }
         const listChainDescription =

@@ -1,7 +1,7 @@
 import Config from "adapters/config"
 import { Message, SelectMenuInteraction } from "discord.js"
 import { list } from "../processor"
-import { InteractionHandler } from "utils/InteractionManager"
+import { InteractionHandler } from "handlers/discord/select-menu"
 import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
 
 export const handler: InteractionHandler = async (msgOrInteraction) => {

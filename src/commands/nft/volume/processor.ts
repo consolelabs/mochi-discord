@@ -1,5 +1,5 @@
-import Community from "adapters/community"
-import Defi from "adapters/defi"
+import community from "adapters/community"
+import defi from "adapters/defi"
 import { createCanvas, loadImage } from "canvas"
 import { CommandInteraction, Message, MessageAttachment } from "discord.js"
 import { APIError } from "errors"
@@ -22,8 +22,8 @@ export async function mapSymbolToPrice(
 ): Promise<Map<string, number>> {
   const tokenMap = new Map<string, number>()
   for (const item of tokenList) {
-    const { data: searchData } = await Defi.searchCoins(item)
-    const { data: coin } = await Defi.getCoin(searchData?.[0].id)
+    const { data: searchData } = await defi.searchCoins(item)
+    const { data: coin } = await defi.getCoin(searchData?.[0].id)
 
     tokenMap.set(item, coin?.market_data.current_price.usd)
   }
@@ -143,7 +143,7 @@ async function renderLeaderboard(leaderboard: TopNFTTradingVolumeItem[]) {
 }
 
 export async function handleNftVolume(msg: Message | CommandInteraction) {
-  const res = await Community.getTopNFTTradingVolume()
+  const res = await community.getTopNFTTradingVolume()
   if (!res.ok) {
     throw new APIError({ message: msg, curl: res.curl, description: res.log })
   }
