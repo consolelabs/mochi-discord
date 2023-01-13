@@ -1,78 +1,6 @@
-// commands
-import help from "./help"
-import invite from "./community/invite"
-import profile from "./profile/profile"
-import stats from "./community/stats"
-import nft from "./community/nft"
-import sales from "./community/sales"
-import tip from "./defi/tip"
-import claim from "./defi/claim"
-import balances from "./defi/balances"
-import deposit from "./defi/deposit"
-import withdraw from "./defi/withdraw"
-import airdrop from "./defi/airdrop"
-import tokens from "./defi/token"
-import ticker from "./defi/ticker/ticker"
-import gm from "./community/gm"
-import defaultrole from "./config/defaultRole"
-import reactionrole from "./config/reactionRole"
-import starboard from "./config/starboard"
-import joinleave from "./config/joinleave"
-import top from "./community/top"
-import prune from "./community/prune"
-import tripod from "./games/tripod"
-import levelrole from "./config/levelRole"
-import nftrole from "./config/nftRole"
-// import globalxp from "./config/globalxp"
-// import eventxp from "./config/eventxp"
-import verify from "./community/verify"
-import log from "./config/log"
-import poe from "./config/poe"
-import watchlist from "./defi/watchlist"
-import vote from "./community/vote"
-import feedback from "./community/feedback"
-import telegram from "./config/telegram"
-import swap from "./community/swap"
-import quest from "./community/quest"
-import statements from "./defi/statements"
-import monikers from "./config/moniker"
-import transaction from "./transaction"
-import daovote from "./config/daovote"
-import sendxp from "./community/sendxp"
-
-// slash commands
-import help_slash from "./help_slash"
-import ticker_slash from "./defi/ticker_slash/ticker_slash"
-import log_slash from "./config/log_slash"
-import welcome_slash from "./config/welcome_slash"
-import watchlist_slash from "./defi/watchlist_slash"
-import feedback_slash from "./community/feedback_slash"
-import top_slash from "./community/top_slash"
-import verify_slash from "./community/verify_slash"
-import prune_slash from "./community/prune_slash"
-import defaultrole_slash from "./config/defaultRole_slash"
-import levelrole_slash from "./config/levelRole_slash"
-import reactionrole_slash from "./config/reactionRole_slash"
-import nftrole_slash from "./config/nftRole_slash"
-import vote_slash from "./community/vote/vote_slash"
-import quest_slash from "./community/quest_slash"
-import stats_slash from "./community/stats_slash"
-import gm_slash from "./community/gm_slash"
-import nft_slash from "./community/nft_slash"
-import tip_slash from "./defi/tip_bot_slash/tip"
-import balances_slash from "./defi/tip_bot_slash/balances"
-import statements_slash from "./defi/tip_bot_slash/statements"
-import moniker_slash from "./config/moniker_slash"
-import withdraw_slash from "./defi/tip_bot_slash/withdraw"
-import airdrop_slash from "./defi/tip_bot_slash/airdrop"
-import invite_slash from "./community/invite_slash"
-import sales_slash from "./community/sales_slash"
-import sendxp_slash from "./community/sendxp-slash"
-import profile_slash from "./profile_slash/profile"
-import token_slash from "./defi/token_slash"
-
 // external
 import { Message } from "discord.js"
+import FuzzySet from "fuzzyset"
 
 // internal
 import { logger } from "../logger"
@@ -82,7 +10,6 @@ import {
   getCommandMetadata,
   specificHelpCommand,
   getCommandArguments,
-  getCommandSuggestion,
 } from "utils/commands"
 import config from "../adapters/config"
 import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
@@ -94,20 +21,56 @@ import {
 } from "types/common"
 import { getEmoji, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
-import CacheManager from "utils/CacheManager"
+import CacheManager from "cache/node-cache"
 import community from "adapters/community"
-import { isAcceptableCmdToHelp } from "./index-utils"
-import FuzzySet from "fuzzyset"
-import {
-  composeDiscordExitButton,
-  composeDiscordSelectionRow,
-  composeEmbedMessage,
-  getMultipleResultEmbed,
-  setDefaultMiddleware,
-} from "utils/discordEmbed"
+import { isAcceptableCmdToHelp } from "../utils/commands"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import InteractionManager from "utils/InteractionManager"
-import { kafkaQueue } from "utils/kafka"
+
+// commands
+import feedback from "./feedback/index"
+import ticker from "./ticker"
+import log from "./log"
+import welcome from "./welcome/index"
+import top from "./top"
+import verify from "./verify"
+import vote from "./vote"
+import watchlist from "./watchlist"
+import defaultrole from "./default-role"
+import levelrole from "./level-role"
+import reactionrole from "./reaction-role"
+import nftrole from "./nft-role"
+import prune from "./prune"
+import quest from "./quest"
+import gm from "./gm"
+import nft from "./nft"
+import balances from "./balances"
+import statements from "./statements"
+import moniker from "./moniker"
+import withdraw from "./withdraw"
+import airdrop from "./airdrop"
+import token from "./token"
+import profile from "./profile"
+import help from "./help/index"
+import tip from "./tip"
+import sales from "./sales"
+import deposit from "./deposit"
+import claim from "./claim"
+import daovote from "./daovote"
+import starboard from "./starboard"
+import telegram from "./telegram"
+import poe from "./poe"
+import {
+  composeEmbedMessage,
+  getCommandSuggestion,
+  getMultipleResultEmbed,
+} from "ui/discord/embed"
+import { composeDiscordExitButton } from "ui/discord/button"
+import {
+  composeDiscordSelectionRow,
+  setDefaultMiddleware,
+} from "ui/discord/select-menu"
+import { kafkaQueue } from "queue/kafka/queue"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 CacheManager.init({
@@ -117,85 +80,74 @@ CacheManager.init({
 })
 
 export const slashCommands: Record<string, SlashCommand> = {
-  feedback: feedback_slash,
-  ticker: ticker_slash,
-  help: help_slash,
-  log: log_slash,
-  welcome: welcome_slash,
-  top: top_slash,
-  verify: verify_slash,
-  vote: vote_slash,
-  watchlist: watchlist_slash,
-  defaultrole: defaultrole_slash,
-  levelrole: levelrole_slash,
-  reactionrole: reactionrole_slash,
-  nftrole: nftrole_slash,
-  prune: prune_slash,
-  quest: quest_slash,
-  stats: stats_slash,
-  gm: gm_slash,
-  nft: nft_slash,
-  tip: tip_slash,
-  balances: balances_slash,
-  statements: statements_slash,
-  monikers: moniker_slash,
-  withdraw: withdraw_slash,
-  airdrop: airdrop_slash,
-  invite: invite_slash,
-  sales: sales_slash,
-  token: token_slash,
-  profile: profile_slash,
-  sendxp: sendxp_slash,
+  feedback: feedback.slashCmd,
+  ticker: ticker.slashCmd,
+  help: help.slashCmd,
+  log: log.slashCmd,
+  welcome: welcome.slashCmd,
+  top: top.slashCmd,
+  verify: verify.slashCmd,
+  vote: vote.slashCmd,
+  watchlist: watchlist.slashCmd,
+  defaultrole: defaultrole.slashCmd,
+  levelrole: levelrole.slashCmd,
+  reactionrole: reactionrole.slashCmd,
+  nftrole: nftrole.slashCmd,
+  prune: prune.slashCmd,
+  quest: quest.slashCmd,
+  gm: gm.slashCmd,
+  nft: nft.slashCmd,
+  tip: tip.slashCmd,
+  balances: balances.slashCmd,
+  statements: statements.slashCmd,
+  monikers: moniker.slashCmd,
+  withdraw: withdraw.slashCmd,
+  airdrop: airdrop.slashCmd,
+  sales: sales.slashCmd,
+  token: token.slashCmd,
+  profile: profile.slashCmd,
+  deposit: deposit.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
   // general help
-  help,
+  help: help.textCmd,
   // profile section
-  profile,
+  profile: profile.textCmd,
   // defi section
-  deposit,
-  tip,
-  claim,
-  balances,
-  withdraw,
-  airdrop,
-  tokens,
-  ticker,
-  watchlist,
-  statements,
-  transaction,
-  // community section
-  swap,
-  invite,
-  gm,
-  stats,
-  nft,
-  top,
-  sales,
-  verify,
-  vote,
-  feedback,
-  prune,
-  quest,
+  deposit: deposit.textCmd,
+  tip: tip.textCmd,
+  claim: claim.textCmd,
+  balances: balances.textCmd,
+  withdraw: withdraw.textCmd,
+  airdrop: airdrop.textCmd,
+  tokens: token.textCmd,
+  ticker: ticker.textCmd,
+  watchlist: watchlist.textCmd,
+  statements: statements.textCmd,
+  gm: gm.textCmd,
+  nft: nft.textCmd,
+  top: top.textCmd,
+  sales: sales.textCmd,
+  verify: verify.textCmd,
+  vote: vote.textCmd,
+  feedback: feedback.textCmd,
+  prune: prune.textCmd,
+  quest: quest.textCmd,
   // config section
-  reactionrole,
-  defaultrole,
-  joinleave,
-  monikers,
-  levelrole,
-  nftrole,
-  daovote,
+  reactionrole: reactionrole.textCmd,
+  defaultrole: defaultrole.textCmd,
+  monikers: moniker.textCmd,
+  levelrole: levelrole.textCmd,
+  nftrole: nftrole.textCmd,
+  daovote: daovote.textCmd,
   // globalxp,
-  sendxp,
-  starboard,
-  // eventxp,
-  log,
-  poe,
-  telegram,
-  // games section
-  tripod,
+  starboard: starboard.textCmd,
+  log: log.textCmd,
+  poe: poe.textCmd,
+  telegram: telegram.textCmd,
 }
+
 export const commands = getAllAliases(originalCommands)
 export const fuzzySet = FuzzySet(Object.keys(commands))
 export const adminCategories: Record<Category, boolean> = {
