@@ -1012,6 +1012,19 @@ class Config extends Fetcher {
       body: req,
     })
   }
+
+  public async getProposalChannelConfig(guildId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-channels/${guildId}/proposal`
+    )
+  }
+
+  public async deleteProposalChannelConfig(req: { id: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-channels/proposal`, {
+      method: "DELETE",
+      body: req,
+    })
+  }
 }
 
 const config = new Config()

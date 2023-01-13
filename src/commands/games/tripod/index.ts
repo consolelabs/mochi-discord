@@ -10,17 +10,17 @@ import {
   MessageActionRow,
   MessageButton,
   ReplyMessageOptions,
-  TextChannel,
 } from "discord.js"
 import GameSessionManager from "utils/GameSessionManager"
 import ach, { checkPersistAchievements } from "./achievements"
 import quest from "./quest"
 import profile from "./profile"
 import top from "./top"
-import { GAME_TRIPOD_CHANNEL_IDS, GAME_TRIPOD_TEST_CHANNEL_ID, PROD } from "env"
+import { GAME_TRIPOD_CHANNEL_IDS, PROD } from "env"
 import { fromBoardPosition, toBoardPosition } from "./helpers"
 import { mappings } from "./mappings"
 import { tripodEmojis } from "utils/common"
+import { getEmoji as utilGetEmoji } from "utils/common"
 
 const images = {
   achievement_unlocked:
@@ -495,36 +495,48 @@ const command: Command = {
   category: "Game",
   colorType: "Game",
   run: async function (msg) {
-    if (
-      GAME_TRIPOD_CHANNEL_IDS.includes(msg.channel.id) &&
-      msg.content &&
-      msg.guild
-    ) {
-      const session = GameSessionManager.getSession(msg.author.id)
-      if (!session) {
-        const game = new Game()
-        game.join({ name: msg.author.username, id: msg.author.id })
-        game.start()
-        const bal =
-          msg.channel.id === GAME_TRIPOD_TEST_CHANNEL_ID ? Infinity : 2000
-        await msg.reply(await getMessageOptions(game, msg, bal))
-        GameSessionManager.createSessionIfNotAlready(msg.author.id, {
-          name: "triple-pod",
-          data: {
-            game,
-            userId: msg.author.id,
-            guild: msg.guild.name,
-            channel: (msg.channel as TextChannel).name,
-            username: msg.author.username,
-            discriminator: msg.author.discriminator,
-            balance: bal,
-          },
-        })
-      } else {
-        msg.reply(`You're already in a session! Type \`end\` to quit`)
-      }
+    // if (
+    //   GAME_TRIPOD_CHANNEL_IDS.includes(msg.channel.id) &&
+    //   msg.content &&
+    //   msg.guild
+    // ) {
+    //   const session = GameSessionManager.getSession(msg.author.id)
+    //   if (!session) {
+    //     const game = new Game()
+    //     game.join({ name: msg.author.username, id: msg.author.id })
+    //     game.start()
+    //     const bal =
+    //       msg.channel.id === GAME_TRIPOD_TEST_CHANNEL_ID ? Infinity : 2000
+    //     await msg.reply(await getMessageOptions(game, msg, bal))
+    //     GameSessionManager.createSessionIfNotAlready(msg.author.id, {
+    //       name: "triple-pod",
+    //       data: {
+    //         game,
+    //         userId: msg.author.id,
+    //         guild: msg.guild.name,
+    //         channel: (msg.channel as TextChannel).name,
+    //         username: msg.author.username,
+    //         discriminator: msg.author.discriminator,
+    //         balance: bal,
+    //       },
+    //     })
+    //   } else {
+    //     msg.reply(`You're already in a session! Type \`end\` to quit`)
+    //   }
+    // }
+    // return null
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(msg, {
+            title: `${utilGetEmoji("GLOWINGHEDGE")} New Tripod Version`,
+            description: `To bring you better experience with Tripod, we bring it on the [website](https://tripod-web.vercel.app/). Try it now! ${utilGetEmoji(
+              "MOONING"
+            )}`,
+          }),
+        ],
+      },
     }
-    return null
   },
   featured: {
     title: `${getEmoji(PieceEnum.NINJA_BEAR)} Tripod`,

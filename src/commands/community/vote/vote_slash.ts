@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "utils/discordEmbed"
-import { handle } from "./"
+import { disabledVoteEmbed } from "./"
 
 const command: SlashCommand = {
   name: "vote",
@@ -25,7 +25,13 @@ const command: SlashCommand = {
       .setName("vote")
   },
   ephemeral: true,
-  run: async (i) => handle(i.user),
+  run: async () => {
+    return {
+      messageOptions: {
+        embeds: [disabledVoteEmbed()],
+      },
+    }
+  },
 }
 
 export default command
