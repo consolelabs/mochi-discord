@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { DAO_VOTING_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import set from "./set/text"
 import info from "./info/text"
@@ -27,6 +27,7 @@ const textCmd: Command = {
         title: "DAO Voting",
         description: "Manage to post proposals and their voting space",
         usage: `${PREFIX}daovote <action>`,
+        document: DAO_VOTING_GITBOOK,
         examples: `${PREFIX}daovote info\n${PREFIX}daovote set #channel eth 0xad29abb318791d579433d831ed122afeaf29dcfe`,
         includeCommandsList: true,
       }),
