@@ -532,6 +532,19 @@ class Community extends Fetcher {
       }
     )
   }
+
+  public async sendXPtoUsers(body: {
+    recipients: string[]
+    sender: string
+    guild_id: string
+    amount: number
+    each: boolean
+  }) {
+    return await this.jsonFetch<ModelDaoVote>(`${API_BASE_URL}/users/xp`, {
+      method: "POST",
+      body,
+    })
+  }
 }
 
 export default new Community()
