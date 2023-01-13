@@ -17,7 +17,7 @@ import TurndownService from "turndown"
 import { RectangleStats } from "types/canvas"
 import CacheManager from "cache/node-cache"
 import { InteractionHandler } from "utils/InteractionManager"
-import { drawRectangle } from "canvas/draw"
+import { drawRectangle } from "ui/canvas/draw"
 import {
   defaultEmojis,
   emojis,
@@ -25,11 +25,11 @@ import {
   getEmoji,
   roundFloatNumber,
 } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
-import { composeDaysSelectMenu } from "discord/select-menu/ui"
-import { getChartColorConfig } from "canvas/color"
-import { getExitButton } from "discord/button/ui"
-import { renderChartImage } from "canvas/chart"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { composeDaysSelectMenu } from "ui/discord/select-menu"
+import { getChartColorConfig } from "ui/canvas/color"
+import { getExitButton } from "ui/discord/button"
+import { renderChartImage } from "ui/canvas/chart"
 
 export async function renderHistoricalMarketChart({
   coinId,

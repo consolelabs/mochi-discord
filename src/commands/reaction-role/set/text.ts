@@ -1,6 +1,6 @@
 import { Command, RoleReactionEvent } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getSuccessEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"

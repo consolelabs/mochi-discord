@@ -3,7 +3,7 @@ import { Message } from "discord.js"
 import { APIError } from "errors"
 import { getCommandArguments } from "utils/commands"
 import { getEmoji } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { renderLeaderboard } from "./processor"
 
 const run = async (msg: Message) => {

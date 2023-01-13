@@ -5,7 +5,7 @@ import { BlacklistChannelRepostConfigRequest, Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { defaultEmojis } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
 const command: Command = {
   id: "starboard_blacklist_remove",

@@ -1,14 +1,14 @@
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage2, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
 import { CommandInteraction, MessageEmbed } from "discord.js"
 import config from "adapters/config"
 import { emojis, getEmoji, getEmojiURL, paginate } from "utils/common"
 import { APIError, InternalError } from "errors"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import truncate from "lodash/truncate"
-import { getPaginationRow } from "discord/button/ui"
-import { listenForPaginateInteraction } from "discord/button/collector"
+import { getPaginationRow } from "ui/discord/button"
+import { listenForPaginateInteraction } from "handlers/discord/button"
 
 const command: SlashCommand = {
   name: "list",

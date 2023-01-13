@@ -6,7 +6,7 @@ import {
 } from "utils/constants"
 import { getEmoji, thumbnails } from "utils/common"
 import { Command, SlashCommand } from "types/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import tip from "./index/text"
 import tipSlash from "./index/slash"

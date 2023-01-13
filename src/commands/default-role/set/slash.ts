@@ -1,5 +1,5 @@
 import config from "adapters/config"
-import { composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction, Role } from "discord.js"
 import { DefaultRoleEvent, SlashCommand } from "types/common"

@@ -1,13 +1,13 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { Message, MessageEmbed } from "discord.js"
 import config from "adapters/config"
 import { emojis, getEmoji, getEmojiURL, paginate } from "utils/common"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import truncate from "lodash/truncate"
-import { getPaginationRow } from "discord/button/ui"
-import { listenForPaginateAction } from "discord/button/collector"
+import { getPaginationRow } from "ui/discord/button"
+import { listenForPaginateAction } from "handlers/discord/button"
 
 const command: Command = {
   id: "reactionrole_list",

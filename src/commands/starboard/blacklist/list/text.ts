@@ -3,7 +3,7 @@ import { Message } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { composeListConfig } from "./processor"
 
 const command: Command = {

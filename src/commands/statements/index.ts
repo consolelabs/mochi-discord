@@ -1,6 +1,6 @@
 import { getEmoji } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { Command, SlashCommand } from "types/common"
 import statement from "./index/text"
 import statementSlash from "./index/slash"

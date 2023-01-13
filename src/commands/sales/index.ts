@@ -1,6 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { PREFIX, SALE_TRACKER_GITBOOK, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 // text
 import list from "./list/text"
 import remove from "./remove/text"

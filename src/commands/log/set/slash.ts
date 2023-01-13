@@ -4,7 +4,7 @@ import {
   composeEmbedMessage2,
   getErrorEmbed,
   getSuccessEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import config from "adapters/config"

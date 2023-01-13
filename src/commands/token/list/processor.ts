@@ -1,7 +1,7 @@
 import { RunResult } from "types/common"
 import { Token } from "types/defi"
 import { getEmoji } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import Config from "../../../adapters/config"
 import chunk from "lodash/chunk"
 import { MessageOptions } from "discord.js"

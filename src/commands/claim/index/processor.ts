@@ -2,7 +2,7 @@ import defi from "adapters/defi"
 import { Message } from "discord.js"
 import { APIError, InternalError } from "errors"
 import { getEmoji, roundFloatNumber, shortenHashOrAddress } from "utils/common"
-import { getSuccessEmbed } from "discord/embed/ui"
+import { getSuccessEmbed } from "ui/discord/embed"
 
 export async function claim(msg: Message, args: string[]) {
   const [claimId, address] = args.slice(1)

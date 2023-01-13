@@ -4,7 +4,7 @@ import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { DOT, PREFIX, VOTE_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 const command: Command = {
   id: "poe_twitter_stats",

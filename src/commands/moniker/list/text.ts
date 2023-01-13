@@ -3,11 +3,11 @@ import { GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { handleMonikerList } from "./processor"
 
-import { getPaginationRow } from "discord/button/ui"
-import { listenForPaginateAction } from "discord/button/collector"
+import { getPaginationRow } from "ui/discord/button"
+import { listenForPaginateAction } from "handlers/discord/button"
 
 const command: Command = {
   id: "moniker_list",

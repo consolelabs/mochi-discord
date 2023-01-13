@@ -5,7 +5,7 @@ import {
   PREFIX,
   SLASH_PREFIX,
 } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji, thumbnails } from "utils/common"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import withdraw from "./index/text"

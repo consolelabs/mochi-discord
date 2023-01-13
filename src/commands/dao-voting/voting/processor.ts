@@ -2,7 +2,7 @@ import community from "adapters/community"
 import { ButtonInteraction } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji } from "utils/common"
-import { getErrorEmbed, getSuccessEmbed } from "discord/embed/ui"
+import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
 
 export async function handleProposalVote(i: ButtonInteraction) {
   await i.deferReply({ ephemeral: true })

@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { PREFIX, STARBOARD_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 import list from "./list/text"
 import set from "./set/text"

@@ -1,5 +1,5 @@
 import { SelectMenuInteraction } from "discord.js"
-import { getSuccessEmbed } from "discord/embed/ui"
+import { getSuccessEmbed } from "ui/discord/embed"
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
 import { InteractionHandler } from "utils/InteractionManager"

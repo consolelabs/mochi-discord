@@ -1,9 +1,9 @@
 import { Message } from "discord.js"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import Community from "adapters/community"
 import { emojis, getEmojiURL } from "utils/common"
 import { registerFont } from "canvas"
-import { getPaginationRow } from "discord/button/ui"
+import { getPaginationRow } from "ui/discord/button"
 import { renderSupportedNFTList } from "../processor"
 
 registerFont("assets/fonts/whitneysemibold.otf", {

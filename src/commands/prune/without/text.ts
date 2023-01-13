@@ -5,13 +5,13 @@ import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { getEmoji } from "utils/common"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import {
   CONFIRM_PRUNE_WITHOUT,
   getUsersWithoutRole,
   pruneRoleExecute,
 } from "./processor"
-import { getExitButton } from "discord/button/ui"
+import { getExitButton } from "ui/discord/button"
 
 const command: Command = {
   id: "prune_without",

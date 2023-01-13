@@ -4,7 +4,7 @@ import { RunResult } from "types/common"
 import defi from "adapters/defi"
 import { APIError } from "errors"
 import { mockClient } from "../../../../tests/mocks"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 jest.mock("adapters/defi")
 const commandKey = "airdrop"

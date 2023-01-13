@@ -6,7 +6,7 @@ import {
   composeEmbedMessage2,
   getErrorEmbed,
   getSuccessEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import { parseWelcomeMessage } from "../processor"
 import { parseDiscordToken } from "utils/commands"
 

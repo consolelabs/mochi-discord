@@ -15,8 +15,8 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
-} from "discord/embed/ui"
-import { composeButtonLink } from "discord/button/ui"
+} from "ui/discord/embed"
+import { composeButtonLink } from "ui/discord/button"
 
 let proposalTitle = ""
 let proposalDesc = ""

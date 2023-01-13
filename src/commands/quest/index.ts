@@ -1,6 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,

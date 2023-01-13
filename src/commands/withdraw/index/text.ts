@@ -3,9 +3,9 @@ import { Message } from "discord.js"
 import { InternalError } from "errors"
 import { getCommandArguments } from "utils/commands"
 import { emojis, getEmojiURL } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { getDestinationAddress, withdraw } from "./processor"
-import { composeButtonLink } from "discord/button/ui"
+import { composeButtonLink } from "ui/discord/button"
 
 const run = async (msg: Message) => {
   const args = getCommandArguments(msg)

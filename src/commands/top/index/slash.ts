@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js"
 import { getEmoji } from "utils/common"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { renderLeaderboard } from "./processor"
 import community from "adapters/community"
 

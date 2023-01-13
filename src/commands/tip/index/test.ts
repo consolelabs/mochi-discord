@@ -1,6 +1,6 @@
 import Discord, { MessageEmbed, MessageOptions } from "discord.js"
 import { commands } from "commands"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { RunResult } from "types/common"
 import defi from "adapters/defi"
 import { emojis, getEmojiURL, thumbnails } from "utils/common"

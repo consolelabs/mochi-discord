@@ -1,4 +1,4 @@
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import config from "adapters/config"
 import { emojis, getEmojiURL } from "utils/common"
 

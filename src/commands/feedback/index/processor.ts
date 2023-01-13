@@ -13,7 +13,7 @@ import { logger } from "logger"
 import { ModelUserFeedback, RequestUserFeedbackRequest } from "types/api"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { DISCORD_URL } from "utils/constants"
-import { composeEmbedMessage, getSuccessEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import truncate from "lodash/truncate"
 
 const successEmbed = () =>

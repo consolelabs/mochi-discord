@@ -4,7 +4,7 @@ import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { defaultEmojis } from "utils/common"
 import { PREFIX, STARBOARD_GITBOOK } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import {
   ReactionType,
   buildSwitchViewActionRow,

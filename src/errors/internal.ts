@@ -1,4 +1,4 @@
-import { getErrorEmbed } from "discord/embed/ui"
+import { getErrorEmbed } from "ui/discord/embed"
 import { BotBaseError, OriginalMessage } from "./base"
 
 export class InternalError extends BotBaseError {

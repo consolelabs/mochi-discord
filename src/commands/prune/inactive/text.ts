@@ -2,12 +2,12 @@ import { MessageActionRow, MessageButton } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { Command } from "types/common"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { InternalError, GuildIdNotFoundError } from "errors"
 import { getCommandArguments } from "utils/commands"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { CONFIRM_PRUNE_INACTIVE, pruneInactiveExecute } from "./processor"
-import { getExitButton } from "discord/button/ui"
+import { getExitButton } from "ui/discord/button"
 
 const command: Command = {
   id: "prune_inactive",

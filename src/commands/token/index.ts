@@ -1,5 +1,5 @@
 import { Command, SlashCommand } from "types/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX, SLASH_PREFIX, TOKEN_GITBOOK } from "utils/constants"
 import { thumbnails } from "utils/common"
 import {

@@ -5,7 +5,7 @@ import {
   getSuccessEmbed,
   composeEmbedMessage,
   getErrorEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
@@ -14,8 +14,8 @@ import { ResponseCollectionSuggestions } from "types/api"
 import { InternalError } from "errors"
 import { handleUpdateWlError } from "../processor"
 import { handler } from "./processor"
-import { composeDiscordSelectionRow } from "discord/select-menu/ui"
-import { composeDiscordExitButton } from "discord/button/ui"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
+import { composeDiscordExitButton } from "ui/discord/button"
 
 const command: Command = {
   id: "watchlist_nft_add",

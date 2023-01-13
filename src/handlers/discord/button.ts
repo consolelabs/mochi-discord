@@ -8,7 +8,7 @@ import {
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { authorFilter } from "utils/common"
 import { wrapError } from "utils/wrap-error"
-import { getPaginationRow } from "./ui"
+import { getPaginationRow } from "../../ui/discord/button"
 
 export function listenForSuggestionAction(
   replyMsg: Message,

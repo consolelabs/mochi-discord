@@ -26,8 +26,8 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
-} from "discord/embed/ui"
-import { composeSimpleSelection } from "discord/select-menu/ui"
+} from "ui/discord/embed"
+import { composeSimpleSelection } from "ui/discord/select-menu"
 
 type State = "idle" | "queued" | "queued-detail" | "undo" | "undo-detail"
 

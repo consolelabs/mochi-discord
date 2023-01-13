@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { runVerifySet } from "./processor"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"
 
 const command: Command = {

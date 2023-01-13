@@ -14,7 +14,7 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   getSuggestionEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import {
   addSuggestionIfAny,
   buildSwitchViewActionRow,
@@ -23,8 +23,8 @@ import {
   fetchAndComposeNFTDetail,
   setDefaultSymbol,
 } from "./processor"
-import { composeSimpleSelection } from "discord/select-menu/ui"
-import { listenForSuggestionAction } from "discord/button/collector"
+import { composeSimpleSelection } from "ui/discord/select-menu"
+import { listenForSuggestionAction } from "handlers/discord/button"
 
 const command: Command = {
   id: "nft_query",

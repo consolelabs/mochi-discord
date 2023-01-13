@@ -1,6 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { PREFIX, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import top from "./index/text"
 import topSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"

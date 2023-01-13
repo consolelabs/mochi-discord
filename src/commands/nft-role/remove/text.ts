@@ -3,10 +3,10 @@ import { MessageSelectOptionData } from "discord.js"
 import { list } from "commands/nft-role/processor"
 import { Command } from "types/common"
 import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { handler } from "./processor"
-import { composeDiscordExitButton } from "discord/button/ui"
-import { composeDiscordSelectionRow } from "discord/select-menu/ui"
+import { composeDiscordExitButton } from "ui/discord/button"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 
 const command: Command = {
   id: "nr_remove",

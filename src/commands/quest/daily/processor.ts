@@ -9,7 +9,7 @@ import {
 } from "discord.js"
 import { APIError } from "errors"
 import { buildProgressBar, emojis, getEmoji, getEmojiURL } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 dayjs.extend(utc)
 
 const emoji = {

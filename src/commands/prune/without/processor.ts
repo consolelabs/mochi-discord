@@ -1,6 +1,6 @@
 import { ButtonInteraction, Collection, Guild, GuildMember } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { getExcludedRoles } from "../processor"
 
 export const CONFIRM_PRUNE_WITHOUT = "confirm_prune_without"

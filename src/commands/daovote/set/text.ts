@@ -4,11 +4,11 @@ import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { getEmoji } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { InteractionHandler } from "utils/InteractionManager"
 import { PREFIX } from "utils/constants"
-import { composeDiscordSelectionRow } from "discord/select-menu/ui"
-import { composeDiscordExitButton } from "discord/button/ui"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
+import { composeDiscordExitButton } from "ui/discord/button"
 
 const command: Command = {
   id: "daovote_set",

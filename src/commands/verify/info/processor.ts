@@ -1,5 +1,5 @@
 import community from "adapters/community"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { defaultEmojis, emojis, getEmojiURL } from "utils/common"
 import { Message } from "discord.js"

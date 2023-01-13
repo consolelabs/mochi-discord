@@ -1,5 +1,5 @@
 import { Command, SlashCommand } from "types/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX, PROFILE_GITBOOK } from "utils/constants"
 import { getEmoji } from "utils/common"
 import profile from "./index/text"

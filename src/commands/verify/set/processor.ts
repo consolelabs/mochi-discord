@@ -1,5 +1,5 @@
 import community from "adapters/community"
-import { getErrorEmbed, getSuccessEmbed } from "discord/embed/ui"
+import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { CommandInteraction, Message } from "discord.js"

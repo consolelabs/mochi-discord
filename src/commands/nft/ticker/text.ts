@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { NFT_TICKER_GITBOOK, PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { ChartStyle, handleNftTicker } from "./processor"
 
 const command: Command = {

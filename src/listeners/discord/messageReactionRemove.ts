@@ -3,7 +3,7 @@ import webhook from "adapters/webhook"
 import { getReactionIdentifier } from "utils/commands"
 import { wrapError } from "utils/wrap-error"
 import { Message } from "discord.js"
-import { starboardEmbed } from "discord/embed/ui"
+import { starboardEmbed } from "ui/discord/embed"
 import config from "adapters/config"
 
 async function repostMessage(data: any, msg: Message) {

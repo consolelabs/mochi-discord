@@ -1,7 +1,7 @@
 import { SlashCommand } from "types/common"
 import { CommandInteraction } from "discord.js"
 import { thumbnails } from "utils/common"
-import { getSuccessEmbed, composeEmbedMessage2 } from "discord/embed/ui"
+import { getSuccessEmbed, composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import defi from "adapters/defi"

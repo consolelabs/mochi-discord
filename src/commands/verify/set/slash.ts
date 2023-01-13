@@ -2,7 +2,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"
-import { composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { runVerifySet } from "./processor"
 
 const command: SlashCommand = {

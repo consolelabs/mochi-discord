@@ -1,7 +1,7 @@
 import { Command, SlashCommand } from "types/common"
 import { getEmoji } from "utils/common"
 import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
-import { composeEmbedMessage, composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import {
   SlashCommandBuilder,

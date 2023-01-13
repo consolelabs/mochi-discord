@@ -6,7 +6,7 @@ import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 const command: Command = {
   id: "moniker_set",

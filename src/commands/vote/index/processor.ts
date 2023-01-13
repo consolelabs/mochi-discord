@@ -2,7 +2,7 @@ import Community from "adapters/community"
 import { Message, User } from "discord.js"
 import { logger } from "logger"
 import { capFirst, getEmoji } from "utils/common"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
 const voteLimitCount = 4
 const formatter = new Intl.NumberFormat("en-US", { minimumIntegerDigits: 2 })

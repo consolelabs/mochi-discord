@@ -1,7 +1,7 @@
 import { Command, SlashCommand } from "types/common"
 import { getEmoji } from "utils/common"
 import { LEVEL_ROLE_GITBOOK, PREFIX, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage, composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 // text
 import set from "./set/text"
 import list from "./list/text"

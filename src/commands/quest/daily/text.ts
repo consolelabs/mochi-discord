@@ -1,7 +1,7 @@
 import { GuildIdNotFoundError } from "errors"
 import type { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { run } from "./processor"
 
 const command: Command = {

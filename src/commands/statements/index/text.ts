@@ -1,5 +1,5 @@
 import { Message } from "discord.js"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { buildButtonsRow, handleStatement, listenButtonsRow } from "./processor"
 import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"

@@ -6,7 +6,7 @@ import {
   composeEmbedMessage2,
   getErrorEmbed,
   getSuccessEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 
 const command: SlashCommand = {
   name: "remove",

@@ -3,11 +3,11 @@ import Config from "adapters/config"
 import { CommandInteraction, MessageSelectOptionData } from "discord.js"
 import { SlashCommand } from "types/common"
 import { NFT_ROLE_GITBOOK, SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage2, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
 import { handler } from "./processor"
 import { list } from "commands/nft-role/processor"
-import { composeDiscordExitButton } from "discord/button/ui"
-import { composeDiscordSelectionRow } from "discord/select-menu/ui"
+import { composeDiscordExitButton } from "ui/discord/button"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 const command: SlashCommand = {
   name: "remove",
   category: "Config",

@@ -1,6 +1,6 @@
 import { RoleReactionEvent, SlashCommand } from "types/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage2, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import config from "adapters/config"
 import ChannelLogger from "logger/channel"

@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { CommandArgumentError } from "errors"

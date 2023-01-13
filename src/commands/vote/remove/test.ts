@@ -1,6 +1,6 @@
 import Discord, { MessageOptions } from "discord.js"
 import { commands } from "commands"
-import { getSuccessEmbed } from "discord/embed/ui"
+import { getSuccessEmbed } from "ui/discord/embed"
 import { mockClient } from "../../../../tests/mocks"
 import config from "adapters/config"
 import { PREFIX } from "utils/constants"

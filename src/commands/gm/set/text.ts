@@ -3,7 +3,7 @@ import { Command } from "types/common"
 import { getEmoji } from "utils/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { GM_GITBOOK, PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { throwOnInvalidEmoji } from "utils/emoji"
 import { handle } from "./processor"
 

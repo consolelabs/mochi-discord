@@ -4,7 +4,7 @@ import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { defaultEmojis, thumbnails } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TICKER_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { setDefaultTicker } from "./processor"
 
 const command: Command = {

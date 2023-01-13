@@ -1,5 +1,5 @@
 import Discord, { MessageOptions } from "discord.js"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import defi from "adapters/defi"
 import { mockClient } from "../../../../tests/mocks"
 import { defaultEmojis } from "utils/common"

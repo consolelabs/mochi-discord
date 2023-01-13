@@ -2,7 +2,7 @@ import config from "adapters/config"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, paginate, roundFloatNumber } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function handleMonikerList(guildId: string) {
   const { ok, data, log, curl } = await config.getMonikerConfig(guildId)

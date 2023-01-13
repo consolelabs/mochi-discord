@@ -11,7 +11,7 @@ import { APIError } from "errors"
 import chunk from "lodash/chunk"
 import { ModelGuildConfigRepostReaction } from "types/api"
 import { authorFilter, defaultEmojis, emojis, getEmoji } from "utils/common"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
 const pageSize = 10
 

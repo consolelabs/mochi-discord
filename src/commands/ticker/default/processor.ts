@@ -2,7 +2,7 @@ import config from "adapters/config"
 import { Message } from "discord.js"
 import { APIError } from "errors"
 import CacheManager from "cache/node-cache"
-import { getSuccessEmbed } from "discord/embed/ui"
+import { getSuccessEmbed } from "ui/discord/embed"
 
 export async function setDefaultTicker(
   msg: Message,

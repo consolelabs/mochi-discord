@@ -4,7 +4,7 @@ import { mockClient } from "../../../../tests/mocks"
 import config from "adapters/config"
 import { PREFIX } from "utils/constants"
 import { RunResult } from "types/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 jest.mock("adapters/config")
 const commandKey = "vote"

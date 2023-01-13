@@ -19,7 +19,7 @@ import dayjs from "dayjs"
 import duration from "dayjs/plugin/duration"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { OffchainTipBotTransferRequest } from "types/defi"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)

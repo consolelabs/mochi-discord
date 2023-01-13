@@ -4,7 +4,7 @@ import {
   handleFeedback,
   inviteUserToJoin,
 } from "./processor"
-import { getErrorEmbed } from "discord/embed/ui"
+import { getErrorEmbed } from "ui/discord/embed"
 
 const run = async (interaction: CommandInteraction) => {
   let commandArg = interaction.options.getString("command") ?? ""

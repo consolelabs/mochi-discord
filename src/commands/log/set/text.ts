@@ -6,7 +6,7 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 
 const command: Command = {
   id: "log_set",

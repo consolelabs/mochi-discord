@@ -6,7 +6,7 @@ import {
   composeEmbedMessage2,
   getErrorEmbed,
   getSuccessEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import config from "../../../adapters/config"
 import { list } from "commands/nft-role/processor"
 

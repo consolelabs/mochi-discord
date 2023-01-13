@@ -1,6 +1,6 @@
 import { APIError } from "errors"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import Config from "../../../adapters/config"
 
 export async function handle(

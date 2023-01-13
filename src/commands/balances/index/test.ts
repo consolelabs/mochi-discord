@@ -5,7 +5,7 @@ import defi from "adapters/defi"
 import { emojis, getEmojiURL } from "utils/common"
 import { APIError } from "errors"
 import { mockClient } from "../../../../tests/mocks"
-import { composeEmbedMessage, justifyEmbedFields } from "discord/embed/ui"
+import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
 
 jest.mock("adapters/defi")
 const commandKey = "balances"

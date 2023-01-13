@@ -2,10 +2,10 @@ import community from "adapters/community"
 import { Message } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { drawLeaderboard } from "canvas/draw"
+import { drawLeaderboard } from "ui/canvas/draw"
 import { getEmoji } from "utils/common"
 import { PREFIX, VOTE_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 const command: Command = {
   id: "vote_top",

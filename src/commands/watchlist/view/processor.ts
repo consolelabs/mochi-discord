@@ -14,20 +14,20 @@ import {
   getEmojiURL,
   tokenEmojis,
 } from "utils/common"
-import { composeEmbedMessage, composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { createCanvas, loadImage, registerFont } from "canvas"
 import { RectangleStats } from "types/canvas"
-import { drawCircleImage, drawRectangle } from "canvas/draw"
+import { drawCircleImage, drawRectangle } from "ui/canvas/draw"
 import CacheManager from "cache/node-cache"
 import { APIError } from "errors"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import community from "adapters/community"
 import { wrapError } from "utils/wrap-error"
-import { loadAndCacheImage } from "canvas/image"
-import { heightOf, widthOf } from "canvas/calculator"
-import { renderChartImage } from "canvas/chart"
+import { loadAndCacheImage } from "ui/canvas/image"
+import { heightOf, widthOf } from "ui/canvas/calculator"
+import { renderChartImage } from "ui/canvas/chart"
 
 let interaction: CommandInteraction
 let fontRegistered = false

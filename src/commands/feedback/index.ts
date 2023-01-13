@@ -3,7 +3,7 @@ import { Command, SlashCommand } from "types/common"
 import { FEEDBACK_GITBOOK, PREFIX, SLASH_PREFIX } from "utils/constants"
 import feedback from "./index/text"
 import feedbackSlash from "./index/slash"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 const textCmd: Command = {
   id: "feedback",

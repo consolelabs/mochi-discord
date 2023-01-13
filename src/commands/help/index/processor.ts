@@ -40,7 +40,7 @@ import {
   WATCHLIST_GITBOOK,
   WELCOME_GITBOOK,
 } from "utils/constants"
-import { EMPTY_FIELD, composeEmbedMessage } from "discord/embed/ui"
+import { EMPTY_FIELD, composeEmbedMessage } from "ui/discord/embed"
 dayjs.extend(utc)
 
 const image =

@@ -5,7 +5,7 @@ import { APIError } from "errors"
 import { SlashCommand } from "types/common"
 import { emojis, getEmojiURL } from "utils/common"
 import { NFT_ROLE_GITBOOK, SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage2, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
 import { list } from "../processor"
 
 const command: SlashCommand = {

@@ -13,13 +13,13 @@ import { InternalError } from "errors"
 import { Coin } from "types/defi"
 import CacheManager from "cache/node-cache"
 import { InteractionHandler } from "utils/InteractionManager"
-import { renderChartImage } from "canvas/chart"
+import { renderChartImage } from "ui/canvas/chart"
 import { defaultEmojis } from "utils/common"
 import { getDefaultSetter } from "utils/default-setters"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
-import { composeDaysSelectMenu } from "discord/select-menu/ui"
-import { composeDiscordExitButton } from "discord/button/ui"
-import { getChartColorConfig } from "canvas/color"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { composeDaysSelectMenu } from "ui/discord/select-menu"
+import { composeDiscordExitButton } from "ui/discord/button"
+import { getChartColorConfig } from "ui/canvas/color"
 
 export async function renderCompareTokenChart({
   times,

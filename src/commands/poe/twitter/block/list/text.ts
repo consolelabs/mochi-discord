@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Message } from "discord.js"
 

@@ -1,8 +1,8 @@
 import { getEmoji } from "utils/common"
 import { PERMANENT_MOCHI_INVITE_URL } from "utils/constants"
 import { BotBaseError, OriginalMessage } from "./base"
-import { getErrorEmbed } from "discord/embed/ui"
-import { composeButtonLink } from "discord/button/ui"
+import { getErrorEmbed } from "ui/discord/embed"
+import { composeButtonLink } from "ui/discord/button"
 
 export class CommandNotAllowedToRunError extends BotBaseError {
   private missingPermissions: string[]

@@ -8,7 +8,7 @@ import {
 } from "utils/constants"
 import { GuildIdNotFoundError } from "errors"
 import { emojis, thumbnails } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import airdrop from "./index/text"
 import airdropSlash from "./index/slash"

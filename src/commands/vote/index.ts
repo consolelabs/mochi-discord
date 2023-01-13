@@ -1,7 +1,7 @@
 import { Command, SlashCommand } from "types/common"
 import { getEmoji } from "utils/common"
 import { PREFIX, VOTE_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 // text
 import vote from "./index/text"
 import info from "./info/text"

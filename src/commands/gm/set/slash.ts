@@ -2,7 +2,7 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { InternalError, GuildIdNotFoundError } from "errors"
-import { composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommand } from "types/common"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { handle } from "./processor"

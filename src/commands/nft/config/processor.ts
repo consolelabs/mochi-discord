@@ -1,4 +1,4 @@
-import { getSuccessEmbed } from "discord/embed/ui"
+import { getSuccessEmbed } from "ui/discord/embed"
 import config from "adapters/config"
 
 export async function handle(

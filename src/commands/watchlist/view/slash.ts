@@ -6,7 +6,7 @@ import {
   composeSlashTokenWatchlist,
   setInteraction,
 } from "./processor"
-import { composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
 

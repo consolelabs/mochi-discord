@@ -1,6 +1,6 @@
 import { CommandInteraction, Message } from "discord.js"
 import { defaultEmojis } from "utils/common"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import Config from "../../../adapters/config"
 
 export async function handleTokenDefault(

@@ -7,7 +7,7 @@ import {
 import { DiscordEvent } from "."
 import config from "adapters/config"
 import webhook from "adapters/webhook"
-import { composeEmbedMessage, starboardEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, starboardEmbed } from "ui/discord/embed"
 import { getReactionIdentifier } from "utils/commands"
 import { wrapError } from "utils/wrap-error"
 

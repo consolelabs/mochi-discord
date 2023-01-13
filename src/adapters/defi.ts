@@ -9,7 +9,7 @@ import {
   CoinComparisionData,
   GasPriceData,
 } from "types/defi"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
 import { getCommandObject, parseDiscordToken } from "utils/commands"
 import {

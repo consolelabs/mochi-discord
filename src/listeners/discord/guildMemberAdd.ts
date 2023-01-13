@@ -19,9 +19,9 @@ import Community from "adapters/community"
 import { wrapError } from "utils/wrap-error"
 import { createBEGuildMember } from "types/webhook"
 import webhook from "adapters/webhook"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
-import { renderChartImage } from "canvas/chart"
-import { getChartColorConfig } from "canvas/color"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { renderChartImage } from "ui/canvas/chart"
+import { getChartColorConfig } from "ui/canvas/color"
 
 const voteLimitCount = 4
 const formatter = new Intl.NumberFormat("en-US", { minimumIntegerDigits: 2 })

@@ -12,7 +12,7 @@ import {
   SelectMenuInteraction,
   User,
 } from "discord.js"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import {
   authorFilter,
   emojis,

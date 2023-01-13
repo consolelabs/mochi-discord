@@ -5,7 +5,7 @@ import {
   getSuccessEmbed,
   composeEmbedMessage2,
   getErrorEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import defi from "adapters/defi"
@@ -13,8 +13,8 @@ import CacheManager from "cache/node-cache"
 import { ResponseCollectionSuggestions } from "types/api"
 import { handleUpdateWlError } from "../processor"
 import { handler } from "./processor"
-import { composeDiscordSelectionRow } from "discord/select-menu/ui"
-import { composeDiscordExitButton } from "discord/button/ui"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
+import { composeDiscordExitButton } from "ui/discord/button"
 
 const command: SlashCommand = {
   name: "add-nft",

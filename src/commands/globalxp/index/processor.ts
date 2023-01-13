@@ -1,6 +1,6 @@
 import config from "adapters/config"
 import { ButtonInteraction, Message } from "discord.js"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function confirmGlobalXP(
   interaction: ButtonInteraction,

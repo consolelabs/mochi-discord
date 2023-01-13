@@ -1,7 +1,7 @@
 import { ButtonInteraction } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { getEmoji } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 export const CONFIRM_PRUNE_INACTIVE = "confirm_prune_inactive"
 

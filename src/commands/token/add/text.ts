@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { GuildIdNotFoundError } from "errors"
 import { PREFIX } from "utils/constants"
 import { handleTokenAdd } from "./processor"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 const command: Command = {
   id: "add_server_token",

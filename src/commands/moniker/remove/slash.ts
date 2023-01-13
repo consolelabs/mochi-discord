@@ -6,7 +6,7 @@ import { RequestDeleteMonikerConfigRequest } from "types/api"
 import { SlashCommand } from "types/common"
 import { getEmoji } from "utils/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
 const command: SlashCommand = {
   name: "remove",

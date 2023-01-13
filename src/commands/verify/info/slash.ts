@@ -6,7 +6,7 @@ import {
   composeEmbedMessage2,
   getErrorEmbed,
   getSuccessEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import community from "adapters/community"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { SLASH_PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"

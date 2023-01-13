@@ -1,7 +1,7 @@
 import { API_BASE_URL, PT_API_BASE_URL } from "utils/constants"
 import fetch from "node-fetch"
 import { Message } from "discord.js"
-import { getErrorEmbed, getSuccessEmbed } from "discord/embed/ui"
+import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
 import { InternalError } from "errors"
 import { callAPI, toEmbed } from "../processor"
 

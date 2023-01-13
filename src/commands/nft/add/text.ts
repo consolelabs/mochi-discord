@@ -2,7 +2,7 @@ import { ADD_COLLECTION_GITBOOK } from "utils/constants"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 import { executeNftAddCommand } from "./processor"
 

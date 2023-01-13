@@ -6,11 +6,11 @@ import {
 import { APIError } from "errors"
 import { Token } from "types/defi"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { InteractionHandler } from "utils/InteractionManager"
 import Config from "../../../adapters/config"
-import { composeDiscordSelectionRow } from "discord/select-menu/ui"
-import { composeDiscordExitButton } from "discord/button/ui"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
+import { composeDiscordExitButton } from "ui/discord/button"
 
 const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction

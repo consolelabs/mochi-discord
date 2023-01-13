@@ -6,7 +6,7 @@ import {
   DEFI_DEFAULT_FOOTER,
   SLASH_PREFIX,
 } from "utils/constants"
-import { composeEmbedMessage, composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import deposit from "./index/text"

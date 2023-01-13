@@ -3,7 +3,7 @@ import config from "adapters/config"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError, InternalError } from "errors"
 import { emojis, getEmojiURL } from "utils/common"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
 export async function handleSalesTrack(
   msg: Message | CommandInteraction,

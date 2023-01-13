@@ -1,6 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { getEmoji, thumbnails } from "utils/common"
-import { composeEmbedMessage, composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, WATCHLIST_GITBOOK } from "utils/constants"
 import {
   SlashCommandBuilder,

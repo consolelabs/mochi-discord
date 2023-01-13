@@ -1,9 +1,9 @@
 import defi from "adapters/defi"
 import { CommandInteraction } from "discord.js"
 import { emojis, getEmojiURL } from "utils/common"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { getDestinationAddress, withdrawSlash } from "./processor"
-import { composeButtonLink } from "discord/button/ui"
+import { composeButtonLink } from "ui/discord/button"
 
 const run = async (interaction: CommandInteraction) => {
   const amount = interaction.options.getNumber("amount")

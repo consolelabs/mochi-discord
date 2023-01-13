@@ -3,7 +3,7 @@ import { GuildIdNotFoundError, InternalError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
-import { composeEmbedMessage, getSuccessEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { getExcludedRoles } from "../processor"
 import { createWhitelist, whitelistRolesEmbed } from "./processor"
 

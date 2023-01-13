@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { thumbnails } from "utils/common"
-import { getSuccessEmbed, composeEmbedMessage } from "discord/embed/ui"
+import { getSuccessEmbed, composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
 import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"

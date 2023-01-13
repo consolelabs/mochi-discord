@@ -3,7 +3,7 @@ import { Message } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { emojis, getEmojiURL } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function runLogInfo({
   msg,

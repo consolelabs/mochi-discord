@@ -1,5 +1,5 @@
 import { CommandInteraction } from "discord.js"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import {
   buildButtonsRow,
   handleStatement,

@@ -1,6 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { NFT_GITBOOK, PREFIX, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 // text
 import add from "./add/text"

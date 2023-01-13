@@ -64,12 +64,12 @@ import {
   composeEmbedMessage,
   getCommandSuggestion,
   getMultipleResultEmbed,
-} from "discord/embed/ui"
-import { composeDiscordExitButton } from "discord/button/ui"
+} from "ui/discord/embed"
+import { composeDiscordExitButton } from "ui/discord/button"
 import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
-} from "discord/select-menu/ui"
+} from "ui/discord/select-menu"
 import { kafkaQueue } from "queue/kafka/queue"
 
 CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })

@@ -15,7 +15,7 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   justifyEmbedFields,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import community from "adapters/community"
 import {
   defaultEmojis,
@@ -27,7 +27,7 @@ import {
   roundFloatNumber,
   shortenHashOrAddress,
 } from "utils/common"
-import { renderChartImage, renderPlotChartImage } from "canvas/chart"
+import { renderChartImage, renderPlotChartImage } from "ui/canvas/chart"
 import dayjs from "dayjs"
 import { APIError } from "errors"
 import {
@@ -38,8 +38,8 @@ import { InternalError } from "errors"
 import config from "adapters/config"
 import { InteractionHandler } from "utils/InteractionManager"
 import { getDefaultSetter } from "utils/default-setters"
-import { getExitButton } from "discord/button/ui"
-import { composeDaysSelectMenu } from "discord/select-menu/ui"
+import { getExitButton } from "ui/discord/button"
+import { composeDaysSelectMenu } from "ui/discord/select-menu"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
 const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0

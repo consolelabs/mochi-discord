@@ -3,7 +3,7 @@ import { Message } from "discord.js"
 import { Command } from "types/common"
 import { emojis, getEmojiURL } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { getMessageBody } from "../processor"
 
 const command: Command = {

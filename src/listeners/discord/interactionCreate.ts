@@ -11,12 +11,12 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   getMultipleResultEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
-} from "discord/select-menu/ui"
-import { composeDiscordExitButton } from "discord/button/ui"
+} from "ui/discord/select-menu"
+import { composeDiscordExitButton } from "ui/discord/button"
 import CacheManager from "cache/node-cache"
 import community from "adapters/community"
 import { wrapError } from "utils/wrap-error"

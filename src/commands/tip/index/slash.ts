@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js"
 import { handleTip } from "./processor"
-import { getErrorEmbed } from "discord/embed/ui"
+import { getErrorEmbed } from "ui/discord/embed"
 
 const run = async (interaction: CommandInteraction) => {
   const users = interaction.options.getString("users")?.trimEnd()

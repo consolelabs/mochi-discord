@@ -20,7 +20,7 @@ import {
   paginate,
   roundFloatNumber,
 } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function handleStatement(
   args: string,

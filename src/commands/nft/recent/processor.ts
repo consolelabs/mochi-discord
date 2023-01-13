@@ -1,4 +1,4 @@
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import Community from "adapters/community"
 import { defaultEmojis, emojis, getEmojiURL } from "utils/common"
 import { renderSupportedNFTList } from "../processor"

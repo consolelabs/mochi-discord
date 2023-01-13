@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { handleSalesList } from "./processor"
 
 const command: Command = {

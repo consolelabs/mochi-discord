@@ -8,12 +8,12 @@ import {
 import { MultipleResult, RunResult } from "types/common"
 import { InternalError, GuildIdNotFoundError, APIError } from "errors"
 import { Token } from "types/defi"
-import { composeEmbedMessage, getSuccessEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { InteractionHandler } from "utils/InteractionManager"
 import Config from "../../../adapters/config"
 import Defi from "../../../adapters/defi"
-import { composeDiscordSelectionRow } from "discord/select-menu/ui"
-import { composeDiscordExitButton } from "discord/button/ui"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
+import { composeDiscordExitButton } from "ui/discord/button"
 
 const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction

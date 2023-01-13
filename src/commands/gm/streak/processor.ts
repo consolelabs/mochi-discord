@@ -1,6 +1,6 @@
 import profile from "adapters/profile"
 import { getEmoji, msgColors } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function handle(authorId: string, guildId: string) {
   const res = await profile.getUserGmStreak(authorId, guildId)

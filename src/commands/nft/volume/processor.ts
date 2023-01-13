@@ -5,8 +5,8 @@ import { CommandInteraction, Message, MessageAttachment } from "discord.js"
 import { APIError } from "errors"
 import { RectangleStats } from "types/canvas"
 import { TopNFTTradingVolumeItem } from "types/community"
-import { heightOf, widthOf } from "canvas/calculator"
-import { drawDivider, drawRectangle } from "canvas/draw"
+import { heightOf, widthOf } from "ui/canvas/calculator"
+import { drawDivider, drawRectangle } from "ui/canvas/draw"
 import {
   emojis,
   getEmoji,
@@ -15,7 +15,7 @@ import {
   parseNFTTop,
   sortNFTListByVolume,
 } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function mapSymbolToPrice(
   tokenList: string[]

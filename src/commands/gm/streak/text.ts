@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { GM_GITBOOK, PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { GuildIdNotFoundError } from "errors"
 import { handle } from "./processor"
 

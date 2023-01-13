@@ -1,5 +1,5 @@
 import { Command, SlashCommand } from "types/common"
-import { composeEmbedMessage, composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, LOG_CHANNEL_GITBOOK, SLASH_PREFIX } from "utils/constants"
 // text
 import set from "./set/text"

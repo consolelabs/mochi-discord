@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SplitMarketplaceLink, CheckMarketplaceLink } from "utils/marketplace"
 import { executeNftIntegrateCommand } from "./processor"
 

@@ -4,7 +4,7 @@ import {
   composeEmbedMessage2,
   getErrorEmbed,
   getSuccessEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import config from "adapters/config"
 import { APIError, InternalError } from "errors"

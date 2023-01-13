@@ -2,7 +2,7 @@ import config from "adapters/config"
 import { Message } from "discord.js"
 import { APIError } from "errors"
 import { PREFIX } from "utils/constants"
-import { getSuccessEmbed } from "discord/embed/ui"
+import { getSuccessEmbed } from "ui/discord/embed"
 
 export async function handle(guildId: string, msg: Message) {
   const res = await config.removeVoteChannel(guildId)

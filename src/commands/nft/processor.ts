@@ -14,15 +14,15 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   justifyEmbedFields,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import { buildSwitchViewActionRow, getOriginAuthorId } from "./ticker/processor"
-import { getExitButton } from "discord/button/ui"
+import { getExitButton } from "ui/discord/button"
 import { CircleleStats, RectangleStats } from "types/canvas"
 import { NFTCollection } from "types/community"
-import { drawCircleImage, drawRectangle, loadImages } from "canvas/draw"
+import { drawCircleImage, drawRectangle, loadImages } from "ui/canvas/draw"
 import { Image, createCanvas } from "canvas"
-import { widthOf } from "canvas/calculator"
-import { handleTextOverflow } from "canvas/text"
+import { widthOf } from "ui/canvas/calculator"
+import { handleTextOverflow } from "ui/canvas/text"
 
 const buildDiscordMessage = (
   msg: Message | undefined,

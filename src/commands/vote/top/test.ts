@@ -4,7 +4,7 @@ import { mockClient } from "../../../../tests/mocks"
 import community from "adapters/community"
 import { getEmoji } from "utils/common"
 import { RunResult } from "types/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 jest.mock("adapters/config")
 jest.mock("adapters/community")

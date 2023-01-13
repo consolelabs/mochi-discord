@@ -7,7 +7,7 @@ import {
   composeEmbedMessage,
   composeEmbedMessage2,
   getErrorEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import { parseWelcomeMessage } from "../processor"
 import config from "adapters/config"
 

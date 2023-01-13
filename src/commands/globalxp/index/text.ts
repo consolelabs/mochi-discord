@@ -4,7 +4,7 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   getExitButton,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 
 const run = async function (msg: Message) {
   if (!msg.guildId || !msg.guild) {

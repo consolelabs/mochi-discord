@@ -3,10 +3,10 @@ import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { getEmoji } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { handleMonikerList } from "./processor"
-import { getPaginationRow } from "discord/button/ui"
-import { listenForPaginateInteraction } from "discord/button/collector"
+import { getPaginationRow } from "ui/discord/button"
+import { listenForPaginateInteraction } from "handlers/discord/button"
 
 const command: SlashCommand = {
   name: "list",

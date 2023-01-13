@@ -2,8 +2,8 @@ import config from "adapters/config"
 import { Command } from "types/common"
 import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
-import TwitterStream from "../../../../twitter/listener"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import TwitterStream from "listeners/twitter/watcher"
 
 const command: Command = {
   id: "poe_twitter_remove",

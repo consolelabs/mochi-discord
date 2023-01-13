@@ -12,7 +12,7 @@ import { SetDefaultButtonHandler, SetDefaultRenderList } from "types/common"
 import { InteractionHandler } from "utils/InteractionManager"
 import { getDateStr, getEmoji, hasAdministrator } from "utils/common"
 import { VERTICAL_BAR } from "utils/constants"
-import { composeEmbedMessage, composeEmbedMessage2 } from "../embed/ui"
+import { composeEmbedMessage, composeEmbedMessage2 } from "./embed"
 import dayjs from "dayjs"
 
 type SetDefaultMiddlewareParams<T> = {

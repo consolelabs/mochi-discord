@@ -2,7 +2,7 @@ import { Message } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { PREFIX, VOTE_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { handle } from "./processor"
 
 const command: Command = {

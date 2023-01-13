@@ -11,16 +11,16 @@ import { Coin } from "types/defi"
 import CacheManager from "cache/node-cache"
 import { defaultEmojis } from "utils/common"
 import { getDefaultSetter } from "utils/default-setters"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import {
   renderCompareTokenChart,
   handler,
   composeTokenComparisonEmbed,
 } from "./processor"
 import { SlashCommandResponse } from "types/common"
-import { getChartColorConfig } from "canvas/color"
-import { composeDaysSelectMenu } from "discord/select-menu/ui"
-import { composeDiscordExitButton } from "discord/button/ui"
+import { getChartColorConfig } from "ui/canvas/color"
+import { composeDaysSelectMenu } from "ui/discord/select-menu"
+import { composeDiscordExitButton } from "ui/discord/button"
 
 async function run(
   interaction: SelectMenuInteraction | CommandInteraction,

@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { handleSalesRemove } from "./processor"
 
 const command: Command = {

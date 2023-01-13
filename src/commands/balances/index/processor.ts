@@ -2,7 +2,7 @@ import { EmbedFieldData } from "discord.js"
 import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
 import { APIError, OriginalMessage } from "errors"
 import Defi from "adapters/defi"
-import { composeEmbedMessage, justifyEmbedFields } from "discord/embed/ui"
+import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
 import { UserBalances } from "types/defi"
 
 export async function handleBal(userId: string, message: OriginalMessage) {

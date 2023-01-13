@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { thumbnails } from "utils/common"
-import { composeEmbedMessage, getSuccessEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { PREFIX, TELEGRAM_GITBOOK } from "utils/constants"
 import { getCommandArguments } from "utils/commands"
 import config from "adapters/config"

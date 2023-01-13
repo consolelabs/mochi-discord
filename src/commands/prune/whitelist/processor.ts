@@ -3,7 +3,7 @@ import { Message, Role } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function createWhitelist(roleId: string, message: Message) {
   if (!message.guildId) {

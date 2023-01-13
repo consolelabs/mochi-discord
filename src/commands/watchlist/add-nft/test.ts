@@ -1,5 +1,5 @@
 import Discord, { MessageOptions } from "discord.js"
-import { getSuccessEmbed, getErrorEmbed } from "discord/embed/ui"
+import { getSuccessEmbed, getErrorEmbed } from "ui/discord/embed"
 import defi from "adapters/defi"
 import { mockClient } from "../../../../tests/mocks"
 import { commands } from "commands"

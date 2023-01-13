@@ -11,10 +11,10 @@ import { InternalError, OriginalMessage } from "errors"
 import CacheManager from "cache/node-cache"
 import { InteractionHandler } from "utils/InteractionManager"
 import { defaultEmojis } from "utils/common"
-import { composeEmbedMessage, getErrorEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { renderCompareTokenChart } from "../compare-token/processor"
-import { composeDaysSelectMenu } from "discord/select-menu/ui"
-import { composeDiscordExitButton } from "discord/button/ui"
+import { composeDaysSelectMenu } from "ui/discord/select-menu"
+import { composeDiscordExitButton } from "ui/discord/button"
 
 export async function composeFiatComparisonEmbed(
   message: OriginalMessage,

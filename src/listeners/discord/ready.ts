@@ -8,7 +8,7 @@ import defi from "adapters/defi"
 import { wrapError } from "utils/wrap-error"
 import InteractionManager from "utils/InteractionManager"
 import { logger } from "logger"
-import TwitterStream from "../../twitter/listener"
+import TwitterStream from "listeners/twitter/watcher"
 
 export let IS_READY = false
 

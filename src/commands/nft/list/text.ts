@@ -1,9 +1,9 @@
 import { Message } from "discord.js"
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { composeNFTListEmbed } from "./processor"
-import { listenForPaginateAction } from "discord/button/collector"
+import { listenForPaginateAction } from "handlers/discord/button"
 
 const command: Command = {
   id: "nft_list",

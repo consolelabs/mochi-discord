@@ -3,7 +3,7 @@ import config from "../../adapters/config"
 import webhook from "adapters/webhook"
 import { logger } from "logger"
 import { wrapError } from "utils/wrap-error"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { DiscordEvent } from "."
 
 const event: DiscordEvent<"guildCreate"> = {

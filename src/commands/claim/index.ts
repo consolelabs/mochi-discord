@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { getEmoji, thumbnails } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import claim from "./index/text"
 
 const textCmd: Command = {

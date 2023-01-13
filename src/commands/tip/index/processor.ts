@@ -7,7 +7,7 @@ import {
   thumbnails,
 } from "utils/common"
 import { parseDiscordToken } from "utils/commands"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError } from "errors/api"
 import { ResponseMonikerConfigData } from "types/api"
 import defi from "adapters/defi"

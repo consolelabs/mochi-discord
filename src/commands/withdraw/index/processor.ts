@@ -1,6 +1,6 @@
 import { CommandInteraction, Message } from "discord.js"
 import Defi from "adapters/defi"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 import { APIError, InternalError } from "errors"
 import { OffchainTipBotWithdrawRequest } from "types/defi"

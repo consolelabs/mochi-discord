@@ -9,13 +9,13 @@ import {
   composeEmbedMessage,
   composeEmbedMessage2,
   getErrorEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import {
   CONFIRM_PRUNE_WITHOUT,
   getUsersWithoutRole,
   pruneRoleExecute,
 } from "./processor"
-import { getExitButton } from "discord/button/ui"
+import { getExitButton } from "ui/discord/button"
 
 const command: SlashCommand = {
   name: "without",

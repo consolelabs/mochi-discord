@@ -1,7 +1,7 @@
 import { SlashCommand } from "types/common"
 import { CommandInteraction } from "discord.js"
 import { thumbnails } from "utils/common"
-import { composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX, SPACES_REGEX } from "utils/constants"
 import { viewWatchlist } from "./processor"

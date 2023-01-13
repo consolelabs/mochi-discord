@@ -1,4 +1,4 @@
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import type { Command } from "types/common"
 import { getEmoji as utilGetEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"

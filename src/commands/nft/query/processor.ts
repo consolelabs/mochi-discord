@@ -13,7 +13,7 @@ import {
   getSuccessEmbed,
   justifyEmbedFields,
   getErrorEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import community from "adapters/community"
 import {
   authorFilter,
@@ -41,10 +41,10 @@ import {
   ResponseNftMetadataAttrIcon,
 } from "types/api"
 import dayjs from "dayjs"
-import { renderChartImage } from "canvas/chart"
+import { renderChartImage } from "ui/canvas/chart"
 import { wrapError } from "utils/wrap-error"
 import { composeCollectionInfoEmbed } from "../processor"
-import { getSuggestionComponents } from "discord/select-menu/ui"
+import { getSuggestionComponents } from "ui/discord/select-menu"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",

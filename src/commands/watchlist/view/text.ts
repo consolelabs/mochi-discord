@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { collectButton, composeTokenWatchlist } from "./processor"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { PREFIX } from "utils/constants"
 

@@ -3,7 +3,7 @@ import { CommandInteraction, Message } from "discord.js"
 import { APIError, GuildIdNotFoundError, OriginalMessage } from "errors"
 import { emojis, getEmojiURL } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, composeEmbedMessage2 } from "discord/embed/ui"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 
 export async function handle(msg: OriginalMessage, statusText = "") {
   if (!msg.guildId) {

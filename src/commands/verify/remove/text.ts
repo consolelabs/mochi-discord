@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import community from "adapters/community"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getSuccessEmbed } from "discord/embed/ui"
+import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { defaultEmojis } from "utils/common"
 

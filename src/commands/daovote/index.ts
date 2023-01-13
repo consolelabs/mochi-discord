@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import set from "./set/text"
 import info from "./info/text"
 import remove from "./remove/text"

@@ -4,7 +4,7 @@ import { list } from "../processor"
 import { Command } from "types/common"
 import { emojis, getEmojiURL } from "utils/common"
 import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 const command: Command = {
   id: "nr_list",

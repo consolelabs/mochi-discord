@@ -7,15 +7,15 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { defaultEmojis } from "utils/common"
-import { getSuccessEmbed, composeEmbedMessage } from "discord/embed/ui"
+import { getSuccessEmbed, composeEmbedMessage } from "ui/discord/embed"
 import { Coin } from "types/defi"
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
 import { InteractionHandler } from "utils/InteractionManager"
 import { parseTickerQuery } from "utils/defi"
 import { handleUpdateWlError } from "../processor"
-import { composeDiscordExitButton } from "discord/button/ui"
-import { composeDiscordSelectionRow } from "discord/select-menu/ui"
+import { composeDiscordExitButton } from "ui/discord/button"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 
 export async function addToWatchlist(interaction: ButtonInteraction) {
   // deferUpdate because we will edit the message later

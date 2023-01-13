@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX, STARBOARD_GITBOOK } from "utils/constants"
 import { Message } from "discord.js"
 import { getCommandArguments } from "utils/commands"

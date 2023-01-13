@@ -2,8 +2,8 @@ import { createCanvas, loadImage } from "canvas"
 import { Guild, GuildMember, MessageAttachment } from "discord.js"
 import { RectangleStats } from "types/canvas"
 import { LeaderboardItem } from "types/community"
-import { heightOf, widthOf } from "canvas/calculator"
-import { drawDivider, drawRectangle } from "canvas/draw"
+import { heightOf, widthOf } from "ui/canvas/calculator"
+import { drawDivider, drawRectangle } from "ui/canvas/draw"
 import { emojis, getEmojiURL } from "utils/common"
 
 export async function renderLeaderboard(

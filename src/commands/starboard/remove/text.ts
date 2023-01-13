@@ -1,6 +1,6 @@
 import { Command, RepostReactionRequest } from "types/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"

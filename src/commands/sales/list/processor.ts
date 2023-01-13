@@ -2,8 +2,8 @@ import community from "adapters/community"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError } from "errors"
 import { capFirst, defaultEmojis, shortenHashOrAddress } from "utils/common"
-import { composeEmbedMessage } from "discord/embed/ui"
-import { composeSimpleSelection } from "discord/select-menu/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { composeSimpleSelection } from "ui/discord/select-menu"
 
 export async function handleSalesList(
   msg: Message | CommandInteraction,

@@ -1,10 +1,10 @@
 import { CommandInteraction, Message } from "discord.js"
 import { DirectMessageNotAllowedError, InternalError } from "errors"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError } from "errors"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
 import defi from "adapters/defi"
-import { composeButtonLink } from "discord/button/ui"
+import { composeButtonLink } from "ui/discord/button"
 
 export async function deposit(
   msgOrInteraction: Message | CommandInteraction,

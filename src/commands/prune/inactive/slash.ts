@@ -8,9 +8,9 @@ import {
   composeEmbedMessage,
   composeEmbedMessage2,
   getErrorEmbed,
-} from "discord/embed/ui"
+} from "ui/discord/embed"
 import { CONFIRM_PRUNE_INACTIVE, pruneInactiveExecute } from "./processor"
-import { getExitButton } from "discord/button/ui"
+import { getExitButton } from "ui/discord/button"
 
 const command: SlashCommand = {
   name: "inactive",

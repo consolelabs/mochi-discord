@@ -1,12 +1,12 @@
 import apiConfig from "adapters/config"
 import { Client, TextChannel } from "discord.js"
 import { InmemoryStorage } from "types/InmemoryStorage"
-import { twitter } from "twitter"
 import { logger } from "logger"
 import { PROD } from "env"
 import { PartialDeep } from "type-fest"
 import { APIError } from "errors"
 import retry from "retry"
+import { twitter } from "."
 
 type UpsertRuleParams = {
   ruleValue: string[]

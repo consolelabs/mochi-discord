@@ -1,5 +1,5 @@
 import community from "adapters/community"
-import { composeEmbedMessage } from "discord/embed/ui"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 import { APIError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
