@@ -1,14 +1,14 @@
 import Discord from "discord.js"
-import events from "./events"
+import events from "./discord/events"
 import { APPLICATION_ID, DISCORD_TOKEN, PORT } from "./env"
 import { REST } from "@discordjs/rest"
 import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
 import { slashCommands } from "commands"
 import { createServer, IncomingMessage, ServerResponse } from "http"
-import { IS_READY } from "events/ready"
-import { run } from "producer"
-import { assignKafka } from "utils/kafka"
+import { IS_READY } from "./discord/events/ready"
+import { assignKafka } from "queue/kafka/queue"
+import { run } from "queue/kafka/producer"
 
 const client = new Discord.Client({
   intents: [

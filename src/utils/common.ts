@@ -1,25 +1,24 @@
 import {
-  Message,
-  GuildEmoji,
-  User,
   ColorResolvable,
+  GuildMember,
+  Message,
   MessageComponentInteraction,
   Permissions,
-  GuildMember,
+  User,
 } from "discord.js"
 
-import type { Command, Pagination } from "types/common"
-import { DOT, HOMEPAGE_URL, SPACE } from "./constants"
+import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
+import { MARKETPLACE_BASE_URL } from "env"
+import type { Pagination } from "types/common"
 import { TopNFTTradingVolumeItem } from "types/community"
+import { DOT, SPACE } from "./constants"
 import {
   marketplaceEmojis,
   rarityEmojis,
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
-import dayjs from "dayjs"
-import relativeTime from "dayjs/plugin/relativeTime"
-import { MARKETPLACE_BASE_URL } from "env"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
@@ -281,21 +280,21 @@ export function hasAdministrator(member?: GuildMember | null) {
   return member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
-export function getCommandsList(
-  _emoji: GuildEmoji | string,
-  commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
-) {
-  const emoji = getEmoji("reply")
-  const correctBrief = (brief: string) =>
-    brief.endsWith(".") ? brief : `${brief}.`
-  return Object.values(commands)
-    .filter((c) => !c.experimental)
-    .map(
-      (c) =>
-        `[**${c.command}**](${HOMEPAGE_URL})\n${emoji}${correctBrief(c.brief)}`
-    )
-    .join("\n\n")
-}
+// export function getCommandsList(
+//   _emoji: GuildEmoji | string,
+//   commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
+// ) {
+//   const emoji = getEmoji("reply")
+//   const correctBrief = (brief: string) =>
+//     brief.endsWith(".") ? brief : `${brief}.`
+//   return Object.values(commands)
+//     .filter((c) => !c.experimental)
+//     .map(
+//       (c) =>
+//         `[**${c.command}**](${HOMEPAGE_URL})\n${emoji}${correctBrief(c.brief)}`
+//     )
+//     .join("\n\n")
+// }
 
 export function maskAddress(str: string, minLen?: number) {
   const num = minLen || 8

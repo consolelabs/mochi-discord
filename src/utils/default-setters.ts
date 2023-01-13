@@ -1,5 +1,5 @@
 import { ButtonInteraction, Message } from "discord.js"
-import { getSuccessEmbed } from "./discordEmbed"
+import { getSuccessEmbed } from "discord/embed/ui"
 
 type GetDefaultSetterParams = {
   updateCache?: () => void
