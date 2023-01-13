@@ -1,9 +1,9 @@
 import community from "adapters/community"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError } from "errors"
-import { capFirst, defaultEmojis, shortenHashOrAddress } from "utils/common"
+import { defaultEmojis, shortenHashOrAddress } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { composeSimpleSelection } from "ui/discord/select-menu"
+// import { composeSimpleSelection } from "ui/discord/select-menu"
 
 export async function handleSalesList(
   msg: Message | CommandInteraction,
@@ -25,21 +25,19 @@ export async function handleSalesList(
       },
     }
   }
+
+  let description = ""
+  res.data.map((c: any) => {
+    c.contract_address = shortenHashOrAddress(c.contract_address)
+    description += `<#${c.channel_id}> \`(${c.contract_address}) ${c.chain}\`\n`
+  })
+
   return {
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
           title: "Trackers",
-          description: `Sending notifications to channel <#${
-            res.data.channel_id
-          }>:\n${composeSimpleSelection(
-            res.data.collection.map(
-              (c: any) =>
-                `\`${capFirst(c.name)} (${shortenHashOrAddress(
-                  c.contract_address
-                )}) ${c.chain.name}\``
-            )
-          )}`,
+          description: `Sending notifications to\n${description}`,
         }),
       ],
     },

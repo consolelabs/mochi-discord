@@ -184,7 +184,7 @@ class Community extends Fetcher {
   }
 
   public async getSalesTrackers(guildId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/nfts/sales-tracker`, {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/sales-tracker`, {
       query: { guildId },
     })
   }
@@ -198,16 +198,16 @@ class Community extends Fetcher {
 
   public async createSalesTracker(
     addr: string,
-    plat: string,
+    chain: string,
     guildId: string,
     channelId: string
   ) {
-    return await this.jsonFetch(`${API_BASE_URL}/nfts/sales-tracker`, {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/sales-tracker`, {
       method: "POST",
       body: JSON.stringify({
         channel_id: channelId,
         contract_address: addr,
-        platform: plat,
+        chain: chain,
         guild_id: guildId,
       }),
     })
