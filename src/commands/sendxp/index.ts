@@ -1,13 +1,39 @@
 import { SlashCommandBuilder } from "@discordjs/builders"
-import { CommandInteraction } from "discord.js"
-import { InternalError } from "errors"
-import { SlashCommand } from "types/common"
+import { Command, SlashCommand } from "types/common"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
-import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "utils/discordEmbed"
-import { handleSendXp } from "../sendxp"
+import sendxp from "./index/text"
+import sendxpSlash from "./index/slash"
+import { PREFIX, SENDXP_GITBOOK, SLASH_PREFIX } from "utils/constants"
 
-const command: SlashCommand = {
+const textCmd: Command = {
+  id: "sendxp",
+  command: "sendxp",
+  brief: "Send XP to members",
+  category: "Community",
+  run: sendxp,
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        title: "Send XP to members",
+        usage: `${PREFIX}sendXP <recipient(s)> <amount> [each]`,
+        description: `You can send to recipients by:\n${getEmoji(
+          "POINTINGRIGHT"
+        )} Username(s): \`@tom\`, \`@john\`\n${getEmoji(
+          "POINTINGRIGHT"
+        )} Role(s): \`@dev\`, \`@staff\``,
+        examples: `${PREFIX}sendXP @john 5\n${PREFIX}sendXP @staff 5 XP`,
+        document: SENDXP_GITBOOK,
+      }),
+    ],
+  }),
+  colorType: "Server",
+  onlyAdministrator: true,
+  canRunWithoutAction: true,
+  minArguments: 3,
+}
+
+const slashCmd: SlashCommand = {
   name: "sendxp",
   category: "Community",
   prepare: () => {
@@ -38,19 +64,7 @@ const command: SlashCommand = {
       .setDefaultPermission(false)
     return data
   },
-  run: async function (interaction: CommandInteraction) {
-    const targets = interaction.options.getString("recipients")
-    const amount = interaction.options.getNumber("amount")
-    const each = interaction.options.getBoolean("each") ?? false
-    if (!targets || !amount) {
-      throw new InternalError({
-        message: interaction,
-        title: "Invalid arguments",
-      })
-    }
-
-    return handleSendXp(interaction, targets, amount, each)
-  },
+  run: sendxpSlash,
   help: async () => ({
     embeds: [
       composeEmbedMessage(null, {
@@ -68,4 +82,4 @@ const command: SlashCommand = {
   colorType: "Server",
 }
 
-export default command
+export default { textCmd, slashCmd }

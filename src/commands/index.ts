@@ -60,6 +60,7 @@ import daovote from "./daovote"
 import starboard from "./starboard"
 import telegram from "./telegram"
 import poe from "./poe"
+import sendxp from "./sendxp"
 import {
   composeEmbedMessage,
   getCommandSuggestion,
@@ -107,6 +108,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   token: token.slashCmd,
   profile: profile.slashCmd,
   deposit: deposit.slashCmd,
+  sendxp: sendxp.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -146,6 +148,7 @@ export const originalCommands: Record<string, Command> = {
   log: log.textCmd,
   poe: poe.textCmd,
   telegram: telegram.textCmd,
+  sendxp: sendxp.textCmd,
 }
 
 export const commands = getAllAliases(originalCommands)
