@@ -6,7 +6,7 @@ import { invites } from "utils/invites"
 import { setTimeout as wait } from "timers/promises"
 import defi from "adapters/defi"
 import { wrapError } from "utils/wrap-error"
-import InteractionManager from "utils/InteractionManager"
+import InteractionManager from "handlers/discord/select-menu"
 import { logger } from "logger"
 import TwitterStream from "listeners/twitter/watcher"
 

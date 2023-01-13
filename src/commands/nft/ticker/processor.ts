@@ -36,7 +36,7 @@ import {
 } from "types/api"
 import { InternalError } from "errors"
 import config from "adapters/config"
-import { InteractionHandler } from "utils/InteractionManager"
+import { InteractionHandler } from "handlers/discord/select-menu"
 import { getDefaultSetter } from "utils/default-setters"
 import { getExitButton } from "ui/discord/button"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"

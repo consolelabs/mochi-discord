@@ -9,7 +9,7 @@ import {
 } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
 import CacheManager from "cache/node-cache"
-import { InteractionHandler } from "utils/InteractionManager"
+import { InteractionHandler } from "handlers/discord/select-menu"
 import { defaultEmojis } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { renderCompareTokenChart } from "../compare-token/processor"

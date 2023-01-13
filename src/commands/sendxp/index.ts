@@ -16,13 +16,13 @@ const textCmd: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         title: "Send XP to members",
-        usage: `${PREFIX}sendXP <recipient(s)> <amount> [each]`,
+        usage: `${PREFIX}sendxp <recipient(s)> <amount> [each]`,
         description: `You can send to recipients by:\n${getEmoji(
           "POINTINGRIGHT"
         )} Username(s): \`@tom\`, \`@john\`\n${getEmoji(
           "POINTINGRIGHT"
         )} Role(s): \`@dev\`, \`@staff\``,
-        examples: `${PREFIX}sendXP @john 5\n${PREFIX}sendXP @staff 5 XP`,
+        examples: `${PREFIX}sendxp @john 5\n${PREFIX}sendxp @staff 5 XP`,
         document: SENDXP_GITBOOK,
       }),
     ],
@@ -69,13 +69,13 @@ const slashCmd: SlashCommand = {
     embeds: [
       composeEmbedMessage(null, {
         title: "Send XP to members",
-        usage: `${SLASH_PREFIX}sendXP <recipient(s)> <amount> [each]`,
+        usage: `${SLASH_PREFIX}sendxp <recipient(s)> <amount> [each]`,
         description: `You can send to recipients by:\n${getEmoji(
           "POINTINGRIGHT"
         )} Username(s): \`@tom\`, \`@john\`\n${getEmoji(
           "POINTINGRIGHT"
         )} Role(s): \`@dev\`, \`@staff\``,
-        examples: `${SLASH_PREFIX}sendXP @john 5\n${SLASH_PREFIX}sendXP @staff 5 XP`,
+        examples: `${SLASH_PREFIX}sendxp @john 5\n${SLASH_PREFIX}sendxp @staff 5 XP`,
       }),
     ],
   }),

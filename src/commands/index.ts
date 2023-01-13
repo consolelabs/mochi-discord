@@ -25,7 +25,7 @@ import CacheManager from "cache/node-cache"
 import community from "adapters/community"
 import { isAcceptableCmdToHelp } from "../utils/commands"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
-import InteractionManager from "utils/InteractionManager"
+import InteractionManager from "handlers/discord/select-menu"
 
 // commands
 import feedback from "./feedback/index"
