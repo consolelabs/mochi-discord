@@ -25,7 +25,7 @@ import CacheManager from "cache/node-cache"
 import community from "adapters/community"
 import { isAcceptableCmdToHelp } from "../utils/commands"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
-import InteractionManager from "utils/InteractionManager"
+import InteractionManager from "handlers/discord/select-menu"
 
 // commands
 import feedback from "./feedback/index"
@@ -60,6 +60,7 @@ import daovote from "./daovote"
 import starboard from "./starboard"
 import telegram from "./telegram"
 import poe from "./poe"
+import sendxp from "./sendxp"
 import {
   composeEmbedMessage,
   getCommandSuggestion,
@@ -107,6 +108,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   token: token.slashCmd,
   profile: profile.slashCmd,
   deposit: deposit.slashCmd,
+  sendxp: sendxp.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -146,6 +148,7 @@ export const originalCommands: Record<string, Command> = {
   log: log.textCmd,
   poe: poe.textCmd,
   telegram: telegram.textCmd,
+  sendxp: sendxp.textCmd,
 }
 
 export const commands = getAllAliases(originalCommands)

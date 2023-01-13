@@ -352,9 +352,9 @@ export function paginate(arr: any[], size: number) {
   }, [])
 }
 
-export function parseNFTTop(resp: any): TopNFTTradingVolumeItem[] {
+export function parseNFTTop(data: any): TopNFTTradingVolumeItem[] {
   const nftList: TopNFTTradingVolumeItem[] = []
-  resp.data.forEach((item: TopNFTTradingVolumeItem) => {
+  data.forEach((item: TopNFTTradingVolumeItem) => {
     const ele: TopNFTTradingVolumeItem = {
       collection_address: item.collection_address,
       collection_name: item.collection_name,

@@ -16,7 +16,7 @@ import { APIError } from "errors"
 import TurndownService from "turndown"
 import { RectangleStats } from "types/canvas"
 import CacheManager from "cache/node-cache"
-import { InteractionHandler } from "utils/InteractionManager"
+import { InteractionHandler } from "handlers/discord/select-menu"
 import { drawRectangle } from "ui/canvas/draw"
 import {
   defaultEmojis,

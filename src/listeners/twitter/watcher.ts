@@ -1,6 +1,6 @@
 import apiConfig from "adapters/config"
 import { Client, TextChannel } from "discord.js"
-import { InmemoryStorage } from "types/InmemoryStorage"
+import { InmemoryStorage } from "types/inmemory-storage"
 import { logger } from "logger"
 import { PROD } from "env"
 import { PartialDeep } from "type-fest"

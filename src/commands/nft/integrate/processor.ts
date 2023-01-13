@@ -1,8 +1,7 @@
-import { API_BASE_URL, PT_API_BASE_URL } from "utils/constants"
-import fetch from "node-fetch"
+import community from "adapters/community"
 import { Message } from "discord.js"
-import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
 import { InternalError } from "errors"
+import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
 import { callAPI, toEmbed } from "../processor"
 
 export async function executeNftIntegrateCommand(
@@ -13,17 +12,12 @@ export async function executeNftIntegrateCommand(
   msg: Message | undefined
 ) {
   // check existed collection address - chainId
-  const checkExistRes = await fetch(
-    `${API_BASE_URL}/nfts/collections/address/${address}?chain=${chainId}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  )
+  const { status, data } = await community.getNftCollectionInfo({
+    address,
+    chainId,
+  })
 
-  if (checkExistRes.status !== 200) {
+  if (status !== 200) {
     const { storeCollectionRes, supportedChainsRes } = await callAPI(
       address,
       chainId,
@@ -38,8 +32,7 @@ export async function executeNftIntegrateCommand(
     }
   }
 
-  const colDetail = await checkExistRes.json()
-  if (!colDetail.data) {
+  if (!data) {
     throw new InternalError({
       message: msg,
       title: "Can't find the NFT collection",
@@ -47,30 +40,28 @@ export async function executeNftIntegrateCommand(
     })
   }
 
-  const enableVerseRes = await fetch(
-    `${PT_API_BASE_URL}/nft/${address}/support-verse-enable`,
-    { method: "PUT" }
-  )
-  if (enableVerseRes.status === 200) {
+  const { status: supportVerseStatus = 0, error } =
+    await community.updateSupportVerse(address)
+  if (status === 200) {
     return {
       messageOptions: {
         embeds: [
           getSuccessEmbed({
             msg,
-            title: `${colDetail.data.symbol} integrated`,
-            description: `${colDetail.data.name} collection is now ready to take part in our verse (added + enabled)`,
-            image: colDetail.data.image,
+            title: `${data.symbol} integrated`,
+            description: `${data.name} collection is now ready to take part in our verse (added + enabled)`,
+            image: data.image,
           }),
         ],
       },
     }
   } else {
     let description
-    if ([400, 500].includes(enableVerseRes.status)) {
-      if (enableVerseRes.status === 500) {
+    if ([400, 500].includes(supportVerseStatus)) {
+      if (status === 500) {
         description = "Internal Server Error"
       } else {
-        description = (await enableVerseRes.json()).error
+        description = error ?? ""
       }
     }
     return {

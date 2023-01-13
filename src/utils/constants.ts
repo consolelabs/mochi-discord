@@ -96,6 +96,10 @@ export const DEFAULT_ROLE_GITBOOK =
   "&command=defaultrole"
 export const NFT_ROLE_GITBOOK =
   USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/token-role" +
+  "&command=tokenrole"
+export const TOKEN_ROLE_GITBOOK =
+  USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-roles" +
   "&command=nftrole"
 export const GM_GITBOOK =
@@ -169,6 +173,14 @@ export const QUEST_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/user-engagement/daily-quest" +
   "&command=quest"
+export const DAO_VOTING_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/dao-voting" +
+  "&command=daovoting"
+export const SENDXP_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/send-xp-to-member" +
+  "&command=sendxp"
 
 export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"
