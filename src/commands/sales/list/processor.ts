@@ -26,11 +26,14 @@ export async function handleSalesList(
     }
   }
 
-  let description = ""
-  res.data.map((c: any) => {
-    c.contract_address = shortenHashOrAddress(c.contract_address)
-    description += `<#${c.channel_id}> \`(${c.contract_address}) ${c.chain}\`\n`
-  })
+  const description = res.data
+    .map(
+      (c: any) =>
+        `<#${c.channel_id}> \`(${shortenHashOrAddress(c.contract_address)}) ${
+          c.chain
+        }\``
+    )
+    .join("\n")
 
   return {
     messageOptions: {
