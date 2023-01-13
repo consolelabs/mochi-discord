@@ -117,6 +117,19 @@ export interface ModelDaoProposalVoteCount {
   sum?: number;
 }
 
+export interface ModelDaoProposalVoteOption {
+  address?: string;
+  chain_id?: number;
+  created_at?: string;
+  id?: number;
+  proposal_id?: number;
+  required_amount?: string;
+  symbol?: string;
+  updated_at?: string;
+  vote_option?: ModelDaoVoteOption;
+  vote_option_id?: number;
+}
+
 export interface ModelDaoVote {
   choice?: string;
   created_at?: string;
@@ -125,6 +138,13 @@ export interface ModelDaoVote {
   proposal_id?: number;
   updated_at?: string;
   user_id?: string;
+}
+
+export interface ModelDaoVoteOption {
+  created_at?: string;
+  id?: number;
+  type?: string;
+  updated_at?: string;
 }
 
 export interface ModelDiscordGuild {
@@ -217,7 +237,7 @@ export interface ModelGuildConfigDaoProposal {
   guild_id?: string;
   id?: number;
   proposal_channel_id?: string;
-  required_amount?: number;
+  required_amount?: string;
   symbol?: string;
   type?: string;
   updated_at?: string;
@@ -466,6 +486,30 @@ export interface ModelOffchainTipBotTransferHistory {
   updated_at?: string;
 }
 
+export interface ModelOnchainTipBotTransaction {
+  all?: boolean;
+  amount?: number;
+  channel_id?: string;
+  claimed_at?: string;
+  created_at?: string;
+  duration?: number;
+  each?: boolean;
+  full_command?: string;
+  guild_id?: string;
+  id?: number;
+  image?: string;
+  message?: string;
+  recipient_address?: string;
+  recipients?: string;
+  sender?: string;
+  /** (pending, claimed) */
+  string?: string;
+  token_symbol?: string;
+  transfer_type?: string;
+  tx_hash?: string;
+  updated_at?: string;
+}
+
 export interface ModelQuest {
   action?: string;
   frequency?: number;
@@ -635,6 +679,12 @@ export interface RequestAddToWatchlistRequest {
 export interface RequestBalcklistChannelRepostConfigRequest {
   channel_id?: string;
   guild_id?: string;
+}
+
+export interface RequestClaimOnchainTransferRequest {
+  address?: string;
+  claim_id?: number;
+  user_id?: string;
 }
 
 export interface RequestClaimQuestsRewardsRequest {
@@ -885,11 +935,35 @@ export interface RequestRoleReactionUpdateRequest {
   role_id?: string;
 }
 
+export interface RequestSendUserXPRequest {
+  amount?: number;
+  each?: boolean;
+  guild_id?: string;
+  recipients?: string[];
+}
+
 export interface RequestSetUpvoteMessageCacheRequest {
   channel_id?: string;
   guild_id?: string;
   message_id?: string;
   user_id?: string;
+}
+
+export interface RequestSubmitOnchainTransferRequest {
+  all?: boolean;
+  amount?: number;
+  channel_id?: string;
+  duration?: number;
+  each?: boolean;
+  full_command?: string;
+  guild_id?: string;
+  image?: string;
+  message?: string;
+  platform?: string;
+  recipients?: string[];
+  sender?: string;
+  token?: string;
+  transfer_type?: string;
 }
 
 export interface RequestTradeOfferItem {
@@ -913,6 +987,11 @@ export interface RequestTwitterPost {
   tweet_id?: string;
   twitter_handle?: string;
   twitter_id?: string;
+}
+
+export interface RequestUpdateDaoVoteRequest {
+  choice: string;
+  user_id: string;
 }
 
 export interface RequestUpdateGuildRequest {
@@ -1048,6 +1127,21 @@ export interface ResponseAllTipBotTokensResponse {
   data?: ModelOffchainTipBotToken[];
 }
 
+export interface ResponseClaimOnchainTransfer {
+  amount?: number;
+  amount_in_usd?: number;
+  recipient_address?: string;
+  recipient_id?: string;
+  sender_id?: string;
+  symbol?: string;
+  tx_hash?: string;
+  tx_url?: string;
+}
+
+export interface ResponseClaimOnchainTransferResponse {
+  data?: ResponseClaimOnchainTransfer;
+}
+
 export interface ResponseClaimQuestsRewardsResponse {
   data?: ResponseClaimQuestsRewardsResponseData;
 }
@@ -1140,6 +1234,10 @@ export interface ResponseCreateDaoProposalResponse {
 
 export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
+}
+
+export interface ResponseCreateProposalChannelConfigResponse {
+  data?: ModelGuildConfigDaoProposal;
 }
 
 export interface ResponseCreateTradeOfferResponse {
@@ -1417,6 +1515,10 @@ export interface ResponseGetNftWatchlistResponse {
   data?: ResponseGetNftWatchlist[];
 }
 
+export interface ResponseGetOnchainTransfersResponse {
+  data?: ModelOnchainTipBotTransaction[];
+}
+
 export interface ResponseGetRepostReactionConfigsResponse {
   data?: ModelGuildConfigRepostReaction[];
 }
@@ -1519,6 +1621,10 @@ export interface ResponseGetUserUpvoteLeaderboardResponse {
 
 export interface ResponseGetUserWalletByGuildIDAddressResponse {
   data?: ModelUserWallet;
+}
+
+export interface ResponseGetVote {
+  data?: ModelDaoVote;
 }
 
 export interface ResponseGetVoteChannelConfigResponse {
@@ -1989,6 +2095,18 @@ export interface ResponseSparkLineIn7D {
   price?: number[];
 }
 
+export interface ResponseSubmitOnchainTransfer {
+  amount?: number;
+  amount_in_usd?: number;
+  recipient_id?: string;
+  sender_id?: string;
+  symbol?: string;
+}
+
+export interface ResponseSubmitOnchainTransferResponse {
+  data?: ResponseSubmitOnchainTransfer[];
+}
+
 export interface ResponseTickerData {
   base?: string;
   coin_id?: string;
@@ -2000,6 +2118,18 @@ export interface ResponseTickerData {
 export interface ResponseToggleActivityConfigResponse {
   data?: ModelGuildConfigActivity;
   message?: string;
+}
+
+export interface ResponseTokenHolderStatus {
+  data?: ResponseTokenHolderStatusData;
+}
+
+export interface ResponseTokenHolderStatusData {
+  guild_config?: ModelGuildConfigDaoProposal;
+  is_qualified?: boolean;
+  is_wallet_connected?: boolean;
+  user_holding_amount?: string;
+  vote_config?: ModelDaoProposalVoteOption;
 }
 
 export interface ResponseTransactionsResponse {
@@ -2020,6 +2150,10 @@ export interface ResponseTwitterHashtag {
 
 export interface ResponseUpdateUserFeedbackResponse {
   data?: ModelUserFeedback;
+}
+
+export interface ResponseUpdateVote {
+  data?: ModelDaoVote;
 }
 
 export interface ResponseUser {

@@ -38,6 +38,7 @@ import statements from "./defi/statements"
 import monikers from "./config/moniker"
 import transaction from "./transaction"
 import daovote from "./config/daovote"
+import sendxp from "./community/sendxp"
 
 // slash commands
 import help_slash from "./help_slash"
@@ -66,6 +67,7 @@ import withdraw_slash from "./defi/tip_bot_slash/withdraw"
 import airdrop_slash from "./defi/tip_bot_slash/airdrop"
 import invite_slash from "./community/invite_slash"
 import sales_slash from "./community/sales_slash"
+import sendxp_slash from "./community/sendxp-slash"
 import profile_slash from "./profile_slash/profile"
 import token_slash from "./defi/token_slash"
 
@@ -143,6 +145,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   sales: sales_slash,
   token: token_slash,
   profile: profile_slash,
+  sendxp: sendxp_slash,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -184,6 +187,7 @@ export const originalCommands: Record<string, Command> = {
   nftrole,
   daovote,
   // globalxp,
+  sendxp,
   starboard,
   // eventxp,
   log,
