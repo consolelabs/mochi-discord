@@ -2,7 +2,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import Config from "adapters/config"
 import { CommandInteraction, MessageSelectOptionData } from "discord.js"
 import { SlashCommand } from "types/common"
-import { NFT_ROLE_GITBOOK, SLASH_PREFIX as PREFIX } from "utils/constants"
+import { NFT_ROLE_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
 import { handler } from "./processor"
 import { list } from "commands/nft-role/processor"
@@ -36,8 +36,7 @@ const command: SlashCommand = {
           embeds: [
             getErrorEmbed({
               title: `${interaction.guild.name}'s nft roles`,
-              description:
-                "No configuration found! To set a new one, run `$lr <role> <level>`.",
+              description: `No configuration found! To set a new one, run \`${SLASH_PREFIX}lr set <role> <level>\`.`,
               originalMsgAuthor: interaction.user,
             }),
           ],
@@ -78,8 +77,8 @@ const command: SlashCommand = {
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        usage: `${PREFIX}nftrole remove`,
-        examples: `${PREFIX}nftrole remove`,
+        usage: `${SLASH_PREFIX}nftrole remove`,
+        examples: `${SLASH_PREFIX}nftrole remove`,
         document: `${NFT_ROLE_GITBOOK}&action=remove`,
       }),
     ],

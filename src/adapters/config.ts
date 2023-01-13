@@ -830,7 +830,7 @@ class Config extends Fetcher {
     discord_id: string
     telegram_username: string
   }) {
-    return await this.jsonFetch(`${API_BASE_URL}/configs/telegram`, {
+    return await this.jsonFetch(`${API_BASE_URL}/config-community/telegram`, {
       method: "POST",
       body: JSON.stringify(req),
     })

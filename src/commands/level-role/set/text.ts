@@ -11,8 +11,8 @@ import {
 } from "ui/discord/embed"
 
 const command: Command = {
-  id: "levelrole",
-  command: "levelrole",
+  id: "lr_set",
+  command: "set",
   brief: "Level Role Configuration",
   category: "Config",
   onlyAdministrator: true,
@@ -30,7 +30,7 @@ const command: Command = {
       }
     }
     const args = getCommandArguments(msg)
-    const [roleArg, levelArg] = args.slice(1)
+    const [roleArg, levelArg] = args.slice(2)
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
       return {
         messageOptions: {
@@ -100,7 +100,7 @@ const command: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}lr <role> <level>\n${PREFIX}lr <action>`,
-        examples: `${PREFIX}levelrole list\n${PREFIX}levelrole @Mochi 1\n${PREFIX}lr @admin 2`,
+        examples: `${PREFIX}levelrole list\n${PREFIX}levelrole set @Mochi 1\n${PREFIX}lr set @admin 2`,
         description: "Assign a role to users when they reach a certain level",
         document: LEVEL_ROLE_GITBOOK,
         footer: [
@@ -113,7 +113,7 @@ const command: Command = {
   canRunWithoutAction: true,
   aliases: ["lr"],
   colorType: "Server",
-  minArguments: 3,
+  minArguments: 4,
 }
 
 export default command
