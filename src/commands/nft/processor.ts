@@ -1,4 +1,5 @@
 import community from "adapters/community"
+import fetch from "node-fetch"
 import { EmbedFieldData, Message, MessageAttachment } from "discord.js"
 import { APIError, InternalError } from "errors"
 import {
