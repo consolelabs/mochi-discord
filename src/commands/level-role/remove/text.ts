@@ -48,7 +48,7 @@ const command: Command = {
             getErrorEmbed({
               msg,
               title: `No level roles found`,
-              description: `You haven't set any roles for this level yet. \n\nTo set a new one, run \`$lr @<role> <level>\`. \nThen re-check your configuration using \`$lr list\`.`,
+              description: `You haven't set any roles for this level yet. \n\nTo set a new one, run \`$lr set @<role> <level>\`. \nThen re-check your configuration using \`$lr list\`.`,
             }),
           ],
         },
@@ -63,7 +63,7 @@ const command: Command = {
           embeds: [
             getSuccessEmbed({
               msg,
-              description: `Level role configuration removed for lv${level}.\nTo set a new one, run \`$lr <role> <level>\`.`,
+              description: `Level role configuration removed for lv${level}.\nTo set a new one, run \`$lr set <role> <level>\`.`,
             }),
           ],
         },
