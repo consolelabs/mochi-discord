@@ -2,8 +2,8 @@
 
 ## General
 
-| ![command](/images/1.png) | ![command](/images/2.png) | ![command](/images/3.png) | ![command](/images/4.png) |
-| ------------------------- | ------------------------- | ------------------------- | ------------------------- |
+| ![command](/assets/images/1.png) | ![command](/assets/images/2.png) | ![command](/assets/images/3.png) | ![command](/assets/images/4.png) |
+| -------------------------------- | -------------------------------- | -------------------------------- | -------------------------------- |
 
 Whenever you create a new command or fine-tune existing ones, some rules must apply:
 
@@ -54,6 +54,6 @@ In short, just use the `getErrorEmbed()` or `getSuccessEmbed()` method to easily
 
 Provide better contextual message when responding to users' action, this forces you to think about the bot as a product and what it can do rather than a big chunk of different functions
 
-| Don't                                                                                                                           | Do                                                                                                                                                                         |
-| ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Repeat what the user just did<br/>It's redundant and has a stiff tone when read (too robotic)<br/>![](/images/message-dont.png) | Provide additional info to let users know what is the effect of their action, what to do next, etc...<br/>Also a friendlier tone helps too<br/>![](/images/message-do.png) |
+| Don't                                                                                                                                  | Do                                                                                                                                                                                |
+| -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repeat what the user just did<br/>It's redundant and has a stiff tone when read (too robotic)<br/>![](/assets/images/message-dont.png) | Provide additional info to let users know what is the effect of their action, what to do next, etc...<br/>Also a friendlier tone helps too<br/>![](/assets/images/message-do.png) |

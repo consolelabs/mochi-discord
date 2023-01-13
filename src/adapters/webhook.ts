@@ -1,5 +1,5 @@
 import { APIError } from "errors"
-import ChannelLogger from "utils/ChannelLogger"
+import ChannelLogger from "logger/channel"
 import { API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
 

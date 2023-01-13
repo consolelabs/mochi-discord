@@ -1,22 +1,21 @@
-import { CommandInteraction, Message } from "discord.js"
+import { CommandInteraction, GuildEmoji, Message } from "discord.js"
 import getEmojiRegex from "emoji-regex"
 
-import type { Command, EmbedProperties, SlashCommand } from "types/common"
+import { utils } from "ethers"
+import { Command, SlashCommand, embedsColors } from "types/common"
+import { getEmoji } from "./common"
 import {
   ANIMATED_EMOJI_REGEX,
   CHANNEL_REGEX,
-  DEFAULT_COLLECTION_GITBOOK,
   EMOJI_REGEX,
   HELP,
+  HOMEPAGE_URL,
   PREFIX,
   ROLE_REGEX,
   SPACES_REGEX,
   USER_NICKNAME_REGEX,
   USER_REGEX,
 } from "./constants"
-import { utils } from "ethers"
-import { getEmoji, getEmojiURL } from "./common"
-import type FuzzySet from "fuzzyset"
 
 const NATIVE_EMOJI_REGEX = getEmojiRegex()
 
@@ -208,43 +207,6 @@ export function getSlashCommandObject(
   return slashCommands[interaction.commandName]
 }
 
-/**
- * Find the closest match to the command key
- * If not found then reply with help message
- */
-export function getCommandSuggestion(
-  fuzzySet: FuzzySet,
-  userInput: string,
-  commands: Record<string, Command>
-): EmbedProperties | null {
-  const results = fuzzySet.get(userInput, null, 0.5)
-
-  if (!results || results.length == 0) {
-    return {
-      title: "Mochi is confused",
-      description: `Mochi doesn't understand what command you are trying to use.\n:point_right: Perhaps you can reference \`${PREFIX}help\` for more info`,
-    }
-  } else {
-    const result = results[0][1]
-    const cmd = commands[result]
-    const act = cmd.actions
-    if (!act) return null
-    const actions = Object.keys(act)
-    let actionNoArg = "help"
-    for (const i in actions) {
-      if (act[actions[i]].minArguments == 2) {
-        actionNoArg = actions[i]
-        break
-      }
-    }
-    return {
-      author: ["This command doesn't exist", getEmojiURL(getEmoji("huh"))],
-      description: `Are you trying to say \`${PREFIX}${result}\`?\n\n**Example**\nFor more specific action: \`${PREFIX}help ${result}\`\nOr try this: \`${PREFIX}${result} ${actionNoArg}\`\n`,
-      document: DEFAULT_COLLECTION_GITBOOK,
-    }
-  }
-}
-
 // TODO: add test (Tuan)
 export const getReactionIdentifier = (
   emojiId: string | null,
@@ -258,4 +220,46 @@ export const getReactionIdentifier = (
     reaction = emojiName ?? ""
   }
   return reaction
+}
+
+// TODO: remove after slash command migration done
+export function getCommandColor(commandObj: Command | null) {
+  return embedsColors[commandObj?.colorType ?? "Command"]
+}
+
+export function getSlashCommandColor(commandObj: SlashCommand | null) {
+  return embedsColors[commandObj?.colorType ?? "Command"]
+}
+
+export function getCommandsList(
+  _emoji: GuildEmoji | string,
+  commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
+) {
+  const emoji = getEmoji("reply")
+  const correctBrief = (brief: string) =>
+    brief.endsWith(".") ? brief : `${brief}.`
+  return Object.values(commands)
+    .filter((c) => !c.experimental)
+    .map(
+      (c) =>
+        `[**${c.command}**](${HOMEPAGE_URL})\n${emoji}${correctBrief(c.brief)}`
+    )
+    .join("\n\n")
+}
+
+// function to check cmd to such as $nr, $nr set to help cmd
+export function isAcceptableCmdToHelp(
+  cmd: string,
+  aliases: string[],
+  action: string,
+  msg: string
+) {
+  let lstCmd = [`$` + cmd]
+  if (aliases) {
+    lstCmd = lstCmd.concat(aliases.map((v) => `$` + v))
+  }
+  if (action) {
+    lstCmd = lstCmd.concat(lstCmd.map((v) => v + " " + action))
+  }
+  return lstCmd.includes(msg.split(/ +/g).join(" "))
 }
