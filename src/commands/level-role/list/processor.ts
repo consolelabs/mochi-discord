@@ -5,7 +5,7 @@ export function list({ data }: ResponseGetLevelRoleConfigsResponse) {
   if (data?.length === 0) {
     return {
       title: "No level roles found",
-      description: `You haven't set any roles for this level yet. \n\nTo set a new one, run \`$lr @<role> <level>\`. \nThen re-check your configuration using \`$lr list\`.`,
+      description: `You haven't set any roles for this level yet. \n\nTo set a new one, run \`$lr set @<role> <level>\`. \nThen re-check your configuration using \`$lr list\`.`,
     }
   }
   const description = data
@@ -18,6 +18,6 @@ export function list({ data }: ResponseGetLevelRoleConfigsResponse) {
     .join("\n")
   return {
     title: "Level role list",
-    description: `Run \`$lr <role> <level>\` to add a level role.\n\n${description}`,
+    description: `Run \`$lr set <role> <level>\` to add a level role.\n\n${description}`,
   }
 }
