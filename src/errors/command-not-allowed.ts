@@ -1,5 +1,5 @@
 import { getEmoji } from "utils/common"
-import { PERMANENT_MOCHI_INVITE_URL } from "utils/constants"
+import { DISCORD_URL } from "utils/constants"
 import { BotBaseError, OriginalMessage } from "./base"
 import { getErrorEmbed } from "ui/discord/embed"
 import { composeButtonLink } from "ui/discord/button"
@@ -45,13 +45,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
     }
     const msgOptions = {
       embeds: [errorEmbed],
-      components: [
-        composeButtonLink(
-          "Support",
-          PERMANENT_MOCHI_INVITE_URL,
-          getEmoji("defi")
-        ),
-      ],
+      components: [composeButtonLink("Support", DISCORD_URL, getEmoji("defi"))],
     }
     this.reply?.(msgOptions)
   }

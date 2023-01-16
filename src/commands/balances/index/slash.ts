@@ -1,5 +1,6 @@
 import { CommandInteraction } from "discord.js"
-import { handleBal } from "./processor"
+import { balanceTypes, renderBalances } from "./processor"
 
-const run = (i: CommandInteraction) => handleBal(i.user.id, i)
+const run = (i: CommandInteraction) =>
+  renderBalances(i.user.id, i, balanceTypes.Offchain)
 export default run

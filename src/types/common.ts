@@ -15,7 +15,7 @@ import {
   User,
   WebhookEditMessageOptions,
 } from "discord.js"
-import type { InteractionOptions } from "handlers/discord/select-menu"
+import { InteractionOptions } from "handlers/discord/select-menu"
 
 // Category of commands
 export type Category = "Profile" | "Defi" | "Config" | "Community" | "Game"
@@ -49,7 +49,7 @@ export type RunResult<T = MessageOptions | MessageEditOptions> = {
   messageOptions: T
   interactionOptions?: InteractionOptions
   replyMessage?: WebhookEditMessageOptions
-  buttonCollector?: (i: ButtonInteraction) => Promise<void>
+  buttonCollector?: (i: ButtonInteraction) => Promise<any> | Promise<void>
   fullCommand?: string
 }
 

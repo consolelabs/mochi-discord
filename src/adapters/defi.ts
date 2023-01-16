@@ -934,6 +934,13 @@ class Defi extends Fetcher {
       }
     )
   }
+
+  async getUserOnchainBalances(userId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/tip/onchain/${userId}/balances`,
+      { method: "GET" }
+    )
+  }
 }
 
 export default new Defi()

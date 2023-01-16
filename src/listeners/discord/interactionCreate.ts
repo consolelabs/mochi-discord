@@ -172,7 +172,7 @@ async function handleCommandInteraction(interaction: Interaction) {
       logger.error("[KafkaQueue] - failed to enqueue")
     }
     if ("messageOptions" in response) {
-      const { messageOptions, interactionOptions } = response
+      const { messageOptions, interactionOptions, buttonCollector } = response
       const msg = await i
         .editReply({
           content: await questReminder(i.user.id, i.commandName),
@@ -181,6 +181,27 @@ async function handleCommandInteraction(interaction: Interaction) {
         .catch(() => null)
       if (interactionOptions && msg) {
         InteractionManager.add(msg.id, interactionOptions)
+      }
+      if (msg && buttonCollector) {
+        const message = <Message>msg
+        message
+          .createMessageComponentCollector({
+            componentType: MessageComponentTypes.BUTTON,
+            idle: 60000,
+            filter: authorFilter(i.user.id),
+          })
+          .on("collect", async (i: ButtonInteraction) => {
+            const newRes = await buttonCollector?.(i)
+            if (newRes) {
+              await message.edit({
+                embeds: newRes.messageOptions.embeds,
+                components: newRes.messageOptions.components,
+              })
+            }
+          })
+          .on("end", () => {
+            message.edit({ components: [] }).catch(() => null)
+          })
       }
     } else if ("select" in response) {
       // ask default case
@@ -231,15 +252,24 @@ async function handleSelectMenuInteraction(i: SelectMenuInteraction) {
   if (replyMessage) {
     const msg = await i.editReply(replyMessage)
     if (msg && msg instanceof Message && buttonCollector) {
-      const collector = msg.createMessageComponentCollector({
-        time: 300000,
-        componentType: MessageComponentTypes.BUTTON,
-        filter: authorFilter(i.user.id),
-      })
-
-      collector.on("collect", buttonCollector).on("end", () => {
-        msg.edit({ components: [] }).catch(() => null)
-      })
+      msg
+        .createMessageComponentCollector({
+          time: 300000,
+          componentType: MessageComponentTypes.BUTTON,
+          filter: authorFilter(i.user.id),
+        })
+        .on("collect", async (i) => {
+          const newRes = await buttonCollector(i)
+          if (newRes) {
+            await msg.edit({
+              embeds: newRes.messageOptions.embeds,
+              components: newRes.messageOptions.components,
+            })
+          }
+        })
+        .on("end", () => {
+          msg.edit({ components: [] }).catch(() => null)
+        })
     }
   } else if (!i.deferred) {
     await i.deferUpdate().catch(() => null)
