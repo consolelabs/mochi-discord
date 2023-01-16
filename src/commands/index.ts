@@ -71,7 +71,6 @@ import {
 } from "ui/discord/select-menu"
 import { kafkaQueue } from "queue/kafka/queue"
 
-CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 CacheManager.init({
   ttl: 0,
   pool: "imagepool",
