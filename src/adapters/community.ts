@@ -1,7 +1,5 @@
 import {
   ResponseGetNFTActivityResponse,
-  ResponseGetUserCurrentGMStreakResponse,
-  ResponseGetUserUpvoteLeaderboardResponse,
   ResponseIndexerNFTCollectionTickersResponse,
   ResponseNftMetadataAttrIconResponse,
   ResponseGetSuggestionNFTCollectionsResponse,
@@ -287,42 +285,6 @@ class Community extends Fetcher {
     return await this.jsonFetch<ResponseGetCollectionCountResponse>(
       `${API_BASE_URL}/nfts/collections/stats`
     )
-  }
-
-  public async getUpvoteStreak(discordId: string) {
-    return await this.jsonFetch<ResponseGetUserCurrentGMStreakResponse>(
-      `${API_BASE_URL}/users/upvote-streak`,
-      {
-        query: { discordId },
-      }
-    )
-  }
-
-  public async getVoteLeaderboard(
-    guildId: string,
-    by: "streak" | "total" = "total"
-  ) {
-    return await this.jsonFetch<ResponseGetUserUpvoteLeaderboardResponse>(
-      `${API_BASE_URL}/users/upvote-leaderboard`,
-      {
-        query: {
-          guildId,
-          by,
-        },
-      }
-    )
-  }
-
-  public async setUpvoteMessageCache(req: {
-    user_id: string
-    guild_id: string
-    channel_id: string
-    message_id: string
-  }) {
-    return await this.jsonFetch(`${API_BASE_URL}/cache/upvote`, {
-      method: "POST",
-      body: JSON.stringify(req),
-    })
   }
 
   public async getNFTTickers({

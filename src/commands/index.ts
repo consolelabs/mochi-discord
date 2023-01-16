@@ -19,10 +19,9 @@ import {
   SlashCommand,
   KafkaQueueMessage,
 } from "types/common"
-import { getEmoji, hasAdministrator } from "utils/common"
+import { hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import CacheManager from "cache/node-cache"
-import community from "adapters/community"
 import { isAcceptableCmdToHelp } from "../utils/commands"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import InteractionManager from "handlers/discord/select-menu"
@@ -34,7 +33,6 @@ import log from "./log"
 import welcome from "./welcome/index"
 import top from "./top"
 import verify from "./verify"
-import vote from "./vote"
 import watchlist from "./watchlist"
 import defaultrole from "./default-role"
 import levelrole from "./level-role"
@@ -73,7 +71,6 @@ import {
 } from "ui/discord/select-menu"
 import { kafkaQueue } from "queue/kafka/queue"
 
-CacheManager.init({ pool: "vote", ttl: 0, checkperiod: 300 })
 CacheManager.init({
   ttl: 0,
   pool: "imagepool",
@@ -88,7 +85,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   welcome: welcome.slashCmd,
   top: top.slashCmd,
   verify: verify.slashCmd,
-  vote: vote.slashCmd,
   watchlist: watchlist.slashCmd,
   defaultrole: defaultrole.slashCmd,
   levelrole: levelrole.slashCmd,
@@ -132,7 +128,6 @@ export const originalCommands: Record<string, Command> = {
   top: top.textCmd,
   sales: sales.textCmd,
   verify: verify.textCmd,
-  vote: vote.textCmd,
   feedback: feedback.textCmd,
   prune: prune.textCmd,
   quest: quest.textCmd,
@@ -240,42 +235,10 @@ async function executeCommand(
     return
   }
 
-  let shouldRemind = await CacheManager.get({
-    pool: "vote",
-    key: `remind-${message.author.id}-vote-again`,
-    // 5 min
-    ttl: 300,
-    call: async () => {
-      const res = await community.getUpvoteStreak(message.author.id)
-      let ttl = 0
-      let shouldRemind = true
-      if (res.ok) {
-        const timeUntilTopgg = res.data?.minutes_until_reset_topgg ?? 0
-        const timeUntilDiscordBotList =
-          res.data?.minutes_until_reset_discordbotlist ?? 0
-        ttl = Math.max(timeUntilTopgg, timeUntilDiscordBotList)
-        shouldRemind = ttl === 0
-      }
-      return shouldRemind
-    },
-  })
-  if (commandObject.id === "vote") {
-    // user is already using $vote, no point in reminding
-    shouldRemind = false
-  }
-  const reminderEmbed = composeEmbedMessage(message, {
-    title: "Vote for Mochi!",
-    description: `Vote for Mochi to gain rewards. Run \`$vote\` now! ${getEmoji(
-      "CLAIM"
-    )}`,
-  })
   // execute command in `commands`
   const runResponse = await commandObject.run(message, action)
   if (runResponse) {
     if ("messageOptions" in runResponse) {
-      if (shouldRemind && Math.random() < 0.1) {
-        runResponse.messageOptions.embeds?.push(reminderEmbed)
-      }
       const msg = await message.reply({
         ...runResponse.messageOptions,
       })
