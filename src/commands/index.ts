@@ -59,6 +59,7 @@ import starboard from "./starboard"
 import telegram from "./telegram"
 import poe from "./poe"
 import sendxp from "./sendxp"
+import levelmessage from "./level-message"
 import {
   composeEmbedMessage,
   getCommandSuggestion,
@@ -138,6 +139,7 @@ export const originalCommands: Record<string, Command> = {
   levelrole: levelrole.textCmd,
   nftrole: nftrole.textCmd,
   daovote: daovote.textCmd,
+  levelmessage: levelmessage.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
   log: log.textCmd,
