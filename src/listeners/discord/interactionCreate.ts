@@ -7,18 +7,13 @@ import {
   CommandInteraction,
 } from "discord.js"
 import { DiscordEvent } from "."
-import {
-  composeEmbedMessage,
-  getErrorEmbed,
-  getMultipleResultEmbed,
-} from "ui/discord/embed"
+import { getErrorEmbed, getMultipleResultEmbed } from "ui/discord/embed"
 import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
 } from "ui/discord/select-menu"
 import { composeDiscordExitButton } from "ui/discord/button"
 import CacheManager from "cache/node-cache"
-import community from "adapters/community"
 import { wrapError } from "utils/wrap-error"
 import { authorFilter, getEmoji, hasAdministrator } from "utils/common"
 import InteractionManager from "handlers/discord/select-menu"
@@ -176,42 +171,8 @@ async function handleCommandInteraction(interaction: Interaction) {
     } catch (error) {
       logger.error("[KafkaQueue] - failed to enqueue")
     }
-    let shouldRemind = await CacheManager.get({
-      pool: "vote",
-      key: `remind-${i.user.id}-vote-again`,
-      // 5 min
-      ttl: 300,
-      call: async () => {
-        const res = await community.getUpvoteStreak(i.user.id)
-        let ttl = 0
-        let shouldRemind = true
-        if (res.ok) {
-          const timeUntilTopgg = res.data?.minutes_until_reset_topgg ?? 0
-          const timeUntilDiscordBotList =
-            res.data?.minutes_until_reset_discordbotlist ?? 0
-          ttl = Math.max(timeUntilTopgg, timeUntilDiscordBotList)
-
-          // only remind if both timers are 0 meaning both source can be voted again
-          shouldRemind = ttl === 0
-        }
-        return shouldRemind
-      },
-    })
-    if (i.commandName === "vote") {
-      // user is already using $vote, no point in reminding
-      shouldRemind = false
-    }
     if ("messageOptions" in response) {
-      const reminderEmbed = composeEmbedMessage(null, {
-        title: "Vote for Mochi!",
-        description: `Vote for Mochi to gain rewards. Run \`$vote\` now! ${getEmoji(
-          "CLAIM"
-        )}`,
-      })
       const { messageOptions, interactionOptions } = response
-      if (shouldRemind && Math.random() < 0.1) {
-        messageOptions.embeds?.push(reminderEmbed)
-      }
       const msg = await i
         .editReply({
           content: await questReminder(i.user.id, i.commandName),
