@@ -1,75 +1,76 @@
 // external
-import { Message } from "discord.js"
+import { ButtonInteraction, Message } from "discord.js"
 import FuzzySet from "fuzzyset"
 
 // internal
-import { logger } from "../logger"
+import CacheManager from "cache/node-cache"
+import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
+import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
+import InteractionManager from "handlers/discord/select-menu"
+import {
+  Category,
+  Command,
+  KafkaQueueMessage,
+  SlashCommand,
+} from "types/common"
 import {
   getActionCommand,
   getAllAliases,
+  getCommandArguments,
   getCommandMetadata,
   specificHelpCommand,
-  getCommandArguments,
 } from "utils/commands"
-import config from "../adapters/config"
-import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
-import {
-  Command,
-  Category,
-  SlashCommand,
-  KafkaQueueMessage,
-} from "types/common"
-import { hasAdministrator } from "utils/common"
+import { authorFilter, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
-import CacheManager from "cache/node-cache"
+import config from "../adapters/config"
+import { logger } from "../logger"
 import { isAcceptableCmdToHelp } from "../utils/commands"
-import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
-import InteractionManager from "handlers/discord/select-menu"
 
 // commands
-import feedback from "./feedback/index"
-import ticker from "./ticker"
-import log from "./log"
-import welcome from "./welcome/index"
-import top from "./top"
-import verify from "./verify"
-import watchlist from "./watchlist"
-import defaultrole from "./default-role"
-import levelrole from "./level-role"
-import reactionrole from "./reaction-role"
-import nftrole from "./nft-role"
-import prune from "./prune"
-import quest from "./quest"
-import gm from "./gm"
-import nft from "./nft"
-import balances from "./balances"
-import statements from "./statements"
-import moniker from "./moniker"
-import withdraw from "./withdraw"
-import airdrop from "./airdrop"
-import token from "./token"
-import profile from "./profile"
-import help from "./help/index"
-import tip from "./tip"
-import sales from "./sales"
-import deposit from "./deposit"
-import claim from "./claim"
-import daovote from "./daovote"
-import starboard from "./starboard"
-import telegram from "./telegram"
-import poe from "./poe"
-import sendxp from "./sendxp"
+import { MessageComponentTypes } from "discord.js/typings/enums"
+import { kafkaQueue } from "queue/kafka/queue"
+import { composeDiscordExitButton } from "ui/discord/button"
 import {
   composeEmbedMessage,
   getCommandSuggestion,
   getMultipleResultEmbed,
 } from "ui/discord/embed"
-import { composeDiscordExitButton } from "ui/discord/button"
 import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
 } from "ui/discord/select-menu"
-import { kafkaQueue } from "queue/kafka/queue"
+import airdrop from "./airdrop"
+import balances from "./balances"
+import claim from "./claim"
+import daovote from "./daovote"
+import defaultrole from "./default-role"
+import deposit from "./deposit"
+import feedback from "./feedback/index"
+import gm from "./gm"
+import help from "./help/index"
+import levelrole from "./level-role"
+import log from "./log"
+import moniker from "./moniker"
+import nft from "./nft"
+import nftrole from "./nft-role"
+import poe from "./poe"
+import profile from "./profile"
+import prune from "./prune"
+import quest from "./quest"
+import reactionrole from "./reaction-role"
+import sales from "./sales"
+import sendxp from "./sendxp"
+import starboard from "./starboard"
+import statements from "./statements"
+import telegram from "./telegram"
+import ticker from "./ticker"
+import tip from "./tip"
+import token from "./token"
+import top from "./top"
+import verify from "./verify"
+import watchlist from "./watchlist"
+import welcome from "./welcome/index"
+import withdraw from "./withdraw"
 
 CacheManager.init({
   ttl: 0,
@@ -244,6 +245,26 @@ async function executeCommand(
       })
       if (runResponse.interactionOptions && msg) {
         InteractionManager.add(msg.id, runResponse.interactionOptions)
+      }
+      if (runResponse.buttonCollector) {
+        msg
+          .createMessageComponentCollector({
+            componentType: MessageComponentTypes.BUTTON,
+            idle: 60000,
+            filter: authorFilter(message.author.id),
+          })
+          .on("collect", async (i: ButtonInteraction) => {
+            const newRes = await runResponse.buttonCollector?.(i)
+            if (newRes) {
+              await msg.edit({
+                embeds: newRes.messageOptions.embeds,
+                components: newRes.messageOptions.components,
+              })
+            }
+          })
+          .on("end", () => {
+            msg.edit({ components: [] }).catch(() => null)
+          })
       }
     } else if ("select" in runResponse) {
       // ask default case
