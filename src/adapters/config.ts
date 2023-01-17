@@ -998,6 +998,25 @@ class Config extends Fetcher {
       body: req,
     })
   }
+
+  public async setConfigTokenRole(req: {
+    guild_id: string
+    role_id: string
+    address: string
+    chain: string
+    amount: number
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-roles/token-roles`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  public async getConfigTokenRoleList(guild_id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-roles/token-roles/${guild_id}`
+    )
+  }
 }
 
 const config = new Config()

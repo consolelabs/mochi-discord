@@ -96,12 +96,12 @@ export const DEFAULT_ROLE_GITBOOK =
   "&command=defaultrole"
 export const NFT_ROLE_GITBOOK =
   USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/token-role" +
-  "&command=tokenrole"
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-role" +
+  "&command=nftrole"
 export const TOKEN_ROLE_GITBOOK =
   USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-roles" +
-  "&command=nftrole"
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/token-roles" +
+  "&command=tokenrole"
 export const GM_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/gm-gn" +
