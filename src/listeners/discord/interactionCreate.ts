@@ -7,18 +7,13 @@ import {
   CommandInteraction,
 } from "discord.js"
 import { DiscordEvent } from "."
-import {
-  composeEmbedMessage,
-  getErrorEmbed,
-  getMultipleResultEmbed,
-} from "ui/discord/embed"
+import { getErrorEmbed, getMultipleResultEmbed } from "ui/discord/embed"
 import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
 } from "ui/discord/select-menu"
 import { composeDiscordExitButton } from "ui/discord/button"
 import CacheManager from "cache/node-cache"
-import community from "adapters/community"
 import { wrapError } from "utils/wrap-error"
 import { authorFilter, getEmoji, hasAdministrator } from "utils/common"
 import InteractionManager from "handlers/discord/select-menu"
@@ -176,42 +171,8 @@ async function handleCommandInteraction(interaction: Interaction) {
     } catch (error) {
       logger.error("[KafkaQueue] - failed to enqueue")
     }
-    let shouldRemind = await CacheManager.get({
-      pool: "vote",
-      key: `remind-${i.user.id}-vote-again`,
-      // 5 min
-      ttl: 300,
-      call: async () => {
-        const res = await community.getUpvoteStreak(i.user.id)
-        let ttl = 0
-        let shouldRemind = true
-        if (res.ok) {
-          const timeUntilTopgg = res.data?.minutes_until_reset_topgg ?? 0
-          const timeUntilDiscordBotList =
-            res.data?.minutes_until_reset_discordbotlist ?? 0
-          ttl = Math.max(timeUntilTopgg, timeUntilDiscordBotList)
-
-          // only remind if both timers are 0 meaning both source can be voted again
-          shouldRemind = ttl === 0
-        }
-        return shouldRemind
-      },
-    })
-    if (i.commandName === "vote") {
-      // user is already using $vote, no point in reminding
-      shouldRemind = false
-    }
     if ("messageOptions" in response) {
-      const reminderEmbed = composeEmbedMessage(null, {
-        title: "Vote for Mochi!",
-        description: `Vote for Mochi to gain rewards. Run \`$vote\` now! ${getEmoji(
-          "CLAIM"
-        )}`,
-      })
-      const { messageOptions, interactionOptions } = response
-      if (shouldRemind && Math.random() < 0.1) {
-        messageOptions.embeds?.push(reminderEmbed)
-      }
+      const { messageOptions, interactionOptions, buttonCollector } = response
       const msg = await i
         .editReply({
           content: await questReminder(i.user.id, i.commandName),
@@ -220,6 +181,27 @@ async function handleCommandInteraction(interaction: Interaction) {
         .catch(() => null)
       if (interactionOptions && msg) {
         InteractionManager.add(msg.id, interactionOptions)
+      }
+      if (msg && buttonCollector) {
+        const message = <Message>msg
+        message
+          .createMessageComponentCollector({
+            componentType: MessageComponentTypes.BUTTON,
+            idle: 60000,
+            filter: authorFilter(i.user.id),
+          })
+          .on("collect", async (i: ButtonInteraction) => {
+            const newRes = await buttonCollector?.(i)
+            if (newRes) {
+              await message.edit({
+                embeds: newRes.messageOptions.embeds,
+                components: newRes.messageOptions.components,
+              })
+            }
+          })
+          .on("end", () => {
+            message.edit({ components: [] }).catch(() => null)
+          })
       }
     } else if ("select" in response) {
       // ask default case
@@ -270,15 +252,24 @@ async function handleSelectMenuInteraction(i: SelectMenuInteraction) {
   if (replyMessage) {
     const msg = await i.editReply(replyMessage)
     if (msg && msg instanceof Message && buttonCollector) {
-      const collector = msg.createMessageComponentCollector({
-        time: 300000,
-        componentType: MessageComponentTypes.BUTTON,
-        filter: authorFilter(i.user.id),
-      })
-
-      collector.on("collect", buttonCollector).on("end", () => {
-        msg.edit({ components: [] }).catch(() => null)
-      })
+      msg
+        .createMessageComponentCollector({
+          time: 300000,
+          componentType: MessageComponentTypes.BUTTON,
+          filter: authorFilter(i.user.id),
+        })
+        .on("collect", async (i) => {
+          const newRes = await buttonCollector(i)
+          if (newRes) {
+            await msg.edit({
+              embeds: newRes.messageOptions.embeds,
+              components: newRes.messageOptions.components,
+            })
+          }
+        })
+        .on("end", () => {
+          msg.edit({ components: [] }).catch(() => null)
+        })
     }
   } else if (!i.deferred) {
     await i.deferUpdate().catch(() => null)

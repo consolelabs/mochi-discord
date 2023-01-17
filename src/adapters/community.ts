@@ -1,7 +1,5 @@
 import {
   ResponseGetNFTActivityResponse,
-  ResponseGetUserCurrentGMStreakResponse,
-  ResponseGetUserUpvoteLeaderboardResponse,
   ResponseIndexerNFTCollectionTickersResponse,
   ResponseNftMetadataAttrIconResponse,
   ResponseGetSuggestionNFTCollectionsResponse,
@@ -289,42 +287,6 @@ class Community extends Fetcher {
     )
   }
 
-  public async getUpvoteStreak(discordId: string) {
-    return await this.jsonFetch<ResponseGetUserCurrentGMStreakResponse>(
-      `${API_BASE_URL}/users/upvote-streak`,
-      {
-        query: { discordId },
-      }
-    )
-  }
-
-  public async getVoteLeaderboard(
-    guildId: string,
-    by: "streak" | "total" = "total"
-  ) {
-    return await this.jsonFetch<ResponseGetUserUpvoteLeaderboardResponse>(
-      `${API_BASE_URL}/users/upvote-leaderboard`,
-      {
-        query: {
-          guildId,
-          by,
-        },
-      }
-    )
-  }
-
-  public async setUpvoteMessageCache(req: {
-    user_id: string
-    guild_id: string
-    channel_id: string
-    message_id: string
-  }) {
-    return await this.jsonFetch(`${API_BASE_URL}/cache/upvote`, {
-      method: "POST",
-      body: JSON.stringify(req),
-    })
-  }
-
   public async getNFTTickers({
     collectionAddress,
     tokenId,
@@ -593,6 +555,31 @@ class Community extends Fetcher {
         method: "PUT",
       }
     )
+  }
+
+  public async setLevelMessageConfig(req: {
+    guild_id: string
+    message: string
+    image_url: string
+    channel_id: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/levelup`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  public async getLevelMessageConfig(guildId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/community/levelup?guild_id=${guildId}`
+    )
+  }
+
+  public async removeLevelMessageConfig(req: { guild_id: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/levelup`, {
+      method: "DELETE",
+      body: req,
+    })
   }
 }
 

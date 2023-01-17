@@ -17,11 +17,12 @@ export function getSendXPSuccessEmbed(
     })
     .join(", ")
 
+  const amountEach = roundFloatNumber(amount / recipientsId.length, 2)
   return composeEmbedMessage(null, {
     title: `${getEmoji("XP2")} Successfully sent XP!`,
-    description: `<@${authorId}> has sent ${usersMentions} **${
-      each ? amount : roundFloatNumber(amount / recipientsId.length, 2)
-    } XP**`,
+    description: `<@${authorId}> has sent ${usersMentions} **${amountEach} XP** ${
+      recipientsId.length > 1 ? "each" : ""
+    }`,
     thumbnail:
       "https://cdn.discordapp.com/emojis/930840081554624632.webp?size=160&quality=lossless",
   })

@@ -836,33 +836,6 @@ class Config extends Fetcher {
     })
   }
 
-  public async setVoteChannel(guildId: string, channelId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-channels/upvote`, {
-      method: "POST",
-      body: { guildId, channelId },
-    })
-  }
-
-  public async removeVoteChannel(guildId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-channels/upvote`, {
-      method: "DELETE",
-      body: {
-        guildId,
-      },
-    })
-  }
-
-  public async getVoteChannel(guildId: string) {
-    return await this.jsonFetch<ResponseGetVoteChannelConfigResponse>(
-      `${API_BASE_URL}/config-channels/upvote`,
-      {
-        query: {
-          guildId,
-        },
-      }
-    )
-  }
-
   public async setJoinLeaveChannel(guildId: string, channelId: string) {
     return await this.jsonFetch(`${API_BASE_URL}/config-channels/join-leave`, {
       method: "POST",

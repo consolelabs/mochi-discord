@@ -3,6 +3,7 @@ import { Message } from "discord.js"
 import { APIError, InternalError } from "errors"
 import { getEmoji, roundFloatNumber, shortenHashOrAddress } from "utils/common"
 import { getSuccessEmbed } from "ui/discord/embed"
+import { DISCORD_URL } from "utils/constants"
 
 export async function claim(msg: Message, args: string[]) {
   const [claimId, address] = args.slice(1)
@@ -54,11 +55,17 @@ export async function claim(msg: Message, args: string[]) {
         })
       }
       case originalError?.toLowerCase().includes("balance is not enough"):
+      case originalError?.toLowerCase().includes("insufficient fund"):
         throw new InternalError({
           message: msg,
-          title: "Claim failed!",
-          description:
-            "Mochi wallet's balance is insufficient to proceed this transaction. Please try again later or contact administrators.",
+          title: "Failed to claim tip!",
+          description: `Mochi wallet's balance is insufficient to proceed this transaction.\n${getEmoji(
+            "POINTINGRIGHT"
+          )} You can contact our developer at suggestion forum in [Mochi Discord](${DISCORD_URL})!\n${getEmoji(
+            "POINTINGRIGHT"
+          )} You can try to claim other tips and get back to this one later! ${getEmoji(
+            "soon"
+          )}\nSorry for this inconvenience ${getEmoji("nekosad")}`,
         })
       default:
         throw new APIError({ message: msg, curl, description: log, error })

@@ -8,23 +8,14 @@ import client from "index"
 import Profile from "adapters/profile"
 import CacheManager from "cache/node-cache"
 import defi from "adapters/defi"
-import {
-  getEmoji,
-  defaultEmojis,
-  roundFloatNumber,
-  capFirst,
-} from "utils/common"
-import { HexColorString, User, MessageAttachment } from "discord.js"
-import Community from "adapters/community"
+import { getEmoji, defaultEmojis, roundFloatNumber } from "utils/common"
+import { HexColorString, MessageAttachment } from "discord.js"
 import { wrapError } from "utils/wrap-error"
 import { createBEGuildMember } from "types/webhook"
 import webhook from "adapters/webhook"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { renderChartImage } from "ui/canvas/chart"
 import { getChartColorConfig } from "ui/canvas/color"
-
-const voteLimitCount = 4
-const formatter = new Intl.NumberFormat("en-US", { minimumIntegerDigits: 2 })
 
 const event: DiscordEvent<"guildMemberAdd"> = {
   name: "guildMemberAdd",
@@ -207,7 +198,6 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
   client.users.fetch(inviteeID).then(async (user) => {
     if (user.bot) return
 
-    const embedVote = await handle(user)
     user
       .createDM()
       .catch(() => null)
@@ -239,7 +229,6 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
               description: `Or vote for Mochi Bot to get rewards by running \`$vote\`.`,
               color: `0xFCD3C1`,
             }),
-            embedVote,
           ],
         }).catch(() => null)
       })
@@ -255,33 +244,6 @@ export const getChangePercentage = (change: number) => {
       ? ""
       : defaultEmojis.CHART_WITH_DOWNWARDS_TREND
   return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
-}
-
-function buildProgressBar(progress: number, scale = 1) {
-  const list = new Array(Math.ceil(voteLimitCount * scale)).fill(
-    getEmoji("progress_empty_2")
-  )
-  const filled = list.map((empty, index) => {
-    if (index < Math.ceil(progress * scale)) {
-      return getEmoji("progress_2")
-    }
-    return empty
-  })
-  // trim 2 ends
-  if (progress > 0) {
-    filled[0] = getEmoji("progress_1")
-  } else {
-    filled[0] = getEmoji("progress_empty_1")
-  }
-  filled[filled.length - 1] = getEmoji("progress_empty_3")
-  return filled.join("")
-}
-
-function buildStreakBar(progress: number) {
-  return [
-    ...new Array(progress).fill(getEmoji("approve")),
-    ...new Array(10 - progress).fill(getEmoji("approve_grey")),
-  ].join(" ")
 }
 
 async function renderHistoricalMarketChart({
@@ -310,77 +272,6 @@ async function renderHistoricalMarketChart({
   })
 
   return new MessageAttachment(image, "chart.png")
-}
-
-async function handle(user: User): Promise<Discord.MessageEmbed> {
-  const res = await Community.getUpvoteStreak(user.id)
-  if (!res.ok) {
-    return getErrorEmbed({ description: res.error })
-  }
-  const streak = Math.max(Math.min(res.data?.streak_count ?? 0, 10), 0)
-  const total = res.data?.total_count ?? 0
-  const timeUntilTopgg = res.data?.minutes_until_reset_topgg ?? 0
-  const timeUntilDiscordBotList =
-    res.data?.minutes_until_reset_discordbotlist ?? 0
-  const embed = composeEmbedMessage(null, {
-    title: "Call for Mochians!",
-    description:
-      "Every 12 hours, help vote Mochi Bot raise to the top.\nYou get rewards, Mochi is happy, it's a win-win.\n\u200b",
-    color: "0xFCD3C1",
-    originalMsgAuthor: user,
-    thumbnail:
-      "https://media.discordapp.net/attachments/984660970624409630/1016614817433395210/Pump_eet.png",
-  })
-  embed.setFields([
-    {
-      name: `${getEmoji("like")} Vote ${capFirst(
-        `${timeUntilTopgg !== 0 ? "un" : ""}available`
-      )}`,
-      value:
-        timeUntilTopgg === 0
-          ? "[Click here to vote on top.gg](https://top.gg/bot/963123183131709480/vote)\n\u200b"
-          : `You can [vote again on top.gg](https://top.gg/bot/963123183131709480/vote) in \`${Math.floor(
-              timeUntilTopgg / 60
-            )}\`**h**\`${timeUntilTopgg % 60}\`**m**!\n\u200b`,
-      inline: true,
-    },
-    {
-      name: `${getEmoji("like")} Vote ${capFirst(
-        `${timeUntilDiscordBotList !== 0 ? "un" : ""}available`
-      )}`,
-      value:
-        timeUntilDiscordBotList === 0
-          ? "[Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/mochi-bot/upvote)\n\u200b"
-          : `You can [vote again on discordbotlist.com](https://discordbotlist.com/bots/mochi-bot/upvote) in \`${Math.floor(
-              timeUntilDiscordBotList / 60
-            )}\`**h**\`${timeUntilDiscordBotList % 60}\`**m**!\n\u200b`,
-      inline: true,
-    },
-    {
-      name: `${getEmoji("exp")} Reward`,
-      value: `Every \`${formatter.format(
-        voteLimitCount
-      )}\` votes, \`+20\` to all factions exp\n\u200b`,
-      inline: true,
-    },
-    {
-      name: "Recurring Vote Progress",
-      value: `\`${formatter.format(total % voteLimitCount)}/${formatter.format(
-        voteLimitCount
-      )}\` ${buildProgressBar(
-        ((total % voteLimitCount) / voteLimitCount) * voteLimitCount,
-        3
-      )}`,
-      inline: false,
-    },
-    {
-      name: `${getEmoji("like")} Voting Streak Buff: \`Tier ${streak}\``,
-      value: `${buildStreakBar(streak)}`,
-      inline: false,
-    },
-  ])
-
-  return embed
 }
 
 async function defaultTickerEth() {

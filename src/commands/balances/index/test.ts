@@ -62,7 +62,7 @@ describe("balances", () => {
     }
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
-      author: ["Your balances", getEmojiURL(emojis.WALLET)],
+      author: ["Offchain balance", getEmojiURL(emojis.WALLET)],
     })
       .addFields({
         name: "Panswap Cake",
@@ -129,7 +129,7 @@ describe("balances", () => {
     }
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
-      author: ["Your balances", getEmojiURL(emojis.WALLET)],
+      author: ["Offchain balance", getEmojiURL(emojis.WALLET)],
     }).addFields({
       name: "Panswap Cake",
       value:
@@ -180,7 +180,7 @@ describe("balances", () => {
     }
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
-      author: ["Your balances", getEmojiURL(emojis.WALLET)],
+      author: ["Offchain balance", getEmojiURL(emojis.WALLET)],
       description: "No balance. Try `$deposit` more into your wallet.",
     })
     const output = await command.run(msg)

@@ -496,7 +496,6 @@ async function composeNFTWatchlist(msg: Message) {
   })
   if (!ok) {
     if (!data?.length) {
-      console.log("nft")
       embed.setDescription(
         `You can add an NFT to your portfolio by \`$watchlist add-nft <symbol>\`.`
       )
