@@ -12,14 +12,15 @@ const command: Command = {
   onlyAdministrator: true,
   run: async (msg) => {
     const args = getCommandArguments(msg)
-    return handle(args.slice(2), msg)
+    const imageUrl = msg.attachments.first()?.url ?? ""
+    return handle(args.slice(2), imageUrl, msg)
   },
   getHelpMessage: async (msg) => {
     return {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}levelmessage set <message content> [log channel] [image]`,
-          examples: `${PREFIX}levelmessage remove`,
+          examples: `${PREFIX}lm set Congratulation on leveling up #appreciation`,
         }),
       ],
     }

@@ -998,30 +998,6 @@ class Config extends Fetcher {
       body: req,
     })
   }
-
-  public async setLevelMessageConfig(guildId: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/config-channels/${guildId}/proposal`,
-      {
-        method: "POST",
-      }
-    )
-  }
-
-  public async getLevelMessageConfig(guildId: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/config-channels/${guildId}/proposal`
-    )
-  }
-
-  public async removeLevelMessageConfig(guildId: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/config-channels/${guildId}/proposal`,
-      {
-        method: "DELETE",
-      }
-    )
-  }
 }
 
 const config = new Config()

@@ -1,4 +1,4 @@
-import config from "adapters/config"
+import community from "adapters/community"
 import { APIError, GuildIdNotFoundError, OriginalMessage } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
@@ -8,7 +8,9 @@ export async function handle(msg: OriginalMessage) {
     throw new GuildIdNotFoundError({})
   }
 
-  const { ok, log, curl } = await config.removeLevelMessageConfig(msg.guildId)
+  const { ok, log, curl } = await community.removeLevelMessageConfig({
+    guild_id: msg.guildId,
+  })
   if (!ok) {
     throw new APIError({
       message: msg,
