@@ -233,6 +233,7 @@ export const emojis: { [key: string]: string } = {
   HEART2: "900748086635278386",
   AIRDROPPER: "998929149634805810",
   POD: "998929217897111602",
+  PUMPEET: "930840081554624632",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

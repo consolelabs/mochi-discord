@@ -71,6 +71,7 @@ import verify from "./verify"
 import watchlist from "./watchlist"
 import welcome from "./welcome/index"
 import withdraw from "./withdraw"
+import levelmessage from "./level-message"
 
 CacheManager.init({
   ttl: 0,
@@ -139,6 +140,7 @@ export const originalCommands: Record<string, Command> = {
   levelrole: levelrole.textCmd,
   nftrole: nftrole.textCmd,
   daovote: daovote.textCmd,
+  levelmessage: levelmessage.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
   log: log.textCmd,

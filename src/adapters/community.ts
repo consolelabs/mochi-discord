@@ -556,6 +556,31 @@ class Community extends Fetcher {
       }
     )
   }
+
+  public async setLevelMessageConfig(req: {
+    guild_id: string
+    message: string
+    image_url: string
+    channel_id: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/levelup`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  public async getLevelMessageConfig(guildId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/community/levelup?guild_id=${guildId}`
+    )
+  }
+
+  public async removeLevelMessageConfig(req: { guild_id: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/levelup`, {
+      method: "DELETE",
+      body: req,
+    })
+  }
 }
 
 export default new Community()
