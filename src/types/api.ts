@@ -281,6 +281,16 @@ export interface ModelGuildConfigLevelRole {
   role_id?: string;
 }
 
+export interface ModelGuildConfigLevelupMessage {
+  channel_id?: string;
+  created_at?: string;
+  guild_id?: string;
+  id?: string;
+  image_url?: string;
+  message?: string;
+  updated_at?: string;
+}
+
 export interface ModelGuildConfigRepostReaction {
   emoji?: string;
   emoji_start?: string;
@@ -293,9 +303,24 @@ export interface ModelGuildConfigRepostReaction {
 }
 
 export interface ModelGuildConfigSalesTracker {
+  chain?: string;
   channel_id?: string;
+  contract_address?: string;
+  created_at?: string;
   guild_id?: string;
   id?: string;
+  updated_at?: string;
+}
+
+export interface ModelGuildConfigTokenRole {
+  channel_id?: string;
+  created_at?: string;
+  guild_id?: string;
+  id?: number;
+  required_amount?: number;
+  token?: ModelToken;
+  token_id?: number;
+  updated_at?: string;
 }
 
 export interface ModelGuildConfigTwitterBlacklist {
@@ -769,6 +794,14 @@ export interface RequestCreateGuildRequest {
   name?: string;
 }
 
+export interface RequestCreateGuildTokenRole {
+  address: string;
+  amount: number;
+  chain: string;
+  guild_id: string;
+  role_id: string;
+}
+
 export interface RequestCreateNFTCollectionRequest {
   address?: string;
   author?: string;
@@ -788,6 +821,13 @@ export interface RequestCreateProposalChannelConfig {
   guild_id: string;
   required_amount?: number;
   type?: "nft_collection" | "crypto_token";
+}
+
+export interface RequestCreateSalesTrackerConfigRequest {
+  chain?: string;
+  channel_id?: string;
+  contract_address?: string;
+  guild_id?: string;
 }
 
 export interface RequestCreateTipConfigNotify {
@@ -1232,6 +1272,10 @@ export interface ResponseCreateDaoProposalResponse {
   data?: ModelDaoProposal;
 }
 
+export interface ResponseCreateGuildTokenRole {
+  data?: ModelGuildConfigTokenRole;
+}
+
 export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
 }
@@ -1307,10 +1351,6 @@ export interface ResponseGetAllDaoProposalVotes {
 
 export interface ResponseGetAllDaoProposals {
   data?: ModelDaoProposal[];
-}
-
-export interface ResponseGetAllNFTSalesTrackerResponse {
-  data?: ResponseNFTSalesTrackerResponse[];
 }
 
 export interface ResponseGetAllTwitterConfigResponse {
@@ -1396,6 +1436,10 @@ export interface ResponseGetGuildDefaultNftTickerResponse {
 
 export interface ResponseGetGuildDefaultTickerResponse {
   data?: ModelGuildConfigDefaultTicker;
+}
+
+export interface ResponseGetGuildLevelUpMessage {
+  data?: ModelGuildConfigLevelupMessage;
 }
 
 export interface ResponseGetGuildPruneExcludeResponse {
@@ -1524,7 +1568,7 @@ export interface ResponseGetRepostReactionConfigsResponse {
 }
 
 export interface ResponseGetSalesTrackerConfigResponse {
-  data?: ModelGuildConfigSalesTracker;
+  data?: ModelGuildConfigSalesTracker[];
 }
 
 export interface ResponseGetSuggestionNFTCollectionsResponse {
@@ -1841,6 +1885,10 @@ export interface ResponseListGuildNFTRoleConfigsResponse {
   role_name?: string;
 }
 
+export interface ResponseListGuildTokenRoles {
+  data?: ModelGuildConfigTokenRole[];
+}
+
 export interface ResponseListMyGuildsResponse {
   data?: ResponseDiscordGuildResponse[];
 }
@@ -1930,13 +1978,6 @@ export interface ResponseNFTNewListed {
 
 export interface ResponseNFTNewListedResponse {
   data?: ResponseNFTNewListed;
-}
-
-export interface ResponseNFTSalesTrackerResponse {
-  channel_id?: string;
-  contract_address?: string;
-  guild_id?: string;
-  platform?: string;
 }
 
 export interface ResponseNFTTradingVolume {
@@ -2146,6 +2187,10 @@ export interface ResponseTwitterHashtag {
   twitter_username?: string[];
   updated_at?: string;
   user_id?: string;
+}
+
+export interface ResponseUpdateGuildTokenRole {
+  data?: ModelGuildConfigTokenRole;
 }
 
 export interface ResponseUpdateUserFeedbackResponse {

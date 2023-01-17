@@ -7,7 +7,7 @@ import claim from "./index/text"
 const textCmd: Command = {
   id: "tip-onchain",
   command: "tip",
-  brief: "Onchain Tip Bot",
+  brief: "Claim on-chain tips",
   category: "Defi",
   run: claim,
   featured: {
@@ -19,10 +19,10 @@ const textCmd: Command = {
       composeEmbedMessage(msg, {
         thumbnail: thumbnails.TIP,
         usage: `${PREFIX}claim 1234 0xabc`,
-        description: "Send coins onchain to a user or a group of users",
+        description: "Transfer received token to your crypto wallet.",
         footer: [DEFI_DEFAULT_FOOTER],
-        title: "Tip Bot Onchain",
-        examples: `\`\`\`${PREFIX}claim <Claim ID> <Your recpient address>\`\`\``,
+        title: "Claim on-chain tips",
+        examples: `${PREFIX}claim <Claim ID> <Your recpient address>`,
       }).addFields({
         name: "**Instructions**",
         value: `[**Gitbook**](${TIP_GITBOOK})`,

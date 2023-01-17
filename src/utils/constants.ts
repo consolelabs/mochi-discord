@@ -186,5 +186,3 @@ export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"
 export const ETHSCAN_API = "https://api.etherscan.io/api"
 export const POLYGONSCAN_API = "https://api.polygonscan.com/api"
-
-export const PERMANENT_MOCHI_INVITE_URL = "https://discord.gg/CuJxnGYf9U"

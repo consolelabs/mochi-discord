@@ -25,7 +25,6 @@ export function listenForSuggestionAction(
       filter: authorFilter(authorId),
     })
     .on("collect", async (i) => {
-      if (i.user.id !== authorId) return
       const value = i.customId.split("-").pop()
       wrapError(i, async () => {
         await onAction(value ?? "", i)
@@ -42,7 +41,6 @@ export function listenForSuggestionAction(
       filter: authorFilter(authorId),
     })
     .on("collect", async (i) => {
-      if (i.user.id !== authorId) return
       const value = i.values[0]
       wrapError(i, async () => {
         await onAction(value, i)
