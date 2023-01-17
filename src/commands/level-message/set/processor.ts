@@ -17,20 +17,6 @@ export async function handle(
     args[args.length - 1]
   )
   if (!isChannel) {
-    // return {
-    //   messageOptions: {
-    //     embeds: [
-    //       composeEmbedMessage(null, {
-    //         title: "Invalid channels",
-    //         description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
-    //           "pointingright"
-    //         )} Type # to see the channel list.\n${getEmoji(
-    //           "pointingright"
-    //         )} To add a new channel: 1. Create channel → 2. Confirm`,
-    //       }),
-    //     ],
-    //   },
-    // }
     msgContent = args.join(" ").trim()
   }
 
