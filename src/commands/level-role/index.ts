@@ -37,7 +37,7 @@ const textCmd: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}lr set <role> <level>\n${PREFIX}lr <action>`,
-        examples: `${PREFIX}levelrole list\n${PREFIX}levelrole @Mochi 1\n${PREFIX}lr @admin 2`,
+        examples: `${PREFIX}levelrole list\n${PREFIX}levelrole set @Mochi 1\n${PREFIX}lr set @admin 2`,
         description: "Assign a role to users when they reach a certain level",
         document: LEVEL_ROLE_GITBOOK,
         footer: [
