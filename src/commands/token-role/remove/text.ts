@@ -25,7 +25,7 @@ const command: Command = {
     if (!ok) {
       throw new APIError({ message: msg, description: log, curl, error })
     }
-    if (!data) {
+    if (data.length === 0) {
       return {
         messageOptions: {
           embeds: [

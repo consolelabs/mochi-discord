@@ -5,9 +5,9 @@ import { CommandInteraction, MessageSelectOptionData } from "discord.js"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 import { SlashCommand } from "types/common"
 import { composeDiscordExitButton } from "ui/discord/button"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
-import { SLASH_PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
+import { PREFIX, SLASH_PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 import { handler } from "./processor"
 
 const command: SlashCommand = {
@@ -32,6 +32,18 @@ const command: SlashCommand = {
         curl,
         error,
       })
+    }
+    if (data.length === 0) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              title: `No Token roles found`,
+              description: `No Token roles found! To set a new one, run \`\`\`${PREFIX}tr set <role> <amount> <token_address> <chain_name>\`\`\``,
+            }),
+          ],
+        },
+      }
     }
 
     const options: MessageSelectOptionData[] = []
