@@ -15,7 +15,12 @@ import {
 import { composeDiscordExitButton } from "ui/discord/button"
 import CacheManager from "cache/node-cache"
 import { wrapError } from "utils/wrap-error"
-import { authorFilter, getEmoji, hasAdministrator } from "utils/common"
+import {
+  authorFilter,
+  getChance,
+  getEmoji,
+  hasAdministrator,
+} from "utils/common"
 import InteractionManager from "handlers/discord/select-menu"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { CommandNotAllowedToRunError } from "errors"
@@ -43,6 +48,7 @@ import {
 import { feedbackDispatcher } from "commands/feedback/index/processor"
 import { sendVerifyURL } from "commands/verify/processor"
 import { kafkaQueue } from "queue/kafka/queue"
+import { createNewYearEnvelop } from "commands/envelop/processor"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -173,6 +179,11 @@ async function handleCommandInteraction(interaction: Interaction) {
     }
     if ("messageOptions" in response) {
       const { messageOptions, interactionOptions, buttonCollector } = response
+      if (getChance(10)) {
+        messageOptions.embeds?.push(
+          await createNewYearEnvelop(interaction.user.id, args)
+        )
+      }
       const msg = await i
         .editReply({
           content: await questReminder(i.user.id, i.commandName),
