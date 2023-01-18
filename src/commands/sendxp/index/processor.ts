@@ -17,7 +17,9 @@ export function getSendXPSuccessEmbed(
     })
     .join(", ")
 
-  const amountEach = roundFloatNumber(amount / recipientsId.length, 2)
+  const amountEach = each
+    ? amount
+    : roundFloatNumber(amount / recipientsId.length, 2)
   return composeEmbedMessage(null, {
     title: `${getEmoji("XP2")} Successfully sent XP!`,
     description: `<@${authorId}> has sent ${usersMentions} **${amountEach} XP** ${
