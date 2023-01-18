@@ -1,25 +1,24 @@
 import {
-  Message,
-  GuildEmoji,
-  User,
   ColorResolvable,
+  GuildMember,
+  Message,
   MessageComponentInteraction,
   Permissions,
-  GuildMember,
+  User,
 } from "discord.js"
 
-import type { Command, Pagination } from "types/common"
-import { DOT, HOMEPAGE_URL, SPACE } from "./constants"
+import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
+import { MARKETPLACE_BASE_URL } from "env"
+import type { Pagination } from "types/common"
 import { TopNFTTradingVolumeItem } from "types/community"
+import { DOT, SPACE } from "./constants"
 import {
   marketplaceEmojis,
   rarityEmojis,
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
-import dayjs from "dayjs"
-import relativeTime from "dayjs/plugin/relativeTime"
-import { MARKETPLACE_BASE_URL } from "env"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
@@ -168,6 +167,7 @@ export const emojis: { [key: string]: string } = {
   SPARKLE: "984824963112513607",
   ENERGY: "984876653090070658",
   STAR: "984895650623811614",
+  STAR2: "1058304360993525832",
   BADGE1: "984908515900547092",
   BADGE2: "985038477487919194",
   BADGE3: "985038479492808715",
@@ -232,6 +232,10 @@ export const emojis: { [key: string]: string } = {
   GLOWINGHEDGE: "998929183122141194",
   SOON: "932544052698701844",
   HEART2: "900748086635278386",
+  AIRDROPPER: "998929149634805810",
+  POD: "998929217897111602",
+  PUMPEET: "930840081554624632",
+  TROPHY: "1060414870895464478",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -241,42 +245,6 @@ export const emojis: { [key: string]: string } = {
   ...progressEmojis,
   ...factionEmojis,
   ...fiatEmojis,
-}
-
-export const tripodEmojis: Record<string, string> = {
-  DROID: "998929164444905613",
-  ROCKET_DROID: "998929223710412950",
-  MIMIC_SLIME: "998929210213158982",
-  MARBLE_PIECE: "998929205272252466",
-  MARBLE_CHUNK: "998929198565568664",
-  UNSTABLE_BOMB: "998929246015725579",
-  SCARLET_SHARD: "998929226067615814",
-  ENERGY_STONE: "998929172191793274",
-  ENERGY_REACTOR: "998929168672772176",
-  LOOT_CHEST: "998929194765533224",
-  CYBERCORE_CRATE: "998929161026539542",
-  GLITTEROOT_BUD: "998929179645050951",
-  GLITTEROOT_SHRUB: "998929189786894407",
-  GLITTEROOT_SHRUB_ENHANCED: "998929187756834846",
-  GLITTEROOT: "998929192244760616",
-  GLITTEROOT_ENHANCED: "998929183122141194",
-  POD: "998929217897111602",
-  POD_ENHANCED: "998929215678337054",
-  SHELTER: "998929232212275221",
-  SHELTER_ENHANCED: "998929228907171921",
-  CONDO: "998929158988107836",
-  CONDO_ENHANCED: "998929156769316875",
-  APARTMENT: "998929154567323688",
-  APARTMENT_ENHANCED: "998929152256258078",
-  SOARING_TOWER: "998929239086747648",
-  SOARING_TOWER_ENHANCED: "998929235500613723",
-  GALAXY_FORTRESS: "998929175509475448",
-  AIRDROPPER: "998929149634805810",
-  REROLL_BOX: "998929220447256618",
-  TELEPORT_PORTAL: "998929240823189535",
-  TERRAFORMER: "998929243411054592",
-  MEGA_BOMB: "998929207767879802",
-  MINI_BOMB: "998929212192862299",
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
@@ -315,21 +283,21 @@ export function hasAdministrator(member?: GuildMember | null) {
   return member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
-export function getCommandsList(
-  _emoji: GuildEmoji | string,
-  commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
-) {
-  const emoji = getEmoji("reply")
-  const correctBrief = (brief: string) =>
-    brief.endsWith(".") ? brief : `${brief}.`
-  return Object.values(commands)
-    .filter((c) => !c.experimental)
-    .map(
-      (c) =>
-        `[**${c.command}**](${HOMEPAGE_URL})\n${emoji}${correctBrief(c.brief)}`
-    )
-    .join("\n\n")
-}
+// export function getCommandsList(
+//   _emoji: GuildEmoji | string,
+//   commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
+// ) {
+//   const emoji = getEmoji("reply")
+//   const correctBrief = (brief: string) =>
+//     brief.endsWith(".") ? brief : `${brief}.`
+//   return Object.values(commands)
+//     .filter((c) => !c.experimental)
+//     .map(
+//       (c) =>
+//         `[**${c.command}**](${HOMEPAGE_URL})\n${emoji}${correctBrief(c.brief)}`
+//     )
+//     .join("\n\n")
+// }
 
 export function maskAddress(str: string, minLen?: number) {
   const num = minLen || 8
@@ -387,9 +355,9 @@ export function paginate(arr: any[], size: number) {
   }, [])
 }
 
-export function parseNFTTop(resp: any): TopNFTTradingVolumeItem[] {
+export function parseNFTTop(data: any): TopNFTTradingVolumeItem[] {
   const nftList: TopNFTTradingVolumeItem[] = []
-  resp.data.forEach((item: TopNFTTradingVolumeItem) => {
+  data.forEach((item: TopNFTTradingVolumeItem) => {
     const ele: TopNFTTradingVolumeItem = {
       collection_address: item.collection_address,
       collection_name: item.collection_name,

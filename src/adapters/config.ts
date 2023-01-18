@@ -830,37 +830,10 @@ class Config extends Fetcher {
     discord_id: string
     telegram_username: string
   }) {
-    return await this.jsonFetch(`${API_BASE_URL}/configs/telegram`, {
+    return await this.jsonFetch(`${API_BASE_URL}/config-community/telegram`, {
       method: "POST",
       body: JSON.stringify(req),
     })
-  }
-
-  public async setVoteChannel(guildId: string, channelId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-channels/upvote`, {
-      method: "POST",
-      body: { guildId, channelId },
-    })
-  }
-
-  public async removeVoteChannel(guildId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-channels/upvote`, {
-      method: "DELETE",
-      body: {
-        guildId,
-      },
-    })
-  }
-
-  public async getVoteChannel(guildId: string) {
-    return await this.jsonFetch<ResponseGetVoteChannelConfigResponse>(
-      `${API_BASE_URL}/config-channels/upvote`,
-      {
-        query: {
-          guildId,
-        },
-      }
-    )
   }
 
   public async setJoinLeaveChannel(guildId: string, channelId: string) {
@@ -1024,6 +997,25 @@ class Config extends Fetcher {
       method: "DELETE",
       body: req,
     })
+  }
+
+  public async setConfigTokenRole(req: {
+    guild_id: string
+    role_id: string
+    address: string
+    chain: string
+    amount: number
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-roles/token-roles`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  public async getConfigTokenRoleList(guild_id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-roles/token-roles/${guild_id}`
+    )
   }
 }
 

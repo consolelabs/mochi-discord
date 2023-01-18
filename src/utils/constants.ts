@@ -90,22 +90,18 @@ export const DEFAULT_COLLECTION_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/nft-rarity-ranking-and-volume/set-default-collection" +
   "&command=nft"
-export const STATS_GITBOOK =
-  USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/server-stats" +
-  "&command=stats"
-export const INVITE_GITBOOK =
-  USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/invite-tracker" +
-  "&command=invite"
 export const DEFAULT_ROLE_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/default-roles" +
   "&command=defaultrole"
 export const NFT_ROLE_GITBOOK =
   USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-roles" +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-role" +
   "&command=nftrole"
+export const TOKEN_ROLE_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/token-roles" +
+  "&command=tokenrole"
 export const GM_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/gm-gn" +
@@ -125,10 +121,6 @@ export const WATCHLIST_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/token-watchlist" +
   "&command=watchlist"
-export const TRANSACTION_GITBOOK =
-  USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/transaction-tracking" +
-  "&command=tracking"
 export const REACTION_ROLE_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles" +
@@ -181,10 +173,16 @@ export const QUEST_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/user-engagement/daily-quest" +
   "&command=quest"
+export const DAO_VOTING_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/dao-voting" +
+  "&command=daovoting"
+export const SENDXP_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/send-xp-to-member" +
+  "&command=sendxp"
 
 export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"
 export const ETHSCAN_API = "https://api.etherscan.io/api"
 export const POLYGONSCAN_API = "https://api.polygonscan.com/api"
-
-export const PERMANENT_MOCHI_INVITE_URL = "https://discord.gg/CuJxnGYf9U"

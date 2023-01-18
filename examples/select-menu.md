@@ -3,7 +3,7 @@
 1. Create selectionRow using discord embed `composeDiscordSelectionRow`
 
 ```
-import { composeDiscordSelectionRow } from "utils/discordEmbed"
+import { composeDiscordSelectionRow } from "discord/embed/ui"
 
 const tokens: string[] = ["Bitcoin (BTC)", "Tether(USDT)", ...]
 let options: MessageSelectOptionData[] = tokens

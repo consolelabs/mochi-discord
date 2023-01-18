@@ -1,7 +1,5 @@
 import {
   ResponseGetNFTActivityResponse,
-  ResponseGetUserCurrentGMStreakResponse,
-  ResponseGetUserUpvoteLeaderboardResponse,
   ResponseIndexerNFTCollectionTickersResponse,
   ResponseNftMetadataAttrIconResponse,
   ResponseGetSuggestionNFTCollectionsResponse,
@@ -21,7 +19,7 @@ import {
   ResponseGetAllDaoProposalVotes,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
-import { API_BASE_URL } from "utils/constants"
+import { API_BASE_URL, PT_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
 
 class Community extends Fetcher {
@@ -184,7 +182,7 @@ class Community extends Fetcher {
   }
 
   public async getSalesTrackers(guildId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/nfts/sales-tracker`, {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/sales-tracker`, {
       query: { guildId },
     })
   }
@@ -198,16 +196,16 @@ class Community extends Fetcher {
 
   public async createSalesTracker(
     addr: string,
-    plat: string,
+    chain: string,
     guildId: string,
     channelId: string
   ) {
-    return await this.jsonFetch(`${API_BASE_URL}/nfts/sales-tracker`, {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/sales-tracker`, {
       method: "POST",
       body: JSON.stringify({
         channel_id: channelId,
         contract_address: addr,
-        platform: plat,
+        chain: chain,
         guild_id: guildId,
       }),
     })
@@ -287,42 +285,6 @@ class Community extends Fetcher {
     return await this.jsonFetch<ResponseGetCollectionCountResponse>(
       `${API_BASE_URL}/nfts/collections/stats`
     )
-  }
-
-  public async getUpvoteStreak(discordId: string) {
-    return await this.jsonFetch<ResponseGetUserCurrentGMStreakResponse>(
-      `${API_BASE_URL}/users/upvote-streak`,
-      {
-        query: { discordId },
-      }
-    )
-  }
-
-  public async getVoteLeaderboard(
-    guildId: string,
-    by: "streak" | "total" = "total"
-  ) {
-    return await this.jsonFetch<ResponseGetUserUpvoteLeaderboardResponse>(
-      `${API_BASE_URL}/users/upvote-leaderboard`,
-      {
-        query: {
-          guildId,
-          by,
-        },
-      }
-    )
-  }
-
-  public async setUpvoteMessageCache(req: {
-    user_id: string
-    guild_id: string
-    channel_id: string
-    message_id: string
-  }) {
-    return await this.jsonFetch(`${API_BASE_URL}/cache/upvote`, {
-      method: "POST",
-      body: JSON.stringify(req),
-    })
   }
 
   public async getNFTTickers({
@@ -541,6 +503,93 @@ class Community extends Fetcher {
     each: boolean
   }) {
     return await this.jsonFetch<ModelDaoVote>(`${API_BASE_URL}/users/xp`, {
+      method: "POST",
+      body,
+    })
+  }
+
+  public async addNftCollection(body: {
+    chain_id: string
+    address: string
+    author: string
+    guild_id: string
+    message_id?: string
+    channel_id?: string
+    priority_flag: boolean
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/nfts/collections`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    })
+  }
+
+  public async getSupportedChains() {
+    return await this.jsonFetch(`${API_BASE_URL}/nfts/supported-chains`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }
+
+  public async getNftCollectionInfo(params: {
+    address: string
+    chainId: string
+  }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/nfts/collections/address/${params.address}`,
+      {
+        method: "GET",
+        query: { chainId: params.chainId },
+      }
+    )
+  }
+
+  public async updateSupportVerse(address: string) {
+    return await this.jsonFetch(
+      `${PT_API_BASE_URL}/nft/${address}/support-verse-enable`,
+      {
+        method: "PUT",
+      }
+    )
+  }
+
+  public async setLevelMessageConfig(req: {
+    guild_id: string
+    message: string
+    image_url: string
+    channel_id: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/levelup`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  public async getLevelMessageConfig(guildId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/community/levelup?guild_id=${guildId}`
+    )
+  }
+
+  public async removeLevelMessageConfig(req: { guild_id: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/levelup`, {
+      method: "DELETE",
+      body: req,
+    })
+  }
+
+  public async getUserEnvelopStreak(user_id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${user_id}/envelop-streak`
+    )
+  }
+
+  public async createUserEnvelop(body: { user_id: string; command: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/users/envelop`, {
       method: "POST",
       body,
     })

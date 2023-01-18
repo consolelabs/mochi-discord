@@ -1,5 +1,5 @@
 import { CommandInteraction, GuildMember, Message } from "discord.js"
-import { DiscordWalletTransferError } from "errors/DiscordWalletTransferError"
+import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import fetch from "node-fetch"
 import {
   OffchainTipBotTransferRequest,
@@ -9,7 +9,7 @@ import {
   CoinComparisionData,
   GasPriceData,
 } from "types/defi"
-import { composeEmbedMessage } from "utils/discordEmbed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
 import { getCommandObject, parseDiscordToken } from "utils/commands"
 import {
@@ -932,6 +932,13 @@ class Defi extends Fetcher {
         method: "GET",
         query: { status },
       }
+    )
+  }
+
+  async getUserOnchainBalances(userId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/tip/onchain/${userId}/balances`,
+      { method: "GET" }
     )
   }
 }

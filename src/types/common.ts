@@ -15,7 +15,7 @@ import {
   User,
   WebhookEditMessageOptions,
 } from "discord.js"
-import type { InteractionOptions } from "utils/InteractionManager"
+import { InteractionOptions } from "handlers/discord/select-menu"
 
 // Category of commands
 export type Category = "Profile" | "Defi" | "Config" | "Community" | "Game"
@@ -49,7 +49,7 @@ export type RunResult<T = MessageOptions | MessageEditOptions> = {
   messageOptions: T
   interactionOptions?: InteractionOptions
   replyMessage?: WebhookEditMessageOptions
-  buttonCollector?: (i: ButtonInteraction) => Promise<void>
+  buttonCollector?: (i: ButtonInteraction) => Promise<any> | Promise<void>
   fullCommand?: string
 }
 
@@ -78,6 +78,16 @@ export type MultipleResult<T> = {
   fullCommand?: string
 }
 
+type CommandResponse<T> =
+  | RunResult<MessageOptions>
+  | MultipleResult<T>
+  | void
+  | null
+  | undefined
+
+export type TextCommandResponse = CommandResponse<Message>
+export type SlashCommandResponse = CommandResponse<CommandInteraction>
+
 export type SlashCommand = {
   name: string
   category: Category
@@ -90,13 +100,7 @@ export type SlashCommand = {
     | SlashCommandSubcommandGroupBuilder
   run: (
     interaction: CommandInteraction
-  ) => Promise<
-    | RunResult<MessageOptions>
-    | MultipleResult<CommandInteraction>
-    | void
-    | null
-    | undefined
-  >
+  ) => Promise<CommandResponse<CommandInteraction>>
   help: (interaction: CommandInteraction) => Promise<MessageOptions>
   ephemeral?: boolean
   colorType: ColorType
@@ -117,13 +121,7 @@ export type Command = {
     msg: Message,
     action?: string,
     isAdmin?: boolean
-  ) => Promise<
-    | RunResult<MessageOptions>
-    | MultipleResult<Message>
-    | void
-    | null
-    | undefined
-  >
+  ) => Promise<CommandResponse<Message>>
   getHelpMessage: (
     msg: Message,
     action?: string,
