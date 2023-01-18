@@ -35,7 +35,7 @@ const textCmd: Command = {
           "pointingright"
         )} You can insert an image in leveled-up message by uploading file.`,
         usage: `${PREFIX}levelmessage <action>\n${PREFIX}lm <action>`,
-        examples: `${PREFIX}levelmessage info\n${PREFIX}lm Congratulation on leveling up #appreciation`,
+        examples: `${PREFIX}levelmessage info\n${PREFIX}lm set Congratulation on leveling up #appreciation`,
       }),
     ],
   }),
