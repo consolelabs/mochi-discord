@@ -39,6 +39,10 @@ import {
   VOTE_GITBOOK,
   WATCHLIST_GITBOOK,
   WELCOME_GITBOOK,
+  SENDXP_GITBOOK,
+  TOKEN_ROLE_GITBOOK,
+  LEVELUP_MESSAGE_GITBOOK,
+  JOIN_LEAVE_GITBOOK,
 } from "utils/constants"
 import { EMPTY_FIELD, composeEmbedMessage } from "ui/discord/embed"
 dayjs.extend(utc)
@@ -217,6 +221,14 @@ const allCommands: Record<PageType, HelpPage> = {
             value: "prune",
             url: PRUNE_GITBOOK,
           },
+          {
+            value: "joinleave",
+            url: JOIN_LEAVE_GITBOOK,
+          },
+          {
+            value: "levelupmessage",
+            url: LEVELUP_MESSAGE_GITBOOK,
+          },
         ],
       },
       "Sales Update": {
@@ -250,6 +262,10 @@ const allCommands: Record<PageType, HelpPage> = {
             value: "poe",
             url: TWITTER_WATCH_GITBOOK,
           },
+          {
+            value: "sendXP",
+            url: SENDXP_GITBOOK,
+          },
         ],
       },
       "Assign Role": {
@@ -271,6 +287,10 @@ const allCommands: Record<PageType, HelpPage> = {
           {
             value: "nftrole",
             url: NFT_ROLE_GITBOOK,
+          },
+          {
+            value: "tokenrole",
+            url: TOKEN_ROLE_GITBOOK,
           },
         ],
       },
