@@ -221,6 +221,14 @@ export interface ModelDiscordUserUpvoteStreak {
   updated_at?: string;
 }
 
+export interface ModelEnvelop {
+  command?: string;
+  created_at?: string;
+  id?: number;
+  updated_at?: string;
+  user_id?: string;
+}
+
 export interface ModelGuildConfigActivity {
   active?: boolean;
   activity?: ModelActivity;
@@ -313,11 +321,11 @@ export interface ModelGuildConfigSalesTracker {
 }
 
 export interface ModelGuildConfigTokenRole {
-  channel_id?: string;
   created_at?: string;
   guild_id?: string;
   id?: number;
   required_amount?: number;
+  role_id?: string;
   token?: ModelToken;
   token_id?: number;
   updated_at?: string;
@@ -645,6 +653,11 @@ export interface ModelUser {
   username?: string;
 }
 
+export interface ModelUserEnvelopStreak {
+  total_envelop?: number;
+  user_id?: string;
+}
+
 export interface ModelUserFactionXpsMapping {
   academy_xp?: number;
   imperial_xp?: number;
@@ -787,6 +800,11 @@ export interface RequestCreateDaoVoteRequest {
 export interface RequestCreateDefaultRoleRequest {
   guild_id: string;
   role_id: string;
+}
+
+export interface RequestCreateEnvelop {
+  command: string;
+  user_id: string;
 }
 
 export interface RequestCreateGuildRequest {
@@ -1272,6 +1290,10 @@ export interface ResponseCreateDaoProposalResponse {
   data?: ModelDaoProposal;
 }
 
+export interface ResponseCreateEnvelop {
+  data?: ModelEnvelop;
+}
+
 export interface ResponseCreateGuildTokenRole {
   data?: ModelGuildConfigTokenRole;
 }
@@ -1634,6 +1656,10 @@ export interface ResponseGetUserCurrentUpvoteStreakResponse {
   minutes_until_reset_topgg?: number;
   streak_count?: number;
   total_count?: number;
+}
+
+export interface ResponseGetUserEnvelopStreak {
+  data?: ModelUserEnvelopStreak;
 }
 
 export interface ResponseGetUserProfileResponse {
