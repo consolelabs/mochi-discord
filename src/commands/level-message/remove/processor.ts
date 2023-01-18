@@ -27,9 +27,9 @@ export async function handle(msg: OriginalMessage) {
             "approve"
           )} Successfully delete leveled-up message`,
           description: `Your server won’t get any notification message when a user is leveled up.\n${getEmoji(
-            "pointright"
+            "POINTINGRIGHT"
           )} You can still check the level of each member by using \`$profile\` or the top high-level member by using \`$top\`.\n${getEmoji(
-            "pointright"
+            "POINTINGRIGHT"
           )} You can set up a new leveled-up message to encourage members by using \`$levelmessage set <message content> <image>\`.`,
         }),
       ],
