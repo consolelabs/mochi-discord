@@ -5,7 +5,7 @@ import { APIError, GuildIdNotFoundError } from "errors"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
-import { list } from "./processor"
+import { list } from "../processor"
 
 const command: SlashCommand = {
   name: "list",
