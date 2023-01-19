@@ -1,10 +1,17 @@
 import { InternalError, OriginalMessage } from "errors"
 import { parseDiscordToken } from "./commands"
+import { logger } from "logger"
 
 export function throwOnInvalidEmoji(emoji: string, msg: OriginalMessage) {
   const { isEmoji, isNativeEmoji, isAnimatedEmoji, value } =
     parseDiscordToken(emoji)
   let isValidEmoji = false
+
+  logger.info("emoji input: ", emoji)
+  logger.info("isNativeEmoji: ", isNativeEmoji)
+  logger.info("isEmoji: ", isEmoji)
+  logger.info("isAnimatedEmoji: ", isAnimatedEmoji)
+  logger.info("value: ", value)
 
   msg.guild?.emojis.cache?.forEach((e) => {
     if (e.id) {
