@@ -1,6 +1,6 @@
 import Config from "adapters/config"
 import { APIError, GuildIdNotFoundError } from "errors"
-import { list } from "./processor"
+import { list } from "../processor"
 import { Command } from "types/common"
 import { PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"

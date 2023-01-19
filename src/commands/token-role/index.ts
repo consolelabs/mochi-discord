@@ -2,9 +2,11 @@ import { Command, SlashCommand } from "types/common"
 // text
 import set from "./set/text"
 import list from "./list/text"
+import remove from "./remove/text"
 // slash
 import setSlash from "./set/slash"
 import listSlash from "./list/slash"
+import removeSlash from "./remove/slash"
 import { getEmoji } from "utils/common"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
@@ -17,6 +19,7 @@ import { CommandInteraction } from "discord.js"
 const actions: Record<string, Command> = {
   set,
   list,
+  remove,
 }
 
 const textCmd: Command = {
@@ -54,6 +57,7 @@ const textCmd: Command = {
 const slashActions: Record<string, SlashCommand> = {
   set: setSlash,
   list: listSlash,
+  remove: removeSlash,
 }
 
 const slashCmd: SlashCommand = {
@@ -65,6 +69,8 @@ const slashCmd: SlashCommand = {
       .setName("tokenrole")
       .setDescription("Token Role configuration")
     data.addSubcommand(<SlashCommandSubcommandBuilder>setSlash.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>listSlash.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare())
     return data
   },
   run: (interaction: CommandInteraction) => {

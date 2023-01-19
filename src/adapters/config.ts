@@ -32,6 +32,7 @@ import {
   ResponseMonikerConfigResponse,
   RequestDeleteMonikerConfigRequest,
   RequestUpsertMonikerConfigRequest,
+  ResponseListGuildTokenRoles,
 } from "types/api"
 import { TEST } from "env"
 
@@ -1013,8 +1014,17 @@ class Config extends Fetcher {
   }
 
   public async getConfigTokenRoleList(guild_id: string) {
-    return await this.jsonFetch(
+    return await this.jsonFetch<ResponseListGuildTokenRoles>(
       `${API_BASE_URL}/config-roles/token-roles/${guild_id}`
+    )
+  }
+
+  public async removeGuildTokenRoleConfig(id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-roles/token-roles/${id}`,
+      {
+        method: "DELETE",
+      }
     )
   }
 }
