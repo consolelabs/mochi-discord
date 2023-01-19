@@ -1,10 +1,20 @@
+import community from "adapters/community"
 import { createCanvas, loadImage } from "canvas"
-import { Guild, GuildMember, MessageAttachment } from "discord.js"
+import {
+  CommandInteraction,
+  Guild,
+  GuildMember,
+  Message,
+  MessageAttachment,
+} from "discord.js"
+import { APIError } from "errors"
 import { RectangleStats } from "types/canvas"
 import { LeaderboardItem } from "types/community"
 import { heightOf, widthOf } from "ui/canvas/calculator"
 import { drawDivider, drawRectangle } from "ui/canvas/draw"
-import { emojis, getEmojiURL } from "utils/common"
+import { getPaginationRow } from "ui/discord/button"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 
 export async function renderLeaderboard(
   guild: Guild | null,
@@ -173,4 +183,43 @@ export async function renderLeaderboard(
   }
 
   return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")
+}
+
+export async function composeTopEmbed(
+  msg: Message | CommandInteraction,
+  pageIdx: number
+) {
+  const authorId = msg instanceof Message ? msg.author.id : msg.user.id
+  const res = await community.getTopXPUsers(
+    msg.guildId || "",
+    authorId,
+    pageIdx,
+    10
+  )
+  if (!res.ok) {
+    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+  }
+
+  const totalPage = Math.ceil(
+    (res.data.metadata?.total || 0) / (res.data.metadata?.size || 1)
+  )
+  const { author, leaderboard } = res.data
+  const blank = getEmoji("blank")
+  const embed = composeEmbedMessage(null, {
+    title: `${getEmoji("cup")} ${msg.guild?.name}'s Web3 rankings`,
+    thumbnail: msg.guild?.iconURL(),
+    description: `${blank}**Your rank:** #${
+      author.guild_rank
+    }\n${blank}**XP:** ${author.total_xp}\n${getEmoji(
+      "POINTINGRIGHT"
+    )} Move to another page with \`$top [page number]\`\n\u200B`,
+    image: "attachment://leaderboard.png",
+  })
+  return {
+    messageOptions: {
+      embeds: [embed],
+      components: getPaginationRow(res.data.metadata?.page || 0, totalPage),
+      files: [await renderLeaderboard(msg.guild, leaderboard)],
+    },
+  }
 }
