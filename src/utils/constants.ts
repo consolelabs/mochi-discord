@@ -100,7 +100,7 @@ export const NFT_ROLE_GITBOOK =
   "&command=nftrole"
 export const TOKEN_ROLE_GITBOOK =
   USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/token-roles" +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/token-role" +
   "&command=tokenrole"
 export const GM_GITBOOK =
   USAGE_STATS_URL +
@@ -181,6 +181,14 @@ export const SENDXP_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/send-xp-to-member" +
   "&command=sendxp"
+export const JOIN_LEAVE_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/member-management" +
+  "&command=joinleave"
+export const LEVELUP_MESSAGE_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/leveled-up-message" +
+  "&command=levelupmessage"
 
 export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"
