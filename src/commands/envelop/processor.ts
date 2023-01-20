@@ -40,6 +40,8 @@ export async function createNewYearEnvelop(
   })
   return composeEmbedMessage(null, {
     title: `${getEmoji("TOUCH")} Happy Lunar New Year`,
+    image:
+      "https://cdn.discordapp.com/attachments/1003381172178530494/1065894129902567424/Lucky-Envelope-2023.jpg",
     color: "#fb0a06",
     description,
   })
