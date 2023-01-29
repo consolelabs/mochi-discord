@@ -96,7 +96,7 @@ export async function drawCircleImage({
   ctx: CanvasRenderingContext2D
   stats: CircleleStats
   imageURL?: string
-  image?: Image
+  image?: Image | null
 }) {
   if (!image && !imageURL) return
   ctx.save()
