@@ -2,7 +2,6 @@ import {
   CommandInteraction,
   Message,
   MessageComponentInteraction,
-  TextChannel,
 } from "discord.js"
 import { logger } from "logger"
 import { getEmoji } from "utils/common"
@@ -39,8 +38,9 @@ export class BotBaseError extends Error {
       }
 
       this.msgOrInteraction = message
-      this.channel = (message.channel as TextChannel)?.name ?? "DM"
-      this.guild = message.guild?.name ?? "DM"
+
+      // this.channel = (message.channel as TextChannel)?.name ?? "DM"
+      // this.guild = message.guild?.name ?? "DM"
       this.user = "author" in message ? message.author?.tag : message.user?.tag
       this.userId = "author" in message ? message.author?.id : message.user?.id
       this.message = JSON.stringify({

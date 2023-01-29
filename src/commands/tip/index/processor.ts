@@ -1,4 +1,12 @@
+import defi from "adapters/defi"
 import { CommandInteraction, Message } from "discord.js"
+import { InternalError } from "errors"
+import { APIError } from "errors/api"
+import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import { ResponseMonikerConfigData } from "types/api"
+import { OffchainTipBotTransferRequest } from "types/defi"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { parseDiscordToken } from "utils/commands"
 import {
   emojis,
   getEmoji,
@@ -6,12 +14,14 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import { parseDiscordToken } from "utils/commands"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { APIError } from "errors/api"
-import { ResponseMonikerConfigData } from "types/api"
-import defi from "adapters/defi"
-import { InternalError } from "errors"
+import {
+  classifyTipSyntaxTargets,
+  parseMonikerinCmd,
+  parseRecipients,
+  tipTokenIsSupported,
+} from "utils/tip-bot"
+import * as processor from "./processor"
+import { userMention } from "@discordjs/builders"
 
 export async function handleTip(
   args: string[],
@@ -23,15 +33,17 @@ export async function handleTip(
   args = args.slice(0, onchain ? -1 : undefined) // remove --onchain if any
 
   // check currency is moniker or supported
-  const { newArgs: argsAfterParseMoniker, moniker } =
-    await defi.parseMonikerinCmd(args, msg.guildId ?? "")
+  const { newArgs: argsAfterParseMoniker, moniker } = await parseMonikerinCmd(
+    args,
+    msg.guildId ?? ""
+  )
 
   // parse tip message
   const { newArgs: agrsAfterParseMessage, messageTip } =
-    await defi.parseMessageTip(argsAfterParseMoniker)
+    await processor.parseMessageTip(argsAfterParseMoniker)
 
   const newCmd = agrsAfterParseMessage.join(" ").trim()
-  const { isValid, targets } = defi.classifyTipSyntaxTargets(
+  const { isValid, targets } = classifyTipSyntaxTargets(
     newCmd
       .split(" ")
       .slice(1, newCmd.toLowerCase().endsWith("each") ? -3 : -2)
@@ -48,8 +60,8 @@ export async function handleTip(
   }
 
   // check token supported
-  const { cryptocurrency } = defi.parseTipParameters(agrsAfterParseMessage)
-  if (!moniker && !(await defi.tipTokenIsSupported(cryptocurrency))) {
+  const { cryptocurrency } = processor.parseTipParameters(agrsAfterParseMessage)
+  if (!moniker && !(await tipTokenIsSupported(cryptocurrency))) {
     throw new InternalError({
       message: msg,
       title: "Unsupported token",
@@ -58,7 +70,7 @@ export async function handleTip(
   }
 
   // preprocess command arguments
-  const payload = await defi.getTipPayload(
+  const payload = await processor.getTipPayload(
     msg,
     agrsAfterParseMessage,
     authorId,
@@ -101,8 +113,7 @@ export async function handleTip(
   }
 
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
-  const mentionUser = (discordId: string) => `<@!${discordId}>`
-  const users = recipientIds.map((id) => mentionUser(id)).join(", ")
+  const users = recipientIds.map((id) => userMention(id)).join(", ")
   const isOnline = targets.includes("online")
   const hasRole = targets.some((t) => parseDiscordToken(t).isRole)
   const hasChannel = targets.some((t) => parseDiscordToken(t).isChannel)
@@ -122,7 +133,7 @@ export async function handleTip(
             .join(", ")}`
     }`
   }
-  let description = `${mentionUser(
+  let description = `${userMention(
     payload.sender
   )} has sent ${recipientDescription} **${roundFloatNumber(
     data[0].amount,
@@ -137,7 +148,7 @@ export async function handleTip(
       amountBeforeMoniker / payload.recipients.length,
       4
     )
-    description = `${mentionUser(
+    description = `${userMention(
       payload.sender
     )} has sent ${recipientDescription} **${amountMoniker} ${
       monikerVal?.moniker?.moniker
@@ -164,5 +175,134 @@ export async function handleTip(
 
   return {
     embeds: [embed],
+  }
+}
+
+export function parseTipParameters(args: string[]) {
+  const each = args[args.length - 1].toLowerCase() === "each"
+  args = each ? args.slice(0, args.length - 1) : args
+  const cryptocurrency = args[args.length - 1].toUpperCase()
+  const amountArg = args[args.length - 2].toLowerCase()
+  return { each, cryptocurrency, amountArg }
+}
+
+export async function getTipPayload(
+  msg: Message | CommandInteraction,
+  args: string[],
+  authorId: string,
+  targets: string[]
+): Promise<OffchainTipBotTransferRequest> {
+  const type = args[0]
+  const sender = authorId
+  let recipients: string[] = []
+
+  const guildId = msg.guildId ?? "DM"
+
+  // parse recipients
+  const {
+    each: eachParse,
+    cryptocurrency,
+    amountArg,
+  } = parseTipParameters(args)
+  recipients = await parseRecipients(msg, targets, sender)
+
+  // check if only tip author
+  if (targets.length === 1 && targets[0] === `<@${authorId}>`) {
+    throw new DiscordWalletTransferError({
+      discordId: sender,
+      message: msg,
+      error: "Users cannot tip themselves!",
+    })
+  }
+  // check if recipient is valid or not
+  if (!recipients || !recipients.length) {
+    throw new DiscordWalletTransferError({
+      discordId: sender,
+      message: msg,
+      error: "No valid recipient was found!",
+    })
+  }
+
+  // check recipients exist in discord server or not
+  for (const recipientId of recipients) {
+    const user = await msg.guild?.members.fetch(recipientId)
+    if (!user) {
+      throw new DiscordWalletTransferError({
+        discordId: sender,
+        message: msg,
+        error: `User <@${recipientId}> not found`,
+      })
+    }
+  }
+
+  // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
+  let amount = parseFloat(amountArg)
+  if (
+    (isNaN(amount) || amount <= 0) &&
+    !["all", "a", "an"].includes(amountArg)
+  ) {
+    throw new DiscordWalletTransferError({
+      discordId: sender,
+      message: msg,
+      error: "The amount is invalid. Please insert a natural number.",
+    })
+  }
+  if (amountArg === "a" || amountArg === "an") {
+    amount = 1
+  }
+  const each = eachParse && amountArg !== "all"
+  amount = each ? amount * recipients.length : amount
+
+  return {
+    sender,
+    recipients,
+    guildId,
+    channelId: msg.channelId,
+    amount,
+    token: cryptocurrency,
+    each,
+    all: amountArg === "all",
+    transferType: type ?? "",
+    duration: 0,
+    fullCommand: "",
+  }
+}
+
+export async function parseMessageTip(args: string[]) {
+  const { ok, data, log, curl } = await defi.getAllTipBotTokens()
+  if (!ok) {
+    throw new APIError({ description: log, curl })
+  }
+  let tokenIdx = -1
+  if (data && Array.isArray(data) && data.length !== 0) {
+    data.forEach((token: any) => {
+      const idx = args.findIndex(
+        (element) => element.toLowerCase() === token.token_symbol.toLowerCase()
+      )
+      if (idx !== -1) {
+        tokenIdx = idx
+      }
+    })
+  }
+  let messageTip = ""
+  let newArgs = args
+  if (tokenIdx !== -1 && args.length > tokenIdx + 1) {
+    const messageTipArr = args.slice(tokenIdx + 1)
+    newArgs = args.slice(0, tokenIdx + 1)
+    if (args[tokenIdx + 1].toLowerCase() === "each") {
+      messageTipArr.shift()
+      newArgs.push(args[tokenIdx + 1])
+    }
+    messageTip = messageTipArr
+      .join(" ")
+      .replaceAll('"', "")
+      .replaceAll("”", "")
+      .replaceAll("“", "")
+      .replaceAll("'", "")
+      .trim()
+  }
+  return {
+    newArgs,
+    messageTip,
   }
 }

@@ -68,28 +68,28 @@ export async function handleStatement(
     let col2 = ""
     arr.forEach((item: any) => {
       if (item.action === "withdraw") {
-        col1 += `<@!${authorId}>\n${getEmoji("reply")} **${item.action}**\n\n`
+        col1 += `<@${authorId}>\n${getEmoji("reply")} **${item.action}**\n\n`
         col2 += `**- ${roundFloatNumber(item.amount, 4)} ${
           item.token
         }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
         return
       }
       if (item.action === "deposit") {
-        col1 += `<@!${authorId}>\n${getEmoji("reply")} **${item.action}**\n\n`
+        col1 += `<@${authorId}>\n${getEmoji("reply")} **${item.action}**\n\n`
         col2 += `**+ ${roundFloatNumber(item.amount, 4)} ${
           item.token
         }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
         return
       }
       if (item.sender_id === authorId) {
-        col1 += `<@!${item.receiver_id}>\n${getEmoji("reply")} **${
+        col1 += `<@${item.receiver_id}>\n${getEmoji("reply")} **${
           item.action
         }**\n\n`
         col2 += `**- ${roundFloatNumber(item.amount, 4)} ${
           item.token
         }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
       } else {
-        col1 += `<@!${item.sender_id}>\n${getEmoji("reply")} **${
+        col1 += `<@${item.sender_id}>\n${getEmoji("reply")} **${
           item.action
         }**\n\n`
         col2 += `**+ ${roundFloatNumber(item.amount, 4)} ${
