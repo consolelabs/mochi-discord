@@ -4,6 +4,9 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 import { APIError, InternalError } from "errors"
 import { OffchainTipBotWithdrawRequest } from "types/defi"
+import { getCommandObject } from "utils/commands"
+import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import { commands } from "commands"
 
 export async function getDestinationAddress(
   msg: Message | CommandInteraction,
@@ -30,7 +33,7 @@ export async function getDestinationAddress(
 }
 
 export async function withdraw(msg: Message, args: string[]) {
-  const payload = await Defi.getWithdrawPayload(msg, args[1], args[2], args[3])
+  const payload = await getWithdrawPayload(msg, args[1], args[2], args[3])
   // check balance
   const invalidBalEmbed = await Defi.getInsuffientBalanceEmbed(
     msg,
@@ -102,7 +105,7 @@ export async function withdrawSlash(
   token: string,
   addr: string
 ) {
-  const payload = await Defi.getWithdrawPayload(i, amount, token, addr)
+  const payload = await getWithdrawPayload(i, amount, token, addr)
   payload.fullCommand = `${i.commandName} ${amount} ${token}`
   const { data, ok, error, log, curl } = await Defi.offchainDiscordWithdraw(
     payload
@@ -114,4 +117,62 @@ export async function withdrawSlash(
   const embedMsg = composeWithdrawEmbed(payload, data)
 
   await i.user.send({ embeds: [embedMsg] })
+}
+
+async function getWithdrawPayload(
+  msg: Message | CommandInteraction,
+  amountArg: string,
+  token: string,
+  toAddress: string
+): Promise<OffchainTipBotWithdrawRequest> {
+  let type
+  let sender
+  if (msg instanceof Message) {
+    const commandObject = getCommandObject(commands, msg)
+    type = commandObject?.command
+    sender = msg.author.id
+  } else {
+    type = msg.commandName
+    sender = msg.user.id
+  }
+  const guildId = msg.guildId ?? "DM"
+
+  const recipients = [toAddress]
+  const cryptocurrency = token.toUpperCase()
+
+  // check if recipient is valid or not
+  if (!recipients || !recipients.length) {
+    throw new DiscordWalletTransferError({
+      discordId: sender,
+      message: msg,
+      error: "No valid recipient found!",
+    })
+  }
+
+  // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
+  const amount = parseFloat(amountArg.toLowerCase())
+  if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
+    throw new DiscordWalletTransferError({
+      discordId: sender,
+      message: msg,
+      error: "The amount is invalid. Please insert a natural number.",
+    })
+  }
+
+  return {
+    recipient: sender,
+    recipientAddress: toAddress,
+    guildId,
+    channelId: msg.channelId,
+    amount,
+    token: cryptocurrency,
+    each: false,
+    all: amountArg === "all",
+    transferType: type ?? "",
+    duration: 0,
+    fullCommand:
+      msg instanceof Message
+        ? msg.content
+        : `${msg.commandName} ${amountArg} ${token} ${toAddress}`,
+  }
 }

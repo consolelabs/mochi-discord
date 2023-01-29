@@ -1,9 +1,9 @@
 import community from "adapters/community"
-import defi from "adapters/defi"
-import { Message, CommandInteraction } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { APIError } from "errors"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { getEmoji, roundFloatNumber } from "utils/common"
+import { classifyTipSyntaxTargets, parseRecipients } from "utils/tip-bot"
 
 export function getSendXPSuccessEmbed(
   recipientsId: string[],
@@ -48,8 +48,8 @@ export async function handleSendXp(
       },
     }
   }
-  const { isValid, targets } = defi.classifyTipSyntaxTargets(mentions)
-  const recipients = await defi.parseRecipients(msg, targets, authorId)
+  const { isValid, targets } = classifyTipSyntaxTargets(mentions)
+  const recipients = await parseRecipients(msg, targets, authorId)
   if (!isValid || recipients.length == 0) {
     return {
       messageOptions: {

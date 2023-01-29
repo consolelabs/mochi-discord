@@ -99,14 +99,10 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}lr <role> <level>\n${PREFIX}lr <action>`,
-        examples: `${PREFIX}levelrole list\n${PREFIX}levelrole set @Mochi 1\n${PREFIX}lr set @admin 2`,
+        usage: `${PREFIX}lr set <role> <level>\n`,
+        examples: `${PREFIX}levelrole set @Mochi 1\n${PREFIX}lr set @admin 2`,
         description: "Assign a role to users when they reach a certain level",
         document: LEVEL_ROLE_GITBOOK,
-        footer: [
-          `Type ${PREFIX}help levelrole <action> for a specific action!`,
-        ],
-        includeCommandsList: true,
       }),
     ],
   }),

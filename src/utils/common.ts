@@ -540,3 +540,20 @@ export function intToMonth(idx: number) {
   if (idx > 11 || idx < 0) return ""
   return year[idx]
 }
+
+export function isNotBot(m: GuildMember) {
+  return !m.user.bot
+}
+
+export function hasRole(roleId: string) {
+  return (m: GuildMember) => m.roles.cache.some((r) => r.id === roleId)
+}
+
+export function isStatus(shouldBeOnline: boolean) {
+  return (m: GuildMember) =>
+    shouldBeOnline
+      ? m.presence?.status !== "offline" &&
+        m.presence?.status !== "invisible" &&
+        Boolean(m.presence?.status)
+      : true // if not specify online then default to get all
+}

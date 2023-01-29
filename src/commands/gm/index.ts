@@ -31,7 +31,7 @@ const textCmd: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         usage: `${PREFIX}gm <action>`,
-        examples: `${PREFIX}gm streak\n${PREFIX}gm config #general`,
+        examples: `${PREFIX}gm streak\n${PREFIX}gm set #general`,
         footer: [`Type ${PREFIX}help gm <action> for a specific action!`],
         description:
           "Configure a good morning/good night channel for users to engage and keep streaks",

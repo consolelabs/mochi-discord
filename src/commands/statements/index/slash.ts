@@ -1,18 +1,18 @@
 import { CommandInteraction } from "discord.js"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { getEmoji } from "utils/common"
+import { SLASH_PREFIX } from "utils/constants"
+import { tipTokenIsSupported } from "utils/tip-bot"
 import {
   buildButtonsRow,
   handleStatement,
   listenSlashButtonsRow,
 } from "./processor"
-import { getEmoji } from "utils/common"
-import { SLASH_PREFIX } from "utils/constants"
-import defi from "adapters/defi"
 
 const run = async (interaction: CommandInteraction) => {
   let token = interaction.options.getString("token")
   if (token) {
-    const tokenValid = await defi.tipTokenIsSupported(token)
+    const tokenValid = await tipTokenIsSupported(token)
     if (!tokenValid) {
       return {
         messageOptions: {
