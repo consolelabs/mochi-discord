@@ -18,7 +18,6 @@ import {
   getAllAliases,
   getCommandArguments,
   getCommandMetadata,
-  specificHelpCommand,
 } from "utils/commands"
 import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
@@ -48,6 +47,7 @@ import deposit from "./deposit"
 import feedback from "./feedback/index"
 import gm from "./gm"
 import help from "./help/index"
+import levelmessage from "./level-message"
 import levelrole from "./level-role"
 import log from "./log"
 import moniker from "./moniker"
@@ -71,7 +71,6 @@ import verify from "./verify"
 import watchlist from "./watchlist"
 import welcome from "./welcome/index"
 import withdraw from "./withdraw"
-import levelmessage from "./level-message"
 import tokenrole from "./token-role"
 import { createNewYearEnvelop } from "./envelop/processor"
 
@@ -166,7 +165,10 @@ export const adminCategories: Record<Category, boolean> = {
 /**
  * Check if command is allowed in DM or need specific permissions to run
  */
-async function preauthorizeCommand(message: Message, commandObject: Command) {
+export async function preauthorizeCommand(
+  message: Message,
+  commandObject: Command
+) {
   if (!commandObject) {
     return
   }
@@ -341,7 +343,7 @@ async function executeCommand(
   }
 }
 
-export default async function handlePrefixedCommand(message: Message) {
+export async function handlePrefixedCommand(message: Message) {
   const args = getCommandArguments(message)
   logger.info(
     `[${message.guild?.name ?? "DM"}][${
@@ -349,15 +351,16 @@ export default async function handlePrefixedCommand(message: Message) {
     }] executing command: ${args}`
   )
 
-  let isSpecificHelpCommand = specificHelpCommand(message)
-  const { commandKey, action = "" } = getCommandMetadata(commands, message)
+  const metadata = getCommandMetadata(commands, message)
+  const { commandKey, action = "" } = metadata
+  let { isSpecificHelpCommand } = metadata
 
   if (!commandKey) return
 
   const commandObject = commands[commandKey]
 
   // send suggest embed if command not found
-  if (commandObject === undefined) {
+  if (!commandObject) {
     const embedProps = getCommandSuggestion(fuzzySet, commandKey, commands)
     if (embedProps) {
       await message

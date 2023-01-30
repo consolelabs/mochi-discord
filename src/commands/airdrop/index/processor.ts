@@ -12,7 +12,7 @@ import {
   getEmojiURL,
   roundFloatNumber,
 } from "utils/common"
-import { parseDiscordToken } from "utils/commands"
+import { getCommandObject, parseDiscordToken } from "utils/commands"
 import Defi from "adapters/defi"
 import NodeCache from "node-cache"
 import dayjs from "dayjs"
@@ -20,6 +20,12 @@ import duration from "dayjs/plugin/duration"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { OffchainTipBotTransferRequest } from "types/defi"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import { InternalError } from "errors"
+import { ResponseMonikerConfigData } from "types/api"
+import { commands } from "commands"
+import { parseMonikerinCmd, tipTokenIsSupported } from "utils/tip-bot"
+import parse from "parse-duration"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -339,5 +345,105 @@ export async function handleAirdrop(
         ),
       ],
     },
+  }
+}
+
+function getAirdropOptions(args: string[]) {
+  const options: { duration: number; maxEntries: number } = {
+    duration: 180, // in secs
+    maxEntries: 0,
+  }
+
+  const content = args.join(" ").trim()
+
+  const durationReg = /in\s+\d+[hms]/
+  const durationIdx = content.search(durationReg)
+  if (durationIdx !== -1) {
+    const timeStr = content
+      .substring(durationIdx)
+      .replace(/in\s+/, "")
+      .split(" ")[0]
+    options.duration = parse(timeStr) / 1000
+  }
+
+  const maxEntriesReg = /for\s+\d+/
+  const maxEntriesIdx = content.search(maxEntriesReg)
+  if (maxEntriesIdx !== -1) {
+    options.maxEntries = +content
+      .substring(maxEntriesIdx)
+      .replace(/for\s+/, "")
+      .split(" ")
+  }
+  return options
+}
+
+export async function getAirdropPayload(
+  msg: Message | CommandInteraction,
+  args: string[]
+): Promise<OffchainTipBotTransferRequest> {
+  let type
+  let sender
+  if (msg instanceof Message) {
+    const commandObject = getCommandObject(commands, msg)
+    type = commandObject?.command
+    sender = msg.author.id
+  } else {
+    type = msg.commandName
+    sender = msg.user.id
+  }
+  const guildId = msg.guildId ?? "DM"
+  const { newArgs, moniker } = await parseMonikerinCmd(args, guildId)
+  if (![3, 5, 7].includes(newArgs.length)) {
+    throw new DiscordWalletTransferError({
+      discordId: sender,
+      message: msg,
+      error: "Invalid airdrop command",
+    })
+  }
+  // airdrop 1 ftm in 1m for 1
+  const amountArg = newArgs[1]
+  const recipients: string[] = []
+  const cryptocurrency = newArgs[2].toUpperCase()
+
+  if (!moniker && !(await tipTokenIsSupported(cryptocurrency))) {
+    throw new InternalError({
+      message: msg,
+      title: "Unsupported token",
+      description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+    })
+  }
+  // validate airdrop amount
+  let amount = parseFloat(amountArg)
+  if (
+    (isNaN(amount) || amount <= 0) &&
+    !["all", "a", "an"].includes(amountArg)
+  ) {
+    throw new DiscordWalletTransferError({
+      discordId: sender,
+      message: msg,
+      error: "The amount is invalid. Please insert a natural number.",
+    })
+  }
+  if (amountArg === "a" || amountArg === "an") {
+    amount = 1
+  }
+  if (moniker) {
+    amount *= (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
+  }
+
+  const options = getAirdropOptions(newArgs)
+  return {
+    sender,
+    recipients,
+    guildId,
+    channelId: msg.channelId,
+    amount,
+    all: amountArg === "all",
+    each: false,
+    fullCommand: args.join(" ").trim(),
+    duration: options.duration,
+    token: cryptocurrency,
+    transferType: type ?? "",
+    opts: options,
   }
 }

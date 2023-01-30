@@ -14,6 +14,7 @@ const command: Command = {
   id: "daovote_set",
   command: "set",
   brief: "Configuration channel proposal",
+  onlyAdministrator: true,
   category: "Config",
   run: async function (msg) {
     if (!msg.guild) {
@@ -48,8 +49,12 @@ const command: Command = {
           value: `admin-${channelId}-${args[3]}-${args[4]}`,
         },
         {
-          label: "Token holder",
+          label: "NFT holder",
           value: `token_holder-${channelId}-${args[3]}-${args[4]}`,
+        },
+        {
+          label: "Crypto holder",
+          value: `crypto_holder-${channelId}-${args[3]}-${args[4]}`,
         },
       ],
     })
@@ -71,8 +76,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}daovote set <#channel> <network> <token_contract>`,
-          examples: `${PREFIX}daovote set #channel eth 0xad29abb318791d579433d831ed122afeaf29dcfe`,
+          usage: `${PREFIX}daovote set <#channel> <network> <token_contract>\n${PREFIX}daovote set <#channel> <symbol> <token_address>`,
+          examples: `${PREFIX}daovote set #channel eth 0xad29abb318791d579433d831ed122afeaf29dcfe\n ${PREFIX}daovote set #channel ftm 0xad29abb318791d579433d831ed122afeaf29dcfe`,
         }),
       ],
     }
@@ -143,8 +148,8 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   const { ok, log, curl, error } = await config.createProposalChannel({
     guild_id: interaction.guildId || "",
     channel_id: interaction.channelId,
-    authority,
-    type: "nft_collection",
+    authority: "token_holder",
+    type: authority == "nft_collection" ? "nft_collection" : "crypto_token",
     chain,
     address: contract,
     required_amount: amount,

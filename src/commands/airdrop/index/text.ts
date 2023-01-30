@@ -2,11 +2,11 @@ import defi from "adapters/defi"
 import { Message } from "discord.js"
 import { APIError } from "errors"
 import { getCommandArguments } from "utils/commands"
-import { handleAirdrop } from "./processor"
+import { getAirdropPayload, handleAirdrop } from "./processor"
 
 export const run = async (msg: Message) => {
   const args = getCommandArguments(msg)
-  const payload = await defi.getAirdropPayload(msg, args)
+  const payload = await getAirdropPayload(msg, args)
   // check balance
   const {
     ok,

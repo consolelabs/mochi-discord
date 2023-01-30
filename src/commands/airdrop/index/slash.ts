@@ -2,7 +2,7 @@ import { CommandInteraction } from "discord.js"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { APIError } from "errors"
 import Defi from "adapters/defi"
-import { handleAirdrop } from "./processor"
+import { getAirdropPayload, handleAirdrop } from "./processor"
 
 async function run(interaction: CommandInteraction) {
   const amount = interaction.options.getNumber("amount")
@@ -17,7 +17,7 @@ async function run(interaction: CommandInteraction) {
     })
   }
 
-  const payload = await Defi.getAirdropPayload(interaction, [
+  const payload = await getAirdropPayload(interaction, [
     "airdrop",
     amount.toString(),
     token,

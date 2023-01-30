@@ -66,7 +66,6 @@ const command: Command = {
     ],
   }),
   canRunWithoutAction: true,
-  aliases: ["cfg"],
   colorType: "Command",
   minArguments: 3,
   onlyAdministrator: true,

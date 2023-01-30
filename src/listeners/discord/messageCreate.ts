@@ -1,10 +1,10 @@
-import { Message } from "discord.js"
-import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
 import webhook from "adapters/webhook"
+import { handlePrefixedCommand } from "commands"
+import { Message } from "discord.js"
 import { MessageTypes } from "discord.js/typings/enums"
-import { DiscordEvent } from "./index"
+import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
-import handlePrefixedCommand from "commands"
+import { DiscordEvent } from "./index"
 
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
