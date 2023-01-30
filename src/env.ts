@@ -49,3 +49,17 @@ export const KAFKA_TOPIC = process.env.KAFKA_TOPIC || "testTopic"
 export const KAFKA_CLIENT_ID = process.env.KAFKA_CLIENT_ID || "mochiDiscord"
 export const KAFKA_PRODUCER_TOPIC =
   process.env.KAFKA_PRODUCER_TOPIC || "mochiDiscord.dev"
+
+// Bot URL with 11 initial permissions
+// 1. CREATE_INSTANT_INVITE
+// 2. VIEW_CHANNEL
+// 3. MODERATE_MEMBERS
+// 4. SEND_MESSAGES
+// 5. SEND_MESSAGES_IN_THREAD
+// 6. EMBED_LINKS
+// 7. ATTACH_FILES
+// 8. MENTION_EVERYONE
+// 9. USE_EXTERNAL_EMOJIS
+// 10. USE_EXTERNAL_STICKERS
+// 11. USE_APPLICATION_COMMANDS
+export const DEFAULT_BOT_INVITE_URL = `https://discord.com/api/oauth2/authorize?client_id=${APPLICATION_ID}&permissions=1513976417281&scope=bot%20applications.commands`

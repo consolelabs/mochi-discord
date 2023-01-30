@@ -4,12 +4,12 @@ import { buildButtonsRow, handleStatement, listenButtonsRow } from "./processor"
 import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { getCommandArguments } from "utils/commands"
-import defi from "adapters/defi"
+import { tipTokenIsSupported } from "utils/tip-bot"
 
 const run = async (msg: Message) => {
   const args = getCommandArguments(msg)
   const token = args.length > 1 ? args[1] : ""
-  const tokenValid = await defi.tipTokenIsSupported(token)
+  const tokenValid = await tipTokenIsSupported(token)
   if (args.length > 1 && !tokenValid) {
     return {
       messageOptions: {
