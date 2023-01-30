@@ -6,10 +6,10 @@ import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
 
 export async function handleProposalVote(i: ButtonInteraction) {
   await i.deferReply({ ephemeral: true })
-  const args = i.customId.split("-") //proposal-vote-yes-${data.id}-${i.user.id}
+  const args = i.customId.split("-") //proposal-vote-yes-${data.id}-${creator_id}
   const choice = args[2]
   const proposal_id = args[3]
-  const user_id = args[4]
+  const user_id = i.user.id
 
   // check if user connect wallet
   const {
@@ -27,7 +27,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
   if (!wOk) {
     throw new APIError({ curl: wCurl, description: wLog, error: wError })
   }
-  if (!wData.is_wallet_connected) {
+  if (wData.is_wallet_connected === false) {
     return await i
       .editReply({
         embeds: [
@@ -35,6 +35,19 @@ export async function handleProposalVote(i: ButtonInteraction) {
             title: "Wallet not connected",
             description:
               "Please [Connect your wallet](https://mochi.gg/verify?code=30a5bf5f-20d2-434f-a20f-2c03dc5e386f) to gain the authority to vote. ",
+          }),
+        ],
+      })
+      .catch(() => null)
+  }
+  // TODO: Check token holder balance
+  if (wData.is_qualified === false) {
+    return await i
+      .editReply({
+        embeds: [
+          getErrorEmbed({
+            title: "Insufficient token amount",
+            description: `You need to own ${wData.vote_config.required_amount} **${wData.vote_config.symbol}** to vote for the proposal. `,
           }),
         ],
       })
