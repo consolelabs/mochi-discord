@@ -14,6 +14,7 @@ const command: Command = {
   id: "daovote_set",
   command: "set",
   brief: "Configuration channel proposal",
+  onlyAdministrator: true,
   category: "Config",
   run: async function (msg) {
     if (!msg.guild) {
