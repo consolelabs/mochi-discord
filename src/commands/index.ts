@@ -19,7 +19,7 @@ import {
   getCommandArguments,
   getCommandMetadata,
 } from "utils/commands"
-import { authorFilter, getChance, hasAdministrator } from "utils/common"
+import { authorFilter, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import config from "../adapters/config"
 import { logger } from "../logger"
@@ -72,7 +72,6 @@ import watchlist from "./watchlist"
 import welcome from "./welcome/index"
 import withdraw from "./withdraw"
 import tokenrole from "./token-role"
-import { createNewYearEnvelop } from "./envelop/processor"
 
 CacheManager.init({
   ttl: 0,
@@ -248,11 +247,6 @@ async function executeCommand(
   const runResponse = await commandObject.run(message, action)
   if (runResponse) {
     if ("messageOptions" in runResponse) {
-      if (getChance(10)) {
-        runResponse.messageOptions.embeds?.push(
-          await createNewYearEnvelop(message.author.id, commandObject.id)
-        )
-      }
       const msg = await message.reply({
         ...runResponse.messageOptions,
       })

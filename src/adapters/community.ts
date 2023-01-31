@@ -581,19 +581,6 @@ class Community extends Fetcher {
       body: req,
     })
   }
-
-  public async getUserEnvelopStreak(user_id: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/users/${user_id}/envelop-streak`
-    )
-  }
-
-  public async createUserEnvelop(body: { user_id: string; command: string }) {
-    return await this.jsonFetch(`${API_BASE_URL}/users/envelop`, {
-      method: "POST",
-      body,
-    })
-  }
 }
 
 export default new Community()
