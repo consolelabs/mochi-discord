@@ -34,7 +34,6 @@ export async function handleStatement(
   if (!bals.ok) {
     throw new APIError({ curl: bals.curl, description: bals.log })
   }
-  console.log("-----", args)
   const symbol = args ? args.toUpperCase() : ""
   // get balance and price in usd
   let currentBal = 0
