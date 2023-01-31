@@ -4,7 +4,7 @@ import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { getEmoji } from "utils/common"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { PREFIX } from "utils/constants"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
@@ -23,6 +23,8 @@ const command: Command = {
     // $daovote set <#channel> <network> <token_contract>
     // $daovote set #channel evm 0xad29abb318791d579433d831ed122afeaf29dcfe
     const args = getCommandArguments(msg)
+    const chain = args[3] ?? ""
+    const contract = args[4] ?? ""
     const { isChannel, value: channelId } = parseDiscordToken(args[2])
     if (!isChannel) {
       return {
@@ -46,15 +48,15 @@ const command: Command = {
       options: [
         {
           label: "Admin",
-          value: `admin-${channelId}-${args[3]}-${args[4]}`,
+          value: `admin-${channelId}-${chain}-${contract}`,
         },
         {
           label: "NFT holder",
-          value: `token_holder-${channelId}-${args[3]}-${args[4]}`,
+          value: `nft_collection-${channelId}-${chain}-${contract}`,
         },
         {
           label: "Crypto holder",
-          value: `crypto_holder-${channelId}-${args[3]}-${args[4]}`,
+          value: `crypto_holder-${channelId}-${chain}-${contract}`,
         },
       ],
     })
@@ -76,15 +78,15 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}daovote set <#channel> <network> <token_contract>\n${PREFIX}daovote set <#channel> <symbol> <token_address>`,
-          examples: `${PREFIX}daovote set #channel eth 0xad29abb318791d579433d831ed122afeaf29dcfe\n ${PREFIX}daovote set #channel ftm 0xad29abb318791d579433d831ed122afeaf29dcfe`,
+          usage: `${PREFIX}daovote set <#channel> <network> <token_contract>\n${PREFIX}daovote set <#channel>`,
+          examples: `${PREFIX}daovote set #channel eth 0xad29abb318791d579433d831ed122afeaf29dcfe\n ${PREFIX}daovote set #channel`,
         }),
       ],
     }
   },
   canRunWithoutAction: true,
   colorType: "Defi",
-  minArguments: 5,
+  minArguments: 3,
 }
 
 const handler: InteractionHandler = async (msgOrInteraction) => {
@@ -110,6 +112,19 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
             description: `${getEmoji(
               "point_right"
             )} All proposals will be posted and voted in the <#${channelId}>`,
+          }),
+        ],
+        components: [],
+      },
+    }
+  }
+  if (!chain || !contract) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            title: "Missing arguments",
+            description: "Make sure you input both chain and contract address",
           }),
         ],
         components: [],
@@ -147,7 +162,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
   const { ok, log, curl, error } = await config.createProposalChannel({
     guild_id: interaction.guildId || "",
-    channel_id: interaction.channelId,
+    channel_id: channelId,
     authority: "token_holder",
     type: authority == "nft_collection" ? "nft_collection" : "crypto_token",
     chain,

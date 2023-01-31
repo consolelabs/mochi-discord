@@ -167,17 +167,17 @@ async function checkExpiredProposal(
 
     const voteYes = data.proposal.points.map(
       (votes: ModelDaoProposalVoteCount) => {
-        if (votes.choice === "Yes") return votes.sum
+        return votes.choice === "Yes" ? votes.sum : 0
       }
     )
     const voteNo = data.proposal.points.map(
       (votes: ModelDaoProposalVoteCount) => {
-        if (votes.choice === "No") return votes.sum
+        return votes.choice === "No" ? votes.sum : 0
       }
     )
     const voteAbstain = data.proposal.points.map(
       (votes: ModelDaoProposalVoteCount) => {
-        if (votes.choice === "Abstain") return votes.sum
+        return votes.choice === "Abstain" ? votes.sum : 0
       }
     )
     const voteTotal = +voteYes + +voteNo + +voteAbstain
@@ -192,11 +192,11 @@ async function checkExpiredProposal(
           composeEmbedMessage(null, {
             title: `**${title}** Vote results`,
             description: `The vote result is recorded from <t:${startTime}> to <t:${stopTime}>\nYes: ${
-              (voteYes / voteTotal) * 100
+              voteTotal > 0 ? (voteYes / voteTotal) * 100 : 0
             }% (${voteYes} votes)\nNo: ${
-              (voteNo / voteTotal) * 100
+              voteTotal > 0 ? (voteNo / voteTotal) * 100 : 0
             }% (${voteNo} votes)\nAbstain: ${
-              (voteAbstain / voteTotal) * 100
+              voteTotal > 0 ? (voteAbstain / voteTotal) * 100 : 0
             }% (${voteAbstain} votes)\n\nTotal votes: ${voteTotal}`,
           }),
         ],
@@ -240,7 +240,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
       throw new APIError({ curl, description: log, error })
     }
     if (!data.is_wallet_connected) {
-      return await i
+      await i
         .editReply({
           embeds: [
             getErrorEmbed({
@@ -251,18 +251,20 @@ export async function handleProposalForm(i: ButtonInteraction) {
           ],
         })
         .catch(() => null)
+      return
     }
     if (!data.is_qualified) {
-      return await i
+      await i
         .editReply({
           embeds: [
             getErrorEmbed({
               title: "Insufficient token amount",
-              description: `You need to own at least ${data.vote_config.required_amount} **${data.vote_config.symbol}** to post a proposal.`,
+              description: `You need to own at least ${data.guild_config.required_amount} **${data.guild_config.symbol}** to post a proposal.`,
             }),
           ],
         })
-        .catch(() => null)
+        .catch((err) => console.log(err))
+      return
     }
   }
   const dm = await i.user.send({
