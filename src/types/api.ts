@@ -370,6 +370,15 @@ export interface ModelGuildConfigWelcomeChannel {
   welcome_message?: string;
 }
 
+export interface ModelGuildConfigXPRole {
+  created_at?: string;
+  guild_id?: string;
+  id?: number;
+  required_xp?: number;
+  role_id?: string;
+  updated_at?: string;
+}
+
 export interface ModelGuildRole {
   guild_id?: string;
   name?: string;
@@ -818,6 +827,12 @@ export interface RequestCreateGuildTokenRole {
   chain: string;
   guild_id: string;
   role_id: string;
+}
+
+export interface RequestCreateGuildXPRole {
+  guild_id: string;
+  role_id: string;
+  xp?: number;
 }
 
 export interface RequestCreateNFTCollectionRequest {
@@ -1296,6 +1311,10 @@ export interface ResponseCreateEnvelop {
 
 export interface ResponseCreateGuildTokenRole {
   data?: ModelGuildConfigTokenRole;
+}
+
+export interface ResponseCreateGuildXPRole {
+  data?: ModelGuildConfigXPRole;
 }
 
 export interface ResponseCreateNFTCollectionResponse {
@@ -1913,6 +1932,10 @@ export interface ResponseListGuildNFTRoleConfigsResponse {
 
 export interface ResponseListGuildTokenRoles {
   data?: ModelGuildConfigTokenRole[];
+}
+
+export interface ResponseListGuildXPRoles {
+  data?: ModelGuildConfigXPRole[];
 }
 
 export interface ResponseListMyGuildsResponse {
