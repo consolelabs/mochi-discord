@@ -3,7 +3,7 @@ import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX, XP_ROLE_GITBOOK } from "utils/constants"
-import { setConfigXPRole } from "./processor"
+import { isInvalidAmount, setConfigXPRole } from "./processor"
 import { GuildIdNotFoundError, InternalError } from "errors"
 
 const command: SlashCommand = {
@@ -35,12 +35,7 @@ const command: SlashCommand = {
     }
     const role = interaction.options.getRole("role", true)
     const amount = interaction.options.getNumber("amount", true)
-    if (
-      Number.isNaN(amount) ||
-      !Number.isInteger(amount) ||
-      amount < 0 ||
-      amount >= Infinity
-    ) {
+    if (isInvalidAmount(amount)) {
       throw new InternalError({
         message: interaction,
         title: "Command Error",

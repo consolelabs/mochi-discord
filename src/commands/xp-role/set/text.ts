@@ -4,7 +4,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { defaultEmojis } from "utils/common"
 import { PREFIX, XP_ROLE_GITBOOK } from "utils/constants"
-import { setConfigXPRole } from "./processor"
+import { isInvalidAmount, setConfigXPRole } from "./processor"
 
 const command: Command = {
   id: "xprole_set",
@@ -41,12 +41,7 @@ const command: Command = {
     }
 
     const amount = +amountArg
-    if (
-      Number.isNaN(amount) ||
-      !Number.isInteger(amount) ||
-      amount < 0 ||
-      amount >= Infinity
-    ) {
+    if (isInvalidAmount(amount)) {
       throw new InternalError({
         message: msg,
         title: "Command Error",

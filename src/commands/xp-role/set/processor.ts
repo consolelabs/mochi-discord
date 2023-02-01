@@ -39,6 +39,15 @@ export async function setConfigXPRole(
   }
 }
 
+export function isInvalidAmount(amount: number): boolean {
+  return (
+    Number.isNaN(amount) ||
+    !Number.isInteger(amount) ||
+    amount < 0 ||
+    amount >= Infinity
+  )
+}
+
 function handleError(
   msg: Message | MessageComponentInteraction | CommandInteraction | undefined,
   error: string
