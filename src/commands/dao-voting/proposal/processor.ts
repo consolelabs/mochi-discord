@@ -116,7 +116,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
     new MessageButton({
       style: MessageButtonStyles.LINK,
       label: "Discuss",
-      url: `https://discord.com/channels/863278424433229854/${data.discussion_channel_id}`,
+      url: `https://discord.com/channels/${guild_id}/${data.discussion_channel_id}`,
     })
   )
 
