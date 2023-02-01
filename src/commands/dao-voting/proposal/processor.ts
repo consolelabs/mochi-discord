@@ -165,22 +165,25 @@ async function checkExpiredProposal(
       throw new APIError({ curl, error })
     }
 
-    const voteYes = data.proposal.points.map(
+    const voteYes = data.proposal.points.find(
       (votes: ModelDaoProposalVoteCount) => {
-        return votes.choice === "Yes" ? votes.sum : 0
+        return votes.choice === "Yes"
       }
     )
-    const voteNo = data.proposal.points.map(
+    const voteNo = data.proposal.points.find(
       (votes: ModelDaoProposalVoteCount) => {
-        return votes.choice === "No" ? votes.sum : 0
+        return votes.choice === "No"
       }
     )
-    const voteAbstain = data.proposal.points.map(
+    const voteAbstain = data.proposal.points.find(
       (votes: ModelDaoProposalVoteCount) => {
-        return votes.choice === "Abstain" ? votes.sum : 0
+        return votes.choice === "Abstain"
       }
     )
-    const voteTotal = +voteYes + +voteNo + +voteAbstain
+    const yesCount = voteYes ? voteYes.sum : 0
+    const noCount = voteNo ? voteNo.sum : 0
+    const absCount = voteAbstain ? voteAbstain.sum : 0
+    const voteTotal = yesCount + noCount + absCount
     if (key === cacheKey) {
       msg.edit({
         content: null,
@@ -192,12 +195,12 @@ async function checkExpiredProposal(
           composeEmbedMessage(null, {
             title: `**${title}** Vote results`,
             description: `The vote result is recorded from <t:${startTime}> to <t:${stopTime}>\nYes: ${
-              voteTotal > 0 ? (voteYes / voteTotal) * 100 : 0
-            }% (${voteYes} votes)\nNo: ${
-              voteTotal > 0 ? (voteNo / voteTotal) * 100 : 0
-            }% (${voteNo} votes)\nAbstain: ${
-              voteTotal > 0 ? (voteAbstain / voteTotal) * 100 : 0
-            }% (${voteAbstain} votes)\n\nTotal votes: ${voteTotal ?? 0}`,
+              voteTotal > 0 ? ((yesCount / voteTotal) * 100).toFixed(2) : 0
+            }% (${yesCount} votes)\nNo: ${
+              voteTotal > 0 ? ((noCount / voteTotal) * 100).toFixed(2) : 0
+            }% (${noCount} votes)\nAbstain: ${
+              voteTotal > 0 ? ((absCount / voteTotal) * 100).toFixed(2) : 0
+            }% (${absCount} votes)\n\nTotal votes: ${voteTotal}`,
           }),
         ],
         components: [],
