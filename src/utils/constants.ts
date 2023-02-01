@@ -101,6 +101,10 @@ export const TOKEN_ROLE_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/token-role" +
   "&command=tokenrole"
+export const XP_ROLE_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/xp-role" +
+  "&command=xprole"
 export const GM_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/gm-gn" +
