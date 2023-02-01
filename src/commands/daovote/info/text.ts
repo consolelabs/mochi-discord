@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { getEmoji } from "utils/common"
+import { getEmoji, shortenHashOrAddress } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 
@@ -47,7 +47,7 @@ const command: Command = {
               data.proposal_channel_id
             }>\n${getEmoji("pointingright")} **Token**: ${
               data.symbol
-            }\n${getEmoji(
+            } (${shortenHashOrAddress(data.address)})\n${getEmoji(
               "pointingright"
             )} **Proposal creator**: ${authority}\n${
               data.required_amount
