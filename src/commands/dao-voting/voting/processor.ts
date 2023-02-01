@@ -40,7 +40,6 @@ export async function handleProposalVote(i: ButtonInteraction) {
       })
       .catch(() => null)
   }
-  // TODO: Check token holder balance
   if (wData.is_qualified === false) {
     return await i
       .editReply({
@@ -81,8 +80,9 @@ export async function handleProposalVote(i: ButtonInteraction) {
     embeds: [
       getSuccessEmbed({
         title: "Successfully voted",
-        description: `You have updated your vote successfully ${choice} for **${i.message.embeds[0].title?.slice(
-          6
+        description: `You have updated your vote successfully ${choice} for**${i.message.embeds[0].title?.replace(
+          getEmoji("MAIL"),
+          ""
         )}**. Thank you for your vote ${getEmoji("HEART")}`,
       }),
     ],

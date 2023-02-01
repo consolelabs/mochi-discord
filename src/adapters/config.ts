@@ -33,6 +33,7 @@ import {
   RequestDeleteMonikerConfigRequest,
   RequestUpsertMonikerConfigRequest,
   ResponseListGuildTokenRoles,
+  ResponseListGuildXPRoles,
 } from "types/api"
 import { TEST } from "env"
 
@@ -1026,6 +1027,34 @@ class Config extends Fetcher {
         method: "DELETE",
       }
     )
+  }
+
+  public async setConfigXPRole(req: {
+    guild_id: string
+    role_id: string
+    xp: number
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-roles/xp-roles`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  public async getConfigXPRoleList(guild_id: string) {
+    return await this.jsonFetch<ResponseListGuildXPRoles>(
+      `${API_BASE_URL}/config-roles/xp-roles`,
+      {
+        query: {
+          guild_id,
+        },
+      }
+    )
+  }
+
+  public async removeGuildXPRoleConfig(id: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-roles/xp-roles/${id}`, {
+      method: "DELETE",
+    })
   }
 }
 

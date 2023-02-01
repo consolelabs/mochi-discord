@@ -72,6 +72,7 @@ import watchlist from "./watchlist"
 import welcome from "./welcome/index"
 import withdraw from "./withdraw"
 import tokenrole from "./token-role"
+import xprole from "./xp-role"
 
 CacheManager.init({
   ttl: 0,
@@ -108,6 +109,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   deposit: deposit.slashCmd,
   sendxp: sendxp.slashCmd,
   tokenrole: tokenrole.slashCmd,
+  xprole: xprole.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -143,6 +145,7 @@ export const originalCommands: Record<string, Command> = {
   daovote: daovote.textCmd,
   levelmessage: levelmessage.textCmd,
   tokenrole: tokenrole.textCmd,
+  xprole: xprole.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
   log: log.textCmd,
