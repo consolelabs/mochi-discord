@@ -197,7 +197,7 @@ async function checkExpiredProposal(
               voteTotal > 0 ? (voteNo / voteTotal) * 100 : 0
             }% (${voteNo} votes)\nAbstain: ${
               voteTotal > 0 ? (voteAbstain / voteTotal) * 100 : 0
-            }% (${voteAbstain} votes)\n\nTotal votes: ${voteTotal}`,
+            }% (${voteAbstain} votes)\n\nTotal votes: ${voteTotal ?? 0}`,
           }),
         ],
         components: [],
