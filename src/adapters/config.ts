@@ -1056,6 +1056,12 @@ class Config extends Fetcher {
       method: "DELETE",
     })
   }
+
+  public async getSaleTwitterConfigs(query: { marketplace?: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/configs/twitter-sales`, {
+      query,
+    })
+  }
 }
 
 const config = new Config()

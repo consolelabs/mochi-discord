@@ -1061,6 +1061,20 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@opensea/stream-js@^0.0.20":
+  version "0.0.20"
+  resolved "https://registry.yarnpkg.com/@opensea/stream-js/-/stream-js-0.0.20.tgz#bc269a4443d912ed919c489878e5a6f36687d80f"
+  integrity sha512-T37byKLuvFRitiS4Au8gOnJGx9r9pDy2EesHoDNmtV9J1euZF5BJvZ/yfMrHhA7LmqV9+xbprTIObuJvgTp+OA==
+  dependencies:
+    phoenix "^1.6.2"
+
+"@paintswap/marketplace-interactions@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@paintswap/marketplace-interactions/-/marketplace-interactions-0.3.1.tgz#8a328982943c9ae59e7912acd066d3ce16bc9aef"
+  integrity sha512-letnS4JJtRkyPKUCJJKebnJnD5C9E0uGOfdSE4aJHuwYcVRfnKeGq5yI/Tqh0DWR+1qoVMv+rqauzWz16mKqLg==
+  dependencies:
+    ethers "^5.5.1"
+
 "@sapphire/async-queue@^1.3.1", "@sapphire/async-queue@^1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@sapphire/async-queue/-/async-queue-1.5.0.tgz#2f255a3f186635c4fb5a2381e375d3dfbc5312d8"
@@ -2579,7 +2593,7 @@ eta@1.12.3:
   resolved "https://registry.yarnpkg.com/eta/-/eta-1.12.3.tgz#2982d08adfbef39f9fa50e2fbd42d7337e7338b1"
   integrity sha512-qHixwbDLtekO/d51Yr4glcaUJCIjGVJyTzuqV4GPlgZo1YpgOKG+avQynErZIYrfM6JIJdtiG2Kox8tbb+DoGg==
 
-ethers@^5.4.7:
+ethers@^5.4.7, ethers@^5.5.1:
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==
@@ -4384,6 +4398,11 @@ pg-types@^2.2.0:
     postgres-date "~1.0.4"
     postgres-interval "^1.1.0"
 
+phoenix@^1.6.2:
+  version "1.6.15"
+  resolved "https://registry.yarnpkg.com/phoenix/-/phoenix-1.6.15.tgz#efb2088a310cde333b3762002831b79dedf76002"
+  integrity sha512-O6AG5jTkZOOkdd/GOSCsM4v3bzBoyRnC5bEi57KhX/Daba6FvnBRzt0nhEeRRiVQGLSxDlyb0dUe9CkYWMZd8g==
+
 picocolors@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.0.0.tgz#cb5bdc74ff3f51892236eaf79d68bc44564ab81c"
@@ -5355,6 +5374,11 @@ twitter-api-sdk@^1.1.0:
   dependencies:
     abort-controller "^3.0.0"
     node-fetch "^2.6.1"
+
+twitter-api-v2@^1.14.1:
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/twitter-api-v2/-/twitter-api-v2-1.14.1.tgz#fe93b430413706ee102b3b1781cd6c45a313b493"
+  integrity sha512-RTegtBS6FIjUW87gOgTAQG9zF9OvzY8ObkyUgW99tA45Scwro3ToJrdNd1Itn1SW4KIds5N5LQuy2JbUZdNbkA==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"

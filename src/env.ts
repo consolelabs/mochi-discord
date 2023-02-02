@@ -37,6 +37,13 @@ export const DISCORD_DEFAULT_AVATAR = process.env.DISCORD_DEFAULT_AVATAR || ""
 export const WEBSITE_ENDPOINT = process.env.WEBSITE_ENDPOINT || ""
 export const FIRESTORE_KEY = process.env.FIRESTORE_KEY || ""
 export const TWITTER_TOKEN = process.env.TWITTER_TOKEN || ""
+export const TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY || ""
+export const TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET || ""
+export const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN || ""
+export const TWITTER_TOKEN_SECRET = process.env.TWITTER_TOKEN_SECRET || ""
+// Opensea
+export const OPENSEA_TOKEN = process.env.OPENSEA_TOKEN || ""
+
 export const MARKETPLACE_BASE_URL =
   process.env.MARKETPLACE_BASE_URL || "https://rarepepe.gg"
 
