@@ -10,7 +10,7 @@ import InteractionManager from "handlers/discord/select-menu"
 import { logger } from "logger"
 import TwitterStream from "listeners/twitter"
 import Paintswap from "listeners/paintswap"
-// import Opensea from "listeners/opensea"
+import Opensea from "listeners/opensea"
 
 export let IS_READY = false
 
@@ -70,7 +70,7 @@ const event: DiscordEvent<"ready"> = {
 
       // initial sales listeners
       new Paintswap()
-      // new Opensea()
+      new Opensea()
     })
   },
 }

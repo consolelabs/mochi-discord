@@ -1,7 +1,6 @@
 import { MarketplaceV3 } from "@paintswap/marketplace-interactions"
-import { ethers } from "ethers"
+import providers from "utils/providers"
 
-const provider = new ethers.providers.JsonRpcProvider("https://rpc.ftm.tools/")
-const marketplace = new MarketplaceV3(provider)
+const marketplace = new MarketplaceV3(providers.ftm)
 
 export default marketplace
