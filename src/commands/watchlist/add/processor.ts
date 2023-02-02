@@ -11,7 +11,6 @@ import { getSuccessEmbed, composeEmbedMessage } from "ui/discord/embed"
 import { Coin } from "types/defi"
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
-import { InteractionHandler } from "handlers/discord/select-menu"
 import { parseTickerQuery } from "utils/defi"
 import { handleUpdateWlError } from "../processor"
 import { composeDiscordExitButton } from "ui/discord/button"
@@ -66,7 +65,7 @@ export async function addUserWatchlist(
   return data
 }
 
-const handler: InteractionHandler = async (msgOrInteraction) => {
+const handler = (symbols: string[]) => async (msgOrInteraction: any) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const remainingSymbols = interaction.customId
     .slice(interaction.customId.indexOf("|") + 1)
@@ -80,36 +79,34 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
     ...(await viewWatchlist({
       msg: message,
       symbols: remainingSymbols,
+      originSymbols: symbols,
       userId,
     })),
     interactionHandlerOptions: {
-      handler,
+      handler: handler(symbols),
     },
   }
 }
-
-let listSymbol: string
-let idx = 1
 
 export async function viewWatchlist({
   msg,
   interaction,
   symbols,
+  originSymbols,
   userId,
 }: {
   msg?: Message
   interaction?: CommandInteraction
+  originSymbols: string[]
   symbols: string[]
   userId: string
 }) {
-  const symbolString = symbols
-    .map(function (s) {
-      return s.toUpperCase()
-    })
-    .join(" ")
-  if (symbolString !== "" && idx === 1) {
-    listSymbol = symbolString
-    idx++
+  const symbolString = (symbols: string[]) => {
+    return symbols
+      .map(function (s) {
+        return s.toUpperCase()
+      })
+      .join(" ")
   }
 
   for (const [i, symbol] of symbols.entries()) {
@@ -153,7 +150,7 @@ export async function viewWatchlist({
         components: [selectRow, composeDiscordExitButton(userId)],
       },
       interactionOptions: {
-        handler,
+        handler: handler(originSymbols),
       },
     }
   }
@@ -164,7 +161,9 @@ export async function viewWatchlist({
       embeds: [
         getSuccessEmbed({
           title: "Successfully set!",
-          description: `**${listSymbol}** has been added successfully! Track it by \`$watchlist view\`.`,
+          description: `**${symbolString(
+            originSymbols
+          )}** has been added successfully! Track it by \`$watchlist view\`.`,
         }),
       ],
       components: [],

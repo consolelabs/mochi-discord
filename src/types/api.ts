@@ -459,6 +459,16 @@ export interface ModelNewListedNFTCollection {
   symbol?: string;
 }
 
+export interface ModelNftSoulbound {
+  collection_address?: string;
+  created_at?: string;
+  id?: number;
+  total_soul_bound?: number;
+  trait_type?: string;
+  updated_at?: string;
+  value?: string;
+}
+
 export interface ModelOffchainTipBotAssignContract {
   chain_id?: string;
   contract?: ModelOffchainTipBotContract;
@@ -1468,7 +1478,23 @@ export interface ResponseGetGmConfigResponse {
 }
 
 export interface ResponseGetGuildConfigDaoProposal {
-  data?: ModelGuildConfigDaoProposal;
+  data?: ResponseGetGuildConfigDaoProposalData;
+}
+
+export interface ResponseGetGuildConfigDaoProposalData {
+  address?: string;
+  authority?: string;
+  chain?: string;
+  chain_id?: number;
+  created_at?: string;
+  guideline_channel_id?: string;
+  guild_id?: string;
+  id?: number;
+  proposal_channel_id?: string;
+  required_amount?: string;
+  symbol?: string;
+  type?: string;
+  updated_at?: string;
 }
 
 export interface ResponseGetGuildDefaultNftTickerResponse {
@@ -1610,6 +1636,10 @@ export interface ResponseGetRepostReactionConfigsResponse {
 
 export interface ResponseGetSalesTrackerConfigResponse {
   data?: ModelGuildConfigSalesTracker[];
+}
+
+export interface ResponseGetSoulBoundNFTResponse {
+  data?: ModelNftSoulbound[];
 }
 
 export interface ResponseGetSuggestionNFTCollectionsResponse {

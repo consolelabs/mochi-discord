@@ -47,7 +47,9 @@ const command: Command = {
               data.proposal_channel_id
             }>\n${getEmoji("pointingright")} **Token**: ${
               data.symbol
-            } (${shortenHashOrAddress(data.address)})\n${getEmoji(
+            } (${shortenHashOrAddress(
+              data.address
+            )}) - ${data.chain.toUpperCase()}\n${getEmoji(
               "pointingright"
             )} **Proposal creator**: ${authority}\n${
               data.required_amount
