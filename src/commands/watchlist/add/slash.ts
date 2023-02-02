@@ -29,7 +29,12 @@ const command: SlashCommand = {
       .map((s) => s.trim())
       .filter((s) => !!s)
     const userId = interaction.user.id
-    return await viewWatchlist({ interaction, symbols, userId })
+    return await viewWatchlist({
+      interaction,
+      symbols,
+      originSymbols: symbols,
+      userId,
+    })
   },
   help: async (interaction) => ({
     embeds: [

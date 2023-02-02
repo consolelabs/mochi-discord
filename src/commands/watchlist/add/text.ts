@@ -15,7 +15,12 @@ const command: Command = {
       .slice(2)
       .map((s) => s.trim())
       .filter((s) => !!s)
-    return await viewWatchlist({ msg, symbols, userId: msg.author.id })
+    return await viewWatchlist({
+      msg,
+      symbols,
+      originSymbols: symbols,
+      userId: msg.author.id,
+    })
   },
   getHelpMessage: async (msg) => ({
     embeds: [
