@@ -6,7 +6,7 @@ import { APIError } from "errors"
 import { logger } from "logger"
 import fetch from "node-fetch"
 import { EUploadMimeType } from "twitter-api-v2"
-import { getTokenUri } from "utils/erc721"
+import { getTokenMetadata, getTokenUri, standardizeIpfsUrl } from "utils/erc721"
 import providers from "utils/providers"
 
 class Paintswap {
@@ -42,23 +42,24 @@ class Paintswap {
 
   private async handleNewSale(sale: Sold, col: any) {
     // 1. upload tweet image
-    const tokenUri = await getTokenUri(
-      providers.ftm,
-      sale.nft,
-      sale.tokenID.toNumber()
-    )
-    const response = await fetch(tokenUri)
-    const arrayBuffer = await response.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-    const mediaId = await twitter?.v1.uploadMedia(buffer, {
-      mimeType: EUploadMimeType.Png,
-    })
+    const tokenId = sale.tokenID.toString()
+    const tokenUri = await getTokenUri(providers.ftm, sale.nft, +tokenId)
+    const metadata = await getTokenMetadata(tokenUri)
+    let mediaId: string | undefined
+    if (metadata?.image) {
+      const imageUrl = standardizeIpfsUrl(metadata?.image)
+      const response = await fetch(imageUrl)
+      const arrayBuffer = await response.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+      mediaId = await twitter?.v1.uploadMedia(buffer, {
+        mimeType: EUploadMimeType.Png,
+      })
+    }
     // 2. compose status
+    const price = +sale.priceTotal.toString() / Math.pow(10, 18)
     const status = `${
       col.collection_name
-    } ${sale.tokenID.toNumber()} SOLD for ${
-      sale.priceTotal.toNumber() / Math.pow(10, 18)
-    } FTM\n\n→ https://paintswap.finance/marketplace/${sale.marketplaceId.toNumber()}\n\n@pod_town`
+    } ${tokenId} SOLD for ${price} FTM\n\n→ https://paintswap.finance/marketplace/${sale.marketplaceId.toNumber()}\n\n@pod_town`
     // 3. post tweet
     await twitter?.v2.tweet(status, {
       ...(mediaId && {

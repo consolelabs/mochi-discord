@@ -4,7 +4,7 @@ import stream from "clients/opensea-stream"
 import { twitterUserClient as twitter } from "clients/twitter"
 import { logger } from "logger"
 import { ItemSoldEvent } from "@opensea/stream-js"
-import { getTokenUri } from "utils/erc721"
+import { getTokenMetadata, getTokenUri, standardizeIpfsUrl } from "utils/erc721"
 import providers from "utils/providers"
 import { EUploadMimeType } from "twitter-api-v2"
 
@@ -42,19 +42,21 @@ class Opensea {
 
   private async handleNewSale(event: ItemSoldEvent, col: any) {
     // 1. upload tweet image
-    const tokenUri = await getTokenUri(
-      providers.eth,
-      col.address,
-      +event.payload.item.nft_id
-    )
-    const response = await fetch(tokenUri)
-    const arrayBuffer = await response.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-    const mediaId = await twitter?.v1.uploadMedia(buffer, {
-      mimeType: EUploadMimeType.Png,
-    })
+    const tokenId = +event.payload.item.nft_id
+    const tokenUri = await getTokenUri(providers.eth, col.address, tokenId)
+    const metadata = await getTokenMetadata(tokenUri)
+    let mediaId: string | undefined
+    if (metadata?.image) {
+      const imageUrl = standardizeIpfsUrl(metadata?.image)
+      const response = await fetch(imageUrl)
+      const arrayBuffer = await response.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+      mediaId = await twitter?.v1.uploadMedia(buffer, {
+        mimeType: EUploadMimeType.Png,
+      })
+    }
     // 2. compose status
-    const status = `${col.collection_name} ${event.payload.item.nft_id} SOLD for ${event.payload.sale_price} ETH\n\n→ ${event.payload.item.permalink}\n\n@pod_town`
+    const status = `${col.collection_name} ${tokenId} SOLD for ${event.payload.sale_price} ETH\n\n→ ${event.payload.item.permalink}\n\n@pod_town`
     // 3. post tweet
     await twitter?.v2.tweet(status, {
       ...(mediaId && {
