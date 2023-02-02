@@ -4,7 +4,7 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { Message } from "discord.js"
 import { getCommandArguments } from "utils/commands"
-import { twitter } from "listeners/twitter"
+import { twitterAppClient } from "clients/twitter"
 import { APIError, CommandArgumentError, GuildIdNotFoundError } from "errors"
 
 const command: Command = {
@@ -18,8 +18,8 @@ const command: Command = {
     const arg = getCommandArguments(msg)[4]
     const isUsername = arg.startsWith("@")
     const twitterRes = await (isUsername
-      ? twitter.users.findUserByUsername(arg.slice(1))
-      : twitter.users.findUserById(arg))
+      ? twitterAppClient.users.findUserByUsername(arg.slice(1))
+      : twitterAppClient.users.findUserById(arg))
     if (twitterRes.errors || !twitterRes.data) {
       throw new CommandArgumentError({
         message: msg,

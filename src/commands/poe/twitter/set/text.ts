@@ -6,7 +6,7 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { emojis, getEmojiURL } from "utils/common"
 import { getMessageBody } from "../processor"
-import TwitterStream from "listeners/twitter/watcher"
+import TwitterStream from "listeners/twitter"
 
 export const fromPrefix = "from:"
 const hashtagPrefix = "#"

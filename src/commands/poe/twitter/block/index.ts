@@ -4,7 +4,7 @@ import { PREFIX, TWITTER_PROFILE_REGEX } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { Message } from "discord.js"
 import { getCommandArguments } from "utils/commands"
-import { twitter } from "listeners/twitter"
+import { twitterAppClient } from "clients/twitter"
 import list from "./list/text"
 import remove from "./remove/text"
 import { APIError, CommandArgumentError, GuildIdNotFoundError } from "errors"
@@ -45,7 +45,7 @@ const command: Command = {
       username: "",
     }
     try {
-      const twitterRes = await twitter.users.findUserByUsername(handle)
+      const twitterRes = await twitterAppClient.users.findUserByUsername(handle)
       twitterData.id = twitterRes.data?.id
       twitterData.username = twitterRes.data?.username
     } catch (e) {
