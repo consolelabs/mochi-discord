@@ -265,6 +265,53 @@ export async function composeCollectionInfoEmbed(
   }
 }
 
+export async function composeCollectionSoulboundEmbed(
+  msg: Message,
+  collectionAddress: string,
+  chain: string
+) {
+  const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
+    collectionAddress,
+    chain
+  )
+  if (!ok) {
+    throw new APIError({ message: msg, curl: curl, description: log })
+  }
+  if (!data) {
+    throw new InternalError({
+      message: msg,
+      description: "The collection does not exist. Please choose another one.",
+    })
+  }
+
+  const name = `${data.name ?? "-"}`
+  const collectionImage = data.image ?? getEmojiURL(emojis["NFTS"])
+  const desc = `
+    SAN NFTs, after being minted can be traded for speculative investing, or “Soulbound”. Soulbinding locks the NFT to your specific wallet forever, which thereby creates a unique login identifier for the SAN Sound platform.\n
+    The platform that the SAN ecosystem is centered around, “SAN Sound,” comprises a novel approach to the radio streaming model where subscribers must mint and, later, Soulbind their SAN NFT to gain login access.\n
+    Additional access perks include entry to global SAN music events and limited-edition collectibles, such as audio hardware, physical art, and fashion apparel.
+  `
+
+  const embed = composeEmbedMessage(msg, {
+    author: [`${name}`, collectionImage],
+    description: desc,
+    image:
+      "https://cdn.discordapp.com/attachments/967480994481438780/1070602776276652062/1728de264e1c0237aca023dd0b98d688_1.jpg",
+  })
+
+  const buttonRow = buildSwitchViewActionRow("info", {
+    collectionAddress,
+    chain,
+  }).addComponents(getExitButton(getOriginAuthorId()))
+
+  return {
+    messageOptions: {
+      embeds: [justifyEmbedFields(embed, 3)],
+      components: [buttonRow],
+    },
+  }
+}
+
 // render canvas for nft list and nft recent
 export async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   const container: RectangleStats = {
