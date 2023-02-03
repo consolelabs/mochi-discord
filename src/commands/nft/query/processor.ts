@@ -43,7 +43,10 @@ import {
 import dayjs from "dayjs"
 import { renderChartImage } from "ui/canvas/chart"
 import { wrapError } from "utils/wrap-error"
-import { composeCollectionInfoEmbed } from "../processor"
+import {
+  composeCollectionInfoEmbed,
+  composeCollectionSoulboundEmbed,
+} from "../processor"
 import { getSuggestionComponents } from "ui/discord/select-menu"
 
 const rarityColors: Record<string, string> = {
@@ -135,6 +138,19 @@ export function buildSwitchViewActionRow(
     })
 
     row.addComponents([nftButton, tickerButton, collectionInfoButton])
+
+    // currently support SAN collection first
+    // TODO(trkhoi): refactor for generic
+    if (collectionAddress === "0x33333333333371718A3C2bB63E5F3b94C9bC13bE") {
+      const soulboundButton = new MessageButton({
+        label: "Soulbound",
+        emoji: emojis.SOULBOUND,
+        customId: `nft-view/soulbound/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
+        style: "SECONDARY",
+        disabled: currentView === "soulbound",
+      })
+      row.addComponents([soulboundButton])
+    }
     return row
   }
 }
@@ -181,6 +197,15 @@ async function switchView(i: ButtonInteraction, msg: Message) {
         chain
       )
       break
+    case "soulbound":
+      messageOptions = await composeCollectionSoulbound(
+        msg,
+        symbol,
+        collectionAddress,
+        tokenId,
+        chain
+      )
+      break
     case "nft":
     default:
       messageOptions = await fetchAndComposeNFTDetail(
@@ -213,6 +238,33 @@ async function composeCollectionInfo(
     components: [
       buildSwitchViewActionRow(
         "info",
+        symbol,
+        collectionAddress,
+        tokenId,
+        chain
+      ),
+    ],
+  }
+}
+
+async function composeCollectionSoulbound(
+  msg: Message,
+  symbol: string,
+  collectionAddress: string,
+  tokenId: string,
+  chain: string
+) {
+  const { messageOptions } = await composeCollectionSoulboundEmbed(
+    msg,
+    collectionAddress,
+    chain
+  )
+  return {
+    ...messageOptions,
+    files: [],
+    components: [
+      buildSwitchViewActionRow(
+        "soulbound",
         symbol,
         collectionAddress,
         tokenId,
@@ -431,6 +483,25 @@ export async function composeNFTDetail(
   if (!isValidHttpUrl(image)) {
     nftImage = image_cdn ?? ""
   }
+  const attributesFiltered = attributes.filter(
+    (obj: { trait_type: string }) => {
+      return obj.trait_type !== ""
+    }
+  )
+
+  // handle soulbound
+  let soulbound = ``
+  const soulboundObj = attributesFiltered.find(
+    (obj: { trait_type: string }) => {
+      return obj.trait_type === "soulbound"
+    }
+  )
+  if (typeof soulboundObj !== "undefined") {
+    if (soulboundObj.value === "True") {
+      soulbound = `**SOULBOUND**`
+    }
+  }
+
   // set rank, rarity score empty if have data
   const rarityRate = rarity?.rarity
     ? `**${DOT}** ${getRarityEmoji(rarity.rarity)}`
@@ -442,14 +513,8 @@ export async function composeNFTDetail(
     ? ` **・Owner:** \`${shortenHashOrAddress(owner.owner_address)}\``
     : ""
   description += rarity?.rank
-    ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate}`
+    ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate} ${soulbound}`
     : ""
-
-  const attributesFiltered = attributes.filter(
-    (obj: { trait_type: string }) => {
-      return obj.trait_type !== ""
-    }
-  )
 
   // Attributes fields
   const attributeFields: EmbedFieldData[] = attributesFiltered
