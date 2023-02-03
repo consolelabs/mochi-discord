@@ -202,6 +202,7 @@ export const emojis: { [key: string]: string } = {
   IDENTITY: "🪪",
   NFT: "🖼",
   TICKER: "📈",
+  SOULBOUND: "1058304336842727544",
   INFO: "🔎",
   RED_FLAG: "🚩",
   FLOORPRICE: "1029662833144766464",
