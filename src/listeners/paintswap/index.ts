@@ -1,5 +1,6 @@
 import { Sold } from "@paintswap/marketplace-interactions/dist/lib/marketplaceV3Types"
 import config from "adapters/config"
+import defi from "adapters/defi"
 import paintswap from "clients/paintswap"
 import { twitterUserClient as twitter } from "clients/twitter"
 import { APIError } from "errors"
@@ -57,9 +58,17 @@ class Paintswap {
     }
     // 2. compose status
     const price = +sale.priceTotal.toString() / Math.pow(10, 18)
-    const status = `${
-      col.collection_name
-    } ${tokenId} SOLD for ${price} FTM\n\n→ https://paintswap.finance/marketplace/${sale.marketplaceId.toNumber()}\n\n@pod_town`
+    const res = await defi.getFtmPrice()
+    const json = await res.json().catch(() => null)
+    const ftmPrice = json?.status === "1" ? `@ $${json?.result?.ethusd}` : ""
+    const infos = [
+      "🖌️ PaintSwap",
+      `🧾 Collection: ${col.collection_name}`,
+      `🖼️ Token: #${tokenId}\n`,
+      `💰 Sold: ${price} FTM ${ftmPrice}\n`,
+      `https://paintswap.finance/marketplace/${sale.marketplaceId.toNumber()}\n\n@pod_town`,
+    ]
+    const status = infos.join("\n")
     // 3. post tweet
     await twitter?.v2.tweet(status, {
       ...(mediaId && {

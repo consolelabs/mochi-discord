@@ -1,4 +1,5 @@
 import { CommandInteraction, Message } from "discord.js"
+import { FTMSCAN_API_KEY } from "env"
 import { APIError } from "errors"
 import fetch from "node-fetch"
 import {
@@ -353,6 +354,18 @@ class Defi extends Fetcher {
       `${API_BASE_URL}/tip/onchain/${userId}/balances`,
       { method: "GET" }
     )
+  }
+
+  async getFtmPrice() {
+    const queries = {
+      module: "stats",
+      action: "ftmprice",
+      apikey: FTMSCAN_API_KEY,
+    }
+    const queryStr = Object.entries(queries)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("&")
+    return await fetch(`${FTMSCAN_API}?${queryStr}`)
   }
 }
 
