@@ -1,0 +1,77 @@
+import { slashCommands } from "commands"
+import { CommandInteraction, MessageEmbed, MessageOptions } from "discord.js"
+import { RunResult } from "types/common"
+import { getErrorEmbed } from "ui/discord/embed"
+import { getEmoji } from "utils/common"
+import { assertRunResult } from "../../../../tests/assertions/discord"
+import mockdc from "../../../../tests/mocks/discord"
+import * as processor from "./processor"
+
+describe("run", () => {
+  let i: CommandInteraction
+  const monikerCmd = slashCommands["moniker"]
+
+  beforeEach(() => (i = mockdc.cloneCommandInteraction()))
+
+  test("missing arguments error", async () => {
+    i.options.getString = jest.fn().mockReturnValue(null)
+    const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
+    const expected = {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            description: "Missing arguments",
+          }),
+        ],
+      },
+    }
+    assertRunResult(output, expected)
+  })
+
+  test("moniker default list successfully", async () => {
+    i.options.getString = jest.fn().mockReturnValueOnce("list")
+    const expected = new MessageEmbed({
+      title: `${getEmoji("bucket_cash")} Moniker List`,
+    })
+    expected
+      .addFields({
+        name: "\u200B",
+        value: `This is our default moniker! ${getEmoji(
+          "boo"
+        )}\n👉 To set yours, run $monikers set \`<moniker> <amount_token> <token>\`!`,
+      })
+      .addFields(
+        { name: "Moniker", value: "", inline: true },
+        { name: "Value", value: "", inline: true }
+      )
+    jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce({
+      embeds: [expected],
+    })
+    const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
+    expect(processor.handleMonikerList).toBeCalledWith(i.guildId)
+    assertRunResult(output, { messageOptions: { embeds: [expected] } })
+  })
+
+  test("moniker default list successfully", async () => {
+    i.options.getString = jest.fn().mockReturnValueOnce("list")
+    const expected = new MessageEmbed({
+      title: `${getEmoji("bucket_cash")} Moniker List`,
+    })
+    expected
+      .addFields({
+        name: "\u200B",
+        value:
+          "👉To set more monikers, run `$monikers set <moniker> <amount_token> <token>`!\n👉 For example, try `$monikers set tea 1 BUTT`",
+      })
+      .addFields(
+        { name: "Moniker", value: "", inline: true },
+        { name: "Value", value: "", inline: true }
+      )
+    jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce({
+      embeds: [expected],
+    })
+    const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
+    expect(processor.handleMonikerList).toBeCalledWith(i.guildId)
+    assertRunResult(output, { messageOptions: { embeds: [expected] } })
+  })
+})
