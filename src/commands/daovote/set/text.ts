@@ -195,7 +195,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
         composeEmbedMessage(null, {
           title: `${getEmoji("approve")} Successfully set`,
           description: `${getEmoji(
-            "point_right"
+            "pointingright"
           )} All proposals will be posted and voted in the <#${channelId}>`,
         }),
       ],

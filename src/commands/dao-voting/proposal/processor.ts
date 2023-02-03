@@ -17,6 +17,7 @@ import {
   getSuccessEmbed,
 } from "ui/discord/embed"
 import { composeButtonLink } from "ui/discord/button"
+import profile from "adapters/profile"
 
 let proposalTitle = ""
 let proposalDesc = ""
@@ -212,6 +213,7 @@ async function checkExpiredProposal(
 // clicked from guild
 export async function handleProposalForm(i: ButtonInteraction) {
   await i.deferReply({ ephemeral: true })
+  if (!i.member || !i.guild) return
   const guidelineChannelId = i.customId.split("-")[2]
   const authority = i.customId.split("-")[3]
 
@@ -243,13 +245,17 @@ export async function handleProposalForm(i: ButtonInteraction) {
       throw new APIError({ curl, description: log, error })
     }
     if (!data.is_wallet_connected) {
+      const json = await profile.generateVerificationCode(
+        i.member.user.id,
+        i.guild.id
+      )
+      const code = !json.error ? json.code : ""
       await i
         .editReply({
           embeds: [
             getErrorEmbed({
               title: "Wallet not connected",
-              description:
-                "Please [Connect your wallet](https://mochi.gg/verify?code=30a5bf5f-20d2-434f-a20f-2c03dc5e386f) to gain the authority to create a proposal. ",
+              description: `Please [Connect your wallet](https://mochi.gg/verify?code=${code}) to gain the authority to create a proposal.`,
             }),
           ],
         })
