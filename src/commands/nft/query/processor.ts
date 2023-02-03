@@ -497,7 +497,7 @@ export async function composeNFTDetail(
       return obj.trait_type === "soulbound"
     }
   )
-  if (soulbound) {
+  if (typeof soulboundObj !== "undefined") {
     if (soulboundObj.value === "True") {
       soulbound = `**SOULBOUND**`
     }
