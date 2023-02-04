@@ -5,8 +5,8 @@ import paintswap from "clients/paintswap"
 import { twitterUserClient as twitter } from "clients/twitter"
 import { APIError } from "errors"
 import { logger } from "logger"
-import fetch from "node-fetch"
 import { EUploadMimeType } from "twitter-api-v2"
+import { pullImage } from "utils/common"
 import { getTokenMetadata, getTokenUri, standardizeIpfsUrl } from "utils/erc721"
 import providers from "utils/providers"
 
@@ -31,9 +31,7 @@ class Paintswap {
       {}
     )
     paintswap.onSold(async (sale) => {
-      logger.info(
-        `[Paintswap] New sale: ${sale.nft} - ${sale.marketplaceId.toNumber()}`
-      )
+      logger.info(`[Paintswap] New sale: ${sale.nft}/${sale.marketplaceId}`)
       const addr = sale.nft.toLowerCase()
       if (!Object.keys(collections).includes(addr)) return
       const col = collections[addr]
@@ -48,10 +46,7 @@ class Paintswap {
     const metadata = await getTokenMetadata(tokenUri)
     let mediaId: string | undefined
     if (metadata?.image) {
-      const imageUrl = standardizeIpfsUrl(metadata?.image)
-      const response = await fetch(imageUrl)
-      const arrayBuffer = await response.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
+      const buffer = await pullImage(standardizeIpfsUrl(metadata?.image))
       mediaId = await twitter?.v1.uploadMedia(buffer, {
         mimeType: EUploadMimeType.Png,
       })
@@ -66,7 +61,8 @@ class Paintswap {
       `🧾 Collection: ${col.collection_name}`,
       `🖼️ Token: #${tokenId}\n`,
       `💰 Sold: ${price} FTM ${ftmPrice}\n`,
-      `https://paintswap.finance/marketplace/${sale.marketplaceId.toNumber()}\n\n@pod_town`,
+      `https://paintswap.finance/marketplace/${sale.marketplaceId.toNumber()}\n`,
+      "@pod_town",
     ]
     const status = infos.join("\n")
     // 3. post tweet
