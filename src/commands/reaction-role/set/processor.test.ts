@@ -74,7 +74,7 @@ describe("handleRoleSet", () => {
     const expected = composeEmbedMessage(null, {
       author: ["Reaction role set!", getEmojiURL(emojis["APPROVE"])],
       description:
-        "Emoji <:pepe_raincoat:123123123> is now set to this role <@&$123123123>",
+        "Emoji <:pepe_raincoat:123123123> is now set to this role <@&123123123>",
       color: msgColors.SUCCESS,
     })
     expect(reactMessage.react).toHaveBeenCalled()
@@ -117,6 +117,9 @@ describe("validateCommandArgument", () => {
           cache: {
             get: jest.fn().mockReturnValue(channel),
           },
+        },
+        emojis: {
+          cache: [{ id: "123123123" }],
         },
       },
     } as unknown as Message
