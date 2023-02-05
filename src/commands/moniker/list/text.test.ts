@@ -58,8 +58,8 @@ describe("run", () => {
           "👉To set more monikers, run `$monikers set <moniker> <amount_token> <token>`!\n👉 For example, try `$monikers set tea 1 BUTT`",
       })
       .addFields(
-        { name: "Moniker", value: "", inline: true },
-        { name: "Value", value: "", inline: true }
+        { name: "Moniker", value: "moniker", inline: true },
+        { name: "Value", value: "value", inline: true }
       )
     jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce({
       embeds: [expected],

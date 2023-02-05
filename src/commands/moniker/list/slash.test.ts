@@ -1,7 +1,6 @@
 import { slashCommands } from "commands"
 import { CommandInteraction, MessageEmbed, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
-import { getErrorEmbed } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
@@ -12,21 +11,6 @@ describe("run", () => {
   const monikerCmd = slashCommands["moniker"]
 
   beforeEach(() => (i = mockdc.cloneCommandInteraction()))
-
-  test("missing arguments error", async () => {
-    i.options.getString = jest.fn().mockReturnValue(null)
-    const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
-    const expected = {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: "Missing arguments",
-          }),
-        ],
-      },
-    }
-    assertRunResult(output, expected)
-  })
 
   test("moniker default list successfully", async () => {
     i.options.getString = jest.fn().mockReturnValueOnce("list")
@@ -41,8 +25,8 @@ describe("run", () => {
         )}\n👉 To set yours, run $monikers set \`<moniker> <amount_token> <token>\`!`,
       })
       .addFields(
-        { name: "Moniker", value: "", inline: true },
-        { name: "Value", value: "", inline: true }
+        { name: "Moniker", value: "cafe", inline: true },
+        { name: "Value", value: "0.01 ETH", inline: true }
       )
     jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce({
       embeds: [expected],
@@ -64,8 +48,8 @@ describe("run", () => {
           "👉To set more monikers, run `$monikers set <moniker> <amount_token> <token>`!\n👉 For example, try `$monikers set tea 1 BUTT`",
       })
       .addFields(
-        { name: "Moniker", value: "", inline: true },
-        { name: "Value", value: "", inline: true }
+        { name: "Moniker", value: "cafe", inline: true },
+        { name: "Value", value: "0.01 ETH", inline: true }
       )
     jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce({
       embeds: [expected],

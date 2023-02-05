@@ -15,7 +15,7 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg: Message) {
-    if (!msg.guild) {
+    if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
@@ -33,7 +33,7 @@ const command: Command = {
     const token = args[amountIdx + 1].toUpperCase()
     const moniker = args.slice(2, amountIdx).join(" ").trim()
     const payload: RequestUpsertMonikerConfigRequest = {
-      guild_id: msg.guild.id,
+      guild_id: msg.guildId,
       moniker,
       amount,
       token,
