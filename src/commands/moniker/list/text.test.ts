@@ -35,8 +35,8 @@ describe("run", () => {
         )}\n👉 To set yours, run $monikers set \`<moniker> <amount_token> <token>\`!`,
       })
       .addFields(
-        { name: "Moniker", value: "", inline: true },
-        { name: "Value", value: "", inline: true }
+        { name: "Moniker", value: "moniker", inline: true },
+        { name: "Value", value: "value", inline: true }
       )
     jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce({
       embeds: [expected],
