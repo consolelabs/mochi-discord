@@ -19,6 +19,7 @@ describe("run", () => {
 
   test("guild not found", async () => {
     msg.guildId = null
+    msg.content = "$moniker list"
     await expect(monikerCmd.run(msg)).rejects.toThrow(GuildIdNotFoundError)
   })
 
@@ -38,9 +39,7 @@ describe("run", () => {
         { name: "Moniker", value: "moniker", inline: true },
         { name: "Value", value: "value", inline: true }
       )
-    jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce({
-      embeds: [expected],
-    })
+    jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce([expected])
     const output = (await monikerCmd.run(msg)) as RunResult<MessageOptions>
     assertTitle(output, expected)
     assertDescription(output, expected)
@@ -61,9 +60,7 @@ describe("run", () => {
         { name: "Moniker", value: "moniker", inline: true },
         { name: "Value", value: "value", inline: true }
       )
-    jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce({
-      embeds: [expected],
-    })
+    jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce([expected])
     const output = (await monikerCmd.run(msg)) as RunResult<MessageOptions>
     assertTitle(output, expected)
     assertDescription(output, expected)

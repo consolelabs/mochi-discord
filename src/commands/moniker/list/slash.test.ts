@@ -28,9 +28,7 @@ describe("run", () => {
         { name: "Moniker", value: "cafe", inline: true },
         { name: "Value", value: "0.01 ETH", inline: true }
       )
-    jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce({
-      embeds: [expected],
-    })
+    jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce([expected])
     const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
     expect(processor.handleMonikerList).toBeCalledWith(i.guildId)
     assertRunResult(output, { messageOptions: { embeds: [expected] } })
@@ -51,9 +49,7 @@ describe("run", () => {
         { name: "Moniker", value: "cafe", inline: true },
         { name: "Value", value: "0.01 ETH", inline: true }
       )
-    jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce({
-      embeds: [expected],
-    })
+    jest.spyOn(processor, "handleMonikerList").mockResolvedValueOnce([expected])
     const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
     expect(processor.handleMonikerList).toBeCalledWith(i.guildId)
     assertRunResult(output, { messageOptions: { embeds: [expected] } })
