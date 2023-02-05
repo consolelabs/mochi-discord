@@ -182,6 +182,13 @@ export type RoleReactionConfigResponse = {
   success: boolean
 }
 
+export type ReactionRoleListConfigItem = {
+  role?: string
+  emoji?: string
+  url?: string
+  title?: string
+}
+
 export type DefaultRoleEvent = {
   guild_id: string
   role_id: string

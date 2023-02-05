@@ -15,6 +15,54 @@ export const handleRoleSet = async (
   args: string[],
   msg: Message | CommandInteraction
 ) => {
+  const { guildId, channelId, roleId, reactMessage, reaction } =
+    await validateCommandArgument(args, msg)
+
+  const requestData: RoleReactionEvent = {
+    guild_id: guildId,
+    message_id: reactMessage.id,
+    reaction,
+    role_id: roleId,
+    channel_id: channelId,
+  }
+
+  const res = await config.updateReactionConfig(requestData)
+  if (!res.ok) {
+    throw new InternalError({
+      message: msg,
+      title: "Role has been used",
+      description: `Use another role to set the reaction role\n${defaultEmojis.POINT_RIGHT} To see used roles, run $rr list\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+    })
+  }
+
+  await reactMessage.react(requestData.reaction).catch(() => null)
+  const embed = composeEmbedMessage(null, {
+    author: ["Reaction role set!", getEmojiURL(emojis["APPROVE"])],
+    description: `Emoji ${requestData.reaction} is now set to this role <@&${requestData.role_id}>`,
+    color: msgColors.SUCCESS,
+  })
+
+  return {
+    embeds: [embed],
+  }
+}
+
+export const handleRoleSetHelpCmd = async (msg: Message) => {
+  return {
+    embeds: [
+      composeEmbedMessage(msg, {
+        description: `Don't know where to get the message link?${troubleshootMsg}\n\n*Note:\n👉 Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
+        usage: `${PREFIX}rr set <message_link> <emoji> <role>`,
+        examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
+      }),
+    ],
+  }
+}
+
+export const validateCommandArgument = async (
+  args: string[],
+  msg: Message | CommandInteraction
+) => {
   if (!msg.guild) {
     throw new GuildIdNotFoundError({ message: msg })
   }
@@ -65,43 +113,11 @@ export const handleRoleSet = async (
     })
   }
 
-  const requestData: RoleReactionEvent = {
-    guild_id: msg.guild.id,
-    message_id: reactMessage.id,
+  return {
+    guildId: msg.guild.id,
+    channelId: channel.id,
+    roleId,
+    reactMessage,
     reaction,
-    role_id: roleId,
-    channel_id: channel.id,
-  }
-
-  const res = await config.updateReactionConfig(requestData)
-  if (!res.ok) {
-    throw new InternalError({
-      message: msg,
-      title: "Role has been used",
-      description: `Use another role to set the reaction role\n${defaultEmojis.POINT_RIGHT} To see used roles, run $rr list\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
-    })
-  }
-
-  await reactMessage.react(requestData.reaction).catch(() => null)
-  const embed = composeEmbedMessage(null, {
-    author: ["Reaction role set!", getEmojiURL(emojis["APPROVE"])],
-    description: `Emoji ${requestData.reaction} is now set to this role <@&${requestData.role_id}>`,
-    color: msgColors.SUCCESS,
-  })
-
-  return {
-    embeds: [embed],
-  }
-}
-
-export const handleRoleSetHelpCmd = async (msg: Message) => {
-  return {
-    embeds: [
-      composeEmbedMessage(msg, {
-        description: `Don't know where to get the message link?${troubleshootMsg}\n\n*Note:\n👉 Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
-        usage: `${PREFIX}rr set <message_link> <emoji> <role>`,
-        examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
-      }),
-    ],
   }
 }
