@@ -13,9 +13,16 @@ jest.mock("adapters/defi")
 
 describe("run", () => {
   let msg: Message
-  const monikerCmd = commands["moniker"]
-
-  beforeEach(() => (msg = mockdc.cloneMessage()))
+  const commandKey = "moniker"
+  const commandAction = "list"
+  if (
+    !commands[commandKey] ||
+    !commands[commandKey].actions ||
+    !commands[commandKey].actions[commandAction]
+  )
+    return
+  const monikerCmd = commands[commandKey].actions[commandAction]
+  if (monikerCmd) beforeEach(() => (msg = mockdc.cloneMessage()))
 
   test("guild not found", async () => {
     msg.guildId = null

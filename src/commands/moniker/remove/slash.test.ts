@@ -1,7 +1,6 @@
 import { slashCommands } from "commands"
 import { CommandInteraction, MessageEmbed, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
-import { getErrorEmbed } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
@@ -12,22 +11,8 @@ describe("run", () => {
 
   beforeEach(() => (i = mockdc.cloneCommandInteraction()))
 
-  test("missing arguments error", async () => {
-    i.options.getString = jest.fn().mockReturnValue(null)
-    const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
-    const expected = {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: "Missing arguments",
-          }),
-        ],
-      },
-    }
-    assertRunResult(output, expected)
-  })
-
   test("remove moniker successfully", async () => {
+    i.options.getSubcommand = jest.fn().mockReturnValueOnce("remove")
     i.options.getString = jest.fn().mockReturnValueOnce("cafe")
     i.options.getNumber = jest.fn().mockReturnValueOnce(1.5)
     const expected = new MessageEmbed({

@@ -13,7 +13,7 @@ describe("run", () => {
   beforeEach(() => (i = mockdc.cloneCommandInteraction()))
 
   test("moniker default list successfully", async () => {
-    i.options.getString = jest.fn().mockReturnValueOnce("list")
+    i.options.getSubcommand = jest.fn().mockReturnValueOnce("list")
     const expected = new MessageEmbed({
       title: `${getEmoji("bucket_cash")} Moniker List`,
     })
@@ -35,7 +35,7 @@ describe("run", () => {
   })
 
   test("moniker default list successfully", async () => {
-    i.options.getString = jest.fn().mockReturnValueOnce("list")
+    i.options.getSubcommand = jest.fn().mockReturnValueOnce("list")
     const expected = new MessageEmbed({
       title: `${getEmoji("bucket_cash")} Moniker List`,
     })

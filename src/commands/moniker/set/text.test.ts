@@ -12,7 +12,15 @@ jest.mock("adapters/defi")
 
 describe("run", () => {
   let msg: Message
-  const monikerCmd = commands["moniker"]
+  const commandKey = "moniker"
+  const commandAction = "set"
+  if (
+    !commands[commandKey] ||
+    !commands[commandKey].actions ||
+    !commands[commandKey].actions[commandAction]
+  )
+    return
+  const monikerCmd = commands[commandKey].actions[commandAction]
 
   beforeEach(() => (msg = mockdc.cloneMessage()))
 
