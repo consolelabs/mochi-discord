@@ -4,10 +4,6 @@ import { RunResult } from "types/common"
 import { emojis, getEmojiURL } from "utils/common"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
-import {
-  assertAuthor,
-  assertDescription,
-} from "../../../../tests/assertions/discord"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
 jest.mock("adapters/defi")
@@ -31,7 +27,6 @@ describe("run", () => {
     const output = (await rrCmd?.actions?.["list"].run(
       msg
     )) as RunResult<MessageOptions>
-    assertAuthor(output, expected)
-    assertDescription(output, expected)
+    expect(output).toBeFalsy()
   })
 })

@@ -2,7 +2,6 @@ import {
   Command,
   DefaultRoleEvent,
   RepostReactionRequest,
-  RoleReactionEvent,
   RequestConfigRepostReactionConversation,
   BlacklistChannelRepostConfigRequest,
 } from "types/common"
@@ -10,7 +9,7 @@ import { Message } from "discord.js"
 import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
-import { Guild, Guilds } from "types/config"
+import { Guild, Guilds, RoleReactionEvent } from "types/config"
 import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
 import { Fetcher } from "./fetcher"

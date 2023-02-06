@@ -1,3 +1,7 @@
+import {
+  ReactionRoleListConfigGroup,
+  ReactionRoleListPaginated,
+} from "./../../../types/config"
 import { CommandInteraction, Message, MessageEmbed } from "discord.js"
 import config from "adapters/config"
 import { APIError, InternalError } from "errors"
@@ -18,7 +22,7 @@ import {
   ResponseRole,
   ResponseRoleReactionByMessage,
 } from "./../../../types/api"
-import { ReactionRoleListConfigItem } from "types/common"
+import { ReactionRoleListConfigItem } from "types/config"
 
 export const handleRoleList = async (msg: Message | CommandInteraction) => {
   if (!msg.guildId || !msg.guild) {
@@ -47,10 +51,10 @@ export const handleRoleList = async (msg: Message | CommandInteraction) => {
 }
 
 export const getEmbedPagination = async (
-  pages: ReactionRoleListConfigItem[][][],
+  pages: ReactionRoleListPaginated,
   msg: Message | CommandInteraction
 ) => {
-  if (!pages?.length) {
+  if (!pages.totalPage) {
     return {
       embeds: [
         composeEmbedMessage(null, {
@@ -61,19 +65,20 @@ export const getEmbedPagination = async (
     }
   }
   if (msg.type === "DEFAULT") {
-    const embedPages = pages.map(
-      (arr: ReactionRoleListConfigItem[][], idx: number): MessageEmbed => {
-        const [col1, col2] = getDisplayColumnText(arr)
-        return composeEmbedMessage(msg, {
+    const embedPages: MessageEmbed[] = []
+    pages.items.forEach((arr: ReactionRoleListConfigGroup[], idx: number) => {
+      const [col1, col2] = getDisplayColumnText(arr)
+      embedPages.push(
+        composeEmbedMessage(msg, {
           author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
           description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
-          footer: [`Page ${idx + 1} / ${pages.length}`],
+          footer: [`Page ${idx + 1} / ${pages.totalPage}`],
         }).addFields(
           { name: "\u200B", value: col1, inline: true },
           { name: "\u200B", value: col2, inline: true }
         )
-      }
-    )
+      )
+    })
     if (!embedPages.length) {
       return {
         embeds: [
@@ -99,19 +104,20 @@ export const getEmbedPagination = async (
     })
     return result
   } else {
-    const embedPages = pages.map(
-      (arr: ReactionRoleListConfigItem[][], idx: number): MessageEmbed => {
-        const [col1, col2] = getDisplayColumnText(arr)
-        return composeEmbedMessage2(msg as CommandInteraction, {
+    const embedPages: MessageEmbed[] = []
+    pages.items.forEach((arr: ReactionRoleListConfigGroup[], idx: number) => {
+      const [col1, col2] = getDisplayColumnText(arr)
+      embedPages.push(
+        composeEmbedMessage2(msg as CommandInteraction, {
           author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
           description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
-          footer: [`Page ${idx + 1} / ${pages.length}`],
+          footer: [`Page ${idx + 1} / ${pages.totalPage}`],
         }).addFields(
           { name: "\u200B", value: col1, inline: true },
           { name: "\u200B", value: col2, inline: true }
         )
-      }
-    )
+      )
+    })
     if (!embedPages.length) {
       return {
         embeds: [
@@ -141,27 +147,27 @@ export const getEmbedPagination = async (
   }
 }
 
-export const getDisplayColumnText = (arr: ReactionRoleListConfigItem[][]) => {
-  let col1 = ""
-  let col2 = ""
-  arr.forEach((group: ReactionRoleListConfigItem[]) => {
+export const getDisplayColumnText = (arr: ReactionRoleListConfigGroup[]) => {
+  let infoColumn = ""
+  let jumpColumn = ""
+  arr.forEach((group: ReactionRoleListConfigGroup) => {
     let roleCount = 0
-    col1 += `\n**${truncate(group[0].title, { length: 20 })}**\n`
-    group.forEach((item: ReactionRoleListConfigItem) => {
-      col1 += `${getEmoji("blank")}${getEmoji("reply")} ${item.emoji} ${
+    infoColumn += `\n**${truncate(group.title, { length: 20 })}**\n`
+    group.values.forEach((item: ReactionRoleListConfigItem) => {
+      infoColumn += `${getEmoji("blank")}${getEmoji("reply")} ${item.emoji} ${
         item.role
       }\n`
       roleCount++
     })
-    col2 += `**[Jump](${group[0].url})**\n\n` + "\n".repeat(roleCount)
+    jumpColumn += `**[Jump](${group.url})**\n\n` + "\n".repeat(roleCount)
   })
-  return [col1, col2]
+  return [infoColumn, jumpColumn]
 }
 
 export const getPaginatedConfigs = async (
   data: ResponseRoleReactionByMessage[],
   msg: Message | CommandInteraction
-): Promise<ReactionRoleListConfigItem[][][]> => {
+): Promise<ReactionRoleListPaginated> => {
   let values = await Promise.all(
     data.map(async (cfg) => {
       const channel = msg.guild?.channels.cache.get(cfg.channel_id ?? "") // user already has message in the channel => channel in cache
@@ -179,24 +185,35 @@ export const getPaginatedConfigs = async (
           description: "Message not found",
         })
       }
-
-      if (cfg.roles && cfg.roles.length > 0) {
+      // map config role by message_id
+      if (cfg.roles?.length) {
         const title =
           reactMessage.content ||
           reactMessage.embeds?.[0]?.title ||
           reactMessage.embeds?.[0]?.description ||
           "Embed Message"
 
-        const f = cfg.roles.map((role: ResponseRole) => ({
-          role: `<@&${role.id}>`,
-          emoji: role.reaction,
+        const f: ReactionRoleListConfigItem[] = cfg.roles.map(
+          (role: ResponseRole): ReactionRoleListConfigItem => ({
+            role: `<@&${role.id}>`,
+            emoji: role.reaction,
+          })
+        )
+        return {
           url: reactMessage.url,
           title,
-        }))
-        return f
+          values: f,
+        } as ReactionRoleListConfigGroup
       }
     })
   )
   values = values.filter((v) => Boolean(v))
-  return paginate(values, 5)
+  const paginated: ReactionRoleListConfigGroup[][] = paginate(values, 5)
+  const configMap = new Map<number, ReactionRoleListConfigGroup[]>()
+  paginated.forEach((item, idx) => configMap.set(idx, item))
+  const result: ReactionRoleListPaginated = {
+    totalPage: paginated.length ?? 0,
+    items: configMap,
+  }
+  return result
 }

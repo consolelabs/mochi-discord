@@ -23,11 +23,7 @@ const command: Command = {
   canRunWithoutAction: true,
   colorType: "Server",
   run: async (msg: Message) => {
-    return {
-      messageOptions: {
-        ...(await handleRoleList(msg)),
-      },
-    }
+    await handleRoleList(msg)
   },
 }
 

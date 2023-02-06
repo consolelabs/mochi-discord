@@ -1,6 +1,6 @@
 import { CommandInteraction, Message } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
-import { RoleReactionEvent } from "types/common"
+import { RoleReactionEvent } from "types/config"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import { isDiscordMessageLink, defaultEmojis } from "utils/common"
@@ -28,11 +28,18 @@ export const handleRoleSet = async (
 
   const res = await config.updateReactionConfig(requestData)
   if (!res.ok) {
-    throw new InternalError({
-      message: msg,
-      title: "Role has been used",
-      description: `Use another role to set the reaction role\n${defaultEmojis.POINT_RIGHT} To see used roles, run $rr list\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
-    })
+    if (res.originalError?.includes("role has been used")) {
+      throw new InternalError({
+        message: msg,
+        title: "Role has been used",
+        description: `Use another role to set the reaction role\n${defaultEmojis.POINT_RIGHT} To see used roles, run $rr list\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+      })
+    } else {
+      throw new InternalError({
+        message: msg,
+        description: `Message not found, please choose another valid message.${troubleshootMsg}`,
+      })
+    }
   }
 
   await reactMessage.react(requestData.reaction).catch(() => null)

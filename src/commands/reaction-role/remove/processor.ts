@@ -1,9 +1,8 @@
 import { CommandInteraction, Message } from "discord.js"
 import config from "adapters/config"
-import { BotBaseError, GuildIdNotFoundError, InternalError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { logger } from "ethers"
-import ChannelLogger from "logger/channel"
-import { RoleReactionEvent } from "types/common"
+import { RoleReactionEvent } from "types/config"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
   isDiscordMessageLink,
@@ -44,40 +43,31 @@ export const handleRoleRemove = async (
   }
 
   let description = ""
-  try {
-    const res = await config.removeReactionConfig(requestData)
-    if (res.ok) {
-      const { reaction, role_id } = requestData
-      if (reaction && role_id) {
-        description = `Reaction ${reaction} is removed for <@&${role_id}>.`
-        const emojiSplit = reaction.split(":")
-        const reactionEmoji =
-          emojiSplit.length === 1 ? reaction : reaction.replace(/\D/g, "")
-        const msgReaction = message.reactions.cache.get(reactionEmoji)
-        if (msgReaction) {
-          await msgReaction.remove().catch((e) => {
-            logger.info(e)
-          })
-        }
-      } else {
-        description = `All reaction role configurations for this message is now clear.`
-        message.reactions.removeAll().catch((e) => {
-          logger.info(e)
-        })
-      }
-    } else {
-      throw new InternalError({
-        message: msg,
-        title: "Unsuccessful",
-        description: `You haven't set this reaction role yet. To set a new one, run \`\`\`${PREFIX}rr set <message_link> <emoji> <role>\`\`\`\n You can remove it later using \`${PREFIX}rr remove\`.`,
-      })
-    }
-  } catch (error) {
-    ChannelLogger.log(error as BotBaseError)
+  const res = await config.removeReactionConfig(requestData)
+  if (!res.ok) {
     throw new InternalError({
       message: msg,
       title: "Unsuccessful",
       description: `You haven't set this reaction role yet. To set a new one, run \`\`\`${PREFIX}rr set <message_link> <emoji> <role>\`\`\`\n You can remove it later using \`${PREFIX}rr remove\`.`,
+    })
+  }
+
+  const { reaction, role_id } = requestData
+  if (reaction && role_id) {
+    description = `Reaction ${reaction} is removed for <@&${role_id}>.`
+    const emojiSplit = reaction.split(":")
+    const reactionEmoji =
+      emojiSplit.length === 1 ? reaction : reaction.replace(/\D/g, "")
+    const msgReaction = message.reactions.cache.get(reactionEmoji)
+    if (msgReaction) {
+      await msgReaction.remove().catch((e) => {
+        logger.info(e)
+      })
+    }
+  } else {
+    description = `All reaction role configurations for this message is now clear.`
+    message.reactions.removeAll().catch((e) => {
+      logger.info(e)
     })
   }
 

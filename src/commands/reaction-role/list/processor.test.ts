@@ -1,9 +1,16 @@
 import { truncate } from "lodash"
-import { ReactionRoleListConfigItem } from "./../../../types/common"
+import {
+  ReactionRoleListConfigGroup,
+  ReactionRoleListPaginated,
+} from "./../../../types/config"
 import * as processor from "./processor"
 import mockdc from "../../../../tests/mocks/discord"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
-import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
+import {
+  composeEmbedMessage,
+  composeEmbedMessage2,
+  getErrorEmbed,
+} from "ui/discord/embed"
 import {
   assertAuthor,
   assertDescription,
@@ -17,47 +24,54 @@ jest.mock("handlers/discord/button")
 jest.mock("adapters/config")
 
 describe("getDisplayColumnText", () => {
-  const data: ReactionRoleListConfigItem[][] = [
-    [
-      {
-        role: "test",
-        emoji: "test",
-        url: "test",
-        title: "test",
-      },
-    ],
+  const data: ReactionRoleListConfigGroup[] = [
+    {
+      url: "test",
+      title: "test",
+      values: [
+        {
+          role: "test",
+          emoji: "test",
+        },
+      ],
+    },
   ]
 
   test("should return proper two columns", async () => {
     const [col1, col2] = processor.getDisplayColumnText(data)
     const expectedCol1 =
-      `\n**${truncate(data[0][0].title, { length: 20 })}**\n` +
-      `${getEmoji("blank")}${getEmoji("reply")} ${data[0][0].emoji} ${
-        data[0][0].role
+      `\n**${truncate(data[0].title, { length: 20 })}**\n` +
+      `${getEmoji("blank")}${getEmoji("reply")} ${data[0].values[0].emoji} ${
+        data[0].values[0].role
       }\n`
-    const expectedCol2 = `**[Jump](${data[0][0].url})**\n\n` + "\n".repeat(1)
+    const expectedCol2 = `**[Jump](${data[0].url})**\n\n` + "\n".repeat(1)
     expect(col1).toEqual(expectedCol1)
     expect(col2).toEqual(expectedCol2)
   })
 })
 
 describe("getEmbedPagination", () => {
-  const pages: ReactionRoleListConfigItem[][][] = [
-    [
-      [
+  const mockedConfigMap = new Map<number, ReactionRoleListConfigGroup[]>()
+  mockedConfigMap.set(0, [
+    {
+      url: "test",
+      title: "test",
+      values: [
         {
           role: "test",
           emoji: "test",
-          url: "test",
-          title: "test",
         },
       ],
-    ],
-  ]
-  const mockedCol1 =
+    },
+  ])
+  const pages: ReactionRoleListPaginated = {
+    totalPage: 1,
+    items: mockedConfigMap,
+  }
+  const mockedInfoColumn =
     `\n**${truncate("test", { length: 20 })}**\n` +
     `${getEmoji("blank")}${getEmoji("reply")} test test\n`
-  const mockedCol2 = "**[Jump](test)**\n\n" + "\n".repeat(1)
+  const mockedJumpColumn = "**[Jump](test)**\n\n" + "\n".repeat(1)
 
   test("with type Message", async () => {
     const msg = mockdc.cloneMessage()
@@ -67,8 +81,8 @@ describe("getEmbedPagination", () => {
       description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
       footer: ["Page 1 / 1"],
     }).addFields(
-      { name: "\u200B", value: mockedCol1, inline: true },
-      { name: "\u200B", value: mockedCol2, inline: true }
+      { name: "\u200B", value: mockedInfoColumn, inline: true },
+      { name: "\u200B", value: mockedJumpColumn, inline: true }
     )
     assertAuthor({ messageOptions: output }, expected)
     assertDescription({ messageOptions: output }, expected)
@@ -85,8 +99,8 @@ describe("getEmbedPagination", () => {
       description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
       footer: ["Page 1 / 1"],
     }).addFields(
-      { name: "\u200B", value: mockedCol1, inline: true },
-      { name: "\u200B", value: mockedCol2, inline: true }
+      { name: "\u200B", value: mockedInfoColumn, inline: true },
+      { name: "\u200B", value: mockedJumpColumn, inline: true }
     )
     assertAuthor({ messageOptions: output }, expected)
     assertDescription({ messageOptions: output }, expected)
@@ -104,6 +118,18 @@ describe("handleRoleList", () => {
       avatarURL: jest.fn().mockReturnValueOnce("test"),
     },
   } as unknown as Message
+
+  test("should throw error when guild not found", async () => {
+    const msg = {} as unknown as Message
+    const expected = getErrorEmbed({
+      title: "This command must be run in a guild",
+      description:
+        "User invoked a command that was likely in a DM because guild id can not be found",
+    })
+    const output = await processor.handleRoleList(msg)
+    assertAuthor({ messageOptions: output }, expected)
+    assertDescription({ messageOptions: output }, expected)
+  })
 
   test("should response with no role config msg", async () => {
     jest.spyOn(config, "listAllReactionRoles").mockResolvedValueOnce({
@@ -136,6 +162,19 @@ describe("handleRoleList", () => {
       message_id: "test",
       channel_id: "test",
     }
+    const mockedConfigMap = new Map<number, ReactionRoleListConfigGroup[]>()
+    mockedConfigMap.set(0, [
+      {
+        url: "https://discord.com/channels/test/test/test",
+        title: "test",
+        values: [
+          {
+            role: "<@&test>",
+            emoji: "test",
+          },
+        ],
+      },
+    ])
     jest.spyOn(config, "listAllReactionRoles").mockResolvedValueOnce({
       data: {
         configs: [mockConfig],
@@ -146,18 +185,10 @@ describe("handleRoleList", () => {
       log: "",
       curl: "",
     })
-    jest.spyOn(processor, "getPaginatedConfigs").mockResolvedValueOnce([
-      [
-        [
-          {
-            role: mockConfig?.roles?.[0].id,
-            emoji: mockConfig?.roles?.[0].reaction,
-            url: "https://discord.com/channels/test/test/test",
-            title: "test",
-          },
-        ],
-      ],
-    ])
+    jest.spyOn(processor, "getPaginatedConfigs").mockResolvedValueOnce({
+      totalPage: 1,
+      items: mockedConfigMap,
+    })
     const output = await processor.handleRoleList(msg)
     const expected = composeEmbedMessage(null, {
       author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
@@ -220,18 +251,23 @@ describe("getPaginatedConfigs", () => {
       },
     ]
     const output = await processor.getPaginatedConfigs(mockData, msg)
-    const expected: ReactionRoleListConfigItem[][][] = [
-      [
-        [
+    const mockedConfigMap = new Map<number, ReactionRoleListConfigGroup[]>()
+    mockedConfigMap.set(0, [
+      {
+        url: "https://discord.com/channels/test/test/test",
+        title: "test",
+        values: [
           {
             role: "<@&test>",
             emoji: "test",
-            title: "test",
-            url: "https://discord.com/channels/test/test/test",
           },
         ],
-      ],
-    ]
+      },
+    ])
+    const expected: ReactionRoleListPaginated = {
+      totalPage: 1,
+      items: mockedConfigMap,
+    }
     expect(msg.guild?.channels.cache.get).toHaveBeenCalled()
     expect(msg.guild?.channels.cache.get).toHaveBeenCalledWith(
       mockData[0].channel_id
