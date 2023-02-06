@@ -1,6 +1,6 @@
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { handleRoleRemove } from "./processor"
@@ -34,18 +34,6 @@ const command: SlashCommand = {
       )
   },
   run: async (interaction: CommandInteraction) => {
-    if (!interaction.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              description: "This command must be run in a guild",
-              originalMsgAuthor: interaction.user,
-            }),
-          ],
-        },
-      }
-    }
     const messageLink = interaction.options.getString("message_link", true)
     const role = interaction.options.getRole("role", false)
     const emoji = interaction.options.getString("emoji", false)
