@@ -19,16 +19,27 @@ export async function deposit(
       ? msgOrInteraction.author
       : msgOrInteraction.user
   try {
-    const { ok, status, curl, log, data } =
+    const { ok, status, curl, log, data, error } =
       await defi.offchainTipBotAssignContract({
         user_id: author.id,
         token_symbol: tokenSymbol,
       })
     if (!ok && status === 404) {
+      let description
+      switch (error?.toLowerCase()) {
+        case "contract not found or already assigned":
+          description = `${getEmoji(
+            "nekosad"
+          )} Unfortunately, no **${tokenSymbol.toUpperCase()}** contract is available at this time. Please try again later`
+          break
+        default:
+          description = `**${tokenSymbol.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`
+          break
+      }
       throw new InternalError({
         title: "Command error",
         message: msg,
-        description: `**${tokenSymbol.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+        description,
       })
     }
     if (!ok) {
