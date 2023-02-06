@@ -79,8 +79,8 @@ const event: DiscordEvent<"guildMemberAdd"> = {
           member.user.avatarURL() ?? ""
         )
       }
-      welcomeNewMember(member)
-      sendDMToUser(member.guild.name, data.invitee_id)
+      await welcomeNewMember(member)
+      await sendDMToUser(member.guild.name, data.invitee_id)
     })
   },
 }
@@ -127,10 +127,9 @@ function sendInviteTrackerMessage(
 }
 
 async function setUserDefaultRoles(member: Discord.GuildMember) {
-  const res = await config.getCurrentDefaultRole(member.guild.id)
-
-  if (res.ok && res.data.role_id) {
-    await member.roles.add(res.data.role_id)
+  const { ok, data } = await config.getCurrentDefaultRole(member.guild.id)
+  if (ok && data.role_id) {
+    await member.roles.add(data.role_id)
   }
 }
 

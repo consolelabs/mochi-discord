@@ -251,6 +251,15 @@ export interface ModelGuildConfigDaoProposal {
   updated_at?: string;
 }
 
+export interface ModelGuildConfigDaoTracker {
+  channel_id?: string;
+  created_at?: string;
+  guild_id?: string;
+  id?: string;
+  space?: string;
+  updated_at?: string;
+}
+
 export interface ModelGuildConfigDefaultCollection {
   address?: string;
   chain_id?: string;
@@ -463,7 +472,7 @@ export interface ModelNftSoulbound {
   collection_address?: string;
   created_at?: string;
   id?: number;
-  total_soul_bound?: number;
+  total_soulbound?: number;
   trait_type?: string;
   updated_at?: string;
   value?: string;
@@ -612,6 +621,24 @@ export interface ModelQuestUserReward {
   reward_type_id?: string;
   start_time?: string;
   user_id?: string;
+}
+
+export interface ModelSaleBotMarketplace {
+  id?: number;
+  name?: string;
+  url?: string;
+}
+
+export interface ModelSaleBotTwitterConfig {
+  address?: string;
+  chain_id?: number;
+  collection_name?: string;
+  created_at?: string;
+  id?: number;
+  marketplace?: ModelSaleBotMarketplace;
+  marketplace_id?: number;
+  slug?: string;
+  updated_at?: string;
 }
 
 export interface ModelToken {
@@ -885,6 +912,12 @@ export interface RequestCreateTradeOfferRequest {
   want_items?: RequestTradeOfferItem[];
 }
 
+export interface RequestCreateTwitterSaleConfigRequest {
+  address?: string;
+  chain_id?: number;
+  marketplace?: string;
+}
+
 export interface RequestCreateUserRequest {
   guild_id?: string;
   id?: string;
@@ -898,6 +931,10 @@ export interface RequestDeleteDiscordUserAlertRequest {
 }
 
 export interface RequestDeleteGuildConfigDaoProposal {
+  id?: string;
+}
+
+export interface RequestDeleteGuildConfigDaoTracker {
   id?: string;
 }
 
@@ -1129,6 +1166,12 @@ export interface RequestUpsertGmConfigRequest {
   sticker?: string;
 }
 
+export interface RequestUpsertGuildConfigDaoTracer {
+  channel_id?: string;
+  guild_id?: string;
+  snapshot_url?: string;
+}
+
 export interface RequestUpsertGuildDefaultCurrencyRequest {
   Symbol?: string;
   guild_id?: string;
@@ -1337,6 +1380,10 @@ export interface ResponseCreateProposalChannelConfigResponse {
 
 export interface ResponseCreateTradeOfferResponse {
   data?: ModelTradeOffer;
+}
+
+export interface ResponseCreateTwitterSaleConfigResponse {
+  data?: ModelSaleBotTwitterConfig;
 }
 
 export interface ResponseCurrentUserUpvoteStreakResponse {
@@ -1634,6 +1681,10 @@ export interface ResponseGetRepostReactionConfigsResponse {
   data?: ModelGuildConfigRepostReaction[];
 }
 
+export interface ResponseGetSaleTwitterConfigResponse {
+  data?: ModelSaleBotTwitterConfig[];
+}
+
 export interface ResponseGetSalesTrackerConfigResponse {
   data?: ModelGuildConfigSalesTracker[];
 }
@@ -1759,6 +1810,10 @@ export interface ResponseGetWatchlistResponse {
 export interface ResponseGetWelcomeChannelConfigResponse {
   data?: ModelGuildConfigWelcomeChannel;
   message?: string;
+}
+
+export interface ResponseGuildConfigDaoTrackerResponse {
+  data?: ModelGuildConfigDaoTracker[];
 }
 
 export interface ResponseGuildConfigDefaultCurrencyResponse {
