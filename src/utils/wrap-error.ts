@@ -102,7 +102,7 @@ export async function wrapError(
         }
         await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
       } catch (error) {
-        logger.error("[KafkaQueue] - failed to enqueue")
+        logger.error("[wrapError] kafkaQueue?.produceBatch() failed")
       }
       return
     }
@@ -110,6 +110,8 @@ export async function wrapError(
     // if it reaches here then we're screwed
     if (e instanceof Error && e.stack) {
       ChannelLogger.alertStackTrace(e.stack).catch(catchAll)
+      return
     }
+    logger.error(`[wrapError] ${func.name}() error: ${e}`)
   }
 }
