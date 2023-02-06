@@ -70,3 +70,5 @@ export const KAFKA_PRODUCER_TOPIC =
 // 10. USE_EXTERNAL_STICKERS
 // 11. USE_APPLICATION_COMMANDS
 export const DEFAULT_BOT_INVITE_URL = `https://discord.com/api/oauth2/authorize?client_id=${APPLICATION_ID}&permissions=1513976417281&scope=bot%20applications.commands`
+
+export const FTMSCAN_API_KEY = process.env.FTMSCAN_API_KEY || ""

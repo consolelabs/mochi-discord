@@ -3,7 +3,7 @@ import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
 const command: Command = {
   id: "daovote_remove",
@@ -24,6 +24,21 @@ const command: Command = {
     if (!okGet) {
       throw new APIError({ message: msg, description: logGet, curl: curlGet })
     }
+    if (data === null) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              title: "No config found",
+              description: `${getEmoji(
+                "pointingright"
+              )} You have no DAO voting channel config, you can create one by \`$daovote set <#channel> <chain/network> <token_contract>\``,
+            }),
+          ],
+        },
+      }
+    }
+
     const { ok, log, curl } = await config.deleteProposalChannelConfig({
       id: `${data.id}`,
     })

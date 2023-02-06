@@ -19,6 +19,7 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
+import fetch from "node-fetch"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
@@ -202,6 +203,7 @@ export const emojis: { [key: string]: string } = {
   IDENTITY: "🪪",
   NFT: "🖼",
   TICKER: "📈",
+  SOULBOUND: "1058304336842727544",
   INFO: "🔎",
   RED_FLAG: "🚩",
   FLOORPRICE: "1029662833144766464",
@@ -558,4 +560,10 @@ export function isStatus(shouldBeOnline: boolean) {
         m.presence?.status !== "invisible" &&
         Boolean(m.presence?.status)
       : true // if not specify online then default to get all
+}
+
+export async function pullImage(imageUrl: string): Promise<Buffer> {
+  const response = await fetch(imageUrl)
+  const arrayBuffer = await response.arrayBuffer()
+  return Buffer.from(arrayBuffer)
 }
