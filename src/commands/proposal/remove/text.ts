@@ -6,7 +6,7 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
 const command: Command = {
-  id: "daovote_remove",
+  id: "proposal_remove",
   command: "remove",
   brief: "Remove DAO vote channel",
   onlyAdministrator: true,
@@ -32,7 +32,7 @@ const command: Command = {
               title: "No config found",
               description: `${getEmoji(
                 "pointingright"
-              )} You have no DAO voting channel config, you can create one by \`$daovote set <#channel> <chain/network> <token_contract>\``,
+              )} You have no DAO voting channel config, you can create one by \`$proposal set <#channel> <chain/network> <token_contract>\``,
             }),
           ],
         },
@@ -52,7 +52,7 @@ const command: Command = {
             title: "Successfully remove the channel",
             description: `${getEmoji(
               "pointingright"
-            )} You can create a new DAO voting channel by \`$daovote set <#channel> <chain/network> <token_contract>\``,
+            )} You can create a new DAO voting channel by \`$proposal set <#channel> <chain/network> <token_contract>\``,
           }),
         ],
       },
@@ -62,8 +62,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}daovote remove`,
-          examples: `${PREFIX}daovote remove`,
+          usage: `${PREFIX}proposal remove`,
+          examples: `${PREFIX}proposal remove`,
         }),
       ],
     }

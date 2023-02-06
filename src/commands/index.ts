@@ -41,7 +41,7 @@ import {
 import airdrop from "./airdrop"
 import balances from "./balances"
 import claim from "./claim"
-import daovote from "./daovote"
+import proposal from "./proposal"
 import defaultrole from "./default-role"
 import deposit from "./deposit"
 import feedback from "./feedback/index"
@@ -100,6 +100,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   tip: tip.slashCmd,
   balances: balances.slashCmd,
   statements: statements.slashCmd,
+  proposal: proposal.slashCmd,
   monikers: moniker.slashCmd,
   withdraw: withdraw.slashCmd,
   airdrop: airdrop.slashCmd,
@@ -142,7 +143,7 @@ export const originalCommands: Record<string, Command> = {
   monikers: moniker.textCmd,
   levelrole: levelrole.textCmd,
   nftrole: nftrole.textCmd,
-  daovote: daovote.textCmd,
+  proposal: proposal.textCmd,
   levelmessage: levelmessage.textCmd,
   tokenrole: tokenrole.textCmd,
   xprole: xprole.textCmd,

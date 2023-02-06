@@ -11,7 +11,7 @@ import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { composeDiscordExitButton } from "ui/discord/button"
 
 const command: Command = {
-  id: "daovote_set",
+  id: "proposal_set",
   command: "set",
   brief: "Configuration channel proposal",
   onlyAdministrator: true,
@@ -20,8 +20,8 @@ const command: Command = {
     if (!msg.guild) {
       throw new GuildIdNotFoundError({})
     }
-    // $daovote set <#channel> <network> <token_contract>
-    // $daovote set #channel evm 0xad29abb318791d579433d831ed122afeaf29dcfe
+    // $proposal set <#channel> <network> <token_contract>
+    // $proposal set #channel evm 0xad29abb318791d579433d831ed122afeaf29dcfe
     const args = getCommandArguments(msg)
     const chain = args[3] ?? ""
     const contract = args[4] ?? ""
@@ -78,8 +78,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}daovote set <#channel> <network> <token_contract>\n${PREFIX}daovote set <#channel>`,
-          examples: `${PREFIX}daovote set #channel eth 0xad29abb318791d579433d831ed122afeaf29dcfe\n ${PREFIX}daovote set #channel`,
+          usage: `${PREFIX}proposal set <#channel> <network> <token_contract>\n${PREFIX}proposal set <#channel>`,
+          examples: `${PREFIX}proposal set #channel eth 0xad29abb318791d579433d831ed122afeaf29dcfe\n ${PREFIX}proposal set #channel`,
         }),
       ],
     }

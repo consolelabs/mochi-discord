@@ -1062,6 +1062,30 @@ class Config extends Fetcher {
       query,
     })
   }
+
+  public async getDaoTrackerConfigs(guildId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-channels/dao-tracker/${guildId}`
+    )
+  }
+
+  public async createDaoTrackerConfigs(req: {
+    guild_id: string
+    channel_id: string
+    snapshot_url: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-channels/dao-tracker`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  public async deleteDaoTrackerConfigs(req: { id: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-channels/dao-tracker`, {
+      method: "DELETE",
+      body: req,
+    })
+  }
 }
 
 const config = new Config()

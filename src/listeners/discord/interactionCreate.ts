@@ -43,6 +43,7 @@ import {
 import { feedbackDispatcher } from "commands/feedback/index/processor"
 import { sendVerifyURL } from "commands/verify/processor"
 import { kafkaQueue } from "queue/kafka/queue"
+import { handleDaoTrackerView } from "commands/proposal/info/processor"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -339,6 +340,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("proposal-vote"):
       await handleProposalVote(i)
+      return
+    case i.customId.startsWith("proposal-info"):
+      await handleDaoTrackerView(i)
       return
     default: {
       return
