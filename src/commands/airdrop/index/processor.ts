@@ -138,7 +138,8 @@ export async function confirmAirdrop(
     authorId,
     +amount,
     cryptocurrency,
-    duration
+    duration,
+    +maxEntries
   )
 }
 
@@ -149,7 +150,8 @@ async function checkExpiredAirdrop(
   authorId: string,
   amount: number,
   cryptocurrency: string,
-  duration: string
+  duration: string,
+  maxEntries: number
 ) {
   const getParticipantsStr = (list: string[]) =>
     list
@@ -167,7 +169,9 @@ async function checkExpiredAirdrop(
       if (participants.length > 0 && msg.guildId) {
         const req: OffchainTipBotTransferRequest = {
           sender: authorId,
-          recipients: participants.map((p) => parseDiscordToken(p).value),
+          recipients: participants
+            .map((p) => parseDiscordToken(p).value)
+            .slice(0, maxEntries),
           guildId: msg.guildId,
           channelId: msg.channelId,
           amount,
