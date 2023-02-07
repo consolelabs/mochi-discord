@@ -156,32 +156,6 @@ export type EmbedProperties = {
 }
 
 // TODO: move all below
-export type Role = {
-  id: string
-  name: string
-  reaction: string
-}
-export type ReactionRoleResponse = {
-  guild_id: string
-  message_id: string
-  role: Role
-}
-
-export type RoleReactionEvent = {
-  guild_id: string
-  message_id: string
-  reaction: string
-  role_id?: string
-  channel_id: string
-}
-
-export type RoleReactionConfigResponse = {
-  guild_id: string
-  message_id: string
-  roles: Role[]
-  success: boolean
-}
-
 export type DefaultRoleEvent = {
   guild_id: string
   role_id: string
