@@ -23,13 +23,14 @@ describe("run", () => {
       title: `${getEmoji("approve")} Successfully removed`,
       description: `**cafe** is removed. To set the new one, run $moniker set <moniker> <amount_token> <token>. <a:bucket_cash:933020342035820604>`,
     })
-    const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
 
     jest.spyOn(processor, "handleRemoveMoniker").mockResolvedValueOnce({
       messageOptions: {
         embeds: [expected],
       },
     })
+
+    const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
 
     assertTitle(output, expected)
     assertDescription(output, expected)
