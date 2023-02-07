@@ -3,10 +3,10 @@ import defi from "adapters/defi"
 import { CommandInteraction } from "discord.js"
 import { APIError, InternalError } from "errors"
 import CacheManager from "cache/node-cache"
-import { composeTickerSlashResponse } from "./processor"
 import { getDefaultSetter } from "utils/default-setters"
 import { defaultEmojis } from "utils/common"
 import { SlashCommandResponse } from "types/common"
+import { composeTickerResponse } from "./processor"
 
 async function run(
   interaction: CommandInteraction,
@@ -37,9 +37,9 @@ async function run(
   }
 
   if (coins.length === 1) {
-    return await composeTickerSlashResponse({
+    return await composeTickerResponse({
       coinId: coins[0].id,
-      interaction,
+      msg: interaction,
       discordId: interaction.user.id,
       symbol: baseQ,
     })
@@ -57,9 +57,9 @@ async function run(
       }),
   })
   if (defaultTicker.ok && defaultTicker.data.default_ticker) {
-    return await composeTickerSlashResponse({
+    return await composeTickerResponse({
       coinId: defaultTicker.data.default_ticker,
-      interaction,
+      msg: interaction,
       discordId: interaction.user.id,
       symbol: baseQ,
     })
@@ -93,8 +93,8 @@ async function run(
     },
     render: ({ msgOrInteraction: interaction, value }) => {
       const [coinId] = value.split("_")
-      return composeTickerSlashResponse({
-        interaction,
+      return composeTickerResponse({
+        msg: interaction,
         coinId,
         discordId: interaction.user.id,
         symbol: baseQ,

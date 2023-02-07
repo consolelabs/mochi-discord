@@ -1,10 +1,13 @@
 import {
   APIApplicationCommandInteraction,
+  APIMessageComponentButtonInteraction,
   ApplicationCommandType,
   ChannelType,
+  ComponentType,
   InteractionType,
 } from "discord-api-types/v9"
 import {
+  ButtonInteraction,
   Channel,
   Client,
   CommandInteraction,
@@ -38,6 +41,7 @@ class MockDiscord {
   private guildMember!: GuildMember
   public message!: Message
   public commandInteraction!: CommandInteraction
+  public buttonInteraction!: ButtonInteraction
 
   constructor() {
     this.id = SnowflakeUtil.generate()
@@ -52,6 +56,7 @@ class MockDiscord {
     this.mockMessage()
     this.mockMessageFunctions()
     this.mockCommandInteraction()
+    this.mockButtonInteraction()
   }
 
   public getClient(): Client {
@@ -97,6 +102,13 @@ class MockDiscord {
     return Object.setPrototypeOf(
       Object.assign({}, this.commandInteraction),
       CommandInteraction.prototype
+    )
+  }
+
+  public cloneButtonInteraction(): ButtonInteraction {
+    return Object.setPrototypeOf(
+      Object.assign({}, this.buttonInteraction),
+      ButtonInteraction.prototype
     )
   }
 
@@ -247,6 +259,8 @@ class MockDiscord {
       catch: jest.fn(),
       ...this.message,
     }))
+    this.message.removeAttachments = jest.fn()
+    this.message.edit = jest.fn()
   }
 
   private mockCommandInteraction(): void {
@@ -278,6 +292,52 @@ class MockDiscord {
       },
     })
     this.commandInteraction.reply = jest.fn()
+  }
+
+  private mockButtonInteraction(): void {
+    this.buttonInteraction = new (ButtonInteraction as unknown as new (
+      client: Client,
+      // data: APIMessageButtonInteractionData
+      data: APIMessageComponentButtonInteraction
+    ) => ButtonInteraction)(this.client, {
+      id: "id",
+      application_id: "application-id",
+      // custom_id: "custom-id",
+      // component_type: ComponentType.Button,
+      channel_id: this.textChannel.id,
+      guild_id: this.guild.id,
+      data: {
+        custom_id: "custom-id",
+        component_type: ComponentType.Button,
+      },
+      token: "token",
+      version: 1,
+      type: InteractionType.MessageComponent,
+      locale: "en-US",
+      message: {
+        id: this.id,
+        content: "this is the message content",
+        pinned: false,
+        tts: false,
+        nonce: "nonce",
+        embeds: [],
+        attachments: [],
+        edited_timestamp: null,
+        reactions: [],
+        mentions: [],
+        mention_roles: [],
+        mention_everyone: true,
+        channel_id: this.id,
+        author: {
+          id: this.id,
+          username: "asd",
+          discriminator: "1234",
+          avatar: null,
+        },
+        timestamp: "",
+        type: 0,
+      },
+    })
   }
 }
 

@@ -11,6 +11,7 @@ import {
   MessageButton,
   MessageSelectMenu,
   SelectMenuInteraction,
+  User,
 } from "discord.js"
 import { APIError } from "errors"
 import TurndownService from "turndown"
@@ -30,6 +31,7 @@ import { composeDaysSelectMenu } from "ui/discord/select-menu"
 import { getChartColorConfig } from "ui/canvas/color"
 import { getExitButton } from "ui/discord/button"
 import { renderChartImage } from "ui/canvas/chart"
+import * as processor from "./processor"
 
 export async function renderHistoricalMarketChart({
   coinId,
@@ -117,12 +119,18 @@ export async function composeTickerResponse({
   discordId,
   symbol,
 }: {
-  msg: Message
+  msg: Message | SelectMenuInteraction | CommandInteraction
   coinId: string
   symbol: string
   days?: number
   discordId?: string
 }) {
+  let author: User
+  if (msg instanceof Message) {
+    author = msg.author
+  } else {
+    author = msg.user
+  }
   const {
     ok,
     data: coin,
@@ -148,11 +156,12 @@ export async function composeTickerResponse({
   const marketCap = +market_cap[currency]
   const blank = getEmoji("blank")
   const bb = getChance(20)
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
+    originalMsgAuthor: author,
     ...(bb && { description: "Give credit to Tsuki Bot for the idea." }),
   }).addFields([
     {
@@ -187,7 +196,7 @@ export async function composeTickerResponse({
     },
   ])
 
-  const chart = await renderHistoricalMarketChart({
+  const chart = await processor.renderHistoricalMarketChart({
     coinId: coin.id,
     bb,
     days,
@@ -204,7 +213,7 @@ export async function composeTickerResponse({
     coinId: coin.id,
     days: days ?? 30,
     symbol,
-  }).addComponents(getExitButton(msg.author.id))
+  }).addComponents(getExitButton(author.id))
 
   return {
     messageOptions: {
@@ -218,7 +227,7 @@ export async function composeTickerResponse({
   }
 }
 
-export const handler: InteractionHandler = async (msgOrInteraction) => {
+const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   await interaction.deferUpdate()
   const { message } = <{ message: Message }>interaction
@@ -263,7 +272,7 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
-export function buildSwitchViewActionRow(
+function buildSwitchViewActionRow(
   currentView: string,
   params: { coinId: string; days: number; symbol: string }
 ) {
@@ -299,10 +308,7 @@ export async function handleTickerViews(interaction: ButtonInteraction) {
   await viewTickerInfo(interaction, msg)
 }
 
-export async function viewTickerChart(
-  interaction: ButtonInteraction,
-  msg: Message
-) {
+async function viewTickerChart(interaction: ButtonInteraction, msg: Message) {
   await interaction.deferUpdate()
   const [coinId, days, symbol] = interaction.customId.split("|").slice(1)
   const { messageOptions } = await composeTickerResponse({
@@ -314,10 +320,7 @@ export async function viewTickerChart(
   await msg.edit(messageOptions)
 }
 
-export async function viewTickerInfo(
-  interaction: ButtonInteraction,
-  msg: Message
-) {
+async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
   await interaction.deferUpdate()
   const [coinId, days, symbol] = interaction.customId.split("|").slice(1)
   const { messageOptions } = await composeTokenInfoEmbed(
@@ -373,118 +376,6 @@ export async function composeTokenInfoEmbed(
     messageOptions: {
       embeds: [embed],
       components: [buttonRow],
-    },
-  }
-}
-
-// slash
-export async function composeTickerSlashResponse({
-  coinId,
-  interaction,
-  symbol,
-  days,
-  discordId,
-}: {
-  coinId: string
-  interaction: SelectMenuInteraction | CommandInteraction
-  symbol: string
-  days?: number
-  discordId?: string
-}) {
-  const {
-    ok,
-    data: coin,
-    log,
-    curl,
-  } = await CacheManager.get({
-    pool: "ticker",
-    key: `ticker-getcoin-${coinId}`,
-    call: () => defi.getCoin(coinId),
-  })
-  if (!ok) {
-    throw new APIError({
-      description: log,
-      curl,
-    })
-  }
-  const currency = "usd"
-  const {
-    market_cap,
-    current_price,
-    price_change_percentage_1h_in_currency,
-    price_change_percentage_24h_in_currency,
-    price_change_percentage_7d_in_currency,
-  } = coin.market_data
-  const currentPrice = +current_price[currency]
-  const marketCap = +market_cap[currency]
-  const blank = getEmoji("blank")
-  const bb = getChance(20)
-  const embed = composeEmbedMessage(null, {
-    color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    author: [coin.name, coin.image.small],
-    footer: ["Data fetched from CoinGecko.com"],
-    image: "attachment://chart.png",
-    // originalMsgAuthor: gMember?.user,
-    ...(bb && { description: "Give credit to Tsuki Bot for the idea." }),
-  }).addFields([
-    {
-      name: `Market cap (${currency.toUpperCase()})`,
-      value: `$${marketCap.toLocaleString()} (#${
-        coin.market_cap_rank
-      }) ${blank}`,
-      inline: true,
-    },
-    {
-      name: `Price (${currency.toUpperCase()})`,
-      value: `$${currentPrice.toLocaleString(undefined, {
-        maximumFractionDigits: 4,
-      })}`,
-      inline: true,
-    },
-    { name: "\u200B", value: "\u200B", inline: true },
-    {
-      name: "Change (1h)",
-      value: getChangePercentage(price_change_percentage_1h_in_currency.usd),
-      inline: true,
-    },
-    {
-      name: `Change (24h) ${blank}`,
-      value: getChangePercentage(price_change_percentage_24h_in_currency.usd),
-      inline: true,
-    },
-    {
-      name: "Change (7d)",
-      value: getChangePercentage(price_change_percentage_7d_in_currency.usd),
-      inline: true,
-    },
-  ])
-
-  const chart = await renderHistoricalMarketChart({
-    coinId: coin.id,
-    bb,
-    discordId,
-  })
-  const selectRow = composeDaysSelectMenu(
-    "tickers_range_selection",
-    `${coin.id}`,
-    [1, 7, 30, 60, 90, 365],
-    days
-  )
-
-  const buttonRow = buildSwitchViewActionRow("ticker", {
-    coinId: coin.id,
-    days: days ?? 7,
-    symbol,
-  }).addComponents(getExitButton(interaction.user.id))
-
-  return {
-    messageOptions: {
-      ...(chart && { files: [chart] }),
-      embeds: [embed],
-      components: [selectRow, buttonRow],
-    },
-    interactionOptions: {
-      handler,
     },
   }
 }
