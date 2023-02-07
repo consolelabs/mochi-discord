@@ -38,15 +38,16 @@ describe("getDisplayColumnText", () => {
   ]
 
   test("should return proper two columns", async () => {
-    const [col1, col2] = processor.getDisplayColumnText(data)
-    const expectedCol1 =
+    const [infoColumn, jumpBtnColumn] = processor.getDisplayInfoColumns(data)
+    const expectedInfoColumn =
       `\n**${truncate(data[0].title, { length: 20 })}**\n` +
       `${getEmoji("blank")}${getEmoji("reply")} ${data[0].values[0].emoji} ${
         data[0].values[0].role
       }\n`
-    const expectedCol2 = `**[Jump](${data[0].url})**\n\n` + "\n".repeat(1)
-    expect(col1).toEqual(expectedCol1)
-    expect(col2).toEqual(expectedCol2)
+    const expectedJumpBtnColumn =
+      `**[Jump](${data[0].url})**\n\n` + "\n".repeat(1)
+    expect(infoColumn).toEqual(expectedInfoColumn)
+    expect(jumpBtnColumn).toEqual(expectedJumpBtnColumn)
   })
 })
 

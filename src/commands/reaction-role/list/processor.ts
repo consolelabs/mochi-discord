@@ -67,15 +67,15 @@ export const getEmbedPagination = async (
   if (msg.type === "DEFAULT") {
     const embedPages: MessageEmbed[] = []
     pages.items.forEach((arr: ReactionRoleListConfigGroup[], idx: number) => {
-      const [col1, col2] = getDisplayColumnText(arr)
+      const [infoColumn, jumpBtnColumn] = getDisplayInfoColumns(arr)
       embedPages.push(
         composeEmbedMessage(msg, {
           author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
           description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
           footer: [`Page ${idx + 1} / ${pages.totalPage}`],
         }).addFields(
-          { name: "\u200B", value: col1, inline: true },
-          { name: "\u200B", value: col2, inline: true }
+          { name: "\u200B", value: infoColumn, inline: true },
+          { name: "\u200B", value: jumpBtnColumn, inline: true }
         )
       )
     })
@@ -106,15 +106,15 @@ export const getEmbedPagination = async (
   } else {
     const embedPages: MessageEmbed[] = []
     pages.items.forEach((arr: ReactionRoleListConfigGroup[], idx: number) => {
-      const [col1, col2] = getDisplayColumnText(arr)
+      const [infoColumn, jumpBtnColumn] = getDisplayInfoColumns(arr)
       embedPages.push(
         composeEmbedMessage2(msg as CommandInteraction, {
           author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
           description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
           footer: [`Page ${idx + 1} / ${pages.totalPage}`],
         }).addFields(
-          { name: "\u200B", value: col1, inline: true },
-          { name: "\u200B", value: col2, inline: true }
+          { name: "\u200B", value: infoColumn, inline: true },
+          { name: "\u200B", value: jumpBtnColumn, inline: true }
         )
       )
     })
@@ -147,7 +147,7 @@ export const getEmbedPagination = async (
   }
 }
 
-export const getDisplayColumnText = (arr: ReactionRoleListConfigGroup[]) => {
+export const getDisplayInfoColumns = (arr: ReactionRoleListConfigGroup[]) => {
   let infoColumn = ""
   let jumpColumn = ""
   arr.forEach((group: ReactionRoleListConfigGroup) => {
