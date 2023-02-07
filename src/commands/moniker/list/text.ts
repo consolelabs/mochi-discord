@@ -15,10 +15,10 @@ const command: Command = {
   brief: "List all moniker configuations",
   category: "Config",
   run: async (msg: Message) => {
-    if (!msg.guild) {
+    if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
     }
-    const pages = await handleMonikerList(msg.guild.id)
+    const pages = await handleMonikerList(msg.guildId)
     if (pages.length === 0) {
       return {
         messageOptions: {

@@ -1,12 +1,11 @@
-import config from "adapters/config"
 import { Message } from "discord.js"
-import { APIError, GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError } from "errors"
 import { RequestDeleteMonikerConfigRequest } from "types/api"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { handleRemoveMoniker } from "./processor"
 
 const command: Command = {
   id: "moniker_remove",
@@ -15,32 +14,16 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg: Message) {
-    if (!msg.guild) {
+    if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
     const moniker = args.slice(2).join(" ").trim()
     const payload: RequestDeleteMonikerConfigRequest = {
-      guild_id: msg.guild.id,
+      guild_id: msg.guildId,
       moniker,
     }
-    const { ok, log, curl } = await config.deleteMonikerConfig(payload)
-    if (!ok) {
-      throw new APIError({ description: log, curl })
-    }
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: `${getEmoji("approve")} Successfully removed`,
-            description: `**${moniker}** is removed. To set the new one, run $moniker set <moniker> <amount_token> <token>. ${getEmoji(
-              "bucket_cash",
-              true
-            )}`,
-          }),
-        ],
-      },
-    }
+    return await handleRemoveMoniker(payload)
   },
   getHelpMessage: async (msg) => {
     return {

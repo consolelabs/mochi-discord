@@ -1,12 +1,11 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import config from "adapters/config"
 import { CommandInteraction } from "discord.js"
-import { APIError, InternalError } from "errors"
+import { InternalError } from "errors"
 import { RequestUpsertMonikerConfigRequest } from "types/api"
 import { SlashCommand } from "types/common"
-import { getEmoji } from "utils/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { handleSetMoniker } from "./processor"
 
 const command: SlashCommand = {
   name: "set",
@@ -36,7 +35,7 @@ const command: SlashCommand = {
       )
   },
   run: async (interaction: CommandInteraction) => {
-    if (!interaction.guild) {
+    if (!interaction.guildId) {
       return {
         messageOptions: {
           embeds: [
@@ -70,28 +69,12 @@ const command: SlashCommand = {
       })
     }
     const payload: RequestUpsertMonikerConfigRequest = {
-      guild_id: interaction.guild.id,
+      guild_id: interaction.guildId,
       moniker,
       amount,
       token,
     }
-    const { ok, log, curl } = await config.setMonikerConfig(payload)
-    if (!ok) {
-      throw new APIError({ description: log, curl })
-    }
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(null, {
-            title: `${getEmoji("approve")} Moniker successfully set`,
-            description: `1 **${moniker}** is set as ${amount} **${token}**. To tip your friend moniker, use $tip <@users> <amount> <moniker>. ${getEmoji(
-              "bucket_cash",
-              true
-            )}`,
-          }),
-        ],
-      },
-    }
+    return await handleSetMoniker(payload)
   },
   help: async () => ({
     embeds: [
