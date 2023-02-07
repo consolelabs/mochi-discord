@@ -8,6 +8,7 @@ import {
   assertTitle,
 } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
+jest.mock("adapters/defi")
 
 describe("run", () => {
   let i: CommandInteraction
