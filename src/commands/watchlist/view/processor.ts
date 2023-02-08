@@ -32,7 +32,7 @@ import { renderChartImage } from "ui/canvas/chart"
 let interaction: CommandInteraction
 let fontRegistered = false
 
-async function renderWatchlist(data: any[]) {
+export async function renderWatchlist(data: any[]) {
   if (!fontRegistered) {
     registerFont("assets/fonts/inter/Inter-Regular.ttf", {
       family: "Inter",
@@ -224,7 +224,7 @@ async function renderWatchlist(data: any[]) {
   return new MessageAttachment(canvas.toBuffer(), "watchlist.png")
 }
 
-async function renderNFTWatchlist(data: any[]) {
+export async function renderNFTWatchlist(data: any[]) {
   if (!fontRegistered) {
     registerFont("assets/fonts/inter/Inter-Regular.ttf", {
       family: "Inter",
@@ -372,7 +372,7 @@ async function renderNFTWatchlist(data: any[]) {
   return new MessageAttachment(canvas.toBuffer(), "watchlist.png")
 }
 
-function buildSwitchViewActionRow(currentView: string) {
+export function buildSwitchViewActionRow(currentView: string) {
   const tokenButton = new MessageButton({
     label: "Token",
     emoji: emojis.ASSET,
@@ -481,7 +481,7 @@ export async function composeTokenWatchlist(msg: Message, authorId?: string) {
   }
 }
 
-async function composeNFTWatchlist(msg: Message) {
+export async function composeNFTWatchlist(msg: Message) {
   const userId = msg.author.id
   const embed = composeEmbedMessage(msg, {
     author: [
@@ -544,11 +544,15 @@ async function switchSlashView(i: ButtonInteraction) {
   const currentView = i.customId.split("/").pop() ?? "token"
   switch (currentView) {
     case "nft":
-      ;({ embeds, files, components } = await composeSlashNFTWatchlist())
+      ;({ embeds, files, components } = await composeSlashNFTWatchlist(
+        interaction
+      ))
       break
     case "token":
     default:
-      ;({ embeds, files, components } = await composeSlashTokenWatchlist())
+      ;({ embeds, files, components } = await composeSlashTokenWatchlist(
+        interaction
+      ))
       break
   }
   await i
@@ -560,8 +564,11 @@ async function switchSlashView(i: ButtonInteraction) {
     .catch(() => null)
 }
 
-export async function composeSlashTokenWatchlist(authorId?: string) {
-  const userId = interaction.user.id
+export async function composeSlashTokenWatchlist(
+  i: CommandInteraction,
+  authorId?: string
+) {
+  const userId = i.user.id
   const { data, ok, curl, log } = await CacheManager.get({
     pool: "watchlist",
     key: `watchlist-${userId}`,
@@ -576,14 +583,14 @@ export async function composeSlashTokenWatchlist(authorId?: string) {
   })
   if (!ok)
     throw new APIError({
-      message: interaction,
+      message: i,
       description: log,
       curl,
     })
-  const embed = composeEmbedMessage2(interaction, {
+  const embed = composeEmbedMessage2(i, {
     author: [
-      `${interaction.user.username}'s watchlist`,
-      interaction.user.displayAvatarURL({ format: "png" }),
+      `${i.user.username}'s watchlist`,
+      i.user.displayAvatarURL({ format: "png" }),
     ],
   })
   if (!data?.length) {
@@ -609,8 +616,8 @@ export async function composeSlashTokenWatchlist(authorId?: string) {
   }
 }
 
-async function composeSlashNFTWatchlist() {
-  const userId = interaction.user.id
+async function composeSlashNFTWatchlist(i: CommandInteraction) {
+  const userId = i.user.id
   const { data, ok, curl, log } = await CacheManager.get({
     pool: "watchlist",
     key: `watchlist-nft-${userId}`,
@@ -618,14 +625,14 @@ async function composeSlashNFTWatchlist() {
   })
   if (!ok)
     throw new APIError({
-      message: interaction,
+      message: i,
       description: log,
       curl,
     })
-  const embed = composeEmbedMessage2(interaction, {
+  const embed = composeEmbedMessage2(i, {
     author: [
-      `${interaction.user.username}'s watchlist`,
-      interaction.user.displayAvatarURL({ format: "png" }),
+      `${i.user.username}'s watchlist`,
+      i.user.displayAvatarURL({ format: "png" }),
     ],
   })
   if (!data?.length) {

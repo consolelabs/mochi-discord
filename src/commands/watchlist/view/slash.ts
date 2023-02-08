@@ -21,6 +21,7 @@ const command: SlashCommand = {
   run: async function (i: CommandInteraction) {
     setInteraction(i)
     const { embeds, files, components } = await composeSlashTokenWatchlist(
+      i,
       i.user.id
     )
     const replyMsg = await i.fetchReply()

@@ -1,9 +1,23 @@
-import { SelectMenuInteraction } from "discord.js"
-import { getSuccessEmbed } from "ui/discord/embed"
+import {
+  CommandInteraction,
+  Message,
+  MessageSelectOptionData,
+  SelectMenuInteraction,
+} from "discord.js"
+import {
+  composeEmbedMessage,
+  composeEmbedMessage2,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "ui/discord/embed"
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { handleUpdateWlError } from "../processor"
+import { ResponseCollectionSuggestions } from "types/api"
+import { composeDiscordExitButton } from "ui/discord/button"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
+import { defaultEmojis } from "utils/common"
 
 export const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
@@ -22,10 +36,97 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
       embeds: [
         getSuccessEmbed({
           title: "Successfully set!",
-          description: `${symbol} has been added successfully! To see your watchlist use \`$wl view\``,
+          description: `**${symbol.toUpperCase()}** has been added successfully! To see your watchlist use \`$wl view\``,
         }),
       ],
       components: [],
+    },
+  }
+}
+
+export const addWatchlistNftCollection = async ({
+  msgOrInteraction,
+  userId,
+  symbol,
+}: {
+  msgOrInteraction: Message | CommandInteraction
+  userId: string
+  symbol: string
+}) => {
+  const { data, ok, error } = await defi.addNFTToWatchlist({
+    user_id: userId,
+    collection_symbol: symbol,
+  })
+  if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error)
+  // no data === add successfully
+  if (!data) {
+    CacheManager.findAndRemove("watchlist", `watchlist-nft-${userId}`)
+    return {
+      messageOptions: {
+        embeds: [
+          getSuccessEmbed({
+            title: "Successfully set!",
+            description: `**${symbol.toUpperCase()}** has been added successfully! To see your watchlist use \`$wl view\``,
+          }),
+        ],
+        components: [],
+      },
+    }
+  }
+
+  // allow selection
+  const { suggestions = [] } = data
+  if (!suggestions.length) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            title: "Command Error",
+            description: `\`${symbol}\` hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$nft list\`!\n${defaultEmojis.POINT_RIGHT} To add your collection, run \`$nft add\`.`,
+          }),
+        ],
+        components: [],
+      },
+    }
+  }
+
+  const opt = (
+    collection: ResponseCollectionSuggestions
+  ): MessageSelectOptionData => ({
+    label: `${collection.name} (${collection.symbol})`,
+    value: `${collection.symbol}_${collection.address}_${collection.chain}_${userId}`,
+  })
+  const selectRow = composeDiscordSelectionRow({
+    customId: "watchlist_nft_selection",
+    placeholder: "Make a selection",
+    options: suggestions.map(opt),
+  })
+
+  const found = suggestions.map((c) => `**${c.name}** (${c.symbol})`).join(", ")
+  const msgOpts =
+    msgOrInteraction.type === "DEFAULT"
+      ? {
+          embeds: [
+            composeEmbedMessage(msgOrInteraction as Message, {
+              title: `${defaultEmojis.MAG} Multiple options found`,
+              description: `Multiple collections found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
+            }),
+          ],
+          components: [selectRow, composeDiscordExitButton(userId)],
+        }
+      : {
+          embeds: [
+            composeEmbedMessage2(msgOrInteraction as CommandInteraction, {
+              title: `${defaultEmojis.MAG} Multiple options found`,
+              description: `Multiple collections found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
+            }),
+          ],
+          components: [selectRow, composeDiscordExitButton(userId)],
+        }
+  return {
+    messageOptions: msgOpts,
+    interactionOptions: {
+      handler,
     },
   }
 }
