@@ -91,7 +91,7 @@ export class ChannelLogger {
       msg.channel.type === "DM" ? "DM" : msg.guild?.name
     }\`\n**Channel:** \`${
       msg.channel.type === "DM" ? "DM" : msg.channel.name ?? msg.channelId
-    }\`\n**Error:** ${
+    }\`\n**Error Message:** ${
       error?.message
         ? `\`\`\`${error.message}\`\`\``
         : "Error without message, this is likely an unexpected error"
@@ -102,6 +102,7 @@ export class ChannelLogger {
     const embed = new MessageEmbed({
       title: error.name || "Command error",
       description,
+      color: 0xd9a454,
       footer: {
         text: msg?.author?.tag ?? "Unknown User",
         iconURL: msg?.author?.avatarURL() ?? undefined,

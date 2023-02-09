@@ -73,6 +73,7 @@ import welcome from "./welcome/index"
 import withdraw from "./withdraw"
 import tokenrole from "./token-role"
 import xprole from "./xp-role"
+import test from "./test"
 
 CacheManager.init({
   ttl: 0,
@@ -152,6 +153,7 @@ export const originalCommands: Record<string, Command> = {
   poe: poe.textCmd,
   telegram: telegram.textCmd,
   sendxp: sendxp.textCmd,
+  test: test.textCmd,
 }
 
 export const commands = getAllAliases(originalCommands)

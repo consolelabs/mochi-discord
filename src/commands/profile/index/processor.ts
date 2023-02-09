@@ -336,6 +336,21 @@ async function composeMyProfileEmbed(
       inline: true,
     },
     {
+      name: "Telegram",
+      value: "KenKhoi",
+      inline: true,
+    },
+    {
+      name: "Twitter",
+      value: "trkhoi",
+      inline: true,
+    },
+    {
+      name: "\u200B",
+      value: "\u200B",
+      inline: true,
+    },
+    {
       name: `${getEmoji("imperial")} Nobility`,
       value: buildXPbar(
         "imperial",
