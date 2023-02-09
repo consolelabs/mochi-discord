@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildEmoji, Message } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import getEmojiRegex from "emoji-regex"
 
 import { utils } from "ethers"
@@ -222,7 +222,6 @@ export function getSlashCommandColor(commandObj: SlashCommand | null) {
 }
 
 export function getCommandsList(
-  _emoji: GuildEmoji | string,
   commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
 ) {
   const emoji = getEmoji("reply")
