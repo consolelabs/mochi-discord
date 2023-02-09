@@ -3,7 +3,7 @@
     "start": "NODE_OPTIONS=--max-old-space-size=4096 ts-node src/index.ts",
     "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
     "test": "jest --detectOpenHandles",
-    "test:ci": "jest --silent --detectOpenHandles",
+    "test:ci": "NODE_OPTIONS=--max-old-space-size=8192 jest --silent --detectOpenHandles",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts .",
     "prepare": "husky install",
     "generate:types": "node ./scripts/generate-types.js",
