@@ -43,7 +43,7 @@ describe("run", () => {
       description: `${userMention(i.user.id)} has sent ${recipient} 1.5 cake`,
     })
     jest.spyOn(processor, "handleTip").mockResolvedValueOnce({
-      embeds: [expected],
+      messageOptions: { embeds: [expected] },
     })
     const output = (await tipCmd.run(i)) as RunResult<MessageOptions>
     const cmd = `/tip <@521591222826041344> 1.5 cake "hpny"`

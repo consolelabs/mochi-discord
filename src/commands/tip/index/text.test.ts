@@ -35,7 +35,7 @@ describe("run", () => {
       )} has sent ${recipient} 1.5 cake`,
     })
     jest.spyOn(processor, "handleTip").mockResolvedValueOnce({
-      embeds: [expected],
+      messageOptions: { embeds: [expected] },
     })
     const output = (await tipCmd.run(msg)) as RunResult<MessageOptions>
     assertAuthor(output, expected)

@@ -9,15 +9,11 @@ const run = async (msg: Message) => {
   if (!msg.guildId) {
     throw new GuildIdNotFoundError({})
   }
-  return {
-    messageOptions: {
-      ...(await handleTip(
-        args,
-        msg.author.id,
-        msg.content.replaceAll(/\s{2,}/gim, " "),
-        msg
-      )),
-    },
-  }
+  return await handleTip(
+    args,
+    msg.author.id,
+    msg.content.replaceAll(/\s{2,}/gim, " "),
+    msg
+  )
 }
 export default run
