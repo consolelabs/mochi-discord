@@ -62,18 +62,7 @@ const run = async (msg: Message) => {
   //     }),
   //   ],
   // })
-  const bot = new TelegramBot(
-    "6170117161:AAGHbgKnsYybON0reTYwN1hC6Tkw0aL7ywc",
-    { polling: true }
-  )
-  // sendButtonToTelgram(bot)
-  // handleInteractButton(bot)
-  const T = new Twit({
-    consumer_key: "J9tsZx7ahgW5M1yr6vTIIwhai",
-    consumer_secret: "hNl8yt3WGwEzc02gi3FShkslMDfbj6vv7PgIDuOw8CxE7oYxp5",
-    access_token: "1450025605639008257-xlOU879faJiNw4LGNO8hePwJghWMIX",
-    access_token_secret: "POvvNqqkakvVg2JypJz0N9BJ4QE55qnQb9zxpjZHim8fw",
-  })
+
   // sendDMToTwitterUser(T)
   // const embeds = alertMsg("ASSERTION", 5002, "Invalid api key")
   // const errorDetail = `{"guild":"DM","channel": "DM", "user": "trkhoi#2166", "message": "<:nekosad:900363887122186310> Unfortunately, no **ETH** contract is available at this time. Please try again later"}`
