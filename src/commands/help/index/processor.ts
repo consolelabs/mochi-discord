@@ -43,6 +43,7 @@ import {
   TOKEN_ROLE_GITBOOK,
   LEVELUP_MESSAGE_GITBOOK,
   JOIN_LEAVE_GITBOOK,
+  WALLET_GITBOOK,
 } from "utils/constants"
 import { EMPTY_FIELD, composeEmbedMessage } from "ui/discord/embed"
 dayjs.extend(utc)
@@ -152,7 +153,7 @@ const allCommands: Record<PageType, HelpPage> = {
       },
       "Track NFT": {
         emoji: getEmoji("nfts"),
-        description: "Check NFT rarity, sales, and ranking",
+        description: "Checking NFT rarity, sales, and ranking",
         features: [
           {
             value: "nft",
@@ -183,6 +184,16 @@ const allCommands: Record<PageType, HelpPage> = {
           {
             value: "airdrop",
             url: AIRDROP_GITBOOK,
+          },
+        ],
+      },
+      "Manage Wallet": {
+        emoji: getEmoji("address"),
+        description: "Tracking balance and transactions of different wallets",
+        features: [
+          {
+            value: "wallet",
+            url: WALLET_GITBOOK,
           },
         ],
       },
