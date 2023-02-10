@@ -10,7 +10,7 @@ import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import deposit from "./index/text"
-import depositSlash from "./index/slash"
+import * as depositSlash from "./index/slash"
 
 const textCmd: Command = {
   id: "deposit",
@@ -56,7 +56,7 @@ const slashCmd: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     const symbol = interaction.options.getString("token", true)
-    return await depositSlash(interaction, symbol)
+    return await depositSlash.run(interaction, symbol)
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
