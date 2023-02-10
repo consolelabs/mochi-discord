@@ -192,6 +192,10 @@ export const LEVELUP_MESSAGE_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/leveled-up-message" +
   "&command=levelupmessage"
+export const WALLET_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/onchain-wallet" +
+  "&command=wallet"
 
 export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"

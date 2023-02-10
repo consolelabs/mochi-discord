@@ -194,7 +194,7 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
     author: ["Wallet list", getEmojiURL(emojis.TRANSACTIONS)],
     originalMsgAuthor: author,
   }).addFields([
-    { name: `${getEmoji("paw")} Alias`, value: alias, inline: true },
+    { name: `${getEmoji("pawcoin")} Alias`, value: alias, inline: true },
     { name: `${getEmoji("address")} Address`, value: address, inline: true },
     { name: `${getEmoji("coin")} Net worth`, value: netWorth, inline: true },
   ])
