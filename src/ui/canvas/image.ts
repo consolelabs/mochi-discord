@@ -17,6 +17,7 @@ export async function loadAndCacheImage(
   h: number,
   ttl?: number
 ): Promise<Image | null> {
+  if (!imageUrl) return null
   const base64Str = await CacheManager.get({
     pool: "imagepool",
     key: `img-${imageUrl.trim()}`,
