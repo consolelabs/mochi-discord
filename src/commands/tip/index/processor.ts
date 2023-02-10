@@ -1,5 +1,13 @@
 import defi from "adapters/defi"
-import { CommandInteraction, Message } from "discord.js"
+import {
+  ButtonInteraction,
+  CommandInteraction,
+  Message,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  MessageOptions,
+} from "discord.js"
 import { InternalError } from "errors"
 import { APIError } from "errors/api"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
@@ -22,13 +30,21 @@ import {
 } from "utils/tip-bot"
 import * as processor from "./processor"
 import { userMention } from "@discordjs/builders"
+import {
+  MessageButtonStyles,
+  MessageComponentTypes,
+} from "discord.js/typings/enums"
+import { getExitButton } from "ui/discord/button"
+import { RunResult, MultipleResult } from "types/common"
 
 export async function handleTip(
   args: string[],
   authorId: string,
   fullCmd: string,
   msg: Message | CommandInteraction
-) {
+): Promise<
+  RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
+> {
   const onchain = args.at(-1) === "--onchain"
   args = args.slice(0, onchain ? -1 : undefined) // remove --onchain if any
 
@@ -76,105 +92,74 @@ export async function handleTip(
     authorId,
     targets
   )
-  const amountBeforeMoniker = payload.amount
   if (moniker) {
     payload.amount *=
       (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
   }
-  let imageUrl
+  let imageUrl = ""
   if (msg instanceof Message) {
-    imageUrl = msg.attachments.first()?.url
+    imageUrl = msg.attachments.first()?.url ?? ""
   }
   payload.fullCommand = fullCmd
   payload.image = imageUrl
   payload.message = messageTip
 
   // check balance
-  const invalidBalEmbed = await defi.getInsuffientBalanceEmbed(
-    msg,
-    payload.sender,
-    payload.token,
-    payload.amount,
-    payload.all ?? false
-  )
-  if (invalidBalEmbed) {
+  const {
+    ok: bOk,
+    data: bData,
+    curl: bCurl,
+    error: bError,
+  } = await defi.offchainGetUserBalances({
+    userId: payload.sender,
+  })
+  if (!bOk) {
+    throw new APIError({ message: msg, curl: bCurl, error: bError })
+  }
+  let currentBal = 0
+  let rate = 0
+  bData?.forEach((bal: any) => {
+    if (payload.token.toUpperCase() === bal.symbol.toUpperCase()) {
+      currentBal = bal.balances
+      rate = bal.rate_in_usd
+    }
+  })
+  if (currentBal < payload.amount && !payload.all) {
     return {
-      embeds: [invalidBalEmbed],
+      messageOptions: {
+        embeds: [
+          defi.composeInsufficientBalanceEmbed(
+            msg,
+            currentBal,
+            payload.amount,
+            payload.token
+          ),
+        ],
+      },
     }
   }
-  // transfer
-  const transfer = (req: any) =>
-    onchain
-      ? defi.submitOnchainTransfer(req)
-      : defi.offchainDiscordTransfer(req)
-  const { data, ok, error, curl, log } = await transfer(payload)
-  if (!ok) {
-    throw new APIError({ message: msg, curl, description: log, error })
-  }
-
-  const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
-  const users = recipientIds.map((id) => userMention(id)).join(", ")
-  const isOnline = targets.includes("online")
-  const hasRole = targets.some((t) => parseDiscordToken(t).isRole)
-  const hasChannel = targets.some((t) => parseDiscordToken(t).isChannel)
-  let recipientDescription = users
-  if (hasRole || hasChannel || isOnline) {
-    recipientDescription = `**${data.length}${
-      isOnline ? ` online` : ""
-    } user(s)${data.length >= 20 ? "" : ` (${users})`}**${
-      isOnline && !hasRole && !hasChannel
-        ? ""
-        : ` in ${targets
-            .filter((t) => t.toLowerCase() !== "online")
-            .filter(
-              (t) =>
-                parseDiscordToken(t).isChannel || parseDiscordToken(t).isRole
-            )
-            .join(", ")}`
-    }`
-  }
-  let description = `${userMention(
-    payload.sender
-  )} has sent ${recipientDescription} **${roundFloatNumber(
-    data[0].amount,
-    4
-  )} ${payload.token}** (\u2248 $${roundFloatNumber(
-    data[0].amount_in_usd,
-    4
-  )}) ${recipientIds.length > 1 ? "each" : ""}`
-  if (moniker) {
-    const monikerVal = moniker as ResponseMonikerConfigData
-    const amountMoniker = roundFloatNumber(
-      amountBeforeMoniker / payload.recipients.length,
-      4
+  // ask for confirmation for payload > 100usd
+  if (payload.amount * rate >= 100) {
+    return await executeTipWithConfirmation(
+      msg,
+      payload,
+      payload.recipients,
+      messageTip,
+      imageUrl,
+      onchain,
+      rate,
+      moniker
     )
-    description = `${userMention(
-      payload.sender
-    )} has sent ${recipientDescription} **${amountMoniker} ${
-      monikerVal?.moniker?.moniker
-    }** (= **${roundFloatNumber(
-      amountMoniker * (monikerVal?.moniker?.amount || 1)
-    )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${roundFloatNumber(
-      data[0].amount_in_usd,
-      4
-    )}) ${recipientIds.length > 1 ? "each" : ""}`
-  }
-  if (messageTip) {
-    description += ` with message\n\n${getEmoji(
-      "conversation"
-    )} **${messageTip}**`
-  }
-  const embed = composeEmbedMessage(null, {
-    thumbnail: thumbnails.TIP,
-    author: ["Tips", getEmojiURL(emojis.COIN)],
-    description: description,
-  })
-  if (imageUrl) {
-    embed.setImage(imageUrl)
-  }
-
-  return {
-    embeds: [embed],
+  } else {
+    return await executeTip(
+      msg,
+      payload,
+      payload.recipients,
+      messageTip,
+      imageUrl,
+      onchain,
+      moniker
+    )
   }
 }
 
@@ -304,5 +289,149 @@ export async function parseMessageTip(args: string[]) {
   return {
     newArgs,
     messageTip,
+  }
+}
+
+async function executeTipWithConfirmation(
+  msg: Message | CommandInteraction,
+  payload: OffchainTipBotTransferRequest,
+  targets: string[],
+  messageTip: string,
+  imageUrl: string,
+  onchain: boolean,
+  rate: number,
+  moniker?: ResponseMonikerConfigData
+): Promise<
+  RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
+> {
+  const actionRow = new MessageActionRow().addComponents(
+    new MessageButton({
+      customId: "confirm-tip",
+      style: MessageButtonStyles.SUCCESS,
+      label: "Confirm",
+      emoji: getEmoji("APPROVE"),
+    }),
+    getExitButton(payload.sender)
+  )
+  const confirmEmbed = composeEmbedMessage(null, {
+    title: `${getEmoji("TIP")} Transaction Confirmation`,
+    description: `Are you sure you want to spend **${
+      payload.amount
+    } ${payload.token.toUpperCase()}** (${(payload.amount * rate).toFixed(
+      2
+    )} USD) to tip ${
+      targets.length == 1 ? `<@${targets[0]}>` : targets.length + " users"
+    }?`,
+  })
+
+  return {
+    messageOptions: {
+      embeds: [confirmEmbed],
+      components: [actionRow],
+    },
+    buttonCollector: async (i: ButtonInteraction) => {
+      if (i.customId === "confirm-tip") {
+        return await executeTip(
+          msg,
+          payload,
+          targets,
+          messageTip,
+          imageUrl,
+          onchain,
+          moniker
+        )
+      }
+    },
+  }
+}
+
+async function executeTip(
+  msg: Message | CommandInteraction,
+  payload: OffchainTipBotTransferRequest,
+  targets: string[],
+  messageTip: string,
+  imageUrl: string,
+  onchain: boolean,
+  moniker?: ResponseMonikerConfigData
+): Promise<
+  RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
+> {
+  // transfer
+  const amountBeforeMoniker = payload.amount
+  const transfer = (req: any) =>
+    onchain
+      ? defi.submitOnchainTransfer(req)
+      : defi.offchainDiscordTransfer(req)
+  const { data, ok, error, curl, log } = await transfer(payload)
+  if (!ok) {
+    throw new APIError({ message: msg, curl, description: log, error })
+  }
+
+  const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
+  const users = recipientIds.map((id) => userMention(id)).join(", ")
+  const isOnline = targets.includes("online")
+  const hasRole = targets.some((t) => parseDiscordToken(t).isRole)
+  const hasChannel = targets.some((t) => parseDiscordToken(t).isChannel)
+  let recipientDescription = users
+  if (hasRole || hasChannel || isOnline) {
+    recipientDescription = `**${data.length}${
+      isOnline ? ` online` : ""
+    } user(s)${data.length >= 20 ? "" : ` (${users})`}**${
+      isOnline && !hasRole && !hasChannel
+        ? ""
+        : ` in ${targets
+            .filter((t) => t.toLowerCase() !== "online")
+            .filter(
+              (t) =>
+                parseDiscordToken(t).isChannel || parseDiscordToken(t).isRole
+            )
+            .join(", ")}`
+    }`
+  }
+  let description = `${userMention(
+    payload.sender
+  )} has sent ${recipientDescription} **${roundFloatNumber(
+    data[0].amount,
+    4
+  )} ${payload.token}** (\u2248 $${roundFloatNumber(
+    data[0].amount_in_usd,
+    4
+  )}) ${recipientIds.length > 1 ? "each" : ""}`
+  if (moniker) {
+    const monikerVal = moniker as ResponseMonikerConfigData
+    const amountMoniker = roundFloatNumber(
+      amountBeforeMoniker / payload.recipients.length,
+      4
+    )
+    description = `${userMention(
+      payload.sender
+    )} has sent ${recipientDescription} **${amountMoniker} ${
+      monikerVal?.moniker?.moniker
+    }** (= **${roundFloatNumber(
+      amountMoniker * (monikerVal?.moniker?.amount || 1)
+    )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${roundFloatNumber(
+      data[0].amount_in_usd,
+      4
+    )}) ${recipientIds.length > 1 ? "each" : ""}`
+  }
+  if (messageTip) {
+    description += ` with message\n\n${getEmoji(
+      "conversation"
+    )} **${messageTip}**`
+  }
+  const embed = composeEmbedMessage(null, {
+    thumbnail: thumbnails.TIP,
+    author: ["Tips", getEmojiURL(emojis.COIN)],
+    description: description,
+  })
+  if (imageUrl) {
+    embed.setImage(imageUrl)
+  }
+
+  return {
+    messageOptions: {
+      embeds: [embed],
+      components: [],
+    },
   }
 }

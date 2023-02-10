@@ -29,10 +29,6 @@ const run = async (interaction: CommandInteraction) => {
     args = args.concat(`"${message}"`.split(" "))
   }
   args.unshift("tip")
-  return {
-    messageOptions: {
-      ...(await handleTip(args, interaction.user.id, fullCmd, interaction)),
-    },
-  }
+  return await handleTip(args, interaction.user.id, fullCmd, interaction)
 }
 export default run
