@@ -9,303 +9,316 @@
  * ---------------------------------------------------------------
  */
 
-export type BigFloat = object;
+export type BigFloat = object
 
 export interface DiscordgoUser {
   /** User's banner color, encoded as an integer representation of hexadecimal color code */
-  accent_color?: number;
+  accent_color?: number
   /**
    * The hash of the user's avatar. Use Session.UserAvatar
    * to retrieve the avatar itself.
    */
-  avatar?: string;
+  avatar?: string
   /** The hash of the user's banner image. */
-  banner?: string;
+  banner?: string
   /** Whether the user is a bot. */
-  bot?: boolean;
+  bot?: boolean
   /** The discriminator of the user (4 numbers after name). */
-  discriminator?: string;
+  discriminator?: string
   /**
    * The email of the user. This is only present when
    * the application possesses the email scope for the user.
    */
-  email?: string;
+  email?: string
   /**
    * The flags on a user's account.
    * Only available when the request is authorized via a Bearer token.
    */
-  flags?: number;
+  flags?: number
   /** The ID of the user. */
-  id?: string;
+  id?: string
   /** The user's chosen language option. */
-  locale?: string;
+  locale?: string
   /** Whether the user has multi-factor authentication enabled. */
-  mfa_enabled?: boolean;
+  mfa_enabled?: boolean
   /**
    * The type of Nitro subscription on a user's account.
    * Only available when the request is authorized via a Bearer token.
    */
-  premium_type?: number;
+  premium_type?: number
   /**
    * The public flags on a user's account.
    * This is a combination of bit masks; the presence of a certain flag can
    * be checked by performing a bitwise AND between this int and the flag.
    */
-  public_flags?: number;
+  public_flags?: number
   /** Whether the user is an Official Discord System user (part of the urgent message system). */
-  system?: boolean;
+  system?: boolean
   /**
    * The token of the user. This is only present for
    * the user represented by the current session.
    */
-  token?: string;
+  token?: string
   /** The user's username. */
-  username?: string;
+  username?: string
   /** Whether the user's email is verified. */
-  verified?: boolean;
+  verified?: boolean
 }
 
 export interface EntitiesLoginResponse {
-  access_token?: string;
-  expires_at?: number;
+  access_token?: string
+  expires_at?: number
 }
 
 export interface ModelActivity {
-  guild_default?: boolean;
-  id?: number;
-  name?: string;
-  xp?: number;
+  guild_default?: boolean
+  id?: number
+  name?: string
+  xp?: number
 }
 
 export interface ModelChain {
-  coin_gecko_id?: string;
-  currency?: string;
-  id?: number;
-  name?: string;
-  short_name?: string;
+  coin_gecko_id?: string
+  currency?: string
+  id?: number
+  name?: string
+  short_name?: string
 }
 
 export interface ModelCoingeckoSupportedTokens {
-  id?: string;
-  name?: string;
-  symbol?: string;
+  id?: string
+  name?: string
+  symbol?: string
 }
 
 export interface ModelConfigXpLevel {
-  level?: number;
-  min_xp?: number;
+  level?: number
+  min_xp?: number
 }
 
 export interface ModelDaoProposal {
-  closed_at?: string;
-  created_at?: string;
-  creator_id?: string;
-  description?: string;
-  discussion_channel_id?: string;
-  guild_config_dao_proposal_id?: number;
-  guild_id?: string;
-  id?: number;
-  title?: string;
-  updated_at?: string;
-  voting_channel_id?: string;
+  closed_at?: string
+  created_at?: string
+  creator_id?: string
+  description?: string
+  discussion_channel_id?: string
+  guild_config_dao_proposal_id?: number
+  guild_id?: string
+  id?: number
+  title?: string
+  updated_at?: string
+  voting_channel_id?: string
 }
 
 export interface ModelDaoProposalVoteCount {
-  choice?: string;
-  guild_id?: string;
-  proposal_id?: string;
-  sum?: number;
+  choice?: string
+  guild_id?: string
+  proposal_id?: string
+  sum?: number
 }
 
 export interface ModelDaoProposalVoteOption {
-  address?: string;
-  chain_id?: number;
-  created_at?: string;
-  id?: number;
-  proposal_id?: number;
-  required_amount?: string;
-  symbol?: string;
-  updated_at?: string;
-  vote_option?: ModelDaoVoteOption;
-  vote_option_id?: number;
+  address?: string
+  chain_id?: number
+  created_at?: string
+  id?: number
+  proposal_id?: number
+  required_amount?: string
+  symbol?: string
+  updated_at?: string
+  vote_option?: ModelDaoVoteOption
+  vote_option_id?: number
 }
 
 export interface ModelDaoVote {
-  choice?: string;
-  created_at?: string;
-  id?: number;
-  point?: number;
-  proposal_id?: number;
-  updated_at?: string;
-  user_id?: string;
+  choice?: string
+  created_at?: string
+  id?: number
+  point?: number
+  proposal_id?: number
+  updated_at?: string
+  user_id?: string
 }
 
 export interface ModelDaoVoteOption {
-  created_at?: string;
-  id?: number;
-  type?: string;
-  updated_at?: string;
+  created_at?: string
+  id?: number
+  type?: string
+  updated_at?: string
 }
 
 export interface ModelDiscordGuild {
-  active?: boolean;
-  alias?: string;
-  bot_scopes?: string[];
-  created_at?: string;
-  global_xp?: boolean;
-  id?: string;
-  log_channel?: string;
-  name?: string;
-  roles?: ModelGuildRole[];
+  active?: boolean
+  alias?: string
+  bot_scopes?: string[]
+  created_at?: string
+  global_xp?: boolean
+  id?: string
+  log_channel?: string
+  name?: string
+  roles?: ModelGuildRole[]
 }
 
 export interface ModelDiscordGuildStat {
-  created_at?: string;
-  guild_id?: string;
-  id?: string;
-  nr_of_animated_emojis?: number;
-  nr_of_announcement_channels?: number;
-  nr_of_bots?: number;
-  nr_of_categories?: number;
-  nr_of_channels?: number;
-  nr_of_custom_stickers?: number;
-  nr_of_emojis?: number;
-  nr_of_members?: number;
-  nr_of_roles?: number;
-  nr_of_server_stickers?: number;
-  nr_of_stage_channels?: number;
-  nr_of_static_emojis?: number;
-  nr_of_stickers?: number;
-  nr_of_text_channels?: number;
-  nr_of_users?: number;
-  nr_of_voice_channels?: number;
+  created_at?: string
+  guild_id?: string
+  id?: string
+  nr_of_animated_emojis?: number
+  nr_of_announcement_channels?: number
+  nr_of_bots?: number
+  nr_of_categories?: number
+  nr_of_channels?: number
+  nr_of_custom_stickers?: number
+  nr_of_emojis?: number
+  nr_of_members?: number
+  nr_of_roles?: number
+  nr_of_server_stickers?: number
+  nr_of_stage_channels?: number
+  nr_of_static_emojis?: number
+  nr_of_stickers?: number
+  nr_of_text_channels?: number
+  nr_of_users?: number
+  nr_of_voice_channels?: number
 }
 
 export interface ModelDiscordUserDevice {
-  created_at?: string;
-  id?: string;
-  ios_noti_token?: string;
-  updated_at?: string;
+  created_at?: string
+  id?: string
+  ios_noti_token?: string
+  updated_at?: string
 }
 
 export interface ModelDiscordUserGMStreak {
-  created_at?: string;
-  discord_id?: string;
-  guild_id?: string;
-  last_streak_date?: string;
-  streak_count?: number;
-  total_count?: number;
-  updated_at?: string;
+  created_at?: string
+  discord_id?: string
+  guild_id?: string
+  last_streak_date?: string
+  streak_count?: number
+  total_count?: number
+  updated_at?: string
 }
 
 export interface ModelDiscordUserTokenAlert {
-  created_at?: string;
-  device?: ModelDiscordUserDevice;
-  device_id?: string;
-  discord_id?: string;
-  id?: string;
-  is_enable?: boolean;
-  price_set?: number;
-  symbol?: string;
-  token_id?: string;
-  trend?: string;
-  updated_at?: string;
+  created_at?: string
+  device?: ModelDiscordUserDevice
+  device_id?: string
+  discord_id?: string
+  id?: string
+  is_enable?: boolean
+  price_set?: number
+  symbol?: string
+  token_id?: string
+  trend?: string
+  updated_at?: string
 }
 
 export interface ModelDiscordUserUpvoteStreak {
-  created_at?: string;
-  discord_id?: string;
-  last_streak_date?: string;
-  streak_count?: number;
-  total_count?: number;
-  updated_at?: string;
+  created_at?: string
+  discord_id?: string
+  last_streak_date?: string
+  streak_count?: number
+  total_count?: number
+  updated_at?: string
 }
 
 export interface ModelEnvelop {
-  command?: string;
-  created_at?: string;
-  id?: number;
-  updated_at?: string;
-  user_id?: string;
+  command?: string
+  created_at?: string
+  id?: number
+  updated_at?: string
+  user_id?: string
 }
 
 export interface ModelGuildConfigActivity {
-  active?: boolean;
-  activity?: ModelActivity;
-  activity_id?: number;
-  guild_id?: string;
+  active?: boolean
+  activity?: ModelActivity
+  activity_id?: number
+  guild_id?: string
 }
 
 export interface ModelGuildConfigDaoProposal {
-  address?: string;
-  authority?: string;
-  chain_id?: number;
-  created_at?: string;
-  guideline_channel_id?: string;
-  guild_id?: string;
-  id?: number;
-  proposal_channel_id?: string;
-  required_amount?: string;
-  symbol?: string;
-  type?: string;
-  updated_at?: string;
+  address?: string
+  authority?: string
+  chain_id?: number
+  created_at?: string
+  guideline_channel_id?: string
+  guild_id?: string
+  id?: number
+  proposal_channel_id?: string
+  required_amount?: string
+  symbol?: string
+  type?: string
+  updated_at?: string
 }
 
 export interface ModelGuildConfigDaoTracker {
-  channel_id?: string;
-  created_at?: string;
-  guild_id?: string;
-  id?: string;
-  space?: string;
-  updated_at?: string;
+  channel_id?: string
+  created_at?: string
+  guild_id?: string
+  id?: string
+  space?: string
+  updated_at?: string
 }
 
 export interface ModelGuildConfigDefaultCollection {
-  address?: string;
-  chain_id?: string;
-  created_at?: string;
-  guild_id?: string;
-  symbol?: string;
-  updated_at?: string;
+  address?: string
+  chain_id?: string
+  created_at?: string
+  guild_id?: string
+  symbol?: string
+  updated_at?: string
 }
 
 export interface ModelGuildConfigDefaultTicker {
-  default_ticker?: string;
-  guild_id?: string;
-  query?: string;
+  default_ticker?: string
+  guild_id?: string
+  query?: string
 }
 
 export interface ModelGuildConfigGmGn {
-  channel_id?: string;
-  emoji?: string;
-  guild_id?: string;
-  id?: string;
-  msg?: string;
-  sticker?: string;
+  channel_id?: string
+  emoji?: string
+  guild_id?: string
+  id?: string
+  msg?: string
+  sticker?: string
 }
 
 export interface ModelGuildConfigInviteTracker {
-  channel_id?: string;
-  guild_id?: string;
-  id?: string;
-  webhook_url?: ModelJSONNullString;
+  channel_id?: string
+  guild_id?: string
+  id?: string
+  webhook_url?: ModelJSONNullString
 }
 
 export interface ModelGuildConfigLevelRole {
-  guild_id?: string;
-  level?: number;
-  level_config?: ModelConfigXpLevel;
-  role_id?: string;
+  guild_id?: string
+  level?: number
+  level_config?: ModelConfigXpLevel
+  role_id?: string
 }
 
 export interface ModelGuildConfigLevelupMessage {
-  channel_id?: string;
-  created_at?: string;
-  guild_id?: string;
-  id?: string;
-  image_url?: string;
-  message?: string;
-  updated_at?: string;
+  channel_id?: string
+  created_at?: string
+  guild_id?: string
+  id?: string
+  image_url?: string
+  message?: string
+  updated_at?: string
+}
+
+export interface ModelGuildConfigMixRole {
+  created_at?: string
+  guild_id?: string
+  id?: number
+  nft_requirement?: ModelMixRoleNFTRequirement
+  nft_requirement_id?: number
+  required_level?: number
+  role_id?: string
+  token_requirement?: ModelMixRoleTokenRequirement
+  token_requirement_id?: number
+  updated_at?: string
 }
 
 export interface ModelGuildConfigMixRole {
@@ -322,110 +335,128 @@ export interface ModelGuildConfigMixRole {
 }
 
 export interface ModelGuildConfigRepostReaction {
-  emoji?: string;
-  emoji_start?: string;
-  emoji_stop?: string;
-  guild_id?: string;
-  id?: string;
-  quantity?: number;
-  reaction_type?: string;
-  repost_channel_id?: string;
+  emoji?: string
+  emoji_start?: string
+  emoji_stop?: string
+  guild_id?: string
+  id?: string
+  quantity?: number
+  reaction_type?: string
+  repost_channel_id?: string
 }
 
 export interface ModelGuildConfigSalesTracker {
-  chain?: string;
-  channel_id?: string;
-  contract_address?: string;
-  created_at?: string;
-  guild_id?: string;
-  id?: string;
-  updated_at?: string;
+  chain?: string
+  channel_id?: string
+  contract_address?: string
+  created_at?: string
+  guild_id?: string
+  id?: string
+  updated_at?: string
 }
 
 export interface ModelGuildConfigTokenRole {
-  created_at?: string;
-  guild_id?: string;
-  id?: number;
-  required_amount?: number;
-  role_id?: string;
-  token?: ModelToken;
-  token_id?: number;
-  updated_at?: string;
+  created_at?: string
+  guild_id?: string
+  id?: number
+  required_amount?: number
+  role_id?: string
+  token?: ModelToken
+  token_id?: number
+  updated_at?: string
 }
 
 export interface ModelGuildConfigTwitterBlacklist {
-  created_at?: string;
-  created_by?: string;
-  guild_id?: string;
-  twitter_id?: string;
-  twitter_username?: string;
+  created_at?: string
+  created_by?: string
+  guild_id?: string
+  twitter_id?: string
+  twitter_username?: string
 }
 
 export interface ModelGuildConfigTwitterFeed {
-  guild_id?: string;
-  twitter_access_token?: string;
-  twitter_access_token_secret?: string;
-  twitter_consumer_key?: string;
-  twitter_consumer_secret?: string;
+  guild_id?: string
+  twitter_access_token?: string
+  twitter_access_token_secret?: string
+  twitter_consumer_key?: string
+  twitter_consumer_secret?: string
 }
 
 export interface ModelGuildConfigVoteChannel {
-  channel_id?: string;
-  guild_id?: string;
-  id?: string;
+  channel_id?: string
+  guild_id?: string
+  id?: string
 }
 
 export interface ModelGuildConfigWalletVerificationMessage {
-  content?: string;
-  created_at?: string;
-  discord_message_id?: string;
-  embedded_message?: number[];
-  guild_id?: string;
-  verify_channel_id?: string;
-  verify_role_id?: string;
+  content?: string
+  created_at?: string
+  discord_message_id?: string
+  embedded_message?: number[]
+  guild_id?: string
+  verify_channel_id?: string
+  verify_role_id?: string
 }
 
 export interface ModelGuildConfigWelcomeChannel {
-  channel_id?: string;
-  guild_id?: string;
-  id?: string;
-  welcome_message?: string;
+  channel_id?: string
+  guild_id?: string
+  id?: string
+  welcome_message?: string
 }
 
 export interface ModelGuildConfigXPRole {
-  created_at?: string;
-  guild_id?: string;
-  id?: number;
-  required_xp?: number;
-  role_id?: string;
-  updated_at?: string;
+  created_at?: string
+  guild_id?: string
+  id?: number
+  required_xp?: number
+  role_id?: string
+  updated_at?: string
 }
 
 export interface ModelGuildRole {
-  guild_id?: string;
-  name?: string;
-  role_id?: number;
+  guild_id?: string
+  name?: string
+  role_id?: number
 }
 
 export interface ModelGuildUser {
-  guild_id?: string;
-  id?: string;
-  invited_by?: string;
-  nickname?: string;
-  roles?: ModelGuildRole[];
-  user_id?: string;
+  guild_id?: string
+  id?: string
+  invited_by?: string
+  nickname?: string
+  roles?: ModelGuildRole[]
+  user_id?: string
 }
 
 export interface ModelJSONNullInt64 {
-  int64?: number;
+  int64?: number
   /** Valid is true if Int64 is not NULL */
-  valid?: boolean;
+  valid?: boolean
 }
 
 export interface ModelJSONNullString {
-  string?: string;
+  string?: string
   /** Valid is true if String is not NULL */
-  valid?: boolean;
+  valid?: boolean
+}
+
+export interface ModelMixRoleNFTRequirement {
+  created_at?: string
+  id?: number
+  nft_collection?: ModelNFTCollection
+  nft_collection_id?: string
+  required_amount?: number
+  updated_at?: string
+}
+
+export interface ModelMixRoleTokenRequirement {
+  created_at?: string
+  id?: number
+  required_amount?: number
+  token?: ModelToken
+  token_id?: number
+  updated_at?: string
 }
 
 export interface ModelMixRoleNFTRequirement {
@@ -447,326 +478,326 @@ export interface ModelMixRoleTokenRequirement {
 }
 
 export interface ModelMonikerConfig {
-  amount?: number;
-  created_at?: string;
-  guild_id?: string;
-  id?: string;
-  moniker?: string;
-  plural?: string;
-  token?: ModelOffchainTipBotToken;
-  token_id?: string;
-  updated_at?: string;
+  amount?: number
+  created_at?: string
+  guild_id?: string
+  id?: string
+  moniker?: string
+  plural?: string
+  token?: ModelOffchainTipBotToken
+  token_id?: string
+  updated_at?: string
 }
 
 export interface ModelNFTCollection {
-  address?: string;
-  author?: string;
-  chain_id?: string;
-  created_at?: string;
-  erc_format?: string;
-  id?: string;
-  image?: string;
-  is_verified?: boolean;
-  name?: string;
-  symbol?: string;
+  address?: string
+  author?: string
+  chain_id?: string
+  created_at?: string
+  erc_format?: string
+  id?: string
+  image?: string
+  is_verified?: boolean
+  name?: string
+  symbol?: string
 }
 
 export interface ModelNFTCollectionDetail {
-  address?: string;
-  author?: string;
-  chain?: ModelChain;
-  chain_id?: string;
-  created_at?: string;
-  erc_format?: string;
-  id?: string;
-  image?: string;
-  is_verified?: boolean;
-  name?: string;
-  symbol?: string;
+  address?: string
+  author?: string
+  chain?: ModelChain
+  chain_id?: string
+  created_at?: string
+  erc_format?: string
+  id?: string
+  image?: string
+  is_verified?: boolean
+  name?: string
+  symbol?: string
 }
 
 export interface ModelNewListedNFTCollection {
-  address?: string;
-  author?: string;
-  chain?: string;
-  chain_id?: string;
-  created_at?: string;
-  erc_format?: string;
-  id?: string;
-  image?: string;
-  is_verified?: boolean;
-  name?: string;
-  symbol?: string;
+  address?: string
+  author?: string
+  chain?: string
+  chain_id?: string
+  created_at?: string
+  erc_format?: string
+  id?: string
+  image?: string
+  is_verified?: boolean
+  name?: string
+  symbol?: string
 }
 
 export interface ModelNftSoulbound {
-  collection_address?: string;
-  created_at?: string;
-  id?: number;
-  total_soulbound?: number;
-  trait_type?: string;
-  updated_at?: string;
-  value?: string;
+  collection_address?: string
+  created_at?: string
+  id?: number
+  total_soulbound?: number
+  trait_type?: string
+  updated_at?: string
+  value?: string
 }
 
 export interface ModelOffchainTipBotAssignContract {
-  chain_id?: string;
-  contract?: ModelOffchainTipBotContract;
-  contract_id?: string;
-  expired_time?: string;
-  id?: string;
-  status?: number;
-  token_id?: string;
-  user_id?: string;
+  chain_id?: string
+  contract?: ModelOffchainTipBotContract
+  contract_id?: string
+  expired_time?: string
+  id?: string
+  status?: number
+  token_id?: string
+  user_id?: string
 }
 
 export interface ModelOffchainTipBotChain {
-  chain_id?: number;
-  chain_name?: string;
-  contracts?: ModelOffchainTipBotContract[];
-  created_at?: string;
-  currency?: string;
-  explorer_url?: string;
-  id?: string;
-  is_evm?: boolean;
-  rpc_url?: string;
-  status?: number;
-  support_deposit?: boolean;
-  tokens?: ModelOffchainTipBotToken[];
-  updated_at?: string;
+  chain_id?: number
+  chain_name?: string
+  contracts?: ModelOffchainTipBotContract[]
+  created_at?: string
+  currency?: string
+  explorer_url?: string
+  id?: string
+  is_evm?: boolean
+  rpc_url?: string
+  status?: number
+  support_deposit?: boolean
+  tokens?: ModelOffchainTipBotToken[]
+  updated_at?: string
 }
 
 export interface ModelOffchainTipBotContract {
-  assign_status?: number;
-  centralize_wallet?: string;
-  chain?: ModelOffchainTipBotChain;
-  chain_id?: string;
-  contract_address?: string;
-  created_at?: string;
-  id?: string;
-  status?: number;
-  sweeped_time?: string;
-  updated_at?: string;
+  assign_status?: number
+  centralize_wallet?: string
+  chain?: ModelOffchainTipBotChain
+  chain_id?: string
+  contract_address?: string
+  created_at?: string
+  id?: string
+  status?: number
+  sweeped_time?: string
+  updated_at?: string
 }
 
 export interface ModelOffchainTipBotToken {
-  coin_gecko_id?: string;
-  created_at?: string;
-  icon?: string;
-  id?: string;
-  service_fee?: number;
-  status?: number;
-  token_id?: string;
-  token_name?: string;
-  token_symbol?: string;
-  updated_at?: string;
+  coin_gecko_id?: string
+  created_at?: string
+  icon?: string
+  id?: string
+  service_fee?: number
+  status?: number
+  token_id?: string
+  token_name?: string
+  token_symbol?: string
+  updated_at?: string
 }
 
 export interface ModelOffchainTipBotTransferHistory {
-  action?: string;
-  amount?: number;
-  created_at?: string;
-  fee_amount?: number;
-  guild_id?: string;
-  id?: string;
-  log_id?: string;
-  receiver_id?: string;
-  sender_id?: string;
-  service_fee?: number;
-  status?: string;
-  token?: string;
-  updated_at?: string;
+  action?: string
+  amount?: number
+  created_at?: string
+  fee_amount?: number
+  guild_id?: string
+  id?: string
+  log_id?: string
+  receiver_id?: string
+  sender_id?: string
+  service_fee?: number
+  status?: string
+  token?: string
+  updated_at?: string
 }
 
 export interface ModelOnchainTipBotTransaction {
-  all?: boolean;
-  amount?: number;
-  channel_id?: string;
-  claimed_at?: string;
-  created_at?: string;
-  duration?: number;
-  each?: boolean;
-  full_command?: string;
-  guild_id?: string;
-  id?: number;
-  image?: string;
-  message?: string;
-  recipient_address?: string;
-  recipients?: string;
-  sender?: string;
+  all?: boolean
+  amount?: number
+  channel_id?: string
+  claimed_at?: string
+  created_at?: string
+  duration?: number
+  each?: boolean
+  full_command?: string
+  guild_id?: string
+  id?: number
+  image?: string
+  message?: string
+  recipient_address?: string
+  recipients?: string
+  sender?: string
   /** (pending, claimed) */
-  string?: string;
-  token_symbol?: string;
-  transfer_type?: string;
-  tx_hash?: string;
-  updated_at?: string;
+  string?: string
+  token_symbol?: string
+  transfer_type?: string
+  tx_hash?: string
+  updated_at?: string
 }
 
 export interface ModelQuest {
-  action?: string;
-  frequency?: number;
-  id?: string;
-  rewards?: ModelQuestReward[];
-  routine?: string;
-  title?: string;
+  action?: string
+  frequency?: number
+  id?: string
+  rewards?: ModelQuestReward[]
+  routine?: string
+  title?: string
 }
 
 export interface ModelQuestReward {
-  id?: string;
-  pass_id?: string;
-  quest?: ModelQuest;
-  quest_id?: string;
-  reward_amount?: number;
-  reward_type?: ModelQuestRewardType;
-  reward_type_id?: string;
+  id?: string
+  pass_id?: string
+  quest?: ModelQuest
+  quest_id?: string
+  reward_amount?: number
+  reward_type?: ModelQuestRewardType
+  reward_type_id?: string
 }
 
 export interface ModelQuestRewardType {
-  id?: string;
-  name?: string;
+  id?: string
+  name?: string
 }
 
 export interface ModelQuestUserList {
-  action?: string;
-  current?: number;
-  end_time?: string;
-  id?: string;
-  is_claimed?: boolean;
-  is_completed?: boolean;
-  multiplier?: number;
-  quest?: ModelQuest;
-  quest_id?: string;
-  routine?: string;
-  start_time?: string;
-  target?: number;
-  user_id?: string;
+  action?: string
+  current?: number
+  end_time?: string
+  id?: string
+  is_claimed?: boolean
+  is_completed?: boolean
+  multiplier?: number
+  quest?: ModelQuest
+  quest_id?: string
+  routine?: string
+  start_time?: string
+  target?: number
+  user_id?: string
 }
 
 export interface ModelQuestUserReward {
-  claimed_at?: string;
-  pass_id?: string;
-  quest_id?: string;
-  reward?: ModelQuestReward;
-  reward_amount?: number;
-  reward_id?: string;
-  reward_type_id?: string;
-  start_time?: string;
-  user_id?: string;
+  claimed_at?: string
+  pass_id?: string
+  quest_id?: string
+  reward?: ModelQuestReward
+  reward_amount?: number
+  reward_id?: string
+  reward_type_id?: string
+  start_time?: string
+  user_id?: string
 }
 
 export interface ModelSaleBotMarketplace {
-  id?: number;
-  name?: string;
-  url?: string;
+  id?: number
+  name?: string
+  url?: string
 }
 
 export interface ModelSaleBotTwitterConfig {
-  address?: string;
-  chain_id?: number;
-  collection_name?: string;
-  created_at?: string;
-  id?: number;
-  marketplace?: ModelSaleBotMarketplace;
-  marketplace_id?: number;
-  slug?: string;
-  updated_at?: string;
+  address?: string
+  chain_id?: number
+  collection_name?: string
+  created_at?: string
+  id?: number
+  marketplace?: ModelSaleBotMarketplace
+  marketplace_id?: number
+  slug?: string
+  updated_at?: string
 }
 
 export interface ModelToken {
-  address?: string;
-  chain?: ModelChain;
-  chain_id?: number;
-  coin_gecko_id?: string;
-  decimal?: number;
-  discord_bot_supported?: boolean;
-  guild_default?: boolean;
-  id?: number;
-  is_native?: boolean;
-  name?: string;
-  symbol?: string;
+  address?: string
+  chain?: ModelChain
+  chain_id?: number
+  coin_gecko_id?: string
+  decimal?: number
+  discord_bot_supported?: boolean
+  guild_default?: boolean
+  id?: number
+  is_native?: boolean
+  name?: string
+  symbol?: string
 }
 
 export interface ModelTradeItem {
-  id?: string;
-  is_from?: boolean;
-  token_address?: string;
-  token_ids?: string[];
-  trade_offer_id?: string;
+  id?: string
+  is_from?: boolean
+  token_address?: string
+  token_ids?: string[]
+  trade_offer_id?: string
 }
 
 export interface ModelTradeOffer {
-  created_at?: string;
-  have_items?: ModelTradeItem[];
-  id?: string;
-  owner_address?: string;
-  updated_at?: string;
-  want_items?: ModelTradeItem[];
+  created_at?: string
+  have_items?: ModelTradeItem[]
+  id?: string
+  owner_address?: string
+  updated_at?: string
+  want_items?: ModelTradeItem[]
 }
 
 export interface ModelTwitterPostStreak {
-  created_at?: string;
-  guild_id?: string;
-  last_streak_date?: string;
-  streak_count?: number;
-  total_count?: number;
-  twitter_handle?: string;
-  twitter_id?: string;
-  updated_at?: string;
+  created_at?: string
+  guild_id?: string
+  last_streak_date?: string
+  streak_count?: number
+  total_count?: number
+  twitter_handle?: string
+  twitter_id?: string
+  updated_at?: string
 }
 
 export interface ModelUpvoteStreakTier {
-  id?: number;
-  streak_required?: number;
-  vote_interval?: number;
-  xp_per_interval?: number;
+  id?: number
+  streak_required?: number
+  vote_interval?: number
+  xp_per_interval?: number
 }
 
 export interface ModelUser {
-  guild_users?: ModelGuildUser[];
-  id?: string;
-  in_discord_wallet_address?: ModelJSONNullString;
-  in_discord_wallet_number?: ModelJSONNullInt64;
-  nr_of_join?: number;
-  username?: string;
+  guild_users?: ModelGuildUser[]
+  id?: string
+  in_discord_wallet_address?: ModelJSONNullString
+  in_discord_wallet_number?: ModelJSONNullInt64
+  nr_of_join?: number
+  username?: string
 }
 
 export interface ModelUserEnvelopStreak {
-  total_envelop?: number;
-  user_id?: string;
+  total_envelop?: number
+  user_id?: string
 }
 
 export interface ModelUserFactionXpsMapping {
-  academy_xp?: number;
-  imperial_xp?: number;
-  merchant_xp?: number;
-  rebellio_xp?: number;
+  academy_xp?: number
+  imperial_xp?: number
+  merchant_xp?: number
+  rebellio_xp?: number
 }
 
 export interface ModelUserFeedback {
-  command?: string;
-  completed_at?: string;
-  confirmed_at?: string;
-  created_at?: string;
-  discord_id?: string;
-  feedback?: string;
-  id?: UuidNullUUID;
-  message_id?: string;
-  status?: string;
+  command?: string
+  completed_at?: string
+  confirmed_at?: string
+  created_at?: string
+  discord_id?: string
+  feedback?: string
+  id?: UuidNullUUID
+  message_id?: string
+  status?: string
 }
 
 export interface ModelUserTelegramDiscordAssociation {
-  discord_id?: string;
-  telegram_username?: string;
+  discord_id?: string
+  telegram_username?: string
 }
 
 export interface ModelUserWallet {
-  address?: string;
-  chain_type?: ModelJSONNullString;
-  created_at?: string;
-  guild_id?: string;
+  address?: string
+  chain_type?: ModelJSONNullString
+  created_at?: string
+  guild_id?: string
   /** preload user */
-  user?: ModelUser;
-  user_discord_id?: string;
+  user?: ModelUser
+  user_discord_id?: string
 }
 
 export interface ModelUserWalletWatchlistItem {
@@ -778,118 +809,126 @@ export interface ModelUserWalletWatchlistItem {
 }
 
 export interface RequestAddNftWatchlistRequest {
-  chain?: string;
-  collection_address?: string;
-  collection_symbol?: string;
-  guild_id?: string;
-  user_id?: string;
+  chain?: string
+  collection_address?: string
+  collection_symbol?: string
+  guild_id?: string
+  user_id?: string
 }
 
 export interface RequestAddToTwitterBlackListRequest {
-  created_by?: string;
-  guild_id?: string;
-  twitter_id?: string;
-  twitter_username?: string;
+  created_by?: string
+  guild_id?: string
+  twitter_id?: string
+  twitter_username?: string
 }
 
 export interface RequestAddToWatchlistRequest {
-  coin_gecko_id?: string;
-  is_fiat?: boolean;
-  symbol?: string;
-  user_id?: string;
+  coin_gecko_id?: string
+  is_fiat?: boolean
+  symbol?: string
+  user_id?: string
 }
 
 export interface RequestBalcklistChannelRepostConfigRequest {
-  channel_id?: string;
-  guild_id?: string;
+  channel_id?: string
+  guild_id?: string
 }
 
 export interface RequestClaimOnchainTransferRequest {
-  address?: string;
-  claim_id?: number;
-  user_id?: string;
+  address?: string
+  claim_id?: number
+  user_id?: string
 }
 
 export interface RequestClaimQuestsRewardsRequest {
-  quest_id?: string;
-  routine?: string;
-  user_id?: string;
+  quest_id?: string
+  routine?: string
+  user_id?: string
 }
 
 export interface RequestConfigDefaultCollection {
-  address?: string;
-  chain?: string;
-  guild_id?: string;
-  symbol?: string;
+  address?: string
+  chain?: string
+  guild_id?: string
+  symbol?: string
 }
 
 export interface RequestConfigDefaultTokenRequest {
-  guild_id?: string;
-  symbol?: string;
+  guild_id?: string
+  symbol?: string
 }
 
 export interface RequestConfigGroupNFTRoleRequest {
-  collection_address?: string[];
-  group_name?: string;
-  guild_id?: string;
-  number_of_tokens?: number;
-  role_id?: string;
+  collection_address?: string[]
+  group_name?: string
+  guild_id?: string
+  number_of_tokens?: number
+  role_id?: string
 }
 
 export interface RequestConfigLevelRoleRequest {
-  guild_id?: string;
-  level?: number;
-  role_id?: string;
+  guild_id?: string
+  level?: number
+  role_id?: string
 }
 
 export interface RequestConfigRepostReactionStartStop {
-  emoji_start?: string;
-  emoji_stop?: string;
-  guild_id?: string;
-  repost_channel_id?: string;
+  emoji_start?: string
+  emoji_stop?: string
+  guild_id?: string
+  repost_channel_id?: string
 }
 
 export interface RequestConfigRepostRequest {
-  emoji?: string;
-  guild_id?: string;
-  quantity?: number;
-  repost_channel_id?: string;
+  emoji?: string
+  guild_id?: string
+  quantity?: number
+  repost_channel_id?: string
 }
 
 export interface RequestConfigureInviteRequest {
-  guild_id?: string;
-  log_channel?: string;
-  webhook_url?: string;
+  guild_id?: string
+  log_channel?: string
+  webhook_url?: string
 }
 
 export interface RequestCreateAssignContract {
-  token_symbol?: string;
-  user_id?: string;
+  token_symbol?: string
+  user_id?: string
 }
 
 export interface RequestCreateDaoProposalRequest {
-  creator_id?: string;
-  description?: string;
-  guild_id?: string;
-  title?: string;
-  vote_option?: RequestVoteOptionRequest;
-  voting_channel_id?: string;
+  creator_id?: string
+  description?: string
+  guild_id?: string
+  title?: string
+  vote_option?: RequestVoteOptionRequest
+  voting_channel_id?: string
 }
 
 export interface RequestCreateDaoVoteRequest {
-  choice: string;
-  proposal_id: number;
-  user_id: string;
+  choice: string
+  proposal_id: number
+  user_id: string
 }
 
 export interface RequestCreateDefaultRoleRequest {
-  guild_id: string;
-  role_id: string;
+  guild_id: string
+  role_id: string
 }
 
 export interface RequestCreateEnvelop {
-  command: string;
-  user_id: string;
+  command: string
+  user_id: string
+}
+
+export interface RequestCreateGuildMixRole {
+  guild_id: string
+  nft_requirement?: RequestMixRoleNFTRequirement
+  required_level?: number
+  role_id: string
+  token_requirement?: RequestMixRoleTokenRequirement
 }
 
 export interface RequestCreateGuildMixRole {
@@ -901,150 +940,160 @@ export interface RequestCreateGuildMixRole {
 }
 
 export interface RequestCreateGuildRequest {
-  id?: string;
-  name?: string;
+  id?: string
+  name?: string
 }
 
 export interface RequestCreateGuildTokenRole {
-  address: string;
-  amount: number;
-  chain: string;
-  guild_id: string;
-  role_id: string;
+  address: string
+  amount: number
+  chain: string
+  guild_id: string
+  role_id: string
 }
 
 export interface RequestCreateGuildXPRole {
-  guild_id: string;
-  role_id: string;
-  xp?: number;
+  guild_id: string
+  role_id: string
+  xp?: number
 }
 
 export interface RequestCreateNFTCollectionRequest {
-  address?: string;
-  author?: string;
-  chain?: string;
-  chain_id?: string;
-  channel_id?: string;
-  guild_id?: string;
-  message_id?: string;
-  priority_flag?: boolean;
+  address?: string
+  author?: string
+  chain?: string
+  chain_id?: string
+  channel_id?: string
+  guild_id?: string
+  message_id?: string
+  priority_flag?: boolean
 }
 
 export interface RequestCreateProposalChannelConfig {
-  address?: string;
-  authority: "admin" | "token_holder";
-  chain?: string;
-  channel_id: string;
-  guild_id: string;
-  required_amount?: number;
-  type?: "nft_collection" | "crypto_token";
+  address?: string
+  authority: "admin" | "token_holder"
+  chain?: string
+  channel_id: string
+  guild_id: string
+  required_amount?: number
+  type?: "nft_collection" | "crypto_token"
 }
 
 export interface RequestCreateSalesTrackerConfigRequest {
-  chain?: string;
-  channel_id?: string;
-  contract_address?: string;
-  guild_id?: string;
+  chain?: string
+  channel_id?: string
+  contract_address?: string
+  guild_id?: string
 }
 
 export interface RequestCreateTipConfigNotify {
-  channel_id?: string;
-  guild_id?: string;
-  token?: string;
+  channel_id?: string
+  guild_id?: string
+  token?: string
 }
 
 export interface RequestCreateTradeOfferRequest {
-  have_items?: RequestTradeOfferItem[];
-  owner_address: string;
-  want_items?: RequestTradeOfferItem[];
+  have_items?: RequestTradeOfferItem[]
+  owner_address: string
+  want_items?: RequestTradeOfferItem[]
 }
 
 export interface RequestCreateTwitterSaleConfigRequest {
-  address?: string;
-  chain_id?: number;
-  marketplace?: string;
+  address?: string
+  chain_id?: number
+  marketplace?: string
 }
 
 export interface RequestCreateUserRequest {
-  guild_id?: string;
-  id?: string;
-  invited_by?: string;
-  nickname?: string;
-  username?: string;
+  guild_id?: string
+  id?: string
+  invited_by?: string
+  nickname?: string
+  username?: string
 }
 
 export interface RequestDeleteDiscordUserAlertRequest {
-  id?: string;
+  id?: string
 }
 
 export interface RequestDeleteGuildConfigDaoProposal {
-  id?: string;
+  id?: string
 }
 
 export interface RequestDeleteGuildConfigDaoTracker {
-  id?: string;
+  id?: string
 }
 
 export interface RequestDeleteJoinLeaveChannelConfigRequest {
-  guild_id?: string;
+  guild_id?: string
 }
 
 export interface RequestDeleteMonikerConfigRequest {
-  guild_id: string;
-  moniker: string;
+  guild_id: string
+  moniker: string
 }
 
 export interface RequestDeleteUserDeviceRequest {
-  device_id?: string;
+  device_id?: string
 }
 
 export interface RequestDeleteVoteChannelConfigRequest {
-  guild_id?: string;
+  guild_id?: string
 }
 
 export interface RequestDeleteWelcomeConfigRequest {
-  guild_id?: string;
+  guild_id?: string
 }
 
 export interface RequestEditMessageRepostRequest {
-  guild_id?: string;
-  origin_channel_id?: string;
-  origin_message_id?: string;
-  repost_channel_id?: string;
-  repost_message_id?: string;
+  guild_id?: string
+  origin_channel_id?: string
+  origin_message_id?: string
+  repost_channel_id?: string
+  repost_message_id?: string
 }
 
 export interface RequestGenerateVerificationRequest {
-  guild_id?: string;
-  is_reverify?: boolean;
-  user_discord_id?: string;
+  guild_id?: string
+  is_reverify?: boolean
+  user_discord_id?: string
 }
 
 export interface RequestGuildConfigDefaultNftTickerRequest {
-  chain_id?: number;
-  collection_address?: string;
-  guild_id?: string;
-  query?: string;
-  symbol?: string;
+  chain_id?: number
+  collection_address?: string
+  guild_id?: string
+  query?: string
+  symbol?: string
 }
 
 export interface RequestGuildConfigDefaultTickerRequest {
-  default_ticker?: string;
-  guild_id?: string;
-  query?: string;
+  default_ticker?: string
+  guild_id?: string
+  query?: string
 }
 
 export interface RequestGuildIDRequest {
-  guild_id?: string;
+  guild_id?: string
 }
 
 export interface RequestLinkUserTelegramWithDiscordRequest {
-  discord_id: string;
-  telegram_username: string;
+  discord_id: string
+  telegram_username: string
 }
 
 export interface RequestLoginRequest {
-  access_token?: string;
+  access_token?: string
+}
+
+export interface RequestMixRoleNFTRequirement {
+  amount: number
+  nft_id: string
+}
+
+export interface RequestMixRoleTokenRequirement {
+  amount: number
+  token_id: number
 }
 
 export interface RequestMixRoleNFTRequirement {
@@ -1058,89 +1107,89 @@ export interface RequestMixRoleTokenRequirement {
 }
 
 export interface RequestNewGuildConfigWalletVerificationMessageRequest {
-  content?: string;
-  created_at?: string;
-  discord_message_id?: string;
-  embedded_message?: number[];
-  guild_id?: string;
-  verify_channel_id?: string;
-  verify_role_id?: string;
+  content?: string
+  created_at?: string
+  discord_message_id?: string
+  embedded_message?: number[]
+  guild_id?: string
+  verify_channel_id?: string
+  verify_role_id?: string
 }
 
 export interface RequestOffchainTransferRequest {
-  all?: boolean;
-  amount?: number;
-  channel_id?: string;
-  duration?: number;
-  each?: boolean;
-  full_command?: string;
-  guild_id?: string;
-  image?: string;
-  message?: string;
-  platform?: string;
-  recipients?: string[];
-  sender?: string;
-  token?: string;
-  transfer_type?: string;
+  all?: boolean
+  amount?: number
+  channel_id?: string
+  duration?: number
+  each?: boolean
+  full_command?: string
+  guild_id?: string
+  image?: string
+  message?: string
+  platform?: string
+  recipients?: string[]
+  sender?: string
+  token?: string
+  transfer_type?: string
 }
 
 export interface RequestOffchainWithdrawRequest {
-  all?: boolean;
-  amount?: number;
-  channel_id?: string;
-  duration?: number;
-  each?: boolean;
-  full_command?: string;
-  guild_id?: string;
-  recipient?: string;
-  recipient_address?: string;
-  token?: string;
-  transfer_type?: string;
+  all?: boolean
+  amount?: number
+  channel_id?: string
+  duration?: number
+  each?: boolean
+  full_command?: string
+  guild_id?: string
+  recipient?: string
+  recipient_address?: string
+  token?: string
+  transfer_type?: string
 }
 
 export interface RequestRoleReactionRequest {
-  guild_id?: string;
-  message_id?: string;
-  reaction?: string;
+  guild_id?: string
+  message_id?: string
+  reaction?: string
 }
 
 export interface RequestRoleReactionUpdateRequest {
-  channel_id?: string;
-  guild_id?: string;
-  message_id?: string;
-  reaction?: string;
-  role_id?: string;
+  channel_id?: string
+  guild_id?: string
+  message_id?: string
+  reaction?: string
+  role_id?: string
 }
 
 export interface RequestSendUserXPRequest {
-  amount?: number;
-  each?: boolean;
-  guild_id?: string;
-  recipients?: string[];
+  amount?: number
+  each?: boolean
+  guild_id?: string
+  recipients?: string[]
 }
 
 export interface RequestSetUpvoteMessageCacheRequest {
-  channel_id?: string;
-  guild_id?: string;
-  message_id?: string;
-  user_id?: string;
+  channel_id?: string
+  guild_id?: string
+  message_id?: string
+  user_id?: string
 }
 
 export interface RequestSubmitOnchainTransferRequest {
-  all?: boolean;
-  amount?: number;
-  channel_id?: string;
-  duration?: number;
-  each?: boolean;
-  full_command?: string;
-  guild_id?: string;
-  image?: string;
-  message?: string;
-  platform?: string;
-  recipients?: string[];
-  sender?: string;
-  token?: string;
-  transfer_type?: string;
+  all?: boolean
+  amount?: number
+  channel_id?: string
+  duration?: number
+  each?: boolean
+  full_command?: string
+  guild_id?: string
+  image?: string
+  message?: string
+  platform?: string
+  recipients?: string[]
+  sender?: string
+  token?: string
+  transfer_type?: string
 }
 
 export interface RequestTrackWalletRequest {
@@ -1150,279 +1199,283 @@ export interface RequestTrackWalletRequest {
 }
 
 export interface RequestTradeOfferItem {
-  token_address: string;
-  token_ids: string[];
+  token_address: string
+  token_ids: string[]
 }
 
 export interface RequestTwitterHashtag {
-  channel_id?: string;
-  from_twitter?: string[];
-  guild_id?: string;
-  hashtag?: string[];
-  rule_id?: string;
-  twitter_username?: string[];
-  user_id?: string;
+  channel_id?: string
+  from_twitter?: string[]
+  guild_id?: string
+  hashtag?: string[]
+  rule_id?: string
+  twitter_username?: string[]
+  user_id?: string
 }
 
 export interface RequestTwitterPost {
-  content?: string;
-  guild_id?: string;
-  tweet_id?: string;
-  twitter_handle?: string;
-  twitter_id?: string;
+  content?: string
+  guild_id?: string
+  tweet_id?: string
+  twitter_handle?: string
+  twitter_id?: string
 }
 
 export interface RequestUpdateDaoVoteRequest {
-  choice: string;
-  user_id: string;
+  choice: string
+  user_id: string
 }
 
 export interface RequestUpdateGuildRequest {
-  active?: boolean;
-  global_xp?: boolean;
-  left_at?: string;
-  log_channel?: string;
+  active?: boolean
+  global_xp?: boolean
+  left_at?: string
+  log_channel?: string
 }
 
 export interface RequestUpdateQuestProgressRequest {
-  action?: string;
-  guild_id?: string;
-  user_id?: string;
+  action?: string
+  guild_id?: string
+  user_id?: string
 }
 
 export interface RequestUpdateUserFeedbackRequest {
-  id?: string;
-  status?: string;
+  id?: string
+  status?: string
 }
 
 export interface RequestUpsertCustomTokenConfigRequest {
-  active?: boolean;
-  address?: string;
-  chain?: string;
-  chain_id?: number;
-  coin_gecko_id?: string;
-  decimals?: number;
-  discord_bot_supported?: boolean;
-  guild_default?: boolean;
-  guild_id?: string;
-  id?: number;
-  name?: string;
-  symbol?: string;
+  active?: boolean
+  address?: string
+  chain?: string
+  chain_id?: number
+  coin_gecko_id?: string
+  decimals?: number
+  discord_bot_supported?: boolean
+  guild_default?: boolean
+  guild_id?: string
+  id?: number
+  name?: string
+  symbol?: string
 }
 
 export interface RequestUpsertDiscordUserAlertRequest {
-  device_id?: string;
-  discord_id?: string;
-  id?: string;
-  is_enable?: boolean;
-  price_set?: number;
-  symbol?: string;
-  token_id?: string;
-  trend?: string;
+  device_id?: string
+  discord_id?: string
+  id?: string
+  is_enable?: boolean
+  price_set?: number
+  symbol?: string
+  token_id?: string
+  trend?: string
 }
 
 export interface RequestUpsertGmConfigRequest {
-  channel_id?: string;
-  emoji?: string;
-  guild_id?: string;
-  msg?: string;
-  sticker?: string;
+  channel_id?: string
+  emoji?: string
+  guild_id?: string
+  msg?: string
+  sticker?: string
 }
 
 export interface RequestUpsertGuildConfigDaoTracer {
-  channel_id?: string;
-  guild_id?: string;
-  snapshot_url?: string;
+  channel_id?: string
+  guild_id?: string
+  snapshot_url?: string
 }
 
 export interface RequestUpsertGuildDefaultCurrencyRequest {
-  Symbol?: string;
-  guild_id?: string;
+  Symbol?: string
+  guild_id?: string
 }
 
 export interface RequestUpsertGuildPruneExcludeRequest {
-  guild_id?: string;
-  role_id?: string;
+  guild_id?: string
+  role_id?: string
 }
 
 export interface RequestUpsertGuildTokenConfigRequest {
-  active?: boolean;
-  guild_id?: string;
-  symbol?: string;
+  active?: boolean
+  guild_id?: string
+  symbol?: string
 }
 
 export interface RequestUpsertJoinLeaveChannelConfigRequest {
-  channel_id?: string;
-  guild_id?: string;
+  channel_id?: string
+  guild_id?: string
 }
 
 export interface RequestUpsertMonikerConfigRequest {
-  amount: number;
-  guild_id: string;
-  moniker: string;
-  plural?: string;
-  token: string;
+  amount: number
+  guild_id: string
+  moniker: string
+  plural?: string
+  token: string
 }
 
 export interface RequestUpsertUserDeviceRequest {
-  device_id?: string;
-  ios_noti_token?: string;
+  device_id?: string
+  ios_noti_token?: string
 }
 
 export interface RequestUpsertVoteChannelConfigRequest {
-  channel_id?: string;
-  guild_id?: string;
+  channel_id?: string
+  guild_id?: string
 }
 
 export interface RequestUpsertWelcomeConfigRequest {
-  channel_id?: string;
-  guild_id?: string;
-  welcome_message?: string;
+  channel_id?: string
+  guild_id?: string
+  welcome_message?: string
 }
 
 export interface RequestUserFeedbackRequest {
-  avatar?: string;
-  command?: string;
-  discord_id?: string;
-  feedback?: string;
-  message_id?: string;
-  username?: string;
+  avatar?: string
+  command?: string
+  discord_id?: string
+  feedback?: string
+  message_id?: string
+  username?: string
 }
 
 export interface RequestVerifyWalletAddressRequest {
-  code?: string;
-  signature?: string;
-  wallet_address?: string;
+  code?: string
+  signature?: string
+  wallet_address?: string
 }
 
 export interface RequestVoteOptionRequest {
-  address?: string;
-  chain_id?: number;
-  id?: number;
-  required_amount?: number;
-  symbol?: string;
+  address?: string
+  chain_id?: number
+  id?: number
+  required_amount?: number
+  symbol?: string
 }
 
 export interface ResponseAddToWatchlistResponse {
-  data?: ResponseAddToWatchlistResponseData;
+  data?: ResponseAddToWatchlistResponseData
 }
 
 export interface ResponseAddToWatchlistResponseData {
-  base_suggestions?: ModelCoingeckoSupportedTokens[];
-  target_suggestions?: ModelCoingeckoSupportedTokens[];
+  base_suggestions?: ModelCoingeckoSupportedTokens[]
+  target_suggestions?: ModelCoingeckoSupportedTokens[]
 }
 
 export interface ResponseAllTipBotTokensResponse {
-  data?: ModelOffchainTipBotToken[];
+  data?: ModelOffchainTipBotToken[]
 }
 
 export interface ResponseClaimOnchainTransfer {
-  amount?: number;
-  amount_in_usd?: number;
-  recipient_address?: string;
-  recipient_id?: string;
-  sender_id?: string;
-  symbol?: string;
-  tx_hash?: string;
-  tx_url?: string;
+  amount?: number
+  amount_in_usd?: number
+  recipient_address?: string
+  recipient_id?: string
+  sender_id?: string
+  symbol?: string
+  tx_hash?: string
+  tx_url?: string
 }
 
 export interface ResponseClaimOnchainTransferResponse {
-  data?: ResponseClaimOnchainTransfer;
+  data?: ResponseClaimOnchainTransfer
 }
 
 export interface ResponseClaimQuestsRewardsResponse {
-  data?: ResponseClaimQuestsRewardsResponseData;
+  data?: ResponseClaimQuestsRewardsResponseData
 }
 
 export interface ResponseClaimQuestsRewardsResponseData {
-  rewards?: ModelQuestUserReward[];
+  rewards?: ModelQuestUserReward[]
 }
 
 export interface ResponseCoinDescription {
-  en?: string;
+  en?: string
 }
 
 export interface ResponseCoinImage {
-  large?: string;
-  small?: string;
-  thumb?: string;
+  large?: string
+  small?: string
+  thumb?: string
 }
 
 export interface ResponseCoinMarketItemData {
-  current_price?: number;
-  id?: string;
-  image?: string;
-  is_default?: boolean;
-  is_pair?: boolean;
-  name?: string;
-  price_change_percentage_24h?: number;
-  price_change_percentage_7d_in_currency?: number;
+  current_price?: number
+  id?: string
+  image?: string
+  is_default?: boolean
+  is_pair?: boolean
+  name?: string
+  price_change_percentage_24h?: number
+  price_change_percentage_7d_in_currency?: number
   sparkline_in_7d?: {
-    price?: number[];
-  };
-  symbol?: string;
+    price?: number[]
+  }
+  symbol?: string
 }
 
 export interface ResponseCoinPriceHistoryResponse {
-  from?: string;
-  prices?: number[];
-  times?: string[];
-  timestamps?: number[];
-  to?: string;
+  from?: string
+  prices?: number[]
+  times?: string[]
+  timestamps?: number[]
+  to?: string
 }
 
 export interface ResponseCollectionSuggestions {
-  address?: string;
-  chain?: string;
-  chain_id?: number;
-  name?: string;
-  symbol?: string;
+  address?: string
+  chain?: string
+  chain_id?: number
+  name?: string
+  symbol?: string
 }
 
 export interface ResponseCompareTokenReponseData {
-  base_coin?: ResponseGetCoinResponse;
-  base_coin_suggestions?: ModelCoingeckoSupportedTokens[];
-  from?: string;
-  ratios?: number[];
-  target_coin?: ResponseGetCoinResponse;
-  target_coin_suggestions?: ModelCoingeckoSupportedTokens[];
-  times?: string[];
-  to?: string;
+  base_coin?: ResponseGetCoinResponse
+  base_coin_suggestions?: ModelCoingeckoSupportedTokens[]
+  from?: string
+  ratios?: number[]
+  target_coin?: ResponseGetCoinResponse
+  target_coin_suggestions?: ModelCoingeckoSupportedTokens[]
+  times?: string[]
+  to?: string
 }
 
 export interface ResponseCompareTokenResponse {
-  data?: ResponseCompareTokenReponseData;
+  data?: ResponseCompareTokenReponseData
 }
 
 export interface ResponseConfigGroupNFTRoleResponse {
-  group_name?: string;
-  guild_id?: string;
-  nft_collection_configs?: ResponseNFTCollectionConfig[];
-  number_of_tokens?: number;
-  role_id?: string;
+  group_name?: string
+  guild_id?: string
+  nft_collection_configs?: ResponseNFTCollectionConfig[]
+  number_of_tokens?: number
+  role_id?: string
 }
 
 export interface ResponseConfigNotifyResponse {
-  channel_id?: string;
-  created_at?: string;
-  guild_id?: string;
-  id?: string;
-  token?: string;
-  total_transaction?: number;
-  updated_at?: string;
+  channel_id?: string
+  created_at?: string
+  guild_id?: string
+  id?: string
+  token?: string
+  total_transaction?: number
+  updated_at?: string
 }
 
 export interface ResponseConfigureInvitesResponse {
-  data?: string;
+  data?: string
 }
 
 export interface ResponseCreateDaoProposalResponse {
-  data?: ModelDaoProposal;
+  data?: ModelDaoProposal
 }
 
 export interface ResponseCreateEnvelop {
-  data?: ModelEnvelop;
+  data?: ModelEnvelop
+}
+
+export interface ResponseCreateGuildMixRole {
+  data?: ModelGuildConfigMixRole
 }
 
 export interface ResponseCreateGuildMixRole {
@@ -1430,318 +1483,318 @@ export interface ResponseCreateGuildMixRole {
 }
 
 export interface ResponseCreateGuildTokenRole {
-  data?: ModelGuildConfigTokenRole;
+  data?: ModelGuildConfigTokenRole
 }
 
 export interface ResponseCreateGuildXPRole {
-  data?: ModelGuildConfigXPRole;
+  data?: ModelGuildConfigXPRole
 }
 
 export interface ResponseCreateNFTCollectionResponse {
-  data?: ModelNFTCollection;
+  data?: ModelNFTCollection
 }
 
 export interface ResponseCreateProposalChannelConfigResponse {
-  data?: ModelGuildConfigDaoProposal;
+  data?: ModelGuildConfigDaoProposal
 }
 
 export interface ResponseCreateTradeOfferResponse {
-  data?: ModelTradeOffer;
+  data?: ModelTradeOffer
 }
 
 export interface ResponseCreateTwitterSaleConfigResponse {
-  data?: ModelSaleBotTwitterConfig;
+  data?: ModelSaleBotTwitterConfig
 }
 
 export interface ResponseCurrentUserUpvoteStreakResponse {
-  data?: ResponseGetUserCurrentUpvoteStreakResponse;
+  data?: ResponseGetUserCurrentUpvoteStreakResponse
 }
 
 export interface ResponseDataFilterConfigByReaction {
-  data?: ResponseRoleReactionResponse;
+  data?: ResponseRoleReactionResponse
   /** page index */
-  page?: number;
+  page?: number
   /** page size */
-  size?: number;
-  total?: number;
+  size?: number
+  total?: number
 }
 
 export interface ResponseDataListRoleReactionResponse {
-  data?: ResponseListRoleReactionResponse;
+  data?: ResponseListRoleReactionResponse
   /** page index */
-  page?: number;
+  page?: number
   /** page size */
-  size?: number;
-  total?: number;
+  size?: number
+  total?: number
 }
 
 export interface ResponseDataMetric {
-  data?: ResponseMetric;
+  data?: ResponseMetric
 }
 
 export interface ResponseDefaultRole {
-  guild_id?: string;
-  role_id?: string;
+  guild_id?: string
+  role_id?: string
 }
 
 export interface ResponseDefaultRoleResponse {
-  data?: ResponseDefaultRole;
+  data?: ResponseDefaultRole
 }
 
 export interface ResponseDiscordGuildResponse {
-  bot_addable?: boolean;
-  bot_arrived?: boolean;
-  features?: string[];
-  icon?: string;
-  id?: string;
-  name?: string;
-  owner?: boolean;
+  bot_addable?: boolean
+  bot_arrived?: boolean
+  features?: string[]
+  icon?: string
+  id?: string
+  name?: string
+  owner?: boolean
   /** @example 0 */
-  permissions?: string;
+  permissions?: string
 }
 
 export interface ResponseDiscordUserTokenAlertResponse {
-  data?: ModelDiscordUserTokenAlert[];
+  data?: ModelDiscordUserTokenAlert[]
 }
 
 export interface ResponseGenerateVerificationResponse {
-  code?: string;
-  status?: string;
+  code?: string
+  status?: string
 }
 
 export interface ResponseGetAllDaoProposalVotes {
-  proposal?: ResponseGetDaoProposalData;
-  votes?: ModelDaoVote[];
+  proposal?: ResponseGetDaoProposalData
+  votes?: ModelDaoVote[]
 }
 
 export interface ResponseGetAllDaoProposals {
-  data?: ModelDaoProposal[];
+  data?: ModelDaoProposal[]
 }
 
 export interface ResponseGetAllTwitterConfigResponse {
-  data?: ModelGuildConfigTwitterFeed[];
-  message?: string;
+  data?: ModelGuildConfigTwitterFeed[]
+  message?: string
 }
 
 export interface ResponseGetAllTwitterHashtagConfigResponse {
-  data?: ResponseTwitterHashtag[];
+  data?: ResponseTwitterHashtag[]
 }
 
 export interface ResponseGetAssignedContract {
-  data?: ModelOffchainTipBotAssignContract;
+  data?: ModelOffchainTipBotAssignContract
 }
 
 export interface ResponseGetCoinResponse {
-  asset_platform_id?: string;
-  description?: ResponseCoinDescription;
-  id?: string;
-  image?: ResponseCoinImage;
-  market_cap_rank?: number;
-  market_data?: ResponseMarketData;
-  name?: string;
-  symbol?: string;
-  tickers?: ResponseTickerData[];
+  asset_platform_id?: string
+  description?: ResponseCoinDescription
+  id?: string
+  image?: ResponseCoinImage
+  market_cap_rank?: number
+  market_data?: ResponseMarketData
+  name?: string
+  symbol?: string
+  tickers?: ResponseTickerData[]
 }
 
 export interface ResponseGetCoinResponseWrapper {
-  data?: ResponseGetCoinResponse;
+  data?: ResponseGetCoinResponse
 }
 
 export interface ResponseGetCollectionCountResponse {
-  data?: ResponseNFTCollectionCount;
+  data?: ResponseNFTCollectionCount
 }
 
 export interface ResponseGetDaoProposalData {
-  closed_at?: string;
-  created_at?: string;
-  creator_id?: string;
-  description?: string;
-  discussion_channel_id?: string;
-  guild_config_dao_proposal_id?: number;
-  guild_id?: string;
-  id?: number;
-  points?: ModelDaoProposalVoteCount[];
-  title?: string;
-  updated_at?: string;
-  voting_channel_id?: string;
+  closed_at?: string
+  created_at?: string
+  creator_id?: string
+  description?: string
+  discussion_channel_id?: string
+  guild_config_dao_proposal_id?: number
+  guild_id?: string
+  id?: number
+  points?: ModelDaoProposalVoteCount[]
+  title?: string
+  updated_at?: string
+  voting_channel_id?: string
 }
 
 export interface ResponseGetDataUserProfileResponse {
-  data?: ResponseGetUserProfileResponse;
+  data?: ResponseGetUserProfileResponse
 }
 
 export interface ResponseGetDefaultTokenResponse {
-  data?: ModelToken;
+  data?: ModelToken
 }
 
 export interface ResponseGetDetailNftCollectionResponse {
-  data?: ModelNFTCollectionDetail;
+  data?: ModelNFTCollectionDetail
 }
 
 export interface ResponseGetFiatHistoricalExchangeRatesResponse {
-  from?: string;
-  latest_rate?: number;
-  rates?: number[];
-  times?: string[];
-  to?: string;
+  from?: string
+  latest_rate?: number
+  rates?: number[]
+  times?: string[]
+  to?: string
 }
 
 export interface ResponseGetGmConfigResponse {
-  data?: ModelGuildConfigGmGn;
-  message?: string;
+  data?: ModelGuildConfigGmGn
+  message?: string
 }
 
 export interface ResponseGetGuildConfigDaoProposal {
-  data?: ResponseGetGuildConfigDaoProposalData;
+  data?: ResponseGetGuildConfigDaoProposalData
 }
 
 export interface ResponseGetGuildConfigDaoProposalData {
-  address?: string;
-  authority?: string;
-  chain?: string;
-  chain_id?: number;
-  created_at?: string;
-  guideline_channel_id?: string;
-  guild_id?: string;
-  id?: number;
-  proposal_channel_id?: string;
-  required_amount?: string;
-  symbol?: string;
-  type?: string;
-  updated_at?: string;
+  address?: string
+  authority?: string
+  chain?: string
+  chain_id?: number
+  created_at?: string
+  guideline_channel_id?: string
+  guild_id?: string
+  id?: number
+  proposal_channel_id?: string
+  required_amount?: string
+  symbol?: string
+  type?: string
+  updated_at?: string
 }
 
 export interface ResponseGetGuildDefaultNftTickerResponse {
-  data?: ModelGuildConfigDefaultCollection;
+  data?: ModelGuildConfigDefaultCollection
 }
 
 export interface ResponseGetGuildDefaultTickerResponse {
-  data?: ModelGuildConfigDefaultTicker;
+  data?: ModelGuildConfigDefaultTicker
 }
 
 export interface ResponseGetGuildLevelUpMessage {
-  data?: ModelGuildConfigLevelupMessage;
+  data?: ModelGuildConfigLevelupMessage
 }
 
 export interface ResponseGetGuildPruneExcludeResponse {
-  data?: ResponseGuildPruneExcludeList;
-  message?: string;
+  data?: ResponseGuildPruneExcludeList
+  message?: string
 }
 
 export interface ResponseGetGuildResponse {
-  active?: boolean;
-  alias?: string;
-  bot_scopes?: string[];
-  global_xp?: boolean;
-  id?: string;
-  log_channel?: string;
-  log_channel_id?: string;
-  name?: string;
+  active?: boolean
+  alias?: string
+  bot_scopes?: string[]
+  global_xp?: boolean
+  id?: string
+  log_channel?: string
+  log_channel_id?: string
+  name?: string
 }
 
 export interface ResponseGetGuildTokensResponse {
-  data?: ModelToken[];
+  data?: ModelToken[]
 }
 
 export interface ResponseGetGuildUserResponse {
-  guild_id?: string;
-  invited_by?: string;
-  nickname?: string;
-  user_id?: string;
+  guild_id?: string
+  invited_by?: string
+  nickname?: string
+  user_id?: string
 }
 
 export interface ResponseGetGuildsResponse {
-  data?: ResponseGetGuildResponse[];
+  data?: ResponseGetGuildResponse[]
 }
 
 export interface ResponseGetHistoricalMarketChartResponse {
-  data?: ResponseCoinPriceHistoryResponse;
+  data?: ResponseCoinPriceHistoryResponse
 }
 
 export interface ResponseGetInviteTrackerConfigResponse {
-  data?: ModelGuildConfigInviteTracker;
-  message?: string;
+  data?: ModelGuildConfigInviteTracker
+  message?: string
 }
 
 export interface ResponseGetInvitesLeaderboardResponse {
-  data?: ResponseUserInvitesAggregation[];
+  data?: ResponseUserInvitesAggregation[]
 }
 
 export interface ResponseGetInvitesResponse {
-  data?: string[];
+  data?: string[]
 }
 
 export interface ResponseGetLevelRoleConfigsResponse {
-  data?: ModelGuildConfigLevelRole[];
+  data?: ModelGuildConfigLevelRole[]
   /** page index */
-  page?: number;
+  page?: number
   /** page size */
-  size?: number;
-  total?: number;
+  size?: number
+  total?: number
 }
 
 export interface ResponseGetLinkedTelegramResponse {
-  data?: ModelUserTelegramDiscordAssociation;
+  data?: ModelUserTelegramDiscordAssociation
 }
 
 export interface ResponseGetListAllChainsResponse {
-  data?: ModelChain[];
+  data?: ModelChain[]
 }
 
 export interface ResponseGetMyInfoResponse {
-  data?: DiscordgoUser;
+  data?: DiscordgoUser
 }
 
 export interface ResponseGetNFTActivityData {
-  data?: ResponseIndexerNFTActivityData[];
-  metadata?: UtilPagination;
+  data?: ResponseIndexerNFTActivityData[]
+  metadata?: UtilPagination
 }
 
 export interface ResponseGetNFTActivityResponse {
-  data?: ResponseGetNFTActivityData;
+  data?: ResponseGetNFTActivityData
 }
 
 export interface ResponseGetNFTCollectionByAddressChain {
-  address?: string;
-  author?: string;
-  chain_id?: string;
-  created_at?: string;
-  description?: string;
-  discord?: string;
-  erc_format?: string;
-  id?: string;
-  image?: string;
-  is_verified?: boolean;
-  marketplaces?: string[];
-  name?: string;
-  symbol?: string;
-  twitter?: string;
-  website?: string;
+  address?: string
+  author?: string
+  chain_id?: string
+  created_at?: string
+  description?: string
+  discord?: string
+  erc_format?: string
+  id?: string
+  image?: string
+  is_verified?: boolean
+  marketplaces?: string[]
+  name?: string
+  symbol?: string
+  twitter?: string
+  website?: string
 }
 
 export interface ResponseGetNFTCollectionByAddressChainResponse {
-  data?: ResponseGetNFTCollectionByAddressChain;
+  data?: ResponseGetNFTCollectionByAddressChain
 }
 
 export interface ResponseGetNftWatchlist {
-  floor_price?: number;
-  id?: string;
-  image?: string;
-  is_pair?: boolean;
-  name?: string;
-  price_change_percentage_24h?: number;
-  price_change_percentage_7d_in_currency?: number;
-  sparkline_in_7d?: ResponseSparkLineIn7D;
-  symbol?: string;
-  token?: ResponseIndexerToken;
+  floor_price?: number
+  id?: string
+  image?: string
+  is_pair?: boolean
+  name?: string
+  price_change_percentage_24h?: number
+  price_change_percentage_7d_in_currency?: number
+  sparkline_in_7d?: ResponseSparkLineIn7D
+  symbol?: string
+  token?: ResponseIndexerToken
 }
 
 export interface ResponseGetNftWatchlistResponse {
-  data?: ResponseGetNftWatchlist[];
+  data?: ResponseGetNftWatchlist[]
 }
 
 export interface ResponseGetOnchainTransfersResponse {
-  data?: ModelOnchainTipBotTransaction[];
+  data?: ModelOnchainTipBotTransaction[]
 }
 
 export interface ResponseGetOneWalletResponse {
@@ -1749,27 +1802,27 @@ export interface ResponseGetOneWalletResponse {
 }
 
 export interface ResponseGetRepostReactionConfigsResponse {
-  data?: ModelGuildConfigRepostReaction[];
+  data?: ModelGuildConfigRepostReaction[]
 }
 
 export interface ResponseGetSaleTwitterConfigResponse {
-  data?: ModelSaleBotTwitterConfig[];
+  data?: ModelSaleBotTwitterConfig[]
 }
 
 export interface ResponseGetSalesTrackerConfigResponse {
-  data?: ModelGuildConfigSalesTracker[];
+  data?: ModelGuildConfigSalesTracker[]
 }
 
 export interface ResponseGetSoulBoundNFTResponse {
-  data?: ModelNftSoulbound[];
+  data?: ModelNftSoulbound[]
 }
 
 export interface ResponseGetSuggestionNFTCollectionsResponse {
-  data?: ResponseCollectionSuggestions[];
+  data?: ResponseCollectionSuggestions[]
 }
 
 export interface ResponseGetSupportedChains {
-  data?: string[];
+  data?: string[]
 }
 
 export interface ResponseGetSupportedTokenResponse {
@@ -1777,7 +1830,7 @@ export interface ResponseGetSupportedTokenResponse {
 }
 
 export interface ResponseGetSupportedTokensResponse {
-  data?: ModelToken[];
+  data?: ModelToken[]
 }
 
 export interface ResponseGetTrackingWalletsResponse {
@@ -1785,302 +1838,306 @@ export interface ResponseGetTrackingWalletsResponse {
 }
 
 export interface ResponseGetTradeOfferResponse {
-  data?: ModelTradeOffer;
+  data?: ModelTradeOffer
 }
 
 export interface ResponseGetTwitterBlackListResponse {
-  data?: ModelGuildConfigTwitterBlacklist[];
+  data?: ModelGuildConfigTwitterBlacklist[]
 }
 
 export interface ResponseGetTwitterHashtagConfigResponse {
-  data?: ResponseTwitterHashtag;
+  data?: ResponseTwitterHashtag
 }
 
 export interface ResponseGetTwitterLeaderboardResponse {
-  data?: ResponseGetTwitterLeaderboardResponseData;
+  data?: ResponseGetTwitterLeaderboardResponseData
 }
 
 export interface ResponseGetTwitterLeaderboardResponseData {
-  data?: ModelTwitterPostStreak[];
-  metadata?: ResponsePaginationResponse;
+  data?: ModelTwitterPostStreak[]
+  metadata?: ResponsePaginationResponse
 }
 
 export interface ResponseGetUpvoteTiersConfig {
-  data?: ModelUpvoteStreakTier[];
-  message?: string;
+  data?: ModelUpvoteStreakTier[]
+  message?: string
 }
 
 export interface ResponseGetUserBalances {
-  balances?: number;
-  balances_in_usd?: number;
-  id?: string;
-  name?: string;
-  rate_in_usd?: number;
-  symbol?: string;
+  balances?: number
+  balances_in_usd?: number
+  id?: string
+  name?: string
+  rate_in_usd?: number
+  symbol?: string
 }
 
 export interface ResponseGetUserBalancesResponse {
-  data?: ResponseGetUserBalances[];
+  data?: ResponseGetUserBalances[]
 }
 
 export interface ResponseGetUserCurrentGMStreakResponse {
-  data?: ModelDiscordUserGMStreak;
+  data?: ModelDiscordUserGMStreak
 }
 
 export interface ResponseGetUserCurrentUpvoteStreakResponse {
-  discord_id?: string;
-  last_streak_time?: string;
-  minutes_until_reset?: number;
-  minutes_until_reset_discordbotlist?: number;
-  minutes_until_reset_topgg?: number;
-  streak_count?: number;
-  total_count?: number;
+  discord_id?: string
+  last_streak_time?: string
+  minutes_until_reset?: number
+  minutes_until_reset_discordbotlist?: number
+  minutes_until_reset_topgg?: number
+  streak_count?: number
+  total_count?: number
 }
 
 export interface ResponseGetUserEnvelopStreak {
-  data?: ModelUserEnvelopStreak;
+  data?: ModelUserEnvelopStreak
 }
 
 export interface ResponseGetUserProfileResponse {
-  about_me?: string;
-  current_level?: ModelConfigXpLevel;
-  guild?: ModelDiscordGuild;
-  guild_rank?: number;
-  guild_xp?: number;
-  id?: string;
-  next_level?: ModelConfigXpLevel;
-  nr_of_actions?: number;
-  progress?: number;
-  user_faction_xps?: ModelUserFactionXpsMapping;
-  user_wallet?: ModelUserWallet;
+  about_me?: string
+  current_level?: ModelConfigXpLevel
+  guild?: ModelDiscordGuild
+  guild_rank?: number
+  guild_xp?: number
+  id?: string
+  next_level?: ModelConfigXpLevel
+  nr_of_actions?: number
+  progress?: number
+  user_faction_xps?: ModelUserFactionXpsMapping
+  user_wallet?: ModelUserWallet
 }
 
 export interface ResponseGetUserQuestListResponse {
-  data?: ModelQuestUserList[];
+  data?: ModelQuestUserList[]
 }
 
 export interface ResponseGetUserResponse {
-  data?: ResponseUser;
+  data?: ResponseUser
 }
 
 export interface ResponseGetUserUpvoteLeaderboardResponse {
-  data?: ModelDiscordUserUpvoteStreak[];
-  message?: string;
+  data?: ModelDiscordUserUpvoteStreak[]
+  message?: string
 }
 
 export interface ResponseGetUserWalletByGuildIDAddressResponse {
-  data?: ModelUserWallet;
+  data?: ModelUserWallet
 }
 
 export interface ResponseGetVote {
-  data?: ModelDaoVote;
+  data?: ModelDaoVote
 }
 
 export interface ResponseGetVoteChannelConfigResponse {
-  data?: ModelGuildConfigVoteChannel;
-  message?: string;
+  data?: ModelGuildConfigVoteChannel
+  message?: string
 }
 
 export interface ResponseGetWatchlistResponse {
   /** Pagination *PaginationResponse  `json:"pagination"` */
-  data?: ResponseCoinMarketItemData[];
+  data?: ResponseCoinMarketItemData[]
 }
 
 export interface ResponseGetWelcomeChannelConfigResponse {
-  data?: ModelGuildConfigWelcomeChannel;
-  message?: string;
+  data?: ModelGuildConfigWelcomeChannel
+  message?: string
 }
 
 export interface ResponseGuildConfigDaoTrackerResponse {
-  data?: ModelGuildConfigDaoTracker[];
+  data?: ModelGuildConfigDaoTracker[]
 }
 
 export interface ResponseGuildConfigDefaultCurrencyResponse {
-  created_at?: string;
-  guild_id?: string;
-  tip_bot_token?: ModelOffchainTipBotToken;
-  updated_at?: string;
+  created_at?: string
+  guild_id?: string
+  tip_bot_token?: ModelOffchainTipBotToken
+  updated_at?: string
 }
 
 export interface ResponseGuildPruneExcludeList {
-  guild_id?: string;
-  roles?: string[];
+  guild_id?: string
+  roles?: string[]
 }
 
 export interface ResponseIndexerChain {
-  chain_id?: number;
-  is_evm?: boolean;
-  name?: string;
-  symbol?: string;
+  chain_id?: number
+  is_evm?: boolean
+  name?: string
+  symbol?: string
 }
 
 export interface ResponseIndexerGetNFTTokenDetailResponseWithSuggestions {
-  data?: ResponseIndexerNFTTokenDetailData;
-  default_symbol?: ResponseCollectionSuggestions;
-  suggestions?: ResponseCollectionSuggestions[];
+  data?: ResponseIndexerNFTTokenDetailData
+  default_symbol?: ResponseCollectionSuggestions
+  suggestions?: ResponseCollectionSuggestions[]
 }
 
 export interface ResponseIndexerGetNFTTokenTickersResponse {
-  data?: ResponseIndexerNFTTokenTickersData;
+  data?: ResponseIndexerNFTTokenTickersData
 }
 
 export interface ResponseIndexerGetNFTTokensResponse {
-  data?: ResponseIndexerNFTTokenDetailData[];
-  page?: number;
-  size?: number;
-  total?: number;
+  data?: ResponseIndexerNFTTokenDetailData[]
+  page?: number
+  size?: number
+  total?: number
 }
 
 export interface ResponseIndexerNFTActivityData {
-  chain_id?: number;
-  contract_address?: string;
-  created_time?: string;
-  event_type?: string;
-  from_address?: string;
-  id?: number;
-  last_update_time?: string;
-  listing_price?: string;
-  listing_price_obj?: ResponseIndexerPrice;
-  listing_status?: string;
-  listing_type?: string;
-  payment_token?: number;
-  platform_id?: number;
-  quantity?: string;
-  sold_price?: string;
-  sold_price_obj?: ResponseIndexerPrice;
-  to_address?: string;
-  token_id?: string;
-  transaction_hash?: string;
+  chain_id?: number
+  contract_address?: string
+  created_time?: string
+  event_type?: string
+  from_address?: string
+  id?: number
+  last_update_time?: string
+  listing_price?: string
+  listing_price_obj?: ResponseIndexerPrice
+  listing_status?: string
+  listing_type?: string
+  payment_token?: number
+  platform_id?: number
+  quantity?: string
+  sold_price?: string
+  sold_price_obj?: ResponseIndexerPrice
+  to_address?: string
+  token_id?: string
+  transaction_hash?: string
 }
 
 export interface ResponseIndexerNFTCollectionTickersData {
-  address?: string;
-  chain?: ResponseIndexerChain;
-  collection_image?: string;
-  floor_price?: ResponseIndexerPrice;
-  items?: number;
-  last_sale_price?: ResponseIndexerPrice;
-  marketplaces?: string[];
-  name?: string;
-  owners?: number;
-  price_change_1d?: string;
-  price_change_30d?: string;
-  price_change_7d?: string;
-  tickers?: ResponseIndexerTickers;
-  total_volume?: ResponseIndexerPrice;
+  address?: string
+  chain?: ResponseIndexerChain
+  collection_image?: string
+  floor_price?: ResponseIndexerPrice
+  items?: number
+  last_sale_price?: ResponseIndexerPrice
+  marketplaces?: string[]
+  name?: string
+  owners?: number
+  price_change_1d?: string
+  price_change_30d?: string
+  price_change_7d?: string
+  tickers?: ResponseIndexerTickers
+  total_volume?: ResponseIndexerPrice
 }
 
 export interface ResponseIndexerNFTCollectionTickersResponse {
-  data?: ResponseIndexerNFTCollectionTickersData;
+  data?: ResponseIndexerNFTCollectionTickersData
 }
 
 export interface ResponseIndexerNFTTokenAttribute {
-  collection_address?: string;
-  count?: number;
-  frequency?: string;
-  rarity?: string;
-  token_id?: string;
-  trait_type?: string;
-  value?: string;
+  collection_address?: string
+  count?: number
+  frequency?: string
+  rarity?: string
+  token_id?: string
+  trait_type?: string
+  value?: string
 }
 
 export interface ResponseIndexerNFTTokenDetailData {
-  amount?: string;
-  attributes?: ResponseIndexerNFTTokenAttribute[];
-  collection_address?: string;
-  description?: string;
-  image?: string;
-  image_cdn?: string;
-  image_content_type?: string;
-  marketplace?: ResponseNftListingMarketplace[];
-  metadata_id?: string;
-  name?: string;
-  owner?: ResponseIndexerNftTokenOwner;
-  rarity?: ResponseIndexerNFTTokenRarity;
-  rarity_rank?: number;
-  rarity_score?: string;
-  rarity_tier?: string;
-  thumbnail_cdn?: string;
-  token_id?: string;
+  amount?: string
+  attributes?: ResponseIndexerNFTTokenAttribute[]
+  collection_address?: string
+  description?: string
+  image?: string
+  image_cdn?: string
+  image_content_type?: string
+  marketplace?: ResponseNftListingMarketplace[]
+  metadata_id?: string
+  name?: string
+  owner?: ResponseIndexerNftTokenOwner
+  rarity?: ResponseIndexerNFTTokenRarity
+  rarity_rank?: number
+  rarity_score?: string
+  rarity_tier?: string
+  thumbnail_cdn?: string
+  token_id?: string
 }
 
 export interface ResponseIndexerNFTTokenRarity {
-  rank?: number;
-  rarity?: string;
-  score?: string;
-  total?: number;
+  rank?: number
+  rarity?: string
+  score?: string
+  total?: number
 }
 
 export interface ResponseIndexerNFTTokenTickersData {
-  collection_address?: string;
-  description?: string;
-  floor_price?: ResponseIndexerPrice;
-  image?: string;
-  image_cdn?: string;
-  last_sale_price?: ResponseIndexerPrice;
-  name?: string;
-  price_change_1d?: string;
-  price_change_30d?: string;
-  price_change_7d?: string;
-  rarity_rank?: number;
-  rarity_score?: string;
-  rarity_tier?: string;
-  tickers?: ResponseIndexerTickers;
-  token_id?: string;
+  collection_address?: string
+  description?: string
+  floor_price?: ResponseIndexerPrice
+  image?: string
+  image_cdn?: string
+  last_sale_price?: ResponseIndexerPrice
+  name?: string
+  price_change_1d?: string
+  price_change_30d?: string
+  price_change_7d?: string
+  rarity_rank?: number
+  rarity_score?: string
+  rarity_tier?: string
+  tickers?: ResponseIndexerTickers
+  token_id?: string
 }
 
 export interface ResponseIndexerNftTokenOwner {
-  collection_address?: string;
-  owner_address?: string;
-  token_id?: string;
+  collection_address?: string
+  owner_address?: string
+  token_id?: string
 }
 
 export interface ResponseIndexerPrice {
-  amount?: string;
-  token?: ResponseIndexerToken;
+  amount?: string
+  token?: ResponseIndexerToken
 }
 
 export interface ResponseIndexerTickers {
-  prices?: ResponseIndexerPrice[];
-  times?: string[];
-  timestamps?: number[];
+  prices?: ResponseIndexerPrice[]
+  times?: string[]
+  timestamps?: number[]
 }
 
 export interface ResponseIndexerToken {
-  address?: string;
-  decimals?: number;
-  is_native?: boolean;
-  symbol?: string;
+  address?: string
+  decimals?: number
+  is_native?: boolean
+  symbol?: string
 }
 
 export interface ResponseInvitesAggregationResponse {
-  data?: ResponseUserInvitesAggregation;
+  data?: ResponseUserInvitesAggregation
 }
 
 export interface ResponseLinkUserTelegramWithDiscordResponse {
-  data?: ResponseLinkUserTelegramWithDiscordResponseData;
+  data?: ResponseLinkUserTelegramWithDiscordResponseData
 }
 
 export interface ResponseLinkUserTelegramWithDiscordResponseData {
-  discord_id?: string;
-  discord_username?: string;
-  telegram_username?: string;
+  discord_id?: string
+  discord_username?: string
+  telegram_username?: string
 }
 
 export interface ResponseListAllCustomTokenResponse {
-  data?: ModelToken[];
+  data?: ModelToken[]
 }
 
 export interface ResponseListAllNFTCollectionsResponse {
-  data?: ModelNFTCollection[];
+  data?: ModelNFTCollection[]
 }
 
 export interface ResponseListConfigNotifyResponse {
-  data?: ResponseConfigNotifyResponse[];
+  data?: ResponseConfigNotifyResponse[]
 }
 
 export interface ResponseListGuildGroupNFTRolesResponse {
-  data?: ResponseListGuildNFTRoleConfigsResponse[];
+  data?: ResponseListGuildNFTRoleConfigsResponse[]
+}
+
+export interface ResponseListGuildMixRoles {
+  data?: ModelGuildConfigMixRole[]
 }
 
 export interface ResponseListGuildMixRoles {
@@ -2088,376 +2145,376 @@ export interface ResponseListGuildMixRoles {
 }
 
 export interface ResponseListGuildNFTRoleConfigsResponse {
-  color?: number;
-  group_name?: string;
-  guild_id?: string;
-  id?: string;
-  nft_collection_configs?: ResponseNFTCollectionConfig[];
-  number_of_tokens?: number;
-  role_id?: string;
-  role_name?: string;
+  color?: number
+  group_name?: string
+  guild_id?: string
+  id?: string
+  nft_collection_configs?: ResponseNFTCollectionConfig[]
+  number_of_tokens?: number
+  role_id?: string
+  role_name?: string
 }
 
 export interface ResponseListGuildTokenRoles {
-  data?: ModelGuildConfigTokenRole[];
+  data?: ModelGuildConfigTokenRole[]
 }
 
 export interface ResponseListGuildXPRoles {
-  data?: ModelGuildConfigXPRole[];
+  data?: ModelGuildConfigXPRole[]
 }
 
 export interface ResponseListMyGuildsResponse {
-  data?: ResponseDiscordGuildResponse[];
+  data?: ResponseDiscordGuildResponse[]
 }
 
 export interface ResponseListRoleReactionResponse {
-  configs?: ResponseRoleReactionByMessage[];
-  guild_id?: string;
-  success?: boolean;
+  configs?: ResponseRoleReactionByMessage[]
+  guild_id?: string
+  success?: boolean
 }
 
 export interface ResponseLogoutResponse {
-  message?: string;
-  status?: string;
+  message?: string
+  status?: string
 }
 
 export interface ResponseMarketData {
-  current_price?: Record<string, number>;
-  market_cap?: Record<string, number>;
-  price_change_percentage_1h_in_currency?: Record<string, number>;
-  price_change_percentage_24h_in_currency?: Record<string, number>;
-  price_change_percentage_7d_in_currency?: Record<string, number>;
+  current_price?: Record<string, number>
+  market_cap?: Record<string, number>
+  price_change_percentage_1h_in_currency?: Record<string, number>
+  price_change_percentage_24h_in_currency?: Record<string, number>
+  price_change_percentage_7d_in_currency?: Record<string, number>
 }
 
 export interface ResponseMetric {
-  nft_collections?: number;
-  server_active_users?: number;
-  server_command_usage?: number;
-  server_token?: string[];
-  server_token_supported?: number;
-  server_verified_wallets?: number;
-  total_active_users?: number;
-  total_command_usage?: number;
-  total_servers?: number;
-  total_token?: string[];
-  total_token_supported?: number;
-  total_verified_wallets?: number;
+  nft_collections?: number
+  server_active_users?: number
+  server_command_usage?: number
+  server_token?: string[]
+  server_token_supported?: number
+  server_verified_wallets?: number
+  total_active_users?: number
+  total_command_usage?: number
+  total_servers?: number
+  total_token?: string[]
+  total_token_supported?: number
+  total_verified_wallets?: number
 }
 
 export interface ResponseMonikerConfigData {
-  moniker?: ModelMonikerConfig;
-  value?: number;
+  moniker?: ModelMonikerConfig
+  value?: number
 }
 
 export interface ResponseMonikerConfigResponse {
-  data?: ResponseMonikerConfigData[];
+  data?: ResponseMonikerConfigData[]
 }
 
 export interface ResponseNFTChainCollectionCount {
-  chain?: ModelChain;
-  count?: number;
+  chain?: ModelChain
+  count?: number
 }
 
 export interface ResponseNFTCollectionConfig {
-  address?: string;
-  author?: string;
-  chain_id?: string;
-  chain_name?: string;
-  collection_id?: string;
-  created_at?: string;
-  erc_format?: string;
-  explorer_url?: string;
-  id?: string;
-  image?: string;
-  is_verified?: boolean;
-  name?: string;
-  symbol?: string;
+  address?: string
+  author?: string
+  chain_id?: string
+  chain_name?: string
+  collection_id?: string
+  created_at?: string
+  erc_format?: string
+  explorer_url?: string
+  id?: string
+  image?: string
+  is_verified?: boolean
+  name?: string
+  symbol?: string
 }
 
 export interface ResponseNFTCollectionCount {
-  data?: ResponseNFTChainCollectionCount[];
-  total?: number;
+  data?: ResponseNFTChainCollectionCount[]
+  total?: number
 }
 
 export interface ResponseNFTCollectionsData {
-  data?: ModelNFTCollection[];
-  metadata?: UtilPagination;
+  data?: ModelNFTCollection[]
+  metadata?: UtilPagination
 }
 
 export interface ResponseNFTCollectionsResponse {
-  data?: ResponseNFTCollectionsData;
+  data?: ResponseNFTCollectionsData
 }
 
 export interface ResponseNFTNewListed {
-  data?: ModelNewListedNFTCollection[];
-  metadata?: UtilPagination;
+  data?: ModelNewListedNFTCollection[]
+  metadata?: UtilPagination
 }
 
 export interface ResponseNFTNewListedResponse {
-  data?: ResponseNFTNewListed;
+  data?: ResponseNFTNewListed
 }
 
 export interface ResponseNFTTradingVolume {
-  collection_address?: string;
-  collection_chain_id?: number;
-  collection_name?: string;
-  collection_symbol?: string;
-  token?: string;
-  trading_volume?: number;
+  collection_address?: string
+  collection_chain_id?: number
+  collection_name?: string
+  collection_symbol?: string
+  token?: string
+  trading_volume?: number
 }
 
 export interface ResponseNFTTradingVolumeResponse {
-  data?: ResponseNFTTradingVolume[];
+  data?: ResponseNFTTradingVolume[]
 }
 
 export interface ResponseNewGuildConfigWalletVerificationMessageResponse {
-  data?: ModelGuildConfigWalletVerificationMessage;
-  status?: string;
+  data?: ModelGuildConfigWalletVerificationMessage
+  status?: string
 }
 
 export interface ResponseNewGuildGroupNFTRoleResponse {
-  data?: ResponseConfigGroupNFTRoleResponse;
-  message?: string;
+  data?: ResponseConfigGroupNFTRoleResponse
+  message?: string
 }
 
 export interface ResponseNftListingMarketplace {
-  contract_address?: string;
-  floor_price?: string;
-  item_url?: string;
-  listing_price?: string;
-  listing_status?: string;
-  payment_token?: string;
-  payment_token_decimals?: string;
-  platform_id?: number;
-  platform_name?: string;
-  token_id?: string;
+  contract_address?: string
+  floor_price?: string
+  item_url?: string
+  listing_price?: string
+  listing_status?: string
+  payment_token?: string
+  payment_token_decimals?: string
+  platform_id?: number
+  platform_name?: string
+  token_id?: string
 }
 
 export interface ResponseNftMetadataAttrIcon {
-  discord_icon?: string;
-  id?: number;
-  trait_type?: string;
-  unicode_icon?: string;
+  discord_icon?: string
+  id?: number
+  trait_type?: string
+  unicode_icon?: string
 }
 
 export interface ResponseNftMetadataAttrIconResponse {
-  data?: ResponseNftMetadataAttrIcon[];
+  data?: ResponseNftMetadataAttrIcon[]
 }
 
 export interface ResponseNftSales {
-  buyer?: string;
-  nft_collection_address?: string;
-  nft_name?: string;
-  nft_price?: number;
-  nft_price_token?: string;
-  nft_status?: string;
-  platform?: string;
-  seller?: string;
+  buyer?: string
+  nft_collection_address?: string
+  nft_name?: string
+  nft_price?: number
+  nft_price_token?: string
+  nft_status?: string
+  platform?: string
+  seller?: string
 }
 
 export interface ResponseNftSalesResponse {
-  data?: ResponseNftSales[];
+  data?: ResponseNftSales[]
 }
 
 export interface ResponseNftWatchlistSuggest {
-  default_symbol?: ResponseCollectionSuggestions;
-  suggestions?: ResponseCollectionSuggestions[];
+  default_symbol?: ResponseCollectionSuggestions
+  suggestions?: ResponseCollectionSuggestions[]
 }
 
 export interface ResponseNftWatchlistSuggestResponse {
-  data?: ResponseNftWatchlistSuggest;
+  data?: ResponseNftWatchlistSuggest
 }
 
 export interface ResponseOffchainTipBotTransferToken {
-  amount?: number;
-  amount_in_usd?: number;
-  recipient_id?: string;
-  sender_id?: string;
-  symbol?: string;
+  amount?: number
+  amount_in_usd?: number
+  recipient_id?: string
+  sender_id?: string
+  symbol?: string
 }
 
 export interface ResponseOffchainTipBotTransferTokenResponse {
-  data?: ResponseOffchainTipBotTransferToken[];
+  data?: ResponseOffchainTipBotTransferToken[]
 }
 
 export interface ResponseOffchainTipBotWithdraw {
-  amount?: number;
-  symbol?: string;
-  to_address?: string;
-  transaction_fee?: number;
-  tx_hash?: string;
-  tx_url?: string;
-  user_discord_id?: string;
-  withdraw_amount?: BigFloat;
+  amount?: number
+  symbol?: string
+  to_address?: string
+  transaction_fee?: number
+  tx_hash?: string
+  tx_url?: string
+  user_discord_id?: string
+  withdraw_amount?: BigFloat
 }
 
 export interface ResponseOffchainTipBotWithdrawResponse {
-  data?: ResponseOffchainTipBotWithdraw;
+  data?: ResponseOffchainTipBotWithdraw
 }
 
 export interface ResponsePaginationResponse {
   /** page index */
-  page?: number;
+  page?: number
   /** page size */
-  size?: number;
-  total?: number;
+  size?: number
+  total?: number
 }
 
 export interface ResponseResponseDataMessage {
-  data?: ResponseResponseMessage;
+  data?: ResponseResponseMessage
 }
 
 export interface ResponseResponseMessage {
-  message?: string;
+  message?: string
 }
 
 export interface ResponseResponseStatus {
-  status?: string;
+  status?: string
 }
 
 export interface ResponseResponseSucess {
-  success?: boolean;
+  success?: boolean
 }
 
 export interface ResponseRole {
-  id?: string;
-  reaction?: string;
+  id?: string
+  reaction?: string
 }
 
 export interface ResponseRoleReactionByMessage {
-  channel_id?: string;
-  message_id?: string;
-  roles?: ResponseRole[];
+  channel_id?: string
+  message_id?: string
+  roles?: ResponseRole[]
 }
 
 export interface ResponseRoleReactionConfigResponse {
-  channel_id?: string;
-  guild_id?: string;
-  message_id?: string;
-  roles?: ResponseRole[];
-  success?: boolean;
+  channel_id?: string
+  guild_id?: string
+  message_id?: string
+  roles?: ResponseRole[]
+  success?: boolean
 }
 
 export interface ResponseRoleReactionResponse {
-  channel_id?: string;
-  guild_id?: string;
-  message_id?: string;
-  role?: ResponseRole;
+  channel_id?: string
+  guild_id?: string
+  message_id?: string
+  role?: ResponseRole
 }
 
 export interface ResponseSearchCoinResponse {
-  data?: ModelCoingeckoSupportedTokens[];
+  data?: ModelCoingeckoSupportedTokens[]
 }
 
 export interface ResponseSparkLineIn7D {
-  price?: number[];
+  price?: number[]
 }
 
 export interface ResponseSubmitOnchainTransfer {
-  amount?: number;
-  amount_in_usd?: number;
-  recipient_id?: string;
-  sender_id?: string;
-  symbol?: string;
+  amount?: number
+  amount_in_usd?: number
+  recipient_id?: string
+  sender_id?: string
+  symbol?: string
 }
 
 export interface ResponseSubmitOnchainTransferResponse {
-  data?: ResponseSubmitOnchainTransfer[];
+  data?: ResponseSubmitOnchainTransfer[]
 }
 
 export interface ResponseTickerData {
-  base?: string;
-  coin_id?: string;
-  last?: number;
-  target?: string;
-  target_coin_id?: string;
+  base?: string
+  coin_id?: string
+  last?: number
+  target?: string
+  target_coin_id?: string
 }
 
 export interface ResponseToggleActivityConfigResponse {
-  data?: ModelGuildConfigActivity;
-  message?: string;
+  data?: ModelGuildConfigActivity
+  message?: string
 }
 
 export interface ResponseTokenHolderStatus {
-  data?: ResponseTokenHolderStatusData;
+  data?: ResponseTokenHolderStatusData
 }
 
 export interface ResponseTokenHolderStatusData {
-  guild_config?: ModelGuildConfigDaoProposal;
-  is_qualified?: boolean;
-  is_wallet_connected?: boolean;
-  user_holding_amount?: string;
-  vote_config?: ModelDaoProposalVoteOption;
+  guild_config?: ModelGuildConfigDaoProposal
+  is_qualified?: boolean
+  is_wallet_connected?: boolean
+  user_holding_amount?: string
+  vote_config?: ModelDaoProposalVoteOption
 }
 
 export interface ResponseTransactionsResponse {
-  data?: ModelOffchainTipBotTransferHistory[];
+  data?: ModelOffchainTipBotTransferHistory[]
 }
 
 export interface ResponseTwitterHashtag {
-  channel_id?: string;
-  created_at?: string;
-  from_twitter?: string[];
-  guild_id?: string;
-  hashtag?: string[];
-  rule_id?: string;
-  twitter_username?: string[];
-  updated_at?: string;
-  user_id?: string;
+  channel_id?: string
+  created_at?: string
+  from_twitter?: string[]
+  guild_id?: string
+  hashtag?: string[]
+  rule_id?: string
+  twitter_username?: string[]
+  updated_at?: string
+  user_id?: string
 }
 
 export interface ResponseUpdateGuildTokenRole {
-  data?: ModelGuildConfigTokenRole;
+  data?: ModelGuildConfigTokenRole
 }
 
 export interface ResponseUpdateUserFeedbackResponse {
-  data?: ModelUserFeedback;
+  data?: ModelUserFeedback
 }
 
 export interface ResponseUpdateVote {
-  data?: ModelDaoVote;
+  data?: ModelDaoVote
 }
 
 export interface ResponseUser {
-  guild_users?: ResponseGetGuildUserResponse[];
-  id?: string;
-  in_discord_wallet_address?: string;
-  in_discord_wallet_number?: number;
-  nr_of_join?: number;
-  username?: string;
+  guild_users?: ResponseGetGuildUserResponse[]
+  id?: string
+  in_discord_wallet_address?: string
+  in_discord_wallet_number?: number
+  nr_of_join?: number
+  username?: string
 }
 
 export interface ResponseUserDeviceResponse {
-  device_id?: string;
-  ios_noti_token?: string;
+  device_id?: string
+  ios_noti_token?: string
 }
 
 export interface ResponseUserFeedbackResponse {
-  data?: ModelUserFeedback[];
-  page?: number;
-  size?: number;
-  total?: number;
+  data?: ModelUserFeedback[]
+  page?: number
+  size?: number
+  total?: number
 }
 
 export interface ResponseUserInvitesAggregation {
-  fake?: number;
-  inviter_id?: string;
-  left?: number;
-  regular?: number;
+  fake?: number
+  inviter_id?: string
+  left?: number
+  regular?: number
 }
 
 export interface ResponseUserTransactionResponse {
-  data?: ModelOffchainTipBotTransferHistory[];
+  data?: ModelOffchainTipBotTransferHistory[]
 }
 
 export interface UtilPagination {
-  page?: number;
-  size?: number;
-  total?: number;
+  page?: number
+  size?: number
+  total?: number
 }
 
 export interface UuidNullUUID {
-  uuid?: string;
+  uuid?: string
   /** Valid is true if UUID is not NULL */
-  valid?: boolean;
+  valid?: boolean
 }
