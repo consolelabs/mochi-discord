@@ -2,7 +2,7 @@ import { Command } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { getWalletsEmbed, viewWalletDetails } from "./processor"
+import { viewWalletsList, viewWalletDetails } from "./processor"
 
 const command: Command = {
   id: "wallet_view",
@@ -13,15 +13,11 @@ const command: Command = {
     const args = getCommandArguments(msg)
     const { author } = msg
     switch (args.length) {
-      case 2: {
-        return {
-          messageOptions: { embeds: [await getWalletsEmbed(msg, author)] },
-        }
-      }
+      case 2:
+        return await viewWalletsList(msg, author)
       default:
-        break
+        return await viewWalletDetails(msg, author, args[2])
     }
-    return await viewWalletDetails(msg, author)
   },
   getHelpMessage: async (msg) => ({
     embeds: [

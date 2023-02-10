@@ -271,10 +271,13 @@ async function executeCommand(
           .on("collect", async (i: ButtonInteraction) => {
             const newRes = await runResponse.buttonCollector?.(i)
             if (newRes) {
-              await msg.edit({
+              const newMsg = await msg.edit({
                 embeds: newRes.messageOptions.embeds,
                 components: newRes.messageOptions.components,
               })
+              if (newRes.interactionOptions) {
+                InteractionManager.add(newMsg.id, newRes.interactionOptions)
+              }
             }
           })
           .on("end", () => {

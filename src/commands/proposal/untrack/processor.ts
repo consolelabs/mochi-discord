@@ -17,7 +17,6 @@ import { PREFIX } from "utils/constants"
 import { composeProposalInfoEmbed } from "../info/processor"
 
 export const handler: InteractionHandler = async (msgOrInteraction) => {
-  console.log("handler")
   const interaction = msgOrInteraction as SelectMenuInteraction
   const msg = msgOrInteraction as Message
   const [id] = interaction.values[0].split("|")
