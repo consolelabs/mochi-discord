@@ -296,7 +296,7 @@ async function renderNFTWatchlist(data: any[]) {
     const image = await loadAndCacheImage(item.image, radius * 2, radius * 2)
     const imageX = itemContainer.x.from + (itemContainer.pl ?? 0)
     const imageY = itemContainer.y.from + (itemContainer.pt ?? 0)
-    ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
+    if (image) ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
 
     // symbol
     ctx.font = "bold 29px Inter"
@@ -320,7 +320,7 @@ async function renderNFTWatchlist(data: any[]) {
     )
     const tokenX = imageX
     const tokenY = imageY + tokenH + radius + 20
-    ctx.drawImage(tokenLogo, tokenX, tokenY, tokenW, tokenH)
+    if (tokenLogo) ctx.drawImage(tokenLogo, tokenX, tokenY, tokenW, tokenH)
 
     // price
     ctx.font = "bold 30px Inter"
