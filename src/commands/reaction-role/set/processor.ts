@@ -3,13 +3,17 @@ import { GuildIdNotFoundError, InternalError } from "errors"
 import { RoleReactionEvent } from "types/config"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
-import { isDiscordMessageLink, defaultEmojis } from "utils/common"
+import { isDiscordMessageLink, defaultEmojis, getEmoji } from "utils/common"
 import { throwOnInvalidEmoji } from "utils/emoji"
 import { emojis, getEmojiURL, msgColors } from "./../../../utils/common"
 import config from "adapters/config"
 import { PREFIX } from "utils/constants"
 
-const troubleshootMsg = `\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._`
+const troubleshootMsg = `\n\n${getEmoji(
+  "POINTINGRIGHT"
+)} _Click “More” on your messages then choose “Copy Message Link”._\n${getEmoji(
+  "POINTINGRIGHT"
+)} _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._`
 
 export const handleRoleSet = async (
   args: string[],
@@ -58,7 +62,9 @@ export const handleRoleSetHelpCmd = async (msg: Message) => {
   return {
     embeds: [
       composeEmbedMessage(msg, {
-        description: `Don't know where to get the message link?${troubleshootMsg}\n\n*Note:\n👉 Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
+        description: `Don't know where to get the message link?${troubleshootMsg}\n\n*Note:\n${getEmoji(
+          "POINTINGRIGHT"
+        )} Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
         usage: `${PREFIX}rr set <message_link> <emoji> <role>`,
         examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
       }),

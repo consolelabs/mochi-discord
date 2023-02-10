@@ -2,6 +2,7 @@ import community from "adapters/community"
 import { Message } from "discord.js"
 import { InternalError } from "errors"
 import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
+import { getEmoji } from "utils/common"
 import { callAPI, toEmbed } from "../processor"
 
 export async function executeNftIntegrateCommand(
@@ -36,7 +37,9 @@ export async function executeNftIntegrateCommand(
     throw new InternalError({
       message: msg,
       title: "Can't find the NFT collection",
-      description: `The NFT Address and NFT Chain must be valid. Go to the collection's official website/marketplace to find this information.\n👉 **Marketplace Examples:** [Opensea](http://Opensea.io), [Nftkey](https://nftkey.app/), [Paintswap](https://paintswap.finance/)`,
+      description: `The NFT Address and NFT Chain must be valid. Go to the collection's official website/marketplace to find this information.\n${getEmoji(
+        "POINTINGRIGHT"
+      )} **Marketplace Examples:** [Opensea](http://Opensea.io), [Nftkey](https://nftkey.app/), [Paintswap](https://paintswap.finance/)`,
     })
   }
 

@@ -58,7 +58,11 @@ export async function withdraw(msg: Message, args: string[]) {
         throw new InternalError({
           message: msg,
           title: "Unsupported token",
-          description: `**${payload.token.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+          description: `**${payload.token.toUpperCase()}** hasn't been supported.\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
+            "POINTINGRIGHT"
+          )} To add your token, run \`$token add\`.`,
         })
       default:
         throw new APIError({ message: msg, curl, description: log, error })

@@ -5,7 +5,7 @@ import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
-import { defaultEmojis } from "utils/common"
+import { defaultEmojis, getEmoji } from "utils/common"
 import { handle } from "../processor"
 
 const command: Command = {
@@ -64,8 +64,11 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}dr set <@role_name/roleID>`,
           title: "Setting a default role",
-          description:
-            "If you don't want to notify users when setting up the default role, you can use role ID instead of role name.\n\nNote: To get the roleID\n👉 _Go to Server Setting, and choose Roles_\n👉 _Select a role, and copy its ID_",
+          description: `If you don't want to notify users when setting up the default role, you can use role ID instead of role name.\n\nNote: To get the roleID\n${getEmoji(
+            "POINTINGRIGHT"
+          )} _Go to Server Setting, and choose Roles_\n${getEmoji(
+            "POINTINGRIGHT"
+          )} _Select a role, and copy its ID_`,
           examples: `${PREFIX}dr set @Visitor`,
           document: `${DEFAULT_ROLE_GITBOOK}&action=set`,
         }),

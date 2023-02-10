@@ -38,7 +38,9 @@ const textCmd: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}rr <action>`,
         examples: `${PREFIX}reactionrole list\n${PREFIX}rr list\n${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
-        description: `Assign a role corresponding to users' reaction\n\n*Note:\n👉 When setting a new reaction role, please use the **custom emoji from this server** and the **Discord default emoji**.* ${getEmoji(
+        description: `Assign a role corresponding to users' reaction\n\n*Note:\n${getEmoji(
+          "POINTINGRIGHT"
+        )} When setting a new reaction role, please use the **custom emoji from this server** and the **Discord default emoji**.* ${getEmoji(
           "nekosad"
         )}`,
         footer: [`Type ${PREFIX}help rr <action> for a specific action!`],

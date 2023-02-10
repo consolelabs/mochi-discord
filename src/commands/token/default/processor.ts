@@ -26,7 +26,7 @@ export async function handleTokenDefault(
       return {
         embeds: [
           getErrorEmbed({
-            description: `\`${symbol}\` hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`\n${defaultEmojis.POINT_RIGHT} To add your token, run $token add-custom or $token add.`,
+            description: `\`${symbol}\` hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`\n${defaultEmojis.POINT_RIGHT} To add your token, run \`$token add\`.`,
           }),
         ],
       }

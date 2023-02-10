@@ -86,7 +86,7 @@ const slashCmd: SlashCommand = {
         thumbnail: thumbnails.TOKENS,
         description: "Manage all supported tokens by Mochi",
         usage: `${SLASH_PREFIX}tokens`,
-        examples: `${SLASH_PREFIX}tokens list\n${SLASH_PREFIX}token list\n${SLASH_PREFIX}tokens add-custom 0x22c36BfdCef207F9c0CC941936eff94D4246d14A BACC eth`,
+        examples: `${SLASH_PREFIX}tokens list\n${SLASH_PREFIX}token list`,
         document: TOKEN_GITBOOK,
         footer: [
           `Type ${SLASH_PREFIX}help token <action> for a specific action!`,
