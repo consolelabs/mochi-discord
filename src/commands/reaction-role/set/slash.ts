@@ -4,6 +4,7 @@ import { SLASH_PREFIX as PREFIX } from "utils/constants"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { getEmoji } from "utils/common"
 
 const command: SlashCommand = {
   name: "set",
@@ -48,8 +49,11 @@ const command: SlashCommand = {
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        description:
-          "Don't know where to get the message link?\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._",
+        description: `Don't know where to get the message link?\n${getEmoji(
+          "POINTINGRIGHT"
+        )} _Click “More” on your messages then choose “Copy Message Link”._\n${getEmoji(
+          "POINTINGRIGHT"
+        )} _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._`,
         usage: `${PREFIX}rr set <message_link> <emoji> <role>`,
         examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
       }),

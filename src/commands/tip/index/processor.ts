@@ -5,7 +5,6 @@ import {
   Message,
   MessageActionRow,
   MessageButton,
-  MessageEmbed,
   MessageOptions,
 } from "discord.js"
 import { InternalError } from "errors"
@@ -30,10 +29,7 @@ import {
 } from "utils/tip-bot"
 import * as processor from "./processor"
 import { userMention } from "@discordjs/builders"
-import {
-  MessageButtonStyles,
-  MessageComponentTypes,
-} from "discord.js/typings/enums"
+import { MessageButtonStyles } from "discord.js/typings/enums"
 import { getExitButton } from "ui/discord/button"
 import { RunResult, MultipleResult } from "types/common"
 
@@ -81,7 +77,11 @@ export async function handleTip(
     throw new InternalError({
       message: msg,
       title: "Unsupported token",
-      description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`,
+      description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n${getEmoji(
+        "POINTINGRIGHT"
+      )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
+        "POINTINGRIGHT"
+      )} To add your token, run \`$token add\`.`,
     })
   }
 

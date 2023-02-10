@@ -20,8 +20,9 @@ export async function handleTokenList(
         embeds: [
           composeEmbedMessage(null, {
             title: "No token found",
-            description:
-              "👉 To add more token to the list, use `$token add` or `$token add-custom`",
+            description: `${getEmoji(
+              "POINTINGRIGHT"
+            )} To add more token to the list, use \`$token add\``,
           }),
         ],
       },

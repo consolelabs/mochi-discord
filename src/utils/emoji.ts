@@ -1,6 +1,7 @@
 import { InternalError, OriginalMessage } from "errors"
 import { parseDiscordToken } from "./commands"
 import { logger } from "logger"
+import { getEmoji } from "./common"
 
 export function throwOnInvalidEmoji(emoji: string, msg: OriginalMessage) {
   const { isEmoji, isNativeEmoji, isAnimatedEmoji, value } =
@@ -31,8 +32,9 @@ export function throwOnInvalidEmoji(emoji: string, msg: OriginalMessage) {
     throw new InternalError({
       message: msg,
       title: "Unsupported emojis",
-      description:
-        "👉 Please use an emoji from this server or in the Discord default list.",
+      description: `${getEmoji(
+        "POINTINGRIGHT"
+      )} Please use an emoji from this server or in the Discord default list.`,
     })
   }
 }
