@@ -6,7 +6,7 @@ import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { throwOnInvalidEmoji } from "utils/emoji"
-import { defaultEmojis } from "utils/common"
+import { defaultEmojis, getEmoji } from "utils/common"
 
 const command: Command = {
   id: "starboard_set_chat",
@@ -64,7 +64,9 @@ const command: Command = {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}sb set-chat <emoji-start> <emoji-stop> <channel>`,
-          description: `*Note:\n👉 Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
+          description: `*Note:\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
           examples: `${PREFIX}sb set-chat 🌟 ❣️ #starboard`,
         }),
       ],

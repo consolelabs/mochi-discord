@@ -5,6 +5,13 @@ export function assertRunResult(
   output: RunResult<MessageOptions>,
   expected: RunResult<MessageOptions>
 ) {
+  // no need to assert timestamp
+  if (output?.messageOptions?.embeds?.[0]) {
+    output.messageOptions.embeds[0].timestamp = null
+  }
+  if (expected?.messageOptions?.embeds?.[0]) {
+    expected.messageOptions.embeds[0].timestamp = null
+  }
   expect(output).toStrictEqual(expected)
 }
 

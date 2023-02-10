@@ -33,7 +33,11 @@ export async function deposit(
           )} Unfortunately, no **${tokenSymbol.toUpperCase()}** contract is available at this time. Please try again later`
           break
         default:
-          description = `**${tokenSymbol.toUpperCase()}** hasn't been supported.\n👉 Please choose one in our supported \`$token list\` or \`$moniker list\`!\n👉 To add your token, run \`$token add-custom\` or \`$token add\`.`
+          description = `**${tokenSymbol.toUpperCase()}** hasn't been supported.\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
+            "POINTINGRIGHT"
+          )} To add your token, run \`$token add\`.`
           break
       }
       throw new InternalError({

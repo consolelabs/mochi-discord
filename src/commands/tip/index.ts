@@ -32,13 +32,25 @@ const textCmd: Command = {
       }).addFields(
         {
           name: "You can send to the recipient by:",
-          value:
-            "👉 Username(s): `@minh`, `@tom`\n👉 Role(s): `@Staff`, `@Dev`\n👉 #Text_channel: `#mochi`, `#channel`\n👉 In voice channel: mention “`in voice channel`” to tip members currently in\n👉 Online status: add the active status “`online`” before mentioning recipients",
+          value: `${getEmoji(
+            "POINTINGRIGHT"
+          )} Username(s): \`@minh\`, \`@tom\`\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Role(s): \`@Staff\`, \`@Dev\`\n${getEmoji(
+            "POINTINGRIGHT"
+          )} #Text_channel: \`#mochi\`, \`#channel\`\n${getEmoji(
+            "POINTINGRIGHT"
+          )} In voice channel: mention “\`in voice channel\`” to tip members currently in\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Online status: add the active status “\`online\`” before mentioning recipients`,
         },
         {
           name: "Tip with token:",
-          value:
-            "👉 Tip by the cryptocurrencies, choose one in the `$token list`.\n👉 To tip by moniker, choose one in the `$moniker list`.",
+          value: `${getEmoji(
+            "POINTINGRIGHT"
+          )} Tip by the cryptocurrencies, choose one in the \`$token list\`.\n${getEmoji(
+            "POINTINGRIGHT"
+          )} To tip by moniker, choose one in the \`$moniker list\`.`,
         },
         {
           name: "**Examples**",
@@ -109,13 +121,25 @@ const slashCmd: SlashCommand = {
       }).addFields(
         {
           name: "You can send to the recipient by:",
-          value:
-            "👉 Username(s): `@minh`, `@tom`\n👉 Role(s): `@Staff`, `@Dev`\n👉 #Text_channel: `#mochi`, `#channel`\n👉 In voice channel: mention “`in voice channel`” to tip members currently in\n👉 Online status: add the active status “`online`” before mentioning recipients",
+          value: `${getEmoji(
+            "POINTINGRIGHT"
+          )} Username(s): \`@minh\`, \`@tom\`\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Role(s): \`@Staff\`, \`@Dev\`\n${getEmoji(
+            "POINTINGRIGHT"
+          )} #Text_channel: \`#mochi\`, \`#channel\`\n${getEmoji(
+            "POINTINGRIGHT"
+          )} In voice channel: mention “\`in voice channel\`” to tip members currently in\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Online status: add the active status “\`online\`” before mentioning recipients`,
         },
         {
           name: "Tip with token:",
-          value:
-            "👉 Tip by the cryptocurrencies, choose one in the `$token list`.\n👉 To tip by moniker, choose one in the `$moniker list`.",
+          value: `${getEmoji(
+            "POINTINGRIGHT"
+          )} Tip by the cryptocurrencies, choose one in the \`$token list\`.\n${getEmoji(
+            "POINTINGRIGHT"
+          )} To tip by moniker, choose one in the \`$moniker list\`.`,
         },
         {
           name: "**Examples**",

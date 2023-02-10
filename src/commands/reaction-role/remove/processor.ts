@@ -10,6 +10,7 @@ import {
   emojis,
   getEmojiURL,
   msgColors,
+  getEmoji,
 } from "utils/common"
 import { PREFIX } from "utils/constants"
 
@@ -94,7 +95,11 @@ export const parseRequestArguments = async (
     throw new InternalError({
       message: msg,
       title: "Invalid message link",
-      description: `Your message link is invalid. Make sure that message exists, or that you have entered the link correctly.\n\n👉 _Click “More” on your messages then choose “Copy Message Link”._\n👉 Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions.`,
+      description: `Your message link is invalid. Make sure that message exists, or that you have entered the link correctly.\n\n${getEmoji(
+        "POINTINGRIGHT"
+      )} _Click “More” on your messages then choose “Copy Message Link”._\n${getEmoji(
+        "POINTINGRIGHT"
+      )} Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions.`,
     })
   }
 
