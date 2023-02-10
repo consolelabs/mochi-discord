@@ -367,6 +367,52 @@ class Defi extends Fetcher {
       .join("&")
     return await fetch(`${FTMSCAN_API}?${queryStr}`)
   }
+
+  async getUserWalletWatchlist(userId: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/users/${userId}/wallets`)
+  }
+
+  async findWallet(userId: string, query: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${userId}/wallets/${query}`
+    )
+  }
+
+  async getWalletAssets(userId: string, address: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${userId}/wallets/${address}/assets`
+    )
+  }
+
+  async getWalletTxns(userId: string, address: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${userId}/wallets/${address}/txns`
+    )
+  }
+
+  async trackWallet(body: { userId: string; address: string; alias: string }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${body.userId}/wallets/track`,
+      {
+        method: "POST",
+        body,
+      }
+    )
+  }
+
+  async untrackWallet(body: {
+    userId: string
+    address: string
+    alias: string
+  }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${body.userId}/wallets/untrack`,
+      {
+        method: "POST",
+        body,
+      }
+    )
+  }
 }
 
 export default new Defi()
