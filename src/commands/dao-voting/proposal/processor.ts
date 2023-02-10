@@ -18,6 +18,7 @@ import {
 } from "ui/discord/embed"
 import { composeButtonLink } from "ui/discord/button"
 import profile from "adapters/profile"
+import { logger } from "logger"
 
 let proposalTitle = ""
 let proposalDesc = ""
@@ -272,7 +273,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
             }),
           ],
         })
-        .catch((err) => console.log(err))
+        .catch((err) => logger.log(err))
       return
     }
   }

@@ -10,7 +10,6 @@ import {
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getCommandArguments } from "utils/commands"
 import {
   emojis,
   getEmoji,
@@ -28,7 +27,7 @@ const chains: Record<string, string> = {
   "250": "Fantom Opera",
 }
 
-function composeWalletViewSelectMenu(address: string) {
+function composeWalletViewSelectMenuRow(address: string) {
   return new MessageActionRow().addComponents(
     new MessageSelectMenu({
       custom_id: "wallet_view_select_menu",
@@ -40,7 +39,7 @@ function composeWalletViewSelectMenu(address: string) {
   )
 }
 
-function composeChainSelectMenu(address: string) {
+function composeChainSelectMenuRow(address: string) {
   return new MessageActionRow().addComponents(
     new MessageSelectMenu({
       custom_id: "wallet_chain_select_menu",
@@ -61,13 +60,9 @@ function composeChainSelectMenu(address: string) {
 
 export async function viewWalletDetails(
   message: OriginalMessage,
-  author: User
+  author: User,
+  addressOrAlias: string
 ) {
-  let addressOrAlias = ""
-  if (message instanceof Message) {
-    const args = getCommandArguments(message)
-    addressOrAlias = args[2]
-  }
   const {
     data: wallet,
     ok,
@@ -94,20 +89,20 @@ export async function viewWalletDetails(
     // 2. address/alias is being tracked
     address = wallet.address
   }
-  const viewSelectMenuRow = composeWalletViewSelectMenu(address)
-  // chainSelectMenu
   return {
     messageOptions: {
       embeds: [await getAssetsEmbed(message, author, address)],
-      components: [viewSelectMenuRow],
+      components: [composeWalletViewSelectMenuRow(address)],
     },
     interactionOptions: {
-      handler: viewHandler,
+      handler: selectWalletViewHandler,
     },
   }
 }
 
-export const viewHandler: InteractionHandler = async (msgOrInteraction) => {
+export const selectWalletViewHandler: InteractionHandler = async (
+  msgOrInteraction
+) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   await interaction.deferUpdate()
   const { message } = <{ message: Message }>interaction
@@ -128,7 +123,7 @@ export const viewHandler: InteractionHandler = async (msgOrInteraction) => {
     (opt, i) => (opt.default = i === choices.indexOf(type))
   )
 
-  const chainRow = composeChainSelectMenu(address)
+  const chainRow = composeChainSelectMenuRow(address)
   const chainSelectMenu = chainRow?.components[0] as MessageSelectMenu
   chainSelectMenu.options.forEach(
     (opt, i) =>
@@ -147,7 +142,30 @@ export const viewHandler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
-export async function getWalletsEmbed(message: OriginalMessage, author: User) {
+function composeWalletSelectMenuRow(wallets: any) {
+  return new MessageActionRow().addComponents(
+    new MessageSelectMenu({
+      custom_id: "wallet_list_select_menu",
+      options: wallets.map((w: any) => {
+        const addr = shortenHashOrAddress(w.address)
+        return {
+          label: w.alias ? `${w.alias} - ${addr}` : addr,
+          value: w.address,
+        }
+      }),
+    })
+  )
+}
+
+const selectWalletHandler: InteractionHandler = async (msgOrInteraction) => {
+  const i = msgOrInteraction as SelectMenuInteraction
+  await i.deferUpdate()
+  const { message } = <{ message: Message }>i
+  const address = i.values[0]
+  return await viewWalletDetails(message, i.user, address)
+}
+
+export async function viewWalletsList(message: OriginalMessage, author: User) {
   const {
     data: wallets,
     ok,
@@ -157,11 +175,12 @@ export async function getWalletsEmbed(message: OriginalMessage, author: User) {
   if (!ok) throw new APIError({ message, description: log, curl })
   const pointingright = getEmoji("pointingright")
   if (wallets.length === 0) {
-    return composeEmbedMessage(null, {
+    const embed = composeEmbedMessage(null, {
       author: ["Wallet list", getEmojiURL(emojis.TRANSACTIONS)],
-      description: `You haven't added any wallet to the list.\n${pointingright} You can add more wallet by using \`${PREFIX}wallet add <wallet address> [<alias>]\`\n${pointingright} If you just want to check one wallet balance, you can directly command \`${PREFIX}wallet view <address>\`.`,
+      description: `You haven't added any wallet to the list.\n${pointingright} You can add more wallet by using \`${PREFIX}wallet add <wallet address> [alias]\`\n${pointingright} If you just want to check one wallet balance, you can directly command \`${PREFIX}wallet view <address>/<alias>\`.`,
       originalMsgAuthor: author,
     })
+    return { messageOptions: { embeds: [embed] } }
   }
   const { alias, address, netWorth } = wallets.reduce(
     (acc: any, cur: any) => ({
@@ -171,14 +190,23 @@ export async function getWalletsEmbed(message: OriginalMessage, author: User) {
     }),
     { alias: "", address: "", netWorth: "" }
   )
-  return composeEmbedMessage(null, {
+  const embed = composeEmbedMessage(null, {
     author: ["Wallet list", getEmojiURL(emojis.TRANSACTIONS)],
     originalMsgAuthor: author,
   }).addFields([
-    { name: "Alias", value: alias, inline: true },
-    { name: "Address", value: address, inline: true },
-    { name: "Net worth", value: netWorth, inline: true },
+    { name: `${getEmoji("paw")} Alias`, value: alias, inline: true },
+    { name: `${getEmoji("address")} Address`, value: address, inline: true },
+    { name: `${getEmoji("coin")} Net worth`, value: netWorth, inline: true },
   ])
+  return {
+    messageOptions: {
+      embeds: [embed],
+      components: [composeWalletSelectMenuRow(wallets)],
+    },
+    interactionOptions: {
+      handler: selectWalletHandler,
+    },
+  }
 }
 
 export async function getAssetsEmbed(
@@ -272,7 +300,7 @@ export async function getTxnsEmbed(
     transfer_native: getEmoji("swap"),
     transfer_erc20: getEmoji("swap"),
     approval: getEmoji("approve"),
-    contract_interaction: getEmoji("transactions"),
+    contract_interaction: getEmoji("trade"),
   }
   const reply = getEmoji("reply")
   const pointingright = getEmoji("pointingright")
