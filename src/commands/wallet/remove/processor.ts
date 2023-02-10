@@ -22,7 +22,7 @@ export async function untrackWallet(
     throw new InternalError({
       message: msg,
       title: " Invalid wallet information",
-      description: `Your inserted address or alias was not saved.\n${pointingright} Add more wallets to easily track by \`$wallet add <address>/[<alias>]\`.`,
+      description: `Your inserted address or alias was not saved.\n${pointingright} Add more wallets to easily track by \`$wallet add <address> [alias]\`.`,
     })
   }
   if (!ok) throw new APIError({ message: msg, description: log, curl })
