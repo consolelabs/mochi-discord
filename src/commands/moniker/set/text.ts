@@ -1,12 +1,11 @@
-import config from "adapters/config"
 import { Message } from "discord.js"
-import { APIError, CommandArgumentError, GuildIdNotFoundError } from "errors"
+import { CommandArgumentError, GuildIdNotFoundError } from "errors"
 import { RequestUpsertMonikerConfigRequest } from "types/api"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { getEmoji } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { handleSetMoniker } from "./processor"
 
 const command: Command = {
   id: "moniker_set",
@@ -15,7 +14,7 @@ const command: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async function (msg: Message) {
-    if (!msg.guild) {
+    if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
@@ -33,28 +32,12 @@ const command: Command = {
     const token = args[amountIdx + 1].toUpperCase()
     const moniker = args.slice(2, amountIdx).join(" ").trim()
     const payload: RequestUpsertMonikerConfigRequest = {
-      guild_id: msg.guild.id,
+      guild_id: msg.guildId,
       moniker,
       amount,
       token,
     }
-    const { ok, log, curl } = await config.setMonikerConfig(payload)
-    if (!ok) {
-      throw new APIError({ description: log, curl })
-    }
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(msg, {
-            title: `${getEmoji("approve")} Moniker successfully set`,
-            description: `1 **${moniker}** is set as ${amount} **${token}**. To tip your friend moniker, use $tip <@users> <amount> <moniker> . ${getEmoji(
-              "bucket_cash",
-              true
-            )}`,
-          }),
-        ],
-      },
-    }
+    return await handleSetMoniker(payload)
   },
   getHelpMessage: async (msg) => {
     return {

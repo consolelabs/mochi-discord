@@ -76,7 +76,6 @@ export function composeEmbedMessage(
 
   if (includeCommandsList) {
     description += `\n\n${getCommandsList(
-      getEmoji("reply" ?? "╰ "),
       actions ?? commandObj?.actions ?? {}
     )}`
   }

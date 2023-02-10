@@ -20,6 +20,7 @@ import {
   traitTypeMapping,
 } from "./nft"
 import fetch from "node-fetch"
+import { ethers } from "ethers"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
@@ -566,4 +567,8 @@ export async function pullImage(imageUrl: string): Promise<Buffer> {
   const response = await fetch(imageUrl)
   const arrayBuffer = await response.arrayBuffer()
   return Buffer.from(arrayBuffer)
+}
+
+export function isAddress(address: string) {
+  return ethers.utils.isAddress(address)
 }

@@ -34,3 +34,12 @@ export function assertDescription(
     expected.description
   )
 }
+
+export function assertTitle(
+  output: RunResult<MessageOptions>,
+  expected: MessageEmbed
+) {
+  expect(output?.messageOptions?.embeds?.[0].title).toStrictEqual(
+    expected.title
+  )
+}
