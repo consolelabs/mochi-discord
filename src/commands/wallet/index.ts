@@ -32,6 +32,7 @@ const textCmd: Command = {
   aliases: ["wal"],
   colorType: "Defi",
   canRunWithoutAction: false,
+  allowDM: true,
 }
 
 export default { textCmd }
