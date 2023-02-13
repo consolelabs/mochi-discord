@@ -49,7 +49,7 @@ const textCmd: Command = {
   canRunWithoutAction: false,
   colorType: "Defi",
   minArguments: 2,
-  aliases: ["dv"],
+  aliases: ["pps"],
 }
 
 const slashActions: Record<string, SlashCommand> = {
