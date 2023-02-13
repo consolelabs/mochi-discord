@@ -58,13 +58,13 @@ const command: SlashCommand = {
     embeds: [
       composeEmbedMessage2(interaction, {
         title: "Set up a tracker of proposal voting rounds on Snapshot.",
-        usage: `${SLASH_PREFIX}daovote track #channel <snapshot_DAO_link>\n${SLASH_PREFIX}daovote track #channel <dao_space>`,
+        usage: `${SLASH_PREFIX}proposal track #channel <snapshot_DAO_link>\n${SLASH_PREFIX}proposal track #channel <dao_space>`,
         description: `${getEmoji(
           "pointingright"
         )} Manage to post proposals and the voting space.\n${getEmoji(
           "pointingright"
         )} Receive the notification when proposals are opened for voting on [Snapshot](https://snapshot.org/#/).`,
-        examples: `${SLASH_PREFIX}daovote track #general https://snapshot.org/#/bitdao.eth\n${SLASH_PREFIX}daovote track #general bitdao.eth`,
+        examples: `${SLASH_PREFIX}proposal track #general https://snapshot.org/#/bitdao.eth\n${SLASH_PREFIX}proposal track #general bitdao.eth`,
       }),
     ],
   }),
