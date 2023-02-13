@@ -25,8 +25,8 @@ import {
   handleProposalCancel,
   handleProposalCreate,
   handleProposalForm,
-} from "commands/dao-voting/proposal/processor"
-import { handleProposalVote } from "commands/dao-voting/voting/processor"
+} from "commands/proposal/processor"
+import { handleProposalVote } from "commands/proposal/processor"
 import { confirmGlobalXP } from "commands/globalxp/index/processor"
 import {
   cancelAirdrop,
