@@ -11,6 +11,7 @@ import { APIError, InternalError, OriginalMessage } from "errors"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
+  defaultEmojis,
   emojis,
   getEmoji,
   getEmojiURL,
@@ -247,7 +248,7 @@ export async function getAssetsEmbed(
         asset_balance,
         usd_balance,
       } = a
-      if (usd_balance === 0) return undefined
+      if (usd_balance <= 1) return undefined
       const tokenEmoji = getEmoji(symbol)
       const value = `${tokenEmoji} ${asset_balance.toLocaleString()} ${symbol.toUpperCase()} \`$${usd_balance.toLocaleString(
         undefined,
@@ -295,60 +296,50 @@ export async function getTxnsEmbed(
       originalMsgAuthor: author,
     })
   }
-  const txEmojis: Record<string, string> = {
-    transfer_nft: getEmoji("swap"),
-    transfer_native: getEmoji("swap"),
-    transfer_erc20: getEmoji("swap"),
-    approval: getEmoji("approve"),
-    contract_interaction: getEmoji("trade"),
-  }
+
   const reply = getEmoji("reply")
   const pointingright = getEmoji("pointingright")
   const blank = getEmoji("blank")
   const transactions = txns.slice(0, 5).map((tx: any) => {
     const {
-      type,
-      amount,
       tx_hash,
       from,
       to,
-      native_symbol,
-      contract,
-      tx_base_url,
-      nfts: nftIds,
+      scan_base_url,
+      actions = [],
+      successful,
+      has_transfer,
     } = tx
-    const scanBaseUrl = tx_base_url.replace("/tx", "")
 
-    const unit =
-      type === "transfer_native"
-        ? native_symbol
-        : type === "transfer_erc20"
-        ? contract?.symbol
-        : type === "transfer_nft"
-        ? "NFT"
-        : ""
-    const nfts =
-      type === "transfer_nft"
-        ? `\n${nftIds
-            ?.map(
-              (id: string) =>
-                `${blank}${blank}${reply} [${contract?.name} ${id}](${scanBaseUrl}/token/${contract?.address})`
-            )
-            ?.join("\n")}`
-        : ""
-    const tokenEmoji = getEmoji(unit)
-    const change = type.startsWith("transfer")
-      ? `\n${blank}${reply} ${tokenEmoji} \`${
-          amount > 0 ? "+" : ""
-        }${roundFloatNumber(amount, 4)} ${unit}\``
-      : ""
-    return `${txEmojis[type]} [${shortenHashOrAddress(
-      tx_hash
-    )}](${tx_base_url}/${tx_hash})\n${blank}${reply} \`${shortenHashOrAddress(
+    const addresses = `${blank.repeat(2)}${reply} \`${shortenHashOrAddress(
       from
-    )}\` ${getEmoji("right_arrow")} \`${shortenHashOrAddress(
-      to
-    )}\`${change}${nfts}`
+    )}\` ${getEmoji("right_arrow")} \`${shortenHashOrAddress(to)}\``
+    const changes = actions
+      ?.map((action: any) => {
+        const { amount, unit, native_transfer, contract } = action
+        if (has_transfer) {
+          const tokenEmoji = getEmoji(unit)
+          const transfferedAmount = `${amount > 0 ? "+" : ""}${roundFloatNumber(
+            amount,
+            4
+          )}`
+          return `${blank.repeat(
+            3
+          )}${reply}${tokenEmoji} \`${transfferedAmount}\` ${
+            native_transfer
+              ? unit
+              : `[${unit}](${scan_base_url}/token/${contract?.address})`
+          }`
+        }
+      })
+      .join("\n")
+    return `${
+      successful ? getEmoji("approve") : defaultEmojis.WARNING
+    } [${shortenHashOrAddress(
+      tx_hash
+    )}](${scan_base_url}/tx/${tx_hash})\n${addresses}${
+      changes ? `\n${changes}` : ""
+    }`
   })
   const description = `${pointingright} Wallet address: \`${shortenHashOrAddress(
     address
