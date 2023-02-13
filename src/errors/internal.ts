@@ -2,8 +2,12 @@ import { getErrorEmbed } from "ui/discord/embed"
 import { BotBaseError, OriginalMessage } from "./base"
 
 export class InternalError extends BotBaseError {
-  private customDescription: string | undefined
+  private _customDescription: string | undefined
   private emojiUrl: string | undefined
+
+  public get customDescription(): string {
+    return this._customDescription ?? "Something went wrong"
+  }
 
   constructor({
     message,
@@ -18,7 +22,7 @@ export class InternalError extends BotBaseError {
   }) {
     super(message, description)
     this.name = title ?? "Internal error"
-    this.customDescription = description
+    this._customDescription = description
     this.emojiUrl = emojiUrl
   }
 
