@@ -124,6 +124,7 @@ export const defaultEmojis: Record<string, string> = {
   X: ":x:",
   GREY_QUESTION: ":grey_question:",
   POINT_RIGHT: ":point_right:",
+  WARNING: ":warning:",
 }
 
 export const factionEmojis: Record<string, string> = {
