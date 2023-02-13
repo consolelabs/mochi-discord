@@ -30,6 +30,7 @@ const command: Command = {
   canRunWithoutAction: true,
   colorType: "Defi",
   minArguments: 2,
+  allowDM: true,
 }
 
 export default command

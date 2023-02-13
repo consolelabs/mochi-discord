@@ -25,6 +25,7 @@ const command: Command = {
   canRunWithoutAction: true,
   colorType: "Defi",
   minArguments: 3,
+  allowDM: true,
 }
 
 export default command
