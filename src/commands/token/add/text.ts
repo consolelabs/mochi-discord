@@ -1,7 +1,7 @@
 import { Command } from "types/common"
 import { GuildIdNotFoundError } from "errors"
 import { PREFIX } from "utils/constants"
-import { handleTokenAdd } from "./processor"
+import * as processor from "./processor"
 import { composeEmbedMessage } from "ui/discord/embed"
 
 const command: Command = {
@@ -11,10 +11,10 @@ const command: Command = {
   category: "Community",
   onlyAdministrator: true,
   run: async function (msg) {
-    if (!msg.guildId || !msg.guild) {
+    if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
     }
-    return await handleTokenAdd(msg, msg.guildId, msg.author.id)
+    return await processor.handleTokenAdd(msg, msg.guildId, msg.author.id)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
