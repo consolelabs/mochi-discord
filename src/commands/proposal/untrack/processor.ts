@@ -34,7 +34,7 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
           getSuccessEmbed({
             msg,
             title: `Successfully remove tracker`,
-            description: `You can use \`$daovote track\` to set the new proposal tracker.\n\n${description}`,
+            description: `You can use \`$proposal track\` to set the new proposal tracker.\n\n${description}`,
           }),
         ],
         components: [],
