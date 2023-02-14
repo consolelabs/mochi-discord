@@ -241,6 +241,7 @@ export const emojis: { [key: string]: string } = {
   PUMPEET: "930840081554624632",
   TROPHY: "1060414870895464478",
   ADDRESS: "933216413248802867",
+  MAG: "1058304336842727544",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

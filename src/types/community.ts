@@ -45,6 +45,7 @@ export type NFTCollectionChain = {
 }
 
 export type NFTCollection = {
+  id: string
   address: string
   name: string
   symbol: string

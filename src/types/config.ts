@@ -60,3 +60,17 @@ export type ReactionRoleListPaginated = {
   totalPage: number
   items: Map<number, ReactionRoleListConfigGroup[]>
 }
+
+export type CreateMixRoleConfigRequest = {
+  guild_id: string
+  role_id: string
+  required_level: number
+  nft_requirement?: {
+    nft_id: string
+    amount: number
+  }
+  token_requirement?: {
+    token_id: number
+    amount: number
+  }
+}
