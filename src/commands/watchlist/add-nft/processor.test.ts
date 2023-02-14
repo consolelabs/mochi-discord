@@ -1,21 +1,15 @@
-import { CommandInteraction, Message } from "discord.js"
 import * as processor from "./processor"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { assertAuthor, assertTitle } from "../../../../tests/assertions/discord"
 import defi from "adapters/defi"
 import { defaultEmojis } from "utils/common"
+import mockdc from "../../../../tests/mocks/discord"
 jest.mock("adapters/defi")
 jest.mock("cache/node-cache")
 
 describe("addWatchlistNftCollection", () => {
-  const interaction = {} as unknown as CommandInteraction
-  const msg = {
-    author: {
-      id: "123123",
-      avatarURL: jest.fn().mockReturnValueOnce("abc"),
-    },
-    type: "DEFAULT",
-  } as unknown as Message
+  const msg = mockdc.cloneMessage()
+  const interaction = mockdc.cloneCommandInteraction()
 
   afterEach(() => jest.clearAllMocks())
 

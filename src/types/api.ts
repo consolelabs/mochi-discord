@@ -308,6 +308,19 @@ export interface ModelGuildConfigLevelupMessage {
   updated_at?: string;
 }
 
+export interface ModelGuildConfigMixRole {
+  created_at?: string;
+  guild_id?: string;
+  id?: number;
+  nft_requirement?: ModelMixRoleNFTRequirement;
+  nft_requirement_id?: number;
+  required_level?: number;
+  role_id?: string;
+  token_requirement?: ModelMixRoleTokenRequirement;
+  token_requirement_id?: number;
+  updated_at?: string;
+}
+
 export interface ModelGuildConfigRepostReaction {
   emoji?: string;
   emoji_start?: string;
@@ -413,6 +426,24 @@ export interface ModelJSONNullString {
   string?: string;
   /** Valid is true if String is not NULL */
   valid?: boolean;
+}
+
+export interface ModelMixRoleNFTRequirement {
+  created_at?: string;
+  id?: number;
+  nft_collection?: ModelNFTCollection;
+  nft_collection_id?: string;
+  required_amount?: number;
+  updated_at?: string;
+}
+
+export interface ModelMixRoleTokenRequirement {
+  created_at?: string;
+  id?: number;
+  required_amount?: number;
+  token?: ModelToken;
+  token_id?: number;
+  updated_at?: string;
 }
 
 export interface ModelMonikerConfig {
@@ -738,6 +769,14 @@ export interface ModelUserWallet {
   user_discord_id?: string;
 }
 
+export interface ModelUserWalletWatchlistItem {
+  address?: string;
+  alias?: string;
+  created_at?: string;
+  net_worth?: number;
+  user_id?: string;
+}
+
 export interface RequestAddNftWatchlistRequest {
   chain?: string;
   collection_address?: string;
@@ -851,6 +890,14 @@ export interface RequestCreateDefaultRoleRequest {
 export interface RequestCreateEnvelop {
   command: string;
   user_id: string;
+}
+
+export interface RequestCreateGuildMixRole {
+  guild_id: string;
+  nft_requirement?: RequestMixRoleNFTRequirement;
+  required_level?: number;
+  role_id: string;
+  token_requirement?: RequestMixRoleTokenRequirement;
 }
 
 export interface RequestCreateGuildRequest {
@@ -1000,6 +1047,16 @@ export interface RequestLoginRequest {
   access_token?: string;
 }
 
+export interface RequestMixRoleNFTRequirement {
+  amount: number;
+  nft_id: string;
+}
+
+export interface RequestMixRoleTokenRequirement {
+  amount: number;
+  token_id: number;
+}
+
 export interface RequestNewGuildConfigWalletVerificationMessageRequest {
   content?: string;
   created_at?: string;
@@ -1084,6 +1141,12 @@ export interface RequestSubmitOnchainTransferRequest {
   sender?: string;
   token?: string;
   transfer_type?: string;
+}
+
+export interface RequestTrackWalletRequest {
+  address: string;
+  alias?: string;
+  user_id: string;
 }
 
 export interface RequestTradeOfferItem {
@@ -1360,6 +1423,10 @@ export interface ResponseCreateDaoProposalResponse {
 
 export interface ResponseCreateEnvelop {
   data?: ModelEnvelop;
+}
+
+export interface ResponseCreateGuildMixRole {
+  data?: ModelGuildConfigMixRole;
 }
 
 export interface ResponseCreateGuildTokenRole {
@@ -1677,6 +1744,10 @@ export interface ResponseGetOnchainTransfersResponse {
   data?: ModelOnchainTipBotTransaction[];
 }
 
+export interface ResponseGetOneWalletResponse {
+  data?: ModelUserWalletWatchlistItem;
+}
+
 export interface ResponseGetRepostReactionConfigsResponse {
   data?: ModelGuildConfigRepostReaction[];
 }
@@ -1701,8 +1772,16 @@ export interface ResponseGetSupportedChains {
   data?: string[];
 }
 
+export interface ResponseGetSupportedTokenResponse {
+  data?: ModelToken;
+}
+
 export interface ResponseGetSupportedTokensResponse {
   data?: ModelToken[];
+}
+
+export interface ResponseGetTrackingWalletsResponse {
+  data?: ModelUserWalletWatchlistItem[];
 }
 
 export interface ResponseGetTradeOfferResponse {
@@ -2002,6 +2081,10 @@ export interface ResponseListConfigNotifyResponse {
 
 export interface ResponseListGuildGroupNFTRolesResponse {
   data?: ResponseListGuildNFTRoleConfigsResponse[];
+}
+
+export interface ResponseListGuildMixRoles {
+  data?: ModelGuildConfigMixRole[];
 }
 
 export interface ResponseListGuildNFTRoleConfigsResponse {

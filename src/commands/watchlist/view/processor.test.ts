@@ -1,20 +1,13 @@
-import { CommandInteraction, Message } from "discord.js"
 import * as processor from "./processor"
 import CacheManager from "cache/node-cache"
 import { assertDescription } from "../../../../tests/assertions/discord"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
 import { defaultEmojis } from "utils/common"
+import mockdc from "../../../../tests/mocks/discord"
 
 describe("composeSlashTokenWatchlist", () => {
-  const interaction = {
-    user: {
-      id: "123123",
-      username: "test",
-      displayAvatarURL: jest.fn().mockReturnValue(undefined),
-      avatarURL: jest.fn().mockReturnValue(null),
-    },
-  } as unknown as CommandInteraction
+  const interaction = mockdc.cloneCommandInteraction()
 
   afterEach(() => jest.clearAllMocks())
 
@@ -74,14 +67,7 @@ describe("composeSlashTokenWatchlist", () => {
 })
 
 describe("composeSlashNFTWatchlist", () => {
-  const interaction = {
-    user: {
-      id: "123123",
-      username: "test",
-      displayAvatarURL: jest.fn().mockReturnValue(undefined),
-      avatarURL: jest.fn().mockReturnValue(null),
-    },
-  } as unknown as CommandInteraction
+  const interaction = mockdc.cloneCommandInteraction()
 
   afterEach(() => jest.clearAllMocks())
 
@@ -141,14 +127,7 @@ describe("composeSlashNFTWatchlist", () => {
 })
 
 describe("composeTokenWatchlist", () => {
-  const msg = {
-    author: {
-      id: "123123",
-      avatarURL: jest.fn().mockReturnValueOnce("abc"),
-      displayAvatarURL: jest.fn().mockReturnValue(undefined),
-    },
-    type: "DEFAULT",
-  } as unknown as Message
+  const msg = mockdc.cloneMessage()
 
   afterEach(() => jest.clearAllMocks())
 
