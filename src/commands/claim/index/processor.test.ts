@@ -1,36 +1,14 @@
 import defi from "adapters/defi"
 import * as processor from "./processor"
-import { Guild, Message, SnowflakeUtil, TextChannel } from "discord.js"
-import { mockClient } from "../../../../tests/mocks"
 import { getSuccessEmbed } from "ui/discord/embed"
 import { getEmoji, roundFloatNumber, shortenHashOrAddress } from "utils/common"
 import { assertDescription } from "../../../../tests/assertions/discord"
 import { InternalError } from "errors"
+import mockdc from "../../../../tests/mocks/discord"
 jest.mock("adapters/defi")
 
 describe("claim", () => {
-  const guild = Reflect.construct(Guild, [mockClient, {}])
-  const userId = SnowflakeUtil.generate()
-  const msg = Reflect.construct(Message, [
-    mockClient,
-    {
-      content: "$claim 1 0xAbcAbc123",
-      author: {
-        id: userId,
-        username: "tester",
-        discriminator: 1234,
-      },
-      id: SnowflakeUtil.generate(),
-    },
-    Reflect.construct(TextChannel, [
-      guild,
-      {
-        client: mockClient,
-        guild: guild,
-        id: SnowflakeUtil.generate(),
-      },
-    ]),
-  ]) as Message
+  const msg = mockdc.cloneMessage()
 
   beforeEach(() => jest.clearAllMocks())
 
