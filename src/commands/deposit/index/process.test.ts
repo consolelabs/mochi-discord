@@ -1,50 +1,20 @@
 import defi from "adapters/defi"
 import * as processor from "./processor"
-import { mockClient } from "../../../../tests/mocks"
-import {
-  Guild,
-  SnowflakeUtil,
-  Message,
-  TextChannel,
-  CommandInteraction,
-} from "discord.js"
+import { SnowflakeUtil, Message, CommandInteraction } from "discord.js"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmojiURL, emojis } from "utils/common"
 import { InternalError } from "errors"
+import mockdc from "../../../../tests/mocks/discord"
 jest.mock("adapters/defi")
 
 describe("deposit", () => {
-  const guild = Reflect.construct(Guild, [mockClient, {}])
-  const userId = SnowflakeUtil.generate()
   const dmMessage = {
     url: "test",
   } as Message
-  const msg = Reflect.construct(Message, [
-    mockClient,
-    {
-      content: "$deposit ftm",
-      author: {
-        id: userId,
-        username: "tester",
-        discriminator: 1234,
-      },
-      id: SnowflakeUtil.generate(),
-    },
-    Reflect.construct(TextChannel, [
-      guild,
-      {
-        client: mockClient,
-        guild: guild,
-        id: SnowflakeUtil.generate(),
-      },
-    ]),
-  ]) as Message
-  const interaction = {
-    user: {
-      id: SnowflakeUtil.generate(),
-      send: jest.fn().mockResolvedValueOnce(dmMessage),
-    },
-  } as unknown as CommandInteraction
+  const msg = mockdc.cloneMessage()
+  const interaction = mockdc.cloneCommandInteraction()
+
+  msg.content = "$deposit ftm"
 
   test("Success send DM to user - Using Message", async () => {
     msg.author.send = jest.fn().mockResolvedValueOnce(dmMessage)
@@ -68,6 +38,7 @@ describe("deposit", () => {
   })
 
   test("Success send DM to user - Using CommandInteraction", async () => {
+    interaction.user.send = jest.fn().mockResolvedValueOnce(dmMessage)
     const res = {
       ok: true,
       data: {
@@ -97,6 +68,7 @@ describe("deposit", () => {
         type: "DM",
       },
     } as unknown as CommandInteraction
+    // interaction.user.send = jest.fn().mockResolvedValueOnce(dmMessage)
     const res = {
       ok: true,
       data: {

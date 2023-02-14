@@ -238,6 +238,7 @@ class MockDiscord {
     })
     Object.defineProperty(Message.prototype, "guild", { value: this.guild })
     Object.defineProperty(Message.prototype, "client", { value: this.client })
+    Object.defineProperty(Message.prototype, "channel", { value: this.channel })
   }
 
   private mockMessageFunctions() {
@@ -280,6 +281,15 @@ class MockDiscord {
       },
     })
     this.commandInteraction.reply = jest.fn()
+    Object.defineProperty(CommandInteraction.prototype, "guild", {
+      value: this.guild,
+    })
+    Object.defineProperty(CommandInteraction.prototype, "client", {
+      value: this.client,
+    })
+    Object.defineProperty(CommandInteraction.prototype, "channel", {
+      value: this.channel,
+    })
   }
 }
 
