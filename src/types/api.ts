@@ -769,6 +769,14 @@ export interface ModelUserWallet {
   user_discord_id?: string;
 }
 
+export interface ModelUserWalletWatchlistItem {
+  address?: string;
+  alias?: string;
+  created_at?: string;
+  net_worth?: number;
+  user_id?: string;
+}
+
 export interface RequestAddNftWatchlistRequest {
   chain?: string;
   collection_address?: string;
@@ -1133,6 +1141,12 @@ export interface RequestSubmitOnchainTransferRequest {
   sender?: string;
   token?: string;
   transfer_type?: string;
+}
+
+export interface RequestTrackWalletRequest {
+  address: string;
+  alias?: string;
+  user_id: string;
 }
 
 export interface RequestTradeOfferItem {
@@ -1730,6 +1744,10 @@ export interface ResponseGetOnchainTransfersResponse {
   data?: ModelOnchainTipBotTransaction[];
 }
 
+export interface ResponseGetOneWalletResponse {
+  data?: ModelUserWalletWatchlistItem;
+}
+
 export interface ResponseGetRepostReactionConfigsResponse {
   data?: ModelGuildConfigRepostReaction[];
 }
@@ -1754,8 +1772,16 @@ export interface ResponseGetSupportedChains {
   data?: string[];
 }
 
+export interface ResponseGetSupportedTokenResponse {
+  data?: ModelToken;
+}
+
 export interface ResponseGetSupportedTokensResponse {
   data?: ModelToken[];
+}
+
+export interface ResponseGetTrackingWalletsResponse {
+  data?: ModelUserWalletWatchlistItem[];
 }
 
 export interface ResponseGetTradeOfferResponse {

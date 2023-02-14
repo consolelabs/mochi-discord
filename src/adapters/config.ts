@@ -9,7 +9,12 @@ import { Message } from "discord.js"
 import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
-import { Guild, Guilds, RoleReactionEvent } from "types/config"
+import {
+  CreateMixRoleConfigRequest,
+  Guild,
+  Guilds,
+  RoleReactionEvent,
+} from "types/config"
 import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
 import { Fetcher } from "./fetcher"
@@ -33,6 +38,8 @@ import {
   RequestUpsertMonikerConfigRequest,
   ResponseListGuildTokenRoles,
   ResponseListGuildXPRoles,
+  ResponseListGuildMixRoles,
+  ResponseCreateGuildMixRole,
 } from "types/api"
 import { TEST } from "env"
 
@@ -1084,6 +1091,34 @@ class Config extends Fetcher {
       method: "DELETE",
       body: req,
     })
+  }
+
+  public async setConfigMixRole(req: CreateMixRoleConfigRequest) {
+    return await this.jsonFetch<ResponseCreateGuildMixRole>(
+      `${API_BASE_URL}/config-roles/mix-roles`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
+  }
+
+  public async getConfigMixRoleList(query: { guild_id: string }) {
+    return await this.jsonFetch<ResponseListGuildMixRoles>(
+      `${API_BASE_URL}/config-roles/mix-roles`,
+      {
+        query,
+      }
+    )
+  }
+
+  public async removeGuildMixRoleConfig(id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-roles/mix-roles/${id}`,
+      {
+        method: "DELETE",
+      }
+    )
   }
 }
 
