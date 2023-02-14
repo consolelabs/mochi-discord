@@ -4,13 +4,15 @@ import Config from "adapters/config"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { assertDescription } from "../../../../tests/assertions/discord"
 import { defaultEmojis } from "utils/common"
+import mockdc from "../../../../tests/mocks/discord"
 jest.mock("adapters/config")
 
 describe("handleTokenDefault", () => {
-  const msg = {
-    id: SnowflakeUtil.generate(),
-    guildId: SnowflakeUtil.generate(),
-  } as Message
+  const msg = mockdc.cloneMessage()
+  // const msg = {
+  //   id: SnowflakeUtil.generate(),
+  //   guildId: SnowflakeUtil.generate(),
+  // } as Message
   // const interaction = {
   //   user: {
   //     id: SnowflakeUtil.generate(),

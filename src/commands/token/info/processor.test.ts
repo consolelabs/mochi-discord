@@ -1,17 +1,11 @@
-import {
-  Guild,
-  HexColorString,
-  Message,
-  SnowflakeUtil,
-  TextChannel,
-} from "discord.js"
+import { HexColorString } from "discord.js"
 import * as processor from "./processor"
-import { mockClient } from "../../../../tests/mocks"
 import { APIError, InternalError } from "errors"
 import CacheManager from "cache/node-cache"
 import { assertDescription } from "../../../../tests/assertions/discord"
 import { getChartColorConfig } from "ui/canvas/color"
 import { composeEmbedMessage } from "ui/discord/embed"
+import mockdc from "../../../../tests/mocks/discord"
 jest.mock("turndown")
 jest.mock("cache/node-cache")
 jest.mock("adapters/defi")
@@ -20,34 +14,7 @@ jest.mock("ui/discord/select-menu")
 jest.mock("ui/discord/button")
 
 describe("handleTokenInfo", () => {
-  const guild = Reflect.construct(Guild, [mockClient, {}])
-  const userId = SnowflakeUtil.generate()
-  const msg = Reflect.construct(Message, [
-    mockClient,
-    {
-      content: "$deposit ftm",
-      author: {
-        id: userId,
-        username: "tester",
-        discriminator: 1234,
-      },
-      id: SnowflakeUtil.generate(),
-    },
-    Reflect.construct(TextChannel, [
-      guild,
-      {
-        client: mockClient,
-        guild: guild,
-        id: SnowflakeUtil.generate(),
-      },
-    ]),
-  ]) as Message
-  // const interaction = {
-  //   user: {
-  //     id: SnowflakeUtil.generate(),
-  //     send: jest.fn().mockResolvedValueOnce(dmMessage),
-  //   },
-  // } as unknown as CommandInteraction
+  const msg = mockdc.cloneMessage()
 
   beforeEach(() => jest.clearAllMocks())
 

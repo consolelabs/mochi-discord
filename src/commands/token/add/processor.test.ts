@@ -1,46 +1,19 @@
-import { Guild, Message, SnowflakeUtil, TextChannel } from "discord.js"
 import * as processor from "./processor"
 import Config from "adapters/config"
-import { mockClient } from "../../../../tests/mocks"
 import Defi from "adapters/defi"
 import { APIError, InternalError } from "errors"
 import { Token } from "types/defi"
 import * as SelectMenuUtil from "ui/discord/select-menu"
 import * as ButtonUtil from "ui/discord/button"
+import mockdc from "../../../../tests/mocks/discord"
 jest.mock("adapters/defi")
 jest.mock("adapters/config")
 jest.mock("ui/discord/select-menu")
 jest.mock("ui/discord/button")
 
 describe("handleTokenAdd", () => {
-  const guild = Reflect.construct(Guild, [mockClient, {}])
-  const userId = SnowflakeUtil.generate()
-  const msg = Reflect.construct(Message, [
-    mockClient,
-    {
-      content: "$token add",
-      author: {
-        id: userId,
-        username: "tester",
-        discriminator: 1234,
-      },
-      id: SnowflakeUtil.generate(),
-    },
-    Reflect.construct(TextChannel, [
-      guild,
-      {
-        client: mockClient,
-        guild: guild,
-        id: SnowflakeUtil.generate(),
-      },
-    ]),
-  ]) as Message
-  // const interaction = {
-  //   user: {
-  //     id: SnowflakeUtil.generate(),
-  //     send: jest.fn().mockResolvedValueOnce(dmMessage),
-  //   },
-  // } as unknown as CommandInteraction
+  const msg = mockdc.cloneMessage()
+  msg.content = "$token add"
 
   beforeEach(() => jest.clearAllMocks())
 
