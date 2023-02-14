@@ -1,25 +1,29 @@
-import { slashCommands } from "commands"
-import { CommandInteraction, MessageEmbed, MessageOptions } from "discord.js"
+import { commands } from "commands"
+import { Message, MessageEmbed, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
+import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
 import {
   assertDescription,
   assertTitle,
 } from "../../../../tests/assertions/discord"
-import mockdc from "../../../../tests/mocks/discord"
 
-describe("nft intergrate", () => {
-  let i: CommandInteraction
-  const nftCmd = slashCommands["nft"]
+describe("nft integrate", () => {
+  let msg: Message
+  const commandKey = "nft"
+  const commandAction = "integrate"
+  if (
+    !commands[commandKey] ||
+    !commands[commandKey].actions ||
+    !commands[commandKey].actions[commandAction]
+  )
+    return
+  const nftCmd = commands[commandKey].actions[commandAction]
 
-  beforeEach(() => (i = mockdc.cloneCommandInteraction()))
+  beforeEach(() => (msg = mockdc.cloneMessage()))
 
-  test("nft integrated successfully", async () => {
-    i.options.getSubcommand = jest.fn().mockReturnValueOnce("integrate")
-    i.options.getString = jest
-      .fn()
-      .mockReturnValueOnce("0x7acee5d0acc520fab33b3ea25d4feef1ffebde73")
-      .mockReturnValueOnce("ftm")
+  test("nft add address chain", async () => {
+    msg.content = `$nft integrate 0x12345612345 ftm`
     const expected = new MessageEmbed({
       title: "ABC integrated",
       description:
@@ -30,17 +34,13 @@ describe("nft intergrate", () => {
         embeds: [expected],
       },
     })
-    const output = (await nftCmd.run(i)) as RunResult<MessageOptions>
+    const output = (await nftCmd.run(msg)) as RunResult<MessageOptions>
     assertTitle(output, expected)
     assertDescription(output, expected)
   })
 
   test("nft integrated failed", async () => {
-    i.options.getSubcommand = jest.fn().mockReturnValueOnce("integrate")
-    i.options.getString = jest
-      .fn()
-      .mockReturnValueOnce("0x7acee5d0acc520fab33b3ea25d4feef1ff")
-      .mockReturnValueOnce("btc")
+    msg.content = `$nft integrate 0x12345612345 sol`
     const expected = new MessageEmbed({
       title: "NFT",
       description: "Cannot found metadata for this collection",
@@ -50,7 +50,7 @@ describe("nft intergrate", () => {
         embeds: [expected],
       },
     })
-    const output = (await nftCmd.run(i)) as RunResult<MessageOptions>
+    const output = (await nftCmd.run(msg)) as RunResult<MessageOptions>
     assertTitle(output, expected)
     assertDescription(output, expected)
   })

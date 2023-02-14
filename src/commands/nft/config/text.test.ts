@@ -24,7 +24,7 @@ describe("run", () => {
   beforeEach(() => (msg = mockdc.cloneMessage()))
 
   test("nft add address chain", async () => {
-    msg.content = `nft add 0x51081a152db09d3FfF75807329A3A8b538eCf73b ftm`
+    msg.content = `$nft integrate J9ts hNl8 1450 P0Vv`
     const expected = new MessageEmbed({
       title: "Twitter sale config",
       description: "Successfully set configs.",
