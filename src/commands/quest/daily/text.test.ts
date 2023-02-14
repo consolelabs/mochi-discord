@@ -11,7 +11,6 @@ import {
 import { emojis, getEmojiURL } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { GuildIdNotFoundError } from "errors"
-jest.mock("adapters/config")
 
 describe("run", () => {
   let msg: Message
