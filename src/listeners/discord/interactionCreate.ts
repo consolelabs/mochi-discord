@@ -7,15 +7,24 @@ import {
   CommandInteraction,
 } from "discord.js"
 import { DiscordEvent } from "."
-import { getErrorEmbed, getMultipleResultEmbed } from "ui/discord/embed"
+import {
+  composePartnerEmbedPimp,
+  getErrorEmbed,
+  getMultipleResultEmbed,
+} from "ui/discord/embed"
 import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
 } from "ui/discord/select-menu"
-import { composeDiscordExitButton } from "ui/discord/button"
+import { composeButtonLink, composeDiscordExitButton } from "ui/discord/button"
 import CacheManager from "cache/node-cache"
 import { wrapError } from "utils/wrap-error"
-import { authorFilter, getEmoji, hasAdministrator } from "utils/common"
+import {
+  authorFilter,
+  getChance,
+  getEmoji,
+  hasAdministrator,
+} from "utils/common"
 import InteractionManager from "handlers/discord/select-menu"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { CommandNotAllowedToRunError } from "errors"
@@ -180,6 +189,18 @@ async function handleCommandInteraction(interaction: Interaction) {
           ...messageOptions,
         })
         .catch(() => null)
+      // partner ads
+      if (getChance(99)) {
+        await i.channel?.send({
+          embeds: [composePartnerEmbedPimp()],
+          components: [
+            composeButtonLink(
+              `Customize your ad with Mochi`,
+              "https://discord.gg/SUuF8W68"
+            ),
+          ],
+        })
+      }
       if (interactionOptions && msg) {
         InteractionManager.add(msg.id, interactionOptions)
       }
