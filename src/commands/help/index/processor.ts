@@ -27,7 +27,6 @@ import {
   PRUNE_GITBOOK,
   QUEST_GITBOOK,
   REACTION_ROLE_GITBOOK,
-  SALE_TRACKER_GITBOOK,
   STARBOARD_GITBOOK,
   TELEGRAM_GITBOOK,
   TICKER_GITBOOK,
@@ -44,6 +43,9 @@ import {
   LEVELUP_MESSAGE_GITBOOK,
   JOIN_LEAVE_GITBOOK,
   WALLET_GITBOOK,
+  TOP_GITBOOK,
+  DAO_VOTING_GITBOOK,
+  SALE_TRACKER_GITBOOK,
 } from "utils/constants"
 import { EMPTY_FIELD, composeEmbedMessage } from "ui/discord/embed"
 dayjs.extend(utc)
@@ -105,6 +107,10 @@ const allCommands: Record<PageType, HelpPage> = {
             value: "profile",
             url: PROFILE_GITBOOK,
           },
+          {
+            value: "top",
+            url: TOP_GITBOOK,
+          },
         ],
       },
       Telegram: {
@@ -124,6 +130,16 @@ const allCommands: Record<PageType, HelpPage> = {
           {
             value: "feedback",
             url: FEEDBACK_GITBOOK,
+          },
+        ],
+      },
+      "DAO Voting": {
+        emoji: "<:conversation:1032608818930139249>",
+        description: "Manage the voting decision process of DAO",
+        features: [
+          {
+            value: "proposal",
+            url: DAO_VOTING_GITBOOK,
           },
         ],
       },
@@ -185,6 +201,14 @@ const allCommands: Record<PageType, HelpPage> = {
             value: "airdrop",
             url: AIRDROP_GITBOOK,
           },
+          {
+            value: "monikers",
+            url: "http://bit.ly/3K7Zf5S",
+          },
+          {
+            value: "statements",
+            url: "http://bit.ly/3XtBDvi",
+          },
         ],
       },
       "Manage Wallet": {
@@ -237,8 +261,13 @@ const allCommands: Record<PageType, HelpPage> = {
             url: JOIN_LEAVE_GITBOOK,
           },
           {
-            value: "levelupmessage",
+            value: "levelmessage",
             url: LEVELUP_MESSAGE_GITBOOK,
+          },
+          {
+            value: "welcome",
+            url: WELCOME_GITBOOK,
+            onlySlash: true,
           },
         ],
       },
@@ -302,6 +331,14 @@ const allCommands: Record<PageType, HelpPage> = {
           {
             value: "tokenrole",
             url: TOKEN_ROLE_GITBOOK,
+          },
+          {
+            value: "xprole",
+            url: "http://bit.ly/3xmi4KS",
+          },
+          {
+            value: "mixrole",
+            url: "https://bit.ly/40O5xxr", // field length limit 1024
           },
         ],
       },
