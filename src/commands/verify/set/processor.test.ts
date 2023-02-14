@@ -41,6 +41,7 @@ describe("runVerify", () => {
   })
 
   test("runVerifySet exist channel", async () => {
+    msg.content = "$verify set <#131313> <@&123456>"
     jest.spyOn(community, "getVerifyWalletChannel").mockResolvedValueOnce({
       ok: true,
       data: {
