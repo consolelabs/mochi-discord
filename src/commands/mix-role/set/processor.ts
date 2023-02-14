@@ -282,11 +282,11 @@ export async function process(message: OriginalMessage) {
       description,
     })
     await send({ embeds: [embed], components: [actionRow] })
-    await message.channel?.awaitMessageComponent({
+    let interaction = await message.channel?.awaitMessageComponent({
       filter: (i) => i.user.id === userId && i.customId === customId,
       time: 15_000,
     })
-
+    await interaction?.deferUpdate()
     const { ok, error, curl, log } = await config.setConfigMixRole({
       guild_id,
       role_id,
@@ -319,7 +319,7 @@ export async function process(message: OriginalMessage) {
       title: "Successfully set",
       description: `When users qualify the requirements, they will get <@&${role_id}>`,
     })
-    await send({ embeds: [successEmbed] })
+    await interaction?.editReply({ embeds: [successEmbed], components: [] })
   }
 
   try {
@@ -357,8 +357,8 @@ export async function process(message: OriginalMessage) {
         })
       } else {
         embed = getErrorEmbed({ description: "Command timeout!" })
-        send({ embeds: [embed] })
       }
+      send({ embeds: [embed] })
     }
     // Still need to re-throw err for the global try-catch text command to reply msg and log things as well
     throw e
