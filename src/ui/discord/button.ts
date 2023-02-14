@@ -19,8 +19,11 @@ export function getExitButton(authorId: string, label?: string) {
   })
 }
 
-export function composeDiscordExitButton(authorId: string): MessageActionRow {
-  return new MessageActionRow().addComponents(getExitButton(authorId))
+export function composeDiscordExitButton(
+  authorId: string,
+  label?: string
+): MessageActionRow {
+  return new MessageActionRow().addComponents(getExitButton(authorId, label))
 }
 
 export function composeButtonLink(

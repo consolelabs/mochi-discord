@@ -8,6 +8,7 @@ import {
   RequestOffchainTransferRequest,
   RequestOffchainWithdrawRequest,
   ResponseGetNftWatchlistResponse,
+  ResponseGetSupportedTokenResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
 import { Coin, CoinComparisionData, GasPriceData, Token } from "types/defi"
@@ -68,6 +69,13 @@ class Defi extends Fetcher {
       throw new Error(json.error)
     }
     return json.data
+  }
+
+  public async getSupportedToken(query: { address: string; chain: string }) {
+    return await this.jsonFetch<ResponseGetSupportedTokenResponse>(
+      `${API_BASE_URL}/defi/token`,
+      { query }
+    )
   }
 
   public async getCoin(id: string) {

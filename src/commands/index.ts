@@ -74,6 +74,7 @@ import withdraw from "./withdraw"
 import tokenrole from "./token-role"
 import xprole from "./xp-role"
 import wallet from "./wallet"
+import mixrole from "./mix-role"
 
 CacheManager.init({
   ttl: 0,
@@ -112,6 +113,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   sendxp: sendxp.slashCmd,
   tokenrole: tokenrole.slashCmd,
   xprole: xprole.slashCmd,
+  mixrole: mixrole.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -148,6 +150,7 @@ export const originalCommands: Record<string, Command> = {
   levelmessage: levelmessage.textCmd,
   tokenrole: tokenrole.textCmd,
   xprole: xprole.textCmd,
+  mixrole: mixrole.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
   log: log.textCmd,
