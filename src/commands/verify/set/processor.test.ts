@@ -5,6 +5,7 @@ import {
   assertDescription,
   assertTitle,
 } from "../../../../tests/assertions/discord"
+import mockdc from "../../../../tests/mocks/discord"
 import community from "adapters/community"
 import { Message, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
@@ -12,13 +13,9 @@ import { defaultEmojis } from "utils/common"
 jest.mock("adapters/community")
 
 describe("runVerify", () => {
-  const msg = {
-    author: {
-      id: "123123",
-      avatarURL: jest.fn().mockReturnValueOnce("abc"),
-    },
-    type: "DEFAULT",
-  } as unknown as Message
+  let msg: Message
+
+  beforeEach(() => (msg = mockdc.cloneMessage()))
 
   afterEach(() => jest.clearAllMocks())
 
