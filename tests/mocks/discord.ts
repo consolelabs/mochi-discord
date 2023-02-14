@@ -236,6 +236,8 @@ class MockDiscord {
       guild_id: this.id,
       type: 0,
     })
+    Object.defineProperty(Message.prototype, "guild", { value: this.guild })
+    Object.defineProperty(Message.prototype, "client", { value: this.client })
   }
 
   private mockMessageFunctions() {
