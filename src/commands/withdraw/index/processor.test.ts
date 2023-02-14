@@ -1,22 +1,18 @@
-import {
-  SnowflakeUtil,
-  Message,
-  Collection,
-  TextChannel,
-  Guild,
-  CommandInteraction,
-} from "discord.js"
-import * as processor from "./processor"
-import { mockClient } from "../../../../tests/mocks"
 import Defi from "adapters/defi"
-import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import {
+  Collection,
+  CommandInteraction,
+  Message,
+  SnowflakeUtil,
+} from "discord.js"
 import { APIError } from "errors"
+import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import mockdc from "../../../../tests/mocks/discord"
+import * as processor from "./processor"
 jest.mock("adapters/defi")
 jest.mock("utils/common")
 
 describe("getDestinationAddress", () => {
-  const guild = Reflect.construct(Guild, [mockClient, {}])
-  const userId = SnowflakeUtil.generate()
   const mockedCollectedMessage = {
     id: SnowflakeUtil.generate(),
     content: "0xE409E073eE7474C381BFD9b3f88098499123123",
@@ -32,26 +28,7 @@ describe("getDestinationAddress", () => {
   } as unknown as Message
 
   test("getSuccess using Message", async () => {
-    const msg = Reflect.construct(Message, [
-      mockClient,
-      {
-        content: "$wd all ftm",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: SnowflakeUtil.generate(),
-      },
-      Reflect.construct(TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
+    const msg = mockdc.cloneMessage()
     const output = await processor.getDestinationAddress(msg, mockedDm)
     expect(output).toEqual("0xE409E073eE7474C381BFD9b3f88098499123123")
   })
@@ -69,28 +46,7 @@ describe("getDestinationAddress", () => {
 })
 
 describe("withdraw", () => {
-  const guild = Reflect.construct(Guild, [mockClient, {}])
-  const userId = SnowflakeUtil.generate()
-  const msg = Reflect.construct(Message, [
-    mockClient,
-    {
-      content: "$wd 1 ftm",
-      author: {
-        id: userId,
-        username: "tester",
-        discriminator: 1234,
-      },
-      id: SnowflakeUtil.generate(),
-    },
-    Reflect.construct(TextChannel, [
-      guild,
-      {
-        client: mockClient,
-        guild: guild,
-        id: SnowflakeUtil.generate(),
-      },
-    ]),
-  ]) as Message
+  const msg = mockdc.cloneMessage()
   msg.author.send = jest.fn().mockResolvedValueOnce(undefined)
 
   afterEach(() => jest.clearAllMocks())
@@ -146,11 +102,7 @@ describe("withdraw", () => {
 })
 
 describe("withdrawSlash", () => {
-  const interaction = {
-    user: {
-      send: jest.fn(),
-    },
-  } as unknown as CommandInteraction
+  const interaction = mockdc.cloneCommandInteraction()
 
   afterEach(() => jest.clearAllMocks())
 
