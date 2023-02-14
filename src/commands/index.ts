@@ -19,7 +19,7 @@ import {
   getCommandArguments,
   getCommandMetadata,
 } from "utils/commands"
-import { authorFilter, hasAdministrator } from "utils/common"
+import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import config from "../adapters/config"
 import { logger } from "../logger"
@@ -28,9 +28,10 @@ import { isAcceptableCmdToHelp } from "../utils/commands"
 // commands
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { kafkaQueue } from "queue/kafka/queue"
-import { composeDiscordExitButton } from "ui/discord/button"
+import { composeButtonLink, composeDiscordExitButton } from "ui/discord/button"
 import {
   composeEmbedMessage,
+  composePartnerEmbedPimp,
   getCommandSuggestion,
   getMultipleResultEmbed,
 } from "ui/discord/embed"
@@ -261,6 +262,18 @@ async function executeCommand(
       const msg = await message.reply({
         ...runResponse.messageOptions,
       })
+      // partner ads
+      if (getChance(4)) {
+        await message.channel?.send({
+          embeds: [composePartnerEmbedPimp()],
+          components: [
+            composeButtonLink(
+              `Customize your ad with Mochi`,
+              "https://discord.gg/SUuF8W68"
+            ),
+          ],
+        })
+      }
       if (runResponse.interactionOptions && msg) {
         InteractionManager.add(msg.id, runResponse.interactionOptions)
       }
