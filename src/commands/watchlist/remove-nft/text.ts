@@ -1,11 +1,9 @@
 import { Command } from "types/common"
-import { defaultEmojis, thumbnails } from "utils/common"
-import { getSuccessEmbed, composeEmbedMessage } from "ui/discord/embed"
+import { thumbnails } from "utils/common"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
-import defi from "adapters/defi"
 import { getCommandArguments } from "utils/commands"
-import CacheManager from "cache/node-cache"
-import { handleUpdateWlError } from "../processor"
+import { removeWatchlistNftCollection } from "./processor"
 
 const command: Command = {
   id: "watchlist_nft_remove",
@@ -15,22 +13,11 @@ const command: Command = {
   run: async (msg) => {
     const symbol = getCommandArguments(msg)[2]
     const userId = msg.author.id
-    const { ok, error } = await defi.removeNFTFromWatchlist({
+    return await removeWatchlistNftCollection({
+      msgOrInteraction: msg,
       userId,
       symbol,
     })
-    if (!ok) handleUpdateWlError(msg, symbol, error, true)
-    CacheManager.findAndRemove("watchlist", `watchlist-nft-${userId}`)
-    return {
-      messageOptions: {
-        embeds: [
-          getSuccessEmbed({
-            title: "Successfully remove!",
-            description: `**${symbol}** has been removed from your watchlist successfully!\n${defaultEmojis.POINT_RIGHT} You can add the new one by \`$watchlist add-nft <symbol>\`!`,
-          }),
-        ],
-      },
-    }
   },
   getHelpMessage: async (msg) => ({
     embeds: [
