@@ -103,7 +103,7 @@ export const TOKEN_ROLE_GITBOOK =
   "&command=tokenrole"
 export const XP_ROLE_GITBOOK =
   USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/xp-role" +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/xp-roles" +
   "&command=xprole"
 export const MIX_ROLE_GITBOOK =
   USAGE_STATS_URL +
@@ -200,6 +200,18 @@ export const WALLET_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/onchain-wallet" +
   "&command=wallet"
+export const TOP_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/user-engagement/users-xp#show-top-users-with-the-highest-xp" +
+  "&command=top"
+export const MONIKER_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/monikers" +
+  "&command=monikers"
+export const STATEMENT_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/transaction-statements" +
+  "&command=statement"
 
 export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"
