@@ -42,7 +42,7 @@ const run = async (msg: Message) => {
     ],
   })
 
-  if (msg.guildId !== null) {
+  if (msg.guild !== null) {
     msg.reply({
       embeds: [
         composeEmbedMessage(msg, {

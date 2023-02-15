@@ -20,7 +20,13 @@ describe("run", () => {
   test("invalid amount", async () => {
     msg.content = `$withdraw -1 ftm`
     // const output = () as RunResult<MessageOptions>
-    await expect(withdrawCmd.run(msg)).rejects.toThrow(InternalError)
+    await expect(withdrawCmd.run(msg)).rejects.toThrow(
+      new InternalError({
+        message: msg,
+        title: "Withdraw failed!",
+        description: "amount must be a positive number",
+      })
+    )
   })
 
   test("insufficient balance", async () => {
@@ -59,7 +65,8 @@ describe("run", () => {
       .spyOn(processor, "getDestinationAddress")
       .mockResolvedValueOnce("0xE409E073eE7474C381BFD9b3f88098499123123")
     jest.spyOn(processor, "withdraw").mockResolvedValueOnce(undefined)
-    await withdrawCmd.run(msg)
+    const output = await withdrawCmd.run(msg)
     expect(processor.withdraw).toHaveBeenCalledWith(msg, args)
+    expect(output).toBeFalsy()
   })
 })
