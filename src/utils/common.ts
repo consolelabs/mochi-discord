@@ -21,6 +21,7 @@ import {
 } from "./nft"
 import fetch from "node-fetch"
 import { ethers } from "ethers"
+import { PublicKey } from "@solana/web3.js"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
@@ -572,6 +573,17 @@ export async function pullImage(imageUrl: string): Promise<Buffer> {
   return Buffer.from(arrayBuffer)
 }
 
-export function isAddress(address: string) {
-  return ethers.utils.isAddress(address)
+export function isAddress(address: string): { valid: boolean; type: string } {
+  if (ethers.utils.isAddress(address)) {
+    return { valid: true, type: "eth" }
+  }
+  // solana
+  try {
+    if (PublicKey.isOnCurve(new PublicKey(address))) {
+      return { valid: true, type: "sol" }
+    }
+  } catch (e) {
+    return { valid: false, type: "" }
+  }
+  return { valid: false, type: "" }
 }
