@@ -3,6 +3,7 @@ import { EmbedFieldData, Message, MessageAttachment } from "discord.js"
 import { APIError, InternalError } from "errors"
 import {
   emojis,
+  getCompactFormatedNumber,
   getEmoji,
   getEmojiURL,
   getMarketplaceCollectionUrl,
@@ -22,6 +23,7 @@ import { drawCircleImage, drawRectangle, loadImages } from "ui/canvas/draw"
 import { Image, createCanvas } from "canvas"
 import { widthOf } from "ui/canvas/calculator"
 import { handleTextOverflow } from "ui/canvas/text"
+import { ResponseIndexerPrice } from "types/api"
 
 const buildDiscordMessage = (
   msg: Message | undefined,
@@ -412,4 +414,16 @@ export async function renderSupportedNFTList(collectionList: NFTCollection[]) {
   })
 
   return new MessageAttachment(canvas.toBuffer(), "nftlist.png")
+}
+
+export function formatPriceWeiToEther(
+  priceObj: ResponseIndexerPrice | undefined
+) {
+  if (!priceObj) return "-"
+  const { amount, token } = priceObj
+  const convertedAmount = Number(
+    (+(amount ?? 0) / Math.pow(10, token?.decimals ?? 0)).toFixed(3)
+  )
+  if (!convertedAmount) return `-`
+  return `${getCompactFormatedNumber(convertedAmount)}`
 }
