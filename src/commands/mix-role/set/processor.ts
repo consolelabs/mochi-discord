@@ -21,7 +21,7 @@ import {
   getSuccessEmbed,
 } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
-import { defaultEmojis, getEmoji } from "utils/common"
+import { defaultEmojis, getEmoji, msgColors } from "utils/common"
 
 export async function process(message: OriginalMessage) {
   if (!message.guildId || !message.guild) {
@@ -47,36 +47,56 @@ export async function process(message: OriginalMessage) {
   const options: AwaitMessagesOptions = {
     filter: (response) => response.author.id === userId,
     max: 1,
-    time: 30_000,
+    time: 180_000,
     errors: ["time"],
   }
 
-  const collectRole = async () => {
+  const collectRole: () => Promise<string> = async () => {
     const title = `${getEmoji(
       "mag"
     )} Please enter the role you want to assign by level, amount of NFT, and token.`
-    const embed = composeEmbedMessage(null, { title })
-    await send({ embeds: [embed] })
+    const embed = composeEmbedMessage(null, { title, color: msgColors.PRIMARY })
+    const revokeButton = getExitButton(userId, "Cancel")
+    await send({
+      embeds: [embed],
+      components: [new MessageActionRow().addComponents(revokeButton)],
+    })
     const collected = await message.channel?.awaitMessages(options)
     const roleArg = collected?.first()?.content?.trim() ?? ""
     const { isRole, value: roleId } = parseDiscordToken(roleArg)
     if (!isRole) {
+      const title = "Invalid role"
       const description = `
       Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n
       ${getEmoji("pointingright")} Type @ to see a role list.
       ${getEmoji(
         "pointingright"
       )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`
-      throw new InternalError({
-        message: message,
-        title: "Invalid role",
-        description,
-      })
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      return await collectRole()
+    }
+    const { ok, data, error, curl, log } = await config.getConfigMixRoleList({
+      guild_id: message.guildId ?? "",
+    })
+    if (!ok) {
+      throw new APIError({ error, curl, description: log })
+    }
+    if (data.filter((config) => config.role_id === roleId).length !== 0) {
+      const title = "Invalid Role"
+      const description = `
+        Your role has been used for an existing mix role. Please choose another one.
+        ${defaultEmojis.POINT_RIGHT} Type @ to see a role list.
+        ${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
+        `
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      return await collectRole()
     }
     return roleId
   }
 
-  const collectLevel = async (roleName: string) => {
+  const collectLevel: (roleName: string) => Promise<number> = async (
+    roleName
+  ) => {
     const title = `${getEmoji(
       "mag"
     )} Please enter the minimum level that will be required to earn the role ${roleName}`
@@ -87,8 +107,13 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
+      color: msgColors.PRIMARY,
     })
-    await send({ embeds: [embed] })
+    const revokeButton = getExitButton(userId, "Cancel")
+    await send({
+      embeds: [embed],
+      components: [new MessageActionRow().addComponents(revokeButton)],
+    })
     const collected = await message.channel?.awaitMessages(options)
     const levelArg = collected?.first()?.content?.trim() ?? ""
     if (levelArg === "0" || levelArg?.toLocaleLowerCase() === "no") {
@@ -96,16 +121,23 @@ export async function process(message: OriginalMessage) {
     }
     const level = +levelArg
     if (isInvalidAmount(level)) {
-      throw new InternalError({
-        message: message,
-        title: "Command error",
-        description: "The level is invalid. Please insert a natural number.",
-      })
+      const title = "Command error"
+      const description =
+        "The level is invalid. Please insert a natural number."
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      return await collectLevel(roleName)
     }
     return level
   }
 
-  const collectNft = async (roleName: string) => {
+  const collectNft: (roleName: string) => Promise<
+    | {
+        amount: number
+        nft_id: string
+        symbol: string
+      }
+    | undefined
+  > = async (roleName) => {
     const title = `${getEmoji(
       "mag"
     )} Please enter the minimum amount of NFT and the NFT address that will be required to earn the role ${roleName}.`
@@ -116,8 +148,13 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
+      color: msgColors.PRIMARY,
     })
-    await send({ embeds: [embed] })
+    const revokeButton = getExitButton(userId, "Cancel")
+    await send({
+      embeds: [embed],
+      components: [new MessageActionRow().addComponents(revokeButton)],
+    })
     const collected = await message.channel?.awaitMessages(options)
     const nftArgs = collected?.first()?.content?.trim() ?? ""
     if (nftArgs === "0" || nftArgs?.toLocaleLowerCase() === "no") {
@@ -126,33 +163,29 @@ export async function process(message: OriginalMessage) {
     const [amountArg, address] = nftArgs.split(" ")
     const amount = +amountArg
     if (isInvalidAmount(amount)) {
-      collected?.first()?.reply("Hello")
-      throw new InternalError({
-        message: message,
-        title: "Invalid amount",
-        description: "Invalid amount desc",
-      })
+      const title = "Invalid amount"
+      const description = "Invalid amount desc"
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      await collectNft(roleName)
     }
     if (!address) {
-      throw new InternalError({
-        message: message,
-        title: "Invalid Token address",
-        description:
-          "We cannot find your token address! Please enter a valid one!",
-      })
+      const title = "Invalid Token address"
+      const description =
+        "We cannot find your token address! Please enter a valid one!"
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      await collectNft(roleName)
     }
     const { ok, data, error, curl, log } =
       await community.getNFTCollectionDetail({
         collectionAddress: address,
         queryAddress: true,
       })
-    if (error?.toLocaleLowerCase().startsWith("record not found")) {
-      throw new InternalError({
-        message: message,
-        title: "Command Error",
-        description:
-          "The collection has not supported yet. Please contact us to support!",
-      })
+    if (error?.toLowerCase().startsWith("record not found")) {
+      const title = "Invalid Token address"
+      const description =
+        "The collection has not supported yet. Please enter a valid one or contact us to support!"
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      return await collectNft(roleName)
     }
     if (!ok) {
       throw new APIError({
@@ -165,7 +198,14 @@ export async function process(message: OriginalMessage) {
     return { amount, nft_id: data.id, symbol: data.symbol }
   }
 
-  const collectToken = async (roleName: string) => {
+  const collectToken: (roleName: string) => Promise<
+    | {
+        amount: number
+        token_id: number
+        symbol: string
+      }
+    | undefined
+  > = async (roleName) => {
     const title = `${getEmoji(
       "mag"
     )} Please enter the minimum amount of token and the token address that will be required to earn the role ${roleName}`
@@ -176,8 +216,13 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
+      color: msgColors.PRIMARY,
     })
-    await send({ embeds: [embed] })
+    const revokeButton = getExitButton(userId, "Cancel")
+    await send({
+      embeds: [embed],
+      components: [new MessageActionRow().addComponents(revokeButton)],
+    })
     const collected = await message.channel?.awaitMessages(options)
     const tokenArgs = collected?.first()?.content.trim() ?? ""
     if (tokenArgs === "0" || tokenArgs?.toLocaleLowerCase() === "no") {
@@ -186,31 +231,42 @@ export async function process(message: OriginalMessage) {
     const [amountArg, address, chain] = tokenArgs.split(" ")
     const amount = +amountArg
     if (isInvalidAmount(amount)) {
-      throw new InternalError({
-        message: message,
-        title: "Command error",
-        description: "The amount is invalid. Please insert a natural number.",
-      })
+      const title = "Command error"
+      const description =
+        "The amount is invalid. Please insert a natural number."
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      return await collectToken(roleName)
     }
     if (!address) {
-      throw new InternalError({
-        message: message,
-        title: "Invalid Token address",
-        description:
-          "We cannot find your token address! Please enter a valid one!",
-      })
+      const title = "Invalid Token address"
+      const description =
+        "We cannot find your token address! Please enter a valid one!"
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      return await collectToken(roleName)
     }
     if (!chain) {
-      throw new InternalError({
-        message: message,
-        title: "Invalid chain",
-        description: "We cannot find your chain! Please enter a valid one!",
-      })
+      const title = "Invalid Chain"
+      const description = "We cannot find your chain! Please enter a valid one!"
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      return await collectToken(roleName)
     }
     const { ok, data, curl, log, error } = await defi.getSupportedToken({
       address,
       chain,
     })
+    if (error?.toLowerCase().startsWith("invalid chain")) {
+      const title = "Invalid Chain"
+      const description = "We cannot find your chain! Please enter a valid one!"
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      return await collectToken(roleName)
+    }
+    if (error?.toLowerCase().startsWith("record not found")) {
+      const title = "Invalid Token address"
+      const description =
+        "We cannot find your token address! Please enter a valid one!"
+      await send({ embeds: [getErrorEmbed({ title, description })] })
+      return await collectToken(roleName)
+    }
     if (!ok) {
       throw new APIError({
         message: message,
@@ -259,9 +315,9 @@ export async function process(message: OriginalMessage) {
       label: "Confirm",
       emoji: getEmoji("approve"),
       customId: customId,
-      style: "PRIMARY",
+      style: "SUCCESS",
     })
-    const revokeButton = getExitButton(userId)
+    const revokeButton = getExitButton(userId, "Cancel")
     const actionRow = new MessageActionRow().addComponents([
       confirmButton,
       revokeButton,
@@ -280,11 +336,12 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title: `Users will earn the role ${role_name} if they meet all of these requirements`,
       description,
+      color: msgColors.PRIMARY,
     })
     await send({ embeds: [embed], components: [actionRow] })
-    let interaction = await message.channel?.awaitMessageComponent({
+    const interaction = await message.channel?.awaitMessageComponent({
       filter: (i) => i.user.id === userId && i.customId === customId,
-      time: 15_000,
+      time: 180_000,
     })
     await interaction?.deferUpdate()
     const { ok, error, curl, log } = await config.setConfigMixRole({
@@ -298,7 +355,7 @@ export async function process(message: OriginalMessage) {
       if (error.startsWith("Mix role config already existed")) {
         const title = "Invalid Role"
         const description = `
-          Your role has been used for an existing NFT role. Please choose another one.
+          Your role has been used for an existing mix role. Please choose another one.
           ${defaultEmojis.POINT_RIGHT} Type @ to see a role list.
           ${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
           `
@@ -356,7 +413,11 @@ export async function process(message: OriginalMessage) {
           description: e.specificError,
         })
       } else {
-        embed = getErrorEmbed({ description: "Command timeout!" })
+        embed = getErrorEmbed({
+          title: "Command canceled",
+          description:
+            "The time out for a question is 3 minutes. Please re-run the command and answer the question in 3 minutes.",
+        })
       }
       send({ embeds: [embed] })
     }
