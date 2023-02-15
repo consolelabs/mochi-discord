@@ -1,9 +1,10 @@
 import defi from "adapters/defi"
 import * as processor from "./processor"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmojiURL, emojis } from "utils/common"
+import { getEmojiURL, emojis, getEmoji } from "utils/common"
 import { InternalError } from "errors"
 import mockdc from "../../../../tests/mocks/discord"
+import { assertDescription } from "../../../../tests/assertions/discord"
 jest.mock("adapters/defi")
 
 describe("deposit", () => {
@@ -30,9 +31,7 @@ describe("deposit", () => {
       author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
       description: `${msg.author}, your deposit address has been sent to you. Check your DM!`,
     })
-    expect(output?.messageOptions.embeds[0].description).toStrictEqual(
-      expected.description
-    )
+    assertDescription(output as any, expected)
   })
 
   test("Success send DM to user - Using CommandInteraction", async () => {
@@ -51,9 +50,7 @@ describe("deposit", () => {
       author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
       description: `${interaction.user}, your deposit address has been sent to you. Check your DM!`,
     })
-    expect(output?.messageOptions.embeds[0].description).toStrictEqual(
-      expected.description
-    )
+    assertDescription(output as any, expected)
   })
 
   test("channel type === DM - Using Message", async () => {
@@ -100,9 +97,15 @@ describe("deposit", () => {
       status: 404,
     }
     defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
-    // const expectedDesc = `${getEmoji(
-    //   "nekosad"
-    // )} Unfortunately, no **FTM** contract is available at this time. Please try again later`
-    await expect(processor.deposit(msg, "ftm")).rejects.toThrow(InternalError)
+    const expectedDesc = `${getEmoji(
+      "nekosad"
+    )} Unfortunately, no **FTM** contract is available at this time. Please try again later`
+    await expect(processor.deposit(msg, "ftm")).rejects.toThrow(
+      new InternalError({
+        title: "Command error",
+        message: msg,
+        description: expectedDesc,
+      })
+    )
   })
 })
