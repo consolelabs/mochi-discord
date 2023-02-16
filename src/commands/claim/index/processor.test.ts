@@ -5,6 +5,7 @@ import { getEmoji, roundFloatNumber, shortenHashOrAddress } from "utils/common"
 import { assertDescription } from "../../../../tests/assertions/discord"
 import { InternalError } from "errors"
 import mockdc from "../../../../tests/mocks/discord"
+import { DISCORD_URL } from "utils/constants"
 jest.mock("adapters/defi")
 
 describe("claim", () => {
@@ -72,7 +73,13 @@ describe("claim", () => {
   test("claimId is not a number", async () => {
     const args = ["claim", "x", "0xAbcAbc123"]
     defi.claimOnchainTransfer = jest.fn()
-    await expect(processor.claim(msg, args)).rejects.toThrow(InternalError)
+    await expect(processor.claim(msg, args)).rejects.toThrow(
+      new InternalError({
+        message: msg,
+        title: "Claiming failed!",
+        description: "`claim ID` must be a number",
+      })
+    )
     expect(defi.claimOnchainTransfer).not.toHaveBeenCalled()
   })
 
@@ -94,13 +101,26 @@ describe("claim", () => {
       status: 200,
       url: "",
     }
+    const pointingright = getEmoji("pointingright")
     defi.claimOnchainTransfer = jest
       .fn()
       .mockResolvedValueOnce(claimOnchainTransferRes)
     defi.getUserOnchainTransfers = jest
       .fn()
       .mockResolvedValueOnce(getUserOnchainTransfersRes)
-    await expect(processor.claim(msg, args)).rejects.toThrow(InternalError)
+    await expect(processor.claim(msg, args)).rejects.toThrow(
+      new InternalError({
+        message: msg,
+        title: "Fail to claim tip!",
+        description: [
+          `${pointingright} You may enter an invalid \`claim ID\` or claimed one!`,
+          `${pointingright} You can pick one of these \`claim ID\`: ${getUserOnchainTransfersRes.data
+            .map((tx: any) => tx.id)
+            .join(", ")}`,
+          `${pointingright} You can only claim one transaction at once.`,
+        ].join("\n"),
+      })
+    )
     expect(defi.claimOnchainTransfer).toHaveBeenCalledTimes(1)
   })
 
@@ -119,7 +139,19 @@ describe("claim", () => {
       .fn()
       .mockResolvedValueOnce(claimOnchainTransferRes)
     defi.getUserOnchainTransfers = jest.fn()
-    await expect(processor.claim(msg, args)).rejects.toThrow(InternalError)
+    await expect(processor.claim(msg, args)).rejects.toThrow(
+      new InternalError({
+        message: msg,
+        title: "Failed to claim tip!",
+        description: `Mochi wallet's balance is insufficient to proceed this transaction.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} You can contact our developer at suggestion forum in [Mochi Discord](${DISCORD_URL})!\n${getEmoji(
+          "POINTINGRIGHT"
+        )} You can try to claim other tips and get back to this one later! ${getEmoji(
+          "soon"
+        )}\nSorry for this inconvenience ${getEmoji("nekosad")}`,
+      })
+    )
     expect(defi.getUserOnchainTransfers).not.toHaveBeenCalled()
   })
 
@@ -138,7 +170,19 @@ describe("claim", () => {
       .fn()
       .mockResolvedValueOnce(claimOnchainTransferRes)
     defi.getUserOnchainTransfers = jest.fn()
-    await expect(processor.claim(msg, args)).rejects.toThrow(InternalError)
+    await expect(processor.claim(msg, args)).rejects.toThrow(
+      new InternalError({
+        message: msg,
+        title: "Failed to claim tip!",
+        description: `Mochi wallet's balance is insufficient to proceed this transaction.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} You can contact our developer at suggestion forum in [Mochi Discord](${DISCORD_URL})!\n${getEmoji(
+          "POINTINGRIGHT"
+        )} You can try to claim other tips and get back to this one later! ${getEmoji(
+          "soon"
+        )}\nSorry for this inconvenience ${getEmoji("nekosad")}`,
+      })
+    )
     expect(defi.getUserOnchainTransfers).not.toHaveBeenCalled()
   })
 })
