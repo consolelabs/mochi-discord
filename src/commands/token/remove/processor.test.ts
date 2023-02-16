@@ -5,8 +5,11 @@ import { APIError } from "errors"
 import * as SelectMenuUtil from "ui/discord/select-menu"
 import * as ButtonUtil from "ui/discord/button"
 import { PREFIX } from "utils/constants"
-import { assertDescription } from "../../../../tests/assertions/discord"
-import { getErrorEmbed } from "ui/discord/embed"
+import {
+  assertDescription,
+  assertRunResult,
+} from "../../../../tests/assertions/discord"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 jest.mock("adapters/defi")
 jest.mock("adapters/config")
 jest.mock("ui/discord/select-menu")
@@ -22,11 +25,12 @@ describe("handleTokenRemove", () => {
       curl: "",
       log: "",
     }
+    const { curl, log } = getGuildTokensRes
     Defi.getSupportedTokens = jest.fn().mockResolvedValueOnce([])
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     await expect(
       processor.handleTokenRemove("guildId", "authorId")
-    ).rejects.toThrow(APIError)
+    ).rejects.toThrow(new APIError({ curl, description: log }))
   })
 
   test("Your server has no tokens", async () => {
@@ -44,7 +48,7 @@ describe("handleTokenRemove", () => {
     assertDescription(output, expectedEmbed as any)
   })
 
-  test("Your server has no tokens", async () => {
+  test("Successfully show remove token selection box", async () => {
     const getGuildTokensRes = {
       data: [
         {
@@ -62,6 +66,21 @@ describe("handleTokenRemove", () => {
       curl: "",
       log: "",
     }
+    const expected = {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "Need action",
+            description:
+              "Select to remove one of the following tokens from your server.",
+          }),
+        ],
+        components: [null, null],
+      },
+      interactionOptions: {
+        handler: processor.handler,
+      },
+    }
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     jest
       .spyOn(SelectMenuUtil, "composeDiscordSelectionRow")
@@ -69,18 +88,7 @@ describe("handleTokenRemove", () => {
     jest
       .spyOn(ButtonUtil, "composeDiscordExitButton")
       .mockReturnValueOnce(null as any)
-    await processor.handleTokenRemove("guildId", "authorId")
-    expect(SelectMenuUtil.composeDiscordSelectionRow).toHaveBeenCalledTimes(1)
-    expect(SelectMenuUtil.composeDiscordSelectionRow).toHaveBeenCalledWith({
-      customId: "guild_tokens_selection",
-      placeholder: "Make a selection",
-      options: [
-        {
-          label: "Fantom (FTM)",
-          value: "FTM",
-        },
-      ],
-    })
-    expect(ButtonUtil.composeDiscordExitButton).toHaveBeenCalledTimes(1)
+    const output = await processor.handleTokenRemove("guildId", "authorId")
+    assertRunResult(output, expected as any)
   })
 })

@@ -19,8 +19,11 @@ describe("handleTokenList", () => {
       curl: "",
       log: "",
     }
+    const { curl, log } = getGuildTokensRes
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
-    await expect(processor.handleTokenList("guildId")).rejects.toThrow(APIError)
+    await expect(processor.handleTokenList("guildId")).rejects.toThrow(
+      new APIError({ curl, description: log })
+    )
   })
 
   test("No tokens found", async () => {

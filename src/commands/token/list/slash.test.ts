@@ -2,6 +2,7 @@ import { CommandInteraction } from "discord.js"
 import { slashCommands } from "commands"
 import * as processor from "./processor"
 import mockdc from "../../../../tests/mocks/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 
 describe("run", () => {
   let i: CommandInteraction
@@ -10,8 +11,22 @@ describe("run", () => {
 
   test("command run with enough args", async () => {
     i.options.getSubcommand = jest.fn().mockReturnValue("list")
-    jest.spyOn(processor, "handleTokenList").mockResolvedValueOnce({} as any)
-    await tokenCmd.run(i)
+    const expected = {
+      messageOptions: {
+        embeds: [
+          {
+            color: "#77b255",
+            title: ":dollar: Tokens list",
+            fields: [],
+          },
+        ],
+      },
+    }
+    jest
+      .spyOn(processor, "handleTokenList")
+      .mockResolvedValueOnce(expected as any)
+    const output = await tokenCmd.run(i)
     expect(processor.handleTokenList).toBeCalledWith(i.guildId)
+    assertRunResult(output as any, expected as any)
   })
 })

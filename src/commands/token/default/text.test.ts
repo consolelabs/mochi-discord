@@ -3,6 +3,8 @@ import { Message } from "discord.js"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
 import { CommandArgumentError } from "errors"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 
 describe("run", () => {
   let msg: Message
@@ -19,8 +21,18 @@ describe("run", () => {
 
   test("command run with enough args", async () => {
     msg.content = "$token default ftm"
-    jest.spyOn(processor, "handleTokenDefault").mockResolvedValueOnce({} as any)
-    await tokenCmd?.actions?.["default"].run(msg)
+    const expectedEmbed = {
+      embeds: [
+        composeEmbedMessage(null, {
+          description: `Successfully set **FTM** as default token for server`,
+        }),
+      ],
+    }
+    jest
+      .spyOn(processor, "handleTokenDefault")
+      .mockResolvedValueOnce(expectedEmbed)
+    const output = await tokenCmd?.actions?.["default"].run(msg)
     expect(processor.handleTokenDefault).toBeCalledWith(msg, "ftm")
+    assertRunResult(output as any, { messageOptions: expectedEmbed })
   })
 })

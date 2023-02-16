@@ -27,7 +27,10 @@ describe("handleTokenAdd", () => {
     Defi.getSupportedTokens = jest.fn().mockResolvedValueOnce([])
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     await expect(processor.handleTokenAdd(msg, "test", "test")).rejects.toThrow(
-      APIError
+      new APIError({
+        curl: getGuildTokensRes.curl,
+        description: getGuildTokensRes.log,
+      })
     )
   })
 
@@ -53,7 +56,10 @@ describe("handleTokenAdd", () => {
     Defi.getSupportedTokens = jest.fn().mockResolvedValueOnce(tokens)
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     await expect(processor.handleTokenAdd(msg, "test", "test")).rejects.toThrow(
-      InternalError
+      new InternalError({
+        message: msg,
+        description: "Your server already had all supported tokens.",
+      })
     )
   })
 
@@ -89,7 +95,7 @@ describe("handleTokenAdd", () => {
     jest
       .spyOn(ButtonUtil, "composeDiscordExitButton")
       .mockReturnValueOnce(undefined as any)
-    await processor.handleTokenAdd(msg, "test", "test")
+    await processor.handleTokenAdd(msg, "test", msg.author.id)
     expect(SelectMenuUtil.composeDiscordSelectionRow).toHaveBeenCalledTimes(1)
     expect(SelectMenuUtil.composeDiscordSelectionRow).toHaveBeenCalledWith({
       customId: "guild_tokens_selection",
@@ -102,5 +108,8 @@ describe("handleTokenAdd", () => {
       ],
     })
     expect(ButtonUtil.composeDiscordExitButton).toHaveBeenCalledTimes(1)
+    expect(ButtonUtil.composeDiscordExitButton).toHaveBeenCalledWith(
+      msg.author.id
+    )
   })
 })

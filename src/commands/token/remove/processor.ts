@@ -12,7 +12,7 @@ import Config from "../../../adapters/config"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { composeDiscordExitButton } from "ui/discord/button"
 
-const handler: InteractionHandler = async (msgOrInteraction) => {
+export const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
   const symbol = interaction.values[0]
