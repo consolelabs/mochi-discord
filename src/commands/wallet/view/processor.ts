@@ -28,31 +28,35 @@ const chains: Record<string, string> = {
   "250": "Fantom Opera",
 }
 
-function composeWalletViewSelectMenuRow(address: string) {
+function composeWalletViewSelectMenuRow(address: string, type: string) {
   return new MessageActionRow().addComponents(
     new MessageSelectMenu({
       custom_id: "wallet_view_select_menu",
       options: [
-        { label: "Assets", value: `wallet_assets-${address}`, default: true },
-        { label: "Transactions", value: `wallet_txns-${address}` },
+        {
+          label: "Assets",
+          value: `wallet_assets-${address}-${type}`,
+          default: true,
+        },
+        { label: "Transactions", value: `wallet_txns-${address}-${type}` },
       ],
     })
   )
 }
 
-function composeChainSelectMenuRow(address: string) {
+function composeChainSelectMenuRow(address: string, type: string) {
   return new MessageActionRow().addComponents(
     new MessageSelectMenu({
       custom_id: "wallet_chain_select_menu",
       options: [
         {
           label: "All Chains",
-          value: `wallet_txns-${address}`,
+          value: `wallet_txns-${address}-${type}`,
           default: true,
         },
         ...Object.entries(chains).map(([chainId, chainName]) => ({
           label: chainName,
-          value: `wallet_txns-${address}-${chainId}`,
+          value: `wallet_txns-${address}-${type}-${chainId}`,
         })),
       ],
     })
@@ -74,11 +78,12 @@ export async function viewWalletDetails(
   if (!ok && status !== 404) {
     throw new APIError({ message, description: log, curl })
   }
-  let address
+  let address, addressType
   if (!ok) {
     // 1. address/alias not tracked yet
     address = addressOrAlias
-    if (!isAddress(address)) {
+    const { valid, type } = isAddress(address)
+    if (!valid) {
       throw new InternalError({
         message,
         title: "Invalid address",
@@ -86,14 +91,16 @@ export async function viewWalletDetails(
           "Your wallet address is invalid. Make sure that the wallet address is valid, you can copy-paste it to ensure the exactness of it.",
       })
     }
+    addressType = type
   } else {
     // 2. address/alias is being tracked
     address = wallet.address
+    addressType = wallet.type || "eth"
   }
   return {
     messageOptions: {
-      embeds: [await getAssetsEmbed(message, author, address)],
-      components: [composeWalletViewSelectMenuRow(address)],
+      embeds: [await getAssetsEmbed(message, author, address, addressType)],
+      components: [composeWalletViewSelectMenuRow(address, addressType)],
     },
     interactionOptions: {
       handler: selectWalletViewHandler,
@@ -108,12 +115,12 @@ export const selectWalletViewHandler: InteractionHandler = async (
   await interaction.deferUpdate()
   const { message } = <{ message: Message }>interaction
   const input = interaction.values[0]
-  const [type, address, chainId] = input.split("-")
+  const [view, address, type, chainId] = input.split("-")
 
-  const txView = type === "wallet_txns"
+  const txView = view === "wallet_txns"
   const embed = await (txView
-    ? getTxnsEmbed(msgOrInteraction, interaction.user, address, chainId)
-    : getAssetsEmbed(msgOrInteraction, interaction.user, address))
+    ? getTxnsEmbed(msgOrInteraction, interaction.user, address, type, chainId)
+    : getAssetsEmbed(msgOrInteraction, interaction.user, address, type))
 
   const viewRow: MessageActionRow | undefined = message.components.find((c) => {
     return c.components[0].customId === "wallet_view_select_menu"
@@ -121,10 +128,10 @@ export const selectWalletViewHandler: InteractionHandler = async (
   const viewSelectMenu = viewRow?.components[0] as MessageSelectMenu
   const choices = ["wallet_assets", "wallet_txns"]
   viewSelectMenu.options.forEach(
-    (opt, i) => (opt.default = i === choices.indexOf(type))
+    (opt, i) => (opt.default = i === choices.indexOf(view))
   )
 
-  const chainRow = composeChainSelectMenuRow(address)
+  const chainRow = composeChainSelectMenuRow(address, type)
   const chainSelectMenu = chainRow?.components[0] as MessageSelectMenu
   chainSelectMenu.options.forEach(
     (opt, i) =>
@@ -136,7 +143,7 @@ export const selectWalletViewHandler: InteractionHandler = async (
     messageOptions: {
       embeds: [embed],
       components: [
-        ...(txView ? [chainRow] : []),
+        ...(txView && type === "eth" ? [chainRow] : []),
         ...(viewRow ? [viewRow] : []),
       ],
     },
@@ -213,7 +220,8 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
 export async function getAssetsEmbed(
   message: OriginalMessage,
   author: User,
-  address: string
+  address: string,
+  type: string
 ) {
   const pointingright = getEmoji("pointingright")
   const blank = getEmoji("blank")
@@ -222,7 +230,7 @@ export async function getAssetsEmbed(
     ok,
     log,
     curl,
-  } = await defi.getWalletAssets(author.id, address)
+  } = await defi.getWalletAssets(author.id, address, type)
   if (!ok) {
     throw new APIError({
       message,
@@ -274,9 +282,14 @@ export async function getTxnsEmbed(
   message: OriginalMessage,
   author: User,
   address: string,
+  type: string,
   chainId?: string
 ) {
-  const { data, ok, log, curl } = await defi.getWalletTxns(author.id, address)
+  const { data, ok, log, curl } = await defi.getWalletTxns(
+    author.id,
+    address,
+    type
+  )
   if (!ok) {
     throw new APIError({
       message,
@@ -303,42 +316,53 @@ export async function getTxnsEmbed(
   const transactions = txns.slice(0, 5).map((tx: any) => {
     const {
       tx_hash,
-      from,
-      to,
       scan_base_url,
       actions = [],
       successful,
       has_transfer,
     } = tx
 
-    const addresses = `${blank.repeat(2)}${reply} \`${shortenHashOrAddress(
-      from
-    )}\` ${getEmoji("right_arrow")} \`${shortenHashOrAddress(to)}\``
-    const changes = actions
-      ?.map((action: any) => {
-        const { amount, unit, native_transfer, contract } = action
+    const events =
+      (actions ?? []).reduce((acc: any, cur: any) => {
+        const key = `${cur.from}-${cur.to}`
+        const value: any[] = acc[key] ?? []
+        value.push(cur)
+        return {
+          ...acc,
+          [key]: value,
+        }
+      }, {}) ?? {}
+    const details = Object.entries(events)
+      .map(([key, value]: [string, any]) => {
+        const [from, to] = key.split("-")
+        const addresses = `${blank}${reply} \`${shortenHashOrAddress(
+          from
+        )}\` ${getEmoji("right_arrow")} \`${shortenHashOrAddress(to)}\``
         if (has_transfer) {
-          const tokenEmoji = getEmoji(unit)
-          const transfferedAmount = `${amount > 0 ? "+" : ""}${roundFloatNumber(
-            amount,
-            4
-          )}`
-          return `${blank.repeat(
-            3
-          )}${reply}${tokenEmoji} \`${transfferedAmount}\` ${
-            native_transfer
-              ? unit
-              : `[${unit}](${scan_base_url}/token/${contract?.address})`
-          }`
+          const transfers = value
+            .map((action: any) => {
+              const { amount, unit, native_transfer, contract } = action
+              const tokenEmoji = getEmoji(unit)
+              const transfferedAmount = `${
+                amount > 0 ? "+" : ""
+              }${roundFloatNumber(amount, 4)}`
+              return `${blank.repeat(
+                2
+              )}${reply}${tokenEmoji} \`${transfferedAmount}\` ${
+                native_transfer
+                  ? unit
+                  : `[${unit}](${scan_base_url}/token/${contract?.address})`
+              }`
+            })
+            .join("\n")
+          return `${addresses}\n${transfers}`
         }
       })
-      .join("\n")
+      .join("\n\n")
     return `${
       successful ? getEmoji("approve") : defaultEmojis.WARNING
-    } [${shortenHashOrAddress(
-      tx_hash
-    )}](${scan_base_url}/tx/${tx_hash})\n${addresses}${
-      changes ? `\n${changes}` : ""
+    } [${shortenHashOrAddress(tx_hash)}](${scan_base_url}/tx/${tx_hash})${
+      details ? `\n${details}` : ""
     }`
   })
   const description = `${pointingright} Wallet address: \`${shortenHashOrAddress(

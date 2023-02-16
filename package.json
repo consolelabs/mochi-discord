@@ -45,6 +45,7 @@
     "@haileybot/captcha-generator": "^1.7.0",
     "@opensea/stream-js": "^0.0.23",
     "@paintswap/marketplace-interactions": "^0.3.1",
+    "@solana/web3.js": "^1.73.2",
     "@types/turndown": "^5.0.1",
     "canvas": "^2.9.0",
     "change-case": "^4.1.2",
