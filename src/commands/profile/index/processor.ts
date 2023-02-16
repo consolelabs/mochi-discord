@@ -1,4 +1,6 @@
+import community from "adapters/community"
 import profile from "adapters/profile"
+import { composeNFTDetail } from "commands/nft/query/processor"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -12,7 +14,9 @@ import {
   SelectMenuInteraction,
   User,
 } from "discord.js"
+import { MessageComponentTypes } from "discord.js/typings/enums"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { parseDiscordToken } from "utils/commands"
 import {
   authorFilter,
   emojis,
@@ -20,10 +24,6 @@ import {
   hasAdministrator,
   shortenHashOrAddress,
 } from "utils/common"
-import { parseDiscordToken } from "utils/commands"
-import { MessageComponentTypes } from "discord.js/typings/enums"
-import community from "adapters/community"
-import { composeNFTDetail } from "commands/nft/query/processor"
 
 // TODO: this is a global var (one bot instance but multiple users are changing it - could lead to unpredictable error)
 let currentCollectionAddress: string | undefined
@@ -429,41 +429,11 @@ async function composeMyNFTEmbed(
     }
   }
 
-  const userNftCollectionResp = await profile.getUserNFTCollection({
-    userAddress,
-  })
-  if (!userNftCollectionResp.ok) {
-    return {
-      embed: getErrorEmbed({
-        msg,
-        description: userNftCollectionResp.error,
-      }),
-      components: [],
-    }
-  }
-
-  const userNftCollections = userNftCollectionResp.data
-  if (userNftCollections.length === 0) {
-    const embed = composeEmbedMessage(msg, {
-      author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
-      description: `<@${user.id}>, you have no nfts.`,
-    })
-    return { embed: embed, components: [buildSwitchViewActionRow("my-nft")] }
-  }
-
-  const currentSelectedCollection =
-    userNftCollections.find(
-      (collection) => collection.collection_address === collectionAddress
-    ) ?? userNftCollections[0]
-
-  const { name: colName, image: colImage } = currentSelectedCollection
   const pageSize = 1
-
   const getUserNftResp = await profile.getUserNFT({
     userAddress,
-    collectionAddresses: [currentSelectedCollection.collection_address],
     page: pageIdx,
-    size: pageSize,
+    // size: pageSize,
   })
   if (!getUserNftResp.ok) {
     return {
@@ -485,10 +455,38 @@ async function composeMyNFTEmbed(
     return { embed, components: [buildSwitchViewActionRow("my-nft")] }
   }
 
-  const userNft = userNfts[0]
+  const userColAddresses = userNfts.map((n) => n.collection_address)
+  const userCollections = (
+    await Promise.all(
+      userColAddresses
+        .filter((addr, i) => userColAddresses.indexOf(addr) === i)
+        .map((address) => profile.getNftCollections({ address }))
+    )
+  )
+    .filter((res) => res.ok)
+    .map((res) => res.data?.[0])
+    .filter((c) => Boolean(c))
+
+  if (userCollections.length === 0) {
+    const embed = composeEmbedMessage(msg, {
+      author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
+      description: `<@${user.id}>, you have no nfts.`,
+    })
+    return { embed: embed, components: [buildSwitchViewActionRow("my-nft")] }
+  }
+
+  const selectedCollection =
+    userCollections.find((c) => c?.collection_address === collectionAddress) ??
+    userCollections[0]
+  const { name: colName, image: colImage } = selectedCollection ?? {}
+
+  const userNft = userNfts.find(
+    (userNft) =>
+      userNft.collection_address === selectedCollection?.collection_address
+  )
   const getNftDetailResp = await community.getNFTDetail(
-    userNft.collection_address,
-    userNft.token_id,
+    userNft?.collection_address ?? "",
+    userNft?.token_id ?? "",
     msg.guildId ?? "",
     true
   )
@@ -502,12 +500,17 @@ async function composeMyNFTEmbed(
     }
   }
   const { data: nftDetail } = getNftDetailResp
-  const embed = await composeNFTDetail(nftDetail, msg, colName, colImage)
-  embed.setFooter(`Page ${pageIdx + 1} / ${totalPage}`)
+  const embed = await composeNFTDetail(
+    nftDetail,
+    msg,
+    colName ?? "",
+    colImage ?? ""
+  )
+  embed.setFooter({ text: `Page ${pageIdx + 1} / ${totalPage}` })
 
-  const options = userNftCollections.map((c) => ({
-    collectionName: c.name,
-    collectionAddress: c.collection_address,
+  const options = userCollections.map((c) => ({
+    collectionName: c?.name ?? "",
+    collectionAddress: c?.collection_address ?? "",
   }))
 
   return {
@@ -515,7 +518,7 @@ async function composeMyNFTEmbed(
     components: [
       ...buildPaginationActionRow(pageIdx, totalPage),
       buildSelectCollectionActionRow(
-        currentSelectedCollection.collection_address,
+        selectedCollection?.collection_address ?? "",
         options
       ),
       buildSwitchViewActionRow("my-nft"),
