@@ -1,3 +1,6 @@
+import community from "adapters/community"
+import config from "adapters/config"
+import dayjs from "dayjs"
 import {
   ButtonInteraction,
   EmbedFieldData,
@@ -7,14 +10,21 @@ import {
   MessageButton,
   MessageOptions,
 } from "discord.js"
-import { DOT } from "utils/constants"
+import { MessageComponentTypes } from "discord.js/typings/enums"
+import { APIError } from "errors"
+import {
+  ResponseIndexerNFTCollectionTickersData,
+  ResponseNftMetadataAttrIcon,
+} from "types/api"
+import { NFTSymbol } from "types/config"
+import { renderChartImage } from "ui/canvas/chart"
 import {
   composeEmbedMessage,
+  getErrorEmbed,
   getSuccessEmbed,
   justifyEmbedFields,
-  getErrorEmbed,
 } from "ui/discord/embed"
-import community from "adapters/community"
+import { getSuggestionComponents } from "ui/discord/select-menu"
 import {
   authorFilter,
   capFirst,
@@ -31,23 +41,13 @@ import {
   roundFloatNumber,
   shortenHashOrAddress,
 } from "utils/common"
-import config from "adapters/config"
-import { MessageComponentTypes } from "discord.js/typings/enums"
-import { NFTSymbol } from "types/config"
-import { APIError } from "errors"
-import {
-  ResponseIndexerNFTCollectionTickersData,
-  ResponseIndexerPrice,
-  ResponseNftMetadataAttrIcon,
-} from "types/api"
-import dayjs from "dayjs"
-import { renderChartImage } from "ui/canvas/chart"
+import { DOT } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
 import {
   composeCollectionInfoEmbed,
   composeCollectionSoulboundEmbed,
+  formatPriceWeiToEther,
 } from "../processor"
-import { getSuggestionComponents } from "ui/discord/select-menu"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -59,8 +59,6 @@ const rarityColors: Record<string, string> = {
 }
 
 let icons: ResponseNftMetadataAttrIcon[]
-
-const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
 
 function getRarityEmoji(rarity: string) {
   const rarities = Object.keys(rarityColors)
@@ -286,7 +284,7 @@ async function renderNftTickerChart(
   const fromLabel = dayjs(from).format("MMMM DD, YYYY")
   const toLabel = dayjs(to).format("MMMM DD, YYYY")
   const chartData = data.tickers.prices.map(
-    (p) => +(p.amount ?? 0) / Math.pow(10, decimals(p))
+    (p) => +(p.amount ?? 0) / Math.pow(10, p.token?.decimals ?? 0)
   )
   const chart = await renderChartImage({
     chartLabel: `Sold price (${token}) | ${fromLabel} - ${toLabel}`,
@@ -332,9 +330,10 @@ async function composeNFTTicker(
   const {
     name,
     image_cdn,
-    price_change_1d,
-    price_change_7d,
     price_change_30d,
+    price_change_90d,
+    price_change_365d,
+    last_sale_price,
   } = data
 
   const getChangePercentage = (changeStr: string | undefined) => {
@@ -350,16 +349,20 @@ async function composeNFTTicker(
 
   const fields = [
     {
-      name: "Change (24h)",
-      value: getChangePercentage(price_change_1d),
-    },
-    {
-      name: "Change (7d)",
-      value: getChangePercentage(price_change_7d),
-    },
-    {
-      name: "Change (1M)",
+      name: "Change (30d)",
       value: getChangePercentage(price_change_30d),
+    },
+    {
+      name: "Change (90d)",
+      value: getChangePercentage(price_change_90d),
+    },
+    {
+      name: "Change (1y)",
+      value: getChangePercentage(price_change_365d),
+    },
+    {
+      name: `Last sale (${last_sale_price?.token?.symbol})`,
+      value: formatPriceWeiToEther(last_sale_price),
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
@@ -560,7 +563,7 @@ export async function composeNFTDetail(
       const event = tx.event_type
       const soldPriceAmount = Math.round(
         +(tx.sold_price_obj?.amount ?? 0) /
-          Math.pow(10, decimals(tx.sold_price_obj))
+          Math.pow(10, tx.sold_price_obj?.token?.decimals ?? 0)
       )
 
       const toAddress =
