@@ -18,7 +18,8 @@ export async function trackWallet(
   address: string,
   alias: string
 ) {
-  if (!isAddress(address)) {
+  const { valid, type } = isAddress(address)
+  if (!valid) {
     throw new InternalError({
       message: msg,
       title: "Invalid address",
@@ -30,6 +31,7 @@ export async function trackWallet(
     userId: author.id,
     address,
     alias,
+    type,
   })
   const pointingright = getEmoji("pointingright")
   if (!ok && status === 409) {
