@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import { PREFIX, SALE_TRACKER_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { handleSalesTrack } from "./processor"
@@ -32,7 +32,11 @@ const command: Command = {
             getErrorEmbed({
               msg,
               title: "Invalid channel",
-              description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${defaultEmojis.POINT_RIGHT} Type # to see channel list.\n${defaultEmojis.POINT_RIGHT} To add a new channel: 1. Create channel → 2. Confirm`,
+              description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
+                "POINTINGRIGHT"
+              )} Type # to see channel list.\n${getEmoji(
+                "POINTINGRIGHT"
+              )} To add a new channel: 1. Create channel → 2. Confirm`,
             }),
           ],
         },

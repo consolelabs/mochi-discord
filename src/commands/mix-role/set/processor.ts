@@ -21,7 +21,7 @@ import {
   getSuccessEmbed,
 } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
-import { defaultEmojis, getEmoji, msgColors } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 
 export async function process(message: OriginalMessage) {
   if (!message.guildId || !message.guild) {
@@ -85,8 +85,10 @@ export async function process(message: OriginalMessage) {
       const title = "Invalid Role"
       const description = `
         Your role has been used for an existing mix role. Please choose another one.
-        ${defaultEmojis.POINT_RIGHT} Type @ to see a role list.
-        ${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
+        ${getEmoji("POINTINGRIGHT")} Type @ to see a role list.
+        ${getEmoji(
+          "POINTINGRIGHT"
+        )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
         `
       await send({ embeds: [getErrorEmbed({ title, description })] })
       return await collectRole()
@@ -356,8 +358,10 @@ export async function process(message: OriginalMessage) {
         const title = "Invalid Role"
         const description = `
           Your role has been used for an existing mix role. Please choose another one.
-          ${defaultEmojis.POINT_RIGHT} Type @ to see a role list.
-          ${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
+          ${getEmoji("POINTINGRIGHT")} Type @ to see a role list.
+          ${getEmoji(
+            "POINTINGRIGHT"
+          )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
           `
         throw new InternalError({
           message: message,

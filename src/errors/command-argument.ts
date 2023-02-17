@@ -1,4 +1,5 @@
 import { MessageOptions } from "discord.js"
+import { getEmoji } from "utils/common"
 import { BotBaseError, OriginalMessage } from "./base"
 
 export class CommandArgumentError extends BotBaseError {
@@ -24,8 +25,9 @@ export class CommandArgumentError extends BotBaseError {
     // only reply if there is a help message of that command
     if ((embeds?.length ?? 0) > 0) {
       this.reply?.({
-        content:
-          "> It may be incorrect command, here's a help reference for you 👇",
+        content: `> It may be incorrect command, here's a help reference for you ${getEmoji(
+          "POINTINGDOWN"
+        )}`,
         embeds,
       })
     }

@@ -77,7 +77,7 @@ describe("airdrop", () => {
     // processor.getAirdropPayload = jest.fn().mockResolvedValueOnce(payload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
-      title: ":airplane: Confirm airdrop",
+      title: "<:airdrop:1058301255933501491> Confirm airdrop",
       description:
         "Are you sure you want to spend <:cake:972205674371117126> **1 CAKE** (\u2248 $2.05) on this airdrop?",
     }).addFields([

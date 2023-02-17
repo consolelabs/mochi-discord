@@ -3,7 +3,6 @@ import CacheManager from "cache/node-cache"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { assertAuthor, assertTitle } from "../../../../tests/assertions/discord"
 import defi from "adapters/defi"
-import { defaultEmojis } from "utils/common"
 import mockdc from "../../../../tests/mocks/discord"
 jest.mock("adapters/defi")
 jest.mock("cache/node-cache")
@@ -43,7 +42,7 @@ describe("viewWatchlist", () => {
     } as any)
     const output = await processor.viewWatchlist(input)
     const expected = composeEmbedMessage(msg, {
-      title: `${defaultEmojis.MAG} Multiple options found`,
+      title: `<:mag:1058304336842727544> Multiple options found`,
       description:
         "Multiple tokens found for `eth`.\nPlease select one of the following",
     })

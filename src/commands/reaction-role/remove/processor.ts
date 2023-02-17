@@ -6,7 +6,6 @@ import { RoleReactionEvent } from "types/config"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
   isDiscordMessageLink,
-  defaultEmojis,
   emojis,
   getEmojiURL,
   msgColors,
@@ -140,7 +139,9 @@ export const parseRequestArguments = async (
       throw new InternalError({
         message: msg,
         title: "Can't find the role",
-        description: `Invalid role. Be careful not to be mistaken role with username while using \`@\`.\n${defaultEmojis.POINT_RIGHT} Run \`$rr list\` to find a configured role then Click “Jump” to jump to the message.`,
+        description: `Invalid role. Be careful not to be mistaken role with username while using \`@\`.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} Run \`$rr list\` to find a configured role then Click “Jump” to jump to the message.`,
       })
     }
     return {

@@ -17,13 +17,7 @@ import {
   getSlashCommandObject,
   specificHelpCommand,
 } from "utils/commands"
-import {
-  defaultEmojis,
-  emojis,
-  getEmoji,
-  getEmojiURL,
-  msgColors,
-} from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
 
 export const EMPTY_FIELD = {
@@ -42,7 +36,7 @@ export function getMultipleResultEmbed({
   multipleResultText: string
 }) {
   return composeEmbedMessage(msg, {
-    title: `${defaultEmojis.MAG} Multiple results found`,
+    title: `${getEmoji("MAG")} Multiple results found`,
     description: `Relevant results found for \`${ambiguousResultText}\`${
       multipleResultText ? `: ${multipleResultText}` : ""
     }.\nPlease select one of the following`,
@@ -367,7 +361,9 @@ export function getCommandSuggestion(
   if (!results || results.length == 0) {
     return {
       title: "Mochi is confused",
-      description: `Mochi doesn't understand what command you are trying to use.\n:point_right: Perhaps you can reference \`${PREFIX}help\` for more info`,
+      description: `Mochi doesn't understand what command you are trying to use.\n${getEmoji(
+        "POINTINGRIGHT"
+      )} Perhaps you can reference \`${PREFIX}help\` for more info`,
     }
   } else {
     const result = results[0][1]
