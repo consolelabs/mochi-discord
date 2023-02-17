@@ -101,7 +101,7 @@ export function buildSwitchViewActionRow(
 ) {
   const row = new MessageActionRow()
   // TODO(trkhoi): handle aptos address too long
-  if (chain === "apt") {
+  if (chain === "apt" || chain === "sol") {
     const nftButton = new MessageButton({
       label: "NFT",
       emoji: emojis.NFT,
