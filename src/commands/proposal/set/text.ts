@@ -1,9 +1,14 @@
 import { Message, SelectMenuInteraction } from "discord.js"
 import config from "adapters/config"
-import { APIError, GuildIdNotFoundError, InternalError } from "errors"
+import {
+  APIError,
+  CommandArgumentError,
+  GuildIdNotFoundError,
+  InternalError,
+} from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { getEmoji } from "utils/common"
+import { getEmoji, isAddress } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { PREFIX } from "utils/constants"
@@ -23,9 +28,22 @@ const command: Command = {
     // $proposal set <#channel> <network> <token_contract>
     // $proposal set #channel evm 0xad29abb318791d579433d831ed122afeaf29dcfe
     const args = getCommandArguments(msg)
-    const chain = args[3] ?? ""
-    const contract = args[4] ?? ""
-    const { isChannel, value: channelId } = parseDiscordToken(args[2])
+    const [channel, chain = "", contract = ""] = args.slice(2)
+    if (contract.length && !isAddress(contract).valid) {
+      throw new CommandArgumentError({
+        message: msg,
+        description: "Invalid contract address",
+        getHelpMessage: async () => ({
+          embeds: [
+            getErrorEmbed({
+              title: "Invalid argument",
+              description: "Please input a valid evm address",
+            }),
+          ],
+        }),
+      })
+    }
+    const { isChannel, value: channelId } = parseDiscordToken(channel)
     if (!isChannel) {
       return {
         messageOptions: {

@@ -2,7 +2,7 @@ import defi from "adapters/defi"
 import { APIError, InternalError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { defaultEmojis, thumbnails } from "utils/common"
+import { getEmoji, thumbnails } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TICKER_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { setDefaultTicker } from "./processor"
@@ -23,7 +23,11 @@ const command: Command = {
       throw new InternalError({
         title: "Invalid symbol",
         message: msg,
-        description: `${defaultEmojis.POINT_RIGHT} Cannot find any cryptocurrency with \`${query}\`.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`!`,
+        description: `${getEmoji(
+          "POINTING_RIGHT"
+        )} Cannot find any cryptocurrency with \`${query}\`.\n${getEmoji(
+          "POINTING_RIGHT"
+        )} Please choose one in our supported \`$token list\`!`,
       })
     }
     return {

@@ -150,7 +150,7 @@ const allCommands: Record<PageType, HelpPage> = {
     example: "$watchlist view\n$help nft",
     category: {
       "Track Crypto": {
-        emoji: "📈",
+        emoji: getEmoji("INCREASING"),
         description: "Tracking crypto market movements and opportunities",
         features: [
           {

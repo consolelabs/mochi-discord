@@ -6,7 +6,7 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import { getSuccessEmbed, composeEmbedMessage } from "ui/discord/embed"
 import { Coin } from "types/defi"
 import defi from "adapters/defi"
@@ -143,7 +143,7 @@ export async function viewWatchlist({
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            title: `${defaultEmojis.MAG} Multiple options found`,
+            title: `${getEmoji("MAG")} Multiple options found`,
             description: `Multiple tokens found for \`${symbol}\`.\nPlease select one of the following`,
           }),
         ],

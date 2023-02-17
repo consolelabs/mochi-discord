@@ -18,13 +18,7 @@ import { RectangleStats } from "types/canvas"
 import CacheManager from "cache/node-cache"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { drawRectangle } from "ui/canvas/draw"
-import {
-  defaultEmojis,
-  emojis,
-  getChance,
-  getEmoji,
-  roundFloatNumber,
-} from "utils/common"
+import { emojis, getChance, getEmoji, roundFloatNumber } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
 import { getChartColorConfig } from "ui/canvas/color"
@@ -103,10 +97,10 @@ export async function renderHistoricalMarketChart({
 const getChangePercentage = (change: number) => {
   const trend =
     change > 0
-      ? defaultEmojis.CHART_WITH_UPWARDS_TREND
+      ? getEmoji("INCREASING")
       : change === 0
       ? ""
-      : defaultEmojis.CHART_WITH_DOWNWARDS_TREND
+      : getEmoji("DECREASING")
   return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
 }
 
@@ -269,14 +263,14 @@ export function buildSwitchViewActionRow(
 ) {
   const tickerBtn = new MessageButton({
     label: "Ticker",
-    emoji: emojis.TICKER,
+    emoji: getEmoji("INCREASING"),
     customId: `ticker_view_chart|${params.coinId}|${params.days}|${params.symbol}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const infoBtn = new MessageButton({
     label: "Info",
-    emoji: emojis.INFO,
+    emoji: getEmoji("MAG"),
     customId: `ticker_view_info|${params.coinId}|${params.days}|${params.symbol}`,
     style: "SECONDARY",
     disabled: currentView === "info",

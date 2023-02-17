@@ -18,7 +18,6 @@ import {
 } from "ui/discord/embed"
 import community from "adapters/community"
 import {
-  defaultEmojis,
   emojis,
   getCompactFormatedNumber,
   getEmoji,
@@ -288,10 +287,10 @@ async function composeCollectionTickerEmbed({
     const change = changeStr ? +changeStr : 0
     const trend =
       change > 0
-        ? defaultEmojis.CHART_WITH_UPWARDS_TREND
+        ? getEmoji("INCREASING")
         : change === 0
         ? ""
-        : defaultEmojis.CHART_WITH_DOWNWARDS_TREND
+        : getEmoji("DECREASING")
     return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
   }
 
@@ -517,7 +516,11 @@ export async function handleNftTicker(
         embeds: [
           getErrorEmbed({
             title: "Collection not found",
-            description: `The collection hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in the supported \`$nft list\`.\n${defaultEmojis.POINT_RIGHT} To add your NFT, run \`$nft add\`.`,
+            description: `The collection hasn't been supported.\n${getEmoji(
+              "POINTINGRIGHT"
+            )} Please choose one in the supported \`$nft list\`.\n${getEmoji(
+              "POINTINGRIGHT"
+            )} To add your NFT, run \`$nft add\`.`,
           }),
         ],
       },

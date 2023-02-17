@@ -3,7 +3,7 @@ import { GuildIdNotFoundError, InternalError } from "errors"
 import { RoleReactionEvent } from "types/config"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
-import { isDiscordMessageLink, defaultEmojis, getEmoji } from "utils/common"
+import { isDiscordMessageLink, getEmoji } from "utils/common"
 import { throwOnInvalidEmoji } from "utils/emoji"
 import { emojis, getEmojiURL, msgColors } from "./../../../utils/common"
 import config from "adapters/config"
@@ -36,7 +36,13 @@ export const handleRoleSet = async (
       throw new InternalError({
         message: msg,
         title: "Role has been used",
-        description: `Use another role to set the reaction role\n${defaultEmojis.POINT_RIGHT} To see used roles, run $rr list\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+        description: `Use another role to set the reaction role\n${getEmoji(
+          "POINTINGRIGHT"
+        )} To see used roles, run $rr list\n${getEmoji(
+          "POINTINGRIGHT"
+        )} Type \`@\` to see a role list. \n${getEmoji(
+          "POINTINGRIGHT"
+        )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
       })
     } else {
       throw new InternalError({
@@ -98,7 +104,11 @@ export const validateCommandArgument = async (
     throw new InternalError({
       message: msg,
       title: "Invalid roles",
-      description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list. \n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+      description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${getEmoji(
+        "POINTINGRIGHT"
+      )} Type \`@\` to see a role list. \n${getEmoji(
+        "POINTINGRIGHT"
+      )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
     })
   }
 

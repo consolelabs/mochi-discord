@@ -1,11 +1,12 @@
 import config from "adapters/config"
 import { CommandInteraction, Message, MessageOptions } from "discord.js"
-import { APIError } from "errors"
+import { APIError, OriginalMessage } from "errors"
 import { RunResult, MultipleResult } from "types/common"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 
 export async function handle(
+  msg: OriginalMessage,
   channel_id: string,
   snapshot_url: string,
   guild_id: string
@@ -35,8 +36,9 @@ export async function handle(
   }
   if (!ok) {
     throw new APIError({
+      message: msg,
       description: log,
-      error,
+      error: "Make sure that you entered existing dao space or URL.",
       curl,
     })
   }

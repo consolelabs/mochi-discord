@@ -86,6 +86,13 @@ class Profile extends Fetcher {
       }
     )
   }
+
+  public async getNftCollections(query: { address: string }) {
+    return await this.jsonFetch<GetUserNFTsResponse>(
+      `${INDEXER_API_BASE_URL}/nft`,
+      { query }
+    )
+  }
 }
 
 export default new Profile()

@@ -1,6 +1,6 @@
 import { CommandInteraction, Message } from "discord.js"
-import { defaultEmojis } from "utils/common"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { getEmoji } from "utils/common"
+import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
 import Config from "../../../adapters/config"
 
 export async function handleTokenDefault(
@@ -26,7 +26,11 @@ export async function handleTokenDefault(
       return {
         embeds: [
           getErrorEmbed({
-            description: `\`${symbol}\` hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`\n${defaultEmojis.POINT_RIGHT} To add your token, run \`$token add\`.`,
+            description: `\`${symbol}\` hasn't been supported.\n${getEmoji(
+              "POINTING_RIGHT"
+            )} Please choose one in our supported \`$token list\`\n${getEmoji(
+              "POINTING_RIGHT"
+            )} To add your token, run \`$token add\`.`,
           }),
         ],
       }
@@ -64,7 +68,7 @@ export async function handleTokenDefault(
 
   return {
     embeds: [
-      composeEmbedMessage(null, {
+      getSuccessEmbed({
         description: `Successfully set **${symbol.toUpperCase()}** as default token for server`,
       }),
     ],

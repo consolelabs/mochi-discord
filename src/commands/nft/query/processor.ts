@@ -29,7 +29,6 @@ import {
   authorFilter,
   capFirst,
   capitalizeFirst,
-  defaultEmojis,
   emojis,
   getCompactFormatedNumber,
   getEmoji,
@@ -340,10 +339,10 @@ async function composeNFTTicker(
     const change = changeStr ? +changeStr : 0
     const trend =
       change > 0
-        ? defaultEmojis.CHART_WITH_UPWARDS_TREND
+        ? getEmoji("INCREASING")
         : change === 0
         ? ""
-        : defaultEmojis.CHART_WITH_DOWNWARDS_TREND
+        : getEmoji("DECREASING")
     return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
   }
 
@@ -525,7 +524,7 @@ export async function composeNFTDetail(
         const val = `${capFirst(attr.value)}\n${attr.frequency ?? ""}`
         return {
           name: `${getIcon(icons, attr.trait_type)} ${capFirst(
-            attr.trait_type
+            attr.trait_type?.replace("_", " ")
           )}`,
           value: `${val ? val : "-"}`,
           inline: true,

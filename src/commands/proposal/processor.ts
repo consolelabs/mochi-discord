@@ -10,7 +10,7 @@ import { APIError } from "errors"
 import client from "index"
 import NodeCache from "node-cache"
 import { ModelDaoProposalVoteCount } from "types/api"
-import { defaultEmojis, getEmoji } from "utils/common"
+import { getEmoji } from "utils/common"
 import {
   composeEmbedMessage,
   getErrorEmbed,
@@ -88,7 +88,19 @@ export async function handleProposalCreate(i: ButtonInteraction) {
     embeds: [
       getSuccessEmbed({
         title: "Proposal successfully submitted",
-        description: `${defaultEmojis.POINT_RIGHT} Your proposal has been recorded in the <#${cfgData.proposal_channel_id}>.\n${defaultEmojis.POINT_RIGHT} You can create a new proposal in the <#${cfgData.guideline_channel_id}>.\n${defaultEmojis.POINT_RIGHT} You can join the discussion about your proposal in the <#${data.discussion_channel_id}>`,
+        description: `${getEmoji(
+          "POINTINGRIGHT"
+        )} Your proposal has been recorded in the <#${
+          cfgData.proposal_channel_id
+        }>.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} You can create a new proposal in the <#${
+          cfgData.guideline_channel_id
+        }>.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} You can join the discussion about your proposal in the <#${
+          data.discussion_channel_id
+        }>`,
       }),
     ],
     components: [],

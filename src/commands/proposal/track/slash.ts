@@ -52,19 +52,19 @@ const command: SlashCommand = {
         },
       }
     }
-    return await handle(channel.id, url, interaction.guildId)
+    return await handle(interaction, channel.id, url, interaction.guildId)
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        title: "Set up a tracker of proposal voting rounds on Snapshot.",
-        usage: `${SLASH_PREFIX}proposal track #channel <snapshot_DAO_link>\n${SLASH_PREFIX}proposal track #channel <dao_space>`,
+        title: "Set up a tracker of proposal voting rounds on Snapshot and Commonwealth.",
+        usage: `${SLASH_PREFIX}proposal track #channel <snapshot_DAO_link>\n${SLASH_PREFIX}proposal track #channel <commonwealth_link>`,
         description: `${getEmoji(
           "pointingright"
         )} Manage to post proposals and the voting space.\n${getEmoji(
           "pointingright"
-        )} Receive the notification when proposals are opened for voting on [Snapshot](https://snapshot.org/#/).`,
-        examples: `${SLASH_PREFIX}proposal track #general https://snapshot.org/#/bitdao.eth\n${SLASH_PREFIX}proposal track #general bitdao.eth`,
+        )} Receive the notification when proposals are opened for voting on [Snapshot](https://snapshot.org/#/) or [Commonwealth](https://commonwealth.im/).`,
+        examples: `${SLASH_PREFIX}proposal track #general https://snapshot.org/#/bitdao.eth\n${SLASH_PREFIX}proposal track #general https://commonwealth.im/osmosis/discussion`,
       }),
     ],
   }),

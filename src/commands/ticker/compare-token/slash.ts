@@ -9,7 +9,7 @@ import {
 import { InternalError } from "errors"
 import { Coin } from "types/defi"
 import CacheManager from "cache/node-cache"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import { getDefaultSetter } from "utils/default-setters"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
@@ -36,7 +36,11 @@ async function run(
     throw new InternalError({
       title: "Unsupported token/fiat",
       message: interaction,
-      description: `Token is invalid or hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${defaultEmojis.POINT_RIGHT} or Please choose a valid fiat currency.`,
+      description: `Token is invalid or hasn't been supported.\n${getEmoji(
+        "POINTING_RIGHT"
+      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+        "POINTING_RIGHT"
+      )} or Please choose a valid fiat currency.`,
     })
   }
 
