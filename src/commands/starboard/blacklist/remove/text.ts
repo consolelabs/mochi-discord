@@ -1,6 +1,6 @@
 import config from "adapters/config"
 import { Message } from "discord.js"
-import { APIError, GuildIdNotFoundError } from "errors"
+import { APIError, CommandArgumentError, GuildIdNotFoundError } from "errors"
 import { BlacklistChannelRepostConfigRequest, Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { defaultEmojis } from "utils/common"
@@ -18,6 +18,13 @@ const command: Command = {
       throw new GuildIdNotFoundError({ message: msg })
     }
     const args = getCommandArguments(msg)
+    if (args.length < (this.minArguments ?? 0)) {
+      throw new CommandArgumentError({
+        message: msg,
+        description: "Not enough arguments",
+        getHelpMessage: () => this.getHelpMessage(msg),
+      })
+    }
     const channelArg = args[3]
     const { isChannel, value } = parseDiscordToken(channelArg)
     const channel = await msg.guild?.channels.fetch(value)

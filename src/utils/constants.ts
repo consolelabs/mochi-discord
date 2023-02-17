@@ -44,6 +44,8 @@ export const ROLE_REGEX = /^<@&(\d+)>$/i
 
 export const TWITTER_PROFILE_REGEX =
   /(https:\/\/twitter.com\/(?![a-zA-Z0-9_]+\/)([a-zA-Z0-9_]+))/g
+export const URL_REGEX =
+  /[(http(s)?)://(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/gi
 
 const USAGE_STATS_URL = API_BASE_URL + "/data/usage-stats/gitbook?url="
 export const DEPOSIT_GITBOOK =

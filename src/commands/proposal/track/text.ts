@@ -1,9 +1,9 @@
 import { GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
-import { getEmoji } from "utils/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
+import { getEmoji } from "utils/common"
+import { PREFIX } from "utils/constants"
 import { handle } from "./processor"
 
 const command: Command = {
@@ -16,7 +16,8 @@ const command: Command = {
       throw new GuildIdNotFoundError({})
     }
     const args = getCommandArguments(msg)
-    const { isChannel, value: channelId } = parseDiscordToken(args[2])
+    const [channelArg, url] = args.slice(2)
+    const { isChannel, value: channelId } = parseDiscordToken(channelArg)
     if (!isChannel) {
       return {
         messageOptions: {
@@ -29,7 +30,7 @@ const command: Command = {
         },
       }
     }
-    return handle(channelId, args[3], msg.guildId ?? "")
+    return handle(msg, channelId, url, msg.guildId ?? "")
   },
   getHelpMessage: async (msg) => ({
     embeds: [
