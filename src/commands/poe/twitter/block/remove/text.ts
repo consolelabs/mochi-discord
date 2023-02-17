@@ -18,9 +18,11 @@ const command: Command = {
     const arg = getCommandArguments(msg)[4]
     const isUsername = arg.startsWith("@")
     const twitterRes = await (isUsername
-      ? twitterAppClient.users.findUserByUsername(arg.slice(1))
-      : twitterAppClient.users.findUserById(arg))
-    if (twitterRes.errors || !twitterRes.data) {
+      ? twitterAppClient.users
+          .findUserByUsername(arg.slice(1))
+          .catch(() => null)
+      : twitterAppClient.users.findUserById(arg).catch(() => null))
+    if (!twitterRes || twitterRes.errors || !twitterRes.data) {
       throw new CommandArgumentError({
         message: msg,
         description: "Invalid twitter ID or username",

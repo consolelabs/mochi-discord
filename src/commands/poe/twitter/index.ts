@@ -27,15 +27,14 @@ const command: Command = {
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
     const action = actions[args[2]]
+    if (!action) {
+      return { messageOptions: await this.getHelpMessage(msg) }
+    }
     if (
       (action.onlyAdministrator && hasAdministrator(msg.member)) ||
       !action.onlyAdministrator
     ) {
-      if (action) {
-        return action.run(msg)
-      } else {
-        return { messageOptions: await this.getHelpMessage(msg) }
-      }
+      return action.run(msg)
     } else {
       throw new CommandNotAllowedToRunError({
         message: msg,

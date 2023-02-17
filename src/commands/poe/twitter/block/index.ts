@@ -1,7 +1,11 @@
 import config from "adapters/config"
 import { Command } from "types/common"
 import { PREFIX, TWITTER_PROFILE_REGEX } from "utils/constants"
-import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "ui/discord/embed"
 import { Message } from "discord.js"
 import { getCommandArguments } from "utils/commands"
 import { twitterAppClient } from "clients/twitter"
@@ -26,20 +30,29 @@ const command: Command = {
     if (action) return action.run(msg)
 
     if (!msg.guildId) throw new GuildIdNotFoundError({ message: msg })
-    const arg = getCommandArguments(msg)[3]
-    if (!arg)
+    const link = args[3]
+    if (!link)
       throw new CommandArgumentError({
         message: msg,
         description: "Please specify a twitter handle",
         getHelpMessage: () => this.getHelpMessage(msg),
       })
-    const handle = TWITTER_PROFILE_REGEX.exec(arg)?.at(2)
-    if (!handle)
+    const handle = TWITTER_PROFILE_REGEX.exec(link)?.at(2)
+    if (!handle) {
       throw new CommandArgumentError({
         message: msg,
         description: "Invalid twitter profile url",
-        getHelpMessage: () => this.getHelpMessage(msg),
+        getHelpMessage: async () => ({
+          embeds: [
+            getErrorEmbed({
+              title: "No twitter account found",
+              description:
+                "Make sure that the account exists, or that you have entered it correctly.",
+            }),
+          ],
+        }),
       })
+    }
     const twitterData: Record<"id" | "username", string | undefined> = {
       id: "",
       username: "",

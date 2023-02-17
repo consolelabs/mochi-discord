@@ -52,7 +52,7 @@ const command: SlashCommand = {
         },
       }
     }
-    return await handle(channel.id, url, interaction.guildId)
+    return await handle(interaction, channel.id, url, interaction.guildId)
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
