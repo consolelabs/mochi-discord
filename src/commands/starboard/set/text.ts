@@ -45,9 +45,9 @@ const command: Command = {
         message: msg,
         title: "Invalid channel",
         description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n\n${getEmoji(
-          "POINTING_RIGHT"
+          "POINTINGRIGHT"
         )} Type \`#\` to see the channel list. \n${getEmoji(
-          "POINTING_RIGHT"
+          "POINTINGRIGHT"
         )} To add a new channel: 1. Create channel → 2. Confirm`,
       })
     }

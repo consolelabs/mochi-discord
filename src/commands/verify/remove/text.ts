@@ -31,9 +31,9 @@ const command: Command = {
             composeEmbedMessage(msg, {
               title: "No verified channel found",
               description: `You haven't set a channel for verification.\n${getEmoji(
-                "POINTING_RIGHT"
+                "POINTINGRIGHT"
               )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
-                "POINTING_RIGHT"
+                "POINTINGRIGHT"
               )} Then re-check your configuration using \`verify info.\``,
             }),
           ],

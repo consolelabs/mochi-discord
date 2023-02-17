@@ -232,7 +232,7 @@ async function switchView(i: ButtonInteraction, msg: Message) {
         msg,
         title: "No starboards found",
         description: `You haven't configured any emojis in the starboard.\n\n${getEmoji(
-          "POINTING_RIGHT"
+          "POINTINGRIGHT"
         )} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
       }),
     ]
@@ -273,7 +273,7 @@ async function handlePagination(i: ButtonInteraction, msg: Message) {
         msg,
         title: "No starboards found",
         description: `You haven't configured any emojis in the starboard.\n\n${getEmoji(
-          "POINTING_RIGHT"
+          "POINTINGRIGHT"
         )} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
       }),
     ]

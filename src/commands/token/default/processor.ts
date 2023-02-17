@@ -27,9 +27,9 @@ export async function handleTokenDefault(
         embeds: [
           getErrorEmbed({
             description: `\`${symbol}\` hasn't been supported.\n${getEmoji(
-              "POINTING_RIGHT"
+              "POINTINGRIGHT"
             )} Please choose one in our supported \`$token list\`\n${getEmoji(
-              "POINTING_RIGHT"
+              "POINTINGRIGHT"
             )} To add your token, run \`$token add\`.`,
           }),
         ],
