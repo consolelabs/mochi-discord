@@ -165,7 +165,7 @@ export async function handleNftVolume(msg: Message | CommandInteraction) {
     }
   const blank = getEmoji("blank")
   const embed = composeEmbedMessage(null, {
-    title: `${getEmoji("cup")} Top NFT rankings`,
+    title: `${getEmoji("TROPHY")} Top NFT rankings`,
     thumbnail: "https://i.postimg.cc/4NT4fs3d/mochi.png", //Need mochi logo url
     description: `${blank}**Highest Trading Volume**\n\u200B`,
     image: "attachment://leaderboard.png",

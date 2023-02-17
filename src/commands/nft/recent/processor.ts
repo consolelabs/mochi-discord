@@ -1,6 +1,6 @@
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import Community from "adapters/community"
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { getEmoji } from "utils/common"
 import { renderSupportedNFTList } from "../processor"
 
 export async function composeNFTListEmbed(pageIdx: number) {
@@ -25,7 +25,7 @@ export async function composeNFTListEmbed(pageIdx: number) {
   }
 
   const embed = composeEmbedMessage(null, {
-    author: ["Newly Supported NFT Collections", getEmojiURL(emojis["SPARKLE"])],
+    author: ["Newly Supported NFT Collections", getEmoji("DASHBOARD")],
     image: `attachment://nftlist.png`,
   })
 

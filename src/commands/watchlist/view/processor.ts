@@ -375,14 +375,14 @@ export async function renderNFTWatchlist(data: any[]) {
 export function buildSwitchViewActionRow(currentView: string) {
   const tokenButton = new MessageButton({
     label: "Token",
-    emoji: emojis.ASSET,
+    emoji: getEmoji("CASH"),
     customId: `watchlist-switch-view-button/token}`,
     style: "SECONDARY",
     disabled: currentView === "token",
   })
   const nftButton = new MessageButton({
     label: "NFT",
-    emoji: emojis.NFT,
+    emoji: getEmoji("NFTS"),
     customId: `watchlist-switch-view-button/nft`,
     style: "SECONDARY",
     disabled: currentView === "nft",
