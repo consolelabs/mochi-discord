@@ -45,7 +45,7 @@ export async function handleTokenList(
       embeds: [
         {
           color: "#77b255",
-          title: ":dollar: Tokens list",
+          title: `${getEmoji("TIP")} Tokens list`,
           fields,
         },
       ],

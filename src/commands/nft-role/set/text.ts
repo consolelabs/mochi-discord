@@ -3,7 +3,7 @@ import { InternalError } from "errors"
 import { list } from "commands/nft-role/processor"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
@@ -37,7 +37,11 @@ const command: Command = {
       throw new InternalError({
         message: msg,
         title: "Invalid role format",
-        description: `Your role is in an invalid format. Make sure an “@” symbol is put before the role.\n\n${defaultEmojis.POINT_RIGHT} Type @ to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
+        description: `Your role is in an invalid format. Make sure an “@” symbol is put before the role.\n\n${getEmoji(
+          "POINTINGRIGHT"
+        )} Type @ to see a role list.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
       })
     }
     const roleId = roleArg.substring(3, roleArg.length - 1)
@@ -49,7 +53,11 @@ const command: Command = {
             getErrorEmbed({
               msg,
               title: "Invalid roles",
-              description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${defaultEmojis.POINT_RIGHT} Type @ to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
+              description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${getEmoji(
+                "POINTINGRIGHT"
+              )} Type @ to see a role list.\n${getEmoji(
+                "POINTINGRIGHT"
+              )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
             }),
           ],
         },
@@ -76,7 +84,11 @@ const command: Command = {
       throw new InternalError({
         message: msg,
         title: "Unsupported NFT",
-        description: `This collection has NOT been supported yet.\n\n${defaultEmojis.POINT_RIGHT} Please choose one in the \`$nft list\`.\n${defaultEmojis.POINT_RIGHT} To add your NFT, run \`$nft add\`.`,
+        description: `This collection has NOT been supported yet.\n\n${getEmoji(
+          "POINTINGRIGHT"
+        )} Please choose one in the \`$nft list\`.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} To add your NFT, run \`$nft add\`.`,
       })
     }
 
@@ -128,7 +140,11 @@ const command: Command = {
         throw new InternalError({
           message: msg,
           title: "Duplicated roles",
-          description: `Your role has been used for another role configuration. Please choose another role or remove the existing one using \`$nr remove\`.\n\n${defaultEmojis.POINT_RIGHT} Type @ to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
+          description: `Your role has been used for another role configuration. Please choose another role or remove the existing one using \`$nr remove\`.\n\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Type @ to see a role list.\n${getEmoji(
+            "POINTINGRIGHT"
+          )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
         })
       }
       return {

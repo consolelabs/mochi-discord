@@ -2,7 +2,7 @@ import config from "adapters/config"
 import { Message } from "discord.js"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
-import { defaultEmojis, getEmoji } from "utils/common"
+import { getEmoji } from "utils/common"
 import { LEVEL_ROLE_GITBOOK, PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
@@ -38,7 +38,11 @@ const command: Command = {
             getErrorEmbed({
               msg,
               title: "Invalid role format",
-              description: `Your role is in an invalid format. Make sure an “@” symbol is put before the role.\n\n${defaultEmojis.POINT_RIGHT} Type @ to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
+              description: `Your role is in an invalid format. Make sure an “@” symbol is put before the role.\n\n${getEmoji(
+                "POINTINGRIGHT"
+              )} Type @ to see a role list.\n${getEmoji(
+                "POINTINGRIGHT"
+              )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
             }),
           ],
         },
@@ -83,7 +87,11 @@ const command: Command = {
     let description
     let title
     if (res.error.toLowerCase().includes("role has been used")) {
-      description = `Your role has been used for an existing NFT role. Please choose another one.\n\n${defaultEmojis.POINT_RIGHT} Type @ to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`
+      description = `Your role has been used for an existing NFT role. Please choose another one.\n\n${getEmoji(
+        "POINTINGRIGHT"
+      )} Type @ to see a role list.\n${getEmoji(
+        "POINTINGRIGHT"
+      )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`
       title = "Invalid roles"
     }
     return {

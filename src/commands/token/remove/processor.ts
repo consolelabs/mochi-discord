@@ -6,7 +6,11 @@ import {
 import { APIError } from "errors"
 import { Token } from "types/defi"
 import { PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import {
+  composeEmbedMessage,
+  getErrorEmbed,
+  getSuccessEmbed,
+} from "ui/discord/embed"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import Config from "../../../adapters/config"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
@@ -38,7 +42,8 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   return {
     messageOptions: {
       embeds: [
-        composeEmbedMessage(message, {
+        getSuccessEmbed({
+          msg: message,
           description: `Successfully removed **${symbol.toUpperCase()}** from server's tokens list.`,
         }),
       ],

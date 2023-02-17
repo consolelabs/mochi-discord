@@ -1,10 +1,12 @@
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 
 export function composeListConfig(data: any) {
   if (!data || data?.length === 0) {
     return {
       title: "No starboard blacklists found",
-      description: `You haven't configured any starboard blacklist channels.\n\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`\`\`$sb blacklist set <channel>\`\`\``,
+      description: `You haven't configured any starboard blacklist channels.\n\n${getEmoji(
+        "POINTINGRIGHT"
+      )} To set a new one, run \`\`\`$sb blacklist set <channel>\`\`\``,
     }
   }
   return {

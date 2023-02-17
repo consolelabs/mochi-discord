@@ -2,7 +2,7 @@ import config from "adapters/config"
 import { Message } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import { PREFIX, STARBOARD_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import {
@@ -42,7 +42,9 @@ const command: Command = {
           getErrorEmbed({
             msg,
             title: "No starboards found",
-            description: `You haven't configured any emojis in the starboard.\n\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
+            description: `You haven't configured any emojis in the starboard.\n\n${getEmoji(
+              "POINTING_RIGHT"
+            )} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
           }),
         ],
         components: [buildSwitchViewActionRow(defaultView)],
