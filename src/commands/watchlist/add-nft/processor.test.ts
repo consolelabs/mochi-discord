@@ -2,7 +2,7 @@ import * as processor from "./processor"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { assertAuthor, assertTitle } from "../../../../tests/assertions/discord"
 import defi from "adapters/defi"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import mockdc from "../../../../tests/mocks/discord"
 jest.mock("adapters/defi")
 jest.mock("cache/node-cache")
@@ -75,7 +75,7 @@ describe("addWatchlistNftCollection", () => {
     } as any)
     const output = await processor.addWatchlistNftCollection(input)
     const expected = composeEmbedMessage(input.msgOrInteraction, {
-      title: `${defaultEmojis.MAG} Multiple options found`,
+      title: `${getEmoji("MAG")} Multiple options found`,
       description:
         "Multiple collections found for `rabb`: **rabby** (rabby).\nPlease select one of the following",
     })
