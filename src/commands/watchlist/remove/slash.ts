@@ -1,12 +1,10 @@
 import { SlashCommand } from "types/common"
 import { CommandInteraction } from "discord.js"
 import { thumbnails } from "utils/common"
-import { getSuccessEmbed, composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import defi from "adapters/defi"
-import CacheManager from "cache/node-cache"
-import { handleUpdateWlError } from "../processor"
+import { removeWatchlistToken } from "./processor"
 
 const command: SlashCommand = {
   name: "remove",
@@ -27,13 +25,11 @@ const command: SlashCommand = {
   run: async function (interaction: CommandInteraction) {
     const symbol = interaction.options.getString("symbol", true)
     const userId = interaction.user.id
-    const { ok, error } = await defi.removeFromWatchlist({
-      userId,
+    return await removeWatchlistToken({
       symbol,
+      userId,
+      msgOrInteraction: interaction,
     })
-    if (!ok) handleUpdateWlError(interaction, symbol, error, true)
-    CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
-    return { messageOptions: { embeds: [getSuccessEmbed({})] } }
   },
   help: async (interaction) => ({
     embeds: [
