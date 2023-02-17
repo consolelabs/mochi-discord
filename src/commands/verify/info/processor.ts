@@ -24,9 +24,9 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
             title: "No verified channel found",
             author: ["Verify", getEmojiURL(emojis.APPROVE)],
             description: `You haven't set a channel for verification.\n${getEmoji(
-              "POINTING_RIGHT"
+              "POINTINGRIGHT"
             )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
-              "POINTING_RIGHT"
+              "POINTINGRIGHT"
             )} Then re-check your configuration using \`verify info.\``,
           }),
         ],

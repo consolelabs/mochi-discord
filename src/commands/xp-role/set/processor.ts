@@ -59,9 +59,9 @@ function handleError(
     title = "Invalid Role"
     description = `
       Your role has been used for an existing NFT role. Please choose another one.
-      ${getEmoji("POINTING_RIGHT")} Type @ to see a role list.
+      ${getEmoji("POINTINGRIGHT")} Type @ to see a role list.
       ${getEmoji(
-        "POINTING_RIGHT"
+        "POINTINGRIGHT"
       )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
       `
   }

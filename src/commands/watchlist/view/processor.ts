@@ -457,9 +457,9 @@ export async function composeTokenWatchlist(msg: Message, authorId?: string) {
       msg.author.displayAvatarURL({ format: "png" }),
     ],
     description: `_All information are supported by Coingecko_\n\n${getEmoji(
-      "POINTING_RIGHT"
+      "POINTINGRIGHT"
     )} Choose a token supported by [Coingecko](https://www.coingecko.com/) to add to the list.\n${getEmoji(
-      "POINTING_RIGHT"
+      "POINTINGRIGHT"
     )} Add token to track by \`$wl add <symbol>\`.`,
   })
   if (!data?.length) {
