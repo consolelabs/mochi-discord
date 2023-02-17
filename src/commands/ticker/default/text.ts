@@ -24,9 +24,9 @@ const command: Command = {
         title: "Invalid symbol",
         message: msg,
         description: `${getEmoji(
-          "POINTING_RIGHT"
+          "POINTINGRIGHT"
         )} Cannot find any cryptocurrency with \`${query}\`.\n${getEmoji(
-          "POINTING_RIGHT"
+          "POINTINGRIGHT"
         )} Please choose one in our supported \`$token list\`!`,
       })
     }

@@ -33,9 +33,9 @@ async function run(
       title: "Unsupported token/fiat",
       message: interaction,
       description: `Token is invalid or hasn't been supported.\n${getEmoji(
-        "POINTING_RIGHT"
+        "POINTINGRIGHT"
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-        "POINTING_RIGHT"
+        "POINTINGRIGHT"
       )} or Please choose a valid fiat currency.`,
     })
   }

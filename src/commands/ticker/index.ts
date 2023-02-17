@@ -45,9 +45,9 @@ const textCmd: Command = {
         message: msg,
         title: "Ticker error",
         description: `${getEmoji(
-          "POINTING_RIGHT"
+          "POINTINGRIGHT"
         )} You need to enter **different** tokens/fiats for the base and target.\n${getEmoji(
-          "POINTING_RIGHT"
+          "POINTINGRIGHT"
         )} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }
@@ -122,9 +122,9 @@ const slashCmd: SlashCommand = {
         message: interaction,
         title: "Ticker error",
         description: `${getEmoji(
-          "POINTING_RIGHT"
+          "POINTINGRIGHT"
         )} You need to enter **different** tokens/fiats for the base and target.\n${getEmoji(
-          "POINTING_RIGHT"
+          "POINTINGRIGHT"
         )} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }
