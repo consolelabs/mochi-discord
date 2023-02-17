@@ -2,7 +2,7 @@ import defi from "adapters/defi"
 import * as processor from "./processor"
 import { getSuccessEmbed } from "ui/discord/embed"
 import { getEmoji, roundFloatNumber, shortenHashOrAddress } from "utils/common"
-import { assertDescription } from "../../../../tests/assertions/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 import { InternalError } from "errors"
 import mockdc from "../../../../tests/mocks/discord"
 import { DISCORD_URL } from "utils/constants"
@@ -67,7 +67,7 @@ describe("claim", () => {
       { name: "Transaction", value: `[\`${tx_hash}\`](${tx_url})` },
     ])
     const output = await processor.claim(msg, args)
-    assertDescription(output, expectedEmbed)
+    assertRunResult(output, { messageOptions: { embeds: [expectedEmbed] } })
   })
 
   test("claimId is not a number", async () => {
