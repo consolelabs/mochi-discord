@@ -107,7 +107,7 @@ async function renderLeaderboard(leaderboard: TopNFTTradingVolumeItem[]) {
     cltName.y +=
       heightOf(ctx, collectionName) +
       (badgeIcon.h - heightOf(ctx, collectionName)) / 2
-    const badgeImg = await loadImage(getEmojiURL(emojis[`STAR`]))
+    const badgeImg = await loadImage(getEmojiURL(emojis[`STAR2`]))
     ctx.drawImage(badgeImg, line.x, line.y, badgeIcon.w, badgeIcon.h)
 
     // cltName

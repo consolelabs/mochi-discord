@@ -82,7 +82,9 @@ export const tokenEmojis: Record<string, string> = {
   APT: "1047707078183096320",
   RONIN: "1047707529884483614",
   ARB: "1056772215477112862",
-  OKB: "1006838263165767681",
+  OKC: "1006838263165767681",
+  ONUS: "1077203550075093053",
+  SUI: "1077132420500951081",
 }
 
 export const numberEmojis: Record<string, string> = {

@@ -515,7 +515,7 @@ export async function composeNFTDetail(
     ? ` **・Owner:** \`${shortenHashOrAddress(owner.owner_address)}\``
     : ""
   description += rarity?.rank
-    ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate} ${soulbound}`
+    ? `\n\n${getEmoji("TROPHY")}** ・ Rank: ${rarity.rank} ** ${rarityRate} ${soulbound}`
     : ""
 
   // Attributes fields
