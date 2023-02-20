@@ -352,7 +352,7 @@ export const pagination = (currentPage: PageType, isAdmin: boolean) => [
   new MessageActionRow().addComponents(
     new MessageButton({
       label: "Crypto & NFT",
-      emoji: getEmoji("ticker"),
+      emoji: getEmoji("INCREASING"),
       style: "SECONDARY",
       customId: "crypto_and_nft",
       disabled: currentPage === "crypto_and_nft",
