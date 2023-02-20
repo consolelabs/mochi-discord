@@ -56,6 +56,14 @@ export async function process(message: OriginalMessage) {
     description: "User canceled the command.",
   })
 
+  const revokeCustomId = "mix_role_btn_revoke"
+  const revokeButton = new MessageButton({
+    label: "Cancel",
+    emoji: getEmoji("revoke"),
+    customId: revokeCustomId,
+    style: "DANGER",
+  })
+
   const collectRole: () => Promise<{
     roleId: string
     isCanceled: boolean
@@ -64,20 +72,13 @@ export async function process(message: OriginalMessage) {
       "mag"
     )} Please enter the role you want to assign by level, amount of NFT, and token.`
     const embed = composeEmbedMessage(null, { title, color: msgColors.PRIMARY })
-    const customId = "mix_role_btn_revoke"
-    const revokeButton = new MessageButton({
-      label: "Cancel",
-      emoji: getEmoji("revoke"),
-      customId: customId,
-      style: "DANGER",
-    })
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
     })
     let isCanceled = false
     const cancelCollector = message.channel?.createMessageComponentCollector({
-      filter: (i) => i.customId === customId && i.user.id === userId,
+      filter: (i) => i.customId === revokeCustomId && i.user.id === userId,
     })
     cancelCollector?.on("collect", async (i) => {
       isCanceled = true
@@ -141,20 +142,13 @@ export async function process(message: OriginalMessage) {
       description,
       color: msgColors.PRIMARY,
     })
-    const customId = "mix_role_btn_revoke"
-    const revokeButton = new MessageButton({
-      label: "Cancel",
-      emoji: getEmoji("revoke"),
-      customId: customId,
-      style: "DANGER",
-    })
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
     })
     let isCanceled = false
     const cancelCollector = message.channel?.createMessageComponentCollector({
-      filter: (i) => i.customId === customId && i.user.id === userId,
+      filter: (i) => i.customId === revokeCustomId && i.user.id === userId,
     })
     cancelCollector?.on("collect", async (i) => {
       isCanceled = true
@@ -208,20 +202,13 @@ export async function process(message: OriginalMessage) {
       description,
       color: msgColors.PRIMARY,
     })
-    const customId = "mix_role_btn_revoke"
-    const revokeButton = new MessageButton({
-      label: "Cancel",
-      emoji: getEmoji("revoke"),
-      customId: customId,
-      style: "DANGER",
-    })
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
     })
     let isCanceled = false
     const cancelCollector = message.channel?.createMessageComponentCollector({
-      filter: (i) => i.customId === customId && i.user.id === userId,
+      filter: (i) => i.customId === revokeCustomId && i.user.id === userId,
     })
     cancelCollector?.on("collect", async (i) => {
       isCanceled = true
@@ -309,20 +296,13 @@ export async function process(message: OriginalMessage) {
       description,
       color: msgColors.PRIMARY,
     })
-    const customId = "mix_role_btn_revoke"
-    const revokeButton = new MessageButton({
-      label: "Cancel",
-      emoji: getEmoji("revoke"),
-      customId: customId,
-      style: "DANGER",
-    })
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
     })
     let isCanceled = false
     const cancelCollector = message.channel?.createMessageComponentCollector({
-      filter: (i) => i.customId === customId && i.user.id === userId,
+      filter: (i) => i.customId === revokeCustomId && i.user.id === userId,
     })
     cancelCollector?.on("collect", async (i) => {
       isCanceled = true
