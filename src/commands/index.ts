@@ -76,6 +76,7 @@ import tokenrole from "./token-role"
 import xprole from "./xp-role"
 import wallet from "./wallet"
 import mixrole from "./mix-role"
+import alert from "./alert"
 
 CacheManager.init({
   ttl: 0,
@@ -141,6 +142,7 @@ export const originalCommands: Record<string, Command> = {
   feedback: feedback.textCmd,
   prune: prune.textCmd,
   quest: quest.textCmd,
+  alert: alert.textCmd,
   // config section
   reactionrole: reactionrole.textCmd,
   defaultrole: defaultrole.textCmd,

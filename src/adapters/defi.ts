@@ -426,6 +426,34 @@ class Defi extends Fetcher {
       }
     )
   }
+
+  async getAlertList(userId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/defi/price-alert?user_discord_id=${userId}`
+    )
+  }
+
+  async addAlertPrice(body: {
+    userDiscordId: string
+    symbol: string
+    alertType: string
+    frequency: string
+    price: number
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/price-alert`, {
+      method: "POST",
+      body,
+    })
+  }
+
+  async removeAlertPrice(userId: string, coinGeckoId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/defi/price-alert?user_id=${userId}&coin_gecko_id=${coinGeckoId}`,
+      {
+        method: "DELETE",
+      }
+    )
+  }
 }
 
 export default new Defi()
