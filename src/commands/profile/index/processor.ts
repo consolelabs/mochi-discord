@@ -40,7 +40,7 @@ function buildSwitchViewActionRow(currentView: ViewType) {
   })
   const myNftButton = new MessageButton({
     label: "My NFT",
-    emoji: emojis.NFT,
+    emoji: getEmoji("NFTS"),
     customId: `profile-switch-view-button/my-nft`,
     style: "SECONDARY",
     disabled: currentView === "my-nft",
@@ -300,7 +300,7 @@ async function composeMyProfileEmbed(
 
   const roleStr = highestRole?.id ? `<@&${highestRole.id}>` : "`N/A`"
   const activityStr = `${getEmoji("FLAG")} \`${userProfile.nr_of_actions}\``
-  const rankStr = `:trophy: \`${userProfile.guild_rank ?? 0}\``
+  const rankStr = `${getEmoji("TROPHY")} \`${userProfile.guild_rank ?? 0}\``
 
   const embed = composeEmbedMessage(null, {
     thumbnail: user.displayAvatarURL(),

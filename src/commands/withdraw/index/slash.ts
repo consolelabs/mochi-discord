@@ -2,7 +2,7 @@ import defi from "adapters/defi"
 import { CommandInteraction } from "discord.js"
 import { emojis, getEmojiURL } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
-import { getDestinationAddress, withdrawSlash } from "./processor"
+import * as processor from "./processor"
 import { composeButtonLink } from "ui/discord/button"
 
 const run = async (interaction: CommandInteraction) => {
@@ -43,7 +43,7 @@ const run = async (interaction: CommandInteraction) => {
     ],
   })
 
-  if (interaction.guild !== null) {
+  if (interaction.guildId !== null) {
     interaction.followUp({
       embeds: [
         composeEmbedMessage(null, {
@@ -54,7 +54,12 @@ const run = async (interaction: CommandInteraction) => {
       components: [composeButtonLink("See the DM", dm.url)],
     })
   }
-  const addr = await getDestinationAddress(interaction, dm)
-  return await withdrawSlash(interaction, amount.toString(), token, addr)
+  const addr = await processor.getDestinationAddress(interaction, dm)
+  return await processor.withdrawSlash(
+    interaction,
+    amount.toString(),
+    token,
+    addr
+  )
 }
 export default run

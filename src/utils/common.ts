@@ -247,6 +247,8 @@ export const emojis: { [key: string]: string } = {
   INCREASING: "1058304334779125780",
   DECREASING: "1058304303888093194",
   AIRDROP: "1058301255933501491",
+  DASHBOARD: "933339868795404408",
+  SHELTER: "998929232212275221",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

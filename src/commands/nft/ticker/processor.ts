@@ -64,14 +64,14 @@ export function buildSwitchViewActionRow(
   const { collectionAddress, chain, days = 90 } = params
   const tickerButton = new MessageButton({
     label: "Ticker",
-    emoji: emojis.TICKER,
+    emoji: getEmoji("INCREASING"),
     customId: `nft_ticker_view_chart-${collectionAddress}-${chain}-${days}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const nftButton = new MessageButton({
     label: "Info",
-    emoji: emojis.INFO,
+    emoji: getEmoji("MAG"),
     customId: `nft_ticker_view_info-${collectionAddress}-${chain}-${days}`,
     style: "SECONDARY",
     disabled: currentView === "info",
