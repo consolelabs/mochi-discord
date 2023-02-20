@@ -51,17 +51,50 @@ export async function process(message: OriginalMessage) {
     errors: ["time"],
   }
 
-  const collectRole: () => Promise<string> = async () => {
+  const userCancelEmbed = getErrorEmbed({
+    title: "Command canceled",
+    description: "User canceled the command.",
+  })
+
+  const revokeCustomId = "mix_role_btn_revoke"
+  const revokeButton = new MessageButton({
+    label: "Cancel",
+    emoji: getEmoji("revoke"),
+    customId: revokeCustomId,
+    style: "DANGER",
+  })
+
+  const collectRole: () => Promise<{
+    roleId: string
+    isCanceled: boolean
+  }> = async () => {
     const title = `${getEmoji(
       "mag"
     )} Please enter the role you want to assign by level, amount of NFT, and token.`
     const embed = composeEmbedMessage(null, { title, color: msgColors.PRIMARY })
-    const revokeButton = getExitButton(userId, "Cancel")
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
     })
+    let isCanceled = false
+    const cancelCollector = message.channel?.createMessageComponentCollector({
+      filter: (i) => i.customId === revokeCustomId && i.user.id === userId,
+    })
+    cancelCollector?.on("collect", async (i) => {
+      isCanceled = true
+      await i.deferUpdate()
+      await i.editReply({
+        embeds: [userCancelEmbed],
+        components: [],
+      })
+    })
+
     const collected = await message.channel?.awaitMessages(options)
+    // received user input, stop collect cancel btn
+    cancelCollector?.stop()
+
+    if (isCanceled) return { roleId: "", isCanceled }
+
     const roleArg = collected?.first()?.content?.trim() ?? ""
     const { isRole, value: roleId } = parseDiscordToken(roleArg)
     if (!isRole) {
@@ -93,12 +126,12 @@ export async function process(message: OriginalMessage) {
       await send({ embeds: [getErrorEmbed({ title, description })] })
       return await collectRole()
     }
-    return roleId
+    return { roleId, isCanceled }
   }
 
-  const collectLevel: (roleName: string) => Promise<number> = async (
-    roleName
-  ) => {
+  const collectLevel: (
+    roleName: string
+  ) => Promise<{ level: number; isCanceled: boolean }> = async (roleName) => {
     const title = `${getEmoji(
       "mag"
     )} Please enter the minimum level that will be required to earn the role ${roleName}`
@@ -111,15 +144,34 @@ export async function process(message: OriginalMessage) {
       description,
       color: msgColors.PRIMARY,
     })
-    const revokeButton = getExitButton(userId, "Cancel")
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
     })
+    let isCanceled = false
+    const cancelCollector = message.channel?.createMessageComponentCollector({
+      filter: (i) => i.customId === revokeCustomId && i.user.id === userId,
+    })
+    cancelCollector?.on("collect", async (i) => {
+      isCanceled = true
+      await i.deferUpdate()
+      await i.editReply({
+        embeds: [userCancelEmbed],
+        components: [],
+      })
+    })
+
     const collected = await message.channel?.awaitMessages(options)
+    // received user input, stop collect cancel btn
+    cancelCollector?.stop()
+
+    if (isCanceled) {
+      return { level: 0, isCanceled }
+    }
+
     const levelArg = collected?.first()?.content?.trim() ?? ""
     if (levelArg === "0" || levelArg?.toLocaleLowerCase() === "no") {
-      return 0
+      return { level: 0, isCanceled }
     }
     const level = +levelArg
     if (isInvalidAmount(level)) {
@@ -129,17 +181,17 @@ export async function process(message: OriginalMessage) {
       await send({ embeds: [getErrorEmbed({ title, description })] })
       return await collectLevel(roleName)
     }
-    return level
+    return { level, isCanceled }
   }
 
-  const collectNft: (roleName: string) => Promise<
-    | {
-        amount: number
-        nft_id: string
-        symbol: string
-      }
-    | undefined
-  > = async (roleName) => {
+  const collectNft: (roleName: string) => Promise<{
+    requirement?: {
+      amount: number
+      nft_id: string
+      symbol: string
+    }
+    isCanceled: boolean
+  }> = async (roleName) => {
     const title = `${getEmoji(
       "mag"
     )} Please enter the minimum amount of NFT and the NFT address that will be required to earn the role ${roleName}.`
@@ -152,15 +204,34 @@ export async function process(message: OriginalMessage) {
       description,
       color: msgColors.PRIMARY,
     })
-    const revokeButton = getExitButton(userId, "Cancel")
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
     })
+    let isCanceled = false
+    const cancelCollector = message.channel?.createMessageComponentCollector({
+      filter: (i) => i.customId === revokeCustomId && i.user.id === userId,
+    })
+    cancelCollector?.on("collect", async (i) => {
+      isCanceled = true
+      await i.deferUpdate()
+      await i.editReply({
+        embeds: [userCancelEmbed],
+        components: [],
+      })
+    })
+
     const collected = await message.channel?.awaitMessages(options)
+    // received user input, stop collect cancel btn
+    cancelCollector?.stop()
+
+    if (isCanceled) {
+      return { isCanceled }
+    }
+
     const nftArgs = collected?.first()?.content?.trim() ?? ""
     if (nftArgs === "0" || nftArgs?.toLocaleLowerCase() === "no") {
-      return
+      return { isCanceled }
     }
     const [amountArg, address] = nftArgs.split(" ")
     const amount = +amountArg
@@ -197,17 +268,24 @@ export async function process(message: OriginalMessage) {
         curl,
       })
     }
-    return { amount, nft_id: data.id, symbol: data.symbol }
+    return {
+      requirement: {
+        amount,
+        nft_id: data.id,
+        symbol: data.symbol,
+      },
+      isCanceled,
+    }
   }
 
-  const collectToken: (roleName: string) => Promise<
-    | {
-        amount: number
-        token_id: number
-        symbol: string
-      }
-    | undefined
-  > = async (roleName) => {
+  const collectToken: (roleName: string) => Promise<{
+    requirement?: {
+      amount: number
+      token_id: number
+      symbol: string
+    }
+    isCanceled: boolean
+  }> = async (roleName) => {
     const title = `${getEmoji(
       "mag"
     )} Please enter the minimum amount of token and the token address that will be required to earn the role ${roleName}`
@@ -220,15 +298,34 @@ export async function process(message: OriginalMessage) {
       description,
       color: msgColors.PRIMARY,
     })
-    const revokeButton = getExitButton(userId, "Cancel")
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
     })
+    let isCanceled = false
+    const cancelCollector = message.channel?.createMessageComponentCollector({
+      filter: (i) => i.customId === revokeCustomId && i.user.id === userId,
+    })
+    cancelCollector?.on("collect", async (i) => {
+      isCanceled = true
+      await i.deferUpdate()
+      await i.editReply({
+        embeds: [userCancelEmbed],
+        components: [],
+      })
+    })
+
     const collected = await message.channel?.awaitMessages(options)
+    // received user input, stop collect cancel btn
+    cancelCollector?.stop()
+
+    if (isCanceled) {
+      return { isCanceled }
+    }
+
     const tokenArgs = collected?.first()?.content.trim() ?? ""
     if (tokenArgs === "0" || tokenArgs?.toLocaleLowerCase() === "no") {
-      return
+      return { isCanceled }
     }
     const [amountArg, address, chain] = tokenArgs.split(" ")
     const amount = +amountArg
@@ -277,7 +374,14 @@ export async function process(message: OriginalMessage) {
         description: log,
       })
     }
-    return { amount, token_id: data.id ?? 0, symbol: data.symbol ?? "" }
+    return {
+      requirement: {
+        amount,
+        token_id: data.id ?? 0,
+        symbol: data.symbol ?? "",
+      },
+      isCanceled,
+    }
   }
 
   const submitConfig = async ({
@@ -384,14 +488,26 @@ export async function process(message: OriginalMessage) {
   }
 
   try {
-    const role_id = await collectRole()
+    const { roleId: role_id, isCanceled: isRoleCanceled } = await collectRole()
+    if (isRoleCanceled) return
+
     const role = message.guild.roles.cache.has(role_id)
       ? message.guild.roles.cache.get(role_id)
       : await message.guild.roles.fetch(role_id)
     const role_name = role?.name ?? "-"
-    const required_level = await collectLevel(role_name)
-    const token_requirement = await collectToken(role_name)
-    const nft_requirement = await collectNft(role_name)
+
+    const { level: required_level, isCanceled: isLevelCanceled } =
+      await collectLevel(role_name)
+    if (isLevelCanceled) return
+
+    const { requirement: token_requirement, isCanceled: isTokenCanceled } =
+      await collectToken(role_name)
+    if (isTokenCanceled) return
+
+    const { requirement: nft_requirement, isCanceled: isNftCanceled } =
+      await collectNft(role_name)
+    if (isNftCanceled) return
+
     await submitConfig({
       guild_id: message.guildId ?? "",
       role_id,
