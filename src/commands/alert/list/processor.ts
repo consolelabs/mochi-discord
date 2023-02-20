@@ -34,9 +34,13 @@ export async function handleAlertList({
     let description = ""
     arr.forEach(
       (item: any) =>
-        (description += `${item.symbol} - ${item.frequency}\n${getEmoji(
-          "reply"
-        )} When **${item.type}** ${item.value}`)
+        (description += `**${item.symbol}** - ${item.frequency.replaceAll(
+          "_",
+          " "
+        )}\n${getEmoji("reply")} When ${item.alert_type.replaceAll(
+          "_",
+          " "
+        )} **${item.price}**\n`)
     )
     return composeEmbedMessage(null, {
       title: `${getEmoji("increasing")} Alert list`,

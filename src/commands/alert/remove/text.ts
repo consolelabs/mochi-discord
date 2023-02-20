@@ -1,7 +1,7 @@
 import Defi from "adapters/defi"
 import { MessageSelectOptionData } from "discord.js"
 import { Command } from "types/common"
-import { NFT_ROLE_GITBOOK, PREFIX } from "utils/constants"
+import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { handler } from "./processor"
 import { composeDiscordExitButton } from "ui/discord/button"
@@ -33,10 +33,17 @@ const command: Command = {
     }
 
     const options: MessageSelectOptionData[] = []
-    data.forEach((config: any) => {
+    data.forEach((alert: any) => {
       options.push({
-        label: config.role_name ?? "",
-        value: `${config.user_id ?? ""}|${config.role_name ?? ""}`,
+        label:
+          alert.symbol +
+            " " +
+            alert.alert_type.replaceAll("_", " ") +
+            " " +
+            alert.price ?? "",
+        value: `${alert.user_discord_id ?? ""}|${alert.symbol ?? ""}|${
+          alert.price ?? ""
+        }`,
       })
     })
 
@@ -64,9 +71,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}nr remove`,
-        examples: `${PREFIX}nr remove`,
-        document: `${NFT_ROLE_GITBOOK}&action=remove`,
+        usage: `${PREFIX}alert remove`,
+        examples: `${PREFIX}alert remove`,
       }),
     ],
   }),

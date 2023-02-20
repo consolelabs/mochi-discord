@@ -2,7 +2,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import Defi from "adapters/defi"
 import { CommandInteraction, MessageSelectOptionData } from "discord.js"
 import { SlashCommand } from "types/common"
-import { NFT_ROLE_GITBOOK, SLASH_PREFIX } from "utils/constants"
+import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { handler } from "./processor"
 import { composeDiscordExitButton } from "ui/discord/button"
@@ -23,16 +23,22 @@ const command: SlashCommand = {
     }
 
     const options: MessageSelectOptionData[] = []
-    data.forEach((config: any) => {
+    data.forEach((alert: any) => {
       options.push({
-        label: config.role_name ?? "",
-        value: `${config.id ?? ""}|${config.role_name ?? ""}`,
+        label:
+          alert.symbol +
+            " " +
+            alert.alert_type.replaceAll("_", " ") +
+            " " +
+            alert.price ?? "",
+        value: `${alert.user_discord_id ?? ""}|${alert.symbol ?? ""}|${
+          alert.price ?? ""
+        }`,
       })
     })
 
     const embed = composeEmbedMessage2(interaction, {
-      title: "Select an option",
-      //   description: list(configs).description,
+      title: "Select an alert to remove",
     })
 
     return {
@@ -40,8 +46,8 @@ const command: SlashCommand = {
         embeds: [embed],
         components: [
           composeDiscordSelectionRow({
-            customId: "nftrole_remove",
-            placeholder: "Select a nftrole",
+            customId: "alert_remove",
+            placeholder: "Select an alert",
             options,
           }),
           composeDiscordExitButton(interaction.user.id),
@@ -55,13 +61,12 @@ const command: SlashCommand = {
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        usage: `${SLASH_PREFIX}nftrole remove`,
-        examples: `${SLASH_PREFIX}nftrole remove`,
-        document: `${NFT_ROLE_GITBOOK}&action=remove`,
+        usage: `${SLASH_PREFIX}alert remove`,
+        examples: `${SLASH_PREFIX}alert remove`,
       }),
     ],
   }),
-  colorType: "Server",
+  colorType: "Defi",
 }
 
 export default command

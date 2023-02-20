@@ -6,8 +6,13 @@ import { getSuccessEmbed } from "ui/discord/embed"
 
 export const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
-  const [userId, coinGeckoId] = interaction.values[0].split("|")
-  const { ok, log, curl } = await Defi.removeAlertPrice(userId, coinGeckoId)
+  const [userDiscordId, symbol, amount] = interaction.values[0].split("|")
+  const price = parseFloat(amount)
+  const { ok, log, curl } = await Defi.removeAlertPrice(
+    userDiscordId,
+    symbol,
+    price
+  )
 
   if (!ok) {
     throw new APIError({ description: log, curl })
@@ -21,6 +26,7 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
           description: `You can set a new alert for another token by \`$alert add <token_symbol>\`.`,
         }),
       ],
+      components: [],
     },
   }
 }

@@ -116,6 +116,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   tokenrole: tokenrole.slashCmd,
   xprole: xprole.slashCmd,
   mixrole: mixrole.slashCmd,
+  alert: alert.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {

@@ -18,7 +18,7 @@ import { Token } from "types/defi"
 const command: Command = {
   id: "alert_add",
   command: "add",
-  brief: "Configuration channel proposal",
+  brief: "Add a price alert to be notified when the price change",
   onlyAdministrator: true,
   category: "Config",
   run: async function (msg) {
@@ -43,7 +43,7 @@ const command: Command = {
               title: `${getEmoji("revoke")} Command Error`,
               description: `**${symbol.toUpperCase()}** hasn't been supported.\n${getEmoji(
                 "point_right"
-              )} Please choose a token supported by Coingecko[coingecko.com]`,
+              )} Please choose a token supported by [Coingecko](coingecko.com)`,
             }),
           ],
         },
@@ -55,23 +55,23 @@ const command: Command = {
       options: [
         {
           label: "Price reaches",
-          value: `price_reaches-${tokenName}-${msg.author.id}`,
+          value: `price_reaches-${symbol}-${tokenName}-${msg.author.id}`,
         },
         {
           label: "Price rises above",
-          value: `price_rises_above-${tokenName}-${msg.author.id}`,
+          value: `price_rises_above-${symbol}-${tokenName}-${msg.author.id}`,
         },
         {
           label: "Price drops to",
-          value: `price_drops_to-${tokenName}-${msg.author.id}`,
+          value: `price_drops_to-${symbol}-${tokenName}-${msg.author.id}`,
         },
         {
-          label: "Price is over",
-          value: `change_is_over-${tokenName}-${msg.author.id}`,
+          label: "Change is over",
+          value: `change_is_over-${symbol}-${tokenName}-${msg.author.id}`,
         },
         {
-          label: "Price is under",
-          value: `change_is_under-${tokenName}-${msg.author.id}`,
+          label: "Change is under",
+          value: `change_is_under-${symbol}-${tokenName}-${msg.author.id}`,
         },
       ],
     })
@@ -105,19 +105,21 @@ const command: Command = {
 const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const input = interaction.values[0]
-  const [alertType, symbol, userID] = input.split("-")
+  const [alertType, symbol, coinId, userID] = input.split("-")
 
-  const { ok, data, log, curl } = await Defi.getCoin(symbol)
+  const { ok, data, log, curl } = await Defi.getCoin(coinId)
   if (!ok) {
     throw new APIError({ description: log, curl })
   }
 
   let title = `${getEmoji("increasing")} Please enter the value in USD`
-  let description = `The current price of **${symbol}** is ${data.market_data.current_price.usd}`
-  if (alertType === "price_rises") {
+  let description = `The current price of **${
+    symbol ? symbol.toUpperCase() : ""
+  }** is ${data.market_data.current_price.usd}. `
+  if (alertType === "price_rises_above") {
     description += "Please enter a higher price than the current one!"
   }
-  if (alertType === "price_drops") {
+  if (alertType === "price_drops_to") {
     description += "Please enter a lower price than the current one!"
   }
   if (alertType === "change_is_over" || alertType === "change_is_under") {
@@ -152,12 +154,13 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
               "The value is invalid. Please insert a positive number.",
           }),
         ],
+        components: [],
       },
     }
   }
 
   if (
-    alertType === "price_drops" &&
+    alertType === "price_drops_to" &&
     amount >= data.market_data.current_price.usd
   ) {
     return {
@@ -168,12 +171,13 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
             description: `To get the notification when the price drops, you have to enter a lower value than the current one (${data.market_data.current_price.usd}).`,
           }),
         ],
+        components: [],
       },
     }
   }
 
   if (
-    alertType === "price_rises" &&
+    alertType === "price_rises_above" &&
     amount <= data.market_data.current_price.usd
   ) {
     return {
@@ -184,12 +188,13 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
             description: `To get the notification when the price rises, you have to enter a higher value than the current one (${data.market_data.current_price.usd}).`,
           }),
         ],
+        components: [],
       },
     }
   }
   const selectRow = composeDiscordSelectionRow({
     customId: "alert_add_frequency",
-    placeholder: `${getEmoji("increasing")} Please choose the price alert`,
+    placeholder: `Please choose the price alert frequency`,
     options: [
       {
         label: "Only Once",
@@ -249,6 +254,7 @@ const handleFrequency: InteractionHandler = async (msgOrInteraction) => {
           )} ${price}`,
         }),
       ],
+      components: [],
     },
   }
 }

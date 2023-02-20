@@ -446,9 +446,9 @@ class Defi extends Fetcher {
     })
   }
 
-  async removeAlertPrice(userId: string, coinGeckoId: string) {
+  async removeAlertPrice(userDiscordId: string, symbol: string, price: number) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/defi/price-alert?user_id=${userId}&coin_gecko_id=${coinGeckoId}`,
+      `${API_BASE_URL}/defi/price-alert?user_discord_id=${userDiscordId}&symbol=${symbol}&price=${price}`,
       {
         method: "DELETE",
       }
