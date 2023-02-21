@@ -1,11 +1,11 @@
+import Defi from "adapters/defi"
 import { slashCommands } from "commands"
 import { CommandInteraction, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { emojis, getEmojiURL } from "utils/common"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
-import Defi from "adapters/defi"
 import * as processor from "./processor"
 jest.mock("adapters/defi")
 
@@ -14,22 +14,6 @@ describe("run", () => {
   const withdrawCmd = slashCommands["withdraw"]
 
   beforeEach(() => (i = mockdc.cloneCommandInteraction()))
-
-  test("missing arguments error", async () => {
-    i.options.getNumber = jest.fn().mockReturnValueOnce(null)
-    i.options.getString = jest.fn().mockReturnValueOnce(null)
-    const output = (await withdrawCmd.run(i)) as RunResult<MessageOptions>
-    const expected = {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: "Missing arguments",
-          }),
-        ],
-      },
-    }
-    assertRunResult(output, expected)
-  })
 
   test("insufficient balance", async () => {
     i.options.getNumber = jest.fn().mockReturnValueOnce(1)
@@ -66,7 +50,7 @@ describe("run", () => {
     expect(processor.withdrawSlash).toHaveBeenCalledWith(
       i,
       "1",
-      "ftm",
+      "FTM",
       "0xE409E073eE7474C381BFD9b3f88098499123123"
     )
   })

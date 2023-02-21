@@ -1,34 +1,42 @@
-import { CommandInteraction, Message } from "discord.js"
 import Defi from "adapters/defi"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji } from "utils/common"
-import { APIError, InternalError } from "errors"
-import { OffchainTipBotWithdrawRequest } from "types/defi"
-import { getCommandObject } from "utils/commands"
-import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { commands } from "commands"
+import { CommandInteraction, Message } from "discord.js"
+import { APIError, InternalError } from "errors"
+import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import { OffchainTipBotWithdrawRequest } from "types/defi"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { getCommandObject } from "utils/commands"
+import { getEmoji, isAddress } from "utils/common"
 
 export async function getDestinationAddress(
   msg: Message | CommandInteraction,
-  dm: Message
+  dm: Message,
+  symbol: string
 ): Promise<string> {
-  const authorId = msg instanceof Message ? msg.author.id : msg.user.id
-  const filter = (collected: Message) => collected.author.id === authorId
+  const author = msg instanceof Message ? msg.author : msg.user
+  const filter = (collected: Message) => collected.author.id === author.id
   const collected = await dm.channel.awaitMessages({
     max: 1,
     filter,
   })
   const userReply = collected.first()
-  // if (userReply && !userReply.content.trim().startsWith("0x")) {
-  //   await userReply.reply({
-  //     embeds: [
-  //       getErrorEmbed({
-  //         description: "Invalid input!\nPlease re-enter a valid address...",
-  //       }),
-  //     ],
-  //   })
-  //   return await getDestinationAddress(msg, dm)
-  // }
+  const address = userReply?.content.trim() ?? ""
+  const { valid, type } = isAddress(address)
+  const isSolana = symbol === "SOL"
+  const validAddress = valid && (isSolana ? type === "sol" : type === "eth")
+  if (userReply && !validAddress) {
+    await userReply.reply({
+      embeds: [
+        getErrorEmbed({
+          title: "Invalid destination address",
+          description: `Please re-enter a valid ${
+            isSolana ? "**Solana**" : "**EVM**"
+          } wallet address below...`,
+        }),
+      ],
+    })
+    return await getDestinationAddress(msg, dm, symbol)
+  }
   return userReply?.content?.trim() ?? ""
 }
 
