@@ -38,6 +38,10 @@ export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
     }
 
     if (!originalMsg) return
+    if (!params.onDefaultSet && isAdmin) await i.deferUpdate()
+    if (params.onDefaultSet && isAdmin) {
+      await i.deferReply({ ephemeral: true }).catch(() => null)
+    }
     const render = await params.render({
       // TODO(tuan): i don't know how to solve this (yet)
       msgOrInteraction: originalMsg as any,
@@ -45,10 +49,8 @@ export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
     })
     if (isAdmin) {
       if (!params.onDefaultSet) {
-        await i.deferUpdate()
         return { ...render }
       }
-      await i.deferReply({ ephemeral: true }).catch(() => null)
 
       const actionRow = new MessageActionRow().addComponents(
         new MessageButton({

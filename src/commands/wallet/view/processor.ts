@@ -194,7 +194,9 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
     (acc: any, cur: any) => ({
       alias: `${acc.alias}\n${cur.alias || "-"}`,
       address: `${acc.address}\n${shortenHashOrAddress(cur.address)}`,
-      netWorth: `${acc.netWorth}\n$${cur.net_worth.toLocaleString()}`,
+      netWorth: `${acc.netWorth}\n${
+        cur.fetched_data ? `$${cur.net_worth.toLocaleString()}` : "-"
+      }`,
     }),
     { alias: "", address: "", netWorth: "" }
   )
