@@ -60,7 +60,7 @@ export async function deposit(
           description: `Below is the wallet address linked to your Discord account.
           Please deposit to the following address only ${getEmoji(
             "ok1"
-          )}.\n**Your deposit address is only valid for 7 days. Please re-check your deposit address using \`$deposit <cryptocurrency>\` before making a deposit.**\n\n**Your deposit address**\n\`\`\`${
+          )}.\n\nYour deposit address is **only valid for 3 hours**. Please re-check your deposit address using \`$deposit <cryptocurrency>\` before making any furthure deposit.\n\n**Your deposit address**\n\`\`\`${
             data.contract.contract_address
           }\`\`\``,
         }),
