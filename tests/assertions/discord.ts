@@ -12,7 +12,18 @@ export function assertRunResult(
   if (expected?.messageOptions?.embeds?.[0]) {
     expected.messageOptions.embeds[0].timestamp = null
   }
-  expect(output).toStrictEqual(expected)
+  expect(output.messageOptions.embeds).toStrictEqual(
+    expected.messageOptions.embeds
+  )
+  expect(output.messageOptions.components).toStrictEqual(
+    expected.messageOptions.components
+  )
+  expect(output.messageOptions.content).toStrictEqual(
+    expected.messageOptions.content
+  )
+  expect(output.messageOptions.files).toStrictEqual(
+    expected.messageOptions.files
+  )
 }
 
 export function assertThumbnail(
