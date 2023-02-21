@@ -582,11 +582,10 @@ export async function pullImage(imageUrl: string): Promise<Buffer> {
 }
 
 export function isAddress(address: string): { valid: boolean; type: string } {
-  if (ethers.utils.isAddress(address)) {
-    return { valid: true, type: "eth" }
-  }
-  // solana
   try {
+    if (ethers.utils.isAddress(address)) {
+      return { valid: true, type: "eth" }
+    }
     if (PublicKey.isOnCurve(new PublicKey(address))) {
       return { valid: true, type: "sol" }
     }
