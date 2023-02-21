@@ -10,8 +10,8 @@ import { composeButtonLink } from "ui/discord/button"
 const run = async (msg: Message) => {
   const args = getCommandArguments(msg)
   // $withdraw n <token>
-  const amount = args[1]
-  if (Number.isNaN(amount) || +amount <= 0) {
+  const amount = Number(args[1])
+  if (Number.isNaN(amount) || amount <= 0) {
     throw new InternalError({
       message: msg,
       title: "Withdraw failed!",
@@ -19,11 +19,12 @@ const run = async (msg: Message) => {
     })
   }
   // check balance
+  const symbol = args[2].toUpperCase()
   const invalidBalEmbed = await defi.getInsuffientBalanceEmbed(
     msg,
     msg.author.id,
-    args[2],
-    Number(args[1]),
+    symbol,
+    amount,
     false
   )
   if (invalidBalEmbed) {
@@ -37,7 +38,7 @@ const run = async (msg: Message) => {
     embeds: [
       composeEmbedMessage(msg, {
         author: ["Withdraw message", getEmojiURL(emojis.WALLET)],
-        description: `Please enter your **${args[2].toUpperCase()}** destination address that you want to withdraw your tokens below.`,
+        description: `Please enter your **${symbol}** destination address that you want to withdraw your tokens below.`,
       }),
     ],
   })
@@ -53,7 +54,7 @@ const run = async (msg: Message) => {
       components: [composeButtonLink("See the DM", dm.url)],
     })
   }
-  args[3] = await processor.getDestinationAddress(msg, dm)
+  args[3] = await processor.getDestinationAddress(msg, dm, symbol)
   await processor.withdraw(msg, args)
 
   return null

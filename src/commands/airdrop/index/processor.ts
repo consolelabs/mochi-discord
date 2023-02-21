@@ -413,7 +413,7 @@ export async function getAirdropPayload(
     throw new InternalError({
       message: msg,
       title: "Unsupported token",
-      description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n${getEmoji(
+      description: `**${cryptocurrency}** hasn't been supported.\n${getEmoji(
         "POINTINGRIGHT"
       )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
         "POINTINGRIGHT"

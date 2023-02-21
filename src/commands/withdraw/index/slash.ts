@@ -1,24 +1,13 @@
 import defi from "adapters/defi"
 import { CommandInteraction } from "discord.js"
-import { emojis, getEmojiURL } from "utils/common"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
-import * as processor from "./processor"
 import { composeButtonLink } from "ui/discord/button"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { emojis, getEmojiURL } from "utils/common"
+import * as processor from "./processor"
 
 const run = async (interaction: CommandInteraction) => {
-  const amount = interaction.options.getNumber("amount")
-  const token = interaction.options.getString("token")
-  if (!amount || !token) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: "Missing arguments",
-          }),
-        ],
-      },
-    }
-  }
+  const amount = interaction.options.getNumber("amount", true)
+  const token = interaction.options.getString("token", true).toUpperCase()
   // check balance
   const invalidBalEmbed = await defi.getInsuffientBalanceEmbed(
     interaction,
@@ -38,7 +27,7 @@ const run = async (interaction: CommandInteraction) => {
     embeds: [
       composeEmbedMessage(null, {
         author: ["Withdraw message", getEmojiURL(emojis.WALLET)],
-        description: `Please enter your **${token.toUpperCase()}** destination address that you want to withdraw your tokens below.`,
+        description: `Please enter your **${token}** destination address that you want to withdraw your tokens below.`,
       }),
     ],
   })
@@ -54,7 +43,7 @@ const run = async (interaction: CommandInteraction) => {
       components: [composeButtonLink("See the DM", dm.url)],
     })
   }
-  const addr = await processor.getDestinationAddress(interaction, dm)
+  const addr = await processor.getDestinationAddress(interaction, dm, token)
   return await processor.withdrawSlash(
     interaction,
     amount.toString(),

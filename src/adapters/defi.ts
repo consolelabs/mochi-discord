@@ -127,28 +127,28 @@ class Defi extends Fetcher {
     msgOrInteraction: Message | CommandInteraction,
     current: number,
     required: number,
-    cryptocurrency: string
+    symbol: string
   ) {
-    const tokenEmoji = getEmoji(cryptocurrency)
-    const symbol = cryptocurrency.toUpperCase()
+    const tokenEmoji = getEmoji(symbol)
     const authorId =
       msgOrInteraction instanceof Message
         ? msgOrInteraction.author.id
         : msgOrInteraction.user.id
     return composeEmbedMessage(null, {
       author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
-      description: `<@${authorId}>, your balance is insufficient.\nYou can deposit more by using \`$deposit ${cryptocurrency}\``,
-    })
-      .addField(
-        "Required amount",
-        `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
-        true
-      )
-      .addField(
-        "Your balance",
-        `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
-        true
-      )
+      description: `<@${authorId}>, your balance is insufficient.\nYou can deposit more by using \`$deposit ${symbol}\``,
+    }).addFields([
+      {
+        name: "Required amount",
+        value: `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
+        inline: true,
+      },
+      {
+        name: "Your balance",
+        value: `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
+        inline: true,
+      },
+    ])
   }
 
   async getUserWatchlist({

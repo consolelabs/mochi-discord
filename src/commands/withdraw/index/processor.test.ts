@@ -8,13 +8,13 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 jest.mock("adapters/defi")
-jest.mock("utils/common")
+// jest.mock("utils/common")
 
 describe("getDestinationAddress", () => {
   const interaction = mockdc.cloneCommandInteraction()
   const msg = mockdc.cloneMessage()
   const mockedCollectedMessage = mockdc.cloneMessage()
-  mockedCollectedMessage.content = "0xE409E073eE7474C381BFD9b3f88098499123123"
+  mockedCollectedMessage.content = "0xA94FCFbf927594702f8F0Eb7532f35928F32410b"
   const mockedCollected = new Collection<string, Message<boolean>>()
   mockedCollected.set("test", mockedCollectedMessage)
 
@@ -22,13 +22,17 @@ describe("getDestinationAddress", () => {
   mockedDm.channel.awaitMessages = jest.fn().mockResolvedValue(mockedCollected)
 
   test("getSuccess using Message", async () => {
-    const output = await processor.getDestinationAddress(msg, mockedDm)
-    expect(output).toEqual("0xE409E073eE7474C381BFD9b3f88098499123123")
+    const output = await processor.getDestinationAddress(msg, mockedDm, "FTM")
+    expect(output).toEqual("0xA94FCFbf927594702f8F0Eb7532f35928F32410b")
   })
 
   test("getSuccess using Message", async () => {
-    const output = await processor.getDestinationAddress(interaction, mockedDm)
-    expect(output).toEqual("0xE409E073eE7474C381BFD9b3f88098499123123")
+    const output = await processor.getDestinationAddress(
+      interaction,
+      mockedDm,
+      "FTM"
+    )
+    expect(output).toEqual("0xA94FCFbf927594702f8F0Eb7532f35928F32410b")
   })
 })
 
