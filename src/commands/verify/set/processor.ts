@@ -3,7 +3,7 @@ import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 
 export async function runVerifySet({
   msg,
@@ -23,7 +23,11 @@ export async function runVerifySet({
       throw new InternalError({
         message: msg,
         title: "Invalid channel",
-        description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${defaultEmojis.POINT_RIGHT} Type # to see the channel list.\n${defaultEmojis.POINT_RIGHT} To add a new channel: 1. Create channel → 2. Confirm`,
+        description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} Type # to see the channel list.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} To add a new channel: 1. Create channel → 2. Confirm`,
       })
     }
     channelId = value
@@ -34,7 +38,11 @@ export async function runVerifySet({
         throw new InternalError({
           message: msg,
           title: "Invalid role",
-          description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n${defaultEmojis.POINT_RIGHT} Type @ to see the role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
+          description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Type @ to see the role list.\n${getEmoji(
+            "POINTINGRIGHT"
+          )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
         })
       }
       roleId = value
@@ -58,7 +66,11 @@ export async function runVerifySet({
           getErrorEmbed({
             msg: msg ?? undefined,
             title: "Verified channel error",
-            description: `The current verified channel is <#${existChannel.data.verify_channel_id}>.\n${defaultEmojis.POINT_RIGHT} You need to remove the existing configuration first via \`verify remove\`, before setting a new one.`,
+            description: `The current verified channel is <#${
+              existChannel.data.verify_channel_id
+            }>.\n${getEmoji(
+              "POINTINGRIGHT"
+            )} You need to remove the existing configuration first via \`verify remove\`, before setting a new one.`,
           }),
         ],
       },

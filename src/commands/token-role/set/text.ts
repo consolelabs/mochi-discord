@@ -2,7 +2,7 @@ import { GuildIdNotFoundError, InternalError } from "errors"
 import { Command } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import { PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 import { setConfigTokenRole } from "./processor"
 
@@ -22,8 +22,10 @@ const command: Command = {
     const { isRole, value: roleId } = parseDiscordToken(roleArg)
     const invalidRoleDescription = `
     Your role is invalid. Make sure that role exists or that you have entered it correctly.
-    ${defaultEmojis.POINT_RIGHT} Type @ to see a role list.
-    ${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
+    ${getEmoji("POINTINGRIGHT")} Type @ to see a role list.
+    ${getEmoji(
+      "POINTINGRIGHT"
+    )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
     `
     if (!isRole) {
       throw new InternalError({

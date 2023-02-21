@@ -40,7 +40,7 @@ function buildSwitchViewActionRow(currentView: ViewType) {
   })
   const myNftButton = new MessageButton({
     label: "My NFT",
-    emoji: emojis.NFT,
+    emoji: getEmoji("NFTS"),
     customId: `profile-switch-view-button/my-nft`,
     style: "SECONDARY",
     disabled: currentView === "my-nft",
@@ -235,23 +235,23 @@ function buildProgressbar(progress: number): string {
     .join("")
 }
 
-function buildXPbar(name: string, value: number) {
-  const cap = Math.ceil(value / 1000) * 1000
-  const list = new Array(7).fill(getEmoji("faction_exp_2"))
-  list[0] = getEmoji("faction_exp_1")
-  list[list.length - 1] = getEmoji("faction_exp_3")
+// function buildXPbar(name: string, value: number) {
+//   const cap = Math.ceil(value / 1000) * 1000
+//   const list = new Array(7).fill(getEmoji("faction_exp_2"))
+//   list[0] = getEmoji("faction_exp_1")
+//   list[list.length - 1] = getEmoji("faction_exp_3")
 
-  return `${list
-    .map((_, i) => {
-      if (Math.floor((value / cap) * 7) >= i + 1) {
-        return i === 0
-          ? getEmoji(`${name}_exp_1`, true)
-          : getEmoji(`${name}_exp_2`, true)
-      }
-      return _
-    })
-    .join("")}\n\`${value}/${cap}\``
-}
+//   return `${list
+//     .map((_, i) => {
+//       if (Math.floor((value / cap) * 7) >= i + 1) {
+//         return i === 0
+//           ? getEmoji(`${name}_exp_1`, true)
+//           : getEmoji(`${name}_exp_2`, true)
+//       }
+//       return _
+//     })
+//     .join("")}\n\`${value}/${cap}\``
+// }
 
 async function composeMyProfileEmbed(
   msg: Message | CommandInteraction,
@@ -300,7 +300,7 @@ async function composeMyProfileEmbed(
 
   const roleStr = highestRole?.id ? `<@&${highestRole.id}>` : "`N/A`"
   const activityStr = `${getEmoji("FLAG")} \`${userProfile.nr_of_actions}\``
-  const rankStr = `:trophy: \`${userProfile.guild_rank ?? 0}\``
+  const rankStr = `${getEmoji("TROPHY")} \`${userProfile.guild_rank ?? 0}\``
 
   const embed = composeEmbedMessage(null, {
     thumbnail: user.displayAvatarURL(),
@@ -334,49 +334,49 @@ async function composeMyProfileEmbed(
       name: "\u200B",
       value: "\u200B",
       inline: true,
-    },
-    {
-      name: `${getEmoji("imperial")} Nobility`,
-      value: buildXPbar(
-        "imperial",
-        userProfileResp.data.user_faction_xps?.imperial_xp ?? 0
-      ),
-      inline: true,
-    },
-    {
-      name: `${getEmoji("rebelio")} Fame`,
-      value: buildXPbar(
-        "rebelio",
-        userProfileResp.data.user_faction_xps?.rebellio_xp ?? 0
-      ),
-      inline: true,
-    },
-    {
-      name: "\u200B",
-      value: "\u200B",
-      inline: true,
-    },
-    {
-      name: `${getEmoji("mercanto")} Loyalty`,
-      value: buildXPbar(
-        "mercanto",
-        userProfileResp.data.user_faction_xps?.merchant_xp ?? 0
-      ),
-      inline: true,
-    },
-    {
-      name: `${getEmoji("academia")} Reputation`,
-      value: buildXPbar(
-        "academia",
-        userProfileResp.data.user_faction_xps?.academy_xp ?? 0
-      ),
-      inline: true,
-    },
-    {
-      name: getEmoji("blank"),
-      value: getEmoji("blank"),
-      inline: true,
     }
+    // {
+    //   name: `${getEmoji("imperial")} Nobility`,
+    //   value: buildXPbar(
+    //     "imperial",
+    //     userProfileResp.data.user_faction_xps?.imperial_xp ?? 0
+    //   ),
+    //   inline: true,
+    // },
+    // {
+    //   name: `${getEmoji("rebelio")} Fame`,
+    //   value: buildXPbar(
+    //     "rebelio",
+    //     userProfileResp.data.user_faction_xps?.rebellio_xp ?? 0
+    //   ),
+    //   inline: true,
+    // },
+    // {
+    //   name: "\u200B",
+    //   value: "\u200B",
+    //   inline: true,
+    // },
+    // {
+    //   name: `${getEmoji("mercanto")} Loyalty`,
+    //   value: buildXPbar(
+    //     "mercanto",
+    //     userProfileResp.data.user_faction_xps?.merchant_xp ?? 0
+    //   ),
+    //   inline: true,
+    // },
+    // {
+    //   name: `${getEmoji("academia")} Reputation`,
+    //   value: buildXPbar(
+    //     "academia",
+    //     userProfileResp.data.user_faction_xps?.academy_xp ?? 0
+    //   ),
+    //   inline: true,
+    // },
+    // {
+    //   name: getEmoji("blank"),
+    //   value: getEmoji("blank"),
+    //   inline: true,
+    // }
   )
 
   return {

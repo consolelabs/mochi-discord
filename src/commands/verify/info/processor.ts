@@ -1,7 +1,7 @@
 import community from "adapters/community"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError, GuildIdNotFoundError } from "errors"
-import { defaultEmojis, emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { Message } from "discord.js"
 
 export async function runVerify(msg: Message | null, guildId: string | null) {
@@ -23,7 +23,11 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
           composeEmbedMessage(msg, {
             title: "No verified channel found",
             author: ["Verify", getEmojiURL(emojis.APPROVE)],
-            description: `You haven't set a channel for verification.\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${defaultEmojis.POINT_RIGHT} Then re-check your configuration using \`verify info.\``,
+            description: `You haven't set a channel for verification.\n${getEmoji(
+              "POINTINGRIGHT"
+            )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
+              "POINTINGRIGHT"
+            )} Then re-check your configuration using \`verify info.\``,
           }),
         ],
       },

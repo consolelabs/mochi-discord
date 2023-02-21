@@ -6,7 +6,7 @@ import config from "adapters/config"
 import { getCommandArguments } from "utils/commands"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 import { RequestConfigRepostReactionConversation } from "types/common"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import { throwOnInvalidEmoji } from "utils/emoji"
 
 const command: Command = {
@@ -61,7 +61,9 @@ const command: Command = {
       throw new InternalError({
         message: msg,
         title: "Unsuccessful",
-        description: `You haven't configured this emoji in the starboard.\n\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
+        description: `You haven't configured this emoji in the starboard.\n\n${getEmoji(
+          "POINTINGRIGHT"
+        )} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
       })
     }
     if (!ok) {

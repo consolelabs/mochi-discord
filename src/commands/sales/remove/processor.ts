@@ -15,7 +15,6 @@ import { embedsColors } from "types/common"
 import { parseDiscordToken } from "utils/commands"
 import {
   authorFilter,
-  defaultEmojis,
   emojis,
   getEmoji,
   getEmojiURL,
@@ -218,7 +217,11 @@ export async function handleSalesRemove(
           getErrorEmbed({
             title: "No tracker found!",
             emojiUrl: getEmojiURL(emojis.LEADERBOARD),
-            description: `You haven't set up any sales trackers yet. \n${defaultEmojis.POINT_RIGHT} To set a new one, run \`sales track <channel> <address> <chain_id>\` (or \`<chain_symbol>\`). \n${defaultEmojis.POINT_RIGHT} You can remove it later using \`sales remove.\``,
+            description: `You haven't set up any sales trackers yet. \n${getEmoji(
+              "POINTINGRIGHT"
+            )} To set a new one, run \`sales track <channel> <address> <chain_id>\` (or \`<chain_symbol>\`). \n${getEmoji(
+              "POINTINGRIGHT"
+            )} You can remove it later using \`sales remove.\``,
           }),
         ],
       },

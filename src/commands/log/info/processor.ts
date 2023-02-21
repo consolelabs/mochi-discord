@@ -21,14 +21,14 @@ export async function runLogInfo({
   }
   if (!guildCfg.log_channel) {
     const embed = composeEmbedMessage(msg, {
-      author: ["Log channel", getEmojiURL(emojis.POD)],
+      author: ["Log channel", getEmojiURL(emojis.SHELTER)],
       description: `No logging channel configured for this guild.\nSet one with \`${PREFIX}log set <channel>.\``,
     })
     return { messageOptions: { embeds: [embed] } }
   }
 
   const embed = composeEmbedMessage(msg, {
-    author: ["Log channel", getEmojiURL(emojis.POD)],
+    author: ["Log channel", getEmojiURL(emojis.SHELTER)],
     description: `All activities will be monitored in <#${guildCfg.log_channel}>. To change this channel, run \`$log set #<channel>\`.`,
   })
   return { messageOptions: { embeds: [embed] } }

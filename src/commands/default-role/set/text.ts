@@ -5,7 +5,7 @@ import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
-import { defaultEmojis, getEmoji } from "utils/common"
+import { getEmoji } from "utils/common"
 import { handle } from "../processor"
 
 const command: Command = {
@@ -25,7 +25,11 @@ const command: Command = {
       throw new InternalError({
         message: msg,
         title: "Invalid roles",
-        description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+        description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${getEmoji(
+          "POINTINGRIGHT"
+        )} Type \`@\` to see a role list.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
       })
     }
 
@@ -36,7 +40,11 @@ const command: Command = {
         throw new InternalError({
           message: msg,
           title: "Invalid roles",
-          description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${defaultEmojis.POINT_RIGHT} Type \`@\` to see a role list.\n${defaultEmojis.POINT_RIGHT} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
+          description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Type \`@\` to see a role list.\n${getEmoji(
+            "POINTINGRIGHT"
+          )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
         })
       }
     }

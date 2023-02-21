@@ -8,7 +8,7 @@ import client from "index"
 import Profile from "adapters/profile"
 import CacheManager from "cache/node-cache"
 import defi from "adapters/defi"
-import { getEmoji, defaultEmojis, roundFloatNumber } from "utils/common"
+import { getEmoji, roundFloatNumber } from "utils/common"
 import { HexColorString, MessageAttachment } from "discord.js"
 import { wrapError } from "utils/wrap-error"
 import { createBEGuildMember } from "types/webhook"
@@ -238,10 +238,10 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
 export const getChangePercentage = (change: number) => {
   const trend =
     change > 0
-      ? defaultEmojis.CHART_WITH_UPWARDS_TREND
+      ? getEmoji("INCREASING")
       : change === 0
       ? ""
-      : defaultEmojis.CHART_WITH_DOWNWARDS_TREND
+      : getEmoji("DECREASING")
   return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
 }
 

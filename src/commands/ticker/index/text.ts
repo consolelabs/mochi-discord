@@ -1,7 +1,7 @@
 import defi from "adapters/defi"
 import { APIError, InternalError } from "errors"
 import CacheManager from "cache/node-cache"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import { composeTickerResponse } from "./processor"
 import config from "adapters/config"
 import { getDefaultSetter } from "utils/default-setters"
@@ -24,11 +24,11 @@ async function run(msg: Message, base: string): Promise<TextCommandResponse> {
     throw new InternalError({
       title: "Unsupported token/fiat",
       message: msg,
-      description: `**${base.toUpperCase()}** is invalid or hasn't been supported.\n${
-        defaultEmojis.POINT_RIGHT
-      } Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${
-        defaultEmojis.POINT_RIGHT
-      } or Please choose a valid fiat currency.`,
+      description: `**${base.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
+        "POINTINGRIGHT"
+      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+        "POINTINGRIGHT"
+      )} or Please choose a valid fiat currency.`,
     })
   }
 

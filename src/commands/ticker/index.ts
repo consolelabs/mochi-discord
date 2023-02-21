@@ -1,6 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { PREFIX, TICKER_GITBOOK, DEFI_DEFAULT_FOOTER } from "utils/constants"
-import { defaultEmojis, thumbnails } from "utils/common"
+import { getEmoji, thumbnails } from "utils/common"
 import { getCommandArguments } from "utils/commands"
 import { composeEmbedMessage } from "ui/discord/embed"
 import _default from "./default/text"
@@ -44,7 +44,11 @@ const textCmd: Command = {
       throw new InternalError({
         message: msg,
         title: "Ticker error",
-        description: `${defaultEmojis.POINT_RIGHT} You need to enter **different** tokens/fiats for the base and target.\n${defaultEmojis.POINT_RIGHT} You cannot use only one for pair comparison (e.g: btc/btc).`,
+        description: `${getEmoji(
+          "POINTINGRIGHT"
+        )} You need to enter **different** tokens/fiats for the base and target.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }
     switch (true) {
@@ -60,7 +64,7 @@ const textCmd: Command = {
     return null
   },
   featured: {
-    title: `📈 Ticker`,
+    title: `${getEmoji("INCREASING")} Ticker`,
     description: `Display/Compare coin prices and market cap`,
   },
   getHelpMessage: async (msg) => ({
@@ -117,7 +121,11 @@ const slashCmd: SlashCommand = {
       throw new InternalError({
         message: interaction,
         title: "Ticker error",
-        description: `${defaultEmojis.POINT_RIGHT} You need to enter **different** tokens/fiats for the base and target.\n${defaultEmojis.POINT_RIGHT} You cannot use only one for pair comparison (e.g: btc/btc).`,
+        description: `${getEmoji(
+          "POINTINGRIGHT"
+        )} You need to enter **different** tokens/fiats for the base and target.\n${getEmoji(
+          "POINTINGRIGHT"
+        )} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }
     switch (true) {

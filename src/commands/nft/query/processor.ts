@@ -29,7 +29,6 @@ import {
   authorFilter,
   capFirst,
   capitalizeFirst,
-  defaultEmojis,
   emojis,
   getCompactFormatedNumber,
   getEmoji,
@@ -102,10 +101,10 @@ export function buildSwitchViewActionRow(
 ) {
   const row = new MessageActionRow()
   // TODO(trkhoi): handle aptos address too long
-  if (chain === "apt") {
+  if (chain === "apt" || chain === "sol") {
     const nftButton = new MessageButton({
       label: "NFT",
-      emoji: emojis.NFT,
+      emoji: getEmoji("NFTS"),
       customId: `nft-view/nft/${symbol}/${tokenId}/${chain}`,
       style: "SECONDARY",
       disabled: currentView === "nft",
@@ -115,21 +114,21 @@ export function buildSwitchViewActionRow(
   } else {
     const nftButton = new MessageButton({
       label: "NFT",
-      emoji: emojis.NFT,
+      emoji: getEmoji("NFTS"),
       customId: `nft-view/nft/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
       style: "SECONDARY",
       disabled: currentView === "nft",
     })
     const tickerButton = new MessageButton({
       label: "Ticker",
-      emoji: emojis.TICKER,
+      emoji: getEmoji("INCREASING"),
       customId: `nft-view/ticker/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
       style: "SECONDARY",
       disabled: currentView === "ticker",
     })
     const collectionInfoButton = new MessageButton({
       label: "Collection Info",
-      emoji: emojis.INFO,
+      emoji: getEmoji("MAG"),
       customId: `nft-view/info/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
       style: "SECONDARY",
       disabled: currentView === "info",
@@ -340,10 +339,10 @@ async function composeNFTTicker(
     const change = changeStr ? +changeStr : 0
     const trend =
       change > 0
-        ? defaultEmojis.CHART_WITH_UPWARDS_TREND
+        ? getEmoji("INCREASING")
         : change === 0
         ? ""
-        : defaultEmojis.CHART_WITH_DOWNWARDS_TREND
+        : getEmoji("DECREASING")
     return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
   }
 
@@ -516,7 +515,7 @@ export async function composeNFTDetail(
     ? ` **・Owner:** \`${shortenHashOrAddress(owner.owner_address)}\``
     : ""
   description += rarity?.rank
-    ? `\n\n🏆** ・ Rank: ${rarity.rank} ** ${rarityRate} ${soulbound}`
+    ? `\n\n${getEmoji("TROPHY")}** ・ Rank: ${rarity.rank} ** ${rarityRate} ${soulbound}`
     : ""
 
   // Attributes fields
@@ -525,7 +524,7 @@ export async function composeNFTDetail(
         const val = `${capFirst(attr.value)}\n${attr.frequency ?? ""}`
         return {
           name: `${getIcon(icons, attr.trait_type)} ${capFirst(
-            attr.trait_type
+            attr.trait_type?.replace("_", " ")
           )}`,
           value: `${val ? val : "-"}`,
           inline: true,

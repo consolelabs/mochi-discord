@@ -272,7 +272,10 @@ async function handleSelectMenuInteraction(i: SelectMenuInteraction) {
     await oldInteractionOptions.handler(i)
 
   if (replyMessage) {
-    const msg = await i.editReply(replyMessage)
+    const deferredOrReplied = i.deferred || i.replied
+    const msg = await (deferredOrReplied
+      ? i.editReply(replyMessage)
+      : i.reply(replyMessage))
     if (msg && msg instanceof Message && buttonCollector) {
       msg
         .createMessageComponentCollector({

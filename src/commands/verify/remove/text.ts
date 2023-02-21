@@ -3,7 +3,7 @@ import community from "adapters/community"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { APIError, GuildIdNotFoundError } from "errors"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 
 const command: Command = {
   id: "verify_remove",
@@ -30,7 +30,11 @@ const command: Command = {
           embeds: [
             composeEmbedMessage(msg, {
               title: "No verified channel found",
-              description: `You haven't set a channel for verification.\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${defaultEmojis.POINT_RIGHT} Then re-check your configuration using \`verify info.\``,
+              description: `You haven't set a channel for verification.\n${getEmoji(
+                "POINTINGRIGHT"
+              )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
+                "POINTINGRIGHT"
+              )} Then re-check your configuration using \`verify info.\``,
             }),
           ],
         },

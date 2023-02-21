@@ -9,8 +9,8 @@ import {
 } from "discord.js"
 import {
   authorFilter,
-  defaultEmojis,
   emojis,
+  getEmoji,
   getEmojiURL,
   tokenEmojis,
 } from "utils/common"
@@ -375,14 +375,14 @@ export async function renderNFTWatchlist(data: any[]) {
 export function buildSwitchViewActionRow(currentView: string) {
   const tokenButton = new MessageButton({
     label: "Token",
-    emoji: emojis.ASSET,
+    emoji: getEmoji("CASH"),
     customId: `watchlist-switch-view-button/token}`,
     style: "SECONDARY",
     disabled: currentView === "token",
   })
   const nftButton = new MessageButton({
     label: "NFT",
-    emoji: emojis.NFT,
+    emoji: getEmoji("NFTS"),
     customId: `watchlist-switch-view-button/nft`,
     style: "SECONDARY",
     disabled: currentView === "nft",
@@ -456,7 +456,11 @@ export async function composeTokenWatchlist(msg: Message, authorId?: string) {
       `${msg.author.username}'s watchlist`,
       msg.author.displayAvatarURL({ format: "png" }),
     ],
-    description: `_All information are supported by Coingecko_\n\n${defaultEmojis.POINT_RIGHT} Choose a token supported by [Coingecko](https://www.coingecko.com/) to add to the list.\n${defaultEmojis.POINT_RIGHT} Add token to track by \`$wl add <symbol>\`.`,
+    description: `_All information are supported by Coingecko_\n\n${getEmoji(
+      "POINTINGRIGHT"
+    )} Choose a token supported by [Coingecko](https://www.coingecko.com/) to add to the list.\n${getEmoji(
+      "POINTINGRIGHT"
+    )} Add token to track by \`$wl add <symbol>\`.`,
   })
   if (!data?.length) {
     embed.setDescription(

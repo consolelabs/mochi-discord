@@ -10,7 +10,7 @@ import {
 import { InternalError, OriginalMessage } from "errors"
 import CacheManager from "cache/node-cache"
 import { InteractionHandler } from "handlers/discord/select-menu"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { renderCompareTokenChart } from "../compare-token/processor"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
@@ -36,7 +36,11 @@ export async function composeFiatComparisonEmbed(
     throw new InternalError({
       title: "Unsupported token/fiat",
       message: msg,
-      description: `Token is invalid or hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${defaultEmojis.POINT_RIGHT} or Please choose a valid fiat currency.`,
+      description: `Token is invalid or hasn't been supported.\n${getEmoji(
+        "POINTINGRIGHT"
+      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+        "POINTINGRIGHT"
+      )} or Please choose a valid fiat currency.`,
     })
   }
 

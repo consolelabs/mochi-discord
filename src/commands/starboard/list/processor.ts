@@ -10,7 +10,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { APIError } from "errors"
 import chunk from "lodash/chunk"
 import { ModelGuildConfigRepostReaction } from "types/api"
-import { authorFilter, defaultEmojis, emojis, getEmoji } from "utils/common"
+import { authorFilter, emojis, getEmoji } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
 const pageSize = 10
@@ -231,7 +231,9 @@ async function switchView(i: ButtonInteraction, msg: Message) {
       getErrorEmbed({
         msg,
         title: "No starboards found",
-        description: `You haven't configured any emojis in the starboard.\n\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
+        description: `You haven't configured any emojis in the starboard.\n\n${getEmoji(
+          "POINTINGRIGHT"
+        )} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
       }),
     ]
     components = [buildSwitchViewActionRow(nextView)]
@@ -270,7 +272,9 @@ async function handlePagination(i: ButtonInteraction, msg: Message) {
       getErrorEmbed({
         msg,
         title: "No starboards found",
-        description: `You haven't configured any emojis in the starboard.\n\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
+        description: `You haven't configured any emojis in the starboard.\n\n${getEmoji(
+          "POINTINGRIGHT"
+        )} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
       }),
     ]
     components = [buildSwitchViewActionRow(currentView)]

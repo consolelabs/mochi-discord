@@ -8,6 +8,7 @@ import {
   Channel,
   Client,
   CommandInteraction,
+  DMChannel,
   Guild,
   GuildChannel,
   GuildMember,
@@ -32,6 +33,7 @@ class MockDiscord {
   private client!: Client
   private guild!: Guild
   private channel!: Channel
+  private dmChannel!: DMChannel
   private guildChannel!: GuildChannel
   private textChannel!: TextChannel
   private user!: User
@@ -44,6 +46,7 @@ class MockDiscord {
     this.mockClient()
     this.mockGuild()
     this.mockChannel()
+    this.mockDMChannel()
     this.mockGuildChannel()
     this.mockTextChannel()
     this.mockUser()
@@ -64,6 +67,10 @@ class MockDiscord {
 
   public getChannel(): Channel {
     return this.channel
+  }
+
+  public getDMChannel(): Channel {
+    return this.dmChannel
   }
 
   public getGuildChannel(): GuildChannel {
@@ -93,9 +100,26 @@ class MockDiscord {
     )
   }
 
+  public cloneDMMessage(): Message {
+    return Object.setPrototypeOf(
+      Object.assign({}, { ...this.message, channel: this.dmChannel }),
+      Message.prototype
+    )
+  }
+
   public cloneCommandInteraction(): CommandInteraction {
     return Object.setPrototypeOf(
       Object.assign({}, this.commandInteraction),
+      CommandInteraction.prototype
+    )
+  }
+
+  public cloneDMCommandInteraction(): CommandInteraction {
+    return Object.setPrototypeOf(
+      Object.assign(
+        {},
+        { ...this.commandInteraction, channel: this.dmChannel }
+      ),
       CommandInteraction.prototype
     )
   }
@@ -148,6 +172,17 @@ class MockDiscord {
       type: ChannelType.GuildText,
     })
     this.client.channels.resolve = jest.fn().mockReturnValue(this.channel)
+  }
+
+  private mockDMChannel(): void {
+    this.dmChannel = new (DMChannel as unknown as new (
+      client: Client,
+      data: RawChannelData
+    ) => DMChannel)(this.client, {
+      id: this.id,
+      type: ChannelType.DM,
+    })
+    this.client.channels.resolve = jest.fn().mockReturnValue(this.dmChannel)
   }
 
   private mockGuildChannel(): void {
@@ -238,6 +273,7 @@ class MockDiscord {
     })
     Object.defineProperty(Message.prototype, "guild", { value: this.guild })
     Object.defineProperty(Message.prototype, "client", { value: this.client })
+    Object.defineProperty(Message.prototype, "channel", { value: this.channel })
   }
 
   private mockMessageFunctions() {
@@ -280,6 +316,15 @@ class MockDiscord {
       },
     })
     this.commandInteraction.reply = jest.fn()
+    Object.defineProperty(CommandInteraction.prototype, "guild", {
+      value: this.guild,
+    })
+    Object.defineProperty(CommandInteraction.prototype, "client", {
+      value: this.client,
+    })
+    Object.defineProperty(CommandInteraction.prototype, "channel", {
+      value: this.channel,
+    })
   }
 }
 

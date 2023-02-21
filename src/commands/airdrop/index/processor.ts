@@ -47,7 +47,7 @@ function composeAirdropButtons(
   return new MessageActionRow().addComponents(
     new MessageButton({
       customId: `confirm_airdrop-${authorId}-${amount}-${amountInUSD}-${cryptocurrency}-${duration}-${maxEntries}`,
-      emoji: "✅",
+      emoji: getEmoji("APPROVE"),
       style: "PRIMARY",
       label: "Confirm",
     }),
@@ -244,7 +244,7 @@ export async function enterAirdrop(
       ephemeral: true,
       embeds: [
         composeEmbedMessage(msg, {
-          title: `${defaultEmojis.CHECK} Entered airdrop`,
+          title: `${getEmoji("APPROVE")} Entered airdrop`,
           description: `You will receive your reward ${
             Number.isNaN(duration)
               ? `shortly`
@@ -313,7 +313,7 @@ export async function handleAirdrop(
     }${secs === 0 ? "" : `${secs}s`}`
   }
   const confirmEmbed = composeEmbedMessage(null, {
-    title: `${defaultEmojis.AIRPLANE} Confirm airdrop`,
+    title: `${getEmoji("AIRDROP")} Confirm airdrop`,
     description: `Are you sure you want to spend ${amountDescription} on this airdrop?`,
   }).addFields([
     {
