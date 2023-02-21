@@ -244,7 +244,7 @@ export async function enterAirdrop(
       ephemeral: true,
       embeds: [
         composeEmbedMessage(msg, {
-          title: `${defaultEmojis.CHECK} Entered airdrop`,
+          title: `${getEmoji("APPROVE")} Entered airdrop`,
           description: `You will receive your reward ${
             Number.isNaN(duration)
               ? `shortly`
