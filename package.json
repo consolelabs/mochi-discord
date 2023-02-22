@@ -2,7 +2,7 @@
   "scripts": {
     "start": "NODE_OPTIONS=--max-old-space-size=4096 ts-node src/index.ts",
     "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
-    "test": "jest --detectOpenHandles",
+    "test": "NODE_OPTIONS=--max-old-space-size=4096 jest --detectOpenHandles",
     "test:ci": "NODE_OPTIONS=--max-old-space-size=4096 jest --silent --detectOpenHandles",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts .",
     "prepare": "husky install",

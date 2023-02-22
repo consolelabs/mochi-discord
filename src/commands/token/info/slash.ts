@@ -25,7 +25,7 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({ message: interaction })
     }
 
-    const symbol = interaction.options.getString("symbol")
+    const symbol = await interaction.options.getString("symbol")
     if (!symbol) {
       throw new CommandArgumentError({
         message: interaction,

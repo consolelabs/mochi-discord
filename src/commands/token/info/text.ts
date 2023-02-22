@@ -1,4 +1,4 @@
-import { GuildIdNotFoundError } from "errors"
+import { CommandArgumentError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
@@ -16,6 +16,12 @@ const command: Command = {
     }
     const args = getCommandArguments(msg)
     const [token] = args.slice(2)
+    if (!token) {
+      throw new CommandArgumentError({
+        message: msg,
+        getHelpMessage: () => command.getHelpMessage(msg),
+      })
+    }
     return await handleTokenInfo(msg, token)
   },
   getHelpMessage: async (msg) => ({
