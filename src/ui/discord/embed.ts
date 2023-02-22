@@ -391,6 +391,6 @@ export function composePartnerEmbedPimp() {
     title: `${getEmoji("defi")} Faygo Bottle`,
     description: `Earn a [Juggalos](https://paintswap.finance/marketplace/fantom/collections/pod-town-juggalos) yourself to gain full citizenship of Pod Town Metaverse! Be a productive citizen now, have a faygo!`,
     thumbnail:
-      "https://s3.us-west-2.amazonaws.com/secure.notion-static.com/029efa8c-67d7-4ccd-a968-b8af9db933ad/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20230214%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20230214T033900Z&X-Amz-Expires=86400&X-Amz-Signature=436d62c30a894775985dc39baf6fcf08747b288d02c1a4e6515dd4c4d369866f&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22Untitled.png%22&x-id=GetObject",
+      "https://cdn.discordapp.com/attachments/1003381172178530494/1077872156177858601/1039136044836200549.webp",
   })
 }
