@@ -20,7 +20,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(msg, {
+          composeEmbedMessage(null, {
             title: "No verified channel found",
             author: ["Verify", getEmojiURL(emojis.APPROVE)],
             description: `You haven't set a channel for verification.\n${getEmoji(
@@ -36,7 +36,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
   return {
     messageOptions: {
       embeds: [
-        composeEmbedMessage(msg, {
+        composeEmbedMessage(null, {
           author: ["Verify", getEmojiURL(emojis.APPROVE)],
           description: `Verify channel: <#${res.data.verify_channel_id}>${
             res.data.verify_role_id
