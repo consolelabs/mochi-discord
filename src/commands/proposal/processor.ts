@@ -179,24 +179,24 @@ async function checkExpiredProposal(
       throw new APIError({ curl, error })
     }
 
-    const voteYes = data.proposal.points.find(
+    const voteYes = data.proposal?.points?.find(
       (votes: ModelDaoProposalVoteCount) => {
         return votes.choice === "Yes"
       }
     )
-    const voteNo = data.proposal.points.find(
+    const voteNo = data.proposal?.points?.find(
       (votes: ModelDaoProposalVoteCount) => {
         return votes.choice === "No"
       }
     )
-    const voteAbstain = data.proposal.points.find(
+    const voteAbstain = data.proposal?.points?.find(
       (votes: ModelDaoProposalVoteCount) => {
         return votes.choice === "Abstain"
       }
     )
-    const yesCount = voteYes ? voteYes.sum : 0
-    const noCount = voteNo ? voteNo.sum : 0
-    const absCount = voteAbstain ? voteAbstain.sum : 0
+    const yesCount = voteYes?.sum ?? 0
+    const noCount = voteNo?.sum ?? 0
+    const absCount = voteAbstain?.sum ?? 0
     const voteTotal = yesCount + noCount + absCount
     if (key === cacheKey) {
       msg.edit({

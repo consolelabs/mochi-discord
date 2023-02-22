@@ -94,7 +94,7 @@ export const getEmbedPagination = async (
       components: getPaginationRow(0, embedPages.length),
     }
     const reply = await msg.reply(result)
-    listenForPaginateAction(reply, msg, async (_msg: Message, idx: number) => {
+    listenForPaginateAction(reply, msg, async (_msg, idx) => {
       return {
         messageOptions: {
           embeds: [embedPages[idx]],
@@ -134,7 +134,7 @@ export const getEmbedPagination = async (
     }
     listenForPaginateInteraction(
       msg as CommandInteraction,
-      async (_interaction: CommandInteraction, idx: number) => {
+      async (_interaction, idx) => {
         return {
           messageOptions: {
             embeds: [embedPages[idx]],
