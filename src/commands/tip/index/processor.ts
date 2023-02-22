@@ -331,6 +331,14 @@ async function executeTipWithConfirmation(
     },
     buttonCollector: async (i: ButtonInteraction) => {
       if (i.customId === "confirm-tip") {
+        console.log("----action row----", actionRow.components[0])
+        actionRow.components[0].setDisabled(true)
+        if (msg instanceof Message) {
+          msg.edit({ components: [actionRow] })
+        }
+        if (msg instanceof CommandInteraction) {
+          msg.editReply({ components: [actionRow] })
+        }
         return await executeTip(
           msg,
           payload,

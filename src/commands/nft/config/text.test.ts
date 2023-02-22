@@ -3,10 +3,7 @@ import { Message, MessageEmbed, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
-import {
-  assertDescription,
-  assertTitle,
-} from "../../../../tests/assertions/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 jest.mock("adapters/config")
 
 describe("run", () => {
@@ -25,17 +22,18 @@ describe("run", () => {
 
   test("nft add address chain", async () => {
     msg.content = `$nft integrate J9ts hNl8 1450 P0Vv`
-    const expected = new MessageEmbed({
-      title: "Twitter sale config",
-      description: "Successfully set configs.",
-    })
-    jest.spyOn(processor, "handle").mockResolvedValueOnce({
+    const expected = {
       messageOptions: {
-        embeds: [expected],
+        embeds: [
+          new MessageEmbed({
+            title: "Twitter sale config",
+            description: "Successfully set configs.",
+          }),
+        ],
       },
-    })
+    }
+    jest.spyOn(processor, "handle").mockResolvedValueOnce(expected)
     const output = (await nftCmd.run(msg)) as RunResult<MessageOptions>
-    assertTitle(output, expected)
-    assertDescription(output, expected)
+    assertRunResult(output, expected)
   })
 })

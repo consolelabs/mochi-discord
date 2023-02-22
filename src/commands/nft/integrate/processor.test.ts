@@ -1,9 +1,6 @@
 import * as processor from "./processor"
 import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
-import {
-  assertDescription,
-  assertTitle,
-} from "../../../../tests/assertions/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 import community from "adapters/community"
 jest.mock("adapters/community")
 
@@ -28,15 +25,20 @@ describe("executeNftIntegrateCommand", () => {
       "121212",
       undefined
     )
-    const expected = getSuccessEmbed({
-      title: `ABC integrated`,
-      description: `ABC collection is now ready to take part in our verse (added + enabled)`,
-    })
+    const expected = {
+      messageOptions: {
+        embeds: [
+          getSuccessEmbed({
+            title: `ABC integrated`,
+            description: `ABC collection is now ready to take part in our verse (added + enabled)`,
+          }),
+        ],
+      },
+    }
 
     expect(community.getNftCollectionInfo).toHaveBeenCalled()
     expect(community.updateSupportVerse).toHaveBeenCalled()
-    assertTitle(output, expected)
-    assertDescription(output, expected)
+    assertRunResult(output, expected)
   })
 
   test("executeNftIntegrateCommand api 500", async () => {
@@ -54,14 +56,19 @@ describe("executeNftIntegrateCommand", () => {
       "121212",
       undefined
     )
-    const expected = getErrorEmbed({
-      description: "Internal Server Error",
-    })
+    const expected = {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            description: "Internal Server Error",
+          }),
+        ],
+      },
+    }
 
     expect(community.getNftCollectionInfo).toHaveBeenCalled()
     expect(community.updateSupportVerse).toHaveBeenCalled()
-    assertTitle(output, expected)
-    assertDescription(output, expected)
+    assertRunResult(output, expected)
   })
 
   test("executeNftIntegrateCommand api 400", async () => {
@@ -80,13 +87,18 @@ describe("executeNftIntegrateCommand", () => {
       "121212",
       undefined
     )
-    const expected = getErrorEmbed({
-      description: "Error",
-    })
+    const expected = {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            description: "Error",
+          }),
+        ],
+      },
+    }
 
     expect(community.getNftCollectionInfo).toHaveBeenCalled()
     expect(community.updateSupportVerse).toHaveBeenCalled()
-    assertTitle(output, expected)
-    assertDescription(output, expected)
+    assertRunResult(output, expected)
   })
 })
