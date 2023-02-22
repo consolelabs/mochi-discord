@@ -6,6 +6,9 @@ import { Token } from "types/defi"
 import * as SelectMenuUtil from "ui/discord/select-menu"
 import * as ButtonUtil from "ui/discord/button"
 import mockdc from "../../../../tests/mocks/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { handler } from "../remove/processor"
 jest.mock("adapters/defi")
 jest.mock("adapters/config")
 jest.mock("ui/discord/select-menu")
@@ -82,20 +85,40 @@ describe("handleTokenAdd", () => {
       curl: "",
       log: "",
     }
+    const expectedSelectionRow = [
+      {
+        label: "Fantom (FTM)",
+        value: "FTM",
+      },
+    ]
     Defi.getSupportedTokens = jest.fn().mockResolvedValueOnce(tokens)
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     jest
       .spyOn(SelectMenuUtil, "composeDiscordSelectionRow")
-      .mockReturnValueOnce([
-        {
-          label: "Fantom (FTM)",
-          value: "FTM",
-        },
-      ] as any)
+      .mockReturnValueOnce(expectedSelectionRow as any)
     jest
       .spyOn(ButtonUtil, "composeDiscordExitButton")
       .mockReturnValueOnce(undefined as any)
-    await processor.handleTokenAdd(msg, "test", msg.author.id)
+    const expectedOutput = {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "Need action",
+            description:
+              "Select to add one of the following tokens to your server.",
+          }),
+        ],
+        components: [expectedSelectionRow, undefined],
+      },
+      interactionOptions: {
+        handler,
+      },
+    }
+    const output = (await processor.handleTokenAdd(
+      msg,
+      "test",
+      msg.author.id
+    )) as any
     expect(SelectMenuUtil.composeDiscordSelectionRow).toHaveBeenCalledTimes(1)
     expect(SelectMenuUtil.composeDiscordSelectionRow).toHaveBeenCalledWith({
       customId: "guild_tokens_selection",
@@ -111,5 +134,6 @@ describe("handleTokenAdd", () => {
     expect(ButtonUtil.composeDiscordExitButton).toHaveBeenCalledWith(
       msg.author.id
     )
+    assertRunResult(output, expectedOutput as any)
   })
 })

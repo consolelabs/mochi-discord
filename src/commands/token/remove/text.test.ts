@@ -12,14 +12,14 @@ describe("run", () => {
   beforeEach(() => (msg = mockdc.cloneMessage()))
 
   test("command run with enough args", async () => {
-    msg.content = "$token add"
+    msg.content = "$token remove"
     const expected = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
             title: "Need action",
             description:
-              "Select to add one of the following tokens to your server.",
+              "Select to remove one of the following tokens from your server.",
           }),
         ],
         components: [undefined, undefined],
@@ -29,11 +29,10 @@ describe("run", () => {
       },
     }
     jest
-      .spyOn(processor, "handleTokenAdd")
+      .spyOn(processor, "handleTokenRemove")
       .mockResolvedValueOnce(expected as any)
-    const output = await tokenCmd?.actions?.["add"].run(msg)
-    expect(processor.handleTokenAdd).toBeCalledWith(
-      msg,
+    const output = await tokenCmd?.actions?.["remove"].run(msg)
+    expect(processor.handleTokenRemove).toBeCalledWith(
       msg.guildId,
       msg.author.id
     )

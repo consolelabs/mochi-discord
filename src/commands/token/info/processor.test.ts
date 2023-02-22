@@ -2,7 +2,7 @@ import { HexColorString } from "discord.js"
 import * as processor from "./processor"
 import { APIError, InternalError } from "errors"
 import CacheManager from "cache/node-cache"
-import { assertDescription } from "../../../../tests/assertions/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 import { getChartColorConfig } from "ui/canvas/color"
 import { composeEmbedMessage } from "ui/discord/embed"
 import mockdc from "../../../../tests/mocks/discord"
@@ -91,7 +91,9 @@ describe("handleTokenInfo", () => {
       description: "This token has not updated description yet",
     })
     expect(CacheManager.get).toHaveBeenCalledTimes(2)
-    assertDescription(output as any, expectEmbed)
+    assertRunResult(output as any, {
+      messageOptions: { embeds: [expectEmbed] },
+    })
   })
 
   test("coin.length > 1", async () => {
@@ -148,7 +150,9 @@ describe("handleTokenInfo", () => {
       description: "This token has not updated description yet",
     })
     expect(CacheManager.get).toHaveBeenCalledTimes(3)
-    assertDescription(output as any, expectEmbed)
+    assertRunResult(output as any, {
+      messageOptions: { embeds: [expectEmbed] },
+    })
   })
 
   test("default ticker not found", async () => {

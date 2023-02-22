@@ -5,10 +5,7 @@ import { APIError } from "errors"
 import * as SelectMenuUtil from "ui/discord/select-menu"
 import * as ButtonUtil from "ui/discord/button"
 import { PREFIX } from "utils/constants"
-import {
-  assertDescription,
-  assertRunResult,
-} from "../../../../tests/assertions/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 jest.mock("adapters/defi")
 jest.mock("adapters/config")
@@ -45,7 +42,7 @@ describe("handleTokenRemove", () => {
       description: `Your server has no tokens.\nUse \`${PREFIX}token add\` to add one to your server.`,
     })
     const output = await processor.handleTokenRemove("guildId", "authorId")
-    assertDescription(output, expectedEmbed as any)
+    assertRunResult(output, { messageOptions: { embeds: [expectedEmbed] } })
   })
 
   test("Successfully show remove token selection box", async () => {

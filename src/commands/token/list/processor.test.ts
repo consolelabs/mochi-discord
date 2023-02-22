@@ -1,12 +1,10 @@
 import * as processor from "./processor"
 import Config from "adapters/config"
 import { composeEmbedMessage } from "ui/discord/embed"
-import {
-  assertAuthor,
-  assertDescription,
-} from "../../../../tests/assertions/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 import { getEmoji } from "utils/common"
 import { APIError } from "errors"
+import { MessageEmbed } from "discord.js"
 jest.mock("adapters/config")
 
 describe("handleTokenList", () => {
@@ -41,8 +39,7 @@ describe("handleTokenList", () => {
     })
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     const output = await processor.handleTokenList("guildId")
-    assertDescription(output, expected)
-    assertAuthor(output, expected)
+    assertRunResult(output, { messageOptions: { embeds: [expected] } })
   })
 
   test("guild tokens found", async () => {
@@ -65,18 +62,17 @@ describe("handleTokenList", () => {
     }
     const expected = {
       color: "#77b255",
-      title: ":dollar: Tokens list",
+      title: `${getEmoji("TIP")} Tokens list`,
       fields: [
         {
           inline: true,
-          name: "",
+          name: "​",
           value: "<:ftm:967285237686108212> **FTM**",
         },
       ],
-    }
+    } as unknown as MessageEmbed
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     const output = await processor.handleTokenList("guildId")
-    assertAuthor(output, expected as any)
-    expect(output?.messageOptions?.embeds?.[0].fields?.length).toEqual(1)
+    assertRunResult(output, { messageOptions: { embeds: [expected] } })
   })
 })

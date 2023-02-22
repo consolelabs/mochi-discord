@@ -1,10 +1,13 @@
 import { Message, SnowflakeUtil } from "discord.js"
 import * as processor from "./processor"
 import Config from "adapters/config"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
-import { assertDescription } from "../../../../tests/assertions/discord"
+import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
+import {
+  assertDescription,
+  assertRunResult,
+} from "../../../../tests/assertions/discord"
 import { mockClient } from "../../../../tests/mocks"
-import { defaultEmojis } from "utils/common"
+import { getEmoji } from "utils/common"
 import mockdc from "../../../../tests/mocks/discord"
 jest.mock("adapters/config")
 
@@ -24,20 +27,32 @@ describe("handleTokenDefault", () => {
       description: "This command must be run in a Guild",
     })
     const output = await processor.handleTokenDefault(msgNoGuild, "eth")
-    assertDescription({ messageOptions: output }, expected)
+    // assertDescription({ messageOptions: output }, expected)
+    assertRunResult(
+      { messageOptions: output },
+      { messageOptions: { embeds: [expected] } }
+    )
   })
 
   test("error 404 on calling setDefaultToken", async () => {
     const symbol = "eth"
-    const expected = getErrorEmbed({
-      description: `\`${symbol}\` hasn't been supported.\n${defaultEmojis.POINT_RIGHT} Please choose one in our supported \`$token list\`\n${defaultEmojis.POINT_RIGHT} To add your token, run \`$token add\`.`,
-    })
     Config.setDefaultToken = jest.fn().mockResolvedValueOnce({
       ok: false,
       status: 404,
     })
+    const expected = {
+      embeds: [
+        getErrorEmbed({
+          description: `\`${symbol}\` hasn't been supported.\n${getEmoji(
+            "POINTINGRIGHT"
+          )} Please choose one in our supported \`$token list\`\n${getEmoji(
+            "POINTINGRIGHT"
+          )} To add your token, run \`$token add\`.`,
+        }),
+      ],
+    }
     const output = await processor.handleTokenDefault(msg, "eth")
-    assertDescription({ messageOptions: output }, expected)
+    assertRunResult({ messageOptions: output }, { messageOptions: expected })
   })
 
   test("token not supported", async () => {
@@ -63,13 +78,17 @@ describe("handleTokenDefault", () => {
 
   test("Set default token success", async () => {
     const symbol = "eth"
-    const expected = composeEmbedMessage(null, {
-      description: `Successfully set **${symbol.toUpperCase()}** as default token for server`,
-    })
+    const expected = {
+      embeds: [
+        getSuccessEmbed({
+          description: `Successfully set **${symbol.toUpperCase()}** as default token for server`,
+        }),
+      ],
+    }
     Config.setDefaultToken = jest
       .fn()
       .mockResolvedValueOnce({ ok: true, status: 200 })
     const output = await processor.handleTokenDefault(msg, symbol)
-    assertDescription({ messageOptions: output }, expected)
+    assertRunResult({ messageOptions: output }, { messageOptions: expected })
   })
 })
