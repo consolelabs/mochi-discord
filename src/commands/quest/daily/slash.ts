@@ -15,7 +15,7 @@ const command: SlashCommand = {
       .setDescription("Your daily quests, resets at 00:00 UTC")
   },
   run: async function (interaction: CommandInteraction) {
-    if (!interaction.guild) {
+    if (!interaction.guildId) {
       throw new GuildIdNotFoundError({})
     }
     return run(interaction.user.id)
