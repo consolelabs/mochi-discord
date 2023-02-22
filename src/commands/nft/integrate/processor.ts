@@ -45,7 +45,7 @@ export async function executeNftIntegrateCommand(
 
   const { status: supportVerseStatus = 0, error } =
     await community.updateSupportVerse(address)
-  if (status === 200) {
+  if (supportVerseStatus === 200) {
     return {
       messageOptions: {
         embeds: [
@@ -61,7 +61,7 @@ export async function executeNftIntegrateCommand(
   } else {
     let description
     if ([400, 500].includes(supportVerseStatus)) {
-      if (status === 500) {
+      if (supportVerseStatus === 500) {
         description = "Internal Server Error"
       } else {
         description = error ?? ""

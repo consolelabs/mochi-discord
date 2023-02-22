@@ -5,7 +5,7 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { ADD_COLLECTION_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { CheckMarketplaceLink, SplitMarketplaceLink } from "utils/marketplace"
-import { callAPI, toEmbed } from "../processor"
+import { executeNftAddCommand } from "./processor"
 
 const command: SlashCommand = {
   name: "add",
@@ -30,7 +30,7 @@ const command: SlashCommand = {
       )
   },
   run: async function (interaction: CommandInteraction) {
-    if (!interaction.guild || !interaction.guildId) {
+    if (!interaction.guildId) {
       throw new GuildIdNotFoundError({})
     }
 
@@ -42,16 +42,9 @@ const command: SlashCommand = {
       else return { messageOptions: await this.help(interaction) }
     }
 
-    const { storeCollectionRes, supportedChainsRes } = await callAPI(
-      address,
-      chain,
-      interaction.user.id,
-      interaction.guildId,
-      undefined,
-      false
-    )
+    const args = ["nft", "add", address, chain]
 
-    return await toEmbed(storeCollectionRes, supportedChainsRes)
+    return await executeNftAddCommand(args, interaction)
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [

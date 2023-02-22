@@ -52,7 +52,7 @@ const command: SlashCommand = {
       .addSubcommand(ts)
   },
   run: async function (interaction: CommandInteraction) {
-    if (!interaction.guild || !interaction.guildId) {
+    if (!interaction.guildId) {
       throw new GuildIdNotFoundError({})
     }
 
