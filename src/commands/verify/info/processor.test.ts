@@ -1,14 +1,10 @@
 import { Message } from "discord.js"
 import * as processor from "./processor"
 import { composeEmbedMessage } from "ui/discord/embed"
-import {
-  assertAuthor,
-  assertDescription,
-  assertTitle,
-} from "../../../../tests/assertions/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
 import community from "adapters/community"
-import { defaultEmojis, emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 jest.mock("adapters/community")
 
 describe("runVerify", () => {
@@ -27,13 +23,18 @@ describe("runVerify", () => {
       },
     } as any)
     const output = await processor.runVerify(msg, "123456")
-    const expected = composeEmbedMessage(null, {
-      author: ["Verify", getEmojiURL(emojis.APPROVE)],
-      description: `Verify channel: <#123123>\nVerify role: <@&12121212>`,
-      footer: ["To change verify channel and role, use $verify remove"],
-    })
-    assertTitle(output, expected)
-    assertAuthor(output, expected)
+    const expected = {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            author: ["Verify", getEmojiURL(emojis.APPROVE)],
+            description: `Verify channel: <#123123>`,
+            footer: ["To change verify channel and role, use $verify remove"],
+          }),
+        ],
+      },
+    }
+    assertRunResult(output, expected)
   })
 
   test("runVerify api empty", async () => {
@@ -42,13 +43,21 @@ describe("runVerify", () => {
       data: null,
     } as any)
     const output = await processor.runVerify(msg, "123456")
-    const expected = composeEmbedMessage(null, {
-      title: "No verified channel found",
-      author: ["Verify", getEmojiURL(emojis.APPROVE)],
-      description: `You haven't set a channel for verification.\n${defaultEmojis.POINT_RIGHT} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${defaultEmojis.POINT_RIGHT} Then re-check your configuration using \`verify info.\``,
-    })
-    assertTitle(output, expected)
-    assertAuthor(output, expected)
-    assertDescription(output, expected)
+    const expected = {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "No verified channel found",
+            author: ["Verify", getEmojiURL(emojis.APPROVE)],
+            description: `You haven't set a channel for verification.\n${getEmoji(
+              "pointingright"
+            )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
+              "pointingright"
+            )} Then re-check your configuration using \`verify info.\``,
+          }),
+        ],
+      },
+    }
+    assertRunResult(output, expected)
   })
 })
