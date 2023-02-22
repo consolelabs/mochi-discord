@@ -2,10 +2,7 @@ import { Message, SnowflakeUtil } from "discord.js"
 import * as processor from "./processor"
 import Config from "adapters/config"
 import { getErrorEmbed, getSuccessEmbed } from "ui/discord/embed"
-import {
-  assertDescription,
-  assertRunResult,
-} from "../../../../tests/assertions/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 import { mockClient } from "../../../../tests/mocks"
 import { getEmoji } from "utils/common"
 import mockdc from "../../../../tests/mocks/discord"
@@ -27,7 +24,6 @@ describe("handleTokenDefault", () => {
       description: "This command must be run in a Guild",
     })
     const output = await processor.handleTokenDefault(msgNoGuild, "eth")
-    // assertDescription({ messageOptions: output }, expected)
     assertRunResult(
       { messageOptions: output },
       { messageOptions: { embeds: [expected] } }
@@ -67,13 +63,15 @@ describe("handleTokenDefault", () => {
           return `**${chain.currency}**`
         })
         .join("\n")
-    const expected = getErrorEmbed({ description: description })
+    const expected = {
+      embeds: [getErrorEmbed({ description: description })],
+    }
     Config.setDefaultToken = jest
       .fn()
       .mockRejectedValueOnce("Error: token not supported")
     Config.getAllChains = jest.fn().mockResolvedValueOnce(supportedChains)
     const output = await processor.handleTokenDefault(msg, symbol)
-    assertDescription({ messageOptions: output }, expected)
+    assertRunResult({ messageOptions: output }, { messageOptions: expected })
   })
 
   test("Set default token success", async () => {
