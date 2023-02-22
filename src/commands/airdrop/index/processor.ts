@@ -376,7 +376,7 @@ function getAirdropOptions(args: string[]) {
     options.maxEntries = +content
       .substring(maxEntriesIdx)
       .replace(/for\s+/, "")
-      .split(" ")
+      .split(" ")[0]
   }
   return options
 }
