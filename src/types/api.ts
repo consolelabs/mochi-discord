@@ -256,6 +256,7 @@ export interface ModelGuildConfigDaoTracker {
   created_at?: string;
   guild_id?: string;
   id?: string;
+  source?: string;
   space?: string;
   updated_at?: string;
 }
@@ -305,19 +306,6 @@ export interface ModelGuildConfigLevelupMessage {
   id?: string;
   image_url?: string;
   message?: string;
-  updated_at?: string;
-}
-
-export interface ModelGuildConfigMixRole {
-  created_at?: string;
-  guild_id?: string;
-  id?: number;
-  nft_requirement?: ModelMixRoleNFTRequirement;
-  nft_requirement_id?: number;
-  required_level?: number;
-  role_id?: string;
-  token_requirement?: ModelMixRoleTokenRequirement;
-  token_requirement_id?: number;
   updated_at?: string;
 }
 
@@ -439,24 +427,6 @@ export interface ModelJSONNullString {
   string?: string;
   /** Valid is true if String is not NULL */
   valid?: boolean;
-}
-
-export interface ModelMixRoleNFTRequirement {
-  created_at?: string;
-  id?: number;
-  nft_collection?: ModelNFTCollection;
-  nft_collection_id?: string;
-  required_amount?: number;
-  updated_at?: string;
-}
-
-export interface ModelMixRoleTokenRequirement {
-  created_at?: string;
-  id?: number;
-  required_amount?: number;
-  token?: ModelToken;
-  token_id?: number;
-  updated_at?: string;
 }
 
 export interface ModelMixRoleNFTRequirement {
@@ -805,6 +775,7 @@ export interface ModelUserWalletWatchlistItem {
   alias?: string;
   created_at?: string;
   net_worth?: number;
+  type?: string;
   user_id?: string;
 }
 
@@ -828,6 +799,19 @@ export interface RequestAddToWatchlistRequest {
   is_fiat?: boolean;
   symbol?: string;
   user_id?: string;
+}
+
+export interface RequestAddTokenPriceAlertRequest {
+  alert_type?:
+    | "price_reaches"
+    | "price_rises_above"
+    | "price_drops_to"
+    | "change_is_over"
+    | "change_is_under";
+  frequency?: "only_once" | "once_a_day" | "always";
+  price?: number;
+  symbol?: string;
+  user_discord_id?: string;
 }
 
 export interface RequestBalcklistChannelRepostConfigRequest {
@@ -921,14 +905,6 @@ export interface RequestCreateDefaultRoleRequest {
 export interface RequestCreateEnvelop {
   command: string;
   user_id: string;
-}
-
-export interface RequestCreateGuildMixRole {
-  guild_id: string;
-  nft_requirement?: RequestMixRoleNFTRequirement;
-  required_level?: number;
-  role_id: string;
-  token_requirement?: RequestMixRoleTokenRequirement;
 }
 
 export interface RequestCreateGuildMixRole {
@@ -1096,16 +1072,6 @@ export interface RequestMixRoleTokenRequirement {
   token_id: number;
 }
 
-export interface RequestMixRoleNFTRequirement {
-  amount: number;
-  nft_id: string;
-}
-
-export interface RequestMixRoleTokenRequirement {
-  amount: number;
-  token_id: number;
-}
-
 export interface RequestNewGuildConfigWalletVerificationMessageRequest {
   content?: string;
   created_at?: string;
@@ -1195,6 +1161,7 @@ export interface RequestSubmitOnchainTransferRequest {
 export interface RequestTrackWalletRequest {
   address: string;
   alias?: string;
+  type: string;
   user_id: string;
 }
 
@@ -1361,6 +1328,10 @@ export interface ResponseAddToWatchlistResponseData {
   target_suggestions?: ModelCoingeckoSupportedTokens[];
 }
 
+export interface ResponseAddTokenPriceAlertResponse {
+  data?: ResponseTokenPriceAlertResponseData;
+}
+
 export interface ResponseAllTipBotTokensResponse {
   data?: ModelOffchainTipBotToken[];
 }
@@ -1478,10 +1449,6 @@ export interface ResponseCreateGuildMixRole {
   data?: ModelGuildConfigMixRole;
 }
 
-export interface ResponseCreateGuildMixRole {
-  data?: ModelGuildConfigMixRole;
-}
-
 export interface ResponseCreateGuildTokenRole {
   data?: ModelGuildConfigTokenRole;
 }
@@ -1508,6 +1475,17 @@ export interface ResponseCreateTwitterSaleConfigResponse {
 
 export interface ResponseCurrentUserUpvoteStreakResponse {
   data?: ResponseGetUserCurrentUpvoteStreakResponse;
+}
+
+export interface ResponseDaoTrackerSpaceCountData {
+  count?: number;
+  source?: string;
+  space?: string;
+}
+
+export interface ResponseDaoTrackerSpaceCountResponse {
+  data?: ResponseDaoTrackerSpaceCountData[];
+  metadata?: ResponsePaginationResponse;
 }
 
 export interface ResponseDataFilterConfigByReaction {
@@ -1955,6 +1933,17 @@ export interface ResponseGuildConfigDefaultCurrencyResponse {
   updated_at?: string;
 }
 
+export interface ResponseGuildProposalUsageData {
+  guild_id?: string;
+  is_active?: boolean;
+  proposal_count?: number;
+}
+
+export interface ResponseGuildProposalUsageResponse {
+  data?: ResponseGuildProposalUsageData[];
+  metadata?: ResponsePaginationResponse;
+}
+
 export interface ResponseGuildPruneExcludeList {
   guild_id?: string;
   roles?: string[];
@@ -2070,11 +2059,15 @@ export interface ResponseIndexerNFTTokenTickersData {
   floor_price?: ResponseIndexerPrice;
   image?: string;
   image_cdn?: string;
+  last_sale_at?: string;
   last_sale_price?: ResponseIndexerPrice;
   name?: string;
-  price_change_1d?: string;
   price_change_30d?: string;
-  price_change_7d?: string;
+  price_change_365d?: string;
+  price_change_90d?: string;
+  price_change_percentage_30d?: string;
+  price_change_percentage_365d?: string;
+  price_change_percentage_90d?: string;
   rarity_rank?: number;
   rarity_score?: string;
   rarity_tier?: string;
@@ -2140,10 +2133,6 @@ export interface ResponseListGuildMixRoles {
   data?: ModelGuildConfigMixRole[];
 }
 
-export interface ResponseListGuildMixRoles {
-  data?: ModelGuildConfigMixRole[];
-}
-
 export interface ResponseListGuildNFTRoleConfigsResponse {
   color?: number;
   group_name?: string;
@@ -2171,6 +2160,18 @@ export interface ResponseListRoleReactionResponse {
   configs?: ResponseRoleReactionByMessage[];
   guild_id?: string;
   success?: boolean;
+}
+
+export interface ResponseListTokenPriceAlertResponse {
+  alert_type?: string;
+  created_at?: string;
+  currency?: string;
+  frequency?: string;
+  price?: number;
+  snoozed_to?: string;
+  symbol?: string;
+  updated_at?: string;
+  user_discord_id?: string;
 }
 
 export interface ResponseLogoutResponse {
@@ -2445,6 +2446,16 @@ export interface ResponseTokenHolderStatusData {
   is_wallet_connected?: boolean;
   user_holding_amount?: string;
   vote_config?: ModelDaoProposalVoteOption;
+}
+
+export interface ResponseTokenPriceAlertResponseData {
+  alert_type?: string;
+  currency?: string;
+  frequency?: string;
+  price?: number;
+  snoozed_to?: string;
+  symbol?: string;
+  user_discord_id?: string;
 }
 
 export interface ResponseTransactionsResponse {

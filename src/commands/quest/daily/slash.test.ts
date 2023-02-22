@@ -1,15 +1,16 @@
 import { slashCommands } from "commands"
-import { CommandInteraction, MessageOptions } from "discord.js"
+import {
+  CommandInteraction,
+  MessageActionRow,
+  MessageButton,
+  MessageOptions,
+} from "discord.js"
 import { RunResult } from "types/common"
 import * as processor from "./processor"
-import {
-  assertDescription,
-  assertThumbnail,
-  assertTitle,
-} from "../../../../tests/assertions/discord"
+import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { GuildIdNotFoundError } from "errors"
 jest.mock("adapters/config")
 
@@ -23,30 +24,39 @@ describe("run", () => {
     i.options.getSubcommand = jest.fn().mockReturnValueOnce("daily")
     i.user.id = "123123"
 
-    const expected = composeEmbedMessage(null, {
-      title: "Daily Quests",
-      description: `${[
-        `**Quests will refresh in \`1\`h \`1\`m**`,
-        "Completing all quests will reward you with a bonus!",
-        "Additionally, a high `$vote` streak can also increase your reward",
-      ].join("\n")}\n\n**Completion Progress**`,
-      thumbnail: getEmojiURL(emojis.CHEST),
-      footer: ["Daily quests reset at 00:00 UTC"],
-      color: "#d6b12d",
-    })
-    jest.spyOn(processor, "run").mockResolvedValueOnce({
+    const expected = {
       messageOptions: {
-        embeds: [expected],
-        components: [],
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "Daily Quests",
+            description: `${[
+              `**Quests will refresh in \`1\`h \`1\`m**`,
+              "Completing all quests will reward you with a bonus!",
+              "Additionally, a high `$vote` streak can also increase your reward",
+            ].join("\n")}\n\n**Completion Progress**`,
+            thumbnail: getEmojiURL(emojis.CHEST),
+            footer: ["Daily quests reset at 00:00 UTC"],
+            color: "#d6b12d",
+          }),
+        ],
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setDisabled(true)
+              .setStyle("SECONDARY")
+              .setEmoji(getEmoji("approve"))
+              .setCustomId("claim-rewards-daily_123123")
+              .setLabel("No rewards to claim")
+          ),
+        ],
       },
-    })
+    }
+    jest.spyOn(processor, "run").mockResolvedValueOnce(expected)
 
     const output = (await questCmd.run(i)) as RunResult<MessageOptions>
 
     expect(processor.run).toHaveBeenCalled()
-    assertTitle(output, expected)
-    assertDescription(output, expected)
-    assertThumbnail(output, expected)
+    assertRunResult(output, expected)
   })
 
   test("guild not found", async () => {

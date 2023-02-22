@@ -1,21 +1,13 @@
-import { Message } from "discord.js"
+import { MessageActionRow, MessageButton } from "discord.js"
 import * as processor from "./processor"
 import { composeEmbedMessage } from "ui/discord/embed"
-import {
-  assertAuthor,
-  assertDescription,
-} from "../../../../tests/assertions/discord"
-import { getEmojiURL, emojis } from "utils/common"
+import { assertRunResult } from "../../../../tests/assertions/discord"
+import { getEmojiURL, emojis, getEmoji } from "utils/common"
 import community from "adapters/community"
-import mockdc from "../../../../tests/mocks/discord"
 import dayjs from "dayjs"
 jest.mock("adapters/config")
 
 describe("run", () => {
-  let msg: Message
-
-  beforeEach(() => (msg = mockdc.cloneMessage()))
-
   afterEach(() => jest.clearAllMocks())
 
   test("run success", async () => {
@@ -29,18 +21,35 @@ describe("run", () => {
 
     const hour = resetUtc.diff(nowUtc, "hour")
     const minute = Math.round(resetUtc.diff(nowUtc, "minute") % 60)
-    const expected = composeEmbedMessage(msg, {
-      title: "Daily Quests",
-      description: `${[
-        `**Quests will refresh in \`${hour}\`h \`${minute}\`m**`,
-        "Completing all quests will reward you with a bonus!",
-        "Additionally, a high `$vote` streak can also increase your reward",
-      ].join("\n")}\n\n**Completion Progress**`,
-      thumbnail: getEmojiURL(emojis.CHEST),
-    })
+    const expected = {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "Daily Quests",
+            description: `${[
+              `**Quests will refresh in \`${hour}\`h \`${minute}\`m**`,
+              "Completing all quests will reward you with a bonus!",
+              "Additionally, a high `$vote` streak can also increase your reward",
+            ].join("\n")}\n\n**Completion Progress**`,
+            thumbnail: getEmojiURL(emojis.CHEST),
+            color: 14070061,
+            footer: ["Daily quests reset at 00:00 UTC"],
+          }),
+        ],
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setDisabled(true)
+              .setStyle("SECONDARY")
+              .setEmoji(getEmoji("approve"))
+              .setCustomId("claim-rewards-daily_123123")
+              .setLabel("No rewards to claim")
+          ),
+        ],
+      },
+    }
 
     const output = await processor.run("123123")
-    assertAuthor(output, expected)
-    assertDescription(output, expected)
+    assertRunResult(output, expected)
   })
 })
