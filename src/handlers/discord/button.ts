@@ -1,5 +1,6 @@
 import {
   ButtonInteraction,
+  CollectorFilter,
   CommandInteraction,
   Message,
   MessageOptions,
@@ -105,13 +106,14 @@ export function listenForPaginateInteraction(
 
 export function listenForPaginateAction(
   replyMsg: Message,
-  originalMsg: Message,
+  originalMsg: Message | null,
   render: (
-    msg: Message,
+    msg: Message | undefined,
     pageIdx: number
   ) => Promise<{ messageOptions: MessageOptions }>,
   withAttachmentUpdate?: boolean,
-  withMultipleComponents?: boolean
+  withMultipleComponents?: boolean,
+  filter?: CollectorFilter<[ButtonInteraction]>
 ) {
   const operators: Record<string, number> = {
     "+": 1,
@@ -121,35 +123,37 @@ export function listenForPaginateAction(
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
       idle: 60000,
+      filter: filter ? filter : authorFilter(originalMsg?.author.id ?? ""),
     })
-    .on("collect", async (i) => {
-      await i.deferUpdate()
-      const [pageStr, opStr, totalPage] = i.customId.split("_").slice(1)
-      const page = +pageStr + operators[opStr]
-      const {
-        messageOptions: { embeds, components, files },
-      } = await render(originalMsg, page)
-
-      const msgComponents = withMultipleComponents
-        ? components
-        : getPaginationRow(page, +totalPage)
-      if (withAttachmentUpdate && files?.length) {
-        await replyMsg.removeAttachments()
-        await replyMsg
-          .edit({
-            embeds,
-            components: msgComponents,
-            files,
-          })
-          .catch(() => null)
-      } else {
-        await replyMsg
-          .edit({
-            embeds,
-            components: msgComponents,
-          })
-          .catch(() => null)
-      }
+    .on("collect", (i) => {
+      wrapError(i, async () => {
+        const [pageStr, opStr, totalPage] = i.customId.split("_").slice(1)
+        const page = +pageStr + operators[opStr]
+        const {
+          messageOptions: { embeds, components, files },
+        } = await render(originalMsg ?? undefined, page)
+        const msgComponents = withMultipleComponents
+          ? components
+          : getPaginationRow(page, +totalPage)
+        await i.deferUpdate()
+        if (withAttachmentUpdate && files?.length) {
+          await replyMsg.removeAttachments()
+          await i
+            .editReply({
+              embeds,
+              components: msgComponents,
+              files,
+            })
+            .catch(() => null)
+        } else {
+          await i
+            .editReply({
+              embeds,
+              components: msgComponents,
+            })
+            .catch(() => null)
+        }
+      })
     })
     .on("end", () => {
       replyMsg.edit({ components: [] }).catch(() => null)

@@ -50,17 +50,14 @@ const command: SlashCommand = {
         components: getPaginationRow(0, pages.length),
       },
     }
-    listenForPaginateInteraction(
-      interaction,
-      async (interaction: CommandInteraction, idx: number) => {
-        return {
-          messageOptions: {
-            embeds: [pages[idx]],
-            components: getPaginationRow(idx, pages.length),
-          },
-        }
+    listenForPaginateInteraction(interaction, async (_interaction, idx) => {
+      return {
+        messageOptions: {
+          embeds: [pages[idx]],
+          components: getPaginationRow(idx, pages.length),
+        },
       }
-    )
+    })
     return msgOpts
   },
   help: async () => ({

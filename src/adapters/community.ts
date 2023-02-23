@@ -17,6 +17,7 @@ import {
   ResponseGetGuildConfigDaoProposal,
   ModelDaoVote,
   ResponseGetAllDaoProposalVotes,
+  ResponseGetAllDaoProposals,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL, PT_API_BASE_URL } from "utils/constants"
@@ -471,11 +472,24 @@ class Community extends Fetcher {
     proposal_id: string,
     user_discord_id: string
   ) {
-    return await this.jsonFetch<ResponseGetAllDaoProposalVotes>(
+    return await this.jsonFetch<{ data: ResponseGetAllDaoProposalVotes }>(
       `${API_BASE_URL}/dao-voting/proposals/${proposal_id}`,
       {
         method: "GET",
         query: { user_discord_id },
+      }
+    )
+  }
+
+  public async getDaoProposals(query: {
+    guild_id?: string
+    user_discord_id?: string
+  }) {
+    return await this.jsonFetch<ResponseGetAllDaoProposals>(
+      `${API_BASE_URL}/dao-voting/proposals`,
+      {
+        method: "GET",
+        query,
       }
     )
   }

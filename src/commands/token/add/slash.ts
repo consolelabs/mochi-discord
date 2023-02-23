@@ -4,7 +4,7 @@ import { GuildIdNotFoundError } from "errors"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
-import { handleTokenAdd } from "./processor"
+import * as processor from "./processor"
 
 const command: SlashCommand = {
   name: "add",
@@ -18,7 +18,7 @@ const command: SlashCommand = {
     if (!interaction.guildId) {
       throw new GuildIdNotFoundError({ message: interaction })
     }
-    return await handleTokenAdd(
+    return await processor.handleTokenAdd(
       interaction,
       interaction.guildId,
       interaction.user.id

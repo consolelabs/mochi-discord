@@ -4,7 +4,7 @@ import { CommandArgumentError, GuildIdNotFoundError } from "errors"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
-import { handleTokenDefault } from "./processor"
+import * as processor from "./processor"
 
 const command: SlashCommand = {
   name: "default",
@@ -25,15 +25,14 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({ message: interaction })
     }
 
-    const symbol = interaction.options.getString("symbol")
+    const symbol = await interaction.options.getString("symbol")
     if (!symbol) {
       throw new CommandArgumentError({
         message: interaction,
         getHelpMessage: () => command.help(interaction),
       })
     }
-
-    const embeds = await handleTokenDefault(interaction, symbol)
+    const embeds = await processor.handleTokenDefault(interaction, symbol)
     return {
       messageOptions: {
         ...embeds,

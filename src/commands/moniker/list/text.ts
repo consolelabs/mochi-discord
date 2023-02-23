@@ -39,7 +39,7 @@ const command: Command = {
       },
     }
     const reply = await msg.reply(msgOpts.messageOptions)
-    listenForPaginateAction(reply, msg, async (_msg: Message, idx: number) => {
+    listenForPaginateAction(reply, msg, async (_msg, idx) => {
       return {
         messageOptions: {
           embeds: [pages[idx]],
