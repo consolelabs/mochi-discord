@@ -40,8 +40,10 @@ import {
   ResponseListGuildXPRoles,
   ResponseListGuildMixRoles,
   ResponseCreateGuildMixRole,
+  ResponseGuildProposalUsageResponse,
 } from "types/api"
 import { TEST } from "env"
+import { ResponseDaoTrackerSpaceCountResponse } from "types/api"
 
 class Config extends Fetcher {
   public Guilds?: Guilds
@@ -1118,6 +1120,22 @@ class Config extends Fetcher {
       {
         method: "DELETE",
       }
+    )
+  }
+
+  public async getProposalUsageStats(query: { page: number; size: number }) {
+    return await this.jsonFetch<{ data: ResponseGuildProposalUsageResponse }>(
+      `${API_BASE_URL}/data/usage-stats/proposal`,
+      {
+        query,
+      }
+    )
+  }
+
+  public async getDaoTrackerUsageStats(query: { page: number; size: number }) {
+    return await this.jsonFetch<{ data: ResponseDaoTrackerSpaceCountResponse }>(
+      `${API_BASE_URL}/data/usage-stats/dao-tracker`,
+      { query }
     )
   }
 }

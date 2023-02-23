@@ -186,12 +186,12 @@ export async function renderLeaderboard(
 }
 
 export async function composeTopEmbed(
-  msg: Message | CommandInteraction,
+  msg: Message | CommandInteraction | undefined,
   pageIdx: number
 ) {
-  const authorId = msg instanceof Message ? msg.author.id : msg.user.id
+  const authorId = msg instanceof Message ? msg.author.id : msg?.user.id ?? ""
   const res = await community.getTopXPUsers(
-    msg.guildId || "",
+    msg?.guildId || "",
     authorId,
     pageIdx,
     10
@@ -206,8 +206,8 @@ export async function composeTopEmbed(
   const { author, leaderboard } = res.data
   const blank = getEmoji("blank")
   const embed = composeEmbedMessage(null, {
-    title: `${getEmoji("cup")} ${msg.guild?.name}'s Web3 rankings`,
-    thumbnail: msg.guild?.iconURL(),
+    title: `${getEmoji("cup")} ${msg?.guild?.name}'s Web3 rankings`,
+    thumbnail: msg?.guild?.iconURL(),
     description: `${blank}**Your rank:** #${
       author.guild_rank
     }\n${blank}**XP:** ${author.total_xp}\n${getEmoji(
@@ -219,7 +219,7 @@ export async function composeTopEmbed(
     messageOptions: {
       embeds: [embed],
       components: getPaginationRow(res.data.metadata?.page || 0, totalPage),
-      files: [await renderLeaderboard(msg.guild, leaderboard)],
+      files: [await renderLeaderboard(msg?.guild ?? null, leaderboard)],
     },
   }
 }

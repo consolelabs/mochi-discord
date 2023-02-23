@@ -6,9 +6,11 @@ import track from "./track/text"
 import untrack from "./untrack/text"
 import info from "./info/text"
 import remove from "./remove/text"
+import data from "./data/text"
 import infoSlash from "./info/slash"
 import trackSlash from "./track/slash"
 import untrackSlash from "./untrack/slash"
+import dataSlash from "./data/slash"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
@@ -21,6 +23,7 @@ const actions: Record<string, Command> = {
   remove,
   track,
   untrack,
+  data,
 }
 
 const textCmd: Command = {
@@ -56,6 +59,7 @@ const slashActions: Record<string, SlashCommand> = {
   info: infoSlash,
   track: trackSlash,
   untrack: untrackSlash,
+  data: dataSlash,
 }
 
 const slashCmd: SlashCommand = {
@@ -70,6 +74,7 @@ const slashCmd: SlashCommand = {
     data.addSubcommand(<SlashCommandSubcommandBuilder>infoSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>untrackSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>trackSlash.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>dataSlash.prepare())
     return data
   },
   run: async function (interaction: CommandInteraction) {
