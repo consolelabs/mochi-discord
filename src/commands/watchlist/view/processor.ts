@@ -21,13 +21,15 @@ import { createCanvas, loadImage, registerFont } from "canvas"
 import { RectangleStats } from "types/canvas"
 import { drawCircleImage, drawRectangle } from "ui/canvas/draw"
 import CacheManager from "cache/node-cache"
-import { APIError } from "errors"
+import { APIError, OriginalMessage } from "errors"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import community from "adapters/community"
 import { wrapError } from "utils/wrap-error"
 import { loadAndCacheImage } from "ui/canvas/image"
 import { heightOf, widthOf } from "ui/canvas/calculator"
 import { renderChartImage } from "ui/canvas/chart"
+import { getPaginationRow } from "ui/discord/button"
+import { listenForPaginateAction } from "handlers/discord/button"
 
 let interaction: CommandInteraction
 let fontRegistered = false
@@ -392,7 +394,28 @@ export function buildSwitchViewActionRow(currentView: string) {
   return row
 }
 
-export function collectButton(msg: Message, originMsg: Message) {
+export function collectButton(
+  msg: Message,
+  originMsg: Message,
+  userId: string
+) {
+  const render = async (
+    _message: OriginalMessage | undefined,
+    pageIdx: number
+  ) => {
+    const { embeds, files, components } = await composeTokenWatchlist(
+      originMsg,
+      pageIdx,
+      userId
+    )
+    return {
+      messageOptions: {
+        embeds,
+        files,
+        components,
+      },
+    }
+  }
   return msg
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
@@ -400,9 +423,34 @@ export function collectButton(msg: Message, originMsg: Message) {
       filter: authorFilter(originMsg.author.id),
     })
     .on("collect", (i) => {
-      wrapError(originMsg, async () => {
-        await switchView(i, msg, originMsg)
-      })
+      // switch view
+      if (i.customId.includes("watchlist-switch-view-button")) {
+        wrapError(originMsg, async () => {
+          await switchView(i, msg, originMsg)
+        })
+      }
+      // change page
+      if (i.customId.startsWith("page")) {
+        const operators: Record<string, number> = {
+          "+": 1,
+          "-": -1,
+        }
+        wrapError(i, async () => {
+          const [pageStr, opStr] = i.customId.split("_").slice(1)
+          const page = +pageStr + operators[opStr]
+          const {
+            messageOptions: { embeds, components, files },
+          } = await render(msg, page)
+          await msg.removeAttachments()
+          await i
+            .editReply({
+              embeds,
+              components,
+              files,
+            })
+            .catch(() => null)
+        })
+      }
     })
     .on("end", () => {
       msg.edit({ components: [] }).catch(() => null)
@@ -424,7 +472,10 @@ async function switchView(
       break
     case "token":
     default:
-      ;({ embeds, files, components } = await composeTokenWatchlist(originMsg))
+      ;({ embeds, files, components } = await composeTokenWatchlist(
+        originMsg,
+        0
+      ))
       break
   }
   await i
@@ -436,12 +487,22 @@ async function switchView(
     .catch(() => null)
 }
 
-export async function composeTokenWatchlist(msg: Message, authorId?: string) {
-  const userId = msg.author.id
-  const { data, ok, log, curl } = await CacheManager.get({
+export async function composeTokenWatchlist(
+  msg: Message,
+  page: number,
+  authorId?: string
+) {
+  const userId = authorId ?? msg.author.id
+  const size = 12
+  const {
+    data: res,
+    ok,
+    log,
+    curl,
+  } = await CacheManager.get({
     pool: "watchlist",
-    key: `watchlist-${userId}`,
-    call: () => defi.getUserWatchlist({ userId, size: 12 }),
+    key: `watchlist-${userId}-${page}`,
+    call: () => defi.getUserWatchlist({ userId, page, size }),
     ...(authorId && {
       callIfCached: () =>
         community.updateQuestProgress({
@@ -451,6 +512,8 @@ export async function composeTokenWatchlist(msg: Message, authorId?: string) {
     }),
   })
   if (!ok) throw new APIError({ message: msg, curl, description: log })
+  const { metadata, data = [] } = res
+  const totalPage = Math.ceil((metadata?.total ?? 0) / size)
   const embed = composeEmbedMessage(msg, {
     author: [
       `${msg.author.username}'s watchlist`,
@@ -461,6 +524,7 @@ export async function composeTokenWatchlist(msg: Message, authorId?: string) {
     )} Choose a token supported by [Coingecko](https://www.coingecko.com/) to add to the list.\n${getEmoji(
       "POINTINGRIGHT"
     )} Add token to track by \`$wl add <symbol>\`.`,
+    footer: totalPage > 1 ? [`Page ${page + 1} / ${totalPage}`] : [],
   })
   if (!data?.length) {
     embed.setDescription(
@@ -481,7 +545,10 @@ export async function composeTokenWatchlist(msg: Message, authorId?: string) {
   return {
     embeds: [embed],
     files: [await renderWatchlist(<any[]>data)],
-    components: [buildSwitchViewActionRow("token")],
+    components: [
+      ...getPaginationRow(page, totalPage),
+      buildSwitchViewActionRow("token"),
+    ],
   }
 }
 

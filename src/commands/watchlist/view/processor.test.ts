@@ -138,7 +138,7 @@ describe("composeTokenWatchlist", () => {
       curl: "",
       log: "",
     })
-    const output = await processor.composeTokenWatchlist(msg, msg.author.id)
+    const output = await processor.composeTokenWatchlist(msg, 0, msg.author.id)
     const expected = composeEmbedMessage(msg, {
       author: [
         `${msg.author.username}'s watchlist`,
@@ -175,7 +175,7 @@ describe("composeTokenWatchlist", () => {
       log: "",
     }
     CacheManager.get = jest.fn().mockResolvedValueOnce(res)
-    const output = await processor.composeTokenWatchlist(msg, msg.author.id)
+    const output = await processor.composeTokenWatchlist(msg, 0, msg.author.id)
     const expected = composeEmbedMessage(msg, {
       author: [
         `${msg.author.username}'s watchlist`,
