@@ -576,7 +576,6 @@ export interface ModelOffchainTipBotTransferHistory {
   service_fee?: number;
   status?: string;
   token?: string;
-  tx_hash?: string;
   updated_at?: string;
 }
 
@@ -775,7 +774,6 @@ export interface ModelUserWalletWatchlistItem {
   address?: string;
   alias?: string;
   created_at?: string;
-  fetched_data?: boolean;
   net_worth?: number;
   type?: string;
   user_id?: string;
@@ -1937,7 +1935,6 @@ export interface ResponseGuildConfigDefaultCurrencyResponse {
 
 export interface ResponseGuildProposalUsageData {
   guild_id?: string;
-  guild_name?: string;
   is_active?: boolean;
   proposal_count?: number;
 }
