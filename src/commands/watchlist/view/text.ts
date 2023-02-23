@@ -12,6 +12,7 @@ const command: Command = {
   run: async (msg) => {
     const { embeds, files, components } = await composeTokenWatchlist(
       msg,
+      0,
       msg.author.id
     )
     const replyMsg = await msg.reply({
@@ -19,7 +20,8 @@ const command: Command = {
       components,
       files,
     })
-    collectButton(replyMsg, msg)
+    //collectPaginationButton(replyMsg, msg, msg.author.id)
+    collectButton(replyMsg, msg, msg.author.id)
     return null
   },
   getHelpMessage: async (msg) => ({
