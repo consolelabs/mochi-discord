@@ -29,7 +29,6 @@ import { loadAndCacheImage } from "ui/canvas/image"
 import { heightOf, widthOf } from "ui/canvas/calculator"
 import { renderChartImage } from "ui/canvas/chart"
 import { getPaginationRow } from "ui/discord/button"
-import { listenForPaginateAction } from "handlers/discord/button"
 
 let interaction: CommandInteraction
 let fontRegistered = false
@@ -591,7 +590,24 @@ export function setInteraction(i: CommandInteraction) {
   interaction = i
 }
 
-export function collectSlashButton(msg: Message) {
+export function collectSlashButton(msg: Message, i: CommandInteraction) {
+  const render = async (
+    _message: OriginalMessage | undefined,
+    pageIdx: number
+  ) => {
+    const { embeds, files, components } = await composeSlashTokenWatchlist(
+      i,
+      pageIdx,
+      i.user.id
+    )
+    return {
+      messageOptions: {
+        embeds,
+        files,
+        components,
+      },
+    }
+  }
   return msg
     .createMessageComponentCollector({
       componentType: MessageComponentTypes.BUTTON,
@@ -599,9 +615,33 @@ export function collectSlashButton(msg: Message) {
       filter: authorFilter(interaction.user.id),
     })
     .on("collect", (i) => {
-      wrapError(msg, async () => {
-        await switchSlashView(i)
-      })
+      if (i.customId.includes("watchlist-switch-view-button")) {
+        wrapError(msg, async () => {
+          await switchSlashView(i)
+        })
+      }
+      // change page
+      if (i.customId.startsWith("page")) {
+        const operators: Record<string, number> = {
+          "+": 1,
+          "-": -1,
+        }
+        wrapError(i, async () => {
+          const [pageStr, opStr] = i.customId.split("_").slice(1)
+          const page = +pageStr + operators[opStr]
+          const {
+            messageOptions: { embeds, components, files },
+          } = await render(msg, page)
+          await msg.removeAttachments()
+          await i
+            .editReply({
+              embeds,
+              components,
+              files,
+            })
+            .catch(() => null)
+        })
+      }
     })
     .on("end", () => {
       msg.edit({ components: [] }).catch(() => null)
@@ -622,7 +662,8 @@ async function switchSlashView(i: ButtonInteraction) {
     case "token":
     default:
       ;({ embeds, files, components } = await composeSlashTokenWatchlist(
-        interaction
+        interaction,
+        0
       ))
       break
   }
@@ -637,13 +678,20 @@ async function switchSlashView(i: ButtonInteraction) {
 
 export async function composeSlashTokenWatchlist(
   i: CommandInteraction,
+  page: number,
   authorId?: string
 ) {
   const userId = i.user.id
-  const { data, ok, curl, log } = await CacheManager.get({
+  const size = 12
+  const {
+    data: res,
+    ok,
+    curl,
+    log,
+  } = await CacheManager.get({
     pool: "watchlist",
-    key: `watchlist-${userId}`,
-    call: () => defi.getUserWatchlist({ userId, size: 12 }),
+    key: `watchlist-${userId}-${page}`,
+    call: () => defi.getUserWatchlist({ userId, page, size }),
     ...(authorId && {
       callIfCached: () =>
         community.updateQuestProgress({
@@ -658,6 +706,8 @@ export async function composeSlashTokenWatchlist(
       description: log,
       curl,
     })
+  const { metadata, data = [] } = res
+  const totalPage = Math.ceil((metadata?.total ?? 0) / size)
   const embed = composeEmbedMessage2(i, {
     author: [
       `${i.user.username}'s watchlist`,
@@ -683,40 +733,44 @@ export async function composeSlashTokenWatchlist(
   return {
     embeds: [embed],
     files: [await renderWatchlist(<any[]>data)],
-    components: [buildSwitchViewActionRow("token")],
+    components: [
+      ...getPaginationRow(page, totalPage),
+      buildSwitchViewActionRow("token"),
+    ],
   }
 }
 
 async function composeSlashNFTWatchlist(i: CommandInteraction) {
   const userId = i.user.id
-  const { data, ok, curl, log } = await CacheManager.get({
-    pool: "watchlist",
-    key: `watchlist-nft-${userId}`,
-    call: () => defi.getUserNFTWatchlist({ userId, size: 12 }),
-  })
-  if (!ok)
-    throw new APIError({
-      message: i,
-      description: log,
-      curl,
-    })
   const embed = composeEmbedMessage2(i, {
     author: [
       `${i.user.username}'s watchlist`,
       i.user.displayAvatarURL({ format: "png" }),
     ],
   })
-  if (!data?.length) {
-    embed.setDescription(
-      `No items in your watchlist.\n Please use \`${PREFIX}watchlist add-nft\` to add one.`
-    )
-
-    return {
-      embeds: [embed],
-      files: [],
-      components: [buildSwitchViewActionRow("nft")],
+  const { data, ok, curl, log } = await CacheManager.get({
+    pool: "watchlist",
+    key: `watchlist-nft-${userId}`,
+    call: () => defi.getUserNFTWatchlist({ userId, size: 12 }),
+  })
+  if (!ok) {
+    if (!data?.length) {
+      embed.setDescription(
+        `No items in your watchlist.\n Please use \`${PREFIX}watchlist add-nft\` to add one.`
+      )
+      return {
+        embeds: [embed],
+        files: [],
+        components: [buildSwitchViewActionRow("nft")],
+      }
     }
+    throw new APIError({
+      message: i,
+      description: log,
+      curl,
+    })
   }
+
   embed.setImage("attachment://watchlist.png")
   return {
     embeds: [embed],

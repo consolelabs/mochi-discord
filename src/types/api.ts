@@ -1915,8 +1915,8 @@ export interface ResponseGetVoteChannelConfigResponse {
 }
 
 export interface ResponseGetWatchlistResponse {
-  /** Pagination *PaginationResponse  `json:"pagination"` */
   data?: ResponseCoinMarketItemData[];
+  metadata?: ResponsePaginationResponse;
 }
 
 export interface ResponseGetWelcomeChannelConfigResponse {
