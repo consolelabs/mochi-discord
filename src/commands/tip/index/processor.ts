@@ -357,7 +357,6 @@ async function executeTip(
   RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
 > {
   // transfer
-  const amountBeforeMoniker = payload.amount
   const transfer = (req: any) =>
     onchain
       ? defi.submitOnchainTransfer(req)
@@ -400,7 +399,8 @@ async function executeTip(
   if (moniker) {
     const monikerVal = moniker as ResponseMonikerConfigData
     const amountMoniker = roundFloatNumber(
-      amountBeforeMoniker / payload.recipients.length,
+      payload.amount /
+        (payload.recipients.length * (monikerVal?.moniker?.amount || 1)),
       4
     )
     description = `${userMention(
@@ -408,7 +408,8 @@ async function executeTip(
     )} has sent ${recipientDescription} **${amountMoniker} ${
       monikerVal?.moniker?.moniker
     }** (= **${roundFloatNumber(
-      amountMoniker * (monikerVal?.moniker?.amount || 1)
+      amountMoniker * (monikerVal?.moniker?.amount || 1),
+      4
     )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${roundFloatNumber(
       data[0].amount_in_usd,
       4
