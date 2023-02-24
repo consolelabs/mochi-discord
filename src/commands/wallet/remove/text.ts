@@ -3,6 +3,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { untrackWallet } from "./processor"
+import { resolveNamingServiceDomain } from "utils/common"
 
 const command: Command = {
   id: "wallet_remove",
@@ -11,7 +12,9 @@ const command: Command = {
   category: "Defi",
   run: async (msg) => {
     const args = getCommandArguments(msg)
-    return await untrackWallet(msg, msg.author, args[2])
+    const query = args[2]
+    const addressOrAlias = (await resolveNamingServiceDomain(query)) || query
+    return await untrackWallet(msg, msg.author, addressOrAlias)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
@@ -22,7 +25,7 @@ const command: Command = {
     ],
   }),
   canRunWithoutAction: true,
-  colorType: "Defi",
+  colorType: "Wallet",
   minArguments: 3,
   allowDM: true,
 }

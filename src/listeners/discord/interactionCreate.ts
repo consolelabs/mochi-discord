@@ -1,12 +1,41 @@
+import CacheManager from "cache/node-cache"
 import { slashCommands } from "commands"
 import {
-  SelectMenuInteraction,
+  cancelAirdrop,
+  confirmAirdrop,
+  enterAirdrop,
+} from "commands/airdrop/index/processor"
+import { feedbackDispatcher } from "commands/feedback/index/processor"
+import { confirmGlobalXP } from "commands/globalxp/index/processor"
+import { handleNFTTickerViews } from "commands/nft/ticker/processor"
+import { handleDaoTrackerView } from "commands/proposal/info/processor"
+import {
+  handleProposalCancel,
+  handleProposalCreate,
+  handleProposalForm,
+  handleProposalVote,
+} from "commands/proposal/processor"
+import {
+  handleBackToQuestList,
+  handleClaimReward,
+} from "commands/quest/daily/processor"
+import { handleTickerViews } from "commands/ticker/index/processor"
+import { sendVerifyURL } from "commands/verify/processor"
+import { addToWatchlist } from "commands/watchlist/add/processor"
+import {
   ButtonInteraction,
-  Message,
-  Interaction,
   CommandInteraction,
+  Interaction,
+  Message,
+  SelectMenuInteraction,
 } from "discord.js"
-import { DiscordEvent } from "."
+import { MessageComponentTypes } from "discord.js/typings/enums"
+import { CommandNotAllowedToRunError } from "errors"
+import InteractionManager from "handlers/discord/select-menu"
+import { logger } from "logger"
+import { kafkaQueue } from "queue/kafka/queue"
+import { KafkaQueueMessage } from "types/common"
+import { composeButtonLink, composeDiscordExitButton } from "ui/discord/button"
 import {
   composePartnerEmbedPimp,
   getErrorEmbed,
@@ -16,43 +45,26 @@ import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
 } from "ui/discord/select-menu"
-import { composeButtonLink, composeDiscordExitButton } from "ui/discord/button"
-import CacheManager from "cache/node-cache"
-import { wrapError } from "utils/wrap-error"
 import {
   authorFilter,
   getChance,
   getEmoji,
   hasAdministrator,
 } from "utils/common"
-import InteractionManager from "handlers/discord/select-menu"
-import { MessageComponentTypes } from "discord.js/typings/enums"
-import { CommandNotAllowedToRunError } from "errors"
-import { KafkaQueueMessage } from "types/common"
-import { logger } from "logger"
+import { wrapError } from "utils/wrap-error"
+import { DiscordEvent } from "."
 import {
-  handleProposalCancel,
-  handleProposalCreate,
-  handleProposalForm,
-} from "commands/proposal/processor"
-import { handleProposalVote } from "commands/proposal/processor"
-import { confirmGlobalXP } from "commands/globalxp/index/processor"
+  viewWallet,
+  handleWalletRenaming,
+} from "commands/wallet/view/processor"
 import {
-  cancelAirdrop,
-  confirmAirdrop,
-  enterAirdrop,
-} from "commands/airdrop/index/processor"
-import { handleTickerViews } from "commands/ticker/index/processor"
-import { addToWatchlist } from "commands/watchlist/add/processor"
-import { handleNFTTickerViews } from "commands/nft/ticker/processor"
+  removeWallet,
+  removeWalletConfirmation,
+} from "commands/wallet/remove/processor"
 import {
-  handleBackToQuestList,
-  handleClaimReward,
-} from "commands/quest/daily/processor"
-import { feedbackDispatcher } from "commands/feedback/index/processor"
-import { sendVerifyURL } from "commands/verify/processor"
-import { kafkaQueue } from "queue/kafka/queue"
-import { handleDaoTrackerView } from "commands/proposal/info/processor"
+  addWallet,
+  redirectToAddMoreWallet,
+} from "commands/wallet/add/processor"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -93,13 +105,16 @@ const event: DiscordEvent<"interactionCreate"> = {
         !interaction.isSelectMenu() &&
         !interaction.isButton() &&
         !interaction.isCommand()
-      )
+      ) {
         return
+      }
       if (interaction.isSelectMenu()) {
         await handleSelectMenuInteraction(interaction)
-      } else if (interaction.isButton()) {
+      }
+      if (interaction.isButton()) {
         await handleButtonInteraction(interaction)
-      } else if (interaction.isCommand()) {
+      }
+      if (interaction.isCommand()) {
         await handleCommandInteraction(interaction)
       }
     })
@@ -371,6 +386,24 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("proposal-info"):
       await handleDaoTrackerView(i)
+      return
+    case i.customId.startsWith("wallet_view_details-"):
+      await viewWallet(i)
+      return
+    case i.customId.startsWith("wallet_rename-"):
+      await handleWalletRenaming(i)
+      return
+    case i.customId.startsWith("wallet_remove_confirmation-"):
+      await removeWalletConfirmation(i)
+      return
+    case i.customId.startsWith("wallet_remove-"):
+      await removeWallet(i)
+      return
+    case i.customId.startsWith("wallet_add_more-"):
+      await redirectToAddMoreWallet(i)
+      return
+    case i.customId.startsWith("wallet_add-"):
+      await addWallet(i)
       return
     default: {
       return

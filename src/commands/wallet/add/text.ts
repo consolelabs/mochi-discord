@@ -1,8 +1,7 @@
 import { Command } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
-import { trackWallet } from "./processor"
+import { handleWalletAddition } from "./processor"
 
 const command: Command = {
   id: "wallet_add",
@@ -10,9 +9,8 @@ const command: Command = {
   brief: "Save your interested wallet address with an alias.",
   category: "Defi",
   run: async (msg) => {
-    const args = getCommandArguments(msg)
-    const [address, alias = ""] = args.slice(2)
-    return await trackWallet(msg, msg.author, address, alias)
+    await handleWalletAddition(msg)
+    return
   },
   getHelpMessage: async (msg) => ({
     embeds: [
@@ -23,8 +21,8 @@ const command: Command = {
     ],
   }),
   canRunWithoutAction: true,
-  colorType: "Defi",
-  minArguments: 3,
+  colorType: "Wallet",
+  minArguments: 2,
   allowDM: true,
 }
 

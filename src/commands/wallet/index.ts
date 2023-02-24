@@ -36,7 +36,7 @@ const textCmd: Command = {
   }),
   actions,
   aliases: ["wal"],
-  colorType: "Defi",
+  colorType: "Wallet",
   canRunWithoutAction: false,
   allowDM: true,
 }
