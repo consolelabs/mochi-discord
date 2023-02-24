@@ -40,11 +40,13 @@
     "typescript": "^4.4.3"
   },
   "dependencies": {
+    "@bonfida/spl-name-service": "^0.1.64",
     "@discordjs/builders": "^0.12.0",
     "@discordjs/rest": "^0.5.0",
     "@haileybot/captcha-generator": "^1.7.0",
     "@opensea/stream-js": "^0.0.23",
     "@paintswap/marketplace-interactions": "^0.3.1",
+    "@solana/spl-token": "^0.3.7",
     "@solana/web3.js": "^1.73.2",
     "@types/turndown": "^5.0.1",
     "canvas": "^2.9.0",
@@ -71,6 +73,7 @@
     "sharp": "^0.30.7",
     "swagger-typescript-api": "^10.0.1",
     "turndown": "^7.1.1",
+    "tweetnacl": "^1.0.3",
     "twitter-api-sdk": "^1.1.0",
     "twitter-api-v2": "^1.14.1",
     "type-fest": "^2.19.0",

@@ -7,6 +7,7 @@ import { OffchainTipBotWithdrawRequest } from "types/defi"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { getCommandObject } from "utils/commands"
 import { getEmoji, isAddress } from "utils/common"
+import { askForUserInput } from "utils/discord"
 
 export async function getDestinationAddress(
   msg: Message | CommandInteraction,
@@ -14,12 +15,7 @@ export async function getDestinationAddress(
   symbol: string
 ): Promise<string> {
   const author = msg instanceof Message ? msg.author : msg.user
-  const filter = (collected: Message) => collected.author.id === author.id
-  const collected = await dm.channel.awaitMessages({
-    max: 1,
-    filter,
-  })
-  const userReply = collected.first()
+  const userReply = await askForUserInput(author.id, dm.channel)
   const address = userReply?.content.trim() ?? ""
   const { valid, type } = isAddress(address)
   const isSolana = symbol === "SOL"

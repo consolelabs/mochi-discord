@@ -1,8 +1,9 @@
 import { Command } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments } from "utils/commands"
+import { resolveNamingServiceDomain } from "utils/common"
 import { PREFIX } from "utils/constants"
-import { viewWalletsList, viewWalletDetails } from "./processor"
+import { viewWalletDetails, viewWalletsList } from "./processor"
 
 const command: Command = {
   id: "wallet_view",
@@ -12,12 +13,14 @@ const command: Command = {
   run: async (msg) => {
     const args = getCommandArguments(msg)
     const { author } = msg
-    switch (args.length) {
-      case 2:
-        return await viewWalletsList(msg, author)
-      default:
-        return await viewWalletDetails(msg, author, args[2])
+    // view list
+    if (args.length === 2) {
+      return await viewWalletsList(msg, author)
     }
+    // view one
+    const query = args[2]
+    const addressOrAlias = (await resolveNamingServiceDomain(query)) || query
+    return await viewWalletDetails(msg, author, addressOrAlias)
   },
   getHelpMessage: async (msg) => ({
     embeds: [
@@ -28,7 +31,7 @@ const command: Command = {
     ],
   }),
   canRunWithoutAction: true,
-  colorType: "Defi",
+  colorType: "Wallet",
   minArguments: 2,
   allowDM: true,
 }

@@ -1,8 +1,7 @@
-import fetch from "node-fetch"
 import { ResponseGetDataUserProfileResponse } from "types/api"
 import {
-  GetUserNFTsResponse,
   GetUserNFTCollectionResponse,
+  GetUserNFTsResponse,
 } from "types/profile"
 import { API_BASE_URL, INDEXER_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
@@ -21,22 +20,15 @@ class Profile extends Fetcher {
     })
   }
 
-  public async generateVerificationCode(
-    authorId: string,
-    guildId: string,
+  public async generateVerificationCode(body: {
+    userDiscordId: string
+    guildId: string
     isReverify?: boolean
-  ) {
-    const resp = await fetch(`${API_BASE_URL}/verify/generate`, {
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/verify/generate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_discord_id: authorId,
-        guild_id: guildId,
-        is_reverify: isReverify,
-      }),
+      body,
     })
-
-    return await resp.json()
   }
 
   public async getUserProfile(guildId: string, userId: string) {

@@ -376,8 +376,16 @@ class Defi extends Fetcher {
     return await fetch(`${FTMSCAN_API}?${queryStr}`)
   }
 
-  async getUserWalletWatchlist(userId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/users/${userId}/wallets`)
+  async getUserOwnedWallets(userId: string, guildId: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/users/${userId}/wallets`, {
+      query: { guildId },
+    })
+  }
+
+  async getUserTrackingWallets(userId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${userId}/wallets/tracking`
+    )
   }
 
   async findWallet(userId: string, query: string) {
@@ -424,6 +432,17 @@ class Defi extends Fetcher {
         method: "POST",
         body,
       }
+    )
+  }
+
+  async generateWalletVerification(req: {
+    userId: string
+    channelId: string
+    messageId: string
+  }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${req.userId}/wallets/generate-verification`,
+      { method: "POST", body: req }
     )
   }
 

@@ -1,4 +1,5 @@
 import community from "adapters/community"
+import defi from "adapters/defi"
 import profile from "adapters/profile"
 import { composeNFTDetail } from "commands/nft/query/processor"
 import {
@@ -15,8 +16,11 @@ import {
   User,
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
+import { APIError } from "errors"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
+import { reverseLookup } from "utils/common"
+import { getEmojiURL } from "utils/common"
 import {
   authorFilter,
   emojis,
@@ -25,28 +29,41 @@ import {
   shortenHashOrAddress,
 } from "utils/common"
 
-// TODO: this is a global var (one bot instance but multiple users are changing it - could lead to unpredictable error)
+// @anhnh TODO: all of this need to be refactored
 let currentCollectionAddress: string | undefined
 
-type ViewType = "my-profile" | "my-nft"
+type ViewType = "my-profile" | "my-nft" | "my-wallets"
 
-function buildSwitchViewActionRow(currentView: ViewType) {
+function buildSwitchViewActionRow(currentView: ViewType, userId: string) {
   const myProfileButton = new MessageButton({
     label: "My Profile",
-    emoji: emojis.IDENTITY,
-    customId: `profile-switch-view-button/my-profile}`,
+    emoji: getEmoji("winkingface"),
+    customId: `profile-switch-view-button/my-profile`,
     style: "SECONDARY",
     disabled: currentView === "my-profile",
   })
+  const myWalletBtn = new MessageButton({
+    label: "My Wallets",
+    emoji: getEmoji("wallet_1"),
+    customId: `profile-switch-view-button/my-wallets`,
+    style: "SECONDARY",
+    disabled: currentView === "my-wallets",
+  })
   const myNftButton = new MessageButton({
     label: "My NFT",
-    emoji: getEmoji("NFTS"),
+    emoji: getEmoji("nfts"),
     customId: `profile-switch-view-button/my-nft`,
     style: "SECONDARY",
     disabled: currentView === "my-nft",
   })
+  const addWalletBtn = new MessageButton({
+    label: "Add Wallet",
+    emoji: getEmoji("plus"),
+    customId: `wallet_add_more-${userId}`,
+    style: "SECONDARY",
+  })
   const row = new MessageActionRow()
-  row.addComponents([myProfileButton, myNftButton])
+  row.addComponents([myProfileButton, myWalletBtn, myNftButton, addWalletBtn])
   return row
 }
 
@@ -133,9 +150,13 @@ async function switchView(
   let embed: MessageEmbed
   let components: MessageActionRow[] = []
   const nextView = (i.customId.split("/").pop() ?? "my-profile") as ViewType
+  await i.deferReply()
   switch (nextView) {
     case "my-nft":
       ;({ embed, components } = await composeMyNFTEmbed(msg, user))
+      break
+    case "my-wallets":
+      ;({ embed, components } = await composeProfileWalletsResponse(msg, user))
       break
     case "my-profile":
     default:
@@ -146,12 +167,46 @@ async function switchView(
       ))
       break
   }
-  await i
+  const reply = await i
     .editReply({
       embeds: [embed],
       components: components,
     })
     .catch(() => null)
+  if (reply) {
+    const shouldHidePrivateInfo = !hasAdministrator(<GuildMember>reply.member)
+    collectButton(reply as Message, user.id, user, shouldHidePrivateInfo)
+  }
+}
+
+async function composeProfileWalletsResponse(msg: Message, user: User) {
+  const {
+    data: myWallets,
+    ok,
+    curl,
+    log,
+  } = await defi.getUserOwnedWallets(user.id, msg.guildId ?? "")
+  if (!ok) {
+    throw new APIError({ message: msg, curl, description: log })
+  }
+  // maximum 9 wallets for now
+  const list = await Promise.all(
+    myWallets.slice(0, 9).map(async (w: any, i: number) => {
+      const domain = `${(await reverseLookup(w.address, w.type)) || ""}`
+      const label = w.alias ? ` | ${w.alias}` : ""
+      return `${getEmoji(`num_${i + 1}`)} \`${shortenHashOrAddress(
+        w.address
+      )}\`${domain}${label}`
+    })
+  )
+  const embed = composeEmbedMessage(msg, {
+    author: [`${user.username}'s profile`, getEmojiURL(emojis.MOCHI_SQUARE)],
+    description: `**✦ MY WALLETS ✦**\n${list.join("\n")}`,
+  })
+  return {
+    embed,
+    components: [buildSwitchViewActionRow("my-wallets", user.id)],
+  }
 }
 
 async function handlePagination(
@@ -381,7 +436,7 @@ async function composeMyProfileEmbed(
 
   return {
     embed,
-    components: [buildSwitchViewActionRow("my-profile")],
+    components: [buildSwitchViewActionRow("my-profile", user.id)],
   }
 }
 
@@ -452,7 +507,7 @@ async function composeMyNFTEmbed(
       author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
       description: `<@${user.id}>, you have no nfts.`,
     })
-    return { embed, components: [buildSwitchViewActionRow("my-nft")] }
+    return { embed, components: [buildSwitchViewActionRow("my-nft", user.id)] }
   }
 
   const userColAddresses = userNfts.map((n) => n.collection_address)
@@ -472,7 +527,10 @@ async function composeMyNFTEmbed(
       author: [`${user.username}'s NFT collection`, user.displayAvatarURL()],
       description: `<@${user.id}>, you have no nfts.`,
     })
-    return { embed: embed, components: [buildSwitchViewActionRow("my-nft")] }
+    return {
+      embed: embed,
+      components: [buildSwitchViewActionRow("my-nft", user.id)],
+    }
   }
 
   const selectedCollection =
@@ -521,7 +579,7 @@ async function composeMyNFTEmbed(
         selectedCollection?.collection_address ?? "",
         options
       ),
-      buildSwitchViewActionRow("my-nft"),
+      buildSwitchViewActionRow("my-nft", user.id),
     ],
   }
 }
