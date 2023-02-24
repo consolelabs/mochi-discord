@@ -20,6 +20,7 @@ describe("composeSlashTokenWatchlist", () => {
     })
     const output = await processor.composeSlashTokenWatchlist(
       interaction,
+      0,
       interaction.user.id
     )
     const expected = composeEmbedMessage2(interaction, {
@@ -56,6 +57,7 @@ describe("composeSlashTokenWatchlist", () => {
     CacheManager.get = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.composeSlashTokenWatchlist(
       interaction,
+      0,
       interaction.user.id
     )
     const expected = composeEmbedMessage2(interaction, {
@@ -80,6 +82,7 @@ describe("composeSlashNFTWatchlist", () => {
     })
     const output = await processor.composeSlashTokenWatchlist(
       interaction,
+      0,
       interaction.user.id
     )
     const expected = composeEmbedMessage2(interaction, {
@@ -116,6 +119,7 @@ describe("composeSlashNFTWatchlist", () => {
     CacheManager.get = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.composeSlashTokenWatchlist(
       interaction,
+      0,
       interaction.user.id
     )
     const expected = composeEmbedMessage2(interaction, {
@@ -138,7 +142,7 @@ describe("composeTokenWatchlist", () => {
       curl: "",
       log: "",
     })
-    const output = await processor.composeTokenWatchlist(msg, msg.author.id)
+    const output = await processor.composeTokenWatchlist(msg, 0, msg.author.id)
     const expected = composeEmbedMessage(msg, {
       author: [
         `${msg.author.username}'s watchlist`,
@@ -175,7 +179,7 @@ describe("composeTokenWatchlist", () => {
       log: "",
     }
     CacheManager.get = jest.fn().mockResolvedValueOnce(res)
-    const output = await processor.composeTokenWatchlist(msg, msg.author.id)
+    const output = await processor.composeTokenWatchlist(msg, 0, msg.author.id)
     const expected = composeEmbedMessage(msg, {
       author: [
         `${msg.author.username}'s watchlist`,

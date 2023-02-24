@@ -32,7 +32,11 @@ describe("run", () => {
     const output = (await watchlistCmd?.actions?.["view"]?.run(
       msg
     )) as RunResult<MessageOptions>
-    expect(processor.composeTokenWatchlist).toBeCalledWith(msg, msg.author.id)
+    expect(processor.composeTokenWatchlist).toBeCalledWith(
+      msg,
+      0,
+      msg.author.id
+    )
     expect(output).toBeFalsy()
   })
 })
