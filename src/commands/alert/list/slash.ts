@@ -22,8 +22,8 @@ const command: SlashCommand = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(null, {
-              title: `Alert List`,
-              description: `You haven't set any alert. To set up a new alert, you can use \`$alert add <token_symbol>\`.`,
+              title: "No price alerts found",
+              description: `You haven't set any price alerts. To set a new one, you can use \`$alert add <token_symbol>\`.`,
             }),
           ],
         },

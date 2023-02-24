@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, PRICE_ALERT_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { handleAlertList } from "./processor"
 import { getPaginationRow } from "ui/discord/button"
@@ -17,8 +17,8 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(null, {
-              title: `Alert list`,
-              description: `You haven't set any alert. To set up a new alert, you can use \`$alert add <token_symbol>\`.`,
+              title: "No price alerts found",
+              description: `You haven't set any price alerts. To set a new one, you can use \`$alert add <token_symbol>\`.`,
             }),
           ],
         },
@@ -46,6 +46,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}alert list`,
         examples: `${PREFIX}alert list`,
+        document: `${PRICE_ALERT_GITBOOK}`,
       }),
     ],
   }),

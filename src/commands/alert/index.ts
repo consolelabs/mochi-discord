@@ -1,5 +1,5 @@
 import { Command, SlashCommand } from "types/common"
-import { PREFIX, SLASH_PREFIX } from "utils/constants"
+import { PREFIX, PRICE_ALERT_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import {
@@ -37,6 +37,7 @@ const textCmd: Command = {
         usage: `${PREFIX}alert <action>`,
         examples: `${PREFIX}alert list\n${PREFIX}alert add ftm`,
         description: "Get notifications every time the price change",
+        document: `${PRICE_ALERT_GITBOOK}`,
         includeCommandsList: true,
       }),
     ],
@@ -55,7 +56,6 @@ const slashActions: Record<string, SlashCommand> = {
 const slashCmd: SlashCommand = {
   name: "alert",
   category: "Defi",
-  onlyAdministrator: true,
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("alert")
@@ -74,6 +74,7 @@ const slashCmd: SlashCommand = {
         usage: `${SLASH_PREFIX}alert <action>`,
         description: "Get notifications every time the price change",
         examples: `${SLASH_PREFIX}alert list\n${SLASH_PREFIX}alert add ftm`,
+        document: `${PRICE_ALERT_GITBOOK}`,
         includeCommandsList: true,
       }),
     ],
