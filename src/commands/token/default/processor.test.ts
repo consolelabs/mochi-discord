@@ -43,7 +43,7 @@ describe("handleTokenDefault", () => {
             "POINTINGRIGHT"
           )} Please choose one in our supported \`$token list\`\n${getEmoji(
             "POINTINGRIGHT"
-          )} To add your token, run \`$token add\`.`,
+          )}.`,
         }),
       ],
     }

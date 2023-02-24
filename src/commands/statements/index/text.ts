@@ -20,7 +20,7 @@ const run = async (msg: Message) => {
               "POINTINGRIGHT"
             )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
               "POINTINGRIGHT"
-            )} To add your token, run \`$token add\`.`,
+            )}.`,
           }),
         ],
       },
