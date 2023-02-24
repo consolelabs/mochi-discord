@@ -46,7 +46,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}alert list`,
         examples: `${PREFIX}alert list`,
-        document: `${PRICE_ALERT_GITBOOK}`,
+        document: `${PRICE_ALERT_GITBOOK}&action=list`,
       }),
     ],
   }),

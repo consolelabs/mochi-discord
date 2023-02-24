@@ -95,7 +95,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}alert add <token>`,
           examples: `${PREFIX}alert add ftm`,
-          document: `${PRICE_ALERT_GITBOOK}`,
+          document: `${PRICE_ALERT_GITBOOK}&action=add`,
         }),
       ],
     }
