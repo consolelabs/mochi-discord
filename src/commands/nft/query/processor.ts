@@ -101,7 +101,7 @@ export function buildSwitchViewActionRow(
 ) {
   const row = new MessageActionRow()
   // TODO(trkhoi): handle aptos address too long
-  if (chain === "apt" || chain === "sol") {
+  if (chain === "apt") {
     const nftButton = new MessageButton({
       label: "NFT",
       emoji: getEmoji("NFTS"),
@@ -112,6 +112,13 @@ export function buildSwitchViewActionRow(
     row.addComponents([nftButton])
     return row
   } else {
+    let customIdNftCollectionInfo = `nft-view/info/${symbol}/${collectionAddress}/${tokenId}/${chain}`
+    let customIdNftTicker = `nft-view/ticker/${symbol}/${collectionAddress}/${tokenId}/${chain}`
+    if (chain === "sol") {
+      collectionAddress = collectionAddress.split("solscan-")[1]
+      customIdNftCollectionInfo = `nft-view/info//${collectionAddress}/${tokenId}/${chain}`
+      customIdNftTicker = `nft-view/ticker//${collectionAddress}/${tokenId}/${chain}`
+    }
     const nftButton = new MessageButton({
       label: "NFT",
       emoji: getEmoji("NFTS"),
@@ -122,14 +129,14 @@ export function buildSwitchViewActionRow(
     const tickerButton = new MessageButton({
       label: "Ticker",
       emoji: getEmoji("INCREASING"),
-      customId: `nft-view/ticker/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
+      customId: customIdNftTicker,
       style: "SECONDARY",
       disabled: currentView === "ticker",
     })
     const collectionInfoButton = new MessageButton({
       label: "Collection Info",
       emoji: getEmoji("MAG"),
-      customId: `nft-view/info/${symbol}/${collectionAddress}/${tokenId}/${chain}`,
+      customId: customIdNftCollectionInfo,
       style: "SECONDARY",
       disabled: currentView === "info",
     })
@@ -175,12 +182,16 @@ async function switchView(i: ButtonInteraction, msg: Message) {
   const [currentView, symbol, collectionAddress, tokenId, chain] = i.customId
     .split("/")
     .slice(1)
+  let hashCollectionAddress = collectionAddress
+  if (chain === "sol") {
+    hashCollectionAddress = "solscan-" + collectionAddress
+  }
   switch (currentView) {
     case "info":
       messageOptions = await composeCollectionInfo(
         msg,
         symbol,
-        collectionAddress,
+        hashCollectionAddress,
         tokenId,
         chain
       )
@@ -515,7 +526,9 @@ export async function composeNFTDetail(
     ? ` **・Owner:** \`${shortenHashOrAddress(owner.owner_address)}\``
     : ""
   description += rarity?.rank
-    ? `\n\n${getEmoji("TROPHY")}** ・ Rank: ${rarity.rank} ** ${rarityRate} ${soulbound}`
+    ? `\n\n${getEmoji("TROPHY")}** ・ Rank: ${
+        rarity.rank
+      } ** ${rarityRate} ${soulbound}`
     : ""
 
   // Attributes fields

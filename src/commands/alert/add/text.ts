@@ -9,7 +9,7 @@ import {
   getSuccessEmbed,
 } from "ui/discord/embed"
 import { InteractionHandler } from "handlers/discord/select-menu"
-import { PREFIX } from "utils/constants"
+import { PREFIX, PRICE_ALERT_GITBOOK } from "utils/constants"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { composeDiscordExitButton } from "ui/discord/button"
 import Defi from "../../../adapters/defi"
@@ -19,7 +19,6 @@ const command: Command = {
   id: "alert_add",
   command: "add",
   brief: "Add a price alert to be notified when the price change",
-  onlyAdministrator: true,
   category: "Config",
   run: async function (msg) {
     const args = getCommandArguments(msg)
@@ -40,10 +39,13 @@ const command: Command = {
         messageOptions: {
           embeds: [
             getErrorEmbed({
-              title: `${getEmoji("revoke")} Command Error`,
-              description: `**${symbol.toUpperCase()}** hasn't been supported.\n${getEmoji(
+              title: `${getEmoji("revoke")} Unsupported token`,
+              description: `
+              **${symbol.toUpperCase()}** is invalid or hasn't been supported.
+              ${getEmoji(
                 "point_right"
-              )} Please choose a token supported by [Coingecko](coingecko.com)`,
+              )} Please choose a token that is listed on [Coingecko](coingecko.com)
+              `,
             }),
           ],
         },
@@ -93,6 +95,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}alert add <token>`,
           examples: `${PREFIX}alert add ftm`,
+          document: `${PRICE_ALERT_GITBOOK}`,
         }),
       ],
     }
@@ -247,8 +250,8 @@ const handleFrequency: InteractionHandler = async (msgOrInteraction) => {
     messageOptions: {
       embeds: [
         getSuccessEmbed({
-          title: "Successfully add alert",
-          description: `You will get the notification in DM if ${alertType.replaceAll(
+          title: "Successfully added a price alert",
+          description: `You will get the notification in DM if ${symbol} ${alertType.replaceAll(
             "_",
             " "
           )} ${price}`,

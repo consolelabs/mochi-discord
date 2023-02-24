@@ -1,7 +1,7 @@
 import Defi from "adapters/defi"
 import { MessageSelectOptionData } from "discord.js"
 import { Command } from "types/common"
-import { PREFIX } from "utils/constants"
+import { PREFIX, PRICE_ALERT_GITBOOK } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { handler } from "./processor"
 import { composeDiscordExitButton } from "ui/discord/button"
@@ -24,8 +24,8 @@ const command: Command = {
         messageOptions: {
           embeds: [
             getErrorEmbed({
-              title: "No alert found",
-              description: `You haven't set up any alert. To set up a new alert, you can use \`$alert add <token_symbol>\`.`,
+              title: "No price alerts found",
+              description: `You haven't set up any price alerts. To set up a new alert, you can use \`$alert add <token_symbol>\`.`,
             }),
           ],
         },
@@ -73,6 +73,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}alert remove`,
         examples: `${PREFIX}alert remove`,
+        document: `${PRICE_ALERT_GITBOOK}`,
       }),
     ],
   }),
