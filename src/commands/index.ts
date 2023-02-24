@@ -117,6 +117,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   xprole: xprole.slashCmd,
   mixrole: mixrole.slashCmd,
   alert: alert.slashCmd,
+  wallet: wallet.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
