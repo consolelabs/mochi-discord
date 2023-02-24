@@ -79,7 +79,7 @@ export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
     return {
       ...render,
       replyMessage,
-      buttonCollector: params.onDefaultSet,
+      buttonCollector: { handler: params.onDefaultSet },
     }
   })
 }

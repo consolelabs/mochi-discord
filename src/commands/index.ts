@@ -281,14 +281,16 @@ async function executeCommand(
         InteractionManager.add(msg.id, runResponse.interactionOptions)
       }
       if (runResponse.buttonCollector) {
+        const { handler, options = {} } = runResponse.buttonCollector
         msg
           .createMessageComponentCollector({
             componentType: MessageComponentTypes.BUTTON,
             idle: 60000,
             filter: authorFilter(message.author.id),
+            ...options,
           })
           .on("collect", async (i: ButtonInteraction) => {
-            const newRes = await runResponse.buttonCollector?.(i)
+            const newRes = await handler(i)
             if (newRes) {
               const newMsg = await msg.edit({
                 embeds: newRes.messageOptions.embeds,
