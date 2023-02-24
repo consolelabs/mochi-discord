@@ -1,14 +1,18 @@
 import defi from "adapters/defi"
 import {
+  ButtonInteraction,
   EmbedFieldData,
   Message,
   MessageActionRow,
+  MessageButton,
   MessageSelectMenu,
   SelectMenuInteraction,
   User,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
-import { InteractionHandler } from "handlers/discord/select-menu"
+import InteractionManager, {
+  InteractionHandler,
+} from "handlers/discord/select-menu"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
   defaultEmojis,
@@ -16,10 +20,12 @@ import {
   getEmoji,
   getEmojiURL,
   isAddress,
+  reverseLookup,
   roundFloatNumber,
   shortenHashOrAddress,
 } from "utils/common"
 import { PREFIX } from "utils/constants"
+import { renameWallet } from "../add/processor"
 
 const chains: Record<string, string> = {
   "1": "Ethereum",
@@ -44,6 +50,32 @@ function composeWalletViewSelectMenuRow(address: string, type: string) {
   )
 }
 
+function composeWalletDetailsButtonRow(
+  userId: string,
+  address: string,
+  alias: string,
+  added: boolean
+) {
+  return new MessageActionRow().addComponents(
+    new MessageButton({
+      customId: `wallet_rename-${userId}-${address}`,
+      style: "SECONDARY",
+      emoji: getEmoji("pencil"),
+      label: "Rename Label",
+    }),
+    new MessageButton({
+      customId: `${
+        added
+          ? `wallet_remove_confirmation-${userId}-${address}-${alias}`
+          : `wallet_add-${userId}-${address}`
+      }`,
+      style: "SECONDARY",
+      label: added ? "Remove" : "Add to track list",
+      ...(!added && { emoji: getEmoji("plus") }),
+    })
+  )
+}
+
 function composeChainSelectMenuRow(address: string, type: string) {
   return new MessageActionRow().addComponents(
     new MessageSelectMenu({
@@ -61,6 +93,26 @@ function composeChainSelectMenuRow(address: string, type: string) {
       ],
     })
   )
+}
+
+export async function viewWallet(i: ButtonInteraction) {
+  if (!i.customId.startsWith("wallet_view_details-")) return
+  await i.deferReply()
+  const address = i.customId.split("-")[1]
+  const res = await viewWalletDetails(i.message as Message, i.user, address)
+  const reply = await i.editReply(res.messageOptions)
+  InteractionManager.add(reply.id, res.interactionOptions)
+}
+
+export async function handleWalletRenaming(i: ButtonInteraction) {
+  if (!i.customId.startsWith("wallet_rename-")) return
+  const [userId, address] = i.customId.split("-").slice(1)
+  if (i.user.id !== userId) {
+    await i.deferUpdate()
+    return
+  }
+  await i.deferReply()
+  await renameWallet(i, userId, address)
 }
 
 export async function viewWalletDetails(
@@ -99,8 +151,19 @@ export async function viewWalletDetails(
   }
   return {
     messageOptions: {
-      embeds: [await getAssetsEmbed(message, author, address, addressType)],
-      components: [composeWalletViewSelectMenuRow(address, addressType)],
+      embeds: [
+        await getAssetsEmbed(
+          message,
+          author,
+          address,
+          addressType,
+          wallet?.alias
+        ),
+      ],
+      components: [
+        composeWalletViewSelectMenuRow(address, addressType),
+        composeWalletDetailsButtonRow(author.id, address, wallet?.alias, ok),
+      ],
     },
     interactionOptions: {
       handler: selectWalletViewHandler,
@@ -117,10 +180,17 @@ export const selectWalletViewHandler: InteractionHandler = async (
   const input = interaction.values[0]
   const [view, address, type, chainId] = input.split("-")
 
+  const { data: wallet } = await defi.findWallet(interaction.user.id, address)
   const txView = view === "wallet_txns"
   const embed = await (txView
     ? getTxnsEmbed(msgOrInteraction, interaction.user, address, type, chainId)
-    : getAssetsEmbed(msgOrInteraction, interaction.user, address, type))
+    : getAssetsEmbed(
+        msgOrInteraction,
+        interaction.user,
+        address,
+        type,
+        wallet?.alias
+      ))
 
   const viewRow: MessageActionRow | undefined = message.components.find((c) => {
     return c.components[0].customId === "wallet_view_select_menu"
@@ -179,7 +249,7 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
     ok,
     log,
     curl,
-  } = await defi.getUserWalletWatchlist(author.id)
+  } = await defi.getUserTrackingWallets(author.id)
   if (!ok) throw new APIError({ message, description: log, curl })
   const pointingright = getEmoji("pointingright")
   if (wallets.length === 0) {
@@ -223,7 +293,8 @@ export async function getAssetsEmbed(
   message: OriginalMessage,
   author: User,
   address: string,
-  type: string
+  type: string,
+  alias: string
 ) {
   const pointingright = getEmoji("pointingright")
   const blank = getEmoji("blank")
@@ -271,11 +342,11 @@ export async function getAssetsEmbed(
     name: `Estimated total (U.S dollar)`,
     value: `${getEmoji("cash")} \`$${roundFloatNumber(totalUsdBalance, 4)}\``,
   })
+  const label = alias || (await reverseLookup(address, type))
+  const title = label ? `${label}'s wallet` : "Wallet assets"
   return composeEmbedMessage(null, {
-    author: ["Wallet balances", getEmojiURL(emojis.WALLET)],
-    description: `${pointingright} Wallet address: \`${shortenHashOrAddress(
-      address
-    )}\`.\n${pointingright} You can save the wallet address with an easy-to-remember alias for further tracking with $wallet.\n${pointingright} _Show maximum 25 tokens_`,
+    author: [title, getEmojiURL(emojis.WALLET)],
+    description: `${pointingright} You can save the wallet address with an easy-to-remember alias for further tracking with $wallet.\n${pointingright} _Show maximum 25 tokens_`,
     originalMsgAuthor: author,
   }).addFields(fields.slice(0, 25))
 }

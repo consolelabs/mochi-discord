@@ -28,6 +28,7 @@ export type ColorType =
   | "Defi"
   | "Command"
   | "Game"
+  | "Wallet"
 
 export const embedsColors: Record<string, string> = {
   Profile: "#62A1FE",
@@ -37,6 +38,7 @@ export const embedsColors: Record<string, string> = {
   Defi: "#9FFFE4",
   Command: "#62A1FE",
   Game: "#FFAD83",
+  Wallet: "#5CD97D",
 }
 
 export type SlashCommandChoiceOption = {

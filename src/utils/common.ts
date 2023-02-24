@@ -21,7 +21,15 @@ import {
 } from "./nft"
 import fetch from "node-fetch"
 import { ethers } from "ethers"
-import { PublicKey } from "@solana/web3.js"
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
+import {
+  NameRegistryState,
+  getHashedName,
+  getNameAccountKey,
+  performReverseLookup,
+} from "@bonfida/spl-name-service"
+import { logger } from "logger"
+import providers from "utils/providers"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
@@ -251,6 +259,10 @@ export const emojis: { [key: string]: string } = {
   AIRDROP: "1058301255933501491",
   DASHBOARD: "933339868795404408",
   SHELTER: "998929232212275221",
+  PENCIL: "1078633895500722187",
+  WINKINGFACE: "1058304390869549117",
+  WALLET_1: "1077631121614970992",
+  PLUS: "1078633897513992202",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -470,7 +482,7 @@ export function getCompactFormatedNumber(value: number) {
 
 export const authorFilter =
   (authorId: string) => async (i: MessageComponentInteraction) => {
-    await i.deferUpdate().catch(() => null)
+    // await i.deferUpdate().catch(() => null)
     return i.user.id === authorId
   }
 
@@ -593,4 +605,53 @@ export function isAddress(address: string): { valid: boolean; type: string } {
     return { valid: false, type: "" }
   }
   return { valid: false, type: "" }
+}
+
+async function resolveSNSDomain(domain: string) {
+  const hashedName = await getHashedName(domain.replace(".sol", ""))
+  const nameAccountKey = await getNameAccountKey(
+    hashedName,
+    undefined,
+    new PublicKey("58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx") // SOL TLD Authority
+  )
+  const owner = await NameRegistryState.retrieve(
+    new Connection(clusterApiUrl("mainnet-beta")),
+    nameAccountKey
+  )
+  return owner.registry.owner.toBase58()
+}
+
+async function resolveENSDomain(domain: string) {
+  return await providers.eth.resolveName(domain)
+}
+
+export async function resolveNamingServiceDomain(domain: string) {
+  try {
+    if (domain.endsWith(".sol")) {
+      return await resolveSNSDomain(domain)
+    }
+    return await resolveENSDomain(domain)
+  } catch (e) {
+    logger.error(`[resolveNamingServiceDomain] failed: ${e}`)
+    return ""
+  }
+}
+
+export async function reverseLookup(address: string, type: string) {
+  try {
+    switch (type) {
+      case "sol": {
+        const connection = new Connection(clusterApiUrl("mainnet-beta"))
+        const domainKey = new PublicKey(address)
+        return await performReverseLookup(connection, domainKey)
+      }
+      case "eth":
+        return await providers.eth.lookupAddress(address)
+      default:
+        return ""
+    }
+  } catch (e) {
+    logger.error(`[reverseLookup] failed: ${e}`)
+    return ""
+  }
 }

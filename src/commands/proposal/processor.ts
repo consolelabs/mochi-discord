@@ -258,11 +258,18 @@ export async function handleProposalForm(i: ButtonInteraction) {
       throw new APIError({ curl, description: log, error })
     }
     if (!data.is_wallet_connected) {
-      const json = await profile.generateVerificationCode(
-        i.member.user.id,
-        i.guild.id
-      )
-      const code = !json.error ? json.code : ""
+      const generationRes = await profile.generateVerificationCode({
+        userDiscordId: i.member.user.id,
+        guildId: i.guild.id,
+      })
+      if (!generationRes.ok) {
+        throw new APIError({
+          message: i,
+          description: generationRes.log,
+          curl: generationRes.log,
+        })
+      }
+      const code = !generationRes.originalError ? generationRes.data.code : ""
       await i
         .editReply({
           embeds: [
@@ -477,11 +484,18 @@ export async function handleProposalVote(i: ButtonInteraction) {
     throw new APIError({ curl: wCurl, description: wLog, error: wError })
   }
   if (wData.is_wallet_connected === false) {
-    const json = await profile.generateVerificationCode(
-      i.member.user.id,
-      i.guild.id
-    )
-    const code = !json.error ? json.code : ""
+    const generationRes = await profile.generateVerificationCode({
+      userDiscordId: i.member.user.id,
+      guildId: i.guild.id,
+    })
+    if (!generationRes.ok) {
+      throw new APIError({
+        message: i,
+        description: generationRes.log,
+        curl: generationRes.curl,
+      })
+    }
+    const code = !generationRes.originalError ? generationRes.data.code : ""
     return await i
       .editReply({
         embeds: [
