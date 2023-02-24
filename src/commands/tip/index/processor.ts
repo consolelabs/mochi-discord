@@ -325,17 +325,15 @@ async function executeTipWithConfirmation(
     }?`,
   })
   const confirmButtonCollectorHandler = async (i: ButtonInteraction) => {
-    if (i.customId === "confirm-tip") {
-      return await executeTip(
-        msg,
-        payload,
-        targets,
-        messageTip,
-        imageUrl,
-        onchain,
-        moniker
-      )
-    }
+    return await executeTip(
+      msg,
+      payload,
+      targets,
+      messageTip,
+      imageUrl,
+      onchain,
+      moniker
+    )
   }
   return {
     messageOptions: {
