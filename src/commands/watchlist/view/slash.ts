@@ -22,11 +22,12 @@ const command: SlashCommand = {
     setInteraction(i)
     const { embeds, files, components } = await composeSlashTokenWatchlist(
       i,
+      0,
       i.user.id
     )
     const replyMsg = await i.fetchReply()
     if (replyMsg instanceof Message) {
-      collectSlashButton(replyMsg)
+      collectSlashButton(replyMsg, i)
     }
     return {
       messageOptions: {

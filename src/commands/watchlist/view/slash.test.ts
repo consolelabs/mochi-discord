@@ -30,7 +30,7 @@ describe("run", () => {
       .mockResolvedValueOnce({ embeds: [expected], files: [], components: [] })
     jest.spyOn(i, "fetchReply").mockResolvedValueOnce(msg)
     const output = (await watchlistCmd.run(i)) as RunResult<MessageOptions>
-    expect(processor.composeSlashTokenWatchlist).toBeCalledWith(i, i.user.id)
+    expect(processor.composeSlashTokenWatchlist).toBeCalledWith(i, 0, i.user.id)
     assertAuthor(output, expected)
     assertDescription(output, expected)
   })

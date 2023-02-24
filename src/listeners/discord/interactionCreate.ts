@@ -190,7 +190,7 @@ async function handleCommandInteraction(interaction: Interaction) {
         })
         .catch(() => null)
       // partner ads
-      if (getChance(99)) {
+      if (getChance(4)) {
         await i.channel?.send({
           embeds: [composePartnerEmbedPimp()],
           components: [
