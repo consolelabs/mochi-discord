@@ -73,7 +73,7 @@ const command: Command = {
       composeEmbedMessage(msg, {
         usage: `${PREFIX}alert remove`,
         examples: `${PREFIX}alert remove`,
-        document: `${PRICE_ALERT_GITBOOK}`,
+        document: `${PRICE_ALERT_GITBOOK}&action=remove`,
       }),
     ],
   }),

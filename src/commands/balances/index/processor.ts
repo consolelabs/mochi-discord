@@ -150,9 +150,11 @@ export async function renderBalances(
       embeds: [embed],
       components: [row(type)],
     },
-    buttonCollector: async (i: ButtonInteraction) => {
-      const type = +i.customId.split("-")[1]
-      return await renderBalances(userId, msg, type)
+    buttonCollector: {
+      handler: async (i: ButtonInteraction) => {
+        const type = +i.customId.split("-")[1]
+        return await renderBalances(userId, msg, type)
+      },
     },
   }
 }

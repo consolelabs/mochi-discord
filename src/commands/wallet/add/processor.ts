@@ -53,7 +53,7 @@ export async function trackWallet(
       embeds: [embed],
       components: [composeViewWaletButtonRow(address)],
     },
-    buttonCollector: viewWallet,
+    buttonCollector: { handler: viewWallet },
   }
 }
 

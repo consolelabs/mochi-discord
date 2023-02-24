@@ -9,6 +9,7 @@ import {
   CommandInteraction,
   Interaction,
   Message,
+  MessageCollectorOptionsParams,
   MessageEditOptions,
   MessageOptions,
   MessageSelectOptionData,
@@ -49,8 +50,10 @@ export type RunResult<T = MessageOptions | MessageEditOptions> = {
   messageOptions: T
   interactionOptions?: InteractionOptions
   replyMessage?: WebhookEditMessageOptions
-  buttonCollector?: (i: ButtonInteraction) => Promise<any> | Promise<void>
-  fullCommand?: string
+  buttonCollector?: {
+    handler: (i: ButtonInteraction) => Promise<any> | Promise<void>
+    options?: MessageCollectorOptionsParams<"BUTTON">
+  }
 }
 
 export type SetDefaultRenderList<T> = (p: {

@@ -205,15 +205,17 @@ async function handleCommandInteraction(interaction: Interaction) {
         InteractionManager.add(msg.id, interactionOptions)
       }
       if (msg && buttonCollector) {
+        const { handler, options = {} } = buttonCollector
         const message = <Message>msg
         message
           .createMessageComponentCollector({
             componentType: MessageComponentTypes.BUTTON,
             idle: 60000,
             filter: authorFilter(i.user.id),
+            ...options,
           })
           .on("collect", async (i: ButtonInteraction) => {
-            const newRes = await buttonCollector?.(i)
+            const newRes = await handler(i)
             if (newRes) {
               await message.edit({
                 embeds: newRes.messageOptions.embeds,
@@ -277,14 +279,16 @@ async function handleSelectMenuInteraction(i: SelectMenuInteraction) {
       ? i.editReply(replyMessage)
       : i.reply(replyMessage))
     if (msg && msg instanceof Message && buttonCollector) {
+      const { handler, options = {} } = buttonCollector
       msg
         .createMessageComponentCollector({
           time: 300000,
           componentType: MessageComponentTypes.BUTTON,
           filter: authorFilter(i.user.id),
+          ...options,
         })
         .on("collect", async (i) => {
-          const newRes = await buttonCollector(i)
+          const newRes = await handler(i)
           if (newRes) {
             await msg.edit({
               embeds: newRes.messageOptions.embeds,

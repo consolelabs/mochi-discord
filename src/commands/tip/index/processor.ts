@@ -304,6 +304,7 @@ async function executeTipWithConfirmation(
 ): Promise<
   RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
 > {
+  const authorId = msg instanceof Message ? msg.author.id : msg.user.id
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
       customId: "confirm-tip",
@@ -323,24 +324,28 @@ async function executeTipWithConfirmation(
       targets.length == 1 ? `<@${targets[0]}>` : targets.length + " users"
     }?`,
   })
-
+  const confirmButtonCollectorHandler = async (i: ButtonInteraction) => {
+    return await executeTip(
+      msg,
+      payload,
+      targets,
+      messageTip,
+      imageUrl,
+      onchain,
+      moniker
+    )
+  }
   return {
     messageOptions: {
       embeds: [confirmEmbed],
       components: [actionRow],
     },
-    buttonCollector: async (i: ButtonInteraction) => {
-      if (i.customId === "confirm-tip") {
-        return await executeTip(
-          msg,
-          payload,
-          targets,
-          messageTip,
-          imageUrl,
-          onchain,
-          moniker
-        )
-      }
+    buttonCollector: {
+      handler: confirmButtonCollectorHandler,
+      options: {
+        filter: (i) => i.customId === "confirm-tip" && i.user.id === authorId,
+        max: 1,
+      },
     },
   }
 }
