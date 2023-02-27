@@ -7,7 +7,12 @@ async function run(
   base: string,
   target: string
 ): Promise<TextCommandResponse> {
-  return await composeTokenComparisonEmbed(msg, base, target)
+  return await composeTokenComparisonEmbed(
+    msg.guildId ?? "",
+    msg.author.id,
+    base,
+    target
+  )
 }
 
 export default run
