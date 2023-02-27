@@ -8,46 +8,42 @@ import {
   User,
 } from "discord.js"
 import { embedsColors } from "types/common"
+import { composeEmbedMessage, EMPTY_FIELD } from "ui/discord/embed"
 import { capFirst, getEmoji, thumbnails } from "utils/common"
 import {
   AIRDROP_GITBOOK,
   BALANCE_GITBOOK,
-  DEFAULT_ROLE_GITBOOK,
+  DAO_VOTING_GITBOOK,
   DEPOSIT_GITBOOK,
   DISCORD_URL,
   FEEDBACK_GITBOOK,
   GM_GITBOOK,
   HELP_GITBOOK,
   HOMEPAGE_URL,
-  LEVEL_ROLE_GITBOOK,
+  JOIN_LEAVE_GITBOOK,
+  LEVELUP_MESSAGE_GITBOOK,
   LOG_CHANNEL_GITBOOK,
   NFT_GITBOOK,
-  NFT_ROLE_GITBOOK,
   PROFILE_GITBOOK,
   PRUNE_GITBOOK,
   QUEST_GITBOOK,
-  REACTION_ROLE_GITBOOK,
+  SALE_TRACKER_GITBOOK,
+  SENDXP_GITBOOK,
   STARBOARD_GITBOOK,
   TELEGRAM_GITBOOK,
   TICKER_GITBOOK,
   TIP_GITBOOK,
   TOKEN_GITBOOK,
+  TOKEN_ROLE_GITBOOK,
+  TOP_GITBOOK,
   TWITTER_URL,
   TWITTER_WATCH_GITBOOK,
   VERIFY_WALLET_GITBOOK,
   VOTE_GITBOOK,
+  WALLET_GITBOOK,
   WATCHLIST_GITBOOK,
   WELCOME_GITBOOK,
-  SENDXP_GITBOOK,
-  TOKEN_ROLE_GITBOOK,
-  LEVELUP_MESSAGE_GITBOOK,
-  JOIN_LEAVE_GITBOOK,
-  WALLET_GITBOOK,
-  TOP_GITBOOK,
-  DAO_VOTING_GITBOOK,
-  SALE_TRACKER_GITBOOK,
 } from "utils/constants"
-import { EMPTY_FIELD, composeEmbedMessage } from "ui/discord/embed"
 dayjs.extend(utc)
 
 const image =
@@ -314,19 +310,19 @@ const allCommands: Record<PageType, HelpPage> = {
         features: [
           {
             value: "defaultrole",
-            url: DEFAULT_ROLE_GITBOOK,
+            url: "https://bit.ly/3kvRWui",
           },
           {
             value: "reactionrole",
-            url: REACTION_ROLE_GITBOOK,
+            url: "http://bit.ly/3y1wX5r",
           },
           {
             value: "levelrole",
-            url: LEVEL_ROLE_GITBOOK,
+            url: "https://bit.ly/3ksKOyE",
           },
           {
             value: "nftrole",
-            url: NFT_ROLE_GITBOOK,
+            url: "http://bit.ly/41uedsP",
           },
           {
             value: "tokenrole",

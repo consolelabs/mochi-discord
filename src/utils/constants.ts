@@ -97,11 +97,11 @@ export const DEFAULT_ROLE_GITBOOK =
   "&command=defaultrole"
 export const NFT_ROLE_GITBOOK =
   USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-role" +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/nft-roles" +
   "&command=nftrole"
 export const TOKEN_ROLE_GITBOOK =
   USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/token-role" +
+  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/token-roles" +
   "&command=tokenrole"
 export const XP_ROLE_GITBOOK =
   USAGE_STATS_URL +
@@ -223,3 +223,12 @@ export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"
 export const ETHSCAN_API = "https://api.etherscan.io/api"
 export const POLYGONSCAN_API = "https://api.polygonscan.com/api"
+
+export const chainExplorerBaseUrls: Record<string, string> = {
+  "0": "https://solscan.io",
+  "1": "https://etherscan.io",
+  "56": "https://bscscan.com",
+  "137": "https://polygonscan.com",
+  "250": "https://ftmscan.com",
+  "9999": "https://aptoscan.com",
+}

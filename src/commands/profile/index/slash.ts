@@ -1,10 +1,8 @@
 import { CommandInteraction } from "discord.js"
-import { handleProfile } from "./processor"
+import { render } from "./processor"
 
 const run = async (interaction: CommandInteraction) => {
   const user = interaction.options.getString("user")
-  const args = ["profile"]
-  if (user) args.push(user)
-  return await handleProfile(interaction, args)
+  return await render(interaction, user)
 }
 export default run
