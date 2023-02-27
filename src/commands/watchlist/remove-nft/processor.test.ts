@@ -6,13 +6,13 @@ import mockdc from "../../../../tests/mocks/discord"
 jest.mock("adapters/defi")
 jest.mock("cache/node-cache")
 
-describe("addWatchlistNftCollection", () => {
+describe("removeWatchlistNftCollection", () => {
   const interaction = mockdc.cloneCommandInteraction()
   const msg = mockdc.cloneMessage()
 
   afterEach(() => jest.clearAllMocks())
 
-  test("Successful add one collection symbol with Message", async () => {
+  test("Successful remove one collection symbol with Message", async () => {
     const input = {
       msgOrInteraction: msg,
       symbol: "rabby",
@@ -32,7 +32,7 @@ describe("addWatchlistNftCollection", () => {
     assertAuthor(output, expected)
   })
 
-  test("Successful add one collection symbol with Interaction", async () => {
+  test("Successful remove one collection symbol with Interaction", async () => {
     const input = {
       msgOrInteraction: interaction,
       symbol: "rabby",
