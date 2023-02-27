@@ -93,6 +93,8 @@ export const tokenEmojis: Record<string, string> = {
   OKC: "1006838263165767681",
   ONUS: "1077203550075093053",
   SUI: "1077132420500951081",
+  FBOMB: "1079669535117938788",
+  MCLB: "1079669537408036955",
 }
 
 export const numberEmojis: Record<string, string> = {

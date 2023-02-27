@@ -274,7 +274,7 @@ export async function handleAirdrop(
   let currentBal = 0
   let currentPrice = 0
   data?.forEach((bal: any) => {
-    if (payload.token === bal.symbol) {
+    if (payload.token.toLowerCase() === bal.symbol.toLowerCase()) {
       currentBal = bal.balances
       currentPrice = bal.rate_in_usd
     }
