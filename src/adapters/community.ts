@@ -272,7 +272,7 @@ class Community extends Fetcher {
     })
   }
 
-  public async getVerifyWalletChannel(guild_id: string) {
+  public async getVerifyWalletChannel(guild_id: string | null = "") {
     return await this.jsonFetch(`${API_BASE_URL}/verify/config/${guild_id}`)
   }
 
