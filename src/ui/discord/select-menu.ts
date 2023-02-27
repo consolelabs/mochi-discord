@@ -56,7 +56,7 @@ export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
         new MessageButton({
           customId: selectedValue,
           emoji: getEmoji("approve"),
-          style: "PRIMARY",
+          style: "SUCCESS",
           label: "Confirm",
         })
       )
@@ -124,7 +124,7 @@ export function getSuggestionComponents(
   if (hasOneSuggestion) {
     const button = new MessageButton()
       .setLabel("Yes")
-      .setStyle("PRIMARY")
+      .setStyle("SUCCESS")
       .setCustomId(`suggestion-button-${suggestions[0].value}`)
     row.addComponents(button)
   } else {

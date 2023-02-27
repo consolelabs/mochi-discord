@@ -211,7 +211,7 @@ const command: Command = {
               new MessageButton({
                 customId: `confirm_symbol|${colAddress}|${symbol}|${chain}|${msg.author.id}`,
                 emoji: getEmoji("approve"),
-                style: "PRIMARY",
+                style: "SUCCESS",
                 label: "Confirm",
               })
             )

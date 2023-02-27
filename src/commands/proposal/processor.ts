@@ -114,17 +114,17 @@ export async function handleProposalCreate(i: ButtonInteraction) {
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
       customId: `proposal-vote-Yes-${data.id}-${i.user.id}`,
-      style: "PRIMARY",
+      style: "SUCCESS",
       label: "Yes",
     }),
     new MessageButton({
       customId: `proposal-vote-No-${data.id}-${i.user.id}`,
-      style: "PRIMARY",
+      style: "DANGER",
       label: "No",
     }),
     new MessageButton({
       customId: `proposal-vote-Abstain-${data.id}-${i.user.id}`,
-      style: "PRIMARY",
+      style: "SECONDARY",
       label: "Abstain",
     }),
     new MessageButton({
@@ -353,7 +353,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
       customId: `proposal-confirm-${i.guildId}-${durationSeconds}`,
-      style: "PRIMARY",
+      style: "SUCCESS",
       label: "Submit",
     }),
     composeProposalCancelButton(guidelineChannelId)

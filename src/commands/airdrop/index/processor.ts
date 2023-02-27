@@ -48,13 +48,13 @@ function composeAirdropButtons(
     new MessageButton({
       customId: `confirm_airdrop-${authorId}-${amount}-${amountInUSD}-${cryptocurrency}-${duration}-${maxEntries}`,
       emoji: getEmoji("APPROVE"),
-      style: "PRIMARY",
+      style: "SUCCESS",
       label: "Confirm",
     }),
     new MessageButton({
       customId: `cancel_airdrop-${authorId}`,
       emoji: getEmoji("revoke"),
-      style: "SECONDARY",
+      style: "DANGER",
       label: "Cancel",
     })
   )
@@ -115,7 +115,7 @@ export async function confirmAirdrop(
           new MessageButton({
             customId: `enter_airdrop-${authorId}-${duration}-${maxEntries}`,
             label: "Enter airdrop",
-            style: "PRIMARY",
+            style: "SECONDARY",
             emoji: "🎉",
           })
         ),

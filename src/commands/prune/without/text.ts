@@ -67,7 +67,7 @@ const command: Command = {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
         customId: CONFIRM_PRUNE_WITHOUT,
-        style: "PRIMARY",
+        style: "SUCCESS",
         label: "Confirm",
       }),
       getExitButton(msg.author.id)

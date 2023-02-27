@@ -43,19 +43,19 @@ const row = (type: number) => {
   return new MessageActionRow().addComponents(
     new MessageButton({
       customId: `balance-${balanceTypes.Offchain}`,
-      style: "PRIMARY",
+      style: "SECONDARY",
       label: "Off-chain",
       disabled: type === balanceTypes.Offchain,
     }),
     new MessageButton({
       customId: `balance-${balanceTypes.Onchain}`,
-      style: "PRIMARY",
+      style: "SECONDARY",
       label: "On-chain",
       disabled: type === balanceTypes.Onchain,
     }),
     new MessageButton({
       customId: `balance-${balanceTypes.Total}`,
-      style: "PRIMARY",
+      style: "SECONDARY",
       label: "Total",
       disabled: type === balanceTypes.Total,
     })
