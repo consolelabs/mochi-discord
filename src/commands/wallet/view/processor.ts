@@ -342,7 +342,7 @@ export async function getAssetsEmbed(
     name: `Estimated total (U.S dollar)`,
     value: `${getEmoji("cash")} \`$${roundFloatNumber(totalUsdBalance, 4)}\``,
   })
-  const label = alias || (await reverseLookup(address, type))
+  const label = alias || (await reverseLookup(address))
   const title = label ? `${label}'s wallet` : "Wallet assets"
   return composeEmbedMessage(null, {
     author: [title, getEmojiURL(emojis.WALLET)],

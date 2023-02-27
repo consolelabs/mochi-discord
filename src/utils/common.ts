@@ -263,6 +263,7 @@ export const emojis: { [key: string]: string } = {
   WINKINGFACE: "1058304390869549117",
   WALLET_1: "1077631121614970992",
   PLUS: "1078633897513992202",
+  ARROWUP: "1058304264071561267",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -637,7 +638,8 @@ export async function resolveNamingServiceDomain(domain: string) {
   }
 }
 
-export async function reverseLookup(address: string, type: string) {
+export async function reverseLookup(address: string) {
+  const { type } = isAddress(address)
   try {
     switch (type) {
       case "sol": {

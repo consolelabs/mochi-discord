@@ -31,7 +31,7 @@ class Profile extends Fetcher {
     })
   }
 
-  public async getUserProfile(guildId: string, userId: string) {
+  public async getUserProfile(guildId: string | null = "", userId: string) {
     return await this.jsonFetch<ResponseGetDataUserProfileResponse>(
       `${API_BASE_URL}/users/profiles`,
       {
@@ -80,7 +80,7 @@ class Profile extends Fetcher {
   }
 
   public async getNftCollections(query: { address: string }) {
-    return await this.jsonFetch<GetUserNFTsResponse>(
+    return await this.jsonFetch<GetUserNFTCollectionResponse>(
       `${INDEXER_API_BASE_URL}/nft`,
       { query }
     )
