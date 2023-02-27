@@ -12,7 +12,7 @@ describe("removeWatchlistToken", () => {
 
   afterEach(() => jest.clearAllMocks())
 
-  test("Successful add one collection symbol with Message", async () => {
+  test("Successful remove one collection symbol with Message", async () => {
     const input = {
       msgOrInteraction: msg,
       symbol: "ftm",
@@ -28,7 +28,7 @@ describe("removeWatchlistToken", () => {
     assertAuthor(output, expected)
   })
 
-  test("Successful add one collection symbol with Interaction", async () => {
+  test("Successful remove one collection symbol with Interaction", async () => {
     const input = {
       msgOrInteraction: interaction,
       symbol: "ftm",
