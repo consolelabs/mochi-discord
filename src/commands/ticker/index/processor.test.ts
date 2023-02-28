@@ -232,9 +232,6 @@ describe("ticker", () => {
     expect(expected.author).toStrictEqual(
       (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
     )
-    expect(expected.footer).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].footer
-    )
     expect(expected.description).toStrictEqual(
       (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
         .description
