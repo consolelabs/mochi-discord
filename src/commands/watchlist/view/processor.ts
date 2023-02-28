@@ -442,7 +442,7 @@ export function collectButton(
           } = await render(msg, page)
           await msg.removeAttachments()
           await i
-            .editReply({
+            .update({
               embeds,
               components,
               files,
@@ -478,7 +478,7 @@ async function switchView(
       break
   }
   await i
-    .editReply({
+    .update({
       embeds,
       files,
       components: components,
@@ -634,7 +634,7 @@ export function collectSlashButton(msg: Message, i: CommandInteraction) {
           } = await render(msg, page)
           await msg.removeAttachments()
           await i
-            .editReply({
+            .update({
               embeds,
               components,
               files,
@@ -668,7 +668,7 @@ async function switchSlashView(i: ButtonInteraction) {
       break
   }
   await i
-    .editReply({
+    .update({
       embeds,
       files,
       components: components,
