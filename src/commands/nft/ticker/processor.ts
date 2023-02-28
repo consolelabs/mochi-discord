@@ -61,7 +61,12 @@ export function buildSwitchViewActionRow(
     days?: number
   }
 ) {
-  const { collectionAddress, chain, days = 90 } = params
+  const { chain, days = 90 } = params
+  let collectionAddress = params.collectionAddress
+
+  if (collectionAddress.includes("solscan-")) {
+    collectionAddress = collectionAddress.replace("solscan-", "")
+  }
   const tickerButton = new MessageButton({
     label: "Ticker",
     emoji: getEmoji("INCREASING"),
@@ -131,6 +136,9 @@ export async function composeCollectionInfoEmbed(
   collectionAddress: string,
   chain: string
 ) {
+  if (chain === "999") {
+    collectionAddress = "solscan-" + collectionAddress
+  }
   const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
     collectionAddress,
     chain
