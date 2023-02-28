@@ -189,13 +189,13 @@ export function buildButtonsRow(page: number, totalPage: number) {
       new MessageActionRow()
         .addComponents({
           type: MessageComponentTypes.BUTTON,
-          style: MessageButtonStyles.PRIMARY,
+          style: MessageButtonStyles.SECONDARY,
           label: "Cash inflow",
           customId: `statement_cash_inflow`,
         })
         .addComponents({
           type: MessageComponentTypes.BUTTON,
-          style: MessageButtonStyles.PRIMARY,
+          style: MessageButtonStyles.SECONDARY,
           label: "Cash outflow",
           customId: `statement_cash_outflow`,
         }),
@@ -204,26 +204,26 @@ export function buildButtonsRow(page: number, totalPage: number) {
     .addComponents(
       new MessageButton({
         type: MessageComponentTypes.BUTTON,
-        style: MessageButtonStyles.PRIMARY,
+        style: MessageButtonStyles.SECONDARY,
         customId: `page_${page}_-_${totalPage}`,
       }).setEmoji(getEmoji("left_arrow"))
     )
     .addComponents(
       new MessageButton({
         type: MessageComponentTypes.BUTTON,
-        style: MessageButtonStyles.PRIMARY,
+        style: MessageButtonStyles.SECONDARY,
         customId: `page_${page}_+_${totalPage}`,
       }).setEmoji(getEmoji("right_arrow"))
     )
     .addComponents({
       type: MessageComponentTypes.BUTTON,
-      style: MessageButtonStyles.PRIMARY,
+      style: MessageButtonStyles.SECONDARY,
       label: "Cash inflow",
       customId: `statement_cash_inflow`,
     })
     .addComponents({
       type: MessageComponentTypes.BUTTON,
-      style: MessageButtonStyles.PRIMARY,
+      style: MessageButtonStyles.SECONDARY,
       label: "Cash outflow",
       customId: `statement_cash_outflow`,
     })

@@ -14,7 +14,7 @@ export function getExitButton(authorId: string, label?: string) {
   return new MessageButton({
     customId: `exit-${authorId}`,
     emoji: getEmoji("revoke"),
-    style: "SECONDARY",
+    style: "DANGER",
     label: label ?? "Exit",
   })
 }
@@ -50,9 +50,11 @@ export async function renderPaginator(msg: Message, pages: MessageEmbed[]) {
     .setCustomId("FORWARD_BTN")
     .setLabel("Next")
     .setStyle("SECONDARY")
+    .setEmoji(getEmoji("RIGHT_ARROW"))
   const backwardBtn = new MessageButton()
     .setCustomId("BACKWARD_BTN")
     .setLabel("Previous")
+    .setEmoji(getEmoji("LEFT_ARROW"))
     .setStyle("SECONDARY")
   const row = new MessageActionRow().addComponents([backwardBtn, forwardBtn])
 
@@ -91,8 +93,9 @@ export function getPaginationRow(page: number, totalPage: number) {
     actionRow.addComponents(
       new MessageButton({
         type: MessageComponentTypes.BUTTON,
-        style: MessageButtonStyles.PRIMARY,
+        style: MessageButtonStyles.SECONDARY,
         label: "Previous",
+        emoji: getEmoji("LEFT_ARROW"),
         customId: `page_${page}_-_${totalPage}`,
       })
     )
@@ -101,8 +104,9 @@ export function getPaginationRow(page: number, totalPage: number) {
   if (page !== totalPage - 1) {
     actionRow.addComponents({
       type: MessageComponentTypes.BUTTON,
-      style: MessageButtonStyles.PRIMARY,
+      style: MessageButtonStyles.SECONDARY,
       label: "Next",
+      emoji: getEmoji("RIGHT_ARROW"),
       customId: `page_${page}_+_${totalPage}`,
     })
   }

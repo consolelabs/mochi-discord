@@ -14,7 +14,6 @@ import remove from "./remove/text"
 import info from "./info/text"
 import list from "./list/text"
 // slash
-import addSlash from "./add/slash"
 import defaultSlash from "./default/slash"
 import removeSlash from "./remove/slash"
 import infoSlash from "./info/slash"
@@ -55,7 +54,6 @@ const textCmd: Command = {
 
 // slash
 const subCommands: Record<string, SlashCommand> = {
-  add: addSlash,
   default: defaultSlash,
   info: infoSlash,
   list: listSlash,
@@ -70,7 +68,6 @@ const slashCmd: SlashCommand = {
       .setName("token")
       .setDescription("Show all supported tokens by Mochi.")
 
-    data.addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>defaultSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>infoSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>listSlash.prepare())
