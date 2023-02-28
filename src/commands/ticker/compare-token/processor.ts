@@ -1,5 +1,6 @@
 import config from "adapters/config"
 import defi from "adapters/defi"
+import CacheManager from "cache/node-cache"
 import {
   ButtonInteraction,
   HexColorString,
@@ -10,16 +11,15 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { InternalError } from "errors"
-import { Coin } from "types/defi"
-import CacheManager from "cache/node-cache"
 import { InteractionHandler } from "handlers/discord/select-menu"
+import { Coin } from "types/defi"
 import { renderChartImage } from "ui/canvas/chart"
-import { getEmoji } from "utils/common"
-import { getDefaultSetter } from "utils/default-setters"
+import { getChartColorConfig } from "ui/canvas/color"
+import { composeDiscordExitButton } from "ui/discord/button"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
-import { composeDiscordExitButton } from "ui/discord/button"
-import { getChartColorConfig } from "ui/canvas/color"
+import { getEmoji } from "utils/common"
+import { getDefaultSetter } from "utils/default-setters"
 
 export async function renderCompareTokenChart({
   times,
@@ -152,7 +152,13 @@ async function suggest(
     },
     render: ({ msgOrInteraction: msg, value }: any) => {
       const [baseCoinId, , , targetCoinId] = value.split("_")
-      return composeTokenComparisonEmbed(msg, baseCoinId, targetCoinId)
+      const authorId = msg instanceof Message ? msg.author.id : msg.user.id
+      return composeTokenComparisonEmbed(
+        msg.guildId ?? "",
+        authorId,
+        baseCoinId,
+        targetCoinId
+      )
     },
     ambiguousResultText: `${baseQ}/${targetQ}`.toUpperCase(),
     multipleResultText: "",
@@ -160,19 +166,19 @@ async function suggest(
 }
 
 export async function composeTokenComparisonEmbed(
-  msg: Message,
+  guildId: string,
+  authorId: string,
   baseQ: string,
   targetQ: string
 ) {
   const { ok, data } = await CacheManager.get({
     pool: "ticker",
-    key: `compare-${msg.guildId}-${baseQ}-${targetQ}-30`,
-    call: () => defi.compareToken(msg.guildId ?? "", baseQ, targetQ, 30),
+    key: `compare-${guildId}-${baseQ}-${targetQ}-30`,
+    call: () => defi.compareToken(guildId, baseQ, targetQ, 30),
   })
   if (!ok) {
     throw new InternalError({
       title: "Unsupported token/fiat",
-      message: msg,
       description: `Token is invalid or hasn't been supported.\n${getEmoji(
         "POINTINGRIGHT"
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
@@ -207,7 +213,7 @@ export async function composeTokenComparisonEmbed(
   const { times, ratios, from, to, base_coin, target_coin } = data
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
 
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     color: getChartColorConfig().borderColor as HexColorString,
     author: [`${base_coin.name} vs. ${target_coin.name}`],
     footer: ["Data fetched from CoinGecko.com"],
@@ -234,7 +240,7 @@ export async function composeTokenComparisonEmbed(
     messageOptions: {
       ...(chart && { files: [chart] }),
       embeds: [embed],
-      components: [selectRow, composeDiscordExitButton(msg.author.id)],
+      components: [selectRow, composeDiscordExitButton(authorId)],
     },
     interactionOptions: {
       handler,
