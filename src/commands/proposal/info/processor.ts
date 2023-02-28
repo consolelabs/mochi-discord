@@ -27,7 +27,7 @@ export async function handle(
           new MessageButton({
             label: "Proposal",
             customId: `proposal-info_proposal`,
-            style: "PRIMARY",
+            style: "SECONDARY",
           })
         ),
       ],
@@ -42,7 +42,7 @@ export async function handleDaoTrackerView(i: ButtonInteraction) {
       new MessageButton({
         label: "Proposal",
         customId: `proposal-info_proposal`,
-        style: "PRIMARY",
+        style: "SECONDARY",
       })
     )
     await i.update({
@@ -55,7 +55,7 @@ export async function handleDaoTrackerView(i: ButtonInteraction) {
       new MessageButton({
         label: "Info",
         customId: `proposal-info_daovote`,
-        style: "PRIMARY",
+        style: "SECONDARY",
       })
     )
     await i.update({

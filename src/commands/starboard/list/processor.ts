@@ -81,7 +81,8 @@ function buildPaginationActionRow(
     row.addComponents(
       new MessageButton({
         type: MessageComponentTypes.BUTTON,
-        style: "PRIMARY",
+        style: "SECONDARY",
+        emoji: getEmoji("LEFT_ARROW"),
         label: "Previous",
         customId: `starboard-pagination-button/${currentView}/${page}/-/${totalPage}`,
       })
@@ -91,7 +92,8 @@ function buildPaginationActionRow(
   if (page !== totalPage - 1) {
     row.addComponents({
       type: MessageComponentTypes.BUTTON,
-      style: "PRIMARY",
+      style: "SECONDARY",
+      emoji: getEmoji("RIGHT_EMOJI"),
       label: "Next",
       customId: `starboard-pagination-button/${currentView}/${page}/+/${totalPage}`,
     })

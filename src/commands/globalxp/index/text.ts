@@ -31,7 +31,7 @@ const run = async function (msg: Message) {
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
       customId: `globalxp_confirm-${msg.author.id}-${guild.global_xp}`,
-      style: guild.global_xp ? "DANGER" : "PRIMARY",
+      style: guild.global_xp ? "DANGER" : "SECONDARY",
       label: guild.global_xp ? "Disable" : "Enable",
     }),
     getExitButton(msg.author.id)
