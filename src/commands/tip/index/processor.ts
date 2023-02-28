@@ -143,6 +143,7 @@ export async function handleTip(
     return await executeTipWithConfirmation(
       msg,
       payload,
+      targets,
       payload.recipients,
       messageTip,
       imageUrl,
@@ -154,7 +155,7 @@ export async function handleTip(
     return await executeTip(
       msg,
       payload,
-      payload.recipients,
+      targets,
       messageTip,
       imageUrl,
       onchain,
@@ -296,6 +297,7 @@ async function executeTipWithConfirmation(
   msg: Message | CommandInteraction,
   payload: OffchainTipBotTransferRequest,
   targets: string[],
+  recipientIds: string[],
   messageTip: string,
   imageUrl: string,
   onchain: boolean,
@@ -321,7 +323,9 @@ async function executeTipWithConfirmation(
     } ${payload.token.toUpperCase()}** (${(payload.amount * rate).toFixed(
       2
     )} USD) to tip ${
-      targets.length == 1 ? `<@${targets[0]}>` : targets.length + " users"
+      recipientIds.length == 1
+        ? `<@${recipientIds[0]}>`
+        : recipientIds.length + " users"
     }?`,
   })
   const confirmButtonCollectorHandler = async (i: ButtonInteraction) => {
@@ -380,7 +384,7 @@ async function executeTip(
   if (hasRole || hasChannel || isOnline) {
     recipientDescription = `**${data.length}${
       isOnline ? ` online` : ""
-    } user(s)${data.length >= 20 ? "" : ` (${users})`}**${
+    } user(s)${data.length >= 10 ? "" : ` (${users})`}**${
       isOnline && !hasRole && !hasChannel
         ? ""
         : ` in ${targets
