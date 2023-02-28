@@ -601,7 +601,7 @@ describe("handleTip", () => {
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@${userId}> has sent <@760874365037314100>, <@580788681967665173> **1.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@${userId}> has sent **2 user(s) (<@760874365037314100>, <@580788681967665173>)** in <@&1039124250004574208> **1.5 CAKE** (\u2248 $1.5) each`,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -727,7 +727,7 @@ describe("handleTip", () => {
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@${userId}> has sent <@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360> **0.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@${userId}> has sent **4 user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** in <@&1039124250004574208>, <@&1041914485251788800> **0.5 CAKE** (\u2248 $1.5) each`,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -838,7 +838,7 @@ describe("handleTip", () => {
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@${userId}> has sent <@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360> **0.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@${userId}> has sent **4 user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** in <#984660970624409630> **0.5 CAKE** (\u2248 $1.5) each`,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -949,7 +949,7 @@ describe("handleTip", () => {
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
-      description: `<@${userId}> has sent <@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360> **0.5 CAKE** (\u2248 $1.5) each`,
+      description: `<@${userId}> has sent **4 online user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** **0.5 CAKE** (\u2248 $1.5) each`,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
