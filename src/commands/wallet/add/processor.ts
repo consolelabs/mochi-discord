@@ -10,11 +10,7 @@ import {
 import { MessageButtonStyles } from "discord.js/typings/enums"
 import { WEBSITE_ENDPOINT } from "env"
 import { APIError, InternalError, OriginalMessage } from "errors"
-import {
-  composeButtonLink,
-  composeDiscordExitButton,
-  getExitButton,
-} from "ui/discord/button"
+import { composeButtonLink, getExitButton } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
   emojis,
@@ -23,7 +19,7 @@ import {
   isAddress,
   msgColors,
 } from "utils/common"
-import { askForUserInput } from "utils/discord"
+import { awaitMessage } from "utils/discord"
 
 export async function handleWalletAddition(msg: OriginalMessage) {
   const isTextMsg = msg instanceof Message
@@ -91,17 +87,20 @@ export async function renameWallet(
     embeds: [
       composeEmbedMessage(null, {
         author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
-        description: `Set a short, easy-to-remember label for long, complicated wallet addresses.\n${pointingright} Enter label \`${address}\` or press Skip.\nE.g. baddeed.eth`,
+        description: `Set a short, easy-to-remember label for long, complicated wallet addresses.\n${pointingright} Enter label for \`${address}\` or \`cancel\` to skip.\nE.g. baddeed.eth`,
       }),
     ],
-    components: [composeDiscordExitButton(userId, "Cancel")],
   })
-  const userInput = await askForUserInput(userId, (reply as Message).channel)
-  const label = userInput?.content.trim() ?? ""
+  const { first, content } = await awaitMessage({
+    authorId: userId,
+    msg: reply as Message,
+  })
+  const skipped = content.toLowerCase() === "cancel"
+  const alias = skipped ? "" : content
   const { ok, status, curl, log } = await defi.trackWallet({
-    userId: userId,
+    userId,
     address,
-    alias: label,
+    alias,
     type: "eth",
   })
   if (!ok && status === 409) {
@@ -121,10 +120,10 @@ export async function renameWallet(
     new MessageButton({
       customId: `wallet_view_details-${address}`,
       style: "SECONDARY",
-      label: `View ${label} Wallet`,
+      label: `View ${alias} Wallet`,
     })
   )
-  await userInput?.reply({ embeds: [successEmbed], components: [buttonRow] })
+  await first?.reply({ embeds: [successEmbed], components: [buttonRow] })
 }
 
 export async function trackWallet(

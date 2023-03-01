@@ -54,8 +54,9 @@ const run = async (msg: Message) => {
       components: [composeButtonLink("See the DM", dm.url)],
     })
   }
-  args[3] = await processor.getDestinationAddress(msg, dm, symbol)
-  await processor.withdraw(msg, args)
+  const address = await processor.getDestinationAddress(msg, dm, symbol)
+  if (!address) return null
+  await processor.withdraw(msg, args, address)
 
   return null
 }
