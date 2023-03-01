@@ -30,12 +30,14 @@ export class BotBaseError extends Error {
     if (message) {
       const reply = (message.reply as ReplyFunc).bind(message)
       this.reply = async (...args) => {
-        reply(...args).catch(() => null)
-        // if (message instanceof CommandInteraction) {
-        //   message.editReply(...args).catch(() => null)
-        // } else {
-        //   reply(...args).catch(() => null)
-        // }
+        if (message instanceof CommandInteraction) {
+          const replyMsg = await message.editReply(...args).catch(() => null)
+          if (!replyMsg) {
+            reply(...args).catch(() => null)
+          }
+        } else {
+          reply(...args).catch(() => null)
+        }
       }
 
       this.msgOrInteraction = message
