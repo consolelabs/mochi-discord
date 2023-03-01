@@ -354,7 +354,7 @@ async function executeTipWithConfirmation(
   }
 }
 
-async function executeTip(
+export async function executeTip(
   msg: Message | CommandInteraction,
   payload: OffchainTipBotTransferRequest,
   targets: string[],
