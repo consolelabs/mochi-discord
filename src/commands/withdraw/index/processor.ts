@@ -7,7 +7,7 @@ import { OffchainTipBotWithdrawRequest } from "types/defi"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { getCommandObject } from "utils/commands"
 import { getEmoji, isAddress } from "utils/common"
-import { askForUserInput } from "utils/discord"
+import { awaitMessage } from "utils/discord"
 
 export async function getDestinationAddress(
   msg: Message | CommandInteraction,
@@ -15,29 +15,35 @@ export async function getDestinationAddress(
   symbol: string
 ): Promise<string> {
   const author = msg instanceof Message ? msg.author : msg.user
-  const userReply = await askForUserInput(author.id, dm.channel)
-  const address = userReply?.content.trim() ?? ""
+  const timeoutEmbed = getErrorEmbed({
+    title: "Withdrawal cancelled",
+    description:
+      "No input received. You can retry transaction with `$withdraw <amount> <token>`",
+  })
+  const { first, content: address } = await awaitMessage({
+    authorId: author.id,
+    msg: dm,
+    timeoutResponse: { embeds: [timeoutEmbed] },
+  })
   const { valid, type } = isAddress(address)
   const isSolana = symbol === "SOL"
   const validAddress = valid && (isSolana ? type === "sol" : type === "eth")
-  if (userReply && !validAddress) {
-    await userReply.reply({
+  if (first && !validAddress) {
+    await first.reply({
       embeds: [
         getErrorEmbed({
           title: "Invalid destination address",
-          description: `Please re-enter a valid ${
-            isSolana ? "**Solana**" : "**EVM**"
-          } wallet address below...`,
+          description: `Please retry with \`$withdraw\` and enter a valid EVM/Solana wallet address.`,
         }),
       ],
     })
-    return await getDestinationAddress(msg, dm, symbol)
+    return ""
   }
-  return userReply?.content?.trim() ?? ""
+  return address
 }
 
-export async function withdraw(msg: Message, args: string[]) {
-  const payload = await getWithdrawPayload(msg, args[1], args[2], args[3])
+export async function withdraw(msg: Message, args: string[], address: string) {
+  const payload = await getWithdrawPayload(msg, args[1], args[2], address)
   // check balance
   const invalidBalEmbed = await Defi.getInsuffientBalanceEmbed(
     msg,

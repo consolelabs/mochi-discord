@@ -49,24 +49,18 @@ describe("run", () => {
 
   test("successfully run with proper args", async () => {
     const mockedDmMsg = mockdc.cloneMessage()
-    const args = [
-      "withdraw",
-      "1",
-      "ftm",
-      "0xE409E073eE7474C381BFD9b3f88098499123123",
-    ]
+    const args = ["withdraw", "1", "ftm"]
+    const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
     msg.content = "$withdraw 1 ftm"
     msg.author.send = jest.fn().mockResolvedValueOnce(mockedDmMsg)
     msg.author.avatarURL = jest.fn().mockResolvedValueOnce(null)
     msg.reply = jest.fn().mockResolvedValueOnce(undefined)
 
     Defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
-    jest
-      .spyOn(processor, "getDestinationAddress")
-      .mockResolvedValueOnce("0xE409E073eE7474C381BFD9b3f88098499123123")
+    jest.spyOn(processor, "getDestinationAddress").mockResolvedValueOnce(addr)
     jest.spyOn(processor, "withdraw").mockResolvedValueOnce(undefined)
     const output = await withdrawCmd.run(msg)
-    expect(processor.withdraw).toHaveBeenCalledWith(msg, args)
+    expect(processor.withdraw).toHaveBeenCalledWith(msg, args, addr)
     expect(output).toBeFalsy()
   })
 })
