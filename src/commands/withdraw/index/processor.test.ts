@@ -43,12 +43,8 @@ describe("withdraw", () => {
   afterEach(() => jest.clearAllMocks())
 
   test("msg.author.send should be called once", async () => {
-    const args = [
-      "withdraw",
-      "1",
-      "ftm",
-      "0xE409E073eE7474C381BFD9b3f88098499123123",
-    ]
+    const args = ["withdraw", "1", "ftm"]
+    const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
     const mockedResponse = {
       ok: true,
       data: {
@@ -83,18 +79,14 @@ describe("withdraw", () => {
     Defi.offchainDiscordWithdraw = jest
       .fn()
       .mockResolvedValueOnce(mockedResponse)
-    await processor.withdraw(msg, args)
+    await processor.withdraw(msg, args, addr)
     expect(msg.author.send).toHaveBeenCalledTimes(1)
     // expect(msg.author.send).toHaveBeenCalledWith({ embeds: [expectedEmbed] })
   })
 
   test("insufficient balance", async () => {
-    const args = [
-      "withdraw",
-      "1",
-      "ftm",
-      "0xE409E073eE7474C381BFD9b3f88098499123123",
-    ]
+    const args = ["withdraw", "1", "ftm"]
+    const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
     const expectedEmbed = composeEmbedMessage(null, {
       author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
       description: `<@${msg.author.id}>, your balance is insufficient.\nYou can deposit more by using \`$deposit ${args[2]}\``,
@@ -113,7 +105,7 @@ describe("withdraw", () => {
       .fn()
       .mockResolvedValueOnce(expectedEmbed)
     Defi.offchainDiscordWithdraw = jest.fn()
-    const output = await processor.withdraw(msg, args)
+    const output = await processor.withdraw(msg, args, addr)
     expect(Defi.offchainDiscordWithdraw).not.toHaveBeenCalled()
     assertRunResult(
       { messageOptions: { ...output } },
@@ -122,13 +114,9 @@ describe("withdraw", () => {
   })
 
   test("invalid amount", async () => {
-    const args = [
-      "withdraw",
-      "-1",
-      "ftm",
-      "0xE409E073eE7474C381BFD9b3f88098499123123",
-    ]
-    await expect(processor.withdraw(msg, args)).rejects.toThrow(
+    const args = ["withdraw", "-1", "ftm"]
+    const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
+    await expect(processor.withdraw(msg, args, addr)).rejects.toThrow(
       new DiscordWalletTransferError({
         discordId: msg.author.id,
         message: msg,

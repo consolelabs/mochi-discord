@@ -1,17 +1,20 @@
+import { userMention } from "@discordjs/builders"
 import defi from "adapters/defi"
 import {
-  ButtonInteraction,
   CommandInteraction,
   Message,
   MessageActionRow,
   MessageButton,
   MessageOptions,
 } from "discord.js"
+import { MessageButtonStyles } from "discord.js/typings/enums"
 import { InternalError } from "errors"
 import { APIError } from "errors/api"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { ResponseMonikerConfigData } from "types/api"
+import { MultipleResult, RunResult } from "types/common"
 import { OffchainTipBotTransferRequest } from "types/defi"
+import { getExitButton } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
@@ -28,10 +31,6 @@ import {
   tipTokenIsSupported,
 } from "utils/tip-bot"
 import * as processor from "./processor"
-import { userMention } from "@discordjs/builders"
-import { MessageButtonStyles } from "discord.js/typings/enums"
-import { getExitButton } from "ui/discord/button"
-import { RunResult, MultipleResult } from "types/common"
 
 export async function handleTip(
   args: string[],
@@ -324,7 +323,7 @@ async function executeTipWithConfirmation(
       targets.length == 1 ? `<@${targets[0]}>` : targets.length + " users"
     }?`,
   })
-  const confirmButtonCollectorHandler = async (i: ButtonInteraction) => {
+  const confirmButtonCollectorHandler = async () => {
     return await executeTip(
       msg,
       payload,
