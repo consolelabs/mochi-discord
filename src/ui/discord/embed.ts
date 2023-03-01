@@ -388,7 +388,8 @@ export function getCommandSuggestion(
 
 export function composePartnerEmbedPimp() {
   return composeEmbedMessage(null, {
-    title: `<:mclb:1079669537408036955> MCLB`,
+    title: `<:ad:1080392654229090304> MCLB`,
+    color: msgColors.SUCCESS,
     description: `[$fBOMB](https://discord.gg/mclb), an omnichain high yield deflationary token. The bombs will always drop and the APRs are always explosive!`,
     thumbnail:
       "https://cdn.discordapp.com/attachments/994457507135234118/1080335263143829564/MCLB-token.png",
