@@ -388,9 +388,9 @@ export function getCommandSuggestion(
 
 export function composePartnerEmbedPimp() {
   return composeEmbedMessage(null, {
-    title: `${getEmoji("defi")} Faygo Bottle`,
-    description: `Earn a [Juggalos](https://paintswap.finance/marketplace/fantom/collections/pod-town-juggalos) yourself to gain full citizenship of Pod Town Metaverse! Be a productive citizen now, have a faygo!`,
+    title: `<:mclb:1079669537408036955> MCLB`,
+    description: `[$fBOMB](https://discord.gg/yNhSp9uGfM), an omnichain high yield deflationary token. The bombs will always drop and the APRs are always explosive!`,
     thumbnail:
-      "https://cdn.discordapp.com/attachments/1003381172178530494/1077872156177858601/1039136044836200549.webp",
+      "https://cdn.discordapp.com/attachments/994457507135234118/1080335263143829564/MCLB-token.png",
   })
 }
