@@ -19,6 +19,7 @@ import {
 import { composeButtonLink } from "ui/discord/button"
 import profile from "adapters/profile"
 import { logger } from "logger"
+import { wrapError } from "utils/wrap-error"
 
 let proposalTitle = ""
 let proposalDesc = ""
@@ -170,56 +171,58 @@ async function checkExpiredProposal(
   title: string
 ) {
   proposalCache.on("expired", async (key) => {
-    // get vote results
-    const { data, ok, error, curl } = await community.getProposalResults(
-      proposal_id,
-      creator_id
-    )
-    if (!ok) {
-      throw new APIError({ curl, error })
-    }
+    wrapError(msg, async () => {
+      // get vote results
+      const { data, ok, error, curl } = await community.getProposalResults(
+        proposal_id,
+        creator_id
+      )
+      if (!ok) {
+        throw new APIError({ curl, error })
+      }
 
-    const voteYes = data.proposal?.points?.find(
-      (votes: ModelDaoProposalVoteCount) => {
-        return votes.choice === "Yes"
+      const voteYes = data.proposal?.points?.find(
+        (votes: ModelDaoProposalVoteCount) => {
+          return votes.choice === "Yes"
+        }
+      )
+      const voteNo = data.proposal?.points?.find(
+        (votes: ModelDaoProposalVoteCount) => {
+          return votes.choice === "No"
+        }
+      )
+      const voteAbstain = data.proposal?.points?.find(
+        (votes: ModelDaoProposalVoteCount) => {
+          return votes.choice === "Abstain"
+        }
+      )
+      const yesCount = voteYes?.sum ?? 0
+      const noCount = voteNo?.sum ?? 0
+      const absCount = voteAbstain?.sum ?? 0
+      const voteTotal = yesCount + noCount + absCount
+      if (key === cacheKey) {
+        msg.edit({
+          content: null,
+          components: [],
+        })
+        await msg.channel.send({
+          content: "> @everyone",
+          embeds: [
+            composeEmbedMessage(null, {
+              title: `**${title}** Vote results`,
+              description: `The vote result is recorded from <t:${startTime}> to <t:${stopTime}>\nYes: ${
+                voteTotal > 0 ? ((yesCount / voteTotal) * 100).toFixed(2) : 0
+              }% (${yesCount} votes)\nNo: ${
+                voteTotal > 0 ? ((noCount / voteTotal) * 100).toFixed(2) : 0
+              }% (${noCount} votes)\nAbstain: ${
+                voteTotal > 0 ? ((absCount / voteTotal) * 100).toFixed(2) : 0
+              }% (${absCount} votes)\n\nTotal votes: ${voteTotal}`,
+            }),
+          ],
+          components: [],
+        })
       }
-    )
-    const voteNo = data.proposal?.points?.find(
-      (votes: ModelDaoProposalVoteCount) => {
-        return votes.choice === "No"
-      }
-    )
-    const voteAbstain = data.proposal?.points?.find(
-      (votes: ModelDaoProposalVoteCount) => {
-        return votes.choice === "Abstain"
-      }
-    )
-    const yesCount = voteYes?.sum ?? 0
-    const noCount = voteNo?.sum ?? 0
-    const absCount = voteAbstain?.sum ?? 0
-    const voteTotal = yesCount + noCount + absCount
-    if (key === cacheKey) {
-      msg.edit({
-        content: null,
-        components: [],
-      })
-      await msg.channel.send({
-        content: "> @everyone",
-        embeds: [
-          composeEmbedMessage(null, {
-            title: `**${title}** Vote results`,
-            description: `The vote result is recorded from <t:${startTime}> to <t:${stopTime}>\nYes: ${
-              voteTotal > 0 ? ((yesCount / voteTotal) * 100).toFixed(2) : 0
-            }% (${yesCount} votes)\nNo: ${
-              voteTotal > 0 ? ((noCount / voteTotal) * 100).toFixed(2) : 0
-            }% (${noCount} votes)\nAbstain: ${
-              voteTotal > 0 ? ((absCount / voteTotal) * 100).toFixed(2) : 0
-            }% (${absCount} votes)\n\nTotal votes: ${voteTotal}`,
-          }),
-        ],
-        components: [],
-      })
-    }
+    })
   })
 }
 
