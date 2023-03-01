@@ -31,7 +31,10 @@ export class BotBaseError extends Error {
       const reply = (message.reply as ReplyFunc).bind(message)
       this.reply = async (...args) => {
         if (message instanceof CommandInteraction) {
-          message.editReply(...args).catch(() => null)
+          const replyMsg = await message.editReply(...args).catch(() => null)
+          if (!replyMsg) {
+            reply(...args).catch(() => null)
+          }
         } else {
           reply(...args).catch(() => null)
         }
