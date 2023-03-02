@@ -153,10 +153,12 @@ class Defi extends Fetcher {
 
   async getUserWatchlist({
     userId,
+    coinGeckoId,
     page = 0,
     size = 5,
   }: {
     userId: string
+    coinGeckoId?: string
     page?: number
     size?: number
   }) {
@@ -165,6 +167,7 @@ class Defi extends Fetcher {
         userId,
         page,
         size,
+        coinGeckoId,
       },
     })
   }
