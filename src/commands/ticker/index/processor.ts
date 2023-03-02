@@ -1,9 +1,9 @@
 import community from "adapters/community"
 import defi from "adapters/defi"
+import CacheManager from "cache/node-cache"
 import { createCanvas, loadImage } from "canvas"
 import {
   ButtonInteraction,
-  CommandInteraction,
   HexColorString,
   Message,
   MessageActionRow,
@@ -13,17 +13,15 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { APIError } from "errors"
+import { InteractionHandler } from "handlers/discord/select-menu"
 import TurndownService from "turndown"
 import { RectangleStats } from "types/canvas"
-import CacheManager from "cache/node-cache"
-import { InteractionHandler } from "handlers/discord/select-menu"
+import { renderChartImage } from "ui/canvas/chart"
+import { getChartColorConfig } from "ui/canvas/color"
 import { drawRectangle } from "ui/canvas/draw"
-import { emojis, getChance, getEmoji, roundFloatNumber } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
-import { getChartColorConfig } from "ui/canvas/color"
-import { getExitButton } from "ui/discord/button"
-import { renderChartImage } from "ui/canvas/chart"
+import { getChance, getEmoji, roundFloatNumber } from "utils/common"
 
 export async function renderHistoricalMarketChart({
   coinId,
@@ -105,17 +103,15 @@ const getChangePercentage = (change: number) => {
 }
 
 export async function composeTickerResponse({
-  msg,
   coinId,
   days,
   discordId,
   symbol,
 }: {
-  msg: Message
   coinId: string
   symbol: string
   days?: number
-  discordId?: string
+  discordId: string
 }) {
   const {
     ok,
@@ -128,7 +124,7 @@ export async function composeTickerResponse({
     call: () => defi.getCoin(coinId),
   })
   if (!ok) {
-    throw new APIError({ message: msg, curl, description: log })
+    throw new APIError({ curl, description: log })
   }
   const currency = "usd"
   const {
@@ -142,7 +138,7 @@ export async function composeTickerResponse({
   const marketCap = +market_cap[currency]
   const blank = getEmoji("blank")
   const bb = getChance(20)
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
     footer: ["Data fetched from CoinGecko.com"],
@@ -194,11 +190,12 @@ export async function composeTickerResponse({
     days ?? 30
   )
 
-  const buttonRow = buildSwitchViewActionRow("ticker", {
-    coinId: coin.id,
-    days: days ?? 30,
-    symbol,
-  }).addComponents(getExitButton(msg.author.id))
+  const wlAdded = await isTickerAddedToWl(coin.id, discordId)
+  const buttonRow = buildSwitchViewActionRow(
+    "ticker",
+    { coinId: coin.id, days: days ?? 30, symbol, discordId },
+    wlAdded
+  )
 
   return {
     messageOptions: {
@@ -259,33 +256,41 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
 
 export function buildSwitchViewActionRow(
   currentView: string,
-  params: { coinId: string; days: number; symbol: string }
+  params: { coinId: string; days: number; symbol: string; discordId: string },
+  added: boolean
 ) {
+  const { coinId, days, symbol, discordId } = params
   const tickerBtn = new MessageButton({
     label: "Ticker",
     emoji: getEmoji("INCREASING"),
-    customId: `ticker_view_chart|${params.coinId}|${params.days}|${params.symbol}`,
+    customId: `ticker_view_chart|${coinId}|${days}|${symbol}|${discordId}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const infoBtn = new MessageButton({
     label: "Info",
     emoji: getEmoji("MAG"),
-    customId: `ticker_view_info|${params.coinId}|${params.days}|${params.symbol}`,
+    customId: `ticker_view_info|${coinId}|${days}|${symbol}|${discordId}`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
-  const wlPromptBtn = new MessageButton({
-    label: "Add to Watchlist",
-    emoji: emojis.LIKE,
-    customId: `ticker_add_wl|${params.coinId}|${params.symbol}`,
+  const wlAddBtn = new MessageButton({
+    label: `${added ? "Added" : "Add"} to Watchlist`,
+    emoji: added ? getEmoji("approve") : getEmoji("like"),
+    customId: `ticker_add_wl|${coinId}|${symbol}`,
     style: "SECONDARY",
+    disabled: added,
   })
-  return new MessageActionRow().addComponents([tickerBtn, infoBtn, wlPromptBtn])
+  return new MessageActionRow().addComponents([tickerBtn, infoBtn, wlAddBtn])
 }
 
 export async function handleTickerViews(interaction: ButtonInteraction) {
+  await interaction.deferUpdate()
   const msg = <Message>interaction.message
+  const discordId = interaction.customId.split("|").at(-1)
+  if (discordId !== interaction.user.id) {
+    return
+  }
   if (interaction.customId.startsWith("ticker_view_chart")) {
     await viewTickerChart(interaction, msg)
     return
@@ -297,13 +302,14 @@ export async function viewTickerChart(
   interaction: ButtonInteraction,
   msg: Message
 ) {
-  await interaction.deferUpdate()
-  const [coinId, days, symbol] = interaction.customId.split("|").slice(1)
+  const [coinId, days, symbol, discordId] = interaction.customId
+    .split("|")
+    .slice(1)
   const { messageOptions } = await composeTickerResponse({
-    msg,
     coinId,
     ...(days && { days: +days }),
     symbol,
+    discordId,
   })
   await msg.edit(messageOptions)
 }
@@ -312,13 +318,15 @@ export async function viewTickerInfo(
   interaction: ButtonInteraction,
   msg: Message
 ) {
-  await interaction.deferUpdate()
-  const [coinId, days, symbol] = interaction.customId.split("|").slice(1)
+  const [coinId, days, symbol, discordId] = interaction.customId
+    .split("|")
+    .slice(1)
   const { messageOptions } = await composeTokenInfoEmbed(
     msg,
     coinId,
     +days,
-    symbol
+    symbol,
+    discordId
   )
   await msg.edit(messageOptions)
   await msg.removeAttachments()
@@ -328,7 +336,8 @@ export async function composeTokenInfoEmbed(
   msg: Message,
   coinId: string,
   days: number,
-  symbol: string
+  symbol: string,
+  discordId: string
 ) {
   const {
     ok,
@@ -357,11 +366,12 @@ export async function composeTokenInfoEmbed(
     })
     .join("\r\n\r\n")
   embed.setDescription(content || "This token has not updated description yet")
-  const buttonRow = buildSwitchViewActionRow("info", {
-    coinId,
-    days,
-    symbol,
-  }).addComponents(getExitButton(msg.author.id))
+  const wlAdded = await isTickerAddedToWl(coinId, discordId)
+  const buttonRow = buildSwitchViewActionRow(
+    "info",
+    { coinId, days, symbol, discordId },
+    wlAdded
+  )
 
   return {
     messageOptions: {
@@ -371,114 +381,14 @@ export async function composeTokenInfoEmbed(
   }
 }
 
-// slash
-export async function composeTickerSlashResponse({
-  coinId,
-  interaction,
-  symbol,
-  days,
-  discordId,
-}: {
-  coinId: string
-  interaction: SelectMenuInteraction | CommandInteraction
-  symbol: string
-  days?: number
-  discordId?: string
-}) {
-  const {
-    ok,
-    data: coin,
-    log,
-    curl,
-  } = await CacheManager.get({
-    pool: "ticker",
-    key: `ticker-getcoin-${coinId}`,
-    call: () => defi.getCoin(coinId),
+async function isTickerAddedToWl(coinId: string, discordId: string) {
+  const wlRes = await defi.getUserWatchlist({
+    userId: discordId,
+    coinGeckoId: coinId,
   })
-  if (!ok) {
-    throw new APIError({
-      description: log,
-      curl,
-    })
-  }
-  const currency = "usd"
-  const {
-    market_cap,
-    current_price,
-    price_change_percentage_1h_in_currency,
-    price_change_percentage_24h_in_currency,
-    price_change_percentage_7d_in_currency,
-  } = coin.market_data
-  const currentPrice = +current_price[currency]
-  const marketCap = +market_cap[currency]
-  const blank = getEmoji("blank")
-  const bb = getChance(20)
-  const embed = composeEmbedMessage(null, {
-    color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    author: [coin.name, coin.image.small],
-    footer: ["Data fetched from CoinGecko.com"],
-    image: "attachment://chart.png",
-    // originalMsgAuthor: gMember?.user,
-    ...(bb && { description: "Give credit to Tsuki Bot for the idea." }),
-  }).addFields([
-    {
-      name: `Market cap (${currency.toUpperCase()})`,
-      value: `$${marketCap.toLocaleString()} (#${
-        coin.market_cap_rank
-      }) ${blank}`,
-      inline: true,
-    },
-    {
-      name: `Price (${currency.toUpperCase()})`,
-      value: `$${currentPrice.toLocaleString(undefined, {
-        maximumFractionDigits: 4,
-      })}`,
-      inline: true,
-    },
-    { name: "\u200B", value: "\u200B", inline: true },
-    {
-      name: "Change (1h)",
-      value: getChangePercentage(price_change_percentage_1h_in_currency.usd),
-      inline: true,
-    },
-    {
-      name: `Change (24h) ${blank}`,
-      value: getChangePercentage(price_change_percentage_24h_in_currency.usd),
-      inline: true,
-    },
-    {
-      name: "Change (7d)",
-      value: getChangePercentage(price_change_percentage_7d_in_currency.usd),
-      inline: true,
-    },
-  ])
-
-  const chart = await renderHistoricalMarketChart({
-    coinId: coin.id,
-    bb,
-    discordId,
-  })
-  const selectRow = composeDaysSelectMenu(
-    "tickers_range_selection",
-    `${coin.id}`,
-    [1, 7, 30, 60, 90, 365],
-    days
+  return (
+    wlRes.ok &&
+    wlRes.data.metadata.total === 1 &&
+    !wlRes.data.data[0].is_default
   )
-
-  const buttonRow = buildSwitchViewActionRow("ticker", {
-    coinId: coin.id,
-    days: days ?? 7,
-    symbol,
-  }).addComponents(getExitButton(interaction.user.id))
-
-  return {
-    messageOptions: {
-      ...(chart && { files: [chart] }),
-      embeds: [embed],
-      components: [selectRow, buttonRow],
-    },
-    interactionOptions: {
-      handler,
-    },
-  }
 }
