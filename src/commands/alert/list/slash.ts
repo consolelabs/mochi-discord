@@ -37,7 +37,7 @@ const command: SlashCommand = {
     }
     listenForPaginateInteraction(
       interaction,
-      async (interaction: CommandInteraction, idx: number) => {
+      async (_interaction: CommandInteraction, idx: number) => {
         return {
           messageOptions: {
             embeds: [pages[idx]],

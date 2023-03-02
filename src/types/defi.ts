@@ -70,6 +70,11 @@ export type Coin = {
   description: CoinDescription
 }
 
+export type CoinPrice = {
+  symbol: string
+  price: string
+}
+
 export type TickerData = {
   base: string
   target: string

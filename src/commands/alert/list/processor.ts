@@ -40,7 +40,11 @@ export async function handleAlertList({
         )}\n${getEmoji("reply")} When ${item.alert_type.replaceAll(
           "_",
           " "
-        )} **${item.price}**\n`)
+        )} **${
+          ["change_is_over", "change_is_under"].includes(item?.alert_type)
+            ? item.value + "%"
+            : item.value
+        }**\n`)
     )
     return composeEmbedMessage(null, {
       title: `${getEmoji("increasing")} Alert list`,
