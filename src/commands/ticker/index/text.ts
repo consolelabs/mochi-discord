@@ -34,7 +34,6 @@ async function run(msg: Message, base: string): Promise<TextCommandResponse> {
 
   if (coins.length === 1) {
     return await composeTickerResponse({
-      msg,
       coinId: coins[0].id,
       discordId: msg.author.id,
       symbol: base,
@@ -54,7 +53,6 @@ async function run(msg: Message, base: string): Promise<TextCommandResponse> {
   })
   if (defaultTicker.ok && defaultTicker.data.default_ticker) {
     return await composeTickerResponse({
-      msg,
       coinId: defaultTicker.data.default_ticker,
       discordId: msg.author.id,
       symbol: base,
@@ -91,7 +89,6 @@ async function run(msg: Message, base: string): Promise<TextCommandResponse> {
     render: ({ msgOrInteraction: msg, value }) => {
       const [coinId] = value.split("_")
       return composeTickerResponse({
-        msg,
         coinId,
         discordId: msg.author.id,
         symbol: base,

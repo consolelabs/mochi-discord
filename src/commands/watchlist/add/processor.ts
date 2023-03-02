@@ -2,6 +2,9 @@ import {
   ButtonInteraction,
   CommandInteraction,
   Message,
+  MessageActionRow,
+  MessageActionRowComponent,
+  MessageButton,
   MessageComponentInteraction,
   MessageSelectOptionData,
   SelectMenuInteraction,
@@ -16,29 +19,27 @@ import { handleUpdateWlError } from "../processor"
 import { composeDiscordExitButton } from "ui/discord/button"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 
-export async function addToWatchlist(interaction: ButtonInteraction) {
-  // deferUpdate because we will edit the message later
-  if (!interaction.deferred) {
-    interaction.deferUpdate()
-  }
-  const msg = interaction.message as Message
-  const [coinId, symbol] = interaction.customId.split("|").slice(1)
-  await addUserWatchlist(msg, interaction.user.id, symbol, coinId)
+export async function addToWatchlist(i: ButtonInteraction) {
+  if (!i.deferred) i.deferUpdate()
+  const msg = i.message as Message
+  const [coinId, symbol] = i.customId.split("|").slice(1)
+  await addUserWatchlist(msg, i.user.id, symbol, coinId)
 
-  // disable + change the label of the add button
-  const addButton = interaction.message.components?.at(1)?.components.at(2)
-  if (
-    addButton?.type === "BUTTON" &&
-    addButton.customId?.startsWith("ticker_add_wl")
-  ) {
-    addButton.setDisabled(true)
-    addButton.setLabel("Added to watchlist")
+  const rows = i.message
+    .components as MessageActionRow<MessageActionRowComponent>[]
+  const addBtn = rows
+    .map((r) =>
+      r.components.find((c) => c.customId?.startsWith("ticker_add_wl"))
+    )
+    .filter((c) => Boolean(c))
+    .at(0) as MessageButton
+  if (!addBtn) return
+  addBtn.setDisabled(true)
+  addBtn.setLabel("Added to watchlist")
 
-    msg.components?.at(1)?.components.splice(2, 1, addButton)
-    msg.edit({
-      components: msg.components,
-    })
-  }
+  msg.edit({
+    components: msg.components,
+  })
 }
 
 export async function addUserWatchlist(

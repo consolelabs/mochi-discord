@@ -1,12 +1,20 @@
 import { userMention } from "@discordjs/builders"
 import defi from "adapters/defi"
-import { Message, MessageOptions, SnowflakeUtil } from "discord.js"
+import {
+  Message,
+  MessageActionRow,
+  MessageButton,
+  MessageOptions,
+  SnowflakeUtil,
+} from "discord.js"
+import { MessageButtonStyles } from "discord.js/typings/enums"
 import { APIError, InternalError } from "errors"
 import { RunResult } from "types/common"
 import { OffchainTipBotTransferRequest } from "types/defi"
+import { getExitButton } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments } from "utils/commands"
-import { emojis, getEmojiURL, thumbnails } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, thumbnails } from "utils/common"
 import * as tiputils from "utils/tip-bot"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
@@ -126,6 +134,658 @@ test.each([
   expect(processor.parseTipParameters(input)).toStrictEqual(output)
 })
 
+// executeTip
+describe("executeTip", () => {
+  const msg = mockdc.cloneMessage()
+  const userId = SnowflakeUtil.generate()
+  test("tip user", async () => {
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: ["521591222826041344"],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 100,
+      token: "CAKE",
+      each: false,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const transferResp = {
+      ok: true,
+      data: [
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041344",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+      ],
+    }
+    const targets = ["<@521591222826041344>"]
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+    const output = await processor.executeTip(
+      msg,
+      tipPayload,
+      targets,
+      "",
+      "",
+      false
+    )
+    const expected = composeEmbedMessage(null, {
+      thumbnail: thumbnails.TIP,
+      author: ["Tips", getEmojiURL(emojis.COIN)],
+      description: `<@${userId}> has sent ${targets[0]} **100 CAKE** (\u2248 $100) `,
+    })
+
+    assertRunResult(output as RunResult<MessageOptions>, {
+      messageOptions: {
+        embeds: [expected],
+        components: [],
+      },
+    })
+  })
+  test("tip online", async () => {
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: [
+        "521591222826041344",
+        "521591222826041343",
+        "521591222826041342",
+      ],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 100,
+      token: "CAKE",
+      each: true,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const transferResp = {
+      ok: true,
+      data: [
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041344",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041343",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041342",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+      ],
+    }
+    const targets = [
+      "online",
+      "<@521591222826041344>",
+      "<@521591222826041343>",
+      "<@521591222826041342>",
+    ]
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+    const output = await processor.executeTip(
+      msg,
+      tipPayload,
+      targets,
+      "",
+      "",
+      false
+    )
+    const expected = composeEmbedMessage(null, {
+      thumbnail: thumbnails.TIP,
+      author: ["Tips", getEmojiURL(emojis.COIN)],
+      description: `<@${userId}> has sent **3 online user(s) (${targets[1]}, ${targets[2]}, ${targets[3]})** **100 CAKE** (\u2248 $100) each`,
+    })
+
+    assertRunResult(output as RunResult<MessageOptions>, {
+      messageOptions: {
+        embeds: [expected],
+        components: [],
+      },
+    })
+  })
+  test("tip online > 10 users", async () => {
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: [
+        "521591222826041349",
+        "521591222826041348",
+        "521591222826041347",
+        "521591222826041346",
+        "521591222826041345",
+        "521591222826041344",
+        "521591222826041343",
+        "521591222826041342",
+        "521591222826041341",
+        "521591222826041340",
+      ],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 100,
+      token: "CAKE",
+      each: true,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const transferResp = {
+      ok: true,
+      data: [
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041349",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041348",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041347",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041346",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041345",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041344",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041343",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041342",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041341",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041340",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+      ],
+    }
+    const targets = [
+      "online",
+      "<@521591222826041349>",
+      "<@521591222826041348>",
+      "<@521591222826041347>",
+      "<@521591222826041346>",
+      "<@521591222826041345>",
+      "<@521591222826041344>",
+      "<@521591222826041343>",
+      "<@521591222826041342>",
+      "<@521591222826041341>",
+      "<@521591222826041340>",
+    ]
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+    const output = await processor.executeTip(
+      msg,
+      tipPayload,
+      targets,
+      "",
+      "",
+      false
+    )
+    const expected = composeEmbedMessage(null, {
+      thumbnail: thumbnails.TIP,
+      author: ["Tips", getEmojiURL(emojis.COIN)],
+      description: `<@${userId}> has sent **10 online user(s)** **100 CAKE** (\u2248 $100) each`,
+    })
+
+    assertRunResult(output as RunResult<MessageOptions>, {
+      messageOptions: {
+        embeds: [expected],
+        components: [],
+      },
+    })
+  })
+  test("tip role", async () => {
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: ["521591222826041349", "521591222826041348"],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 100,
+      token: "CAKE",
+      each: true,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const transferResp = {
+      ok: true,
+      data: [
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041349",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041348",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+      ],
+    }
+    const targets = [
+      "<@&1022071198651269150>",
+      "<@521591222826041349>",
+      "<@521591222826041348>",
+    ]
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+    const output = await processor.executeTip(
+      msg,
+      tipPayload,
+      targets,
+      "",
+      "",
+      false
+    )
+    const expected = composeEmbedMessage(null, {
+      thumbnail: thumbnails.TIP,
+      author: ["Tips", getEmojiURL(emojis.COIN)],
+      description: `<@${userId}> has sent **2 user(s) (<@521591222826041349>, <@521591222826041348>)** in <@&1022071198651269150> **100 CAKE** (\u2248 $100) each`,
+    })
+
+    assertRunResult(output as RunResult<MessageOptions>, {
+      messageOptions: {
+        embeds: [expected],
+        components: [],
+      },
+    })
+  })
+  test("tip role > 10 users", async () => {
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: [
+        "521591222826041349",
+        "521591222826041348",
+        "521591222826041347",
+        "521591222826041346",
+        "521591222826041345",
+        "521591222826041344",
+        "521591222826041343",
+        "521591222826041342",
+        "521591222826041341",
+        "521591222826041340",
+      ],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 100,
+      token: "CAKE",
+      each: true,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const transferResp = {
+      ok: true,
+      data: [
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041349",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041348",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041347",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041346",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041345",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041344",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041343",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041342",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041341",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041340",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+      ],
+    }
+    const targets = [
+      "<@&1022071198651269150>",
+      "<@521591222826041349>",
+      "<@521591222826041348>",
+      "<@521591222826041347>",
+      "<@521591222826041346>",
+      "<@521591222826041345>",
+      "<@521591222826041344>",
+      "<@521591222826041343>",
+      "<@521591222826041342>",
+      "<@521591222826041341>",
+      "<@521591222826041340>",
+    ]
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+    const output = await processor.executeTip(
+      msg,
+      tipPayload,
+      targets,
+      "",
+      "",
+      false
+    )
+    const expected = composeEmbedMessage(null, {
+      thumbnail: thumbnails.TIP,
+      author: ["Tips", getEmojiURL(emojis.COIN)],
+      description: `<@${userId}> has sent **10 user(s)** in <@&1022071198651269150> **100 CAKE** (\u2248 $100) each`,
+    })
+
+    assertRunResult(output as RunResult<MessageOptions>, {
+      messageOptions: {
+        embeds: [expected],
+        components: [],
+      },
+    })
+  })
+  test("tip channel", async () => {
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: ["521591222826041349", "521591222826041348"],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 100,
+      token: "CAKE",
+      each: true,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const transferResp = {
+      ok: true,
+      data: [
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041349",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041348",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+      ],
+    }
+    const targets = [
+      "<#1035139564504891462>",
+      "<@521591222826041349>",
+      "<@521591222826041348>",
+    ]
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+    const output = await processor.executeTip(
+      msg,
+      tipPayload,
+      targets,
+      "",
+      "",
+      false
+    )
+    const expected = composeEmbedMessage(null, {
+      thumbnail: thumbnails.TIP,
+      author: ["Tips", getEmojiURL(emojis.COIN)],
+      description: `<@${userId}> has sent **2 user(s) (<@521591222826041349>, <@521591222826041348>)** in <#1035139564504891462> **100 CAKE** (\u2248 $100) each`,
+    })
+
+    assertRunResult(output as RunResult<MessageOptions>, {
+      messageOptions: {
+        embeds: [expected],
+        components: [],
+      },
+    })
+  })
+  test("tip channel > 10 users", async () => {
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: [
+        "521591222826041349",
+        "521591222826041348",
+        "521591222826041347",
+        "521591222826041346",
+        "521591222826041345",
+        "521591222826041344",
+        "521591222826041343",
+        "521591222826041342",
+        "521591222826041341",
+        "521591222826041340",
+      ],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 100,
+      token: "CAKE",
+      each: true,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const transferResp = {
+      ok: true,
+      data: [
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041349",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041348",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041347",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041346",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041345",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041344",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041343",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041342",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041341",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+        {
+          amount: 100,
+          amount_in_usd: 100,
+          recipient_id: "521591222826041340",
+          sender_id: userId,
+          symbol: "CAKE",
+        },
+      ],
+    }
+    const targets = [
+      "<#1035139564504891462>",
+      "<@521591222826041349>",
+      "<@521591222826041348>",
+      "<@521591222826041347>",
+      "<@521591222826041346>",
+      "<@521591222826041345>",
+      "<@521591222826041344>",
+      "<@521591222826041343>",
+      "<@521591222826041342>",
+      "<@521591222826041341>",
+      "<@521591222826041340>",
+    ]
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+    const output = await processor.executeTip(
+      msg,
+      tipPayload,
+      targets,
+      "",
+      "",
+      false
+    )
+    const expected = composeEmbedMessage(null, {
+      thumbnail: thumbnails.TIP,
+      author: ["Tips", getEmojiURL(emojis.COIN)],
+      description: `<@${userId}> has sent **10 user(s)** in <#1035139564504891462> **100 CAKE** (\u2248 $100) each`,
+    })
+
+    assertRunResult(output as RunResult<MessageOptions>, {
+      messageOptions: {
+        embeds: [expected],
+        components: [],
+      },
+    })
+  })
+})
+
 //handleTip
 describe("handleTip", () => {
   const userId = SnowflakeUtil.generate()
@@ -223,6 +883,95 @@ describe("handleTip", () => {
       messageOptions: {
         embeds: [expected],
         components: [],
+      },
+    })
+  })
+
+  test("tip user with confirmation", async () => {
+    const recipient = userMention("521591222826041344")
+    msg.content = `$tip ${recipient} 100 cake`
+    const args = getCommandArguments(msg)
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: ["521591222826041344"],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 100,
+      token: "CAKE",
+      each: false,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const checkBalResp = {
+      ok: true,
+      data: [
+        {
+          id: "pancake-swap",
+          name: "Pancake",
+          symbol: "CAKE",
+          balances: 200,
+          balances_in_usd: 200,
+          rate_in_usd: 1,
+        },
+      ],
+    }
+    const syntaxTargets = {
+      targets: ["<@521591222826041344>"],
+      isValid: true,
+    }
+    const moniker = {
+      newArgs: ["tip", "<@521591222826041344>", "100", "cake"],
+      moniker: undefined,
+    }
+    const msgTip = {
+      newArgs: ["tip", "<@521591222826041344>", "100", "cake"],
+      messageTip: "",
+    }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "cake",
+      amountArg: "100",
+    }
+
+    jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(moniker)
+    jest.spyOn(processor, "parseMessageTip").mockResolvedValueOnce(msgTip)
+    jest.spyOn(processor, "parseTipParameters").mockReturnValueOnce(parseTip)
+    jest
+      .spyOn(tiputils, "classifyTipSyntaxTargets")
+      .mockReturnValueOnce(syntaxTargets)
+    jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
+    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
+    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+
+    const output = (await processor.handleTip(
+      args,
+      userId,
+      msg.content,
+      msg
+    )) as RunResult<MessageOptions>
+    expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
+
+    const expected = composeEmbedMessage(null, {
+      title: `${getEmoji("TIP")} Transaction Confirmation`,
+      description: `Are you sure you want to spend **100 CAKE** (100.00 USD) to tip <@521591222826041344>?`,
+    })
+
+    assertRunResult(output as RunResult<MessageOptions>, {
+      messageOptions: {
+        embeds: [expected],
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton({
+              customId: "confirm-tip",
+              style: MessageButtonStyles.SUCCESS,
+              label: "Confirm",
+              emoji: getEmoji("APPROVE"),
+            }),
+            getExitButton(userId)
+          ),
+        ],
       },
     })
   })
@@ -327,6 +1076,106 @@ describe("handleTip", () => {
       messageOptions: {
         embeds: [expected],
         components: [],
+      },
+    })
+  })
+
+  test("tip users with confirmation", async () => {
+    msg.content = `$tip <@760874365037314100> <@580788681967665173> 100 cake`
+    const args = getCommandArguments(msg)
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: ["760874365037314100", "580788681967665173"],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 100,
+      token: "CAKE",
+      each: false,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const checkBalResp = {
+      ok: true,
+      data: [
+        {
+          id: "pancake-swap",
+          name: "Pancake",
+          symbol: "CAKE",
+          balances: 200,
+          balances_in_usd: 200,
+          rate_in_usd: 1,
+        },
+      ],
+    }
+    const syntaxTargets = {
+      targets: ["<@760874365037314100>", "<@580788681967665173>"],
+      isValid: true,
+    }
+    const moniker = {
+      newArgs: [
+        "tip",
+        "<@760874365037314100>",
+        "<@580788681967665173>",
+        "100",
+        "cake",
+      ],
+      moniker: undefined,
+    }
+    const msgTip = {
+      newArgs: [
+        "tip",
+        "<@760874365037314100>",
+        "<@580788681967665173>",
+        "100",
+        "cake",
+      ],
+      messageTip: "",
+    }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "cake",
+      amountArg: "100",
+    }
+
+    jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(moniker)
+    jest.spyOn(processor, "parseMessageTip").mockResolvedValueOnce(msgTip)
+    jest.spyOn(processor, "parseTipParameters").mockReturnValueOnce(parseTip)
+    jest
+      .spyOn(tiputils, "classifyTipSyntaxTargets")
+      .mockReturnValueOnce(syntaxTargets)
+    jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
+    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
+    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+
+    const output = (await processor.handleTip(
+      args,
+      userId,
+      msg.content,
+      msg
+    )) as RunResult<MessageOptions>
+    expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
+
+    const expected = composeEmbedMessage(null, {
+      title: `${getEmoji("TIP")} Transaction Confirmation`,
+      description: `Are you sure you want to spend **100 CAKE** (100.00 USD) to tip 2 users?`,
+    })
+
+    assertRunResult(output as RunResult<MessageOptions>, {
+      messageOptions: {
+        embeds: [expected],
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton({
+              customId: "confirm-tip",
+              style: MessageButtonStyles.SUCCESS,
+              label: "Confirm",
+              emoji: getEmoji("APPROVE"),
+            }),
+            getExitButton(userId)
+          ),
+        ],
       },
     })
   })

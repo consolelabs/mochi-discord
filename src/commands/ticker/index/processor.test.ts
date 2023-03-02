@@ -6,6 +6,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { getChartColorConfig } from "ui/canvas/color"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { RunResult } from "types/common"
+import defi from "adapters/defi"
 
 jest.mock("adapters/defi")
 const commandKey = "ticker"
@@ -101,11 +102,18 @@ describe("ticker", () => {
         to: "October 12, 2022",
       },
     }
+    const wlRes = {
+      data: {
+        metadata: { page: 0, size: 12, total: 1 },
+        data: [{ id: "fantom", symbol: "ftm", is_default: false }],
+      },
+    }
     CacheManager.get = jest
       .fn()
       .mockResolvedValueOnce(cacheSearchCoinRes)
       .mockResolvedValueOnce(cacheGetCoinRes)
       .mockResolvedValueOnce(cacheChartRes)
+    defi.getUserWatchlist = jest.fn().mockResolvedValueOnce(wlRes)
     const expected = composeEmbedMessage(msg, {
       color: getChartColorConfig(cacheGetCoinRes.data.id)
         .borderColor as HexColorString,

@@ -24,16 +24,16 @@ const command: SlashCommand = {
 
     const options: MessageSelectOptionData[] = []
     data.forEach((alert: any) => {
+      const label =
+        alert.symbol +
+          " " +
+          alert.alert_type.replaceAll("_", " ") +
+          " " +
+          alert.value ?? ""
+      const value = `${alert.id ?? ""}`
       options.push({
-        label:
-          alert.symbol +
-            " " +
-            alert.alert_type.replaceAll("_", " ") +
-            " " +
-            alert.price ?? "",
-        value: `${alert.user_discord_id ?? ""}|${alert.symbol ?? ""}|${
-          alert.price ?? ""
-        }`,
+        label,
+        value,
       })
     })
 

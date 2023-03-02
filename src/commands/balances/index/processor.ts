@@ -73,7 +73,11 @@ const balancesFetcher: Record<number, (userId: string) => Promise<any>[]> = {
   ],
 }
 
-async function getBalances(userId: string, type: number, msg: OriginalMessage) {
+export async function getBalances(
+  userId: string,
+  type: number,
+  msg: OriginalMessage
+) {
   const fetcher = balancesFetcher[type]
   const res = await Promise.all(fetcher(userId))
   const ok = res[0].ok && (res[1]?.ok ?? true)

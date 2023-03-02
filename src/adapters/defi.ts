@@ -11,7 +11,13 @@ import {
   ResponseGetSupportedTokenResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
-import { Coin, CoinComparisionData, GasPriceData, Token } from "types/defi"
+import {
+  Coin,
+  CoinComparisionData,
+  CoinPrice,
+  GasPriceData,
+  Token,
+} from "types/defi"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
 import {
@@ -80,6 +86,12 @@ class Defi extends Fetcher {
 
   public async getCoin(id: string) {
     return await this.jsonFetch<Coin>(`${API_BASE_URL}/defi/coins/${id}`)
+  }
+
+  public async getBinanceCoinPrice(symbol: string) {
+    return await this.jsonFetch<CoinPrice>(
+      `${API_BASE_URL}/defi/coins/binance/${symbol}`
+    )
   }
 
   public async searchCoins(query: string) {
@@ -153,10 +165,12 @@ class Defi extends Fetcher {
 
   async getUserWatchlist({
     userId,
+    coinGeckoId,
     page = 0,
     size = 5,
   }: {
     userId: string
+    coinGeckoId?: string
     page?: number
     size?: number
   }) {
@@ -165,6 +179,7 @@ class Defi extends Fetcher {
         userId,
         page,
         size,
+        coinGeckoId,
       },
     })
   }
@@ -457,7 +472,7 @@ class Defi extends Fetcher {
     symbol: string
     alertType: string
     frequency: string
-    price: number
+    value: number
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/defi/price-alert`, {
       method: "POST",
@@ -465,9 +480,9 @@ class Defi extends Fetcher {
     })
   }
 
-  async removeAlertPrice(userDiscordId: string, symbol: string, price: number) {
+  async removeAlertPrice(alertId: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/defi/price-alert?user_discord_id=${userDiscordId}&symbol=${symbol}&price=${price}`,
+      `${API_BASE_URL}/defi/price-alert?id=${alertId}`,
       {
         method: "DELETE",
       }
