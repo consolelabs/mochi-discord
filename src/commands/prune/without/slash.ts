@@ -3,7 +3,7 @@ import { CommandInteraction, MessageActionRow, MessageButton } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { InternalError } from "errors"
 import { SlashCommand } from "types/common"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { PRUNE_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import {
   composeEmbedMessage,
@@ -49,7 +49,7 @@ const command: SlashCommand = {
     const role = interaction.options.getRole("role")
     if (!role) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: "Please enter a valid role",
       })
     }
@@ -64,6 +64,7 @@ const command: SlashCommand = {
               description: `Everyone has the role ${
                 role.name
               }, let's put down the prune stick ${getEmoji("TOUCH")}`,
+              color: msgColors.PINK,
             }),
           ],
         },

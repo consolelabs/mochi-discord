@@ -11,7 +11,7 @@ import { FEEDBACK_PUBLIC_CHANNEL_ID } from "env"
 import { APIError, InternalError } from "errors"
 import { logger } from "logger"
 import { ModelUserFeedback, RequestUserFeedbackRequest } from "types/api"
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { DISCORD_URL } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import truncate from "lodash/truncate"
@@ -43,7 +43,7 @@ async function sendProgressToPublicFeedbackChannel(
     description: `${user} has something to say${
       feedback.command ? ` for command ${feedback.command.toUpperCase()}` : ""
     }\n\`${feedback.feedback}\``,
-    color: "#fcd3c1",
+    color: msgColors.PINK,
   }).setFooter(user?.tag, user.avatarURL() ?? undefined)
 
   logger.info("[handleFeedback] - fetching public channel")
@@ -290,7 +290,7 @@ export async function handleFeedback(
   const res = await community.sendFeedback(req)
   if (!res.ok) {
     throw new InternalError({
-      message,
+      msgOrInteraction: message,
       description: "Failed to send your feedback, please try again later",
     })
   }

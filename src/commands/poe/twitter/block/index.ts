@@ -82,7 +82,11 @@ const command: Command = {
       created_by: msg.author.id,
     })
     if (!ok) {
-      throw new APIError({ message: msg, curl: curl, description: log })
+      throw new APIError({
+        msgOrInteraction: msg,
+        curl: curl,
+        description: log,
+      })
     }
 
     return {

@@ -30,6 +30,7 @@ import {
   emojis,
   getEmoji,
   getEmojiURL,
+  msgColors,
   reverseLookup,
   shortenHashOrAddress,
 } from "utils/common"
@@ -126,7 +127,7 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
     log,
   } = await defi.getUserOwnedWallets(user.id, msg.guildId ?? "")
   if (!ok) {
-    throw new APIError({ message: msg, curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl, description: log })
   }
   // maximum 9 wallets for now
   const list = await Promise.all(
@@ -144,6 +145,7 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
     description: `**✦ MY WALLETS ✦**\n\n${list.join(
       "\n"
     )}\n\n${pointingright} Choose a wallet to customize assets \`/wallet view label\` or \`/wallet view address\`\n/wallet view wal1 or /wallet view baddeed.eth (In case you have set label)\n${pointingright} Add more wallet \`/wallet add\`\n\u200B`,
+    color: msgColors.PINK,
   })
   setProfileFooter(embed)
   return {
@@ -224,7 +226,7 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
     log,
   } = await profile.getUserProfile(msg.guildId ?? "", user.id)
   if (!ok) {
-    throw new APIError({ message: msg, description: log, curl })
+    throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
 
   const nextLevelMinXp = userProfile.next_level?.min_xp
@@ -243,6 +245,7 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   const embed = composeEmbedMessage(null, {
     thumbnail: user.displayAvatarURL(),
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
+    color: msgColors.PINK,
   }).addFields(
     {
       name: "✦ STATS ✦\n\nRole",
@@ -297,7 +300,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
   const userProfile = await profile.getUserProfile(msg.guildId, user.id)
   if (!userProfile.ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: userProfile.curl,
       description: userProfile.log,
     })
@@ -325,7 +328,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
   })
   if (!userNFTs.ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: userNFTs.curl,
       description: userNFTs.log,
     })
@@ -376,6 +379,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
   const embed = composeEmbedMessage(msg, {
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
     description: `**✦ MY NFT ✦**\n\u200B`,
+    color: msgColors.PINK,
   }).addFields(fields)
   setProfileFooter(embed)
   return {

@@ -6,17 +6,17 @@ export class APIError extends BotBaseError {
   curl = "None"
 
   constructor({
-    message,
+    msgOrInteraction,
     description,
     curl,
     error,
   }: {
-    message?: OriginalMessage
+    msgOrInteraction?: OriginalMessage
     description?: string
     curl: string
     error?: string
   }) {
-    super(message, description)
+    super(msgOrInteraction, description)
     this.name = "API error"
     this.curl = curl
     this.specificError = error

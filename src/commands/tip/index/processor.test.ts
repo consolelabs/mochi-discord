@@ -14,7 +14,13 @@ import { OffchainTipBotTransferRequest } from "types/defi"
 import { getExitButton } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments } from "utils/commands"
-import { emojis, getEmoji, getEmojiURL, thumbnails } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  msgColors,
+  thumbnails,
+} from "utils/common"
 import * as tiputils from "utils/tip-bot"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
@@ -178,6 +184,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent ${targets[0]} **100 CAKE** (\u2248 $100) `,
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -250,6 +257,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **3 online user(s) (${targets[1]}, ${targets[2]}, ${targets[3]})** **100 CAKE** (\u2248 $100) each`,
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -385,6 +393,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **10 online user(s)** **100 CAKE** (\u2248 $100) each`,
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -445,6 +454,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **2 user(s) (<@521591222826041349>, <@521591222826041348>)** in <@&1022071198651269150> **100 CAKE** (\u2248 $100) each`,
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -580,6 +590,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **10 user(s)** in <@&1022071198651269150> **100 CAKE** (\u2248 $100) each`,
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -640,6 +651,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **2 user(s) (<@521591222826041349>, <@521591222826041348>)** in <#1035139564504891462> **100 CAKE** (\u2248 $100) each`,
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -775,6 +787,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **10 user(s)** in <#1035139564504891462> **100 CAKE** (\u2248 $100) each`,
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -792,6 +805,104 @@ describe("handleTip", () => {
   let msg: Message
   beforeEach(() => (msg = mockdc.cloneMessage()))
   afterEach(() => jest.clearAllMocks())
+
+  test("insufficient balance", async () => {
+    msg.content = "$tip <@760874365037314100> 10 cake"
+    const args = getCommandArguments(msg)
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: ["760874365037314100"],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 5,
+      token: "CAKE",
+      each: false,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const syntaxTargets = {
+      targets: ["<@760874365037314100>"],
+      isValid: true,
+    }
+    const transferResp = {
+      error: "Not enough balance",
+    }
+    const checkBalResp = {
+      ok: true,
+      data: [
+        {
+          id: "pancake-swap",
+          name: "Pancake",
+          symbol: "CAKE",
+          balances: 5,
+          balances_in_usd: 5,
+          rate_in_usd: 1,
+        },
+      ],
+    }
+    const moniker = {
+      newArgs: ["tip", "<@760874365037314100>", "10", "cake"],
+      moniker: undefined,
+    }
+    const msgTip = {
+      newArgs: ["tip", "<@760874365037314100>", "10", "cake"],
+      messageTip: "",
+    }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "cake",
+      amountArg: "10",
+    }
+    // defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
+    jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(moniker)
+    jest.spyOn(processor, "parseMessageTip").mockResolvedValueOnce(msgTip)
+    jest.spyOn(processor, "parseTipParameters").mockReturnValueOnce(parseTip)
+    jest
+      .spyOn(tiputils, "classifyTipSyntaxTargets")
+      .mockReturnValueOnce(syntaxTargets)
+    jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
+    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+
+    await expect(
+      processor.handleTip(args, userId, msg.content, msg)
+    ).rejects.toThrow(APIError)
+  })
+
+  test("token not supported", async () => {
+    msg.content = "$tip <@760874365037314100> 1.5 alt"
+    const args = getCommandArguments(msg)
+    const syntaxTargets = {
+      targets: ["<@760874365037314100>"],
+      isValid: true,
+    }
+    const moniker = {
+      newArgs: ["tip", "<@760874365037314100>", "1.5", "alt"],
+      moniker: undefined,
+    }
+    const msgTip = {
+      newArgs: ["tip", "<@760874365037314100>", "1.5", "alt"],
+      messageTip: "",
+    }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "alt",
+      amountArg: "1.5",
+    }
+    jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(moniker)
+    jest.spyOn(processor, "parseMessageTip").mockResolvedValueOnce(msgTip)
+    jest.spyOn(processor, "parseTipParameters").mockReturnValueOnce(parseTip)
+    jest
+      .spyOn(tiputils, "classifyTipSyntaxTargets")
+      .mockReturnValueOnce(syntaxTargets)
+    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(false)
+    await expect(
+      processor.handleTip(args, userId, msg.content, msg)
+    ).rejects.toThrow(InternalError)
+  })
 
   test("tip user successfully", async () => {
     const recipient = userMention("521591222826041344")
@@ -877,6 +988,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent ${recipient} **1.5 CAKE** (\u2248 $1.5) `,
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -956,6 +1068,7 @@ describe("handleTip", () => {
     const expected = composeEmbedMessage(null, {
       title: `${getEmoji("TIP")} Transaction Confirmation`,
       description: `Are you sure you want to spend **100 CAKE** (100.00 USD) to tip <@521591222826041344>?`,
+      color: msgColors.BLUE,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -1067,6 +1180,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent <@760874365037314100>, <@580788681967665173> **1 CAKE** (\u2248 $1.5) each`,
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1160,6 +1274,7 @@ describe("handleTip", () => {
     const expected = composeEmbedMessage(null, {
       title: `${getEmoji("TIP")} Transaction Confirmation`,
       description: `Are you sure you want to spend **100 CAKE** (100.00 USD) to tip 2 users?`,
+      color: msgColors.BLUE,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -1252,6 +1367,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent <@521591222826041344> **10 CAKE** (\u2248 $20.5) `,
+      color: msgColors.SUCCESS,
     })
 
     const output = await processor.handleTip(args, userId, msg.content, msg)
@@ -1359,6 +1475,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent <@760874365037314100>, <@580788681967665173> **1.5 CAKE** (\u2248 $1.5) each`,
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1451,6 +1568,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **2 user(s) (<@760874365037314100>, <@580788681967665173>)** in <@&1039124250004574208> **1.5 CAKE** (\u2248 $1.5) each`,
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1577,6 +1695,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **4 user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** in <@&1039124250004574208>, <@&1041914485251788800> **0.5 CAKE** (\u2248 $1.5) each`,
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1688,6 +1807,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **4 user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** in <#984660970624409630> **0.5 CAKE** (\u2248 $1.5) each`,
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1799,6 +1919,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **4 online user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** **0.5 CAKE** (\u2248 $1.5) each`,
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1810,103 +1931,5 @@ describe("handleTip", () => {
         components: [],
       },
     })
-  })
-
-  test("insufficient balance", async () => {
-    msg.content = "$tip <@760874365037314100> 10 cake"
-    const args = getCommandArguments(msg)
-    const tipPayload: OffchainTipBotTransferRequest = {
-      sender: userId,
-      recipients: ["760874365037314100"],
-      guildId: msg.guildId ?? "",
-      channelId: msg.channelId,
-      amount: 5,
-      token: "CAKE",
-      each: false,
-      all: false,
-      transferType: "tip",
-      duration: 0,
-      fullCommand: "",
-    }
-    const syntaxTargets = {
-      targets: ["<@760874365037314100>"],
-      isValid: true,
-    }
-    const transferResp = {
-      error: "Not enough balance",
-    }
-    const checkBalResp = {
-      ok: true,
-      data: [
-        {
-          id: "pancake-swap",
-          name: "Pancake",
-          symbol: "CAKE",
-          balances: 5,
-          balances_in_usd: 5,
-          rate_in_usd: 1,
-        },
-      ],
-    }
-    const moniker = {
-      newArgs: ["tip", "<@760874365037314100>", "10", "cake"],
-      moniker: undefined,
-    }
-    const msgTip = {
-      newArgs: ["tip", "<@760874365037314100>", "10", "cake"],
-      messageTip: "",
-    }
-    const parseTip = {
-      each: false,
-      cryptocurrency: "cake",
-      amountArg: "10",
-    }
-    defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
-    jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(moniker)
-    jest.spyOn(processor, "parseMessageTip").mockResolvedValueOnce(msgTip)
-    jest.spyOn(processor, "parseTipParameters").mockReturnValueOnce(parseTip)
-    jest
-      .spyOn(tiputils, "classifyTipSyntaxTargets")
-      .mockReturnValueOnce(syntaxTargets)
-    jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
-    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
-    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
-
-    await expect(
-      processor.handleTip(args, userId, msg.content, msg)
-    ).rejects.toThrow(APIError)
-  })
-
-  test("token not supported", async () => {
-    msg.content = "$tip <@760874365037314100> 1.5 alt"
-    const args = getCommandArguments(msg)
-    const syntaxTargets = {
-      targets: ["<@760874365037314100>"],
-      isValid: true,
-    }
-    const moniker = {
-      newArgs: ["tip", "<@760874365037314100>", "1.5", "alt"],
-      moniker: undefined,
-    }
-    const msgTip = {
-      newArgs: ["tip", "<@760874365037314100>", "1.5", "alt"],
-      messageTip: "",
-    }
-    const parseTip = {
-      each: false,
-      cryptocurrency: "alt",
-      amountArg: "1.5",
-    }
-    jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(moniker)
-    jest.spyOn(processor, "parseMessageTip").mockResolvedValueOnce(msgTip)
-    jest.spyOn(processor, "parseTipParameters").mockReturnValueOnce(parseTip)
-    jest
-      .spyOn(tiputils, "classifyTipSyntaxTargets")
-      .mockReturnValueOnce(syntaxTargets)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(false)
-    await expect(
-      processor.handleTip(args, userId, msg.content, msg)
-    ).rejects.toThrow(InternalError)
   })
 })

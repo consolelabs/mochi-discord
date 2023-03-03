@@ -53,7 +53,7 @@ const command: Command = {
       req
     )
     if (!ok) {
-      throw new APIError({ message: msg, curl, description: log })
+      throw new APIError({ msgOrInteraction: msg, curl, description: log })
     }
     return {
       messageOptions: {

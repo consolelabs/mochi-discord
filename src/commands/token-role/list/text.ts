@@ -4,6 +4,7 @@ import { list } from "../processor"
 import { Command } from "types/common"
 import { PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { msgColors } from "utils/common"
 
 const command: Command = {
   id: "tr_list",
@@ -18,7 +19,7 @@ const command: Command = {
     const res = await Config.getConfigTokenRoleList(msg.guildId)
     if (!res.ok) {
       throw new APIError({
-        message: msg,
+        msgOrInteraction: msg,
         curl: res.curl,
         description: res.log,
       })
@@ -31,6 +32,7 @@ const command: Command = {
           composeEmbedMessage(msg, {
             author: [title],
             description,
+            color: msgColors.PINK,
           }),
         ],
       },

@@ -1,140 +1,103 @@
-import defi from "adapters/defi"
 import { commands } from "commands"
-import Discord, { MessageOptions } from "discord.js"
-import { RunResult } from "types/common"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { mockClient } from "../../../../tests/mocks"
+import { Message } from "discord.js"
+import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
-
 jest.mock("adapters/defi")
+jest.mock("./processor")
+
 const commandKey = "airdrop"
 
 describe("airdrop", () => {
-  const guild = Reflect.construct(Discord.Guild, [mockClient, {}])
-  const userId = Discord.SnowflakeUtil.generate()
   if (!commands[commandKey]) return
   const command = commands[commandKey]
+  let msg: Message
 
-  test("airdrop", async () => {
-    const msg = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content: "$airdrop 1 cake",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-        guild_id: Discord.SnowflakeUtil.generate(),
-        channel_id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          guild: guild,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
-    const balResp = {
-      ok: true,
-      data: [
-        {
-          balances: 10,
-          balances_in_usd: 20.5,
-          id: "pancake-swap",
-          name: "Panswap Cake",
-          rate_in_usd: 2.05,
-          symbol: "CAKE",
-        },
-        {
-          balances: 5,
-          balances_in_usd: 10,
-          id: "fantom",
-          name: "Fantom",
-          rate_in_usd: 2,
-          symbol: "FTM",
-        },
-      ],
-    }
-    const payload = {
-      sender: userId,
-      recipients: [],
-      guildId: msg.guild_id,
-      channelId: msg.channel_id,
-      amount: 1,
-      token: "CAKE",
-      each: false,
-      all: false,
-      transferType: "airdrop",
-      duration: 180,
-      fullCommand: "",
-      opts: { duration: 180, maxEntries: 0 },
-    }
-    jest.spyOn(processor, "getAirdropPayload").mockResolvedValueOnce(payload)
-    // processor.getAirdropPayload = jest.fn().mockResolvedValueOnce(payload)
-    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(balResp)
-    const expected = composeEmbedMessage(null, {
-      title: "<:airdrop:1058301255933501491> Confirm airdrop",
-      description:
-        "Are you sure you want to spend <:cake:972205674371117126> **1 CAKE** (\u2248 $2.05) on this airdrop?",
-    }).addFields([
-      {
-        name: "Total reward",
-        value: "<:cake:972205674371117126> **1 CAKE** (\u2248 $2.05)",
-        inline: true,
-      },
-      {
-        name: "Run time",
-        value: "3m",
-        inline: true,
-      },
-      {
-        name: "Max entries",
-        value: "-",
-        inline: true,
-      },
-    ])
-    const output = await command.run(msg)
-    expect(processor.getAirdropPayload).toHaveBeenCalledTimes(1)
-    expect(defi.offchainGetUserBalances).toHaveBeenCalledTimes(1)
-    expect(expected.title).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].title
-    )
-    expect(expected.description).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    )
-    expect(expected.fields).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].fields
-    )
+  beforeEach(() => (msg = mockdc.cloneMessage()))
+  afterEach(() => jest.restoreAllMocks())
+
+  test("successfully", async () => {
+    msg.content = "$airdrop 1 cake in 120s"
+    await command.run(msg)
+    const args = ["airdrop", "1", "cake", "in", "120s"]
+    expect(processor.handleAirdrop).toHaveBeenCalledWith(msg, args)
+    // const balResp = {
+    //   ok: true,
+    //   data: [
+    //     {
+    //       balances: 10,
+    //       balances_in_usd: 20.5,
+    //       id: "pancake-swap",
+    //       name: "Panswap Cake",
+    //       rate_in_usd: 2.05,
+    //       symbol: "CAKE",
+    //     },
+    //   ],
+    // }
+    // const payload = {
+    //   sender: msg.author.id,
+    //   recipients: [],
+    //   guildId: msg.guildId ?? "",
+    //   channelId: msg.channelId,
+    //   amount: 1,
+    //   token: "CAKE",
+    //   each: false,
+    //   all: false,
+    //   transferType: "airdrop",
+    //   duration: 120,
+    //   fullCommand: "",
+    //   opts: { duration: 120, maxEntries: 0 },
+    // }
+    // jest.spyOn(processor, "getAirdropPayload").mockResolvedValueOnce(payload)
+    // defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(balResp)
+    // const embed = composeEmbedMessage(null, {
+    //   title: `${getEmoji("airdrop")} Confirm airdrop`,
+    //   description: `Are you sure you want to spend ${getEmoji(
+    //     "cake"
+    //   )} **1 CAKE** (\u2248 $2.05) on this airdrop?`,
+    // }).addFields([
+    //   {
+    //     name: "Total reward",
+    //     value: `${getEmoji("cake")} **1 CAKE** (\u2248 $2.05)`,
+    //     inline: true,
+    //   },
+    //   { name: "Run time", value: "2m", inline: true },
+    //   { name: "Max entries", value: "-", inline: true },
+    // ])
+    // const expected = {
+    //   messageOptions: {
+    //     embeds: [embed],
+    //     components: [
+    //       new MessageActionRow().addComponents(
+    //         new MessageButton({
+    //           customId: `confirm_airdrop-${payload.sender}-${payload.amount}-2.05-${payload.token}-${payload.duration}-${payload.opts.maxEntries}`,
+    //           emoji: getEmoji("APPROVE"),
+    //           style: "SUCCESS",
+    //           label: "Confirm",
+    //         }),
+    //         new MessageButton({
+    //           customId: `cancel_airdrop-${payload.sender}`,
+    //           emoji: getEmoji("revoke"),
+    //           style: "DANGER",
+    //           label: "Cancel",
+    //         })
+    //       ),
+    //     ],
+    //   },
+    // }
+    // expect(processor.getAirdropPayload).toHaveBeenCalledTimes(1)
+    // expect(defi.offchainGetUserBalances).toHaveBeenCalledTimes(1)
+    // assertRunResult(output, expected)
   })
 
-  // test("airdrop with time", async () => {
-  //   const msg = Reflect.construct(Discord.Message, [
-  //     mockClient,
-  //     {
-  //       content: "$airdrop 1 cake in 120s",
-  //       author: {
-  //         id: userId,
-  //         username: "tester",
-  //         discriminator: 1234,
-  //       },
-  //       id: Discord.SnowflakeUtil.generate(),
-  //       guild_id: Discord.SnowflakeUtil.generate(),
-  //       channel_id: Discord.SnowflakeUtil.generate(),
-  //     },
-  //     Reflect.construct(Discord.TextChannel, [
-  //       guild,
-  //       {
-  //         client: mockClient,
-  //         guild: guild,
-  //         id: Discord.SnowflakeUtil.generate(),
-  //       },
-  //     ]),
-  //   ])
+  // test("cannot get user's balance -> throw APIError", async () => {
+  //   msg.content = "$airdrop 1 cake in 120s"
+  //   defi.offchainGetUserBalances = jest
+  //     .fn()
+  //     .mockResolvedValueOnce({ ok: false, data: null })
+  // })
+
+  // test("run successfully", async () => {
+  //   msg.content = "$airdrop 1 cake in 120s"
   //   const balResp = {
   //     ok: true,
   //     data: [
@@ -146,21 +109,13 @@ describe("airdrop", () => {
   //         rate_in_usd: 2.05,
   //         symbol: "CAKE",
   //       },
-  //       {
-  //         balances: 5,
-  //         balances_in_usd: 10,
-  //         id: "fantom",
-  //         name: "Fantom",
-  //         rate_in_usd: 2,
-  //         symbol: "FTM",
-  //       },
   //     ],
   //   }
   //   const payload = {
-  //     sender: userId,
+  //     sender: msg.author.id,
   //     recipients: [],
-  //     guildId: msg.guild_id,
-  //     channelId: msg.channel_id,
+  //     guildId: msg.guildId ?? "",
+  //     channelId: msg.channelId,
   //     amount: 1,
   //     token: "CAKE",
   //     each: false,
@@ -170,42 +125,47 @@ describe("airdrop", () => {
   //     fullCommand: "",
   //     opts: { duration: 120, maxEntries: 0 },
   //   }
-  //   defi.getAirdropPayload = jest.fn().mockResolvedValueOnce(payload)
+  //   jest.spyOn(processor, "getAirdropPayload").mockResolvedValueOnce(payload)
   //   defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(balResp)
-  //   const expected = composeEmbedMessage(null, {
-  //     title: ":airplane: Confirm airdrop",
-  //     description:
-  //       "Are you sure you want to spend <:cake:972205674371117126> **1 CAKE** (\u2248 $2.05) on this airdrop?",
+  //   const embed = composeEmbedMessage(null, {
+  //     title: `${getEmoji("airdrop")} Confirm airdrop`,
+  //     description: `Are you sure you want to spend ${getEmoji(
+  //       "cake"
+  //     )} **1 CAKE** (\u2248 $2.05) on this airdrop?`,
   //   }).addFields([
   //     {
   //       name: "Total reward",
-  //       value: "<:cake:972205674371117126> **1 CAKE** (\u2248 $2.05)",
+  //       value: `${getEmoji("cake")} **1 CAKE** (\u2248 $2.05)`,
   //       inline: true,
   //     },
-  //     {
-  //       name: "Run time",
-  //       value: "2m",
-  //       inline: true,
-  //     },
-  //     {
-  //       name: "Max entries",
-  //       value: "-",
-  //       inline: true,
-  //     },
+  //     { name: "Run time", value: "2m", inline: true },
+  //     { name: "Max entries", value: "-", inline: true },
   //   ])
-  //   const output = await command.run(msg)
-  //   expect(defi.getAirdropPayload).toHaveBeenCalledTimes(1)
+  //   const expected = {
+  //     messageOptions: {
+  //       embeds: [embed],
+  //       components: [
+  //         new MessageActionRow().addComponents(
+  //           new MessageButton({
+  //             customId: `confirm_airdrop-${payload.sender}-${payload.amount}-2.05-${payload.token}-${payload.duration}-${payload.opts.maxEntries}`,
+  //             emoji: getEmoji("APPROVE"),
+  //             style: "SUCCESS",
+  //             label: "Confirm",
+  //           }),
+  //           new MessageButton({
+  //             customId: `cancel_airdrop-${payload.sender}`,
+  //             emoji: getEmoji("revoke"),
+  //             style: "DANGER",
+  //             label: "Cancel",
+  //           })
+  //         ),
+  //       ],
+  //     },
+  //   }
+  //   const output = (await command.run(msg)) as RunResult<MessageOptions>
+  //   expect(processor.getAirdropPayload).toHaveBeenCalledTimes(1)
   //   expect(defi.offchainGetUserBalances).toHaveBeenCalledTimes(1)
-  //   expect(expected.title).toStrictEqual(
-  //     (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].title
-  //   )
-  //   expect(expected.description).toStrictEqual(
-  //     (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-  //       .description
-  //   )
-  //   expect(expected.fields).toStrictEqual(
-  //     (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].fields
-  //   )
+  //   assertRunResult(output, expected)
   // })
 
   // test("airdrop with entries", async () => {

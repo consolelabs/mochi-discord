@@ -7,6 +7,7 @@ import { handler } from "./processor"
 import { composeDiscordExitButton } from "ui/discord/button"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { APIError } from "errors"
+import { msgColors } from "utils/common"
 
 const command: Command = {
   id: "alert_remove",
@@ -16,7 +17,7 @@ const command: Command = {
   run: async function (msg) {
     const { ok, data, log, curl } = await Defi.getAlertList(msg.author.id)
     if (!ok) {
-      throw new APIError({ message: msg, description: log, curl })
+      throw new APIError({ msgOrInteraction: msg, description: log, curl })
     }
 
     if (data.length === 0) {
@@ -49,6 +50,7 @@ const command: Command = {
 
     const embed = composeEmbedMessage(msg, {
       title: "Select an alert to remove",
+      color: msgColors.PINK,
     })
 
     return {

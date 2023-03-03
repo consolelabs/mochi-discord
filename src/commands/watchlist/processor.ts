@@ -16,7 +16,7 @@ export function handleUpdateWlError(
   let description = ""
   if (!error) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description,
     })
   }
@@ -39,7 +39,7 @@ export function handleUpdateWlError(
       break
   }
   throw new InternalError({
-    message: msg,
+    msgOrInteraction: msg,
     title: "Command Error",
     description,
   })

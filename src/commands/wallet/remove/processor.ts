@@ -9,7 +9,13 @@ import {
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { getExitButton } from "ui/discord/button"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL, reverseLookup } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  msgColors,
+  reverseLookup,
+} from "utils/common"
 
 export async function untrackWallet(
   msg: OriginalMessage,
@@ -27,12 +33,12 @@ export async function untrackWallet(
   // wallet not found
   if (!ok && status === 404) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: " Invalid wallet information",
       description: `Your inserted address or alias was not saved.\n${pointingright} Add more wallets to easily track by \`$wallet add <address> [alias]\`.`,
     })
   }
-  if (!ok) throw new APIError({ message: msg, description: log, curl })
+  if (!ok) throw new APIError({ msgOrInteraction: msg, description: log, curl })
   const {
     ok: removed,
     curl: untrackCurl,
@@ -44,7 +50,7 @@ export async function untrackWallet(
   })
   if (!removed) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: untrackCurl,
       description: untrackLog,
     })
@@ -89,6 +95,7 @@ export async function removeWalletConfirmation(i: ButtonInteraction) {
   const embed = composeEmbedMessage(null, {
     author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
     description: `Do you want to remove wallet **${label || address}**?`,
+    color: msgColors.SUCCESS,
   })
   const buttonRow = new MessageActionRow().addComponents(
     new MessageButton({

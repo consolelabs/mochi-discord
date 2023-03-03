@@ -60,7 +60,7 @@ describe("handleTokenAdd", () => {
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     await expect(processor.handleTokenAdd(msg, "test", "test")).rejects.toThrow(
       new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         description: "Your server already had all supported tokens.",
       })
     )

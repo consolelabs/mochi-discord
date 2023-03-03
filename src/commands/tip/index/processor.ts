@@ -21,6 +21,7 @@ import {
   emojis,
   getEmoji,
   getEmojiURL,
+  msgColors,
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
@@ -66,15 +67,16 @@ export async function handleTip(
       title: "Incorrect recipients",
       description:
         "Mochi cannot find the recipients. Type @ to choose valid roles or usernames!",
-      message: msg,
+      msgOrInteraction: msg,
     })
   }
 
   // check token supported
   const { cryptocurrency } = processor.parseTipParameters(agrsAfterParseMessage)
-  if (!moniker && !(await tipTokenIsSupported(cryptocurrency))) {
+  const tokenSupported = await tipTokenIsSupported(cryptocurrency)
+  if (!moniker && !tokenSupported) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Unsupported token",
       description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n${getEmoji(
         "POINTINGRIGHT"
@@ -113,7 +115,7 @@ export async function handleTip(
     userId: payload.sender,
   })
   if (!bOk) {
-    throw new APIError({ message: msg, curl: bCurl, error: bError })
+    throw new APIError({ msgOrInteraction: msg, curl: bCurl, error: bError })
   }
   let currentBal = 0
   let rate = 0
@@ -326,6 +328,7 @@ async function executeTipWithConfirmation(
         ? `<@${recipientIds[0]}>`
         : recipientIds.length + " users"
     }?`,
+    color: msgColors.BLUE,
   })
   const confirmButtonCollectorHandler = async () => {
     return await executeTip(
@@ -371,7 +374,7 @@ export async function executeTip(
       : defi.offchainDiscordTransfer(req)
   const { data, ok, error, curl, log } = await transfer(payload)
   if (!ok) {
-    throw new APIError({ message: msg, curl, description: log, error })
+    throw new APIError({ msgOrInteraction: msg, curl, description: log, error })
   }
 
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
@@ -432,6 +435,7 @@ export async function executeTip(
     thumbnail: thumbnails.TIP,
     author: ["Tips", getEmojiURL(emojis.COIN)],
     description: description,
+    color: msgColors.SUCCESS,
   })
   if (imageUrl) {
     embed.setImage(imageUrl)

@@ -1,7 +1,7 @@
 import { Message } from "discord.js"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import Community from "adapters/community"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { registerFont } from "canvas"
 import { getPaginationRow } from "ui/discord/button"
 import { renderSupportedNFTList } from "../processor"
@@ -39,6 +39,7 @@ export async function composeNFTListEmbed(
     description: "To add new collection, run `$nft add <address> <chain_id>`.",
     image: `attachment://nftlist.png`,
     footer: [`Page ${pageIdx + 1} / ${totalPage}`],
+    color: msgColors.PINK,
   })
 
   return {
