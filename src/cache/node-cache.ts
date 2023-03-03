@@ -48,6 +48,29 @@ export class CacheManager {
     return val as any
   }
 
+  async set({
+    pool,
+    key,
+    val,
+    callOnExpire,
+    ttl = 120,
+  }: {
+    pool: string
+    key: string
+    val: string | number
+    callOnExpire?: () => Promise<void>
+    ttl?: number
+  }) {
+    const cache = this.cachePools.get(pool)
+    if (!cache) return {}
+    const success = cache.set(key, val, ttl)
+    if (callOnExpire && success) {
+      cache.on("expired", async (cacheKey) => {
+        if (cacheKey === key) await callOnExpire()
+      })
+    }
+  }
+
   private find(pool: string, prefix: string, subStr?: string) {
     const cache = this.cachePools.get(pool)
     return cache

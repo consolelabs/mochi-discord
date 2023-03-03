@@ -266,6 +266,7 @@ export const emojis: { [key: string]: string } = {
   WALLET_1: "1077631121614970992",
   PLUS: "1078633897513992202",
   ARROWUP: "1058304264071561267",
+  CLOCK: "1080757110146605086",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
