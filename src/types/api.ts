@@ -91,6 +91,12 @@ export interface ModelCoingeckoSupportedTokens {
   symbol?: string;
 }
 
+export interface ModelCommonwealthDiscussionSubscription {
+  discordThreadID?: string;
+  discussionID?: number;
+  id?: number;
+}
+
 export interface ModelConfigXpLevel {
   level?: number;
   min_xp?: number;
@@ -417,12 +423,6 @@ export interface ModelGuildUser {
   user_id?: string;
 }
 
-export interface ModelJSONNullInt64 {
-  int64?: number;
-  /** Valid is true if Int64 is not NULL */
-  valid?: boolean;
-}
-
 export interface ModelJSONNullString {
   string?: string;
   /** Valid is true if String is not NULL */
@@ -514,9 +514,9 @@ export interface ModelOffchainTipBotAssignContract {
   chain_id?: string;
   contract?: ModelOffchainTipBotContract;
   contract_id?: string;
+  created_at?: string;
   expired_time?: string;
   id?: string;
-  status?: number;
   token_id?: string;
   user_id?: string;
 }
@@ -538,14 +538,11 @@ export interface ModelOffchainTipBotChain {
 }
 
 export interface ModelOffchainTipBotContract {
-  assign_status?: number;
-  centralize_wallet?: string;
   chain?: ModelOffchainTipBotChain;
   chain_id?: string;
   contract_address?: string;
   created_at?: string;
   id?: string;
-  status?: number;
   sweeped_time?: string;
   updated_at?: string;
 }
@@ -726,8 +723,6 @@ export interface ModelUpvoteStreakTier {
 export interface ModelUser {
   guild_users?: ModelGuildUser[];
   id?: string;
-  in_discord_wallet_address?: ModelJSONNullString;
-  in_discord_wallet_number?: ModelJSONNullInt64;
   nr_of_join?: number;
   username?: string;
 }
@@ -776,6 +771,7 @@ export interface ModelUserWalletWatchlistItem {
   alias?: string;
   created_at?: string;
   fetched_data?: boolean;
+  is_owner?: boolean;
   net_worth?: number;
   type?: string;
   user_id?: string;
@@ -811,9 +807,10 @@ export interface RequestAddTokenPriceAlertRequest {
     | "change_is_over"
     | "change_is_under";
   frequency?: "only_once" | "once_a_day" | "always";
-  price?: number;
+  price_by_percent?: number;
   symbol?: string;
   user_discord_id?: string;
+  value?: number;
 }
 
 export interface RequestBalcklistChannelRepostConfigRequest {
@@ -882,6 +879,11 @@ export interface RequestConfigureInviteRequest {
 export interface RequestCreateAssignContract {
   token_symbol?: string;
   user_id?: string;
+}
+
+export interface RequestCreateCommonwealthDiscussionSubscription {
+  discord_thread_id: string;
+  discussion_id: number;
 }
 
 export interface RequestCreateDaoProposalRequest {
@@ -1037,6 +1039,10 @@ export interface RequestGenerateVerificationRequest {
   user_discord_id?: string;
 }
 
+export interface RequestGetTrackingWalletsRequest {
+  userID: string;
+}
+
 export interface RequestGuildConfigDefaultNftTickerRequest {
   chain_id?: number;
   collection_address?: string;
@@ -1163,6 +1169,9 @@ export interface RequestSubmitOnchainTransferRequest {
 export interface RequestTrackWalletRequest {
   address: string;
   alias?: string;
+  channel_id?: string;
+  is_owner?: boolean;
+  message_id?: string;
   type: string;
   user_id: string;
 }
@@ -1437,6 +1446,10 @@ export interface ResponseConfigNotifyResponse {
 
 export interface ResponseConfigureInvitesResponse {
   data?: string;
+}
+
+export interface ResponseCreateCommonwealthDiscussionSubscription {
+  data?: ModelCommonwealthDiscussionSubscription;
 }
 
 export interface ResponseCreateDaoProposalResponse {
@@ -2455,10 +2468,11 @@ export interface ResponseTokenPriceAlertResponseData {
   alert_type?: string;
   currency?: string;
   frequency?: string;
-  price?: number;
+  price_by_percent?: number;
   snoozed_to?: string;
   symbol?: string;
   user_discord_id?: string;
+  value?: number;
 }
 
 export interface ResponseTransactionsResponse {
@@ -2492,8 +2506,6 @@ export interface ResponseUpdateVote {
 export interface ResponseUser {
   guild_users?: ResponseGetGuildUserResponse[];
   id?: string;
-  in_discord_wallet_address?: string;
-  in_discord_wallet_number?: number;
   nr_of_join?: number;
   username?: string;
 }

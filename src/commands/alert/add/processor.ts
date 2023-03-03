@@ -1,3 +1,4 @@
+import { logger } from "logger"
 import { CommandInteraction, SelectMenuInteraction } from "discord.js"
 import { Message } from "discord.js"
 import {
@@ -135,7 +136,12 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
     }
   }
 
-  await collected?.first()?.delete()
+  if (collected?.first()) {
+    await interaction.channel?.messages
+      .delete(collected?.first() as Message<boolean>)
+      .catch((e) => logger.error(e))
+  }
+
   if (alertType === "price_drops_to" && amount >= currentPrice) {
     return {
       messageOptions: {
