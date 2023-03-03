@@ -17,7 +17,11 @@ const command: Command = {
       msg.guild.id
     )
     if (!ok) {
-      throw new APIError({ message: msg, curl: curl, description: log })
+      throw new APIError({
+        msgOrInteraction: msg,
+        curl: curl,
+        description: log,
+      })
     }
     if (!data?.length) {
       return {

@@ -64,7 +64,7 @@ export async function handleTokenAdd(
 
   if (!options.length)
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "Your server already had all supported tokens.",
     })
   if (options.length > 25) {

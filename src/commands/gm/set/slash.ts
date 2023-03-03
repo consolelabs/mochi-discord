@@ -43,7 +43,7 @@ const command: SlashCommand = {
     const chanArg = interaction.options.getChannel("channel")
     if (!chanArg) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: "Invalid channel, please choose a text channel.",
       })
     }
@@ -53,7 +53,7 @@ const command: SlashCommand = {
       .catch(() => undefined)
     if (!chan || !chan.isText()) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: "Invalid channel, please choose a text channel.",
       })
     }

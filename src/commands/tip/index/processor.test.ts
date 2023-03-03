@@ -793,6 +793,104 @@ describe("handleTip", () => {
   beforeEach(() => (msg = mockdc.cloneMessage()))
   afterEach(() => jest.clearAllMocks())
 
+  test("insufficient balance", async () => {
+    msg.content = "$tip <@760874365037314100> 10 cake"
+    const args = getCommandArguments(msg)
+    const tipPayload: OffchainTipBotTransferRequest = {
+      sender: userId,
+      recipients: ["760874365037314100"],
+      guildId: msg.guildId ?? "",
+      channelId: msg.channelId,
+      amount: 5,
+      token: "CAKE",
+      each: false,
+      all: false,
+      transferType: "tip",
+      duration: 0,
+      fullCommand: "",
+    }
+    const syntaxTargets = {
+      targets: ["<@760874365037314100>"],
+      isValid: true,
+    }
+    const transferResp = {
+      error: "Not enough balance",
+    }
+    const checkBalResp = {
+      ok: true,
+      data: [
+        {
+          id: "pancake-swap",
+          name: "Pancake",
+          symbol: "CAKE",
+          balances: 5,
+          balances_in_usd: 5,
+          rate_in_usd: 1,
+        },
+      ],
+    }
+    const moniker = {
+      newArgs: ["tip", "<@760874365037314100>", "10", "cake"],
+      moniker: undefined,
+    }
+    const msgTip = {
+      newArgs: ["tip", "<@760874365037314100>", "10", "cake"],
+      messageTip: "",
+    }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "cake",
+      amountArg: "10",
+    }
+    // defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
+    jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(moniker)
+    jest.spyOn(processor, "parseMessageTip").mockResolvedValueOnce(msgTip)
+    jest.spyOn(processor, "parseTipParameters").mockReturnValueOnce(parseTip)
+    jest
+      .spyOn(tiputils, "classifyTipSyntaxTargets")
+      .mockReturnValueOnce(syntaxTargets)
+    jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
+    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
+    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
+    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+
+    await expect(
+      processor.handleTip(args, userId, msg.content, msg)
+    ).rejects.toThrow(APIError)
+  })
+
+  test("token not supported", async () => {
+    msg.content = "$tip <@760874365037314100> 1.5 alt"
+    const args = getCommandArguments(msg)
+    const syntaxTargets = {
+      targets: ["<@760874365037314100>"],
+      isValid: true,
+    }
+    const moniker = {
+      newArgs: ["tip", "<@760874365037314100>", "1.5", "alt"],
+      moniker: undefined,
+    }
+    const msgTip = {
+      newArgs: ["tip", "<@760874365037314100>", "1.5", "alt"],
+      messageTip: "",
+    }
+    const parseTip = {
+      each: false,
+      cryptocurrency: "alt",
+      amountArg: "1.5",
+    }
+    jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(moniker)
+    jest.spyOn(processor, "parseMessageTip").mockResolvedValueOnce(msgTip)
+    jest.spyOn(processor, "parseTipParameters").mockReturnValueOnce(parseTip)
+    jest
+      .spyOn(tiputils, "classifyTipSyntaxTargets")
+      .mockReturnValueOnce(syntaxTargets)
+    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(false)
+    await expect(
+      processor.handleTip(args, userId, msg.content, msg)
+    ).rejects.toThrow(InternalError)
+  })
+
   test("tip user successfully", async () => {
     const recipient = userMention("521591222826041344")
     msg.content = `$tip ${recipient} 1.5 cake`
@@ -1810,103 +1908,5 @@ describe("handleTip", () => {
         components: [],
       },
     })
-  })
-
-  test("insufficient balance", async () => {
-    msg.content = "$tip <@760874365037314100> 10 cake"
-    const args = getCommandArguments(msg)
-    const tipPayload: OffchainTipBotTransferRequest = {
-      sender: userId,
-      recipients: ["760874365037314100"],
-      guildId: msg.guildId ?? "",
-      channelId: msg.channelId,
-      amount: 5,
-      token: "CAKE",
-      each: false,
-      all: false,
-      transferType: "tip",
-      duration: 0,
-      fullCommand: "",
-    }
-    const syntaxTargets = {
-      targets: ["<@760874365037314100>"],
-      isValid: true,
-    }
-    const transferResp = {
-      error: "Not enough balance",
-    }
-    const checkBalResp = {
-      ok: true,
-      data: [
-        {
-          id: "pancake-swap",
-          name: "Pancake",
-          symbol: "CAKE",
-          balances: 5,
-          balances_in_usd: 5,
-          rate_in_usd: 1,
-        },
-      ],
-    }
-    const moniker = {
-      newArgs: ["tip", "<@760874365037314100>", "10", "cake"],
-      moniker: undefined,
-    }
-    const msgTip = {
-      newArgs: ["tip", "<@760874365037314100>", "10", "cake"],
-      messageTip: "",
-    }
-    const parseTip = {
-      each: false,
-      cryptocurrency: "cake",
-      amountArg: "10",
-    }
-    defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
-    jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(moniker)
-    jest.spyOn(processor, "parseMessageTip").mockResolvedValueOnce(msgTip)
-    jest.spyOn(processor, "parseTipParameters").mockReturnValueOnce(parseTip)
-    jest
-      .spyOn(tiputils, "classifyTipSyntaxTargets")
-      .mockReturnValueOnce(syntaxTargets)
-    jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
-    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
-    defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
-
-    await expect(
-      processor.handleTip(args, userId, msg.content, msg)
-    ).rejects.toThrow(APIError)
-  })
-
-  test("token not supported", async () => {
-    msg.content = "$tip <@760874365037314100> 1.5 alt"
-    const args = getCommandArguments(msg)
-    const syntaxTargets = {
-      targets: ["<@760874365037314100>"],
-      isValid: true,
-    }
-    const moniker = {
-      newArgs: ["tip", "<@760874365037314100>", "1.5", "alt"],
-      moniker: undefined,
-    }
-    const msgTip = {
-      newArgs: ["tip", "<@760874365037314100>", "1.5", "alt"],
-      messageTip: "",
-    }
-    const parseTip = {
-      each: false,
-      cryptocurrency: "alt",
-      amountArg: "1.5",
-    }
-    jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(moniker)
-    jest.spyOn(processor, "parseMessageTip").mockResolvedValueOnce(msgTip)
-    jest.spyOn(processor, "parseTipParameters").mockReturnValueOnce(parseTip)
-    jest
-      .spyOn(tiputils, "classifyTipSyntaxTargets")
-      .mockReturnValueOnce(syntaxTargets)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(false)
-    await expect(
-      processor.handleTip(args, userId, msg.content, msg)
-    ).rejects.toThrow(InternalError)
   })
 })

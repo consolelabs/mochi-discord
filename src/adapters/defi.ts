@@ -1,6 +1,5 @@
 import { CommandInteraction, Message } from "discord.js"
 import { FTMSCAN_API_KEY } from "env"
-import { APIError } from "errors"
 import fetch from "node-fetch"
 import {
   RequestCreateAssignContract,
@@ -9,6 +8,7 @@ import {
   RequestOffchainWithdrawRequest,
   ResponseGetNftWatchlistResponse,
   ResponseGetSupportedTokenResponse,
+  ResponseGetUserBalancesResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
 import { Coin, CoinComparisionData, GasPriceData, Token } from "types/defi"
@@ -24,37 +24,6 @@ import {
 import { Fetcher } from "./fetcher"
 
 class Defi extends Fetcher {
-  public async getInsuffientBalanceEmbed(
-    msg: Message | CommandInteraction,
-    userId: string,
-    token: string,
-    amount: number,
-    isAll: boolean
-  ) {
-    // check balance
-    const { ok, data, curl, error } = await this.offchainGetUserBalances({
-      userId,
-    })
-    if (!ok) {
-      throw new APIError({ message: msg, curl: curl, error: error })
-    }
-    let currentBal = 0
-    data?.forEach((bal: any) => {
-      if (token.toUpperCase() === bal.symbol.toUpperCase()) {
-        currentBal = bal.balances
-      }
-    })
-    if (currentBal < amount && !isAll) {
-      return this.composeInsufficientBalanceEmbed(
-        msg,
-        currentBal,
-        amount,
-        token
-      )
-    }
-    return null
-  }
-
   public async getSupportedTokens(): Promise<Token[]> {
     const resp = await fetch(`${API_BASE_URL}/defi/tokens`, {
       method: "GET",
@@ -266,10 +235,10 @@ class Defi extends Fetcher {
   }
 
   async offchainGetUserBalances(query: { userId: string }) {
-    return await this.jsonFetch(`${API_BASE_URL}/tip/balances`, {
-      method: "GET",
-      query,
-    })
+    return await this.jsonFetch<ResponseGetUserBalancesResponse>(
+      `${API_BASE_URL}/tip/balances`,
+      { method: "GET", query }
+    )
   }
 
   async offchainDiscordTransfer(req: RequestOffchainTransferRequest) {

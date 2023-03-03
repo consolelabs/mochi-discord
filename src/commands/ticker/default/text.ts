@@ -17,12 +17,12 @@ const command: Command = {
     const query = getCommandArguments(msg)[2]
     const { data: coins, ok, curl, log } = await defi.searchCoins(query)
     if (!ok) {
-      throw new APIError({ message: msg, curl, description: log })
+      throw new APIError({ msgOrInteraction: msg, curl, description: log })
     }
     if (!coins.length) {
       throw new InternalError({
         title: "Invalid symbol",
-        message: msg,
+        msgOrInteraction: msg,
         description: `${getEmoji(
           "POINTINGRIGHT"
         )} Cannot find any cryptocurrency with \`${query}\`.\n${getEmoji(

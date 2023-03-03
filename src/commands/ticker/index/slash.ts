@@ -24,14 +24,14 @@ async function run(
   })
   if (!ok)
     throw new APIError({
-      message: interaction,
+      msgOrInteraction: interaction,
       description: log,
       curl,
     })
   if (!coins || !coins.length) {
     throw new InternalError({
       title: "Unsupported token/fiat",
-      message: interaction,
+      msgOrInteraction: interaction,
       description: `Token is invalid or hasn't been supported.\n${getEmoji(
         "POINTINGRIGHT"
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(

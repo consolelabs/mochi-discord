@@ -22,7 +22,7 @@ const command: Command = {
     const args = getCommandArguments(msg)
     if (args.length < 3 || parseInt(args[2]) < 5) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         description: "Inactive days should be a number from 5 and higher",
       })
     }

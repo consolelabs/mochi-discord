@@ -144,11 +144,11 @@ export async function composeCollectionInfoEmbed(
     chain
   )
   if (!ok) {
-    throw new APIError({ message: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
   }
   if (!data) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "The collection does not exist. Please choose another one.",
     })
   }
@@ -247,12 +247,12 @@ async function composeCollectionTickerEmbed({
     to,
   })
   if (!ok) {
-    throw new APIError({ message: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
   }
   // collection is not exist, mochi has not added it yet
   if (!data) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "The collection does not exist. Please choose another one.",
     })
   }
@@ -517,7 +517,7 @@ export async function handleNftTicker(
     log,
     curl,
   } = await community.getNFTCollectionSuggestions(symbol)
-  if (!ok) throw new APIError({ message: msg, curl, description: log })
+  if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
   if (!suggestions.length) {
     return {
       messageOptions: {

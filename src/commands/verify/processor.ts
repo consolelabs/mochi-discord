@@ -27,7 +27,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
     })
     if (!reverifyRes.ok) {
       throw new APIError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: reverifyRes.log,
         curl: reverifyRes.curl,
       })
@@ -41,7 +41,11 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
     return
   }
   if (!ok) {
-    throw new APIError({ message: interaction, description: log, curl })
+    throw new APIError({
+      msgOrInteraction: interaction,
+      description: log,
+      curl,
+    })
   }
   const embed = new MessageEmbed()
     .setColor(embedsColors.Profile as ColorResolvable)

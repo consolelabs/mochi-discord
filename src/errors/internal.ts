@@ -10,17 +10,17 @@ export class InternalError extends BotBaseError {
   }
 
   constructor({
-    message,
+    msgOrInteraction,
     description,
     title,
     emojiUrl,
   }: {
-    message?: OriginalMessage
+    msgOrInteraction?: OriginalMessage
     description?: string
     title?: string
     emojiUrl?: string
   }) {
-    super(message, description)
+    super(msgOrInteraction, description)
     this.name = title ?? "Internal error"
     this._customDescription = description
     this.emojiUrl = emojiUrl

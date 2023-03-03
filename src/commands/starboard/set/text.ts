@@ -29,7 +29,7 @@ const command: Command = {
       quantity !== Math.floor(quantity)
     ) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command error",
         description: "The amount is invalid. Please insert a natural number.",
       })
@@ -42,7 +42,7 @@ const command: Command = {
     const { isChannel, value: channelId } = parseDiscordToken(args[4])
     if (!isChannel) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid channel",
         description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n\n${getEmoji(
           "POINTINGRIGHT"

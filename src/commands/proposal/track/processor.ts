@@ -36,7 +36,7 @@ export async function handle(
   }
   if (!ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       description: log,
       error: "Make sure that you entered existing dao space or URL.",
       curl,

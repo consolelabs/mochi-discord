@@ -13,7 +13,7 @@ export async function handle(msg: OriginalMessage) {
   })
   if (!ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       description: log,
       curl,
     })

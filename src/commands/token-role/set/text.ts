@@ -29,7 +29,7 @@ const command: Command = {
     `
     if (!isRole) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid roles",
         description: invalidRoleDescription,
       })
@@ -37,7 +37,7 @@ const command: Command = {
     const role = await msg.guild.roles.fetch(roleId)
     if (!role) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid roles",
         description: invalidRoleDescription,
       })
@@ -46,7 +46,7 @@ const command: Command = {
     const amount = +amountArg
     if (Number.isNaN(amount) || amount < 0 || amount >= Infinity) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command Error",
         description: "The amount is invalid. Please insert a natural number.",
       })
@@ -55,7 +55,7 @@ const command: Command = {
     const { isAddress, value: address } = parseDiscordToken(addressArg)
     if (!isAddress) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid Token address",
         description:
           "We cannot find your token address! Please enter a valid one!",

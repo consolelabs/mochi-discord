@@ -13,14 +13,13 @@ import {
 } from "discord.js/typings/enums"
 import { APIError } from "errors"
 import { ModelOffchainTipBotTransferHistory } from "types/api"
-import { UserBalances } from "types/defi"
+import { composeEmbedMessage } from "ui/discord/embed"
 import {
   authorFilter,
   getEmoji,
   paginate,
   roundFloatNumber,
 } from "utils/common"
-import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function handleStatement(
   args: string,
@@ -101,18 +100,15 @@ export async function handleStatement(
       currentBal,
       4
     )} ${symbol}** (\u2248 $${roundFloatNumber(currentPrice * currentBal, 4)})`
-    if (symbol === "") {
-      des = ""
-      bals.data?.forEach((balance: UserBalances) => {
-        const tokenBalance = roundFloatNumber(balance["balances"] ?? 0, 4)
-        if (tokenBalance === 0) return
-        const tokenBalanceInUSD = roundFloatNumber(
-          balance["balances_in_usd"],
-          4
-        )
-
-        des += `**${balance["name"]}: ${tokenBalance} ${balance["symbol"]}** (\u2248 $${tokenBalanceInUSD})\n`
-      })
+    if (!symbol) {
+      des += bals.data
+        ?.map(({ balances_in_usd, balances, name, symbol }) => {
+          const tokenBalance = roundFloatNumber(balances ?? 0, 4)
+          if (tokenBalance === 0) return
+          const tokenBalanceInUSD = roundFloatNumber(balances_in_usd ?? 0, 4)
+          return `**${name}: ${tokenBalance} ${symbol}** (\u2248 $${tokenBalanceInUSD})`
+        })
+        .join("\n")
     }
     return composeEmbedMessage(null, {
       title: `${getEmoji("STATEMENTS")} Transaction history`,

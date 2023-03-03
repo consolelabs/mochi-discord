@@ -30,6 +30,7 @@ import {
 } from "@bonfida/spl-name-service"
 import { logger } from "logger"
 import providers from "utils/providers"
+import { OriginalMessage } from "errors"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
@@ -658,4 +659,28 @@ export async function reverseLookup(address: string) {
     logger.error(`[reverseLookup] failed: ${e}`)
     return ""
   }
+}
+
+export function getAuthor(msgOrInteraction: OriginalMessage) {
+  return msgOrInteraction instanceof Message
+    ? msgOrInteraction.author
+    : msgOrInteraction.user
+}
+
+export function isValidAmount({
+  arg,
+  exceptions,
+}: {
+  arg: string
+  exceptions?: string[]
+}) {
+  if (exceptions?.map((s) => s.toLowerCase()).includes(arg.toLowerCase())) {
+    return true
+  }
+  const amount = parseFloat(arg)
+  return !isNaN(amount) && amount > 0
+}
+
+export function equalIgnoreCase(s1: string, s2: string) {
+  return s1?.toLowerCase() === s2?.toLowerCase()
 }

@@ -49,7 +49,7 @@ const command: SlashCommand = {
     const role = interaction.options.getRole("role")
     if (!role) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: "Please enter a valid role",
       })
     }

@@ -27,12 +27,12 @@ export async function untrackWallet(
   // wallet not found
   if (!ok && status === 404) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: " Invalid wallet information",
       description: `Your inserted address or alias was not saved.\n${pointingright} Add more wallets to easily track by \`$wallet add <address> [alias]\`.`,
     })
   }
-  if (!ok) throw new APIError({ message: msg, description: log, curl })
+  if (!ok) throw new APIError({ msgOrInteraction: msg, description: log, curl })
   const {
     ok: removed,
     curl: untrackCurl,
@@ -44,7 +44,7 @@ export async function untrackWallet(
   })
   if (!removed) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: untrackCurl,
       description: untrackLog,
     })

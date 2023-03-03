@@ -126,7 +126,7 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
     log,
   } = await defi.getUserOwnedWallets(user.id, msg.guildId ?? "")
   if (!ok) {
-    throw new APIError({ message: msg, curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl, description: log })
   }
   // maximum 9 wallets for now
   const list = await Promise.all(
@@ -224,7 +224,7 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
     log,
   } = await profile.getUserProfile(msg.guildId ?? "", user.id)
   if (!ok) {
-    throw new APIError({ message: msg, description: log, curl })
+    throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
 
   const nextLevelMinXp = userProfile.next_level?.min_xp
@@ -297,7 +297,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
   const userProfile = await profile.getUserProfile(msg.guildId, user.id)
   if (!userProfile.ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: userProfile.curl,
       description: userProfile.log,
     })
@@ -325,7 +325,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
   })
   if (!userNFTs.ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: userNFTs.curl,
       description: userNFTs.log,
     })

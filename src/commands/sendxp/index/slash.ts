@@ -8,7 +8,7 @@ const run = async (interaction: CommandInteraction) => {
   const each = interaction.options.getBoolean("each") ?? false
   if (!targets || !amount) {
     throw new InternalError({
-      message: interaction,
+      msgOrInteraction: interaction,
       title: "Invalid arguments",
     })
   }

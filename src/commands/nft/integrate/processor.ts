@@ -35,7 +35,7 @@ export async function executeNftIntegrateCommand(
 
   if (!data) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Can't find the NFT collection",
       description: `The NFT Address and NFT Chain must be valid. Go to the collection's official website/marketplace to find this information.\n${getEmoji(
         "POINTINGRIGHT"

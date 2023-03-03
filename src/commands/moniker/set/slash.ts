@@ -50,21 +50,21 @@ const command: SlashCommand = {
     const moniker = interaction.options.getString("moniker", true)
     if (!moniker) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: "Invalid moinker",
       })
     }
     const amount = interaction.options.getNumber("amount", true)
     if (!amount) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: "Invalid amount",
       })
     }
     const token = interaction.options.getString("token", true)
     if (!token) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: "Invalid token",
       })
     }

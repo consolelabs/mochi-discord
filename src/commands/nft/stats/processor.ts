@@ -7,7 +7,11 @@ import { CommandInteraction, Message } from "discord.js"
 export async function handleNftStats(msg: Message | CommandInteraction) {
   const res = await community.getCollectionCount()
   if (!res.ok) {
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: res.log,
+    })
   }
   let description = ``
   const sortedStats = res.data.data?.sort(

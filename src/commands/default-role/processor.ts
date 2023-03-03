@@ -26,7 +26,7 @@ export async function handle(msg: OriginalMessage, statusText = "") {
       curl: res.curl,
       error: res.error,
       description: res.log,
-      message: msg,
+      msgOrInteraction: msg,
     })
   }
 

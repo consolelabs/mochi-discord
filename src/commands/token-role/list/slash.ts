@@ -24,7 +24,7 @@ const command: SlashCommand = {
     const res = await config.getConfigTokenRoleList(interaction.guildId)
     if (!res.ok) {
       throw new APIError({
-        message: interaction,
+        msgOrInteraction: interaction,
         curl: res.curl,
         description: res.log,
       })

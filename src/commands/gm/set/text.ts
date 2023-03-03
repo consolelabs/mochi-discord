@@ -22,7 +22,7 @@ const command: Command = {
     if (!isChannel) {
       throw new InternalError({
         title: "Command Error",
-        message: msg,
+        msgOrInteraction: msg,
         description: "Invalid channel. Type #, then choose the valid one!",
       })
     }

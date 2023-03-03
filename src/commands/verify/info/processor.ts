@@ -11,7 +11,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
   const res = await community.getVerifyWalletChannel(guildId)
   if (!res.ok) {
     throw new APIError({
-      message: msg ?? undefined,
+      msgOrInteraction: msg ?? undefined,
       curl: res.curl,
       description: res.log,
     })

@@ -11,7 +11,11 @@ export async function handleSalesList(
 ) {
   const res = await community.getSalesTrackers(guildId)
   if (!res.ok) {
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: res.log,
+    })
   }
   if (!res.data) {
     return {
