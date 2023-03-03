@@ -1,10 +1,13 @@
 import { CommandInteraction, Message } from "discord.js"
 import { DirectMessageNotAllowedError, InternalError } from "errors"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { APIError } from "errors"
 import { getEmoji, getEmojiURL, emojis } from "utils/common"
+import * as qrcode from "qrcode"
 import defi from "adapters/defi"
+import fs from "fs"
 import { composeButtonLink } from "ui/discord/button"
+import CacheManager from "cache/node-cache"
 
 export async function deposit(
   msgOrInteraction: Message | CommandInteraction,
@@ -50,25 +53,56 @@ export async function deposit(
       throw new APIError({ message: msg, curl, description: log })
     }
 
-    const dm = await author.send({
-      embeds: [
-        composeEmbedMessage(null, {
-          author: [
-            `Deposit ${tokenSymbol.toUpperCase()}`,
-            getEmojiURL(emojis.WALLET),
+    // create QR code image
+    const qrFileName = `qr_${author.id}.png`
+    await qrcode
+      .toFile(qrFileName, data.contract.contract_address)
+      .catch(() => null)
+    const dm = await author
+      .send({
+        embeds: [
+          composeEmbedMessage(null, {
+            author: [
+              `Deposit ${tokenSymbol.toUpperCase()}`,
+              getEmojiURL(emojis.WALLET),
+            ],
+            thumbnail: `attachment://${qrFileName}`,
+            description: `Below is the wallet address linked to your Discord account. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n*Please send only **${tokenSymbol.toUpperCase()}** to this address.*\n\n${getEmoji(
+              "CLOCK"
+            )} Your deposit address is **only valid for 3 hours**.\n\n**${tokenSymbol.toUpperCase()} Wallet Address**\n\`\`\`${
+              data.contract.contract_address
+            }\`\`\``,
+          }),
+        ],
+        files: [{ attachment: qrFileName }],
+      })
+      .catch(() => null)
+
+    // delete QR code image
+    fs.unlink(qrFileName, () => null)
+
+    // failed to send dm
+    if (dm == null) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              title: "Failed to send deposit info",
+              description: `You have to enable Direct Message to receive **${tokenSymbol.toUpperCase()}** deposit address`,
+            }),
           ],
-          description: `Below is the wallet address linked to your Discord account.
-          Please deposit to the following address only ${getEmoji(
-            "ok1"
-          )}.\n\nYour deposit address is **only valid for 3 hours**. Please re-check your deposit address using \`$deposit <cryptocurrency>\` before making any furthure deposit.\n\n**Your deposit address**\n\`\`\`${
-            data.contract.contract_address
-          }\`\`\``,
-        }),
-      ],
+        },
+      }
+    }
+    // cache message to update when expire
+    CacheManager.set({
+      pool: "deposit",
+      key: `deposit-${dm.id}`,
+      val: "",
+      ttl: 10800, // 3 hours
+      callOnExpire: () => handleDepositExpire(dm, tokenSymbol),
     })
-
     if (msg.channel?.type === "DM") return null
-
     return {
       messageOptions: {
         embeds: [
@@ -86,4 +120,17 @@ export async function deposit(
     }
     throw e
   }
+}
+
+async function handleDepositExpire(reply: Message, token: string) {
+  const expiredEmbed = getErrorEmbed({
+    title: `The ${token.toUpperCase()} wallet address has expired`,
+    thumbnail: "attachment://qr.png",
+    description: `Please re-run \`$deposit token\` to get new address\n\n${getEmoji(
+      "CLOCK"
+    )} Your deposit address is **no longer valid**.`,
+  })
+  await reply.edit({
+    embeds: [expiredEmbed],
+  })
 }
