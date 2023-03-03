@@ -32,7 +32,7 @@ describe("run", () => {
               "Additionally, a high `$vote` streak can also increase your reward",
             ].join("\n")}\n\n**Completion Progress**`,
             thumbnail: getEmojiURL(emojis.CHEST),
-            color: 14070061,
+            color: "#F9F687",
             footer: ["Daily quests reset at 00:00 UTC"],
           }),
         ],

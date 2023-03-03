@@ -36,6 +36,7 @@ describe("handleTokenList", () => {
       description: `${getEmoji(
         "POINTINGRIGHT"
       )} To add more token to the list, use \`$token add\``,
+      color: "#5CD97D",
     })
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     const output = await processor.handleTokenList("guildId")
@@ -61,7 +62,7 @@ describe("handleTokenList", () => {
       log: "",
     }
     const expected = {
-      color: "#77b255",
+      color: "#FCD3C1",
       title: `${getEmoji("TIP")} Tokens list`,
       fields: [
         {

@@ -30,6 +30,7 @@ describe("runVerify", () => {
             author: ["Verify", getEmojiURL(emojis.APPROVE)],
             description: `Verify channel: <#123123>`,
             footer: ["To change verify channel and role, use $verify remove"],
+            color: "#FCD3C1",
           }),
         ],
       },
@@ -54,6 +55,7 @@ describe("runVerify", () => {
             )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
               "pointingright"
             )} Then re-check your configuration using \`verify info.\``,
+            color: "#FCD3C1",
           }),
         ],
       },
