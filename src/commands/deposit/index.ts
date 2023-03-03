@@ -11,6 +11,13 @@ import { getEmoji } from "utils/common"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import deposit from "./index/text"
 import * as depositSlash from "./index/slash"
+import CacheManager from "cache/node-cache"
+
+CacheManager.init({
+  ttl: 3600,
+  pool: "deposit",
+  checkperiod: 1800,
+})
 
 const textCmd: Command = {
   id: "deposit",

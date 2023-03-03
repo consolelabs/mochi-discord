@@ -22,6 +22,7 @@ describe("deposit", () => {
       data: {
         contract: {
           address: "0x123123123123",
+          contract_address: "0x123123123123",
         },
       },
     }
@@ -41,6 +42,7 @@ describe("deposit", () => {
       data: {
         contract: {
           address: "0x123123123123",
+          contract_address: "0x123123123123",
         },
       },
     }
@@ -61,6 +63,7 @@ describe("deposit", () => {
       data: {
         contract: {
           address: "0x123123123123",
+          contract_address: "0x123123123123",
         },
       },
     }
@@ -79,6 +82,7 @@ describe("deposit", () => {
       data: {
         contract: {
           address: "0x123123123123",
+          contract_address: "0x123123123123",
         },
       },
     }
