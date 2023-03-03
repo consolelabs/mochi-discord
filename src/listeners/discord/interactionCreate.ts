@@ -65,6 +65,7 @@ import {
   addWallet,
   redirectToAddMoreWallet,
 } from "commands/wallet/add/processor"
+import { subscribeCommonwealthDiscussion } from "commands/proposal/track/processor"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -404,6 +405,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("wallet_add-"):
       await addWallet(i)
+      return
+    case i.customId.startsWith("proposal_join_thread_commonwealth"):
+      await subscribeCommonwealthDiscussion(i)
       return
     default: {
       return

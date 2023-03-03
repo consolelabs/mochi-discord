@@ -1138,6 +1138,19 @@ class Config extends Fetcher {
       { query }
     )
   }
+
+  public async createDaoTrackerCommonwealthDiscussionSub(req: {
+    discord_thread_id: string
+    discussion_id: number
+  }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-channels/dao-tracker/cw-discussion-subs`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
+  }
 }
 
 const config = new Config()

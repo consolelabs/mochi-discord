@@ -11,6 +11,7 @@ import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { composeDiscordExitButton } from "ui/discord/button"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { APIError } from "errors"
+import { logger } from "logger"
 
 export const handlePriceAlertAdd = async (
   msgOrInteraction: Message | CommandInteraction,
@@ -135,7 +136,12 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
     }
   }
 
-  await collected?.first()?.delete()
+  if (collected?.first()) {
+    await interaction.channel?.messages
+      .delete(collected?.first() as Message<boolean>)
+      .catch((e) => logger.error(e))
+  }
+
   if (alertType === "price_drops_to" && amount >= currentPrice) {
     return {
       messageOptions: {
