@@ -37,6 +37,7 @@ const command: Command = {
               description: `No one is inactive for ${days} days, let's put down the prune stick! ${getEmoji(
                 "TOUCH"
               )}`,
+              color: "#FCD3C1",
             }),
           ],
         },

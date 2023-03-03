@@ -76,11 +76,13 @@ export async function process(msg: OriginalMessage) {
     embed = composeEmbedMessage(msg, {
       title: "Select an option",
       description,
+      color: "#FCD3C1",
     })
   } else {
     embed = composeEmbedMessage2(msg as CommandInteraction, {
       title: "Select an option",
       description: list({ data }).description,
+      color: "#FCD3C1",
     })
   }
   embed.addFields(fields)

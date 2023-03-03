@@ -37,6 +37,7 @@ const command: SlashCommand = {
           composeEmbedMessage2(interaction, {
             author: [title],
             description,
+            color: "#FCD3C1",
           }),
         ],
       },

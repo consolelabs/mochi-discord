@@ -110,6 +110,7 @@ export const addWatchlistNftCollection = async ({
             composeEmbedMessage(msgOrInteraction as Message, {
               title: `${getEmoji("MAG")} Multiple options found`,
               description: `Multiple collections found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
+              color: "#1E1F22",
             }),
           ],
           components: [selectRow, composeDiscordExitButton(userId)],
@@ -119,6 +120,7 @@ export const addWatchlistNftCollection = async ({
             composeEmbedMessage2(msgOrInteraction as CommandInteraction, {
               title: `${getEmoji("MAG")} Multiple options found`,
               description: `Multiple collections found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
+              color: "#1E1F22",
             }),
           ],
           components: [selectRow, composeDiscordExitButton(userId)],

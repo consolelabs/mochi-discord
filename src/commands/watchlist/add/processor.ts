@@ -146,6 +146,7 @@ export async function viewWatchlist({
           composeEmbedMessage(msg, {
             title: `${getEmoji("MAG")} Multiple options found`,
             description: `Multiple tokens found for \`${symbol}\`.\nPlease select one of the following`,
+            color: "#1E1F22",
           }),
         ],
         components: [selectRow, composeDiscordExitButton(userId)],

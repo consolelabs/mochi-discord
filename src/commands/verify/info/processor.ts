@@ -28,6 +28,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
             )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
               "POINTINGRIGHT"
             )} Then re-check your configuration using \`verify info.\``,
+            color: "#FCD3C1",
           }),
         ],
       },
@@ -43,6 +44,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
               ? `\nVerify role: <@&${res.data.verify_role_id}>`
               : ""
           }`,
+          color: "#FCD3C1",
           footer: ["To change verify channel and role, use $verify remove"],
         }),
       ],

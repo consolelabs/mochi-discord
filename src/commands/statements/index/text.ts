@@ -38,6 +38,7 @@ const run = async (msg: Message) => {
             }. You can try \`${PREFIX}tip <@username/@role> <amount> <token>\` to transfer ${
               token !== "" ? `**${token.toUpperCase()}**` : "token"
             } to other users.`,
+            color: "#5CD97D",
           }),
         ],
       },

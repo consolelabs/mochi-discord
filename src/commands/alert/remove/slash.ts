@@ -39,6 +39,7 @@ const command: SlashCommand = {
 
     const embed = composeEmbedMessage2(interaction, {
       title: "Select an alert to remove",
+      color: "#FCD3C1",
     })
 
     return {

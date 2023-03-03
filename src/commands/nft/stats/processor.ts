@@ -29,6 +29,7 @@ export async function handleNftStats(msg: Message | CommandInteraction) {
         composeEmbedMessage(null, {
           title: "Collections supported",
           description: description,
+          color: "#FCD3C1",
         }),
       ],
     },

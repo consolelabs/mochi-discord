@@ -218,6 +218,7 @@ export async function composeTopEmbed(
       "POINTINGRIGHT"
     )} Move to another page with \`$top [page number]\`\n\u200B`,
     image: "attachment://leaderboard.png",
+    color: "#FCD3C1",
   })
   return {
     messageOptions: {

@@ -46,6 +46,7 @@ const command: SlashCommand = {
           composeEmbedMessage2(interaction, {
             author: [title, getEmojiURL(emojis.NFTS)],
             description,
+            color: "#FCD3C1",
           }),
         ],
       },

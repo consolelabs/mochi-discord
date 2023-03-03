@@ -144,6 +144,7 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
     description: `**✦ MY WALLETS ✦**\n\n${list.join(
       "\n"
     )}\n\n${pointingright} Choose a wallet to customize assets \`/wallet view label\` or \`/wallet view address\`\n/wallet view wal1 or /wallet view baddeed.eth (In case you have set label)\n${pointingright} Add more wallet \`/wallet add\`\n\u200B`,
+    color: "#FCD3C1",
   })
   setProfileFooter(embed)
   return {
@@ -243,6 +244,7 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   const embed = composeEmbedMessage(null, {
     thumbnail: user.displayAvatarURL(),
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
+    color: "#FCD3C1",
   }).addFields(
     {
       name: "✦ STATS ✦\n\nRole",
@@ -376,6 +378,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
   const embed = composeEmbedMessage(msg, {
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
     description: `**✦ MY NFT ✦**\n\u200B`,
+    color: "#FCD3C1",
   }).addFields(fields)
   setProfileFooter(embed)
   return {

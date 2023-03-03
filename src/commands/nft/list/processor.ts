@@ -39,6 +39,7 @@ export async function composeNFTListEmbed(
     description: "To add new collection, run `$nft add <address> <chain_id>`.",
     image: `attachment://nftlist.png`,
     footer: [`Page ${pageIdx + 1} / ${totalPage}`],
+    color: "#FCD3C1",
   })
 
   return {

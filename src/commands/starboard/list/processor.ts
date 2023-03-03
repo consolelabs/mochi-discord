@@ -168,6 +168,7 @@ export async function composeMessage(
       title: "Starboard Configuration",
       withoutFooter: true,
       thumbnail: msg.guild?.iconURL(),
+      color: "#FCD3C1",
     })
 
     if (type === "conversation") {

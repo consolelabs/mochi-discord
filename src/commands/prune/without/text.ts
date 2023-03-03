@@ -54,6 +54,7 @@ const command: Command = {
               description: `Everyone has the role ${
                 role.name
               }, let's put down the prune stick ${getEmoji("TOUCH")}`,
+              color: "#FCD3C1",
             }),
           ],
         },

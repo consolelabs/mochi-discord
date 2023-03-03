@@ -45,6 +45,7 @@ const run = async (interaction: CommandInteraction) => {
             }. You can try \`${SLASH_PREFIX}tip <@username/@role> <amount> <token>\` to transfer ${
               token !== "" ? `**${token.toUpperCase()}**` : "token"
             } to other users.`,
+            color: "#5CD97D",
           }),
         ],
       },

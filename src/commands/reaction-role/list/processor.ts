@@ -73,6 +73,7 @@ export const getEmbedPagination = async (
           author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
           description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
           footer: [`Page ${idx + 1} / ${pages.totalPage}`],
+          color: "#FCD3C1",
         }).addFields(
           { name: "\u200B", value: infoColumn, inline: true },
           { name: "\u200B", value: jumpBtnColumn, inline: true }
@@ -112,6 +113,7 @@ export const getEmbedPagination = async (
           author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
           description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
           footer: [`Page ${idx + 1} / ${pages.totalPage}`],
+          color: "#FCD3C1",
         }).addFields(
           { name: "\u200B", value: infoColumn, inline: true },
           { name: "\u200B", value: jumpBtnColumn, inline: true }

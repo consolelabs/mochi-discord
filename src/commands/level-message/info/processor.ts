@@ -25,6 +25,7 @@ export async function handle(msg: OriginalMessage) {
           composeEmbedMessage(null, {
             title: "No levelup message found",
             description: `You haven't set any levelup message yet.\n\nTo set a new one, run \`$levelmessage set <message content> [log channel] [image]\``,
+            color: "#FCD3C1",
           }),
         ],
       },
@@ -36,6 +37,7 @@ export async function handle(msg: OriginalMessage) {
     description: `${
       data.channel_id ? `Storing channel: <#${data.channel_id}>\n` : ""
     }Leveled-up message: ${data.message}`,
+    color: "#FCD3C1",
   })
   if (data.image_url !== "") {
     embed.setImage(data.image_url)

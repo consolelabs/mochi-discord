@@ -42,6 +42,7 @@ export const handleSetMoniker = async (
             "bucket_cash",
             true
           )}`,
+          color: "#5CD97D",
         }),
       ],
     },

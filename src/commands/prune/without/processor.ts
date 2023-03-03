@@ -45,6 +45,7 @@ export async function pruneRoleExecute(
       composeEmbedMessage(null, {
         title: "Prune successful",
         description: `You have pruned ${count} members`,
+        color: "#5CD97D",
       }),
     ],
   })

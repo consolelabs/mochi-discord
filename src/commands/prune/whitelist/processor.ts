@@ -39,5 +39,6 @@ export async function whitelistRolesEmbed(roles: Role[]) {
     description: `Roles are excluded when running \`${PREFIX}prune without\`: ${roleStr}\nRun \`${PREFIX}prune safelist @role\` to add role in safelist.\n\n_Note: When pruning users in Server Settings, these roles are not protected!_ ${getEmoji(
       "NEKOSAD"
     )}`,
+    color: "#FCD3C1",
   })
 }

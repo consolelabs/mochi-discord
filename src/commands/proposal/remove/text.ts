@@ -57,6 +57,7 @@ const command: Command = {
             description: `${getEmoji(
               "pointingright"
             )} You can create a new DAO voting channel by \`$proposal set <#channel> <chain/network> <token_contract>\``,
+            color: "#5CD97D",
           }),
         ],
       },

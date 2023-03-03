@@ -89,6 +89,7 @@ export async function removeWalletConfirmation(i: ButtonInteraction) {
   const embed = composeEmbedMessage(null, {
     author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
     description: `Do you want to remove wallet **${label || address}**?`,
+    color: "#5CD97D",
   })
   const buttonRow = new MessageActionRow().addComponents(
     new MessageButton({

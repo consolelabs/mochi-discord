@@ -128,6 +128,7 @@ function composeWithdrawEmbed(
     author: ["Withdraw"],
     title: `${tokenEmoji} ${payload.token.toUpperCase()} sent`,
     description: "Your withdrawal was processed succesfully!",
+    color: "#5CD97D",
   }).addFields(
     {
       name: "Destination address",

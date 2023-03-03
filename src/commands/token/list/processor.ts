@@ -23,6 +23,7 @@ export async function handleTokenList(
             description: `${getEmoji(
               "POINTINGRIGHT"
             )} To add more token to the list, use \`$token add\``,
+            color: "#5CD97D",
           }),
         ],
       },
@@ -44,7 +45,7 @@ export async function handleTokenList(
     messageOptions: {
       embeds: [
         {
-          color: "#77b255",
+          color: "#FCD3C1",
           title: `${getEmoji("TIP")} Tokens list`,
           fields,
         },

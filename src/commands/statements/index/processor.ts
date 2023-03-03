@@ -113,6 +113,7 @@ export async function handleStatement(
     return composeEmbedMessage(null, {
       title: `${getEmoji("STATEMENTS")} Transaction history`,
       footer: [`Page ${idx + 1} / ${pages.length}`],
+      color: "#5CD97D",
     })
       .setDescription(des)
       .addFields(

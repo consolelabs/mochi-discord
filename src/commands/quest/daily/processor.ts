@@ -71,6 +71,7 @@ export async function handleClaimReward(i: ButtonInteraction) {
     description:
       "Congrats! Rewards sent to you, here's the summary of what you just received:",
     footer: ["Daily quests reset at 00:00 UTC"],
+    color: "#F9F687",
   })
   const data = res.data.rewards?.reduce((acc: any, d: any) => {
     const { reward, reward_amount } = d
@@ -140,7 +141,7 @@ export async function run(userId: string, msg?: Message) {
     ].join("\n")}\n\n**Completion Progress**`,
     thumbnail: getEmojiURL(emojis.CHEST),
     footer: ["Daily quests reset at 00:00 UTC"],
-    color: "#d6b12d",
+    color: "#F9F687",
   })
 
   embed.fields = res.data

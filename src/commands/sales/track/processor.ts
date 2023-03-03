@@ -71,6 +71,7 @@ export async function handleSalesTrack(
         composeEmbedMessage(null, {
           author: ["Sales Tracker", getEmojiURL(emojis.LEADERBOARD)],
           description: `NFT sales information will be updated in <#${channelId}>.`,
+          color: "#FCD3C1",
         }),
       ],
     },

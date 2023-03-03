@@ -36,6 +36,7 @@ export async function handle(
     description: `${getEmoji(
       "pointingright"
     )} You can take a look at the preview message:\n${data.message}`,
+    color: "#5CD97D",
   })
   if (data.image_url !== "") {
     embed.setImage(data.image_url)

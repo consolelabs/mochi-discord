@@ -130,6 +130,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
             description: `${getEmoji(
               "point_right"
             )} All proposals will be posted and voted in the <#${channelId}>`,
+            color: "#5CD97D",
           }),
         ],
         components: [],
@@ -215,6 +216,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
           description: `${getEmoji(
             "pointingright"
           )} All proposals will be posted and voted in the <#${channelId}>`,
+          color: "#5CD97D",
         }),
       ],
     },

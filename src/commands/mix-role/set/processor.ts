@@ -21,7 +21,7 @@ import {
   getSuccessEmbed,
 } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
-import { getEmoji, msgColors } from "utils/common"
+import { getEmoji } from "utils/common"
 
 export async function process(message: OriginalMessage) {
   if (!message.guildId || !message.guild) {
@@ -71,7 +71,7 @@ export async function process(message: OriginalMessage) {
     const title = `${getEmoji(
       "mag"
     )} Please enter the role you want to assign by level, amount of NFT, and token.`
-    const embed = composeEmbedMessage(null, { title, color: msgColors.PRIMARY })
+    const embed = composeEmbedMessage(null, { title, color: "#FCD3C1" })
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
@@ -142,7 +142,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
-      color: msgColors.PRIMARY,
+      color: "#FCD3C1",
     })
     await send({
       embeds: [embed],
@@ -202,7 +202,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
-      color: msgColors.PRIMARY,
+      color: "#FCD3C1",
     })
     await send({
       embeds: [embed],
@@ -296,7 +296,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
-      color: msgColors.PRIMARY,
+      color: "#FCD3C1",
     })
     await send({
       embeds: [embed],
@@ -442,7 +442,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title: `Users will earn the role ${role_name} if they meet all of these requirements`,
       description,
-      color: msgColors.PRIMARY,
+      color: "#FCD3C1",
     })
     await send({ embeds: [embed], components: [actionRow] })
     const interaction = await message.channel?.awaitMessageComponent({

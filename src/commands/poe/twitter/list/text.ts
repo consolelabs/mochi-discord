@@ -57,6 +57,7 @@ const command: Command = {
               twitter_username: twitterConfig.data.twitter_username,
               from_twitter: twitterConfig.data.from_twitter,
             }),
+            color: "#FCD3C1",
           }),
         ],
       },

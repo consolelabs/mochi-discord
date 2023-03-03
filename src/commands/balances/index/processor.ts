@@ -124,6 +124,7 @@ export async function renderBalances(
     const embed = composeEmbedMessage(null, {
       author: [props.title, getEmojiURL(emojis.WALLET)],
       description: "No balance. Try `$deposit` more into your wallet.",
+      color: "#5CD97D",
     })
     return {
       messageOptions: {
@@ -142,6 +143,7 @@ export async function renderBalances(
   const embed = composeEmbedMessage(null, {
     author: [props.title, getEmojiURL(emojis.WALLET)],
     description: props.description,
+    color: "#5CD97D",
   }).addFields(fields)
   justifyEmbedFields(embed, 3)
   embed.addFields({

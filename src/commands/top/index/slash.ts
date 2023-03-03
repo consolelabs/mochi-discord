@@ -48,6 +48,7 @@ const run = async (interaction: CommandInteraction) => {
     description: `${blank}**Your rank:** #${author.guild_rank}\n${blank}**XP:** ${author.total_xp}\n\u200B`,
     image: "attachment://leaderboard.png",
     originalMsgAuthor: interaction?.user,
+    color: "#FCD3C1",
   })
 
   return {

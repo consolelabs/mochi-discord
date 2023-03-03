@@ -39,6 +39,7 @@ const command: SlashCommand = {
               title: `${getEmoji("bucket_cash", true)} Moniker List`,
               description:
                 "You haven't set any moniker. To set one, run $moniker set <moniker> <amount_token> <token> .",
+              color: "#5CD97D",
             }),
           ],
         },

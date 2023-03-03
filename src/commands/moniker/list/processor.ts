@@ -32,6 +32,7 @@ export async function handleMonikerList(guildId: string) {
     const res = composeEmbedMessage(null, {
       title: `${getEmoji("bucket_cash", true)} Moniker List`,
       footer: [`Page ${idx + 1} / ${pages.length}`],
+      color: "#FCD3C1",
     })
     if (isDefault) {
       return res

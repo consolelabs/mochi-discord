@@ -32,6 +32,7 @@ const command: Command = {
           composeEmbedMessage(msg, {
             author: [title, getEmojiURL(emojis.NFTS)],
             description,
+            color: "#FCD3C1",
           }),
         ],
       },

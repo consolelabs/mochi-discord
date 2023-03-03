@@ -31,6 +31,7 @@ const command: Command = {
           composeEmbedMessage(msg, {
             author: [title],
             description,
+            color: "#FCD3C1",
           }),
         ],
       },

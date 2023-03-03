@@ -48,6 +48,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       author: [`${msg.guild.name}'s twitter blacklist`, msg.guild.iconURL()],
       description,
+      color: "#FCD3C1",
     })
 
     return { messageOptions: { embeds: [embed] } }

@@ -39,6 +39,7 @@ export async function handle(msg: OriginalMessage, statusText = "") {
             isError ? getEmojiURL(emojis.REVOKE) : getEmojiURL(emojis.NEKO1),
           ],
           description,
+          color: "#FCD3C1",
         })
       : composeEmbedMessage2(msg as CommandInteraction, {
           author: [
@@ -46,6 +47,7 @@ export async function handle(msg: OriginalMessage, statusText = "") {
             isError ? getEmojiURL(emojis.REVOKE) : getEmojiURL(emojis.NEKO1),
           ],
           description,
+          color: "#FCD3C1",
         })
 
   return {

@@ -25,6 +25,7 @@ export async function process(msg: OriginalMessage) {
   const properties: EmbedProperties = {
     author: [title],
     description,
+    color: "#FCD3C1",
   }
   const embed = isTextCommand
     ? composeEmbedMessage(msg, properties)

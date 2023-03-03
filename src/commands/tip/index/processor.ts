@@ -327,6 +327,7 @@ async function executeTipWithConfirmation(
         ? `<@${recipientIds[0]}>`
         : recipientIds.length + " users"
     }?`,
+    color: "#C8EFF8",
   })
   const confirmButtonCollectorHandler = async () => {
     return await executeTip(
@@ -433,6 +434,7 @@ export async function executeTip(
     thumbnail: thumbnails.TIP,
     author: ["Tips", getEmojiURL(emojis.COIN)],
     description: description,
+    color: "#5CD97D",
   })
   if (imageUrl) {
     embed.setImage(imageUrl)
