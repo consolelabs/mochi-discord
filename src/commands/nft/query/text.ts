@@ -50,7 +50,11 @@ const command: Command = {
     )
 
     if (!res.ok) {
-      throw new APIError({ message: msg, curl: res.curl, description: res.log })
+      throw new APIError({
+        msgOrInteraction: msg,
+        curl: res.curl,
+        description: res.log,
+      })
     }
 
     let replyMsg: Message | null = null
@@ -153,13 +157,13 @@ const command: Command = {
 
         if (!res.ok) {
           throw new APIError({
-            message: msg,
+            msgOrInteraction: msg,
             curl: res.curl,
             description: res.log,
           })
         } else if (!detailRes.ok) {
           throw new APIError({
-            message: msg,
+            msgOrInteraction: msg,
             curl: detailRes.curl,
             description: detailRes.log,
           })

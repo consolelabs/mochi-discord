@@ -39,7 +39,7 @@ export const handleRoleList = async (msg: Message | CommandInteraction) => {
   const res = await config.listAllReactionRoles(msg.guildId)
   if (!res.ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: res.curl,
       description: res.log,
     })
@@ -181,7 +181,7 @@ export const getPaginatedConfigs = async (
 
       if (!reactMessage) {
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           description: "Message not found",
         })
       }

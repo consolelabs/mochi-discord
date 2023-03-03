@@ -11,7 +11,11 @@ export async function createWhitelist(roleId: string, message: Message) {
   }
   const res = await config.createExcludedRole(roleId, message.guildId)
   if (!res.ok) {
-    throw new APIError({ message, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: message,
+      curl: res.curl,
+      description: res.log,
+    })
   }
 }
 

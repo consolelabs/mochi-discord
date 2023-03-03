@@ -122,7 +122,7 @@ export async function toEmbed(
         )
       ) {
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           title: "Can't find the NFT collection",
           description:
             "The NFT Address and NFT Chain must be valid. Go to the collection's official website/ marketplace to find this information. ",
@@ -185,11 +185,11 @@ export async function composeCollectionInfoEmbed(
     chain
   )
   if (!ok) {
-    throw new APIError({ message: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
   }
   if (!data) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "The collection does not exist. Please choose another one.",
     })
   }
@@ -277,11 +277,11 @@ export async function composeCollectionSoulboundEmbed(
     chain
   )
   if (!ok) {
-    throw new APIError({ message: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
   }
   if (!data) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "The collection does not exist. Please choose another one.",
     })
   }

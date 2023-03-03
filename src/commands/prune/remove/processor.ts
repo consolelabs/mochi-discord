@@ -8,6 +8,10 @@ export async function deleteWhitelist(roleId: string, message: Message) {
   }
   const res = await config.removeExcludedRole(roleId, message.guildId)
   if (!res.ok) {
-    throw new APIError({ message, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: message,
+      curl: res.curl,
+      description: res.log,
+    })
   }
 }

@@ -33,7 +33,7 @@ const command: SlashCommand = {
     const res = await Config.getGuildNFTRoleConfigs(interaction.guildId)
     if (!res.ok) {
       throw new APIError({
-        message: interaction,
+        msgOrInteraction: interaction,
         curl: res.curl,
         description: res.log,
       })

@@ -45,12 +45,12 @@ export async function deposit(
       }
       throw new InternalError({
         title: "Command error",
-        message: msg,
+        msgOrInteraction: msg,
         description,
       })
     }
     if (!ok) {
-      throw new APIError({ message: msg, curl, description: log })
+      throw new APIError({ msgOrInteraction: msg, curl, description: log })
     }
 
     // create QR code image

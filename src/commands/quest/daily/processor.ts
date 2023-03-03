@@ -120,7 +120,7 @@ export async function run(userId: string, msg?: Message) {
   if (!res.ok) {
     throw new APIError({
       curl: res.curl,
-      message: msg,
+      msgOrInteraction: msg,
       description: res.log,
     })
   }
@@ -149,9 +149,11 @@ export async function run(userId: string, msg?: Message) {
       const rewards = d.quest.rewards
         .map(
           (r: any) =>
-            `${getEmoji(r.reward_type.name.toLowerCase() == "xp" ? "xp2" : r.reward_type.name)} \`${
-              r.reward_amount
-            }\` ${r.reward_type.name}`
+            `${getEmoji(
+              r.reward_type.name.toLowerCase() == "xp"
+                ? "xp2"
+                : r.reward_type.name
+            )} \`${r.reward_amount}\` ${r.reward_type.name}`
         )
         .join(" and ")
       return {

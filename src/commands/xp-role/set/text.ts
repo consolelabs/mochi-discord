@@ -28,7 +28,7 @@ const command: Command = {
     `
     if (!isRole) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid roles",
         description: invalidRoleDescription,
       })
@@ -36,7 +36,7 @@ const command: Command = {
     const role = await msg.guild.roles.fetch(roleId)
     if (!role) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid roles",
         description: invalidRoleDescription,
       })
@@ -45,7 +45,7 @@ const command: Command = {
     const amount = +amountArg
     if (isInvalidAmount(amount)) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command Error",
         description:
           "The XP amount is invalid. Please insert a natural number.",

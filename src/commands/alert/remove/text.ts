@@ -16,7 +16,7 @@ const command: Command = {
   run: async function (msg) {
     const { ok, data, log, curl } = await Defi.getAlertList(msg.author.id)
     if (!ok) {
-      throw new APIError({ message: msg, description: log, curl })
+      throw new APIError({ msgOrInteraction: msg, description: log, curl })
     }
 
     if (data.length === 0) {

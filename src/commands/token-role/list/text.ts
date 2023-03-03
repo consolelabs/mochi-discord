@@ -18,7 +18,7 @@ const command: Command = {
     const res = await Config.getConfigTokenRoleList(msg.guildId)
     if (!res.ok) {
       throw new APIError({
-        message: msg,
+        msgOrInteraction: msg,
         curl: res.curl,
         description: res.log,
       })

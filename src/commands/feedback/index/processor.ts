@@ -290,7 +290,7 @@ export async function handleFeedback(
   const res = await community.sendFeedback(req)
   if (!res.ok) {
     throw new InternalError({
-      message,
+      msgOrInteraction: message,
       description: "Failed to send your feedback, please try again later",
     })
   }

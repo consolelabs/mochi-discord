@@ -37,7 +37,7 @@ export async function process(msg: OriginalMessage) {
   })
   if (!ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       description: log,
       curl,
       error,
@@ -60,7 +60,7 @@ export async function process(msg: OriginalMessage) {
   for (const config of data) {
     if (!config.role_id) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         description: "invalid role id",
       })
     }

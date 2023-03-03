@@ -107,7 +107,7 @@ describe("deposit", () => {
     await expect(processor.deposit(msg, "ftm")).rejects.toThrow(
       new InternalError({
         title: "Command error",
-        message: msg,
+        msgOrInteraction: msg,
         description: expectedDesc,
       })
     )

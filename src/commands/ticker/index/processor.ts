@@ -350,7 +350,7 @@ export async function composeTokenInfoEmbed(
     call: () => defi.getCoin(coinId),
   })
   if (!ok) {
-    throw new APIError({ message: msg, curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl, description: log })
   }
   const embed = composeEmbedMessage(msg, {
     thumbnail: coin.image.large,

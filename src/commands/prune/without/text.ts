@@ -27,7 +27,7 @@ const command: Command = {
     const { isRole, value: id } = parseDiscordToken(roleArg)
     if (!isRole) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command error",
         description:
           "Invalid role. Be careful not to be mistaken role with username while using `@`.",
@@ -37,7 +37,7 @@ const command: Command = {
     const role = msg.guild.roles.cache.get(id)
     if (!role) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command error",
         description:
           "Invalid role. Be careful not to be mistaken role with username while using `@`.",

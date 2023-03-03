@@ -1,3 +1,8 @@
+import { APIError, OriginalMessage } from "errors"
+import { getAuthor } from "./common"
+import defi from "adapters/defi"
+import { InsufficientBalanceError } from "errors/insufficient-balance"
+
 const allowedFiats = ["gbp", "usd", "eur", "sgd", "vnd"]
 
 export function parseFiatQuery(q: string): string[] {
@@ -38,4 +43,43 @@ export function parseTickerQuery(q: string) {
     }
   }
   return { isCompare, isFiat, base, target }
+}
+
+export async function validateBalance({
+  msgOrInteraction,
+  token,
+  amount,
+  all,
+}: {
+  msgOrInteraction: OriginalMessage
+  token: string
+  amount: number
+  all?: boolean
+}) {
+  const author = getAuthor(msgOrInteraction)
+  const { ok, data, log, curl } = await defi.offchainGetUserBalances({
+    userId: author.id,
+  })
+  if (!ok)
+    throw new APIError({
+      msgOrInteraction: msgOrInteraction,
+      curl,
+      description: log,
+    })
+  //
+  const tokenBalance = data.find(
+    (item) => token.toLowerCase() === item.symbol?.toLowerCase()
+  ) ?? { balances: 0, balances_in_usd: 0 }
+  const { balances = 0, balances_in_usd = 0 } = tokenBalance
+  if (!balances || (balances < amount && !all)) {
+    throw new InsufficientBalanceError({
+      msgOrInteraction,
+      params: {
+        current: balances,
+        required: amount,
+        symbol: token,
+      },
+    })
+  }
+  return { balance: balances, usdBalance: balances_in_usd }
 }

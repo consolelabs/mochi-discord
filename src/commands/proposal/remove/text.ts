@@ -22,7 +22,11 @@ const command: Command = {
       curl: curlGet,
     } = await config.getProposalChannelConfig(msg.guildId || "")
     if (!okGet) {
-      throw new APIError({ message: msg, description: logGet, curl: curlGet })
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: logGet,
+        curl: curlGet,
+      })
     }
     if (data === null) {
       return {
@@ -43,7 +47,7 @@ const command: Command = {
       id: `${data.id}`,
     })
     if (!ok) {
-      throw new APIError({ message: msg, description: log, curl })
+      throw new APIError({ msgOrInteraction: msg, description: log, curl })
     }
     return {
       messageOptions: {

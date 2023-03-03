@@ -28,7 +28,7 @@ export async function handle(
   })
 
   if (!ok) {
-    throw new APIError({ message, curl, description: log })
+    throw new APIError({ msgOrInteraction: message, curl, description: log })
   }
 
   const embed = composeEmbedMessage(null, {

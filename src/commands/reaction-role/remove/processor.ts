@@ -46,7 +46,7 @@ export const handleRoleRemove = async (
   const res = await config.removeReactionConfig(requestData)
   if (!res.ok) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Unsuccessful",
       description: `You haven't set this reaction role yet. To set a new one, run \`\`\`${PREFIX}rr set <message_link> <emoji> <role>\`\`\`\n You can remove it later using \`${PREFIX}rr remove\`.`,
     })
@@ -92,7 +92,7 @@ export const parseRequestArguments = async (
   // Validate message_link
   if (!isDiscordMessageLink(args[2])) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Invalid message link",
       description: `Your message link is invalid. Make sure that message exists, or that you have entered the link correctly.\n\n${getEmoji(
         "POINTINGRIGHT"
@@ -105,7 +105,7 @@ export const parseRequestArguments = async (
   const [guildId, channelId, messageId] = args[2].split("/").slice(-3)
   if (guildId !== msg.guildId) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description:
         "Guild ID invalid, please choose a message belongs to your guild",
     })
@@ -114,7 +114,7 @@ export const parseRequestArguments = async (
   const channel = msg.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
   if (!channel || !channel.isText()) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "Channel not found",
     })
   }
@@ -122,7 +122,7 @@ export const parseRequestArguments = async (
   const message = await channel.messages.fetch(messageId).catch(() => null)
   if (!message) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "Message not found",
     })
   }
@@ -137,7 +137,7 @@ export const parseRequestArguments = async (
     const role = await msg?.guild?.roles.fetch(roleId)
     if (!role || !roleId) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Can't find the role",
         description: `Invalid role. Be careful not to be mistaken role with username while using \`@\`.\n${getEmoji(
           "POINTINGRIGHT"
@@ -165,7 +165,7 @@ export const parseRequestArguments = async (
   const parseFunc: () => Promise<RoleReactionEvent> = parseMap.get(args.length)
   if (!parseFunc) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "Message not found",
     })
   }

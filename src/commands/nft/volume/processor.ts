@@ -145,7 +145,11 @@ async function renderLeaderboard(leaderboard: TopNFTTradingVolumeItem[]) {
 export async function handleNftVolume(msg: Message | CommandInteraction) {
   const res = await community.getTopNFTTradingVolume()
   if (!res.ok) {
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: res.log,
+    })
   }
   const data = res.data
   let leaderboard = parseNFTTop(data)

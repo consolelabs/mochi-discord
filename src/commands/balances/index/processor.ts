@@ -83,7 +83,7 @@ export async function getBalances(
   const ok = res[0].ok && (res[1]?.ok ?? true)
   if (!ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: "",
     })
   }

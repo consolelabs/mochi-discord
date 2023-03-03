@@ -52,7 +52,7 @@ function handleError(
   let description = ""
   if (!error) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description,
     })
   }
@@ -71,7 +71,7 @@ function handleError(
       break
   }
   throw new InternalError({
-    message: msg,
+    msgOrInteraction: msg,
     title,
     description,
   })

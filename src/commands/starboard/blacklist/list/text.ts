@@ -19,7 +19,7 @@ const command: Command = {
     const { ok, data, log, curl } =
       await config.getBlacklistChannelRepostConfig(msg.guild.id)
     if (!ok) {
-      throw new APIError({ message: msg, curl, description: log })
+      throw new APIError({ msgOrInteraction: msg, curl, description: log })
     }
 
     const { title, description } = composeListConfig(data)

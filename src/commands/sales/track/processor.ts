@@ -52,13 +52,17 @@ export async function handleSalesTrack(
       res.error.includes("Collection has not been added")
     ) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid address",
         description:
           "The NFT collection address is invalid. Please check again.",
       })
     }
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: res.log,
+    })
   }
 
   return {

@@ -19,11 +19,11 @@ async function run(msg: Message, base: string): Promise<TextCommandResponse> {
     key: `ticker-search-${base}`,
     call: () => defi.searchCoins(base),
   })
-  if (!ok) throw new APIError({ message: msg, curl, description: log })
+  if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
   if (!coins || !coins.length) {
     throw new InternalError({
       title: "Unsupported token/fiat",
-      message: msg,
+      msgOrInteraction: msg,
       description: `**${base.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
         "POINTINGRIGHT"
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(

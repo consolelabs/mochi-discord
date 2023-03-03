@@ -30,7 +30,7 @@ export function throwOnInvalidEmoji(emoji: string, msg: OriginalMessage) {
 
   if (!isValidEmoji) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Unsupported emojis",
       description: `${getEmoji(
         "POINTINGRIGHT"

@@ -321,7 +321,7 @@ async function composeNFTTicker(
     to,
   })
   if (!ok) {
-    throw new APIError({ message: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
   }
 
   // collection is not exist, mochi has not added it yet
@@ -418,7 +418,11 @@ export async function fetchAndComposeNFTDetail(
     true
   )
   if (!res.ok) {
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: res.log,
+    })
   }
   const addSuggestioncomponents = addSuggestionIfAny(
     symbol,
@@ -476,7 +480,11 @@ export async function composeNFTDetail(
     if (res.ok) {
       icons = res.data
     } else {
-      throw new APIError({ message: msg, curl: res.curl, description: res.log })
+      throw new APIError({
+        msgOrInteraction: msg,
+        curl: res.curl,
+        description: res.log,
+      })
     }
   }
 
@@ -567,7 +575,7 @@ export async function composeNFTDetail(
     collectionAddress: collection_address,
     tokenId: token_id,
   })
-  if (!ok) throw new APIError({ message: msg, curl, description: log })
+  if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
 
   const txHistoryTitle = `${getEmoji("swap")} Transaction History`
   const txHistoryValue = (activityData.data ?? [])

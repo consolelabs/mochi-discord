@@ -66,7 +66,7 @@ function handleError(
       `
   }
   throw new InternalError({
-    message: msg,
+    msgOrInteraction: msg,
     title,
     description,
   })

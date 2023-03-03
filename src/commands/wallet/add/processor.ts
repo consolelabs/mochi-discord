@@ -42,7 +42,7 @@ export async function handleWalletAddition(msg: OriginalMessage) {
     messageId: reply.id,
   })
   if (!ok) {
-    throw new APIError({ message: msg, description: log, curl })
+    throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
   const buttonRow = composeButtonLink(
     "Connect Wallet",
@@ -105,13 +105,13 @@ export async function renameWallet(
   })
   if (!ok && status === 409) {
     throw new InternalError({
-      message: i,
+      msgOrInteraction: i,
       title: "Alias has been used",
       description: `This alias has been used for another address. Please enter another alias!\n${pointingright} You can see used aliases by using \`$wallet view\`.`,
     })
   }
   if (!ok) {
-    throw new APIError({ message: i, description: log, curl })
+    throw new APIError({ msgOrInteraction: i, description: log, curl })
   }
   const successEmbed = new MessageEmbed()
     .setDescription(`${getEmoji("approve")} Wallet name has been changed!`)
@@ -135,7 +135,7 @@ export async function trackWallet(
   const { valid, type } = isAddress(address)
   if (!valid) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Invalid address",
       description:
         "Your wallet address is invalid. Make sure that the wallet address is valid, you can copy-paste it to ensure the exactness of it.",
@@ -150,13 +150,13 @@ export async function trackWallet(
   const pointingright = getEmoji("pointingright")
   if (!ok && status === 409) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Alias has been used",
       description: `This alias has been used for another address. Please enter another alias!\n${pointingright} You can see used aliases by using \`$wallet view\`.`,
     })
   }
   if (!ok) {
-    throw new APIError({ message: msg, description: log, curl })
+    throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,

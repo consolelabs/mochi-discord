@@ -35,7 +35,7 @@ export async function composeFiatComparisonEmbed(
   if (!ok) {
     throw new InternalError({
       title: "Unsupported token/fiat",
-      message: msg,
+      msgOrInteraction: msg,
       description: `Token is invalid or hasn't been supported.\n${getEmoji(
         "POINTINGRIGHT"
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(

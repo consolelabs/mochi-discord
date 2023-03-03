@@ -42,7 +42,7 @@ const textCmd: Command = {
     const { base, target, isCompare, isFiat } = parseTickerQuery(query)
     if (base === target) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Ticker error",
         description: `${getEmoji(
           "POINTINGRIGHT"
@@ -119,7 +119,7 @@ const slashCmd: SlashCommand = {
     const { base, target, isCompare, isFiat } = parseTickerQuery(query)
     if (base === target) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         title: "Ticker error",
         description: `${getEmoji(
           "POINTINGRIGHT"

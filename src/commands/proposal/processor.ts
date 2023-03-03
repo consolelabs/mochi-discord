@@ -267,7 +267,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
       })
       if (!generationRes.ok) {
         throw new APIError({
-          message: i,
+          msgOrInteraction: i,
           description: generationRes.log,
           curl: generationRes.log,
         })
@@ -493,7 +493,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
     })
     if (!generationRes.ok) {
       throw new APIError({
-        message: i,
+        msgOrInteraction: i,
         description: generationRes.log,
         curl: generationRes.curl,
       })

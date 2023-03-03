@@ -34,7 +34,7 @@ export const handleRoleSet = async (
   if (!res.ok) {
     if (res.originalError?.includes("role has been used")) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Role has been used",
         description: `Use another role to set the reaction role\n${getEmoji(
           "POINTINGRIGHT"
@@ -46,7 +46,7 @@ export const handleRoleSet = async (
       })
     } else {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         description: `Message not found, please choose another valid message.${troubleshootMsg}`,
       })
     }
@@ -88,7 +88,7 @@ export const validateCommandArgument = async (
   // Validate message link https://discord.com/channels/guild_id/chan_id/msg_id
   if (!isDiscordMessageLink(args[2])) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Invalid message link",
       description: `Your message link is invalid. Make sure that message exists, or that you have entered the link correctly.${troubleshootMsg}`,
     })
@@ -102,7 +102,7 @@ export const validateCommandArgument = async (
   const { isRole, value: roleId } = parseDiscordToken(args[4])
   if (!isRole || !roleId) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Invalid roles",
       description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${getEmoji(
         "POINTINGRIGHT"
@@ -115,7 +115,7 @@ export const validateCommandArgument = async (
   const [guildId, channelId, messageId] = args[2].split("/").slice(-3)
   if (guildId !== msg.guildId) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: `Guild ID invalid, please choose a message belongs to your guild.${troubleshootMsg}`,
     })
   }
@@ -123,7 +123,7 @@ export const validateCommandArgument = async (
   const channel = msg.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
   if (!channel || !channel.isText()) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: `Channel invalid, please choose a message in a text channel.${troubleshootMsg}`,
     })
   }
@@ -131,7 +131,7 @@ export const validateCommandArgument = async (
   const reactMessage = await channel.messages.fetch(messageId).catch(() => null)
   if (!reactMessage) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: `Message not found, please choose another valid message.${troubleshootMsg}`,
     })
   }

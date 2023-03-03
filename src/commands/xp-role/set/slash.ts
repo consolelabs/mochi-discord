@@ -37,7 +37,7 @@ const command: SlashCommand = {
     const amount = interaction.options.getNumber("amount", true)
     if (isInvalidAmount(amount)) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         title: "Command Error",
         description: "The amount is invalid. Please insert a natural number.",
       })

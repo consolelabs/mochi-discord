@@ -36,7 +36,7 @@ const command: Command = {
       const { ok, log, curl } =
         await config.removeRepostReactionConversationConfig(requestData)
       if (!ok) {
-        throw new APIError({ message: msg, curl, description: log })
+        throw new APIError({ msgOrInteraction: msg, curl, description: log })
       }
       return {
         messageOptions: {
@@ -59,7 +59,7 @@ const command: Command = {
       await config.removeSpecificRepostReactionConfig(requestData)
     if (!ok && status === 404) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Unsuccessful",
         description: `You haven't configured this emoji in the starboard.\n\n${getEmoji(
           "POINTINGRIGHT"
@@ -67,7 +67,7 @@ const command: Command = {
       })
     }
     if (!ok) {
-      throw new APIError({ message: msg, curl, description: log })
+      throw new APIError({ msgOrInteraction: msg, curl, description: log })
     }
     return {
       messageOptions: {
