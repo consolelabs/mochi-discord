@@ -14,7 +14,13 @@ import { OffchainTipBotTransferRequest } from "types/defi"
 import { getExitButton } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments } from "utils/commands"
-import { emojis, getEmoji, getEmojiURL, thumbnails } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  msgColors,
+  thumbnails,
+} from "utils/common"
 import * as tiputils from "utils/tip-bot"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
@@ -178,7 +184,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent ${targets[0]} **100 CAKE** (\u2248 $100) `,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -251,7 +257,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **3 online user(s) (${targets[1]}, ${targets[2]}, ${targets[3]})** **100 CAKE** (\u2248 $100) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -387,7 +393,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **10 online user(s)** **100 CAKE** (\u2248 $100) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -448,7 +454,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **2 user(s) (<@521591222826041349>, <@521591222826041348>)** in <@&1022071198651269150> **100 CAKE** (\u2248 $100) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -584,7 +590,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **10 user(s)** in <@&1022071198651269150> **100 CAKE** (\u2248 $100) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -645,7 +651,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **2 user(s) (<@521591222826041349>, <@521591222826041348>)** in <#1035139564504891462> **100 CAKE** (\u2248 $100) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -781,7 +787,7 @@ describe("executeTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **10 user(s)** in <#1035139564504891462> **100 CAKE** (\u2248 $100) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -982,7 +988,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent ${recipient} **1.5 CAKE** (\u2248 $1.5) `,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -1062,7 +1068,7 @@ describe("handleTip", () => {
     const expected = composeEmbedMessage(null, {
       title: `${getEmoji("TIP")} Transaction Confirmation`,
       description: `Are you sure you want to spend **100 CAKE** (100.00 USD) to tip <@521591222826041344>?`,
-      color: "#C8EFF8",
+      color: msgColors.BLUE,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -1174,7 +1180,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent <@760874365037314100>, <@580788681967665173> **1 CAKE** (\u2248 $1.5) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1268,7 +1274,7 @@ describe("handleTip", () => {
     const expected = composeEmbedMessage(null, {
       title: `${getEmoji("TIP")} Transaction Confirmation`,
       description: `Are you sure you want to spend **100 CAKE** (100.00 USD) to tip 2 users?`,
-      color: "#C8EFF8",
+      color: msgColors.BLUE,
     })
 
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -1361,7 +1367,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent <@521591222826041344> **10 CAKE** (\u2248 $20.5) `,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
 
     const output = await processor.handleTip(args, userId, msg.content, msg)
@@ -1469,7 +1475,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent <@760874365037314100>, <@580788681967665173> **1.5 CAKE** (\u2248 $1.5) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1562,7 +1568,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **2 user(s) (<@760874365037314100>, <@580788681967665173>)** in <@&1039124250004574208> **1.5 CAKE** (\u2248 $1.5) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1689,7 +1695,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **4 user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** in <@&1039124250004574208>, <@&1041914485251788800> **0.5 CAKE** (\u2248 $1.5) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1801,7 +1807,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **4 user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** in <#984660970624409630> **0.5 CAKE** (\u2248 $1.5) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
@@ -1913,7 +1919,7 @@ describe("handleTip", () => {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
       description: `<@${userId}> has sent **4 online user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** **0.5 CAKE** (\u2248 $1.5) each`,
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
     const output = await processor.handleTip(args, userId, msg.content, msg)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)

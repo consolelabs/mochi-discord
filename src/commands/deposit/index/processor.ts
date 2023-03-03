@@ -109,7 +109,7 @@ export async function deposit(
           composeEmbedMessage(null, {
             author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
             description: `${author}, your deposit address has been sent to you. Check your DM!`,
-            color: "#5CD97D",
+            color: msgColors.SUCCESS,
           }),
         ],
         components: [composeButtonLink("See the DM", dm.url)],

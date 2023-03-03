@@ -13,6 +13,7 @@ import {
   getEmojiURL,
   isAddress,
   isValidAmount,
+  msgColors,
 } from "utils/common"
 import { validateBalance } from "utils/defi"
 import { awaitMessage } from "utils/discord"
@@ -128,7 +129,7 @@ function composeWithdrawEmbed(
     author: ["Withdraw"],
     title: `${tokenEmoji} ${payload.token.toUpperCase()} sent`,
     description: "Your withdrawal was processed succesfully!",
-    color: "#5CD97D",
+    color: msgColors.SUCCESS,
   }).addFields(
     {
       name: "Destination address",

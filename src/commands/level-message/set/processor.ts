@@ -2,7 +2,7 @@ import community from "adapters/community"
 import { APIError, GuildIdNotFoundError, OriginalMessage } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 
 export async function handle(
   args: string[],
@@ -36,7 +36,7 @@ export async function handle(
     description: `${getEmoji(
       "pointingright"
     )} You can take a look at the preview message:\n${data.message}`,
-    color: "#5CD97D",
+    color: msgColors.SUCCESS,
   })
   if (data.image_url !== "") {
     embed.setImage(data.image_url)

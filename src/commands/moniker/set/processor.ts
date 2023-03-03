@@ -2,7 +2,7 @@ import config from "adapters/config"
 import { APIError } from "errors"
 import { RequestUpsertMonikerConfigRequest } from "types/api"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { tipTokenIsSupported } from "utils/tip-bot"
 
 export const handleSetMoniker = async (
@@ -42,7 +42,7 @@ export const handleSetMoniker = async (
             "bucket_cash",
             true
           )}`,
-          color: "#5CD97D",
+          color: msgColors.SUCCESS,
         }),
       ],
     },

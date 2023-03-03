@@ -17,7 +17,7 @@ import { handleUpdateWlError } from "../processor"
 import { ResponseCollectionSuggestions } from "types/api"
 import { composeDiscordExitButton } from "ui/discord/button"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
-import { defaultEmojis, getEmoji } from "utils/common"
+import { defaultEmojis, getEmoji, msgColors } from "utils/common"
 
 export const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
@@ -110,7 +110,7 @@ export const addWatchlistNftCollection = async ({
             composeEmbedMessage(msgOrInteraction as Message, {
               title: `${getEmoji("MAG")} Multiple options found`,
               description: `Multiple collections found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
-              color: "#1E1F22",
+              color: msgColors.GRAY,
             }),
           ],
           components: [selectRow, composeDiscordExitButton(userId)],
@@ -120,7 +120,7 @@ export const addWatchlistNftCollection = async ({
             composeEmbedMessage2(msgOrInteraction as CommandInteraction, {
               title: `${getEmoji("MAG")} Multiple options found`,
               description: `Multiple collections found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
-              color: "#1E1F22",
+              color: msgColors.GRAY,
             }),
           ],
           components: [selectRow, composeDiscordExitButton(userId)],

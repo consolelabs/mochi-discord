@@ -9,7 +9,7 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { getSuccessEmbed, composeEmbedMessage } from "ui/discord/embed"
 import { Coin } from "types/defi"
 import defi from "adapters/defi"
@@ -146,7 +146,7 @@ export async function viewWatchlist({
           composeEmbedMessage(msg, {
             title: `${getEmoji("MAG")} Multiple options found`,
             description: `Multiple tokens found for \`${symbol}\`.\nPlease select one of the following`,
-            color: "#1E1F22",
+            color: msgColors.GRAY,
           }),
         ],
         components: [selectRow, composeDiscordExitButton(userId)],

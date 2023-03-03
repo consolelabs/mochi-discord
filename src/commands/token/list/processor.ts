@@ -1,6 +1,6 @@
 import { RunResult } from "types/common"
 import { Token } from "types/defi"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import Config from "../../../adapters/config"
 import chunk from "lodash/chunk"
@@ -23,7 +23,7 @@ export async function handleTokenList(
             description: `${getEmoji(
               "POINTINGRIGHT"
             )} To add more token to the list, use \`$token add\``,
-            color: "#5CD97D",
+            color: msgColors.SUCCESS,
           }),
         ],
       },

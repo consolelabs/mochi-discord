@@ -25,6 +25,7 @@ import {
   getEmoji,
   getEmojiURL,
   isValidAmount,
+  msgColors,
   roundFloatNumber,
 } from "utils/common"
 import { validateBalance } from "utils/defi"
@@ -109,7 +110,7 @@ export async function confirmAirdrop(
     footer: ["Ends"],
     timestamp: endTime,
     originalMsgAuthor: originalAuthor?.user,
-    color: "#C8EFF8",
+    color: msgColors.BLUE,
   })
 
   const reply = await msg.edit({
@@ -245,7 +246,7 @@ export async function enterAirdrop(
               : `in ${dayjs.duration(duration, "seconds").humanize(true)}.`
           }`,
           footer: ["You will only receive this notification once"],
-          color: "#5CD97D",
+          color: msgColors.SUCCESS,
         }),
       ],
     })
@@ -286,7 +287,7 @@ export async function handleAirdrop(
   const confirmEmbed = composeEmbedMessage(null, {
     title: `${getEmoji("AIRDROP")} Confirm airdrop`,
     description: `Are you sure you want to spend ${amountDescription} on this airdrop?`,
-    color: "#C8EFF8",
+    color: msgColors.BLUE,
   }).addFields([
     {
       name: "Total reward",

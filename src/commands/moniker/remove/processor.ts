@@ -2,7 +2,7 @@ import config from "adapters/config"
 import { APIError } from "errors"
 import { RequestDeleteMonikerConfigRequest } from "types/api"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 
 export const handleRemoveMoniker = async (
   payload: RequestDeleteMonikerConfigRequest
@@ -22,7 +22,7 @@ export const handleRemoveMoniker = async (
             "bucket_cash",
             true
           )}`,
-          color: "#5CD97D",
+          color: msgColors.SUCCESS,
         }),
       ],
     },

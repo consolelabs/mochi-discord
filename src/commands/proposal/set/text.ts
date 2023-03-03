@@ -8,7 +8,7 @@ import {
 } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { getEmoji, isAddress } from "utils/common"
+import { getEmoji, isAddress, msgColors } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { PREFIX } from "utils/constants"
@@ -130,7 +130,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
             description: `${getEmoji(
               "point_right"
             )} All proposals will be posted and voted in the <#${channelId}>`,
-            color: "#5CD97D",
+            color: msgColors.SUCCESS,
           }),
         ],
         components: [],
@@ -216,7 +216,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
           description: `${getEmoji(
             "pointingright"
           )} All proposals will be posted and voted in the <#${channelId}>`,
-          color: "#5CD97D",
+          color: msgColors.SUCCESS,
         }),
       ],
     },

@@ -8,7 +8,13 @@ import {
 import { APIError, OriginalMessage } from "errors"
 import { UserBalances } from "types/defi"
 import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  msgColors,
+  roundFloatNumber,
+} from "utils/common"
 
 export const balanceTypes: Record<string, number> = {
   Offchain: 1,
@@ -124,7 +130,7 @@ export async function renderBalances(
     const embed = composeEmbedMessage(null, {
       author: [props.title, getEmojiURL(emojis.WALLET)],
       description: "No balance. Try `$deposit` more into your wallet.",
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
     return {
       messageOptions: {
@@ -143,7 +149,7 @@ export async function renderBalances(
   const embed = composeEmbedMessage(null, {
     author: [props.title, getEmojiURL(emojis.WALLET)],
     description: props.description,
-    color: "#5CD97D",
+    color: msgColors.SUCCESS,
   }).addFields(fields)
   justifyEmbedFields(embed, 3)
   embed.addFields({

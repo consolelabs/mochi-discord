@@ -17,6 +17,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import {
   authorFilter,
   getEmoji,
+  msgColors,
   paginate,
   roundFloatNumber,
 } from "utils/common"
@@ -113,7 +114,7 @@ export async function handleStatement(
     return composeEmbedMessage(null, {
       title: `${getEmoji("STATEMENTS")} Transaction history`,
       footer: [`Page ${idx + 1} / ${pages.length}`],
-      color: "#5CD97D",
+      color: msgColors.SUCCESS,
     })
       .setDescription(des)
       .addFields(
