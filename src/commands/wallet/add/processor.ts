@@ -31,6 +31,7 @@ export async function handleWalletAddition(msg: OriginalMessage) {
       "pointingdown"
     )} Please choose "Connect Wallet" below to connect your metamask wallet.\nAlternatively, press Exit to abort.`,
     originalMsgAuthor: author,
+    color: msgColors.SUCCESS,
   })
   const replyPayload = { embeds: [embed] }
   const reply = (await (isTextMsg
@@ -88,6 +89,7 @@ export async function renameWallet(
       composeEmbedMessage(null, {
         author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
         description: `Set a short, easy-to-remember label for long, complicated wallet addresses.\n${pointingright} Enter label for \`${address}\` or \`cancel\` to skip.\nE.g. baddeed.eth`,
+        color: msgColors.SUCCESS,
       }),
     ],
   })
@@ -162,6 +164,7 @@ export async function trackWallet(
     originalMsgAuthor: author,
     author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
     description: `Set a short, easy-to-remember label for long, complicated wallet addresses.\n${pointingright} Enter label for \`${address}\` or press Skip.\nE.g. baddeed.eth`,
+    color: msgColors.SUCCESS,
   })
   return {
     embeds: [embed],

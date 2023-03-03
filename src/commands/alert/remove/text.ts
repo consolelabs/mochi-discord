@@ -7,6 +7,7 @@ import { handler } from "./processor"
 import { composeDiscordExitButton } from "ui/discord/button"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { APIError } from "errors"
+import { msgColors } from "utils/common"
 
 const command: Command = {
   id: "alert_remove",
@@ -49,6 +50,7 @@ const command: Command = {
 
     const embed = composeEmbedMessage(msg, {
       title: "Select an alert to remove",
+      color: msgColors.PINK,
     })
 
     return {

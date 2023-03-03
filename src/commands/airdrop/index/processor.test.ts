@@ -1,6 +1,6 @@
 import { InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { SPACE } from "utils/constants"
 import * as tiputils from "utils/tip-bot"
 import * as defiutils from "utils/defi"
@@ -156,6 +156,7 @@ describe("handleAirdrop", () => {
     const embed = composeEmbedMessage(null, {
       title: `${getEmoji("AIRDROP")} Confirm airdrop`,
       description: `Are you sure you want to spend ${amountInfo} on this airdrop?`,
+      color: msgColors.BLUE,
     }).addFields([
       { name: "Total reward", value: amountInfo, inline: true },
       { name: "Run time", value: `30s`, inline: true },
@@ -200,6 +201,7 @@ describe("handleAirdrop", () => {
     const embed = composeEmbedMessage(null, {
       title: `${getEmoji("AIRDROP")} Confirm airdrop`,
       description: `Are you sure you want to spend ${amountInfo} on this airdrop?`,
+      color: msgColors.BLUE,
     }).addFields([
       { name: "Total reward", value: amountInfo, inline: true },
       { name: "Run time", value: `30s`, inline: true },

@@ -281,8 +281,12 @@ export const emojis: { [key: string]: string } = {
 
 export const msgColors: Record<string, ColorResolvable> = {
   PRIMARY: "#E88B88",
-  ERROR: "#D94F50",
+  ERROR: "#D94F4F",
   SUCCESS: "#5cd97d",
+  PINK: "#FCD3C1",
+  GRAY: "#1E1F22",
+  BLUE: "#C8EFF8",
+  YELLOW: "#F9F687",
 }
 
 export const thumbnails: Record<string, string> = {

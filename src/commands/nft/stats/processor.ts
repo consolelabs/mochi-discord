@@ -1,6 +1,6 @@
 import community from "adapters/community"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
 
@@ -29,6 +29,7 @@ export async function handleNftStats(msg: Message | CommandInteraction) {
         composeEmbedMessage(null, {
           title: "Collections supported",
           description: description,
+          color: msgColors.PINK,
         }),
       ],
     },

@@ -1,6 +1,7 @@
 import { ButtonInteraction, Collection, Guild, GuildMember } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { msgColors } from "utils/common"
 import { getExcludedRoles } from "../processor"
 
 export const CONFIRM_PRUNE_WITHOUT = "confirm_prune_without"
@@ -45,6 +46,7 @@ export async function pruneRoleExecute(
       composeEmbedMessage(null, {
         title: "Prune successful",
         description: `You have pruned ${count} members`,
+        color: msgColors.SUCCESS,
       }),
     ],
   })

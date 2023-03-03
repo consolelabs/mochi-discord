@@ -1,5 +1,5 @@
 import { CommandInteraction } from "discord.js"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { renderLeaderboard } from "./processor"
 import community from "adapters/community"
@@ -48,6 +48,7 @@ const run = async (interaction: CommandInteraction) => {
     description: `${blank}**Your rank:** #${author.guild_rank}\n${blank}**XP:** ${author.total_xp}\n\u200B`,
     image: "attachment://leaderboard.png",
     originalMsgAuthor: interaction?.user,
+    color: msgColors.PINK,
   })
 
   return {

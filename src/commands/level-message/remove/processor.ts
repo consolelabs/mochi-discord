@@ -1,7 +1,7 @@
 import community from "adapters/community"
 import { APIError, GuildIdNotFoundError, OriginalMessage } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 
 export async function handle(msg: OriginalMessage) {
   if (!msg.guildId) {
@@ -31,6 +31,7 @@ export async function handle(msg: OriginalMessage) {
           )} You can still check the level of each member by using \`$profile\` or the top high-level member by using \`$top\`.\n${getEmoji(
             "POINTINGRIGHT"
           )} You can set up a new leveled-up message to encourage members by using \`$levelmessage set <message content> <image>\`.`,
+          color: msgColors.SUCCESS,
         }),
       ],
     },

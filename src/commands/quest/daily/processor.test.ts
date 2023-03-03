@@ -2,7 +2,7 @@ import { MessageActionRow, MessageButton } from "discord.js"
 import * as processor from "./processor"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { assertRunResult } from "../../../../tests/assertions/discord"
-import { getEmojiURL, emojis, getEmoji } from "utils/common"
+import { getEmojiURL, emojis, getEmoji, msgColors } from "utils/common"
 import community from "adapters/community"
 import dayjs from "dayjs"
 jest.mock("adapters/config")
@@ -32,7 +32,7 @@ describe("run", () => {
               "Additionally, a high `$vote` streak can also increase your reward",
             ].join("\n")}\n\n**Completion Progress**`,
             thumbnail: getEmojiURL(emojis.CHEST),
-            color: 14070061,
+            color: msgColors.YELLOW,
             footer: ["Daily quests reset at 00:00 UTC"],
           }),
         ],

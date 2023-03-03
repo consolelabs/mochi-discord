@@ -16,7 +16,13 @@ import {
   composeEmbedMessage2,
   getErrorEmbed,
 } from "ui/discord/embed"
-import { getEmoji, getEmojiURL, emojis, paginate } from "utils/common"
+import {
+  getEmoji,
+  getEmojiURL,
+  emojis,
+  paginate,
+  msgColors,
+} from "utils/common"
 import { PREFIX } from "utils/constants"
 import {
   ResponseRole,
@@ -73,6 +79,7 @@ export const getEmbedPagination = async (
           author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
           description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
           footer: [`Page ${idx + 1} / ${pages.totalPage}`],
+          color: msgColors.PINK,
         }).addFields(
           { name: "\u200B", value: infoColumn, inline: true },
           { name: "\u200B", value: jumpBtnColumn, inline: true }
@@ -112,6 +119,7 @@ export const getEmbedPagination = async (
           author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
           description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
           footer: [`Page ${idx + 1} / ${pages.totalPage}`],
+          color: msgColors.PINK,
         }).addFields(
           { name: "\u200B", value: infoColumn, inline: true },
           { name: "\u200B", value: jumpBtnColumn, inline: true }

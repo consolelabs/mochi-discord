@@ -4,6 +4,7 @@ import { APIError, GuildIdNotFoundError, OriginalMessage } from "errors"
 import { list } from "../processor"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { EmbedProperties } from "types/common"
+import { msgColors } from "utils/common"
 
 export async function process(msg: OriginalMessage) {
   const isTextCommand = msg instanceof Message
@@ -25,6 +26,7 @@ export async function process(msg: OriginalMessage) {
   const properties: EmbedProperties = {
     author: [title],
     description,
+    color: msgColors.PINK,
   }
   const embed = isTextCommand
     ? composeEmbedMessage(msg, properties)

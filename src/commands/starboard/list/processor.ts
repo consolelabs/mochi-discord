@@ -10,7 +10,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { APIError } from "errors"
 import chunk from "lodash/chunk"
 import { ModelGuildConfigRepostReaction } from "types/api"
-import { authorFilter, emojis, getEmoji } from "utils/common"
+import { authorFilter, emojis, getEmoji, msgColors } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
 const pageSize = 10
@@ -168,6 +168,7 @@ export async function composeMessage(
       title: "Starboard Configuration",
       withoutFooter: true,
       thumbnail: msg.guild?.iconURL(),
+      color: msgColors.PINK,
     })
 
     if (type === "conversation") {

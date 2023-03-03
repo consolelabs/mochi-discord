@@ -2,7 +2,7 @@ import { CommandInteraction, Message } from "discord.js"
 import { DirectMessageNotAllowedError, InternalError } from "errors"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { APIError } from "errors"
-import { getEmoji, getEmojiURL, emojis } from "utils/common"
+import { getEmoji, getEmojiURL, emojis, msgColors } from "utils/common"
 import * as qrcode from "qrcode"
 import defi from "adapters/defi"
 import fs from "fs"
@@ -109,6 +109,7 @@ export async function deposit(
           composeEmbedMessage(null, {
             author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
             description: `${author}, your deposit address has been sent to you. Check your DM!`,
+            color: msgColors.SUCCESS,
           }),
         ],
         components: [composeButtonLink("See the DM", dm.url)],

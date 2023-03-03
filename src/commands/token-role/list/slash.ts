@@ -4,6 +4,7 @@ import { CommandInteraction } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
+import { msgColors } from "utils/common"
 import { PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 import { list } from "../processor"
 
@@ -37,6 +38,7 @@ const command: SlashCommand = {
           composeEmbedMessage2(interaction, {
             author: [title],
             description,
+            color: msgColors.PINK,
           }),
         ],
       },

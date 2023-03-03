@@ -8,7 +8,13 @@ import {
   MessageButton,
 } from "discord.js"
 import { APIError } from "errors"
-import { buildProgressBar, emojis, getEmoji, getEmojiURL } from "utils/common"
+import {
+  buildProgressBar,
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  msgColors,
+} from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 dayjs.extend(utc)
 
@@ -71,6 +77,7 @@ export async function handleClaimReward(i: ButtonInteraction) {
     description:
       "Congrats! Rewards sent to you, here's the summary of what you just received:",
     footer: ["Daily quests reset at 00:00 UTC"],
+    color: msgColors.YELLOW,
   })
   const data = res.data.rewards?.reduce((acc: any, d: any) => {
     const { reward, reward_amount } = d
@@ -140,7 +147,7 @@ export async function run(userId: string, msg?: Message) {
     ].join("\n")}\n\n**Completion Progress**`,
     thumbnail: getEmojiURL(emojis.CHEST),
     footer: ["Daily quests reset at 00:00 UTC"],
-    color: "#d6b12d",
+    color: msgColors.YELLOW,
   })
 
   embed.fields = res.data

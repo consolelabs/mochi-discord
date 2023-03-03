@@ -9,7 +9,13 @@ import {
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { getExitButton } from "ui/discord/button"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL, reverseLookup } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  msgColors,
+  reverseLookup,
+} from "utils/common"
 
 export async function untrackWallet(
   msg: OriginalMessage,
@@ -89,6 +95,7 @@ export async function removeWalletConfirmation(i: ButtonInteraction) {
   const embed = composeEmbedMessage(null, {
     author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
     description: `Do you want to remove wallet **${label || address}**?`,
+    color: msgColors.SUCCESS,
   })
   const buttonRow = new MessageActionRow().addComponents(
     new MessageButton({

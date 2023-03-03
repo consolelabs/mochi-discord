@@ -1,7 +1,7 @@
 import Config from "adapters/config"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { list } from "./processor"
@@ -32,6 +32,7 @@ const command: Command = {
           composeEmbedMessage(msg, {
             author: [title, getEmojiURL(emojis.BADGE2)],
             description,
+            color: msgColors.PINK,
           }),
         ],
       },

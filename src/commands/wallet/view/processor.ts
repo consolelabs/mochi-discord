@@ -20,6 +20,7 @@ import {
   getEmoji,
   getEmojiURL,
   isAddress,
+  msgColors,
   reverseLookup,
   roundFloatNumber,
   shortenHashOrAddress,
@@ -258,6 +259,7 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
       author: ["Wallet list", getEmojiURL(emojis.TRANSACTIONS)],
       description: `You haven't added any wallet to the list.\n${pointingright} You can add more wallet by using \`${PREFIX}wallet add <wallet address> [alias]\`\n${pointingright} If you just want to check one wallet balance, you can directly command \`${PREFIX}wallet view <address>/<alias>\`.`,
       originalMsgAuthor: author,
+      color: msgColors.SUCCESS,
     })
     return { messageOptions: { embeds: [embed] } }
   }
@@ -274,6 +276,7 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
   const embed = composeEmbedMessage(null, {
     author: ["Wallet list", getEmojiURL(emojis.TRANSACTIONS)],
     originalMsgAuthor: author,
+    color: msgColors.SUCCESS,
   }).addFields([
     { name: `${getEmoji("pawcoin")} Alias`, value: alias, inline: true },
     { name: `${getEmoji("address")} Address`, value: address, inline: true },
@@ -317,6 +320,7 @@ export async function getAssetsEmbed(
       author: ["Wallet balances", getEmojiURL(emojis.WALLET)],
       description: "No balance. Try `$deposit` more into your wallet.",
       originalMsgAuthor: author,
+      color: msgColors.SUCCESS,
     })
   }
   const totalUsdBalance = assets.reduce((acc: number, cur: any) => {
@@ -349,6 +353,7 @@ export async function getAssetsEmbed(
     author: [title, getEmojiURL(emojis.WALLET)],
     description: `${pointingright} You can save the wallet address with an easy-to-remember alias for further tracking with $wallet.\n${pointingright} _Show maximum 25 tokens_`,
     originalMsgAuthor: author,
+    color: msgColors.SUCCESS,
   }).addFields(fields.slice(0, 25))
 }
 
@@ -380,6 +385,7 @@ export async function getTxnsEmbed(
       description: `Wallet ${address} has no transactions${
         chainId ? ` on chain **${chains[chainId]}**` : ""
       }.`,
+      color: msgColors.SUCCESS,
       originalMsgAuthor: author,
     })
   }
@@ -448,5 +454,6 @@ export async function getTxnsEmbed(
     author: ["Wallet transactions", getEmojiURL(emojis.TRANSACTIONS)],
     description: `${description}\n\n${transactions.join("\n\n")}`,
     originalMsgAuthor: author,
+    color: msgColors.SUCCESS,
   })
 }

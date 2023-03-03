@@ -21,6 +21,7 @@ import {
   emojis,
   getEmoji,
   getEmojiURL,
+  msgColors,
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
@@ -327,6 +328,7 @@ async function executeTipWithConfirmation(
         ? `<@${recipientIds[0]}>`
         : recipientIds.length + " users"
     }?`,
+    color: msgColors.BLUE,
   })
   const confirmButtonCollectorHandler = async () => {
     return await executeTip(
@@ -433,6 +435,7 @@ export async function executeTip(
     thumbnail: thumbnails.TIP,
     author: ["Tips", getEmojiURL(emojis.COIN)],
     description: description,
+    color: msgColors.SUCCESS,
   })
   if (imageUrl) {
     embed.setImage(imageUrl)

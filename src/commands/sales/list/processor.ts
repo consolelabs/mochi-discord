@@ -1,7 +1,7 @@
 import community from "adapters/community"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError } from "errors"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
+import { getEmoji, msgColors, shortenHashOrAddress } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 // import { composeSimpleSelection } from "ui/discord/select-menu"
 
@@ -28,6 +28,7 @@ export async function handleSalesList(
             )} To set a new one, run \`sales track <channel> <address> <chain_id>\` (or \`<chain_symbol>\`).\n${getEmoji(
               "POINTINGRIGHT"
             )} Then re-check your configuration using \`sales list\`.`,
+            color: msgColors.PINK,
           }),
         ],
       },
@@ -49,6 +50,7 @@ export async function handleSalesList(
         composeEmbedMessage(null, {
           title: "Trackers",
           description: `Sending notifications to\n${description}`,
+          color: msgColors.PINK,
         }),
       ],
     },
