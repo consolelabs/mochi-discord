@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import { Message } from "discord.js"
 import { Command } from "types/common"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { getMessageBody } from "../processor"
@@ -57,7 +57,7 @@ const command: Command = {
               twitter_username: twitterConfig.data.twitter_username,
               from_twitter: twitterConfig.data.from_twitter,
             }),
-            color: "#FCD3C1",
+            color: msgColors.PINK,
           }),
         ],
       },

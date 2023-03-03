@@ -2,7 +2,7 @@ import community from "adapters/community"
 import config from "adapters/config"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError, InternalError } from "errors"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
 export async function handleSalesTrack(
@@ -71,7 +71,7 @@ export async function handleSalesTrack(
         composeEmbedMessage(null, {
           author: ["Sales Tracker", getEmojiURL(emojis.LEADERBOARD)],
           description: `NFT sales information will be updated in <#${channelId}>.`,
-          color: "#FCD3C1",
+          color: msgColors.PINK,
         }),
       ],
     },

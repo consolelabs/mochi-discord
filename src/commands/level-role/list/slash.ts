@@ -4,7 +4,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { list } from "./processor"
 
@@ -45,7 +45,7 @@ const command: SlashCommand = {
           composeEmbedMessage2(interaction, {
             author: [title, getEmojiURL(emojis.BADGE2)],
             description,
-            color: "#FCD3C1",
+            color: msgColors.PINK,
           }),
         ],
       },

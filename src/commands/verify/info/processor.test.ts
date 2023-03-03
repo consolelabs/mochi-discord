@@ -4,7 +4,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
 import community from "adapters/community"
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 jest.mock("adapters/community")
 
 describe("runVerify", () => {
@@ -30,7 +30,7 @@ describe("runVerify", () => {
             author: ["Verify", getEmojiURL(emojis.APPROVE)],
             description: `Verify channel: <#123123>`,
             footer: ["To change verify channel and role, use $verify remove"],
-            color: "#FCD3C1",
+            color: msgColors.PINK,
           }),
         ],
       },
@@ -55,7 +55,7 @@ describe("runVerify", () => {
             )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
               "pointingright"
             )} Then re-check your configuration using \`verify info.\``,
-            color: "#FCD3C1",
+            color: msgColors.PINK,
           }),
         ],
       },

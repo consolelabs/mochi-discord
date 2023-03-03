@@ -1,7 +1,7 @@
 import community from "adapters/community"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError, GuildIdNotFoundError } from "errors"
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { Message } from "discord.js"
 
 export async function runVerify(msg: Message | null, guildId: string | null) {
@@ -28,7 +28,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
             )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
               "POINTINGRIGHT"
             )} Then re-check your configuration using \`verify info.\``,
-            color: "#FCD3C1",
+            color: msgColors.PINK,
           }),
         ],
       },
@@ -44,7 +44,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
               ? `\nVerify role: <@&${res.data.verify_role_id}>`
               : ""
           }`,
-          color: "#FCD3C1",
+          color: msgColors.PINK,
           footer: ["To change verify channel and role, use $verify remove"],
         }),
       ],

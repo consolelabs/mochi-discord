@@ -23,6 +23,7 @@ import { PREFIX, SLASH_PREFIX } from "utils/constants"
 import { list } from "../processor"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { composeDiscordExitButton } from "ui/discord/button"
+import { msgColors } from "utils/common"
 
 export async function process(msg: OriginalMessage) {
   const isTextCommand = msg instanceof Message
@@ -76,13 +77,13 @@ export async function process(msg: OriginalMessage) {
     embed = composeEmbedMessage(msg, {
       title: "Select an option",
       description,
-      color: "#FCD3C1",
+      color: msgColors.PINK,
     })
   } else {
     embed = composeEmbedMessage2(msg as CommandInteraction, {
       title: "Select an option",
       description: list({ data }).description,
-      color: "#FCD3C1",
+      color: msgColors.PINK,
     })
   }
   embed.addFields(fields)

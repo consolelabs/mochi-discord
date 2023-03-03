@@ -12,6 +12,7 @@ import {
   getEmoji,
   getEmojiURL,
   getUniqueToken,
+  msgColors,
   parseNFTTop,
   sortNFTListByVolume,
 } from "utils/common"
@@ -173,7 +174,7 @@ export async function handleNftVolume(msg: Message | CommandInteraction) {
     thumbnail: "https://i.postimg.cc/4NT4fs3d/mochi.png", //Need mochi logo url
     description: `${blank}**Highest Trading Volume**\n\u200B`,
     image: "attachment://leaderboard.png",
-    color: "#FCD3C1",
+    color: msgColors.PINK,
   })
   return {
     messageOptions: {

@@ -62,7 +62,7 @@ describe("handleTokenList", () => {
       log: "",
     }
     const expected = {
-      color: "#FCD3C1",
+      color: msgColors.PINK,
       title: `${getEmoji("TIP")} Tokens list`,
       fields: [
         {

@@ -3,7 +3,7 @@ import Config from "adapters/config"
 import { CommandInteraction } from "discord.js"
 import { APIError } from "errors"
 import { SlashCommand } from "types/common"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { NFT_ROLE_GITBOOK, SLASH_PREFIX as PREFIX } from "utils/constants"
 import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
 import { list } from "../processor"
@@ -46,7 +46,7 @@ const command: SlashCommand = {
           composeEmbedMessage2(interaction, {
             author: [title, getEmojiURL(emojis.NFTS)],
             description,
-            color: "#FCD3C1",
+            color: msgColors.PINK,
           }),
         ],
       },

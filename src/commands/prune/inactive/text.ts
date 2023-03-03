@@ -5,7 +5,7 @@ import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { InternalError, GuildIdNotFoundError } from "errors"
 import { getCommandArguments } from "utils/commands"
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { CONFIRM_PRUNE_INACTIVE, pruneInactiveExecute } from "./processor"
 import { getExitButton } from "ui/discord/button"
 
@@ -37,7 +37,7 @@ const command: Command = {
               description: `No one is inactive for ${days} days, let's put down the prune stick! ${getEmoji(
                 "TOUCH"
               )}`,
-              color: "#FCD3C1",
+              color: msgColors.PINK,
             }),
           ],
         },

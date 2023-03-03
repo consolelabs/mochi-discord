@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError, GuildIdNotFoundError, OriginalMessage } from "errors"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 
@@ -39,7 +39,7 @@ export async function handle(msg: OriginalMessage, statusText = "") {
             isError ? getEmojiURL(emojis.REVOKE) : getEmojiURL(emojis.NEKO1),
           ],
           description,
-          color: "#FCD3C1",
+          color: msgColors.PINK,
         })
       : composeEmbedMessage2(msg as CommandInteraction, {
           author: [
@@ -47,7 +47,7 @@ export async function handle(msg: OriginalMessage, statusText = "") {
             isError ? getEmojiURL(emojis.REVOKE) : getEmojiURL(emojis.NEKO1),
           ],
           description,
-          color: "#FCD3C1",
+          color: msgColors.PINK,
         })
 
   return {

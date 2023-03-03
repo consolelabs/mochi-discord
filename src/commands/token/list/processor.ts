@@ -45,7 +45,7 @@ export async function handleTokenList(
     messageOptions: {
       embeds: [
         {
-          color: "#FCD3C1",
+          color: msgColors.PINK,
           title: `${getEmoji("TIP")} Tokens list`,
           fields,
         },

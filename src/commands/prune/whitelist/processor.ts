@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import { Message, Role } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 
@@ -39,6 +39,6 @@ export async function whitelistRolesEmbed(roles: Role[]) {
     description: `Roles are excluded when running \`${PREFIX}prune without\`: ${roleStr}\nRun \`${PREFIX}prune safelist @role\` to add role in safelist.\n\n_Note: When pruning users in Server Settings, these roles are not protected!_ ${getEmoji(
       "NEKOSAD"
     )}`,
-    color: "#FCD3C1",
+    color: msgColors.PINK,
   })
 }
