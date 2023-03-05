@@ -110,7 +110,7 @@ describe("withdraw", () => {
     const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
     jest.spyOn(processor, "getRecipient").mockResolvedValueOnce(addr)
 
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(false)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(false)
     const pointingright = getEmoji("pointingright")
     await expect(processor.withdraw(msg, "1", "qwerty")).rejects.toThrow(
       new InternalError({
@@ -122,7 +122,7 @@ describe("withdraw", () => {
   })
 
   test("no balance => throw InsufficientBalanceError", async () => {
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     defi.offchainGetUserBalances = jest
       .fn()
       .mockResolvedValueOnce({ ok: true, data: [] })
@@ -135,7 +135,7 @@ describe("withdraw", () => {
   })
 
   test("insufficient balance => throw InsufficientBalanceError", async () => {
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce({
       ok: true,
       data: [
@@ -151,7 +151,7 @@ describe("withdraw", () => {
   })
 
   test("successfully withdraw", async () => {
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
     const mockedResponse = {
       ok: true,

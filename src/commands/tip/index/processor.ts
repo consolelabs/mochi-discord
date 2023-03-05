@@ -29,7 +29,7 @@ import {
   classifyTipSyntaxTargets,
   parseMonikerinCmd,
   parseRecipients,
-  tipTokenIsSupported,
+  isTokenSupported,
 } from "utils/tip-bot"
 import * as processor from "./processor"
 
@@ -73,7 +73,7 @@ export async function handleTip(
 
   // check token supported
   const { cryptocurrency } = processor.parseTipParameters(agrsAfterParseMessage)
-  const tokenSupported = await tipTokenIsSupported(cryptocurrency)
+  const tokenSupported = await isTokenSupported(cryptocurrency)
   if (!moniker && !tokenSupported) {
     throw new InternalError({
       msgOrInteraction: msg,

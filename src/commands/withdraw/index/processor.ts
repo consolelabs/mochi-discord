@@ -17,7 +17,7 @@ import {
 } from "utils/common"
 import { validateBalance } from "utils/defi"
 import { awaitMessage } from "utils/discord"
-import { tipTokenIsSupported } from "utils/tip-bot"
+import { isTokenSupported } from "utils/tip-bot"
 import * as processor from "./processor"
 
 export async function getRecipient(
@@ -78,7 +78,7 @@ export async function withdraw(
     ],
   })
 
-  const tokenSupported = await tipTokenIsSupported(tokenArg)
+  const tokenSupported = await isTokenSupported(tokenArg)
   if (!tokenSupported) {
     const pointingright = getEmoji("pointingright")
     throw new InternalError({

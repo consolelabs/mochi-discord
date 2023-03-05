@@ -1,18 +1,25 @@
 import defi from "adapters/defi"
-import * as processor from "./processor"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmojiURL, emojis, getEmoji } from "utils/common"
 import { InternalError } from "errors"
-import mockdc from "../../../../tests/mocks/discord"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import * as tiputils from "utils/tip-bot"
 import { assertDescription } from "../../../../tests/assertions/discord"
+import mockdc from "../../../../tests/mocks/discord"
+import * as processor from "./processor"
 jest.mock("adapters/defi")
 
 describe("deposit", () => {
-  const msg = mockdc.cloneMessage()
+  let msg = mockdc.cloneMessage()
   const dmMessage = mockdc.cloneDMMessage()
   const interaction = mockdc.cloneCommandInteraction()
   msg.content = "$deposit ftm"
 
+  beforeEach(() => {
+    msg = mockdc.cloneMessage()
+    jest
+      .spyOn(processor, "handleDepositExpiration")
+      .mockImplementationOnce(() => null)
+  })
   afterEach(() => jest.clearAllMocks())
 
   test("Success send DM to user - Using Message", async () => {
@@ -26,6 +33,7 @@ describe("deposit", () => {
         },
       },
     }
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.deposit(msg, "ftm")
     const expected = composeEmbedMessage(null, {
@@ -46,6 +54,7 @@ describe("deposit", () => {
         },
       },
     }
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.deposit(interaction, "ftm")
     const expected = composeEmbedMessage(null, {
@@ -67,6 +76,7 @@ describe("deposit", () => {
         },
       },
     }
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.deposit(mockDMMsg, "ftm")
     expect(output).toBeFalsy()
@@ -86,6 +96,7 @@ describe("deposit", () => {
         },
       },
     }
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.deposit(mockDMCommandInteraction, "ftm")
     expect(output).toBeFalsy()
@@ -100,15 +111,15 @@ describe("deposit", () => {
       curl: "",
       status: 404,
     }
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
-    const expectedDesc = `${getEmoji(
+    const description = `${getEmoji(
       "nekosad"
     )} Unfortunately, no **FTM** contract is available at this time. Please try again later`
     await expect(processor.deposit(msg, "ftm")).rejects.toThrow(
       new InternalError({
-        title: "Command error",
         msgOrInteraction: msg,
-        description: expectedDesc,
+        description,
       })
     )
   })
