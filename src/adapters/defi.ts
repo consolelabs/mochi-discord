@@ -1,4 +1,3 @@
-import { CommandInteraction, Message } from "discord.js"
 import { FTMSCAN_API_KEY } from "env"
 import fetch from "node-fetch"
 import {
@@ -18,8 +17,6 @@ import {
   GasPriceData,
   Token,
 } from "types/defi"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
 import {
   API_BASE_URL,
   BSCSCAN_API,
@@ -102,34 +99,6 @@ class Defi extends Fetcher {
     return await this.jsonFetch<CoinComparisionData>(
       `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${guildId}&interval=${days}`
     )
-  }
-
-  public composeInsufficientBalanceEmbed(
-    msgOrInteraction: Message | CommandInteraction,
-    current: number,
-    required: number,
-    symbol: string
-  ) {
-    const tokenEmoji = getEmoji(symbol)
-    const authorId =
-      msgOrInteraction instanceof Message
-        ? msgOrInteraction.author.id
-        : msgOrInteraction.user.id
-    return composeEmbedMessage(null, {
-      author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
-      description: `<@${authorId}>, your balance is insufficient.\nYou can deposit more by using \`$deposit ${symbol}\``,
-    }).addFields([
-      {
-        name: "Required amount",
-        value: `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
-        inline: true,
-      },
-      {
-        name: "Your balance",
-        value: `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
-        inline: true,
-      },
-    ])
   }
 
   async getUserWatchlist({

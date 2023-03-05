@@ -867,9 +867,7 @@ describe("handleTip", () => {
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
 
-    await expect(
-      processor.handleTip(args, userId, msg.content, msg)
-    ).rejects.toThrow(APIError)
+    await expect(processor.tip(msg, args)).rejects.toThrow(APIError)
   })
 
   test("token not supported", async () => {
@@ -899,9 +897,7 @@ describe("handleTip", () => {
       .spyOn(tiputils, "classifyTipSyntaxTargets")
       .mockReturnValueOnce(syntaxTargets)
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(false)
-    await expect(
-      processor.handleTip(args, userId, msg.content, msg)
-    ).rejects.toThrow(InternalError)
+    await expect(processor.tip(msg, args)).rejects.toThrow(InternalError)
   })
 
   test("tip user successfully", async () => {
@@ -975,12 +971,7 @@ describe("handleTip", () => {
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
 
-    const output = (await processor.handleTip(
-      args,
-      userId,
-      msg.content,
-      msg
-    )) as RunResult<MessageOptions>
+    const output = (await processor.tip(msg, args)) as RunResult<MessageOptions>
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
 
@@ -1057,12 +1048,7 @@ describe("handleTip", () => {
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
 
-    const output = (await processor.handleTip(
-      args,
-      userId,
-      msg.content,
-      msg
-    )) as RunResult<MessageOptions>
+    const output = (await processor.tip(msg, args)) as RunResult<MessageOptions>
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
 
     const expected = composeEmbedMessage(null, {
@@ -1182,7 +1168,7 @@ describe("handleTip", () => {
       description: `<@${userId}> has sent <@760874365037314100>, <@580788681967665173> **1 CAKE** (\u2248 $1.5) each`,
       color: msgColors.SUCCESS,
     })
-    const output = await processor.handleTip(args, userId, msg.content, msg)
+    const output = await processor.tip(msg, args)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
 
@@ -1263,12 +1249,7 @@ describe("handleTip", () => {
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
 
-    const output = (await processor.handleTip(
-      args,
-      userId,
-      msg.content,
-      msg
-    )) as RunResult<MessageOptions>
+    const output = (await processor.tip(msg, args)) as RunResult<MessageOptions>
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
 
     const expected = composeEmbedMessage(null, {
@@ -1370,7 +1351,7 @@ describe("handleTip", () => {
       color: msgColors.SUCCESS,
     })
 
-    const output = await processor.handleTip(args, userId, msg.content, msg)
+    const output = await processor.tip(msg, args)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
     assertRunResult(output as RunResult<MessageOptions>, {
@@ -1477,7 +1458,7 @@ describe("handleTip", () => {
       description: `<@${userId}> has sent <@760874365037314100>, <@580788681967665173> **1.5 CAKE** (\u2248 $1.5) each`,
       color: msgColors.SUCCESS,
     })
-    const output = await processor.handleTip(args, userId, msg.content, msg)
+    const output = await processor.tip(msg, args)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
 
@@ -1570,7 +1551,7 @@ describe("handleTip", () => {
       description: `<@${userId}> has sent **2 user(s) (<@760874365037314100>, <@580788681967665173>)** in <@&1039124250004574208> **1.5 CAKE** (\u2248 $1.5) each`,
       color: msgColors.SUCCESS,
     })
-    const output = await processor.handleTip(args, userId, msg.content, msg)
+    const output = await processor.tip(msg, args)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
 
@@ -1697,7 +1678,7 @@ describe("handleTip", () => {
       description: `<@${userId}> has sent **4 user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** in <@&1039124250004574208>, <@&1041914485251788800> **0.5 CAKE** (\u2248 $1.5) each`,
       color: msgColors.SUCCESS,
     })
-    const output = await processor.handleTip(args, userId, msg.content, msg)
+    const output = await processor.tip(msg, args)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
 
@@ -1809,7 +1790,7 @@ describe("handleTip", () => {
       description: `<@${userId}> has sent **4 user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** in <#984660970624409630> **0.5 CAKE** (\u2248 $1.5) each`,
       color: msgColors.SUCCESS,
     })
-    const output = await processor.handleTip(args, userId, msg.content, msg)
+    const output = await processor.tip(msg, args)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
 
@@ -1921,7 +1902,7 @@ describe("handleTip", () => {
       description: `<@${userId}> has sent **4 online user(s) (<@760874365037314100>, <@580788681967665173>, <@753995829559165044>, <@205167514731151360>)** **0.5 CAKE** (\u2248 $1.5) each`,
       color: msgColors.SUCCESS,
     })
-    const output = await processor.handleTip(args, userId, msg.content, msg)
+    const output = await processor.tip(msg, args)
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
     expect(defi.offchainDiscordTransfer).toHaveBeenCalledTimes(1)
 

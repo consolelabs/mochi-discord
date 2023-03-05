@@ -1,34 +1,17 @@
 import { CommandInteraction } from "discord.js"
-import { handleTip } from "./processor"
-import { getErrorEmbed } from "ui/discord/embed"
+import { SPACES_REGEX } from "utils/constants"
+import { tip } from "./processor"
 
-const run = async (interaction: CommandInteraction) => {
-  const users = interaction.options.getString("users")?.trimEnd()
-  const amount = interaction.options.getNumber("amount")
-  const token = interaction.options.getString("token")
-  const isEach = interaction.options.getBoolean("each") ?? false
-  const message = interaction.options.getString("message")
+const run = async (i: CommandInteraction) => {
+  const users = i.options.getString("users", true).split(SPACES_REGEX)
+  const amount = i.options.getNumber("amount", true).toString()
+  const token = i.options.getString("token", true)
+  const each = i.options.getBoolean("each") ? "each" : ""
+  const message = `"${i.options.getString("message") ?? ""}"`
 
-  if (!users || !amount || !token) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: "Missing arguments",
-          }),
-        ],
-      },
-    }
-  }
-  let args = users.split(" ")
-  let fullCmd = `/tip ${users} ${amount} ${token}`
-  args.push(amount.toString(), token)
-  if (isEach) args.push("each")
-  if (message) {
-    fullCmd += ` "${message}"`
-    args = args.concat(`"${message}"`.split(" "))
-  }
-  args.unshift("tip")
-  return await handleTip(args, interaction.user.id, fullCmd, interaction)
+  const args = ["tip", ...users, amount, token, each, message].filter((s) =>
+    Boolean(s)
+  )
+  return await tip(i, args)
 }
 export default run

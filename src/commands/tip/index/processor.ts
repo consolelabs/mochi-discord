@@ -11,6 +11,7 @@ import { MessageButtonStyles } from "discord.js/typings/enums"
 import { InternalError } from "errors"
 import { APIError } from "errors/api"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import { InsufficientBalanceError } from "errors/insufficient-balance"
 import { ResponseMonikerConfigData } from "types/api"
 import { MultipleResult, RunResult } from "types/common"
 import { OffchainTipBotTransferRequest } from "types/defi"
@@ -19,35 +20,37 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
   emojis,
+  getAuthor,
   getEmoji,
   getEmojiURL,
   msgColors,
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
+import { SPACE } from "utils/constants"
 import {
   classifyTipSyntaxTargets,
+  isTokenSupported,
   parseMonikerinCmd,
   parseRecipients,
-  isTokenSupported,
 } from "utils/tip-bot"
 import * as processor from "./processor"
 
-export async function handleTip(
-  args: string[],
-  authorId: string,
-  fullCmd: string,
-  msg: Message | CommandInteraction
+export async function tip(
+  msgOrInteraction: Message | CommandInteraction,
+  args: string[]
 ): Promise<
   RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
 > {
+  const fullCmd = args.join(SPACE)
+  const author = getAuthor(msgOrInteraction)
   const onchain = args.at(-1) === "--onchain"
   args = args.slice(0, onchain ? -1 : undefined) // remove --onchain if any
 
   // check currency is moniker or supported
   const { newArgs: argsAfterParseMoniker, moniker } = await parseMonikerinCmd(
     args,
-    msg.guildId ?? ""
+    msgOrInteraction.guildId ?? ""
   )
 
   // parse tip message
@@ -67,7 +70,7 @@ export async function handleTip(
       title: "Incorrect recipients",
       description:
         "Mochi cannot find the recipients. Type @ to choose valid roles or usernames!",
-      msgOrInteraction: msg,
+      msgOrInteraction,
     })
   }
 
@@ -76,7 +79,7 @@ export async function handleTip(
   const tokenSupported = await isTokenSupported(cryptocurrency)
   if (!moniker && !tokenSupported) {
     throw new InternalError({
-      msgOrInteraction: msg,
+      msgOrInteraction,
       title: "Unsupported token",
       description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n${getEmoji(
         "POINTINGRIGHT"
@@ -88,9 +91,9 @@ export async function handleTip(
 
   // preprocess command arguments
   const payload = await processor.getTipPayload(
-    msg,
+    msgOrInteraction,
     agrsAfterParseMessage,
-    authorId,
+    author.id,
     targets
   )
   if (moniker) {
@@ -98,8 +101,8 @@ export async function handleTip(
       (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
   }
   let imageUrl = ""
-  if (msg instanceof Message) {
-    imageUrl = msg.attachments.first()?.url ?? ""
+  if (msgOrInteraction instanceof Message) {
+    imageUrl = msgOrInteraction.attachments.first()?.url ?? ""
   }
   payload.fullCommand = fullCmd
   payload.image = imageUrl
@@ -115,7 +118,11 @@ export async function handleTip(
     userId: payload.sender,
   })
   if (!bOk) {
-    throw new APIError({ msgOrInteraction: msg, curl: bCurl, error: bError })
+    throw new APIError({
+      msgOrInteraction,
+      curl: bCurl,
+      error: bError,
+    })
   }
   let currentBal = 0
   let rate = 0
@@ -126,23 +133,19 @@ export async function handleTip(
     }
   })
   if (currentBal < payload.amount && !payload.all) {
-    return {
-      messageOptions: {
-        embeds: [
-          defi.composeInsufficientBalanceEmbed(
-            msg,
-            currentBal,
-            payload.amount,
-            payload.token
-          ),
-        ],
+    throw new InsufficientBalanceError({
+      msgOrInteraction,
+      params: {
+        current: currentBal,
+        required: payload.amount,
+        symbol: payload.token,
       },
-    }
+    })
   }
   // ask for confirmation for payload > 100usd
   if (payload.amount * rate >= 100) {
     return await executeTipWithConfirmation(
-      msg,
+      msgOrInteraction,
       payload,
       targets,
       payload.recipients,
@@ -154,7 +157,7 @@ export async function handleTip(
     )
   } else {
     return await executeTip(
-      msg,
+      msgOrInteraction,
       payload,
       targets,
       messageTip,
@@ -357,7 +360,7 @@ async function executeTipWithConfirmation(
 }
 
 export async function executeTip(
-  msg: Message | CommandInteraction,
+  msgOrInteraction: Message | CommandInteraction,
   payload: OffchainTipBotTransferRequest,
   targets: string[],
   messageTip: string,
@@ -374,7 +377,7 @@ export async function executeTip(
       : defi.offchainDiscordTransfer(req)
   const { data, ok, error, curl, log } = await transfer(payload)
   if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, curl, description: log, error })
+    throw new APIError({ msgOrInteraction, curl, description: log, error })
   }
 
   const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
