@@ -234,7 +234,7 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
   }
 }
 
-export async function tipTokenIsSupported(symbol: string): Promise<boolean> {
+export async function isTokenSupported(symbol: string): Promise<boolean> {
   const { ok, error, curl, log, data } = await defi.getAllTipBotTokens()
   if (!ok) {
     throw new APIError({ curl, description: log, error })

@@ -865,7 +865,7 @@ describe("handleTip", () => {
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
 
     await expect(
       processor.handleTip(args, userId, msg.content, msg)
@@ -898,7 +898,7 @@ describe("handleTip", () => {
     jest
       .spyOn(tiputils, "classifyTipSyntaxTargets")
       .mockReturnValueOnce(syntaxTargets)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(false)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(false)
     await expect(
       processor.handleTip(args, userId, msg.content, msg)
     ).rejects.toThrow(InternalError)
@@ -973,7 +973,7 @@ describe("handleTip", () => {
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
 
     const output = (await processor.handleTip(
       args,
@@ -1055,7 +1055,7 @@ describe("handleTip", () => {
       .mockReturnValueOnce(syntaxTargets)
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
 
     const output = (await processor.handleTip(
       args,
@@ -1175,7 +1175,7 @@ describe("handleTip", () => {
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
@@ -1261,7 +1261,7 @@ describe("handleTip", () => {
       .mockReturnValueOnce(syntaxTargets)
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
 
     const output = (await processor.handleTip(
       args,
@@ -1362,7 +1362,7 @@ describe("handleTip", () => {
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
@@ -1470,7 +1470,7 @@ describe("handleTip", () => {
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
@@ -1563,7 +1563,7 @@ describe("handleTip", () => {
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
@@ -1690,7 +1690,7 @@ describe("handleTip", () => {
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
@@ -1802,7 +1802,7 @@ describe("handleTip", () => {
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],
@@ -1914,7 +1914,7 @@ describe("handleTip", () => {
     jest.spyOn(processor, "getTipPayload").mockResolvedValueOnce(tipPayload)
     defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce(checkBalResp)
     defi.offchainDiscordTransfer = jest.fn().mockResolvedValueOnce(transferResp)
-    jest.spyOn(tiputils, "tipTokenIsSupported").mockResolvedValueOnce(true)
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const expected = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
       author: ["Tips", getEmojiURL(emojis.COIN)],

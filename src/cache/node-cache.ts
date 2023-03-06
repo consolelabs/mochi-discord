@@ -62,7 +62,7 @@ export class CacheManager {
     ttl?: number
   }) {
     const cache = this.cachePools.get(pool)
-    if (!cache) return {}
+    if (!cache) return
     const success = cache.set(key, val, ttl)
     if (callOnExpire && success) {
       cache.on("expired", async (cacheKey) => {
