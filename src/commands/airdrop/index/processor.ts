@@ -29,7 +29,7 @@ import {
   roundFloatNumber,
 } from "utils/common"
 import { validateBalance } from "utils/defi"
-import { parseMonikerinCmd, tipTokenIsSupported } from "utils/tip-bot"
+import { parseMonikerinCmd, isTokenSupported } from "utils/tip-bot"
 import * as processor from "./processor"
 
 dayjs.extend(duration)
@@ -372,7 +372,7 @@ export async function getAirdropPayload(
   const amountArg = newArgs[1]
   const recipients: string[] = []
   const token = newArgs[2].toUpperCase()
-  const tokenSupported = await tipTokenIsSupported(token)
+  const tokenSupported = await isTokenSupported(token)
   const pointingright = getEmoji("pointingright")
   if (!moniker && !tokenSupported) {
     throw new InternalError({

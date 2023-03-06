@@ -2,7 +2,7 @@ import { CommandInteraction } from "discord.js"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji, msgColors } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { tipTokenIsSupported } from "utils/tip-bot"
+import { isTokenSupported } from "utils/tip-bot"
 import {
   buildButtonsRow,
   handleStatement,
@@ -12,7 +12,7 @@ import {
 const run = async (interaction: CommandInteraction) => {
   let token = interaction.options.getString("token")
   if (token) {
-    const tokenValid = await tipTokenIsSupported(token)
+    const tokenValid = await isTokenSupported(token)
     if (!tokenValid) {
       return {
         messageOptions: {

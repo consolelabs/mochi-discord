@@ -25,6 +25,27 @@ const command: Command = {
     if (!msg.guild) {
       throw new GuildIdNotFoundError({})
     }
+
+    const { ok, data, curl, log, error } =
+      await config.getProposalChannelConfig(msg.guild.id)
+    if (!ok) {
+      throw new APIError({ curl, description: log, error })
+    }
+    // already config
+    if (data !== null) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              title: "Proposal channel already set!",
+              description: `${getEmoji(
+                "POINTINGRIGHT"
+              )} Run \`${PREFIX}proposal remove\` to remove existing config before setting a new one.`,
+            }),
+          ],
+        },
+      }
+    }
     // $proposal set <#channel> <network> <token_contract>
     // $proposal set #channel evm 0xad29abb318791d579433d831ed122afeaf29dcfe
     const args = getCommandArguments(msg)

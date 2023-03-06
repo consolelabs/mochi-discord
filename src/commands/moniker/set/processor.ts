@@ -3,12 +3,12 @@ import { APIError } from "errors"
 import { RequestUpsertMonikerConfigRequest } from "types/api"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji, msgColors } from "utils/common"
-import { tipTokenIsSupported } from "utils/tip-bot"
+import { isTokenSupported } from "utils/tip-bot"
 
 export const handleSetMoniker = async (
   payload: RequestUpsertMonikerConfigRequest
 ) => {
-  const tokenValid = await tipTokenIsSupported(payload.token)
+  const tokenValid = await isTokenSupported(payload.token)
   if (!tokenValid) {
     return {
       messageOptions: {
