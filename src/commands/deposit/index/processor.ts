@@ -19,6 +19,7 @@ import {
 } from "utils/common"
 import { isTokenSupported } from "utils/tip-bot"
 import * as processor from "./processor"
+import { MOCHI_SERVER_INVITE_URL } from "utils/constants"
 
 export async function deposit(
   msgOrInteraction: OriginalMessage,
@@ -62,9 +63,9 @@ export async function deposit(
   const dmEmbed = composeEmbedMessage(null, {
     author: [`Deposit ${symbol}`, getEmojiURL(emojis.WALLET)],
     thumbnail: `attachment://${qrFileName}`,
-    description: `Below is the wallet address linked to your Discord account. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n*Please send only **${symbol}** to this address.*\n\n${getEmoji(
+    description: `Below is the deposit address linked to your Discord account. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n*Please send only **${symbol}** to this address.*\n\n${getEmoji(
       "clock"
-    )} Your deposit address is **only valid for 3 hours**.\n\n**${symbol} Wallet Address**\n\`\`\`${
+    )} Your deposit address is **only valid for 3 hours**.\n\n**${symbol} Deposit Address**\n\`\`\`${
       data.contract.contract_address
     }\`\`\``,
   })
@@ -91,7 +92,7 @@ export async function deposit(
   // replace with a msg without contract after 3 hours
   // -> force users to reuse $deposit
   // -> prevent users from depositing to wrong / expired contract
-  processor.handleDepositExpiration(dm, symbol, qrFileName)
+  processor.handleDepositExpiration(dm, symbol)
 
   const dmRedirectEmbed = composeEmbedMessage(null, {
     author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
@@ -107,21 +108,25 @@ export async function deposit(
   }
 }
 
-export function handleDepositExpiration(
-  reply: Message,
-  token: string,
-  qrFileName: string
-) {
+/**
+ * remove deposit address after get expired (3h)
+ *
+ *  -> force users to reuse $deposit
+ *
+ *  -> prevent users from depositing to wrong / expired contract
+ *
+ * @param toEdit
+ * @param token
+ */
+export function handleDepositExpiration(toEdit: Message, token: string) {
   const expiredEmbed = getErrorEmbed({
-    title: `The ${token} wallet address has expired`,
-    thumbnail: `attachment://${qrFileName}`,
-    description: `Please re-run \`$deposit <token>\` to get new address\n\n${getEmoji(
-      "CLOCK"
-    )} Your deposit address is **no longer valid**.`,
+    title: `The ${token} deposit address is expired`,
+    description: `Please re-run \`$deposit token \` to get the new address. If you have deposited but the balance was not topped up, contact the team via [Mochi Server](${MOCHI_SERVER_INVITE_URL}).`,
   })
   setTimeout(() => {
-    reply.edit({
+    toEdit.edit({
       embeds: [expiredEmbed],
+      files: [],
     })
   }, 10800000)
 }
