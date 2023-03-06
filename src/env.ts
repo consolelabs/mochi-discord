@@ -43,6 +43,8 @@ export const TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY || ""
 export const TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET || ""
 export const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN || ""
 export const TWITTER_TOKEN_SECRET = process.env.TWITTER_TOKEN_SECRET || ""
+export const USAGE_TRACKING_CHANNEL_ID =
+  process.env.USAGE_TRACKING_CHANNEL_ID || "1050780517806645298"
 // Opensea
 export const OPENSEA_API_KEY = process.env.OPENSEA_API_KEY || ""
 

@@ -77,6 +77,7 @@ import xprole from "./xp-role"
 import wallet from "./wallet"
 import mixrole from "./mix-role"
 import alert from "./alert"
+import usageTracking from "logger/usage-tracking"
 
 CacheManager.init({
   ttl: 0,
@@ -444,4 +445,6 @@ export async function handlePrefixedCommand(message: Message) {
     action,
     isSpecificHelpCommand ?? false
   )
+
+  usageTracking.log(message)
 }
