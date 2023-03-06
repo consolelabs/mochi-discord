@@ -23,7 +23,7 @@ const command: Command = {
 
     if (!isRole && !isId) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid roles",
         description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${getEmoji(
           "POINTINGRIGHT"
@@ -38,7 +38,7 @@ const command: Command = {
       const role = await msg.guild?.roles.fetch(id).catch(() => null)
       if (!role) {
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           title: "Invalid roles",
           description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${getEmoji(
             "POINTINGRIGHT"
@@ -58,7 +58,7 @@ const command: Command = {
     if (!res.ok) {
       throw new APIError({
         error: res.error,
-        message: msg,
+        msgOrInteraction: msg,
         description: res.log,
         curl: res.curl,
       })

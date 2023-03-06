@@ -8,7 +8,7 @@ import {
 } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { getEmoji, isAddress } from "utils/common"
+import { getEmoji, isAddress, msgColors } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { PREFIX } from "utils/constants"
@@ -24,6 +24,27 @@ const command: Command = {
   run: async function (msg) {
     if (!msg.guild) {
       throw new GuildIdNotFoundError({})
+    }
+
+    const { ok, data, curl, log, error } =
+      await config.getProposalChannelConfig(msg.guild.id)
+    if (!ok) {
+      throw new APIError({ curl, description: log, error })
+    }
+    // already config
+    if (data !== null) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              title: "Proposal channel already set!",
+              description: `${getEmoji(
+                "POINTINGRIGHT"
+              )} Run \`${PREFIX}proposal remove\` to remove existing config before setting a new one.`,
+            }),
+          ],
+        },
+      }
     }
     // $proposal set <#channel> <network> <token_contract>
     // $proposal set #channel evm 0xad29abb318791d579433d831ed122afeaf29dcfe
@@ -130,6 +151,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
             description: `${getEmoji(
               "point_right"
             )} All proposals will be posted and voted in the <#${channelId}>`,
+            color: msgColors.SUCCESS,
           }),
         ],
         components: [],
@@ -215,6 +237,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
           description: `${getEmoji(
             "pointingright"
           )} All proposals will be posted and voted in the <#${channelId}>`,
+          color: msgColors.SUCCESS,
         }),
       ],
     },

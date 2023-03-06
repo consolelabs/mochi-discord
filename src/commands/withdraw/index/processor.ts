@@ -1,15 +1,26 @@
-import Defi from "adapters/defi"
-import { commands } from "commands"
+import defi from "adapters/defi"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError, InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { OffchainTipBotWithdrawRequest } from "types/defi"
+import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
-import { getCommandObject } from "utils/commands"
-import { getEmoji, isAddress } from "utils/common"
+import {
+  emojis,
+  equalIgnoreCase,
+  getAuthor,
+  getEmoji,
+  getEmojiURL,
+  isAddress,
+  isValidAmount,
+  msgColors,
+} from "utils/common"
+import { validateBalance } from "utils/defi"
 import { awaitMessage } from "utils/discord"
+import { tipTokenIsSupported } from "utils/tip-bot"
+import * as processor from "./processor"
 
-export async function getDestinationAddress(
+export async function getRecipient(
   msg: Message | CommandInteraction,
   dm: Message,
   symbol: string
@@ -25,15 +36,18 @@ export async function getDestinationAddress(
     msg: dm,
     timeoutResponse: { embeds: [timeoutEmbed] },
   })
+  const isSolanaWithdrawal = symbol === "SOL"
   const { valid, type } = isAddress(address)
-  const isSolana = symbol === "SOL"
-  const validAddress = valid && (isSolana ? type === "sol" : type === "eth")
+  const validAddress =
+    valid && (isSolanaWithdrawal ? type === "sol" : type === "eth")
   if (first && !validAddress) {
     await first.reply({
       embeds: [
         getErrorEmbed({
-          title: "Invalid destination address",
-          description: `Please retry with \`$withdraw\` and enter a valid EVM/Solana wallet address.`,
+          title: `Invalid ${symbol} address`,
+          description: `Please retry with \`$withdraw\` and enter a valid **${
+            isSolanaWithdrawal ? "Solana" : "EVM"
+          } wallet address**.`,
         }),
       ],
     })
@@ -42,49 +56,71 @@ export async function getDestinationAddress(
   return address
 }
 
-export async function withdraw(msg: Message, args: string[], address: string) {
-  const payload = await getWithdrawPayload(msg, args[1], args[2], address)
-  // check balance
-  const invalidBalEmbed = await Defi.getInsuffientBalanceEmbed(
-    msg,
-    payload.recipient,
-    payload.token,
-    payload.amount,
-    payload.all ?? false
+export async function withdraw(
+  msgOrInteraction: Message | CommandInteraction,
+  amountArg: string,
+  tokenArg: string
+) {
+  const payload = await getWithdrawPayload(
+    msgOrInteraction,
+    amountArg,
+    tokenArg
   )
-  if (invalidBalEmbed) {
-    return {
-      embeds: [invalidBalEmbed],
-    }
-  }
+  const { token, amount, all } = payload
+  const author = getAuthor(msgOrInteraction)
+  // send dm
+  const dm = await author.send({
+    embeds: [
+      composeEmbedMessage(null, {
+        author: ["Withdraw message", getEmojiURL(emojis.WALLET)],
+        description: `Please enter your **${token}** destination address that you want to withdraw your tokens below.`,
+      }),
+    ],
+  })
 
-  const { data, ok, error, log, curl } = await Defi.offchainDiscordWithdraw(
+  const tokenSupported = await tipTokenIsSupported(tokenArg)
+  if (!tokenSupported) {
+    const pointingright = getEmoji("pointingright")
+    throw new InternalError({
+      msgOrInteraction,
+      title: "Unsupported token",
+      description: `**${token}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright} To add your token, run \`$token add\`.`,
+    })
+  }
+  // check balance
+  await validateBalance({ msgOrInteraction, token, amount, all })
+
+  // redirect to dm if not in DM
+  if (msgOrInteraction.guildId) {
+    msgOrInteraction.reply({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Withdraw tokens", getEmojiURL(emojis.WALLET)],
+          description: `${author}, a withdrawal message has been sent to you. Check your DM!`,
+        }),
+      ],
+      components: [composeButtonLink("See the DM", dm.url)],
+    })
+  }
+  // ask for recipient address
+  payload.recipientAddress = await processor.getRecipient(
+    msgOrInteraction,
+    dm,
+    token
+  )
+  if (!payload.recipientAddress) return
+  // withdraw
+  const { data, ok, error, log, curl } = await defi.offchainDiscordWithdraw(
     payload
   )
+  if (!ok)
+    throw new APIError({ msgOrInteraction, curl, description: log, error })
 
-  if (!ok) {
-    switch (error) {
-      case "Token not supported":
-        throw new InternalError({
-          message: msg,
-          title: "Unsupported token",
-          description: `**${payload.token.toUpperCase()}** hasn't been supported.\n${getEmoji(
-            "POINTINGRIGHT"
-          )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
-            "POINTINGRIGHT"
-          )} To add your token, run \`$token add\`.`,
-        })
-      default:
-        throw new APIError({ message: msg, curl, description: log, error })
-    }
-  }
-
-  const embedMsg = composeWithdrawEmbed(payload, data)
-
-  await msg.author.send({ embeds: [embedMsg] })
+  const embed = composeWithdrawEmbed(payload, data)
+  await author.send({ embeds: [embed] })
 }
 
-export function composeWithdrawEmbed(
+function composeWithdrawEmbed(
   payload: OffchainTipBotWithdrawRequest,
   data: Record<string, any>
 ) {
@@ -93,6 +129,7 @@ export function composeWithdrawEmbed(
     author: ["Withdraw"],
     title: `${tokenEmoji} ${payload.token.toUpperCase()} sent`,
     description: "Your withdrawal was processed succesfully!",
+    color: msgColors.SUCCESS,
   }).addFields(
     {
       name: "Destination address",
@@ -112,81 +149,38 @@ export function composeWithdrawEmbed(
   )
 }
 
-// slash
-export async function withdrawSlash(
-  i: CommandInteraction,
-  amount: string,
-  token: string,
-  addr: string
-) {
-  const payload = await getWithdrawPayload(i, amount, token, addr)
-  payload.fullCommand = `${i.commandName} ${amount} ${token}`
-  const { data, ok, error, log, curl } = await Defi.offchainDiscordWithdraw(
-    payload
-  )
-  if (!ok) {
-    throw new APIError({ description: log, curl, error })
-  }
-
-  const embedMsg = composeWithdrawEmbed(payload, data)
-
-  await i.user.send({ embeds: [embedMsg] })
-}
-
-async function getWithdrawPayload(
-  msg: Message | CommandInteraction,
+export async function getWithdrawPayload(
+  msgOrInteraction: Message | CommandInteraction,
   amountArg: string,
-  token: string,
-  toAddress: string
+  token: string
 ): Promise<OffchainTipBotWithdrawRequest> {
-  let type
-  let sender
-  if (msg instanceof Message) {
-    const commandObject = getCommandObject(commands, msg)
-    type = commandObject?.command
-    sender = msg.author.id
-  } else {
-    type = msg.commandName
-    sender = msg.user.id
-  }
-  const guildId = msg.guildId ?? "DM"
+  const author = getAuthor(msgOrInteraction)
+  const guildId = msgOrInteraction.guildId ?? "DM"
 
-  const recipients = [toAddress]
-  const cryptocurrency = token.toUpperCase()
-
-  // check if recipient is valid or not
-  if (!recipients || !recipients.length) {
+  const validAmount = isValidAmount({ arg: amountArg, exceptions: ["all"] })
+  if (!validAmount) {
     throw new DiscordWalletTransferError({
-      discordId: sender,
-      message: msg,
-      error: "No valid recipient found!",
-    })
-  }
-
-  // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
-  const amount = parseFloat(amountArg.toLowerCase())
-  if ((isNaN(amount) || amount <= 0) && amountArg !== "all") {
-    throw new DiscordWalletTransferError({
-      discordId: sender,
-      message: msg,
+      discordId: author.id,
+      message: msgOrInteraction,
       error: "The amount is invalid. Please insert a natural number.",
     })
   }
+  const fullCommand =
+    msgOrInteraction instanceof Message
+      ? msgOrInteraction.content
+      : `${msgOrInteraction.commandName} ${amountArg} ${token}`
 
   return {
-    recipient: sender,
-    recipientAddress: toAddress,
+    recipient: author.id,
+    recipientAddress: "",
     guildId,
-    channelId: msg.channelId,
-    amount,
-    token: cryptocurrency,
+    channelId: msgOrInteraction.channelId,
+    amount: parseFloat(amountArg) || 0,
+    token: token.toUpperCase(),
     each: false,
-    all: amountArg === "all",
-    transferType: type ?? "",
+    all: equalIgnoreCase(amountArg, "all"),
+    transferType: "withdraw",
     duration: 0,
-    fullCommand:
-      msg instanceof Message
-        ? msg.content
-        : `${msg.commandName} ${amountArg} ${token} ${toAddress}`,
+    fullCommand,
   }
 }

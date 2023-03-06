@@ -19,7 +19,7 @@ const command: Command = {
       telegram_username: username,
     })
     if (!ok) {
-      throw new APIError({ message: msg, curl, description: log })
+      throw new APIError({ msgOrInteraction: msg, curl, description: log })
     }
     return {
       messageOptions: {

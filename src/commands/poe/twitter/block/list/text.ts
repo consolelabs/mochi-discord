@@ -4,6 +4,7 @@ import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Message } from "discord.js"
+import { msgColors } from "utils/common"
 
 const command: Command = {
   id: "poe_twitter_block_list",
@@ -17,7 +18,11 @@ const command: Command = {
       msg.guild.id
     )
     if (!ok) {
-      throw new APIError({ message: msg, curl: curl, description: log })
+      throw new APIError({
+        msgOrInteraction: msg,
+        curl: curl,
+        description: log,
+      })
     }
     if (!data?.length) {
       return {
@@ -44,6 +49,7 @@ const command: Command = {
     const embed = composeEmbedMessage(msg, {
       author: [`${msg.guild.name}'s twitter blacklist`, msg.guild.iconURL()],
       description,
+      color: msgColors.PINK,
     })
 
     return { messageOptions: { embeds: [embed] } }

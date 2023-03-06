@@ -188,7 +188,7 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
     })
   }
   let newArgs = args
-  let moniker
+  let moniker: ResponseMonikerConfigData | undefined
   if (data && Array.isArray(data) && data.length !== 0) {
     const content = args.join(" ").trim()
     data.forEach((v: ResponseMonikerConfigData) => {

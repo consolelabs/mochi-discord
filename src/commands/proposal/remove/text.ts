@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 
@@ -22,7 +22,11 @@ const command: Command = {
       curl: curlGet,
     } = await config.getProposalChannelConfig(msg.guildId || "")
     if (!okGet) {
-      throw new APIError({ message: msg, description: logGet, curl: curlGet })
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: logGet,
+        curl: curlGet,
+      })
     }
     if (data === null) {
       return {
@@ -43,7 +47,7 @@ const command: Command = {
       id: `${data.id}`,
     })
     if (!ok) {
-      throw new APIError({ message: msg, description: log, curl })
+      throw new APIError({ msgOrInteraction: msg, description: log, curl })
     }
     return {
       messageOptions: {
@@ -53,6 +57,7 @@ const command: Command = {
             description: `${getEmoji(
               "pointingright"
             )} You can create a new DAO voting channel by \`$proposal set <#channel> <chain/network> <token_contract>\``,
+            color: msgColors.SUCCESS,
           }),
         ],
       },

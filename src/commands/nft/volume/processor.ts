@@ -12,6 +12,7 @@ import {
   getEmoji,
   getEmojiURL,
   getUniqueToken,
+  msgColors,
   parseNFTTop,
   sortNFTListByVolume,
 } from "utils/common"
@@ -145,7 +146,11 @@ async function renderLeaderboard(leaderboard: TopNFTTradingVolumeItem[]) {
 export async function handleNftVolume(msg: Message | CommandInteraction) {
   const res = await community.getTopNFTTradingVolume()
   if (!res.ok) {
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: res.log,
+    })
   }
   const data = res.data
   let leaderboard = parseNFTTop(data)
@@ -169,6 +174,7 @@ export async function handleNftVolume(msg: Message | CommandInteraction) {
     thumbnail: "https://i.postimg.cc/4NT4fs3d/mochi.png", //Need mochi logo url
     description: `${blank}**Highest Trading Volume**\n\u200B`,
     image: "attachment://leaderboard.png",
+    color: msgColors.PINK,
   })
   return {
     messageOptions: {

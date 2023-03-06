@@ -4,7 +4,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { list } from "./processor"
 
@@ -32,7 +32,7 @@ const command: SlashCommand = {
 
     if (!res.ok) {
       throw new APIError({
-        message: interaction,
+        msgOrInteraction: interaction,
         curl: res.curl,
         description: res.log,
       })
@@ -45,6 +45,7 @@ const command: SlashCommand = {
           composeEmbedMessage2(interaction, {
             author: [title, getEmojiURL(emojis.BADGE2)],
             description,
+            color: msgColors.PINK,
           }),
         ],
       },

@@ -510,7 +510,7 @@ export async function composeTokenWatchlist(
         }),
     }),
   })
-  if (!ok) throw new APIError({ message: msg, curl, description: log })
+  if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
   const { metadata, data = [] } = res
   const totalPage = Math.ceil((metadata?.total ?? 0) / size)
   const embed = composeEmbedMessage(msg, {
@@ -575,7 +575,7 @@ export async function composeNFTWatchlist(msg: Message) {
         components: [buildSwitchViewActionRow("nft")],
       }
     }
-    throw new APIError({ message: msg, curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl, description: log })
   }
   embed.setImage("attachment://watchlist.png")
   return {
@@ -702,7 +702,7 @@ export async function composeSlashTokenWatchlist(
   })
   if (!ok)
     throw new APIError({
-      message: i,
+      msgOrInteraction: i,
       description: log,
       curl,
     })
@@ -765,7 +765,7 @@ async function composeSlashNFTWatchlist(i: CommandInteraction) {
       }
     }
     throw new APIError({
-      message: i,
+      msgOrInteraction: i,
       description: log,
       curl,
     })

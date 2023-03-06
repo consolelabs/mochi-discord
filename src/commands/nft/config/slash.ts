@@ -63,7 +63,7 @@ const command: SlashCommand = {
 
     if (!csmrKey || !csmrKeyScrt || !acsToken || !acsTokenScrt) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description:
           "Missing arguments. Please enter all 4 Twitter credentials",
       })

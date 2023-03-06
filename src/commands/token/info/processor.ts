@@ -32,7 +32,7 @@ async function composeTokenInfoResponse({
     call: () => defi.getCoin(coinId),
   })
   if (!ok) {
-    throw new APIError({ message: msg, curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl, description: log })
   }
   const embed = composeEmbedMessage(null, {
     thumbnail: coin.image.large,
@@ -71,10 +71,10 @@ export async function handleTokenInfo(
     key: `ticker-search-${token}`,
     call: () => defi.searchCoins(token),
   })
-  if (!ok) throw new APIError({ message: msg, curl, description: log })
+  if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
   if (!coins || !coins.length) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: `Cannot find any cryptocurrency with \`${token}\`.\nPlease choose another one!`,
     })
   }

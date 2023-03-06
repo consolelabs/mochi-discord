@@ -14,7 +14,7 @@ import { heightOf, widthOf } from "ui/canvas/calculator"
 import { drawDivider, drawRectangle } from "ui/canvas/draw"
 import { getPaginationRow } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 
 export async function renderLeaderboard(
   guild: Guild | null,
@@ -197,7 +197,11 @@ export async function composeTopEmbed(
     10
   )
   if (!res.ok) {
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: res.log,
+    })
   }
 
   const totalPage = Math.ceil(
@@ -214,6 +218,7 @@ export async function composeTopEmbed(
       "POINTINGRIGHT"
     )} Move to another page with \`$top [page number]\`\n\u200B`,
     image: "attachment://leaderboard.png",
+    color: msgColors.PINK,
   })
   return {
     messageOptions: {

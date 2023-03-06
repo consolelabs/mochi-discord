@@ -29,7 +29,7 @@ const command: Command = {
     })
 
     if (!ok) {
-      throw new APIError({ curl, description: log, message: msg })
+      throw new APIError({ curl, description: log, msgOrInteraction: msg })
     }
 
     const data = _data?.data ?? []

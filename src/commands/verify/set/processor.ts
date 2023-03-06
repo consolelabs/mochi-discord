@@ -21,7 +21,7 @@ export async function runVerifySet({
     const { isChannel, value } = parseDiscordToken(args[2])
     if (!isChannel) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid channel",
         description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
           "POINTINGRIGHT"
@@ -36,7 +36,7 @@ export async function runVerifySet({
       const { isRole, value } = parseDiscordToken(args[3])
       if (!isRole || !value) {
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           title: "Invalid role",
           description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n${getEmoji(
             "POINTINGRIGHT"
@@ -87,7 +87,11 @@ export async function runVerifySet({
     createVerifyWalletRequest
   )
   if (!res.ok) {
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: res.log,
+    })
   }
 
   return {

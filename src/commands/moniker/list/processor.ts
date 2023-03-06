@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
-import { getEmoji, paginate, roundFloatNumber } from "utils/common"
+import { getEmoji, msgColors, paginate, roundFloatNumber } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function handleMonikerList(guildId: string) {
@@ -32,6 +32,7 @@ export async function handleMonikerList(guildId: string) {
     const res = composeEmbedMessage(null, {
       title: `${getEmoji("bucket_cash", true)} Moniker List`,
       footer: [`Page ${idx + 1} / ${pages.length}`],
+      color: msgColors.PINK,
     })
     if (isDefault) {
       return res

@@ -71,7 +71,7 @@ export async function process(message: OriginalMessage) {
     const title = `${getEmoji(
       "mag"
     )} Please enter the role you want to assign by level, amount of NFT, and token.`
-    const embed = composeEmbedMessage(null, { title, color: msgColors.PRIMARY })
+    const embed = composeEmbedMessage(null, { title, color: msgColors.PINK })
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
@@ -142,7 +142,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
-      color: msgColors.PRIMARY,
+      color: msgColors.PINK,
     })
     await send({
       embeds: [embed],
@@ -202,7 +202,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
-      color: msgColors.PRIMARY,
+      color: msgColors.PINK,
     })
     await send({
       embeds: [embed],
@@ -262,7 +262,7 @@ export async function process(message: OriginalMessage) {
     }
     if (!ok) {
       throw new APIError({
-        message: message,
+        msgOrInteraction: message,
         error,
         description: log,
         curl,
@@ -296,7 +296,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
-      color: msgColors.PRIMARY,
+      color: msgColors.PINK,
     })
     await send({
       embeds: [embed],
@@ -368,7 +368,7 @@ export async function process(message: OriginalMessage) {
     }
     if (!ok) {
       throw new APIError({
-        message: message,
+        msgOrInteraction: message,
         error,
         curl,
         description: log,
@@ -409,7 +409,7 @@ export async function process(message: OriginalMessage) {
   }) => {
     if (!required_level && !token_requirement && !nft_requirement) {
       throw new InternalError({
-        message: message,
+        msgOrInteraction: message,
         title: "Fail to set up mixed role!",
         description: `
         No condition was set! We can’t set the mixed role for ${role_name}.
@@ -442,7 +442,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title: `Users will earn the role ${role_name} if they meet all of these requirements`,
       description,
-      color: msgColors.PRIMARY,
+      color: msgColors.PINK,
     })
     await send({ embeds: [embed], components: [actionRow] })
     const interaction = await message.channel?.awaitMessageComponent({
@@ -468,13 +468,13 @@ export async function process(message: OriginalMessage) {
           )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
           `
         throw new InternalError({
-          message: message,
+          msgOrInteraction: message,
           title,
           description,
         })
       }
       throw new APIError({
-        message: message,
+        msgOrInteraction: message,
         error,
         curl,
         description: log,

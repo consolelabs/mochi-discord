@@ -9,7 +9,7 @@ export async function claim(msg: Message, args: string[]) {
   const [claimId, address] = args.slice(1)
   if (!+claimId) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Claiming failed!",
       description: "`claim ID` must be a number",
     })
@@ -30,7 +30,7 @@ export async function claim(msg: Message, args: string[]) {
         )
         if (!ok) {
           throw new InternalError({
-            message: msg,
+            msgOrInteraction: msg,
             title: "Fail to claim tip!",
             description: log,
           })
@@ -49,7 +49,7 @@ export async function claim(msg: Message, args: string[]) {
               ]
         ).join("\n")
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           title: "Fail to claim tip!",
           description,
         })
@@ -57,7 +57,7 @@ export async function claim(msg: Message, args: string[]) {
       case originalError?.toLowerCase().includes("balance is not enough"):
       case originalError?.toLowerCase().includes("insufficient fund"):
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           title: "Failed to claim tip!",
           description: `Mochi wallet's balance is insufficient to proceed this transaction.\n${getEmoji(
             "POINTINGRIGHT"
@@ -68,7 +68,12 @@ export async function claim(msg: Message, args: string[]) {
           )}\nSorry for this inconvenience ${getEmoji("nekosad")}`,
         })
       default:
-        throw new APIError({ message: msg, curl, description: log, error })
+        throw new APIError({
+          msgOrInteraction: msg,
+          curl,
+          description: log,
+          error,
+        })
     }
   }
   const { amount, symbol, amount_in_usd, tx_hash, tx_url, recipient_address } =

@@ -57,7 +57,8 @@ const command: SlashCommand = {
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        title: "Set up a tracker of proposal voting rounds on Snapshot and Commonwealth.",
+        title:
+          "Set up a tracker of proposal voting rounds on Snapshot and Commonwealth.",
         usage: `${SLASH_PREFIX}proposal track #channel <snapshot_DAO_link>\n${SLASH_PREFIX}proposal track #channel <commonwealth_link>`,
         description: `${getEmoji(
           "pointingright"

@@ -1,7 +1,7 @@
 import { Message } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { handleMonikerList } from "./processor"
@@ -27,6 +27,7 @@ const command: Command = {
               title: `${getEmoji("bucket_cash", true)} Moniker List`,
               description:
                 "You haven't set any moniker. To set one, run $moniker set <moniker> <amount_token> <token> .",
+              color: msgColors.SUCCESS,
             }),
           ],
         },

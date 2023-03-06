@@ -23,7 +23,12 @@ const command: Command = {
       msg.guildId
     )
     if (!ok) {
-      throw new APIError({ message: msg, description: log, curl, error })
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: log,
+        curl,
+        error,
+      })
     }
     if (data.length === 0) {
       return {
@@ -43,7 +48,7 @@ const command: Command = {
     for (const config of data) {
       if (!config.role_id) {
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           description: "invalid role id",
         })
       }

@@ -28,7 +28,7 @@ describe("handleTokenInfo", () => {
     const { curl, log } = cacheGetRes
     CacheManager.get = jest.fn().mockResolvedValueOnce(cacheGetRes)
     await expect(processor.handleTokenInfo(msg, "ftm")).rejects.toThrow(
-      new APIError({ message: msg, curl, description: log })
+      new APIError({ msgOrInteraction: msg, curl, description: log })
     )
   })
 
@@ -42,7 +42,7 @@ describe("handleTokenInfo", () => {
     CacheManager.get = jest.fn().mockResolvedValueOnce(cacheGetRes)
     await expect(processor.handleTokenInfo(msg, "ftm")).rejects.toThrow(
       new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         description:
           "Cannot find any cryptocurrency with `ftm`.\nPlease choose another one!",
       })

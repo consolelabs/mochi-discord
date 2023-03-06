@@ -16,7 +16,7 @@ export async function setDefaultTicker(
     query: symbol,
   })
   if (!ok) {
-    throw new APIError({ message: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
   }
   CacheManager.findAndRemove(
     "ticker",

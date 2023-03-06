@@ -1,5 +1,10 @@
 import config from "adapters/config"
-import { CommandInteraction, Message, MessageOptions } from "discord.js"
+import {
+  ButtonInteraction,
+  CommandInteraction,
+  Message,
+  MessageOptions,
+} from "discord.js"
 import { APIError, OriginalMessage } from "errors"
 import { RunResult, MultipleResult } from "types/common"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
@@ -36,7 +41,7 @@ export async function handle(
   }
   if (!ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       description: log,
       error: "Make sure that you entered existing dao space or URL.",
       curl,
@@ -52,4 +57,32 @@ export async function handle(
       ],
     },
   }
+}
+
+export async function subscribeCommonwealthDiscussion(i: ButtonInteraction) {
+  const [communityId, discussionIdStr] = i.customId.split("-").slice(1)
+  const msg = i.message as Message
+  await i.deferUpdate()
+  if (msg.hasThread) {
+    return
+  }
+  const thread = await msg.startThread({
+    name: `discussion-${communityId}-${discussionIdStr}`,
+    autoArchiveDuration: "MAX",
+    reason: "Discussion thread for Commonwealth proposal thread",
+  })
+  const discussion_id = +discussionIdStr
+  if (Number.isNaN(discussion_id)) {
+    return
+  }
+  const { ok, error, log, curl } =
+    await config.createDaoTrackerCommonwealthDiscussionSub({
+      discord_thread_id: thread.id,
+      discussion_id,
+    })
+  if (!ok) {
+    await thread.delete("subscribe failed")
+    throw new APIError({ error, curl, description: log })
+  }
+  await thread.send("Start subscribing thread's discussion!")
 }

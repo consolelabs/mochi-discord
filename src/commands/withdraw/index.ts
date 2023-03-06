@@ -46,7 +46,7 @@ const slashCmd: SlashCommand = {
     return new SlashCommandBuilder()
       .setName("withdraw")
       .setDescription("Withdraw tokens to your wallet outside of Discord.")
-      .addNumberOption((option) =>
+      .addStringOption((option) =>
         option
           .setName("amount")
           .setDescription(

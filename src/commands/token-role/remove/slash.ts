@@ -27,7 +27,7 @@ const command: SlashCommand = {
     )
     if (!ok) {
       throw new APIError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: log,
         curl,
         error,
@@ -50,7 +50,7 @@ const command: SlashCommand = {
     for (const config of data) {
       if (!config.role_id) {
         throw new InternalError({
-          message: interaction,
+          msgOrInteraction: interaction,
           description: "invalid role id",
         })
       }
