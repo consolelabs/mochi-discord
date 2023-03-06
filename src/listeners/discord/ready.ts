@@ -11,7 +11,7 @@ import { logger } from "logger"
 import TwitterStream from "listeners/twitter"
 import Paintswap from "listeners/paintswap"
 import Opensea from "listeners/opensea"
-import UsageTrackingLogger from "logger/usage-tracking"
+import UsageTrackingLogger from "logger/usage-tracker"
 
 export let IS_READY = false
 
