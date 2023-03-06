@@ -16,7 +16,6 @@ import {
   getAuthor,
   getEmoji,
   getEmojiURL,
-  msgColors,
 } from "utils/common"
 import { isTokenSupported } from "utils/tip-bot"
 import * as processor from "./processor"
@@ -97,7 +96,7 @@ export async function deposit(
   const dmRedirectEmbed = composeEmbedMessage(null, {
     author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
     description: `${author}, your deposit address has been sent to you. Check your DM!`,
-    color: msgColors.SUCCESS,
+    originalMsgAuthor: author,
   })
   if (isDm) return null
   return {

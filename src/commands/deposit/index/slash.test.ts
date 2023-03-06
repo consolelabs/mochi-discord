@@ -1,19 +1,16 @@
 import { slashCommands } from "commands"
-import { CommandInteraction } from "discord.js"
-import mockdc from "../../../../tests/mocks/discord"
-import * as processor from "./processor"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmojiURL, emojis } from "utils/common"
+import { emojis, getEmojiURL } from "utils/common"
 import { assertRunResult } from "../../../../tests/assertions/discord"
+import mockdc from "../../../../tests/mocks/discord"
+import * as processor from "./processor"
 
 describe("run", () => {
-  let i: CommandInteraction
+  const i = mockdc.cloneCommandInteraction()
   const depositCmd = slashCommands["deposit"]
 
-  beforeEach(() => (i = mockdc.cloneCommandInteraction()))
-
-  test("run with proper args", async () => {
+  test("successfully", async () => {
     i.options.getString = jest.fn().mockReturnValue("ftm")
     const expectedEmbed = composeEmbedMessage(null, {
       author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
