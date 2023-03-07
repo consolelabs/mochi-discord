@@ -20,10 +20,10 @@ const command: Command = {
     }
 
     const args = getCommandArguments(msg)
-    if (args.length < 3 || parseInt(args[2]) < 5) {
+    if (args.length < 3 || parseInt(args[2]) < 5 || parseInt(args[2]) > 30) {
       throw new InternalError({
         msgOrInteraction: msg,
-        description: "Inactive days should be a number from 5 and higher",
+        description: "Inactive days should be a number between 5 and 30",
       })
     }
     const days = parseInt(args[2], 10)
