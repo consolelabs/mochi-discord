@@ -1579,6 +1579,10 @@ export interface ResponseGetAllUserSubmittedAdResponse {
   data?: ResponseGetAllUserSubmittedAdResponse[]
 }
 
+export interface ResponseGetAllUserSubmittedAdResponse {
+  data?: ResponseGetAllUserSubmittedAdResponse[]
+}
+
 export interface ResponseGetAssignedContract {
   data?: ModelOffchainTipBotAssignContract
 }
@@ -1913,6 +1917,18 @@ export interface ResponseGetUserQuestListResponse {
 
 export interface ResponseGetUserResponse {
   data?: ResponseUser
+}
+
+export interface ResponseGetUserSubmittedAdResponse {
+  ad_channel_id?: string
+  creator_id?: string
+  description?: string
+  id?: number
+  image?: string
+  introduction?: string
+  is_podtown_ad?: boolean
+  name?: string
+  string?: string
 }
 
 export interface ResponseGetUserSubmittedAdResponse {
