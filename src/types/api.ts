@@ -92,9 +92,11 @@ export interface ModelCoingeckoSupportedTokens {
 }
 
 export interface ModelCommonwealthDiscussionSubscription {
-  discordThreadID?: string;
-  discussionID?: number;
+  created_at?: string;
+  discord_thread_id?: string;
+  discussion_id?: number;
   id?: number;
+  updated_at?: string;
 }
 
 export interface ModelConfigXpLevel {
@@ -1573,6 +1575,10 @@ export interface ResponseGetAllTwitterHashtagConfigResponse {
   data?: ResponseTwitterHashtag[];
 }
 
+export interface ResponseGetAllUserSubmittedAdResponse {
+  data?: ResponseGetAllUserSubmittedAdResponse[];
+}
+
 export interface ResponseGetAssignedContract {
   data?: ModelOffchainTipBotAssignContract;
 }
@@ -1907,6 +1913,17 @@ export interface ResponseGetUserQuestListResponse {
 
 export interface ResponseGetUserResponse {
   data?: ResponseUser;
+}
+
+export interface ResponseGetUserSubmittedAdResponse {
+  ad_channel_id?: string;
+  creator_id?: string;
+  description?: string;
+  id?: number;
+  image?: string;
+  introduction?: string;
+  name?: string;
+  string?: string;
 }
 
 export interface ResponseGetUserUpvoteLeaderboardResponse {
