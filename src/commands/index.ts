@@ -23,6 +23,7 @@ import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import config from "../adapters/config"
 import { logger } from "../logger"
+import usageTracker from "logger/usage-tracker"
 import { isAcceptableCmdToHelp } from "../utils/commands"
 
 // commands
@@ -78,7 +79,7 @@ import xprole from "./xp-role"
 import wallet from "./wallet"
 import mixrole from "./mix-role"
 import alert from "./alert"
-import usageTracker from "logger/usage-tracker"
+import stats from "./stats"
 
 CacheManager.init({
   ttl: 0,
@@ -120,6 +121,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   mixrole: mixrole.slashCmd,
   alert: alert.slashCmd,
   wallet: wallet.slashCmd,
+  stats: stats.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -158,6 +160,7 @@ export const originalCommands: Record<string, Command> = {
   tokenrole: tokenrole.textCmd,
   xprole: xprole.textCmd,
   mixrole: mixrole.textCmd,
+  stats: stats.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
   log: log.textCmd,
