@@ -15,8 +15,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}wallet add <address> [alias]`,
-        examples: `${PREFIX}wallet add 0xfBe6403a719d0572Ea4BA0E1c01178835b1D3bE4\n${PREFIX}wallet add 0xfBe6403a719d0572Ea4BA0E1c01178835b1D3bE4 mywallet`,
+        usage: `${PREFIX}wallet add`,
+        examples: `${PREFIX}wallet add`,
       }),
     ],
   }),
