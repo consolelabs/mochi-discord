@@ -13,6 +13,7 @@ import {
   MessageEditOptions,
   MessageOptions,
   MessageSelectOptionData,
+  SelectMenuInteraction,
   User,
   WebhookEditMessageOptions,
 } from "discord.js"
@@ -55,6 +56,12 @@ export type RunResult<T = MessageOptions | MessageEditOptions> = {
   buttonCollector?: {
     handler: (i: ButtonInteraction) => Promise<any> | Promise<void>
     options?: MessageCollectorOptionsParams<"BUTTON">
+  }
+  selectMenuCollector?: {
+    handler: (
+      i: SelectMenuInteraction
+    ) => Promise<RunResult<MessageOptions>> | Promise<void>
+    options?: MessageCollectorOptionsParams<"SELECT_MENU">
   }
 }
 

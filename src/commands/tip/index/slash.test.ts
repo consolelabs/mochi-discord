@@ -1,5 +1,4 @@
 import { userMention } from "@discordjs/builders"
-import { slashCommands } from "commands"
 import { CommandInteraction, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -7,10 +6,11 @@ import { emojis, getEmojiURL, thumbnails } from "utils/common"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
+import tip from ".."
 
 describe("run", () => {
   let i: CommandInteraction
-  const tipCmd = slashCommands["tip"]
+  const tipCmd = tip.slashCmd
 
   beforeEach(() => (i = mockdc.cloneCommandInteraction()))
 
