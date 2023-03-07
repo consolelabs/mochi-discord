@@ -1,6 +1,7 @@
 import { Client, CommandInteraction, Message, TextChannel } from "discord.js"
 import { MOCHI_GUILD_ID, USAGE_TRACKING_CHANNEL_ID } from "env"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { getAuthor } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 
 export class UsageTrackerLogger {
@@ -19,29 +20,15 @@ export class UsageTrackerLogger {
 
   log(msg: Message | CommandInteraction) {
     if (this.logChannel) {
-      let content = ""
-      let authorName = ""
-      let authorAvatar = ""
-      if (msg instanceof Message) {
-        content = msg.content
-        authorName = msg.author.username
-        authorAvatar = msg.author.avatarURL() ?? ""
-      }
-      if (msg instanceof CommandInteraction) {
-        content = `**Slash Command:** ${msg.commandName}`
-        authorName = msg.user.username
-        authorAvatar = msg.user.avatarURL() ?? ""
-      }
+      const author = getAuthor(msg)
+      const isMessage = msg instanceof Message
+      const content = isMessage
+        ? msg.content
+        : `**Slash Command:** ${msg.commandName}`
       const embed = composeEmbedMessage(null, {
         description: content,
-        author: [msg.guild?.name ?? "", msg.guild?.bannerURL() ?? ""],
-      })
-        .setTimestamp()
-        .setFooter({ text: authorName, iconURL: authorAvatar })
-        .setAuthor({
-          name: msg.guild?.name ?? "",
-          iconURL: msg.guild?.bannerURL() ?? "",
-        })
+        author: [msg.guild?.name ?? "", msg.guild?.iconURL() ?? ""],
+      }).setFooter({ text: author.username, iconURL: author.avatarURL() ?? "" })
       this.logChannel.send({
         embeds: [embed],
       })
