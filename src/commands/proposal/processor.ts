@@ -384,7 +384,6 @@ async function getProposalTitle(
     filter,
   })
   const userReply = collected.first()
-
   // ask for description
   await dm.channel.send({
     embeds: [
@@ -401,7 +400,7 @@ async function getProposalTitle(
       ),
     ],
   })
-  return userReply?.content?.trim() ?? ""
+  return userReply?.content.trim() ?? ""
 }
 
 async function getProposalDescription(
@@ -445,19 +444,21 @@ async function getProposalDuration(
     filter,
   })
   const userReply = collected.first()
+  const durationStr = userReply?.content.trim() ?? ""
 
   // accept hours OR days
-  const regex = /([1-9][0-9]*[hH])|([1-9][0-9]*[dD])/
-  if (!userReply?.content.match(regex)) {
+  const regex = /(^[1-9][0-9]*[hH]$)|(^[1-9][0-9]*[dD]$)/
+  if (!regex.test(durationStr) || durationStr.length > 4) {
     await userReply?.reply({
       embeds: [
         getErrorEmbed({
           title: "Invalid duration",
-          description: "Duration should be in h (hour) or d (day)",
+          description:
+            "Duration should be in h (hour) or d (day) and less than 4 characters. Example: 7d",
         }),
       ],
     })
-    await getProposalDuration(authorId, dm)
+    return await getProposalDuration(authorId, dm)
   }
   return userReply?.content?.trim() ?? ""
 }

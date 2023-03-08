@@ -8,6 +8,7 @@ const command: SlashCommand = {
   name: "data",
   category: "Config",
   onlyAdministrator: true,
+  experimental: true,
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
       .setName("data")
