@@ -19,6 +19,7 @@ import {
 import { composeButtonLink } from "ui/discord/button"
 import profile from "adapters/profile"
 import { logger } from "logger"
+import { wrapError } from "utils/wrap-error"
 
 let proposalTitle = ""
 let proposalDesc = ""
@@ -148,7 +149,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
     })
     const cacheKey = `proposal-${msg.id}`
     proposalCache.set(cacheKey, [], +duration)
-    await checkExpiredProposal(
+    checkExpiredProposal(
       cacheKey,
       msg,
       data.id,
@@ -157,14 +158,10 @@ export async function handleProposalCreate(i: ButtonInteraction) {
       proposalExpireIn,
       proposalTitle.toUpperCase()
     )
-      .then(() => null)
-      .catch((err) => {
-        throw err
-      })
   }
 }
 
-async function checkExpiredProposal(
+function checkExpiredProposal(
   cacheKey: string,
   msg: Message,
   proposal_id: string,
@@ -174,36 +171,38 @@ async function checkExpiredProposal(
   title: string
 ) {
   proposalCache.on("expired", async (key) => {
-    // get vote results
-    const { data, ok, error, curl } = await community.getProposalResults(
-      proposal_id,
-      creator_id
-    )
-    if (!ok) {
-      throw new APIError({ curl, error })
-    }
+    if (key !== cacheKey) return
 
-    const voteYes = data.proposal?.points?.find(
-      (votes: ModelDaoProposalVoteCount) => {
-        return votes.choice === "Yes"
+    await wrapError(msg, async () => {
+      // get vote results
+      const { data, ok, error, curl } = await community.getProposalResults(
+        proposal_id,
+        creator_id
+      )
+      if (!ok) {
+        throw new APIError({ curl, error })
       }
-    )
-    const voteNo = data.proposal?.points?.find(
-      (votes: ModelDaoProposalVoteCount) => {
-        return votes.choice === "No"
-      }
-    )
-    const voteAbstain = data.proposal?.points?.find(
-      (votes: ModelDaoProposalVoteCount) => {
-        return votes.choice === "Abstain"
-      }
-    )
-    const yesCount = voteYes?.sum ?? 0
-    const noCount = voteNo?.sum ?? 0
-    const absCount = voteAbstain?.sum ?? 0
-    const voteTotal = yesCount + noCount + absCount
-    if (key === cacheKey) {
-      msg.edit({
+
+      const voteYes = data.proposal?.points?.find(
+        (votes: ModelDaoProposalVoteCount) => {
+          return votes.choice === "Yes"
+        }
+      )
+      const voteNo = data.proposal?.points?.find(
+        (votes: ModelDaoProposalVoteCount) => {
+          return votes.choice === "No"
+        }
+      )
+      const voteAbstain = data.proposal?.points?.find(
+        (votes: ModelDaoProposalVoteCount) => {
+          return votes.choice === "Abstain"
+        }
+      )
+      const yesCount = voteYes?.sum ?? 0
+      const noCount = voteNo?.sum ?? 0
+      const absCount = voteAbstain?.sum ?? 0
+      const voteTotal = yesCount + noCount + absCount
+      await msg.edit({
         content: null,
         components: [],
       })
@@ -223,7 +222,7 @@ async function checkExpiredProposal(
         ],
         components: [],
       })
-    }
+    })
   })
 }
 
