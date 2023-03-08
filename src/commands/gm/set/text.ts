@@ -69,7 +69,7 @@ const command: Command = {
   }),
   canRunWithoutAction: true,
   colorType: "Command",
-  minArguments: 3,
+  minArguments: 4,
   onlyAdministrator: true,
 }
 
