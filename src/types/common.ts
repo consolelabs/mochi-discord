@@ -104,6 +104,7 @@ export type SlashCommand = {
   name: string
   category: Category
   onlyAdministrator?: boolean
+  experimental?: boolean
   prepare: (
     slashCommands?: Record<string, SlashCommand>
   ) =>

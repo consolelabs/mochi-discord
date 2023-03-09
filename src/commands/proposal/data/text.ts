@@ -21,6 +21,7 @@ const command: Command = {
   },
   canRunWithoutAction: true,
   colorType: "Server",
+  experimental: true,
 }
 
 export default command

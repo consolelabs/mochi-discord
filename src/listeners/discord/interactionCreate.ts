@@ -66,6 +66,7 @@ import {
   redirectToAddMoreWallet,
 } from "commands/wallet/add/processor"
 import { subscribeCommonwealthDiscussion } from "commands/proposal/track/processor"
+import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -140,6 +141,14 @@ async function handleCommandInteraction(interaction: Interaction) {
       args = interaction.commandName + " " + subcommand
     }
     const gMember = interaction?.guild?.members.cache.get(interaction?.user.id)
+    // if this command is experimental -> only allow it to run inside certain channels
+    if (command.experimental) {
+      const isTextChannel = interaction.channel?.type === "GUILD_TEXT"
+      if (!isTextChannel) return
+      const parentId = interaction.channel.parentId
+      if (!parentId || !EXPERIMENTAL_CATEGORY_CHANNEL_IDS.includes(parentId))
+        return
+    }
     if (command.onlyAdministrator && !hasAdministrator(gMember)) {
       try {
         const kafkaMsg: KafkaQueueMessage = {

@@ -52,7 +52,7 @@ export async function wrapError(
         if (commandKey) {
           const commandObject = commands[commandKey]
           userId = message.author.id
-          commandStr = commandObject.id
+          commandStr = commandObject?.id
           args = message.content
         }
         commandType = "$"
