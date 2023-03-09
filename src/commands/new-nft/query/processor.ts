@@ -9,9 +9,9 @@ import {
   MessageAttachment,
   MessageButton,
   MessageOptions,
+  SelectMenuInteraction,
 } from "discord.js"
-import { MessageComponentTypes } from "discord.js/typings/enums"
-import { APIError } from "errors"
+import { APIError, InternalError } from "errors"
 import {
   ResponseIndexerNFTCollectionTickersData,
   ResponseNftMetadataAttrIcon,
@@ -22,9 +22,13 @@ import {
   composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
+  getSuggestionEmbed,
   justifyEmbedFields,
 } from "ui/discord/embed"
-import { getSuggestionComponents } from "ui/discord/select-menu"
+import {
+  composeSimpleSelection,
+  getSuggestionComponents,
+} from "ui/discord/select-menu"
 import {
   authorFilter,
   capFirst,
@@ -33,20 +37,23 @@ import {
   getCompactFormatedNumber,
   getEmoji,
   getEmojiURL,
+  getMarketplaceCollectionUrl,
   getMarketplaceNftUrl,
   getTimeFromNowStr,
+  hasAdministrator,
   isValidHttpUrl,
   maskAddress,
   roundFloatNumber,
   shortenHashOrAddress,
 } from "utils/common"
 import { DOT } from "utils/constants"
-import { wrapError } from "utils/wrap-error"
 import {
   composeCollectionInfoEmbed,
   composeCollectionSoulboundEmbed,
   formatPriceWeiToEther,
 } from "../processor"
+import { RunResult } from "types/common"
+import { reply } from "utils/discord"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -159,23 +166,6 @@ export function buildSwitchViewActionRow(
   }
 }
 
-export function collectButton(msg: Message, originMsg: Message) {
-  return msg
-    .createMessageComponentCollector({
-      componentType: MessageComponentTypes.BUTTON,
-      idle: 60000,
-      filter: authorFilter(originMsg.author.id),
-    })
-    .on("collect", async (i) => {
-      wrapError(originMsg, async () => {
-        await switchView(i, originMsg)
-      })
-    })
-    .on("end", () => {
-      msg.edit({ components: [] }).catch(() => null)
-    })
-}
-
 async function switchView(i: ButtonInteraction, msg: Message) {
   if (i.customId.startsWith("suggestion-button")) return
   let messageOptions: MessageOptions
@@ -225,7 +215,8 @@ async function switchView(i: ButtonInteraction, msg: Message) {
       )
       break
   }
-  await i.editReply({ ...messageOptions }).catch(() => null)
+  // await i.editReply({ ...messageOptions }).catch(() => null)
+  return { messageOptions }
 }
 
 async function composeCollectionInfo(
@@ -656,7 +647,7 @@ export async function composeNFTDetail(
 }
 
 export async function setDefaultSymbol(i: ButtonInteraction) {
-  const [colAddress, symbol, chain] = i.customId.split("|").slice(1)
+  const [address, symbol, chain] = i.customId.split("|").slice(1)
   if (!i.guildId) {
     return
   }
@@ -664,13 +655,13 @@ export async function setDefaultSymbol(i: ButtonInteraction) {
     guild_id: i.guildId,
     chain,
     symbol,
-    address: colAddress,
+    address,
   })
   const embed = getSuccessEmbed({
     msg: i.message as Message,
     title: "Default NFT symbol ENABLED",
     description: `Next time your server members use $nft with \`${symbol}\`, **${symbol} (${shortenHashOrAddress(
-      colAddress
+      address
     )}/${chain.toUpperCase()})** will be the default selection`,
   })
   i.editReply({
@@ -699,4 +690,239 @@ export function addSuggestionIfAny(
   )
 
   return components ? [components] : []
+}
+
+async function composeResponse(
+  msgOrInteraction: Message,
+  symbol: string,
+  tokenId: string
+) {
+  const nftDetailRes = await community.getNFTDetail(
+    symbol,
+    tokenId,
+    msgOrInteraction.guildId ?? "",
+    false
+  )
+  if (!nftDetailRes.ok) {
+    const { curl, log } = nftDetailRes
+    throw new APIError({ msgOrInteraction, curl, description: log })
+  }
+  const {
+    data: nft,
+    suggestions,
+    default_symbol: defaultCollection,
+  } = nftDetailRes
+
+  // case 1: we have nft data
+  if (nft.collection_address) {
+    const collectionDetailRes = await community.getNFTCollectionDetail({
+      collectionAddress: nft.collection_address,
+      queryAddress: true,
+    })
+    if (!collectionDetailRes.ok) {
+      const { curl, log } = collectionDetailRes
+      throw new APIError({ msgOrInteraction, curl, description: log })
+    }
+    const { data: collection } = collectionDetailRes
+
+    const embed = await composeNFTDetail(
+      nft,
+      msgOrInteraction,
+      collection.name,
+      collection.image,
+      collection.chain?.name
+    )
+    const buttonRow = buildSwitchViewActionRow(
+      "nft",
+      symbol,
+      nft.collection_address,
+      tokenId,
+      collection.chain?.short_name ?? ""
+    )
+    return {
+      messageOptions: {
+        embeds: [embed],
+        components: [...addSuggestionIfAny(symbol, tokenId), buttonRow],
+      },
+      hasSuggestions: true,
+    }
+  }
+
+  // case 2: ambigous symbol BUT guild has default collection
+  if (defaultCollection) {
+    const { name, address, chain } = defaultCollection
+    const messageOptions = await fetchAndComposeNFTDetail(
+      msgOrInteraction,
+      name,
+      address,
+      tokenId,
+      chain
+    )
+    return { messageOptions, defaultCollection }
+  }
+
+  // case 3: ambigous symbol AND no suggestions -> error
+  if (!suggestions?.length) {
+    throw new InternalError({
+      msgOrInteraction,
+      title: "Command Error",
+      description: "The collection does not exist. Please choose another one.",
+    })
+  }
+
+  // case 4: suggestions
+  const suggestionEmbed = getSuggestionEmbed({
+    title: `Multiple results for ${symbol}`,
+    msg: msgOrInteraction,
+    description: `Did you mean one of these instead:\n\n${composeSimpleSelection(
+      (suggestions ?? []).map(
+        (s) =>
+          `[\`${s.chain.toUpperCase()}\` - \`${s.name} (${
+            s.symbol
+          })\`](${getMarketplaceCollectionUrl(s.address)})`
+      )
+    )}`,
+  })
+  const suggestionRow = addSuggestionIfAny(symbol, tokenId, suggestions)
+  return {
+    messageOptions: {
+      embeds: [suggestionEmbed],
+      components: suggestionRow,
+    },
+    hasSuggestions: true,
+  }
+}
+
+function suggestionHandler(
+  msg: Message,
+  defaultCollection: NFTSymbol | undefined
+) {
+  const handler = async (
+    i: SelectMenuInteraction
+  ): Promise<RunResult<MessageOptions>> => {
+    const [address, tokenId, symbol, chain, hasDuplicatedSymbols] =
+      i.values[0].split("/")
+    const shouldAskDefault =
+      hasAdministrator(msg.member) &&
+      !defaultCollection &&
+      hasDuplicatedSymbols === "true"
+    await (shouldAskDefault
+      ? i.deferReply({ ephemeral: true })
+      : i.deferUpdate())
+    const nftDetailRes = await community.getNFTDetail(
+      address,
+      tokenId,
+      msg.guildId ?? "",
+      true
+    )
+    if (!nftDetailRes.ok) {
+      const { curl, log } = nftDetailRes
+      throw new APIError({ msgOrInteraction: msg, curl, description: log })
+    }
+    const { data: nft, suggestions } = nftDetailRes
+
+    const collectionDetailRes = await community.getNFTCollectionDetail({
+      collectionAddress: address,
+      queryAddress: true,
+    })
+    if (!collectionDetailRes.ok) {
+      const { curl, log } = collectionDetailRes
+      throw new APIError({ msgOrInteraction: msg, curl, description: log })
+    }
+    const { data: collection } = collectionDetailRes
+    if (!nft) {
+      const embed = composeEmbedMessage(null, {
+        title: collection.name ?? "NFT Query",
+        description: "The token is being synced",
+      })
+      return { messageOptions: { embeds: [embed] } }
+    }
+
+    const response: RunResult<MessageOptions> = {
+      messageOptions: {
+        embeds: [
+          await composeNFTDetail(
+            nft,
+            msg,
+            collection.name,
+            collection.image,
+            collection.chain?.name
+          ),
+        ],
+        components: [
+          ...addSuggestionIfAny(symbol, tokenId, suggestions),
+          buildSwitchViewActionRow(
+            "nft",
+            symbol,
+            collection.address,
+            tokenId,
+            collection.chain?.short_name ?? ""
+          ),
+        ],
+      },
+      selectMenuCollector: { handler },
+    }
+
+    // set default
+    if (shouldAskDefault) await askToSetDefault(i, address, symbol, chain)
+    return response
+  }
+  return handler
+}
+
+async function askToSetDefault(
+  i: SelectMenuInteraction,
+  address: string,
+  symbol: string,
+  chain: string
+) {
+  const actionRow = new MessageActionRow().addComponents(
+    new MessageButton({
+      customId: `confirm_symbol|${address}|${symbol}|${chain}`,
+      emoji: getEmoji("approve"),
+      style: "SUCCESS",
+      label: "Confirm",
+    })
+  )
+  const ephemeral = await i
+    .editReply({
+      embeds: [
+        composeEmbedMessage(null, {
+          title: "Set default NFT symbol",
+          description: `Do you want to set **${symbol}** as your server's default NFT collection?\nNo further selection next time use \`$nft ${symbol}\``,
+        }),
+      ],
+      components: [actionRow],
+    })
+    .then((m) => m as Message)
+    .catch(() => null)
+  ephemeral
+    ?.createMessageComponentCollector({
+      componentType: "BUTTON",
+      filter: authorFilter(i.user.id),
+      max: 1,
+    })
+    .on("collect", async (i) => {
+      await i.deferUpdate()
+      await setDefaultSymbol(i)
+    })
+}
+
+export async function queryNft(msg: Message, symbol: string, tokenId: string) {
+  const { messageOptions, hasSuggestions, defaultCollection } =
+    await composeResponse(msg, symbol, tokenId)
+  const selectMenuHandler = suggestionHandler(msg, defaultCollection)
+
+  const buttonHandler = async (i: ButtonInteraction) => ({
+    ...(await switchView(i, msg)),
+    buttonCollector: { handler: buttonHandler },
+  })
+  const response: RunResult<MessageOptions> = {
+    messageOptions,
+    ...(hasSuggestions && {
+      selectMenuCollector: { handler: selectMenuHandler },
+    }),
+    buttonCollector: { handler: buttonHandler },
+  }
+  reply(msg, response)
 }

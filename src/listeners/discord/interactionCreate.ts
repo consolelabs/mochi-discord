@@ -15,12 +15,25 @@ import {
   handleProposalForm,
   handleProposalVote,
 } from "commands/proposal/processor"
+import { subscribeCommonwealthDiscussion } from "commands/proposal/track/processor"
 import {
   handleBackToQuestList,
   handleClaimReward,
 } from "commands/quest/daily/processor"
 import { handleTickerViews } from "commands/ticker/index/processor"
 import { sendVerifyURL } from "commands/verify/processor"
+import {
+  addWallet,
+  redirectToAddMoreWallet,
+} from "commands/wallet/add/processor"
+import {
+  removeWallet,
+  removeWalletConfirmation,
+} from "commands/wallet/remove/processor"
+import {
+  handleWalletRenaming,
+  viewWallet,
+} from "commands/wallet/view/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
 import {
   ButtonInteraction,
@@ -53,20 +66,6 @@ import {
 } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
-import {
-  viewWallet,
-  handleWalletRenaming,
-} from "commands/wallet/view/processor"
-import {
-  removeWallet,
-  removeWalletConfirmation,
-} from "commands/wallet/remove/processor"
-import {
-  addWallet,
-  redirectToAddMoreWallet,
-} from "commands/wallet/add/processor"
-import { subscribeCommonwealthDiscussion } from "commands/proposal/track/processor"
-import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -262,7 +261,6 @@ async function handleCommandInteraction(interaction: Interaction) {
         render,
       } = response
       const multipleEmbed = getMultipleResultEmbed({
-        msg: null,
         ambiguousResultText,
         multipleResultText,
       })

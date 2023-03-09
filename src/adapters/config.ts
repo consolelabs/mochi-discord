@@ -813,7 +813,6 @@ class Config extends Fetcher {
 
   public async setGuildDefaultNFTTicker(req: {
     guild_id: string
-    query: string
     collection_address: string
     symbol: string
     chain_id: number

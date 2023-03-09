@@ -116,7 +116,7 @@ export async function composeCollectionInfoEmbed(
     chain
   )
   if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl, description: log })
   }
   if (!data) {
     throw new InternalError({

@@ -322,7 +322,6 @@ async function executeCommand(
         render,
       } = runResponse
       const multipleEmbed = getMultipleResultEmbed({
-        msg: message,
         ambiguousResultText,
         multipleResultText,
       })

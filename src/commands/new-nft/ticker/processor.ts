@@ -1,3 +1,6 @@
+import community from "adapters/community"
+import config from "adapters/config"
+import dayjs from "dayjs"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -5,37 +8,40 @@ import {
   Message,
   MessageActionRow,
   MessageAttachment,
+  MessageButton,
   MessageOptions,
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { MultipleResult, RunResult } from "types/common"
+import { APIError, InternalError } from "errors"
+import { InteractionHandler } from "handlers/discord/select-menu"
+import {
+  ResponseIndexerNFTCollectionTickersData,
+  ResponseIndexerPrice,
+} from "types/api"
+import { RunResult } from "types/common"
+import { renderChartImage, renderPlotChartImage } from "ui/canvas/chart"
+import { getExitButton } from "ui/discord/button"
 import {
   composeEmbedMessage,
-  getErrorEmbed,
+  getMultipleResultEmbed,
+  getSuccessEmbed,
   justifyEmbedFields,
 } from "ui/discord/embed"
-import community from "adapters/community"
 import {
+  composeDaysSelectMenu,
+  composeDiscordSelectionRow,
+} from "ui/discord/select-menu"
+import {
+  authorFilter,
   emojis,
+  getAuthor,
   getCompactFormatedNumber,
   getEmoji,
   getEmojiURL,
   roundFloatNumber,
 } from "utils/common"
-import { renderChartImage, renderPlotChartImage } from "ui/canvas/chart"
-import dayjs from "dayjs"
-import { APIError } from "errors"
-import {
-  ResponseIndexerNFTCollectionTickersData,
-  ResponseIndexerPrice,
-} from "types/api"
-import { InternalError } from "errors"
-import config from "adapters/config"
-import { InteractionHandler } from "handlers/discord/select-menu"
-import { getDefaultSetter } from "utils/default-setters"
-import { getExitButton } from "ui/discord/button"
-import { composeDaysSelectMenu } from "ui/discord/select-menu"
+import { reply } from "utils/discord"
 import {
   buildSwitchViewActionRow,
   composeCollectionInfoEmbed,
@@ -59,15 +65,10 @@ export async function handleNFTTickerViews(interaction: ButtonInteraction) {
   const [collectionAddress, chain, days] = interaction.customId
     .split("-")
     .slice(1)
-  await interaction.deferUpdate().catch(() => null)
-  if (interaction.user.id !== originAuthorId) {
-    return
-  }
   if (interaction.customId.startsWith("nft_ticker_view_chart")) {
-    await viewTickerChart(msg, { collectionAddress, chain, days })
-    return
+    return await viewTickerChart(msg, { collectionAddress, chain, days })
   }
-  await viewTickerInfo(msg, { collectionAddress, chain })
+  return await viewTickerInfo(msg, { collectionAddress, chain })
 }
 
 async function viewTickerChart(
@@ -82,7 +83,8 @@ async function viewTickerChart(
     ...(days && { days: +days }),
     chartStyle: ChartStyle.Plot,
   })
-  await msg.edit(messageOptions)
+  return { messageOptions }
+  // await msg.edit(messageOptions)
 }
 
 async function viewTickerInfo(
@@ -95,8 +97,9 @@ async function viewTickerInfo(
     collectionAddress,
     chain
   )
-  await msg.edit(messageOptions)
-  await msg.removeAttachments()
+  return { messageOptions: { ...messageOptions, files: [] } }
+  // await msg.edit(messageOptions)
+  // await msg.removeAttachments()
 }
 
 async function composeCollectionTickerEmbed({
@@ -245,10 +248,10 @@ async function composeCollectionTickerEmbed({
       embeds: [justifyEmbedFields(embed, 3)],
       components: [selectRow, buttonRow],
     },
-    interactionOptions: {
+    selectMenuCollector: {
       handler: handler(chartStyle),
     },
-  }
+  } as RunResult<MessageOptions>
 }
 
 async function renderNftTickerChart({
@@ -377,13 +380,10 @@ const handler: (chartStyle: ChartStyle) => InteractionHandler =
 export async function handleNftTicker(
   msg: Message | CommandInteraction,
   symbol: string,
-  authorId: string,
   chartStyle: ChartStyle
-): Promise<
-  RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
-> {
-  originAuthorId = authorId
-
+) {
+  symbol = symbol.toUpperCase()
+  originAuthorId = getAuthor(msg).id
   const {
     data: suggestions,
     ok,
@@ -392,28 +392,30 @@ export async function handleNftTicker(
   } = await community.getNFTCollectionSuggestions(symbol)
   if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
   if (!suggestions.length) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            title: "Collection not found",
-            description: `The collection hasn't been supported.\n${getEmoji(
-              "POINTINGRIGHT"
-            )} Please choose one in the supported \`$nft list\`.\n${getEmoji(
-              "POINTINGRIGHT"
-            )} To add your NFT, run \`$nft add\`.`,
-          }),
-        ],
-      },
-    }
-  }
-  if (suggestions.length === 1) {
-    return await composeCollectionTickerEmbed({
-      msg,
-      collectionAddress: suggestions[0].address ?? "",
-      chain: suggestions[0].chain ?? "",
-      chartStyle,
+    const pointingright = getEmoji("pointingright")
+    throw new InternalError({
+      msgOrInteraction: msg,
+      title: "Collection not found",
+      description: `The collection hasn't been supported.\n${pointingright} Please choose one in the supported \`$nft list\`.\n${pointingright} To add your NFT, run \`$nft add\`.`,
     })
+  }
+
+  const buttonHandler = async (i: ButtonInteraction) => ({
+    ...(await handleNFTTickerViews(i)),
+    buttonCollector: { handler: buttonHandler },
+  })
+  if (suggestions.length === 1) {
+    const response = {
+      ...(await composeCollectionTickerEmbed({
+        msg,
+        collectionAddress: suggestions[0].address ?? "",
+        chain: suggestions[0].chain ?? "",
+        chartStyle,
+      })),
+      buttonCollector: { handler: buttonHandler },
+    }
+    reply(msg, response)
+    return
   }
 
   // if default ticker was set then respond
@@ -427,12 +429,17 @@ export async function handleNftTicker(
     getDefaultRes.data.chain_id
   ) {
     const { address, chain_id } = getDefaultRes.data
-    return await composeCollectionTickerEmbed({
-      msg,
-      collectionAddress: address,
-      chain: chain_id,
-      chartStyle,
-    })
+    const response = {
+      ...(await composeCollectionTickerEmbed({
+        msg,
+        collectionAddress: address,
+        chain: chain_id,
+        chartStyle,
+      })),
+      buttonCollector: { handler: buttonHandler },
+    }
+    reply(msg, response)
+    return
   }
 
   const options = suggestions.flatMap((s: any) => {
@@ -446,51 +453,110 @@ export async function handleNftTicker(
   })
 
   if (!options.length) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            title: "Collection not found",
-            description:
-              "The collection is not supported yet. Please contact us for the support. Thank you!",
-          }),
-        ],
-      },
-    }
+    throw new InternalError({
+      msgOrInteraction: msg,
+      title: "Collection not found",
+      description:
+        "The collection is not supported yet. Please contact us for the support. Thank you!",
+    })
   }
 
-  // render embed to show multiple results
-  return {
-    select: {
-      options,
-      placeholder: "Select a ticker",
+  // suggestions
+  const multipleResultText = suggestions
+    .map((s) => `**${s.name}** (${s.symbol})`)
+    .join(", ")
+  const multipleEmbed = getMultipleResultEmbed({
+    ambiguousResultText: symbol,
+    multipleResultText,
+  })
+  const selectRow = composeDiscordSelectionRow({
+    customId: `mutliple-results-${msg.id}`,
+    options,
+    placeholder: "Select a ticker",
+  })
+
+  const response: RunResult<MessageOptions> = {
+    messageOptions: {
+      embeds: [multipleEmbed],
+      components: [selectRow],
     },
-    onDefaultSet: async (i) => {
-      const [query, name, symbol, collectionAddress, chainId] =
-        i.customId.split("_")
-      getDefaultSetter({
-        updateAPI: config.setGuildDefaultNFTTicker.bind(config, {
-          guild_id: i.guildId ?? "",
-          query,
-          symbol,
-          collection_address: collectionAddress,
-          chain_id: +chainId,
-        }),
-        description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
-      })(i)
+    selectMenuCollector: {
+      handler: async (i) => {
+        await i.deferReply({ ephemeral: true })
+        const [name, symbol, collectionAddress, chain, chainId] = i.values[0]
+          .split("_")
+          .slice(1)
+        const res: RunResult<MessageOptions> =
+          await composeCollectionTickerEmbed({
+            msg,
+            collectionAddress,
+            chain,
+            chartStyle,
+          })
+        await askToSetDefault(i, name, symbol, collectionAddress, chainId)
+        return res
+      },
     },
-    render: ({ msgOrInteraction: msg, value }) => {
-      const [, , , collectionAddress, chain] = value.split("_")
-      return composeCollectionTickerEmbed({
-        msg,
-        collectionAddress,
-        chain,
-        chartStyle,
-      })
+    buttonCollector: {
+      handler: buttonHandler,
     },
-    ambiguousResultText: symbol.toUpperCase(),
-    multipleResultText: suggestions
-      .map((s) => `**${s.name}** (${s.symbol})`)
-      .join(", "),
   }
+  reply(msg, response)
+}
+
+async function askToSetDefault(
+  i: SelectMenuInteraction,
+  name: string,
+  symbol: string,
+  address: string,
+  chainId: string
+) {
+  const actionRow = new MessageActionRow().addComponents(
+    new MessageButton({
+      customId: `confirm-default_${name}_${symbol}_${address}_${chainId}`,
+      emoji: getEmoji("approve"),
+      style: "SUCCESS",
+      label: "Confirm",
+    })
+  )
+  const ephemeral = await i
+    .editReply({
+      embeds: [
+        composeEmbedMessage(null, {
+          title: "Set default NFT symbol",
+          description: `Do you want to set **${symbol}** as the default value for this command?\nNo further selection next time use command`,
+        }),
+      ],
+      components: [actionRow],
+    })
+    .then((m) => m as Message)
+    .catch(() => null)
+  ephemeral
+    ?.createMessageComponentCollector({
+      componentType: "BUTTON",
+      filter: authorFilter(i.user.id),
+      max: 1,
+    })
+    .on("collect", async (i) => {
+      await i.deferUpdate()
+      await setDefaultNFTTicker(i)
+    })
+}
+
+async function setDefaultNFTTicker(i: ButtonInteraction) {
+  const [name, symbol, collectionAddress, chainId] = i.customId
+    .split("_")
+    .slice(1)
+  await config.setGuildDefaultNFTTicker({
+    guild_id: i.guildId ?? "",
+    symbol,
+    collection_address: collectionAddress,
+    chain_id: +chainId,
+  })
+  const embed = getSuccessEmbed({
+    msg: i.message as Message,
+    title: "Default NFT ticker ENABLED",
+    description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
+  })
+  await i.editReply({ embeds: [embed], components: [] }).catch(() => null)
 }
