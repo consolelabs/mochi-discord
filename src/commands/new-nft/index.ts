@@ -61,7 +61,7 @@ const textCmd: Command = {
 
 const slashActions: Record<string, SlashCommand> = {
   add: addSlash,
-  integrate: integrateSlash,
+  // integrate: integrateSlash,
   stats: statsSlash,
   ticker: tickerSlash,
 }

@@ -1,7 +1,8 @@
 import { CommandInteraction, Message, MessageOptions, User } from "discord.js"
+import _ from "lodash"
 import { RunResult } from "types/common"
 import { authorFilter, getAuthor } from "./common"
-import _ from "lodash"
+import { wrapError } from "./wrap-error"
 
 export async function awaitMessage({
   msg,
@@ -81,14 +82,14 @@ function collectComponentInteraction(
         ...buttonCollector.options,
       })
       .on("collect", async (i) => {
-        await i.deferUpdate()
-        const response = await buttonCollector.handler(i)
-        if (!response) return
-        const payload = getMessageReplyPayload(response)
-        const edited = await msg.edit(payload)
-        if (response.buttonCollector) {
+        wrapError(null, async () => {
+          await i.deferUpdate().catch(() => null)
+          const response = await buttonCollector.handler(i)
+          if (!response) return
+          const payload = getMessageReplyPayload(response)
+          const edited = await msg.edit(payload)
           collectComponentInteraction(edited, response, author)
-        }
+        })
       })
   }
 
@@ -101,14 +102,13 @@ function collectComponentInteraction(
         ...selectMenuCollector.options,
       })
       .on("collect", async (i) => {
-        await i.deferUpdate()
-        const response = await selectMenuCollector.handler(i)
-        if (!response) return
-        const payload = getMessageReplyPayload(response)
-        const edited = await msg.edit(payload)
-        if (response.selectMenuCollector) {
+        wrapError(null, async () => {
+          const response = await selectMenuCollector.handler(i)
+          if (!response) return
+          const payload = getMessageReplyPayload(response)
+          const edited = await msg.edit(payload)
           collectComponentInteraction(edited, response, author)
-        }
+        })
       })
   }
 }

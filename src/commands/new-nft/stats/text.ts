@@ -1,26 +1,28 @@
 import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { composeNFTListEmbed } from "./processor"
+import { handleNftStats } from "./processor"
 
 const command: Command = {
-  id: "nft_recent",
-  command: "recent",
-  brief: "Show list of newly added NFTs",
+  id: "nft_stats",
+  command: "stats",
+  brief: "show total collections added",
   category: "Community",
-  run: async () => {
-    const msgOpts = await composeNFTListEmbed(0)
-    return msgOpts
+  run: async function (msg) {
+    await handleNftStats(msg)
+    return null
   },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}nft recent`,
+        usage: `${PREFIX}nft stats`,
+        examples: `${PREFIX}nft stats`,
       }),
     ],
   }),
   canRunWithoutAction: true,
   colorType: "Market",
+  minArguments: 2,
 }
 
 export default command

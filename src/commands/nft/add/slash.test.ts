@@ -1,14 +1,14 @@
-import { slashCommands } from "commands"
 import { CommandInteraction, MessageEmbed, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
 import * as processor from "./processor"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
+import nft from ".."
 jest.mock("adapters/community")
 
 describe("run", () => {
   let i: CommandInteraction
-  const nftCmd = slashCommands["nft"]
+  const nftCmd = nft.slashCmd
 
   beforeEach(() => (i = mockdc.cloneCommandInteraction()))
 

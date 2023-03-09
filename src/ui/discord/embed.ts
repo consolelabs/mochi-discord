@@ -27,15 +27,13 @@ export const EMPTY_FIELD = {
 }
 
 export function getMultipleResultEmbed({
-  msg,
   ambiguousResultText,
   multipleResultText,
 }: {
-  msg: Message | null
   ambiguousResultText: string
   multipleResultText: string
 }) {
-  return composeEmbedMessage(msg, {
+  return composeEmbedMessage(null, {
     title: `${getEmoji("MAG")} Multiple results found`,
     description: `Relevant results found for \`${ambiguousResultText}\`${
       multipleResultText ? `: ${multipleResultText}` : ""

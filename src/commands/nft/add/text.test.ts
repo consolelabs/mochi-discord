@@ -1,22 +1,21 @@
-import { commands } from "commands"
 import { Message, MessageEmbed, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
 import { assertRunResult } from "../../../../tests/assertions/discord"
+import nft from ".."
 jest.mock("adapters/community")
 
 describe("run", () => {
   let msg: Message
-  const commandKey = "nft"
   const commandAction = "add"
   if (
-    !commands[commandKey] ||
-    !commands[commandKey].actions ||
-    !commands[commandKey].actions[commandAction]
+    !nft.textCmd ||
+    !nft.textCmd.actions ||
+    !nft.textCmd.actions[commandAction]
   )
     return
-  const nftCmd = commands[commandKey].actions[commandAction]
+  const nftCmd = nft.textCmd.actions[commandAction]
 
   beforeEach(() => (msg = mockdc.cloneMessage()))
 
