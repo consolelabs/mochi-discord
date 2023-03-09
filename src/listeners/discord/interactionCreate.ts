@@ -66,6 +66,7 @@ import {
 } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
+import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
