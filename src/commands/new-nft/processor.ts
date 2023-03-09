@@ -108,6 +108,9 @@ export async function composeCollectionInfoEmbed(
   collectionAddress: string,
   chain: string
 ) {
+  if (chain == "sol" || chain == "999") {
+    collectionAddress = "solscan-" + collectionAddress
+  }
   const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
     collectionAddress,
     chain
