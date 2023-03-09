@@ -581,8 +581,8 @@ export async function composeNFTDetail(
         tx.to_address === undefined ? "-" : maskAddress(tx.to_address, 5)
       const time = getTimeFromNowStr(tx.created_time ?? "")
       return `**${
-        txHistoryEmojiMap[event!.toLowerCase()] ?? DOT
-      }** ${capitalizeFirst(event!)} ${soldPriceAmount} ${
+        txHistoryEmojiMap[event?.toLowerCase() ?? ""] ?? DOT
+      }** ${capitalizeFirst(event ?? "")} ${soldPriceAmount} ${
         tx.sold_price_obj?.token?.symbol
       } to ${toAddress} (${time})`
     })
