@@ -53,7 +53,8 @@ import levelmessage from "./level-message"
 import levelrole from "./level-role"
 import log from "./log"
 import moniker from "./moniker"
-import nft from "./nft"
+// import nft from "./nft"
+import nft from "./new-nft"
 import nftrole from "./nft-role"
 import poe from "./poe"
 import profile from "./profile"
@@ -321,7 +322,6 @@ async function executeCommand(
         render,
       } = runResponse
       const multipleEmbed = getMultipleResultEmbed({
-        msg: message,
         ambiguousResultText,
         multipleResultText,
       })
