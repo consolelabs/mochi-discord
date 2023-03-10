@@ -1,11 +1,6 @@
 import { Message, SelectMenuInteraction } from "discord.js"
 import config from "adapters/config"
-import {
-  APIError,
-  CommandArgumentError,
-  GuildIdNotFoundError,
-  InternalError,
-} from "errors"
+import { APIError, CommandArgumentError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { getEmoji, isAddress, msgColors } from "utils/common"
@@ -76,6 +71,34 @@ const command: Command = {
               )} Type # to see the channel list.\n${getEmoji(
                 "pointingright"
               )} To add a new channel: 1. Create channel → 2. Confirm`,
+            }),
+          ],
+        },
+      }
+    }
+
+    const supportedChains = await config.getAllChains()
+    const chainCurrencies = supportedChains.map(
+      (chain: { currency: string }) => {
+        return chain.currency.toUpperCase()
+      }
+    )
+    const chainIds = supportedChains.map((chain: { id: string }) => {
+      return chain.id
+    })
+
+    const isValidChain =
+      chainIds.includes(chainIds) ||
+      chainCurrencies.includes(chain.toUpperCase())
+
+    if (!chain || !isValidChain) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              title: `${getEmoji("revoke")} Unsupported chain`,
+              description:
+                "The chain hasn't been supported. Take a look at our supported chain by `$token list`",
             }),
           ],
         },
@@ -181,12 +204,14 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
     ],
     components: [],
   })
+
   const filter = (collected: Message) =>
     collected.author.id === interaction.user.id
   const collected = await interaction.channel?.awaitMessages({
     max: 1,
     filter,
   })
+
   const amountStr = collected?.first()?.content?.trim() ?? ""
   const amount = parseFloat(amountStr)
   if (isNaN(amount) || amount <= 0) {
@@ -200,7 +225,8 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       },
     }
   }
-  const { ok, log, curl, error } = await config.createProposalChannel({
+
+  const proposalResp = await config.createProposalChannel({
     guild_id: interaction.guildId || "",
     channel_id: channelId,
     authority: "token_holder",
@@ -209,23 +235,45 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
     address: contract,
     required_amount: amount,
   })
-  if (!ok) {
-    switch (error) {
-      case "Invalid token contract":
-        throw new InternalError({
-          title: `${getEmoji("revoke")} Invalid Contract`,
-          description:
-            "Can't find the token contract. Please choose the valid one!",
-        })
-      case "Invalid chain":
-        throw new InternalError({
-          title: `${getEmoji("revoke")} Unsupported network`,
-          description: `${getEmoji(
-            "pointingright"
-          )} Only tokens on EVM, Polygon, and Solana are supported. You can choose one of these networks.`,
-        })
+
+  if (!proposalResp.ok) {
+    switch (proposalResp.error) {
+      case "Invalid token contract 400":
+        return {
+          messageOptions: {
+            embeds: [
+              getErrorEmbed({
+                title: `${getEmoji("revoke")} Invalid Contract`,
+                description:
+                  "Can't find the token contract. Please choose the valid one!",
+              }),
+            ],
+          },
+        }
+      case "Invalid chain 400":
+        return {
+          messageOptions: {
+            embeds: [
+              getErrorEmbed({
+                title: `${getEmoji("revoke")} Unsupported network`,
+                description: `${getEmoji(
+                  "pointingright"
+                )} Only tokens on EVM, Polygon, and Solana are supported. You can choose one of these networks.`,
+              }),
+            ],
+          },
+        }
       default:
-        throw new APIError({ curl, description: log })
+        return {
+          messageOptions: {
+            embeds: [
+              getErrorEmbed({
+                title: `${getEmoji("revoke")} Internal Error`,
+                description: proposalResp.error,
+              }),
+            ],
+          },
+        }
     }
   }
 
