@@ -1,5 +1,5 @@
 import { Client, CommandInteraction, Message, TextChannel } from "discord.js"
-import { MOCHI_GUILD_ID, USAGE_TRACKING_CHANNEL_ID } from "env"
+import { CONSOLE_LAB_GUILD_ID, USAGE_TRACKING_CHANNEL_ID } from "env"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getAuthor } from "utils/common"
 import { wrapError } from "utils/wrap-error"
@@ -9,7 +9,7 @@ export class UsageTrackerLogger {
 
   ready(client: Client) {
     wrapError(null, async () => {
-      const guild = client.guilds.cache.get(MOCHI_GUILD_ID)
+      const guild = client.guilds.cache.get(CONSOLE_LAB_GUILD_ID)
       if (guild) {
         this.logChannel = guild.channels.cache.get(
           USAGE_TRACKING_CHANNEL_ID
