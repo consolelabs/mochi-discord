@@ -200,23 +200,23 @@ async function selectCollection(
   await i.editReply(replyPayload).catch(() => null)
 }
 
-function buildXPbar(name: string, value: number) {
-  const cap = Math.ceil(value / 1000) * 1000
-  const list = new Array(7).fill(getEmoji("faction_exp_2"))
-  list[0] = getEmoji("faction_exp_1")
-  list[list.length - 1] = getEmoji("faction_exp_3")
+// function buildXPbar(name: string, value: number) {
+//   const cap = Math.ceil(value / 1000) * 1000
+//   const list = new Array(7).fill(getEmoji("faction_exp_2"))
+//   list[0] = getEmoji("faction_exp_1")
+//   list[list.length - 1] = getEmoji("faction_exp_3")
 
-  return `${list
-    .map((_, i) => {
-      if (Math.floor((value / cap) * 7) >= i + 1) {
-        return i === 0
-          ? getEmoji(`${name}_exp_1`, true)
-          : getEmoji(`${name}_exp_2`, true)
-      }
-      return _
-    })
-    .join("")}\n\`${value}/${cap}\``
-}
+//   return `${list
+//     .map((_, i) => {
+//       if (Math.floor((value / cap) * 7) >= i + 1) {
+//         return i === 0
+//           ? getEmoji(`${name}_exp_1`, true)
+//           : getEmoji(`${name}_exp_2`, true)
+//       }
+//       return _
+//     })
+//     .join("")}\n\`${value}/${cap}\``
+// }
 
 async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   const {
@@ -239,8 +239,8 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   const highestRole = roles.highest.name !== "@everyone" ? roles.highest : null
   const activityStr = `\`${userProfile.nr_of_actions}\``
   const rankStr = `${getEmoji("trophy")} \`#${userProfile.guild_rank ?? 0}\``
-  const { academy_xp, imperial_xp, merchant_xp, rebellio_xp } =
-    userProfile.user_faction_xps ?? {}
+  // const { academy_xp, imperial_xp, merchant_xp, rebellio_xp } =
+  //   userProfile.user_faction_xps ?? {}
 
   const embed = composeEmbedMessage(null, {
     thumbnail: user.displayAvatarURL(),
@@ -263,31 +263,31 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
     },
     EMPTY_FIELD,
     { name: "Total XP", value: xpStr, inline: true },
-    { name: "Activities", value: activityStr, inline: true },
-    EMPTY_FIELD,
-    EMPTY_FIELD,
-    {
-      name: `\u200B\n✦ APPELLATION ✦\n\n${getEmoji("imperial")} Nobility`,
-      value: buildXPbar("imperial", imperial_xp ?? 0),
-      inline: true,
-    },
-    EMPTY_FIELD,
-    {
-      name: `\u200B\n\n\n${getEmoji("rebelio")} Fame`,
-      value: buildXPbar("rebelio", rebellio_xp ?? 0),
-      inline: true,
-    },
-    {
-      name: `${getEmoji("mercanto")} Loyalty`,
-      value: buildXPbar("mercanto", merchant_xp ?? 0),
-      inline: true,
-    },
-    EMPTY_FIELD,
-    {
-      name: `${getEmoji("academia")} Reputation`,
-      value: buildXPbar("academia", academy_xp ?? 0) + "\n\u200B",
-      inline: true,
-    }
+    { name: "Activities", value: activityStr, inline: true }
+    // EMPTY_FIELD,
+    // EMPTY_FIELD,
+    // {
+    //   name: `\u200B\n✦ APPELLATION ✦\n\n${getEmoji("imperial")} Nobility`,
+    //   value: buildXPbar("imperial", imperial_xp ?? 0),
+    //   inline: true,
+    // },
+    // EMPTY_FIELD,
+    // {
+    //   name: `\u200B\n\n\n${getEmoji("rebelio")} Fame`,
+    //   value: buildXPbar("rebelio", rebellio_xp ?? 0),
+    //   inline: true,
+    // },
+    // {
+    //   name: `${getEmoji("mercanto")} Loyalty`,
+    //   value: buildXPbar("mercanto", merchant_xp ?? 0),
+    //   inline: true,
+    // },
+    // EMPTY_FIELD,
+    // {
+    //   name: `${getEmoji("academia")} Reputation`,
+    //   value: buildXPbar("academia", academy_xp ?? 0) + "\n\u200B",
+    //   inline: true,
+    // }
   )
   setProfileFooter(embed)
   return {
