@@ -35,7 +35,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
     const embed = composeEmbedMessage(null, {
       color: embedsColors.Profile,
       title: "You already have verified a wallet address",
-      description: `\`\`\`${reverifyRes.data.address}\`\`\`\nIf you want to change your address, [click here](${WEBSITE_ENDPOINT}/verify?code=${reverifyRes.data.code}) to re-verify.`,
+      description: `\`\`\`${data?.address}\`\`\`\nIf you want to change your address, [click here](${WEBSITE_ENDPOINT}/verify?code=${reverifyRes.data.code}) to re-verify.`,
     })
     await interaction.editReply({ embeds: [embed] }).catch(() => null)
     return
