@@ -758,6 +758,19 @@ export interface ModelUserTelegramDiscordAssociation {
   telegram_username?: string;
 }
 
+export interface ModelUserTokenSupportRequest {
+  channel_id?: string;
+  created_at?: string;
+  id?: number;
+  message_id?: string;
+  status?: string;
+  token_address?: string;
+  token_chain_id?: number;
+  token_name?: string;
+  updated_at?: string;
+  user_discord_id?: string;
+}
+
 export interface ModelUserWallet {
   address?: string;
   chain_type?: ModelJSONNullString;
@@ -992,6 +1005,15 @@ export interface RequestCreateUserRequest {
   invited_by?: string;
   nickname?: string;
   username?: string;
+}
+
+export interface RequestCreateUserTokenSupportRequest {
+  channel_id: string;
+  message_id: string;
+  token_address: string;
+  token_chain: string;
+  token_name: string;
+  user_discord_id: string;
 }
 
 export interface RequestDeleteDiscordUserAlertRequest {
@@ -1488,6 +1510,10 @@ export interface ResponseCreateTradeOfferResponse {
 
 export interface ResponseCreateTwitterSaleConfigResponse {
   data?: ModelSaleBotTwitterConfig;
+}
+
+export interface ResponseCreateUserTokenSupportRequest {
+  data?: ModelUserTokenSupportRequest;
 }
 
 export interface ResponseCurrentUserUpvoteStreakResponse {
