@@ -34,7 +34,9 @@ export function parseTickerQuery(q: string) {
     isCompare = true
     isFiat = allowedFiats.includes(base) && allowedFiats.includes(target)
   } else {
-    const fiatBase = allowedFiats.find((f) => q.startsWith(f))
+    const fiatBase = allowedFiats.find((f) => {
+      q.startsWith(f)
+    })
     if (fiatBase) {
       base = fiatBase
       target = q.substring(base.length) || "usd"
