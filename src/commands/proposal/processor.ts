@@ -519,7 +519,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
         embeds: [
           getErrorEmbed({
             title: "Insufficient token amount",
-            description: `You need to own ${wData.vote_config.required_amount} **${wData.vote_config.symbol}** to vote for the proposal. `,
+            description: `You need to own **${wData.vote_config.symbol}** to vote for the proposal. `,
           }),
         ],
       })
