@@ -1,6 +1,7 @@
 import { userMention } from "@discordjs/builders"
 import defi from "adapters/defi"
 import mochiPay from "adapters/mochi-pay"
+import mochiTelegram from "adapters/mochi-telegram"
 import profile from "adapters/profile"
 import {
   CommandInteraction,
@@ -13,6 +14,7 @@ import {
 import { MessageButtonStyles } from "discord.js/typings/enums"
 import { APIError, InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import { logger } from "logger"
 import { ResponseMonikerConfigData } from "types/api"
 import { RunResult } from "types/common"
 import { EMPTY_FIELD, composeEmbedMessage } from "ui/discord/embed"
@@ -43,7 +45,7 @@ export async function parseMessageTip(args: string[]) {
     throw new APIError({ description: log, curl })
   }
   let tokenIdx = -1
-  if (data && Array.isArray(data) && data.length !== 0) {
+  if (data && Array.isArray(data) && data.length) {
     data.forEach((token: any) => {
       const idx = args.findIndex(
         (element) => element.toLowerCase() === token.token_symbol.toLowerCase()
@@ -94,10 +96,17 @@ async function getTipPayload(
   const recipients: string[] = []
   for (const [i, target] of targets.entries()) {
     const recipientPf = await profile.getByTelegram(target)
+    if (recipientPf.status_code === 404) {
+      throw new InternalError({
+        msgOrInteraction: msg,
+        title: "Username not found",
+        description: `We couldn't find username or id \`${target}\`. Check the username you entered or try again.`,
+      })
+    }
     if (recipientPf.err) {
       throw new APIError({
         msgOrInteraction: msg,
-        description: `[getByTelegram] API error with status ${recipientPf.status_code}`,
+        description: `[getByTelegram] failed with status ${recipientPf.status_code}: ${recipientPf.err}`,
         curl: "",
       })
     }
@@ -232,9 +241,7 @@ async function confirmToTip(
           i.customId.startsWith("confirm_tip") && i.user.id === author.id,
         max: 1,
       },
-      handler: async () => {
-        return await execute(msg, payload)
-      },
+      handler: () => execute(msg, payload),
     },
     selectMenuCollector: {
       options: {
@@ -269,13 +276,33 @@ export async function execute(
   msgOrInteraction: Message | CommandInteraction,
   payload: any
 ): Promise<RunResult<MessageOptions>> {
-  const transferRes = await mochiPay.transfer(payload)
-  if (transferRes?.err) {
+  const { status: transferStatus } = await mochiPay.transfer(payload)
+  if (transferStatus !== 200) {
     throw new APIError({
       msgOrInteraction,
       curl: "",
-      description: `[transfer] failed with status ${transferRes?.status_code}`,
+      description: `[transfer] failed with status ${transferStatus}`,
     })
+  }
+  const sendTelegramRes = await mochiTelegram.sendMessage({
+    from: {
+      platform: "discord",
+      username: getAuthor(msgOrInteraction).username,
+    },
+    to: {
+      platform: "telegram",
+      username: payload.recipients[0],
+    },
+    token: payload.token,
+    amount: `${payload.originalAmount}`,
+    message: payload.note,
+  })
+  if (sendTelegramRes.error) {
+    logger.error(
+      `[telegram.sendMessage] failed with error: ${JSON.stringify(
+        sendTelegramRes.error
+      )}`
+    )
   }
   const embed = composeEmbedMessage(null, {
     author: ["You've given a tip", getEmojiURL(emojis.TIP)],
