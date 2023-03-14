@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { getCommandArguments } from "utils/commands"
 import { getEmoji, thumbnails } from "utils/common"
 import {
   DEFI_DEFAULT_FOOTER,
@@ -10,6 +11,7 @@ import {
 } from "utils/constants"
 import tipSlash from "./index/slash"
 import tip from "./index/text"
+import tipTelegram from "./telegram/text"
 
 const getHelpMessage = async (isSLash?: boolean) => {
   const prefix = isSLash ? SLASH_PREFIX : PREFIX
@@ -49,7 +51,21 @@ const textCmd: Command = {
   command: "tip",
   brief: "Tip Bot",
   category: "Defi",
-  run: tip,
+  run: async (msg) => {
+    const args = getCommandArguments(msg)
+    const telPrefixes = ["tg@", "tg:", "t.me/"]
+    const telPrefix = telPrefixes.find((p) =>
+      args[1].toLowerCase().startsWith(p)
+    )
+    // tip telegram
+    if (telPrefix) {
+      args[1] = args[1].replace(telPrefix, "") // remove prefix tg@
+      await tipTelegram(msg, args)
+      return
+    }
+    // tip discord
+    await tip(msg)
+  },
   featured: {
     title: `${getEmoji("tip")} Tip`,
     description: "Send coins to a user or a group of users",

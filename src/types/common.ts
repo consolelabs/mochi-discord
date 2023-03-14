@@ -60,7 +60,7 @@ export type RunResult<T = MessageOptions | MessageEditOptions> = {
   selectMenuCollector?: {
     handler: (
       i: SelectMenuInteraction
-    ) => Promise<RunResult<MessageOptions>> | Promise<void>
+    ) => Promise<RunResult<MessageOptions> | undefined> | Promise<void>
     options?: MessageCollectorOptionsParams<"SELECT_MENU">
   }
 }
