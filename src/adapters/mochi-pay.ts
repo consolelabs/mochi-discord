@@ -8,7 +8,13 @@ class MochiPay extends Fetcher {
       method: "POST",
       body: JSON.stringify(req),
     })
-    return await res?.json()
+    if (res.status !== 200) {
+      return { status: res.status }
+    }
+    return {
+      status: 200,
+      data: await res?.json(),
+    }
   }
 }
 

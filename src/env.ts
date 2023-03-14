@@ -70,5 +70,8 @@ export const MOCHI_PROFILE_API_SERVER_HOST =
   "https://api.mochi-profile.console.so"
 
 export const MOCHI_PAY_API_SERVER_HOST =
-  process.env.MOCHI_PAY_API_SERVER_HOST ||
-  "https://api-develop.mochi-pay.console.so"
+  process.env.MOCHI_PAY_API_SERVER_HOST || "https://api.mochi-pay.console.so"
+
+export const MOCHI_TELEGRAM_API_SERVER_HOST =
+  process.env.MOCHI_TELEGRAM_API_SERVER_HOST ||
+  "https://api.mochi-telegram.console.so"
