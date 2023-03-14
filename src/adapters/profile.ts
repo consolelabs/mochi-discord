@@ -3,8 +3,13 @@ import {
   GetUserNFTCollectionResponse,
   GetUserNFTsResponse,
 } from "types/profile"
-import { API_BASE_URL, INDEXER_API_BASE_URL } from "utils/constants"
+import {
+  API_BASE_URL,
+  INDEXER_API_BASE_URL,
+  MOCHI_PROFILE_API_BASE_URL,
+} from "utils/constants"
 import { Fetcher } from "./fetcher"
+import fetch from "node-fetch"
 
 class Profile extends Fetcher {
   public async getUser({ discordId }: { discordId?: string }) {
@@ -84,6 +89,20 @@ class Profile extends Fetcher {
       `${INDEXER_API_BASE_URL}/nft`,
       { query }
     )
+  }
+
+  public async getByDiscord(discordId: string) {
+    const res = await fetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}`
+    )
+    return await res?.json()
+  }
+
+  public async getByTelegram(telegramId: string) {
+    const res = await fetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-telegram/${telegramId}`
+    )
+    return await res?.json()
   }
 }
 

@@ -324,9 +324,9 @@ async function confirmToTip(
     title: `${getEmoji("TIP")} Transaction Confirmation`,
     description: `Are you sure you want to spend **${
       payload.amount
-    } ${payload.token.toUpperCase()}** (${(payload.amount * rate).toFixed(
+    } ${payload.token.toUpperCase()}** ($${(payload.amount * rate).toFixed(
       2
-    )} USD) to tip ${
+    )}) to tip ${
       recipientIds.length == 1
         ? `<@${recipientIds[0]}>`
         : recipientIds.length + " users"

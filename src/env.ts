@@ -64,3 +64,11 @@ export const KAFKA_PRODUCER_TOPIC =
   process.env.KAFKA_PRODUCER_TOPIC || "mochiDiscord.dev"
 
 export const FTMSCAN_API_KEY = process.env.FTMSCAN_API_KEY || ""
+
+export const MOCHI_PROFILE_API_SERVER_HOST =
+  process.env.MOCHI_PROFILE_API_SERVER_HOST ||
+  "https://api.mochi-profile.console.so"
+
+export const MOCHI_PAY_API_SERVER_HOST =
+  process.env.MOCHI_PAY_API_SERVER_HOST ||
+  "https://api-develop.mochi-pay.console.so"

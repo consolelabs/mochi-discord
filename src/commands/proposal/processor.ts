@@ -142,7 +142,9 @@ export async function handleProposalCreate(i: ButtonInteraction) {
       embeds: [
         composeEmbedMessage(null, {
           title: `${getEmoji("MAIL")} ${proposalTitle.toUpperCase()}`,
-          description: `${proposalDesc}\n\nVoting will close at: <t:${proposalExpireIn}>`,
+          description: `${proposalDesc}\n\nVoting will close at: <t:${
+            proposalExpireIn ?? 0
+          }>`,
         }),
       ],
       components: [actionRow],
@@ -333,7 +335,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
   let durationSeconds = 0 // seconds vote available
   // duration ends in hH or dD
   if (proposalDuration.includes("h")) {
-    const hours = parseInt(
+    const hours = parseFloat(
       proposalDuration.slice(0, proposalDuration.length - 1)
     )
     proposalExpireIn = (
@@ -342,7 +344,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
     ).toString()
     durationSeconds = hours * 3600
   } else {
-    const days = parseInt(
+    const days = parseFloat(
       proposalDuration.slice(0, proposalDuration.length - 1)
     )
     proposalExpireIn = (
@@ -517,7 +519,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
         embeds: [
           getErrorEmbed({
             title: "Insufficient token amount",
-            description: `You need to own ${wData.vote_config.required_amount} **${wData.vote_config.symbol}** to vote for the proposal. `,
+            description: `You need to own **${wData.vote_config.symbol}** to vote for the proposal. `,
           }),
         ],
       })
