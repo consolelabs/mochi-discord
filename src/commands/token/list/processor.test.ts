@@ -1,35 +1,19 @@
 import * as processor from "./processor"
-import Config from "adapters/config"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import { getEmoji, msgColors } from "utils/common"
-import { APIError } from "errors"
 import { MessageEmbed } from "discord.js"
-jest.mock("adapters/config")
+import defi from "adapters/defi"
+
+jest.mock("adapters/defi")
 
 describe("handleTokenList", () => {
   beforeEach(() => jest.clearAllMocks())
 
-  test("API Error when call getGuildTokens", async () => {
-    const getGuildTokensRes = {
-      data: [],
-      ok: false,
-      curl: "",
-      log: "",
-    }
-    const { curl, log } = getGuildTokensRes
-    Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
-    await expect(processor.handleTokenList("guildId")).rejects.toThrow(
-      new APIError({ curl, description: log })
-    )
-  })
-
   test("No tokens found", async () => {
-    const getGuildTokensRes = {
-      data: [],
+    const res = {
       ok: true,
-      curl: "",
-      log: "",
+      data: [],
     }
     const expected = composeEmbedMessage(null, {
       title: "No token found",
@@ -38,28 +22,28 @@ describe("handleTokenList", () => {
       )} To add more token to the list, use \`$token add\``,
       color: msgColors.SUCCESS,
     })
-    Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
-    const output = await processor.handleTokenList("guildId")
+    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(res)
+    const output = await processor.handleTokenList()
     assertRunResult(output, { messageOptions: { embeds: [expected] } })
   })
 
   test("guild tokens found", async () => {
-    const getGuildTokensRes = {
+    const res = {
+      ok: true,
       data: [
         {
-          id: 1,
-          address: "",
-          symbol: "ftm",
-          chain_id: 1,
-          decimal: 10,
-          discord_bot_supported: true,
-          coin_gecko_id: "ftm",
-          name: "Fantom",
+          id: "72f399b6-755b-41f1-8a49-6673a1e6fda5",
+          token_id: "45",
+          token_name: "FTM",
+          token_symbol: "FTM",
+          icon: "https://ftmscan.com/token/images/stabl33_32.png",
+          status: 1,
+          created_at: "2023-01-11T10:33:54.871164Z",
+          updated_at: "2023-01-11T10:33:54.871164Z",
+          coin_gecko_id: "FTM",
+          service_fee: 0,
         },
       ],
-      ok: true,
-      curl: "",
-      log: "",
     }
     const expected = {
       color: msgColors.PINK,
@@ -72,8 +56,8 @@ describe("handleTokenList", () => {
         },
       ],
     } as unknown as MessageEmbed
-    Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
-    const output = await processor.handleTokenList("guildId")
+    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(res)
+    const output = await processor.handleTokenList()
     assertRunResult(output, { messageOptions: { embeds: [expected] } })
   })
 })

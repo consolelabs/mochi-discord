@@ -27,7 +27,7 @@ describe("run", () => {
       .spyOn(processor, "handleTokenList")
       .mockResolvedValueOnce(expected as any)
     const output = await tokenCmd?.actions?.["list"].run(msg)
-    expect(processor.handleTokenList).toBeCalledWith(msg.guildId)
+    expect(processor.handleTokenList).toBeCalled()
     assertRunResult(output as any, expected as any)
   })
 })
