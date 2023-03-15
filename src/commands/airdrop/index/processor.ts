@@ -271,10 +271,11 @@ export async function handleAirdrop(
   if (all) payload.amount = balance
 
   const tokenEmoji = getEmoji(payload.token)
+  const usdAmount = (usdBalance / balance) * payload.amount
   const amountDescription = `${tokenEmoji} **${roundFloatNumber(
     payload.amount,
     4
-  )} ${payload.token}** (\u2248 $${roundFloatNumber(usdBalance, 4)})`
+  )} ${payload.token}** (\u2248 $${roundFloatNumber(usdAmount, 4)})`
 
   const describeRunTime = (duration = 0) => {
     const hours = Math.floor(duration / 3600)
@@ -315,7 +316,7 @@ export async function handleAirdrop(
         composeAirdropButtons(
           author.id,
           payload.amount,
-          usdBalance,
+          usdAmount,
           payload.token,
           payload.duration ?? 0,
           payload.opts?.maxEntries ?? 0
@@ -342,14 +343,23 @@ function getAirdropOptions(args: string[]) {
       .split(" ")[0]
     options.duration = parse(timeStr) / 1000
   }
+  // catch error duration invalid, exp: $airdrop 1 ftm in a
+  if (content.includes("in") && durationIdx === -1) {
+    options.duration = 0
+  }
 
   const maxEntriesReg = /for\s+\d+/
   const maxEntriesIdx = content.search(maxEntriesReg)
   if (maxEntriesIdx !== -1) {
-    options.maxEntries = +content
+    const entries = +content
       .substring(maxEntriesIdx)
       .replace(/for\s+/, "")
       .split(" ")[0]
+    options.maxEntries = entries === 0 ? -1 : entries
+  }
+
+  if (content.includes("for") && [0, -1].includes(maxEntriesIdx)) {
+    options.maxEntries = -1
   }
   return options
 }
@@ -400,6 +410,24 @@ export async function getAirdropPayload(
   }
 
   const opts = getAirdropOptions(newArgs)
+  // check valid duration
+  if (opts.duration === 0) {
+    throw new DiscordWalletTransferError({
+      discordId: author.id,
+      message: msg,
+      error: "The duration is invalid. Please insert a valid duration.",
+    })
+  }
+
+  // check valid entries
+  if (opts.maxEntries === -1) {
+    throw new DiscordWalletTransferError({
+      discordId: author.id,
+      message: msg,
+      error:
+        "The max entries number is invalid. Please insert a positive number.",
+    })
+  }
   return {
     sender: author.id,
     recipients,
