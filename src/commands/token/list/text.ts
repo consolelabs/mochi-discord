@@ -6,7 +6,7 @@ import { handleTokenList } from "./processor"
 const command: Command = {
   id: "list_server_token",
   command: "list",
-  brief: "View your server's tokens list",
+  brief: "View your Mochi supported tokens list",
   category: "Community",
   run: async (msg) => {
     if (!msg.guildId) {
@@ -21,7 +21,7 @@ const command: Command = {
         },
       }
     }
-    return await handleTokenList(msg.guildId)
+    return await handleTokenList()
   },
   getHelpMessage: async (msg) => ({
     embeds: [

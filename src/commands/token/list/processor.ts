@@ -1,20 +1,18 @@
-import { RunResult } from "types/common"
-import { Token } from "types/defi"
-import { getEmoji, msgColors } from "utils/common"
-import { composeEmbedMessage } from "ui/discord/embed"
-import Config from "../../../adapters/config"
-import chunk from "lodash/chunk"
+import defi from "adapters/defi"
 import { MessageOptions } from "discord.js"
 import { APIError } from "errors"
+import chunk from "lodash/chunk"
+import { ModelOffchainTipBotToken } from "types/api"
+import { RunResult } from "types/common"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { getEmoji, msgColors } from "utils/common"
 
-export async function handleTokenList(
-  guildId: string
-): Promise<RunResult<MessageOptions>> {
-  const { data: gTokens, ok, curl, log } = await Config.getGuildTokens(guildId)
+export async function handleTokenList(): Promise<RunResult<MessageOptions>> {
+  const { data, ok, curl, error, log } = await defi.getAllTipBotTokens()
   if (!ok) {
-    throw new APIError({ curl, description: log })
+    throw new APIError({ curl, error, description: log })
   }
-  if (!gTokens || !gTokens.length)
+  if (!data.length)
     return {
       messageOptions: {
         embeds: [
@@ -28,12 +26,18 @@ export async function handleTokenList(
         ],
       },
     }
-  const data = gTokens.map((token: Token) => {
-    const tokenEmoji = getEmoji(token.symbol)
-    return `${tokenEmoji} **${token.symbol.toUpperCase()}**`
+
+  // currently available, remove when fully support
+  const spTokens = ["ftm", "sol", "icy", "butt", "eth", "fbomb", "mclb"]
+  const supportedToken = data.filter((token: ModelOffchainTipBotToken) => {
+    return spTokens.includes((token.token_symbol ?? "").toLowerCase())
+  })
+  const tokens = supportedToken.map((token: ModelOffchainTipBotToken) => {
+    const tokenEmoji = getEmoji(token.token_symbol ?? "")
+    return `${tokenEmoji} **${(token.token_symbol ?? "").toUpperCase()}**`
   })
 
-  const fields = chunk(chunk(data, 10), 3).flatMap((row, i) => {
+  const fields = chunk(chunk(tokens, 10), 3).flatMap((row, i) => {
     return row.flatMap((c) => ({
       name: "\u200b",
       value: c.join("\n"),
