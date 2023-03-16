@@ -426,6 +426,38 @@ class Defi extends Fetcher {
       }
     )
   }
+
+  async requestSupportToken(body: {
+    user_discord_id: string
+    channel_id: string
+    message_id: string
+    token_name: string
+    token_address: string
+    token_chain: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/token-support`, {
+      method: "POST",
+      body,
+    })
+  }
+
+  async approveTokenSupport(requestId: number) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/defi/token-support/${requestId}/approve`,
+      {
+        method: "PUT",
+      }
+    )
+  }
+
+  async rejectTokenSupport(requestId: number) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/defi/token-support/${requestId}/reject`,
+      {
+        method: "PUT",
+      }
+    )
+  }
 }
 
 export default new Defi()

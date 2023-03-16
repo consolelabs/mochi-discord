@@ -1,8 +1,9 @@
 import { Command } from "types/common"
 import { GuildIdNotFoundError } from "errors"
 import { PREFIX } from "utils/constants"
-import * as processor from "./processor"
+import { process } from "./processor"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { getCommandArguments } from "utils/commands"
 
 const command: Command = {
   id: "add_server_token",
@@ -14,7 +15,16 @@ const command: Command = {
     if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
     }
-    return await processor.handleTokenAdd(msg, msg.guildId, msg.author.id)
+    const args = getCommandArguments(msg)
+    const [token_name, token_address, token_chain] = args.slice(2)
+    return await process(msg, {
+      user_discord_id: msg.author.id,
+      channel_id: msg.channelId,
+      message_id: msg.id,
+      token_name,
+      token_address,
+      token_chain,
+    })
   },
   getHelpMessage: async (msg) => ({
     embeds: [

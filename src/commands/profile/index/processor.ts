@@ -34,7 +34,7 @@ import {
   reverseLookup,
   shortenHashOrAddress,
 } from "utils/common"
-import { SPACE, chainExplorerBaseUrls } from "utils/constants"
+import { SPACE, CHAIN_EXPLORER_BASE_URLS } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
 
 // @anhnh TODO: all of this need to be refactored
@@ -356,7 +356,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
       const tokens = nfts
         .map((nft) =>
           chainId
-            ? `[\`#${nft.token_id}\`](${chainExplorerBaseUrls[chainId]}/token/${address}?a=${nft.token_id})`
+            ? `[\`#${nft.token_id}\`](${CHAIN_EXPLORER_BASE_URLS[chainId]}/token/${address}?a=${nft.token_id})`
             : `\`${nft.token_id}\``
         )
         .join(", ")

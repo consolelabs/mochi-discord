@@ -32,6 +32,7 @@ import {
 } from "commands/wallet/remove/processor"
 import {
   handleWalletRenaming,
+  navigateWalletViews,
   viewWallet,
 } from "commands/wallet/view/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
@@ -67,6 +68,10 @@ import {
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
+import {
+  handleTokenApprove,
+  handleTokenReject,
+} from "commands/token/add/processor"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -399,6 +404,9 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("wallet_view_details-"):
       await viewWallet(i)
       return
+    case i.customId.startsWith("wl_my_"):
+      await navigateWalletViews(i)
+      return
     case i.customId.startsWith("wallet_rename-"):
       await handleWalletRenaming(i)
       return
@@ -416,6 +424,12 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("proposal_join_thread_commonwealth"):
       await subscribeCommonwealthDiscussion(i)
+      return
+    case i.customId.startsWith("token-request-approve"):
+      await handleTokenApprove(i)
+      return
+    case i.customId.startsWith("token-request-reject"):
+      await handleTokenReject(i)
       return
     default: {
       return
