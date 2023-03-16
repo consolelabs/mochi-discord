@@ -7,7 +7,6 @@ import {
   User,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
-import { getExitButton } from "ui/discord/button"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import {
   emojis,
@@ -84,6 +83,7 @@ export async function removeWallet(i: ButtonInteraction) {
 }
 
 export async function removeWalletConfirmation(i: ButtonInteraction) {
+  await (i.message as Message).edit({ components: [] })
   if (!i.customId.startsWith("wallet_remove_confirmation-")) return
   const [userId, address, alias] = i.customId.split("-").slice(1)
   if (i.user.id !== userId) {
@@ -103,7 +103,12 @@ export async function removeWalletConfirmation(i: ButtonInteraction) {
       style: "DANGER",
       label: "Remove",
     }),
-    getExitButton(userId, "Cancel")
+    new MessageButton({
+      customId: `exit-${userId}`,
+      emoji: getEmoji("revoke"),
+      style: "SECONDARY",
+      label: "Cancel",
+    })
   )
   await i.editReply({ embeds: [embed], components: [buttonRow] })
 }
