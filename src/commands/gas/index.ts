@@ -42,7 +42,7 @@ const slashCmd: SlashCommand = {
       .setDescription("Gas Tracker")
       .addStringOption((option) =>
         option
-          .setName("gas")
+          .setName("chain")
           .setDescription("gas price of many networks")
           .setRequired(false)
       )

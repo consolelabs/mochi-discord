@@ -1578,6 +1578,20 @@ export interface ResponseDiscordUserTokenAlertResponse {
   data?: ModelDiscordUserTokenAlert[];
 }
 
+export interface ResponseGasTrackerResponse {
+  chain?: string;
+  est_fast_time?: string;
+  est_propose_time?: string;
+  est_safe_time?: string;
+  fast_gas_price?: string;
+  propose_gas_price?: string;
+  safe_gas_price?: string;
+}
+
+export interface ResponseGasTrackerResponseData {
+  data?: ResponseGasTrackerResponse[];
+}
+
 export interface ResponseGenerateVerificationResponse {
   code?: string;
   status?: string;

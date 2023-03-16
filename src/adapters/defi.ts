@@ -462,6 +462,10 @@ class Defi extends Fetcher {
   async getGasTracker() {
     return await this.jsonFetch(`${API_BASE_URL}/defi/gas-tracker`)
   }
+
+  async getChainGasTracker(chain: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/gas-tracker/${chain}`)
+  }
 }
 
 export default new Defi()

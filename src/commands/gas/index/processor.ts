@@ -69,3 +69,52 @@ export async function render() {
     },
   }
 }
+
+export async function renderOne(chain: string) {
+  const { data, ok, curl, error, log } = await defi.getChainGasTracker(chain)
+  if (!ok) {
+    throw new APIError({ curl, error, description: log })
+  }
+  if (!data)
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "No token found",
+            description: `${getEmoji(
+              "POINTINGRIGHT"
+            )} Currently no token gas found`,
+            color: msgColors.SUCCESS,
+          }),
+        ],
+      },
+    }
+
+  const fields = [
+    {
+      name: `${getEmoji(data.chain)} ${data.chain} TX`,
+      value: `${getEmoji("slow")} Slow - ${ConvertSecondToMinute(
+        data.est_safe_time
+      )} \`${data.safe_gas_price} Gwei\`\n${getEmoji(
+        "normal"
+      )} Normal - ${ConvertSecondToMinute(data.est_propose_time)} \`${
+        data.propose_gas_price
+      } Gwei\`\n${getEmoji("fast")} Fast - ${ConvertSecondToMinute(
+        data.est_fast_time
+      )} \`${data.fast_gas_price} Gwei\``,
+      inline: true,
+    },
+  ]
+
+  return {
+    messageOptions: {
+      embeds: [
+        {
+          color: msgColors.BLUE,
+          title: `Gas Prices`,
+          fields,
+        },
+      ],
+    },
+  }
+}
