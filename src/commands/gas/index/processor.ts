@@ -2,6 +2,7 @@ import defi from "adapters/defi"
 import { getEmoji, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { ConvertSecondToMinute } from "utils/time"
 
 export async function render() {
   const { data, ok, curl, error, log } = await defi.getGasTracker()
@@ -26,13 +27,15 @@ export async function render() {
   const res = data.map((token: any) => {
     return {
       name: `${getEmoji(token.chain)} ${token.chain} TX`,
-      value: `${getEmoji("slow")} Slow - ${token.est_safe_time} \`${
-        token.safe_gas_price
-      } Gwei\`\n${getEmoji("normal")} Normal - ${token.est_propose_time} \`${
+      value: `${getEmoji("slow")} Slow - ${ConvertSecondToMinute(
+        token.est_safe_time
+      )} \`${token.safe_gas_price} Gwei\`\n${getEmoji(
+        "normal"
+      )} Normal - ${ConvertSecondToMinute(token.est_propose_time)} \`${
         token.propose_gas_price
-      } Gwei\`\n${getEmoji("fast")} Fast - ${token.est_fast_time} \`${
-        token.fast_gas_price
-      } Gwei\``,
+      } Gwei\`\n${getEmoji("fast")} Fast - ${ConvertSecondToMinute(
+        token.est_fast_time
+      )} \`${token.fast_gas_price} Gwei\``,
       inline: true,
     }
   })
