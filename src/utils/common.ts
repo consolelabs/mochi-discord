@@ -96,6 +96,8 @@ export const tokenEmojis: Record<string, string> = {
   SUI: "1077132420500951081",
   FBOMB: "1079669535117938788",
   MCLB: "1079669537408036955",
+  BSC: "972205674715054090",
+  POL: "1037985931816349746",
 }
 
 export const numberEmojis: Record<string, string> = {
@@ -272,6 +274,9 @@ export const emojis: { [key: string]: string } = {
   COIN2: "1058304288448852069",
   NFT2: "1080788646841557072",
   BIN: "1078633887292477450",
+  SLOW: "1085777459875696690",
+  NORMAL: "1058304356421730424",
+  FAST: "1085777392552910959",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
