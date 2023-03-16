@@ -1,9 +1,10 @@
 import { commands } from "commands"
-import { Message } from "discord.js"
+import { Message, MessageOptions } from "discord.js"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { getSuccessEmbed } from "ui/discord/embed"
 import { assertRunResult } from "../../../../tests/assertions/discord"
+import { RunResult } from "types/common"
 
 describe("run", () => {
   let msg: Message
@@ -12,31 +13,33 @@ describe("run", () => {
   beforeEach(() => (msg = mockdc.cloneMessage()))
 
   test("command run with enough args", async () => {
-    msg.content = "$token add"
+    const token_name = "xsushi"
+    const token_address = "0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272"
+    const token_chain = "eth"
+    msg.content = `$token add ${token_name} ${token_address} ${token_chain}`
     const expected = {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(null, {
-            title: "Need action",
+          getSuccessEmbed({
+            title: `Your Token submission is successful`,
             description:
-              "Select to add one of the following tokens to your server.",
+              "Thank you for submitting your token request!\nWe will review and update you on the approval status as quickly as possible.",
           }),
         ],
-        components: [undefined, undefined],
-      },
-      interactionOptions: {
-        handler: () => null,
       },
     }
-    jest
-      .spyOn(processor, "handleTokenAdd")
-      .mockResolvedValueOnce(expected as any)
+    jest.spyOn(processor, "process").mockResolvedValueOnce(expected)
+
     const output = await tokenCmd?.actions?.["add"].run(msg)
-    expect(processor.handleTokenAdd).toBeCalledWith(
-      msg,
-      msg.guildId,
-      msg.author.id
-    )
-    assertRunResult(output as any, expected as any)
+
+    expect(processor.process).toBeCalledWith(msg, {
+      user_discord_id: msg.author.id,
+      channel_id: msg.channelId,
+      message_id: msg.id,
+      token_name,
+      token_address,
+      token_chain,
+    })
+    assertRunResult(output as RunResult<MessageOptions>, expected)
   })
 })
