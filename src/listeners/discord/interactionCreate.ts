@@ -32,6 +32,7 @@ import {
 } from "commands/wallet/remove/processor"
 import {
   handleWalletRenaming,
+  navigateWalletViews,
   viewWallet,
 } from "commands/wallet/view/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
@@ -402,6 +403,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("wallet_view_details-"):
       await viewWallet(i)
+      return
+    case i.customId.startsWith("wl_my_"):
+      await navigateWalletViews(i)
       return
     case i.customId.startsWith("wallet_rename-"):
       await handleWalletRenaming(i)

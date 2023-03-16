@@ -64,6 +64,7 @@ export async function redirectToAddMoreWallet(i: ButtonInteraction) {
 }
 
 export async function addWallet(i: ButtonInteraction) {
+  await (i.message as Message).edit({ components: [] })
   if (!i.customId.startsWith("wallet_add-")) return
   const [userId, address] = i.customId.split("-").slice(1)
   if (i.user.id !== userId) {
@@ -96,6 +97,16 @@ export async function renameWallet(
   const { first, content } = await awaitMessage({
     authorId: userId,
     msg: reply as Message,
+    timeout: 60000,
+    timeoutResponse: {
+      embeds: [
+        composeEmbedMessage(null, {
+          title: "Timeout!",
+          description:
+            "You can rename wallet later in `$wallet view <address>`",
+        }),
+      ],
+    },
   })
   const skipped = content.toLowerCase() === "cancel"
   const alias = skipped ? "" : content

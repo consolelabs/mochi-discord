@@ -231,7 +231,7 @@ export const BSCSCAN_API = "https://api.bscscan.com/api"
 export const ETHSCAN_API = "https://api.etherscan.io/api"
 export const POLYGONSCAN_API = "https://api.polygonscan.com/api"
 
-export const chainExplorerBaseUrls: Record<string, string> = {
+export const CHAIN_EXPLORER_BASE_URLS: Record<string, string> = {
   "0": "https://solscan.io",
   "1": "https://etherscan.io",
   "56": "https://bscscan.com",
