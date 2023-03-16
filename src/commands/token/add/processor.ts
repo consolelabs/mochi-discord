@@ -1,4 +1,5 @@
 import {
+  ButtonInteraction,
   CommandInteraction,
   Message,
   MessageOptions,
@@ -6,7 +7,12 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { MultipleResult, RunResult } from "types/common"
-import { InternalError, GuildIdNotFoundError, APIError } from "errors"
+import {
+  InternalError,
+  GuildIdNotFoundError,
+  APIError,
+  OriginalMessage,
+} from "errors"
 import { Token } from "types/defi"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { InteractionHandler } from "handlers/discord/select-menu"
@@ -15,6 +21,33 @@ import Defi from "../../../adapters/defi"
 import * as SelectMenuUtil from "ui/discord/select-menu"
 import * as ButtonUtil from "ui/discord/button"
 
+export async function process(
+  msg: OriginalMessage,
+  args: {
+    user_discord_id: string
+    channel_id: string
+    message_id: string
+    token_name: string
+    token_address: string
+    token_chain: string
+  }
+) {
+  const { ok, error, log, curl } = await Defi.requestSupportToken(args)
+  if (!ok) {
+    throw new APIError({ msgOrInteraction: msg, error, curl, description: log })
+  }
+  return {
+    messageOptions: {
+      embeds: [
+        getSuccessEmbed({
+          title: "Your Token submission is successful",
+          description:
+            "Thank you for submitting your token request!\nWe will review and update you on the approval status as quickly as possible.",
+        }),
+      ],
+    },
+  }
+}
 const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
@@ -40,6 +73,36 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       ],
       components: [],
     },
+  }
+}
+
+export async function handleTokenApprove(i: ButtonInteraction) {
+  await i.deferUpdate()
+  const id = i.customId.split("-").pop()
+  if (!id || Number.isNaN(+id) || !Number.isInteger(+id)) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      description: "invalid request id",
+    })
+  }
+  const { ok, error, log, curl } = await Defi.approveTokenSupport(+id)
+  if (!ok) {
+    throw new APIError({ msgOrInteraction: i, error, curl, description: log })
+  }
+}
+
+export async function handleTokenReject(i: ButtonInteraction) {
+  await i.deferUpdate()
+  const id = i.customId.split("-").pop()
+  if (!id || Number.isNaN(+id) || !Number.isInteger(+id)) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      description: "invalid request id",
+    })
+  }
+  const { ok, error, log, curl } = await Defi.rejectTokenSupport(+id)
+  if (!ok) {
+    throw new APIError({ msgOrInteraction: i, error, curl, description: log })
   }
 }
 
