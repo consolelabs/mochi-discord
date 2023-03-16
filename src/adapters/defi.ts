@@ -458,6 +458,10 @@ class Defi extends Fetcher {
       }
     )
   }
+
+  async getGasTracker() {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/gas-tracker`)
+  }
 }
 
 export default new Defi()
