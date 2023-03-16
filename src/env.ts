@@ -75,3 +75,6 @@ export const MOCHI_PAY_API_SERVER_HOST =
 export const MOCHI_TELEGRAM_API_SERVER_HOST =
   process.env.MOCHI_TELEGRAM_API_SERVER_HOST ||
   "https://api.mochi-telegram.console.so"
+
+export const GAME_STORE_API_SERVER_HOST =
+  process.env.GAME_STORE_API_SERVER_HOST || "https://game-store-api.console.so"

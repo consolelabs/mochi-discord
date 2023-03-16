@@ -173,6 +173,11 @@ const fiatEmojis: Record<string, string> = {
   GBP: "1044548789433802762",
 }
 
+const gameEmojis: Record<string, string> = {
+  TRIPOD: "1084678363895042069",
+  HUNGERGAME: "1084678567616585799",
+}
+
 export const emojis: { [key: string]: string } = {
   GOOD_MORNING: "967285238306840576",
   REVOKE: "967285238055174195",
@@ -286,6 +291,7 @@ export const emojis: { [key: string]: string } = {
   ...progressEmojis,
   ...factionEmojis,
   ...fiatEmojis,
+  ...gameEmojis,
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
