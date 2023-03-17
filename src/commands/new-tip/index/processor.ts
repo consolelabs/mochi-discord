@@ -46,6 +46,7 @@ import { KafkaQueueActivityCommand } from "types/common"
 import profile from "adapters/profile"
 
 import { GetActivityContent } from "utils/activity"
+import { logger } from "../../../logger"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -214,7 +215,7 @@ export async function tip(
         ),
       ])
     } catch (error) {
-      console.error("[KafkaQueue] - failed to enqueue")
+      logger.error("[KafkaQueue] - failed to enqueue")
     }
   }
 
