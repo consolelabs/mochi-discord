@@ -104,6 +104,12 @@ class Profile extends Fetcher {
     )
     return await res?.json()
   }
+
+  public async getUserActivities(profileId: string) {
+    return await this.jsonFetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/activities`
+    )
+  }
 }
 
 export default new Profile()
