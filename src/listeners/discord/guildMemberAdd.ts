@@ -16,6 +16,7 @@ import webhook from "adapters/webhook"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { renderChartImage } from "ui/canvas/chart"
 import { getChartColorConfig } from "ui/canvas/color"
+import { HOMEPAGE_URL } from "utils/constants"
 
 const event: DiscordEvent<"guildMemberAdd"> = {
   name: "guildMemberAdd",
@@ -209,7 +210,7 @@ async function sendDMToUser(guildName: string, inviteeID: string) {
               description: `Type \`$help\` in ${guildName} server or read this Instruction on [Gitbook](https://app.gitbook.com/s/nJ8qX0cEj5ph125HugiB/~/changes/SoXaDd3kMCfyXNQDOZ9f/getting-started/permission-and-prefix) to get to know all our features. Now, let us walk you through some of Mochi Bot main functions:\n
               - **Crypto management:** Managing your crypto portfolio.
               - **NFT Rarity Ranking & Volume:** Tracking and managing your favorite NFT collections.
-              - **Server Administration:** Building and managing your own community on Discord (For server owners only. Want to use these features? [Install Mochi Bot to your server now!](https://getmochi.co/))
+              - **Server Administration:** Building and managing your own community on Discord (For server owners only. Want to use these features? [Install Mochi Bot to your server now!](${HOMEPAGE_URL}))
               \nRemember to use our feature, you need to place \`$\` or \`/\` in every command. Now, back to ${guildName} server, start with $help, and try our features!!!`,
             }),
           ],

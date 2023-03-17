@@ -1,5 +1,6 @@
 import { ModelToken, ResponseListGuildTokenRoles } from "types/api"
 import { getEmoji, shortenHashOrAddress } from "utils/common"
+import { HOMEPAGE_URL } from "utils/constants"
 
 export function list({ data }: ResponseListGuildTokenRoles) {
   if (data?.length === 0) {
@@ -16,7 +17,7 @@ export function list({ data }: ResponseListGuildTokenRoles) {
       token?.chain?.short_name
         ? ` (${token.chain.short_name.toUpperCase()})`
         : ""
-    }\`](https://getmochi.co/)`
+    }\`](${HOMEPAGE_URL})`
   }
 
   const description = data
