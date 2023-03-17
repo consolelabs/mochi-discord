@@ -292,7 +292,7 @@ export const emojis: { [key: string]: string } = {
   ACTIVITY_CASH: "1058304283642167319",
   ACTIVITY_COIN: "1058304290927685682",
   ACTIVITY_HEART: "1058304328370225162",
-  ACTIVITY_CLOCK: "1058304328370225162",
+  ACTIVITY_CLOCK: "1080757110146605086",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

@@ -3,18 +3,8 @@ import { getEmoji, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { ActionTypeToEmoji, PlatformTypeToEmoji } from "utils/activity"
-
+import { MessageEmbed } from "discord.js"
 export async function render(userDiscordId: string) {
-  // const { dataProfile, okProfile, curlProfile, errorProfile, logProfile } =
-  //   await profile.getByDiscord(userDiscordId)
-  // console.log("check dataProfile: ", dataProfile)
-  // if (!okProfile) {
-  //   throw new APIError({
-  //     curl: curlProfile,
-  //     error: errorProfile,
-  //     description: logProfile,
-  //   })
-  // }
   const dataProfile = await profile.getByDiscord(userDiscordId)
   if (dataProfile.err) {
     throw new APIError({
@@ -65,25 +55,27 @@ export async function render(userDiscordId: string) {
     const activity = data[i]
     const actionEmoji = ActionTypeToEmoji(activity.action)
     const platformEmoji = PlatformTypeToEmoji(activity.platform)
+    const date = new Date(activity.created_at)
     timestampList.push({
-      name: "",
-      value: `${platformEmoji} \`${activity.platform}\`\n${activity.created_at}`,
+      name: "\u200b",
+      value: `${platformEmoji} \`${activity.platform}\`\n${
+        date.toString().split("GMT")[0]
+      }`,
       inline: true,
     })
     actionList.push({
-      name: "",
+      name: "\u200b",
       value: `${actionEmoji} ${activity.action_description.description}`,
       inline: true,
     })
     rewardList.push({
-      name: "",
+      name: "\u200b",
       value: `${getEmoji("ACTIVITY_XP", true)} ${
         activity.action_description.reward
       }`,
       inline: true,
     })
   }
-  console.log("check spit list", timestampList, actionList, rewardList)
 
   const res = []
   for (let i = 0; i < data.length; i++) {
@@ -92,36 +84,38 @@ export async function render(userDiscordId: string) {
     res.push(rewardList[i])
   }
 
-  console.log("check list reps", res)
-
-  const fields = res.unshift(
+  res.unshift(
     {
-      name: "Timestamp",
-      value: "\u200b",
+      name: "\u200b",
+      value: `**Timestamp**`,
       inline: true,
     },
     {
-      name: "Action",
-      value: "\u200b",
+      name: "\u200b",
+      value: `**Action**`,
       inline: true,
     },
     {
-      name: "Reward",
-      value: "\u200b",
+      name: "\u200b",
+      value: `**Reward**`,
       inline: true,
     }
   )
-  console.log("check fields", fields)
+
+  const fields = res
+
+  const embed = new MessageEmbed()
+    .setTitle(`${getEmoji("ACTIVITY_CLOCK")} Activity`)
+    .setColor(msgColors.BLUE)
+    .setFooter({ text: "Mochi Bot" })
+    .setTimestamp(Date.now())
+  for (let i = 0; i < fields.length; i++) {
+    embed.addFields(fields[i])
+  }
 
   return {
     messageOptions: {
-      embeds: [
-        {
-          color: msgColors.BLUE,
-          title: `${getEmoji("ACTIVITY_CLOCK")} Activity`,
-          fields,
-        },
-      ],
+      embeds: [embed],
     },
   }
 }
