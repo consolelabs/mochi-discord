@@ -1371,6 +1371,10 @@ export interface ResponseAllTipBotTokensResponse {
   data?: ModelOffchainTipBotToken[];
 }
 
+export interface ResponseChainGasTrackerResponseData {
+  data?: ResponseGasTrackerResponse;
+}
+
 export interface ResponseClaimOnchainTransfer {
   amount?: number;
   amount_in_usd?: number;

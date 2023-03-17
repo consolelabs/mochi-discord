@@ -126,6 +126,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   wallet: wallet.slashCmd,
   stats: stats.slashCmd,
   gas: gas.slashCmd,
+  game: game.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
