@@ -1,6 +1,6 @@
 import { ResponseListGuildGroupNFTRolesResponse } from "types/api"
 import { getEmoji, shortenHashOrAddress } from "utils/common"
-import { PREFIX } from "utils/constants"
+import { HOMEPAGE_URL, PREFIX } from "utils/constants"
 
 export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
   if (data?.length === 0) {
@@ -23,7 +23,7 @@ export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
                 nftCol.symbol?.toUpperCase() ?? ""
               } ${shortenHashOrAddress(nftCol.address ?? "")}${
                 nftCol.chain_name ? ` (${nftCol.chain_name.toUpperCase()})` : ""
-              }\`](${nftCol.explorer_url || "https://getmochi.co/"})`
+              }\`](${nftCol.explorer_url || HOMEPAGE_URL})`
           )
           .join("\n")}`
     )

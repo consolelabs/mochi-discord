@@ -6,6 +6,7 @@ import {
   MOCHI_PROFILE_API_SERVER_HOST,
   MOCHI_PAY_API_SERVER_HOST,
   MOCHI_TELEGRAM_API_SERVER_HOST,
+  GAME_STORE_API_SERVER_HOST,
 } from "env"
 
 export const DOT = "•"
@@ -31,6 +32,7 @@ export const INDEXER_API_BASE_URL = `${INDEXER_API_SERVER_HOST}/api/v1`
 export const MOCHI_PROFILE_API_BASE_URL = `${MOCHI_PROFILE_API_SERVER_HOST}/api/v1`
 export const MOCHI_PAY_API_BASE_URL = `${MOCHI_PAY_API_SERVER_HOST}/api/v1`
 export const MOCHI_TELEGRAM_API_BASE_URL = `${MOCHI_TELEGRAM_API_SERVER_HOST}/api/v1`
+export const GAME_STORE_API_BASE_URL = `${GAME_STORE_API_SERVER_HOST}/api/v1`
 
 export const VALID_BOOST_MESSAGE_TYPES = [
   "USER_PREMIUM_GUILD_SUBSCRIPTION",
@@ -39,7 +41,7 @@ export const VALID_BOOST_MESSAGE_TYPES = [
   "USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3",
 ]
 
-export const HOMEPAGE_URL = "http://getmochi.co"
+export const HOMEPAGE_URL = "https://mochi.gg"
 export const TWITTER_URL = "https://twitter.com/getmochi_bot"
 export const DISCORD_URL = "https://discord.gg/XQR36DQQGh"
 

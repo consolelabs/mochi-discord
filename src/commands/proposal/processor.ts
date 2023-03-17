@@ -17,9 +17,9 @@ import {
   getSuccessEmbed,
 } from "ui/discord/embed"
 import { composeButtonLink } from "ui/discord/button"
-import profile from "adapters/profile"
 import { logger } from "logger"
 import { wrapError } from "utils/wrap-error"
+import { HOMEPAGE_URL } from "utils/constants"
 
 let proposalTitle = ""
 let proposalDesc = ""
@@ -263,24 +263,14 @@ export async function handleProposalForm(i: ButtonInteraction) {
       throw new APIError({ curl, description: log, error })
     }
     if (!data.is_wallet_connected) {
-      const generationRes = await profile.generateVerificationCode({
-        userDiscordId: i.member.user.id,
-        guildId: i.guild.id,
-      })
-      if (!generationRes.ok) {
-        throw new APIError({
-          msgOrInteraction: i,
-          description: generationRes.log,
-          curl: generationRes.log,
-        })
-      }
-      const code = !generationRes.originalError ? generationRes.data.code : ""
       await i
         .editReply({
           embeds: [
             getErrorEmbed({
               title: "Wallet not connected",
-              description: `Please [Connect your wallet](https://mochi.gg/verify?code=${code}) to gain the authority to create a proposal.`,
+              description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${
+                i.user.id
+              }) to gain the authority to create a proposal.`,
             }),
           ],
         })
@@ -490,24 +480,14 @@ export async function handleProposalVote(i: ButtonInteraction) {
     throw new APIError({ curl: wCurl, description: wLog, error: wError })
   }
   if (wData.is_wallet_connected === false) {
-    const generationRes = await profile.generateVerificationCode({
-      userDiscordId: i.member.user.id,
-      guildId: i.guild.id,
-    })
-    if (!generationRes.ok) {
-      throw new APIError({
-        msgOrInteraction: i,
-        description: generationRes.log,
-        curl: generationRes.curl,
-      })
-    }
-    const code = !generationRes.originalError ? generationRes.data.code : ""
     return await i
       .editReply({
         embeds: [
           getErrorEmbed({
             title: "Wallet not connected",
-            description: `Please [Connect your wallet](https://mochi.gg/verify?code=${code}) to gain the authority to vote.`,
+            description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${
+              i.user.id
+            }) to gain the authority to vote.`,
           }),
         ],
       })
