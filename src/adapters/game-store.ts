@@ -6,7 +6,7 @@ class GameStore extends Fetcher {
     return await this.jsonFetch(`${GAME_STORE_API_BASE_URL}/games`)
   }
 
-  public async gameDetail(id: string) {
+  public async gameDetail(id: number) {
     return await this.jsonFetch(`${GAME_STORE_API_BASE_URL}/games/${id}`)
   }
 }
