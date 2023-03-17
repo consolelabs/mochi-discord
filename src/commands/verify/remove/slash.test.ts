@@ -36,7 +36,8 @@ describe("run", () => {
         embeds: [
           composeEmbedMessage(null, {
             title: "No config found",
-            description: "No verify channel to remove",
+            description:
+              "No verify channel to remove, to set one run `$verify set`",
           }),
         ],
       },

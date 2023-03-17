@@ -77,33 +77,6 @@ const command: Command = {
       }
     }
 
-    const supportedChains = await config.getAllChains()
-    const chainCurrencies = supportedChains.map(
-      (chain: { currency: string }) => {
-        return chain.currency.toUpperCase()
-      }
-    )
-    const chainIds = supportedChains.map((chain: { id: string }) => {
-      return chain.id
-    })
-
-    const isValidChain =
-      chainIds.includes(chainIds) ||
-      chainCurrencies.includes(chain.toUpperCase())
-
-    if (!chain || !isValidChain) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              title: `${getEmoji("revoke")} Unsupported chain`,
-              description:
-                "The chain hasn't been supported. Take a look at our supported chain by `$token list`",
-            }),
-          ],
-        },
-      }
-    }
     const selectRow = composeDiscordSelectionRow({
       customId: "daovote_set",
       placeholder: "Choose who can post proposals",
@@ -181,6 +154,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       },
     }
   }
+  // token holder options but missing args
   if (!chain || !contract) {
     return {
       messageOptions: {
@@ -194,6 +168,32 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       },
     }
   }
+  // check chain is valid
+  const supportedChains = await config.getAllChains()
+  const chainCurrencies = supportedChains.map((chain: { currency: string }) => {
+    return chain.currency.toUpperCase()
+  })
+  const chainIds = supportedChains.map((chain: { id: string }) => {
+    return chain.id
+  })
+
+  const isValidChain =
+    chainIds.includes(chainIds) || chainCurrencies.includes(chain.toUpperCase())
+
+  if (!chain || !isValidChain) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            title: `${getEmoji("revoke")} Unsupported chain`,
+            description:
+              "The chain hasn't been supported. Take a look at our supported chain by `$token list`",
+          }),
+        ],
+      },
+    }
+  }
+
   await interaction.update({
     embeds: [
       composeEmbedMessage(null, {
