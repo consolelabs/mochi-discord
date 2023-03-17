@@ -227,3 +227,11 @@ export type KafkaQueueMessageData = {
   message?: Message | null
   interaction?: Interaction | null
 }
+
+export type KafkaQueueActivityCommand = {
+  profile_id: string
+  status: string
+  platform: string
+  action: string
+  action_description: any
+}
