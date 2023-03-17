@@ -4,6 +4,20 @@ import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { ActionTypeToEmoji, PlatformTypeToEmoji } from "utils/activity"
 import { MessageEmbed } from "discord.js"
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+]
 export async function render(userDiscordId: string) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
   if (dataProfile.err) {
@@ -56,11 +70,15 @@ export async function render(userDiscordId: string) {
     const actionEmoji = ActionTypeToEmoji(activity.action)
     const platformEmoji = PlatformTypeToEmoji(activity.platform)
     const date = new Date(activity.created_at)
+
+    const time = date.getHours() > 12 ? "PM" : "AM"
+    const hour = date.getHours() > 12 ? date.getHours() - 12 : date.getHours()
+    const t = `${
+      monthNames[date.getMonth()]
+    } ${date.getDate()} ${hour}:${date.getMinutes()} ${time}`
     timestampList.push({
       name: "\u200b",
-      value: `${platformEmoji} \`${activity.platform}\`\n${
-        date.toString().split("GMT")[0]
-      }`,
+      value: `${platformEmoji} \`${activity.platform}\`\n${t}`,
       inline: true,
     })
     actionList.push({
@@ -70,9 +88,7 @@ export async function render(userDiscordId: string) {
     })
     rewardList.push({
       name: "\u200b",
-      value: `${getEmoji("ACTIVITY_XP", true)} ${
-        activity.action_description.reward
-      }`,
+      value: `${getEmoji("ACTIVITY_XP")} ${activity.action_description.reward}`,
       inline: true,
     })
   }
