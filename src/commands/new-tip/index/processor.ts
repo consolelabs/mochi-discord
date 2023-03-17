@@ -27,7 +27,12 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import { SPACE } from "utils/constants"
+import {
+  SPACE,
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_TIP,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
 import { reply } from "utils/discord"
 import {
   classifyTipSyntaxTargets,
@@ -36,6 +41,11 @@ import {
   parseRecipients,
 } from "utils/tip-bot"
 import * as processor from "./processor"
+import { kafkaQueue } from "queue/kafka/queue"
+import { KafkaQueueActivityCommand } from "types/common"
+import profile from "adapters/profile"
+
+import { GetActivityContent } from "utils/activity"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -165,6 +175,47 @@ export async function tip(
       onchain,
       moniker
     )
+  }
+
+  // TODO(trkhoi): generic to make every feature can use this
+  const dataProfile = await profile.getByDiscord(author.id)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msgOrInteraction,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+
+  for (const recipient of payload.recipients) {
+    const recipientUsername = msgOrInteraction.client.users
+      .fetch(recipient)
+      .then((user) => user.username)
+
+    try {
+      const kafkaMsg: KafkaQueueActivityCommand = {
+        profile_id: dataProfile.id,
+        status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+        platform: MOCHI_APP_SERVICE,
+        action: MOCHI_ACTION_TIP,
+        action_description: {
+          description: GetActivityContent(MOCHI_ACTION_TIP, [
+            (await recipientUsername).toString(),
+            payload.amount.toString(),
+            payload.token,
+          ]),
+          // TODO(trkhoi): implement logic for reward xp
+          reward: "",
+        },
+      }
+      await kafkaQueue?.produceActivityMsg([
+        JSON.stringify(kafkaMsg, (_, v) =>
+          typeof v === "bigint" ? v.toString() : v
+        ),
+      ])
+    } catch (error) {
+      console.error("[KafkaQueue] - failed to enqueue")
+    }
   }
 
   await reply(msgOrInteraction, response)

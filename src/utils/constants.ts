@@ -257,3 +257,9 @@ export const CHAIN_EXPLORER_BASE_URLS: Record<string, string> = {
 export const DEFAULT_BOT_INVITE_URL = `https://discord.com/api/oauth2/authorize?client_id=${APPLICATION_ID}&permissions=1513976417281&scope=bot%20applications.commands`
 
 export const MOCHI_SERVER_INVITE_URL = "https://discord.com/invite/3d2FdBG2My"
+
+export const MOCHI_PROFILE_ACTIVITY_STATUS_NEW = "new"
+export const MOCHI_PROFILE_ACTIVITY_STATUS_READ = "read"
+export const MOCHI_APP_SERVICE = "Mochi App"
+export const MOCHI_PAY_SERVICE = "Mochi Pay"
+export const MOCHI_ACTION_TIP = "tip"
