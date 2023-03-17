@@ -11,7 +11,12 @@ import { getCommandArguments } from "utils/commands"
 import { twitterAppClient } from "clients/twitter"
 import list from "./list/text"
 import remove from "./remove/text"
-import { APIError, CommandArgumentError, GuildIdNotFoundError } from "errors"
+import {
+  APIError,
+  CommandArgumentError,
+  GuildIdNotFoundError,
+  InternalError,
+} from "errors"
 
 const actions: Record<string, Command> = {
   list,
@@ -62,17 +67,17 @@ const command: Command = {
       twitterData.id = twitterRes.data?.id
       twitterData.username = twitterRes.data?.username
     } catch (e) {
-      throw new CommandArgumentError({
-        message: msg,
-        description: "Invalid username",
-        getHelpMessage: () => this.getHelpMessage(msg),
+      throw new InternalError({
+        msgOrInteraction: msg,
+        title: "Invalid username",
+        description: "Twitter username not found",
       })
     }
     if (!twitterData.id || !twitterData.username) {
-      throw new CommandArgumentError({
-        message: msg,
-        description: "Invalid username",
-        getHelpMessage: () => this.getHelpMessage(msg),
+      throw new InternalError({
+        msgOrInteraction: msg,
+        title: "Invalid username",
+        description: "Twitter username not found",
       })
     }
     const { ok, log, curl } = await config.addToTwitterBlackList({
@@ -101,16 +106,12 @@ const command: Command = {
     }
   },
   getHelpMessage: async (msg) => {
-    const args = getCommandArguments(msg)
-    const action = actions[args[4]]
-    if (action) return action.getHelpMessage(msg)
     return {
       embeds: [
         composeEmbedMessage(msg, {
           usage: `${PREFIX}poe twitter block <twitter profile link>\n${PREFIX}poe twitter block <action>`,
           examples: `${PREFIX}poe twitter block https://twitter.com/vincentzepanda\n${PREFIX}poe twitter block list`,
           footer: [`Type ${PREFIX}help poe twitter block`],
-          includeCommandsList: true,
           actions,
         }),
       ],

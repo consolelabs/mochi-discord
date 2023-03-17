@@ -70,8 +70,8 @@ const command: SlashCommand = {
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        usage: `${SLASH_PREFIX}gm config <channel>`,
-        examples: `${SLASH_PREFIX}gm config #general`,
+        usage: `${SLASH_PREFIX}gm set <channel>`,
+        examples: `${SLASH_PREFIX}gm set #general`,
         document: `${GM_GITBOOK}&action=config`,
       }),
     ],
