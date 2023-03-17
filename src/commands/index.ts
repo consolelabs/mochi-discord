@@ -54,6 +54,7 @@ import levelrole from "./level-role"
 import log from "./log"
 import moniker from "./moniker"
 import gas from "./gas"
+import activity from "./activity"
 // import nft from "./nft"
 import nft from "./new-nft"
 import nftrole from "./nft-role"
@@ -127,6 +128,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   stats: stats.slashCmd,
   gas: gas.slashCmd,
   game: game.slashCmd,
+  activity: activity.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -155,6 +157,7 @@ export const originalCommands: Record<string, Command> = {
   quest: quest.textCmd,
   alert: alert.textCmd,
   gas: gas.textCmd,
+  activity: activity.textCmd,
   // config section
   reactionrole: reactionrole.textCmd,
   defaultrole: defaultrole.textCmd,
