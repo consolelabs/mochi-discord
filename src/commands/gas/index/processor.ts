@@ -58,17 +58,11 @@ export async function render() {
     inline: true,
   })
 
-  return {
-    messageOptions: {
-      embeds: [
-        {
-          color: msgColors.BLUE,
-          title: `Gas Prices`,
-          fields,
-        },
-      ],
-    },
-  }
+  const embed = composeEmbedMessage(null, {
+    color: msgColors.BLUE,
+    title: "Gas Prices",
+  }).addFields(fields)
+  return { messageOptions: { embeds: [embed] } }
 }
 
 export async function renderOne(chain: string) {
@@ -86,7 +80,6 @@ export async function renderOne(chain: string) {
               "POINTINGRIGHT"
             )} Currently no token gas found`,
             color: msgColors.SUCCESS,
-            footer: ["Type /feedback to report"],
           }),
         ],
       },
@@ -107,16 +100,9 @@ export async function renderOne(chain: string) {
       inline: true,
     },
   ]
-
-  return {
-    messageOptions: {
-      embeds: [
-        {
-          color: msgColors.BLUE,
-          title: `Gas Prices`,
-          fields,
-        },
-      ],
-    },
-  }
+  const embed = composeEmbedMessage(null, {
+    color: msgColors.BLUE,
+    title: "Gas Prices",
+  }).addFields(fields)
+  return { messageOptions: { embeds: [embed] } }
 }
