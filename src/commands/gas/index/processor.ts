@@ -19,6 +19,7 @@ export async function render() {
               "POINTINGRIGHT"
             )} Currently no token gas found`,
             color: msgColors.SUCCESS,
+            footer: ["Type /feedback to report"],
           }),
         ],
       },
@@ -26,7 +27,7 @@ export async function render() {
 
   const res = data.map((token: any) => {
     return {
-      name: `${getEmoji(token.chain)} ${token.chain} TX`,
+      name: `${getEmoji(token.chain)} ${token.chain}`,
       value: `${getEmoji("slow")} Slow - ${ConvertSecondToMinute(
         token.est_safe_time
       )} \`${token.safe_gas_price} Gwei\`\n${getEmoji(
