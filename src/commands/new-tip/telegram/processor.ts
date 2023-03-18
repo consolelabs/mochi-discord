@@ -93,7 +93,6 @@ async function getTipPayload(
     amountArg,
   } = parseTipParameters(args)
 
-  console.log("here 4.1")
   // check if recipient is valid or not
   const recipients: string[] = []
   for (const [i, target] of targets.entries()) {
