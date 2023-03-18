@@ -3,6 +3,7 @@ import defi from "adapters/defi"
 import mochiPay from "adapters/mochi-pay"
 import mochiTelegram from "adapters/mochi-telegram"
 import profile from "adapters/profile"
+import community from "adapters/community"
 import {
   CommandInteraction,
   Message,
@@ -92,10 +93,18 @@ async function getTipPayload(
     amountArg,
   } = parseTipParameters(args)
 
+  console.log("here 4.1")
   // check if recipient is valid or not
   const recipients: string[] = []
   for (const [i, target] of targets.entries()) {
-    const recipientPf = await profile.getByTelegram(target)
+    // TODO: handle for case not have username telegram
+    const { data, ok, curl, error, log } =
+      await community.getTelegramByUsername(target)
+    if (!ok) {
+      throw new APIError({ curl, error, description: log })
+    }
+
+    const recipientPf = await profile.getByTelegram(data.chat_id)
     if (recipientPf.status_code === 404) {
       throw new InternalError({
         msgOrInteraction: msg,

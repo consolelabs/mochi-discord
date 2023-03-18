@@ -595,6 +595,12 @@ class Community extends Fetcher {
       body: req,
     })
   }
+
+  public async getTelegramByUsername(username: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/telegram/${username}`, {
+      method: "GET",
+    })
+  }
 }
 
 export default new Community()
