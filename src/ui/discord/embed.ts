@@ -17,7 +17,13 @@ import {
   getSlashCommandObject,
   specificHelpCommand,
 } from "utils/commands"
-import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  msgColors,
+  roundFloatNumber,
+} from "utils/common"
 import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
 
 export const EMPTY_FIELD = {
@@ -392,4 +398,37 @@ export function composePartnerEmbedPimp() {
     thumbnail:
       "https://cdn.discordapp.com/attachments/994457507135234118/1080335263143829564/MCLB-token.png",
   })
+}
+
+export function composeInsufficientBalanceEmbed({
+  current,
+  required,
+  symbol,
+  author,
+}: {
+  current?: number
+  required: number
+  symbol: string
+  author?: User
+}) {
+  const tokenEmoji = getEmoji(symbol)
+  return composeEmbedMessage(null, {
+    author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
+    description: `${author}, your balance is insufficient.\nYou can deposit more by using \`$deposit ${symbol}\``,
+  }).addFields([
+    {
+      name: "Required amount",
+      value: `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
+      inline: true,
+    },
+    ...(current
+      ? [
+          {
+            name: "Your balance",
+            value: `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
+            inline: true,
+          },
+        ]
+      : []),
+  ])
 }
