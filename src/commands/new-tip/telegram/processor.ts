@@ -213,6 +213,7 @@ async function confirmToTip(
   )
   const selectionRow = composeDiscordSelectionRow({
     customId: "tip_select_wallet",
+    placeholder: "Select a wallet to tip",
     options,
   })
   const tokenEmoji = getEmoji(payload.token)
@@ -255,7 +256,6 @@ async function confirmToTip(
       options: {
         filter: (i) =>
           i.customId === "tip_select_wallet" && i.user.id === author.id,
-        max: 1,
       },
       handler: async (i) => {
         await i.deferUpdate()

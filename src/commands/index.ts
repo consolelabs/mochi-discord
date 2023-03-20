@@ -84,6 +84,7 @@ import mixrole from "./mix-role"
 import alert from "./alert"
 import stats from "./stats"
 import game from "./game"
+import pay from "./pay"
 
 CacheManager.init({
   ttl: 0,
@@ -182,6 +183,9 @@ export const originalCommands: Record<string, Command> = {
 
   //game
   game: game.textCmd,
+
+  // pay
+  pay: pay.textCmd,
 }
 
 export const commands = getAllAliases(originalCommands)
