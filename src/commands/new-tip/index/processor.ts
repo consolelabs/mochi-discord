@@ -198,7 +198,7 @@ export async function tip(
         platform: MOCHI_PAY_SERVICE,
         action: MOCHI_ACTION_TIP,
         content: {
-          username: (await recipientUsername).toString(),
+          username: recipientUsername.toString(),
           amount: payload.amount.toString(),
           token: payload.token,
           server_name: "",
