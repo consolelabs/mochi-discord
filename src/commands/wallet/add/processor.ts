@@ -8,7 +8,6 @@ import {
   User,
 } from "discord.js"
 import { MessageButtonStyles } from "discord.js/typings/enums"
-import { WEBSITE_ENDPOINT } from "env"
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { composeButtonLink, getExitButton } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -19,6 +18,7 @@ import {
   isAddress,
   msgColors,
 } from "utils/common"
+import { HOMEPAGE_URL } from "utils/constants"
 import { awaitMessage } from "utils/discord"
 
 export async function handleWalletAddition(msg: OriginalMessage) {
@@ -47,7 +47,7 @@ export async function handleWalletAddition(msg: OriginalMessage) {
   }
   const buttonRow = composeButtonLink(
     "Connect Wallet",
-    `${WEBSITE_ENDPOINT}/verify?code=${data.code}`
+    `${HOMEPAGE_URL}/verify?code=${data.code}`
   ).addComponents(getExitButton(author.id))
   await reply.edit({ components: [buttonRow] })
 }

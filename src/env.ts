@@ -36,7 +36,6 @@ export const PROPOSAL_INTERNAL_CHANNEL_ID =
   process.env.PROPOSAL_INTERNAL_CHANNEL_ID || "1077425424218464366"
 export const MOCHI_GUILD_ID = process.env.MOCHI_GUILD_ID || "962589711841525780"
 export const DISCORD_DEFAULT_AVATAR = process.env.DISCORD_DEFAULT_AVATAR || ""
-export const WEBSITE_ENDPOINT = process.env.WEBSITE_ENDPOINT || ""
 export const FIRESTORE_KEY = process.env.FIRESTORE_KEY || ""
 export const TWITTER_TOKEN = process.env.TWITTER_TOKEN || ""
 export const TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY || ""
