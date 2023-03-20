@@ -1,4 +1,7 @@
 import { getEmoji } from "utils/common"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { kafkaQueue } from "queue/kafka/queue"
+import { logger } from "../logger"
 
 export function PlatformTypeToEmoji(platformType: string) {
   switch (platformType) {
@@ -30,10 +33,16 @@ export function ActionTypeToEmoji(actionType: string) {
   }
 }
 
-export function GetActivityContent(activityContent: string, params: string[]) {
-  for (let i = 0; i < params.length; i++) {
-    activityContent = activityContent.replace(`params`, params[i])
+export async function SendActivityMsg(
+  kafkaMessage: KafkaQueueActivityDataCommand
+) {
+  try {
+    await kafkaQueue?.produceActivityMsg([
+      JSON.stringify(kafkaMessage, (_, v) =>
+        typeof v === "bigint" ? v.toString() : v
+      ),
+    ])
+  } catch (error) {
+    logger.error("[KafkaQueue] - failed to enqueue")
   }
-
-  return activityContent
 }

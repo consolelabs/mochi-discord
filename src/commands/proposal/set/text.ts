@@ -9,6 +9,14 @@ import { InteractionHandler } from "handlers/discord/select-menu"
 import { PREFIX } from "utils/constants"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { composeDiscordExitButton } from "ui/discord/button"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_PROPOSAL,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "proposal_set",
@@ -139,6 +147,41 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
     if (!ok) {
       throw new APIError({ curl, description: log })
     }
+    // send activity
+    const channel = msgOrInteraction!.guild!.channels.cache.has(channelId)
+      ? msgOrInteraction!.guild!.channels.cache.get(channelId)
+      : await msgOrInteraction!.guild!.channels.fetch(channelId)
+
+    const dataProfile = await profile.getByDiscord(interaction.user.id)
+    if (dataProfile.err) {
+      throw new APIError({
+        msgOrInteraction: msgOrInteraction,
+        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+        curl: "",
+      })
+    }
+    const kafkaMsg: KafkaQueueActivityDataCommand = {
+      platform: "discord",
+      activity: {
+        profile_id: dataProfile.id,
+        status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+        platform: MOCHI_APP_SERVICE,
+        action: MOCHI_ACTION_PROPOSAL,
+        content: {
+          username: "",
+          amount: "",
+          token: "",
+          server_name: "",
+          number_of_user: "",
+          role_name: "",
+          channel_name: channel!.name,
+          token_name: "",
+          moniker_name: "",
+          address: "",
+        },
+      },
+    }
+    SendActivityMsg(kafkaMsg)
     return {
       messageOptions: {
         embeds: [
@@ -276,6 +319,42 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
         }
     }
   }
+
+  // send activity
+  const channel = msgOrInteraction!.guild!.channels.cache.has(channelId)
+    ? msgOrInteraction!.guild!.channels.cache.get(channelId)
+    : await msgOrInteraction!.guild!.channels.fetch(channelId)
+
+  const dataProfile = await profile.getByDiscord(interaction.user.id)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msgOrInteraction,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+  const kafkaMsg: KafkaQueueActivityDataCommand = {
+    platform: "discord",
+    activity: {
+      profile_id: dataProfile.id,
+      status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      platform: MOCHI_APP_SERVICE,
+      action: MOCHI_ACTION_PROPOSAL,
+      content: {
+        username: "",
+        amount: "",
+        token: "",
+        server_name: "",
+        number_of_user: "",
+        role_name: "",
+        channel_name: channel!.name,
+        token_name: "",
+        moniker_name: "",
+        address: "",
+      },
+    },
+  }
+  SendActivityMsg(kafkaMsg)
 
   return {
     messageOptions: {

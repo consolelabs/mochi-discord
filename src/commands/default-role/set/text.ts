@@ -7,6 +7,14 @@ import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 import { getEmoji } from "utils/common"
 import { handle } from "../processor"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_DEFAULTROLE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "defaultrole_set",
@@ -34,8 +42,8 @@ const command: Command = {
     }
 
     // if it's id then check if that role exist
+    const role = await msg.guild?.roles.fetch(id).catch(() => null)
     if (isId) {
-      const role = await msg.guild?.roles.fetch(id).catch(() => null)
       if (!role) {
         throw new InternalError({
           msgOrInteraction: msg,
@@ -64,6 +72,37 @@ const command: Command = {
       })
     }
 
+    // send activity
+    const dataProfile = await profile.getByDiscord(msg.author.id)
+    if (dataProfile.err) {
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+        curl: "",
+      })
+    }
+    const kafkaMsg: KafkaQueueActivityDataCommand = {
+      platform: "discord",
+      activity: {
+        profile_id: dataProfile.id,
+        status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+        platform: MOCHI_APP_SERVICE,
+        action: MOCHI_ACTION_DEFAULTROLE,
+        content: {
+          username: "",
+          amount: "",
+          token: "",
+          server_name: "",
+          number_of_user: "",
+          role_name: role!.name,
+          channel_name: "",
+          token_name: "",
+          moniker_name: "",
+          address: "",
+        },
+      },
+    }
+    SendActivityMsg(kafkaMsg)
     return handle(msg, "Default role updated")
   },
   getHelpMessage: async (msg) => {

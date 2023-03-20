@@ -1,11 +1,19 @@
 import { Message } from "discord.js"
-import { CommandArgumentError, GuildIdNotFoundError } from "errors"
+import { CommandArgumentError, GuildIdNotFoundError, APIError } from "errors"
 import { RequestUpsertMonikerConfigRequest } from "types/api"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { handleSetMoniker } from "./processor"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_MONIKER,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "moniker_set",
@@ -37,6 +45,37 @@ const command: Command = {
       amount,
       token,
     }
+
+    const dataProfile = await profile.getByDiscord(msg.author.id)
+    if (dataProfile.err) {
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+        curl: "",
+      })
+    }
+    const kafkaMsg: KafkaQueueActivityDataCommand = {
+      platform: "discord",
+      activity: {
+        profile_id: dataProfile.id,
+        status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+        platform: MOCHI_APP_SERVICE,
+        action: MOCHI_ACTION_MONIKER,
+        content: {
+          username: "",
+          amount: "",
+          token: "",
+          server_name: "",
+          number_of_user: "",
+          role_name: "",
+          channel_name: "",
+          token_name: payload.token.toUpperCase(),
+          moniker_name: "",
+          address: "",
+        },
+      },
+    }
+    SendActivityMsg(kafkaMsg)
     return await handleSetMoniker(payload)
   },
   getHelpMessage: async (msg) => {

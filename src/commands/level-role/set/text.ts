@@ -4,11 +4,20 @@ import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { getEmoji } from "utils/common"
 import { LEVEL_ROLE_GITBOOK, PREFIX } from "utils/constants"
+import { APIError } from "errors"
 import {
   composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
 } from "ui/discord/embed"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_LEVELROLE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "lr_set",
@@ -73,6 +82,37 @@ const command: Command = {
       level,
     })
     if (res.ok) {
+      // send activity
+      const dataProfile = await profile.getByDiscord(msg.author.id)
+      if (dataProfile.err) {
+        throw new APIError({
+          msgOrInteraction: msg,
+          description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+          curl: "",
+        })
+      }
+      const kafkaMsg: KafkaQueueActivityDataCommand = {
+        platform: "discord",
+        activity: {
+          profile_id: dataProfile.id,
+          status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+          platform: MOCHI_APP_SERVICE,
+          action: MOCHI_ACTION_LEVELROLE,
+          content: {
+            username: "",
+            amount: "",
+            token: "",
+            server_name: "",
+            number_of_user: "",
+            role_name: role.name,
+            channel_name: "",
+            token_name: "",
+            moniker_name: "",
+            address: "",
+          },
+        },
+      }
+      SendActivityMsg(kafkaMsg)
       return {
         messageOptions: {
           embeds: [

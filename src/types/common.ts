@@ -238,5 +238,18 @@ export type KafkaQueueActivityCommand = {
   status: string
   platform: string
   action: string
-  action_description: any
+  content: ActivityContentParams
+}
+
+export type ActivityContentParams = {
+  server_name?: string
+  amount?: string
+  token?: string
+  number_of_user?: string
+  username?: string
+  role_name?: string
+  channel_name?: string
+  token_name?: string
+  moniker_name?: string
+  address?: string
 }

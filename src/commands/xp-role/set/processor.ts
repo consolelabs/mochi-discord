@@ -7,9 +7,17 @@ import {
   User,
   Role,
 } from "discord.js"
-import { InternalError } from "errors"
+import { InternalError, APIError } from "errors"
 import { getSuccessEmbed } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_XPROLE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 
 export async function setConfigXPRole(
   msg: Message | MessageComponentInteraction | CommandInteraction | undefined,
@@ -26,6 +34,37 @@ export async function setConfigXPRole(
   if (!ok) {
     handleError(msg, error)
   }
+  // send activity
+  const dataProfile = await profile.getByDiscord(originAuthor.id)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+  const kafkaMsg: KafkaQueueActivityDataCommand = {
+    platform: "discord",
+    activity: {
+      profile_id: dataProfile.id,
+      status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      platform: MOCHI_APP_SERVICE,
+      action: MOCHI_ACTION_XPROLE,
+      content: {
+        username: "",
+        amount: "",
+        token: "",
+        server_name: "",
+        number_of_user: "",
+        role_name: role.name,
+        channel_name: "",
+        token_name: "",
+        moniker_name: "",
+        address: "",
+      },
+    },
+  }
+  SendActivityMsg(kafkaMsg)
   return {
     messageOptions: {
       embeds: [

@@ -1,5 +1,5 @@
 import { CommandInteraction, Message } from "discord.js"
-import { GuildIdNotFoundError, InternalError } from "errors"
+import { GuildIdNotFoundError, InternalError, APIError } from "errors"
 import { RoleReactionEvent } from "types/config"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
@@ -8,6 +8,14 @@ import { throwOnInvalidEmoji } from "utils/emoji"
 import { emojis, getEmojiURL, msgColors } from "./../../../utils/common"
 import config from "adapters/config"
 import { PREFIX } from "utils/constants"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_FEEDBACK,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 
 const troubleshootMsg = `\n\n${getEmoji(
   "POINTINGRIGHT"
@@ -58,6 +66,41 @@ export const handleRoleSet = async (
     description: `Emoji ${requestData.reaction} is now set to this role <@&${requestData.role_id}>`,
     color: msgColors.SUCCESS,
   })
+
+  // send activity
+  const isTextCommand = msg instanceof Message
+  const userId = isTextCommand ? msg.author.id : msg.user.id
+  const role = msg.guild?.roles.cache.get(roleId)
+  const dataProfile = await profile.getByDiscord(userId)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+  const kafkaMsg: KafkaQueueActivityDataCommand = {
+    platform: "discord",
+    activity: {
+      profile_id: dataProfile.id,
+      status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      platform: MOCHI_APP_SERVICE,
+      action: MOCHI_ACTION_FEEDBACK,
+      content: {
+        username: "",
+        amount: "",
+        token: "",
+        server_name: "",
+        number_of_user: "",
+        role_name: role!.name,
+        channel_name: "",
+        token_name: "",
+        moniker_name: "",
+        address: "",
+      },
+    },
+  }
+  SendActivityMsg(kafkaMsg)
 
   return {
     embeds: [embed],

@@ -31,7 +31,7 @@ import {
   SPACE,
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
   MOCHI_ACTION_TIP,
-  MOCHI_APP_SERVICE,
+  MOCHI_PAY_SERVICE,
 } from "utils/constants"
 import { reply } from "utils/discord"
 import {
@@ -41,12 +41,9 @@ import {
   parseRecipients,
 } from "utils/tip-bot"
 import * as processor from "./processor"
-import { kafkaQueue } from "queue/kafka/queue"
 import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 import profile from "adapters/profile"
-
-import { GetActivityContent } from "utils/activity"
-import { logger } from "../../../logger"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -188,51 +185,33 @@ export async function tip(
     })
   }
 
-  const activityContent = await profile.getActivityContent(MOCHI_ACTION_TIP)
-  if (activityContent.err) {
-    throw new APIError({
-      msgOrInteraction: msgOrInteraction,
-      description: `[getActivityContent] API error with status ${activityContent.status_code}`,
-      curl: "",
-    })
-  }
-
   for (const recipient of payload.recipients) {
     const recipientUsername = msgOrInteraction.client.users
       .fetch(recipient)
       .then((user) => user.username)
 
-    const actionDescription = GetActivityContent(
-      activityContent.data.activity_content,
-      [
-        (await recipientUsername).toString(),
-        payload.amount.toString(),
-        payload.token,
-      ]
-    )
-    try {
-      const kafkaMsg: KafkaQueueActivityDataCommand = {
-        platform: "discord",
-        activity: {
-          profile_id: dataProfile.id,
-          status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-          platform: MOCHI_APP_SERVICE,
-          action: MOCHI_ACTION_TIP,
-          action_description: {
-            description: actionDescription,
-            // TODO(trkhoi): implement logic for reward xp
-            reward: "",
-          },
+    const kafkaMsg: KafkaQueueActivityDataCommand = {
+      platform: "discord",
+      activity: {
+        profile_id: dataProfile.id,
+        status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+        platform: MOCHI_PAY_SERVICE,
+        action: MOCHI_ACTION_TIP,
+        content: {
+          username: (await recipientUsername).toString(),
+          amount: payload.amount.toString(),
+          token: payload.token,
+          server_name: "",
+          number_of_user: "",
+          role_name: "",
+          channel_name: "",
+          token_name: "",
+          moniker_name: "",
+          address: "",
         },
-      }
-      await kafkaQueue?.produceBatch([
-        JSON.stringify(kafkaMsg, (_, v) =>
-          typeof v === "bigint" ? v.toString() : v
-        ),
-      ])
-    } catch (error) {
-      logger.error("[KafkaQueue] - failed to enqueue")
+      },
     }
+    SendActivityMsg(kafkaMsg)
   }
 
   await reply(msgOrInteraction, response)

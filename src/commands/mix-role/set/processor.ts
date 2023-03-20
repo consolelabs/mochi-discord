@@ -22,6 +22,14 @@ import {
 } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import { getEmoji, msgColors } from "utils/common"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_MIXROLE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 
 export async function process(message: OriginalMessage) {
   if (!message.guildId || !message.guild) {
@@ -508,6 +516,37 @@ export async function process(message: OriginalMessage) {
       await collectNft(role_name)
     if (isNftCanceled) return
 
+    // send activity
+    const dataProfile = await profile.getByDiscord(userId)
+    if (dataProfile.err) {
+      throw new APIError({
+        msgOrInteraction: message,
+        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+        curl: "",
+      })
+    }
+    const kafkaMsg: KafkaQueueActivityDataCommand = {
+      platform: "discord",
+      activity: {
+        profile_id: dataProfile.id,
+        status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+        platform: MOCHI_APP_SERVICE,
+        action: MOCHI_ACTION_MIXROLE,
+        content: {
+          username: "",
+          amount: "",
+          token: "",
+          server_name: "",
+          number_of_user: "",
+          role_name: role!.name,
+          channel_name: "",
+          token_name: "",
+          moniker_name: "",
+          address: "",
+        },
+      },
+    }
+    SendActivityMsg(kafkaMsg)
     await submitConfig({
       guild_id: message.guildId ?? "",
       role_id,

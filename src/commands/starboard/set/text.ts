@@ -4,9 +4,17 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { GuildIdNotFoundError, InternalError } from "errors"
+import { GuildIdNotFoundError, InternalError, APIError } from "errors"
 import { throwOnInvalidEmoji } from "utils/emoji"
 import { getEmoji } from "utils/common"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_STARBOARD,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "starboard_set",
@@ -61,6 +69,40 @@ const command: Command = {
 
     const res = await config.updateRepostReactionConfig(requestData)
     if (res.ok) {
+      // send activity
+      const channel = msg!.guild!.channels.cache.has(channelId)
+        ? msg!.guild!.channels.cache.get(channelId)
+        : await msg!.guild!.channels.fetch(channelId)
+      const dataProfile = await profile.getByDiscord(msg.author.id)
+      if (dataProfile.err) {
+        throw new APIError({
+          msgOrInteraction: msg,
+          description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+          curl: "",
+        })
+      }
+      const kafkaMsg: KafkaQueueActivityDataCommand = {
+        platform: "discord",
+        activity: {
+          profile_id: dataProfile.id,
+          status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+          platform: MOCHI_APP_SERVICE,
+          action: MOCHI_ACTION_STARBOARD,
+          content: {
+            username: "",
+            amount: "",
+            token: "",
+            server_name: "",
+            number_of_user: "",
+            role_name: "",
+            channel_name: channel!.name,
+            token_name: "",
+            moniker_name: "",
+            address: "",
+          },
+        },
+      }
+      SendActivityMsg(kafkaMsg)
       return {
         messageOptions: {
           embeds: [

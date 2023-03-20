@@ -4,6 +4,14 @@ import { CommandInteraction, Message } from "discord.js"
 import { APIError, InternalError } from "errors"
 import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_SALES,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 
 export async function handleSalesTrack(
   msg: Message | CommandInteraction,
@@ -64,6 +72,42 @@ export async function handleSalesTrack(
       description: res.log,
     })
   }
+  // send activity
+  const channel = msg!.guild!.channels.cache.has(channelId)
+    ? msg!.guild!.channels.cache.get(channelId)
+    : await msg!.guild!.channels.fetch(channelId)
+  const isTextCommand = msg instanceof Message
+  const userId = isTextCommand ? msg.author.id : msg.user.id
+  const dataProfile = await profile.getByDiscord(userId)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+  const kafkaMsg: KafkaQueueActivityDataCommand = {
+    platform: "discord",
+    activity: {
+      profile_id: dataProfile.id,
+      status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      platform: MOCHI_APP_SERVICE,
+      action: MOCHI_ACTION_SALES,
+      content: {
+        username: "",
+        amount: "",
+        token: "",
+        server_name: "",
+        number_of_user: "",
+        role_name: "",
+        channel_name: channel!.name,
+        token_name: "",
+        moniker_name: "",
+        address: "",
+      },
+    },
+  }
+  SendActivityMsg(kafkaMsg)
 
   return {
     messageOptions: {

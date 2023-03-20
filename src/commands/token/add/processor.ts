@@ -20,6 +20,14 @@ import Config from "../../../adapters/config"
 import Defi from "../../../adapters/defi"
 import * as SelectMenuUtil from "ui/discord/select-menu"
 import * as ButtonUtil from "ui/discord/button"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_SALES,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { SendActivityMsg } from "utils/activity"
 
 export async function process(
   msg: OriginalMessage,
@@ -36,6 +44,40 @@ export async function process(
   if (!ok) {
     throw new APIError({ msgOrInteraction: msg, error, curl, description: log })
   }
+
+  // send activity
+  const isTextCommand = msg instanceof Message
+  const userId = isTextCommand ? msg.author.id : msg.user.id
+  const dataProfile = await profile.getByDiscord(userId)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+  const kafkaMsg: KafkaQueueActivityDataCommand = {
+    platform: "discord",
+    activity: {
+      profile_id: dataProfile.id,
+      status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      platform: MOCHI_APP_SERVICE,
+      action: MOCHI_ACTION_SALES,
+      content: {
+        username: "",
+        amount: "",
+        token: "",
+        server_name: "",
+        number_of_user: "",
+        role_name: "",
+        channel_name: "",
+        token_name: args.token_name,
+        moniker_name: "",
+        address: "",
+      },
+    },
+  }
+  SendActivityMsg(kafkaMsg)
   return {
     messageOptions: {
       embeds: [
