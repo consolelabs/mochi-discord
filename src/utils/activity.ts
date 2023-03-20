@@ -33,7 +33,7 @@ export function ActionTypeToEmoji(actionType: string) {
   }
 }
 
-export async function SendActivityMsg(
+export async function sendActivityMsg(
   kafkaMessage: KafkaQueueActivityDataCommand
 ) {
   try {
@@ -44,5 +44,34 @@ export async function SendActivityMsg(
     ])
   } catch (error) {
     logger.error("[KafkaQueue] - failed to enqueue")
+  }
+}
+
+export function defaultActivityMsg(
+  profileId: string,
+  status: string,
+  platform: string,
+  action: string
+): KafkaQueueActivityDataCommand {
+  return {
+    platform: "discord",
+    activity: {
+      profile_id: profileId,
+      status,
+      platform,
+      action,
+      content: {
+        username: "",
+        amount: "",
+        token: "",
+        server_name: "",
+        number_of_user: "",
+        role_name: "",
+        channel_name: "",
+        token_name: "",
+        moniker_name: "",
+        address: "",
+      },
+    },
   }
 }
