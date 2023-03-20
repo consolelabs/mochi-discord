@@ -59,8 +59,6 @@ export const FEEDBACK_PUBLIC_CHANNEL_ID =
 // kafka envs
 export const KAFKA_BROKERS = process.env.KAFKA_BROKERS || "localhost:9092"
 export const KAFKA_TOPIC = process.env.KAFKA_TOPIC || "testTopic"
-export const KAFKA_ACTIVITY_TOPIC =
-  process.env.KAFKA_ACTIVITY_TOPIC || "mochiProfileActivities"
 export const KAFKA_CLIENT_ID = process.env.KAFKA_CLIENT_ID || "mochiDiscord"
 export const KAFKA_PRODUCER_TOPIC =
   process.env.KAFKA_PRODUCER_TOPIC || "mochiDiscord.dev"

@@ -42,7 +42,7 @@ import {
 } from "utils/tip-bot"
 import * as processor from "./processor"
 import { kafkaQueue } from "queue/kafka/queue"
-import { KafkaQueueActivityCommand } from "types/common"
+import { KafkaQueueActivityDataCommand } from "types/common"
 import profile from "adapters/profile"
 
 import { GetActivityContent } from "utils/activity"
@@ -194,22 +194,25 @@ export async function tip(
       .then((user) => user.username)
 
     try {
-      const kafkaMsg: KafkaQueueActivityCommand = {
-        profile_id: dataProfile.id,
-        status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-        platform: MOCHI_APP_SERVICE,
-        action: MOCHI_ACTION_TIP,
-        action_description: {
-          description: GetActivityContent(MOCHI_ACTION_TIP, [
-            (await recipientUsername).toString(),
-            payload.amount.toString(),
-            payload.token,
-          ]),
-          // TODO(trkhoi): implement logic for reward xp
-          reward: "",
+      const kafkaMsg: KafkaQueueActivityDataCommand = {
+        platform: "discord",
+        activity: {
+          profile_id: dataProfile.id,
+          status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+          platform: MOCHI_APP_SERVICE,
+          action: MOCHI_ACTION_TIP,
+          action_description: {
+            description: GetActivityContent(MOCHI_ACTION_TIP, [
+              (await recipientUsername).toString(),
+              payload.amount.toString(),
+              payload.token,
+            ]),
+            // TODO(trkhoi): implement logic for reward xp
+            reward: "",
+          },
         },
       }
-      await kafkaQueue?.produceActivityMsg([
+      await kafkaQueue?.produceBatch([
         JSON.stringify(kafkaMsg, (_, v) =>
           typeof v === "bigint" ? v.toString() : v
         ),

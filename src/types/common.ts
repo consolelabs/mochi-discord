@@ -228,6 +228,11 @@ export type KafkaQueueMessageData = {
   interaction?: Interaction | null
 }
 
+export type KafkaQueueActivityDataCommand = {
+  activity: KafkaQueueActivityCommand
+  platform: string
+}
+
 export type KafkaQueueActivityCommand = {
   profile_id: string
   status: string
