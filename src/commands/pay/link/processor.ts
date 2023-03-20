@@ -36,6 +36,7 @@ export async function run({
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
     author: ["Confirmation", getEmojiURL(emojis.APPROVE)],
+    thumbnail: getEmojiURL(emojis.ACTIVITY_CASH),
   }).addFields(
     {
       name: "Amount",
@@ -116,7 +117,7 @@ export async function run({
           originalMsgAuthor: author,
           author: [
             "Congrats! You've just created a pay link",
-            getEmojiURL(emojis.CASH1),
+            getEmojiURL(emojis.ACTIVITY_CASH),
           ],
           description: `Here's ${paylink} ${tokenEmoji} ${amount} ${token} ${
             note
