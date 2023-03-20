@@ -62,61 +62,39 @@ export async function render(userDiscordId: string) {
       },
     }
 
-  const timestampList = []
-  const actionList = []
-  const rewardList = []
+  const activityList = []
   for (let i = 0; i < data.length; i++) {
     const activity = data[i]
     const actionEmoji = ActionTypeToEmoji(activity.action)
     const platformEmoji = PlatformTypeToEmoji(activity.platform)
     const date = new Date(activity.created_at)
 
-    const time = date.getHours() > 12 ? "PM" : "AM"
+    const time = date.getHours() > 12 ? "pm" : "am"
     const hour = date.getHours() > 12 ? date.getHours() - 12 : date.getHours()
     const t = `${
       monthNames[date.getMonth()]
     } ${date.getDate()} ${hour}:${date.getMinutes()} ${time}`
-    timestampList.push({
+    const xpReward = activity.action_description.reward
+      ? `${getEmoji("ACTIVITY_XP")} + ${activity.action_description.reward}`
+      : ""
+    const coinReward = activity.action_description.coin
+      ? `${getEmoji("COIN2")} + ${activity.action_description.coin}`
+      : ""
+    let rewardInfo = ""
+    if (xpReward || coinReward) {
+      rewardInfo = `| ${xpReward} ${coinReward}`
+    }
+    const actionAndRewardRow = `${actionEmoji} ${activity.action_description.description} ${rewardInfo}`
+    activityList.push({
       name: "\u200b",
-      value: `${platformEmoji} \`${activity.platform}\`\n${t}`,
-      inline: true,
-    })
-    actionList.push({
-      name: "\u200b",
-      value: `${actionEmoji} ${activity.action_description.description}`,
-      inline: true,
-    })
-    rewardList.push({
-      name: "\u200b",
-      value: `${getEmoji("ACTIVITY_XP")} ${activity.action_description.reward}`,
-      inline: true,
+      value: `[${t}] ${platformEmoji} \`${activity.platform}\`\n${actionAndRewardRow}`,
     })
   }
 
   const res = []
   for (let i = 0; i < data.length; i++) {
-    res.push(timestampList[i])
-    res.push(actionList[i])
-    res.push(rewardList[i])
+    res.push(activityList[i])
   }
-
-  res.unshift(
-    {
-      name: "\u200b",
-      value: `**Timestamp**`,
-      inline: true,
-    },
-    {
-      name: "\u200b",
-      value: `**Action**`,
-      inline: true,
-    },
-    {
-      name: "\u200b",
-      value: `**Reward**`,
-      inline: true,
-    }
-  )
 
   const fields = res
 
