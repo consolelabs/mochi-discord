@@ -7,15 +7,15 @@ import { isDiscordMessageLink, getEmoji } from "utils/common"
 import { throwOnInvalidEmoji } from "utils/emoji"
 import { emojis, getEmojiURL, msgColors } from "./../../../utils/common"
 import config from "adapters/config"
-import { PREFIX } from "utils/constants"
-import profile from "adapters/profile"
 import {
+  MOCHI_ACTION_REACTIONROLE,
+  PREFIX,
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-  MOCHI_ACTION_FEEDBACK,
   MOCHI_APP_SERVICE,
 } from "utils/constants"
+import profile from "adapters/profile"
 import { KafkaQueueActivityDataCommand } from "types/common"
-import { SendActivityMsg } from "utils/activity"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const troubleshootMsg = `\n\n${getEmoji(
   "POINTINGRIGHT"
@@ -80,28 +80,14 @@ export const handleRoleSet = async (
       curl: "",
     })
   }
-  const kafkaMsg: KafkaQueueActivityDataCommand = {
-    platform: "discord",
-    activity: {
-      profile_id: dataProfile?.id,
-      status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-      platform: MOCHI_APP_SERVICE,
-      action: MOCHI_ACTION_FEEDBACK,
-      content: {
-        username: "",
-        amount: "",
-        token: "",
-        server_name: "",
-        number_of_user: "",
-        role_name: role?.name,
-        channel_name: "",
-        token_name: "",
-        moniker_name: "",
-        address: "",
-      },
-    },
-  }
-  SendActivityMsg(kafkaMsg)
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile?.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_REACTIONROLE
+  )
+  kafkaMsg.activity.content.role_name = role?.name
+  sendActivityMsg(kafkaMsg)
 
   return {
     embeds: [embed],

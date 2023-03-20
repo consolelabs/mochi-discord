@@ -42,7 +42,7 @@ import {
 } from "utils/tip-bot"
 import * as processor from "./processor"
 import { KafkaQueueActivityDataCommand } from "types/common"
-import { SendActivityMsg } from "utils/activity"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import profile from "adapters/profile"
 
 export async function tip(
@@ -189,28 +189,16 @@ export async function tip(
     const recipientUsername =
       msgOrInteraction?.guild?.members.cache.get(recipient)
 
-    const kafkaMsg: KafkaQueueActivityDataCommand = {
-      platform: "discord",
-      activity: {
-        profile_id: dataProfile.id,
-        status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-        platform: MOCHI_PAY_SERVICE,
-        action: MOCHI_ACTION_TIP,
-        content: {
-          username: recipientUsername?.toString(),
-          amount: payload.amount.toString(),
-          token: payload.token,
-          server_name: "",
-          number_of_user: "",
-          role_name: "",
-          channel_name: "",
-          token_name: "",
-          moniker_name: "",
-          address: "",
-        },
-      },
-    }
-    SendActivityMsg(kafkaMsg)
+    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+      dataProfile.id,
+      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      MOCHI_PAY_SERVICE,
+      MOCHI_ACTION_TIP
+    )
+    kafkaMsg.activity.content.username = recipientUsername?.toString()
+    kafkaMsg.activity.content.amount = payload.amount.toString()
+    kafkaMsg.activity.content.token = payload.token
+    sendActivityMsg(kafkaMsg)
   }
 
   await reply(msgOrInteraction, response)

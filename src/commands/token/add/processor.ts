@@ -23,11 +23,11 @@ import * as ButtonUtil from "ui/discord/button"
 import profile from "adapters/profile"
 import {
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-  MOCHI_ACTION_SALES,
+  MOCHI_ACTION_TOKEN,
   MOCHI_APP_SERVICE,
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
-import { SendActivityMsg } from "utils/activity"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 export async function process(
   msg: OriginalMessage,
@@ -56,28 +56,16 @@ export async function process(
       curl: "",
     })
   }
-  const kafkaMsg: KafkaQueueActivityDataCommand = {
-    platform: "discord",
-    activity: {
-      profile_id: dataProfile.id,
-      status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-      platform: MOCHI_APP_SERVICE,
-      action: MOCHI_ACTION_SALES,
-      content: {
-        username: "",
-        amount: "",
-        token: "",
-        server_name: "",
-        number_of_user: "",
-        role_name: "",
-        channel_name: "",
-        token_name: args.token_name,
-        moniker_name: "",
-        address: "",
-      },
-    },
-  }
-  SendActivityMsg(kafkaMsg)
+
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_TOKEN
+  )
+  kafkaMsg.activity.content.token_name = args.token_name
+  sendActivityMsg(kafkaMsg)
+
   return {
     messageOptions: {
       embeds: [

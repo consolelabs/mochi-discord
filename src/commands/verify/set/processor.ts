@@ -11,7 +11,7 @@ import {
   MOCHI_APP_SERVICE,
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
-import { SendActivityMsg } from "utils/activity"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 export async function runVerifySet({
   msg,
@@ -114,28 +114,14 @@ export async function runVerifySet({
       curl: "",
     })
   }
-  const kafkaMsg: KafkaQueueActivityDataCommand = {
-    platform: "discord",
-    activity: {
-      profile_id: dataProfile.id,
-      status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-      platform: MOCHI_APP_SERVICE,
-      action: MOCHI_ACTION_VERIFY,
-      content: {
-        username: "",
-        amount: "",
-        token: "",
-        server_name: "",
-        number_of_user: "",
-        role_name: "",
-        channel_name: channel?.name,
-        token_name: "",
-        moniker_name: "",
-        address: "",
-      },
-    },
-  }
-  SendActivityMsg(kafkaMsg)
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_VERIFY
+  )
+  kafkaMsg.activity.content.channel_name = channel?.name
+  sendActivityMsg(kafkaMsg)
 
   return {
     messageOptions: {

@@ -13,7 +13,7 @@ import {
   MOCHI_APP_SERVICE,
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
-import { SendActivityMsg } from "utils/activity"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "moniker_set",
@@ -54,28 +54,15 @@ const command: Command = {
         curl: "",
       })
     }
-    const kafkaMsg: KafkaQueueActivityDataCommand = {
-      platform: "discord",
-      activity: {
-        profile_id: dataProfile.id,
-        status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-        platform: MOCHI_APP_SERVICE,
-        action: MOCHI_ACTION_MONIKER,
-        content: {
-          username: "",
-          amount: "",
-          token: "",
-          server_name: "",
-          number_of_user: "",
-          role_name: "",
-          channel_name: "",
-          token_name: payload.token.toUpperCase(),
-          moniker_name: "",
-          address: "",
-        },
-      },
-    }
-    SendActivityMsg(kafkaMsg)
+    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+      dataProfile.id,
+      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      MOCHI_APP_SERVICE,
+      MOCHI_ACTION_MONIKER
+    )
+    kafkaMsg.activity.content.token_name = payload.token.toUpperCase()
+    sendActivityMsg(kafkaMsg)
+
     return await handleSetMoniker(payload)
   },
   getHelpMessage: async (msg) => {

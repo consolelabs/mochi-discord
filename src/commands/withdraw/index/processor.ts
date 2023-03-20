@@ -26,7 +26,7 @@ import {
   MOCHI_APP_SERVICE,
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
-import { SendActivityMsg } from "utils/activity"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 export async function getRecipient(
   msg: Message | CommandInteraction,
@@ -136,28 +136,17 @@ export async function withdraw(
       curl: "",
     })
   }
-  const kafkaMsg: KafkaQueueActivityDataCommand = {
-    platform: "discord",
-    activity: {
-      profile_id: dataProfile.id,
-      status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-      platform: MOCHI_APP_SERVICE,
-      action: MOCHI_ACTION_WITHDRAW,
-      content: {
-        username: "",
-        amount: amountArg,
-        token: tokenArg,
-        server_name: "",
-        number_of_user: "",
-        role_name: "",
-        channel_name: "",
-        token_name: "",
-        moniker_name: "",
-        address: "",
-      },
-    },
-  }
-  SendActivityMsg(kafkaMsg)
+
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_WITHDRAW
+  )
+  kafkaMsg.activity.content.amount = amountArg
+  kafkaMsg.activity.content.token = tokenArg
+  sendActivityMsg(kafkaMsg)
+
   const embed = composeWithdrawEmbed(payload, data)
   await author.send({ embeds: [embed] })
 }
