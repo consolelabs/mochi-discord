@@ -1,3 +1,4 @@
+import profile from "adapters/profile"
 import { commands, slashCommands } from "commands"
 import {
   ColorResolvable,
@@ -7,6 +8,7 @@ import {
   MessageOptions,
   User,
 } from "discord.js"
+import { APIError } from "errors"
 import { Command, EmbedProperties } from "types/common"
 import {
   getActionCommand,
@@ -431,4 +433,28 @@ export function composeInsufficientBalanceEmbed({
         ]
       : []),
   ])
+}
+
+export async function composeMyWalletSelection(userId: string) {
+  const pfRes = await profile.getByDiscord(userId)
+  if (pfRes.err) {
+    throw new APIError({
+      description: `[getByDiscord] API error with status ${pfRes.status_code}`,
+      curl: "",
+    })
+  }
+  const wallets =
+    pfRes.associated_accounts?.filter((a: any) =>
+      ["evm-chain", "solana-chain"].includes(a.platform)
+    ) ?? []
+  return [
+    { label: "Mochi wallet", value: `mochi_${userId}` },
+    ...wallets.map((w: any) => {
+      const addr = w.platform_identifier
+      return {
+        label: addr,
+        value: addr,
+      }
+    }),
+  ]
 }

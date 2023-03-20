@@ -407,6 +407,7 @@ export function getEmojiURL(emojiId: string) {
 }
 
 export function shortenHashOrAddress(hash: string) {
+  if (!hash) return ""
   return `${hash.slice(0, 6)}...${hash.slice(hash.length - 6)}`
 }
 

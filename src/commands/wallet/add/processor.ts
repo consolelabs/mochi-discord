@@ -37,17 +37,9 @@ export async function handleWalletAddition(msg: OriginalMessage) {
   const reply = (await (isTextMsg
     ? msg.reply(replyPayload)
     : msg.editReply(replyPayload))) as Message
-  const { data, ok, curl, log } = await defi.generateWalletVerification({
-    userId: author.id,
-    channelId: msg.channelId,
-    messageId: reply.id,
-  })
-  if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, description: log, curl })
-  }
   const buttonRow = composeButtonLink(
     "Connect Wallet",
-    `${HOMEPAGE_URL}/verify?code=${data.code}`
+    `${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${author.id}`
   ).addComponents(getExitButton(author.id))
   await reply.edit({ components: [buttonRow] })
 }
