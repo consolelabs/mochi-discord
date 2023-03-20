@@ -94,7 +94,7 @@ const command: Command = {
           token: "",
           server_name: "",
           number_of_user: "",
-          role_name: role!.name,
+          role_name: role?.name,
           channel_name: "",
           token_name: "",
           moniker_name: "",

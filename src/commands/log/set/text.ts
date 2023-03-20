@@ -71,7 +71,7 @@ const command: Command = {
     })
 
     // send activity
-    const dataProfile = await profile.getByDiscord(msg!.author.id)
+    const dataProfile = await profile.getByDiscord(msg?.author.id)
     if (dataProfile.err) {
       throw new APIError({
         msgOrInteraction: msg,
@@ -93,7 +93,7 @@ const command: Command = {
           server_name: "",
           number_of_user: "",
           role_name: "",
-          channel_name: chan!.name,
+          channel_name: chan?.name,
           token_name: "",
           moniker_name: "",
           address: "",

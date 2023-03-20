@@ -148,9 +148,8 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       throw new APIError({ curl, description: log })
     }
     // send activity
-    const channel = msgOrInteraction!.guild!.channels.cache.has(channelId)
-      ? msgOrInteraction!.guild!.channels.cache.get(channelId)
-      : await msgOrInteraction!.guild!.channels.fetch(channelId)
+
+    const channel = msgOrInteraction?.guild?.channels.cache.get(channelId)
 
     const dataProfile = await profile.getByDiscord(interaction.user.id)
     if (dataProfile.err) {
@@ -174,7 +173,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
           server_name: "",
           number_of_user: "",
           role_name: "",
-          channel_name: channel!.name,
+          channel_name: channel?.name,
           token_name: "",
           moniker_name: "",
           address: "",
@@ -321,9 +320,8 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 
   // send activity
-  const channel = msgOrInteraction!.guild!.channels.cache.has(channelId)
-    ? msgOrInteraction!.guild!.channels.cache.get(channelId)
-    : await msgOrInteraction!.guild!.channels.fetch(channelId)
+
+  const channel = msgOrInteraction?.guild?.channels.cache.get(channelId)
 
   const dataProfile = await profile.getByDiscord(interaction.user.id)
   if (dataProfile.err) {
@@ -347,7 +345,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
         server_name: "",
         number_of_user: "",
         role_name: "",
-        channel_name: channel!.name,
+        channel_name: channel?.name,
         token_name: "",
         moniker_name: "",
         address: "",

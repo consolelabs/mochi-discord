@@ -73,9 +73,7 @@ export async function handleSalesTrack(
     })
   }
   // send activity
-  const channel = msg!.guild!.channels.cache.has(channelId)
-    ? msg!.guild!.channels.cache.get(channelId)
-    : await msg!.guild!.channels.fetch(channelId)
+  const channel = msg?.guild?.channels.cache.get(channelId)
   const isTextCommand = msg instanceof Message
   const userId = isTextCommand ? msg.author.id : msg.user.id
   const dataProfile = await profile.getByDiscord(userId)
@@ -100,7 +98,7 @@ export async function handleSalesTrack(
         server_name: "",
         number_of_user: "",
         role_name: "",
-        channel_name: channel!.name,
+        channel_name: channel?.name,
         token_name: "",
         moniker_name: "",
         address: "",

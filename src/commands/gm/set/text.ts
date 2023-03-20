@@ -59,10 +59,8 @@ const command: Command = {
     }
     throwOnInvalidEmoji(emoji, msg)
     // send activity
-    const channel = msg!.guild!.channels.cache.has(channelId)
-      ? msg!.guild!.channels.cache.get(channelId)
-      : await msg!.guild!.channels.fetch(channelId)
-    const dataProfile = await profile.getByDiscord(msg!.author.id)
+    const channel = msg?.guild?.channels.cache.get(channelId)
+    const dataProfile = await profile.getByDiscord(msg?.author.id)
     if (dataProfile.err) {
       throw new APIError({
         msgOrInteraction: msg,
@@ -84,7 +82,7 @@ const command: Command = {
           server_name: "",
           number_of_user: "",
           role_name: "",
-          channel_name: channel!.name,
+          channel_name: channel?.name,
           token_name: "",
           moniker_name: "",
           address: "",

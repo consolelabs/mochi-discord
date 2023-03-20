@@ -103,10 +103,10 @@ export async function runVerifySet({
   }
 
   // send activity
-  const channel = msg!.guild!.channels.cache.has(channelId)
-    ? msg!.guild!.channels.cache.get(channelId)
-    : await msg!.guild!.channels.fetch(channelId)
-  const dataProfile = await profile.getByDiscord(msg!.author.id)
+  const channel = msg?.guild?.channels.cache.get(channelId)
+  const isTextCommand = msg instanceof Message
+  const userId = isTextCommand ? msg.author.id : ""
+  const dataProfile = await profile.getByDiscord(userId)
   if (dataProfile.err) {
     throw new APIError({
       msgOrInteraction: msg,
@@ -128,7 +128,7 @@ export async function runVerifySet({
         server_name: "",
         number_of_user: "",
         role_name: "",
-        channel_name: channel!.name,
+        channel_name: channel?.name,
         token_name: "",
         moniker_name: "",
         address: "",

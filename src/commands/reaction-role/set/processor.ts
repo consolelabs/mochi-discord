@@ -69,8 +69,9 @@ export const handleRoleSet = async (
 
   // send activity
   const isTextCommand = msg instanceof Message
-  const userId = isTextCommand ? msg.author.id : msg.user.id
-  const role = msg.guild?.roles.cache.get(roleId)
+  const userId = isTextCommand ? msg.author.id : ""
+  const role = msg?.guild?.roles?.cache.get(roleId)
+
   const dataProfile = await profile.getByDiscord(userId)
   if (dataProfile.err) {
     throw new APIError({
@@ -92,7 +93,7 @@ export const handleRoleSet = async (
         token: "",
         server_name: "",
         number_of_user: "",
-        role_name: role!.name,
+        role_name: role?.name,
         channel_name: "",
         token_name: "",
         moniker_name: "",
