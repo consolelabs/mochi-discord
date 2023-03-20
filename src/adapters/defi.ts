@@ -1,6 +1,4 @@
-import { CommandInteraction, Message } from "discord.js"
 import { FTMSCAN_API_KEY } from "env"
-import { APIError } from "errors"
 import fetch from "node-fetch"
 import {
   RequestCreateAssignContract,
@@ -9,6 +7,7 @@ import {
   RequestOffchainWithdrawRequest,
   ResponseGetNftWatchlistResponse,
   ResponseGetSupportedTokenResponse,
+  ResponseGetUserBalancesResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
 import {
@@ -18,8 +17,6 @@ import {
   GasPriceData,
   Token,
 } from "types/defi"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
 import {
   API_BASE_URL,
   BSCSCAN_API,
@@ -30,37 +27,6 @@ import {
 import { Fetcher } from "./fetcher"
 
 class Defi extends Fetcher {
-  public async getInsuffientBalanceEmbed(
-    msg: Message | CommandInteraction,
-    userId: string,
-    token: string,
-    amount: number,
-    isAll: boolean
-  ) {
-    // check balance
-    const { ok, data, curl, error } = await this.offchainGetUserBalances({
-      userId,
-    })
-    if (!ok) {
-      throw new APIError({ message: msg, curl: curl, error: error })
-    }
-    let currentBal = 0
-    data?.forEach((bal: any) => {
-      if (token.toUpperCase() === bal.symbol.toUpperCase()) {
-        currentBal = bal.balances
-      }
-    })
-    if (currentBal < amount && !isAll) {
-      return this.composeInsufficientBalanceEmbed(
-        msg,
-        currentBal,
-        amount,
-        token
-      )
-    }
-    return null
-  }
-
   public async getSupportedTokens(): Promise<Token[]> {
     const resp = await fetch(`${API_BASE_URL}/defi/tokens`, {
       method: "GET",
@@ -133,34 +99,6 @@ class Defi extends Fetcher {
     return await this.jsonFetch<CoinComparisionData>(
       `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${guildId}&interval=${days}`
     )
-  }
-
-  public composeInsufficientBalanceEmbed(
-    msgOrInteraction: Message | CommandInteraction,
-    current: number,
-    required: number,
-    symbol: string
-  ) {
-    const tokenEmoji = getEmoji(symbol)
-    const authorId =
-      msgOrInteraction instanceof Message
-        ? msgOrInteraction.author.id
-        : msgOrInteraction.user.id
-    return composeEmbedMessage(null, {
-      author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
-      description: `<@${authorId}>, your balance is insufficient.\nYou can deposit more by using \`$deposit ${symbol}\``,
-    }).addFields([
-      {
-        name: "Required amount",
-        value: `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
-        inline: true,
-      },
-      {
-        name: "Your balance",
-        value: `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
-        inline: true,
-      },
-    ])
   }
 
   async getUserWatchlist({
@@ -278,10 +216,10 @@ class Defi extends Fetcher {
   }
 
   async offchainGetUserBalances(query: { userId: string }) {
-    return await this.jsonFetch(`${API_BASE_URL}/tip/balances`, {
-      method: "GET",
-      query,
-    })
+    return await this.jsonFetch<ResponseGetUserBalancesResponse>(
+      `${API_BASE_URL}/tip/balances`,
+      { method: "GET", query }
+    )
   }
 
   async offchainDiscordTransfer(req: RequestOffchainTransferRequest) {
@@ -391,12 +329,6 @@ class Defi extends Fetcher {
     return await fetch(`${FTMSCAN_API}?${queryStr}`)
   }
 
-  async getUserOwnedWallets(userId: string, guildId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/users/${userId}/wallets`, {
-      query: { guildId },
-    })
-  }
-
   async getUserTrackingWallets(userId: string) {
     return await this.jsonFetch(
       `${API_BASE_URL}/users/${userId}/wallets/tracking`
@@ -487,6 +419,46 @@ class Defi extends Fetcher {
         method: "DELETE",
       }
     )
+  }
+
+  async requestSupportToken(body: {
+    user_discord_id: string
+    channel_id: string
+    message_id: string
+    token_name: string
+    token_address: string
+    token_chain: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/token-support`, {
+      method: "POST",
+      body,
+    })
+  }
+
+  async approveTokenSupport(requestId: number) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/defi/token-support/${requestId}/approve`,
+      {
+        method: "PUT",
+      }
+    )
+  }
+
+  async rejectTokenSupport(requestId: number) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/defi/token-support/${requestId}/reject`,
+      {
+        method: "PUT",
+      }
+    )
+  }
+
+  async getGasTracker() {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/gas-tracker`)
+  }
+
+  async getChainGasTracker(chain: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/gas-tracker/${chain}`)
   }
 }
 

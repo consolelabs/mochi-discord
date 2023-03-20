@@ -1,3 +1,7 @@
+import defi from "adapters/defi"
+import dayjs from "dayjs"
+import duration from "dayjs/plugin/duration"
+import relativeTime from "dayjs/plugin/relativeTime"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -5,27 +9,28 @@ import {
   MessageActionRow,
   MessageButton,
 } from "discord.js"
+import { InternalError } from "errors"
+import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import NodeCache from "node-cache"
+import parse from "parse-duration"
+import { ResponseMonikerConfigData } from "types/api"
+import { OffchainTipBotTransferRequest } from "types/defi"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { parseDiscordToken } from "utils/commands"
 import {
   defaultEmojis,
   emojis,
+  equalIgnoreCase,
+  getAuthor,
   getEmoji,
   getEmojiURL,
+  isValidAmount,
+  msgColors,
   roundFloatNumber,
 } from "utils/common"
-import { getCommandObject, parseDiscordToken } from "utils/commands"
-import Defi from "adapters/defi"
-import NodeCache from "node-cache"
-import dayjs from "dayjs"
-import duration from "dayjs/plugin/duration"
-import relativeTime from "dayjs/plugin/relativeTime"
-import { OffchainTipBotTransferRequest } from "types/defi"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
-import { InternalError } from "errors"
-import { ResponseMonikerConfigData } from "types/api"
-import { commands } from "commands"
-import { parseMonikerinCmd, tipTokenIsSupported } from "utils/tip-bot"
-import parse from "parse-duration"
+import { validateBalance } from "utils/defi"
+import { parseMonikerinCmd, isTokenSupported } from "utils/tip-bot"
+import * as processor from "./processor"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -82,19 +87,19 @@ export async function confirmAirdrop(
   await interaction.deferUpdate()
 
   const infos = interaction.customId.split("-")
-  const [authorId, amount, amountInUSD, cryptocurrency, duration, maxEntries] =
+  const [authorId, amount, amountInUSD, token, duration, maxEntries] =
     infos.slice(1)
   if (authorId !== interaction.user.id) {
     return
   }
-  const tokenEmoji = getEmoji(cryptocurrency)
+  const tokenEmoji = getEmoji(token)
   const endTime = dayjs()
     .add(+duration, "second")
     .toDate()
   const originalAuthor = await msg.guild?.members.fetch(authorId)
   const airdropEmbed = composeEmbedMessage(msg, {
     author: ["An airdrop appears", getEmojiURL(emojis.WALLET)],
-    description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(
+    description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${token}** (\u2248 $${roundFloatNumber(
       +amountInUSD,
       4
     )})${
@@ -105,39 +110,32 @@ export async function confirmAirdrop(
     footer: ["Ends"],
     timestamp: endTime,
     originalMsgAuthor: originalAuthor?.user,
+    color: msgColors.BLUE,
   })
 
-  const reply = await msg
-    .edit({
-      embeds: [airdropEmbed],
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageButton({
-            customId: `enter_airdrop-${authorId}-${duration}-${maxEntries}`,
-            label: "Enter airdrop",
-            style: "SECONDARY",
-            emoji: "🎉",
-          })
-        ),
-      ],
-    })
-    .catch(() => null)
-  if (!reply) return
+  const reply = await msg.edit({
+    embeds: [airdropEmbed],
+    components: [
+      new MessageActionRow().addComponents(
+        new MessageButton({
+          customId: `enter_airdrop-${authorId}-${duration}-${maxEntries}`,
+          label: "Enter airdrop",
+          style: "SECONDARY",
+          emoji: "🎉",
+        })
+      ),
+    ],
+  })
   const cacheKey = `airdrop-${reply.id}`
   airdropCache.set(cacheKey, [], +duration)
 
-  // check airdrop expired
-  const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${cryptocurrency}** (\u2248 $${roundFloatNumber(
-    +amountInUSD,
-    4
-  )}) `
   await checkExpiredAirdrop(
     reply as Message,
     cacheKey,
-    description,
     authorId,
     +amount,
-    cryptocurrency,
+    +amountInUSD,
+    token,
     duration,
     +maxEntries
   )
@@ -146,59 +144,56 @@ export async function confirmAirdrop(
 async function checkExpiredAirdrop(
   msg: Message,
   cacheKey: string,
-  description: string,
   authorId: string,
   amount: number,
-  cryptocurrency: string,
+  usdAmount: number,
+  token: string,
   duration: string,
   maxEntries: number
 ) {
-  const getParticipantsStr = (list: string[]) =>
-    list
-      .slice(0, list.length - 1)
-      .join(", ")
-      .concat(list.length === 1 ? list[0] : ` and ${list[list.length - 1]}`)
-
   airdropCache.on("expired", async (key, participants: string[]) => {
     if (key === cacheKey) {
-      description +=
-        participants.length === 0
+      airdropCache.del(key)
+      participants = participants.slice(0, maxEntries)
+      const tokenEmoji = getEmoji(token)
+      const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${token}** (\u2248 $${roundFloatNumber(
+        +usdAmount,
+        4
+      )}) ${
+        !participants?.length
           ? "has not been collected by anyone :person_shrugging:."
-          : `has been collected by ${getParticipantsStr(participants)}!`
+          : `has been collected by ${participants.join(",")}!`
+      }`
 
       if (participants.length > 0 && msg.guildId) {
         const req: OffchainTipBotTransferRequest = {
           sender: authorId,
-          recipients: participants
-            .map((p) => parseDiscordToken(p).value)
-            .slice(0, maxEntries),
+          recipients: participants.map((p) => parseDiscordToken(p).value),
           guildId: msg.guildId,
           channelId: msg.channelId,
           amount,
-          token: cryptocurrency,
+          token: token,
           each: false,
           all: false,
           transferType: "airdrop",
           fullCommand: msg.content,
           duration: +duration,
         }
-        await Defi.offchainDiscordTransfer(req)
+        await defi.offchainDiscordTransfer(req)
       }
 
       const originalAuthor = await msg.guild?.members.fetch(authorId)
-      msg
-        .edit({
-          embeds: [
-            composeEmbedMessage(msg, {
-              author: ["An airdrop appears", getEmojiURL(emojis.WALLET)],
-              footer: [`${participants.length} users joined, ended`],
-              description,
-              originalMsgAuthor: originalAuthor?.user,
-            }),
-          ],
-          components: [],
-        })
-        .catch(() => null)
+      msg.edit({
+        embeds: [
+          composeEmbedMessage(msg, {
+            author: ["An airdrop appears", getEmojiURL(emojis.WALLET)],
+            footer: [`${participants.length} users joined, ended`],
+            description,
+            originalMsgAuthor: originalAuthor?.user,
+          }),
+        ],
+        components: [],
+      })
     }
   })
 }
@@ -251,58 +246,36 @@ export async function enterAirdrop(
               : `in ${dayjs.duration(duration, "seconds").humanize(true)}.`
           }`,
           footer: ["You will only receive this notification once"],
+          color: msgColors.SUCCESS,
         }),
       ],
     })
     if (participants.length === +maxEntries) {
       airdropCache.emit("expired", cacheKey, participants)
-      airdropCache.del(cacheKey)
     }
   }
 }
 
 export async function handleAirdrop(
   msgOrInteraction: Message | CommandInteraction,
-  payload: OffchainTipBotTransferRequest,
-  data: Record<string, any>
+  args: string[]
 ) {
-  const userId =
-    msgOrInteraction instanceof Message
-      ? msgOrInteraction.author.id
-      : msgOrInteraction.user.id
-  // get balance and price in usd
-  let currentBal = 0
-  let currentPrice = 0
-  data?.forEach((bal: any) => {
-    if (payload.token.toLowerCase() === bal.symbol.toLowerCase()) {
-      currentBal = bal.balances
-      currentPrice = bal.rate_in_usd
-    }
+  const payload = await processor.getAirdropPayload(msgOrInteraction, args)
+  const { amount, token, all } = payload
+  const { balance, usdBalance } = await validateBalance({
+    msgOrInteraction,
+    token,
+    amount,
+    all,
   })
-  if (currentBal < payload.amount && !payload.all) {
-    return {
-      messageOptions: {
-        embeds: [
-          Defi.composeInsufficientBalanceEmbed(
-            msgOrInteraction,
-            currentBal,
-            payload.amount,
-            payload.token
-          ),
-        ],
-      },
-    }
-  }
-  if (payload.all) payload.amount = currentBal
+  if (all) payload.amount = balance
 
   const tokenEmoji = getEmoji(payload.token)
+  const usdAmount = (usdBalance / balance) * payload.amount
   const amountDescription = `${tokenEmoji} **${roundFloatNumber(
     payload.amount,
     4
-  )} ${payload.token}** (\u2248 $${roundFloatNumber(
-    currentPrice * payload.amount,
-    4
-  )})`
+  )} ${payload.token}** (\u2248 $${roundFloatNumber(usdAmount, 4)})`
 
   const describeRunTime = (duration = 0) => {
     const hours = Math.floor(duration / 3600)
@@ -315,6 +288,7 @@ export async function handleAirdrop(
   const confirmEmbed = composeEmbedMessage(null, {
     title: `${getEmoji("AIRDROP")} Confirm airdrop`,
     description: `Are you sure you want to spend ${amountDescription} on this airdrop?`,
+    color: msgColors.BLUE,
   }).addFields([
     {
       name: "Total reward",
@@ -334,15 +308,15 @@ export async function handleAirdrop(
       inline: true,
     },
   ])
-
+  const author = getAuthor(msgOrInteraction)
   return {
     messageOptions: {
       embeds: [confirmEmbed],
       components: [
         composeAirdropButtons(
-          userId,
+          author.id,
           payload.amount,
-          currentPrice * payload.amount,
+          usdAmount,
           payload.token,
           payload.duration ?? 0,
           payload.opts?.maxEntries ?? 0
@@ -369,14 +343,23 @@ function getAirdropOptions(args: string[]) {
       .split(" ")[0]
     options.duration = parse(timeStr) / 1000
   }
+  // catch error duration invalid, exp: $airdrop 1 ftm in a
+  if (content.includes("in") && durationIdx === -1) {
+    options.duration = 0
+  }
 
   const maxEntriesReg = /for\s+\d+/
   const maxEntriesIdx = content.search(maxEntriesReg)
   if (maxEntriesIdx !== -1) {
-    options.maxEntries = +content
+    const entries = +content
       .substring(maxEntriesIdx)
       .replace(/for\s+/, "")
       .split(" ")[0]
+    options.maxEntries = entries === 0 ? -1 : entries
+  }
+
+  if (content.includes("for") && [0, -1].includes(maxEntriesIdx)) {
+    options.maxEntries = -1
   }
   return options
 }
@@ -385,73 +368,78 @@ export async function getAirdropPayload(
   msg: Message | CommandInteraction,
   args: string[]
 ): Promise<OffchainTipBotTransferRequest> {
-  let type
-  let sender
-  if (msg instanceof Message) {
-    const commandObject = getCommandObject(commands, msg)
-    type = commandObject?.command
-    sender = msg.author.id
-  } else {
-    type = msg.commandName
-    sender = msg.user.id
-  }
+  const author = getAuthor(msg)
   const guildId = msg.guildId ?? "DM"
-  const { newArgs, moniker } = await parseMonikerinCmd(args, guildId)
-  if (![3, 5, 7].includes(newArgs.length)) {
+  if (![3, 5, 7].includes(args.length)) {
     throw new DiscordWalletTransferError({
-      discordId: sender,
+      discordId: author.id,
       message: msg,
-      error: "Invalid airdrop command",
+      error: "Invalid number of airdrop arguments",
     })
   }
+  const { newArgs, moniker } = await parseMonikerinCmd(args, guildId)
   // airdrop 1 ftm in 1m for 1
   const amountArg = newArgs[1]
   const recipients: string[] = []
-  const cryptocurrency = newArgs[2].toUpperCase()
-
-  if (!moniker && !(await tipTokenIsSupported(cryptocurrency))) {
+  const token = newArgs[2].toUpperCase()
+  const tokenSupported = await isTokenSupported(token)
+  const pointingright = getEmoji("pointingright")
+  if (!moniker && !tokenSupported) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Unsupported token",
-      description: `**${cryptocurrency}** hasn't been supported.\n${getEmoji(
-        "POINTINGRIGHT"
-      )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
-        "POINTINGRIGHT"
-      )}.`,
+      description: `**${token}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright}.`,
     })
   }
   // validate airdrop amount
-  let amount = parseFloat(amountArg)
-  if (
-    (isNaN(amount) || amount <= 0) &&
-    !["all", "a", "an"].includes(amountArg)
-  ) {
+  const validAmount = isValidAmount({
+    arg: amountArg,
+    exceptions: ["all", "a", "an"],
+  })
+  if (!validAmount) {
     throw new DiscordWalletTransferError({
-      discordId: sender,
+      discordId: author.id,
       message: msg,
       error: "The amount is invalid. Please insert a natural number.",
     })
   }
-  if (amountArg === "a" || amountArg === "an") {
-    amount = 1
-  }
+  let amount = parseFloat(amountArg)
+  if (["a", "an"].includes(amountArg)) amount = 1
   if (moniker) {
     amount *= (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
   }
 
-  const options = getAirdropOptions(newArgs)
+  const opts = getAirdropOptions(newArgs)
+  // check valid duration
+  if (opts.duration === 0) {
+    throw new DiscordWalletTransferError({
+      discordId: author.id,
+      message: msg,
+      error: "The duration is invalid. Please insert a valid duration.",
+    })
+  }
+
+  // check valid entries
+  if (opts.maxEntries === -1) {
+    throw new DiscordWalletTransferError({
+      discordId: author.id,
+      message: msg,
+      error:
+        "The max entries number is invalid. Please insert a positive number.",
+    })
+  }
   return {
-    sender,
+    sender: author.id,
     recipients,
     guildId,
     channelId: msg.channelId,
     amount,
-    all: amountArg === "all",
+    all: equalIgnoreCase(amountArg, "all"),
     each: false,
     fullCommand: args.join(" ").trim(),
-    duration: options.duration,
-    token: cryptocurrency,
-    transferType: type ?? "",
-    opts: options,
+    duration: opts.duration,
+    token,
+    transferType: "airdrop",
+    opts,
   }
 }

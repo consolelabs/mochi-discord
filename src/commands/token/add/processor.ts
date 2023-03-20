@@ -1,4 +1,5 @@
 import {
+  ButtonInteraction,
   CommandInteraction,
   Message,
   MessageOptions,
@@ -6,7 +7,12 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { MultipleResult, RunResult } from "types/common"
-import { InternalError, GuildIdNotFoundError, APIError } from "errors"
+import {
+  InternalError,
+  GuildIdNotFoundError,
+  APIError,
+  OriginalMessage,
+} from "errors"
 import { Token } from "types/defi"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { InteractionHandler } from "handlers/discord/select-menu"
@@ -14,7 +20,64 @@ import Config from "../../../adapters/config"
 import Defi from "../../../adapters/defi"
 import * as SelectMenuUtil from "ui/discord/select-menu"
 import * as ButtonUtil from "ui/discord/button"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_TOKEN,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
+export async function process(
+  msg: OriginalMessage,
+  args: {
+    user_discord_id: string
+    channel_id: string
+    message_id: string
+    token_name: string
+    token_address: string
+    token_chain: string
+  }
+) {
+  const { ok, error, log, curl } = await Defi.requestSupportToken(args)
+  if (!ok) {
+    throw new APIError({ msgOrInteraction: msg, error, curl, description: log })
+  }
+
+  // send activity
+  const isTextCommand = msg instanceof Message
+  const userId = isTextCommand ? msg.author.id : msg.user.id
+  const dataProfile = await profile.getByDiscord(userId)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_TOKEN
+  )
+  kafkaMsg.activity.content.token_name = args.token_name
+  sendActivityMsg(kafkaMsg)
+
+  return {
+    messageOptions: {
+      embeds: [
+        getSuccessEmbed({
+          title: "Your Token submission is successful",
+          description:
+            "Thank you for submitting your token request!\nWe will review and update you on the approval status as quickly as possible.",
+        }),
+      ],
+    },
+  }
+}
 const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
@@ -43,6 +106,36 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
+export async function handleTokenApprove(i: ButtonInteraction) {
+  await i.deferUpdate()
+  const id = i.customId.split("-").pop()
+  if (!id || Number.isNaN(+id) || !Number.isInteger(+id)) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      description: "invalid request id",
+    })
+  }
+  const { ok, error, log, curl } = await Defi.approveTokenSupport(+id)
+  if (!ok) {
+    throw new APIError({ msgOrInteraction: i, error, curl, description: log })
+  }
+}
+
+export async function handleTokenReject(i: ButtonInteraction) {
+  await i.deferUpdate()
+  const id = i.customId.split("-").pop()
+  if (!id || Number.isNaN(+id) || !Number.isInteger(+id)) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      description: "invalid request id",
+    })
+  }
+  const { ok, error, log, curl } = await Defi.rejectTokenSupport(+id)
+  if (!ok) {
+    throw new APIError({ msgOrInteraction: i, error, curl, description: log })
+  }
+}
+
 export async function handleTokenAdd(
   msg: Message | CommandInteraction,
   guildId: string,
@@ -64,7 +157,7 @@ export async function handleTokenAdd(
 
   if (!options.length)
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "Your server already had all supported tokens.",
     })
   if (options.length > 25) {

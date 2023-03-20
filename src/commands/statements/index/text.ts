@@ -1,15 +1,15 @@
 import { Message } from "discord.js"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { buildButtonsRow, handleStatement, listenButtonsRow } from "./processor"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { PREFIX } from "utils/constants"
 import { getCommandArguments } from "utils/commands"
-import { tipTokenIsSupported } from "utils/tip-bot"
+import { isTokenSupported } from "utils/tip-bot"
 
 const run = async (msg: Message) => {
   const args = getCommandArguments(msg)
   const token = args.length > 1 ? args[1] : ""
-  const tokenValid = await tipTokenIsSupported(token)
+  const tokenValid = await isTokenSupported(token)
   if (args.length > 1 && !tokenValid) {
     return {
       messageOptions: {
@@ -38,6 +38,7 @@ const run = async (msg: Message) => {
             }. You can try \`${PREFIX}tip <@username/@role> <amount> <token>\` to transfer ${
               token !== "" ? `**${token.toUpperCase()}**` : "token"
             } to other users.`,
+            color: msgColors.SUCCESS,
           }),
         ],
       },

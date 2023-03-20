@@ -11,7 +11,7 @@ describe("handleUpdateWlError", () => {
   test("No specific error found", () => {
     expect(() => processor.handleUpdateWlError(msg, "ftm", "")).toThrow(
       new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         description: "",
       })
     )
@@ -31,7 +31,7 @@ describe("handleUpdateWlError", () => {
       processor.handleUpdateWlError(msg, symbol, "record not found", isRemove)
     ).toThrow(
       new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command Error",
         description,
       })
@@ -52,7 +52,7 @@ describe("handleUpdateWlError", () => {
       processor.handleUpdateWlError(msg, symbol, "record not found", isRemove)
     ).toThrow(
       new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command Error",
         description,
       })
@@ -69,7 +69,7 @@ describe("handleUpdateWlError", () => {
       processor.handleUpdateWlError(msg, symbol, "conflict", isRemove)
     ).toThrow(
       new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command Error",
         description,
       })

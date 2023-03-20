@@ -1,3 +1,4 @@
+import profile from "adapters/profile"
 import { commands, slashCommands } from "commands"
 import {
   ColorResolvable,
@@ -7,6 +8,7 @@ import {
   MessageOptions,
   User,
 } from "discord.js"
+import { APIError } from "errors"
 import { Command, EmbedProperties } from "types/common"
 import {
   getActionCommand,
@@ -17,7 +19,13 @@ import {
   getSlashCommandObject,
   specificHelpCommand,
 } from "utils/commands"
-import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  msgColors,
+  roundFloatNumber,
+} from "utils/common"
 import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
 
 export const EMPTY_FIELD = {
@@ -27,15 +35,13 @@ export const EMPTY_FIELD = {
 }
 
 export function getMultipleResultEmbed({
-  msg,
   ambiguousResultText,
   multipleResultText,
 }: {
-  msg: Message | null
   ambiguousResultText: string
   multipleResultText: string
 }) {
-  return composeEmbedMessage(msg, {
+  return composeEmbedMessage(null, {
     title: `${getEmoji("MAG")} Multiple results found`,
     description: `Relevant results found for \`${ambiguousResultText}\`${
       multipleResultText ? `: ${multipleResultText}` : ""
@@ -394,4 +400,61 @@ export function composePartnerEmbedPimp() {
     thumbnail:
       "https://cdn.discordapp.com/attachments/994457507135234118/1080335263143829564/MCLB-token.png",
   })
+}
+
+export function composeInsufficientBalanceEmbed({
+  current,
+  required,
+  symbol,
+  author,
+}: {
+  current?: number
+  required: number
+  symbol: string
+  author?: User
+}) {
+  const tokenEmoji = getEmoji(symbol)
+  return composeEmbedMessage(null, {
+    author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
+    description: `${author}, your balance is insufficient.\nYou can deposit more by using \`$deposit ${symbol}\``,
+  }).addFields([
+    {
+      name: "Required amount",
+      value: `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
+      inline: true,
+    },
+    ...(current
+      ? [
+          {
+            name: "Your balance",
+            value: `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
+            inline: true,
+          },
+        ]
+      : []),
+  ])
+}
+
+export async function composeMyWalletSelection(userId: string) {
+  const pfRes = await profile.getByDiscord(userId)
+  if (pfRes.err) {
+    throw new APIError({
+      description: `[getByDiscord] API error with status ${pfRes.status_code}`,
+      curl: "",
+    })
+  }
+  const wallets =
+    pfRes.associated_accounts?.filter((a: any) =>
+      ["evm-chain", "solana-chain"].includes(a.platform)
+    ) ?? []
+  return [
+    { label: "Mochi wallet", value: `mochi_${userId}` },
+    ...wallets.map((w: any) => {
+      const addr = w.platform_identifier
+      return {
+        label: addr,
+        value: addr,
+      }
+    }),
+  ]
 }

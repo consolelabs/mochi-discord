@@ -3,7 +3,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
@@ -27,7 +27,7 @@ const command: Command = {
     const { isRole, value: id } = parseDiscordToken(roleArg)
     if (!isRole) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command error",
         description:
           "Invalid role. Be careful not to be mistaken role with username while using `@`.",
@@ -37,7 +37,7 @@ const command: Command = {
     const role = msg.guild.roles.cache.get(id)
     if (!role) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command error",
         description:
           "Invalid role. Be careful not to be mistaken role with username while using `@`.",
@@ -54,6 +54,7 @@ const command: Command = {
               description: `Everyone has the role ${
                 role.name
               }, let's put down the prune stick ${getEmoji("TOUCH")}`,
+              color: msgColors.PINK,
             }),
           ],
         },

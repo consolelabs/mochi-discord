@@ -5,7 +5,7 @@ import { PREFIX, PRUNE_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { InternalError, GuildIdNotFoundError } from "errors"
 import { getCommandArguments } from "utils/commands"
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { CONFIRM_PRUNE_INACTIVE, pruneInactiveExecute } from "./processor"
 import { getExitButton } from "ui/discord/button"
 
@@ -20,10 +20,10 @@ const command: Command = {
     }
 
     const args = getCommandArguments(msg)
-    if (args.length < 3 || parseInt(args[2]) < 5) {
+    if (args.length < 3 || parseInt(args[2]) < 5 || parseInt(args[2]) > 30) {
       throw new InternalError({
-        message: msg,
-        description: "Inactive days should be a number from 5 and higher",
+        msgOrInteraction: msg,
+        description: "Inactive days should be a number between 5 and 30",
       })
     }
     const days = parseInt(args[2], 10)
@@ -37,6 +37,7 @@ const command: Command = {
               description: `No one is inactive for ${days} days, let's put down the prune stick! ${getEmoji(
                 "TOUCH"
               )}`,
+              color: msgColors.PINK,
             }),
           ],
         },

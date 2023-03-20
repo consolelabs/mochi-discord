@@ -5,7 +5,6 @@ import {
   Message,
   MessageActionRow,
   MessageAttachment,
-  MessageButton,
   MessageOptions,
   MessageSelectMenu,
   SelectMenuInteraction,
@@ -22,9 +21,7 @@ import {
   getCompactFormatedNumber,
   getEmoji,
   getEmojiURL,
-  getMarketplaceCollectionUrl,
   roundFloatNumber,
-  shortenHashOrAddress,
 } from "utils/common"
 import { renderChartImage, renderPlotChartImage } from "ui/canvas/chart"
 import dayjs from "dayjs"
@@ -39,6 +36,10 @@ import { InteractionHandler } from "handlers/discord/select-menu"
 import { getDefaultSetter } from "utils/default-setters"
 import { getExitButton } from "ui/discord/button"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
+import {
+  buildSwitchViewActionRow,
+  composeCollectionInfoEmbed,
+} from "../processor"
 
 const dayOpts = [1, 7, 30, 60, 90, 365]
 const decimals = (p?: ResponseIndexerPrice) => p?.token?.decimals ?? 0
@@ -51,39 +52,6 @@ export enum ChartStyle {
 
 export function getOriginAuthorId() {
   return originAuthorId
-}
-
-export function buildSwitchViewActionRow(
-  currentView: string,
-  params: {
-    collectionAddress: string
-    chain: string
-    days?: number
-  }
-) {
-  const { chain, days = 90 } = params
-  let collectionAddress = params.collectionAddress
-
-  if (collectionAddress.includes("solscan-")) {
-    collectionAddress = collectionAddress.replace("solscan-", "")
-  }
-  const tickerButton = new MessageButton({
-    label: "Ticker",
-    emoji: getEmoji("INCREASING"),
-    customId: `nft_ticker_view_chart-${collectionAddress}-${chain}-${days}`,
-    style: "SECONDARY",
-    disabled: currentView === "ticker",
-  })
-  const nftButton = new MessageButton({
-    label: "Info",
-    emoji: getEmoji("MAG"),
-    customId: `nft_ticker_view_info-${collectionAddress}-${chain}-${days}`,
-    style: "SECONDARY",
-    disabled: currentView === "info",
-  })
-  const row = new MessageActionRow()
-  row.addComponents([tickerButton, nftButton])
-  return row
 }
 
 export async function handleNFTTickerViews(interaction: ButtonInteraction) {
@@ -131,101 +99,6 @@ async function viewTickerInfo(
   await msg.removeAttachments()
 }
 
-export async function composeCollectionInfoEmbed(
-  msg: Message,
-  collectionAddress: string,
-  chain: string
-) {
-  if (chain === "999") {
-    collectionAddress = "solscan-" + collectionAddress
-  }
-  const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
-    collectionAddress,
-    chain
-  )
-  if (!ok) {
-    throw new APIError({ message: msg, curl: curl, description: log })
-  }
-  if (!data) {
-    throw new InternalError({
-      message: msg,
-      description: "The collection does not exist. Please choose another one.",
-    })
-  }
-  const symbol = `${data.symbol?.toUpperCase() ?? "-"}`
-  const address = data.address
-    ? `[\`${shortenHashOrAddress(
-        data.address
-      )}\`](${getMarketplaceCollectionUrl(data.address)})`
-    : "-"
-  const name = `${data.name ?? "-"}`
-  const desc = `${data.description ?? "-"}`
-  const discord = data.discord
-    ? `[${getEmoji("discord")}](${data.discord})`
-    : ""
-  const twitter = data.twitter
-    ? `[${getEmoji("twitter")}](${data.twitter})`
-    : ""
-  const website = data.website ? `[🌐](${data.website})` : ""
-  let more = "-"
-  if (discord || twitter || website) {
-    more = `${discord} ${twitter} ${website}`
-  }
-  const ercFormat = `${data.erc_format ?? "-"}`
-  const marketplaces = data.marketplaces?.length
-    ? data.marketplaces.map((m: string) => getEmoji(m)).join(" ")
-    : "-"
-
-  const fields = [
-    {
-      name: "Symbol",
-      value: symbol,
-    },
-    {
-      name: "Address",
-      value: address,
-    },
-    {
-      name: "Chain",
-      value: `${getEmoji(chain)}`,
-    },
-    {
-      name: "Marketplace",
-      value: marketplaces,
-    },
-    {
-      name: "Format",
-      value: ercFormat,
-    },
-    {
-      name: "Find More",
-      value: more,
-    },
-  ].map((f: EmbedFieldData) => ({
-    ...f,
-    inline: true,
-  }))
-
-  const collectionImage = data.image ?? getEmojiURL(emojis["NFTS"])
-  const embed = composeEmbedMessage(msg, {
-    author: [`${name}`, collectionImage],
-    description: desc,
-    image: "attachment://chart.png",
-    thumbnail: collectionImage,
-  }).addFields(fields)
-
-  const buttonRow = buildSwitchViewActionRow("info", {
-    collectionAddress,
-    chain,
-  }).addComponents(getExitButton(originAuthorId))
-  return {
-    messageOptions: {
-      embeds: [justifyEmbedFields(embed, 3)],
-      components: [buttonRow],
-    },
-  }
-}
-
 async function composeCollectionTickerEmbed({
   msg,
   collectionAddress,
@@ -247,12 +120,12 @@ async function composeCollectionTickerEmbed({
     to,
   })
   if (!ok) {
-    throw new APIError({ message: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
   }
   // collection is not exist, mochi has not added it yet
   if (!data) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "The collection does not exist. Please choose another one.",
     })
   }
@@ -517,7 +390,7 @@ export async function handleNftTicker(
     log,
     curl,
   } = await community.getNFTCollectionSuggestions(symbol)
-  if (!ok) throw new APIError({ message: msg, curl, description: log })
+  if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
   if (!suggestions.length) {
     return {
       messageOptions: {

@@ -1,13 +1,17 @@
 import community from "adapters/community"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
 
 export async function handleNftStats(msg: Message | CommandInteraction) {
   const res = await community.getCollectionCount()
   if (!res.ok) {
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: res.log,
+    })
   }
   let description = ``
   const sortedStats = res.data.data?.sort(
@@ -25,6 +29,7 @@ export async function handleNftStats(msg: Message | CommandInteraction) {
         composeEmbedMessage(null, {
           title: "Collections supported",
           description: description,
+          color: msgColors.PINK,
         }),
       ],
     },

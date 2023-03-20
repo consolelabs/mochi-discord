@@ -30,6 +30,7 @@ import {
 } from "@bonfida/spl-name-service"
 import { logger } from "logger"
 import providers from "utils/providers"
+import { OriginalMessage } from "errors"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
@@ -95,6 +96,8 @@ export const tokenEmojis: Record<string, string> = {
   SUI: "1077132420500951081",
   FBOMB: "1079669535117938788",
   MCLB: "1079669537408036955",
+  BSC: "972205674715054090",
+  POL: "1037985931816349746",
 }
 
 export const numberEmojis: Record<string, string> = {
@@ -170,6 +173,11 @@ const fiatEmojis: Record<string, string> = {
   GBP: "1044548789433802762",
 }
 
+const gameEmojis: Record<string, string> = {
+  TRIPOD: "1084678363895042069",
+  HUNGERGAME: "1084678567616585799",
+}
+
 export const emojis: { [key: string]: string } = {
   GOOD_MORNING: "967285238306840576",
   REVOKE: "967285238055174195",
@@ -226,6 +234,7 @@ export const emojis: { [key: string]: string } = {
   XP: "933032436814708768",
   XP2: "1058304395000938516",
   MESSAGE: "1032608821534806056",
+  MESSAGE1: "1084871115685494867",
   CONVERSATION: "1032608818930139249",
   TOUCH: "900363887050911784",
   MOCHI_SQUARE: "974507016536072242",
@@ -267,6 +276,24 @@ export const emojis: { [key: string]: string } = {
   PLUS: "1078633897513992202",
   ARROWUP: "1058304264071561267",
   CLOCK: "1080757110146605086",
+  COIN2: "1058304288448852069",
+  NFT2: "1080788646841557072",
+  BIN: "1078633887292477450",
+  SLOW: "1085777459875696690",
+  NORMAL: "1058304356421730424",
+  FAST: "1085777392552910959",
+  MOCHI_APP: "1086128796412944444",
+  MOCHI_PAY: "1086128801903284294",
+  GIFT: "1086128793988632669",
+  QUEST: "1086128805191622697",
+  ACTIVITY_XP: "1058304395000938516",
+  ACTIVITY_MONEY: "1080757975649624094",
+  ACTIVITY_STAR: "1058304360993525832",
+  ACTIVITY_CASH: "1058304283642167319",
+  ACTIVITY_COIN: "1058304290927685682",
+  ACTIVITY_HEART: "1058304328370225162",
+  ACTIVITY_CLOCK: "1080757110146605086",
+  CLIPBOARD: "1085873013309833216",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,
@@ -276,12 +303,18 @@ export const emojis: { [key: string]: string } = {
   ...progressEmojis,
   ...factionEmojis,
   ...fiatEmojis,
+  ...gameEmojis,
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
   PRIMARY: "#E88B88",
-  ERROR: "#D94F50",
+  ERROR: "#D94F4F",
   SUCCESS: "#5cd97d",
+  PINK: "#FCD3C1",
+  GRAY: "#1E1F22",
+  BLUE: "#C8EFF8",
+  YELLOW: "#F9F687",
+  ACTIVITY: "#62A1FE",
 }
 
 export const thumbnails: Record<string, string> = {
@@ -374,6 +407,7 @@ export function getEmojiURL(emojiId: string) {
 }
 
 export function shortenHashOrAddress(hash: string) {
+  if (!hash) return ""
   return `${hash.slice(0, 6)}...${hash.slice(hash.length - 6)}`
 }
 
@@ -659,4 +693,28 @@ export async function reverseLookup(address: string) {
     logger.error(`[reverseLookup] failed: ${e}`)
     return ""
   }
+}
+
+export function getAuthor(msgOrInteraction: OriginalMessage) {
+  return msgOrInteraction instanceof Message
+    ? msgOrInteraction.author
+    : msgOrInteraction.user
+}
+
+export function isValidAmount({
+  arg,
+  exceptions,
+}: {
+  arg: string
+  exceptions?: string[]
+}) {
+  if (exceptions?.map((s) => s.toLowerCase()).includes(arg.toLowerCase())) {
+    return true
+  }
+  const amount = parseFloat(arg)
+  return !isNaN(amount) && amount > 0
+}
+
+export function equalIgnoreCase(s1: string, s2: string) {
+  return s1?.toLowerCase() === s2?.toLowerCase()
 }

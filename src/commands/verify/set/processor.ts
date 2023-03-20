@@ -4,6 +4,14 @@ import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
 import { getEmoji } from "utils/common"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_VERIFY,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 export async function runVerifySet({
   msg,
@@ -21,7 +29,7 @@ export async function runVerifySet({
     const { isChannel, value } = parseDiscordToken(args[2])
     if (!isChannel) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid channel",
         description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
           "POINTINGRIGHT"
@@ -36,7 +44,7 @@ export async function runVerifySet({
       const { isRole, value } = parseDiscordToken(args[3])
       if (!isRole || !value) {
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           title: "Invalid role",
           description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n${getEmoji(
             "POINTINGRIGHT"
@@ -87,8 +95,33 @@ export async function runVerifySet({
     createVerifyWalletRequest
   )
   if (!res.ok) {
-    throw new APIError({ message: msg, curl: res.curl, description: res.log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: res.log,
+    })
   }
+
+  // send activity
+  const channel = msg?.guild?.channels.cache.get(channelId)
+  const isTextCommand = msg instanceof Message
+  const userId = isTextCommand ? msg.author.id : ""
+  const dataProfile = await profile.getByDiscord(userId)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_VERIFY
+  )
+  kafkaMsg.activity.content.channel_name = channel?.name
+  sendActivityMsg(kafkaMsg)
 
   return {
     messageOptions: {

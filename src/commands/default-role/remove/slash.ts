@@ -23,7 +23,7 @@ const command: SlashCommand = {
     const res = await config.removeDefaultRoleConfig(interaction.guildId)
     if (!res.ok) {
       throw new APIError({
-        message: interaction,
+        msgOrInteraction: interaction,
         error: res.error,
         description: res.log,
         curl: res.curl,

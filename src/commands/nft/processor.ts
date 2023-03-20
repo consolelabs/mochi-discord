@@ -1,5 +1,11 @@
 import community from "adapters/community"
-import { EmbedFieldData, Message, MessageAttachment } from "discord.js"
+import {
+  EmbedFieldData,
+  Message,
+  MessageAttachment,
+  MessageButton,
+  MessageActionRow,
+} from "discord.js"
 import { APIError, InternalError } from "errors"
 import {
   emojis,
@@ -15,8 +21,6 @@ import {
   getErrorEmbed,
   justifyEmbedFields,
 } from "ui/discord/embed"
-import { buildSwitchViewActionRow, getOriginAuthorId } from "./ticker/processor"
-import { getExitButton } from "ui/discord/button"
 import { CircleleStats, RectangleStats } from "types/canvas"
 import { NFTCollection } from "types/community"
 import { drawCircleImage, drawRectangle, loadImages } from "ui/canvas/draw"
@@ -122,7 +126,7 @@ export async function toEmbed(
         )
       ) {
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           title: "Can't find the NFT collection",
           description:
             "The NFT Address and NFT Chain must be valid. Go to the collection's official website/ marketplace to find this information. ",
@@ -180,16 +184,19 @@ export async function composeCollectionInfoEmbed(
   collectionAddress: string,
   chain: string
 ) {
+  if (chain === "999" || chain === "sol") {
+    collectionAddress = "solscan-" + collectionAddress
+  }
   const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
     collectionAddress,
     chain
   )
   if (!ok) {
-    throw new APIError({ message: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
   }
   if (!data) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "The collection does not exist. Please choose another one.",
     })
   }
@@ -258,7 +265,7 @@ export async function composeCollectionInfoEmbed(
   const buttonRow = buildSwitchViewActionRow("info", {
     collectionAddress,
     chain,
-  }).addComponents(getExitButton(getOriginAuthorId()))
+  })
   return {
     messageOptions: {
       embeds: [justifyEmbedFields(embed, 3)],
@@ -277,11 +284,11 @@ export async function composeCollectionSoulboundEmbed(
     chain
   )
   if (!ok) {
-    throw new APIError({ message: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
   }
   if (!data) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: "The collection does not exist. Please choose another one.",
     })
   }
@@ -304,7 +311,7 @@ export async function composeCollectionSoulboundEmbed(
   const buttonRow = buildSwitchViewActionRow("info", {
     collectionAddress,
     chain,
-  }).addComponents(getExitButton(getOriginAuthorId()))
+  })
 
   return {
     messageOptions: {
@@ -426,4 +433,37 @@ export function formatPriceWeiToEther(
   )
   if (!convertedAmount) return `-`
   return `${getCompactFormatedNumber(convertedAmount)}`
+}
+
+export function buildSwitchViewActionRow(
+  currentView: string,
+  params: {
+    collectionAddress: string
+    chain: string
+    days?: number
+  }
+) {
+  const { chain, days = 90 } = params
+  let collectionAddress = params.collectionAddress
+
+  if (collectionAddress.includes("solscan-")) {
+    collectionAddress = collectionAddress.replace("solscan-", "")
+  }
+  const tickerButton = new MessageButton({
+    label: "Ticker",
+    emoji: getEmoji("INCREASING"),
+    customId: `nft_ticker_view_chart-${collectionAddress}-${chain}-${days}`,
+    style: "SECONDARY",
+    disabled: currentView === "ticker",
+  })
+  const nftButton = new MessageButton({
+    label: "Info",
+    emoji: getEmoji("MAG"),
+    customId: `nft_ticker_view_info-${collectionAddress}-${chain}-${days}`,
+    style: "SECONDARY",
+    disabled: currentView === "info",
+  })
+  const row = new MessageActionRow()
+  row.addComponents([tickerButton, nftButton])
+  return row
 }

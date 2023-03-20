@@ -1,4 +1,4 @@
-import { GuildIdNotFoundError, InternalError } from "errors"
+import { GuildIdNotFoundError, InternalError, APIError } from "errors"
 import { Command } from "types/common"
 import { getEmoji } from "utils/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
@@ -6,6 +6,14 @@ import { GM_GITBOOK, PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { throwOnInvalidEmoji } from "utils/emoji"
 import { handle } from "./processor"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_GM,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "gm_set",
@@ -22,7 +30,7 @@ const command: Command = {
     if (!isChannel) {
       throw new InternalError({
         title: "Command Error",
-        message: msg,
+        msgOrInteraction: msg,
         description: "Invalid channel. Type #, then choose the valid one!",
       })
     }
@@ -50,6 +58,24 @@ const command: Command = {
       emoji = args[4]
     }
     throwOnInvalidEmoji(emoji, msg)
+    // send activity
+    const channel = msg?.guild?.channels.cache.get(channelId)
+    const dataProfile = await profile.getByDiscord(msg?.author.id)
+    if (dataProfile.err) {
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+        curl: "",
+      })
+    }
+    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+      dataProfile.id,
+      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      MOCHI_APP_SERVICE,
+      MOCHI_ACTION_GM
+    )
+    kafkaMsg.activity.content.channel_name = channel?.name
+    sendActivityMsg(kafkaMsg)
 
     return await handle(msg.guildId, channelId, messageText, emoji, stickerArg)
   },

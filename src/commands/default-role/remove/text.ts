@@ -39,14 +39,14 @@ const command: Command = {
     if (configs.ok) {
       if (configs.data.role_id == "") {
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           title: "No default role found",
           description: `You haven't set any default role yet. To set a new one, run \`\`\`$dr set @<role_name>\`\`\`\n You can remove it later using \`$dr remove\`.`,
         })
       }
     } else {
       throw new APIError({
-        message: msg,
+        msgOrInteraction: msg,
         error: configs.error,
         description: configs.log,
         curl: configs.curl,
@@ -56,7 +56,7 @@ const command: Command = {
     const res = await config.removeDefaultRoleConfig(msg.guildId)
     if (!res.ok) {
       throw new APIError({
-        message: msg,
+        msgOrInteraction: msg,
         error: res.error,
         description: res.log,
         curl: res.curl,

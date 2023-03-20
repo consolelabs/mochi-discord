@@ -8,7 +8,6 @@ import {
   User,
 } from "discord.js"
 import { MessageButtonStyles } from "discord.js/typings/enums"
-import { WEBSITE_ENDPOINT } from "env"
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { composeButtonLink, getExitButton } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -19,6 +18,7 @@ import {
   isAddress,
   msgColors,
 } from "utils/common"
+import { HOMEPAGE_URL } from "utils/constants"
 import { awaitMessage } from "utils/discord"
 
 export async function handleWalletAddition(msg: OriginalMessage) {
@@ -31,22 +31,15 @@ export async function handleWalletAddition(msg: OriginalMessage) {
       "pointingdown"
     )} Please choose "Connect Wallet" below to connect your metamask wallet.\nAlternatively, press Exit to abort.`,
     originalMsgAuthor: author,
+    color: msgColors.SUCCESS,
   })
   const replyPayload = { embeds: [embed] }
   const reply = (await (isTextMsg
     ? msg.reply(replyPayload)
     : msg.editReply(replyPayload))) as Message
-  const { data, ok, curl, log } = await defi.generateWalletVerification({
-    userId: author.id,
-    channelId: msg.channelId,
-    messageId: reply.id,
-  })
-  if (!ok) {
-    throw new APIError({ message: msg, description: log, curl })
-  }
   const buttonRow = composeButtonLink(
     "Connect Wallet",
-    `${WEBSITE_ENDPOINT}/verify?code=${data.code}`
+    `${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${author.id}`
   ).addComponents(getExitButton(author.id))
   await reply.edit({ components: [buttonRow] })
 }
@@ -63,6 +56,7 @@ export async function redirectToAddMoreWallet(i: ButtonInteraction) {
 }
 
 export async function addWallet(i: ButtonInteraction) {
+  await (i.message as Message).edit({ components: [] })
   if (!i.customId.startsWith("wallet_add-")) return
   const [userId, address] = i.customId.split("-").slice(1)
   if (i.user.id !== userId) {
@@ -88,12 +82,23 @@ export async function renameWallet(
       composeEmbedMessage(null, {
         author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
         description: `Set a short, easy-to-remember label for long, complicated wallet addresses.\n${pointingright} Enter label for \`${address}\` or \`cancel\` to skip.\nE.g. baddeed.eth`,
+        color: msgColors.SUCCESS,
       }),
     ],
   })
   const { first, content } = await awaitMessage({
     authorId: userId,
     msg: reply as Message,
+    timeout: 60000,
+    timeoutResponse: {
+      embeds: [
+        composeEmbedMessage(null, {
+          title: "Timeout!",
+          description:
+            "You can rename wallet later in `$wallet view <address>`",
+        }),
+      ],
+    },
   })
   const skipped = content.toLowerCase() === "cancel"
   const alias = skipped ? "" : content
@@ -105,13 +110,13 @@ export async function renameWallet(
   })
   if (!ok && status === 409) {
     throw new InternalError({
-      message: i,
+      msgOrInteraction: i,
       title: "Alias has been used",
       description: `This alias has been used for another address. Please enter another alias!\n${pointingright} You can see used aliases by using \`$wallet view\`.`,
     })
   }
   if (!ok) {
-    throw new APIError({ message: i, description: log, curl })
+    throw new APIError({ msgOrInteraction: i, description: log, curl })
   }
   const successEmbed = new MessageEmbed()
     .setDescription(`${getEmoji("approve")} Wallet name has been changed!`)
@@ -135,7 +140,7 @@ export async function trackWallet(
   const { valid, type } = isAddress(address)
   if (!valid) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Invalid address",
       description:
         "Your wallet address is invalid. Make sure that the wallet address is valid, you can copy-paste it to ensure the exactness of it.",
@@ -150,18 +155,19 @@ export async function trackWallet(
   const pointingright = getEmoji("pointingright")
   if (!ok && status === 409) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Alias has been used",
       description: `This alias has been used for another address. Please enter another alias!\n${pointingright} You can see used aliases by using \`$wallet view\`.`,
     })
   }
   if (!ok) {
-    throw new APIError({ message: msg, description: log, curl })
+    throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
     author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
     description: `Set a short, easy-to-remember label for long, complicated wallet addresses.\n${pointingright} Enter label for \`${address}\` or press Skip.\nE.g. baddeed.eth`,
+    color: msgColors.SUCCESS,
   })
   return {
     embeds: [embed],

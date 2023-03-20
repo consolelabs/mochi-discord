@@ -1,19 +1,22 @@
 import { Message, SelectMenuInteraction } from "discord.js"
 import config from "adapters/config"
-import {
-  APIError,
-  CommandArgumentError,
-  GuildIdNotFoundError,
-  InternalError,
-} from "errors"
+import { APIError, CommandArgumentError, GuildIdNotFoundError } from "errors"
 import { Command } from "types/common"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { getEmoji, isAddress } from "utils/common"
+import { getEmoji, isAddress, msgColors } from "utils/common"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { PREFIX } from "utils/constants"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { composeDiscordExitButton } from "ui/discord/button"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_PROPOSAL,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "proposal_set",
@@ -24,6 +27,27 @@ const command: Command = {
   run: async function (msg) {
     if (!msg.guild) {
       throw new GuildIdNotFoundError({})
+    }
+
+    const { ok, data, curl, log, error } =
+      await config.getProposalChannelConfig(msg.guild.id)
+    if (!ok) {
+      throw new APIError({ curl, description: log, error })
+    }
+    // already config
+    if (data !== null) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              title: "Proposal channel already set!",
+              description: `${getEmoji(
+                "POINTINGRIGHT"
+              )} Run \`${PREFIX}proposal remove\` to remove existing config before setting a new one.`,
+            }),
+          ],
+        },
+      }
     }
     // $proposal set <#channel> <network> <token_contract>
     // $proposal set #channel evm 0xad29abb318791d579433d831ed122afeaf29dcfe
@@ -60,6 +84,7 @@ const command: Command = {
         },
       }
     }
+
     const selectRow = composeDiscordSelectionRow({
       customId: "daovote_set",
       placeholder: "Choose who can post proposals",
@@ -122,6 +147,26 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
     if (!ok) {
       throw new APIError({ curl, description: log })
     }
+    // send activity
+
+    const channel = msgOrInteraction?.guild?.channels.cache.get(channelId)
+
+    const dataProfile = await profile.getByDiscord(interaction.user.id)
+    if (dataProfile.err) {
+      throw new APIError({
+        msgOrInteraction: msgOrInteraction,
+        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+        curl: "",
+      })
+    }
+    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+      dataProfile.id,
+      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      MOCHI_APP_SERVICE,
+      MOCHI_ACTION_PROPOSAL
+    )
+    kafkaMsg.activity.content.channel_name = channel?.name
+    sendActivityMsg(kafkaMsg)
     return {
       messageOptions: {
         embeds: [
@@ -130,12 +175,14 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
             description: `${getEmoji(
               "point_right"
             )} All proposals will be posted and voted in the <#${channelId}>`,
+            color: msgColors.SUCCESS,
           }),
         ],
         components: [],
       },
     }
   }
+  // token holder options but missing args
   if (!chain || !contract) {
     return {
       messageOptions: {
@@ -149,6 +196,32 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       },
     }
   }
+  // check chain is valid
+  const supportedChains = await config.getAllChains()
+  const chainCurrencies = supportedChains.map((chain: { currency: string }) => {
+    return chain.currency.toUpperCase()
+  })
+  const chainIds = supportedChains.map((chain: { id: string }) => {
+    return chain.id
+  })
+
+  const isValidChain =
+    chainIds.includes(chainIds) || chainCurrencies.includes(chain.toUpperCase())
+
+  if (!chain || !isValidChain) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            title: `${getEmoji("revoke")} Unsupported chain`,
+            description:
+              "The chain hasn't been supported. Take a look at our supported chain by `$token list`",
+          }),
+        ],
+      },
+    }
+  }
+
   await interaction.update({
     embeds: [
       composeEmbedMessage(null, {
@@ -159,12 +232,14 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
     ],
     components: [],
   })
+
   const filter = (collected: Message) =>
     collected.author.id === interaction.user.id
   const collected = await interaction.channel?.awaitMessages({
     max: 1,
     filter,
   })
+
   const amountStr = collected?.first()?.content?.trim() ?? ""
   const amount = parseFloat(amountStr)
   if (isNaN(amount) || amount <= 0) {
@@ -178,7 +253,8 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       },
     }
   }
-  const { ok, log, curl, error } = await config.createProposalChannel({
+
+  const proposalResp = await config.createProposalChannel({
     guild_id: interaction.guildId || "",
     channel_id: channelId,
     authority: "token_holder",
@@ -187,25 +263,82 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
     address: contract,
     required_amount: amount,
   })
-  if (!ok) {
-    switch (error) {
-      case "Invalid token contract":
-        throw new InternalError({
-          title: `${getEmoji("revoke")} Invalid Contract`,
-          description:
-            "Can't find the token contract. Please choose the valid one!",
-        })
-      case "Invalid chain":
-        throw new InternalError({
-          title: `${getEmoji("revoke")} Unsupported network`,
-          description: `${getEmoji(
-            "pointingright"
-          )} Only tokens on EVM, Polygon, and Solana are supported. You can choose one of these networks.`,
-        })
+
+  if (!proposalResp.ok) {
+    switch (proposalResp.error) {
+      case "Invalid token contract 400":
+        return {
+          messageOptions: {
+            embeds: [
+              getErrorEmbed({
+                title: `${getEmoji("revoke")} Invalid Contract`,
+                description:
+                  "Can't find the token contract. Please choose the valid one!",
+              }),
+            ],
+          },
+        }
+      case "Invalid chain 400":
+        return {
+          messageOptions: {
+            embeds: [
+              getErrorEmbed({
+                title: `${getEmoji("revoke")} Unsupported network`,
+                description: `${getEmoji(
+                  "pointingright"
+                )} Only tokens on EVM, Polygon, and Solana are supported. You can choose one of these networks.`,
+              }),
+            ],
+          },
+        }
       default:
-        throw new APIError({ curl, description: log })
+        return {
+          messageOptions: {
+            embeds: [
+              getErrorEmbed({
+                title: `${getEmoji("revoke")} Internal Error`,
+                description: proposalResp.error,
+              }),
+            ],
+          },
+        }
     }
   }
+
+  // send activity
+
+  const channel = msgOrInteraction?.guild?.channels.cache.get(channelId)
+
+  const dataProfile = await profile.getByDiscord(interaction.user.id)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msgOrInteraction,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+  const kafkaMsg: KafkaQueueActivityDataCommand = {
+    platform: "discord",
+    activity: {
+      profile_id: dataProfile.id,
+      status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      platform: MOCHI_APP_SERVICE,
+      action: MOCHI_ACTION_PROPOSAL,
+      content: {
+        username: "",
+        amount: "",
+        token: "",
+        server_name: "",
+        number_of_user: "",
+        role_name: "",
+        channel_name: channel?.name,
+        token_name: "",
+        moniker_name: "",
+        address: "",
+      },
+    },
+  }
+  sendActivityMsg(kafkaMsg)
 
   return {
     messageOptions: {
@@ -215,6 +348,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
           description: `${getEmoji(
             "pointingright"
           )} All proposals will be posted and voted in the <#${channelId}>`,
+          color: msgColors.SUCCESS,
         }),
       ],
     },

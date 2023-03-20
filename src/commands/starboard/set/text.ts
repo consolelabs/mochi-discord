@@ -4,9 +4,17 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { Message } from "discord.js"
 import config from "adapters/config"
 import { getCommandArguments, parseDiscordToken } from "utils/commands"
-import { GuildIdNotFoundError, InternalError } from "errors"
+import { GuildIdNotFoundError, InternalError, APIError } from "errors"
 import { throwOnInvalidEmoji } from "utils/emoji"
 import { getEmoji } from "utils/common"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_STARBOARD,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "starboard_set",
@@ -29,7 +37,7 @@ const command: Command = {
       quantity !== Math.floor(quantity)
     ) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Command error",
         description: "The amount is invalid. Please insert a natural number.",
       })
@@ -42,7 +50,7 @@ const command: Command = {
     const { isChannel, value: channelId } = parseDiscordToken(args[4])
     if (!isChannel) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid channel",
         description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n\n${getEmoji(
           "POINTINGRIGHT"
@@ -61,6 +69,25 @@ const command: Command = {
 
     const res = await config.updateRepostReactionConfig(requestData)
     if (res.ok) {
+      // send activity
+      const channel = msg?.guild?.channels.cache.get(channelId)
+      const dataProfile = await profile.getByDiscord(msg.author.id)
+      if (dataProfile.err) {
+        throw new APIError({
+          msgOrInteraction: msg,
+          description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+          curl: "",
+        })
+      }
+      const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+        dataProfile.id,
+        MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+        MOCHI_APP_SERVICE,
+        MOCHI_ACTION_STARBOARD
+      )
+      kafkaMsg.activity.content.channel_name = channel?.name
+      sendActivityMsg(kafkaMsg)
+
       return {
         messageOptions: {
           embeds: [

@@ -15,12 +15,26 @@ import {
   handleProposalForm,
   handleProposalVote,
 } from "commands/proposal/processor"
+import { subscribeCommonwealthDiscussion } from "commands/proposal/track/processor"
 import {
   handleBackToQuestList,
   handleClaimReward,
 } from "commands/quest/daily/processor"
 import { handleTickerViews } from "commands/ticker/index/processor"
 import { sendVerifyURL } from "commands/verify/processor"
+import {
+  addWallet,
+  redirectToAddMoreWallet,
+} from "commands/wallet/add/processor"
+import {
+  removeWallet,
+  removeWalletConfirmation,
+} from "commands/wallet/remove/processor"
+import {
+  handleWalletRenaming,
+  navigateWalletViews,
+  viewWallet,
+} from "commands/wallet/view/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
 import {
   ButtonInteraction,
@@ -53,19 +67,11 @@ import {
 } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
+import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import {
-  viewWallet,
-  handleWalletRenaming,
-} from "commands/wallet/view/processor"
-import {
-  removeWallet,
-  removeWalletConfirmation,
-} from "commands/wallet/remove/processor"
-import {
-  addWallet,
-  redirectToAddMoreWallet,
-} from "commands/wallet/add/processor"
-import { subscribeCommonwealthDiscussion } from "commands/proposal/track/processor"
+  handleTokenApprove,
+  handleTokenReject,
+} from "commands/token/add/processor"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -140,6 +146,14 @@ async function handleCommandInteraction(interaction: Interaction) {
       args = interaction.commandName + " " + subcommand
     }
     const gMember = interaction?.guild?.members.cache.get(interaction?.user.id)
+    // if this command is experimental -> only allow it to run inside certain channels
+    if (command.experimental) {
+      const isTextChannel = interaction.channel?.type === "GUILD_TEXT"
+      if (!isTextChannel) return
+      const parentId = interaction.channel.parentId
+      if (!parentId || !EXPERIMENTAL_CATEGORY_CHANNEL_IDS.includes(parentId))
+        return
+    }
     if (command.onlyAdministrator && !hasAdministrator(gMember)) {
       try {
         const kafkaMsg: KafkaQueueMessage = {
@@ -253,7 +267,6 @@ async function handleCommandInteraction(interaction: Interaction) {
         render,
       } = response
       const multipleEmbed = getMultipleResultEmbed({
-        msg: null,
         ambiguousResultText,
         multipleResultText,
       })
@@ -391,6 +404,9 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("wallet_view_details-"):
       await viewWallet(i)
       return
+    case i.customId.startsWith("wl_my_"):
+      await navigateWalletViews(i)
+      return
     case i.customId.startsWith("wallet_rename-"):
       await handleWalletRenaming(i)
       return
@@ -408,6 +424,12 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("proposal_join_thread_commonwealth"):
       await subscribeCommonwealthDiscussion(i)
+      return
+    case i.customId.startsWith("token-request-approve"):
+      await handleTokenApprove(i)
+      return
+    case i.customId.startsWith("token-request-reject"):
+      await handleTokenReject(i)
       return
     default: {
       return

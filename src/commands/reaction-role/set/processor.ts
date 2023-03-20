@@ -1,5 +1,5 @@
 import { CommandInteraction, Message } from "discord.js"
-import { GuildIdNotFoundError, InternalError } from "errors"
+import { GuildIdNotFoundError, InternalError, APIError } from "errors"
 import { RoleReactionEvent } from "types/config"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
@@ -7,7 +7,15 @@ import { isDiscordMessageLink, getEmoji } from "utils/common"
 import { throwOnInvalidEmoji } from "utils/emoji"
 import { emojis, getEmojiURL, msgColors } from "./../../../utils/common"
 import config from "adapters/config"
-import { PREFIX } from "utils/constants"
+import {
+  MOCHI_ACTION_REACTIONROLE,
+  PREFIX,
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import profile from "adapters/profile"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const troubleshootMsg = `\n\n${getEmoji(
   "POINTINGRIGHT"
@@ -34,7 +42,7 @@ export const handleRoleSet = async (
   if (!res.ok) {
     if (res.originalError?.includes("role has been used")) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Role has been used",
         description: `Use another role to set the reaction role\n${getEmoji(
           "POINTINGRIGHT"
@@ -46,7 +54,7 @@ export const handleRoleSet = async (
       })
     } else {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         description: `Message not found, please choose another valid message.${troubleshootMsg}`,
       })
     }
@@ -58,6 +66,28 @@ export const handleRoleSet = async (
     description: `Emoji ${requestData.reaction} is now set to this role <@&${requestData.role_id}>`,
     color: msgColors.SUCCESS,
   })
+
+  // send activity
+  const isTextCommand = msg instanceof Message
+  const userId = isTextCommand ? msg.author.id : ""
+  const role = msg?.guild?.roles?.cache.get(roleId)
+
+  const dataProfile = await profile.getByDiscord(userId)
+  if (dataProfile?.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile?.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_REACTIONROLE
+  )
+  kafkaMsg.activity.content.role_name = role?.name
+  sendActivityMsg(kafkaMsg)
 
   return {
     embeds: [embed],
@@ -88,7 +118,7 @@ export const validateCommandArgument = async (
   // Validate message link https://discord.com/channels/guild_id/chan_id/msg_id
   if (!isDiscordMessageLink(args[2])) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Invalid message link",
       description: `Your message link is invalid. Make sure that message exists, or that you have entered the link correctly.${troubleshootMsg}`,
     })
@@ -102,7 +132,7 @@ export const validateCommandArgument = async (
   const { isRole, value: roleId } = parseDiscordToken(args[4])
   if (!isRole || !roleId) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       title: "Invalid roles",
       description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${getEmoji(
         "POINTINGRIGHT"
@@ -115,7 +145,7 @@ export const validateCommandArgument = async (
   const [guildId, channelId, messageId] = args[2].split("/").slice(-3)
   if (guildId !== msg.guildId) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: `Guild ID invalid, please choose a message belongs to your guild.${troubleshootMsg}`,
     })
   }
@@ -123,7 +153,7 @@ export const validateCommandArgument = async (
   const channel = msg.guild.channels.cache.get(channelId) // user already has message in the channel => channel in cache
   if (!channel || !channel.isText()) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: `Channel invalid, please choose a message in a text channel.${troubleshootMsg}`,
     })
   }
@@ -131,7 +161,7 @@ export const validateCommandArgument = async (
   const reactMessage = await channel.messages.fetch(messageId).catch(() => null)
   if (!reactMessage) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description: `Message not found, please choose another valid message.${troubleshootMsg}`,
     })
   }

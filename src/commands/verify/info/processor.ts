@@ -1,7 +1,7 @@
 import community from "adapters/community"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError, GuildIdNotFoundError } from "errors"
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { Message } from "discord.js"
 
 export async function runVerify(msg: Message | null, guildId: string | null) {
@@ -11,7 +11,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
   const res = await community.getVerifyWalletChannel(guildId)
   if (!res.ok) {
     throw new APIError({
-      message: msg ?? undefined,
+      msgOrInteraction: msg ?? undefined,
       curl: res.curl,
       description: res.log,
     })
@@ -28,6 +28,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
             )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
               "POINTINGRIGHT"
             )} Then re-check your configuration using \`verify info.\``,
+            color: msgColors.PINK,
           }),
         ],
       },
@@ -43,6 +44,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
               ? `\nVerify role: <@&${res.data.verify_role_id}>`
               : ""
           }`,
+          color: msgColors.PINK,
           footer: ["To change verify channel and role, use $verify remove"],
         }),
       ],

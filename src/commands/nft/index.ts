@@ -4,39 +4,27 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
 // text
 import add from "./add/text"
-import config from "./config/text"
 import integrate from "./integrate/text"
 import list from "./list/text"
 import query from "./query/text"
-import recent from "./recent/text"
 import stats from "./stats/text"
 import ticker from "./ticker/text"
-import volume from "./volume/text"
 // slash
 import addSlash from "./add/slash"
-import configSlash from "./config/slash"
 import integrateSlash from "./integrate/slash"
-// import listSlash from "./list/slash"
-// import querySlash from "./query/slash"
-import recentSlash from "./recent/slash"
 import statsSlash from "./stats/slash"
 import tickerSlash from "./ticker/slash"
-import volumeSlash from "./volume/slash"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
-  SlashCommandSubcommandGroupBuilder,
 } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 
 const actions: Record<string, Command> = {
   add,
-  volume,
   ticker,
   list,
-  recent,
   stats,
-  config,
   integrate,
 }
 
@@ -73,11 +61,8 @@ const textCmd: Command = {
 
 const slashActions: Record<string, SlashCommand> = {
   add: addSlash,
-  "config_twitter-sale": configSlash,
   integrate: integrateSlash,
   stats: statsSlash,
-  recent: recentSlash,
-  volume: volumeSlash,
   ticker: tickerSlash,
 }
 
@@ -92,13 +77,8 @@ const slashCmd: SlashCommand = {
       )
 
     data.addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())
-    data.addSubcommandGroup(
-      <SlashCommandSubcommandGroupBuilder>configSlash.prepare()
-    )
     data.addSubcommand(<SlashCommandSubcommandBuilder>integrateSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>statsSlash.prepare())
-    data.addSubcommand(<SlashCommandSubcommandBuilder>recentSlash.prepare())
-    data.addSubcommand(<SlashCommandSubcommandBuilder>volumeSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>tickerSlash.prepare())
     return data
   },

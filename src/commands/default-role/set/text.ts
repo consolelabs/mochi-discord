@@ -7,6 +7,14 @@ import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 import { getEmoji } from "utils/common"
 import { handle } from "../processor"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_DEFAULTROLE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "defaultrole_set",
@@ -23,7 +31,7 @@ const command: Command = {
 
     if (!isRole && !isId) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid roles",
         description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${getEmoji(
           "POINTINGRIGHT"
@@ -38,7 +46,7 @@ const command: Command = {
       const role = await msg.guild?.roles.fetch(id).catch(() => null)
       if (!role) {
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           title: "Invalid roles",
           description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${getEmoji(
             "POINTINGRIGHT"
@@ -58,12 +66,30 @@ const command: Command = {
     if (!res.ok) {
       throw new APIError({
         error: res.error,
-        message: msg,
+        msgOrInteraction: msg,
         description: res.log,
         curl: res.curl,
       })
     }
 
+    // send activity
+    const role = msg?.guild?.roles?.cache.get(id)
+    const dataProfile = await profile.getByDiscord(msg.author.id)
+    if (dataProfile.err) {
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+        curl: "",
+      })
+    }
+    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+      dataProfile.id,
+      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      MOCHI_APP_SERVICE,
+      MOCHI_ACTION_DEFAULTROLE
+    )
+    kafkaMsg.activity.content.role_name = role?.name
+    sendActivityMsg(kafkaMsg)
     return handle(msg, "Default role updated")
   },
   getHelpMessage: async (msg) => {

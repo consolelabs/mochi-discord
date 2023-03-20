@@ -23,9 +23,10 @@ const command: SlashCommand = {
         option
           .setName("day")
           .setDescription(
-            "specific inactive days, must be higher than 5. Example: 7"
+            "specific inactive days, must be between 5 and 30. Example: 7"
           )
           .setMinValue(5)
+          .setMaxValue(30)
           .setRequired(true)
       )
   },

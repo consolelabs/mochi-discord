@@ -22,6 +22,14 @@ import {
 } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import { getEmoji, msgColors } from "utils/common"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_MIXROLE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 export async function process(message: OriginalMessage) {
   if (!message.guildId || !message.guild) {
@@ -71,7 +79,7 @@ export async function process(message: OriginalMessage) {
     const title = `${getEmoji(
       "mag"
     )} Please enter the role you want to assign by level, amount of NFT, and token.`
-    const embed = composeEmbedMessage(null, { title, color: msgColors.PRIMARY })
+    const embed = composeEmbedMessage(null, { title, color: msgColors.PINK })
     await send({
       embeds: [embed],
       components: [new MessageActionRow().addComponents(revokeButton)],
@@ -142,7 +150,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
-      color: msgColors.PRIMARY,
+      color: msgColors.PINK,
     })
     await send({
       embeds: [embed],
@@ -202,7 +210,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
-      color: msgColors.PRIMARY,
+      color: msgColors.PINK,
     })
     await send({
       embeds: [embed],
@@ -262,7 +270,7 @@ export async function process(message: OriginalMessage) {
     }
     if (!ok) {
       throw new APIError({
-        message: message,
+        msgOrInteraction: message,
         error,
         description: log,
         curl,
@@ -296,7 +304,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title,
       description,
-      color: msgColors.PRIMARY,
+      color: msgColors.PINK,
     })
     await send({
       embeds: [embed],
@@ -368,7 +376,7 @@ export async function process(message: OriginalMessage) {
     }
     if (!ok) {
       throw new APIError({
-        message: message,
+        msgOrInteraction: message,
         error,
         curl,
         description: log,
@@ -409,7 +417,7 @@ export async function process(message: OriginalMessage) {
   }) => {
     if (!required_level && !token_requirement && !nft_requirement) {
       throw new InternalError({
-        message: message,
+        msgOrInteraction: message,
         title: "Fail to set up mixed role!",
         description: `
         No condition was set! We can’t set the mixed role for ${role_name}.
@@ -442,7 +450,7 @@ export async function process(message: OriginalMessage) {
     const embed = composeEmbedMessage(null, {
       title: `Users will earn the role ${role_name} if they meet all of these requirements`,
       description,
-      color: msgColors.PRIMARY,
+      color: msgColors.PINK,
     })
     await send({ embeds: [embed], components: [actionRow] })
     const interaction = await message.channel?.awaitMessageComponent({
@@ -468,13 +476,13 @@ export async function process(message: OriginalMessage) {
           )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
           `
         throw new InternalError({
-          message: message,
+          msgOrInteraction: message,
           title,
           description,
         })
       }
       throw new APIError({
-        message: message,
+        msgOrInteraction: message,
         error,
         curl,
         description: log,
@@ -507,6 +515,24 @@ export async function process(message: OriginalMessage) {
     const { requirement: nft_requirement, isCanceled: isNftCanceled } =
       await collectNft(role_name)
     if (isNftCanceled) return
+
+    // send activity
+    const dataProfile = await profile.getByDiscord(userId)
+    if (dataProfile.err) {
+      throw new APIError({
+        msgOrInteraction: message,
+        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+        curl: "",
+      })
+    }
+    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+      dataProfile.id,
+      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      MOCHI_APP_SERVICE,
+      MOCHI_ACTION_MIXROLE
+    )
+    kafkaMsg.activity.content.role_name = role?.name
+    sendActivityMsg(kafkaMsg)
 
     await submitConfig({
       guild_id: message.guildId ?? "",

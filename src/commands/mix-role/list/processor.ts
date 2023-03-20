@@ -4,6 +4,7 @@ import { APIError, GuildIdNotFoundError, OriginalMessage } from "errors"
 import { list } from "../processor"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { EmbedProperties } from "types/common"
+import { msgColors } from "utils/common"
 
 export async function process(msg: OriginalMessage) {
   const isTextCommand = msg instanceof Message
@@ -15,7 +16,7 @@ export async function process(msg: OriginalMessage) {
   const res = await config.getConfigMixRoleList({ guild_id: msg.guildId })
   if (!res.ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: res.curl,
       description: res.log,
     })
@@ -25,6 +26,7 @@ export async function process(msg: OriginalMessage) {
   const properties: EmbedProperties = {
     title: title,
     description,
+    color: msgColors.PINK,
   }
   let embed = isTextCommand
     ? composeEmbedMessage(msg, properties)

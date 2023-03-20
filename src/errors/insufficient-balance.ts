@@ -1,37 +1,47 @@
-import { getErrorEmbed } from "ui/discord/embed"
+import { Message, User } from "discord.js"
+import { composeInsufficientBalanceEmbed } from "ui/discord/embed"
 import { BotBaseError, OriginalMessage } from "./base"
 
+type InsufficientBalanceErrorParam = {
+  current?: number
+  required: number
+  symbol: string
+}
+
 export class InsufficientBalanceError extends BotBaseError {
-  private error: string
+  private params: InsufficientBalanceErrorParam
+  private author: User
 
   constructor({
-    discordId,
-    message,
-    error,
+    msgOrInteraction,
+    params,
   }: {
-    discordId: string
-    message: OriginalMessage
-    error: string
+    msgOrInteraction: OriginalMessage
+    params: InsufficientBalanceErrorParam
   }) {
-    super(message)
+    super(msgOrInteraction)
+    this.params = params
     this.name = "Insufficient funds error"
-    this.error = error
+    this.author =
+      msgOrInteraction instanceof Message
+        ? msgOrInteraction.author
+        : msgOrInteraction.user
     this.message = JSON.stringify({
       guild: this.guild,
       channel: this.channel,
       user: this.user,
-      data: { discordId },
+      data: { discordId: this.author.id },
     })
   }
 
   handle() {
-    this.reply?.({
-      embeds: [
-        getErrorEmbed({
-          title: "Insufficient funds",
-          description: this.error,
-        }),
-      ],
+    if (!this.params || !this.msgOrInteraction) {
+      return
+    }
+    const embed = composeInsufficientBalanceEmbed({
+      ...this.params,
+      author: this.author,
     })
+    this.reply?.({ embeds: [embed] })
   }
 }

@@ -1,18 +1,17 @@
 import community from "adapters/community"
-import defi from "adapters/defi"
 import profile from "adapters/profile"
 import { commands } from "commands"
-import { GuildMember } from "discord.js"
-import { MessageEmbed } from "discord.js"
-import { Collection } from "discord.js"
 import {
   ButtonInteraction,
+  Collection,
   CommandInteraction,
   EmbedFieldData,
+  GuildMember,
   GuildMemberRoleManager,
   Message,
   MessageActionRow,
   MessageButton,
+  MessageEmbed,
   SelectMenuInteraction,
   User,
 } from "discord.js"
@@ -30,11 +29,19 @@ import {
   emojis,
   getEmoji,
   getEmojiURL,
+  msgColors,
   reverseLookup,
   shortenHashOrAddress,
 } from "utils/common"
-import { SPACE, chainExplorerBaseUrls } from "utils/constants"
+import { CHAIN_EXPLORER_BASE_URLS, SPACE } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_PROFILE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 // @anhnh TODO: all of this need to be refactored
 type ViewType = "my-profile" | "my-nft" | "my-wallets"
@@ -119,31 +126,41 @@ async function switchView(i: ButtonInteraction, msg: Message, user: User) {
 }
 
 async function composeMyWalletsResponse(msg: Message, user: User) {
-  const {
-    data: myWallets,
-    ok,
-    curl,
-    log,
-  } = await defi.getUserOwnedWallets(user.id, msg.guildId ?? "")
-  if (!ok) {
-    throw new APIError({ message: msg, curl, description: log })
-  }
-  // maximum 9 wallets for now
-  const list = await Promise.all(
-    myWallets.slice(0, 9).map(async (w: any, i: number) => {
-      const domain = `${(await reverseLookup(w.address)) || ""}`
-      const label = w.alias ? ` | ${w.alias}` : ""
-      return `${getEmoji(`num_${i + 1}`)} \`${shortenHashOrAddress(
-        w.address
-      )}\`${domain}${label}`
+  const pfRes = await profile.getByDiscord(user.id)
+  if (pfRes.err) {
+    throw new APIError({
+      description: `[getByDiscord] API error with status ${pfRes.status_code}`,
+      curl: "",
     })
-  )
+  }
+  const myWallets =
+    pfRes.associated_accounts?.filter((a: any) =>
+      ["evm-chain", "solana-chain"].includes(a.platform)
+    ) ?? []
   const pointingright = getEmoji("pointingright")
+  let description: string
+  if (!myWallets.length) {
+    description = `You have no wallets.\n${pointingright} Add more wallet \`/wallet add\``
+  } else {
+    // maximum 9 wallets for now
+    const list = await Promise.all(
+      myWallets.slice(0, 9).map(async (w: any, i: number) => {
+        const address = w.platform_identifier
+        const domain = `${(await reverseLookup(address)) || ""}`
+        const label = w.alias ? ` | ${w.alias}` : ""
+        return `${getEmoji(`num_${i + 1}`)} \`${shortenHashOrAddress(
+          address
+        )}\` ${domain}${label}`
+      })
+    )
+    description = `\n${list.join(
+      "\n"
+    )}\n\n${pointingright} Choose a wallet to customize assets \`/wallet view label\` or \`/wallet view address\`\n/wallet view wal1 or /wallet view baddeed.eth (In case you have set label)\n${pointingright} Add more wallet \`/wallet add\`\n\u200B`
+  }
   const embed = composeEmbedMessage(msg, {
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
-    description: `**✦ MY WALLETS ✦**\n\n${list.join(
-      "\n"
-    )}\n\n${pointingright} Choose a wallet to customize assets \`/wallet view label\` or \`/wallet view address\`\n/wallet view wal1 or /wallet view baddeed.eth (In case you have set label)\n${pointingright} Add more wallet \`/wallet add\`\n\u200B`,
+    description: `**✦ MY WALLETS ✦**\n${description}`,
+    color: msgColors.PINK,
   })
   setProfileFooter(embed)
   return {
@@ -198,23 +215,23 @@ async function selectCollection(
   await i.editReply(replyPayload).catch(() => null)
 }
 
-function buildXPbar(name: string, value: number) {
-  const cap = Math.ceil(value / 1000) * 1000
-  const list = new Array(7).fill(getEmoji("faction_exp_2"))
-  list[0] = getEmoji("faction_exp_1")
-  list[list.length - 1] = getEmoji("faction_exp_3")
+// function buildXPbar(name: string, value: number) {
+//   const cap = Math.ceil(value / 1000) * 1000
+//   const list = new Array(7).fill(getEmoji("faction_exp_2"))
+//   list[0] = getEmoji("faction_exp_1")
+//   list[list.length - 1] = getEmoji("faction_exp_3")
 
-  return `${list
-    .map((_, i) => {
-      if (Math.floor((value / cap) * 7) >= i + 1) {
-        return i === 0
-          ? getEmoji(`${name}_exp_1`, true)
-          : getEmoji(`${name}_exp_2`, true)
-      }
-      return _
-    })
-    .join("")}\n\`${value}/${cap}\``
-}
+//   return `${list
+//     .map((_, i) => {
+//       if (Math.floor((value / cap) * 7) >= i + 1) {
+//         return i === 0
+//           ? getEmoji(`${name}_exp_1`, true)
+//           : getEmoji(`${name}_exp_2`, true)
+//       }
+//       return _
+//     })
+//     .join("")}\n\`${value}/${cap}\``
+// }
 
 async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   const {
@@ -224,7 +241,7 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
     log,
   } = await profile.getUserProfile(msg.guildId ?? "", user.id)
   if (!ok) {
-    throw new APIError({ message: msg, description: log, curl })
+    throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
 
   const nextLevelMinXp = userProfile.next_level?.min_xp
@@ -237,12 +254,13 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   const highestRole = roles.highest.name !== "@everyone" ? roles.highest : null
   const activityStr = `\`${userProfile.nr_of_actions}\``
   const rankStr = `${getEmoji("trophy")} \`#${userProfile.guild_rank ?? 0}\``
-  const { academy_xp, imperial_xp, merchant_xp, rebellio_xp } =
-    userProfile.user_faction_xps ?? {}
+  // const { academy_xp, imperial_xp, merchant_xp, rebellio_xp } =
+  //   userProfile.user_faction_xps ?? {}
 
   const embed = composeEmbedMessage(null, {
     thumbnail: user.displayAvatarURL(),
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
+    color: msgColors.PINK,
   }).addFields(
     {
       name: "✦ STATS ✦\n\nRole",
@@ -260,31 +278,31 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
     },
     EMPTY_FIELD,
     { name: "Total XP", value: xpStr, inline: true },
-    { name: "Activities", value: activityStr, inline: true },
-    EMPTY_FIELD,
-    EMPTY_FIELD,
-    {
-      name: `\u200B\n✦ APPELLATION ✦\n\n${getEmoji("imperial")} Nobility`,
-      value: buildXPbar("imperial", imperial_xp ?? 0),
-      inline: true,
-    },
-    EMPTY_FIELD,
-    {
-      name: `\u200B\n\n\n${getEmoji("rebelio")} Fame`,
-      value: buildXPbar("rebelio", rebellio_xp ?? 0),
-      inline: true,
-    },
-    {
-      name: `${getEmoji("mercanto")} Loyalty`,
-      value: buildXPbar("mercanto", merchant_xp ?? 0),
-      inline: true,
-    },
-    EMPTY_FIELD,
-    {
-      name: `${getEmoji("academia")} Reputation`,
-      value: buildXPbar("academia", academy_xp ?? 0) + "\n\u200B",
-      inline: true,
-    }
+    { name: "Activities", value: activityStr, inline: true }
+    // EMPTY_FIELD,
+    // EMPTY_FIELD,
+    // {
+    //   name: `\u200B\n✦ APPELLATION ✦\n\n${getEmoji("imperial")} Nobility`,
+    //   value: buildXPbar("imperial", imperial_xp ?? 0),
+    //   inline: true,
+    // },
+    // EMPTY_FIELD,
+    // {
+    //   name: `\u200B\n\n\n${getEmoji("rebelio")} Fame`,
+    //   value: buildXPbar("rebelio", rebellio_xp ?? 0),
+    //   inline: true,
+    // },
+    // {
+    //   name: `${getEmoji("mercanto")} Loyalty`,
+    //   value: buildXPbar("mercanto", merchant_xp ?? 0),
+    //   inline: true,
+    // },
+    // EMPTY_FIELD,
+    // {
+    //   name: `${getEmoji("academia")} Reputation`,
+    //   value: buildXPbar("academia", academy_xp ?? 0) + "\n\u200B",
+    //   inline: true,
+    // }
   )
   setProfileFooter(embed)
   return {
@@ -297,7 +315,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
   const userProfile = await profile.getUserProfile(msg.guildId, user.id)
   if (!userProfile.ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: userProfile.curl,
       description: userProfile.log,
     })
@@ -325,7 +343,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
   })
   if (!userNFTs.ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       curl: userNFTs.curl,
       description: userNFTs.log,
     })
@@ -353,7 +371,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
       const tokens = nfts
         .map((nft) =>
           chainId
-            ? `[\`#${nft.token_id}\`](${chainExplorerBaseUrls[chainId]}/token/${address}?a=${nft.token_id})`
+            ? `[\`#${nft.token_id}\`](${CHAIN_EXPLORER_BASE_URLS[chainId]}/token/${address}?a=${nft.token_id})`
             : `\`${nft.token_id}\``
         )
         .join(", ")
@@ -376,6 +394,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
   const embed = composeEmbedMessage(msg, {
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
     description: `**✦ MY NFT ✦**\n\u200B`,
+    color: msgColors.PINK,
   }).addFields(fields)
   setProfileFooter(embed)
   return {
@@ -413,6 +432,24 @@ export async function render(msg: OriginalMessage, query?: string | null) {
   }
 
   for (const user of users) {
+    // send activity
+    const dataProfile = await profile.getByDiscord(user.id)
+    if (dataProfile.err) {
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+        curl: "",
+      })
+    }
+    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+      dataProfile.id,
+      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      MOCHI_APP_SERVICE,
+      MOCHI_ACTION_PROFILE
+    )
+    kafkaMsg.activity.content.username = user.username
+    sendActivityMsg(kafkaMsg)
+
     const author = msg instanceof Message ? msg.author : msg.user
     const replyPayload = await composeMyProfileEmbed(msg, user)
     const reply = (

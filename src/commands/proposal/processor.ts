@@ -17,9 +17,9 @@ import {
   getSuccessEmbed,
 } from "ui/discord/embed"
 import { composeButtonLink } from "ui/discord/button"
-import profile from "adapters/profile"
 import { logger } from "logger"
 import { wrapError } from "utils/wrap-error"
+import { HOMEPAGE_URL } from "utils/constants"
 
 let proposalTitle = ""
 let proposalDesc = ""
@@ -142,14 +142,16 @@ export async function handleProposalCreate(i: ButtonInteraction) {
       embeds: [
         composeEmbedMessage(null, {
           title: `${getEmoji("MAIL")} ${proposalTitle.toUpperCase()}`,
-          description: `${proposalDesc}\n\nVoting will close at: <t:${proposalExpireIn}>`,
+          description: `${proposalDesc}\n\nVoting will close at: <t:${
+            proposalExpireIn ?? 0
+          }>`,
         }),
       ],
       components: [actionRow],
     })
     const cacheKey = `proposal-${msg.id}`
     proposalCache.set(cacheKey, [], +duration)
-    await checkExpiredProposal(
+    checkExpiredProposal(
       cacheKey,
       msg,
       data.id,
@@ -161,7 +163,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
   }
 }
 
-async function checkExpiredProposal(
+function checkExpiredProposal(
   cacheKey: string,
   msg: Message,
   proposal_id: string,
@@ -171,7 +173,9 @@ async function checkExpiredProposal(
   title: string
 ) {
   proposalCache.on("expired", async (key) => {
-    wrapError(msg, async () => {
+    if (key !== cacheKey) return
+
+    await wrapError(msg, async () => {
       // get vote results
       const { data, ok, error, curl } = await community.getProposalResults(
         proposal_id,
@@ -200,28 +204,26 @@ async function checkExpiredProposal(
       const noCount = voteNo?.sum ?? 0
       const absCount = voteAbstain?.sum ?? 0
       const voteTotal = yesCount + noCount + absCount
-      if (key === cacheKey) {
-        msg.edit({
-          content: null,
-          components: [],
-        })
-        await msg.channel.send({
-          content: "> @everyone",
-          embeds: [
-            composeEmbedMessage(null, {
-              title: `**${title}** Vote results`,
-              description: `The vote result is recorded from <t:${startTime}> to <t:${stopTime}>\nYes: ${
-                voteTotal > 0 ? ((yesCount / voteTotal) * 100).toFixed(2) : 0
-              }% (${yesCount} votes)\nNo: ${
-                voteTotal > 0 ? ((noCount / voteTotal) * 100).toFixed(2) : 0
-              }% (${noCount} votes)\nAbstain: ${
-                voteTotal > 0 ? ((absCount / voteTotal) * 100).toFixed(2) : 0
-              }% (${absCount} votes)\n\nTotal votes: ${voteTotal}`,
-            }),
-          ],
-          components: [],
-        })
-      }
+      await msg.edit({
+        content: null,
+        components: [],
+      })
+      await msg.channel.send({
+        content: "> @everyone",
+        embeds: [
+          composeEmbedMessage(null, {
+            title: `**${title}** Vote results`,
+            description: `The vote result is recorded from <t:${startTime}> to <t:${stopTime}>\nYes: ${
+              voteTotal > 0 ? ((yesCount / voteTotal) * 100).toFixed(2) : 0
+            }% (${yesCount} votes)\nNo: ${
+              voteTotal > 0 ? ((noCount / voteTotal) * 100).toFixed(2) : 0
+            }% (${noCount} votes)\nAbstain: ${
+              voteTotal > 0 ? ((absCount / voteTotal) * 100).toFixed(2) : 0
+            }% (${absCount} votes)\n\nTotal votes: ${voteTotal}`,
+          }),
+        ],
+        components: [],
+      })
     })
   })
 }
@@ -261,24 +263,14 @@ export async function handleProposalForm(i: ButtonInteraction) {
       throw new APIError({ curl, description: log, error })
     }
     if (!data.is_wallet_connected) {
-      const generationRes = await profile.generateVerificationCode({
-        userDiscordId: i.member.user.id,
-        guildId: i.guild.id,
-      })
-      if (!generationRes.ok) {
-        throw new APIError({
-          message: i,
-          description: generationRes.log,
-          curl: generationRes.log,
-        })
-      }
-      const code = !generationRes.originalError ? generationRes.data.code : ""
       await i
         .editReply({
           embeds: [
             getErrorEmbed({
               title: "Wallet not connected",
-              description: `Please [Connect your wallet](https://mochi.gg/verify?code=${code}) to gain the authority to create a proposal.`,
+              description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${
+                i.user.id
+              }) to gain the authority to create a proposal.`,
             }),
           ],
         })
@@ -333,7 +325,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
   let durationSeconds = 0 // seconds vote available
   // duration ends in hH or dD
   if (proposalDuration.includes("h")) {
-    const hours = parseInt(
+    const hours = parseFloat(
       proposalDuration.slice(0, proposalDuration.length - 1)
     )
     proposalExpireIn = (
@@ -342,7 +334,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
     ).toString()
     durationSeconds = hours * 3600
   } else {
-    const days = parseInt(
+    const days = parseFloat(
       proposalDuration.slice(0, proposalDuration.length - 1)
     )
     proposalExpireIn = (
@@ -384,7 +376,6 @@ async function getProposalTitle(
     filter,
   })
   const userReply = collected.first()
-
   // ask for description
   await dm.channel.send({
     embeds: [
@@ -401,7 +392,7 @@ async function getProposalTitle(
       ),
     ],
   })
-  return userReply?.content?.trim() ?? ""
+  return userReply?.content.trim() ?? ""
 }
 
 async function getProposalDescription(
@@ -445,19 +436,21 @@ async function getProposalDuration(
     filter,
   })
   const userReply = collected.first()
+  const durationStr = userReply?.content.trim() ?? ""
 
   // accept hours OR days
-  const regex = /([1-9][0-9]*[hH])|([1-9][0-9]*[dD])/
-  if (!userReply?.content.match(regex)) {
+  const regex = /(^[1-9][0-9]*[hH]$)|(^[1-9][0-9]*[dD]$)/
+  if (!regex.test(durationStr) || durationStr.length > 4) {
     await userReply?.reply({
       embeds: [
         getErrorEmbed({
           title: "Invalid duration",
-          description: "Duration should be in h (hour) or d (day)",
+          description:
+            "Duration should be in h (hour) or d (day) and less than 4 characters. Example: 7d",
         }),
       ],
     })
-    await getProposalDuration(authorId, dm)
+    return await getProposalDuration(authorId, dm)
   }
   return userReply?.content?.trim() ?? ""
 }
@@ -487,24 +480,14 @@ export async function handleProposalVote(i: ButtonInteraction) {
     throw new APIError({ curl: wCurl, description: wLog, error: wError })
   }
   if (wData.is_wallet_connected === false) {
-    const generationRes = await profile.generateVerificationCode({
-      userDiscordId: i.member.user.id,
-      guildId: i.guild.id,
-    })
-    if (!generationRes.ok) {
-      throw new APIError({
-        message: i,
-        description: generationRes.log,
-        curl: generationRes.curl,
-      })
-    }
-    const code = !generationRes.originalError ? generationRes.data.code : ""
     return await i
       .editReply({
         embeds: [
           getErrorEmbed({
             title: "Wallet not connected",
-            description: `Please [Connect your wallet](https://mochi.gg/verify?code=${code}) to gain the authority to vote.`,
+            description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${
+              i.user.id
+            }) to gain the authority to vote.`,
           }),
         ],
       })
@@ -516,7 +499,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
         embeds: [
           getErrorEmbed({
             title: "Insufficient token amount",
-            description: `You need to own ${wData.vote_config.required_amount} **${wData.vote_config.symbol}** to vote for the proposal. `,
+            description: `You need to own **${wData.vote_config.symbol}** to vote for the proposal. `,
           }),
         ],
       })

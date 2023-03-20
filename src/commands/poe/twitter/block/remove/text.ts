@@ -34,7 +34,11 @@ const command: Command = {
       twitter_id: twitterRes.data.id,
     })
     if (!ok) {
-      throw new APIError({ message: msg, curl: curl, description: log })
+      throw new APIError({
+        msgOrInteraction: msg,
+        curl: curl,
+        description: log,
+      })
     }
 
     return {

@@ -38,7 +38,7 @@ const command: SlashCommand = {
     const moniker = interaction.options.getString("moniker", true)
     if (!moniker) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: "Invalid moinker",
       })
     }

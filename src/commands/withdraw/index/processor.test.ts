@@ -1,143 +1,158 @@
-import Defi from "adapters/defi"
+import defi from "adapters/defi"
 import { Collection, Message } from "discord.js"
-import { APIError } from "errors"
+import { InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import { InsufficientBalanceError } from "errors/insufficient-balance"
+import { getEmoji } from "utils/common"
+import * as dcutils from "utils/discord"
+import * as tiputils from "utils/tip-bot"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
-import { assertRunResult } from "../../../../tests/assertions/discord"
 jest.mock("adapters/defi")
-// jest.mock("utils/common")
 
-describe("getDestinationAddress", () => {
-  const interaction = mockdc.cloneCommandInteraction()
+describe("getRecipient", () => {
   const msg = mockdc.cloneMessage()
-  const mockedCollectedMessage = mockdc.cloneMessage()
-  mockedCollectedMessage.content = "0xA94FCFbf927594702f8F0Eb7532f35928F32410b"
+  const collectedMsg = mockdc.cloneMessage()
+  const recipientAddr = "0xA94FCFbf927594702f8F0Eb7532f35928F32410b"
+  collectedMsg.content = recipientAddr
   const mockedCollected = new Collection<string, Message<boolean>>()
-  mockedCollected.set("test", mockedCollectedMessage)
+  mockedCollected.set("test", collectedMsg)
 
   const mockedDm = mockdc.cloneMessage()
   mockedDm.channel.awaitMessages = jest.fn().mockResolvedValue(mockedCollected)
 
-  test("getSuccess using Message", async () => {
-    const output = await processor.getDestinationAddress(msg, mockedDm, "FTM")
-    expect(output).toEqual("0xA94FCFbf927594702f8F0Eb7532f35928F32410b")
+  test("valid address", async () => {
+    jest.spyOn(dcutils, "awaitMessage").mockResolvedValueOnce({
+      first: collectedMsg,
+      content: collectedMsg.content,
+    })
+    const output = await processor.getRecipient(msg, mockedDm, "FTM")
+    expect(output).toEqual(recipientAddr)
   })
 
-  test("getSuccess using Message", async () => {
-    const output = await processor.getDestinationAddress(
-      interaction,
-      mockedDm,
-      "FTM"
+  test("invalid address", async () => {
+    collectedMsg.content = "abc"
+    jest.spyOn(dcutils, "awaitMessage").mockResolvedValueOnce({
+      first: collectedMsg,
+      content: collectedMsg.content,
+    })
+    const output = await processor.getRecipient(msg, mockedDm, "FTM")
+    expect(output).toEqual("")
+    expect(collectedMsg.reply).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe("getWithdrawPayload", () => {
+  let msg: Message = mockdc.getMessage()
+
+  afterEach(() => {
+    msg = mockdc.cloneMessage()
+    jest.clearAllMocks()
+  })
+
+  test("invalid amount => throw DiscordWalletTransferError", async () => {
+    await expect(processor.getWithdrawPayload(msg, "a", "eth")).rejects.toThrow(
+      new DiscordWalletTransferError({
+        message: msg,
+        discordId: msg.author.id,
+        error: "The amount is invalid. Please insert a natural number.",
+      })
     )
-    expect(output).toEqual("0xA94FCFbf927594702f8F0Eb7532f35928F32410b")
+  })
+
+  test("withdraw all", async () => {
+    msg.content = `$wd all eth`
+    const output = await processor.getWithdrawPayload(msg, "all", "eth")
+    expect(output).toEqual({
+      recipient: msg.author.id,
+      recipientAddress: "",
+      guildId: msg.guildId,
+      channelId: msg.channelId,
+      amount: 0,
+      token: "ETH",
+      each: false,
+      all: true,
+      transferType: "withdraw",
+      duration: 0,
+      fullCommand: msg.content,
+    })
+  })
+
+  test("valid amount", async () => {
+    msg.content = `$wd all eth`
+    const output = await processor.getWithdrawPayload(msg, "0.69", "eth")
+    expect(output).toEqual({
+      recipient: msg.author.id,
+      recipientAddress: "",
+      guildId: msg.guildId,
+      channelId: msg.channelId,
+      amount: 0.69,
+      token: "ETH",
+      each: false,
+      all: false,
+      transferType: "withdraw",
+      duration: 0,
+      fullCommand: msg.content,
+    })
   })
 })
 
 describe("withdraw", () => {
-  const msg = mockdc.cloneMessage()
+  let msg: Message = mockdc.getMessage()
   msg.author.send = jest.fn().mockResolvedValueOnce(undefined)
 
-  afterEach(() => jest.clearAllMocks())
-
-  test("msg.author.send should be called once", async () => {
-    const args = ["withdraw", "1", "ftm"]
-    const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
-    const mockedResponse = {
-      ok: true,
-      data: {
-        amount: 1,
-        tx_hash: "0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
-        tx_url:
-          "https://ftmscan.com/tx/0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
-      },
-    }
-    // const expectedEmbed = composeEmbedMessage(null, {
-    //   author: ["Withdraw"],
-    //   title: `${getEmoji(args[2])} FTM sent`,
-    //   description: "Your withdrawal was processed succesfully!",
-    // }).addFields(
-    //   {
-    //     name: "Destination address",
-    //     value: "`0xE409E073eE7474C381BFD9b3f88098499123123`",
-    //     inline: false,
-    //   },
-    //   {
-    //     name: "Withdrawal amount",
-    //     value: `**1** ${getEmoji(args[2])}`,
-    //     inline: true,
-    //   },
-    //   {
-    //     name: "Withdrawal Transaction ID",
-    //     value: `[${mockedResponse.data.tx_hash}](${mockedResponse.data.tx_url})`,
-    //     inline: false,
-    //   }
-    // )
-    Defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
-    Defi.offchainDiscordWithdraw = jest
-      .fn()
-      .mockResolvedValueOnce(mockedResponse)
-    await processor.withdraw(msg, args, addr)
-    expect(msg.author.send).toHaveBeenCalledTimes(1)
-    // expect(msg.author.send).toHaveBeenCalledWith({ embeds: [expectedEmbed] })
+  afterEach(() => {
+    msg = mockdc.cloneMessage()
+    jest.clearAllMocks()
   })
 
-  test("insufficient balance", async () => {
-    const args = ["withdraw", "1", "ftm"]
+  test("token not supported", async () => {
     const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
-    const expectedEmbed = composeEmbedMessage(null, {
-      author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
-      description: `<@${msg.author.id}>, your balance is insufficient.\nYou can deposit more by using \`$deposit ${args[2]}\``,
-    })
-      .addField(
-        "Required amount",
-        `${getEmoji("ftm")} ${roundFloatNumber(1, 4)} ftm`,
-        true
-      )
-      .addField(
-        "Your balance",
-        `${getEmoji("ftm")} ${roundFloatNumber(0, 4)} ftm`,
-        true
-      )
-    Defi.getInsuffientBalanceEmbed = jest
-      .fn()
-      .mockResolvedValueOnce(expectedEmbed)
-    Defi.offchainDiscordWithdraw = jest.fn()
-    const output = await processor.withdraw(msg, args, addr)
-    expect(Defi.offchainDiscordWithdraw).not.toHaveBeenCalled()
-    assertRunResult(
-      { messageOptions: { ...output } },
-      { messageOptions: { embeds: [expectedEmbed] } }
-    )
-  })
+    jest.spyOn(processor, "getRecipient").mockResolvedValueOnce(addr)
 
-  test("invalid amount", async () => {
-    const args = ["withdraw", "-1", "ftm"]
-    const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
-    await expect(processor.withdraw(msg, args, addr)).rejects.toThrow(
-      new DiscordWalletTransferError({
-        discordId: msg.author.id,
-        message: msg,
-        error: "No valid recipient found!",
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(false)
+    const pointingright = getEmoji("pointingright")
+    await expect(processor.withdraw(msg, "1", "qwerty")).rejects.toThrow(
+      new InternalError({
+        msgOrInteraction: msg,
+        title: "Unsupported token",
+        description: `**QWERTY** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright} To add your token, run \`$token add\`.`,
       })
     )
   })
-})
 
-describe("withdrawSlash", () => {
-  const interaction = mockdc.cloneCommandInteraction()
+  test("no balance => throw InsufficientBalanceError", async () => {
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
+    defi.offchainGetUserBalances = jest
+      .fn()
+      .mockResolvedValueOnce({ ok: true, data: [] })
+    await expect(processor.withdraw(msg, "10", "ftm")).rejects.toThrow(
+      new InsufficientBalanceError({
+        msgOrInteraction: msg,
+        params: { current: 0, required: 10, symbol: "FTM" },
+      })
+    )
+  })
 
-  afterEach(() => jest.clearAllMocks())
+  test("insufficient balance => throw InsufficientBalanceError", async () => {
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
+    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      data: [
+        { id: "fantom", symbol: "ftm", balances: 5.6, balances_in_usd: 2.5 },
+      ],
+    })
+    await expect(processor.withdraw(msg, "10", "ftm")).rejects.toThrow(
+      new InsufficientBalanceError({
+        msgOrInteraction: msg,
+        params: { current: 5.6, required: 10, symbol: "FTM" },
+      })
+    )
+  })
 
-  test("interaction.user.send should be called once", async () => {
-    const args = [
-      "withdraw",
-      "1",
-      "ftm",
-      "0xE409E073eE7474C381BFD9b3f88098499123123",
-    ]
+  test("successfully withdraw", async () => {
+    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
+    const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
     const mockedResponse = {
       ok: true,
       data: {
@@ -147,30 +162,21 @@ describe("withdrawSlash", () => {
           "https://ftmscan.com/tx/0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
       },
     }
-    Defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
-    Defi.offchainDiscordWithdraw = jest
+    const collectedMsg = mockdc.cloneMessage()
+    collectedMsg.content = addr
+    jest.spyOn(processor, "getRecipient").mockResolvedValueOnce(addr)
+    defi.offchainDiscordWithdraw = jest
       .fn()
       .mockResolvedValueOnce(mockedResponse)
-    await processor.withdrawSlash(interaction, args[1], args[2], args[3])
-    expect(interaction.user.send).toHaveBeenCalledTimes(1)
-  })
-
-  test("withdrawal failed due to api error", async () => {
-    const args = [
-      "withdraw",
-      "1",
-      "ftm",
-      "0xE409E073eE7474C381BFD9b3f88098499123123",
-    ]
-    Defi.offchainDiscordWithdraw = jest.fn().mockResolvedValueOnce({
-      ok: false,
-      data: null,
-      curl: "",
-      error: "",
-      log: "",
+    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      data: [
+        { id: "fantom", symbol: "ftm", balances: 5.6, balances_in_usd: 2.5 },
+      ],
     })
-    await expect(
-      processor.withdrawSlash(interaction, args[1], args[2], args[3])
-    ).rejects.toThrow(new APIError({ description: "", curl: "", error: "" }))
+    const mockedDm = mockdc.cloneMessage()
+    msg.author.send = jest.fn().mockResolvedValueOnce(mockedDm)
+    await processor.withdraw(msg, "1", "ftm")
+    expect(msg.author.send).toHaveBeenCalledTimes(2)
   })
 })

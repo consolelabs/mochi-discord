@@ -23,6 +23,7 @@ import { PREFIX, SLASH_PREFIX } from "utils/constants"
 import { list } from "../processor"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { composeDiscordExitButton } from "ui/discord/button"
+import { msgColors } from "utils/common"
 
 export async function process(msg: OriginalMessage) {
   const isTextCommand = msg instanceof Message
@@ -37,7 +38,7 @@ export async function process(msg: OriginalMessage) {
   })
   if (!ok) {
     throw new APIError({
-      message: msg,
+      msgOrInteraction: msg,
       description: log,
       curl,
       error,
@@ -60,7 +61,7 @@ export async function process(msg: OriginalMessage) {
   for (const config of data) {
     if (!config.role_id) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         description: "invalid role id",
       })
     }
@@ -76,11 +77,13 @@ export async function process(msg: OriginalMessage) {
     embed = composeEmbedMessage(msg, {
       title: "Select an option",
       description,
+      color: msgColors.PINK,
     })
   } else {
     embed = composeEmbedMessage2(msg as CommandInteraction, {
       title: "Select an option",
       description: list({ data }).description,
+      color: msgColors.PINK,
     })
   }
   embed.addFields(fields)

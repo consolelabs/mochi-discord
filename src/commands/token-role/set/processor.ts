@@ -7,8 +7,16 @@ import {
   User,
   Role,
 } from "discord.js"
-import { InternalError } from "errors"
+import { InternalError, APIError } from "errors"
 import { getSuccessEmbed } from "ui/discord/embed"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_TOKENROLE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 export async function setConfigTokenRole(
   msg: Message | MessageComponentInteraction | CommandInteraction | undefined,
@@ -29,6 +37,26 @@ export async function setConfigTokenRole(
   if (!ok) {
     handleError(msg, error)
   }
+
+  // send activity
+  const dataProfile = await profile.getByDiscord(originAuthor.id)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_TOKENROLE
+  )
+  kafkaMsg.activity.content.role_name = role.name
+  sendActivityMsg(kafkaMsg)
+
   return {
     messageOptions: {
       embeds: [
@@ -52,7 +80,7 @@ function handleError(
   let description = ""
   if (!error) {
     throw new InternalError({
-      message: msg,
+      msgOrInteraction: msg,
       description,
     })
   }
@@ -71,7 +99,7 @@ function handleError(
       break
   }
   throw new InternalError({
-    message: msg,
+    msgOrInteraction: msg,
     title,
     description,
   })

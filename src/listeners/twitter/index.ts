@@ -2,7 +2,7 @@ import apiConfig from "adapters/config"
 import { Client, TextChannel } from "discord.js"
 import { InmemoryStorage } from "types/inmemory-storage"
 import { logger } from "logger"
-import { PROD } from "env"
+import { PROD, TWITTER_TOKEN } from "env"
 import { PartialDeep } from "type-fest"
 import { APIError } from "errors"
 import retry from "retry"
@@ -61,7 +61,9 @@ class TwitterStream extends InmemoryStorage {
   set client(c: Client) {
     if (this._client?.isReady) return
     this._client = c
-    this.watchStream()
+    if (TWITTER_TOKEN) {
+      this.watchStream()
+    }
   }
 
   private async sendToChannel({ channel, handle, tweet }: ProcessParam) {

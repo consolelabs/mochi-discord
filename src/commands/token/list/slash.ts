@@ -12,13 +12,13 @@ const command: SlashCommand = {
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
       .setName("list")
-      .setDescription("View your server's tokens list")
+      .setDescription("View your Mochi supported tokens list")
   },
   run: async function (interaction: CommandInteraction) {
     if (!interaction.guildId) {
       throw new GuildIdNotFoundError({ message: interaction })
     }
-    return await handleTokenList(interaction.guildId)
+    return await handleTokenList()
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [

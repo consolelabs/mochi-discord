@@ -35,7 +35,8 @@ const command: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        title: "Set up a tracker of proposal voting rounds on Snapshot and Commonwealth.",
+        title:
+          "Set up a tracker of proposal voting rounds on Snapshot and Commonwealth.",
         usage: `${PREFIX}proposal track #channel <snapshot_DAO_link>\n${PREFIX}proposal track #channel <commonwealth_link>`,
         description: `${getEmoji(
           "pointingright"

@@ -9,7 +9,6 @@ import tickertext from "commands/ticker/index/text"
 jest.mock("commands/ticker/index/text")
 import config from "adapters/config"
 jest.mock("adapters/config")
-import nftaddtext from "commands/nft/add/text"
 jest.mock("commands/nft/add/text")
 
 const mockMessage = mockdc.getMessage()
@@ -92,14 +91,5 @@ describe("handlePrefixedCommand", () => {
     await commands.handlePrefixedCommand(mockMessage)
     expect(tickertext).toHaveBeenCalledTimes(1)
     expect(tickertext).toHaveBeenCalledWith(mockMessage, "eth")
-  })
-
-  it("$nft add => run action nft/add successfully", async () => {
-    mockMessage.content = "$nft add 0xabc ftm"
-    mockMessage.channel.type = "GUILD_TEXT"
-    config.commandIsScoped = jest.fn().mockResolvedValueOnce(true)
-    jest.spyOn(nftaddtext, "run")
-    await commands.handlePrefixedCommand(mockMessage)
-    expect(nftaddtext.run).toHaveBeenCalledTimes(1)
   })
 })

@@ -13,6 +13,7 @@ import {
   MessageEditOptions,
   MessageOptions,
   MessageSelectOptionData,
+  SelectMenuInteraction,
   User,
   WebhookEditMessageOptions,
 } from "discord.js"
@@ -56,6 +57,12 @@ export type RunResult<T = MessageOptions | MessageEditOptions> = {
     handler: (i: ButtonInteraction) => Promise<any> | Promise<void>
     options?: MessageCollectorOptionsParams<"BUTTON">
   }
+  selectMenuCollector?: {
+    handler: (
+      i: SelectMenuInteraction
+    ) => Promise<RunResult<MessageOptions> | undefined> | Promise<void>
+    options?: MessageCollectorOptionsParams<"SELECT_MENU">
+  }
 }
 
 export type SetDefaultRenderList<T> = (p: {
@@ -97,6 +104,7 @@ export type SlashCommand = {
   name: string
   category: Category
   onlyAdministrator?: boolean
+  experimental?: boolean
   prepare: (
     slashCommands?: Record<string, SlashCommand>
   ) =>
@@ -218,4 +226,30 @@ export type KafkaQueueMessageData = {
   success: boolean
   message?: Message | null
   interaction?: Interaction | null
+}
+
+export type KafkaQueueActivityDataCommand = {
+  activity: KafkaQueueActivityCommand
+  platform: string
+}
+
+export type KafkaQueueActivityCommand = {
+  profile_id: string
+  status: string
+  platform: string
+  action: string
+  content: ActivityContentParams
+}
+
+export type ActivityContentParams = {
+  server_name?: string
+  amount?: string
+  token?: string
+  number_of_user?: string
+  username?: string
+  role_name?: string
+  channel_name?: string
+  token_name?: string
+  moniker_name?: string
+  address?: string
 }

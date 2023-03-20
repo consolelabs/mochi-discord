@@ -92,9 +92,11 @@ export interface ModelCoingeckoSupportedTokens {
 }
 
 export interface ModelCommonwealthDiscussionSubscription {
-  discordThreadID?: string;
-  discussionID?: number;
+  created_at?: string;
+  discord_thread_id?: string;
+  discussion_id?: number;
   id?: number;
+  updated_at?: string;
 }
 
 export interface ModelConfigXpLevel {
@@ -756,6 +758,19 @@ export interface ModelUserTelegramDiscordAssociation {
   telegram_username?: string;
 }
 
+export interface ModelUserTokenSupportRequest {
+  channel_id?: string;
+  created_at?: string;
+  id?: number;
+  message_id?: string;
+  status?: string;
+  token_address?: string;
+  token_chain_id?: number;
+  token_name?: string;
+  updated_at?: string;
+  user_discord_id?: string;
+}
+
 export interface ModelUserWallet {
   address?: string;
   chain_type?: ModelJSONNullString;
@@ -990,6 +1005,15 @@ export interface RequestCreateUserRequest {
   invited_by?: string;
   nickname?: string;
   username?: string;
+}
+
+export interface RequestCreateUserTokenSupportRequest {
+  channel_id: string;
+  message_id: string;
+  token_address: string;
+  token_chain: string;
+  token_name: string;
+  user_discord_id: string;
 }
 
 export interface RequestDeleteDiscordUserAlertRequest {
@@ -1347,6 +1371,10 @@ export interface ResponseAllTipBotTokensResponse {
   data?: ModelOffchainTipBotToken[];
 }
 
+export interface ResponseChainGasTrackerResponseData {
+  data?: ResponseGasTrackerResponse;
+}
+
 export interface ResponseClaimOnchainTransfer {
   amount?: number;
   amount_in_usd?: number;
@@ -1488,6 +1516,10 @@ export interface ResponseCreateTwitterSaleConfigResponse {
   data?: ModelSaleBotTwitterConfig;
 }
 
+export interface ResponseCreateUserTokenSupportRequest {
+  data?: ModelUserTokenSupportRequest;
+}
+
 export interface ResponseCurrentUserUpvoteStreakResponse {
   data?: ResponseGetUserCurrentUpvoteStreakResponse;
 }
@@ -1550,6 +1582,20 @@ export interface ResponseDiscordUserTokenAlertResponse {
   data?: ModelDiscordUserTokenAlert[];
 }
 
+export interface ResponseGasTrackerResponse {
+  chain?: string;
+  est_fast_time?: string;
+  est_propose_time?: string;
+  est_safe_time?: string;
+  fast_gas_price?: string;
+  propose_gas_price?: string;
+  safe_gas_price?: string;
+}
+
+export interface ResponseGasTrackerResponseData {
+  data?: ResponseGasTrackerResponse[];
+}
+
 export interface ResponseGenerateVerificationResponse {
   code?: string;
   status?: string;
@@ -1571,6 +1617,10 @@ export interface ResponseGetAllTwitterConfigResponse {
 
 export interface ResponseGetAllTwitterHashtagConfigResponse {
   data?: ResponseTwitterHashtag[];
+}
+
+export interface ResponseGetAllUserSubmittedAdResponse {
+  data?: ResponseGetAllUserSubmittedAdResponse[];
 }
 
 export interface ResponseGetAssignedContract {
@@ -1907,6 +1957,18 @@ export interface ResponseGetUserQuestListResponse {
 
 export interface ResponseGetUserResponse {
   data?: ResponseUser;
+}
+
+export interface ResponseGetUserSubmittedAdResponse {
+  ad_channel_id?: string;
+  creator_id?: string;
+  description?: string;
+  id?: number;
+  image?: string;
+  introduction?: string;
+  is_podtown_ad?: boolean;
+  name?: string;
+  string?: string;
 }
 
 export interface ResponseGetUserUpvoteLeaderboardResponse {

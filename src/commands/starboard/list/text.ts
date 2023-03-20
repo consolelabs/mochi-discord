@@ -30,7 +30,7 @@ const command: Command = {
     )
     if (!res.ok) {
       throw new APIError({
-        message: msg,
+        msgOrInteraction: msg,
         curl: res.curl,
         description: res.log,
       })

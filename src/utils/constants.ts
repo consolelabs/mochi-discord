@@ -2,6 +2,11 @@ import {
   API_SERVER_HOST,
   PT_API_SERVER_HOST,
   INDEXER_API_SERVER_HOST,
+  APPLICATION_ID,
+  MOCHI_PROFILE_API_SERVER_HOST,
+  MOCHI_PAY_API_SERVER_HOST,
+  MOCHI_TELEGRAM_API_SERVER_HOST,
+  GAME_STORE_API_SERVER_HOST,
 } from "env"
 
 export const DOT = "•"
@@ -24,6 +29,10 @@ export const DEFI_DEFAULT_FOOTER = `Use ${PREFIX}tokens for a list of supported 
 export const API_BASE_URL = `${API_SERVER_HOST}/api/v1`
 export const PT_API_BASE_URL = `${PT_API_SERVER_HOST}/api/v1`
 export const INDEXER_API_BASE_URL = `${INDEXER_API_SERVER_HOST}/api/v1`
+export const MOCHI_PROFILE_API_BASE_URL = `${MOCHI_PROFILE_API_SERVER_HOST}/api/v1`
+export const MOCHI_PAY_API_BASE_URL = `${MOCHI_PAY_API_SERVER_HOST}/api/v1`
+export const MOCHI_TELEGRAM_API_BASE_URL = `${MOCHI_TELEGRAM_API_SERVER_HOST}/api/v1`
+export const GAME_STORE_API_BASE_URL = `${GAME_STORE_API_SERVER_HOST}/api/v1`
 
 export const VALID_BOOST_MESSAGE_TYPES = [
   "USER_PREMIUM_GUILD_SUBSCRIPTION",
@@ -32,7 +41,7 @@ export const VALID_BOOST_MESSAGE_TYPES = [
   "USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3",
 ]
 
-export const HOMEPAGE_URL = "http://getmochi.co"
+export const HOMEPAGE_URL = "https://mochi.gg"
 export const TWITTER_URL = "https://twitter.com/getmochi_bot"
 export const DISCORD_URL = "https://discord.gg/XQR36DQQGh"
 
@@ -224,7 +233,7 @@ export const BSCSCAN_API = "https://api.bscscan.com/api"
 export const ETHSCAN_API = "https://api.etherscan.io/api"
 export const POLYGONSCAN_API = "https://api.polygonscan.com/api"
 
-export const chainExplorerBaseUrls: Record<string, string> = {
+export const CHAIN_EXPLORER_BASE_URLS: Record<string, string> = {
   "0": "https://solscan.io",
   "1": "https://etherscan.io",
   "56": "https://bscscan.com",
@@ -232,3 +241,48 @@ export const chainExplorerBaseUrls: Record<string, string> = {
   "250": "https://ftmscan.com",
   "9999": "https://aptoscan.com",
 }
+
+// Bot URL with 11 initial permissions
+// 1. CREATE_INSTANT_INVITE
+// 2. VIEW_CHANNEL
+// 3. MODERATE_MEMBERS
+// 4. SEND_MESSAGES
+// 5. SEND_MESSAGES_IN_THREAD
+// 6. EMBED_LINKS
+// 7. ATTACH_FILES
+// 8. MENTION_EVERYONE
+// 9. USE_EXTERNAL_EMOJIS
+// 10. USE_EXTERNAL_STICKERS
+// 11. USE_APPLICATION_COMMANDS
+export const DEFAULT_BOT_INVITE_URL = `https://discord.com/api/oauth2/authorize?client_id=${APPLICATION_ID}&permissions=1513976417281&scope=bot%20applications.commands`
+
+export const MOCHI_SERVER_INVITE_URL = "https://discord.com/invite/3d2FdBG2My"
+
+export const MOCHI_PROFILE_ACTIVITY_STATUS_NEW = "new"
+export const MOCHI_PROFILE_ACTIVITY_STATUS_READ = "read"
+export const MOCHI_APP_SERVICE = "Mochi App"
+export const MOCHI_PAY_SERVICE = "Mochi Pay"
+export const MOCHI_ACTION_TIP = "tip"
+export const MOCHI_ACTION_WITHDRAW = "withdraw"
+export const MOCHI_ACTION_DEPOSIT = "deposut"
+export const MOCHI_ACTION_FEEDBACK = "feedback"
+export const MOCHI_ACTION_PROFILE = "profile"
+export const MOCHI_ACTION_REACTIONROLE = "reactionrole"
+export const MOCHI_ACTION_LEVELROLE = "levelrole"
+export const MOCHI_ACTION_DEFAULTROLE = "defaultrole"
+export const MOCHI_ACTION_MIXROLE = "mixrole"
+export const MOCHI_ACTION_XPROLE = "xprole"
+export const MOCHI_ACTION_NFTROLE = "nftrole"
+export const MOCHI_ACTION_TOKENROLE = "tokenrole"
+export const MOCHI_ACTION_VERIFY = "verify"
+export const MOCHI_ACTION_LOG = "log"
+export const MOCHI_ACTION_PROPOSAL = "proposal"
+export const MOCHI_ACTION_SALES = "sales"
+export const MOCHI_ACTION_GM = "gm"
+export const MOCHI_ACTION_STARBOARD = "starboard"
+export const MOCHI_ACTION_LEVELUPMESSAGE = "levelupmessage"
+export const MOCHI_ACTION_WELCOMEMESSAGE = "welcomemessage"
+export const MOCHI_ACTION_TOKEN = "token"
+export const MOCHI_ACTION_MONIKER = "moniker"
+export const MOCHI_ACTION_WALLET = "wallet"
+export const MOCHI_ACTION_TELEGRAM = "telegram"

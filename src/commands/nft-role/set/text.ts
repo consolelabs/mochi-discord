@@ -1,5 +1,5 @@
 import config from "adapters/config"
-import { InternalError } from "errors"
+import { InternalError, APIError } from "errors"
 import { list } from "commands/nft-role/processor"
 import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
@@ -10,6 +10,14 @@ import {
   getErrorEmbed,
   getSuccessEmbed,
 } from "ui/discord/embed"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_NFTROLE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "nr_set",
@@ -35,7 +43,7 @@ const command: Command = {
     const nftAddresses = nftAddressesArg.split(",")
     if (!roleArg.startsWith("<@&") || !roleArg.endsWith(">")) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Invalid role format",
         description: `Your role is in an invalid format. Make sure an “@” symbol is put before the role.\n\n${getEmoji(
           "POINTINGRIGHT"
@@ -82,7 +90,7 @@ const command: Command = {
     const nft = nfts.find((nft) => nftAddresses.includes(nft.address))
     if (!nft) {
       throw new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Unsupported NFT",
         description: `This collection has NOT been supported yet.\n\n${getEmoji(
           "POINTINGRIGHT"
@@ -117,6 +125,24 @@ const command: Command = {
       const configs = await config.getGuildNFTRoleConfigs(msg.guildId)
       if (configs.ok) {
         const { description } = list(configs)
+        // send activity
+        const dataProfile = await profile.getByDiscord(msg.author.id)
+        if (dataProfile.err) {
+          throw new APIError({
+            msgOrInteraction: msg,
+            description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+            curl: "",
+          })
+        }
+        const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+          dataProfile.id,
+          MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+          MOCHI_APP_SERVICE,
+          MOCHI_ACTION_NFTROLE
+        )
+        kafkaMsg.activity.content.role_name = role.name
+        sendActivityMsg(kafkaMsg)
+
         return {
           messageOptions: {
             embeds: [
@@ -138,7 +164,7 @@ const command: Command = {
     } else {
       if (res.error.toLowerCase().includes("role has been used")) {
         throw new InternalError({
-          message: msg,
+          msgOrInteraction: msg,
           title: "Duplicated roles",
           description: `Your role has been used for another role configuration. Please choose another role or remove the existing one using \`$nr remove\`.\n\n${getEmoji(
             "POINTINGRIGHT"

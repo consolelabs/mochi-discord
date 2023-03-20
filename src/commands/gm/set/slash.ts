@@ -43,7 +43,7 @@ const command: SlashCommand = {
     const chanArg = interaction.options.getChannel("channel")
     if (!chanArg) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: "Invalid channel, please choose a text channel.",
       })
     }
@@ -53,7 +53,7 @@ const command: SlashCommand = {
       .catch(() => undefined)
     if (!chan || !chan.isText()) {
       throw new InternalError({
-        message: interaction,
+        msgOrInteraction: interaction,
         description: "Invalid channel, please choose a text channel.",
       })
     }
@@ -70,8 +70,8 @@ const command: SlashCommand = {
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        usage: `${SLASH_PREFIX}gm config <channel>`,
-        examples: `${SLASH_PREFIX}gm config #general`,
+        usage: `${SLASH_PREFIX}gm set <channel>`,
+        examples: `${SLASH_PREFIX}gm set #general`,
         document: `${GM_GITBOOK}&action=config`,
       }),
     ],

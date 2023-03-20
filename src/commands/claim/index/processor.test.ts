@@ -75,7 +75,7 @@ describe("claim", () => {
     defi.claimOnchainTransfer = jest.fn()
     await expect(processor.claim(msg, args)).rejects.toThrow(
       new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Claiming failed!",
         description: "`claim ID` must be a number",
       })
@@ -110,7 +110,7 @@ describe("claim", () => {
       .mockResolvedValueOnce(getUserOnchainTransfersRes)
     await expect(processor.claim(msg, args)).rejects.toThrow(
       new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Fail to claim tip!",
         description: [
           `${pointingright} You may enter an invalid \`claim ID\` or claimed one!`,
@@ -141,7 +141,7 @@ describe("claim", () => {
     defi.getUserOnchainTransfers = jest.fn()
     await expect(processor.claim(msg, args)).rejects.toThrow(
       new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Failed to claim tip!",
         description: `Mochi wallet's balance is insufficient to proceed this transaction.\n${getEmoji(
           "POINTINGRIGHT"
@@ -172,7 +172,7 @@ describe("claim", () => {
     defi.getUserOnchainTransfers = jest.fn()
     await expect(processor.claim(msg, args)).rejects.toThrow(
       new InternalError({
-        message: msg,
+        msgOrInteraction: msg,
         title: "Failed to claim tip!",
         description: `Mochi wallet's balance is insufficient to proceed this transaction.\n${getEmoji(
           "POINTINGRIGHT"

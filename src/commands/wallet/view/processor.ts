@@ -1,25 +1,28 @@
 import defi from "adapters/defi"
+import profile from "adapters/profile"
 import {
   ButtonInteraction,
   EmbedFieldData,
   Message,
   MessageActionRow,
   MessageButton,
+  MessageEmbed,
   MessageSelectMenu,
   SelectMenuInteraction,
   User,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
-import InteractionManager, {
-  InteractionHandler,
-} from "handlers/discord/select-menu"
+import { InteractionHandler } from "handlers/discord/select-menu"
+import { UserNFT } from "types/profile"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
   defaultEmojis,
   emojis,
+  equalIgnoreCase,
   getEmoji,
   getEmojiURL,
   isAddress,
+  msgColors,
   reverseLookup,
   roundFloatNumber,
   shortenHashOrAddress,
@@ -34,34 +37,44 @@ const chains: Record<string, string> = {
   "250": "Fantom Opera",
 }
 
-function composeWalletViewSelectMenuRow(address: string, type: string) {
-  return new MessageActionRow().addComponents(
-    new MessageSelectMenu({
-      custom_id: "wallet_view_select_menu",
-      options: [
-        {
-          label: "Assets",
-          value: `wallet_assets-${address}-${type}`,
-          default: true,
-        },
-        { label: "Transactions", value: `wallet_txns-${address}-${type}` },
-      ],
-    })
-  )
-}
+// function composeWalletViewSelectMenuRow(address: string, type: string) {
+//   return new MessageActionRow().addComponents(
+//     new MessageSelectMenu({
+//       custom_id: "wallet_view_select_menu",
+//       options: [
+//         {
+//           label: "Assets",
+//           value: `wallet_assets-${address}-${type}`,
+//           default: true,
+//         },
+//         { label: "Transactions", value: `wallet_txns-${address}-${type}` },
+//       ],
+//     })
+//   )
+// }
 
 function composeWalletDetailsButtonRow(
   userId: string,
   address: string,
   alias: string,
-  added: boolean
+  added: boolean,
+  type: string,
+  view = "token"
 ) {
   return new MessageActionRow().addComponents(
     new MessageButton({
-      customId: `wallet_rename-${userId}-${address}`,
+      customId: `wl_my_token-${userId}-${address}-${alias}-${type}-${added}`,
+      emoji: getEmoji("coin2"),
       style: "SECONDARY",
-      emoji: getEmoji("pencil"),
-      label: "Rename Label",
+      label: "My Token",
+      disabled: equalIgnoreCase(view, "token"),
+    }),
+    new MessageButton({
+      customId: `wl_my_nft-${userId}-${address}-${alias}-${type}-${added}`,
+      emoji: getEmoji("nft2"),
+      style: "SECONDARY",
+      label: "My NFT",
+      disabled: equalIgnoreCase(view, "nft"),
     }),
     new MessageButton({
       customId: `${
@@ -70,41 +83,49 @@ function composeWalletDetailsButtonRow(
           : `wallet_add-${userId}-${address}`
       }`,
       style: "SECONDARY",
-      label: added ? "Remove" : "Add to track list",
-      ...(!added && { emoji: getEmoji("plus") }),
+      label: added ? "Delete" : "Add to track list",
+      emoji: getEmoji(added ? "bin" : "plus"),
+    }),
+    new MessageButton({
+      customId: `wallet_rename-${userId}-${address}`,
+      style: "SECONDARY",
+      emoji: getEmoji("pencil"),
+      label: "Rename Label",
     })
   )
 }
 
-function composeChainSelectMenuRow(address: string, type: string) {
-  return new MessageActionRow().addComponents(
-    new MessageSelectMenu({
-      custom_id: "wallet_chain_select_menu",
-      options: [
-        {
-          label: "All Chains",
-          value: `wallet_txns-${address}-${type}`,
-          default: true,
-        },
-        ...Object.entries(chains).map(([chainId, chainName]) => ({
-          label: chainName,
-          value: `wallet_txns-${address}-${type}-${chainId}`,
-        })),
-      ],
-    })
-  )
-}
+// function composeChainSelectMenuRow(address: string, type: string) {
+//   return new MessageActionRow().addComponents(
+//     new MessageSelectMenu({
+//       custom_id: "wallet_chain_select_menu",
+//       options: [
+//         {
+//           label: "All Chains",
+//           value: `wallet_txns-${address}-${type}`,
+//           default: true,
+//         },
+//         ...Object.entries(chains).map(([chainId, chainName]) => ({
+//           label: chainName,
+//           value: `wallet_txns-${address}-${type}-${chainId}`,
+//         })),
+//       ],
+//     })
+//   )
+// }
 
 export async function viewWallet(i: ButtonInteraction) {
   if (!i.customId.startsWith("wallet_view_details-")) return
   await i.deferReply()
   const address = i.customId.split("-")[1]
   const res = await viewWalletDetails(i.message as Message, i.user, address)
-  const reply = await i.editReply(res.messageOptions)
-  InteractionManager.add(reply.id, res.interactionOptions)
+  await i.editReply(res.messageOptions)
+  // const reply = await i.editReply(res.messageOptions)
+  // InteractionManager.add(reply.id, res.interactionOptions)
 }
 
 export async function handleWalletRenaming(i: ButtonInteraction) {
+  await (i.message as Message).edit({ components: [] })
   if (!i.customId.startsWith("wallet_rename-")) return
   const [userId, address] = i.customId.split("-").slice(1)
   if (i.user.id !== userId) {
@@ -128,7 +149,7 @@ export async function viewWalletDetails(
     curl,
   } = await defi.findWallet(author.id, addressOrAlias)
   if (!ok && status !== 404) {
-    throw new APIError({ message, description: log, curl })
+    throw new APIError({ msgOrInteraction: message, description: log, curl })
   }
   let address, addressType
   if (!ok) {
@@ -137,7 +158,7 @@ export async function viewWalletDetails(
     const { valid, type } = isAddress(address)
     if (!valid) {
       throw new InternalError({
-        message,
+        msgOrInteraction: message,
         title: "Invalid address",
         description:
           "Your wallet address is invalid. Make sure that the wallet address is valid, you can copy-paste it to ensure the exactness of it.",
@@ -152,7 +173,7 @@ export async function viewWalletDetails(
   return {
     messageOptions: {
       embeds: [
-        await getAssetsEmbed(
+        await getTokensEmbed(
           message,
           author,
           address,
@@ -161,64 +182,77 @@ export async function viewWalletDetails(
         ),
       ],
       components: [
-        composeWalletViewSelectMenuRow(address, addressType),
-        composeWalletDetailsButtonRow(author.id, address, wallet?.alias, ok),
+        // composeWalletViewSelectMenuRow(address, addressType),
+        composeWalletDetailsButtonRow(
+          author.id,
+          address,
+          wallet?.alias,
+          ok,
+          addressType
+        ),
       ],
     },
-    interactionOptions: {
-      handler: selectWalletViewHandler,
-    },
+    // interactionOptions: {
+    //   handler: selectWalletViewHandler,
+    // },
   }
 }
 
-export const selectWalletViewHandler: InteractionHandler = async (
-  msgOrInteraction
-) => {
-  const interaction = msgOrInteraction as SelectMenuInteraction
-  await interaction.deferUpdate()
-  const { message } = <{ message: Message }>interaction
-  const input = interaction.values[0]
-  const [view, address, type, chainId] = input.split("-")
+// export const selectWalletViewHandler: InteractionHandler = async (
+//   msgOrInteraction
+// ) => {
+//   const interaction = msgOrInteraction as SelectMenuInteraction
+//   await interaction.deferUpdate()
+//   const { message } = <{ message: Message }>interaction
+//   const input = interaction.values[0]
+//   const [view, address, type, chainId] = input.split("-")
 
-  const { data: wallet } = await defi.findWallet(interaction.user.id, address)
-  const txView = view === "wallet_txns"
-  const embed = await (txView
-    ? getTxnsEmbed(msgOrInteraction, interaction.user, address, type, chainId)
-    : getAssetsEmbed(
-        msgOrInteraction,
-        interaction.user,
-        address,
-        type,
-        wallet?.alias
-      ))
+//   const { data: wallet } = await defi.findWallet(interaction.user.id, address)
+//   const txView = view === "wallet_txns"
+//   const embed = await (txView
+//     ? getTxnsEmbed(msgOrInteraction, interaction.user, address, type, chainId)
+//     : getAssetsEmbed(
+//         msgOrInteraction,
+//         interaction.user,
+//         address,
+//         type,
+//         wallet?.alias
+//       ))
+//   const embed = await getAssetsEmbed(
+//     msgOrInteraction,
+//     interaction.user,
+//     address,
+//     type,
+//     wallet?.alias
+//   )
 
-  const viewRow: MessageActionRow | undefined = message.components.find((c) => {
-    return c.components[0].customId === "wallet_view_select_menu"
-  })
-  const viewSelectMenu = viewRow?.components[0] as MessageSelectMenu
-  const choices = ["wallet_assets", "wallet_txns"]
-  viewSelectMenu.options.forEach(
-    (opt, i) => (opt.default = i === choices.indexOf(view))
-  )
+//   const viewRow: MessageActionRow | undefined = message.components.find((c) => {
+//     return c.components[0].customId === "wallet_view_select_menu"
+//   })
+//   const viewSelectMenu = viewRow?.components[0] as MessageSelectMenu
+//   const choices = ["wallet_assets", "wallet_txns"]
+//   viewSelectMenu.options.forEach(
+//     (opt, i) => (opt.default = i === choices.indexOf(view))
+//   )
 
-  const chainRow = composeChainSelectMenuRow(address, type)
-  const chainSelectMenu = chainRow?.components[0] as MessageSelectMenu
-  chainSelectMenu.options.forEach(
-    (opt, i) =>
-      (opt.default =
-        i === (chainId ? Object.keys(chains).indexOf(chainId) + 1 : 0))
-  )
+//   const chainRow = composeChainSelectMenuRow(address, type)
+//   const chainSelectMenu = chainRow?.components[0] as MessageSelectMenu
+//   chainSelectMenu.options.forEach(
+//     (opt, i) =>
+//       (opt.default =
+//         i === (chainId ? Object.keys(chains).indexOf(chainId) + 1 : 0))
+//   )
 
-  return {
-    messageOptions: {
-      embeds: [embed],
-      components: [
-        ...(txView && type === "eth" ? [chainRow] : []),
-        ...(viewRow ? [viewRow] : []),
-      ],
-    },
-  }
-}
+//   return {
+//     messageOptions: {
+//       embeds: [embed],
+//       components: [
+// ...(txView && type === "eth" ? [chainRow] : []),
+//         ...(viewRow ? [viewRow] : []),
+//       ],
+//     },
+//   }
+// }
 
 function composeWalletSelectMenuRow(wallets: any) {
   return new MessageActionRow().addComponents(
@@ -250,13 +284,15 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
     log,
     curl,
   } = await defi.getUserTrackingWallets(author.id)
-  if (!ok) throw new APIError({ message, description: log, curl })
+  if (!ok)
+    throw new APIError({ msgOrInteraction: message, description: log, curl })
   const pointingright = getEmoji("pointingright")
   if (wallets.length === 0) {
     const embed = composeEmbedMessage(null, {
       author: ["Wallet list", getEmojiURL(emojis.TRANSACTIONS)],
       description: `You haven't added any wallet to the list.\n${pointingright} You can add more wallet by using \`${PREFIX}wallet add <wallet address> [alias]\`\n${pointingright} If you just want to check one wallet balance, you can directly command \`${PREFIX}wallet view <address>/<alias>\`.`,
       originalMsgAuthor: author,
+      color: msgColors.SUCCESS,
     })
     return { messageOptions: { embeds: [embed] } }
   }
@@ -273,6 +309,7 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
   const embed = composeEmbedMessage(null, {
     author: ["Wallet list", getEmojiURL(emojis.TRANSACTIONS)],
     originalMsgAuthor: author,
+    color: msgColors.SUCCESS,
   }).addFields([
     { name: `${getEmoji("pawcoin")} Alias`, value: alias, inline: true },
     { name: `${getEmoji("address")} Address`, value: address, inline: true },
@@ -289,7 +326,7 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
   }
 }
 
-export async function getAssetsEmbed(
+async function getTokensEmbed(
   message: OriginalMessage,
   author: User,
   address: string,
@@ -306,7 +343,7 @@ export async function getAssetsEmbed(
   } = await defi.getWalletAssets(author.id, address, type)
   if (!ok) {
     throw new APIError({
-      message,
+      msgOrInteraction: message,
       description: log,
       curl: curl,
     })
@@ -316,6 +353,7 @@ export async function getAssetsEmbed(
       author: ["Wallet balances", getEmojiURL(emojis.WALLET)],
       description: "No balance. Try `$deposit` more into your wallet.",
       originalMsgAuthor: author,
+      color: msgColors.SUCCESS,
     })
   }
   const totalUsdBalance = assets.reduce((acc: number, cur: any) => {
@@ -331,23 +369,38 @@ export async function getAssetsEmbed(
       } = a
       if (usd_balance <= 1) return undefined
       const tokenEmoji = getEmoji(symbol)
-      const value = `${tokenEmoji} ${asset_balance.toLocaleString()} ${symbol.toUpperCase()} \`$${usd_balance.toLocaleString(
+      const value = `${tokenEmoji} ${asset_balance.toLocaleString()} ${symbol.toUpperCase()}\n\`$${usd_balance.toLocaleString(
         undefined,
         { maximumFractionDigits: 4 }
       )}\` ${blank}`
       return { name, value, inline: true }
     })
     .filter((f: EmbedFieldData | undefined) => Boolean(f))
-  fields.push({
-    name: `Estimated total (U.S dollar)`,
-    value: `${getEmoji("cash")} \`$${roundFloatNumber(totalUsdBalance, 4)}\``,
-  })
+  fields.push(
+    ...[
+      {
+        name: `\u200B\nEstimated total (U.S dollar)`,
+        value: `${getEmoji("cash")} \`$${roundFloatNumber(
+          totalUsdBalance,
+          4
+        )}\``,
+        inline: false,
+      },
+      {
+        name: "\u200B",
+        value: `${pointingright} Your can withdraw the coin to you crypto wallet by \`$withdraw\`\n${pointingright} All the tip transaction will take from this balance. You can try \`$tip\``,
+        inline: false,
+      },
+    ]
+  )
   const label = alias || (await reverseLookup(address))
-  const title = label ? `${label}'s wallet` : "Wallet assets"
+  const title = label ? `${label}'s wallet` : "Wallet tokens"
   return composeEmbedMessage(null, {
     author: [title, getEmojiURL(emojis.WALLET)],
-    description: `${pointingright} You can save the wallet address with an easy-to-remember alias for further tracking with $wallet.\n${pointingright} _Show maximum 25 tokens_`,
+    // description: `${pointingright} You can save the wallet address with an easy-to-remember alias for further tracking with $wallet.\n${pointingright} _Show maximum 25 tokens_`,
+    description: `**Tokens (${Math.min(25, fields.length - 2)})**`,
     originalMsgAuthor: author,
+    color: msgColors.SUCCESS,
   }).addFields(fields.slice(0, 25))
 }
 
@@ -365,7 +418,7 @@ export async function getTxnsEmbed(
   )
   if (!ok) {
     throw new APIError({
-      message,
+      msgOrInteraction: message,
       description: log,
       curl: curl,
     })
@@ -379,6 +432,7 @@ export async function getTxnsEmbed(
       description: `Wallet ${address} has no transactions${
         chainId ? ` on chain **${chains[chainId]}**` : ""
       }.`,
+      color: msgColors.SUCCESS,
       originalMsgAuthor: author,
     })
   }
@@ -447,5 +501,108 @@ export async function getTxnsEmbed(
     author: ["Wallet transactions", getEmojiURL(emojis.TRANSACTIONS)],
     description: `${description}\n\n${transactions.join("\n\n")}`,
     originalMsgAuthor: author,
+    color: msgColors.SUCCESS,
   })
+}
+
+export async function navigateWalletViews(i: ButtonInteraction) {
+  await i.deferUpdate()
+  // await i.deferReply()
+  if (!i.customId.startsWith("wl_my_")) return
+  const [prefix, userId, address, alias, type, added] = i.customId.split("-")
+  if (i.user.id !== userId) return
+  let embed: MessageEmbed | null = null
+  let view = ""
+  if (prefix.includes("token")) {
+    view = "token"
+    embed = await getTokensEmbed(i, i.user, address, type, alias)
+  } else if (prefix.includes("nft")) {
+    view = "nft"
+    embed = await getNFTsEmbed(i, i.user, address, alias)
+  }
+  if (!embed) return
+  const msg = i.message as Message
+  await msg.edit({
+    embeds: [embed],
+    components: [
+      composeWalletDetailsButtonRow(
+        userId,
+        address,
+        alias,
+        Boolean(added),
+        type,
+        view
+      ),
+    ],
+  })
+}
+
+async function getNFTsEmbed(
+  msgOrInteraction: OriginalMessage,
+  author: User,
+  address: string,
+  alias: string
+) {
+  const userNFTs = await profile.getUserNFT({ userAddress: address })
+  if (!userNFTs.ok) {
+    throw new APIError({
+      msgOrInteraction: msgOrInteraction,
+      curl: userNFTs.curl,
+      description: userNFTs.log,
+    })
+  }
+
+  const pointingright = getEmoji("pointingright")
+  const fields: EmbedFieldData[] = await Promise.all(
+    // group nfts by collection
+    Object.entries(
+      userNFTs.data.reduce((acc: Record<string, UserNFT[]>, cur) => {
+        const nfts = acc[cur.collection_address] ?? []
+        nfts.push(cur)
+        return {
+          ...acc,
+          [cur.collection_address]: nfts,
+        }
+      }, {})
+      // render embed fields
+    ).map(async ([address, nfts]) => {
+      const collections = await profile.getNftCollections({ address })
+      const collection: any = collections.data?.[0]
+      const collectionName =
+        collection?.name ?? `Collection ${shortenHashOrAddress(address)}`
+      const chainName = collection?.chain?.symbol
+      const nftEmoji = getEmoji("nft2")
+      let length = 0
+      const tokens = nfts
+        .map((nft) => {
+          const str = `${collection?.symbol ?? ""} #${nft.token_id}`
+          length += str.length
+          if (length >= 1024) return ""
+          return str
+        })
+        .join("\n")
+      return {
+        name: `${nftEmoji} ${collectionName} ${
+          chainName ? `(${chainName}) ` : ""
+        }${nfts.length}`,
+        value: tokens,
+        inline: true,
+      }
+    })
+  )
+  fields.push(
+    ...[
+      {
+        name: "\u200B",
+        value: `${pointingright} Your can withdraw the coin to you crypto wallet by \`$withdraw\`\n${pointingright} All the tip transaction will take from this balance. You can try \`$tip\``,
+        inline: false,
+      },
+    ]
+  )
+  const title = alias ? `${alias}'s wallet` : "Wallet's NFT"
+  return composeEmbedMessage(null, {
+    originalMsgAuthor: author,
+    author: [title, getEmojiURL(emojis.WALLET)],
+    description: `**My NFT(${userNFTs.data.length})**`,
+  }).addFields(fields)
 }

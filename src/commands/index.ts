@@ -23,6 +23,7 @@ import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import config from "../adapters/config"
 import { logger } from "../logger"
+import usageTracker from "logger/usage-tracker"
 import { isAcceptableCmdToHelp } from "../utils/commands"
 
 // commands
@@ -52,7 +53,10 @@ import levelmessage from "./level-message"
 import levelrole from "./level-role"
 import log from "./log"
 import moniker from "./moniker"
-import nft from "./nft"
+import gas from "./gas"
+import activity from "./activity"
+// import nft from "./nft"
+import nft from "./new-nft"
 import nftrole from "./nft-role"
 import poe from "./poe"
 import profile from "./profile"
@@ -65,7 +69,8 @@ import starboard from "./starboard"
 import statements from "./statements"
 import telegram from "./telegram"
 import ticker from "./ticker"
-import tip from "./tip"
+// import tip from "./tip"
+import tip from "./new-tip"
 import token from "./token"
 import top from "./top"
 import verify from "./verify"
@@ -77,6 +82,9 @@ import xprole from "./xp-role"
 import wallet from "./wallet"
 import mixrole from "./mix-role"
 import alert from "./alert"
+import stats from "./stats"
+import game from "./game"
+import pay from "./pay"
 
 CacheManager.init({
   ttl: 0,
@@ -118,6 +126,10 @@ export const slashCommands: Record<string, SlashCommand> = {
   mixrole: mixrole.slashCmd,
   alert: alert.slashCmd,
   wallet: wallet.slashCmd,
+  stats: stats.slashCmd,
+  gas: gas.slashCmd,
+  game: game.slashCmd,
+  activity: activity.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -145,6 +157,8 @@ export const originalCommands: Record<string, Command> = {
   prune: prune.textCmd,
   quest: quest.textCmd,
   alert: alert.textCmd,
+  gas: gas.textCmd,
+  activity: activity.textCmd,
   // config section
   reactionrole: reactionrole.textCmd,
   defaultrole: defaultrole.textCmd,
@@ -156,6 +170,7 @@ export const originalCommands: Record<string, Command> = {
   tokenrole: tokenrole.textCmd,
   xprole: xprole.textCmd,
   mixrole: mixrole.textCmd,
+  stats: stats.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
   log: log.textCmd,
@@ -165,6 +180,12 @@ export const originalCommands: Record<string, Command> = {
 
   // wallet
   wallet: wallet.textCmd,
+
+  //game
+  game: game.textCmd,
+
+  // pay
+  pay: pay.textCmd,
 }
 
 export const commands = getAllAliases(originalCommands)
@@ -316,7 +337,6 @@ async function executeCommand(
         render,
       } = runResponse
       const multipleEmbed = getMultipleResultEmbed({
-        msg: message,
         ambiguousResultText,
         multipleResultText,
       })
@@ -444,4 +464,6 @@ export async function handlePrefixedCommand(message: Message) {
     action,
     isSpecificHelpCommand ?? false
   )
+
+  usageTracker.log(message)
 }

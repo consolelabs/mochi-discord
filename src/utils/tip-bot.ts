@@ -4,7 +4,7 @@ import { APIError } from "errors"
 import config from "adapters/config"
 import { ResponseMonikerConfigData } from "types/api"
 import { SPACES_REGEX } from "./constants"
-import { hasRole, isNotBot, isStatus } from "./common"
+import { equalIgnoreCase, hasRole, isNotBot, isStatus } from "./common"
 import defi from "adapters/defi"
 
 const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
@@ -188,7 +188,7 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
     })
   }
   let newArgs = args
-  let moniker
+  let moniker: ResponseMonikerConfigData | undefined
   if (data && Array.isArray(data) && data.length !== 0) {
     const content = args.join(" ").trim()
     data.forEach((v: ResponseMonikerConfigData) => {
@@ -234,7 +234,7 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
   }
 }
 
-export async function tipTokenIsSupported(symbol: string): Promise<boolean> {
+export async function isTokenSupported(symbol: string): Promise<boolean> {
   const { ok, error, curl, log, data } = await defi.getAllTipBotTokens()
   if (!ok) {
     throw new APIError({ curl, description: log, error })
@@ -242,4 +242,12 @@ export async function tipTokenIsSupported(symbol: string): Promise<boolean> {
   const tokens = data.map((t: any) => t.token_symbol.toUpperCase())
   if (tokens.includes(symbol.toUpperCase())) return true
   return false
+}
+
+export async function getToken(symbol: string) {
+  const { ok, error, curl, log, data } = await defi.getAllTipBotTokens()
+  if (!ok) {
+    throw new APIError({ curl, description: log, error })
+  }
+  return data.find((t: any) => equalIgnoreCase(t.token_symbol, symbol))
 }

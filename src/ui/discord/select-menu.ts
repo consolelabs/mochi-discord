@@ -10,9 +10,9 @@ import {
 } from "discord.js"
 import { SetDefaultButtonHandler, SetDefaultRenderList } from "types/common"
 import { InteractionHandler } from "handlers/discord/select-menu"
-import { getDateStr, getEmoji, hasAdministrator } from "utils/common"
+import { getAuthor, getDateStr, getEmoji, hasAdministrator } from "utils/common"
 import { VERTICAL_BAR } from "utils/constants"
-import { composeEmbedMessage, composeEmbedMessage2 } from "./embed"
+import { composeEmbedMessage } from "./embed"
 import dayjs from "dayjs"
 
 type SetDefaultMiddlewareParams<T> = {
@@ -61,17 +61,15 @@ export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
         })
       )
 
+      const author = getAuthor(originalMsg)
       const embedProps = {
         title: "Set default",
         description: `Do you want to set **${params.label}** as the default value for this command?\nNo further selection next time use command`,
+        originalMsgAuthor: author,
       }
 
       replyMessage = {
-        embeds: [
-          originalMsg instanceof Message
-            ? composeEmbedMessage(originalMsg, embedProps)
-            : composeEmbedMessage2(originalMsg, embedProps),
-        ],
+        embeds: [composeEmbedMessage(null, embedProps)],
         components: [actionRow],
       }
     }
