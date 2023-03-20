@@ -315,6 +315,7 @@ export const msgColors: Record<string, ColorResolvable> = {
   GRAY: "#1E1F22",
   BLUE: "#C8EFF8",
   YELLOW: "#F9F687",
+  ACTIVITY: "#62A1FE",
 }
 
 export const thumbnails: Record<string, string> = {

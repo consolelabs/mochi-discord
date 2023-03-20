@@ -100,7 +100,7 @@ export async function render(userDiscordId: string) {
 
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("ACTIVITY_CLOCK")} Activity`)
-    .setColor(msgColors.BLUE)
+    .setColor(msgColors.ACTIVITY)
     .setFooter({ text: "Mochi Bot" })
     .setTimestamp(Date.now())
   for (let i = 0; i < fields.length; i++) {
