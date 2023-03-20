@@ -8,6 +8,7 @@ import { RunResult } from "types/common"
 import {
   composeEmbedMessage,
   composeInsufficientBalanceEmbed,
+  composeMyWalletSelection,
 } from "ui/discord/embed"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import {
@@ -51,8 +52,7 @@ export async function run({
         ]
       : [])
   )
-  // TODO: add on-chain wallets, only accept mochi wallet for now
-  const options = [{ label: "Mochi wallet", value: `mochi_${author.id}` }]
+  const options = await composeMyWalletSelection(author.id)
   const selectionRow = composeDiscordSelectionRow({
     customId: "pay_link_select_wallet",
     placeholder: "Select a wallet to tip",
