@@ -195,7 +195,8 @@ export async function tip(
       MOCHI_PAY_SERVICE,
       MOCHI_ACTION_TIP
     )
-    kafkaMsg.activity.content.username = recipientUsername?.toString()
+    kafkaMsg.activity.content.username =
+      recipientUsername?.user.username.toString()
     kafkaMsg.activity.content.amount = payload.amount.toString()
     kafkaMsg.activity.content.token = payload.token
     sendActivityMsg(kafkaMsg)
