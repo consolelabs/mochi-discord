@@ -74,17 +74,17 @@ export async function render(userDiscordId: string) {
     const t = `${
       monthNames[date.getMonth()]
     } ${date.getDate()} ${hour}:${date.getMinutes()} ${time}`
-    const xpReward = activity.action_description.reward
-      ? `${getEmoji("ACTIVITY_XP")} + ${activity.action_description.reward}`
-      : ""
-    const coinReward = activity.action_description.coin
-      ? `${getEmoji("COIN2")} + ${activity.action_description.coin}`
-      : ""
-    let rewardInfo = ""
-    if (xpReward || coinReward) {
-      rewardInfo = `| ${xpReward} ${coinReward}`
-    }
-    const actionAndRewardRow = `${actionEmoji} ${activity.action_description.description} ${rewardInfo}`
+    // const xpReward = activity.action_description.reward
+    //   ? `${getEmoji("ACTIVITY_XP")} + ${activity.action_description.reward}`
+    //   : ""
+    // const coinReward = activity.action_description.coin
+    //   ? `${getEmoji("COIN2")} + ${activity.action_description.coin}`
+    //   : ""
+    // let rewardInfo = ""
+    // if (xpReward || coinReward) {
+    //   rewardInfo = `| ${xpReward} ${coinReward}`
+    // }
+    const actionAndRewardRow = `${actionEmoji} ${activity.action_description}`
     activityList.push({
       name: "\u200b",
       value: `[[${t}]](https://mochi.gg/) ${platformEmoji} \`${activity.platform}\`\n${actionAndRewardRow}`,
