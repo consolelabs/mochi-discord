@@ -16,6 +16,18 @@ class MochiPay extends Fetcher {
       data: await res?.json(),
     }
   }
+
+  public async generatePaymentCode(body: {
+    profileId: string
+    amount: string
+    token: string
+    note?: string
+  }) {
+    return await this.jsonFetch(`${MOCHI_PAY_API_BASE_URL}/pay-requests`, {
+      method: "POST",
+      body,
+    })
+  }
 }
 
 export default new MochiPay()

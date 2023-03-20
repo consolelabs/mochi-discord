@@ -329,12 +329,6 @@ class Defi extends Fetcher {
     return await fetch(`${FTMSCAN_API}?${queryStr}`)
   }
 
-  async getUserOwnedWallets(userId: string, guildId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/users/${userId}/wallets`, {
-      query: { guildId },
-    })
-  }
-
   async getUserTrackingWallets(userId: string) {
     return await this.jsonFetch(
       `${API_BASE_URL}/users/${userId}/wallets/tracking`

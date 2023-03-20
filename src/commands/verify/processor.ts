@@ -5,8 +5,8 @@ import {
   MessageButton,
   MessageEmbed,
 } from "discord.js"
-import { WEBSITE_ENDPOINT } from "env"
 import { embedsColors } from "types/common"
+import { HOMEPAGE_URL } from "utils/constants"
 
 export async function sendVerifyURL(interaction: ButtonInteraction) {
   if (!interaction.member || !interaction.guildId) return
@@ -22,9 +22,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
       .setLabel("Verify")
       .setStyle("LINK")
       .setURL(
-        `${WEBSITE_ENDPOINT}/verify?code=${Date.now()}&did=${
-          interaction.user.id
-        }`
+        `${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${interaction.user.id}`
       )
   )
   await interaction

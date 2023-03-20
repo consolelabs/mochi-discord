@@ -1,9 +1,9 @@
 import { userMention } from "@discordjs/builders"
+import community from "adapters/community"
 import defi from "adapters/defi"
 import mochiPay from "adapters/mochi-pay"
 import mochiTelegram from "adapters/mochi-telegram"
 import profile from "adapters/profile"
-import community from "adapters/community"
 import {
   CommandInteraction,
   Message,
@@ -18,14 +18,17 @@ import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { logger } from "logger"
 import { ResponseMonikerConfigData } from "types/api"
 import { RunResult } from "types/common"
-import { EMPTY_FIELD, composeEmbedMessage } from "ui/discord/embed"
+import {
+  EMPTY_FIELD,
+  composeEmbedMessage,
+  composeMyWalletSelection,
+} from "ui/discord/embed"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import {
   emojis,
   getAuthor,
   getEmoji,
   getEmojiURL,
-  shortenHashOrAddress,
   thumbnails,
 } from "utils/common"
 import { reply } from "utils/discord"
@@ -192,27 +195,10 @@ async function confirmToTip(
       label: "Cancel",
     })
   )
-  const walletsRes = await defi.getUserOwnedWallets(
-    author.id,
-    msg.guildId ?? ""
-  )
-  if (!walletsRes.ok) {
-    const { curl, log: description } = walletsRes
-    throw new APIError({ description, curl, msgOrInteraction: msg })
-  }
-  const { data: wallets } = walletsRes
-  const options = [{ label: "Mochi wallet", value: `mochi_${author.id}` }]
-  options.push(
-    ...wallets.map((w: any) => {
-      const addr = shortenHashOrAddress(w.address)
-      return {
-        label: w.alias ? `${w.alias} - ${addr}` : addr,
-        value: w.address,
-      }
-    })
-  )
+  const options = await composeMyWalletSelection(author.id)
   const selectionRow = composeDiscordSelectionRow({
     customId: "tip_select_wallet",
+    placeholder: "Select a wallet to tip",
     options,
   })
   const tokenEmoji = getEmoji(payload.token)
@@ -255,7 +241,6 @@ async function confirmToTip(
       options: {
         filter: (i) =>
           i.customId === "tip_select_wallet" && i.user.id === author.id,
-        max: 1,
       },
       handler: async (i) => {
         await i.deferUpdate()

@@ -1,10 +1,9 @@
 import { Message, User } from "discord.js"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL, roundFloatNumber } from "utils/common"
+import { composeInsufficientBalanceEmbed } from "ui/discord/embed"
 import { BotBaseError, OriginalMessage } from "./base"
 
 type InsufficientBalanceErrorParam = {
-  current: number
+  current?: number
   required: number
   symbol: string
 }
@@ -35,38 +34,14 @@ export class InsufficientBalanceError extends BotBaseError {
     })
   }
 
-  private composeInsufficientBalanceEmbed(
-    current: number,
-    required: number,
-    symbol: string
-  ) {
-    const tokenEmoji = getEmoji(symbol)
-    return composeEmbedMessage(null, {
-      author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
-      description: `${this.author}, your balance is insufficient.\nYou can deposit more by using \`$deposit ${symbol}\``,
-    }).addFields([
-      {
-        name: "Required amount",
-        value: `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
-        inline: true,
-      },
-      {
-        name: "Your balance",
-        value: `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
-        inline: true,
-      },
-    ])
-  }
-
   handle() {
     if (!this.params || !this.msgOrInteraction) {
       return
     }
-    const embed = this.composeInsufficientBalanceEmbed(
-      this.params.current,
-      this.params.required,
-      this.params.symbol
-    )
+    const embed = composeInsufficientBalanceEmbed({
+      ...this.params,
+      author: this.author,
+    })
     this.reply?.({ embeds: [embed] })
   }
 }

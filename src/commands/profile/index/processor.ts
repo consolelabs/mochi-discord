@@ -1,18 +1,17 @@
 import community from "adapters/community"
-import defi from "adapters/defi"
 import profile from "adapters/profile"
 import { commands } from "commands"
-import { GuildMember } from "discord.js"
-import { MessageEmbed } from "discord.js"
-import { Collection } from "discord.js"
 import {
   ButtonInteraction,
+  Collection,
   CommandInteraction,
   EmbedFieldData,
+  GuildMember,
   GuildMemberRoleManager,
   Message,
   MessageActionRow,
   MessageButton,
+  MessageEmbed,
   SelectMenuInteraction,
   User,
 } from "discord.js"
@@ -34,7 +33,7 @@ import {
   reverseLookup,
   shortenHashOrAddress,
 } from "utils/common"
-import { SPACE, CHAIN_EXPLORER_BASE_URLS } from "utils/constants"
+import { CHAIN_EXPLORER_BASE_URLS, SPACE } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
 
 // @anhnh TODO: all of this need to be refactored
@@ -120,31 +119,40 @@ async function switchView(i: ButtonInteraction, msg: Message, user: User) {
 }
 
 async function composeMyWalletsResponse(msg: Message, user: User) {
-  const {
-    data: myWallets,
-    ok,
-    curl,
-    log,
-  } = await defi.getUserOwnedWallets(user.id, msg.guildId ?? "")
-  if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, curl, description: log })
-  }
-  // maximum 9 wallets for now
-  const list = await Promise.all(
-    myWallets.slice(0, 9).map(async (w: any, i: number) => {
-      const domain = `${(await reverseLookup(w.address)) || ""}`
-      const label = w.alias ? ` | ${w.alias}` : ""
-      return `${getEmoji(`num_${i + 1}`)} \`${shortenHashOrAddress(
-        w.address
-      )}\`${domain}${label}`
+  const pfRes = await profile.getByDiscord(user.id)
+  if (pfRes.err) {
+    throw new APIError({
+      description: `[getByDiscord] API error with status ${pfRes.status_code}`,
+      curl: "",
     })
-  )
+  }
+  const myWallets =
+    pfRes.associated_accounts?.filter((a: any) =>
+      ["evm-chain", "solana-chain"].includes(a.platform)
+    ) ?? []
   const pointingright = getEmoji("pointingright")
+  let description: string
+  if (!myWallets.length) {
+    description = `You have no wallets.\n${pointingright} Add more wallet \`/wallet add\``
+  } else {
+    // maximum 9 wallets for now
+    const list = await Promise.all(
+      myWallets.slice(0, 9).map(async (w: any, i: number) => {
+        const address = w.platform_identifier
+        const domain = `${(await reverseLookup(address)) || ""}`
+        const label = w.alias ? ` | ${w.alias}` : ""
+        return `${getEmoji(`num_${i + 1}`)} \`${shortenHashOrAddress(
+          address
+        )}\` ${domain}${label}`
+      })
+    )
+    description = `\n${list.join(
+      "\n"
+    )}\n\n${pointingright} Choose a wallet to customize assets \`/wallet view label\` or \`/wallet view address\`\n/wallet view wal1 or /wallet view baddeed.eth (In case you have set label)\n${pointingright} Add more wallet \`/wallet add\`\n\u200B`
+  }
   const embed = composeEmbedMessage(msg, {
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
-    description: `**✦ MY WALLETS ✦**\n\n${list.join(
-      "\n"
-    )}\n\n${pointingright} Choose a wallet to customize assets \`/wallet view label\` or \`/wallet view address\`\n/wallet view wal1 or /wallet view baddeed.eth (In case you have set label)\n${pointingright} Add more wallet \`/wallet add\`\n\u200B`,
+    description: `**✦ MY WALLETS ✦**\n${description}`,
     color: msgColors.PINK,
   })
   setProfileFooter(embed)
