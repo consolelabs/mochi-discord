@@ -1,5 +1,5 @@
 import { CommandInteraction, Message } from "discord.js"
-import { GuildIdNotFoundError, InternalError } from "errors"
+import { GuildIdNotFoundError, InternalError, APIError } from "errors"
 import { RoleReactionEvent } from "types/config"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
@@ -7,7 +7,15 @@ import { isDiscordMessageLink, getEmoji } from "utils/common"
 import { throwOnInvalidEmoji } from "utils/emoji"
 import { emojis, getEmojiURL, msgColors } from "./../../../utils/common"
 import config from "adapters/config"
-import { PREFIX } from "utils/constants"
+import {
+  MOCHI_ACTION_REACTIONROLE,
+  PREFIX,
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import profile from "adapters/profile"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const troubleshootMsg = `\n\n${getEmoji(
   "POINTINGRIGHT"
@@ -58,6 +66,28 @@ export const handleRoleSet = async (
     description: `Emoji ${requestData.reaction} is now set to this role <@&${requestData.role_id}>`,
     color: msgColors.SUCCESS,
   })
+
+  // send activity
+  const isTextCommand = msg instanceof Message
+  const userId = isTextCommand ? msg.author.id : ""
+  const role = msg?.guild?.roles?.cache.get(roleId)
+
+  const dataProfile = await profile.getByDiscord(userId)
+  if (dataProfile?.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile?.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_REACTIONROLE
+  )
+  kafkaMsg.activity.content.role_name = role?.name
+  sendActivityMsg(kafkaMsg)
 
   return {
     embeds: [embed],
