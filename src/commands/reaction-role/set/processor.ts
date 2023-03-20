@@ -73,7 +73,7 @@ export const handleRoleSet = async (
   const role = msg?.guild?.roles?.cache.get(roleId)
 
   const dataProfile = await profile.getByDiscord(userId)
-  if (dataProfile.err) {
+  if (dataProfile?.err) {
     throw new APIError({
       msgOrInteraction: msg,
       description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
@@ -83,7 +83,7 @@ export const handleRoleSet = async (
   const kafkaMsg: KafkaQueueActivityDataCommand = {
     platform: "discord",
     activity: {
-      profile_id: dataProfile.id,
+      profile_id: dataProfile?.id,
       status: MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
       platform: MOCHI_APP_SERVICE,
       action: MOCHI_ACTION_FEEDBACK,
