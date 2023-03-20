@@ -87,7 +87,7 @@ export async function render(userDiscordId: string) {
     const actionAndRewardRow = `${actionEmoji} ${activity.action_description.description} ${rewardInfo}`
     activityList.push({
       name: "\u200b",
-      value: `[${t}] ${platformEmoji} \`${activity.platform}\`\n${actionAndRewardRow}`,
+      value: `[[${t}]](https://mochi.gg/) ${platformEmoji} \`${activity.platform}\`\n${actionAndRewardRow}`,
     })
   }
 
