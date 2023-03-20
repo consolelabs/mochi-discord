@@ -19,6 +19,14 @@ import { validateBalance } from "utils/defi"
 import { awaitMessage } from "utils/discord"
 import { isTokenSupported } from "utils/tip-bot"
 import * as processor from "./processor"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_WITHDRAW,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 export async function getRecipient(
   msg: Message | CommandInteraction,
@@ -115,6 +123,29 @@ export async function withdraw(
   )
   if (!ok)
     throw new APIError({ msgOrInteraction, curl, description: log, error })
+
+  const isTextCommand = msgOrInteraction instanceof Message
+  const userId = isTextCommand
+    ? msgOrInteraction.author.id
+    : msgOrInteraction.user.id
+  const dataProfile = await profile.getByDiscord(userId)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msgOrInteraction,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_WITHDRAW
+  )
+  kafkaMsg.activity.content.amount = amountArg
+  kafkaMsg.activity.content.token = tokenArg
+  sendActivityMsg(kafkaMsg)
 
   const embed = composeWithdrawEmbed(payload, data)
   await author.send({ embeds: [embed] })

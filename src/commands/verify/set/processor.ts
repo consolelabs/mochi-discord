@@ -4,6 +4,14 @@ import { getCommandArguments, parseDiscordToken } from "utils/commands"
 import { APIError, InternalError, GuildIdNotFoundError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
 import { getEmoji } from "utils/common"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_VERIFY,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 export async function runVerifySet({
   msg,
@@ -93,6 +101,27 @@ export async function runVerifySet({
       description: res.log,
     })
   }
+
+  // send activity
+  const channel = msg?.guild?.channels.cache.get(channelId)
+  const isTextCommand = msg instanceof Message
+  const userId = isTextCommand ? msg.author.id : ""
+  const dataProfile = await profile.getByDiscord(userId)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    dataProfile.id,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_VERIFY
+  )
+  kafkaMsg.activity.content.channel_name = channel?.name
+  sendActivityMsg(kafkaMsg)
 
   return {
     messageOptions: {
