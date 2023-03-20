@@ -186,9 +186,8 @@ export async function tip(
   }
 
   for (const recipient of payload.recipients) {
-    const recipientUsername = msgOrInteraction.client.users
-      .fetch(recipient)
-      .then((user) => user.username)
+    const recipientUsername =
+      msgOrInteraction?.guild?.members.cache.get(recipient)
 
     const kafkaMsg: KafkaQueueActivityDataCommand = {
       platform: "discord",
@@ -198,7 +197,7 @@ export async function tip(
         platform: MOCHI_PAY_SERVICE,
         action: MOCHI_ACTION_TIP,
         content: {
-          username: recipientUsername.toString(),
+          username: recipientUsername?.toString(),
           amount: payload.amount.toString(),
           token: payload.token,
           server_name: "",
