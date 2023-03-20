@@ -42,8 +42,8 @@ const command: Command = {
     }
 
     // if it's id then check if that role exist
-    const role = await msg.guild?.roles.fetch(id).catch(() => null)
     if (isId) {
+      const role = await msg.guild?.roles.fetch(id).catch(() => null)
       if (!role) {
         throw new InternalError({
           msgOrInteraction: msg,
@@ -73,6 +73,7 @@ const command: Command = {
     }
 
     // send activity
+    const role = msg?.guild?.roles?.cache.get(id)
     const dataProfile = await profile.getByDiscord(msg.author.id)
     if (dataProfile.err) {
       throw new APIError({
