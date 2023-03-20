@@ -110,6 +110,13 @@ class Profile extends Fetcher {
       `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/activities`
     )
   }
+
+  public async getActivityContent(command: string) {
+    const res = await fetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/activity-content?command=${command}`
+    )
+    return await res?.json()
+  }
 }
 
 export default new Profile()

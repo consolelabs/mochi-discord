@@ -188,11 +188,28 @@ export async function tip(
     })
   }
 
+  const activityContent = await profile.getActivityContent(MOCHI_ACTION_TIP)
+  if (activityContent.err) {
+    throw new APIError({
+      msgOrInteraction: msgOrInteraction,
+      description: `[getActivityContent] API error with status ${activityContent.status_code}`,
+      curl: "",
+    })
+  }
+
   for (const recipient of payload.recipients) {
     const recipientUsername = msgOrInteraction.client.users
       .fetch(recipient)
       .then((user) => user.username)
 
+    const actionDescription = GetActivityContent(
+      activityContent.data.activity_content,
+      [
+        (await recipientUsername).toString(),
+        payload.amount.toString(),
+        payload.token,
+      ]
+    )
     try {
       const kafkaMsg: KafkaQueueActivityDataCommand = {
         platform: "discord",
@@ -202,11 +219,7 @@ export async function tip(
           platform: MOCHI_APP_SERVICE,
           action: MOCHI_ACTION_TIP,
           action_description: {
-            description: GetActivityContent(MOCHI_ACTION_TIP, [
-              (await recipientUsername).toString(),
-              payload.amount.toString(),
-              payload.token,
-            ]),
+            description: actionDescription,
             // TODO(trkhoi): implement logic for reward xp
             reward: "",
           },

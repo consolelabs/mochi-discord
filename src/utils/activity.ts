@@ -30,25 +30,10 @@ export function ActionTypeToEmoji(actionType: string) {
   }
 }
 
-const activityContent = [
-  // TODO(trkhoi): add more activity content here
-  {
-    action: "tip",
-    number_of_params: 3,
-    activity_content: "Tipped params params params",
-  },
-]
-
-export function GetActivityContent(action: string, params: string[]) {
-  const activity = activityContent.find((a) => a.action === action)
-
-  if (!activity) return ""
-
-  let content = activity.activity_content
-
-  for (let i = 0; i < activity.number_of_params; i++) {
-    content = content.replace(`params`, params[i])
+export function GetActivityContent(activityContent: string, params: string[]) {
+  for (let i = 0; i < params.length; i++) {
+    activityContent = activityContent.replace(`params`, params[i])
   }
 
-  return content
+  return activityContent
 }
