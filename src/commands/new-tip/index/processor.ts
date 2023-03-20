@@ -27,7 +27,12 @@ import {
   roundFloatNumber,
   thumbnails,
 } from "utils/common"
-import { SPACE } from "utils/constants"
+import {
+  SPACE,
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_TIP,
+  MOCHI_PAY_SERVICE,
+} from "utils/constants"
 import { reply } from "utils/discord"
 import {
   classifyTipSyntaxTargets,
@@ -36,6 +41,9 @@ import {
   parseRecipients,
 } from "utils/tip-bot"
 import * as processor from "./processor"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
+import profile from "adapters/profile"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -165,6 +173,33 @@ export async function tip(
       onchain,
       moniker
     )
+  }
+
+  // TODO(trkhoi): generic to make every feature can use this
+  const dataProfile = await profile.getByDiscord(author.id)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msgOrInteraction,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+
+  for (const recipient of payload.recipients) {
+    const recipientUsername =
+      msgOrInteraction?.guild?.members.cache.get(recipient)
+
+    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+      dataProfile.id,
+      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      MOCHI_PAY_SERVICE,
+      MOCHI_ACTION_TIP
+    )
+    kafkaMsg.activity.content.username =
+      recipientUsername?.user.username.toString()
+    kafkaMsg.activity.content.amount = payload.amount.toString()
+    kafkaMsg.activity.content.token = payload.token
+    sendActivityMsg(kafkaMsg)
   }
 
   await reply(msgOrInteraction, response)

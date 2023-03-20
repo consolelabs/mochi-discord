@@ -35,6 +35,13 @@ import {
 } from "utils/common"
 import { CHAIN_EXPLORER_BASE_URLS, SPACE } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_PROFILE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 // @anhnh TODO: all of this need to be refactored
 type ViewType = "my-profile" | "my-nft" | "my-wallets"
@@ -425,6 +432,24 @@ export async function render(msg: OriginalMessage, query?: string | null) {
   }
 
   for (const user of users) {
+    // send activity
+    const dataProfile = await profile.getByDiscord(user.id)
+    if (dataProfile.err) {
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+        curl: "",
+      })
+    }
+    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+      dataProfile.id,
+      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      MOCHI_APP_SERVICE,
+      MOCHI_ACTION_PROFILE
+    )
+    kafkaMsg.activity.content.username = user.username
+    sendActivityMsg(kafkaMsg)
+
     const author = msg instanceof Message ? msg.author : msg.user
     const replyPayload = await composeMyProfileEmbed(msg, user)
     const reply = (

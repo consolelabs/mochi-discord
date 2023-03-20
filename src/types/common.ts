@@ -227,3 +227,29 @@ export type KafkaQueueMessageData = {
   message?: Message | null
   interaction?: Interaction | null
 }
+
+export type KafkaQueueActivityDataCommand = {
+  activity: KafkaQueueActivityCommand
+  platform: string
+}
+
+export type KafkaQueueActivityCommand = {
+  profile_id: string
+  status: string
+  platform: string
+  action: string
+  content: ActivityContentParams
+}
+
+export type ActivityContentParams = {
+  server_name?: string
+  amount?: string
+  token?: string
+  number_of_user?: string
+  username?: string
+  role_name?: string
+  channel_name?: string
+  token_name?: string
+  moniker_name?: string
+  address?: string
+}

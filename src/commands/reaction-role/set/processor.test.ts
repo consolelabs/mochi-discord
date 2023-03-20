@@ -7,6 +7,7 @@ import {
   assertDescription,
 } from "../../../../tests/assertions/discord"
 import { getEmojiURL, emojis, msgColors } from "utils/common"
+import profile from "adapters/profile"
 jest.mock("adapters/config")
 
 describe("handleRoleSet", () => {
@@ -24,6 +25,8 @@ describe("handleRoleSet", () => {
     url: "https://discord.com/channels/test/test/test",
     react: jest.fn().mockResolvedValueOnce(undefined),
   } as unknown as Message
+
+  profile.getByDiscord = jest.fn().mockResolvedValueOnce(undefined)
 
   const channel = {
     id: reactMessage.channel.id,

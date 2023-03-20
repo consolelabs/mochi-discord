@@ -4,11 +4,20 @@ import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { getEmoji } from "utils/common"
 import { LEVEL_ROLE_GITBOOK, PREFIX } from "utils/constants"
+import { APIError } from "errors"
 import {
   composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
 } from "ui/discord/embed"
+import profile from "adapters/profile"
+import {
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+  MOCHI_ACTION_LEVELROLE,
+  MOCHI_APP_SERVICE,
+} from "utils/constants"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const command: Command = {
   id: "lr_set",
@@ -73,6 +82,23 @@ const command: Command = {
       level,
     })
     if (res.ok) {
+      // send activity
+      const dataProfile = await profile.getByDiscord(msg.author.id)
+      if (dataProfile.err) {
+        throw new APIError({
+          msgOrInteraction: msg,
+          description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+          curl: "",
+        })
+      }
+      const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+        dataProfile.id,
+        MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+        MOCHI_APP_SERVICE,
+        MOCHI_ACTION_LEVELROLE
+      )
+      kafkaMsg.activity.content.role_name = role.name
+      sendActivityMsg(kafkaMsg)
       return {
         messageOptions: {
           embeds: [
