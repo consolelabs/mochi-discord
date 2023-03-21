@@ -105,9 +105,9 @@ class Profile extends Fetcher {
     return await res?.json()
   }
 
-  public async getUserActivities(profileId: string, page = 0) {
+  public async getUserActivities(profileId: string, page = 0, size = 5) {
     return await this.jsonFetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/activities?page=${page}&size=5`
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/activities?page=${page}&size=${size}`
     )
   }
   public async markReadActivities(profileId: string, body: { ids: number[] }) {

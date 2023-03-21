@@ -53,7 +53,8 @@ export async function render(userDiscordId: string, page: number) {
       }),
     }
 
-  const totalPages = pagination?.total ?? 1
+  const total = pagination?.total ?? 1
+  const totalPages = Math.ceil(total / 5)
   const activityList = []
   const blank = getEmoji("BLANK")
   for (let i = 0; i < data.length; i++) {
