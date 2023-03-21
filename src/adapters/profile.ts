@@ -110,6 +110,15 @@ class Profile extends Fetcher {
       `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/activities`
     )
   }
+  public async markReadActivities(profileId: string, body: { ids: number[] }) {
+    return await this.jsonFetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/activities`,
+      {
+        method: "PUT",
+        body,
+      }
+    )
+  }
 }
 
 export default new Profile()
