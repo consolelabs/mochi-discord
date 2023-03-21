@@ -65,15 +65,16 @@ export async function render(userDiscordId: string) {
 
   const now = new Date()
   const unreadList = data.filter((activity: any) => {
-    return activity.status == "new"
+    return activity.status === "new"
   })
   const readList = data.filter((activity: any) => {
     const date = new Date(activity.created_at)
-    return (activity.status =
-      "read" &&
+    return (
+      activity.status === "read" &&
       date.getMonth() === now.getMonth() &&
       date.getFullYear() === now.getFullYear() &&
-      date.getDate() === now.getDate())
+      date.getDate() === now.getDate()
+    )
   })
   const unreadDescription = toDescriptionList(unreadList.slice(0, 5))
   const readDescription = toDescriptionList(readList.slice(0, 5))
