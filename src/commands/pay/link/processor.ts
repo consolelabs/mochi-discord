@@ -79,10 +79,13 @@ export async function run({
         max: 1,
       },
       handler: async (i) => {
-        await i.deferReply({ ephemeral: true })
         const selected = i.values[0]
         // TODO: add case on-chain wallets, only accept mochi wallet for now
-        if (!selected.startsWith("mochi_")) return
+        if (!selected.startsWith("mochi_")) {
+          await i.deferUpdate()
+          return
+        }
+        await i.deferReply({ ephemeral: true })
         const res: any = await mochiPay.generatePaymentCode({
           profileId,
           amount: amount.toString(),
