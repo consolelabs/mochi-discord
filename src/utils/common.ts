@@ -187,6 +187,7 @@ export const emojis: { [key: string]: string } = {
   CLAIM: "933340602106519552",
   DEFI: "933281365586227210",
   BLANK: "967287119448014868",
+  CONVERSION: "1087692980049170442",
   LINE: "1087608533614338078",
   PREV_PAGE: "967285237958705162",
   NEXT_PAGE: "967285238000676895",
@@ -316,6 +317,7 @@ export const msgColors: Record<string, ColorResolvable> = {
   GRAY: "#1E1F22",
   BLUE: "#C8EFF8",
   YELLOW: "#F9F687",
+  MOCHI: "#FCD3C1",
   ACTIVITY: "#62A1FE",
 }
 

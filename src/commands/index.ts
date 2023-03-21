@@ -86,6 +86,7 @@ import alert from "./alert"
 import stats from "./stats"
 import game from "./game"
 import pay from "./pay"
+import convert from "./convert"
 
 CacheManager.init({
   ttl: 0,
@@ -132,6 +133,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   game: game.slashCmd,
   activity: activity.slashCmd,
   inbox: inbox.slashCmd,
+  convert: convert.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -162,6 +164,7 @@ export const originalCommands: Record<string, Command> = {
   gas: gas.textCmd,
   activity: activity.textCmd,
   inbox: inbox.textCmd,
+  convert: convert.textCmd,
   // config section
   reactionrole: reactionrole.textCmd,
   defaultrole: defaultrole.textCmd,
