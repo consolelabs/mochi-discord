@@ -18,8 +18,6 @@ export async function render(
     to,
     amount,
   })
-  console.log("check data")
-  console.log(data)
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
