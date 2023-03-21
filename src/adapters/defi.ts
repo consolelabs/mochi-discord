@@ -22,6 +22,7 @@ import {
   BSCSCAN_API,
   ETHSCAN_API,
   FTMSCAN_API,
+  INDEXER_API_BASE_URL,
   POLYGONSCAN_API,
 } from "utils/constants"
 import { Fetcher } from "./fetcher"
@@ -459,6 +460,13 @@ class Defi extends Fetcher {
 
   async getChainGasTracker(chain: string) {
     return await this.jsonFetch(`${API_BASE_URL}/defi/gas-tracker/${chain}`)
+  }
+
+  async convertToken(body: { from: string; to: string; amount: string }) {
+    return await this.jsonFetch(`${INDEXER_API_BASE_URL}/token/convert-price`, {
+      method: "POST",
+      body,
+    })
   }
 }
 
