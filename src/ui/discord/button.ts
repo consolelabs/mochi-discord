@@ -93,9 +93,8 @@ export function getPaginationRow(page: number, totalPage: number) {
     actionRow.addComponents(
       new MessageButton({
         type: MessageComponentTypes.BUTTON,
-        style: MessageButtonStyles.SECONDARY,
+        style: MessageButtonStyles.PRIMARY,
         label: "Previous",
-        emoji: getEmoji("LEFT_ARROW"),
         customId: `page_${page}_-_${totalPage}`,
       })
     )
@@ -104,9 +103,8 @@ export function getPaginationRow(page: number, totalPage: number) {
   if (page !== totalPage - 1) {
     actionRow.addComponents({
       type: MessageComponentTypes.BUTTON,
-      style: MessageButtonStyles.SECONDARY,
+      style: MessageButtonStyles.PRIMARY,
       label: "Next",
-      emoji: getEmoji("RIGHT_ARROW"),
       customId: `page_${page}_+_${totalPage}`,
     })
   }
