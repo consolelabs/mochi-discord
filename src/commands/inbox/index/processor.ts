@@ -139,7 +139,9 @@ function toDescriptionList(list: []) {
       element.action_description
     }\n${t}\n\n`)
   })
-  if (list.length > 0) {
+  if (list.length === 0) {
+    description = "\u200b"
+  } else {
     description = description.slice(0, -1)
   }
 
