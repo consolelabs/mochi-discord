@@ -20,7 +20,7 @@ const run = async (i: CommandInteraction) => {
         embeds: [embed],
         components: getPaginationRow(idx, total),
       },
-    } as any
+    }
   })
   return msgOpts
 }

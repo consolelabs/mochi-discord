@@ -10,7 +10,7 @@ const run = async (msg: Message) => {
   const msgOpts = {
     messageOptions: {
       embeds: [embed],
-      components: getPaginationRow(0, totalPages ?? 1),
+      components: getPaginationRow(0, total),
     },
   }
   const reply = await msg.reply(msgOpts.messageOptions as any)
@@ -21,7 +21,7 @@ const run = async (msg: Message) => {
         embeds: [embed],
         components: getPaginationRow(idx, total),
       },
-    } as any
+    }
   })
 }
 export default run
