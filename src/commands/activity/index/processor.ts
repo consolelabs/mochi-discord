@@ -5,20 +5,20 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { ActionTypeToEmoji, PlatformTypeToEmoji } from "utils/activity"
 import { MessageEmbed } from "discord.js"
 const monthNames = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
+  "January",
+  "February",
+  "March",
+  "April",
   "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ]
-export async function render(userDiscordId: string) {
+export async function render(userDiscordId: string, page: number) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
   if (dataProfile.err) {
     throw new APIError({
@@ -28,41 +28,33 @@ export async function render(userDiscordId: string) {
   }
   if (!dataProfile)
     return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(null, {
-            title: "No activities found",
-            description: `${getEmoji(
-              "POINTINGRIGHT"
-            )} This user does not have any activities yet`,
-            color: msgColors.SUCCESS,
-          }),
-        ],
-      },
+      embed: composeEmbedMessage(null, {
+        title: "No activities found",
+        description: `${getEmoji(
+          "POINTINGRIGHT"
+        )} This user does not have any activities yet`,
+        color: msgColors.ACTIVITY,
+      }),
     }
 
-  const { data, ok, curl, error, log } = await profile.getUserActivities(
-    dataProfile.id
-  )
+  const { data, ok, curl, error, log, pagination } =
+    await profile.getUserActivities(dataProfile.id, page)
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
   if (!data.length)
     return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(null, {
-            title: "No activities found",
-            description: `${getEmoji(
-              "POINTINGRIGHT"
-            )} This user does not have any activities yet`,
-            color: msgColors.SUCCESS,
-          }),
-        ],
-      },
+      embed: composeEmbedMessage(null, {
+        title: "No activities found",
+        description: `${getEmoji(
+          "POINTINGRIGHT"
+        )} This user does not have any activities yet`,
+        color: msgColors.ACTIVITY,
+      }),
     }
 
   const activityList = []
+  const blank = getEmoji("BLANK")
   for (let i = 0; i < data.length; i++) {
     const activity = data[i]
     const actionEmoji = ActionTypeToEmoji(activity.action)
@@ -70,10 +62,13 @@ export async function render(userDiscordId: string) {
     const date = new Date(activity.created_at)
 
     const time = date.getHours() > 12 ? "pm" : "am"
-    const hour = date.getHours() > 12 ? date.getHours() - 12 : date.getHours()
+    const hour = (
+      "0" + `${date.getHours() > 12 ? date.getHours() - 12 : date.getHours()}`
+    ).slice(-2)
+    const minute = ("0" + date.getMinutes()).slice(-2)
     const t = `${
       monthNames[date.getMonth()]
-    } ${date.getDate()} ${hour}:${date.getMinutes()} ${time}`
+    } ${date.getDate()} ${hour}:${minute} ${time}`
     // const xpReward = activity.action_description.reward
     //   ? `${getEmoji("ACTIVITY_XP")} + ${activity.action_description.reward}`
     //   : ""
@@ -84,32 +79,33 @@ export async function render(userDiscordId: string) {
     // if (xpReward || coinReward) {
     //   rewardInfo = `| ${xpReward} ${coinReward}`
     // }
-    const actionAndRewardRow = `${actionEmoji} ${activity.action_description}`
+    const actionAndRewardRow = `${actionEmoji} ${activity.action_description}${blank}`
     activityList.push({
-      name: "\u200b",
-      value: `[[${t}]](https://mochi.gg/) ${platformEmoji} \`${activity.platform}\`\n${actionAndRewardRow}`,
+      dateTime: t,
+      activityPlatform: activity.platform,
+      platformEmoji,
+      actionAndRewardRow,
     })
   }
 
-  const res = []
-  for (let i = 0; i < data.length; i++) {
-    res.push(activityList[i])
+  let description = ""
+  for (let i = 0; i < activityList.length; i++) {
+    const { dateTime, actionAndRewardRow, activityPlatform } = activityList[i]
+    description =
+      description +
+      `[[${dateTime}]](https://mochi.gg/) \`${activityPlatform}\`${blank.repeat(
+        12
+      )}\n${actionAndRewardRow}\n\n`
   }
-
-  const fields = res
-
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("ACTIVITY_CLOCK")} Activity`)
+    .setDescription(description)
     .setColor(msgColors.ACTIVITY)
     .setFooter({ text: "Mochi Bot" })
     .setTimestamp(Date.now())
-  for (let i = 0; i < fields.length; i++) {
-    embed.addFields(fields[i])
-  }
 
   return {
-    messageOptions: {
-      embeds: [embed],
-    },
+    embed,
+    totalPages: pagination?.total,
   }
 }
