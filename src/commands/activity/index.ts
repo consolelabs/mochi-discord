@@ -12,7 +12,7 @@ const textCmd: Command = {
   brief: "User Activity",
   category: "Defi",
   run: async function (msg) {
-    return await activity(msg)
+    return (await activity(msg)) as any
   },
   featured: {
     title: `${getEmoji("exp")} User Activity`,
@@ -45,7 +45,7 @@ const slashCmd: SlashCommand = {
     return data
   },
   run: async function (i) {
-    return await activitySlash(i)
+    return (await activitySlash(i)) as any
   },
   help: async () => ({
     embeds: [composeEmbedMessage(null, { includeCommandsList: true })],
