@@ -30,6 +30,7 @@ import {
   getEmoji,
   getEmojiURL,
   msgColors,
+  removeDuplications,
   reverseLookup,
   shortenHashOrAddress,
 } from "utils/common"
@@ -126,6 +127,7 @@ async function switchView(i: ButtonInteraction, msg: Message, user: User) {
 }
 
 async function composeMyWalletsResponse(msg: Message, user: User) {
+  user.id = "463379262620041226"
   const pfRes = await profile.getByDiscord(user.id)
   if (pfRes.err) {
     throw new APIError({
@@ -133,10 +135,11 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
       curl: "",
     })
   }
-  const myWallets =
-    pfRes.associated_accounts?.filter((a: any) =>
-      ["evm-chain", "solana-chain"].includes(a.platform)
-    ) ?? []
+  const myWallets = removeDuplications(
+    pfRes.associated_accounts
+      ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
+      ?.map((w: any) => w.platform_identifier) ?? []
+  )
   const pointingright = getEmoji("pointingright")
   let description: string
   if (!myWallets.length) {
@@ -145,12 +148,10 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
     // maximum 9 wallets for now
     const list = await Promise.all(
       myWallets.slice(0, 9).map(async (w: any, i: number) => {
-        const address = w.platform_identifier
-        const domain = `${(await reverseLookup(address)) || ""}`
-        const label = w.alias ? ` | ${w.alias}` : ""
+        const domain = `${(await reverseLookup(w)) || ""}`
         return `${getEmoji(`num_${i + 1}`)} \`${shortenHashOrAddress(
-          address
-        )}\` ${domain}${label}`
+          w
+        )}\` ${domain}`
       })
     )
     description = `\n${list.join(

@@ -6,6 +6,7 @@ import {
   Message,
   MessageEmbed,
   MessageOptions,
+  MessageSelectOptionData,
   User,
 } from "discord.js"
 import { APIError } from "errors"
@@ -24,6 +25,7 @@ import {
   getEmoji,
   getEmojiURL,
   msgColors,
+  removeDuplications,
   roundFloatNumber,
 } from "utils/common"
 import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
@@ -435,7 +437,9 @@ export function composeInsufficientBalanceEmbed({
   ])
 }
 
-export async function composeMyWalletSelection(userId: string) {
+export async function composeMyWalletSelection(
+  userId: string
+): Promise<MessageSelectOptionData[]> {
   const pfRes = await profile.getByDiscord(userId)
   if (pfRes.err) {
     throw new APIError({
@@ -443,18 +447,13 @@ export async function composeMyWalletSelection(userId: string) {
       curl: "",
     })
   }
-  const wallets =
-    pfRes.associated_accounts?.filter((a: any) =>
-      ["evm-chain", "solana-chain"].includes(a.platform)
-    ) ?? []
+  const wallets = removeDuplications(
+    pfRes.associated_accounts
+      ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
+      ?.map((w: any) => w.platform_identifier) ?? []
+  )
   return [
     { label: "Mochi wallet", value: `mochi_${userId}` },
-    ...wallets.map((w: any) => {
-      const addr = w.platform_identifier
-      return {
-        label: addr,
-        value: addr,
-      }
-    }),
+    ...wallets.map((w: any) => ({ label: w, value: w })),
   ]
 }

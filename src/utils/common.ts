@@ -141,6 +141,7 @@ export const defaultEmojis: Record<string, string> = {
   GREY_QUESTION: ":grey_question:",
   POINT_RIGHT: ":point_right:",
   WARNING: ":warning:",
+  WINK: ":wink:",
 }
 
 export const factionEmojis: Record<string, string> = {
@@ -717,4 +718,8 @@ export function isValidAmount({
 
 export function equalIgnoreCase(s1: string, s2: string) {
   return s1?.toLowerCase() === s2?.toLowerCase()
+}
+
+export function removeDuplications(arr: any[]) {
+  return arr.filter((item, index) => arr.indexOf(item) === index)
 }
