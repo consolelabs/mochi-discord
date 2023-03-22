@@ -90,9 +90,7 @@ export async function render(userDiscordId: string, page: number) {
     const { dateTime, actionAndRewardRow, activityPlatform } = activityList[i]
     description =
       description +
-      `[[${dateTime}]](https://mochi.gg/) \`${
-        activityPlatform + " "
-      }\` | ${actionAndRewardRow}\n`
+      `[[${dateTime}]](https://mochi.gg/) \`${activityPlatform}\` ・ ${actionAndRewardRow}\n`
   }
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("ACTIVITY_CLOCK")} Activity`)

@@ -3,6 +3,7 @@ import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
 import view from "./view/text"
 import add from "./add/text"
+import newText from "./new/text"
 import remove from "./remove/text"
 import viewSlash from "./view/slash"
 import {
@@ -15,6 +16,7 @@ const actions: Record<string, Command> = {
   view,
   add,
   remove,
+  new: newText,
 }
 
 const textCmd: Command = {
@@ -28,7 +30,7 @@ const textCmd: Command = {
       composeEmbedMessage(msg, {
         title: "On-chain Wallet Tracking",
         usage: `${PREFIX}wallet <action>`,
-        examples: `${PREFIX}wallet add\n${PREFIX}wallet view`,
+        examples: `${PREFIX}wallet add\n${PREFIX}wallet view\n${PREFIX}wallet new`,
         description: "Track assets and activities of any on-chain wallet.",
         includeCommandsList: true,
       }),
