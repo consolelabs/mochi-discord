@@ -14,7 +14,6 @@ const cmd: Command = {
   brief: "Generate a pay link which can be used by others to claim tip.",
   category: "Defi",
   run: async function (msg: Message) {
-    console.log("WE ARE HERE")
     const args = getCommandArguments(msg)
     const [amount, token] = args.slice(2)
     if (!isValidAmount({ arg: amount })) {
