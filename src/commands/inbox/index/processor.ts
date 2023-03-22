@@ -6,18 +6,18 @@ import { ActionTypeToEmoji } from "utils/activity"
 import { EmbedFieldData, MessageEmbed } from "discord.js"
 import { logger } from "logger"
 const monthNames = [
-  "Jananuary",
-  "February",
-  "March",
-  "April",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
   "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ]
 export async function render(userDiscordId: string) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
@@ -135,9 +135,9 @@ function toDescriptionList(list: []) {
     const t = `${
       monthNames[date.getMonth()]
     } ${date.getDate()} ${hour}:${minute} ${time}`
-    return (description += `${ActionTypeToEmoji(element.action)} ${
-      element.action_description
-    }\n${t}\n\n`)
+    return (description += `[[${t}]](https://mochi.gg/) ・ ${ActionTypeToEmoji(
+      element.action
+    )} ${element.action_description}\n`)
   })
   if (list.length === 0) {
     description = "\u200b"
