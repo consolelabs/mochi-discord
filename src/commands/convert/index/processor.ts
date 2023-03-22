@@ -1,6 +1,5 @@
 import defi from "adapters/defi"
 import { getEmoji, msgColors } from "utils/common"
-import { MessageEmbed } from "discord.js"
 import { CommandInteraction, Message } from "discord.js"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError } from "errors"
@@ -36,17 +35,15 @@ export async function render(
   }
 
   const blank = getEmoji("blank")
-  const embed = new MessageEmbed()
-    .setTitle(`${getEmoji("CONVERSION")} Conversion${blank.repeat(7)}`)
-    .setDescription(
-      `**${amount} ${from.toUpperCase()} ≈ ${
-        data.to.amount
-      } ${to.toUpperCase()}**`
-    )
-    .setColor(msgColors.MOCHI)
-    .setFooter({
-      text: `${data.from.name} convert to ${data.to.name}`,
-    })
+  const embed = composeEmbedMessage(null, {
+    title: `${getEmoji("CONVERSION")} Conversion${blank.repeat(7)}`,
+    description: `**${amount} ${from.toUpperCase()} ≈ ${
+      data.to.amount
+    } ${to.toUpperCase()}**\n\n${from.toUpperCase()}/${to.toUpperCase()}: ${
+      data.to.amount
+    }`,
+    color: msgColors.MOCHI,
+  })
   return {
     messageOptions: {
       embeds: [embed],

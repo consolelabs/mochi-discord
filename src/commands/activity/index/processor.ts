@@ -5,18 +5,18 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { ActionTypeToEmoji, PlatformTypeToEmoji } from "utils/activity"
 import { MessageEmbed } from "discord.js"
 const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
   "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ]
 export async function render(userDiscordId: string, page: number) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
@@ -54,7 +54,7 @@ export async function render(userDiscordId: string, page: number) {
     }
 
   const total = pagination?.total ?? 1
-  const totalPages = Math.ceil(total / 5)
+  const totalPages = Math.ceil(total / 8)
   const activityList = []
   const blank = getEmoji("BLANK")
   for (let i = 0; i < data.length; i++) {
@@ -90,9 +90,9 @@ export async function render(userDiscordId: string, page: number) {
     const { dateTime, actionAndRewardRow, activityPlatform } = activityList[i]
     description =
       description +
-      `[[${dateTime}]](https://mochi.gg/) \`${activityPlatform}\`${blank.repeat(
-        12
-      )}\n${actionAndRewardRow}\n\n`
+      `[[${dateTime}]](https://mochi.gg/) \`${
+        activityPlatform + " "
+      }\` | ${actionAndRewardRow}\n`
   }
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("ACTIVITY_CLOCK")} Activity`)
