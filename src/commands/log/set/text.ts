@@ -16,6 +16,7 @@ import {
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
+import defi from "adapters/defi"
 
 const command: Command = {
   id: "log_set",
@@ -63,6 +64,11 @@ const command: Command = {
       }
 
     await config.updateGuild({ guildId: msg.guildId, logChannel })
+    await defi.createConfigNofityTransaction({
+      guild_id: msg.guildId,
+      channel_id: logChannel,
+      token: "all",
+    })
 
     const embed = getSuccessEmbed({
       msg,

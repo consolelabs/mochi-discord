@@ -8,6 +8,7 @@ import {
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import config from "adapters/config"
+import defi from "adapters/defi"
 
 const command: SlashCommand = {
   name: "set",
@@ -75,6 +76,12 @@ const command: SlashCommand = {
       }
 
     await config.updateGuild({ guildId: interaction.guild.id, logChannel })
+    await defi.createConfigNofityTransaction({
+      guild_id: interaction.guild.id,
+      channel_id: logChannel,
+      token: "all",
+    })
+
     const embed = getSuccessEmbed({
       title: interaction.guild.name,
       description: `Successfully set <#${logChannel}> as log channel`,
