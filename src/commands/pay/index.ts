@@ -18,8 +18,8 @@ const textCmd: Command = {
       composeEmbedMessage(msg, {
         title: "Payment",
         usage: `${PREFIX}pay <action>`,
-        examples: `${PREFIX}pay link`,
-        description: "Generate pay links to share with others.",
+        examples: `${PREFIX}pay me\n${PREFIX}pay link\n${PREFIX}pay link 0.1 ftm`,
+        description: "Finish all due payments right in Discord.",
         includeCommandsList: true,
       }),
     ],

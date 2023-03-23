@@ -35,7 +35,7 @@ export async function run({
   const tokenEmoji = getEmoji(token)
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
-    author: ["Confirmation", getEmojiURL(emojis.APPROVE)],
+    author: ["Confirm the transaction", getEmojiURL(emojis.APPROVE)],
     thumbnail: getEmojiURL(emojis.ACTIVITY_CASH),
   }).addFields(
     {
@@ -51,7 +51,14 @@ export async function run({
             inline: false,
           },
         ]
-      : [])
+      : []),
+    {
+      name: "\u200b",
+      value: `Please choose a wallet to create a pay link ${getEmoji(
+        "pointingdown"
+      )}`,
+      inline: false,
+    }
   )
   const options = await composeMyWalletSelection(author.id)
   const selectionRow = composeDiscordSelectionRow({
