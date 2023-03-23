@@ -40,7 +40,7 @@ const slashCmd: SlashCommand = {
   category: "Defi",
   prepare: () => {
     // TODO(trkhoi): create api to get list token here
-    const choices = ["FTM", "ETH", "CAKE", "BTC", "SOL"]
+    const choices = ["FTM", "ETH", "BTC", "SOL", "USDT", "USDC", "BLUR"]
 
     // const tokenChoice =
     const data = new SlashCommandBuilder()
