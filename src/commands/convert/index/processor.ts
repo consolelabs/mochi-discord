@@ -9,8 +9,8 @@ export async function render(
   args: string[]
 ) {
   const amount = args[1]
-  const from = args[2]
-  const to = args[3]
+  const from = args[2].toUpperCase()
+  const to = args[3].toUpperCase()
 
   const { data, ok, curl, error, log } = await defi.convertToken({
     from,

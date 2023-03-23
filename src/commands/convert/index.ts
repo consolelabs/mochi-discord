@@ -39,10 +39,8 @@ const slashCmd: SlashCommand = {
   name: "convert",
   category: "Defi",
   prepare: () => {
-    // TODO(trkhoi): create api to get list token here
-    const choices = ["FTM", "ETH", "BTC", "SOL", "USDT", "USDC", "BLUR"]
+    // const choices = ["FTM", "ETH", "BTC", "SOL", "USDT", "USDC", "BLUR"]
 
-    // const tokenChoice =
     const data = new SlashCommandBuilder()
       .setName("convert")
       .setDescription("Convert token to another token")
@@ -57,9 +55,9 @@ const slashCmd: SlashCommand = {
           .setName("from")
           .setDescription("Token you want to convert")
           .setRequired(true)
-        for (const choice of choices) {
-          o.addChoice(choice, choice)
-        }
+        // for (const choice of choices) {
+        //   o.addChoice(choice, choice)
+        // }
         return o
       })
       .addStringOption((option) => {
@@ -67,9 +65,9 @@ const slashCmd: SlashCommand = {
           .setName("to")
           .setDescription("Token you want to convert to")
           .setRequired(true)
-        for (const choice of choices) {
-          o.addChoice(choice, choice)
-        }
+        // for (const choice of choices) {
+        //   o.addChoice(choice, choice)
+        // }
         return o
       })
 
