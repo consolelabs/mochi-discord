@@ -1,24 +1,12 @@
 import profile from "adapters/profile"
 import { getEmoji, msgColors } from "utils/common"
+import { GetDateComponents } from "utils/time"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { ActionTypeToEmoji } from "utils/activity"
 import { EmbedFieldData, MessageEmbed } from "discord.js"
 import { logger } from "logger"
-const monthNames = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-]
+
 export async function render(userDiscordId: string) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
   if (dataProfile.err) {
@@ -85,7 +73,7 @@ export async function render(userDiscordId: string) {
   const fields = [
     {
       name: `Unread \`${unreadList.length}\``,
-      value: unreadDescription + `${line}`,
+      value: unreadDescription + `\n${line}`,
     },
     {
       name: `Read \`${readList.length}\``,
@@ -125,16 +113,8 @@ function toDescriptionList(list: []) {
   let description = ""
   list.map((element: any) => {
     const date = new Date(element.created_at)
-    const time = date.getHours() > 12 ? "pm" : "am"
-    const hour =
-      (date.getHours() > 12 ? date.getHours() - 12 : date.getHours()) < 0
-        ? `0${date.getHours()}`
-        : date.getHours()
-    const minute =
-      date.getMinutes() < 0 ? `0${date.getMinutes()}` : date.getMinutes()
-    const t = `${
-      monthNames[date.getMonth()]
-    } ${date.getDate()} ${hour}:${minute} ${time}`
+    const { monthName, hour, minute, time, day } = GetDateComponents(date)
+    const t = `${monthName} ${day} ${hour}:${minute} ${time.toLowerCase()}`
     return (description += `[[${t}]](https://mochi.gg/) ・ ${ActionTypeToEmoji(
       element.action
     )} ${element.action_description}\n`)

@@ -35,7 +35,7 @@ export async function run({
   const tokenEmoji = getEmoji(token)
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
-    author: ["Confirmation", getEmojiURL(emojis.APPROVE)],
+    author: ["Confirm the transaction", getEmojiURL(emojis.APPROVE)],
     thumbnail: getEmojiURL(emojis.ACTIVITY_CASH),
   }).addFields(
     {
