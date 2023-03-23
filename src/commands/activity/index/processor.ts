@@ -4,20 +4,8 @@ import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { ActionTypeToEmoji, PlatformTypeToEmoji } from "utils/activity"
 import { MessageEmbed } from "discord.js"
-const monthNames = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-]
+import { GetDateComponents } from "utils/time"
+
 export async function render(userDiscordId: string, page: number) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
   if (dataProfile.err) {
@@ -54,7 +42,7 @@ export async function render(userDiscordId: string, page: number) {
     }
 
   const total = pagination?.total ?? 1
-  const totalPages = Math.ceil(total / 8)
+  const totalPages = Math.ceil(total / 12)
   const activityList = []
   const blank = getEmoji("BLANK")
   for (let i = 0; i < data.length; i++) {
@@ -62,7 +50,7 @@ export async function render(userDiscordId: string, page: number) {
     const actionEmoji = ActionTypeToEmoji(activity.action)
     const platformEmoji = PlatformTypeToEmoji(activity.platform)
     const date = new Date(activity.created_at)
-    const { monthName, hour, minute, time, day } = getDateComponents(date)
+    const { monthName, hour, minute, time, day } = GetDateComponents(date)
     const t = `${monthName} ${day} ${hour}:${minute} ${time.toLowerCase()}`
     // const xpReward = activity.action_description.reward
     //   ? `${getEmoji("ACTIVITY_XP")} + ${activity.action_description.reward}`
@@ -84,7 +72,7 @@ export async function render(userDiscordId: string, page: number) {
   }
 
   let description = ""
-  const { hour, minute, time, day, month, year } = getDateComponents(new Date())
+  const { hour, minute, time, day, month, year } = GetDateComponents(new Date())
   const dateNow = `${day}/${month}/${year} ${hour}:${minute} ${time}`
   for (let i = 0; i < activityList.length; i++) {
     const { dateTime, actionAndRewardRow, activityPlatform } = activityList[i]
@@ -102,19 +90,5 @@ export async function render(userDiscordId: string, page: number) {
   return {
     embed,
     totalPages,
-  }
-}
-
-const getDateComponents = (d: Date) => {
-  return {
-    day: ("0" + `${d.getDate()}`).slice(-2),
-    month: ("0" + `${d.getMonth() + 1}`).slice(-2),
-    monthName: monthNames[d.getMonth()],
-    year: d.getFullYear(),
-    minute: ("0" + `${d.getMinutes()}`).slice(-2),
-    time: d.getHours() > 12 ? "PM" : "AM",
-    hour: (
-      "0" + `${d.getHours() > 12 ? d.getHours() - 12 : d.getHours()}`
-    ).slice(-2),
   }
 }
