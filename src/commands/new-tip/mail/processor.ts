@@ -271,7 +271,6 @@ export async function execute(
     })
   }
 
-  console.log(payload)
   // create pay link
   const res: any = await mochiPay.generatePaymentCode({
     profileId: payload.from.profile_global_id,
