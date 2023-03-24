@@ -271,6 +271,20 @@ export async function execute(
     })
   }
 
+  console.log(payload)
+  // create pay link
+  const res: any = await mochiPay.generatePaymentCode({
+    profileId: payload.from.profile_global_id,
+    amount: payload.originalAmount.toString(),
+    token: payload.token,
+    note: payload.note,
+  })
+
+  if (!res.ok) {
+    const { log: description, curl } = res
+    throw new APIError({ msgOrInteraction, description, curl })
+  }
+
   // send msg to mochi-notification
   for (const recipient of payload.recipients) {
     const kafkaMsg: KafkaNotificationMessage = {
@@ -280,6 +294,7 @@ export async function execute(
       metadata: {
         amount: payload.originalAmount.toString(),
         token: payload.token,
+        pay_link: `https://mochi.gg/pay/${res.data.code}`,
       },
       recipient_info: {
         mail: recipient,
