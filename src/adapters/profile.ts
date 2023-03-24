@@ -98,6 +98,13 @@ class Profile extends Fetcher {
     return await res?.json()
   }
 
+  public async getByEmail(email: string) {
+    const res = await fetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-email/${email}`
+    )
+    return await res?.json()
+  }
+
   public async getByTelegram(telegramId: string) {
     const res = await fetch(
       `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-telegram/${telegramId}`
