@@ -3,6 +3,7 @@ import {
   KAFKA_CLIENT_ID,
   KAFKA_TOPIC,
   KAFKA_ACTIVITY_PROFILE_TOPIC,
+  KAFKA_NOTIFICATION_TOPIC,
 } from "env"
 import { Kafka, Partitioners, Producer } from "kafkajs"
 
@@ -11,6 +12,7 @@ export default class Queue {
   private kafka: Kafka
   private topic: string = KAFKA_TOPIC
   private activityProfileTopic: string = KAFKA_ACTIVITY_PROFILE_TOPIC
+  private notificationTopic: string = KAFKA_NOTIFICATION_TOPIC
 
   constructor() {
     this.kafka = new Kafka({
@@ -60,6 +62,22 @@ export default class Queue {
 
     await this.producer.send({
       topic: this.activityProfileTopic,
+      messages: messages.map((m) => ({ value: m })),
+    })
+  }
+
+  async produceNotificationMsg(messages: string[]) {
+    // check if message is json
+    for (const message of messages) {
+      try {
+        JSON.parse(message)
+      } catch (e) {
+        throw new Error("Message is not a valid json")
+      }
+    }
+
+    await this.producer.send({
+      topic: this.notificationTopic,
       messages: messages.map((m) => ({ value: m })),
     })
   }

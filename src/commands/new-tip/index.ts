@@ -12,6 +12,7 @@ import {
 import tipSlash from "./index/slash"
 import tip from "./index/text"
 import tipTelegram from "./telegram/text"
+import tipMail from "./mail/text"
 
 const getHelpMessage = async (isSLash?: boolean) => {
   const prefix = isSLash ? SLASH_PREFIX : PREFIX
@@ -57,10 +58,20 @@ const textCmd: Command = {
     const telPrefix = telPrefixes.find((p) =>
       args[1].toLowerCase().startsWith(p)
     )
+    const mailPrefixes = ["email:", "gmail:"]
+    const mailPrefi = mailPrefixes.find((p) =>
+      args[1].toLowerCase().startsWith(p)
+    )
     // tip telegram
     if (telPrefix) {
       args[1] = args[1].replace(telPrefix, "") // remove prefix tg@
       await tipTelegram(msg, args)
+      return
+    }
+    // tip mail
+    if (mailPrefi) {
+      args[1] = args[1].replace(mailPrefi, "") // remove prefix email:
+      await tipMail(msg, args)
       return
     }
     // tip discord
