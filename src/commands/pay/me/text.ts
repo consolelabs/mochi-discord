@@ -1,0 +1,55 @@
+import { parseMessageTip } from "commands/new-tip/index/processor"
+import { Message } from "discord.js"
+import { CommandArgumentError } from "errors"
+import { Command } from "types/common"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { getCommandArguments } from "utils/commands"
+import { PREFIX } from "utils/constants"
+import { parseTarget, run } from "./processor"
+
+// DO NOT EDIT: if not anhnh
+const cmd: Command = {
+  id: "pay",
+  command: "pay",
+  brief: "Generate a link which can be used to request others to pay you.",
+  category: "Defi",
+  run: async function (msg: Message) {
+    const args = getCommandArguments(msg)
+    const { valid, hasTarget, target, platform } = parseTarget(args[2])
+    if (!valid) {
+      throw new CommandArgumentError({
+        message: msg,
+        getHelpMessage: async () => this.getHelpMessage(msg),
+      })
+    }
+    const [amount, token] = args.slice(hasTarget ? 3 : 2)
+    const { messageTip: note } = await parseMessageTip(args)
+    await run({
+      msgOrInteraction: msg,
+      amount: +amount,
+      token: token.toUpperCase(),
+      hasTarget,
+      target,
+      platform,
+      note,
+    })
+  },
+  getHelpMessage: async (msg: Message) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        title: "Payment",
+        usage: `${PREFIX}pay me <amount> <token> [message]`,
+        examples: `${PREFIX}pay me 25 ftm “I want my money back”"`,
+        description:
+          "Generate a link which can be used to request others to pay you.",
+        includeCommandsList: true,
+      }),
+    ],
+  }),
+  colorType: "Wallet",
+  canRunWithoutAction: true,
+  allowDM: true,
+  minArguments: 4,
+}
+
+export default cmd
