@@ -8,9 +8,9 @@ import CacheManager from "cache/node-cache"
 
 export async function render(
   msgOrInteraction: Message | CommandInteraction,
-  args: string[]
+  args: [string, number, string, string]
 ) {
-  const amount = args[1]
+  const amount = String(args[1])
   const from = args[2].toUpperCase()
   const to = args[3].toUpperCase()
 
@@ -57,15 +57,19 @@ export async function render(
 
   const { ratios, base_coin, target_coin } = compareTickerData
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
-  const coinInfo = (coin: Coin) =>
-    `Rank: \`#${coin.market_cap_rank}\``
+  const coinInfo = (coin: Coin, emoji = true) =>
+    `${emoji ? `${getEmoji("trophy")}` : ""} Rank: \`#${coin.market_cap_rank}\``
       .concat(
-        `\nPrice: \`$${coin.market_data.current_price[
+        `\n${
+          emoji ? `${getEmoji("coin2")}` : ""
+        } Price: \`$${coin.market_data.current_price[
           "usd"
         ]?.toLocaleString()}\``
       )
       .concat(
-        `\nMarket cap: \`$${coin.market_data.market_cap[
+        `\n${
+          emoji ? ":ocean:" : ""
+        } Market cap: \`$${coin.market_data.market_cap[
           "usd"
         ]?.toLocaleString()}\``
       )
@@ -73,11 +77,23 @@ export async function render(
   const blank = getEmoji("blank")
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("CONVERSION")} Conversion${blank.repeat(7)}`,
-    description: `**${amount} ${from} ≈ ${data.to.amount} ${to}**\n\n**Ratio**: \`${currentRatio}\``,
+    description: `**${amount} ${from} ≈ ${
+      data.to.amount
+    } ${to}**\n\n**Ratio**: \`${currentRatio}\`\n${getEmoji("line").repeat(
+      10
+    )}`,
     color: msgColors.MOCHI,
   }).addFields([
-    { name: from, value: coinInfo(base_coin), inline: true },
-    { name: to, value: coinInfo(target_coin), inline: true },
+    {
+      name: `${getEmoji("blank")}${getEmoji(from)} ${from}`,
+      value: coinInfo(base_coin),
+      inline: true,
+    },
+    {
+      name: `${getEmoji(to)} ${to}`,
+      value: coinInfo(target_coin, false),
+      inline: true,
+    },
   ])
 
   return {
