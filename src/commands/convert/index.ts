@@ -42,7 +42,7 @@ const slashCmd: SlashCommand = {
     const data = new SlashCommandBuilder()
       .setName("convert")
       .setDescription("Convert token to another token")
-      .addStringOption((option) =>
+      .addNumberOption((option) =>
         option
           .setName("amount")
           .setDescription("Amount of your token")
