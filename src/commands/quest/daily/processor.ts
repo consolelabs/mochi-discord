@@ -151,7 +151,10 @@ export async function run(userId: string, msg?: Message) {
   })
 
   embed.fields = res.data
-    .filter((d: any) => d.action !== "bonus")
+    .filter(
+      (d: any) =>
+        d.action !== "bonus" && d.action !== "trade" && d.action !== "vote"
+    )
     .map((d: any) => {
       const rewards = d.quest.rewards
         .map(
