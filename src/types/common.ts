@@ -253,3 +253,24 @@ export type ActivityContentParams = {
   moniker_name?: string
   address?: string
 }
+
+export type KafkaNotificationMessage = {
+  id?: string
+  platform?: string
+  action?: string
+  metadata?: KafkaNotificationMessageMetadata
+  recipient_info?: KafkaNotificationMessageRecipientInfo
+}
+
+export type KafkaNotificationMessageMetadata = {
+  amount?: string
+  token?: string
+  pay_link?: string
+}
+
+export type KafkaNotificationMessageRecipientInfo = {
+  mail?: string
+  discord?: string
+  telegram?: string
+  twitter?: string
+}
