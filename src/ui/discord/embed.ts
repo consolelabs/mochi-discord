@@ -25,7 +25,7 @@ import {
   getEmoji,
   getEmojiURL,
   msgColors,
-  removeDuplications,
+  // removeDuplications,
   roundFloatNumber,
 } from "utils/common"
 import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
@@ -447,13 +447,14 @@ export async function composeMyWalletSelection(
       curl: "",
     })
   }
-  const wallets = removeDuplications(
-    pfRes.associated_accounts
-      ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
-      ?.map((w: any) => w.platform_identifier) ?? []
-  )
+  // TODO: uncomment after we've implemented wallet connect in mochi profile
+  // const wallets = removeDuplications(
+  //   pfRes.associated_accounts
+  //     ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
+  //     ?.map((w: any) => w.platform_identifier) ?? []
+  // )
   return [
     { label: "Mochi wallet", value: `mochi_${userId}` },
-    ...wallets.map((w: any) => ({ label: w, value: w })),
+    // ...wallets.map((w: any) => ({ label: w, value: w })),
   ]
 }

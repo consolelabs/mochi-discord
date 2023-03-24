@@ -35,7 +35,9 @@ export async function run({
   const tokenEmoji = getEmoji(token)
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
-    author: ["Confirm the transaction", getEmojiURL(emojis.APPROVE)],
+    author: ["Select a wallet", getEmojiURL(emojis.APPROVE)],
+    description:
+      "Pay Link lets you easily deposit funds into newly generated wallets, which can then be withdrawn by anyone that has access to those links. Pay Link expires 3 days after created.",
     thumbnail: getEmojiURL(emojis.ACTIVITY_CASH),
   }).addFields(
     {
