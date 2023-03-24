@@ -277,6 +277,7 @@ export async function execute(
     amount: payload.originalAmount.toString(),
     token: payload.token,
     note: payload.note,
+    type: "paylink",
   })
 
   if (!res.ok) {

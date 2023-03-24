@@ -276,6 +276,7 @@ export async function execute(
     profileId: payload.from.profile_global_id,
     amount: payload.originalAmount.toString(),
     token: payload.token,
+    type: "paylink",
     note: payload.note,
   })
 

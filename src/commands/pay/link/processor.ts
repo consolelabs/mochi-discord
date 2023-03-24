@@ -98,6 +98,7 @@ export async function run({
           amount: amount.toString(),
           token,
           note,
+          type: "paylink",
         })
         // insufficient balance
         if (!res.ok && equalIgnoreCase(res.err, "insufficient balance")) {
