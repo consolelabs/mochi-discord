@@ -9,8 +9,8 @@ import { Command } from "types/common"
 import { parseMessageTip } from "commands/new-tip/index/processor"
 
 const cmd: Command = {
-  id: "pay",
-  command: "pay",
+  id: "link",
+  command: "link",
   brief: "Generate a pay link which can be used by others to claim tip.",
   category: "Defi",
   run: async function (msg: Message) {
@@ -42,7 +42,7 @@ const cmd: Command = {
     ],
   }),
   colorType: "Wallet",
-  canRunWithoutAction: false,
+  canRunWithoutAction: true,
   allowDM: true,
   minArguments: 4,
 }

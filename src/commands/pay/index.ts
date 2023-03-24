@@ -2,9 +2,11 @@ import { Command } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
 import link from "./link/text"
+import me from "./me/text"
 
 const actions: Record<string, Command> = {
   link,
+  me,
 }
 
 const textCmd: Command = {

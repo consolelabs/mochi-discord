@@ -21,6 +21,7 @@ class MochiPay extends Fetcher {
     profileId: string
     amount: string
     token: string
+    type: "paylink" | "payme"
     note?: string
   }) {
     return await this.jsonFetch(`${MOCHI_PAY_API_BASE_URL}/pay-requests`, {
