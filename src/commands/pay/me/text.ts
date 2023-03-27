@@ -1,3 +1,4 @@
+import { getEmoji } from "utils/common"
 import { parseMessageTip } from "commands/new-tip/index/processor"
 import { Message } from "discord.js"
 import { CommandArgumentError } from "errors"
@@ -11,7 +12,7 @@ import { parseTarget, run } from "./processor"
 const cmd: Command = {
   id: "me",
   command: "me",
-  brief: "Request others to make a payment.",
+  brief: "Request others to make a payment",
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
@@ -38,8 +39,17 @@ const cmd: Command = {
     embeds: [
       composeEmbedMessage(msg, {
         title: "Payment",
-        usage: `${PREFIX}pay me <amount> <token> [message]`,
-        examples: `${PREFIX}pay me 25 ftm “I want my money back”"`,
+        usage: `${PREFIX}pay me <amount> <token> [message]\n${PREFIX}pay me [username] <amount> <token> [message]`,
+        examples: `${PREFIX}pay me 25 ftm “I want my money back”"\n${PREFIX}pay me @john 15 ftm “I want my money back”"`,
+        description: `\`[username]\` can be one of the following:\n${getEmoji(
+          "pointingright"
+        )} Discord user name (eg: @John)\n${getEmoji(
+          "pointingright"
+        )} twitter:<Twitter user name> (eg: twitter:John)\n${getEmoji(
+          "pointingright"
+        )} tg:<Telegram user name> (eg: tg:John)\n${getEmoji(
+          "pointingright"
+        )} Email:<email address> (eg: email:John@gmail.com)`,
         document: PAY_ME_GITBOOK,
         includeCommandsList: false,
       }),

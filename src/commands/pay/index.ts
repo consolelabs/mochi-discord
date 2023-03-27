@@ -12,7 +12,7 @@ const actions: Record<string, Command> = {
 const textCmd: Command = {
   id: "pay",
   command: "pay",
-  brief: "",
+  brief: "Finish all due payments right in Discord",
   category: "Defi",
   run: async () => null,
   getHelpMessage: async (msg) => ({
@@ -21,7 +21,6 @@ const textCmd: Command = {
         title: "Payment",
         usage: `${PREFIX}pay <action>`,
         examples: `${PREFIX}pay me\n${PREFIX}pay link\n${PREFIX}pay link 0.1 ftm`,
-        description: "Finish all due payments right in Discord.",
         includeCommandsList: true,
       }),
     ],
