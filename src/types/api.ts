@@ -1775,6 +1775,7 @@ export interface ResponseGetGuildResponse {
   alias?: string;
   bot_scopes?: string[];
   global_xp?: boolean;
+  icon?: string;
   id?: string;
   log_channel?: string;
   log_channel_id?: string;
