@@ -32,6 +32,7 @@ import {
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
   MOCHI_ACTION_TIP,
   MOCHI_PAY_SERVICE,
+  MOCHI_PLATFORM_DISCORD,
 } from "utils/constants"
 import { reply } from "utils/discord"
 import {
@@ -44,6 +45,8 @@ import * as processor from "./processor"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import profile from "adapters/profile"
+import { sendNotificationMsg } from "utils/kafka"
+import { KafkaNotificationMessage } from "types/common"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -186,6 +189,7 @@ export async function tip(
   }
 
   for (const recipient of payload.recipients) {
+    // send activity message
     const recipientUsername =
       msgOrInteraction?.guild?.members.cache.get(recipient)
 
@@ -200,6 +204,22 @@ export async function tip(
     kafkaMsg.activity.content.amount = payload.amount.toString()
     kafkaMsg.activity.content.token = payload.token
     sendActivityMsg(kafkaMsg)
+
+    // send notification message
+    const kafkaNotiMsg: KafkaNotificationMessage = {
+      id: author.id,
+      platform: MOCHI_PLATFORM_DISCORD,
+      action: MOCHI_ACTION_TIP,
+      metadata: {
+        amount: payload.amount.toString(),
+        token: payload.token,
+      },
+      recipient_info: {
+        discord: recipient,
+      },
+    }
+
+    sendNotificationMsg(kafkaNotiMsg)
   }
 
   await reply(msgOrInteraction, response)

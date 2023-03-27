@@ -291,6 +291,7 @@ export async function execute(
       id: payload.sender,
       platform: payload.from.platform,
       action: MOCHI_ACTION_TIP,
+      note: payload.note,
       metadata: {
         amount: payload.originalAmount.toString(),
         token: payload.token,
