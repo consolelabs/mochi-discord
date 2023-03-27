@@ -127,7 +127,6 @@ async function switchView(i: ButtonInteraction, msg: Message, user: User) {
 }
 
 async function composeMyWalletsResponse(msg: Message, user: User) {
-  user.id = "463379262620041226"
   const pfRes = await profile.getByDiscord(user.id)
   if (pfRes.err) {
     throw new APIError({
