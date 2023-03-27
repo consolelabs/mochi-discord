@@ -258,6 +258,7 @@ export type KafkaNotificationMessage = {
   id?: string
   platform?: string
   action?: string
+  note?: string
   metadata?: KafkaNotificationMessageMetadata
   recipient_info?: KafkaNotificationMessageRecipientInfo
 }
@@ -266,6 +267,8 @@ export type KafkaNotificationMessageMetadata = {
   amount?: string
   token?: string
   pay_link?: string
+  request_id?: string
+  wallet?: WalletNotification[]
 }
 
 export type KafkaNotificationMessageRecipientInfo = {
@@ -273,4 +276,9 @@ export type KafkaNotificationMessageRecipientInfo = {
   discord?: string
   telegram?: string
   twitter?: string
+}
+
+export type WalletNotification = {
+  chain: string
+  address: string
 }
