@@ -1,6 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { PREFIX, PROFILE_GITBOOK } from "utils/constants"
+import { GAS_ESTIMATION_GITBOOK, PREFIX } from "utils/constants"
 import { getEmoji } from "utils/common"
 import gas from "./index/text"
 import gasSlash from "./index/slash"
@@ -20,11 +20,12 @@ const textCmd: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          examples: `${PREFIX}gas`,
-          usage: `${PREFIX}gas`,
-          description: "Display gas price on many networks",
+          examples: `${PREFIX}gas\n${PREFIX}gas eth`,
+          usage: `${PREFIX}gas [network]`,
+          description:
+            "Display the estimated gas price for on-chain transactions on many networks.",
           footer: [`Type ${PREFIX}gas to check gas price`],
-          document: PROFILE_GITBOOK,
+          document: GAS_ESTIMATION_GITBOOK,
         }),
       ],
     }

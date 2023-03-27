@@ -18,18 +18,22 @@ import tipTwitter from "./twitter/text"
 const getHelpMessage = async (isSLash?: boolean) => {
   const prefix = isSLash ? SLASH_PREFIX : PREFIX
   const pointingright = getEmoji("pointingright")
+  const usageTipOnChain = `-- Tip onchain or offchain\n${prefix}tip <recipient(s)> <amount> <token> [each]\n${prefix}tip <recipient(s)> <amount> <token> [each] ["message"] [--onchain]`
+  const usageTipTele = `-- Tip Telegram\n${prefix}tip tg:<telegram_username> <amount> <token>`
+  const usageTipEmail = `-- Tip Email\n${prefix}tip email:<email_address> <amount> <token>`
+  const usageTipTwitter = `-- Tip Email\n${prefix}tip twitter:<user_name>  <amount> <token>`
   return {
     embeds: [
       composeEmbedMessage(null, {
         thumbnail: thumbnails.TIP,
-        usage: `${prefix}tip <recipient(s)> <amount> <token> [each]\n${prefix}tip <recipient(s)> <amount> <token> [each] ["message"] [--onchain]`,
+        usage: `${usageTipOnChain}\n\n${usageTipTele}\n\n${usageTipEmail}\n\n${usageTipTwitter}`,
         description: "Send coins offchain to a user or a group of users",
         footer: [DEFI_DEFAULT_FOOTER],
         title: "Tip Bot",
       }).addFields(
         {
           name: "You can send to the recipient by:",
-          value: `${pointingright} Username(s): \`@minh\`, \`@tom\`\n${pointingright} Role(s): \`@Staff\`, \`@Dev\`\n${pointingright} #Text_channel: \`#mochi\`, \`#channel\`\n${pointingright} In voice channel: mention “\`in voice channel\`” to tip members currently in\n${pointingright} Online status: add the active status “\`online\`” before mentioning recipients`,
+          value: `${pointingright} Username(s): \`@minh\`, \`@tom\`\n${pointingright} Role(s): \`@Staff\`, \`@Dev\`\n${pointingright} #Text_channel: \`#mochi\`, \`#channel\`\n${pointingright} In voice channel: mention “\`in voice channel\`” to tip members currently in\n${pointingright} Online status: add the active status “\`online\`” before mentioning recipients\n${pointingright} Telegram username, email or twitter name. In Telegram particular, find the telegram bot https://t.me/telmochibot and DM it first`,
         },
         {
           name: "Tip with token:",
@@ -37,7 +41,7 @@ const getHelpMessage = async (isSLash?: boolean) => {
         },
         {
           name: "**Examples**",
-          value: `\`\`\`${prefix}tip @John 10 ftm\n${prefix}tip @John @Hank all ftm\n${prefix}tip @RandomRole 10 ftm\n${PREFIX}tip @role1 @role2 1 ftm each\n${prefix}tip in voice channel 1 ftm each\n${prefix}tip online #mochi 1 ftm\n${prefix}tip @John 1 ftm "Thank you"\`\`\``,
+          value: `\`\`\`${prefix}tip @John 10 ftm\n${prefix}tip @John @Hank all ftm\n${prefix}tip @RandomRole 10 ftm\n${PREFIX}tip @role1 @role2 1 ftm each\n${prefix}tip in voice channel 1 ftm each\n${prefix}tip online #mochi 1 ftm\n${prefix}tip @John 1 ftm "Thank you"\n${prefix}tip tg:John_ttb 1 ftm\n${prefix}tip email:John.mochi@gmail.com 2 ftm\n${prefix}tip twitter:John_ttb 1 ftm\`\`\``,
         },
         {
           name: "**Instructions**",
