@@ -21,7 +21,7 @@ const getHelpMessage = async (isSLash?: boolean) => {
   const usageTipOnChain = `-- Tip onchain or offchain\n${prefix}tip <recipient(s)> <amount> <token> [each]\n${prefix}tip <recipient(s)> <amount> <token> [each] ["message"] [--onchain]`
   const usageTipTele = `-- Tip Telegram\n${prefix}tip tg:<telegram_username> <amount> <token>`
   const usageTipEmail = `-- Tip Email\n${prefix}tip email:<email_address> <amount> <token>`
-  const usageTipTwitter = `-- Tip Email\n${prefix}tip twitter:<user_name>  <amount> <token>`
+  const usageTipTwitter = `-- Tip Twitter\n${prefix}tip twitter:<user_name> <amount> <token>`
   return {
     embeds: [
       composeEmbedMessage(null, {

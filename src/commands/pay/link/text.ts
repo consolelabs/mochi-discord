@@ -11,7 +11,7 @@ import { parseMessageTip } from "commands/new-tip/index/processor"
 const cmd: Command = {
   id: "link",
   command: "link",
-  brief: "Pay others through a link.",
+  brief: "Pay others through a link",
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
