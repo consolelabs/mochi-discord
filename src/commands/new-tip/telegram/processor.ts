@@ -2,7 +2,6 @@ import { userMention } from "@discordjs/builders"
 import community from "adapters/community"
 import defi from "adapters/defi"
 import mochiPay from "adapters/mochi-pay"
-import mochiTelegram from "adapters/mochi-telegram"
 import profile from "adapters/profile"
 import {
   CommandInteraction,
@@ -15,7 +14,6 @@ import {
 import { MessageButtonStyles } from "discord.js/typings/enums"
 import { APIError, InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
-import { logger } from "logger"
 import { ResponseMonikerConfigData } from "types/api"
 import { RunResult } from "types/common"
 import {
@@ -33,6 +31,9 @@ import {
 } from "utils/common"
 import { reply } from "utils/discord"
 import { getToken, isTokenSupported, parseMonikerinCmd } from "utils/tip-bot"
+import { sendNotificationMsg } from "utils/kafka"
+import { KafkaNotificationMessage } from "types/common"
+import { MOCHI_ACTION_TIP } from "utils/constants"
 
 function parseTipParameters(args: string[]) {
   const each = args[args.length - 1].toLowerCase() === "each"
@@ -277,26 +278,47 @@ export async function execute(
       description: `[transfer] failed with status ${transferStatus}`,
     })
   }
-  const sendTelegramRes = await mochiTelegram.sendMessage({
-    from: {
-      platform: "discord",
-      username: getAuthor(msgOrInteraction).username,
-    },
-    to: {
-      platform: "telegram",
-      username: payload.recipients[0],
-    },
+
+  // create pay link
+  const res: any = await mochiPay.generatePaymentCode({
+    profileId: payload.from.profile_global_id,
+    amount: payload.originalAmount.toString(),
     token: payload.token,
-    amount: `${payload.originalAmount}`,
-    message: payload.note,
+    note: payload.note,
+    type: "paylink",
   })
-  if (sendTelegramRes.error) {
-    logger.error(
-      `[telegram.sendMessage] failed with error: ${JSON.stringify(
-        sendTelegramRes.error
-      )}`
-    )
+
+  if (!res.ok) {
+    const { log: description, curl } = res
+    throw new APIError({ msgOrInteraction, description, curl })
   }
+
+  // send msg to mochi-notification
+  for (const recipient of payload.recipients) {
+    const { data, ok, curl, error, log } =
+      await community.getTelegramByUsername(recipient)
+    if (!ok) {
+      throw new APIError({ curl, error, description: log })
+    }
+
+    const kafkaMsg: KafkaNotificationMessage = {
+      id: payload.sender,
+      platform: payload.from.platform,
+      action: MOCHI_ACTION_TIP,
+      note: payload.note,
+      metadata: {
+        amount: payload.originalAmount.toString(),
+        token: payload.token,
+        pay_link: `https://mochi.gg/pay/${res.data.code}`,
+      },
+      recipient_info: {
+        telegram: data.chat_id.toString(),
+      },
+    }
+
+    sendNotificationMsg(kafkaMsg)
+  }
+
   const embed = composeEmbedMessage(null, {
     author: ["You've given a tip", getEmojiURL(emojis.TIP)],
     description: `Congrats! ${userMention(

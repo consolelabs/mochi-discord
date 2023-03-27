@@ -14,6 +14,10 @@ import {
   isValidAmount,
 } from "utils/common"
 import { reply } from "utils/discord"
+import community from "adapters/community"
+import { sendNotificationMsg } from "utils/kafka"
+import { KafkaNotificationMessage } from "types/common"
+import { MOCHI_ACTION_PAY_ME, MOCHI_PLATFORM_DISCORD } from "utils/constants"
 
 // DO NOT EDIT: if not anhnh
 export async function run({
@@ -100,7 +104,18 @@ export async function run({
     await author.send(text)
   }
 
-  // send notification to recipient if target is specified
+  //send notification to recipient if target is specified
+  const walletNotification = accounts
+    .filter(
+      (w: any) => w.platform === "solana-chain" || w.platform === "evm-chain"
+    )
+    .map((w: any) => {
+      return {
+        chain: w.platform,
+        address: w.platform_identifier,
+      }
+    })
+
   if (hasTarget) {
     await sendNotification({
       author,
@@ -111,6 +126,19 @@ export async function run({
       // note,
       // payCode,
       text,
+      message: {
+        id: author.id,
+        platform: MOCHI_PLATFORM_DISCORD,
+        action: MOCHI_ACTION_PAY_ME,
+        note: note,
+        metadata: {
+          amount: amount.toString(),
+          token,
+          pay_link: paylink,
+          request_id: payCode,
+          wallet: walletNotification,
+        },
+      },
     })
   }
 
@@ -136,62 +164,56 @@ async function sendNotification({
   platform,
   target,
   text,
+  message,
 }: {
   author: User
   platform?: string
   target?: string
   text: string
+  message: KafkaNotificationMessage
 }) {
   if (!platform || !target) return
-
-  // only support discord for now
   // discord
   if (platform === "discord") {
     const user = await author.client.users.fetch(target, { force: true })
     await user?.send(text)
   }
 
-  // DO NOT DELETE
-  // // telegram
-  // if (platform === "telegram") {
-  //   await mochiTelegram.sendMessage({
-  //     from: {
-  //       platform: "discord",
-  //       username: author.username,
-  //     },
-  //     to: {
-  //       platform: "telegram",
-  //       username: target,
-  //     },
-  //     token: token,
-  //     amount: `${amount}`,
-  //     message: note,
-  //   })
-  //   return
-  // }
+  // telegram
+  if (platform === "telegram") {
+    // get tele id from username
+    const { data, ok, curl, error, log } =
+      await community.getTelegramByUsername(target)
+    if (!ok) {
+      throw new APIError({ curl, error, description: log })
+    }
+    message.recipient_info = {
+      telegram: data.chat_id.toString(),
+    }
 
-  // // mail
-  // if (platform === "mail") {
-  //   await mochiTelegram.sendMessage({
-  //     from: {
-  //       platform: "discord",
-  //       username: author.username,
-  //     },
-  //     to: {
-  //       platform: "telegram",
-  //       username: target,
-  //     },
-  //     token: token,
-  //     amount: `${amount}`,
-  //     message: note,
-  //   })
-  //   return
-  // }
+    sendNotificationMsg(message)
+    return
+  }
 
-  // // twitter
-  // if (platform === "twitter") {
-  //    .......
-  // }
+  // mail
+  if (platform === "mail") {
+    message.recipient_info = {
+      mail: target,
+    }
+
+    sendNotificationMsg(message)
+    return
+  }
+
+  // twitter
+  if (platform === "twitter") {
+    message.recipient_info = {
+      twitter: target,
+    }
+
+    sendNotificationMsg(message)
+    return
+  }
 }
 
 export function parseTarget(arg: string) {
@@ -239,7 +261,7 @@ export function parseTarget(arg: string) {
   const twp = twPrefixes.find((p) => arg.startsWith(p))
   if (twp) {
     const value = arg.replaceAll(twp, "")
-    res.platform = "mail"
+    res.platform = "twitter"
     res.target = value
     return res
   }

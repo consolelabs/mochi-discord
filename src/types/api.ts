@@ -11,6 +11,39 @@
 
 export type BigFloat = object;
 
+export interface DiscordgoMember {
+  /** The hash of the avatar for the guild member, if any. */
+  avatar?: string;
+  /**
+   * The time at which the member's timeout will expire.
+   * Time in the past or nil if the user is not timed out.
+   */
+  communication_disabled_until?: string;
+  /** Whether the member is deafened at a guild level. */
+  deaf?: boolean;
+  /** The guild ID on which the member exists. */
+  guild_id?: string;
+  /** The time at which the member joined the guild. */
+  joined_at?: string;
+  /** Whether the member is muted at a guild level. */
+  mute?: boolean;
+  /** The nickname of the member, if they have one. */
+  nick?: string;
+  /** Is true while the member hasn't accepted the membership screen. */
+  pending?: boolean;
+  /**
+   * Total permissions of the member in the channel, including overrides, returned when in the interaction object.
+   * @example 0
+   */
+  permissions?: string;
+  /** When the user used their Nitro boost on the server */
+  premium_since?: string;
+  /** A list of IDs of the roles which are possessed by the member. */
+  roles?: string[];
+  /** The underlying user on which the member is based. */
+  user?: DiscordgoUser;
+}
+
 export interface DiscordgoUser {
   /** User's banner color, encoded as an integer representation of hexadecimal color code */
   accent_color?: number;
@@ -422,6 +455,19 @@ export interface ModelGuildUser {
   invited_by?: string;
   nickname?: string;
   roles?: ModelGuildRole[];
+  user_id?: string;
+}
+
+export interface ModelGuildUserXP {
+  guild?: ModelDiscordGuild;
+  guild_id?: string;
+  guild_member?: DiscordgoMember;
+  guild_rank?: number;
+  level?: number;
+  nr_of_actions?: number;
+  progress?: number;
+  total_xp?: number;
+  user?: ModelUser;
   user_id?: string;
 }
 
@@ -1729,6 +1775,7 @@ export interface ResponseGetGuildResponse {
   alias?: string;
   bot_scopes?: string[];
   global_xp?: boolean;
+  icon?: string;
   id?: string;
   log_channel?: string;
   log_channel_id?: string;
@@ -2535,6 +2582,12 @@ export interface ResponseTokenPriceAlertResponseData {
   symbol?: string;
   user_discord_id?: string;
   value?: number;
+}
+
+export interface ResponseTopUser {
+  author?: ModelGuildUserXP;
+  leaderboard?: ModelGuildUserXP[];
+  metadata?: ResponsePaginationResponse;
 }
 
 export interface ResponseTransactionsResponse {

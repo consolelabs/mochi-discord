@@ -159,7 +159,7 @@ async function getTipPayload(
     },
     tos: recipients.map((r) => ({
       profile_global_id: `${r}`,
-      platform: "email",
+      platform: "twitter",
     })),
     amount: Array(recipients.length).fill(`${amount / recipients.length}`),
     originalAmount: amount,
@@ -206,7 +206,7 @@ async function confirmToTip(
       inline: true,
     },
     EMPTY_FIELD,
-    { name: "Social", value: "Email\n\u200B", inline: true },
+    { name: "Social", value: "Twitter\n\u200B", inline: true },
     ...(payload.note
       ? [
           {
@@ -291,6 +291,7 @@ export async function execute(
       id: payload.sender,
       platform: payload.from.platform,
       action: MOCHI_ACTION_TIP,
+      note: payload.note,
       metadata: {
         amount: payload.originalAmount.toString(),
         token: payload.token,
