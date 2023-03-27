@@ -227,6 +227,18 @@ export const PRICE_ALERT_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/price-alert" +
   "&command=alert"
+export const GAS_ESTIMATION_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/gas-fee-estimation" +
+  "&command=gas"
+export const PAY_LINK_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/pay-link" +
+  "&command=pay&action=link"
+export const PAY_ME_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/pay-me" +
+  "&command=pay&action=me"
 
 export const FTMSCAN_API = "https://api.ftmscan.com/api"
 export const BSCSCAN_API = "https://api.bscscan.com/api"

@@ -4,14 +4,14 @@ import { CommandArgumentError } from "errors"
 import { Command } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments } from "utils/commands"
-import { PREFIX } from "utils/constants"
+import { PAY_ME_GITBOOK, PREFIX } from "utils/constants"
 import { parseTarget, run } from "./processor"
 
 // DO NOT EDIT: if not anhnh
 const cmd: Command = {
-  id: "pay",
-  command: "pay",
-  brief: "Generate a link which can be used to request others to pay you.",
+  id: "me",
+  command: "me",
+  brief: "Request others to make a payment.",
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
@@ -40,9 +40,8 @@ const cmd: Command = {
         title: "Payment",
         usage: `${PREFIX}pay me <amount> <token> [message]`,
         examples: `${PREFIX}pay me 25 ftm “I want my money back”"`,
-        description:
-          "Generate a link which can be used to request others to pay you.",
-        includeCommandsList: true,
+        document: PAY_ME_GITBOOK,
+        includeCommandsList: false,
       }),
     ],
   }),

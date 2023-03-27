@@ -1,5 +1,5 @@
 import { composeEmbedMessage } from "ui/discord/embed"
-import { PREFIX } from "utils/constants"
+import { PAY_LINK_GITBOOK, PREFIX } from "utils/constants"
 import { run } from "./processor"
 import { getCommandArguments } from "utils/commands"
 import { isValidAmount } from "utils/common"
@@ -11,7 +11,7 @@ import { parseMessageTip } from "commands/new-tip/index/processor"
 const cmd: Command = {
   id: "link",
   command: "link",
-  brief: "Generate a pay link which can be used by others to claim tip.",
+  brief: "Pay others through a link.",
   category: "Defi",
   run: async function (msg: Message) {
     const args = getCommandArguments(msg)
@@ -36,8 +36,8 @@ const cmd: Command = {
         title: "Payment",
         usage: `${PREFIX}pay link <amount> <token> [message]`,
         examples: `${PREFIX}pay link 0.1 ftm "I want to thank you for a great collaboration"`,
-        description: "Generate pay links to share with others.",
-        includeCommandsList: true,
+        document: PAY_LINK_GITBOOK,
+        includeCommandsList: false,
       }),
     ],
   }),
