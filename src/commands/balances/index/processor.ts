@@ -1,12 +1,5 @@
-import Defi from "adapters/defi"
-import {
-  ButtonInteraction,
-  EmbedFieldData,
-  MessageActionRow,
-  MessageButton,
-} from "discord.js"
+import { CommandInteraction, EmbedFieldData, Message } from "discord.js"
 import { APIError, OriginalMessage } from "errors"
-import { UserBalances } from "types/defi"
 import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
 import {
   emojis,
@@ -15,6 +8,9 @@ import {
   msgColors,
   roundFloatNumber,
 } from "utils/common"
+import mochiPay from "../../../adapters/mochi-pay"
+import { convertString } from "../../../utils/convert"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export const balanceTypes: Record<string, number> = {
   Offchain: 1,
@@ -45,38 +41,40 @@ const balanceEmbedProps = {
   },
 }
 
-const row = (type: number) => {
-  return new MessageActionRow().addComponents(
-    new MessageButton({
-      customId: `balance-${balanceTypes.Offchain}`,
-      style: "SECONDARY",
-      label: "Off-chain",
-      disabled: type === balanceTypes.Offchain,
-    }),
-    new MessageButton({
-      customId: `balance-${balanceTypes.Onchain}`,
-      style: "SECONDARY",
-      label: "On-chain",
-      disabled: type === balanceTypes.Onchain,
-    }),
-    new MessageButton({
-      customId: `balance-${balanceTypes.Total}`,
-      style: "SECONDARY",
-      label: "Total",
-      disabled: type === balanceTypes.Total,
-    })
-  )
-}
+// const row = (type: number) => {
+//   return new MessageActionRow().addComponents(
+//     new MessageButton({
+//       customId: `balance-${balanceTypes.Offchain}`,
+//       style: "SECONDARY",
+//       label: "Off-chain",
+//       disabled: type === balanceTypes.Offchain,
+//     }),
+//     new MessageButton({
+//       customId: `balance-${balanceTypes.Onchain}`,
+//       style: "SECONDARY",
+//       label: "On-chain",
+//       disabled: type === balanceTypes.Onchain,
+//     }),
+//     new MessageButton({
+//       customId: `balance-${balanceTypes.Total}`,
+//       style: "SECONDARY",
+//       label: "Total",
+//       disabled: type === balanceTypes.Total,
+//     })
+//   )
+// }
 
-const balancesFetcher: Record<number, (userId: string) => Promise<any>[]> = {
-  [balanceTypes.Offchain]: (userId) => [
-    Defi.offchainGetUserBalances({ userId }),
+// TODO: temporarily disable onchain balances
+const balancesFetcher: Record<number, (profileId: string) => Promise<any>[]> = {
+  [balanceTypes.Offchain]: (profileId) => [
+    // Defi.offchainGetUserBalances({ userId }),
+    mochiPay.getBalances({ profileId }),
   ],
-  [balanceTypes.Onchain]: (userId) => [Defi.getUserOnchainBalances(userId)],
-  [balanceTypes.Total]: (userId) => [
-    Defi.offchainGetUserBalances({ userId }),
-    Defi.getUserOnchainBalances(userId),
-  ],
+  // [balanceTypes.Onchain]: (userId) => [Defi.getUserOnchainBalances(userId)],
+  // [balanceTypes.Total]: (userId) => [
+  //   Defi.offchainGetUserBalances({ userId }),
+  //   Defi.getUserOnchainBalances(userId),
+  // ],
 }
 
 export async function getBalances(
@@ -93,35 +91,38 @@ export async function getBalances(
       curl: "",
     })
   }
-  const data = res[0].data.concat(res[1]?.data).filter((i: any) => Boolean(i))
-  const groupedData: Record<string, any> = data.reduce(
-    (acc: Record<string, UserBalances>, cur: any) => {
-      if (!cur.symbol) return cur
-      cur.balances += acc[cur.symbol]?.balances ?? 0
-      cur.balances_in_usd += acc[cur.symbol]?.balances_in_usd ?? 0
-      return { ...acc, [cur.symbol]: cur }
-    },
-    {}
-  )
-  return Object.values(groupedData)
+  return res[0].data.concat(res[1]?.data).filter((i: any) => Boolean(i))
+  // const groupedData: Record<string, any> = data.reduce(
+  //   (acc: Record<string, UserBalances>, cur: any) => {
+  //     if (!cur.symbol) return cur
+  //     cur.balances += acc[cur.symbol]?.balances ?? 0
+  //     cur.balances_in_usd += acc[cur.symbol]?.balances_in_usd ?? 0
+  //     return { ...acc, [cur.symbol]: cur }
+  //   },
+  //   {}
+  // )
+  // return Object.values(groupedData)
 }
 
 export async function renderBalances(
-  userId: string,
-  msg: OriginalMessage,
+  discordId: string,
+  msg: Message | CommandInteraction,
   type: number
 ) {
-  const balances = await getBalances(userId, type, msg)
+  const profileId = await getProfileIdByDiscord(discordId)
+  const balances = await getBalances(profileId, type, msg)
   const fields: EmbedFieldData[] = []
   const blank = getEmoji("blank")
-  balances?.forEach((balance: UserBalances) => {
-    const tokenName = balance["name"]
-    const tokenEmoji = getEmoji(balance["symbol"])
-    const tokenBalance = roundFloatNumber(balance["balances"] ?? 0, 4)
+  balances?.forEach((balance: any) => {
+    const { token, amount, quote_rate } = balance
+    const { name: tokenName, symbol, decimal } = token
+    const b = convertString(amount, decimal)
+    const tokenEmoji = getEmoji(symbol)
+    const tokenBalance = roundFloatNumber(b ?? 0, 4)
     if (tokenBalance === 0) return
-    const tokenBalanceInUSD = roundFloatNumber(balance["balances_in_usd"], 4)
+    const tokenBalanceInUSD = roundFloatNumber(quote_rate ?? 0, 4)
 
-    const balanceInfo = `${tokenEmoji} ${tokenBalance} ${balance["symbol"]} \`$${tokenBalanceInUSD}\` ${blank}`
+    const balanceInfo = `${tokenEmoji} ${tokenBalance} ${symbol} \`$${tokenBalanceInUSD}\` ${blank}`
     fields.push({ name: tokenName, value: balanceInfo, inline: true })
   })
 
@@ -140,8 +141,8 @@ export async function renderBalances(
   }
 
   const totalBalanceInUSD = balances.reduce(
-    (accumulator: number, balance: UserBalances) => {
-      return accumulator + balance["balances_in_usd"]
+    (accumulator: number, balance: any) => {
+      return accumulator + (balance.quote_rate ?? 0)
     },
     0
   )
@@ -160,13 +161,13 @@ export async function renderBalances(
   return {
     messageOptions: {
       embeds: [embed],
-      components: [row(type)],
+      // components: [row(type)],
     },
-    buttonCollector: {
-      handler: async (i: ButtonInteraction) => {
-        const type = +i.customId.split("-")[1]
-        return await renderBalances(userId, msg, type)
-      },
-    },
+    // buttonCollector: {
+    //   handler: async (i: ButtonInteraction) => {
+    //     const type = +i.customId.split("-")[1]
+    //     return await renderBalances(userId, msg, type)
+    //   },
+    // },
   }
 }
