@@ -1,7 +1,10 @@
-import { APIError, OriginalMessage } from "errors"
-import { getAuthor } from "./common"
-import defi from "adapters/defi"
+import { CommandInteraction, Message } from "discord.js"
+import { APIError } from "errors"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
+import mochiPay from "../adapters/mochi-pay"
+import { getAuthor } from "./common"
+import { convertString } from "./convert"
+import { getProfileIdByDiscord } from "./profile"
 
 export function parseTickerQuery(q: string) {
   const fiats = ["gbp", "usd", "eur", "sgd", "vnd"]
@@ -31,35 +34,31 @@ export async function validateBalance({
   amount,
   all,
 }: {
-  msgOrInteraction: OriginalMessage
+  msgOrInteraction: Message | CommandInteraction
   token: string
   amount: number
   all?: boolean
 }) {
   const author = getAuthor(msgOrInteraction)
-  const { ok, data, log, curl } = await defi.offchainGetUserBalances({
-    userId: author.id,
+  const profileId = await getProfileIdByDiscord(author.id)
+  const { ok, data, log, curl } = await mochiPay.getBalances({
+    profileId,
+    token,
   })
-  if (!ok)
-    throw new APIError({
-      msgOrInteraction: msgOrInteraction,
-      curl,
-      description: log,
-    })
+  if (!ok) throw new APIError({ msgOrInteraction, curl, description: log })
   //
-  const tokenBalance = data.find(
-    (item) => token.toLowerCase() === item.symbol?.toLowerCase()
-  ) ?? { balances: 0, balances_in_usd: 0 }
-  const { balances = 0, balances_in_usd = 0 } = tokenBalance
-  if (!balances || (balances < amount && !all)) {
+  const tokenBalance = data?.[0] ?? { amount: "0" }
+  const { amount: balanceAmount = "0" } = tokenBalance
+  const balance = convertString(balanceAmount, tokenBalance?.token?.decimal)
+  if (!balance || (balance < amount && !all)) {
     throw new InsufficientBalanceError({
       msgOrInteraction,
       params: {
-        current: balances,
+        current: balance,
         required: amount,
         symbol: token,
       },
     })
   }
-  return { balance: balances, usdBalance: balances_in_usd }
+  return { balance, usdBalance: 0 }
 }

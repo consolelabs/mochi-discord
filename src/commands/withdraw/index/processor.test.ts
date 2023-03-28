@@ -8,6 +8,7 @@ import * as dcutils from "utils/discord"
 import * as tiputils from "utils/tip-bot"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
+import mochiPay from "../../../adapters/mochi-pay"
 jest.mock("adapters/defi")
 
 describe("getRecipient", () => {
@@ -123,7 +124,7 @@ describe("withdraw", () => {
 
   test("no balance => throw InsufficientBalanceError", async () => {
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    defi.offchainGetUserBalances = jest
+    mochiPay.getBalances = jest
       .fn()
       .mockResolvedValueOnce({ ok: true, data: [] })
     await expect(processor.withdraw(msg, "10", "ftm")).rejects.toThrow(
@@ -136,10 +137,13 @@ describe("withdraw", () => {
 
   test("insufficient balance => throw InsufficientBalanceError", async () => {
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce({
+    mochiPay.getBalances = jest.fn().mockResolvedValueOnce({
       ok: true,
       data: [
-        { id: "fantom", symbol: "ftm", balances: 5.6, balances_in_usd: 2.5 },
+        {
+          token: { symbol: "ftm", name: "fantom" },
+          amount: 5600000000000000000,
+        },
       ],
     })
     await expect(processor.withdraw(msg, "10", "ftm")).rejects.toThrow(
@@ -168,10 +172,13 @@ describe("withdraw", () => {
     defi.offchainDiscordWithdraw = jest
       .fn()
       .mockResolvedValueOnce(mockedResponse)
-    defi.offchainGetUserBalances = jest.fn().mockResolvedValueOnce({
+    mochiPay.getBalances = jest.fn().mockResolvedValueOnce({
       ok: true,
       data: [
-        { id: "fantom", symbol: "ftm", balances: 5.6, balances_in_usd: 2.5 },
+        {
+          token: { name: "fantom", symbol: "ftm", decimal: 18 },
+          amount: 5600000000000000000,
+        },
       ],
     })
     const mockedDm = mockdc.cloneMessage()

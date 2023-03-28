@@ -422,6 +422,12 @@ class Defi extends Fetcher {
     )
   }
 
+  async getUserSupportTokens(status: string, page: number, size = 15) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/defi/token-support?status=${status}&page=${page}&size=${size}`
+    )
+  }
+
   async requestSupportToken(body: {
     user_discord_id: string
     guild_id: string

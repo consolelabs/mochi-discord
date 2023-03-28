@@ -11,39 +11,6 @@
 
 export type BigFloat = object;
 
-export interface DiscordgoMember {
-  /** The hash of the avatar for the guild member, if any. */
-  avatar?: string;
-  /**
-   * The time at which the member's timeout will expire.
-   * Time in the past or nil if the user is not timed out.
-   */
-  communication_disabled_until?: string;
-  /** Whether the member is deafened at a guild level. */
-  deaf?: boolean;
-  /** The guild ID on which the member exists. */
-  guild_id?: string;
-  /** The time at which the member joined the guild. */
-  joined_at?: string;
-  /** Whether the member is muted at a guild level. */
-  mute?: boolean;
-  /** The nickname of the member, if they have one. */
-  nick?: string;
-  /** Is true while the member hasn't accepted the membership screen. */
-  pending?: boolean;
-  /**
-   * Total permissions of the member in the channel, including overrides, returned when in the interaction object.
-   * @example 0
-   */
-  permissions?: string;
-  /** When the user used their Nitro boost on the server */
-  premium_since?: string;
-  /** A list of IDs of the roles which are possessed by the member. */
-  roles?: string[];
-  /** The underlying user on which the member is based. */
-  user?: DiscordgoUser;
-}
-
 export interface DiscordgoUser {
   /** User's banner color, encoded as an integer representation of hexadecimal color code */
   accent_color?: number;
@@ -450,18 +417,19 @@ export interface ModelGuildRole {
 }
 
 export interface ModelGuildUser {
+  avatar?: string;
   guild_id?: string;
   id?: string;
   invited_by?: string;
+  joined_at?: string;
   nickname?: string;
-  roles?: ModelGuildRole[];
+  roles?: string[];
   user_id?: string;
 }
 
 export interface ModelGuildUserXP {
   guild?: ModelDiscordGuild;
   guild_id?: string;
-  guild_member?: DiscordgoMember;
   guild_rank?: number;
   level?: number;
   nr_of_actions?: number;
@@ -807,12 +775,12 @@ export interface ModelUserTelegramDiscordAssociation {
 export interface ModelUserTokenSupportRequest {
   channel_id?: string;
   created_at?: string;
+  guild_id?: string;
   id?: number;
   message_id?: string;
   status?: string;
   token_address?: string;
   token_chain_id?: number;
-  token_name?: string;
   updated_at?: string;
   user_discord_id?: string;
 }
@@ -1055,10 +1023,10 @@ export interface RequestCreateUserRequest {
 
 export interface RequestCreateUserTokenSupportRequest {
   channel_id: string;
+  guild_id: string;
   message_id: string;
   token_address: string;
   token_chain: string;
-  token_name: string;
   user_discord_id: string;
 }
 
@@ -1622,6 +1590,23 @@ export interface ResponseDiscordGuildResponse {
   owner?: boolean;
   /** @example 0 */
   permissions?: string;
+}
+
+export interface ResponseDiscordGuildRole {
+  color?: number;
+  hoist?: boolean;
+  icon?: string;
+  id?: string;
+  managed?: boolean;
+  mentionable?: boolean;
+  name?: string;
+  permissions?: string;
+  position?: number;
+  unicode_emoji?: string;
+}
+
+export interface ResponseDiscordGuildRoles {
+  data?: ResponseDiscordGuildRole[];
 }
 
 export interface ResponseDiscordUserTokenAlertResponse {

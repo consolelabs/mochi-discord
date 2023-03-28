@@ -2,6 +2,8 @@ import { Command } from "types/common"
 import { PREFIX } from "utils/constants"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { handleTokenList } from "./processor"
+import { getPaginationRow } from "ui/discord/button"
+import { listenForPaginateAction } from "handlers/discord/button"
 
 const command: Command = {
   id: "list_server_token",
@@ -21,7 +23,23 @@ const command: Command = {
         },
       }
     }
-    return await handleTokenList()
+    const { embed, totalPages } = await handleTokenList(0)
+    const msgOpts = {
+      messageOptions: {
+        embeds: [embed],
+        components: getPaginationRow(0, totalPages),
+      },
+    }
+    const reply = await msg.reply(msgOpts.messageOptions)
+    listenForPaginateAction(reply, msg, async (_msg, idx) => {
+      const { embed } = await handleTokenList(idx)
+      return {
+        messageOptions: {
+          embeds: [embed],
+          components: getPaginationRow(idx, totalPages),
+        },
+      }
+    })
   },
   getHelpMessage: async (msg) => ({
     embeds: [

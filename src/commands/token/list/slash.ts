@@ -5,6 +5,8 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { handleTokenList } from "./processor"
+import { listenForPaginateInteraction } from "handlers/discord/button"
+import { getPaginationRow } from "ui/discord/button"
 
 const command: SlashCommand = {
   name: "list",
@@ -18,7 +20,23 @@ const command: SlashCommand = {
     if (!interaction.guildId) {
       throw new GuildIdNotFoundError({ message: interaction })
     }
-    return await handleTokenList()
+    const { embed, totalPages } = await handleTokenList(0)
+    const msgOpts = {
+      messageOptions: {
+        embeds: [embed],
+        components: getPaginationRow(0, totalPages),
+      },
+    }
+    listenForPaginateInteraction(interaction, async (_interaction, idx) => {
+      const { embed } = await handleTokenList(idx)
+      return {
+        messageOptions: {
+          embeds: [embed],
+          components: getPaginationRow(idx, totalPages),
+        },
+      }
+    })
+    return msgOpts
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
