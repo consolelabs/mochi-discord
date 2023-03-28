@@ -21,6 +21,9 @@ import {
   paginate,
   roundFloatNumber,
 } from "utils/common"
+import mochiPay from "../../../adapters/mochi-pay"
+import { getProfileIdByDiscord } from "../../../utils/profile"
+import { convertString } from "../../../utils/convert"
 
 export async function handleStatement(
   args: string,
@@ -28,8 +31,9 @@ export async function handleStatement(
   inflow?: boolean,
   outflow?: boolean
 ) {
-  const bals = await defi.offchainGetUserBalances({
-    userId: authorId,
+  const profileId = await getProfileIdByDiscord(authorId)
+  const bals = await mochiPay.getBalances({
+    profileId,
   })
   if (!bals.ok) {
     throw new APIError({ curl: bals.curl, description: bals.log })
@@ -40,8 +44,9 @@ export async function handleStatement(
   let currentPrice = 0
   bals.data?.forEach((bal: any) => {
     if (symbol === bal.symbol) {
-      currentBal = bal.balances
-      currentPrice = bal.rate_in_usd
+      const amount = convertString(bal.amount, bal.token.decimal)
+      currentBal = amount
+      currentPrice = bal.quote_rate ?? 0
     }
   })
   const payload = {
@@ -103,11 +108,12 @@ export async function handleStatement(
     )} ${symbol}** (\u2248 $${roundFloatNumber(currentPrice * currentBal, 4)})`
     if (!symbol) {
       des += bals.data
-        ?.map(({ balances_in_usd, balances, name, symbol }) => {
-          const tokenBalance = roundFloatNumber(balances ?? 0, 4)
+        ?.map((bal: any) => {
+          const amount = convertString(bal.amount, bal.token.decimal)
+          const tokenBalance = roundFloatNumber(amount ?? 0, 4)
           if (tokenBalance === 0) return
-          const tokenBalanceInUSD = roundFloatNumber(balances_in_usd ?? 0, 4)
-          return `**${name}: ${tokenBalance} ${symbol}** (\u2248 $${tokenBalanceInUSD})`
+          const tokenBalanceInUSD = roundFloatNumber(bal.quote_rate ?? 0, 4)
+          return `**${bal.token.name}: ${tokenBalance} ${symbol}** (\u2248 $${tokenBalanceInUSD})`
         })
         .join("\n")
     }

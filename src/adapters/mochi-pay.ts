@@ -29,6 +29,20 @@ class MochiPay extends Fetcher {
       body,
     })
   }
+
+  public async getBalances({
+    profileId,
+    token,
+  }: {
+    profileId: string
+    token?: string
+  }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/${profileId}/balances/${
+        token ?? ""
+      }`
+    )
+  }
 }
 
 export default new MochiPay()
