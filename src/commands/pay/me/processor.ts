@@ -1,7 +1,7 @@
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { CommandInteraction, Message, User } from "discord.js"
-import { APIError } from "errors"
+import { APIError, InternalError } from "errors"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
@@ -18,6 +18,8 @@ import community from "adapters/community"
 import { sendNotificationMsg } from "utils/kafka"
 import { KafkaNotificationMessage } from "types/common"
 import { MOCHI_ACTION_PAY_ME, MOCHI_PLATFORM_DISCORD } from "utils/constants"
+import defi from "../../../adapters/defi"
+import CacheManager from "cache/node-cache"
 
 // DO NOT EDIT: if not anhnh
 export async function run({
@@ -67,7 +69,7 @@ export async function run({
   const paylink = `https://mochi.gg/${
     profile_name || author.username
   }/receive/${payCode}`
-  let embed = composeEmbedMessage(null, {
+  const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
     author: ["You've just created a pay me link", getEmojiURL(emojis.APPROVE)],
     description: `Here's ${paylink} ${tokenEmoji} ${amount} ${token} ${
@@ -76,18 +78,6 @@ export async function run({
       hasTarget ? "" : "Please copy the message below and send to your friend"
     }`,
   })
-  if (platform == "discord") {
-    embed = composeEmbedMessage(null, {
-      originalMsgAuthor: author,
-      author: [
-        "You've just created a pay me link",
-        getEmojiURL(emojis.APPROVE),
-      ],
-      description: `Here's ${paylink} ${tokenEmoji} ${amount} ${token} ${
-        note ? `with message ${getEmoji("message1")} \`\`\`${note}\`\`\`` : ""
-      }\n${"Please copy the message below and send to your friend"}`,
-    })
-  }
 
   const dm = await author.send({ embeds: [embed] })
   const walletType = equalIgnoreCase(token, "sol")
@@ -129,7 +119,47 @@ export async function run({
       }
     })
   if (hasTarget) {
-    const price = ""
+    const { data: coins, curlSearchCoin } = await CacheManager.get({
+      pool: "ticker",
+      key: `ticker-search-${token.toLowerCase()}`,
+      call: () => defi.searchCoins(token.toLowerCase()),
+    })
+    if (!coins || !coins.length) {
+      throw new APIError({
+        msgOrInteraction,
+        description: `[getByDiscord] API error with status ${pfRes.status_code}`,
+        curl: curlSearchCoin,
+      })
+    }
+    let coinId = ""
+    if (coins.length > 0) {
+      coinId = coins[0].id
+    }
+
+    const {
+      ok,
+      data: coin,
+      curl,
+      log,
+    } = await CacheManager.get({
+      pool: "ticker",
+      key: `ticker-getcoin-${coinId}`,
+      call: () => defi.getCoin(coinId),
+    })
+    if (!ok) {
+      throw new APIError({
+        msgOrInteraction,
+        description: log,
+        curl: curl,
+      })
+    }
+
+    const currency = "usd"
+    const { current_price } = coin.market_data
+    const currentPrice = +current_price[currency]
+    const priceNumber = currentPrice * amount
+    const price = parseFloat(priceNumber.toString()).toFixed(3)
+
     await sendNotification({
       author,
       platform,
