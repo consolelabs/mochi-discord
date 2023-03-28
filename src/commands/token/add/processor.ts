@@ -2,6 +2,7 @@ import {
   ButtonInteraction,
   CommandInteraction,
   Message,
+  MessageEmbed,
   MessageOptions,
   MessageSelectOptionData,
   SelectMenuInteraction,
@@ -14,7 +15,11 @@ import {
   OriginalMessage,
 } from "errors"
 import { Token } from "types/defi"
-import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
+import {
+  composeEmbedMessage,
+  getEmbedFooter,
+  getSuccessEmbed,
+} from "ui/discord/embed"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import Config from "../../../adapters/config"
 import Defi from "../../../adapters/defi"
@@ -70,9 +75,10 @@ export async function process(
     messageOptions: {
       embeds: [
         getSuccessEmbed({
-          title: "Your Token submission is successful",
-          description:
-            "Thank you for submitting your token request!\nWe will review and update you on the approval status as quickly as possible.",
+          title: `Your Token submission is under review!`,
+          description: `**Network** \`${args.token_chain.toUpperCase()}\`\n**Address** \`${
+            args.token_address
+          }\`\n\n**Your request is under review.** You will be notified the result through direct message!`,
         }),
       ],
     },
@@ -119,7 +125,15 @@ export async function handleTokenApprove(i: ButtonInteraction) {
   if (!ok) {
     throw new APIError({ msgOrInteraction: i, error, curl, description: log })
   }
-  await i.editReply({ components: [] })
+  const embed = i.message.embeds[0] as MessageEmbed
+  embed
+    .setFooter({
+      text: getEmbedFooter([
+        `Approved by ${i.member?.user.username}#${i.member?.user.discriminator}`,
+      ]),
+    })
+    .setTimestamp(new Date())
+  await i.editReply({ embeds: [embed], components: [] })
 }
 
 export async function handleTokenReject(i: ButtonInteraction) {
@@ -135,7 +149,15 @@ export async function handleTokenReject(i: ButtonInteraction) {
   if (!ok) {
     throw new APIError({ msgOrInteraction: i, error, curl, description: log })
   }
-  await i.editReply({ components: [] })
+  const embed = i.message.embeds[0] as MessageEmbed
+  embed
+    .setFooter({
+      text: getEmbedFooter([
+        `Rejected by ${i.member?.user.username}#${i.member?.user.discriminator}`,
+      ]),
+    })
+    .setTimestamp(new Date())
+  await i.editReply({ embeds: [embed], components: [] })
 }
 
 export async function handleTokenAdd(

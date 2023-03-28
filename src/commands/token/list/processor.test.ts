@@ -1,8 +1,13 @@
 import * as processor from "./processor"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { assertRunResult } from "../../../../tests/assertions/discord"
-import { getEmoji, msgColors } from "utils/common"
-import { MessageEmbed } from "discord.js"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  msgColors,
+  thumbnails,
+} from "utils/common"
 import defi from "adapters/defi"
 
 jest.mock("adapters/defi")
@@ -22,42 +27,46 @@ describe("handleTokenList", () => {
       )} To add more token to the list, use \`$token add\``,
       color: msgColors.SUCCESS,
     })
-    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(res)
+    defi.getUserSupportTokens = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.handleTokenList()
-    assertRunResult(output, { messageOptions: { embeds: [expected] } })
+    assertRunResult(
+      { messageOptions: { embeds: [output.embed] } },
+      { messageOptions: { embeds: [expected] } }
+    )
   })
 
   test("guild tokens found", async () => {
     const res = {
       ok: true,
-      data: [
-        {
-          id: "72f399b6-755b-41f1-8a49-6673a1e6fda5",
-          token_id: "45",
-          token_name: "FTM",
-          token_symbol: "FTM",
-          icon: "https://ftmscan.com/token/images/stabl33_32.png",
-          status: 1,
-          created_at: "2023-01-11T10:33:54.871164Z",
-          updated_at: "2023-01-11T10:33:54.871164Z",
-          coin_gecko_id: "FTM",
-          service_fee: 0,
-        },
-      ],
+      data: {
+        data: [
+          {
+            id: 1,
+            user_discord_id: "490895538892439553",
+            guild_id: "963716572080406548",
+            channel_id: "967842617926770698",
+            message_id: "1090129714867339356",
+            token_name: "Ambire AdEx",
+            symbol: "ADX",
+            token_address: "0xade00c28244d5ce17d72e40330b1c318cd12b7c3",
+            token_chain_id: 1,
+            status: "approved",
+          },
+        ],
+      },
     }
-    const expected = {
-      color: msgColors.PINK,
-      title: `${getEmoji("TIP")} Tokens list`,
-      fields: [
-        {
-          inline: true,
-          name: "​",
-          value: "<:ftm:967285237686108212> **FTM**",
-        },
-      ],
-    } as unknown as MessageEmbed
-    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(res)
+    const expected = composeEmbedMessage(null, {
+      thumbnail: thumbnails.CUSTOM_TOKEN,
+      author: ["Token List", getEmojiURL(emojis.PAWCOIN)],
+      description: "1 . Ambire AdEx `ADX`",
+      color: msgColors.ACTIVITY,
+      footer: [`Page 1/1`],
+    })
+    defi.getUserSupportTokens = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.handleTokenList()
-    assertRunResult(output, { messageOptions: { embeds: [expected] } })
+    assertRunResult(
+      { messageOptions: { embeds: [output.embed] } },
+      { messageOptions: { embeds: [expected] } }
+    )
   })
 })
