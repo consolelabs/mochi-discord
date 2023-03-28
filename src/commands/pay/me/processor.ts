@@ -67,7 +67,7 @@ export async function run({
   const paylink = `https://mochi.gg/${
     profile_name || author.username
   }/receive/${payCode}`
-  const embed = composeEmbedMessage(null, {
+  let embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
     author: ["You've just created a pay me link", getEmojiURL(emojis.APPROVE)],
     description: `Here's ${paylink} ${tokenEmoji} ${amount} ${token} ${
@@ -76,6 +76,19 @@ export async function run({
       hasTarget ? "" : "Please copy the message below and send to your friend"
     }`,
   })
+  if (platform == "discord") {
+    embed = composeEmbedMessage(null, {
+      originalMsgAuthor: author,
+      author: [
+        "You've just created a pay me link",
+        getEmojiURL(emojis.APPROVE),
+      ],
+      description: `Here's ${paylink} ${tokenEmoji} ${amount} ${token} ${
+        note ? `with message ${getEmoji("message1")} \`\`\`${note}\`\`\`` : ""
+      }\n${"Please copy the message below and send to your friend"}`,
+    })
+  }
+
   const dm = await author.send({ embeds: [embed] })
   const walletType = equalIgnoreCase(token, "sol")
     ? "solana-chain"
@@ -115,8 +128,8 @@ export async function run({
         address: w.platform_identifier,
       }
     })
-
   if (hasTarget) {
+    const price = ""
     await sendNotification({
       author,
       platform,
@@ -125,7 +138,6 @@ export async function run({
       // amount,
       // note,
       // payCode,
-      text,
       message: {
         id: author.id,
         platform: MOCHI_PLATFORM_DISCORD,
@@ -134,6 +146,7 @@ export async function run({
         metadata: {
           amount: amount.toString(),
           token,
+          price: price,
           pay_link: paylink,
           request_id: payCode,
           wallet: walletNotification,
@@ -163,20 +176,21 @@ async function sendNotification({
   author,
   platform,
   target,
-  text,
   message,
 }: {
   author: User
   platform?: string
   target?: string
-  text: string
   message: KafkaNotificationMessage
 }) {
   if (!platform || !target) return
   // discord
   if (platform === "discord") {
-    const user = await author.client.users.fetch(target, { force: true })
-    await user?.send(text)
+    message.recipient_info = {
+      discord: author.id,
+    }
+
+    sendNotificationMsg(message)
   }
 
   // telegram

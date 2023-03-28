@@ -266,6 +266,7 @@ export type KafkaNotificationMessage = {
 export type KafkaNotificationMessageMetadata = {
   amount?: string
   token?: string
+  price?: string
   pay_link?: string
   request_id?: string
   wallet?: WalletNotification[]
