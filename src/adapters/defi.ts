@@ -424,9 +424,9 @@ class Defi extends Fetcher {
 
   async requestSupportToken(body: {
     user_discord_id: string
+    guild_id: string
     channel_id: string
     message_id: string
-    token_name: string
     token_address: string
     token_chain: string
   }) {
