@@ -1,6 +1,7 @@
 import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import { getGradientColor } from "./color"
 import "../chartjs/date-adapter"
+import { CanvasGradient } from "canvas"
 
 const chartCanvas = new ChartJSNodeCanvas({ width: 700, height: 450 })
 

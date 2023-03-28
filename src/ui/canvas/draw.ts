@@ -114,13 +114,13 @@ export async function drawCircleImage({
   if (!image && imageURL) {
     image = await loadImage(imageURL)
   }
-  ctx.drawImage(
-    image,
-    stats.x - stats.radius,
-    stats.y - stats.radius,
-    stats.radius * 2,
-    stats.radius * 2
-  )
+  // ctx.drawImage(
+  //   image,
+  //   stats.x - stats.radius,
+  //   stats.y - stats.radius,
+  //   stats.radius * 2,
+  //   stats.radius * 2
+  // )
   // --------------
   ctx.restore()
 }
