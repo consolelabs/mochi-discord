@@ -1150,6 +1150,21 @@ class Config extends Fetcher {
       }
     )
   }
+
+  public async vaultList(guildId: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/vault?guild_id=${guildId}`)
+  }
+
+  public async createVault(req: {
+    guild_id: string
+    name: string
+    threshold: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/vault`, {
+      method: "POST",
+      body: req,
+    })
+  }
 }
 
 const config = new Config()
