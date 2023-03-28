@@ -6,7 +6,7 @@ const run = async (i: CommandInteraction) => {
   const users = i.options.getString("users", true).split(SPACES_REGEX)
   const amount = i.options.getNumber("amount", true).toString()
   const token = i.options.getString("token", true)
-  const each = i.options.getBoolean("each") ? "each" : ""
+  const each = (i.options.getString("each") || "") === "each" ? "each" : ""
   const message = `"${i.options.getString("message") ?? ""}"`
 
   const args = ["tip", ...users, amount, token, each, message].filter((s) =>
