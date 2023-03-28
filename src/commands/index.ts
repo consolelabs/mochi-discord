@@ -87,6 +87,7 @@ import stats from "./stats"
 import game from "./game"
 import pay from "./pay"
 import convert from "./convert"
+import vault from "./vault"
 
 CacheManager.init({
   ttl: 0,
@@ -134,6 +135,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   activity: activity.slashCmd,
   inbox: inbox.slashCmd,
   convert: convert.slashCmd,
+  vault: vault.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
