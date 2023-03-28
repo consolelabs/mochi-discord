@@ -1,5 +1,5 @@
-import { commands } from "commands"
-import { Message, MessageOptions } from "discord.js"
+import { CommandInteraction, MessageOptions } from "discord.js"
+import { slashCommands } from "commands"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
 import { getSuccessEmbed } from "ui/discord/embed"
@@ -7,16 +7,19 @@ import { assertRunResult } from "../../../../tests/assertions/discord"
 import { RunResult } from "types/common"
 
 describe("run", () => {
-  let msg: Message
-  const tokenCmd = commands["token"]
+  let i: CommandInteraction
+  const tokenCmd = slashCommands["token"]
 
-  beforeEach(() => (msg = mockdc.cloneMessage()))
+  beforeEach(() => (i = mockdc.cloneCommandInteraction()))
 
   test("command run with enough args", async () => {
-    const token_name = "xsushi"
-    const token_address = "0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272"
-    const token_chain = "eth"
-    msg.content = `$token add ${token_name} ${token_address} ${token_chain}`
+    const tokenAddress = "0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272"
+    const chainName = "eth"
+    i.options.getSubcommand = jest.fn().mockReturnValue("add")
+    i.options.getString = jest
+      .fn()
+      .mockReturnValueOnce(tokenAddress)
+      .mockReturnValueOnce(chainName)
     const expected = {
       messageOptions: {
         embeds: [
@@ -30,15 +33,15 @@ describe("run", () => {
     }
     jest.spyOn(processor, "process").mockResolvedValueOnce(expected)
 
-    const output = await tokenCmd?.actions?.["add"].run(msg)
+    const output = await tokenCmd?.run(i)
 
-    expect(processor.process).toBeCalledWith(msg, {
-      user_discord_id: msg.author.id,
-      channel_id: msg.channelId,
-      message_id: msg.id,
-      token_name,
-      token_address,
-      token_chain,
+    expect(processor.process).toBeCalledWith(i, {
+      user_discord_id: i.user.id,
+      channel_id: i.channelId,
+      message_id: i.id,
+      guild_id: i.guildId,
+      token_address: tokenAddress,
+      token_chain: chainName,
     })
     assertRunResult(output as RunResult<MessageOptions>, expected)
   })

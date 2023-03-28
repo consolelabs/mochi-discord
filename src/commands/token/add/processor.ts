@@ -32,10 +32,10 @@ import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 export async function process(
   msg: OriginalMessage,
   args: {
+    guild_id: string
     user_discord_id: string
     channel_id: string
     message_id: string
-    token_name: string
     token_address: string
     token_chain: string
   }
@@ -63,7 +63,7 @@ export async function process(
     MOCHI_APP_SERVICE,
     MOCHI_ACTION_TOKEN
   )
-  kafkaMsg.activity.content.token_name = args.token_name
+  kafkaMsg.activity.content.address = args.token_address
   sendActivityMsg(kafkaMsg)
 
   return {
@@ -119,6 +119,7 @@ export async function handleTokenApprove(i: ButtonInteraction) {
   if (!ok) {
     throw new APIError({ msgOrInteraction: i, error, curl, description: log })
   }
+  await i.editReply({ components: [] })
 }
 
 export async function handleTokenReject(i: ButtonInteraction) {
@@ -134,6 +135,7 @@ export async function handleTokenReject(i: ButtonInteraction) {
   if (!ok) {
     throw new APIError({ msgOrInteraction: i, error, curl, description: log })
   }
+  await i.editReply({ components: [] })
 }
 
 export async function handleTokenAdd(

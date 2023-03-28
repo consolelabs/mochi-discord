@@ -8,19 +8,18 @@ import {
 } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 // text
-import add from "./add/text"
 import _default from "./default/text"
 import remove from "./remove/text"
 import info from "./info/text"
 import list from "./list/text"
 // slash
+import addSlash from "./add/slash"
 import defaultSlash from "./default/slash"
 import removeSlash from "./remove/slash"
 import infoSlash from "./info/slash"
 import listSlash from "./list/slash"
 
 const actions: Record<string, Command> = {
-  add,
   default: _default,
   info,
   list,
@@ -54,6 +53,7 @@ const textCmd: Command = {
 
 // slash
 const subCommands: Record<string, SlashCommand> = {
+  add: addSlash,
   default: defaultSlash,
   info: infoSlash,
   list: listSlash,
@@ -68,6 +68,7 @@ const slashCmd: SlashCommand = {
       .setName("token")
       .setDescription("Show all supported tokens by Mochi.")
 
+    data.addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>defaultSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>infoSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>listSlash.prepare())
