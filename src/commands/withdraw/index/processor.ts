@@ -1,10 +1,10 @@
-import defi from "adapters/defi"
 import { CommandInteraction, Message } from "discord.js"
-import { APIError, InternalError } from "errors"
+import { APIError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
-import { OffchainTipBotWithdrawRequest } from "types/defi"
+import { KafkaQueueActivityDataCommand } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { defaultActivityMsg, sendActivityMsg } from "utils/activity"
 import {
   emojis,
   equalIgnoreCase,
@@ -15,18 +15,16 @@ import {
   isValidAmount,
   msgColors,
 } from "utils/common"
-import { validateBalance } from "utils/defi"
-import { awaitMessage } from "utils/discord"
-import { isTokenSupported } from "utils/tip-bot"
-import * as processor from "./processor"
-import profile from "adapters/profile"
 import {
-  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
   MOCHI_ACTION_WITHDRAW,
   MOCHI_APP_SERVICE,
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
 } from "utils/constants"
-import { KafkaQueueActivityDataCommand } from "types/common"
-import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
+import { validateBalance } from "utils/defi"
+import { awaitMessage } from "utils/discord"
+import mochiPay from "../../../adapters/mochi-pay"
+import { getProfileIdByDiscord } from "../../../utils/profile"
+import * as processor from "./processor"
 
 export async function getRecipient(
   msg: Message | CommandInteraction,
@@ -74,29 +72,16 @@ export async function withdraw(
     amountArg,
     tokenArg
   )
-  const { token, amount, all } = payload
   const author = getAuthor(msgOrInteraction)
   // send dm
   const dm = await author.send({
     embeds: [
       composeEmbedMessage(null, {
         author: ["Withdraw message", getEmojiURL(emojis.WALLET)],
-        description: `Please enter your **${token}** destination address that you want to withdraw your tokens below.`,
+        description: `Please enter your **${payload.token}** destination address that you want to withdraw your tokens below.`,
       }),
     ],
   })
-
-  const tokenSupported = await isTokenSupported(tokenArg)
-  if (!tokenSupported) {
-    const pointingright = getEmoji("pointingright")
-    throw new InternalError({
-      msgOrInteraction,
-      title: "Unsupported token",
-      description: `**${token}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright} To add your token, run \`$token add\`.`,
-    })
-  }
-  // check balance
-  await validateBalance({ msgOrInteraction, token, amount, all })
 
   // redirect to dm if not in DM
   if (msgOrInteraction.guildId) {
@@ -111,34 +96,20 @@ export async function withdraw(
     })
   }
   // ask for recipient address
-  payload.recipientAddress = await processor.getRecipient(
+  payload.address = await processor.getRecipient(
     msgOrInteraction,
     dm,
-    token
+    payload.token
   )
-  if (!payload.recipientAddress) return
+  if (!payload.address) return
   // withdraw
-  const { data, ok, error, log, curl } = await defi.offchainDiscordWithdraw(
-    payload
-  )
-  if (!ok)
+  const { ok, error, log, curl } = await mochiPay.withdraw(payload)
+  if (!ok) {
     throw new APIError({ msgOrInteraction, curl, description: log, error })
-
-  const isTextCommand = msgOrInteraction instanceof Message
-  const userId = isTextCommand
-    ? msgOrInteraction.author.id
-    : msgOrInteraction.user.id
-  const dataProfile = await profile.getByDiscord(userId)
-  if (dataProfile.err) {
-    throw new APIError({
-      msgOrInteraction: msgOrInteraction,
-      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
-      curl: "",
-    })
   }
 
   const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
-    dataProfile.id,
+    payload.profileId,
     MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
     MOCHI_APP_SERVICE,
     MOCHI_ACTION_WITHDRAW
@@ -147,14 +118,11 @@ export async function withdraw(
   kafkaMsg.activity.content.token = tokenArg
   sendActivityMsg(kafkaMsg)
 
-  const embed = composeWithdrawEmbed(payload, data)
+  const embed = composeWithdrawEmbed(payload)
   await author.send({ embeds: [embed] })
 }
 
-function composeWithdrawEmbed(
-  payload: OffchainTipBotWithdrawRequest,
-  data: Record<string, any>
-) {
+function composeWithdrawEmbed(payload: any) {
   const tokenEmoji = getEmoji(payload.token)
   return composeEmbedMessage(null, {
     author: ["Withdraw"],
@@ -164,19 +132,19 @@ function composeWithdrawEmbed(
   }).addFields(
     {
       name: "Destination address",
-      value: `\`${payload.recipientAddress}\``,
+      value: `\`${payload.address}\``,
       inline: false,
     },
     {
       name: "Withdrawal amount",
-      value: `**${data.amount}** ${tokenEmoji}`,
+      value: `**${payload.amount}** ${tokenEmoji}`,
       inline: true,
-    },
-    {
-      name: "Withdrawal Transaction ID",
-      value: `[${data.tx_hash}](${data.tx_url})`,
-      inline: false,
     }
+    // {
+    //   name: "Withdrawal Transaction ID",
+    //   value: `[${data.tx_hash}](${data.tx_url})`,
+    //   inline: false,
+    // }
   )
 }
 
@@ -184,9 +152,9 @@ export async function getWithdrawPayload(
   msgOrInteraction: Message | CommandInteraction,
   amountArg: string,
   token: string
-): Promise<OffchainTipBotWithdrawRequest> {
+) {
   const author = getAuthor(msgOrInteraction)
-  const guildId = msgOrInteraction.guildId ?? "DM"
+  const profileId = await getProfileIdByDiscord(author.id)
 
   const validAmount = isValidAmount({ arg: amountArg, exceptions: ["all"] })
   if (!validAmount) {
@@ -196,22 +164,17 @@ export async function getWithdrawPayload(
       error: "The amount is invalid. Please insert a natural number.",
     })
   }
-  const fullCommand =
-    msgOrInteraction instanceof Message
-      ? msgOrInteraction.content
-      : `${msgOrInteraction.commandName} ${amountArg} ${token}`
+
+  let amount = parseFloat(amountArg)
+  const all = equalIgnoreCase(amountArg, "all")
+  // validate balance
+  const { balance } = await validateBalance({ msgOrInteraction, token, amount })
+  if (all) amount = balance
 
   return {
-    recipient: author.id,
-    recipientAddress: "",
-    guildId,
-    channelId: msgOrInteraction.channelId,
-    amount: parseFloat(amountArg) || 0,
+    address: "",
+    profileId,
+    amount: amount.toString(),
     token: token.toUpperCase(),
-    each: false,
-    all: equalIgnoreCase(amountArg, "all"),
-    transferType: "withdraw",
-    duration: 0,
-    fullCommand,
   }
 }
