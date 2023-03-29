@@ -161,7 +161,6 @@ export async function run({
     const price = parseFloat(priceNumber.toString()).toFixed(3)
 
     await sendNotification({
-      author,
       platform,
       target,
       // token,
@@ -203,12 +202,10 @@ export async function run({
 
 // DO NOT DELETE: use this after mochi-notification support payme usecase
 async function sendNotification({
-  author,
   platform,
   target,
   message,
 }: {
-  author: User
   platform?: string
   target?: string
   message: KafkaNotificationMessage
@@ -217,7 +214,7 @@ async function sendNotification({
   // discord
   if (platform === "discord") {
     message.recipient_info = {
-      discord: author.id,
+      discord: target,
     }
 
     sendNotificationMsg(message)

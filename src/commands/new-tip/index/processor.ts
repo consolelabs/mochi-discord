@@ -203,23 +203,28 @@ export async function tip(
       MOCHI_PAY_SERVICE,
       MOCHI_ACTION_TIP
     )
+    const amountEveryRecipient =
+      payload.originalAmount / payload.recipients.length
     kafkaMsg.activity.content.username =
       recipientUsername?.user.username.toString()
-    kafkaMsg.activity.content.amount = payload.originalAmount.toString()
+    kafkaMsg.activity.content.amount = amountEveryRecipient.toString()
     kafkaMsg.activity.content.token = payload.token
     sendActivityMsg(kafkaMsg)
 
+    //get discord id
+    let recipientId = recipient.replace("<@", "")
+    recipientId = recipientId.replace(">", "")
     // send notification message
     const kafkaNotiMsg: KafkaNotificationMessage = {
       id: author.id,
       platform: MOCHI_PLATFORM_DISCORD,
       action: MOCHI_ACTION_TIP,
       metadata: {
-        amount: payload.originalAmount.toString(),
+        amount: amountEveryRecipient.toString(),
         token: payload.token,
       },
       recipient_info: {
-        discord: recipient,
+        discord: recipientId,
       },
     }
 
@@ -477,7 +482,7 @@ export async function executeTip(
   let description = `${userMention(
     payload.sender
   )} has sent ${recipientDescription} **${roundFloatNumber(
-    +payload.amount,
+    +payload.amount[0],
     4
   )} ${payload.token}** (\u2248 $${roundFloatNumber(
     payload.amount_in_usd ?? 0,
@@ -486,7 +491,7 @@ export async function executeTip(
   if (moniker) {
     const monikerVal = moniker as ResponseMonikerConfigData
     const amountMoniker = roundFloatNumber(
-      payload.amount /
+      payload.amount[0] /
         (payload.recipients.length * (monikerVal?.moniker?.amount || 1)),
       4
     )
@@ -503,9 +508,7 @@ export async function executeTip(
     )}) ${payload.recipients.length > 1 ? "each" : ""}`
   }
   if (messageTip) {
-    description += ` with message\n\n${getEmoji(
-      "conversation"
-    )} **${messageTip}**`
+    description += ` with message\n\n${getEmoji("conversation")} ${messageTip}`
   }
   const embed = composeEmbedMessage(null, {
     thumbnail: thumbnails.TIP,
