@@ -508,7 +508,9 @@ export async function executeTip(
     )}) ${payload.recipients.length > 1 ? "each" : ""}`
   }
   if (messageTip) {
-    description += ` with message\n\n${getEmoji("conversation")} ${messageTip}`
+    description += ` with message\n\n${getEmoji(
+      "conversation"
+    )} **${messageTip}**`
   }
   const embed = composeEmbedMessage(null, {
     thumbnail: thumbnails.TIP,
