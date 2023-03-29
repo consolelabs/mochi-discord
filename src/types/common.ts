@@ -2,6 +2,7 @@ import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandGroupBuilder,
+  SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders"
 import {
   ButtonInteraction,
@@ -111,6 +112,7 @@ export type SlashCommand = {
     | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
     | SlashCommandSubcommandBuilder
     | SlashCommandSubcommandGroupBuilder
+    | SlashCommandSubcommandsOnlyBuilder
   run: (
     interaction: CommandInteraction
   ) => Promise<CommandResponse<CommandInteraction>>
