@@ -10,6 +10,7 @@ import {
   ResponseGetUserBalancesResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
+import { Pagination } from "types/common"
 import {
   Coin,
   CoinComparisionData,
@@ -28,11 +29,20 @@ import {
 import { Fetcher } from "./fetcher"
 
 class Defi extends Fetcher {
-  public async getSupportedTokens(): Promise<Token[]> {
-    const resp = await fetch(`${API_BASE_URL}/defi/tokens`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    })
+  public async getSupportedTokens(
+    page = 0,
+    size = 0
+  ): Promise<{
+    data: Token[]
+    metadata: Pagination
+  }> {
+    const resp = await fetch(
+      `${API_BASE_URL}/defi/tokens?page=${page}&size=${size}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
     if (resp.status !== 200) {
       throw new Error("Error while fetching supported tokens data")
     }
@@ -422,9 +432,9 @@ class Defi extends Fetcher {
     )
   }
 
-  async getUserSupportTokens(status: string, page: number, size = 15) {
+  async getUserSupportTokens(page: number, size = 0) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/defi/token-support?status=${status}&page=${page}&size=${size}`
+      `${API_BASE_URL}/defi/tokens?page=${page}&size=${size}`
     )
   }
 

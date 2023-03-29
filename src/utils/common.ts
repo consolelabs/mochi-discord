@@ -331,6 +331,8 @@ export const thumbnails: Record<string, string> = {
     "https://cdn.discordapp.com/attachments/895993366960017491/933427920817492028/loading.gif",
   CUSTOM_TOKEN:
     "https://cdn.discordapp.com/emojis/1058304290927685682.webp?size=240&quality=lossless",
+  TOKEN_ADD:
+    "https://cdn.discordapp.com/emojis/1090477926434218004.webp?size=240&quality=lossless",
 }
 
 export function isInteraction(
