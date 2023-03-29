@@ -33,6 +33,7 @@ import { getToken, isTokenSupported, parseMonikerinCmd } from "utils/tip-bot"
 import { sendNotificationMsg } from "utils/kafka"
 import { KafkaNotificationMessage } from "types/common"
 import { MOCHI_ACTION_TIP } from "utils/constants"
+import { convertToUsdValue } from "utils/convert"
 
 function parseTipParameters(args: string[]) {
   const each = args[args.length - 1].toLowerCase() === "each"
@@ -287,6 +288,10 @@ export async function execute(
 
   // send msg to mochi-notification
   for (const recipient of payload.recipients) {
+    const price = await convertToUsdValue(
+      payload.originalAmount.toString(),
+      payload.token
+    )
     const kafkaMsg: KafkaNotificationMessage = {
       id: payload.sender,
       platform: payload.from.platform,
@@ -295,6 +300,7 @@ export async function execute(
       metadata: {
         amount: payload.originalAmount.toString(),
         token: payload.token,
+        price: price,
         pay_link: `https://mochi.gg/pay/${res.data.code}`,
       },
       recipient_info: {

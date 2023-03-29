@@ -737,6 +737,7 @@ export interface ModelUpvoteStreakTier {
 }
 
 export interface ModelUser {
+  discriminator?: string;
   guild_users?: ModelGuildUser[];
   id?: string;
   nr_of_join?: number;
@@ -779,8 +780,10 @@ export interface ModelUserTokenSupportRequest {
   id?: number;
   message_id?: string;
   status?: string;
+  symbol?: string;
   token_address?: string;
   token_chain_id?: number;
+  token_name?: string;
   updated_at?: string;
   user_discord_id?: string;
 }
@@ -1603,10 +1606,6 @@ export interface ResponseDiscordGuildRole {
   permissions?: string;
   position?: number;
   unicode_emoji?: string;
-}
-
-export interface ResponseDiscordGuildRoles {
-  data?: ResponseDiscordGuildRole[];
 }
 
 export interface ResponseDiscordUserTokenAlertResponse {
@@ -2604,6 +2603,7 @@ export interface ResponseUpdateVote {
 }
 
 export interface ResponseUser {
+  discriminator?: string;
   guild_users?: ResponseGetGuildUserResponse[];
   id?: string;
   nr_of_join?: number;
