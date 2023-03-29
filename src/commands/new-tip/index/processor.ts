@@ -212,10 +212,7 @@ export async function tip(
     sendActivityMsg(kafkaMsg)
 
     //get discord id
-    let recipientId = recipient.replace("<@", "")
-    if (recipientId.includes(">")) {
-      recipientId = recipientId.replace(">", "")
-    }
+    const recipientId = recipient.replace(/\D/g, "")
     // send notification message
     const kafkaNotiMsg: KafkaNotificationMessage = {
       id: author.id,
