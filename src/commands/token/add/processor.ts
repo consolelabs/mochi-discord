@@ -1,30 +1,7 @@
-import {
-  ButtonInteraction,
-  CommandInteraction,
-  Message,
-  MessageEmbed,
-  MessageOptions,
-  MessageSelectOptionData,
-  SelectMenuInteraction,
-} from "discord.js"
-import { MultipleResult, RunResult } from "types/common"
-import {
-  InternalError,
-  GuildIdNotFoundError,
-  APIError,
-  OriginalMessage,
-} from "errors"
-import { Token } from "types/defi"
-import {
-  composeEmbedMessage,
-  getEmbedFooter,
-  getSuccessEmbed,
-} from "ui/discord/embed"
-import { InteractionHandler } from "handlers/discord/select-menu"
-import Config from "../../../adapters/config"
+import { ButtonInteraction, Message } from "discord.js"
+import { InternalError, APIError, OriginalMessage } from "errors"
+import { getSuccessEmbed } from "ui/discord/embed"
 import Defi from "../../../adapters/defi"
-import * as SelectMenuUtil from "ui/discord/select-menu"
-import * as ButtonUtil from "ui/discord/button"
 import profile from "adapters/profile"
 import {
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
@@ -75,42 +52,41 @@ export async function process(
     messageOptions: {
       embeds: [
         getSuccessEmbed({
-          title: `Your Token submission is under review!`,
-          description: `**Network** \`${args.token_chain.toUpperCase()}\`\n**Address** \`${
-            args.token_address
-          }\`\n\n**Your request is under review.** You will be notified the result through direct message!`,
+          title: "Your Token submission is successful",
+          description:
+            "Thank you for submitting your token request!\nWe will review and update you on the approval status as quickly as possible.",
         }),
       ],
     },
   }
 }
-const handler: InteractionHandler = async (msgOrInteraction) => {
-  const interaction = msgOrInteraction as SelectMenuInteraction
-  const { message } = <{ message: Message }>interaction
-  const symbol = interaction.values[0]
+// const handler: InteractionHandler = async (msgOrInteraction) => {
+//   const interaction = msgOrInteraction as SelectMenuInteraction
+//   const { message } = <{ message: Message }>interaction
+//   const symbol = interaction.values[0]
 
-  if (!message.guildId) {
-    throw new GuildIdNotFoundError({ message: msgOrInteraction })
-  }
+//   if (!message.guildId) {
+//     throw new GuildIdNotFoundError({ message: msgOrInteraction })
+//   }
 
-  await Config.updateTokenConfig({
-    guild_id: message.guildId,
-    symbol,
-    active: true,
-  })
+//   await Config.updateTokenConfig({
+//     guild_id: message.guildId,
+//     symbol,
+//     active: true,
+//   })
 
-  return {
-    messageOptions: {
-      embeds: [
-        getSuccessEmbed({
-          msg: message,
-          description: `Successfully added **${symbol.toUpperCase()}** to server's tokens list.`,
-        }),
-      ],
-      components: [],
-    },
-  }
-}
+//   return {
+//     messageOptions: {
+//       embeds: [
+//         getSuccessEmbed({
+//           msg: message,
+//           description: `Successfully added **${symbol.toUpperCase()}** to server's tokens list.`,
+//         }),
+//       ],
+//       components: [],
+//     },
+//   }
+// }
 
 export async function handleTokenApprove(i: ButtonInteraction) {
   await i.deferUpdate()
@@ -125,15 +101,7 @@ export async function handleTokenApprove(i: ButtonInteraction) {
   if (!ok) {
     throw new APIError({ msgOrInteraction: i, error, curl, description: log })
   }
-  const embed = i.message.embeds[0] as MessageEmbed
-  embed
-    .setFooter({
-      text: getEmbedFooter([
-        `Approved by ${i.member?.user.username}#${i.member?.user.discriminator}`,
-      ]),
-    })
-    .setTimestamp(new Date())
-  await i.editReply({ embeds: [embed], components: [] })
+  await i.editReply({ components: [] })
 }
 
 export async function handleTokenReject(i: ButtonInteraction) {
@@ -149,64 +117,56 @@ export async function handleTokenReject(i: ButtonInteraction) {
   if (!ok) {
     throw new APIError({ msgOrInteraction: i, error, curl, description: log })
   }
-  const embed = i.message.embeds[0] as MessageEmbed
-  embed
-    .setFooter({
-      text: getEmbedFooter([
-        `Rejected by ${i.member?.user.username}#${i.member?.user.discriminator}`,
-      ]),
-    })
-    .setTimestamp(new Date())
-  await i.editReply({ embeds: [embed], components: [] })
+  await i.editReply({ components: [] })
 }
 
-export async function handleTokenAdd(
-  msg: Message | CommandInteraction,
-  guildId: string,
-  authorId: string
-): Promise<
-  RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
-> {
-  const tokens = await Defi.getSupportedTokens()
-  const { data: gTokens, ok, curl, log } = await Config.getGuildTokens(guildId)
-  if (!ok) {
-    throw new APIError({ curl, description: log })
-  }
-  let options: MessageSelectOptionData[] = tokens
-    .filter((t) => !gTokens.map((gToken: Token) => gToken.id).includes(t.id))
-    .map((token) => ({
-      label: `${token.name} (${token.symbol})`,
-      value: token.symbol,
-    }))
+// export async function handleTokenAdd(
+//   msg: Message | CommandInteraction,
+//   guildId: string,
+//   authorId: string
+// ): Promise<
+//   RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
+// > {
+//   const tokens = await Defi.getSupportedTokens()
+//   const { data: gTokens, ok, curl, log } = await Config.getGuildTokens(guildId)
+//   if (!ok) {
+//     throw new APIError({ curl, description: log })
+//   }
+//   let options: MessageSelectOptionData[] = tokens
+//     .filter((t) => !gTokens.map((gToken: Token) => gToken.id).includes(t.id))
+//     .map((token) => ({
+//       label: `${token.name} (${token.symbol})`,
+//       value: token.symbol,
+//     }))
 
-  if (!options.length)
-    throw new InternalError({
-      msgOrInteraction: msg,
-      description: "Your server already had all supported tokens.",
-    })
-  if (options.length > 25) {
-    options = options.slice(0, 25)
-  }
+//   if (!options.length)
+//     throw new InternalError({
+//       msgOrInteraction: msg,
+//       description: "Your server already had all supported tokens.",
+//     })
+//   if (options.length > 25) {
+//     options = options.slice(0, 25)
+//   }
 
-  const selectionRow = SelectMenuUtil.composeDiscordSelectionRow({
-    customId: "guild_tokens_selection",
-    placeholder: "Make a selection",
-    options,
-  })
+//   const selectionRow = SelectMenuUtil.composeDiscordSelectionRow({
+//     customId: "guild_tokens_selection",
+//     placeholder: "Make a selection",
+//     options,
+//   })
 
-  return {
-    messageOptions: {
-      embeds: [
-        composeEmbedMessage(null, {
-          title: "Need action",
-          description:
-            "Select to add one of the following tokens to your server.",
-        }),
-      ],
-      components: [selectionRow, ButtonUtil.composeDiscordExitButton(authorId)],
-    },
-    interactionOptions: {
-      handler,
-    },
-  }
-}
+//   return {
+//     messageOptions: {
+//       embeds: [
+//         composeEmbedMessage(null, {
+//           title: "Need action",
+//           description:
+//             "Select to add one of the following tokens to your server.",
+//         }),
+//       ],
+//       components: [selectionRow, ButtonUtil.composeDiscordExitButton(authorId)],
+//     },
+//     interactionOptions: {
+//       handler,
+//     },
+//   }
+// }

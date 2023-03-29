@@ -1,3 +1,4 @@
+import { Token } from "types/defi"
 import defi from "adapters/defi"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -22,7 +23,7 @@ export async function handleTokenList(page = 0, size = 15) {
     curl,
     error,
     log,
-  } = await defi.getUserSupportTokens(RequestStatus.APPROVED, page, size)
+  } = await defi.getUserSupportTokens(page, size)
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
@@ -41,11 +42,9 @@ export async function handleTokenList(page = 0, size = 15) {
   const total = metadata?.total ?? 1
   const totalPages = Math.ceil(total / size)
   const description = data
-    .map((token: any, idx: number) => {
-      const { token_name, symbol } = token
-      const tokenName = token_name ? token_name : "Unknown"
-      const tokenSymbol = symbol ? symbol : "UNKNOWN"
-      return `${idx + 1} . ${tokenName} \`${tokenSymbol}\``
+    .map((token: Token, idx: number) => {
+      const { name, symbol } = token
+      return `${idx + 1} . ${name} \`${symbol}\``
     })
     .join("\n")
   const embed = composeEmbedMessage(null, {
