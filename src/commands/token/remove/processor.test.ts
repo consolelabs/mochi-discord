@@ -1,13 +1,11 @@
 import * as processor from "./processor"
 import Config from "adapters/config"
-import Defi from "adapters/defi"
 import { APIError } from "errors"
 import * as SelectMenuUtil from "ui/discord/select-menu"
 import * as ButtonUtil from "ui/discord/button"
 import { PREFIX } from "utils/constants"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
-jest.mock("adapters/defi")
 jest.mock("adapters/config")
 jest.mock("ui/discord/select-menu")
 jest.mock("ui/discord/button")
@@ -23,7 +21,7 @@ describe("handleTokenRemove", () => {
       log: "",
     }
     const { curl, log } = getGuildTokensRes
-    Defi.getSupportedTokens = jest.fn().mockResolvedValueOnce([])
+    // Defi.getSupportedTokens = jest.fn().mockResolvedValueOnce([])
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     await expect(
       processor.handleTokenRemove("guildId", "authorId")
