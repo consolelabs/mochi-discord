@@ -217,7 +217,7 @@ async function sendNotification({
   // discord
   if (platform === "discord") {
     message.recipient_info = {
-      discord: author.id,
+      discord: target,
     }
 
     sendNotificationMsg(message)
