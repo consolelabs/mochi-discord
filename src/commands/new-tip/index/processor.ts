@@ -213,7 +213,9 @@ export async function tip(
 
     //get discord id
     let recipientId = recipient.replace("<@", "")
-    recipientId = recipientId.replace(">", "")
+    if (recipientId.includes(">")) {
+      recipientId = recipientId.replace(">", "")
+    }
     // send notification message
     const kafkaNotiMsg: KafkaNotificationMessage = {
       id: author.id,
@@ -507,6 +509,7 @@ export async function executeTip(
       4
     )}) ${payload.recipients.length > 1 ? "each" : ""}`
   }
+
   if (messageTip) {
     description += ` with message\n\n${getEmoji(
       "conversation"
