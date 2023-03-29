@@ -23,7 +23,6 @@ import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
 import config from "../adapters/config"
 import { logger } from "../logger"
-import usageTracker from "logger/usage-tracker"
 import { isAcceptableCmdToHelp } from "../utils/commands"
 
 // commands
@@ -472,6 +471,4 @@ export async function handlePrefixedCommand(message: Message) {
     action,
     isSpecificHelpCommand ?? false
   )
-
-  usageTracker.log(message)
 }
