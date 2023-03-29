@@ -479,7 +479,11 @@ export async function executeTip(
     }`
   }
   const amountRecipient = payload.amount[0]
-  const price = await convertToUsdValue(amountRecipient, payload.token)
+  let price = await convertToUsdValue(amountRecipient, payload.token)
+  if (payload.token == "ICY") {
+    const priceIcy = amountRecipient * 1.5
+    price = priceIcy.toString()
+  }
   let description = `${userMention(
     payload.sender
   )} has sent ${recipientDescription} **${roundFloatNumber(
