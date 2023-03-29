@@ -43,6 +43,21 @@ class MochiPay extends Fetcher {
       }`
     )
   }
+
+  public async withdraw(body: {
+    profileId: string
+    token: string
+    amount: string
+    address: string
+  }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/withdraw`,
+      {
+        method: "POST",
+        body,
+      }
+    )
+  }
 }
 
 export default new MochiPay()
