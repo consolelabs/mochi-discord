@@ -11,7 +11,6 @@ import { logger } from "logger"
 import TwitterStream from "listeners/twitter"
 import Paintswap from "listeners/paintswap"
 import Opensea from "listeners/opensea"
-import UsageTrackingLogger from "logger/usage-tracker"
 
 export let IS_READY = false
 
@@ -23,7 +22,6 @@ const event: DiscordEvent<"ready"> = {
       if (!client.user) return
       logger.info(`Bot [${client.user.username}] is ready`)
       ChannelLogger.ready(client)
-      UsageTrackingLogger.ready(client)
       InteractionManager.client = client
       // get gas price and show in presence message every 15s
       const chains = ["eth", "ftm", "bsc", "matic"]
