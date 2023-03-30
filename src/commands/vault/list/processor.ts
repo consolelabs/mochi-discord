@@ -43,7 +43,7 @@ export async function runVaultList({
 
   description += `\n${getEmoji(
     "POINTINGRIGHT"
-  )} View detail of the vault \`$vault <name>\``
+  )} View detail of the vault \`/vault <name>\``
 
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("MOCHI_CIRCLE")} Vault List`)
@@ -52,7 +52,7 @@ export async function runVaultList({
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
     .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1085876941011304538/1087602219605573652/mail.png"
+      "https://cdn.discordapp.com/attachments/1090195482506174474/1090905984299442246/image.png"
     )
 
   return { messageOptions: { embeds: [embed] } }
