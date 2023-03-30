@@ -21,7 +21,7 @@ import {
 } from "utils/commands"
 import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { HELP } from "utils/constants"
-import config from "../adapters/config"
+import Config from "../adapters/config"
 import { logger } from "../logger"
 import { isAcceptableCmdToHelp } from "../utils/commands"
 
@@ -87,6 +87,7 @@ import game from "./game"
 import pay from "./pay"
 import convert from "./convert"
 import vault from "./vault"
+import config from "./config"
 
 CacheManager.init({
   ttl: 0,
@@ -135,6 +136,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   inbox: inbox.slashCmd,
   convert: convert.slashCmd,
   vault: vault.slashCmd,
+  config: config.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -437,7 +439,7 @@ export async function handlePrefixedCommand(message: Message) {
 
   // handle default commands
   await preauthorizeCommand(message, commandObject)
-  await config.checkGuildCommandScopes(message, commandObject)
+  await Config.checkGuildCommandScopes(message, commandObject)
 
   const actions = getAllAliases(commandObject.actions)
   const actionObject = actions[action]
