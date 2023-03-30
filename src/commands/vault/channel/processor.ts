@@ -6,7 +6,7 @@ import { APIError } from "errors"
 import { getEmoji, hasAdministrator, msgColors } from "utils/common"
 import { getErrorEmbed } from "ui/discord/embed"
 
-export async function runCreateVault({
+export async function runCreateChannel({
   i,
   guildId,
 }: {
@@ -30,34 +30,37 @@ export async function runCreateVault({
     }
   }
 
-  const { data, ok, curl, error, log } = await config.createVault({
+  const channel = i.options.getChannel("channel")
+  if (!channel) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            description: "Invalid channel. Please choose another one!",
+          }),
+        ],
+      },
+    }
+  }
+
+  const { ok, curl, error, log } = await config.createVaultConfigChannel({
     guild_id: guildId,
-    name: i.options.getString("name", true),
-    threshold: i.options.getString("threshold", true),
+    channel_id: channel.id,
   })
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
 
-  const description = `**Wallet Address**\n\n\`0x140dd183e18ba39bd9BE82286ea2d96fdC48117A\`\n\n**Vault Threshold** \`${
-    data.threshold
-  }%\`\n\n${getEmoji(
-    "POINTINGRIGHT"
-  )} See all vaults \`/vault list\`\n${getEmoji(
-    "POINTINGRIGHT"
-  )} See detail a vault \`/vault <name>\``
-
   const embed = new MessageEmbed()
     .setTitle(
-      `${getEmoji("APPROVE_VAULT")}**${data.name} vault successflly created**`
+      `${getEmoji("APPROVE_VAULT")} Vault log successfully created${getEmoji(
+        "BLANK"
+      ).repeat(5)}`
     )
-    .setDescription(description)
-    .setColor(msgColors.MOCHI)
+    .setDescription(`All the requests will be posted in the <#${channel.id}>`)
+    .setColor(msgColors.GREEN)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
-    .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1090195482506174474/1090905984299442246/image.png"
-    )
 
   return { messageOptions: { embeds: [embed] } }
 }

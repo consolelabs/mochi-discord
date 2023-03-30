@@ -1165,6 +1165,37 @@ class Config extends Fetcher {
       body: req,
     })
   }
+
+  public async createVaultConfigChannel(req: {
+    guild_id: string
+    channel_id: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/vault/config/channel`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  public async createVaultConfigThreshold(req: {
+    guild_id: string
+    name: string
+    threshold: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/vault/config/threshold`, {
+      method: "PUT",
+      body: req,
+    })
+  }
+
+  public async getVaultConfigThreshold(guildId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/vault/config/channel?guild_id=${guildId}`
+    )
+  }
+
+  public async getVaultInfo() {
+    return await this.jsonFetch(`${API_BASE_URL}/vault/info`)
+  }
 }
 
 const config = new Config()
