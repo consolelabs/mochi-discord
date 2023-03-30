@@ -52,6 +52,7 @@ import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import * as processor from "./processor"
 import { validateBalance } from "../../../utils/defi"
+import { convertToUsdValue } from "../../../utils/convert"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -455,7 +456,6 @@ export async function executeTip(
       description: `[transfer] failed with status ${status}`,
     })
   }
-
   // const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
   // const users = recipientIds.map((id) => userMention(id)).join(", ")
   const users = payload.recipients.join(", ")
@@ -478,15 +478,20 @@ export async function executeTip(
             .join(", ")}`
     }`
   }
+  const amountRecipient = payload.amount[0]
+  let price = await convertToUsdValue(amountRecipient, payload.token)
+  if (payload.token == "ICY") {
+    const priceIcy = amountRecipient * 1.5
+    price = priceIcy.toString()
+  }
   let description = `${userMention(
     payload.sender
   )} has sent ${recipientDescription} **${roundFloatNumber(
     +payload.amount[0],
     4
-  )} ${payload.token}** (\u2248 $${roundFloatNumber(
-    payload.amount_in_usd ?? 0,
-    4
-  )}) ${payload.recipients.length > 1 ? "each" : ""}`
+  )} ${payload.token}** (\u2248 $${price}) ${
+    payload.recipients.length > 1 ? "each" : ""
+  }`
   if (moniker) {
     const monikerVal = moniker as ResponseMonikerConfigData
     const amountMoniker = roundFloatNumber(
