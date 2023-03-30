@@ -12,11 +12,8 @@ const command: SlashCommand = {
     return new SlashCommandSubcommandBuilder()
       .setName("channel")
       .setDescription("Set channel log for vault")
-      .addStringOption((option) =>
-        option
-          .setName("channel")
-          .setDescription("channel to create a vault event log")
-          .setRequired(true)
+      .addChannelOption((option) =>
+        option.setName("channel").setDescription("Select a channel")
       )
   },
   run: async function (interaction: CommandInteraction) {

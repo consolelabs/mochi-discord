@@ -30,12 +30,8 @@ export async function runCreateChannel({
     }
   }
 
-  const channelArg = i.options.getString("channel")
-  if (
-    !channelArg ||
-    !channelArg.startsWith("<#") ||
-    !channelArg.endsWith(">")
-  ) {
+  const channel = i.options.getChannel("channel")
+  if (!channel) {
     return {
       messageOptions: {
         embeds: [
@@ -47,11 +43,9 @@ export async function runCreateChannel({
     }
   }
 
-  const vaultLogChannel = channelArg.substring(2, channelArg.length - 1)
-
   const { ok, curl, error, log } = await config.createVaultConfigChannel({
     guild_id: guildId,
-    channel_id: vaultLogChannel,
+    channel_id: channel.id,
   })
   if (!ok) {
     throw new APIError({ curl, error, description: log })
@@ -63,9 +57,7 @@ export async function runCreateChannel({
         "BLANK"
       ).repeat(5)}`
     )
-    .setDescription(
-      `All the requests will be posted in the <#${vaultLogChannel}>`
-    )
+    .setDescription(`All the requests will be posted in the <#${channel.id}>`)
     .setColor(msgColors.GREEN)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
