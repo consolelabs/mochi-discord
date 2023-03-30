@@ -6,7 +6,7 @@ import { APIError } from "errors"
 import { getEmoji, hasAdministrator, msgColors } from "utils/common"
 import { getErrorEmbed } from "ui/discord/embed"
 
-export async function runCreateVault({
+export async function runCreateThreshold({
   i,
   guildId,
 }: {
@@ -30,33 +30,35 @@ export async function runCreateVault({
     }
   }
 
-  const { data, ok, curl, error, log } = await config.createVault({
-    guild_id: guildId,
-    name: i.options.getString("name", true),
-    threshold: i.options.getString("threshold", true),
-  })
+  const { data, ok, curl, error, log } =
+    await config.createVaultConfigThreshold({
+      guild_id: guildId,
+      name: i.options.getString("name", true),
+      threshold: i.options.getString("value", true),
+    })
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
 
-  const description = `**Wallet Address**\n\n\`0x140dd183e18ba39bd9BE82286ea2d96fdC48117A\`\n\n**Vault Threshold** \`${
+  const description = `**${
+    data.name
+  }** has been configured vault threshold of \`${
     data.threshold
-  }%\`\n\n${getEmoji(
+  }%\` for approval\n${getEmoji(
     "POINTINGRIGHT"
-  )} See all vaults \`/vault list\`\n${getEmoji(
-    "POINTINGRIGHT"
-  )} See detail a vault \`/vault <name>\``
-
+  )} Set or change vault threshold by run \`/vault config threshold\``
   const embed = new MessageEmbed()
     .setTitle(
-      `${getEmoji("APPROVE_VAULT")}**${data.name} vault successflly created**`
+      `${getEmoji(
+        "APPROVE_VAULT"
+      )} Vault threshold successfully changed${getEmoji("BLANK").repeat(5)}`
     )
     .setDescription(description)
-    .setColor(msgColors.MOCHI)
+    .setColor(msgColors.GREEN)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
     .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1090195482506174474/1090905984299442246/image.png"
+      "https://cdn.discordapp.com/attachments/1090195482506174474/1090906036464005240/image.png"
     )
 
   return { messageOptions: { embeds: [embed] } }
