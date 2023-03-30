@@ -1,6 +1,6 @@
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
-import { CommandInteraction, Message, User } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { APIError } from "errors"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -121,7 +121,6 @@ export async function run({
     const price = await convertToUsdValue(amount, token)
 
     await sendNotification({
-      author,
       platform,
       target,
       // token,
@@ -163,12 +162,10 @@ export async function run({
 
 // DO NOT DELETE: use this after mochi-notification support payme usecase
 async function sendNotification({
-  author,
   platform,
   target,
   message,
 }: {
-  author: User
   platform?: string
   target?: string
   message: KafkaNotificationMessage

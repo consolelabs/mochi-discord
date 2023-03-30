@@ -111,20 +111,27 @@ export async function renderBalances(
 ) {
   const profileId = await getProfileIdByDiscord(discordId)
   const balances = await getBalances(profileId, type, msg)
-  const fields: EmbedFieldData[] = []
+  // const fields: EmbedFieldData[] = []
   const blank = getEmoji("blank")
-  balances?.forEach((balance: any) => {
-    const { token, amount, quote_rate } = balance
-    const { name: tokenName, symbol, decimal } = token
-    const b = convertString(amount, decimal)
-    const tokenEmoji = getEmoji(symbol)
-    const tokenBalance = roundFloatNumber(b ?? 0, 4)
-    if (tokenBalance === 0) return
-    const tokenBalanceInUSD = roundFloatNumber(quote_rate ?? 0, 4)
+  let totalWorth = 0
+  const fields: EmbedFieldData[] = balances
+    ?.map((balance: any) => {
+      const { token, amount } = balance
+      const { name: tokenName, symbol, decimal, price } = token
+      const value = roundFloatNumber(convertString(amount, decimal) ?? 0, 4)
+      const usdWorth = roundFloatNumber(price * value, 4)
+      totalWorth += usdWorth
+      if (value === 0) return
 
-    const balanceInfo = `${tokenEmoji} ${tokenBalance} ${symbol} \`$${tokenBalanceInUSD}\` ${blank}`
-    fields.push({ name: tokenName, value: balanceInfo, inline: true })
-  })
+      return {
+        name: tokenName,
+        value: `${getEmoji(
+          symbol
+        )} ${value} ${symbol} \`$${usdWorth}\` ${blank}`,
+        inline: true,
+      }
+    })
+    .filter((f: EmbedFieldData | undefined) => Boolean(f))
 
   const props = balanceEmbedProps[type]
   if (!fields.length) {
@@ -140,13 +147,6 @@ export async function renderBalances(
     }
   }
 
-  const totalBalanceInUSD = balances.reduce(
-    (accumulator: number, balance: any) => {
-      return accumulator + (balance.quote_rate ?? 0)
-    },
-    0
-  )
-
   const embed = composeEmbedMessage(null, {
     author: [props.title, getEmojiURL(emojis.WALLET)],
     description: props.description,
@@ -155,7 +155,7 @@ export async function renderBalances(
   justifyEmbedFields(embed, 3)
   embed.addFields({
     name: `Estimated total (U.S dollar)`,
-    value: `${getEmoji("cash")} \`$${roundFloatNumber(totalBalanceInUSD, 4)}\``,
+    value: `${getEmoji("cash")} \`$${roundFloatNumber(totalWorth, 4)}\``,
   })
 
   return {
