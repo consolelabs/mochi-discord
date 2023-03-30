@@ -24,6 +24,7 @@ describe("balances", () => {
             name: "Panswap Cake",
             symbol: "CAKE",
             decimal: 18,
+            price: 3,
           },
         },
         {
@@ -32,6 +33,7 @@ describe("balances", () => {
             name: "Fantom",
             symbol: "FTM",
             decimal: 18,
+            price: 0.5,
           },
         },
       ],
@@ -43,19 +45,19 @@ describe("balances", () => {
       .addFields({
         name: "Panswap Cake",
         value:
-          "<:cake:972205674371117126> 10 CAKE `$0` <:blank:967287119448014868>",
+          "<:cake:972205674371117126> 10 CAKE `$30` <:blank:967287119448014868>",
         inline: true,
       })
       .addFields({
         name: "Fantom",
         value:
-          "<:ftm:967285237686108212> 5 FTM `$0` <:blank:967287119448014868>",
+          "<:ftm:967285237686108212> 5 FTM `$2.5` <:blank:967287119448014868>",
         inline: true,
       })
     justifyEmbedFields(expected, 3)
     expected.addFields({
       name: `Estimated total (U.S dollar)`,
-      value: "<:cash:933341119998210058> `$0`",
+      value: "<:cash:933341119998210058> `$32.5`",
     })
     const output = await balCmd.run(i)
     expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)
