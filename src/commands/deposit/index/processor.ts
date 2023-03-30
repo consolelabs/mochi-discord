@@ -1,4 +1,3 @@
-import defi from "adapters/defi"
 import { Message } from "discord.js"
 import {
   APIError,
@@ -10,22 +9,18 @@ import fs from "fs"
 import * as qrcode from "qrcode"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
-import {
-  emojis,
-  equalIgnoreCase,
-  getAuthor,
-  getEmoji,
-  getEmojiURL,
-} from "utils/common"
-import { isTokenSupported } from "utils/tip-bot"
-import * as processor from "./processor"
+import { emojis, getAuthor, getEmoji, getEmojiURL } from "utils/common"
 import { MOCHI_SERVER_INVITE_URL } from "utils/constants"
+import { isTokenSupported } from "utils/tip-bot"
+import mochiPay from "../../../adapters/mochi-pay"
+import { getProfileIdByDiscord } from "../../../utils/profile"
+import * as processor from "./processor"
 
 export async function deposit(
   msgOrInteraction: OriginalMessage,
-  tokenSymbol: string
+  token: string
 ) {
-  const symbol = tokenSymbol.toUpperCase()
+  const symbol = token.toUpperCase()
   const author = getAuthor(msgOrInteraction)
   const isDm = msgOrInteraction.channel?.type === "DM"
   const validToken = await isTokenSupported(symbol)
@@ -38,35 +33,20 @@ export async function deposit(
     })
   }
 
-  const { ok, curl, log, data, error } =
-    await defi.offchainTipBotAssignContract({
-      user_id: author.id,
-      token_symbol: tokenSymbol,
-    })
-  if (equalIgnoreCase(error ?? "", "contract not found or already assigned")) {
-    const description = `${getEmoji(
-      "nekosad"
-    )} Unfortunately, no **${symbol}** contract is available at this time. Please try again later`
-    throw new InternalError({
-      msgOrInteraction,
-      description,
-    })
-  }
-
+  const profileId = await getProfileIdByDiscord(author.id)
+  const { ok, curl, log, data } = await mochiPay.deposit({ profileId, token })
   if (!ok) throw new APIError({ msgOrInteraction, description: log, curl })
 
   // create QR code image
   const qrFileName = `qr_${author.id}.png`
-  await qrcode
-    .toFile(qrFileName, data.contract.contract_address)
-    .catch(() => null)
+  await qrcode.toFile(qrFileName, data.contract.address).catch(() => null)
   const dmEmbed = composeEmbedMessage(null, {
     author: [`Deposit ${symbol}`, getEmojiURL(emojis.WALLET)],
     thumbnail: `attachment://${qrFileName}`,
     description: `Below is the deposit address linked to your Discord account. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n*Please send only **${symbol}** to this address.*\n\n${getEmoji(
       "clock"
     )} Your deposit address is **only valid for 3 hours**.\n\n**${symbol} Deposit Address**\n\`\`\`${
-      data.contract.contract_address
+      data.contract.address
     }\`\`\``,
   })
   //

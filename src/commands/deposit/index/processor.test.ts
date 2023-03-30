@@ -1,15 +1,14 @@
-import defi from "adapters/defi"
 import { MessageOptions } from "discord.js"
-import { InternalError } from "errors"
 import { RunResult } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL } from "utils/common"
 import * as tiputils from "utils/tip-bot"
 import { assertRunResult } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
+import mochiPay from "../../../adapters/mochi-pay"
 import * as processor from "./processor"
-jest.mock("adapters/defi")
+jest.mock("adapters/mochi-pay")
 
 describe("deposit", () => {
   let msg = mockdc.cloneMessage()
@@ -37,7 +36,7 @@ describe("deposit", () => {
       },
     }
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
+    mochiPay.deposit = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.deposit(msg, "ftm")
     const expected = {
       messageOptions: {
@@ -67,7 +66,7 @@ describe("deposit", () => {
       },
     }
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
+    mochiPay.deposit = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.deposit(interaction, "ftm")
     const expected = {
       messageOptions: {
@@ -97,7 +96,7 @@ describe("deposit", () => {
       },
     }
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
+    mochiPay.deposit = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.deposit(mockDMMsg, "ftm")
     expect(output).toBeFalsy()
   })
@@ -117,30 +116,8 @@ describe("deposit", () => {
       },
     }
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
+    mochiPay.deposit = jest.fn().mockResolvedValueOnce(res)
     const output = await processor.deposit(mockDMCommandInteraction, "ftm")
     expect(output).toBeFalsy()
-  })
-
-  test("contract not found or already assigned error", async () => {
-    const res = {
-      ok: false,
-      data: null,
-      error: "contract not found or already assigned",
-      log: "",
-      curl: "",
-      status: 404,
-    }
-    jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    defi.offchainTipBotAssignContract = jest.fn().mockResolvedValueOnce(res)
-    const description = `${getEmoji(
-      "nekosad"
-    )} Unfortunately, no **FTM** contract is available at this time. Please try again later`
-    await expect(processor.deposit(msg, "ftm")).rejects.toThrow(
-      new InternalError({
-        msgOrInteraction: msg,
-        description,
-      })
-    )
   })
 })
