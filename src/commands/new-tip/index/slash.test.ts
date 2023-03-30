@@ -16,6 +16,7 @@ describe("run", () => {
       .fn()
       .mockReturnValueOnce(recipient)
       .mockReturnValueOnce("cake")
+      .mockReturnValueOnce(null)
       .mockReturnValueOnce("hpny")
     i.options.getNumber = jest.fn().mockReturnValueOnce(1.5)
     jest.spyOn(processor, "tip").mockResolvedValueOnce(undefined)

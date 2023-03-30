@@ -123,14 +123,18 @@ const slashCmd: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("token")
-          .setDescription("symbol of token. Example: FTM")
+          .setDescription(
+            "symbol of token or moniker. e.g. token: ftm, eth - moniker: tea, cookie"
+          )
           .setRequired(true)
       )
-      .addBooleanOption((option) =>
+      .addStringOption((option) =>
         option
           .setName("each")
+          .addChoice("Same", "each")
+          .addChoice("Seperate", "seperate")
           .setDescription(
-            "true if amount is for each recipients, false if amount is divided equally"
+            "Same amount is for each recipient. Seperate amount is divided equally"
           )
       )
       .addStringOption((option) =>
