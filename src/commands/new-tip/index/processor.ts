@@ -499,6 +499,12 @@ export async function executeTip(
         (payload.recipients.length * (monikerVal?.moniker?.amount || 1)),
       4
     )
+    const amountToken = amountMoniker * (monikerVal?.moniker?.amount || 1)
+    let price = await convertToUsdValue(amountToken, payload.token)
+    if (payload.token == "ICY") {
+      const priceIcy = amountToken * 1.5
+      price = priceIcy.toString()
+    }
     description = `${userMention(
       payload.sender
     )} has sent ${recipientDescription} **${amountMoniker} ${
@@ -506,10 +512,9 @@ export async function executeTip(
     }** (= **${roundFloatNumber(
       amountMoniker * (monikerVal?.moniker?.amount || 1),
       4
-    )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${roundFloatNumber(
-      payload.amount_in_usd ?? 0,
-      4
-    )}) ${payload.recipients.length > 1 ? "each" : ""}`
+    )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${price}) ${
+      payload.recipients.length > 1 ? "each" : ""
+    }`
   }
   if (messageTip) {
     description += ` with message\n\n${getEmoji("conversation")} ${messageTip}`
