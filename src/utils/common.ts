@@ -299,6 +299,7 @@ export const emojis: { [key: string]: string } = {
   ACTIVITY_HEART: "1058304328370225162",
   ACTIVITY_CLOCK: "1080757110146605086",
   CLIPBOARD: "1085873013309833216",
+  NEW_CONFIRM: "1077631110047080478",
   ...tokenEmojis,
   ...numberEmojis,
   ...rarityEmojis,

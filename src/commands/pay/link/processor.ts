@@ -138,14 +138,22 @@ export async function run({
               : ""
           }`,
         })
-        // remove wallet selection
-        await (<Message>i.message).edit({ components: [] })
-        // reply with ephemeral
-        await i.editReply({
-          embeds: [embed],
-          files: [{ attachment: qrFileName }],
-          components: [],
-        })
+        const message = i.message as Message
+
+        // these steps don't depend on the others
+        await Promise.allSettled([
+          // remove wallet selection
+          message.edit({ components: [] }),
+          // react check to message
+          message.react(getEmoji("new_confirm")),
+          // reply with ephemeral
+          i.editReply({
+            embeds: [embed],
+            files: [{ attachment: qrFileName }],
+            components: [],
+          }),
+        ])
+
         // remove qr file
         fs.unlink(qrFileName, () => null)
       },
