@@ -1203,28 +1203,17 @@ class Config extends Fetcher {
     user_discord_id: string
     message: string
   }) {
-    // temp do this to get status code, this.jsonFetch is too complicated for me to edit
-    const res = await fetch(`${API_BASE_URL}/vault/treasurer/request`, {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+    return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/request`, {
       method: "POST",
-      body: JSON.stringify(req),
+      body: req,
     })
-    return res
   }
 
   public async addTreasurerToVault(req: { request_id: string }) {
-    const res = await fetch(`${API_BASE_URL}/vault/treasurer`, {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+    return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer`, {
       method: "POST",
-      body: JSON.stringify(req),
+      body: req,
     })
-    return res
   }
 }
 

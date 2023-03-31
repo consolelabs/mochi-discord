@@ -31,29 +31,32 @@ export async function runAddTreasurer({
   }
 
   const vaultName = i.options.getString("name") ?? ""
-  const res = await config.createAddTreasureRequest({
+  const {
+    data: dataAddTreasurerReq,
+    status: statusAddTreasurerReq,
+    curl: curlAddTreasurerReq,
+    log: logAddTreasurerReq,
+    originalError: originalErrorAddTreasurerReq,
+  } = await config.createAddTreasureRequest({
     guild_id: guildId,
     user_discord_id: user.id,
     vault_name: vaultName,
     message: i.options.getString("message") ?? "",
   })
-  const response = await res?.json()
 
-  if (res.status !== 200 && res.status !== 400) {
+  if (statusAddTreasurerReq !== 200 && statusAddTreasurerReq !== 400) {
     throw new APIError({
-      curl: response.curl,
-      error: response.error,
-      description: "create add tresurer request fail",
+      curl: curlAddTreasurerReq,
+      description: logAddTreasurerReq,
     })
   }
-  const data = response.data
 
-  if (res.status === 400) {
+  if (statusAddTreasurerReq === 400) {
     return {
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            description: data.error,
+            description: originalErrorAddTreasurerReq,
           }),
         ],
       },
@@ -78,24 +81,32 @@ export async function runAddTreasurer({
   //     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
   //     .setTimestamp(Date.now())
 
-  const resAddTreasurer = await config.addTreasurerToVault({
-    request_id: data.id,
+  const {
+    data: dataAddTreasurer,
+    status: statusAddTreasurer,
+    curl: curlAddTreasurer,
+    log: logAddTreasurer,
+    originalError: originalErrorAddTreasurer,
+  } = await config.addTreasurerToVault({
+    request_id: dataAddTreasurerReq?.id,
   })
-  const responseAddTreasurer = await resAddTreasurer?.json()
-  if (resAddTreasurer.status !== 200 && resAddTreasurer.status !== 400) {
+
+  console.log("check data ?")
+  console.log(dataAddTreasurer)
+  console.log(originalErrorAddTreasurer)
+  if (statusAddTreasurer !== 200 && statusAddTreasurer !== 400) {
     throw new APIError({
-      curl: responseAddTreasurer.curl,
-      error: responseAddTreasurer.error,
-      description: "add tresurer request",
+      curl: curlAddTreasurer,
+      description: logAddTreasurer,
     })
   }
-  const dataAddTreasurer = responseAddTreasurer.data
-  if (resAddTreasurer.status === 400) {
+
+  if (statusAddTreasurer === 400) {
     return {
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            description: dataAddTreasurer.error,
+            description: originalErrorAddTreasurer,
           }),
         ],
       },
