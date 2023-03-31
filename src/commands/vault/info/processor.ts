@@ -54,9 +54,11 @@ export async function runGetVaultInfo({
     hasAdministrator(member) === true ? "What can this bot do?" : "Vault Info"
 
   const logChannel =
-    dataConfigChannel.logChannel == null
+    dataConfigChannel == null
       ? "Not set"
-      : `<#${dataConfigChannel.logChannel}>`
+      : dataConfigChannel.channel_id == null
+      ? "Not set"
+      : `<#${dataConfigChannel.channel_id}>`
 
   const description = `${dataInfo.description}\n\n\`logchannel:\`${logChannel}\n\n${step}\n [Read instruction](${dataInfo.instruction_link}) for a complete guide`
   const embed = new MessageEmbed()

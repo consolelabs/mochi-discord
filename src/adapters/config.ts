@@ -1196,6 +1196,36 @@ class Config extends Fetcher {
   public async getVaultInfo() {
     return await this.jsonFetch(`${API_BASE_URL}/vault/info`)
   }
+
+  public async createAddTreasureRequest(req: {
+    guild_id: string
+    vault_name: string
+    user_discord_id: string
+    message: string
+  }) {
+    // temp do this to get status code, this.jsonFetch is too complicated for me to edit
+    const res = await fetch(`${API_BASE_URL}/vault/treasurer/request`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify(req),
+    })
+    return res
+  }
+
+  public async addTreasurerToVault(req: { request_id: string }) {
+    const res = await fetch(`${API_BASE_URL}/vault/treasurer`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify(req),
+    })
+    return res
+  }
 }
 
 const config = new Config()
