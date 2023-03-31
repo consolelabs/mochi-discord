@@ -183,6 +183,8 @@ export const emojis: { [key: string]: string } = {
   GOOD_MORNING: "967285238306840576",
   REVOKE: "967285238055174195",
   REPLY: "967285237983875122",
+  REPLY_2: "1093744001611468870",
+  REPLY_3: "1093744054312902656",
   PROFILE: "967285238394925086",
   CLAIM: "933340602106519552",
   DEFI: "933281365586227210",
@@ -210,6 +212,7 @@ export const emojis: { [key: string]: string } = {
   NFTS: "977508805011181638",
   QUESTION: "1008993149076635698",
   SWAP: "933340602223955998",
+  SWAP_ROUTE: "1090477921128431636",
   LIKE: "900370883594551348",
   PAWCOIN: "887275176113373194",
   EXP: "1016985999039016982",
@@ -282,6 +285,7 @@ export const emojis: { [key: string]: string } = {
   PLUS: "1078633897513992202",
   ARROWUP: "1058304264071561267",
   CLOCK: "1080757110146605086",
+  COIN1: "1058304286217490502",
   COIN2: "1058304288448852069",
   NFT2: "1080788646841557072",
   BIN: "1078633887292477450",
@@ -402,11 +406,15 @@ export function maskAddress(str: string, minLen?: number) {
   return str
 }
 
-export function getEmoji(key: string, animated?: boolean) {
+export function getEmoji(
+  key: string,
+  animated?: boolean,
+  fallback = ":jigsaw:"
+) {
   const emojiKey = traitTypeMapping[key.toUpperCase()] || key.toUpperCase()
   const emoji = emojis[emojiKey]
   if (!emoji) {
-    return ":jigsaw:"
+    return fallback
   }
 
   if (isNaN(+emoji)) {
