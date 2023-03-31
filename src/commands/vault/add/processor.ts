@@ -82,7 +82,6 @@ export async function runAddTreasurer({
   //     .setTimestamp(Date.now())
 
   const {
-    data: dataAddTreasurer,
     status: statusAddTreasurer,
     curl: curlAddTreasurer,
     log: logAddTreasurer,
@@ -91,9 +90,6 @@ export async function runAddTreasurer({
     request_id: dataAddTreasurerReq?.id,
   })
 
-  console.log("check data ?")
-  console.log(dataAddTreasurer)
-  console.log(originalErrorAddTreasurer)
   if (statusAddTreasurer !== 200 && statusAddTreasurer !== 400) {
     throw new APIError({
       curl: curlAddTreasurer,
