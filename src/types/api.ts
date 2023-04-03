@@ -1612,6 +1612,13 @@ export interface ResponseDiscordUserTokenAlertResponse {
   data?: ModelDiscordUserTokenAlert[];
 }
 
+export interface ResponseExtraFee {
+  chargeFeeBy?: string;
+  feeAmount?: string;
+  feeReceiver?: string;
+  isImBps?: boolean;
+}
+
 export interface ResponseGasTrackerResponse {
   chain?: string;
   est_fast_time?: string;
@@ -2212,6 +2219,12 @@ export interface ResponseInvitesAggregationResponse {
   data?: ResponseUserInvitesAggregation;
 }
 
+export interface ResponseKyberSwapRoutes {
+  code?: number;
+  data?: ResponseRouteSummaryData;
+  message?: string;
+}
+
 export interface ResponseLinkUserTelegramWithDiscordResponse {
   data?: ResponseLinkUserTelegramWithDiscordResponseData;
 }
@@ -2510,6 +2523,41 @@ export interface ResponseRoleReactionResponse {
   guild_id?: string;
   message_id?: string;
   role?: ResponseRole;
+}
+
+export interface ResponseRouteElement {
+  amountOut?: string;
+  exchange?: string;
+  extra?: any;
+  limitReturnAmount?: string;
+  pool?: string;
+  poolExtra?: any;
+  poolLength?: number;
+  poolType?: string;
+  swapAmount?: string;
+  tokenIn?: string;
+  tokenOut?: string;
+}
+
+export interface ResponseRouteSummary {
+  amountIn?: string;
+  amountInUsd?: string;
+  amountOut?: string;
+  amountOutUsd?: string;
+  extraFee?: ResponseExtraFee;
+  gas?: string;
+  gasPrice?: string;
+  gasUsd?: string;
+  route?: ResponseRouteElement[][];
+  tokenIn?: string;
+  tokenInMarketPriceAvailable?: boolean;
+  tokenOut?: string;
+  tokenOutMarketPriceAvailable?: boolean;
+}
+
+export interface ResponseRouteSummaryData {
+  routeSummary?: ResponseRouteSummary;
+  routerAddress?: string;
 }
 
 export interface ResponseSearchCoinResponse {
