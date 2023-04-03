@@ -1,18 +1,19 @@
 import { slashCommands } from "commands"
 import { CommandInteraction, MessageEmbed, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
-import { getEmoji } from "utils/common"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import * as processor from "./processor"
 import {
   assertDescription,
-  assertTitle,
+  assertAuthor,
 } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
+import { HOMEPAGE_URL, SLASH_PREFIX } from "utils/constants"
 jest.mock("adapters/defi")
 
 describe("run", () => {
   let i: CommandInteraction
-  const monikerCmd = slashCommands["monikers"]
+  const monikerCmd = slashCommands["moniker"]
 
   beforeEach(() => (i = mockdc.cloneCommandInteraction()))
 
@@ -20,8 +21,15 @@ describe("run", () => {
     i.options.getSubcommand = jest.fn().mockReturnValueOnce("remove")
     i.options.getString = jest.fn().mockReturnValueOnce("cafe")
     const expected = new MessageEmbed({
-      title: `${getEmoji("approve")} Successfully removed`,
-      description: `**cafe** is removed. To set the new one, run $moniker set <moniker> <amount_token> <token>. <a:bucket_cash:933020342035820604>`,
+      author: {
+        name: "Successfully removed",
+        iconURL: getEmojiURL(emojis.BIN),
+      },
+      description: `[\`cafe\`](${HOMEPAGE_URL}) is removed from server\n${getEmoji(
+        "pointingright"
+      )} Set up a new moniker configuration \`${SLASH_PREFIX}moniker set\`\n${getEmoji(
+        "pointingright"
+      )} See all moniker configurations \`${SLASH_PREFIX}moniker list\``,
     })
 
     jest.spyOn(processor, "handleRemoveMoniker").mockResolvedValueOnce({
@@ -32,7 +40,7 @@ describe("run", () => {
 
     const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
 
-    assertTitle(output, expected)
+    assertAuthor(output, expected)
     assertDescription(output, expected)
   })
 })
