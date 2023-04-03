@@ -15,6 +15,18 @@ import {
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
+async function help(msg: Message) {
+  return {
+    embeds: [
+      composeEmbedMessage(msg, {
+        description: "Set a new moniker configuration for your server.",
+        usage: `${PREFIX}moniker set <moniker> <amount_token> <token>`,
+        examples: `${PREFIX}moniker set cup of coffee 0.01 bnb`,
+      }),
+    ],
+  }
+}
+
 const command: Command = {
   id: "moniker_set",
   command: "set",
@@ -63,19 +75,9 @@ const command: Command = {
     kafkaMsg.activity.content.token_name = payload.token.toUpperCase()
     sendActivityMsg(kafkaMsg)
 
-    return await handleSetMoniker(payload)
+    return await handleSetMoniker(payload, msg)
   },
-  getHelpMessage: async (msg) => {
-    return {
-      embeds: [
-        composeEmbedMessage(msg, {
-          description: "Set a new moniker configuration for your server.",
-          usage: `${PREFIX}monikers set <moniker> <amount_token> <token>`,
-          examples: `${PREFIX}moniker set cup of coffee 0.01 bnb`,
-        }),
-      ],
-    }
-  },
+  getHelpMessage: help,
   canRunWithoutAction: true,
   minArguments: 5,
   colorType: "Server",

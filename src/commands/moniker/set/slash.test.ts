@@ -1,17 +1,18 @@
 import { slashCommands } from "commands"
 import { CommandInteraction, MessageEmbed, MessageOptions } from "discord.js"
 import { RunResult } from "types/common"
-import { getEmoji } from "utils/common"
 import * as processor from "./processor"
 import {
   assertDescription,
-  assertTitle,
+  assertAuthor,
 } from "../../../../tests/assertions/discord"
 import mockdc from "../../../../tests/mocks/discord"
+import { HOMEPAGE_URL, SLASH_PREFIX } from "utils/constants"
+import { emojis, getEmojiURL } from "utils/common"
 
 describe("run", () => {
   let i: CommandInteraction
-  const monikerCmd = slashCommands["monikers"]
+  const monikerCmd = slashCommands["moniker"]
 
   beforeEach(() => (i = mockdc.cloneCommandInteraction()))
 
@@ -23,8 +24,15 @@ describe("run", () => {
       .mockReturnValueOnce("ETH")
     i.options.getNumber = jest.fn().mockReturnValueOnce(0.01)
     const expected = new MessageEmbed({
-      title: `${getEmoji("approve")} Moniker successfully set`,
-      description: `1 **cafe** is set as 0.01 **ETH**. To tip your friend moniker, use $tip <@users> <amount> <moniker>. <a:bucket_cash:933020342035820604>`,
+      author: {
+        name: "Moniker successfully set",
+        iconURL: getEmojiURL(emojis.CHECK),
+      },
+      description: `Moniker: [\`cafe\`](${HOMEPAGE_URL}) is set as 0.01 ETH\n\nUse \`${SLASH_PREFIX}tip users amount moniker\` to tip your friend with moniker\ne.g. \`${SLASH_PREFIX}tip @anna 1 cookie\`\nRelate commands: ${[
+        "set",
+        "remove",
+        "list",
+      ].map((c) => `\`${SLASH_PREFIX}${c}\``)}`,
     })
     jest.spyOn(processor, "handleSetMoniker").mockResolvedValueOnce({
       messageOptions: {
@@ -32,7 +40,7 @@ describe("run", () => {
       },
     })
     const output = (await monikerCmd.run(i)) as RunResult<MessageOptions>
-    assertTitle(output, expected)
+    assertAuthor(output, expected)
     assertDescription(output, expected)
   })
 })

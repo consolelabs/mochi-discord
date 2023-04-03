@@ -116,7 +116,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   balances: balances.slashCmd,
   statements: statements.slashCmd,
   proposal: proposal.slashCmd,
-  monikers: moniker.slashCmd,
+  moniker: moniker.slashCmd,
   withdraw: withdraw.slashCmd,
   airdrop: airdrop.slashCmd,
   sales: sales.slashCmd,
@@ -171,7 +171,7 @@ export const originalCommands: Record<string, Command> = {
   // config section
   reactionrole: reactionrole.textCmd,
   defaultrole: defaultrole.textCmd,
-  monikers: moniker.textCmd,
+  moniker: moniker.textCmd,
   levelrole: levelrole.textCmd,
   nftrole: nftrole.textCmd,
   proposal: proposal.textCmd,

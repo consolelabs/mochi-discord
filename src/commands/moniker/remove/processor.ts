@@ -2,7 +2,8 @@ import config from "adapters/config"
 import { APIError } from "errors"
 import { RequestDeleteMonikerConfigRequest } from "types/api"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji, msgColors } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
+import { HOMEPAGE_URL, SLASH_PREFIX } from "utils/constants"
 
 export const handleRemoveMoniker = async (
   payload: RequestDeleteMonikerConfigRequest
@@ -15,13 +16,14 @@ export const handleRemoveMoniker = async (
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
-          title: `${getEmoji("approve")} Successfully removed`,
-          description: `**${
+          author: ["Successfully removed", getEmojiURL(emojis.BIN)],
+          description: `[\`${
             payload.moniker
-          }** is removed. To set the new one, run $moniker set <moniker> <amount_token> <token>. ${getEmoji(
-            "bucket_cash",
-            true
-          )}`,
+          }\`](${HOMEPAGE_URL}) is removed from server\n${getEmoji(
+            "pointingright"
+          )} Set up a new moniker configuration \`${SLASH_PREFIX}moniker set\`\n${getEmoji(
+            "pointingright"
+          )} See all moniker configurations \`${SLASH_PREFIX}moniker list\``,
           color: msgColors.SUCCESS,
         }),
       ],

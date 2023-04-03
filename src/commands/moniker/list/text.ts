@@ -53,8 +53,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}monikers list`,
-          examples: `${PREFIX}monikers list`,
+          usage: `${PREFIX}moniker list`,
+          examples: `${PREFIX}moniker list`,
         }),
       ],
     }

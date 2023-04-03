@@ -3,10 +3,11 @@ import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { getEmoji, msgColors } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { handleMonikerList } from "./processor"
 import { getPaginationRow } from "ui/discord/button"
 import { listenForPaginateInteraction } from "handlers/discord/button"
+import { GuildIdNotFoundError } from "errors"
 
 const command: SlashCommand = {
   name: "list",
@@ -18,19 +19,12 @@ const command: SlashCommand = {
   },
   run: async (interaction: CommandInteraction) => {
     if (!interaction.guild) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              title: "This command must be run in a guild",
-              description:
-                "User invoked a command that was likely in a DM because guild id can not be found",
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: interaction })
     }
-    const pages = await handleMonikerList(interaction.guild.id)
+    const pages = await handleMonikerList(
+      interaction.guild.id,
+      interaction.guild.name
+    )
     if (pages.length === 0) {
       return {
         messageOptions: {
@@ -64,8 +58,8 @@ const command: SlashCommand = {
   help: async () => ({
     embeds: [
       composeEmbedMessage(null, {
-        usage: `${SLASH_PREFIX}monikers list`,
-        examples: `${SLASH_PREFIX}monikers list`,
+        usage: `${SLASH_PREFIX}moniker list`,
+        examples: `${SLASH_PREFIX}moniker list`,
       }),
     ],
   }),

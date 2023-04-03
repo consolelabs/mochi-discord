@@ -29,8 +29,8 @@ const command: Command = {
     return {
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}monikers remove <moniker>`,
-          examples: `${PREFIX}monikers remove cup of coffee`,
+          usage: `${PREFIX}moniker remove <moniker>`,
+          examples: `${PREFIX}moniker remove cup of coffee`,
         }),
       ],
     }

@@ -5,6 +5,7 @@ import list from "./list/text"
 import remove from "./remove/text"
 import set from "./set/text"
 // slash
+import infoSlash from "./info/slash"
 import listSlash from "./list/slash"
 import removeSlash from "./remove/slash"
 import setSlash from "./set/slash"
@@ -21,8 +22,8 @@ const actions: Record<string, Command> = {
 }
 
 const textCmd: Command = {
-  id: "monikers",
-  command: "monikers",
+  id: "moniker",
+  command: "moniker",
   brief: "Moniker Configuration",
   category: "Config",
   run: async () => null,
@@ -33,9 +34,9 @@ const textCmd: Command = {
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
-        usage: `${PREFIX}monikers <action>`,
-        examples: `${PREFIX}monikers list`,
-        description: "Manage monikers configuration used in tip",
+        usage: `${PREFIX}moniker <action>`,
+        examples: `${PREFIX}moniker list`,
+        description: "Manage moniker configuration used in tip",
         includeCommandsList: true,
       }),
     ],
@@ -50,15 +51,18 @@ const subCommands: Record<string, SlashCommand> = {
   list: listSlash,
   remove: removeSlash,
   set: setSlash,
+  info: infoSlash,
 }
 
 const slashCmd: SlashCommand = {
-  name: "monikers",
+  name: "moniker",
   category: "Config",
   prepare: () => {
     const data = new SlashCommandBuilder()
-      .setName("monikers")
+      .setName("moniker")
       .setDescription("Moniker configuration")
+
+    data.addSubcommand(<SlashCommandSubcommandBuilder>infoSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>listSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>setSlash.prepare())
@@ -70,9 +74,9 @@ const slashCmd: SlashCommand = {
   help: async () => ({
     embeds: [
       composeEmbedMessage(null, {
-        usage: `${SLASH_PREFIX}monikers <action>`,
-        examples: `${SLASH_PREFIX}monikers list`,
-        description: "Manage monikers configuration used in tip",
+        usage: `${SLASH_PREFIX}moniker <action>`,
+        examples: `${SLASH_PREFIX}moniker list`,
+        description: "Manage moniker configuration used in tip",
         includeCommandsList: true,
       }),
     ],
