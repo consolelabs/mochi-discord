@@ -38,7 +38,8 @@ export async function handleTokenList(page = 0, size = 15) {
   const description = data
     .map((token: Token, idx: number) => {
       const { name, symbol } = token
-      return `${idx + 1} . ${name} \`${symbol}\``
+      const tokenIdx = idx + size * page + 1
+      return `${tokenIdx} . ${name} \`${symbol}\``
     })
     .join("\n")
   const embed = composeEmbedMessage(null, {

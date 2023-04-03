@@ -195,8 +195,10 @@ export async function tip(
 
   for (const recipient of payload.recipients) {
     // send activity message
+    //get discord id
+    const recipientId = recipient.replace(/\D/g, "")
     const recipientUsername =
-      msgOrInteraction?.guild?.members.cache.get(recipient)
+      msgOrInteraction?.guild?.members.cache.get(recipientId)
 
     const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
       dataProfile.id,
@@ -212,8 +214,6 @@ export async function tip(
     kafkaMsg.activity.content.token = payload.token
     sendActivityMsg(kafkaMsg)
 
-    //get discord id
-    const recipientId = recipient.replace(/\D/g, "")
     // send notification message
     const kafkaNotiMsg: KafkaNotificationMessage = {
       id: author.id,
