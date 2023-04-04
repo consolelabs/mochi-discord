@@ -179,7 +179,6 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     }
   }
 
-  console.log("dataAddTreasurer", dataAddTreasurer)
   const modelNotify = {
     guild_id: dataAddTreasurer.submission.guild_id,
     user_discord_id: user,
