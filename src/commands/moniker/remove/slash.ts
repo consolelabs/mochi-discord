@@ -1,10 +1,10 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
-import { InternalError } from "errors"
+import { GuildIdNotFoundError } from "errors"
 import { RequestDeleteMonikerConfigRequest } from "types/api"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { handleRemoveMoniker } from "./processor"
 
 const command: SlashCommand = {
@@ -24,24 +24,9 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     if (!interaction.guildId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              description: "This command must be run in a guild",
-              originalMsgAuthor: interaction.user,
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: interaction })
     }
     const moniker = interaction.options.getString("moniker", true)
-    if (!moniker) {
-      throw new InternalError({
-        msgOrInteraction: interaction,
-        description: "Invalid moinker",
-      })
-    }
     const payload: RequestDeleteMonikerConfigRequest = {
       guild_id: interaction.guildId,
       moniker,

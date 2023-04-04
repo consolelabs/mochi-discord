@@ -1,11 +1,22 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
-import { InternalError } from "errors"
+import { GuildIdNotFoundError } from "errors"
 import { RequestUpsertMonikerConfigRequest } from "types/api"
 import { SlashCommand } from "types/common"
-import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { SLASH_PREFIX } from "utils/constants"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { handleSetMoniker } from "./processor"
+
+async function help() {
+  return {
+    embeds: [
+      composeEmbedMessage(null, {
+        usage: `${SLASH_PREFIX}monikers set <moniker> <amount_token> <token>`,
+        examples: `${SLASH_PREFIX}monikers set cup of coffee 0.01 bnb`,
+      }),
+    ],
+  }
+}
 
 const command: SlashCommand = {
   name: "set",
@@ -30,60 +41,27 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("token")
-          .setDescription("token to convert moinker")
+          .setDescription("token to convert moniker")
           .setRequired(true)
       )
   },
   run: async (interaction: CommandInteraction) => {
     if (!interaction.guildId) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              description: "This command must be run in a guild",
-              originalMsgAuthor: interaction.user,
-            }),
-          ],
-        },
-      }
+      throw new GuildIdNotFoundError({ message: interaction })
     }
     const moniker = interaction.options.getString("moniker", true)
-    if (!moniker) {
-      throw new InternalError({
-        msgOrInteraction: interaction,
-        description: "Invalid moinker",
-      })
-    }
     const amount = interaction.options.getNumber("amount", true)
-    if (!amount) {
-      throw new InternalError({
-        msgOrInteraction: interaction,
-        description: "Invalid amount",
-      })
-    }
     const token = interaction.options.getString("token", true)
-    if (!token) {
-      throw new InternalError({
-        msgOrInteraction: interaction,
-        description: "Invalid token",
-      })
-    }
+
     const payload: RequestUpsertMonikerConfigRequest = {
       guild_id: interaction.guildId,
       moniker,
       amount,
       token,
     }
-    return await handleSetMoniker(payload)
+    return await handleSetMoniker(payload, interaction)
   },
-  help: async () => ({
-    embeds: [
-      composeEmbedMessage(null, {
-        usage: `${PREFIX}monikers set <moniker> <amount_token> <token>`,
-        examples: `${PREFIX}monikers set cup of coffee 0.01 bnb`,
-      }),
-    ],
-  }),
+  help,
   colorType: "Server",
 }
 

@@ -2,13 +2,14 @@ import { commands } from "commands"
 import { Message, MessageEmbed, MessageOptions } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { RunResult } from "types/common"
-import { getEmoji } from "utils/common"
+import { emojis, getEmojiURL } from "utils/common"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
 import {
   assertDescription,
-  assertTitle,
+  assertAuthor,
 } from "../../../../tests/assertions/discord"
+import { HOMEPAGE_URL, SLASH_PREFIX } from "utils/constants"
 jest.mock("adapters/defi")
 
 describe("run", () => {
@@ -31,12 +32,17 @@ describe("run", () => {
   })
 
   test("set moniker successfully", async () => {
-    msg.content = `$moniker set coffee 0.01 cake`
+    msg.content = `$moniker set cafe 0.01 cake`
     const expected = new MessageEmbed({
-      title: `${getEmoji("approve")} Moniker successfully set`,
-      description: `1 cafe is set as 0.01 **ETH**. To tip your friend moniker, use $tip <@users> <amount> <moniker> . ${getEmoji(
-        "bucket_cash"
-      )}`,
+      author: {
+        name: "Moniker successfully set",
+        iconURL: getEmojiURL(emojis.CHECK),
+      },
+      description: `Moniker: [\`coffee\`](${HOMEPAGE_URL}) is set as 0.01 CAKE\n\nUse \`${SLASH_PREFIX}tip users amount moniker\` to tip your friend with moniker\ne.g. \`${SLASH_PREFIX}tip @anna 1 cookie\`\nRelate commands: ${[
+        "set",
+        "remove",
+        "list",
+      ].map((c) => `\`${SLASH_PREFIX}${c}\``)}`,
     })
     jest.spyOn(processor, "handleSetMoniker").mockResolvedValueOnce({
       messageOptions: {
@@ -44,17 +50,22 @@ describe("run", () => {
       },
     })
     const output = (await monikerCmd.run(msg)) as RunResult<MessageOptions>
-    assertTitle(output, expected)
+    assertAuthor(output, expected)
     assertDescription(output, expected)
   })
 
   test("set moniker successfully 2", async () => {
     msg.content = `$moniker set banh mi 0.01 eth`
     const expected = new MessageEmbed({
-      title: `${getEmoji("approve")} Moniker successfully set`,
-      description: `1 **banh mi** is set as 0.01 **ETH**. To tip your friend moniker, use $tip <@users> <amount> <moniker> . ${getEmoji(
-        "bucket_cash"
-      )}`,
+      author: {
+        name: "Moniker successfully set",
+        iconURL: getEmojiURL(emojis.CHECK),
+      },
+      description: `Moniker: [\`banh mi\`](${HOMEPAGE_URL}) is set as 0.01 ETH\n\nUse \`${SLASH_PREFIX}tip users amount moniker\` to tip your friend with moniker\ne.g. \`${SLASH_PREFIX}tip @anna 1 cookie\`\nRelate commands: ${[
+        "set",
+        "remove",
+        "list",
+      ].map((c) => `\`${SLASH_PREFIX}${c}\``)}`,
     })
     jest.spyOn(processor, "handleSetMoniker").mockResolvedValueOnce({
       messageOptions: {
@@ -62,7 +73,7 @@ describe("run", () => {
       },
     })
     const output = (await monikerCmd.run(msg)) as RunResult<MessageOptions>
-    assertTitle(output, expected)
+    assertAuthor(output, expected)
     assertDescription(output, expected)
   })
 })

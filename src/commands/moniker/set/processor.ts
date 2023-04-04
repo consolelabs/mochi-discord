@@ -1,13 +1,22 @@
 import config from "adapters/config"
-import { APIError } from "errors"
+import { APIError, InternalError, OriginalMessage } from "errors"
 import { RequestUpsertMonikerConfigRequest } from "types/api"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji, msgColors } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
+import { HOMEPAGE_URL, SLASH_PREFIX } from "utils/constants"
 import { isTokenSupported } from "utils/tip-bot"
 
 export const handleSetMoniker = async (
-  payload: RequestUpsertMonikerConfigRequest
+  payload: RequestUpsertMonikerConfigRequest,
+  message: OriginalMessage
 ) => {
+  // we want moniker to contain characters a.k.a NaN when trying to parse to Number
+  if (!Number.isNaN(Number(payload.moniker))) {
+    throw new InternalError({
+      msgOrInteraction: message,
+      description: "Moniker can not be only numbers",
+    })
+  }
   const tokenValid = await isTokenSupported(payload.token)
   if (!tokenValid) {
     return {
@@ -33,15 +42,17 @@ export const handleSetMoniker = async (
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
-          title: `${getEmoji("approve")} Moniker successfully set`,
-          description: `1 **${payload.moniker}** is set as ${
-            payload.amount
-          } **${
+          author: ["Moniker successfully set", getEmojiURL(emojis.CHECK)],
+          thumbnail: getEmojiURL(emojis.CONFIG),
+          description: `Moniker: [\`${
+            payload.moniker
+          }\`](${HOMEPAGE_URL}) is set as ${payload.amount} ${
             payload.token
-          }**. To tip your friend moniker, use $tip <@users> <amount> <moniker>. ${getEmoji(
-            "bucket_cash",
-            true
-          )}`,
+          }\n\nUse \`${SLASH_PREFIX}tip users amount moniker\` to tip your friend with moniker\ne.g. \`${SLASH_PREFIX}tip @anna 1 cookie\`\nRelate commands: ${[
+            "set",
+            "remove",
+            "list",
+          ].map((c) => `\`${SLASH_PREFIX}${c}\``)}`,
           color: msgColors.SUCCESS,
         }),
       ],

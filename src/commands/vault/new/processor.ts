@@ -34,6 +34,7 @@ export async function runCreateVault({
     guild_id: guildId,
     name: i.options.getString("name", true),
     threshold: i.options.getString("threshold", true),
+    vault_creator: i.user.id,
   })
   if (!ok) {
     throw new APIError({ curl, error, description: log })

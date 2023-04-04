@@ -1159,6 +1159,7 @@ class Config extends Fetcher {
     guild_id: string
     name: string
     threshold: string
+    vault_creator: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault`, {
       method: "POST",
@@ -1202,6 +1203,8 @@ class Config extends Fetcher {
     vault_name: string
     user_discord_id: string
     message: string
+    requester: string
+    type: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/request`, {
       method: "POST",
@@ -1209,7 +1212,24 @@ class Config extends Fetcher {
     })
   }
 
-  public async addTreasurerToVault(req: { request_id: string }) {
+  public async createTreasurerSubmissions(req: {
+    vault_id: number
+    request_id: number
+    submitter: string
+    choice: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/submission`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
+  public async addTreasurerToVault(req: {
+    vault_id: number
+    guild_id: string
+    user_discord_id: string
+    channel_id: string
+  }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer`, {
       method: "POST",
       body: req,
