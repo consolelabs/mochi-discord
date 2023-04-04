@@ -13,11 +13,15 @@ export function convertString(
 }
 
 export async function convertToUsdValue(amount: number, token: string) {
-  const { data: coins } = await CacheManager.get({
+  const data = await CacheManager.get({
     pool: "ticker",
     key: `ticker-search-${token.toLowerCase()}`,
     call: () => defi.searchCoins(token.toLowerCase()),
   })
+  const coins = data?.data
+  if (coins == undefined) {
+    return "0"
+  }
   if (!coins || !coins.length) {
     return "0"
   }
