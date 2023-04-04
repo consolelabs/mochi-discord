@@ -573,8 +573,8 @@ class Community extends Fetcher {
 
   public async setLevelMessageConfig(req: {
     guild_id: string
-    message: string
-    image_url: string
+    message?: string
+    image_url?: string
     channel_id: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/community/levelup`, {

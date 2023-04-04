@@ -3,7 +3,11 @@ import { TextChannel } from "discord.js"
 import { embedsColors, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji } from "utils/common"
-import { setLogChannel, setOffchainTip } from "./processor"
+import {
+  setGmGnMessageChannel,
+  setLevelMessageChannel,
+  setOffchainTip,
+} from "./processor"
 
 const slashCmd: SlashCommand = {
   name: "set",
@@ -49,11 +53,11 @@ const slashCmd: SlashCommand = {
         break
       case "level_up":
         formatOutput.activity = "Level Up"
-        await setLogChannel(i, logChannel.id)
+        await setLevelMessageChannel(i, logChannel.id)
         break
       case "gm_gn":
         formatOutput.activity = "GM/GN message"
-        await setLogChannel(i, logChannel.id)
+        await setGmGnMessageChannel(i, logChannel.id)
         break
       default:
         break
