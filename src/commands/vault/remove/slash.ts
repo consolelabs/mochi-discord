@@ -3,15 +3,15 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
-import { runAddTreasurer } from "./processor"
+import { runRemoveTreasurer } from "./processor"
 
 const command: SlashCommand = {
-  name: "add",
+  name: "remove",
   category: "Config",
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
-      .setName("add")
-      .setDescription("Add treasurer to vault")
+      .setName("remove")
+      .setDescription("Remove treasurer from vault")
       .addStringOption((option) =>
         option
           .setName("name")
@@ -29,7 +29,7 @@ const command: SlashCommand = {
       )
   },
   run: async function (interaction: CommandInteraction) {
-    return runAddTreasurer({
+    return runRemoveTreasurer({
       i: interaction,
       guildId: interaction.guildId ?? undefined,
     })
@@ -37,8 +37,8 @@ const command: SlashCommand = {
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
-        usage: `${SLASH_PREFIX}vault treasurer add <vault_name> <user> <message>`,
-        examples: `${SLASH_PREFIX}vault treasurer add vault1 @user1 hello`,
+        usage: `${SLASH_PREFIX}vault treasurer remove <vault_name> <user> <message>`,
+        examples: `${SLASH_PREFIX}vault treasurer remove vault1 @user1 hello`,
         document: `${GM_GITBOOK}&action=streak`,
       }),
     ],

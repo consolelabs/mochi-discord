@@ -9,6 +9,7 @@ import channelSlash from "./channel/slash"
 import thresholdSlash from "./threshold/slash"
 import infoSlash from "./info/slash"
 import addSlash from "./add/slash"
+import removeSlash from "./remove/slash"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
@@ -22,6 +23,7 @@ const slashActions: Record<string, SlashCommand> = {
   channel: channelSlash,
   info: infoSlash,
   add: addSlash,
+  remove: removeSlash,
 }
 
 const slashCmd: SlashCommand = {
@@ -47,6 +49,7 @@ const slashCmd: SlashCommand = {
           .setName("treasurer")
           .setDescription("Add treasurer to vault")
           .addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())
+          .addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare())
       // Gonna implement remove, transfer later
     )
     return data
