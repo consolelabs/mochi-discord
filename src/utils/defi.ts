@@ -50,6 +50,7 @@ export async function validateBalance({
   const tokenBalance = data?.[0] ?? { amount: "0" }
   const { amount: balanceAmount = "0" } = tokenBalance
   const balance = convertString(balanceAmount, tokenBalance?.token?.decimal)
+  const usdBalance = tokenBalance?.token?.price ?? 0
   if (!balance || (balance < amount && !all)) {
     throw new InsufficientBalanceError({
       msgOrInteraction,
@@ -60,5 +61,5 @@ export async function validateBalance({
       },
     })
   }
-  return { balance, usdBalance: 0 }
+  return { balance, usdBalance }
 }
