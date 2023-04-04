@@ -138,6 +138,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   convert: convert.slashCmd,
   vault: vault.slashCmd,
   config: config.slashCmd,
+  heatmap: heatmap.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {

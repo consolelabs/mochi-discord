@@ -1,9 +1,8 @@
-import { Message } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { heatmap } from "./processor"
 
-const run = async (msg: Message) => {
-  // msg.reply({ embeds: [embed] })
-  return await heatmap(msg)
+const run = async (msgOrInteraction: Message | CommandInteraction) => {
+  return await heatmap(msgOrInteraction)
 }
 
 export default run

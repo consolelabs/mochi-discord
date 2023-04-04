@@ -1,8 +1,10 @@
-import { Command } from "types/common"
+import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { PREFIX } from "utils/constants"
-import { emojis, getEmojiURL } from "../../utils/common"
+import { PREFIX, SLASH_PREFIX } from "utils/constants"
+import { emojis, getAuthor, getEmojiURL } from "../../utils/common"
 import run from "./index/text"
+import { CommandInteraction } from "discord.js"
+import { SlashCommandBuilder } from "@discordjs/builders"
 
 const textCmd: Command = {
   id: "heatmap",
@@ -23,4 +25,26 @@ const textCmd: Command = {
   allowDM: true,
 }
 
-export default { textCmd }
+const slashCmd: SlashCommand = {
+  name: "heatmap",
+  category: "Defi",
+  prepare: () => {
+    return new SlashCommandBuilder()
+      .setName("heatmap")
+      .setDescription(
+        "Show top cryptocurrencies with live prices and 24h change in price"
+      )
+  },
+  run,
+  help: async (interaction: CommandInteraction) => ({
+    embeds: [
+      composeEmbedMessage(null, {
+        usage: `${SLASH_PREFIX}heatmap`,
+        originalMsgAuthor: getAuthor(interaction),
+      }),
+    ],
+  }),
+  colorType: "Defi",
+}
+
+export default { textCmd, slashCmd }
