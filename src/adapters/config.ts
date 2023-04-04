@@ -1247,6 +1247,20 @@ class Config extends Fetcher {
       body: req,
     })
   }
+
+  public async createTreasurerResult(req: {
+    vault_id: number
+    guild_id: string
+    user_discord_id: string
+    channel_id: string
+    type: string
+    status: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/result`, {
+      method: "POST",
+      body: req,
+    })
+  }
 }
 
 const config = new Config()
