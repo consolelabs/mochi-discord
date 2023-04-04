@@ -21,6 +21,7 @@ import {
   handleClaimReward,
 } from "commands/quest/daily/processor"
 import { handleTreasurerAdd } from "commands/vault/add/processor"
+import { handleTreasurerRemove } from "commands/vault/remove/processor"
 import { handleTickerViews } from "commands/ticker/index/processor"
 import { sendVerifyURL } from "commands/verify/processor"
 import {
@@ -437,6 +438,12 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("treasurerAdd-rejected"):
       await handleTreasurerAdd(i)
+      return
+    case i.customId.startsWith("treasurerRemove-approved"):
+      await handleTreasurerRemove(i)
+      return
+    case i.customId.startsWith("treasurerRemove-rejected"):
+      await handleTreasurerRemove(i)
       return
     default: {
       return

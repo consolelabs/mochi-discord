@@ -15,7 +15,7 @@ import {
   getSuccessEmbed,
 } from "ui/discord/embed"
 
-export async function runAddTreasurer({
+export async function runRemoveTreasurer({
   i,
   guildId,
 }: {
@@ -51,7 +51,7 @@ export async function runAddTreasurer({
     user_discord_id: user.id,
     vault_name: vaultName,
     message: i.options.getString("message") ?? "",
-    type: "add",
+    type: "remove",
     requester: i.user.id,
   })
 
@@ -78,12 +78,12 @@ export async function runAddTreasurer({
   dataAddTreasurerReq?.treasurer.forEach((treasurer: any) => {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `treasurerAdd-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
+        customId: `treasurerRemove-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
         style: "SUCCESS",
         label: "Approve",
       }),
       new MessageButton({
-        customId: `treasurerAdd-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}}`,
+        customId: `treasurerRemove-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}}`,
         style: "DANGER",
         label: "Reject",
       })
@@ -97,8 +97,8 @@ export async function runAddTreasurer({
             description: `**Approval Request #${
               dataAddTreasurerReq?.request.id
             }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
-              "TREASURER_ADD"
-            )} Add <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
+              "TREASURER_REMOVE"
+            )} Remove <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
               "MESSAGE2"
             )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
             color: msgColors.MOCHI,
@@ -120,7 +120,7 @@ export async function runAddTreasurer({
       } successfully created`
     )
     .setDescription(
-      `You want to add <@${
+      `You want to remove <@${
         user.id
       }> to **${vaultName} vault**\n\nMessage ${getEmoji("MESSAGE2")}\n\`\`\`${
         dataAddTreasurerReq?.request.message
@@ -130,13 +130,13 @@ export async function runAddTreasurer({
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
     .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png"
+      "https://cdn.discordapp.com/attachments/1090195482506174474/1092755046556516394/image.png"
     )
 
   return { messageOptions: { embeds: [embed] } }
 }
 
-export async function handleTreasurerAdd(i: ButtonInteraction) {
+export async function handleTreasurerRemove(i: ButtonInteraction) {
   await i.deferUpdate()
   const args = i.customId.split("-")
   const choice = args[1]
@@ -148,7 +148,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
   const channelId = args[6]
 
   const {
-    data: dataAddTreasurer,
+    data: dataTreasurerSubmisison,
     status,
     curl,
     log,
@@ -160,7 +160,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     choice: choice,
   })
 
-  if ((status !== 200 && status !== 400) || !dataAddTreasurer) {
+  if ((status !== 200 && status !== 400) || !dataTreasurerSubmisison) {
     throw new APIError({
       curl: curl,
       description: log,
@@ -179,10 +179,10 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     }
   }
 
-  if (dataAddTreasurer.vote_result.is_approved === true) {
+  if (dataTreasurerSubmisison.vote_result.is_approved === true) {
     // add treasurer to vault
-    const { data, status, curl, log } = await config.addTreasurerToVault({
-      guild_id: dataAddTreasurer.submission.guild_id,
+    const { data, status, curl, log } = await config.removeTreasurerFromVault({
+      guild_id: dataTreasurerSubmisison.submission.guild_id,
       user_discord_id: user,
       vault_id: Number(vaultId),
       channel_id: channelId,

@@ -1235,6 +1235,18 @@ class Config extends Fetcher {
       body: req,
     })
   }
+
+  public async removeTreasurerFromVault(req: {
+    vault_id: number
+    guild_id: string
+    user_discord_id: string
+    channel_id: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer`, {
+      method: "DELETE",
+      body: req,
+    })
+  }
 }
 
 const config = new Config()
