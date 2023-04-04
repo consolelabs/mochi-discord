@@ -78,12 +78,12 @@ export async function runAddTreasurer({
   dataAddTreasurerReq?.treasurer.forEach((treasurer: any) => {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `treasurerAdd-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${dataAddTreasurerReq?.request.requester}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
+        customId: `treasurerAdd-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
         style: "SUCCESS",
         label: "Approve",
       }),
       new MessageButton({
-        customId: `treasurerAdd-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${dataAddTreasurerReq?.request.requester}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}}`,
+        customId: `treasurerAdd-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}}`,
         style: "DANGER",
         label: "Reject",
       })
@@ -97,7 +97,7 @@ export async function runAddTreasurer({
             description: `**Approval Request #${
               dataAddTreasurerReq?.request.id
             }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
-              "TREASURER"
+              "TREASURER_ADD"
             )} Add <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
               "MESSAGE2"
             )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
@@ -204,5 +204,6 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
         )}`,
       }),
     ],
+    components: [],
   })
 }
