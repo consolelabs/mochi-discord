@@ -20,6 +20,7 @@ import {
   handleBackToQuestList,
   handleClaimReward,
 } from "commands/quest/daily/processor"
+import { handleTreasurerAdd } from "commands/vault/add/processor"
 import { handleTickerViews } from "commands/ticker/index/processor"
 import { sendVerifyURL } from "commands/verify/processor"
 import {
@@ -430,6 +431,12 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("token-request-reject"):
       await handleTokenReject(i)
+      return
+    case i.customId.startsWith("treasurerAdd-approved"):
+      await handleTreasurerAdd(i)
+      return
+    case i.customId.startsWith("treasurerAdd-rejected"):
+      await handleTreasurerAdd(i)
       return
     default: {
       return

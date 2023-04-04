@@ -304,6 +304,8 @@ export const emojis: { [key: string]: string } = {
   CHECK: "1077631110047080478",
   CONFIG: "1058304297395306496",
   MONIKER: "1090477895861944411",
+  BELL: "1087564962941124679",
+  TREASURER: "1090902913058078771",
 
   ...tokenEmojis,
   ...numberEmojis,
