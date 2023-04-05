@@ -114,110 +114,17 @@ export async function runGetVaultDetail({
 
   let fields = []
 
-  // build balance fields
-  const balanceFields = []
-  const resBalance = data.balance.map((balance: any) => {
-    return {
-      name: `${balance.token_name}`,
-      value: `${getEmoji(`${balance.token}`)}${balance.amount} ${
-        balance.token
-      }\n\`$${balance.amount_in_usd}\``,
-      inline: true,
-    }
-  })
-
-  for (let i = 0; i < resBalance.length; i++) {
-    if (i !== 0 && i % 2 == 0) {
-      balanceFields.push({
-        name: "\u200b",
-        value: "\u200b",
-        inline: true,
-      })
-    }
-    balanceFields.push(resBalance[i])
-  }
-  balanceFields.push({
-    name: "\u200b",
-    value: "\u200b",
-    inline: true,
-  })
-
-  let totalNft = 0
-  for (let i = 0; i < data.my_nft.length; i++) {
-    totalNft += data.my_nft[i].total
-  }
-  const myNftTitleFields = [
-    {
-      name: `My NFT (${totalNft})`,
-      value: "\u200b",
-      inline: false,
-    },
-  ]
-
-  // build my_nft fields
-  const resMyNft = data.my_nft.map((nft: any) => {
-    let nftElements = ""
-    for (let i = 0; i < nft.nft.length; i++) {
-      nftElements += `${nft.nft[i].name} #${nft.nft[i].id}\n`
-    }
-    return {
-      name: `${getEmoji(`VAULT_NFT`)} ${nft.collection_name} (${nft.chain}) ${
-        nft.total
-      }`,
-      value: `${nftElements}`,
-      inline: true,
-    }
-  })
-  const myNftFields = []
-  for (let i = 0; i < resMyNft.length; i++) {
-    if (i !== 0 && i % 2 == 0) {
-      myNftFields.push({
-        name: "\u200b",
-        value: "\u200b",
-        inline: true,
-      })
-    }
-    myNftFields.push(resMyNft[i])
-  }
-  myNftFields.push({
-    name: "\u200b",
-    value: "\u200b",
-    inline: true,
-  })
+  const balanceFields = buildBalanceFields(data)
+  const myNftTitleFields = buildMyNftTitleFields(data)
+  const myNftFields = buildMyNftFields(data)
+  const treasurerFields = buildTreasurerFields(data)
+  const recentTxFields = buildRecentTxFields(data)
 
   // build est total fields
   const estimatedTotalFields = [
     {
       name: "Estimated total (U.S dollar)",
       value: `${getEmoji("CASH")} \`$${data.estimated_total}\``,
-      inline: false,
-    },
-  ]
-
-  // build treasurer fields
-  let valueTreasurer = ""
-  for (let i = 0; i < data.treasurer.length; i++) {
-    valueTreasurer += `${getEmoji(`NUM_${i + 1}`)} <@${
-      data.treasurer[i].user_discord_id
-    }>\n`
-  }
-  const treasurerFields = [
-    {
-      name: `Treasurer (${data.treasurer.length})`,
-      value: valueTreasurer,
-      inline: false,
-    },
-  ]
-
-  // build recent transaction fields
-  let valueRecentTx = ""
-  for (let i = 0; i < data.recent_transaction.length; i++) {
-    valueRecentTx += formatRecentTransaction(data.recent_transaction[i])
-  }
-  const recentTxFields = [
-    {
-      name: `Recent Transaction`,
-      value: valueRecentTx,
       inline: false,
     },
   ]
@@ -283,4 +190,112 @@ function formatRecentTransaction(tx: any) {
         tx.token
       }\n`
   }
+}
+
+function buildBalanceFields(data: any): any {
+  // build balance fields
+  const balanceFields = []
+  const resBalance = data.balance.map((balance: any) => {
+    return {
+      name: `${balance.token_name}`,
+      value: `${getEmoji(`${balance.token}`)}${balance.amount} ${
+        balance.token
+      }\n\`$${balance.amount_in_usd}\``,
+      inline: true,
+    }
+  })
+
+  for (let i = 0; i < resBalance.length; i++) {
+    if (i !== 0 && i % 2 == 0) {
+      balanceFields.push({
+        name: "\u200b",
+        value: "\u200b",
+        inline: true,
+      })
+    }
+    balanceFields.push(resBalance[i])
+  }
+  balanceFields.push({
+    name: "\u200b",
+    value: "\u200b",
+    inline: true,
+  })
+  return balanceFields
+}
+
+function buildMyNftTitleFields(data: any): any {
+  let totalNft = 0
+  for (let i = 0; i < data.my_nft.length; i++) {
+    totalNft += data.my_nft[i].total
+  }
+  return [
+    {
+      name: `My NFT (${totalNft})`,
+      value: "\u200b",
+      inline: false,
+    },
+  ]
+}
+
+function buildMyNftFields(data: any): any {
+  const resMyNft = data.my_nft.map((nft: any) => {
+    let nftElements = ""
+    for (let i = 0; i < nft.nft.length; i++) {
+      nftElements += `${nft.nft[i].name} #${nft.nft[i].id}\n`
+    }
+    return {
+      name: `${getEmoji(`VAULT_NFT`)} ${nft.collection_name} (${nft.chain}) ${
+        nft.total
+      }`,
+      value: `${nftElements}`,
+      inline: true,
+    }
+  })
+  const myNftFields = []
+  for (let i = 0; i < resMyNft.length; i++) {
+    if (i !== 0 && i % 2 == 0) {
+      myNftFields.push({
+        name: "\u200b",
+        value: "\u200b",
+        inline: true,
+      })
+    }
+    myNftFields.push(resMyNft[i])
+  }
+  myNftFields.push({
+    name: "\u200b",
+    value: "\u200b",
+    inline: true,
+  })
+  return myNftFields
+}
+
+function buildRecentTxFields(data: any): any {
+  let valueRecentTx = ""
+  for (let i = 0; i < data.recent_transaction.length; i++) {
+    valueRecentTx += formatRecentTransaction(data.recent_transaction[i])
+  }
+  return [
+    {
+      name: `Recent Transaction`,
+      value: valueRecentTx,
+      inline: false,
+    },
+  ]
+}
+
+function buildTreasurerFields(data: any): any {
+  let valueTreasurer = ""
+  for (let i = 0; i < data.treasurer.length; i++) {
+    valueTreasurer += `${getEmoji(`NUM_${i + 1}`)} <@${
+      data.treasurer[i].user_discord_id
+    }>\n`
+  }
+  return [
+    {
+      name: `Treasurer (${data.treasurer.length})`,
+      value: valueTreasurer,
+      inline: false,
+    },
+  ]
 }
