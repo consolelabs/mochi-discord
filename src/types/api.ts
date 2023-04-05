@@ -845,6 +845,11 @@ export interface RequestAddTokenPriceAlertRequest {
   value?: number;
 }
 
+export interface RequestAssignVerifiedRoleRequest {
+  guild_id: string;
+  user_discord_id: string;
+}
+
 export interface RequestBalcklistChannelRepostConfigRequest {
   channel_id?: string;
   guild_id?: string;
@@ -1431,6 +1436,8 @@ export interface ResponseCoinMarketItemData {
   image?: string;
   is_default?: boolean;
   is_pair?: boolean;
+  market_cap?: number;
+  market_cap_rank?: number;
   name?: string;
   price_change_percentage_24h?: number;
   price_change_percentage_7d_in_currency?: number;
@@ -1678,6 +1685,10 @@ export interface ResponseGetCoinResponse {
 
 export interface ResponseGetCoinResponseWrapper {
   data?: ResponseGetCoinResponse;
+}
+
+export interface ResponseGetCoinsMarketDataResponse {
+  data?: ResponseCoinMarketItemData[];
 }
 
 export interface ResponseGetCollectionCountResponse {
