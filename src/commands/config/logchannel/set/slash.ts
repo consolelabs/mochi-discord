@@ -21,9 +21,9 @@ const slashCmd: SlashCommand = {
           .setName("log_type")
           .setDescription("The log type that would be sent to the channel")
           .setChoices([
-            ["Tip", "tip"],
-            ["Level Up", "level_up"],
-            ["Gm/Gn", "gm_gn"],
+            ["tip", "tip"],
+            ["level up", "level_up"],
+            ["gm/gn", "gm_gn"],
           ])
           .setRequired(true)
       )
@@ -76,7 +76,7 @@ const slashCmd: SlashCommand = {
               "https://media.discordapp.net/attachments/1052079279619457095/1090579158482038814/menu.png?width=322&height=320",
             description: `All ${formatOutput.activity} activities of **${
               i.guild?.name
-            }** will be monitored in the\n${formatOutput.channel}\n\n${getEmoji(
+            }** will be monitored in the ${formatOutput.channel}\n\n${getEmoji(
               "pointingright"
             )} Setup or change config by running \`/config logchannel set\`\n${getEmoji(
               "pointingright"
