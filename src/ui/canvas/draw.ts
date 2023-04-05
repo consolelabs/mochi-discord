@@ -26,6 +26,7 @@ export function drawRectangle(
   ctx.arc(x.from + radius, y.from + radius, radius, Math.PI, 1.5 * Math.PI) // top-left corner
   ctx.fill()
   if (borderColor) {
+    ctx.lineWidth = 1
     ctx.strokeStyle = borderColor
     ctx.stroke()
   }

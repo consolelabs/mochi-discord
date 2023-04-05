@@ -88,6 +88,7 @@ import pay from "./pay"
 import convert from "./convert"
 import vault from "./vault"
 import config from "./config"
+import heatmap from "./heatmap"
 
 CacheManager.init({
   ttl: 0,
@@ -137,6 +138,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   convert: convert.slashCmd,
   vault: vault.slashCmd,
   config: config.slashCmd,
+  heatmap: heatmap.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -195,6 +197,8 @@ export const originalCommands: Record<string, Command> = {
 
   // pay
   pay: pay.textCmd,
+
+  heatmap: heatmap.textCmd,
 }
 
 export const commands = getAllAliases(originalCommands)
