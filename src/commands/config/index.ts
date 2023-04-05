@@ -4,8 +4,11 @@ import {
 } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
+// logchannel
 import logChannelSetSlash from "./logchannel/set/slash"
 import logChannelInfoSlash from "./logchannel/info/slash"
+// currency
+import currencySlash from "./currency/index/slash"
 
 const subCommandGroups: Record<string, Record<string, SlashCommand>> = {
   logchannel: {
@@ -14,6 +17,9 @@ const subCommandGroups: Record<string, Record<string, SlashCommand>> = {
   },
 }
 
+const subCommands: Record<string, SlashCommand> = {
+  currency: currencySlash,
+}
 const slashCmd: SlashCommand = {
   name: "config",
   category: "Config",
@@ -37,9 +43,18 @@ const slashCmd: SlashCommand = {
         )
     )
 
+    // currency
+    data.addSubcommand(<SlashCommandSubcommandBuilder>currencySlash.prepare())
     return data
   },
   run: async function (i) {
+    const subCommandGroup = i.options.getSubcommandGroup(false)
+    const subCommand = i.options.getSubcommand(true)
+
+    if (!subCommandGroup && subCommand) {
+      return subCommands[subCommand].run(i)
+    }
+
     return subCommandGroups[i.options.getSubcommandGroup(true)][
       i.options.getSubcommand(true)
     ].run(i)

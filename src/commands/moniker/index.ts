@@ -41,7 +41,6 @@ const textCmd: Command = {
       }),
     ],
   }),
-  aliases: ["moniker"],
   actions,
   colorType: "Server",
   canRunWithoutAction: false,

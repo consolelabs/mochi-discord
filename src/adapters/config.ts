@@ -1217,6 +1217,7 @@ class Config extends Fetcher {
     request_id: number
     submitter: string
     choice: string
+    type: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/submission`, {
       method: "POST",
@@ -1260,6 +1261,25 @@ class Config extends Fetcher {
       method: "POST",
       body: req,
     })
+  }
+
+  async getDefaultCurrency(guild_id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-defi/default-currency`,
+      {
+        query: { guild_id },
+      }
+    )
+  }
+
+  async setDefaultCurrency(body: { symbol: string; guild_id: string }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-defi/default-currency`,
+      {
+        method: "POST",
+        body,
+      }
+    )
   }
 }
 

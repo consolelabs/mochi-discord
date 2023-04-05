@@ -13,6 +13,8 @@ import { heightOf, widthOf } from "../../../ui/canvas/calculator"
 import { drawRectangle } from "../../../ui/canvas/draw"
 import { composeEmbedMessage } from "../../../ui/discord/embed"
 import { emojis, getAuthor, getEmojiURL } from "../../../utils/common"
+import chroma from "chroma-js"
+import CacheManager from "../../../cache/node-cache"
 
 export async function heatmap(
   msgOrInteraction: Message | CommandInteraction
@@ -25,10 +27,18 @@ export async function heatmap(
     originalMsgAuthor: getAuthor(msgOrInteraction),
     image: "attachment://heatmap.png",
   })
+  const now = new Date()
+  const key = `${now.getUTCFullYear()}${now.getUTCMonth()}${now.getUTCDate()}`
+  const buffer = await CacheManager.get({
+    pool: "heatmap",
+    key,
+    call: () => render(Object.values(data)),
+    ttl: 21600, // 6h
+  })
   return {
     messageOptions: {
       embeds: [embed],
-      files: [await render(Object.values(data))],
+      files: [new MessageAttachment(buffer, "heatmap.png")],
     },
   }
 }
@@ -117,19 +127,14 @@ async function render(data: any[]) {
     ctx.fillText(change.text, change.x, change.y)
   })
 
-  return new MessageAttachment(canvas.toBuffer(), "heatmap.png")
+  return canvas.toBuffer()
 }
 
 function getColorScale(change: number): string {
-  if (change === 0) return "gray"
-  if (change > 20) return "#325c32"
-  if (change > 10) return "#46693f"
-  if (change > 5) return "#5d8455"
-  if (change > 0) return "#8dbe84"
-  if (change > -5) return "#dd7875"
-  if (change > -10) return "#b94a44"
-  if (change > -20) return "#953a35"
-  return "#6d2925"
+  const c = Math.abs(change / 10)
+  if (change <= 0.05 && change >= -0.05) return "gray"
+  if (change > 0) return chroma.scale(["#5cc489", "#337350"])(c).hex()
+  return chroma.scale(["#b52d29", "#7a0d0a"])(c).hex()
 }
 
 function adjustFont(

@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
-import { getEmoji, msgColors } from "utils/common"
+import { emojis, getEmojiURL } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { handleMonikerList } from "./processor"
@@ -30,10 +30,8 @@ const command: SlashCommand = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(null, {
-              title: `${getEmoji("bucket_cash", true)} Moniker List`,
-              description:
-                "You haven't set any moniker. To set one, run $moniker set <moniker> <amount_token> <token> .",
-              color: msgColors.SUCCESS,
+              author: ["Moniker List", getEmojiURL(emojis.MONIKER)],
+              description: `You haven't set any moniker. To set one, run ${SLASH_PREFIX}moniker set <moniker> <amount_token> <token> .`,
             }),
           ],
         },

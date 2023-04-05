@@ -5,6 +5,13 @@ import { emojis, getAuthor, getEmojiURL } from "../../utils/common"
 import run from "./index/text"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandBuilder } from "@discordjs/builders"
+import CacheManager from "../../cache/node-cache"
+
+CacheManager.init({
+  ttl: 0,
+  pool: "heatmap",
+  checkperiod: 1,
+})
 
 const textCmd: Command = {
   id: "heatmap",
