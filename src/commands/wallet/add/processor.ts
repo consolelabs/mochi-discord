@@ -45,7 +45,7 @@ export async function handleWalletAddition(msg: OriginalMessage) {
   if (!ok) throw new APIError({ curl, description: log, msgOrInteraction: msg })
   const buttonRow = composeButtonLink(
     "Connect Wallet",
-    `${HOMEPAGE_URL}/verify?code=${data.code}`
+    `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${msg.guildId ?? ""}`
   ).addComponents(getExitButton(author.id))
   await reply.edit({ components: [buttonRow] })
 }
