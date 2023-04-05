@@ -20,6 +20,8 @@ import {
 } from "utils/common"
 import { HOMEPAGE_URL } from "utils/constants"
 import { awaitMessage } from "utils/discord"
+import profile from "../../../adapters/profile"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export async function handleWalletAddition(msg: OriginalMessage) {
   const isTextMsg = msg instanceof Message
@@ -37,9 +39,13 @@ export async function handleWalletAddition(msg: OriginalMessage) {
   const reply = (await (isTextMsg
     ? msg.reply(replyPayload)
     : msg.editReply(replyPayload))) as Message
+  // request profile code
+  const profileId = await getProfileIdByDiscord(author.id)
+  const { data, ok, curl, log } = await profile.requestProfileCode(profileId)
+  if (!ok) throw new APIError({ curl, description: log, msgOrInteraction: msg })
   const buttonRow = composeButtonLink(
     "Connect Wallet",
-    `${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${author.id}`
+    `${HOMEPAGE_URL}/verify?code=${data.code}`
   ).addComponents(getExitButton(author.id))
   await reply.edit({ components: [buttonRow] })
 }

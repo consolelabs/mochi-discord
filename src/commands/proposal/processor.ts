@@ -20,6 +20,8 @@ import { composeButtonLink } from "ui/discord/button"
 import { logger } from "logger"
 import { wrapError } from "utils/wrap-error"
 import { HOMEPAGE_URL } from "utils/constants"
+import { getProfileIdByDiscord } from "../../utils/profile"
+import profile from "../../adapters/profile"
 
 let proposalTitle = ""
 let proposalDesc = ""
@@ -263,14 +265,22 @@ export async function handleProposalForm(i: ButtonInteraction) {
       throw new APIError({ curl, description: log, error })
     }
     if (!data.is_wallet_connected) {
+      // request profile code
+      const profileId = await getProfileIdByDiscord(i.user.id)
+      const codeRes = await profile.requestProfileCode(profileId)
+      if (!codeRes.ok) {
+        throw new APIError({
+          curl: codeRes.curl,
+          description: codeRes.log,
+          msgOrInteraction: i,
+        })
+      }
       await i
         .editReply({
           embeds: [
             getErrorEmbed({
               title: "Wallet not connected",
-              description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${
-                i.user.id
-              }) to gain the authority to create a proposal.`,
+              description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${codeRes.data.code}) to gain the authority to create a proposal.`,
             }),
           ],
         })
@@ -480,14 +490,22 @@ export async function handleProposalVote(i: ButtonInteraction) {
     throw new APIError({ curl: wCurl, description: wLog, error: wError })
   }
   if (wData.is_wallet_connected === false) {
+    // request profile code
+    const profileId = await getProfileIdByDiscord(i.user.id)
+    const codeRes = await profile.requestProfileCode(profileId)
+    if (!codeRes.ok) {
+      throw new APIError({
+        curl: codeRes.curl,
+        description: codeRes.log,
+        msgOrInteraction: i,
+      })
+    }
     return await i
       .editReply({
         embeds: [
           getErrorEmbed({
             title: "Wallet not connected",
-            description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${
-              i.user.id
-            }) to gain the authority to vote.`,
+            description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${codeRes.data.code}) to gain the authority to vote.`,
           }),
         ],
       })

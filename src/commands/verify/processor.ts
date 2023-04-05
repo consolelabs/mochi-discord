@@ -7,6 +7,9 @@ import {
 } from "discord.js"
 import { embedsColors } from "types/common"
 import { HOMEPAGE_URL } from "utils/constants"
+import profile from "../../adapters/profile"
+import { getProfileIdByDiscord } from "../../utils/profile"
+import { APIError } from "../../errors"
 
 export async function sendVerifyURL(interaction: ButtonInteraction) {
   if (!interaction.member || !interaction.guildId) return
@@ -17,13 +20,21 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
     .setDescription(
       `Please verify your wallet address by clicking the button below.`
     )
+  // request profile code
+  const profileId = await getProfileIdByDiscord(interaction.user.id)
+  const { data, ok, curl, log } = await profile.requestProfileCode(profileId)
+  if (!ok) {
+    throw new APIError({
+      curl,
+      description: log,
+      msgOrInteraction: interaction,
+    })
+  }
   const row = new MessageActionRow().addComponents(
     new MessageButton()
       .setLabel("Verify")
       .setStyle("LINK")
-      .setURL(
-        `${HOMEPAGE_URL}/verify?code=${Date.now()}&did=${interaction.user.id}`
-      )
+      .setURL(`${HOMEPAGE_URL}/verify?code=${data.code}`)
   )
   await interaction
     .editReply({ embeds: [embed], components: [row] })

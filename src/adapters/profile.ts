@@ -134,6 +134,13 @@ class Profile extends Fetcher {
       }
     )
   }
+
+  public async requestProfileCode(profileId: string) {
+    return await this.jsonFetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/codes`,
+      { method: "POST" }
+    )
+  }
 }
 
 export default new Profile()
