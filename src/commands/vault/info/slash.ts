@@ -21,7 +21,6 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     if (interaction.options.getString("name", false)) {
-      console.log("in case show vault detail")
       return runGetVaultDetail({
         i: interaction,
         guildId: interaction.guildId ?? undefined,
