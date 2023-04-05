@@ -4,16 +4,24 @@ import {
   MessageActionRow,
   MessageButton,
   ButtonInteraction,
+  Message,
 } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, msgColors } from "utils/common"
+import NodeCache from "node-cache"
 import {
   getErrorEmbed,
   composeEmbedMessage,
   getSuccessEmbed,
 } from "ui/discord/embed"
+
+export const treasurerRemoveCache = new NodeCache({
+  stdTTL: 0,
+  checkperiod: 1,
+  useClones: false,
+})
 
 export async function runRemoveTreasurer({
   i,
@@ -89,26 +97,31 @@ export async function runRemoveTreasurer({
       })
     )
 
-    i.guild?.members.fetch(treasurer.user_discord_id).then((treasurer) => {
-      treasurer.send({
-        embeds: [
-          composeEmbedMessage(null, {
-            title: `${getEmoji("BELL")} Mochi notifications`,
-            description: `**Approval Request #${
-              dataAddTreasurerReq?.request.id
-            }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
-              "TREASURER_REMOVE"
-            )} Remove <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
-              "MESSAGE2"
-            )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
-            color: msgColors.MOCHI,
-            thumbnail:
-              "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png",
-          }),
-        ],
-        components: [actionRow],
+    const cacheKey = `treasurerRemove-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`
+
+    i.guild?.members
+      .fetch(treasurer.user_discord_id)
+      .then(async (treasurer) => {
+        const msg = await treasurer.send({
+          embeds: [
+            composeEmbedMessage(null, {
+              title: `${getEmoji("BELL")} Mochi notifications`,
+              description: `**Approval Request #${
+                dataAddTreasurerReq?.request.id
+              }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
+                "TREASURER_REMOVE"
+              )} Remove <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
+                "MESSAGE2"
+              )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
+              color: msgColors.MOCHI,
+              thumbnail:
+                "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png",
+            }),
+          ],
+          components: [actionRow],
+        })
+        treasurerRemoveCache.set(cacheKey, msg)
       })
-    })
   })
 
   // send DM to treasurer in vault
@@ -158,6 +171,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
     request_id: Number(requestId),
     submitter: submitter,
     choice: choice,
+    type: "remove",
   })
 
   if ((status !== 200 && status !== 400) || !dataTreasurerSubmisison) {
@@ -204,26 +218,66 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
     modelNotify.status = "success"
     // send notify
     await config.createTreasurerResult(modelNotify)
+
+    await i.editReply({
+      embeds: [
+        getSuccessEmbed({
+          title: "Successfully voted",
+          description: `You have updated your vote successfully. Thank you for your vote ${getEmoji(
+            "HEART"
+          )}`,
+        }),
+      ],
+      components: [],
+    })
+
+    // get all key in cache
+    Array.from(treasurerRemoveCache.keys())
+      .filter((key) => key.includes(`treasurerRemove-${requestId}-${vaultId}`))
+      .forEach(async (key) => {
+        const msg = treasurerRemoveCache.get(key) as Message
+        if (msg) {
+          await msg.edit({
+            embeds: [
+              getSuccessEmbed({
+                title: `Approved ${requestId}!!!`,
+                description: `Request has already been approved by majority treasurers \`${dataTreasurerSubmisison.vote_result.total_approved_submission}/${dataTreasurerSubmisison.vote_result.total_submission}\``,
+              }),
+            ],
+            components: [],
+          })
+        }
+        treasurerRemoveCache.del(key)
+      })
   } else {
     if (
-      dataTreasurerSubmisison.vote_result.total_submission ===
-      dataTreasurerSubmisison.vote_result.total_vote
+      dataTreasurerSubmisison.vote_result.total_rejected_submisison >
+      dataTreasurerSubmisison.vote_result.allowed_rejected_submisison
     ) {
       modelNotify.status = "fail"
       // send notify
       await config.createTreasurerResult(modelNotify)
+
+      // get all key in cache
+      Array.from(treasurerRemoveCache.keys())
+        .filter((key) =>
+          key.includes(`treasurerRemove-${requestId}-${vaultId}`)
+        )
+        .forEach(async (key) => {
+          const msg = treasurerRemoveCache.get(key) as Message
+          if (msg) {
+            await msg.edit({
+              embeds: [
+                getErrorEmbed({
+                  title: `Rejected ${requestId}!!!`,
+                  description: `Request has already rejected by majority treasurers ${dataTreasurerSubmisison.vote_result.total_rejected_submisison}/${dataTreasurerSubmisison.vote_result.total_submission}`,
+                }),
+              ],
+              components: [],
+            })
+          }
+          treasurerRemoveCache.del(key)
+        })
     }
   }
-
-  await i.editReply({
-    embeds: [
-      getSuccessEmbed({
-        title: "Successfully voted",
-        description: `You have updated your vote successfully. Thank you for your vote ${getEmoji(
-          "HEART"
-        )}`,
-      }),
-    ],
-    components: [],
-  })
 }

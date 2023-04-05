@@ -1217,6 +1217,7 @@ class Config extends Fetcher {
     request_id: number
     submitter: string
     choice: string
+    type: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/submission`, {
       method: "POST",
