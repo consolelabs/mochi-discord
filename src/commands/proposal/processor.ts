@@ -280,7 +280,11 @@ export async function handleProposalForm(i: ButtonInteraction) {
           embeds: [
             getErrorEmbed({
               title: "Wallet not connected",
-              description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${codeRes.data.code}) to gain the authority to create a proposal.`,
+              description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${
+                codeRes.data.code
+              }&guild_id=${
+                i.guildId ?? ""
+              }) to gain the authority to create a proposal.`,
             }),
           ],
         })
@@ -505,7 +509,9 @@ export async function handleProposalVote(i: ButtonInteraction) {
         embeds: [
           getErrorEmbed({
             title: "Wallet not connected",
-            description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${codeRes.data.code}) to gain the authority to vote.`,
+            description: `Please [Connect your wallet](${HOMEPAGE_URL}/verify?code=${
+              codeRes.data.code
+            }&guild_id=${i.guildId ?? ""}) to gain the authority to vote.`,
           }),
         ],
       })

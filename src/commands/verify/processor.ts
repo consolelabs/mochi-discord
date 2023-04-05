@@ -34,7 +34,9 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
     new MessageButton()
       .setLabel("Verify")
       .setStyle("LINK")
-      .setURL(`${HOMEPAGE_URL}/verify?code=${data.code}`)
+      .setURL(
+        `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${interaction.guildId}`
+      )
   )
   await interaction
     .editReply({ embeds: [embed], components: [row] })
