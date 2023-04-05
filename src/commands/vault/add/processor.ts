@@ -4,16 +4,24 @@ import {
   MessageActionRow,
   MessageButton,
   ButtonInteraction,
+  Message,
 } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, msgColors } from "utils/common"
+import NodeCache from "node-cache"
 import {
   getErrorEmbed,
   composeEmbedMessage,
   getSuccessEmbed,
 } from "ui/discord/embed"
+
+export const treasurerAddCache = new NodeCache({
+  stdTTL: 0,
+  checkperiod: 1,
+  useClones: false,
+})
 
 export async function runAddTreasurer({
   i,
@@ -89,26 +97,32 @@ export async function runAddTreasurer({
       })
     )
 
-    i.guild?.members.fetch(treasurer.user_discord_id).then((treasurer) => {
-      treasurer.send({
-        embeds: [
-          composeEmbedMessage(null, {
-            title: `${getEmoji("BELL")} Mochi notifications`,
-            description: `**Approval Request #${
-              dataAddTreasurerReq?.request.id
-            }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
-              "TREASURER_ADD"
-            )} Add <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
-              "MESSAGE2"
-            )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
-            color: msgColors.MOCHI,
-            thumbnail:
-              "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png",
-          }),
-        ],
-        components: [actionRow],
+    const cacheKey = `treasurerAdd-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`
+
+    i.guild?.members
+      .fetch(treasurer.user_discord_id)
+      .then(async (treasurer) => {
+        const msg = await treasurer.send({
+          embeds: [
+            composeEmbedMessage(null, {
+              title: `${getEmoji("BELL")} Mochi notifications`,
+              description: `**Approval Request #${
+                dataAddTreasurerReq?.request.id
+              }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
+                "TREASURER_ADD"
+              )} Add <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
+                "MESSAGE2"
+              )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
+              color: msgColors.MOCHI,
+              thumbnail:
+                "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png",
+            }),
+          ],
+          components: [actionRow],
+        })
+
+        treasurerAddCache.set(cacheKey, msg)
       })
-    })
   })
 
   // send DM to treasurer in vault
@@ -158,6 +172,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     request_id: Number(requestId),
     submitter: submitter,
     choice: choice,
+    type: "add",
   })
 
   if ((status !== 200 && status !== 400) || !dataAddTreasurer) {
@@ -205,26 +220,64 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     modelNotify.status = "success"
     // send notify
     await config.createTreasurerResult(modelNotify)
+
+    await i.editReply({
+      embeds: [
+        getSuccessEmbed({
+          title: "Successfully voted",
+          description: `You have updated your vote successfully. Thank you for your vote ${getEmoji(
+            "HEART"
+          )}`,
+        }),
+      ],
+      components: [],
+    })
+
+    // get all key in cache
+    Array.from(treasurerAddCache.keys())
+      .filter((key) => key.includes(`treasurerAdd-${requestId}-${vaultId}`))
+      .forEach(async (key) => {
+        const msg = treasurerAddCache.get(key) as Message
+        if (msg) {
+          await msg.edit({
+            embeds: [
+              getSuccessEmbed({
+                title: `Approved ${requestId}!!!`,
+                description: `Request has already been approved by majority treasurers \`${dataAddTreasurer.vote_result.total_approved_submission}/${dataAddTreasurer.vote_result.total_submission}\``,
+              }),
+            ],
+            components: [],
+          })
+        }
+        treasurerAddCache.del(key)
+      })
   } else {
     if (
-      dataAddTreasurer.vote_result.total_submission ===
-      dataAddTreasurer.vote_result.total_vote
+      dataAddTreasurer.vote_result.total_rejected_submisison >
+      dataAddTreasurer.vote_result.allowed_rejected_submisison
     ) {
       modelNotify.status = "fail"
       // send notify
       await config.createTreasurerResult(modelNotify)
+
+      // get all key in cache
+      Array.from(treasurerAddCache.keys())
+        .filter((key) => key.includes(`treasurerAdd-${requestId}-${vaultId}`))
+        .forEach(async (key) => {
+          const msg = treasurerAddCache.get(key) as Message
+          if (msg) {
+            await msg.edit({
+              embeds: [
+                getErrorEmbed({
+                  title: `Rejected ${requestId}!!!`,
+                  description: `Request has already been rejected by majority treasurers \`${dataAddTreasurer.vote_result.total_rejected_submisison}/${dataAddTreasurer.vote_result.total_submission}\``,
+                }),
+              ],
+              components: [],
+            })
+          }
+          treasurerAddCache.del(key)
+        })
     }
   }
-
-  await i.editReply({
-    embeds: [
-      getSuccessEmbed({
-        title: "Successfully voted",
-        description: `You have updated your vote successfully. Thank you for your vote ${getEmoji(
-          "HEART"
-        )}`,
-      }),
-    ],
-    components: [],
-  })
 }
