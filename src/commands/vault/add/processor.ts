@@ -83,7 +83,7 @@ export async function runAddTreasurer({
         label: "Approve",
       }),
       new MessageButton({
-        customId: `treasurerAdd-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}}`,
+        customId: `treasurerAdd-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
         style: "DANGER",
         label: "Reject",
       })
@@ -179,6 +179,14 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     }
   }
 
+  const modelNotify = {
+    guild_id: dataAddTreasurer.submission.guild_id,
+    user_discord_id: user,
+    vault_id: Number(vaultId),
+    channel_id: channelId,
+    type: "add",
+    status: "",
+  }
   if (dataAddTreasurer.vote_result.is_approved === true) {
     // add treasurer to vault
     const { data, status, curl, log } = await config.addTreasurerToVault({
@@ -192,6 +200,19 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
         curl: curl,
         description: log,
       })
+    }
+
+    modelNotify.status = "success"
+    // send notify
+    await config.createTreasurerResult(modelNotify)
+  } else {
+    if (
+      dataAddTreasurer.vote_result.total_submission ===
+      dataAddTreasurer.vote_result.total_vote
+    ) {
+      modelNotify.status = "fail"
+      // send notify
+      await config.createTreasurerResult(modelNotify)
     }
   }
 
