@@ -1281,6 +1281,11 @@ class Config extends Fetcher {
       }
     )
   }
+  public async getVaultDetail(vault_name: string, guild_id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/vault/detail?vaultName=${vault_name}&guildId=${guild_id}`
+    )
+  }
 }
 
 const config = new Config()
