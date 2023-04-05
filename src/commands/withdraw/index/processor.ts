@@ -21,7 +21,7 @@ import {
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
 } from "utils/constants"
 import { validateBalance } from "utils/defi"
-import { awaitMessage } from "utils/discord"
+import { awaitMessage, isMessage } from "utils/discord"
 import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import * as processor from "./processor"
@@ -73,6 +73,7 @@ export async function withdraw(
     tokenArg
   )
   const author = getAuthor(msgOrInteraction)
+  const { message, interaction } = isMessage(msgOrInteraction)
   // send dm
   const dm = await author.send({
     embeds: [
@@ -85,7 +86,7 @@ export async function withdraw(
 
   // redirect to dm if not in DM
   if (msgOrInteraction.guildId) {
-    msgOrInteraction.reply({
+    const replyPayload = {
       embeds: [
         composeEmbedMessage(null, {
           author: ["Withdraw tokens", getEmojiURL(emojis.WALLET)],
@@ -93,7 +94,8 @@ export async function withdraw(
         }),
       ],
       components: [composeButtonLink("See the DM", dm.url)],
-    })
+    }
+    message ? message.reply(replyPayload) : interaction.editReply(replyPayload)
   }
   // ask for recipient address
   payload.address = await processor.getRecipient(
