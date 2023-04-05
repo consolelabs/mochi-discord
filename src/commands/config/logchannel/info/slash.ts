@@ -21,12 +21,17 @@ const slashCmd: SlashCommand = {
     const list = Object.entries(config)
       ?.map(
         (c) =>
-          `\`${c[0]}>\`\n${c[1]
-            ?.map(
-              (channelId) =>
-                `${getEmoji("blank")}${getEmoji("reply")}<#${channelId}>`
-            )
-            .join("\n")}`
+          `\`${c[0]}\`\n${
+            c[1].filter(Boolean).length === 0
+              ? `${getEmoji("blank")}${getEmoji("reply")} No channel found`
+              : c[1]
+                  .filter(Boolean)
+                  .map(
+                    (channelId) =>
+                      `${getEmoji("blank")}${getEmoji("reply")}<#${channelId}>`
+                  )
+                  .join("\n")
+          }`
       )
       .join("\n\n")
 
@@ -41,7 +46,7 @@ const slashCmd: SlashCommand = {
             ],
             thumbnail:
               "https://cdn.discordapp.com/attachments/1052079279619457095/1090587614450565140/logchannel_info.png",
-            description: `Log channel is a place to keep all records of every user’s activity and interaction with Mochi bot. That way, we can better monitor and support guild members' activities from withdrawal, airdrop, role assignment, and many more!\n\n${
+            description: `Log channel is a place to keep all records of every user’s activity and interaction with Mochi bot.That way, we can better monitor and support guild members' activities from withdrawal, airdrop, role assignment, and many more!\n\n${
               isEmpty ? "`Not Set`" : list
             }\n\n${getEmoji(
               "pointingright"
