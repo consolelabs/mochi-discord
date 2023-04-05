@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.15.0",
+    "@types/chroma-js": "^2.4.0",
     "@types/cron": "^2.0.0",
     "@types/fuzzyset": "^1.0.4",
     "@types/jest": "^27.0.2",
@@ -54,6 +55,7 @@
     "change-case": "^4.1.2",
     "chart.js": "^3.7.1",
     "chartjs-node-canvas": "^4.1.6",
+    "chroma-js": "^2.4.2",
     "dayjs": "^1.10.7",
     "deepmerge": "^4.2.2",
     "discord-api-types": "^0.36.0",
