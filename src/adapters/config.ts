@@ -1262,6 +1262,25 @@ class Config extends Fetcher {
       body: req,
     })
   }
+
+  async getDefaultCurrency(guild_id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-defi/default-currency`,
+      {
+        query: { guild_id },
+      }
+    )
+  }
+
+  async setDefaultCurrency(body: { symbol: string; guild_id: string }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-defi/default-currency`,
+      {
+        method: "POST",
+        body,
+      }
+    )
+  }
 }
 
 const config = new Config()
