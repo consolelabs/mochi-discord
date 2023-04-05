@@ -152,7 +152,7 @@ describe("handleAirdrop", () => {
       .spyOn(defiutils, "validateBalance")
       .mockResolvedValueOnce({ balance: 5.5, usdBalance: 2.75 })
     const output = await processor.handleAirdrop(msg, args)
-    const amountInfo = `${getEmoji("ftm")} **5.5 FTM** (\u2248 $2.75)`
+    const amountInfo = `${getEmoji("ftm")} **5.5 FTM** (\u2248 $15.125)`
     const embed = composeEmbedMessage(null, {
       title: `${getEmoji("AIRDROP")} Confirm airdrop`,
       description: `Are you sure you want to spend ${amountInfo} on this airdrop?`,
@@ -168,7 +168,7 @@ describe("handleAirdrop", () => {
         components: [
           new MessageActionRow().addComponents(
             new MessageButton({
-              customId: `confirm_airdrop-${msg.author.id}-5.5-2.75-FTM-30-3`,
+              customId: `confirm_airdrop-${msg.author.id}-5.5-15.125-FTM-30-3`,
               emoji: getEmoji("APPROVE"),
               style: "SUCCESS",
               label: "Confirm",
@@ -197,7 +197,7 @@ describe("handleAirdrop", () => {
       .spyOn(defiutils, "validateBalance")
       .mockResolvedValueOnce({ balance: 5.5, usdBalance: 2.75 })
     const output = await processor.handleAirdrop(msg, args)
-    const amountInfo = `${getEmoji("ftm")} **5.5 FTM** (\u2248 $2.75)`
+    const amountInfo = `${getEmoji("ftm")} **5.5 FTM** (\u2248 $15.125)`
     const embed = composeEmbedMessage(null, {
       title: `${getEmoji("AIRDROP")} Confirm airdrop`,
       description: `Are you sure you want to spend ${amountInfo} on this airdrop?`,
@@ -213,7 +213,7 @@ describe("handleAirdrop", () => {
         components: [
           new MessageActionRow().addComponents(
             new MessageButton({
-              customId: `confirm_airdrop-${msg.author.id}-5.5-2.75-FTM-30-3`,
+              customId: `confirm_airdrop-${msg.author.id}-5.5-15.125-FTM-30-3`,
               emoji: getEmoji("APPROVE"),
               style: "SUCCESS",
               label: "Confirm",

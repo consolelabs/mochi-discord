@@ -484,6 +484,10 @@ class Defi extends Fetcher {
       body,
     })
   }
+
+  async getCoinsMarketData() {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/market-data`)
+  }
 }
 
 export default new Defi()

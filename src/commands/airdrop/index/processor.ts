@@ -269,9 +269,8 @@ export async function handleAirdrop(
     all,
   })
   if (all) payload.amount = balance
-
   const tokenEmoji = getEmoji(payload.token)
-  const usdAmount = (usdBalance / balance) * payload.amount
+  const usdAmount = usdBalance * payload.amount
   const amountDescription = `${tokenEmoji} **${roundFloatNumber(
     payload.amount,
     4
