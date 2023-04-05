@@ -495,8 +495,7 @@ export async function executeTip(
   if (moniker) {
     const monikerVal = moniker as ResponseMonikerConfigData
     const amountMoniker = roundFloatNumber(
-      payload.amount[0] /
-        (payload.recipients.length * (monikerVal?.moniker?.amount || 1)),
+      payload.amount[0] / (monikerVal?.moniker?.amount || 1),
       4
     )
     const amountToken = amountMoniker * (monikerVal?.moniker?.amount || 1)
