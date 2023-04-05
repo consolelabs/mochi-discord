@@ -3,6 +3,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
 import link from "./link/text"
 import me from "./me/text"
+import tip from "../new-tip/index/text"
 
 const actions: Record<string, Command> = {
   link,
@@ -14,7 +15,7 @@ const textCmd: Command = {
   command: "pay",
   brief: "Finish all due payments right in Discord",
   category: "Defi",
-  run: async () => null,
+  run: tip,
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
@@ -27,7 +28,7 @@ const textCmd: Command = {
   }),
   actions,
   colorType: "Wallet",
-  canRunWithoutAction: false,
+  canRunWithoutAction: true,
   allowDM: true,
 }
 
