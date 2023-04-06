@@ -158,19 +158,15 @@ function formatCurrentRequest(request: any) {
     case "Add":
       return `${getEmoji("APPROVE_VAULT")} [[${
         request.total_approved_submission
-      }/${
-        request.total_submission
-      }]](https://google.com) Add ${shortenHashOrAddress(
+      }/${request.total_submission}]](https://google.com) Add <@${
         request.target
-      )} to the vault\n`
+      }> to the vault\n`
     case "Remove":
       return `${getEmoji("APPROVE_VAULT")} [[${
         request.total_approved_submission
-      }/${
-        request.total_submission
-      }]](https://google.com) Remove ${shortenHashOrAddress(
+      }/${request.total_submission}]](https://google.com) Remove <@${
         request.target
-      )} from the vault\n`
+      }> from the vault\n`
   }
 }
 
@@ -189,6 +185,18 @@ function formatRecentTransaction(tx: any) {
       )} Received from ${shortenHashOrAddress(tx.target)} ${tx.amount} ${
         tx.token
       }\n`
+    case "Add":
+      return `[[${t}]](https://mochi.gg/) ${getEmoji("TREASURER_ADD")} Add <@${
+        tx.target
+      }> to the vault\n`
+    case "Remove":
+      return `[[${t}]](https://mochi.gg/) ${getEmoji(
+        "TREASURER_REMOVE"
+      )} Remove <@${tx.target}> from the vault\n`
+    case "Config threshold":
+      return `[[${t}]](https://mochi.gg/) ${getEmoji(
+        "VAULT_KEY"
+      )} Set the threshold to ${tx.threshold}% for vault\n`
   }
 }
 

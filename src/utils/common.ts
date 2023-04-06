@@ -310,6 +310,7 @@ export const emojis: { [key: string]: string } = {
   VAULT: "1090902914769367041",
   VAULT_NFT: "1080788646841557072",
   SHARE: "1087564990405410936",
+  VAULT_KEY: "1090477905445920808",
 
   ...tokenEmojis,
   ...numberEmojis,
