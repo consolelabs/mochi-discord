@@ -4,7 +4,7 @@ import { commands } from "commands"
 import CacheManager from "cache/node-cache"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getChartColorConfig } from "ui/canvas/color"
-import { APIError, InternalError, GuildIdNotFoundError } from "errors"
+import { APIError, InternalError } from "errors"
 import { RunResult } from "types/common"
 import defi from "adapters/defi"
 
@@ -358,30 +358,30 @@ describe("ticker", () => {
     }
   })
 
-  test("guild error", async () => {
-    const message = Reflect.construct(Discord.Message, [
-      mockClient,
-      {
-        content: "$ticker btc",
-        author: {
-          id: userId,
-          username: "tester",
-          discriminator: 1234,
-        },
-        id: Discord.SnowflakeUtil.generate(),
-      },
-      Reflect.construct(Discord.TextChannel, [
-        guild,
-        {
-          client: mockClient,
-          id: Discord.SnowflakeUtil.generate(),
-        },
-      ]),
-    ])
-    try {
-      await command.run(message)
-    } catch (e) {
-      expect(e).toBeInstanceOf(GuildIdNotFoundError)
-    }
-  })
+  // test("guild error", async () => {
+  //   const message = Reflect.construct(Discord.Message, [
+  //     mockClient,
+  //     {
+  //       content: "$ticker btc",
+  //       author: {
+  //         id: userId,
+  //         username: "tester",
+  //         discriminator: 1234,
+  //       },
+  //       id: Discord.SnowflakeUtil.generate(),
+  //     },
+  //     Reflect.construct(Discord.TextChannel, [
+  //       guild,
+  //       {
+  //         client: mockClient,
+  //         id: Discord.SnowflakeUtil.generate(),
+  //       },
+  //     ]),
+  //   ])
+  //   try {
+  //     await command.run(message)
+  //   } catch (e) {
+  //     expect(e).toBeInstanceOf(GuildIdNotFoundError)
+  //   }
+  // })
 })

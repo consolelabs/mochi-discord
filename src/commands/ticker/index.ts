@@ -5,7 +5,7 @@ import { getCommandArguments } from "utils/commands"
 import { composeEmbedMessage } from "ui/discord/embed"
 import _default from "./default/text"
 import { parseTickerQuery } from "utils/defi"
-import { GuildIdNotFoundError, InternalError } from "errors"
+import { InternalError } from "errors"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import CacheManager from "cache/node-cache"
@@ -35,9 +35,6 @@ const textCmd: Command = {
   category: "Defi",
   allowDM: true,
   run: async function (msg) {
-    if (!msg.guildId) {
-      throw new GuildIdNotFoundError({ message: msg })
-    }
     const args = getCommandArguments(msg)
     const [query] = args.slice(1)
     const { base, target, isCompare, isFiat } = parseTickerQuery(query)
