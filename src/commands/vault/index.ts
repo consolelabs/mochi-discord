@@ -43,14 +43,12 @@ const slashCmd: SlashCommand = {
         .addSubcommand(<SlashCommandSubcommandBuilder>thresholdSlash.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>channelSlash.prepare())
     )
-    data.addSubcommandGroup(
-      (group) =>
-        group
-          .setName("treasurer")
-          .setDescription("Add treasurer to vault")
-          .addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())
-          .addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare())
-      // Gonna implement remove, transfer later
+    data.addSubcommandGroup((group) =>
+      group
+        .setName("treasurer")
+        .setDescription("Add treasurer to vault")
+        .addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare())
     )
     return data
   },
