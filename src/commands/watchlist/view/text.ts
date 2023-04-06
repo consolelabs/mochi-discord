@@ -36,6 +36,7 @@ const command: Command = {
     ],
   }),
   canRunWithoutAction: true,
+  allowDM: true,
   colorType: "Defi",
 }
 
