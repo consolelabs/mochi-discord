@@ -62,6 +62,7 @@ const textCmd: Command = {
     ],
   }),
   canRunWithoutAction: false,
+  allowDM: true,
   colorType: "Defi",
   minArguments: 2,
   actions,

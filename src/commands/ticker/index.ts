@@ -33,6 +33,7 @@ const textCmd: Command = {
   command: "ticker",
   brief: "Token ticker",
   category: "Defi",
+  allowDM: true,
   run: async function (msg) {
     if (!msg.guildId) {
       throw new GuildIdNotFoundError({ message: msg })
