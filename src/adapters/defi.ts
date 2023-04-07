@@ -488,6 +488,27 @@ class Defi extends Fetcher {
   async getCoinsMarketData() {
     return await this.jsonFetch(`${API_BASE_URL}/defi/market-data`)
   }
+
+  async getSwapRoute({
+    from,
+    to,
+    amount,
+    chain_name,
+  }: {
+    from: string
+    to: string
+    amount: string
+    chain_name: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/swap/route`, {
+      query: {
+        from,
+        to,
+        amount,
+        chain_name,
+      },
+    })
+  }
 }
 
 export default new Defi()
