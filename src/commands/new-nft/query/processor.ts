@@ -536,7 +536,7 @@ export async function composeNFTDetail(
         const val = `${capFirst(attr.value)}\n${attr.frequency ?? ""}`
         return {
           name: `${getIcon(icons, attr.trait_type)} ${capFirst(
-            attr.trait_type?.replace("_", " ")
+            attr.trait_type?.replaceAll("_", " ")
           )}`,
           value: `${val ? val : "-"}`,
           inline: true,
