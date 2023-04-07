@@ -161,7 +161,7 @@ class Defi extends Fetcher {
   async getGasPrice(chain: string) {
     const gasTrackerUrls: Record<string, string> = {
       ftm: FTMSCAN_API,
-      bsc: BSCSCAN_API,
+      bnb: BSCSCAN_API,
       matic: POLYGONSCAN_API,
       eth: ETHSCAN_API,
     }

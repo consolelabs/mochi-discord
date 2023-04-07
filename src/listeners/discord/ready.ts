@@ -24,7 +24,7 @@ const event: DiscordEvent<"ready"> = {
       ChannelLogger.ready(client)
       InteractionManager.client = client
       // get gas price and show in presence message every 15s
-      const chains = ["eth", "ftm", "bsc", "matic"]
+      const chains = ["eth", "ftm", "bnb", "matic"]
       const presence = async () => {
         const chain = chains.shift()
         if (chain) chains.push(chain)
