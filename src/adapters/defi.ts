@@ -161,7 +161,7 @@ class Defi extends Fetcher {
   async getGasPrice(chain: string) {
     const gasTrackerUrls: Record<string, string> = {
       ftm: FTMSCAN_API,
-      bsc: BSCSCAN_API,
+      bnb: BSCSCAN_API,
       matic: POLYGONSCAN_API,
       eth: ETHSCAN_API,
     }
@@ -487,6 +487,27 @@ class Defi extends Fetcher {
 
   async getCoinsMarketData() {
     return await this.jsonFetch(`${API_BASE_URL}/defi/market-data`)
+  }
+
+  async getSwapRoute({
+    from,
+    to,
+    amount,
+    chain_name,
+  }: {
+    from: string
+    to: string
+    amount: string
+    chain_name: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/swap/route`, {
+      query: {
+        from,
+        to,
+        amount,
+        chain_name,
+      },
+    })
   }
 }
 

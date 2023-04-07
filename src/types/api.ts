@@ -237,6 +237,13 @@ export interface ModelEnvelop {
   user_id?: string;
 }
 
+export interface ModelExtraFee {
+  chargeFeeBy?: string;
+  feeAmount?: string;
+  feeReceiver?: string;
+  isImBps?: boolean;
+}
+
 export interface ModelGuildConfigActivity {
   active?: boolean;
   activity?: ModelActivity;
@@ -443,6 +450,19 @@ export interface ModelJSONNullString {
   string?: string;
   /** Valid is true if String is not NULL */
   valid?: boolean;
+}
+
+export interface ModelKyberswapSupportedToken {
+  address?: string;
+  chain_id?: number;
+  chain_name?: string;
+  created_at?: string;
+  decimals?: number;
+  id?: number;
+  logo_uri?: string;
+  name?: string;
+  symbol?: string;
+  updated_at?: string;
 }
 
 export interface ModelMixRoleNFTRequirement {
@@ -1619,13 +1639,6 @@ export interface ResponseDiscordUserTokenAlertResponse {
   data?: ModelDiscordUserTokenAlert[];
 }
 
-export interface ResponseExtraFee {
-  chargeFeeBy?: string;
-  feeAmount?: string;
-  feeReceiver?: string;
-  isImBps?: boolean;
-}
-
 export interface ResponseGasTrackerResponse {
   chain?: string;
   est_fast_time?: string;
@@ -2230,12 +2243,6 @@ export interface ResponseInvitesAggregationResponse {
   data?: ResponseUserInvitesAggregation;
 }
 
-export interface ResponseKyberSwapRoutes {
-  code?: number;
-  data?: ResponseRouteSummaryData;
-  message?: string;
-}
-
 export interface ResponseLinkUserTelegramWithDiscordResponse {
   data?: ResponseLinkUserTelegramWithDiscordResponseData;
 }
@@ -2548,6 +2555,7 @@ export interface ResponseRouteElement {
   swapAmount?: string;
   tokenIn?: string;
   tokenOut?: string;
+  tokenOutSymbol?: string;
 }
 
 export interface ResponseRouteSummary {
@@ -2555,7 +2563,7 @@ export interface ResponseRouteSummary {
   amountInUsd?: string;
   amountOut?: string;
   amountOutUsd?: string;
-  extraFee?: ResponseExtraFee;
+  extraFee?: ModelExtraFee;
   gas?: string;
   gasPrice?: string;
   gasUsd?: string;
@@ -2564,11 +2572,6 @@ export interface ResponseRouteSummary {
   tokenInMarketPriceAvailable?: boolean;
   tokenOut?: string;
   tokenOutMarketPriceAvailable?: boolean;
-}
-
-export interface ResponseRouteSummaryData {
-  routeSummary?: ResponseRouteSummary;
-  routerAddress?: string;
 }
 
 export interface ResponseSearchCoinResponse {
@@ -2589,6 +2592,23 @@ export interface ResponseSubmitOnchainTransfer {
 
 export interface ResponseSubmitOnchainTransferResponse {
   data?: ResponseSubmitOnchainTransfer[];
+}
+
+export interface ResponseSwapRoute {
+  routeSummary?: ResponseRouteSummary;
+  routerAddress?: string;
+  tokenIn?: ModelKyberswapSupportedToken;
+  tokenOut?: ModelKyberswapSupportedToken;
+}
+
+export interface ResponseSwapRouteResponse {
+  code?: number;
+  data?: ResponseSwapRoute;
+  message?: string;
+}
+
+export interface ResponseSwapRouteResponseData {
+  data?: ResponseSwapRouteResponse;
 }
 
 export interface ResponseTickerData {
