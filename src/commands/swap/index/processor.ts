@@ -74,12 +74,14 @@ type AggregatedRoute = {
 type AggregatedTradeRoute = Record<string, AggregatedRoute>
 
 function format2Digit(s: string) {
-  return s
-    .split(".")
-    .reduce(
-      (acc, c, i) => (i !== 0 ? (acc += c.slice(0, 2)) : (acc += `${c}.`)),
-      ""
-    )
+  const [left, right = ""] = s.split(".")
+  if (Number(right) === 0 || right === "" || left.length >= 4) return left
+  const numsArr = right.split("")
+  let rightStr = numsArr.shift() as string
+  while (Number(rightStr) === 0) {
+    rightStr += numsArr.shift()
+  }
+  return left + "." + rightStr
 }
 
 // function to parse route data from kyberswap to our format for easier display
@@ -208,11 +210,11 @@ export async function render(
 
   const routes = await aggregateTradeRoute(routeSummary)
 
-  const fromAmountFormatted = format2Digit(
-    utils.formatUnits(routeSummary.amountIn, tokenIn.decimals)
+  const fromAmountFormatted = utils.commify(
+    format2Digit(utils.formatUnits(routeSummary.amountIn, tokenIn.decimals))
   )
-  const toAmountFormatted = format2Digit(
-    utils.formatUnits(routeSummary.amountOut, tokenOut.decimals)
+  const toAmountFormatted = utils.commify(
+    format2Digit(utils.formatUnits(routeSummary.amountOut, tokenOut.decimals))
   )
 
   const fromEmo = getEmoji(from, false, defaultToken)
@@ -270,8 +272,8 @@ export async function render(
   embed.addFields([
     {
       name: "From",
-      value: `${fromEmo} ${fromAmountFormatted} ${from}\n\`$${format2Digit(
-        routeSummary.amountInUsd
+      value: `${fromEmo} ${fromAmountFormatted} ${from} \n\`$${utils.commify(
+        format2Digit(routeSummary.amountInUsd)
       )}\``,
       inline: true,
     },
@@ -282,15 +284,15 @@ export async function render(
     },
     {
       name: "To",
-      value: `${toEmo} ${toAmountFormatted} ${to}\n\`$${format2Digit(
-        routeSummary.amountOutUsd
+      value: `${toEmo} ${toAmountFormatted} ${to}\n\`$${utils.commify(
+        format2Digit(routeSummary.amountOutUsd)
       )}\``,
       inline: true,
     },
     {
       name: "Gas Fee",
       value: routeSummary.gasUsd
-        ? `${approx} \`$${format2Digit(routeSummary.gasUsd)}\``
+        ? `${approx} \`$${utils.commify(format2Digit(routeSummary.gasUsd))}\``
         : "Unknown",
       inline: true,
     },
