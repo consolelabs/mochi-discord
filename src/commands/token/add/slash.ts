@@ -15,7 +15,7 @@ const command: SlashCommand = {
       ["Polygon", "matic"],
       ["Fantom", "ftm"],
       ["Solana", "sol"],
-      ["BSC", "bsc"],
+      ["BNB", "bsc"],
       ["Avalanche", "avax"],
       ["Optimism", "op"],
       ["Arbitrum", "arb"],
