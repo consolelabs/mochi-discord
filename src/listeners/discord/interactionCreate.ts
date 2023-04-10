@@ -74,6 +74,7 @@ import {
   handleTokenApprove,
   handleTokenReject,
 } from "commands/token/add/processor"
+import tagme from "handlers/tagme"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -369,7 +370,6 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("globalxp"):
       await confirmGlobalXP(i, msg)
       return
-      return
     case i.customId.startsWith("ticker_view_"):
       await handleTickerViews(i)
       return
@@ -444,6 +444,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("treasurerRemove-rejected"):
       await handleTreasurerRemove(i)
+      return
+    case i.customId.startsWith("unsubscribe-tagme"):
+      await tagme.unsubscribe(i)
       return
     default: {
       return

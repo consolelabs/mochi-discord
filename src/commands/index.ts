@@ -90,6 +90,7 @@ import vault from "./vault"
 import config from "./config"
 import heatmap from "./heatmap"
 import swap from "./swap"
+import tagme from "./tagme"
 
 CacheManager.init({
   ttl: 0,
@@ -141,6 +142,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   config: config.slashCmd,
   heatmap: heatmap.slashCmd,
   swap: swap.slashCmd,
+  tagme: tagme.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
