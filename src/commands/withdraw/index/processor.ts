@@ -1,7 +1,10 @@
 import { CommandInteraction, Message } from "discord.js"
 import { APIError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
-import { KafkaQueueActivityDataCommand } from "types/common"
+import {
+  KafkaNotificationMessage,
+  KafkaQueueActivityDataCommand,
+} from "types/common"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { defaultActivityMsg, sendActivityMsg } from "utils/activity"
@@ -18,6 +21,7 @@ import {
 import {
   MOCHI_ACTION_WITHDRAW,
   MOCHI_APP_SERVICE,
+  MOCHI_PLATFORM_DISCORD,
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
 } from "utils/constants"
 import { validateBalance } from "utils/defi"
@@ -25,6 +29,7 @@ import { awaitMessage, isMessage } from "utils/discord"
 import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import * as processor from "./processor"
+import { sendNotificationMsg } from "utils/kafka"
 
 export async function getRecipient(
   msg: Message | CommandInteraction,
@@ -119,6 +124,18 @@ export async function withdraw(
   kafkaMsg.activity.content.amount = amountArg
   kafkaMsg.activity.content.token = tokenArg
   sendActivityMsg(kafkaMsg)
+
+  // send notification message
+  const kafkaNotiMsg: KafkaNotificationMessage = {
+    id: author.id,
+    platform: MOCHI_PLATFORM_DISCORD,
+    action: MOCHI_ACTION_WITHDRAW,
+    metadata: {
+      amount: payload.amount,
+      token: payload.token,
+    },
+  }
+  sendNotificationMsg(kafkaNotiMsg)
 
   const embed = composeWithdrawEmbed(payload)
   await author.send({ embeds: [embed] })
