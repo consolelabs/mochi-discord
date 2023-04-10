@@ -602,26 +602,14 @@ class Community extends Fetcher {
     })
   }
 
-  public async subscribeTagme(body: {
+  public async upsertTagme(body: {
     userId: string
     guildId: string
-    mentionUsername: boolean
-    mentionRole: boolean
+    isActive: boolean
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/community/tagme`, {
       method: "POST",
       body,
-    })
-  }
-
-  public async unsubscribeTagme(body: { userId: string; guildId: string }) {
-    return await this.jsonFetch(`${API_BASE_URL}/community/tagme`, {
-      method: "POST",
-      body: {
-        ...body,
-        mention_username: false,
-        mention_role: false,
-      },
     })
   }
 

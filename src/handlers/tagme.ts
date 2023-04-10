@@ -7,7 +7,6 @@ import {
   MessageButton,
   User,
 } from "discord.js"
-import client from "index"
 import { logger } from "logger"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji, msgColors } from "utils/common"
@@ -18,7 +17,6 @@ class Tagme {
     guildId: string,
     msgURL: string,
     tagger: GuildMember,
-    type: "username" | "role",
     description = ""
   ) {
     if (!guildId) return
@@ -35,18 +33,15 @@ class Tagme {
       return
     }
 
-    if (
-      (type === "username" && !data.mention_username) ||
-      (type === "role" && !data.mention_role)
-    )
-      return
+    if (!data.is_active) return
+
     user
       .send({
         embeds: [
           composeEmbedMessage(null, {
-            title: `${tagger.nickname ?? tagger.displayName} _mentioned ${
-              type === "role" ? "your role" : "you"
-            }_ in ${tagger.guild.name}`,
+            title: `${
+              tagger.nickname ?? tagger.displayName
+            } _mentioned you_ in ${tagger.guild.name}`,
             description,
             thumbnail: tagger.guild.iconURL(),
             color: msgColors.ACTIVITY,
@@ -74,9 +69,10 @@ class Tagme {
   async unsubscribe(i: ButtonInteraction) {
     await i.deferUpdate()
     const [, userId, guildId] = i.customId.split("_")
-    const { ok, log, error } = await community.unsubscribeTagme({
+    const { ok, log, error } = await community.upsertTagme({
       userId,
       guildId,
+      isActive: false,
     })
     if (!ok) {
       logger.warn(
@@ -101,31 +97,11 @@ class Tagme {
   }
 
   async handle(msg: Message) {
-    const { member, mentions, cleanContent } = msg
-    if (!member || member.user.id === client.user?.id) return
+    const { member, mentions, content } = msg
+    if (!member || member.user.bot) return
 
     mentions.users.forEach((user) => {
-      this.notify(
-        user,
-        msg.guild?.id ?? "",
-        msg.url,
-        member,
-        "username",
-        cleanContent
-      )
-    })
-
-    mentions.roles.forEach((role) => {
-      role.members.forEach((member) => {
-        this.notify(
-          member.user,
-          msg.guild?.id ?? "",
-          msg.url,
-          member,
-          "role",
-          cleanContent
-        )
-      })
+      this.notify(user, msg.guild?.id ?? "", msg.url, member, content)
     })
   }
 }

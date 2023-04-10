@@ -1364,8 +1364,7 @@ export interface RequestUpsertUserDeviceRequest {
 
 export interface RequestUpsertUserTag {
   guild_id?: string;
-  mention_role?: boolean;
-  mention_username?: boolean;
+  is_active?: boolean;
   user_id?: string;
 }
 
