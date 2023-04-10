@@ -601,6 +601,35 @@ class Community extends Fetcher {
       method: "GET",
     })
   }
+
+  public async subscribeTagme(body: {
+    userId: string
+    guildId: string
+    mentionUsername: boolean
+    mentionRole: boolean
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/tagme`, {
+      method: "POST",
+      body,
+    })
+  }
+
+  public async unsubscribeTagme(body: { userId: string; guildId: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/tagme`, {
+      method: "POST",
+      body: {
+        ...body,
+        mention_username: false,
+        mention_role: false,
+      },
+    })
+  }
+
+  public async getTagme(query: { userId: string; guildId: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/tagme`, {
+      query,
+    })
+  }
 }
 
 export default new Community()

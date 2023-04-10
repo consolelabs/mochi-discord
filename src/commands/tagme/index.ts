@@ -1,0 +1,115 @@
+import { SlashCommandBuilder } from "@discordjs/builders"
+import community from "adapters/community"
+import { APIError, GuildIdNotFoundError } from "errors"
+import { SlashCommand } from "types/common"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
+import { emojis, getEmojiURL, msgColors, thumbnails } from "utils/common"
+
+const slashCmd: SlashCommand = {
+  name: "tagme",
+  category: "Community",
+  prepare: () => {
+    const data = new SlashCommandBuilder()
+      .setName("tagme")
+      .setDescription("Preview swap route of you tokens")
+      .addBooleanOption((opt) =>
+        opt
+          .setName("mention_username")
+          .setDescription("notify me when my username got mentioned")
+          .setRequired(false)
+      )
+      .addBooleanOption((opt) =>
+        opt
+          .setName("mention_role")
+          .setDescription("notify me when my role got mentioned")
+          .setRequired(false)
+      )
+
+    return data
+  },
+  run: async function (i) {
+    if (!i.guild?.id) {
+      throw new GuildIdNotFoundError({ message: i })
+    }
+    const mentionUsername =
+      i.options.getBoolean("mention_username", false) ?? true
+    const mentionRole = i.options.getBoolean("mention_role", false) ?? true
+
+    const { ok, curl, log } = await community.subscribeTagme({
+      userId: i.user.id,
+      guildId: i.guild.id,
+      mentionUsername,
+      mentionRole,
+    })
+
+    if (!ok) {
+      throw new APIError({
+        msgOrInteraction: i,
+        curl,
+        description: log,
+      })
+    }
+
+    const dm = {
+      embeds: [
+        composeEmbedMessage2(i, {
+          author: ["Hey there", thumbnails.MOCHI],
+          thumbnail: getEmojiURL(emojis.WAVING_HAND),
+          description: `Whenever someone mentions you by ${
+            mentionUsername ? "username" : ""
+          }${
+            mentionUsername && mentionRole
+              ? " or by role"
+              : mentionRole
+              ? "your role"
+              : ""
+          } in **${
+            i.guild.name
+          }**, Mochi will DM to let you know\n\nYou can always unsubcribe at any time.`,
+          color: msgColors.SUCCESS,
+        }),
+      ],
+    }
+
+    try {
+      const msg = await i.user.send(dm)
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage2(i, {
+              author: ["You're setup", thumbnails.MOCHI],
+              thumbnail: getEmojiURL(emojis.WAVING_HAND),
+              description: `**[Check your DM!](${msg.url})**`,
+              color: msgColors.ACTIVITY,
+            }),
+          ],
+        },
+      }
+    } catch (e) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage2(i, {
+              author: [
+                "Chotto matte",
+                getEmojiURL(emojis.ANIMATED_QUESTION_MARK),
+              ],
+              description:
+                "You are subscribed, but Mochi couldn't DM you, please enable so Mochi can send you DMs in the future",
+              image:
+                "https://cdn.discordapp.com/attachments/1019524376527372288/1094879142358548500/E2y-ikbXIAkNmGc.png",
+              color: msgColors.ACTIVITY,
+            }),
+          ],
+        },
+      }
+    }
+  },
+  help: async () => ({
+    embeds: [composeEmbedMessage(null, { includeCommandsList: true })],
+  }),
+  colorType: "Server",
+  ephemeral: true,
+}
+
+export default { slashCmd }

@@ -1362,6 +1362,13 @@ export interface RequestUpsertUserDeviceRequest {
   ios_noti_token?: string;
 }
 
+export interface RequestUpsertUserTag {
+  guild_id?: string;
+  mention_role?: boolean;
+  mention_username?: boolean;
+  user_id?: string;
+}
+
 export interface RequestUpsertVoteChannelConfigRequest {
   channel_id?: string;
   guild_id?: string;
