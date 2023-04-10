@@ -11,19 +11,7 @@ const slashCmd: SlashCommand = {
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("tagme")
-      .setDescription("Preview swap route of you tokens")
-      .addBooleanOption((opt) =>
-        opt
-          .setName("mention_username")
-          .setDescription("notify me when my username got mentioned")
-          .setRequired(false)
-      )
-      .addBooleanOption((opt) =>
-        opt
-          .setName("mention_role")
-          .setDescription("notify me when my role got mentioned")
-          .setRequired(false)
-      )
+      .setDescription("Get a DM whenever someone mentions you")
 
     return data
   },
@@ -31,15 +19,11 @@ const slashCmd: SlashCommand = {
     if (!i.guild?.id) {
       throw new GuildIdNotFoundError({ message: i })
     }
-    const mentionUsername =
-      i.options.getBoolean("mention_username", false) ?? true
-    const mentionRole = i.options.getBoolean("mention_role", false) ?? true
 
-    const { ok, curl, log } = await community.subscribeTagme({
+    const { ok, curl, log } = await community.upsertTagme({
       userId: i.user.id,
       guildId: i.guild.id,
-      mentionUsername,
-      mentionRole,
+      isActive: true,
     })
 
     if (!ok) {
@@ -55,17 +39,7 @@ const slashCmd: SlashCommand = {
         composeEmbedMessage2(i, {
           author: ["Hey there", thumbnails.MOCHI],
           thumbnail: getEmojiURL(emojis.WAVING_HAND),
-          description: `Whenever someone mentions you by ${
-            mentionUsername ? "username" : ""
-          }${
-            mentionUsername && mentionRole
-              ? " or by role"
-              : mentionRole
-              ? "your role"
-              : ""
-          } in **${
-            i.guild.name
-          }**, Mochi will DM to let you know\n\nYou can always unsubcribe at any time.`,
+          description: `Whenever someone mentions you in **${i.guild.name}**, Mochi will DM to let you know\n\nYou can always unsubcribe at any time.`,
           color: msgColors.SUCCESS,
         }),
       ],
