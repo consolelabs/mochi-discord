@@ -154,7 +154,9 @@ async function checkExpiredAirdrop(
   airdropCache.on("expired", async (key, participants: string[]) => {
     if (key === cacheKey) {
       airdropCache.del(key)
-      participants = participants.slice(0, maxEntries)
+      if (maxEntries > 0) {
+        participants = participants.slice(0, maxEntries)
+      }
       const tokenEmoji = getEmoji(token)
       const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${token}** (\u2248 $${roundFloatNumber(
         +usdAmount,
