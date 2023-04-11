@@ -306,6 +306,7 @@ export const emojis: { [key: string]: string } = {
   CLIPBOARD: "1085873013309833216",
   PROPOSAL: "1087564986504708167",
   CHECK: "1077631110047080478",
+  X: "1077631119073230970",
   CONFIG: "1058304297395306496",
   MONIKER: "1090477895861944411",
   BELL: "1087564962941124679",
@@ -315,6 +316,8 @@ export const emojis: { [key: string]: string } = {
   VAULT_NFT: "1080788646841557072",
   SHARE: "1087564990405410936",
   VAULT_KEY: "1090477905445920808",
+  WAVING_HAND: "1058304369210167418",
+  ANIMATED_QUESTION_MARK: "1093923080235126804",
 
   ...tokenEmojis,
   ...numberEmojis,
@@ -352,6 +355,8 @@ export const thumbnails: Record<string, string> = {
     "https://cdn.discordapp.com/emojis/1058304290927685682.webp?size=240&quality=lossless",
   TOKEN_ADD:
     "https://cdn.discordapp.com/emojis/1090477926434218004.webp?size=240&quality=lossless",
+  MOCHI:
+    "https://media.discordapp.net/attachments/984660970624409630/1094880594976047174/Mochi_New.png?width=1024&height=1024",
 }
 
 export function isInteraction(

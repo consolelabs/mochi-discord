@@ -601,6 +601,23 @@ class Community extends Fetcher {
       method: "GET",
     })
   }
+
+  public async upsertTagme(body: {
+    userId: string
+    guildId: string
+    isActive: boolean
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/tagme`, {
+      method: "POST",
+      body,
+    })
+  }
+
+  public async getTagme(query: { userId: string; guildId: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/community/tagme`, {
+      query,
+    })
+  }
 }
 
 export default new Community()

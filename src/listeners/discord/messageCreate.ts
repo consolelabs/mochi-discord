@@ -2,6 +2,7 @@ import webhook from "adapters/webhook"
 import { handlePrefixedCommand } from "commands"
 import { Message } from "discord.js"
 import { MessageTypes } from "discord.js/typings/enums"
+import tagme from "handlers/tagme"
 import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "./index"
@@ -44,6 +45,7 @@ const events: DiscordEvent<"messageCreate"> = {
         await handlePrefixedCommand(message)
         return
       }
+      tagme.handle(message)
       await handleNormalMessage(message)
     })
   },

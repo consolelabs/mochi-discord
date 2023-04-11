@@ -27,12 +27,18 @@ export async function heatmap(
     originalMsgAuthor: getAuthor(msgOrInteraction),
     image: "attachment://heatmap.png",
   })
+  const filtered = Object.values(data).filter(
+    (i) =>
+      !["busd", "tusd", "usdc", "usdt", "dai", "frax"].includes(
+        i.symbol.toLowerCase()
+      )
+  )
   const now = new Date()
   const key = `${now.getUTCFullYear()}${now.getUTCMonth()}${now.getUTCDate()}`
   const buffer = await CacheManager.get({
     pool: "heatmap",
     key,
-    call: () => render(Object.values(data)),
+    call: () => render(filtered),
     ttl: 21600, // 6h
   })
   return {
