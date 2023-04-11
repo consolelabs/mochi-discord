@@ -445,8 +445,8 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("treasurerRemove-rejected"):
       await handleTreasurerRemove(i)
       return
-    case i.customId.startsWith("unsubscribe-tagme"):
-      await tagme.unsubscribe(i)
+    case i.customId.startsWith("tagme"):
+      await tagme.editSubscribeStatus(i)
       return
     default: {
       return
