@@ -101,6 +101,9 @@ class Tagme {
     if (!member || member.user.bot) return
 
     mentions.users.forEach((user) => {
+      // if the user is the one being replied -> do nothing
+      if (mentions.repliedUser?.id === user.id) return
+
       this.notify(user, msg.guild?.id ?? "", msg.url, member, content)
     })
   }
