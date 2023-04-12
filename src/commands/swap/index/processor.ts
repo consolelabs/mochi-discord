@@ -10,7 +10,14 @@ import {
   enableDMMessage,
   getErrorEmbed,
 } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL, thumbnails } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiToken,
+  getEmojiURL,
+  TokenEmojiKey,
+  thumbnails,
+} from "utils/common"
 import { reply } from "utils/discord"
 import { BigNumber, utils } from "ethers"
 import { APPROX, HOMEPAGE_URL } from "utils/constants"
@@ -191,8 +198,6 @@ async function aggregateTradeRoute(routeSummary: RouteSummary) {
   return parseTradeRoute(routeSummary).then(calculatePercentage)
 }
 
-const defaultToken = "<:_:1058304286217490502>"
-
 export async function handleSwap(i: ButtonInteraction) {
   await i.deferUpdate()
   const [, chainName] = i.customId.split("_")
@@ -261,8 +266,8 @@ export async function render(
     tokenIn: { decimals: number }
     tokenOut: { decimals: number }
   },
-  from: string,
-  to: string,
+  from: TokenEmojiKey,
+  to: TokenEmojiKey,
   chainName: string
 ) {
   const { routeSummary, tokenIn, tokenOut } = data
@@ -276,8 +281,8 @@ export async function render(
     formatDigit(utils.formatUnits(routeSummary.amountOut, tokenOut.decimals))
   )
 
-  const fromEmo = getEmoji(from, false, defaultToken)
-  const toEmo = getEmoji(to, false, defaultToken)
+  const fromEmo = getEmojiToken(from, false)
+  const toEmo = getEmojiToken(to, false)
 
   const embed = composeEmbedMessage(null, {
     author: ["Swap", getEmojiURL(emojis.SWAP_ROUTE)],
@@ -286,7 +291,7 @@ export async function render(
   })
 
   const tradeRoutes = Object.values(routes).map((route, i) => {
-    return `${i === 0 ? "" : "\n"}${getEmoji("reply_3")}${
+    return `${i === 0 ? "" : "\n"}${getEmoji("REPLY_3")}${
       route.percent
     } ${fromEmo} ${from}\n${route.hops
       .map((hop, j) => {
@@ -294,15 +299,15 @@ export async function render(
           i === Object.values(routes).length - 1 && j === route.hops.length - 1
 
         return `${
-          lastOfLast ? getEmoji("reply") : getEmoji("reply_2")
-        } ${getEmoji(hop.tokenOutSymbol, false, defaultToken)} ${
+          lastOfLast ? getEmoji("REPLY") : getEmoji("REPLY_2")
+        } ${getEmojiToken(hop.tokenOutSymbol as TokenEmojiKey, false)} ${
           hop.tokenOutSymbol
         }\n${hop.pools
           .map((p, o) => {
-            return `${lastOfLast ? getEmoji("blank") : getEmoji("reply_3")}${
+            return `${lastOfLast ? getEmoji("BLANK") : getEmoji("REPLY_3")}${
               o === hop.pools.length - 1
-                ? getEmoji("reply")
-                : getEmoji("reply_2")
+                ? getEmoji("REPLY")
+                : getEmoji("REPLY_2")
             }[(${p.name}: ${p.percent})](${HOMEPAGE_URL})`
           })
           .join("\n")}`
@@ -317,7 +322,7 @@ export async function render(
     const next = tradeRoutes[i + 1] ?? ""
     const combined = !next
       ? current
-      : `${current}\n${getEmoji("reply_3")}${next}`
+      : `${current}\n${getEmoji("REPLY_3")}${next}`
     if (combined.length <= 1024) {
       aggregatedRoutes.push(combined)
       i++
@@ -366,7 +371,7 @@ export async function render(
       inline: true,
     },
     ...aggregatedRoutes.map<any>((p, i) => ({
-      name: i === 0 ? "\u200b\nTrade Route" : getEmoji("reply_3"),
+      name: i === 0 ? "\u200b\nTrade Route" : getEmoji("REPLY_3"),
       value: p,
       inline: false,
     })),

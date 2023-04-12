@@ -7,7 +7,6 @@ import {
   SLASH_PREFIX,
 } from "utils/constants"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
-import { getEmoji } from "utils/common"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import deposit from "./index/text"
 import * as depositSlash from "./index/slash"
@@ -18,10 +17,6 @@ const textCmd: Command = {
   brief: "Deposit",
   category: "Defi",
   run: deposit,
-  featured: {
-    title: `${getEmoji("left_arrow")} Deposit`,
-    description: "Deposit tokens into your in-discord wallet",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

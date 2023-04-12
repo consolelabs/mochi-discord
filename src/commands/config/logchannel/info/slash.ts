@@ -23,12 +23,12 @@ const slashCmd: SlashCommand = {
         (c) =>
           `\`${c[0]}\`\n${
             c[1].filter(Boolean).length === 0
-              ? `${getEmoji("blank")}${getEmoji("reply")} No channel found`
+              ? `${getEmoji("BLANK")}${getEmoji("REPLY")} No channel found`
               : c[1]
                   .filter(Boolean)
                   .map(
                     (channelId) =>
-                      `${getEmoji("blank")}${getEmoji("reply")}<#${channelId}>`
+                      `${getEmoji("BLANK")}${getEmoji("REPLY")}<#${channelId}>`
                   )
                   .join("\n")
           }`

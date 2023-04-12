@@ -1,5 +1,5 @@
-import { getEmoji } from "utils/common"
 import { parseMessageTip } from "commands/tip/index/processor"
+import { getEmoji, TokenEmojiKey } from "utils/common"
 import { Message } from "discord.js"
 import { CommandArgumentError } from "errors"
 import { Command } from "types/common"
@@ -28,7 +28,7 @@ const cmd: Command = {
     await run({
       msgOrInteraction: msg,
       amount: +amount,
-      token: token.toUpperCase(),
+      token: token.toUpperCase() as TokenEmojiKey,
       hasTarget,
       target,
       platform,

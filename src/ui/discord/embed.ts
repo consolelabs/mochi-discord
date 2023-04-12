@@ -23,10 +23,12 @@ import {
 import {
   emojis,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   msgColors,
   // removeDuplications,
   roundFloatNumber,
+  TokenEmojiKey,
 } from "utils/common"
 import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
 
@@ -217,7 +219,7 @@ export async function workInProgress(): Promise<MessageOptions> {
       "https://cdn.discordapp.com/emojis/916737804002799699.png?size=240",
     title: `${emojis.RED_FLAG} Work In Progress`,
     description: `The command is in maintenance. Stay tuned! ${getEmoji(
-      "touch"
+      "TOUCH"
     )}`,
   })
   return { embeds: [embed] }
@@ -311,7 +313,7 @@ export function getErrorEmbed(params: {
     ],
     description:
       description ??
-      `Our team is fixing the issue. Stay tuned ${getEmoji("nekosad")}.`,
+      `Our team is fixing the issue. Stay tuned ${getEmoji("NEKOSAD")}.`,
     image,
     thumbnail,
     color: params.color ?? msgColors.ERROR,
@@ -401,7 +403,7 @@ export function getCommandSuggestion(
       }
     }
     return {
-      author: ["This command doesn't exist", getEmojiURL(getEmoji("huh"))],
+      author: ["This command doesn't exist", getEmojiURL(getEmoji("HUH"))],
       description: `Are you trying to say \`${PREFIX}${result}\`?\n\n**Example**\nFor more specific action: \`${PREFIX}help ${result}\`\nOr try this: \`${PREFIX}${result} ${actionNoArg}\`\n`,
       document: DEFAULT_COLLECTION_GITBOOK,
     }
@@ -426,10 +428,10 @@ export function composeInsufficientBalanceEmbed({
 }: {
   current?: number
   required: number
-  symbol: string
+  symbol: TokenEmojiKey
   author?: User
 }) {
-  const tokenEmoji = getEmoji(symbol)
+  const tokenEmoji = getEmojiToken(symbol)
   return composeEmbedMessage(null, {
     author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
     description: `${author}, your balance is insufficient.\nYou can deposit more by using \`$deposit ${symbol}\``,

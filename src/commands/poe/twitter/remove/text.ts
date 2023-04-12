@@ -34,7 +34,7 @@ const command: Command = {
         ruleId: twitterConfig.data.rule_id,
       })
 
-      msg.react(getEmoji("approve")).catch(() => msg.react("✅"))
+      msg.react(getEmoji("CHECK")).catch(() => msg.react("✅"))
     } else {
       return {
         messageOptions: {

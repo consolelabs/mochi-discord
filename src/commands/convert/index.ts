@@ -1,7 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX, PROFILE_GITBOOK } from "utils/constants"
-import { getEmoji } from "utils/common"
 import convert from "./index/text"
 import convertSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
@@ -13,10 +12,6 @@ const textCmd: Command = {
   category: "Defi",
   run: async function (msg) {
     return await convert(msg)
-  },
-  featured: {
-    title: `${getEmoji("exp")} Convert token to another token`,
-    description: "Convert token to another token",
   },
   getHelpMessage: async (msg) => {
     return {

@@ -38,8 +38,10 @@ import {
   getAuthor,
   getCompactFormatedNumber,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   roundFloatNumber,
+  TokenEmojiKey,
 } from "utils/common"
 import { reply } from "utils/discord"
 import {
@@ -62,9 +64,10 @@ export function getOriginAuthorId() {
 
 export async function handleNFTTickerViews(interaction: ButtonInteraction) {
   const msg = <Message>interaction.message
-  const [collectionAddress, chain, days] = interaction.customId
+  const [collectionAddress, _chain, days] = interaction.customId
     .split("-")
     .slice(1)
+  const chain = _chain as TokenEmojiKey
   if (interaction.customId.startsWith("nft_ticker_view_chart")) {
     return await viewTickerChart(msg, { collectionAddress, chain, days })
   }
@@ -89,7 +92,7 @@ async function viewTickerChart(
 
 async function viewTickerInfo(
   msg: Message,
-  params: { collectionAddress: string; chain: string }
+  params: { collectionAddress: string; chain: TokenEmojiKey }
 ) {
   const { collectionAddress, chain } = params
   const { messageOptions } = await composeCollectionInfoEmbed(
@@ -161,7 +164,8 @@ async function composeCollectionTickerEmbed({
       +(last_sale_price?.amount ?? 0) / Math.pow(10, decimals(last_sale_price))
     ).toFixed(3)
   )
-  const priceToken = floor_price?.token?.symbol?.toUpperCase() ?? ""
+  const priceToken =
+    (floor_price?.token?.symbol?.toUpperCase() as TokenEmojiKey) ?? ""
   const marketcap = floorPriceAmount * (items ?? 0)
   const formatPrice = (amount: number) => {
     if (!amount) return `-`
@@ -201,11 +205,11 @@ async function composeCollectionTickerEmbed({
     },
     {
       name: `Floor price (${priceToken})`,
-      value: `${formatPrice(floorPriceAmount)} ${getEmoji(priceToken)}`,
+      value: `${formatPrice(floorPriceAmount)} ${getEmojiToken(priceToken)}`,
     },
     {
       name: `Last sale (${priceToken})`,
-      value: `${formatPrice(lastSalePriceAmount)} ${getEmoji(priceToken)}`,
+      value: `${formatPrice(lastSalePriceAmount)} ${getEmojiToken(priceToken)}`,
     },
     {
       name: "Change (24h)",
@@ -514,7 +518,7 @@ async function askToSetDefault(
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
       customId: `confirm-default_${name}_${symbol}_${address}_${chainId}`,
-      emoji: getEmoji("approve"),
+      emoji: getEmoji("CHECK"),
       style: "SUCCESS",
       label: "Confirm",
     })

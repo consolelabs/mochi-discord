@@ -7,7 +7,6 @@ import remove from "./remove/text"
 import setSlash from "./set/slash"
 import listSlash from "./list/slash"
 import removeSlash from "./remove/slash"
-import { getEmoji } from "utils/common"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, MIX_ROLE_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import {
@@ -29,11 +28,6 @@ const textCmd: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async () => null,
-  featured: {
-    title: `${getEmoji("")} Mix role`,
-    description:
-      "Users can combine different thresholds (XP/level, NFT and Token) to assign a role.",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

@@ -67,7 +67,7 @@ export async function process(message: OriginalMessage) {
   const revokeCustomId = "mix_role_btn_revoke"
   const revokeButton = new MessageButton({
     label: "Cancel",
-    emoji: getEmoji("revoke"),
+    emoji: getEmoji("REVOKE"),
     customId: revokeCustomId,
     style: "DANGER",
   })
@@ -77,7 +77,7 @@ export async function process(message: OriginalMessage) {
     isCanceled: boolean
   }> = async () => {
     const title = `${getEmoji(
-      "mag"
+      "MAG"
     )} Please enter the role you want to assign by level, amount of NFT, and token.`
     const embed = composeEmbedMessage(null, { title, color: msgColors.PINK })
     await send({
@@ -143,7 +143,7 @@ export async function process(message: OriginalMessage) {
     roleName: string
   ) => Promise<{ level: number; isCanceled: boolean }> = async (roleName) => {
     const title = `${getEmoji(
-      "mag"
+      "MAG"
     )} Please enter the minimum level that will be required to earn the role ${roleName}`
     const description = `
     ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Usage: <level>
@@ -203,7 +203,7 @@ export async function process(message: OriginalMessage) {
     isCanceled: boolean
   }> = async (roleName) => {
     const title = `${getEmoji(
-      "mag"
+      "MAG"
     )} Please enter the minimum amount of NFT and the NFT address that will be required to earn the role ${roleName}.`
     const description = `
     ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Usage: <amount> <NFT address>
@@ -297,7 +297,7 @@ export async function process(message: OriginalMessage) {
     isCanceled: boolean
   }> = async (roleName) => {
     const title = `${getEmoji(
-      "mag"
+      "MAG"
     )} Please enter the minimum amount of token and the token address that will be required to earn the role ${roleName}`
     const description = `
     ${getEmoji(
@@ -432,7 +432,7 @@ export async function process(message: OriginalMessage) {
     const customId = `mix_config_btn_confirmation-${role_id}`
     const confirmButton = new MessageButton({
       label: "Confirm",
-      emoji: getEmoji("approve"),
+      emoji: getEmoji("CHECK"),
       customId: customId,
       style: "SUCCESS",
     })

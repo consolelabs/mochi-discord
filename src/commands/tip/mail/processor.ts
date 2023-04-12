@@ -182,7 +182,7 @@ async function confirmToTip(
     }),
     new MessageButton({
       customId: `exit-${author.id}`,
-      emoji: getEmoji("revoke"),
+      emoji: getEmoji("REVOKE"),
       style: MessageButtonStyles.SECONDARY,
       label: "Cancel",
     })
@@ -310,7 +310,7 @@ export async function execute(
   }
 
   const embed = composeEmbedMessage(null, {
-    author: ["You've given a tip", getEmojiURL(emojis.TIP)],
+    author: ["You've given a tip", getEmojiURL(emojis.CASH)],
     description: `Congrats! ${userMention(
       payload.sender
     )} has given a tip of ${getEmoji(payload.token)} ${

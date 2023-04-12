@@ -31,7 +31,7 @@ export const handlePriceAlertAdd = async (
             description: `
               **${symbol.toUpperCase()}** is invalid or hasn't been supported.
               ${getEmoji(
-                "point_right"
+                "ANIMATED_POINTING_RIGHT"
               )} Please choose a token that is listed on [Binance Exchange](binance.com)
               `,
           }),

@@ -63,10 +63,6 @@ const textCmd: Command = {
     }
     return null
   },
-  featured: {
-    title: `${getEmoji("ANIMATED_CHART_INCREASE", true)} Ticker`,
-    description: `Display/Compare coin prices and market cap`,
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

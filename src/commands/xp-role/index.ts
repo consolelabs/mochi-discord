@@ -7,7 +7,6 @@ import remove from "./remove/text"
 import setSlash from "./set/slash"
 import listSlash from "./list/slash"
 import removeSlash from "./remove/slash"
-import { getEmoji } from "utils/common"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, XP_ROLE_GITBOOK } from "utils/constants"
 import {
@@ -29,10 +28,6 @@ const textCmd: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async () => null,
-  featured: {
-    title: `${getEmoji("")} XP role`,
-    description: "Assign role to users when they earn certain amount of XP",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

@@ -17,7 +17,7 @@ export function PlatformTypeToEmoji(platformType: string) {
 export function ActionTypeToEmoji(actionType: string) {
   switch (actionType) {
     case "tip":
-      return getEmoji("ANIMATED_CASH", true)
+      return getEmoji("CASH")
     case "withdraw":
       return getEmoji("ANIMATED_COIN_3", true)
     case "deposit":

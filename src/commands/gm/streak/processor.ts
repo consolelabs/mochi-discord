@@ -14,7 +14,7 @@ export async function handle(authorId: string, guildId: string) {
   }
 
   const daysCheckedIcons = new Array(res.data.streak_count)
-    .fill(getEmoji("approve"))
+    .fill(getEmoji("APPROVE"))
     .join("")
   return {
     messageOptions: {

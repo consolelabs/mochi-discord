@@ -31,6 +31,7 @@ import {
   msgColors,
   roundFloatNumber,
   thumbnails,
+  TokenEmojiKey,
 } from "utils/common"
 import {
   MOCHI_ACTION_TIP,
@@ -238,7 +239,7 @@ export async function tip(
 export function parseTipParameters(args: string[]) {
   const each = args[args.length - 1].toLowerCase() === "each"
   args = each ? args.slice(0, args.length - 1) : args
-  const cryptocurrency = args[args.length - 1].toUpperCase()
+  const cryptocurrency = args[args.length - 1].toUpperCase() as TokenEmojiKey
   const amountArg = args[args.length - 2].toLowerCase()
   return { each, cryptocurrency, amountArg }
 }
@@ -400,7 +401,7 @@ async function confirmToTip(
     getExitButton(payload.sender)
   )
   const confirmEmbed = composeEmbedMessage(null, {
-    title: `${getEmoji("ANIMATED_CASH", true)} Transaction Confirmation`,
+    title: `${getEmoji("CASH")} Transaction Confirmation`,
     description: `Are you sure you want to spend **${
       payload.originalAmount
     } ${payload.token.toUpperCase()}** ($${(

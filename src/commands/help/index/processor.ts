@@ -82,7 +82,7 @@ const allCommands: Record<PageType, HelpPage> = {
     example: "$vote\n$quest\n$feedback I love Mochi Watchlist",
     category: {
       "Earning Reward": {
-        emoji: getEmoji("like"),
+        emoji: getEmoji("LIKE"),
         description: "Complete these tasks to earn more rewards",
         features: [
           {
@@ -96,7 +96,7 @@ const allCommands: Record<PageType, HelpPage> = {
         ],
       },
       "Member Profile": {
-        emoji: getEmoji("exp"),
+        emoji: getEmoji("EXP"),
         description: "Tracking member profile",
         features: [
           {
@@ -164,7 +164,7 @@ const allCommands: Record<PageType, HelpPage> = {
         ],
       },
       "Track NFT": {
-        emoji: getEmoji("nfts"),
+        emoji: getEmoji("NFTS"),
         description: "Checking NFT rarity, sales, and ranking",
         features: [
           {
@@ -174,7 +174,7 @@ const allCommands: Record<PageType, HelpPage> = {
         ],
       },
       Transaction: {
-        emoji: getEmoji("ANIMATED_CASH", true),
+        emoji: getEmoji("CASH"),
         description: "Making transactions among members and in your wallet",
         features: [
           {
@@ -208,7 +208,7 @@ const allCommands: Record<PageType, HelpPage> = {
         ],
       },
       "Manage Wallet": {
-        emoji: getEmoji("address"),
+        emoji: getEmoji("ADDRESS"),
         description: "Tracking balance and transactions of different wallets",
         features: [
           {
@@ -224,7 +224,7 @@ const allCommands: Record<PageType, HelpPage> = {
     example: "$default role set\n$stats",
     category: {
       Verify: {
-        emoji: getEmoji("approve"),
+        emoji: getEmoji("APPROVE"),
         description: "Verify your wallet",
         features: [
           {
@@ -234,7 +234,7 @@ const allCommands: Record<PageType, HelpPage> = {
         ],
       },
       Welcome: {
-        emoji: getEmoji("hello"),
+        emoji: getEmoji("HELLO"),
         description: "Automate welcome message",
         features: [
           {
@@ -278,7 +278,7 @@ const allCommands: Record<PageType, HelpPage> = {
         ],
       },
       Community: {
-        emoji: getEmoji("fellowship"),
+        emoji: getEmoji("FELLOWSHIP"),
         description:
           "Set up channels and other add-ins to facilitate activities",
         features: [
@@ -355,7 +355,7 @@ export const pagination = (currentPage: PageType, isAdmin: boolean) => [
     }),
     new MessageButton({
       label: "Social",
-      emoji: getEmoji("defi"),
+      emoji: getEmoji("DEFI"),
       style: "SECONDARY",
       customId: "social",
       disabled: currentPage === "social",
@@ -364,7 +364,7 @@ export const pagination = (currentPage: PageType, isAdmin: boolean) => [
       ? [
           new MessageButton({
             label: "Server Management",
-            emoji: getEmoji("prediction"),
+            emoji: getEmoji("PREDICTION"),
             style: "SECONDARY",
             customId: "server_management",
             disabled: currentPage === "server_management",
@@ -433,12 +433,12 @@ export function buildHelpInterface(
     },
     {
       name: "Visit our Social Network",
-      value: `[🌐](${HOMEPAGE_URL}) [${getEmoji("twitter")}](${TWITTER_URL})`,
+      value: `[🌐](${HOMEPAGE_URL}) [${getEmoji("TWITTER")}](${TWITTER_URL})`,
       inline: true,
     },
     {
       name: "Join and build our community",
-      value: `[${getEmoji("discord")}](${DISCORD_URL})`,
+      value: `[${getEmoji("DISCORD")}](${DISCORD_URL})`,
       inline: true,
     }
   )

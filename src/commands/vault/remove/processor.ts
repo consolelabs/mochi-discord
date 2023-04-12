@@ -228,7 +228,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
         getSuccessEmbed({
           title: "Successfully voted",
           description: `You have updated your vote successfully. Thank you for your vote ${getEmoji(
-            "HEART"
+            "ANIMATED_HEART"
           )}`,
         }),
       ],

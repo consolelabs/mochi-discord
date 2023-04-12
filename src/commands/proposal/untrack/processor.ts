@@ -58,7 +58,7 @@ export async function handle(msg: Message | CommandInteraction) {
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            title: `${getEmoji("mail")} No tracker found!`,
+            title: `${getEmoji("MAIL")} No tracker found!`,
             description: `You haven't set up any tracker!\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
               true

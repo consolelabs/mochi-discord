@@ -33,7 +33,7 @@ import {
 } from "./nft"
 dayjs.extend(relativeTime)
 
-export const tokenEmojis: Record<string, string> = {
+export const tokenEmojis = {
   FTM: "967285237686108212",
   SPIRIT: "967285237962924163",
   TOMB: "967285237904179211",
@@ -103,7 +103,7 @@ export const tokenEmojis: Record<string, string> = {
   STG: "1097786444057169941",
 }
 
-export const numberEmojis: Record<string, string> = {
+export const numberEmojis = {
   NUM_0: "932856132869963806",
   NUM_1: "932856133088067604",
   NUM_2: "932856132861583470",
@@ -116,13 +116,13 @@ export const numberEmojis: Record<string, string> = {
   NUM_9: "932856132832223232",
 }
 
-export const expBarEmojis: Record<string, string> = {
+export const expBarEmojis = {
   XP_FILLED_LEFT: "933278893559918602",
   XP_FILLED: "933278891450187816",
   XP_FILLED_RIGHT: "933278892435836948",
 }
 
-export const progressEmojis: Record<string, string> = {
+export const progressEmojis = {
   PROGRESS_EMPTY_1: "1035038442767265882",
   PROGRESS_EMPTY_2: "1035038440426848306",
   PROGRESS_EMPTY_3: "1035038437989961808",
@@ -131,7 +131,7 @@ export const progressEmojis: Record<string, string> = {
   PROGRESS_3: "1035038434714206238",
 }
 
-export const defaultEmojis: Record<string, string> = {
+export const defaultEmojis = {
   ERROR: ":no_entry_sign:",
   AIRPLANE: ":airplane:",
   CHECK: ":white_check_mark:",
@@ -147,7 +147,7 @@ export const defaultEmojis: Record<string, string> = {
   WINK: ":wink:",
 }
 
-export const factionEmojis: Record<string, string> = {
+export const factionEmojis = {
   IMPERIAL: "932605622044729344",
   IMPERIAL_EXP_1: "933612077686341672",
   IMPERIAL_EXP_2: "933612077300473866",
@@ -169,7 +169,7 @@ export const factionEmojis: Record<string, string> = {
   FACTION_EXP_3: "933276771141451856",
 }
 
-const fiatEmojis: Record<string, string> = {
+const fiatEmojis = {
   USD: "1044548311606099969",
   VND: "1044548314735050842",
   EUR: "1044547468404207647",
@@ -177,14 +177,14 @@ const fiatEmojis: Record<string, string> = {
   GBP: "1044548789433802762",
 }
 
-const gameEmojis: Record<string, string> = {
+const gameEmojis = {
   TRIPOD: "1084678363895042069",
   HUNGERGAME: "1084678567616585799",
 }
 
 const animatedEmojis = {
-  ANIMATED_BADGE1: "1095990101642846258",
-  ANIMATED_BADGE2: "1095990112686448740",
+  ANIMATED_BADGE_1: "1095990101642846258",
+  ANIMATED_BADGE_2: "1095990112686448740",
   ANIMATED_BADGE_3: "1095990119988740246",
   ANIMATED_BADGE_5: "1095990124556341278",
   ANIMATED_BELL: "1095990150342918205",
@@ -218,7 +218,7 @@ const animatedEmojis = {
   ANIMATED_IDEA: "1095990263828197428",
 }
 
-export const emojis: { [key: string]: string } = {
+export const emojis = {
   GOOD_MORNING: "967285238306840576",
   REVOKE: "1077631119073230970",
   REPLY: "967285237983875122",
@@ -235,7 +235,6 @@ export const emojis: { [key: string]: string } = {
   SPARKLE: "984824963112513607",
   ENERGY: "984876653090070658",
   FLAG: "985056775554342973",
-  CUP: "985137841027821589",
   COIN: "942088817391849543",
   MONEY: "985245648716697680",
   GAME: "916623575824338974",
@@ -284,7 +283,6 @@ export const emojis: { [key: string]: string } = {
   TRANSACTIONS: "933341692667506718",
   GM: "930840080761880626",
   BUCKET_CASH: "933020342035820604",
-  BOO: "920934041665011713",
   POINTINGRIGHT: "1058304352944656384",
   POINTINGDOWN: "1058304350650384434",
   MOONING: "930840083278487562",
@@ -343,6 +341,7 @@ export const emojis: { [key: string]: string } = {
   ...factionEmojis,
   ...fiatEmojis,
   ...gameEmojis,
+  ...traitTypeMapping,
 }
 
 export const msgColors: Record<string, ColorResolvable> = {
@@ -358,7 +357,7 @@ export const msgColors: Record<string, ColorResolvable> = {
   ACTIVITY: "#62A1FE",
 }
 
-export const thumbnails: Record<string, string> = {
+export const thumbnails = {
   HELP: "https://i.imgur.com/uuQhOmH.png",
   PROFILE: "https://i.imgur.com/JTCGRO6.png",
   TIP: "https://i.imgur.com/qj7iPqz.png",
@@ -372,6 +371,9 @@ export const thumbnails: Record<string, string> = {
   MOCHI_POSE_4:
     "https://cdn.discordapp.com/attachments/984660970624409630/1095615053434212362/Mochi_Pose_4.png",
 }
+
+export type EmojiKey = keyof typeof emojis
+export type TokenEmojiKey = keyof typeof tokenEmojis
 
 export function isInteraction(
   msgOrInteraction: Message | MessageComponentInteraction
@@ -426,23 +428,26 @@ export function maskAddress(str: string, minLen?: number) {
 }
 
 export function getEmoji(
-  key: string,
+  key: EmojiKey | "",
   animated?: boolean,
   fallback = ":jigsaw:"
 ) {
-  const emojiKey = traitTypeMapping[key.toUpperCase()] || key.toUpperCase()
-  const emoji = emojis[emojiKey]
-  if (!emoji) {
-    return fallback
-  }
+  if (!key) return fallback
+
+  const emoji = emojis[key]
+  if (!emoji) return fallback
 
   if (isNaN(+emoji)) {
     return emoji
   }
 
   return `<${animated ? "a" : ""}:${key.replace(/-/g, "_").toLowerCase()}:${
-    emojis[emojiKey]
+    emojis[key]
   }>`
+}
+
+export function getEmojiToken(key: TokenEmojiKey, animated?: boolean) {
+  return getEmoji(key, animated, getEmoji("ANIMATED_COIN_1"))
 }
 
 export function roundFloatNumber(n: number, fractionDigits = 1) {

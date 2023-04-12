@@ -16,7 +16,9 @@ import {
   equalIgnoreCase,
   getAuthor,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
+  TokenEmojiKey,
 } from "utils/common"
 import { reply } from "utils/discord"
 
@@ -28,17 +30,17 @@ export async function run({
 }: {
   msgOrInteraction: Message | CommandInteraction
   amount: number
-  token: string
+  token: TokenEmojiKey
   note?: string
 }) {
   const author = getAuthor(msgOrInteraction)
-  const tokenEmoji = getEmoji(token)
+  const tokenEmoji = getEmojiToken(token)
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
     author: ["Select a wallet", getEmojiURL(emojis.APPROVE)],
     description:
       "Pay Link lets you easily deposit funds into newly generated wallets, which can then be withdrawn by anyone that has access to those links. Pay Link expires 3 days after created.",
-    thumbnail: getEmojiURL(emojis.ANIMATED_CASH),
+    thumbnail: getEmojiURL(emojis.CASH),
   }).addFields(
     {
       name: "Amount",
@@ -131,7 +133,7 @@ export async function run({
           originalMsgAuthor: author,
           author: [
             "Congrats! You've just created a pay link",
-            getEmojiURL(emojis.ANIMATED_CASH),
+            getEmojiURL(emojis.CASH),
           ],
           description: `Here's ${paylink} ${tokenEmoji} ${amount} ${token} ${
             note

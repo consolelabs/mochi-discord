@@ -22,10 +22,12 @@ import {
   equalIgnoreCase,
   getAuthor,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   isValidAmount,
   msgColors,
   roundFloatNumber,
+  TokenEmojiKey,
 } from "utils/common"
 import { APPROX } from "utils/constants"
 import { formatDigit, validateBalance } from "utils/defi"
@@ -96,7 +98,7 @@ export async function confirmAirdrop(
   if (authorId !== interaction.user.id) {
     return
   }
-  const tokenEmoji = getEmoji(token)
+  const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
   const endTime = dayjs()
     .add(+duration, "second")
     .toDate()
@@ -139,7 +141,7 @@ export async function confirmAirdrop(
     authorId,
     +amount,
     +amountInUSD,
-    token,
+    token as TokenEmojiKey,
     duration,
     +maxEntries
   )
@@ -151,7 +153,7 @@ async function checkExpiredAirdrop(
   authorId: string,
   amount: number,
   usdAmount: number,
-  token: string,
+  token: TokenEmojiKey,
   duration: string,
   maxEntries: number
 ) {
@@ -161,7 +163,7 @@ async function checkExpiredAirdrop(
       if (maxEntries > 0) {
         participants = participants.slice(0, maxEntries)
       }
-      const tokenEmoji = getEmoji(token)
+      const tokenEmoji = getEmojiToken(token)
       const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${token}** (\u2248 $${roundFloatNumber(
         +usdAmount,
         4
@@ -319,12 +321,12 @@ export async function handleAirdrop(
   const { amount, token, all } = payload
   const { balance, usdBalance } = await validateBalance({
     msgOrInteraction,
-    token,
+    token: token as TokenEmojiKey,
     amount,
     all,
   })
   if (all) payload.amount = balance
-  const tokenEmoji = getEmoji(payload.token)
+  const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
   const usdAmount = usdBalance * payload.amount
   const amountDescription = `${tokenEmoji} **${roundFloatNumber(
     payload.amount,

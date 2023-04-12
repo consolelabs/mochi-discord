@@ -110,7 +110,7 @@ export async function renderLeaderboard(
       case 3: {
         // icon
         const badgeImg = await loadImage(
-          getEmojiURL(emojis[`BADGE${item.guild_rank}`])
+          getEmojiURL(emojis[`ANIMATED_BADGE_${item.guild_rank}`])
         )
         ctx.drawImage(badgeImg, line.x, line.y, badgeIcon.w, badgeIcon.h)
         break
@@ -208,9 +208,9 @@ export async function composeTopEmbed(
     (res.data.metadata?.total || 0) / (res.data.metadata?.size || 1)
   )
   const { author, leaderboard } = res.data
-  const blank = getEmoji("blank")
+  const blank = getEmoji("BLANK")
   const embed = composeEmbedMessage(null, {
-    title: `${getEmoji("cup")} ${msg?.guild?.name}'s Web3 rankings`,
+    title: `${getEmoji("CUP")} ${msg?.guild?.name}'s Web3 rankings`,
     thumbnail: msg?.guild?.iconURL(),
     description: `${blank}**Your rank:** #${
       author.guild_rank

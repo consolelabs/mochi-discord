@@ -30,7 +30,7 @@ const command: Command = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            author: [title, getEmojiURL(emojis.BADGE2)],
+            author: [title, getEmojiURL(emojis.ANIMATED_BADGE_2)],
             description,
             color: msgColors.PINK,
           }),

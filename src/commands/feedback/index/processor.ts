@@ -32,7 +32,7 @@ const successEmbed = () =>
   })
 const feedbackSolvedEmbed = () =>
   composeEmbedMessage(null, {
-    author: ["Feedback solved", getEmojiURL(emojis.APPROVE)],
+    author: ["Feedback solved", getEmojiURL(emojis.CHECK)],
     description:
       "We've solved your feedback. Thanks again for your contribution :pray:",
   })
@@ -44,7 +44,7 @@ async function sendProgressToPublicFeedbackChannel(
 ) {
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji(
-      feedback.status === "completed" ? "approve" : "approve_grey"
+      feedback.status === "COMPLETED" ? "APPROVE" : "APPROVE_GREY"
     )} This feedback is ${
       feedback.status === "completed" ? "resolved" : "being worked on"
     }`,
@@ -110,7 +110,7 @@ export const getArrowButtons = (opts?: {
   new MessageActionRow().addComponents(
     new MessageButton({
       label: "\u200b",
-      emoji: getEmoji("left_arrow"),
+      emoji: getEmoji("LEFT_ARROW"),
       customId: `feedback-list-view-back_${opts?.page ?? 0}_${
         opts?.discordId ?? ""
       }`,
@@ -119,7 +119,7 @@ export const getArrowButtons = (opts?: {
     }),
     new MessageButton({
       label: "\u200b",
-      emoji: getEmoji("right_arrow"),
+      emoji: getEmoji("RIGHT_ARROW"),
       customId: `feedback-list-view-next_${opts?.page ?? 0}_${
         opts?.discordId ?? ""
       }`,
@@ -152,7 +152,7 @@ async function handleFeedbackSetInProgress(i: ButtonInteraction) {
         new MessageButton({
           label: "Resolved",
           style: "SECONDARY",
-          emoji: getEmoji("approve"),
+          emoji: getEmoji("CHECK"),
           customId: `feedback-handle-set-resolved_${feedbackId}`,
         })
       ),
@@ -266,9 +266,9 @@ async function handleViewFeedbackList(
         .map((d) => {
           return `${
             d.status?.toLowerCase() === "completed"
-              ? getEmoji("approve")
+              ? getEmoji("APPROVE")
               : d.status?.toLowerCase() === "confirmed"
-              ? getEmoji("approve_grey")
+              ? getEmoji("APPROVE_GREY")
               : "None"
           }`
         })
