@@ -689,6 +689,36 @@ export interface ModelQuestUserReward {
   user_id?: string;
 }
 
+export interface ModelRouteElement {
+  amountOut?: string;
+  exchange?: string;
+  extra?: any;
+  limitReturnAmount?: string;
+  pool?: string;
+  poolExtra?: any;
+  poolLength?: number;
+  poolType?: string;
+  swapAmount?: string;
+  tokenIn?: string;
+  tokenOut?: string;
+}
+
+export interface ModelRouteSummary {
+  amountIn?: string;
+  amountInUsd?: string;
+  amountOut?: string;
+  amountOutUsd?: string;
+  extraFee?: ModelExtraFee;
+  gas?: string;
+  gasPrice?: string;
+  gasUsd?: string;
+  route?: ModelRouteElement[][];
+  tokenIn?: string;
+  tokenInMarketPriceAvailable?: boolean;
+  tokenOut?: string;
+  tokenOutMarketPriceAvailable?: boolean;
+}
+
 export interface ModelSaleBotMarketplace {
   id?: number;
   name?: string;
@@ -1230,6 +1260,12 @@ export interface RequestSubmitOnchainTransferRequest {
   sender?: string;
   token?: string;
   transfer_type?: string;
+}
+
+export interface RequestSwapRequest {
+  chainName: string;
+  routeSummary?: ModelRouteSummary;
+  userDiscordId: string;
 }
 
 export interface RequestTrackWalletRequest {
