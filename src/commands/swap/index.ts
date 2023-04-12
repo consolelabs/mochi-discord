@@ -51,7 +51,7 @@ const slashCmd: SlashCommand = {
     const to = i.options.getString("to", true)
     const amount = i.options.getNumber("amount", true)
 
-    const chain_name = i.options.getString("chain_name", false) ?? "solana"
+    const chain_name = i.options.getString("chain_name", false) ?? "ethereum"
     const { ok, data } = await defi.getSwapRoute({
       from,
       to,
@@ -68,7 +68,13 @@ const slashCmd: SlashCommand = {
       })
     }
 
-    swapSlash(i, data?.data, from.toUpperCase(), to.toUpperCase(), chain_name)
+    await swapSlash(
+      i,
+      data?.data,
+      from.toUpperCase(),
+      to.toUpperCase(),
+      chain_name
+    )
   },
   help: async () => ({
     embeds: [composeEmbedMessage(null, { includeCommandsList: true })],

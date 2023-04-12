@@ -33,7 +33,7 @@ class Tagme {
       return
     }
 
-    if (!data.is_active) return
+    if (!data?.is_active) return
 
     user
       .send({
@@ -55,7 +55,7 @@ class Tagme {
               .setURL(msgURL),
             new MessageButton()
               .setStyle("SECONDARY")
-              .setCustomId(`unsubscribe-tagme_${user.id}_${guildId}`)
+              .setCustomId(`tagme_unsubscribe_${user.id}_${guildId}`)
               .setEmoji(getEmoji("X"))
               .setLabel("Unsubscribe from this guild")
           ),
@@ -66,13 +66,14 @@ class Tagme {
       })
   }
 
-  async unsubscribe(i: ButtonInteraction) {
+  async editSubscribeStatus(i: ButtonInteraction) {
     await i.deferUpdate()
-    const [, userId, guildId] = i.customId.split("_")
+    const [, action, userId, guildId] = i.customId.split("_")
+    const isActive = action === "subscribe"
     const { ok, log, error } = await community.upsertTagme({
       userId,
       guildId,
-      isActive: false,
+      isActive,
     })
     if (!ok) {
       logger.warn(
@@ -88,9 +89,12 @@ class Tagme {
           ...(gotoMessageBtn ? [gotoMessageBtn] : []),
           new MessageButton()
             .setStyle("SECONDARY")
-            .setLabel("Unsubscribed")
-            .setCustomId("unsubscribed")
-            .setDisabled(true)
+            .setLabel(isActive ? "Unsubscribe from this guild" : "Subscribe")
+            .setCustomId(
+              `tagme_${
+                isActive ? "unsubscribe" : "subscribe"
+              }_${userId}_${guildId}`
+            )
         ),
       ],
     })

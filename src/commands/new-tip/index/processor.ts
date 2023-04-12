@@ -52,7 +52,6 @@ import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import * as processor from "./processor"
 import { validateBalance } from "../../../utils/defi"
-import { convertToUsdValue } from "../../../utils/convert"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -93,6 +92,7 @@ export async function tip(
   // check token supported
   const { cryptocurrency } = processor.parseTipParameters(agrsAfterParseMessage)
   const tokenSupported = await isTokenSupported(cryptocurrency)
+
   if (!moniker && !tokenSupported) {
     throw new InternalError({
       msgOrInteraction,
@@ -304,7 +304,7 @@ export async function getTipPayload(
   }
 
   // validate balance
-  const { balance } = await validateBalance({
+  const { balance, usdBalance } = await validateBalance({
     msgOrInteraction,
     token: cryptocurrency,
     amount,
@@ -330,6 +330,7 @@ export async function getTipPayload(
     originalAmount: amount,
     token: cryptocurrency,
     token_id: token.id,
+    amount_in_usd: usdBalance,
     note: "",
   }
 }
@@ -478,18 +479,13 @@ export async function executeTip(
             .join(", ")}`
     }`
   }
-  const amountRecipient = payload.amount[0]
-  let price = await convertToUsdValue(amountRecipient, payload.token)
-  if (payload.token == "ICY") {
-    const priceIcy = amountRecipient * 1.5
-    price = priceIcy.toString()
-  }
+  const usdAmount = payload.amount_in_usd * payload.amount[0]
   let description = `${userMention(
     payload.sender
   )} has sent ${recipientDescription} **${roundFloatNumber(
     +payload.amount[0],
     4
-  )} ${payload.token}** (\u2248 $${price}) ${
+  )} ${payload.token}** (\u2248 $${roundFloatNumber(usdAmount ?? 0, 4)} ${
     payload.recipients.length > 1 ? "each" : ""
   }`
   if (moniker) {
@@ -498,12 +494,7 @@ export async function executeTip(
       payload.amount[0] / (monikerVal?.moniker?.amount || 1),
       4
     )
-    const amountToken = amountMoniker * (monikerVal?.moniker?.amount || 1)
-    let price = await convertToUsdValue(amountToken, payload.token)
-    if (payload.token == "ICY") {
-      const priceIcy = amountToken * 1.5
-      price = priceIcy.toString()
-    }
+    const usdAmount = payload.amount_in_usd * payload.amount[0]
     description = `${userMention(
       payload.sender
     )} has sent ${recipientDescription} **${amountMoniker} ${
@@ -511,9 +502,10 @@ export async function executeTip(
     }** (= **${roundFloatNumber(
       amountMoniker * (monikerVal?.moniker?.amount || 1),
       4
-    )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${price}) ${
-      payload.recipients.length > 1 ? "each" : ""
-    }`
+    )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${roundFloatNumber(
+      usdAmount ?? 0,
+      4
+    )}) ${payload.recipients.length > 1 ? "each" : ""}`
   }
   if (messageTip) {
     description += ` with message\n\n${getEmoji("conversation")} ${messageTip}`
