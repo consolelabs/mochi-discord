@@ -64,6 +64,8 @@ export async function reply(
 
   // handle button/select-menu interactions
   collectComponentInteraction(reply, response, author)
+
+  return reply
 }
 
 function collectComponentInteraction(

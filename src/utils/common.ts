@@ -357,6 +357,10 @@ export const thumbnails: Record<string, string> = {
     "https://cdn.discordapp.com/emojis/1090477926434218004.webp?size=240&quality=lossless",
   MOCHI:
     "https://media.discordapp.net/attachments/984660970624409630/1094880594976047174/Mochi_New.png?width=1024&height=1024",
+  MOCHI_POSE_2:
+    "https://cdn.discordapp.com/attachments/984660970624409630/1095630891537149962/Mochi_Pose_2.png",
+  MOCHI_POSE_4:
+    "https://cdn.discordapp.com/attachments/984660970624409630/1095615053434212362/Mochi_Pose_4.png",
 }
 
 export function isInteraction(

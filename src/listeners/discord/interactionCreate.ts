@@ -75,6 +75,7 @@ import {
   handleTokenReject,
 } from "commands/token/add/processor"
 import tagme from "handlers/tagme"
+import { handleSwap } from "commands/swap/index/processor"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -447,6 +448,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("tagme"):
       await tagme.editSubscribeStatus(i)
+      return
+    case i.customId.startsWith("swap-mochi-wallet"):
+      await handleSwap(i)
       return
     default: {
       return
