@@ -261,7 +261,9 @@ export async function getTipPayload(
   const recipients: string[] = []
   for (const discordId of discordIds) {
     const profileId = await getProfileIdByDiscord(discordId)
-    recipients.push(profileId)
+    if (profileId) {
+      recipients.push(profileId)
+    }
   }
 
   // check if only tip author
