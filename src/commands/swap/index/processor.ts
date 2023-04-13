@@ -1,11 +1,32 @@
-import { CommandInteraction, MessageActionRow, MessageButton } from "discord.js"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import {
+  ButtonInteraction,
+  CommandInteraction,
+  Message,
+  MessageActionRow,
+  MessageButton,
+} from "discord.js"
+import {
+  composeEmbedMessage,
+  enableDMMessage,
+  getErrorEmbed,
+} from "ui/discord/embed"
+import { emojis, getEmoji, getEmojiURL, thumbnails } from "utils/common"
 import { reply } from "utils/discord"
 import profile from "adapters/profile"
 import { BigNumber, utils } from "ethers"
 import { HOMEPAGE_URL } from "utils/constants"
 import { pascalCase } from "change-case"
+import NodeCache from "node-cache"
+import defi from "adapters/defi"
+import { APIError } from "errors"
+
+const cacheExpireTimeSeconds = 180
+
+const swapCache = new NodeCache({
+  stdTTL: cacheExpireTimeSeconds,
+  checkperiod: 1,
+  useClones: false,
+})
 
 export const chains = {
   1: "ethereum",
@@ -190,6 +211,65 @@ async function aggregateTradeRoute(routeSummary: RouteSummary) {
 
 const defaultToken = "<:_:1058304286217490502>"
 
+export async function handleSwap(i: ButtonInteraction) {
+  await i.deferUpdate()
+  const [, chainName] = i.customId.split("_")
+  const reply = (await i.fetchReply()) as Message
+  const cacheKey = `swap-${reply.id}`
+  const swapCacheData = swapCache.get(cacheKey) as any
+  if (swapCacheData) {
+    const { status, ok, log, error, curl } = await defi.swap(
+      i.user.id,
+      chainName,
+      swapCacheData.routeSummary
+    )
+    if (!ok) {
+      if (status === 400) {
+        i.editReply({
+          embeds: [getErrorEmbed({ description: error })],
+          components: [],
+        })
+        return
+      }
+      throw new APIError({
+        msgOrInteraction: reply,
+        curl,
+        description: log,
+        error,
+      })
+    }
+
+    swapCache.del(cacheKey)
+    i.user
+      .send({
+        embeds: [
+          composeEmbedMessage(null, {
+            author: ["Swap Submitted", thumbnails.MOCHI],
+            image: thumbnails.MOCHI_POSE_4,
+            description:
+              "Your swap is underway, Mochi will DM you with the tx link if it succeeds or error message if it fails (often due to your trade route being expired)",
+          }),
+        ],
+      })
+      .then((dm) => {
+        i.editReply({
+          embeds: [
+            composeEmbedMessage(null, {
+              author: ["You're good to go!", thumbnails.MOCHI],
+              image: thumbnails.MOCHI_POSE_2,
+              description: `Your swap request has been submitted, [**check your DM to see the receipt**](${dm.url})`,
+            }),
+          ],
+        })
+      })
+      .catch(() => {
+        i.editReply({
+          embeds: [enableDMMessage("Your swap request was submitted, but ")],
+        })
+      })
+  }
+}
+
 export async function render(
   i: CommandInteraction,
   data: {
@@ -327,38 +407,19 @@ export async function render(
             ),
           ]
         : [
-            // TODO: uncomment when we have mochi wallet and able to auto swap on discord using api
-            // new MessageActionRow().addComponents(
-            //   new MessageSelectMenu()
-            //     .setCustomId(ids.SWAP_SELECTED_WALLET)
-            //     .setPlaceholder("Select a wallet")
-            //     .addOptions(
-            //       wallets.slice(0, 25).map((w: any, i: number) => {
-            //         return {
-            //           emoji: i > 8 ? "" : getEmoji(`num_${i + 1}`),
-            //           label: w.platform_identifier,
-            //           description:
-            //             w.platform === "evm-chain"
-            //               ? "EVM"
-            //               : w.platform === "solana-chain"
-            //               ? "SOL"
-            //               : "",
-            //           value: `${w.platform}_${w.platform_identifier}`,
-            //         }
-            //       })
-            //     )
-            // ),
             new MessageActionRow().addComponents(
               new MessageButton()
-                .setURL(
-                  `https://kyberswap.com/swap/${chainName}/${from}-to-${to}`
-                )
-                .setLabel("View in web")
-                .setStyle("LINK")
+                .setCustomId(`swap-mochi-wallet_${chainName}`)
+                .setLabel("Swap")
+                .setStyle("PRIMARY")
             ),
           ],
     },
   }
 
-  reply(i, response)
+  const replyMsg = await reply(i, response)
+
+  if (replyMsg) {
+    swapCache.set(`swap-${replyMsg.id}`, data)
+  }
 }
