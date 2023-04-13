@@ -8,5 +8,5 @@ export default async function run(
   to: string,
   chainName: string
 ) {
-  await render(i, data, from, to, chainName)
+  return await render(i, data, from, to, chainName)
 }

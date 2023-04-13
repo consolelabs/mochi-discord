@@ -341,6 +341,9 @@ function getAirdropOptions(args: string[]) {
       .replace(/in\s+/, "")
       .split(" ")[0]
     options.duration = parse(timeStr) / 1000
+    if (options.duration > 3600) {
+      options.duration = 3600
+    }
   }
   // catch error duration invalid, exp: $airdrop 1 ftm in a
   if (content.includes("in") && durationIdx === -1) {

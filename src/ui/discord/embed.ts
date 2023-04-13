@@ -223,6 +223,19 @@ export async function workInProgress(): Promise<MessageOptions> {
   return { embeds: [embed] }
 }
 
+export function enableDMMessage(prefixDesc = "", suffixDesc = "") {
+  return composeEmbedMessage(null, {
+    author: ["Chotto matte", getEmojiURL(emojis.ANIMATED_QUESTION_MARK)],
+    description:
+      prefixDesc +
+      "Mochi couldn't DM you, please enable so Mochi can send you DMs in the future" +
+      suffixDesc,
+    image:
+      "https://cdn.discordapp.com/attachments/1019524376527372288/1094879142358548500/E2y-ikbXIAkNmGc.png",
+    color: msgColors.ACTIVITY,
+  })
+}
+
 export function getSuggestionEmbed(params: {
   title?: string
   description: string

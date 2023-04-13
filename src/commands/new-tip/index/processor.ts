@@ -485,7 +485,7 @@ export async function executeTip(
   )} has sent ${recipientDescription} **${roundFloatNumber(
     +payload.amount[0],
     4
-  )} ${payload.token}** (\u2248 $${roundFloatNumber(usdAmount ?? 0, 4)} ${
+  )} ${payload.token}** (\u2248 $${roundFloatNumber(usdAmount ?? 0, 4)}) ${
     payload.recipients.length > 1 ? "each" : ""
   }`
   if (moniker) {
