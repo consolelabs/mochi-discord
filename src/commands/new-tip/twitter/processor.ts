@@ -210,7 +210,7 @@ async function confirmToTip(
     ...(payload.note
       ? [
           {
-            name: `Message ${getEmoji("message")}`,
+            name: `Message ${getEmoji("MESSAGE", true)}`,
             value: `\`\`\`${payload.note}\`\`\``,
           },
         ]

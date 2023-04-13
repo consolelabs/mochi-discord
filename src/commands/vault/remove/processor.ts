@@ -105,7 +105,7 @@ export async function runRemoveTreasurer({
         const msg = await treasurer.send({
           embeds: [
             composeEmbedMessage(null, {
-              title: `${getEmoji("BELL")} Mochi notifications`,
+              title: `${getEmoji("BELL", true)} Mochi notifications`,
               description: `**Approval Request #${
                 dataAddTreasurerReq?.request.id
               }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
@@ -135,7 +135,10 @@ export async function runRemoveTreasurer({
     .setDescription(
       `You want to remove <@${
         user.id
-      }> to **${vaultName} vault**\n\nMessage ${getEmoji("MESSAGE2")}\n\`\`\`${
+      }> to **${vaultName} vault**\n\nMessage ${getEmoji(
+        "MESSAGE",
+        true
+      )}\n\`\`\`${
         dataAddTreasurerReq?.request.message
       }\`\`\`\nWe'll notify you once all treasurers have accepted the request.`
     )

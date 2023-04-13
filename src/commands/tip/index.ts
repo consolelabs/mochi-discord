@@ -51,7 +51,7 @@ const textCmd: Command = {
   category: "Defi",
   run: tip,
   featured: {
-    title: `${getEmoji("tip")} Tip`,
+    title: `${getEmoji("TIP", true)} Tip`,
     description: "Send coins to a user or a group of users",
   },
   getHelpMessage: () => getHelpMessage(),

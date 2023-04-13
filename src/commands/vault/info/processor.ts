@@ -138,7 +138,7 @@ export async function runGetVaultDetail({
 
   const embed = composeEmbedMessage(null, {
     color: msgColors.MOCHI,
-    title: `${getEmoji("VAULT")} ${vaultName} vault`,
+    title: `${getEmoji("VAULT", true)} ${vaultName} vault`,
     description: description,
   }).addFields(fields)
 
@@ -195,7 +195,8 @@ function formatRecentTransaction(tx: any) {
       )} Remove <@${tx.target}> from the vault\n`
     case "Config threshold":
       return `[[${t}]](https://mochi.gg/) ${getEmoji(
-        "VAULT_KEY"
+        "ANIMATED_VAULT_KEY",
+        true
       )} Set the threshold to ${tx.threshold}% for vault\n`
   }
 }

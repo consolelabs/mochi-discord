@@ -91,7 +91,7 @@ const textCmd: Command = {
     await tip(msg)
   },
   featured: {
-    title: `${getEmoji("tip")} Tip`,
+    title: `${getEmoji("TIP", true)} Tip`,
     description: "Send coins to a user or a group of users",
   },
   getHelpMessage: () => getHelpMessage(),

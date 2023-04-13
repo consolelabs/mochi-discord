@@ -46,7 +46,7 @@ export async function run({
     ...(note
       ? [
           {
-            name: `Message ${getEmoji("message1")}`,
+            name: `Message ${getEmoji("MESSAGE", true)}`,
             value: `\`\`\`${note}\`\`\``,
             inline: false,
           },
@@ -125,7 +125,7 @@ export async function run({
           ],
           description: `Here's ${paylink} ${tokenEmoji} ${amount} ${token} ${
             note
-              ? `with message ${getEmoji("message1")} \`\`\`${note}\`\`\``
+              ? `with message ${getEmoji("MESSAGE", true)} \`\`\`${note}\`\`\``
               : ""
           }`,
         })

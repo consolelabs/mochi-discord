@@ -25,7 +25,7 @@ export function ActionTypeToEmoji(actionType: string) {
     case "gain_xp":
       return getEmoji("ACTIVITY_XP")
     case "gm":
-      return getEmoji("ACTIVITY_HEART")
+      return getEmoji("HEART", true)
     case "quest":
       return getEmoji("QUEST")
     default:

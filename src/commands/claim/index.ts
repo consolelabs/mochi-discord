@@ -11,7 +11,7 @@ const textCmd: Command = {
   category: "Defi",
   run: claim,
   featured: {
-    title: `${getEmoji("tip")} Claim your pending transfers`,
+    title: `${getEmoji("TIP", true)} Claim your pending transfers`,
     description: "Claim transfers from others",
   },
   getHelpMessage: async (msg) => ({

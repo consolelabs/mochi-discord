@@ -40,9 +40,9 @@ describe("handleTokenDefault", () => {
       embeds: [
         getErrorEmbed({
           description: `\`${symbol}\` hasn't been supported.\n${getEmoji(
-            "POINTINGRIGHT"
+            "ANIMATED_POINTING_RIGHT"
           )} Please choose one in our supported \`$token list\`\n${getEmoji(
-            "POINTINGRIGHT"
+            "ANIMATED_POINTING_RIGHT"
           )}.`,
         }),
       ],

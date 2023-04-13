@@ -271,7 +271,7 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
     { name: "\u200B\n\nRank", value: rankStr, inline: true },
     {
       name: "Level",
-      value: `${getEmoji("arrowup")} \`${
+      value: `${getEmoji("ARROW_UP")} \`${
         userProfile.current_level?.level ?? "N/A"
       }\``,
       inline: true,

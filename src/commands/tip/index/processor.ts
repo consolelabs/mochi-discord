@@ -321,7 +321,7 @@ async function executeTipWithConfirmation(
     getExitButton(payload.sender)
   )
   const confirmEmbed = composeEmbedMessage(null, {
-    title: `${getEmoji("TIP")} Transaction Confirmation`,
+    title: `${getEmoji("TIP", true)} Transaction Confirmation`,
     description: `Are you sure you want to spend **${
       payload.amount
     } ${payload.token.toUpperCase()}** (${(payload.amount * rate).toFixed(

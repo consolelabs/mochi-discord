@@ -174,7 +174,7 @@ const allCommands: Record<PageType, HelpPage> = {
         ],
       },
       Transaction: {
-        emoji: getEmoji("tip"),
+        emoji: getEmoji("TIP", true),
         description: "Making transactions among members and in your wallet",
         features: [
           {
