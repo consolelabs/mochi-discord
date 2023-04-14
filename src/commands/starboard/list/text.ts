@@ -43,7 +43,8 @@ const command: Command = {
             msg,
             title: "No starboards found",
             description: `You haven't configured any emojis in the starboard.\n\n${getEmoji(
-              "ANIMATED_POINTING_RIGHT", true
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
           }),
         ],

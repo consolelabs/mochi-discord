@@ -42,13 +42,17 @@ const cmd: Command = {
         usage: `${PREFIX}pay me <amount> <token> [message]\n${PREFIX}pay me [username] <amount> <token> [message]`,
         examples: `${PREFIX}pay me 25 ftm “I want my money back”"\n${PREFIX}pay me @john 15 ftm “I want my money back”"`,
         description: `\`[username]\` can be one of the following:\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} Discord user name (eg: @John)\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} twitter:<Twitter user name> (eg: twitter:John)\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} tg:<Telegram user name> (eg: tg:John)\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} Email:<email address> (eg: email:John@gmail.com)`,
         document: PAY_ME_GITBOOK,
         includeCommandsList: false,

@@ -30,9 +30,11 @@ export async function handle(
           composeEmbedMessage(null, {
             title: "Can't find DAO/ Invalid link",
             description: `${getEmoji("REVOKE")} Invalid DAO Link\n${getEmoji(
-              "ANIMATED_POINTING_RIGHT", true
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} You can choose a DAO on [Snapshot](https://snapshot.org/#/) and copy its URL.\n${getEmoji(
-              "ANIMATED_POINTING_RIGHT", true
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Then try again with \`$dv track #channel <snapshot_DAO_link>\`\n\n**Example:** \`$dv track #channel https://snapshot.org/#/bitdao.eth\``,
           }),
         ],

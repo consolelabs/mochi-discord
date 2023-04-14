@@ -17,9 +17,11 @@ const run = async (msg: Message) => {
           composeEmbedMessage(msg, {
             title: "Unsupported token",
             description: `**${token.toUpperCase()}** hasn't been supported.\n${getEmoji(
-              "ANIMATED_POINTING_RIGHT", true
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
-              "ANIMATED_POINTING_RIGHT", true
+              "ANIMATED_POINTING_RIGHT",
+              true
             )}.`,
           }),
         ],

@@ -171,7 +171,7 @@ async function composeCollectionTickerEmbed({
     const change = changeStr ? +changeStr : 0
     const trend =
       change > 0
-        ? getEmoji("INCREASING")
+        ? getEmoji("ANIMATED_CHART_INCREASE", true)
         : change === 0
         ? ""
         : getEmoji("DECREASING")

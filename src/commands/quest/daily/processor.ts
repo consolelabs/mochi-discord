@@ -161,8 +161,9 @@ export async function run(userId: string, msg?: Message) {
           (r: any) =>
             `${getEmoji(
               r.reward_type.name.toLowerCase() == "xp"
-                ? "xp2"
-                : r.reward_type.name
+                ? "ANIMATED_XP"
+                : r.reward_type.name,
+              r.reward_type.name.toLowerCase() === "xp"
             )} \`${r.reward_amount}\` ${r.reward_type.name}`
         )
         .join(" and ")

@@ -138,7 +138,7 @@ export async function runGetVaultDetail({
 
   const embed = composeEmbedMessage(null, {
     color: msgColors.MOCHI,
-    title: `${getEmoji("VAULT", true)} ${vaultName} vault`,
+    title: `${getEmoji("ANIMATED_VAULT", true)} ${vaultName} vault`,
     description: description,
   }).addFields(fields)
 
@@ -148,25 +148,19 @@ export async function runGetVaultDetail({
 function formatCurrentRequest(request: any) {
   switch (request.action) {
     case "Sent":
-      return `${getEmoji("APPROVE_VAULT")} [[${
-        request.total_approved_submission
-      }/${
+      return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
       }]](https://google.com) Sent to ${shortenHashOrAddress(
         request.target
       )} ${getEmoji(`${request.token}`)} ${request.amount} ${request.token}\n`
     case "Add":
-      return `${getEmoji("APPROVE_VAULT")} [[${
-        request.total_approved_submission
-      }/${request.total_submission}]](https://google.com) Add <@${
-        request.target
-      }> to the vault\n`
+      return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
+        request.total_submission
+      }]](https://google.com) Add <@${request.target}> to the vault\n`
     case "Remove":
-      return `${getEmoji("APPROVE_VAULT")} [[${
-        request.total_approved_submission
-      }/${request.total_submission}]](https://google.com) Remove <@${
-        request.target
-      }> from the vault\n`
+      return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
+        request.total_submission
+      }]](https://google.com) Remove <@${request.target}> from the vault\n`
   }
 }
 
@@ -181,7 +175,8 @@ function formatRecentTransaction(tx: any) {
       )} Sent to ${shortenHashOrAddress(tx.target)} ${tx.amount} ${tx.token}\n`
     case "Received":
       return `[[${t}]](https://mochi.gg/) ${getEmoji(
-        "ACTIVITY_MONEY"
+        "ANIMATED_MONEY",
+        true
       )} Received from ${shortenHashOrAddress(tx.target)} ${tx.amount} ${
         tx.token
       }\n`

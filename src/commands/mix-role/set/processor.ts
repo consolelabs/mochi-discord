@@ -111,7 +111,8 @@ export async function process(message: OriginalMessage) {
       Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n
       ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Type @ to see a role list.
       ${getEmoji(
-        "ANIMATED_POINTING_RIGHT", true
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`
       await send({ embeds: [getErrorEmbed({ title, description })] })
       return await collectRole()
@@ -128,7 +129,8 @@ export async function process(message: OriginalMessage) {
         Your role has been used for an existing mix role. Please choose another one.
         ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Type @ to see a role list.
         ${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
         `
       await send({ embeds: [getErrorEmbed({ title, description })] })
@@ -298,7 +300,10 @@ export async function process(message: OriginalMessage) {
       "mag"
     )} Please enter the minimum amount of token and the token address that will be required to earn the role ${roleName}`
     const description = `
-    ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Usage: <amount> <token_address> <chain>
+    ${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
+      true
+    )} Usage: <amount> <token_address> <chain>
     ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Eg: 1 0x2…C83 eth\n
     ***If you don’t want to skip setting up this condition, you can type 0 or No.***`
     const embed = composeEmbedMessage(null, {
@@ -445,7 +450,10 @@ export async function process(message: OriginalMessage) {
     const description = `
       ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Level: ${required_level}
       ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Holding NFT: ${requiredNft}
-      ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Holding Token: ${requiredToken}
+      ${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Holding Token: ${requiredToken}
       `
     const embed = composeEmbedMessage(null, {
       title: `Users will earn the role ${role_name} if they meet all of these requirements`,
@@ -470,9 +478,13 @@ export async function process(message: OriginalMessage) {
         const title = "Invalid Role"
         const description = `
           Your role has been used for an existing mix role. Please choose another one.
-          ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Type @ to see a role list.
           ${getEmoji(
-            "ANIMATED_POINTING_RIGHT", true
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} Type @ to see a role list.
+          ${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
           )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
           `
         throw new InternalError({

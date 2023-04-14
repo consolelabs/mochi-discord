@@ -43,15 +43,15 @@ export async function runCreateVault({
   const description = `**Wallet Address**\n\n\`0x140dd183e18ba39bd9BE82286ea2d96fdC48117A\`\n\n**Vault Threshold** \`${
     data.threshold
   }%\`\n\n${getEmoji(
-    "ANIMATED_POINTING_RIGHT", true
+    "ANIMATED_POINTING_RIGHT",
+    true
   )} See all vaults \`/vault list\`\n${getEmoji(
-    "ANIMATED_POINTING_RIGHT", true
+    "ANIMATED_POINTING_RIGHT",
+    true
   )} See detail a vault \`/vault <name>\``
 
   const embed = new MessageEmbed()
-    .setTitle(
-      `${getEmoji("APPROVE_VAULT")}**${data.name} vault successflly created**`
-    )
+    .setTitle(`${getEmoji("CHECK")}**${data.name} vault successflly created**`)
     .setDescription(description)
     .setColor(msgColors.MOCHI)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })

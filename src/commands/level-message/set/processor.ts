@@ -34,7 +34,8 @@ export async function handle(
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("approve")} Successfully set leveled-up message`,
     description: `${getEmoji(
-      "ANIMATED_POINTING_RIGHT", true
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} You can take a look at the preview message:\n${data.message}`,
     color: msgColors.SUCCESS,
   })

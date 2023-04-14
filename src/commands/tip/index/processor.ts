@@ -82,9 +82,11 @@ export async function tip(
       msgOrInteraction,
       title: "Unsupported token",
       description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT", true
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT", true
+        "ANIMATED_POINTING_RIGHT",
+        true
       )}.`,
     })
   }
@@ -321,7 +323,7 @@ async function executeTipWithConfirmation(
     getExitButton(payload.sender)
   )
   const confirmEmbed = composeEmbedMessage(null, {
-    title: `${getEmoji("TIP", true)} Transaction Confirmation`,
+    title: `${getEmoji("ANIMATED_CASH", true)} Transaction Confirmation`,
     description: `Are you sure you want to spend **${
       payload.amount
     } ${payload.token.toUpperCase()}** (${(payload.amount * rate).toFixed(

@@ -105,7 +105,7 @@ export async function runAddTreasurer({
         const msg = await treasurer.send({
           embeds: [
             composeEmbedMessage(null, {
-              title: `${getEmoji("BELL", true)} Mochi notifications`,
+              title: `${getEmoji("ANIMATED_BELL", true)} Mochi notifications`,
               description: `**Approval Request #${
                 dataAddTreasurerReq?.request.id
               }**\n<@${i.user.id}> has submitted a request\n${getEmoji(

@@ -28,7 +28,8 @@ export async function runVaultList({
         embed: composeEmbedMessage(msg, {
           title: "Empty list vault",
           description: `${getEmoji(
-            "ANIMATED_POINTING_RIGHT", true
+            "ANIMATED_POINTING_RIGHT",
+            true
           )} This guild does not have any vault yet`,
           color: msgColors.ERROR,
         }),
@@ -42,7 +43,8 @@ export async function runVaultList({
   }
 
   description += `\n${getEmoji(
-    "ANIMATED_POINTING_RIGHT", true
+    "ANIMATED_POINTING_RIGHT",
+    true
   )} View detail of the vault \`/vault <name>\``
 
   const embed = new MessageEmbed()

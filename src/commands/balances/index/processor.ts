@@ -22,17 +22,21 @@ const balanceEmbedProps = {
   [balanceTypes.Offchain]: {
     title: "Offchain balance",
     description: `${getEmoji(
-      "ANIMATED_POINTING_RIGHT", true
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} You can withdraw the coin to you crypto wallet by \`$withdraw\`.\n${getEmoji(
-      "ANIMATED_POINTING_RIGHT", true
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} All the tip transaction will take from this balance. You can try \`$tip <recipient> <amount> <token>\` to transfer coin.`,
   },
   [balanceTypes.Onchain]: {
     title: "Onchain balance",
     description: `This balance shows the total amount of pending on-chain transactions.\n${getEmoji(
-      "ANIMATED_POINTING_RIGHT", true
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} You can transfer received token to your crypto wallet by claiming in your DM \`$claim <Claim ID> <your recipient address>\`.\n${getEmoji(
-      "ANIMATED_POINTING_RIGHT", true
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} All the tip transaction won't take from this balance.`,
   },
   [balanceTypes.Total]: {

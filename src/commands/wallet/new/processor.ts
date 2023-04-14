@@ -36,7 +36,7 @@ export async function run({
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
     author: ["Confirm the transaction", getEmojiURL(emojis.APPROVE)],
-    thumbnail: getEmojiURL(emojis.ACTIVITY_CASH),
+    thumbnail: getEmojiURL(emojis.ANIMATED_CASH),
   }).addFields(
     {
       name: "Amount",
@@ -46,7 +46,7 @@ export async function run({
     ...(note
       ? [
           {
-            name: `Message ${getEmoji("MESSAGE", true)}`,
+            name: `Message ${getEmoji("ANIMATED_CHAT", true)}`,
             value: `\`\`\`${note}\`\`\``,
             inline: false,
           },
@@ -121,11 +121,14 @@ export async function run({
           originalMsgAuthor: author,
           author: [
             "Congrats! You've just created a pay link",
-            getEmojiURL(emojis.ACTIVITY_CASH),
+            getEmojiURL(emojis.ANIMATED_CASH),
           ],
           description: `Here's ${paylink} ${tokenEmoji} ${amount} ${token} ${
             note
-              ? `with message ${getEmoji("MESSAGE", true)} \`\`\`${note}\`\`\``
+              ? `with message ${getEmoji(
+                  "ANIMATED_CHAT",
+                  true
+                )} \`\`\`${note}\`\`\``
               : ""
           }`,
         })

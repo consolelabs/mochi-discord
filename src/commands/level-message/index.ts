@@ -30,9 +30,11 @@ const textCmd: Command = {
       composeEmbedMessage(msg, {
         title: "Leveled-up Message",
         description: `Set up an encouraging leveled-up message when each user is leveled.\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} You can use \`$name\` to mention users and \\n to break a paragraph.\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} You can insert an image in leveled-up message by uploading file.`,
         usage: `${PREFIX}levelmessage <action>\n${PREFIX}lm <action>`,
         examples: `${PREFIX}levelmessage info\n${PREFIX}lm set Congratulation on leveling up #appreciation`,

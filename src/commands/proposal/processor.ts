@@ -92,15 +92,18 @@ export async function handleProposalCreate(i: ButtonInteraction) {
       getSuccessEmbed({
         title: "Proposal successfully submitted",
         description: `${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} Your proposal has been recorded in the <#${
           cfgData.proposal_channel_id
         }>.\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} You can create a new proposal in the <#${
           cfgData.guideline_channel_id
         }>.\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} You can join the discussion about your proposal in the <#${
           data.discussion_channel_id
         }>`,
@@ -563,7 +566,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
         description: `You have updated your vote successfully ${choice} for**${i.message.embeds[0].title?.replace(
           getEmoji("MAIL"),
           ""
-        )}**. Thank you for your vote ${getEmoji("HEART")}`,
+        )}**. Thank you for your vote ${getEmoji("ANIMATED_HEART", true)}`,
       }),
     ],
   })

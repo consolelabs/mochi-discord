@@ -43,9 +43,11 @@ const textCmd: Command = {
         msgOrInteraction: msg,
         title: "Ticker error",
         description: `${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} You need to enter **different** tokens/fiats for the base and target.\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }
@@ -62,7 +64,7 @@ const textCmd: Command = {
     return null
   },
   featured: {
-    title: `${getEmoji("INCREASING")} Ticker`,
+    title: `${getEmoji("ANIMATED_CHART_INCREASE", true)} Ticker`,
     description: `Display/Compare coin prices and market cap`,
   },
   getHelpMessage: async (msg) => ({
@@ -120,9 +122,11 @@ const slashCmd: SlashCommand = {
         msgOrInteraction: interaction,
         title: "Ticker error",
         description: `${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} You need to enter **different** tokens/fiats for the base and target.\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT", true
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }

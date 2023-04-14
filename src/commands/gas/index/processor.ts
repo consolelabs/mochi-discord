@@ -16,7 +16,8 @@ export async function render() {
           composeEmbedMessage(null, {
             title: "No token found",
             description: `${getEmoji(
-              "ANIMATED_POINTING_RIGHT", true
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Currently no token gas found`,
             color: msgColors.SUCCESS,
             footer: ["Type /feedback to report"],
@@ -77,7 +78,8 @@ export async function renderOne(chain: string) {
           composeEmbedMessage(null, {
             title: "No token found",
             description: `${getEmoji(
-              "ANIMATED_POINTING_RIGHT", true
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Currently no token gas found`,
             color: msgColors.SUCCESS,
           }),

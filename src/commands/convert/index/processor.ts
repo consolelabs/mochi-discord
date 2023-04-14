@@ -28,7 +28,8 @@ export async function render(
         embed: composeEmbedMessage(null, {
           title: "Cannot conver token",
           description: `${getEmoji(
-            "ANIMATED_POINTING_RIGHT", true
+            "ANIMATED_POINTING_RIGHT",
+            true
           )} This user does not have any activities yet`,
           color: msgColors.ERROR,
         }),
@@ -48,9 +49,11 @@ export async function render(
     throw new InternalError({
       title: "Unsupported token/fiat",
       description: `Token is invalid or hasn't been supported.\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT", true
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT", true
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} or Please choose a valid fiat currency.`,
     })
   }
@@ -58,7 +61,9 @@ export async function render(
   const { ratios, base_coin, target_coin } = compareTickerData
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
   const coinInfo = (coin: Coin, emoji = true) =>
-    `${emoji ? `${getEmoji("trophy")}` : ""} Rank: \`#${coin.market_cap_rank}\``
+    `${emoji ? `${getEmoji("ANIMATED_TROPHY", true)}` : ""} Rank: \`#${
+      coin.market_cap_rank
+    }\``
       .concat(
         `\n${
           emoji ? `${getEmoji("coin2")}` : ""

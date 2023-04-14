@@ -1052,7 +1052,7 @@ describe("handleTip", () => {
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
 
     const expected = composeEmbedMessage(null, {
-      title: `${getEmoji("TIP", true)} Transaction Confirmation`,
+      title: `${getEmoji("ANIMATED_CASH", true)} Transaction Confirmation`,
       description: `Are you sure you want to spend **100 CAKE** (100.00 USD) to tip <@521591222826041344>?`,
       color: msgColors.BLUE,
     })
@@ -1253,7 +1253,7 @@ describe("handleTip", () => {
     expect(processor.getTipPayload).toHaveBeenCalledTimes(1)
 
     const expected = composeEmbedMessage(null, {
-      title: `${getEmoji("TIP", true)} Transaction Confirmation`,
+      title: `${getEmoji("ANIMATED_CASH", true)} Transaction Confirmation`,
       description: `Are you sure you want to spend **100 CAKE** (100.00 USD) to tip 2 users?`,
       color: msgColors.BLUE,
     })

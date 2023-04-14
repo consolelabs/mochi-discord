@@ -168,7 +168,7 @@ async function composeCollectionTickerEmbed({
     const change = changeStr ? +changeStr : 0
     const trend =
       change > 0
-        ? getEmoji("INCREASING")
+        ? getEmoji("ANIMATED_CHART_INCREASE", true)
         : change === 0
         ? ""
         : getEmoji("DECREASING")
@@ -398,9 +398,11 @@ export async function handleNftTicker(
           getErrorEmbed({
             title: "Collection not found",
             description: `The collection hasn't been supported.\n${getEmoji(
-              "ANIMATED_POINTING_RIGHT", true
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Please choose one in the supported \`$nft list\`.\n${getEmoji(
-              "ANIMATED_POINTING_RIGHT", true
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} To add your NFT, run \`$nft add\`.`,
           }),
         ],

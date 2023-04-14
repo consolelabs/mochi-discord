@@ -60,9 +60,11 @@ export async function claim(msg: Message, args: string[]) {
           msgOrInteraction: msg,
           title: "Failed to claim tip!",
           description: `Mochi wallet's balance is insufficient to proceed this transaction.\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT", true
+            "ANIMATED_POINTING_RIGHT",
+            true
           )} You can contact our developer at suggestion forum in [Mochi Discord](${DISCORD_URL})!\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT", true
+            "ANIMATED_POINTING_RIGHT",
+            true
           )} You can try to claim other tips and get back to this one later! ${getEmoji(
             "soon"
           )}\nSorry for this inconvenience ${getEmoji("nekosad")}`,

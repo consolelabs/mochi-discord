@@ -60,7 +60,8 @@ export async function handle(msg: Message | CommandInteraction) {
           getErrorEmbed({
             title: `${getEmoji("mail")} No tracker found!`,
             description: `You haven't set up any tracker!\n${getEmoji(
-              "ANIMATED_POINTING_RIGHT", true
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} You can set up your DAO voting channel by \`${PREFIX}proposal track #channel <snapshot_DAO_link>\``,
           }),
         ],

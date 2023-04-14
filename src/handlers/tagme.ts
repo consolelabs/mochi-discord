@@ -56,7 +56,7 @@ class Tagme {
             new MessageButton()
               .setStyle("SECONDARY")
               .setCustomId(`tagme_unsubscribe_${user.id}_${guildId}`)
-              .setEmoji(getEmoji("X"))
+              .setEmoji(getEmoji("REVOKE"))
               .setLabel("Unsubscribe from this guild")
           ),
         ],

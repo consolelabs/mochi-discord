@@ -95,7 +95,7 @@ export async function renderHistoricalMarketChart({
 const getChangePercentage = (change: number) => {
   const trend =
     change > 0
-      ? getEmoji("INCREASING")
+      ? getEmoji("ANIMATED_CHART_INCREASE", true)
       : change === 0
       ? ""
       : getEmoji("DECREASING")
@@ -262,7 +262,7 @@ export function buildSwitchViewActionRow(
   const { coinId, days, symbol, discordId } = params
   const tickerBtn = new MessageButton({
     label: "Ticker",
-    emoji: getEmoji("INCREASING"),
+    emoji: getEmoji("ANIMATED_CHART_INCREASE", true),
     customId: `ticker_view_chart|${coinId}|${days}|${symbol}|${discordId}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",

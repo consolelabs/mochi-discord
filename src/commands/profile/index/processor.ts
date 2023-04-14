@@ -172,7 +172,7 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
 const setProfileFooter = (embed: MessageEmbed) => {
   embed.setFooter({
     text: "Select the categories below to see more assets!",
-    iconURL: getEmojiURL(emojis.POINTINGDOWN),
+    iconURL: getEmojiURL(emojis.ANIMATED_POINTING_DOWN),
   })
 }
 
@@ -247,13 +247,15 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp
-  const xpStr = `${getEmoji("xp2")} \`${
+  const xpStr = `${getEmoji("ANIMATED_XP", true)} \`${
     userProfile.guild_xp
   }/${nextLevelMinXp}\``
   const roles = msg.member?.roles as GuildMemberRoleManager
   const highestRole = roles.highest.name !== "@everyone" ? roles.highest : null
   const activityStr = `\`${userProfile.nr_of_actions}\``
-  const rankStr = `${getEmoji("trophy")} \`#${userProfile.guild_rank ?? 0}\``
+  const rankStr = `${getEmoji("ANIMATED_TROPHY", true)} \`#${
+    userProfile.guild_rank ?? 0
+  }\``
   // const { academy_xp, imperial_xp, merchant_xp, rebellio_xp } =
   //   userProfile.user_faction_xps ?? {}
 
