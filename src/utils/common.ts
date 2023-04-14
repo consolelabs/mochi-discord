@@ -98,6 +98,8 @@ export const tokenEmojis: Record<string, string> = {
   MCLB: "1079669537408036955",
   BSC: "972205674715054090",
   POL: "1037985931816349746",
+  SAMO: "1095714152221261905",
+  BONK: "1095714104108388362",
 }
 
 export const numberEmojis: Record<string, string> = {
