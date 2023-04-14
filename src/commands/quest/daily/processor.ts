@@ -157,15 +157,13 @@ export async function run(userId: string, msg?: Message) {
     )
     .map((d: any) => {
       const rewards = d.quest.rewards
-        .map(
-          (r: any) =>
-            `${getEmoji(
-              r.reward_type.name.toLowerCase() == "xp"
-                ? "ANIMATED_XP"
-                : r.reward_type.name,
-              r.reward_type.name.toLowerCase() === "xp"
-            )} \`${r.reward_amount}\` ${r.reward_type.name}`
-        )
+        .map((r: any) => {
+          const isRewardXP = r.reward_type.name.toLowerCase() === "xp"
+          return `${getEmoji(
+            isRewardXP ? "ANIMATED_XP" : r.reward_type.name,
+            isRewardXP
+          )} \`${r.reward_amount}\` ${r.reward_type.name}`
+        })
         .join(" and ")
       return {
         name: `**${d.quest.title}**`,

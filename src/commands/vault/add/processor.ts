@@ -111,7 +111,8 @@ export async function runAddTreasurer({
               }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
                 "TREASURER_ADD"
               )} Add <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
-                "MESSAGE2"
+                "ANIMATED_CHAT",
+                true
               )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
               color: msgColors.MOCHI,
               thumbnail:
@@ -137,7 +138,7 @@ export async function runAddTreasurer({
       `You want to add <@${
         user.id
       }> to **${vaultName} vault**\n\nMessage ${getEmoji(
-        "MESSAGE",
+        "ANIMATED_CHAT",
         true
       )}\n\`\`\`${
         dataAddTreasurerReq?.request.message

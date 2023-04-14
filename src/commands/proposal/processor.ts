@@ -401,7 +401,8 @@ async function getProposalTitle(
     embeds: [
       composeEmbedMessage(null, {
         title: `${getEmoji(
-          "ANIMATED_QUESTION_MARK"
+          "ANIMATED_QUESTION_MARK",
+          true
         )} Please enter your proposal description.`,
         description: "Word limit: 2000 words",
       }),
@@ -432,7 +433,8 @@ async function getProposalDescription(
     embeds: [
       composeEmbedMessage(null, {
         title: `${getEmoji(
-          "ANIMATED_QUESTION_MARK"
+          "ANIMATED_QUESTION_MARK",
+          true
         )} Please enter the duration of your proposal.`,
         description: "You can enter the duration in hours or days (h, d)",
       }),

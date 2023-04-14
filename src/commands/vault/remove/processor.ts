@@ -111,7 +111,8 @@ export async function runRemoveTreasurer({
               }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
                 "TREASURER_REMOVE"
               )} Remove <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
-                "MESSAGE2"
+                "ANIMATED_CHAT",
+                true
               )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
               color: msgColors.MOCHI,
               thumbnail:
@@ -136,7 +137,7 @@ export async function runRemoveTreasurer({
       `You want to remove <@${
         user.id
       }> to **${vaultName} vault**\n\nMessage ${getEmoji(
-        "MESSAGE",
+        "ANIMATED_CHAT",
         true
       )}\n\`\`\`${
         dataAddTreasurerReq?.request.message
