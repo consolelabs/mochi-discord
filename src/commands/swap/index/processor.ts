@@ -12,7 +12,6 @@ import {
 } from "ui/discord/embed"
 import { emojis, getEmoji, getEmojiURL, thumbnails } from "utils/common"
 import { reply } from "utils/discord"
-import profile from "adapters/profile"
 import { BigNumber, utils } from "ethers"
 import { HOMEPAGE_URL } from "utils/constants"
 import { pascalCase } from "change-case"
@@ -44,11 +43,6 @@ export const chains = {
 }
 
 const approx = "≈"
-
-const ids = {
-  SWAP_SELECTED_WALLET: "swap_selected_wallet",
-  SWAP_NO_WALLETS_FOUND: "swap_no_wallets_found",
-}
 
 type Route = {
   tokenIn: string
@@ -260,11 +254,13 @@ export async function handleSwap(i: ButtonInteraction) {
               description: `Your swap request has been submitted, [**check your DM to see the receipt**](${dm.url})`,
             }),
           ],
+          components: [],
         })
       })
       .catch(() => {
         i.editReply({
           embeds: [enableDMMessage("Your swap request was submitted, but ")],
+          components: [],
         })
       })
   }
@@ -282,11 +278,6 @@ export async function render(
   chainName: string
 ) {
   const { routeSummary, tokenIn, tokenOut } = data
-  const { associated_accounts } = await profile.getByDiscord(i.user.id)
-  const wallets = associated_accounts.filter(
-    (aa: any) => aa.platform.toLowerCase() !== "discord"
-  )
-  const isEmpty = wallets.length === 0
 
   const routes = await aggregateTradeRoute(routeSummary)
 
@@ -396,24 +387,20 @@ export async function render(
   const response = {
     messageOptions: {
       embeds: [embed],
-      components: isEmpty
-        ? [
-            new MessageActionRow().addComponents(
-              new MessageButton()
-                .setLabel("You have no associated wallets")
-                .setCustomId(ids.SWAP_NO_WALLETS_FOUND)
-                .setStyle("SECONDARY")
-                .setDisabled(true)
-            ),
-          ]
-        : [
-            new MessageActionRow().addComponents(
-              new MessageButton()
-                .setCustomId(`swap-mochi-wallet_${chainName}`)
-                .setLabel("Swap")
-                .setStyle("PRIMARY")
-            ),
-          ],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setCustomId(`swap-mochi-wallet_${chainName}`)
+            .setLabel("Swap")
+            .setStyle("PRIMARY"),
+          new MessageButton()
+            .setURL(
+              `https://kyberswap.com/swap/${chainName}/${from.toLowerCase()}-to-${to.toLowerCase()}`
+            )
+            .setLabel("View in web")
+            .setStyle("LINK")
+        ),
+      ],
     },
   }
 
