@@ -85,7 +85,8 @@ const command: Command = {
         usage: `To set a gm channel with gm/gn:\n${PREFIX}gm set <channel>\n\nTo set customize the repeated phrase:\n${PREFIX}gm set <channel> [phrase] [emoji] [insert sticker]`,
         examples: `${PREFIX}gm set #general\n${PREFIX}gm set #whoop-channel whoop ⛅`,
         description: `*Note:\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} When setting a new starboard, please use the **custom emoji, sticker from this server** and the **Discord default emoji, sticker**.* ${getEmoji(
           "nekosad"
         )}`,

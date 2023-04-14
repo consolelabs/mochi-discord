@@ -20,11 +20,14 @@ const command: SlashCommand = {
             author: ["Moniker Info", getEmojiURL(emojis.INFO_VAULT)],
             thumbnail: getEmojiURL(emojis.MONIKER),
             description: `Moniker can be understood as a nickname for your token. Instead of tipping or airdropping a token, you can create an item (cookie, beer,..) and tip or airdrop them to other users.\n\n${getEmoji(
-              "pointingright"
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Set up a new moniker configuration \`${SLASH_PREFIX}moniker set\`\ne.g. \`${SLASH_PREFIX}moniker set cookie 0.01 bnb\`\n${getEmoji(
-              "pointingright"
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} See all moniker configurations \`${SLASH_PREFIX}moniker list\`\n${getEmoji(
-              "pointingright"
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Remove a configured moniker \`${SLASH_PREFIX}moniker remove\`\n[Read insructions](${HOMEPAGE_URL}) for a complete setup guide`,
           }),
         ],

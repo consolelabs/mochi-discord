@@ -17,15 +17,15 @@ export function PlatformTypeToEmoji(platformType: string) {
 export function ActionTypeToEmoji(actionType: string) {
   switch (actionType) {
     case "tip":
-      return getEmoji("ACTIVITY_CASH")
+      return getEmoji("ANIMATED_CASH", true)
     case "withdraw":
-      return getEmoji("ACTIVITY_COIN")
+      return getEmoji("ANIMATED_COIN_3", true)
     case "deposit":
-      return getEmoji("ACTIVITY_MONEY")
+      return getEmoji("ANIMATED_MONEY", true)
     case "gain_xp":
-      return getEmoji("ACTIVITY_XP")
+      return getEmoji("ANIMATED_XP", true)
     case "gm":
-      return getEmoji("ACTIVITY_HEART")
+      return getEmoji("ANIMATED_HEART", true)
     case "quest":
       return getEmoji("QUEST")
     default:

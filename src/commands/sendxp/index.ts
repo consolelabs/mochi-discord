@@ -18,9 +18,11 @@ const textCmd: Command = {
         title: "Send XP to members",
         usage: `${PREFIX}sendxp <recipient(s)> <amount> [each]`,
         description: `You can send to recipients by:\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} Username(s): \`@tom\`, \`@john\`\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} Role(s): \`@dev\`, \`@staff\``,
         examples: `${PREFIX}sendxp @john 5\n${PREFIX}sendxp @staff 5 XP`,
         document: SENDXP_GITBOOK,
@@ -71,9 +73,11 @@ const slashCmd: SlashCommand = {
         title: "Send XP to members",
         usage: `${SLASH_PREFIX}sendxp <recipient(s)> <amount> [each]`,
         description: `You can send to recipients by:\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} Username(s): \`@tom\`, \`@john\`\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} Role(s): \`@dev\`, \`@staff\``,
         examples: `${SLASH_PREFIX}sendxp @john 5\n${SLASH_PREFIX}sendxp @staff 5 XP`,
       }),

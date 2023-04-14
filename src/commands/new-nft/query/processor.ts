@@ -135,7 +135,7 @@ export function buildSwitchViewActionRow(
     })
     const tickerButton = new MessageButton({
       label: "Ticker",
-      emoji: getEmoji("INCREASING"),
+      emoji: getEmoji("ANIMATED_CHART_INCREASE", true),
       customId: customIdNftTicker,
       style: "SECONDARY",
       disabled: currentView === "ticker",
@@ -341,7 +341,7 @@ async function composeNFTTicker(
     const change = changeStr ? +changeStr : 0
     const trend =
       change > 0
-        ? getEmoji("INCREASING")
+        ? getEmoji("ANIMATED_CHART_INCREASE", true)
         : change === 0
         ? ""
         : getEmoji("DECREASING")
@@ -525,7 +525,7 @@ export async function composeNFTDetail(
     ? ` **・Owner:** \`${shortenHashOrAddress(owner.owner_address)}\``
     : ""
   description += rarity?.rank
-    ? `\n\n${getEmoji("TROPHY")}** ・ Rank: ${
+    ? `\n\n${getEmoji("ANIMATED_TROPHY", true)}** ・ Rank: ${
         rarity.rank
       } ** ${rarityRate} ${soulbound}`
     : ""

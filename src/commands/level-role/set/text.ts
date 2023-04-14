@@ -48,9 +48,11 @@ const command: Command = {
               msg,
               title: "Invalid role format",
               description: `Your role is in an invalid format. Make sure an “@” symbol is put before the role.\n\n${getEmoji(
-                "POINTINGRIGHT"
+                "ANIMATED_POINTING_RIGHT",
+                true
               )} Type @ to see a role list.\n${getEmoji(
-                "POINTINGRIGHT"
+                "ANIMATED_POINTING_RIGHT",
+                true
               )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
             }),
           ],
@@ -114,9 +116,11 @@ const command: Command = {
     let title
     if (res.error.toLowerCase().includes("role has been used")) {
       description = `Your role has been used for an existing NFT role. Please choose another one.\n\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} Type @ to see a role list.\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`
       title = "Invalid roles"
     }

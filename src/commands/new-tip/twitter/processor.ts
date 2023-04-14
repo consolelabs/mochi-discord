@@ -210,7 +210,7 @@ async function confirmToTip(
     ...(payload.note
       ? [
           {
-            name: `Message ${getEmoji("message")}`,
+            name: `Message ${getEmoji("ANIMATED_CHAT", true)}`,
             value: `\`\`\`${payload.note}\`\`\``,
           },
         ]
@@ -344,7 +344,7 @@ export async function tipTwitter(
   const { cryptocurrency } = parseTipParameters(agrsAfterParseMessage)
   const tokenSupported = await isTokenSupported(cryptocurrency)
   if (!moniker && !tokenSupported) {
-    const pointingright = getEmoji("POINTINGRIGHT")
+    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     throw new InternalError({
       msgOrInteraction,
       title: "Unsupported token",

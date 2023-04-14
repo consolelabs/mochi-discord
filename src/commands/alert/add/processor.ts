@@ -70,7 +70,10 @@ export const handlePriceAlertAdd = async (
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
-          title: `${getEmoji("increasing")} Please choose the price alert`,
+          title: `${getEmoji(
+            "ANIMATED_CHART_INCREASE",
+            true
+          )} Please choose the price alert`,
         }),
       ],
       components: [selectRow, composeDiscordExitButton(authorId)],
@@ -89,7 +92,10 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
     throw new APIError({ description: log, curl })
   }
   const currentPrice = parseFloat(data?.price)
-  let title = `${getEmoji("increasing")} Please enter the value in USD`
+  let title = `${getEmoji(
+    "ANIMATED_CHART_INCREASE",
+    true
+  )} Please enter the value in USD`
   let description = `The current price of **${
     symbol ? symbol.toUpperCase() : ""
   }** is ${currentPrice}. `
@@ -100,7 +106,10 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
     description += "Please enter a lower price than the current one!"
   }
   if (alertType === "change_is_over" || alertType === "change_is_under") {
-    title = `${getEmoji("increasing")} Please enter the value in percentage (%)`
+    title = `${getEmoji(
+      "ANIMATED_CHART_INCREASE",
+      true
+    )} Please enter the value in percentage (%)`
     description += `You will get alert if ${alertType.replaceAll("_", " ")}:`
   }
 
@@ -195,7 +204,10 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
-          title: `${getEmoji("increasing")} Please choose the alert frequency`,
+          title: `${getEmoji(
+            "ANIMATED_CHART_INCREASE",
+            true
+          )} Please choose the alert frequency`,
         }),
       ],
       components: [selectRow, composeDiscordExitButton(userID)],

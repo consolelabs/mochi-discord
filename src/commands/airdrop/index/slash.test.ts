@@ -12,10 +12,8 @@ describe("run", () => {
   }
 
   test("successfully without opts", async () => {
-    i.options.getString = jest
-      .fn()
-      .mockReturnValueOnce("1")
-      .mockReturnValueOnce("ftm")
+    i.options.getNumber = jest.fn().mockReturnValueOnce("1")
+    i.options.getString = jest.fn().mockReturnValueOnce("ftm")
     jest
       .spyOn(processor, "handleAirdrop")
       .mockResolvedValueOnce(airdropOutputMock)
@@ -24,9 +22,9 @@ describe("run", () => {
   })
 
   test("successfully with duration", async () => {
+    i.options.getNumber = jest.fn().mockReturnValueOnce("1")
     i.options.getString = jest
       .fn()
-      .mockReturnValueOnce("1")
       .mockReturnValueOnce("ftm")
       .mockReturnValueOnce("30")
     jest
@@ -43,12 +41,15 @@ describe("run", () => {
   })
 
   test("successfully with max entries = 1", async () => {
-    i.options.getString = jest
+    i.options.getNumber = jest
       .fn()
       .mockReturnValueOnce("1")
+      .mockReturnValueOnce("1")
+    i.options.getString = jest
+      .fn()
       .mockReturnValueOnce("ftm")
       .mockReturnValueOnce(null)
-      .mockReturnValueOnce("1")
+
     jest
       .spyOn(processor, "handleAirdrop")
       .mockResolvedValueOnce(airdropOutputMock)
@@ -63,12 +64,14 @@ describe("run", () => {
   })
 
   test("successfully with full opts (in 20s for 1)", async () => {
-    i.options.getString = jest
+    i.options.getNumber = jest
       .fn()
       .mockReturnValueOnce("1")
+      .mockReturnValueOnce("1")
+    i.options.getString = jest
+      .fn()
       .mockReturnValueOnce("ftm")
       .mockReturnValueOnce("20")
-      .mockReturnValueOnce("1")
     jest
       .spyOn(processor, "handleAirdrop")
       .mockResolvedValueOnce(airdropOutputMock)

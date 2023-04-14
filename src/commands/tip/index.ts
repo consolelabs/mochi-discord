@@ -13,7 +13,7 @@ import tip from "./index/text"
 
 const getHelpMessage = async (isSLash?: boolean) => {
   const prefix = isSLash ? SLASH_PREFIX : PREFIX
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   return {
     embeds: [
       composeEmbedMessage(null, {
@@ -51,7 +51,7 @@ const textCmd: Command = {
   category: "Defi",
   run: tip,
   featured: {
-    title: `${getEmoji("tip")} Tip`,
+    title: `${getEmoji("ANIMATED_CASH", true)} Tip`,
     description: "Send coins to a user or a group of users",
   },
   getHelpMessage: () => getHelpMessage(),

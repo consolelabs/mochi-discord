@@ -30,7 +30,8 @@ export async function handleWalletAddition(msg: OriginalMessage) {
     author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
     title: "Add Wallet",
     description: `Manage your crypto wallets\n${getEmoji(
-      "pointingdown"
+      "ANIMATED_POINTING_DOWN",
+      true
     )} Please choose "Connect Wallet" below to connect your metamask wallet.\nAlternatively, press Exit to abort.`,
     originalMsgAuthor: author,
     color: msgColors.SUCCESS,
@@ -82,7 +83,7 @@ export async function renameWallet(
   userId: string,
   address: string
 ) {
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const reply = await i.editReply({
     embeds: [
       composeEmbedMessage(null, {
@@ -158,7 +159,7 @@ export async function trackWallet(
     alias,
     type,
   })
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {
     throw new InternalError({
       msgOrInteraction: msg,

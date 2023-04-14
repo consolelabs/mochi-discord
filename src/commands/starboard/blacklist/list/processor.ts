@@ -5,7 +5,8 @@ export function composeListConfig(data: any) {
     return {
       title: "No starboard blacklists found",
       description: `You haven't configured any starboard blacklist channels.\n\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} To set a new one, run \`\`\`$sb blacklist set <channel>\`\`\``,
     }
   }

@@ -25,7 +25,7 @@ export async function deposit(
   const isDm = msgOrInteraction.channel?.type === "DM"
   const validToken = await isTokenSupported(symbol)
   if (!validToken) {
-    const pointingright = getEmoji("pointingright")
+    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     throw new InternalError({
       msgOrInteraction,
       title: "Unsupported token",

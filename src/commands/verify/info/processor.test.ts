@@ -51,9 +51,11 @@ describe("runVerify", () => {
             title: "No verified channel found",
             author: ["Verify", getEmojiURL(emojis.APPROVE)],
             description: `You haven't set a channel for verification.\n${getEmoji(
-              "pointingright"
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} To set a new one, run \`verify set #<channel> @<verified role>\`.\n${getEmoji(
-              "pointingright"
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Then re-check your configuration using \`verify info.\``,
             color: msgColors.PINK,
           }),

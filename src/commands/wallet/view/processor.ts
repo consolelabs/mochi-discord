@@ -286,7 +286,7 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
   } = await defi.getUserTrackingWallets(author.id)
   if (!ok)
     throw new APIError({ msgOrInteraction: message, description: log, curl })
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (wallets.length === 0) {
     const embed = composeEmbedMessage(null, {
       author: ["Wallet list", getEmojiURL(emojis.TRANSACTIONS)],
@@ -333,7 +333,7 @@ async function getTokensEmbed(
   type: string,
   alias: string
 ) {
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const blank = getEmoji("blank")
   const {
     data: assets,
@@ -438,7 +438,7 @@ export async function getTxnsEmbed(
   }
 
   const reply = getEmoji("reply")
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const blank = getEmoji("blank")
   const transactions = txns.slice(0, 5).map((tx: any) => {
     const {
@@ -552,7 +552,7 @@ async function getNFTsEmbed(
     })
   }
 
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const fields: EmbedFieldData[] = await Promise.all(
     // group nfts by collection
     Object.entries(

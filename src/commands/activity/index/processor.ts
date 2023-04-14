@@ -19,7 +19,8 @@ export async function render(userDiscordId: string, page: number) {
       embed: composeEmbedMessage(null, {
         title: "No activities found",
         description: `${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} This user does not have any activities yet`,
         color: msgColors.ACTIVITY,
       }),
@@ -35,7 +36,8 @@ export async function render(userDiscordId: string, page: number) {
       embed: composeEmbedMessage(null, {
         title: "No activities found",
         description: `${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} This user does not have any activities yet`,
         color: msgColors.ACTIVITY,
       }),

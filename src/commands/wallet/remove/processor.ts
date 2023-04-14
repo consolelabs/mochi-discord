@@ -28,7 +28,7 @@ export async function untrackWallet(
     curl,
     log,
   } = await defi.findWallet(author.id, addressOrAlias)
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   // wallet not found
   if (!ok && status === 404) {
     throw new InternalError({

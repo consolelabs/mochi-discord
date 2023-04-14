@@ -55,7 +55,7 @@ const slashCmd: SlashCommand = {
     return new SlashCommandBuilder()
       .setName("airdrop")
       .setDescription("Airdrop tokens for a specified number of users.")
-      .addStringOption((option) =>
+      .addNumberOption((option) =>
         option
           .setName("amount")
           .setDescription("amount you want to airdrop. Example: 5, all, etc.")
@@ -71,13 +71,14 @@ const slashCmd: SlashCommand = {
         option
           .setName("duration")
           .setDescription(
-            "duration of airdrop in seconds, minutes, hours. Example: 5m"
+            "duration in seconds (default), minutes or hour (max 1 hour). Example: 5m"
           )
       )
-      .addStringOption((option) =>
+      .addNumberOption((option) =>
         option
           .setName("entries")
           .setDescription("max entries count. Example: 5")
+          .setMinValue(1)
       )
   },
   run: async function (interaction: CommandInteraction) {

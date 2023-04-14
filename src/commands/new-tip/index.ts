@@ -17,7 +17,7 @@ import tipTwitter from "./twitter/text"
 
 const getHelpMessage = async (isSLash?: boolean) => {
   const prefix = isSLash ? SLASH_PREFIX : PREFIX
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const usageTipOnChain = `-- Tip onchain or offchain\n${prefix}tip <recipient(s)> <amount> <token> [each]\n${prefix}tip <recipient(s)> <amount> <token> [each] ["message"] [--onchain]`
   const usageTipTele = `-- Tip Telegram\n${prefix}tip tg:<telegram_username> <amount> <token>`
   const usageTipEmail = `-- Tip Email\n${prefix}tip email:<email_address> <amount> <token>`
@@ -91,7 +91,7 @@ const textCmd: Command = {
     await tip(msg)
   },
   featured: {
-    title: `${getEmoji("tip")} Tip`,
+    title: `${getEmoji("ANIMATED_CASH", true)} Tip`,
     description: "Send coins to a user or a group of users",
   },
   getHelpMessage: () => getHelpMessage(),

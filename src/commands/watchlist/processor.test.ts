@@ -25,7 +25,8 @@ describe("handleUpdateWlError", () => {
         ? "didn't exist in your watchlist. Add new one by `$wl add <symbol>`"
         : "hasn't been supported"
     }.\n${getEmoji(
-      "POINTINGRIGHT"
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} Please choose a token supported by [Coingecko](https://www.coingecko.com/)`
     expect(() =>
       processor.handleUpdateWlError(msg, symbol, "record not found", isRemove)
@@ -46,7 +47,8 @@ describe("handleUpdateWlError", () => {
         ? "didn't exist in your watchlist. Add new one by `$wl add <symbol>`"
         : "hasn't been supported"
     }.\n${getEmoji(
-      "POINTINGRIGHT"
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} Please choose a token supported by [Coingecko](https://www.coingecko.com/)`
     expect(() =>
       processor.handleUpdateWlError(msg, symbol, "record not found", isRemove)
@@ -63,7 +65,8 @@ describe("handleUpdateWlError", () => {
     const isRemove = false
     const symbol = "ftm"
     const description = `**${symbol.toUpperCase()}** has already been added to your watchlist.\n${getEmoji(
-      "POINTINGRIGHT"
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} Please choose another one listed on [CoinGecko](https://www.coingecko.com).`
     expect(() =>
       processor.handleUpdateWlError(msg, symbol, "conflict", isRemove)

@@ -34,9 +34,11 @@ const command: Command = {
         msgOrInteraction: msg,
         title: "Invalid roles",
         description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} Type \`@\` to see a role list.\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
       })
     }
@@ -49,9 +51,11 @@ const command: Command = {
           msgOrInteraction: msg,
           title: "Invalid roles",
           description: `Your role is invalid. Make sure that role exists, or that you've entered it correctly.\n\n${getEmoji(
-            "POINTINGRIGHT"
+            "ANIMATED_POINTING_RIGHT",
+            true
           )} Type \`@\` to see a role list.\n${getEmoji(
-            "POINTINGRIGHT"
+            "ANIMATED_POINTING_RIGHT",
+            true
           )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
         })
       }
@@ -99,9 +103,11 @@ const command: Command = {
           usage: `${PREFIX}dr set <@role_name/roleID>`,
           title: "Setting a default role",
           description: `If you don't want to notify users when setting up the default role, you can use role ID instead of role name.\n\nNote: To get the roleID\n${getEmoji(
-            "POINTINGRIGHT"
+            "ANIMATED_POINTING_RIGHT",
+            true
           )} _Go to Server Setting, and choose Roles_\n${getEmoji(
-            "POINTINGRIGHT"
+            "ANIMATED_POINTING_RIGHT",
+            true
           )} _Select a role, and copy its ID_`,
           examples: `${PREFIX}dr set @Visitor`,
           document: `${DEFAULT_ROLE_GITBOOK}&action=set`,

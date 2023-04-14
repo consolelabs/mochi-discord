@@ -112,7 +112,7 @@ describe("withdraw", () => {
     jest.spyOn(processor, "getRecipient").mockResolvedValueOnce(addr)
 
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(false)
-    const pointingright = getEmoji("pointingright")
+    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     await expect(processor.withdraw(msg, "1", "qwerty")).rejects.toThrow(
       new InternalError({
         msgOrInteraction: msg,

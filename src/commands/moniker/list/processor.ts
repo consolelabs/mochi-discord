@@ -70,9 +70,11 @@ export async function handleMonikerList(
       author: ["Moniker List", getEmojiURL(emojis.MONIKER)],
       thumbnail: getEmojiURL(emojis.MONIKER),
       description: `${defaultDescription}${description}\n\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} Set up a new moniker configuration \`${SLASH_PREFIX}moniker set\`\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} Remove a configured moniker \`${SLASH_PREFIX}moniker remove\``,
       footer: [`Page ${idx + 1} / ${pages.length}`],
     })

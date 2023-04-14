@@ -375,7 +375,7 @@ export function buildSwitchViewActionRow(
   }
   const tickerButton = new MessageButton({
     label: "Ticker",
-    emoji: getEmoji("INCREASING"),
+    emoji: getEmoji("ANIMATED_CHART_INCREASE", true),
     customId: `nft_ticker_view_chart-${collectionAddress}-${chain}-${days}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",

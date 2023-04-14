@@ -105,13 +105,14 @@ export async function runAddTreasurer({
         const msg = await treasurer.send({
           embeds: [
             composeEmbedMessage(null, {
-              title: `${getEmoji("BELL")} Mochi notifications`,
+              title: `${getEmoji("ANIMATED_BELL", true)} Mochi notifications`,
               description: `**Approval Request #${
                 dataAddTreasurerReq?.request.id
               }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
                 "TREASURER_ADD"
               )} Add <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
-                "MESSAGE2"
+                "ANIMATED_CHAT",
+                true
               )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
               color: msgColors.MOCHI,
               thumbnail:
@@ -136,7 +137,10 @@ export async function runAddTreasurer({
     .setDescription(
       `You want to add <@${
         user.id
-      }> to **${vaultName} vault**\n\nMessage ${getEmoji("MESSAGE2")}\n\`\`\`${
+      }> to **${vaultName} vault**\n\nMessage ${getEmoji(
+        "ANIMATED_CHAT",
+        true
+      )}\n\`\`\`${
         dataAddTreasurerReq?.request.message
       }\`\`\`\nWe'll notify you once all treasurers have accepted the request.`
     )
