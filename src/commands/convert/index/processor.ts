@@ -74,6 +74,22 @@ export async function render(
         ]?.toLocaleString()}\``
       )
 
+  const fields =
+    !base_coin || !target_coin
+      ? []
+      : [
+          {
+            name: `${getEmoji("blank")}${getEmoji(from)} ${from}`,
+            value: coinInfo(base_coin),
+            inline: true,
+          },
+          {
+            name: `${getEmoji(to)} ${to}`,
+            value: coinInfo(target_coin, false),
+            inline: true,
+          },
+        ]
+
   const blank = getEmoji("blank")
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("CONVERSION")} Conversion${blank.repeat(7)}`,
@@ -83,18 +99,7 @@ export async function render(
       10
     )}`,
     color: msgColors.MOCHI,
-  }).addFields([
-    {
-      name: `${getEmoji("blank")}${getEmoji(from)} ${from}`,
-      value: coinInfo(base_coin),
-      inline: true,
-    },
-    {
-      name: `${getEmoji(to)} ${to}`,
-      value: coinInfo(target_coin, false),
-      inline: true,
-    },
-  ])
+  }).addFields(fields)
 
   return {
     messageOptions: {
