@@ -92,15 +92,18 @@ export async function handleProposalCreate(i: ButtonInteraction) {
       getSuccessEmbed({
         title: "Proposal successfully submitted",
         description: `${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} Your proposal has been recorded in the <#${
           cfgData.proposal_channel_id
         }>.\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} You can create a new proposal in the <#${
           cfgData.guideline_channel_id
         }>.\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} You can join the discussion about your proposal in the <#${
           data.discussion_channel_id
         }>`,
@@ -308,7 +311,10 @@ export async function handleProposalForm(i: ButtonInteraction) {
   const dm = await i.user.send({
     embeds: [
       composeEmbedMessage(null, {
-        title: `${getEmoji("QUESTION")} Please enter your proposal title.`,
+        title: `${getEmoji(
+          "ANIMATED_QUESTION_MARK",
+          true
+        )} Please enter your proposal title.`,
       }),
     ],
     components: [
@@ -395,7 +401,8 @@ async function getProposalTitle(
     embeds: [
       composeEmbedMessage(null, {
         title: `${getEmoji(
-          "QUESTION"
+          "ANIMATED_QUESTION_MARK",
+          true
         )} Please enter your proposal description.`,
         description: "Word limit: 2000 words",
       }),
@@ -426,7 +433,8 @@ async function getProposalDescription(
     embeds: [
       composeEmbedMessage(null, {
         title: `${getEmoji(
-          "QUESTION"
+          "ANIMATED_QUESTION_MARK",
+          true
         )} Please enter the duration of your proposal.`,
         description: "You can enter the duration in hours or days (h, d)",
       }),
@@ -560,7 +568,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
         description: `You have updated your vote successfully ${choice} for**${i.message.embeds[0].title?.replace(
           getEmoji("MAIL"),
           ""
-        )}**. Thank you for your vote ${getEmoji("HEART")}`,
+        )}**. Thank you for your vote ${getEmoji("ANIMATED_HEART", true)}`,
       }),
     ],
   })

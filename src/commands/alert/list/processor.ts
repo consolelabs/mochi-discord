@@ -47,7 +47,7 @@ export async function handleAlertList({
         }**\n`)
     )
     return composeEmbedMessage(null, {
-      title: `${getEmoji("increasing")} Alert list`,
+      title: `${getEmoji("ANIMATED_CHART_INCREASE", true)} Alert list`,
       description,
       footer: [`Page ${idx + 1} / ${pages.length}`],
     })

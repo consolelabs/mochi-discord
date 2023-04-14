@@ -12,14 +12,17 @@ export function getDetailEmbedOptions(data: Record<string, any>) {
     description: `${data.description}.\n\nGenres ${data.tags
       .map((t: string) => `\`${t}\``)
       .join(" ")}\n\n${getEmoji(
-      "pointingright"
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} Play game on Discord by typing the \`$play ${
       data.id
-    }\` command\n${getEmoji("pointingright")} Or click [\`play in browser\`](${
-      data.runner_url
-    })\n${getEmoji("pointingright")} Track leaderboards \`$leaderboard ${
-      data.emoji
-    }\``,
+    }\` command\n${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
+      true
+    )} Or click [\`play in browser\`](${data.runner_url})\n${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
+      true
+    )} Track leaderboards \`$leaderboard ${data.emoji}\``,
     image: data.thumbnail,
   }
 }
@@ -36,7 +39,8 @@ export function getListEmbedOptions(data: Array<any>) {
     ],
     title: "Latest Featured Games",
     description: `Play together, win together!\n${getEmoji(
-      "pointingright"
+      "ANIMATED_POINTING_RIGHT",
+      true
     )}Play game by typing \`${PREFIX}play number\`\ne.g. $play 1 or click on "play"\n\n${data
 
       .map((g) => ({

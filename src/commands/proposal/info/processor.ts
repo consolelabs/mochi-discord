@@ -76,7 +76,8 @@ export async function composeDaoVoteInfoEmbed(
     return {
       title: `${getEmoji("mail")} No information found!`,
       description: `You haven't set up any proposal!\n${getEmoji(
-        "pointingright"
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} You can set up your DAO voting channel by \`$proposal set <#channel> <network> <token_contract>\``,
     }
   }
@@ -86,19 +87,21 @@ export async function composeDaoVoteInfoEmbed(
   }
   return {
     title: `${getEmoji("mail")} DAO voting information`,
-    description: `${getEmoji("pointingright")} **Channel**: <#${
+    description: `${getEmoji("ANIMATED_POINTING_RIGHT", true)} **Channel**: <#${
       data.proposal_channel_id
-    }>\n${getEmoji("pointingright")} **Token**: ${
+    }>\n${getEmoji("ANIMATED_POINTING_RIGHT", true)} **Token**: ${
       data.symbol
     } (${shortenHashOrAddress(
       data.address
     )}) - ${data.chain.toUpperCase()}\n${getEmoji(
-      "pointingright"
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} **Proposal creator**: ${authority}\n${
       data.required_amount
-        ? `${getEmoji("pointingright")} **Minimum token amount**: ${
-            data.required_amount
-          }`
+        ? `${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} **Minimum token amount**: ${data.required_amount}`
         : ""
     }`,
   }
@@ -115,7 +118,8 @@ export async function composeProposalInfoEmbed(
     return {
       title: `${getEmoji("mail")} No tracker found!`,
       description: `You haven't set up any tracker!\n${getEmoji(
-        "pointingright"
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} You can set up your DAO voting channel by \`${PREFIX}proposal track #channel <snapshot_DAO_link>\``,
     }
   }

@@ -33,7 +33,7 @@ describe("getAirdropPayload", () => {
       .spyOn(tiputils, "parseMonikerinCmd")
       .mockResolvedValueOnce({ moniker: undefined, newArgs: args })
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(false)
-    const pointingright = getEmoji("pointingright")
+    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     await expect(processor.getAirdropPayload(msg, args)).rejects.toThrow(
       new InternalError({
         msgOrInteraction: msg,

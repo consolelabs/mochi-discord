@@ -50,9 +50,11 @@ const command: SlashCommand = {
     embeds: [
       composeEmbedMessage2(interaction, {
         description: `Don't know where to get the message link?\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} _Click “More” on your messages then choose “Copy Message Link”._\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._`,
         usage: `${PREFIX}rr set <message_link> <emoji> <role>`,
         examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,

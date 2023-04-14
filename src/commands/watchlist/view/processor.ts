@@ -519,9 +519,11 @@ export async function composeTokenWatchlist(
       msg.author.displayAvatarURL({ format: "png" }),
     ],
     description: `_All information are supported by Coingecko_\n\n${getEmoji(
-      "POINTINGRIGHT"
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} Choose a token supported by [Coingecko](https://www.coingecko.com/) to add to the list.\n${getEmoji(
-      "POINTINGRIGHT"
+      "ANIMATED_POINTING_RIGHT",
+      true
     )} Add token to track by \`$wl add <symbol>\`.`,
     footer: totalPage > 1 ? [`Page ${page + 1} / ${totalPage}`] : [],
   })

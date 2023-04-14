@@ -25,9 +25,11 @@ export const handleSetMoniker = async (
           composeEmbedMessage(null, {
             title: "Unsupported token",
             description: `**${payload.token.toUpperCase()}** hasn't been supported.\n${getEmoji(
-              "POINTINGRIGHT"
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
-              "POINTINGRIGHT"
+              "ANIMATED_POINTING_RIGHT",
+              true
             )}.`,
           }),
         ],

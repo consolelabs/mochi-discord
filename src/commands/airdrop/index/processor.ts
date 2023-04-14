@@ -387,7 +387,7 @@ export async function getAirdropPayload(
   const recipients: string[] = []
   const token = newArgs[2].toUpperCase()
   const tokenSupported = await isTokenSupported(token)
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!moniker && !tokenSupported) {
     throw new InternalError({
       msgOrInteraction: msg,

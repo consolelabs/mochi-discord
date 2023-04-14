@@ -146,7 +146,7 @@ const allCommands: Record<PageType, HelpPage> = {
     example: "$watchlist view\n$help nft",
     category: {
       "Track Crypto": {
-        emoji: getEmoji("INCREASING"),
+        emoji: getEmoji("ANIMATED_CHART_INCREASE", true),
         description: "Tracking crypto market movements and opportunities",
         features: [
           {
@@ -174,7 +174,7 @@ const allCommands: Record<PageType, HelpPage> = {
         ],
       },
       Transaction: {
-        emoji: getEmoji("tip"),
+        emoji: getEmoji("ANIMATED_CASH", true),
         description: "Making transactions among members and in your wallet",
         features: [
           {
@@ -348,7 +348,7 @@ export const pagination = (currentPage: PageType, isAdmin: boolean) => [
   new MessageActionRow().addComponents(
     new MessageButton({
       label: "Crypto & NFT",
-      emoji: getEmoji("INCREASING"),
+      emoji: getEmoji("ANIMATED_CHART_INCREASE", true),
       style: "SECONDARY",
       customId: "crypto_and_nft",
       disabled: currentPage === "crypto_and_nft",

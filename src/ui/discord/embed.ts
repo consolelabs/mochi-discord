@@ -243,7 +243,7 @@ export function getSuggestionEmbed(params: {
 }) {
   const { title, description, msg } = params
   const embed = composeEmbedMessage(msg, {
-    author: [title ?? "Hmm?", getEmojiURL(emojis["QUESTION"])],
+    author: [title ?? "Hmm?", getEmojiURL(emojis.ANIMATED_QUESTION_MARK)],
     description,
     color: "#ffffff",
   })
@@ -383,7 +383,7 @@ export function getCommandSuggestion(
     return {
       title: "Mochi is confused",
       description: `Mochi doesn't understand what command you are trying to use.\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT"
       )} Perhaps you can reference \`${PREFIX}help\` for more info`,
     }
   } else {

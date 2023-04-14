@@ -77,9 +77,11 @@ const slashCmd: SlashCommand = {
             description: `All ${formatOutput.activity} activities of **${
               i.guild?.name
             }** will be monitored in the ${formatOutput.channel}\n\n${getEmoji(
-              "pointingright"
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Setup or change config by running \`/config logchannel set\`\n${getEmoji(
-              "pointingright"
+              "ANIMATED_POINTING_RIGHT",
+              true
             )} Use \`/config logchannel info\` to see more details`,
           }),
         ],

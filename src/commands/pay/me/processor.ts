@@ -72,7 +72,9 @@ export async function run({
     originalMsgAuthor: author,
     author: ["You've just created a pay me link", getEmojiURL(emojis.APPROVE)],
     description: `Here's ${paylink} ${tokenEmoji} ${amount} ${token} ${
-      note ? `with message ${getEmoji("message1")} \`\`\`${note}\`\`\`` : ""
+      note
+        ? `with message ${getEmoji("ANIMATED_CHAT", true)} \`\`\`${note}\`\`\``
+        : ""
     }\n${
       hasTarget ? "" : "Please copy the message below and send to your friend"
     }`,
@@ -92,7 +94,7 @@ export async function run({
       ) ?? []
 
   const lines = [
-    `${getEmoji("activity_cash")} Hey! ${author.username}#${
+    `${getEmoji("ANIMATED_CASH", true)} Hey! ${author.username}#${
       author.discriminator
     } requests you pay ${amount} ${token}`,
     `Message: ${note}`,

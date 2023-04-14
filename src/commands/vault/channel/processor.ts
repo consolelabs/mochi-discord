@@ -53,7 +53,7 @@ export async function runCreateChannel({
 
   const embed = new MessageEmbed()
     .setTitle(
-      `${getEmoji("APPROVE_VAULT")} Vault log successfully created${getEmoji(
+      `${getEmoji("CHECK")} Vault log successfully created${getEmoji(
         "BLANK"
       ).repeat(5)}`
     )

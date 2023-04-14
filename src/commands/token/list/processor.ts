@@ -26,7 +26,8 @@ export async function handleTokenList(page = 0, size = 15) {
       embed: composeEmbedMessage(null, {
         title: "No token found",
         description: `${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT",
+          true
         )} To add more token to the list, use \`$token add\``,
         color: msgColors.SUCCESS,
       }),

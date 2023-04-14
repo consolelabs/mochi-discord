@@ -139,7 +139,7 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
       ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
       ?.map((w: any) => w.platform_identifier) ?? []
   )
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   let description: string
   if (!myWallets.length) {
     description = `You have no wallets.\n${pointingright} Add more wallet \`/wallet add\``
@@ -172,7 +172,7 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
 const setProfileFooter = (embed: MessageEmbed) => {
   embed.setFooter({
     text: "Select the categories below to see more assets!",
-    iconURL: getEmojiURL(emojis.POINTINGDOWN),
+    iconURL: getEmojiURL(emojis.ANIMATED_POINTING_DOWN),
   })
 }
 
@@ -247,13 +247,15 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp
-  const xpStr = `${getEmoji("xp2")} \`${
+  const xpStr = `${getEmoji("ANIMATED_XP", true)} \`${
     userProfile.guild_xp
   }/${nextLevelMinXp}\``
   const roles = msg.member?.roles as GuildMemberRoleManager
   const highestRole = roles.highest.name !== "@everyone" ? roles.highest : null
   const activityStr = `\`${userProfile.nr_of_actions}\``
-  const rankStr = `${getEmoji("trophy")} \`#${userProfile.guild_rank ?? 0}\``
+  const rankStr = `${getEmoji("ANIMATED_TROPHY", true)} \`#${
+    userProfile.guild_rank ?? 0
+  }\``
   // const { academy_xp, imperial_xp, merchant_xp, rebellio_xp } =
   //   userProfile.user_faction_xps ?? {}
 
@@ -271,7 +273,7 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
     { name: "\u200B\n\nRank", value: rankStr, inline: true },
     {
       name: "Level",
-      value: `${getEmoji("arrowup")} \`${
+      value: `${getEmoji("ARROW_UP")} \`${
         userProfile.current_level?.level ?? "N/A"
       }\``,
       inline: true,
@@ -383,7 +385,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
     })
   )
 
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const nftCommands = Object.keys(commands["nft"].actions ?? {})
     .map((c) => `\`nft ${c}\``)
     .join(SPACE)

@@ -25,9 +25,11 @@ async function run(msg: Message, base: string): Promise<TextCommandResponse> {
       title: "Unsupported token/fiat",
       msgOrInteraction: msg,
       description: `**${base.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT",
+        true
       )} or Please choose a valid fiat currency.`,
     })
   }
