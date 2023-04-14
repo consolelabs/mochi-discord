@@ -754,7 +754,6 @@ describe("getTipPayload - negative cases", () => {
     )
   })
 
-  // TODO: need confirmation
   test("recipient's discord ID = author's discord ID, with one more person", async () => {
     const argsAfterParseMessage = [
       "tip",
