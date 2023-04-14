@@ -755,56 +755,56 @@ describe("getTipPayload - negative cases", () => {
   })
 
   // TODO: need confirmation
-  // test("recipient's discord ID = author's discord ID, with one more person", async () => {
-  //   const argsAfterParseMessage = [
-  //     "tip",
-  //     `<@${msg.author.id}>`,
-  //     "<@333116155826929672>",
-  //     "1",
-  //     "ftm",
-  //   ]
-  //   const targets = [`<@${msg.author.id}>`, "<@333116155826929672>"]
-  //   const moniker = undefined
-  //   const parseTipParamsRes = {
-  //     amountArg: "1",
-  //     cryptocurrency: "FTM",
-  //     each: false,
-  //   }
-  //   const senderProfileId = "111"
-  //   const recipientProfileIDs = ["111", "333"]
-  //   const parseRecipientsRes: string[] = [
-  //     `${msg.author.id}`,
-  //     "333116155826929672",
-  //   ]
+  test("recipient's discord ID = author's discord ID, with one more person", async () => {
+    const argsAfterParseMessage = [
+      "tip",
+      `<@${msg.author.id}>`,
+      "<@333116155826929672>",
+      "1",
+      "ftm",
+    ]
+    const targets = [`<@${msg.author.id}>`, "<@333116155826929672>"]
+    const moniker = undefined
+    const parseTipParamsRes = {
+      amountArg: "1",
+      cryptocurrency: "FTM",
+      each: false,
+    }
+    const senderProfileId = "111"
+    const recipientProfileIDs = ["111", "333"]
+    const parseRecipientsRes: string[] = [
+      `${msg.author.id}`,
+      "333116155826929672",
+    ]
 
-  //   jest
-  //     .spyOn(processor, "parseTipParameters")
-  //     .mockReturnValueOnce(parseTipParamsRes)
-  //   jest
-  //     .spyOn(profile, "getProfileIdByDiscord")
-  //     .mockResolvedValueOnce(senderProfileId)
-  //     .mockResolvedValueOnce(recipientProfileIDs[0])
-  //     .mockResolvedValueOnce(recipientProfileIDs[1])
-  //   jest
-  //     .spyOn(tipbot, "parseRecipients")
-  //     .mockResolvedValueOnce(parseRecipientsRes)
+    jest
+      .spyOn(processor, "parseTipParameters")
+      .mockReturnValueOnce(parseTipParamsRes)
+    jest
+      .spyOn(profile, "getProfileIdByDiscord")
+      .mockResolvedValueOnce(senderProfileId)
+      .mockResolvedValueOnce(recipientProfileIDs[0])
+      .mockResolvedValueOnce(recipientProfileIDs[1])
+    jest
+      .spyOn(tipbot, "parseRecipients")
+      .mockResolvedValueOnce(parseRecipientsRes)
 
-  //   await expect(
-  //     processor.getTipPayload(
-  //       msg,
-  //       argsAfterParseMessage,
-  //       msg.author.id,
-  //       targets,
-  //       moniker
-  //     )
-  //   ).rejects.toThrow(
-  //     new DiscordWalletTransferError({
-  //       discordId: msg.author.id,
-  //       message: msg,
-  //       error: "Users cannot tip themselves!",
-  //     })
-  //   )
-  // })
+    await expect(
+      processor.getTipPayload(
+        msg,
+        argsAfterParseMessage,
+        msg.author.id,
+        targets,
+        moniker
+      )
+    ).rejects.toThrow(
+      new DiscordWalletTransferError({
+        discordId: msg.author.id,
+        message: msg,
+        error: "Users cannot tip themselves!",
+      })
+    )
+  })
 
   test("no valid recipients", async () => {
     const argsAfterParseMessage = [
