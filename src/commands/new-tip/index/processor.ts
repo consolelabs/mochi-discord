@@ -261,17 +261,20 @@ export async function getTipPayload(
   const recipients: string[] = []
   for (const discordId of discordIds) {
     const profileId = await getProfileIdByDiscord(discordId)
-    recipients.push(profileId)
+    if (profileId) {
+      recipients.push(profileId)
+    }
   }
 
-  // check if only tip author
-  if (targets.length === 1 && targets[0] === `<@${authorId}>`) {
+  // check if targets contains author -> invalid
+  if (targets.length && targets.includes(`<@${authorId}>`)) {
     throw new DiscordWalletTransferError({
       discordId: authorId,
       message: msgOrInteraction,
       error: "Users cannot tip themselves!",
     })
   }
+
   // check if recipient is valid or not
   if (!recipients?.length) {
     throw new DiscordWalletTransferError({

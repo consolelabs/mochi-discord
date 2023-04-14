@@ -13,12 +13,6 @@ import { MARKETPLACE_BASE_URL } from "env"
 import type { Pagination } from "types/common"
 import { TopNFTTradingVolumeItem } from "types/community"
 import { DOT, SPACE } from "./constants"
-import {
-  marketplaceEmojis,
-  rarityEmojis,
-  traitEmojis,
-  traitTypeMapping,
-} from "./nft"
 import fetch from "node-fetch"
 import { ethers } from "ethers"
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
@@ -31,6 +25,12 @@ import {
 import { logger } from "logger"
 import providers from "utils/providers"
 import { OriginalMessage } from "errors"
+import {
+  marketplaceEmojis,
+  rarityEmojis,
+  traitEmojis,
+  traitTypeMapping,
+} from "./nft"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis: Record<string, string> = {
