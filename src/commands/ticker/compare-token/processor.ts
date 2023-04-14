@@ -180,9 +180,9 @@ export async function composeTokenComparisonEmbed(
     throw new InternalError({
       title: "Unsupported token/fiat",
       description: `Token is invalid or hasn't been supported.\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} or Please choose a valid fiat currency.`,
     })
   }

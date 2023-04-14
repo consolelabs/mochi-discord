@@ -61,9 +61,9 @@ const command: SlashCommand = {
           "Set up a tracker of proposal voting rounds on Snapshot and Commonwealth.",
         usage: `${SLASH_PREFIX}proposal track #channel <snapshot_DAO_link>\n${SLASH_PREFIX}proposal track #channel <commonwealth_link>`,
         description: `${getEmoji(
-          "pointingright"
+          "ANIMATED_POINTING_RIGHT", true
         )} Manage to post proposals and the voting space.\n${getEmoji(
-          "pointingright"
+          "ANIMATED_POINTING_RIGHT", true
         )} Receive the notification when proposals are opened for voting on [Snapshot](https://snapshot.org/#/) or [Commonwealth](https://commonwealth.im/).`,
         examples: `${SLASH_PREFIX}proposal track #general https://snapshot.org/#/bitdao.eth\n${SLASH_PREFIX}proposal track #general https://commonwealth.im/osmosis/discussion`,
       }),

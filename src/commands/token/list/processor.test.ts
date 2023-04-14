@@ -23,7 +23,7 @@ describe("handleTokenList", () => {
     const expected = composeEmbedMessage(null, {
       title: "No token found",
       description: `${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} To add more token to the list, use \`$token add\``,
       color: msgColors.SUCCESS,
     })

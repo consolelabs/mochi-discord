@@ -22,9 +22,9 @@ const command: Command = {
     const { isRole, value: roleId } = parseDiscordToken(roleArg)
     const invalidRoleDescription = `
     Your role is invalid. Make sure that role exists or that you have entered it correctly.
-    ${getEmoji("POINTINGRIGHT")} Type @ to see a role list.
+    ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Type @ to see a role list.
     ${getEmoji(
-      "POINTINGRIGHT"
+      "ANIMATED_POINTING_RIGHT", true
     )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.
     `
     if (!isRole) {

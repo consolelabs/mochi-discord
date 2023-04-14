@@ -46,9 +46,9 @@ const command: Command = {
         msgOrInteraction: msg,
         title: "Invalid role format",
         description: `Your role is in an invalid format. Make sure an “@” symbol is put before the role.\n\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} Type @ to see a role list.\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
       })
     }
@@ -62,9 +62,9 @@ const command: Command = {
               msg,
               title: "Invalid roles",
               description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${getEmoji(
-                "POINTINGRIGHT"
+                "ANIMATED_POINTING_RIGHT", true
               )} Type @ to see a role list.\n${getEmoji(
-                "POINTINGRIGHT"
+                "ANIMATED_POINTING_RIGHT", true
               )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
             }),
           ],
@@ -93,9 +93,9 @@ const command: Command = {
         msgOrInteraction: msg,
         title: "Unsupported NFT",
         description: `This collection has NOT been supported yet.\n\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} Please choose one in the \`$nft list\`.\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} To add your NFT, run \`$nft add\`.`,
       })
     }
@@ -167,9 +167,9 @@ const command: Command = {
           msgOrInteraction: msg,
           title: "Duplicated roles",
           description: `Your role has been used for another role configuration. Please choose another role or remove the existing one using \`$nr remove\`.\n\n${getEmoji(
-            "POINTINGRIGHT"
+            "ANIMATED_POINTING_RIGHT", true
           )} Type @ to see a role list.\n${getEmoji(
-            "POINTINGRIGHT"
+            "ANIMATED_POINTING_RIGHT", true
           )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
         })
       }

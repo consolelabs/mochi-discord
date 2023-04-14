@@ -82,7 +82,7 @@ export async function renameWallet(
   userId: string,
   address: string
 ) {
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const reply = await i.editReply({
     embeds: [
       composeEmbedMessage(null, {
@@ -158,7 +158,7 @@ export async function trackWallet(
     alias,
     type,
   })
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {
     throw new InternalError({
       msgOrInteraction: msg,

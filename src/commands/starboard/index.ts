@@ -29,7 +29,7 @@ const textCmd: Command = {
         usage: `${PREFIX}sb <action>`,
         footer: [`Type ${PREFIX}help sb <action> for a specific action!`],
         description: `Hornor and share well-rated posts with your community\n\n*Note:\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} When setting a new starboard, please use the **custom emoji from this server** and the **Discord default emoji**.* ${getEmoji(
           "nekosad"
         )}`,

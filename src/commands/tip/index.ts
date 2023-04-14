@@ -13,7 +13,7 @@ import tip from "./index/text"
 
 const getHelpMessage = async (isSLash?: boolean) => {
   const prefix = isSLash ? SLASH_PREFIX : PREFIX
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   return {
     embeds: [
       composeEmbedMessage(null, {

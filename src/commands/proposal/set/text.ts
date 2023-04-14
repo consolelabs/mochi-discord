@@ -42,7 +42,7 @@ const command: Command = {
             getErrorEmbed({
               title: "Proposal channel already set!",
               description: `${getEmoji(
-                "POINTINGRIGHT"
+                "ANIMATED_POINTING_RIGHT", true
               )} Run \`${PREFIX}proposal remove\` to remove existing config before setting a new one.`,
             }),
           ],
@@ -75,9 +75,9 @@ const command: Command = {
             composeEmbedMessage(null, {
               title: `${getEmoji("revoke")} Invalid channels`,
               description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
-                "pointingright"
+                "ANIMATED_POINTING_RIGHT", true
               )} Type # to see the channel list.\n${getEmoji(
-                "pointingright"
+                "ANIMATED_POINTING_RIGHT", true
               )} To add a new channel: 1. Create channel → 2. Confirm`,
             }),
           ],
@@ -285,7 +285,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
               getErrorEmbed({
                 title: `${getEmoji("revoke")} Unsupported network`,
                 description: `${getEmoji(
-                  "pointingright"
+                  "ANIMATED_POINTING_RIGHT", true
                 )} Only tokens on EVM, Polygon, and Solana are supported. You can choose one of these networks.`,
               }),
             ],
@@ -346,7 +346,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
         composeEmbedMessage(null, {
           title: `${getEmoji("approve")} Successfully set`,
           description: `${getEmoji(
-            "pointingright"
+            "ANIMATED_POINTING_RIGHT", true
           )} All proposals will be posted and voted in the <#${channelId}>`,
           color: msgColors.SUCCESS,
         }),

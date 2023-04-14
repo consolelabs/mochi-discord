@@ -18,9 +18,9 @@ import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const troubleshootMsg = `\n\n${getEmoji(
-  "POINTINGRIGHT"
+  "ANIMATED_POINTING_RIGHT", true
 )} _Click “More” on your messages then choose “Copy Message Link”._\n${getEmoji(
-  "POINTINGRIGHT"
+  "ANIMATED_POINTING_RIGHT", true
 )} _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._`
 
 export const handleRoleSet = async (
@@ -45,11 +45,11 @@ export const handleRoleSet = async (
         msgOrInteraction: msg,
         title: "Role has been used",
         description: `Use another role to set the reaction role\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} To see used roles, run $rr list\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} Type \`@\` to see a role list. \n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
       })
     } else {
@@ -99,7 +99,7 @@ export const handleRoleSetHelpCmd = async (msg: Message) => {
     embeds: [
       composeEmbedMessage(msg, {
         description: `Don't know where to get the message link?${troubleshootMsg}\n\n*Note:\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
         usage: `${PREFIX}rr set <message_link> <emoji> <role>`,
         examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
@@ -135,9 +135,9 @@ export const validateCommandArgument = async (
       msgOrInteraction: msg,
       title: "Invalid roles",
       description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} Type \`@\` to see a role list. \n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
     })
   }

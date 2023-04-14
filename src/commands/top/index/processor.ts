@@ -215,7 +215,7 @@ export async function composeTopEmbed(
     description: `${blank}**Your rank:** #${
       author.guild_rank
     }\n${blank}**XP:** ${author.total_xp}\n${getEmoji(
-      "POINTINGRIGHT"
+      "ANIMATED_POINTING_RIGHT", true
     )} Move to another page with \`$top [page number]\`\n\u200B`,
     image: "attachment://leaderboard.png",
     color: msgColors.PINK,

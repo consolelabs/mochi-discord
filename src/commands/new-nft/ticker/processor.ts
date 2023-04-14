@@ -392,7 +392,7 @@ export async function handleNftTicker(
   } = await community.getNFTCollectionSuggestions(symbol)
   if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
   if (!suggestions.length) {
-    const pointingright = getEmoji("pointingright")
+    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     throw new InternalError({
       msgOrInteraction: msg,
       title: "Collection not found",

@@ -42,7 +42,7 @@ export async function executeNftIntegrateCommand(
       msgOrInteraction: msgOrInteraction,
       title: "Can't find the NFT collection",
       description: `The NFT Address and NFT Chain must be valid. Go to the collection's official website/marketplace to find this information.\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} **Marketplace Examples:** [Opensea](http://Opensea.io), [Nftkey](https://nftkey.app/), [Paintswap](https://paintswap.finance/)`,
     })
   }

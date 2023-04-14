@@ -26,9 +26,9 @@ describe("run", () => {
         iconURL: getEmojiURL(emojis.BIN),
       },
       description: `[\`cafe\`](${HOMEPAGE_URL}) is removed from server\n${getEmoji(
-        "pointingright"
+        "ANIMATED_POINTING_RIGHT", true
       )} Set up a new moniker configuration \`${SLASH_PREFIX}moniker set\`\n${getEmoji(
-        "pointingright"
+        "ANIMATED_POINTING_RIGHT", true
       )} See all moniker configurations \`${SLASH_PREFIX}moniker list\``,
     })
 

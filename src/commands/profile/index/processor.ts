@@ -139,7 +139,7 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
       ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
       ?.map((w: any) => w.platform_identifier) ?? []
   )
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   let description: string
   if (!myWallets.length) {
     description = `You have no wallets.\n${pointingright} Add more wallet \`/wallet add\``
@@ -383,7 +383,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
     })
   )
 
-  const pointingright = getEmoji("pointingright")
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const nftCommands = Object.keys(commands["nft"].actions ?? {})
     .map((c) => `\`nft ${c}\``)
     .join(SPACE)

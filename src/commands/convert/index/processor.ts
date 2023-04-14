@@ -28,7 +28,7 @@ export async function render(
         embed: composeEmbedMessage(null, {
           title: "Cannot conver token",
           description: `${getEmoji(
-            "POINTINGRIGHT"
+            "ANIMATED_POINTING_RIGHT", true
           )} This user does not have any activities yet`,
           color: msgColors.ERROR,
         }),
@@ -48,9 +48,9 @@ export async function render(
     throw new InternalError({
       title: "Unsupported token/fiat",
       description: `Token is invalid or hasn't been supported.\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} or Please choose a valid fiat currency.`,
     })
   }

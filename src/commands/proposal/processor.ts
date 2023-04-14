@@ -92,15 +92,15 @@ export async function handleProposalCreate(i: ButtonInteraction) {
       getSuccessEmbed({
         title: "Proposal successfully submitted",
         description: `${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} Your proposal has been recorded in the <#${
           cfgData.proposal_channel_id
         }>.\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} You can create a new proposal in the <#${
           cfgData.guideline_channel_id
         }>.\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} You can join the discussion about your proposal in the <#${
           data.discussion_channel_id
         }>`,

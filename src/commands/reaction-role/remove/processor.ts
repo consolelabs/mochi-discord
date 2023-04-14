@@ -95,9 +95,9 @@ export const parseRequestArguments = async (
       msgOrInteraction: msg,
       title: "Invalid message link",
       description: `Your message link is invalid. Make sure that message exists, or that you have entered the link correctly.\n\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} _Click “More” on your messages then choose “Copy Message Link”._\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions.`,
     })
   }
@@ -140,7 +140,7 @@ export const parseRequestArguments = async (
         msgOrInteraction: msg,
         title: "Can't find the role",
         description: `Invalid role. Be careful not to be mistaken role with username while using \`@\`.\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} Run \`$rr list\` to find a configured role then Click “Jump” to jump to the message.`,
       })
     }

@@ -44,7 +44,7 @@ describe("claim", () => {
     defi.getUserOnchainTransfers = jest
       .fn()
       .mockResolvedValueOnce(getUserOnchainTransfersRes)
-    const pointingright = getEmoji("pointingright")
+    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     const {
       amount,
       symbol,
@@ -101,7 +101,7 @@ describe("claim", () => {
       status: 200,
       url: "",
     }
-    const pointingright = getEmoji("pointingright")
+    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     defi.claimOnchainTransfer = jest
       .fn()
       .mockResolvedValueOnce(claimOnchainTransferRes)
@@ -144,9 +144,9 @@ describe("claim", () => {
         msgOrInteraction: msg,
         title: "Failed to claim tip!",
         description: `Mochi wallet's balance is insufficient to proceed this transaction.\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} You can contact our developer at suggestion forum in [Mochi Discord](${DISCORD_URL})!\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} You can try to claim other tips and get back to this one later! ${getEmoji(
           "soon"
         )}\nSorry for this inconvenience ${getEmoji("nekosad")}`,
@@ -175,9 +175,9 @@ describe("claim", () => {
         msgOrInteraction: msg,
         title: "Failed to claim tip!",
         description: `Mochi wallet's balance is insufficient to proceed this transaction.\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} You can contact our developer at suggestion forum in [Mochi Discord](${DISCORD_URL})!\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} You can try to claim other tips and get back to this one later! ${getEmoji(
           "soon"
         )}\nSorry for this inconvenience ${getEmoji("nekosad")}`,

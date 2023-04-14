@@ -53,9 +53,9 @@ const command: Command = {
         msgOrInteraction: msg,
         title: "Invalid channel",
         description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} Type \`#\` to see the channel list. \n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} To add a new channel: 1. Create channel → 2. Confirm`,
       })
     }
@@ -106,7 +106,7 @@ const command: Command = {
         composeEmbedMessage(msg, {
           usage: `${PREFIX}sb set <quantity> <emoji> <channel>`,
           description: `*Note:\n${getEmoji(
-            "POINTINGRIGHT"
+            "ANIMATED_POINTING_RIGHT", true
           )} Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
           examples: `${PREFIX}sb set 3 ⭐ #starboard`,
         }),

@@ -222,9 +222,9 @@ export async function handleSalesRemove(
             title: "No tracker found!",
             emojiUrl: getEmojiURL(emojis.LEADERBOARD),
             description: `You haven't set up any sales trackers yet. \n${getEmoji(
-              "POINTINGRIGHT"
+              "ANIMATED_POINTING_RIGHT", true
             )} To set a new one, run \`sales track <channel> <address> <chain_id>\` (or \`<chain_symbol>\`). \n${getEmoji(
-              "POINTINGRIGHT"
+              "ANIMATED_POINTING_RIGHT", true
             )} You can remove it later using \`sales remove.\``,
           }),
         ],

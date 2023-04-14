@@ -43,9 +43,9 @@ export async function runCreateVault({
   const description = `**Wallet Address**\n\n\`0x140dd183e18ba39bd9BE82286ea2d96fdC48117A\`\n\n**Vault Threshold** \`${
     data.threshold
   }%\`\n\n${getEmoji(
-    "POINTINGRIGHT"
+    "ANIMATED_POINTING_RIGHT", true
   )} See all vaults \`/vault list\`\n${getEmoji(
-    "POINTINGRIGHT"
+    "ANIMATED_POINTING_RIGHT", true
   )} See detail a vault \`/vault <name>\``
 
   const embed = new MessageEmbed()

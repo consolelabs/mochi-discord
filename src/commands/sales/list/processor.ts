@@ -24,9 +24,9 @@ export async function handleSalesList(
           composeEmbedMessage(null, {
             title: "No tracker found!",
             description: `You haven't set up any sales trackers yet.\n${getEmoji(
-              "POINTINGRIGHT"
+              "ANIMATED_POINTING_RIGHT", true
             )} To set a new one, run \`sales track <channel> <address> <chain_id>\` (or \`<chain_symbol>\`).\n${getEmoji(
-              "POINTINGRIGHT"
+              "ANIMATED_POINTING_RIGHT", true
             )} Then re-check your configuration using \`sales list\`.`,
             color: msgColors.PINK,
           }),

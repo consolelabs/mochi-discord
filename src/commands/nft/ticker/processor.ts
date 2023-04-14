@@ -398,9 +398,9 @@ export async function handleNftTicker(
           getErrorEmbed({
             title: "Collection not found",
             description: `The collection hasn't been supported.\n${getEmoji(
-              "POINTINGRIGHT"
+              "ANIMATED_POINTING_RIGHT", true
             )} Please choose one in the supported \`$nft list\`.\n${getEmoji(
-              "POINTINGRIGHT"
+              "ANIMATED_POINTING_RIGHT", true
             )} To add your NFT, run \`$nft add\`.`,
           }),
         ],

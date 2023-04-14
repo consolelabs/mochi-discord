@@ -45,7 +45,7 @@ export async function runCreateThreshold({
   }** has been configured vault threshold of \`${
     data.threshold
   }%\` for approval\n${getEmoji(
-    "POINTINGRIGHT"
+    "ANIMATED_POINTING_RIGHT", true
   )} Set or change vault threshold by run \`/vault config threshold\``
   const embed = new MessageEmbed()
     .setTitle(

@@ -62,7 +62,7 @@ const command: Command = {
         msgOrInteraction: msg,
         title: "Unsuccessful",
         description: `You haven't configured this emoji in the starboard.\n\n${getEmoji(
-          "POINTINGRIGHT"
+          "ANIMATED_POINTING_RIGHT", true
         )} To set a new one, run \`\`\`$sb set <quantity> <emoji> <channel>\`\`\``,
       })
     }

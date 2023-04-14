@@ -49,9 +49,9 @@ const slashCmd: SlashCommand = {
             description: `Log channel is a place to keep all records of every user’s activity and interaction with Mochi bot.That way, we can better monitor and support guild members' activities from withdrawal, airdrop, role assignment, and many more!\n\n${
               isEmpty ? "`Not Set`" : list
             }\n\n${getEmoji(
-              "pointingright"
+              "ANIMATED_POINTING_RIGHT", true
             )} Setup or change config by running \`/config logchannel set\`\n${getEmoji(
-              "pointingright"
+              "ANIMATED_POINTING_RIGHT", true
             )} Use \`/config logchannel info\` to see more details\n[Read instructions](${HOMEPAGE_URL}) for a complete setup guide`,
           }),
         ],

@@ -98,9 +98,9 @@ export async function tip(
       msgOrInteraction,
       title: "Unsupported token",
       description: `**${cryptocurrency.toUpperCase()}** hasn't been supported.\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
-        "POINTINGRIGHT"
+        "ANIMATED_POINTING_RIGHT", true
       )}.`,
     })
   }
