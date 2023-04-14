@@ -1,14 +1,14 @@
-import { InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
-import { getEmoji, msgColors } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { SPACE } from "utils/constants"
 import * as tiputils from "utils/tip-bot"
 import * as defiutils from "utils/defi"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
 import { assertRunResult } from "../../../../tests/assertions/discord"
-import { MessageActionRow, MessageButton } from "discord.js"
+import { MessageActionRow, MessageButton, MessageOptions } from "discord.js"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { RunResult } from "types/common"
 
 jest.mock("adapters/defi")
 
@@ -33,14 +33,18 @@ describe("getAirdropPayload", () => {
       .spyOn(tiputils, "parseMonikerinCmd")
       .mockResolvedValueOnce({ moniker: undefined, newArgs: args })
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(false)
-    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
-    await expect(processor.getAirdropPayload(msg, args)).rejects.toThrow(
-      new InternalError({
-        msgOrInteraction: msg,
-        title: "Unsupported token",
-        description: `**FTM** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright}.`,
-      })
-    )
+    const replyFn = jest.fn()
+    msg.reply = replyFn
+    await processor.getAirdropPayload(msg, args)
+
+    expect(replyFn).toBeCalledWith({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Unsupported token", getEmojiURL(emojis.REVOKE)],
+          color: msgColors.GRAY,
+        }),
+      ],
+    })
   })
 
   test("invalid amount", async () => {
@@ -54,13 +58,18 @@ describe("getAirdropPayload", () => {
     const args = ["airdrop", "a", "asd"]
     jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(monikerRes)
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    await expect(processor.getAirdropPayload(msg, args)).rejects.toThrow(
-      new DiscordWalletTransferError({
-        discordId: msg.author.id,
-        message: msg,
-        error: "The amount is invalid. Please insert a natural number.",
-      })
-    )
+    const replyFn = jest.fn()
+    msg.reply = replyFn
+    await processor.getAirdropPayload(msg, args)
+
+    expect(replyFn).toBeCalledWith({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Invalid amount", getEmojiURL(emojis.REVOKE)],
+          color: msgColors.GRAY,
+        }),
+      ],
+    })
   })
 
   test("successfully (1 ftm)", async () => {
@@ -151,8 +160,11 @@ describe("handleAirdrop", () => {
     jest
       .spyOn(defiutils, "validateBalance")
       .mockResolvedValueOnce({ balance: 5.5, usdBalance: 2.75 })
-    const output = await processor.handleAirdrop(msg, args)
-    const amountInfo = `${getEmoji("ftm")} **5.5 FTM** (\u2248 $15.125)`
+    const output = (await processor.handleAirdrop(
+      msg,
+      args
+    )) as RunResult<MessageOptions>
+    const amountInfo = `${getEmoji("FTM")} **5.5 FTM** (\u2248 $15.125)`
     const embed = composeEmbedMessage(null, {
       title: `${getEmoji("AIRDROP")} Confirm airdrop`,
       description: `Are you sure you want to spend ${amountInfo} on this airdrop?`,
@@ -169,13 +181,13 @@ describe("handleAirdrop", () => {
           new MessageActionRow().addComponents(
             new MessageButton({
               customId: `confirm_airdrop-${msg.author.id}-5.5-15.125-FTM-30-3`,
-              emoji: getEmoji("APPROVE"),
+              emoji: getEmoji("CHECK"),
               style: "SUCCESS",
               label: "Confirm",
             }),
             new MessageButton({
               customId: `cancel_airdrop-${msg.author.id}`,
-              emoji: getEmoji("revoke"),
+              emoji: getEmoji("REVOKE"),
               style: "DANGER",
               label: "Cancel",
             })
@@ -196,8 +208,11 @@ describe("handleAirdrop", () => {
     jest
       .spyOn(defiutils, "validateBalance")
       .mockResolvedValueOnce({ balance: 5.5, usdBalance: 2.75 })
-    const output = await processor.handleAirdrop(msg, args)
-    const amountInfo = `${getEmoji("ftm")} **5.5 FTM** (\u2248 $15.125)`
+    const output = (await processor.handleAirdrop(
+      msg,
+      args
+    )) as RunResult<MessageOptions>
+    const amountInfo = `${getEmoji("FTM")} **5.5 FTM** (\u2248 $15.125)`
     const embed = composeEmbedMessage(null, {
       title: `${getEmoji("AIRDROP")} Confirm airdrop`,
       description: `Are you sure you want to spend ${amountInfo} on this airdrop?`,
@@ -214,13 +229,13 @@ describe("handleAirdrop", () => {
           new MessageActionRow().addComponents(
             new MessageButton({
               customId: `confirm_airdrop-${msg.author.id}-5.5-15.125-FTM-30-3`,
-              emoji: getEmoji("APPROVE"),
+              emoji: getEmoji("CHECK"),
               style: "SUCCESS",
               label: "Confirm",
             }),
             new MessageButton({
               customId: `cancel_airdrop-${msg.author.id}`,
-              emoji: getEmoji("revoke"),
+              emoji: getEmoji("REVOKE"),
               style: "DANGER",
               label: "Cancel",
             })

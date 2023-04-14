@@ -9,7 +9,6 @@ import {
   MessageActionRow,
   MessageButton,
 } from "discord.js"
-import { InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import NodeCache from "node-cache"
 import parse from "parse-duration"
@@ -30,7 +29,6 @@ import {
 } from "utils/common"
 import { validateBalance } from "utils/defi"
 import { parseMonikerinCmd, isTokenSupported } from "utils/tip-bot"
-import * as processor from "./processor"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -52,13 +50,13 @@ function composeAirdropButtons(
   return new MessageActionRow().addComponents(
     new MessageButton({
       customId: `confirm_airdrop-${authorId}-${amount}-${amountInUSD}-${cryptocurrency}-${duration}-${maxEntries}`,
-      emoji: getEmoji("APPROVE"),
+      emoji: getEmoji("CHECK"),
       style: "SUCCESS",
       label: "Confirm",
     }),
     new MessageButton({
       customId: `cancel_airdrop-${authorId}`,
-      emoji: getEmoji("revoke"),
+      emoji: getEmoji("REVOKE"),
       style: "DANGER",
       label: "Cancel",
     })
@@ -69,6 +67,11 @@ export async function cancelAirdrop(
   msg: Message
 ) {
   await interaction.deferUpdate()
+  const infos = interaction.customId.split("-")
+  const [authorId] = infos.slice(1)
+  if (authorId !== interaction.user.id) {
+    return
+  }
   await msg.edit({
     embeds: [
       composeEmbedMessage(msg, {
@@ -98,7 +101,7 @@ export async function confirmAirdrop(
     .toDate()
   const originalAuthor = await msg.guild?.members.fetch(authorId)
   const airdropEmbed = composeEmbedMessage(msg, {
-    author: ["An airdrop appears", getEmojiURL(emojis.WALLET)],
+    author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
     description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${token}** (\u2248 $${roundFloatNumber(
       +amountInUSD,
       4
@@ -121,7 +124,7 @@ export async function confirmAirdrop(
           customId: `enter_airdrop-${authorId}-${duration}-${maxEntries}`,
           label: "Enter airdrop",
           style: "SECONDARY",
-          emoji: "🎉",
+          emoji: getEmoji("ANIMATED_PARTY_POPPER", true),
         })
       ),
     ],
@@ -163,9 +166,14 @@ async function checkExpiredAirdrop(
         4
       )}) ${
         !participants?.length
-          ? "has not been collected by anyone :person_shrugging:."
+          ? `has not been collected by anyone ${getEmoji(
+              "ANIMATED_SHRUGGING",
+              true
+            )}.`
           : `has been collected by ${participants.join(",")}!`
       }`
+
+      const originalAuthor = await msg.guild?.members.fetch(authorId)
 
       if (participants.length > 0 && msg.guildId) {
         const req: OffchainTipBotTransferRequest = {
@@ -181,14 +189,55 @@ async function checkExpiredAirdrop(
           fullCommand: msg.content,
           duration: +duration,
         }
-        await defi.offchainDiscordTransfer(req)
+        await defi.offchainDiscordTransfer(req).then(() => {
+          if (!originalAuthor) return
+          participants.forEach(async (p) => {
+            const { value } = parseDiscordToken(p)
+            const user = await msg.guild?.members.fetch(value)
+            user
+              ?.send({
+                embeds: [
+                  composeEmbedMessage(null, {
+                    author: [
+                      `You have joined ${
+                        originalAuthor.nickname || originalAuthor.user.username
+                      }'s airdrop`,
+                      getEmojiURL(emojis.ANIMATED_COIN_3),
+                    ],
+                    description: `You have received ${amount} ${token} from ${originalAuthor}'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
+                      "ANIMATED_WITHDRAW",
+                      true
+                    )}`,
+                    color: msgColors.ACTIVITY,
+                  }),
+                ],
+              })
+              .catch(() => null)
+          })
+        })
       }
-
-      const originalAuthor = await msg.guild?.members.fetch(authorId)
+      originalAuthor
+        ?.send({
+          embeds: [
+            composeEmbedMessage(null, {
+              author: ["The airdrop has ended!", getEmojiURL(emojis.AIRDROP)],
+              description: `\n${getEmoji(
+                "ANIMATED_POINTING_RIGHT",
+                true
+              )} You have airdropped ${amount} ${token} for ${
+                participants.length
+              } users at ${msg.channel}\n${getEmoji(
+                "ANIMATED_POINTING_RIGHT",
+                true
+              )} Let's check your </balance:1062577077708136500> and make another </airdrop:1062577077708136504>!`,
+            }),
+          ],
+        })
+        .catch(() => null)
       msg.edit({
         embeds: [
           composeEmbedMessage(msg, {
-            author: ["An airdrop appears", getEmojiURL(emojis.WALLET)],
+            author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
             footer: [`${participants.length} users joined, ended`],
             description,
             originalMsgAuthor: originalAuthor?.user,
@@ -241,11 +290,11 @@ export async function enterAirdrop(
       ephemeral: true,
       embeds: [
         composeEmbedMessage(msg, {
-          title: `${getEmoji("APPROVE")} Entered airdrop`,
+          title: `${getEmoji("CHECK")} Entered airdrop`,
           description: `You will receive your reward ${
             Number.isNaN(duration)
               ? `shortly`
-              : `in ${dayjs.duration(duration, "seconds").humanize(true)}.`
+              : `${dayjs.duration(duration, "seconds").humanize(true)}.`
           }`,
           footer: ["You will only receive this notification once"],
           color: msgColors.SUCCESS,
@@ -262,7 +311,8 @@ export async function handleAirdrop(
   msgOrInteraction: Message | CommandInteraction,
   args: string[]
 ) {
-  const payload = await processor.getAirdropPayload(msgOrInteraction, args)
+  const payload = await getAirdropPayload(msgOrInteraction, args)
+  if (!payload) return
   const { amount, token, all } = payload
   const { balance, usdBalance } = await validateBalance({
     msgOrInteraction,
@@ -371,7 +421,7 @@ function getAirdropOptions(args: string[]) {
 export async function getAirdropPayload(
   msg: Message | CommandInteraction,
   args: string[]
-): Promise<OffchainTipBotTransferRequest> {
+): Promise<OffchainTipBotTransferRequest | null> {
   const author = getAuthor(msg)
   const guildId = msg.guildId ?? "DM"
   if (![3, 5, 7].includes(args.length)) {
@@ -382,18 +432,23 @@ export async function getAirdropPayload(
     })
   }
   const { newArgs, moniker } = await parseMonikerinCmd(args, guildId)
+  const reply =
+    msg instanceof Message ? msg.reply.bind(msg) : msg.editReply.bind(msg)
   // airdrop 1 ftm in 1m for 1
   const amountArg = newArgs[1]
   const recipients: string[] = []
   const token = newArgs[2].toUpperCase()
   const tokenSupported = await isTokenSupported(token)
-  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!moniker && !tokenSupported) {
-    throw new InternalError({
-      msgOrInteraction: msg,
-      title: "Unsupported token",
-      description: `**${token}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright}.`,
+    reply({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Unsupported token", getEmojiURL(emojis.REVOKE)],
+          color: msgColors.GRAY,
+        }),
+      ],
     })
+    return null
   }
   // validate airdrop amount
   const validAmount = isValidAmount({
@@ -401,11 +456,15 @@ export async function getAirdropPayload(
     exceptions: ["all", "a", "an"],
   })
   if (!validAmount) {
-    throw new DiscordWalletTransferError({
-      discordId: author.id,
-      message: msg,
-      error: "The amount is invalid. Please insert a natural number.",
+    reply({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Invalid amount", getEmojiURL(emojis.REVOKE)],
+          color: msgColors.GRAY,
+        }),
+      ],
     })
+    return null
   }
   let amount = parseFloat(amountArg)
   if (["a", "an"].includes(amountArg)) amount = 1
@@ -416,21 +475,29 @@ export async function getAirdropPayload(
   const opts = getAirdropOptions(newArgs)
   // check valid duration
   if (opts.duration === 0) {
-    throw new DiscordWalletTransferError({
-      discordId: author.id,
-      message: msg,
-      error: "The duration is invalid. Please insert a valid duration.",
+    reply({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Invalid duration", getEmojiURL(emojis.REVOKE)],
+          description: "The duration must be a number and lower than 1 hour",
+          color: msgColors.GRAY,
+        }),
+      ],
     })
+    return null
   }
 
   // check valid entries
   if (opts.maxEntries === -1) {
-    throw new DiscordWalletTransferError({
-      discordId: author.id,
-      message: msg,
-      error:
-        "The max entries number is invalid. Please insert a positive number.",
+    reply({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Invalid entries", getEmojiURL(emojis.REVOKE)],
+          color: msgColors.GRAY,
+        }),
+      ],
     })
+    return null
   }
   return {
     sender: author.id,
