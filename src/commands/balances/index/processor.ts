@@ -20,7 +20,7 @@ export const balanceTypes: Record<string, number> = {
 
 const balanceEmbedProps = {
   [balanceTypes.Offchain]: {
-    title: "Offchain balance",
+    title: "Mochi balance",
     description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true
@@ -159,7 +159,7 @@ export async function renderBalances(
   justifyEmbedFields(embed, 3)
   embed.addFields({
     name: `Estimated total (U.S dollar)`,
-    value: `${getEmoji("cash")} \`$${roundFloatNumber(totalWorth, 4)}\``,
+    value: `${getEmoji("CASH")} \`$${roundFloatNumber(totalWorth, 4)}\``,
   })
 
   return {

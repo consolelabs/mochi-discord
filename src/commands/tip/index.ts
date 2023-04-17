@@ -2,50 +2,75 @@ import { SlashCommandBuilder } from "@discordjs/builders"
 import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments } from "utils/commands"
-import { getEmoji, thumbnails } from "utils/common"
-import {
-  DEFI_DEFAULT_FOOTER,
-  PREFIX,
-  SLASH_PREFIX,
-  TIP_GITBOOK,
-} from "utils/constants"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { PREFIX, SLASH_PREFIX, TIP_GITBOOK } from "utils/constants"
 import tipSlash from "./index/slash"
 import tip from "./index/text"
 import tipTelegram from "./telegram/text"
 import tipMail from "./mail/text"
 import tipTwitter from "./twitter/text"
 
-const getHelpMessage = async (isSLash?: boolean) => {
-  const prefix = isSLash ? SLASH_PREFIX : PREFIX
-  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
-  const usageTipOnChain = `-- Tip onchain or offchain\n${prefix}tip <recipient(s)> <amount> <token> [each]\n${prefix}tip <recipient(s)> <amount> <token> [each] ["message"] [--onchain]`
-  const usageTipTele = `-- Tip Telegram\n${prefix}tip tg:<telegram_username> <amount> <token>`
-  const usageTipEmail = `-- Tip Email\n${prefix}tip email:<email_address> <amount> <token>`
-  const usageTipTwitter = `-- Tip Twitter\n${prefix}tip tw:<user_name> <amount> <token>`
+const getHelpMessage = async (isSlash?: boolean) => {
+  const prefix = isSlash ? SLASH_PREFIX : PREFIX
+
   return {
     embeds: [
       composeEmbedMessage(null, {
-        thumbnail: thumbnails.TIP,
-        usage: `${usageTipOnChain}\n\n${usageTipTele}\n\n${usageTipEmail}\n\n${usageTipTwitter}`,
-        description: "Send coins offchain to a user or a group of users",
-        footer: [DEFI_DEFAULT_FOOTER],
-        title: "Tip Bot",
+        thumbnail: getEmojiURL(emojis.CASH),
+        description: "Send coins to a user or a group of users",
+        author: ["Tip Bot", getEmojiURL(emojis.INFO_VAULT)],
       }).addFields(
         {
-          name: "You can send to the recipient by:",
-          value: `${pointingright} Username(s): \`@minh\`, \`@tom\`\n${pointingright} Role(s): \`@Staff\`, \`@Dev\`\n${pointingright} #Text_channel: \`#mochi\`, \`#channel\`\n${pointingright} In voice channel: mention “\`in voice channel\`” to tip members currently in\n${pointingright} Online status: add the active status “\`online\`” before mentioning recipients\n${pointingright} Telegram username, email or twitter name. In Telegram particular, find the telegram bot https://t.me/telmochibot and DM it first`,
+          name: "Usage",
+          value: [
+            `Tip off-chain:`,
+            `\`\`\`${prefix}tip <recipient> <amount> <token> [each] ["message"]\`\`\``,
+            `Tip on-chain:`,
+            `\`\`\`${prefix}tip <recipient> <amount> <token> [each] ["message"] --onchain\`\`\``,
+          ].join("\n"),
         },
         {
-          name: "Tip with token:",
-          value: `${pointingright} Tip by the cryptocurrencies, choose one in the \`$token list\`.\n${pointingright} To tip by moniker, choose one in the \`$moniker list\`.`,
+          name: "You can send to the recipient by",
+          value: [
+            `${getEmoji(
+              "COMMAND"
+            )} \`@minh\` | \`@role\` | \`#channel\`: usernames, roles or #text-channel`,
+            `e.g. ${prefix}tip @John 10 ftm | ${prefix}tip @role1 @role 2 1 ftm each "Thank you"`,
+            `${getEmoji(
+              "NEWS"
+            )} \`in voice channel\`: to tip members currently in voice channel`,
+            `e.g. ${prefix}tip in voice channel 1 ftm each`,
+            `${getEmoji(
+              "ANIMATED_IDEA",
+              true
+            )} \`online\`: add "online" before mentioning recipients`,
+            `e.g. ${prefix}tip online #mochi 1 ftm`,
+            `${getEmoji(
+              "TELEGRAM"
+            )} \`tg:<telegram_username>\`: tip via Telegram`,
+            `e.g. ${prefix}tip tg:John_ttb 1 ftm`,
+            `${getEmoji("TWITTER")} \`tw:<username>\`: tip via Twitter`,
+            `e.g. ${prefix}tip tw:John_ttb 1 ftm`,
+            `${getEmoji(
+              "ANIMATED_MAIL_SEND",
+              true
+            )} \`email:<email_address>\`: tip via email`,
+            `e.g. ${prefix}tip email:John.mochi@gmail.com 2 ftm`,
+          ].join("\n"),
         },
         {
-          name: "**Examples**",
-          value: `\`\`\`${prefix}tip @John 10 ftm\n${prefix}tip @John @Hank all ftm\n${prefix}tip @RandomRole 10 ftm\n${PREFIX}tip @role1 @role2 1 ftm each\n${prefix}tip in voice channel 1 ftm each\n${prefix}tip online #mochi 1 ftm\n${prefix}tip @John 1 ftm "Thank you"\n${prefix}tip tg:John_ttb 1 ftm\n${prefix}tip email:John.mochi@gmail.com 2 ftm\n${prefix}tip tw:John_ttb 1 ftm\`\`\``,
-        },
-        {
-          name: "**Instructions**",
-          value: `[**Gitbook**](${TIP_GITBOOK})`,
+          name: "Tip with token",
+          value: [
+            `${getEmoji(
+              "CASH"
+            )} Tip by the cryptocurrencies, choose one in the \`$token list\``,
+            `${getEmoji(
+              "MONIKER"
+            )} Use \`${prefix}tip <@users> <amount> <moniker>\` to tip your friend moniker`,
+            `e.g. ${prefix}tip @anna 1 cookie. Run ${prefix}moniker command to see more`,
+            ``,
+            `[Read instructions](${TIP_GITBOOK}) for a complete setup guide`,
+          ].join("\n"),
         }
       ),
     ],
@@ -91,7 +116,7 @@ const textCmd: Command = {
     await tip(msg)
   },
   featured: {
-    title: `${getEmoji("ANIMATED_CASH", true)} Tip`,
+    title: `${getEmoji("CASH")} Tip`,
     description: "Send coins to a user or a group of users",
   },
   getHelpMessage: () => getHelpMessage(),

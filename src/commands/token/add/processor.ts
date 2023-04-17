@@ -10,7 +10,7 @@ import {
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
-import { thumbnails } from "utils/common"
+import { emojis, getEmojiURL } from "utils/common"
 
 export async function process(
   msg: OriginalMessage,
@@ -54,7 +54,7 @@ export async function process(
       embeds: [
         getSuccessEmbed({
           title: `Your Token submission is under review!`,
-          thumbnail: thumbnails.TOKEN_ADD,
+          thumbnail: getEmojiURL(emojis.ANIMATED_TOKEN_ADD),
           description: `**Network** \`${args.token_chain.toUpperCase()}\`\n**Address** \`${
             args.token_address
           }\`\n\n**Your request is under review.** You will be notified the result through direct message!`,
