@@ -121,14 +121,14 @@ export async function renderBalances(
   const fields: EmbedFieldData[] = balances
     ?.map((balance: any) => {
       const { token, amount } = balance
-      const { name: tokenName, symbol, decimal, price } = token
+      const { name: tokenName, symbol, decimal, price, chain, native } = token
       const value = roundFloatNumber(convertString(amount, decimal) ?? 0, 4)
       const usdWorth = roundFloatNumber(price * value, 4)
       totalWorth += usdWorth
       if (value === 0) return
 
       return {
-        name: tokenName,
+        name: tokenName + `${chain && !native ? ` (${chain.name})` : ""}`,
         value: `${getEmoji(
           symbol
         )} ${value} ${symbol} \`$${usdWorth}\` ${blank}`,
