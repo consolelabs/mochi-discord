@@ -6,7 +6,7 @@ import { isValidAmount } from "utils/common"
 import { CommandArgumentError } from "errors"
 import { Message } from "discord.js"
 import { Command } from "types/common"
-import { parseMessageTip } from "commands/new-tip/index/processor"
+import { parseMessageTip } from "commands/tip/index/processor"
 
 const cmd: Command = {
   id: "wallet_new",

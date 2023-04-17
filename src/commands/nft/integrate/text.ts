@@ -22,13 +22,14 @@ const command: Command = {
         return { messageOptions: await this.getHelpMessage(msg) }
       }
     }
-    return executeNftIntegrateCommand(
+    await executeNftIntegrateCommand(
       args[2],
       args[3],
       msg.author.id,
       msg.guildId ?? "",
       msg
     )
+    return null
   },
   getHelpMessage: async function (msg) {
     return {

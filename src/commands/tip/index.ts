@@ -21,7 +21,7 @@ const getHelpMessage = async (isSLash?: boolean) => {
   const usageTipOnChain = `-- Tip onchain or offchain\n${prefix}tip <recipient(s)> <amount> <token> [each]\n${prefix}tip <recipient(s)> <amount> <token> [each] ["message"] [--onchain]`
   const usageTipTele = `-- Tip Telegram\n${prefix}tip tg:<telegram_username> <amount> <token>`
   const usageTipEmail = `-- Tip Email\n${prefix}tip email:<email_address> <amount> <token>`
-  const usageTipTwitter = `-- Tip Twitter\n${prefix}tip twitter:<user_name> <amount> <token>`
+  const usageTipTwitter = `-- Tip Twitter\n${prefix}tip tw:<user_name> <amount> <token>`
   return {
     embeds: [
       composeEmbedMessage(null, {
@@ -41,7 +41,7 @@ const getHelpMessage = async (isSLash?: boolean) => {
         },
         {
           name: "**Examples**",
-          value: `\`\`\`${prefix}tip @John 10 ftm\n${prefix}tip @John @Hank all ftm\n${prefix}tip @RandomRole 10 ftm\n${PREFIX}tip @role1 @role2 1 ftm each\n${prefix}tip in voice channel 1 ftm each\n${prefix}tip online #mochi 1 ftm\n${prefix}tip @John 1 ftm "Thank you"\n${prefix}tip tg:John_ttb 1 ftm\n${prefix}tip email:John.mochi@gmail.com 2 ftm\n${prefix}tip twitter:John_ttb 1 ftm\`\`\``,
+          value: `\`\`\`${prefix}tip @John 10 ftm\n${prefix}tip @John @Hank all ftm\n${prefix}tip @RandomRole 10 ftm\n${PREFIX}tip @role1 @role2 1 ftm each\n${prefix}tip in voice channel 1 ftm each\n${prefix}tip online #mochi 1 ftm\n${prefix}tip @John 1 ftm "Thank you"\n${prefix}tip tg:John_ttb 1 ftm\n${prefix}tip email:John.mochi@gmail.com 2 ftm\n${prefix}tip tw:John_ttb 1 ftm\`\`\``,
         },
         {
           name: "**Instructions**",
@@ -132,7 +132,7 @@ const slashCmd: SlashCommand = {
         option
           .setName("each")
           .addChoice("Same", "each")
-          .addChoice("Seperate", "seperate")
+          .addChoice("Separate", "separate")
           .setDescription(
             "Same amount is for each recipient. Seperate amount is divided equally"
           )

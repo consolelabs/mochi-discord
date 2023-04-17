@@ -3,6 +3,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { getEmoji, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
+import { reply } from "utils/discord"
 
 export async function handleNftStats(msg: Message | CommandInteraction) {
   const res = await community.getCollectionCount()
@@ -23,7 +24,7 @@ export async function handleNftStats(msg: Message | CommandInteraction) {
     }**: ${v.count} collections\n\n`
   })
 
-  return {
+  const response = {
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
@@ -34,4 +35,5 @@ export async function handleNftStats(msg: Message | CommandInteraction) {
       ],
     },
   }
+  await reply(msg, response)
 }

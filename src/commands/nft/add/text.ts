@@ -24,7 +24,8 @@ const command: Command = {
       }
     }
 
-    return executeNftAddCommand(args, msg)
+    await executeNftAddCommand(args, msg)
+    return null
   },
   getHelpMessage: async (msg) => {
     return {

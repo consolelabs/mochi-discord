@@ -14,11 +14,10 @@ const command: Command = {
     if (args.length < 3) {
       return { messageOptions: await this.getHelpMessage(msg) }
     }
-    const symbol = args[2]
-    const chartInput = args[3] ?? "plot"
+    const [symbol, chartInput = "plot"] = args.slice(2)
     const chartStyle = chartInput === "plot" ? ChartStyle.Plot : ChartStyle.Line
     // render embed to show multiple results
-    return await handleNftTicker(msg, symbol, msg.author.id, chartStyle)
+    await handleNftTicker(msg, symbol, chartStyle)
   },
   getHelpMessage: async (msg) => {
     return {

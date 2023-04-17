@@ -1,5 +1,6 @@
 import { CommandInteraction, Message } from "discord.js"
 import { callAPI, toEmbed } from "../processor"
+import { reply } from "utils/discord"
 
 export async function executeNftAddCommand(
   args: string[],
@@ -19,5 +20,6 @@ export async function executeNftAddCommand(
     args[4] === "priority"
   )
 
-  return toEmbed(storeCollectionRes, supportedChainsRes, msg)
+  const response = await toEmbed(storeCollectionRes, supportedChainsRes, msg)
+  await reply(msgOrInteraction, response)
 }
