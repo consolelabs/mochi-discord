@@ -1,23 +1,22 @@
-import { Message } from "discord.js"
 import { userMention } from "@discordjs/builders"
-import defi from "adapters/defi"
-import * as profile from "utils/profile"
-import * as tipbot from "utils/tip-bot"
-import * as defiUtils from "utils/defi"
-import * as processor from "./processor"
 import mochiPay from "adapters/mochi-pay"
-import mockdc from "../../../../tests/mocks/discord"
+import { Message } from "discord.js"
+import { APIError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
-  thumbnails,
-  getEmojiURL,
   emojis,
+  getEmojiURL,
   msgColors,
   roundFloatNumber,
+  thumbnails,
 } from "utils/common"
+import * as defiUtils from "utils/defi"
+import * as profile from "utils/profile"
+import * as tipbot from "utils/tip-bot"
 import { assertRunResult } from "../../../../tests/assertions/discord"
-import { APIError } from "errors"
+import mockdc from "../../../../tests/mocks/discord"
+import * as processor from "./processor"
 jest.mock("adapters/defi")
 jest.mock("adapters/mochi-pay")
 jest.mock("utils/profile")
@@ -38,11 +37,11 @@ describe("parseMessageTip", () => {
     }
     const allTokenRes = {
       ok: true,
-      data: [{ token_symbol: "ftm" }],
+      data: [{ symbol: "ftm" }],
       log: "",
       curl: "",
     }
-    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
+    mochiPay.getTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
     const output = await processor.parseMessageTip(argsAfterParseMoniker)
     expect(output).toEqual(expected)
   })
@@ -61,11 +60,11 @@ describe("parseMessageTip", () => {
     }
     const allTokenRes = {
       ok: true,
-      data: [{ token_symbol: "ftm" }],
+      data: [{ symbol: "ftm" }],
       log: "",
       curl: "",
     }
-    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
+    mochiPay.getTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
     const output = await processor.parseMessageTip(argsAfterParseMoniker)
     expect(output).toEqual(expected)
   })
@@ -84,11 +83,11 @@ describe("parseMessageTip", () => {
     }
     const allTokenRes = {
       ok: true,
-      data: [{ token_symbol: "ftm" }],
+      data: [{ symbol: "ftm" }],
       log: "",
       curl: "",
     }
-    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
+    mochiPay.getTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
     const output = await processor.parseMessageTip(argsAfterParseMoniker)
     expect(output).toEqual(expected)
   })
@@ -101,11 +100,11 @@ describe("parseMessageTip", () => {
     }
     const allTokenRes = {
       ok: true,
-      data: [{ token_symbol: "ftm" }],
+      data: [{ symbol: "ftm" }],
       log: "",
       curl: "",
     }
-    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
+    mochiPay.getTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
     const output = await processor.parseMessageTip(argsAfterParseMoniker)
     expect(output).toEqual(expected)
   })

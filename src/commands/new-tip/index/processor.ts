@@ -1,5 +1,4 @@
 import { userMention } from "@discordjs/builders"
-import defi from "adapters/defi"
 import profile from "adapters/profile"
 import {
   CommandInteraction,
@@ -49,9 +48,9 @@ import {
   parseRecipients,
 } from "utils/tip-bot"
 import mochiPay from "../../../adapters/mochi-pay"
+import { validateBalance } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import * as processor from "./processor"
-import { validateBalance } from "../../../utils/defi"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -341,15 +340,15 @@ export async function getTipPayload(
 }
 
 export async function parseMessageTip(args: string[]) {
-  const { ok, data, log, curl } = await defi.getAllTipBotTokens()
+  const { ok, data, log, curl } = await mochiPay.getTokens({})
   if (!ok) {
     throw new APIError({ description: log, curl })
   }
   let tokenIdx = -1
   if (data && Array.isArray(data) && data.length !== 0) {
     data.forEach((token: any) => {
-      const idx = args.findIndex(
-        (element) => element.toLowerCase() === token.token_symbol.toLowerCase()
+      const idx = args.findIndex((element) =>
+        equalIgnoreCase(element, token.symbol)
       )
       if (idx !== -1) {
         tokenIdx = idx

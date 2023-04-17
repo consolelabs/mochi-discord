@@ -1,23 +1,13 @@
 import { FTMSCAN_API_KEY } from "env"
 import fetch from "node-fetch"
 import {
-  RequestCreateAssignContract,
   RequestCreateTipConfigNotify,
   RequestOffchainTransferRequest,
-  RequestOffchainWithdrawRequest,
   ResponseGetNftWatchlistResponse,
   ResponseGetSupportedTokenResponse,
-  ResponseGetUserBalancesResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
-import { Pagination } from "types/common"
-import {
-  Coin,
-  CoinComparisionData,
-  CoinPrice,
-  GasPriceData,
-  Token,
-} from "types/defi"
+import { Coin, CoinComparisionData, CoinPrice, GasPriceData } from "types/defi"
 import {
   API_BASE_URL,
   BSCSCAN_API,
@@ -29,31 +19,6 @@ import {
 import { Fetcher } from "./fetcher"
 
 class Defi extends Fetcher {
-  public async getSupportedTokens(
-    page = 0,
-    size = 0
-  ): Promise<{
-    data: Token[]
-    metadata: Pagination
-  }> {
-    const resp = await fetch(
-      `${API_BASE_URL}/defi/tokens?page=${page}&size=${size}`,
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      }
-    )
-    if (resp.status !== 200) {
-      throw new Error("Error while fetching supported tokens data")
-    }
-
-    const json = await resp.json()
-    if (json.error !== undefined) {
-      throw new Error(json.error)
-    }
-    return json.data
-  }
-
   public async getSupportedToken(query: { address: string; chain: string }) {
     return await this.jsonFetch<ResponseGetSupportedTokenResponse>(
       `${API_BASE_URL}/defi/token`,
@@ -219,29 +184,8 @@ class Defi extends Fetcher {
     })
   }
 
-  async offchainTipBotAssignContract(req: RequestCreateAssignContract) {
-    return await this.jsonFetch(`${API_BASE_URL}/tip/assign-contract`, {
-      method: "POST",
-      body: req,
-    })
-  }
-
-  async offchainGetUserBalances(query: { userId: string }) {
-    return await this.jsonFetch<ResponseGetUserBalancesResponse>(
-      `${API_BASE_URL}/tip/balances`,
-      { method: "GET", query }
-    )
-  }
-
   async offchainDiscordTransfer(req: RequestOffchainTransferRequest) {
     return await this.jsonFetch(`${API_BASE_URL}/tip/transfer`, {
-      method: "POST",
-      body: req,
-    })
-  }
-
-  async offchainDiscordWithdraw(req: RequestOffchainWithdrawRequest) {
-    return await this.jsonFetch(`${API_BASE_URL}/tip/withdraw`, {
       method: "POST",
       body: req,
     })
@@ -291,10 +235,6 @@ class Defi extends Fetcher {
     return await this.jsonFetch(`${API_BASE_URL}/config-channels/tip-notify`, {
       query,
     })
-  }
-
-  async getAllTipBotTokens() {
-    return await this.jsonFetch(`${API_BASE_URL}/tip/tokens`)
   }
 
   async submitOnchainTransfer(req: any) {
