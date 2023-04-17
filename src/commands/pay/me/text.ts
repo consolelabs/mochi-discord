@@ -1,5 +1,5 @@
 import { getEmoji } from "utils/common"
-import { parseMessageTip } from "commands/new-tip/index/processor"
+import { parseMessageTip } from "commands/tip/index/processor"
 import { Message } from "discord.js"
 import { CommandArgumentError } from "errors"
 import { Command } from "types/common"

@@ -43,12 +43,7 @@ const command: SlashCommand = {
     const chartStyle =
       chartStyleInput === "plot" ? ChartStyle.Plot : ChartStyle.Line
 
-    return await handleNftTicker(
-      interaction,
-      symbol,
-      interaction.user.id,
-      chartStyle
-    )
+    return await handleNftTicker(interaction, symbol, chartStyle)
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [

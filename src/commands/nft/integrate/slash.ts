@@ -47,7 +47,7 @@ const command: SlashCommand = {
       chain,
       interaction.user.id,
       interaction.guildId,
-      undefined
+      interaction
     )
   },
   help: async (interaction: CommandInteraction) => ({
