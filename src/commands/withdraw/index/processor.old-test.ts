@@ -1,4 +1,3 @@
-import defi from "adapters/defi"
 import { Collection, Message } from "discord.js"
 import { InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
@@ -7,8 +6,8 @@ import { getEmoji } from "utils/common"
 import * as dcutils from "utils/discord"
 import * as tiputils from "utils/tip-bot"
 import mockdc from "../../../../tests/mocks/discord"
-import * as processor from "./processor"
 import mochiPay from "../../../adapters/mochi-pay"
+import * as processor from "./processor"
 jest.mock("adapters/defi")
 
 describe("getRecipient", () => {
@@ -157,21 +156,21 @@ describe("withdraw", () => {
   test("successfully withdraw", async () => {
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
-    const mockedResponse = {
-      ok: true,
-      data: {
-        amount: 1,
-        tx_hash: "0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
-        tx_url:
-          "https://ftmscan.com/tx/0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
-      },
-    }
+    // const mockedResponse = {
+    //   ok: true,
+    //   data: {
+    //     amount: 1,
+    //     tx_hash: "0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
+    //     tx_url:
+    //       "https://ftmscan.com/tx/0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
+    //   },
+    // }
     const collectedMsg = mockdc.cloneMessage()
     collectedMsg.content = addr
     jest.spyOn(processor, "getRecipient").mockResolvedValueOnce(addr)
-    defi.offchainDiscordWithdraw = jest
-      .fn()
-      .mockResolvedValueOnce(mockedResponse)
+    // defi.offchainDiscordWithdraw = jest
+    //   .fn()
+    //   .mockResolvedValueOnce(mockedResponse)
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce({
       ok: true,
       data: [

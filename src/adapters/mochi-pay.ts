@@ -68,6 +68,12 @@ class MochiPay extends Fetcher {
       }
     )
   }
+
+  async getTokens(query: { symbol?: string }) {
+    return await this.jsonFetch(`${MOCHI_PAY_API_BASE_URL}/tokens`, {
+      query,
+    })
+  }
 }
 
 export default new MochiPay()
