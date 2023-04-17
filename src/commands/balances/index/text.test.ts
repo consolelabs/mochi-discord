@@ -3,7 +3,7 @@ import Discord, { MessageOptions } from "discord.js"
 import { APIError } from "errors"
 import { RunResult } from "types/common"
 import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { mockClient } from "../../../../tests/mocks"
 import mochiPay from "../../../adapters/mochi-pay"
 
@@ -64,7 +64,7 @@ describe("balances", () => {
     }
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
-      author: ["Offchain balance", getEmojiURL(emojis.WALLET)],
+      author: ["Mochi balance", getEmojiURL(emojis.WALLET)],
     })
       .addFields({
         name: "Panswap Cake",
@@ -81,7 +81,7 @@ describe("balances", () => {
     justifyEmbedFields(expected, 3)
     expected.addFields({
       name: `Estimated total (U.S dollar)`,
-      value: "<:cash:933341119998210058> `$32.5`",
+      value: `${getEmoji("CASH")} \`$32.5\``,
     })
     const output = await command.run(msg)
     expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)
@@ -132,7 +132,7 @@ describe("balances", () => {
     }
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
-      author: ["Offchain balance", getEmojiURL(emojis.WALLET)],
+      author: ["Mochi balance", getEmojiURL(emojis.WALLET)],
     }).addFields({
       name: "Panswap Cake",
       value:
@@ -142,7 +142,7 @@ describe("balances", () => {
     justifyEmbedFields(expected, 3)
     expected.addFields({
       name: `Estimated total (U.S dollar)`,
-      value: "<:cash:933341119998210058> `$30`",
+      value: `${getEmoji("CASH")} \`$30\``,
     })
     const output = await command.run(msg)
     expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)
@@ -183,7 +183,7 @@ describe("balances", () => {
     }
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
-      author: ["Offchain balance", getEmojiURL(emojis.WALLET)],
+      author: ["Mochi balance", getEmojiURL(emojis.WALLET)],
       description: "No balance. Try `$deposit` more into your wallet.",
     })
     const output = await command.run(msg)

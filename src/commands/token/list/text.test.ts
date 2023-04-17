@@ -3,7 +3,7 @@ import { Message } from "discord.js"
 import mockdc from "../../../../tests/mocks/discord"
 import * as processor from "./processor"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { thumbnails, getEmojiURL, emojis, msgColors } from "utils/common"
+import { getEmojiURL, emojis, msgColors } from "utils/common"
 import * as button from "handlers/discord/button"
 
 describe("run", () => {
@@ -15,7 +15,7 @@ describe("run", () => {
   test("command run with enough args", async () => {
     msg.content = "$token list"
     const embed = composeEmbedMessage(null, {
-      thumbnail: thumbnails.CUSTOM_TOKEN,
+      thumbnail: getEmojiURL(emojis.TOKEN_LIST),
       author: ["Token List", getEmojiURL(emojis.PAWCOIN)],
       description: "Test",
       color: msgColors.ACTIVITY,

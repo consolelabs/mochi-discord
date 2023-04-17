@@ -275,7 +275,7 @@ export function getSuccessEmbed(params: {
     emojiId,
   } = params
   return composeEmbedMessage(msg, {
-    author: [title ?? "Successful", getEmojiURL(emojiId ?? emojis["APPROVE"])],
+    author: [title ?? "Successful", getEmojiURL(emojiId ?? emojis["CHECK"])],
     description: description ?? "The operation finished successfully",
     image,
     thumbnail,

@@ -3,7 +3,11 @@ import { APIError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import {
+  composeEmbedMessage,
+  enableDMMessage,
+  getErrorEmbed,
+} from "ui/discord/embed"
 import { defaultActivityMsg, sendActivityMsg } from "utils/activity"
 import {
   emojis,
@@ -78,8 +82,17 @@ export async function withdraw(
   const dm = await author.send({
     embeds: [
       composeEmbedMessage(null, {
-        author: ["Withdraw message", getEmojiURL(emojis.WALLET)],
-        description: `Please enter your **${payload.token}** destination address that you want to withdraw your tokens below.`,
+        author: ["Withdraw", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+        thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
+        description: `**Withdrawal amount**\n${getEmoji(
+          payload.token?.toUpperCase() ?? ""
+        )} ${payload.amount} ${payload.token}\n${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Please enter your **${
+          payload.token
+        }** destination address that you want to withdraw your tokens below.`,
+        color: msgColors.MOCHI,
       }),
     ],
   })
@@ -121,30 +134,34 @@ export async function withdraw(
   sendActivityMsg(kafkaMsg)
 
   const embed = composeWithdrawEmbed(payload)
-  await author.send({ embeds: [embed] })
+  await author.send({ embeds: [embed] }).catch(() => {
+    msgOrInteraction.reply({
+      embeds: [enableDMMessage()],
+    })
+  })
 }
 
 function composeWithdrawEmbed(payload: any) {
-  const tokenEmoji = getEmoji(payload.token)
+  const token = payload.token?.toUpperCase() ?? ""
+  const tokenEmoji = getEmoji(token)
   return composeEmbedMessage(null, {
-    author: ["Withdraw"],
-    title: `${tokenEmoji} ${payload.token.toUpperCase()} sent`,
+    author: ["Withdraw Order Submitted", getEmojiURL(emojis.CHECK)],
     description: "Your withdrawal was processed succesfully!",
-    color: msgColors.SUCCESS,
+    color: msgColors.MOCHI,
   }).addFields(
     {
-      name: "Destination address",
-      value: `\`${payload.address}\``,
+      name: `Recipient's ${token} Address`,
+      value: `\`\`\`${payload.address}\`\`\``,
       inline: false,
     },
     {
-      name: "Withdrawal amount",
-      value: `**${payload.amount}** ${tokenEmoji}`,
+      name: "Recipient amount",
+      value: `${tokenEmoji} ${payload.amount} ${token}`,
       inline: true,
     }
     // {
-    //   name: "Withdrawal Transaction ID",
-    //   value: `[${data.tx_hash}](${data.tx_url})`,
+    //   name: "Transaction ID",
+    //   value: `[${payload.tx_hash}](${payload.tx_url})`,
     //   inline: false,
     // }
   )

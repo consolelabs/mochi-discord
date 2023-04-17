@@ -1,8 +1,15 @@
 import defi from "adapters/defi"
-import { getEmoji, msgColors } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { ConvertSecondToMinute } from "utils/time"
+
+const currency: any = {
+  "fantom opera": "FTM",
+  "ethereum mainnet": "ETH",
+  polygon: "MATIC",
+  "binance smart chain mainnet": "BNB",
+}
 
 export async function render() {
   const { data, ok, curl, error, log } = await defi.getGasTracker()
@@ -26,9 +33,11 @@ export async function render() {
       },
     }
 
-  const res = data.map((token: any) => {
+  const res = data.map((token: any, i: number) => {
     return {
-      name: `${getEmoji(token.chain)} ${token.chain}`,
+      name: `${i > 1 ? "\u200b\n" : ""}${getEmoji(
+        currency[token.chain.toLowerCase()] ?? ""
+      )} ${token.chain}`,
       value: `${getEmoji("slow")} Slow - ${ConvertSecondToMinute(
         token.est_safe_time
       )} \`${token.safe_gas_price} Gwei\`\n${getEmoji(
@@ -44,7 +53,7 @@ export async function render() {
 
   const fields = []
   for (let i = 0; i < res.length; i++) {
-    if (i !== 0 && i % 2 == 0) {
+    if (i !== 0 && i % 2 === 0) {
       fields.push({
         name: "\u200b",
         value: "\u200b",
@@ -61,7 +70,7 @@ export async function render() {
 
   const embed = composeEmbedMessage(null, {
     color: msgColors.BLUE,
-    title: "Gas Prices",
+    author: ["Gas Prices", getEmojiURL(emojis.GAS)],
   }).addFields(fields)
   return { messageOptions: { embeds: [embed] } }
 }

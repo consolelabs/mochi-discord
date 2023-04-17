@@ -1,13 +1,7 @@
 import * as processor from "./processor"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { assertRunResult } from "../../../../tests/assertions/discord"
-import {
-  emojis,
-  getEmoji,
-  getEmojiURL,
-  msgColors,
-  thumbnails,
-} from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import defi from "adapters/defi"
 
 jest.mock("adapters/defi")
@@ -64,7 +58,7 @@ describe("handleTokenList", () => {
       },
     }
     const expected = composeEmbedMessage(null, {
-      thumbnail: thumbnails.CUSTOM_TOKEN,
+      thumbnail: getEmojiURL(emojis.TOKEN_LIST),
       author: ["Token List", getEmojiURL(emojis.PAWCOIN)],
       description: "1 . Solana `SOL`",
       color: msgColors.ACTIVITY,

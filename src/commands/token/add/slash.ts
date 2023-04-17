@@ -32,7 +32,7 @@ const command: SlashCommand = {
       ["Aptos", "apt"],
       ["Sui", "sui"],
       ["Aurora", "aurora"],
-    ]
+    ].map((e) => [e[0].toLowerCase(), e[1]])
 
     return new SlashCommandSubcommandBuilder()
       .setName("add")

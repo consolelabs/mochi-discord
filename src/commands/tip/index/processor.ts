@@ -519,7 +519,7 @@ export async function executeTip(
   }
   const embed = composeEmbedMessage(null, {
     thumbnail: thumbnails.TIP,
-    author: ["Tips", getEmojiURL(emojis.COIN)],
+    author: ["Tips", getEmojiURL(emojis.CASH)],
     description: description,
     color: msgColors.SUCCESS,
   })
