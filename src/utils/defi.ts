@@ -6,6 +6,17 @@ import { getAuthor } from "./common"
 import { convertString } from "./convert"
 import { getProfileIdByDiscord } from "./profile"
 
+export function formatDigit(s: string) {
+  const [left, right = ""] = s.split(".")
+  if (Number(right) === 0 || right === "" || left.length >= 4) return left
+  const numsArr = right.split("")
+  let rightStr = numsArr.shift() as string
+  while (Number(rightStr) === 0) {
+    rightStr += numsArr.shift()
+  }
+  return left + "." + rightStr
+}
+
 export function parseTickerQuery(q: string) {
   const fiats = ["gbp", "usd", "eur", "sgd", "vnd"]
   q = q.toLowerCase()

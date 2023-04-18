@@ -100,6 +100,7 @@ export const tokenEmojis: Record<string, string> = {
   POL: "1037985931816349746",
   SAMO: "1095714152221261905",
   BONK: "1095714104108388362",
+  STG: "1097786444057169941",
 }
 
 export const numberEmojis: Record<string, string> = {
