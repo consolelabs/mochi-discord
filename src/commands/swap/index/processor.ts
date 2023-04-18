@@ -13,11 +13,12 @@ import {
 import { emojis, getEmoji, getEmojiURL, thumbnails } from "utils/common"
 import { reply } from "utils/discord"
 import { BigNumber, utils } from "ethers"
-import { HOMEPAGE_URL } from "utils/constants"
+import { APPROX, HOMEPAGE_URL } from "utils/constants"
 import { pascalCase } from "change-case"
 import NodeCache from "node-cache"
 import defi from "adapters/defi"
 import { APIError } from "errors"
+import { formatDigit } from "utils/defi"
 
 const cacheExpireTimeSeconds = 180
 
@@ -41,8 +42,6 @@ export const chains = {
   106: "velas",
   1313161554: "aurora",
 }
-
-const approx = "≈"
 
 type Route = {
   tokenIn: string
@@ -87,17 +86,6 @@ type AggregatedRoute = {
 }
 
 type AggregatedTradeRoute = Record<string, AggregatedRoute>
-
-function format2Digit(s: string) {
-  const [left, right = ""] = s.split(".")
-  if (Number(right) === 0 || right === "" || left.length >= 4) return left
-  const numsArr = right.split("")
-  let rightStr = numsArr.shift() as string
-  while (Number(rightStr) === 0) {
-    rightStr += numsArr.shift()
-  }
-  return left + "." + rightStr
-}
 
 // function to parse route data from kyberswap to our format for easier display
 async function parseTradeRoute(routeSummary: RouteSummary) {
@@ -282,10 +270,10 @@ export async function render(
   const routes = await aggregateTradeRoute(routeSummary)
 
   const fromAmountFormatted = utils.commify(
-    format2Digit(utils.formatUnits(routeSummary.amountIn, tokenIn.decimals))
+    formatDigit(utils.formatUnits(routeSummary.amountIn, tokenIn.decimals))
   )
   const toAmountFormatted = utils.commify(
-    format2Digit(utils.formatUnits(routeSummary.amountOut, tokenOut.decimals))
+    formatDigit(utils.formatUnits(routeSummary.amountOut, tokenOut.decimals))
   )
 
   const fromEmo = getEmoji(from, false, defaultToken)
@@ -294,7 +282,7 @@ export async function render(
   const embed = composeEmbedMessage(null, {
     author: ["Swap", getEmojiURL(emojis.SWAP_ROUTE)],
     thumbnail: getEmojiURL(emojis.SWAP_ROUTE),
-    title: `${fromAmountFormatted} ${from} ${approx} ${toAmountFormatted} ${to}`,
+    title: `${fromAmountFormatted} ${from} ${APPROX} ${toAmountFormatted} ${to}`,
   })
 
   const tradeRoutes = Object.values(routes).map((route, i) => {
@@ -344,7 +332,7 @@ export async function render(
     {
       name: "From",
       value: `${fromEmo} ${fromAmountFormatted} ${from} \n\`$${utils.commify(
-        format2Digit(routeSummary.amountInUsd)
+        formatDigit(routeSummary.amountInUsd)
       )}\``,
       inline: true,
     },
@@ -356,14 +344,14 @@ export async function render(
     {
       name: "To",
       value: `${toEmo} ${toAmountFormatted} ${to}\n\`$${utils.commify(
-        format2Digit(routeSummary.amountOutUsd)
+        formatDigit(routeSummary.amountOutUsd)
       )}\``,
       inline: true,
     },
     {
       name: "Gas Fee",
       value: routeSummary.gasUsd
-        ? `${approx} \`$${utils.commify(format2Digit(routeSummary.gasUsd))}\``
+        ? `${APPROX} \`$${utils.commify(formatDigit(routeSummary.gasUsd))}\``
         : "Unknown",
       inline: true,
     },

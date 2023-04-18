@@ -27,7 +27,8 @@ import {
   msgColors,
   roundFloatNumber,
 } from "utils/common"
-import { validateBalance } from "utils/defi"
+import { APPROX } from "utils/constants"
+import { formatDigit, validateBalance } from "utils/defi"
 import { parseMonikerinCmd, isTokenSupported } from "utils/tip-bot"
 
 dayjs.extend(duration)
@@ -204,7 +205,9 @@ async function checkExpiredAirdrop(
                       }'s airdrop`,
                       getEmojiURL(emojis.ANIMATED_COIN_3),
                     ],
-                    description: `You have received ${amount} ${token} from ${originalAuthor}'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
+                    description: `You have received ${APPROX} ${formatDigit(
+                      String(amount / participants.length)
+                    )} ${token} from ${originalAuthor}'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
                       "ANIMATED_WITHDRAW",
                       true
                     )}`,

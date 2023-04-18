@@ -34,7 +34,7 @@ const slashCmd: SlashCommand = {
         option
           .setName("duration")
           .setDescription(
-            "duration in seconds (default), minutes or hour (max 1 hour). Example: 5m"
+            "duration in seconds, minutes (default) or hour (max 1 hour). Example: 5m, 1hr, 20m 10secs, etc..."
           )
       )
       .addNumberOption((option) =>

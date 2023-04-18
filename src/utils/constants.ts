@@ -15,6 +15,7 @@ export const SPACE = " "
 export const SPACES_REGEX = / +/g
 export const EMPTY = ""
 export const VERTICAL_BAR = "|"
+export const APPROX = "≈"
 
 export const PREFIX = "$"
 export const SLASH_PREFIX = "/"
