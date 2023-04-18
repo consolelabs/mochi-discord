@@ -154,7 +154,6 @@ export const originalCommands: Record<string, Command> = {
   claim: claim.textCmd,
   balances: balances.textCmd,
   withdraw: withdraw.textCmd,
-  airdrop: airdrop.textCmd,
   tokens: token.textCmd,
   ticker: ticker.textCmd,
   watchlist: watchlist.textCmd,
