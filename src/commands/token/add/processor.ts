@@ -10,7 +10,7 @@ import {
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
-import { thumbnails } from "utils/common"
+import { emojis, getEmojiURL, msgColors } from "utils/common"
 
 export async function process(
   msg: OriginalMessage,
@@ -23,8 +23,17 @@ export async function process(
     token_chain: string
   }
 ) {
-  const { ok, error, log, curl } = await Defi.requestSupportToken(args)
+  const { ok, error, log, curl, status } = await Defi.requestSupportToken(args)
   if (!ok) {
+    if (status === 400) {
+      throw new InternalError({
+        msgOrInteraction: msg,
+        title: "Token has already existed",
+        emojiUrl: getEmojiURL(emojis.ANIMATED_COIN_1),
+        description: `You can use this token to </tip:1062577077708136499> and </airdrop:1062577077708136504>`,
+        color: msgColors.GRAY,
+      })
+    }
     throw new APIError({ msgOrInteraction: msg, error, curl, description: log })
   }
 
@@ -54,7 +63,7 @@ export async function process(
       embeds: [
         getSuccessEmbed({
           title: `Your Token submission is under review!`,
-          thumbnail: thumbnails.TOKEN_ADD,
+          thumbnail: getEmojiURL(emojis.ANIMATED_TOKEN_ADD),
           description: `**Network** \`${args.token_chain.toUpperCase()}\`\n**Address** \`${
             args.token_address
           }\`\n\n**Your request is under review.** You will be notified the result through direct message!`,

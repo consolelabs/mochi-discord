@@ -2,11 +2,11 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
 import { run } from "./processor"
 import { getCommandArguments } from "utils/commands"
-import { isValidAmount } from "utils/common"
+import { isValidAmount, TokenEmojiKey } from "utils/common"
 import { CommandArgumentError } from "errors"
 import { Message } from "discord.js"
 import { Command } from "types/common"
-import { parseMessageTip } from "commands/new-tip/index/processor"
+import { parseMessageTip } from "commands/tip/index/processor"
 
 const cmd: Command = {
   id: "wallet_new",
@@ -26,7 +26,7 @@ const cmd: Command = {
     await run({
       msgOrInteraction: msg,
       amount: +amount,
-      token: token.toUpperCase(),
+      token: token.toUpperCase() as TokenEmojiKey,
       note,
     })
   },

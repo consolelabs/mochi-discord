@@ -52,14 +52,14 @@ function aggregateData(
 export function buildSwitchViewActionRow(currentView: ReactionType) {
   const messageButton = new MessageButton({
     label: "Message",
-    emoji: emojis.MESSAGE,
+    emoji: emojis.ANIMATED_CHAT,
     customId: "starboard-switch-view-button/message",
     style: "SECONDARY",
     disabled: currentView === "message",
   })
   const conversationButton = new MessageButton({
     label: "Conversation",
-    emoji: emojis.CONVERSATION,
+    emoji: emojis.ANIMATED_CHAT,
     customId: "starboard-switch-view-button/conversation",
     style: "SECONDARY",
     disabled: currentView === "conversation",
@@ -93,7 +93,7 @@ function buildPaginationActionRow(
     row.addComponents({
       type: MessageComponentTypes.BUTTON,
       style: "SECONDARY",
-      emoji: getEmoji("RIGHT_EMOJI"),
+      emoji: getEmoji("RIGHT_ARROW"),
       label: "Next",
       customId: `starboard-pagination-button/${currentView}/${page}/+/${totalPage}`,
     })
@@ -111,7 +111,7 @@ function renderSingleView(data: AggregatedData) {
         `<#${c[0]}>\n${c[1]
           ?.map((config) => {
             if ("emoji" in config) {
-              return `${getEmoji("blank")}${getEmoji("reply")} ${
+              return `${getEmoji("BLANK")}${getEmoji("REPLY")} ${
                 config.quantity
               } emoji${config.quantity > 1 ? "es" : ""} ${config.emoji}`
             }
@@ -132,7 +132,7 @@ function renderStartStopView(data: AggregatedData) {
         `<#${c[0]}>\n${c[1]
           ?.map((config) => {
             if ("start" in config) {
-              return `${getEmoji("blank")}${getEmoji("reply")} Start with ${
+              return `${getEmoji("BLANK")}${getEmoji("REPLY")} Start with ${
                 config.start
               } End with ${config.stop}`
             }

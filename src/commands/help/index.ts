@@ -43,8 +43,14 @@ const slashCmd: SlashCommand = {
       )
   },
   run: async function (interaction: CommandInteraction) {
-    const command = interaction.options.getString("command")
-    await (slashCommands[command ?? ""] ?? this).help(interaction)
+    const command = interaction.options.getString("command") ?? ""
+    if (slashCommands[command]) {
+      const messageOptions = await slashCommands[command].help(interaction)
+      return {
+        messageOptions,
+      }
+    }
+    await this.help(interaction)
     return null
   },
   help: helpSlash,

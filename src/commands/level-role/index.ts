@@ -1,5 +1,4 @@
 import { Command, SlashCommand } from "types/common"
-import { getEmoji } from "utils/common"
 import { LEVEL_ROLE_GITBOOK, PREFIX, SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 // text
@@ -29,10 +28,6 @@ const textCmd: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async () => null,
-  featured: {
-    title: `${getEmoji("")} Level role`,
-    description: "Assign a role to users when they reach a certain level",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

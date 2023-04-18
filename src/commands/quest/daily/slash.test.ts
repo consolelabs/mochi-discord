@@ -44,7 +44,7 @@ describe("run", () => {
             new MessageButton()
               .setDisabled(true)
               .setStyle("SECONDARY")
-              .setEmoji(getEmoji("approve"))
+              .setEmoji(getEmoji("CHECK"))
               .setCustomId("claim-rewards-daily_123123")
               .setLabel("No rewards to claim")
           ),

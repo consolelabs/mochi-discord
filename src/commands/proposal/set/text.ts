@@ -74,7 +74,7 @@ const command: Command = {
         messageOptions: {
           embeds: [
             composeEmbedMessage(null, {
-              title: `${getEmoji("revoke")} Invalid channels`,
+              title: `${getEmoji("REVOKE")} Invalid channels`,
               description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
                 true
@@ -111,7 +111,7 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(null, {
             description: `${getEmoji(
-              "defi"
+              "DEFI"
             )} Please choose who can post proposals`,
           }),
         ],
@@ -174,9 +174,9 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            title: `${getEmoji("approve")} Successfully set`,
+            title: `${getEmoji("CHECK")} Successfully set`,
             description: `${getEmoji(
-              "point_right"
+              "POINTINGRIGHT"
             )} All proposals will be posted and voted in the <#${channelId}>`,
             color: msgColors.SUCCESS,
           }),
@@ -216,7 +216,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            title: `${getEmoji("revoke")} Unsupported chain`,
+            title: `${getEmoji("REVOKE")} Unsupported chain`,
             description:
               "The chain hasn't been supported. Take a look at our supported chain by `$token list`",
           }),
@@ -229,7 +229,8 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
     embeds: [
       composeEmbedMessage(null, {
         title: `${getEmoji(
-          "question"
+          "ANIMATED_QUESTION_MARK",
+          true
         )} Please enter the minimum token amount to post the proposal`,
       }),
     ],
@@ -250,7 +251,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            title: `${getEmoji("revoke")} Invalid amount`,
+            title: `${getEmoji("REVOKE")} Invalid amount`,
           }),
         ],
       },
@@ -274,7 +275,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
           messageOptions: {
             embeds: [
               getErrorEmbed({
-                title: `${getEmoji("revoke")} Invalid Contract`,
+                title: `${getEmoji("REVOKE")} Invalid Contract`,
                 description:
                   "Can't find the token contract. Please choose the valid one!",
               }),
@@ -286,7 +287,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
           messageOptions: {
             embeds: [
               getErrorEmbed({
-                title: `${getEmoji("revoke")} Unsupported network`,
+                title: `${getEmoji("REVOKE")} Unsupported network`,
                 description: `${getEmoji(
                   "ANIMATED_POINTING_RIGHT",
                   true
@@ -300,7 +301,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
           messageOptions: {
             embeds: [
               getErrorEmbed({
-                title: `${getEmoji("revoke")} Internal Error`,
+                title: `${getEmoji("REVOKE")} Internal Error`,
                 description: proposalResp.error,
               }),
             ],
@@ -348,7 +349,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
-          title: `${getEmoji("approve")} Successfully set`,
+          title: `${getEmoji("CHECK")} Successfully set`,
           description: `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
             true

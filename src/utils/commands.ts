@@ -224,7 +224,7 @@ export function getSlashCommandColor(commandObj: SlashCommand | null) {
 export function getCommandsList(
   commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
 ) {
-  const emoji = getEmoji("reply")
+  const emoji = getEmoji("REPLY")
   const correctBrief = (brief: string) =>
     brief.endsWith(".") ? brief : `${brief}.`
   return Object.values(commands)

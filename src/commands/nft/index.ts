@@ -1,7 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { NFT_GITBOOK, PREFIX, SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji } from "utils/common"
 // text
 import add from "./add/text"
 import integrate from "./integrate/text"
@@ -34,11 +33,6 @@ const textCmd: Command = {
   brief: "NFT",
   category: "Community",
   run: async (msg) => query.run(msg),
-  featured: {
-    title: `${getEmoji("nfts")} NFT`,
-    description:
-      "Show NFT rarity checker in real-time, including volume, ticker, and sales",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
@@ -61,7 +55,7 @@ const textCmd: Command = {
 
 const slashActions: Record<string, SlashCommand> = {
   add: addSlash,
-  integrate: integrateSlash,
+  // integrate: integrateSlash,
   stats: statsSlash,
   ticker: tickerSlash,
 }

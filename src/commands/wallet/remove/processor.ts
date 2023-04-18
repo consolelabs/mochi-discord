@@ -62,7 +62,7 @@ export async function untrackWallet(
   const btnRow = new MessageActionRow().addComponents(
     new MessageButton({
       customId: `wallet_add_more-${author.id}`,
-      emoji: getEmoji("plus"),
+      emoji: getEmoji("PLUS"),
       style: "SECONDARY",
       label: "Add More",
     })
@@ -105,7 +105,7 @@ export async function removeWalletConfirmation(i: ButtonInteraction) {
     }),
     new MessageButton({
       customId: `exit-${userId}`,
-      emoji: getEmoji("revoke"),
+      emoji: getEmoji("REVOKE"),
       style: "SECONDARY",
       label: "Cancel",
     })

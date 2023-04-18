@@ -26,7 +26,7 @@ export async function handle(
         composeEmbedMessage(null, {
           author: ["Successfully set", getEmojiURL(emojis["APPROVE"])],
           description: `${getEmoji(
-            "good_morning"
+            "GOOD_MORNING"
           )} Let your members repeat the phrase "${msg}", or ${emoji} in <#${channelId}> to join the streak.`,
         }),
       ],

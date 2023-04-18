@@ -1,27 +1,34 @@
-import { Message } from "discord.js"
 import { userMention } from "@discordjs/builders"
 import defi from "adapters/defi"
-import * as profile from "utils/profile"
-import * as tipbot from "utils/tip-bot"
-import * as defiUtils from "utils/defi"
-import * as processor from "./processor"
 import mochiPay from "adapters/mochi-pay"
-import mockdc from "../../../../tests/mocks/discord"
+import { Message } from "discord.js"
+import { APIError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
-  thumbnails,
-  getEmojiURL,
   emojis,
+  getEmojiURL,
   msgColors,
   roundFloatNumber,
+  thumbnails,
+  TokenEmojiKey,
 } from "utils/common"
+import * as defiUtils from "utils/defi"
+import * as profile from "utils/profile"
+import * as tipbot from "utils/tip-bot"
 import { assertRunResult } from "../../../../tests/assertions/discord"
-import { APIError } from "errors"
+import mockdc from "../../../../tests/mocks/discord"
+import * as processor from "./processor"
 jest.mock("adapters/defi")
 jest.mock("adapters/mochi-pay")
 jest.mock("utils/profile")
 jest.mock("utils/tip-bot")
+
+type ParseTipParamRes = {
+  amountArg: string
+  cryptocurrency: TokenEmojiKey
+  each: boolean
+}
 
 describe("parseMessageTip", () => {
   test("parse text", async () => {
@@ -152,7 +159,7 @@ describe("getTipPayload - positive cases", () => {
         token: { token_symbol: "ftm" },
       },
     }
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "1",
       cryptocurrency: "FTM",
       each: false,
@@ -219,7 +226,7 @@ describe("getTipPayload - positive cases", () => {
     const argsAfterParseMessage = ["tip", "@user", "1.5", "ftm"]
     const targets = ["<@333116155826929671>"]
     const moniker = undefined
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "1",
       cryptocurrency: "FTM",
       each: false,
@@ -293,7 +300,7 @@ describe("getTipPayload - positive cases", () => {
     ]
     const targets = ["<@333116155826929671>", "<@333116155826929672>"]
     const moniker = undefined
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "0.5",
       cryptocurrency: "FTM",
       each: true,
@@ -378,7 +385,7 @@ describe("getTipPayload - positive cases", () => {
         token: { token_symbol: "ftm" },
       },
     }
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "1",
       cryptocurrency: "FTM",
       each: false,
@@ -455,7 +462,7 @@ describe("getTipPayload - positive cases", () => {
     ]
     const targets = ["<@333116155826929671>", "<@333116155826929672>"]
     const moniker = undefined
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "all",
       cryptocurrency: "FTM",
       each: true,
@@ -533,7 +540,7 @@ describe("getTipPayload - positive cases", () => {
     ]
     const targets = ["<@333116155826929671>", "<@333116155826929672>"]
     const moniker = undefined
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "all",
       cryptocurrency: "FTM",
       each: true,
@@ -617,7 +624,7 @@ describe("getTipPayload - negative cases", () => {
     ]
     const targets = ["<@333116155826929671>", "<@333116155826929672>"]
     const moniker = undefined
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "-1",
       cryptocurrency: "FTM",
       each: false,
@@ -668,7 +675,7 @@ describe("getTipPayload - negative cases", () => {
     ]
     const targets = ["<@333116155826929671>", "<@333116155826929672>"]
     const moniker = undefined
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "0",
       cryptocurrency: "FTM",
       each: false,
@@ -713,7 +720,7 @@ describe("getTipPayload - negative cases", () => {
     const argsAfterParseMessage = ["tip", `<@${msg.author.id}>`, "1", "ftm"]
     const targets = [`<@${msg.author.id}>`]
     const moniker = undefined
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "1",
       cryptocurrency: "FTM",
       each: false,
@@ -764,7 +771,7 @@ describe("getTipPayload - negative cases", () => {
     ]
     const targets = [`<@${msg.author.id}>`, "<@333116155826929672>"]
     const moniker = undefined
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "1",
       cryptocurrency: "FTM",
       each: false,
@@ -815,7 +822,7 @@ describe("getTipPayload - negative cases", () => {
     ]
     const targets = ["<@333116155826929671>", "<@333116155826929672>"]
     const moniker = undefined
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "1",
       cryptocurrency: "FTM",
       each: false,
@@ -868,7 +875,7 @@ describe("executeTip", () => {
     const getTokenRes = {
       id: 1,
     }
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "5",
       cryptocurrency: "FTM",
       each: false,
@@ -913,7 +920,7 @@ describe("executeTip", () => {
 
     const expectedEmbed = composeEmbedMessage(null, {
       thumbnail: thumbnails.TIP,
-      author: ["Tips", getEmojiURL(emojis.COIN)],
+      author: ["Tips", getEmojiURL(emojis.CASH)],
       description: description,
       color: msgColors.SUCCESS,
     })
@@ -937,7 +944,7 @@ describe("executeTip", () => {
     const getTokenRes = {
       id: 1,
     }
-    const parseTipParamsRes = {
+    const parseTipParamsRes: ParseTipParamRes = {
       amountArg: "5",
       cryptocurrency: "FTM",
       each: false,

@@ -14,7 +14,7 @@ import { MessageButtonStyles } from "discord.js/typings/enums"
 import { APIError, InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { ResponseMonikerConfigData } from "types/api"
-import { RunResult } from "types/common"
+import { KafkaNotificationMessage, RunResult } from "types/common"
 import {
   EMPTY_FIELD,
   composeEmbedMessage,
@@ -23,16 +23,16 @@ import {
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import {
   emojis,
+  equalIgnoreCase,
   getAuthor,
   getEmoji,
   getEmojiURL,
   thumbnails,
 } from "utils/common"
-import { reply } from "utils/discord"
-import { getToken, isTokenSupported, parseMonikerinCmd } from "utils/tip-bot"
-import { sendNotificationMsg } from "utils/kafka"
-import { KafkaNotificationMessage } from "types/common"
 import { MOCHI_ACTION_TIP } from "utils/constants"
+import { reply } from "utils/discord"
+import { sendNotificationMsg } from "utils/kafka"
+import { getToken, isTokenSupported, parseMonikerinCmd } from "utils/tip-bot"
 
 function parseTipParameters(args: string[]) {
   const each = args[args.length - 1].toLowerCase() === "each"
@@ -43,7 +43,6 @@ function parseTipParameters(args: string[]) {
 }
 
 export async function parseMessageTip(args: string[]) {
-  // TODO: replace with mochi-pay
   const { ok, data, log, curl } = await defi.getAllTipBotTokens()
   if (!ok) {
     throw new APIError({ description: log, curl })
@@ -51,8 +50,8 @@ export async function parseMessageTip(args: string[]) {
   let tokenIdx = -1
   if (data && Array.isArray(data) && data.length) {
     data.forEach((token: any) => {
-      const idx = args.findIndex(
-        (element) => element.toLowerCase() === token.token_symbol.toLowerCase()
+      const idx = args.findIndex((element) =>
+        equalIgnoreCase(element, token.token_symbol)
       )
       if (idx !== -1) {
         tokenIdx = idx
@@ -183,7 +182,7 @@ async function confirmToTip(
     }),
     new MessageButton({
       customId: `exit-${author.id}`,
-      emoji: getEmoji("revoke"),
+      emoji: getEmoji("REVOKE"),
       style: MessageButtonStyles.SECONDARY,
       label: "Cancel",
     })
@@ -306,7 +305,7 @@ export async function execute(
   }
 
   const embed = composeEmbedMessage(null, {
-    author: ["You've given a tip", getEmojiURL(emojis.TIP)],
+    author: ["You've given a tip", getEmojiURL(emojis.CASH)],
     description: `Congrats! ${userMention(
       payload.sender
     )} has given a tip of ${getEmoji(payload.token)} ${

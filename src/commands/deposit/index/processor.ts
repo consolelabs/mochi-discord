@@ -44,7 +44,7 @@ export async function deposit(
     author: [`Deposit ${symbol}`, getEmojiURL(emojis.WALLET)],
     thumbnail: `attachment://${qrFileName}`,
     description: `Below is the deposit address linked to your Discord account. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n*Please send only **${symbol}** to this address.*\n\n${getEmoji(
-      "clock"
+      "CLOCK"
     )} Your deposit address is **only valid for 3 hours**.\n\n**${symbol} Deposit Address**\n\`\`\`${
       data.contract.address
     }\`\`\``,

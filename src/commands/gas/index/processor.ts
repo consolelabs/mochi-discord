@@ -1,8 +1,15 @@
 import defi from "adapters/defi"
-import { getEmoji, msgColors } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { ConvertSecondToMinute } from "utils/time"
+
+const currency: any = {
+  "fantom opera": "FTM",
+  "ethereum mainnet": "ETH",
+  polygon: "MATIC",
+  "binance smart chain mainnet": "BNB",
+}
 
 export async function render() {
   const { data, ok, curl, error, log } = await defi.getGasTracker()
@@ -26,16 +33,18 @@ export async function render() {
       },
     }
 
-  const res = data.map((token: any) => {
+  const res = data.map((token: any, i: number) => {
     return {
-      name: `${getEmoji(token.chain)} ${token.chain}`,
-      value: `${getEmoji("slow")} Slow - ${ConvertSecondToMinute(
+      name: `${i > 1 ? "\u200b\n" : ""}${getEmoji(
+        currency[token.chain.toLowerCase()] ?? ""
+      )} ${token.chain}`,
+      value: `${getEmoji("SLOW")} Slow - ${ConvertSecondToMinute(
         token.est_safe_time
       )} \`${token.safe_gas_price} Gwei\`\n${getEmoji(
-        "normal"
+        "NORMAL"
       )} Normal - ${ConvertSecondToMinute(token.est_propose_time)} \`${
         token.propose_gas_price
-      } Gwei\`\n${getEmoji("fast")} Fast - ${ConvertSecondToMinute(
+      } Gwei\`\n${getEmoji("FAST")} Fast - ${ConvertSecondToMinute(
         token.est_fast_time
       )} \`${token.fast_gas_price} Gwei\``,
       inline: true,
@@ -44,7 +53,7 @@ export async function render() {
 
   const fields = []
   for (let i = 0; i < res.length; i++) {
-    if (i !== 0 && i % 2 == 0) {
+    if (i !== 0 && i % 2 === 0) {
       fields.push({
         name: "\u200b",
         value: "\u200b",
@@ -61,7 +70,7 @@ export async function render() {
 
   const embed = composeEmbedMessage(null, {
     color: msgColors.BLUE,
-    title: "Gas Prices",
+    author: ["Gas Prices", getEmojiURL(emojis.GAS)],
   }).addFields(fields)
   return { messageOptions: { embeds: [embed] } }
 }
@@ -90,13 +99,13 @@ export async function renderOne(chain: string) {
   const fields = [
     {
       name: `${getEmoji(data.chain)} ${data.chain}`,
-      value: `${getEmoji("slow")} Slow - ${ConvertSecondToMinute(
+      value: `${getEmoji("SLOW")} Slow - ${ConvertSecondToMinute(
         data.est_safe_time
       )} \`${data.safe_gas_price} Gwei\`\n${getEmoji(
-        "normal"
+        "NORMAL"
       )} Normal - ${ConvertSecondToMinute(data.est_propose_time)} \`${
         data.propose_gas_price
-      } Gwei\`\n${getEmoji("fast")} Fast - ${ConvertSecondToMinute(
+      } Gwei\`\n${getEmoji("FAST")} Fast - ${ConvertSecondToMinute(
         data.est_fast_time
       )} \`${data.fast_gas_price} Gwei\``,
       inline: true,

@@ -1,7 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX, PROFILE_GITBOOK } from "utils/constants"
-import { getEmoji } from "utils/common"
 import activity from "./index/text"
 import activitySlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
@@ -13,10 +12,6 @@ const textCmd: Command = {
   category: "Defi",
   run: async function (msg) {
     return await activity(msg)
-  },
-  featured: {
-    title: `${getEmoji("exp")} User Activity`,
-    description: "Show daily activities of user",
   },
   getHelpMessage: async (msg) => {
     return {

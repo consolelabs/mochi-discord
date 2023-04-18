@@ -10,7 +10,13 @@ import {
 } from "discord.js"
 import { SetDefaultButtonHandler, SetDefaultRenderList } from "types/common"
 import { InteractionHandler } from "handlers/discord/select-menu"
-import { getAuthor, getDateStr, getEmoji, hasAdministrator } from "utils/common"
+import {
+  EmojiKey,
+  getAuthor,
+  getDateStr,
+  getEmoji,
+  hasAdministrator,
+} from "utils/common"
 import { VERTICAL_BAR } from "utils/constants"
 import { composeEmbedMessage } from "./embed"
 import dayjs from "dayjs"
@@ -55,7 +61,7 @@ export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
       const actionRow = new MessageActionRow().addComponents(
         new MessageButton({
           customId: selectedValue,
-          emoji: getEmoji("approve"),
+          emoji: getEmoji("CHECK"),
           style: "SUCCESS",
           label: "Confirm",
         })
@@ -98,7 +104,7 @@ export function composeSimpleSelection(
     .map((o, i) =>
       customRender
         ? customRender(o, i)
-        : `${getEmoji(`num_${i + 1}`)} ${VERTICAL_BAR} ${o}`
+        : `${getEmoji(`num_${i + 1}` as EmojiKey)} ${VERTICAL_BAR} ${o}`
     )
     .join("\n")}`
 }

@@ -32,7 +32,7 @@ const textCmd: Command = {
           "ANIMATED_POINTING_RIGHT",
           true
         )} When setting a new starboard, please use the **custom emoji from this server** and the **Discord default emoji**.* ${getEmoji(
-          "nekosad"
+          "NEKOSAD"
         )}`,
         examples: `${PREFIX}starboard list\n${PREFIX}sb list\n${PREFIX}starboard set 2 🌟 #starboard\n${PREFIX}sb set-chat 🌟 ❣️ #starboard`,
         includeCommandsList: true,

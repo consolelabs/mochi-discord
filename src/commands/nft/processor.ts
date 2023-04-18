@@ -5,16 +5,20 @@ import {
   MessageAttachment,
   MessageButton,
   MessageActionRow,
+  ColorResolvable,
 } from "discord.js"
 import { APIError, InternalError } from "errors"
 import {
   emojis,
   getCompactFormatedNumber,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   getMarketplaceCollectionUrl,
+  msgColors,
   shortenHashOrAddress,
   thumbnails,
+  TokenEmojiKey,
 } from "utils/common"
 import {
   composeEmbedMessage,
@@ -33,7 +37,9 @@ const buildDiscordMessage = (
   msg: Message | undefined,
   title: string,
   description: string,
-  err = true
+  err = true,
+  color?: ColorResolvable,
+  emojiUrl?: string
 ) => {
   if (err) {
     return {
@@ -43,6 +49,8 @@ const buildDiscordMessage = (
             msg,
             title: title,
             description: description,
+            emojiUrl,
+            color,
           }),
         ],
       },
@@ -87,8 +95,6 @@ export async function toEmbed(
   msg?: Message | undefined
 ) {
   // get response and show discord message
-  const { error } = storeCollectionRes
-  const { data: chainData } = await supportedChainsRes
   switch (storeCollectionRes.status) {
     case 200:
       return buildDiscordMessage(
@@ -100,91 +106,23 @@ export async function toEmbed(
     case 500:
       return buildDiscordMessage(msg, "NFT", "Internal Server Error")
     default:
-      if (
-        error.includes(
-          "Cannot get name and symbol of contract: This collection does not support collection name"
-        )
-      ) {
-        return buildDiscordMessage(
-          msg,
-          "NFT",
-          "This collection does not support collection name."
-        )
-      } else if (
-        error.includes(
-          "Cannot get name and symbol of contract: This collection does not support collection symbol"
-        )
-      ) {
-        return buildDiscordMessage(
-          msg,
-          "NFT",
-          "This collection does not support collection symbol."
-        )
-      } else if (
-        error.includes(
-          "Cannot get name and symbol of contract: no contract code at given address"
-        )
-      ) {
-        throw new InternalError({
-          msgOrInteraction: msg,
-          title: "Can't find the NFT collection",
-          description:
-            "The NFT Address and NFT Chain must be valid. Go to the collection's official website/ marketplace to find this information. ",
-        })
-      } else if (error.includes("Already added. Nft is in sync progress")) {
-        return buildDiscordMessage(
-          msg,
-          "Existing Collection",
-          "Please add another one or view the collection by `$nft <collection_symbol> <token_id>`."
-        )
-      } else if (error.includes("block number not synced yet")) {
-        return buildDiscordMessage(msg, "NFT", "Block number is not in sync.")
-      } else if (error.includes("Already added. Nft is done with sync")) {
-        return buildDiscordMessage(
-          msg,
-          "NFT",
-          "Already added. Nft is done with sync"
-        )
-      } else if (error.includes("chain is not supported/invalid")) {
-        // add list chain to description
-        const listChainSupportedPrefix = `List chain supported:\n`
-        let listChainSupported = ""
-        for (const chainItm of chainData) {
-          listChainSupported = listChainSupported + `${chainItm}\n`
-        }
-        const listChainDescription =
-          `Chain is not supported. ` +
-          listChainSupportedPrefix +
-          "```\n" +
-          listChainSupported +
-          "```"
-        return buildDiscordMessage(msg, "NFT", listChainDescription)
-      } else if (
-        error.includes("duplicate key value violates unique constraint")
-      ) {
-        return buildDiscordMessage(
-          msg,
-          "NFT",
-          "This collection is already added"
-        )
-      } else if (error.includes("No metadata found")) {
-        return buildDiscordMessage(
-          msg,
-          "NFT",
-          "Cannot found metadata for this collection"
-        )
-      } else {
-        return buildDiscordMessage(msg, "NFT", error)
-      }
+      return buildDiscordMessage(
+        msg,
+        "The collection has already existed!",
+        `The collection is already available. Let’s use $nft to check the NFT rarity!`,
+        true,
+        msgColors.GRAY,
+        getEmojiURL(emojis.NFT2)
+      )
   }
 }
 
 export async function composeCollectionInfoEmbed(
   msg: Message,
   collectionAddress: string,
-  chain: string
+  chain: TokenEmojiKey
 ) {
-  if (chain === "999" || chain === "sol") {
+  if (chain === "SOL" || (chain as string) === "999") {
     collectionAddress = "solscan-" + collectionAddress
   }
   const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
@@ -192,7 +130,7 @@ export async function composeCollectionInfoEmbed(
     chain
   )
   if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
+    throw new APIError({ msgOrInteraction: msg, curl, description: log })
   }
   if (!data) {
     throw new InternalError({
@@ -209,10 +147,10 @@ export async function composeCollectionInfoEmbed(
   const name = `${data.name ?? "-"}`
   const desc = `${data.description ?? "-"}`
   const discord = data.discord
-    ? `[${getEmoji("discord")}](${data.discord})`
+    ? `[${getEmoji("DISCORD")}](${data.discord})`
     : ""
   const twitter = data.twitter
-    ? `[${getEmoji("twitter")}](${data.twitter})`
+    ? `[${getEmoji("TWITTER")}](${data.twitter})`
     : ""
   const website = data.website ? `[🌐](${data.website})` : ""
   let more = "-"
@@ -221,7 +159,9 @@ export async function composeCollectionInfoEmbed(
   }
   const ercFormat = `${data.erc_format ?? "-"}`
   const marketplaces = data.marketplaces?.length
-    ? data.marketplaces.map((m: string) => getEmoji(m)).join(" ")
+    ? data.marketplaces
+        .map((m: string) => getEmojiToken(m as TokenEmojiKey))
+        .join(" ")
     : "-"
 
   const fields = [
@@ -235,7 +175,7 @@ export async function composeCollectionInfoEmbed(
     },
     {
       name: "Chain",
-      value: `${getEmoji(chain)}`,
+      value: `${getEmojiToken(chain)}`,
     },
     {
       name: "Marketplace",

@@ -11,7 +11,7 @@ export function list({ data }: ResponseListGuildTokenRoles) {
   }
 
   const tokenDescription = (token?: ModelToken) => {
-    return `${getEmoji("blank")}${getEmoji("reply")}[\`${
+    return `${getEmoji("BLANK")}${getEmoji("REPLY")}[\`${
       token?.symbol?.toUpperCase() ?? ""
     } ${shortenHashOrAddress(token?.address ?? "")}${
       token?.chain?.short_name

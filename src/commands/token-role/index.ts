@@ -7,7 +7,6 @@ import remove from "./remove/text"
 import setSlash from "./set/slash"
 import listSlash from "./list/slash"
 import removeSlash from "./remove/slash"
-import { getEmoji } from "utils/common"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 import {
@@ -29,11 +28,6 @@ const textCmd: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async () => null,
-  featured: {
-    title: `${getEmoji("")} Token role`,
-    description:
-      "Assign role to a user once they hold a certain amount of Token",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

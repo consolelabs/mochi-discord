@@ -1,8 +1,9 @@
 import community from "adapters/community"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji, msgColors } from "utils/common"
+import { getEmojiToken, msgColors, TokenEmojiKey } from "utils/common"
 import { APIError } from "errors"
 import { CommandInteraction, Message } from "discord.js"
+import { reply } from "utils/discord"
 
 export async function handleNftStats(msg: Message | CommandInteraction) {
   const res = await community.getCollectionCount()
@@ -18,12 +19,14 @@ export async function handleNftStats(msg: Message | CommandInteraction) {
     (a, b) => (b.count ?? 0) - (a.count ?? 0)
   )
   sortedStats?.forEach((v) => {
-    description += `${getEmoji(v.chain?.currency ?? "")} **${
-      v.chain?.short_name?.toUpperCase() ?? "NA"
-    }**: ${v.count} collections\n\n`
+    description += `${getEmojiToken(
+      (v.chain?.currency as TokenEmojiKey) ?? ""
+    )} **${v.chain?.short_name?.toUpperCase() ?? "NA"}**: ${
+      v.count
+    } collections\n\n`
   })
 
-  return {
+  const response = {
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
@@ -34,4 +37,5 @@ export async function handleNftStats(msg: Message | CommandInteraction) {
       ],
     },
   }
+  await reply(msg, response)
 }

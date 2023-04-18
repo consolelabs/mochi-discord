@@ -150,8 +150,8 @@ describe("claim", () => {
           "ANIMATED_POINTING_RIGHT",
           true
         )} You can try to claim other tips and get back to this one later! ${getEmoji(
-          "soon"
-        )}\nSorry for this inconvenience ${getEmoji("nekosad")}`,
+          "SOON"
+        )}\nSorry for this inconvenience ${getEmoji("NEKOSAD")}`,
       })
     )
     expect(defi.getUserOnchainTransfers).not.toHaveBeenCalled()
@@ -183,8 +183,8 @@ describe("claim", () => {
           "ANIMATED_POINTING_RIGHT",
           true
         )} You can try to claim other tips and get back to this one later! ${getEmoji(
-          "soon"
-        )}\nSorry for this inconvenience ${getEmoji("nekosad")}`,
+          "SOON"
+        )}\nSorry for this inconvenience ${getEmoji("NEKOSAD")}`,
       })
     )
     expect(defi.getUserOnchainTransfers).not.toHaveBeenCalled()

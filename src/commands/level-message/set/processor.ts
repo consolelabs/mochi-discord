@@ -32,7 +32,7 @@ export async function handle(
   }
 
   const embed = composeEmbedMessage(null, {
-    title: `${getEmoji("approve")} Successfully set leveled-up message`,
+    title: `${getEmoji("CHECK")} Successfully set leveled-up message`,
     description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true

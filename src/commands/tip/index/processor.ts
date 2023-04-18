@@ -1,5 +1,6 @@
 import { userMention } from "@discordjs/builders"
 import defi from "adapters/defi"
+import profile from "adapters/profile"
 import {
   CommandInteraction,
   Message,
@@ -13,36 +14,51 @@ import { APIError } from "errors/api"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
 import { ResponseMonikerConfigData } from "types/api"
-import { MultipleResult, RunResult } from "types/common"
-import { OffchainTipBotTransferRequest } from "types/defi"
+import {
+  KafkaNotificationMessage,
+  KafkaQueueActivityDataCommand,
+  RunResult,
+} from "types/common"
 import { getExitButton } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { defaultActivityMsg, sendActivityMsg } from "utils/activity"
 import { parseDiscordToken } from "utils/commands"
 import {
   emojis,
+  equalIgnoreCase,
   getAuthor,
   getEmoji,
   getEmojiURL,
   msgColors,
   roundFloatNumber,
   thumbnails,
+  TokenEmojiKey,
 } from "utils/common"
-import { SPACE } from "utils/constants"
+import {
+  MOCHI_ACTION_TIP,
+  MOCHI_PAY_SERVICE,
+  MOCHI_PLATFORM_DISCORD,
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+} from "utils/constants"
+import { reply } from "utils/discord"
+import { sendNotificationMsg } from "utils/kafka"
 import {
   classifyTipSyntaxTargets,
+  getToken,
   isTokenSupported,
   parseMonikerinCmd,
   parseRecipients,
 } from "utils/tip-bot"
+import mochiPay from "../../../adapters/mochi-pay"
+import { validateBalance } from "../../../utils/defi"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 import * as processor from "./processor"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
   args: string[]
-): Promise<
-  RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
-> {
-  const fullCmd = args.join(SPACE)
+) {
+  // const fullCmd = args.join(SPACE)
   const author = getAuthor(msgOrInteraction)
   const onchain = args.at(-1) === "--onchain"
   args = args.slice(0, onchain ? -1 : undefined) // remove --onchain if any
@@ -77,6 +93,7 @@ export async function tip(
   // check token supported
   const { cryptocurrency } = processor.parseTipParameters(agrsAfterParseMessage)
   const tokenSupported = await isTokenSupported(cryptocurrency)
+
   if (!moniker && !tokenSupported) {
     throw new InternalError({
       msgOrInteraction,
@@ -96,19 +113,18 @@ export async function tip(
     msgOrInteraction,
     agrsAfterParseMessage,
     author.id,
-    targets
+    targets,
+    moniker
   )
-  if (moniker) {
-    payload.amount *=
-      (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
-  }
   let imageUrl = ""
   if (msgOrInteraction instanceof Message) {
     imageUrl = msgOrInteraction.attachments.first()?.url ?? ""
   }
-  payload.fullCommand = fullCmd
-  payload.image = imageUrl
-  payload.message = messageTip
+  // payload.fullCommand = fullCmd
+  // payload.image = imageUrl
+  // payload.message = messageTip
+
+  const profileId = await getProfileIdByDiscord(author.id)
 
   // check balance
   const {
@@ -116,8 +132,8 @@ export async function tip(
     data: bData,
     curl: bCurl,
     error: bError,
-  } = await defi.offchainGetUserBalances({
-    userId: payload.sender,
+  } = await mochiPay.getBalances({
+    profileId,
   })
   if (!bOk) {
     throw new APIError({
@@ -129,24 +145,25 @@ export async function tip(
   let currentBal = 0
   let rate = 0
   bData?.forEach((bal: any) => {
-    if (payload.token.toUpperCase() === bal.symbol.toUpperCase()) {
+    if (equalIgnoreCase(payload.token, bal.token?.symbol)) {
       currentBal = bal.balances
       rate = bal.rate_in_usd
     }
   })
-  if (currentBal < payload.amount && !payload.all) {
+  if (currentBal < payload.originalAmount) {
     throw new InsufficientBalanceError({
       msgOrInteraction,
       params: {
         current: currentBal,
-        required: payload.amount,
+        required: payload.originalAmount,
         symbol: payload.token,
       },
     })
   }
   // ask for confirmation for payload > 100usd
-  if (payload.amount * rate >= 100) {
-    return await executeTipWithConfirmation(
+  let response: RunResult<MessageOptions>
+  if (payload.originalAmount * rate >= 100) {
+    response = await confirmToTip(
       msgOrInteraction,
       payload,
       targets,
@@ -158,7 +175,7 @@ export async function tip(
       moniker
     )
   } else {
-    return await executeTip(
+    response = await executeTip(
       msgOrInteraction,
       payload,
       targets,
@@ -168,63 +185,106 @@ export async function tip(
       moniker
     )
   }
+
+  // TODO(trkhoi): generic to make every feature can use this
+  const dataProfile = await profile.getByDiscord(author.id)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msgOrInteraction,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
+
+  for (const recipient of payload.recipients) {
+    // send activity message
+    //get discord id
+    const recipientId = recipient.replace(/\D/g, "")
+    const recipientUsername =
+      msgOrInteraction?.guild?.members.cache.get(recipientId)
+
+    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+      dataProfile.id,
+      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+      MOCHI_PAY_SERVICE,
+      MOCHI_ACTION_TIP
+    )
+    const amountEveryRecipient =
+      payload.originalAmount / payload.recipients.length
+    kafkaMsg.activity.content.username =
+      recipientUsername?.user.username.toString()
+    kafkaMsg.activity.content.amount = amountEveryRecipient.toString()
+    kafkaMsg.activity.content.token = payload.token
+    sendActivityMsg(kafkaMsg)
+
+    // send notification message
+    const kafkaNotiMsg: KafkaNotificationMessage = {
+      id: author.id,
+      platform: MOCHI_PLATFORM_DISCORD,
+      action: MOCHI_ACTION_TIP,
+      metadata: {
+        amount: amountEveryRecipient.toString(),
+        token: payload.token,
+      },
+      recipient_info: {
+        discord: recipientId,
+      },
+    }
+
+    sendNotificationMsg(kafkaNotiMsg)
+  }
+
+  await reply(msgOrInteraction, response)
 }
 
 export function parseTipParameters(args: string[]) {
   const each = args[args.length - 1].toLowerCase() === "each"
   args = each ? args.slice(0, args.length - 1) : args
-  const cryptocurrency = args[args.length - 1].toUpperCase()
+  const cryptocurrency = args[args.length - 1].toUpperCase() as TokenEmojiKey
   const amountArg = args[args.length - 2].toLowerCase()
   return { each, cryptocurrency, amountArg }
 }
 
 export async function getTipPayload(
-  msg: Message | CommandInteraction,
+  msgOrInteraction: Message | CommandInteraction,
   args: string[],
   authorId: string,
-  targets: string[]
-): Promise<OffchainTipBotTransferRequest> {
-  const type = args[0]
-  const sender = authorId
-  let recipients: string[] = []
-
-  const guildId = msg.guildId ?? "DM"
-
-  // parse recipients
+  targets: string[],
+  moniker?: ResponseMonikerConfigData
+) {
+  // parse token and amount
   const {
     each: eachParse,
     cryptocurrency,
     amountArg,
   } = parseTipParameters(args)
-  recipients = await parseRecipients(msg, targets, sender)
+  // get sender and recipients data
+  const sender = await getProfileIdByDiscord(authorId)
+  const discordIds = await parseRecipients(msgOrInteraction, targets, authorId)
+  const recipients: string[] = []
+  for (const discordId of discordIds) {
+    const profileId = await getProfileIdByDiscord(discordId)
+    if (profileId) {
+      recipients.push(profileId)
+    }
+  }
 
-  // check if only tip author
-  if (targets.length === 1 && targets[0] === `<@${authorId}>`) {
+  // check if targets contains author -> invalid
+  if (targets.length && targets.includes(`<@${authorId}>`)) {
     throw new DiscordWalletTransferError({
-      discordId: sender,
-      message: msg,
+      discordId: authorId,
+      message: msgOrInteraction,
       error: "Users cannot tip themselves!",
     })
   }
+
   // check if recipient is valid or not
-  if (!recipients || !recipients.length) {
+  if (!recipients?.length) {
     throw new DiscordWalletTransferError({
-      discordId: sender,
-      message: msg,
+      discordId: authorId,
+      message: msgOrInteraction,
       error: "No valid recipient was found!",
     })
-  }
-
-  // check recipients exist in discord server or not
-  for (const recipientId of recipients) {
-    const user = await msg.guild?.members.fetch(recipientId)
-    if (!user) {
-      throw new DiscordWalletTransferError({
-        discordId: sender,
-        message: msg,
-        error: `User <@${recipientId}> not found`,
-      })
-    }
   }
 
   // validate tip amount, just allow: number (1, 2, 3.4, 5.6) or string("all")
@@ -235,28 +295,49 @@ export async function getTipPayload(
   ) {
     throw new DiscordWalletTransferError({
       discordId: sender,
-      message: msg,
+      message: msgOrInteraction,
       error: "The amount is invalid. Please insert a natural number.",
     })
   }
   if (amountArg === "a" || amountArg === "an") {
     amount = 1
   }
-  const each = eachParse && amountArg !== "all"
+  const all = equalIgnoreCase(amountArg, "all")
+  const each = eachParse && !all
   amount = each ? amount * recipients.length : amount
+  if (moniker) {
+    amount *= (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
+  }
+
+  // validate balance
+  const { balance, usdBalance } = await validateBalance({
+    msgOrInteraction,
+    token: cryptocurrency,
+    amount,
+  })
+  if (all) {
+    amount = balance
+  }
+
+  const token = await getToken(cryptocurrency)
 
   return {
-    sender,
-    recipients,
-    guildId,
-    channelId: msg.channelId,
-    amount,
+    sender: getAuthor(msgOrInteraction).id,
+    recipients: targets,
+    from: {
+      profile_global_id: `${sender}`,
+      platform: "discord",
+    },
+    tos: recipients.map((r) => ({
+      profile_global_id: `${r}`,
+      platform: "discord",
+    })),
+    amount: Array(recipients.length).fill(`${amount / recipients.length}`),
+    originalAmount: amount,
     token: cryptocurrency,
-    each,
-    all: amountArg === "all",
-    transferType: type ?? "",
-    duration: 0,
-    fullCommand: "",
+    token_id: token.id,
+    amount_in_usd: usdBalance,
+    note: "",
   }
 }
 
@@ -268,8 +349,8 @@ export async function parseMessageTip(args: string[]) {
   let tokenIdx = -1
   if (data && Array.isArray(data) && data.length !== 0) {
     data.forEach((token: any) => {
-      const idx = args.findIndex(
-        (element) => element.toLowerCase() === token.token_symbol.toLowerCase()
+      const idx = args.findIndex((element) =>
+        equalIgnoreCase(element, token.token_symbol)
       )
       if (idx !== -1) {
         tokenIdx = idx
@@ -299,9 +380,9 @@ export async function parseMessageTip(args: string[]) {
   }
 }
 
-async function executeTipWithConfirmation(
+async function confirmToTip(
   msg: Message | CommandInteraction,
-  payload: OffchainTipBotTransferRequest,
+  payload: any,
   targets: string[],
   recipientIds: string[],
   messageTip: string,
@@ -309,9 +390,7 @@ async function executeTipWithConfirmation(
   onchain: boolean,
   rate: number,
   moniker?: ResponseMonikerConfigData
-): Promise<
-  RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
-> {
+): Promise<RunResult<MessageOptions>> {
   const authorId = msg instanceof Message ? msg.author.id : msg.user.id
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
@@ -323,19 +402,19 @@ async function executeTipWithConfirmation(
     getExitButton(payload.sender)
   )
   const confirmEmbed = composeEmbedMessage(null, {
-    title: `${getEmoji("ANIMATED_CASH", true)} Transaction Confirmation`,
+    title: `${getEmoji("CASH")} Transaction Confirmation`,
     description: `Are you sure you want to spend **${
-      payload.amount
-    } ${payload.token.toUpperCase()}** (${(payload.amount * rate).toFixed(
-      2
-    )} USD) to tip ${
+      payload.originalAmount
+    } ${payload.token.toUpperCase()}** ($${(
+      payload.originalAmount * rate
+    ).toFixed(2)}) to tip ${
       recipientIds.length == 1
         ? `<@${recipientIds[0]}>`
         : recipientIds.length + " users"
     }?`,
     color: msgColors.BLUE,
   })
-  const confirmButtonCollectorHandler = async () => {
+  const confirmHandler = async () => {
     return await executeTip(
       msg,
       payload,
@@ -346,13 +425,14 @@ async function executeTipWithConfirmation(
       moniker
     )
   }
+
   return {
     messageOptions: {
       embeds: [confirmEmbed],
       components: [actionRow],
     },
     buttonCollector: {
-      handler: confirmButtonCollectorHandler,
+      handler: confirmHandler,
       options: {
         filter: (i) => i.customId === "confirm-tip" && i.user.id === authorId,
         max: 1,
@@ -363,35 +443,37 @@ async function executeTipWithConfirmation(
 
 export async function executeTip(
   msgOrInteraction: Message | CommandInteraction,
-  payload: OffchainTipBotTransferRequest,
+  payload: any,
   targets: string[],
   messageTip: string,
   imageUrl: string,
   onchain: boolean,
   moniker?: ResponseMonikerConfigData
-): Promise<
-  RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
-> {
+): Promise<RunResult<MessageOptions>> {
   // transfer
-  const transfer = (req: any) =>
-    onchain
-      ? defi.submitOnchainTransfer(req)
-      : defi.offchainDiscordTransfer(req)
-  const { data, ok, error, curl, log } = await transfer(payload)
-  if (!ok) {
-    throw new APIError({ msgOrInteraction, curl, description: log, error })
+  // TODO: temporarily disable onchain tip
+  // onchain = false
+  // const transfer = (req: any) =>
+  //   onchain ? defi.submitOnchainTransfer(req) : mochiPay.transfer(req)
+  const { status } = await mochiPay.transfer(payload)
+  if (status !== 200) {
+    throw new APIError({
+      msgOrInteraction,
+      curl: "",
+      description: `[transfer] failed with status ${status}`,
+    })
   }
-
-  const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
-  const users = recipientIds.map((id) => userMention(id)).join(", ")
+  // const recipientIds: string[] = data.map((tx: any) => tx.recipient_id)
+  // const users = recipientIds.map((id) => userMention(id)).join(", ")
+  const users = payload.recipients.join(", ")
   const isOnline = targets.includes("online")
   const hasRole = targets.some((t) => parseDiscordToken(t).isRole)
   const hasChannel = targets.some((t) => parseDiscordToken(t).isChannel)
   let recipientDescription = users
   if (hasRole || hasChannel || isOnline) {
-    recipientDescription = `**${data.length}${
+    recipientDescription = `**${payload.recipients.length}${
       isOnline ? ` online` : ""
-    } user(s)${data.length >= 10 ? "" : ` (${users})`}**${
+    } user(s)${payload.recipients.length >= 10 ? "" : ` (${users})`}**${
       isOnline && !hasRole && !hasChannel
         ? ""
         : ` in ${targets
@@ -403,22 +485,22 @@ export async function executeTip(
             .join(", ")}`
     }`
   }
+  const usdAmount = payload.amount_in_usd * payload.amount[0]
   let description = `${userMention(
     payload.sender
   )} has sent ${recipientDescription} **${roundFloatNumber(
-    data[0].amount,
+    +payload.amount[0],
     4
-  )} ${payload.token}** (\u2248 $${roundFloatNumber(
-    data[0].amount_in_usd,
-    4
-  )}) ${recipientIds.length > 1 ? "each" : ""}`
+  )} ${payload.token}** (\u2248 $${roundFloatNumber(usdAmount ?? 0, 4)}) ${
+    payload.recipients.length > 1 ? "each" : ""
+  }`
   if (moniker) {
     const monikerVal = moniker as ResponseMonikerConfigData
     const amountMoniker = roundFloatNumber(
-      payload.amount /
-        (payload.recipients.length * (monikerVal?.moniker?.amount || 1)),
+      payload.amount[0] / (monikerVal?.moniker?.amount || 1),
       4
     )
+    const usdAmount = payload.amount_in_usd * payload.amount[0]
     description = `${userMention(
       payload.sender
     )} has sent ${recipientDescription} **${amountMoniker} ${
@@ -427,18 +509,19 @@ export async function executeTip(
       amountMoniker * (monikerVal?.moniker?.amount || 1),
       4
     )} ${monikerVal?.moniker?.token?.token_symbol}** \u2248 $${roundFloatNumber(
-      data[0].amount_in_usd,
+      usdAmount ?? 0,
       4
-    )}) ${recipientIds.length > 1 ? "each" : ""}`
+    )}) ${payload.recipients.length > 1 ? "each" : ""}`
   }
   if (messageTip) {
     description += ` with message\n\n${getEmoji(
-      "conversation"
-    )} **${messageTip}**`
+      "ANIMATED_CHAT",
+      true
+    )} ${messageTip}`
   }
   const embed = composeEmbedMessage(null, {
     thumbnail: thumbnails.TIP,
-    author: ["Tips", getEmojiURL(emojis.COIN)],
+    author: ["Tips", getEmojiURL(emojis.CASH)],
     description: description,
     color: msgColors.SUCCESS,
   })

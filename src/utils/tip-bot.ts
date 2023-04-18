@@ -1,11 +1,11 @@
-import { CommandInteraction, Message } from "discord.js"
-import { parseDiscordToken } from "./commands"
-import { APIError } from "errors"
 import config from "adapters/config"
-import { ResponseMonikerConfigData } from "types/api"
-import { SPACES_REGEX } from "./constants"
-import { equalIgnoreCase, hasRole, isNotBot, isStatus } from "./common"
 import defi from "adapters/defi"
+import { CommandInteraction, Message } from "discord.js"
+import { APIError } from "errors"
+import { ResponseMonikerConfigData } from "types/api"
+import { parseDiscordToken } from "./commands"
+import { equalIgnoreCase, hasRole, isNotBot, isStatus } from "./common"
+import { SPACES_REGEX } from "./constants"
 
 const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
   //

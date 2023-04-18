@@ -1,7 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { DEFAULT_ROLE_GITBOOK, PREFIX, SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
-import { getEmoji } from "utils/common"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
@@ -29,11 +28,6 @@ const textCmd: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async () => null,
-  featured: {
-    title: `${getEmoji("")} Default role`,
-    description:
-      "Set a default role that will automatically assigned to newcomers when they first join your server",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

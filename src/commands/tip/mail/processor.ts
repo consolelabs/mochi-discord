@@ -1,5 +1,4 @@
 import { userMention } from "@discordjs/builders"
-import community from "adapters/community"
 import defi from "adapters/defi"
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
@@ -15,7 +14,7 @@ import { MessageButtonStyles } from "discord.js/typings/enums"
 import { APIError, InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { ResponseMonikerConfigData } from "types/api"
-import { RunResult } from "types/common"
+import { KafkaNotificationMessage, RunResult } from "types/common"
 import {
   EMPTY_FIELD,
   composeEmbedMessage,
@@ -24,16 +23,17 @@ import {
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import {
   emojis,
+  equalIgnoreCase,
   getAuthor,
   getEmoji,
   getEmojiURL,
   thumbnails,
 } from "utils/common"
-import { reply } from "utils/discord"
-import { getToken, isTokenSupported, parseMonikerinCmd } from "utils/tip-bot"
-import { sendNotificationMsg } from "utils/kafka"
-import { KafkaNotificationMessage } from "types/common"
 import { MOCHI_ACTION_TIP } from "utils/constants"
+import { convertToUsdValue } from "utils/convert"
+import { reply } from "utils/discord"
+import { sendNotificationMsg } from "utils/kafka"
+import { getToken, isTokenSupported, parseMonikerinCmd } from "utils/tip-bot"
 
 function parseTipParameters(args: string[]) {
   const each = args[args.length - 1].toLowerCase() === "each"
@@ -44,7 +44,6 @@ function parseTipParameters(args: string[]) {
 }
 
 export async function parseMessageTip(args: string[]) {
-  // TODO: replace with mochi-pay
   const { ok, data, log, curl } = await defi.getAllTipBotTokens()
   if (!ok) {
     throw new APIError({ description: log, curl })
@@ -52,8 +51,8 @@ export async function parseMessageTip(args: string[]) {
   let tokenIdx = -1
   if (data && Array.isArray(data) && data.length) {
     data.forEach((token: any) => {
-      const idx = args.findIndex(
-        (element) => element.toLowerCase() === token.token_symbol.toLowerCase()
+      const idx = args.findIndex((element) =>
+        equalIgnoreCase(element, token.token_symbol)
       )
       if (idx !== -1) {
         tokenIdx = idx
@@ -100,14 +99,7 @@ async function getTipPayload(
   // check if recipient is valid or not
   const recipients: string[] = []
   for (const [i, target] of targets.entries()) {
-    // TODO: handle for case not have username telegram
-    const { data, ok, curl, error, log } =
-      await community.getTelegramByUsername(target)
-    if (!ok) {
-      throw new APIError({ curl, error, description: log })
-    }
-
-    const recipientPf = await profile.getByTelegram(data.chat_id)
+    const recipientPf = await profile.getByEmail(target)
     if (recipientPf.status_code === 404) {
       throw new InternalError({
         msgOrInteraction: msg,
@@ -118,7 +110,7 @@ async function getTipPayload(
     if (recipientPf.err) {
       throw new APIError({
         msgOrInteraction: msg,
-        description: `[getByTelegram] failed with status ${recipientPf.status_code}: ${recipientPf.err}`,
+        description: `[getByEmail] failed with status ${recipientPf.status_code}: ${recipientPf.err}`,
         curl: "",
       })
     }
@@ -167,7 +159,7 @@ async function getTipPayload(
     },
     tos: recipients.map((r) => ({
       profile_global_id: `${r}`,
-      platform: "telegram",
+      platform: "email",
     })),
     amount: Array(recipients.length).fill(`${amount / recipients.length}`),
     originalAmount: amount,
@@ -191,7 +183,7 @@ async function confirmToTip(
     }),
     new MessageButton({
       customId: `exit-${author.id}`,
-      emoji: getEmoji("revoke"),
+      emoji: getEmoji("REVOKE"),
       style: MessageButtonStyles.SECONDARY,
       label: "Cancel",
     })
@@ -204,8 +196,8 @@ async function confirmToTip(
   })
   const tokenEmoji = getEmoji(payload.token)
   const embed = composeEmbedMessage(null, {
-    author: ["Tip to telegram", getEmojiURL(emojis.APPROVE)],
-    description: `**Recipient** [\`https://t.me/${payload.recipients[0]}\`](https://t.me/${payload.recipients[0]})`,
+    author: ["Tip to email", getEmojiURL(emojis.APPROVE)],
+    description: `**Recipient** ${payload.recipients[0]}`,
     thumbnail: thumbnails.TIP,
   }).addFields(
     {
@@ -214,7 +206,7 @@ async function confirmToTip(
       inline: true,
     },
     EMPTY_FIELD,
-    { name: "Social", value: "Telegram\n\u200B", inline: true },
+    { name: "Social", value: "Email\n\u200B", inline: true },
     ...(payload.note
       ? [
           {
@@ -284,8 +276,8 @@ export async function execute(
     profileId: payload.from.profile_global_id,
     amount: payload.originalAmount.toString(),
     token: payload.token,
-    note: payload.note,
     type: "paylink",
+    note: payload.note,
   })
 
   if (!res.ok) {
@@ -295,12 +287,10 @@ export async function execute(
 
   // send msg to mochi-notification
   for (const recipient of payload.recipients) {
-    const { data, ok, curl, error, log } =
-      await community.getTelegramByUsername(recipient)
-    if (!ok) {
-      throw new APIError({ curl, error, description: log })
-    }
-
+    const price = await convertToUsdValue(
+      payload.originalAmount.toString(),
+      payload.token
+    )
     const kafkaMsg: KafkaNotificationMessage = {
       id: payload.sender,
       platform: payload.from.platform,
@@ -309,10 +299,11 @@ export async function execute(
       metadata: {
         amount: payload.originalAmount.toString(),
         token: payload.token,
+        price: price,
         pay_link: `https://mochi.gg/pay/${res.data.code}`,
       },
       recipient_info: {
-        telegram: data.chat_id.toString(),
+        mail: recipient,
       },
     }
 
@@ -320,7 +311,7 @@ export async function execute(
   }
 
   const embed = composeEmbedMessage(null, {
-    author: ["You've given a tip", getEmojiURL(emojis.TIP)],
+    author: ["You've given a tip", getEmojiURL(emojis.CASH)],
     description: `Congrats! ${userMention(
       payload.sender
     )} has given a tip of ${getEmoji(payload.token)} ${
@@ -336,7 +327,7 @@ export async function execute(
   }
 }
 
-export async function tipTelegram(
+export async function tipMail(
   msgOrInteraction: Message | CommandInteraction,
   args: string[]
 ) {

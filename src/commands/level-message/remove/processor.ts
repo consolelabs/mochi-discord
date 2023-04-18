@@ -23,9 +23,7 @@ export async function handle(msg: OriginalMessage) {
     messageOptions: {
       embeds: [
         composeEmbedMessage(null, {
-          title: `${getEmoji(
-            "approve"
-          )} Successfully delete leveled-up message`,
+          title: `${getEmoji("CHECK")} Successfully delete leveled-up message`,
           description: `Your server won’t get any notification message when a user is leveled up.\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
             true

@@ -1,5 +1,5 @@
 import { Command } from "types/common"
-import { getEmoji, thumbnails } from "utils/common"
+import { thumbnails } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX, TIP_GITBOOK } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import claim from "./index/text"
@@ -10,10 +10,6 @@ const textCmd: Command = {
   brief: "Claim on-chain tips",
   category: "Defi",
   run: claim,
-  featured: {
-    title: `${getEmoji("ANIMATED_CASH", true)} Claim your pending transfers`,
-    description: "Claim transfers from others",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

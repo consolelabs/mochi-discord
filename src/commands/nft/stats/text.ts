@@ -9,7 +9,8 @@ const command: Command = {
   brief: "show total collections added",
   category: "Community",
   run: async function (msg) {
-    return await handleNftStats(msg)
+    await handleNftStats(msg)
+    return null
   },
   getHelpMessage: async (msg) => ({
     embeds: [

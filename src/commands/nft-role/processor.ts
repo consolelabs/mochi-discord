@@ -19,7 +19,7 @@ export function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
         }\` tokens\n${c.nft_collection_configs
           ?.map(
             (nftCol) =>
-              `${getEmoji("blank")}${getEmoji("reply")}[\`${
+              `${getEmoji("BLANK")}${getEmoji("REPLY")}[\`${
                 nftCol.symbol?.toUpperCase() ?? ""
               } ${shortenHashOrAddress(nftCol.address ?? "")}${
                 nftCol.chain_name ? ` (${nftCol.chain_name.toUpperCase()})` : ""

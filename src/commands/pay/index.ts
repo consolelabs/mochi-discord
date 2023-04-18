@@ -3,7 +3,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
 import link from "./link/text"
 import me from "./me/text"
-import tip from "../new-tip/index/text"
+import tip from "../tip/index/text"
 
 const actions: Record<string, Command> = {
   link,

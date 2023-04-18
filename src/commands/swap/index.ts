@@ -3,7 +3,7 @@ import defi from "adapters/defi"
 import { InternalError } from "errors"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL, msgColors, TokenEmojiKey } from "utils/common"
 import { chains } from "./index/processor"
 import swapSlash from "./index/slash"
 
@@ -36,8 +36,8 @@ const slashCmd: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("chain_name")
-          .setDescription("the chain name, default is solana")
-          .setRequired(false)
+          .setDescription("the chain name")
+          .setRequired(true)
           .setChoices([
             ["solana", "solana"],
             ...Object.values(chains).map<[string, string]>((c) => [c, c]),
@@ -51,7 +51,7 @@ const slashCmd: SlashCommand = {
     const to = i.options.getString("to", true)
     const amount = i.options.getNumber("amount", true)
 
-    const chain_name = i.options.getString("chain_name", false) ?? "ethereum"
+    const chain_name = i.options.getString("chain_name", true)
     const { ok, data } = await defi.getSwapRoute({
       from,
       to,
@@ -65,14 +65,15 @@ const slashCmd: SlashCommand = {
         description:
           "No route data found, we're working on adding them in the future, stay tuned.",
         emojiUrl: getEmojiURL(emojis.SWAP_ROUTE),
+        color: msgColors.GRAY,
       })
     }
 
     await swapSlash(
       i,
       data?.data,
-      from.toUpperCase(),
-      to.toUpperCase(),
+      from.toUpperCase() as TokenEmojiKey,
+      to.toUpperCase() as TokenEmojiKey,
       chain_name
     )
   },

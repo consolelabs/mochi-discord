@@ -1,9 +1,11 @@
+import { ColorResolvable } from "discord.js"
 import { getErrorEmbed } from "ui/discord/embed"
 import { BotBaseError, OriginalMessage } from "./base"
 
 export class InternalError extends BotBaseError {
   private _customDescription: string | undefined
   private emojiUrl: string | undefined
+  private color?: ColorResolvable
 
   public get customDescription(): string {
     return this._customDescription ?? "Something went wrong"
@@ -14,16 +16,19 @@ export class InternalError extends BotBaseError {
     description,
     title,
     emojiUrl,
+    color,
   }: {
     msgOrInteraction?: OriginalMessage
     description?: string
     title?: string
     emojiUrl?: string
+    color?: ColorResolvable
   }) {
     super(msgOrInteraction, description)
     this.name = title ?? "Internal error"
     this._customDescription = description
     this.emojiUrl = emojiUrl
+    this.color = color
   }
 
   handle() {
@@ -33,6 +38,7 @@ export class InternalError extends BotBaseError {
           title: this.name,
           description: this.customDescription,
           emojiUrl: this.emojiUrl,
+          color: this.color,
         }),
       ],
     })

@@ -15,6 +15,7 @@ import { embedsColors } from "types/common"
 import { parseDiscordToken } from "utils/commands"
 import {
   authorFilter,
+  EmojiKey,
   emojis,
   getEmoji,
   getEmojiURL,
@@ -145,7 +146,7 @@ function renderResponse(
       options: options.map((o, i) => ({
         label: `$${shortenHashOrAddress(o.contract_address)} - ${o.platform}`,
         value: `${o.contract_address}/${o.platform}`,
-        emoji: getEmoji(`NUM_${i + 1}`),
+        emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
       })),
     })
   }

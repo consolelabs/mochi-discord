@@ -33,19 +33,19 @@ export class CommandNotAllowedToRunError extends BotBaseError {
       errorEmbed = getErrorEmbed({
         title: `Permissions required`,
         description: `Only Administrators can use this command ${getEmoji(
-          "nekosad"
+          "NEKOSAD"
         )}. Please contact your server admins if you need help.`,
       })
     } else {
       errorEmbed = getErrorEmbed({
         description: `This command is not allowed to run in DM ${getEmoji(
-          "nekosad"
+          "NEKOSAD"
         )}.`,
       })
     }
     const msgOptions = {
       embeds: [errorEmbed],
-      components: [composeButtonLink("Support", DISCORD_URL, getEmoji("defi"))],
+      components: [composeButtonLink("Support", DISCORD_URL, getEmoji("DEFI"))],
     }
     this.reply?.(msgOptions)
   }

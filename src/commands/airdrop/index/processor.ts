@@ -22,12 +22,15 @@ import {
   equalIgnoreCase,
   getAuthor,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   isValidAmount,
   msgColors,
   roundFloatNumber,
+  TokenEmojiKey,
 } from "utils/common"
-import { validateBalance } from "utils/defi"
+import { APPROX } from "utils/constants"
+import { formatDigit, validateBalance } from "utils/defi"
 import { parseMonikerinCmd, isTokenSupported } from "utils/tip-bot"
 
 dayjs.extend(duration)
@@ -95,7 +98,7 @@ export async function confirmAirdrop(
   if (authorId !== interaction.user.id) {
     return
   }
-  const tokenEmoji = getEmoji(token)
+  const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
   const endTime = dayjs()
     .add(+duration, "second")
     .toDate()
@@ -138,7 +141,7 @@ export async function confirmAirdrop(
     authorId,
     +amount,
     +amountInUSD,
-    token,
+    token as TokenEmojiKey,
     duration,
     +maxEntries
   )
@@ -150,7 +153,7 @@ async function checkExpiredAirdrop(
   authorId: string,
   amount: number,
   usdAmount: number,
-  token: string,
+  token: TokenEmojiKey,
   duration: string,
   maxEntries: number
 ) {
@@ -160,7 +163,7 @@ async function checkExpiredAirdrop(
       if (maxEntries > 0) {
         participants = participants.slice(0, maxEntries)
       }
-      const tokenEmoji = getEmoji(token)
+      const tokenEmoji = getEmojiToken(token)
       const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${token}** (\u2248 $${roundFloatNumber(
         +usdAmount,
         4
@@ -204,7 +207,9 @@ async function checkExpiredAirdrop(
                       }'s airdrop`,
                       getEmojiURL(emojis.ANIMATED_COIN_3),
                     ],
-                    description: `You have received ${amount} ${token} from ${originalAuthor}'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
+                    description: `You have received ${APPROX} ${formatDigit(
+                      String(amount / participants.length)
+                    )} ${token} from ${originalAuthor}'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
                       "ANIMATED_WITHDRAW",
                       true
                     )}`,
@@ -316,12 +321,12 @@ export async function handleAirdrop(
   const { amount, token, all } = payload
   const { balance, usdBalance } = await validateBalance({
     msgOrInteraction,
-    token,
+    token: token as TokenEmojiKey,
     amount,
     all,
   })
   if (all) payload.amount = balance
-  const tokenEmoji = getEmoji(payload.token)
+  const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
   const usdAmount = usdBalance * payload.amount
   const amountDescription = `${tokenEmoji} **${roundFloatNumber(
     payload.amount,
@@ -383,22 +388,32 @@ function getAirdropOptions(args: string[]) {
     maxEntries: 0,
   }
 
-  const content = args.join(" ").trim()
+  // unitless case -> default to minute
+  if (args[3] === "in" && !Number.isNaN(Number(args[4].replace(/in\s+/, "")))) {
+    args[4] = `${args[4]}m`
+  }
 
-  const durationReg = /in\s+\d+[hms]/
-  const durationIdx = content.search(durationReg)
+  const content = args.join(" ").trim()
+  const forIndex = args.findIndex((v) => v === "for")
+
+  // need to isolate in order to avoid parsing the "..for.." clause
+  const contentWithoutFor = args.slice(0, forIndex).join(" ").trim()
+
+  const durationReg =
+    /in\s*(\s*\d+\s?(?:hour(s)?|minute(s)?|second(s)?|hr(s)?|min(s)?|sec(s)?|h|m|s))+/
+  const durationIdx = contentWithoutFor.search(durationReg)
   if (durationIdx !== -1) {
-    const timeStr = content
+    const timeStr = contentWithoutFor
       .substring(durationIdx)
       .replace(/in\s+/, "")
-      .split(" ")[0]
+
     options.duration = parse(timeStr) / 1000
     if (options.duration > 3600) {
       options.duration = 3600
     }
   }
   // catch error duration invalid, exp: $airdrop 1 ftm in a
-  if (content.includes("in") && durationIdx === -1) {
+  if (contentWithoutFor.includes("in") && durationIdx === -1) {
     options.duration = 0
   }
 

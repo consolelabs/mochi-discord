@@ -19,12 +19,12 @@ import { composeEmbedMessage } from "ui/discord/embed"
 dayjs.extend(utc)
 
 const emoji = {
-  leftFilled: getEmoji("imperial_exp_1", true),
-  filled: getEmoji("imperial_exp_2", true),
-  rightFilled: getEmoji("imperial_exp_3", true),
-  leftEmpty: getEmoji("faction_exp_1"),
-  empty: getEmoji("faction_exp_2"),
-  rightEmpty: getEmoji("faction_exp_3"),
+  leftFilled: getEmoji("IMPERIAL_EXP_1", true),
+  filled: getEmoji("IMPERIAL_EXP_2", true),
+  rightFilled: getEmoji("IMPERIAL_EXP_3", true),
+  leftEmpty: getEmoji("FACTION_EXP_1"),
+  empty: getEmoji("FACTION_EXP_2"),
+  rightEmpty: getEmoji("FACTION_EXP_3"),
 }
 
 const getClaimButton = (disabled = false, authorId: string) => {
@@ -34,7 +34,7 @@ const getClaimButton = (disabled = false, authorId: string) => {
         new MessageButton()
           .setDisabled(disabled)
           .setStyle("SECONDARY")
-          .setEmoji(getEmoji("approve"))
+          .setEmoji(getEmoji("CHECK"))
           .setCustomId(`claim-rewards-daily_${authorId}`)
           .setLabel(disabled ? "No rewards to claim" : "Claim rewards")
       ),
@@ -102,7 +102,7 @@ export async function handleClaimReward(i: ButtonInteraction) {
         d.total
       }\` ${d.reward_type}`,
       value: d.list
-        .map((e: any) => `${getEmoji("blank")}${getEmoji("reply")} ${e}`)
+        .map((e: any) => `${getEmoji("BLANK")}${getEmoji("REPLY")} ${e}`)
         .join("\n"),
       inline: false,
     }
@@ -114,7 +114,7 @@ export async function handleClaimReward(i: ButtonInteraction) {
       new MessageActionRow().addComponents(
         new MessageButton()
           .setCustomId(`back-to-quest-list_${authorId}`)
-          .setEmoji(getEmoji("left_arrow"))
+          .setEmoji(getEmoji("LEFT_ARROW"))
           .setStyle("SECONDARY")
           .setLabel("Back to quest list")
       ),
@@ -168,7 +168,7 @@ export async function run(userId: string, msg?: Message) {
       return {
         name: `**${d.quest.title}**`,
         value: `${getEmoji(
-          d.is_completed ? "approve" : "approve_grey"
+          d.is_completed ? "APPROVE" : "APPROVE_GREY"
         )} ${buildProgressBar({
           emoji,
           total: d.target,

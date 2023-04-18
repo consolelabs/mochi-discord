@@ -4,6 +4,7 @@ import { tip } from "./processor"
 
 const run = async (msg: Message) => {
   const args = getCommandArguments(msg)
-  return await tip(msg, args)
+  await tip(msg, args)
+  return null
 }
 export default run

@@ -130,10 +130,6 @@ const command: Command = {
       },
     }
   },
-  featured: {
-    title: `${getEmoji("")} Level role`,
-    description: "Assign a role to users when they reach a certain level",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

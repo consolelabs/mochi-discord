@@ -20,11 +20,6 @@ const textCmd: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async () => null,
-  featured: {
-    title: "Leveled-up message",
-    description:
-      "Set up an encouraging leveled-up message when each user is leveled.",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

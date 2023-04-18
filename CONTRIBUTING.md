@@ -116,11 +116,6 @@ export type Command = {
   // brief description of the command
   // this will be shown in command's help messagae
   brief: string;
-  //
-  featured?: {
-    title: string;
-    description: string;
-  };
   // flag to enable (true) only-admin command
   onlyAdministrator?: boolean;
   // command's handler

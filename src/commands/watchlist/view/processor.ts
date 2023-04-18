@@ -9,9 +9,11 @@ import {
 } from "discord.js"
 import {
   authorFilter,
+  EmojiKey,
   emojis,
   getEmoji,
   getEmojiURL,
+  TokenEmojiKey,
   tokenEmojis,
 } from "utils/common"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
@@ -109,7 +111,7 @@ export async function renderWatchlist(data: any[]) {
     if (!imageUrl && is_pair) {
       const [base, target] = symbol
         .split("/")
-        .map((s: string) => emojis[s.toUpperCase()])
+        .map((s: string) => emojis[s.toUpperCase() as EmojiKey])
       imageUrl =
         base && target
           ? [getEmojiURL(base), getEmojiURL(target)].join("||")
@@ -310,7 +312,8 @@ export async function renderNFTWatchlist(data: any[]) {
 
     // Token logo
     const fallbackTokenLogoURL = "https://i.imgur.com/2MdXSOd.png"
-    const tokenEmojiId = tokenEmojis[token?.symbol ?? ""] ?? ""
+    const tokenEmojiId =
+      tokenEmojis[(token?.symbol as TokenEmojiKey) ?? ""] ?? ""
     const tokenLogoURL = getEmojiURL(tokenEmojiId)
     const tokenH = 25
     const tokenW = 25

@@ -66,8 +66,8 @@ export async function claim(msg: Message, args: string[]) {
             "ANIMATED_POINTING_RIGHT",
             true
           )} You can try to claim other tips and get back to this one later! ${getEmoji(
-            "soon"
-          )}\nSorry for this inconvenience ${getEmoji("nekosad")}`,
+            "SOON"
+          )}\nSorry for this inconvenience ${getEmoji("NEKOSAD")}`,
         })
       default:
         throw new APIError({

@@ -32,10 +32,6 @@ const textCmd: Command = {
   brief: "DAO Voting",
   category: "Config",
   run: async () => null,
-  featured: {
-    title: "DAO Voting",
-    description: "Manage to post proposals and their voting space",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

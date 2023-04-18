@@ -136,7 +136,7 @@ export async function composeTickerResponse({
   } = coin.market_data
   const currentPrice = +current_price[currency]
   const marketCap = +market_cap[currency]
-  const blank = getEmoji("blank")
+  const blank = getEmoji("BLANK")
   const bb = getChance(20)
   const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
@@ -276,7 +276,7 @@ export function buildSwitchViewActionRow(
   })
   const wlAddBtn = new MessageButton({
     label: `${added ? "Added" : "Add"} to Watchlist`,
-    emoji: added ? getEmoji("approve") : getEmoji("like"),
+    emoji: added ? getEmoji("CHECK") : getEmoji("LIKE"),
     customId: `ticker_add_wl|${coinId}|${symbol}`,
     style: "SECONDARY",
     disabled: added,

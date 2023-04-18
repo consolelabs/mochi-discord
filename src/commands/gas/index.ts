@@ -1,7 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { GAS_ESTIMATION_GITBOOK, PREFIX } from "utils/constants"
-import { getEmoji } from "utils/common"
 import gas from "./index/text"
 import gasSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
@@ -12,10 +11,6 @@ const textCmd: Command = {
   brief: "Gas Tracker",
   category: "Defi",
   run: gas,
-  featured: {
-    title: `${getEmoji("exp")} Gas Prices`,
-    description: "Display gas price on many networks",
-  },
   getHelpMessage: async (msg) => {
     return {
       embeds: [

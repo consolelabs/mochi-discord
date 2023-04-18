@@ -20,7 +20,7 @@ export const balanceTypes: Record<string, number> = {
 
 const balanceEmbedProps = {
   [balanceTypes.Offchain]: {
-    title: "Offchain balance",
+    title: "Mochi balance",
     description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true
@@ -116,19 +116,19 @@ export async function renderBalances(
   const profileId = await getProfileIdByDiscord(discordId)
   const balances = await getBalances(profileId, type, msg)
   // const fields: EmbedFieldData[] = []
-  const blank = getEmoji("blank")
+  const blank = getEmoji("BLANK")
   let totalWorth = 0
   const fields: EmbedFieldData[] = balances
     ?.map((balance: any) => {
       const { token, amount } = balance
-      const { name: tokenName, symbol, decimal, price } = token
+      const { name: tokenName, symbol, decimal, price, chain, native } = token
       const value = roundFloatNumber(convertString(amount, decimal) ?? 0, 4)
       const usdWorth = roundFloatNumber(price * value, 4)
       totalWorth += usdWorth
       if (value === 0) return
 
       return {
-        name: tokenName,
+        name: tokenName + `${chain && !native ? ` (${chain.name})` : ""}`,
         value: `${getEmoji(
           symbol
         )} ${value} ${symbol} \`$${usdWorth}\` ${blank}`,
@@ -159,7 +159,7 @@ export async function renderBalances(
   justifyEmbedFields(embed, 3)
   embed.addFields({
     name: `Estimated total (U.S dollar)`,
-    value: `${getEmoji("cash")} \`$${roundFloatNumber(totalWorth, 4)}\``,
+    value: `${getEmoji("CASH")} \`$${roundFloatNumber(totalWorth, 4)}\``,
   })
 
   return {

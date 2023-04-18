@@ -16,7 +16,9 @@ import {
   equalIgnoreCase,
   getAuthor,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
+  TokenEmojiKey,
 } from "utils/common"
 import { reply } from "utils/discord"
 
@@ -28,15 +30,15 @@ export async function run({
 }: {
   msgOrInteraction: Message | CommandInteraction
   amount: number
-  token: string
+  token: TokenEmojiKey
   note?: string
 }) {
   const author = getAuthor(msgOrInteraction)
-  const tokenEmoji = getEmoji(token)
+  const tokenEmoji = getEmojiToken(token)
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
     author: ["Confirm the transaction", getEmojiURL(emojis.APPROVE)],
-    thumbnail: getEmojiURL(emojis.ANIMATED_CASH),
+    thumbnail: getEmojiURL(emojis.CASH),
   }).addFields(
     {
       name: "Amount",
@@ -121,7 +123,7 @@ export async function run({
           originalMsgAuthor: author,
           author: [
             "Congrats! You've just created a pay link",
-            getEmojiURL(emojis.ANIMATED_CASH),
+            getEmojiURL(emojis.CASH),
           ],
           description: `Here's ${paylink} ${tokenEmoji} ${amount} ${token} ${
             note

@@ -1,4 +1,3 @@
-import defi from "adapters/defi"
 import { Collection, Message } from "discord.js"
 import { InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
@@ -7,8 +6,8 @@ import { getEmoji } from "utils/common"
 import * as dcutils from "utils/discord"
 import * as tiputils from "utils/tip-bot"
 import mockdc from "../../../../tests/mocks/discord"
-import * as processor from "./processor"
 import mochiPay from "../../../adapters/mochi-pay"
+import * as processor from "./processor"
 jest.mock("adapters/defi")
 
 describe("getRecipient", () => {
@@ -52,7 +51,7 @@ describe("getWithdrawPayload", () => {
   })
 
   test("invalid amount => throw DiscordWalletTransferError", async () => {
-    await expect(processor.getWithdrawPayload(msg, "a", "eth")).rejects.toThrow(
+    await expect(processor.getWithdrawPayload(msg, "a", "ETH")).rejects.toThrow(
       new DiscordWalletTransferError({
         message: msg,
         discordId: msg.author.id,
@@ -63,7 +62,7 @@ describe("getWithdrawPayload", () => {
 
   test("withdraw all", async () => {
     msg.content = `$wd all eth`
-    const output = await processor.getWithdrawPayload(msg, "all", "eth")
+    const output = await processor.getWithdrawPayload(msg, "all", "ETH")
     expect(output).toEqual({
       recipient: msg.author.id,
       recipientAddress: "",
@@ -81,7 +80,7 @@ describe("getWithdrawPayload", () => {
 
   test("valid amount", async () => {
     msg.content = `$wd all eth`
-    const output = await processor.getWithdrawPayload(msg, "0.69", "eth")
+    const output = await processor.getWithdrawPayload(msg, "0.69", "ETH")
     expect(output).toEqual({
       recipient: msg.author.id,
       recipientAddress: "",
@@ -113,7 +112,7 @@ describe("withdraw", () => {
 
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(false)
     const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
-    await expect(processor.withdraw(msg, "1", "qwerty")).rejects.toThrow(
+    await expect(processor.withdraw(msg, "1", "qwerty" as any)).rejects.toThrow(
       new InternalError({
         msgOrInteraction: msg,
         title: "Unsupported token",
@@ -127,7 +126,7 @@ describe("withdraw", () => {
     mochiPay.getBalances = jest
       .fn()
       .mockResolvedValueOnce({ ok: true, data: [] })
-    await expect(processor.withdraw(msg, "10", "ftm")).rejects.toThrow(
+    await expect(processor.withdraw(msg, "10", "FTM")).rejects.toThrow(
       new InsufficientBalanceError({
         msgOrInteraction: msg,
         params: { current: 0, required: 10, symbol: "FTM" },
@@ -146,7 +145,7 @@ describe("withdraw", () => {
         },
       ],
     })
-    await expect(processor.withdraw(msg, "10", "ftm")).rejects.toThrow(
+    await expect(processor.withdraw(msg, "10", "FTM")).rejects.toThrow(
       new InsufficientBalanceError({
         msgOrInteraction: msg,
         params: { current: 5.6, required: 10, symbol: "FTM" },
@@ -157,21 +156,21 @@ describe("withdraw", () => {
   test("successfully withdraw", async () => {
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const addr = "0xE409E073eE7474C381BFD9b3f88098499123123"
-    const mockedResponse = {
-      ok: true,
-      data: {
-        amount: 1,
-        tx_hash: "0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
-        tx_url:
-          "https://ftmscan.com/tx/0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
-      },
-    }
+    // const mockedResponse = {
+    //   ok: true,
+    //   data: {
+    //     amount: 1,
+    //     tx_hash: "0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
+    //     tx_url:
+    //       "https://ftmscan.com/tx/0x3b47c97f3f7bf3b462eba7b2b546f927a3b59be7103ff0439123123",
+    //   },
+    // }
     const collectedMsg = mockdc.cloneMessage()
     collectedMsg.content = addr
     jest.spyOn(processor, "getRecipient").mockResolvedValueOnce(addr)
-    defi.offchainDiscordWithdraw = jest
-      .fn()
-      .mockResolvedValueOnce(mockedResponse)
+    // defi.offchainDiscordWithdraw = jest
+    //   .fn()
+    //   .mockResolvedValueOnce(mockedResponse)
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce({
       ok: true,
       data: [
@@ -183,7 +182,7 @@ describe("withdraw", () => {
     })
     const mockedDm = mockdc.cloneMessage()
     msg.author.send = jest.fn().mockResolvedValueOnce(mockedDm)
-    await processor.withdraw(msg, "1", "ftm")
+    await processor.withdraw(msg, "1", "FTM")
     expect(msg.author.send).toHaveBeenCalledTimes(2)
   })
 })

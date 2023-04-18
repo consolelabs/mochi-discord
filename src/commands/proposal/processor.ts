@@ -51,7 +51,7 @@ export async function handleProposalCancel(i: ButtonInteraction) {
 function composeProposalCancelButton(guidelineId: string): MessageButton {
   return new MessageButton({
     customId: `proposal-cancel-${guidelineId}`,
-    emoji: getEmoji("revoke"),
+    emoji: getEmoji("REVOKE"),
     style: "SECONDARY",
     label: "Cancel",
   })

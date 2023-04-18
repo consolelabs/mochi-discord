@@ -2,13 +2,7 @@ import { Token } from "types/defi"
 import defi from "adapters/defi"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
-import {
-  emojis,
-  getEmoji,
-  getEmojiURL,
-  msgColors,
-  thumbnails,
-} from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 
 export async function handleTokenList(page = 0, size = 15) {
   const {
@@ -44,7 +38,7 @@ export async function handleTokenList(page = 0, size = 15) {
     })
     .join("\n")
   const embed = composeEmbedMessage(null, {
-    thumbnail: thumbnails.CUSTOM_TOKEN,
+    thumbnail: getEmojiURL(emojis.TOKEN_LIST),
     author: ["Token List", getEmojiURL(emojis.PAWCOIN)],
     description: description,
     color: msgColors.ACTIVITY,
