@@ -293,6 +293,7 @@ export function getErrorEmbed(params: {
   image?: string
   originalMsgAuthor?: User
   emojiUrl?: string
+  color?: ColorResolvable
 }) {
   const {
     title,
@@ -313,7 +314,7 @@ export function getErrorEmbed(params: {
       `Our team is fixing the issue. Stay tuned ${getEmoji("nekosad")}.`,
     image,
     thumbnail,
-    color: msgColors.ERROR,
+    color: params.color ?? msgColors.ERROR,
     originalMsgAuthor,
   })
 }

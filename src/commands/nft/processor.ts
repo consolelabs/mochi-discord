@@ -5,6 +5,7 @@ import {
   MessageAttachment,
   MessageButton,
   MessageActionRow,
+  ColorResolvable,
 } from "discord.js"
 import { APIError, InternalError } from "errors"
 import {
@@ -13,6 +14,7 @@ import {
   getEmoji,
   getEmojiURL,
   getMarketplaceCollectionUrl,
+  msgColors,
   shortenHashOrAddress,
   thumbnails,
 } from "utils/common"
@@ -33,7 +35,9 @@ const buildDiscordMessage = (
   msg: Message | undefined,
   title: string,
   description: string,
-  err = true
+  err = true,
+  color?: ColorResolvable,
+  emojiUrl?: string
 ) => {
   if (err) {
     return {
@@ -43,6 +47,8 @@ const buildDiscordMessage = (
             msg,
             title: title,
             description: description,
+            emojiUrl,
+            color,
           }),
         ],
       },
@@ -87,7 +93,6 @@ export async function toEmbed(
   msg?: Message | undefined
 ) {
   // get response and show discord message
-  const { error } = storeCollectionRes
   switch (storeCollectionRes.status) {
     case 200:
       return buildDiscordMessage(
@@ -99,7 +104,14 @@ export async function toEmbed(
     case 500:
       return buildDiscordMessage(msg, "NFT", "Internal Server Error")
     default:
-      return buildDiscordMessage(msg, "NFT", error)
+      return buildDiscordMessage(
+        msg,
+        "The collection has already existed!",
+        `The collection is already available. Let’s use $nft to check the NFT rarity!`,
+        true,
+        msgColors.GRAY,
+        getEmojiURL(emojis.NFT2)
+      )
   }
 }
 

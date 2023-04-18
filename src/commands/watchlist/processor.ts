@@ -4,7 +4,7 @@ import {
   MessageComponentInteraction,
 } from "discord.js"
 import { InternalError } from "errors"
-import { getEmoji } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 
 export function handleUpdateWlError(
   msg: Message | MessageComponentInteraction | CommandInteraction | undefined,
@@ -20,6 +20,9 @@ export function handleUpdateWlError(
       description,
     })
   }
+  let color = msgColors.GRAY
+  let title = ""
+  let emojiUrl = ""
   switch (true) {
     case error.toLowerCase().startsWith("record not found"):
       description = `**${symbol.toUpperCase()}** ${
@@ -36,13 +39,18 @@ export function handleUpdateWlError(
         "ANIMATED_POINTING_RIGHT",
         true
       )} Please choose another one listed on [CoinGecko](https://www.coingecko.com).`
+      color = msgColors.ACTIVITY
+      title = "Token has already existed"
+      emojiUrl = getEmojiURL(emojis.ANIMATED_COIN_1)
       break
     default:
       break
   }
   throw new InternalError({
     msgOrInteraction: msg,
-    title: "Command Error",
+    title,
+    emojiUrl,
     description,
+    color,
   })
 }
