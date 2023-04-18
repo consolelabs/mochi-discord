@@ -60,12 +60,16 @@ const slashCmd: SlashCommand = {
     })
 
     if (!ok) {
-      throw new InternalError({
-        msgOrInteraction: i,
-        description:
-          "No route data found, we're working on adding them in the future, stay tuned.",
-        emojiUrl: getEmojiURL(emojis.SWAP_ROUTE),
+      i.reply({
+        embeds: [composeEmbedMessage(null, {})],
       })
+      return
+      // throw new InternalError({
+      //   msgOrInteraction: i,
+      //   description:
+      //     "No route data found, we're working on adding them in the future, stay tuned.",
+      //   emojiUrl: getEmojiURL(emojis.SWAP_ROUTE),
+      // })
     }
 
     await swapSlash(
