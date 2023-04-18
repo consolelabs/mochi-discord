@@ -741,7 +741,7 @@ async function composeResponse(
       symbol,
       nft.collection_address,
       tokenId,
-      (collection.chain?.short_name as TokenEmojiKey) ?? ""
+      (collection.chain?.short_name.toUpperCase() as TokenEmojiKey) ?? ""
     )
     return {
       messageOptions: {
@@ -760,7 +760,7 @@ async function composeResponse(
       name,
       address,
       tokenId,
-      chain as TokenEmojiKey
+      chain.toUpperCase() as TokenEmojiKey
     )
     return { messageOptions, defaultCollection }
   }

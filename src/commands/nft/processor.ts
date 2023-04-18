@@ -122,7 +122,7 @@ export async function composeCollectionInfoEmbed(
   collectionAddress: string,
   chain: TokenEmojiKey
 ) {
-  if (chain == "SOL" || (chain as string) == "999") {
+  if (chain === "SOL" || (chain as string) === "999") {
     collectionAddress = "solscan-" + collectionAddress
   }
   const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
