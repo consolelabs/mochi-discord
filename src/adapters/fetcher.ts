@@ -114,7 +114,7 @@ export class Fetcher {
     init: RequestInit = {}
   ): Promise<(OkPayload & T) | ErrPayload> {
     let curl = "None"
-    const nekoSad = getEmoji("nekosad")
+    const nekoSad = getEmoji("NEKOSAD")
     try {
       const mergedInit = deepmerge(defaultInit, init)
       const {

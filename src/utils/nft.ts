@@ -1,4 +1,4 @@
-export const traitEmojis: Record<string, string> = {
+export const traitEmojis = {
   BACKGROUND: "993472707725369375",
   BODY: "993472705833746452",
   EYES: "993472704080515092",
@@ -17,7 +17,7 @@ export const traitEmojis: Record<string, string> = {
   FALLBACK: ":jigsaw:",
 }
 
-export const traitTypeMapping: Record<string, string> = {
+export const traitTypeMapping = {
   KODA: "FALLBACK",
   TYPE: "FALLBACK",
   ARTIFACT: "FALLBACK",
@@ -71,7 +71,7 @@ export const traitTypeMapping: Record<string, string> = {
   "ENVIRONMENT TIER": "LAND",
 }
 
-export const rarityEmojis: Record<string, string> = {
+export const rarityEmojis = {
   COMMON1: "992087374144225300",
   COMMON2: "992087372076429433",
   COMMON3: "992087369647919225",
@@ -103,7 +103,7 @@ export const rarityEmojis: Record<string, string> = {
   MYTHIC4: "992087336621973566",
 }
 
-export const marketplaceEmojis: Record<string, string> = {
+export const marketplaceEmojis = {
   PAINTSWAP: "988743794532958259",
   OPENSEA: "988748731857911878",
   LOOKSRARE: "992327588716486676",

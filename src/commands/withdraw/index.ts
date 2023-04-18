@@ -6,7 +6,7 @@ import {
   SLASH_PREFIX,
 } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getEmoji, thumbnails } from "utils/common"
+import { thumbnails } from "utils/common"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import withdraw from "./index/text"
 import withdrawSlash from "./index/slash"
@@ -17,10 +17,6 @@ const textCmd: Command = {
   brief: `Token withdrawal`,
   category: "Defi",
   run: withdraw,
-  featured: {
-    title: `${getEmoji("right_arrow")} Withdraw`,
-    description: "Withdraw tokens to your wallet outside of Discord",
-  },
   getHelpMessage: async (msg) => {
     const embedMsg = composeEmbedMessage(msg, {
       description:

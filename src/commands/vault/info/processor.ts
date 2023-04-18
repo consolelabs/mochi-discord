@@ -6,10 +6,13 @@ import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { GetDateComponents } from "utils/time"
 import {
+  EmojiKey,
   getEmoji,
+  getEmojiToken,
   hasAdministrator,
   msgColors,
   shortenHashOrAddress,
+  TokenEmojiKey,
 } from "utils/common"
 
 export async function runGetVaultInfo({
@@ -152,7 +155,9 @@ function formatCurrentRequest(request: any) {
         request.total_submission
       }]](https://google.com) Sent to ${shortenHashOrAddress(
         request.target
-      )} ${getEmoji(`${request.token}`)} ${request.amount} ${request.token}\n`
+      )} ${getEmojiToken(`${request.token as TokenEmojiKey}`)} ${
+        request.amount
+      } ${request.token}\n`
     case "Add":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
@@ -202,9 +207,9 @@ function buildBalanceFields(data: any): any {
   const resBalance = data.balance.map((balance: any) => {
     return {
       name: `${balance.token_name}`,
-      value: `${getEmoji(`${balance.token}`)}${balance.amount} ${
-        balance.token
-      }\n\`$${balance.amount_in_usd}\``,
+      value: `${getEmojiToken(`${balance.token as TokenEmojiKey}`)}${
+        balance.amount
+      } ${balance.token}\n\`$${balance.amount_in_usd}\``,
       inline: true,
     }
   })
@@ -291,7 +296,7 @@ function buildRecentTxFields(data: any): any {
 function buildTreasurerFields(data: any): any {
   let valueTreasurer = ""
   for (let i = 0; i < data.treasurer.length; i++) {
-    valueTreasurer += `${getEmoji(`NUM_${i + 1}`)} <@${
+    valueTreasurer += `${getEmoji(`NUM_${i + 1}` as EmojiKey)} <@${
       data.treasurer[i].user_discord_id
     }>\n`
   }

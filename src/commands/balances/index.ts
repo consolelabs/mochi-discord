@@ -1,5 +1,5 @@
 import { Command, SlashCommand } from "types/common"
-import { getEmoji, thumbnails } from "utils/common"
+import { thumbnails } from "utils/common"
 import {
   BALANCE_GITBOOK,
   DEFI_DEFAULT_FOOTER,
@@ -17,10 +17,6 @@ const textCmd: Command = {
   brief: "Wallet balances",
   category: "Defi",
   run: balance,
-  featured: {
-    title: `${getEmoji("cash")} Balance`,
-    description: "Show your balances",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

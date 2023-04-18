@@ -33,7 +33,7 @@ export async function handle(msg: OriginalMessage) {
   }
 
   const embed = composeEmbedMessage(null, {
-    title: `${getEmoji("pumpeet")} Levelup message`,
+    title: `${getEmoji("PUMPEET")} Levelup message`,
     description: `${
       data.channel_id ? `Storing channel: <#${data.channel_id}>\n` : ""
     }Leveled-up message: ${data.message}`,

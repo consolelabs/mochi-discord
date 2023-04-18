@@ -116,7 +116,7 @@ export async function renderBalances(
   const profileId = await getProfileIdByDiscord(discordId)
   const balances = await getBalances(profileId, type, msg)
   // const fields: EmbedFieldData[] = []
-  const blank = getEmoji("blank")
+  const blank = getEmoji("BLANK")
   let totalWorth = 0
   const fields: EmbedFieldData[] = balances
     ?.map((balance: any) => {

@@ -2,7 +2,7 @@ import { CommandInteraction, Message } from "discord.js"
 import { APIError } from "errors"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
 import mochiPay from "../adapters/mochi-pay"
-import { getAuthor } from "./common"
+import { getAuthor, TokenEmojiKey } from "./common"
 import { convertString } from "./convert"
 import { getProfileIdByDiscord } from "./profile"
 
@@ -46,7 +46,7 @@ export async function validateBalance({
   all,
 }: {
   msgOrInteraction: Message | CommandInteraction
-  token: string
+  token: TokenEmojiKey
   amount: number
   all?: boolean
 }) {

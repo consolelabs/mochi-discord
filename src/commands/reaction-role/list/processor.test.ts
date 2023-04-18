@@ -41,7 +41,7 @@ describe("getDisplayColumnText", () => {
     const [infoColumn, jumpBtnColumn] = processor.getDisplayInfoColumns(data)
     const expectedInfoColumn =
       `\n**${truncate(data[0].title, { length: 20 })}**\n` +
-      `${getEmoji("blank")}${getEmoji("reply")} ${data[0].values[0].emoji} ${
+      `${getEmoji("BLANK")}${getEmoji("REPLY")} ${data[0].values[0].emoji} ${
         data[0].values[0].role
       }\n`
     const expectedJumpBtnColumn =
@@ -71,7 +71,7 @@ describe("getEmbedPagination", () => {
   }
   const mockedInfoColumn =
     `\n**${truncate("test", { length: 20 })}**\n` +
-    `${getEmoji("blank")}${getEmoji("reply")} test test\n`
+    `${getEmoji("BLANK")}${getEmoji("REPLY")} test test\n`
   const mockedJumpColumn = "**[Jump](test)**\n\n" + "\n".repeat(1)
 
   test("with type Message", async () => {

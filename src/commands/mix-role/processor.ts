@@ -55,7 +55,7 @@ export function list({ data }: ResponseListGuildMixRoles) {
   ]
 
   return {
-    title: `${getEmoji("star2")} Mixed role list`,
+    title: `${getEmoji("ANIMATED_STAR")} Mixed role list`,
     description: `You can run \`$mixrole set\` to set the new combined role.\n\n`,
     fields: fields,
   }

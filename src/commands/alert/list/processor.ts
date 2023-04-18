@@ -37,7 +37,7 @@ export async function handleAlertList({
         (description += `**${item.symbol}** - ${item.frequency.replaceAll(
           "_",
           " "
-        )}\n${getEmoji("reply")} When ${item.alert_type.replaceAll(
+        )}\n${getEmoji("REPLY")} When ${item.alert_type.replaceAll(
           "_",
           " "
         )} **${

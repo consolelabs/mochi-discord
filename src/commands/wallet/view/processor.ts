@@ -64,14 +64,14 @@ function composeWalletDetailsButtonRow(
   return new MessageActionRow().addComponents(
     new MessageButton({
       customId: `wl_my_token-${userId}-${address}-${alias}-${type}-${added}`,
-      emoji: getEmoji("coin2"),
+      emoji: getEmoji("ANIMATED_COIN_2"),
       style: "SECONDARY",
       label: "My Token",
       disabled: equalIgnoreCase(view, "token"),
     }),
     new MessageButton({
       customId: `wl_my_nft-${userId}-${address}-${alias}-${type}-${added}`,
-      emoji: getEmoji("nft2"),
+      emoji: getEmoji("NFT2"),
       style: "SECONDARY",
       label: "My NFT",
       disabled: equalIgnoreCase(view, "nft"),
@@ -84,12 +84,12 @@ function composeWalletDetailsButtonRow(
       }`,
       style: "SECONDARY",
       label: added ? "Delete" : "Add to track list",
-      emoji: getEmoji(added ? "bin" : "plus"),
+      emoji: getEmoji(added ? "BIN" : "PLUS"),
     }),
     new MessageButton({
       customId: `wallet_rename-${userId}-${address}`,
       style: "SECONDARY",
-      emoji: getEmoji("pencil"),
+      emoji: getEmoji("PENCIL"),
       label: "Rename Label",
     })
   )
@@ -311,9 +311,9 @@ export async function viewWalletsList(message: OriginalMessage, author: User) {
     originalMsgAuthor: author,
     color: msgColors.SUCCESS,
   }).addFields([
-    { name: `${getEmoji("pawcoin")} Alias`, value: alias, inline: true },
-    { name: `${getEmoji("address")} Address`, value: address, inline: true },
-    { name: `${getEmoji("coin")} Net worth`, value: netWorth, inline: true },
+    { name: `${getEmoji("PAWCOIN")} Alias`, value: alias, inline: true },
+    { name: `${getEmoji("ADDRESS")} Address`, value: address, inline: true },
+    { name: `${getEmoji("COIN")} Net worth`, value: netWorth, inline: true },
   ])
   return {
     messageOptions: {
@@ -334,7 +334,7 @@ async function getTokensEmbed(
   alias: string
 ) {
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
-  const blank = getEmoji("blank")
+  const blank = getEmoji("BLANK")
   const {
     data: assets,
     ok,
@@ -380,7 +380,7 @@ async function getTokensEmbed(
     ...[
       {
         name: `\u200B\nEstimated total (U.S dollar)`,
-        value: `${getEmoji("cash")} \`$${roundFloatNumber(
+        value: `${getEmoji("CASH")} \`$${roundFloatNumber(
           totalUsdBalance,
           4
         )}\``,
@@ -437,9 +437,9 @@ export async function getTxnsEmbed(
     })
   }
 
-  const reply = getEmoji("reply")
+  const reply = getEmoji("REPLY")
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
-  const blank = getEmoji("blank")
+  const blank = getEmoji("BLANK")
   const transactions = txns.slice(0, 5).map((tx: any) => {
     const {
       tx_hash,
@@ -464,7 +464,7 @@ export async function getTxnsEmbed(
         const [from, to] = key.split("-")
         const addresses = `${blank}${reply} \`${shortenHashOrAddress(
           from
-        )}\` ${getEmoji("right_arrow")} \`${shortenHashOrAddress(to)}\``
+        )}\` ${getEmoji("RIGHT_ARROW")} \`${shortenHashOrAddress(to)}\``
         if (has_transfer) {
           const transfers = value
             .map((action: any) => {
@@ -487,7 +487,7 @@ export async function getTxnsEmbed(
       })
       .join("\n\n")
     return `${
-      successful ? getEmoji("approve") : defaultEmojis.WARNING
+      successful ? getEmoji("CHECK") : defaultEmojis.WARNING
     } [${shortenHashOrAddress(tx_hash)}](${scan_base_url}/tx/${tx_hash})${
       details ? `\n${details}` : ""
     }`
@@ -571,7 +571,7 @@ async function getNFTsEmbed(
       const collectionName =
         collection?.name ?? `Collection ${shortenHashOrAddress(address)}`
       const chainName = collection?.chain?.symbol
-      const nftEmoji = getEmoji("nft2")
+      const nftEmoji = getEmoji("NFT2")
       let length = 0
       const tokens = nfts
         .map((nft) => {

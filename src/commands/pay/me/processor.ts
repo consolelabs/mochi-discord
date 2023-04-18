@@ -6,12 +6,15 @@ import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
+  EmojiKey,
   emojis,
   equalIgnoreCase,
   getAuthor,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   isValidAmount,
+  TokenEmojiKey,
 } from "utils/common"
 import { reply } from "utils/discord"
 import community from "adapters/community"
@@ -32,14 +35,14 @@ export async function run({
 }: {
   msgOrInteraction: Message | CommandInteraction
   amount: number
-  token: string
+  token: TokenEmojiKey
   hasTarget?: boolean
   platform?: string
   target?: string
   note?: string
 }) {
   const author = getAuthor(msgOrInteraction)
-  const tokenEmoji = getEmoji(token)
+  const tokenEmoji = getEmojiToken(token)
   // get profile id
   const pfRes = await profile.getByDiscord(author.id)
   if (pfRes.err) {
@@ -90,11 +93,11 @@ export async function run({
       ?.slice(0, 3)
       ?.map(
         (w: any, i: number) =>
-          `${getEmoji(`num_${i + 1}`)} ${w.platform_identifier}`
+          `${getEmoji(`NUM_${i + 1}` as EmojiKey)} ${w.platform_identifier}`
       ) ?? []
 
   const lines = [
-    `${getEmoji("ANIMATED_CASH", true)} Hey! ${author.username}#${
+    `${getEmoji("CASH")} Hey! ${author.username}#${
       author.discriminator
     } requests you pay ${amount} ${token}`,
     `Message: ${note}`,

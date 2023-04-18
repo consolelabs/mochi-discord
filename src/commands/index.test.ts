@@ -9,7 +9,6 @@ import tickertext from "commands/ticker/index/text"
 jest.mock("commands/ticker/index/text")
 import config from "adapters/config"
 jest.mock("adapters/config")
-jest.mock("commands/nft/add/text")
 
 const mockMessage = mockdc.getMessage()
 

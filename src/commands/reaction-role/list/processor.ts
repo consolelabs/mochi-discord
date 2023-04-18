@@ -162,7 +162,7 @@ export const getDisplayInfoColumns = (arr: ReactionRoleListConfigGroup[]) => {
     let roleCount = 0
     infoColumn += `\n**${truncate(group.title, { length: 20 })}**\n`
     group.values.forEach((item: ReactionRoleListConfigItem) => {
-      infoColumn += `${getEmoji("blank")}${getEmoji("reply")} ${item.emoji} ${
+      infoColumn += `${getEmoji("BLANK")}${getEmoji("REPLY")} ${item.emoji} ${
         item.role
       }\n`
       roleCount++

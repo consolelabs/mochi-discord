@@ -29,10 +29,6 @@ const textCmd: Command = {
   category: "Config",
   onlyAdministrator: true,
   run: async () => null,
-  featured: {
-    title: `${getEmoji("")} Reaction role`,
-    description: "Assign a role corresponding to users' reaction",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
@@ -42,7 +38,7 @@ const textCmd: Command = {
           "ANIMATED_POINTING_RIGHT",
           true
         )} When setting a new reaction role, please use the **custom emoji from this server** and the **Discord default emoji**.* ${getEmoji(
-          "nekosad"
+          "NEKOSAD"
         )}`,
         footer: [`Type ${PREFIX}help rr <action> for a specific action!`],
         document: REACTION_ROLE_GITBOOK,

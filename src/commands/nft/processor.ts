@@ -12,11 +12,13 @@ import {
   emojis,
   getCompactFormatedNumber,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   getMarketplaceCollectionUrl,
   msgColors,
   shortenHashOrAddress,
   thumbnails,
+  TokenEmojiKey,
 } from "utils/common"
 import {
   composeEmbedMessage,
@@ -118,9 +120,9 @@ export async function toEmbed(
 export async function composeCollectionInfoEmbed(
   msg: Message,
   collectionAddress: string,
-  chain: string
+  chain: TokenEmojiKey
 ) {
-  if (chain == "sol" || chain == "999") {
+  if (chain === "SOL" || (chain as string) === "999") {
     collectionAddress = "solscan-" + collectionAddress
   }
   const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
@@ -145,10 +147,10 @@ export async function composeCollectionInfoEmbed(
   const name = `${data.name ?? "-"}`
   const desc = `${data.description ?? "-"}`
   const discord = data.discord
-    ? `[${getEmoji("discord")}](${data.discord})`
+    ? `[${getEmoji("DISCORD")}](${data.discord})`
     : ""
   const twitter = data.twitter
-    ? `[${getEmoji("twitter")}](${data.twitter})`
+    ? `[${getEmoji("TWITTER")}](${data.twitter})`
     : ""
   const website = data.website ? `[🌐](${data.website})` : ""
   let more = "-"
@@ -157,7 +159,9 @@ export async function composeCollectionInfoEmbed(
   }
   const ercFormat = `${data.erc_format ?? "-"}`
   const marketplaces = data.marketplaces?.length
-    ? data.marketplaces.map((m: string) => getEmoji(m)).join(" ")
+    ? data.marketplaces
+        .map((m: string) => getEmojiToken(m as TokenEmojiKey))
+        .join(" ")
     : "-"
 
   const fields = [
@@ -171,7 +175,7 @@ export async function composeCollectionInfoEmbed(
     },
     {
       name: "Chain",
-      value: `${getEmoji(chain)}`,
+      value: `${getEmojiToken(chain)}`,
     },
     {
       name: "Marketplace",

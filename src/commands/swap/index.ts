@@ -3,7 +3,7 @@ import defi from "adapters/defi"
 import { InternalError } from "errors"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis, getEmojiURL, msgColors } from "utils/common"
+import { emojis, getEmojiURL, msgColors, TokenEmojiKey } from "utils/common"
 import { chains } from "./index/processor"
 import swapSlash from "./index/slash"
 
@@ -72,8 +72,8 @@ const slashCmd: SlashCommand = {
     await swapSlash(
       i,
       data?.data,
-      from.toUpperCase(),
-      to.toUpperCase(),
+      from.toUpperCase() as TokenEmojiKey,
+      to.toUpperCase() as TokenEmojiKey,
       chain_name
     )
   },

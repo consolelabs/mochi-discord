@@ -1,4 +1,3 @@
-import { getEmoji } from "utils/common"
 import { DEFI_DEFAULT_FOOTER, PREFIX, SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { Command, SlashCommand } from "types/common"
@@ -12,10 +11,6 @@ const textCmd: Command = {
   brief: "List all statement of your wallet",
   category: "Defi",
   run: statement,
-  featured: {
-    title: `${getEmoji("STATEMENTS")} Statements`,
-    description: "List all transactions histories of your wallet",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

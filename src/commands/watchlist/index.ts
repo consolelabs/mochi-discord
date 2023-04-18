@@ -1,5 +1,5 @@
 import { Command, SlashCommand } from "types/common"
-import { getEmoji, thumbnails } from "utils/common"
+import { thumbnails } from "utils/common"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, WATCHLIST_GITBOOK } from "utils/constants"
 import {
@@ -51,10 +51,6 @@ const textCmd: Command = {
           messageOptions: await this.getHelpMessage(msg, ...rest),
         }
     }
-  },
-  featured: {
-    title: `${getEmoji("search")} Watchlist`,
-    description: "Manage your watchlist for selected tokens",
   },
   getHelpMessage: async (msg) => ({
     embeds: [

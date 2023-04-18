@@ -4,7 +4,6 @@ import statsSlash from "./index/slash"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX, SLASH_PREFIX } from "utils/constants"
 import { SlashCommandBuilder } from "@discordjs/builders"
-import { getEmoji } from "utils/common"
 
 const textCmd: Command = {
   id: "stats",
@@ -13,10 +12,6 @@ const textCmd: Command = {
   category: "Community",
   onlyAdministrator: true,
   run: stats,
-  featured: {
-    title: `${getEmoji("prediction")} Stats`,
-    description: "Gain more server insight",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

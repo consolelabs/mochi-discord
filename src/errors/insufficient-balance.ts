@@ -1,11 +1,12 @@
 import { Message, User } from "discord.js"
 import { composeInsufficientBalanceEmbed } from "ui/discord/embed"
+import { TokenEmojiKey } from "utils/common"
 import { BotBaseError, OriginalMessage } from "./base"
 
 type InsufficientBalanceErrorParam = {
   current?: number
   required: number
-  symbol: string
+  symbol: TokenEmojiKey
 }
 
 export class InsufficientBalanceError extends BotBaseError {

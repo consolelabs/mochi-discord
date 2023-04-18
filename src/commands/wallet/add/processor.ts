@@ -126,7 +126,7 @@ export async function renameWallet(
     throw new APIError({ msgOrInteraction: i, description: log, curl })
   }
   const successEmbed = new MessageEmbed()
-    .setDescription(`${getEmoji("approve")} Wallet name has been changed!`)
+    .setDescription(`${getEmoji("CHECK")} Wallet name has been changed!`)
     .setColor(msgColors.SUCCESS)
   const buttonRow = new MessageActionRow().addComponents(
     new MessageButton({
@@ -188,7 +188,7 @@ function composeViewWaletButtonRow(address: string) {
       style: MessageButtonStyles.SUCCESS,
       label: "View wallet",
       customId: `wallet_view_details-${address}`,
-      emoji: getEmoji("wallet"),
+      emoji: getEmoji("WALLET"),
     })
   )
 }

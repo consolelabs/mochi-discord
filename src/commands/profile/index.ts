@@ -1,7 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX, PROFILE_GITBOOK } from "utils/constants"
-import { getEmoji } from "utils/common"
 import profile from "./index/text"
 import profileSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
@@ -12,11 +11,6 @@ const textCmd: Command = {
   brief: "User's profile",
   category: "Profile",
   run: profile,
-  featured: {
-    title: `${getEmoji("exp")} Profile`,
-    description:
-      "Display your and other users' profiles along with NFT collections",
-  },
   getHelpMessage: async (msg) => {
     return {
       embeds: [

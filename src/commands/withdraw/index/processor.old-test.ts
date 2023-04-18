@@ -51,7 +51,7 @@ describe("getWithdrawPayload", () => {
   })
 
   test("invalid amount => throw DiscordWalletTransferError", async () => {
-    await expect(processor.getWithdrawPayload(msg, "a", "eth")).rejects.toThrow(
+    await expect(processor.getWithdrawPayload(msg, "a", "ETH")).rejects.toThrow(
       new DiscordWalletTransferError({
         message: msg,
         discordId: msg.author.id,
@@ -62,7 +62,7 @@ describe("getWithdrawPayload", () => {
 
   test("withdraw all", async () => {
     msg.content = `$wd all eth`
-    const output = await processor.getWithdrawPayload(msg, "all", "eth")
+    const output = await processor.getWithdrawPayload(msg, "all", "ETH")
     expect(output).toEqual({
       recipient: msg.author.id,
       recipientAddress: "",
@@ -80,7 +80,7 @@ describe("getWithdrawPayload", () => {
 
   test("valid amount", async () => {
     msg.content = `$wd all eth`
-    const output = await processor.getWithdrawPayload(msg, "0.69", "eth")
+    const output = await processor.getWithdrawPayload(msg, "0.69", "ETH")
     expect(output).toEqual({
       recipient: msg.author.id,
       recipientAddress: "",
@@ -112,7 +112,7 @@ describe("withdraw", () => {
 
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(false)
     const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
-    await expect(processor.withdraw(msg, "1", "qwerty")).rejects.toThrow(
+    await expect(processor.withdraw(msg, "1", "qwerty" as any)).rejects.toThrow(
       new InternalError({
         msgOrInteraction: msg,
         title: "Unsupported token",
@@ -126,7 +126,7 @@ describe("withdraw", () => {
     mochiPay.getBalances = jest
       .fn()
       .mockResolvedValueOnce({ ok: true, data: [] })
-    await expect(processor.withdraw(msg, "10", "ftm")).rejects.toThrow(
+    await expect(processor.withdraw(msg, "10", "FTM")).rejects.toThrow(
       new InsufficientBalanceError({
         msgOrInteraction: msg,
         params: { current: 0, required: 10, symbol: "FTM" },
@@ -145,7 +145,7 @@ describe("withdraw", () => {
         },
       ],
     })
-    await expect(processor.withdraw(msg, "10", "ftm")).rejects.toThrow(
+    await expect(processor.withdraw(msg, "10", "FTM")).rejects.toThrow(
       new InsufficientBalanceError({
         msgOrInteraction: msg,
         params: { current: 5.6, required: 10, symbol: "FTM" },
@@ -182,7 +182,7 @@ describe("withdraw", () => {
     })
     const mockedDm = mockdc.cloneMessage()
     msg.author.send = jest.fn().mockResolvedValueOnce(mockedDm)
-    await processor.withdraw(msg, "1", "ftm")
+    await processor.withdraw(msg, "1", "FTM")
     expect(msg.author.send).toHaveBeenCalledTimes(2)
   })
 })

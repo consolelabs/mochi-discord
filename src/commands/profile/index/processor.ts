@@ -33,6 +33,7 @@ import {
   removeDuplications,
   reverseLookup,
   shortenHashOrAddress,
+  TokenEmojiKey,
 } from "utils/common"
 import { CHAIN_EXPLORER_BASE_URLS, SPACE } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
@@ -50,28 +51,28 @@ type ViewType = "my-profile" | "my-nft" | "my-wallets"
 function buildSwitchViewActionRow(currentView: ViewType, userId: string) {
   const myProfileButton = new MessageButton({
     label: "My Profile",
-    emoji: getEmoji("winkingface"),
+    emoji: getEmoji("WINKINGFACE"),
     customId: `profile-switch-view-button/my-profile`,
     style: "SECONDARY",
     disabled: currentView === "my-profile",
   })
   const myWalletBtn = new MessageButton({
     label: "My Wallets",
-    emoji: getEmoji("wallet_1"),
+    emoji: getEmoji("WALLET_1"),
     customId: `profile-switch-view-button/my-wallets`,
     style: "SECONDARY",
     disabled: currentView === "my-wallets",
   })
   const myNftButton = new MessageButton({
     label: "My NFT",
-    emoji: getEmoji("nfts"),
+    emoji: getEmoji("NFTS"),
     customId: `profile-switch-view-button/my-nft`,
     style: "SECONDARY",
     disabled: currentView === "my-nft",
   })
   const addWalletBtn = new MessageButton({
     label: "Add Wallet",
-    emoji: getEmoji("plus"),
+    emoji: getEmoji("PLUS"),
     customId: `wallet_add_more-${userId}`,
     style: "SECONDARY",
   })
@@ -148,9 +149,9 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
     const list = await Promise.all(
       myWallets.slice(0, 9).map(async (w: any, i: number) => {
         const domain = `${(await reverseLookup(w)) || ""}`
-        return `${getEmoji(`num_${i + 1}`)} \`${shortenHashOrAddress(
-          w
-        )}\` ${domain}`
+        return `${getEmoji(
+          `num_${i + 1}` as TokenEmojiKey
+        )} \`${shortenHashOrAddress(w)}\` ${domain}`
       })
     )
     description = `\n${list.join(
@@ -369,7 +370,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
         collections.data?.[0].name ||
         `Collection ${shortenHashOrAddress(address)}`
       const chainId = collections.data?.[0].chain_id
-      const nftEmoji = getEmoji("nft")
+      const nftEmoji = getEmoji("NFT")
       const tokens = nfts
         .map((nft) =>
           chainId

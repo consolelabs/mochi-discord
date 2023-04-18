@@ -13,7 +13,7 @@ import { getEmoji } from "utils/common"
 export function getExitButton(authorId: string, label?: string) {
   return new MessageButton({
     customId: `exit-${authorId}`,
-    emoji: getEmoji("revoke"),
+    emoji: getEmoji("REVOKE"),
     style: "DANGER",
     label: label ?? "Exit",
   })

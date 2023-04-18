@@ -27,10 +27,6 @@ const textCmd: Command = {
   brief: "Alert Configuration",
   category: "Defi",
   run: async () => null,
-  featured: {
-    title: "Alert",
-    description: "Get notifications every time the price change",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

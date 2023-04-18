@@ -74,7 +74,7 @@ export async function composeDaoVoteInfoEmbed(
   }
   if (!data) {
     return {
-      title: `${getEmoji("mail")} No information found!`,
+      title: `${getEmoji("MAIL")} No information found!`,
       description: `You haven't set up any proposal!\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
@@ -86,7 +86,7 @@ export async function composeDaoVoteInfoEmbed(
     authority = authority.charAt(0).toUpperCase() + authority.slice(1)
   }
   return {
-    title: `${getEmoji("mail")} DAO voting information`,
+    title: `${getEmoji("MAIL")} DAO voting information`,
     description: `${getEmoji("ANIMATED_POINTING_RIGHT", true)} **Channel**: <#${
       data.proposal_channel_id
     }>\n${getEmoji("ANIMATED_POINTING_RIGHT", true)} **Token**: ${
@@ -116,7 +116,7 @@ export async function composeProposalInfoEmbed(
   }
   if (!data) {
     return {
-      title: `${getEmoji("mail")} No tracker found!`,
+      title: `${getEmoji("MAIL")} No tracker found!`,
       description: `You haven't set up any tracker!\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
@@ -126,8 +126,8 @@ export async function composeProposalInfoEmbed(
   const description = data
     ?.map(
       (c: ModelGuildConfigDaoTracker) =>
-        `<#${c.channel_id ?? ""}>\n${getEmoji("blank")}${getEmoji(
-          "reply"
+        `<#${c.channel_id ?? ""}>\n${getEmoji("BLANK")}${getEmoji(
+          "REPLY"
         )} [${c.space?.toUpperCase()}](https://snapshot.org/#/${c.space})`
     )
     .join("\n\n")

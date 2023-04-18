@@ -41,9 +41,9 @@ const run = async (interaction: CommandInteraction) => {
     }
 
   const { author, leaderboard } = res.data
-  const blank = getEmoji("blank")
+  const blank = getEmoji("BLANK")
   const embed = composeEmbedMessage(null, {
-    title: `${getEmoji("cup")} ${interaction.guild?.name}'s Web3 rankings`,
+    title: `${getEmoji("CUP")} ${interaction.guild?.name}'s Web3 rankings`,
     thumbnail: interaction.guild?.iconURL(),
     description: `${blank}**Your rank:** #${author.guild_rank}\n${blank}**XP:** ${author.total_xp}\n\u200B`,
     image: "attachment://leaderboard.png",

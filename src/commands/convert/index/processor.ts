@@ -1,5 +1,5 @@
 import defi from "adapters/defi"
-import { getEmoji, msgColors } from "utils/common"
+import { getEmoji, getEmojiToken, msgColors, TokenEmojiKey } from "utils/common"
 import { CommandInteraction, Message } from "discord.js"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError, InternalError } from "errors"
@@ -11,8 +11,8 @@ export async function render(
   args: [string, number, string, string]
 ) {
   const amount = String(args[1])
-  const from = args[2].toUpperCase()
-  const to = args[3].toUpperCase()
+  const from = args[2].toUpperCase() as TokenEmojiKey
+  const to = args[3].toUpperCase() as TokenEmojiKey
 
   const { data, ok, curl, error, log } = await defi.convertToken({
     from,
@@ -66,7 +66,7 @@ export async function render(
     }\``
       .concat(
         `\n${
-          emoji ? `${getEmoji("coin2")}` : ""
+          emoji ? `${getEmoji("ANIMATED_COIN_2")}` : ""
         } Price: \`$${coin.market_data.current_price[
           "usd"
         ]?.toLocaleString()}\``
@@ -79,23 +79,23 @@ export async function render(
         ]?.toLocaleString()}\``
       )
 
-  const blank = getEmoji("blank")
+  const blank = getEmoji("BLANK")
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("CONVERSION")} Conversion${blank.repeat(7)}`,
     description: `**${amount} ${from} ≈ ${
       data.to.amount
-    } ${to}**\n\n**Ratio**: \`${currentRatio}\`\n${getEmoji("line").repeat(
+    } ${to}**\n\n**Ratio**: \`${currentRatio}\`\n${getEmoji("LINE").repeat(
       10
     )}`,
     color: msgColors.MOCHI,
   }).addFields([
     {
-      name: `${getEmoji("blank")}${getEmoji(from)} ${from}`,
+      name: `${getEmoji("BLANK")}${getEmojiToken(from)} ${from}`,
       value: coinInfo(base_coin),
       inline: true,
     },
     {
-      name: `${getEmoji(to)} ${to}`,
+      name: `${getEmojiToken(to)} ${to}`,
       value: coinInfo(target_coin, false),
       inline: true,
     },

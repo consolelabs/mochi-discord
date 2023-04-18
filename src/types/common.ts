@@ -127,10 +127,6 @@ export type Command = {
   command: string
   category: Category
   brief: string
-  featured?: {
-    title: string
-    description: string
-  }
   onlyAdministrator?: boolean
   run: (
     msg: Message,

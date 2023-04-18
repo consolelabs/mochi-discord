@@ -27,10 +27,6 @@ const textCmd: Command = {
   brief: "Moniker Configuration",
   category: "Config",
   run: async () => null,
-  featured: {
-    title: "Moniker",
-    description: "Manage monikers configuration used in tip",
-  },
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {

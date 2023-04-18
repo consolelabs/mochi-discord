@@ -115,10 +115,6 @@ const textCmd: Command = {
     // tip discord
     await tip(msg)
   },
-  featured: {
-    title: `${getEmoji("CASH")} Tip`,
-    description: "Send coins to a user or a group of users",
-  },
   getHelpMessage: () => getHelpMessage(),
   canRunWithoutAction: true,
   colorType: "Defi",

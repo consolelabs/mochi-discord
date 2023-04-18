@@ -36,7 +36,7 @@ const command: Command = {
     }
     const stickerArg = msg.stickers.first()?.id ?? ""
     let messageText = "gm/gn"
-    let emoji = getEmoji("gm")
+    let emoji = getEmoji("GM")
 
     let { isEmoji, isNativeEmoji, isAnimatedEmoji } = parseDiscordToken(
       args[4] ?? ""
@@ -88,7 +88,7 @@ const command: Command = {
           "ANIMATED_POINTING_RIGHT",
           true
         )} When setting a new starboard, please use the **custom emoji, sticker from this server** and the **Discord default emoji, sticker**.* ${getEmoji(
-          "nekosad"
+          "NEKOSAD"
         )}`,
         document: `${GM_GITBOOK}&action=config`,
       }),

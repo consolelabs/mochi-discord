@@ -1,7 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX, PROFILE_GITBOOK } from "utils/constants"
-import { getEmoji } from "utils/common"
 import inbox from "./index/text"
 import inboxSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
@@ -13,10 +12,6 @@ const textCmd: Command = {
   category: "Defi",
   run: async function (msg) {
     return await inbox(msg)
-  },
-  featured: {
-    title: `${getEmoji("exp")} Inbox`,
-    description: "Show daily activities of user through inbox",
   },
   getHelpMessage: async (msg) => {
     return {

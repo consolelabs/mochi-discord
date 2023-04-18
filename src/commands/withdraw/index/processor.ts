@@ -18,6 +18,7 @@ import {
   isAddress,
   isValidAmount,
   msgColors,
+  TokenEmojiKey,
 } from "utils/common"
 import {
   MOCHI_ACTION_WITHDRAW,
@@ -69,7 +70,7 @@ export async function getRecipient(
 export async function withdraw(
   msgOrInteraction: Message | CommandInteraction,
   amountArg: string,
-  tokenArg: string
+  tokenArg: TokenEmojiKey
 ) {
   const payload = await getWithdrawPayload(
     msgOrInteraction,
@@ -85,7 +86,7 @@ export async function withdraw(
         author: ["Withdraw", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
         thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
         description: `**Withdrawal amount**\n${getEmoji(
-          payload.token?.toUpperCase() ?? ""
+          (payload.token?.toUpperCase() as TokenEmojiKey) ?? ""
         )} ${payload.amount} ${payload.token}\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
           true
@@ -170,7 +171,7 @@ function composeWithdrawEmbed(payload: any) {
 export async function getWithdrawPayload(
   msgOrInteraction: Message | CommandInteraction,
   amountArg: string,
-  token: string
+  token: TokenEmojiKey
 ) {
   const author = getAuthor(msgOrInteraction)
   const profileId = await getProfileIdByDiscord(author.id)

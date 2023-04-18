@@ -13,7 +13,7 @@ export function list({ data }: ResponseGetLevelRoleConfigsResponse) {
       (item) =>
         `**Level ${item.level}** - requires \`${
           item.level_config?.min_xp
-        }\` XP\n${getEmoji("blank")}${getEmoji("reply")} <@&${item.role_id}>`
+        }\` XP\n${getEmoji("BLANK")}${getEmoji("REPLY")} <@&${item.role_id}>`
     )
     .join("\n")
   return {
