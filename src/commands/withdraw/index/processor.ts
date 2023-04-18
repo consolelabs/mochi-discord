@@ -14,6 +14,7 @@ import {
   equalIgnoreCase,
   getAuthor,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   isAddress,
   isValidAmount,
@@ -85,7 +86,7 @@ export async function withdraw(
       composeEmbedMessage(null, {
         author: ["Withdraw", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
         thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
-        description: `**Withdrawal amount**\n${getEmoji(
+        description: `**Withdrawal amount**\n${getEmojiToken(
           (payload.token?.toUpperCase() as TokenEmojiKey) ?? ""
         )} ${payload.amount} ${payload.token}\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
@@ -144,7 +145,7 @@ export async function withdraw(
 
 function composeWithdrawEmbed(payload: any) {
   const token = payload.token?.toUpperCase() ?? ""
-  const tokenEmoji = getEmoji(token)
+  const tokenEmoji = getEmojiToken(token)
   return composeEmbedMessage(null, {
     author: ["Withdraw Order Submitted", getEmojiURL(emojis.CHECK)],
     description: "Your withdrawal was processed succesfully!",

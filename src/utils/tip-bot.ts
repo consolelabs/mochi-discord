@@ -1,10 +1,10 @@
 import config from "adapters/config"
+import defi from "adapters/defi"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError } from "errors"
 import { ResponseMonikerConfigData } from "types/api"
-import mochiPay from "../adapters/mochi-pay"
 import { parseDiscordToken } from "./commands"
-import { hasRole, isNotBot, isStatus } from "./common"
+import { equalIgnoreCase, hasRole, isNotBot, isStatus } from "./common"
 import { SPACES_REGEX } from "./constants"
 
 const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
@@ -235,21 +235,19 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
 }
 
 export async function isTokenSupported(symbol: string): Promise<boolean> {
-  const { ok, error, curl, log, data } = await mochiPay.getTokens({
-    symbol: symbol,
-  })
+  const { ok, error, curl, log, data } = await defi.getAllTipBotTokens()
   if (!ok) {
     throw new APIError({ curl, description: log, error })
   }
-  return data?.length > 0
+  const tokens = data.map((t: any) => t.token_symbol.toUpperCase())
+  if (tokens.includes(symbol.toUpperCase())) return true
+  return false
 }
 
 export async function getToken(symbol: string) {
-  const { ok, error, curl, log, data } = await mochiPay.getTokens({
-    symbol: symbol,
-  })
+  const { ok, error, curl, log, data } = await defi.getAllTipBotTokens()
   if (!ok) {
     throw new APIError({ curl, description: log, error })
   }
-  return data[0]
+  return data.find((t: any) => equalIgnoreCase(t.token_symbol, symbol))
 }

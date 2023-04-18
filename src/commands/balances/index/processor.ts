@@ -4,6 +4,7 @@ import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
 import {
   emojis,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   msgColors,
   roundFloatNumber,
@@ -129,8 +130,8 @@ export async function renderBalances(
 
       return {
         name: tokenName + `${chain && !native ? ` (${chain.name})` : ""}`,
-        value: `${getEmoji(
-          symbol
+        value: `${getEmojiToken(
+          symbol.toUpperCase()
         )} ${value} ${symbol} \`$${usdWorth}\` ${blank}`,
         inline: true,
       }

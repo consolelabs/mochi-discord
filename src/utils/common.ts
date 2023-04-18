@@ -447,7 +447,7 @@ export function getEmoji(
 }
 
 export function getEmojiToken(key: TokenEmojiKey, animated?: boolean) {
-  return getEmoji(key, animated, getEmoji("ANIMATED_COIN_1"))
+  return getEmoji(key, animated, getEmoji("ANIMATED_COIN_1", true))
 }
 
 export function roundFloatNumber(n: number, fractionDigits = 1) {
