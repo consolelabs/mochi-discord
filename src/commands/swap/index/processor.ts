@@ -40,14 +40,14 @@ export const chains = {
   56: "bnb",
   250: "fantom",
   137: "polygon",
-  43114: "avalanche",
-  42161: "arbitrum",
-  10: "optimism",
-  199: "bittorrent",
-  42262: "oasis",
-  25: "cronos",
-  106: "velas",
-  1313161554: "aurora",
+  // 43114: "avalanche",
+  // 42161: "arbitrum",
+  // 10: "optimism",
+  // 199: "bittorrent",
+  // 42262: "oasis",
+  // 25: "cronos",
+  // 106: "velas",
+  // 1313161554: "aurora",
 }
 
 type Route = {

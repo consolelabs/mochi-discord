@@ -36,8 +36,8 @@ const slashCmd: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("chain_name")
-          .setDescription("the chain name, default is solana")
-          .setRequired(false)
+          .setDescription("the chain name")
+          .setRequired(true)
           .setChoices([
             ["solana", "solana"],
             ...Object.values(chains).map<[string, string]>((c) => [c, c]),
@@ -51,7 +51,7 @@ const slashCmd: SlashCommand = {
     const to = i.options.getString("to", true)
     const amount = i.options.getNumber("amount", true)
 
-    const chain_name = i.options.getString("chain_name", false) ?? "ethereum"
+    const chain_name = i.options.getString("chain_name", true)
     const { ok, data } = await defi.getSwapRoute({
       from,
       to,
