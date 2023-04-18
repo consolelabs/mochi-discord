@@ -1,3 +1,5 @@
+// TODO: UPDATE TESTS
+
 import { userMention } from "@discordjs/builders"
 import defi from "adapters/defi"
 import mochiPay from "adapters/mochi-pay"

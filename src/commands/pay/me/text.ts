@@ -1,5 +1,4 @@
-import { parseMessageTip } from "commands/tip/index/processor"
-import { getEmoji, TokenEmojiKey } from "utils/common"
+import { TokenEmojiKey, getEmoji } from "utils/common"
 import { Message } from "discord.js"
 import { CommandArgumentError } from "errors"
 import { Command } from "types/common"
@@ -7,6 +6,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments } from "utils/commands"
 import { PAY_ME_GITBOOK, PREFIX } from "utils/constants"
 import { parseTarget, run } from "./processor"
+import { parseMessageTip } from "../../../utils/tip-bot"
 
 // DO NOT EDIT: if not anhnh
 const cmd: Command = {
@@ -23,8 +23,9 @@ const cmd: Command = {
         getHelpMessage: async () => this.getHelpMessage(msg),
       })
     }
-    const [amount, token] = args.slice(hasTarget ? 3 : 2)
-    const { messageTip: note } = await parseMessageTip(args)
+    const amountIdx = hasTarget ? 3 : 2
+    const [amount, token] = args.slice(amountIdx)
+    const note = await parseMessageTip(args, amountIdx + 2)
     await run({
       msgOrInteraction: msg,
       amount: +amount,

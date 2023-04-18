@@ -37,11 +37,10 @@ class MochiPay extends Fetcher {
     profileId: string
     token?: string
   }) {
-    return await this.jsonFetch(
-      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/${profileId}/balances/${
-        token ?? ""
-      }`
-    )
+    const url = `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/${profileId}/balances/${
+      token ?? ""
+    }`
+    return await this.jsonFetch(url)
   }
 
   public async withdraw(body: {
