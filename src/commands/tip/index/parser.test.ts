@@ -1,4 +1,5 @@
 import { userMention } from "@discordjs/builders"
+import defi from "adapters/defi"
 import mochiPay from "adapters/mochi-pay"
 import { Message } from "discord.js"
 import { APIError } from "errors"
@@ -44,11 +45,11 @@ describe("parseMessageTip", () => {
     }
     const allTokenRes = {
       ok: true,
-      data: [{ symbol: "ftm" }],
+      data: [{ token_symbol: "ftm" }],
       log: "",
       curl: "",
     }
-    mochiPay.getTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
+    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
     const output = await processor.parseMessageTip(argsAfterParseMoniker)
     expect(output).toEqual(expected)
   })
@@ -67,11 +68,11 @@ describe("parseMessageTip", () => {
     }
     const allTokenRes = {
       ok: true,
-      data: [{ symbol: "ftm" }],
+      data: [{ token_symbol: "ftm" }],
       log: "",
       curl: "",
     }
-    mochiPay.getTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
+    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
     const output = await processor.parseMessageTip(argsAfterParseMoniker)
     expect(output).toEqual(expected)
   })
@@ -90,11 +91,11 @@ describe("parseMessageTip", () => {
     }
     const allTokenRes = {
       ok: true,
-      data: [{ symbol: "ftm" }],
+      data: [{ token_symbol: "ftm" }],
       log: "",
       curl: "",
     }
-    mochiPay.getTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
+    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
     const output = await processor.parseMessageTip(argsAfterParseMoniker)
     expect(output).toEqual(expected)
   })
@@ -107,11 +108,11 @@ describe("parseMessageTip", () => {
     }
     const allTokenRes = {
       ok: true,
-      data: [{ symbol: "ftm" }],
+      data: [{ token_symbol: "ftm" }],
       log: "",
       curl: "",
     }
-    mochiPay.getTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
+    defi.getAllTipBotTokens = jest.fn().mockResolvedValueOnce(allTokenRes)
     const output = await processor.parseMessageTip(argsAfterParseMoniker)
     expect(output).toEqual(expected)
   })
