@@ -427,7 +427,7 @@ export function composeInsufficientBalanceEmbed({
   author,
 }: {
   current?: number
-  required: number
+  required?: number
   symbol: TokenEmojiKey
   author?: User
 }) {
@@ -436,16 +436,20 @@ export function composeInsufficientBalanceEmbed({
     author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
     description: `${author}, your balance is insufficient.\nYou can deposit more by using \`$deposit ${symbol}\``,
   }).addFields([
-    {
-      name: "Required amount",
-      value: `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
-      inline: true,
-    },
-    ...(current
+    ...(current !== undefined
       ? [
           {
             name: "Your balance",
             value: `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
+            inline: true,
+          },
+        ]
+      : []),
+    ...(required !== undefined
+      ? [
+          {
+            name: "Required amount",
+            value: `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
             inline: true,
           },
         ]

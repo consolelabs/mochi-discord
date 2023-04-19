@@ -6,7 +6,7 @@ import { isValidAmount, TokenEmojiKey } from "utils/common"
 import { CommandArgumentError } from "errors"
 import { Message } from "discord.js"
 import { Command } from "types/common"
-import { parseMessageTip } from "commands/tip/index/processor"
+import { parseMessageTip } from "../../../utils/tip-bot"
 
 const cmd: Command = {
   id: "link",
@@ -22,7 +22,7 @@ const cmd: Command = {
         getHelpMessage: async () => this.getHelpMessage(msg),
       })
     }
-    const { messageTip: note } = await parseMessageTip(args)
+    const note = await parseMessageTip(args, 4)
     await run({
       msgOrInteraction: msg,
       amount: +amount,

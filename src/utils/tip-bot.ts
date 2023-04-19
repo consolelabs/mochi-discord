@@ -5,7 +5,7 @@ import { APIError } from "errors"
 import { ResponseMonikerConfigData } from "types/api"
 import { parseDiscordToken } from "./commands"
 import { equalIgnoreCase, hasRole, isNotBot, isStatus } from "./common"
-import { SPACES_REGEX } from "./constants"
+import { SPACE, SPACES_REGEX } from "./constants"
 
 const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
   //
@@ -189,7 +189,7 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
   }
   let newArgs = args
   let moniker: ResponseMonikerConfigData | undefined
-  if (data && Array.isArray(data) && data.length !== 0) {
+  if (data?.length) {
     const content = args.join(" ").trim()
     data.forEach((v: ResponseMonikerConfigData) => {
       const tmp = v.moniker?.moniker
@@ -214,7 +214,7 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
         curl: curlDefault,
       })
     }
-    if (dataDefault && Array.isArray(dataDefault) && dataDefault.length !== 0) {
+    if (dataDefault?.length) {
       const content = args.join(" ").trim()
       dataDefault.forEach((v: ResponseMonikerConfigData) => {
         const tmp = v.moniker?.moniker
@@ -250,4 +250,97 @@ export async function getToken(symbol: string) {
     throw new APIError({ curl, description: log, error })
   }
   return data.find((t: any) => equalIgnoreCase(t.token_symbol, symbol))
+}
+
+export function getTargets(args: string[]): {
+  targets: string[]
+  lastIdx: number
+  valid: boolean
+} {
+  const result: { targets: string[]; lastIdx: number; valid: boolean } = {
+    targets: [],
+    lastIdx: -1,
+    valid: false,
+  }
+  args.forEach((a: string, idx: number) => {
+    const selector = TIP_TARGET_TEXT_SELECTOR_MAPPINGS.find((s) =>
+      equalIgnoreCase(s[0], a)
+    )
+    // target is one of the selectors "TIP_TARGET_TEXT_SELECTOR_MAPPINGS"
+    if (selector) {
+      result.targets.push(selector[1])
+      result.lastIdx = idx
+      result.valid = true
+      return
+    }
+
+    // targets are users / roles / channels
+    const { isRole, isChannel, isUser } = parseDiscordToken(a)
+    if (isRole || isChannel || isUser) {
+      result.targets.push(a)
+      result.lastIdx = idx
+      result.valid = true
+      return
+    }
+  })
+
+  if (!result.targets.length) result.valid = false
+  return result
+}
+
+export async function parseMoniker(unit: string, guildId: string) {
+  // get all moniker configs
+  const { ok, data, log, curl } = await config.getMonikerConfig(guildId)
+  if (!ok) {
+    throw new APIError({
+      description: log,
+      curl,
+    })
+  }
+
+  // if guild has custom configs, then find the match one
+  if (data?.length) {
+    // const content = args.join(" ").trim()
+    return data?.find((v: ResponseMonikerConfigData) => {
+      const tmp = v.moniker?.moniker
+      if (!tmp) return
+      const sym = v.moniker?.token?.token_symbol
+      if (!sym) return
+      return equalIgnoreCase(unit, tmp)
+    })
+  }
+
+  // else get global monikers
+  const {
+    ok: okDefault,
+    data: dataDefault,
+    log: logDefault,
+    curl: curlDefault,
+  } = await config.getDefaultMoniker()
+  if (!okDefault) {
+    throw new APIError({
+      description: logDefault,
+      curl: curlDefault,
+    })
+  }
+
+  // and find the match one
+  return dataDefault?.find((v: ResponseMonikerConfigData) => {
+    const tmp = v.moniker?.moniker
+    if (!tmp) return
+    const sym = v.moniker?.token?.token_symbol
+    if (!sym) return
+    return equalIgnoreCase(unit, tmp)
+  })
+}
+
+export function parseMessageTip(args: string[], startIdx: number): string {
+  return args
+    .slice(startIdx)
+    .join(SPACE)
+    .replaceAll('"', "")
+    .replaceAll("”", "")
+    .replaceAll("“", "")
+    .replaceAll("'", "")
+    .trim()
 }
