@@ -2,6 +2,7 @@ import {
   CommandInteraction,
   Message,
   MessageComponentInteraction,
+  SelectMenuInteraction,
 } from "discord.js"
 import { logger } from "logger"
 import { getEmoji } from "utils/common"
@@ -30,7 +31,10 @@ export class BotBaseError extends Error {
     if (message) {
       const reply = (message.reply as ReplyFunc).bind(message)
       this.reply = async (...args) => {
-        if (message instanceof CommandInteraction) {
+        if (
+          message instanceof CommandInteraction ||
+          message instanceof SelectMenuInteraction
+        ) {
           const replyMsg = await message.editReply(...args).catch(() => null)
           if (!replyMsg) {
             reply(...args).catch(() => null)

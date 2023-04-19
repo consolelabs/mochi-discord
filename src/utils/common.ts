@@ -441,9 +441,9 @@ export function getEmoji(
     return emoji
   }
 
-  return `<${animated ? "a" : ""}:${key.replace(/-/g, "_").toLowerCase()}:${
-    emojis[key]
-  }>`
+  return `<${animated || key.startsWith("ANIMATED_") ? "a" : ""}:${key
+    .replace(/-/g, "_")
+    .toLowerCase()}:${emojis[key]}>`
 }
 
 export function getEmojiToken(key: TokenEmojiKey, animated?: boolean) {

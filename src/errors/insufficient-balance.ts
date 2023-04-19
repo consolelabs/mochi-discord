@@ -43,6 +43,6 @@ export class InsufficientBalanceError extends BotBaseError {
       ...this.params,
       author: this.author,
     })
-    this.reply?.({ embeds: [embed] })
+    this.reply?.({ embeds: [embed], components: [] })
   }
 }

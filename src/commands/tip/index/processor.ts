@@ -14,7 +14,6 @@ import {
   getEmojiURL,
   msgColors,
   roundFloatNumber,
-  thumbnails,
   TokenEmojiKey,
 } from "utils/common"
 import { isMessage, reply } from "utils/discord"
@@ -124,7 +123,7 @@ export async function tip(
     image,
   }
 
-  // one one matching token -> proceed to send tip
+  // only one matching token -> proceed to send tip
   if (balances.length === 1) {
     const balance = balances[0]
     const current = +balance.amount / Math.pow(10, balance.token?.decimal ?? 0)
@@ -176,7 +175,7 @@ async function selectTokenToTip(
         return `\`${b.token?.chain?.name}\``
       })
       .filter((s: any) => Boolean(s))
-      .join(", ")}.\nnPlease select one of the following`,
+      .join(", ")}.\nPlease select one of the following`,
   })
 
   // select-menu handler
@@ -293,7 +292,7 @@ async function executeTip(
     }`
   }
   const embed = composeEmbedMessage(null, {
-    thumbnail: thumbnails.TIP,
+    thumbnail: getEmojiURL(emojis.CASH),
     author: ["Tips", getEmojiURL(emojis.COIN)],
     description,
     color: msgColors.SUCCESS,
