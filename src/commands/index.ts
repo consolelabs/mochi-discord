@@ -114,7 +114,12 @@ export const slashCommands: Record<string, SlashCommand> = {
   gm: gm.slashCmd,
   nft: nft.slashCmd,
   tip: tip.slashCmd,
+  //
   balances: balances.slashCmd,
+  balance: balances.slashCmd,
+  bal: balances.slashCmd,
+  bals: balances.slashCmd,
+  //
   statements: statements.slashCmd,
   proposal: proposal.slashCmd,
   moniker: moniker.slashCmd,
@@ -152,7 +157,6 @@ export const originalCommands: Record<string, Command> = {
   deposit: deposit.textCmd,
   tip: tip.textCmd,
   claim: claim.textCmd,
-  balances: balances.textCmd,
   withdraw: withdraw.textCmd,
   tokens: token.textCmd,
   ticker: ticker.textCmd,

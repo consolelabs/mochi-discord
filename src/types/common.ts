@@ -107,7 +107,7 @@ export type SlashCommand = {
   onlyAdministrator?: boolean
   experimental?: boolean
   prepare: (
-    slashCommands?: Record<string, SlashCommand>
+    alias?: string
   ) =>
     | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
     | SlashCommandSubcommandBuilder
