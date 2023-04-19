@@ -8,15 +8,16 @@ import {
   Message,
   MessageActionRow,
   MessageButton,
+  SelectMenuInteraction,
 } from "discord.js"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import NodeCache from "node-cache"
 import parse from "parse-duration"
 import { ResponseMonikerConfigData } from "types/api"
-import { OffchainTipBotTransferRequest } from "types/defi"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
+  TokenEmojiKey,
   defaultEmojis,
   emojis,
   equalIgnoreCase,
@@ -27,11 +28,17 @@ import {
   isValidAmount,
   msgColors,
   roundFloatNumber,
-  TokenEmojiKey,
 } from "utils/common"
 import { APPROX } from "utils/constants"
-import { formatDigit, validateBalance } from "utils/defi"
-import { parseMonikerinCmd, isTokenSupported } from "utils/tip-bot"
+import { formatDigit } from "utils/defi"
+import { isTokenSupported, parseMonikerinCmd } from "utils/tip-bot"
+import mochiPay from "../../../adapters/mochi-pay"
+import { APIError } from "../../../errors"
+import { InsufficientBalanceError } from "../../../errors/insufficient-balance"
+import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
+import { convertString } from "../../../utils/convert"
+import { reply } from "../../../utils/discord"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -47,12 +54,13 @@ function composeAirdropButtons(
   amount: number,
   amountInUSD: number,
   cryptocurrency: string,
+  chainId: string,
   duration: number,
   maxEntries: number
 ) {
   return new MessageActionRow().addComponents(
     new MessageButton({
-      customId: `confirm_airdrop-${authorId}-${amount}-${amountInUSD}-${cryptocurrency}-${duration}-${maxEntries}`,
+      customId: `confirm_airdrop-${authorId}-${amount}-${amountInUSD}-${cryptocurrency}-${chainId}-${duration}-${maxEntries}`,
       emoji: getEmoji("CHECK"),
       style: "SUCCESS",
       label: "Confirm",
@@ -93,7 +101,7 @@ export async function confirmAirdrop(
   await interaction.deferUpdate()
 
   const infos = interaction.customId.split("-")
-  const [authorId, amount, amountInUSD, token, duration, maxEntries] =
+  const [authorId, amount, amountInUSD, token, chainId, duration, maxEntries] =
     infos.slice(1)
   if (authorId !== interaction.user.id) {
     return
@@ -142,6 +150,7 @@ export async function confirmAirdrop(
     +amount,
     +amountInUSD,
     token as TokenEmojiKey,
+    chainId,
     duration,
     +maxEntries
   )
@@ -154,6 +163,7 @@ async function checkExpiredAirdrop(
   amount: number,
   usdAmount: number,
   token: TokenEmojiKey,
+  chainId: string,
   duration: string,
   maxEntries: number
 ) {
@@ -179,13 +189,14 @@ async function checkExpiredAirdrop(
       const originalAuthor = await msg.guild?.members.fetch(authorId)
 
       if (participants.length > 0 && msg.guildId) {
-        const req: OffchainTipBotTransferRequest = {
+        const req: any = {
           sender: authorId,
           recipients: participants.map((p) => parseDiscordToken(p).value),
           guildId: msg.guildId,
           channelId: msg.channelId,
           amount,
-          token: token,
+          token,
+          chainId,
           each: false,
           all: false,
           transferType: "airdrop",
@@ -312,22 +323,131 @@ export async function enterAirdrop(
   }
 }
 
-export async function handleAirdrop(
-  msgOrInteraction: Message | CommandInteraction,
-  args: string[]
-) {
-  const payload = await getAirdropPayload(msgOrInteraction, args)
+export async function handleAirdrop(i: CommandInteraction, args: string[]) {
+  const payload = await getAirdropPayload(i, args)
   if (!payload) return
   const { amount, token, all } = payload
-  const { balance, usdBalance } = await validateBalance({
-    msgOrInteraction,
-    token: token as TokenEmojiKey,
-    amount,
-    all,
+
+  // const { balance, usdBalance } = await validateBalance({
+  //   msgOrInteraction,
+  //   token: token as TokenEmojiKey,
+  //   amount,
+  //   all,
+  // })
+
+  // get sender balances
+  const senderPid = await getProfileIdByDiscord(i.user.id)
+  const { data, ok, curl, log } = await mochiPay.getBalances({
+    profileId: senderPid,
+    token,
   })
-  if (all) payload.amount = balance
-  const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
-  const usdAmount = usdBalance * payload.amount
+  if (!ok) {
+    throw new APIError({ curl, description: log, msgOrInteraction: i })
+  }
+
+  const balances = data.filter((b: any) => b.amount !== "0")
+
+  // no balance -> reject
+  if (!balances.length) {
+    throw new InsufficientBalanceError({
+      msgOrInteraction: i,
+      params: { current: 0, required: amount, symbol: token as TokenEmojiKey },
+    })
+  }
+
+  // only one matching token -> proceed to send tip
+  if (balances.length === 1) {
+    const balance = balances[0]
+    const current = +balance.amount / Math.pow(10, balance.token?.decimal ?? 0)
+    if (current < amount) {
+      throw new InsufficientBalanceError({
+        msgOrInteraction: i,
+        params: { current, required: amount, symbol: token as TokenEmojiKey },
+      })
+    }
+    payload.chain_id = balance.token?.chain?.chain_id
+    if (all) payload.amount = balance
+    payload.token_price = balance.token?.price
+    // const result = await executeTip(msgOrInteraction, payload, balance.token)
+    // await reply(msgOrInteraction, result)
+    const output = await showConfirmation(i, payload)
+    await reply(i, output)
+    return
+  }
+
+  // found multiple tokens balance with given symbol -> ask for selection
+  await selectTokenToAirdrop(i, balances, payload)
+  return
+}
+
+async function selectTokenToAirdrop(
+  ci: CommandInteraction,
+  balances: any,
+  payload: any
+) {
+  // select menu
+  const selectRow = composeDiscordSelectionRow({
+    customId: `airdrop-select-token`,
+    placeholder: "Select a token",
+    options: balances.map((b: any) => {
+      const chain = b.token?.chain?.name
+      return {
+        label: `${b.token.name} ${chain ? `(${chain})` : ""}`,
+        value: b.token.chain.chain_id,
+      }
+    }),
+  })
+
+  // embed
+  const embed = composeEmbedMessage(null, {
+    originalMsgAuthor: ci.user,
+    author: ["Multiple results found", getEmojiURL(emojis.MAG)],
+    description: `You have \`${
+      payload.token
+    }\` balance on multiple chains: ${balances
+      .map((b: any) => {
+        return `\`${b.token?.chain?.name}\``
+      })
+      .filter((s: any) => Boolean(s))
+      .join(", ")}.\nPlease select one of the following`,
+  })
+
+  // select-menu handler
+  const suggestionHandler = async (i: SelectMenuInteraction) => {
+    await i.deferUpdate()
+    payload.chain_id = i.values[0]
+    const balance = balances.find(
+      (b: any) =>
+        equalIgnoreCase(b.token?.symbol, payload.token) &&
+        payload.chain_id === b.token?.chain?.chain_id
+    )
+    const current = roundFloatNumber(
+      convertString(balance?.amount, balance?.token?.decimal) ?? 0,
+      4
+    )
+    if (current < payload.amount) {
+      throw new InsufficientBalanceError({
+        msgOrInteraction: i,
+        params: {
+          current,
+          required: payload.amount,
+          symbol: payload.token,
+        },
+      })
+    }
+    return await showConfirmation(ci, payload)
+  }
+
+  // reply
+  reply(ci, {
+    messageOptions: { embeds: [embed], components: [selectRow] },
+    selectMenuCollector: { handler: suggestionHandler },
+  })
+}
+
+function showConfirmation(i: CommandInteraction, payload: any) {
+  const tokenEmoji = getEmojiToken(payload.token as TokenEmojiKey)
+  const usdAmount = payload.token_price * payload.amount
   const amountDescription = `${tokenEmoji} **${roundFloatNumber(
     payload.amount,
     4
@@ -364,16 +484,16 @@ export async function handleAirdrop(
       inline: true,
     },
   ])
-  const author = getAuthor(msgOrInteraction)
   return {
     messageOptions: {
       embeds: [confirmEmbed],
       components: [
         composeAirdropButtons(
-          author.id,
+          i.user.id,
           payload.amount,
           usdAmount,
           payload.token,
+          payload.chain_id,
           payload.duration ?? 0,
           payload.opts?.maxEntries ?? 0
         ),
@@ -436,7 +556,7 @@ function getAirdropOptions(args: string[]) {
 export async function getAirdropPayload(
   msg: Message | CommandInteraction,
   args: string[]
-): Promise<OffchainTipBotTransferRequest | null> {
+): Promise<any> {
   const author = getAuthor(msg)
   const guildId = msg.guildId ?? "DM"
   if (![3, 5, 7].includes(args.length)) {
