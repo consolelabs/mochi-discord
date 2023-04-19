@@ -1,4 +1,4 @@
-import { CommandInteraction, Message } from "discord.js"
+import { CommandInteraction, Message, SelectMenuInteraction } from "discord.js"
 import { APIError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { KafkaQueueActivityDataCommand } from "types/common"
@@ -19,6 +19,7 @@ import {
   isAddress,
   isValidAmount,
   msgColors,
+  roundFloatNumber,
   TokenEmojiKey,
 } from "utils/common"
 import {
@@ -26,11 +27,13 @@ import {
   MOCHI_APP_SERVICE,
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
 } from "utils/constants"
-import { validateBalance } from "utils/defi"
-import { awaitMessage, isMessage } from "utils/discord"
+import { awaitMessage, isMessage, reply } from "utils/discord"
 import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import * as processor from "./processor"
+import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
+import { convertString } from "../../../utils/convert"
+import { InsufficientBalanceError } from "errors/insufficient-balance"
 
 export async function getRecipient(
   msg: Message | CommandInteraction,
@@ -73,13 +76,164 @@ export async function withdraw(
   amountArg: string,
   tokenArg: TokenEmojiKey
 ) {
-  const payload = await getWithdrawPayload(
-    msgOrInteraction,
-    amountArg,
-    tokenArg
-  )
   const author = getAuthor(msgOrInteraction)
+  const profileId = await getProfileIdByDiscord(author.id)
+
+  const validAmount = isValidAmount({ arg: amountArg, exceptions: ["all"] })
+  if (!validAmount) {
+    throw new DiscordWalletTransferError({
+      discordId: author.id,
+      message: msgOrInteraction,
+      error: "The amount is invalid. Please insert a natural number.",
+    })
+  }
+
+  let amount = parseFloat(amountArg)
+
+  // validate balance
+  const { data, ok, curl, log } = await mochiPay.getBalances({
+    profileId: profileId,
+    token: tokenArg,
+  })
+  if (!ok) {
+    throw new APIError({ curl, description: log, msgOrInteraction })
+  }
+
+  const balances = data.filter((b: any) => b.amount !== "0")
+
+  // no balance -> reject
+  if (!balances.length) {
+    throw new InsufficientBalanceError({
+      msgOrInteraction,
+      params: { current: 0, required: amount, symbol: tokenArg },
+    })
+  }
+
+  const payload: any = {
+    address: "",
+    profileId,
+    amount: amount.toString(),
+    token: tokenArg.toUpperCase(),
+    chainId: "",
+  }
+
+  // one one matching token -> proceed to send tip
+  if (balances.length === 1) {
+    const balance = balances[0]
+    const all = equalIgnoreCase(amountArg, "all")
+    if (all) amount = balance.amount
+    payload.amount = amount.toString()
+    const current = +balance.amount / Math.pow(10, balance.token?.decimal ?? 0)
+    if (current < amount) {
+      throw new InsufficientBalanceError({
+        msgOrInteraction,
+        params: { current, required: amount, symbol: tokenArg },
+      })
+    }
+    payload.chain_id = balance.token?.chain?.chain_id
+    await executeWithdraw(msgOrInteraction, payload)
+    return
+  }
+
+  await selectTokenToWithdraw(msgOrInteraction, balances, payload)
+}
+
+function composeWithdrawEmbed(payload: any) {
+  const token = payload.token?.toUpperCase() ?? ""
+  const tokenEmoji = getEmoji(token)
+  return composeEmbedMessage(null, {
+    author: ["Withdraw Order Submitted", getEmojiURL(emojis.CHECK)],
+    description: "Your withdrawal was processed succesfully!",
+    color: msgColors.MOCHI,
+  }).addFields(
+    {
+      name: `Recipient's ${token} Address`,
+      value: `\`\`\`${payload.address}\`\`\``,
+      inline: false,
+    },
+    {
+      name: "Recipient amount",
+      value: `${tokenEmoji} ${payload.amount} ${token}`,
+      inline: true,
+    }
+  )
+}
+
+async function selectTokenToWithdraw(
+  msgOrInteraction: Message | CommandInteraction,
+  balances: any,
+  payload: any
+) {
+  const author = getAuthor(msgOrInteraction)
+  const all = equalIgnoreCase(payload.amount, "all")
+  // select menu
+  const selectRow = composeDiscordSelectionRow({
+    customId: `withdraw-select-token`,
+    placeholder: "Select a token",
+    options: balances.map((b: any) => {
+      const chain = b.token?.chain?.name
+      return {
+        label: `${b.token.name} ${chain ? `(${chain})` : ""}`,
+        value: b.token.chain.chain_id,
+      }
+    }),
+  })
+
+  // embed
+  const embed = composeEmbedMessage(null, {
+    originalMsgAuthor: author,
+    author: ["Multiple results found", getEmojiURL(emojis.MAG)],
+    description: `You have \`${
+      payload.token
+    }\` balance on multiple chains: ${balances
+      .map((b: any) => {
+        return `\`${b.token?.chain?.name}\``
+      })
+      .filter((s: any) => Boolean(s))
+      .join(", ")}.\nPlease select one of the following`,
+  })
+
+  // select-menu handler
+  const suggestionHandler = async (i: SelectMenuInteraction) => {
+    await i.deferUpdate()
+    payload.chain_id = i.values[0]
+    const balance = balances.find(
+      (b: any) =>
+        equalIgnoreCase(b.token?.symbol, payload.token) &&
+        payload.chain_id === b.token?.chain?.chain_id
+    )
+    const current = roundFloatNumber(
+      convertString(balance?.amount, balance?.token?.decimal) ?? 0,
+      4
+    )
+    if (all) payload.amount = current
+    if (current < payload.amount) {
+      throw new InsufficientBalanceError({
+        msgOrInteraction,
+        params: {
+          current,
+          required: payload.amount,
+          symbol: payload.token,
+        },
+      })
+    }
+    payload.amount = payload.amount.toString()
+    await executeWithdraw(msgOrInteraction, payload)
+  }
+
+  // reply
+  reply(msgOrInteraction, {
+    messageOptions: { embeds: [embed], components: [selectRow] },
+    selectMenuCollector: { handler: suggestionHandler },
+  })
+}
+
+export async function executeWithdraw(
+  msgOrInteraction: Message | CommandInteraction,
+  payload: any
+) {
   const { message, interaction } = isMessage(msgOrInteraction)
+  const author = getAuthor(msgOrInteraction)
   // send dm
   const dm = await author.send({
     embeds: [
@@ -131,8 +285,8 @@ export async function withdraw(
     MOCHI_APP_SERVICE,
     MOCHI_ACTION_WITHDRAW
   )
-  kafkaMsg.activity.content.amount = amountArg
-  kafkaMsg.activity.content.token = tokenArg
+  kafkaMsg.activity.content.amount = payload.amount
+  kafkaMsg.activity.content.token = payload.token
   sendActivityMsg(kafkaMsg)
 
   const embed = composeWithdrawEmbed(payload)
@@ -141,61 +295,4 @@ export async function withdraw(
       embeds: [enableDMMessage()],
     })
   })
-}
-
-function composeWithdrawEmbed(payload: any) {
-  const token = payload.token?.toUpperCase() ?? ""
-  const tokenEmoji = getEmojiToken(token)
-  return composeEmbedMessage(null, {
-    author: ["Withdraw Order Submitted", getEmojiURL(emojis.CHECK)],
-    description: "Your withdrawal was processed succesfully!",
-    color: msgColors.MOCHI,
-  }).addFields(
-    {
-      name: `Recipient's ${token} Address`,
-      value: `\`\`\`${payload.address}\`\`\``,
-      inline: false,
-    },
-    {
-      name: "Recipient amount",
-      value: `${tokenEmoji} ${payload.amount} ${token}`,
-      inline: true,
-    }
-    // {
-    //   name: "Transaction ID",
-    //   value: `[${payload.tx_hash}](${payload.tx_url})`,
-    //   inline: false,
-    // }
-  )
-}
-
-export async function getWithdrawPayload(
-  msgOrInteraction: Message | CommandInteraction,
-  amountArg: string,
-  token: TokenEmojiKey
-) {
-  const author = getAuthor(msgOrInteraction)
-  const profileId = await getProfileIdByDiscord(author.id)
-
-  const validAmount = isValidAmount({ arg: amountArg, exceptions: ["all"] })
-  if (!validAmount) {
-    throw new DiscordWalletTransferError({
-      discordId: author.id,
-      message: msgOrInteraction,
-      error: "The amount is invalid. Please insert a natural number.",
-    })
-  }
-
-  let amount = parseFloat(amountArg)
-  const all = equalIgnoreCase(amountArg, "all")
-  // validate balance
-  const { balance } = await validateBalance({ msgOrInteraction, token, amount })
-  if (all) amount = balance
-
-  return {
-    address: "",
-    profileId,
-    amount: amount.toString(),
-    token: token.toUpperCase(),
-  }
 }
