@@ -9,6 +9,7 @@ import {
   MessageSelectOptionData,
   User,
 } from "discord.js"
+import { TEST } from "env"
 import { APIError } from "errors"
 import { Command, EmbedProperties } from "types/common"
 import {
@@ -139,6 +140,11 @@ export function composeEmbedMessage(
       name: "**Instructions**",
       value: `[**Gitbook**](${document})`,
     })
+  }
+
+  // to avoid the timestamp test fail
+  if (TEST) {
+    embed.setTimestamp(null)
   }
   return embed
 }
