@@ -52,6 +52,7 @@ export type Token = {
   discord_bot_supported: boolean
   coin_gecko_id: string
   name: string
+  chain: Chain
 }
 
 export type DiscordWalletBalances = {
@@ -134,4 +135,15 @@ export type UserBalances = {
   symbol: string
   balances: number
   balances_in_usd: number
+}
+
+export type Chain = {
+  id: string
+  chain_id: string
+  name: string
+  symbol: string
+  rpc: string
+  explorer: string
+  icon: string
+  is_evm: boolean
 }
