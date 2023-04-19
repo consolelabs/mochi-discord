@@ -38,7 +38,7 @@ import { InsufficientBalanceError } from "errors/insufficient-balance"
 export async function getRecipient(
   msg: Message | CommandInteraction,
   dm: Message,
-  symbol: string
+  payload: any
 ): Promise<string> {
   const author = msg instanceof Message ? msg.author : msg.user
   const timeoutEmbed = getErrorEmbed({
@@ -51,7 +51,7 @@ export async function getRecipient(
     msg: dm,
     timeoutResponse: { embeds: [timeoutEmbed] },
   })
-  const isSolanaWithdrawal = symbol === "SOL"
+  const isSolanaWithdrawal = payload.chainId === "999"
   const { valid, type } = isAddress(address)
   const validAddress =
     valid && (isSolanaWithdrawal ? type === "sol" : type === "eth")
@@ -59,7 +59,7 @@ export async function getRecipient(
     await first.reply({
       embeds: [
         getErrorEmbed({
-          title: `Invalid ${symbol} address`,
+          title: `Invalid ${payload.token} address`,
           description: `Please retry with \`$withdraw\` and enter a valid **${
             isSolanaWithdrawal ? "Solana" : "EVM"
           } wallet address**.`,
@@ -130,7 +130,7 @@ export async function withdraw(
         params: { current, required: amount, symbol: tokenArg },
       })
     }
-    payload.chain_id = balance.token?.chain?.chain_id
+    payload.chainId = balance.token?.chain?.chain_id
     await executeWithdraw(msgOrInteraction, payload)
     return
   }
@@ -196,11 +196,11 @@ async function selectTokenToWithdraw(
   // select-menu handler
   const suggestionHandler = async (i: SelectMenuInteraction) => {
     await i.deferUpdate()
-    payload.chain_id = i.values[0]
+    payload.chainId = i.values[0]
     const balance = balances.find(
       (b: any) =>
         equalIgnoreCase(b.token?.symbol, payload.token) &&
-        payload.chain_id === b.token?.chain?.chain_id
+        payload.chainId === b.token?.chain?.chain_id
     )
     const current = roundFloatNumber(
       convertString(balance?.amount, balance?.token?.decimal) ?? 0,
@@ -267,11 +267,7 @@ export async function executeWithdraw(
     message ? message.reply(replyPayload) : interaction.editReply(replyPayload)
   }
   // ask for recipient address
-  payload.address = await processor.getRecipient(
-    msgOrInteraction,
-    dm,
-    payload.token
-  )
+  payload.address = await processor.getRecipient(msgOrInteraction, dm, payload)
   if (!payload.address) return
   // withdraw
   const { ok, error, log, curl } = await mochiPay.withdraw(payload)
