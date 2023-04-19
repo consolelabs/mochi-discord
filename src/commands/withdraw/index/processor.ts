@@ -117,13 +117,17 @@ export async function withdraw(
     chainId: "",
   }
 
-  // one one matching token -> proceed to send tip
+  const all = equalIgnoreCase(amountArg, "all")
+
+  // one matching token -> proceed to send tip
   if (balances.length === 1) {
     const balance = balances[0]
-    const all = equalIgnoreCase(amountArg, "all")
-    if (all) amount = balance.amount
+    const current = roundFloatNumber(
+      convertString(balance?.amount, balance?.token?.decimal) ?? 0,
+      4
+    )
+    if (all) amount = current
     payload.amount = amount.toString()
-    const current = +balance.amount / Math.pow(10, balance.token?.decimal ?? 0)
     if (current < amount) {
       throw new InsufficientBalanceError({
         msgOrInteraction,
@@ -135,7 +139,7 @@ export async function withdraw(
     return
   }
 
-  await selectTokenToWithdraw(msgOrInteraction, balances, payload)
+  await selectTokenToWithdraw(msgOrInteraction, balances, payload, all)
 }
 
 function composeWithdrawEmbed(payload: any) {
@@ -162,10 +166,10 @@ function composeWithdrawEmbed(payload: any) {
 async function selectTokenToWithdraw(
   msgOrInteraction: Message | CommandInteraction,
   balances: any,
-  payload: any
+  payload: any,
+  all: boolean
 ) {
   const author = getAuthor(msgOrInteraction)
-  const all = equalIgnoreCase(payload.amount, "all")
   // select menu
   const selectRow = composeDiscordSelectionRow({
     customId: `withdraw-select-token`,
