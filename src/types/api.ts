@@ -9,8 +9,6 @@
  * ---------------------------------------------------------------
  */
 
-export type BigFloat = object;
-
 export interface DiscordgoUser {
   /** User's banner color, encoded as an integer representation of hexadecimal color code */
   accent_color?: number;
@@ -546,43 +544,6 @@ export interface ModelNftSoulbound {
   value?: string;
 }
 
-export interface ModelOffchainTipBotAssignContract {
-  chain_id?: string;
-  contract?: ModelOffchainTipBotContract;
-  contract_id?: string;
-  created_at?: string;
-  expired_time?: string;
-  id?: string;
-  token_id?: string;
-  user_id?: string;
-}
-
-export interface ModelOffchainTipBotChain {
-  chain_id?: number;
-  chain_name?: string;
-  contracts?: ModelOffchainTipBotContract[];
-  created_at?: string;
-  currency?: string;
-  explorer_url?: string;
-  id?: string;
-  is_evm?: boolean;
-  rpc_url?: string;
-  status?: number;
-  support_deposit?: boolean;
-  tokens?: ModelOffchainTipBotToken[];
-  updated_at?: string;
-}
-
-export interface ModelOffchainTipBotContract {
-  chain?: ModelOffchainTipBotChain;
-  chain_id?: string;
-  contract_address?: string;
-  created_at?: string;
-  id?: string;
-  sweeped_time?: string;
-  updated_at?: string;
-}
-
 export interface ModelOffchainTipBotToken {
   coin_gecko_id?: string;
   created_at?: string;
@@ -825,8 +786,11 @@ export interface ModelUserTelegramDiscordAssociation {
 
 export interface ModelUserTokenSupportRequest {
   channel_id?: string;
+  coin_gecko_id?: string;
   created_at?: string;
+  decimal?: number;
   guild_id?: string;
+  icon?: string;
   id?: number;
   message_id?: string;
   status?: string;
@@ -961,11 +925,6 @@ export interface RequestConfigureInviteRequest {
   guild_id?: string;
   log_channel?: string;
   webhook_url?: string;
-}
-
-export interface RequestCreateAssignContract {
-  token_symbol?: string;
-  user_id?: string;
 }
 
 export interface RequestCreateCommonwealthDiscussionSubscription {
@@ -1199,20 +1158,6 @@ export interface RequestOffchainTransferRequest {
   platform?: string;
   recipients?: string[];
   sender?: string;
-  token?: string;
-  transfer_type?: string;
-}
-
-export interface RequestOffchainWithdrawRequest {
-  all?: boolean;
-  amount?: number;
-  channel_id?: string;
-  duration?: number;
-  each?: boolean;
-  full_command?: string;
-  guild_id?: string;
-  recipient?: string;
-  recipient_address?: string;
   token?: string;
   transfer_type?: string;
 }
@@ -1501,7 +1446,9 @@ export interface ResponseCoinMarketItemData {
   market_cap?: number;
   market_cap_rank?: number;
   name?: string;
+  price_change_percentage_1h_in_currency?: number;
   price_change_percentage_24h?: number;
+  price_change_percentage_24h_in_currency?: number;
   price_change_percentage_7d_in_currency?: number;
   sparkline_in_7d?: {
     price?: number[];
@@ -1720,10 +1667,6 @@ export interface ResponseGetAllTwitterHashtagConfigResponse {
 
 export interface ResponseGetAllUserSubmittedAdResponse {
   data?: ResponseGetAllUserSubmittedAdResponse[];
-}
-
-export interface ResponseGetAssignedContract {
-  data?: ModelOffchainTipBotAssignContract;
 }
 
 export interface ResponseGetCoinResponse {
@@ -2518,21 +2461,6 @@ export interface ResponseOffchainTipBotTransferToken {
 
 export interface ResponseOffchainTipBotTransferTokenResponse {
   data?: ResponseOffchainTipBotTransferToken[];
-}
-
-export interface ResponseOffchainTipBotWithdraw {
-  amount?: number;
-  symbol?: string;
-  to_address?: string;
-  transaction_fee?: number;
-  tx_hash?: string;
-  tx_url?: string;
-  user_discord_id?: string;
-  withdraw_amount?: BigFloat;
-}
-
-export interface ResponseOffchainTipBotWithdrawResponse {
-  data?: ResponseOffchainTipBotWithdraw;
 }
 
 export interface ResponsePaginationResponse {
