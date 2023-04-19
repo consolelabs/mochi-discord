@@ -81,6 +81,12 @@ export async function wrapError(
         }
         error.handle?.()
         ChannelLogger.alertSlash(message, error).catch(catchAll)
+      } else if (message.isSelectMenu()) {
+        if (!(error instanceof BotBaseError)) {
+          error = new BotBaseError(message, e.message as string)
+        }
+        error.handle?.()
+        ChannelLogger.alert(message.message as Message, error).catch(catchAll)
       }
       // send command info to kafka
       try {

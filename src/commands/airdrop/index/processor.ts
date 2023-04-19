@@ -328,13 +328,6 @@ export async function handleAirdrop(i: CommandInteraction, args: string[]) {
   if (!payload) return
   const { amount, token, all } = payload
 
-  // const { balance, usdBalance } = await validateBalance({
-  //   msgOrInteraction,
-  //   token: token as TokenEmojiKey,
-  //   amount,
-  //   all,
-  // })
-
   // get sender balances
   const senderPid = await getProfileIdByDiscord(i.user.id)
   const { data, ok, curl, log } = await mochiPay.getBalances({
@@ -358,7 +351,7 @@ export async function handleAirdrop(i: CommandInteraction, args: string[]) {
   // only one matching token -> proceed to send tip
   if (balances.length === 1) {
     const balance = balances[0]
-    const current = +balance.amount / Math.pow(10, balance.token?.decimal ?? 0)
+    const current = convertString(balance.amount, balance.token?.decimal ?? 0)
     if (current < amount) {
       throw new InsufficientBalanceError({
         msgOrInteraction: i,
@@ -366,7 +359,7 @@ export async function handleAirdrop(i: CommandInteraction, args: string[]) {
       })
     }
     payload.chain_id = balance.token?.chain?.chain_id
-    if (all) payload.amount = balance
+    if (all) payload.amount = current
     payload.token_price = balance.token?.price
     // const result = await executeTip(msgOrInteraction, payload, balance.token)
     // await reply(msgOrInteraction, result)
@@ -376,14 +369,15 @@ export async function handleAirdrop(i: CommandInteraction, args: string[]) {
   }
 
   // found multiple tokens balance with given symbol -> ask for selection
-  await selectTokenToAirdrop(i, balances, payload)
+  await selectTokenToAirdrop(i, balances, payload, all)
   return
 }
 
 async function selectTokenToAirdrop(
   ci: CommandInteraction,
   balances: any,
-  payload: any
+  payload: any,
+  all?: boolean
 ) {
   // select menu
   const selectRow = composeDiscordSelectionRow({
@@ -435,6 +429,8 @@ async function selectTokenToAirdrop(
         },
       })
     }
+    if (all) payload.amount = current
+    payload.token_price = balance.token?.price
     return await showConfirmation(ci, payload)
   }
 
