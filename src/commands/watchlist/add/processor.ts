@@ -77,7 +77,7 @@ const handler = (symbols: string[]) => async (msgOrInteraction: any) => {
   const { message } = <{ message: Message }>interaction
   await addUserWatchlist(msgOrInteraction, userId, symbol, coinGeckoId)
   return {
-    ...(await viewWatchlist({
+    ...(await addWatchlistToken({
       msg: message,
       symbols: remainingSymbols,
       originSymbols: symbols,
@@ -89,7 +89,7 @@ const handler = (symbols: string[]) => async (msgOrInteraction: any) => {
   }
 }
 
-export async function viewWatchlist({
+export async function addWatchlistToken({
   msg,
   interaction,
   symbols,

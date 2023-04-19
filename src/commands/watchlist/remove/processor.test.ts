@@ -15,10 +15,10 @@ describe("removeWatchlistToken", () => {
   test("Successful remove one collection symbol with Message", async () => {
     const input = {
       msgOrInteraction: msg,
-      symbol: "ftm",
+      symbols: ["ftm", "eth"],
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "removeFromWatchlist").mockResolvedValueOnce({
+    jest.spyOn(defi, "removeFromWatchlist").mockResolvedValue({
       ok: true,
       error: null,
     } as any)
@@ -31,10 +31,10 @@ describe("removeWatchlistToken", () => {
   test("Successful remove one collection symbol with Interaction", async () => {
     const input = {
       msgOrInteraction: interaction,
-      symbol: "ftm",
+      symbols: ["ftm", "eth"],
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "removeFromWatchlist").mockResolvedValueOnce({
+    jest.spyOn(defi, "removeFromWatchlist").mockResolvedValue({
       ok: true,
       error: null,
     } as any)

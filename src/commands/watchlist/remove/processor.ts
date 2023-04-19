@@ -7,17 +7,19 @@ import { handleUpdateWlError } from "../processor"
 export const removeWatchlistToken = async ({
   msgOrInteraction,
   userId,
-  symbol,
+  symbols,
 }: {
   msgOrInteraction: Message | CommandInteraction
   userId: string
-  symbol: string
+  symbols: string[]
 }) => {
-  const { ok, error } = await defi.removeFromWatchlist({
-    userId,
-    symbol,
-  })
-  if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error, true)
-  CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
+  for (const symbol of symbols) {
+    const { ok, error } = await defi.removeFromWatchlist({
+      userId,
+      symbol,
+    })
+    if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error, true)
+    CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
+  }
   return { messageOptions: { embeds: [getSuccessEmbed({})] } }
 }
