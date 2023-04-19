@@ -98,10 +98,10 @@ async function questReminder(userId: string, command: string) {
     switch (command) {
       case "watchlist":
         return `> Check your watchlist thrice a day to get more XP! ${getEmoji(
-          "CLAIM"
+          "GIFT"
         )}`
       case "ticker":
-        return `> Run /ticker thrice a day to get more XP! ${getEmoji("CLAIM")}`
+        return `> Run /ticker thrice a day to get more XP! ${getEmoji("GIFT")}`
     }
   }
   return undefined

@@ -23,7 +23,6 @@ import { KafkaNotificationMessage } from "types/common"
 import { MOCHI_ACTION_PAY_ME, MOCHI_PLATFORM_DISCORD } from "utils/constants"
 import { convertToUsdValue } from "utils/convert"
 
-// DO NOT EDIT: if not anhnh
 export async function run({
   msgOrInteraction,
   amount,

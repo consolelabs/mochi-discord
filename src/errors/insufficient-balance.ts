@@ -5,7 +5,7 @@ import { BotBaseError, OriginalMessage } from "./base"
 
 type InsufficientBalanceErrorParam = {
   current?: number
-  required: number
+  required?: number
   symbol: TokenEmojiKey
 }
 
