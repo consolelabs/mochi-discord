@@ -3,7 +3,7 @@ import { CommandInteraction } from "discord.js"
 import { thumbnails } from "utils/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { SLASH_PREFIX as PREFIX } from "utils/constants"
+import { SLASH_PREFIX as PREFIX, SPACES_REGEX } from "utils/constants"
 import { removeWatchlistToken } from "./processor"
 
 const command: SlashCommand = {
@@ -12,21 +12,25 @@ const command: SlashCommand = {
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
       .setName("remove")
-      .setDescription("Remove a token from your watchlist.")
+      .setDescription("Remove token(s) to your watchlist.")
       .addStringOption((option) =>
         option
-          .setName("symbol")
+          .setName("symbols")
           .setDescription(
-            "The token which you wanna remove from your watchlist. Example: FTM"
+            "The token which you wanna remove from your watchlist. Example: FTM ETH/USDT BTC/SOL"
           )
           .setRequired(true)
       )
   },
   run: async function (interaction: CommandInteraction) {
-    const symbol = interaction.options.getString("symbol", true)
+    const opt = interaction.options.getString("symbols", true)
+    const symbols = opt
+      .split(SPACES_REGEX)
+      .map((s) => s.trim())
+      .filter(Boolean)
     const userId = interaction.user.id
     return await removeWatchlistToken({
-      symbol,
+      symbols,
       userId,
       msgOrInteraction: interaction,
     })

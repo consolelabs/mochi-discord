@@ -29,7 +29,7 @@ describe("run", () => {
     const output = (await watchlistCmd.run(i)) as RunResult<MessageOptions>
     const args = {
       msgOrInteraction: i,
-      symbol: "ftm",
+      symbols: ["ftm"],
       userId: i.user.id,
     }
     expect(processor.removeWatchlistToken).toBeCalledWith(args)

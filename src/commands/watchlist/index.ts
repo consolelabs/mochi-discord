@@ -9,9 +9,7 @@ import {
 import { CommandInteraction } from "discord.js"
 import CacheManager from "cache/node-cache"
 // text
-import add from "./add/text"
 import addNFT from "./add-nft/text"
-import remove from "./remove/text"
 import removeNFT from "./remove-nft/text"
 import view from "./view/text"
 // slash
@@ -30,9 +28,7 @@ CacheManager.init({
 
 const actions: Record<string, Command> = {
   view,
-  add,
   "add-nft": addNFT,
-  remove,
   "remove-nft": removeNFT,
 }
 

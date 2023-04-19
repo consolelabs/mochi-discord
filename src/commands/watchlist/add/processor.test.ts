@@ -40,7 +40,7 @@ describe("viewWatchlist", () => {
       },
       ok: true,
     } as any)
-    const output = await processor.viewWatchlist(input)
+    const output = await processor.addWatchlistToken(input)
     const expected = composeEmbedMessage(msg, {
       title: `<:mag:1058304336842727544> Multiple options found`,
       description:
@@ -68,7 +68,7 @@ describe("viewWatchlist", () => {
       suggestion: [],
     } as any)
     CacheManager.findAndRemove = jest.fn().mockResolvedValue(null)
-    const output = await processor.viewWatchlist(input)
+    const output = await processor.addWatchlistToken(input)
     const expected = getSuccessEmbed({
       title: "Successfully set!",
       description:
@@ -106,7 +106,7 @@ describe("viewWatchlist", () => {
         suggestion: [],
       } as any)
     CacheManager.findAndRemove = jest.fn().mockResolvedValue(null)
-    const output = await processor.viewWatchlist(input)
+    const output = await processor.addWatchlistToken(input)
     const expected = getSuccessEmbed({
       title: "Successfully set!",
       description:

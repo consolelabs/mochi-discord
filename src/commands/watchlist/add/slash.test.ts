@@ -30,7 +30,7 @@ describe("run", () => {
         components: [],
       },
     }
-    jest.spyOn(processor, "viewWatchlist").mockResolvedValueOnce(expected)
+    jest.spyOn(processor, "addWatchlistToken").mockResolvedValueOnce(expected)
     const output = (await watchlistCmd.run(i)) as RunResult<MessageOptions>
     const args = {
       interaction: i,
@@ -38,7 +38,7 @@ describe("run", () => {
       originSymbols: ["ftm"],
       userId: i.user.id,
     }
-    expect(processor.viewWatchlist).toBeCalledWith(args)
+    expect(processor.addWatchlistToken).toBeCalledWith(args)
     assertAuthor(output, expected.messageOptions.embeds[0])
     assertDescription(output, expected.messageOptions.embeds[0])
   })
