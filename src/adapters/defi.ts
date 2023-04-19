@@ -237,10 +237,6 @@ class Defi extends Fetcher {
     })
   }
 
-  async getAllTipBotTokens() {
-    return await this.jsonFetch(`${API_BASE_URL}/tip/tokens`)
-  }
-
   async submitOnchainTransfer(req: any) {
     return await this.jsonFetch(`${API_BASE_URL}/tip/onchain/submit`, {
       method: "POST",
