@@ -2,7 +2,7 @@ import { CommandInteraction } from "discord.js"
 import { handleAirdrop } from "./processor"
 
 async function run(interaction: CommandInteraction) {
-  const amount = interaction.options.getNumber("amount", true)
+  const amount = interaction.options.getString("amount", true)
   const token = interaction.options.getString("token", true)
   const duration = interaction.options.getString("duration")
   const entries = interaction.options.getNumber("entries")

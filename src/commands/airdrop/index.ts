@@ -18,7 +18,7 @@ const slashCmd: SlashCommand = {
     return new SlashCommandBuilder()
       .setName("airdrop")
       .setDescription("Airdrop tokens for a specified number of users.")
-      .addNumberOption((option) =>
+      .addStringOption((option) =>
         option
           .setName("amount")
           .setDescription("amount you want to airdrop. Example: 5, all, etc.")
