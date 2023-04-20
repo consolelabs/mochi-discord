@@ -163,6 +163,7 @@ export const originalCommands: Record<string, Command> = {
   deposit: deposit.textCmd,
   tip: tip.textCmd,
   claim: claim.textCmd,
+  balances: balances.textCmd,
   withdraw: withdraw.textCmd,
   tokens: token.textCmd,
   ticker: ticker.textCmd,
