@@ -1148,10 +1148,9 @@ export interface RequestNewGuildConfigWalletVerificationMessageRequest {
 export interface RequestOffchainTransferRequest {
   all?: boolean;
   amount?: number;
+  chain_id?: string;
   channel_id?: string;
-  duration?: number;
   each?: boolean;
-  full_command?: string;
   guild_id?: string;
   image?: string;
   message?: string;
@@ -1396,10 +1395,6 @@ export interface ResponseAddTokenPriceAlertResponse {
   data?: ResponseTokenPriceAlertResponseData;
 }
 
-export interface ResponseAllTipBotTokensResponse {
-  data?: ModelOffchainTipBotToken[];
-}
-
 export interface ResponseChainGasTrackerResponseData {
   data?: ResponseGasTrackerResponse;
 }
@@ -1425,6 +1420,20 @@ export interface ResponseClaimQuestsRewardsResponse {
 
 export interface ResponseClaimQuestsRewardsResponseData {
   rewards?: ModelQuestUserReward[];
+}
+
+export interface ResponseCoin {
+  coin_id?: number;
+  id?: string;
+  large?: string;
+  market_cap_rank?: number;
+  name?: string;
+  price_btc?: number;
+  score?: number;
+  slug?: string;
+  small?: string;
+  symbol?: string;
+  thumb?: string;
 }
 
 export interface ResponseCoinDescription {
@@ -1929,6 +1938,16 @@ export interface ResponseGetTrackingWalletsResponse {
 
 export interface ResponseGetTradeOfferResponse {
   data?: ModelTradeOffer;
+}
+
+export interface ResponseGetTrendingSearch {
+  coins?: ResponseGetTrendingSearchCoin[];
+  /** this field coingecko return empty */
+  exchanges?: any;
+}
+
+export interface ResponseGetTrendingSearchCoin {
+  item?: ResponseCoin;
 }
 
 export interface ResponseGetTwitterBlackListResponse {
@@ -2452,11 +2471,12 @@ export interface ResponseNftWatchlistSuggestResponse {
 }
 
 export interface ResponseOffchainTipBotTransferToken {
-  amount?: number;
-  amount_in_usd?: number;
-  recipient_id?: string;
-  sender_id?: string;
-  symbol?: string;
+  /**
+   * SenderID    string  `json:"sender_id"`
+   * Recipients  string  `json:"recipient_id"`
+   */
+  amount_each?: number;
+  total_amount?: number;
 }
 
 export interface ResponseOffchainTipBotTransferTokenResponse {
