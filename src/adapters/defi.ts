@@ -461,6 +461,10 @@ class Defi extends Fetcher {
       bodyCamelToSnake: false,
     })
   }
+
+  async getTrendingSearch() {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/trending`)
+  }
 }
 
 export default new Defi()
