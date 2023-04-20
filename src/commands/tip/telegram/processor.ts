@@ -284,6 +284,7 @@ export async function execute(
     token: payload.token,
     note: payload.note,
     type: "paylink",
+    recipient_id: payload.tos[0].profile_global_id, // currently tip across platform have 1 recipient. If expand to tip many, need update api to receive list of recipients
   })
 
   if (!res.ok) {

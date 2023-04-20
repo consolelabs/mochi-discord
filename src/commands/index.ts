@@ -50,7 +50,6 @@ import gm from "./gm"
 import help from "./help/index"
 import levelmessage from "./level-message"
 import levelrole from "./level-role"
-import log from "./log"
 import moniker from "./moniker"
 import gas from "./gas"
 import activity from "./activity"
@@ -92,6 +91,7 @@ import tagme from "./tagme"
 import trending from "./trending"
 import gainer from "./gainer"
 import loser from "./loser"
+import transaction from "./transaction"
 
 CacheManager.init({
   ttl: 0,
@@ -103,7 +103,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   feedback: feedback.slashCmd,
   ticker: ticker.slashCmd,
   help: help.slashCmd,
-  log: log.slashCmd,
   welcome: welcome.slashCmd,
   top: top.slashCmd,
   verify: verify.slashCmd,
@@ -117,7 +116,12 @@ export const slashCommands: Record<string, SlashCommand> = {
   gm: gm.slashCmd,
   nft: nft.slashCmd,
   tip: tip.slashCmd,
+  //
   balances: balances.slashCmd,
+  balance: balances.slashCmd,
+  bal: balances.slashCmd,
+  bals: balances.slashCmd,
+  //
   statements: statements.slashCmd,
   proposal: proposal.slashCmd,
   moniker: moniker.slashCmd,
@@ -147,6 +151,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   trending: trending.slashCmd,
   gainer: gainer.slashCmd,
   loser: loser.slashCmd,
+  transaction: transaction.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -158,7 +163,6 @@ export const originalCommands: Record<string, Command> = {
   deposit: deposit.textCmd,
   tip: tip.textCmd,
   claim: claim.textCmd,
-  balances: balances.textCmd,
   withdraw: withdraw.textCmd,
   tokens: token.textCmd,
   ticker: ticker.textCmd,
@@ -174,7 +178,6 @@ export const originalCommands: Record<string, Command> = {
   quest: quest.textCmd,
   alert: alert.textCmd,
   gas: gas.textCmd,
-  activity: activity.textCmd,
   inbox: inbox.textCmd,
   convert: convert.textCmd,
   // config section
@@ -191,7 +194,6 @@ export const originalCommands: Record<string, Command> = {
   stats: stats.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
-  log: log.textCmd,
   poe: poe.textCmd,
   telegram: telegram.textCmd,
   sendxp: sendxp.textCmd,

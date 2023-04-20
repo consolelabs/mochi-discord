@@ -23,6 +23,7 @@ class MochiPay extends Fetcher {
     token: string
     type: "paylink" | "payme"
     note?: string
+    recipient_id?: string
   }) {
     return await this.jsonFetch(`${MOCHI_PAY_API_BASE_URL}/pay-requests`, {
       method: "POST",
@@ -76,6 +77,15 @@ class MochiPay extends Fetcher {
     return await this.jsonFetch(`${MOCHI_PAY_API_BASE_URL}/tokens`, {
       query,
     })
+  }
+
+  async getListTx(query: { profile_id: string }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/transactions`,
+      {
+        query,
+      }
+    )
   }
 }
 
