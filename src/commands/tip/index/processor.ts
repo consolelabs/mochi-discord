@@ -14,6 +14,7 @@ import {
   getEmojiURL,
   msgColors,
   roundFloatNumber,
+  thumbnails,
   TokenEmojiKey,
 } from "utils/common"
 import { isMessage, reply } from "utils/discord"
@@ -292,8 +293,8 @@ async function executeTip(
     }`
   }
   const embed = composeEmbedMessage(null, {
-    thumbnail: getEmojiURL(emojis.CASH),
-    author: ["Tips", getEmojiURL(emojis.COIN)],
+    thumbnail: thumbnails.TIP,
+    author: ["Tips", getEmojiURL(emojis.CASH)],
     description,
     color: msgColors.SUCCESS,
   })
