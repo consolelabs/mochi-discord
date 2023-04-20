@@ -7,19 +7,18 @@ import {
   MessageButton,
 } from "discord.js"
 import { APIError, OriginalMessage } from "errors"
-import { utils } from "ethers"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
 import {
   emojis,
   getEmoji,
   getEmojiToken,
   getEmojiURL,
   msgColors,
-  roundFloatNumber,
 } from "utils/common"
 import { APPROX } from "utils/constants"
 import mochiPay from "../../../adapters/mochi-pay"
 import { convertString } from "../../../utils/convert"
+import { formatDigit } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export const balanceTypes: Record<string, number> = {
@@ -184,21 +183,25 @@ function switchView(
         ?.map((balance: any) => {
           const { token, amount } = balance
           const { symbol, decimal, price, chain, native } = token
-          const value = roundFloatNumber(convertString(amount, decimal) ?? 0, 4)
-          const usdWorth = roundFloatNumber(price * value, 4)
-          totalWorth += usdWorth
+          // const value = roundFloatNumber(convertString(amount, decimal) ?? 0, 4)
+          // const usdWorth = roundFloatNumber(price * value, 4)
+          //
+          const tokenVal = convertString(amount, decimal)
+          const usdVal = price * tokenVal
+          const value = formatDigit(tokenVal.toString())
+          const usdWorth = formatDigit(usdVal.toString(), 4)
+          totalWorth += usdVal
+          //
+          totalWorth += usdVal
           const text = `${value} ${symbol}`
           longestStrLen = Math.max(longestStrLen, text.length)
-          if (value === 0)
-            return {
-              emoji: "",
-              text: "",
-            }
+          if (tokenVal === 0) return { emoji: "", text: "" }
 
           return {
             emoji: getEmojiToken(symbol.toUpperCase()),
             text,
             usdWorth,
+            usdVal,
             ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
               ? { chain }
               : {}),
@@ -208,9 +211,7 @@ function switchView(
           if (!e.text) return ""
           return `${e.emoji} \`${e.text}${" ".repeat(
             longestStrLen - e.text.length
-          )} ${APPROX} $${utils.commify(e.usdWorth)}${
-            e.chain ? ` (${e.chain.name})` : ""
-          }\``
+          )} ${APPROX} $${e.usdWorth}${e.chain ? ` (${e.chain.name})` : ""}\``
         })
         .filter(Boolean)
         .join("\n")}`
@@ -220,10 +221,12 @@ function switchView(
       ?.map((balance: any) => {
         const { token, amount } = balance
         const { name: tokenName, symbol, decimal, price, chain, native } = token
-        const value = roundFloatNumber(convertString(amount, decimal) ?? 0, 4)
-        const usdWorth = roundFloatNumber(price * value, 4)
-        totalWorth += usdWorth
-        if (value === 0) return
+        const tokenVal = convertString(amount, decimal)
+        const usdVal = price * tokenVal
+        const value = formatDigit(tokenVal.toString())
+        const usdWorth = formatDigit(usdVal.toString(), 4)
+        totalWorth += usdVal
+        if (tokenVal === 0) return
 
         return {
           name:
@@ -245,7 +248,7 @@ function switchView(
 
   embed.addFields({
     name: `Total (U.S dollar)`,
-    value: `${getEmoji("CASH")} \`$${roundFloatNumber(totalWorth, 4)}\``,
+    value: `${getEmoji("CASH")} \`$${formatDigit(totalWorth.toString())}\``,
   })
   return embed
 }
@@ -257,6 +260,30 @@ export async function renderBalances(
 ) {
   const profileId = await getProfileIdByDiscord(discordId)
   const balances = await getBalances(profileId, type, msg)
+  // const fields: EmbedFieldData[] = []
+  const blank = getEmoji("BLANK")
+  let totalWorth = 0
+  const fields: EmbedFieldData[] = balances
+    ?.map((balance: any) => {
+      const { token, amount } = balance
+      const { name: tokenName, symbol, decimal, price, chain, native } = token
+      const tokenVal = convertString(amount, decimal)
+      const usdVal = price * tokenVal
+      const value = formatDigit(tokenVal.toString())
+      const usdWorth = formatDigit(usdVal.toString(), 4)
+      totalWorth += usdVal
+      if (tokenVal === 0) return
+
+      return {
+        name: tokenName + `${chain && !native ? ` (${chain.name})` : ""}`,
+        value: `${getEmojiToken(
+          symbol.toUpperCase()
+        )} ${value} ${symbol} \`$${usdWorth}\` ${blank}`,
+        inline: true,
+      }
+    })
+    .filter((f: EmbedFieldData | undefined) => Boolean(f))
+
   const props = balanceEmbedProps[type]
   if (!balances.length) {
     const embed = composeEmbedMessage(null, {
@@ -270,6 +297,17 @@ export async function renderBalances(
       },
     }
   }
+
+  const embed = composeEmbedMessage(null, {
+    author: [props.title, getEmojiURL(emojis.WALLET)],
+    description: props.description,
+    color: msgColors.SUCCESS,
+  }).addFields(fields)
+  justifyEmbedFields(embed, 3)
+  embed.addFields({
+    name: `Estimated total (U.S dollar)`,
+    value: `${getEmoji("CASH")} \`$${formatDigit(totalWorth.toString())}\``,
+  })
 
   return {
     messageOptions: {

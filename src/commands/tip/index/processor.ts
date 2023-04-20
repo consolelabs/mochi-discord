@@ -7,15 +7,14 @@ import { InsufficientBalanceError } from "errors/insufficient-balance"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
+  TokenEmojiKey,
   emojis,
   equalIgnoreCase,
   getAuthor,
   getEmoji,
   getEmojiURL,
   msgColors,
-  roundFloatNumber,
   thumbnails,
-  TokenEmojiKey,
 } from "utils/common"
 import { isMessage, reply } from "utils/discord"
 import {
@@ -28,7 +27,9 @@ import {
 import defi from "../../../adapters/defi"
 import mochiPay from "../../../adapters/mochi-pay"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
+import { APPROX } from "../../../utils/constants"
 import { convertString } from "../../../utils/convert"
+import { formatDigit, isNaturalNumber } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export async function tip(
@@ -142,14 +143,22 @@ export async function tip(
   // only one matching token -> proceed to send tip
   if (balances.length === 1) {
     const balance = balances[0]
-    const current = +balance.amount / Math.pow(10, balance.token?.decimal ?? 0)
+    const decimal = balance.token?.decimal ?? 0
+    const current = +balance.amount / Math.pow(10, decimal)
     if (current < amount) {
       throw new InsufficientBalanceError({
         msgOrInteraction,
         params: { current, required: amount, symbol: symbol as TokenEmojiKey },
       })
     }
+    if (!isNaturalNumber(amount * Math.pow(10, decimal))) {
+      throw new DiscordWalletTransferError({
+        message: msgOrInteraction,
+        error: ` ${symbol} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
+      })
+    }
     payload.chain_id = balance.token?.chain?.chain_id
+    payload.amount_string = formatDigit(amount.toString(), decimal)
     const result = await executeTip(msgOrInteraction, payload, balance.token)
     await reply(msgOrInteraction, result)
     return
@@ -203,10 +212,8 @@ async function selectTokenToTip(
         equalIgnoreCase(b.token?.symbol, payload.token) &&
         payload.chain_id === b.token?.chain?.chain_id
     )
-    const current = roundFloatNumber(
-      convertString(balance?.amount, balance?.token?.decimal) ?? 0,
-      4
-    )
+    const decimal = balance.token?.decimal ?? 0
+    const current = convertString(balance?.amount, decimal) ?? 0
     if (current < payload.amount) {
       throw new InsufficientBalanceError({
         msgOrInteraction,
@@ -217,6 +224,13 @@ async function selectTokenToTip(
         },
       })
     }
+    if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
+      throw new DiscordWalletTransferError({
+        message: msgOrInteraction,
+        error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
+      })
+    }
+    payload.amount_string = formatDigit(payload.amount.toString(), decimal)
     return await executeTip(msgOrInteraction, payload, balance?.token)
   }
 
@@ -296,10 +310,10 @@ async function executeTip(
   const usdAmount = data.amount_each * token?.price
   let description = `${userMention(
     payload.sender
-  )} has sent ${recipientDescription} **${roundFloatNumber(
-    +data.amount_each,
-    4
-  )} ${payload.token}** (\u2248 $${roundFloatNumber(usdAmount ?? 0, 4)}) ${
+  )} has sent ${recipientDescription} **${formatDigit(
+    data.amount_each.toString(),
+    18
+  )} ${payload.token}** (${APPROX} $${formatDigit(usdAmount.toString())}) ${
     payload.recipients.length > 1 ? "each" : ""
   }`
   if (payload.message) {

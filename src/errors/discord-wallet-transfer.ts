@@ -32,6 +32,7 @@ export class DiscordWalletTransferError extends BotBaseError {
           description: this.error,
         }),
       ],
+      components: [],
     })
   }
 }
