@@ -252,11 +252,18 @@ export async function getToken(symbol: string) {
 
 export function getTargets(args: string[]): {
   targets: string[]
+  firstIdx: number
   lastIdx: number
   valid: boolean
 } {
-  const result: { targets: string[]; lastIdx: number; valid: boolean } = {
+  const result: {
+    targets: string[]
+    firstIdx: number
+    lastIdx: number
+    valid: boolean
+  } = {
     targets: [],
+    firstIdx: -1,
     lastIdx: -1,
     valid: false,
   }
@@ -269,6 +276,7 @@ export function getTargets(args: string[]): {
       result.targets.push(selector[1])
       result.lastIdx = idx
       result.valid = true
+      if (result.firstIdx === -1) result.firstIdx = idx
       return
     }
 
@@ -278,11 +286,16 @@ export function getTargets(args: string[]): {
       result.targets.push(a)
       result.lastIdx = idx
       result.valid = true
+      if (result.firstIdx === -1) result.firstIdx = idx
       return
     }
   })
 
+  // no recipients
   if (!result.targets.length) result.valid = false
+
+  // if first target is not placed in 2nd position -> incorrect syntax
+  if (result.firstIdx !== 1) result.valid = false
   return result
 }
 
@@ -296,16 +309,19 @@ export async function parseMoniker(unit: string, guildId: string) {
     })
   }
 
+  const match = (v: ResponseMonikerConfigData) => {
+    const tmp = v.moniker?.moniker
+    if (!tmp) return
+    const sym = v.moniker?.token?.token_symbol
+    if (!sym) return
+    const plural = v.moniker?.plural
+    return equalIgnoreCase(unit, tmp) || equalIgnoreCase(unit, plural || "")
+  }
+
   // if guild has custom configs, then find the match one
   if (data?.length) {
-    // const content = args.join(" ").trim()
-    return data?.find((v: ResponseMonikerConfigData) => {
-      const tmp = v.moniker?.moniker
-      if (!tmp) return
-      const sym = v.moniker?.token?.token_symbol
-      if (!sym) return
-      return equalIgnoreCase(unit, tmp)
-    })
+    const moniker = data?.find(match)
+    if (moniker) return moniker
   }
 
   // else get global monikers
@@ -323,13 +339,7 @@ export async function parseMoniker(unit: string, guildId: string) {
   }
 
   // and find the match one
-  return dataDefault?.find((v: ResponseMonikerConfigData) => {
-    const tmp = v.moniker?.moniker
-    if (!tmp) return
-    const sym = v.moniker?.token?.token_symbol
-    if (!sym) return
-    return equalIgnoreCase(unit, tmp)
-  })
+  return dataDefault?.find(match)
 }
 
 export function parseMessageTip(args: string[], startIdx: number): string {

@@ -5,6 +5,8 @@ import * as processor from "./processor"
 
 const run = async (msg: Message) => {
   const args = getCommandArguments(msg)
-  await processor.withdraw(msg, args[1], args[2] as TokenEmojiKey)
+  const amountArg = args[1]
+  const tokenArg = args[2].toUpperCase() as TokenEmojiKey
+  await processor.withdraw(msg, amountArg, tokenArg)
 }
 export default run

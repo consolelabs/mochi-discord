@@ -23,7 +23,7 @@ describe("run", () => {
     // Defi.getInsuffientBalanceEmbed = jest.fn().mockResolvedValueOnce(null)
     jest.spyOn(processor, "getRecipient").mockResolvedValueOnce(addr)
     const output = await withdrawCmd.run(msg)
-    expect(processor.withdraw).toHaveBeenCalledWith(msg, "1", "ftm")
+    expect(processor.withdraw).toHaveBeenCalledWith(msg, "1", "FTM")
     expect(output).toBeFalsy()
   })
 })
