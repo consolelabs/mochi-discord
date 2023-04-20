@@ -92,6 +92,7 @@ import tagme from "./tagme"
 import trending from "./trending"
 import gainer from "./gainer"
 import loser from "./loser"
+import transaction from "./transaction"
 
 CacheManager.init({
   ttl: 0,
@@ -152,6 +153,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   trending: trending.slashCmd,
   gainer: gainer.slashCmd,
   loser: loser.slashCmd,
+  transaction: transaction.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
