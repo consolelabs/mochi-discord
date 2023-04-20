@@ -19,7 +19,6 @@ import {
   isAddress,
   isValidAmount,
   msgColors,
-  roundFloatNumber,
   TokenEmojiKey,
 } from "utils/common"
 import {
@@ -122,10 +121,7 @@ export async function withdraw(
   // one matching token -> proceed to send tip
   if (balances.length === 1) {
     const balance = balances[0]
-    const current = roundFloatNumber(
-      convertString(balance?.amount, balance?.token?.decimal) ?? 0,
-      4
-    )
+    const current = convertString(balance?.amount, balance?.token?.decimal) ?? 0
     if (all) amount = current
     payload.amount = amount.toString()
     if (current < amount) {
@@ -206,10 +202,7 @@ async function selectTokenToWithdraw(
         equalIgnoreCase(b.token?.symbol, payload.token) &&
         payload.chainId === b.token?.chain?.chain_id
     )
-    const current = roundFloatNumber(
-      convertString(balance?.amount, balance?.token?.decimal) ?? 0,
-      4
-    )
+    const current = convertString(balance?.amount, balance?.token?.decimal) ?? 0
     if (all) payload.amount = current
     if (current < payload.amount) {
       throw new InsufficientBalanceError({
