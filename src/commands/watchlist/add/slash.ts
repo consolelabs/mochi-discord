@@ -4,7 +4,7 @@ import { thumbnails } from "utils/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX, SPACES_REGEX } from "utils/constants"
-import { viewWatchlist } from "./processor"
+import { addWatchlistToken } from "./processor"
 
 const command: SlashCommand = {
   name: "add",
@@ -17,7 +17,7 @@ const command: SlashCommand = {
         option
           .setName("symbols")
           .setDescription(
-            "The tickers/pairs space-separated list you wanna add to your watchlist. Example: ftm eth"
+            "The space-separated list you wanna add to your watchlist. Example: FTM ETH/USDT BTC/SOL"
           )
           .setRequired(true)
       )
@@ -27,9 +27,9 @@ const command: SlashCommand = {
     const symbols = opt
       .split(SPACES_REGEX)
       .map((s) => s.trim())
-      .filter((s) => !!s)
+      .filter(Boolean)
     const userId = interaction.user.id
-    return await viewWatchlist({
+    return await addWatchlistToken({
       interaction,
       symbols,
       originSymbols: symbols,
@@ -42,7 +42,7 @@ const command: SlashCommand = {
         thumbnail: thumbnails.TOKENS,
         title: "Add token(s) to your watchlist.",
         usage: `${PREFIX}watchlist add <symbol1 symbol2 ...>`,
-        examples: `${PREFIX}watchlist add eth\n${PREFIX}watchlist add ftm btc/sol matic`,
+        examples: `${PREFIX}watchlist add eth\n${PREFIX}watchlist add FTM BTC/SOL MATIC`,
       }),
     ],
   }),

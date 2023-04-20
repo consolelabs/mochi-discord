@@ -89,6 +89,9 @@ import config from "./config"
 import heatmap from "./heatmap"
 import swap from "./swap"
 import tagme from "./tagme"
+import trending from "./trending"
+import gainer from "./gainer"
+import loser from "./loser"
 
 CacheManager.init({
   ttl: 0,
@@ -141,6 +144,9 @@ export const slashCommands: Record<string, SlashCommand> = {
   heatmap: heatmap.slashCmd,
   swap: swap.slashCmd,
   tagme: tagme.slashCmd,
+  trending: trending.slashCmd,
+  gainer: gainer.slashCmd,
+  loser: loser.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {

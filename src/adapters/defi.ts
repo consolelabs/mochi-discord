@@ -425,8 +425,10 @@ class Defi extends Fetcher {
     })
   }
 
-  async getCoinsMarketData() {
-    return await this.jsonFetch(`${API_BASE_URL}/defi/market-data`)
+  async getCoinsMarketData(query: { order?: string } = {}) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/market-data`, {
+      query,
+    })
   }
 
   async getSwapRoute({
@@ -460,6 +462,10 @@ class Defi extends Fetcher {
       },
       bodyCamelToSnake: false,
     })
+  }
+
+  async getTrendingSearch() {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/trending`)
   }
 }
 
