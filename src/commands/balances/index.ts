@@ -1,13 +1,39 @@
-import { SlashCommand } from "types/common"
+import { Command, SlashCommand } from "types/common"
 import { thumbnails } from "utils/common"
 import {
   BALANCE_GITBOOK,
   DEFI_DEFAULT_FOOTER,
+  PREFIX,
   SLASH_PREFIX,
 } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
+import balance from "./index/text"
 import balanceSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
+
+const textCmd: Command = {
+  id: "balances",
+  command: "balances",
+  brief: "Wallet balances",
+  category: "Defi",
+  run: balance,
+  getHelpMessage: async (msg) => ({
+    embeds: [
+      composeEmbedMessage(msg, {
+        thumbnail: thumbnails.TOKENS,
+        usage: `${PREFIX}balance`,
+        description: "Show your offchain balances",
+        footer: [DEFI_DEFAULT_FOOTER],
+        examples: `${PREFIX}balance\n${PREFIX}bals\n${PREFIX}bal`,
+        document: BALANCE_GITBOOK,
+      }),
+    ],
+  }),
+  canRunWithoutAction: true,
+  aliases: ["balance", "bal", "bals"],
+  allowDM: true,
+  colorType: "Defi",
+}
 
 const slashCmd: SlashCommand = {
   name: "balances",
@@ -33,4 +59,4 @@ const slashCmd: SlashCommand = {
   colorType: "Defi",
 }
 
-export default { slashCmd }
+export default { textCmd, slashCmd }
