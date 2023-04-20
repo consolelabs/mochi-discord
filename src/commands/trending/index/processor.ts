@@ -19,7 +19,6 @@ export async function render() {
               true
             )} Currently no token found`,
             color: msgColors.SUCCESS,
-            footer: ["Type /feedback to report"],
           }),
         ],
       },
@@ -34,7 +33,7 @@ export async function render() {
 
   const embed = composeEmbedMessage(null, {
     color: msgColors.BLUE,
-    description: description,
+    description,
     author: ["Trending Search", getEmojiURL(emojis.ANIMATED_FIRE)],
   })
 
