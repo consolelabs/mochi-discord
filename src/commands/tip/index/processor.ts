@@ -4,7 +4,7 @@ import { InternalError } from "errors"
 import { APIError } from "errors/api"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
   emojis,
@@ -19,6 +19,7 @@ import {
 import { isMessage, reply } from "utils/discord"
 import {
   getTargets,
+  isTokenSupported,
   parseMessageTip,
   parseMoniker,
   parseRecipients,
@@ -58,6 +59,27 @@ export async function tip(
   const unitIdx = amountIdx + 1
   const unit = args[unitIdx]
 
+  // check if unit is a valid token ...
+  const isToken = await isTokenSupported(unit)
+  let moniker
+  // if not then it could be a moniker
+  if (!isToken) {
+    moniker = await parseMoniker(unit, msgOrInteraction.guildId ?? "")
+  }
+  const amount = parsedAmount * (moniker?.moniker?.amount ?? 1)
+  const symbol = (moniker?.moniker?.token?.token_symbol ?? unit).toUpperCase()
+
+  // if unit is not either a token or a moniker -> reject
+  if (!moniker && !isToken) {
+    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
+    const errorEmbed = getErrorEmbed({
+      title: "Unsupported token",
+      description: `**${symbol}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright} To add your token, run \`$token add\`.`,
+    })
+    reply(msgOrInteraction, { messageOptions: { embeds: [errorEmbed] } })
+    return
+  }
+
   // each: optional param | go after unit (if any)
   const eachIdx = unitIdx + 1
   const each = args[eachIdx] === "each"
@@ -69,13 +91,6 @@ export async function tip(
   // image
   const { message: msg } = isMessage(msgOrInteraction)
   const image = msg ? msg.attachments.first()?.url ?? "" : ""
-
-  // check if unit is a moniker
-  const moniker = await parseMoniker(unit, msgOrInteraction.guildId ?? "")
-  const amount = parsedAmount * (moniker?.moniker?.amount ?? 1)
-
-  // symbol
-  const symbol = (moniker?.moniker?.token?.token_symbol ?? unit).toUpperCase()
 
   // get sender balances
   const senderPid = await getProfileIdByDiscord(author.id)

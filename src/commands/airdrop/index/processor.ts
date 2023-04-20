@@ -13,25 +13,22 @@ import {
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import NodeCache from "node-cache"
 import parse from "parse-duration"
-import { ResponseMonikerConfigData } from "types/api"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
   TokenEmojiKey,
   defaultEmojis,
   emojis,
   equalIgnoreCase,
-  getAuthor,
   getEmoji,
   getEmojiToken,
   getEmojiURL,
-  isValidAmount,
   msgColors,
   roundFloatNumber,
 } from "utils/common"
 import { APPROX } from "utils/constants"
 import { formatDigit } from "utils/defi"
-import { isTokenSupported, parseMonikerinCmd } from "utils/tip-bot"
+import { isTokenSupported, parseMoniker } from "utils/tip-bot"
 import mochiPay from "../../../adapters/mochi-pay"
 import { APIError } from "../../../errors"
 import { InsufficientBalanceError } from "../../../errors/insufficient-balance"
@@ -510,10 +507,13 @@ function getAirdropOptions(args: string[]) {
   }
 
   const content = args.join(" ").trim()
-  const forIndex = args.findIndex((v) => v === "for")
+  const forIndex = args.findIndex((v) => equalIgnoreCase(v, "for"))
 
   // need to isolate in order to avoid parsing the "..for.." clause
-  const contentWithoutFor = args.slice(0, forIndex).join(" ").trim()
+  const contentWithoutFor = args
+    .slice(0, forIndex === -1 ? undefined : forIndex)
+    .join(" ")
+    .trim()
 
   const durationReg =
     /in\s*(\s*\d+\s?(?:hour(s)?|minute(s)?|second(s)?|hr(s)?|min(s)?|sec(s)?|h|m|s))+/
@@ -550,63 +550,48 @@ function getAirdropOptions(args: string[]) {
 }
 
 export async function getAirdropPayload(
-  msg: Message | CommandInteraction,
+  i: CommandInteraction,
   args: string[]
 ): Promise<any> {
-  const author = getAuthor(msg)
-  const guildId = msg.guildId ?? "DM"
+  const guildId = i.guildId ?? "DM"
   if (![3, 5, 7].includes(args.length)) {
     throw new DiscordWalletTransferError({
-      discordId: author.id,
-      message: msg,
+      discordId: i.user.id,
+      message: i,
       error: "Invalid number of airdrop arguments",
     })
   }
-  const { newArgs, moniker } = await parseMonikerinCmd(args, guildId)
-  const reply =
-    msg instanceof Message ? msg.reply.bind(msg) : msg.editReply.bind(msg)
-  // airdrop 1 ftm in 1m for 1
-  const amountArg = newArgs[1]
-  const recipients: string[] = []
-  const token = newArgs[2].toUpperCase()
-  const tokenSupported = await isTokenSupported(token)
-  if (!moniker && !tokenSupported) {
-    reply({
-      embeds: [
-        composeEmbedMessage(null, {
-          author: ["Unsupported token", getEmojiURL(emojis.REVOKE)],
-          color: msgColors.GRAY,
-        }),
-      ],
-    })
-    return null
+
+  const amountArg = args[1]
+  const unit = args[2].toUpperCase()
+
+  // get amount
+  const { amount: parsedAmount, all } = await parseAmount(i, amountArg)
+  // check if unit is a valid token ...
+  const isToken = await isTokenSupported(unit)
+  let moniker
+  // if not then it could be a moniker
+  if (!isToken) {
+    moniker = await parseMoniker(unit, i.guildId ?? "")
   }
-  // validate airdrop amount
-  const validAmount = isValidAmount({
-    arg: amountArg,
-    exceptions: ["all", "a", "an"],
-  })
-  if (!validAmount) {
-    reply({
-      embeds: [
-        composeEmbedMessage(null, {
-          author: ["Invalid amount", getEmojiURL(emojis.REVOKE)],
-          color: msgColors.GRAY,
-        }),
-      ],
+  const amount = parsedAmount * (moniker?.moniker?.amount ?? 1)
+  const token = (moniker?.moniker?.token?.token_symbol ?? unit).toUpperCase()
+
+  // if unit is not either a token or a moniker -> reject
+  if (!moniker && !isToken) {
+    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
+    const errorEmbed = getErrorEmbed({
+      title: "Unsupported token",
+      description: `**${token}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright} To add your token, run \`$token add\`.`,
     })
+    i.editReply({ embeds: [errorEmbed] })
     return null
-  }
-  let amount = parseFloat(amountArg)
-  if (["a", "an"].includes(amountArg)) amount = 1
-  if (moniker) {
-    amount *= (moniker as ResponseMonikerConfigData).moniker?.amount ?? 1
   }
 
-  const opts = getAirdropOptions(newArgs)
-  // check valid duration
+  // get valid optional arguments (duration & max entries)
+  const opts = getAirdropOptions(args)
   if (opts.duration === 0) {
-    reply({
+    i.editReply({
       embeds: [
         composeEmbedMessage(null, {
           author: ["Invalid duration", getEmojiURL(emojis.REVOKE)],
@@ -620,7 +605,7 @@ export async function getAirdropPayload(
 
   // check valid entries
   if (opts.maxEntries === -1) {
-    reply({
+    i.editReply({
       embeds: [
         composeEmbedMessage(null, {
           author: ["Invalid entries", getEmojiURL(emojis.REVOKE)],
@@ -631,12 +616,12 @@ export async function getAirdropPayload(
     return null
   }
   return {
-    sender: author.id,
-    recipients,
+    sender: i.user.id,
+    recipients: [] as string[],
     guildId,
-    channelId: msg.channelId,
+    channelId: i.channelId,
     amount,
-    all: equalIgnoreCase(amountArg, "all"),
+    all,
     each: false,
     fullCommand: args.join(" ").trim(),
     duration: opts.duration,
@@ -644,4 +629,36 @@ export async function getAirdropPayload(
     transferType: "airdrop",
     opts,
   }
+}
+
+async function parseAmount(
+  i: CommandInteraction,
+  amountArg: string
+): Promise<{ all: boolean; amount: number }> {
+  const result = {
+    all: false,
+    amount: parseFloat(amountArg),
+  }
+  switch (true) {
+    // a, an = 1
+    case ["a", "an"].includes(amountArg.toLowerCase()):
+      result.amount = 1
+      break
+
+    // tip all, let BE calculate amount
+    case equalIgnoreCase("all", amountArg):
+      result.amount = 0
+      result.all = true
+      break
+
+    // invalid amount
+    case isNaN(result.amount) || result.amount <= 0:
+      throw new DiscordWalletTransferError({
+        discordId: i.user.id,
+        message: i,
+        error: "The amount is invalid. Please insert a natural number.",
+      })
+  }
+
+  return result
 }

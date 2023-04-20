@@ -34,6 +34,7 @@ import * as processor from "./processor"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { convertString } from "../../../utils/convert"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
+import { isTokenSupported } from "../../../utils/tip-bot"
 
 export async function getRecipient(
   msg: Message | CommandInteraction,
@@ -87,8 +88,19 @@ export async function withdraw(
       error: "The amount is invalid. Please insert a natural number.",
     })
   }
-
   let amount = parseFloat(amountArg)
+
+  // validate token
+  const isToken = await isTokenSupported(tokenArg)
+  if (!isToken) {
+    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
+    const errorEmbed = getErrorEmbed({
+      title: "Unsupported token",
+      description: `**${tokenArg}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright} To add your token, run \`$token add\`.`,
+    })
+    reply(msgOrInteraction, { messageOptions: { embeds: [errorEmbed] } })
+    return null
+  }
 
   // validate balance
   const { data, ok, curl, log } = await mochiPay.getBalances({

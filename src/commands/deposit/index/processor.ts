@@ -10,18 +10,17 @@ import {
   OriginalMessage,
 } from "errors"
 import fs from "fs"
+import { InteractionHandler } from "handlers/discord/select-menu"
 import * as qrcode from "qrcode"
+import { Token } from "types/defi"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
-import { InteractionHandler } from "handlers/discord/select-menu"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { emojis, getAuthor, getEmoji, getEmojiURL } from "utils/common"
 import { MOCHI_SERVER_INVITE_URL } from "utils/constants"
 import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import * as processor from "./processor"
-import { Token } from "types/defi"
-import { composeDiscordSelectionRow } from "ui/discord/select-menu"
-import { composeDiscordExitButton } from "ui/discord/button"
 
 export async function deposit(
   msgOrInteraction: OriginalMessage,
@@ -57,15 +56,20 @@ export async function deposit(
       placeholder: "Select a token",
       options,
     })
+    const embed = composeEmbedMessage(null, {
+      originalMsgAuthor: author,
+      author: ["Multiple results found", getEmojiURL(emojis.MAG)],
+      description: `There are \`${token}\` token on multiple chains: ${tokens
+        .map((t: any) => {
+          return `\`${t.chain?.name}\``
+        })
+        .filter((s: any) => Boolean(s))
+        .join(", ")}.\nPlease select one of the following`,
+    })
     return {
       messageOptions: {
-        embeds: [
-          composeEmbedMessage(null, {
-            title: "Deposit",
-            description: "Select one of the tokens to deposit.",
-          }),
-        ],
-        components: [selectionRow, composeDiscordExitButton(author.id)],
+        embeds: [embed],
+        components: [selectionRow],
       },
       interactionOptions: {
         handler,
