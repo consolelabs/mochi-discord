@@ -91,6 +91,11 @@ class Profile extends Fetcher {
     )
   }
 
+  public async getById(id: string) {
+    const res = await fetch(`${MOCHI_PROFILE_API_BASE_URL}/profiles/${id}`)
+    return await res?.json()
+  }
+
   public async getByDiscord(discordId: string) {
     const res = await fetch(
       `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}`
