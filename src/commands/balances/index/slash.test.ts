@@ -4,6 +4,7 @@ import { APIError } from "errors"
 import { RunResult } from "types/common"
 import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { APPROX } from "utils/constants"
 import mockdc from "../../../../tests/mocks/discord"
 import mochiPay from "../../../adapters/mochi-pay"
 
@@ -41,22 +42,11 @@ describe("balances", () => {
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
       author: ["Mochi balance", getEmojiURL(emojis.WALLET)],
+      description: `<a:animated_pointing_right:1093923073557807175> You can withdraw the coin to you crypto wallet by \`$withdraw\`.\n<a:animated_pointing_right:1093923073557807175> All the tip transaction will take from this balance. You can try \`$tip <recipient> <amount> <token>\` to transfer coin.\n\n<:cake:972205674371117126> \`10 CAKE ${APPROX} $30\`\n<:ftm:967285237686108212> \`5 FTM   ${APPROX} $2.5\``,
     })
-      .addFields({
-        name: "Panswap Cake",
-        value:
-          "<:cake:972205674371117126> 10 CAKE `$30` <:blank:967287119448014868>",
-        inline: true,
-      })
-      .addFields({
-        name: "Fantom",
-        value:
-          "<:ftm:967285237686108212> 5 FTM `$2.5` <:blank:967287119448014868>",
-        inline: true,
-      })
     justifyEmbedFields(expected, 3)
     expected.addFields({
-      name: `Estimated total (U.S dollar)`,
+      name: `Total (U.S dollar)`,
       value: `${getEmoji("CASH")} \`$32.5\``,
     })
     const output = await balCmd.run(i)
@@ -64,8 +54,9 @@ describe("balances", () => {
     expect(expected.author).toStrictEqual(
       (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
     )
-    expect(expected.fields).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].fields
+    expect(expected.description).toStrictEqual(
+      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
+        .description
     )
   })
 
