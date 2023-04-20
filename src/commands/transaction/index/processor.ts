@@ -1,4 +1,10 @@
-import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  msgColors,
+  shortenHashOrAddress,
+} from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
@@ -79,7 +85,7 @@ export async function render(i: CommandInteraction) {
     .map((tx: any) => {
       return `Deposited ${convertString(tx.amount, tx.token.decimal, false)} ${
         tx.token.symbol
-      } from ${tx.from}`
+      } from ${shortenHashOrAddress(tx.from)}`
     })
     .join("\n")
 
@@ -88,7 +94,7 @@ export async function render(i: CommandInteraction) {
     .map((tx: any) => {
       return `Withdraw ${convertString(tx.amount, tx.token.decimal, false)} ${
         tx.token.symbol
-      } to ${tx.address}`
+      } to ${shortenHashOrAddress(tx.address)}`
     })
     .join("\n")
 
