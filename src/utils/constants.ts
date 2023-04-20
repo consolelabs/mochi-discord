@@ -81,6 +81,14 @@ export const TRENDING_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/trending" +
   "&command=trending"
+export const GAINER_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/gainer" +
+  "&command=gainer"
+export const LOSER_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/loser" +
+  "&command=loser"
 export const DEFAULT_TOKEN_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/set-default-token" +
