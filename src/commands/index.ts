@@ -180,7 +180,6 @@ export const originalCommands: Record<string, Command> = {
   quest: quest.textCmd,
   alert: alert.textCmd,
   gas: gas.textCmd,
-  activity: activity.textCmd,
   inbox: inbox.textCmd,
   convert: convert.textCmd,
   // config section
