@@ -24,7 +24,7 @@ export async function render(i: CommandInteraction) {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            title: "No gainer token now!",
+            title: "No loser token now!",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
               true

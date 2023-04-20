@@ -18,7 +18,7 @@ const slashCmd: SlashCommand = {
     const data = new SlashCommandBuilder()
       .setName("loser")
       .setDescription(
-        "Show top increasing tokens in last 1 hour, 24 hours, 7 days"
+        "Show top decreasing tokens in last 1 hour, 24 hours, 7 days"
       )
       .addStringOption((option) =>
         option
@@ -36,7 +36,7 @@ const slashCmd: SlashCommand = {
         thumbnail: thumbnails.TOKENS,
         usage: `${SLASH_PREFIX}loser <time_range>`,
         description:
-          "Show top increasing tokens in last 1 hour, 24 hours, 7 days",
+          "Show top decreasing tokens in last 1 hour, 24 hours, 7 days",
         footer: [DEFI_DEFAULT_FOOTER],
         examples: `${SLASH_PREFIX}loser 1h\n${SLASH_PREFIX}loser 24h\n${SLASH_PREFIX}loser 7d`,
         document: LOSER_GITBOOK,
