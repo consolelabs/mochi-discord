@@ -77,6 +77,10 @@ export const AIRDROP_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/airdrop-token" +
   "&command=airdrop"
+export const TRENDING_GITBOOK =
+  USAGE_STATS_URL +
+  "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/trending" +
+  "&command=trending"
 export const DEFAULT_TOKEN_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/set-default-token" +
