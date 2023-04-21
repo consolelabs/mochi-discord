@@ -27,15 +27,15 @@ import {
 } from "utils/common"
 import { APPROX } from "utils/constants"
 import { isTokenSupported, parseMoniker } from "utils/tip-bot"
+import config from "../../../adapters/config"
 import mochiPay from "../../../adapters/mochi-pay"
 import { APIError, GuildIdNotFoundError } from "../../../errors"
 import { InsufficientBalanceError } from "../../../errors/insufficient-balance"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { convertString } from "../../../utils/convert"
-import { formatDigit, isNaturalNumber } from "../../../utils/defi"
+import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { reply } from "../../../utils/discord"
 import { getProfileIdByDiscord } from "../../../utils/profile"
-import config from "../../../adapters/config"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -376,7 +376,7 @@ export async function handleAirdrop(i: CommandInteraction, args: string[]) {
     if (all) payload.amount = current
 
     // validate maximum fraction digits of amount
-    if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
+    if (!isValidTipAmount(payload.amount.toString(), decimal)) {
       throw new DiscordWalletTransferError({
         message: i,
         error: ` ${token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
@@ -473,7 +473,7 @@ async function selectTokenToAirdrop(
     }
 
     if (all) payload.amount = current
-    if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
+    if (!isValidTipAmount(payload.amount.toString(), decimal)) {
       throw new DiscordWalletTransferError({
         message: i,
         error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
@@ -733,7 +733,7 @@ async function parseAmount(
       throw new DiscordWalletTransferError({
         discordId: i.user.id,
         message: i,
-        error: "The amount is invalid. Please insert a natural number.",
+        error: "The amount is invalid. Please insert a positive number.",
       })
   }
 

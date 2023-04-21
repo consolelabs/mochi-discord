@@ -16,7 +16,7 @@ export function formatDigit(str: string, fractionDigits = 6, force = false) {
   if (!force) {
     while (Number(rightStr) === 0 || rightStr.length < fractionDigits) {
       const nextDigit = numsArr.shift()
-      if (!nextDigit) break
+      if (nextDigit === undefined) break
       rightStr += nextDigit
     }
   } else {
@@ -26,6 +26,13 @@ export function formatDigit(str: string, fractionDigits = 6, force = false) {
     rightStr = rightStr.slice(0, rightStr.length - 1)
   }
   return left + "." + rightStr
+}
+
+export function isValidTipAmount(str: string, decimal: number) {
+  const s = formatDigit(str, decimal)
+  if (s === "0") return false
+  const numOfFracDigits = s.split(".")[1]?.length ?? 0
+  return numOfFracDigits <= decimal
 }
 
 export function parseTickerQuery(q: string) {

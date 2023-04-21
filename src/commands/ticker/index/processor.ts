@@ -22,7 +22,6 @@ import { drawRectangle } from "ui/canvas/draw"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
 import { getChance, getEmoji, roundFloatNumber } from "utils/common"
-import { formatDigit } from "utils/defi"
 
 export async function renderHistoricalMarketChart({
   coinId,
@@ -155,11 +154,9 @@ export async function composeTickerResponse({
     },
     {
       name: `Price (${currency.toUpperCase()})`,
-      value: `$${formatDigit(
-        currentPrice.toLocaleString(undefined, {
-          maximumFractionDigits: 18,
-        })
-      )}`,
+      value: `$${currentPrice.toLocaleString(undefined, {
+        maximumFractionDigits: 18,
+      })}`,
       inline: true,
     },
     { name: "\u200B", value: "\u200B", inline: true },
