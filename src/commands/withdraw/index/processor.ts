@@ -34,6 +34,7 @@ import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { convertString } from "../../../utils/convert"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
 import { isTokenSupported } from "../../../utils/tip-bot"
+import { formatDigit, isNaturalNumber } from "../../../utils/defi"
 
 export async function getRecipient(
   msg: Message | CommandInteraction,
@@ -133,7 +134,8 @@ export async function withdraw(
   // one matching token -> proceed to send tip
   if (balances.length === 1) {
     const balance = balances[0]
-    const current = convertString(balance?.amount, balance?.token?.decimal) ?? 0
+    const decimal = balance?.token?.decimal ?? 0
+    const current = convertString(balance?.amount, decimal) ?? 0
     if (all) amount = current
     payload.amount = amount.toString()
     if (current < amount) {
@@ -142,6 +144,13 @@ export async function withdraw(
         params: { current, required: amount, symbol: tokenArg },
       })
     }
+    if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
+      throw new DiscordWalletTransferError({
+        message: msgOrInteraction,
+        error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
+      })
+    }
+    payload.amount_string = formatDigit(amount.toString(), decimal)
     payload.chainId = balance.token?.chain?.chain_id
     await executeWithdraw(msgOrInteraction, payload)
     return
@@ -214,7 +223,8 @@ async function selectTokenToWithdraw(
         equalIgnoreCase(b.token?.symbol, payload.token) &&
         payload.chainId === b.token?.chain?.chain_id
     )
-    const current = convertString(balance?.amount, balance?.token?.decimal) ?? 0
+    const decimal = balance?.token?.decimal ?? 0
+    const current = convertString(balance?.amount, decimal) ?? 0
     if (all) payload.amount = current
     if (current < payload.amount) {
       throw new InsufficientBalanceError({
@@ -226,7 +236,14 @@ async function selectTokenToWithdraw(
         },
       })
     }
+    if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
+      throw new DiscordWalletTransferError({
+        message: msgOrInteraction,
+        error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
+      })
+    }
     payload.amount = payload.amount.toString()
+    payload.amount_string = formatDigit(payload.amount.toString(), decimal)
     await executeWithdraw(msgOrInteraction, payload)
   }
 

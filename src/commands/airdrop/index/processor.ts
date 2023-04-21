@@ -24,16 +24,15 @@ import {
   getEmojiToken,
   getEmojiURL,
   msgColors,
-  roundFloatNumber,
 } from "utils/common"
 import { APPROX } from "utils/constants"
-import { formatDigit } from "utils/defi"
 import { isTokenSupported, parseMoniker } from "utils/tip-bot"
 import mochiPay from "../../../adapters/mochi-pay"
 import { APIError } from "../../../errors"
 import { InsufficientBalanceError } from "../../../errors/insufficient-balance"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { convertString } from "../../../utils/convert"
+import { formatDigit, isNaturalNumber } from "../../../utils/defi"
 import { reply } from "../../../utils/discord"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
@@ -49,15 +48,16 @@ export const airdropCache = new NodeCache({
 function composeAirdropButtons(
   authorId: string,
   amount: number,
-  amountInUSD: number,
+  formattedUsd: string,
   cryptocurrency: string,
   chainId: string,
   duration: number,
   maxEntries: number
 ) {
+  const formattedAmount = formatDigit(amount.toString(), 18)
   return new MessageActionRow().addComponents(
     new MessageButton({
-      customId: `confirm_airdrop-${authorId}-${amount}-${amountInUSD}-${cryptocurrency}-${chainId}-${duration}-${maxEntries}`,
+      customId: `confirm_airdrop-${authorId}-${formattedAmount}-${formattedUsd}-${cryptocurrency}-${chainId}-${duration}-${maxEntries}`,
       emoji: getEmoji("CHECK"),
       style: "SUCCESS",
       label: "Confirm",
@@ -110,10 +110,7 @@ export async function confirmAirdrop(
   const originalAuthor = await msg.guild?.members.fetch(authorId)
   const airdropEmbed = composeEmbedMessage(msg, {
     author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
-    description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${token}** (\u2248 $${roundFloatNumber(
-      +amountInUSD,
-      4
-    )})${
+    description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${amountInUSD})${
       +maxEntries !== 0
         ? ` for  ${maxEntries} ${+maxEntries > 1 ? "people" : "person"}`
         : ""
@@ -144,8 +141,8 @@ export async function confirmAirdrop(
     reply as Message,
     cacheKey,
     authorId,
-    +amount,
-    +amountInUSD,
+    amount,
+    amountInUSD,
     token as TokenEmojiKey,
     chainId,
     duration,
@@ -157,13 +154,14 @@ async function checkExpiredAirdrop(
   msg: Message,
   cacheKey: string,
   authorId: string,
-  amount: number,
-  usdAmount: number,
+  amountStr: string,
+  usdAmount: string,
   token: TokenEmojiKey,
   chainId: string,
   duration: string,
   maxEntries: number
 ) {
+  const amount = +amountStr
   airdropCache.on("expired", async (key, participants: string[]) => {
     if (key === cacheKey) {
       airdropCache.del(key)
@@ -171,10 +169,7 @@ async function checkExpiredAirdrop(
         participants = participants.slice(0, maxEntries)
       }
       const tokenEmoji = getEmojiToken(token)
-      const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${token}** (\u2248 $${roundFloatNumber(
-        +usdAmount,
-        4
-      )}) ${
+      const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${usdAmount}) ${
         !participants?.length
           ? `has not been collected by anyone ${getEmoji(
               "ANIMATED_SHRUGGING",
@@ -199,36 +194,40 @@ async function checkExpiredAirdrop(
           transferType: "airdrop",
           fullCommand: msg.content,
           duration: +duration,
+          amountString: amountStr,
         }
-        await defi.offchainDiscordTransfer(req).then(() => {
-          if (!originalAuthor) return
-          participants.forEach(async (p) => {
-            const { value } = parseDiscordToken(p)
-            const user = await msg.guild?.members.fetch(value)
-            user
-              ?.send({
-                embeds: [
-                  composeEmbedMessage(null, {
-                    author: [
-                      `You have joined ${
-                        originalAuthor.nickname || originalAuthor.user.username
-                      }'s airdrop`,
-                      getEmojiURL(emojis.ANIMATED_COIN_3),
-                    ],
-                    description: `You have received ${APPROX} ${formatDigit(
-                      String(amount / participants.length)
-                    )} ${token} from ${originalAuthor}'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
-                      "ANIMATED_WITHDRAW",
-                      true
-                    )}`,
-                    color: msgColors.ACTIVITY,
-                  }),
-                ],
-              })
-              .catch(() => null)
-          })
+        const { ok, data, curl, log } = await defi.offchainDiscordTransfer(req)
+        if (!ok) {
+          throw new APIError({ msgOrInteraction: msg, description: log, curl })
+        }
+        if (!originalAuthor) return
+        participants.forEach(async (p) => {
+          const { value } = parseDiscordToken(p)
+          const user = await msg.guild?.members.fetch(value)
+          user
+            ?.send({
+              embeds: [
+                composeEmbedMessage(null, {
+                  author: [
+                    `You have joined ${
+                      originalAuthor.nickname || originalAuthor.user.username
+                    }'s airdrop`,
+                    getEmojiURL(emojis.ANIMATED_COIN_3),
+                  ],
+                  description: `You have received ${APPROX} ${formatDigit(
+                    data.amount_each.toString()
+                  )} ${token} from ${originalAuthor}'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
+                    "ANIMATED_WITHDRAW",
+                    true
+                  )}`,
+                  color: msgColors.ACTIVITY,
+                }),
+              ],
+            })
+            .catch(() => null)
         })
       }
+
       originalAuthor
         ?.send({
           embeds: [
@@ -348,7 +347,8 @@ export async function handleAirdrop(i: CommandInteraction, args: string[]) {
   // only one matching token -> proceed to send tip
   if (balances.length === 1) {
     const balance = balances[0]
-    const current = convertString(balance.amount, balance.token?.decimal ?? 0)
+    const decimal = balance.token?.decimal ?? 0
+    const current = convertString(balance.amount, decimal)
     if (current < amount) {
       throw new InsufficientBalanceError({
         msgOrInteraction: i,
@@ -357,7 +357,14 @@ export async function handleAirdrop(i: CommandInteraction, args: string[]) {
     }
     payload.chain_id = balance.token?.chain?.chain_id
     if (all) payload.amount = current
+    if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
+      throw new DiscordWalletTransferError({
+        message: i,
+        error: ` ${token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
+      })
+    }
     payload.token_price = balance.token?.price
+    payload.amount_string = formatDigit(payload.amount.toString(), decimal)
     // const result = await executeTip(msgOrInteraction, payload, balance.token)
     // await reply(msgOrInteraction, result)
     const output = await showConfirmation(i, payload)
@@ -412,10 +419,8 @@ async function selectTokenToAirdrop(
         equalIgnoreCase(b.token?.symbol, payload.token) &&
         payload.chain_id === b.token?.chain?.chain_id
     )
-    const current = roundFloatNumber(
-      convertString(balance?.amount, balance?.token?.decimal) ?? 0,
-      4
-    )
+    const decimal = balance?.token?.decimal ?? 0
+    const current = convertString(balance?.amount, decimal) ?? 0
     if (current < payload.amount) {
       throw new InsufficientBalanceError({
         msgOrInteraction: i,
@@ -427,7 +432,14 @@ async function selectTokenToAirdrop(
       })
     }
     if (all) payload.amount = current
+    if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
+      throw new DiscordWalletTransferError({
+        message: i,
+        error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
+      })
+    }
     payload.token_price = balance.token?.price
+    payload.amount_string = formatDigit(payload.amount.toString(), decimal)
     return await showConfirmation(ci, payload)
   }
 
@@ -441,10 +453,10 @@ async function selectTokenToAirdrop(
 function showConfirmation(i: CommandInteraction, payload: any) {
   const tokenEmoji = getEmojiToken(payload.token as TokenEmojiKey)
   const usdAmount = payload.token_price * payload.amount
-  const amountDescription = `${tokenEmoji} **${roundFloatNumber(
-    payload.amount,
-    4
-  )} ${payload.token}** (\u2248 $${roundFloatNumber(usdAmount, 4)})`
+  const formattedUsd = formatDigit(usdAmount.toString(), 18)
+  const amountDescription = `${tokenEmoji} **${formatDigit(
+    payload.amount.toString()
+  )} ${payload.token}** (${APPROX} $${formattedUsd})`
 
   const describeRunTime = (duration = 0) => {
     const hours = Math.floor(duration / 3600)
@@ -484,7 +496,7 @@ function showConfirmation(i: CommandInteraction, payload: any) {
         composeAirdropButtons(
           i.user.id,
           payload.amount,
-          usdAmount,
+          formattedUsd,
           payload.token,
           payload.chain_id,
           payload.duration ?? 0,
