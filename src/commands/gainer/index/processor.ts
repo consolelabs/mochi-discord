@@ -13,7 +13,7 @@ import { CommandInteraction } from "discord.js"
 export async function render(i: CommandInteraction) {
   const timeRange = i.options.getString("time", true)
 
-  const { data, ok, curl, error, log } = await defi.getCoinsMarketData({
+  const { data, ok, curl, error, log } = await defi.getAllCoinsMarketData({
     order: `price_change_percentage_${timeRange}_desc`,
   })
   if (!ok) {
@@ -36,15 +36,29 @@ export async function render(i: CommandInteraction) {
     }
   }
 
+  let longestStrLen = 0
   const description = data
-    .slice(0, 5)
+    .slice(0, 10)
     .map((coin: any) => {
-      return `${coin.name} (${coin.symbol}) #${
-        coin.market_cap_rank
-      }\nChange: ${roundFloatNumber(
+      const changePercentage = roundFloatNumber(
         coin[`price_change_percentage_${timeRange}_in_currency`],
         2
-      )}%\n`
+      )
+
+      const text = `${coin.name} (${coin.symbol})`
+      longestStrLen = Math.max(longestStrLen, text.length)
+      const currentPrice = roundFloatNumber(coin.current_price, 4)
+
+      return {
+        text,
+        changePercentage,
+        current_price: currentPrice,
+      }
+    })
+    .map((coin: any) => {
+      return `\`${coin.text}${" ".repeat(
+        longestStrLen - coin.text.length
+      )} => $${coin.current_price}. Change: ${coin.changePercentage}%\``
     })
     .join("\n")
 
