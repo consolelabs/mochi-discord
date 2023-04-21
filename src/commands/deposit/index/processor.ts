@@ -37,7 +37,9 @@ export async function deposit(
     const { log: description, curl } = res
     throw new APIError({ msgOrInteraction, description, curl })
   }
-  const tokens = res.data
+  const tokens = res.data.filter(
+    (t: any) => t.chain_id !== "0" && Boolean(t.chain)
+  )
   if (tokens?.length < 1) {
     const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     throw new InternalError({
@@ -48,7 +50,7 @@ export async function deposit(
   }
   if (tokens?.length > 1) {
     const options: MessageSelectOptionData[] = tokens.map((token: Token) => ({
-      label: `${token.name} ${token.chain.name ? `(${token.chain.name})` : ""}`,
+      label: `${token.name} ${token.chain?.name ?? ""}`,
       value: `${token.symbol}|${token.chain_id}`,
     }))
     const selectionRow = composeDiscordSelectionRow({
