@@ -1286,6 +1286,26 @@ class Config extends Fetcher {
       `${API_BASE_URL}/vault/detail?vaultName=${vault_name}&guildId=${guild_id}`
     )
   }
+
+  public async setTipRangeConfig(body: {
+    guildId: string
+    min?: number
+    max?: number
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-defi/tip-range`, {
+      method: "POST",
+      body,
+    })
+  }
+
+  public async getTipRangeConfig(guildId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-defi/tip-range/${guildId}`,
+      {
+        method: "GET",
+      }
+    )
+  }
 }
 
 const config = new Config()

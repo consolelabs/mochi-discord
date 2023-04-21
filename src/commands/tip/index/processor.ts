@@ -1,6 +1,6 @@
 import { userMention } from "@discordjs/builders"
 import { CommandInteraction, Message, SelectMenuInteraction } from "discord.js"
-import { InternalError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { APIError } from "errors/api"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
@@ -31,11 +31,16 @@ import { APPROX } from "../../../utils/constants"
 import { convertString } from "../../../utils/convert"
 import { formatDigit, isNaturalNumber } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
+import config from "../../../adapters/config"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
   args: string[]
 ) {
+  if (!msgOrInteraction.guildId) {
+    throw new GuildIdNotFoundError({ message: msgOrInteraction })
+  }
+
   const author = getAuthor(msgOrInteraction)
   const onchain = args.at(-1) === "--onchain"
   args = args.slice(0, onchain ? -1 : undefined) // remove --onchain if any
@@ -68,7 +73,7 @@ export async function tip(
   if (!isToken) {
     moniker = await parseMoniker(unit, msgOrInteraction.guildId ?? "")
   }
-  const amount = parsedAmount * (moniker?.moniker?.amount ?? 1)
+  let amount = parsedAmount * (moniker?.moniker?.amount ?? 1)
   const symbol = (moniker?.moniker?.token?.token_symbol ?? unit).toUpperCase()
 
   // if unit is not either a token or a moniker -> reject
@@ -145,19 +150,47 @@ export async function tip(
     const balance = balances[0]
     const decimal = balance.token?.decimal ?? 0
     const current = +balance.amount / Math.pow(10, decimal)
-    if (current < amount) {
+
+    // validate balance
+    if (current < amount || current === 0) {
       throw new InsufficientBalanceError({
         msgOrInteraction,
         params: { current, required: amount, symbol: symbol as TokenEmojiKey },
       })
     }
+    if (all) amount = current
+
+    // validate maximum fraction digits of amount
     if (!isNaturalNumber(amount * Math.pow(10, decimal))) {
       throw new DiscordWalletTransferError({
         message: msgOrInteraction,
         error: ` ${symbol} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
       })
     }
-    payload.chain_id = balance.token?.chain?.chain_id
+
+    // validate tip range
+    const { data: tipRange } = await config.getTipRangeConfig(
+      msgOrInteraction.guildId
+    )
+    const { min, max } = tipRange ?? {}
+    const usdAmount = amount * balance.token?.price
+    const amountOor = (min && usdAmount < min) || (max && usdAmount > max)
+    if (amountOor) {
+      const aPointingRight = getEmoji("ANIMATED_POINTING_RIGHT", true)
+      const desc = `This server only allow to tip and airdrop in this range:\n${
+        min ? `${aPointingRight} Minimum amount: $${min}\n` : ""
+      }${max ? `${aPointingRight} Maximum amount: $${max}` : ""}`
+      const errorEmbed = getErrorEmbed({
+        originalMsgAuthor: author,
+        title: "Tipping amount is not allowed!",
+        description: desc,
+      })
+      reply(msgOrInteraction, { messageOptions: { embeds: [errorEmbed] } })
+      return
+    }
+
+    // proceed to transfer
+    if (amount) payload.chain_id = balance.token?.chain?.chain_id
     payload.amount_string = formatDigit(
       (all ? current : amount).toString(),
       decimal
@@ -217,6 +250,8 @@ async function selectTokenToTip(
     )
     const decimal = balance.token?.decimal ?? 0
     const current = convertString(balance?.amount, decimal) ?? 0
+
+    // validate balance
     if (current < payload.amount) {
       throw new InsufficientBalanceError({
         msgOrInteraction,
@@ -227,12 +262,42 @@ async function selectTokenToTip(
         },
       })
     }
+    if (payload.all) payload.amount = current
+
+    // validate maximum fraction digits of amount
     if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
       throw new DiscordWalletTransferError({
         message: msgOrInteraction,
         error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
       })
     }
+
+    if (!msgOrInteraction.guildId) {
+      throw new GuildIdNotFoundError({ message: msgOrInteraction })
+    }
+
+    // validate tip range
+    const { data: tipRange } = await config.getTipRangeConfig(
+      msgOrInteraction.guildId
+    )
+    const { min, max } = tipRange ?? {}
+    const usdAmount = payload.amount * balance.token?.price
+    const amountOor = (min && usdAmount < min) || (max && usdAmount > max)
+    if (amountOor) {
+      const aPointingRight = getEmoji("ANIMATED_POINTING_RIGHT", true)
+      const desc = `This server only allow to tip and airdrop in this range:\n${
+        min ? `${aPointingRight} Minimum amount: $${min}\n` : ""
+      }${max ? `${aPointingRight} Maximum amount: $${max}` : ""}`
+      const errorEmbed = getErrorEmbed({
+        originalMsgAuthor: author,
+        title: "Tipping amount is not allowed!",
+        description: desc,
+      })
+      reply(msgOrInteraction, { messageOptions: { embeds: [errorEmbed] } })
+      return
+    }
+
+    // proceed to transfer
     payload.amount_string = formatDigit(
       (payload.all ? current : payload.amount).toString(),
       decimal
