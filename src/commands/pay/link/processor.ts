@@ -12,13 +12,12 @@ import {
 } from "ui/discord/embed"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import {
+  TokenEmojiKey,
   emojis,
-  equalIgnoreCase,
   getAuthor,
   getEmoji,
   getEmojiToken,
   getEmojiURL,
-  TokenEmojiKey,
 } from "utils/common"
 import { reply } from "utils/discord"
 
@@ -98,6 +97,32 @@ export async function run({
           return
         }
         await i.deferReply({ ephemeral: true })
+        const {
+          data: balances,
+          ok,
+          curl,
+          log,
+        } = await mochiPay.getBalances({
+          profileId,
+          token,
+        })
+        if (!ok) {
+          throw new APIError({ msgOrInteraction, description: log, curl })
+        }
+        const balance = balances[0]
+        const decimal = balance?.token?.decimal ?? 0
+        const current = +balance?.amount / Math.pow(10, decimal)
+        if (current < amount) {
+          const embed = composeInsufficientBalanceEmbed({
+            author,
+            current,
+            required: amount,
+            symbol: token,
+          })
+          i.deleteReply()
+          return { messageOptions: { embeds: [embed], components: [] } }
+        }
+
         const res: any = await mochiPay.generatePaymentCode({
           profileId,
           amount: amount.toString(),
@@ -105,19 +130,6 @@ export async function run({
           note,
           type: "paylink",
         })
-        // insufficient balance
-        if (!res.ok && equalIgnoreCase(res.err, "insufficient balance")) {
-          // remove wallet selection
-          await (<Message>i.message).edit({ components: [] })
-          // reply with error embed
-          const errEmbed = composeInsufficientBalanceEmbed({
-            required: amount,
-            symbol: token,
-            author,
-          })
-          await i.editReply({ embeds: [errEmbed] })
-          return
-        }
         // api error
         if (!res.ok) {
           const { log: description, curl } = res

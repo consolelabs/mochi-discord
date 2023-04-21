@@ -440,7 +440,7 @@ export function composeInsufficientBalanceEmbed({
   const tokenEmoji = getEmojiToken(symbol)
   return composeEmbedMessage(null, {
     author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
-    description: `${author}, your balance is insufficient.\nYou can deposit more by using \`$deposit ${symbol}\``,
+    description: `${author}, your balance is insufficient.\nYou can deposit more by using </deposit:1063362961198030868>`,
   }).addFields([
     ...(current !== undefined
       ? [
