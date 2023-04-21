@@ -431,6 +431,12 @@ class Defi extends Fetcher {
     })
   }
 
+  async getAllCoinsMarketData(query: { order?: string } = {}) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/all-market-data`, {
+      query,
+    })
+  }
+
   async getSwapRoute({
     from,
     to,
