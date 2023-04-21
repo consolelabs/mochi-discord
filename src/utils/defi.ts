@@ -6,13 +6,20 @@ import { getAuthor, TokenEmojiKey } from "./common"
 import { convertString } from "./convert"
 import { getProfileIdByDiscord } from "./profile"
 
-export function formatDigit(s: string) {
+export function formatDigit(str: string, fractionDigits = 6) {
+  const num = Number(str)
+  const s = num.toLocaleString(undefined, { maximumFractionDigits: 18 })
   const [left, right = ""] = s.split(".")
   if (Number(right) === 0 || right === "" || left.length >= 4) return left
   const numsArr = right.split("")
   let rightStr = numsArr.shift() as string
-  while (Number(rightStr) === 0) {
-    rightStr += numsArr.shift()
+  while (Number(rightStr) === 0 || rightStr.length < fractionDigits) {
+    const nextDigit = numsArr.shift()
+    if (!nextDigit) break
+    rightStr += nextDigit
+  }
+  while (rightStr.endsWith("0")) {
+    rightStr = rightStr.slice(0, rightStr.length - 1)
   }
   return left + "." + rightStr
 }
@@ -73,4 +80,8 @@ export async function validateBalance({
     })
   }
   return { balance, usdBalance }
+}
+
+export function isNaturalNumber(n: number) {
+  return n >= 0 && Math.floor(n) === n
 }

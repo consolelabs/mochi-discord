@@ -10,7 +10,7 @@ import {
 } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { ResponseMonikerConfigData } from "types/api"
-import { SLASH_PREFIX } from "utils/constants"
+import { APPROX, SLASH_PREFIX } from "utils/constants"
 
 function toList(data: ResponseMonikerConfigData[]) {
   let longestMonikerWord =
@@ -27,7 +27,7 @@ function toList(data: ResponseMonikerConfigData[]) {
         longestMonikerWord - (d.moniker?.moniker?.length ?? 0)
       )}\` ${roundFloatNumber(d.moniker?.amount ?? 0, 4)} ${
         d.moniker?.token?.token_symbol ?? ""
-      } (\u2248 $${d.value ?? 0})`
+      } (${APPROX} $${d.value ?? 0})`
     })
     .join("\n")
 }

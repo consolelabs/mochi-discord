@@ -24,6 +24,7 @@ import {
 import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import { convertString } from "../../../utils/convert"
+import { APPROX } from "../../../utils/constants"
 
 export async function handleStatement(
   args: string,
@@ -76,14 +77,20 @@ export async function handleStatement(
         col1 += `<@${authorId}>\n${getEmoji("REPLY")} **${item.action}**\n\n`
         col2 += `**- ${roundFloatNumber(item.amount, 4)} ${
           item.token
-        }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
+        }**\n (${APPROX} $${roundFloatNumber(
+          currentPrice * item.amount,
+          4
+        )})\n\n`
         return
       }
       if (item.action === "deposit") {
         col1 += `<@${authorId}>\n${getEmoji("REPLY")} **${item.action}**\n\n`
         col2 += `**+ ${roundFloatNumber(item.amount, 4)} ${
           item.token
-        }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
+        }**\n (${APPROX} $${roundFloatNumber(
+          currentPrice * item.amount,
+          4
+        )})\n\n`
         return
       }
       if (item.sender_id === authorId) {
@@ -92,20 +99,29 @@ export async function handleStatement(
         }**\n\n`
         col2 += `**- ${roundFloatNumber(item.amount, 4)} ${
           item.token
-        }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
+        }**\n (${APPROX} $${roundFloatNumber(
+          currentPrice * item.amount,
+          4
+        )})\n\n`
       } else {
         col1 += `<@${item.sender_id}>\n${getEmoji("REPLY")} **${
           item.action
         }**\n\n`
         col2 += `**+ ${roundFloatNumber(item.amount, 4)} ${
           item.token
-        }**\n (\u2248 $${roundFloatNumber(currentPrice * item.amount, 4)})\n\n`
+        }**\n (${APPROX} $${roundFloatNumber(
+          currentPrice * item.amount,
+          4
+        )})\n\n`
       }
     })
     let des = `**Balance: ${roundFloatNumber(
       currentBal,
       4
-    )} ${symbol}** (\u2248 $${roundFloatNumber(currentPrice * currentBal, 4)})`
+    )} ${symbol}** (${APPROX} $${roundFloatNumber(
+      currentPrice * currentBal,
+      4
+    )})`
     if (!symbol) {
       des += bals.data
         ?.map((bal: any) => {
@@ -113,7 +129,7 @@ export async function handleStatement(
           const tokenBalance = roundFloatNumber(amount ?? 0, 4)
           if (tokenBalance === 0) return
           const tokenBalanceInUSD = roundFloatNumber(bal.quote_rate ?? 0, 4)
-          return `**${bal.token.name}: ${tokenBalance} ${symbol}** (\u2248 $${tokenBalanceInUSD})`
+          return `**${bal.token.name}: ${tokenBalance} ${symbol}** (${APPROX} $${tokenBalanceInUSD})`
         })
         .join("\n")
     }

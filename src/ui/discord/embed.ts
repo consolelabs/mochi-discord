@@ -446,7 +446,7 @@ export function composeInsufficientBalanceEmbed({
       ? [
           {
             name: "Your balance",
-            value: `${tokenEmoji} ${roundFloatNumber(current, 4)} ${symbol}`,
+            value: `${tokenEmoji} ${roundFloatNumber(current, 10)} ${symbol}`,
             inline: true,
           },
         ]
@@ -455,7 +455,7 @@ export function composeInsufficientBalanceEmbed({
       ? [
           {
             name: "Required amount",
-            value: `${tokenEmoji} ${roundFloatNumber(required, 4)} ${symbol}`,
+            value: `${tokenEmoji} ${roundFloatNumber(required, 10)} ${symbol}`,
             inline: true,
           },
         ]
