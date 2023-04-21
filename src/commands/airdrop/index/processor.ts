@@ -251,7 +251,7 @@ async function checkExpiredAirdrop(
               }\n${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
                 true
-              )} Let's check your </balance:1062577077708136500> and make another </airdrop:1062577077708136504>!`,
+              )} Let's check your </balances:1062577077708136500> and make another </airdrop:1062577077708136504>!`,
             }),
           ],
         })

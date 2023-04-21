@@ -50,7 +50,6 @@ import gm from "./gm"
 import help from "./help/index"
 import levelmessage from "./level-message"
 import levelrole from "./level-role"
-import log from "./log"
 import moniker from "./moniker"
 import gas from "./gas"
 import activity from "./activity"
@@ -104,7 +103,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   feedback: feedback.slashCmd,
   ticker: ticker.slashCmd,
   help: help.slashCmd,
-  log: log.slashCmd,
   welcome: welcome.slashCmd,
   top: top.slashCmd,
   verify: verify.slashCmd,
@@ -165,6 +163,7 @@ export const originalCommands: Record<string, Command> = {
   deposit: deposit.textCmd,
   tip: tip.textCmd,
   claim: claim.textCmd,
+  balances: balances.textCmd,
   withdraw: withdraw.textCmd,
   tokens: token.textCmd,
   ticker: ticker.textCmd,
@@ -180,7 +179,6 @@ export const originalCommands: Record<string, Command> = {
   quest: quest.textCmd,
   alert: alert.textCmd,
   gas: gas.textCmd,
-  activity: activity.textCmd,
   inbox: inbox.textCmd,
   convert: convert.textCmd,
   // config section
@@ -197,7 +195,6 @@ export const originalCommands: Record<string, Command> = {
   stats: stats.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
-  log: log.textCmd,
   poe: poe.textCmd,
   telegram: telegram.textCmd,
   sendxp: sendxp.textCmd,
