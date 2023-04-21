@@ -93,9 +93,12 @@ export async function deposit(
     thumbnail: `attachment://${qrFileName}`,
     description: `Below is the deposit address linked to your Discord account. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n*Please send only **${symbol}** to this address.*\n\n${getEmoji(
       "CLOCK"
-    )} Your deposit address is **only valid for 3 hours**.\n\n**${symbol} Deposit Address**\n\`\`\`${
-      data.contract.address
-    }\`\`\``,
+    )} Your deposit address is **only valid for 3 hours**.\n\n**${getEmoji(
+      "ANIMATED_POINTING_DOWN",
+      true
+    )} ${symbol} Deposit Address${
+      data.contract.chain?.name ? ` (${data.contract.chain.name})` : ""
+    }**${getEmoji("ANIMATED_POINTING_DOWN", true)}`,
   })
   //
   const dm = await author
@@ -103,6 +106,7 @@ export async function deposit(
       embeds: [dmEmbed],
       files: [{ attachment: qrFileName }],
     })
+    .then(() => author.send(data.contract.address))
     .catch(() => null)
 
   // delete QR code image
@@ -181,9 +185,12 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
     thumbnail: `attachment://${qrFileName}`,
     description: `Below is the deposit address linked to your Discord account. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n*Please send only **${symbol}** to this address.*\n\n${getEmoji(
       "CLOCK"
-    )} Your deposit address is **only valid for 3 hours**.\n\n**${symbol} Deposit Address**\n\`\`\`${
-      data.contract.address
-    }\`\`\``,
+    )} Your deposit address is **only valid for 3 hours**.\n\n**${getEmoji(
+      "ANIMATED_POINTING_DOWN",
+      true
+    )} ${symbol} Deposit Address${
+      data.contract.chain?.name ? ` (${data.contract.chain.name})` : ""
+    }**${getEmoji("ANIMATED_POINTING_DOWN", true)}`,
   })
   //
   const dm = await author
@@ -191,6 +198,7 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
       embeds: [dmEmbed],
       files: [{ attachment: qrFileName }],
     })
+    .then(() => author.send(data.contract.address))
     .catch(() => null)
 
   // delete QR code image
