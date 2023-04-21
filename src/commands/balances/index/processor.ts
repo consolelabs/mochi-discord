@@ -190,7 +190,6 @@ function switchView(
           const usdVal = price * tokenVal
           const value = formatDigit(tokenVal.toString())
           const usdWorth = formatDigit(usdVal.toString(), 4)
-          totalWorth += usdVal
           //
           totalWorth += usdVal
           const text = `${value} ${symbol}`
