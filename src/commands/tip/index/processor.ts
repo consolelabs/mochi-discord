@@ -158,7 +158,10 @@ export async function tip(
       })
     }
     payload.chain_id = balance.token?.chain?.chain_id
-    payload.amount_string = formatDigit(amount.toString(), decimal)
+    payload.amount_string = formatDigit(
+      (all ? current : amount).toString(),
+      decimal
+    )
     const result = await executeTip(msgOrInteraction, payload, balance.token)
     await reply(msgOrInteraction, result)
     return
@@ -230,7 +233,10 @@ async function selectTokenToTip(
         error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
       })
     }
-    payload.amount_string = formatDigit(payload.amount.toString(), decimal)
+    payload.amount_string = formatDigit(
+      (payload.all ? current : payload.amount).toString(),
+      decimal
+    )
     return await executeTip(msgOrInteraction, payload, balance?.token)
   }
 

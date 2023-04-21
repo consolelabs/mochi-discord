@@ -110,7 +110,10 @@ export async function confirmAirdrop(
   const originalAuthor = await msg.guild?.members.fetch(authorId)
   const airdropEmbed = composeEmbedMessage(msg, {
     author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
-    description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${amountInUSD})${
+    description: `<@${authorId}> left an airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${formatDigit(
+      amountInUSD,
+      4
+    )})${
       +maxEntries !== 0
         ? ` for  ${maxEntries} ${+maxEntries > 1 ? "people" : "person"}`
         : ""
@@ -169,7 +172,10 @@ async function checkExpiredAirdrop(
         participants = participants.slice(0, maxEntries)
       }
       const tokenEmoji = getEmojiToken(token)
-      const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${usdAmount}) ${
+      const description = `<@${authorId}>'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${formatDigit(
+        usdAmount,
+        4
+      )}) ${
         !participants?.length
           ? `has not been collected by anyone ${getEmoji(
               "ANIMATED_SHRUGGING",
@@ -214,7 +220,9 @@ async function checkExpiredAirdrop(
                     }'s airdrop`,
                     getEmojiURL(emojis.ANIMATED_COIN_3),
                   ],
-                  description: `You have received ${APPROX} ${formatDigit(
+                  description: `You have received ${APPROX} ${getEmoji(
+                    token
+                  )} ${formatDigit(
                     data.amount_each.toString()
                   )} ${token} from ${originalAuthor}'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
                     "ANIMATED_WITHDRAW",
@@ -236,9 +244,11 @@ async function checkExpiredAirdrop(
               description: `\n${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
                 true
-              )} You have airdropped ${amount} ${token} for ${
-                participants.length
-              } users at ${msg.channel}\n${getEmoji(
+              )} You have airdropped ${getEmoji(
+                token
+              )} ${amount} ${token} for ${participants.length} users at ${
+                msg.channel
+              }\n${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
                 true
               )} Let's check your </balance:1062577077708136500> and make another </airdrop:1062577077708136504>!`,
@@ -453,7 +463,7 @@ async function selectTokenToAirdrop(
 function showConfirmation(i: CommandInteraction, payload: any) {
   const tokenEmoji = getEmojiToken(payload.token as TokenEmojiKey)
   const usdAmount = payload.token_price * payload.amount
-  const formattedUsd = formatDigit(usdAmount.toString(), 18)
+  const formattedUsd = formatDigit(usdAmount.toString(), 4)
   const amountDescription = `${tokenEmoji} **${formatDigit(
     payload.amount.toString()
   )} ${payload.token}** (${APPROX} $${formattedUsd})`
