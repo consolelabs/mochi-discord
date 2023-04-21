@@ -1,8 +1,12 @@
 import { CommandInteraction } from "discord.js"
-import { APIError, GuildIdNotFoundError } from "../../../../errors"
+import {
+  APIError,
+  CommandArgumentError,
+  GuildIdNotFoundError,
+} from "../../../../errors"
 import config from "../../../../adapters/config"
 import { reply } from "../../../../utils/discord"
-import { getSuccessEmbed } from "../../../../ui/discord/embed"
+import { getErrorEmbed, getSuccessEmbed } from "../../../../ui/discord/embed"
 
 export default async function run(i: CommandInteraction) {
   if (!i.guildId) {
@@ -10,6 +14,34 @@ export default async function run(i: CommandInteraction) {
   }
   const min = i.options.getNumber("minrain", true)
   const max = i.options.getNumber("maxtipped", true)
+
+  // validation
+  if (min <= 0 || max <= 0) {
+    throw new CommandArgumentError({
+      message: i,
+      getHelpMessage: async () => ({
+        embeds: [
+          getErrorEmbed({
+            title: "Set up tip range failed",
+            description: "Minrain and maxtipped must be a positive number",
+          }),
+        ],
+      }),
+    })
+  }
+  if (min >= max) {
+    throw new CommandArgumentError({
+      message: i,
+      getHelpMessage: async () => ({
+        embeds: [
+          getErrorEmbed({
+            title: "Set up tip range failed",
+            description: "Minrain must be smaller than maxtipped",
+          }),
+        ],
+      }),
+    })
+  }
 
   const { ok, curl, log } = await config.setTipRangeConfig({
     guildId: i.guildId,
