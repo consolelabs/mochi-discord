@@ -16,14 +16,14 @@ export default async function run(i: CommandInteraction) {
   const max = i.options.getNumber("maxtipped", true)
 
   // validation
-  if (min <= 0 || max <= 0) {
+  if (min < 0 || max < 0) {
     throw new CommandArgumentError({
       message: i,
       getHelpMessage: async () => ({
         embeds: [
           getErrorEmbed({
             title: "Set up tip range failed",
-            description: "Minrain and maxtipped must be a positive number",
+            description: "Minrain and maxtipped must not be a negative number",
           }),
         ],
       }),

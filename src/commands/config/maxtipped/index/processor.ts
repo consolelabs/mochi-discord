@@ -15,14 +15,14 @@ export default async function run(i: CommandInteraction) {
   const value = i.options.getNumber("value", true)
 
   // validation
-  if (value <= 0) {
+  if (value < 0) {
     throw new CommandArgumentError({
       message: i,
       getHelpMessage: async () => ({
         embeds: [
           getErrorEmbed({
             title: "Set up maxtipped failed",
-            description: "Value must be a positive number",
+            description: "Value must not be a negative number",
           }),
         ],
       }),
