@@ -24,14 +24,14 @@ import {
   parseMoniker,
   parseRecipients,
 } from "utils/tip-bot"
+import config from "../../../adapters/config"
 import defi from "../../../adapters/defi"
 import mochiPay from "../../../adapters/mochi-pay"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { APPROX } from "../../../utils/constants"
 import { convertString } from "../../../utils/convert"
-import { formatDigit, isNaturalNumber } from "../../../utils/defi"
+import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
-import config from "../../../adapters/config"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -161,7 +161,7 @@ export async function tip(
     if (all) amount = current
 
     // validate maximum fraction digits of amount
-    if (!isNaturalNumber(amount * Math.pow(10, decimal))) {
+    if (!isValidTipAmount(amount.toString(), decimal)) {
       throw new DiscordWalletTransferError({
         message: msgOrInteraction,
         error: ` ${symbol} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
@@ -265,7 +265,7 @@ async function selectTokenToTip(
     if (payload.all) payload.amount = current
 
     // validate maximum fraction digits of amount
-    if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
+    if (!isValidTipAmount(payload.amount.toString(), decimal)) {
       throw new DiscordWalletTransferError({
         message: msgOrInteraction,
         error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
@@ -338,7 +338,7 @@ async function parseAmount(
       throw new DiscordWalletTransferError({
         discordId: author.id,
         message: msgOrInteraction,
-        error: "The amount is invalid. Please insert a natural number.",
+        error: "The amount is invalid. Please insert a positive number.",
       })
   }
 

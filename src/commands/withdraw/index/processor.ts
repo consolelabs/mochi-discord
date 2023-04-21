@@ -1,6 +1,7 @@
 import { CommandInteraction, Message, SelectMenuInteraction } from "discord.js"
 import { APIError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import { InsufficientBalanceError } from "errors/insufficient-balance"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
 import {
@@ -10,6 +11,7 @@ import {
 } from "ui/discord/embed"
 import { defaultActivityMsg, sendActivityMsg } from "utils/activity"
 import {
+  TokenEmojiKey,
   emojis,
   equalIgnoreCase,
   getAuthor,
@@ -19,7 +21,6 @@ import {
   isAddress,
   isValidAmount,
   msgColors,
-  TokenEmojiKey,
 } from "utils/common"
 import {
   MOCHI_ACTION_WITHDRAW,
@@ -28,13 +29,12 @@ import {
 } from "utils/constants"
 import { awaitMessage, isMessage, reply } from "utils/discord"
 import mochiPay from "../../../adapters/mochi-pay"
-import { getProfileIdByDiscord } from "../../../utils/profile"
-import * as processor from "./processor"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { convertString } from "../../../utils/convert"
-import { InsufficientBalanceError } from "errors/insufficient-balance"
+import { formatDigit, isValidTipAmount } from "../../../utils/defi"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 import { isTokenSupported } from "../../../utils/tip-bot"
-import { formatDigit, isNaturalNumber } from "../../../utils/defi"
+import * as processor from "./processor"
 
 export async function getRecipient(
   msg: Message | CommandInteraction,
@@ -85,7 +85,7 @@ export async function withdraw(
     throw new DiscordWalletTransferError({
       discordId: author.id,
       message: msgOrInteraction,
-      error: "The amount is invalid. Please insert a natural number.",
+      error: "The amount is invalid. Please insert a positive number.",
     })
   }
   let amount = parseFloat(amountArg)
@@ -144,7 +144,7 @@ export async function withdraw(
         params: { current, required: amount, symbol: tokenArg },
       })
     }
-    if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
+    if (!isValidTipAmount(payload.amount.toString(), decimal)) {
       throw new DiscordWalletTransferError({
         message: msgOrInteraction,
         error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
@@ -236,7 +236,7 @@ async function selectTokenToWithdraw(
         },
       })
     }
-    if (!isNaturalNumber(payload.amount * Math.pow(10, decimal))) {
+    if (!isValidTipAmount(payload.amount.toString(), decimal)) {
       throw new DiscordWalletTransferError({
         message: msgOrInteraction,
         error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
