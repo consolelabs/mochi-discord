@@ -77,6 +77,8 @@ import {
 import tagme from "handlers/tagme"
 import { handleSwap } from "commands/swap/index/processor"
 import { handleBalanceView } from "commands/balances/index/processor"
+import { handleGainerView } from "commands/gainer/index/processor"
+import { handleLoserView } from "commands/loser/index/processor"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -455,6 +457,12 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("balance-view"):
       await handleBalanceView(i)
+      return
+    case i.customId.startsWith("gainer-view"):
+      await handleGainerView(i)
+      return
+    case i.customId.startsWith("loser-view"):
+      await handleLoserView(i)
       return
     default: {
       return
