@@ -1,8 +1,7 @@
 import { ChartJSNodeCanvas } from "chartjs-node-canvas"
-import { getGradientColor } from "./color"
-import "../chartjs/date-adapter"
-import { utils } from "ethers"
 import { formatDigit } from "utils/defi"
+import "../chartjs/date-adapter"
+import { getGradientColor } from "./color"
 
 const chartCanvas = new ChartJSNodeCanvas({ width: 700, height: 450 })
 
@@ -57,7 +56,7 @@ export async function renderChartImage({
           ? rounded
           : Number(rounded) < 0.01 || Number(rounded) > 1000000
           ? Number(rounded).toExponential()
-          : utils.commify(formatDigit(String(value)))
+          : formatDigit(String(value))
       },
     },
     grid: {
