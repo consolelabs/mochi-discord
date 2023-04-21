@@ -15,7 +15,7 @@ const slashCmd: SlashCommand = {
   name: "gainer",
   category: "Defi",
   prepare: () => {
-    const data = new SlashCommandBuilder()
+    return new SlashCommandBuilder()
       .setName("gainer")
       .setDescription(
         "Show top increasing tokens in last 1 hour, 24 hours, 7 days"
@@ -27,7 +27,6 @@ const slashCmd: SlashCommand = {
           .setRequired(true)
           .addChoices(choices.map((c) => [c, c]))
       )
-    return data
   },
   run: gainerSlash,
   help: async () => ({

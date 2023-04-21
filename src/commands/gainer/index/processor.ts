@@ -7,8 +7,106 @@ import {
   roundFloatNumber,
 } from "utils/common"
 import { APIError } from "errors"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { CommandInteraction } from "discord.js"
+import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
+import {
+  CommandInteraction,
+  MessageActionRow,
+  MessageButton,
+  ButtonInteraction,
+} from "discord.js"
+
+const timeRangeType = ["1h", "24h", "7d"]
+
+export async function handleGainerView(i: ButtonInteraction) {
+  if (!i.deferred) {
+    await i.deferUpdate()
+  }
+  const [, view] = i.customId.split("_")
+
+  const { data, ok, curl, error, log } = await defi.getAllCoinsMarketData({
+    order: `price_change_percentage_${view}_desc`,
+  })
+  if (!ok) {
+    throw new APIError({ curl, error, description: log })
+  }
+  if (data.length === 0) {
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "No gainer token now!",
+            description: `${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} Currently no token found`,
+            color: msgColors.SUCCESS,
+          }),
+        ],
+      },
+    }
+  }
+
+  const missingButton = timeRangeType.filter((t) => t !== view)
+
+  i.editReply({
+    embeds: [switchView(view as any, data)],
+    components: [
+      new MessageActionRow()
+        .addComponents(
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setCustomId(`gainer-view_${missingButton[0]}`)
+            .setLabel(`${missingButton[0]}`)
+        )
+        .addComponents(
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setCustomId(`gainer-view_${missingButton[1]}`)
+            .setLabel(`${missingButton[1]}`)
+        ),
+    ],
+  })
+}
+
+function switchView(view: "24h" | "1h" | "7d", data: any) {
+  return buildEmbed(data, view)
+}
+
+function buildEmbed(data: any, timeRange: string) {
+  let longestStrLen = 0
+  const description = data
+    .slice(0, 10)
+    .map((coin: any) => {
+      const changePercentage = roundFloatNumber(
+        coin[`price_change_percentage_${timeRange}_in_currency`],
+        2
+      )
+
+      const text = `${coin.name} (${coin.symbol})`
+      longestStrLen = Math.max(longestStrLen, text.length)
+      const currentPrice = roundFloatNumber(coin.current_price, 4)
+
+      return {
+        text,
+        changePercentage,
+        current_price: currentPrice,
+      }
+    })
+    .map((coin: any) => {
+      const direction = coin.changePercentage > 0 ? "Up" : "Down"
+      return `\`${coin.text}${" ".repeat(
+        longestStrLen - coin.text.length
+      )} => $${coin.current_price}. ${direction}: ${coin.changePercentage}%\``
+    })
+    .join("\n")
+
+  const embed = composeEmbedMessage(null, {
+    color: msgColors.BLUE,
+    description,
+    author: ["Top gainers", getEmojiURL(emojis.ANIMATED_FIRE)],
+  })
+  return embed
+}
 
 export async function render(i: CommandInteraction) {
   const timeRange = i.options.getString("time", true)
@@ -36,37 +134,29 @@ export async function render(i: CommandInteraction) {
     }
   }
 
-  let longestStrLen = 0
-  const description = data
-    .slice(0, 10)
-    .map((coin: any) => {
-      const changePercentage = roundFloatNumber(
-        coin[`price_change_percentage_${timeRange}_in_currency`],
-        2
-      )
+  const missingButton = timeRangeType.filter((t) => t !== timeRange)
 
-      const text = `${coin.name} (${coin.symbol})`
-      longestStrLen = Math.max(longestStrLen, text.length)
-      const currentPrice = roundFloatNumber(coin.current_price, 4)
+  const embed = buildEmbed(data, timeRange)
+  justifyEmbedFields(embed, 3)
 
-      return {
-        text,
-        changePercentage,
-        current_price: currentPrice,
-      }
-    })
-    .map((coin: any) => {
-      return `\`${coin.text}${" ".repeat(
-        longestStrLen - coin.text.length
-      )} => $${coin.current_price}. Change: ${coin.changePercentage}%\``
-    })
-    .join("\n")
-
-  const embed = composeEmbedMessage(null, {
-    color: msgColors.BLUE,
-    description,
-    author: ["Top gainers", getEmojiURL(emojis.ANIMATED_FIRE)],
-  })
-
-  return { messageOptions: { embeds: [embed] } }
+  return {
+    messageOptions: {
+      embeds: [switchView(timeRange as any, data)],
+      components: [
+        new MessageActionRow()
+          .addComponents(
+            new MessageButton()
+              .setStyle("SECONDARY")
+              .setCustomId(`gainer-view_${missingButton[0]}`)
+              .setLabel(`${missingButton[0]}`)
+          )
+          .addComponents(
+            new MessageButton()
+              .setStyle("SECONDARY")
+              .setCustomId(`gainer-view_${missingButton[1]}`)
+              .setLabel(`${missingButton[1]}`)
+          ),
+      ],
+    },
+  }
 }

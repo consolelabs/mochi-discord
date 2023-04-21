@@ -1308,6 +1308,12 @@ export interface RequestUpsertGuildConfigDaoTracer {
   snapshot_url?: string;
 }
 
+export interface RequestUpsertGuildConfigTipRangeRequest {
+  guild_id?: string;
+  max?: number;
+  min?: number;
+}
+
 export interface RequestUpsertGuildDefaultCurrencyRequest {
   Symbol?: string;
   guild_id?: string;
@@ -2073,6 +2079,14 @@ export interface ResponseGuildConfigDefaultCurrencyResponse {
   created_at?: string;
   guild_id?: string;
   tip_bot_token?: ModelOffchainTipBotToken;
+  updated_at?: string;
+}
+
+export interface ResponseGuildConfigTipRangeResponse {
+  created_at?: string;
+  guild_id?: string;
+  max?: number;
+  min?: number;
   updated_at?: string;
 }
 
