@@ -51,22 +51,8 @@ export async function render(userDiscordId: string, page: number) {
     const activity = data[i]
     const actionEmoji = ActionTypeToEmoji(activity.action)
     const platformEmoji = PlatformTypeToEmoji(activity.platform)
-    // const xpReward = activity.action_description.reward
-    //   ? `${getEmoji("ACTIVITY_XP")} + ${activity.action_description.reward}`
-    //   : ""
-    // const coinReward = activity.action_description.coin
-    //   ? `${getEmoji("COIN2")} + ${activity.action_description.coin}`
-    //   : ""
-    // let rewardInfo = ""
-    // if (xpReward || coinReward) {
-    //   rewardInfo = `| ${xpReward} ${coinReward}`
-    // }
     const actionAndRewardRow = `${actionEmoji} ${activity.action_description}${blank}`
-    // const time = `${ms(Date.now() - new Date(activity.created_at).getTime(), {
-    //   long: false,
-    // })} ago`
     const time = Math.round(new Date(activity.created_at).getTime() / 1000)
-    // col1Len = Math.max(col1Len, time.length)
     col2Len = Math.max(col2Len, activity.platform.length)
     activityList.push({
       time,
@@ -91,12 +77,6 @@ export async function render(userDiscordId: string, page: number) {
     color: msgColors.ACTIVITY,
     footer: [`Page ${page + 1}/${totalPages}`],
   })
-  // .setTitle(`${getEmoji("ACTIVITY_CLOCK")} Activity`)
-  // .setDescription(description)
-  // .setColor(msgColors.ACTIVITY)
-  // .setFooter({
-  //   text: `Page ${page + 1}/${totalPages} • Mochi Bot • ${dateNow}`,
-  // })
   return {
     embed,
     totalPages,
