@@ -464,9 +464,9 @@ export function getEmojiURL(emojiId: string) {
   return `https://cdn.discordapp.com/emojis/${emojiId}.png?size=240&quality=lossless`
 }
 
-export function shortenHashOrAddress(hash: string) {
+export function shortenHashOrAddress(hash: string, len = 6) {
   if (!hash) return ""
-  return `${hash.slice(0, 6)}...${hash.slice(hash.length - 6)}`
+  return `${hash.slice(0, len)}...${hash.slice(hash.length - len)}`
 }
 
 export function paginate(arr: any[], size: number) {

@@ -24,6 +24,7 @@ import {
   getEmojiToken,
   getEmojiURL,
   msgColors,
+  roundFloatNumber,
 } from "utils/common"
 import { APPROX } from "utils/constants"
 import { isTokenSupported, parseMoniker } from "utils/tip-bot"
@@ -518,7 +519,7 @@ async function selectTokenToAirdrop(
 function showConfirmation(i: CommandInteraction, payload: any) {
   const tokenEmoji = getEmojiToken(payload.token as TokenEmojiKey)
   const usdAmount = payload.token_price * payload.amount
-  const formattedUsd = formatDigit(usdAmount.toString(), 4)
+  const formattedUsd = roundFloatNumber(usdAmount, 4)
   const amountDescription = `${tokenEmoji} **${formatDigit(
     payload.amount.toString()
   )} ${payload.token}** (${APPROX} $${formattedUsd})`
@@ -561,7 +562,7 @@ function showConfirmation(i: CommandInteraction, payload: any) {
         composeAirdropButtons(
           i.user.id,
           payload.amount,
-          formattedUsd,
+          formattedUsd.toString(),
           payload.token,
           payload.chain_id,
           payload.duration ?? 0,
