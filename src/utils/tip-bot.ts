@@ -1,11 +1,20 @@
 import config from "adapters/config"
 import { CommandInteraction, Message } from "discord.js"
-import { APIError } from "errors"
+import { APIError, OriginalMessage } from "errors"
 import { ResponseMonikerConfigData } from "types/api"
 import mochiPay from "../adapters/mochi-pay"
+import { DiscordWalletTransferError } from "../errors/discord-wallet-transfer"
 import { parseDiscordToken } from "./commands"
-import { equalIgnoreCase, hasRole, isNotBot, isStatus } from "./common"
+import {
+  equalIgnoreCase,
+  getAuthor,
+  getEmoji,
+  hasRole,
+  isNotBot,
+  isStatus,
+} from "./common"
 import { SPACE, SPACES_REGEX } from "./constants"
+import { getProfileIdByDiscord } from "./profile"
 
 const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
   //
@@ -351,4 +360,80 @@ export function parseMessageTip(args: string[], startIdx: number): string {
     .replaceAll("“", "")
     .replaceAll("'", "")
     .trim()
+}
+
+export async function parseTipAmount(
+  msgOrInteraction: Message | CommandInteraction,
+  amountArg: string
+): Promise<{ all: boolean; amount: number }> {
+  const author = getAuthor(msgOrInteraction)
+  const result = {
+    all: false,
+    amount: parseFloat(amountArg),
+  }
+  switch (true) {
+    // a, an = 1
+    case ["a", "an"].includes(amountArg.toLowerCase()):
+      result.amount = 1
+      break
+
+    // tip all, let BE calculate amount
+    case equalIgnoreCase("all", amountArg):
+      result.amount = 0
+      result.all = true
+      break
+
+    // invalid amount
+    case isNaN(result.amount) || result.amount <= 0:
+      throw new DiscordWalletTransferError({
+        discordId: author.id,
+        message: msgOrInteraction,
+        error: "The amount is invalid. Please insert a positive number.",
+      })
+  }
+
+  return result
+}
+
+export async function isInTipRange(
+  msgOrInteraction: Message | CommandInteraction,
+  usdVal: number
+) {
+  const { data: tipRange } = await config.getTipRangeConfig(
+    msgOrInteraction.guildId ?? ""
+  )
+  const { min, max } = tipRange ?? {}
+  const amountOor = (min && usdVal < min) || (max && usdVal > max)
+  if (!amountOor) {
+    return
+  }
+
+  const aPointingRight = getEmoji("ANIMATED_POINTING_RIGHT", true)
+  const description = `This server only allow to tip and airdrop in this range:\n${
+    min ? `${aPointingRight} Minimum amount: $${min}\n` : ""
+  }${max ? `${aPointingRight} Maximum amount: $${max}` : ""}`
+  throw new DiscordWalletTransferError({
+    message: msgOrInteraction,
+    title: "Tipping amount is not allowed!",
+    error: description,
+  })
+}
+
+export async function getBalances({
+  msgOrInteraction,
+  token,
+}: {
+  msgOrInteraction: OriginalMessage
+  token?: string
+}) {
+  const author = getAuthor(msgOrInteraction)
+  const senderPid = await getProfileIdByDiscord(author.id)
+  const { data, ok, curl, log } = await mochiPay.getBalances({
+    profileId: senderPid,
+    token,
+  })
+  if (!ok) {
+    throw new APIError({ msgOrInteraction, curl, description: log })
+  }
+  return data.filter((b: any) => b.amount !== "0")
 }

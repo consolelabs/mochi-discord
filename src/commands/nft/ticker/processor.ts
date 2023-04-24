@@ -63,6 +63,7 @@ export function getOriginAuthorId() {
 }
 
 export async function handleNFTTickerViews(interaction: ButtonInteraction) {
+  await interaction.deferUpdate().catch(() => null)
   const msg = <Message>interaction.message
   const [collectionAddress, _chain, days] = interaction.customId
     .split("-")

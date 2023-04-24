@@ -127,6 +127,8 @@ export async function withdraw(
     amount: amount.toString(),
     token: tokenArg.toUpperCase(),
     chainId: "",
+    platform: "discord",
+    platform_user_id: author.id,
   }
 
   const all = equalIgnoreCase(amountArg, "all")

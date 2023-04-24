@@ -85,7 +85,6 @@ function collectComponentInteraction(
       })
       .on("collect", async (i) => {
         wrapError(i, async () => {
-          await i.deferUpdate().catch(() => null)
           const response = await buttonCollector.handler(i)
           if (!response) return
           const payload = getMessageReplyPayload(response)
