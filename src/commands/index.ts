@@ -64,7 +64,6 @@ import reactionrole from "./reaction-role"
 import sales from "./sales"
 import sendxp from "./sendxp"
 import starboard from "./starboard"
-import statements from "./statements"
 import telegram from "./telegram"
 import ticker from "./ticker"
 import tip from "./tip"
@@ -122,7 +121,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   bal: balances.slashCmd,
   bals: balances.slashCmd,
   //
-  statements: statements.slashCmd,
   proposal: proposal.slashCmd,
   moniker: moniker.slashCmd,
   withdraw: withdraw.slashCmd,
@@ -168,7 +166,6 @@ export const originalCommands: Record<string, Command> = {
   tokens: token.textCmd,
   ticker: ticker.textCmd,
   watchlist: watchlist.textCmd,
-  statements: statements.textCmd,
   gm: gm.textCmd,
   nft: nft.textCmd,
   top: top.textCmd,
