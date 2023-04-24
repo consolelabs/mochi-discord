@@ -139,7 +139,7 @@ export async function render(i: CommandInteraction) {
   ])
 
   const fields = [
-    ...(tip
+    ...(data.offchain.length
       ? [
           {
             name: "Tip",
@@ -148,7 +148,7 @@ export async function render(i: CommandInteraction) {
           },
         ]
       : []),
-    ...(dep
+    ...(data.deposit.length
       ? [
           {
             name: "Deposit",
@@ -157,7 +157,7 @@ export async function render(i: CommandInteraction) {
           },
         ]
       : []),
-    ...(withdraw
+    ...(data.withdraw.length
       ? [
           {
             name: "Withdraw",
