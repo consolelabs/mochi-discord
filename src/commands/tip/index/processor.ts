@@ -15,6 +15,7 @@ import {
   getEmojiURL,
   msgColors,
   thumbnails,
+  roundFloatNumber,
 } from "utils/common"
 import { isMessage, reply } from "utils/discord"
 import {
@@ -384,7 +385,7 @@ async function executeTip(
   )} has sent ${recipientDescription} **${formatDigit(
     data.amount_each.toString(),
     18
-  )} ${payload.token}** (${APPROX} $${formatDigit(usdAmount.toString())}) ${
+  )} ${payload.token}** (${APPROX} $${roundFloatNumber(usdAmount, 4)}) ${
     payload.recipients.length > 1 ? "each" : ""
   }`
   if (payload.message) {
