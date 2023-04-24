@@ -12,6 +12,33 @@ import profile from "adapters/profile"
 import mochiPay from "adapters/mochi-pay"
 import { convertString } from "../../../utils/convert"
 
+async function format(data: any[], type: "deposit" | "withdraw") {
+  let longestStr = 0
+  return `\n${data
+    .slice(0, 10)
+    .map((tx: any) => {
+      const amount = `${convertString(tx.amount, tx.token.decimal, false)} ${
+        tx.token.symbol
+      }`
+
+      longestStr = Math.max(longestStr, amount.length)
+
+      return {
+        ...tx,
+        amount,
+      }
+    })
+    .map((tx: any) => {
+      return `${type === "deposit" ? "+" : "-"} ${tx.amount}${" ".repeat(
+        longestStr - tx.amount.length
+      )} | ${
+        shortenHashOrAddress(tx[type === "deposit" ? "from" : "address"], 4) ??
+        "Unknown"
+      }`
+    })
+    .join("\n")}`
+}
+
 export async function render(i: CommandInteraction) {
   const userDiscordId = i.user.id
   const dataProfile = await profile.getByDiscord(userDiscordId)
@@ -55,65 +82,90 @@ export async function render(i: CommandInteraction) {
       },
     }
 
-  const formatTipTx = []
-  for (const tx of data.offchain.slice(0, 10)) {
-    const dataProfile = await profile.getById(tx.other_profile_id)
-    if (dataProfile.err) continue
-    if (!dataProfile || dataProfile.associated_accounts.length === 0) continue
+  const [dep, withdraw, tip] = await Promise.all([
+    format(data.deposit, "deposit"),
+    format(data.withdraw, "withdraw"),
+    new Promise((resolve) => {
+      const users = new Map<string, string>()
+      let longestStr = 0
+      Promise.all(
+        data.offchain
+          .slice(0, 10)
+          .map((tx: any) => {
+            const amount = `${convertString(
+              tx.amount,
+              tx.token.decimal,
+              false
+            )} ${tx.token.symbol}`
 
-    const discord = dataProfile.associated_accounts.filter(
-      (acc: any) => acc.platform === "discord"
-    )
-    if (!discord || discord.length === 0) continue
+            longestStr = Math.max(longestStr, amount.length)
 
-    const type = tx.type === "debit" ? "Tipped" : "Received"
-    const target =
-      tx.type === "debit"
-        ? `to <@${discord[0].platform_identifier}>`
-        : `from <@${discord[0].platform_identifier}>`
-    formatTipTx.push(
-      `${type} ${convertString(tx.amount, tx.token.decimal, false)} ${
-        tx.token.symbol
-      } ${target}`
-    )
-  }
+            return {
+              ...tx,
+              amount,
+            }
+          })
+          .map(async (tx: any) => {
+            let targetUser = users.get(tx.other_profile_id)
+            const type = tx.type === "debit" ? "-" : "+"
+            if (!targetUser) {
+              const dataProfile = await profile.getById(tx.other_profile_id)
+              if (
+                dataProfile.err ||
+                !dataProfile ||
+                dataProfile.associated_accounts.length === 0
+              )
+                return null
 
-  const tipTx = formatTipTx.join("\n")
+              const discord = dataProfile.associated_accounts.filter(
+                (acc: any) => acc.platform === "discord"
+              )
+              if (!discord || discord.length === 0) return null
 
-  const depTx = data.deposit
-    .slice(0, 10)
-    .map((tx: any) => {
-      return `Deposited ${convertString(tx.amount, tx.token.decimal, false)} ${
-        tx.token.symbol
-      } from ${shortenHashOrAddress(tx.from)}`
-    })
-    .join("\n")
+              targetUser = (
+                await i.client.users.fetch(discord[0].platform_identifier)
+              )?.tag
+              users.set(tx.other_profile_id, targetUser)
+            }
 
-  const wdTx = data.withdraw
-    .slice(0, 10)
-    .map((tx: any) => {
-      return `Withdraw ${convertString(tx.amount, tx.token.decimal, false)} ${
-        tx.token.symbol
-      } to ${shortenHashOrAddress(tx.address)}`
-    })
-    .join("\n")
+            return `${type} ${tx.amount}${" ".repeat(
+              longestStr - tx.amount.length
+            )} | ${targetUser ?? "someone"}`
+          })
+      ).then((tipTxs) => {
+        resolve(`\n${tipTxs.filter(Boolean).join("\n")}`)
+      })
+    }),
+  ])
 
   const fields = [
-    {
-      name: "Tip",
-      value: tipTx ? tipTx : "\u200b",
-      inline: false,
-    },
-    {
-      name: "Deposit",
-      value: depTx ? depTx : "\u200b",
-      inline: false,
-    },
-    {
-      name: "Withdraw",
-      value: wdTx ? wdTx : "\u200b",
-      inline: false,
-    },
+    ...(tip
+      ? [
+          {
+            name: "Tip",
+            value: `\`\`\`diff${tip}\`\`\``,
+            inline: false,
+          },
+        ]
+      : []),
+    ...(dep
+      ? [
+          {
+            name: "Deposit",
+            value: `\`\`\`diff${dep}\`\`\``,
+            inline: false,
+          },
+        ]
+      : []),
+    ...(withdraw
+      ? [
+          {
+            name: "Withdraw",
+            value: `\`\`\`diff${withdraw}\`\`\``,
+            inline: false,
+          },
+        ]
+      : []),
   ]
 
   const embed = composeEmbedMessage(null, {
