@@ -283,7 +283,7 @@ async function getAirdropArgs(i: CommandInteraction) {
     })
   }
 
-  if (!Number.isInteger(entries)) {
+  if (typeof entries === "number" && !Number.isInteger(entries)) {
     throw new InternalError({
       msgOrInteraction: i,
       title: "Invalid entries",
