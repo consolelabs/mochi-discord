@@ -437,6 +437,12 @@ class Defi extends Fetcher {
     })
   }
 
+  async getTopGainerLoser(query: { duration?: string } = {}) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/top-gainer-loser`, {
+      query,
+    })
+  }
+
   async getSwapRoute({
     from,
     to,
