@@ -283,5 +283,14 @@ async function getAirdropArgs(i: CommandInteraction) {
     })
   }
 
+  if (!Number.isInteger(entries)) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      title: "Invalid entries",
+      description:
+        "The max entries can’t be a decimal. Please insert a integer greater or equal to 1.",
+    })
+  }
+
   return { amount, token, duration, entries, all }
 }
