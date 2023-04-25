@@ -290,13 +290,25 @@ async function enterAirdrop(
       ephemeral: true,
       embeds: [
         composeEmbedMessage(null, {
-          title: `${defaultEmojis.ERROR} Could not enter airdrop`,
-          description: "You are already waiting for this airdrop.",
+          author: ["Could not enter airdrop", getEmojiURL(emojis.REVOKE)],
+          description: "You have already joined this airdrop!",
           originalMsgAuthor: i.user,
         }),
       ],
     })
     return
+  }
+
+  if (entries && participants.length > +entries) {
+    await i.reply({
+      ephemeral: true,
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Could not enter airdrop", getEmojiURL(emojis.REVOKE)],
+          description: "There's no slot left to join this airdrop!",
+        }),
+      ],
+    })
   }
 
   // new joiner (valid)
