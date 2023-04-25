@@ -30,7 +30,11 @@ import {
 } from "../../../utils/common"
 import { APPROX } from "../../../utils/constants"
 import { formatDigit } from "../../../utils/defi"
-import { airdropCache, validateAndShowConfirmation } from "./processor"
+import {
+  airdropCache,
+  describeRunTime,
+  validateAndShowConfirmation,
+} from "./processor"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -80,8 +84,10 @@ async function confirmAirdrop(
       usd_amount.toString(),
       4
     )})${
-      entries ? ` for ${entries && entries > 1 ? "people" : "person"}` : ""
-    }.`,
+      entries
+        ? ` for ${entries && entries > 1 ? `${entries} people` : "1 person"}`
+        : ""
+    } in ${describeRunTime(duration)}.`,
     footer: ["Ends"],
     timestamp: endTime,
     originalMsgAuthor: author,
