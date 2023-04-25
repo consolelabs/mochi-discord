@@ -17,7 +17,7 @@ describe("getAirdropPayload", () => {
 
   test("invalid number of args", async () => {
     await expect(
-      processor.getAirdropPayload(msg, ["airdrop", "1", "ftm", "in"])
+      processor.getPayload(msg, ["airdrop", "1", "ftm", "in"])
     ).rejects.toThrow(
       new DiscordWalletTransferError({
         discordId: msg.author.id,
@@ -35,7 +35,7 @@ describe("getAirdropPayload", () => {
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(false)
     const replyFn = jest.fn()
     msg.reply = replyFn
-    await processor.getAirdropPayload(msg, args)
+    await processor.getPayload(msg, args)
 
     expect(replyFn).toBeCalledWith({
       embeds: [
@@ -60,7 +60,7 @@ describe("getAirdropPayload", () => {
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
     const replyFn = jest.fn()
     msg.reply = replyFn
-    await processor.getAirdropPayload(msg, args)
+    await processor.getPayload(msg, args)
 
     expect(replyFn).toBeCalledWith({
       embeds: [
@@ -79,7 +79,7 @@ describe("getAirdropPayload", () => {
     }
     jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(monikerRes)
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    const output = await processor.getAirdropPayload(msg, monikerRes.newArgs)
+    const output = await processor.getPayload(msg, monikerRes.newArgs)
     const expected = {
       sender: msg.author.id,
       recipients: [],
@@ -104,7 +104,7 @@ describe("getAirdropPayload", () => {
     }
     jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(monikerRes)
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    const output = await processor.getAirdropPayload(msg, monikerRes.newArgs)
+    const output = await processor.getPayload(msg, monikerRes.newArgs)
     const expected = {
       sender: msg.author.id,
       recipients: [],
@@ -130,7 +130,7 @@ describe("getAirdropPayload", () => {
     }
     jest.spyOn(tiputils, "parseMonikerinCmd").mockResolvedValueOnce(monikerRes)
     jest.spyOn(tiputils, "isTokenSupported").mockResolvedValueOnce(true)
-    const output = await processor.getAirdropPayload(msg, args)
+    const output = await processor.getPayload(msg, args)
     const expected = {
       sender: msg.author.id,
       recipients: [],
@@ -160,7 +160,7 @@ describe("handleAirdrop", () => {
     jest
       .spyOn(defiutils, "validateBalance")
       .mockResolvedValueOnce({ balance: 5.5, usdBalance: 2.75 })
-    const output = (await processor.handleAirdrop(
+    const output = (await processor.airdrop(
       msg,
       args
     )) as RunResult<MessageOptions>
@@ -208,7 +208,7 @@ describe("handleAirdrop", () => {
     jest
       .spyOn(defiutils, "validateBalance")
       .mockResolvedValueOnce({ balance: 5.5, usdBalance: 2.75 })
-    const output = (await processor.handleAirdrop(
+    const output = (await processor.airdrop(
       msg,
       args
     )) as RunResult<MessageOptions>

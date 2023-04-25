@@ -2,6 +2,7 @@ import { userMention } from "@discordjs/builders"
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import {
+  ButtonInteraction,
   CommandInteraction,
   Message,
   MessageActionRow,
@@ -226,7 +227,10 @@ async function confirmToTip(
           i.customId.startsWith("confirm_tip") && i.user.id === author.id,
         max: 1,
       },
-      handler: () => execute(msg, payload),
+      handler: async (bi: ButtonInteraction) => {
+        await bi.deferUpdate().catch(() => null)
+        return execute(msg, payload)
+      },
     },
     selectMenuCollector: {
       options: {

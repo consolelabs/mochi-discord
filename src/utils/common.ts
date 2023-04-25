@@ -773,7 +773,10 @@ export function isValidAmount({
   return !isNaN(amount) && amount > 0
 }
 
-export function equalIgnoreCase(s1: string, s2: string) {
+export function equalIgnoreCase(
+  s1: string | undefined,
+  s2?: string | undefined
+) {
   return s1?.toLowerCase() === s2?.toLowerCase()
 }
 

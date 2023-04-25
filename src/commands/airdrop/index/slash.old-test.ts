@@ -16,7 +16,7 @@ describe("run", () => {
     jest.spyOn(processor, "handleAirdrop")
     // .mockResolvedValueOnce(airdropOutputMock)
     await cmd.run(i)
-    expect(processor.handleAirdrop).toBeCalledWith(i, ["airdrop", "1", "ftm"])
+    expect(processor.airdrop).toBeCalledWith(i, ["airdrop", "1", "ftm"])
   })
 
   test("successfully with duration", async () => {
@@ -28,7 +28,7 @@ describe("run", () => {
     jest.spyOn(processor, "handleAirdrop")
     // .mockResolvedValueOnce(airdropOutputMock)
     await cmd.run(i)
-    expect(processor.handleAirdrop).toBeCalledWith(i, [
+    expect(processor.airdrop).toBeCalledWith(i, [
       "airdrop",
       "1",
       "ftm",
@@ -50,7 +50,7 @@ describe("run", () => {
     jest.spyOn(processor, "handleAirdrop")
     // .mockResolvedValueOnce(airdropOutputMock)
     await cmd.run(i)
-    expect(processor.handleAirdrop).toBeCalledWith(i, [
+    expect(processor.airdrop).toBeCalledWith(i, [
       "airdrop",
       "1",
       "ftm",
@@ -71,7 +71,7 @@ describe("run", () => {
     jest.spyOn(processor, "handleAirdrop")
     // .mockResolvedValueOnce(airdropOutputMock)
     await cmd.run(i)
-    expect(processor.handleAirdrop).toBeCalledWith(i, [
+    expect(processor.airdrop).toBeCalledWith(i, [
       "airdrop",
       "1",
       "ftm",
