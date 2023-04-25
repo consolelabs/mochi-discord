@@ -179,6 +179,7 @@ async function checkExpiredAirdrop(
                 color: msgColors.ERROR,
               }),
             ],
+            components: [],
           })
           .catch(() => null)
 
