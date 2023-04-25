@@ -1,12 +1,10 @@
 import CacheManager from "cache/node-cache"
 import { slashCommands } from "commands"
-import {
-  cancelAirdrop,
-  confirmAirdrop,
-  enterAirdrop,
-} from "commands/airdrop/index/processor"
+import { handleBalanceView } from "commands/balances/index/processor"
 import { feedbackDispatcher } from "commands/feedback/index/processor"
+import { handleGainerView } from "commands/gainer/index/processor"
 import { confirmGlobalXP } from "commands/globalxp/index/processor"
+import { handleLoserView } from "commands/loser/index/processor"
 import { handleNFTTickerViews } from "commands/nft/ticker/processor"
 import { handleDaoTrackerView } from "commands/proposal/info/processor"
 import {
@@ -20,9 +18,14 @@ import {
   handleBackToQuestList,
   handleClaimReward,
 } from "commands/quest/daily/processor"
+import { handleSwap } from "commands/swap/index/processor"
+import { handleTickerViews } from "commands/ticker/index/processor"
+import {
+  handleTokenApprove,
+  handleTokenReject,
+} from "commands/token/add/processor"
 import { handleTreasurerAdd } from "commands/vault/add/processor"
 import { handleTreasurerRemove } from "commands/vault/remove/processor"
-import { handleTickerViews } from "commands/ticker/index/processor"
 import { sendVerifyURL } from "commands/verify/processor"
 import {
   addWallet,
@@ -46,8 +49,10 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
+import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import { CommandNotAllowedToRunError } from "errors"
 import InteractionManager from "handlers/discord/select-menu"
+import tagme from "handlers/tagme"
 import { logger } from "logger"
 import { kafkaQueue } from "queue/kafka/queue"
 import { KafkaQueueMessage } from "types/common"
@@ -69,16 +74,6 @@ import {
 } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
-import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
-import {
-  handleTokenApprove,
-  handleTokenReject,
-} from "commands/token/add/processor"
-import tagme from "handlers/tagme"
-import { handleSwap } from "commands/swap/index/processor"
-import { handleBalanceView } from "commands/balances/index/processor"
-import { handleGainerView } from "commands/gainer/index/processor"
-import { handleLoserView } from "commands/loser/index/processor"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -359,15 +354,6 @@ async function handleButtonInteraction(interaction: Interaction) {
       await msg.delete()
       return
     }
-    case i.customId.startsWith("confirm_airdrop"):
-      await confirmAirdrop(i, msg)
-      return
-    case i.customId.startsWith("cancel_airdrop"):
-      await cancelAirdrop(i, msg)
-      return
-    case i.customId.startsWith("enter_airdrop"):
-      await enterAirdrop(i, msg)
-      return
     case i.customId.startsWith("mochi_verify"):
       await sendVerifyURL(i)
       return

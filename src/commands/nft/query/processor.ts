@@ -169,6 +169,8 @@ export function buildSwitchViewActionRow(
 }
 
 async function switchView(i: ButtonInteraction, msg: Message) {
+  await i.deferUpdate().catch(() => null)
+
   if (i.customId.startsWith("suggestion-button")) return
   let messageOptions: MessageOptions
   const [currentView, symbol, collectionAddress, tokenId, chain] = i.customId
