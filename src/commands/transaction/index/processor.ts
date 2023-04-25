@@ -83,8 +83,8 @@ export async function render(i: CommandInteraction) {
     }
 
   const [dep, withdraw, tip] = await Promise.all([
-    format(data.deposit, "deposit"),
-    format(data.withdraw, "withdraw"),
+    format(data.deposit.slice(0, 10), "deposit"),
+    format(data.withdraw.slice(0, 10), "withdraw"),
     new Promise((resolve) => {
       const users = new Map<string, string>()
       let longestStr = 0
@@ -106,6 +106,8 @@ export async function render(i: CommandInteraction) {
             }
           })
           .map(async (tx: any) => {
+            if (!tx.other_profile_id) return null
+
             let targetUser = users.get(tx.other_profile_id)
             const type = tx.type === "debit" ? "-" : "+"
             if (!targetUser) {
@@ -117,13 +119,13 @@ export async function render(i: CommandInteraction) {
               )
                 return null
 
-              const discord = dataProfile.associated_accounts.filter(
+              const discord = dataProfile.associated_accounts.find(
                 (acc: any) => acc.platform === "discord"
               )
-              if (!discord || discord.length === 0) return null
+              if (!discord) return null
 
               targetUser = (
-                await i.client.users.fetch(discord[0].platform_identifier)
+                await i.client.users.fetch(discord.platform_identifier)
               )?.tag
               users.set(tx.other_profile_id, targetUser)
             }
