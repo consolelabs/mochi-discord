@@ -322,7 +322,7 @@ export function getErrorEmbed(params: {
       `Our team is fixing the issue. Stay tuned ${getEmoji("NEKOSAD")}.`,
     image,
     thumbnail,
-    color: params.color ?? msgColors.ERROR,
+    color: description ? params.color ?? msgColors.GRAY : msgColors.ERROR,
     originalMsgAuthor,
   })
 }

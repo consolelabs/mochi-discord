@@ -389,6 +389,7 @@ export async function parseTipAmount(
         discordId: author.id,
         message: msgOrInteraction,
         error: "The amount is invalid. Please insert a positive number.",
+        title: "Invalid amount",
       })
   }
 

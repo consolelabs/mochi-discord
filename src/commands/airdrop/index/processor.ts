@@ -10,7 +10,7 @@ import {
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import NodeCache from "node-cache"
 import parse from "parse-duration"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import {
   TokenEmojiKey,
   emojis,
@@ -28,7 +28,7 @@ import {
   parseMoniker,
   parseTipAmount,
 } from "utils/tip-bot"
-import { CommandArgumentError } from "../../../errors"
+import { InternalError } from "../../../errors"
 import { InsufficientBalanceError } from "../../../errors/insufficient-balance"
 import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { RunResult } from "../../../types/common"
@@ -191,7 +191,7 @@ async function selectToken(
   })
 }
 
-const describeRunTime = (duration = 0) => {
+export const describeRunTime = (duration = 0) => {
   const hours = Math.floor(duration / 3600)
   const mins = Math.floor((duration - hours * 3600) / 60)
   const secs = duration % 60
@@ -275,14 +275,11 @@ async function getAirdropArgs(i: CommandInteraction) {
 
   // duration cannot be < 5s
   if (duration < 5) {
-    const errorEmbed = getErrorEmbed({
-      originalMsgAuthor: i.user,
+    throw new InternalError({
+      msgOrInteraction: i,
       title: "Invalid duration",
-      description: "The duration must be in range [5s - 1h]",
-    })
-    throw new CommandArgumentError({
-      message: i,
-      getHelpMessage: async () => ({ embeds: [errorEmbed] }),
+      description:
+        "The duration must be in form of second (s), minute (m) or hours (h) and from 5s to 1h.",
     })
   }
 
