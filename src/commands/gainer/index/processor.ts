@@ -29,7 +29,7 @@ export async function handleGainerView(i: ButtonInteraction) {
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
-  if (!data || data.top_gainers === 0) {
+  if (!data || data.top_gainers.length === 0) {
     return {
       messageOptions: {
         embeds: [
@@ -123,7 +123,7 @@ export async function render(i: CommandInteraction) {
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
-  if (!data || data.top_gainers === 0) {
+  if (!data || data.top_gainers.length === 0) {
     return {
       messageOptions: {
         embeds: [

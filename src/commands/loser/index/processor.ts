@@ -29,7 +29,7 @@ export async function handleLoserView(i: ButtonInteraction) {
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
-  if (!data || data.top_losers === 0) {
+  if (!data || data.top_losers.length === 0) {
     return {
       messageOptions: {
         embeds: [
