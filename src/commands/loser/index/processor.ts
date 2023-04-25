@@ -15,7 +15,7 @@ import {
   ButtonInteraction,
 } from "discord.js"
 
-const timeRangeType = ["1h", "24h", "7d"]
+const timeRangeType = ["1h", "24h", "7d", "1y"]
 
 export async function handleLoserView(i: ButtonInteraction) {
   if (!i.deferred) {
@@ -23,13 +23,13 @@ export async function handleLoserView(i: ButtonInteraction) {
   }
   const [, view] = i.customId.split("_")
 
-  const { data, ok, curl, error, log } = await defi.getAllCoinsMarketData({
-    order: `price_change_percentage_${view}_asc`,
+  const { data, ok, curl, error, log } = await defi.getTopGainerLoser({
+    duration: `${view}`,
   })
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
-  if (data.length === 0) {
+  if (!data || data.top_losers.length === 0) {
     return {
       messageOptions: {
         embeds: [
@@ -63,6 +63,12 @@ export async function handleLoserView(i: ButtonInteraction) {
             .setStyle("SECONDARY")
             .setCustomId(`loser-view_${missingButton[1]}`)
             .setLabel(`${missingButton[1]}`)
+        )
+        .addComponents(
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setCustomId(`loser-view_${missingButton[2]}`)
+            .setLabel(`${missingButton[2]}`)
         ),
     ],
   })
@@ -74,17 +80,17 @@ function switchView(view: "24h" | "1h" | "7d", data: any) {
 
 function buildEmbed(data: any, timeRange: string) {
   let longestStrLen = 0
-  const description = data
+  const description = data.top_losers
     .slice(0, 10)
     .map((coin: any) => {
       const changePercentage = roundFloatNumber(
-        coin[`price_change_percentage_${timeRange}_in_currency`],
+        coin[`usd_${timeRange}_change`],
         2
       )
 
       const text = `${coin.name} (${coin.symbol})`
       longestStrLen = Math.max(longestStrLen, text.length)
-      const currentPrice = roundFloatNumber(coin.current_price, 4)
+      const currentPrice = roundFloatNumber(coin.usd, 4)
 
       return {
         text,
@@ -111,13 +117,13 @@ function buildEmbed(data: any, timeRange: string) {
 export async function render(i: CommandInteraction) {
   const timeRange = i.options.getString("time", true)
 
-  const { data, ok, curl, error, log } = await defi.getAllCoinsMarketData({
-    order: `price_change_percentage_${timeRange}_asc`,
+  const { data, ok, curl, error, log } = await defi.getTopGainerLoser({
+    duration: `${timeRange}`,
   })
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
-  if (data.length === 0) {
+  if (!data || data.top_losers === 0) {
     return {
       messageOptions: {
         embeds: [
@@ -155,6 +161,12 @@ export async function render(i: CommandInteraction) {
               .setStyle("SECONDARY")
               .setCustomId(`loser-view_${missingButton[1]}`)
               .setLabel(`${missingButton[1]}`)
+          )
+          .addComponents(
+            new MessageButton()
+              .setStyle("SECONDARY")
+              .setCustomId(`loser-view_${missingButton[2]}`)
+              .setLabel(`${missingButton[2]}`)
           ),
       ],
     },
