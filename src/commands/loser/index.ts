@@ -9,7 +9,7 @@ import { thumbnails } from "utils/common"
 import loserSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
 
-const choices = ["1h", "24h", "7d"]
+const choices = ["1h", "24h", "7d", "1y"]
 
 const slashCmd: SlashCommand = {
   name: "loser",
@@ -18,7 +18,7 @@ const slashCmd: SlashCommand = {
     return new SlashCommandBuilder()
       .setName("loser")
       .setDescription(
-        "Show top decreasing tokens in last 1 hour, 24 hours, 7 days"
+        "Show top decreasing tokens in last 1 hour, 24 hours, 7 days, 1 year"
       )
       .addStringOption((option) =>
         option
@@ -35,7 +35,7 @@ const slashCmd: SlashCommand = {
         thumbnail: thumbnails.TOKENS,
         usage: `${SLASH_PREFIX}loser <time_range>`,
         description:
-          "Show top decreasing tokens in last 1 hour, 24 hours, 7 days",
+          "Show top decreasing tokens in last 1 hour, 24 hours, 7 days, 1 year",
         footer: [DEFI_DEFAULT_FOOTER],
         examples: `${SLASH_PREFIX}loser 1h\n${SLASH_PREFIX}loser 24h\n${SLASH_PREFIX}loser 7d`,
         document: LOSER_GITBOOK,
