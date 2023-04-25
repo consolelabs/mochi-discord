@@ -5,7 +5,7 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { logger } from "logger"
-import { getEmoji } from "utils/common"
+import { getEmoji, msgColors } from "utils/common"
 
 export type OriginalMessage =
   | Message
@@ -75,7 +75,7 @@ export class BotBaseError extends Error {
           description: `Our team is fixing the issue. Stay tuned ${getEmoji(
             "NEKOSAD"
           )}.`,
-          color: "#D94F50",
+          color: msgColors.ERROR,
         },
       ],
     })
