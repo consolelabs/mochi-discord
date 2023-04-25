@@ -160,6 +160,7 @@ async function checkExpiredAirdrop(
         )}.`
         embed.setDescription(description)
         msg.edit({ embeds: [embed], components: [] })
+        return
       }
 
       // there are participants(s)
