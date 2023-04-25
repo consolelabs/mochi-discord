@@ -5,6 +5,13 @@ import { logger } from "logger"
 import { wrapError } from "utils/wrap-error"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { DiscordEvent } from "."
+import { getEmoji, thumbnails } from "utils/common"
+import {
+  DEFAULT_BOT_INVITE_URL,
+  HOMEPAGE_URL,
+  MOCHI_SERVER_INVITE_URL,
+} from "utils/constants"
+import { getSlashCommand } from "utils/commands"
 
 const event: DiscordEvent<"guildCreate"> = {
   name: "guildCreate",
@@ -19,7 +26,7 @@ const event: DiscordEvent<"guildCreate"> = {
       await webhook.pushDiscordWebhook("guildCreate", {
         guild_id: guild.id,
       })
-      introduceMochiToAdmin(guild)
+      await introduceMochiToAdmin(guild)
     })
   },
 }
@@ -28,34 +35,67 @@ export default event
 
 async function introduceMochiToAdmin(guild: Discord.Guild) {
   if (guild.systemChannel) {
-    guild.systemChannel
+    const embed = composeEmbedMessage(null, {
+      author: ["mochi.gg", thumbnails.MOCHI],
+      title: `Hi ${guild.name} has joined Mochi!`,
+      description: `Thank you for using Mochi Bot to build your community! Mochi is a Web3 Bot that empowers you to automate your server on Discord — so you can move forward, faster\nYou might just be staring at an empty server. Discord is all about community, but the community doesn’t just appear out of thin air; you have to build it. Mochi gives you some tips to start the optimal community. `,
+      color: `0xFCD3C1`,
+      thumbnail: thumbnails.ROCKET,
+    })
+    embed.setFields(
+      {
+        name: "Start Here",
+        value: `${getEmoji("CONFIG")} Run </admin:${await getSlashCommand(
+          "admin"
+        )}> to display some tips for building your server\n${getEmoji(
+          "ANIMATED_QUESTION_MARK",
+          true
+        )} Run </help:1062577076722466889> to explore all commands`,
+      },
+      {
+        name: "Features",
+        value: [
+          [getEmoji("WEB"), "DAO Management"],
+          [getEmoji("NFT2"), "NFTs"],
+        ]
+          .map((v) => `${v[0]} ${v[1]}`)
+          .join("\n"),
+        inline: true,
+      },
+      {
+        name: "\u200b",
+        value: "\u200b",
+        inline: true,
+      },
+      {
+        name: "\u200b",
+        value: [
+          [getEmoji("SWAP_ROUTE"), "Crypto Utilities"],
+          [getEmoji("TREASURER"), "Social"],
+        ]
+          .map((v) => `${v[0]} ${v[1]}`)
+          .join("\n"),
+        inline: true,
+      },
+      {
+        name: "\u200b",
+        value: `[→ Join our server](${MOCHI_SERVER_INVITE_URL})`,
+        inline: true,
+      },
+      {
+        name: "\u200b",
+        value: `[→ Invite the bot](${DEFAULT_BOT_INVITE_URL})`,
+        inline: true,
+      },
+      {
+        name: "\u200b",
+        value: `[→ Visite our web](${HOMEPAGE_URL})`,
+        inline: true,
+      }
+    )
+    await guild.systemChannel
       .send({
-        embeds: [
-          composeEmbedMessage(null, {
-            title: `Hi ${guild.name} administrators!!!`,
-            description: `Thank you for using Mochi Bot to build your community! The first thing to do is type \`$help\` to explore all features or read our instructions on 
-          Gitbook. To build an optimal community, our Mochi Bot offers these functions:
-          \n• Config Good-morning channel: \`$gm\`
-          • Config channel to track member activity: \`$log\`
-          • Set up default and reaction role: \`$defaultrole\`, \`$reactionroles\`
-          • Set up a welcome message: \`/welcome\`
-          • Track server information: \`$stats\`
-          • Update Tweet from Twitter: \`$poe\`
-          \nOnly Administrators can use these commands. If you want others to use these commands, make them administrators. Run the command to build a community with Mochi now!!!
-          `,
-            color: `0xFCD3C1`,
-          }),
-          composeEmbedMessage(null, {
-            description: `Greeting new members by \`/welcome set\` and \`/welcome message\`.`,
-            image: `https://cdn.discordapp.com/attachments/701029345795375114/1022072432875548692/unknown.png`,
-            color: `0xFCD3C1`,
-          }),
-          composeEmbedMessage(null, {
-            description: `Config a good-morning channel to increase engagement by \`$gm config\``,
-            image: `https://cdn.discordapp.com/attachments/701029345795375114/1022072477200945183/unknown.png`,
-            color: `0xFCD3C1`,
-          }),
-        ],
+        embeds: [embed],
       })
       .catch(() => null)
   }

@@ -8,41 +8,15 @@ import {
   User,
 } from "discord.js"
 import { embedsColors } from "types/common"
-import { composeEmbedMessage, EMPTY_FIELD } from "ui/discord/embed"
-import { capFirst, getEmoji, thumbnails } from "utils/common"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { getSlashCommand } from "utils/commands"
+import { getEmoji, thumbnails } from "utils/common"
 import {
-  AIRDROP_GITBOOK,
-  BALANCE_GITBOOK,
-  DAO_VOTING_GITBOOK,
-  DEPOSIT_GITBOOK,
+  DEFAULT_BOT_INVITE_URL,
   DISCORD_URL,
-  FEEDBACK_GITBOOK,
-  GM_GITBOOK,
   HELP_GITBOOK,
   HOMEPAGE_URL,
-  JOIN_LEAVE_GITBOOK,
-  LEVELUP_MESSAGE_GITBOOK,
-  LOG_CHANNEL_GITBOOK,
-  NFT_GITBOOK,
-  PROFILE_GITBOOK,
-  PRUNE_GITBOOK,
-  QUEST_GITBOOK,
-  SALE_TRACKER_GITBOOK,
-  SENDXP_GITBOOK,
-  STARBOARD_GITBOOK,
-  TELEGRAM_GITBOOK,
-  TICKER_GITBOOK,
-  TIP_GITBOOK,
-  TOKEN_GITBOOK,
-  TOKEN_ROLE_GITBOOK,
-  TOP_GITBOOK,
   TWITTER_URL,
-  TWITTER_WATCH_GITBOOK,
-  VERIFY_WALLET_GITBOOK,
-  VOTE_GITBOOK,
-  WALLET_GITBOOK,
-  WATCHLIST_GITBOOK,
-  WELCOME_GITBOOK,
 } from "utils/constants"
 dayjs.extend(utc)
 
@@ -51,290 +25,355 @@ const image =
 
 export function getHelpEmbed(user: User) {
   return composeEmbedMessage(null, {
-    title: `Mochi Bot Commands`,
-    author: ["Mochi Bot", thumbnails.HELP],
+    title: "Welcome to Mochi!",
+    author: ["mochi.gg", thumbnails.MOCHI],
     image,
     originalMsgAuthor: user,
   })
 }
 
-export type PageType = "social" | "crypto_and_nft" | "server_management"
+export type PageType =
+  | "welcome"
+  | "social"
+  | "crypto"
+  | "nft"
+  | "dao_management"
 
 type HelpCommand = {
-  emoji: string
-  description: string
-  features: Array<{
+  commands: Array<{
+    emoji: string
+    name?: string
     value: string
-    onlySlash?: boolean
-    url: string
+    type: "slash" | "text"
+    description: string
   }>
 }
 
 type HelpPage = {
-  name: string
-  example: string
+  title: string
   category: Record<string, HelpCommand>
 }
 
-const allCommands: Record<PageType, HelpPage> = {
+const allCommands: Record<Exclude<PageType, "welcome">, HelpPage> = {
   social: {
-    name: "Social",
-    example: "$vote\n$quest\n$feedback I love Mochi Watchlist",
+    title: "Engage with your community & honor members",
     category: {
-      "Earning Reward": {
-        emoji: getEmoji("LIKE"),
-        description: "Complete these tasks to earn more rewards",
-        features: [
-          {
-            value: "vote",
-            url: VOTE_GITBOOK,
-          },
-          {
-            value: "quest",
-            url: QUEST_GITBOOK,
-          },
-        ],
-      },
-      "Member Profile": {
-        emoji: getEmoji("EXP"),
-        description: "Tracking member profile",
-        features: [
+      Profile: {
+        commands: [
           {
             value: "profile",
-            url: PROFILE_GITBOOK,
+            type: "slash",
+            description: "Tracking your profile",
+            emoji: getEmoji("TREASURER"),
           },
           {
-            value: "top",
-            url: TOP_GITBOOK,
+            value: "tagme",
+            type: "slash",
+            description: "Get DM whenever someone pings you",
+            emoji: getEmoji("TREASURER"),
+          },
+          {
+            value: "activity",
+            type: "slash",
+            description: "Trace back all of your activities",
+            emoji: getEmoji("PROPOSAL"),
+          },
+          {
+            value: "inbox",
+            type: "slash",
+            description: "Notification whenever you have notification ",
+            emoji: getEmoji("ANIMATED_CHAT_2", true),
+          },
+          {
+            value: "telegram",
+            type: "text",
+            description: "Link Telegram to your profile",
+            emoji: getEmoji("TELEGRAM"),
           },
         ],
       },
-      Telegram: {
-        emoji: "<:telegram:1026746501659103252>",
-        description: "Link Telegram to Discord account",
-        features: [
+      Earning: {
+        commands: [
           {
-            value: "telegram",
-            url: TELEGRAM_GITBOOK,
+            name: "quest daily",
+            value: "quest",
+            description: "Complete these tasks to earn more rewards",
+            type: "slash",
+            emoji: getEmoji("ANIMATED_CHEST", true),
           },
         ],
       },
       Feedback: {
-        emoji: "<:message:1032608821534806056>",
-        description: "Share your idea to help us improve Mochi Bot",
-        features: [
+        commands: [
           {
             value: "feedback",
-            url: FEEDBACK_GITBOOK,
-          },
-        ],
-      },
-      "DAO Voting": {
-        emoji: "<:conversation:1032608818930139249>",
-        description: "Manage the voting decision process of DAO",
-        features: [
-          {
-            value: "proposal",
-            url: DAO_VOTING_GITBOOK,
+            description: "Share your idea to help us improve Mochi Bot",
+            type: "slash",
+            emoji: getEmoji("ANIMATED_CHAT", true),
           },
         ],
       },
     },
   },
-  crypto_and_nft: {
-    name: "Crypto & NFT",
-    example: "$watchlist view\n$help nft",
+  crypto: {
+    title: "Interact with Cryptocurrency right on Discord!",
     category: {
       "Track Crypto": {
-        emoji: getEmoji("ANIMATED_CHART_INCREASE", true),
-        description: "Tracking crypto market movements and opportunities",
-        features: [
+        commands: [
           {
-            value: "tokens",
-            url: TOKEN_GITBOOK,
+            name: "token list",
+            value: "token",
+            type: "slash",
+            description: "Manage all available token in your server",
+            emoji: getEmoji("ANIMATED_CHART_INCREASE", true),
           },
           {
             value: "ticker",
-            url: TICKER_GITBOOK,
+            type: "slash",
+            description: "Check token price",
+            emoji: getEmoji("TREASURER"),
           },
           {
+            name: "watchlist view",
             value: "watchlist",
-            url: WATCHLIST_GITBOOK,
+            type: "slash",
+            description: "Track your portfolio",
+            emoji: getEmoji("TOKEN_LIST"),
           },
-        ],
-      },
-      "Track NFT": {
-        emoji: getEmoji("NFTS"),
-        description: "Checking NFT rarity, sales, and ranking",
-        features: [
           {
-            value: "nft",
-            url: NFT_GITBOOK,
+            value: "convert",
+            type: "slash",
+            description: "Convert an amount of one currency to another",
+            emoji: getEmoji("SWAP_ROUTE"),
+          },
+          {
+            value: "gas",
+            type: "slash",
+            description: "The gas fee list of all chain",
+            emoji: getEmoji("GAS"),
+          },
+          {
+            name: "alert list",
+            value: "alert",
+            type: "slash",
+            description: "Get notification whenever the price changes",
+            emoji: getEmoji("ANIMATED_BELL"),
+          },
+          {
+            name: "wallet view",
+            value: "wallet",
+            type: "slash",
+            description: "Connect your crypto wallets and track other's one",
+            emoji: getEmoji("WALLET_1"),
           },
         ],
       },
       Transaction: {
-        emoji: getEmoji("CASH"),
-        description: "Making transactions among members and in your wallet",
-        features: [
+        commands: [
           {
             value: "tip",
-            url: TIP_GITBOOK,
+            type: "slash",
+            description: "Send money to others",
+            emoji: getEmoji("CASH"),
+          },
+          {
+            value: "pay",
+            type: "text",
+            description: "Make payment request or pay other through a link",
+            emoji: getEmoji("CASH"),
           },
           {
             value: "deposit",
-            url: DEPOSIT_GITBOOK + "&command=deposit",
+            type: "slash",
+            description: "Top up your Mochi bag",
+            emoji: getEmoji("ANIMATED_MONEY", true),
           },
           {
             value: "withdraw",
-            url: DEPOSIT_GITBOOK + "&command=withdraw",
+            type: "slash",
+            description: "Withdraw token to your crypto wallet",
+            emoji: getEmoji("ANIMATED_WITHDRAW", true),
           },
           {
             value: "balances",
-            url: BALANCE_GITBOOK,
+            type: "slash",
+            description: "Check the balance of Mochi wallet",
+            emoji: getEmoji("WALLET_1"),
           },
           {
             value: "airdrop",
-            url: AIRDROP_GITBOOK,
+            type: "slash",
+            description: "Give away some tokens to your community",
+            emoji: getEmoji("AIRDROP"),
           },
           {
-            value: "monikers",
-            url: "http://bit.ly/3K7Zf5S",
-          },
-          {
-            value: "statements",
-            url: "http://bit.ly/3XtBDvi",
-          },
-        ],
-      },
-      "Manage Wallet": {
-        emoji: getEmoji("ADDRESS"),
-        description: "Tracking balance and transactions of different wallets",
-        features: [
-          {
-            value: "wallet",
-            url: WALLET_GITBOOK,
+            value: "swap",
+            type: "slash",
+            description: "Swap an amount of token to another",
+            emoji: getEmoji("SWAP_ROUTE"),
           },
         ],
       },
     },
   },
-  server_management: {
-    name: "Server Management",
-    example: "$default role set\n$stats",
+  nft: {
+    title: "Track multiple NFT collections in an instant",
     category: {
-      Verify: {
-        emoji: getEmoji("APPROVE"),
-        description: "Verify your wallet",
-        features: [
+      "Track NFT": {
+        commands: [
           {
-            value: "verify",
-            url: VERIFY_WALLET_GITBOOK,
+            value: "nft",
+            type: "text",
+            description: "Check NFT rarity, sales, and ranking",
+            emoji: getEmoji("NFT2"),
+          },
+          {
+            name: "sales list",
+            value: "sales",
+            type: "slash",
+            description: "Quickly catch up on NFT market movement",
+            emoji: getEmoji("CONVERSION"),
           },
         ],
       },
-      Welcome: {
-        emoji: getEmoji("HELLO"),
-        description: "Automate welcome message",
-        features: [
+    },
+  },
+  dao_management: {
+    title: "Manage your Discord community with ease!",
+    category: {
+      "Automatic Onboarding": {
+        commands: [
           {
+            name: "welcome info",
             value: "welcome",
-            url: WELCOME_GITBOOK,
-            onlySlash: true,
-          },
-        ],
-      },
-      "Server Member": {
-        emoji: "<a:pepepolicedog:974757344900681758>",
-        description: "Grow the number of members or remove inactive ones",
-        features: [
-          {
-            value: "prune",
-            url: PRUNE_GITBOOK,
-          },
-          {
-            value: "joinleave",
-            url: JOIN_LEAVE_GITBOOK,
+            type: "slash",
+            description: "Send welcome message automatically",
+            emoji: getEmoji("WAVING_HAND"),
           },
           {
             value: "levelmessage",
-            url: LEVELUP_MESSAGE_GITBOOK,
-          },
-          {
-            value: "welcome",
-            url: WELCOME_GITBOOK,
-            onlySlash: true,
+            type: "text",
+            description:
+              "Setup congratulation message when a user is leveled up",
+            emoji: getEmoji("ANIMATED_ARROW_UP", true),
           },
         ],
       },
-      "Sales Update": {
-        emoji: "<:mask:974519850644930582>",
-        description: "Quick catch-up on NFT market movement",
-        features: [
+      "DAO Management": {
+        commands: [
           {
-            value: "sales",
-            url: SALE_TRACKER_GITBOOK,
+            name: "verify info",
+            value: "verify",
+            type: "slash",
+            description: "Setup a channel to verify users wallet",
+            emoji: getEmoji("CHECK"),
+          },
+          {
+            name: "proposal info",
+            value: "proposal",
+            type: "slash",
+            description: "Post a proposal",
+            emoji: getEmoji("PROPOSAL"),
+          },
+          {
+            name: "vault list",
+            value: "vault",
+            type: "slash",
+            description: "Setup a vault to keep the community money",
+            emoji: getEmoji("ANIMATED_OPEN_VAULT", true),
           },
         ],
       },
       Community: {
-        emoji: getEmoji("FELLOWSHIP"),
-        description:
-          "Set up channels and other add-ins to facilitate activities",
-        features: [
+        commands: [
           {
+            name: "gm info",
             value: "gm",
-            url: GM_GITBOOK,
+            type: "slash",
+            description:
+              'Create a space to count streak for users saying "GM" everyday',
+            emoji: getEmoji("WAVING_HAND"),
           },
           {
             value: "starboard",
-            url: STARBOARD_GITBOOK,
+            type: "text",
+            description:
+              "Share well-rated posts rated by community automatically",
+            emoji: getEmoji("ANIMATED_STAR"),
           },
           {
-            value: "log",
-            url: LOG_CHANNEL_GITBOOK,
+            name: "config logchannel info",
+            value: "config",
+            type: "slash",
+            description: "Create a channel to log all users activities",
+            emoji: getEmoji("CONFIG"),
           },
           {
-            value: "poe",
-            url: TWITTER_WATCH_GITBOOK,
+            name: "config currency",
+            value: "config",
+            type: "slash",
+            description: "Setup a default currency to tip",
+            emoji: getEmoji("ANIMATED_COIN_1", true),
           },
           {
-            value: "sendXP",
-            url: SENDXP_GITBOOK,
+            name: "config tiprange",
+            value: "config",
+            type: "slash",
+            description: "Setup the minimum and maximum amount to tip",
+            emoji: getEmoji("CASH"),
           },
         ],
       },
       "Assign Role": {
-        emoji: "<:pawlord:917358832269795388>",
-        description: "Assign role for members based on different criteria",
-        features: [
+        commands: [
           {
+            name: "defaultrole info",
             value: "defaultrole",
-            url: "https://bit.ly/3kvRWui",
+            type: "slash",
+            description: "Grant role when a new user joins the server",
+            emoji: getEmoji("TREASURER"),
           },
           {
+            name: "reactionrole list",
             value: "reactionrole",
-            url: "http://bit.ly/3y1wX5r",
+            type: "slash",
+            description: "Grant role based on the message reaction",
+            emoji: getEmoji("ANIMATED_HEART", true),
           },
           {
+            name: "levelrole list",
             value: "levelrole",
-            url: "https://bit.ly/3ksKOyE",
+            type: "slash",
+            description: "Grant role when users level up",
+            emoji: getEmoji("ANIMATED_BADGE_1", true),
           },
           {
-            value: "nftrole",
-            url: "http://bit.ly/41uedsP",
-          },
-          {
-            value: "tokenrole",
-            url: TOKEN_ROLE_GITBOOK,
-          },
-          {
+            name: "xprole list",
             value: "xprole",
-            url: "http://bit.ly/3xmi4KS",
+            type: "slash",
+            description: "Use the XP range to grant role for users",
+            emoji: getEmoji("ANIMATED_XP", true),
           },
           {
+            name: "nftrole list",
+            value: "nftrole",
+            type: "slash",
+            description: "Grant role by holding NFT",
+            emoji: getEmoji("NFT2"),
+          },
+          {
+            name: "tokenrole list",
+            value: "tokenrole",
+            type: "slash",
+            description: "Grant role by holding token",
+            emoji: getEmoji("ANIMATED_COIN_1", true),
+          },
+          {
+            name: "mixrole list",
             value: "mixrole",
-            url: "https://bit.ly/40O5xxr", // field length limit 1024
+            type: "slash",
+            description: "Combine different condition at once to grant role",
+            emoji: getEmoji("ANIMATED_SHRUGGING", true),
           },
         ],
       },
@@ -342,106 +381,121 @@ const allCommands: Record<PageType, HelpPage> = {
   },
 }
 
-export const defaultPageType: PageType = "crypto_and_nft"
+export const defaultPageType: PageType = "welcome"
 
-export const pagination = (currentPage: PageType, isAdmin: boolean) => [
+export const pagination = (currentPage: PageType) => [
   new MessageActionRow().addComponents(
     new MessageButton({
-      label: "Crypto & NFT",
-      emoji: getEmoji("ANIMATED_CHART_INCREASE", true),
+      label: "Welcome",
+      emoji: getEmoji("WAVING_HAND"),
       style: "SECONDARY",
-      customId: "crypto_and_nft",
-      disabled: currentPage === "crypto_and_nft",
+      customId: "welcome",
+      disabled: currentPage === "welcome",
     }),
     new MessageButton({
       label: "Social",
-      emoji: getEmoji("DEFI"),
+      emoji: getEmoji("TREASURER"),
       style: "SECONDARY",
       customId: "social",
       disabled: currentPage === "social",
     }),
-    ...(isAdmin
-      ? [
-          new MessageButton({
-            label: "Server Management",
-            emoji: getEmoji("PREDICTION"),
-            style: "SECONDARY",
-            customId: "server_management",
-            disabled: currentPage === "server_management",
-          }),
-        ]
-      : [])
+    new MessageButton({
+      label: "Crypto",
+      emoji: getEmoji("CHART"),
+      style: "SECONDARY",
+      customId: "crypto",
+      disabled: currentPage === "crypto",
+    }),
+    new MessageButton({
+      label: "NFT",
+      emoji: getEmoji("NFT2"),
+      style: "SECONDARY",
+      customId: "nft",
+      disabled: currentPage === "nft",
+    })
+  ),
+  new MessageActionRow().addComponents(
+    new MessageButton({
+      label: "DAO Management",
+      emoji: getEmoji("WEB"),
+      style: "SECONDARY",
+      customId: "dao_management",
+      disabled: currentPage === "dao_management",
+    })
   ),
 ]
 
-export function buildHelpInterface(
-  embed: MessageEmbed,
-  page: PageType,
-  isAdmin: boolean,
-  version: "$" | "/" = "$"
-) {
-  const commandsByCategory =
-    allCommands[
-      !isAdmin && page === "server_management" ? defaultPageType : page
-    ]
-  const commands = Object.entries(commandsByCategory.category)
-    .filter((c) => {
-      if (version === "$" && c[1].features.every((f) => f.onlySlash))
-        return false
-      return true
-    })
-    .map<[string, HelpCommand]>((c) => {
-      if (version === "$") {
-        return [
-          c[0],
-          {
-            ...c[1],
-            features: c[1].features.filter((f) => !f.onlySlash),
-          },
-        ]
+export async function buildHelpInterface(embed: MessageEmbed, page: PageType) {
+  if (page === "welcome") {
+    embed.setDescription(
+      "Bring Web3 universe to your Discord server.\n\nBuild the best growth tool for your Discord servers, and help you bring about and connect strong communities, active users with the ever-growing blockchain."
+    )
+    embed.addFields(
+      {
+        name: "\u200b\nStart Here",
+        value: [
+          `${getEmoji(
+            "CHECK"
+          )} Go [\`log in Mochi\`](${HOMEPAGE_URL}) to verify your wallet`,
+          `${getEmoji("COMMAND")} Commands will start with \`$\` or \`/\``,
+          `${getEmoji(
+            "ANIMATED_ROBOT",
+            true
+          )} Invite Mochi bot to your server [\`get Mochi\`](${DEFAULT_BOT_INVITE_URL})`,
+          `${getEmoji(
+            "CONFIG"
+          )} Start setting up your server with </admin:${await getSlashCommand(
+            "admin"
+          )}>`,
+          `${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} Click each category below to explore all features`,
+        ].join("\n"),
+        inline: false,
+      },
+      {
+        name: "\u200b\n**Instructions**",
+        value: `[**Gitbook**](${HELP_GITBOOK}&command=help)`,
+        inline: true,
+      },
+      {
+        name: "\u200b\nVisit our web",
+        value: `[🌐](${HOMEPAGE_URL})`,
+        inline: true,
+      },
+      {
+        name: "\u200b\nJoin our community",
+        value: `[${getEmoji("TWITTER")}](${TWITTER_URL})[${getEmoji(
+          "DISCORD"
+        )}](${DISCORD_URL})`,
+        inline: true,
       }
-      return c
-    })
-  commands?.forEach((cmd) => {
-    const [cmdName, cmdData] = cmd
-    embed.addFields({
-      name: `${cmdData.emoji} ${capFirst(cmdName)}`,
-      value: `${cmdData.features
-        .map((f) => {
-          return `[\`${version}${f.value}\`](${f.url})`
-        })
-        .join(" ")}\n${cmdData.description}`,
-      inline: true,
-    })
-  })
-
-  const missingCols = embed.fields.length % 3
-
-  if (missingCols > 0) {
-    embed.addFields(new Array(missingCols).fill(EMPTY_FIELD))
-  }
-
-  embed.addFields(
-    {
-      name: "**Examples**",
-      value: `\`\`\`${commandsByCategory.example}\`\`\``,
-    },
-    {
-      name: "**Instructions**",
-      value: `[**Gitbook**](${HELP_GITBOOK}&command=help)`,
-      inline: true,
-    },
-    {
-      name: "Visit our Social Network",
-      value: `[🌐](${HOMEPAGE_URL}) [${getEmoji("TWITTER")}](${TWITTER_URL})`,
-      inline: true,
-    },
-    {
-      name: "Join and build our community",
-      value: `[${getEmoji("DISCORD")}](${DISCORD_URL})`,
-      inline: true,
+    )
+  } else {
+    const commandsByCategory = allCommands[page]
+    const groups = Object.entries(commandsByCategory.category)
+    for await (const group of groups) {
+      const [groupName, groupCommands] = group
+      embed.addFields({
+        name: groupName,
+        value: `${(
+          await Promise.all(
+            groupCommands.commands.map(async (c) => {
+              return `${c.emoji} ${
+                c.type === "slash"
+                  ? `</${c.name ?? c.value}:${await getSlashCommand(c.value)}>`
+                  : `[\`$${c.value}\`](${HOMEPAGE_URL})`
+              }: ${c.description}`
+            })
+          )
+        ).join("\n")}`,
+        inline: false,
+      })
     }
-  )
+
+    embed.setTitle(commandsByCategory.title)
+  }
 
   embed.setColor(embedsColors.Game as ColorResolvable)
 }

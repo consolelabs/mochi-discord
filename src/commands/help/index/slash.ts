@@ -1,4 +1,5 @@
-import { CommandInteraction, GuildMember, Message } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
+import { wrapError } from "utils/wrap-error"
 import {
   PageType,
   buildHelpInterface,
@@ -6,16 +7,14 @@ import {
   getHelpEmbed,
   pagination,
 } from "./processor"
-import { hasAdministrator } from "utils/common"
 
 const run = async (interaction: CommandInteraction) => {
-  const member = interaction.member as GuildMember
   const embed = getHelpEmbed(interaction.user)
-  buildHelpInterface(embed, defaultPageType, hasAdministrator(member), "/")
+  await buildHelpInterface(embed, defaultPageType)
 
   const replyMsg = (await interaction.editReply({
     embeds: [embed],
-    components: pagination(defaultPageType, hasAdministrator(member)),
+    components: pagination(defaultPageType),
   })) as Message
 
   replyMsg
@@ -23,17 +22,19 @@ const run = async (interaction: CommandInteraction) => {
       filter: (i) => i.user.id === interaction.user.id,
     })
     .on("collect", (i) => {
-      i.deferUpdate()
-      const pageType = i.customId as PageType
-      const embed = getHelpEmbed(interaction.user)
-      buildHelpInterface(embed, pageType, hasAdministrator(member), "/")
+      wrapError(i, async () => {
+        i.deferUpdate()
+        const pageType = i.customId as PageType
+        const embed = getHelpEmbed(interaction.user)
+        await buildHelpInterface(embed, pageType)
 
-      interaction
-        .editReply({
-          embeds: [embed],
-          components: pagination(pageType, hasAdministrator(member)),
-        })
-        .catch(() => null)
+        interaction
+          .editReply({
+            embeds: [embed],
+            components: pagination(pageType),
+          })
+          .catch(() => null)
+      })
     })
     .on("end", () => {
       interaction.editReply({ components: [] }).catch(() => null)

@@ -39,7 +39,7 @@ process.on("SIGTERM", () => {
 })
 
 // register slash commands
-const body = Object.entries(slashCommands).map((e) =>
+const body = Object.entries(slashCommands ?? {}).map((e) =>
   e[1].prepare(e[0]).toJSON()
 )
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
@@ -52,7 +52,7 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
     })
     logger.info("Successfully reloaded application (/) commands.")
 
-    await runHttpServer()
+    runHttpServer()
   } catch (error) {
     logger.error("Failed to refresh application (/) commands.")
   }
@@ -68,7 +68,7 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
   }
 })()
 
-async function runHttpServer() {
+function runHttpServer() {
   const server = createServer(
     (request: IncomingMessage, response: ServerResponse) => {
       if (request.url === "/healthz") {
