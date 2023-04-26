@@ -22,6 +22,7 @@ import {
   specificHelpCommand,
 } from "utils/commands"
 import {
+  TokenEmojiKey,
   emojis,
   getEmoji,
   getEmojiToken,
@@ -29,7 +30,6 @@ import {
   msgColors,
   // removeDuplications,
   roundFloatNumber,
-  TokenEmojiKey,
 } from "utils/common"
 import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
 
@@ -451,7 +451,7 @@ export function composeInsufficientBalanceEmbed({
           },
         ]
       : []),
-    ...(required !== undefined
+    ...(required
       ? [
           {
             name: "Required amount",
