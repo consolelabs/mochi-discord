@@ -128,7 +128,7 @@ async function selectToken(
   }
 
   // show token selection
-  reply(msgOrInteraction, {
+  await reply(msgOrInteraction, {
     ...composeTokenSelectionResponse(author, balances),
     selectMenuCollector: { handler: suggestionHandler },
   })
@@ -248,7 +248,7 @@ async function parseTipArgs(
   each: boolean
   all: boolean
 }> {
-  const { valid, targets, lastIdx: lastTargetIdx } = await getTargets(args)
+  const { valid, targets, lastIdx: lastTargetIdx } = getTargets(args)
   if (!valid) {
     throw new InternalError({
       title: "Incorrect recipients",
@@ -330,7 +330,7 @@ async function validateAndTransfer(
 
   // validate tip range
   const usdAmount = payload.amount * balance.token?.price
-  isInTipRange(msgOrInteraction, usdAmount)
+  await isInTipRange(msgOrInteraction, usdAmount)
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
