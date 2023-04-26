@@ -260,14 +260,21 @@ async function parseTipArgs(
 
   // amount: comes after targets
   const amountIdx = lastTargetIdx + 1
-  const { amount: parsedAmount, all } = await parseTipAmount(
-    msgOrInteraction,
-    args[amountIdx]
-  )
+  const {
+    amount: parsedAmount,
+    all,
+    unit: parsedUnit,
+  } = parseTipAmount(msgOrInteraction, args[amountIdx])
 
   // unit: comes after amount
-  const unitIdx = amountIdx + 1
-  const unit = args[unitIdx]
+  let unitIdx = amountIdx + 1
+  let unit = args[unitIdx]
+
+  if (parsedUnit) {
+    // skip 1
+    unitIdx -= 1
+    unit = parsedUnit
+  }
 
   // check if unit is a valid token ...
   const isToken = await isTokenSupported(unit)
