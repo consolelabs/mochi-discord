@@ -20,8 +20,8 @@ import {
   getEmoji,
   getEmojiURL,
   msgColors,
-  thumbnails,
   roundFloatNumber,
+  thumbnails,
 } from "utils/common"
 import { isMessage, reply } from "utils/discord"
 import {
@@ -36,12 +36,12 @@ import {
 } from "utils/tip-bot"
 import defi from "../../../adapters/defi"
 import { UnsupportedTokenError } from "../../../errors/unsupported-token"
+import { RunResult } from "../../../types/common"
+import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { APPROX } from "../../../utils/constants"
 import { convertString } from "../../../utils/convert"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
-import { RunResult } from "../../../types/common"
-import { TransferPayload } from "../../../types/transfer"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -330,7 +330,7 @@ async function validateAndTransfer(
 
   // validate tip range
   const usdAmount = payload.amount * balance.token?.price
-  isInTipRange(msgOrInteraction, usdAmount)
+  await isInTipRange(msgOrInteraction, usdAmount)
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id

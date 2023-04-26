@@ -123,7 +123,7 @@ export async function validateAndShowConfirmation(
 
   // validate tip range
   const usdAmount = payload.amount * balance.token?.price
-  isInTipRange(ci, usdAmount)
+  await isInTipRange(ci, usdAmount)
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
