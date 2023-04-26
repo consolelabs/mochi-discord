@@ -1148,6 +1148,7 @@ export interface RequestNewGuildConfigWalletVerificationMessageRequest {
 export interface RequestOffchainTransferRequest {
   all?: boolean;
   amount?: number;
+  amount_string?: string;
   chain_id?: string;
   channel_id?: string;
   each?: boolean;
@@ -1936,6 +1937,28 @@ export interface ResponseGetSupportedTokenResponse {
 
 export interface ResponseGetSupportedTokensResponse {
   data?: ModelToken[];
+}
+
+export interface ResponseGetTopGainerLoser {
+  top_gainers?: ResponseGetTopGainerLoserCoin[];
+  top_losers?: ResponseGetTopGainerLoserCoin[];
+}
+
+export interface ResponseGetTopGainerLoserCoin {
+  id?: string;
+  image?: string;
+  market_cap_rank?: number;
+  name?: string;
+  symbol?: string;
+  usd?: number;
+  usd_14d_change?: number;
+  usd_1h_change?: number;
+  usd_1y_change?: number;
+  usd_24h_change?: number;
+  usd_24h_vol?: number;
+  usd_30d_change?: number;
+  usd_60d_change?: number;
+  usd_7d_change?: number;
 }
 
 export interface ResponseGetTrackingWalletsResponse {
