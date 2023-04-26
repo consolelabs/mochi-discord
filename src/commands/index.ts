@@ -114,7 +114,9 @@ export const slashCommands: Record<string, SlashCommand> = {
   quest: quest.slashCmd,
   gm: gm.slashCmd,
   nft: nft.slashCmd,
+  //
   tip: tip.slashCmd,
+  send: tip.slashCmd,
   //
   balances: balances.slashCmd,
   balance: balances.slashCmd,

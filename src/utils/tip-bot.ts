@@ -362,12 +362,15 @@ export function parseMessageTip(args: string[], startIdx: number): string {
     .trim()
 }
 
-export async function parseTipAmount(
+// 1ftm, 20butt, 0.2eth, etc...
+const amountUnitNoSpaceRegEx = /^(\d+\.*\d*)(\D+)$/i
+
+export function parseTipAmount(
   msgOrInteraction: Message | CommandInteraction,
   amountArg: string
-): Promise<{ all: boolean; amount: number }> {
+): { all: boolean; amount: number; unit?: string } {
   const author = getAuthor(msgOrInteraction)
-  const result = {
+  const result: { all: boolean; amount: number; unit?: string } = {
     all: false,
     amount: parseFloat(amountArg),
   }
@@ -382,6 +385,22 @@ export async function parseTipAmount(
       result.amount = 0
       result.all = true
       break
+
+    case amountUnitNoSpaceRegEx.test(amountArg): {
+      const regExResult = amountArg.match(amountUnitNoSpaceRegEx)
+      if (!regExResult)
+        throw new DiscordWalletTransferError({
+          discordId: author.id,
+          message: msgOrInteraction,
+          error: "The amount is invalid. Please insert a positive number.",
+          title: "Invalid amount",
+        })
+
+      const [amount, unit] = regExResult.slice(1)
+      result.amount = parseFloat(amount)
+      result.unit = unit
+      break
+    }
 
     // invalid amount
     case isNaN(result.amount) || result.amount <= 0:

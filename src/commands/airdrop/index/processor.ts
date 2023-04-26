@@ -247,7 +247,7 @@ async function getAirdropArgs(i: CommandInteraction) {
   const entries = i.options.getNumber("entries")
 
   // get amount
-  const { amount: parsedAmount, all } = await parseTipAmount(i, amountArg)
+  const { amount: parsedAmount, all } = parseTipAmount(i, amountArg)
   // check if unit is a valid token ...
   const isToken = await isTokenSupported(unit)
   let moniker
