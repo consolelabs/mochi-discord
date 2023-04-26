@@ -256,7 +256,7 @@ function buildMyNftFields(data: any): any {
       name: `${getEmoji(`VAULT_NFT`)} ${nft.collection_name} (${nft.chain}) ${
         nft.total
       }`,
-      value: `${nftElements}`,
+      value: `${nftElements === "" ? "\u200b" : nftElements}`,
       inline: true,
     }
   })
@@ -287,7 +287,7 @@ function buildRecentTxFields(data: any): any {
   return [
     {
       name: `Recent Transaction`,
-      value: valueRecentTx,
+      value: valueRecentTx === "" ? "\u200b" : valueRecentTx,
       inline: false,
     },
   ]
@@ -303,7 +303,7 @@ function buildTreasurerFields(data: any): any {
   return [
     {
       name: `Treasurer (${data.treasurer.length})`,
-      value: valueTreasurer,
+      value: valueTreasurer === "" ? "\u200b" : valueTreasurer,
       inline: false,
     },
   ]
