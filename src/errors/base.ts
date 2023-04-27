@@ -5,6 +5,7 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { logger } from "logger"
+import { kafkaQueue } from "queue/kafka/queue"
 import { getEmoji, msgColors } from "utils/common"
 
 export type OriginalMessage =
@@ -17,8 +18,8 @@ type ReplyFunc = (otps: any) => Promise<void>
 // Base or "catch-all" error, do not throw this directly
 export class BotBaseError extends Error {
   protected msgOrInteraction?: OriginalMessage
-  protected reply: ReplyFunc = async () => {
-    return
+  protected reply: ReplyFunc = () => {
+    return Promise.resolve()
   }
   protected user = "Unknown"
   protected userId = ""
@@ -60,10 +61,12 @@ export class BotBaseError extends Error {
   }
 
   handle() {
-    logger.error({
+    const error = {
       name: this.name,
       message: this.message,
-    })
+    }
+    logger.error(error)
+    kafkaQueue?.produceProfileMsg([JSON.parse(this.message)]).catch(() => null)
     this.reply({
       embeds: [
         {

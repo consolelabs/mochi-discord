@@ -101,7 +101,8 @@ export async function getBalances(
   if (!ok) {
     throw new APIError({
       msgOrInteraction: msg,
-      curl: "",
+      curl: res[0].curl,
+      description: "Couldn't get balance",
     })
   }
   return res[0].data.concat(res[1]?.data).filter((i: any) => Boolean(i))

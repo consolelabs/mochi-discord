@@ -96,8 +96,8 @@ const command: SlashCommand = {
         },
       }
     }
-    let description
-    if (res.error.toLowerCase().includes("role has been used")) {
+    let description = res.error
+    if (description.toLowerCase().includes("role has been used")) {
       description = res.error
     }
     return {

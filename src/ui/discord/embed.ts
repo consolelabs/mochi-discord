@@ -295,7 +295,7 @@ export function getSuccessEmbed(params: {
 // TODO: remove after slash command migration done
 export function getErrorEmbed(params: {
   title?: string
-  description?: string
+  description: string
   thumbnail?: string
   msg?: Message
   image?: string
@@ -317,9 +317,7 @@ export function getErrorEmbed(params: {
       title ?? "Command error",
       emojiUrl ?? getEmojiURL(emojis["REVOKE"]),
     ],
-    description:
-      description ??
-      `Our team is fixing the issue. Stay tuned ${getEmoji("NEKOSAD")}.`,
+    description,
     image,
     thumbnail,
     color: description ? params.color ?? msgColors.GRAY : msgColors.ERROR,

@@ -70,7 +70,7 @@ export async function runAddTreasurer({
     })
   }
 
-  if (statusAddTreasurerReq === 400) {
+  if (statusAddTreasurerReq === 400 && originalErrorAddTreasurerReq) {
     return {
       messageOptions: {
         embeds: [
@@ -186,7 +186,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     })
   }
 
-  if (status === 400) {
+  if (status === 400 && originalError) {
     return {
       messageOptions: {
         embeds: [

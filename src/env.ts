@@ -60,6 +60,8 @@ export const KAFKA_BROKERS = process.env.KAFKA_BROKERS || "localhost:9092"
 export const KAFKA_TOPIC = process.env.KAFKA_TOPIC || "testTopic"
 export const KAFKA_ACTIVITY_PROFILE_TOPIC =
   process.env.KAFKA_ACTIVITY_PROFILE_TOPIC || "testTopic"
+export const KAFKA_PROFILE_TOPIC =
+  process.env.KAFKA_PROFILE_TOPIC || "testTopic"
 export const KAFKA_NOTIFICATION_TOPIC =
   process.env.KAFKA_NOTIFICATION_TOPIC || "testTopic"
 export const KAFKA_CLIENT_ID = process.env.KAFKA_CLIENT_ID || "mochiDiscord"

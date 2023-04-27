@@ -46,7 +46,11 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
   const input = interaction.values[0]
   const [baseId, targetId, days] = input.split("_")
   if (!message.guildId) {
-    return { messageOptions: { embeds: [getErrorEmbed({ msg: message })] } }
+    return {
+      messageOptions: {
+        embeds: [getErrorEmbed({ msg: message, description: "Not in guild" })],
+      },
+    }
   }
   const { ok, data } = await CacheManager.get({
     pool: "ticker",
@@ -57,7 +61,9 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
   if (!ok) {
     await message.removeAttachments()
     return {
-      messageOptions: { embeds: [getErrorEmbed({ msg: message })] },
+      messageOptions: {
+        embeds: [getErrorEmbed({ msg: message, description: "No data" })],
+      },
     }
   }
 

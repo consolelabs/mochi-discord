@@ -124,7 +124,7 @@ const event: DiscordEvent<"interactionCreate"> = {
         await handleButtonInteraction(interaction)
       }
       if (interaction.isCommand()) {
-        await handleCommandInteraction(interaction)
+        handleCommandInteraction(interaction)
       }
     })
   },
@@ -132,13 +132,15 @@ const event: DiscordEvent<"interactionCreate"> = {
 
 export default event
 
-async function handleCommandInteraction(interaction: Interaction) {
+function handleCommandInteraction(interaction: Interaction) {
   wrapError(interaction, async () => {
     const benchmarkStart = process.hrtime()
     const i = interaction as CommandInteraction
     const command = slashCommands[i.commandName]
     if (!command) {
-      await i.reply({ embeds: [getErrorEmbed({})] })
+      await i.reply({
+        embeds: [getErrorEmbed({ description: "Command not found" })],
+      })
       return
     }
     let subcommand = ""

@@ -163,7 +163,7 @@ const command: Command = {
       } else {
         return {
           messageOptions: {
-            embeds: [getErrorEmbed({})],
+            embeds: [getErrorEmbed({ description: configs.error })],
           },
         }
       }
@@ -182,7 +182,9 @@ const command: Command = {
         })
       }
       return {
-        messageOptions: { embeds: [getErrorEmbed({ msg })] },
+        messageOptions: {
+          embeds: [getErrorEmbed({ msg, description: res.error })],
+        },
       }
     }
   },

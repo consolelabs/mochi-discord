@@ -7,6 +7,7 @@ import querystring from "query-string"
 import { Pagination } from "types/common"
 import { convertToSnakeCase } from "./fetcher-utils"
 import toCurl from "fetch-to-curl"
+import { kafkaQueue } from "queue/kafka/queue"
 
 function makeLog({
   query,
@@ -170,6 +171,7 @@ export class Fetcher {
       })
       if (!res.ok) {
         logger.error(log)
+        await kafkaQueue.produceProfileMsg([log])
 
         const json = await (res as ErrResponse).json()
         json.originalError = json.error
@@ -205,6 +207,7 @@ export class Fetcher {
         query: querystring.stringify({}),
       })
       logger.error(log)
+      await kafkaQueue.produceProfileMsg([log])
       return {
         ok: false,
         data: null,

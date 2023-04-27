@@ -72,7 +72,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
     curl: cfgCurl,
   } = await community.getGuildConfigDaoProposal(guild_id)
   if (!cfgOk) {
-    throw new APIError({ curl: cfgCurl, error: cfgErr })
+    throw new APIError({ curl: cfgCurl, description: cfgErr })
   }
 
   // create proposal, generate discussion channel and get id
@@ -84,7 +84,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
     voting_channel_id: cfgData.proposal_channel_id ?? "",
   })
   if (!ok) {
-    throw new APIError({ curl, error })
+    throw new APIError({ curl, description: error })
   }
 
   await i.editReply({
@@ -187,7 +187,7 @@ function checkExpiredProposal(
         creator_id
       )
       if (!ok) {
-        throw new APIError({ curl, error })
+        throw new APIError({ curl, description: error })
       }
 
       const voteYes = data.proposal?.points?.find(
