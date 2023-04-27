@@ -91,6 +91,7 @@ import trending from "./trending"
 import gainer from "./gainer"
 import loser from "./loser"
 import transaction from "./transaction"
+import admin from "./admin"
 
 CacheManager.init({
   ttl: 0,
@@ -99,6 +100,7 @@ CacheManager.init({
 })
 
 export const slashCommands: Record<string, SlashCommand> = {
+  admin: admin.slashCmd,
   feedback: feedback.slashCmd,
   ticker: ticker.slashCmd,
   help: help.slashCmd,
