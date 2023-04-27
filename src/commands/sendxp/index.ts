@@ -48,7 +48,7 @@ const slashCmd: SlashCommand = {
           .setDescription("users or roles Example: @John")
           .setRequired(true)
       )
-      .addNumberOption((option) =>
+      .addIntegerOption((option) =>
         option
           .setName("amount")
           .setDescription("amount of xp to send. Example: 10")

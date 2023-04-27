@@ -37,7 +37,7 @@ const slashCmd: SlashCommand = {
             "duration in seconds, minutes (default) or hour (max 1 hour). Example: 5m, 1hr, 20m 10secs, etc..."
           )
       )
-      .addNumberOption((option) =>
+      .addIntegerOption((option) =>
         option
           .setName("entries")
           .setDescription("max entries count. Example: 5")

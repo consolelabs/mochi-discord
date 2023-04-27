@@ -25,10 +25,10 @@ const command: SlashCommand = {
           .setDescription("role which you want to configure")
           .setRequired(true)
       )
-      .addNumberOption((option) =>
+      .addIntegerOption((option) =>
         option
           .setName("amount")
-          .setDescription("number of nft addresses")
+          .setDescription("number of nfts")
           .setRequired(true)
       )
       .addStringOption((option) =>
