@@ -276,29 +276,32 @@ export function getTargets(args: string[]): {
     lastIdx: -1,
     valid: false,
   }
-  args.forEach((a: string, idx: number) => {
-    const selector = TIP_TARGET_TEXT_SELECTOR_MAPPINGS.find((s) =>
-      equalIgnoreCase(s[0], a)
+
+  const content = args.join(SPACE)
+  for (const [idx, a] of args.entries()) {
+    const selector = TIP_TARGET_TEXT_SELECTOR_MAPPINGS.find(
+      (s) =>
+        s[0].startsWith(a.toLowerCase()) && content.toLowerCase().includes(s[0])
     )
     // target is one of the selectors "TIP_TARGET_TEXT_SELECTOR_MAPPINGS"
     if (selector) {
       result.targets.push(selector[1])
-      result.lastIdx = idx
+      result.lastIdx = +idx + selector[0].split(SPACE).length - 1
       result.valid = true
-      if (result.firstIdx === -1) result.firstIdx = idx
-      return
+      if (result.firstIdx === -1) result.firstIdx = +idx
+      break
     }
 
     // targets are users / roles / channels
     const { isRole, isChannel, isUser } = parseDiscordToken(a)
     if (isRole || isChannel || isUser) {
       result.targets.push(a)
-      result.lastIdx = idx
+      result.lastIdx = +idx
       result.valid = true
-      if (result.firstIdx === -1) result.firstIdx = idx
-      return
+      if (result.firstIdx === -1) result.firstIdx = +idx
+      continue
     }
-  })
+  }
 
   // no recipients
   if (!result.targets.length) result.valid = false
