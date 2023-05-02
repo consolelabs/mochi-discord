@@ -240,7 +240,7 @@ function showConfirmation(
   }
 }
 
-async function getAirdropArgs(i: CommandInteraction) {
+export async function getAirdropArgs(i: CommandInteraction) {
   const amountArg = i.options.getString("amount", true)
   const unit = i.options.getString("token", true)
   let durationArg = i.options.getString("duration") ?? "3m"
