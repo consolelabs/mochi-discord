@@ -167,6 +167,7 @@ describe("airdrop", () => {
     jest
       .spyOn(processor, "getAirdropArgs")
       .mockResolvedValueOnce(mockParsedArgs)
+    jest.spyOn(tipbot, "getBalances").mockResolvedValueOnce([])
 
     await expect(processor.airdrop(i)).rejects.toThrow(
       new InsufficientBalanceError({

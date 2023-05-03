@@ -38,6 +38,7 @@ import { convertString } from "../../../utils/convert"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { reply } from "../../../utils/discord"
 import { confirmationHandler, tokenSelectionHandler } from "./handler"
+import * as processor from "./processor"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -49,7 +50,8 @@ export const airdropCache = new NodeCache({
 })
 
 export async function airdrop(i: CommandInteraction) {
-  const { amount, token, duration, entries, all } = await getAirdropArgs(i)
+  const { amount, token, duration, entries, all } =
+    await processor.getAirdropArgs(i)
 
   // get sender balances
   const balances = await getBalances({ msgOrInteraction: i, token })
