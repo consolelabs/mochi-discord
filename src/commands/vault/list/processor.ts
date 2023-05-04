@@ -5,6 +5,7 @@ import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { EmojiKey, getEmoji, msgColors } from "utils/common"
+import { getSlashCommand } from "utils/commands"
 
 export async function runVaultList({
   msg,
@@ -46,7 +47,7 @@ export async function runVaultList({
   description += `\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} View detail of the vault \`/vault <name>\``
+  )} View detail of the vault </vault info:${await getSlashCommand("vault")}>`
 
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("MOCHI_CIRCLE")} Vault List`)

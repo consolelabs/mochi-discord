@@ -5,6 +5,7 @@ import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, hasAdministrator, msgColors } from "utils/common"
 import { getErrorEmbed } from "ui/discord/embed"
+import { getSlashCommand } from "utils/commands"
 
 export async function runCreateThreshold({
   i,
@@ -47,7 +48,9 @@ export async function runCreateThreshold({
   }%\` for approval\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} Set or change vault threshold by run \`/vault config threshold\``
+  )} Set or change vault threshold by run </vault config threshold:${await getSlashCommand(
+    "vault"
+  )}>`
   const embed = new MessageEmbed()
     .setTitle(
       `${getEmoji("CHECK")} Vault threshold successfully changed${getEmoji(
