@@ -107,8 +107,13 @@ export async function runGetVaultDetail({
     })
   }
 
+  const walletAddress =
+    data.wallet_address !== ""
+      ? `**Wallet Address**\n\`\`\`${data.wallet_address}\`\`\``
+      : ""
+
   let description = `
-  **Wallet Address**\n\`\`\`${data.wallet_address}\`\`\`
+  ${walletAddress}
   **Current Request**\n
   `
   data.current_request.forEach((request: any) => {
