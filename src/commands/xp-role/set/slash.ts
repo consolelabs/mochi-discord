@@ -22,7 +22,7 @@ const command: SlashCommand = {
           .setDescription("role which you want to configure")
           .setRequired(true)
       )
-      .addNumberOption((option) =>
+      .addIntegerOption((option) =>
         option
           .setName("amount")
           .setDescription("amount of xp required")

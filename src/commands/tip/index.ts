@@ -118,15 +118,16 @@ const textCmd: Command = {
   getHelpMessage: () => getHelpMessage(),
   canRunWithoutAction: true,
   colorType: "Defi",
-  minArguments: 4,
+  minArguments: 3,
+  aliases: ["send"],
 }
 
 const slashCmd: SlashCommand = {
   name: "tip",
   category: "Defi",
-  prepare: () => {
+  prepare: (alias = "tip") => {
     return new SlashCommandBuilder()
-      .setName("tip")
+      .setName(alias)
       .setDescription("Send coins to a user or a group of users")
       .addStringOption((option) =>
         option
