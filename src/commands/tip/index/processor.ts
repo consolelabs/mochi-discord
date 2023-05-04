@@ -108,7 +108,7 @@ export async function tip(
   return
 }
 
-async function selectToken(
+export async function selectToken(
   msgOrInteraction: Message | CommandInteraction,
   balances: any,
   payload: any
@@ -236,7 +236,7 @@ function showSuccesfulResponse(
   return { messageOptions: { embeds: [embed], components: [] } }
 }
 
-async function parseTipArgs(
+export async function parseTipArgs(
   msgOrInteraction: Message | CommandInteraction,
   args: string[]
 ): Promise<{
@@ -306,7 +306,7 @@ async function parseTipArgs(
   return { targets, amount, symbol, each, message, all, image }
 }
 
-async function validateAndTransfer(
+export async function validateAndTransfer(
   msgOrInteraction: Message | CommandInteraction,
   payload: TransferPayload,
   balance: any
