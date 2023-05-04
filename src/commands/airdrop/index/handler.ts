@@ -12,8 +12,6 @@ import {
   User,
 } from "discord.js"
 import { wrapError } from "utils/wrap-error"
-import defi from "../../../adapters/defi"
-import { APIError } from "../../../errors"
 import { RunResult } from "../../../types/common"
 import { AirdropOptions, TransferPayload } from "../../../types/transfer"
 import { composeEmbedMessage } from "../../../ui/discord/embed"
@@ -74,16 +72,18 @@ async function confirmAirdrop(
 
   const author = i.user
   const { duration, entries } = opts
-  const { amount, usd_amount = 0, token } = payload
+  const { total_amount, usd_amount = 0, token } = payload
   const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
   const endTime = dayjs()
     .add(+duration, "second")
     .toDate()
   const airdropEmbed = composeEmbedMessage(null, {
     author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
-    description: `${author} left an airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${formatDigit(
-      usd_amount.toString(),
-      4
+    description: `${author} left an airdrop of ${tokenEmoji} **${total_amount} ${token}** (${APPROX} $${formatDigit(
+      {
+        value: usd_amount.toString(),
+        maximumFractionDigits: 4,
+      }
     )})${
       entries
         ? ` for ${entries && entries > 1 ? `${entries} people` : "1 person"}`
@@ -118,14 +118,14 @@ async function confirmAirdrop(
   }
 }
 
-async function checkExpiredAirdrop(
+function checkExpiredAirdrop(
   i: ButtonInteraction,
   cacheKey: string,
   payload: TransferPayload,
   opts: AirdropOptions
 ) {
-  const { token, amount_string = "", usd_amount = 0 } = payload
-  const amount = +amount_string
+  const { token, total_amount = "", usd_amount = 0 } = payload
+  const amount = +total_amount
   const { entries } = opts
   airdropCache.on("expired", (key, participants: string[]) => {
     wrapError(null, async () => {
@@ -166,29 +166,27 @@ async function checkExpiredAirdrop(
       // there are participants(s)
       // proceed to transfer
       payload.recipients = participants.map((p) => parseDiscordToken(p).value)
-      const { ok, data, curl, log } = await defi.offchainDiscordTransfer(
-        payload
-      )
-      if (!ok) {
-        await msg
-          .edit({
-            embeds: [
-              composeEmbedMessage(null, {
-                author: ["Airdrop error", getEmojiURL(emojis.REVOKE)],
-                description:
-                  "This airdrop encountered an error, please try again later",
-                color: msgColors.ERROR,
-              }),
-            ],
-            components: [],
-          })
-          .catch(() => null)
+      // const { ok, curl, log } = await defi.offchainDiscordTransfer(payload)
+      // if (!ok) {
+      //   await msg
+      //     .edit({
+      //       embeds: [
+      //         composeEmbedMessage(null, {
+      //           author: ["Airdrop error", getEmojiURL(emojis.REVOKE)],
+      //           description:
+      //             "This airdrop encountered an error, please try again later",
+      //           color: msgColors.ERROR,
+      //         }),
+      //       ],
+      //       components: [],
+      //     })
+      //     .catch(() => null)
 
-        throw new APIError({ msgOrInteraction: i, description: log, curl })
-      }
+      //   throw new APIError({ msgOrInteraction: i, description: log, curl })
+      // }
 
       // send airdrop results to author + participants
-      sendRecipientsDm(i, participants, token, data.amount_each.toString())
+      sendRecipientsDm(i, participants, token, payload.each_amount)
       sendAuthorDm(i, participants.length, token, amount)
 
       const description = `${
@@ -239,7 +237,7 @@ function sendRecipientsDm(
       ],
       description: `You have received ${APPROX} ${getEmoji(
         token as TokenEmojiKey
-      )} ${formatDigit(amountEach)} ${token} from ${
+      )} ${formatDigit({ value: amountEach })} ${token} from ${
         i.user
       }'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
         "ANIMATED_WITHDRAW",

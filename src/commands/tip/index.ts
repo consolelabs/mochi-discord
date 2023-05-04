@@ -162,13 +162,6 @@ const slashCmd: SlashCommand = {
       .addStringOption((option) =>
         option.setName("message").setDescription("message when tip recipients")
       )
-      .addMentionableOption((option) =>
-        option
-          .setName("eacha")
-          .setDescription(
-            "Same amount is for each recipient. Seperate amount is divided equally"
-          )
-      )
   },
   run: tipSlash,
   help: () => getHelpMessage(true),

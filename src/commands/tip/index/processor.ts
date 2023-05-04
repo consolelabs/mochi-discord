@@ -7,7 +7,6 @@ import {
   User,
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
-import { APIError } from "errors/api"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -27,21 +26,22 @@ import { isMessage, reply } from "utils/discord"
 import {
   getBalances,
   getTargets,
+  isAmountTooLow,
   isInTipRange,
   isTokenSupported,
   parseMessageTip,
   parseMoniker,
   parseRecipients,
   parseTipAmount,
+  rejectTooLowSplitTransferAmount,
+  rejectTooLowTransferAmount,
 } from "utils/tip-bot"
-import defi from "../../../adapters/defi"
 import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { RunResult } from "../../../types/common"
 import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { APPROX } from "../../../utils/constants"
-import { convertString } from "../../../utils/convert"
-import { formatDigit, isValidTipAmount } from "../../../utils/defi"
+import { formatDigit } from "../../../utils/defi"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -85,7 +85,9 @@ export async function tip(
     recipients: [...new Set(recipients)],
     guild_id: msgOrInteraction.guildId ?? "",
     channel_id: msgOrInteraction.channelId,
-    amount,
+    float_amount: amount,
+    total_amount: "0",
+    each_amount: "0",
     token: symbol,
     each,
     all,
@@ -98,6 +100,18 @@ export async function tip(
   // only one matching token -> proceed to send tip
   if (balances.length === 1) {
     const balance = balances[0]
+    const decimal = balance.token?.decimal ?? 0
+    const eachAmount =
+      payload.float_amount / (payload.each ? 1 : payload.recipients.length)
+    const totalAmount = eachAmount * payload.recipients.length
+    payload.total_amount = formatDigit({
+      value: `${totalAmount}`,
+      maximumFractionDigits: decimal,
+    })
+    payload.each_amount = formatDigit({
+      value: `${eachAmount}`,
+      maximumFractionDigits: decimal,
+    })
     const result = await validateAndTransfer(msgOrInteraction, payload, balance)
     await reply(msgOrInteraction, result)
     return
@@ -124,6 +138,18 @@ async function selectToken(
         equalIgnoreCase(b.token?.symbol, payload.token) &&
         payload.chain_id === b.token?.chain?.chain_id
     )
+    const decimal = balance.token?.decimal ?? 0
+    const eachAmount =
+      payload.float_amount / (payload.each ? 1 : payload.recipients.length)
+    const totalAmount = eachAmount * payload.recipients.length
+    payload.total_amount = formatDigit({
+      value: `${totalAmount}`,
+      maximumFractionDigits: decimal,
+    })
+    payload.each_amount = formatDigit({
+      value: `${eachAmount}`,
+      maximumFractionDigits: decimal,
+    })
     return validateAndTransfer(msgOrInteraction, payload, balance)
   }
 
@@ -169,28 +195,27 @@ function composeTokenSelectionResponse(
 
 async function transfer(
   msgOrInteraction: Message | CommandInteraction,
-  payload: any
+  payload: TransferPayload
 ) {
   // send transfer request
-  const { data, ok, curl, log } = await defi.offchainDiscordTransfer(payload)
-  if (!ok) {
-    throw new APIError({ msgOrInteraction, curl, description: log })
-  }
+  // const { ok, curl, log } = await defi.offchainDiscordTransfer(payload)
+  // if (!ok) {
+  //   throw new APIError({ msgOrInteraction, curl, description: log })
+  // }
 
   // respond with successful message
-  return showSuccesfulResponse(payload, data)
+  return showSuccesfulResponse(payload)
 }
 
 function showSuccesfulResponse(
-  payload: any,
-  res: any
+  payload: TransferPayload
 ): RunResult<MessageOptions> {
-  const users = payload.targets.join(", ")
-  const isOnline = payload.targets.includes("online")
-  const hasRole = payload.targets.some(
+  const users = payload.targets?.join(", ")
+  const isOnline = payload.targets?.includes("online")
+  const hasRole = payload.targets?.some(
     (t: string) => parseDiscordToken(t).isRole
   )
-  const hasChannel = payload.targets.some(
+  const hasChannel = payload.targets?.some(
     (t: string) => parseDiscordToken(t).isChannel
   )
   let recipientDescription = users
@@ -201,7 +226,7 @@ function showSuccesfulResponse(
       isOnline && !hasRole && !hasChannel
         ? ""
         : ` in ${payload.targets
-            .filter((t: string) => t.toLowerCase() !== "online")
+            ?.filter((t: string) => t.toLowerCase() !== "online")
             .filter(
               (t: string) =>
                 parseDiscordToken(t).isChannel || parseDiscordToken(t).isRole
@@ -211,11 +236,12 @@ function showSuccesfulResponse(
   }
   let description = `${userMention(
     payload.sender
-  )} has sent ${recipientDescription} **${formatDigit(
-    res.amount_each.toString(),
-    18
-  )} ${payload.token}** (${APPROX} $${roundFloatNumber(
-    payload.usd_amount,
+  )} has sent ${recipientDescription} **${formatDigit({
+    value: payload.each_amount,
+    maximumFractionDigits: 18,
+    getAllFractions: true,
+  })} ${payload.token}** (${APPROX} $${roundFloatNumber(
+    payload.usd_amount ?? 0,
     4
   )}) ${payload.recipients.length > 1 ? "each" : ""}`
   if (payload.message) {
@@ -242,6 +268,7 @@ async function parseTipArgs(
 ): Promise<{
   targets: string[]
   amount: number
+  amount_string: string
   symbol: string
   message: string
   image: string
@@ -260,11 +287,12 @@ async function parseTipArgs(
 
   // amount: comes after targets
   const amountIdx = lastTargetIdx + 1
+  const amountArg = args[amountIdx]
   const {
     amount: parsedAmount,
     all,
     unit: parsedUnit,
-  } = parseTipAmount(msgOrInteraction, args[amountIdx])
+  } = parseTipAmount(msgOrInteraction, amountArg)
 
   // unit: comes after amount
   let unitIdx = amountIdx + 1
@@ -303,7 +331,16 @@ async function parseTipArgs(
   const { message: msg } = isMessage(msgOrInteraction)
   const image = msg ? msg.attachments.first()?.url ?? "" : ""
 
-  return { targets, amount, symbol, each, message, all, image }
+  return {
+    targets,
+    amount,
+    amount_string: amountArg,
+    symbol,
+    each,
+    message,
+    all,
+    image,
+  }
 }
 
 async function validateAndTransfer(
@@ -312,36 +349,52 @@ async function validateAndTransfer(
   balance: any
 ) {
   const decimal = balance.token?.decimal ?? 0
-  const current = convertString(balance?.amount, decimal) ?? 0
+  const current = +balance.amount / Math.pow(10, decimal)
+  const totalAmount = +payload.total_amount
 
   // validate balance
-  if (current < payload.amount) {
+  if (current < totalAmount) {
     throw new InsufficientBalanceError({
       msgOrInteraction,
       params: {
         current,
-        required: payload.amount,
+        required: totalAmount,
         symbol: payload.token as TokenEmojiKey,
       },
     })
   }
-  payload.amount = payload.all ? current : payload.amount
 
-  // validate maximum fraction digits of amount
-  if (!isValidTipAmount(payload.amount.toString(), decimal)) {
-    throw new DiscordWalletTransferError({
-      message: msgOrInteraction,
-      error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
+  if (payload.all) {
+    payload.total_amount = formatDigit({
+      value: current.toString(),
+      maximumFractionDigits: decimal,
+      getAllFractions: true,
+    })
+    const amountEach = current / payload.recipients.length
+    payload.each_amount = formatDigit({
+      value: amountEach.toString(),
+      maximumFractionDigits: decimal,
+      getAllFractions: true,
     })
   }
 
+  // validate total_amount
+  if (!isAmountTooLow(+payload.total_amount, decimal)) {
+    rejectTooLowTransferAmount(msgOrInteraction, payload.token)
+  }
+
+  // validate each_amount
+  if (!isAmountTooLow(+payload.each_amount, decimal)) {
+    rejectTooLowSplitTransferAmount(msgOrInteraction, payload.token)
+  }
+
   // validate tip range
-  const usdAmount = payload.amount * balance.token?.price
+  const usdAmount = +payload.total_amount * balance.token?.price
   await isInTipRange(msgOrInteraction, usdAmount)
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
-  payload.amount_string = formatDigit(payload.amount.toString(), decimal)
   payload.usd_amount = usdAmount
+  console.log({ payload })
   return transfer(msgOrInteraction, payload)
 }

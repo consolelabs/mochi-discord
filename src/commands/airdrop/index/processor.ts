@@ -7,7 +7,6 @@ import {
   MessageButton,
   MessageOptions,
 } from "discord.js"
-import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import NodeCache from "node-cache"
 import parse from "parse-duration"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -23,10 +22,13 @@ import {
 import { APPROX } from "utils/constants"
 import {
   getBalances,
+  isAmountTooLow,
   isInTipRange,
   isTokenSupported,
   parseMoniker,
   parseTipAmount,
+  rejectTooLowSplitTransferAmount,
+  rejectTooLowTransferAmount,
 } from "utils/tip-bot"
 import { InternalError } from "../../../errors"
 import { InsufficientBalanceError } from "../../../errors/insufficient-balance"
@@ -34,8 +36,7 @@ import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { RunResult } from "../../../types/common"
 import { AirdropOptions, TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
-import { convertString } from "../../../utils/convert"
-import { formatDigit, isValidTipAmount } from "../../../utils/defi"
+import { formatDigit } from "../../../utils/defi"
 import { reply } from "../../../utils/discord"
 import { confirmationHandler, tokenSelectionHandler } from "./handler"
 
@@ -68,7 +69,9 @@ export async function airdrop(i: CommandInteraction) {
     platform: "discord",
     guild_id: i.guildId ?? "",
     channel_id: i.channelId,
-    amount,
+    float_amount: amount,
+    total_amount: "0",
+    each_amount: "0",
     token,
     all,
     transfer_type: "airdrop",
@@ -98,36 +101,47 @@ export async function validateAndShowConfirmation(
   opts: AirdropOptions
 ) {
   const decimal = balance.token?.decimal ?? 0
-  const current = convertString(balance?.amount, decimal) ?? 0
+  const current = +balance.amount / Math.pow(10, decimal)
+  const totalAmount = +payload.total_amount
 
   // validate balance
-  if (current < payload.amount) {
+  if (current < totalAmount) {
     throw new InsufficientBalanceError({
       msgOrInteraction: ci,
       params: {
         current,
-        required: payload.amount,
+        required: totalAmount,
         symbol: payload.token as TokenEmojiKey,
       },
     })
   }
-  payload.amount = payload.all ? current : payload.amount
+  if (payload.all) {
+    payload.total_amount = formatDigit({ value: current.toString() })
+    const amountEach = current / payload.recipients.length
+    payload.each_amount = formatDigit({ value: amountEach.toString() })
+  }
 
-  // validate maximum fraction digits of amount
-  if (!isValidTipAmount(payload.amount.toString(), decimal)) {
-    throw new DiscordWalletTransferError({
-      message: ci,
-      error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
-    })
+  // validate total_amount
+  if (!isAmountTooLow(+payload.total_amount, decimal)) {
+    rejectTooLowTransferAmount(ci, payload.token)
+  }
+
+  // validate each_amount
+  if (!isAmountTooLow(+payload.each_amount, decimal)) {
+    rejectTooLowSplitTransferAmount(ci, payload.token)
   }
 
   // validate tip range
-  const usdAmount = payload.amount * balance.token?.price
+  const tokenAmount = +payload.total_amount / Math.pow(10, decimal)
+  const usdAmount = tokenAmount * balance.token?.price
   await isInTipRange(ci, usdAmount)
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
-  payload.amount_string = formatDigit(payload.amount.toString(), decimal)
+  // payload.total_amount_string = formatDigit({
+  //   value: tokenAmount.toString(),
+  //   maximumFractionDigits: decimal,
+  // })
   payload.usd_amount = usdAmount
   payload.token_price = balance.token?.price
   return showConfirmation(ci, payload, opts)
@@ -206,9 +220,12 @@ function showConfirmation(
   opts: AirdropOptions
 ): RunResult<MessageOptions> {
   const tokenEmoji = getEmojiToken(payload.token as TokenEmojiKey)
-  const usdAmount = payload.amount * (payload.token_price ?? 0)
-  const formattedUsd = roundFloatNumber(usdAmount, 4)
-  const formattedAmount = formatDigit(payload.amount.toString(), 18)
+  // const usdAmount = payload.amount * (payload.token_price ?? 0)
+  const formattedUsd = roundFloatNumber(payload.usd_amount ?? 0, 4)
+  const formattedAmount = formatDigit({
+    value: payload.total_amount,
+    maximumFractionDigits: 18,
+  })
   const amountDescription = `${tokenEmoji} **${formattedAmount} ${payload.token}** (${APPROX} $${formattedUsd})`
 
   const confirmEmbed = composeEmbedMessage(null, {

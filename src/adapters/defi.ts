@@ -2,7 +2,6 @@ import { FTMSCAN_API_KEY } from "env"
 import fetch from "node-fetch"
 import {
   RequestCreateTipConfigNotify,
-  RequestOffchainTransferRequest,
   ResponseGetNftWatchlistResponse,
   ResponseGetSupportedTokenResponse,
   ResponseNftWatchlistSuggestResponse,
@@ -16,6 +15,7 @@ import {
   INDEXER_API_BASE_URL,
   POLYGONSCAN_API,
 } from "utils/constants"
+import { TransferPayload } from "../types/transfer"
 import { Fetcher } from "./fetcher"
 
 class Defi extends Fetcher {
@@ -184,7 +184,7 @@ class Defi extends Fetcher {
     })
   }
 
-  async offchainDiscordTransfer(req: RequestOffchainTransferRequest) {
+  async offchainDiscordTransfer(req: TransferPayload) {
     return await this.jsonFetch(`${API_BASE_URL}/tip/transfer`, {
       method: "POST",
       body: req,

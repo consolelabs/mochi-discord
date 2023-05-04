@@ -5,22 +5,33 @@ import mochiPay from "../adapters/mochi-pay"
 import { getAuthor, TokenEmojiKey } from "./common"
 import { convertString } from "./convert"
 import { getProfileIdByDiscord } from "./profile"
+import { COMMA } from "./constants"
 
-export function formatDigit(str: string, fractionDigits = 6, force = false) {
-  const num = Number(str)
-  const s = num.toLocaleString(undefined, { maximumFractionDigits: 18 })
+export function formatDigit({
+  value,
+  maximumFractionDigits = 6,
+  withoutCommas = false,
+  getAllFractions = false,
+}: {
+  value: string
+  maximumFractionDigits?: number
+  withoutCommas?: boolean
+  getAllFractions?: boolean
+}) {
+  const num = Number(value)
+  const s = num.toLocaleString(undefined, { maximumFractionDigits })
   const [left, right = ""] = s.split(".")
-  if (Number(right) === 0 || right === "" || left.length >= 4) return left
+  if (Number(right) === 0 || right === "" || left.length >= 4) {
+    return withoutCommas ? left.replaceAll(COMMA, "") : left
+  }
   const numsArr = right.split("")
   let rightStr = numsArr.shift() as string
-  if (!force) {
-    while (Number(rightStr) === 0 || rightStr.length < fractionDigits) {
-      const nextDigit = numsArr.shift()
-      if (nextDigit === undefined) break
-      rightStr += nextDigit
-    }
-  } else {
-    rightStr += numsArr.slice(0, fractionDigits - 1)
+
+  while (Number(rightStr) === 0 || getAllFractions) {
+    const nextDigit = numsArr.shift()
+    if (nextDigit === undefined) break
+    rightStr += nextDigit
+    if (rightStr.length > maximumFractionDigits) break
   }
   while (rightStr.endsWith("0")) {
     rightStr = rightStr.slice(0, rightStr.length - 1)
@@ -29,7 +40,7 @@ export function formatDigit(str: string, fractionDigits = 6, force = false) {
 }
 
 export function isValidTipAmount(str: string, decimal: number) {
-  const s = formatDigit(str, decimal)
+  const s = formatDigit({ value: str, maximumFractionDigits: decimal })
   if (s === "0") return false
   const numOfFracDigits = s.split(".")[1]?.length ?? 0
   return numOfFracDigits <= decimal

@@ -460,3 +460,28 @@ export async function getBalances({
   }
   return data.filter((b: any) => b.amount !== "0")
 }
+
+export function rejectTooLowSplitTransferAmount(
+  msgOrInteraction: Message | CommandInteraction,
+  token: string
+) {
+  throw new DiscordWalletTransferError({
+    message: msgOrInteraction,
+    error: `You cannot split this amount of ${token} among this many people.`,
+  })
+}
+
+export function rejectTooLowTransferAmount(
+  msgOrInteraction: Message | CommandInteraction,
+  token: string
+) {
+  throw new DiscordWalletTransferError({
+    message: msgOrInteraction,
+    error: `Amount too low for ${token}.`,
+  })
+}
+
+export function isAmountTooLow(amount: number, decimal: number) {
+  const minAmount = 1 * Math.pow(10, decimal)
+  return amount < minAmount
+}

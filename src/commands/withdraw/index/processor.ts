@@ -152,7 +152,10 @@ export async function withdraw(
         error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
       })
     }
-    payload.amount_string = formatDigit(amount.toString(), decimal)
+    payload.amount_string = formatDigit({
+      value: amount.toString(),
+      maximumFractionDigits: decimal,
+    })
     payload.chainId = balance.token?.chain?.chain_id
     await executeWithdraw(msgOrInteraction, payload)
     return
@@ -245,7 +248,10 @@ async function selectTokenToWithdraw(
       })
     }
     payload.amount = payload.amount.toString()
-    payload.amount_string = formatDigit(payload.amount.toString(), decimal)
+    payload.amount_string = formatDigit({
+      value: payload.amount.toString(),
+      maximumFractionDigits: decimal,
+    })
     await executeWithdraw(msgOrInteraction, payload)
   }
 

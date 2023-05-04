@@ -7,7 +7,9 @@ export type TransferPayload = {
   platform?: "discord"
   guild_id: string
   channel_id: string
-  amount: number
+  float_amount: number
+  total_amount: string
+  each_amount: string
   token: string
   each?: boolean
   all?: boolean
@@ -16,7 +18,7 @@ export type TransferPayload = {
   image?: string
   chain_id: string
   usd_amount?: number
-  amount_string?: string
+  total_amount_string?: string
   token_price?: number
 }
 
