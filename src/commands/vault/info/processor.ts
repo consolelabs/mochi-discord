@@ -107,8 +107,13 @@ export async function runGetVaultDetail({
     })
   }
 
+  const walletAddress =
+    data.wallet_address !== ""
+      ? `**Wallet Address**\n\`\`\`${data.wallet_address}\`\`\``
+      : ""
+
   let description = `
-  **Wallet Address**\n\`\`\`${data.wallet_address}\`\`\`
+  ${walletAddress}
   **Current Request**\n
   `
   data.current_request.forEach((request: any) => {
@@ -124,13 +129,16 @@ export async function runGetVaultDetail({
   const recentTxFields = buildRecentTxFields(data)
 
   // build est total fields
-  const estimatedTotalFields = [
-    {
-      name: "Estimated total (U.S dollar)",
-      value: `${getEmoji("CASH")} \`$${data.estimated_total}\``,
-      inline: false,
-    },
-  ]
+  const estimatedTotalFields =
+    data.estimated_total !== ""
+      ? [
+          {
+            name: "Estimated total (U.S dollar)",
+            value: `${getEmoji("CASH")} \`$${data.estimated_total}\``,
+            inline: false,
+          },
+        ]
+      : []
 
   fields = balanceFields
     .concat(myNftTitleFields)
@@ -224,11 +232,7 @@ function buildBalanceFields(data: any): any {
     }
     balanceFields.push(resBalance[i])
   }
-  balanceFields.push({
-    name: "\u200b",
-    value: "\u200b",
-    inline: true,
-  })
+
   return balanceFields
 }
 
@@ -237,6 +241,11 @@ function buildMyNftTitleFields(data: any): any {
   for (let i = 0; i < data.my_nft.length; i++) {
     totalNft += data.my_nft[i].total
   }
+
+  if (totalNft === 0) {
+    return []
+  }
+
   return [
     {
       name: `My NFT (${totalNft})`,
@@ -271,11 +280,6 @@ function buildMyNftFields(data: any): any {
     }
     myNftFields.push(resMyNft[i])
   }
-  myNftFields.push({
-    name: "\u200b",
-    value: "\u200b",
-    inline: true,
-  })
   return myNftFields
 }
 
