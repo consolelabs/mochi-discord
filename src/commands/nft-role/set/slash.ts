@@ -63,7 +63,7 @@ const command: SlashCommand = {
       .split(",")
     const tokenId = interaction.options.getString("tokenid", false)
     const role = interaction.options.getRole("role", true)
-    const amount = interaction.options.getNumber("amount", true)
+    const amount = interaction.options.getInteger("amount", true)
     if (Number.isNaN(amount) || amount < 0 || amount >= Infinity)
       return {
         messageOptions: {
