@@ -40,7 +40,6 @@ import { RunResult } from "../../../types/common"
 import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { APPROX } from "../../../utils/constants"
-import { convertString } from "../../../utils/convert"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 
 export async function tip(
@@ -312,10 +311,10 @@ export async function validateAndTransfer(
   balance: any
 ) {
   const decimal = balance.token?.decimal ?? 0
-  const current = convertString(balance?.amount, decimal) ?? 0
+  const current = +balance.amount / Math.pow(10, decimal)
 
   // validate balance
-  if (current < payload.amount) {
+  if (current < payload.amount && !payload.all) {
     throw new InsufficientBalanceError({
       msgOrInteraction,
       params: {

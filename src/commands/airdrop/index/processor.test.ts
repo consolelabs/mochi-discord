@@ -23,7 +23,7 @@ describe("getAirdropArgs", () => {
       .fn()
       .mockReturnValueOnce("1")
       .mockReturnValueOnce("COFFEE")
-    i.options.getNumber = jest.fn().mockReturnValueOnce(1) // entries
+    i.options.getInteger = jest.fn().mockReturnValueOnce(1) // entries
     jest.spyOn(tipbot, "parseTipAmount").mockReturnValueOnce(mockTipAmount)
     jest
       .spyOn(tipbot, "isTokenSupported")
@@ -45,7 +45,7 @@ describe("getAirdropArgs", () => {
       .mockReturnValueOnce("1")
       .mockReturnValueOnce("FTM")
       .mockReturnValueOnce("3s")
-    i.options.getNumber = jest.fn().mockReturnValueOnce(1) // entries
+    i.options.getInteger = jest.fn().mockReturnValueOnce(1) // entries
     jest.spyOn(tipbot, "parseTipAmount").mockReturnValueOnce(mockTipAmount)
     jest
       .spyOn(tipbot, "isTokenSupported")
@@ -78,7 +78,7 @@ describe("getAirdropArgs", () => {
       .mockReturnValueOnce("1")
       .mockReturnValueOnce("FTM")
       .mockReturnValueOnce("3")
-    i.options.getNumber = jest.fn().mockReturnValueOnce(1) // entries
+    i.options.getInteger = jest.fn().mockReturnValueOnce(1) // entries
     jest.spyOn(tipbot, "parseTipAmount").mockReturnValueOnce(mockTipAmount)
     jest
       .spyOn(tipbot, "isTokenSupported")
@@ -105,7 +105,7 @@ describe("getAirdropArgs", () => {
       .mockReturnValueOnce("1")
       .mockReturnValueOnce("FTM")
       .mockReturnValueOnce("1.5h")
-    i.options.getNumber = jest.fn().mockReturnValueOnce(1) // entries
+    i.options.getInteger = jest.fn().mockReturnValueOnce(1) // entries
     jest.spyOn(tipbot, "parseTipAmount").mockReturnValueOnce(mockTipAmount)
     jest
       .spyOn(tipbot, "isTokenSupported")
@@ -139,7 +139,7 @@ describe("getAirdropArgs", () => {
       .fn()
       .mockReturnValueOnce("a")
       .mockReturnValueOnce("coffee")
-    i.options.getNumber = jest.fn().mockReturnValueOnce(10) // entries
+    i.options.getInteger = jest.fn().mockReturnValueOnce(10) // entries
     jest.spyOn(tipbot, "parseTipAmount").mockReturnValueOnce(mockTipAmount)
     jest
       .spyOn(tipbot, "isTokenSupported")

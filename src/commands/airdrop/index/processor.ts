@@ -34,7 +34,6 @@ import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { RunResult } from "../../../types/common"
 import { AirdropOptions, TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
-import { convertString } from "../../../utils/convert"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { reply } from "../../../utils/discord"
 import { confirmationHandler, tokenSelectionHandler } from "./handler"
@@ -100,10 +99,10 @@ export async function validateAndShowConfirmation(
   opts: AirdropOptions
 ) {
   const decimal = balance.token?.decimal ?? 0
-  const current = convertString(balance?.amount, decimal) ?? 0
+  const current = +balance.amount / Math.pow(10, decimal)
 
   // validate balance
-  if (current < payload.amount) {
+  if (current < payload.amount && !payload.all) {
     throw new InsufficientBalanceError({
       msgOrInteraction: ci,
       params: {
@@ -185,7 +184,7 @@ async function selectToken(
   })
 
   // reply
-  reply(ci, {
+  await reply(ci, {
     messageOptions: { embeds: [embed], components: [selectRow] },
     selectMenuCollector: {
       handler: tokenSelectionHandler(ci, payload, balances, opts),
@@ -246,7 +245,7 @@ export async function getAirdropArgs(i: CommandInteraction) {
   const amountArg = i.options.getString("amount", true)
   const unit = i.options.getString("token", true)
   let durationArg = i.options.getString("duration") ?? "3m"
-  const entries = i.options.getNumber("entries")
+  const entries = i.options.getInteger("entries")
 
   // get amount
   const { amount: parsedAmount, all } = parseTipAmount(i, amountArg)
@@ -290,7 +289,7 @@ export async function getAirdropArgs(i: CommandInteraction) {
       msgOrInteraction: i,
       title: "Invalid entries",
       description:
-        "The max entries can’t be a decimal. Please insert a integer greater or equal to 1.",
+        "The max entries can't be a decimal. Please insert a integer greater or equal to 1.",
     })
   }
 

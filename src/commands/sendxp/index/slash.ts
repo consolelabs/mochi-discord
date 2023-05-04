@@ -4,7 +4,7 @@ import { InternalError } from "errors"
 
 const run = async (interaction: CommandInteraction) => {
   const targets = interaction.options.getString("recipients")
-  const amount = interaction.options.getNumber("amount")
+  const amount = interaction.options.getInteger("amount")
   const each = interaction.options.getBoolean("each") ?? false
   if (!targets || !amount) {
     throw new InternalError({
