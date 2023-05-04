@@ -2,11 +2,11 @@ import {
   CommandInteraction,
   Message,
   MessageComponentInteraction,
-  SelectMenuInteraction,
 } from "discord.js"
 import { logger } from "logger"
 import { kafkaQueue } from "queue/kafka/queue"
 import { getEmoji, msgColors } from "utils/common"
+import { stack } from "utils/stack-trace"
 
 export type OriginalMessage =
   | Message
@@ -29,19 +29,25 @@ export class BotBaseError extends Error {
   constructor(message?: OriginalMessage, errorMessage?: string) {
     super()
     this.name = "Something went wrong (unexpected error)"
+    let command = ""
     if (message) {
       const reply = (message.reply as ReplyFunc).bind(message)
       this.reply = async (...args) => {
-        if (
-          message instanceof CommandInteraction ||
-          message instanceof SelectMenuInteraction
-        ) {
-          const replyMsg = await message.editReply(...args).catch(() => null)
-          if (!replyMsg) {
-            reply(...args).catch(() => null)
-          }
-        } else {
+        if (message instanceof Message) {
+          command = message.content
           reply(...args).catch(() => null)
+        } else {
+          if (message.isCommand()) {
+            command = message.toString()
+          } else {
+            const msg = message.message as Message
+            const originalMsg = await msg.fetchReference()
+            command = originalMsg.content
+            const replyMsg = await message.editReply(...args).catch(() => null)
+            if (!replyMsg) {
+              reply(...args).catch(() => null)
+            }
+          }
         }
       }
 
@@ -52,10 +58,16 @@ export class BotBaseError extends Error {
       this.user = "author" in message ? message.author?.tag : message.user?.tag
       this.userId = "author" in message ? message.author?.id : message.user?.id
       this.message = JSON.stringify({
-        guild: this.guild,
-        channel: this.channel,
+        guild_id: this.guild,
+        channel_id: this.channel,
         user: this.user,
         message: errorMessage ?? "",
+        command,
+      })
+    } else if (errorMessage) {
+      this.message = JSON.stringify({
+        log: errorMessage,
+        stack: stack.clean(this.stack ?? ""),
       })
     }
   }

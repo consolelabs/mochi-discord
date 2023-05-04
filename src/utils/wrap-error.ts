@@ -12,7 +12,7 @@ function catchAll(e: any) {
 }
 
 export async function wrapError(
-  msg: Message | Interaction | null,
+  msg: Message | Interaction | Record<string, any>,
   func: () => Promise<void>
 ) {
   try {
@@ -119,5 +119,6 @@ export async function wrapError(
       return
     }
     logger.error(`[wrapError] ${func.name}() error: ${e}`)
+    await kafkaQueue?.produceAnalyticMsg([msg]).catch(() => null)
   }
 }

@@ -8,6 +8,7 @@ import { Pagination } from "types/common"
 import { convertToSnakeCase } from "./fetcher-utils"
 import toCurl from "fetch-to-curl"
 import { kafkaQueue } from "queue/kafka/queue"
+import { stack } from "utils/stack-trace"
 
 function makeLog({
   query,
@@ -171,7 +172,14 @@ export class Fetcher {
       })
       if (!res.ok) {
         logger.error(log)
-        await kafkaQueue.produceAnalyticMsg([log])
+
+        if (res.status === 500) {
+          const message = JSON.stringify({
+            log,
+            stack: stack.clean(new Error().stack ?? ""),
+          })
+          await kafkaQueue?.produceAnalyticMsg([message])
+        }
 
         const json = await (res as ErrResponse).json()
         json.originalError = json.error
@@ -207,7 +215,11 @@ export class Fetcher {
         query: querystring.stringify({}),
       })
       logger.error(log)
-      await kafkaQueue.produceAnalyticMsg([log])
+      const message = JSON.stringify({
+        log,
+        stack: stack.clean(new Error().stack ?? ""),
+      })
+      await kafkaQueue?.produceAnalyticMsg([message])
       return {
         ok: false,
         data: null,

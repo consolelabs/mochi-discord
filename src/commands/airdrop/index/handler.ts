@@ -128,7 +128,7 @@ async function checkExpiredAirdrop(
   const amount = +amount_string
   const { entries } = opts
   airdropCache.on("expired", (key, participants: string[]) => {
-    wrapError(null, async () => {
+    wrapError(i, async () => {
       if (key !== cacheKey) {
         return
       }

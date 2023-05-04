@@ -1,5 +1,3 @@
-import { getErrorEmbed } from "ui/discord/embed"
-import { msgColors } from "utils/common"
 import { BotBaseError, OriginalMessage } from "./base"
 
 export class APIError extends BotBaseError {
@@ -24,13 +22,6 @@ export class APIError extends BotBaseError {
   }
 
   handle() {
-    this.reply?.({
-      embeds: [
-        getErrorEmbed({
-          description: this.specificError,
-          color: msgColors.ERROR,
-        }),
-      ],
-    })
+    return
   }
 }
