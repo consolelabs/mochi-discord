@@ -5,6 +5,7 @@ import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, hasAdministrator, msgColors } from "utils/common"
 import { getErrorEmbed } from "ui/discord/embed"
+import { getSlashCommand } from "utils/commands"
 
 export async function runCreateVault({
   i,
@@ -45,13 +46,13 @@ export async function runCreateVault({
   }%\`\n\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} See all vaults \`/vault list\`\n${getEmoji(
+  )} See all vaults </vault list:${await getSlashCommand("vault")}>\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} See detail a vault \`/vault <name>\``
+  )} See detail a vault </vault info:${await getSlashCommand("vault")}>`
 
   const embed = new MessageEmbed()
-    .setTitle(`${getEmoji("CHECK")}**${data.name} vault successflly created**`)
+    .setTitle(`${getEmoji("CHECK")}**${data.name} vault successfully created**`)
     .setDescription(description)
     .setColor(msgColors.MOCHI)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })

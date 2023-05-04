@@ -124,13 +124,16 @@ export async function runGetVaultDetail({
   const recentTxFields = buildRecentTxFields(data)
 
   // build est total fields
-  const estimatedTotalFields = [
-    {
-      name: "Estimated total (U.S dollar)",
-      value: `${getEmoji("CASH")} \`$${data.estimated_total}\``,
-      inline: false,
-    },
-  ]
+  const estimatedTotalFields =
+    data.estimated_total !== ""
+      ? [
+          {
+            name: "Estimated total (U.S dollar)",
+            value: `${getEmoji("CASH")} \`$${data.estimated_total}\``,
+            inline: false,
+          },
+        ]
+      : []
 
   fields = balanceFields
     .concat(myNftTitleFields)
@@ -224,11 +227,7 @@ function buildBalanceFields(data: any): any {
     }
     balanceFields.push(resBalance[i])
   }
-  balanceFields.push({
-    name: "\u200b",
-    value: "\u200b",
-    inline: true,
-  })
+
   return balanceFields
 }
 
@@ -237,6 +236,11 @@ function buildMyNftTitleFields(data: any): any {
   for (let i = 0; i < data.my_nft.length; i++) {
     totalNft += data.my_nft[i].total
   }
+
+  if (totalNft === 0) {
+    return []
+  }
+
   return [
     {
       name: `My NFT (${totalNft})`,
@@ -271,11 +275,6 @@ function buildMyNftFields(data: any): any {
     }
     myNftFields.push(resMyNft[i])
   }
-  myNftFields.push({
-    name: "\u200b",
-    value: "\u200b",
-    inline: true,
-  })
   return myNftFields
 }
 
