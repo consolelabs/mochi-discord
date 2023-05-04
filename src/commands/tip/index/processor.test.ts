@@ -117,107 +117,103 @@ describe("parseTipArgs", () => {
     expect(output).toStrictEqual(expected)
   })
 
-  // test("Positive - Moniker found", async () => {
-  //   const args: string[] = [
-  //     "tip",
-  //     "<@333116155826929671>",
-  //     "a",
-  //     "coffee",
-  //     "test message",
-  //   ]
-  //   const getTargetsRes = {
-  //     valid: true,
-  //     targets: ["<@333116155826929671>"],
-  //     lastIdx: 1,
-  //     firstIdx: 1,
-  //   }
-  //   const parseTipAmountRes = {
-  //     all: false,
-  //     amount: 1,
-  //   }
-  //   const isTokenSupportedRes = false
-  //   const parseMonikerRes = {
-  //     moniker: {
-  //       amount: 0.4,
-  //       moniker: "coffee",
-  //       plural: "coffee",
-  //     },
-  //     value: 1,
-  //   }
-  //   jest.spyOn(tipbot, "getTargets").mockReturnValueOnce(getTargetsRes)
-  //   jest
-  //     .spyOn(tipbot, "parseTipAmount")
-  //     .mockResolvedValueOnce(parseTipAmountRes)
-  //   jest
-  //     .spyOn(tipbot, "isTokenSupported")
-  //     .mockResolvedValueOnce(isTokenSupportedRes)
-  //   jest.spyOn(tipbot, "parseMoniker").mockResolvedValueOnce(parseMonikerRes)
-  //   jest.spyOn(tipbot, "parseMessageTip").mockReturnValueOnce("test message")
+  test("Positive - Moniker found", async () => {
+    const args: string[] = [
+      "tip",
+      "<@333116155826929671>",
+      "a",
+      "coffee",
+      "test message",
+    ]
+    const getTargetsRes = {
+      valid: true,
+      targets: ["<@333116155826929671>"],
+      lastIdx: 1,
+      firstIdx: 1,
+    }
+    const parseTipAmountRes = {
+      all: false,
+      amount: 1,
+    }
+    const isTokenSupportedRes = false
+    const parseMonikerRes = {
+      moniker: {
+        amount: 0.4,
+        moniker: "coffee",
+        plural: "coffee",
+      },
+      value: 1,
+    }
+    jest.spyOn(tipbot, "getTargets").mockReturnValueOnce(getTargetsRes)
+    jest.spyOn(tipbot, "parseTipAmount").mockReturnValueOnce(parseTipAmountRes)
+    jest
+      .spyOn(tipbot, "isTokenSupported")
+      .mockResolvedValueOnce(isTokenSupportedRes)
+    jest.spyOn(tipbot, "parseMoniker").mockResolvedValueOnce(parseMonikerRes)
+    jest.spyOn(tipbot, "parseMessageTip").mockReturnValueOnce("test message")
 
-  //   const expected = {
-  //     targets: getTargetsRes.targets,
-  //     amount: 0.4,
-  //     symbol: "COFFEE",
-  //     each: false,
-  //     message: "test message",
-  //     all: false,
-  //     image: "",
-  //   }
-  //   const output = await processor.parseTipArgs(msg, args)
-  //   expect(output).toStrictEqual(expected)
-  // })
+    const expected = {
+      targets: getTargetsRes.targets,
+      amount: 0.4,
+      symbol: "COFFEE",
+      each: false,
+      message: "test message",
+      all: false,
+      image: "",
+    }
+    const output = await processor.parseTipArgs(msg, args)
+    expect(output).toStrictEqual(expected)
+  })
 
-  // test("Positive - moniker found & with each", async () => {
-  //   const args: string[] = [
-  //     "tip",
-  //     "<@333116155826929671>",
-  //     "<@333116155826929672>",
-  //     "a",
-  //     "coffee",
-  //     "test message",
-  //     "each",
-  //   ]
-  //   const getTargetsRes = {
-  //     valid: true,
-  //     targets: ["<@333116155826929671>, <@333116155826929672>"],
-  //     lastIdx: 2,
-  //     firstIdx: 1,
-  //   }
-  //   const parseTipAmountRes = {
-  //     all: false,
-  //     amount: 1,
-  //   }
-  //   const isTokenSupportedRes = false
-  //   const parseMonikerRes = {
-  //     moniker: {
-  //       amount: 0.4,
-  //       moniker: "coffee",
-  //       plural: "coffee",
-  //     },
-  //     value: 1,
-  //   }
-  //   jest.spyOn(tipbot, "getTargets").mockReturnValueOnce(getTargetsRes)
-  //   jest
-  //     .spyOn(tipbot, "parseTipAmount")
-  //     .mockResolvedValueOnce(parseTipAmountRes)
-  //   jest
-  //     .spyOn(tipbot, "isTokenSupported")
-  //     .mockResolvedValueOnce(isTokenSupportedRes)
-  //   jest.spyOn(tipbot, "parseMoniker").mockResolvedValueOnce(parseMonikerRes)
-  //   jest.spyOn(tipbot, "parseMessageTip").mockReturnValueOnce("test message")
+  test("Positive - moniker found & with each", async () => {
+    const args: string[] = [
+      "tip",
+      "<@333116155826929671>",
+      "<@333116155826929672>",
+      "a",
+      "coffee",
+      "test message",
+      "each",
+    ]
+    const getTargetsRes = {
+      valid: true,
+      targets: ["<@333116155826929671>, <@333116155826929672>"],
+      lastIdx: 2,
+      firstIdx: 1,
+    }
+    const parseTipAmountRes = {
+      all: false,
+      amount: 1,
+    }
+    const isTokenSupportedRes = false
+    const parseMonikerRes = {
+      moniker: {
+        amount: 0.4,
+        moniker: "coffee",
+        plural: "coffee",
+      },
+      value: 1,
+    }
+    jest.spyOn(tipbot, "getTargets").mockReturnValueOnce(getTargetsRes)
+    jest.spyOn(tipbot, "parseTipAmount").mockReturnValueOnce(parseTipAmountRes)
+    jest
+      .spyOn(tipbot, "isTokenSupported")
+      .mockResolvedValueOnce(isTokenSupportedRes)
+    jest.spyOn(tipbot, "parseMoniker").mockResolvedValueOnce(parseMonikerRes)
+    jest.spyOn(tipbot, "parseMessageTip").mockReturnValueOnce("test message")
 
-  //   const expected = {
-  //     targets: getTargetsRes.targets,
-  //     amount: 0.4,
-  //     symbol: "COFFEE",
-  //     each: false,
-  //     message: "test message",
-  //     all: false,
-  //     image: "",
-  //   }
-  //   const output = await processor.parseTipArgs(msg, args)
-  //   expect(output).toStrictEqual(expected)
-  // })
+    const expected = {
+      targets: getTargetsRes.targets,
+      amount: 0.4,
+      symbol: "COFFEE",
+      each: false,
+      message: "test message",
+      all: false,
+      image: "",
+    }
+    const output = await processor.parseTipArgs(msg, args)
+    expect(output).toStrictEqual(expected)
+  })
 })
 
 describe("tip", () => {
