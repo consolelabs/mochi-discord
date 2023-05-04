@@ -264,15 +264,6 @@ export async function execute(
   msgOrInteraction: Message | CommandInteraction,
   payload: any
 ): Promise<RunResult<MessageOptions>> {
-  const { status: transferStatus } = await mochiPay.transfer(payload)
-  if (transferStatus !== 200) {
-    throw new APIError({
-      msgOrInteraction,
-      curl: "",
-      description: `[transfer] failed with status ${transferStatus}`,
-    })
-  }
-
   // create pay link
   const res: any = await mochiPay.generatePaymentCode({
     profileId: payload.from.profile_global_id,
