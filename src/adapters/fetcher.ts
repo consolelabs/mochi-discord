@@ -9,6 +9,7 @@ import { convertToSnakeCase } from "./fetcher-utils"
 import toCurl from "fetch-to-curl"
 import { kafkaQueue } from "queue/kafka/queue"
 import { stack } from "utils/stack-trace"
+import { TEST } from "env"
 
 function makeLog({
   query,
@@ -176,7 +177,7 @@ export class Fetcher {
         if (res.status === 500) {
           const message = JSON.stringify({
             log,
-            stack: stack.clean(new Error().stack ?? ""),
+            stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
           })
           await kafkaQueue?.produceAnalyticMsg([message])
         }
@@ -217,7 +218,7 @@ export class Fetcher {
       logger.error(log)
       const message = JSON.stringify({
         log,
-        stack: stack.clean(new Error().stack ?? ""),
+        stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
       })
       await kafkaQueue?.produceAnalyticMsg([message])
       return {

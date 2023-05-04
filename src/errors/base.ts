@@ -3,6 +3,7 @@ import {
   Message,
   MessageComponentInteraction,
 } from "discord.js"
+import { TEST } from "env"
 import { logger } from "logger"
 import { kafkaQueue } from "queue/kafka/queue"
 import { getEmoji, msgColors } from "utils/common"
@@ -67,7 +68,7 @@ export class BotBaseError extends Error {
     } else if (errorMessage) {
       this.message = JSON.stringify({
         log: errorMessage,
-        stack: stack.clean(this.stack ?? ""),
+        stack: TEST ? "" : stack.clean(this.stack ?? ""),
       })
     }
   }
