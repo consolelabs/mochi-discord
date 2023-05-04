@@ -91,13 +91,6 @@ describe("parseTipArgs", () => {
     const isTokenSupportedRes = true
     jest.spyOn(tipbot, "getTargets").mockReturnValueOnce(getTargetsRes)
     jest.spyOn(tipbot, "parseTipAmount").mockReturnValueOnce(parseTipAmountRes)
-    // jest.spyOn(tipbot, "parseTipAmount").mockImplementationOnce(
-    //   async (): Promise<{
-    //     all: boolean
-    //     amount: number
-    //     unit?: string | undefined
-    //   }> => parseTipAmountRes
-    // )
     jest
       .spyOn(tipbot, "isTokenSupported")
       .mockResolvedValueOnce(isTokenSupportedRes)
