@@ -66,7 +66,7 @@ export class BotBaseError extends Error {
       message: this.message,
     }
     logger.error(error)
-    kafkaQueue?.produceProfileMsg([JSON.parse(this.message)]).catch(() => null)
+    kafkaQueue?.produceAnalyticMsg([JSON.parse(this.message)]).catch(() => null)
     this.reply({
       embeds: [
         {

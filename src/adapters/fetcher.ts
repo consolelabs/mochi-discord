@@ -171,7 +171,7 @@ export class Fetcher {
       })
       if (!res.ok) {
         logger.error(log)
-        await kafkaQueue.produceProfileMsg([log])
+        await kafkaQueue.produceAnalyticMsg([log])
 
         const json = await (res as ErrResponse).json()
         json.originalError = json.error
@@ -207,7 +207,7 @@ export class Fetcher {
         query: querystring.stringify({}),
       })
       logger.error(log)
-      await kafkaQueue.produceProfileMsg([log])
+      await kafkaQueue.produceAnalyticMsg([log])
       return {
         ok: false,
         data: null,
