@@ -98,7 +98,7 @@ async function confirmAirdrop(
   const cacheKey = `airdrop-${i.message.id}`
   airdropCache.set(cacheKey, [], opts.duration)
 
-  await checkExpiredAirdrop(i, cacheKey, payload, opts)
+  checkExpiredAirdrop(i, cacheKey, payload, opts)
 
   const buttonRow = new MessageActionRow().addComponents(
     new MessageButton({
@@ -118,7 +118,7 @@ async function confirmAirdrop(
   }
 }
 
-async function checkExpiredAirdrop(
+function checkExpiredAirdrop(
   i: ButtonInteraction,
   cacheKey: string,
   payload: TransferPayload,
@@ -129,76 +129,77 @@ async function checkExpiredAirdrop(
   const { entries } = opts
   airdropCache.on("expired", (key, participants: string[]) => {
     wrapError(i, async () => {
-      if (key !== cacheKey) {
-        return
-      }
-
-      // remove cache
-      airdropCache.del(key)
-
-      // avoid race condition, num. of participants might exceed max entries
-      if (entries) participants = participants.slice(0, entries)
-
-      const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
-      const embed = composeEmbedMessage(null, {
-        author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
-        footer: [`${participants.length} users joined, ended`],
-        originalMsgAuthor: i.user,
-      })
-      // edit original msg
-      const msg = i.message as Message
-      // if no one joins airdrop, no transfer happens
-      if (!participants?.length) {
-        const description = `${
-          i.user
-        }'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${roundFloatNumber(
-          usd_amount,
-          4
-        )}) has not been collected by anyone ${getEmoji(
-          "ANIMATED_SHRUGGING",
-          true
-        )}.`
-        embed.setDescription(description)
-        msg.edit({ embeds: [embed], components: [] })
-        return
-      }
-
-      // there are participants(s)
-      // proceed to transfer
-      payload.recipients = participants.map((p) => parseDiscordToken(p).value)
-      const { ok, data, curl, log } = await defi.offchainDiscordTransfer(
-        payload
-      )
-      if (!ok) {
-        await msg
-          .edit({
-            embeds: [
-              composeEmbedMessage(null, {
-                author: ["Airdrop error", getEmojiURL(emojis.REVOKE)],
-                description:
-                  "This airdrop encountered an error, please try again later",
-                color: msgColors.ERROR,
-              }),
-            ],
-            components: [],
-          })
-          .catch(() => null)
-
-        throw new APIError({ msgOrInteraction: i, description: log, curl })
-      }
-
-      // send airdrop results to author + participants
-      sendRecipientsDm(i, participants, token, data.amount_each.toString())
-      sendAuthorDm(i, participants.length, token, amount)
-
-      const description = `${
-        i.user
-      }'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${roundFloatNumber(
-        usd_amount,
-        4
-      )}) has been collected by ${participants.join(",")}!`
-      embed.setDescription(description)
-      msg.edit({ embeds: [embed], components: [] })
+      throw new Error("airdrop boom")
+      // if (key !== cacheKey) {
+      //   return
+      // }
+      //
+      // // remove cache
+      // airdropCache.del(key)
+      //
+      // // avoid race condition, num. of participants might exceed max entries
+      // if (entries) participants = participants.slice(0, entries)
+      //
+      // const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
+      // const embed = composeEmbedMessage(null, {
+      //   author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
+      //   footer: [`${participants.length} users joined, ended`],
+      //   originalMsgAuthor: i.user,
+      // })
+      // // edit original msg
+      // const msg = i.message as Message
+      // // if no one joins airdrop, no transfer happens
+      // if (!participants?.length) {
+      //   const description = `${
+      //     i.user
+      //   }'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${roundFloatNumber(
+      //     usd_amount,
+      //     4
+      //   )}) has not been collected by anyone ${getEmoji(
+      //     "ANIMATED_SHRUGGING",
+      //     true
+      //   )}.`
+      //   embed.setDescription(description)
+      //   msg.edit({ embeds: [embed], components: [] })
+      //   return
+      // }
+      //
+      // // there are participants(s)
+      // // proceed to transfer
+      // payload.recipients = participants.map((p) => parseDiscordToken(p).value)
+      // const { ok, data, curl, log } = await defi.offchainDiscordTransfer(
+      //   payload
+      // )
+      // if (!ok) {
+      //   await msg
+      //     .edit({
+      //       embeds: [
+      //         composeEmbedMessage(null, {
+      //           author: ["Airdrop error", getEmojiURL(emojis.REVOKE)],
+      //           description:
+      //             "This airdrop encountered an error, please try again later",
+      //           color: msgColors.ERROR,
+      //         }),
+      //       ],
+      //       components: [],
+      //     })
+      //     .catch(() => null)
+      //
+      //   throw new APIError({ msgOrInteraction: i, description: log, curl })
+      // }
+      //
+      // // send airdrop results to author + participants
+      // sendRecipientsDm(i, participants, token, data.amount_each.toString())
+      // sendAuthorDm(i, participants.length, token, amount)
+      //
+      // const description = `${
+      //   i.user
+      // }'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${roundFloatNumber(
+      //   usd_amount,
+      //   4
+      // )}) has been collected by ${participants.join(",")}!`
+      // embed.setDescription(description)
+      // msg.edit({ embeds: [embed], components: [] })
     })
   })
 }

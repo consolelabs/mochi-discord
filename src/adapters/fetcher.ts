@@ -10,6 +10,10 @@ import toCurl from "fetch-to-curl"
 import { kafkaQueue } from "queue/kafka/queue"
 import { stack } from "utils/stack-trace"
 import { TEST } from "env"
+import {
+  slashCommandAsyncStore,
+  textCommandAsyncStore,
+} from "utils/async-storages"
 
 function makeLog({
   query,
@@ -175,8 +179,13 @@ export class Fetcher {
         logger.error(log)
 
         if (res.status === 500) {
+          const id =
+            (textCommandAsyncStore.getStore() ||
+              slashCommandAsyncStore.getStore()) ??
+            ""
           const message = JSON.stringify({
-            log,
+            ...(id ? JSON.parse(id) : {}),
+            error: log,
             stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
           })
           await kafkaQueue?.produceAnalyticMsg([message])
@@ -216,8 +225,13 @@ export class Fetcher {
         query: querystring.stringify({}),
       })
       logger.error(log)
+      const id =
+        (textCommandAsyncStore.getStore() ||
+          slashCommandAsyncStore.getStore()) ??
+        ""
       const message = JSON.stringify({
-        log,
+        ...(id ? JSON.parse(id) : {}),
+        error: log,
         stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
       })
       await kafkaQueue?.produceAnalyticMsg([message])

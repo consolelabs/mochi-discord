@@ -3,6 +3,7 @@ import { handlePrefixedCommand } from "commands"
 import { Message } from "discord.js"
 import { MessageTypes } from "discord.js/typings/enums"
 import tagme from "handlers/tagme"
+import { textCommandAsyncStore } from "utils/async-storages"
 import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "./index"
@@ -37,17 +38,31 @@ const events: DiscordEvent<"messageCreate"> = {
   name: "messageCreate",
   once: false,
   execute: async (message) => {
-    // deny handling if author is bot or message is empty (new user join server)
-    wrapError(message, async () => {
-      if (message.author.bot || (!message.content && !message.stickers.size))
-        return
-      if (message.content.startsWith(PREFIX)) {
-        await handlePrefixedCommand(message)
-        return
+    textCommandAsyncStore.run(
+      JSON.stringify({
+        guild_id: message.guildId || "DM",
+        channel_id: message.channelId,
+        discord_id: message.author.id,
+        command: message.content,
+        msg_id: message.id,
+      }),
+      () => {
+        // deny handling if author is bot or message is empty (new user join server)
+        wrapError(message, async () => {
+          if (
+            message.author.bot ||
+            (!message.content && !message.stickers.size)
+          )
+            return
+          if (message.content.startsWith(PREFIX)) {
+            await handlePrefixedCommand(message)
+            return
+          }
+          tagme.handle(message)
+          await handleNormalMessage(message)
+        })
       }
-      tagme.handle(message)
-      await handleNormalMessage(message)
-    })
+    )
   },
 }
 

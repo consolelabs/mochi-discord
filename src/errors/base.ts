@@ -2,10 +2,15 @@ import {
   CommandInteraction,
   Message,
   MessageComponentInteraction,
+  TextChannel,
 } from "discord.js"
 import { TEST } from "env"
 import { logger } from "logger"
 import { kafkaQueue } from "queue/kafka/queue"
+import {
+  slashCommandAsyncStore,
+  textCommandAsyncStore,
+} from "utils/async-storages"
 import { getEmoji, msgColors } from "utils/common"
 import { stack } from "utils/stack-trace"
 
@@ -23,77 +28,123 @@ export class BotBaseError extends Error {
     return Promise.resolve()
   }
   protected user = "Unknown"
-  protected userId = ""
   protected channel = "DM"
   protected guild = "DM"
+  private reference?: Promise<Message>
+  private messageObj?:
+    | {
+        guild_id: string
+        channel_id: string
+        discord_id: string
+        error: string
+        command: string
+      }
+    | {
+        log: string
+        stack: string
+      }
 
   constructor(message?: OriginalMessage, errorMessage?: string) {
     super()
     this.name = "Something went wrong (unexpected error)"
-    let command = ""
-    if (message) {
-      const reply = (message.reply as ReplyFunc).bind(message)
-      this.reply = async (...args) => {
+    this.msgOrInteraction = message
+
+    const id =
+      textCommandAsyncStore.getStore() || slashCommandAsyncStore.getStore()
+    if (id) {
+      this.messageObj = {
+        ...JSON.parse(id),
+        ...(errorMessage ? { error: errorMessage } : {}),
+      }
+    } else {
+      let command = ""
+      if (message) {
         if (message instanceof Message) {
           command = message.content
-          reply(...args).catch(() => null)
+        } else if (message.isCommand()) {
+          command = message.toString()
         } else {
-          if (message.isCommand()) {
-            command = message.toString()
-          } else {
-            const msg = message.message as Message
-            const originalMsg = await msg.fetchReference()
-            command = originalMsg.content
-            const replyMsg = await message.editReply(...args).catch(() => null)
-            if (!replyMsg) {
-              reply(...args).catch(() => null)
-            }
+          const msg = message.message as Message
+          if (msg.type === "DEFAULT") {
+            this.reference = msg.fetchReference()
+          }
+          if (
+            msg.type === "APPLICATION_COMMAND" &&
+            msg.interaction?.commandName
+          ) {
+            command = msg.interaction?.commandName
           }
         }
+
+        this.channel = (message.channel as TextChannel)?.id ?? "DM"
+        this.guild = message.guild?.id ?? "DM"
+        this.user = "author" in message ? message.author?.id : message.user?.id
+        this.messageObj = {
+          guild_id: this.guild,
+          channel_id: this.channel,
+          discord_id: this.user,
+          error: errorMessage ?? "",
+          command,
+        }
+      } else if (errorMessage) {
+        this.messageObj = {
+          log: errorMessage,
+          stack: TEST ? "" : stack.clean(this.stack ?? ""),
+        }
       }
-
-      this.msgOrInteraction = message
-
-      // this.channel = (message.channel as TextChannel)?.name ?? "DM"
-      // this.guild = message.guild?.name ?? "DM"
-      this.user = "author" in message ? message.author?.tag : message.user?.tag
-      this.userId = "author" in message ? message.author?.id : message.user?.id
-      this.message = JSON.stringify({
-        guild_id: this.guild,
-        channel_id: this.channel,
-        user: this.user,
-        message: errorMessage ?? "",
-        command,
-      })
-    } else if (errorMessage) {
-      this.message = JSON.stringify({
-        log: errorMessage,
-        stack: TEST ? "" : stack.clean(this.stack ?? ""),
-      })
     }
   }
 
-  handle() {
+  private _handle() {
     const error = {
       name: this.name,
       message: this.message,
     }
     logger.error(error)
     kafkaQueue?.produceAnalyticMsg([JSON.parse(this.message)]).catch(() => null)
-    this.reply({
-      embeds: [
-        {
-          author: {
-            name: "Error",
-            iconURL:
-              "https://cdn.discordapp.com/emojis/967285238055174195.png?size=240&quality=lossless",
+    if (this.msgOrInteraction) {
+      const message = this.msgOrInteraction
+      const reply = (message.reply as ReplyFunc).bind(message)
+      if (message instanceof Message) {
+        this.reply = async (...args) => {
+          await reply(...args).catch(() => null)
+        }
+      } else {
+        this.reply = async (...args) => {
+          await message.editReply(...args).catch(() => null)
+        }
+      }
+      this.reply({
+        embeds: [
+          {
+            author: {
+              name: "Error",
+              iconURL:
+                "https://cdn.discordapp.com/emojis/967285238055174195.png?size=240&quality=lossless",
+            },
+            description: `Our team is fixing the issue. Stay tuned ${getEmoji(
+              "NEKOSAD"
+            )}.`,
+            color: msgColors.ERROR,
           },
-          description: `Our team is fixing the issue. Stay tuned ${getEmoji(
-            "NEKOSAD"
-          )}.`,
-          color: msgColors.ERROR,
-        },
-      ],
-    })
+        ],
+        components: [],
+      })
+    }
+  }
+
+  handle() {
+    if (this.reference) {
+      this.reference.then((msg) => {
+        if (this.messageObj && "command" in this.messageObj) {
+          this.messageObj.command = msg.content
+          this.message = JSON.stringify(this.messageObj)
+          this._handle()
+        }
+      })
+    } else {
+      this.message = JSON.stringify(this.messageObj)
+      this._handle()
+    }
   }
 }

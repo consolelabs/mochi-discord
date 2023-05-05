@@ -66,6 +66,7 @@ import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
 } from "ui/discord/select-menu"
+import { slashCommandAsyncStore } from "utils/async-storages"
 import {
   authorFilter,
   getChance,
@@ -109,24 +110,41 @@ const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
   once: false,
   execute: async (interaction) => {
-    wrapError(interaction, async () => {
-      if (
-        !interaction.isSelectMenu() &&
-        !interaction.isButton() &&
-        !interaction.isCommand()
-      ) {
-        return
+    const id = interaction.isCommand()
+      ? interaction.toString()
+      : interaction.isSelectMenu() || interaction.isButton()
+      ? interaction.customId
+      : ""
+    if (!id) return
+    slashCommandAsyncStore.run(
+      JSON.stringify({
+        guild_id: interaction.guildId || "DM",
+        channel_id: interaction.channelId,
+        discord_id: interaction.user.id,
+        command: id,
+        interaction_id: interaction.id,
+      }),
+      () => {
+        wrapError(interaction, async () => {
+          if (
+            !interaction.isSelectMenu() &&
+            !interaction.isButton() &&
+            !interaction.isCommand()
+          ) {
+            return
+          }
+          if (interaction.isSelectMenu()) {
+            await handleSelectMenuInteraction(interaction)
+          }
+          if (interaction.isButton()) {
+            await handleButtonInteraction(interaction)
+          }
+          if (interaction.isCommand()) {
+            handleCommandInteraction(interaction)
+          }
+        })
       }
-      if (interaction.isSelectMenu()) {
-        await handleSelectMenuInteraction(interaction)
-      }
-      if (interaction.isButton()) {
-        await handleButtonInteraction(interaction)
-      }
-      if (interaction.isCommand()) {
-        handleCommandInteraction(interaction)
-      }
-    })
+    )
   },
 }
 

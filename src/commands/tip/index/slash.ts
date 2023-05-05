@@ -3,6 +3,7 @@ import { SPACES_REGEX } from "utils/constants"
 import { tip } from "./processor"
 
 const run = async (i: CommandInteraction) => {
+  throw new Error("tip boom")
   const users = i.options.getString("users", true).split(SPACES_REGEX)
   const amount = i.options.getNumber("amount", true).toString()
   const token = i.options.getString("token", true)
