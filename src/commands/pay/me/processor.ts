@@ -2,11 +2,13 @@ import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError } from "errors"
+import { KafkaNotificationMessage } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
   EmojiKey,
+  TokenEmojiKey,
   emojis,
   equalIgnoreCase,
   getAuthor,
@@ -14,14 +16,12 @@ import {
   getEmojiToken,
   getEmojiURL,
   isValidAmount,
-  TokenEmojiKey,
 } from "utils/common"
-import { reply } from "utils/discord"
-import community from "adapters/community"
-import { sendNotificationMsg } from "utils/kafka"
-import { KafkaNotificationMessage } from "types/common"
 import { MOCHI_ACTION_PAY_ME, MOCHI_PLATFORM_DISCORD } from "utils/constants"
 import { convertToUsdValue } from "utils/convert"
+import { reply } from "utils/discord"
+import { sendNotificationMsg } from "utils/kafka"
+import mochiTelegram from "../../../adapters/mochi-telegram"
 
 export async function run({
   msgOrInteraction,
@@ -187,13 +187,14 @@ async function sendNotification({
   // telegram
   if (platform === "telegram") {
     // get tele id from username
-    const { data, ok, curl, error, log } =
-      await community.getTelegramByUsername(target)
+    const { data, ok, curl, error, log } = await mochiTelegram.getByUsername(
+      target
+    )
     if (!ok) {
       throw new APIError({ curl, error, description: log })
     }
     message.recipient_info = {
-      telegram: data.chat_id.toString(),
+      telegram: data.id.toString(),
     }
 
     sendNotificationMsg(message)

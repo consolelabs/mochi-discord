@@ -1,5 +1,4 @@
 import { userMention } from "@discordjs/builders"
-import community from "adapters/community"
 import mochiPay from "adapters/mochi-pay"
 import {
   CommandInteraction,
@@ -32,14 +31,15 @@ import {
   parseMoniker,
   parseTipAmount,
 } from "utils/tip-bot"
+import mochiTelegram from "../../../adapters/mochi-telegram"
+import profile from "../../../adapters/profile"
 import { InsufficientBalanceError } from "../../../errors/insufficient-balance"
 import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
-import profile from "../../../adapters/profile"
 
 type TelegramUser = {
-  chat_id: number
+  id: number
   username: string
   profile_id: string
 }
@@ -52,13 +52,14 @@ async function getRecipients(
   const recipients: TelegramUser[] = []
   for (const target of targets) {
     // TODO: handle for case not have username telegram
-    const { data, ok, curl, error, log } =
-      await community.getTelegramByUsername(target)
+    const { data, ok, curl, error, log } = await mochiTelegram.getByUsername(
+      target
+    )
     if (!ok) {
       throw new APIError({ curl, error, description: log })
     }
 
-    const recipientPf = await profile.getByTelegram(data.chat_id)
+    const recipientPf = await profile.getByTelegram(data.id)
     if (recipientPf.status_code === 404) {
       throw new InternalError({
         msgOrInteraction,
@@ -75,7 +76,7 @@ async function getRecipients(
     }
 
     recipients.push({
-      chat_id: data.chat_id,
+      id: data.id,
       username: data.username,
       profile_id: recipientPf.id,
     })
@@ -115,7 +116,7 @@ export async function execute(
         pay_link: `https://mochi.gg/pay/${res.data.code}`,
       },
       recipient_info: {
-        telegram: r.chat_id.toString(),
+        telegram: r.id.toString(),
       },
     }
 
