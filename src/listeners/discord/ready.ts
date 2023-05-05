@@ -18,7 +18,7 @@ const event: DiscordEvent<"ready"> = {
   name: "ready",
   once: false,
   execute: async (client) => {
-    wrapError(null, async () => {
+    return await wrapError({ event: "ready" }, async () => {
       if (!client.user) return
       logger.info(`Bot [${client.user.username}] is ready`)
       ChannelLogger.ready(client)

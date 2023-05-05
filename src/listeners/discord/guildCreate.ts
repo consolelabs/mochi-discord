@@ -21,13 +21,16 @@ const event: DiscordEvent<"guildCreate"> = {
       `Joined guild: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`
     )
 
-    wrapError(null, async () => {
-      await config.createGuild(guild.id, guild.name)
-      await webhook.pushDiscordWebhook("guildCreate", {
-        guild_id: guild.id,
-      })
-      await introduceMochiToAdmin(guild)
-    })
+    return await wrapError(
+      { sub_event_type: "guildCreate", guild_id: guild.id },
+      async () => {
+        await config.createGuild(guild.id, guild.name)
+        await webhook.pushDiscordWebhook("guildCreate", {
+          guild_id: guild.id,
+        })
+        await introduceMochiToAdmin(guild)
+      }
+    )
   },
 }
 

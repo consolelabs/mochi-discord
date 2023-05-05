@@ -129,20 +129,16 @@ const command: SlashCommand = {
       } else {
         return {
           messageOptions: {
-            embeds: [getErrorEmbed({})],
+            embeds: [getErrorEmbed({ description: configs.error })],
           },
         }
       }
     } else {
-      let description
-      if (res.error.toLowerCase().includes("role has been used")) {
-        description = res.error
-      }
       return {
         messageOptions: {
           embeds: [
             getErrorEmbed({
-              description,
+              description: res.error,
               originalMsgAuthor: interaction.user,
             }),
           ],
