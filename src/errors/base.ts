@@ -47,10 +47,22 @@ export class BotBaseError extends Error {
   constructor(message?: OriginalMessage, errorMessage?: string) {
     super()
     this.name = "Something went wrong (unexpected error)"
-    this.msgOrInteraction = message
+
+    const reply = (message?.reply as ReplyFunc).bind(message)
+
+    if (message instanceof Message) {
+      this.reply = async (...args) => {
+        await reply(...args).catch(() => null)
+      }
+    } else {
+      this.reply = async (...args) => {
+        await message?.editReply(...args).catch(() => null)
+      }
+    }
 
     const id =
       textCommandAsyncStore.getStore() || slashCommandAsyncStore.getStore()
+
     if (id) {
       this.messageObj = {
         ...JSON.parse(id),
@@ -75,6 +87,8 @@ export class BotBaseError extends Error {
             command = msg.interaction?.commandName
           }
         }
+
+        this.msgOrInteraction = message
 
         this.channel = (message.channel as TextChannel)?.id ?? "DM"
         this.guild = message.guild?.id ?? "DM"
@@ -102,35 +116,22 @@ export class BotBaseError extends Error {
     }
     logger.error(error)
     kafkaQueue?.produceAnalyticMsg([JSON.parse(this.message)]).catch(() => null)
-    if (this.msgOrInteraction) {
-      const message = this.msgOrInteraction
-      const reply = (message.reply as ReplyFunc).bind(message)
-      if (message instanceof Message) {
-        this.reply = async (...args) => {
-          await reply(...args).catch(() => null)
-        }
-      } else {
-        this.reply = async (...args) => {
-          await message.editReply(...args).catch(() => null)
-        }
-      }
-      this.reply({
-        embeds: [
-          {
-            author: {
-              name: "Error",
-              iconURL:
-                "https://cdn.discordapp.com/emojis/967285238055174195.png?size=240&quality=lossless",
-            },
-            description: `Our team is fixing the issue. Stay tuned ${getEmoji(
-              "NEKOSAD"
-            )}.`,
-            color: msgColors.ERROR,
+    this.reply({
+      embeds: [
+        {
+          author: {
+            name: "Error",
+            iconURL:
+              "https://cdn.discordapp.com/emojis/967285238055174195.png?size=240&quality=lossless",
           },
-        ],
-        components: [],
-      })
-    }
+          description: `Our team is fixing the issue. Stay tuned ${getEmoji(
+            "NEKOSAD"
+          )}.`,
+          color: msgColors.ERROR,
+        },
+      ],
+      components: [],
+    })
   }
 
   handle() {
