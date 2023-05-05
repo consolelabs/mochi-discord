@@ -14,6 +14,8 @@ import {
   slashCommandAsyncStore,
   textCommandAsyncStore,
 } from "utils/async-storages"
+import { Message } from "discord.js"
+import { somethingWentWrongPayload } from "utils/discord"
 
 function makeLog({
   query,
@@ -179,16 +181,25 @@ export class Fetcher {
         logger.error(log)
 
         if (res.status === 500) {
-          const id =
-            (textCommandAsyncStore.getStore() ||
-              slashCommandAsyncStore.getStore()) ??
-            ""
+          const store =
+            textCommandAsyncStore.getStore() ||
+            slashCommandAsyncStore.getStore()
           const message = JSON.stringify({
-            ...(id ? JSON.parse(id) : {}),
+            ...(store ? JSON.parse(store.data) : {}),
             error: log,
             stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
           })
           await kafkaQueue?.produceAnalyticMsg([message])
+
+          if (store) {
+            if (store.msgOrInteraction instanceof Message) {
+              await store.msgOrInteraction.reply(somethingWentWrongPayload())
+            } else {
+              await store.msgOrInteraction.editReply(
+                somethingWentWrongPayload()
+              )
+            }
+          }
         }
 
         const json = await (res as ErrResponse).json()
@@ -225,20 +236,25 @@ export class Fetcher {
         query: querystring.stringify({}),
       })
       logger.error(log)
-      const id =
-        (textCommandAsyncStore.getStore() ||
-          slashCommandAsyncStore.getStore()) ??
-        ""
+      const store =
+        textCommandAsyncStore.getStore() || slashCommandAsyncStore.getStore()
       const message = JSON.stringify({
-        ...(id ? JSON.parse(id) : {}),
+        ...(store ? JSON.parse(store.data) : {}),
         error: log,
         stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
       })
       await kafkaQueue?.produceAnalyticMsg([message])
+      if (store) {
+        if (store.msgOrInteraction instanceof Message) {
+          await store.msgOrInteraction.reply(somethingWentWrongPayload())
+        } else {
+          await store.msgOrInteraction.editReply(somethingWentWrongPayload())
+        }
+      }
       return {
         ok: false,
         data: null,
-        error: `Our team is fixing the issue. Stay tuned  ${nekoSad}.`,
+        error: `Our team is fixing the issue. Stay tuned ${nekoSad}.`,
         log,
         curl,
         originalError: e?.message,

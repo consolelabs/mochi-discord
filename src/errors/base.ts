@@ -24,9 +24,8 @@ type ReplyFunc = (otps: any) => Promise<void>
 // Base or "catch-all" error, do not throw this directly
 export class BotBaseError extends Error {
   protected msgOrInteraction?: OriginalMessage
-  protected reply: ReplyFunc = () => {
-    return Promise.resolve()
-  }
+  protected reply: ReplyFunc = async () => await Promise.resolve()
+
   protected user = "Unknown"
   protected channel = "DM"
   protected guild = "DM"
@@ -60,12 +59,12 @@ export class BotBaseError extends Error {
       }
     }
 
-    const id =
+    const store =
       textCommandAsyncStore.getStore() || slashCommandAsyncStore.getStore()
 
-    if (id) {
+    if (store) {
       this.messageObj = {
-        ...JSON.parse(id),
+        ...JSON.parse(store.data),
         ...(errorMessage ? { error: errorMessage } : {}),
       }
     } else {

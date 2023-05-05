@@ -39,13 +39,16 @@ const events: DiscordEvent<"messageCreate"> = {
   once: false,
   execute: async (message) => {
     textCommandAsyncStore.run(
-      JSON.stringify({
-        guild_id: message.guildId || "DM",
-        channel_id: message.channelId,
-        discord_id: message.author.id,
-        command: message.content,
-        msg_id: message.id,
-      }),
+      {
+        msgOrInteraction: message,
+        data: JSON.stringify({
+          guild_id: message.guildId || "DM",
+          channel_id: message.channelId,
+          discord_id: message.author.id,
+          command: message.content,
+          msg_id: message.id,
+        }),
+      },
       () => {
         // deny handling if author is bot or message is empty (new user join server)
         wrapError(message, async () => {

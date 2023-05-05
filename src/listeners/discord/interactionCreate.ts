@@ -116,23 +116,26 @@ const event: DiscordEvent<"interactionCreate"> = {
       ? interaction.customId
       : ""
     if (!id) return
+    if (
+      !interaction.isSelectMenu() &&
+      !interaction.isButton() &&
+      !interaction.isCommand()
+    ) {
+      return
+    }
     slashCommandAsyncStore.run(
-      JSON.stringify({
-        guild_id: interaction.guildId || "DM",
-        channel_id: interaction.channelId,
-        discord_id: interaction.user.id,
-        command: id,
-        interaction_id: interaction.id,
-      }),
+      {
+        msgOrInteraction: interaction,
+        data: JSON.stringify({
+          guild_id: interaction.guildId || "DM",
+          channel_id: interaction.channelId,
+          discord_id: interaction.user.id,
+          command: id,
+          interaction_id: interaction.id,
+        }),
+      },
       () => {
         wrapError(interaction, async () => {
-          if (
-            !interaction.isSelectMenu() &&
-            !interaction.isButton() &&
-            !interaction.isCommand()
-          ) {
-            return
-          }
           if (interaction.isSelectMenu()) {
             await handleSelectMenuInteraction(interaction)
           }

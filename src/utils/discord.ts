@@ -1,7 +1,7 @@
 import { CommandInteraction, Message, MessageOptions, User } from "discord.js"
 import _ from "lodash"
 import { RunResult } from "types/common"
-import { authorFilter, getAuthor } from "./common"
+import { authorFilter, getAuthor, getEmoji, msgColors } from "./common"
 import { wrapError } from "./wrap-error"
 
 export async function awaitMessage({
@@ -124,4 +124,23 @@ function getMessageReplyPayload(result: RunResult<MessageOptions>) {
     "stickers",
     "flags"
   )
+}
+
+export function somethingWentWrongPayload() {
+  return {
+    embeds: [
+      {
+        author: {
+          name: "Error",
+          iconURL:
+            "https://cdn.discordapp.com/emojis/967285238055174195.png?size=240&quality=lossless",
+        },
+        description: `Our team is fixing the issue. Stay tuned ${getEmoji(
+          "NEKOSAD"
+        )}.`,
+        color: msgColors.ERROR,
+      },
+    ],
+    components: [],
+  }
 }
