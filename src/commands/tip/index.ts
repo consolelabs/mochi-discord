@@ -84,36 +84,38 @@ const textCmd: Command = {
   category: "Defi",
   run: async (msg) => {
     const args = getCommandArguments(msg)
-    const telPrefixes = ["tg@", "tg:", "t.me/"]
-    const telPrefix = telPrefixes.find((p) =>
-      args[1].toLowerCase().startsWith(p)
-    )
-    const mailPrefixes = ["email:", "gmail:"]
-    const mailPrefi = mailPrefixes.find((p) =>
-      args[1].toLowerCase().startsWith(p)
-    )
-    const twPrefixes = ["tw:", "tw@"]
-    const twPrefi = twPrefixes.find((p) => args[1].toLowerCase().startsWith(p))
+    const target = args[1].toLowerCase()
+
+    const telPrefixes = ["tg@", "tg:", "t.me/", "telegram@", "telegram:"]
+    const telPrefix = telPrefixes.find((p) => target.startsWith(p))
     // tip telegram
     if (telPrefix) {
-      args[1] = args[1].replace(telPrefix, "") // remove prefix tg@
+      args[1] = target.replace(telPrefix, "") // remove telegram prefix
       await tipTelegram(msg, args)
       return
     }
+
+    const mailPrefixes = ["email:", "gmail:", "mail:"]
+    const mailPrefix = mailPrefixes.find((p) => target.startsWith(p))
     // tip mail
-    if (mailPrefi) {
-      args[1] = args[1].replace(mailPrefi, "") // remove prefix email:
+    if (mailPrefix) {
+      args[1] = target.replace(mailPrefix, "") // remove email prefix
       await tipMail(msg, args)
       return
     }
+
+    const twPrefixes = ["tw:", "tw@", "twitter@", "twitter:"]
+    const twPrefix = twPrefixes.find((p) => target.startsWith(p))
     // tip tw
-    if (twPrefi) {
-      args[1] = args[1].replace(twPrefi, "") // remove prefix email:
+    if (twPrefix) {
+      args[1] = target.replace(twPrefix, "") // remove twitter prefix
       await tipTwitter(msg, args)
       return
     }
-    // tip discord
+
+    // default -> tip discord
     await tip(msg)
+    return
   },
   getHelpMessage: () => getHelpMessage(),
   canRunWithoutAction: true,
