@@ -13,16 +13,23 @@ const event: DiscordEvent<"guildMemberAdd"> = {
   name: "guildMemberAdd",
   once: false,
   execute: async (member) => {
-    wrapError(null, async () => {
-      await setUserDefaultRoles(member)
+    return await wrapError(
+      {
+        sub_event_type: "guildMemberAdd",
+        guild_id: member.guild.id,
+        user_id: member.user.id,
+      },
+      async () => {
+        await setUserDefaultRoles(member)
 
-      await welcomeNewMember(member)
+        await welcomeNewMember(member)
 
-      await webhook.pushDiscordWebhook(
-        "guildMemberAdd",
-        createBEGuildMember(member)
-      )
-    })
+        await webhook.pushDiscordWebhook(
+          "guildMemberAdd",
+          createBEGuildMember(member)
+        )
+      }
+    )
   },
 }
 

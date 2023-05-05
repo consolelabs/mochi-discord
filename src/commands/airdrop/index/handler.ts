@@ -98,7 +98,7 @@ async function confirmAirdrop(
   const cacheKey = `airdrop-${i.message.id}`
   airdropCache.set(cacheKey, [], opts.duration)
 
-  await checkExpiredAirdrop(i, cacheKey, payload, opts)
+  checkExpiredAirdrop(i, cacheKey, payload, opts)
 
   const buttonRow = new MessageActionRow().addComponents(
     new MessageButton({
@@ -118,7 +118,7 @@ async function confirmAirdrop(
   }
 }
 
-async function checkExpiredAirdrop(
+function checkExpiredAirdrop(
   i: ButtonInteraction,
   cacheKey: string,
   payload: TransferPayload,
@@ -128,7 +128,7 @@ async function checkExpiredAirdrop(
   const amount = +amount_string
   const { entries } = opts
   airdropCache.on("expired", (key, participants: string[]) => {
-    wrapError(null, async () => {
+    wrapError(i, async () => {
       if (key !== cacheKey) {
         return
       }

@@ -3,12 +3,21 @@ import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getCommandArguments } from "utils/commands"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
-import { PREFIX, SLASH_PREFIX, TIP_GITBOOK } from "utils/constants"
-import tipSlash from "./index/slash"
+import {
+  PREFIX,
+  SLASH_PREFIX,
+  SPACES_REGEX,
+  TIP_GITBOOK,
+} from "utils/constants"
 import tip from "./index/text"
 import tipTelegram from "./telegram/text"
 import tipMail from "./mail/text"
 import tipTwitter from "./twitter/text"
+import tipSlash from "./index/slash"
+import tipTelegramSlash from "./telegram/slash"
+import tipMailSlash from "./mail/slash"
+import tipTwitterSlash from "./twitter/slash"
+import { CommandInteraction } from "discord.js"
 
 const getHelpMessage = async (isSlash?: boolean) => {
   const prefix = isSlash ? SLASH_PREFIX : PREFIX
@@ -164,15 +173,50 @@ const slashCmd: SlashCommand = {
       .addStringOption((option) =>
         option.setName("message").setDescription("message when tip recipients")
       )
-      .addMentionableOption((option) =>
-        option
-          .setName("eacha")
-          .setDescription(
-            "Same amount is for each recipient. Seperate amount is divided equally"
-          )
-      )
   },
-  run: tipSlash,
+  run: async (i: CommandInteraction) => {
+    const users = i.options.getString("users", true).split(SPACES_REGEX)
+    const amount = i.options.getNumber("amount", true).toString()
+    const token = i.options.getString("token", true)
+    const each = (i.options.getString("each") || "") === "each" ? "each" : ""
+    const message = `"${i.options.getString("message") ?? ""}"`
+
+    const args = ["tip", ...users, amount, token, each, message].filter((s) =>
+      Boolean(s)
+    )
+    const target = args[1].toLowerCase()
+
+    const telPrefixes = ["tg@", "tg:", "t.me/", "telegram@", "telegram:"]
+    const telPrefix = telPrefixes.find((p) => target.startsWith(p))
+    // tip telegram
+    if (telPrefix) {
+      args[1] = target.replace(telPrefix, "") // remove telegram prefix
+      await tipTelegramSlash(i, args)
+      return
+    }
+
+    const mailPrefixes = ["email:", "gmail:", "mail:"]
+    const mailPrefix = mailPrefixes.find((p) => target.startsWith(p))
+    // tip mail
+    if (mailPrefix) {
+      args[1] = target.replace(mailPrefix, "") // remove email prefix
+      await tipMailSlash(i, args)
+      return
+    }
+
+    const twPrefixes = ["tw:", "tw@", "twitter@", "twitter:"]
+    const twPrefix = twPrefixes.find((p) => target.startsWith(p))
+    // tip tw
+    if (twPrefix) {
+      args[1] = target.replace(twPrefix, "") // remove twitter prefix
+      await tipTwitterSlash(i, args)
+      return
+    }
+
+    // default -> tip discord
+    await tipSlash(i, args)
+    return
+  },
   help: () => getHelpMessage(true),
   colorType: "Defi",
 }

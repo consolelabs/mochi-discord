@@ -76,6 +76,7 @@
     "retry": "^0.13.1",
     "sharp": "^0.30.7",
     "squarify": "^1.1.0",
+    "stack-utils": "^2.0.6",
     "swagger-typescript-api": "^10.0.1",
     "turndown": "^7.1.1",
     "tweetnacl": "^1.0.3",

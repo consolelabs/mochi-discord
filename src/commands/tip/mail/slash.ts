@@ -1,7 +1,7 @@
 import { CommandInteraction } from "discord.js"
-import { tip } from "./processor"
+import { tipMail } from "./processor"
 
 const run = async (i: CommandInteraction, args: string[]) => {
-  return await tip(i, args)
+  return await tipMail(i, args)
 }
 export default run

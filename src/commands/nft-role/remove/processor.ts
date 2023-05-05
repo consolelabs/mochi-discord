@@ -28,6 +28,6 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
     }
   }
   return {
-    messageOptions: { embeds: [getErrorEmbed({})] },
+    messageOptions: { embeds: [getErrorEmbed({ description: configs.error })] },
   }
 }

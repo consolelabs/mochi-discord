@@ -157,7 +157,7 @@ export async function process(message: OriginalMessage) {
       creatorId
     )
     if (!ok) {
-      throw new APIError({ curl, error })
+      throw new APIError({ curl, description: error })
     }
 
     const voteYes = data.proposal?.points?.find(

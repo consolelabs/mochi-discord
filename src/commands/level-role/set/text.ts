@@ -112,9 +112,9 @@ const command: Command = {
         },
       }
     }
-    let description
+    let description = res.error
     let title
-    if (res.error.toLowerCase().includes("role has been used")) {
+    if (description.toLowerCase().includes("role has been used")) {
       description = `Your role has been used for an existing NFT role. Please choose another one.\n\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true

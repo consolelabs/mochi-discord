@@ -4,15 +4,17 @@ import {
   KAFKA_TOPIC,
   KAFKA_ACTIVITY_PROFILE_TOPIC,
   KAFKA_NOTIFICATION_TOPIC,
+  KAFKA_ANALYTIC_TOPIC,
 } from "env"
 import { Kafka, Partitioners, Producer } from "kafkajs"
 
 export default class Queue {
   private producer: Producer
   private kafka: Kafka
-  private topic: string = KAFKA_TOPIC
-  private activityProfileTopic: string = KAFKA_ACTIVITY_PROFILE_TOPIC
-  private notificationTopic: string = KAFKA_NOTIFICATION_TOPIC
+  private topic = KAFKA_TOPIC
+  private analyticTopic = KAFKA_ANALYTIC_TOPIC
+  private activityProfileTopic = KAFKA_ACTIVITY_PROFILE_TOPIC
+  private notificationTopic = KAFKA_NOTIFICATION_TOPIC
 
   constructor() {
     this.kafka = new Kafka({
@@ -32,6 +34,15 @@ export default class Queue {
 
   async disconnect() {
     await this.producer.disconnect()
+  }
+
+  async produceAnalyticMsg(messages: any[]) {
+    await this.producer.send({
+      topic: this.analyticTopic,
+      messages: messages.map((m) => ({
+        value: JSON.stringify({ event_type: "system_error", payload: m }),
+      })),
+    })
   }
 
   async produceBatch(messages: string[]) {

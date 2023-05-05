@@ -66,6 +66,7 @@ import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
 } from "ui/discord/select-menu"
+import { slashCommandAsyncStore } from "utils/async-storages"
 import {
   authorFilter,
   getChance,
@@ -109,36 +110,58 @@ const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
   once: false,
   execute: async (interaction) => {
-    wrapError(interaction, async () => {
-      if (
-        !interaction.isSelectMenu() &&
-        !interaction.isButton() &&
-        !interaction.isCommand()
-      ) {
-        return
+    const id = interaction.isCommand()
+      ? interaction.toString()
+      : interaction.isSelectMenu() || interaction.isButton()
+      ? interaction.customId
+      : ""
+    if (!id) return
+    if (
+      !interaction.isSelectMenu() &&
+      !interaction.isButton() &&
+      !interaction.isCommand()
+    ) {
+      return
+    }
+    slashCommandAsyncStore.run(
+      {
+        msgOrInteraction: interaction,
+        data: JSON.stringify({
+          guild_id: interaction.guildId || "DM",
+          channel_id: interaction.channelId,
+          discord_id: interaction.user.id,
+          command: id,
+          interaction_id: interaction.id,
+        }),
+      },
+      () => {
+        wrapError(interaction, async () => {
+          if (interaction.isSelectMenu()) {
+            await handleSelectMenuInteraction(interaction)
+          }
+          if (interaction.isButton()) {
+            await handleButtonInteraction(interaction)
+          }
+          if (interaction.isCommand()) {
+            handleCommandInteraction(interaction)
+          }
+        })
       }
-      if (interaction.isSelectMenu()) {
-        await handleSelectMenuInteraction(interaction)
-      }
-      if (interaction.isButton()) {
-        await handleButtonInteraction(interaction)
-      }
-      if (interaction.isCommand()) {
-        await handleCommandInteraction(interaction)
-      }
-    })
+    )
   },
 }
 
 export default event
 
-async function handleCommandInteraction(interaction: Interaction) {
+function handleCommandInteraction(interaction: Interaction) {
   wrapError(interaction, async () => {
     const benchmarkStart = process.hrtime()
     const i = interaction as CommandInteraction
     const command = slashCommands[i.commandName]
     if (!command) {
-      await i.reply({ embeds: [getErrorEmbed({})] })
+      await i.reply({
+        embeds: [getErrorEmbed({ description: "Command not found" })],
+      })
       return
     }
     let subcommand = ""
