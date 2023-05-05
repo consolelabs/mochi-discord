@@ -48,7 +48,7 @@ export class BotBaseError extends Error {
     super()
     this.name = "Something went wrong (unexpected error)"
 
-    const reply = (message?.reply as ReplyFunc).bind(message)
+    const reply = (message?.reply as ReplyFunc)?.bind(message)
 
     if (message instanceof Message) {
       this.reply = async (...args) => {
