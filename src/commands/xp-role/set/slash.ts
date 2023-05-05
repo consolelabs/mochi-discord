@@ -34,7 +34,7 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({})
     }
     const role = interaction.options.getRole("role", true)
-    const amount = interaction.options.getNumber("amount", true)
+    const amount = interaction.options.getInteger("amount", true)
     if (isInvalidAmount(amount)) {
       throw new InternalError({
         msgOrInteraction: interaction,

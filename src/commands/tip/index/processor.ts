@@ -40,7 +40,6 @@ import { RunResult } from "../../../types/common"
 import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { APPROX } from "../../../utils/constants"
-import { convertString } from "../../../utils/convert"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 
 export async function tip(
@@ -108,7 +107,7 @@ export async function tip(
   return
 }
 
-async function selectToken(
+export async function selectToken(
   msgOrInteraction: Message | CommandInteraction,
   balances: any,
   payload: any
@@ -236,7 +235,7 @@ function showSuccesfulResponse(
   return { messageOptions: { embeds: [embed], components: [] } }
 }
 
-async function parseTipArgs(
+export async function parseTipArgs(
   msgOrInteraction: Message | CommandInteraction,
   args: string[]
 ): Promise<{
@@ -306,16 +305,16 @@ async function parseTipArgs(
   return { targets, amount, symbol, each, message, all, image }
 }
 
-async function validateAndTransfer(
+export async function validateAndTransfer(
   msgOrInteraction: Message | CommandInteraction,
   payload: TransferPayload,
   balance: any
 ) {
   const decimal = balance.token?.decimal ?? 0
-  const current = convertString(balance?.amount, decimal) ?? 0
+  const current = +balance.amount / Math.pow(10, decimal)
 
   // validate balance
-  if (current < payload.amount) {
+  if (current < payload.amount && !payload.all) {
     throw new InsufficientBalanceError({
       msgOrInteraction,
       params: {
