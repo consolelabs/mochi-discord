@@ -15,7 +15,7 @@ import {
   textCommandAsyncStore,
 } from "utils/async-storages"
 import { Message } from "discord.js"
-import { somethingWentWrongPayload } from "utils/discord"
+import { somethingWentWrongPayload } from "utils/error"
 
 function makeLog({
   query,

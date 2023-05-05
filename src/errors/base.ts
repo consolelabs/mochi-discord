@@ -11,7 +11,7 @@ import {
   slashCommandAsyncStore,
   textCommandAsyncStore,
 } from "utils/async-storages"
-import { getEmoji, msgColors } from "utils/common"
+import { somethingWentWrongPayload } from "utils/error"
 import { stack } from "utils/stack-trace"
 
 export type OriginalMessage =
@@ -115,22 +115,7 @@ export class BotBaseError extends Error {
     }
     logger.error(error)
     kafkaQueue?.produceAnalyticMsg([JSON.parse(this.message)]).catch(() => null)
-    this.reply({
-      embeds: [
-        {
-          author: {
-            name: "Error",
-            iconURL:
-              "https://cdn.discordapp.com/emojis/967285238055174195.png?size=240&quality=lossless",
-          },
-          description: `Our team is fixing the issue. Stay tuned ${getEmoji(
-            "NEKOSAD"
-          )}.`,
-          color: msgColors.ERROR,
-        },
-      ],
-      components: [],
-    })
+    this.reply(somethingWentWrongPayload())
   }
 
   handle() {
