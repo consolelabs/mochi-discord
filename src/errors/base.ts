@@ -62,6 +62,8 @@ export class BotBaseError extends Error {
     const store =
       textCommandAsyncStore.getStore() || slashCommandAsyncStore.getStore()
 
+    this.msgOrInteraction = message
+
     if (store) {
       this.messageObj = {
         ...JSON.parse(store.data),
@@ -86,8 +88,6 @@ export class BotBaseError extends Error {
             command = msg.interaction?.commandName
           }
         }
-
-        this.msgOrInteraction = message
 
         this.channel = (message.channel as TextChannel)?.id ?? "DM"
         this.guild = message.guild?.id ?? "DM"
