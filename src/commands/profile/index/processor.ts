@@ -7,7 +7,6 @@ import {
   CommandInteraction,
   EmbedFieldData,
   GuildMember,
-  GuildMemberRoleManager,
   Message,
   MessageActionRow,
   MessageButton,
@@ -88,12 +87,12 @@ function collectButton(msg: Message, authorId: string, user: User) {
       idle: 60000,
       filter: authorFilter(authorId),
     })
-    .on("collect", async (i) =>
+    .on("collect", (i) =>
       wrapError(msg, async () => {
         const buttonType = i.customId.split("/").shift()
         switch (buttonType) {
           case "profile-switch-view-button":
-            await switchView(i, msg, user)
+            await switchView(i, msg)
             break
           case "profile-pagination-button":
             await handlePagination(i, msg, user)
@@ -106,24 +105,25 @@ function collectButton(msg: Message, authorId: string, user: User) {
     })
 }
 
-async function switchView(i: ButtonInteraction, msg: Message, user: User) {
+async function switchView(i: ButtonInteraction, msg: Message) {
   let replyPayload
   const nextView = (i.customId.split("/").pop() ?? "my-profile") as ViewType
   await i.deferReply()
+  if (!msg.member) return
   switch (nextView) {
     case "my-nft":
-      replyPayload = await composeMyNFTResponse(msg, user)
+      replyPayload = await composeMyNFTResponse(msg, msg.author)
       break
     case "my-wallets":
-      replyPayload = await composeMyWalletsResponse(msg, user)
+      replyPayload = await composeMyWalletsResponse(msg, msg.author)
       break
     case "my-profile":
     default:
-      replyPayload = await composeMyProfileEmbed(msg, user)
+      replyPayload = await composeMyProfileEmbed(msg, msg.member)
       break
   }
   i.editReply(replyPayload)
-    .then((reply) => collectButton(reply as Message, user.id, user))
+    .then((reply) => collectButton(reply as Message, msg.author.id, msg.author))
     .catch(() => null)
 }
 
@@ -216,31 +216,16 @@ async function selectCollection(
   await i.editReply(replyPayload).catch(() => null)
 }
 
-// function buildXPbar(name: string, value: number) {
-//   const cap = Math.ceil(value / 1000) * 1000
-//   const list = new Array(7).fill(getEmoji("faction_exp_2"))
-//   list[0] = getEmoji("faction_exp_1")
-//   list[list.length - 1] = getEmoji("faction_exp_3")
-
-//   return `${list
-//     .map((_, i) => {
-//       if (Math.floor((value / cap) * 7) >= i + 1) {
-//         return i === 0
-//           ? getEmoji(`${name}_exp_1`, true)
-//           : getEmoji(`${name}_exp_2`, true)
-//       }
-//       return _
-//     })
-//     .join("")}\n\`${value}/${cap}\``
-// }
-
-async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
+async function composeMyProfileEmbed(
+  msg: OriginalMessage,
+  member: GuildMember
+) {
   const {
     data: userProfile,
     ok,
     curl,
     log,
-  } = await profile.getUserProfile(msg.guildId ?? "", user.id)
+  } = await profile.getUserProfile(msg.guildId ?? "", member.user.id)
   if (!ok) {
     throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
@@ -251,8 +236,8 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   const xpStr = `${getEmoji("ANIMATED_XP", true)} \`${
     userProfile.guild_xp
   }/${nextLevelMinXp}\``
-  const roles = msg.member?.roles as GuildMemberRoleManager
-  const highestRole = roles.highest.name !== "@everyone" ? roles.highest : null
+  const highestRole =
+    member.roles.highest.name !== "@everyone" ? member.roles.highest : null
   const activityStr = `\`${userProfile.nr_of_actions}\``
   const rankStr = `${getEmoji("ANIMATED_TROPHY", true)} \`#${
     userProfile.guild_rank ?? 0
@@ -261,8 +246,11 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   //   userProfile.user_faction_xps ?? {}
 
   const embed = composeEmbedMessage(null, {
-    thumbnail: user.displayAvatarURL(),
-    author: [`${user.username}'s profile`, user.displayAvatarURL()],
+    thumbnail: member.user.displayAvatarURL(),
+    author: [
+      `${member.user.username}'s profile`,
+      member.user.displayAvatarURL(),
+    ],
     color: msgColors.PINK,
   }).addFields(
     {
@@ -310,7 +298,7 @@ async function composeMyProfileEmbed(msg: OriginalMessage, user: User) {
   setProfileFooter(embed)
   return {
     embeds: [embed],
-    components: [buildSwitchViewActionRow("my-profile", user.id)],
+    components: [buildSwitchViewActionRow("my-profile", member.user.id)],
   }
 }
 
@@ -407,26 +395,28 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
 }
 
 export async function render(msg: OriginalMessage, query?: string | null) {
-  // get users
-  const users: User[] = []
+  // get members
+  let members: GuildMember[] = []
   if (query) {
     const { isUser, value: id } = parseDiscordToken(query)
     if (isUser) {
-      const cachedUser = msg.guild?.members.cache.get(id)?.user
-      if (cachedUser) users.push(cachedUser)
+      const cachedMember = msg.guild?.members.cache.get(id)
+      if (cachedMember) members.push(cachedMember)
     } else {
-      const members = await msg.guild?.members?.fetch()
-      users.push(
-        ...(members ?? new Collection<string, GuildMember>())
+      const currentMembers = await msg.guild?.members?.fetch()
+      members.push(
+        ...(currentMembers ?? new Collection<string, GuildMember>())
           .filter((m) => [m.user.username, m.displayName].includes(query))
-          .map((m) => m.user)
+          .map((m) => m)
       )
     }
   } else {
-    users.push(msg instanceof Message ? msg.author : msg.user)
+    members.push(msg.member as GuildMember)
   }
 
-  if (!users.length) {
+  members = members.filter(Boolean)
+
+  if (!members.length) {
     return {
       messageOptions: {
         embeds: [getErrorEmbed({ description: "No profile found" })],
@@ -434,9 +424,9 @@ export async function render(msg: OriginalMessage, query?: string | null) {
     }
   }
 
-  for (const user of users) {
+  for (const mem of members) {
     // send activity
-    const dataProfile = await profile.getByDiscord(user.id)
+    const dataProfile = await profile.getByDiscord(mem.user.id)
     if (dataProfile.err) {
       throw new APIError({
         msgOrInteraction: msg,
@@ -450,17 +440,17 @@ export async function render(msg: OriginalMessage, query?: string | null) {
       MOCHI_APP_SERVICE,
       MOCHI_ACTION_PROFILE
     )
-    kafkaMsg.activity.content.username = user.username
+    kafkaMsg.activity.content.username = mem.user.username
     sendActivityMsg(kafkaMsg)
 
     const author = msg instanceof Message ? msg.author : msg.user
-    const replyPayload = await composeMyProfileEmbed(msg, user)
+    const replyPayload = await composeMyProfileEmbed(msg, mem)
     const reply = (
       msg instanceof CommandInteraction
         ? await msg.editReply(replyPayload)
         : await msg.reply(replyPayload)
     ) as Message
-    collectButton(reply, author.id, user)
-    collectSelectMenu(reply, author.id, user)
+    collectButton(reply, author.id, mem.user)
+    collectSelectMenu(reply, author.id, mem.user)
   }
 }
