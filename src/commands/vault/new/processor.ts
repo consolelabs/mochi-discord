@@ -35,15 +35,16 @@ export async function runCreateVault({
     guild_id: guildId,
     name: i.options.getString("name", true),
     threshold: i.options.getString("threshold", true),
+    desig_mode: i.options.getBoolean("desig", false) ?? false,
     vault_creator: i.user.id,
   })
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
 
-  const description = `**Wallet Address**\n\n\`0x140dd183e18ba39bd9BE82286ea2d96fdC48117A\`\n\n**Vault Threshold** \`${
-    data.threshold
-  }%\`\n\n${getEmoji(
+  const description = `**Wallet Address**\n\n\`${
+    data.wallet_address
+  }\`\n\n**Vault Threshold** \`${data.threshold}%\`\n\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
   )} See all vaults </vault list:${await getSlashCommand("vault")}>\n${getEmoji(

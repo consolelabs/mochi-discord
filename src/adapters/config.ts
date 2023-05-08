@@ -1160,6 +1160,7 @@ class Config extends Fetcher {
     name: string
     threshold: string
     vault_creator: string
+    desig_mode?: boolean
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault`, {
       method: "POST",
