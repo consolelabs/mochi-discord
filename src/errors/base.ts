@@ -8,6 +8,7 @@ import { TEST } from "env"
 import { logger } from "logger"
 import { kafkaQueue } from "queue/kafka/queue"
 import {
+  eventAsyncStore,
   slashCommandAsyncStore,
   textCommandAsyncStore,
 } from "utils/async-storages"
@@ -60,7 +61,9 @@ export class BotBaseError extends Error {
     }
 
     const store =
-      textCommandAsyncStore.getStore() || slashCommandAsyncStore.getStore()
+      textCommandAsyncStore.getStore() ||
+      slashCommandAsyncStore.getStore() ||
+      eventAsyncStore.getStore()
 
     this.msgOrInteraction = message
 
