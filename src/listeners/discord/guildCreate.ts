@@ -12,6 +12,7 @@ import {
   MOCHI_SERVER_INVITE_URL,
 } from "utils/constants"
 import { getSlashCommand } from "utils/commands"
+import { eventAsyncStore } from "utils/async-storages"
 
 const event: DiscordEvent<"guildCreate"> = {
   name: "guildCreate",
@@ -21,14 +22,22 @@ const event: DiscordEvent<"guildCreate"> = {
       `Joined guild: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`
     )
 
-    return await wrapError(
-      { sub_event_type: "guildCreate", guild_id: guild.id },
+    const metadata = {
+      sub_event_type: "guildCreate",
+      guild_id: guild.id,
+    }
+    eventAsyncStore.run(
+      {
+        data: JSON.stringify(metadata),
+      },
       async () => {
-        await config.createGuild(guild.id, guild.name)
-        await webhook.pushDiscordWebhook("guildCreate", {
-          guild_id: guild.id,
+        await wrapError(metadata, async () => {
+          await config.createGuild(guild.id, guild.name)
+          await webhook.pushDiscordWebhook("guildCreate", {
+            guild_id: guild.id,
+          })
+          await introduceMochiToAdmin(guild)
         })
-        await introduceMochiToAdmin(guild)
       }
     )
   },

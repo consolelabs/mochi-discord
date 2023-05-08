@@ -5,6 +5,7 @@ import { wrapError } from "utils/wrap-error"
 import { Message } from "discord.js"
 import { starboardEmbed } from "ui/discord/embed"
 import config from "adapters/config"
+import { eventAsyncStore } from "utils/async-storages"
 
 async function repostMessage(data: any, msg: Message) {
   if (data?.repost_channel_id) {
@@ -57,36 +58,51 @@ const event: DiscordEvent<"messageReactionRemove"> = {
             reaction.message
               .fetch()
               .then(async (msg) => {
-                wrapError(msg, async () => {
-                  if (user.bot) return
-                  if (!msg.guild) return
+                const metadata = {
+                  sub_event_type: "messageReactionRemove",
+                  guild_id: msg.guildId ?? "DM",
+                  discord_id: user.id,
+                  channel_id: msg.channelId,
+                  msg_id: msg.id,
+                  reaction_id: reaction.emoji.toString(),
+                }
+                eventAsyncStore.run(
+                  {
+                    data: JSON.stringify(metadata),
+                  },
+                  () => {
+                    wrapError(msg, async () => {
+                      if (user.bot) return
+                      if (!msg.guild) return
 
-                  const body = {
-                    guild_id: msg.guildId ?? "",
-                    channel_id: msg.channelId,
-                    message_id: msg.id,
-                    reaction: getReactionIdentifier(
-                      reaction.emoji.id,
-                      reaction.emoji.name,
-                      reaction.emoji.identifier.toLowerCase()
-                    ),
-                    reaction_count: reaction.count,
-                    user_id: user.id,
-                  }
+                      const body = {
+                        guild_id: msg.guildId ?? "",
+                        channel_id: msg.channelId,
+                        message_id: msg.id,
+                        reaction: getReactionIdentifier(
+                          reaction.emoji.id,
+                          reaction.emoji.name,
+                          reaction.emoji.identifier.toLowerCase()
+                        ),
+                        reaction_count: reaction.count,
+                        user_id: user.id,
+                      }
 
-                  const res = await webhook.pushDiscordWebhook(
-                    "messageReactionRemove",
-                    body
-                  )
-                  if (res?.ok) {
-                    const data = {
-                      ...body,
-                      repost_channel_id: res?.data?.repost_channel_id,
-                      repost_message_id: res?.data?.repost_message_id,
-                    }
-                    repostMessage(data, msg)
+                      const res = await webhook.pushDiscordWebhook(
+                        "messageReactionRemove",
+                        body
+                      )
+                      if (res?.ok) {
+                        const data = {
+                          ...body,
+                          repost_channel_id: res?.data?.repost_channel_id,
+                          repost_message_id: res?.data?.repost_message_id,
+                        }
+                        repostMessage(data, msg)
+                      }
+                    })
                   }
-                })
+                )
               })
               .catch(() => null)
           })

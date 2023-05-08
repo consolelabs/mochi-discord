@@ -10,6 +10,7 @@ import webhook from "adapters/webhook"
 import { composeEmbedMessage, starboardEmbed } from "ui/discord/embed"
 import { getReactionIdentifier } from "utils/commands"
 import { wrapError } from "utils/wrap-error"
+import { eventAsyncStore } from "utils/async-storages"
 
 const handleRepostableMessageTracking = async (
   reaction: MessageReaction,
@@ -147,16 +148,31 @@ const event: DiscordEvent<"messageReactionAdd"> = {
             reaction.message
               .fetch()
               .then(async (msg) => {
-                wrapError(msg, async () => {
-                  if (user.bot) return
-                  if (!msg.guild) return
+                const metadata = {
+                  sub_event_type: "messageReactionAdd",
+                  guild_id: msg.guildId ?? "DM",
+                  discord_id: user.id,
+                  channel_id: msg.channelId,
+                  msg_id: msg.id,
+                  reaction_id: reaction.emoji.toString(),
+                }
+                eventAsyncStore.run(
+                  {
+                    data: JSON.stringify(metadata),
+                  },
+                  () => {
+                    wrapError(msg, async () => {
+                      if (user.bot) return
+                      if (!msg.guild) return
 
-                  await handleRepostableMessageTracking(
-                    reaction,
-                    user,
-                    msg
-                  ).catch(() => null)
-                })
+                      await handleRepostableMessageTracking(
+                        reaction,
+                        user,
+                        msg
+                      ).catch(() => null)
+                    })
+                  }
+                )
               })
               .catch(() => null)
           })

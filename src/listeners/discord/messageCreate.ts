@@ -42,6 +42,7 @@ const events: DiscordEvent<"messageCreate"> = {
       {
         msgOrInteraction: message,
         data: JSON.stringify({
+          sub_event_type: "messageCreate",
           guild_id: message.guildId || "DM",
           channel_id: message.channelId,
           discord_id: message.author.id,
