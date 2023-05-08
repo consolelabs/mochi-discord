@@ -6,16 +6,22 @@ import {
   ButtonInteraction,
   Message,
 } from "discord.js"
-import { GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { MessageEmbed } from "discord.js"
-import { APIError } from "errors"
-import { getEmoji, msgColors, shortenHashOrAddress } from "utils/common"
+import {
+  getEmoji,
+  getEmojiURL,
+  emojis,
+  msgColors,
+  shortenHashOrAddress,
+} from "utils/common"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
   composeEmbedMessage,
   getSuccessEmbed,
 } from "ui/discord/embed"
+import { wrapError } from "utils/wrap-error"
 
 export const treasurerTransferCache = new NodeCache({
   stdTTL: 0,
@@ -34,17 +40,15 @@ export async function runTransferTreasurer({
     throw new GuildIdNotFoundError({ message: i })
   }
 
-  const vaultName = i.options.getString("name") ?? ""
-  const token = i.options.getString("token") ?? ""
-  const address = i.options.getString("address") ?? ""
+  const vaultName = i.options.getString("name", true)
+  const token = i.options.getString("token", true)
+  const address = i.options.getString("address", true)
   const shortenAddress = shortenHashOrAddress(address)
-  const amount = i.options.getString("amount") ?? ""
-  const chain = i.options.getString("chain") ?? ""
+  const amount = i.options.getString("amount", true)
+  const chain = i.options.getString("chain", true)
   const {
     data: dataTransferTreasurerReq,
     status: statusTransferTreasurerReq,
-    curl: curlTransferTreasurerReq,
-    log: logTransferTreasurerReq,
     originalError: originalErrorTransferTreasurerReq,
   } = await config.createTreasureRequest({
     guild_id: guildId,
@@ -58,26 +62,12 @@ export async function runTransferTreasurer({
     amount: amount,
   })
 
-  if (
-    statusTransferTreasurerReq !== 200 &&
-    statusTransferTreasurerReq !== 400
-  ) {
-    throw new APIError({
-      curl: curlTransferTreasurerReq,
-      description: logTransferTreasurerReq,
-    })
-  }
-
   if (statusTransferTreasurerReq === 400 && originalErrorTransferTreasurerReq) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: originalErrorTransferTreasurerReq,
-          }),
-        ],
-      },
-    }
+    throw new InternalError({
+      msgOrInteraction: i,
+      title: "Create transfer request failed",
+      description: originalErrorTransferTreasurerReq,
+    })
   }
 
   // send DM to submitter
@@ -97,9 +87,8 @@ export async function runTransferTreasurer({
 
     const cacheKey = `treaTransfer-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${shortenAddress}-${amount}-${token}-${chain}-${i.channelId}`
 
-    i.guild?.members
-      .fetch(treasurer.user_discord_id)
-      .then(async (treasurer) => {
+    i.guild?.members.fetch(treasurer.user_discord_id).then((treasurer) => {
+      wrapError(i, async () => {
         const msg = await treasurer.send({
           embeds: [
             composeEmbedMessage(null, {
@@ -115,8 +104,7 @@ export async function runTransferTreasurer({
                 true
               )}\n \`\`\`${dataTransferTreasurerReq?.request.message}\`\`\``,
               color: msgColors.MOCHI,
-              thumbnail:
-                "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png",
+              thumbnail: getEmojiURL(emojis.TREASURER_ADD),
             }),
           ],
           components: [actionRow],
@@ -124,6 +112,7 @@ export async function runTransferTreasurer({
 
         treasurerTransferCache.set(cacheKey, msg)
       })
+    })
   })
 
   // send DM to treasurer in vault
@@ -145,15 +134,16 @@ export async function runTransferTreasurer({
     .setColor(msgColors.MOCHI)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
-    .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png"
-    )
+    .setThumbnail(getEmojiURL(emojis.TREASURER_ADD))
 
   return { messageOptions: { embeds: [embed] } }
 }
 
 export async function handleTreasurerTransfer(i: ButtonInteraction) {
-  await i.deferUpdate()
+  if (!i.deferred) {
+    await i.deferUpdate().catch(() => null)
+  }
+
   const args = i.customId.split("-")
   const choice = args[1]
   const requestId = args[2]
@@ -168,8 +158,6 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
   const {
     data: dataTransferTreasurer,
     status,
-    curl,
-    log,
     originalError,
   } = await config.createTreasurerSubmissions({
     vault_id: Number(vaultId),
@@ -179,52 +167,35 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
     type: "transfer",
   })
 
-  if ((status !== 200 && status !== 400) || !dataTransferTreasurer) {
-    throw new APIError({
-      curl: curl,
-      description: log,
+  if (status === 400 && originalError) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      title: "Submit vote failed",
+      description: originalError,
     })
   }
 
-  if (status === 400 && originalError) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: originalError,
-          }),
-        ],
-      },
-    }
-  }
-
   const modelNotify = {
-    guild_id: dataTransferTreasurer.submission.guild_id,
+    guild_id: dataTransferTreasurer?.submission.guild_id,
     vault_id: Number(vaultId),
     channel_id: channelId,
     type: "transfer",
     status: "",
-    token: token,
-    amount: amount,
-    address: address,
-    chain: chain,
+    token,
+    amount,
+    address,
+    chain,
   }
-  if (dataTransferTreasurer.vote_result.is_approved === true) {
+  if (dataTransferTreasurer?.vote_result.is_approved) {
     // add treasurer to vault
-    const { data, status, curl, log } = await config.transferVaultToken({
+    await config.transferVaultToken({
       guild_id: dataTransferTreasurer.submission.guild_id,
-      address: address,
       vault_id: Number(vaultId),
-      amount: amount,
-      token: token,
-      chain: chain,
+      address,
+      amount,
+      token,
+      chain,
     })
-    if ((status !== 200 && status !== 400) || !data) {
-      throw new APIError({
-        curl: curl,
-        description: log,
-      })
-    }
 
     modelNotify.status = "success"
     // send notify
@@ -245,25 +216,27 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
     // get all key in cache
     Array.from(treasurerTransferCache.keys())
       .filter((key) => key.includes(`treaTransfer-${requestId}-${vaultId}`))
-      .forEach(async (key) => {
-        const msg = treasurerTransferCache.get(key) as Message
-        if (msg) {
-          await msg.edit({
-            embeds: [
-              getSuccessEmbed({
-                title: `Approved ${requestId}!!!`,
-                description: `Request has already been approved by majority treasurers \`${dataTransferTreasurer.vote_result.total_approved_submission}/${dataTransferTreasurer.vote_result.total_submission}\``,
-              }),
-            ],
-            components: [],
-          })
-        }
-        treasurerTransferCache.del(key)
+      .forEach((key) => {
+        wrapError(i, async () => {
+          const msg = treasurerTransferCache.get(key) as Message
+          if (msg) {
+            await msg.edit({
+              embeds: [
+                getSuccessEmbed({
+                  title: `Approved ${requestId}!!!`,
+                  description: `Request has already been approved by majority of treasurers \`${dataTransferTreasurer.vote_result.total_approved_submission}/${dataTransferTreasurer.vote_result.total_submission}\``,
+                }),
+              ],
+              components: [],
+            })
+          }
+          treasurerTransferCache.del(key)
+        })
       })
   } else {
     if (
-      dataTransferTreasurer.vote_result.total_rejected_submisison >
-      dataTransferTreasurer.vote_result.allowed_rejected_submisison
+      dataTransferTreasurer?.vote_result.total_rejected_submisison >
+      dataTransferTreasurer?.vote_result.allowed_rejected_submisison
     ) {
       modelNotify.status = "fail"
       // send notify
@@ -272,20 +245,22 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
       // get all key in cache
       Array.from(treasurerTransferCache.keys())
         .filter((key) => key.includes(`treaTransfer-${requestId}-${vaultId}`))
-        .forEach(async (key) => {
-          const msg = treasurerTransferCache.get(key) as Message
-          if (msg) {
-            await msg.edit({
-              embeds: [
-                getErrorEmbed({
-                  title: `Rejected ${requestId}!!!`,
-                  description: `Request has already been rejected by majority treasurers \`${dataTransferTreasurer.vote_result.total_rejected_submisison}/${dataTransferTreasurer.vote_result.total_submission}\``,
-                }),
-              ],
-              components: [],
-            })
-          }
-          treasurerTransferCache.del(key)
+        .forEach((key) => {
+          wrapError(i, async () => {
+            const msg = treasurerTransferCache.get(key) as Message
+            if (msg) {
+              await msg.edit({
+                embeds: [
+                  getErrorEmbed({
+                    title: `Rejected ${requestId}!!!`,
+                    description: `Request has already been rejected by majority of treasurers \`${dataTransferTreasurer?.vote_result.total_rejected_submisison}/${dataTransferTreasurer?.vote_result.total_submission}\``,
+                  }),
+                ],
+                components: [],
+              })
+            }
+            treasurerTransferCache.del(key)
+          })
         })
     }
   }
