@@ -47,20 +47,21 @@ const command: SlashCommand = {
       )
   },
   run: async function (interaction: CommandInteraction) {
-    return runTransferTreasurer({
+    return await runTransferTreasurer({
       i: interaction,
       guildId: interaction.guildId ?? undefined,
     })
   },
-  help: async (interaction: CommandInteraction) => ({
-    embeds: [
-      composeEmbedMessage2(interaction, {
-        usage: `${SLASH_PREFIX}vault treasurer transfer <address> <chain> <symbol> <amount> <message>`,
-        examples: `${SLASH_PREFIX}vault treasurer transfer 0x140... ftm usdc 100 hello`,
-        document: `${GM_GITBOOK}&action=streak`,
-      }),
-    ],
-  }),
+  help: async (interaction: CommandInteraction) =>
+    await {
+      embeds: [
+        composeEmbedMessage2(interaction, {
+          usage: `${SLASH_PREFIX}vault treasurer transfer <address> <chain> <symbol> <amount> <message>`,
+          examples: `${SLASH_PREFIX}vault treasurer transfer 0x140... ftm usdc 100 hello`,
+          document: `${GM_GITBOOK}&action=streak`,
+        }),
+      ],
+    },
   colorType: "Server",
 }
 
