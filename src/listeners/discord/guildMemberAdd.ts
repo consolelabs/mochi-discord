@@ -8,26 +8,33 @@ import { wrapError } from "utils/wrap-error"
 import { createBEGuildMember } from "types/webhook"
 import webhook from "adapters/webhook"
 import { getErrorEmbed } from "ui/discord/embed"
+import { eventAsyncStore } from "utils/async-storages"
 
 const event: DiscordEvent<"guildMemberAdd"> = {
   name: "guildMemberAdd",
   once: false,
   execute: async (member) => {
-    return await wrapError(
+    const metadata = {
+      sub_event_type: "guildMemberAdd",
+      guild_id: member.guild.id,
+      discord_id: member.user.id,
+    }
+
+    eventAsyncStore.run(
       {
-        sub_event_type: "guildMemberAdd",
-        guild_id: member.guild.id,
-        user_id: member.user.id,
+        data: JSON.stringify(metadata),
       },
       async () => {
-        await setUserDefaultRoles(member)
+        await wrapError(metadata, async () => {
+          await setUserDefaultRoles(member)
 
-        await welcomeNewMember(member)
+          await welcomeNewMember(member)
 
-        await webhook.pushDiscordWebhook(
-          "guildMemberAdd",
-          createBEGuildMember(member)
-        )
+          await webhook.pushDiscordWebhook(
+            "guildMemberAdd",
+            createBEGuildMember(member)
+          )
+        })
       }
     )
   },

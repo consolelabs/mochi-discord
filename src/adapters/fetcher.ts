@@ -11,6 +11,7 @@ import { kafkaQueue } from "queue/kafka/queue"
 import { stack } from "utils/stack-trace"
 import { TEST } from "env"
 import {
+  eventAsyncStore,
   slashCommandAsyncStore,
   textCommandAsyncStore,
 } from "utils/async-storages"
@@ -183,7 +184,8 @@ export class Fetcher {
         if (res.status === 500) {
           const store =
             textCommandAsyncStore.getStore() ||
-            slashCommandAsyncStore.getStore()
+            slashCommandAsyncStore.getStore() ||
+            eventAsyncStore.getStore()
           const message = JSON.stringify({
             ...(store ? JSON.parse(store.data) : {}),
             error: log,
@@ -191,7 +193,7 @@ export class Fetcher {
           })
           await kafkaQueue?.produceAnalyticMsg([message])
 
-          if (store) {
+          if (store?.msgOrInteraction) {
             if (store.msgOrInteraction instanceof Message) {
               await store.msgOrInteraction.reply(somethingWentWrongPayload())
             } else {
@@ -237,14 +239,16 @@ export class Fetcher {
       })
       logger.error(log)
       const store =
-        textCommandAsyncStore.getStore() || slashCommandAsyncStore.getStore()
+        textCommandAsyncStore.getStore() ||
+        slashCommandAsyncStore.getStore() ||
+        eventAsyncStore.getStore()
       const message = JSON.stringify({
         ...(store ? JSON.parse(store.data) : {}),
         error: log,
         stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
       })
       await kafkaQueue?.produceAnalyticMsg([message])
-      if (store) {
+      if (store?.msgOrInteraction) {
         if (store.msgOrInteraction instanceof Message) {
           await store.msgOrInteraction.reply(somethingWentWrongPayload())
         } else {
