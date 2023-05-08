@@ -209,19 +209,15 @@ function showSuccesfulResponse(
     }`
   }
 
-  const usdAmount =
-    payload.recipients.length > 0
-      ? payload.usd_amount / payload.recipients.length
-      : payload.usd_amount
-
   let description = `${userMention(
     payload.sender
   )} has sent ${recipientDescription} **${formatDigit(
     res.amount_each.toString(),
     18
-  )} ${payload.token}** (${APPROX} $${roundFloatNumber(usdAmount, 4)}) ${
-    payload.recipients.length > 1 ? "each" : ""
-  }`
+  )} ${payload.token}** (${APPROX} $${roundFloatNumber(
+    payload.usd_amount / payload.recipients.length,
+    4
+  )}) ${payload.recipients.length > 1 ? "each" : ""}`
   if (payload.message) {
     description += ` with message\n\n${getEmoji("ANIMATED_CHAT", true)} ${
       payload.message
