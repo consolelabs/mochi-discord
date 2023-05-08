@@ -275,10 +275,14 @@ export async function render(
   const routes = await aggregateTradeRoute(routeSummary)
 
   const fromAmountFormatted = utils.commify(
-    formatDigit(utils.formatUnits(routeSummary.amountIn, tokenIn.decimals))
+    formatDigit({
+      value: utils.formatUnits(routeSummary.amountIn, tokenIn.decimals),
+    })
   )
   const toAmountFormatted = utils.commify(
-    formatDigit(utils.formatUnits(routeSummary.amountOut, tokenOut.decimals))
+    formatDigit({
+      value: utils.formatUnits(routeSummary.amountOut, tokenOut.decimals),
+    })
   )
 
   const fromEmo = getEmojiToken(from, false)
@@ -337,7 +341,7 @@ export async function render(
     {
       name: "From",
       value: `${fromEmo} ${fromAmountFormatted} ${from} \n\`$${utils.commify(
-        formatDigit(routeSummary.amountInUsd)
+        formatDigit({ value: routeSummary.amountInUsd })
       )}\``,
       inline: true,
     },
@@ -349,14 +353,16 @@ export async function render(
     {
       name: "To",
       value: `${toEmo} ${toAmountFormatted} ${to}\n\`$${utils.commify(
-        formatDigit(routeSummary.amountOutUsd)
+        formatDigit({ value: routeSummary.amountOutUsd })
       )}\``,
       inline: true,
     },
     {
       name: "Gas Fee",
       value: routeSummary.gasUsd
-        ? `${APPROX} \`$${utils.commify(formatDigit(routeSummary.gasUsd))}\``
+        ? `${APPROX} \`$${utils.commify(
+            formatDigit({ value: routeSummary.gasUsd })
+          )}\``
         : "Unknown",
       inline: true,
     },

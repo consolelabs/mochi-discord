@@ -56,7 +56,7 @@ export async function renderChartImage({
           ? rounded
           : Number(rounded) < 0.01 || Number(rounded) > 1000000
           ? Number(rounded).toExponential()
-          : formatDigit(String(value))
+          : formatDigit({ value: String(value) })
       },
     },
     grid: {

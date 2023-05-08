@@ -7,7 +7,6 @@ import {
   MessageButton,
   MessageOptions,
 } from "discord.js"
-import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import NodeCache from "node-cache"
 import parse from "parse-duration"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -27,6 +26,8 @@ import {
   isTokenSupported,
   parseMoniker,
   parseTipAmount,
+  truncateAmountDecimal,
+  validateTipAmount,
 } from "utils/tip-bot"
 import { InternalError } from "../../../errors"
 import { InsufficientBalanceError } from "../../../errors/insufficient-balance"
@@ -34,7 +35,7 @@ import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { RunResult } from "../../../types/common"
 import { AirdropOptions, TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
-import { formatDigit, isValidTipAmount } from "../../../utils/defi"
+import { formatDigit } from "../../../utils/defi"
 import { reply } from "../../../utils/discord"
 import { confirmationHandler, tokenSelectionHandler } from "./handler"
 import * as processor from "./processor"
@@ -99,6 +100,7 @@ export async function validateAndShowConfirmation(
   opts: AirdropOptions
 ) {
   const decimal = balance.token?.decimal ?? 0
+  payload.decimal = decimal
   const current = +balance.amount / Math.pow(10, decimal)
 
   // validate balance
@@ -112,15 +114,19 @@ export async function validateAndShowConfirmation(
       },
     })
   }
-  payload.amount = payload.all ? current : payload.amount
-
-  // validate maximum fraction digits of amount
-  if (!isValidTipAmount(payload.amount.toString(), decimal)) {
-    throw new DiscordWalletTransferError({
-      message: ci,
-      error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
-    })
+  if (payload.all) {
+    const truncated = truncateAmountDecimal(balance.amount)
+    payload.amount = +truncated / Math.pow(10, decimal)
+  } else {
+    payload.amount = +payload.amount.toFixed(decimal)
   }
+
+  validateTipAmount({
+    msgOrInteraction: ci,
+    amount: payload.amount,
+    decimal,
+    ...(opts.entries && { numOfRecipients: opts.entries }),
+  })
 
   // validate tip range
   const usdAmount = payload.amount * balance.token?.price
@@ -128,7 +134,10 @@ export async function validateAndShowConfirmation(
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
-  payload.amount_string = formatDigit(payload.amount.toString(), decimal)
+  payload.amount_string = formatDigit({
+    value: payload.amount.toString(),
+    fractionDigits: decimal,
+  })
   payload.usd_amount = usdAmount
   payload.token_price = balance.token?.price
   return showConfirmation(ci, payload, opts)
@@ -209,7 +218,10 @@ function showConfirmation(
   const tokenEmoji = getEmojiToken(payload.token as TokenEmojiKey)
   const usdAmount = payload.amount * (payload.token_price ?? 0)
   const formattedUsd = roundFloatNumber(usdAmount, 4)
-  const formattedAmount = formatDigit(payload.amount.toString(), 18)
+  const formattedAmount = formatDigit({
+    value: payload.amount.toString(),
+    fractionDigits: 18,
+  })
   const amountDescription = `${tokenEmoji} **${formattedAmount} ${payload.token}** (${APPROX} $${formattedUsd})`
 
   const confirmEmbed = composeEmbedMessage(null, {

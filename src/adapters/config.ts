@@ -1160,6 +1160,7 @@ class Config extends Fetcher {
     name: string
     threshold: string
     vault_creator: string
+    desig_mode?: boolean
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault`, {
       method: "POST",
@@ -1198,13 +1199,17 @@ class Config extends Fetcher {
     return await this.jsonFetch(`${API_BASE_URL}/vault/info`)
   }
 
-  public async createAddTreasureRequest(req: {
+  public async createTreasureRequest(req: {
     guild_id: string
     vault_name: string
-    user_discord_id: string
+    user_discord_id?: string
     message: string
     requester: string
     type: string
+    amount?: string
+    chain?: string
+    token?: string
+    address?: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/request`, {
       method: "POST",
@@ -1237,6 +1242,20 @@ class Config extends Fetcher {
     })
   }
 
+  public async transferVaultToken(req: {
+    vault_id: number
+    guild_id: string
+    address: string
+    amount: string
+    token: string
+    chain: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/transfer`, {
+      method: "POST",
+      body: req,
+    })
+  }
+
   public async removeTreasurerFromVault(req: {
     vault_id: number
     guild_id: string
@@ -1252,10 +1271,14 @@ class Config extends Fetcher {
   public async createTreasurerResult(req: {
     vault_id: number
     guild_id: string
-    user_discord_id: string
+    user_discord_id?: string
     channel_id: string
     type: string
     status: string
+    amount?: string
+    chain?: string
+    token?: string
+    address?: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/result`, {
       method: "POST",
