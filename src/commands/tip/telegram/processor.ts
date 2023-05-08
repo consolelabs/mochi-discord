@@ -298,7 +298,10 @@ async function validateAndTransfer(
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
-  payload.amount_string = formatDigit(payload.amount.toString(), decimal)
+  payload.amount_string = formatDigit({
+    value: payload.amount.toString(),
+    fractionDigits: decimal,
+  })
   payload.usd_amount = usdAmount
   return execute(msgOrInteraction, payload)
 }

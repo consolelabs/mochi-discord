@@ -6,11 +6,21 @@ import { getAuthor, TokenEmojiKey } from "./common"
 import { convertString } from "./convert"
 import { getProfileIdByDiscord } from "./profile"
 
-export function formatDigit(str: string, fractionDigits = 6) {
-  const num = Number(str)
+export function formatDigit({
+  value,
+  fractionDigits = 6,
+  withoutCommas = false,
+}: {
+  value: string
+  fractionDigits?: number
+  withoutCommas?: boolean
+}) {
+  const num = Number(value)
   const s = num.toLocaleString(undefined, { maximumFractionDigits: 18 })
   const [left, right = ""] = s.split(".")
-  if (Number(right) === 0 || right === "" || left.length >= 4) return left
+  if (Number(right) === 0 || right === "" || left.length >= 4) {
+    return withoutCommas ? left.replaceAll(",", "") : left
+  }
   const numsArr = right.split("")
   let rightStr = numsArr.shift() as string
   while (Number(rightStr) === 0 || rightStr.length < fractionDigits) {
@@ -22,11 +32,12 @@ export function formatDigit(str: string, fractionDigits = 6) {
   while (rightStr.endsWith("0")) {
     rightStr = rightStr.slice(0, rightStr.length - 1)
   }
-  return left + "." + rightStr
+  const leftStr = withoutCommas ? left.replaceAll(",", "") : left
+  return leftStr + "." + rightStr
 }
 
 export function isValidTipAmount(str: string, decimal: number) {
-  const s = formatDigit(str, decimal)
+  const s = formatDigit({ value: str, fractionDigits: decimal })
   if (s === "0") return false
   const numOfFracDigits = s.split(".")[1]?.length ?? 0
   return numOfFracDigits <= decimal

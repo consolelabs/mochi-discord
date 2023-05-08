@@ -189,8 +189,11 @@ function switchView(
           //
           const tokenVal = convertString(amount, decimal)
           const usdVal = price * tokenVal
-          const value = formatDigit(tokenVal.toString())
-          const usdWorth = formatDigit(usdVal.toString(), 4)
+          const value = formatDigit({ value: tokenVal.toString() })
+          const usdWorth = formatDigit({
+            value: usdVal.toString(),
+            fractionDigits: 4,
+          })
           //
           totalWorth += usdVal
           const text = `${value} ${symbol}`
@@ -223,8 +226,11 @@ function switchView(
         const { name: tokenName, symbol, decimal, price, chain, native } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
-        const value = formatDigit(tokenVal.toString())
-        const usdWorth = formatDigit(usdVal.toString(), 4)
+        const value = formatDigit({ value: tokenVal.toString() })
+        const usdWorth = formatDigit({
+          value: usdVal.toString(),
+          fractionDigits: 4,
+        })
         totalWorth += usdVal
         if (tokenVal === 0) return
 
@@ -248,7 +254,9 @@ function switchView(
 
   embed.addFields({
     name: `Total (U.S dollar)`,
-    value: `${getEmoji("CASH")} \`$${formatDigit(totalWorth.toString())}\``,
+    value: `${getEmoji("CASH")} \`$${formatDigit({
+      value: totalWorth.toString(),
+    })}\``,
   })
   return embed
 }
@@ -268,8 +276,11 @@ export async function renderBalances(
       const { name: tokenName, symbol, decimal, price, chain, native } = token
       const tokenVal = convertString(amount, decimal)
       const usdVal = price * tokenVal
-      const value = formatDigit(tokenVal.toString())
-      const usdWorth = formatDigit(usdVal.toString(), 4)
+      const value = formatDigit({ value: tokenVal.toString() })
+      const usdWorth = formatDigit({
+        value: usdVal.toString(),
+        fractionDigits: 4,
+      })
       totalWorth += usdVal
       if (tokenVal === 0) return
 
@@ -305,7 +316,9 @@ export async function renderBalances(
   justifyEmbedFields(embed, 3)
   embed.addFields({
     name: `Estimated total (U.S dollar)`,
-    value: `${getEmoji("CASH")} \`$${formatDigit(totalWorth.toString())}\``,
+    value: `${getEmoji("CASH")} \`$${formatDigit({
+      value: totalWorth.toString(),
+    })}\``,
   })
 
   return {
