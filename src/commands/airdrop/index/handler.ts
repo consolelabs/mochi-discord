@@ -36,6 +36,7 @@ import {
   describeRunTime,
   validateAndShowConfirmation,
 } from "./processor"
+import { getMaximumRecipients } from "../../../utils/tip-bot"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -81,10 +82,9 @@ async function confirmAirdrop(
     .toDate()
   const airdropEmbed = composeEmbedMessage(null, {
     author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
-    description: `${author} left an airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${formatDigit(
-      usd_amount.toString(),
-      4
-    )})${
+    description: `${author} left an airdrop of ${tokenEmoji} **${formatDigit({
+      value: amount.toString(),
+    })} ${token}** (${APPROX} $${roundFloatNumber(usd_amount, 4)})${
       entries
         ? ` for ${entries && entries > 1 ? `${entries} people` : "1 person"}`
         : ""
@@ -97,6 +97,9 @@ async function confirmAirdrop(
 
   const cacheKey = `airdrop-${i.message.id}`
   airdropCache.set(cacheKey, [], opts.duration)
+
+  opts.entries =
+    opts.entries || getMaximumRecipients(payload.amount, payload.decimal ?? 18)
 
   checkExpiredAirdrop(i, cacheKey, payload, opts)
 
@@ -126,7 +129,6 @@ function checkExpiredAirdrop(
 ) {
   const { token, amount_string = "", usd_amount = 0 } = payload
   const amount = +amount_string
-  const { entries } = opts
   airdropCache.on("expired", (key, participants: string[]) => {
     wrapError(i, async () => {
       if (key !== cacheKey) {
@@ -137,7 +139,7 @@ function checkExpiredAirdrop(
       airdropCache.del(key)
 
       // avoid race condition, num. of participants might exceed max entries
-      if (entries) participants = participants.slice(0, entries)
+      if (opts.entries) participants = participants.slice(0, opts.entries)
 
       const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
       const embed = composeEmbedMessage(null, {
@@ -189,7 +191,7 @@ function checkExpiredAirdrop(
 
       // send airdrop results to author + participants
       sendRecipientsDm(i, participants, token, data.amount_each.toString())
-      sendAuthorDm(i, participants.length, token, amount)
+      sendAuthorDm(i, participants.length, token, amount_string)
 
       const description = `${
         i.user
@@ -207,14 +209,14 @@ function sendAuthorDm(
   i: ButtonInteraction,
   pNum: number,
   token: string,
-  amount: number
+  amountStr: string
 ) {
   const aPointingRight = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const embed = composeEmbedMessage(null, {
     author: ["The airdrop has ended!", getEmojiURL(emojis.AIRDROP)],
     description: `\n${aPointingRight} You have airdropped ${getEmoji(
       token as TokenEmojiKey
-    )} ${amount} ${token} for ${pNum} users at ${
+    )} ${amountStr} ${token} for ${pNum} users at ${
       i.channel
     }\n${aPointingRight} Let's check your </balances:1062577077708136500> and make another </airdrop:1062577077708136504>!`,
   })
@@ -239,7 +241,7 @@ function sendRecipientsDm(
       ],
       description: `You have received ${APPROX} ${getEmoji(
         token as TokenEmojiKey
-      )} ${formatDigit(amountEach)} ${token} from ${
+      )} ${formatDigit({ value: amountEach })} ${token} from ${
         i.user
       }'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
         "ANIMATED_WITHDRAW",
@@ -262,9 +264,6 @@ async function enterAirdrop(
   author: User,
   cacheKey: string
 ) {
-  // await i.deferUpdate()
-
-  const { duration, entries } = opts
   const participants: string[] = airdropCache.get(cacheKey) ?? []
 
   const isAuthor = author.id === i.user.id
@@ -299,7 +298,7 @@ async function enterAirdrop(
     return
   }
 
-  if (entries && participants.length > +entries) {
+  if (opts.entries && participants.length > opts.entries) {
     await i.reply({
       ephemeral: true,
       embeds: [
@@ -319,14 +318,14 @@ async function enterAirdrop(
       composeEmbedMessage(null, {
         title: `${getEmoji("CHECK")} Entered airdrop`,
         description: `You will receive your reward in ${dayjs
-          .duration(duration, "seconds")
+          .duration(opts.duration, "seconds")
           .humanize(true)}.`,
         footer: ["You will only receive this notification once"],
         color: msgColors.SUCCESS,
       }),
     ],
   })
-  if (entries && participants.length === +entries) {
+  if (opts.entries && participants.length === opts.entries) {
     airdropCache.emit("expired", cacheKey, participants)
   }
 }
@@ -336,7 +335,8 @@ export function entranceHandler(
   author: User,
   cacheKey: string
 ) {
-  return async (i: ButtonInteraction) => enterAirdrop(i, opts, author, cacheKey)
+  return async (i: ButtonInteraction) =>
+    await enterAirdrop(i, opts, author, cacheKey)
 }
 
 export function tokenSelectionHandler(

@@ -33,6 +33,8 @@ import {
   parseMoniker,
   parseRecipients,
   parseTipAmount,
+  truncateAmountDecimal,
+  validateTipAmount,
 } from "utils/tip-bot"
 import defi from "../../../adapters/defi"
 import { UnsupportedTokenError } from "../../../errors/unsupported-token"
@@ -40,7 +42,7 @@ import { RunResult } from "../../../types/common"
 import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { APPROX } from "../../../utils/constants"
-import { formatDigit, isValidTipAmount } from "../../../utils/defi"
+import { formatDigit } from "../../../utils/defi"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -184,7 +186,7 @@ function showSuccesfulResponse(
   payload: any,
   res: any
 ): RunResult<MessageOptions> {
-  const users = payload.targets.join(", ")
+  const users = payload.recipients.map((r: string) => `<@${r}>`).join(", ")
   const isOnline = payload.targets.includes("online")
   const hasRole = payload.targets.some(
     (t: string) => parseDiscordToken(t).isRole
@@ -211,10 +213,10 @@ function showSuccesfulResponse(
 
   let description = `${userMention(
     payload.sender
-  )} has sent ${recipientDescription} **${formatDigit(
-    res.amount_each.toString(),
-    18
-  )} ${payload.token}** (${APPROX} $${roundFloatNumber(
+  )} has sent ${recipientDescription} **${formatDigit({
+    value: res.amount_each.toString(),
+    fractionDigits: payload.decimal,
+  })} ${payload.token}** (${APPROX} $${roundFloatNumber(
     payload.usd_amount / payload.recipients.length,
     4
   )}) ${payload.recipients.length > 1 ? "each" : ""}`
@@ -313,6 +315,7 @@ export async function validateAndTransfer(
 ) {
   const decimal = balance.token?.decimal ?? 0
   const current = +balance.amount / Math.pow(10, decimal)
+  payload.decimal = decimal
 
   // validate balance
   if (current < payload.amount && !payload.all) {
@@ -325,15 +328,21 @@ export async function validateAndTransfer(
       },
     })
   }
-  payload.amount = payload.all ? current : payload.amount
 
-  // validate maximum fraction digits of amount
-  if (!isValidTipAmount(payload.amount.toString(), decimal)) {
-    throw new DiscordWalletTransferError({
-      message: msgOrInteraction,
-      error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
-    })
+  if (payload.all) {
+    const truncated = truncateAmountDecimal(balance.amount)
+    payload.amount = +truncated / Math.pow(10, decimal)
+  } else {
+    payload.amount = +payload.amount.toFixed(decimal)
   }
+  payload.amount = +payload.amount.toFixed(decimal)
+
+  validateTipAmount({
+    msgOrInteraction,
+    amount: payload.amount,
+    decimal,
+    numOfRecipients: payload.recipients.length,
+  })
 
   // validate tip range
   const usdAmount = payload.amount * balance.token?.price
@@ -341,7 +350,10 @@ export async function validateAndTransfer(
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
-  payload.amount_string = formatDigit(payload.amount.toString(), decimal)
+  payload.amount_string = formatDigit({
+    value: payload.amount.toString(),
+    fractionDigits: decimal,
+  })
   payload.usd_amount = usdAmount
   return transfer(msgOrInteraction, payload)
 }

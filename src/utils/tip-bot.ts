@@ -15,6 +15,7 @@ import {
 } from "./common"
 import { SPACE, SPACES_REGEX } from "./constants"
 import { getProfileIdByDiscord } from "./profile"
+import { formatDigit } from "./defi"
 
 const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
   //
@@ -400,7 +401,8 @@ export function parseTipAmount(
         })
 
       const [amount, unit] = regExResult.slice(1)
-      result.amount = parseFloat(amount)
+      const truncated = truncateAmountDecimal(amount)
+      result.amount = parseFloat(truncated)
       result.unit = unit
       break
     }
@@ -413,8 +415,40 @@ export function parseTipAmount(
         error: "The amount is invalid. Please insert a positive number.",
         title: "Invalid amount",
       })
+
+    default: {
+      const truncated = truncateAmountDecimal(amountArg)
+      result.amount = parseFloat(truncated)
+    }
   }
 
+  return result
+}
+
+/**
+ * Returns the truncated amount if the inputted amount is automatically rounded.
+ * Else returns the inputted amount
+ * @param amountArg: inputted amount
+ * @param decimal: token decimals
+ */
+export function truncateAmountDecimal(amountArg: string, decimal = 18): string {
+  const amount = Number(amountArg)
+  const formatted = formatDigit({
+    value: amount.toString(),
+    fractionDigits: decimal,
+    withoutCommas: true,
+  })
+  if (amountArg === formatted) return amountArg
+
+  // if the inputted amount and the formatted amount is not the same,
+  // that means the formatted amount is automatically rounded so we have to truncate it
+  // instead of rounding to avoid insufficient balance error
+  let result = ""
+  let truncated = false
+  for (let i = 0; i < amountArg.length; i++) {
+    result += truncated ? "0" : amountArg.charAt(i)
+    truncated = amountArg.charAt(i) !== formatted.charAt(i)
+  }
   return result
 }
 
@@ -459,4 +493,47 @@ export async function getBalances({
     throw new APIError({ msgOrInteraction, curl, description: log })
   }
   return data.filter((b: any) => b.amount !== "0")
+}
+
+/**
+ * Validate if total transfer amount and amount for each recipient is too low (based on token decimals).
+ */
+export function validateTipAmount({
+  msgOrInteraction,
+  amount,
+  decimal,
+  numOfRecipients = 1,
+}: {
+  msgOrInteraction: Message | CommandInteraction
+  amount: number
+  decimal: number
+  numOfRecipients?: number
+}) {
+  const min = 1 / Math.pow(10, decimal)
+  if (amount < min) {
+    throw new DiscordWalletTransferError({
+      message: msgOrInteraction,
+      discordId: getAuthor(msgOrInteraction).id,
+      error: "Amount too low!",
+    })
+  }
+
+  const maxRecipients = getMaximumRecipients(amount, decimal)
+  if (numOfRecipients > maxRecipients) {
+    throw new DiscordWalletTransferError({
+      message: msgOrInteraction,
+      discordId: getAuthor(msgOrInteraction).id,
+      error: "You cannot split this amount of tokens between this many people!",
+    })
+  }
+}
+
+/**
+ * Returns maximum recipients based on the amount
+ * @param amount Transfer amount
+ * @param decimal
+ */
+export function getMaximumRecipients(amount: number, decimal: number): number {
+  const min = 1 / Math.pow(10, decimal)
+  return Math.floor(amount / min)
 }
