@@ -9,7 +9,7 @@ import {
 import { GuildIdNotFoundError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
-import { getEmoji, msgColors } from "utils/common"
+import { getEmoji, msgColors, shortenHashOrAddress } from "utils/common"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -17,13 +17,13 @@ import {
   getSuccessEmbed,
 } from "ui/discord/embed"
 
-export const treasurerAddCache = new NodeCache({
+export const treasurerTransferCache = new NodeCache({
   stdTTL: 0,
   checkperiod: 1,
   useClones: false,
 })
 
-export async function runAddTreasurer({
+export async function runTransferTreasurer({
   i,
   guildId,
 }: {
@@ -34,48 +34,46 @@ export async function runAddTreasurer({
     throw new GuildIdNotFoundError({ message: i })
   }
 
-  const user = i.options.getUser("user")
-  if (!user) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: "Invalid user. Please choose another one!",
-          }),
-        ],
-      },
-    }
-  }
-
   const vaultName = i.options.getString("name") ?? ""
+  const token = i.options.getString("token") ?? ""
+  const address = i.options.getString("address") ?? ""
+  const shortenAddress = shortenHashOrAddress(address)
+  const amount = i.options.getString("amount") ?? ""
+  const chain = i.options.getString("chain") ?? ""
   const {
-    data: dataAddTreasurerReq,
-    status: statusAddTreasurerReq,
-    curl: curlAddTreasurerReq,
-    log: logAddTreasurerReq,
-    originalError: originalErrorAddTreasurerReq,
+    data: dataTransferTreasurerReq,
+    status: statusTransferTreasurerReq,
+    curl: curlTransferTreasurerReq,
+    log: logTransferTreasurerReq,
+    originalError: originalErrorTransferTreasurerReq,
   } = await config.createTreasureRequest({
     guild_id: guildId,
-    user_discord_id: user.id,
     vault_name: vaultName,
     message: i.options.getString("message") ?? "",
-    type: "add",
+    type: "transfer",
     requester: i.user.id,
+    address: address,
+    chain: chain,
+    token: token,
+    amount: amount,
   })
 
-  if (statusAddTreasurerReq !== 200 && statusAddTreasurerReq !== 400) {
+  if (
+    statusTransferTreasurerReq !== 200 &&
+    statusTransferTreasurerReq !== 400
+  ) {
     throw new APIError({
-      curl: curlAddTreasurerReq,
-      description: logAddTreasurerReq,
+      curl: curlTransferTreasurerReq,
+      description: logTransferTreasurerReq,
     })
   }
 
-  if (statusAddTreasurerReq === 400 && originalErrorAddTreasurerReq) {
+  if (statusTransferTreasurerReq === 400 && originalErrorTransferTreasurerReq) {
     return {
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            description: originalErrorAddTreasurerReq,
+            description: originalErrorTransferTreasurerReq,
           }),
         ],
       },
@@ -83,21 +81,21 @@ export async function runAddTreasurer({
   }
 
   // send DM to submitter
-  dataAddTreasurerReq?.treasurer.forEach((treasurer: any) => {
+  dataTransferTreasurerReq?.treasurer.forEach((treasurer: any) => {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `treasurerAdd-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
+        customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${shortenAddress}-${amount}-${token}-${chain}-${i.channelId}`,
         style: "SUCCESS",
         label: "Approve",
       }),
       new MessageButton({
-        customId: `treasurerAdd-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
+        customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${shortenAddress}-${amount}-${token}-${chain}-${i.channelId}`,
         style: "DANGER",
         label: "Reject",
       })
     )
 
-    const cacheKey = `treasurerAdd-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`
+    const cacheKey = `treaTransfer-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${shortenAddress}-${amount}-${token}-${chain}-${i.channelId}`
 
     i.guild?.members
       .fetch(treasurer.user_discord_id)
@@ -107,13 +105,15 @@ export async function runAddTreasurer({
             composeEmbedMessage(null, {
               title: `${getEmoji("ANIMATED_BELL", true)} Mochi notifications`,
               description: `**Approval Request #${
-                dataAddTreasurerReq?.request.id
+                dataTransferTreasurerReq?.request.id
               }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
-                "TREASURER_ADD"
-              )} Add <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
+                "SHARE"
+              )} Send ${getEmoji(
+                "ETH"
+              )} ${amount} ${token} from ${vaultName} to \`${shortenAddress}\` \nMessage ${getEmoji(
                 "ANIMATED_CHAT",
                 true
-              )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
+              )}\n \`\`\`${dataTransferTreasurerReq?.request.message}\`\`\``,
               color: msgColors.MOCHI,
               thumbnail:
                 "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png",
@@ -122,7 +122,7 @@ export async function runAddTreasurer({
           components: [actionRow],
         })
 
-        treasurerAddCache.set(cacheKey, msg)
+        treasurerTransferCache.set(cacheKey, msg)
       })
   })
 
@@ -131,17 +131,15 @@ export async function runAddTreasurer({
   const embed = new MessageEmbed()
     .setTitle(
       `${getEmoji("PROPOSAL")} Request #${
-        dataAddTreasurerReq?.request.id
+        dataTransferTreasurerReq?.request.id
       } successfully created`
     )
     .setDescription(
-      `You want to add <@${
-        user.id
-      }> to **${vaultName} vault**\n\nMessage ${getEmoji(
+      `You want to send ${amount} ${token} to \`${shortenAddress}\` \n\nMessage ${getEmoji(
         "ANIMATED_CHAT",
         true
       )}\n\`\`\`${
-        dataAddTreasurerReq?.request.message
+        dataTransferTreasurerReq?.request.message
       }\`\`\`\nWe'll notify you once all treasurers have accepted the request.`
     )
     .setColor(msgColors.MOCHI)
@@ -154,19 +152,21 @@ export async function runAddTreasurer({
   return { messageOptions: { embeds: [embed] } }
 }
 
-export async function handleTreasurerAdd(i: ButtonInteraction) {
+export async function handleTreasurerTransfer(i: ButtonInteraction) {
   await i.deferUpdate()
   const args = i.customId.split("-")
   const choice = args[1]
   const requestId = args[2]
   const vaultId = args[3]
-  // const guildId = args[4]
   const submitter = args[4]
-  const user = args[5]
-  const channelId = args[6]
+  const address = args[5]
+  const amount = args[6]
+  const token = args[7]
+  const chain = args[8]
+  const channelId = args[9]
 
   const {
-    data: dataAddTreasurer,
+    data: dataTransferTreasurer,
     status,
     curl,
     log,
@@ -176,10 +176,10 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     request_id: Number(requestId),
     submitter: submitter,
     choice: choice,
-    type: "add",
+    type: "transfer",
   })
 
-  if ((status !== 200 && status !== 400) || !dataAddTreasurer) {
+  if ((status !== 200 && status !== 400) || !dataTransferTreasurer) {
     throw new APIError({
       curl: curl,
       description: log,
@@ -199,20 +199,25 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
   }
 
   const modelNotify = {
-    guild_id: dataAddTreasurer.submission.guild_id,
-    user_discord_id: user,
+    guild_id: dataTransferTreasurer.submission.guild_id,
     vault_id: Number(vaultId),
     channel_id: channelId,
-    type: "add",
+    type: "transfer",
     status: "",
+    token: token,
+    amount: amount,
+    address: address,
+    chain: chain,
   }
-  if (dataAddTreasurer.vote_result.is_approved === true) {
+  if (dataTransferTreasurer.vote_result.is_approved === true) {
     // add treasurer to vault
-    const { data, status, curl, log } = await config.addTreasurerToVault({
-      guild_id: dataAddTreasurer.submission.guild_id,
-      user_discord_id: user,
+    const { data, status, curl, log } = await config.transferVaultToken({
+      guild_id: dataTransferTreasurer.submission.guild_id,
+      address: address,
       vault_id: Number(vaultId),
-      channel_id: channelId,
+      amount: amount,
+      token: token,
+      chain: chain,
     })
     if ((status !== 200 && status !== 400) || !data) {
       throw new APIError({
@@ -238,49 +243,49 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     })
 
     // get all key in cache
-    Array.from(treasurerAddCache.keys())
-      .filter((key) => key.includes(`treasurerAdd-${requestId}-${vaultId}`))
+    Array.from(treasurerTransferCache.keys())
+      .filter((key) => key.includes(`treaTransfer-${requestId}-${vaultId}`))
       .forEach(async (key) => {
-        const msg = treasurerAddCache.get(key) as Message
+        const msg = treasurerTransferCache.get(key) as Message
         if (msg) {
           await msg.edit({
             embeds: [
               getSuccessEmbed({
                 title: `Approved ${requestId}!!!`,
-                description: `Request has already been approved by majority treasurers \`${dataAddTreasurer.vote_result.total_approved_submission}/${dataAddTreasurer.vote_result.total_submission}\``,
+                description: `Request has already been approved by majority treasurers \`${dataTransferTreasurer.vote_result.total_approved_submission}/${dataTransferTreasurer.vote_result.total_submission}\``,
               }),
             ],
             components: [],
           })
         }
-        treasurerAddCache.del(key)
+        treasurerTransferCache.del(key)
       })
   } else {
     if (
-      dataAddTreasurer.vote_result.total_rejected_submisison >
-      dataAddTreasurer.vote_result.allowed_rejected_submisison
+      dataTransferTreasurer.vote_result.total_rejected_submisison >
+      dataTransferTreasurer.vote_result.allowed_rejected_submisison
     ) {
       modelNotify.status = "fail"
       // send notify
       await config.createTreasurerResult(modelNotify)
 
       // get all key in cache
-      Array.from(treasurerAddCache.keys())
-        .filter((key) => key.includes(`treasurerAdd-${requestId}-${vaultId}`))
+      Array.from(treasurerTransferCache.keys())
+        .filter((key) => key.includes(`treaTransfer-${requestId}-${vaultId}`))
         .forEach(async (key) => {
-          const msg = treasurerAddCache.get(key) as Message
+          const msg = treasurerTransferCache.get(key) as Message
           if (msg) {
             await msg.edit({
               embeds: [
                 getErrorEmbed({
                   title: `Rejected ${requestId}!!!`,
-                  description: `Request has already been rejected by majority treasurers \`${dataAddTreasurer.vote_result.total_rejected_submisison}/${dataAddTreasurer.vote_result.total_submission}\``,
+                  description: `Request has already been rejected by majority treasurers \`${dataTransferTreasurer.vote_result.total_rejected_submisison}/${dataTransferTreasurer.vote_result.total_submission}\``,
                 }),
               ],
               components: [],
             })
           }
-          treasurerAddCache.del(key)
+          treasurerTransferCache.del(key)
         })
     }
   }

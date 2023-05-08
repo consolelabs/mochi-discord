@@ -54,7 +54,7 @@ export async function runRemoveTreasurer({
     curl: curlAddTreasurerReq,
     log: logAddTreasurerReq,
     originalError: originalErrorAddTreasurerReq,
-  } = await config.createAddTreasureRequest({
+  } = await config.createTreasureRequest({
     guild_id: guildId,
     user_discord_id: user.id,
     vault_name: vaultName,

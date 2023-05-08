@@ -25,6 +25,7 @@ import {
   handleTokenReject,
 } from "commands/token/add/processor"
 import { handleTreasurerAdd } from "commands/vault/add/processor"
+import { handleTreasurerTransfer } from "commands/vault/transfer/processor"
 import { handleTreasurerRemove } from "commands/vault/remove/processor"
 import { sendVerifyURL } from "commands/verify/processor"
 import {
@@ -458,6 +459,12 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("treasurerRemove-rejected"):
       await handleTreasurerRemove(i)
+      return
+    case i.customId.startsWith("treaTransfer-approved"):
+      await handleTreasurerTransfer(i)
+      return
+    case i.customId.startsWith("treaTransfer-rejected"):
+      await handleTreasurerTransfer(i)
       return
     case i.customId.startsWith("tagme"):
       await tagme.editSubscribeStatus(i)
