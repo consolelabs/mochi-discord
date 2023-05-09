@@ -75,7 +75,8 @@ async function confirmAirdrop(
 
   const author = i.user
   const { duration, entries } = opts
-  const { amount, usd_amount = 0, token } = payload
+  const { amount, token, token_price = 0 } = payload
+  const usdAmount = token_price * amount
   const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
   const endTime = dayjs()
     .add(+duration, "second")
@@ -84,7 +85,7 @@ async function confirmAirdrop(
     author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
     description: `${author} left an airdrop of ${tokenEmoji} **${formatDigit({
       value: amount.toString(),
-    })} ${token}** (${APPROX} $${roundFloatNumber(usd_amount, 4)})${
+    })} ${token}** (${APPROX} $${roundFloatNumber(usdAmount, 4)})${
       entries
         ? ` for ${entries && entries > 1 ? `${entries} people` : "1 person"}`
         : ""
@@ -127,8 +128,9 @@ function checkExpiredAirdrop(
   payload: TransferPayload,
   opts: AirdropOptions
 ) {
-  const { token, amount_string = "", usd_amount = 0 } = payload
+  const { token, amount_string = "", token_price = 0 } = payload
   const amount = +amount_string
+  const usdAmount = amount * token_price
   airdropCache.on("expired", (key, participants: string[]) => {
     wrapError(i, async () => {
       if (key !== cacheKey) {
@@ -154,7 +156,7 @@ function checkExpiredAirdrop(
         const description = `${
           i.user
         }'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${roundFloatNumber(
-          usd_amount,
+          usdAmount,
           4
         )}) has not been collected by anyone ${getEmoji(
           "ANIMATED_SHRUGGING",
@@ -196,7 +198,7 @@ function checkExpiredAirdrop(
       const description = `${
         i.user
       }'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${roundFloatNumber(
-        usd_amount,
+        usdAmount,
         4
       )}) has been collected by ${participants.join(",")}!`
       embed.setDescription(description)

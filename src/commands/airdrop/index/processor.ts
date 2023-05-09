@@ -138,7 +138,6 @@ export async function validateAndShowConfirmation(
     value: payload.amount.toString(),
     fractionDigits: decimal,
   })
-  payload.usd_amount = usdAmount
   payload.token_price = balance.token?.price
   return showConfirmation(ci, payload, opts)
 }
