@@ -172,7 +172,6 @@ export const originalCommands: Record<string, Command> = {
   watchlist: watchlist.textCmd,
   gm: gm.textCmd,
   nft: nft.textCmd,
-  top: top.textCmd,
   sales: sales.textCmd,
   verify: verify.textCmd,
   feedback: feedback.textCmd,
