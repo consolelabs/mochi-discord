@@ -295,7 +295,7 @@ export async function parseTipArgs(
 
   // each (optional): comes after unit
   const eachIdx = unitIdx + 1
-  const each = args[eachIdx] === "each"
+  const each = args[eachIdx] === "each" && !all
 
   // message comes after each, if no each then after unit
   const messageIdx = (each ? eachIdx : unitIdx) + 1
