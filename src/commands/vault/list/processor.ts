@@ -4,7 +4,12 @@ import { GuildIdNotFoundError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { EmojiKey, getEmoji, msgColors } from "utils/common"
+import {
+  EmojiKey,
+  getEmoji,
+  msgColors,
+  shortenHashOrAddress,
+} from "utils/common"
 import { getSlashCommand } from "utils/commands"
 
 export async function runVaultList({
@@ -41,7 +46,12 @@ export async function runVaultList({
   let description = ""
   for (let i = 0; i < data.slice(0, 10).length; i++) {
     description =
-      description + `${getEmoji(`NUM_${i + 1}` as EmojiKey)} ${data[i].name}\n`
+      description +
+      `${getEmoji(`NUM_${i + 1}` as EmojiKey)} ${
+        data[i].name
+      } \`${shortenHashOrAddress(data[i].wallet_address)}\` | Threshold: \`${
+        data[i].threshold
+      }%\`\n`
   }
 
   description += `\n${getEmoji(
