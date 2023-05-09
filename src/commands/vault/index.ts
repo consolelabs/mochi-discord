@@ -51,8 +51,8 @@ const slashCmd: SlashCommand = {
         .setDescription("Add treasurer to vault")
         .addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>transferSlash.prepare())
     )
+    data.addSubcommand(<SlashCommandSubcommandBuilder>transferSlash.prepare())
     return data
   },
   run: async function (interaction: CommandInteraction) {
