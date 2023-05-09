@@ -21,6 +21,7 @@ import {
   isAddress,
   isValidAmount,
   msgColors,
+  thumbnails,
 } from "utils/common"
 import {
   MOCHI_ACTION_WITHDRAW,
@@ -164,25 +165,13 @@ export async function withdraw(
   await selectTokenToWithdraw(msgOrInteraction, balances, payload, all)
 }
 
-function composeWithdrawEmbed(payload: any) {
-  const token = payload.token?.toUpperCase() ?? ""
-  const tokenEmoji = getEmoji(token)
+function composeWithdrawEmbed() {
   return composeEmbedMessage(null, {
-    author: ["Withdraw Order Submitted", getEmojiURL(emojis.CHECK)],
-    description: "Your withdrawal was processed succesfully!",
-    color: msgColors.MOCHI,
-  }).addFields(
-    {
-      name: `Recipient's ${token} Address`,
-      value: `\`\`\`${payload.address}\`\`\``,
-      inline: false,
-    },
-    {
-      name: "Recipient amount",
-      value: `${tokenEmoji} ${payload.amount} ${token}`,
-      inline: true,
-    }
-  )
+    author: ["Withdraw Submitted", thumbnails.MOCHI],
+    image: thumbnails.MOCHI_POSE_4,
+    description:
+      "Your withdraw is underway, Mochi will DM you with the tx link if it succeeds or error message if it fails",
+  })
 }
 
 async function selectTokenToWithdraw(
@@ -319,7 +308,7 @@ export async function executeWithdraw(
   kafkaMsg.activity.content.token = payload.token
   sendActivityMsg(kafkaMsg)
 
-  const embed = composeWithdrawEmbed(payload)
+  const embed = composeWithdrawEmbed()
   await author.send({ embeds: [embed] }).catch(() => {
     msgOrInteraction.reply({
       embeds: [enableDMMessage()],
