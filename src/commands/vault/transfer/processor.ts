@@ -42,7 +42,7 @@ export async function runTransferTreasurer({
 
   const vaultName = i.options.getString("name", true)
   const token = i.options.getString("token", true)
-  const address = i.options.getString("address", true)
+  const address = i.options.getString("address", false) ?? ""
   const shortenAddress = shortenHashOrAddress(address)
   const amount = i.options.getString("amount", true)
   const chain = i.options.getString("chain", true)
@@ -191,6 +191,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
     await config.transferVaultToken({
       guild_id: dataTransferTreasurer.submission.guild_id,
       vault_id: Number(vaultId),
+      request_id: Number(requestId),
       address,
       amount,
       token,

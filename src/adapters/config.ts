@@ -1244,6 +1244,7 @@ class Config extends Fetcher {
 
   public async transferVaultToken(req: {
     vault_id: number
+    request_id: number
     guild_id: string
     address: string
     amount: string
