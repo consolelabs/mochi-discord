@@ -75,18 +75,18 @@ export async function runTransferTreasurer({
   dataTransferTreasurerReq?.treasurer.forEach((treasurer: any) => {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${shortenAddress}-${amount}-${token}-${chain}-${i.channelId}`,
+        customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}`,
         style: "SUCCESS",
         label: "Approve",
       }),
       new MessageButton({
-        customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${shortenAddress}-${amount}-${token}-${chain}-${i.channelId}`,
+        customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}`,
         style: "DANGER",
         label: "Reject",
       })
     )
 
-    const cacheKey = `treaTransfer-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${shortenAddress}-${amount}-${token}-${chain}-${i.channelId}`
+    const cacheKey = `treaTransfer-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}`
 
     i.guild?.members.fetch(treasurer.user_discord_id).then((treasurer) => {
       wrapError(i, async () => {
