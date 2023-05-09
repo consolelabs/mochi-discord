@@ -114,7 +114,7 @@ export async function runGetVaultDetail({
 
   let description = `
   ${walletAddress}
-  **Current Request**\n
+  **Current Transaction**
   `
   data.current_request.forEach((request: any) => {
     description += formatCurrentRequest(request)
@@ -157,6 +157,10 @@ export async function runGetVaultDetail({
 }
 
 function formatCurrentRequest(request: any) {
+  const address =
+    request.address === ""
+      ? "Mochi Wallet"
+      : shortenHashOrAddress(request.address)
   switch (request.action) {
     case "Sent":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
@@ -169,11 +173,17 @@ function formatCurrentRequest(request: any) {
     case "Add":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
-      }]](https://google.com) Add <@${request.target}> to the vault\n`
+      }]](https://google.com) Add <@${request.target}> as vault treasurer\n`
     case "Remove":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
       }]](https://google.com) Remove <@${request.target}> from the vault\n`
+    case "Transfer":
+      return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
+        request.total_submission
+      }]](https://google.com) Sent to ${address} ${
+        request.amount
+      } ${request.token.toUpperCase()}\n`
   }
 }
 
@@ -181,6 +191,8 @@ function formatRecentTransaction(tx: any) {
   const date = new Date(tx.date)
   const { monthName, hour, minute, time, day } = GetDateComponents(date)
   const t = `${monthName} ${day} ${hour}:${minute} ${time.toLowerCase()}`
+  const address =
+    tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
   switch (tx.action) {
     case "Sent":
       return `[[${t}]](https://mochi.gg/) ${getEmoji(
@@ -196,7 +208,7 @@ function formatRecentTransaction(tx: any) {
     case "Add":
       return `[[${t}]](https://mochi.gg/) ${getEmoji("TREASURER_ADD")} Add <@${
         tx.target
-      }> to the vault\n`
+      }> as vault treasurer\n`
     case "Remove":
       return `[[${t}]](https://mochi.gg/) ${getEmoji(
         "TREASURER_REMOVE"
@@ -206,6 +218,10 @@ function formatRecentTransaction(tx: any) {
         "ANIMATED_VAULT_KEY",
         true
       )} Set the threshold to ${tx.threshold}% for vault\n`
+    case "Transfer":
+      return `[[${t}]](https://mochi.gg/) ${getEmoji(
+        "SHARE"
+      )} Sent to ${address} ${tx.amount} ${tx.token}\n`
   }
 }
 

@@ -10,7 +10,7 @@ import { GuildIdNotFoundError, InternalError } from "errors"
 import { MessageEmbed } from "discord.js"
 import {
   getEmoji,
-  getEmojiURL,
+  getAnimatedEmojiURL,
   emojis,
   msgColors,
   shortenHashOrAddress,
@@ -43,7 +43,8 @@ export async function runTransferTreasurer({
   const vaultName = i.options.getString("name", true)
   const token = i.options.getString("token", true)
   const address = i.options.getString("address", false) ?? ""
-  const shortenAddress = shortenHashOrAddress(address)
+  const shortenAddress =
+    address === "" ? "Mochi Wallet" : shortenHashOrAddress(address)
   const amount = i.options.getString("amount", true)
   const chain = i.options.getString("chain", true)
   const {
@@ -104,7 +105,7 @@ export async function runTransferTreasurer({
                 true
               )}\n \`\`\`${dataTransferTreasurerReq?.request.message}\`\`\``,
               color: msgColors.MOCHI,
-              thumbnail: getEmojiURL(emojis.TREASURER_ADD),
+              thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
             }),
           ],
           components: [actionRow],
@@ -134,7 +135,7 @@ export async function runTransferTreasurer({
     .setColor(msgColors.MOCHI)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
-    .setThumbnail(getEmojiURL(emojis.TREASURER_ADD))
+    .setThumbnail(getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT))
 
   return { messageOptions: { embeds: [embed] } }
 }
