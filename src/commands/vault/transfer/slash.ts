@@ -48,11 +48,17 @@ const command: SlashCommand = {
           .setDescription("enter amount")
           .setRequired(true)
       )
+      .addUserOption((option) =>
+        option
+          .setName("user")
+          .setDescription("enter recipient user")
+          .setRequired(true)
+      )
       .addStringOption((option) =>
         option
           .setName("message")
           .setDescription("enter a message for user")
-          .setRequired(true)
+          .setRequired(false)
       )
       .addStringOption((option) =>
         option
