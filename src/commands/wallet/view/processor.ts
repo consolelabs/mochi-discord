@@ -20,6 +20,7 @@ import {
   emojis,
   equalIgnoreCase,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   isAddress,
   msgColors,
@@ -64,7 +65,7 @@ function composeWalletDetailsButtonRow(
   return new MessageActionRow().addComponents(
     new MessageButton({
       customId: `wl_my_token-${userId}-${address}-${alias}-${type}-${added}`,
-      emoji: getEmoji("ANIMATED_COIN_2"),
+      emoji: getEmoji("ANIMATED_COIN_2", true),
       style: "SECONDARY",
       label: "My Token",
       disabled: equalIgnoreCase(view, "token"),
@@ -368,7 +369,7 @@ async function getTokensEmbed(
         usd_balance,
       } = a
       if (usd_balance <= 1) return undefined
-      const tokenEmoji = getEmoji(symbol)
+      const tokenEmoji = getEmojiToken(symbol)
       const value = `${tokenEmoji} ${asset_balance.toLocaleString()} ${symbol.toUpperCase()}\n\`$${usd_balance.toLocaleString(
         undefined,
         { maximumFractionDigits: 4 }
@@ -469,7 +470,7 @@ export async function getTxnsEmbed(
           const transfers = value
             .map((action: any) => {
               const { amount, unit, native_transfer, contract } = action
-              const tokenEmoji = getEmoji(unit)
+              const tokenEmoji = getEmojiToken(unit)
               const transfferedAmount = `${
                 amount > 0 ? "+" : ""
               }${roundFloatNumber(amount, 4)}`
