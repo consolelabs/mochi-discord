@@ -40,6 +40,19 @@ export async function runTransferTreasurer({
     throw new GuildIdNotFoundError({ message: i })
   }
 
+  const user = i.options.getUser("user")
+  if (!user) {
+    return {
+      messageOptions: {
+        embeds: [
+          getErrorEmbed({
+            description: "Invalid user. Please choose another one!",
+          }),
+        ],
+      },
+    }
+  }
+
   const vaultName = i.options.getString("name", true)
   const token = i.options.getString("token", true)
   const address = i.options.getString("address", false) ?? ""
@@ -54,9 +67,9 @@ export async function runTransferTreasurer({
   } = await config.createTreasureRequest({
     guild_id: guildId,
     vault_name: vaultName,
-    message: i.options.getString("message") ?? "",
+    message: i.options.getString("message", false) ?? "",
     type: "transfer",
-    requester: i.user.id,
+    requester: user.id,
     address: address,
     chain: chain,
     token: token,
@@ -71,6 +84,12 @@ export async function runTransferTreasurer({
     })
   }
 
+  const msgField =
+    dataTransferTreasurerReq?.request.message === ""
+      ? ``
+      : `\nMessage ${getEmoji("ANIMATED_CHAT", true)}\n\`\`\`${
+          dataTransferTreasurerReq?.request.message
+        }\`\`\`\``
   // send DM to submitter
   dataTransferTreasurerReq?.treasurer.forEach((treasurer: any) => {
     const actionRow = new MessageActionRow().addComponents(
@@ -96,14 +115,11 @@ export async function runTransferTreasurer({
               title: `${getEmoji("ANIMATED_BELL", true)} Mochi notifications`,
               description: `**Approval Request #${
                 dataTransferTreasurerReq?.request.id
-              }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
+              }**\n<@${user.id}> has submitted a request\n${getEmoji(
                 "SHARE"
               )} Send ${getEmoji(
                 "ETH"
-              )} ${amount} ${token} from ${vaultName} to \`${shortenAddress}\` \nMessage ${getEmoji(
-                "ANIMATED_CHAT",
-                true
-              )}\n \`\`\`${dataTransferTreasurerReq?.request.message}\`\`\``,
+              )} ${amount} ${token} from ${vaultName} to \`${shortenAddress}\` ${msgField}`,
               color: msgColors.MOCHI,
               thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
             }),
@@ -125,12 +141,7 @@ export async function runTransferTreasurer({
       } successfully created`
     )
     .setDescription(
-      `You want to send ${amount} ${token} to \`${shortenAddress}\` \n\nMessage ${getEmoji(
-        "ANIMATED_CHAT",
-        true
-      )}\n\`\`\`${
-        dataTransferTreasurerReq?.request.message
-      }\`\`\`\nWe'll notify you once all treasurers have accepted the request.`
+      `You want to send ${amount} ${token} to \`${shortenAddress}\` \n${msgField}We'll notify you once all treasurers have accepted the request.`
     )
     .setColor(msgColors.MOCHI)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })

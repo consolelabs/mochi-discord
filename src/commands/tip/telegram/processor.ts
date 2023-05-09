@@ -302,7 +302,7 @@ async function validateAndTransfer(
     value: payload.amount.toString(),
     fractionDigits: decimal,
   })
-  payload.usd_amount = usdAmount
+  payload.token_price = balance.token?.price
   return execute(msgOrInteraction, payload)
 }
 
