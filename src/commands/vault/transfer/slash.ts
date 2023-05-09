@@ -5,6 +5,14 @@ import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { runTransferTreasurer } from "./processor"
 
+const chains = {
+  ethereum: "1",
+  bnb: "56",
+  fantom: "250",
+  polygon: "137",
+  solana: "999",
+}
+
 const command: SlashCommand = {
   name: "transfer",
   category: "Config",
@@ -18,15 +26,16 @@ const command: SlashCommand = {
           .setDescription("enter vault name")
           .setRequired(true)
       )
-      .addStringOption((option) =>
-        option
-          .setName("address")
-          .setDescription("enter wallet address")
+      .addStringOption((option) => {
+        const o = option
+          .setName("chain")
+          .setDescription("choose chain")
           .setRequired(true)
-      )
-      .addStringOption((option) =>
-        option.setName("chain").setDescription("choose chain").setRequired(true)
-      )
+        Object.keys(chains).forEach((key) =>
+          o.addChoice(key, chains[key as keyof typeof chains])
+        )
+        return o
+      })
       .addStringOption((option) =>
         option
           .setName("token")
@@ -44,6 +53,12 @@ const command: SlashCommand = {
           .setName("message")
           .setDescription("enter a message for user")
           .setRequired(true)
+      )
+      .addStringOption((option) =>
+        option
+          .setName("address")
+          .setDescription("enter wallet address")
+          .setRequired(false)
       )
   },
   run: async function (interaction: CommandInteraction) {
