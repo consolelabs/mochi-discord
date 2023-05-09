@@ -217,7 +217,7 @@ function showSuccesfulResponse(
     value: res.amount_each.toString(),
     fractionDigits: payload.decimal,
   })} ${payload.token}** (${APPROX} $${roundFloatNumber(
-    payload.usd_amount / payload.recipients.length,
+    res.amount_each * payload.token_price,
     4
   )}) ${payload.recipients.length > 1 ? "each" : ""}`
   if (payload.message) {
@@ -354,6 +354,6 @@ export async function validateAndTransfer(
     value: payload.amount.toString(),
     fractionDigits: decimal,
   })
-  payload.usd_amount = usdAmount
+  payload.token_price = balance.token?.price
   return transfer(msgOrInteraction, payload)
 }

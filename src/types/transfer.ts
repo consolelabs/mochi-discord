@@ -15,7 +15,6 @@ export type TransferPayload = {
   message?: string
   image?: string
   chain_id: string
-  usd_amount?: number
   amount_string?: string
   token_price?: number
   decimal?: number
