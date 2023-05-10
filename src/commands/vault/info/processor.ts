@@ -8,6 +8,8 @@ import { GetDateComponents } from "utils/time"
 import {
   EmojiKey,
   getEmoji,
+  getEmojiURL,
+  emojis,
   getEmojiToken,
   hasAdministrator,
   msgColors,
@@ -82,9 +84,7 @@ export async function runGetVaultInfo({
     .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
-    .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1090195482506174474/1090906036464005240/image.png"
-    )
+    .setThumbnail(getEmojiURL(emojis.ANIMATED_OPEN_VAULT))
 
   return { messageOptions: { embeds: [embed] } }
 }
