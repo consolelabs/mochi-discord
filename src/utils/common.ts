@@ -356,10 +356,10 @@ export const msgColors: Record<string, ColorResolvable> = {
   SUCCESS: "#5cd97d",
   PINK: "#FCD3C1",
   GRAY: "#1E1F22",
-  BLUE: "#C8EFF8",
+  BLUE: "#34AAFF",
   GREEN: "#5CD97D",
   YELLOW: "#F9F687",
-  MOCHI: "#C8EFF8",
+  MOCHI: "#34AAFF",
   ACTIVITY: "#62A1FE",
 }
 
@@ -440,7 +440,7 @@ export function maskAddress(str: string, minLen?: number) {
 export function getEmoji(
   key: EmojiKey | "",
   animated?: boolean,
-  fallback = ":jigsaw:"
+  fallback = "<:coin:1093923016691421205>"
 ) {
   if (!key) return fallback
 
