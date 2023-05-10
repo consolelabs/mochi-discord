@@ -13,7 +13,7 @@ export const traitEmojis = {
   ELEMENT: "993472685961125899",
   BLOODTYPE: "993472684157575259",
   LAND: ":mountain:",
-  FALLBACK: ":jigsaw:",
+  FALLBACK: "<:coin:1093923016691421205>",
 }
 
 export const traitTypeMapping = {

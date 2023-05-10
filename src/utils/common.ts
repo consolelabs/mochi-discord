@@ -440,7 +440,7 @@ export function maskAddress(str: string, minLen?: number) {
 export function getEmoji(
   key: EmojiKey | "",
   animated?: boolean,
-  fallback = ":jigsaw:"
+  fallback = "<:coin:1093923016691421205>"
 ) {
   if (!key) return fallback
 
