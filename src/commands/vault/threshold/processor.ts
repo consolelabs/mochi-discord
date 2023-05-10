@@ -58,7 +58,7 @@ export async function runCreateThreshold({
       ).repeat(5)}`
     )
     .setDescription(description)
-    .setColor(msgColors.GREEN)
+    .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
     .setThumbnail(

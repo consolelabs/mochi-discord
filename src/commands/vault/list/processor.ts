@@ -62,7 +62,7 @@ export async function runVaultList({
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("MOCHI_CIRCLE")} Vault List`)
     .setDescription(description)
-    .setColor(msgColors.MOCHI)
+    .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
     .setThumbnail(

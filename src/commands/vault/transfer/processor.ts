@@ -8,13 +8,7 @@ import {
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { MessageEmbed } from "discord.js"
-import {
-  getEmoji,
-  getAnimatedEmojiURL,
-  emojis,
-  msgColors,
-  shortenHashOrAddress,
-} from "utils/common"
+import { getEmoji, getAnimatedEmojiURL, emojis, msgColors } from "utils/common"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -56,8 +50,6 @@ export async function runTransferTreasurer({
   const vaultName = i.options.getString("name", true)
   const token = i.options.getString("token", true)
   const address = i.options.getString("address", false) ?? ""
-  const shortenAddress =
-    address === "" ? "Mochi Wallet" : shortenHashOrAddress(address)
   const amount = i.options.getString("amount", true)
   const chain = i.options.getString("chain", true)
   const {
@@ -70,6 +62,7 @@ export async function runTransferTreasurer({
     message: i.options.getString("message", false) ?? "",
     type: "transfer",
     requester: user.id,
+    user_discord_id: user.id,
     address: address,
     chain: chain,
     token: token,
@@ -87,19 +80,19 @@ export async function runTransferTreasurer({
   const msgField =
     dataTransferTreasurerReq?.request.message === ""
       ? ``
-      : `\nMessage ${getEmoji("ANIMATED_CHAT", true)}\n\`\`\`${
+      : `\n\nMessage ${getEmoji("ANIMATED_CHAT", true)}\n\`\`\`${
           dataTransferTreasurerReq?.request.message
-        }\`\`\`\``
+        }\`\`\``
   // send DM to submitter
   dataTransferTreasurerReq?.treasurer.forEach((treasurer: any) => {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}`,
+        customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}-${user.id}`,
         style: "SUCCESS",
         label: "Approve",
       }),
       new MessageButton({
-        customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}`,
+        customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}-${user.id}`,
         style: "DANGER",
         label: "Reject",
       })
@@ -112,15 +105,17 @@ export async function runTransferTreasurer({
         const msg = await treasurer.send({
           embeds: [
             composeEmbedMessage(null, {
-              title: `${getEmoji("ANIMATED_BELL", true)} Mochi notifications`,
-              description: `**Approval Request #${
+              title: `${getEmoji("ANIMATED_BELL", true)} mochi notifications`,
+              description: `<@${
+                i.user.id
+              }> has submitted the approval request #${
                 dataTransferTreasurerReq?.request.id
-              }**\n<@${user.id}> has submitted a request\n${getEmoji(
-                "SHARE"
-              )} Send ${getEmoji(
-                "ETH"
-              )} ${amount} ${token} from ${vaultName} to \`${shortenAddress}\` ${msgField}`,
-              color: msgColors.MOCHI,
+              }\n${getEmoji("SHARE")} Send ${getEmoji(
+                token.toUpperCase() as keyof typeof emojis
+              )} ${amount} ${token} from ${vaultName} to <@${
+                user.id
+              }> ${msgField}`,
+              color: msgColors.BLUE,
               thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
             }),
           ],
@@ -141,9 +136,9 @@ export async function runTransferTreasurer({
       } successfully created`
     )
     .setDescription(
-      `You want to send ${amount} ${token} to \`${shortenAddress}\` \n${msgField}We'll notify you once all treasurers have accepted the request.`
+      `You want to send ${amount} ${token} to <@${user.id}> \n${msgField}We'll notify you once all treasurers have accepted the request.`
     )
-    .setColor(msgColors.MOCHI)
+    .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
     .setThumbnail(getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT))
@@ -166,6 +161,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
   const token = args[7]
   const chain = args[8]
   const channelId = args[9]
+  const toUser = args[10]
 
   const {
     data: dataTransferTreasurer,
@@ -193,6 +189,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
     channel_id: channelId,
     type: "transfer",
     status: "",
+    user_discord_id: toUser,
     token,
     amount,
     address,
@@ -236,7 +233,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
             await msg.edit({
               embeds: [
                 getSuccessEmbed({
-                  title: `Approved ${requestId}!!!`,
+                  title: `The request ${requestId} has been approved`,
                   description: `Request has already been approved by majority of treasurers \`${dataTransferTreasurer.vote_result.total_approved_submission}/${dataTransferTreasurer.vote_result.total_submission}\``,
                 }),
               ],
@@ -265,7 +262,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
               await msg.edit({
                 embeds: [
                   getErrorEmbed({
-                    title: `Rejected ${requestId}!!!`,
+                    title: `The request ${requestId} has been rejected`,
                     description: `Request has already been rejected by majority of treasurers \`${dataTransferTreasurer?.vote_result.total_rejected_submisison}/${dataTransferTreasurer?.vote_result.total_submission}\``,
                   }),
                 ],
