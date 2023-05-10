@@ -65,9 +65,6 @@ export async function runVaultList({
     .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
-    .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1090195482506174474/1090905984299442246/image.png"
-    )
 
   return { messageOptions: { embeds: [embed] } }
 }

@@ -83,7 +83,7 @@ export async function runGetVaultInfo({
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
     .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1090195482506174474/1090906036464005240/image.png"
+      "https://cdn.discordapp.com/attachments/1003381172178530494/1105400697836556368/vault_open.gif"
     )
 
   return { messageOptions: { embeds: [embed] } }
