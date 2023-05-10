@@ -356,10 +356,10 @@ export const msgColors: Record<string, ColorResolvable> = {
   SUCCESS: "#5cd97d",
   PINK: "#FCD3C1",
   GRAY: "#1E1F22",
-  BLUE: "#C8EFF8",
+  BLUE: "#34AAFF",
   GREEN: "#5CD97D",
   YELLOW: "#F9F687",
-  MOCHI: "#C8EFF8",
+  MOCHI: "#34AAFF",
   ACTIVITY: "#62A1FE",
 }
 
