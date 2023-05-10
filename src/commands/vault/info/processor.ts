@@ -14,6 +14,7 @@ import {
   shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
+import { getSlashCommand } from "utils/commands"
 
 export async function runGetVaultInfo({
   i,
@@ -70,11 +71,15 @@ export async function runGetVaultInfo({
       ? "Not set"
       : `<#${dataConfigChannel.channel_id}>`
 
-  const description = `${dataInfo.description}\n\n\`logchannel:\`${logChannel}\n\n${step}\n [Read instruction](${dataInfo.instruction_link}) for a complete guide`
+  const description = `${
+    dataInfo.description
+  }\n\n\`logchannel:\`${logChannel}\n\n${await formatVaultInfoStep(
+    step
+  )}\n [Read instruction](${dataInfo.instruction_link}) for a complete guide`
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("INFO_VAULT")} ${title}`)
     .setDescription(description)
-    .setColor(msgColors.MOCHI)
+    .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
     .setThumbnail(
@@ -82,6 +87,10 @@ export async function runGetVaultInfo({
     )
 
   return { messageOptions: { embeds: [embed] } }
+}
+
+async function formatVaultInfoStep(step: string) {
+  return step.replaceAll("vaultCommand", `${await getSlashCommand("vault")}`)
 }
 
 export async function runGetVaultDetail({
@@ -148,7 +157,7 @@ export async function runGetVaultDetail({
     .concat(recentTxFields)
 
   const embed = composeEmbedMessage(null, {
-    color: msgColors.MOCHI,
+    color: msgColors.BLUE,
     title: `${getEmoji("ANIMATED_VAULT", true)} ${vaultName} vault`,
     description: description,
   }).addFields(fields)

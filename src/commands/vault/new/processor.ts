@@ -55,7 +55,7 @@ export async function runCreateVault({
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("CHECK")}**${data.name} vault successfully created**`)
     .setDescription(description)
-    .setColor(msgColors.MOCHI)
+    .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
     .setThumbnail(

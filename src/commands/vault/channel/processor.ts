@@ -58,7 +58,7 @@ export async function runCreateChannel({
       ).repeat(5)}`
     )
     .setDescription(`All the requests will be posted in the <#${channel.id}>`)
-    .setColor(msgColors.GREEN)
+    .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
 

@@ -106,15 +106,17 @@ export async function runAddTreasurer({
           embeds: [
             composeEmbedMessage(null, {
               title: `${getEmoji("ANIMATED_BELL", true)} Mochi notifications`,
-              description: `**Approval Request #${
+              description: `<@${
+                i.user.id
+              }> has submitted the approval request #${
                 dataAddTreasurerReq?.request.id
-              }**\n<@${i.user.id}> has submitted a request\n${getEmoji(
-                "TREASURER_ADD"
-              )} Add <@${user.id}> to **${vaultName}**\nMessage ${getEmoji(
+              }\n${getEmoji("TREASURER_ADD")} Add <@${
+                user.id
+              }> to **${vaultName}**\n\nMessage ${getEmoji(
                 "ANIMATED_CHAT",
                 true
               )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
-              color: msgColors.MOCHI,
+              color: msgColors.BLUE,
               thumbnail:
                 "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png",
             }),
@@ -144,7 +146,7 @@ export async function runAddTreasurer({
         dataAddTreasurerReq?.request.message
       }\`\`\`\nWe'll notify you once all treasurers have accepted the request.`
     )
-    .setColor(msgColors.MOCHI)
+    .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
     .setThumbnail(
@@ -246,7 +248,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
           await msg.edit({
             embeds: [
               getSuccessEmbed({
-                title: `Approved ${requestId}!!!`,
+                title: `The request ${requestId} has been approved`,
                 description: `Request has already been approved by majority treasurers \`${dataAddTreasurer.vote_result.total_approved_submission}/${dataAddTreasurer.vote_result.total_submission}\``,
               }),
             ],
@@ -273,7 +275,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
             await msg.edit({
               embeds: [
                 getErrorEmbed({
-                  title: `Rejected ${requestId}!!!`,
+                  title: `The request ${requestId} has been rejected`,
                   description: `Request has already been rejected by majority treasurers \`${dataAddTreasurer.vote_result.total_rejected_submisison}/${dataAddTreasurer.vote_result.total_submission}\``,
                 }),
               ],
