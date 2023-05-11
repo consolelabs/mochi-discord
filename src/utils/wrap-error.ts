@@ -110,9 +110,9 @@ export async function wrapError(
       } catch (error) {
         logger.error("[wrapError] kafkaQueue?.produceBatch() failed")
       }
+      return
     }
 
-    // if it reaches here then we're screwed
     logger.error(`[wrapError] ${func.name}() error: ${e}`)
     if (error.handle && typeof error.handle === "function") {
       error.handle?.()
