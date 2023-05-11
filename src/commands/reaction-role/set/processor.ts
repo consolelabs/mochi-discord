@@ -65,7 +65,6 @@ export const handleRoleSet = async (
     }
   }
 
-  await reactMessage.react(requestData.reaction).catch(() => null)
   const embed = composeEmbedMessage(null, {
     author: ["Reaction role set!", getEmojiURL(emojis["APPROVE"])],
     description: `Emoji ${requestData.reaction} is now set to this role <@&${requestData.role_id}>`,
@@ -74,7 +73,7 @@ export const handleRoleSet = async (
 
   // send activity
   const isTextCommand = msg instanceof Message
-  const userId = isTextCommand ? msg.author.id : ""
+  const userId = isTextCommand ? msg.author.id : msg.user.id
   const role = msg?.guild?.roles?.cache.get(roleId)
 
   const dataProfile = await profile.getByDiscord(userId)
@@ -93,6 +92,8 @@ export const handleRoleSet = async (
   )
   kafkaMsg.activity.content.role_name = role?.name
   sendActivityMsg(kafkaMsg)
+
+  await reactMessage.react(requestData.reaction).catch(() => null)
 
   return {
     embeds: [embed],
