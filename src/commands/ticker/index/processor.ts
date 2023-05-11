@@ -4,6 +4,7 @@ import CacheManager from "cache/node-cache"
 import { createCanvas, loadImage } from "canvas"
 import {
   ButtonInteraction,
+  CommandInteraction,
   HexColorString,
   Message,
   MessageActionRow,
@@ -12,7 +13,7 @@ import {
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { APIError } from "errors"
+import { APIError, InternalError } from "errors"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import TurndownService from "turndown"
 import { RectangleStats } from "types/canvas"
@@ -103,11 +104,13 @@ const getChangePercentage = (change: number) => {
 }
 
 export async function composeTickerResponse({
+  msgOrInteraction,
   coinId,
   days,
   discordId,
   symbol,
 }: {
+  msgOrInteraction: Message | CommandInteraction
   coinId: string
   symbol: string
   days?: number
@@ -118,11 +121,25 @@ export async function composeTickerResponse({
     data: coin,
     log,
     curl,
+    status,
   } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getcoin-${coinId}`,
     call: () => defi.getCoin(coinId),
   })
+  if (status === 404) {
+    throw new InternalError({
+      title: "Unsupported token",
+      msgOrInteraction,
+      description: `Token is invalid or hasn't been supported.\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} or Please choose a valid fiat currency.`,
+    })
+  }
   if (!ok) {
     throw new APIError({ curl, description: log })
   }
@@ -177,6 +194,7 @@ export async function composeTickerResponse({
     },
   ])
 
+  days = coinId === "btc.d" ? 365 : days ?? 30
   const chart = await renderHistoricalMarketChart({
     coinId: coin.id,
     bb,
@@ -186,14 +204,14 @@ export async function composeTickerResponse({
   const selectRow = composeDaysSelectMenu(
     "tickers_range_selection",
     `${coin.id}`,
-    [1, 7, 30, 60, 90, 365],
-    days ?? 30
+    getChoices(coinId),
+    days
   )
 
   const wlAdded = await isTickerAddedToWl(coin.id, discordId)
   const buttonRow = buildSwitchViewActionRow(
     "ticker",
-    { coinId: coin.id, days: days ?? 30, symbol, discordId },
+    { coinId: coin.id, days: days, symbol, discordId },
     wlAdded
   )
 
@@ -207,6 +225,13 @@ export async function composeTickerResponse({
       handler,
     },
   }
+}
+
+const getChoices = (coinId: string) => {
+  if (coinId === "btc.d") {
+    return [365, 730, 1095]
+  }
+  return [1, 7, 30, 60, 90, 365]
 }
 
 export const handler: InteractionHandler = async (msgOrInteraction) => {
@@ -229,9 +254,9 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
   if (bb) embed.setDescription("Give credit to Tsuki Bot for the idea.")
 
   const selectMenu = message.components[0].components[0] as MessageSelectMenu
-  const choices = ["1", "7", "30", "60", "90", "365"]
+  const choices = getChoices(coinId)
   selectMenu.options.forEach(
-    (opt, i) => (opt.default = i === choices.indexOf(days))
+    (opt, i) => (opt.default = i === choices.indexOf(+days))
   )
   // this code block stores current day selection
   message.components[1].components.forEach((b) => {
@@ -306,6 +331,7 @@ export async function viewTickerChart(
     .split("|")
     .slice(1)
   const { messageOptions } = await composeTickerResponse({
+    msgOrInteraction: msg,
     coinId,
     ...(days && { days: +days }),
     symbol,

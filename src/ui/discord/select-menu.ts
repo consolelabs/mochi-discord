@@ -152,8 +152,13 @@ export function composeDaysSelectMenu(
     `${getDateStr(dayjs().subtract(days, "day").unix() * 1000)} - ${getDateStr(
       dayjs().unix() * 1000
     )}`
+  const labeling = (days: number) => {
+    if (days < 365) return `${days} day${days > 1 ? "s" : ""}`
+    const y = days / 365
+    return `${y} year${y > 1 ? "s" : ""}`
+  }
   const opt = (days: number): MessageSelectOptionData => ({
-    label: `${days === 365 ? "1 year" : `${days} day${days > 1 ? "s" : ""}`}`,
+    label: labeling(days),
     value: `${optValuePrefix}_${days}`,
     emoji: days > 1 ? "📆" : "🕒",
     description: getDropdownOptionDescription(days),
