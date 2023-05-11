@@ -8,6 +8,7 @@ import {
 } from "../../../../tests/assertions/discord"
 import { getEmojiURL, emojis, msgColors } from "utils/common"
 import profile from "adapters/profile"
+import { mockMessage } from "../../../../tests/mocks"
 jest.mock("adapters/config")
 
 describe("handleRoleSet", () => {
@@ -44,21 +45,6 @@ describe("handleRoleSet", () => {
       "<:pepe_raincoat:123123123>",
       "<@&123123123>",
     ]
-    const msg = {
-      id: SnowflakeUtil.generate(),
-      guildId: reactMessage.guild?.id,
-      channel: {
-        id: channel.id,
-      },
-      guild: {
-        id: reactMessage.guild?.id,
-        channels: {
-          cache: {
-            get: jest.fn().mockReturnValue(channel),
-          },
-        },
-      },
-    } as unknown as Message
     jest.spyOn(processor, "validateCommandArgument").mockResolvedValueOnce({
       guildId: reactMessage.guildId ?? "test",
       channelId: reactMessage.channelId,
@@ -73,7 +59,7 @@ describe("handleRoleSet", () => {
       log: "",
       curl: "",
     })
-    const output = await processor.handleRoleSet(args, msg)
+    const output = await processor.handleRoleSet(args, mockMessage)
     const expected = composeEmbedMessage(null, {
       author: ["Reaction role set!", getEmojiURL(emojis["APPROVE"])],
       description:
