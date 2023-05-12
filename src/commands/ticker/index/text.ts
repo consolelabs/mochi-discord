@@ -1,25 +1,27 @@
-import defi from "adapters/defi"
-import { APIError, InternalError } from "errors"
-import CacheManager from "cache/node-cache"
-import { getEmoji } from "utils/common"
-import { composeTickerResponse } from "./processor"
 import config from "adapters/config"
-import { getDefaultSetter } from "utils/default-setters"
+import defi from "adapters/defi"
+import CacheManager from "cache/node-cache"
 import { Message } from "discord.js"
+import { APIError, InternalError } from "errors"
 import { TextCommandResponse } from "types/common"
+import { getEmoji } from "utils/common"
+import { getDefaultSetter } from "utils/default-setters"
+import { composeTickerResponse } from "./processor"
 
 async function run(msg: Message, base: string): Promise<TextCommandResponse> {
-  const {
-    ok,
-    data: coins,
-    log,
-    curl,
-  } = await CacheManager.get({
-    pool: "ticker",
-    key: `ticker-search-${base}`,
-    call: () => defi.searchCoins(base),
-  })
-  if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
+  let coins
+  if (["btcd", "btc.d"].includes(base.toLowerCase())) {
+    coins = [{ id: "btc.d" }]
+  } else {
+    const { ok, data, log, curl } = await CacheManager.get({
+      pool: "ticker",
+      key: `ticker-search-${base}`,
+      call: () => defi.searchCoins(base),
+    })
+    if (!ok)
+      throw new APIError({ msgOrInteraction: msg, curl, description: log })
+    coins = data
+  }
   if (!coins || !coins.length) {
     throw new InternalError({
       title: "Unsupported token/fiat",
@@ -36,6 +38,7 @@ async function run(msg: Message, base: string): Promise<TextCommandResponse> {
 
   if (coins.length === 1) {
     return await composeTickerResponse({
+      msgOrInteraction: msg,
       coinId: coins[0].id,
       discordId: msg.author.id,
       symbol: base,
@@ -55,6 +58,7 @@ async function run(msg: Message, base: string): Promise<TextCommandResponse> {
   })
   if (defaultTicker.ok && defaultTicker.data.default_ticker) {
     return await composeTickerResponse({
+      msgOrInteraction: msg,
       coinId: defaultTicker.data.default_ticker,
       discordId: msg.author.id,
       symbol: base,
@@ -91,6 +95,7 @@ async function run(msg: Message, base: string): Promise<TextCommandResponse> {
     render: ({ msgOrInteraction: msg, value }) => {
       const [coinId] = value.split("_")
       return composeTickerResponse({
+        msgOrInteraction: msg,
         coinId,
         discordId: msg.author.id,
         symbol: base,
