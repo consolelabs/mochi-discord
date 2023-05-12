@@ -143,7 +143,9 @@ export async function runTransferTreasurer({
       } successfully created`
     )
     .setDescription(
-      `You want to send ${amount} ${token} to ${destination} \n${msgField}We'll notify you once all treasurers have accepted the request.`
+      `You want to send ${getEmoji(
+        token.toUpperCase() as keyof typeof emojis
+      )} ${amount} ${token.toUpperCase()} to ${destination} \n${msgField}We'll notify you once all treasurers have accepted the request.`
     )
     .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
