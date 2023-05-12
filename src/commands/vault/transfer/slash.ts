@@ -52,7 +52,7 @@ const command: SlashCommand = {
         option
           .setName("user")
           .setDescription("enter recipient user")
-          .setRequired(true)
+          .setRequired(false)
       )
       .addStringOption((option) =>
         option
