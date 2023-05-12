@@ -1217,6 +1217,12 @@ class Config extends Fetcher {
     })
   }
 
+  public async getTreasurerRequest(requestId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/vault/treasurer/request/${requestId}`
+    )
+  }
+
   public async createTreasurerSubmissions(req: {
     vault_id: number
     request_id: number
