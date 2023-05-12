@@ -50,7 +50,7 @@ export async function runCreateVault({
   )} See all vaults </vault list:${await getSlashCommand("vault")}>\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} See detail a vault </vault info:${await getSlashCommand("vault")}>`
+  )} See a vault detail </vault info:${await getSlashCommand("vault")}>`
 
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("CHECK")}**${data.name} vault successfully created**`)
