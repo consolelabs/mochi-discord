@@ -1,6 +1,6 @@
 import config from "adapters/config"
 import { CommandInteraction, GuildMember } from "discord.js"
-import { GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, hasAdministrator, msgColors } from "utils/common"
@@ -31,13 +31,20 @@ export async function runCreateThreshold({
     }
   }
 
-  const { data, ok, curl, error, log } =
+  const { data, ok, status, curl, error, log } =
     await config.createVaultConfigThreshold({
       guild_id: guildId,
       name: i.options.getString("name", true),
       threshold: i.options.getString("value", true),
     })
   if (!ok) {
+    if (status == 404) {
+      throw new InternalError({
+        msgOrInteraction: i,
+        title: "Create config threshold request failed",
+        description: error,
+      })
+    }
     throw new APIError({ curl, error, description: log })
   }
 
