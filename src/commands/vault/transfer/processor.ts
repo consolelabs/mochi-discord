@@ -8,7 +8,13 @@ import {
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { MessageEmbed } from "discord.js"
-import { getEmoji, getAnimatedEmojiURL, emojis, msgColors } from "utils/common"
+import {
+  getEmoji,
+  getAnimatedEmojiURL,
+  emojis,
+  msgColors,
+  shortenHashOrAddress,
+} from "utils/common"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -34,8 +40,9 @@ export async function runTransferTreasurer({
     throw new GuildIdNotFoundError({ message: i })
   }
 
+  const address = i.options.getString("address", false) ?? ""
   const user = i.options.getUser("user")
-  if (!user) {
+  if (!user && address === "") {
     return {
       messageOptions: {
         embeds: [
@@ -49,7 +56,7 @@ export async function runTransferTreasurer({
 
   const vaultName = i.options.getString("name", true)
   const token = i.options.getString("token", true)
-  const address = i.options.getString("address", false) ?? ""
+  const shortenAddress = address === "" ? "" : shortenHashOrAddress(address)
   const amount = i.options.getString("amount", true)
   const chain = i.options.getString("chain", true)
   const {
@@ -61,8 +68,8 @@ export async function runTransferTreasurer({
     vault_name: vaultName,
     message: i.options.getString("message", false) ?? "",
     type: "transfer",
-    requester: user.id,
-    user_discord_id: user.id,
+    requester: user?.id ?? i.user.id,
+    user_discord_id: user?.id,
     address: address,
     chain: chain,
     token: token,
@@ -84,15 +91,17 @@ export async function runTransferTreasurer({
           dataTransferTreasurerReq?.request.message
         }\`\`\``
   // send DM to submitter
+  const destination =
+    shortenAddress !== "" ? `\`${shortenAddress}\`` : `<@${user?.id}>`
   dataTransferTreasurerReq?.treasurer.forEach((treasurer: any) => {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}-${user.id}`,
+        customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${user?.id}`,
         style: "SUCCESS",
         label: "Approve",
       }),
       new MessageButton({
-        customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}-${user.id}`,
+        customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${user?.id}`,
         style: "DANGER",
         label: "Reject",
       })
@@ -112,9 +121,7 @@ export async function runTransferTreasurer({
                 dataTransferTreasurerReq?.request.id
               }\n${getEmoji("SHARE")} Send ${getEmoji(
                 token.toUpperCase() as keyof typeof emojis
-              )} ${amount} ${token} from ${vaultName} to <@${
-                user.id
-              }> ${msgField}`,
+              )} ${amount} ${token} from ${vaultName} to ${destination} ${msgField}`,
               color: msgColors.BLUE,
               thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
             }),
@@ -136,7 +143,7 @@ export async function runTransferTreasurer({
       } successfully created`
     )
     .setDescription(
-      `You want to send ${amount} ${token} to <@${user.id}> \n${msgField}We'll notify you once all treasurers have accepted the request.`
+      `You want to send ${amount} ${token} to ${destination} \n${msgField}We'll notify you once all treasurers have accepted the request.`
     )
     .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
@@ -156,12 +163,24 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
   const requestId = args[2]
   const vaultId = args[3]
   const submitter = args[4]
-  const address = args[5]
-  const amount = args[6]
-  const token = args[7]
-  const chain = args[8]
-  const channelId = args[9]
-  const toUser = args[10]
+  const amount = args[5]
+  const token = args[6]
+  const chain = args[7]
+  const channelId = args[8]
+  const toUser = args[9]
+
+  const {
+    data: dataTreasurerReq,
+    status: statusTreasurerReq,
+    originalError: originalErrorTreasurerReq,
+  } = await config.getTreasurerRequest(requestId)
+  if (statusTreasurerReq === 400 && originalErrorTreasurerReq) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      title: "Submit vote failed",
+      description: originalErrorTreasurerReq,
+    })
+  }
 
   const {
     data: dataTransferTreasurer,
@@ -192,7 +211,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
     user_discord_id: toUser,
     token,
     amount,
-    address,
+    address: dataTreasurerReq?.address,
     chain,
   }
   if (dataTransferTreasurer?.vote_result.is_approved) {
@@ -201,7 +220,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
       guild_id: dataTransferTreasurer.submission.guild_id,
       vault_id: Number(vaultId),
       request_id: Number(requestId),
-      address,
+      address: dataTreasurerReq?.address,
       amount,
       token,
       chain,
