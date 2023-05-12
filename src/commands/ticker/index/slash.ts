@@ -44,6 +44,7 @@ async function run(
 
   if (coins.length === 1) {
     return await composeTickerResponse({
+      msgOrInteraction: interaction,
       coinId: coins[0].id,
       discordId: interaction.user.id,
       symbol: baseQ,
@@ -63,6 +64,7 @@ async function run(
   })
   if (defaultTicker.ok && defaultTicker.data.default_ticker) {
     return await composeTickerResponse({
+      msgOrInteraction: interaction,
       coinId: defaultTicker.data.default_ticker,
       discordId: interaction.user.id,
       symbol: baseQ,
@@ -98,6 +100,7 @@ async function run(
     render: ({ msgOrInteraction: interaction, value }) => {
       const [coinId] = value.split("_")
       return composeTickerResponse({
+        msgOrInteraction: interaction,
         coinId,
         discordId: interaction.user.id,
         symbol: baseQ,
