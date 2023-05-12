@@ -113,9 +113,12 @@ export async function wrapError(
       return
     }
 
-    // if it reaches here then we're screwed
     logger.error(`[wrapError] ${func.name}() error: ${e}`)
-    await kafkaQueue?.produceAnalyticMsg([msg]).catch(() => null)
+    if (error.handle && typeof error.handle === "function") {
+      error.handle?.()
+    } else {
+      await kafkaQueue?.produceAnalyticMsg([msg]).catch(() => null)
+    }
     if (e instanceof Error && e.stack) {
       ChannelLogger.alertStackTrace(e.stack).catch(catchAll)
       return

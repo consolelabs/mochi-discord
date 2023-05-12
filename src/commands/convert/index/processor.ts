@@ -1,13 +1,13 @@
 import defi from "adapters/defi"
 import { getEmoji, getEmojiToken, msgColors, TokenEmojiKey } from "utils/common"
-import { CommandInteraction, Message } from "discord.js"
+import { CommandInteraction } from "discord.js"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError, InternalError } from "errors"
 import { Coin } from "types/defi"
 import CacheManager from "cache/node-cache"
 
 export async function render(
-  msgOrInteraction: Message | CommandInteraction,
+  interaction: CommandInteraction,
   args: [string, number, string, string]
 ) {
   const amount = String(args[1])
@@ -23,26 +23,17 @@ export async function render(
     throw new APIError({ curl, error, description: log })
   }
   if (!data) {
-    return {
-      messageOptions: {
-        embed: composeEmbedMessage(null, {
-          title: "Cannot conver token",
-          description: `${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} This user does not have any activities yet`,
-          color: msgColors.ERROR,
-        }),
-      },
-    }
+    throw new InternalError({
+      msgOrInteraction: interaction,
+      description: "Cannot convert token due to lack of data",
+    })
   }
 
   const { ok: compareTickerOk, data: compareTickerData } =
     await CacheManager.get({
       pool: "ticker",
-      key: `compare-${msgOrInteraction.guildId}-${from}-${to}-30`,
-      call: () =>
-        defi.compareToken(msgOrInteraction.guildId ?? "", from, to, 30),
+      key: `compare-${interaction.guildId}-${from}-${to}-30`,
+      call: () => defi.compareToken(interaction.guildId ?? "", from, to, 30),
     })
 
   if (!compareTickerOk) {
@@ -60,23 +51,19 @@ export async function render(
 
   const { ratios, base_coin, target_coin } = compareTickerData
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
-  const coinInfo = (coin: Coin, emoji = true) =>
+  const coinInfo = (coin: Coin | null, emoji = true) =>
     `${emoji ? `${getEmoji("ANIMATED_TROPHY", true)}` : ""} Rank: \`#${
-      coin.market_cap_rank
+      coin?.market_cap_rank ?? "?"
     }\``
       .concat(
-        `\n${
-          emoji ? `${getEmoji("ANIMATED_COIN_2")}` : ""
-        } Price: \`$${coin.market_data.current_price[
-          "usd"
-        ]?.toLocaleString()}\``
+        `\n${emoji ? `${getEmoji("ANIMATED_COIN_2")}` : ""} Price: \`$${
+          coin?.market_data?.current_price["usd"]?.toLocaleString() ?? "_"
+        }\``
       )
       .concat(
-        `\n${
-          emoji ? ":ocean:" : ""
-        } Market cap: \`$${coin.market_data.market_cap[
-          "usd"
-        ]?.toLocaleString()}\``
+        `\n${emoji ? ":ocean:" : ""} Market cap: \`$${
+          coin?.market_data?.market_cap["usd"]?.toLocaleString() ?? "_"
+        }\``
       )
 
   const blank = getEmoji("BLANK")

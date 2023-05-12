@@ -117,7 +117,7 @@ export class BotBaseError extends Error {
       message: this.message,
     }
     logger.error(error)
-    kafkaQueue?.produceAnalyticMsg([JSON.parse(this.message)]).catch(() => null)
+    kafkaQueue?.produceAnalyticMsg([this.message]).catch(() => null)
     this.reply(somethingWentWrongPayload())
   }
 
