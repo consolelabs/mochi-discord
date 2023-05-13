@@ -237,7 +237,7 @@ export const emojis = {
   NEXT_PAGE: "967285238000676895",
   SPARKLE: "984824963112513607",
   ENERGY: "984876653090070658",
-  FLAG: "985056775554342973",
+  FLAG: "1058304313157500978",
   COIN: "942088817391849543",
   MONEY: "985245648716697680",
   GAME: "916623575824338974",
@@ -335,6 +335,7 @@ export const emojis = {
   WEB: "1058304372469141524",
   CHART: "1058304295205883936",
   HAMMER: "1087564968536317953",
+  QRCODE: "1106995993678975056",
 
   ...animatedEmojis,
   ...tokenEmojis,
@@ -464,7 +465,7 @@ export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
-export function capFirst(str: string) {
+export function capFirst(str = "") {
   return `${str.charAt(0).toUpperCase()}${str.slice(1)}`
 }
 

@@ -50,7 +50,7 @@ export const airdropCache = new NodeCache({
 })
 
 export async function airdrop(i: CommandInteraction) {
-  const { amount, token, duration, entries, all } =
+  const { amount, token, duration, entries, all, useQR } =
     await processor.getAirdropArgs(i)
 
   // get sender balances
@@ -83,13 +83,14 @@ export async function airdrop(i: CommandInteraction) {
     const output = await validateAndShowConfirmation(i, payload, balance, {
       duration,
       entries,
+      useQR,
     })
     await reply(i, output)
     return
   }
 
   // found multiple tokens balance with given symbol -> ask for selection
-  await selectToken(i, payload, balances, { duration, entries })
+  await selectToken(i, payload, balances, { duration, entries, useQR })
   return
 }
 
@@ -228,15 +229,19 @@ function showConfirmation(
     description: `Are you sure you want to spend ${amountDescription} on this airdrop?`,
     color: msgColors.BLUE,
   }).addFields([
-    { name: "Total reward", value: amountDescription, inline: true },
     {
-      name: "Run time",
+      name: `${getEmoji("CLOCK")} Run time`,
       value: `${describeRunTime(opts.duration)}`,
       inline: true,
     },
     {
-      name: "Max entries",
+      name: `${getEmoji("FLAG")} Max entries`,
       value: `${opts.entries ?? "-"}`,
+      inline: true,
+    },
+    {
+      name: `${getEmoji("QRCODE")} Use QR code`,
+      value: opts.useQR ? "Yes" : "No",
       inline: true,
     },
   ])
@@ -257,6 +262,16 @@ export async function getAirdropArgs(i: CommandInteraction) {
   const unit = i.options.getString("token", true)
   let durationArg = i.options.getString("duration") ?? "3m"
   const entries = i.options.getInteger("entries")
+  const useQR = i.options.getBoolean("use_qr", false) ?? false
+
+  if (useQR && entries === null) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      title: "Entries",
+      description:
+        "Airdrop that uses a QR code must specify for how many people.",
+    })
+  }
 
   // get amount
   const { amount: parsedAmount, all } = parseTipAmount(i, amountArg)
@@ -304,5 +319,5 @@ export async function getAirdropArgs(i: CommandInteraction) {
     })
   }
 
-  return { amount, token, duration, entries, all }
+  return { amount, token, duration, entries, all, useQR }
 }

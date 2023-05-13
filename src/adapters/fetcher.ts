@@ -245,7 +245,7 @@ export class Fetcher {
       const message = JSON.stringify({
         ...(store ? JSON.parse(store.data) : {}),
         error: log,
-        stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
+        stack: TEST ? "" : stack.clean(e.stack || new Error().stack || ""),
       })
       await kafkaQueue?.produceAnalyticMsg([message])
       if (store?.msgOrInteraction) {

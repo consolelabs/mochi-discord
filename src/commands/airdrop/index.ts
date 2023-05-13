@@ -43,6 +43,12 @@ const slashCmd: SlashCommand = {
           .setDescription("max entries count. Example: 5")
           .setMinValue(1)
       )
+      .addBooleanOption((opt) =>
+        opt
+          .setName("use_qr")
+          .setRequired(false)
+          .setDescription("join airdrop by scanning a qrcode")
+      )
   },
   run: async function (interaction: CommandInteraction) {
     if (!interaction.guild || !interaction.guildId) {

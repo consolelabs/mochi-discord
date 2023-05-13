@@ -6,7 +6,9 @@ import {
   CommandInteraction,
   Message,
   MessageActionRow,
+  MessageAttachment,
   MessageButton,
+  MessageEmbed,
   MessageOptions,
   SelectMenuInteraction,
   User,
@@ -37,6 +39,9 @@ import {
   validateAndShowConfirmation,
 } from "./processor"
 import { getMaximumRecipients } from "../../../utils/tip-bot"
+import * as qrcode from "qrcode"
+import mochiPay from "adapters/mochi-pay"
+import { getProfileIdByDiscord } from "utils/profile"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -66,6 +71,44 @@ function cancelAirdrop(i: ButtonInteraction): RunResult<MessageOptions> {
   return { messageOptions: { embeds: [embed], components: [] } }
 }
 
+async function generateQRairdrop(
+  i: ButtonInteraction,
+  embed: MessageEmbed,
+  createAirdropParams: {
+    profileId: string
+    token: string
+    amount: number
+    entries?: number
+    duration: number
+    chain_id: string
+  }
+): Promise<RunResult<MessageOptions>> {
+  const res = await mochiPay.generateQRpaymentCode(createAirdropParams)
+  if (!res.ok || !res.data?.id)
+    throw new APIError({
+      curl: res.curl,
+      description: res.log,
+      error: res.error ?? "",
+      msgOrInteraction: i,
+    })
+  const buffer = await qrcode.toBuffer(
+    `https://mochi.gg/airdrop/${res.data.id}`,
+    {
+      width: 400,
+    }
+  )
+
+  embed.setImage("attachment://qr.png")
+
+  return {
+    messageOptions: {
+      files: [new MessageAttachment(buffer, "qr.png")],
+      components: [],
+      embeds: [embed],
+    },
+  }
+}
+
 async function confirmAirdrop(
   i: ButtonInteraction,
   payload: TransferPayload,
@@ -73,8 +116,9 @@ async function confirmAirdrop(
 ): Promise<RunResult<MessageOptions>> {
   await i.deferUpdate()
 
+  const { duration, entries, useQR } = opts
+
   const author = i.user
-  const { duration, entries } = opts
   const { amount, token, token_price = 0 } = payload
   const usdAmount = token_price * amount
   const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
@@ -95,6 +139,30 @@ async function confirmAirdrop(
     originalMsgAuthor: author,
     color: msgColors.BLUE,
   })
+
+  if (useQR) {
+    const profileId = await getProfileIdByDiscord(i.user.id)
+    airdropEmbed.setDescription(
+      `${author} left an airdrop${
+        entries
+          ? ` for ${entries && entries > 1 ? `${entries} people` : "1 person"}`
+          : ""
+      } each with ${tokenEmoji} **${formatDigit({
+        value: amount.toString(),
+      })} ${token}** (${APPROX} $${roundFloatNumber(
+        usdAmount,
+        4
+      )}) in ${describeRunTime(duration)}.`
+    )
+    return await generateQRairdrop(i, airdropEmbed, {
+      amount,
+      token,
+      profileId,
+      duration,
+      chain_id: payload.chain_id,
+      ...(typeof entries === "number" ? { entries } : {}),
+    })
+  }
 
   const cacheKey = `airdrop-${i.message.id}`
   airdropCache.set(cacheKey, [], opts.duration)

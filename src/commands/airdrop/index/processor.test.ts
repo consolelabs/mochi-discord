@@ -71,6 +71,7 @@ describe("getAirdropArgs", () => {
       duration: 180,
       entries: 1,
       all: false,
+      useQR: false,
     }
     const isTokenSupportedRes = true
     i.options.getString = jest
@@ -98,6 +99,7 @@ describe("getAirdropArgs", () => {
       duration: 3600,
       entries: 1,
       all: false,
+      useQR: false,
     }
     const isTokenSupportedRes = true
     i.options.getString = jest
@@ -125,6 +127,7 @@ describe("getAirdropArgs", () => {
       duration: 180,
       entries: 10,
       all: false,
+      useQR: false,
     }
     const parseMonikerRes = {
       moniker: {
@@ -163,6 +166,7 @@ describe("airdrop", () => {
       duration: 180,
       entries: 10,
       all: false,
+      useQR: false,
     }
     jest
       .spyOn(processor, "getAirdropArgs")
