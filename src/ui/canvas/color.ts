@@ -5,7 +5,6 @@ export function getChartColorConfig(id?: string) {
   let gradientFrom, gradientTo, borderColor
   switch (id) {
     case "bitcoin":
-    case "btc.d":
       borderColor = "#ffa301"
       gradientFrom = "rgba(159,110,43,0.9)"
       gradientTo = "rgba(76,66,52,0.5)"
