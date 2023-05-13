@@ -31,6 +31,27 @@ class MochiPay extends Fetcher {
     })
   }
 
+  public async generateQRpaymentCode(body: {
+    profileId: string
+    amount: number
+    token: string
+    entries?: number
+    duration: number
+    chain_id: string
+  }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/pay-requests/airdrop`,
+      {
+        method: "POST",
+        body: {
+          ...body,
+          amount: undefined,
+          amount_each: String(body.amount),
+        },
+      }
+    )
+  }
+
   public async getBalances({
     profileId,
     token,

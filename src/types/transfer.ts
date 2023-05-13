@@ -20,4 +20,8 @@ export type TransferPayload = {
   decimal?: number
 }
 
-export type AirdropOptions = { duration: number; entries?: number | null }
+export type AirdropOptions = {
+  useQR: boolean
+  duration: number
+  entries?: number | null
+}
