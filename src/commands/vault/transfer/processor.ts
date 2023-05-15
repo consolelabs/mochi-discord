@@ -59,6 +59,7 @@ export async function runTransferTreasurer({
   const shortenAddress = address === "" ? "" : shortenHashOrAddress(address)
   const amount = i.options.getString("amount", true)
   const chain = i.options.getString("chain", true)
+  const userId = user?.id ?? ""
   const {
     data: dataTransferTreasurerReq,
     status: statusTransferTreasurerReq,
@@ -68,8 +69,8 @@ export async function runTransferTreasurer({
     vault_name: vaultName,
     message: i.options.getString("message", false) ?? "",
     type: "transfer",
-    requester: user?.id ?? i.user.id,
-    user_discord_id: user?.id,
+    requester: i.user.id,
+    user_discord_id: userId,
     address: address,
     chain: chain,
     token: token,
@@ -96,12 +97,12 @@ export async function runTransferTreasurer({
   dataTransferTreasurerReq?.treasurer.forEach((treasurer: any) => {
     const actionRow = new MessageActionRow().addComponents(
       new MessageButton({
-        customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${user?.id}`,
+        customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
         style: "SUCCESS",
         label: "Approve",
       }),
       new MessageButton({
-        customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${user?.id}`,
+        customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
         style: "DANGER",
         label: "Reject",
       })
@@ -226,6 +227,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
       amount,
       token,
       chain,
+      target: toUser ? toUser : "",
     })
 
     modelNotify.status = "success"
