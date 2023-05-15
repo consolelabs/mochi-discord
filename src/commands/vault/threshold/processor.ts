@@ -41,7 +41,7 @@ export async function runCreateThreshold({
     if (status == 404) {
       throw new InternalError({
         msgOrInteraction: i,
-        title: "Create config threshold request failed",
+        title: "Command error",
         description: error,
       })
     }

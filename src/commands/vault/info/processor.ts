@@ -1,6 +1,6 @@
 import config from "adapters/config"
 import { CommandInteraction, GuildMember } from "discord.js"
-import { GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -104,16 +104,17 @@ export async function runGetVaultDetail({
     throw new GuildIdNotFoundError({ message: i })
   }
   const vaultName = i.options.getString("name", false) ?? ""
-  const { data, ok, curl, error, log } = await config.getVaultDetail(
-    vaultName,
-    guildId
-  )
+  const { data, ok, status, curl, error, originalError, log } =
+    await config.getVaultDetail(vaultName, guildId)
   if (!ok) {
-    throw new APIError({
-      curl,
-      error,
-      description: log,
-    })
+    if (status === 400 && originalError) {
+      throw new InternalError({
+        msgOrInteraction: i,
+        title: "Command error",
+        description: originalError,
+      })
+    }
+    throw new APIError({ curl, error, description: log })
   }
 
   const walletAddress =
