@@ -26,8 +26,10 @@ class Defi extends Fetcher {
     )
   }
 
-  public async getCoin(id: string) {
-    return await this.jsonFetch<Coin>(`${API_BASE_URL}/defi/coins/${id}`)
+  public async getCoin(id: string, isDominanceChart = false) {
+    return await this.jsonFetch<Coin>(`${API_BASE_URL}/defi/coins/${id}`, {
+      query: { isDominanceChart },
+    })
   }
 
   public async getBinanceCoinPrice(symbol: string) {
@@ -45,11 +47,13 @@ class Defi extends Fetcher {
     currency,
     days = 30,
     discordId,
+    isDominanceChart,
   }: {
     coinId: string
     currency: string
     days?: number
     discordId?: string
+    isDominanceChart: boolean
   }) {
     return await this.jsonFetch<{
       times: string[]
@@ -62,6 +66,7 @@ class Defi extends Fetcher {
         currency,
         days,
         ...(discordId && { discordId }),
+        isDominanceChart,
       },
     })
   }
