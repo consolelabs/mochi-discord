@@ -760,7 +760,7 @@ export async function reverseLookup(address: string) {
         return ""
     }
   } catch (e) {
-    logger.error(`[reverseLookup] failed: ${e}`)
+    logger.warn(`[reverseLookup] failed for ${address}: ${e}`)
     return ""
   }
 }
