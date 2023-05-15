@@ -1253,6 +1253,7 @@ class Config extends Fetcher {
     request_id: number
     guild_id: string
     address: string
+    target: string
     amount: string
     token: string
     chain: string
