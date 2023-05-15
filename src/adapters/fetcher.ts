@@ -9,7 +9,7 @@ import { convertToSnakeCase } from "./fetcher-utils"
 import toCurl from "fetch-to-curl"
 import { kafkaQueue } from "queue/kafka/queue"
 import { stack } from "utils/stack-trace"
-import { TEST } from "env"
+import { MOCHI_API_KEY, TEST } from "env"
 import {
   eventAsyncStore,
   slashCommandAsyncStore,
@@ -17,6 +17,7 @@ import {
 } from "utils/async-storages"
 import { Message } from "discord.js"
 import { somethingWentWrongPayload } from "utils/error"
+import { MOCHI_PAY_API_BASE_URL } from "../utils/constants"
 
 function makeLog({
   query,
@@ -118,6 +119,15 @@ const defaultInit: RequestInit = {
   silent: false,
 }
 
+function attachAuthorization(url: string, options: any) {
+  // only attach token for mochi-pay's request atm
+  if (url.startsWith(MOCHI_PAY_API_BASE_URL)) {
+    options.headers = {
+      Authorization: `Basic ${MOCHI_API_KEY}`,
+    }
+  }
+}
+
 export class Fetcher {
   protected async jsonFetch<T>(
     url: string,
@@ -167,6 +177,7 @@ export class Fetcher {
         ...validInit,
         body,
       }
+      attachAuthorization(url, options)
       curl = toCurl(requestURL, options)
       const res = await fetch(requestURL, options)
 

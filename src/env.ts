@@ -83,3 +83,5 @@ export const MOCHI_TELEGRAM_API_SERVER_HOST =
 
 export const GAME_STORE_API_SERVER_HOST =
   process.env.GAME_STORE_API_SERVER_HOST || "https://game-store-api.console.so"
+
+export const MOCHI_API_KEY = process.env.MOCHI_API_KEY || ""
