@@ -44,11 +44,9 @@ const command: SlashCommand = {
     }
 
     const roleToRemove = interaction.options.getRole("role", true) as Role
+    const roleConfig = data.find((d: any) => d.role_id === roleToRemove.id)
 
-    if (
-      data.length === 0 ||
-      data.every((c: any) => c.role_id !== roleToRemove.id)
-    ) {
+    if (data.length === 0 || !roleConfig) {
       return {
         messageOptions: {
           embeds: [
@@ -61,7 +59,7 @@ const command: SlashCommand = {
       }
     }
 
-    await config.removeGuildAdminRole(roleToRemove.id)
+    await config.removeGuildAdminRole(roleConfig.id)
     CacheManager.findAndRemove("bot-manager", `guild-${interaction.guildId}`)
     return {
       messageOptions: {
