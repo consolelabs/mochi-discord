@@ -206,7 +206,13 @@ function handleCommandInteraction(interaction: Interaction) {
     }
 
     const isAdmin = isAdminRoleIncluded || hasAdministrator(gMember)
-    if (command.onlyAdministrator && !isAdmin) {
+    let commandOnlyAdmin = false
+    if (typeof command.onlyAdministrator === "function") {
+      commandOnlyAdmin = command.onlyAdministrator(i)
+    } else {
+      commandOnlyAdmin = command.onlyAdministrator ?? false
+    }
+    if (commandOnlyAdmin && !isAdmin) {
       await i.deferReply({ ephemeral: command?.ephemeral })
       try {
         const kafkaMsg: KafkaQueueMessage = {
