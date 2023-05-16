@@ -76,6 +76,7 @@ import {
 } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
+import config from "adapters/config"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -181,7 +182,31 @@ function handleCommandInteraction(interaction: Interaction) {
       if (!parentId || !EXPERIMENTAL_CATEGORY_CHANNEL_IDS.includes(parentId))
         return
     }
-    if (command.onlyAdministrator && !hasAdministrator(gMember)) {
+
+    const { data } = await CacheManager.get({
+      pool: "bot-manager",
+      key: `guild-${interaction.guildId}`,
+      call: () =>
+        config.getGuildAdminRoles({ guildId: interaction.guildId ?? "" }),
+    })
+
+    let isAdminRoleIncluded = false
+    const memberRoles = gMember?.roles.cache
+    if (data && memberRoles) {
+      const adminConfigRoles = data.map(
+        (cfg: { role_id: number }) => cfg.role_id
+      )
+
+      for (const [, role] of memberRoles) {
+        if (adminConfigRoles.includes(role.id)) {
+          isAdminRoleIncluded = true
+          break
+        }
+      }
+    }
+
+    const isAdmin = isAdminRoleIncluded || hasAdministrator(gMember)
+    if (command.onlyAdministrator && !isAdmin) {
       try {
         const kafkaMsg: KafkaQueueMessage = {
           platform: "discord",
