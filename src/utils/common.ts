@@ -746,17 +746,17 @@ export async function resolveNamingServiceDomain(domain: string) {
   }
 }
 
+const connection = new Connection(clusterApiUrl("mainnet-beta"))
 export async function reverseLookup(address: string) {
   const { type } = isAddress(address)
   try {
     switch (type) {
       case "sol": {
-        const connection = new Connection(clusterApiUrl("mainnet-beta"))
         const domainKey = new PublicKey(address)
         return await performReverseLookup(connection, domainKey)
       }
       case "eth":
-        return await providers.eth.lookupAddress(address)
+        return (await providers.eth.lookupAddress(address)) || ""
       default:
         return ""
     }
