@@ -92,6 +92,7 @@ import gainer from "./gainer"
 import loser from "./loser"
 import transaction from "./transaction"
 import admin from "./admin"
+import botManager from "./bot-manager"
 
 CacheManager.init({
   ttl: 0,
@@ -154,6 +155,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   gainer: gainer.slashCmd,
   loser: loser.slashCmd,
   transaction: transaction.slashCmd,
+  "bot-manager": botManager.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
