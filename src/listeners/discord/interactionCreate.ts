@@ -200,6 +200,7 @@ function handleCommandInteraction(interaction: Interaction) {
       for (const [, role] of memberRoles) {
         if (adminConfigRoles.includes(role.id)) {
           isAdminRoleIncluded = true
+          break
         }
       }
     }
