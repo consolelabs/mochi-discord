@@ -31,6 +31,7 @@ const slashActions: Record<string, SlashCommand> = {
 const slashCmd: SlashCommand = {
   name: "vault",
   category: "Config",
+  onlyAdministrator: true,
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("vault")
