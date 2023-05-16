@@ -1337,6 +1337,32 @@ class Config extends Fetcher {
       }
     )
   }
+
+  public async setGuildAdminRole(body: {
+    guild_id: string
+    role_ids: string[]
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-roles/admin-roles`, {
+      method: "POST",
+      body,
+    })
+  }
+
+  public async getGuildAdminRoles(query: { guildId: string }) {
+    return await this.jsonFetch(`${API_BASE_URL}/config-roles/admin-roles/`, {
+      method: "GET",
+      query,
+    })
+  }
+
+  public async removeGuildAdminRole(id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-roles/admin-roles/${id}`,
+      {
+        method: "DELETE",
+      }
+    )
+  }
 }
 
 const config = new Config()

@@ -32,7 +32,6 @@ import {
   removeDuplications,
   reverseLookup,
   shortenHashOrAddress,
-  TokenEmojiKey,
 } from "utils/common"
 import { CHAIN_EXPLORER_BASE_URLS, SPACE } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
@@ -131,6 +130,26 @@ async function switchView(
     .catch(() => null)
 }
 
+async function renderListWallet(wallets: any[]) {
+  let longestAddr = 0
+  let longestDomain = 0
+  const domains = await Promise.all(
+    wallets.map(async (w) => await reverseLookup(w))
+  )
+  for (const [i, w] of wallets.entries()) {
+    longestAddr = Math.max(shortenHashOrAddress(w).length, longestAddr)
+    longestDomain = Math.max(domains[i].length, longestDomain)
+  }
+  return wallets.slice(0, 9).map((w: any, i) => {
+    const isAllDomainsEmpty = domains.every((d) => d.trim() === "")
+    return `\`${shortenHashOrAddress(w)}${" ".repeat(
+      longestAddr - shortenHashOrAddress(w).length
+    )} |${
+      isAllDomainsEmpty ? " ".repeat(10) : domains[i] ? " " + domains[i] : " "
+    }${" ".repeat(longestDomain - domains[i].length)}\``
+  })
+}
+
 async function composeMyWalletsResponse(msg: Message, user: User) {
   const pfRes = await profile.getByDiscord(user.id)
   if (pfRes.err) {
@@ -149,22 +168,15 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
   if (!myWallets.length) {
     description = `You have no wallets.\n${pointingright} Add more wallet \`/wallet add\``
   } else {
-    // maximum 9 wallets for now
-    const list = await Promise.all(
-      myWallets.slice(0, 9).map(async (w: any, i: number) => {
-        const domain = `${(await reverseLookup(w)) || ""}`
-        return `${getEmoji(
-          `num_${i + 1}` as TokenEmojiKey
-        )} \`${shortenHashOrAddress(w)}\` ${domain}`
-      })
-    )
+    const list = await renderListWallet(myWallets)
+
     description = `\n${list.join(
       "\n"
     )}\n\n${pointingright} Choose a wallet to customize assets \`/wallet view label\` or \`/wallet view address\`\n/wallet view wal1 or /wallet view baddeed.eth (In case you have set label)\n${pointingright} Add more wallet \`/wallet add\`\n\u200B`
   }
   const embed = composeEmbedMessage(msg, {
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
-    description: `**✦ MY WALLETS ✦**\n${description}`,
+    description: `**✦ MY WALLETS ✦**${description}`,
     color: msgColors.PINK,
   })
   setProfileFooter(embed)
@@ -242,7 +254,7 @@ async function composeMyProfileEmbed(
   }/${nextLevelMinXp}\``
   const highestRole =
     member.roles.highest.name !== "@everyone" ? member.roles.highest : null
-  const activityStr = `\`${userProfile.nr_of_actions}\``
+  // const activityStr = `\`${userProfile.nr_of_actions}\``
   const rankStr = `${getEmoji("ANIMATED_TROPHY", true)} \`#${
     userProfile.guild_rank ?? 0
   }\``
@@ -272,8 +284,7 @@ async function composeMyProfileEmbed(
       inline: true,
     },
     EMPTY_FIELD,
-    { name: "Total XP", value: xpStr, inline: true },
-    { name: "Activities", value: activityStr, inline: true }
+    { name: "Total XP", value: xpStr, inline: true }
     // EMPTY_FIELD,
     // EMPTY_FIELD,
     // {
@@ -450,11 +461,27 @@ export async function render(msg: OriginalMessage, query?: string | null) {
     sendActivityMsg(kafkaMsg)
 
     const author = msg instanceof Message ? msg.author : msg.user
+    const myWallets = removeDuplications(
+      dataProfile.associated_accounts
+        ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
+        ?.map((w: any) => w.platform_identifier) ?? []
+    )
     const replyPayload = await composeMyProfileEmbed(msg, mem)
+    replyPayload.embeds[0].fields.push({
+      name: "Wallets",
+      value: (await renderListWallet(myWallets)).join("\n"),
+      inline: false,
+    })
     const reply = (
       msg instanceof CommandInteraction
-        ? await msg.editReply(replyPayload)
-        : await msg.reply(replyPayload)
+        ? await msg.editReply(replyPayload).catch(() => {
+            replyPayload.embeds[0].fields.pop()
+            msg.editReply(replyPayload)
+          })
+        : await msg.reply(replyPayload).catch(() => {
+            replyPayload.embeds[0].fields.pop()
+            msg.reply(replyPayload)
+          })
     ) as Message
     collectButton(reply, author.id, mem.user)
     collectSelectMenu(reply, author.id, mem.user)
