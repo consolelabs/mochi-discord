@@ -207,6 +207,7 @@ function handleCommandInteraction(interaction: Interaction) {
 
     const isAdmin = isAdminRoleIncluded || hasAdministrator(gMember)
     if (command.onlyAdministrator && !isAdmin) {
+      await i.deferReply({ ephemeral: command?.ephemeral })
       try {
         const kafkaMsg: KafkaQueueMessage = {
           platform: "discord",
