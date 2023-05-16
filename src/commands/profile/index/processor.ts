@@ -89,10 +89,10 @@ function collectButton(msg: Message, authorId: string, user: User) {
     })
     .on("collect", (i) =>
       wrapError(msg, async () => {
-        const buttonType = i.customId.split("/").shift()
+        const [buttonType, nextView] = i.customId.split("/")
         switch (buttonType) {
           case "profile-switch-view-button":
-            await switchView(i, msg)
+            await switchView(i, msg, nextView as ViewType)
             break
           case "profile-pagination-button":
             await handlePagination(i, msg, user)
@@ -105,24 +105,28 @@ function collectButton(msg: Message, authorId: string, user: User) {
     })
 }
 
-async function switchView(i: ButtonInteraction, msg: Message) {
+async function switchView(
+  i: ButtonInteraction,
+  msg: Message,
+  nextView: ViewType
+) {
   let replyPayload
-  const nextView = (i.customId.split("/").pop() ?? "my-profile") as ViewType
-  await i.deferReply()
-  if (!msg.member) return
+  await i.deferUpdate()
+  if (!i.member) return
   switch (nextView) {
     case "my-nft":
-      replyPayload = await composeMyNFTResponse(msg, msg.author)
+      replyPayload = await composeMyNFTResponse(msg, i.user)
       break
     case "my-wallets":
-      replyPayload = await composeMyWalletsResponse(msg, msg.author)
+      replyPayload = await composeMyWalletsResponse(msg, i.user)
       break
     case "my-profile":
     default:
-      replyPayload = await composeMyProfileEmbed(msg, msg.member)
+      replyPayload = await composeMyProfileEmbed(msg, i.member as GuildMember)
       break
   }
-  i.editReply(replyPayload)
+  msg
+    .edit(replyPayload)
     .then((reply) => collectButton(reply as Message, msg.author.id, msg.author))
     .catch(() => null)
 }
@@ -319,11 +323,13 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
       ? `To link, just go to <#${verifyChannel.data.verify_channel_id}> and follow the instructions.`
       : "It seems that this server doesn't have a channel to verify wallet, please contact administrators, thank you."
     return {
-      embed: getErrorEmbed({
-        msg,
-        title: "Wallet address needed",
-        description: `Account doesn't have a wallet associated.\n${verifyCTA}`,
-      }),
+      embeds: [
+        getErrorEmbed({
+          msg,
+          title: "Wallet address needed",
+          description: `Account doesn't have a wallet associated.\n${verifyCTA}`,
+        }),
+      ],
       components: [],
     }
   }
