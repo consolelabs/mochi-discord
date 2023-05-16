@@ -8,7 +8,7 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { APIError, GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { InteractionHandler } from "handlers/discord/select-menu"
 import { SlashCommand } from "types/common"
 import { composeDiscordExitButton } from "ui/discord/button"
@@ -34,15 +34,14 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({})
     }
 
-    const { ok, error, curl, log, data } = await config.getGuildAdminRoles({
+    const { ok, data } = await config.getGuildAdminRoles({
       guildId: interaction.guildId,
     })
     if (!ok) {
-      throw new APIError({
+      throw new InternalError({
         msgOrInteraction: interaction,
-        error,
-        curl,
-        description: log,
+        title: "Failed to remove guild admin role",
+        description: "Please try again later.",
       })
     }
 

@@ -3,7 +3,7 @@ import config from "adapters/config"
 import CacheManager from "cache/node-cache"
 import { list } from "commands/bot-manager/processor"
 import { CommandInteraction } from "discord.js"
-import { APIError, GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX, GM_GITBOOK } from "utils/constants"
@@ -22,7 +22,7 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({})
     }
 
-    const { data, ok, log, curl, error } = await CacheManager.get({
+    const { data, ok } = await CacheManager.get({
       pool: "bot-manager",
       key: `guild-${interaction.guildId}`,
       call: () =>
@@ -30,11 +30,10 @@ const command: SlashCommand = {
     })
 
     if (!ok) {
-      throw new APIError({
+      throw new InternalError({
         msgOrInteraction: interaction,
-        error,
-        curl,
-        description: log,
+        title: "Failed to get guild admin roles",
+        description: "Please try again later.",
       })
     }
 

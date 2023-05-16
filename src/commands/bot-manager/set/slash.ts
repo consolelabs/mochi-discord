@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import config from "adapters/config"
 import { CommandInteraction } from "discord.js"
-import { APIError, GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2, getSuccessEmbed } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
@@ -29,16 +29,15 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({})
     }
     const roleArg = interaction.options.getRole("role", true)
-    const { ok, error, curl, log } = await config.setGuildAdminRole({
+    const { ok } = await config.setGuildAdminRole({
       guild_id: interaction.guildId,
       role_ids: [roleArg.id],
     })
     if (!ok) {
-      throw new APIError({
+      throw new InternalError({
         msgOrInteraction: interaction,
-        error,
-        curl,
-        description: log,
+        title: "Failed to set admin role",
+        description: "Please try again later.",
       })
     }
 
