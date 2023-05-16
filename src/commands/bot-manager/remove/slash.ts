@@ -1,24 +1,16 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import config from "adapters/config"
 import CacheManager from "cache/node-cache"
-import { list } from "commands/bot-manager/processor"
-import {
-  CommandInteraction,
-  Message,
-  MessageSelectOptionData,
-  SelectMenuInteraction,
-} from "discord.js"
+import { CommandInteraction } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
-import { InteractionHandler } from "handlers/discord/select-menu"
 import { SlashCommand } from "types/common"
-import { composeDiscordExitButton } from "ui/discord/button"
 import {
   composeEmbedMessage2,
   getErrorEmbed,
   getSuccessEmbed,
 } from "ui/discord/embed"
-import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { SLASH_PREFIX } from "utils/constants"
+import { Role } from "discord.js"
 
 const command: SlashCommand = {
   name: "remove",
@@ -28,6 +20,12 @@ const command: SlashCommand = {
     return new SlashCommandSubcommandBuilder()
       .setName("remove")
       .setDescription("Remove guild admin role")
+      .addRoleOption((opt) =>
+        opt
+          .setName("role")
+          .setDescription("the role to remove")
+          .setRequired(true)
+      )
   },
   run: async function (interaction) {
     if (!interaction.guildId || !interaction.guild) {
@@ -45,7 +43,12 @@ const command: SlashCommand = {
       })
     }
 
-    if (data.length === 0) {
+    const roleToRemove = interaction.options.getRole("role", true) as Role
+
+    if (
+      data.length === 0 ||
+      data.every((c: any) => c.role_id !== roleToRemove.id)
+    ) {
       return {
         messageOptions: {
           embeds: [
@@ -58,34 +61,17 @@ const command: SlashCommand = {
       }
     }
 
-    const options: MessageSelectOptionData[] = []
-    for (const config of data as any) {
-      const role = await interaction.guild.roles.fetch(config.role_id)
-      options.push({
-        label: role?.name ?? "NA",
-        value: `${config.id ?? ""}|${role?.name ?? ""}`,
-      })
-    }
-
-    const embed = composeEmbedMessage2(interaction, {
-      title: "Select an option",
-      description: list(data as any).description,
-    })
-
+    await config.removeGuildAdminRole(roleToRemove.id)
+    CacheManager.findAndRemove("bot-manager", `guild-${interaction.guildId}`)
     return {
       messageOptions: {
-        embeds: [embed],
-        components: [
-          composeDiscordSelectionRow({
-            customId: "botmanager_remove",
-            placeholder: "Select a role to remove",
-            options,
+        embeds: [
+          getSuccessEmbed({
+            title: `Successfully removed ${roleToRemove.name}!`,
+            description: `You can set the new role by using \`/bot-manager set <role>\``,
           }),
-          composeDiscordExitButton(interaction.user.id),
         ],
-      },
-      interactionOptions: {
-        handler,
+        components: [],
       },
     }
   },
@@ -98,26 +84,6 @@ const command: SlashCommand = {
     ],
   }),
   colorType: "Server",
-}
-
-const handler: InteractionHandler = async (msgOrInteraction) => {
-  const interaction = msgOrInteraction as SelectMenuInteraction
-  const msg = msgOrInteraction as Message
-  const [configId, name] = interaction.values[0].split("|")
-  await config.removeGuildAdminRole(configId)
-  CacheManager.findAndRemove("bot-manager", `guild-${interaction.guildId}`)
-  return {
-    messageOptions: {
-      embeds: [
-        getSuccessEmbed({
-          msg,
-          title: `Successfully removed ${name}!`,
-          description: `You can set the new role by using \`/bot-manager set <role>\``,
-        }),
-      ],
-      components: [],
-    },
-  }
 }
 
 export default command

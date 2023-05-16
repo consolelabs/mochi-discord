@@ -8,6 +8,7 @@ import { runCreateVault } from "./processor"
 const command: SlashCommand = {
   name: "new",
   category: "Config",
+  onlyAdministrator: true,
   prepare: () => {
     const choices = ["50", "66", "75", "100"]
     return new SlashCommandSubcommandBuilder()

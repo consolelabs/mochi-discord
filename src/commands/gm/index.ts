@@ -84,6 +84,7 @@ const slashCmd: SlashCommand = {
     ],
   }),
   colorType: "Server",
+  onlyAdministrator: true,
 }
 
 export default { textCmd, slashCmd }
