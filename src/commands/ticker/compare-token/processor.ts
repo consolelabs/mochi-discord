@@ -97,25 +97,41 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
   }
 }
 
-async function suggest(
-  bases: any[],
-  targets: any[],
+function suggest(
+  baseSuggestions: any[],
+  targetSuggestions: any[],
   baseQ: string,
   targetQ: string
 ) {
-  const options = bases
+  const options = baseSuggestions
     .map((base: any) =>
-      targets.map((target: any) => {
+      targetSuggestions.map((target: any) => {
         return {
           label: `${base.name} (${base.symbol.toUpperCase()}) x ${
             target.name
           } (${target.symbol.toUpperCase()})`,
-          value: `${base.id}_${base.symbol}_${base.name}_${target.id}_${target.symbol}_${target.name}`,
+          value: `${base.id}_${target.id}`,
         }
       })
     )
     .flat()
     .slice(0, 25)
+
+  const bases: Record<string, any> = baseSuggestions.reduce(
+    (acc, cur) => ({
+      ...acc,
+      [cur.id]: cur,
+    }),
+    {}
+  )
+
+  const targets: Record<string, any> = targetSuggestions.reduce(
+    (acc, cur) => ({
+      ...acc,
+      [cur.id]: cur,
+    }),
+    {}
+  )
 
   return {
     select: {
@@ -123,41 +139,42 @@ async function suggest(
       placeholder: "Select a pair",
     },
     onDefaultSet: async (i: ButtonInteraction) => {
-      const [baseId, baseSymbol, baseName, targetId, targetSymbol, targetName] =
-        i.customId.split("_")
+      const [baseId, targetId] = i.customId.split("_")
+      const [base, target] = [bases[baseId], targets[targetId]]
+      const { symbol: bSymbol, name: bName } = base
+      const { symbol: tSymbol, name: tName } = target
 
-      getDefaultSetter({
+      await getDefaultSetter({
         updateAPI: async () => {
-          ;[
+          const tickers = [
             {
               guild_id: i.guildId ?? "",
-              query: baseSymbol,
+              query: bSymbol,
               default_ticker: baseId,
             },
             {
               guild_id: i.guildId ?? "",
-              query: targetSymbol,
+              query: tSymbol,
               default_ticker: targetId,
             },
-          ].forEach((p) => {
-            config.setGuildDefaultTicker(p)
-          })
+          ]
+          await Promise.all(tickers.map((p) => config.setGuildDefaultTicker(p)))
         },
         updateCache: () => {
           ;(<Array<[string, string]>>[
-            ["ticker", `ticker-default-${i.guildId}-${baseSymbol}`],
-            ["ticker", `ticker-default-${i.guildId}-${targetSymbol}`],
-            ["ticker", `compare-${i.guildId}-${baseSymbol}-${targetSymbol}-`],
-            ["ticker", `compare-${i.guildId}-${targetSymbol}-${baseSymbol}-`],
+            ["ticker", `ticker-default-${i.guildId}-${bSymbol}`],
+            ["ticker", `ticker-default-${i.guildId}-${tSymbol}`],
+            ["ticker", `compare-${i.guildId}-${bSymbol}-${tSymbol}-`],
+            ["ticker", `compare-${i.guildId}-${tSymbol}-${bSymbol}-`],
           ]).forEach((args) => {
             CacheManager.findAndRemove(args[0], args[1])
           })
         },
-        description: `Next time your server members use \`$ticker\` with \`${baseSymbol}\` and \`${targetSymbol}\`, **${baseName}** and **${targetName}** will be the default selection`,
+        description: `Next time your server members use \`$ticker\` with \`${bSymbol}\` and \`${tSymbol}\`, **${bName}** and **${tName}** will be the default selection`,
       })(i)
     },
     render: ({ msgOrInteraction: msg, value }: any) => {
-      const [baseCoinId, , , targetCoinId] = value.split("_")
+      const [baseCoinId, targetCoinId] = value.split("_")
       const authorId = msg instanceof Message ? msg.author.id : msg.user.id
       return composeTokenComparisonEmbed(
         msg.guildId ?? "",
