@@ -352,8 +352,7 @@ function handleCommandInteraction(interaction: Interaction) {
         customId: `mutliple-results-${i.id}`,
         ...select,
       })
-      const msg = await i.reply({
-        fetchReply: true,
+      const msg = await i.editReply({
         embeds: [multipleEmbed],
         components: [selectRow, composeDiscordExitButton(i.user.id)],
       })
