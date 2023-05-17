@@ -7,7 +7,7 @@ async function run(
   baseQ: string,
   chain?: string
 ): Promise<SlashCommandResponse> {
-  return await ticker(interaction, baseQ, chain ?? "")
+  return await ticker(interaction, baseQ, chain)
 }
 
 export default run

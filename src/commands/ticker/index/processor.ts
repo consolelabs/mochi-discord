@@ -473,7 +473,7 @@ export function parseQuery(query: string) {
 export async function ticker(
   msgOrInteraction: Message | CommandInteraction,
   base: string,
-  chain: string
+  chain = ""
 ) {
   const { ticker, isDominanceChart } = parseQuery(base)
   const {

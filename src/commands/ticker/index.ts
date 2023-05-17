@@ -36,7 +36,7 @@ const textCmd: Command = {
   allowDM: true,
   run: async function (msg) {
     const args = getCommandArguments(msg)
-    const chain = args[2] ?? ""
+    const chain = args[2]
     const [query] = args.slice(1)
     const { base, target, isCompare, isFiat } = parseTickerQuery(query)
     if (base === target) {
@@ -121,7 +121,7 @@ const slashCmd: SlashCommand = {
     if (!interaction.guildId || !baseQ) return null
     const targetQ = interaction.options.getString("target")
     const query = `${baseQ}${targetQ ? `/${targetQ}` : ""}`
-    const chain = interaction.options.getString("chain") ?? "eth"
+    const chain = interaction.options.getString("chain")
     const { base, target, isCompare, isFiat } = parseTickerQuery(query)
     if (base === target) {
       throw new InternalError({
@@ -138,7 +138,7 @@ const slashCmd: SlashCommand = {
     }
     switch (true) {
       case !isCompare:
-        return tickerSlash(interaction, base, chain)
+        return tickerSlash(interaction, base, chain!)
       case !isFiat:
         return compareSlash(interaction, base, target)
       case isFiat:
