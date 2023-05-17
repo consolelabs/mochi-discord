@@ -140,7 +140,7 @@ async function renderListWallet(wallets: any[]) {
     longestAddr = Math.max(shortenHashOrAddress(w).length, longestAddr)
     longestDomain = Math.max(domains[i].length, longestDomain)
   }
-  return wallets.slice(0, 9).map((w: any, i) => {
+  return wallets.slice(0, 5).map((w: any, i) => {
     const isAllDomainsEmpty = domains.every((d) => d.trim() === "")
     return `\`${shortenHashOrAddress(w)}${" ".repeat(
       longestAddr - shortenHashOrAddress(w).length
@@ -476,11 +476,11 @@ export async function render(msg: OriginalMessage, query?: string | null) {
       msg instanceof CommandInteraction
         ? await msg.editReply(replyPayload).catch(() => {
             replyPayload.embeds[0].fields.pop()
-            msg.editReply(replyPayload)
+            return msg.editReply(replyPayload)
           })
         : await msg.reply(replyPayload).catch(() => {
             replyPayload.embeds[0].fields.pop()
-            msg.reply(replyPayload)
+            return msg.reply({ ...replyPayload, fetchReply: true })
           })
     ) as Message
     collectButton(reply, author.id, mem.user)
