@@ -249,6 +249,12 @@ export interface ModelGuildConfigActivity {
   guild_id?: string;
 }
 
+export interface ModelGuildConfigAdminRole {
+  guild_id?: string;
+  id?: number;
+  role_id?: string;
+}
+
 export interface ModelGuildConfigDaoProposal {
   address?: string;
   authority?: string;
@@ -610,7 +616,6 @@ export interface ModelQuest {
 export interface ModelQuestReward {
   id?: string;
   pass_id?: string;
-  quest?: ModelQuest;
   quest_id?: string;
   reward_amount?: number;
   reward_type?: ModelQuestRewardType;
@@ -957,6 +962,11 @@ export interface RequestCreateEnvelop {
   user_id: string;
 }
 
+export interface RequestCreateGuildAdminRoleRequest {
+  guild_id: string;
+  role_ids: string[];
+}
+
 export interface RequestCreateGuildMixRole {
   guild_id: string;
   nft_requirement?: RequestMixRoleNFTRequirement;
@@ -1188,23 +1198,6 @@ export interface RequestSetUpvoteMessageCacheRequest {
   guild_id?: string;
   message_id?: string;
   user_id?: string;
-}
-
-export interface RequestSubmitOnchainTransferRequest {
-  all?: boolean;
-  amount?: number;
-  channel_id?: string;
-  duration?: number;
-  each?: boolean;
-  full_command?: string;
-  guild_id?: string;
-  image?: string;
-  message?: string;
-  platform?: string;
-  recipients?: string[];
-  sender?: string;
-  token?: string;
-  transfer_type?: string;
 }
 
 export interface RequestSwapRequest {
@@ -2306,6 +2299,10 @@ export interface ResponseListConfigNotifyResponse {
   data?: ResponseConfigNotifyResponse[];
 }
 
+export interface ResponseListGuildAdminRoles {
+  data?: ModelGuildConfigAdminRole[];
+}
+
 export interface ResponseListGuildGroupNFTRolesResponse {
   data?: ResponseListGuildNFTRoleConfigsResponse[];
 }
@@ -2366,6 +2363,7 @@ export interface ResponseMarketData {
   price_change_percentage_1h_in_currency?: Record<string, number>;
   price_change_percentage_24h_in_currency?: Record<string, number>;
   price_change_percentage_7d_in_currency?: Record<string, number>;
+  total_market_cap?: Record<string, number>;
 }
 
 export interface ResponseMetric {
@@ -2528,6 +2526,13 @@ export interface ResponsePaginationResponse {
   total?: number;
 }
 
+export interface ResponseProfileApiKeyResponse {
+  api_key?: string;
+  created_at?: string;
+  profile_id?: string;
+  updated_at?: string;
+}
+
 export interface ResponseResponseDataMessage {
   data?: ResponseResponseMessage;
 }
@@ -2607,18 +2612,6 @@ export interface ResponseSearchCoinResponse {
 
 export interface ResponseSparkLineIn7D {
   price?: number[];
-}
-
-export interface ResponseSubmitOnchainTransfer {
-  amount?: number;
-  amount_in_usd?: number;
-  recipient_id?: string;
-  sender_id?: string;
-  symbol?: string;
-}
-
-export interface ResponseSubmitOnchainTransferResponse {
-  data?: ResponseSubmitOnchainTransfer[];
 }
 
 export interface ResponseSwapRoute {
