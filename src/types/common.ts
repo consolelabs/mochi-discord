@@ -104,7 +104,7 @@ export type SlashCommandResponse = CommandResponse<CommandInteraction>
 export type SlashCommand = {
   name: string
   category: Category
-  onlyAdministrator?: boolean
+  onlyAdministrator?: ((i: CommandInteraction) => boolean) | boolean
   experimental?: boolean
   prepare: (
     alias?: string

@@ -1,10 +1,9 @@
 import config from "adapters/config"
-import { CommandInteraction, GuildMember } from "discord.js"
+import { CommandInteraction } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
-import { getEmoji, hasAdministrator, msgColors } from "utils/common"
-import { getErrorEmbed } from "ui/discord/embed"
+import { getEmoji, msgColors } from "utils/common"
 import { getSlashCommand } from "utils/commands"
 
 export async function runCreateVault({
@@ -16,19 +15,6 @@ export async function runCreateVault({
 }) {
   if (!guildId) {
     throw new GuildIdNotFoundError({ message: i })
-  }
-
-  const member = i.member as GuildMember
-  if (!hasAdministrator(member)) {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: "You don't have permission to do this!",
-          }),
-        ],
-      },
-    }
   }
 
   const { data, ok, curl, error, log } = await config.createVault({

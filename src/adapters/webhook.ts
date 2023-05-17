@@ -13,6 +13,7 @@ class Webhook extends Fetcher {
       const res = await this.jsonFetch(`${API_BASE_URL}/webhook/discord`, {
         method: "POST",
         body,
+        isWebhook: true,
       })
 
       if (!res.ok) {

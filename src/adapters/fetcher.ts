@@ -75,6 +75,10 @@ type RequestInit = Omit<NativeRequestInit, "body"> & {
    * Only log when there is an error
    * */
   silent?: boolean
+  /**
+   * Used ONLY for webhook APIs
+   * */
+  isWebhook?: boolean
 }
 
 type Payload = {
@@ -117,6 +121,7 @@ const defaultInit: RequestInit = {
   queryCamelToSnake: true,
   bodyCamelToSnake: true,
   silent: false,
+  isWebhook: false,
 }
 
 function attachAuthorization(url: string, options: any) {
@@ -144,6 +149,7 @@ export class Fetcher {
         bodyCamelToSnake,
         body: _body,
         silent,
+        isWebhook,
         ...validInit
       } = mergedInit
       let query: typeof _query = {}
@@ -204,7 +210,8 @@ export class Fetcher {
           })
           await kafkaQueue?.produceAnalyticMsg([message])
 
-          if (store?.msgOrInteraction) {
+          // if the error is from webhook api, we don't want to bother user with it, just kafka log is enough
+          if (store?.msgOrInteraction && !isWebhook) {
             if (store.msgOrInteraction instanceof Message) {
               await store.msgOrInteraction.reply(somethingWentWrongPayload())
             } else {
