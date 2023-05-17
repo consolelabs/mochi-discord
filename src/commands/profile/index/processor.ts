@@ -317,8 +317,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
     })
   }
 
-  // const userAddress = userProfile.data.user_wallet?.address
-  const userAddress = "0x6497b5580A58f2B890B3AD66bC459341312AcC23"
+  const userAddress = userProfile.data.user_wallet?.address
   if (!userAddress) {
     const verifyChannel = await community.getVerifyWalletChannel(msg.guildId)
     const verifyCTA = verifyChannel.data?.verify_channel_id
