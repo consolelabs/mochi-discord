@@ -11,12 +11,13 @@ import {
 } from "discord.js"
 import { TEST } from "env"
 import { APIError } from "errors"
-import { Command, EmbedProperties } from "types/common"
+import { Command, EmbedProperties, SlashCommand } from "types/common"
 import {
   getActionCommand,
   getCommandColor,
   getCommandObject,
   getCommandsList,
+  getSlashCommand,
   getSlashCommandColor,
   getSlashCommandObject,
   specificHelpCommand,
@@ -376,19 +377,37 @@ export function starboardEmbed(msg: Message) {
 }
 
 /**
- * Find the closest match to the command key
+ * Attempt to find slash equivalent version then redirect user to slash version,
+ * if not found then continue to
+ * find the closest match to the command key
  * If not found then reply with help message
  */
-export function getCommandSuggestion(
+export async function getCommandSuggestion(
   fuzzySet: FuzzySet,
   userInput: string,
-  commands: Record<string, Command>
-): EmbedProperties | null {
+  commands: Record<string, Command>,
+  slashCommands: Record<string, SlashCommand>
+): Promise<EmbedProperties | null> {
+  const slashCmd = slashCommands[userInput]
+  if (slashCmd && (await getSlashCommand(userInput))) {
+    return {
+      author: [
+        "Mochi is moving to slash commands!",
+        getEmojiURL(emojis.MOCHI_CIRCLE),
+      ],
+      description: `Your command was moved to </${userInput}:${await getSlashCommand(
+        userInput
+      )}>\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT"
+      )} All existing commands are being migrated to their slash version, Mochi team appreciates for your understanding.`,
+    }
+  }
+
   const results = fuzzySet.get(userInput, null, 0.5)
 
   if (!results || results.length == 0) {
     return {
-      title: "Mochi is confused",
+      author: ["Mochi is confused", getEmojiURL(emojis.MOCHI_CIRCLE)],
       description: `Mochi doesn't understand what command you are trying to use.\n${getEmoji(
         "ANIMATED_POINTING_RIGHT"
       )} Perhaps you can reference \`${PREFIX}help\` for more info`,
@@ -407,7 +426,7 @@ export function getCommandSuggestion(
       }
     }
     return {
-      author: ["This command doesn't exist", getEmojiURL(getEmoji("HUH"))],
+      author: ["This command doesn't exist", getEmojiURL(emojis.HUH)],
       description: `Are you trying to say \`${PREFIX}${result}\`?\n\n**Example**\nFor more specific action: \`${PREFIX}help ${result}\`\nOr try this: \`${PREFIX}${result} ${actionNoArg}\`\n`,
       document: DEFAULT_COLLECTION_GITBOOK,
     }
