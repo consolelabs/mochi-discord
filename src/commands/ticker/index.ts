@@ -138,7 +138,7 @@ const slashCmd: SlashCommand = {
     }
     switch (true) {
       case !isCompare:
-        return tickerSlash(interaction, base, chain!)
+        return tickerSlash(interaction, base, chain || "")
       case !isFiat:
         return compareSlash(interaction, base, target)
       case isFiat:
