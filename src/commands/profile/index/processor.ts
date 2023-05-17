@@ -17,17 +17,14 @@ import {
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { APIError, OriginalMessage } from "errors"
 import { UserNFT } from "types/profile"
-import {
-  EMPTY_FIELD,
-  composeEmbedMessage,
-  getErrorEmbed,
-} from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
   authorFilter,
   emojis,
   getEmoji,
   getEmojiURL,
+  isAddress,
   msgColors,
   removeDuplications,
   reverseLookup,
@@ -133,16 +130,20 @@ async function switchView(
 async function renderListWallet(wallets: any[]) {
   let longestAddr = 0
   let longestDomain = 0
+  let longestChain = 0
   const domains = await Promise.all(
     wallets.map(async (w) => await reverseLookup(w))
   )
   for (const [i, w] of wallets.entries()) {
     longestAddr = Math.max(shortenHashOrAddress(w).length, longestAddr)
     longestDomain = Math.max(domains[i].length, longestDomain)
+    longestChain = Math.max(isAddress(w).type.length, longestChain)
   }
   return wallets.slice(0, 5).map((w: any, i) => {
     const isAllDomainsEmpty = domains.every((d) => d.trim() === "")
-    return `\`${shortenHashOrAddress(w)}${" ".repeat(
+    return `\`${isAddress(w).type.toUpperCase()}${" ".repeat(
+      longestChain - isAddress(w).type.length
+    )} | ${shortenHashOrAddress(w)}${" ".repeat(
       longestAddr - shortenHashOrAddress(w).length
     )} |${
       isAllDomainsEmpty ? " ".repeat(10) : domains[i] ? " " + domains[i] : " "
@@ -232,6 +233,14 @@ async function selectCollection(
   await i.editReply(replyPayload).catch(() => null)
 }
 
+const pr = new Intl.PluralRules("en-US", { type: "ordinal" })
+const suffixes = new Map([
+  ["one", "st"],
+  ["two", "nd"],
+  ["few", "rd"],
+  ["other", "th"],
+])
+
 async function composeMyProfileEmbed(
   msg: OriginalMessage,
   member: GuildMember
@@ -245,19 +254,26 @@ async function composeMyProfileEmbed(
   if (!ok) {
     throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
+  const dataProfile = await profile.getByDiscord(member.id)
+  if (dataProfile.err) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
+      curl: "",
+    })
+  }
 
+  const wallets = removeDuplications(
+    dataProfile.associated_accounts
+      ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
+      ?.map((w: any) => w.platform_identifier) ?? []
+  )
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp
-  const xpStr = `${getEmoji("ANIMATED_XP", true)} \`${
-    userProfile.guild_xp
-  }/${nextLevelMinXp}\``
   const highestRole =
     member.roles.highest.name !== "@everyone" ? member.roles.highest : null
   // const activityStr = `\`${userProfile.nr_of_actions}\``
-  const rankStr = `${getEmoji("ANIMATED_TROPHY", true)} \`#${
-    userProfile.guild_rank ?? 0
-  }\``
   // const { academy_xp, imperial_xp, merchant_xp, rebellio_xp } =
   //   userProfile.user_faction_xps ?? {}
 
@@ -268,48 +284,22 @@ async function composeMyProfileEmbed(
       member.user.displayAvatarURL(),
     ],
     color: msgColors.PINK,
-  }).addFields(
+  }).addFields([
     {
-      name: "✦ STATS ✦\n\nRole",
-      value: `${highestRole ?? `N/A`}`,
-      inline: true,
-    },
-    EMPTY_FIELD,
-    { name: "\u200B\n\nRank", value: rankStr, inline: true },
-    {
-      name: "Level",
-      value: `${getEmoji("ARROW_UP")} \`${
+      name: "✦ STATS ✦",
+      value: `${highestRole}\n\`Lvl. ${
         userProfile.current_level?.level ?? "N/A"
-      }\``,
-      inline: true,
+      } (${userProfile.guild_rank ?? 0}${suffixes.get(
+        pr.select(userProfile.guild_rank ?? 0)
+      )})\`\n\`Exp. ${userProfile.guild_xp}/${nextLevelMinXp}\``,
+      inline: false,
     },
-    EMPTY_FIELD,
-    { name: "Total XP", value: xpStr, inline: true }
-    // EMPTY_FIELD,
-    // EMPTY_FIELD,
-    // {
-    //   name: `\u200B\n✦ APPELLATION ✦\n\n${getEmoji("imperial")} Nobility`,
-    //   value: buildXPbar("imperial", imperial_xp ?? 0),
-    //   inline: true,
-    // },
-    // EMPTY_FIELD,
-    // {
-    //   name: `\u200B\n\n\n${getEmoji("rebelio")} Fame`,
-    //   value: buildXPbar("rebelio", rebellio_xp ?? 0),
-    //   inline: true,
-    // },
-    // {
-    //   name: `${getEmoji("mercanto")} Loyalty`,
-    //   value: buildXPbar("mercanto", merchant_xp ?? 0),
-    //   inline: true,
-    // },
-    // EMPTY_FIELD,
-    // {
-    //   name: `${getEmoji("academia")} Reputation`,
-    //   value: buildXPbar("academia", academy_xp ?? 0) + "\n\u200B",
-    //   inline: true,
-    // }
-  )
+    {
+      name: "Wallets",
+      value: (await renderListWallet(wallets)).join("\n"),
+      inline: false,
+    },
+  ])
   setProfileFooter(embed)
   return {
     embeds: [embed],
@@ -327,7 +317,8 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
     })
   }
 
-  const userAddress = userProfile.data.user_wallet?.address
+  // const userAddress = userProfile.data.user_wallet?.address
+  const userAddress = "0x6497b5580A58f2B890B3AD66bC459341312AcC23"
   if (!userAddress) {
     const verifyChannel = await community.getVerifyWalletChannel(msg.guildId)
     const verifyCTA = verifyChannel.data?.verify_channel_id
@@ -372,11 +363,12 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
     ).map(async ([address, nfts]) => {
       const collections = await profile.getNftCollections({ address })
       const collectionName =
-        collections.data?.[0].name ||
+        collections.data?.[0]?.name ||
         `Collection ${shortenHashOrAddress(address)}`
-      const chainId = collections.data?.[0].chain_id
+      const chainId = collections.data?.[0]?.chain_id ?? ""
       const nftEmoji = getEmoji("NFT")
       const tokens = nfts
+        .slice(0, 5)
         .map((nft) =>
           chainId
             ? `[\`#${nft.token_id}\`](${CHAIN_EXPLORER_BASE_URLS[chainId]}/token/${address}?a=${nft.token_id})`
@@ -385,7 +377,7 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
         .join(", ")
       return {
         name: `${nftEmoji} ${collectionName}`,
-        value: tokens,
+        value: `${tokens}${nfts.length > 5 ? ", ..." : ""}`,
         inline: true,
       }
     })
@@ -461,17 +453,7 @@ export async function render(msg: OriginalMessage, query?: string | null) {
     sendActivityMsg(kafkaMsg)
 
     const author = msg instanceof Message ? msg.author : msg.user
-    const myWallets = removeDuplications(
-      dataProfile.associated_accounts
-        ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
-        ?.map((w: any) => w.platform_identifier) ?? []
-    )
     const replyPayload = await composeMyProfileEmbed(msg, mem)
-    replyPayload.embeds[0].fields.push({
-      name: "Wallets",
-      value: (await renderListWallet(myWallets)).join("\n"),
-      inline: false,
-    })
     const reply = (
       msg instanceof CommandInteraction
         ? await msg.editReply(replyPayload).catch(() => {

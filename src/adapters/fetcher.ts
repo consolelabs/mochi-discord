@@ -214,7 +214,7 @@ export class Fetcher {
           if (store?.msgOrInteraction && !isWebhook) {
             if (store.msgOrInteraction instanceof Message) {
               await store.msgOrInteraction.reply(somethingWentWrongPayload())
-            } else {
+            } else if (!store.msgOrInteraction.isAutocomplete()) {
               await store.msgOrInteraction.editReply(
                 somethingWentWrongPayload()
               )
@@ -269,7 +269,7 @@ export class Fetcher {
       if (store?.msgOrInteraction) {
         if (store.msgOrInteraction instanceof Message) {
           await store.msgOrInteraction.reply(somethingWentWrongPayload())
-        } else {
+        } else if (!store.msgOrInteraction.isAutocomplete()) {
           await store.msgOrInteraction.editReply(somethingWentWrongPayload())
         }
       }

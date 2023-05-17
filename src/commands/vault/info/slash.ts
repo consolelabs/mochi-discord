@@ -4,6 +4,7 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { runGetVaultInfo, runGetVaultDetail } from "./processor"
+import config from "adapters/config"
 
 const command: SlashCommand = {
   name: "info",
@@ -17,7 +18,28 @@ const command: SlashCommand = {
           .setName("name")
           .setDescription("enter a vault name")
           .setRequired(false)
+          .setAutocomplete(true)
       )
+  },
+  autocomplete: async function (i) {
+    if (!i.guildId) {
+      await i.respond([])
+      return
+    }
+    const focusedValue = i.options.getFocused()
+    const { ok, data } = await config.vaultList(i.guildId)
+    if (!ok) {
+      await i.respond([])
+      return
+    }
+
+    await i.respond(
+      data
+        .filter((d: any) =>
+          d.name.toLowerCase().includes(focusedValue.toLowerCase())
+        )
+        .map((d: any) => ({ name: d.name, value: d.name }))
+    )
   },
   run: async function (interaction: CommandInteraction) {
     if (interaction.options.getString("name", false)) {
