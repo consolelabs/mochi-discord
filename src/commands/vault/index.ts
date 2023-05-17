@@ -31,7 +31,11 @@ const slashActions: Record<string, SlashCommand> = {
 const slashCmd: SlashCommand = {
   name: "vault",
   category: "Config",
-  onlyAdministrator: true,
+  onlyAdministrator: function (i) {
+    const onlyAdmin = slashActions[i.options.getSubcommand()].onlyAdministrator
+    if (typeof onlyAdmin === "function") return onlyAdmin(i)
+    return onlyAdmin ?? false
+  },
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("vault")
