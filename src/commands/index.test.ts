@@ -89,6 +89,6 @@ describe("handlePrefixedCommand", () => {
     config.commandIsScoped = jest.fn().mockResolvedValueOnce(true)
     await commands.handlePrefixedCommand(mockMessage)
     expect(tickertext).toHaveBeenCalledTimes(1)
-    expect(tickertext).toHaveBeenCalledWith(mockMessage, "eth")
+    expect(tickertext).toHaveBeenCalledWith(mockMessage, "eth", "")
   })
 })
