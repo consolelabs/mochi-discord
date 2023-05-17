@@ -43,6 +43,7 @@ import {
 } from "commands/wallet/view/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
 import {
+  AutocompleteInteraction,
   ButtonInteraction,
   CommandInteraction,
   Interaction,
@@ -116,12 +117,19 @@ const event: DiscordEvent<"interactionCreate"> = {
       ? interaction.toString()
       : interaction.isSelectMenu() || interaction.isButton()
       ? interaction.customId
+      : interaction.isAutocomplete()
+      ? `autocomplete:${
+          interaction.commandName
+        }:${interaction.options.getSubcommand()}:${
+          interaction.options.getFocused(true).name
+        }`
       : ""
     if (!id) return
     if (
       !interaction.isSelectMenu() &&
       !interaction.isButton() &&
-      !interaction.isCommand()
+      !interaction.isCommand() &&
+      !interaction.isAutocomplete()
     ) {
       return
     }
@@ -148,6 +156,9 @@ const event: DiscordEvent<"interactionCreate"> = {
           if (interaction.isCommand()) {
             handleCommandInteraction(interaction)
           }
+          if (interaction.isAutocomplete()) {
+            handleAutocompleteInteraction(interaction)
+          }
         })
       }
     )
@@ -155,6 +166,14 @@ const event: DiscordEvent<"interactionCreate"> = {
 }
 
 export default event
+
+function handleAutocompleteInteraction(interaction: AutocompleteInteraction) {
+  wrapError(interaction, () => {
+    const command = slashCommands[interaction.commandName]
+    command.autocomplete?.(interaction)
+    return Promise.resolve()
+  })
+}
 
 function handleCommandInteraction(interaction: Interaction) {
   wrapError(interaction, async () => {

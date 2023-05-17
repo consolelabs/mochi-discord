@@ -36,6 +36,11 @@ const slashCmd: SlashCommand = {
     if (typeof onlyAdmin === "function") return onlyAdmin(i)
     return onlyAdmin ?? false
   },
+  autocomplete: function (i) {
+    const subCmd = i.options.getSubcommand()
+    slashActions[subCmd]?.autocomplete?.(i)
+    return Promise.resolve()
+  },
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("vault")

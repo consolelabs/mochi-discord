@@ -5,6 +5,7 @@ import {
   SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders"
 import {
+  AutocompleteInteraction,
   ButtonInteraction,
   ColorResolvable,
   CommandInteraction,
@@ -106,6 +107,7 @@ export type SlashCommand = {
   category: Category
   onlyAdministrator?: ((i: CommandInteraction) => boolean) | boolean
   experimental?: boolean
+  autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>
   prepare: (
     alias?: string
   ) =>

@@ -1,4 +1,5 @@
 import {
+  AutocompleteInteraction,
   CommandInteraction,
   Message,
   MessageComponentInteraction,
@@ -6,7 +7,11 @@ import {
 import { AsyncLocalStorage } from "node:async_hooks"
 
 type Storage = {
-  msgOrInteraction?: Message | CommandInteraction | MessageComponentInteraction
+  msgOrInteraction?:
+    | Message
+    | CommandInteraction
+    | MessageComponentInteraction
+    | AutocompleteInteraction
   data: string
 }
 
