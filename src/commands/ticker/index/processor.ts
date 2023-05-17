@@ -124,6 +124,7 @@ export async function composeTickerResponse({
   discordId,
   symbol,
   isDominanceChart,
+  chain,
 }: {
   msgOrInteraction: Message | CommandInteraction
   coinId: string
@@ -131,6 +132,7 @@ export async function composeTickerResponse({
   days?: number
   discordId: string
   isDominanceChart: boolean
+  chain?: string
 }) {
   const {
     ok,
@@ -141,7 +143,7 @@ export async function composeTickerResponse({
   } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getcoin-${coinId}`,
-    call: () => defi.getCoin(coinId, isDominanceChart),
+    call: () => defi.getCoin(coinId, isDominanceChart, chain),
   })
   if (status === 404) {
     throw new InternalError({
@@ -470,7 +472,8 @@ export function parseQuery(query: string) {
 
 export async function ticker(
   msgOrInteraction: Message | CommandInteraction,
-  base: string
+  base: string,
+  chain = ""
 ) {
   const { ticker, isDominanceChart } = parseQuery(base)
   const {
@@ -481,7 +484,7 @@ export async function ticker(
   } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-search-${ticker}`,
-    call: () => defi.searchCoins(ticker),
+    call: () => defi.searchCoins(ticker, chain),
   })
   if (!ok) {
     throw new APIError({ msgOrInteraction, curl, description: log })
@@ -508,6 +511,7 @@ export async function ticker(
       discordId: author.id,
       symbol: ticker,
       isDominanceChart,
+      chain,
     })
   }
 
@@ -529,6 +533,7 @@ export async function ticker(
       discordId: author.id,
       symbol: base,
       isDominanceChart,
+      chain,
     })
   }
 
@@ -573,6 +578,7 @@ export async function ticker(
         discordId: author.id,
         symbol: base,
         isDominanceChart,
+        chain,
       })
     },
     ambiguousResultText: base.toUpperCase(),
