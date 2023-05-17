@@ -168,9 +168,10 @@ const event: DiscordEvent<"interactionCreate"> = {
 export default event
 
 function handleAutocompleteInteraction(interaction: AutocompleteInteraction) {
-  wrapError(interaction, async () => {
+  wrapError(interaction, () => {
     const command = slashCommands[interaction.commandName]
     command.autocomplete?.(interaction)
+    return Promise.resolve()
   })
 }
 
