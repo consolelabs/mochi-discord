@@ -287,7 +287,7 @@ async function composeMyProfileEmbed(
   }).addFields([
     {
       name: "✦ STATS ✦",
-      value: `${highestRole}\n\`Lvl. ${
+      value: `\u200b${highestRole}\n\`Lvl. ${
         userProfile.current_level?.level ?? "N/A"
       } (${userProfile.guild_rank ?? 0}${suffixes.get(
         pr.select(userProfile.guild_rank ?? 0)
@@ -296,7 +296,7 @@ async function composeMyProfileEmbed(
     },
     {
       name: "Wallets",
-      value: (await renderListWallet(wallets)).join("\n"),
+      value: (await renderListWallet(wallets)).join("\n") + "\u200b",
       inline: false,
     },
   ])
