@@ -24,7 +24,6 @@ const slashCmd: SlashCommand = {
   },
   run: async function (interaction) {
     if (!interaction.member || !interaction.guildId) return
-    await interaction.deferReply({ ephemeral: true })
     const embed = new MessageEmbed()
       .setColor(embedsColors.Profile as ColorResolvable)
       .setTitle("Link your Telegram account")
@@ -50,9 +49,10 @@ const slashCmd: SlashCommand = {
       .editReply({ embeds: [embed], components: [row] })
       .catch(() => null)
   },
-  help: async () => ({
-    embeds: [composeEmbedMessage(null, { includeCommandsList: true })],
-  }),
+  help: () =>
+    Promise.resolve({
+      embeds: [composeEmbedMessage(null, { includeCommandsList: true })],
+    }),
   colorType: "Defi",
   ephemeral: true,
 }
