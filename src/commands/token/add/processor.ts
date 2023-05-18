@@ -1,16 +1,17 @@
-import { ButtonInteraction, Message, MessageEmbed } from "discord.js"
-import { InternalError, APIError, OriginalMessage } from "errors"
-import { getEmbedFooter, getSuccessEmbed } from "ui/discord/embed"
-import Defi from "../../../adapters/defi"
 import profile from "adapters/profile"
+import { ButtonInteraction, Message, MessageEmbed } from "discord.js"
+import { APIError, InternalError, OriginalMessage } from "errors"
+import { KafkaQueueActivityDataCommand } from "types/common"
+import { getEmbedFooter, getSuccessEmbed } from "ui/discord/embed"
+import { defaultActivityMsg, sendActivityMsg } from "utils/activity"
+import { emojis, getEmojiURL } from "utils/common"
 import {
-  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
   MOCHI_ACTION_TOKEN,
   MOCHI_APP_SERVICE,
+  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
 } from "utils/constants"
-import { KafkaQueueActivityDataCommand } from "types/common"
-import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
-import { emojis, getEmojiURL, msgColors } from "utils/common"
+import Defi from "../../../adapters/defi"
+import { getSlashCommand } from "../../../utils/commands"
 
 export async function process(
   msg: OriginalMessage,
@@ -25,15 +26,26 @@ export async function process(
 ) {
   const { ok, error, log, curl, status } = await Defi.requestSupportToken(args)
   if (!ok) {
-    if (status === 400) {
-      throw new InternalError({
-        msgOrInteraction: msg,
-        title: "Token has already existed",
-        emojiUrl: getEmojiURL(emojis.ANIMATED_COIN_1),
-        description: `You can use this token to </tip:1062577077708136499> and </airdrop:1062577077708136504>`,
-        color: msgColors.GRAY,
-      })
+    switch (status) {
+      case 409:
+        throw new InternalError({
+          msgOrInteraction: msg,
+          title: "Token already exists",
+          emojiUrl: getEmojiURL(emojis.ANIMATED_COIN_1),
+          description: `You can use this token to </tip:${await getSlashCommand(
+            "tip"
+          )}> and </airdrop:${await getSlashCommand("airdrop")}>`,
+        })
+
+      case 404:
+        throw new InternalError({
+          msgOrInteraction: msg,
+          title: "Token not found",
+          emojiUrl: getEmojiURL(emojis.ANIMATED_COIN_1),
+          description: `Cannot found any token with given details.`,
+        })
     }
+
     throw new APIError({ msgOrInteraction: msg, error, curl, description: log })
   }
 

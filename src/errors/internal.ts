@@ -1,6 +1,7 @@
 import { ColorResolvable } from "discord.js"
 import { getErrorEmbed } from "ui/discord/embed"
 import { BotBaseError, OriginalMessage } from "./base"
+import { msgColors } from "../utils/common"
 
 export class InternalError extends BotBaseError {
   private _customDescription: string | undefined
@@ -28,7 +29,7 @@ export class InternalError extends BotBaseError {
     this.name = title ?? "Internal error"
     this._customDescription = description
     this.emojiUrl = emojiUrl
-    this.color = color
+    this.color = color ?? msgColors.GRAY
   }
 
   handle() {
