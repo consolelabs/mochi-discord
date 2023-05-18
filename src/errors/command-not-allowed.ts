@@ -1,8 +1,10 @@
-import { getEmoji } from "utils/common"
-import { DISCORD_URL } from "utils/constants"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { DOT } from "utils/constants"
 import { BotBaseError, OriginalMessage } from "./base"
 import { getErrorEmbed } from "ui/discord/embed"
-import { composeButtonLink } from "ui/discord/button"
+import config from "adapters/config"
+import CacheManager from "cache/node-cache"
+import { getSlashCommand } from "utils/commands"
 
 export class CommandNotAllowedToRunError extends BotBaseError {
   private missingPermissions: string[]
@@ -30,23 +32,44 @@ export class CommandNotAllowedToRunError extends BotBaseError {
   handle() {
     let errorEmbed
     if (this.missingPermissions?.length) {
-      errorEmbed = getErrorEmbed({
-        title: `Permissions required`,
-        description: `Only Administrators can use this command ${getEmoji(
-          "NEKOSAD"
-        )}. Please contact your server admins if you need help.`,
+      CacheManager.get({
+        pool: "bot-manager",
+        key: `guild-${this.msgOrInteraction?.guildId}`,
+        call: () =>
+          config.getGuildAdminRoles({
+            guildId: this.msgOrInteraction?.guildId ?? "",
+          }),
+      }).then(async ({ data }) => {
+        errorEmbed = getErrorEmbed({
+          emojiUrl: getEmojiURL(emojis.ANIMATED_STAR),
+          title: "Holdup!",
+          description: `This command can only be used by the following:\n\n**${DOT} Administrators**${
+            data
+              ? `\n${(data ?? [])
+                  .map((d: any) => `**${DOT} <@&${d.role_id}>**`)
+                  .join("\n")}`
+              : ""
+          }\n\n${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} Contact this server's owner to use </bot-manager set:${await getSlashCommand(
+            "bot-manager set"
+          )}> to add your role as a bot manager role.`,
+        })
+        const msgOptions = {
+          embeds: [errorEmbed],
+        }
+        this.reply?.(msgOptions)
       })
     } else {
       errorEmbed = getErrorEmbed({
-        description: `This command is not allowed to run in DM ${getEmoji(
-          "NEKOSAD"
-        )}.`,
+        description: `This command is not allowed to run in DM`,
       })
+
+      const msgOptions = {
+        embeds: [errorEmbed],
+      }
+      this.reply?.(msgOptions)
     }
-    const msgOptions = {
-      embeds: [errorEmbed],
-      components: [composeButtonLink("Support", DISCORD_URL, getEmoji("DEFI"))],
-    }
-    this.reply?.(msgOptions)
   }
 }
