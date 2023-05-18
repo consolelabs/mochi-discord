@@ -15,6 +15,7 @@ import {
   msgColors,
   shortenHashOrAddress,
 } from "utils/common"
+import { listSubmissionVault } from "utils/vault"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -257,7 +258,13 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
               embeds: [
                 getSuccessEmbed({
                   title: `The request ${requestId} has been approved`,
-                  description: `Request has already been approved by majority of treasurers \`${dataTransferTreasurer.vote_result.total_approved_submission}/${dataTransferTreasurer.vote_result.total_submission}\``,
+                  description: `Request has already been approved by majority of treasurers \`${
+                    dataTransferTreasurer.vote_result.total_approved_submission
+                  }/${
+                    dataTransferTreasurer.vote_result.total_submission
+                  }\`\n${listSubmissionVault(
+                    dataTransferTreasurer.total_submissions
+                  )}`,
                 }),
               ],
               components: [],
@@ -286,7 +293,14 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
                 embeds: [
                   getErrorEmbed({
                     title: `The request ${requestId} has been rejected`,
-                    description: `Request has already been rejected by majority of treasurers \`${dataTransferTreasurer?.vote_result.total_rejected_submisison}/${dataTransferTreasurer?.vote_result.total_submission}\``,
+                    description: `Request has already been rejected by majority of treasurers \`${
+                      dataTransferTreasurer?.vote_result
+                        .total_rejected_submisison
+                    }/${
+                      dataTransferTreasurer?.vote_result.total_submission
+                    }\`\n${listSubmissionVault(
+                      dataTransferTreasurer?.total_submissions
+                    )}`,
                   }),
                 ],
                 components: [],

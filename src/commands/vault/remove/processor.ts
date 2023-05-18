@@ -10,6 +10,7 @@ import { GuildIdNotFoundError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, msgColors } from "utils/common"
+import { listSubmissionVault } from "utils/vault"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -247,7 +248,13 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
             embeds: [
               getSuccessEmbed({
                 title: `The request ${requestId} has been approved`,
-                description: `Request has already been approved by majority treasurers \`${dataTreasurerSubmisison.vote_result.total_approved_submission}/${dataTreasurerSubmisison.vote_result.total_submission}\``,
+                description: `Request has already been approved by majority treasurers \`${
+                  dataTreasurerSubmisison.vote_result.total_approved_submission
+                }/${
+                  dataTreasurerSubmisison.vote_result.total_submission
+                }\`\n${listSubmissionVault(
+                  dataTreasurerSubmisison.total_submissions
+                )}`,
               }),
             ],
             components: [],
@@ -276,7 +283,14 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
               embeds: [
                 getErrorEmbed({
                   title: `The request ${requestId} has been rejected`,
-                  description: `Request has already rejected by majority treasurers ${dataTreasurerSubmisison.vote_result.total_rejected_submisison}/${dataTreasurerSubmisison.vote_result.total_submission}`,
+                  description: `Request has already rejected by majority treasurers \`${
+                    dataTreasurerSubmisison.vote_result
+                      .total_rejected_submisison
+                  }/${
+                    dataTreasurerSubmisison.vote_result.total_submission
+                  }\`\n${listSubmissionVault(
+                    dataTreasurerSubmisison.total_submissions
+                  )}`,
                 }),
               ],
               components: [],

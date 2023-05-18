@@ -10,6 +10,7 @@ import { GuildIdNotFoundError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, msgColors } from "utils/common"
+import { listSubmissionVault } from "utils/vault"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -106,11 +107,9 @@ export async function runAddTreasurer({
           embeds: [
             composeEmbedMessage(null, {
               title: `${getEmoji("ANIMATED_BELL", true)} Mochi notifications`,
-              description: `<@${
-                i.user.id
-              }> has submitted the approval request #${
+              description: `<@${i.user.id}> has submitted the request #${
                 dataAddTreasurerReq?.request.id
-              }\n${getEmoji("TREASURER_ADD")} Add <@${
+              } in ${vaultName} vault \n${getEmoji("TREASURER_ADD")} Add <@${
                 user.id
               }> to **${vaultName}**\n\nMessage ${getEmoji(
                 "ANIMATED_CHAT",
@@ -249,7 +248,13 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
             embeds: [
               getSuccessEmbed({
                 title: `The request ${requestId} has been approved`,
-                description: `Request has already been approved by majority treasurers \`${dataAddTreasurer.vote_result.total_approved_submission}/${dataAddTreasurer.vote_result.total_submission}\``,
+                description: `Request has already been approved by majority treasurers \`${
+                  dataAddTreasurer.vote_result.total_approved_submission
+                }/${
+                  dataAddTreasurer.vote_result.total_submission
+                }\`\n${listSubmissionVault(
+                  dataAddTreasurer.total_submissions
+                )}`,
               }),
             ],
             components: [],
@@ -276,7 +281,13 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
               embeds: [
                 getErrorEmbed({
                   title: `The request ${requestId} has been rejected`,
-                  description: `Request has already been rejected by majority treasurers \`${dataAddTreasurer.vote_result.total_rejected_submisison}/${dataAddTreasurer.vote_result.total_submission}\``,
+                  description: `Request has already been rejected by majority treasurers \`${
+                    dataAddTreasurer.vote_result.total_rejected_submisison
+                  }/${
+                    dataAddTreasurer.vote_result.total_submission
+                  }\`\n${listSubmissionVault(
+                    dataAddTreasurer.total_submissions
+                  )}`,
                 }),
               ],
               components: [],
