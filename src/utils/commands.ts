@@ -29,42 +29,42 @@ export async function getSlashCommand(name: string) {
     const result = (await rest.get(
       Routes.applicationCommands(APPLICATION_ID)
     )) as Array<any>
-    cacheSlash = new Map(
-      Array.from(
-        result
-          .map((r) => {
-            if (r.options) {
-              const subCmds = r.options.filter((opt: any) =>
-                [
-                  ApplicationCommandOptionType.SubcommandGroup,
-                  ApplicationCommandOptionType.Subcommand,
-                ].includes(opt.type)
-              )
-              if (subCmds.length) {
-                return subCmds
-                  .map((subCmdOrGroup: any) => {
-                    if (
-                      subCmdOrGroup.type ===
-                      ApplicationCommandOptionType.Subcommand
-                    ) {
-                      return [[`${r.name} ${subCmdOrGroup.name}`, r.id]]
-                    } else {
-                      return subCmdOrGroup.options.map((subCmd: any) => {
-                        return [
-                          `${r.name} ${subCmdOrGroup.name} ${subCmd.name}`,
-                          r.id,
-                        ]
-                      })
-                    }
-                  })
-                  .flat()
-              }
+    const slashData = Array.from(
+      result
+        .map((r) => {
+          let childCommands = []
+          if (r.options) {
+            const subCmds = r.options.filter((opt: any) =>
+              [
+                ApplicationCommandOptionType.SubcommandGroup,
+                ApplicationCommandOptionType.Subcommand,
+              ].includes(opt.type)
+            )
+            if (subCmds.length) {
+              childCommands = subCmds
+                .map((subCmdOrGroup: any) => {
+                  if (
+                    subCmdOrGroup.type ===
+                    ApplicationCommandOptionType.Subcommand
+                  ) {
+                    return [[`${r.name} ${subCmdOrGroup.name}`, r.id]]
+                  } else {
+                    return subCmdOrGroup.options.map((subCmd: any) => {
+                      return [
+                        `${r.name} ${subCmdOrGroup.name} ${subCmd.name}`,
+                        r.id,
+                      ]
+                    })
+                  }
+                })
+                .flat()
             }
-            return [[r.name, r.id]]
-          })
-          .flat()
-      )
+          }
+          return childCommands.concat([[r.name, r.id]])
+        })
+        .flat()
     )
+    cacheSlash = new Map(slashData)
   }
 
   return cacheSlash.get(name)
