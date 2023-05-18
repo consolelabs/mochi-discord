@@ -43,7 +43,7 @@ export async function runVaultList({
     }
   }
 
-  const vaults = data.slice(0, 10)
+  const vaults = data.slice(0, 9)
   let description = ""
   const longest = vaults.reduce(
     (acc: number, c: any) => Math.max(acc, c.name.length),
