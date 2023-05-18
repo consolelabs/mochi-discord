@@ -50,9 +50,10 @@ export async function runCreateThreshold({
 
   const description = `**${
     data.name
-  }** has been configured vault threshold of \`${
-    data.threshold
-  }%\` for approval\n${getEmoji(
+  }** has been configured vault threshold of \`${i.options.getString(
+    "value",
+    true
+  )}%\` for approval\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
   )} Set or change vault threshold by run </vault config threshold:${await getSlashCommand(

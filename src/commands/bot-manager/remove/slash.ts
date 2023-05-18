@@ -4,13 +4,10 @@ import CacheManager from "cache/node-cache"
 import { CommandInteraction } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { SlashCommand } from "types/common"
-import {
-  composeEmbedMessage2,
-  getErrorEmbed,
-  getSuccessEmbed,
-} from "ui/discord/embed"
+import { composeEmbedMessage2, getSuccessEmbed } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { Role } from "discord.js"
+import { getSlashCommand } from "utils/commands"
 
 const command: SlashCommand = {
   name: "remove",
@@ -47,16 +44,14 @@ const command: SlashCommand = {
     const roleConfig = data.find((d: any) => d.role_id === roleToRemove.id)
 
     if (data.length === 0 || !roleConfig) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              title: `No admin roles found`,
-              description: `No admin roles found! To set a new one, run \`\`\`${SLASH_PREFIX}bot-manager set <role>\`\`\``,
-            }),
-          ],
-        },
-      }
+      throw new InternalError({
+        msgOrInteraction: interaction,
+
+        title: "The role hasn't been set as bot managers!",
+        description: `You can set the new bot managers role by using </bot-manager set:${await getSlashCommand(
+          "bot-manager set"
+        )}>`,
+      })
     }
 
     await config.removeGuildAdminRole(roleConfig.id)
@@ -65,8 +60,10 @@ const command: SlashCommand = {
       messageOptions: {
         embeds: [
           getSuccessEmbed({
-            title: `Successfully removed ${roleToRemove.name}!`,
-            description: `You can set the new role by using \`/bot-manager set <role>\``,
+            title: `Successfully removed ${roleToRemove.name} as bot managers!`,
+            description: `You can set the new bot managers role by using </bot-manager set:${await getSlashCommand(
+              "bot-manager set"
+            )}>`,
           }),
         ],
         components: [],
