@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import config from "adapters/config"
 import CacheManager from "cache/node-cache"
-import { list } from "commands/bot-manager/processor"
+import { list } from "./processor"
 import { CommandInteraction } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { SlashCommand } from "types/common"
@@ -37,7 +37,7 @@ const command: SlashCommand = {
       })
     }
 
-    const { title, description } = list(data as any)
+    const { title, description } = await list(data as any)
 
     return {
       messageOptions: {

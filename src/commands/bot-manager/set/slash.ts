@@ -6,6 +6,8 @@ import { SlashCommand } from "types/common"
 import { composeEmbedMessage2, getSuccessEmbed } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import CacheManager from "cache/node-cache"
+import { getSlashCommand } from "utils/commands"
+import { getEmoji } from "utils/common"
 
 const command: SlashCommand = {
   name: "set",
@@ -36,8 +38,10 @@ const command: SlashCommand = {
     if (!ok) {
       throw new InternalError({
         msgOrInteraction: interaction,
-        title: "Failed to set admin role",
-        description: "Please try again later.",
+        title: "The role has been set!",
+        description: `Please choose another role, then run command </bot-manager set:${await getSlashCommand(
+          "bot-manager set"
+        )}>`,
       })
     }
 
@@ -47,9 +51,16 @@ const command: SlashCommand = {
       messageOptions: {
         embeds: [
           getSuccessEmbed({
-            title: `Successfully set ${roleArg.name} as admin role.`,
-            description:
-              "Now you can use `/bot-manager info` to check the current admin role.",
+            title: `Successfully set ${roleArg.name} as bot managers!`,
+            description: `${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} The bot managers can use all the server management feature, even when they don't have an admin role.\n${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} You can check the bot managers role by running </bot-manager info:${await getSlashCommand(
+              "bot-manager info"
+            )}>`,
             originalMsgAuthor: interaction.user,
           }),
         ],
