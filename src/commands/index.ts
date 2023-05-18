@@ -156,6 +156,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   loser: loser.slashCmd,
   transaction: transaction.slashCmd,
   "bot-manager": botManager.slashCmd,
+  telegram: telegram.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -197,7 +198,6 @@ export const originalCommands: Record<string, Command> = {
   // globalxp,
   starboard: starboard.textCmd,
   poe: poe.textCmd,
-  telegram: telegram.textCmd,
   sendxp: sendxp.textCmd,
 
   // wallet
@@ -432,7 +432,12 @@ export async function handlePrefixedCommand(message: Message) {
 
   // send suggest embed if command not found
   if (!commandObject) {
-    const embedProps = getCommandSuggestion(fuzzySet, commandKey, commands)
+    const embedProps = await getCommandSuggestion(
+      fuzzySet,
+      commandKey,
+      commands,
+      slashCommands
+    )
     if (embedProps) {
       await message
         .reply({

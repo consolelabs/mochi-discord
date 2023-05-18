@@ -1,37 +1,60 @@
-import { Command } from "types/common"
-import { thumbnails } from "utils/common"
+import { embedsColors, SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { PREFIX, TELEGRAM_GITBOOK } from "utils/constants"
-import config from "./config/text"
+import { SlashCommandBuilder } from "@discordjs/builders"
+import {
+  ColorResolvable,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+} from "discord.js"
+import { getProfileIdByDiscord } from "utils/profile"
+import profile from "adapters/profile"
+import { InternalError } from "errors"
+import { HOMEPAGE_URL } from "utils/constants"
 
-const actions: Record<string, Command> = {
-  config,
+const slashCmd: SlashCommand = {
+  name: "telegram",
+  category: "Profile",
+  prepare: () => {
+    const data = new SlashCommandBuilder()
+      .setName("telegram")
+      .setDescription("Connect telegram account with Discord")
+
+    return data
+  },
+  run: async function (interaction) {
+    if (!interaction.member || !interaction.guildId) return
+    const embed = new MessageEmbed()
+      .setColor(embedsColors.Profile as ColorResolvable)
+      .setTitle("Link your Telegram account")
+      .setDescription(
+        `Please connect your Telegram by clicking the button below.`
+      )
+    // request profile code
+    const profileId = await getProfileIdByDiscord(interaction.user.id)
+    const { data, ok, error } = await profile.requestProfileCode(profileId)
+    if (!ok) {
+      throw new InternalError({
+        description: error,
+        msgOrInteraction: interaction,
+      })
+    }
+    const row = new MessageActionRow().addComponents(
+      new MessageButton()
+        .setLabel("Connect")
+        .setStyle("LINK")
+        .setURL(`${HOMEPAGE_URL}/connect-telegram?code=${data.code}`)
+    )
+    await interaction
+      .editReply({ embeds: [embed], components: [row] })
+      .catch(() => null)
+  },
+  help: () =>
+    Promise.resolve({
+      embeds: [composeEmbedMessage(null, { includeCommandsList: true })],
+    }),
+  colorType: "Defi",
+  ephemeral: true,
 }
 
-const textCmd: Command = {
-  id: "telegram",
-  command: "telegram",
-  brief: "Telegram configuration",
-  category: "Config",
-  run: async () => null,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        thumbnail: thumbnails.TOKENS,
-        title: "Telegram configuration",
-        description: "Manage your linked Telegram account",
-        usage: `${PREFIX}telegram <action>`,
-        examples: `${PREFIX}telegram config\n${PREFIX}telegram config anhnhhhh`,
-        document: TELEGRAM_GITBOOK,
-        includeCommandsList: true,
-      }),
-    ],
-  }),
-  actions,
-  aliases: ["tel"],
-  canRunWithoutAction: false,
-  colorType: "Profile",
-  minArguments: 2,
-}
-
-export default { textCmd }
+export default { slashCmd }
