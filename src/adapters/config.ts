@@ -835,16 +835,6 @@ class Config extends Fetcher {
     )
   }
 
-  public async linkTelegramAccount(req: {
-    discord_id: string
-    telegram_username: string
-  }) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-community/telegram`, {
-      method: "POST",
-      body: JSON.stringify(req),
-    })
-  }
-
   public async setJoinLeaveChannel(guildId: string, channelId: string) {
     return await this.jsonFetch(`${API_BASE_URL}/config-channels/join-leave`, {
       method: "POST",

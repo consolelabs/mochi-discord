@@ -1,9 +1,8 @@
 import config from "adapters/config"
 import { CommandInteraction } from "discord.js"
-import { GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { MessageEmbed } from "discord.js"
-import { APIError } from "errors"
-import { getEmoji, msgColors } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { getSlashCommand } from "utils/commands"
 
 export async function runCreateVault({
@@ -17,7 +16,7 @@ export async function runCreateVault({
     throw new GuildIdNotFoundError({ message: i })
   }
 
-  const { data, ok, curl, error, log } = await config.createVault({
+  const { data, ok, error } = await config.createVault({
     guild_id: guildId,
     name: i.options.getString("name", true),
     threshold: i.options.getString("threshold", true),
@@ -25,7 +24,7 @@ export async function runCreateVault({
     vault_creator: i.user.id,
   })
   if (!ok) {
-    throw new APIError({ curl, error, description: log })
+    throw new InternalError({ description: error, msgOrInteraction: i })
   }
 
   const description = `**Wallet Address**\n\n\`${
@@ -44,9 +43,7 @@ export async function runCreateVault({
     .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
-    .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1090195482506174474/1090905984299442246/image.png"
-    )
+    .setThumbnail(getEmojiURL(emojis.ANIMATED_OPEN_VAULT))
 
   return { messageOptions: { embeds: [embed] } }
 }

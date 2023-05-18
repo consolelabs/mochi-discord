@@ -43,15 +43,20 @@ export async function runVaultList({
     }
   }
 
+  const vaults = data.slice(0, 10)
   let description = ""
-  for (let i = 0; i < data.slice(0, 10).length; i++) {
-    description =
-      description +
-      `${getEmoji(`NUM_${i + 1}` as EmojiKey)} ${
-        data[i].name
-      } \`${shortenHashOrAddress(data[i].wallet_address)}\` | Threshold: \`${
-        data[i].threshold
-      }%\`\n`
+  const longest = vaults.reduce(
+    (acc: number, c: any) => Math.max(acc, c.name.length),
+    0
+  )
+  for (let i = 0; i < vaults.length; i++) {
+    description += `${getEmoji(`NUM_${i + 1}` as EmojiKey)}\`${
+      data[i].name
+    } ${" ".repeat(longest - data[i].name.length)} | ${shortenHashOrAddress(
+      data[i].wallet_address
+    )} | ${" ".repeat(3 - data[i].threshold.toString().length)}${
+      data[i].threshold
+    }%\`\n`
   }
 
   description += `\n${getEmoji(

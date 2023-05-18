@@ -4,9 +4,10 @@ import { ticker } from "./processor"
 
 async function run(
   interaction: CommandInteraction,
-  baseQ: string
+  baseQ: string,
+  chain?: string
 ): Promise<SlashCommandResponse> {
-  return await ticker(interaction, baseQ)
+  return await ticker(interaction, baseQ, chain)
 }
 
 export default run
