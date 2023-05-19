@@ -13,12 +13,12 @@ import { InternalError } from "errors"
 import { HOMEPAGE_URL } from "utils/constants"
 
 const slashCmd: SlashCommand = {
-  name: "telegram",
+  name: "twitter",
   category: "Profile",
   prepare: () => {
     const data = new SlashCommandBuilder()
-      .setName("telegram")
-      .setDescription("Connect Telegram account with Discord")
+      .setName("twitter")
+      .setDescription("Connect Twitter account with Discord")
 
     return data
   },
@@ -26,9 +26,9 @@ const slashCmd: SlashCommand = {
     if (!interaction.member || !interaction.guildId) return
     const embed = new MessageEmbed()
       .setColor(embedsColors.Profile as ColorResolvable)
-      .setTitle("Link your Telegram account")
+      .setTitle("Link your Twitter account")
       .setDescription(
-        `Please connect your Telegram by clicking the button below.`
+        `Please connect your Twitter by clicking the button below.`
       )
     // request profile code
     const profileId = await getProfileIdByDiscord(interaction.user.id)
@@ -43,7 +43,7 @@ const slashCmd: SlashCommand = {
       new MessageButton()
         .setLabel("Connect")
         .setStyle("LINK")
-        .setURL(`${HOMEPAGE_URL}/connect-telegram?code=${data.code}`)
+        .setURL(`${HOMEPAGE_URL}/connect-twitter?code=${data.code}`)
     )
     await interaction
       .editReply({ embeds: [embed], components: [row] })
