@@ -56,6 +56,7 @@ import {
 } from "../processor"
 import { RunResult } from "types/common"
 import { reply } from "utils/discord"
+import { lowerCase } from "lodash"
 
 const rarityColors: Record<string, string> = {
   COMMON: "#939393",
@@ -110,7 +111,7 @@ export function buildSwitchViewActionRow(
 ) {
   const row = new MessageActionRow()
   // TODO(trkhoi): handle aptos address too long
-  if (chain === "APT") {
+  if (chain === "APT" || chain === "SUI") {
     const nftButton = new MessageButton({
       label: "NFT",
       emoji: getEmoji("NFTS"),
@@ -537,7 +538,9 @@ export async function composeNFTDetail(
   // Attributes fields
   const attributeFields: EmbedFieldData[] = attributesFiltered
     ? attributesFiltered.map((attr: any) => {
-        const val = `${capFirst(attr.value)}\n${attr.frequency ?? ""}`
+        const val = `${capFirst(attr.value?.replaceAll("_", " "))}\n${
+          attr.frequency ?? ""
+        }`
         return {
           name: `${getIcon(icons, attr.trait_type)} ${capFirst(
             attr.trait_type?.replaceAll("_", " ")
@@ -684,8 +687,11 @@ export function addSuggestionIfAny(
     suggestions.reduce((acc, s) => acc.add(s.symbol), new Set()).size === 1
   const components = getSuggestionComponents(
     suggestions.map((s, i) => ({
-      label: s.name,
-      value: `${s.address}/${tokenId}/${symbol}/${s.chain}/${duplicatedSymbols}`,
+      label: `${s.chain.toUpperCase()} - ${s.name} (${s.symbol})`,
+      value:
+        lowerCase(s.chain) !== "sui"
+          ? `${s.address}/${tokenId}/${symbol}/${s.chain}/${duplicatedSymbols}`
+          : `${s.address}/${tokenId}//${s.chain}/${duplicatedSymbols}`,
       emoji:
         i > 8
           ? `${getEmoji(`NUM_${Math.floor(i / 9)}` as EmojiKey)}${getEmoji(
@@ -826,7 +832,6 @@ function suggestionHandler(
       throw new APIError({ msgOrInteraction: msg, curl, description: log })
     }
     const { data: nft, suggestions } = nftDetailRes
-
     const collectionDetailRes = await community.getNFTCollectionDetail({
       collectionAddress: address,
       queryAddress: true,
