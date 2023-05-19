@@ -127,8 +127,7 @@ export async function runGetVaultDetail({
   data.current_request.forEach((request: any) => {
     currentRequest += formatCurrentRequest(request)
   })
-  currentRequest =
-    currentRequest === "" ? "" : titleCurrentRequest + currentRequest
+  currentRequest = currentRequest ? titleCurrentRequest + currentRequest : ""
 
   let fields = []
 

@@ -9,7 +9,7 @@ import {
 import { GuildIdNotFoundError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
-import { getEmoji, msgColors } from "utils/common"
+import { getEmoji, msgColors, emojis, getEmojiURL } from "utils/common"
 import { listSubmissionVault, createActionLine } from "utils/vault"
 import NodeCache from "node-cache"
 import {
@@ -59,7 +59,7 @@ export async function runRemoveTreasurer({
     guild_id: guildId,
     user_discord_id: user.id,
     vault_name: vaultName,
-    message: i.options.getString("message") ?? "Remove treasurer",
+    message: i.options.getString("message")?.trim() || "Remove treasurer",
     type: "remove",
     requester: i.user.id,
   })
@@ -85,7 +85,7 @@ export async function runRemoveTreasurer({
 
   // send DM to submitter
   // send DM to list treasurer but not requester, requester default approve
-  if (dataAddTreasurerReq?.is_decided_and_executed === false) {
+  if (!dataAddTreasurerReq?.is_decided_and_executed) {
     dataAddTreasurerReq?.treasurer.forEach((treasurer: any) => {
       if (treasurer.user_discord_id === i.user.id) {
         return
@@ -112,7 +112,7 @@ export async function runRemoveTreasurer({
           const msg = await treasurer.send({
             embeds: [
               composeEmbedMessage(null, {
-                title: `${getEmoji("ANIMATED_BELL", true)} Mochi notifications`,
+                title: `${getEmoji("ANIMATED_BELL", true)} Mochi Notifications`,
                 description: `<@${
                   i.user.id
                 }> has submitted the request in ${vaultName} vault \n${getEmoji(
@@ -124,8 +124,7 @@ export async function runRemoveTreasurer({
                   true
                 )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
                 color: msgColors.BLUE,
-                thumbnail:
-                  "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png",
+                thumbnail: getEmojiURL(emojis.TREASURER_ADD),
               }),
             ],
             components: [actionRow],
@@ -139,10 +138,10 @@ export async function runRemoveTreasurer({
 
   const embed = new MessageEmbed()
     .setTitle(
-      `${getEmoji("PROPOSAL")} Request ${createActionLine({
+      `${getEmoji("PROPOSAL")} Request to ${createActionLine({
         action: "remove",
         vault: vaultName,
-      })} successfully created`
+      })} has been successfully created`
     )
     .setDescription(
       `You want to remove <@${
@@ -208,7 +207,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
     }
   }
 
-  if (dataTreasurerSubmisison.vote_result.is_approved === true) {
+  if (dataTreasurerSubmisison.vote_result.is_approved) {
     // add treasurer to vault
     const { data, status, curl, log } = await config.removeTreasurerFromVault({
       guild_id: dataTreasurerSubmisison.submission.guild_id,
@@ -244,7 +243,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
           await msg.edit({
             embeds: [
               getSuccessEmbed({
-                title: `The request ${createActionLine({
+                title: `The request to ${createActionLine({
                   action: "remove",
                   vault: dataTreasurerSubmisison.submission.vault.name,
                 })} has been approved`,
@@ -278,7 +277,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
             await msg.edit({
               embeds: [
                 getErrorEmbed({
-                  title: `The request ${createActionLine({
+                  title: `The request to ${createActionLine({
                     action: "remove",
                     vault: dataTreasurerSubmisison.submission.vault.name,
                   })} has been rejected`,

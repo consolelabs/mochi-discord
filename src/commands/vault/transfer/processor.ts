@@ -10,6 +10,8 @@ import { GuildIdNotFoundError, InternalError } from "errors"
 import { MessageEmbed } from "discord.js"
 import {
   getEmoji,
+  getEmojiToken,
+  TokenEmojiKey,
   getAnimatedEmojiURL,
   emojis,
   msgColors,
@@ -68,7 +70,8 @@ export async function runTransferTreasurer({
   } = await config.createTreasureRequest({
     guild_id: guildId,
     vault_name: vaultName,
-    message: i.options.getString("message", false) ?? "Send money to treasurer",
+    message:
+      i.options.getString("message")?.trim() || "Send money to treasurer",
     type: "transfer",
     requester: i.user.id,
     user_discord_id: userId,
@@ -93,7 +96,7 @@ export async function runTransferTreasurer({
     shortenAddress !== "" ? `\`${shortenAddress}\`` : `<@${user?.id}>`
   // send DM to submitter
   // send DM to list treasurer but not requester, requester default approve
-  if (dataTransferTreasurerReq?.is_decided_and_executed === false) {
+  if (!dataTransferTreasurerReq?.is_decided_and_executed) {
     dataTransferTreasurerReq?.treasurer.forEach((treasurer: any) => {
       if (treasurer.user_discord_id === i.user.id) {
         return
@@ -118,13 +121,13 @@ export async function runTransferTreasurer({
           const msg = await treasurer.send({
             embeds: [
               composeEmbedMessage(null, {
-                title: `${getEmoji("ANIMATED_BELL", true)} mochi notifications`,
+                title: `${getEmoji("ANIMATED_BELL", true)} Mochi Notifications`,
                 description: `<@${
                   i.user.id
                 }> has submitted the request in ${vaultName} vault \n${getEmoji(
                   "SHARE"
-                )} Send ${getEmoji(
-                  token.toUpperCase() as keyof typeof emojis
+                )} Send ${getEmojiToken(
+                  token.toUpperCase() as TokenEmojiKey
                 )} ${amount} ${token} from ${vaultName} to ${destination} ${msgField}`,
                 color: msgColors.BLUE,
                 thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
@@ -143,10 +146,10 @@ export async function runTransferTreasurer({
 
   const embed = new MessageEmbed()
     .setTitle(
-      `${getEmoji("PROPOSAL")} Request ${createActionLine({
+      `${getEmoji("PROPOSAL")} Request to ${createActionLine({
         action: "transfer",
         vault: vaultName,
-      })} successfully created`
+      })} has been successfully created`
     )
     .setDescription(
       `You want to send ${getEmoji(
@@ -245,7 +248,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
             await msg.edit({
               embeds: [
                 getSuccessEmbed({
-                  title: `The request ${createActionLine({
+                  title: `The request to ${createActionLine({
                     action: "transfer",
                     vault: dataTransferTreasurer.submission.vault.name,
                   })} has been approved`,
@@ -279,7 +282,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
               await msg.edit({
                 embeds: [
                   getErrorEmbed({
-                    title: `The request ${createActionLine({
+                    title: `The request to ${createActionLine({
                       action: "transfer",
                       vault: dataTransferTreasurer?.submission.vault.name,
                     })} has been rejected`,
