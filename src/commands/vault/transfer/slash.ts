@@ -4,6 +4,7 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { runTransferTreasurer } from "./processor"
+import config from "adapters/config"
 
 const chains = {
   ethereum: "1",
@@ -25,6 +26,7 @@ const command: SlashCommand = {
           .setName("name")
           .setDescription("enter vault name")
           .setRequired(true)
+          .setAutocomplete(true)
       )
       .addStringOption((option) => {
         const o = option
@@ -66,6 +68,26 @@ const command: SlashCommand = {
           .setDescription("enter wallet address")
           .setRequired(false)
       )
+  },
+  autocomplete: async function (i) {
+    if (!i.guildId) {
+      await i.respond([])
+      return
+    }
+    const focusedValue = i.options.getFocused()
+    const { ok, data } = await config.vaultList(i.guildId)
+    if (!ok) {
+      await i.respond([])
+      return
+    }
+
+    await i.respond(
+      data
+        .filter((d: any) =>
+          d.name.toLowerCase().includes(focusedValue.toLowerCase())
+        )
+        .map((d: any) => ({ name: d.name, value: d.name }))
+    )
   },
   run: async function (interaction: CommandInteraction) {
     return await runTransferTreasurer({
