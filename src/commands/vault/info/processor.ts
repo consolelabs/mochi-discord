@@ -122,13 +122,13 @@ export async function runGetVaultDetail({
       ? `**Wallet Address**\n\`\`\`${data.wallet_address}\`\`\``
       : ""
 
-  let description = `
-  ${walletAddress}
-  **Current Transaction**
-  `
+  const titleCurrentRequest = `**Current request**\n`
+  let currentRequest = ""
   data.current_request.forEach((request: any) => {
-    description += formatCurrentRequest(request)
+    currentRequest += formatCurrentRequest(request)
   })
+  currentRequest =
+    currentRequest === "" ? "" : titleCurrentRequest + currentRequest
 
   let fields = []
 
@@ -160,7 +160,7 @@ export async function runGetVaultDetail({
   const embed = composeEmbedMessage(null, {
     color: msgColors.BLUE,
     title: `${getEmoji("ANIMATED_VAULT", true)} ${vaultName} vault`,
-    description: description,
+    description: `${walletAddress}${currentRequest}`,
   }).addFields(fields)
 
   return { messageOptions: { embeds: [embed] } }

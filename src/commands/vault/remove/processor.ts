@@ -10,7 +10,7 @@ import { GuildIdNotFoundError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, msgColors } from "utils/common"
-import { listSubmissionVault } from "utils/vault"
+import { listSubmissionVault, createActionLine } from "utils/vault"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -59,7 +59,7 @@ export async function runRemoveTreasurer({
     guild_id: guildId,
     user_discord_id: user.id,
     vault_name: vaultName,
-    message: i.options.getString("message") ?? "",
+    message: i.options.getString("message") ?? "Remove treasurer",
     type: "remove",
     requester: i.user.id,
   })
@@ -84,62 +84,70 @@ export async function runRemoveTreasurer({
   }
 
   // send DM to submitter
-  dataAddTreasurerReq?.treasurer.forEach((treasurer: any) => {
-    const actionRow = new MessageActionRow().addComponents(
-      new MessageButton({
-        customId: `treasurerRemove-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
-        style: "SUCCESS",
-        label: "Approve",
-      }),
-      new MessageButton({
-        customId: `treasurerRemove-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
-        style: "DANGER",
-        label: "Reject",
-      })
-    )
+  // send DM to list treasurer but not requester, requester default approve
+  if (dataAddTreasurerReq?.is_decided_and_executed === false) {
+    dataAddTreasurerReq?.treasurer.forEach((treasurer: any) => {
+      if (treasurer.user_discord_id === i.user.id) {
+        return
+      }
 
-    const cacheKey = `treasurerRemove-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`
-
-    i.guild?.members
-      .fetch(treasurer.user_discord_id)
-      .then(async (treasurer) => {
-        const msg = await treasurer.send({
-          embeds: [
-            composeEmbedMessage(null, {
-              title: `${getEmoji("ANIMATED_BELL", true)} Mochi notifications`,
-              description: `<@${
-                i.user.id
-              }> has submitted the approval request #${
-                dataAddTreasurerReq?.request.id
-              }\n${getEmoji("TREASURER_REMOVE")} Remove <@${
-                user.id
-              }> to **${vaultName}**\n\nMessage ${getEmoji(
-                "ANIMATED_CHAT",
-                true
-              )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
-              color: msgColors.BLUE,
-              thumbnail:
-                "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png",
-            }),
-          ],
-          components: [actionRow],
+      const actionRow = new MessageActionRow().addComponents(
+        new MessageButton({
+          customId: `treasurerRemove-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
+          style: "SUCCESS",
+          label: "Approve",
+        }),
+        new MessageButton({
+          customId: `treasurerRemove-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
+          style: "DANGER",
+          label: "Reject",
         })
-        treasurerRemoveCache.set(cacheKey, msg)
-      })
-  })
+      )
+
+      const cacheKey = `treasurerRemove-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`
+
+      i.guild?.members
+        .fetch(treasurer.user_discord_id)
+        .then(async (treasurer) => {
+          const msg = await treasurer.send({
+            embeds: [
+              composeEmbedMessage(null, {
+                title: `${getEmoji("ANIMATED_BELL", true)} Mochi notifications`,
+                description: `<@${
+                  i.user.id
+                }> has submitted the request in ${vaultName} vault \n${getEmoji(
+                  "TREASURER_REMOVE"
+                )} Remove <@${
+                  user.id
+                }> from **${vaultName}**\n\nMessage ${getEmoji(
+                  "ANIMATED_CHAT",
+                  true
+                )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
+                color: msgColors.BLUE,
+                thumbnail:
+                  "https://cdn.discordapp.com/attachments/1090195482506174474/1092703907911847976/image.png",
+              }),
+            ],
+            components: [actionRow],
+          })
+          treasurerRemoveCache.set(cacheKey, msg)
+        })
+    })
+  }
 
   // send DM to treasurer in vault
 
   const embed = new MessageEmbed()
     .setTitle(
-      `${getEmoji("PROPOSAL")} Request #${
-        dataAddTreasurerReq?.request.id
-      } successfully created`
+      `${getEmoji("PROPOSAL")} Request ${createActionLine({
+        action: "remove",
+        vault: vaultName,
+      })} successfully created`
     )
     .setDescription(
       `You want to remove <@${
         user.id
-      }> to **${vaultName} vault**\n\nMessage ${getEmoji(
+      }> from **${vaultName} vault**\n\nMessage ${getEmoji(
         "ANIMATED_CHAT",
         true
       )}\n\`\`\`${
@@ -200,14 +208,6 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
     }
   }
 
-  const modelNotify = {
-    guild_id: dataTreasurerSubmisison.submission.guild_id,
-    user_discord_id: user,
-    vault_id: Number(vaultId),
-    channel_id: channelId,
-    type: "remove",
-    status: "",
-  }
   if (dataTreasurerSubmisison.vote_result.is_approved === true) {
     // add treasurer to vault
     const { data, status, curl, log } = await config.removeTreasurerFromVault({
@@ -222,9 +222,6 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
         description: log,
       })
     }
-    modelNotify.status = "success"
-    // send notify
-    await config.createTreasurerResult(modelNotify)
 
     await i.editReply({
       embeds: [
@@ -247,7 +244,10 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
           await msg.edit({
             embeds: [
               getSuccessEmbed({
-                title: `The request ${requestId} has been approved`,
+                title: `The request ${createActionLine({
+                  action: "remove",
+                  vault: dataTreasurerSubmisison.submission.vault.name,
+                })} has been approved`,
                 description: `Request has already been approved by majority treasurers \`${
                   dataTreasurerSubmisison.vote_result.total_approved_submission
                 }/${
@@ -267,10 +267,6 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
       dataTreasurerSubmisison.vote_result.total_rejected_submisison >
       dataTreasurerSubmisison.vote_result.allowed_rejected_submisison
     ) {
-      modelNotify.status = "fail"
-      // send notify
-      await config.createTreasurerResult(modelNotify)
-
       // get all key in cache
       Array.from(treasurerRemoveCache.keys())
         .filter((key) =>
@@ -282,7 +278,10 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
             await msg.edit({
               embeds: [
                 getErrorEmbed({
-                  title: `The request ${requestId} has been rejected`,
+                  title: `The request ${createActionLine({
+                    action: "remove",
+                    vault: dataTreasurerSubmisison.submission.vault.name,
+                  })} has been rejected`,
                   description: `Request has already rejected by majority treasurers \`${
                     dataTreasurerSubmisison.vote_result
                       .total_rejected_submisison

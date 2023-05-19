@@ -15,7 +15,7 @@ import {
   msgColors,
   shortenHashOrAddress,
 } from "utils/common"
-import { listSubmissionVault } from "utils/vault"
+import { listSubmissionVault, createActionLine } from "utils/vault"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -68,7 +68,7 @@ export async function runTransferTreasurer({
   } = await config.createTreasureRequest({
     guild_id: guildId,
     vault_name: vaultName,
-    message: i.options.getString("message", false) ?? "",
+    message: i.options.getString("message", false) ?? "Send money to treasurer",
     type: "transfer",
     requester: i.user.id,
     user_discord_id: userId,
@@ -86,63 +86,67 @@ export async function runTransferTreasurer({
     })
   }
 
-  const msgField =
-    dataTransferTreasurerReq?.request.message === ""
-      ? ``
-      : `\n\nMessage ${getEmoji("ANIMATED_CHAT", true)}\n\`\`\`${
-          dataTransferTreasurerReq?.request.message
-        }\`\`\``
-  // send DM to submitter
+  const msgField = `\nMessage ${getEmoji("ANIMATED_CHAT", true)}\n\`\`\`${
+    dataTransferTreasurerReq?.request.message
+  }\`\`\`\n`
   const destination =
     shortenAddress !== "" ? `\`${shortenAddress}\`` : `<@${user?.id}>`
-  dataTransferTreasurerReq?.treasurer.forEach((treasurer: any) => {
-    const actionRow = new MessageActionRow().addComponents(
-      new MessageButton({
-        customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
-        style: "SUCCESS",
-        label: "Approve",
-      }),
-      new MessageButton({
-        customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
-        style: "DANGER",
-        label: "Reject",
-      })
-    )
-
-    const cacheKey = `treaTransfer-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}`
-
-    i.guild?.members.fetch(treasurer.user_discord_id).then((treasurer) => {
-      wrapError(i, async () => {
-        const msg = await treasurer.send({
-          embeds: [
-            composeEmbedMessage(null, {
-              title: `${getEmoji("ANIMATED_BELL", true)} mochi notifications`,
-              description: `<@${
-                i.user.id
-              }> has submitted the approval request #${
-                dataTransferTreasurerReq?.request.id
-              }\n${getEmoji("SHARE")} Send ${getEmoji(
-                token.toUpperCase() as keyof typeof emojis
-              )} ${amount} ${token} from ${vaultName} to ${destination} ${msgField}`,
-              color: msgColors.BLUE,
-              thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
-            }),
-          ],
-          components: [actionRow],
+  // send DM to submitter
+  // send DM to list treasurer but not requester, requester default approve
+  if (dataTransferTreasurerReq?.is_decided_and_executed === false) {
+    dataTransferTreasurerReq?.treasurer.forEach((treasurer: any) => {
+      if (treasurer.user_discord_id === i.user.id) {
+        return
+      }
+      const actionRow = new MessageActionRow().addComponents(
+        new MessageButton({
+          customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
+          style: "SUCCESS",
+          label: "Approve",
+        }),
+        new MessageButton({
+          customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
+          style: "DANGER",
+          label: "Reject",
         })
+      )
 
-        treasurerTransferCache.set(cacheKey, msg)
+      const cacheKey = `treaTransfer-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}`
+
+      i.guild?.members.fetch(treasurer.user_discord_id).then((treasurer) => {
+        wrapError(i, async () => {
+          const msg = await treasurer.send({
+            embeds: [
+              composeEmbedMessage(null, {
+                title: `${getEmoji("ANIMATED_BELL", true)} mochi notifications`,
+                description: `<@${
+                  i.user.id
+                }> has submitted the request in ${vaultName} vault \n${getEmoji(
+                  "SHARE"
+                )} Send ${getEmoji(
+                  token.toUpperCase() as keyof typeof emojis
+                )} ${amount} ${token} from ${vaultName} to ${destination} ${msgField}`,
+                color: msgColors.BLUE,
+                thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
+              }),
+            ],
+            components: [actionRow],
+          })
+
+          treasurerTransferCache.set(cacheKey, msg)
+        })
       })
     })
-  })
+  }
 
   // send DM to treasurer in vault
 
   const embed = new MessageEmbed()
     .setTitle(
-      `${getEmoji("PROPOSAL")} Request #${
-        dataTransferTreasurerReq?.request.id
-      } successfully created`
+      `${getEmoji("PROPOSAL")} Request ${createActionLine({
+        action: "transfer",
+        vault: vaultName,
+      })} successfully created`
     )
     .setDescription(
       `You want to send ${getEmoji(
@@ -170,7 +174,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
   const amount = args[5]
   const token = args[6]
   const chain = args[7]
-  const channelId = args[8]
+  // const channelId = args[8]
   const toUser = args[9]
 
   const {
@@ -206,18 +210,6 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
     })
   }
 
-  const modelNotify = {
-    guild_id: dataTransferTreasurer?.submission.guild_id,
-    vault_id: Number(vaultId),
-    channel_id: channelId,
-    type: "transfer",
-    status: "",
-    user_discord_id: toUser,
-    token,
-    amount,
-    address: dataTreasurerReq?.address,
-    chain,
-  }
   if (dataTransferTreasurer?.vote_result.is_approved) {
     // add treasurer to vault
     await config.transferVaultToken({
@@ -230,10 +222,6 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
       chain,
       target: toUser ? toUser : "",
     })
-
-    modelNotify.status = "success"
-    // send notify
-    await config.createTreasurerResult(modelNotify)
 
     await i.editReply({
       embeds: [
@@ -257,7 +245,10 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
             await msg.edit({
               embeds: [
                 getSuccessEmbed({
-                  title: `The request ${requestId} has been approved`,
+                  title: `The request ${createActionLine({
+                    action: "transfer",
+                    vault: dataTransferTreasurer.submission.vault.name,
+                  })} has been approved`,
                   description: `Request has already been approved by majority of treasurers \`${
                     dataTransferTreasurer.vote_result.total_approved_submission
                   }/${
@@ -278,10 +269,6 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
       dataTransferTreasurer?.vote_result.total_rejected_submisison >
       dataTransferTreasurer?.vote_result.allowed_rejected_submisison
     ) {
-      modelNotify.status = "fail"
-      // send notify
-      await config.createTreasurerResult(modelNotify)
-
       // get all key in cache
       Array.from(treasurerTransferCache.keys())
         .filter((key) => key.includes(`treaTransfer-${requestId}-${vaultId}`))
@@ -292,7 +279,10 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
               await msg.edit({
                 embeds: [
                   getErrorEmbed({
-                    title: `The request ${requestId} has been rejected`,
+                    title: `The request ${createActionLine({
+                      action: "transfer",
+                      vault: dataTransferTreasurer?.submission.vault.name,
+                    })} has been rejected`,
                     description: `Request has already been rejected by majority of treasurers \`${
                       dataTransferTreasurer?.vote_result
                         .total_rejected_submisison
