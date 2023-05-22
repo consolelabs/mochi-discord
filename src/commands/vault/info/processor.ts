@@ -119,7 +119,7 @@ export async function runGetVaultDetail({
 
   const walletAddress =
     data.wallet_address !== ""
-      ? `**Wallet Address**\n\`\`\`${data.wallet_address}\`\`\``
+      ? `**Wallet Address**\n\`\`\`${data.wallet_address}\`\`\`\n**Solana Wallet Address**\n\`\`\`${data.solana_wallet_address}\`\`\``
       : ""
 
   const titleCurrentRequest = `**Current request**\n`
