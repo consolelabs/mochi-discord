@@ -18,7 +18,7 @@ import { MessageComponentTypes } from "discord.js/typings/enums"
 import { APIError, OriginalMessage } from "errors"
 import { UserNFT } from "types/profile"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
-import { parseDiscordToken } from "utils/commands"
+import { getSlashCommand, parseDiscordToken } from "utils/commands"
 import {
   authorFilter,
   emojis,
@@ -30,7 +30,13 @@ import {
   reverseLookup,
   shortenHashOrAddress,
 } from "utils/common"
-import { CHAIN_EXPLORER_BASE_URLS, SPACE } from "utils/constants"
+import {
+  CHAIN_EXPLORER_BASE_URLS,
+  HOMEPAGE_URL,
+  SPACE,
+  TELEGRAM_USER_URL,
+  TWITTER_USER_URL,
+} from "utils/constants"
 import { wrapError } from "utils/wrap-error"
 import {
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
@@ -39,6 +45,7 @@ import {
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
+import mochiPay from "adapters/mochi-pay"
 
 // @anhnh TODO: all of this need to be refactored
 type ViewType = "my-profile" | "my-nft" | "my-wallets"
@@ -127,28 +134,39 @@ async function switchView(
     .catch(() => null)
 }
 
-async function renderListWallet(wallets: any[]) {
+async function renderListWallet(
+  title: string,
+  _wallets: { value: string; chain?: string }[]
+) {
   let longestAddr = 0
   let longestDomain = 0
   let longestChain = 0
+  // shows only 5
+  const wallets = _wallets.slice(0, 5)
   const domains = await Promise.all(
-    wallets.map(async (w) => await reverseLookup(w))
+    wallets.map(async (w) => await reverseLookup(w.value))
   )
   for (const [i, w] of wallets.entries()) {
-    longestAddr = Math.max(shortenHashOrAddress(w).length, longestAddr)
+    longestAddr = Math.max(shortenHashOrAddress(w.value).length, longestAddr)
     longestDomain = Math.max(domains[i].length, longestDomain)
-    longestChain = Math.max(isAddress(w).type.length, longestChain)
+    const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
+    longestChain = Math.max(chainName.length, longestChain)
   }
-  return wallets.slice(0, 5).map((w: any, i) => {
+  const arr = wallets.map((w, i) => {
     const isAllDomainsEmpty = domains.every((d) => d.trim() === "")
-    return `\`${isAddress(w).type.toUpperCase()}${" ".repeat(
-      longestChain - isAddress(w).type.length
-    )} | ${shortenHashOrAddress(w)}${" ".repeat(
-      longestAddr - shortenHashOrAddress(w).length
-    )} |${
-      isAllDomainsEmpty ? " ".repeat(10) : domains[i] ? " " + domains[i] : " "
+    const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
+    const shortenAddr = shortenHashOrAddress(w.value)
+    const formattedString = `\`${chainName}${" ".repeat(
+      longestChain - chainName.length
+    )} | ${shortenAddr}${" ".repeat(longestAddr - shortenAddr.length)} ${
+      isAllDomainsEmpty ? " " : domains[i] ? "| " + domains[i] : "  "
     }${" ".repeat(longestDomain - domains[i].length)}\``
+    return formattedString
   })
+
+  if (!arr) return ""
+
+  return `\`${title}\`\n${arr.join("\n")}`
 }
 
 async function composeMyWalletsResponse(msg: Message, user: User) {
@@ -159,31 +177,47 @@ async function composeMyWalletsResponse(msg: Message, user: User) {
       curl: "",
     })
   }
+  const { data: mochiWalletsRes, ok: mochiWalletsResOk } =
+    await mochiPay.getMochiWalletsByProfileId(pfRes.id)
+  let mochiWallets = []
+  if (mochiWalletsResOk) {
+    mochiWallets = mochiWalletsRes as any[]
+  }
   const myWallets = removeDuplications(
     pfRes.associated_accounts
       ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
-      ?.map((w: any) => w.platform_identifier) ?? []
+      ?.map((w: any) => ({ value: w.platform_identifier })) ?? []
   )
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   let description: string
   if (!myWallets.length) {
     description = `You have no wallets.\n${pointingright} Add more wallet \`/wallet add\``
   } else {
-    const list = await renderListWallet(myWallets)
-
-    description = `\n${list.join(
-      "\n"
-    )}\n\n${pointingright} Choose a wallet to customize assets \`/wallet view label\` or \`/wallet view address\`\n/wallet view wal1 or /wallet view baddeed.eth (In case you have set label)\n${pointingright} Add more wallet \`/wallet add\`\n\u200B`
+    description = `\n${await renderListWallet(
+      "– Mochi Wallet -",
+      mochiWallets.map((m) => ({
+        value: m.wallet_address,
+        chain: m.chain?.symbol,
+      }))
+    )}\n\n${await renderListWallet(
+      "– On-chain –",
+      myWallets
+    )}\n\n${pointingright} Choose a wallet to customize assets ${await getSlashCommand(
+      "wallet view"
+    )}\n${pointingright} Add more wallet \`$wallet add\`\n\u200B`
   }
   const embed = composeEmbedMessage(msg, {
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
     description: `**✦ MY WALLETS ✦**${description}`,
-    color: msgColors.PINK,
+    color: msgColors.BLUE,
   })
   setProfileFooter(embed)
   return {
     embeds: [embed],
-    components: [buildSwitchViewActionRow("my-wallets", user.id)],
+    components: [
+      buildSwitchViewActionRow("my-wallets", user.id),
+      msg.components[1] ?? [],
+    ],
   }
 }
 
@@ -263,19 +297,23 @@ async function composeMyProfileEmbed(
     })
   }
 
+  const { data: mochiWalletsRes, ok: mochiWalletsResOk } =
+    await mochiPay.getMochiWalletsByProfileId(dataProfile.id)
+  let mochiWallets = []
+  if (mochiWalletsResOk) {
+    mochiWallets = mochiWalletsRes as any[]
+  }
+
   const wallets = removeDuplications(
     dataProfile.associated_accounts
       ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
-      ?.map((w: any) => w.platform_identifier) ?? []
+      ?.map((w: any) => ({ value: w.platform_identifier })) ?? []
   )
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp
   const highestRole =
     member.roles.highest.name !== "@everyone" ? member.roles.highest : null
-  // const activityStr = `\`${userProfile.nr_of_actions}\``
-  // const { academy_xp, imperial_xp, merchant_xp, rebellio_xp } =
-  //   userProfile.user_faction_xps ?? {}
 
   const embed = composeEmbedMessage(null, {
     thumbnail: member.user.displayAvatarURL(),
@@ -283,7 +321,7 @@ async function composeMyProfileEmbed(
       `${member.user.username}'s profile`,
       member.user.displayAvatarURL(),
     ],
-    color: msgColors.PINK,
+    color: msgColors.BLUE,
   }).addFields([
     {
       name: "✦ STATS ✦",
@@ -296,15 +334,62 @@ async function composeMyProfileEmbed(
     },
     {
       name: "Wallets",
-      value: (await renderListWallet(wallets)).join("\n") + "\u200b",
+      value: `${await renderListWallet(
+        "– Mochi Wallet -",
+        mochiWallets.map((m) => ({
+          value: m.wallet_address,
+          chain: m.chain?.symbol,
+        }))
+      )}\n\n${await renderListWallet("– On-chain –", wallets)}`,
       inline: false,
     },
   ])
   setProfileFooter(embed)
   return {
     embeds: [embed],
-    components: [buildSwitchViewActionRow("my-profile", member.user.id)],
+    components: [
+      buildSwitchViewActionRow("my-profile", member.user.id),
+      buildContactsActionRow(dataProfile.associated_accounts),
+    ],
   }
+}
+
+function buildContactsActionRow(associatedAccounts: any[]) {
+  const row = new MessageActionRow()
+  row.addComponents(
+    new MessageButton({
+      label: "Mochi ID (coming soon)",
+      style: "LINK",
+      url: HOMEPAGE_URL,
+      emoji: getEmoji("MOCHI_CIRCLE"),
+      disabled: true,
+    })
+  )
+  associatedAccounts.forEach((aa: any) => {
+    const platIdentifier = aa.platform_identifier.toLowerCase()
+    const plat = aa.platform
+    if (["twitter", "tw"].includes(plat)) {
+      row.addComponents(
+        new MessageButton({
+          label: "Twitter",
+          style: "LINK",
+          url: `${TWITTER_USER_URL}/${platIdentifier}`,
+          emoji: getEmoji("TWITTER"),
+        })
+      )
+    }
+    if (["telegram", "tg"].includes(plat)) {
+      row.addComponents(
+        new MessageButton({
+          label: "Telegram",
+          style: "LINK",
+          url: `${TELEGRAM_USER_URL}/${platIdentifier}`,
+          emoji: getEmoji("TELEGRAM"),
+        })
+      )
+    }
+  })
+  return row
 }
 
 async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
@@ -331,7 +416,10 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
           description: `Account doesn't have a wallet associated.\n${verifyCTA}`,
         }),
       ],
-      components: [],
+      components: [
+        buildSwitchViewActionRow("my-nft", user.id),
+        msg.components[1] ?? [],
+      ],
     }
   }
 
@@ -393,12 +481,15 @@ async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
   const embed = composeEmbedMessage(msg, {
     author: [`${user.username}'s profile`, user.displayAvatarURL()],
     description: `**✦ MY NFT ✦**\n\u200B`,
-    color: msgColors.PINK,
+    color: msgColors.BLUE,
   }).addFields(fields)
   setProfileFooter(embed)
   return {
     embeds: [embed],
-    components: [buildSwitchViewActionRow("my-nft", user.id)],
+    components: [
+      buildSwitchViewActionRow("my-nft", user.id),
+      msg.components[1] ?? [],
+    ],
   }
 }
 
