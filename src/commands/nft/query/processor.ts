@@ -716,7 +716,14 @@ async function composeResponse(
     false
   )
   if (!nftDetailRes.ok) {
-    const { curl, log } = nftDetailRes
+    const { curl, status, log } = nftDetailRes
+    if (status == 404) {
+      throw new InternalError({
+        msgOrInteraction: msgOrInteraction,
+        title: "Command error",
+        description: "The NFT does not exist. Please choose another one",
+      })
+    }
     throw new APIError({ msgOrInteraction, curl, description: log })
   }
   const {
