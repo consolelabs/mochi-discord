@@ -49,7 +49,7 @@ export const DISCORD_URL = "https://discord.gg/XQR36DQQGh"
 
 // had to do this because Discord doesn't allow tg:// scheme
 // so we must redirect to our web first, which will then redirect to tg://
-export const TELEGRAM_USER_URL = `http://localhost:3000/open-telegram`
+export const TELEGRAM_USER_URL = `https://${HOMEPAGE_URL}/open-telegram`
 export const TWITTER_USER_URL = "https://twitter.com"
 
 export const EMOJI_REGEX = /^<:(.+|_):(\d+)>$/i
