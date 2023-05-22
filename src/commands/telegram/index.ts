@@ -18,7 +18,7 @@ const slashCmd: SlashCommand = {
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("telegram")
-      .setDescription("Connect telegram account with Discord")
+      .setDescription("Connect Telegram account with Discord")
 
     return data
   },
