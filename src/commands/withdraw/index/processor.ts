@@ -258,24 +258,32 @@ export async function executeWithdraw(
   const { message, interaction } = isMessage(msgOrInteraction)
   const author = getAuthor(msgOrInteraction)
   // send dm
-  const dm = await author.send({
-    embeds: [
-      composeEmbedMessage(null, {
-        author: ["Withdraw", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-        thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
-        description: `**Withdrawal amount**\n${getEmojiToken(
-          (payload.token?.toUpperCase() as TokenEmojiKey) ?? ""
-        )} ${payload.amount} ${payload.token}\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT",
-          true
-        )} Please enter your **${
-          payload.token
-        }** destination address that you want to withdraw your tokens below.`,
-        color: msgColors.MOCHI,
-      }),
-    ],
-  })
-
+  let dm
+  try {
+    dm = await author.send({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Withdraw", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+          thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
+          description: `**Withdrawal amount**\n${getEmojiToken(
+            (payload.token?.toUpperCase() as TokenEmojiKey) ?? ""
+          )} ${payload.amount} ${payload.token}\n${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} Please enter your **${
+            payload.token
+          }** destination address that you want to withdraw your tokens below.`,
+          color: msgColors.MOCHI,
+        }),
+      ],
+    })
+  } catch (e) {
+    const replyPayload = {
+      embeds: [enableDMMessage()],
+    }
+    message ? message.reply(replyPayload) : interaction.editReply(replyPayload)
+    return
+  }
   // redirect to dm if not in DM
   if (msgOrInteraction.guildId) {
     const replyPayload = {
