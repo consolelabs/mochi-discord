@@ -82,29 +82,59 @@ export async function run({
     }`,
   })
 
+  let mochiWallets = []
+  const { data: mochiWalletRes, ok: mochiWalletResOk } =
+    await mochiPay.getMochiWalletsByProfileId(profileId)
+  if (mochiWalletResOk) {
+    mochiWallets = mochiWalletRes as any[]
+  }
+
   const dm = await author.send({ embeds: [embed] })
   const walletType = equalIgnoreCase(token, "sol")
     ? "solana-chain"
     : "evm-chain"
   const wallets =
-    accounts
-      ?.filter((a: any) => a.platform === walletType)
-      ?.slice(0, 3)
-      ?.map(
-        (w: any, i: number) =>
-          `${getEmoji(`NUM_${i + 1}` as EmojiKey)} ${w.platform_identifier}`
-      ) ?? []
+    [
+      ...mochiWallets
+        .filter((mw) =>
+          walletType === "evm-chain" ? mw.chain?.is_evm : !mw.chain?.is_evm
+        )
+        .map((mw) => ({
+          platform_identifier: mw.wallet_address,
+          chain: mw.chain?.symbol,
+        })),
+    ].concat(
+      accounts
+        ?.filter((a: any) => a.platform === walletType)
+        ?.slice(0, 3)
+        .map((a: any) => ({
+          ...a,
+          chain: walletType === "evm-chain" ? "EVM-based" : "SOL",
+        }))
+    ) ?? []
+  let longest = 0
+  for (const w of wallets) {
+    longest = Math.max(longest, w.chain.length)
+  }
+  const walletsText = wallets.map(
+    (w, i: number) =>
+      `${getEmoji(`NUM_${i + 1}` as EmojiKey)} \`${w.chain}${" ".repeat(
+        longest - w.chain.length
+      )} | ${w.platform_identifier}\``
+  )
 
   const lines = [
     `${getEmoji("CASH")} Hey! ${author.username}#${
       author.discriminator
     } requests you pay ${amount} ${token}`,
-    `Message: ${note}`,
+    !!note && `Message: ${note}`,
     `Request id: ${payCode}`,
     `You can pay me via ${paylink}`,
-    wallets.length ? "Or you can send to these wallet addresses below" : "",
-    wallets.join("\n"),
-  ]
+    walletsText.length &&
+      `Or you can send to these wallet addresses below\n${walletsText.join(
+        "\n"
+      )}`,
+  ].filter(Boolean)
   const text = lines.join("\n")
   if (!hasTarget) {
     await author.send(text)

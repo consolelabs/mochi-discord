@@ -3,6 +3,15 @@ import { Fetcher } from "./fetcher"
 import fetch from "node-fetch"
 
 class MochiPay extends Fetcher {
+  public async getMochiWalletsByProfileId(id: string) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/in-app-wallets/get-by-profile/${id}`,
+      {
+        method: "POST",
+      }
+    )
+  }
+
   public async transfer(req: any) {
     const res = await fetch(`${MOCHI_PAY_API_BASE_URL}/transfer`, {
       method: "POST",
