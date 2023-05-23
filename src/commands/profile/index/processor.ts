@@ -1,43 +1,24 @@
-import community from "adapters/community"
 import profile from "adapters/profile"
-import { commands } from "commands"
 import {
-  ButtonInteraction,
-  Collection,
   CommandInteraction,
-  EmbedFieldData,
   GuildMember,
   Message,
   MessageActionRow,
   MessageButton,
-  MessageEmbed,
-  SelectMenuInteraction,
+  MessageSelectMenu,
   User,
 } from "discord.js"
-import { MessageComponentTypes } from "discord.js/typings/enums"
-import { APIError, OriginalMessage } from "errors"
-import { UserNFT } from "types/profile"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
-import { getSlashCommand, parseDiscordToken } from "utils/commands"
+import { APIError, InternalError, OriginalMessage } from "errors"
+import { composeEmbedMessage } from "ui/discord/embed"
 import {
   authorFilter,
-  emojis,
+  EmojiKey,
   getEmoji,
-  getEmojiURL,
   isAddress,
   msgColors,
-  removeDuplications,
   reverseLookup,
   shortenHashOrAddress,
 } from "utils/common"
-import {
-  CHAIN_EXPLORER_BASE_URLS,
-  HOMEPAGE_URL,
-  SPACE,
-  TELEGRAM_USER_URL,
-  TWITTER_USER_URL,
-} from "utils/constants"
-import { wrapError } from "utils/wrap-error"
 import {
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
   MOCHI_ACTION_PROFILE,
@@ -45,109 +26,23 @@ import {
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
-import mochiPay from "adapters/mochi-pay"
-
-// @anhnh TODO: all of this need to be refactored
-type ViewType = "my-profile" | "my-nft" | "my-wallets"
-
-function buildSwitchViewActionRow(currentView: ViewType, userId: string) {
-  const myProfileButton = new MessageButton({
-    label: "My Profile",
-    emoji: getEmoji("WINKINGFACE"),
-    customId: `profile-switch-view-button/my-profile`,
-    style: "SECONDARY",
-    disabled: currentView === "my-profile",
-  })
-  const myWalletBtn = new MessageButton({
-    label: "My Wallets",
-    emoji: getEmoji("WALLET_1"),
-    customId: `profile-switch-view-button/my-wallets`,
-    style: "SECONDARY",
-    disabled: currentView === "my-wallets",
-  })
-  const myNftButton = new MessageButton({
-    label: "My NFT",
-    emoji: getEmoji("NFTS"),
-    customId: `profile-switch-view-button/my-nft`,
-    style: "SECONDARY",
-    disabled: currentView === "my-nft",
-  })
-  const addWalletBtn = new MessageButton({
-    label: "Add Wallet",
-    emoji: getEmoji("PLUS"),
-    customId: `wallet_add_more-${userId}`,
-    style: "SECONDARY",
-  })
-  const row = new MessageActionRow()
-  row.addComponents([myProfileButton, myWalletBtn, myNftButton, addWalletBtn])
-  return row
-}
-
-function collectButton(msg: Message, authorId: string, user: User) {
-  return msg
-    .createMessageComponentCollector({
-      componentType: MessageComponentTypes.BUTTON,
-      idle: 60000,
-      filter: authorFilter(authorId),
-    })
-    .on("collect", (i) =>
-      wrapError(msg, async () => {
-        const [buttonType, nextView] = i.customId.split("/")
-        switch (buttonType) {
-          case "profile-switch-view-button":
-            await switchView(i, msg, nextView as ViewType)
-            break
-          case "profile-pagination-button":
-            await handlePagination(i, msg, user)
-            break
-        }
-      })
-    )
-    .on("end", () => {
-      msg.edit({ components: [] }).catch(() => null)
-    })
-}
-
-async function switchView(
-  i: ButtonInteraction,
-  msg: Message,
-  nextView: ViewType
-) {
-  let replyPayload
-  await i.deferUpdate()
-  if (!i.member) return
-  switch (nextView) {
-    case "my-nft":
-      replyPayload = await composeMyNFTResponse(msg, i.user)
-      break
-    case "my-wallets":
-      replyPayload = await composeMyWalletsResponse(msg, i.user)
-      break
-    case "my-profile":
-    default:
-      replyPayload = await composeMyProfileEmbed(msg, i.member as GuildMember)
-      break
-  }
-  msg
-    .edit(replyPayload)
-    .then((reply) => collectButton(reply as Message, msg.author.id, msg.author))
-    .catch(() => null)
-}
+import { wrapError } from "utils/wrap-error"
+import { viewWalletDetails } from "commands/wallet/view/processor"
+import { balanceTypes, renderBalances } from "commands/balances/index/processor"
 
 async function renderListWallet(
   title: string,
-  _wallets: { value: string; chain?: string }[]
+  wallets: { value: string; chain?: string }[],
+  offset: number
 ) {
   let longestAddr = 0
   let longestDomain = 0
   let longestChain = 0
-  // shows only 5
-  const wallets = _wallets.slice(0, 5)
   const domains = await Promise.all(
     wallets.map(async (w) => await reverseLookup(w.value))
   )
   for (const [i, w] of wallets.entries()) {
-    longestAddr = Math.max(shortenHashOrAddress(w.value).length, longestAddr)
+    longestAddr = Math.max(shortenHashOrAddress(w.value, 4).length, longestAddr)
     longestDomain = Math.max(domains[i].length, longestDomain)
     const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
     longestChain = Math.max(chainName.length, longestChain)
@@ -155,8 +50,10 @@ async function renderListWallet(
   const arr = wallets.map((w, i) => {
     const isAllDomainsEmpty = domains.every((d) => d.trim() === "")
     const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
-    const shortenAddr = shortenHashOrAddress(w.value)
-    const formattedString = `\`${chainName}${" ".repeat(
+    const shortenAddr = shortenHashOrAddress(w.value, 4)
+    const formattedString = `${getEmoji(
+      `NUM_${i + 1 + offset}` as EmojiKey
+    )}\`${chainName}${" ".repeat(
       longestChain - chainName.length
     )} | ${shortenAddr}${" ".repeat(longestAddr - shortenAddr.length)} ${
       isAllDomainsEmpty ? " " : domains[i] ? "| " + domains[i] : "  "
@@ -166,105 +63,7 @@ async function renderListWallet(
 
   if (!arr) return ""
 
-  return `\`${title}\`\n${arr.join("\n")}`
-}
-
-async function composeMyWalletsResponse(msg: Message, user: User) {
-  const pfRes = await profile.getByDiscord(user.id)
-  if (pfRes.err) {
-    throw new APIError({
-      description: `[getByDiscord] API error with status ${pfRes.status_code}`,
-      curl: "",
-    })
-  }
-  const { data: mochiWalletsRes, ok: mochiWalletsResOk } =
-    await mochiPay.getMochiWalletsByProfileId(pfRes.id)
-  let mochiWallets = []
-  if (mochiWalletsResOk) {
-    mochiWallets = mochiWalletsRes as any[]
-  }
-  const myWallets = removeDuplications(
-    pfRes.associated_accounts
-      ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
-      ?.map((w: any) => ({ value: w.platform_identifier })) ?? []
-  )
-  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
-  let description: string
-  if (!myWallets.length) {
-    description = `You have no wallets.\n${pointingright} Add more wallet \`/wallet add\``
-  } else {
-    description = `\n${await renderListWallet(
-      "– Mochi Wallet -",
-      mochiWallets.map((m) => ({
-        value: m.wallet_address,
-        chain: m.chain?.symbol,
-      }))
-    )}\n\n${await renderListWallet(
-      "– On-chain –",
-      myWallets
-    )}\n\n${pointingright} Choose a wallet to customize assets ${await getSlashCommand(
-      "wallet view"
-    )}\n${pointingright} Add more wallet \`$wallet add\`\n\u200B`
-  }
-  const embed = composeEmbedMessage(msg, {
-    author: [`${user.username}'s profile`, user.displayAvatarURL()],
-    description: `**✦ MY WALLETS ✦**${description}`,
-    color: msgColors.BLUE,
-  })
-  setProfileFooter(embed)
-  return {
-    embeds: [embed],
-    components: [
-      buildSwitchViewActionRow("my-wallets", user.id),
-      msg.components[1] ?? [],
-    ],
-  }
-}
-
-const setProfileFooter = (embed: MessageEmbed) => {
-  embed.setFooter({
-    text: "Select the categories below to see more assets!",
-    iconURL: getEmojiURL(emojis.ANIMATED_POINTING_DOWN),
-  })
-}
-
-async function handlePagination(
-  i: ButtonInteraction,
-  msg: Message,
-  user: User
-) {
-  const operators: Record<string, number> = {
-    "+": 1,
-    "-": -1,
-  }
-  const [pageStr, opStr] = i.customId.split("/").slice(1)
-  const page = +pageStr + operators[opStr]
-  const replyPayload = await composeMyNFTResponse(msg, user, page)
-  await i.editReply(replyPayload).catch(() => null)
-}
-
-function collectSelectMenu(msg: Message, authorId: string, user: User) {
-  return msg
-    .createMessageComponentCollector({
-      componentType: MessageComponentTypes.SELECT_MENU,
-      idle: 60000,
-      filter: authorFilter(authorId),
-    })
-    .on("collect", async (i) => {
-      await selectCollection(i, msg, user)
-    })
-    .on("end", () => {
-      msg.edit({ components: [] }).catch(() => null)
-    })
-}
-
-async function selectCollection(
-  i: SelectMenuInteraction,
-  msg: Message,
-  user: User
-) {
-  const replyPayload = await composeMyNFTResponse(msg, user)
-  await i.editReply(replyPayload).catch(() => null)
+  return `${getEmoji("BLANK")}\`${title}\`\n${arr.join("\n")}`
 }
 
 const pr = new Intl.PluralRules("en-US", { type: "ordinal" })
@@ -275,10 +74,7 @@ const suffixes = new Map([
   ["other", "th"],
 ])
 
-async function composeMyProfileEmbed(
-  msg: OriginalMessage,
-  member: GuildMember
-) {
+async function compose(msg: OriginalMessage, member: GuildMember) {
   const {
     data: userProfile,
     ok,
@@ -288,27 +84,10 @@ async function composeMyProfileEmbed(
   if (!ok) {
     throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
-  const dataProfile = await profile.getByDiscord(member.id)
-  if (dataProfile.err) {
-    throw new APIError({
-      msgOrInteraction: msg,
-      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
-      curl: "",
-    })
-  }
-
-  const { data: mochiWalletsRes, ok: mochiWalletsResOk } =
-    await mochiPay.getMochiWalletsByProfileId(dataProfile.id)
-  let mochiWallets = []
-  if (mochiWalletsResOk) {
-    mochiWallets = mochiWalletsRes as any[]
-  }
-
-  const wallets = removeDuplications(
-    dataProfile.associated_accounts
-      ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
-      ?.map((w: any) => ({ value: w.platform_identifier })) ?? []
+  const { mochiWallets, wallets: _wallets } = await profile.getUserWallets(
+    member.id
   )
+  const wallets = _wallets.slice(0, 5)
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp
@@ -318,7 +97,7 @@ async function composeMyProfileEmbed(
   const embed = composeEmbedMessage(null, {
     thumbnail: member.user.displayAvatarURL(),
     author: [
-      `${member.user.username}'s profile`,
+      `${member.user.username}'s Mochi ID`,
       member.user.displayAvatarURL(),
     ],
     color: msgColors.BLUE,
@@ -334,228 +113,157 @@ async function composeMyProfileEmbed(
     },
     {
       name: "Wallets",
-      value: `${await renderListWallet(
-        "– Mochi Wallet -",
-        mochiWallets.map((m) => ({
-          value: m.wallet_address,
-          chain: m.chain?.symbol,
-        }))
-      )}\n\n${await renderListWallet("– On-chain –", wallets)}`,
+      value: await renderWallets(mochiWallets, wallets),
       inline: false,
     },
   ])
-  setProfileFooter(embed)
   return {
     embeds: [embed],
     components: [
-      buildSwitchViewActionRow("my-profile", member.user.id),
-      buildContactsActionRow(dataProfile.associated_accounts),
+      new MessageActionRow().addComponents(
+        new MessageSelectMenu()
+          .setPlaceholder("View a wallet")
+          .setCustomId("view_wallet")
+          .addOptions(
+            [
+              ...mochiWallets.map((w) => ({ ...w, value: `mochi_${w.value}` })),
+              ...wallets.map((w) => ({ ...w, value: `onchain_${w.value}` })),
+            ].map((w, i) => ({
+              emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+              label: shortenHashOrAddress(w.value.split("_")[1], 4),
+              value: w.value,
+            }))
+          )
+      ),
     ],
   }
 }
 
-function buildContactsActionRow(associatedAccounts: any[]) {
-  const row = new MessageActionRow()
-  row.addComponents(
-    new MessageButton({
-      label: "Mochi ID (coming soon)",
-      style: "LINK",
-      url: HOMEPAGE_URL,
-      emoji: getEmoji("MOCHI_CIRCLE"),
-      disabled: true,
-    })
-  )
-  associatedAccounts.forEach((aa: any) => {
-    const platIdentifier = aa.platform_identifier.toLowerCase()
-    const plat = aa.platform
-    if (["twitter", "tw"].includes(plat)) {
-      row.addComponents(
-        new MessageButton({
-          label: "Twitter",
-          style: "LINK",
-          url: `${TWITTER_USER_URL}/${platIdentifier}`,
-          emoji: getEmoji("TWITTER"),
-        })
-      )
-    }
-    if (["telegram", "tg"].includes(plat)) {
-      row.addComponents(
-        new MessageButton({
-          label: "Telegram",
-          style: "LINK",
-          url: `${TELEGRAM_USER_URL}/${platIdentifier}`,
-          emoji: getEmoji("TELEGRAM"),
-        })
-      )
-    }
-  })
-  return row
+async function renderWallets(mochiWallets: any[], wallets: any[]) {
+  const [mochiWalletsStr, walletsStr] = await Promise.all([
+    await renderListWallet("- Mochi Wallets -", mochiWallets, 0),
+    await renderListWallet("- On-chain -", wallets, mochiWallets.length),
+  ])
+
+  return `${mochiWalletsStr}\n\n${walletsStr}`
 }
 
-async function composeMyNFTResponse(msg: Message, user: User, pageIdx = 0) {
-  const userProfile = await profile.getUserProfile(msg.guildId, user.id)
-  if (!userProfile.ok) {
-    throw new APIError({
-      msgOrInteraction: msg,
-      curl: userProfile.curl,
-      description: userProfile.log,
+function collectSelection(
+  reply: Message,
+  author: User,
+  user: User,
+  components: any
+) {
+  reply
+    .createMessageComponentCollector({
+      componentType: "SELECT_MENU",
+      filter: authorFilter(author.id),
+      time: 300000,
     })
-  }
-
-  const userAddress = userProfile.data.user_wallet?.address
-  if (!userAddress) {
-    const verifyChannel = await community.getVerifyWalletChannel(msg.guildId)
-    const verifyCTA = verifyChannel.data?.verify_channel_id
-      ? `To link, just go to <#${verifyChannel.data.verify_channel_id}> and follow the instructions.`
-      : "It seems that this server doesn't have a channel to verify wallet, please contact administrators, thank you."
-    return {
-      embeds: [
-        getErrorEmbed({
-          msg,
-          title: "Wallet address needed",
-          description: `Account doesn't have a wallet associated.\n${verifyCTA}`,
-        }),
-      ],
-      components: [
-        buildSwitchViewActionRow("my-nft", user.id),
-        msg.components[1] ?? [],
-      ],
-    }
-  }
-
-  const userNFTs = await profile.getUserNFT({
-    userAddress,
-    page: pageIdx,
-  })
-  if (!userNFTs.ok) {
-    throw new APIError({
-      msgOrInteraction: msg,
-      curl: userNFTs.curl,
-      description: userNFTs.log,
-    })
-  }
-
-  const fields: EmbedFieldData[] = await Promise.all(
-    // group nfts by collection
-    Object.entries(
-      userNFTs.data.reduce((acc: Record<string, UserNFT[]>, cur) => {
-        const nfts = acc[cur.collection_address] ?? []
-        nfts.push(cur)
-        return {
-          ...acc,
-          [cur.collection_address]: nfts,
+    .on("collect", (i) => {
+      wrapError(reply, async () => {
+        if (!i.deferred) {
+          await i.deferUpdate().catch(() => null)
         }
-      }, {})
-      // render embed fields
-    ).map(async ([address, nfts]) => {
-      const collections = await profile.getNftCollections({ address })
-      const collectionName =
-        collections.data?.[0]?.name ||
-        `Collection ${shortenHashOrAddress(address)}`
-      const chainId = collections.data?.[0]?.chain_id ?? ""
-      const nftEmoji = getEmoji("NFT")
-      const tokens = nfts
-        .slice(0, 5)
-        .map((nft) =>
-          chainId
-            ? `[\`#${nft.token_id}\`](${CHAIN_EXPLORER_BASE_URLS[chainId]}/token/${address}?a=${nft.token_id})`
-            : `\`${nft.token_id}\``
-        )
-        .join(", ")
-      return {
-        name: `${nftEmoji} ${collectionName}`,
-        value: `${tokens}${nfts.length > 5 ? ", ..." : ""}`,
-        inline: true,
-      }
-    })
-  )
+        const selectedWallet = i.values[0]
+        const [isMochi, address] = selectedWallet.split("_")
+        let messageOptions
+        if (isMochi === "mochi" && address) {
+          ;({ messageOptions } = await renderBalances(
+            author.id,
+            reply,
+            balanceTypes.Offchain
+          ))
+        } else {
+          ;({ messageOptions } = await viewWalletDetails(reply, user, address))
+        }
 
-  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
-  const nftCommands = Object.keys(commands["nft"].actions ?? {})
-    .map((c) => `\`nft ${c}\``)
-    .join(SPACE)
-  fields.push({
-    name: "\u200B",
-    value: `${pointingright} Select an NFT to view detail \`/nft symbol tokenID\` e.g. /nft neko 1\n${pointingright} NFT commands ${nftCommands}\n\u200B`,
-  })
-  const embed = composeEmbedMessage(msg, {
-    author: [`${user.username}'s profile`, user.displayAvatarURL()],
-    description: `**✦ MY NFT ✦**\n\u200B`,
-    color: msgColors.BLUE,
-  }).addFields(fields)
-  setProfileFooter(embed)
-  return {
-    embeds: [embed],
-    components: [
-      buildSwitchViewActionRow("my-nft", user.id),
-      msg.components[1] ?? [],
-    ],
-  }
+        messageOptions.components = [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setLabel("Back")
+              .setStyle("SECONDARY")
+              .setCustomId("back")
+          ),
+        ]
+        const edited = (await i.editReply(messageOptions)) as Message
+
+        edited
+          .createMessageComponentCollector({
+            filter: authorFilter(author.id),
+            componentType: "BUTTON",
+            time: 300000,
+          })
+          .on("collect", (i) => {
+            wrapError(edited, async () => {
+              if (!i.deferred) {
+                await i.deferUpdate().catch(() => null)
+              }
+              i.editReply({ embeds: reply.embeds, components })
+            })
+          })
+      })
+    })
+    .on("end", () => {
+      wrapError(reply, async () => {
+        await reply.edit({ components: [] }).catch(() => null)
+      })
+    })
 }
 
-export async function render(msg: OriginalMessage, query?: string | null) {
-  // get members
-  let members: GuildMember[] = []
-  if (query) {
-    const { isUser, value: id } = parseDiscordToken(query)
-    if (isUser) {
-      const cachedMember = msg.guild?.members.cache.get(id)
-      if (cachedMember) members.push(cachedMember)
-    } else {
-      const currentMembers = await msg.guild?.members?.fetch()
-      members.push(
-        ...(currentMembers ?? new Collection<string, GuildMember>())
-          .filter((m) => [m.user.username, m.displayName].includes(query))
-          .map((m) => m)
-      )
-    }
+function sendKafka(profileId: string, username: string) {
+  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
+    profileId,
+    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
+    MOCHI_APP_SERVICE,
+    MOCHI_ACTION_PROFILE
+  )
+  kafkaMsg.activity.content.username = username
+  sendActivityMsg(kafkaMsg)
+}
+
+export async function render(
+  msg: OriginalMessage,
+  _member?: GuildMember | null
+) {
+  const member = _member ?? msg.member
+  if (!(member instanceof GuildMember)) {
+    throw new InternalError({
+      msgOrInteraction: msg,
+      description: "Couldn't get user data",
+    })
+  }
+  const dataProfile = await profile.getByDiscord(member.user.id)
+  if (dataProfile.err) {
+    throw new InternalError({
+      msgOrInteraction: msg,
+      description: "Couldn't get profile data",
+    })
+  }
+  sendKafka(dataProfile.id, member.user.username)
+
+  const replyPayload = await compose(msg, member)
+
+  let reply
+  let author
+  if (msg instanceof CommandInteraction) {
+    author = msg.user
+    reply = await msg.editReply(replyPayload).catch(() => {
+      replyPayload.embeds[0].fields.pop()
+      return msg.editReply(replyPayload)
+    })
   } else {
-    members.push(msg.member as GuildMember)
+    author = msg.member?.user
+    reply = await msg.reply({ ...replyPayload, fetchReply: true }).catch(() => {
+      replyPayload.embeds[0].fields.pop()
+      return msg.reply({ ...replyPayload, fetchReply: true })
+    })
   }
 
-  members = members.filter(Boolean)
-
-  if (!members.length) {
-    return {
-      messageOptions: {
-        embeds: [getErrorEmbed({ description: "No profile found" })],
-      },
-    }
-  }
-
-  for (const mem of members) {
-    // send activity
-    const dataProfile = await profile.getByDiscord(mem.user.id)
-    if (dataProfile.err) {
-      throw new APIError({
-        msgOrInteraction: msg,
-        description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
-        curl: "",
-      })
-    }
-    const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
-      dataProfile.id,
-      MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-      MOCHI_APP_SERVICE,
-      MOCHI_ACTION_PROFILE
-    )
-    kafkaMsg.activity.content.username = mem.user.username
-    sendActivityMsg(kafkaMsg)
-
-    const author = msg instanceof Message ? msg.author : msg.user
-    const replyPayload = await composeMyProfileEmbed(msg, mem)
-    const reply = (
-      msg instanceof CommandInteraction
-        ? await msg.editReply(replyPayload).catch(() => {
-            replyPayload.embeds[0].fields.pop()
-            return msg.editReply(replyPayload)
-          })
-        : await msg.reply(replyPayload).catch(() => {
-            replyPayload.embeds[0].fields.pop()
-            return msg.reply({ ...replyPayload, fetchReply: true })
-          })
-    ) as Message
-    collectButton(reply, author.id, mem.user)
-    collectSelectMenu(reply, author.id, mem.user)
-  }
+  collectSelection(
+    reply as Message,
+    author as User,
+    member.user,
+    replyPayload.components
+  )
 }

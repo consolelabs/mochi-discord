@@ -3,7 +3,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
-import { runGetVaultInfo, runGetVaultDetail } from "./processor"
+import { runGetVaultDetail } from "./processor"
 import config from "adapters/config"
 
 const command: SlashCommand = {
@@ -42,26 +42,21 @@ const command: SlashCommand = {
     )
   },
   run: async function (interaction: CommandInteraction) {
-    if (interaction.options.getString("name", false)) {
-      return runGetVaultDetail({
-        i: interaction,
-        guildId: interaction.guildId ?? undefined,
-      })
-    }
-    return runGetVaultInfo({
-      i: interaction,
-      guildId: interaction.guildId ?? undefined,
-    })
+    return await runGetVaultDetail(
+      interaction.options.getString("name", true),
+      interaction
+    )
   },
-  help: async (interaction: CommandInteraction) => ({
-    embeds: [
-      composeEmbedMessage2(interaction, {
-        usage: `${SLASH_PREFIX}vault info`,
-        examples: `${SLASH_PREFIX}vault info`,
-        document: `${GM_GITBOOK}&action=streak`,
-      }),
-    ],
-  }),
+  help: (interaction: CommandInteraction) =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage2(interaction, {
+          usage: `${SLASH_PREFIX}vault info`,
+          examples: `${SLASH_PREFIX}vault info`,
+          document: `${GM_GITBOOK}&action=streak`,
+        }),
+      ],
+    }),
   colorType: "Server",
 }
 
