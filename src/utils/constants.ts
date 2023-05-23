@@ -47,9 +47,7 @@ export const HOMEPAGE_URL = "https://mochi.gg"
 export const TWITTER_URL = "https://twitter.com/getmochi_bot"
 export const DISCORD_URL = "https://discord.gg/XQR36DQQGh"
 
-// had to do this because Discord doesn't allow tg:// scheme
-// so we must redirect to our web first, which will then redirect to tg://
-export const TELEGRAM_USER_URL = `${HOMEPAGE_URL}/open-telegram`
+export const TELEGRAM_USER_URL = `https://t.me`
 export const TWITTER_USER_URL = "https://twitter.com"
 
 export const EMOJI_REGEX = /^<:(.+|_):(\d+)>$/i

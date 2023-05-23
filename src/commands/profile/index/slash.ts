@@ -1,8 +1,15 @@
-import { CommandInteraction } from "discord.js"
+import { CommandInteraction, GuildMember } from "discord.js"
+import { InternalError } from "errors"
 import { render } from "./processor"
 
 const run = async (interaction: CommandInteraction) => {
-  const user = interaction.options.getString("user")
-  return await render(interaction, user)
+  const member = interaction.options.getMember("user")
+  if (member !== null && !(member instanceof GuildMember)) {
+    throw new InternalError({
+      msgOrInteraction: interaction,
+      description: "Couldn't get user data",
+    })
+  }
+  return await render(interaction, member)
 }
 export default run

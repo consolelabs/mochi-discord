@@ -1,7 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
-import view from "./view/text"
 import add from "./add/text"
 import newText from "./new/text"
 import remove from "./remove/text"
@@ -13,7 +12,6 @@ import {
 import { CommandInteraction } from "discord.js"
 
 const actions: Record<string, Command> = {
-  view,
   add,
   remove,
   new: newText,
@@ -56,6 +54,11 @@ const slashCmd: SlashCommand = {
       .setDescription("Track assets and activities of any on-chain wallet.")
     data.addSubcommand(<SlashCommandSubcommandBuilder>viewSlash.prepare())
     return data
+  },
+  autocomplete: function (i) {
+    const subCmd = i.options.getSubcommand()
+    slashActions[subCmd]?.autocomplete?.(i)
+    return Promise.resolve()
   },
   run: (interaction: CommandInteraction) => {
     return slashActions[interaction.options.getSubcommand()].run(interaction)

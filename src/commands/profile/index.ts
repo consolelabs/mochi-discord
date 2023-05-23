@@ -11,19 +11,18 @@ const textCmd: Command = {
   brief: "User's profile",
   category: "Profile",
   run: profile,
-  getHelpMessage: async (msg) => {
-    return {
+  getHelpMessage: (msg) => {
+    return Promise.resolve({
       embeds: [
         composeEmbedMessage(msg, {
-          examples: `${PREFIX}profile\n${PREFIX}profile @Mochi Bot\n${PREFIX}profile John`,
-          usage: `${PREFIX}profile\n${PREFIX}profile <user>`,
-          description:
-            "Display your and other users' profiles along with NFT collections",
+          examples: `${PREFIX}profile`,
+          usage: `${PREFIX}profile`,
+          description: "Display your profile",
           footer: [`Type ${PREFIX}profile to check your profile`],
           document: PROFILE_GITBOOK,
         }),
       ],
-    }
+    })
   },
   canRunWithoutAction: true,
   colorType: "Profile",
@@ -36,7 +35,7 @@ const slashCmd: SlashCommand = {
     const data = new SlashCommandBuilder()
       .setName("profile")
       .setDescription("User's profile")
-      .addStringOption((option) =>
+      .addUserOption((option) =>
         option
           .setName("user")
           .setDescription("user's nickname or mention. Example: @John")
@@ -45,9 +44,10 @@ const slashCmd: SlashCommand = {
     return data
   },
   run: profileSlash,
-  help: async () => ({
-    embeds: [composeEmbedMessage(null, { includeCommandsList: true })],
-  }),
+  help: () =>
+    Promise.resolve({
+      embeds: [composeEmbedMessage(null, { includeCommandsList: true })],
+    }),
   colorType: "Server",
 }
 

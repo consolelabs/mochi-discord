@@ -1,46 +1,47 @@
 import config from "adapters/config"
-import { Message } from "discord.js"
-import { GuildIdNotFoundError } from "errors"
+import {
+  CommandInteraction,
+  Message,
+  MessageActionRow,
+  MessageButton,
+  MessageSelectMenu,
+  User,
+} from "discord.js"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
-import { composeEmbedMessage } from "ui/discord/embed"
 import {
+  authorFilter,
   EmojiKey,
   getEmoji,
   msgColors,
   shortenHashOrAddress,
 } from "utils/common"
 import { getSlashCommand } from "utils/commands"
+import { wrapError } from "utils/wrap-error"
+import { runGetVaultDetail } from "../info/processor"
 
-export async function runVaultList({
-  msg,
-  guildId,
-}: {
-  msg?: Message
-  guildId?: string | null
-}) {
-  if (!guildId) {
-    throw new GuildIdNotFoundError({ message: msg })
+export async function runVaultList(interaction: CommandInteraction) {
+  if (!interaction.guildId) {
+    throw new GuildIdNotFoundError({ message: interaction })
   }
 
-  const { data, ok, curl, error, log } = await config.vaultList(guildId)
+  const { data, ok, curl, error, log } = await config.vaultList(
+    interaction.guildId
+  )
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
 
   if (!data) {
-    return {
-      messageOptions: {
-        embed: composeEmbedMessage(msg, {
-          title: "Empty list vault",
-          description: `${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} This guild does not have any vault yet`,
-          color: msgColors.ERROR,
-        }),
-      },
-    }
+    throw new InternalError({
+      msgOrInteraction: interaction,
+      title: "Empty list vault",
+      description: `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} This guild does not have any vault yet`,
+    })
   }
 
   const vaults = data.slice(0, 9)
@@ -62,7 +63,9 @@ export async function runVaultList({
   description += `\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} View detail of the vault </vault info:${await getSlashCommand("vault")}>`
+  )} View detail of the vault </vault info:${await getSlashCommand(
+    "vault info"
+  )}>`
 
   const embed = new MessageEmbed()
     .setTitle(`${getEmoji("MOCHI_CIRCLE")} Vault List`)
@@ -71,5 +74,72 @@ export async function runVaultList({
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
     .setTimestamp(Date.now())
 
-  return { messageOptions: { embeds: [embed] } }
+  const components = [
+    new MessageActionRow().addComponents(
+      new MessageSelectMenu()
+        .setPlaceholder("View a vault")
+        .setCustomId("view_vault")
+        .addOptions(
+          vaults.map((v: any, i: number) => ({
+            emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+            label: v.name,
+            value: v.name,
+          }))
+        )
+    ),
+  ]
+  const reply = (await interaction.editReply({
+    embeds: [embed],
+    components,
+  })) as Message
+
+  collectSelection(reply, interaction.user, components)
+}
+
+function collectSelection(reply: Message, author: User, components: any) {
+  reply
+    .createMessageComponentCollector({
+      componentType: "SELECT_MENU",
+      filter: authorFilter(author.id),
+      time: 300000,
+    })
+    .on("collect", (i) => {
+      wrapError(reply, async () => {
+        if (!i.deferred) {
+          await i.deferUpdate().catch(() => null)
+        }
+        const selectedVault = i.values[0]
+        const { messageOptions } = await runGetVaultDetail(selectedVault, i)
+
+        messageOptions.components = [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setLabel("Back")
+              .setStyle("SECONDARY")
+              .setCustomId("back")
+          ),
+        ] as any
+        const edited = (await i.editReply(messageOptions)) as Message
+
+        edited
+          .createMessageComponentCollector({
+            filter: authorFilter(author.id),
+            componentType: "BUTTON",
+            time: 300000,
+          })
+          .on("collect", (i) => {
+            wrapError(edited, async () => {
+              if (!i.deferred) {
+                await i.deferUpdate().catch(() => null)
+              }
+              i.editReply({ embeds: reply.embeds, components })
+            })
+          })
+      })
+    })
+    .on("end", () => {
+      wrapError(reply, async () => {
+        await reply.edit({ components: [] }).catch(() => null)
+      })
+    })
 }
