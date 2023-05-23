@@ -45,7 +45,7 @@ async function renderListWallet(
     wallets.map(async (w) => await reverseLookup(w.value))
   )
   for (const [i, w] of wallets.entries()) {
-    longestAddr = Math.max(shortenHashOrAddress(w.value, 4).length, longestAddr)
+    longestAddr = Math.max(shortenHashOrAddress(w.value).length, longestAddr)
     longestDomain = Math.max(domains[i].length, longestDomain)
     const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
     longestChain = Math.max(chainName.length, longestChain)
@@ -210,7 +210,7 @@ async function compose(
               ...wallets.map((w) => ({ ...w, value: `onchain_${w.value}` })),
             ].map((w, i) => ({
               emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-              label: shortenHashOrAddress(w.value.split("_")[1], 4),
+              label: shortenHashOrAddress(w.value.split("_")[1]),
               value: w.value,
             }))
           )
