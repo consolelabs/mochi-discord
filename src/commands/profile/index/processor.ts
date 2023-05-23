@@ -210,7 +210,9 @@ async function compose(
               ...wallets.map((w) => ({ ...w, value: `onchain_${w.value}` })),
             ].map((w, i) => ({
               emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-              label: shortenHashOrAddress(w.value.split("_")[1]),
+              label: `${w.chain} | ${shortenHashOrAddress(
+                w.value.split("_")[1]
+              )}`,
               value: w.value,
             }))
           )
@@ -224,13 +226,9 @@ async function renderSocials(socials: any[]) {
     await Promise.all(
       socials.map((s) => {
         if (s.platform === "twitter") {
-          return `[${getEmoji("TWITTER")}](${TWITTER_USER_URL}/${
-            s.platform_identifier
-          })`
+          return `[Twitter](${TWITTER_USER_URL}/${s.platform_identifier})`
         } else if (s.platform === "telegram") {
-          return `[${getEmoji("TELEGRAM")}](${TELEGRAM_USER_URL}/${
-            s.platform_identifier
-          })`
+          return `[Telegram](${TELEGRAM_USER_URL}/${s.platform_identifier})`
         }
       })
     )
