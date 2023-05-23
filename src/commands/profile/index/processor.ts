@@ -1,8 +1,18 @@
 import profile from "adapters/profile"
-import { CommandInteraction, GuildMember } from "discord.js"
+import {
+  CommandInteraction,
+  GuildMember,
+  Message,
+  MessageActionRow,
+  MessageSelectMenu,
+  User,
+} from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
+  authorFilter,
+  EmojiKey,
+  getEmoji,
   isAddress,
   msgColors,
   removeDuplications,
@@ -18,10 +28,12 @@ import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import mochiPay from "adapters/mochi-pay"
 import { uniqBy } from "lodash"
+import { wrapError } from "utils/wrap-error"
 
 async function renderListWallet(
   title: string,
-  _wallets: { value: string; chain?: string }[]
+  _wallets: { value: string; chain?: string }[],
+  offset: number
 ) {
   let longestAddr = 0
   let longestDomain = 0
@@ -41,7 +53,9 @@ async function renderListWallet(
     const isAllDomainsEmpty = domains.every((d) => d.trim() === "")
     const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
     const shortenAddr = shortenHashOrAddress(w.value, 4)
-    const formattedString = `\`${chainName}${" ".repeat(
+    const formattedString = `${getEmoji(
+      `NUM_${i + 1 + offset}` as EmojiKey
+    )}\`${chainName}${" ".repeat(
       longestChain - chainName.length
     )} | ${shortenAddr}${" ".repeat(longestAddr - shortenAddr.length)} ${
       isAllDomainsEmpty ? " " : domains[i] ? "| " + domains[i] : "  "
@@ -51,7 +65,7 @@ async function renderListWallet(
 
   if (!arr) return ""
 
-  return `\`${title}\`\n${arr.join("\n")}`
+  return `${getEmoji("BLANK")}\`${title}\`\n${arr.join("\n")}`
 }
 
 const pr = new Intl.PluralRules("en-US", { type: "ordinal" })
@@ -89,6 +103,10 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
   }
 
   mochiWallets = uniqBy(mochiWallets, (mw) => mw.wallet_address)
+  mochiWallets = mochiWallets.map((m) => ({
+    value: m.wallet_address,
+    chain: m.chain?.is_evm ? "EVM" : m.chain?.symbol,
+  }))
 
   const wallets = removeDuplications(
     dataProfile.associated_accounts
@@ -123,19 +141,57 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
     },
     {
       name: "Wallets",
-      value: `${await renderListWallet(
-        "– Mochi Wallet -",
-        mochiWallets.map((m) => ({
-          value: m.wallet_address,
-          chain: m.chain?.is_evm ? "EVM" : m.chain?.symbol,
-        }))
-      )}\n\n${await renderListWallet("– On-chain –", wallets)}`,
+      value: await renderWallets(mochiWallets, wallets),
       inline: false,
     },
   ])
   return {
     embeds: [embed],
+    components: [
+      new MessageActionRow().addComponents(
+        new MessageSelectMenu()
+          .setPlaceholder("View a wallet")
+          .setCustomId("view_wallet")
+          .addOptions(
+            [...mochiWallets, ...wallets].map((w, i) => ({
+              emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+              label: shortenHashOrAddress(w.value, 4),
+              value: w.value,
+            }))
+          )
+      ),
+    ],
   }
+}
+
+async function renderWallets(mochiWallets: any[], wallets: any[]) {
+  const [mochiWalletsStr, walletsStr] = await Promise.all([
+    await renderListWallet("- Mochi Wallets -", mochiWallets, 0),
+    await renderListWallet("- On-chain -", wallets, mochiWallets.length - 1),
+  ])
+
+  return `${mochiWalletsStr}\n\n${walletsStr}`
+}
+
+function collectSelection(reply: Message, author: User) {
+  reply
+    .createMessageComponentCollector({
+      componentType: "SELECT_MENU",
+      filter: authorFilter(author.id),
+      time: 300000,
+    })
+    .on("collect", (i) => {
+      wrapError(reply, async () => {
+        await i.deferUpdate()
+        const selectedWallet = i.values[0]
+        console.log(selectedWallet)
+      })
+    })
+    .on("end", () => {
+      wrapError(reply, async () => {
+        await reply.edit({ components: [] })
+      })
+    })
 }
 
 function sendKafka(profileId: string, username: string) {
@@ -171,15 +227,21 @@ export async function render(
 
   const replyPayload = await compose(msg, member)
 
+  let reply
+  let author
   if (msg instanceof CommandInteraction) {
-    msg.editReply(replyPayload).catch(() => {
+    author = msg.user
+    reply = await msg.editReply(replyPayload).catch(() => {
       replyPayload.embeds[0].fields.pop()
-      msg.editReply(replyPayload)
+      return msg.editReply(replyPayload)
     })
   } else {
-    msg.reply(replyPayload).catch(() => {
+    author = msg.member?.user
+    reply = await msg.reply({ ...replyPayload, fetchReply: true }).catch(() => {
       replyPayload.embeds[0].fields.pop()
-      msg.reply(replyPayload)
+      return msg.reply({ ...replyPayload, fetchReply: true })
     })
   }
+
+  collectSelection(reply as Message, author as User)
 }
