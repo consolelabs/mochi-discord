@@ -74,7 +74,54 @@ const suffixes = new Map([
   ["other", "th"],
 ])
 
-async function compose(msg: OriginalMessage, member: GuildMember) {
+function renderVaults(vaults: any[], discordId: string) {
+  let longestOwner = 0
+  let longestMember = 0
+  for (const v of vaults) {
+    if (
+      v.treasurers.find(
+        (t: any) => t.role === "creator" && t.user_discord_id === discordId
+      )
+    ) {
+      longestOwner = Math.max(longestOwner, v.name.length)
+    } else {
+      longestMember = Math.max(longestMember, v.name.length)
+    }
+  }
+
+  const onlyOwner = vaults.filter((v) =>
+    v.treasurers.some(
+      (t: any) => t.role === "creator" && t.user_discord_id === discordId
+    )
+  )
+
+  const onlyMember = vaults.filter((v) => onlyOwner.every((o) => o.id !== v.id))
+
+  const formatFunc = (length: number) => (v: any) =>
+    `${getEmoji("ANIMATED_VAULT", true)}\`${v.name}${" ".repeat(
+      length - v.name.length
+    )} | ${" ".repeat(3 - v.threshold.toString().length)}${v.threshold}%\``
+
+  const ownerText = onlyOwner.length
+    ? `${getEmoji("BLANK")}\`Owner of\`\n${onlyOwner
+        .map(formatFunc(longestOwner))
+        .join("\n")}`
+    : ""
+
+  const memberText = onlyMember.length
+    ? `${getEmoji("BLANK")}\`Member of\`\n${onlyMember
+        .map(formatFunc(longestMember))
+        .join("\n")}`
+    : ""
+
+  return `${ownerText}\n${memberText}`
+}
+
+async function compose(
+  msg: OriginalMessage,
+  member: GuildMember,
+  profileId: string
+) {
   const {
     data: userProfile,
     ok,
@@ -83,6 +130,15 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
   } = await profile.getUserProfile(msg.guildId ?? "", member.user.id)
   if (!ok) {
     throw new APIError({ msgOrInteraction: msg, description: log, curl })
+  }
+
+  let vaults = []
+  const { data: vaultsRes, ok: vaultOk } = await profile.getUserVaults(
+    profileId,
+    msg.guildId
+  )
+  if (vaultOk) {
+    vaults = vaultsRes as any[]
   }
   const { mochiWallets, wallets: _wallets } = await profile.getUserWallets(
     member.id
@@ -116,6 +172,15 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
       value: await renderWallets(mochiWallets, wallets),
       inline: false,
     },
+    ...(vaults.length
+      ? [
+          {
+            name: "Vaults",
+            value: renderVaults(vaults, member.id),
+            inline: false,
+          },
+        ]
+      : []),
   ])
   return {
     embeds: [embed],
@@ -242,7 +307,7 @@ export async function render(
   }
   sendKafka(dataProfile.id, member.user.username)
 
-  const replyPayload = await compose(msg, member)
+  const replyPayload = await compose(msg, member, dataProfile.id)
 
   let reply
   let author
