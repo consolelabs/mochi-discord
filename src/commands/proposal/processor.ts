@@ -22,6 +22,7 @@ import { wrapError } from "utils/wrap-error"
 import { HOMEPAGE_URL } from "utils/constants"
 import { getProfileIdByDiscord } from "../../utils/profile"
 import profile from "../../adapters/profile"
+import { dmUser } from "../../utils/dm"
 
 let proposalTitle = ""
 let proposalDesc = ""
@@ -308,21 +309,29 @@ export async function handleProposalForm(i: ButtonInteraction) {
       return
     }
   }
-  const dm = await i.user.send({
-    embeds: [
-      composeEmbedMessage(null, {
-        title: `${getEmoji(
-          "ANIMATED_QUESTION_MARK",
-          true
-        )} Please enter your proposal title.`,
-      }),
-    ],
-    components: [
-      new MessageActionRow().addComponents(
-        composeProposalCancelButton(guidelineChannelId)
-      ),
-    ],
-  })
+  const dm = await dmUser(
+    {
+      embeds: [
+        composeEmbedMessage(null, {
+          title: `${getEmoji(
+            "ANIMATED_QUESTION_MARK",
+            true
+          )} Please enter your proposal title.`,
+        }),
+      ],
+      components: [
+        new MessageActionRow().addComponents(
+          composeProposalCancelButton(guidelineChannelId)
+        ),
+      ],
+    },
+    i.user,
+    null,
+    i,
+    "Your request was submitted, but ",
+    ""
+  )
+  if (!dm) return null
 
   await i.editReply({
     embeds: [
@@ -373,16 +382,21 @@ export async function handleProposalForm(i: ButtonInteraction) {
     }),
     composeProposalCancelButton(guidelineChannelId)
   )
-  await i.user.send({
-    content: "> Proposal preview",
-    embeds: [
-      composeEmbedMessage(null, {
-        title: proposalTitle,
-        description: `${proposalDesc}\n\nVoting will close at: <t:${proposalExpireIn}>`,
-      }),
-    ],
-    components: [actionRow],
-  })
+  await dmUser(
+    {
+      content: "> Proposal preview",
+      embeds: [
+        composeEmbedMessage(null, {
+          title: proposalTitle,
+          description: `${proposalDesc}\n\nVoting will close at: <t:${proposalExpireIn}>`,
+        }),
+      ],
+      components: [actionRow],
+    },
+    i.user,
+    null,
+    i
+  )
 }
 
 async function getProposalTitle(
