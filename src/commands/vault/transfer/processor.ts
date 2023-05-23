@@ -142,10 +142,14 @@ export async function runTransferTreasurer({
   }
 
   // send DM to treasurer in vault
+  const transferTarget = user?.username ?? shortenAddress
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("PROPOSAL")} Request to ${createActionLine({
       action: "transfer",
       vault: vaultName,
+      amount,
+      token,
+      transferTarget,
     })} has been successfully created`,
     description: `You want to send ${getEmoji(
       token.toUpperCase() as keyof typeof emojis
