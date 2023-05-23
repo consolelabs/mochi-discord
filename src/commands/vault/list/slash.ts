@@ -14,7 +14,7 @@ const command: SlashCommand = {
       .setDescription("Show current vault")
   },
   run: async function (interaction: CommandInteraction) {
-    return runVaultList({ guildId: interaction.guildId ?? undefined })
+    await runVaultList(interaction)
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [

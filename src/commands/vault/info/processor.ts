@@ -1,115 +1,30 @@
 import config from "adapters/config"
-import { CommandInteraction, GuildMember } from "discord.js"
-import { GuildIdNotFoundError, InternalError } from "errors"
-import { MessageEmbed } from "discord.js"
+import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { GetDateComponents } from "utils/time"
 import {
   EmojiKey,
   getEmoji,
-  getEmojiURL,
-  emojis,
   getEmojiToken,
-  hasAdministrator,
   msgColors,
   shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
-import { getSlashCommand } from "utils/commands"
 
-export async function runGetVaultInfo({
-  i,
-  guildId,
-}: {
-  i: CommandInteraction
-  guildId?: string | null
-}) {
-  if (!guildId) {
-    throw new GuildIdNotFoundError({ message: i })
+export async function runGetVaultDetail(
+  vaultName: string,
+  interaction: OriginalMessage
+) {
+  if (!interaction.guildId) {
+    throw new GuildIdNotFoundError({ message: interaction })
   }
-
-  const {
-    data: dataConfigChannel,
-    ok: okConfigChannel,
-    curl: curlConfigChannel,
-    error: errorConfigChannel,
-    log: logConfigChannel,
-  } = await config.getVaultConfigThreshold(guildId)
-  if (!okConfigChannel) {
-    throw new APIError({
-      curl: curlConfigChannel,
-      error: errorConfigChannel,
-      description: logConfigChannel,
-    })
-  }
-
-  const {
-    data: dataInfo,
-    ok: okInfo,
-    curl: curlInfo,
-    error: errorInfo,
-    log: logInfo,
-  } = await config.getVaultInfo()
-  if (!okInfo) {
-    throw new APIError({
-      curl: curlInfo,
-      error: errorInfo,
-      description: logInfo,
-    })
-  }
-
-  const member = i.member as GuildMember
-  const step =
-    hasAdministrator(member) === true ? dataInfo.mod_step : dataInfo.normal_step
-
-  const title =
-    hasAdministrator(member) === true ? "What can this bot do?" : "Vault Info"
-
-  const logChannel =
-    dataConfigChannel == null
-      ? "Not set"
-      : dataConfigChannel.channel_id == null
-      ? "Not set"
-      : `<#${dataConfigChannel.channel_id}>`
-
-  const description = `${
-    dataInfo.description
-  }\n\n\`logchannel:\`${logChannel}\n\n${await formatVaultInfoStep(
-    step
-  )}\n [Read instruction](${dataInfo.instruction_link}) for a complete guide`
-  const embed = new MessageEmbed()
-    .setTitle(`${getEmoji("INFO_VAULT")} ${title}`)
-    .setDescription(description)
-    .setColor(msgColors.BLUE)
-    .setFooter({ text: "Type /feedback to report • Mochi Bot" })
-    .setTimestamp(Date.now())
-    .setThumbnail(getEmojiURL(emojis.ANIMATED_OPEN_VAULT))
-
-  return { messageOptions: { embeds: [embed] } }
-}
-
-async function formatVaultInfoStep(step: string) {
-  return step.replaceAll("vaultCommand", `${await getSlashCommand("vault")}`)
-}
-
-export async function runGetVaultDetail({
-  i,
-  guildId,
-}: {
-  i: CommandInteraction
-  guildId?: string | null
-}) {
-  if (!guildId) {
-    throw new GuildIdNotFoundError({ message: i })
-  }
-  const vaultName = i.options.getString("name", false) ?? ""
   const { data, ok, status, curl, error, originalError, log } =
-    await config.getVaultDetail(vaultName, guildId)
+    await config.getVaultDetail(vaultName, interaction.guildId)
   if (!ok) {
     if (status === 400 && originalError) {
       throw new InternalError({
-        msgOrInteraction: i,
+        msgOrInteraction: interaction,
         title: "Command error",
         description: originalError,
       })
@@ -119,7 +34,7 @@ export async function runGetVaultDetail({
 
   const walletAddress =
     data.wallet_address !== ""
-      ? `**Wallet Address**\n\`\`\`${data.wallet_address}\`\`\`\n**Solana Wallet Address**\n\`\`\`${data.solana_wallet_address}\`\`\``
+      ? `**Wallet Address**\n\`\`\`EVM | ${data.wallet_address}\nSOL | ${data.solana_wallet_address}\`\`\``
       : ""
 
   const titleCurrentRequest = `**Current request**\n`
@@ -162,7 +77,7 @@ export async function runGetVaultDetail({
     description: `${walletAddress}${currentRequest}`,
   }).addFields(fields)
 
-  return { messageOptions: { embeds: [embed] } }
+  return { messageOptions: { embeds: [embed], components: [] } }
 }
 
 function formatCurrentRequest(request: any) {

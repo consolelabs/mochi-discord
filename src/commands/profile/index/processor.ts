@@ -206,7 +206,7 @@ function collectSelection(
     })
     .on("end", () => {
       wrapError(reply, async () => {
-        await reply.edit({ components: [] })
+        await reply.edit({ components: [] }).catch(() => null)
       })
     })
 }
