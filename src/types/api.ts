@@ -734,6 +734,17 @@ export interface ModelTradeOffer {
   want_items?: ModelTradeItem[];
 }
 
+export interface ModelTreasurer {
+  created_at?: string;
+  guild_id?: string;
+  id?: number;
+  role?: string;
+  updated_at?: string;
+  user_discord_id?: string;
+  vault?: ModelVault;
+  vault_id?: number;
+}
+
 export interface ModelTwitterPostStreak {
   created_at?: string;
   guild_id?: string;
@@ -826,6 +837,19 @@ export interface ModelUserWalletWatchlistItem {
   net_worth?: number;
   type?: string;
   user_id?: string;
+}
+
+export interface ModelVault {
+  created_at?: string;
+  guild_id?: string;
+  id?: number;
+  name?: string;
+  solana_wallet_address?: string;
+  threshold?: string;
+  treasurers?: ModelTreasurer[];
+  updated_at?: string;
+  wallet_address?: string;
+  wallet_number?: number;
 }
 
 export interface RequestAddNftWatchlistRequest {
@@ -2066,6 +2090,10 @@ export interface ResponseGetUserUpvoteLeaderboardResponse {
 
 export interface ResponseGetUserWalletByGuildIDAddressResponse {
   data?: ModelUserWallet;
+}
+
+export interface ResponseGetVaultsResponse {
+  data?: ModelVault[];
 }
 
 export interface ResponseGetVote {
