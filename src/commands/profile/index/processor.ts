@@ -15,7 +15,6 @@ import {
   getEmoji,
   isAddress,
   msgColors,
-  removeDuplications,
   reverseLookup,
   shortenHashOrAddress,
 } from "utils/common"
@@ -26,8 +25,6 @@ import {
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
-import mochiPay from "adapters/mochi-pay"
-import { uniqBy } from "lodash"
 import { wrapError } from "utils/wrap-error"
 
 async function renderListWallet(
@@ -86,36 +83,7 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
   if (!ok) {
     throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
-  const dataProfile = await profile.getByDiscord(member.id)
-  if (dataProfile.err) {
-    throw new APIError({
-      msgOrInteraction: msg,
-      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
-      curl: "",
-    })
-  }
-
-  const { data: mochiWalletsRes, ok: mochiWalletsResOk } =
-    await mochiPay.getMochiWalletsByProfileId(dataProfile.id)
-  let mochiWallets = []
-  if (mochiWalletsResOk) {
-    mochiWallets = mochiWalletsRes as any[]
-  }
-
-  mochiWallets = uniqBy(mochiWallets, (mw) => mw.wallet_address)
-  mochiWallets = mochiWallets.map((m) => ({
-    value: m.wallet_address,
-    chain: m.chain?.is_evm ? "EVM" : m.chain?.symbol,
-  }))
-
-  const wallets = removeDuplications(
-    dataProfile.associated_accounts
-      ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
-      ?.map((w: any) => ({
-        value: w.platform_identifier,
-        chain: w.platform === "evm-chain" ? "EVM" : "SOL",
-      })) ?? []
-  )
+  const { mochiWallets, wallets } = await profile.getUserWallets(member.id)
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp

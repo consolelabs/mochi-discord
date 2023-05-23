@@ -10,8 +10,50 @@ import {
 } from "utils/constants"
 import { Fetcher } from "./fetcher"
 import fetch from "node-fetch"
+import mochiPay from "./mochi-pay"
+import { uniqBy } from "lodash"
+import { removeDuplications } from "utils/common"
+import { logger } from "logger"
 
 class Profile extends Fetcher {
+  public async getUserWallets(discordId: string) {
+    const dataProfile = await this.getByDiscord(discordId)
+    if (dataProfile.err) {
+      logger.error("Cannot get profile by discord id", discordId)
+      return {
+        mochiWallets: [],
+        wallets: [],
+      }
+    }
+
+    const { data: mochiWalletsRes, ok: mochiWalletsResOk } =
+      await mochiPay.getMochiWalletsByProfileId(dataProfile.id)
+    let mochiWallets = []
+    if (mochiWalletsResOk) {
+      mochiWallets = mochiWalletsRes as any[]
+    }
+
+    mochiWallets = uniqBy(mochiWallets, (mw) => mw.wallet_address)
+    mochiWallets = mochiWallets.map((m) => ({
+      value: m.wallet_address,
+      chain: m.chain?.is_evm ? "EVM" : m.chain?.symbol,
+    }))
+
+    const wallets = removeDuplications(
+      dataProfile.associated_accounts
+        ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
+        ?.map((w: any) => ({
+          value: w.platform_identifier,
+          chain: w.platform === "evm-chain" ? "EVM" : "SOL",
+        })) ?? []
+    )
+
+    return {
+      mochiWallets,
+      wallets,
+    }
+  }
+
   public async getUser({ discordId }: { discordId?: string }) {
     return await this.jsonFetch(`${API_BASE_URL}/users/${discordId}`)
   }
