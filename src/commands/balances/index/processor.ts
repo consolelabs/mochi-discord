@@ -22,7 +22,7 @@ import { convertString } from "../../../utils/convert"
 import { formatDigit } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
-export const balanceTypes: Record<string, number> = {
+export const balanceTypes = {
   Offchain: 1,
   Onchain: 2,
   Total: 3,

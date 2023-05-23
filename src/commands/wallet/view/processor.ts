@@ -163,16 +163,12 @@ async function getTokensEmbed(
   type: string,
   alias: string
 ) {
-  const { data, ok, log, curl } = await defi.getWalletAssets(
-    author.id,
-    address,
-    type
-  )
-  if (!ok) {
-    throw new APIError({
+  const { data, ok } = await defi.getWalletAssets(author.id, address, type)
+  if (!ok || !data) {
+    throw new InternalError({
       msgOrInteraction: message,
-      description: log,
-      curl: curl,
+      title: "Wallet Asset",
+      description: "Couldn't get wallet assets",
     })
   }
   const assets = data.filter((d: any) => d.usd_balance > 1)
@@ -191,6 +187,7 @@ async function getTokensEmbed(
   }))
   const label = alias || (await reverseLookup(address))
   const title = label ? `${label}'s wallet` : "Wallet tokens"
+
   return composeEmbedMessage(null, {
     author: [title, getEmojiURL(emojis.WALLET)],
     description: `**Tokens**\n\n${text}`,

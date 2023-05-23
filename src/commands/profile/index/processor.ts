@@ -4,6 +4,7 @@ import {
   GuildMember,
   Message,
   MessageActionRow,
+  MessageButton,
   MessageSelectMenu,
   User,
 } from "discord.js"
@@ -26,17 +27,17 @@ import {
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import { wrapError } from "utils/wrap-error"
+import { viewWalletDetails } from "commands/wallet/view/processor"
+import { balanceTypes, renderBalances } from "commands/balances/index/processor"
 
 async function renderListWallet(
   title: string,
-  _wallets: { value: string; chain?: string }[],
+  wallets: { value: string; chain?: string }[],
   offset: number
 ) {
   let longestAddr = 0
   let longestDomain = 0
   let longestChain = 0
-  // shows only 5
-  const wallets = _wallets.slice(0, 5)
   const domains = await Promise.all(
     wallets.map(async (w) => await reverseLookup(w.value))
   )
@@ -83,7 +84,10 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
   if (!ok) {
     throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
-  const { mochiWallets, wallets } = await profile.getUserWallets(member.id)
+  const { mochiWallets, wallets: _wallets } = await profile.getUserWallets(
+    member.id
+  )
+  const wallets = _wallets.slice(0, 5)
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp
@@ -121,9 +125,12 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
           .setPlaceholder("View a wallet")
           .setCustomId("view_wallet")
           .addOptions(
-            [...mochiWallets, ...wallets].map((w, i) => ({
+            [
+              ...mochiWallets.map((w) => ({ ...w, value: `mochi_${w.value}` })),
+              ...wallets.map((w) => ({ ...w, value: `onchain_${w.value}` })),
+            ].map((w, i) => ({
               emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-              label: shortenHashOrAddress(w.value, 4),
+              label: shortenHashOrAddress(w.value.split("_")[1], 4),
               value: w.value,
             }))
           )
@@ -135,13 +142,18 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
 async function renderWallets(mochiWallets: any[], wallets: any[]) {
   const [mochiWalletsStr, walletsStr] = await Promise.all([
     await renderListWallet("- Mochi Wallets -", mochiWallets, 0),
-    await renderListWallet("- On-chain -", wallets, mochiWallets.length - 1),
+    await renderListWallet("- On-chain -", wallets, mochiWallets.length),
   ])
 
   return `${mochiWalletsStr}\n\n${walletsStr}`
 }
 
-function collectSelection(reply: Message, author: User) {
+function collectSelection(
+  reply: Message,
+  author: User,
+  user: User,
+  components: any
+) {
   reply
     .createMessageComponentCollector({
       componentType: "SELECT_MENU",
@@ -150,9 +162,46 @@ function collectSelection(reply: Message, author: User) {
     })
     .on("collect", (i) => {
       wrapError(reply, async () => {
-        await i.deferUpdate()
+        if (!i.deferred) {
+          await i.deferUpdate().catch(() => null)
+        }
         const selectedWallet = i.values[0]
-        console.log(selectedWallet)
+        const [isMochi, address] = selectedWallet.split("_")
+        let messageOptions
+        if (isMochi === "mochi" && address) {
+          ;({ messageOptions } = await renderBalances(
+            author.id,
+            reply,
+            balanceTypes.Offchain
+          ))
+        } else {
+          ;({ messageOptions } = await viewWalletDetails(reply, user, address))
+        }
+
+        messageOptions.components = [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setLabel("Back")
+              .setStyle("SECONDARY")
+              .setCustomId("back")
+          ),
+        ]
+        const edited = (await i.editReply(messageOptions)) as Message
+
+        edited
+          .createMessageComponentCollector({
+            filter: authorFilter(author.id),
+            componentType: "BUTTON",
+            time: 300000,
+          })
+          .on("collect", (i) => {
+            wrapError(edited, async () => {
+              if (!i.deferred) {
+                await i.deferUpdate().catch(() => null)
+              }
+              i.editReply({ embeds: reply.embeds, components })
+            })
+          })
       })
     })
     .on("end", () => {
@@ -211,5 +260,10 @@ export async function render(
     })
   }
 
-  collectSelection(reply as Message, author as User)
+  collectSelection(
+    reply as Message,
+    author as User,
+    member.user,
+    replyPayload.components
+  )
 }
