@@ -2,7 +2,6 @@ import config from "adapters/config"
 import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { GetDateComponents } from "utils/time"
 import {
   EmojiKey,
   getEmoji,
@@ -11,6 +10,7 @@ import {
   shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
+import { HOMEPAGE_URL } from "utils/constants"
 
 export async function runGetVaultDetail(
   vaultName: string,
@@ -89,7 +89,7 @@ function formatCurrentRequest(request: any) {
     case "Sent":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
-      }]](https://google.com) Sent to ${shortenHashOrAddress(
+      }]](${HOMEPAGE_URL}) Sent to ${shortenHashOrAddress(
         request.target
       )} ${getEmojiToken(`${request.token as TokenEmojiKey}`)} ${
         request.amount
@@ -97,15 +97,15 @@ function formatCurrentRequest(request: any) {
     case "Add":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
-      }]](https://google.com) Add <@${request.target}> as vault treasurer\n`
+      }]](${HOMEPAGE_URL}) Add <@${request.target}> as vault treasurer\n`
     case "Remove":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
-      }]](https://google.com) Remove <@${request.target}> from the vault\n`
+      }]](${HOMEPAGE_URL}) Remove <@${request.target}> from the vault\n`
     case "Transfer":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
-      }]](https://google.com) Sent to ${address} ${
+      }]](${HOMEPAGE_URL}) Sent to ${address} ${
         request.amount
       } ${request.token.toUpperCase()}\n`
   }
@@ -113,39 +113,38 @@ function formatCurrentRequest(request: any) {
 
 function formatRecentTransaction(tx: any) {
   const date = new Date(tx.date)
-  const { monthName, hour, minute, time, day } = GetDateComponents(date)
-  const t = `${monthName} ${day} ${hour}:${minute} ${time.toLowerCase()}`
+  const t = `<t:${date.getTime() / 1000}>`
   const address =
     tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
   switch (tx.action) {
     case "Sent":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji(
-        "SHARE"
-      )} Sent to ${shortenHashOrAddress(tx.target)} ${tx.amount} ${tx.token}\n`
+      return `${t} ${getEmoji("SHARE")} Sent to ${shortenHashOrAddress(
+        tx.target
+      )} ${tx.amount} ${tx.token}\n`
     case "Received":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji(
+      return `${t} ${getEmoji(
         "ANIMATED_MONEY",
         true
       )} Received from ${shortenHashOrAddress(tx.target)} ${tx.amount} ${
         tx.token
       }\n`
     case "Add":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji("TREASURER_ADD")} Add <@${
+      return `${t} ${getEmoji("TREASURER_ADD")} Add <@${
         tx.target
       }> as vault treasurer\n`
     case "Remove":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji(
-        "TREASURER_REMOVE"
-      )} Remove <@${tx.target}> from the vault\n`
+      return `${t} ${getEmoji("TREASURER_REMOVE")} Remove <@${
+        tx.target
+      }> from the vault\n`
     case "Config threshold":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji(
+      return `${t} ${getEmoji(
         "ANIMATED_VAULT_KEY",
         true
       )} Set the threshold to ${tx.threshold}% for vault\n`
     case "Transfer":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji(
-        "SHARE"
-      )} Sent to ${address} ${tx.amount} ${tx.token}\n`
+      return `${t} ${getEmoji("SHARE")} Sent to ${address} ${tx.amount} ${
+        tx.token
+      }\n`
   }
 }
 
@@ -228,10 +227,11 @@ function buildRecentTxFields(data: any): any {
   for (let i = 0; i < data.recent_transaction.length; i++) {
     valueRecentTx += formatRecentTransaction(data.recent_transaction[i])
   }
+  if (!valueRecentTx) return []
   return [
     {
       name: `Recent Transaction`,
-      value: valueRecentTx === "" ? "\u200b" : valueRecentTx,
+      value: valueRecentTx,
       inline: false,
     },
   ]

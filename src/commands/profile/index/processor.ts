@@ -23,6 +23,8 @@ import {
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
   MOCHI_ACTION_PROFILE,
   MOCHI_APP_SERVICE,
+  TWITTER_USER_URL,
+  TELEGRAM_USER_URL,
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
@@ -31,6 +33,7 @@ import { viewWalletDetails } from "commands/wallet/view/processor"
 import { balanceTypes, renderBalances } from "commands/balances/index/processor"
 
 async function renderListWallet(
+  emoji: string,
   title: string,
   wallets: { value: string; chain?: string }[],
   offset: number
@@ -50,7 +53,7 @@ async function renderListWallet(
   const arr = wallets.map((w, i) => {
     const isAllDomainsEmpty = domains.every((d) => d.trim() === "")
     const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
-    const shortenAddr = shortenHashOrAddress(w.value, 4)
+    const shortenAddr = shortenHashOrAddress(w.value)
     const formattedString = `${getEmoji(
       `NUM_${i + 1 + offset}` as EmojiKey
     )}\`${chainName}${" ".repeat(
@@ -63,7 +66,7 @@ async function renderListWallet(
 
   if (!arr) return ""
 
-  return `${getEmoji("BLANK")}\`${title}\`\n${arr.join("\n")}`
+  return `${emoji}\`${title}\`\n${arr.join("\n")}`
 }
 
 const pr = new Intl.PluralRules("en-US", { type: "ordinal" })
@@ -74,7 +77,54 @@ const suffixes = new Map([
   ["other", "th"],
 ])
 
-async function compose(msg: OriginalMessage, member: GuildMember) {
+function renderVaults(vaults: any[], discordId: string) {
+  let longestOwner = 0
+  let longestMember = 0
+  for (const v of vaults) {
+    if (
+      v.treasurers.find(
+        (t: any) => t.role === "creator" && t.user_discord_id === discordId
+      )
+    ) {
+      longestOwner = Math.max(longestOwner, v.name.length)
+    } else {
+      longestMember = Math.max(longestMember, v.name.length)
+    }
+  }
+
+  const onlyOwner = vaults.filter((v) =>
+    v.treasurers.some(
+      (t: any) => t.role === "creator" && t.user_discord_id === discordId
+    )
+  )
+
+  const onlyMember = vaults.filter((v) => onlyOwner.every((o) => o.id !== v.id))
+
+  const formatFunc = (length: number) => (v: any) =>
+    `${getEmoji("ANIMATED_VAULT", true)}\`${v.name}${" ".repeat(
+      length - v.name.length
+    )} | ${" ".repeat(3 - v.threshold.toString().length)}${v.threshold}%\``
+
+  const ownerText = onlyOwner.length
+    ? `${getEmoji("BLANK")}\`Owner of\`\n${onlyOwner
+        .map(formatFunc(longestOwner))
+        .join("\n")}`
+    : ""
+
+  const memberText = onlyMember.length
+    ? `${getEmoji("BLANK")}\`Member of\`\n${onlyMember
+        .map(formatFunc(longestMember))
+        .join("\n")}`
+    : ""
+
+  return `${ownerText}\n${memberText}`
+}
+
+async function compose(
+  msg: OriginalMessage,
+  member: GuildMember,
+  profileId: string
+) {
   const {
     data: userProfile,
     ok,
@@ -84,10 +134,22 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
   if (!ok) {
     throw new APIError({ msgOrInteraction: msg, description: log, curl })
   }
+
+  let vaults = []
+  const { data: vaultsRes, ok: vaultOk } = await profile.getUserVaults(
+    profileId,
+    msg.guildId
+  )
+  if (vaultOk) {
+    vaults = vaultsRes as any[]
+  }
+  vaults = vaults.slice(0, 5)
+
   const { mochiWallets, wallets: _wallets } = await profile.getUserWallets(
     member.id
   )
-  const wallets = _wallets.slice(0, 5)
+  const socials = await profile.getUserSocials(member.id)
+  const wallets = _wallets.slice(0, 10)
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp
@@ -116,6 +178,24 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
       value: await renderWallets(mochiWallets, wallets),
       inline: false,
     },
+    ...(vaults.length
+      ? [
+          {
+            name: "Vaults",
+            value: renderVaults(vaults, member.id),
+            inline: false,
+          },
+        ]
+      : []),
+    ...(socials.length
+      ? [
+          {
+            name: "Socials",
+            value: await renderSocials(socials),
+            inline: false,
+          },
+        ]
+      : []),
   ])
   return {
     embeds: [embed],
@@ -139,10 +219,33 @@ async function compose(msg: OriginalMessage, member: GuildMember) {
   }
 }
 
+async function renderSocials(socials: any[]) {
+  return (
+    await Promise.all(
+      socials.map((s) => {
+        if (s.platform === "twitter") {
+          return `[${getEmoji("TWITTER")}](${TWITTER_USER_URL}/${
+            s.platform_identifier
+          })`
+        } else if (s.platform === "telegram") {
+          return `[${getEmoji("TELEGRAM")}](${TELEGRAM_USER_URL}/${
+            s.platform_identifier
+          })`
+        }
+      })
+    )
+  ).join("")
+}
+
 async function renderWallets(mochiWallets: any[], wallets: any[]) {
   const [mochiWalletsStr, walletsStr] = await Promise.all([
-    await renderListWallet("- Mochi Wallets -", mochiWallets, 0),
-    await renderListWallet("- On-chain -", wallets, mochiWallets.length),
+    await renderListWallet(getEmoji("NFT2"), "Mochi Wallets", mochiWallets, 0),
+    await renderListWallet(
+      getEmoji("WALLET_1"),
+      "On-chain",
+      wallets,
+      mochiWallets.length
+    ),
   ])
 
   return `${mochiWalletsStr}\n\n${walletsStr}`
@@ -242,7 +345,7 @@ export async function render(
   }
   sendKafka(dataProfile.id, member.user.username)
 
-  const replyPayload = await compose(msg, member)
+  const replyPayload = await compose(msg, member, dataProfile.id)
 
   let reply
   let author

@@ -16,6 +16,29 @@ import { removeDuplications } from "utils/common"
 import { logger } from "logger"
 
 class Profile extends Fetcher {
+  public async getUserVaults(profileId: string, guildId: string | null) {
+    return await this.jsonFetch(`${API_BASE_URL}/vault`, {
+      query: {
+        profileId,
+        ...(guildId ? { guildId } : {}),
+      },
+    })
+  }
+
+  public async getUserSocials(discordId: string) {
+    const dataProfile = await this.getByDiscord(discordId)
+    if (dataProfile.err) {
+      logger.error("Cannot get profile by discord id", discordId)
+      return []
+    }
+
+    return removeDuplications(
+      dataProfile.associated_accounts.filter((a: any) =>
+        ["twitter", "telegram"].includes(a.platform)
+      )
+    )
+  }
+
   public async getUserWallets(discordId: string) {
     const dataProfile = await this.getByDiscord(discordId)
     if (dataProfile.err) {
@@ -41,10 +64,22 @@ class Profile extends Fetcher {
 
     const wallets = removeDuplications(
       dataProfile.associated_accounts
-        ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
+        ?.filter((a: any) =>
+          [
+            "evm-chain",
+            "solana-chain",
+            "near-chain",
+            "sui-chain",
+            "ronin-chain",
+          ].includes(a.platform)
+        )
         ?.map((w: any) => ({
+          disabled: !["evm-chain", "solana-chain"].includes(w.platform),
           value: w.platform_identifier,
-          chain: w.platform === "evm-chain" ? "EVM" : "SOL",
+          chain:
+            w.platform === "solana-chain"
+              ? "SOL"
+              : w.platform.split("-").shift().toUpperCase(),
         })) ?? []
     )
 
