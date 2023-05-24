@@ -113,7 +113,7 @@ function formatCurrentRequest(request: any) {
 
 function formatRecentTransaction(tx: any) {
   const date = new Date(tx.date)
-  const t = `<t:${date.getTime() / 1000}>`
+  const t = `<t:${Math.floor(date.getTime() / 1000)}>`
   const address =
     tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
   switch (tx.action) {

@@ -35,32 +35,35 @@ import { balanceTypes, renderBalances } from "commands/balances/index/processor"
 async function renderListWallet(
   emoji: string,
   title: string,
-  wallets: { value: string; chain?: string }[],
+  wallets: { value: string; chain?: string; total_amount?: number }[],
   offset: number
 ) {
   let longestAddr = 0
   let longestDomain = 0
   let longestChain = 0
+  let longestBal = 0
   const domains = await Promise.all(
     wallets.map(async (w) => await reverseLookup(w.value))
   )
   for (const [i, w] of wallets.entries()) {
+    const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
+    const bal = w.total_amount?.toString() ?? "0"
     longestAddr = Math.max(shortenHashOrAddress(w.value).length, longestAddr)
     longestDomain = Math.max(domains[i].length, longestDomain)
-    const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
     longestChain = Math.max(chainName.length, longestChain)
+    longestBal = Math.max(bal.length, longestBal)
   }
   const arr = wallets.map((w, i) => {
-    const isAllDomainsEmpty = domains.every((d) => d.trim() === "")
     const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
-    const shortenAddr = shortenHashOrAddress(w.value)
+    const shortenAddr = domains[i] || shortenHashOrAddress(w.value)
+    const bal = w.total_amount?.toString() ?? "0"
     const formattedString = `${getEmoji(
       `NUM_${i + 1 + offset}` as EmojiKey
     )}\`${chainName}${" ".repeat(
       longestChain - chainName.length
-    )} | ${shortenAddr}${" ".repeat(longestAddr - shortenAddr.length)} ${
-      isAllDomainsEmpty ? " " : domains[i] ? "| " + domains[i] : "  "
-    }${" ".repeat(longestDomain - domains[i].length)}\``
+    )} | ${shortenAddr}${" ".repeat(
+      Math.max(longestAddr, longestDomain) - shortenAddr.length
+    )} | ${" ".repeat(longestBal - bal.length)}$${bal}\`${getEmoji("CASH")}`
     return formattedString
   })
 
@@ -77,47 +80,27 @@ const suffixes = new Map([
   ["other", "th"],
 ])
 
-function renderVaults(vaults: any[], discordId: string) {
-  let longestOwner = 0
-  let longestMember = 0
+function renderVaults(vaults: any[]) {
+  let longestName = 0
+  let longestBal = 0
   for (const v of vaults) {
-    if (
-      v.treasurers.find(
-        (t: any) => t.role === "creator" && t.user_discord_id === discordId
-      )
-    ) {
-      longestOwner = Math.max(longestOwner, v.name.length)
-    } else {
-      longestMember = Math.max(longestMember, v.name.length)
-    }
+    const name = `${v.name.slice(0, 24)}${v.name.length > 24 ? "..." : ""}`
+    const bal = v.total_amount?.toString() ?? "0"
+    longestName = Math.max(longestName, name.length)
+    longestBal = Math.max(longestBal, bal.length)
   }
 
-  const onlyOwner = vaults.filter((v) =>
-    v.treasurers.some(
-      (t: any) => t.role === "creator" && t.user_discord_id === discordId
-    )
-  )
+  const formatFunc = (v: any) => {
+    const name = `${v.name.slice(0, 24)}${v.name.length > 24 ? "..." : ""}`
+    const bal = v.total_amount?.toString() ?? "0"
+    return `${getEmoji("ANIMATED_VAULT", true)}\`${name}${" ".repeat(
+      longestName - name.length
+    )} | ${" ".repeat(3 - v.threshold.toString().length)}${
+      v.threshold
+    }% | ${" ".repeat(longestBal - bal.length)}$${bal}\`${getEmoji("CASH")}`
+  }
 
-  const onlyMember = vaults.filter((v) => onlyOwner.every((o) => o.id !== v.id))
-
-  const formatFunc = (length: number) => (v: any) =>
-    `${getEmoji("ANIMATED_VAULT", true)}\`${v.name}${" ".repeat(
-      length - v.name.length
-    )} | ${" ".repeat(3 - v.threshold.toString().length)}${v.threshold}%\``
-
-  const ownerText = onlyOwner.length
-    ? `${getEmoji("BLANK")}\`Owner of\`\n${onlyOwner
-        .map(formatFunc(longestOwner))
-        .join("\n")}`
-    : ""
-
-  const memberText = onlyMember.length
-    ? `${getEmoji("BLANK")}\`Member of\`\n${onlyMember
-        .map(formatFunc(longestMember))
-        .join("\n")}`
-    : ""
-
-  return `${ownerText}\n${memberText}`
+  return vaults.map(formatFunc).join("\n")
 }
 
 async function compose(
@@ -158,21 +141,23 @@ async function compose(
 
   const embed = composeEmbedMessage(null, {
     thumbnail: member.user.displayAvatarURL(),
-    author: [
-      `${member.user.username}'s Mochi ID`,
-      member.user.displayAvatarURL(),
-    ],
+    author: ["vincent", member.user.displayAvatarURL()],
     color: msgColors.BLUE,
+    description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
+      "CASH"
+    )}\`Total Balance. $${(Math.random() * 10000).toFixed(4)}\`(${getEmoji(
+      Math.random() > 0.5 ? "ANIMATED_ARROW_UP" : "ANIMATED_ARROW_DOWN",
+      true
+    )} ${(Math.random() * 10).toFixed(1)}%)\n${getEmoji(
+      "ANIMATED_BADGE_1",
+      true
+    )}\`Lvl. ${userProfile.current_level?.level ?? "N/A"} (${
+      userProfile.guild_rank ?? 0
+    }${suffixes.get(pr.select(userProfile.guild_rank ?? 0))})\`\n${getEmoji(
+      "ANIMATED_XP",
+      true
+    )}\`Exp. ${userProfile.guild_xp}/${nextLevelMinXp}\``,
   }).addFields([
-    {
-      name: "✦ STATS ✦",
-      value: `\u200b${highestRole}\n\`Lvl. ${
-        userProfile.current_level?.level ?? "N/A"
-      } (${userProfile.guild_rank ?? 0}${suffixes.get(
-        pr.select(userProfile.guild_rank ?? 0)
-      )})\`\n\`Exp. ${userProfile.guild_xp}/${nextLevelMinXp}\``,
-      inline: false,
-    },
     {
       name: "Wallets",
       value: await renderWallets(mochiWallets, wallets),
@@ -182,7 +167,7 @@ async function compose(
       ? [
           {
             name: "Vaults",
-            value: renderVaults(vaults, member.id),
+            value: renderVaults(vaults),
             inline: false,
           },
         ]
@@ -202,19 +187,47 @@ async function compose(
     components: [
       new MessageActionRow().addComponents(
         new MessageSelectMenu()
-          .setPlaceholder("View a wallet")
-          .setCustomId("view_wallet")
+          .setPlaceholder("View wallet/vault")
+          .setCustomId("view_wallet/vault")
           .addOptions(
             [
-              ...mochiWallets.map((w) => ({ ...w, value: `mochi_${w.value}` })),
-              ...wallets.map((w) => ({ ...w, value: `onchain_${w.value}` })),
-            ].map((w, i) => ({
-              emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-              label: `${w.chain} | ${shortenHashOrAddress(
-                w.value.split("_")[1]
-              )}`,
-              value: w.value,
-            }))
+              ...mochiWallets.map((w) => ({
+                ...w,
+                value: `mochi_${w.value}`,
+                type: "wallet",
+                usd: 0,
+              })),
+              ...wallets.map((w) => ({
+                ...w,
+                type: "wallet",
+                value: `onchain_${w.value}`,
+                usd: 0,
+              })),
+              ...vaults.map((v) => ({
+                ...v,
+                type: "vault",
+                value: v.name,
+                usd: 0,
+              })),
+            ].map((w, i) => {
+              const isMochi = w.value.split("_")[0] === "mochi"
+              let label = ""
+              if (w.type === "wallet") {
+                label = `${isMochi ? "🔸  " : "🔹  "}${
+                  w.chain
+                } | ${shortenHashOrAddress(w.value.split("_")[1])} | 💵 $${
+                  w.usd
+                }`
+              } else {
+                label = `◽ ${w.name} | 💵 $${w.usd}`
+              }
+
+              return {
+                emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+                label,
+                value: w.value,
+              }
+            })
           )
       ),
     ],
@@ -226,18 +239,22 @@ async function renderSocials(socials: any[]) {
     await Promise.all(
       socials.map((s) => {
         if (s.platform === "twitter") {
-          return `[Twitter](${TWITTER_USER_URL}/${s.platform_identifier})`
+          return `${getEmoji("TWITTER")} **[${
+            s.platform_identifier
+          }](${TWITTER_USER_URL}/${s.platform_identifier})**`
         } else if (s.platform === "telegram") {
-          return `[Telegram](${TELEGRAM_USER_URL}/${s.platform_identifier})`
+          return `${getEmoji("TELEGRAM")} **[Telegram](${TELEGRAM_USER_URL}/${
+            s.platform_identifier
+          })**`
         }
       })
     )
-  ).join("")
+  ).join("\n")
 }
 
 async function renderWallets(mochiWallets: any[], wallets: any[]) {
   const [mochiWalletsStr, walletsStr] = await Promise.all([
-    await renderListWallet(getEmoji("NFT2"), "Mochi Wallets", mochiWallets, 0),
+    await renderListWallet(getEmoji("NFT2"), "Mochi", mochiWallets, 0),
     await renderListWallet(
       getEmoji("WALLET_1"),
       "On-chain",
