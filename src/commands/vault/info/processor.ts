@@ -113,7 +113,7 @@ function formatCurrentRequest(request: any) {
 
 function formatRecentTransaction(tx: any) {
   const date = new Date(tx.date)
-  const t = `<t:${Math.floor(date.getTime() / 1000)}>`
+  const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
   const address =
     tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
   switch (tx.action) {
@@ -122,12 +122,9 @@ function formatRecentTransaction(tx: any) {
         tx.target
       )} ${tx.amount} ${tx.token}\n`
     case "Received":
-      return `${t} ${getEmoji(
-        "ANIMATED_MONEY",
-        true
-      )} Received from ${shortenHashOrAddress(tx.target)} ${tx.amount} ${
-        tx.token
-      }\n`
+      return `${t} ${getEmoji("ANIMATED_MONEY", true)} Received \`${
+        tx.amount
+      } ${tx.token}\` ${getEmojiToken(tx.token)}\n`
     case "Add":
       return `${t} ${getEmoji("TREASURER_ADD")} Add <@${
         tx.target
@@ -222,7 +219,7 @@ function buildMyNftFields(data: any): any {
   return myNftFields
 }
 
-function buildRecentTxFields(data: any): any {
+export function buildRecentTxFields(data: any): any {
   let valueRecentTx = ""
   for (let i = 0; i < data.recent_transaction.length; i++) {
     valueRecentTx += formatRecentTransaction(data.recent_transaction[i])

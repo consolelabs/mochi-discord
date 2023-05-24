@@ -1,3 +1,6 @@
+import profile from "adapters/profile"
+import { renderWallets } from "commands/profile/index/processor"
+import { buildRecentTxFields } from "commands/vault/info/processor"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -7,7 +10,8 @@ import {
   MessageButton,
 } from "discord.js"
 import { APIError, OriginalMessage } from "errors"
-import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { getSlashCommand } from "utils/commands"
 import {
   emojis,
   getEmoji,
@@ -29,17 +33,21 @@ export const balanceTypes = {
 }
 
 const balanceEmbedProps = {
-  [balanceTypes.Offchain]: {
+  [balanceTypes.Offchain]: async () => ({
     title: "Mochi balance",
     description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true
-    )} You can withdraw the coin to you crypto wallet by \`$withdraw\`.\n${getEmoji(
+    )} You can withdraw using </withdraw:${await getSlashCommand(
+      "withdraw"
+    )}>.\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true
-    )} All the tip transaction will take from this balance. You can try \`$tip <recipient> <amount> <token>\` to transfer coin.`,
-  },
-  [balanceTypes.Onchain]: {
+    )} You can send tokens to other using </tip:${await getSlashCommand(
+      "tip"
+    )}>.`,
+  }),
+  [balanceTypes.Onchain]: () => ({
     title: "Onchain balance",
     description: `This balance shows the total amount of pending on-chain transactions.\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
@@ -48,11 +56,11 @@ const balanceEmbedProps = {
       "ANIMATED_POINTING_RIGHT",
       true
     )} All the tip transaction won't take from this balance.`,
-  },
-  [balanceTypes.Total]: {
+  }),
+  [balanceTypes.Total]: () => ({
     title: "Total",
     description: "This balance including both onchain and offchain balance.",
-  },
+  }),
 }
 
 // TODO: temporarily disable onchain balances
@@ -69,12 +77,12 @@ const balancesFetcher: Record<number, (profileId: string) => Promise<any>[]> = {
 }
 
 export async function getBalances(
-  userId: string,
+  profileId: string,
   type: number,
   msg: OriginalMessage
 ) {
   const fetcher = balancesFetcher[type]
-  const res = await Promise.all(fetcher(userId))
+  const res = await Promise.all(fetcher(profileId))
   const ok = res[0].ok && (res[1]?.ok ?? true)
   if (!ok) {
     throw new APIError({
@@ -94,11 +102,11 @@ export async function handleBalanceView(i: ButtonInteraction) {
   const msg = i.message as Message
   const balances = await getBalances(profileId, Number(type), msg)
 
-  const props = balanceEmbedProps[Number(type)]
+  const props = await balanceEmbedProps[Number(type)]?.()
 
   if (!balances.length) {
     const embed = composeEmbedMessage(null, {
-      author: [props.title, getEmojiURL(emojis.WALLET)],
+      author: [props.title, getEmojiURL(emojis.NFT2)],
       description: "No balance. Try `$deposit` more into your wallet.",
       color: msgColors.SUCCESS,
     })
@@ -109,7 +117,7 @@ export async function handleBalanceView(i: ButtonInteraction) {
   }
 
   i.editReply({
-    embeds: [switchView(view as any, props, balances)],
+    embeds: [await switchView(view as any, props, balances, i.user.id)],
     components: [
       new MessageActionRow().addComponents(
         new MessageButton()
@@ -168,7 +176,7 @@ export function formatView(
             chain: customVal.chain,
             usdWorth: formatDigit({
               value: customVal.usd.toString(),
-              fractionDigits: 4,
+              fractionDigits: 2,
             }),
             text: customVal.text,
             emoji: getEmojiToken(
@@ -183,7 +191,7 @@ export function formatView(
         const value = formatDigit({ value: tokenVal.toString() })
         const usdWorth = formatDigit({
           value: usdVal.toString(),
-          fractionDigits: 4,
+          fractionDigits: 2,
         })
         //
         totalWorth += usdVal
@@ -219,7 +227,7 @@ export function formatView(
         const value = formatDigit({ value: tokenVal.toString() })
         const usdWorth = formatDigit({
           value: usdVal.toString(),
-          fractionDigits: 4,
+          fractionDigits: 2,
         })
         totalWorth += usdVal
         if (tokenVal === 0) {
@@ -248,24 +256,46 @@ export function formatView(
   }
 }
 
-function switchView(
+async function switchView(
   view: "compact" | "expand",
   props: { title: string; description: string },
-  balances: any
+  balances: any,
+  discordId: string
 ) {
+  const profileData = await profile.getByDiscord(discordId)
+  const { data: txnsRes, ok: txnOk } = await mochiPay.getListTx({
+    profile_id: profileData.id,
+  })
+  let txns = { offchain: [], deposit: [], withdraw: [] }
+  if (txnOk) {
+    txns = txnsRes as any
+  }
+  const { mochiWallets } = await profile.getUserWallets(discordId)
   const embed = composeEmbedMessage(null, {
-    author: [props.title, getEmojiURL(emojis.WALLET)],
+    author: [props.title, getEmojiURL(emojis.NFT2)],
     color: msgColors.SUCCESS,
   })
 
   let totalWorth = 0
+  let isNew = false
   if (view === "compact") {
-    const { totalWorth: _totalWorth, text = "" } = formatView(
+    const { totalWorth: _totalWorth, text: _text } = formatView(
       "compact",
       balances
     )
+    if (!_text) {
+      isNew = true
+    }
+    const text =
+      _text ||
+      `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} You have nothing yet, use </earn:${await getSlashCommand(
+        "earn"
+      )}> or </deposit:${await getSlashCommand("deposit")}>\n\u200b`
     totalWorth = _totalWorth
-    embed.setDescription(`${props.description}\n\n${text}`)
+    embed.setDescription(`${_text ? `${props.description}\n\n` : ""}${text}`)
   } else {
     const { totalWorth: _totalWorth, fields = [] } = formatView(
       "expand",
@@ -275,12 +305,81 @@ function switchView(
     embed.setDescription(props.description).addFields(fields)
   }
 
-  embed.addFields({
-    name: `Total (U.S dollar)`,
-    value: `${getEmoji("CASH")} \`$${formatDigit({
-      value: totalWorth.toString(),
-    })}\``,
-  })
+  const sort = (a: any, b: any) => {
+    const timeA = new Date(a.created_at).getTime()
+    const timeB = new Date(b.created_at).getTime()
+    return timeA - timeB
+  }
+
+  const txList = [
+    ...txns.offchain.sort(sort).map((tx: any) => ({
+      date: tx.created_at,
+      action: tx.type === "credit" ? "Received" : "Sent",
+      target: tx.other_profile_id,
+      amount: formatDigit({
+        value: convertString(
+          tx.amount,
+          tx.token?.decimal ?? 18,
+          false
+        ).toString(),
+        fractionDigits: 4,
+      }),
+      token: tx.token?.symbol?.toUpperCase() ?? "",
+    })),
+    ...txns.withdraw.sort(sort).map((tx: any) => ({
+      date: tx.created_at,
+      action: "Sent",
+      target: tx.address,
+      amount: formatDigit({
+        value: convertString(
+          tx.amount,
+          tx.token?.decimal ?? 18,
+          false
+        ).toString(),
+        fractionDigits: 4,
+      }),
+      token: tx.token?.symbol?.toUpperCase() ?? "",
+    })),
+    ...txns.deposit.sort(sort).map((tx: any) => ({
+      date: tx.created_at,
+      action: "Received",
+      target: tx.from,
+      amount: formatDigit({
+        value: convertString(
+          tx.amount,
+          tx.token?.decimal ?? 18,
+          false
+        ).toString(),
+        fractionDigits: 4,
+      }),
+      token: tx.token?.symbol?.toUpperCase() ?? "",
+    })),
+  ].slice(0, 5)
+
+  embed.addFields([
+    {
+      name: "Wallets",
+      value: await renderWallets({
+        mochiWallets: {
+          data: mochiWallets,
+        },
+        wallets: {
+          data: [],
+        },
+      }),
+      inline: false,
+    },
+    {
+      name: `Total (U.S dollar)`,
+      value: `${getEmoji("CASH")} \`$${formatDigit({
+        value: totalWorth.toString(),
+        fractionDigits: 2,
+      })}\``,
+    },
+    ...(isNew || !txList.length
+      ? []
+      : buildRecentTxFields({ recent_transaction: txList })),
+  ])
   return embed
 }
 
@@ -291,62 +390,14 @@ export async function renderBalances(
 ) {
   const profileId = await getProfileIdByDiscord(discordId)
   const balances = await getBalances(profileId, type, msg)
-  const blank = getEmoji("BLANK")
-  let totalWorth = 0
-  const fields: EmbedFieldData[] = balances
-    ?.map((balance: any) => {
-      const { token, amount } = balance
-      const { name: tokenName, symbol, decimal, price, chain, native } = token
-      const tokenVal = convertString(amount, decimal)
-      const usdVal = price * tokenVal
-      const value = formatDigit({ value: tokenVal.toString() })
-      const usdWorth = formatDigit({
-        value: usdVal.toString(),
-        fractionDigits: 4,
-      })
-      totalWorth += usdVal
-      if (tokenVal === 0) return
 
-      return {
-        name: tokenName + `${chain && !native ? ` (${chain.name})` : ""}`,
-        value: `${getEmojiToken(
-          symbol.toUpperCase()
-        )} ${value} ${symbol} \`$${usdWorth}\` ${blank}`,
-        inline: true,
-      }
-    })
-    .filter((f: EmbedFieldData | undefined) => Boolean(f))
-
-  const props = balanceEmbedProps[type]
-  if (!balances.length) {
-    const embed = composeEmbedMessage(null, {
-      author: [props.title, getEmojiURL(emojis.WALLET)],
-      description: "No balance. Try `$deposit` more into your wallet.",
-      color: msgColors.SUCCESS,
-    })
-    return {
-      messageOptions: {
-        embeds: [embed],
-      },
-    }
-  }
-
-  const embed = composeEmbedMessage(null, {
-    author: [props.title, getEmojiURL(emojis.WALLET)],
-    description: props.description,
-    color: msgColors.SUCCESS,
-  }).addFields(fields)
-  justifyEmbedFields(embed, 3)
-  embed.addFields({
-    name: `Estimated total (U.S dollar)`,
-    value: `${getEmoji("CASH")} \`$${formatDigit({
-      value: totalWorth.toString(),
-    })}\``,
-  })
+  const props = await balanceEmbedProps[type]?.()
 
   return {
     messageOptions: {
-      embeds: [switchView("compact", props, balances)],
+      embeds: [
+        await switchView("compact", props, balances, msg.member?.user.id ?? ""),
+      ],
       components: [
         new MessageActionRow().addComponents(
           new MessageButton()

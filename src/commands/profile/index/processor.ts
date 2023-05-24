@@ -30,7 +30,13 @@ import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import { wrapError } from "utils/wrap-error"
 import { viewWalletDetails } from "commands/wallet/view/processor"
-import { balanceTypes, renderBalances } from "commands/balances/index/processor"
+import {
+  balanceTypes,
+  formatView,
+  getBalances,
+  renderBalances,
+} from "commands/balances/index/processor"
+import { formatDigit } from "utils/defi"
 
 async function renderListWallet(
   emoji: string,
@@ -38,6 +44,7 @@ async function renderListWallet(
   wallets: { value: string; chain?: string; total_amount?: number }[],
   offset: number
 ) {
+  if (!wallets.length) return ""
   let longestAddr = 0
   let longestDomain = 0
   let longestChain = 0
@@ -47,7 +54,7 @@ async function renderListWallet(
   )
   for (const [i, w] of wallets.entries()) {
     const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
-    const bal = w.total_amount?.toString() ?? "0"
+    const bal = w.total_amount?.toString() ?? ""
     longestAddr = Math.max(shortenHashOrAddress(w.value).length, longestAddr)
     longestDomain = Math.max(domains[i].length, longestDomain)
     longestChain = Math.max(chainName.length, longestChain)
@@ -56,20 +63,26 @@ async function renderListWallet(
   const arr = wallets.map((w, i) => {
     const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
     const shortenAddr = domains[i] || shortenHashOrAddress(w.value)
-    const bal = w.total_amount?.toString() ?? "0"
+    const bal = w.total_amount?.toString() ?? ""
     const formattedString = `${getEmoji(
       `NUM_${i + 1 + offset}` as EmojiKey
     )}\`${chainName}${" ".repeat(
       longestChain - chainName.length
     )} | ${shortenAddr}${" ".repeat(
       Math.max(longestAddr, longestDomain) - shortenAddr.length
-    )} | ${" ".repeat(longestBal - bal.length)}$${bal}\`${getEmoji("CASH")}`
+    )}${
+      bal
+        ? ` | ${" ".repeat(longestBal - bal.length)}$${bal}\`${getEmoji(
+            "CASH"
+          )}`
+        : "`"
+    }`
     return formattedString
   })
 
   if (!arr) return ""
 
-  return `${emoji}\`${title}\`\n${arr.join("\n")}`
+  return `${emoji}${title}\n${arr.join("\n")}`
 }
 
 const pr = new Intl.PluralRules("en-US", { type: "ordinal" })
@@ -139,13 +152,15 @@ async function compose(
   const highestRole =
     member.roles.highest.name !== "@everyone" ? member.roles.highest : null
 
+  const balances = await getBalances(profileId, balanceTypes.Offchain, msg)
+  const { totalWorth } = formatView("compact", balances)
   const embed = composeEmbedMessage(null, {
     thumbnail: member.user.displayAvatarURL(),
     author: ["vincent", member.user.displayAvatarURL()],
     color: msgColors.BLUE,
     description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
       "CASH"
-    )}\`Total Balance. $${(Math.random() * 10000).toFixed(4)}\`(${getEmoji(
+    )}\`Total Balance. $${(Math.random() * 10000).toFixed(2)}\`(${getEmoji(
       Math.random() > 0.5 ? "ANIMATED_ARROW_UP" : "ANIMATED_ARROW_DOWN",
       true
     )} ${(Math.random() * 10).toFixed(1)}%)\n${getEmoji(
@@ -160,7 +175,18 @@ async function compose(
   }).addFields([
     {
       name: "Wallets",
-      value: await renderWallets(mochiWallets, wallets),
+      value: await renderWallets({
+        mochiWallets: {
+          data: mochiWallets,
+          title: `\`Mochi ($${formatDigit({
+            value: totalWorth.toString(),
+            fractionDigits: 2,
+          })})\`${getEmoji("CASH")}`,
+        },
+        wallets: {
+          data: wallets,
+        },
+      }),
       inline: false,
     },
     ...(vaults.length
@@ -252,18 +278,37 @@ async function renderSocials(socials: any[]) {
   ).join("\n")
 }
 
-async function renderWallets(mochiWallets: any[], wallets: any[]) {
-  const [mochiWalletsStr, walletsStr] = await Promise.all([
-    await renderListWallet(getEmoji("NFT2"), "Mochi", mochiWallets, 0),
-    await renderListWallet(
-      getEmoji("WALLET_1"),
-      "On-chain",
-      wallets,
-      mochiWallets.length
-    ),
-  ])
+export async function renderWallets({
+  mochiWallets,
+  wallets,
+}: {
+  mochiWallets: {
+    data: any[]
+    title?: string
+  }
+  wallets: {
+    data: any[]
+    title?: string
+  }
+}) {
+  const strings = (
+    await Promise.all([
+      await renderListWallet(
+        getEmoji("NFT2"),
+        mochiWallets.title ?? "`Mochi`",
+        mochiWallets.data,
+        0
+      ),
+      await renderListWallet(
+        getEmoji("WALLET_1"),
+        wallets.title ?? "`On-chain`",
+        wallets.data,
+        mochiWallets.data.length
+      ),
+    ])
+  ).filter(Boolean)
 
-  return `${mochiWalletsStr}\n\n${walletsStr}`
+  return strings.join("\n\n")
 }
 
 function collectSelection(

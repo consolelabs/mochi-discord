@@ -76,6 +76,7 @@ class Profile extends Fetcher {
         ?.map((w: any) => ({
           disabled: !["evm-chain", "solana-chain"].includes(w.platform),
           value: w.platform_identifier,
+          total_amount: 0,
           chain:
             w.platform === "solana-chain"
               ? "SOL"
