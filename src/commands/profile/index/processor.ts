@@ -12,8 +12,10 @@ import { APIError, InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
   authorFilter,
+  capitalizeFirst,
   EmojiKey,
   getEmoji,
+  getEmojiToken,
   isAddress,
   msgColors,
   reverseLookup,
@@ -154,6 +156,11 @@ async function compose(
 
   const balances = await getBalances(profileId, balanceTypes.Offchain, msg)
   const { totalWorth } = formatView("compact", balances)
+  const mochiBal = formatDigit({
+    value: totalWorth.toString(),
+    fractionDigits: 2,
+  })
+
   const embed = composeEmbedMessage(null, {
     thumbnail: member.user.displayAvatarURL(),
     author: ["vincent", member.user.displayAvatarURL()],
@@ -178,10 +185,7 @@ async function compose(
       value: await renderWallets({
         mochiWallets: {
           data: mochiWallets,
-          title: `\`Mochi ($${formatDigit({
-            value: totalWorth.toString(),
-            fractionDigits: 2,
-          })})\`${getEmoji("CASH")}`,
+          title: `\`Mochi ($${mochiBal})\`${getEmoji("CASH")}`,
         },
         wallets: {
           data: wallets,
@@ -213,16 +217,16 @@ async function compose(
     components: [
       new MessageActionRow().addComponents(
         new MessageSelectMenu()
-          .setPlaceholder("View wallet/vault")
+          .setPlaceholder(`💰 View wallet/vault`)
           .setCustomId("view_wallet/vault")
           .addOptions(
             [
-              ...mochiWallets.map((w) => ({
-                ...w,
-                value: `mochi_${w.value}`,
+              {
+                value: "mochi_Mochi Wallet",
                 type: "wallet",
-                usd: 0,
-              })),
+                usd: mochiBal,
+                chain: "",
+              },
               ...wallets.map((w) => ({
                 ...w,
                 type: "wallet",
@@ -237,13 +241,12 @@ async function compose(
               })),
             ].map((w, i) => {
               const isMochi = w.value.split("_")[0] === "mochi"
+              const address = w.value.split("_")[1]
               let label = ""
               if (w.type === "wallet") {
-                label = `${isMochi ? "🔸  " : "🔹  "}${
-                  w.chain
-                } | ${shortenHashOrAddress(w.value.split("_")[1])} | 💵 $${
-                  w.usd
-                }`
+                label = `${isMochi ? "🔸  " : "🔹  "}${w.chain} | ${
+                  isMochi ? address : shortenHashOrAddress(address)
+                } | 💵 $${w.usd}`
               } else {
                 label = `◽ ${w.name} | 💵 $${w.usd}`
               }
@@ -254,6 +257,44 @@ async function compose(
                 value: w.value,
               }
             })
+          )
+      ),
+      new MessageActionRow().addComponents(
+        new MessageButton()
+          .setStyle("SECONDARY")
+          .setLabel("QRs")
+          .setEmoji(getEmoji("QRCODE"))
+          .setCustomId("qrcodes"),
+        new MessageButton()
+          .setStyle("SECONDARY")
+          .setLabel("Quest")
+          .setEmoji("<a:brrr:902558248907980871>")
+          .setCustomId("quest"),
+        new MessageButton()
+          .setStyle("SECONDARY")
+          .setLabel("Watchlist")
+          .setEmoji(getEmoji("ANIMATED_STAR", true))
+          .setCustomId("watchlist"),
+        new MessageButton()
+          .setLabel(`${wallets.length ? "Add" : "Connect"} Wallet`)
+          .setEmoji(getEmoji("WALLET_1"))
+          .setStyle("SECONDARY")
+          .setCustomId("connect_wallet"),
+        new MessageButton()
+          .setStyle("SECONDARY")
+          .setEmoji(getEmojiToken("BNB"))
+          .setLabel("Connect Binance")
+          .setCustomId("connect_binance"),
+        ...["twitter", "telegram"]
+          .filter((s) =>
+            socials.every((connectedSocial) => connectedSocial.platform !== s)
+          )
+          .map((s) =>
+            new MessageButton()
+              .setLabel(`Connect ${capitalizeFirst(s)}`)
+              .setStyle("SECONDARY")
+              .setEmoji(getEmoji(s.toUpperCase() as EmojiKey))
+              .setCustomId(`connect_${s}`)
           )
       ),
     ],
@@ -331,7 +372,7 @@ function collectSelection(
         const selectedWallet = i.values[0]
         const [isMochi, address] = selectedWallet.split("_")
         let messageOptions
-        if (isMochi === "mochi" && address) {
+        if (isMochi === "mochi") {
           ;({ messageOptions } = await renderBalances(
             author.id,
             reply,

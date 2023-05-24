@@ -34,7 +34,7 @@ export const balanceTypes = {
 
 const balanceEmbedProps = {
   [balanceTypes.Offchain]: async () => ({
-    title: "Mochi balance",
+    title: "Mochi wallet",
     description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true
@@ -178,6 +178,7 @@ export function formatView(
               value: customVal.usd.toString(),
               fractionDigits: 2,
             }),
+            usdVal: customVal.usd,
             text: customVal.text,
             emoji: getEmojiToken(
               customVal.symbol.toUpperCase() as TokenEmojiKey
@@ -188,7 +189,10 @@ export function formatView(
         const { symbol, chain, decimal, price, native } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
-        const value = formatDigit({ value: tokenVal.toString() })
+        const value = formatDigit({
+          value: tokenVal.toString(),
+          fractionDigits: 4,
+        })
         const usdWorth = formatDigit({
           value: usdVal.toString(),
           fractionDigits: 2,
@@ -197,16 +201,20 @@ export function formatView(
         totalWorth += usdVal
         const text = `${value} ${symbol}`
         longestStrLen = Math.max(longestStrLen, text.length)
-        if (tokenVal === 0) return { emoji: "", text: "" }
+        if (tokenVal === 0) return { emoji: "", text: "", usdVal: 0 }
 
         return {
           emoji: getEmojiToken(symbol.toUpperCase() as TokenEmojiKey),
           text,
           usdWorth,
+          usdVal,
           ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
             ? { chain }
             : {}),
         }
+      })
+      .sort((a, b) => {
+        return b.usdVal - a.usdVal
       })
       .map((e: any) => {
         if (!e.text) return ""
@@ -224,7 +232,10 @@ export function formatView(
         const { name: tokenName, symbol, decimal, price, chain, native } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
-        const value = formatDigit({ value: tokenVal.toString() })
+        const value = formatDigit({
+          value: tokenVal.toString(),
+          fractionDigits: 4,
+        })
         const usdWorth = formatDigit({
           value: usdVal.toString(),
           fractionDigits: 2,
@@ -277,15 +288,11 @@ async function switchView(
   })
 
   let totalWorth = 0
-  let isNew = false
   if (view === "compact") {
     const { totalWorth: _totalWorth, text: _text } = formatView(
       "compact",
       balances
     )
-    if (!_text) {
-      isNew = true
-    }
     const text =
       _text ||
       `${getEmoji(
@@ -376,7 +383,7 @@ async function switchView(
         fractionDigits: 2,
       })}\``,
     },
-    ...(isNew || !txList.length
+    ...(!txList.length
       ? []
       : buildRecentTxFields({ recent_transaction: txList })),
   ])
@@ -401,10 +408,25 @@ export async function renderBalances(
       components: [
         new MessageActionRow().addComponents(
           new MessageButton()
-            .setEmoji(getEmoji("ANIMATED_COIN_3", true))
             .setStyle("SECONDARY")
-            .setCustomId(`balance-view_expand_${profileId}_${type}`)
-            .setLabel("Expand")
+            .setEmoji("<a:brrr:902558248907980871>")
+            .setCustomId(`balance-view_earn`)
+            .setLabel("Earn"),
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setEmoji(getEmoji("SWAP_ROUTE"))
+            .setCustomId(`balance-view_send_${profileId}_${type}`)
+            .setLabel("Send"),
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setEmoji(getEmoji("ANIMATED_TOKEN_ADD", true))
+            .setCustomId(`balance-view_deposit_${profileId}_${type}`)
+            .setLabel("Deposit"),
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setCustomId(`balance-view_invest_${profileId}_${type}`)
+            .setEmoji(getEmoji("BANK"))
+            .setLabel("Invest")
         ),
       ],
     },
