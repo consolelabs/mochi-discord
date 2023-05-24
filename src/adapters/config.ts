@@ -1141,8 +1141,10 @@ class Config extends Fetcher {
     )
   }
 
-  public async vaultList(guildId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/vault?guild_id=${guildId}`)
+  public async vaultList(guildId: string, no_amount?: true) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/vault?guild_id=${guildId}&no_amount=${no_amount}`
+    )
   }
 
   public async createVault(req: {
