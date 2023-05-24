@@ -846,6 +846,8 @@ export interface ModelVault {
   name?: string;
   solana_wallet_address?: string;
   threshold?: string;
+  total_amount_evm?: string;
+  total_amount_solana?: string;
   treasurers?: ModelTreasurer[];
   updated_at?: string;
   wallet_address?: string;

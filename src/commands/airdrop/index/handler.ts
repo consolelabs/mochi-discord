@@ -42,6 +42,7 @@ import { getMaximumRecipients } from "../../../utils/tip-bot"
 import * as qrcode from "qrcode"
 import mochiPay from "adapters/mochi-pay"
 import { getProfileIdByDiscord } from "utils/profile"
+import { dmUser } from "../../../utils/dm"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -292,7 +293,7 @@ function sendAuthorDm(
   })
 
   // send dm
-  i.user.send({ embeds: [embed] }).catch(() => null)
+  dmUser({ embeds: [embed] }, i.user, null, i)
 }
 
 function sendRecipientsDm(
@@ -321,7 +322,9 @@ function sendRecipientsDm(
     })
 
     // send dm
-    user?.send({ embeds: [embed] }).catch(() => null)
+    if (user !== undefined) {
+      dmUser({ embeds: [embed] }, user.user, null, i, `<@${user.id}>, `, "")
+    }
   })
 }
 

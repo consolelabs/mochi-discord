@@ -5,11 +5,7 @@ import {
   MessageActionRow,
   MessageButton,
 } from "discord.js"
-import {
-  composeEmbedMessage,
-  enableDMMessage,
-  getErrorEmbed,
-} from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import {
   emojis,
   getEmoji,
@@ -26,6 +22,7 @@ import NodeCache from "node-cache"
 import defi from "adapters/defi"
 import { APIError } from "errors"
 import { formatDigit } from "utils/defi"
+import { dmUser } from "../../../utils/dm"
 
 const cacheExpireTimeSeconds = 180
 
@@ -227,8 +224,10 @@ export async function handleSwap(i: ButtonInteraction) {
     }
 
     swapCache.del(cacheKey)
-    i.user
-      .send({
+
+    //dm user
+    const dm = await dmUser(
+      {
         embeds: [
           composeEmbedMessage(null, {
             author: ["Swap Submitted", thumbnails.MOCHI],
@@ -237,25 +236,24 @@ export async function handleSwap(i: ButtonInteraction) {
               "Your swap is underway, Mochi will DM you with the tx link if it succeeds or error message if it fails (often due to your trade route being expired)",
           }),
         ],
-      })
-      .then((dm) => {
-        i.editReply({
-          embeds: [
-            composeEmbedMessage(null, {
-              author: ["You're good to go!", thumbnails.MOCHI],
-              image: thumbnails.MOCHI_POSE_2,
-              description: `Your swap request has been submitted, [**check your DM to see the receipt**](${dm.url})`,
-            }),
-          ],
-          components: [],
-        })
-      })
-      .catch(() => {
-        i.editReply({
-          embeds: [enableDMMessage("Your swap request was submitted, but ")],
-          components: [],
-        })
-      })
+      },
+      i.user,
+      null,
+      i,
+      "Your swap request was submitted, but ",
+      ""
+    )
+    if (!dm) return null
+    await i.editReply({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["You're good to go!", thumbnails.MOCHI],
+          image: thumbnails.MOCHI_POSE_2,
+          description: `Your swap request has been submitted, [**check your DM to see the receipt**](${dm.url})`,
+        }),
+      ],
+      components: [],
+    })
   }
 }
 

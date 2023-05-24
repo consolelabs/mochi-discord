@@ -22,6 +22,7 @@ import { convertToUsdValue } from "utils/convert"
 import { reply } from "utils/discord"
 import { sendNotificationMsg } from "utils/kafka"
 import mochiTelegram from "../../../adapters/mochi-telegram"
+import { dmUser } from "../../../utils/dm"
 
 export async function run({
   msgOrInteraction,
@@ -89,7 +90,9 @@ export async function run({
     mochiWallets = mochiWalletRes as any[]
   }
 
-  const dm = await author.send({ embeds: [embed] })
+  const dm = await dmUser({ embeds: [embed] }, author, msgOrInteraction, null)
+  if (!dm) return null
+
   const walletType = equalIgnoreCase(token, "sol")
     ? "solana-chain"
     : "evm-chain"
@@ -137,7 +140,7 @@ export async function run({
   ].filter(Boolean)
   const text = lines.join("\n")
   if (!hasTarget) {
-    await author.send(text)
+    await dmUser(text, author, msgOrInteraction, null)
   }
 
   //send notification to recipient if target is specified

@@ -16,21 +16,25 @@ export async function runCreateVault({
     throw new GuildIdNotFoundError({ message: i })
   }
 
-  const { data, ok, error } = await config.createVault({
+  const { data, status, originalError } = await config.createVault({
     guild_id: guildId,
     name: i.options.getString("name", true),
     threshold: i.options.getString("threshold", true),
     desig_mode: i.options.getBoolean("desig", false) ?? false,
     vault_creator: i.user.id,
   })
-  if (!ok) {
-    throw new InternalError({ description: error, msgOrInteraction: i })
+  if (status === 400 && originalError) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      title: "Create new vault failed",
+      description: originalError,
+    })
   }
 
   const description = `**Wallet Address**\n\`\`\`EVM | ${
-    data.wallet_address
-  }\nSOL | ${data.solana_wallet_address}\`\`\`\n**Vault Threshold** \`${
-    data.threshold
+    data?.wallet_address
+  }\nSOL | ${data?.solana_wallet_address}\`\`\`\n**Vault Threshold** \`${
+    data?.threshold
   }%\`\n\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
@@ -40,7 +44,9 @@ export async function runCreateVault({
   )} See a vault detail </vault info:${await getSlashCommand("vault")}>`
 
   const embed = new MessageEmbed()
-    .setTitle(`${getEmoji("CHECK")}**${data.name} vault successfully created**`)
+    .setTitle(
+      `${getEmoji("CHECK")}**${data?.name} vault successfully created**`
+    )
     .setDescription(description)
     .setColor(msgColors.BLUE)
     .setFooter({ text: "Type /feedback to report • Mochi Bot" })
