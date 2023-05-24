@@ -4,11 +4,7 @@ import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
-import {
-  composeEmbedMessage,
-  enableDMMessage,
-  getErrorEmbed,
-} from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { defaultActivityMsg, sendActivityMsg } from "utils/activity"
 import {
   TokenEmojiKey,
@@ -36,6 +32,7 @@ import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import { isTokenSupported } from "../../../utils/tip-bot"
 import * as processor from "./processor"
+import { dmUser } from "../../../utils/dm"
 
 export async function getRecipient(
   msg: Message | CommandInteraction,
@@ -258,32 +255,26 @@ export async function executeWithdraw(
   const { message, interaction } = isMessage(msgOrInteraction)
   const author = getAuthor(msgOrInteraction)
   // send dm
-  let dm
-  try {
-    dm = await author.send({
-      embeds: [
-        composeEmbedMessage(null, {
-          author: ["Withdraw", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-          thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
-          description: `**Withdrawal amount**\n${getEmojiToken(
-            (payload.token?.toUpperCase() as TokenEmojiKey) ?? ""
-          )} ${payload.amount} ${payload.token}\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} Please enter your **${
-            payload.token
-          }** destination address that you want to withdraw your tokens below.`,
-          color: msgColors.MOCHI,
-        }),
-      ],
-    })
-  } catch (e) {
-    const replyPayload = {
-      embeds: [enableDMMessage()],
-    }
-    message ? message.reply(replyPayload) : interaction.editReply(replyPayload)
-    return
+  const dmUserPayload = {
+    embeds: [
+      composeEmbedMessage(null, {
+        author: ["Withdraw", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+        thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
+        description: `**Withdrawal amount**\n${getEmojiToken(
+          (payload.token?.toUpperCase() as TokenEmojiKey) ?? ""
+        )} ${payload.amount} ${payload.token}\n${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Please enter your **${
+          payload.token
+        }** destination address that you want to withdraw your tokens below.`,
+        color: msgColors.MOCHI,
+      }),
+    ],
   }
+  const dm = await dmUser(dmUserPayload, author, msgOrInteraction, null)
+  if (!dm) return null
+
   // redirect to dm if not in DM
   if (msgOrInteraction.guildId) {
     const replyPayload = {
@@ -317,9 +308,5 @@ export async function executeWithdraw(
   sendActivityMsg(kafkaMsg)
 
   const embed = composeWithdrawEmbed()
-  await author.send({ embeds: [embed] }).catch(() => {
-    msgOrInteraction.reply({
-      embeds: [enableDMMessage()],
-    })
-  })
+  await dmUser({ embeds: [embed] }, author, msgOrInteraction, null)
 }
