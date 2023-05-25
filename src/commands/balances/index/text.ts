@@ -1,6 +1,6 @@
 import { Message } from "discord.js"
-import { balanceTypes, renderBalances } from "./processor"
+import { BalanceType, renderBalances } from "./processor"
 
 const run = async (msg: Message) =>
-  renderBalances(msg.author.id, msg, balanceTypes.Offchain, "")
+  renderBalances(msg.author.id, msg, BalanceType.Offchain, "")
 export default run

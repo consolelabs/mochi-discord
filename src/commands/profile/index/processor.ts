@@ -33,7 +33,7 @@ import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import { wrapError } from "utils/wrap-error"
 import {
-  balanceTypes,
+  BalanceType,
   formatView,
   getBalances,
   renderBalances,
@@ -122,25 +122,28 @@ function renderVaults(vaults: any[]) {
 async function compose(
   msg: OriginalMessage,
   member: GuildMember,
-  profileId: string
+  dataProfile: any
 ) {
-  const {
-    data: userProfile,
-    ok,
-    curl,
-    log,
-  } = await profile.getUserProfile(msg.guildId ?? "", member.user.id)
-  if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, description: log, curl })
+  const [podProfileRes, vaultsRes, walletsRes, socials, balances] =
+    await Promise.all([
+      profile.getUserProfile(msg.guildId ?? "", member.user.id),
+      profile.getUserVaults(dataProfile.id, msg.guildId),
+      profile.getUserWallets(member.id),
+      profile.getUserSocials(member.id),
+      getBalances(dataProfile.id, BalanceType.Offchain, msg, "", ""),
+    ])
+  if (!podProfileRes.ok) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: podProfileRes.log,
+      curl: podProfileRes.curl,
+    })
   }
+  const userProfile = podProfileRes.data
 
   let vaults = []
-  const { data: vaultsRes, ok: vaultOk } = await profile.getUserVaults(
-    profileId,
-    msg.guildId
-  )
-  if (vaultOk) {
-    vaults = vaultsRes as any[]
+  if (vaultsRes.ok) {
+    vaults = vaultsRes.data as any[]
   }
   vaults = vaults.slice(0, 5)
   vaults = vaults.map((v) => {
@@ -155,13 +158,7 @@ async function compose(
     }
   })
 
-  const {
-    onchainTotal,
-    mochiWallets,
-    wallets: _wallets,
-    pnl,
-  } = await profile.getUserWallets(member.id)
-  const socials = await profile.getUserSocials(member.id)
+  const { onchainTotal, mochiWallets, wallets: _wallets, pnl } = walletsRes
   const wallets = _wallets.slice(0, 10)
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
@@ -169,13 +166,6 @@ async function compose(
   const highestRole =
     member.roles.highest.name !== "@everyone" ? member.roles.highest : null
 
-  const balances = await getBalances(
-    profileId,
-    balanceTypes.Offchain,
-    msg,
-    "",
-    ""
-  )
   const { totalWorth } = formatView("compact", balances.data)
   const grandTotal = formatDigit({
     value: String(totalWorth + onchainTotal),
@@ -410,7 +400,7 @@ function collectSelection(
           ;({ messageOptions } = await renderBalances(
             author.id,
             originalMsg,
-            isMochi ? balanceTypes.Offchain : balanceTypes.Onchain,
+            isMochi ? BalanceType.Offchain : BalanceType.Onchain,
             address
           ))
         }
@@ -505,7 +495,7 @@ export async function render(
   }
   sendKafka(dataProfile.id, member.user.username)
 
-  const replyPayload = await compose(msg, member, dataProfile.id)
+  const replyPayload = await compose(msg, member, dataProfile)
 
   let reply
   let author

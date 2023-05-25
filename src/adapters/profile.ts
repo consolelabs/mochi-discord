@@ -15,6 +15,13 @@ import { uniqBy } from "lodash"
 import { removeDuplications } from "utils/common"
 import { logger } from "logger"
 import { formatDigit } from "utils/defi"
+import CacheManager from "cache/node-cache"
+
+CacheManager.init({
+  pool: "profile-data",
+  ttl: 300,
+  checkperiod: 150,
+})
 
 class Profile extends Fetcher {
   public async getUserVaults(profileId: string, guildId: string | null) {
@@ -192,10 +199,17 @@ class Profile extends Fetcher {
   }
 
   public async getByDiscord(discordId: string) {
-    const res = await fetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}`
-    )
-    return await res?.json()
+    return await CacheManager.get({
+      pool: "profile-data",
+      key: discordId,
+      call: async () => {
+        const res = await fetch(
+          `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}`
+        )
+
+        return await res?.json()
+      },
+    })
   }
 
   public async getByEmail(email: string) {

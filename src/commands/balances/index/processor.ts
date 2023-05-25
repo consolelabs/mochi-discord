@@ -18,6 +18,7 @@ import {
   getEmojiURL,
   isAddress,
   msgColors,
+  resolveNamingServiceDomain,
   shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
@@ -27,13 +28,13 @@ import { convertString } from "../../../utils/convert"
 import { formatDigit } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
-export const balanceTypes = {
-  Offchain: 1,
-  Onchain: 2,
-} as const
+export enum BalanceType {
+  Offchain = 1,
+  Onchain,
+}
 
 const balanceEmbedProps: Record<
-  number,
+  BalanceType,
   (
     discordId: string,
     profileId: string,
@@ -48,7 +49,7 @@ const balanceEmbedProps: Record<
     address: string
   }>
 > = {
-  [balanceTypes.Offchain]: async () => ({
+  [BalanceType.Offchain]: async () => ({
     address: "",
     title: "Mochi wallet",
     emoji: getEmojiURL(emojis.NFT2),
@@ -64,7 +65,7 @@ const balanceEmbedProps: Record<
       "tip"
     )}>.`,
   }),
-  [balanceTypes.Onchain]: async (discordId, _, addressOrAlias, message) => {
+  [BalanceType.Onchain]: async (discordId, _, addressOrAlias, message) => {
     const {
       data: wallet,
       ok,
@@ -117,7 +118,7 @@ const balanceEmbedProps: Record<
 }
 
 const balancesFetcher: Record<
-  number,
+  BalanceType,
   (
     profileId: string,
     discordId: string,
@@ -125,14 +126,14 @@ const balancesFetcher: Record<
     type: string
   ) => Promise<any>
 > = {
-  [balanceTypes.Offchain]: (profileId) => mochiPay.getBalances({ profileId }),
-  [balanceTypes.Onchain]: (_, discordId, address, type) =>
+  [BalanceType.Offchain]: (profileId) => mochiPay.getBalances({ profileId }),
+  [BalanceType.Onchain]: (_, discordId, address, type) =>
     defi.getWalletAssets(discordId, address, type),
 }
 
 export async function getBalances(
   profileId: string,
-  type: number,
+  type: BalanceType,
   msg: OriginalMessage,
   address: string,
   addressType: string
@@ -167,7 +168,7 @@ export async function getBalances(
 }
 
 const txnsFetcher: Record<
-  number,
+  BalanceType,
   (
     profileId: string,
     discordId: string,
@@ -175,14 +176,14 @@ const txnsFetcher: Record<
     type: string
   ) => Promise<any>
 > = {
-  [balanceTypes.Offchain]: (profile_id) => mochiPay.getListTx({ profile_id }),
-  [balanceTypes.Onchain]: (_, discordId, address, type) =>
+  [BalanceType.Offchain]: (profile_id) => mochiPay.getListTx({ profile_id }),
+  [BalanceType.Onchain]: (_, discordId, address, type) =>
     defi.getWalletTxns(discordId, address, type),
 }
 
 async function getTxns(
   profileId: string,
-  type: number,
+  type: BalanceType,
   msg: OriginalMessage,
   address: string,
   addressType: string
@@ -552,30 +553,26 @@ async function switchView(
 export async function renderBalances(
   discordId: string,
   msg: OriginalMessage,
-  type: number,
+  type: BalanceType,
   address: string,
   view: "compact" | "expand" = "compact"
 ) {
+  // handle name service
+  const resolvedAddress = (await resolveNamingServiceDomain(address)) || address
   const profileId = await getProfileIdByDiscord(discordId)
 
   const { addressType, ...props } =
-    (await balanceEmbedProps[type]?.(discordId, profileId, address, msg)) ?? {}
+    (await balanceEmbedProps[type]?.(
+      discordId,
+      profileId,
+      resolvedAddress,
+      msg
+    )) ?? {}
 
-  const balances = await getBalances(
-    profileId,
-    type,
-    msg,
-    address,
-    addressType ?? "eth"
-  )
-
-  const txns = await getTxns(
-    profileId,
-    type,
-    msg,
-    address,
-    addressType ?? "eth"
-  )
+  const [balances, txns] = await Promise.all([
+    getBalances(profileId, type, msg, resolvedAddress, addressType ?? "eth"),
+    getTxns(profileId, type, msg, resolvedAddress, addressType ?? "eth"),
+  ])
 
   return {
     messageOptions: {
