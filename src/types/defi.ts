@@ -69,6 +69,7 @@ export type Coin = {
   market_data: MarketData
   tickers: TickerData[]
   description: CoinDescription
+  asset_platform_id: string
 }
 
 export type CoinPrice = {
