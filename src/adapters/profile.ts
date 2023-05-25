@@ -64,6 +64,8 @@ class Profile extends Fetcher {
       chain: m.chain?.is_evm ? "EVM" : m.chain?.symbol,
     }))
 
+    const pnl = dataProfile.pnl ?? "0"
+
     let onchainTotal = 0
     const wallets = removeDuplications(
       dataProfile.associated_accounts
@@ -76,6 +78,9 @@ class Profile extends Fetcher {
             "ronin-chain",
           ].includes(a.platform)
         )
+        .sort((a: any, b: any) => {
+          return (b.total_amount || 0) - (a.total_amount || 0)
+        })
         ?.map((w: any) => {
           const bal = Number(w.total_amount || 0)
           onchainTotal += bal
@@ -98,6 +103,7 @@ class Profile extends Fetcher {
       onchainTotal,
       mochiWallets,
       wallets,
+      pnl,
     }
   }
 

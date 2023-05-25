@@ -32,7 +32,6 @@ import {
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import { wrapError } from "utils/wrap-error"
-import { viewWalletDetails } from "commands/wallet/view/processor"
 import {
   balanceTypes,
   formatView,
@@ -159,6 +158,7 @@ async function compose(
     onchainTotal,
     mochiWallets,
     wallets: _wallets,
+    pnl,
   } = await profile.getUserWallets(member.id)
   const socials = await profile.getUserSocials(member.id)
   const wallets = _wallets.slice(0, 10)
@@ -168,8 +168,14 @@ async function compose(
   const highestRole =
     member.roles.highest.name !== "@everyone" ? member.roles.highest : null
 
-  const balances = await getBalances(profileId, balanceTypes.Offchain, msg)
-  const { totalWorth } = formatView("compact", balances)
+  const balances = await getBalances(
+    profileId,
+    balanceTypes.Offchain,
+    msg,
+    "",
+    ""
+  )
+  const { totalWorth } = formatView("compact", balances.data)
   const grandTotal = formatDigit({
     value: String(totalWorth + onchainTotal),
     fractionDigits: 2,
@@ -186,17 +192,18 @@ async function compose(
     description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
       "CASH"
     )}\`Total Balance. $${grandTotal}\`(${getEmoji(
-      Math.random() > 0.5 ? "ANIMATED_ARROW_UP" : "ANIMATED_ARROW_DOWN",
+      pnl.split("")[0] === "-" ? "ANIMATED_ARROW_DOWN" : "ANIMATED_ARROW_UP",
       true
-    )} ${(Math.random() * 10).toFixed(1)}%)\n${getEmoji(
-      "ANIMATED_BADGE_1",
-      true
-    )}\`Lvl. ${userProfile.current_level?.level ?? "N/A"} (${
-      userProfile.guild_rank ?? 0
-    }${suffixes.get(pr.select(userProfile.guild_rank ?? 0))})\`\n${getEmoji(
-      "ANIMATED_XP",
-      true
-    )}\`Exp. ${userProfile.guild_xp}/${nextLevelMinXp}\``,
+    )} ${formatDigit({
+      value: pnl.slice(1),
+      fractionDigits: 2,
+    })}%)\n${getEmoji("ANIMATED_BADGE_1", true)}\`Lvl. ${
+      userProfile.current_level?.level ?? "N/A"
+    } (${userProfile.guild_rank ?? 0}${suffixes.get(
+      pr.select(userProfile.guild_rank ?? 0)
+    )})\`\n${getEmoji("ANIMATED_XP", true)}\`Exp. ${
+      userProfile.guild_xp
+    }/${nextLevelMinXp}\``,
   }).addFields([
     {
       name: "Wallets",
@@ -254,7 +261,7 @@ async function compose(
               ...vaults.map((v) => ({
                 ...v,
                 type: "vault",
-                value: v.name,
+                value: `vault_${v.name}`,
                 usd: v.total,
               })),
             ].map((w, i) => {
@@ -282,27 +289,27 @@ async function compose(
           .setStyle("SECONDARY")
           .setLabel("QR")
           .setEmoji(getEmoji("QRCODE"))
-          .setCustomId("qrcodes"),
+          .setCustomId("profile_qrcodes"),
         new MessageButton()
           .setStyle("SECONDARY")
           .setLabel("Quest")
           .setEmoji("<a:brrr:902558248907980871>")
-          .setCustomId("quest"),
+          .setCustomId("profile_quest"),
         new MessageButton()
           .setStyle("SECONDARY")
           .setLabel("Watchlist")
           .setEmoji(getEmoji("ANIMATED_STAR", true))
-          .setCustomId("watchlist"),
+          .setCustomId("profile_watchlist"),
         new MessageButton()
           .setLabel(`${wallets.length ? "Add" : "Connect"} Wallet`)
           .setEmoji(getEmoji("WALLET_1"))
           .setStyle("SECONDARY")
-          .setCustomId("connect_wallet"),
+          .setCustomId("profiel_connect-wallet"),
         new MessageButton()
           .setStyle("SECONDARY")
           .setEmoji(getEmojiToken("BNB"))
           .setLabel("Connect Binance")
-          .setCustomId("connect_binance"),
+          .setCustomId("profile_connect-binance"),
         ...["twitter", "telegram"]
           .filter((s) =>
             socials.every((connectedSocial) => connectedSocial.platform !== s)
@@ -312,7 +319,7 @@ async function compose(
               .setLabel(`Connect ${capitalizeFirst(s)}`)
               .setStyle("SECONDARY")
               .setEmoji(getEmoji(s.toUpperCase() as EmojiKey))
-              .setCustomId(`connect_${s}`)
+              .setCustomId(`profile_connect-${s}`)
           )
       ),
     ],
@@ -373,7 +380,6 @@ export async function renderWallets({
 function collectSelection(
   reply: Message,
   author: User,
-  user: User,
   originalMsg: OriginalMessage,
   components: any
 ) {
@@ -389,30 +395,29 @@ function collectSelection(
           await i.deferUpdate().catch(() => null)
         }
         const selectedWallet = i.values[0]
-        const [isMochi, address] = selectedWallet.split("_")
+        const [prefix, address] = selectedWallet.split("_")
+        const isMochi = prefix === "mochi"
+        const isVault = prefix === "vault"
         let messageOptions
-        if (isMochi === "mochi") {
+        if (isVault) {
+          return
+        } else {
           ;({ messageOptions } = await renderBalances(
             author.id,
             originalMsg,
-            balanceTypes.Offchain
-          ))
-        } else {
-          ;({ messageOptions } = await viewWalletDetails(
-            originalMsg,
-            user,
+            isMochi ? balanceTypes.Offchain : balanceTypes.Onchain,
             address
           ))
         }
 
-        messageOptions.components = [
+        messageOptions.components.unshift(
           new MessageActionRow().addComponents(
             new MessageButton()
               .setLabel("Back")
               .setStyle("SECONDARY")
               .setCustomId("back")
-          ),
-        ]
+          )
+        )
         const edited = (await i.editReply(messageOptions)) as Message
 
         edited
@@ -426,7 +431,9 @@ function collectSelection(
               if (!i.deferred) {
                 await i.deferUpdate().catch(() => null)
               }
-              i.editReply({ embeds: reply.embeds, components })
+              if (i.customId === "back") {
+                i.editReply({ embeds: reply.embeds, components })
+              }
             })
           })
       })
@@ -450,8 +457,9 @@ function collectButton(reply: Message, author: User) {
         if (!i.deferred) {
           await i.deferUpdate().catch(() => null)
         }
-
-        i.followUp({ content: "WIP!", ephemeral: true })
+        if (i.customId !== "back" && i.customId.startsWith("profile")) {
+          i.followUp({ content: "WIP!", ephemeral: true })
+        }
       })
     })
     .on("end", () => {
@@ -516,7 +524,6 @@ export async function render(
   collectSelection(
     reply as Message,
     author as User,
-    member.user,
     msg,
     replyPayload.components
   )
