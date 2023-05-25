@@ -208,7 +208,7 @@ export async function composeTickerResponse({
       value: (coin.asset_platform_id || "N/A").toUpperCase(),
       inline: true,
     },
-    { name: "\u200B", value: "\u200B", inline: true },
+    // { name: "\u200B", value: "\u200B", inline: true },
     {
       name: "Change (1h)",
       value: getChangePercentage(price_change_percentage_1h_in_currency.usd),
