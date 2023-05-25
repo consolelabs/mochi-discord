@@ -7,6 +7,7 @@ import {
   getHelpEmbed,
   pagination,
 } from "./processor"
+import { render as renderProfile } from "../../profile/index/processor"
 
 const run = async (msg: Message) => {
   const embed = getHelpEmbed(msg.author)
@@ -25,15 +26,19 @@ const run = async (msg: Message) => {
       wrapError(i, async () => {
         i.deferUpdate()
         const pageType = i.customId as PageType
-        const embed = getHelpEmbed(msg.author)
-        await buildHelpInterface(embed, pageType)
+        if (pageType === "profile") {
+          await renderProfile(replyMsg, msg.member)
+        } else {
+          const embed = getHelpEmbed(msg.author)
+          await buildHelpInterface(embed, pageType)
 
-        replyMsg
-          .edit({
-            embeds: [embed],
-            components: pagination(pageType),
-          })
-          .catch(() => null)
+          replyMsg
+            .edit({
+              embeds: [embed],
+              components: pagination(pageType),
+            })
+            .catch(() => null)
+        }
       })
     })
     .on("end", () => {

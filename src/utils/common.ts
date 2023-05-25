@@ -338,6 +338,7 @@ export const emojis = {
   QRCODE: "1106995993678975056",
   LEAF: "1087564972474769458",
   BANK: "1090902907244777542",
+  GEM: "1095990259877158964",
 
   ...animatedEmojis,
   ...tokenEmojis,

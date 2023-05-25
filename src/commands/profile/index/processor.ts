@@ -5,6 +5,7 @@ import {
   Message,
   MessageActionRow,
   MessageButton,
+  MessageComponentInteraction,
   MessageSelectMenu,
   User,
 } from "discord.js"
@@ -262,7 +263,7 @@ async function compose(
       new MessageActionRow().addComponents(
         new MessageButton()
           .setStyle("SECONDARY")
-          .setLabel("QRs")
+          .setLabel("QR")
           .setEmoji(getEmoji("QRCODE"))
           .setCustomId("qrcodes"),
         new MessageButton()
@@ -450,7 +451,10 @@ export async function render(
 
   let reply
   let author
-  if (msg instanceof CommandInteraction) {
+  if (
+    msg instanceof CommandInteraction ||
+    msg instanceof MessageComponentInteraction
+  ) {
     author = msg.user
     reply = await msg.editReply(replyPayload).catch(() => {
       replyPayload.embeds[0].fields.pop()
@@ -458,9 +462,9 @@ export async function render(
     })
   } else {
     author = msg.member?.user
-    reply = await msg.reply({ ...replyPayload, fetchReply: true }).catch(() => {
+    reply = await msg.reply({ ...replyPayload }).catch(() => {
       replyPayload.embeds[0].fields.pop()
-      return msg.reply({ ...replyPayload, fetchReply: true })
+      return msg.reply({ ...replyPayload })
     })
   }
 
