@@ -415,7 +415,7 @@ export const pagination = (currentPage: PageType) => [
             label: "Pay",
             style: "SECONDARY",
             customId: "pay",
-            emoji: getEmoji("GEM"),
+            emoji: getEmoji("ANIMATED_GEM", true),
           }),
           new MessageButton({
             label: "DAO",

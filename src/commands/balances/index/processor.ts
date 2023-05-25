@@ -596,23 +596,29 @@ export async function renderBalances(
             .setEmoji("<a:brrr:902558248907980871>")
             .setCustomId(`balance_earn`)
             .setLabel("Earn"),
-          new MessageButton()
-            .setStyle("SECONDARY")
-            .setEmoji(getEmoji("SWAP_ROUTE"))
-            .setCustomId(`balance_send_${profileId}_${type}`)
-            .setLabel("Send"),
-          new MessageButton()
-            .setStyle("SECONDARY")
-            .setEmoji(getEmoji("ANIMATED_TOKEN_ADD", true))
-            .setCustomId(`balance_deposit_${profileId}_${type}`)
-            .setLabel("Deposit"),
-          new MessageButton()
-            .setStyle("SECONDARY")
-            .setCustomId(`balance_invest_${profileId}_${type}`)
-            .setEmoji(getEmoji("BANK"))
-            .setLabel("Invest")
+          ...getButtons("balance", `_${profileId}_${type}`)
         ),
       ],
     },
   }
+}
+
+export function getButtons(prefix: string, suffix = "") {
+  return [
+    new MessageButton()
+      .setStyle("SECONDARY")
+      .setEmoji(getEmoji("SHARE"))
+      .setCustomId(`${prefix}_send${suffix}`)
+      .setLabel("Send"),
+    new MessageButton()
+      .setStyle("SECONDARY")
+      .setEmoji(getEmoji("ANIMATED_TOKEN_ADD", true))
+      .setCustomId(`${prefix}_deposit${suffix}`)
+      .setLabel("Deposit"),
+    new MessageButton()
+      .setStyle("SECONDARY")
+      .setCustomId(`${prefix}_invest${suffix}`)
+      .setEmoji(getEmoji("BANK"))
+      .setLabel("Invest"),
+  ]
 }

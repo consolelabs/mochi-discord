@@ -186,7 +186,6 @@ async function compose(
   })
 
   const embed = composeEmbedMessage(null, {
-    thumbnail: member.user.displayAvatarURL(),
     author: ["vincent", member.user.displayAvatarURL()],
     color: msgColors.BLUE,
     description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(

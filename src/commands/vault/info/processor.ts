@@ -1,7 +1,9 @@
 import config from "adapters/config"
+import { getButtons } from "commands/balances/index/processor"
+import { MessageActionRow, MessageButton } from "discord.js"
 import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import {
   EmojiKey,
   getEmoji,
@@ -11,6 +13,7 @@ import {
   TokenEmojiKey,
 } from "utils/common"
 import { HOMEPAGE_URL } from "utils/constants"
+import { formatDigit } from "utils/defi"
 
 export async function runGetVaultDetail(
   vaultName: string,
@@ -52,32 +55,45 @@ export async function runGetVaultDetail(
   const treasurerFields = buildTreasurerFields(data)
   const recentTxFields = buildRecentTxFields(data)
 
-  // build est total fields
-  const estimatedTotalFields =
-    data.estimated_total !== ""
-      ? [
-          {
-            name: "Estimated total (U.S dollar)",
-            value: `${getEmoji("CASH")} \`$${data.estimated_total}\``,
-            inline: false,
-          },
-        ]
-      : []
-
   fields = balanceFields
     .concat(myNftTitleFields)
     .concat(myNftFields)
-    .concat(estimatedTotalFields)
     .concat(treasurerFields)
     .concat(recentTxFields)
 
-  const embed = composeEmbedMessage(null, {
+  const creator = data.treasurer.find((t: any) => t.role === "creator") ?? ""
+  const basicInfo = [
+    `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${vaultName}\``,
+    `${getEmoji("CHECK")}\`Approve threshold. ${data.threshold ?? 0}%\``,
+    `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`<@${
+      creator.user_discord_id
+    }>`,
+    `${getEmoji("CASH")}\`Total Balance. $${formatDigit({
+      value: String(data.estimated_total) || "0",
+      fractionDigits: 2,
+    })}\``,
+  ].join("\n")
+  const embed = composeEmbedMessage2(interaction as any, {
     color: msgColors.BLUE,
-    title: `${getEmoji("ANIMATED_VAULT", true)} ${vaultName} vault`,
-    description: `${walletAddress}${currentRequest}`,
+    title: `${getEmoji("ANIMATED_DIAMOND", true)} Vault info`,
+    description: `${basicInfo}\n\n${walletAddress}${currentRequest}`,
   }).addFields(fields)
 
-  return { messageOptions: { embeds: [embed], components: [] } }
+  return {
+    messageOptions: {
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          ...getButtons("vault_info"),
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setEmoji(getEmoji("CONFIG"))
+            .setCustomId("vault_info_setting")
+            .setLabel("Setting")
+        ),
+      ],
+    },
+  }
 }
 
 function formatCurrentRequest(request: any) {
@@ -237,9 +253,10 @@ export function buildRecentTxFields(data: any): any {
 function buildTreasurerFields(data: any): any {
   let valueTreasurer = ""
   for (let i = 0; i < data.treasurer.length; i++) {
+    const treasurer = data.treasurer[i]
     valueTreasurer += `${getEmoji(`NUM_${i + 1}` as EmojiKey)} <@${
-      data.treasurer[i].user_discord_id
-    }>\n`
+      treasurer.user_discord_id
+    }>${treasurer.role === "creator" ? " (creator)" : ""}\n`
   }
   return [
     {
