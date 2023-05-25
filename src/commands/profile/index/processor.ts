@@ -44,7 +44,7 @@ import { formatDigit } from "utils/defi"
 async function renderListWallet(
   emoji: string,
   title: string,
-  wallets: { value: string; chain?: string; total_amount?: number }[],
+  wallets: { value: string; chain?: string; total?: number }[],
   offset: number
 ) {
   if (!wallets.length) return ""
@@ -57,7 +57,7 @@ async function renderListWallet(
   )
   for (const [i, w] of wallets.entries()) {
     const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
-    const bal = w.total_amount?.toString() ?? ""
+    const bal = w.total?.toString() ?? ""
     longestAddr = Math.max(shortenHashOrAddress(w.value).length, longestAddr)
     longestDomain = Math.max(domains[i].length, longestDomain)
     longestChain = Math.max(chainName.length, longestChain)
@@ -66,7 +66,7 @@ async function renderListWallet(
   const arr = wallets.map((w, i) => {
     const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
     const shortenAddr = domains[i] || shortenHashOrAddress(w.value)
-    const bal = w.total_amount?.toString() ?? ""
+    const bal = w.total?.toString() ?? ""
     const formattedString = `${getEmoji(
       `NUM_${i + 1 + offset}` as EmojiKey
     )}\`${chainName}${" ".repeat(
@@ -101,14 +101,14 @@ function renderVaults(vaults: any[]) {
   let longestBal = 0
   for (const v of vaults) {
     const name = `${v.name.slice(0, 24)}${v.name.length > 24 ? "..." : ""}`
-    const bal = v.total_amount?.toString() ?? "0"
+    const bal = v.total || "0"
     longestName = Math.max(longestName, name.length)
     longestBal = Math.max(longestBal, bal.length)
   }
 
   const formatFunc = (v: any) => {
     const name = `${v.name.slice(0, 24)}${v.name.length > 24 ? "..." : ""}`
-    const bal = v.total_amount?.toString() ?? "0"
+    const bal = v.total?.toString() ?? "0"
     return `${getEmoji("ANIMATED_VAULT", true)}\`${name}${" ".repeat(
       longestName - name.length
     )} | ${" ".repeat(3 - v.threshold.toString().length)}${
@@ -143,10 +143,23 @@ async function compose(
     vaults = vaultsRes as any[]
   }
   vaults = vaults.slice(0, 5)
+  vaults = vaults.map((v) => {
+    const allTotals = Object.keys(v).filter((k) => k.startsWith("total_amount"))
 
-  const { mochiWallets, wallets: _wallets } = await profile.getUserWallets(
-    member.id
-  )
+    return {
+      ...v,
+      total: formatDigit({
+        value: String(allTotals.reduce((acc, c) => (acc += Number(v[c])), 0)),
+        fractionDigits: 2,
+      }),
+    }
+  })
+
+  const {
+    onchainTotal,
+    mochiWallets,
+    wallets: _wallets,
+  } = await profile.getUserWallets(member.id)
   const socials = await profile.getUserSocials(member.id)
   const wallets = _wallets.slice(0, 10)
   const nextLevelMinXp = userProfile.next_level?.min_xp
@@ -157,6 +170,10 @@ async function compose(
 
   const balances = await getBalances(profileId, balanceTypes.Offchain, msg)
   const { totalWorth } = formatView("compact", balances)
+  const grandTotal = formatDigit({
+    value: String(totalWorth + onchainTotal),
+    fractionDigits: 2,
+  })
   const mochiBal = formatDigit({
     value: totalWorth.toString(),
     fractionDigits: 2,
@@ -168,7 +185,7 @@ async function compose(
     color: msgColors.BLUE,
     description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
       "CASH"
-    )}\`Total Balance. $${(Math.random() * 10000).toFixed(2)}\`(${getEmoji(
+    )}\`Total Balance. $${grandTotal}\`(${getEmoji(
       Math.random() > 0.5 ? "ANIMATED_ARROW_UP" : "ANIMATED_ARROW_DOWN",
       true
     )} ${(Math.random() * 10).toFixed(1)}%)\n${getEmoji(
@@ -232,13 +249,13 @@ async function compose(
                 ...w,
                 type: "wallet",
                 value: `onchain_${w.value}`,
-                usd: 0,
+                usd: w.total,
               })),
               ...vaults.map((v) => ({
                 ...v,
                 type: "vault",
                 value: v.name,
-                usd: 0,
+                usd: v.total,
               })),
             ].map((w, i) => {
               const isMochi = w.value.split("_")[0] === "mochi"
@@ -357,6 +374,7 @@ function collectSelection(
   reply: Message,
   author: User,
   user: User,
+  originalMsg: OriginalMessage,
   components: any
 ) {
   reply
@@ -376,11 +394,15 @@ function collectSelection(
         if (isMochi === "mochi") {
           ;({ messageOptions } = await renderBalances(
             author.id,
-            reply,
+            originalMsg,
             balanceTypes.Offchain
           ))
         } else {
-          ;({ messageOptions } = await viewWalletDetails(reply, user, address))
+          ;({ messageOptions } = await viewWalletDetails(
+            originalMsg,
+            user,
+            address
+          ))
         }
 
         messageOptions.components = [
@@ -407,6 +429,29 @@ function collectSelection(
               i.editReply({ embeds: reply.embeds, components })
             })
           })
+      })
+    })
+    .on("end", () => {
+      wrapError(reply, async () => {
+        await reply.edit({ components: [] }).catch(() => null)
+      })
+    })
+}
+
+function collectButton(reply: Message, author: User) {
+  reply
+    .createMessageComponentCollector({
+      componentType: "BUTTON",
+      filter: authorFilter(author.id),
+      time: 300000,
+    })
+    .on("collect", (i) => {
+      wrapError(reply, async () => {
+        if (!i.deferred) {
+          await i.deferUpdate().catch(() => null)
+        }
+
+        i.followUp({ content: "WIP!", ephemeral: true })
       })
     })
     .on("end", () => {
@@ -472,6 +517,9 @@ export async function render(
     reply as Message,
     author as User,
     member.user,
+    msg,
     replyPayload.components
   )
+
+  collectButton(reply as Message, author as User)
 }

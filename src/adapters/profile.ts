@@ -14,6 +14,7 @@ import mochiPay from "./mochi-pay"
 import { uniqBy } from "lodash"
 import { removeDuplications } from "utils/common"
 import { logger } from "logger"
+import { formatDigit } from "utils/defi"
 
 class Profile extends Fetcher {
   public async getUserVaults(profileId: string, guildId: string | null) {
@@ -44,6 +45,7 @@ class Profile extends Fetcher {
     if (dataProfile.err) {
       logger.error("Cannot get profile by discord id", discordId)
       return {
+        onchainTotal: 0,
         mochiWallets: [],
         wallets: [],
       }
@@ -62,6 +64,7 @@ class Profile extends Fetcher {
       chain: m.chain?.is_evm ? "EVM" : m.chain?.symbol,
     }))
 
+    let onchainTotal = 0
     const wallets = removeDuplications(
       dataProfile.associated_accounts
         ?.filter((a: any) =>
@@ -73,18 +76,26 @@ class Profile extends Fetcher {
             "ronin-chain",
           ].includes(a.platform)
         )
-        ?.map((w: any) => ({
-          disabled: !["evm-chain", "solana-chain"].includes(w.platform),
-          value: w.platform_identifier,
-          total_amount: 0,
-          chain:
-            w.platform === "solana-chain"
-              ? "SOL"
-              : w.platform.split("-").shift().toUpperCase(),
-        })) ?? []
+        ?.map((w: any) => {
+          const bal = Number(w.total_amount || 0)
+          onchainTotal += bal
+          return {
+            disabled: !["evm-chain", "solana-chain"].includes(w.platform),
+            value: w.platform_identifier,
+            total: formatDigit({
+              value: bal.toString(),
+              fractionDigits: 2,
+            }),
+            chain:
+              w.platform === "solana-chain"
+                ? "SOL"
+                : w.platform.split("-").shift().toUpperCase(),
+          }
+        }) ?? []
     )
 
     return {
+      onchainTotal,
       mochiWallets,
       wallets,
     }

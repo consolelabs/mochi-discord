@@ -3,7 +3,6 @@ import { renderWallets } from "commands/profile/index/processor"
 import { buildRecentTxFields } from "commands/vault/info/processor"
 import {
   ButtonInteraction,
-  CommandInteraction,
   EmbedFieldData,
   Message,
   MessageActionRow,
@@ -392,7 +391,7 @@ async function switchView(
 
 export async function renderBalances(
   discordId: string,
-  msg: Message | CommandInteraction,
+  msg: OriginalMessage,
   type: number
 ) {
   const profileId = await getProfileIdByDiscord(discordId)
