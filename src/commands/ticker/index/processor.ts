@@ -203,6 +203,11 @@ export async function composeTickerResponse({
       value: current,
       inline: true,
     },
+    {
+      name: "Platform",
+      value: (coin.asset_platform_id || "N/A").toUpperCase(),
+      inline: true,
+    },
     { name: "\u200B", value: "\u200B", inline: true },
     {
       name: "Change (1h)",
