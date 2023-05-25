@@ -1,13 +1,15 @@
 import config from "adapters/config"
-import { getButtons } from "commands/balances/index/processor"
+import { formatView, getButtons } from "commands/balances/index/processor"
 import { MessageActionRow, MessageButton } from "discord.js"
 import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import {
   EmojiKey,
+  emojis,
   getEmoji,
   getEmojiToken,
+  getEmojiURL,
   msgColors,
   shortenHashOrAddress,
   TokenEmojiKey,
@@ -49,13 +51,22 @@ export async function runGetVaultDetail(
 
   let fields = []
 
-  const balanceFields = buildBalanceFields(data)
+  const { totalWorth, text: tokenBalanceBreakdownText } = formatView(
+    "compact",
+    data.balance
+  )
   const myNftTitleFields = buildMyNftTitleFields(data)
   const myNftFields = buildMyNftFields(data)
   const treasurerFields = buildTreasurerFields(data)
   const recentTxFields = buildRecentTxFields(data)
 
-  fields = balanceFields
+  fields = [
+    {
+      name: "Tokens",
+      value: tokenBalanceBreakdownText + "\u200b",
+      inline: false,
+    },
+  ]
     .concat(myNftTitleFields)
     .concat(myNftFields)
     .concat(treasurerFields)
@@ -69,13 +80,13 @@ export async function runGetVaultDetail(
       creator.user_discord_id
     }>`,
     `${getEmoji("CASH")}\`Total Balance. $${formatDigit({
-      value: String(data.estimated_total) || "0",
+      value: String(totalWorth) || "0",
       fractionDigits: 2,
     })}\``,
   ].join("\n")
   const embed = composeEmbedMessage2(interaction as any, {
     color: msgColors.BLUE,
-    title: `${getEmoji("ANIMATED_DIAMOND", true)} Vault info`,
+    author: ["Vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
     description: `${basicInfo}\n\n${walletAddress}${currentRequest}`,
   }).addFields(fields)
 
@@ -159,33 +170,6 @@ function formatRecentTransaction(tx: any) {
         tx.token
       }\n`
   }
-}
-
-function buildBalanceFields(data: any): any {
-  // build balance fields
-  const balanceFields = []
-  const resBalance = data.balance.map((balance: any) => {
-    return {
-      name: `${balance.token_name}`,
-      value: `${getEmojiToken(`${balance.token as TokenEmojiKey}`)}${
-        balance.amount
-      } ${balance.token}\n\`$${balance.amount_in_usd}\``,
-      inline: true,
-    }
-  })
-
-  for (let i = 0; i < resBalance.length; i++) {
-    if (i !== 0 && i % 2 == 0) {
-      balanceFields.push({
-        name: "\u200b",
-        value: "\u200b",
-        inline: true,
-      })
-    }
-    balanceFields.push(resBalance[i])
-  }
-
-  return balanceFields
 }
 
 function buildMyNftTitleFields(data: any): any {

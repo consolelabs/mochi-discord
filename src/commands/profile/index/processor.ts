@@ -39,6 +39,7 @@ import {
   renderBalances,
 } from "commands/balances/index/processor"
 import { formatDigit } from "utils/defi"
+import { runGetVaultDetail } from "commands/vault/info/processor"
 
 async function renderListWallet(
   emoji: string,
@@ -394,13 +395,18 @@ function collectSelection(
           await i.deferUpdate().catch(() => null)
         }
         const selectedWallet = i.values[0]
-        const [prefix, address] = selectedWallet.split("_")
+        const [prefix, addressOrVaultName] = selectedWallet.split("_")
         const isMochi = prefix === "mochi"
         const isVault = prefix === "vault"
         let messageOptions
         if (isVault) {
-          return
+          const vaultName = addressOrVaultName
+          ;({ messageOptions } = await runGetVaultDetail(
+            vaultName,
+            originalMsg
+          ))
         } else {
+          const address = addressOrVaultName
           ;({ messageOptions } = await renderBalances(
             author.id,
             originalMsg,
