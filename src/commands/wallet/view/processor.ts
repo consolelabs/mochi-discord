@@ -188,6 +188,45 @@ async function getTokensEmbed(
   const label = alias || (await reverseLookup(address))
   const title = label ? `${label}'s wallet` : "Wallet tokens"
 
+  const txnsRes = await defi.getWalletTxns(author.id, address, type)
+  if (!txnsRes.ok) {
+    throw new APIError({
+      msgOrInteraction: message,
+      description: txnsRes.log,
+      curl: txnsRes.curl,
+    })
+  }
+  const txns: any[] = []
+  txnsRes.data?.forEach((tx: any) => {
+    const nativeTransfer = tx.actions?.find((a: any) => a.native_transfer)
+    if (nativeTransfer) {
+      txns.push({
+        ...nativeTransfer,
+        hash: tx.tx_hash,
+      })
+    }
+    const tokenTransfer = tx.actions?.find(
+      (a: any) =>
+        a.signature ===
+        "Transfer(indexed address from, indexed address to, uint256 value)"
+    )
+    if (tokenTransfer) {
+      txns.push({
+        ...tokenTransfer,
+        hash: tx.tx_hash,
+      })
+    }
+  })
+  const recentTxns = txns
+    .slice(0, 5)
+    .map((tx) => {
+      const otherAddr = equalIgnoreCase(tx.from, address) ? tx.to : tx.from
+      return `${tx.amount < 0 ? "-" : "+"} ${Math.abs(tx.amount)} ${
+        tx.unit
+      } | ${shortenHashOrAddress(otherAddr, 4)}`
+    })
+    .join("\n")
+
   return composeEmbedMessage(null, {
     author: [title, getEmojiURL(emojis.WALLET)],
     description: `**Tokens**\n\n${text}`,
@@ -199,6 +238,10 @@ async function getTokensEmbed(
       value: `${getEmoji("CASH")} \`$${formatDigit({
         value: totalWorth.toString(),
       })}\``,
+    },
+    {
+      name: "Recent Transactions",
+      value: `\`\`\`diff\n${recentTxns}\`\`\``,
     },
   ])
 }
