@@ -171,7 +171,7 @@ async function getTokensEmbed(
       description: "Couldn't get wallet assets",
     })
   }
-  const assets = data.filter((d: any) => d.usd_balance > 1)
+  const assets = data.balance.filter((d: any) => d.usd_balance > 1)
   if (assets.length === 0) {
     return composeEmbedMessage(null, {
       author: ["Wallet balances", getEmojiURL(emojis.WALLET)],
