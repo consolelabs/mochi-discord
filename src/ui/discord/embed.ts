@@ -39,6 +39,7 @@ type Option = {
   rowAfterFormatter: (formatted: string, index: number) => string
   alignment: Alignment[]
   separator: string
+  noWrap: boolean
 }
 
 export function formatDataTable(
@@ -50,6 +51,7 @@ export function formatDataTable(
       alignment: [...Array(dataByCol.length - 1).fill("left"), "right"],
       rowAfterFormatter: (str) => str,
       separator: "|",
+      noWrap: false,
     },
     options
   )
@@ -97,7 +99,14 @@ export function formatDataTable(
       }
     }
 
-    lines.push(resolvedOptions.rowAfterFormatter(`\`${row}\``, i))
+    lines.push(
+      resolvedOptions.rowAfterFormatter(
+        `${resolvedOptions.noWrap ? "" : "`"}${row}${
+          resolvedOptions.noWrap ? "" : "`"
+        }`,
+        i
+      )
+    )
   }
 
   return lines.join("\n")

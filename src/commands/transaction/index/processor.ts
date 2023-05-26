@@ -6,38 +6,12 @@ import {
   shortenHashOrAddress,
 } from "utils/common"
 import { APIError } from "errors"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import profile from "adapters/profile"
 import mochiPay from "adapters/mochi-pay"
 import { convertString } from "../../../utils/convert"
-
-async function format(data: any[], type: "deposit" | "withdraw") {
-  let longestStr = 0
-  return `\n${data
-    .slice(0, 10)
-    .map((tx: any) => {
-      const amount = `${convertString(tx.amount, tx.token.decimal, false)} ${
-        tx.token.symbol
-      }`
-
-      longestStr = Math.max(longestStr, amount.length)
-
-      return {
-        ...tx,
-        amount,
-      }
-    })
-    .map((tx: any) => {
-      return `${type === "deposit" ? "+" : "-"} ${tx.amount}${" ".repeat(
-        longestStr - tx.amount.length
-      )} | ${
-        shortenHashOrAddress(tx[type === "deposit" ? "from" : "address"], 4) ??
-        "Unknown"
-      }`
-    })
-    .join("\n")}`
-}
+import { formatDigit } from "utils/defi"
 
 export async function render(i: CommandInteraction) {
   const userDiscordId = i.user.id
@@ -83,59 +57,104 @@ export async function render(i: CommandInteraction) {
     }
 
   const [dep, withdraw, tip] = await Promise.all([
-    format(data.deposit.slice(0, 10), "deposit"),
-    format(data.withdraw.slice(0, 10), "withdraw"),
+    // tip
+    new Promise((r) => {
+      const sliced = data.deposit.slice(0, 10)
+      r(
+        formatDataTable(
+          [
+            sliced.map(
+              (s: any) =>
+                `+ ${formatDigit({
+                  value: convertString(
+                    s.amount,
+                    s.token.decimal,
+                    false
+                  ).toString(),
+                  fractionDigits: 4,
+                })} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`
+            ),
+            sliced.map(
+              (s: any) => shortenHashOrAddress(s.from, 4) ?? "Unknown"
+            ),
+          ],
+          { noWrap: true }
+        )
+      )
+    }),
+    // withdraw
+    new Promise((r) => {
+      const sliced = data.withdraw.slice(0, 10)
+      r(
+        formatDataTable(
+          [
+            sliced.map(
+              (s: any) =>
+                `- ${formatDigit({
+                  value: convertString(
+                    s.amount,
+                    s.token.decimal,
+                    false
+                  ).toString(),
+                  fractionDigits: 4,
+                })} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`
+            ),
+            sliced.map(
+              (s: any) => shortenHashOrAddress(s.address, 4) ?? "Unknown"
+            ),
+          ],
+          { noWrap: true }
+        )
+      )
+    }),
+    // tip
     new Promise((resolve) => {
       const users = new Map<string, string>()
-      let longestStr = 0
       Promise.all(
-        data.offchain
-          .slice(0, 10)
-          .map((tx: any) => {
-            const amount = `${convertString(
-              tx.amount,
-              tx.token.decimal,
-              false
-            )} ${tx.token.symbol}`
+        data.offchain.slice(0, 10).map(async (tx: any) => {
+          if (!tx.other_profile_id) return null
 
-            longestStr = Math.max(longestStr, amount.length)
+          let targetUser = users.get(tx.other_profile_id)
+          const type = tx.type === "debit" ? "-" : "+"
+          if (!targetUser) {
+            const dataProfile = await profile.getById(tx.other_profile_id)
+            if (
+              dataProfile.err ||
+              !dataProfile ||
+              dataProfile.associated_accounts.length === 0
+            )
+              return null
 
-            return {
-              ...tx,
-              amount,
-            }
-          })
-          .map(async (tx: any) => {
-            if (!tx.other_profile_id) return null
+            const discord = dataProfile.associated_accounts.find(
+              (acc: any) => acc.platform === "discord"
+            )
+            if (!discord) return null
 
-            let targetUser = users.get(tx.other_profile_id)
-            const type = tx.type === "debit" ? "-" : "+"
-            if (!targetUser) {
-              const dataProfile = await profile.getById(tx.other_profile_id)
-              if (
-                dataProfile.err ||
-                !dataProfile ||
-                dataProfile.associated_accounts.length === 0
-              )
-                return null
+            targetUser = (
+              await i.client.users.fetch(discord.platform_identifier)
+            )?.tag
+            users.set(tx.other_profile_id, targetUser)
+          }
 
-              const discord = dataProfile.associated_accounts.find(
-                (acc: any) => acc.platform === "discord"
-              )
-              if (!discord) return null
-
-              targetUser = (
-                await i.client.users.fetch(discord.platform_identifier)
-              )?.tag
-              users.set(tx.other_profile_id, targetUser)
-            }
-
-            return `${type} ${tx.amount}${" ".repeat(
-              longestStr - tx.amount.length
-            )} | ${targetUser ?? "someone"}`
-          })
+          return {
+            left: `${type} ${formatDigit({
+              value: convertString(
+                tx.amount,
+                tx.token.decimal,
+                false
+              ).toString(),
+              fractionDigits: 4,
+            })} ${tx.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
+            right: targetUser ?? "someone",
+          }
+        })
       ).then((tipTxs) => {
-        resolve(`\n${tipTxs.filter(Boolean).join("\n")}`)
+        resolve(
+          formatDataTable(
+            [tipTxs.map((txn) => txn.left), tipTxs.map((txn) => txn.right)],
+            { noWrap: true, alignment: ["left", "left"] }
+          )
+        )
       })
     }),
   ])
@@ -145,7 +164,7 @@ export async function render(i: CommandInteraction) {
       ? [
           {
             name: "Tip",
-            value: `\`\`\`diff${tip}\`\`\``,
+            value: `\`\`\`diff\n${tip}\`\`\``,
             inline: false,
           },
         ]
@@ -154,7 +173,7 @@ export async function render(i: CommandInteraction) {
       ? [
           {
             name: "Deposit",
-            value: `\`\`\`diff${dep}\`\`\``,
+            value: `\`\`\`diff\n${dep}\`\`\``,
             inline: false,
           },
         ]
@@ -163,7 +182,7 @@ export async function render(i: CommandInteraction) {
       ? [
           {
             name: "Withdraw",
-            value: `\`\`\`diff${withdraw}\`\`\``,
+            value: `\`\`\`diff\n${withdraw}\`\`\``,
             inline: false,
           },
         ]
