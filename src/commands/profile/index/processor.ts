@@ -10,7 +10,7 @@ import {
   User,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
   authorFilter,
   capitalizeFirst,
@@ -45,47 +45,27 @@ async function renderListWallet(
   emoji: string,
   title: string,
   wallets: { value: string; chain?: string; total?: number }[],
-  offset: number
+  offset: number,
+  showCash: boolean
 ) {
   if (!wallets.length) return ""
-  let longestAddr = 0
-  let longestDomain = 0
-  let longestChain = 0
-  let longestBal = 0
   const domains = await Promise.all(
     wallets.map(async (w) => await reverseLookup(w.value))
   )
-  for (const [i, w] of wallets.entries()) {
-    const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
-    const bal = w.total?.toString() ?? ""
-    longestAddr = Math.max(shortenHashOrAddress(w.value).length, longestAddr)
-    longestDomain = Math.max(domains[i].length, longestDomain)
-    longestChain = Math.max(chainName.length, longestChain)
-    longestBal = Math.max(bal.length, longestBal)
-  }
-  const arr = wallets.map((w, i) => {
-    const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
-    const shortenAddr = domains[i] || shortenHashOrAddress(w.value)
-    const bal = w.total?.toString() ?? ""
-    const formattedString = `${getEmoji(
-      `NUM_${i + 1 + offset}` as EmojiKey
-    )}\`${chainName}${" ".repeat(
-      longestChain - chainName.length
-    )} | ${shortenAddr}${" ".repeat(
-      Math.max(longestAddr, longestDomain) - shortenAddr.length
-    )}${
-      bal
-        ? ` | ${" ".repeat(longestBal - bal.length)}$${bal}\`${getEmoji(
-            "CASH"
-          )}`
-        : "`"
-    }`
-    return formattedString
-  })
 
-  if (!arr) return ""
-
-  return `${emoji}${title}\n${arr.join("\n")}`
+  return `${emoji}${title}\n${formatDataTable(
+    [
+      wallets.map((w) => (w.chain || isAddress(w.value).type).toUpperCase()),
+      wallets.map((w, i) => domains[i] || shortenHashOrAddress(w.value)),
+      wallets.map((w) => (w.total?.toString() ? `$${w.total.toString()}` : "")),
+    ],
+    {
+      rowAfterFormatter: (formatted, i) =>
+        `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)}${formatted}${
+          showCash ? getEmoji("CASH") : ""
+        }`,
+    }
+  )}`
 }
 
 const pr = new Intl.PluralRules("en-US", { type: "ordinal" })
@@ -96,27 +76,22 @@ const suffixes = new Map([
   ["other", "th"],
 ])
 
-function renderVaults(vaults: any[]) {
-  let longestName = 0
-  let longestBal = 0
-  for (const v of vaults) {
-    const name = `${v.name.slice(0, 24)}${v.name.length > 24 ? "..." : ""}`
-    const bal = v.total || "0"
-    longestName = Math.max(longestName, name.length)
-    longestBal = Math.max(longestBal, bal.length)
-  }
-
-  const formatFunc = (v: any) => {
-    const name = `${v.name.slice(0, 24)}${v.name.length > 24 ? "..." : ""}`
-    const bal = v.total?.toString() ?? "0"
-    return `${getEmoji("ANIMATED_VAULT", true)}\`${name}${" ".repeat(
-      longestName - name.length
-    )} | ${" ".repeat(3 - v.threshold.toString().length)}${
-      v.threshold
-    }% | ${" ".repeat(longestBal - bal.length)}$${bal}\`${getEmoji("CASH")}`
-  }
-
-  return vaults.map(formatFunc).join("\n")
+function renderVaults(
+  vaults: { name: string; total?: number; threshold: number }[]
+) {
+  return formatDataTable(
+    [
+      vaults.map(
+        (v) => `${v.name.slice(0, 24)}${v.name.length > 24 ? "..." : ""}`
+      ),
+      vaults.map((v) => v.threshold.toString()),
+      vaults.map((v) => (v.total?.toString() ? `$${v.total.toString()}` : "")),
+    ],
+    {
+      rowAfterFormatter: (formatted) =>
+        `${getEmoji("ANIMATED_VAULT", true)}${formatted}${getEmoji("CASH")}`,
+    }
+  )
 }
 
 async function compose(
@@ -171,7 +146,7 @@ async function compose(
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp
   const highestRole =
-    member.roles.highest.name !== "@everyone" ? member.roles.highest : null
+    member.roles.highest.name !== "@everyone" ? member.roles.highest : "N/A"
 
   const { totalWorth } = formatView("compact", balances.data)
   const grandTotal = formatDigit({
@@ -184,7 +159,10 @@ async function compose(
   })
 
   const embed = composeEmbedMessage(null, {
-    author: ["vincent", member.user.displayAvatarURL()],
+    author: [
+      member.nickname || member.displayName,
+      member.user.displayAvatarURL(),
+    ],
     color: msgColors.BLUE,
     description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
       "CASH"
@@ -362,13 +340,15 @@ export async function renderWallets({
         getEmoji("NFT2"),
         mochiWallets.title ?? "`Mochi`",
         mochiWallets.data,
-        0
+        0,
+        false
       ),
       await renderListWallet(
         getEmoji("WALLET_1"),
         wallets.title ?? "`On-chain`",
         wallets.data,
-        mochiWallets.data.length
+        mochiWallets.data.length,
+        true
       ),
     ])
   ).filter(Boolean)

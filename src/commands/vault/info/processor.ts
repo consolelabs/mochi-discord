@@ -37,6 +37,8 @@ export async function runGetVaultDetail(
     throw new APIError({ curl, error, description: log })
   }
 
+  data.recent_transaction = data.recent_transaction.slice(0, 5)
+
   const walletAddress =
     data.wallet_address !== ""
       ? `**Wallet Address**\n\`\`\`EVM | ${data.wallet_address}\nSOL | ${data.solana_wallet_address}\`\`\``
@@ -61,11 +63,15 @@ export async function runGetVaultDetail(
   const recentTxFields = buildRecentTxFields(data)
 
   fields = [
-    {
-      name: "Tokens",
-      value: tokenBalanceBreakdownText + "\u200b",
-      inline: false,
-    },
+    ...(tokenBalanceBreakdownText
+      ? [
+          {
+            name: "Tokens",
+            value: tokenBalanceBreakdownText + "\u200b",
+            inline: false,
+          },
+        ]
+      : []),
   ]
     .concat(myNftTitleFields)
     .concat(myNftFields)
@@ -76,9 +82,9 @@ export async function runGetVaultDetail(
   const basicInfo = [
     `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${vaultName}\``,
     `${getEmoji("CHECK")}\`Approve threshold. ${data.threshold ?? 0}%\``,
-    `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`<@${
-      creator.user_discord_id
-    }>`,
+    `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${
+      creator.user_discord_id ? `<@${creator.user_discord_id}>` : ""
+    }`,
     `${getEmoji("CASH")}\`Total Balance. $${formatDigit({
       value: String(totalWorth) || "0",
       fractionDigits: 2,
@@ -144,7 +150,7 @@ function formatRecentTransaction(tx: any) {
   const amount = ["+", "-"].includes(tx.amount.split("")[0])
     ? tx.amount.slice(1)
     : tx.amount
-  const token = tx.token.length <= 5 ? tx.token : "token"
+  const token = tx.token
   const tokenEmoji = getEmojiToken(token)
   // const address =
   //   tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
@@ -174,7 +180,7 @@ function formatRecentTransaction(tx: any) {
     case "Transfer":
       return `${t} ${getEmoji(
         "SHARE"
-      )} Sent to \`${amount} ${token}\` ${tokenEmoji}\n`
+      )} Sent \`${amount} ${token}\` ${tokenEmoji}\n`
   }
 }
 
@@ -228,6 +234,7 @@ function buildMyNftFields(data: any): any {
 export function buildRecentTxFields(data: any): any {
   let valueRecentTx = ""
   for (let i = 0; i < data.recent_transaction.length; i++) {
+    if (data.recent_transaction[i].token.length > 5) continue
     valueRecentTx += formatRecentTransaction(data.recent_transaction[i])
   }
   if (!valueRecentTx) return []
@@ -248,11 +255,14 @@ function buildTreasurerFields(data: any): any {
       treasurer.user_discord_id
     }>${treasurer.role === "creator" ? " (creator)" : ""}\n`
   }
-  return [
-    {
-      name: `Treasurer (${data.treasurer.length})`,
-      value: valueTreasurer === "" ? "\u200b" : valueTreasurer,
-      inline: false,
-    },
-  ]
+  if (valueTreasurer) {
+    return [
+      {
+        name: `Treasurer (${data.treasurer.length})`,
+        value: valueTreasurer,
+        inline: false,
+      },
+    ]
+  }
+  return []
 }

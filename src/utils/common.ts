@@ -412,22 +412,6 @@ export function hasAdministrator(member?: GuildMember | null) {
   return member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
-// export function getCommandsList(
-//   _emoji: GuildEmoji | string,
-//   commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
-// ) {
-//   const emoji = getEmoji("reply")
-//   const correctBrief = (brief: string) =>
-//     brief.endsWith(".") ? brief : `${brief}.`
-//   return Object.values(commands)
-//     .filter((c) => !c.experimental)
-//     .map(
-//       (c) =>
-//         `[**${c.command}**](${HOMEPAGE_URL})\n${emoji}${correctBrief(c.brief)}`
-//     )
-//     .join("\n\n")
-// }
-
 export function maskAddress(str: string, minLen?: number) {
   const num = minLen || 8
   if (str.length > num && str.length > 3) {
@@ -450,16 +434,18 @@ export function getEmoji(
 ) {
   if (!key) return fallback
 
-  const emoji = emojis[key]
+  const emoji = emojis[key.toUpperCase() as EmojiKey]
   if (!emoji) return fallback
 
   if (isNaN(+emoji)) {
     return emoji
   }
 
-  return `<${animated || key.startsWith("ANIMATED_") ? "a" : ""}:${key
-    .replace(/-/g, "_")
-    .toLowerCase()}:${emojis[key]}>`
+  return `<${
+    animated || key.toUpperCase().startsWith("ANIMATED_") ? "a" : ""
+  }:${key.toUpperCase().replace(/-/g, "_").toLowerCase()}:${
+    emojis[key.toUpperCase() as EmojiKey]
+  }>`
 }
 
 export function getEmojiToken(key: TokenEmojiKey, animated?: boolean) {

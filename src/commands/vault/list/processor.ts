@@ -8,7 +8,6 @@ import {
   User,
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
-import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import {
   authorFilter,
@@ -20,6 +19,7 @@ import {
 import { getSlashCommand } from "utils/commands"
 import { wrapError } from "utils/wrap-error"
 import { runGetVaultDetail } from "../info/processor"
+import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function runVaultList(interaction: CommandInteraction) {
   if (!interaction.guildId) {
@@ -50,34 +50,37 @@ export async function runVaultList(interaction: CommandInteraction) {
     (acc: number, c: any) => Math.max(acc, c.name.length),
     0
   )
-  for (let i = 0; i < vaults.length; i++) {
-    description += `${getEmoji(`NUM_${i + 1}` as EmojiKey)}\`${
-      data[i].name
-    } ${" ".repeat(longest - data[i].name.length)} | ${shortenHashOrAddress(
-      data[i].wallet_address
-    )} | ${" ".repeat(3 - data[i].threshold.toString().length)}${
-      data[i].threshold
-    }%\`\n`
-  }
 
-  description += `\n${getEmoji(
+  description += `${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
   )} View detail of the vault </vault info:${await getSlashCommand(
     "vault info"
-  )}>`
+  )}>\n\n`
 
-  const embed = new MessageEmbed()
-    .setTitle(`${getEmoji("MOCHI_CIRCLE")} Vault List`)
-    .setDescription(description)
-    .setColor(msgColors.BLUE)
-    .setFooter({ text: "Type /feedback to report • Mochi Bot" })
-    .setTimestamp(Date.now())
+  const lines = []
+  for (let i = 0; i < vaults.length; i++) {
+    lines.push(
+      `${getEmoji(`NUM_${i + 1}` as EmojiKey)}\`${data[i].name} ${" ".repeat(
+        longest - data[i].name.length
+      )} | ${shortenHashOrAddress(data[i].wallet_address, 3)} | ${" ".repeat(
+        3 - data[i].threshold.toString().length
+      )}${data[i].threshold}%\``
+    )
+  }
+
+  description += lines.join("\n")
+
+  const embed = composeEmbedMessage(null, {
+    title: `${getEmoji("MOCHI_CIRCLE")} Vault List`,
+    description,
+    color: msgColors.BLUE,
+  })
 
   const components = [
     new MessageActionRow().addComponents(
       new MessageSelectMenu()
-        .setPlaceholder("View a vault")
+        .setPlaceholder("💰 View a vault")
         .setCustomId("view_vault")
         .addOptions(
           vaults.map((v: any, i: number) => ({

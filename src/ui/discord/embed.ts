@@ -11,6 +11,7 @@ import {
 } from "discord.js"
 import { TEST } from "env"
 import { APIError } from "errors"
+import { merge } from "lodash"
 import { Command, EmbedProperties, SlashCommand } from "types/common"
 import {
   getActionCommand,
@@ -29,10 +30,75 @@ import {
   getEmojiToken,
   getEmojiURL,
   msgColors,
-  // removeDuplications,
   roundFloatNumber,
 } from "utils/common"
 import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
+
+type Alignment = "left" | "center" | "right"
+type Option = {
+  rowAfterFormatter: (formatted: string, index: number) => string
+  alignment: Alignment[]
+}
+
+export function formatDataTable(
+  dataByCol: Array<Array<string | number>>,
+  options: Partial<Option> = {}
+) {
+  const resolvedOptions = merge<Option, Partial<Option>>(
+    {
+      alignment: [...Array(dataByCol.length - 1).fill("left"), "right"],
+      rowAfterFormatter: (str) => str,
+    },
+    options
+  )
+  const lineNo = Math.max(...dataByCol.map((col) => col.length))
+  const longestTextByColumns = Array(dataByCol.length).fill(0)
+
+  // find the longest text by columns to add proper padding to other cell in the same column
+  for (const [colIdx, col] of dataByCol.entries()) {
+    let longest = 0
+
+    for (const [, content] of col.entries()) {
+      longest = Math.max(longest, String(content).length)
+    }
+
+    longestTextByColumns[colIdx] = longest
+  }
+
+  const lines = []
+  for (let i = 0; i < lineNo; i++) {
+    let row = ""
+
+    for (const [colIdx, col] of dataByCol.entries()) {
+      let content = col[i]
+      if (content || colIdx !== dataByCol.length - 1) {
+        const padding = " ".repeat(
+          longestTextByColumns[colIdx] - String(col[i]).length
+        )
+        const halfPadding = padding.slice(0, longestTextByColumns[colIdx] / 2)
+
+        switch (resolvedOptions.alignment[colIdx]) {
+          case "center":
+            content = `${halfPadding}${content}${halfPadding}`
+            break
+          case "right":
+            content = `${padding}${content}`
+            break
+          case "left":
+          default:
+            content = `${content}${padding}`
+            break
+        }
+
+        row += (colIdx !== 0 ? " | " : "") + `${content}`
+      }
+    }
+
+    lines.push(resolvedOptions.rowAfterFormatter(`\`${row}\``, i))
+  }
+
+  return lines.join("\n")
+}
 
 export const EMPTY_FIELD = {
   name: "\u200B",
