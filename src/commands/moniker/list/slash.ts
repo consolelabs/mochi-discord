@@ -8,6 +8,7 @@ import { handleMonikerList } from "./processor"
 import { getPaginationRow } from "ui/discord/button"
 import { listenForPaginateInteraction } from "handlers/discord/button"
 import { GuildIdNotFoundError } from "errors"
+import { getSlashCommand } from "utils/commands"
 
 const command: SlashCommand = {
   name: "list",
@@ -31,7 +32,9 @@ const command: SlashCommand = {
           embeds: [
             composeEmbedMessage(null, {
               author: ["Moniker List", getEmojiURL(emojis.MONIKER)],
-              description: `You haven't set any moniker. To set one, run ${SLASH_PREFIX}moniker set <moniker> <amount_token> <token> .`,
+              description: `You haven't set any moniker. To set one, run ${await getSlashCommand(
+                "moniker set"
+              )}.`,
             }),
           ],
         },

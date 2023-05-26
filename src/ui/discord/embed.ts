@@ -11,7 +11,6 @@ import {
 } from "discord.js"
 import { TEST } from "env"
 import { APIError } from "errors"
-import { merge } from "lodash"
 import { Command, EmbedProperties, SlashCommand } from "types/common"
 import {
   getActionCommand,
@@ -38,7 +37,7 @@ type Alignment = "left" | "center" | "right"
 type Option = {
   rowAfterFormatter: (formatted: string, index: number) => string
   alignment: Alignment[]
-  separator: string
+  separator: string[]
   noWrap: boolean
 }
 
@@ -46,11 +45,11 @@ export function formatDataTable(
   dataByCol: Array<Array<string | number>>,
   options: Partial<Option> = {}
 ) {
-  const resolvedOptions = merge<Option, Partial<Option>>(
+  const resolvedOptions = Object.assign<Required<Option>, Partial<Option>>(
     {
       alignment: [...Array(dataByCol.length - 1).fill("left"), "right"],
-      rowAfterFormatter: (str) => str,
-      separator: "|",
+      rowAfterFormatter: (str: string) => str,
+      separator: Array(dataByCol.length).fill("|"),
       noWrap: false,
     },
     options
@@ -95,7 +94,9 @@ export function formatDataTable(
         }
 
         row +=
-          (colIdx !== 0 ? ` ${resolvedOptions.separator} ` : "") + `${content}`
+          (colIdx !== 0
+            ? ` ${resolvedOptions.separator[colIdx - 1] ?? "|"} `
+            : "") + `${content}`
       }
     }
 

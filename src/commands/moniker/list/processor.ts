@@ -1,36 +1,11 @@
 import config from "adapters/config"
 import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
-import {
-  emojis,
-  getEmoji,
-  getEmojiURL,
-  paginate,
-  roundFloatNumber,
-} from "utils/common"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { ResponseMonikerConfigData } from "types/api"
-import { APPROX, SLASH_PREFIX } from "utils/constants"
-
-function toList(data: ResponseMonikerConfigData[]) {
-  let longestMonikerWord =
-    data.sort(
-      (a, b) =>
-        (b.moniker?.moniker?.length ?? 0) - (a.moniker?.moniker?.length ?? 0)
-    )[0]?.moniker?.moniker?.length ?? 0
-
-  longestMonikerWord += 5
-
-  return data
-    .map((d) => {
-      return `\`${d.moniker?.moniker}${" ".repeat(
-        longestMonikerWord - (d.moniker?.moniker?.length ?? 0)
-      )}\` ${roundFloatNumber(d.moniker?.amount ?? 0, 4)} ${
-        d.moniker?.token?.token_symbol ?? ""
-      } (${APPROX} $${d.value ?? 0})`
-    })
-    .join("\n")
-}
+import { emojis, getEmoji, getEmojiURL, paginate } from "utils/common"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import { APPROX } from "utils/constants"
+import { formatDigit } from "utils/defi"
+import { getSlashCommand } from "utils/commands"
 
 export async function handleMonikerList(
   guildId: string,
@@ -38,13 +13,13 @@ export async function handleMonikerList(
 ) {
   const {
     ok: defaultMonikerOk,
-    data: defaultMonikers,
+    data: _defaultMonikers,
     log: defaultLog,
     curl: defaultCurl,
   } = await config.getDefaultMoniker()
   const {
     ok: guildMonikerOk,
-    data: guildMonikers,
+    data: _guildMonikers,
     log: guildLog,
     curl: guildCurl,
   } = await config.getMonikerConfig(guildId)
@@ -55,30 +30,87 @@ export async function handleMonikerList(
     throw new APIError({ description: defaultLog, curl: defaultCurl })
   }
 
-  const defaultList = toList(defaultMonikers)
+  const defaultMonikers = _defaultMonikers.sort(
+    (a, b) => (b.value ?? 0) - (a.value ?? 0)
+  )
+  const defaultList = formatDataTable(
+    [
+      defaultMonikers.map((m) => m.moniker?.moniker ?? ""),
+      defaultMonikers.map(
+        (m) =>
+          `${formatDigit({
+            value: String(m.moniker?.amount ?? 0),
+            fractionDigits: 4,
+          })} ${m.moniker?.token?.token_symbol?.toUpperCase() ?? "TOKEN"}`
+      ),
+      defaultMonikers.map(
+        (m) =>
+          `$${formatDigit({ value: String(m.value ?? 0), fractionDigits: 2 })}`
+      ),
+    ],
+    {
+      separator: ["|", APPROX],
+    }
+  )
   const defaultDescription = defaultList.length
-    ? `**Default**\n${toList(defaultMonikers)}\n`
+    ? `**Default**\n${defaultList}\n`
     : ""
 
+  const guildMonikers = _guildMonikers.sort(
+    (a, b) => (b.value ?? 0) - (a.value ?? 0)
+  )
   let pages = paginate(guildMonikers, 10)
-  pages = pages.map((arr: any, idx: number): MessageEmbed => {
-    const guildList = toList(arr)
-    const description = guildList.length
-      ? `**${guildName}'s monikers**\n${toList(arr)}`
-      : ""
-    const embed = composeEmbedMessage(null, {
-      author: ["Moniker List", getEmojiURL(emojis.MONIKER)],
-      thumbnail: getEmojiURL(emojis.MONIKER),
-      description: `${defaultDescription}${description}\n\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} Set up a new moniker configuration \`${SLASH_PREFIX}moniker set\`\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} Remove a configured moniker \`${SLASH_PREFIX}moniker remove\``,
-      footer: [`Page ${idx + 1} / ${pages.length}`],
+  pages = await Promise.all(
+    pages.map(async (arr: any, idx: number): Promise<MessageEmbed> => {
+      const guildList = formatDataTable(
+        [
+          arr.map((m: any) => m.moniker?.moniker ?? ""),
+          arr.map(
+            (m: any) =>
+              `${formatDigit({
+                value: String(m.moniker?.amount ?? 0),
+                fractionDigits: 4,
+              })} ${m.moniker?.token?.token_symbol?.toUpperCase() ?? "TOKEN"}`
+          ),
+          arr.map(
+            (m: any) =>
+              `$${formatDigit({
+                value: String(m.value ?? 0),
+                fractionDigits: 2,
+              })}`
+          ),
+        ],
+        {
+          separator: ["|", APPROX],
+        }
+      )
+      const description = guildList.length
+        ? `**${guildName}'s monikers**\n${guildList}`
+        : ""
+      const embed = composeEmbedMessage(null, {
+        author: ["Moniker List", getEmojiURL(emojis.MONIKER)],
+        thumbnail: getEmojiURL(emojis.MONIKER),
+        description: `${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Set up a new moniker configuration ${await getSlashCommand(
+          "moniker set"
+        )}\n${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Remove a configured moniker ${await getSlashCommand(
+          "moniker remove"
+        )}`,
+        footer: [`Page ${idx + 1} / ${pages.length}`],
+      })
+
+      embed.addFields({
+        name: "Monikers",
+        value: `${defaultDescription}\n${description}`,
+        inline: false,
+      })
+      return embed
     })
-    return embed
-  })
+  )
   return pages
 }

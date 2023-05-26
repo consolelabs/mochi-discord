@@ -405,7 +405,7 @@ export function formatView(
         ),
       ],
       {
-        separator: APPROX,
+        separator: [APPROX],
         rowAfterFormatter: (formatted, i) =>
           `${formattedBal[i].emoji} ${formatted}`,
       }
