@@ -16,6 +16,7 @@ import { removeDuplications } from "utils/common"
 import { logger } from "logger"
 import { formatDigit } from "utils/defi"
 import CacheManager from "cache/node-cache"
+import mochiTelegram from "./mochi-telegram"
 
 CacheManager.init({
   pool: "profile-data",
@@ -40,11 +41,25 @@ class Profile extends Fetcher {
       return []
     }
 
-    return removeDuplications(
-      dataProfile.associated_accounts.filter((a: any) =>
-        ["twitter", "telegram"].includes(a.platform)
-      )
+    const socials = await Promise.all(
+      dataProfile.associated_accounts
+        .filter((a: any) => ["twitter", "telegram"].includes(a.platform))
+        .map(async (a: any) => {
+          if (a.platform === "telegram") {
+            const res = await mochiTelegram.getById(a.platform_identifier)
+            if (!res.ok) return a
+
+            return {
+              ...a,
+              platform_identifier: res.data.username,
+            }
+          }
+
+          return a
+        })
     )
+
+    return socials
   }
 
   public async getUserWallets(discordId: string) {

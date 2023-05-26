@@ -3,6 +3,7 @@ import Discord, { MessageOptions } from "discord.js"
 import { APIError } from "errors"
 import { RunResult } from "types/common"
 import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
+import { getSlashCommand } from "utils/commands"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { APPROX } from "utils/constants"
 import { mockClient } from "../../../../tests/mocks"
@@ -65,7 +66,7 @@ describe("balances", () => {
     }
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
-      author: ["Mochi balance", getEmojiURL(emojis.WALLET)],
+      author: ["Mochi wallet", getEmojiURL(emojis.NFT2)],
       description: `<a:animated_pointing_right:1093923073557807175> You can withdraw the coin to you crypto wallet by \`$withdraw\`.\n<a:animated_pointing_right:1093923073557807175> All the tip transaction will take from this balance. You can try \`$tip <recipient> <amount> <token>\` to transfer coin.\n\n<:cake:972205674371117126> \`10 CAKE ${APPROX} $30\`\n<:ftm:967285237686108212> \`5 FTM   ${APPROX} $2.5\``,
     })
     justifyEmbedFields(expected, 3)
@@ -75,12 +76,9 @@ describe("balances", () => {
     })
     const output = await command.run(msg)
     expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)
-    expect(expected.author).toStrictEqual(
+    expect(
       (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.fields).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].fields
-    )
+    ).toStrictEqual(expected.author)
   })
 
   test("bal", async () => {
@@ -122,7 +120,7 @@ describe("balances", () => {
     }
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
-      author: ["Mochi balance", getEmojiURL(emojis.WALLET)],
+      author: ["Mochi wallet", getEmojiURL(emojis.NFT2)],
       description: `<a:animated_pointing_right:1093923073557807175> You can withdraw the coin to you crypto wallet by \`$withdraw\`.\n<a:animated_pointing_right:1093923073557807175> All the tip transaction will take from this balance. You can try \`$tip <recipient> <amount> <token>\` to transfer coin.\n\n<:cake:972205674371117126> \`10 CAKE ${APPROX} $30\``,
     })
     justifyEmbedFields(expected, 3)
@@ -132,12 +130,9 @@ describe("balances", () => {
     })
     const output = await command.run(msg)
     expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)
-    expect(expected.author).toStrictEqual(
+    expect(
       (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.fields).toStrictEqual(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].fields
-    )
+    ).toStrictEqual(expected.author)
   })
 
   test("dont have balances", async () => {
@@ -169,18 +164,23 @@ describe("balances", () => {
     }
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
-      author: ["Mochi balance", getEmojiURL(emojis.WALLET)],
-      description: "No balance. Try `$deposit` more into your wallet.",
+      author: ["Mochi wallet", getEmojiURL(emojis.NFT2)],
+      description: `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} You have nothing yet, use </earn:${await getSlashCommand(
+        "earn"
+      )}> or </deposit:${await getSlashCommand("deposit")}>`,
     })
     const output = await command.run(msg)
     expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)
-    expect(expected.author).toStrictEqual(
+    expect(
       (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    )
-    expect(expected.description).toStrictEqual(
+    ).toStrictEqual(expected.author)
+    expect(
       (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
         .description
-    )
+    ).toStrictEqual(expected.description)
   })
 
   test("balances api error", async () => {

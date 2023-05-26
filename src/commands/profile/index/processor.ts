@@ -325,9 +325,9 @@ async function renderSocials(socials: any[]) {
             s.platform_identifier
           }](${TWITTER_USER_URL}/${s.platform_identifier})**`
         } else if (s.platform === "telegram") {
-          return `${getEmoji("TELEGRAM")} **[Telegram](${TELEGRAM_USER_URL}/${
+          return `${getEmoji("TELEGRAM")} **[@${
             s.platform_identifier
-          })**`
+          }](${TELEGRAM_USER_URL}/${s.platform_identifier})**`
         }
       })
     )

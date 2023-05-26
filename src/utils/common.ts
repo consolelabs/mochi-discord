@@ -31,6 +31,7 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
+import CacheManager from "cache/node-cache"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis = {
@@ -738,36 +739,61 @@ async function resolveENSDomain(domain: string) {
   return await providers.eth.resolveName(domain)
 }
 
+CacheManager.init({
+  pool: "naming-service",
+  // 1 week
+  ttl: 604800,
+  checkperiod: 604800,
+})
 export async function resolveNamingServiceDomain(domain: string) {
-  try {
-    if (domain.endsWith(".sol")) {
-      return await resolveSNSDomain(domain)
-    }
-    return await resolveENSDomain(domain)
-  } catch (e) {
-    logger.error(`[resolveNamingServiceDomain] failed: ${e}`)
-    return ""
-  }
+  return await CacheManager.get({
+    pool: "naming-service",
+    key: domain,
+    call: async () => {
+      try {
+        if (domain.endsWith(".sol")) {
+          return await resolveSNSDomain(domain)
+        }
+        return await resolveENSDomain(domain)
+      } catch (e) {
+        logger.error(`[resolveNamingServiceDomain] failed: ${e}`)
+        return ""
+      }
+    },
+  })
 }
 
+CacheManager.init({
+  pool: "naming-service-lookup",
+  // 1 week
+  ttl: 604800,
+  checkperiod: 604800,
+})
 const connection = new Connection(clusterApiUrl("mainnet-beta"))
 export async function reverseLookup(address: string) {
-  const { type } = isAddress(address)
-  try {
-    switch (type) {
-      case "sol": {
-        const domainKey = new PublicKey(address)
-        return await performReverseLookup(connection, domainKey)
-      }
-      case "eth":
-        return (await providers.eth.lookupAddress(address)) || ""
-      default:
+  return await CacheManager.get({
+    pool: "naming-service-lookup",
+    key: address,
+    ttl: 604800,
+    call: async () => {
+      const { type } = isAddress(address)
+      try {
+        switch (type) {
+          case "sol": {
+            const domainKey = new PublicKey(address)
+            return await performReverseLookup(connection, domainKey)
+          }
+          case "eth":
+            return (await providers.eth.lookupAddress(address)) || ""
+          default:
+            return ""
+        }
+      } catch (e) {
+        logger.warn(`[reverseLookup] failed for ${address}: ${e}`)
         return ""
-    }
-  } catch (e) {
-    logger.warn(`[reverseLookup] failed for ${address}: ${e}`)
-    return ""
-  }
+      }
+    },
+  })
 }
 
 export function getAuthor(msgOrInteraction: OriginalMessage) {
