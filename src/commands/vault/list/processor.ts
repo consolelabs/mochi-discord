@@ -8,7 +8,6 @@ import {
   User,
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
-import { APIError } from "errors"
 import {
   authorFilter,
   EmojiKey,
@@ -19,21 +18,37 @@ import {
 import { getSlashCommand } from "utils/commands"
 import { wrapError } from "utils/wrap-error"
 import { runGetVaultDetail } from "../info/processor"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import { ModelVault } from "types/api"
+
+export function formatVaults(vaults: Array<ModelVault & { total?: string }>) {
+  return formatDataTable(
+    [
+      vaults.map(
+        (v) =>
+          `${v.name?.slice(0, 10) ?? ""}${
+            (v.name ?? "").length > 10 ? "..." : ""
+          }`
+      ),
+      vaults.map((v) => shortenHashOrAddress(v.wallet_address ?? "", 3)),
+      vaults.map((v) => `${v.threshold ?? 0}%`),
+      vaults.map((v) => (v.total?.toString() ? `$${v.total.toString()}` : "")),
+    ],
+    {
+      rowAfterFormatter: (f) =>
+        `${getEmoji("ANIMATED_VAULT", true)}${f}${getEmoji("CASH")}`,
+    }
+  )
+}
 
 export async function runVaultList(interaction: CommandInteraction) {
   if (!interaction.guildId) {
     throw new GuildIdNotFoundError({ message: interaction })
   }
 
-  const { data, ok, curl, error, log } = await config.vaultList(
-    interaction.guildId
-  )
-  if (!ok) {
-    throw new APIError({ curl, error, description: log })
-  }
+  const data = await config.vaultList(interaction.guildId)
 
-  if (!data) {
+  if (!data.length) {
     throw new InternalError({
       msgOrInteraction: interaction,
       title: "Empty list vault",
@@ -46,10 +61,6 @@ export async function runVaultList(interaction: CommandInteraction) {
 
   const vaults = data.slice(0, 9)
   let description = ""
-  const longest = vaults.reduce(
-    (acc: number, c: any) => Math.max(acc, c.name.length),
-    0
-  )
 
   description += `${getEmoji(
     "ANIMATED_POINTING_RIGHT",
@@ -58,18 +69,7 @@ export async function runVaultList(interaction: CommandInteraction) {
     "vault info"
   )}>\n\n`
 
-  const lines = []
-  for (let i = 0; i < vaults.length; i++) {
-    lines.push(
-      `${getEmoji(`NUM_${i + 1}` as EmojiKey)}\`${data[i].name} ${" ".repeat(
-        longest - data[i].name.length
-      )} | ${shortenHashOrAddress(data[i].wallet_address, 3)} | ${" ".repeat(
-        3 - data[i].threshold.toString().length
-      )}${data[i].threshold}%\``
-    )
-  }
-
-  description += lines.join("\n")
+  description += formatVaults(data)
 
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("MOCHI_CIRCLE")} Vault List`,

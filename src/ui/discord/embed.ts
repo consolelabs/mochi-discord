@@ -38,6 +38,7 @@ type Alignment = "left" | "center" | "right"
 type Option = {
   rowAfterFormatter: (formatted: string, index: number) => string
   alignment: Alignment[]
+  separator: string
 }
 
 export function formatDataTable(
@@ -48,6 +49,7 @@ export function formatDataTable(
     {
       alignment: [...Array(dataByCol.length - 1).fill("left"), "right"],
       rowAfterFormatter: (str) => str,
+      separator: "|",
     },
     options
   )
@@ -90,7 +92,8 @@ export function formatDataTable(
             break
         }
 
-        row += (colIdx !== 0 ? " | " : "") + `${content}`
+        row +=
+          (colIdx !== 0 ? ` ${resolvedOptions.separator} ` : "") + `${content}`
       }
     }
 

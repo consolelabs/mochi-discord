@@ -25,15 +25,6 @@ CacheManager.init({
 })
 
 class Profile extends Fetcher {
-  public async getUserVaults(profileId: string, guildId: string | null) {
-    return await this.jsonFetch(`${API_BASE_URL}/vault`, {
-      query: {
-        profileId,
-        ...(guildId ? { guildId } : {}),
-      },
-    })
-  }
-
   public async getUserSocials(discordId: string) {
     const dataProfile = await this.getByDiscord(discordId)
     if (dataProfile.err) {

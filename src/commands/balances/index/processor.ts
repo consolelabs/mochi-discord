@@ -9,7 +9,7 @@ import {
   MessageButton,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 import {
   emojis,
@@ -337,15 +337,13 @@ export function formatView(
   }
 ) {
   let totalWorth = 0
-  let longestStrLen = 0
   const isDuplicateSymbol = (s: string) =>
     balances.filter((b: any) => b.token.symbol.toUpperCase() === s).length > 1
   if (view === "compact") {
-    const text = balances
+    const formattedBal = balances
       .map((balance) => {
         const customVal = customProvider?.(balance)
         if (customVal) {
-          longestStrLen = Math.max(longestStrLen, customVal.text.length)
           totalWorth += customVal.usd
           return {
             chain: customVal.chain,
@@ -374,11 +372,16 @@ export function formatView(
         })
         //
         if (tokenVal === 0 || usdVal <= MIN_DUST)
-          return { emoji: "", text: "", usdVal: 0 }
+          return {
+            emoji: "",
+            text: "",
+            usdVal: 0,
+            usdWorth: 0,
+            chain: { name: "" },
+          }
 
         const text = `${value} ${symbol}`
         totalWorth += usdVal
-        longestStrLen = Math.max(longestStrLen, text.length)
 
         return {
           emoji: getEmojiToken(symbol.toUpperCase() as TokenEmojiKey),
@@ -393,14 +396,20 @@ export function formatView(
       .sort((a, b) => {
         return b.usdVal - a.usdVal
       })
-      .map((e: any) => {
-        if (!e.text) return ""
-        return `${e.emoji} \`${e.text}${" ".repeat(
-          longestStrLen - e.text.length
-        )} ${APPROX} $${e.usdWorth}${e.chain ? ` (${e.chain.name})` : ""}\``
-      })
-      .filter(Boolean)
-      .join("\n")
+      .filter((b) => b.text)
+    const text = formatDataTable(
+      [
+        formattedBal.map((b) => b.text),
+        formattedBal.map(
+          (b) => `$${b.usdWorth}${b.chain ? ` (${b.chain.name})` : ""}`
+        ),
+      ],
+      {
+        separator: APPROX,
+        rowAfterFormatter: (formatted, i) =>
+          `${formattedBal[i].emoji} ${formatted}`,
+      }
+    )
     return { totalWorth, text }
   } else {
     const fields: EmbedFieldData[] = balances

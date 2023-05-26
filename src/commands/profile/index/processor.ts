@@ -40,6 +40,8 @@ import {
 } from "commands/balances/index/processor"
 import { formatDigit } from "utils/defi"
 import { runGetVaultDetail } from "commands/vault/info/processor"
+import config from "adapters/config"
+import { formatVaults } from "commands/vault/list/processor"
 
 async function renderListWallet(
   emoji: string,
@@ -76,24 +78,6 @@ const suffixes = new Map([
   ["other", "th"],
 ])
 
-function renderVaults(
-  vaults: { name: string; total?: number; threshold: number }[]
-) {
-  return formatDataTable(
-    [
-      vaults.map(
-        (v) => `${v.name.slice(0, 24)}${v.name.length > 24 ? "..." : ""}`
-      ),
-      vaults.map((v) => v.threshold.toString()),
-      vaults.map((v) => (v.total?.toString() ? `$${v.total.toString()}` : "")),
-    ],
-    {
-      rowAfterFormatter: (formatted) =>
-        `${getEmoji("ANIMATED_VAULT", true)}${formatted}${getEmoji("CASH")}`,
-    }
-  )
-}
-
 async function compose(
   msg: OriginalMessage,
   member: GuildMember,
@@ -102,7 +86,7 @@ async function compose(
   const [podProfileRes, vaultsRes, walletsRes, socials, balances] =
     await Promise.all([
       profile.getUserProfile(msg.guildId ?? "", member.user.id),
-      profile.getUserVaults(dataProfile.id, msg.guildId),
+      config.vaultList(msg.guildId ?? "", false, dataProfile.id),
       profile.getUserWallets(member.id),
       profile.getUserSocials(member.id),
       getBalances(
@@ -123,22 +107,7 @@ async function compose(
   }
   const userProfile = podProfileRes.data
 
-  let vaults = []
-  if (vaultsRes.ok) {
-    vaults = vaultsRes.data as any[]
-  }
-  vaults = vaults.slice(0, 5)
-  vaults = vaults.map((v) => {
-    const allTotals = Object.keys(v).filter((k) => k.startsWith("total_amount"))
-
-    return {
-      ...v,
-      total: formatDigit({
-        value: String(allTotals.reduce((acc, c) => (acc += Number(v[c])), 0)),
-        fractionDigits: 2,
-      }),
-    }
-  })
+  const vaults = vaultsRes.slice(0, 5)
 
   const { onchainTotal, mochiWallets, wallets: _wallets, pnl } = walletsRes
   const wallets = _wallets.slice(0, 10)
@@ -197,7 +166,7 @@ async function compose(
       ? [
           {
             name: "Vaults",
-            value: renderVaults(vaults),
+            value: formatVaults(vaults),
             inline: false,
           },
         ]
