@@ -39,6 +39,7 @@ const command: SlashCommand = {
     const address = interaction.options.getString("address", true)
 
     return await renderBalances(
+      // TODO: this id currently is wrong
       interaction.user.id,
       interaction,
       BalanceType.Onchain,

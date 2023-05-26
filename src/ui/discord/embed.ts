@@ -111,7 +111,7 @@ export function composeEmbedMessage(
         text: getEmbedFooter(
           authorTag ? [...footer, authorTag] : [...footer, "Mochi bot"]
         ),
-        iconURL: authorAvatarURL || undefined,
+        iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
       })
       .setTimestamp(timestamp ?? new Date())
   }
@@ -201,7 +201,7 @@ export function composeEmbedMessage2(
         text: getEmbedFooter(
           authorTag ? [...footer, authorTag] : footer ?? ["Mochi bot"]
         ),
-        iconURL: authorAvatarURL || undefined,
+        iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
       })
       .setTimestamp(timestamp ?? new Date())
   }

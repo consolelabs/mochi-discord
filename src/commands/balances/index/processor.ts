@@ -530,6 +530,7 @@ async function switchView(
       inline: false,
     })
   } else {
+    console.log(discordId, props.address)
     const value = await renderWallets({
       mochiWallets: {
         data: [],
@@ -576,16 +577,7 @@ export async function renderBalances(
 
   return {
     messageOptions: {
-      embeds: [
-        await switchView(
-          view,
-          props,
-          balances,
-          txns,
-          msg.member?.user.id ?? "",
-          type
-        ),
-      ],
+      embeds: [await switchView(view, props, balances, txns, discordId, type)],
       components: [
         new MessageActionRow().addComponents(
           new MessageButton()

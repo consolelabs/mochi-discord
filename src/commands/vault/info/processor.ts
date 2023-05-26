@@ -141,17 +141,23 @@ function formatCurrentRequest(request: any) {
 function formatRecentTransaction(tx: any) {
   const date = new Date(tx.date)
   const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
-  const address =
-    tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
+  const amount = ["+", "-"].includes(tx.amount.split("")[0])
+    ? tx.amount.slice(1)
+    : tx.amount
+  const token = tx.token.length <= 5 ? tx.token : "token"
+  const tokenEmoji = getEmojiToken(token)
+  // const address =
+  //   tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
   switch (tx.action) {
     case "Sent":
-      return `${t} ${getEmoji("SHARE")} Sent to ${shortenHashOrAddress(
-        tx.target
-      )} ${tx.amount} ${tx.token}\n`
+      return `${t} ${getEmoji(
+        "SHARE"
+      )} Sent \`${amount} ${token}\` ${tokenEmoji}\n`
     case "Received":
-      return `${t} ${getEmoji("ANIMATED_MONEY", true)} Received \`${
-        tx.amount
-      } ${tx.token}\` ${getEmojiToken(tx.token)}\n`
+      return `${t} ${getEmoji(
+        "ANIMATED_MONEY",
+        true
+      )} Received \`${amount} ${token}\` ${tokenEmoji}\n`
     case "Add":
       return `${t} ${getEmoji("TREASURER_ADD")} Add <@${
         tx.target
@@ -166,9 +172,9 @@ function formatRecentTransaction(tx: any) {
         true
       )} Set the threshold to ${tx.threshold}% for vault\n`
     case "Transfer":
-      return `${t} ${getEmoji("SHARE")} Sent to ${address} ${tx.amount} ${
-        tx.token
-      }\n`
+      return `${t} ${getEmoji(
+        "SHARE"
+      )} Sent to \`${amount} ${token}\` ${tokenEmoji}\n`
   }
 }
 

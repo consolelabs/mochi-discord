@@ -372,6 +372,7 @@ export async function renderWallets({
 function collectSelection(
   reply: Message,
   author: User,
+  targetId: string,
   originalMsg: OriginalMessage,
   components: any
 ) {
@@ -400,7 +401,7 @@ function collectSelection(
         } else {
           const address = addressOrVaultName
           ;({ messageOptions } = await renderBalances(
-            author.id,
+            targetId,
             originalMsg,
             isMochi ? BalanceType.Offchain : BalanceType.Onchain,
             address
@@ -521,6 +522,7 @@ export async function render(
   collectSelection(
     reply as Message,
     author as User,
+    member.user.id,
     msg,
     replyPayload.components
   )
