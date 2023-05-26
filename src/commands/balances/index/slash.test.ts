@@ -45,14 +45,14 @@ describe("balances", () => {
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
-      )} You can withdraw using </withdraw:${await getSlashCommand(
+      )} You can withdraw using ${await getSlashCommand(
         "withdraw"
-      )}>.\n${getEmoji(
+      )}.\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
-      )} You can send tokens to other using </tip:${await getSlashCommand(
+      )} You can send tokens to other using ${await getSlashCommand(
         "tip"
-      )}>.\n\n<:cake:972205674371117126> \`10 CAKE ≈ $30\`\n<:ftm:967285237686108212> \`5 FTM   ≈ $2.5\``,
+      )}.\n\n<:cake:972205674371117126> \`10 CAKE ≈ $30\`\n<:ftm:967285237686108212> \`5 FTM   ≈ $2.5\``,
     })
     justifyEmbedFields(expected, 3)
     expected.addFields({
@@ -81,9 +81,9 @@ describe("balances", () => {
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
-      )} You have nothing yet, use </earn:${await getSlashCommand(
+      )} You have nothing yet, use ${await getSlashCommand(
         "earn"
-      )}> or </deposit:${await getSlashCommand("deposit")}>`,
+      )} or ${await getSlashCommand("deposit")}`,
     })
     const output = await balCmd.run(i)
     expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)

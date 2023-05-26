@@ -168,9 +168,9 @@ describe("balances", () => {
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
-      )} You have nothing yet, use </earn:${await getSlashCommand(
+      )} You have nothing yet, use ${await getSlashCommand(
         "earn"
-      )}> or </deposit:${await getSlashCommand("deposit")}>`,
+      )} or ${await getSlashCommand("deposit")}`,
     })
     const output = await command.run(msg)
     expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)

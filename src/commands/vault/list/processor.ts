@@ -65,9 +65,7 @@ export async function runVaultList(interaction: CommandInteraction) {
   description += `${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} View detail of the vault </vault info:${await getSlashCommand(
-    "vault info"
-  )}>\n\n`
+  )} View detail of the vault ${await getSlashCommand("vault info")}\n\n`
 
   description += formatVaults(data)
 

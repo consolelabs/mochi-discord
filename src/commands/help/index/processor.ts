@@ -439,16 +439,16 @@ export async function buildHelpInterface(
       {
         name: "\u200b\nGetting Started",
         value: [
-          `<:_:1110865581617463346> </profile:${await getSlashCommand(
+          `<:_:1110865581617463346> ${await getSlashCommand(
             "profile"
-          )}> build up your profile`,
-          `<:_:1093577916434104350> </earn:${await getSlashCommand(
+          )} build up your profile`,
+          `<:_:1093577916434104350> ${await getSlashCommand(
             "earn"
-          )}> like a chad`,
+          )} like a chad`,
           `<a:_:854902183714619412> follow and copy top alphas`,
-          `<a:_:902558994437144646> </watchlist view:${await getSlashCommand(
+          `<a:_:902558994437144646> ${await getSlashCommand(
             "watchlist view"
-          )}> track your favorite tokens`,
+          )} track your favorite tokens`,
         ].join("\n"),
         inline: false,
       },
@@ -456,21 +456,18 @@ export async function buildHelpInterface(
         name: "For CM",
         value: [
           `<:_:850050324135673937> drive growth and engagement`,
-          `<:_:885513214538952765> </quest daily:${await getSlashCommand(
+          `<:_:885513214538952765> ${await getSlashCommand(
             "quest daily"
-          )}> engage your holders`,
-          `${getEmoji(
-            "ANIMATED_OPEN_VAULT",
-            true
-          )} </vault list:${await getSlashCommand(
+          )} engage your holders`,
+          `${getEmoji("ANIMATED_OPEN_VAULT", true)} ${await getSlashCommand(
             "vault list"
-          )}> manage DAO treasuries`,
-          `<:_:1093575214228574390> </nftrole set:${await getSlashCommand(
+          )} manage DAO treasuries`,
+          `<:_:1093575214228574390> ${await getSlashCommand(
             "nftrole set"
-          )}> setup gated channels`,
-          `<a:_:907658084296560721> </sales list:${await getSlashCommand(
+          )} setup gated channels`,
+          `<a:_:907658084296560721> ${await getSlashCommand(
             "sales list"
-          )}> buy/sell report`,
+          )} buy/sell report`,
         ].join("\n"),
         inline: false,
       },
@@ -504,7 +501,7 @@ export async function buildHelpInterface(
             groupCommands.commands.map(async (c) => {
               return `${c.emoji} ${
                 c.type === "slash"
-                  ? `</${c.name ?? c.value}:${await getSlashCommand(c.value)}>`
+                  ? `${await getSlashCommand(c.value)}`
                   : `[\`$${c.value}\`](${HOMEPAGE_URL})`
               }: ${c.description}`
             })

@@ -38,10 +38,10 @@ export async function runCreateVault({
   }%\`\n\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} See all vaults </vault list:${await getSlashCommand("vault")}>\n${getEmoji(
+  )} See all vaults ${await getSlashCommand("vault list")}\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} See a vault detail </vault info:${await getSlashCommand("vault")}>`
+  )} See a vault detail ${await getSlashCommand("vault info")}`
 
   const embed = new MessageEmbed()
     .setTitle(

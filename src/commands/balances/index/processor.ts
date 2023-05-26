@@ -56,14 +56,10 @@ const balanceEmbedProps: Record<
     description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true
-    )} You can withdraw using </withdraw:${await getSlashCommand(
-      "withdraw"
-    )}>.\n${getEmoji(
+    )} You can withdraw using ${await getSlashCommand("withdraw")}.\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true
-    )} You can send tokens to other using </tip:${await getSlashCommand(
-      "tip"
-    )}>.`,
+    )} You can send tokens to other using ${await getSlashCommand("tip")}.`,
   }),
   [BalanceType.Onchain]: async (discordId, _, addressOrAlias, message) => {
     const {
@@ -105,14 +101,12 @@ const balanceEmbedProps: Record<
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
-      )} You can withdraw using </withdraw:${await getSlashCommand(
+      )} You can withdraw using ${await getSlashCommand(
         "withdraw"
-      )}>.\n${getEmoji(
+      )}.\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
-      )} You can send tokens to other using </tip:${await getSlashCommand(
-        "tip"
-      )}>.`,
+      )} You can send tokens to other using ${await getSlashCommand("tip")}.`,
     }
   },
 }
@@ -477,9 +471,9 @@ async function switchView(
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
-      )} You have nothing yet, use </earn:${await getSlashCommand(
+      )} You have nothing yet, use ${await getSlashCommand(
         "earn"
-      )}> or </deposit:${await getSlashCommand("deposit")}>`
+      )} or ${await getSlashCommand("deposit")}`
     totalWorth = _totalWorth
     embed.setDescription(`${_text ? `${props.description}\n\n` : ""}${text}`)
   } else {

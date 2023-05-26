@@ -474,9 +474,9 @@ export async function getCommandSuggestion(
         "Mochi is moving to slash commands!",
         getEmojiURL(emojis.MOCHI_CIRCLE),
       ],
-      description: `Your command was moved to </${userInput}:${await getSlashCommand(
+      description: `Your command was moved to ${await getSlashCommand(
         userInput
-      )}>\n${getEmoji(
+      )}\n${getEmoji(
         "ANIMATED_POINTING_RIGHT"
       )} All existing commands are being migrated to their slash version, Mochi team appreciates for your understanding.`,
     }
