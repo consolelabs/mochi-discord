@@ -52,7 +52,7 @@ describe("balances", () => {
         true
       )} You can send tokens to other using ${await getSlashCommand(
         "tip"
-      )}.\n\n<:cake:972205674371117126> \`10 CAKE ≈ $30\`\n<:ftm:967285237686108212> \`5 FTM   ≈ $2.5\``,
+      )}.\n\n<:cake:972205674371117126> \`10 CAKE ≈  $30\`\n<:ftm:967285237686108212> \`5 FTM   ≈ $2.5\``,
     })
     justifyEmbedFields(expected, 3)
     expected.addFields({
