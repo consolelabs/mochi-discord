@@ -130,7 +130,14 @@ async function compose(
       profile.getUserVaults(dataProfile.id, msg.guildId),
       profile.getUserWallets(member.id),
       profile.getUserSocials(member.id),
-      getBalances(dataProfile.id, BalanceType.Offchain, msg, "", ""),
+      getBalances(
+        dataProfile.id,
+        member.user.id,
+        BalanceType.Offchain,
+        msg,
+        "",
+        ""
+      ),
     ])
   if (!podProfileRes.ok) {
     throw new APIError({

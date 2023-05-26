@@ -133,18 +133,14 @@ const balancesFetcher: Record<
 
 export async function getBalances(
   profileId: string,
+  discordId: string,
   type: BalanceType,
   msg: OriginalMessage,
   address: string,
   addressType: string
 ) {
   const fetcher = balancesFetcher[type]
-  const res = await fetcher(
-    profileId,
-    msg.member?.user.id ?? "",
-    address,
-    addressType
-  )
+  const res = await fetcher(profileId, discordId, address, addressType)
   if (!res.ok) {
     throw new APIError({
       msgOrInteraction: msg,
@@ -183,18 +179,14 @@ const txnsFetcher: Record<
 
 async function getTxns(
   profileId: string,
+  discordId: string,
   type: BalanceType,
   msg: OriginalMessage,
   address: string,
   addressType: string
 ) {
   const fetcher = txnsFetcher[type]
-  const res = await fetcher(
-    profileId,
-    msg.member?.user.id ?? "",
-    address,
-    addressType
-  )
+  const res = await fetcher(profileId, discordId, address, addressType)
   if (!res.ok) {
     throw new APIError({
       msgOrInteraction: msg,
@@ -570,8 +562,22 @@ export async function renderBalances(
     )) ?? {}
 
   const [balances, txns] = await Promise.all([
-    getBalances(profileId, type, msg, resolvedAddress, addressType ?? "eth"),
-    getTxns(profileId, type, msg, resolvedAddress, addressType ?? "eth"),
+    getBalances(
+      profileId,
+      discordId,
+      type,
+      msg,
+      resolvedAddress,
+      addressType ?? "eth"
+    ),
+    getTxns(
+      profileId,
+      discordId,
+      type,
+      msg,
+      resolvedAddress,
+      addressType ?? "eth"
+    ),
   ])
 
   return {
