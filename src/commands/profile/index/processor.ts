@@ -294,7 +294,9 @@ async function compose(
           .setLabel(`${wallets.length ? "Add" : "Connect"} Wallet`)
           .setEmoji(getEmoji("WALLET_1"))
           .setStyle("SECONDARY")
-          .setCustomId("profiel_connect-wallet"),
+          .setCustomId("profiel_connect-wallet")
+      ),
+      new MessageActionRow().addComponents(
         new MessageButton()
           .setStyle("SECONDARY")
           .setEmoji(getEmojiToken("BNB"))
