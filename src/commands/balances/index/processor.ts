@@ -530,7 +530,6 @@ async function switchView(
       inline: false,
     })
   } else {
-    console.log(discordId, props.address)
     const value = await renderWallets({
       mochiWallets: {
         data: [],
