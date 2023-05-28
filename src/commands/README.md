@@ -5,15 +5,15 @@
 Whenever you create a new command or fine-tune existing ones, some rules must apply:
 
 - Every embed should use `author` and not the `title` property
-- Every command ouput except for help messages or error messages must include a header
 - Body must be an embed message
 - Wrap callbacks in `wrapError`
+- Use `composeEmbedMessage()` instead of `new MessageEmbed()`
 
 ![overview](../../assets/images/components.png)
 
 ### Section
 
-A section = header + subheader (if any) + content, for content rendering, please use `formatDataTable()` to do this
+A section = header + subheader (if any) + content, for content rendering, please use `formatDataTable()`
 
 ### Footer
 
@@ -31,7 +31,7 @@ A section = header + subheader (if any) + content, for content rendering, please
 
   E.g. /profile -> view wallet -> back to /profile
 
-![description](../../assets/images/dropdown.png)
+![dropdown](../../assets/images/dropdown.png)
 
 ## Success/Error
 
