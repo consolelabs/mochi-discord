@@ -13,7 +13,7 @@ Whenever you create a new command or fine-tune existing ones, some rules must ap
 
 ### Section
 
-A section = header + subheader (if any) + content, use `composeSection()` to do this
+A section = header + subheader (if any) + content, for content rendering, please use `formatDataTable()` to do this
 
 ### Footer
 
