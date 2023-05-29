@@ -272,16 +272,13 @@ export async function render(
 
   const routes = await aggregateTradeRoute(routeSummary)
 
-  const fromAmountFormatted = utils.commify(
-    formatDigit({
-      value: utils.formatUnits(routeSummary.amountIn, tokenIn.decimals),
-    })
-  )
-  const toAmountFormatted = utils.commify(
-    formatDigit({
-      value: utils.formatUnits(routeSummary.amountOut, tokenOut.decimals),
-    })
-  )
+  const fromAmountFormatted = formatDigit({
+    value: utils.formatUnits(routeSummary.amountIn, tokenIn.decimals),
+  })
+
+  const toAmountFormatted = formatDigit({
+    value: utils.formatUnits(routeSummary.amountOut, tokenOut.decimals),
+  })
 
   const fromEmo = getEmojiToken(from, false)
   const toEmo = getEmojiToken(to, false)
@@ -338,9 +335,9 @@ export async function render(
   embed.addFields([
     {
       name: "From",
-      value: `${fromEmo} ${fromAmountFormatted} ${from} \n\`$${utils.commify(
-        formatDigit({ value: routeSummary.amountInUsd })
-      )}\``,
+      value: `${fromEmo} ${fromAmountFormatted} ${from} \n\`$${formatDigit({
+        value: routeSummary.amountInUsd,
+      })}\``,
       inline: true,
     },
     {
@@ -350,17 +347,15 @@ export async function render(
     },
     {
       name: "To",
-      value: `${toEmo} ${toAmountFormatted} ${to}\n\`$${utils.commify(
-        formatDigit({ value: routeSummary.amountOutUsd })
-      )}\``,
+      value: `${toEmo} ${toAmountFormatted} ${to}\n\`$${formatDigit({
+        value: routeSummary.amountOutUsd,
+      })}\``,
       inline: true,
     },
     {
       name: "Gas Fee",
       value: routeSummary.gasUsd
-        ? `${APPROX} \`$${utils.commify(
-            formatDigit({ value: routeSummary.gasUsd })
-          )}\``
+        ? `${APPROX} \`$${formatDigit({ value: routeSummary.gasUsd })}\``
         : "Unknown",
       inline: true,
     },
