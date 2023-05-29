@@ -179,7 +179,7 @@ async function composeCollectionTickerEmbed({
         ? getEmoji("ANIMATED_CHART_INCREASE", true)
         : change === 0
         ? ""
-        : getEmoji("DECREASING")
+        : getEmoji("ANIMATED_CHART_DECREASE", true)
     return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
   }
 

@@ -343,8 +343,12 @@ function handleCommandInteraction(interaction: Interaction) {
         select,
         onDefaultSet,
         render,
+        title,
+        description,
       } = response
       const multipleEmbed = getMultipleResultEmbed({
+        title,
+        description,
         ambiguousResultText,
         multipleResultText,
       })

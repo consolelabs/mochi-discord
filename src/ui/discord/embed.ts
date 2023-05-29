@@ -138,17 +138,25 @@ export const EMPTY_FIELD = {
 }
 
 export function getMultipleResultEmbed({
+  title = `${getEmoji("MAG")} Multiple results found`,
+  description,
   ambiguousResultText,
   multipleResultText,
 }: {
+  title?: string
+  description?: string
   ambiguousResultText: string
   multipleResultText: string
 }) {
   return composeEmbedMessage(null, {
-    title: `${getEmoji("MAG")} Multiple results found`,
-    description: `Relevant results found for \`${ambiguousResultText}\`${
-      multipleResultText ? `: ${multipleResultText}` : ""
-    }.\nPlease select one of the following`,
+    title,
+    description:
+      description ||
+      `Relevant results found for \`${ambiguousResultText}\`${
+        multipleResultText
+          ? `, select one of the following:\n${multipleResultText}`
+          : ""
+      }`,
   })
 }
 

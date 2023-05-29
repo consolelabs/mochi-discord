@@ -19,9 +19,16 @@ import { RectangleStats } from "types/canvas"
 import { renderChartImage } from "ui/canvas/chart"
 import { getChartColorConfig } from "ui/canvas/color"
 import { drawRectangle } from "ui/canvas/draw"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
-import { getAuthor, getChance, getEmoji, roundFloatNumber } from "utils/common"
+import {
+  EmojiKey,
+  getAuthor,
+  getChance,
+  getEmoji,
+  roundFloatNumber,
+} from "utils/common"
+import { formatDigit } from "utils/defi"
 import config from "../../../adapters/config"
 import { getDefaultSetter } from "../../../utils/default-setters"
 
@@ -110,10 +117,10 @@ export async function renderHistoricalMarketChart({
 const getChangePercentage = (change: number) => {
   const trend =
     change > 0
-      ? getEmoji("ANIMATED_CHART_INCREASE", true)
+      ? getEmoji("ARROW_UP")
       : change === 0
       ? ""
-      : getEmoji("DECREASING")
+      : getEmoji("ARROW_DOWN")
   return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
 }
 
@@ -172,55 +179,53 @@ export async function composeTickerResponse({
     price_change_percentage_7d_in_currency,
   } = coin.market_data
   const current = isDominanceChart
-    ? `${roundFloatNumber(
-        (market_cap[currency] * 100) / total_market_cap[currency],
-        4
-      )}%`
-    : `$${roundFloatNumber(current_price[currency], 4)}`
+    ? `${formatDigit({
+        value: String(
+          (market_cap[currency] * 100) / total_market_cap[currency]
+        ),
+        fractionDigits: 2,
+      })}%`
+    : `$${formatDigit({
+        value: String(current_price[currency]),
+        fractionDigits: 2,
+      })}`
   const marketCap = +market_cap[currency]
-  const blank = getEmoji("BLANK")
   const bb = getChance(20)
   const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
     footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
-    ...(bb && { description: "Give credit to Tsuki Bot for the idea." }),
   }).addFields([
     {
-      name: `Market cap (${currency.toUpperCase()})`,
-      value: `$${marketCap.toLocaleString()} (#${
-        coin.market_cap_rank
-      }) ${blank}`,
+      name: `${getEmoji("CHART")} Market cap`,
+      value: `$${marketCap.toLocaleString()} (#${coin.market_cap_rank})`,
       inline: true,
     },
     {
       name: `${
-        isDominanceChart
-          ? "Market cap (%)"
-          : `Price (${currency.toUpperCase()})`
+        isDominanceChart ? "Market cap (%)" : `${getEmoji("CASH")} Price`
       }`,
       value: current,
       inline: true,
     },
     {
-      name: "Platform",
+      name: "Chain",
       value: (coin.asset_platform_id || "N/A").toUpperCase(),
       inline: true,
     },
-    // { name: "\u200B", value: "\u200B", inline: true },
     {
-      name: "Change (1h)",
+      name: "Change (H1)",
       value: getChangePercentage(price_change_percentage_1h_in_currency.usd),
       inline: true,
     },
     {
-      name: `Change (24h) ${blank}`,
+      name: `Change (D1)`,
       value: getChangePercentage(price_change_percentage_24h_in_currency.usd),
       inline: true,
     },
     {
-      name: "Change (7d)",
+      name: "Change (W1)",
       value: getChangePercentage(price_change_percentage_7d_in_currency.usd),
       inline: true,
     },
@@ -286,7 +291,6 @@ export const handler =
     const [embed] = message.embeds
     await message.removeAttachments()
     embed.setImage("attachment://chart.png")
-    if (bb) embed.setDescription("Give credit to Tsuki Bot for the idea.")
 
     const selectMenu = message.components[0].components[0] as MessageSelectMenu
     const choices = getChoices(isDominanceChart)
@@ -328,26 +332,45 @@ export function buildSwitchViewActionRow(
   const { coinId, days, symbol, discordId, isDominanceChart } = params
   const tickerBtn = new MessageButton({
     label: "Ticker",
-    emoji: getEmoji("ANIMATED_CHART_INCREASE", true),
+    emoji: getEmoji("ANIMATED_DIAMOND", true),
     customId: `ticker_view_chart|${coinId}|${days}|${symbol}|${isDominanceChart}|${discordId}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const infoBtn = new MessageButton({
     label: "Info",
-    emoji: getEmoji("MAG"),
+    emoji: getEmoji("LEAF"),
     customId: `ticker_view_info|${coinId}|${days}|${symbol}|${isDominanceChart}|${discordId}`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
   const wlAddBtn = new MessageButton({
-    label: `${added ? "Added" : "Add"} to Watchlist`,
-    emoji: added ? getEmoji("CHECK") : getEmoji("LIKE"),
+    label: "\u200b",
+    emoji: added
+      ? getEmoji("ANIMATED_STAR", true)
+      : getEmoji("ANIMATED_STAR_GREYSCALE", true),
     customId: `ticker_add_wl|${coinId}|${symbol}`,
     style: "SECONDARY",
-    disabled: added,
   })
-  return new MessageActionRow().addComponents([tickerBtn, infoBtn, wlAddBtn])
+  const swapBtn = new MessageButton({
+    label: "Swap",
+    emoji: getEmoji("SWAP_ROUTE"),
+    customId: "swap",
+    style: "SECONDARY",
+  })
+  const addAlertBtn = new MessageButton({
+    label: "Alert",
+    emoji: getEmoji("BELL"),
+    customId: "price_alert",
+    style: "SECONDARY",
+  })
+  return new MessageActionRow().addComponents([
+    tickerBtn,
+    swapBtn,
+    infoBtn,
+    addAlertBtn,
+    wlAddBtn,
+  ])
 }
 
 export async function handleTickerViews(interaction: ButtonInteraction) {
@@ -545,13 +568,14 @@ export async function ticker(
   // else render embed to show multiple results
   return {
     select: {
-      options: Object.values(coins).map((coin: any) => {
+      options: Object.values(coins).map((coin: any, i: number) => {
         return {
-          label: `${coin.name} (${coin.symbol.toUpperCase()})`,
+          emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+          label: `💎 ${coin.name} (${coin.symbol.toUpperCase()})`,
           value: `${coin.id}_${coin.symbol}_${coin.name}`,
         }
       }),
-      placeholder: "Select a token",
+      placeholder: "💎 Select a token",
     },
     onDefaultSet: async (i: ButtonInteraction) => {
       const [coinId, symbol, name] = i.customId.split("_")
@@ -586,9 +610,18 @@ export async function ticker(
         chain,
       })
     },
+    title: `${getEmoji("ANIMATED_COIN_3", true)} Multiple results found`,
+    description: `We're not sure which \`${base.toUpperCase()}\`, select one:\n${formatDataTable(
+      coins.map((c: any) => ({
+        name: c.name,
+        symbol: c.symbol.toUpperCase(),
+      })),
+      {
+        cols: ["name", "symbol"],
+        rowAfterFormatter: (f, i) =>
+          `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
+      }
+    )}`,
     ambiguousResultText: base.toUpperCase(),
-    multipleResultText: Object.values(coins)
-      .map((c: any) => `**${c.name}** (${c.symbol.toUpperCase()})`)
-      .join(", "),
   }
 }
