@@ -45,7 +45,7 @@ type Option<C> = {
 type Data = Record<string, string | number>
 
 export function formatDataTable<DT extends Data>(
-  data: Array<Data extends DT ? DT : Data>,
+  data: Array<DT>,
   options: Option<keyof DT>
 ) {
   if (!data.length || !options.cols.length) return ""
