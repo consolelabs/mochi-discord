@@ -17,6 +17,11 @@ export function formatDigit({
 }) {
   const num = Number(value)
   const s = num.toLocaleString(undefined, { maximumFractionDigits: 18 })
+
+  if (s.includes(",")) {
+    withoutCommas = true
+  }
+
   const [left, right = ""] = s.split(".")
   if (Number(right) === 0 || right === "" || left.length >= 4) {
     return withoutCommas ? left.replaceAll(",", "") : left
