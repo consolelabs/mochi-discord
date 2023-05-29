@@ -34,21 +34,19 @@ export async function handleMonikerList(
     (a, b) => (b.value ?? 0) - (a.value ?? 0)
   )
   const defaultList = formatDataTable(
-    [
-      defaultMonikers.map((m) => m.moniker?.moniker ?? ""),
-      defaultMonikers.map(
-        (m) =>
-          `${formatDigit({
-            value: String(m.moniker?.amount ?? 0),
-            fractionDigits: 4,
-          })} ${m.moniker?.token?.token_symbol?.toUpperCase() ?? "TOKEN"}`
-      ),
-      defaultMonikers.map(
-        (m) =>
-          `$${formatDigit({ value: String(m.value ?? 0), fractionDigits: 2 })}`
-      ),
-    ],
+    defaultMonikers.map((m) => ({
+      value: m.moniker?.moniker ?? "",
+      token: `${formatDigit({
+        value: String(m.moniker?.amount ?? 0),
+        fractionDigits: 4,
+      })} ${m.moniker?.token?.token_symbol?.toUpperCase() ?? "TOKEN"}`,
+      usd: `$${formatDigit({
+        value: String(m.value ?? 0),
+        fractionDigits: 2,
+      })}`,
+    })),
     {
+      cols: ["value", "token", "usd"],
       separator: ["|", APPROX],
     }
   )
@@ -63,24 +61,19 @@ export async function handleMonikerList(
   pages = await Promise.all(
     pages.map(async (arr: any, idx: number): Promise<MessageEmbed> => {
       const guildList = formatDataTable(
-        [
-          arr.map((m: any) => m.moniker?.moniker ?? ""),
-          arr.map(
-            (m: any) =>
-              `${formatDigit({
-                value: String(m.moniker?.amount ?? 0),
-                fractionDigits: 4,
-              })} ${m.moniker?.token?.token_symbol?.toUpperCase() ?? "TOKEN"}`
-          ),
-          arr.map(
-            (m: any) =>
-              `$${formatDigit({
-                value: String(m.value ?? 0),
-                fractionDigits: 2,
-              })}`
-          ),
-        ],
+        arr.map((m: any) => ({
+          value: m.moniker?.moniker ?? "",
+          token: `${formatDigit({
+            value: String(m.moniker?.amount ?? 0),
+            fractionDigits: 4,
+          })} ${m.moniker?.token?.token_symbol?.toUpperCase() ?? "TOKEN"}`,
+          usd: `$${formatDigit({
+            value: String(m.value ?? 0),
+            fractionDigits: 2,
+          })}`,
+        })),
         {
+          cols: ["value", "token", "usd"],
           separator: ["|", APPROX],
         }
       )

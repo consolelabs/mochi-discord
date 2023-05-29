@@ -62,23 +62,14 @@ export async function render(i: CommandInteraction) {
       const sliced = data.deposit.slice(0, 10)
       r(
         formatDataTable(
-          [
-            sliced.map(
-              (s: any) =>
-                `+ ${formatDigit({
-                  value: convertString(
-                    s.amount,
-                    s.token.decimal,
-                    false
-                  ).toString(),
-                  fractionDigits: 4,
-                })} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`
-            ),
-            sliced.map(
-              (s: any) => shortenHashOrAddress(s.from, 4) ?? "Unknown"
-            ),
-          ],
-          { noWrap: true }
+          sliced.map((s: any) => ({
+            left: `+ ${formatDigit({
+              value: convertString(s.amount, s.token.decimal, false).toString(),
+              fractionDigits: 4,
+            })} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
+            right: shortenHashOrAddress(s.from, 4) ?? "Unknown",
+          })),
+          { cols: ["left", "right"], noWrap: true }
         )
       )
     }),
@@ -87,23 +78,14 @@ export async function render(i: CommandInteraction) {
       const sliced = data.withdraw.slice(0, 10)
       r(
         formatDataTable(
-          [
-            sliced.map(
-              (s: any) =>
-                `- ${formatDigit({
-                  value: convertString(
-                    s.amount,
-                    s.token.decimal,
-                    false
-                  ).toString(),
-                  fractionDigits: 4,
-                })} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`
-            ),
-            sliced.map(
-              (s: any) => shortenHashOrAddress(s.address, 4) ?? "Unknown"
-            ),
-          ],
-          { noWrap: true }
+          sliced.map((s: any) => ({
+            left: `- ${formatDigit({
+              value: convertString(s.amount, s.token.decimal, false).toString(),
+              fractionDigits: 4,
+            })} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
+            right: shortenHashOrAddress(s.address, 4) ?? "Unknown",
+          })),
+          { cols: ["left", "right"], noWrap: true }
         )
       )
     }),
@@ -151,8 +133,15 @@ export async function render(i: CommandInteraction) {
       ).then((tipTxs) => {
         resolve(
           formatDataTable(
-            [tipTxs.map((txn) => txn.left), tipTxs.map((txn) => txn.right)],
-            { noWrap: true, alignment: ["left", "left"] }
+            tipTxs.map((txn) => ({
+              left: txn.left,
+              right: txn.right,
+            })),
+            {
+              cols: ["left", "right"],
+              noWrap: true,
+              alignment: ["left", "left"],
+            }
           )
         )
       })

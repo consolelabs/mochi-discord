@@ -23,18 +23,16 @@ import { ModelVault } from "types/api"
 
 export function formatVaults(vaults: Array<ModelVault & { total?: string }>) {
   return formatDataTable(
-    [
-      vaults.map(
-        (v) =>
-          `${v.name?.slice(0, 10) ?? ""}${
-            (v.name ?? "").length > 10 ? "..." : ""
-          }`
-      ),
-      vaults.map((v) => shortenHashOrAddress(v.wallet_address ?? "", 3)),
-      vaults.map((v) => `${v.threshold ?? 0}%`),
-      vaults.map((v) => (v.total?.toString() ? `$${v.total.toString()}` : "")),
-    ],
+    vaults.map((v) => ({
+      name: `${v.name?.slice(0, 10) ?? ""}${
+        (v.name ?? "").length > 10 ? "..." : ""
+      }`,
+      address: shortenHashOrAddress(v.wallet_address ?? "", 3),
+      threshold: `${v.threshold ?? 0}%`,
+      balance: v.total?.toString() ? `$${v.total.toString()}` : "",
+    })),
     {
+      cols: ["name", "address", "threshold", "balance"],
       rowAfterFormatter: (f) =>
         `${getEmoji("ANIMATED_VAULT", true)}${f}${getEmoji("CASH")}`,
     }

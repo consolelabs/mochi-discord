@@ -32,77 +32,95 @@ import {
   roundFloatNumber,
 } from "utils/common"
 import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
+import { zip } from "lodash"
 
 type Alignment = "left" | "center" | "right"
-type Option = {
-  rowAfterFormatter: (formatted: string, index: number) => string
-  alignment: Alignment[]
-  separator: string[]
-  noWrap: boolean
+type Option<C> = {
+  rowAfterFormatter?: (formatted: string, index: number) => string
+  cols: C[]
+  alignment?: Alignment[]
+  separator?: string[]
+  noWrap?: boolean
 }
+type Data = Record<string, string | number>
 
-export function formatDataTable(
-  dataByCol: Array<Array<string | number>>,
-  options: Partial<Option> = {}
+export function formatDataTable<DT extends Data>(
+  data: Array<Data extends DT ? DT : Data>,
+  options: Option<keyof DT>
 ) {
-  const resolvedOptions = Object.assign<Required<Option>, Partial<Option>>(
+  if (!data.length || !options.cols.length) return ""
+  const initialCols = Object.keys(data[0])
+  const resolvedOptions = Object.assign<
+    Required<Option<keyof DT>>,
+    Partial<Option<keyof DT>>
+  >(
     {
-      alignment: [...Array(dataByCol.length - 1).fill("left"), "right"],
+      cols: [],
+      alignment: [...Array(initialCols.length - 1).fill("left"), "right"],
       rowAfterFormatter: (str: string) => str,
-      separator: Array(dataByCol.length).fill("|"),
+      separator: Array(initialCols.length - 1).fill("|"),
       noWrap: false,
     },
     options
   )
-  const lineNo = Math.max(...dataByCol.map((col) => col.length))
-  const longestTextByColumns = Array(dataByCol.length).fill(0)
+  const longestTextByColumns = new Map<keyof DT, number>()
 
   // find the longest text by columns to add proper padding to other cell in the same column
-  for (const [colIdx, col] of dataByCol.entries()) {
-    let longest = 0
+  for (const d of data) {
+    Object.entries(d).forEach((e) => {
+      if (!longestTextByColumns.has(e[0])) {
+        longestTextByColumns.set(e[0], 0)
+      }
 
-    for (const [, content] of col.entries()) {
-      longest = Math.max(longest, String(content).length)
-    }
-
-    longestTextByColumns[colIdx] = longest
+      longestTextByColumns.set(
+        e[0],
+        Math.max(longestTextByColumns.get(e[0]) ?? 0, String(e[1]).length)
+      )
+    })
   }
 
-  const lines = []
-  for (let i = 0; i < lineNo; i++) {
-    let row = ""
+  const lines: string[] = []
+  for (const [i, d] of data.entries()) {
+    let row = []
 
-    for (const [colIdx, col] of dataByCol.entries()) {
-      let content = col[i]
-      if (content || colIdx !== dataByCol.length - 1) {
-        const padding = " ".repeat(
-          longestTextByColumns[colIdx] - String(col[i]).length
-        )
-        const halfPadding = padding.slice(0, longestTextByColumns[colIdx] / 2)
-
-        switch (resolvedOptions.alignment[colIdx]) {
-          case "center":
-            content = `${halfPadding}${content}${halfPadding}`
-            break
-          case "right":
-            content = `${padding}${content}`
-            break
-          case "left":
-          default:
-            content = `${content}${padding}`
-            break
-        }
-
-        row +=
-          (colIdx !== 0
-            ? ` ${resolvedOptions.separator[colIdx - 1] ?? "|"} `
-            : "") + `${content}`
+    for (const [colIdx, col] of resolvedOptions.cols.entries()) {
+      let content = String(d[col] ?? "")
+      if (!content) {
+        row.push(content)
+        continue
       }
+
+      const padding = " ".repeat(
+        Math.max(
+          (longestTextByColumns.get(col) ?? 0) - String(content).length,
+          0
+        )
+      )
+      const halfPadding = padding.slice(0, padding.length / 2)
+
+      switch (resolvedOptions.alignment[colIdx]) {
+        case "center":
+          content = `${halfPadding}${content}${halfPadding}`
+          break
+        case "right":
+          content = `${padding}${content}`
+          break
+        case "left":
+        default:
+          content = `${content}${padding}`
+          break
+      }
+
+      row.push(content)
     }
+
+    row = row.filter(Boolean)
+    row = zip(row, resolvedOptions.separator.slice(0, row.length - 1)).flat()
+    row = row.filter(Boolean)
 
     lines.push(
       resolvedOptions.rowAfterFormatter(
-        `${resolvedOptions.noWrap ? "" : "`"}${row}${
+        `${resolvedOptions.noWrap ? "" : "`"}${row.join(" ")}${
           resolvedOptions.noWrap ? "" : "`"
         }`,
         i

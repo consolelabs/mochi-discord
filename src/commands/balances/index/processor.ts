@@ -247,18 +247,19 @@ async function getTxns(
         (d: any) =>
           d.has_transfer &&
           d.successful &&
-          d.actions.some((a: any) => a.native_transfer || a.name === "Transfer")
+          d.actions?.some(
+            (a: any) => a.native_transfer || a.name === "Transfer"
+          )
       )
       .map((d: any) => {
         const date = d.signed_at
-        const firstAction = d.actions.find(
+        const firstAction = d.actions?.find(
           (a: any) => a.native_transfer || a.name === "Transfer"
         )
-        const action =
-          firstAction.to.toLowerCase() === address.toLowerCase()
-            ? "Received"
-            : "Sent"
+        if (!firstAction) return ""
         const target = firstAction.to
+        const action =
+          target.toLowerCase() === address.toLowerCase() ? "Received" : "Sent"
         const amount = formatDigit({
           value: firstAction.amount,
           fractionDigits: 4,
@@ -273,6 +274,7 @@ async function getTxns(
           token,
         }
       })
+      .filter(Boolean)
       .slice(0, 5)
   }
 }
@@ -392,13 +394,12 @@ export function formatView(
       })
       .filter((b) => b.text)
     const text = formatDataTable(
-      [
-        formattedBal.map((b) => b.text),
-        formattedBal.map(
-          (b) => `$${b.usdWorth}${b.chain ? ` (${b.chain.name})` : ""}`
-        ),
-      ],
+      formattedBal.map((b) => ({
+        balance: `${b.text}${b.chain ? ` (${b.chain.name})` : ""}`,
+        usd: `$${b.usdWorth}`,
+      })),
       {
+        cols: ["balance", "usd"],
         separator: [APPROX],
         rowAfterFormatter: (formatted, i) =>
           `${formattedBal[i].emoji} ${formatted}`,

@@ -56,16 +56,17 @@ async function renderListWallet(
   )
 
   return `${emoji}${title}\n${formatDataTable(
-    [
-      wallets.map((w) => (w.chain || isAddress(w.value).type).toUpperCase()),
-      wallets.map((w, i) => domains[i] || shortenHashOrAddress(w.value)),
-      wallets.map((w) => (w.total?.toString() ? `$${w.total.toString()}` : "")),
-    ],
+    wallets.map((w, i) => ({
+      chain: (w.chain || isAddress(w.value).type).toUpperCase(),
+      address: domains[i] || shortenHashOrAddress(w.value),
+      balance: w.total?.toString() ? `$${w.total.toString()}` : "",
+    })),
     {
+      cols: ["chain", "address", "balance"],
       rowAfterFormatter: (formatted, i) =>
         `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)}${formatted}${
           showCash ? getEmoji("CASH") : ""
-        }`,
+        } `,
     }
   )}`
 }
