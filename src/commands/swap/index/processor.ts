@@ -13,6 +13,7 @@ import {
   getEmojiURL,
   TokenEmojiKey,
   thumbnails,
+  msgColors,
 } from "utils/common"
 import { reply } from "utils/discord"
 import { BigNumber, utils } from "ethers"
@@ -23,6 +24,10 @@ import defi from "adapters/defi"
 import { APIError } from "errors"
 import { formatDigit } from "utils/defi"
 import { dmUser } from "../../../utils/dm"
+import { awaitMessage } from "utils/discord"
+import { composeButtonLink } from "ui/discord/button"
+import { InternalError } from "errors"
+import CacheManager from "cache/node-cache"
 
 const cacheExpireTimeSeconds = 180
 
@@ -258,7 +263,7 @@ export async function handleSwap(i: ButtonInteraction) {
 }
 
 export async function render(
-  i: CommandInteraction,
+  i: CommandInteraction | ButtonInteraction,
   data: {
     routeSummary: RouteSummary
     tokenIn: { decimals: number }
@@ -376,29 +381,207 @@ export async function render(
     })),
   ])
 
+  const msgOptions = {
+    embeds: [embed],
+    components: [
+      new MessageActionRow().addComponents(
+        new MessageButton()
+          .setCustomId(`swap-mochi-wallet_${chainName}`)
+          .setLabel("Swap")
+          .setStyle("PRIMARY"),
+        new MessageButton()
+          .setURL(
+            `https://kyberswap.com/swap/${chainName}/${from.toLowerCase()}-to-${to.toLowerCase()}`
+          )
+          .setLabel("View in web")
+          .setStyle("LINK")
+      ),
+    ],
+  }
   const response = {
-    messageOptions: {
-      embeds: [embed],
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageButton()
-            .setCustomId(`swap-mochi-wallet_${chainName}`)
-            .setLabel("Swap")
-            .setStyle("PRIMARY"),
-          new MessageButton()
-            .setURL(
-              `https://kyberswap.com/swap/${chainName}/${from.toLowerCase()}-to-${to.toLowerCase()}`
-            )
-            .setLabel("View in web")
-            .setStyle("LINK")
-        ),
-      ],
-    },
+    messageOptions: msgOptions,
   }
 
-  const replyMsg = await reply(i, response)
+  let replyMsg
+  if (i.type === "MESSAGE_COMPONENT") {
+    const button = i as ButtonInteraction
+    replyMsg = await dmUser(msgOptions, button.user, null, button)
+    if (!replyMsg) return null
+  } else {
+    replyMsg = await reply(i as CommandInteraction, response)
+  }
 
   if (replyMsg) {
     swapCache.set(`swap-${replyMsg.id}`, data)
   }
+}
+
+export async function viewTickerRouteSwap(i: ButtonInteraction) {
+  if (!i.deferred) i.deferUpdate()
+  const msg = i.message as Message
+  const author = i.user
+  console.log("Handle swap")
+  const [coinId, symbol, chainName, discordId] = i.customId.split("|").slice(1)
+  console.log(coinId)
+  console.log(symbol)
+  console.log(chainName)
+  console.log(discordId)
+  console.log(author.id)
+
+  // send dm ask for from token
+  const dmFromTokenPayload = {
+    embeds: [
+      composeEmbedMessage(null, {
+        author: ["Swap", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+        thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
+        description: `Please enter token you want to swap from`,
+        color: msgColors.MOCHI,
+      }),
+    ],
+  }
+  const dmFromToken = await dmUser(dmFromTokenPayload, author, null, i)
+  if (!dmFromToken) return null
+
+  // redirect to dm if not in DM
+  if (i.guildId) {
+    const replyPayload = {
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Swap tokens", getEmojiURL(emojis.WALLET)],
+          description: `${author}, a swap message has been sent to you. Check your DM!`,
+        }),
+      ],
+      components: [composeButtonLink("See the DM", dmFromToken.url)],
+    }
+    msg ? msg.reply(replyPayload) : i.editReply(replyPayload)
+  }
+
+  // waiting user input from token
+  const timeoutEmbed = getErrorEmbed({
+    title: "Swap cancelled",
+    description:
+      "No input received. You can retry transaction with `/swap <amount> <from token> <to token> <chain>`",
+  })
+
+  const { content: fromToken } = await awaitMessage({
+    authorId: author.id,
+    msg: dmFromToken,
+    timeoutResponse: { embeds: [timeoutEmbed] },
+  })
+
+  // send dm ask for amount
+  const dmAmountPayload = {
+    embeds: [
+      composeEmbedMessage(null, {
+        author: ["Swap", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+        thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
+        description: `Please enter amount you want to swap`,
+        color: msgColors.MOCHI,
+      }),
+    ],
+  }
+  const dmAmount = await dmUser(dmAmountPayload, author, null, i)
+  if (!dmAmount) return null
+
+  // waiting user input amount
+  const { content: amount } = await awaitMessage({
+    authorId: author.id,
+    msg: dmAmount,
+    timeoutResponse: { embeds: [timeoutEmbed] },
+  })
+
+  // get route data
+  const { ok, data } = await defi.getSwapRoute({
+    from: fromToken,
+    to: symbol,
+    amount: String(amount),
+    chain_name: chainName,
+    to_token_id: coinId,
+    from_token_id: await getFromTokenID(i, fromToken, chainName),
+  })
+
+  if (!ok) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      description:
+        "No route data found, we're working on adding them in the future, stay tuned.",
+      emojiUrl: getEmojiURL(emojis.SWAP_ROUTE),
+      color: msgColors.GRAY,
+    })
+  }
+
+  await render(
+    i,
+    data?.data,
+    fromToken.toUpperCase() as TokenEmojiKey,
+    symbol.toUpperCase() as TokenEmojiKey,
+    chainName
+  )
+}
+
+async function getFromTokenID(
+  i: ButtonInteraction,
+  symbol: string,
+  chain: string
+) {
+  const { data: coins } = await CacheManager.get({
+    pool: "ticker",
+    key: `ticker-search-${symbol}`,
+    call: () => defi.searchCoins(symbol, ""),
+  })
+  if (!coins || !coins.length) {
+    throw new InternalError({
+      title: "Unsupported token/fiat",
+      msgOrInteraction: i,
+      description: `**${symbol.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} or Please choose a valid fiat currency.`,
+    })
+  }
+
+  let coinId = ""
+  for (const coin of coins) {
+    const { data: coinDetail, status } = await CacheManager.get({
+      pool: "ticker",
+      key: `ticker-getcoin-${coin.id}`,
+      call: () => defi.getCoin(coin.id, false, ""),
+    })
+    if (status === 404) {
+      throw new InternalError({
+        title: "Unsupported token",
+        msgOrInteraction: i,
+        description: `Token is invalid or hasn't been supported.\n${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} or Please choose a valid fiat currency.`,
+      })
+    }
+    if (coinDetail.asset_platform_id === chain) {
+      coinId = coinDetail.id
+      break
+    }
+  }
+
+  if (coinId === "") {
+    throw new InternalError({
+      title: "Unsupported token",
+      msgOrInteraction: i,
+      description: `Token is invalid or hasn't been supported.\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} or Please choose a valid fiat currency.`,
+    })
+  }
+
+  return coinId
 }
