@@ -623,5 +623,6 @@ export async function ticker(
       }
     )}`,
     ambiguousResultText: base.toUpperCase(),
+    multipleResultText: "",
   }
 }
