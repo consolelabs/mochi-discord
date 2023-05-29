@@ -346,9 +346,7 @@ export function buildSwitchViewActionRow(
   })
   const wlAddBtn = new MessageButton({
     label: "\u200b",
-    emoji: added
-      ? getEmoji("ANIMATED_STAR", true)
-      : getEmoji("ANIMATED_STAR_GREYSCALE", true),
+    emoji: getEmoji("ANIMATED_STAR", true),
     customId: `ticker_add_wl|${coinId}|${symbol}`,
     style: "SECONDARY",
   })
@@ -369,7 +367,7 @@ export function buildSwitchViewActionRow(
     swapBtn,
     infoBtn,
     addAlertBtn,
-    wlAddBtn,
+    ...(added ? [] : [wlAddBtn]),
   ])
 }
 

@@ -413,7 +413,16 @@ function collectButton(reply: Message, author: User) {
           await i.deferUpdate().catch(() => null)
         }
         if (i.customId !== "back" && i.customId.startsWith("profile")) {
-          i.followUp({ content: "WIP!", ephemeral: true })
+          const [, action] = i.customId.split("_")
+          switch (action) {
+            // case "watchlist": {
+            //   await composeSlashTokenWatchlist(i, 0, author.id)
+            //   break
+            // }
+            default:
+              i.followUp({ content: "WIP!", ephemeral: true })
+              break
+          }
         }
       })
     })
