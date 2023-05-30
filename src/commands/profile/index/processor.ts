@@ -44,6 +44,10 @@ import config from "adapters/config"
 import { formatVaults } from "commands/vault/list/processor"
 import CacheManager from "cache/node-cache"
 import { getSlashCommand } from "utils/commands"
+import {
+  render as renderQr,
+  collectSelection as collectSelectionQr,
+} from "commands/qr/index/processor"
 
 async function renderListWallet(
   emoji: string,
@@ -421,14 +425,14 @@ function collectSelection(
     })
 }
 
-function collectButton(reply: Message, author: User) {
+function collectButton(reply: Message, author: User, member: GuildMember) {
   reply
     .createMessageComponentCollector({
       componentType: "BUTTON",
       filter: authorFilter(author.id),
       time: 300000,
     })
-    .on("collect", (i) => {
+    .on("collect", async (i) => {
       wrapError(reply, async () => {
         if (!i.deferred) {
           await i.deferUpdate().catch(() => null)
@@ -446,11 +450,42 @@ function collectButton(reply: Message, author: User) {
           }
         }
       })
+
+      if (i.customId === "profile_qrcodes") {
+        const replyPayload = await renderQr(reply, member)
+        collectSelectionQr(reply as Message, author, replyPayload.components)
+        const edited = (await i.editReply(replyPayload)) as Message
+        edited
+          .createMessageComponentCollector({
+            filter: authorFilter(author.id),
+            componentType: "BUTTON",
+            time: 300000,
+          })
+          .on("collect", async (i) => {
+            wrapError(edited, async () => {
+              if (!i.deferred) {
+                await i.deferUpdate().catch(() => null)
+              }
+              if (i.customId === "back") {
+                i.editReply({
+                  embeds: replyPayload.embeds,
+                  components: replyPayload.components,
+                })
+              }
+            })
+          })
+      }
+
+      if (
+        i.customId !== "back" &&
+        i.customId.startsWith("profile") &&
+        i.customId !== "profile_qrcodes"
+      ) {
+        await i.followUp({ content: "WIP!", ephemeral: true })
+      }
     })
-    .on("end", () => {
-      wrapError(reply, async () => {
-        await reply.edit({ components: [] }).catch(() => null)
-      })
+    .on("end", async () => {
+      await reply.edit({ components: [] }).catch(() => null)
     })
 }
 
@@ -514,5 +549,5 @@ export async function render(
     replyPayload.components
   )
 
-  collectButton(reply as Message, author as User)
+  collectButton(reply as Message, author as User, member as GuildMember)
 }
