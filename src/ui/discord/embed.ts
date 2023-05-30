@@ -48,7 +48,8 @@ export function formatDataTable<DT extends Data>(
   data: Array<DT>,
   options: Option<keyof DT>
 ) {
-  if (!data.length || !options.cols.length) return ""
+  if (!data.length || !options.cols.length) return [[]]
+  const segments = []
   const initialCols = Object.keys(data[0])
   const resolvedOptions = Object.assign<
     Required<Option<keyof DT>>,
@@ -79,16 +80,12 @@ export function formatDataTable<DT extends Data>(
     })
   }
 
-  const lines: string[] = []
+  let lines: string[] = []
   for (const [i, d] of data.entries()) {
     let row = []
 
     for (const [colIdx, col] of resolvedOptions.cols.entries()) {
       let content = String(d[col] ?? "")
-      if (!content) {
-        row.push(content)
-        continue
-      }
 
       const padding = " ".repeat(
         Math.max(
@@ -118,17 +115,27 @@ export function formatDataTable<DT extends Data>(
     row = zip(row, resolvedOptions.separator.slice(0, row.length - 1)).flat()
     row = row.filter(Boolean)
 
-    lines.push(
-      resolvedOptions.rowAfterFormatter(
-        `${resolvedOptions.noWrap ? "" : "`"}${row.join(" ")}${
-          resolvedOptions.noWrap ? "" : "`"
-        }`,
-        i
-      )
+    const line = resolvedOptions.rowAfterFormatter(
+      `${resolvedOptions.noWrap ? "" : "`"}${row.join(" ")}${
+        resolvedOptions.noWrap ? "" : "`"
+      }`,
+      i
     )
+    if ((lines.join("\n") + line).length > 1024) {
+      segments.push([...lines])
+      lines = [line]
+    } else {
+      lines.push(line)
+    }
+
+    if (i === data.length - 1) {
+      segments.push([...lines])
+    }
   }
 
-  return lines.join("\n")
+  console.log(segments)
+  return segments
+  // return lines.join("\n")
 }
 
 export const EMPTY_FIELD = {
