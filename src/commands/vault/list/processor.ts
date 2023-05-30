@@ -8,8 +8,6 @@ import {
   User,
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
-import { MessageEmbed } from "discord.js"
-import { APIError } from "errors"
 import {
   authorFilter,
   EmojiKey,
@@ -20,20 +18,35 @@ import {
 import { getSlashCommand } from "utils/commands"
 import { wrapError } from "utils/wrap-error"
 import { runGetVaultDetail } from "../info/processor"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import { ModelVault } from "types/api"
+
+export function formatVaults(vaults: Array<ModelVault & { total?: string }>) {
+  return formatDataTable(
+    vaults.map((v) => ({
+      name: `${v.name?.slice(0, 10) ?? ""}${
+        (v.name ?? "").length > 10 ? "..." : ""
+      }`,
+      address: shortenHashOrAddress(v.wallet_address ?? "", 3),
+      threshold: `${v.threshold ?? 0}%`,
+      balance: v.total?.toString() ? `$${v.total.toString()}` : "",
+    })),
+    {
+      cols: ["name", "address", "threshold", "balance"],
+      rowAfterFormatter: (f) =>
+        `${getEmoji("ANIMATED_VAULT", true)}${f}${getEmoji("CASH")}`,
+    }
+  )
+}
 
 export async function runVaultList(interaction: CommandInteraction) {
   if (!interaction.guildId) {
     throw new GuildIdNotFoundError({ message: interaction })
   }
 
-  const { data, ok, curl, error, log } = await config.vaultList(
-    interaction.guildId
-  )
-  if (!ok) {
-    throw new APIError({ curl, error, description: log })
-  }
+  const data = await config.vaultList(interaction.guildId)
 
-  if (!data) {
+  if (!data.length) {
     throw new InternalError({
       msgOrInteraction: interaction,
       title: "Empty list vault",
@@ -46,38 +59,24 @@ export async function runVaultList(interaction: CommandInteraction) {
 
   const vaults = data.slice(0, 9)
   let description = ""
-  const longest = vaults.reduce(
-    (acc: number, c: any) => Math.max(acc, c.name.length),
-    0
-  )
-  for (let i = 0; i < vaults.length; i++) {
-    description += `${getEmoji(`NUM_${i + 1}` as EmojiKey)}\`${
-      data[i].name
-    } ${" ".repeat(longest - data[i].name.length)} | ${shortenHashOrAddress(
-      data[i].wallet_address
-    )} | ${" ".repeat(3 - data[i].threshold.toString().length)}${
-      data[i].threshold
-    }%\`\n`
-  }
 
-  description += `\n${getEmoji(
+  description += `${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} View detail of the vault </vault info:${await getSlashCommand(
-    "vault info"
-  )}>`
+  )} View detail of the vault ${await getSlashCommand("vault info")}\n\n`
 
-  const embed = new MessageEmbed()
-    .setTitle(`${getEmoji("MOCHI_CIRCLE")} Vault List`)
-    .setDescription(description)
-    .setColor(msgColors.BLUE)
-    .setFooter({ text: "Type /feedback to report • Mochi Bot" })
-    .setTimestamp(Date.now())
+  description += formatVaults(data)
+
+  const embed = composeEmbedMessage(null, {
+    title: `${getEmoji("MOCHI_CIRCLE")} Vault List`,
+    description,
+    color: msgColors.BLUE,
+  })
 
   const components = [
     new MessageActionRow().addComponents(
       new MessageSelectMenu()
-        .setPlaceholder("View a vault")
+        .setPlaceholder("💰 View a vault")
         .setCustomId("view_vault")
         .addOptions(
           vaults.map((v: any, i: number) => ({

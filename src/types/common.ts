@@ -80,6 +80,8 @@ export type MultipleResult<T> = {
     placeholder?: string
     options: MessageSelectOptionData[]
   }
+  title?: string
+  description?: string
   // e.g "...we found multiple values for {ambiguousResultText}..."
   ambiguousResultText: string
   // e.g "...some multiple results such as {multipleResultText}"

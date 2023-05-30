@@ -48,9 +48,9 @@ const command: SlashCommand = {
         msgOrInteraction: interaction,
 
         title: "The role hasn't been set as bot managers!",
-        description: `You can set the new bot managers role by using </bot-manager set:${await getSlashCommand(
+        description: `You can set the new bot managers role by using ${await getSlashCommand(
           "bot-manager set"
-        )}>`,
+        )}`,
       })
     }
 
@@ -61,9 +61,9 @@ const command: SlashCommand = {
         embeds: [
           getSuccessEmbed({
             title: `Successfully removed ${roleToRemove.name} as bot managers!`,
-            description: `You can set the new bot managers role by using </bot-manager set:${await getSlashCommand(
+            description: `You can set the new bot managers role by using ${await getSlashCommand(
               "bot-manager set"
-            )}>`,
+            )}`,
           }),
         ],
         components: [],

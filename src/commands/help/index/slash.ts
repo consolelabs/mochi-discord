@@ -1,4 +1,4 @@
-import { CommandInteraction, Message } from "discord.js"
+import { CommandInteraction, GuildMember, Message } from "discord.js"
 import { wrapError } from "utils/wrap-error"
 import {
   PageType,
@@ -7,6 +7,7 @@ import {
   getHelpEmbed,
   pagination,
 } from "./processor"
+import { render as renderProfile } from "../../profile/index/processor"
 
 const run = async (interaction: CommandInteraction) => {
   const embed = getHelpEmbed(interaction.user)
@@ -25,15 +26,19 @@ const run = async (interaction: CommandInteraction) => {
       wrapError(i, async () => {
         i.deferUpdate()
         const pageType = i.customId as PageType
-        const embed = getHelpEmbed(interaction.user)
-        await buildHelpInterface(embed, pageType)
+        if (pageType === "profile") {
+          await renderProfile(i, interaction.member as GuildMember)
+        } else {
+          const embed = getHelpEmbed(interaction.user)
+          await buildHelpInterface(embed, pageType)
 
-        interaction
-          .editReply({
-            embeds: [embed],
-            components: pagination(pageType),
-          })
-          .catch(() => null)
+          interaction
+            .editReply({
+              embeds: [embed],
+              components: pagination(pageType),
+            })
+            .catch(() => null)
+        }
       })
     })
     .on("end", () => {

@@ -57,9 +57,9 @@ async function introduceMochiToAdmin(guild: Discord.Guild) {
     embed.setFields(
       {
         name: "Start Here",
-        value: `${getEmoji("CONFIG")} Run </admin:${await getSlashCommand(
+        value: `${getEmoji("CONFIG")} Run ${await getSlashCommand(
           "admin"
-        )}> to display some tips for building your server\n${getEmoji(
+        )} to display some tips for building your server\n${getEmoji(
           "ANIMATED_QUESTION_MARK",
           true
         )} Run </help:1062577076722466889> to explore all commands`,

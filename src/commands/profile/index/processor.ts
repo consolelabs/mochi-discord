@@ -5,15 +5,18 @@ import {
   Message,
   MessageActionRow,
   MessageButton,
+  MessageComponentInteraction,
   MessageSelectMenu,
   User,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
   authorFilter,
+  capitalizeFirst,
   EmojiKey,
   getEmoji,
+  getEmojiToken,
   isAddress,
   msgColors,
   reverseLookup,
@@ -23,47 +26,49 @@ import {
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
   MOCHI_ACTION_PROFILE,
   MOCHI_APP_SERVICE,
+  TWITTER_USER_URL,
+  TELEGRAM_USER_URL,
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import { wrapError } from "utils/wrap-error"
-import { viewWalletDetails } from "commands/wallet/view/processor"
-import { balanceTypes, renderBalances } from "commands/balances/index/processor"
+import {
+  BalanceType,
+  formatView,
+  getBalances,
+  renderBalances,
+} from "commands/balances/index/processor"
+import { formatDigit } from "utils/defi"
+import { runGetVaultDetail } from "commands/vault/info/processor"
+import config from "adapters/config"
+import { formatVaults } from "commands/vault/list/processor"
 
 async function renderListWallet(
+  emoji: string,
   title: string,
-  wallets: { value: string; chain?: string }[],
-  offset: number
+  wallets: { value: string; chain?: string; total?: number }[],
+  offset: number,
+  showCash: boolean
 ) {
-  let longestAddr = 0
-  let longestDomain = 0
-  let longestChain = 0
+  if (!wallets.length) return ""
   const domains = await Promise.all(
     wallets.map(async (w) => await reverseLookup(w.value))
   )
-  for (const [i, w] of wallets.entries()) {
-    longestAddr = Math.max(shortenHashOrAddress(w.value, 4).length, longestAddr)
-    longestDomain = Math.max(domains[i].length, longestDomain)
-    const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
-    longestChain = Math.max(chainName.length, longestChain)
-  }
-  const arr = wallets.map((w, i) => {
-    const isAllDomainsEmpty = domains.every((d) => d.trim() === "")
-    const chainName = (w.chain || isAddress(w.value).type).toUpperCase()
-    const shortenAddr = shortenHashOrAddress(w.value, 4)
-    const formattedString = `${getEmoji(
-      `NUM_${i + 1 + offset}` as EmojiKey
-    )}\`${chainName}${" ".repeat(
-      longestChain - chainName.length
-    )} | ${shortenAddr}${" ".repeat(longestAddr - shortenAddr.length)} ${
-      isAllDomainsEmpty ? " " : domains[i] ? "| " + domains[i] : "  "
-    }${" ".repeat(longestDomain - domains[i].length)}\``
-    return formattedString
-  })
 
-  if (!arr) return ""
-
-  return `${getEmoji("BLANK")}\`${title}\`\n${arr.join("\n")}`
+  return `${emoji}${title}\n${formatDataTable(
+    wallets.map((w, i) => ({
+      chain: (w.chain || isAddress(w.value).type).toUpperCase(),
+      address: domains[i] || shortenHashOrAddress(w.value),
+      balance: w.total?.toString() ? `$${w.total.toString()}` : "",
+    })),
+    {
+      cols: ["chain", "address", "balance"],
+      rowAfterFormatter: (formatted, i) =>
+        `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)}${formatted}${
+          showCash ? getEmoji("CASH") : ""
+        } `,
+    }
+  )}`
 }
 
 const pr = new Intl.PluralRules("en-US", { type: "ordinal" })
@@ -74,84 +79,258 @@ const suffixes = new Map([
   ["other", "th"],
 ])
 
-async function compose(msg: OriginalMessage, member: GuildMember) {
-  const {
-    data: userProfile,
-    ok,
-    curl,
-    log,
-  } = await profile.getUserProfile(msg.guildId ?? "", member.user.id)
-  if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, description: log, curl })
+async function compose(
+  msg: OriginalMessage,
+  member: GuildMember,
+  dataProfile: any
+) {
+  const [podProfileRes, vaultsRes, walletsRes, socials, balances] =
+    await Promise.all([
+      profile.getUserProfile(msg.guildId ?? "", member.user.id),
+      config.vaultList(msg.guildId ?? "", false, dataProfile.id),
+      profile.getUserWallets(member.id),
+      profile.getUserSocials(member.id),
+      getBalances(
+        dataProfile.id,
+        member.user.id,
+        BalanceType.Offchain,
+        msg,
+        "",
+        ""
+      ),
+    ])
+  if (!podProfileRes.ok) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: podProfileRes.log,
+      curl: podProfileRes.curl,
+    })
   }
-  const { mochiWallets, wallets: _wallets } = await profile.getUserWallets(
-    member.id
-  )
-  const wallets = _wallets.slice(0, 5)
+  const userProfile = podProfileRes.data
+
+  const vaults = vaultsRes.slice(0, 5)
+
+  const { onchainTotal, mochiWallets, wallets: _wallets, pnl } = walletsRes
+  const wallets = _wallets.slice(0, 10)
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp
   const highestRole =
-    member.roles.highest.name !== "@everyone" ? member.roles.highest : null
+    member.roles.highest.name !== "@everyone" ? member.roles.highest : "N/A"
+
+  const { totalWorth } = formatView("compact", balances.data)
+  const grandTotal = formatDigit({
+    value: String(totalWorth + onchainTotal),
+    fractionDigits: 2,
+  })
+  const mochiBal = formatDigit({
+    value: totalWorth.toString(),
+    fractionDigits: 2,
+  })
 
   const embed = composeEmbedMessage(null, {
-    thumbnail: member.user.displayAvatarURL(),
     author: [
-      `${member.user.username}'s Mochi ID`,
+      member.nickname || member.displayName,
       member.user.displayAvatarURL(),
     ],
     color: msgColors.BLUE,
+    description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
+      "CASH"
+    )}\`Total Balance. $${grandTotal}\`(${getEmoji(
+      pnl.split("")[0] === "-" ? "ANIMATED_ARROW_DOWN" : "ANIMATED_ARROW_UP",
+      true
+    )} ${formatDigit({
+      value: pnl.slice(1),
+      fractionDigits: 2,
+    })}%)\n${getEmoji("ANIMATED_BADGE_1", true)}\`Lvl. ${
+      userProfile.current_level?.level ?? "N/A"
+    } (${userProfile.guild_rank ?? 0}${suffixes.get(
+      pr.select(userProfile.guild_rank ?? 0)
+    )})\`\n${getEmoji("ANIMATED_XP", true)}\`Exp. ${
+      userProfile.guild_xp
+    }/${nextLevelMinXp}\``,
   }).addFields([
     {
-      name: "✦ STATS ✦",
-      value: `\u200b${highestRole}\n\`Lvl. ${
-        userProfile.current_level?.level ?? "N/A"
-      } (${userProfile.guild_rank ?? 0}${suffixes.get(
-        pr.select(userProfile.guild_rank ?? 0)
-      )})\`\n\`Exp. ${userProfile.guild_xp}/${nextLevelMinXp}\``,
-      inline: false,
-    },
-    {
       name: "Wallets",
-      value: await renderWallets(mochiWallets, wallets),
+      value: await renderWallets({
+        mochiWallets: {
+          data: mochiWallets,
+          title: `\`Mochi ($${mochiBal})\`${getEmoji("CASH")}`,
+        },
+        wallets: {
+          data: wallets,
+        },
+      }),
       inline: false,
     },
+    ...(vaults.length
+      ? [
+          {
+            name: "Vaults",
+            value: formatVaults(vaults),
+            inline: false,
+          },
+        ]
+      : []),
+    ...(socials.length
+      ? [
+          {
+            name: "Socials",
+            value: await renderSocials(socials),
+            inline: false,
+          },
+        ]
+      : []),
   ])
   return {
     embeds: [embed],
     components: [
       new MessageActionRow().addComponents(
         new MessageSelectMenu()
-          .setPlaceholder("View a wallet")
-          .setCustomId("view_wallet")
+          .setPlaceholder(`💰 View wallet/vault`)
+          .setCustomId("view_wallet/vault")
           .addOptions(
             [
-              ...mochiWallets.map((w) => ({ ...w, value: `mochi_${w.value}` })),
-              ...wallets.map((w) => ({ ...w, value: `onchain_${w.value}` })),
-            ].map((w, i) => ({
-              emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-              label: shortenHashOrAddress(w.value.split("_")[1], 4),
-              value: w.value,
-            }))
+              {
+                value: "mochi_Mochi Wallet",
+                type: "wallet",
+                usd: mochiBal,
+                chain: "",
+              },
+              ...wallets.map((w) => ({
+                ...w,
+                type: "wallet",
+                value: `onchain_${w.value}`,
+                usd: w.total,
+              })),
+              ...vaults.map((v) => ({
+                ...v,
+                type: "vault",
+                value: `vault_${v.name}`,
+                usd: v.total,
+              })),
+            ].map((w, i) => {
+              const isMochi = w.value.split("_")[0] === "mochi"
+              const address = w.value.split("_")[1]
+              let label = ""
+              if (w.type === "wallet") {
+                label = `${isMochi ? "🔸  " : "🔹  "}${w.chain} | ${
+                  isMochi ? address : shortenHashOrAddress(address)
+                } | 💵 $${w.usd}`
+              } else {
+                label = `◽ ${w.name} | 💵 $${w.usd}`
+              }
+
+              return {
+                emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+                label,
+                value: w.value,
+              }
+            })
+          )
+      ),
+      new MessageActionRow().addComponents(
+        new MessageButton()
+          .setStyle("SECONDARY")
+          .setLabel("QR")
+          .setEmoji(getEmoji("QRCODE"))
+          .setCustomId("profile_qrcodes"),
+        new MessageButton()
+          .setStyle("SECONDARY")
+          .setLabel("Quest")
+          .setEmoji("<a:brrr:902558248907980871>")
+          .setCustomId("profile_quest"),
+        new MessageButton()
+          .setStyle("SECONDARY")
+          .setLabel("Watchlist")
+          .setEmoji(getEmoji("ANIMATED_STAR", true))
+          .setCustomId("profile_watchlist"),
+        new MessageButton()
+          .setLabel(`${wallets.length ? "Add" : "Connect"} Wallet`)
+          .setEmoji(getEmoji("WALLET_1"))
+          .setStyle("SECONDARY")
+          .setCustomId("profiel_connect-wallet")
+      ),
+      new MessageActionRow().addComponents(
+        new MessageButton()
+          .setStyle("SECONDARY")
+          .setEmoji(getEmojiToken("BNB"))
+          .setLabel("Connect Binance")
+          .setCustomId("profile_connect-binance"),
+        ...["twitter", "telegram"]
+          .filter((s) =>
+            socials.every((connectedSocial) => connectedSocial.platform !== s)
+          )
+          .map((s) =>
+            new MessageButton()
+              .setLabel(`Connect ${capitalizeFirst(s)}`)
+              .setStyle("SECONDARY")
+              .setEmoji(getEmoji(s.toUpperCase() as EmojiKey))
+              .setCustomId(`profile_connect-${s}`)
           )
       ),
     ],
   }
 }
 
-async function renderWallets(mochiWallets: any[], wallets: any[]) {
-  const [mochiWalletsStr, walletsStr] = await Promise.all([
-    await renderListWallet("- Mochi Wallets -", mochiWallets, 0),
-    await renderListWallet("- On-chain -", wallets, mochiWallets.length),
-  ])
+async function renderSocials(socials: any[]) {
+  return (
+    await Promise.all(
+      socials.map((s) => {
+        if (s.platform === "twitter") {
+          return `${getEmoji("TWITTER")} **[${
+            s.platform_identifier
+          }](${TWITTER_USER_URL}/${s.platform_identifier})**`
+        } else if (s.platform === "telegram") {
+          return `${getEmoji("TELEGRAM")} **[@${
+            s.platform_identifier
+          }](${TELEGRAM_USER_URL}/${s.platform_identifier})**`
+        }
+      })
+    )
+  ).join("\n")
+}
 
-  return `${mochiWalletsStr}\n\n${walletsStr}`
+export async function renderWallets({
+  mochiWallets,
+  wallets,
+}: {
+  mochiWallets: {
+    data: any[]
+    title?: string
+  }
+  wallets: {
+    data: any[]
+    title?: string
+  }
+}) {
+  const strings = (
+    await Promise.all([
+      await renderListWallet(
+        getEmoji("NFT2"),
+        mochiWallets.title ?? "`Mochi`",
+        mochiWallets.data,
+        0,
+        false
+      ),
+      await renderListWallet(
+        getEmoji("WALLET_1"),
+        wallets.title ?? "`On-chain`",
+        wallets.data,
+        mochiWallets.data.length,
+        true
+      ),
+    ])
+  ).filter(Boolean)
+
+  return strings.join("\n\n")
 }
 
 function collectSelection(
   reply: Message,
   author: User,
-  user: User,
+  targetId: string,
+  originalMsg: OriginalMessage,
   components: any
 ) {
   reply
@@ -166,26 +345,34 @@ function collectSelection(
           await i.deferUpdate().catch(() => null)
         }
         const selectedWallet = i.values[0]
-        const [isMochi, address] = selectedWallet.split("_")
+        const [prefix, addressOrVaultName] = selectedWallet.split("_")
+        const isMochi = prefix === "mochi"
+        const isVault = prefix === "vault"
         let messageOptions
-        if (isMochi === "mochi" && address) {
-          ;({ messageOptions } = await renderBalances(
-            author.id,
-            reply,
-            balanceTypes.Offchain
+        if (isVault) {
+          const vaultName = addressOrVaultName
+          ;({ messageOptions } = await runGetVaultDetail(
+            vaultName,
+            originalMsg
           ))
         } else {
-          ;({ messageOptions } = await viewWalletDetails(reply, user, address))
+          const address = addressOrVaultName
+          ;({ messageOptions } = await renderBalances(
+            targetId,
+            originalMsg,
+            isMochi ? BalanceType.Offchain : BalanceType.Onchain,
+            address
+          ))
         }
 
-        messageOptions.components = [
+        messageOptions.components.unshift(
           new MessageActionRow().addComponents(
             new MessageButton()
               .setLabel("Back")
               .setStyle("SECONDARY")
               .setCustomId("back")
-          ),
-        ]
+          )
+        )
         const edited = (await i.editReply(messageOptions)) as Message
 
         edited
@@ -199,9 +386,44 @@ function collectSelection(
               if (!i.deferred) {
                 await i.deferUpdate().catch(() => null)
               }
-              i.editReply({ embeds: reply.embeds, components })
+              if (i.customId === "back") {
+                i.editReply({ embeds: reply.embeds, components })
+              }
             })
           })
+      })
+    })
+    .on("end", () => {
+      wrapError(reply, async () => {
+        await reply.edit({ components: [] }).catch(() => null)
+      })
+    })
+}
+
+function collectButton(reply: Message, author: User) {
+  reply
+    .createMessageComponentCollector({
+      componentType: "BUTTON",
+      filter: authorFilter(author.id),
+      time: 300000,
+    })
+    .on("collect", (i) => {
+      wrapError(reply, async () => {
+        if (!i.deferred) {
+          await i.deferUpdate().catch(() => null)
+        }
+        if (i.customId !== "back" && i.customId.startsWith("profile")) {
+          const [, action] = i.customId.split("_")
+          switch (action) {
+            // case "watchlist": {
+            //   await composeSlashTokenWatchlist(i, 0, author.id)
+            //   break
+            // }
+            default:
+              i.followUp({ content: "WIP!", ephemeral: true })
+              break
+          }
+        }
       })
     })
     .on("end", () => {
@@ -242,11 +464,14 @@ export async function render(
   }
   sendKafka(dataProfile.id, member.user.username)
 
-  const replyPayload = await compose(msg, member)
+  const replyPayload = await compose(msg, member, dataProfile)
 
   let reply
   let author
-  if (msg instanceof CommandInteraction) {
+  if (
+    msg instanceof CommandInteraction ||
+    msg instanceof MessageComponentInteraction
+  ) {
     author = msg.user
     reply = await msg.editReply(replyPayload).catch(() => {
       replyPayload.embeds[0].fields.pop()
@@ -254,16 +479,19 @@ export async function render(
     })
   } else {
     author = msg.member?.user
-    reply = await msg.reply({ ...replyPayload, fetchReply: true }).catch(() => {
+    reply = await msg.reply({ ...replyPayload }).catch(() => {
       replyPayload.embeds[0].fields.pop()
-      return msg.reply({ ...replyPayload, fetchReply: true })
+      return msg.reply({ ...replyPayload })
     })
   }
 
   collectSelection(
     reply as Message,
     author as User,
-    member.user,
+    member.user.id,
+    msg,
     replyPayload.components
   )
+
+  collectButton(reply as Message, author as User)
 }

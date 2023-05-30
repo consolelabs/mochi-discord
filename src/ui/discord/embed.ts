@@ -29,10 +29,107 @@ import {
   getEmojiToken,
   getEmojiURL,
   msgColors,
-  // removeDuplications,
   roundFloatNumber,
 } from "utils/common"
 import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
+import { zip } from "lodash"
+
+type Alignment = "left" | "center" | "right"
+type Option<C> = {
+  rowAfterFormatter?: (formatted: string, index: number) => string
+  cols: C[]
+  alignment?: Alignment[]
+  separator?: string[]
+  noWrap?: boolean
+}
+type Data = Record<string, string | number>
+
+export function formatDataTable<DT extends Data>(
+  data: Array<DT>,
+  options: Option<keyof DT>
+) {
+  if (!data.length || !options.cols.length) return ""
+  const initialCols = Object.keys(data[0])
+  const resolvedOptions = Object.assign<
+    Required<Option<keyof DT>>,
+    Partial<Option<keyof DT>>
+  >(
+    {
+      cols: [],
+      alignment: [...Array(initialCols.length - 1).fill("left"), "right"],
+      rowAfterFormatter: (str: string) => str,
+      separator: Array(initialCols.length - 1).fill("|"),
+      noWrap: false,
+    },
+    options
+  )
+  const longestTextByColumns = new Map<keyof DT, number>()
+
+  // find the longest text by columns to add proper padding to other cell in the same column
+  for (const d of data) {
+    Object.entries(d).forEach((e) => {
+      if (!longestTextByColumns.has(e[0])) {
+        longestTextByColumns.set(e[0], 0)
+      }
+
+      longestTextByColumns.set(
+        e[0],
+        Math.max(longestTextByColumns.get(e[0]) ?? 0, String(e[1]).length)
+      )
+    })
+  }
+
+  const lines: string[] = []
+  for (const [i, d] of data.entries()) {
+    let row = []
+
+    for (const [colIdx, col] of resolvedOptions.cols.entries()) {
+      let content = String(d[col] ?? "")
+      if (!content) {
+        row.push(content)
+        continue
+      }
+
+      const padding = " ".repeat(
+        Math.max(
+          (longestTextByColumns.get(col) ?? 0) - String(content).length,
+          0
+        )
+      )
+      const halfPadding = padding.slice(0, padding.length / 2)
+
+      switch (resolvedOptions.alignment[colIdx]) {
+        case "center":
+          content = `${halfPadding}${content}${halfPadding}`
+          break
+        case "right":
+          content = `${padding}${content}`
+          break
+        case "left":
+        default:
+          content = `${content}${padding}`
+          break
+      }
+
+      row.push(content)
+    }
+
+    row = row.filter(Boolean)
+    row = zip(row, resolvedOptions.separator.slice(0, row.length - 1)).flat()
+    row = row.filter(Boolean)
+
+    lines.push(
+      resolvedOptions.rowAfterFormatter(
+        `${resolvedOptions.noWrap ? "" : "`"}${row.join(" ")}${
+          resolvedOptions.noWrap ? "" : "`"
+        }`,
+        i
+      )
+    )
+  }
+
+  return lines.join("\n")
+}
 
 export const EMPTY_FIELD = {
   name: "\u200B",
@@ -41,17 +138,25 @@ export const EMPTY_FIELD = {
 }
 
 export function getMultipleResultEmbed({
+  title = `${getEmoji("MAG")} Multiple results found`,
+  description,
   ambiguousResultText,
   multipleResultText,
 }: {
+  title?: string
+  description?: string
   ambiguousResultText: string
   multipleResultText: string
 }) {
   return composeEmbedMessage(null, {
-    title: `${getEmoji("MAG")} Multiple results found`,
-    description: `Relevant results found for \`${ambiguousResultText}\`${
-      multipleResultText ? `: ${multipleResultText}` : ""
-    }.\nPlease select one of the following`,
+    title,
+    description:
+      description ||
+      `Relevant results found for \`${ambiguousResultText}\`${
+        multipleResultText
+          ? `, select one of the following:\n${multipleResultText}`
+          : ""
+      }`,
   })
 }
 
@@ -111,7 +216,7 @@ export function composeEmbedMessage(
         text: getEmbedFooter(
           authorTag ? [...footer, authorTag] : [...footer, "Mochi bot"]
         ),
-        iconURL: authorAvatarURL || undefined,
+        iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
       })
       .setTimestamp(timestamp ?? new Date())
   }
@@ -201,7 +306,7 @@ export function composeEmbedMessage2(
         text: getEmbedFooter(
           authorTag ? [...footer, authorTag] : footer ?? ["Mochi bot"]
         ),
-        iconURL: authorAvatarURL || undefined,
+        iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
       })
       .setTimestamp(timestamp ?? new Date())
   }
@@ -395,9 +500,9 @@ export async function getCommandSuggestion(
         "Mochi is moving to slash commands!",
         getEmojiURL(emojis.MOCHI_CIRCLE),
       ],
-      description: `Your command was moved to </${userInput}:${await getSlashCommand(
+      description: `Your command was moved to ${await getSlashCommand(
         userInput
-      )}>\n${getEmoji(
+      )}\n${getEmoji(
         "ANIMATED_POINTING_RIGHT"
       )} All existing commands are being migrated to their slash version, Mochi team appreciates for your understanding.`,
     }

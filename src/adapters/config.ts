@@ -41,9 +41,11 @@ import {
   ResponseListGuildMixRoles,
   ResponseCreateGuildMixRole,
   ResponseGuildProposalUsageResponse,
+  ResponseGetVaultsResponse,
 } from "types/api"
 import { TEST } from "env"
 import { ResponseDaoTrackerSpaceCountResponse } from "types/api"
+import { formatDigit } from "utils/defi"
 
 class Config extends Fetcher {
   public Guilds?: Guilds
@@ -1141,10 +1143,42 @@ class Config extends Fetcher {
     )
   }
 
-  public async vaultList(guildId: string, no_fetch_amount?: boolean) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/vault?guild_id=${guildId}&no_fetch_amount=${no_fetch_amount}`
+  public async vaultList(
+    guildId: string,
+    noFetchAmount?: boolean,
+    profileId?: string
+  ) {
+    if (!guildId) return []
+    const { data, ok } = await this.jsonFetch<ResponseGetVaultsResponse>(
+      `${API_BASE_URL}/vault`,
+      {
+        query: {
+          guildId,
+          profileId,
+          ...(noFetchAmount ? { noFetchAmount } : {}),
+        },
+      }
     )
+    if (!ok) return []
+
+    return data.map((v) => {
+      const allTotals = Object.keys(v).filter((k) =>
+        k.startsWith("total_amount")
+      )
+
+      return {
+        ...v,
+        total: formatDigit({
+          value: String(
+            allTotals.reduce(
+              (acc, c) => (acc += Number(v[c as keyof typeof v])),
+              0
+            )
+          ),
+          fractionDigits: 2,
+        }),
+      }
+    })
   }
 
   public async createVault(req: {

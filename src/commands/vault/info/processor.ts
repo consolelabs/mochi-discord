@@ -1,16 +1,21 @@
 import config from "adapters/config"
+import { formatView, getButtons } from "commands/balances/index/processor"
+import { MessageActionRow, MessageButton } from "discord.js"
 import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { GetDateComponents } from "utils/time"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import {
   EmojiKey,
+  emojis,
   getEmoji,
   getEmojiToken,
+  getEmojiURL,
   msgColors,
   shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
+import { HOMEPAGE_URL } from "utils/constants"
+import { formatDigit } from "utils/defi"
 
 export async function runGetVaultDetail(
   vaultName: string,
@@ -32,6 +37,8 @@ export async function runGetVaultDetail(
     throw new APIError({ curl, error, description: log })
   }
 
+  data.recent_transaction = data.recent_transaction.slice(0, 5)
+
   const walletAddress =
     data.wallet_address !== ""
       ? `**Wallet Address**\n\`\`\`EVM | ${data.wallet_address}\nSOL | ${data.solana_wallet_address}\`\`\``
@@ -46,38 +53,64 @@ export async function runGetVaultDetail(
 
   let fields = []
 
-  const balanceFields = buildBalanceFields(data)
+  const { totalWorth, text: tokenBalanceBreakdownText } = formatView(
+    "compact",
+    data.balance
+  )
   const myNftTitleFields = buildMyNftTitleFields(data)
   const myNftFields = buildMyNftFields(data)
   const treasurerFields = buildTreasurerFields(data)
   const recentTxFields = buildRecentTxFields(data)
 
-  // build est total fields
-  const estimatedTotalFields =
-    data.estimated_total !== ""
+  fields = [
+    ...(tokenBalanceBreakdownText
       ? [
           {
-            name: "Estimated total (U.S dollar)",
-            value: `${getEmoji("CASH")} \`$${data.estimated_total}\``,
+            name: "Tokens",
+            value: tokenBalanceBreakdownText + "\u200b",
             inline: false,
           },
         ]
-      : []
-
-  fields = balanceFields
+      : []),
+  ]
     .concat(myNftTitleFields)
     .concat(myNftFields)
-    .concat(estimatedTotalFields)
     .concat(treasurerFields)
     .concat(recentTxFields)
 
-  const embed = composeEmbedMessage(null, {
+  const creator = data.treasurer.find((t: any) => t.role === "creator") ?? ""
+  const basicInfo = [
+    `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${vaultName}\``,
+    `${getEmoji("CHECK")}\`Approve threshold. ${data.threshold ?? 0}%\``,
+    `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${
+      creator.user_discord_id ? `<@${creator.user_discord_id}>` : ""
+    }`,
+    `${getEmoji("CASH")}\`Total Balance. $${formatDigit({
+      value: String(totalWorth) || "0",
+      fractionDigits: 2,
+    })}\``,
+  ].join("\n")
+  const embed = composeEmbedMessage2(interaction as any, {
     color: msgColors.BLUE,
-    title: `${getEmoji("ANIMATED_VAULT", true)} ${vaultName} vault`,
-    description: `${walletAddress}${currentRequest}`,
+    author: ["Vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
+    description: `${basicInfo}\n\n${walletAddress}${currentRequest}`,
   }).addFields(fields)
 
-  return { messageOptions: { embeds: [embed], components: [] } }
+  return {
+    messageOptions: {
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          ...getButtons("vault_info"),
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setEmoji(getEmoji("CONFIG"))
+            .setCustomId("vault_info_setting")
+            .setLabel("Setting")
+        ),
+      ],
+    },
+  }
 }
 
 function formatCurrentRequest(request: any) {
@@ -89,7 +122,7 @@ function formatCurrentRequest(request: any) {
     case "Sent":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
-      }]](https://google.com) Sent to ${shortenHashOrAddress(
+      }]](${HOMEPAGE_URL}) Sent to ${shortenHashOrAddress(
         request.target
       )} ${getEmojiToken(`${request.token as TokenEmojiKey}`)} ${
         request.amount
@@ -97,15 +130,15 @@ function formatCurrentRequest(request: any) {
     case "Add":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
-      }]](https://google.com) Add <@${request.target}> as vault treasurer\n`
+      }]](${HOMEPAGE_URL}) Add <@${request.target}> as vault treasurer\n`
     case "Remove":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
-      }]](https://google.com) Remove <@${request.target}> from the vault\n`
+      }]](${HOMEPAGE_URL}) Remove <@${request.target}> from the vault\n`
     case "Transfer":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
-      }]](https://google.com) Sent to ${address} ${
+      }]](${HOMEPAGE_URL}) Sent to ${address} ${
         request.amount
       } ${request.token.toUpperCase()}\n`
   }
@@ -113,67 +146,42 @@ function formatCurrentRequest(request: any) {
 
 function formatRecentTransaction(tx: any) {
   const date = new Date(tx.date)
-  const { monthName, hour, minute, time, day } = GetDateComponents(date)
-  const t = `${monthName} ${day} ${hour}:${minute} ${time.toLowerCase()}`
-  const address =
-    tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
+  const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
+  const amount = ["+", "-"].includes(tx.amount.split("")[0])
+    ? tx.amount.slice(1)
+    : tx.amount
+  const token = tx.token
+  const tokenEmoji = getEmojiToken(token)
+  // const address =
+  //   tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
   switch (tx.action) {
     case "Sent":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji(
+      return `${t} ${getEmoji(
         "SHARE"
-      )} Sent to ${shortenHashOrAddress(tx.target)} ${tx.amount} ${tx.token}\n`
+      )} Sent \`${amount} ${token}\` ${tokenEmoji}\n`
     case "Received":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji(
+      return `${t} ${getEmoji(
         "ANIMATED_MONEY",
         true
-      )} Received from ${shortenHashOrAddress(tx.target)} ${tx.amount} ${
-        tx.token
-      }\n`
+      )} Received \`${amount} ${token}\` ${tokenEmoji}\n`
     case "Add":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji("TREASURER_ADD")} Add <@${
+      return `${t} ${getEmoji("TREASURER_ADD")} Add <@${
         tx.target
       }> as vault treasurer\n`
     case "Remove":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji(
-        "TREASURER_REMOVE"
-      )} Remove <@${tx.target}> from the vault\n`
+      return `${t} ${getEmoji("TREASURER_REMOVE")} Remove <@${
+        tx.target
+      }> from the vault\n`
     case "Config threshold":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji(
+      return `${t} ${getEmoji(
         "ANIMATED_VAULT_KEY",
         true
       )} Set the threshold to ${tx.threshold}% for vault\n`
     case "Transfer":
-      return `[[${t}]](https://mochi.gg/) ${getEmoji(
+      return `${t} ${getEmoji(
         "SHARE"
-      )} Sent to ${address} ${tx.amount} ${tx.token}\n`
+      )} Sent \`${amount} ${token}\` ${tokenEmoji}\n`
   }
-}
-
-function buildBalanceFields(data: any): any {
-  // build balance fields
-  const balanceFields = []
-  const resBalance = data.balance.map((balance: any) => {
-    return {
-      name: `${balance.token_name}`,
-      value: `${getEmojiToken(`${balance.token as TokenEmojiKey}`)}${
-        balance.amount
-      } ${balance.token}\n\`$${balance.amount_in_usd}\``,
-      inline: true,
-    }
-  })
-
-  for (let i = 0; i < resBalance.length; i++) {
-    if (i !== 0 && i % 2 == 0) {
-      balanceFields.push({
-        name: "\u200b",
-        value: "\u200b",
-        inline: true,
-      })
-    }
-    balanceFields.push(resBalance[i])
-  }
-
-  return balanceFields
 }
 
 function buildMyNftTitleFields(data: any): any {
@@ -223,15 +231,17 @@ function buildMyNftFields(data: any): any {
   return myNftFields
 }
 
-function buildRecentTxFields(data: any): any {
+export function buildRecentTxFields(data: any): any {
   let valueRecentTx = ""
   for (let i = 0; i < data.recent_transaction.length; i++) {
+    if (data.recent_transaction[i].token.length > 5) continue
     valueRecentTx += formatRecentTransaction(data.recent_transaction[i])
   }
+  if (!valueRecentTx) return []
   return [
     {
       name: `Recent Transaction`,
-      value: valueRecentTx === "" ? "\u200b" : valueRecentTx,
+      value: valueRecentTx,
       inline: false,
     },
   ]
@@ -240,15 +250,19 @@ function buildRecentTxFields(data: any): any {
 function buildTreasurerFields(data: any): any {
   let valueTreasurer = ""
   for (let i = 0; i < data.treasurer.length; i++) {
+    const treasurer = data.treasurer[i]
     valueTreasurer += `${getEmoji(`NUM_${i + 1}` as EmojiKey)} <@${
-      data.treasurer[i].user_discord_id
-    }>\n`
+      treasurer.user_discord_id
+    }>${treasurer.role === "creator" ? " (creator)" : ""}\n`
   }
-  return [
-    {
-      name: `Treasurer (${data.treasurer.length})`,
-      value: valueTreasurer === "" ? "\u200b" : valueTreasurer,
-      inline: false,
-    },
-  ]
+  if (valueTreasurer) {
+    return [
+      {
+        name: `Treasurer (${data.treasurer.length})`,
+        value: valueTreasurer,
+        inline: false,
+      },
+    ]
+  }
+  return []
 }
