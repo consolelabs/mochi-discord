@@ -33,7 +33,7 @@ export async function handleMonikerList(
   const defaultMonikers = _defaultMonikers.sort(
     (a, b) => (b.value ?? 0) - (a.value ?? 0)
   )
-  const defaultList = formatDataTable(
+  const { joined: defaultList } = formatDataTable(
     defaultMonikers.map((m) => ({
       value: m.moniker?.moniker ?? "",
       token: `${formatDigit({
@@ -60,7 +60,7 @@ export async function handleMonikerList(
   let pages = paginate(guildMonikers, 10)
   pages = await Promise.all(
     pages.map(async (arr: any, idx: number): Promise<MessageEmbed> => {
-      const guildList = formatDataTable(
+      const { joined: guildList } = formatDataTable(
         arr.map((m: any) => ({
           value: m.moniker?.moniker ?? "",
           token: `${formatDigit({

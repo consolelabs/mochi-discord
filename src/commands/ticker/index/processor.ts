@@ -615,17 +615,19 @@ export async function ticker(
       })
     },
     title: `${getEmoji("ANIMATED_COIN_3", true)} Multiple results found`,
-    description: `We're not sure which \`${base.toUpperCase()}\`, select one:\n${formatDataTable(
-      coins.map((c: any) => ({
-        name: c.name,
-        symbol: c.symbol.toUpperCase(),
-      })),
-      {
-        cols: ["name", "symbol"],
-        rowAfterFormatter: (f, i) =>
-          `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
-      }
-    )}`,
+    description: `We're not sure which \`${base.toUpperCase()}\`, select one:\n${
+      formatDataTable(
+        coins.map((c: any) => ({
+          name: c.name,
+          symbol: c.symbol.toUpperCase(),
+        })),
+        {
+          cols: ["name", "symbol"],
+          rowAfterFormatter: (f, i) =>
+            `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
+        }
+      ).joined
+    }`,
     ambiguousResultText: base.toUpperCase(),
     multipleResultText: "",
   }

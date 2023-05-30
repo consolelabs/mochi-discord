@@ -466,17 +466,19 @@ export async function handleNftTicker(
   // suggestions
   const multipleEmbed = getMultipleResultEmbed({
     title: `${getEmoji("NFT2")} Mulitple results found`,
-    description: `We're not sure which \`${symbol}\`, select one:\n${formatDataTable(
-      suggestions.map((s) => ({
-        name: s.name ?? "Unknown",
-        symbol: s.symbol ?? "???",
-      })),
-      {
-        cols: ["name", "symbol"],
-        rowAfterFormatter: (f, i) =>
-          `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
-      }
-    )}`,
+    description: `We're not sure which \`${symbol}\`, select one:\n${
+      formatDataTable(
+        suggestions.map((s) => ({
+          name: s.name ?? "Unknown",
+          symbol: s.symbol ?? "???",
+        })),
+        {
+          cols: ["name", "symbol"],
+          rowAfterFormatter: (f, i) =>
+            `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
+        }
+      ).joined
+    }`,
     ambiguousResultText: symbol,
     multipleResultText: "",
   })

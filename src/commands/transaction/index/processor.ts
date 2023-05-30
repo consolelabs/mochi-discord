@@ -70,7 +70,7 @@ export async function render(i: CommandInteraction) {
             right: shortenHashOrAddress(s.from, 4) ?? "Unknown",
           })),
           { cols: ["left", "right"], noWrap: true }
-        )
+        ).joined
       )
     }),
     // withdraw
@@ -86,7 +86,7 @@ export async function render(i: CommandInteraction) {
             right: shortenHashOrAddress(s.address, 4) ?? "Unknown",
           })),
           { cols: ["left", "right"], noWrap: true }
-        )
+        ).joined
       )
     }),
     // tip
@@ -142,7 +142,7 @@ export async function render(i: CommandInteraction) {
               noWrap: true,
               alignment: ["left", "left"],
             }
-          )
+          ).joined
         )
       })
     }),

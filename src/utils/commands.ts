@@ -15,6 +15,7 @@ import {
   HOMEPAGE_URL,
   PREFIX,
   ROLE_REGEX,
+  SLASH_PREFIX,
   SPACES_REGEX,
   USER_REGEX,
 } from "./constants"
@@ -67,6 +68,8 @@ export async function getSlashCommand(name: string) {
     cacheSlash = new Map(slashData)
   }
 
+  const slashCmdId = cacheSlash.get(name)
+  if (!slashCmdId) return `${SLASH_PREFIX}${name}`
   return `</${name}:${cacheSlash.get(name)}>`
 }
 
