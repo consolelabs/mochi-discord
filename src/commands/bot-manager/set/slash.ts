@@ -39,9 +39,9 @@ const command: SlashCommand = {
       throw new InternalError({
         msgOrInteraction: interaction,
         title: "The role has been set!",
-        description: `Please choose another role, then run command </bot-manager set:${await getSlashCommand(
+        description: `Please choose another role, then run command ${await getSlashCommand(
           "bot-manager set"
-        )}>`,
+        )}`,
       })
     }
 
@@ -58,9 +58,9 @@ const command: SlashCommand = {
             )} The bot managers can use all the server management feature, even when they don't have an admin role.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
               true
-            )} You can check the bot managers role by running </bot-manager info:${await getSlashCommand(
+            )} You can check the bot managers role by running ${await getSlashCommand(
               "bot-manager info"
-            )}>`,
+            )}`,
             originalMsgAuthor: interaction.user,
           }),
         ],

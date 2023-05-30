@@ -32,9 +32,9 @@ export async function process(
           msgOrInteraction: msg,
           title: "Token already exists",
           emojiUrl: getEmojiURL(emojis.ANIMATED_COIN_1),
-          description: `You can use this token to </tip:${await getSlashCommand(
+          description: `You can use this token to ${await getSlashCommand(
             "tip"
-          )}> and </airdrop:${await getSlashCommand("airdrop")}>`,
+          )} and ${await getSlashCommand("airdrop")}`,
         })
 
       case 404:

@@ -27,11 +27,7 @@ const command: SlashCommand = {
       return
     }
     const focusedValue = i.options.getFocused()
-    const { ok, data } = await config.vaultList(i.guildId, true)
-    if (!ok) {
-      await i.respond([])
-      return
-    }
+    const data = await config.vaultList(i.guildId, true)
 
     await i.respond(
       data

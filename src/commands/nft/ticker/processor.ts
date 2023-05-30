@@ -21,9 +21,9 @@ import {
 } from "types/api"
 import { RunResult } from "types/common"
 import { renderChartImage, renderPlotChartImage } from "ui/canvas/chart"
-import { getExitButton } from "ui/discord/button"
 import {
   composeEmbedMessage,
+  formatDataTable,
   getMultipleResultEmbed,
   getSuccessEmbed,
   justifyEmbedFields,
@@ -34,6 +34,7 @@ import {
 } from "ui/discord/select-menu"
 import {
   authorFilter,
+  EmojiKey,
   emojis,
   getAuthor,
   getCompactFormatedNumber,
@@ -43,6 +44,7 @@ import {
   roundFloatNumber,
   TokenEmojiKey,
 } from "utils/common"
+import { HOMEPAGE_URL } from "utils/constants"
 import { reply } from "utils/discord"
 import {
   buildSwitchViewActionRow,
@@ -145,8 +147,6 @@ async function composeCollectionTickerEmbed({
     total_volume,
     floor_price,
     last_sale_price,
-    price_change_1d,
-    price_change_7d,
     price_change_30d,
   } = data
 
@@ -176,53 +176,49 @@ async function composeCollectionTickerEmbed({
     const change = changeStr ? +changeStr : 0
     const trend =
       change > 0
-        ? getEmoji("ANIMATED_CHART_INCREASE", true)
+        ? getEmoji("ARROW_UP")
         : change === 0
         ? ""
-        : getEmoji("DECREASING")
+        : getEmoji("ARROW_DOWN")
     return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
   }
 
   const fields = [
     {
-      name: "Item",
-      value: `${items}`,
-    },
-    ...(owners && owners > 0
-      ? [
-          {
-            name: "Owner",
-            value: `${owners}`,
-          },
-        ]
-      : []),
-    {
-      name: `Market cap (${priceToken})`,
-      value: formatPrice(marketcap),
-    },
-    {
-      name: `Volume (${priceToken})`,
-      value: formatPrice(totalVolumeAmount),
-    },
-    {
-      name: `Floor price (${priceToken})`,
+      name: `${getEmoji("CASH")} Floor price`,
       value: `${formatPrice(floorPriceAmount)} ${getEmojiToken(priceToken)}`,
     },
     {
-      name: `Last sale (${priceToken})`,
+      name: `${getEmoji("NFT2")} Holders`,
+      value: `${owners}`,
+    },
+    {
+      name: `${getEmoji("CHART")} Market cap`,
+      value: `${formatPrice(marketcap)} ${getEmojiToken(priceToken)}`,
+    },
+    {
+      name: `Last sale`,
       value: `${formatPrice(lastSalePriceAmount)} ${getEmojiToken(priceToken)}`,
     },
     {
-      name: "Change (24h)",
-      value: getChangePercentage(price_change_1d),
+      name: "Total supply",
+      value: `${items}`,
     },
     {
-      name: "Change (7d)",
-      value: getChangePercentage(price_change_7d),
+      name: "Volume",
+      value: `${formatPrice(totalVolumeAmount)} ${getEmojiToken(priceToken)}`,
     },
     {
-      name: "Change (1M)",
+      name: "Change (M1)",
       value: getChangePercentage(price_change_30d),
+    },
+    {
+      name: "Chain",
+      value: priceToken,
+    },
+    {
+      name: "Contract",
+      value: `[Link](${HOMEPAGE_URL})`,
     },
   ].map((f: EmbedFieldData) => ({
     ...f,
@@ -246,7 +242,7 @@ async function composeCollectionTickerEmbed({
     collectionAddress,
     days: days ?? 7,
     chain,
-  }).addComponents(getExitButton(originAuthorId))
+  })
   return {
     messageOptions: {
       files: chart ? [chart] : [],
@@ -447,12 +443,13 @@ export async function handleNftTicker(
     return
   }
 
-  const options = suggestions.flatMap((s: any) => {
+  const options = suggestions.flatMap((s: any, i: number) => {
     const valueMaxLength = 100
     const value = `${symbol}_${s.name}_${s.symbol}_${s.address}_${s.chain}_${s.chain_id}`
     if (value.length > valueMaxLength) return []
     return {
-      label: `${s.name} (${s.symbol})`,
+      emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+      label: `💎 ${s.name} (${s.symbol})`,
       value,
     }
   })
@@ -467,17 +464,26 @@ export async function handleNftTicker(
   }
 
   // suggestions
-  const multipleResultText = suggestions
-    .map((s) => `**${s.name}** (${s.symbol})`)
-    .join(", ")
   const multipleEmbed = getMultipleResultEmbed({
+    title: `${getEmoji("NFT2")} Mulitple results found`,
+    description: `We're not sure which \`${symbol}\`, select one:\n${formatDataTable(
+      suggestions.map((s) => ({
+        name: s.name ?? "Unknown",
+        symbol: s.symbol ?? "???",
+      })),
+      {
+        cols: ["name", "symbol"],
+        rowAfterFormatter: (f, i) =>
+          `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
+      }
+    )}`,
     ambiguousResultText: symbol,
-    multipleResultText,
+    multipleResultText: "",
   })
   const selectRow = composeDiscordSelectionRow({
     customId: `mutliple-results-${msg.id}`,
     options,
-    placeholder: "Select a ticker",
+    placeholder: "💎 Select a ticker",
   })
 
   const response: RunResult<MessageOptions> = {

@@ -93,7 +93,7 @@ export function getPaginationRow(page: number, totalPage: number) {
     actionRow.addComponents(
       new MessageButton({
         type: MessageComponentTypes.BUTTON,
-        style: MessageButtonStyles.PRIMARY,
+        style: MessageButtonStyles.SECONDARY,
         label: "Previous",
         customId: `page_${page}_-_${totalPage}`,
       })
@@ -103,7 +103,7 @@ export function getPaginationRow(page: number, totalPage: number) {
   if (page !== totalPage - 1) {
     actionRow.addComponents({
       type: MessageComponentTypes.BUTTON,
-      style: MessageButtonStyles.PRIMARY,
+      style: MessageButtonStyles.SECONDARY,
       label: "Next",
       customId: `page_${page}_+_${totalPage}`,
     })

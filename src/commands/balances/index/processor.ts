@@ -1,134 +1,313 @@
+import defi from "adapters/defi"
+import profile from "adapters/profile"
+import { renderWallets } from "commands/profile/index/processor"
+import { buildRecentTxFields } from "commands/vault/info/processor"
 import {
   ButtonInteraction,
-  CommandInteraction,
   EmbedFieldData,
-  Message,
   MessageActionRow,
   MessageButton,
 } from "discord.js"
-import { APIError, OriginalMessage } from "errors"
-import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
+import { APIError, InternalError, OriginalMessage } from "errors"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import { getSlashCommand } from "utils/commands"
 import {
   emojis,
   getEmoji,
   getEmojiToken,
   getEmojiURL,
+  isAddress,
   msgColors,
+  resolveNamingServiceDomain,
+  shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
-import { APPROX } from "utils/constants"
+import { APPROX, MIN_DUST } from "utils/constants"
 import mochiPay from "../../../adapters/mochi-pay"
 import { convertString } from "../../../utils/convert"
 import { formatDigit } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
-export const balanceTypes = {
-  Offchain: 1,
-  Onchain: 2,
-  Total: 3,
+export enum BalanceType {
+  Offchain = 1,
+  Onchain,
 }
 
-const balanceEmbedProps = {
-  [balanceTypes.Offchain]: {
-    title: "Mochi balance",
+const balanceEmbedProps: Record<
+  BalanceType,
+  (
+    discordId: string,
+    profileId: string,
+    address: string,
+    message: OriginalMessage
+  ) => Promise<{
+    title: string
+    emoji: string
+    description: string
+    addressType?: string
+    alias?: string
+    address: string
+  }>
+> = {
+  [BalanceType.Offchain]: async () => ({
+    address: "",
+    title: "Mochi wallet",
+    emoji: getEmojiURL(emojis.NFT2),
     description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true
-    )} You can withdraw the coin to you crypto wallet by \`$withdraw\`.\n${getEmoji(
+    )} You can withdraw using ${await getSlashCommand("withdraw")}.\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true
-    )} All the tip transaction will take from this balance. You can try \`$tip <recipient> <amount> <token>\` to transfer coin.`,
-  },
-  [balanceTypes.Onchain]: {
-    title: "Onchain balance",
-    description: `This balance shows the total amount of pending on-chain transactions.\n${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )} You can transfer received token to your crypto wallet by claiming in your DM \`$claim <Claim ID> <your recipient address>\`.\n${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )} All the tip transaction won't take from this balance.`,
-  },
-  [balanceTypes.Total]: {
-    title: "Total",
-    description: "This balance including both onchain and offchain balance.",
+    )} You can send tokens to other using ${await getSlashCommand("tip")}.`,
+  }),
+  [BalanceType.Onchain]: async (discordId, _, addressOrAlias, message) => {
+    const {
+      data: wallet,
+      ok,
+      status,
+      log,
+      curl,
+    } = await defi.findWallet(discordId, addressOrAlias)
+
+    if (!ok && status !== 404) {
+      throw new APIError({ msgOrInteraction: message, description: log, curl })
+    }
+    let address, addressType
+    if (!ok) {
+      // 1. address/alias not tracked yet
+      address = addressOrAlias
+      const { valid, type } = isAddress(address)
+      if (!valid) {
+        throw new InternalError({
+          msgOrInteraction: message,
+          title: "Invalid address",
+          description:
+            "Your wallet address is invalid. Make sure that the wallet address is valid, you can copy-paste it to ensure the exactness of it.",
+        })
+      }
+      addressType = type
+    } else {
+      // 2. address/alias is being tracked
+      address = wallet.address
+      addressType = wallet.type || "eth"
+    }
+    return {
+      addressType,
+      address,
+      alias: wallet?.alias,
+      title: `${wallet?.alias ?? shortenHashOrAddress(address)}'s wallet`,
+      emoji: getEmojiURL(emojis.WALLET_1),
+      description: `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} You can withdraw using ${await getSlashCommand(
+        "withdraw"
+      )}.\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} You can send tokens to other using ${await getSlashCommand("tip")}.`,
+    }
   },
 }
 
-// TODO: temporarily disable onchain balances
-const balancesFetcher: Record<number, (profileId: string) => Promise<any>[]> = {
-  [balanceTypes.Offchain]: (profileId) => [
-    // Defi.offchainGetUserBalances({ userId }),
-    mochiPay.getBalances({ profileId }),
-  ],
-  // [balanceTypes.Onchain]: (userId) => [Defi.getUserOnchainBalances(userId)],
-  // [balanceTypes.Total]: (userId) => [
-  //   Defi.offchainGetUserBalances({ userId }),
-  //   Defi.getUserOnchainBalances(userId),
-  // ],
+const balancesFetcher: Record<
+  BalanceType,
+  (
+    profileId: string,
+    discordId: string,
+    address: string,
+    type: string
+  ) => Promise<any>
+> = {
+  [BalanceType.Offchain]: (profileId) => mochiPay.getBalances({ profileId }),
+  [BalanceType.Onchain]: (_, discordId, address, type) =>
+    defi.getWalletAssets(discordId, address, type),
 }
 
 export async function getBalances(
-  userId: string,
-  type: number,
-  msg: OriginalMessage
+  profileId: string,
+  discordId: string,
+  type: BalanceType,
+  msg: OriginalMessage,
+  address: string,
+  addressType: string
 ) {
   const fetcher = balancesFetcher[type]
-  const res = await Promise.all(fetcher(userId))
-  const ok = res[0].ok && (res[1]?.ok ?? true)
-  if (!ok) {
+  const res = await fetcher(profileId, discordId, address, addressType)
+  if (!res.ok) {
     throw new APIError({
       msgOrInteraction: msg,
-      curl: res[0].curl,
+      curl: res.curl,
       description: "Couldn't get balance",
     })
   }
-  return res[0].data.concat(res[1]?.data).filter((i: any) => Boolean(i))
+  let data, pnl
+  if (type === 1) {
+    data = res.data.filter((i: any) => Boolean(i))
+    pnl = 0
+  } else {
+    data = res.data.balance.filter((i: any) => Boolean(i))
+    pnl = res.data.pnl
+  }
+
+  return {
+    data,
+    pnl,
+  }
 }
 
-export async function handleBalanceView(i: ButtonInteraction) {
+const txnsFetcher: Record<
+  BalanceType,
+  (
+    profileId: string,
+    discordId: string,
+    address: string,
+    type: string
+  ) => Promise<any>
+> = {
+  [BalanceType.Offchain]: (profile_id) => mochiPay.getListTx({ profile_id }),
+  [BalanceType.Onchain]: (_, discordId, address, type) =>
+    defi.getWalletTxns(discordId, address, type),
+}
+
+async function getTxns(
+  profileId: string,
+  discordId: string,
+  type: BalanceType,
+  msg: OriginalMessage,
+  address: string,
+  addressType: string
+) {
+  const fetcher = txnsFetcher[type]
+  const res = await fetcher(profileId, discordId, address, addressType)
+  if (!res.ok) {
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: res.curl,
+      description: "Couldn't get txn",
+    })
+  }
+
+  if (type === 1) {
+    const data = res.data
+    const sort = (a: any, b: any) => {
+      const timeA = new Date(a.created_at).getTime()
+      const timeB = new Date(b.created_at).getTime()
+      return timeA - timeB
+    }
+
+    return [
+      ...data.offchain.sort(sort).map((tx: any) => ({
+        date: tx.created_at,
+        action: tx.type === "credit" ? "Received" : "Sent",
+        target: tx.other_profile_id,
+        amount: formatDigit({
+          value: convertString(
+            tx.amount,
+            tx.token?.decimal ?? 18,
+            false
+          ).toString(),
+          fractionDigits: 4,
+        }),
+        token: tx.token?.symbol?.toUpperCase() ?? "",
+      })),
+      ...data.withdraw.sort(sort).map((tx: any) => ({
+        date: tx.created_at,
+        action: "Sent",
+        target: tx.address,
+        amount: formatDigit({
+          value: convertString(
+            tx.amount,
+            tx.token?.decimal ?? 18,
+            false
+          ).toString(),
+          fractionDigits: 4,
+        }),
+        token: tx.token?.symbol?.toUpperCase() ?? "",
+      })),
+      ...data.deposit.sort(sort).map((tx: any) => ({
+        date: tx.created_at,
+        action: "Received",
+        target: tx.from,
+        amount: formatDigit({
+          value: convertString(
+            tx.amount,
+            tx.token?.decimal ?? 18,
+            false
+          ).toString(),
+          fractionDigits: 4,
+        }),
+        token: tx.token?.symbol?.toUpperCase() ?? "",
+      })),
+    ].slice(0, 5)
+  } else {
+    return (res.data ?? [])
+      .filter(
+        (d: any) =>
+          d.has_transfer &&
+          d.successful &&
+          d.actions?.some(
+            (a: any) => a.native_transfer || a.name === "Transfer"
+          )
+      )
+      .map((d: any) => {
+        const date = d.signed_at
+        const firstAction = d.actions?.find(
+          (a: any) => a.native_transfer || a.name === "Transfer"
+        )
+        if (!firstAction) return ""
+        const target = firstAction.to
+        const action =
+          target.toLowerCase() === address.toLowerCase() ? "Received" : "Sent"
+        const amount = formatDigit({
+          value: firstAction.amount,
+          fractionDigits: 4,
+        })
+        const token = firstAction.unit
+
+        return {
+          date,
+          action,
+          target,
+          amount,
+          token,
+        }
+      })
+      .filter(Boolean)
+      .slice(0, 5)
+  }
+}
+
+export async function handleInteraction(i: ButtonInteraction) {
   if (!i.deferred) {
     await i.deferUpdate()
   }
-  const [, view, profileId, type] = i.customId.split("_")
-  const msg = i.message as Message
-  const balances = await getBalances(profileId, Number(type), msg)
-
-  const props = balanceEmbedProps[Number(type)]
-
-  if (!balances.length) {
-    const embed = composeEmbedMessage(null, {
-      author: [props.title, getEmojiURL(emojis.WALLET)],
-      description: "No balance. Try `$deposit` more into your wallet.",
-      color: msgColors.SUCCESS,
-    })
-    i.editReply({
-      embeds: [embed],
-    })
-    return
+  if (i.customId !== "back") {
+    i.followUp({ content: "WIP!", ephemeral: true })
   }
-
-  i.editReply({
-    embeds: [switchView(view as any, props, balances)],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageButton()
-          .setEmoji(
-            getEmoji(
-              view === "expand" ? "ANIMATED_COIN_2" : "ANIMATED_COIN_3",
-              true
-            )
-          )
-          .setStyle("SECONDARY")
-          .setCustomId(
-            `balance-view_${
-              view === "expand" ? "compact" : "expand"
-            }_${profileId}_${type}`
-          )
-          .setLabel(view === "expand" ? "Compact" : "Expand")
-      ),
-    ],
-  })
+  return
+  // const [, view, profileId, type] = i.customId.split("_")
+  // const msg = i.message as Message
+  // const balances = await getBalances(profileId, Number(type), msg)
+  //
+  // const props = await balanceEmbedProps[Number(type)]?.()
+  //
+  // if (!balances.length) {
+  //   const embed = composeEmbedMessage(null, {
+  //     author: [props.title, getEmojiURL(emojis.NFT2)],
+  //     description: "No balance. Try `$deposit` more into your wallet.",
+  //     color: msgColors.SUCCESS,
+  //   })
+  //   i.editReply({
+  //     embeds: [embed],
+  //   })
+  //   return
+  // }
+  //
+  // i.editReply({
+  //   embeds: [await switchView(view as any, props, balances, i.user.id)],
+  // })
 }
 
 export function formatView(
@@ -154,22 +333,21 @@ export function formatView(
   }
 ) {
   let totalWorth = 0
-  let longestStrLen = 0
   const isDuplicateSymbol = (s: string) =>
     balances.filter((b: any) => b.token.symbol.toUpperCase() === s).length > 1
   if (view === "compact") {
-    const text = balances
+    const formattedBal = balances
       .map((balance) => {
         const customVal = customProvider?.(balance)
         if (customVal) {
-          longestStrLen = Math.max(longestStrLen, customVal.text.length)
           totalWorth += customVal.usd
           return {
             chain: customVal.chain,
             usdWorth: formatDigit({
               value: customVal.usd.toString(),
-              fractionDigits: 4,
+              fractionDigits: 2,
             }),
+            usdVal: customVal.usd,
             text: customVal.text,
             emoji: getEmojiToken(
               customVal.symbol.toUpperCase() as TokenEmojiKey
@@ -180,34 +358,53 @@ export function formatView(
         const { symbol, chain, decimal, price, native } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
-        const value = formatDigit({ value: tokenVal.toString() })
-        const usdWorth = formatDigit({
-          value: usdVal.toString(),
+        const value = formatDigit({
+          value: tokenVal.toString(),
           fractionDigits: 4,
         })
+        const usdWorth = formatDigit({
+          value: usdVal.toString(),
+          fractionDigits: 2,
+        })
         //
-        totalWorth += usdVal
+        if (tokenVal === 0 || usdVal <= MIN_DUST)
+          return {
+            emoji: "",
+            text: "",
+            usdVal: 0,
+            usdWorth: 0,
+            chain: { name: "" },
+          }
+
         const text = `${value} ${symbol}`
-        longestStrLen = Math.max(longestStrLen, text.length)
-        if (tokenVal === 0) return { emoji: "", text: "" }
+        totalWorth += usdVal
 
         return {
           emoji: getEmojiToken(symbol.toUpperCase() as TokenEmojiKey),
           text,
           usdWorth,
+          usdVal,
           ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
             ? { chain }
             : {}),
         }
       })
-      .map((e: any) => {
-        if (!e.text) return ""
-        return `${e.emoji} \`${e.text}${" ".repeat(
-          longestStrLen - e.text.length
-        )} ${APPROX} $${e.usdWorth}${e.chain ? ` (${e.chain.name})` : ""}\``
+      .sort((a, b) => {
+        return b.usdVal - a.usdVal
       })
-      .filter(Boolean)
-      .join("\n")
+      .filter((b) => b.text)
+    const text = formatDataTable(
+      formattedBal.map((b) => ({
+        balance: `${b.text}${b.chain ? ` (${b.chain.name})` : ""}`,
+        usd: `$${b.usdWorth}`,
+      })),
+      {
+        cols: ["balance", "usd"],
+        separator: [APPROX],
+        rowAfterFormatter: (formatted, i) =>
+          `${formattedBal[i].emoji} ${formatted}`,
+      }
+    )
     return { totalWorth, text }
   } else {
     const fields: EmbedFieldData[] = balances
@@ -216,13 +413,16 @@ export function formatView(
         const { name: tokenName, symbol, decimal, price, chain, native } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
-        const value = formatDigit({ value: tokenVal.toString() })
-        const usdWorth = formatDigit({
-          value: usdVal.toString(),
+        const value = formatDigit({
+          value: tokenVal.toString(),
           fractionDigits: 4,
         })
+        const usdWorth = formatDigit({
+          value: usdVal.toString(),
+          fractionDigits: 2,
+        })
         totalWorth += usdVal
-        if (tokenVal === 0) {
+        if (tokenVal === 0 || usdVal <= MIN_DUST) {
           return {
             name: "",
             value: "",
@@ -248,114 +448,175 @@ export function formatView(
   }
 }
 
-function switchView(
+async function switchView(
   view: "compact" | "expand",
-  props: { title: string; description: string },
-  balances: any
+  props: { address: string; emoji: string; title: string; description: string },
+  balances: { data: any[]; pnl: string },
+  txns: any,
+  discordId: string,
+  balanceType: number
 ) {
   const embed = composeEmbedMessage(null, {
-    author: [props.title, getEmojiURL(emojis.WALLET)],
+    author: [props.title, props.emoji],
     color: msgColors.SUCCESS,
   })
 
   let totalWorth = 0
   if (view === "compact") {
-    const { totalWorth: _totalWorth, text = "" } = formatView(
+    const { totalWorth: _totalWorth, text: _text } = formatView(
       "compact",
-      balances
+      balances.data
     )
+    const text =
+      _text ||
+      `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} You have nothing yet, use ${await getSlashCommand(
+        "earn"
+      )} or ${await getSlashCommand("deposit")}`
     totalWorth = _totalWorth
-    embed.setDescription(`${props.description}\n\n${text}`)
+    embed.setDescription(`${_text ? `${props.description}\n\n` : ""}${text}`)
   } else {
     const { totalWorth: _totalWorth, fields = [] } = formatView(
       "expand",
-      balances
+      balances.data
     )
     totalWorth = _totalWorth
     embed.setDescription(props.description).addFields(fields)
   }
 
-  embed.addFields({
-    name: `Total (U.S dollar)`,
-    value: `${getEmoji("CASH")} \`$${formatDigit({
-      value: totalWorth.toString(),
-    })}\``,
-  })
+  embed.addFields([
+    {
+      name: `Total (U.S dollar)`,
+      value: `${getEmoji("CASH")} \`$${formatDigit({
+        value: totalWorth.toString(),
+        fractionDigits: 2,
+      })}\`${
+        balanceType === 2
+          ? ` (${getEmoji(
+              balances.pnl.split("")[0] === "-"
+                ? "ANIMATED_ARROW_DOWN"
+                : "ANIMATED_ARROW_UP",
+              true
+            )}${formatDigit({
+              value: balances.pnl.slice(1),
+              fractionDigits: 2,
+            })}%)`
+          : ""
+      }`,
+    },
+    ...(!txns.length ? [] : buildRecentTxFields({ recent_transaction: txns })),
+  ])
+
+  const { mochiWallets, wallets } = await profile.getUserWallets(discordId)
+  const preventEmptyVal = "\u200b"
+  if (balanceType === 1) {
+    embed.spliceFields(1, 0, {
+      name: "Wallets",
+      value:
+        (await renderWallets({
+          mochiWallets: {
+            data: mochiWallets,
+          },
+          wallets: {
+            data: [],
+          },
+        })) + preventEmptyVal,
+      inline: false,
+    })
+  } else {
+    const value = await renderWallets({
+      mochiWallets: {
+        data: [],
+      },
+      wallets: {
+        data: wallets.filter(
+          (w) => w.value.toLowerCase() === props.address.toLowerCase()
+        ),
+      },
+    })
+    embed.spliceFields(1, 0, {
+      name: "Wallet",
+      value: value + preventEmptyVal,
+      inline: false,
+    })
+  }
+
   return embed
 }
 
 export async function renderBalances(
   discordId: string,
-  msg: Message | CommandInteraction,
-  type: number
+  msg: OriginalMessage,
+  type: BalanceType,
+  address: string,
+  view: "compact" | "expand" = "compact"
 ) {
+  // handle name service
+  const resolvedAddress = (await resolveNamingServiceDomain(address)) || address
   const profileId = await getProfileIdByDiscord(discordId)
-  const balances = await getBalances(profileId, type, msg)
-  const blank = getEmoji("BLANK")
-  let totalWorth = 0
-  const fields: EmbedFieldData[] = balances
-    ?.map((balance: any) => {
-      const { token, amount } = balance
-      const { name: tokenName, symbol, decimal, price, chain, native } = token
-      const tokenVal = convertString(amount, decimal)
-      const usdVal = price * tokenVal
-      const value = formatDigit({ value: tokenVal.toString() })
-      const usdWorth = formatDigit({
-        value: usdVal.toString(),
-        fractionDigits: 4,
-      })
-      totalWorth += usdVal
-      if (tokenVal === 0) return
 
-      return {
-        name: tokenName + `${chain && !native ? ` (${chain.name})` : ""}`,
-        value: `${getEmojiToken(
-          symbol.toUpperCase()
-        )} ${value} ${symbol} \`$${usdWorth}\` ${blank}`,
-        inline: true,
-      }
-    })
-    .filter((f: EmbedFieldData | undefined) => Boolean(f))
+  const { addressType, ...props } =
+    (await balanceEmbedProps[type]?.(
+      discordId,
+      profileId,
+      resolvedAddress,
+      msg
+    )) ?? {}
 
-  const props = balanceEmbedProps[type]
-  if (!balances.length) {
-    const embed = composeEmbedMessage(null, {
-      author: [props.title, getEmojiURL(emojis.WALLET)],
-      description: "No balance. Try `$deposit` more into your wallet.",
-      color: msgColors.SUCCESS,
-    })
-    return {
-      messageOptions: {
-        embeds: [embed],
-      },
-    }
-  }
-
-  const embed = composeEmbedMessage(null, {
-    author: [props.title, getEmojiURL(emojis.WALLET)],
-    description: props.description,
-    color: msgColors.SUCCESS,
-  }).addFields(fields)
-  justifyEmbedFields(embed, 3)
-  embed.addFields({
-    name: `Estimated total (U.S dollar)`,
-    value: `${getEmoji("CASH")} \`$${formatDigit({
-      value: totalWorth.toString(),
-    })}\``,
-  })
+  const [balances, txns] = await Promise.all([
+    getBalances(
+      profileId,
+      discordId,
+      type,
+      msg,
+      resolvedAddress,
+      addressType ?? "eth"
+    ),
+    getTxns(
+      profileId,
+      discordId,
+      type,
+      msg,
+      resolvedAddress,
+      addressType ?? "eth"
+    ),
+  ])
 
   return {
     messageOptions: {
-      embeds: [switchView("compact", props, balances)],
+      embeds: [await switchView(view, props, balances, txns, discordId, type)],
       components: [
         new MessageActionRow().addComponents(
           new MessageButton()
-            .setEmoji(getEmoji("ANIMATED_COIN_3", true))
             .setStyle("SECONDARY")
-            .setCustomId(`balance-view_expand_${profileId}_${type}`)
-            .setLabel("Expand")
+            .setEmoji("<a:brrr:902558248907980871>")
+            .setCustomId(`balance_earn`)
+            .setLabel("Earn"),
+          ...getButtons("balance", `_${profileId}_${type}`)
         ),
       ],
     },
   }
+}
+
+export function getButtons(prefix: string, suffix = "") {
+  return [
+    new MessageButton()
+      .setStyle("SECONDARY")
+      .setEmoji(getEmoji("SHARE"))
+      .setCustomId(`${prefix}_send${suffix}`)
+      .setLabel("Send"),
+    new MessageButton()
+      .setStyle("SECONDARY")
+      .setEmoji(getEmoji("ANIMATED_TOKEN_ADD", true))
+      .setCustomId(`${prefix}_deposit${suffix}`)
+      .setLabel("Deposit"),
+    new MessageButton()
+      .setStyle("SECONDARY")
+      .setCustomId(`${prefix}_invest${suffix}`)
+      .setEmoji(getEmoji("BANK"))
+      .setLabel("Invest"),
+  ]
 }

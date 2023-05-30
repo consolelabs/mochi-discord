@@ -67,7 +67,7 @@ export async function getSlashCommand(name: string) {
     cacheSlash = new Map(slashData)
   }
 
-  return cacheSlash.get(name)
+  return `</${name}:${cacheSlash.get(name)}>`
 }
 
 export const getCommandArguments = (message: Message) => {

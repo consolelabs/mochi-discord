@@ -175,7 +175,7 @@ export async function composeCollectionInfoEmbed(
     },
     {
       name: "Chain",
-      value: `${getEmojiToken(chain)}`,
+      value: `${chain.toUpperCase()}`,
     },
     {
       name: "Marketplace",
@@ -391,19 +391,38 @@ export function buildSwitchViewActionRow(
   }
   const tickerButton = new MessageButton({
     label: "Ticker",
-    emoji: getEmoji("ANIMATED_CHART_INCREASE", true),
+    emoji: getEmoji("ANIMATED_DIAMOND", true),
     customId: `nft_ticker_view_chart-${collectionAddress}-${chain}-${days}`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const nftButton = new MessageButton({
     label: "Info",
-    emoji: getEmoji("MAG"),
+    emoji: getEmoji("LEAF"),
     customId: `nft_ticker_view_info-${collectionAddress}-${chain}-${days}`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
+  const wlAddBtn = new MessageButton({
+    label: "\u200b",
+    emoji: getEmoji("ANIMATED_STAR", true),
+    customId: "nft_ticker_add_wl",
+    style: "SECONDARY",
+  })
+
+  const swapBtn = new MessageButton({
+    label: "Swap",
+    emoji: getEmoji("SWAP_ROUTE"),
+    customId: "swap",
+    style: "SECONDARY",
+  })
+  const addAlertBtn = new MessageButton({
+    label: "Alert",
+    emoji: getEmoji("BELL"),
+    customId: "nft_ticker_price_alert",
+    style: "SECONDARY",
+  })
   const row = new MessageActionRow()
-  row.addComponents([tickerButton, nftButton])
+  row.addComponents([tickerButton, swapBtn, nftButton, addAlertBtn, wlAddBtn])
   return row
 }
