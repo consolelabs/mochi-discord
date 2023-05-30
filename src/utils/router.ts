@@ -2,6 +2,7 @@ import { composeWatchlist } from "commands/watchlist/view/processor"
 import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 import {
   ButtonInteraction,
+  GuildMember,
   Message,
   MessageActionRow,
   MessageButton,
@@ -22,6 +23,11 @@ import { wrapError } from "./wrap-error"
 import { handleWalletAddition } from "commands/wallet/add/processor"
 import { BalanceType, renderBalances } from "commands/balances/index/processor"
 import { runGetVaultDetail } from "commands/vault/info/processor"
+import {
+  render as renderQr,
+  collectSelection as collectSelectionQr,
+  viewQR,
+} from "commands/qr/index/processor"
 
 type Handler<P = any> = (
   params: P
@@ -69,6 +75,7 @@ const builtinButtonHandlers: ButtonContext = {
   watchlist: (i) => composeWatchlist(i.user, 0),
   wallets: (i) => renderTrackingWallets(i.user),
   addWallet: (i) => handleWalletAddition(i),
+  qrCodes: (i) => renderQr(i, i.member as GuildMember),
 }
 
 const builtinSelectHandlers: SelectContext = {
@@ -88,6 +95,7 @@ const builtinSelectHandlers: SelectContext = {
     runGetVaultDetail(i.values[0].split("_")[1], i).then(
       (r) => r.messageOptions
     ),
+  qr: (i) => viewQR(i),
 }
 
 export function route(
