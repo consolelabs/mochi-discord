@@ -55,20 +55,22 @@ async function renderListWallet(
     wallets.map(async (w) => await reverseLookup(w.value))
   )
 
-  return `${emoji}${title}\n${formatDataTable(
-    wallets.map((w, i) => ({
-      chain: (w.chain || isAddress(w.value).type).toUpperCase(),
-      address: domains[i] || shortenHashOrAddress(w.value),
-      balance: w.total?.toString() ? `$${w.total.toString()}` : "",
-    })),
-    {
-      cols: ["chain", "address", "balance"],
-      rowAfterFormatter: (formatted, i) =>
-        `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)}${formatted}${
-          showCash ? getEmoji("CASH") : ""
-        } `,
-    }
-  )}`
+  return `${emoji}${title}\n${
+    formatDataTable(
+      wallets.map((w, i) => ({
+        chain: (w.chain || isAddress(w.value).type).toUpperCase(),
+        address: domains[i] || shortenHashOrAddress(w.value),
+        balance: w.total?.toString() ? `$${w.total.toString()}` : "",
+      })),
+      {
+        cols: ["chain", "address", "balance"],
+        rowAfterFormatter: (formatted, i) =>
+          `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)}${formatted}${
+            showCash ? getEmoji("CASH") : ""
+          } `,
+      }
+    ).joined
+  }`
 }
 
 const pr = new Intl.PluralRules("en-US", { type: "ordinal" })
@@ -249,7 +251,7 @@ async function compose(
           .setLabel(`${wallets.length ? "Add" : "Connect"} Wallet`)
           .setEmoji(getEmoji("WALLET_1"))
           .setStyle("SECONDARY")
-          .setCustomId("profiel_connect-wallet")
+          .setCustomId("profile_connect-wallet")
       ),
       new MessageActionRow().addComponents(
         new MessageButton()

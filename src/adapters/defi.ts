@@ -5,6 +5,7 @@ import {
   RequestOffchainTransferRequest,
   ResponseGetNftWatchlistResponse,
   ResponseGetSupportedTokenResponse,
+  ResponseGetTrackingWalletsResponse,
   ResponseGetWatchlistResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
@@ -292,7 +293,7 @@ class Defi extends Fetcher {
   }
 
   async getUserTrackingWallets(userId: string) {
-    return await this.jsonFetch(
+    return await this.jsonFetch<ResponseGetTrackingWalletsResponse>(
       `${API_BASE_URL}/users/${userId}/wallets/tracking`
     )
   }

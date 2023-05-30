@@ -1,14 +1,23 @@
 import { Message, MessageActionRow, MessageButton, User } from "discord.js"
-import { getEmoji, getEmojiToken, TokenEmojiKey } from "utils/common"
+import {
+  authorFilter,
+  getEmoji,
+  getEmojiToken,
+  TokenEmojiKey,
+} from "utils/common"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
-import { InternalError } from "errors"
 import community from "adapters/community"
 import { getSlashCommand } from "utils/commands"
 import { ResponseGetWatchlistResponse } from "types/api"
 import { formatDigit } from "utils/defi"
 import { APPROX, VERTICAL_BAR } from "utils/constants"
+import { wrapError } from "utils/wrap-error"
+import {
+  render as renderTrackingWallets,
+  collectSelection as collectViewWalletSelection,
+} from "../../wallet/list/processor"
 
 // async function renderWatchlist(data: any[]) {
 //   const container: RectangleStats = {
@@ -358,9 +367,89 @@ export function buildSwitchViewActionRow(currentView: string) {
 }
 
 async function switchView() {}
-export async function collectButton(reply: Message, author: User) {}
+export async function collectButton(
+  reply: Message,
+  author: User,
+  user: User = author
+) {
+  reply
+    .createMessageComponentCollector({
+      componentType: "BUTTON",
+      filter: authorFilter(author.id),
+      time: 300000,
+    })
+    .on("collect", (i) => {
+      wrapError(reply, async () => {
+        if (!i.deferred) {
+          await i.deferUpdate().catch(() => null)
+        }
 
-const PAGE_SIZE = 12 as const
+        const [cmd, action, view] = i.customId.split("_")
+
+        if (cmd.startsWith("watchlist")) {
+          switch (action) {
+            case "goto": {
+              switch (view) {
+                case "wallets": {
+                  const messageOptions = await renderTrackingWallets(user)
+                  messageOptions.components.push(
+                    new MessageActionRow().addComponents(
+                      new MessageButton()
+                        .setLabel("Back")
+                        .setStyle("SECONDARY")
+                        .setCustomId("back")
+                    )
+                  )
+                  const edited = (await i.editReply(messageOptions)) as Message
+
+                  collectViewWalletSelection(reply, i.user)
+
+                  edited
+                    .createMessageComponentCollector({
+                      componentType: "BUTTON",
+                      filter: authorFilter(author.id),
+                      time: 300000,
+                    })
+                    .on("collect", async (i) => {
+                      if (!i.deferred) {
+                        await i.deferUpdate().catch(() => null)
+                      }
+                      wrapError(reply, async () => {
+                        if (i.customId === "back") {
+                          await i.editReply({
+                            embeds: reply.embeds,
+                            components: reply.components,
+                          })
+                        }
+                      })
+                    })
+                    .on("end", () => {
+                      wrapError(reply, async () => {
+                        await i.editReply({ components: [] }).catch(() => null)
+                      })
+                    })
+                  break
+                }
+                default:
+                  break
+              }
+              break
+            }
+            default:
+            case "switch-view":
+              break
+          }
+        }
+      })
+    })
+    .on("end", () => {
+      wrapError(reply, async () => {
+        await reply.edit({ components: [] }).catch(() => null)
+      })
+    })
+}
+
+const PAGE_SIZE = 16 as const
 export enum WatchListViewType {
   TOKEN = "token",
   NFT = "nft",
@@ -388,11 +477,10 @@ export async function composeWatchlist(
       }
     },
   })
-  if (!ok)
-    throw new InternalError({
-      description: "Cannot fetch watchlist data",
-    })
-  const { data = [] } = res
+  let data = []
+  if (ok) {
+    data = res.data
+  }
   const embed = composeEmbedMessage(null, {
     author: [
       `${user.username}'s watchlist`,
@@ -425,7 +513,7 @@ export async function composeWatchlist(
             Math.abs(b.price_change_percentage_24h ?? 0) -
             Math.abs(a.price_change_percentage_24h ?? 0)
         )
-        const contents = formatDataTable(
+        const { segments } = formatDataTable(
           tokenData.map((t) => ({
             symbol: (t.symbol ?? "").toUpperCase(),
             priceChange: `${formatDigit({
@@ -453,7 +541,7 @@ export async function composeWatchlist(
         embed.setDescription(
           `**${getEmoji(
             "CHART"
-          )} All changes are in D1, sorted by price change**\n\n${contents
+          )} All changes are in D1, sorted by price change**\n\n${segments
             .map((c) => c.join("\n"))
             .join("\n")}`
         )

@@ -48,7 +48,7 @@ export function formatDataTable<DT extends Data>(
   data: Array<DT>,
   options: Option<keyof DT>
 ) {
-  if (!data.length || !options.cols.length) return [[]]
+  if (!data.length || !options.cols.length) return { segments: [], joined: "" }
   const segments = []
   const initialCols = Object.keys(data[0])
   const resolvedOptions = Object.assign<
@@ -133,9 +133,10 @@ export function formatDataTable<DT extends Data>(
     }
   }
 
-  console.log(segments)
-  return segments
-  // return lines.join("\n")
+  return {
+    segments,
+    joined: segments.map((s) => s.join("\n")).join("\n"),
+  }
 }
 
 export const EMPTY_FIELD = {

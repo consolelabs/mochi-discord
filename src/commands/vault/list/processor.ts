@@ -36,7 +36,7 @@ export function formatVaults(vaults: Array<ModelVault & { total?: string }>) {
       rowAfterFormatter: (f) =>
         `${getEmoji("ANIMATED_VAULT", true)}${f}${getEmoji("CASH")}`,
     }
-  )
+  ).joined
 }
 
 export async function runVaultList(interaction: CommandInteraction) {

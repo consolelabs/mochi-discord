@@ -393,7 +393,7 @@ export function formatView(
         return b.usdVal - a.usdVal
       })
       .filter((b) => b.text)
-    const text = formatDataTable(
+    const { joined: text } = formatDataTable(
       formattedBal.map((b) => ({
         balance: `${b.text}${b.chain ? ` (${b.chain.name})` : ""}`,
         usd: `$${b.usdWorth}`,
