@@ -5,6 +5,7 @@ import {
   RequestOffchainTransferRequest,
   ResponseGetNftWatchlistResponse,
   ResponseGetSupportedTokenResponse,
+  ResponseGetWatchlistResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
 import { Coin, CoinComparisionData, CoinPrice, GasPriceData } from "types/defi"
@@ -95,14 +96,17 @@ class Defi extends Fetcher {
     page?: number
     size?: number
   }) {
-    return await this.jsonFetch(`${API_BASE_URL}/defi/watchlist`, {
-      query: {
-        userId,
-        page,
-        size,
-        coinGeckoId,
-      },
-    })
+    return await this.jsonFetch<ResponseGetWatchlistResponse>(
+      `${API_BASE_URL}/defi/watchlist`,
+      {
+        query: {
+          userId,
+          page,
+          size,
+          coinGeckoId,
+        },
+      }
+    )
   }
 
   async addToWatchlist(req: {

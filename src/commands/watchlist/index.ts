@@ -11,7 +11,6 @@ import CacheManager from "cache/node-cache"
 // text
 import addNFT from "./add-nft/text"
 import removeNFT from "./remove-nft/text"
-import view from "./view/text"
 // slash
 import addSlash from "./add/slash"
 import addNFTSlash from "./add-nft/slash"
@@ -27,7 +26,6 @@ CacheManager.init({
 })
 
 const actions: Record<string, Command> = {
-  view,
   "add-nft": addNFT,
   "remove-nft": removeNFT,
 }

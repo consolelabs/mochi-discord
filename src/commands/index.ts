@@ -71,6 +71,7 @@ import token from "./token"
 import top from "./top"
 import verify from "./verify"
 import watchlist from "./watchlist"
+import watchlistView from "./watchlist/view/slash"
 import welcome from "./welcome/index"
 import withdraw from "./withdraw"
 import tokenrole from "./token-role"
@@ -110,6 +111,8 @@ export const slashCommands: Record<string, SlashCommand> = {
   top: top.slashCmd,
   verify: verify.slashCmd,
   watchlist: watchlist.slashCmd,
+  // alias
+  wlv: watchlistView,
   defaultrole: defaultrole.slashCmd,
   levelrole: levelrole.slashCmd,
   reactionrole: reactionrole.slashCmd,
