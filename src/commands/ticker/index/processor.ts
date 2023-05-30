@@ -374,7 +374,6 @@ export function buildSwitchViewActionRow(
     infoBtn,
     addAlertBtn,
     ...(added ? [] : [wlAddBtn]),
-    swapBtn,
   ])
 }
 
