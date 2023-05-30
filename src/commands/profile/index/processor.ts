@@ -42,6 +42,8 @@ import { formatDigit } from "utils/defi"
 import { runGetVaultDetail } from "commands/vault/info/processor"
 import config from "adapters/config"
 import { formatVaults } from "commands/vault/list/processor"
+import CacheManager from "cache/node-cache"
+import { getSlashCommand } from "utils/commands"
 
 async function renderListWallet(
   emoji: string,
@@ -130,6 +132,15 @@ async function compose(
     fractionDigits: 2,
   })
 
+  const { data: inbox } = await CacheManager.get({
+    pool: "user_inbox",
+    key: `${member.user.id}_0`,
+    call: async () => await profile.getUserActivities(dataProfile.id),
+  })
+  const unreadList = inbox.filter((activity: any) => {
+    return activity.status === "new"
+  })
+
   const embed = composeEmbedMessage(null, {
     author: [
       member.nickname || member.displayName,
@@ -148,9 +159,7 @@ async function compose(
       userProfile.current_level?.level ?? "N/A"
     } (${userProfile.guild_rank ?? 0}${suffixes.get(
       pr.select(userProfile.guild_rank ?? 0)
-    )})\`\n${getEmoji("ANIMATED_XP", true)}\`Exp. ${
-      userProfile.guild_xp
-    }/${nextLevelMinXp}\``,
+    )})\`\n${getEmoji("XP")}\`Exp. ${userProfile.guild_xp}/${nextLevelMinXp}\``,
   }).addFields([
     {
       name: "Wallets",
@@ -180,6 +189,16 @@ async function compose(
             name: "Socials",
             value: await renderSocials(socials),
             inline: false,
+          },
+        ]
+      : []),
+    ...(unreadList.length
+      ? [
+          {
+            name:
+              `<:_:1028964391690965012> You have \`${unreadList.length}\` unread message` +
+              (unreadList.length > 1 ? "s" : ""),
+            value: `Use ${await getSlashCommand("inbox")}.`,
           },
         ]
       : []),
