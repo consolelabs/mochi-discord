@@ -28,6 +28,7 @@ import { awaitMessage } from "utils/discord"
 import { composeButtonLink } from "ui/discord/button"
 import { InternalError } from "errors"
 import CacheManager from "cache/node-cache"
+import { OriginalMessage } from "errors/base"
 
 const cacheExpireTimeSeconds = 180
 
@@ -50,6 +51,13 @@ export const chains = {
   // 25: "cronos",
   // 106: "velas",
   // 1313161554: "aurora",
+}
+
+export const native_asset_platform = {
+  eth: "ethereum",
+  ftm: "fantom",
+  bnb: "binancecoin",
+  matic: "matic-network",
 }
 
 type Route = {
@@ -420,20 +428,14 @@ export async function viewTickerRouteSwap(i: ButtonInteraction) {
   if (!i.deferred) i.deferUpdate()
   const msg = i.message as Message
   const author = i.user
-  console.log("Handle swap")
-  const [coinId, symbol, chainName, discordId] = i.customId.split("|").slice(1)
-  console.log(coinId)
-  console.log(symbol)
-  console.log(chainName)
-  console.log(discordId)
-  console.log(author.id)
+  const [coinId, symbol, chainName] = i.customId.split("|").slice(1)
 
   // send dm ask for from token
   const dmFromTokenPayload = {
     embeds: [
       composeEmbedMessage(null, {
-        author: ["Swap", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-        thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
+        author: ["Swap", getEmojiURL(emojis.SWAP_ROUTE)],
+        thumbnail: getEmojiURL(emojis.SWAP_ROUTE),
         description: `Please enter token you want to swap from`,
         color: msgColors.MOCHI,
       }),
@@ -447,7 +449,7 @@ export async function viewTickerRouteSwap(i: ButtonInteraction) {
     const replyPayload = {
       embeds: [
         composeEmbedMessage(null, {
-          author: ["Swap tokens", getEmojiURL(emojis.WALLET)],
+          author: ["Swap tokens", getEmojiURL(emojis.SWAP_ROUTE)],
           description: `${author}, a swap message has been sent to you. Check your DM!`,
         }),
       ],
@@ -473,8 +475,8 @@ export async function viewTickerRouteSwap(i: ButtonInteraction) {
   const dmAmountPayload = {
     embeds: [
       composeEmbedMessage(null, {
-        author: ["Swap", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-        thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
+        author: ["Swap", getEmojiURL(emojis.SWAP_ROUTE)],
+        thumbnail: getEmojiURL(emojis.SWAP_ROUTE),
         description: `Please enter amount you want to swap`,
         color: msgColors.MOCHI,
       }),
@@ -497,12 +499,12 @@ export async function viewTickerRouteSwap(i: ButtonInteraction) {
     amount: String(amount),
     chain_name: chainName,
     to_token_id: coinId,
-    from_token_id: await getFromTokenID(i, fromToken, chainName),
+    from_token_id: await getFromTokenID(dmFromToken, fromToken, chainName),
   })
 
   if (!ok) {
     throw new InternalError({
-      msgOrInteraction: i,
+      msgOrInteraction: dmFromToken,
       description:
         "No route data found, we're working on adding them in the future, stay tuned.",
       emojiUrl: getEmojiURL(emojis.SWAP_ROUTE),
@@ -520,48 +522,47 @@ export async function viewTickerRouteSwap(i: ButtonInteraction) {
 }
 
 async function getFromTokenID(
-  i: ButtonInteraction,
+  msg: OriginalMessage,
   symbol: string,
   chain: string
 ) {
+  const errorTokenNotSp = {
+    title: "Unsupported token/fiat",
+    msgOrInteraction: msg,
+    description: `**${symbol.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
+      true
+    )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
+      true
+    )} or Please choose a valid fiat currency.`,
+  }
+
   const { data: coins } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-search-${symbol}`,
     call: () => defi.searchCoins(symbol, ""),
   })
   if (!coins || !coins.length) {
-    throw new InternalError({
-      title: "Unsupported token/fiat",
-      msgOrInteraction: i,
-      description: `**${symbol.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} or Please choose a valid fiat currency.`,
-    })
+    throw new InternalError(errorTokenNotSp)
   }
 
   let coinId = ""
   for (const coin of coins) {
+    // if native token then return coinId, since coingecko not have asset_platform_id for native token. Temp used hardcode
+    if (Object.keys(native_asset_platform).includes(coin.symbol)) {
+      coinId =
+        native_asset_platform[coin.symbol as keyof typeof native_asset_platform]
+      break
+    }
+    // if non native token then check if chain = chain of token. Ex: $ticker multi -> choose swap from usdt to multi -> query usdt has ethereum chain
     const { data: coinDetail, status } = await CacheManager.get({
       pool: "ticker",
       key: `ticker-getcoin-${coin.id}`,
       call: () => defi.getCoin(coin.id, false, ""),
     })
     if (status === 404) {
-      throw new InternalError({
-        title: "Unsupported token",
-        msgOrInteraction: i,
-        description: `Token is invalid or hasn't been supported.\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT",
-          true
-        )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT",
-          true
-        )} or Please choose a valid fiat currency.`,
-      })
+      throw new InternalError(errorTokenNotSp)
     }
     if (coinDetail.asset_platform_id === chain) {
       coinId = coinDetail.id
@@ -570,17 +571,7 @@ async function getFromTokenID(
   }
 
   if (coinId === "") {
-    throw new InternalError({
-      title: "Unsupported token",
-      msgOrInteraction: i,
-      description: `Token is invalid or hasn't been supported.\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} or Please choose a valid fiat currency.`,
-    })
+    throw new InternalError(errorTokenNotSp)
   }
 
   return coinId

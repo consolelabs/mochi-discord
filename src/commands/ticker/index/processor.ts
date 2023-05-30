@@ -356,7 +356,7 @@ export function buildSwitchViewActionRow(
   const swapBtn = new MessageButton({
     label: "Swap",
     emoji: getEmoji("CHECK"),
-    customId: `ticker_route_swap|${coinId}|${symbol}|${tokenInfo?.chain_name}|${discordId}`,
+    customId: `ticker_route_swap|${coinId}|${symbol}|${tokenInfo?.chain_name}`,
     style: "SECONDARY",
     disabled: currentView === "swap",
   })
