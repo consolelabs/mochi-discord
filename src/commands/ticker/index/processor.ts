@@ -250,7 +250,10 @@ export async function composeTickerResponse({
   const buttonRow = buildSwitchViewActionRow(
     "ticker",
     { coinId: coin.id, days: days, symbol, discordId, isDominanceChart },
-    wlAdded
+    wlAdded,
+    {
+      chain_name: coin.asset_platform_id,
+    }
   )
 
   return {
@@ -327,7 +330,10 @@ export function buildSwitchViewActionRow(
     discordId: string
     isDominanceChart: boolean
   },
-  added: boolean
+  added: boolean,
+  tokenInfo?: {
+    chain_name: string
+  }
 ) {
   const { coinId, days, symbol, discordId, isDominanceChart } = params
   const tickerBtn = new MessageButton({
@@ -353,7 +359,7 @@ export function buildSwitchViewActionRow(
   const swapBtn = new MessageButton({
     label: "Swap",
     emoji: getEmoji("SWAP_ROUTE"),
-    customId: "swap",
+    customId: `ticker_route_swap|${coinId}|${symbol}|${tokenInfo?.chain_name}`,
     style: "SECONDARY",
   })
   const addAlertBtn = new MessageButton({
@@ -368,6 +374,7 @@ export function buildSwitchViewActionRow(
     infoBtn,
     addAlertBtn,
     ...(added ? [] : [wlAddBtn]),
+    swapBtn,
   ])
 }
 

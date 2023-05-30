@@ -455,11 +455,15 @@ class Defi extends Fetcher {
     to,
     amount,
     chain_name,
+    from_token_id, // not every token exist in kyber api, this is used for backend to query and add token which kyber not have
+    to_token_id, // not every token exist in kyber api, this is used for backend to query and add token which kyber not have
   }: {
     from: string
     to: string
     amount: string
     chain_name: string
+    from_token_id?: string
+    to_token_id?: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/swap/route`, {
       query: {
@@ -467,6 +471,8 @@ class Defi extends Fetcher {
         to,
         amount,
         chain_name,
+        from_token_id,
+        to_token_id,
       },
     })
   }

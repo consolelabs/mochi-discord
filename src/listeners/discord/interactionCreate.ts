@@ -42,6 +42,7 @@ import {
   viewWallet,
 } from "commands/wallet/view/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
+import { viewTickerRouteSwap } from "commands/swap/index/processor"
 import {
   AutocompleteInteraction,
   ButtonInteraction,
@@ -444,6 +445,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("ticker_add_wl"):
       await addToWatchlist(i)
+      return
+    case i.customId.startsWith("ticker_route_swap"):
+      await viewTickerRouteSwap(i)
       return
     case i.customId.startsWith("nft_ticker_view"):
       await handleNFTTickerViews(i)
