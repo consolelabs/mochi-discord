@@ -344,6 +344,7 @@ export const emojis = {
   LEAF: "1087564972474769458",
   BANK: "1090902907244777542",
   BELL: "1087564962941124679",
+  XP: "1058304395000938516",
 
   ...animatedEmojis,
   ...tokenEmojis,

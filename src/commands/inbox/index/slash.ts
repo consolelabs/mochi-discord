@@ -1,8 +1,14 @@
-import { render } from "./processor"
-import { CommandInteraction } from "discord.js"
+import { collectButton, render } from "./processor"
+import { CommandInteraction, Message } from "discord.js"
 
 const run = async (i: CommandInteraction) => {
   const userDiscordID = i.user.id
-  return await render(userDiscordID)
+  const msgOpts = await render(userDiscordID, 0)
+
+  const reply = (await i.editReply({ ...msgOpts.messageOptions })) as Message
+
+  collectButton(reply, i.user)
+
+  return null
 }
 export default run

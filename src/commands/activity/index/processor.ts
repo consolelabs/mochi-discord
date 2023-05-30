@@ -15,35 +15,37 @@ export async function render(userDiscordId: string, page: number) {
   }
   if (!dataProfile)
     return {
-      embed: composeEmbedMessage(null, {
-        title: "No activities found",
-        description: `${getEmoji(
-          "ANIMATED_POINTING_RIGHT",
-          true
-        )} This user does not have any activities yet`,
-        color: msgColors.ACTIVITY,
-      }),
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "No activities found",
+            description: `${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} This user does not have any activities yet`,
+            color: msgColors.ACTIVITY,
+          }),
+        ],
+      },
     }
 
-  const { data, ok, curl, error, log, pagination } =
-    await profile.getUserActivities(dataProfile.id, page, 7)
-  if (!ok) {
-    throw new APIError({ curl, error, description: log })
-  }
+  const { data } = await profile.getUserActivities(dataProfile.id, page, 7)
   if (!data.length)
     return {
-      embed: composeEmbedMessage(null, {
-        title: "No activities found",
-        description: `${getEmoji(
-          "ANIMATED_POINTING_RIGHT",
-          true
-        )} This user does not have any activities yet`,
-        color: msgColors.ACTIVITY,
-      }),
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "No activities found",
+            description: `${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} This user does not have any activities yet`,
+            color: msgColors.ACTIVITY,
+          }),
+        ],
+      },
     }
 
-  const total = pagination?.total ?? 1
-  const totalPages = Math.ceil(total / 12)
   const activityList = []
   const blank = getEmoji("BLANK")
   let col2Len = 0
@@ -89,7 +91,6 @@ export async function render(userDiscordId: string, page: number) {
     author: ["Activity", getEmojiURL(emojis.CLOCK)],
     description,
     color: msgColors.ACTIVITY,
-    footer: [`Page ${page + 1}/${totalPages}`],
   })
   // .setTitle(`${getEmoji("ACTIVITY_CLOCK")} Activity`)
   // .setDescription(description)
@@ -98,7 +99,8 @@ export async function render(userDiscordId: string, page: number) {
   //   text: `Page ${page + 1}/${totalPages} • Mochi Bot • ${dateNow}`,
   // })
   return {
-    embed,
-    totalPages,
+    messageOptions: {
+      embeds: [embed],
+    },
   }
 }
