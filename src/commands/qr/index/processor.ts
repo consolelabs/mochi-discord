@@ -5,7 +5,6 @@ import {
   MessageButton,
   MessageSelectMenu,
   User,
-  MessageEmbed,
   MessageAttachment,
   GuildMember,
 } from "discord.js"
@@ -276,9 +275,10 @@ export function collectSelection(
         })
         const messageOptions = {
           embeds: [
-            new MessageEmbed()
-              .setTitle(`Here is your \`${label}\` QR code`)
-              .setImage("attachment://qr.png"),
+            composeEmbedMessage(null, {
+              title: `Here is your \`${label}\` QR code`,
+              image: "attachment://qr.png",
+            }),
           ],
           files: [new MessageAttachment(buffer, "qr.png")],
           components: [
@@ -304,7 +304,7 @@ export function collectSelection(
                 await i.deferUpdate().catch(() => null)
               }
               if (i.customId === "back") {
-                i.editReply({ embeds: reply.embeds, components })
+                i.editReply({ files: [], embeds: reply.embeds, components })
               }
             })
           })

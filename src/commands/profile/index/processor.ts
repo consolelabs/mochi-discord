@@ -444,45 +444,51 @@ function collectButton(reply: Message, author: User, member: GuildMember) {
             //   await composeSlashTokenWatchlist(i, 0, author.id)
             //   break
             // }
+            case "qrcodes": {
+              const replyPayload = await renderQr(reply, member)
+              // manually add a back button here because we know the flow is
+              // profile cmd (we are here)
+              //    -> qr cmd (and we are moving to here, so need a back btn to go back up)
+              //        -> qr detail
+              replyPayload.components.unshift(
+                new MessageActionRow().addComponents(
+                  new MessageButton()
+                    .setLabel("Back")
+                    .setStyle("SECONDARY")
+                    .setCustomId("back")
+                )
+              )
+              const edited = (await i.editReply(replyPayload)) as Message
+
+              collectSelectionQr(edited, author, replyPayload.components)
+
+              edited
+                .createMessageComponentCollector({
+                  filter: authorFilter(author.id),
+                  componentType: "BUTTON",
+                  time: 300000,
+                })
+                .on("collect", async (i) => {
+                  wrapError(edited, async () => {
+                    if (!i.deferred) {
+                      await i.deferUpdate().catch(() => null)
+                    }
+                    if (i.customId === "back") {
+                      i.editReply({
+                        embeds: reply.embeds,
+                        components: reply.components,
+                      })
+                    }
+                  })
+                })
+              break
+            }
             default:
               i.followUp({ content: "WIP!", ephemeral: true })
               break
           }
         }
       })
-
-      if (i.customId === "profile_qrcodes") {
-        const replyPayload = await renderQr(reply, member)
-        collectSelectionQr(reply as Message, author, replyPayload.components)
-        const edited = (await i.editReply(replyPayload)) as Message
-        edited
-          .createMessageComponentCollector({
-            filter: authorFilter(author.id),
-            componentType: "BUTTON",
-            time: 300000,
-          })
-          .on("collect", async (i) => {
-            wrapError(edited, async () => {
-              if (!i.deferred) {
-                await i.deferUpdate().catch(() => null)
-              }
-              if (i.customId === "back") {
-                i.editReply({
-                  embeds: replyPayload.embeds,
-                  components: replyPayload.components,
-                })
-              }
-            })
-          })
-      }
-
-      if (
-        i.customId !== "back" &&
-        i.customId.startsWith("profile") &&
-        i.customId !== "profile_qrcodes"
-      ) {
-        await i.followUp({ content: "WIP!", ephemeral: true })
-      }
     })
     .on("end", async () => {
       await reply.edit({ components: [] }).catch(() => null)

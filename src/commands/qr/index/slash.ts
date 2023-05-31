@@ -12,10 +12,8 @@ const run = async (interaction: CommandInteraction) => {
   }
   const replyPayload = await render(interaction, member)
 
-  const reply = await interaction.editReply(replyPayload).catch(() => {
-    replyPayload.embeds[0].fields.pop()
-  })
+  const reply = (await interaction.editReply(replyPayload)) as Message
 
-  collectSelection(reply as Message, interaction.user, replyPayload.components)
+  collectSelection(reply, interaction.user, replyPayload.components)
 }
 export default run
