@@ -16,6 +16,12 @@ class MochiTelegram extends Fetcher {
       `${MOCHI_TELEGRAM_API_BASE_URL}/users/get-by-username/${username}`
     )
   }
+
+  public async getById(id: string) {
+    return await this.jsonFetch(
+      `${MOCHI_TELEGRAM_API_BASE_URL}/users/get-by-id/${id}`
+    )
+  }
 }
 
 export default new MochiTelegram()

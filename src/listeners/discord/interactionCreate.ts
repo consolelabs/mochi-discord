@@ -1,6 +1,6 @@
 import CacheManager from "cache/node-cache"
 import { slashCommands } from "commands"
-import { handleBalanceView } from "commands/balances/index/processor"
+import { handleInteraction } from "commands/balances/index/processor"
 import { feedbackDispatcher } from "commands/feedback/index/processor"
 import { handleGainerView } from "commands/gainer/index/processor"
 import { confirmGlobalXP } from "commands/globalxp/index/processor"
@@ -344,8 +344,12 @@ function handleCommandInteraction(interaction: Interaction) {
         select,
         onDefaultSet,
         render,
+        title,
+        description,
       } = response
       const multipleEmbed = getMultipleResultEmbed({
+        title,
+        description,
         ambiguousResultText,
         multipleResultText,
       })
@@ -526,8 +530,8 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("swap-mochi-wallet"):
       await handleSwap(i)
       return
-    case i.customId.startsWith("balance-view"):
-      await handleBalanceView(i)
+    case i.customId.startsWith("balance"):
+      await handleInteraction(i)
       return
     case i.customId.startsWith("gainer-view"):
       await handleGainerView(i)

@@ -42,6 +42,12 @@ const slashCmd: SlashCommand = {
     return new SlashCommandBuilder()
       .setName(aliasName)
       .setDescription("Show your balances")
+      .addBooleanOption((opt) =>
+        opt
+          .setName("expand")
+          .setDescription("expand view, default view is compact")
+          .setRequired(false)
+      )
   },
   run: balanceSlash,
   help: async () => ({

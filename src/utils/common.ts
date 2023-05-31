@@ -31,6 +31,7 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
+import CacheManager from "cache/node-cache"
 dayjs.extend(relativeTime)
 
 export const tokenEmojis = {
@@ -201,6 +202,7 @@ const animatedEmojis = {
   ANIMATED_QUESTION_MARK: "1093923080235126804",
   ANIMATED_OPEN_VAULT: "1093923096303521792",
   ANIMATED_STAR: "1093923083934502982",
+  ANIMATED_STAR_GREYSCALE: "1112649018615533658",
   ANIMATED_PARTY_POPPER: "1095990305414709331",
   ANIMATED_VAULT_KEY: "1093923048807203016",
   ANIMATED_TOKEN_ADD: "1095990093585592360",
@@ -210,7 +212,8 @@ const animatedEmojis = {
   ANIMATED_XP: "1093923101202452501",
   ANIMATED_MONEY: "1093923034131353762",
   ANIMATED_CROWN: "1093923029672796261",
-  ANIMATED_CHART_INCREASE: "1095990285512740904",
+  ANIMATED_CHART_INCREASE: "1110454129509269644",
+  ANIMATED_CHART_DECREASE: "1110454113247965275",
   ANIMATED_TROPHY: "1095990335794069614",
   ANIMATED_MAIL_RECEIVE: "1093923054389837854",
   ANIMATED_MAIL_SEND: "1093923059498496045",
@@ -219,6 +222,8 @@ const animatedEmojis = {
   ANIMATED_ROBOT: "1095990316147937382",
   ANIMATED_CHEST: "1095990185658945566",
   ANIMATED_ARROW_UP: "1093922976912638094",
+  ANIMATED_DIAMOND: "1095990245876576316",
+  ANIMATED_GEM: "1095990259877158964",
 }
 
 export const emojis = {
@@ -256,7 +261,7 @@ export const emojis = {
   FELLOWSHIP: "922044644928421888",
   TRADE: "1026414280498757652",
   DISCORD: "1039475287169183744",
-  TWITTER: "932208655313551420",
+  TWITTER: "1097390164629782539",
   TELEGRAM: "1097390168723435550",
   HORIZONTAL_LINE: "928213014824488990",
   MAIL: "1058304339237666866",
@@ -298,14 +303,14 @@ export const emojis = {
   ADDRESS: "933216413248802867",
   MAG: "1058304336842727544",
   INCREASING: "1058304334779125780",
-  DECREASING: "1058304303888093194",
   DASHBOARD: "933339868795404408",
   SHELTER: "998929232212275221",
   PENCIL: "1078633895500722187",
   WINKINGFACE: "1058304390869549117",
   WALLET_1: "1077631121614970992",
   PLUS: "1078633897513992202",
-  ARROW_UP: "1093922976912638094",
+  ARROW_UP: "1058304264071561267",
+  ARROW_DOWN: "1058304267737374720",
   CLOCK: "1080757110146605086",
   NFT2: "1080788646841557072",
   BIN: "1078633887292477450",
@@ -336,6 +341,9 @@ export const emojis = {
   CHART: "1058304295205883936",
   HAMMER: "1087564968536317953",
   QRCODE: "1106995993678975056",
+  LEAF: "1087564972474769458",
+  BANK: "1090902907244777542",
+  BELL: "1087564962941124679",
 
   ...animatedEmojis,
   ...tokenEmojis,
@@ -357,7 +365,8 @@ export const msgColors: Record<string, ColorResolvable> = {
   SUCCESS: "#5cd97d",
   PINK: "#FCD3C1",
   GRAY: "#1E1F22",
-  BLUE: "#34AAFF",
+  // BLUE: "#34AAFF",
+  BLUE: "#62A1FE",
   GREEN: "#5CD97D",
   YELLOW: "#F9F687",
   MOCHI: "#34AAFF",
@@ -407,22 +416,6 @@ export function hasAdministrator(member?: GuildMember | null) {
   return member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)
 }
 
-// export function getCommandsList(
-//   _emoji: GuildEmoji | string,
-//   commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
-// ) {
-//   const emoji = getEmoji("reply")
-//   const correctBrief = (brief: string) =>
-//     brief.endsWith(".") ? brief : `${brief}.`
-//   return Object.values(commands)
-//     .filter((c) => !c.experimental)
-//     .map(
-//       (c) =>
-//         `[**${c.command}**](${HOMEPAGE_URL})\n${emoji}${correctBrief(c.brief)}`
-//     )
-//     .join("\n\n")
-// }
-
 export function maskAddress(str: string, minLen?: number) {
   const num = minLen || 8
   if (str.length > num && str.length > 3) {
@@ -445,16 +438,18 @@ export function getEmoji(
 ) {
   if (!key) return fallback
 
-  const emoji = emojis[key]
+  const emoji = emojis[key.toUpperCase() as EmojiKey]
   if (!emoji) return fallback
 
   if (isNaN(+emoji)) {
     return emoji
   }
 
-  return `<${animated || key.startsWith("ANIMATED_") ? "a" : ""}:${key
-    .replace(/-/g, "_")
-    .toLowerCase()}:${emojis[key]}>`
+  return `<${
+    animated || key.toUpperCase().startsWith("ANIMATED_") ? "a" : ""
+  }:${key.toUpperCase().replace(/-/g, "_").toLowerCase()}:${
+    emojis[key.toUpperCase() as EmojiKey]
+  }>`
 }
 
 export function getEmojiToken(key: TokenEmojiKey, animated?: boolean) {
@@ -734,36 +729,61 @@ async function resolveENSDomain(domain: string) {
   return await providers.eth.resolveName(domain)
 }
 
+CacheManager.init({
+  pool: "naming-service",
+  // 1 week
+  ttl: 604800,
+  checkperiod: 604800,
+})
 export async function resolveNamingServiceDomain(domain: string) {
-  try {
-    if (domain.endsWith(".sol")) {
-      return await resolveSNSDomain(domain)
-    }
-    return await resolveENSDomain(domain)
-  } catch (e) {
-    logger.error(`[resolveNamingServiceDomain] failed: ${e}`)
-    return ""
-  }
+  return await CacheManager.get({
+    pool: "naming-service",
+    key: domain,
+    call: async () => {
+      try {
+        if (domain.endsWith(".sol")) {
+          return await resolveSNSDomain(domain)
+        }
+        return await resolveENSDomain(domain)
+      } catch (e) {
+        logger.error(`[resolveNamingServiceDomain] failed: ${e}`)
+        return ""
+      }
+    },
+  })
 }
 
+CacheManager.init({
+  pool: "naming-service-lookup",
+  // 1 week
+  ttl: 604800,
+  checkperiod: 604800,
+})
 const connection = new Connection(clusterApiUrl("mainnet-beta"))
 export async function reverseLookup(address: string) {
-  const { type } = isAddress(address)
-  try {
-    switch (type) {
-      case "sol": {
-        const domainKey = new PublicKey(address)
-        return await performReverseLookup(connection, domainKey)
-      }
-      case "eth":
-        return (await providers.eth.lookupAddress(address)) || ""
-      default:
+  return await CacheManager.get({
+    pool: "naming-service-lookup",
+    key: address,
+    ttl: 604800,
+    call: async () => {
+      const { type } = isAddress(address)
+      try {
+        switch (type) {
+          case "sol": {
+            const domainKey = new PublicKey(address)
+            return await performReverseLookup(connection, domainKey)
+          }
+          case "eth":
+            return (await providers.eth.lookupAddress(address)) || ""
+          default:
+            return ""
+        }
+      } catch (e) {
+        logger.warn(`[reverseLookup] failed for ${address}: ${e}`)
         return ""
-    }
-  } catch (e) {
-    logger.warn(`[reverseLookup] failed for ${address}: ${e}`)
-    return ""
-  }
+      }
+    },
+  })
 }
 
 export function getAuthor(msgOrInteraction: OriginalMessage) {

@@ -31,6 +31,7 @@ import { loadAndCacheImage } from "ui/canvas/image"
 import { heightOf, widthOf } from "ui/canvas/calculator"
 import { renderChartImage } from "ui/canvas/chart"
 import { getPaginationRow } from "ui/discord/button"
+import { getSlashCommand } from "utils/commands"
 
 let interaction: CommandInteraction
 let fontRegistered = false
@@ -380,19 +381,25 @@ export function buildSwitchViewActionRow(currentView: string) {
   const tokenButton = new MessageButton({
     label: "Token",
     emoji: getEmoji("CASH"),
-    customId: `watchlist-switch-view-button/token}`,
+    customId: `watchlist-switch-view-button/token`,
     style: "SECONDARY",
     disabled: currentView === "token",
   })
   const nftButton = new MessageButton({
     label: "NFT",
-    emoji: getEmoji("NFTS"),
+    emoji: getEmoji("ANIMATED_GEM", true),
     customId: `watchlist-switch-view-button/nft`,
     style: "SECONDARY",
     disabled: currentView === "nft",
   })
+  const viewWalletBtn = new MessageButton({
+    label: "Wallets",
+    emoji: getEmoji("WALLET_1"),
+    customId: "watchlist-switch-view-button/wallet",
+    style: "SECONDARY",
+  })
   const row = new MessageActionRow()
-  row.addComponents([tokenButton, nftButton])
+  row.addComponents([tokenButton, nftButton, viewWalletBtn])
   return row
 }
 
@@ -521,13 +528,10 @@ export async function composeTokenWatchlist(
       `${msg.author.username}'s watchlist`,
       msg.author.displayAvatarURL({ format: "png" }),
     ],
-    description: `_All information are supported by Coingecko_\n\n${getEmoji(
+    description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
       true
-    )} Choose a token supported by [Coingecko](https://www.coingecko.com/) to add to the list.\n${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )} Add token to track by \`$wl add <symbol>\`.`,
+    )} Add token to track by ${await getSlashCommand("wallet add")}.`,
     footer: totalPage > 1 ? [`Page ${page + 1} / ${totalPage}`] : [],
   })
   if (!data?.length) {
@@ -550,8 +554,8 @@ export async function composeTokenWatchlist(
     embeds: [embed],
     files: [await renderWatchlist(<any[]>data)],
     components: [
-      ...getPaginationRow(page, totalPage),
       buildSwitchViewActionRow("token"),
+      ...getPaginationRow(page, totalPage),
     ],
   }
 }

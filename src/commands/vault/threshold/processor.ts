@@ -42,9 +42,9 @@ export async function runCreateThreshold({
   )}%\` for approval\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true
-  )} Set or change vault threshold by run </vault config threshold:${await getSlashCommand(
-    "vault"
-  )}>`
+  )} Set or change vault threshold by run ${await getSlashCommand(
+    "vault config threshold"
+  )}`
   const embed = new MessageEmbed()
     .setTitle(
       `${getEmoji("CHECK")} Vault threshold successfully changed${getEmoji(

@@ -39,7 +39,7 @@ export class CacheManager {
     const cache = this.cachePools.get(pool)
     if (!cache) return {}
     let val = cache.get(key)
-    if (!val) {
+    if (!val && val !== "") {
       val = await call()
       cache.set(key, val, ttl)
     } else if (callIfCached) {

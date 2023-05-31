@@ -43,6 +43,9 @@ export const VALID_BOOST_MESSAGE_TYPES = [
   "USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3",
 ]
 
+// usd
+export const MIN_DUST = 0.001
+
 export const HOMEPAGE_URL = "https://mochi.gg"
 export const TWITTER_URL = "https://twitter.com/getmochi_bot"
 export const DISCORD_URL = "https://discord.gg/XQR36DQQGh"

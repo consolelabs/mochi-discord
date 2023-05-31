@@ -10,6 +10,6 @@ const run = async (interaction: CommandInteraction) => {
       description: "Couldn't get user data",
     })
   }
-  return await render(interaction, member)
+  await render(interaction, member)
 }
 export default run

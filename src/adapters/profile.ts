@@ -14,13 +14,51 @@ import mochiPay from "./mochi-pay"
 import { uniqBy } from "lodash"
 import { removeDuplications } from "utils/common"
 import { logger } from "logger"
+import { formatDigit } from "utils/defi"
+import CacheManager from "cache/node-cache"
+import mochiTelegram from "./mochi-telegram"
+
+CacheManager.init({
+  pool: "profile-data",
+  ttl: 300,
+  checkperiod: 150,
+})
 
 class Profile extends Fetcher {
+  public async getUserSocials(discordId: string) {
+    const dataProfile = await this.getByDiscord(discordId)
+    if (dataProfile.err) {
+      logger.error("Cannot get profile by discord id", discordId)
+      return []
+    }
+
+    const socials = await Promise.all(
+      dataProfile.associated_accounts
+        .filter((a: any) => ["twitter", "telegram"].includes(a.platform))
+        .map(async (a: any) => {
+          if (a.platform === "telegram") {
+            const res = await mochiTelegram.getById(a.platform_identifier)
+            if (!res.ok) return a
+
+            return {
+              ...a,
+              platform_identifier: res.data.username,
+            }
+          }
+
+          return a
+        })
+    )
+
+    return socials
+  }
+
   public async getUserWallets(discordId: string) {
     const dataProfile = await this.getByDiscord(discordId)
     if (dataProfile.err) {
       logger.error("Cannot get profile by discord id", discordId)
       return {
+        onchainTotal: 0,
         mochiWallets: [],
         wallets: [],
       }
@@ -39,18 +77,46 @@ class Profile extends Fetcher {
       chain: m.chain?.is_evm ? "EVM" : m.chain?.symbol,
     }))
 
+    const pnl = dataProfile.pnl ?? "0"
+
+    let onchainTotal = 0
     const wallets = removeDuplications(
       dataProfile.associated_accounts
-        ?.filter((a: any) => ["evm-chain", "solana-chain"].includes(a.platform))
-        ?.map((w: any) => ({
-          value: w.platform_identifier,
-          chain: w.platform === "evm-chain" ? "EVM" : "SOL",
-        })) ?? []
+        ?.filter((a: any) =>
+          [
+            "evm-chain",
+            "solana-chain",
+            "near-chain",
+            "sui-chain",
+            "ronin-chain",
+          ].includes(a.platform)
+        )
+        .sort((a: any, b: any) => {
+          return (b.total_amount || 0) - (a.total_amount || 0)
+        })
+        ?.map((w: any) => {
+          const bal = Number(w.total_amount || 0)
+          onchainTotal += bal
+          return {
+            disabled: !["evm-chain", "solana-chain"].includes(w.platform),
+            value: w.platform_identifier,
+            total: formatDigit({
+              value: bal.toString(),
+              fractionDigits: 2,
+            }),
+            chain:
+              w.platform === "solana-chain"
+                ? "SOL"
+                : w.platform.split("-").shift().toUpperCase(),
+          }
+        }) ?? []
     )
 
     return {
+      onchainTotal,
       mochiWallets,
       wallets,
+      pnl,
     }
   }
 
@@ -139,10 +205,17 @@ class Profile extends Fetcher {
   }
 
   public async getByDiscord(discordId: string) {
-    const res = await fetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}`
-    )
-    return await res?.json()
+    return await CacheManager.get({
+      pool: "profile-data",
+      key: discordId,
+      call: async () => {
+        const res = await fetch(
+          `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}`
+        )
+
+        return await res?.json()
+      },
+    })
   }
 
   public async getByEmail(email: string) {

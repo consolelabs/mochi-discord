@@ -90,7 +90,7 @@ const slashCmd: SlashCommand = {
   prepare: () => {
     return new SlashCommandBuilder()
       .setName("ticker")
-      .setDescription("Show/Compare coins price and market cap")
+      .setDescription("Show/compare coins price and market cap")
       .addStringOption((option) =>
         option
           .setName("base")

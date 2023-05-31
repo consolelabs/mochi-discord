@@ -1,7 +1,6 @@
 import { Command, SlashCommand } from "types/common"
 import { PREFIX, SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
-import list from "./list/text"
 import remove from "./remove/text"
 import set from "./set/text"
 // slash
@@ -16,7 +15,6 @@ import {
 import { CommandInteraction } from "discord.js"
 
 const actions: Record<string, Command> = {
-  list,
   remove,
   set,
 }
