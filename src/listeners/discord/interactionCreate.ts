@@ -359,7 +359,7 @@ function handleCommandInteraction(interaction: Interaction) {
       })
       const msg = await i.editReply({
         embeds: [multipleEmbed],
-        components: [selectRow, composeDiscordExitButton(i.user.id)],
+        components: [selectRow],
       })
 
       if (onDefaultSet && render) {
