@@ -7,7 +7,7 @@ import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
 
 const command: SlashCommand = {
-  name: "view",
+  name: "wlv",
   category: "Defi",
   prepare: () => {
     return new SlashCommandSubcommandBuilder()

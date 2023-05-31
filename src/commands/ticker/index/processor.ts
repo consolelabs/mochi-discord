@@ -275,7 +275,7 @@ const getChoices = (isDominanceChart: boolean) => {
   return [1, 7, 30, 60, 90, 365]
 }
 
-export const handler =
+const handler =
   (isDominanceChart: boolean) => async (msgOrInteraction: any) => {
     const interaction = msgOrInteraction as SelectMenuInteraction
     await interaction.deferUpdate()
@@ -409,10 +409,7 @@ export async function viewTickerChart(
   await msg.edit(messageOptions)
 }
 
-export async function viewTickerInfo(
-  interaction: ButtonInteraction,
-  msg: Message
-) {
+async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
   const [coinId, days, symbol, isDChart, discordId] = interaction.customId
     .split("|")
     .slice(1)
@@ -424,8 +421,8 @@ export async function viewTickerInfo(
     discordId,
     String(isDChart).toLowerCase() === "true"
   )
-  await msg.edit(messageOptions)
-  await msg.removeAttachments()
+  await msg.removeAttachments().catch(() => null)
+  await interaction.editReply(messageOptions).catch(() => null)
 }
 
 export async function composeTokenInfoEmbed(
