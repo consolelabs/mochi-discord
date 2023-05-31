@@ -90,7 +90,7 @@ export const tokenEmojis = {
   BRUSH: "1037985582162378783",
   SOL: "1006838270862295080",
   APT: "1047707078183096320",
-  RONIN: "1047707529884483614",
+  RON: "1047707529884483614",
   ARB: "1056772215477112862",
   OKC: "1006838263165767681",
   ONUS: "1077203550075093053",
@@ -698,6 +698,10 @@ export async function pullImage(imageUrl: string): Promise<Buffer> {
 }
 
 export function isAddress(address: string): { valid: boolean; type: string } {
+  // standardize ronin address
+  address = address.toLowerCase().startsWith("ronin:")
+    ? `0x${address.slice(6)}`
+    : address
   try {
     if (ethers.utils.isAddress(address)) {
       return { valid: true, type: "eth" }
