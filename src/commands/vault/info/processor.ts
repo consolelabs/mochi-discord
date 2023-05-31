@@ -55,6 +55,7 @@ export async function runGetVaultDetail(
 
   const { totalWorth, text: tokenBalanceBreakdownText } = formatView(
     "compact",
+    "filter-dust",
     data.balance
   )
   const myNftTitleFields = buildMyNftTitleFields(data)

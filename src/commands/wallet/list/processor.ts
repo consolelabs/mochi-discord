@@ -12,7 +12,7 @@ import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 import {
   authorFilter,
-  EmojiKey,
+  capitalizeFirst,
   getEmoji,
   shortenHashOrAddress,
 } from "utils/common"
@@ -87,44 +87,71 @@ export function collectSelection(reply: Message, author: User) {
     })
 }
 
+const emojiMap = {
+  following: getEmoji("PLUS"),
+  tracking: getEmoji("ANIMATED_STAR", true),
+  copying: getEmoji("SWAP_ROUTE"),
+}
+
 export async function render(user: User) {
-  const { data: res, ok } = await defi.getUserTrackingWallets(
-    "567326528216760320"
-  )
-  let data: ResponseGetTrackingWalletsResponse["data"] = []
+  const { data: res, ok } = await defi.getUserTrackingWallets(user.id)
+  const data: {
+    following: any[]
+    tracking: any[]
+    copying: any[]
+  } = {
+    following: [],
+    tracking: [],
+    copying: [],
+  }
   if (ok) {
-    data = (res as ResponseGetTrackingWalletsResponse["data"]) ?? []
+    data.following = (res as ResponseGetTrackingWalletsResponse["data"]) ?? []
   }
 
   const embed = composeEmbedMessage(null, {
-    author: [`${user.username}'s tracking wallets`, user.displayAvatarURL()],
-    description: `${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )} To track a wallet, use ${await getSlashCommand("wallet add")}`,
+    author: [`${user.username}'s favorite wallets`, user.displayAvatarURL()],
+    description: [
+      `${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
+        "wallet follow"
+      )} to add a wallet to favorite list`,
+      `${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
+        "wallet track"
+      )} to be notified of this wallet's txns`,
+      `${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
+        "wallet copy"
+      )} to copy every move this wallet makes`,
+    ].join("\n"),
   })
 
-  embed.setFields({
-    name: "Wallets",
-    value: `${getEmoji("WALLET_1")}\`On-chain\`\n${
-      formatDataTable(
-        data.map((d) => ({
-          type: (d.type ?? "").toUpperCase(),
-          address: shortenHashOrAddress(d.address ?? "", 4),
-          usd: `$${formatDigit({
-            value: String(d.net_worth ?? 0),
-            fractionDigits: 2,
-          })}`,
-        })),
+  Object.entries(data).forEach((e) => {
+    if (!e[1].length) return
+    embed.addFields({
+      name: `${emojiMap[e[0] as keyof typeof emojiMap]} ${capitalizeFirst(
+        e[0]
+      )}`,
+      value: formatDataTable(
+        e[1]
+          .sort((a, b) => (b.net_worth ?? 0) - (a.net_worth ?? 0))
+          .map((d) => {
+            let chain = (d.type ?? "").toUpperCase()
+            chain = chain === "ETH" ? "EVM" : chain
+            return {
+              type: chain,
+              address: d.alias || shortenHashOrAddress(d.address ?? "", 4),
+              usd: `$${formatDigit({
+                value: String(d.net_worth ?? 0),
+                fractionDigits: 2,
+              })}`,
+            }
+          }),
         {
           cols: ["type", "address", "usd"],
           separator: [VERTICAL_BAR, APPROX],
-          rowAfterFormatter: (f, i) =>
-            `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}${getEmoji("CASH")}`,
+          rowAfterFormatter: (f) => `${f}${getEmoji("CASH")}`,
         }
-      ).joined
-    }`,
-    inline: false,
+      ).joined,
+      inline: false,
+    })
   })
 
   return {
@@ -135,21 +162,25 @@ export async function render(user: User) {
           .setPlaceholder("💰 View a wallet")
           .setCustomId("wallets_view-wallet")
           .addOptions(
-            data
-              .filter((d) => d.user_id && d.address)
-              .map((d, i) => ({
-                emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-                value: `${d.user_id}_${d.address}`,
-                label: `🔹 ${
-                  d.type?.toUpperCase() ?? ""
-                } | ${shortenHashOrAddress(
-                  d.address ?? "",
-                  4
-                )} | 💵 $${formatDigit({
-                  value: String(d.net_worth ?? 0),
-                  fractionDigits: 2,
-                })}`,
-              }))
+            Object.entries(data)
+              .map((e) => {
+                return e[1]
+                  .filter((d) => d.user_id && d.address)
+                  .map((d) => {
+                    let chain = (d.type ?? "").toUpperCase()
+                    chain = chain === "ETH" ? "EVM" : chain
+                    return {
+                      value: `${e[0]}_${d.user_id}_${d.address}`,
+                      label: `🔹 ${chain} | ${
+                        d.alias || shortenHashOrAddress(d.address ?? "", 4)
+                      } | 💵 $${formatDigit({
+                        value: String(d.net_worth ?? 0),
+                        fractionDigits: 2,
+                      })}`,
+                    }
+                  })
+              })
+              .flat()
           )
       ),
     ],
