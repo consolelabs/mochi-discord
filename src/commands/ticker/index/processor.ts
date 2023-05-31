@@ -561,11 +561,23 @@ export async function ticker(
   }
 
   // else render embed to show multiple results
+  const coinWithPriceData: {
+    id: string
+    name: string
+    symbol: string
+    price: number
+  }[] = await Promise.all(
+    coins.map(async (coin: { id: string; name: string; symbol: string }) => {
+      const { data } = await defi.getCoin(coin.id)
+      return { ...coin, price: data?.market_data.current_price.usd ?? 0 }
+    })
+  )
+
   return {
     select: {
-      options: Object.values(coins).map((coin: any) => {
+      options: coinWithPriceData.map((coin: any) => {
         return {
-          label: `${coin.name} (${coin.symbol.toUpperCase()})`,
+          label: `${coin.name} (${coin.symbol.toUpperCase()}) $${coin.price}`,
           value: `${coin.id}_${coin.symbol}_${coin.name}`,
         }
       }),
