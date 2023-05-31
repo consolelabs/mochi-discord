@@ -180,11 +180,16 @@ async function getTokensEmbed(
       color: msgColors.SUCCESS,
     })
   }
-  const { totalWorth, text } = formatView("compact", assets, (a) => ({
-    symbol: a.contract_symbol?.toUpperCase(),
-    usd: a.usd_balance,
-    text: `${a.asset_balance.toLocaleString()} ${a.contract_symbol?.toUpperCase()}`,
-  }))
+  const { totalWorth, text } = formatView(
+    "compact",
+    "filter-dust",
+    assets,
+    (a) => ({
+      symbol: a.contract_symbol?.toUpperCase(),
+      usd: a.usd_balance,
+      text: `${a.asset_balance.toLocaleString()} ${a.contract_symbol?.toUpperCase()}`,
+    })
+  )
   const label = alias || (await reverseLookup(address))
   const title = label ? `${label}'s wallet` : "Wallet tokens"
 

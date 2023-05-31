@@ -358,7 +358,7 @@ export function buildSwitchViewActionRow(currentView: string) {
   const viewWalletBtn = new MessageButton({
     label: "Wallets",
     emoji: getEmoji("WALLET_1"),
-    customId: "watchlist_goto_wallets",
+    customId: "watchlist_switch-view_wallets",
     style: "SECONDARY",
   })
   const row = new MessageActionRow()
@@ -366,7 +366,6 @@ export function buildSwitchViewActionRow(currentView: string) {
   return row
 }
 
-async function switchView() {}
 export async function collectButton(
   reply: Message,
   author: User,
@@ -388,46 +387,27 @@ export async function collectButton(
 
         if (cmd.startsWith("watchlist")) {
           switch (action) {
-            case "goto": {
+            case "switch-view": {
               switch (view) {
                 case "wallets": {
                   const messageOptions = await renderTrackingWallets(user)
-                  messageOptions.components.push(
-                    new MessageActionRow().addComponents(
-                      new MessageButton()
-                        .setLabel("Back")
-                        .setStyle("SECONDARY")
-                        .setCustomId("back")
-                    )
-                  )
-                  const edited = (await i.editReply(messageOptions)) as Message
+                  reply.components[0].components.forEach((tab) => {
+                    const [, , tabView] = tab.customId?.split("_") ?? []
+                    tab.setDisabled(tabView === view)
+                  })
+                  messageOptions.components.push(reply.components[0])
+                  await i.editReply(messageOptions)
 
                   collectViewWalletSelection(reply, i.user)
-
-                  edited
-                    .createMessageComponentCollector({
-                      componentType: "BUTTON",
-                      filter: authorFilter(author.id),
-                      time: 300000,
-                    })
-                    .on("collect", async (i) => {
-                      if (!i.deferred) {
-                        await i.deferUpdate().catch(() => null)
-                      }
-                      wrapError(reply, async () => {
-                        if (i.customId === "back") {
-                          await i.editReply({
-                            embeds: reply.embeds,
-                            components: reply.components,
-                          })
-                        }
-                      })
-                    })
-                    .on("end", () => {
-                      wrapError(reply, async () => {
-                        await i.editReply({ components: [] }).catch(() => null)
-                      })
-                    })
+                  break
+                }
+                case "token": {
+                  const msgOptions = await composeWatchlist(
+                    author,
+                    0,
+                    WatchListViewType.TOKEN
+                  )
+                  await i.editReply(msgOptions)
                   break
                 }
                 default:
@@ -436,7 +416,6 @@ export async function collectButton(
               break
             }
             default:
-            case "switch-view":
               break
           }
         }

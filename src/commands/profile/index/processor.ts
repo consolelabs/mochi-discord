@@ -122,7 +122,7 @@ async function compose(
   const highestRole =
     member.roles.highest.name !== "@everyone" ? member.roles.highest : "N/A"
 
-  const { totalWorth } = formatView("compact", balances.data)
+  const { totalWorth } = formatView("compact", "filter-dust", balances.data)
   const grandTotal = formatDigit({
     value: String(totalWorth + onchainTotal),
     fractionDigits: 2,

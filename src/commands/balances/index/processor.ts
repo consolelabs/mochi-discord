@@ -312,6 +312,7 @@ export async function handleInteraction(i: ButtonInteraction) {
 
 export function formatView(
   view: "expand" | "compact",
+  mode: "filter-dust" | "unfilter",
   balances: {
     token: {
       name: string
@@ -366,8 +367,7 @@ export function formatView(
           value: usdVal.toString(),
           fractionDigits: 2,
         })
-        //
-        if (tokenVal === 0 || usdVal <= MIN_DUST)
+        if (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST))
           return {
             emoji: "",
             text: "",
@@ -422,7 +422,7 @@ export function formatView(
           fractionDigits: 2,
         })
         totalWorth += usdVal
-        if (tokenVal === 0 || usdVal <= MIN_DUST) {
+        if (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST)) {
           return {
             name: "",
             value: "",
@@ -456,6 +456,12 @@ async function switchView(
   discordId: string,
   balanceType: number
 ) {
+  const { status: isFollowed } = await defi.findWallet(discordId, props.address)
+  const { mochiWallets, wallets } = await profile.getUserWallets(discordId)
+  const isOwnWallet = wallets.some(
+    (w) => w.value.toLowerCase() === props.address.toLowerCase()
+  )
+
   const embed = composeEmbedMessage(null, {
     author: [props.title, props.emoji],
     color: msgColors.SUCCESS,
@@ -465,6 +471,7 @@ async function switchView(
   if (view === "compact") {
     const { totalWorth: _totalWorth, text: _text } = formatView(
       "compact",
+      "unfilter",
       balances.data
     )
     const text =
@@ -476,14 +483,23 @@ async function switchView(
         "earn"
       )} or ${await getSlashCommand("deposit")}`
     totalWorth = _totalWorth
-    embed.setDescription(`${_text ? `${props.description}\n\n` : ""}${text}`)
+    if (isOwnWallet) {
+      embed.setDescription(`${_text ? `${props.description}\n\n` : ""}${text}`)
+    } else {
+      embed.setDescription(text)
+    }
   } else {
     const { totalWorth: _totalWorth, fields = [] } = formatView(
       "expand",
+      "unfilter",
       balances.data
     )
     totalWorth = _totalWorth
-    embed.setDescription(props.description).addFields(fields)
+    if (isOwnWallet) {
+      embed.setDescription(props.description)
+    }
+
+    embed.addFields(fields)
   }
 
   embed.addFields([
@@ -509,7 +525,6 @@ async function switchView(
     ...(!txns.length ? [] : buildRecentTxFields({ recent_transaction: txns })),
   ])
 
-  const { mochiWallets, wallets } = await profile.getUserWallets(discordId)
   const preventEmptyVal = "\u200b"
   if (balanceType === 1) {
     embed.spliceFields(1, 0, {
@@ -531,9 +546,16 @@ async function switchView(
         data: [],
       },
       wallets: {
-        data: wallets.filter(
-          (w) => w.value.toLowerCase() === props.address.toLowerCase()
-        ),
+        data: [
+          {
+            chain: isAddress(props.address).type,
+            value: props.address,
+            total: formatDigit({
+              value: totalWorth.toString(),
+              fractionDigits: 2,
+            }),
+          },
+        ],
       },
     })
     embed.spliceFields(1, 0, {
@@ -543,7 +565,7 @@ async function switchView(
     })
   }
 
-  return embed
+  return { embed, isFollowed, isOwnWallet }
 }
 
 export async function renderBalances(
@@ -584,19 +606,55 @@ export async function renderBalances(
     ),
   ])
 
+  const { embed, isFollowed, isOwnWallet } = await switchView(
+    view,
+    props,
+    balances,
+    txns,
+    discordId,
+    type
+  )
+
   return {
     messageOptions: {
-      embeds: [await switchView(view, props, balances, txns, discordId, type)],
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageButton()
-            .setStyle("SECONDARY")
-            .setEmoji("<a:brrr:902558248907980871>")
-            .setCustomId(`balance_earn`)
-            .setLabel("Earn"),
-          ...getButtons("balance", `_${profileId}_${type}`)
-        ),
-      ],
+      embeds: [embed],
+      components:
+        !isOwnWallet && type === BalanceType.Onchain
+          ? [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setLabel("Copy trade")
+                  .setStyle("SECONDARY")
+                  .setEmoji(getEmoji("SWAP_ROUTE"))
+                  .setCustomId("balance_copy-trade"),
+                new MessageButton()
+                  .setLabel("Track")
+                  .setStyle("SECONDARY")
+                  .setCustomId("balance_track")
+                  .setEmoji(getEmoji("ANIMATED_STAR", true)),
+                isFollowed
+                  ? new MessageButton()
+                      .setLabel("Unfollow")
+                      .setStyle("SECONDARY")
+                      .setCustomId("balance_unfollow")
+                      .setEmoji(getEmoji("REVOKE"))
+                  : new MessageButton()
+                      .setLabel("Follow")
+                      .setStyle("SECONDARY")
+                      .setCustomId("balance_follow")
+                      .setEmoji(getEmoji("PLUS"))
+              ),
+            ]
+          : [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setStyle("SECONDARY")
+                  .setEmoji("<a:brrr:902558248907980871>")
+                  .setCustomId(`balance_earn`)
+                  .setLabel("Earn"),
+                ...getButtons("balance", `_${profileId}_${type}`)
+              ),
+            ],
     },
   }
 }
