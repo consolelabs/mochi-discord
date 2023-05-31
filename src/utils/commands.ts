@@ -1,11 +1,10 @@
 import { ApplicationCommandOptionType, Routes } from "discord-api-types/v9"
 import { CommandInteraction, Message } from "discord.js"
 import getEmojiRegex from "emoji-regex"
-import { APPLICATION_ID } from "env"
+import { APPLICATION_ID, DISCORD_TOKEN } from "env"
 
 import { utils } from "ethers"
 import { Command, SlashCommand, embedsColors } from "types/common"
-import { rest } from ".."
 import { getEmoji } from "./common"
 import {
   ANIMATED_EMOJI_REGEX,
@@ -18,10 +17,11 @@ import {
   SPACES_REGEX,
   USER_REGEX,
 } from "./constants"
+import { REST } from "@discordjs/rest"
 
 const NATIVE_EMOJI_REGEX = getEmojiRegex()
 
-// const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
+const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 let cacheSlash = new Map<string, string>()
 
 export async function getSlashCommand(name: string) {
