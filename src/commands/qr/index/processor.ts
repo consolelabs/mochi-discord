@@ -31,8 +31,10 @@ import {
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import { wrapError } from "utils/wrap-error"
-import { BalanceType, getBalances } from "commands/balances/index/processor"
 import * as qrcode from "qrcode"
+import mochiPay from "adapters/mochi-pay"
+import { formatDigit } from "utils/defi"
+import { convertString } from "utils/convert"
 
 export type ReactionType = "message" | "conversation"
 
@@ -64,63 +66,85 @@ async function renderListWallet(
   )}`
 }
 
-export async function compose(
-  msg: OriginalMessage,
-  member: GuildMember,
-  dataProfile: any
-) {
-  const [podProfileRes, walletsRes, socials] = await Promise.all([
-    profile.getUserProfile(msg.guildId ?? "", member.user.id),
+export async function compose(msg: OriginalMessage, member: GuildMember) {
+  const [dataProfile, walletsRes, socials] = await Promise.all([
+    profile.getByDiscord(member.user.id),
     profile.getUserWallets(member.id),
     profile.getUserSocials(member.id),
-    getBalances(
-      dataProfile.id,
-      member.user.id,
-      BalanceType.Offchain,
-      msg,
-      "",
-      ""
-    ),
   ])
 
-  if (!podProfileRes.ok) {
+  if (dataProfile.err) {
     throw new APIError({
       msgOrInteraction: msg,
-      description: podProfileRes.log,
-      curl: podProfileRes.curl,
+      description: dataProfile.log,
+      curl: dataProfile.curl,
     })
   }
+
+  const paymeLinksRes = await mochiPay.getPaymentRequestByProfile(
+    dataProfile.id || "",
+    "payme"
+  )
+  const paymeLinks = paymeLinksRes.slice(0, 5)
 
   const { mochiWallets, wallets: _wallets } = walletsRes
   const wallets = _wallets.slice(0, 10)
 
   const embed = composeEmbedMessage(null, {
+    author: [
+      member.nickname || member.displayName,
+      member.user.displayAvatarURL(),
+    ],
     color: msgColors.BLUE,
     description: "",
-  }).addFields([
-    {
-      name: "Wallets",
-      value: await renderWallets({
-        mochiWallets: {
-          data: mochiWallets,
-          title: `\`Mochi \`${getEmoji("CASH")}`,
-        },
-        wallets: {
-          data: wallets,
-        },
-      }),
+  }).addFields(
+    [
+      {
+        type: "profile",
+        label: `Profile`,
+        value: `\`https://mochi.gg/${dataProfile.id}\``,
+      },
+      ...mochiWallets.map((w) => ({
+        value: `\`${w.value}\``,
+        label: `Mochi_${w.chain}`,
+        inline: true,
+      })),
+      ...(wallets.length > 0
+        ? wallets.map((w) => ({
+            value: `${w.value}`,
+            label: `Onchain_${w.chain}`,
+            inline: true,
+          }))
+        : []),
+      ...(socials.length > 0
+        ? socials.map((w) => ({
+            value: `\`${w.platform_identifier}\``,
+            label: `\`${w.platform}\``,
+            inline: true,
+          }))
+        : []),
+      ...(paymeLinks.length > 0
+        ? paymeLinks.map((w) => {
+            return {
+              value: `\`https://mochi.gg/payme/${w.code}\``,
+              label: `Payme ${formatDigit({
+                value: convertString(
+                  w.amount,
+                  w.token.decimal,
+                  false
+                ).toString(),
+                fractionDigits: 4,
+              })} ${w.token.symbol}`,
+              inline: true,
+            }
+          })
+        : []),
+    ].map((w, i) => ({
+      name: getEmoji(`NUM_${i + 1}` as EmojiKey) + " " + `\`${w.label}\``,
+      value: getEmoji(`QRCODE`) + w.value,
       inline: false,
-    },
-    ...(socials.length
-      ? [
-          {
-            name: "Socials",
-            value: await renderSocials(socials),
-            inline: false,
-          },
-        ]
-      : []),
-  ])
+    }))
+  )
 
   return {
     embeds: [embed],
@@ -131,21 +155,40 @@ export async function compose(
           .setCustomId("view_qr_code")
           .addOptions(
             [
+              //mochi-profile link
+              {
+                value: `https://mochi.gg/${dataProfile.id}`,
+                type: "profile",
+                label: `Profile`,
+              },
               ...mochiWallets.map((w) => ({
                 ...w,
                 type: "mochi_wallets",
-                label: `MOCHI ${w.chain}`,
+                label: `Mochi ${w.chain}`,
               })),
               ...wallets.map((w) => ({
                 ...w,
                 type: "wallet",
-                label: `${w.chain}`,
+                label: `Obchain ${w.chain}`,
               })),
               ...socials.map((w) => ({
                 ...w,
                 value: w.platform_identifier,
                 type: "socials",
                 label: `${w.platform}`,
+              })),
+              ...paymeLinks.map((w) => ({
+                ...w,
+                value: `\`https://mochi.gg/payme/${w.code}\``,
+                type: "payme",
+                label: `Payme ${formatDigit({
+                  value: convertString(
+                    w.amount,
+                    w.token.decimal,
+                    false
+                  ).toString(),
+                  fractionDigits: 4,
+                })} ${w.token.symbol}`,
               })),
             ].map((w, i) => {
               return {
@@ -193,24 +236,6 @@ export async function compose(
       ),
     ],
   }
-}
-
-async function renderSocials(socials: any[]) {
-  return (
-    await Promise.all(
-      socials.map((s) => {
-        if (s.platform === "twitter") {
-          return `${getEmoji("TWITTER")} **[${
-            s.platform_identifier
-          }](${TWITTER_USER_URL}/${s.platform_identifier})**`
-        } else if (s.platform === "telegram") {
-          return `${getEmoji("TELEGRAM")} **[@${
-            s.platform_identifier
-          }](${TELEGRAM_USER_URL}/${s.platform_identifier})**`
-        }
-      })
-    )
-  ).join("\n")
 }
 
 export async function renderWallets({
@@ -270,6 +295,9 @@ export function collectSelection(
         if (label === "twitter") {
           qrCodeValue = `${TWITTER_USER_URL}/${value}`
         }
+        if (label === "telegram") {
+          qrCodeValue = `${TELEGRAM_USER_URL}/${value}`
+        }
         const buffer = await qrcode.toBuffer(qrCodeValue, {
           width: 400,
         })
@@ -286,7 +314,7 @@ export function collectSelection(
               new MessageButton()
                 .setLabel("Back")
                 .setStyle("SECONDARY")
-                .setCustomId("back")
+                .setCustomId("back_qr")
             ),
           ],
         }
@@ -303,7 +331,7 @@ export function collectSelection(
               if (!i.deferred) {
                 await i.deferUpdate().catch(() => null)
               }
-              if (i.customId === "back") {
+              if (i.customId === "back_qr") {
                 i.editReply({ files: [], embeds: reply.embeds, components })
               }
             })
@@ -349,7 +377,7 @@ export async function render(
 
   sendKafka(dataProfile.id, member.user.username)
 
-  const replyPayload = await compose(msg, member, dataProfile)
+  const replyPayload = await compose(msg, member)
 
   return replyPayload
 }

@@ -26,6 +26,17 @@ class MochiPay extends Fetcher {
     }
   }
 
+  public async getPaymentRequestByProfile(
+    profileId: string,
+    type: string
+  ): Promise<any[]> {
+    const res = await fetch(
+      `${MOCHI_PAY_API_BASE_URL}/pay-requests?profile_id=${profileId}&type=${type}`
+    )
+    const jsonRes = await res.json()
+    return jsonRes.data || []
+  }
+
   public async generatePaymentCode(body: {
     profileId: string
     amount: string
