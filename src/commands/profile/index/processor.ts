@@ -460,7 +460,7 @@ function collectButton(reply: Message, author: User, member: GuildMember) {
               )
               const edited = (await i.editReply(replyPayload)) as Message
 
-              collectSelectionQr(edited, author, replyPayload.components)
+              collectSelectionQr(edited, author)
 
               edited
                 .createMessageComponentCollector({

@@ -1,6 +1,6 @@
 import { CommandInteraction, GuildMember, Message } from "discord.js"
 import { InternalError } from "errors"
-import { render, collectSelection } from "./processor"
+import { render, collectSelection, collectButton } from "./processor"
 
 const run = async (interaction: CommandInteraction) => {
   const member = interaction.options.getMember("user")
@@ -14,6 +14,7 @@ const run = async (interaction: CommandInteraction) => {
 
   const reply = (await interaction.editReply(replyPayload)) as Message
 
-  collectSelection(reply, interaction.user, replyPayload.components)
+  collectSelection(reply, interaction.user)
+  collectButton(reply, interaction.user)
 }
 export default run

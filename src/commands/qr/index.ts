@@ -10,12 +10,6 @@ const slashCmd: SlashCommand = {
     const data = new SlashCommandBuilder()
       .setName("qr")
       .setDescription("User's qr codes")
-      .addUserOption((option) =>
-        option
-          .setName("user")
-          .setDescription("user's nickname or mention. Example: @John")
-          .setRequired(false)
-      )
     return data
   },
   run: qrSlash,

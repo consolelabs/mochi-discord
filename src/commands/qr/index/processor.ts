@@ -3,281 +3,289 @@ import {
   Message,
   MessageActionRow,
   MessageButton,
-  MessageSelectMenu,
   User,
   MessageAttachment,
   GuildMember,
+  MessageSelectMenu,
 } from "discord.js"
-import { APIError, InternalError, OriginalMessage } from "errors"
+import { InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
   authorFilter,
   capitalizeFirst,
-  EmojiKey,
+  emojis,
   getEmoji,
-  getEmojiToken,
-  isAddress,
+  getEmojiURL,
   msgColors,
-  reverseLookup,
   shortenHashOrAddress,
 } from "utils/common"
 import {
-  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-  MOCHI_ACTION_PROFILE,
-  MOCHI_APP_SERVICE,
   TWITTER_USER_URL,
   TELEGRAM_USER_URL,
+  HOMEPAGE_URL,
 } from "utils/constants"
-import { KafkaQueueActivityDataCommand } from "types/common"
-import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import { wrapError } from "utils/wrap-error"
 import * as qrcode from "qrcode"
 import mochiPay from "adapters/mochi-pay"
 import { formatDigit } from "utils/defi"
 import { convertString } from "utils/convert"
+import { chunk } from "lodash"
+import { getPaginationRow } from "ui/discord/button"
 
-export type ReactionType = "message" | "conversation"
+const PAGE_SIZE = 10
 
-async function renderListWallet(
-  emoji: string,
-  title: string,
-  wallets: { value: string; chain?: string; total?: number }[],
-  offset: number,
-  showCash: boolean
-) {
-  if (!wallets.length) return ""
-  const domains = await Promise.all(
-    wallets.map(async (w) => await reverseLookup(w.value))
-  )
-
-  return `${emoji}${title}\n${formatDataTable(
-    wallets.map((w, i) => ({
-      chain: (w.chain || isAddress(w.value).type).toUpperCase(),
-      address: domains[i] || shortenHashOrAddress(w.value),
-      balance: w.total?.toString() ? `$${w.total.toString()}` : "",
-    })),
-    {
-      cols: ["chain", "address", "balance"],
-      rowAfterFormatter: (formatted, i) =>
-        `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)}${formatted}${
-          showCash ? getEmoji("CASH") : ""
-        } `,
-    }
-  )}`
-}
-
-export async function compose(msg: OriginalMessage, member: GuildMember) {
+async function getAll(discordId: string, page = 0) {
   const [dataProfile, walletsRes, socials] = await Promise.all([
-    profile.getByDiscord(member.user.id),
-    profile.getUserWallets(member.id),
-    profile.getUserSocials(member.id),
+    profile.getByDiscord(discordId),
+    profile.getUserWallets(discordId),
+    profile.getUserSocials(discordId),
   ])
-
-  if (dataProfile.err) {
-    throw new APIError({
-      msgOrInteraction: msg,
-      description: dataProfile.log,
-      curl: dataProfile.curl,
-    })
-  }
-
-  const paymeLinksRes = await mochiPay.getPaymentRequestByProfile(
-    dataProfile.id || "",
-    "payme"
-  )
-  const paymeLinks = paymeLinksRes.slice(0, 5)
+  const data: any[] = [
+    {
+      id: `profile-id-${HOMEPAGE_URL}/${dataProfile.profile_name}`,
+      type: "Mochi ID",
+      content: `mochi:${dataProfile.profile_name}`,
+      category: "profile",
+    },
+    ...socials.map((s) => ({
+      id: `social-${s.platform}-${s.platform_identifier}`,
+      type: capitalizeFirst(s.platform),
+      content: s.platform_identifier,
+      category: "social",
+    })),
+  ]
 
   const { mochiWallets, wallets: _wallets } = walletsRes
   const wallets = _wallets.slice(0, 10)
 
-  const embed = composeEmbedMessage(null, {
-    author: [
-      member.nickname || member.displayName,
-      member.user.displayAvatarURL(),
-    ],
-    color: msgColors.BLUE,
-    description: "",
-  }).addFields(
-    [
-      {
-        type: "profile",
-        label: `Profile`,
-        value: `\`https://mochi.gg/${dataProfile.id}\``,
-      },
-      ...mochiWallets.map((w) => ({
-        value: `\`${w.value}\``,
-        label: `Mochi_${w.chain}`,
-        inline: true,
-      })),
-      ...(wallets.length > 0
-        ? wallets.map((w) => ({
-            value: `${w.value}`,
-            label: `Onchain_${w.chain}`,
-            inline: true,
-          }))
-        : []),
-      ...(socials.length > 0
-        ? socials.map((w) => ({
-            value: `\`${w.platform_identifier}\``,
-            label: `\`${w.platform}\``,
-            inline: true,
-          }))
-        : []),
-      ...(paymeLinks.length > 0
-        ? paymeLinks.map((w) => {
-            return {
-              value: `\`https://mochi.gg/payme/${w.code}\``,
-              label: `Payme ${formatDigit({
-                value: convertString(
-                  w.amount,
-                  w.token.decimal,
-                  false
-                ).toString(),
-                fractionDigits: 4,
-              })} ${w.token.symbol}`,
-              inline: true,
-            }
-          })
-        : []),
-    ].map((w, i) => ({
-      name: getEmoji(`NUM_${i + 1}` as EmojiKey) + " " + `\`${w.label}\``,
-      value: getEmoji(`QRCODE`) + w.value,
-      inline: false,
+  data.push(
+    ...mochiWallets.map((w) => ({
+      id: `wallet-mochi-${w.value}`,
+      type: `${w.chain} wallet`,
+      content: shortenHashOrAddress(w.value, 4),
+      category: `wallet-${w.chain}`,
     }))
   )
+  data.push(
+    ...wallets.map((w) => ({
+      id: `wallet-onchain-${w.value}`,
+      type: `${w.chain} wallet`,
+      content: shortenHashOrAddress(w.value, 4),
+      category: `wallet-${w.chain}`,
+    }))
+  )
+
+  if (dataProfile.err) {
+    data.shift()
+  } else {
+    const [paylinks, paymes] = await Promise.all([
+      mochiPay.getPaymentRequestByProfile(dataProfile.id, "paylink"),
+      mochiPay.getPaymentRequestByProfile(dataProfile.id, "payme"),
+    ])
+
+    data.push(
+      ...paylinks.map((p) => ({
+        id: `pay-me-${HOMEPAGE_URL}/${dataProfile.id}/receive/${p.code}`,
+        type: "Payme",
+        content:
+          formatDigit({
+            value: String(convertString(p.amount, p.token.decimal)),
+            fractionDigits: 2,
+          }) + ` ${p.token.symbol}`,
+        category: "pay",
+      }))
+    )
+    data.push(
+      ...paymes.map((p) => ({
+        id: `pay-link-${HOMEPAGE_URL}/pay/${p.code}`,
+        type: "Paylink",
+        content:
+          formatDigit({
+            value: String(convertString(p.amount, p.token.decimal)),
+            fractionDigits: 2,
+          }) + ` ${p.token.symbol}`,
+        category: "pay",
+      }))
+    )
+  }
+
+  const paginated = chunk(data, PAGE_SIZE)
+
+  return { data: paginated[page], total: paginated.length }
+}
+
+function mapEmoji(d: any) {
+  let emoji = getEmoji("QRCODE")
+  if (d.category === "profile") {
+    emoji = getEmoji("MOCHI_CIRCLE")
+  } else if (d.category === "social") {
+    if (d.type.toLowerCase() === "twitter") {
+      emoji = getEmoji("TWITTER")
+    } else if (d.type.toLowerCase() === "telegram") {
+      emoji = getEmoji("TELEGRAM")
+    }
+  } else if (d.category.startsWith("wallet")) {
+    emoji = getEmoji("WALLET_1")
+  }
+
+  return emoji
+}
+
+export async function compose(user: User, page = 0) {
+  const { data, total } = await getAll(user.id, page)
+
+  const embed = composeEmbedMessage(null, {
+    author: ["QR codes", user.displayAvatarURL()],
+    color: msgColors.BLUE,
+    description: `${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
+      true
+    )} All your links as QR codes, ready to be shared.\n${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
+      true
+    )} Click view/save to view it via **_Apple Wallet_**\n\n${
+      formatDataTable(data, {
+        cols: ["type", "content"],
+        rowAfterFormatter: (f, i) => {
+          const d = data[i]
+          const emoji = mapEmoji(d)
+
+          return `${emoji} ${f} [${
+            d.category === "profile" ? "View" : "Save"
+          }](${HOMEPAGE_URL})`
+        },
+      }).joined
+    }`,
+  })
 
   return {
     embeds: [embed],
     components: [
       new MessageActionRow().addComponents(
         new MessageSelectMenu()
-          .setPlaceholder(`💰 View QR codes`)
-          .setCustomId("view_qr_code")
+          .setPlaceholder("🎫 View one")
+          .setCustomId("view_qr")
           .addOptions(
-            [
-              //mochi-profile link
-              {
-                value: `https://mochi.gg/${dataProfile.id}`,
-                type: "profile",
-                label: `Profile`,
-              },
-              ...mochiWallets.map((w) => ({
-                ...w,
-                type: "mochi_wallets",
-                label: `Mochi ${w.chain}`,
-              })),
-              ...wallets.map((w) => ({
-                ...w,
-                type: "wallet",
-                label: `Obchain ${w.chain}`,
-              })),
-              ...socials.map((w) => ({
-                ...w,
-                value: w.platform_identifier,
-                type: "socials",
-                label: `${w.platform}`,
-              })),
-              ...paymeLinks.map((w) => ({
-                ...w,
-                value: `\`https://mochi.gg/payme/${w.code}\``,
-                type: "payme",
-                label: `Payme ${formatDigit({
-                  value: convertString(
-                    w.amount,
-                    w.token.decimal,
-                    false
-                  ).toString(),
-                  fractionDigits: 4,
-                })} ${w.token.symbol}`,
-              })),
-            ].map((w, i) => {
-              return {
-                emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-                label: w.label,
-                value: `${w.label}_${w.value}`,
-              }
-            })
+            data.map((d) => ({
+              emoji: mapEmoji(d),
+              label: d.content,
+              value: d.id,
+            }))
           )
       ),
       new MessageActionRow().addComponents(
         new MessageButton()
+          .setLabel("New QR")
           .setStyle("SECONDARY")
-          .setLabel("Quest")
-          .setEmoji("<a:brrr:902558248907980871>")
-          .setCustomId("profile_quest"),
-        new MessageButton()
-          .setStyle("SECONDARY")
-          .setLabel("Watchlist")
-          .setEmoji(getEmoji("ANIMATED_STAR", true))
-          .setCustomId("profile_watchlist"),
-        new MessageButton()
-          .setLabel(`${wallets.length ? "Add" : "Connect"} Wallet`)
-          .setEmoji(getEmoji("WALLET_1"))
-          .setStyle("SECONDARY")
-          .setCustomId("profiel_connect-wallet")
+          .setEmoji(getEmoji("QRCODE"))
+          .setCustomId("new_qr")
       ),
-      new MessageActionRow().addComponents(
-        new MessageButton()
-          .setStyle("SECONDARY")
-          .setEmoji(getEmojiToken("BNB"))
-          .setLabel("Connect Binance")
-          .setCustomId("profile_connect-binance"),
-        ...["twitter", "telegram"]
-          .filter((s) =>
-            socials.every((connectedSocial) => connectedSocial.platform !== s)
-          )
-          .map((s) =>
-            new MessageButton()
-              .setLabel(`Connect ${capitalizeFirst(s)}`)
-              .setStyle("SECONDARY")
-              .setEmoji(getEmoji(s.toUpperCase() as EmojiKey))
-              .setCustomId(`profile_connect-${s}`)
-          )
-      ),
+      ...getPaginationRow(page, total, {
+        left: { emoji: getEmoji("LEFT_ARROW"), label: "\u200b" },
+        right: { emoji: getEmoji("RIGHT_ARROW"), label: "\u200b" },
+        extra: "",
+      }),
     ],
   }
 }
 
-export async function renderWallets({
-  mochiWallets,
-  wallets,
-}: {
-  mochiWallets: {
-    data: any[]
-    title?: string
-  }
-  wallets: {
-    data: any[]
-    title?: string
-  }
-}) {
-  const strings = (
-    await Promise.all([
-      await renderListWallet(
-        getEmoji("NFT2"),
-        mochiWallets.title ?? "`Mochi`",
-        mochiWallets.data,
-        0,
-        false
-      ),
-      await renderListWallet(
-        getEmoji("WALLET_1"),
-        wallets.title ?? "`On-chain`",
-        wallets.data,
-        mochiWallets.data.length,
-        true
-      ),
-    ])
-  ).filter(Boolean)
+export function collectButton(reply: Message, author: User) {
+  reply
+    .createMessageComponentCollector({
+      componentType: "BUTTON",
+      filter: authorFilter(author.id),
+      time: 300000,
+    })
+    .on("collect", (i) => {
+      wrapError(reply, async () => {
+        if (!i.deferred) {
+          await i.deferUpdate().catch(() => null)
+        }
 
-  return strings.join("\n\n")
+        const [action, ...rest] = i.customId.split("_")
+        if (action === "page") {
+          const [curPage, dir] = rest
+          let nextPage = Number(curPage)
+          if (dir === "+") {
+            nextPage += 1
+          } else {
+            nextPage -= 1
+          }
+
+          const msgOpts = await compose(author, nextPage)
+
+          i.editReply(msgOpts)
+        }
+      })
+    })
+    .on("end", () => {
+      wrapError(reply, async () => {
+        await reply.edit({ components: [] }).catch(() => null)
+      })
+    })
 }
 
-export function collectSelection(
-  reply: Message,
-  author: User,
-  components: any
-) {
+function formatContent(category: string, type: string, value: string) {
+  switch (category) {
+    case "wallet": {
+      const author = ["Deposit", getEmojiURL(emojis.WALLET)]
+      let description = ""
+
+      switch (type) {
+        case "mochi": {
+          description = `${getEmoji(
+            "ANIMATED_POINTING_DOWN",
+            true
+          )} Below is the deposit address linked to your Discord account. Transfers to this address is prioritized and processed at top of queue compare to linked wallets.`
+          break
+        }
+        case "onchain": {
+          description = `${getEmoji(
+            "ANIMATED_POINTING_DOWN",
+            true
+          )} Below is the deposit address of one of your linked wallet. Please note that it might take some time for Mochi to pick up tranfers to this address as we need to perform on-chain lookup.`
+          break
+        }
+      }
+
+      return {
+        author,
+        description,
+      }
+    }
+    case "pay": {
+      const author = ["Pay Request", getEmojiURL(emojis.CASH)]
+      let description = ""
+
+      switch (type) {
+        case "me": {
+          description = `${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} You have requested to be paid xxx, share [this link](${value}) or others can scan the code below to pay you.`
+          break
+        }
+        case "link": {
+          description = `${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} You have given out a Pay link of xxx, access [this link](${value}) or scan below code to claim the airdrop.`
+        }
+      }
+
+      return {
+        author,
+        description,
+      }
+    }
+    default:
+      return {
+        author: ["Here is your QR code", getEmojiURL(emojis.QRCODE)],
+      }
+  }
+}
+
+export function collectSelection(reply: Message, author: User) {
   reply
     .createMessageComponentCollector({
       componentType: "SELECT_MENU",
@@ -290,21 +298,24 @@ export function collectSelection(
           await i.deferUpdate().catch(() => null)
         }
         const selectedQRCode = i.values[0]
-        const [label, value] = selectedQRCode.split("_")
-        let qrCodeValue = value
-        if (label === "twitter") {
-          qrCodeValue = `${TWITTER_USER_URL}/${value}`
-        }
-        if (label === "telegram") {
-          qrCodeValue = `${TELEGRAM_USER_URL}/${value}`
+        const [category, type, ...rest] = selectedQRCode.split("-")
+        let qrCodeValue = rest.join("")
+        if (category === "social") {
+          const [value] = rest
+          if (type === "twitter") {
+            qrCodeValue = `${TWITTER_USER_URL}/${value}`
+          }
+          if (type === "telegram") {
+            qrCodeValue = `${TELEGRAM_USER_URL}/${value}`
+          }
         }
         const buffer = await qrcode.toBuffer(qrCodeValue, {
           width: 400,
         })
         const messageOptions = {
           embeds: [
-            composeEmbedMessage(null, {
-              title: `Here is your \`${label}\` QR code`,
+            composeEmbedMessage(reply, {
+              ...formatContent(category, type, qrCodeValue),
               image: "attachment://qr.png",
             }),
           ],
@@ -320,19 +331,23 @@ export function collectSelection(
         }
 
         const edited = (await i.editReply(messageOptions)) as Message
+
         edited
           .createMessageComponentCollector({
             filter: authorFilter(author.id),
             componentType: "BUTTON",
             time: 300000,
           })
-          .on("collect", async (i) => {
+          .on("collect", (i) => {
             wrapError(edited, async () => {
               if (!i.deferred) {
                 await i.deferUpdate().catch(() => null)
               }
               if (i.customId === "back_qr") {
-                i.editReply({ files: [], embeds: reply.embeds, components })
+                i.editReply({
+                  files: [],
+                  ...(await compose(author, 0)),
+                })
               }
             })
           })
@@ -343,17 +358,6 @@ export function collectSelection(
         await reply.edit({ components: [] }).catch(() => null)
       })
     })
-}
-
-function sendKafka(profileId: string, username: string) {
-  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
-    profileId,
-    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-    MOCHI_APP_SERVICE,
-    MOCHI_ACTION_PROFILE
-  )
-  kafkaMsg.activity.content.username = username
-  sendActivityMsg(kafkaMsg)
 }
 
 export async function render(
@@ -375,9 +379,7 @@ export async function render(
     })
   }
 
-  sendKafka(dataProfile.id, member.user.username)
-
-  const replyPayload = await compose(msg, member)
+  const replyPayload = await compose(member.user)
 
   return replyPayload
 }
