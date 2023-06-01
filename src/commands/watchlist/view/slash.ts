@@ -9,9 +9,9 @@ import { SLASH_PREFIX } from "utils/constants"
 const command: SlashCommand = {
   name: "wlv",
   category: "Defi",
-  prepare: () => {
+  prepare: (alias = "view") => {
     return new SlashCommandSubcommandBuilder()
-      .setName("view")
+      .setName(alias)
       .setDescription("View your watchlist")
   },
   run: async function (i: CommandInteraction) {

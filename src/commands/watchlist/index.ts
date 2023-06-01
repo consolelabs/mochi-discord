@@ -17,7 +17,6 @@ import addNFTSlash from "./add-nft/slash"
 import removeSlash from "./remove/slash"
 import removeNFTSlash from "./remove-nft/slash"
 import viewSlash from "./view/slash"
-import { getCommandArguments } from "utils/commands"
 
 CacheManager.init({
   ttl: 0,
@@ -35,17 +34,7 @@ const textCmd: Command = {
   command: "watchlist",
   brief: "Watchlist",
   category: "Defi",
-  run: async function (msg, ...rest) {
-    const [actionAlias] = getCommandArguments(msg)
-    switch (actionAlias) {
-      case "wlv":
-        return actions.view.run(msg, ...rest)
-      default:
-        return {
-          messageOptions: await this.getHelpMessage(msg, ...rest),
-        }
-    }
-  },
+  run: async () => null,
   getHelpMessage: async (msg) => ({
     embeds: [
       composeEmbedMessage(msg, {
@@ -67,7 +56,7 @@ const textCmd: Command = {
   allowDM: true,
   colorType: "Defi",
   actions,
-  aliases: ["wl", "wlv"],
+  aliases: ["wl"],
 }
 
 const slashActions: Record<string, SlashCommand> = {
