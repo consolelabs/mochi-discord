@@ -5,6 +5,7 @@ import add from "./add/text"
 import newText from "./new/text"
 import remove from "./remove/text"
 import viewSlash from "./view/slash"
+import track from "./track/slash"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
@@ -43,6 +44,7 @@ const textCmd: Command = {
 
 const slashActions: Record<string, SlashCommand> = {
   view: viewSlash,
+  track,
 }
 
 const slashCmd: SlashCommand = {
@@ -53,6 +55,7 @@ const slashCmd: SlashCommand = {
       .setName("wallet")
       .setDescription("Track assets and activities of any on-chain wallet.")
     data.addSubcommand(<SlashCommandSubcommandBuilder>viewSlash.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>track.prepare())
     return data
   },
   autocomplete: function (i) {

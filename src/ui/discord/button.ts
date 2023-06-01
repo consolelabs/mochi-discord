@@ -86,7 +86,15 @@ export async function renderPaginator(msg: Message, pages: MessageEmbed[]) {
   })
 }
 
-export function getPaginationRow(page: number, totalPage: number) {
+export function getPaginationRow(
+  page: number,
+  totalPage: number,
+  options = {
+    extra: "",
+    left: { label: "Previous", emoji: "" },
+    right: { label: "Next", emoji: "" },
+  }
+) {
   if (totalPage === 1) return []
   const actionRow = new MessageActionRow()
   if (page !== 0) {
@@ -94,8 +102,11 @@ export function getPaginationRow(page: number, totalPage: number) {
       new MessageButton({
         type: MessageComponentTypes.BUTTON,
         style: MessageButtonStyles.SECONDARY,
-        label: "Previous",
-        customId: `page_${page}_-_${totalPage}`,
+        emoji: options.left.emoji || undefined,
+        label: options.left.label,
+        customId: `page_${page}_-_${totalPage}${
+          options.extra ? `_${options.extra}` : ""
+        }`,
       })
     )
   }
@@ -104,8 +115,11 @@ export function getPaginationRow(page: number, totalPage: number) {
     actionRow.addComponents({
       type: MessageComponentTypes.BUTTON,
       style: MessageButtonStyles.SECONDARY,
-      label: "Next",
-      customId: `page_${page}_+_${totalPage}`,
+      emoji: options.right.emoji || undefined,
+      label: options.right.label,
+      customId: `page_${page}_+_${totalPage}${
+        options.extra ? `_${options.extra}` : ""
+      }`,
     })
   }
   return [actionRow]

@@ -241,9 +241,19 @@ class Profile extends Fetcher {
   }
 
   public async getUserActivities(profileId: string, page = 0, size = 12) {
-    return await this.jsonFetch(
+    const {
+      data: res,
+      ok,
+      pagination,
+    } = await this.jsonFetch(
       `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/activities?page=${page}&size=${size}`
     )
+    let data = []
+    if (ok) {
+      data = res as any[]
+    }
+
+    return { data, pagination }
   }
   public async markReadActivities(profileId: string, body: { ids: number[] }) {
     return await this.jsonFetch(

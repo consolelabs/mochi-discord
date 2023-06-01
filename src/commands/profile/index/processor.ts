@@ -42,6 +42,8 @@ import { formatDigit } from "utils/defi"
 import { runGetVaultDetail } from "commands/vault/info/processor"
 import config from "adapters/config"
 import { formatVaults } from "commands/vault/list/processor"
+import CacheManager from "cache/node-cache"
+import { getSlashCommand } from "utils/commands"
 
 async function renderListWallet(
   emoji: string,
@@ -55,20 +57,22 @@ async function renderListWallet(
     wallets.map(async (w) => await reverseLookup(w.value))
   )
 
-  return `${emoji}${title}\n${formatDataTable(
-    wallets.map((w, i) => ({
-      chain: (w.chain || isAddress(w.value).type).toUpperCase(),
-      address: domains[i] || shortenHashOrAddress(w.value),
-      balance: w.total?.toString() ? `$${w.total.toString()}` : "",
-    })),
-    {
-      cols: ["chain", "address", "balance"],
-      rowAfterFormatter: (formatted, i) =>
-        `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)}${formatted}${
-          showCash ? getEmoji("CASH") : ""
-        } `,
-    }
-  )}`
+  return `${emoji}${title}\n${
+    formatDataTable(
+      wallets.map((w, i) => ({
+        chain: (w.chain || isAddress(w.value).type).toUpperCase(),
+        address: domains[i] || shortenHashOrAddress(w.value),
+        balance: w.total?.toString() ? `$${w.total.toString()}` : "",
+      })),
+      {
+        cols: ["chain", "address", "balance"],
+        rowAfterFormatter: (formatted, i) =>
+          `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)}${formatted}${
+            showCash ? getEmoji("CASH") : ""
+          } `,
+      }
+    ).joined
+  }`
 }
 
 const pr = new Intl.PluralRules("en-US", { type: "ordinal" })
@@ -118,7 +122,7 @@ async function compose(
   const highestRole =
     member.roles.highest.name !== "@everyone" ? member.roles.highest : "N/A"
 
-  const { totalWorth } = formatView("compact", balances.data)
+  const { totalWorth } = formatView("compact", "filter-dust", balances.data)
   const grandTotal = formatDigit({
     value: String(totalWorth + onchainTotal),
     fractionDigits: 2,
@@ -126,6 +130,15 @@ async function compose(
   const mochiBal = formatDigit({
     value: totalWorth.toString(),
     fractionDigits: 2,
+  })
+
+  const { data: inbox } = await CacheManager.get({
+    pool: "user_inbox",
+    key: `${member.user.id}_0`,
+    call: async () => await profile.getUserActivities(dataProfile.id),
+  })
+  const unreadList = inbox.filter((activity: any) => {
+    return activity.status === "new"
   })
 
   const embed = composeEmbedMessage(null, {
@@ -146,9 +159,7 @@ async function compose(
       userProfile.current_level?.level ?? "N/A"
     } (${userProfile.guild_rank ?? 0}${suffixes.get(
       pr.select(userProfile.guild_rank ?? 0)
-    )})\`\n${getEmoji("ANIMATED_XP", true)}\`Exp. ${
-      userProfile.guild_xp
-    }/${nextLevelMinXp}\``,
+    )})\`\n${getEmoji("XP")}\`Exp. ${userProfile.guild_xp}/${nextLevelMinXp}\``,
   }).addFields([
     {
       name: "Wallets",
@@ -178,6 +189,16 @@ async function compose(
             name: "Socials",
             value: await renderSocials(socials),
             inline: false,
+          },
+        ]
+      : []),
+    ...(unreadList.length
+      ? [
+          {
+            name:
+              `<:_:1028964391690965012> You have \`${unreadList.length}\` unread message` +
+              (unreadList.length > 1 ? "s" : ""),
+            value: `Use ${await getSlashCommand("inbox")}.`,
           },
         ]
       : []),
@@ -249,7 +270,7 @@ async function compose(
           .setLabel(`${wallets.length ? "Add" : "Connect"} Wallet`)
           .setEmoji(getEmoji("WALLET_1"))
           .setStyle("SECONDARY")
-          .setCustomId("profiel_connect-wallet")
+          .setCustomId("profile_connect-wallet")
       ),
       new MessageActionRow().addComponents(
         new MessageButton()
