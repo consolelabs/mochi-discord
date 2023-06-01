@@ -1,10 +1,46 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
-import { collectButton, composeWatchlist, WatchListViewType } from "./processor"
+import { composeWatchlist, WatchListViewType } from "./processor"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
+import { MachineConfig, route } from "utils/router"
+
+export const machineConfig: MachineConfig = {
+  id: "watchlist",
+  initial: "watchlist",
+  states: {
+    watchlist: {
+      on: {
+        VIEW_TOKEN: "token",
+        VIEW_NFT: "nft",
+        VIEW_WALLETS: "wallets",
+      },
+    },
+    token: {},
+    nft: {},
+    wallets: {
+      id: "wallets",
+      on: {
+        BACK: "watchlist",
+      },
+      initial: "wallets",
+      states: {
+        wallets: {
+          on: {
+            VIEW_WALLET: "wallet",
+          },
+        },
+        wallet: {
+          on: {
+            BACK: "wallets",
+          },
+        },
+      },
+    },
+  },
+}
 
 const command: SlashCommand = {
   name: "wlv",
@@ -21,11 +57,8 @@ const command: SlashCommand = {
       WatchListViewType.TOKEN
     )
     const reply = (await i.editReply(messageOptions)) as Message
-    if (reply instanceof Message) {
-      collectButton(reply, i.user)
-    }
 
-    return null
+    route(reply, i.user, machineConfig)
   },
   help: (interaction) =>
     Promise.resolve({

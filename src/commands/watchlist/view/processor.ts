@@ -1,10 +1,5 @@
-import { Message, MessageActionRow, MessageButton, User } from "discord.js"
-import {
-  authorFilter,
-  getEmoji,
-  getEmojiToken,
-  TokenEmojiKey,
-} from "utils/common"
+import { MessageActionRow, MessageButton, User } from "discord.js"
+import { getEmoji, getEmojiToken, TokenEmojiKey } from "utils/common"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
@@ -13,11 +8,6 @@ import { getSlashCommand } from "utils/commands"
 import { ResponseGetWatchlistResponse } from "types/api"
 import { formatDigit } from "utils/defi"
 import { APPROX, VERTICAL_BAR } from "utils/constants"
-import { wrapError } from "utils/wrap-error"
-import {
-  render as renderTrackingWallets,
-  collectSelection as collectViewWalletSelection,
-} from "../../wallet/list/processor"
 import { groupBy } from "lodash"
 
 // async function renderWatchlist(data: any[]) {
@@ -345,88 +335,26 @@ export function buildSwitchViewActionRow(currentView: string) {
   const tokenButton = new MessageButton({
     label: "Token",
     emoji: getEmoji("CASH"),
-    customId: "watchlist_switch-view_token",
+    customId: "view_token",
     style: "SECONDARY",
     disabled: currentView === "token",
   })
   const nftButton = new MessageButton({
     label: "NFT",
     emoji: getEmoji("ANIMATED_GEM", true),
-    customId: "watchlist_switch-view_nft",
+    customId: "view_nft",
     style: "SECONDARY",
     disabled: currentView === "nft",
   })
   const viewWalletBtn = new MessageButton({
     label: "Wallets",
     emoji: getEmoji("WALLET_1"),
-    customId: "watchlist_switch-view_wallets",
+    customId: "view_wallets",
     style: "SECONDARY",
   })
   const row = new MessageActionRow()
   row.addComponents([tokenButton, nftButton, viewWalletBtn])
   return row
-}
-
-export async function collectButton(
-  reply: Message,
-  author: User,
-  user: User = author
-) {
-  reply
-    .createMessageComponentCollector({
-      componentType: "BUTTON",
-      filter: authorFilter(author.id),
-      time: 300000,
-    })
-    .on("collect", (i) => {
-      wrapError(reply, async () => {
-        if (!i.deferred) {
-          await i.deferUpdate().catch(() => null)
-        }
-
-        const [cmd, action, view] = i.customId.split("_")
-
-        if (cmd.startsWith("watchlist")) {
-          switch (action) {
-            case "switch-view": {
-              switch (view) {
-                case "wallets": {
-                  const messageOptions = await renderTrackingWallets(user)
-                  reply.components[0].components.forEach((tab) => {
-                    const [, , tabView] = tab.customId?.split("_") ?? []
-                    tab.setDisabled(tabView === view)
-                  })
-                  messageOptions.components.push(reply.components[0])
-                  await i.editReply(messageOptions)
-
-                  collectViewWalletSelection(reply, i.user)
-                  break
-                }
-                case "token": {
-                  const msgOptions = await composeWatchlist(
-                    author,
-                    0,
-                    WatchListViewType.TOKEN
-                  )
-                  await i.editReply(msgOptions)
-                  break
-                }
-                default:
-                  break
-              }
-              break
-            }
-            default:
-              break
-          }
-        }
-      })
-    })
-    .on("end", () => {
-      wrapError(reply, async () => {
-        await reply.edit({ components: [] }).catch(() => null)
-      })
-    })
 }
 
 const PAGE_SIZE = 16 as const
@@ -446,7 +374,7 @@ function sortPrice(a: any, b: any) {
 export async function composeWatchlist(
   author: User,
   page: number,
-  view: WatchListViewType,
+  view = WatchListViewType.TOKEN,
   user: User = author
 ) {
   const { data: res, ok } = await CacheManager.get({
