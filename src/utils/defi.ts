@@ -5,24 +5,26 @@ import mochiPay from "../adapters/mochi-pay"
 import { getAuthor, TokenEmojiKey } from "./common"
 import { convertString } from "./convert"
 import { getProfileIdByDiscord } from "./profile"
+import { COMMA, EMPTY } from "./constants"
 
 export function formatDigit({
   value,
   fractionDigits = 6,
   withoutCommas = false,
+  shorten = false,
 }: {
   value: string
   fractionDigits?: number
   withoutCommas?: boolean
+  shorten?: boolean
 }) {
-  const num = Number(value)
+  const num = Number(value.replaceAll(COMMA, EMPTY))
+  // invalid number -> keeps value the same and returns
+  if (!num) return value
   const s = num.toLocaleString(undefined, { maximumFractionDigits: 18 })
   const [left, right = ""] = s.split(".")
-  if (Number(right) === 0 || right === "" || left.length >= 4) {
-    return withoutCommas ? left.replaceAll(",", "") : left
-  }
   const numsArr = right.split("")
-  let rightStr = numsArr.shift() as string
+  let rightStr = (numsArr.shift() as string) || ""
   while (Number(rightStr) === 0 || rightStr.length < fractionDigits) {
     const nextDigit = numsArr.shift()
     if (nextDigit === undefined) break
@@ -32,8 +34,17 @@ export function formatDigit({
   while (rightStr.endsWith("0")) {
     rightStr = rightStr.slice(0, rightStr.length - 1)
   }
-  const leftStr = withoutCommas ? left.replaceAll(",", "") : left
-  return leftStr + "." + rightStr
+  // if shorten mode ON -> needs to be a valid Number (no commas)
+  withoutCommas = shorten || withoutCommas
+  const leftStr = withoutCommas ? left.replaceAll(COMMA, EMPTY) : left
+  const result = `${leftStr}${rightStr.length ? `.${rightStr}` : ""}`
+  if (!shorten || !Number(result)) return result
+
+  // shorten number. e.g. 3000 -> 3K
+  return Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 1,
+    notation: "compact",
+  }).format(Number(result))
 }
 
 export function isValidTipAmount(str: string, decimal: number) {
