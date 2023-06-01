@@ -11,20 +11,22 @@ const slashCmd: SlashCommand = {
       .setName("earn")
       .setDescription("view earning opportunies")
   },
-  run: async (i) => {
-    return {
+
+  run: () =>
+    Promise.resolve({
       messageOptions: {
         content: "earn",
       },
-    }
-  },
-  help: async () => ({
-    embeds: [
-      composeEmbedMessage(null, {
-        usage: `${SLASH_PREFIX}earn`,
-      }),
-    ],
-  }),
+    }),
+  help: () =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage(null, {
+          usage: `${SLASH_PREFIX}earn`,
+        }),
+      ],
+    }),
+
   colorType: "Defi",
 }
 

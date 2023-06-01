@@ -1,4 +1,3 @@
-import { REST } from "@discordjs/rest"
 import { ApplicationCommandOptionType, Routes } from "discord-api-types/v9"
 import { CommandInteraction, Message } from "discord.js"
 import getEmojiRegex from "emoji-regex"
@@ -19,6 +18,7 @@ import {
   SPACES_REGEX,
   USER_REGEX,
 } from "./constants"
+import { REST } from "@discordjs/rest"
 
 const NATIVE_EMOJI_REGEX = getEmojiRegex()
 
