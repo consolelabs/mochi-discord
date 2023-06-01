@@ -60,6 +60,13 @@ export const native_asset_platform = {
   matic: "matic-network",
 }
 
+export const supported_coin_id = [
+  "ethereum",
+  "fantom",
+  "binancecoin",
+  "matic-network",
+]
+
 type Route = {
   tokenIn: string
   tokenOut: string
@@ -429,6 +436,21 @@ export async function viewTickerRouteSwap(i: ButtonInteraction) {
   const msg = i.message as Message
   const author = i.user
   const [coinId, symbol, chainName] = i.customId.split("|").slice(1)
+  let chain = chainName
+  // when chain from coingecko is null -> only support native token: ftm, eth, matic, bnb. Else return no route data
+  if (chainName == "") {
+    if (supported_coin_id.includes(coinId)) {
+      chain = coinId
+    } else {
+      throw new InternalError({
+        msgOrInteraction: i,
+        description:
+          "No route data found, we're working on adding them in the future, stay tuned.",
+        emojiUrl: getEmojiURL(emojis.SWAP_ROUTE),
+        color: msgColors.GRAY,
+      })
+    }
+  }
 
   // send dm ask for from token
   const dmFromTokenPayload = {
@@ -497,9 +519,9 @@ export async function viewTickerRouteSwap(i: ButtonInteraction) {
     from: fromToken,
     to: symbol,
     amount: String(amount),
-    chain_name: chainName,
+    chain_name: chain,
     to_token_id: coinId,
-    from_token_id: await getFromTokenID(dmFromToken, fromToken, chainName),
+    from_token_id: await getFromTokenID(dmFromToken, fromToken, chain),
   })
 
   if (!ok) {
@@ -517,7 +539,7 @@ export async function viewTickerRouteSwap(i: ButtonInteraction) {
     data?.data,
     fromToken.toUpperCase() as TokenEmojiKey,
     symbol.toUpperCase() as TokenEmojiKey,
-    chainName
+    chain
   )
 }
 
@@ -527,15 +549,11 @@ async function getFromTokenID(
   chain: string
 ) {
   const errorTokenNotSp = {
-    title: "Unsupported token/fiat",
     msgOrInteraction: msg,
-    description: `**${symbol.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )} or Please choose a valid fiat currency.`,
+    description:
+      "No route data found, we're working on adding them in the future, stay tuned.",
+    emojiUrl: getEmojiURL(emojis.SWAP_ROUTE),
+    color: msgColors.GRAY,
   }
 
   const { data: coins } = await CacheManager.get({
@@ -550,12 +568,14 @@ async function getFromTokenID(
   let coinId = ""
   for (const coin of coins) {
     // if native token then return coinId, since coingecko not have asset_platform_id for native token. Temp used hardcode
+    // Ex: $ticker eth -> coingecko return chain = null, but coinId = ethereum
     if (Object.keys(native_asset_platform).includes(coin.symbol)) {
       coinId =
         native_asset_platform[coin.symbol as keyof typeof native_asset_platform]
       break
     }
-    // if non native token then check if chain = chain of token. Ex: $ticker multi -> choose swap from usdt to multi -> query usdt has ethereum chain
+    // if non native token then check if chain = chain of token.
+    // Ex: $ticker multi -> choose swap from usdt to multi -> query usdt has ethereum chain
     const { data: coinDetail, status } = await CacheManager.get({
       pool: "ticker",
       key: `ticker-getcoin-${coin.id}`,
@@ -564,7 +584,11 @@ async function getFromTokenID(
     if (status === 404) {
       throw new InternalError(errorTokenNotSp)
     }
-    if (coinDetail.asset_platform_id === chain) {
+
+    // get all platform which token exist
+    // Ex: $ticker ftm -> swap from spell to ftm -> spell exist on chain ethereum, fantom, avalanche, arbitrum-one
+    const fromTokenplatforms = Object.keys(coinDetail.platforms)
+    if (fromTokenplatforms.includes(chain)) {
       coinId = coinDetail.id
       break
     }
