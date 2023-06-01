@@ -15,6 +15,7 @@ import {
   capitalizeFirst,
   emojis,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   msgColors,
   shortenHashOrAddress,
@@ -31,87 +32,121 @@ import { formatDigit } from "utils/defi"
 import { convertString } from "utils/convert"
 import { chunk } from "lodash"
 import { getPaginationRow } from "ui/discord/button"
+import CacheManager from "cache/node-cache"
 
 const PAGE_SIZE = 10
 
-async function getAll(discordId: string, page = 0) {
-  const [dataProfile, walletsRes, socials] = await Promise.all([
-    profile.getByDiscord(discordId),
-    profile.getUserWallets(discordId),
-    profile.getUserSocials(discordId),
-  ])
-  const data: any[] = [
-    {
-      id: `profile-id-${HOMEPAGE_URL}/${dataProfile.profile_name}`,
-      type: "Mochi ID",
-      content: `mochi:${dataProfile.profile_name}`,
-      category: "profile",
+CacheManager.init({
+  pool: "user_qr_codes",
+  ttl: 300000,
+  checkperiod: 300000,
+})
+
+async function getAll(discordId: string, findId?: string) {
+  const data = await CacheManager.get({
+    pool: "user_qr_codes",
+    key: discordId,
+    call: async () => {
+      const [dataProfile, walletsRes, socials] = await Promise.all([
+        profile.getByDiscord(discordId),
+        profile.getUserWallets(discordId),
+        profile.getUserSocials(discordId),
+      ])
+      const data: any[] = [
+        {
+          id: `profile-id-${HOMEPAGE_URL}/${dataProfile.profile_name}`,
+          type: "Mochi ID",
+          content: `mochi:${dataProfile.profile_name}`,
+          category: "profile",
+        },
+        ...socials.map((s) => ({
+          id: `social-${s.platform}-${s.platform_identifier}`,
+          type: capitalizeFirst(s.platform),
+          content: s.platform_identifier,
+          category: "social",
+        })),
+      ]
+
+      const { mochiWallets, wallets: _wallets } = walletsRes
+      const wallets = _wallets.slice(0, 10)
+
+      data.push(
+        ...mochiWallets.map((w) => ({
+          id: `wallet-mochi-${w.value}`,
+          chain: w.chain,
+          address: w.value,
+          type: `${w.chain} wallet`,
+          content: shortenHashOrAddress(w.value, 4),
+          category: `wallet-${w.chain}`,
+        }))
+      )
+      data.push(
+        ...wallets.map((w) => ({
+          id: `wallet-onchain-${w.value}`,
+          chain: w.chain,
+          address: w.value,
+          type: `${w.chain} wallet`,
+          content: shortenHashOrAddress(w.value, 4),
+          category: `wallet-${w.chain}`,
+        }))
+      )
+
+      if (dataProfile.err) {
+        data.shift()
+      } else {
+        const [paylinks, paymes] = await Promise.all([
+          mochiPay.getPaymentRequestByProfile(dataProfile.id, "paylink"),
+          mochiPay.getPaymentRequestByProfile(dataProfile.id, "payme"),
+        ])
+
+        data.push(
+          ...paymes.map((p) => {
+            const amount = formatDigit({
+              value: String(convertString(p.amount, p.token.decimal)),
+              fractionDigits: 2,
+            })
+            const symbol = p.token.symbol
+
+            return {
+              id: `pay-me-${HOMEPAGE_URL}/${dataProfile.id}/receive/${p.code}`,
+              type: "Payme",
+              content: `${amount} ${symbol}`,
+              category: "pay",
+              amount,
+              symbol,
+              chain: p.token.chain.symbol,
+              note: p.note,
+            }
+          })
+        )
+        data.push(
+          ...paylinks.map((p) => {
+            const amount = formatDigit({
+              value: String(convertString(p.amount, p.token.decimal)),
+              fractionDigits: 2,
+            })
+            const symbol = p.token.symbol
+
+            return {
+              id: `pay-link-${HOMEPAGE_URL}/pay/${p.code}`,
+              type: "Paylink",
+              content: `${amount} ${symbol}`,
+              category: "pay",
+              amount,
+              symbol,
+              chain: p.token.chain.symbol,
+              note: p.note,
+            }
+          })
+        )
+      }
+
+      return data
     },
-    ...socials.map((s) => ({
-      id: `social-${s.platform}-${s.platform_identifier}`,
-      type: capitalizeFirst(s.platform),
-      content: s.platform_identifier,
-      category: "social",
-    })),
-  ]
+  })
 
-  const { mochiWallets, wallets: _wallets } = walletsRes
-  const wallets = _wallets.slice(0, 10)
-
-  data.push(
-    ...mochiWallets.map((w) => ({
-      id: `wallet-mochi-${w.value}`,
-      type: `${w.chain} wallet`,
-      content: shortenHashOrAddress(w.value, 4),
-      category: `wallet-${w.chain}`,
-    }))
-  )
-  data.push(
-    ...wallets.map((w) => ({
-      id: `wallet-onchain-${w.value}`,
-      type: `${w.chain} wallet`,
-      content: shortenHashOrAddress(w.value, 4),
-      category: `wallet-${w.chain}`,
-    }))
-  )
-
-  if (dataProfile.err) {
-    data.shift()
-  } else {
-    const [paylinks, paymes] = await Promise.all([
-      mochiPay.getPaymentRequestByProfile(dataProfile.id, "paylink"),
-      mochiPay.getPaymentRequestByProfile(dataProfile.id, "payme"),
-    ])
-
-    data.push(
-      ...paylinks.map((p) => ({
-        id: `pay-me-${HOMEPAGE_URL}/${dataProfile.id}/receive/${p.code}`,
-        type: "Payme",
-        content:
-          formatDigit({
-            value: String(convertString(p.amount, p.token.decimal)),
-            fractionDigits: 2,
-          }) + ` ${p.token.symbol}`,
-        category: "pay",
-      }))
-    )
-    data.push(
-      ...paymes.map((p) => ({
-        id: `pay-link-${HOMEPAGE_URL}/pay/${p.code}`,
-        type: "Paylink",
-        content:
-          formatDigit({
-            value: String(convertString(p.amount, p.token.decimal)),
-            fractionDigits: 2,
-          }) + ` ${p.token.symbol}`,
-        category: "pay",
-      }))
-    )
-  }
-
-  const paginated = chunk(data, PAGE_SIZE)
-
-  return { data: paginated[page], total: paginated.length }
+  if (findId) return data.find((d: any) => d.id === findId)
+  return data
 }
 
 function mapEmoji(d: any) {
@@ -132,7 +167,9 @@ function mapEmoji(d: any) {
 }
 
 export async function compose(user: User, page = 0) {
-  const { data, total } = await getAll(user.id, page)
+  const all = await getAll(user.id)
+  const paginated = chunk(all, PAGE_SIZE) as any[][]
+  const data = paginated[page]
 
   const embed = composeEmbedMessage(null, {
     author: ["QR codes", user.displayAvatarURL()],
@@ -168,7 +205,7 @@ export async function compose(user: User, page = 0) {
           .addOptions(
             data.map((d) => ({
               emoji: mapEmoji(d),
-              label: d.content,
+              label: `${d.type} ${d.content}`,
               value: d.id,
             }))
           )
@@ -180,7 +217,7 @@ export async function compose(user: User, page = 0) {
           .setEmoji(getEmoji("QRCODE"))
           .setCustomId("new_qr")
       ),
-      ...getPaginationRow(page, total, {
+      ...getPaginationRow(page, paginated.length, {
         left: { emoji: getEmoji("LEFT_ARROW"), label: "\u200b" },
         right: { emoji: getEmoji("RIGHT_ARROW"), label: "\u200b" },
         extra: "",
@@ -225,7 +262,12 @@ export function collectButton(reply: Message, author: User) {
     })
 }
 
-function formatContent(category: string, type: string, value: string) {
+function formatContent(
+  category: string,
+  type: string,
+  value: string,
+  data: any
+) {
   switch (category) {
     case "wallet": {
       const author = ["Deposit", getEmojiURL(emojis.WALLET)]
@@ -234,16 +276,21 @@ function formatContent(category: string, type: string, value: string) {
       switch (type) {
         case "mochi": {
           description = `${getEmoji(
-            "ANIMATED_POINTING_DOWN",
+            "ANIMATED_POINTING_RIGHT",
             true
-          )} Below is the deposit address linked to your Discord account. Transfers to this address is prioritized and processed at top of queue compare to linked wallets.`
+          )} Here is the deposit address linked to your Discord account.\n${getEmoji(
+            "ANIMATED_POINTING_RIGHT"
+          )} Transfers to this address is prioritized and processed at top of queue compare to linked wallets.`
           break
         }
         case "onchain": {
           description = `${getEmoji(
-            "ANIMATED_POINTING_DOWN",
+            "ANIMATED_POINTING_RIGHT",
             true
-          )} Below is the deposit address of one of your linked wallet. Please note that it might take some time for Mochi to pick up tranfers to this address as we need to perform on-chain lookup.`
+          )} Here is the deposit address of one of your linked wallet.\n${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} Please note that it might take some time for Mochi to pick up tranfers to this address as we need to perform on-chain lookup.`
           break
         }
       }
@@ -251,31 +298,79 @@ function formatContent(category: string, type: string, value: string) {
       return {
         author,
         description,
+        fields: [
+          {
+            name: "Address",
+            value: `\`${data.address}\``,
+            inline: true,
+          },
+          {
+            name: "Chain",
+            value: `${getEmojiToken(data.chain)} ${data.chain}`,
+            inline: false,
+          },
+        ],
       }
     }
     case "pay": {
-      const author = ["Pay Request", getEmojiURL(emojis.CASH)]
+      const author = [getEmojiURL(emojis.CASH)]
       let description = ""
 
       switch (type) {
         case "me": {
+          author.unshift("Pay Me")
           description = `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
             true
-          )} You have requested to be paid xxx, share [this link](${value}) or others can scan the code below to pay you.`
+          )} You have requested to be paid ${data.amount} ${
+            data.symbol
+          }, share [this link](${value}) or others can scan the code to pay you.`
           break
         }
         case "link": {
+          author.unshift("Pay Link")
           description = `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
             true
-          )} You have given out a Pay link of xxx, access [this link](${value}) or scan below code to claim the airdrop.`
+          )} Here is the link to temp wallet of ${data.amount} ${
+            data.symbol
+          }\n${getEmoji(
+            "ANIMATED_POINTING_RIGHT"
+          )} Scan the code to claim the airdrop.`
         }
       }
 
       return {
         author,
         description,
+        fields: [
+          {
+            name: "Link",
+            value: `**${value}**`,
+            inline: false,
+          },
+          {
+            name: "Amount",
+            value: `${getEmojiToken(data.symbol)} ${data.amount} ${
+              data.symbol
+            }`,
+            inline: true,
+          },
+          {
+            name: "Chain",
+            value: data.chain,
+            inline: true,
+          },
+          ...(data.note
+            ? [
+                {
+                  name: "Message",
+                  value: data.note,
+                  inline: true,
+                },
+              ]
+            : []),
+        ],
       }
     }
     default:
@@ -312,12 +407,20 @@ export function collectSelection(reply: Message, author: User) {
         const buffer = await qrcode.toBuffer(qrCodeValue, {
           width: 400,
         })
+        const data = await getAll(i.user.id, selectedQRCode)
+        if (!data) return
+        const {
+          author: embedAuthor,
+          description,
+          fields = [],
+        } = formatContent(category, type, qrCodeValue, data)
         const messageOptions = {
           embeds: [
             composeEmbedMessage(reply, {
-              ...formatContent(category, type, qrCodeValue),
-              image: "attachment://qr.png",
-            }),
+              author: embedAuthor,
+              description,
+              thumbnail: "attachment://qr.png",
+            }).addFields(fields),
           ],
           files: [new MessageAttachment(buffer, "qr.png")],
           components: [
@@ -325,7 +428,17 @@ export function collectSelection(reply: Message, author: User) {
               new MessageButton()
                 .setLabel("Back")
                 .setStyle("SECONDARY")
-                .setCustomId("back_qr")
+                .setCustomId("back_qr"),
+              new MessageButton()
+                .setLabel("Save")
+                .setStyle("SECONDARY")
+                .setCustomId("save_qr")
+                .setEmoji(getEmoji("QRCODE")),
+              new MessageButton()
+                .setLabel("Delete")
+                .setStyle("SECONDARY")
+                .setCustomId("delete_qr")
+                .setEmoji(getEmoji("BIN"))
             ),
           ],
         }
