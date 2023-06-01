@@ -39,7 +39,6 @@ const slashCmd: SlashCommand = {
           .setDescription("the chain name")
           .setRequired(true)
           .setChoices([
-            ["solana", "solana"],
             ...Object.values(chains).map<[string, string]>((c) => [c, c]),
           ])
       )
