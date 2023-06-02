@@ -451,7 +451,7 @@ export async function composeWatchlist(
 ) {
   const { data: res, ok } = await CacheManager.get({
     pool: "watchlist",
-    key: `watchlist-${author.id}-${page}-${view}`,
+    key: `watchlist-${author.id}-${user.id}-${page}-${view}`,
     call: () =>
       view === WatchListViewType.TOKEN
         ? defi.getUserWatchlist({ userId: user.id, page, size: PAGE_SIZE })
@@ -499,10 +499,10 @@ export async function composeWatchlist(
         const group = groupBy(tokenData, (t) =>
           Math.sign(t.price_change_percentage_24h ?? 0)
         )
-        group[1] = group[1].sort(sortPrice)
-        group["-1"] = group["-1"].sort(sortPrice)
+        group[1] = group[1]?.sort(sortPrice) ?? []
+        group["-1"] = group["-1"]?.sort(sortPrice) ?? []
 
-        tokenData = [...group[1], ...group[0], ...group[-1]]
+        tokenData = [...group[1], ...(group[0] ?? []), ...group[-1]]
         const { segments } = formatDataTable(
           tokenData.map((t) => ({
             symbol: (t.symbol ?? "").toUpperCase(),
