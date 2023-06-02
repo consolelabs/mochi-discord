@@ -713,25 +713,25 @@ export function isValidSuiAddress(value: string): boolean {
   return isHex(value) && getHexByteLength(value) === SUI_ADDRESS_LENGTH
 }
 
-export function isAddress(address: string): { valid: boolean; type: string } {
+export function isAddress(address: string): { valid: boolean; chainType: string } {
   // standardize ronin address
   address = address.toLowerCase().startsWith("ronin:")
     ? `0x${address.slice(6)}`
     : address
   try {
     if (ethers.utils.isAddress(address)) {
-      return { valid: true, type: "eth" }
+      return { valid: true, chainType: "eth" }
     }
     if (isValidSuiAddress(address)) {
-      return { valid: true, type: "sui" }
+      return { valid: true, chainType: "sui" }
     }
     if (PublicKey.isOnCurve(new PublicKey(address))) {
-      return { valid: true, type: "sol" }
+      return { valid: true, chainType: "sol" }
     }
   } catch (e) {
-    return { valid: false, type: "" }
+    return { valid: false, chainType: "" }
   }
-  return { valid: false, type: "" }
+  return { valid: false, chainType: "" }
 }
 
 async function resolveSNSDomain(domain: string) {
@@ -789,9 +789,9 @@ export async function reverseLookup(address: string) {
     key: address,
     ttl: 604800,
     call: async () => {
-      const { type } = isAddress(address)
+      const { chainType } = isAddress(address)
       try {
-        switch (type) {
+        switch (chainType) {
           case "sol": {
             const domainKey = new PublicKey(address)
             return await performReverseLookup(connection, domainKey)

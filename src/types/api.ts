@@ -84,6 +84,7 @@ export interface ModelChain {
 }
 
 export interface ModelCoingeckoSupportedTokens {
+  current_price?: number;
   id?: string;
   name?: string;
   symbol?: string;
@@ -828,9 +829,16 @@ export interface ModelUserWallet {
   user_discord_id?: string;
 }
 
+export interface ModelUserWalletWatchlist {
+  copying?: ModelUserWalletWatchlistItem[];
+  following?: ModelUserWalletWatchlistItem[];
+  tracking?: ModelUserWalletWatchlistItem[];
+}
+
 export interface ModelUserWalletWatchlistItem {
   address?: string;
   alias?: string;
+  chain_type?: string;
   created_at?: string;
   fetched_data?: boolean;
   is_owner?: boolean;
@@ -1235,11 +1243,11 @@ export interface RequestSwapRequest {
 export interface RequestTrackWalletRequest {
   address: string;
   alias?: string;
+  chain_type: string;
   channel_id?: string;
   is_owner?: boolean;
   message_id?: string;
   type: string;
-  user_id: string;
 }
 
 export interface RequestTradeOfferItem {
@@ -1462,10 +1470,6 @@ export interface ResponseCoin {
   thumb?: string;
 }
 
-export interface ResponseCoinDescription {
-  en?: string;
-}
-
 export interface ResponseCoinImage {
   large?: string;
   small?: string;
@@ -1489,6 +1493,11 @@ export interface ResponseCoinMarketItemData {
     price?: number[];
   };
   symbol?: string;
+}
+
+export interface ResponseCoinPlatformDetailData {
+  contract_address?: string;
+  decimal_place?: number;
 }
 
 export interface ResponseCoinPriceHistoryResponse {
@@ -1706,14 +1715,30 @@ export interface ResponseGetAllUserSubmittedAdResponse {
 
 export interface ResponseGetCoinResponse {
   asset_platform_id?: string;
-  description?: ResponseCoinDescription;
+  block_time_in_minutes?: number;
+  categories?: string[];
+  coingecko_rank?: number;
+  coingecko_score?: number;
+  community_data?: any;
+  contract_address?: string;
+  description?: Record<string, string>;
+  detail_platforms?: Record<string, ResponseCoinPlatformDetailData>;
+  developer_data?: any;
+  genesis_date?: any;
+  hashing_algorithm?: any;
   id?: string;
   image?: ResponseCoinImage;
+  links?: any;
+  localization?: Record<string, string>;
   market_cap_rank?: number;
   market_data?: ResponseMarketData;
   name?: string;
+  platforms?: any;
+  sentiment_votes_down_percentage?: number;
+  sentiment_votes_up_percentage?: number;
   symbol?: string;
   tickers?: ResponseTickerData[];
+  watchlist_users?: number;
 }
 
 export interface ResponseGetCoinResponseWrapper {
@@ -1981,7 +2006,7 @@ export interface ResponseGetTopGainerLoserCoin {
 }
 
 export interface ResponseGetTrackingWalletsResponse {
-  data?: ModelUserWalletWatchlistItem[];
+  data?: ModelUserWalletWatchlist;
 }
 
 export interface ResponseGetTradeOfferResponse {
@@ -2388,12 +2413,44 @@ export interface ResponseLogoutResponse {
 }
 
 export interface ResponseMarketData {
+  ath?: Record<string, number>;
+  ath_change_percentage?: Record<string, number>;
+  ath_date?: any;
+  atl?: Record<string, number>;
+  circulating_supply?: number;
   current_price?: Record<string, number>;
+  fdv_to_tvl_ratio?: any;
+  fully_diluted_valuation?: Record<string, number>;
+  high_24h?: Record<string, number>;
+  low_24h?: Record<string, number>;
   market_cap?: Record<string, number>;
+  market_cap_change_24h_in_currency?: Record<string, number>;
+  market_cap_change_percentage_24h_in_currency?: Record<string, number>;
+  market_cap_rank?: number;
+  max_supply?: number;
+  mcap_to_tvl_ratio?: any;
+  price_change_24h?: number;
+  price_change_24h_in_currency?: Record<string, number>;
+  price_change_percentage_14d?: number;
+  price_change_percentage_14d_in_currency?: Record<string, number>;
   price_change_percentage_1h_in_currency?: Record<string, number>;
+  price_change_percentage_1y?: number;
+  price_change_percentage_1y_in_currency?: Record<string, number>;
+  price_change_percentage_200d?: number;
+  price_change_percentage_200d_in_currency?: Record<string, number>;
+  price_change_percentage_24h?: number;
   price_change_percentage_24h_in_currency?: Record<string, number>;
+  price_change_percentage_30d?: number;
+  price_change_percentage_30d_in_currency?: Record<string, number>;
+  price_change_percentage_60d?: number;
+  price_change_percentage_60d_in_currency?: Record<string, number>;
+  price_change_percentage_7d?: number;
   price_change_percentage_7d_in_currency?: Record<string, number>;
+  roi?: any;
   total_market_cap?: Record<string, number>;
+  total_supply?: number;
+  total_value_locked?: any;
+  total_volume?: Record<string, number>;
 }
 
 export interface ResponseMetric {

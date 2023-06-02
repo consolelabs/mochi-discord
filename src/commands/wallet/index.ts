@@ -6,6 +6,8 @@ import remove from "./remove/text"
 import view from "./view/slash"
 import add from "./add/slash"
 import track from "./track/slash"
+import follow from "./follow/slash"
+import copy from "./copy/slash"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
@@ -45,6 +47,8 @@ const slashActions: Record<string, SlashCommand> = {
   view,
   add,
   track,
+  follow,
+  copy,
 }
 
 const slashCmd: SlashCommand = {
@@ -57,6 +61,8 @@ const slashCmd: SlashCommand = {
     data.addSubcommand(<SlashCommandSubcommandBuilder>view.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>add.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>track.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>follow.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>copy.prepare())
     return data
   },
   autocomplete: function (i) {

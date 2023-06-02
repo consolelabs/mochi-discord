@@ -320,8 +320,8 @@ class Defi extends Fetcher {
     userId: string
     address: string
     alias: string
-    chain_type?: string
-    type?: string
+    chainType: string
+    type: string
   }) {
     body.type = body.type || "track"
     return await this.jsonFetch(

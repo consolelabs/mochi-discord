@@ -4,18 +4,16 @@ import { User } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
 import { getEmoji, isAddress } from "utils/common"
 
-export async function trackWallet(
+export async function copyWallet(
   msg: OriginalMessage,
   author: User,
   address: string,
   chain: string,
   alias = ""
 ) {
-  const type = "track"
+  const type = "copy"
 
   const { valid, chainType } = isAddress(address)
-  console.log("valid", valid)
-  console.log("chainType", chainType)
   if (!valid) {
     throw new InternalError({
       msgOrInteraction: msg,
@@ -47,7 +45,7 @@ export async function trackWallet(
   if (!ok) {
     throw new InternalError({
       msgOrInteraction: msg,
-      description: "Couldn't track wallet",
+      description: "Couldn't copy wallet",
     })
   }
   const { messageOptions } = await renderBalances(
@@ -61,7 +59,7 @@ export async function trackWallet(
   if (alias) {
     messageOptions.embeds[0].setAuthor(alias, iconURl)
   } else {
-    messageOptions.embeds[0].setAuthor("Wallet tracked", iconURl)
+    messageOptions.embeds[0].setAuthor("Wallet copied", iconURl)
   }
 
   return messageOptions

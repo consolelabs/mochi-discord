@@ -1,22 +1,22 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
-import { trackWallet } from "./processor"
+import { copyWallet } from "./processor"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
 
 const command: SlashCommand = {
-  name: "track",
+  name: "copy",
   category: "Defi",
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
-      .setName("track")
-      .setDescription("Track any wallet")
+      .setName("copy")
+      .setDescription("copy any wallet")
       .addStringOption((opt) =>
         opt
           .setName("address")
-          .setDescription("the address to track")
+          .setDescription("the address to copy")
           .setRequired(true)
       )
       .addStringOption((opt) =>
@@ -38,7 +38,7 @@ const command: SlashCommand = {
     const alias = i.options.getString("alias", false) ?? ""
 
     return {
-      messageOptions: await trackWallet(i, i.user, address, chain, alias),
+      messageOptions: await copyWallet(i, i.user, address, chain, alias),
     }
   },
   help: (interaction) =>

@@ -148,7 +148,8 @@ export async function renameWallet(
     userId,
     address,
     alias,
-    chain_type: "eth",
+    chainType: "eth",
+    type: "follow",
   })
   if (!ok && status === 409) {
     throw new InternalError({
@@ -179,7 +180,7 @@ export async function trackWallet(
   address: string,
   alias: string
 ) {
-  const { valid, type } = isAddress(address)
+  const { valid, chainType } = isAddress(address)
   if (!valid) {
     throw new InternalError({
       msgOrInteraction: msg,
@@ -192,7 +193,8 @@ export async function trackWallet(
     userId: author.id,
     address,
     alias,
-    chain_type: type,
+    chainType,
+    type: "follow",
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {
