@@ -1,3 +1,4 @@
+import { CanvasGradient } from "canvas"
 import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 import { formatDigit } from "utils/defi"
 import "../chartjs/date-adapter"

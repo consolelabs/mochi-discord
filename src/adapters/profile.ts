@@ -98,7 +98,9 @@ class Profile extends Fetcher {
           const bal = Number(w.total_amount || 0)
           onchainTotal += bal
           return {
-            disabled: !["evm-chain", "solana-chain"].includes(w.platform),
+            disabled: !["evm-chain", "solana-chain", "sui-chain"].includes(
+              w.platform
+            ),
             value: w.platform_identifier,
             total: formatDigit({
               value: bal.toString(),

@@ -1,4 +1,4 @@
-import { createCanvas } from "canvas"
+import { CanvasRenderingContext2D, createCanvas } from "canvas"
 import { SPACE } from "utils/constants"
 
 export function widthOf(ctx: CanvasRenderingContext2D, text: string): number {
