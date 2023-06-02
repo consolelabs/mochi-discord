@@ -1,4 +1,4 @@
-import { createCanvas } from "canvas"
+import { CanvasGradient, createCanvas } from "canvas"
 import { GuildMember } from "discord.js"
 
 export function getChartColorConfig(id?: string) {
