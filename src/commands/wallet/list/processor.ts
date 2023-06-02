@@ -154,35 +154,41 @@ export async function render(user: User) {
     })
   })
 
+  const options = Object.entries(data)
+    .map((e) => {
+      return e[1]
+        .filter((d) => d.user_id && d.address)
+        .map((d) => {
+          let chain = (d.type ?? "").toUpperCase()
+          chain = chain === "ETH" ? "EVM" : chain
+          return {
+            value: `${e[0]}_${d.user_id}_${d.address}`,
+            label: `🔹 ${chain} | ${
+              d.alias || shortenHashOrAddress(d.address ?? "", 4)
+            } | 💵 $${formatDigit({
+              value: String(d.net_worth ?? 0),
+              fractionDigits: 2,
+            })}`,
+          }
+        })
+    })
+    .flat()
+
+  if (!options.length) {
+    embed.description += "\n\nNo wallets yet, use commands above."
+  }
+
   return {
     embeds: [embed],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageSelectMenu()
-          .setPlaceholder("💰 View a wallet")
-          .setCustomId("wallets_view-wallet")
-          .addOptions(
-            Object.entries(data)
-              .map((e) => {
-                return e[1]
-                  .filter((d) => d.user_id && d.address)
-                  .map((d) => {
-                    let chain = (d.type ?? "").toUpperCase()
-                    chain = chain === "ETH" ? "EVM" : chain
-                    return {
-                      value: `${e[0]}_${d.user_id}_${d.address}`,
-                      label: `🔹 ${chain} | ${
-                        d.alias || shortenHashOrAddress(d.address ?? "", 4)
-                      } | 💵 $${formatDigit({
-                        value: String(d.net_worth ?? 0),
-                        fractionDigits: 2,
-                      })}`,
-                    }
-                  })
-              })
-              .flat()
-          )
-      ),
-    ],
+    components: options.length
+      ? [
+          new MessageActionRow().addComponents(
+            new MessageSelectMenu()
+              .setPlaceholder("💰 View a wallet")
+              .setCustomId("wallets_view-wallet")
+              .addOptions(options)
+          ),
+        ]
+      : [],
   }
 }
