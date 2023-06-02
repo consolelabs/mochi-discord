@@ -14,9 +14,19 @@ import { InteractionHandler } from "handlers/discord/select-menu"
 import * as qrcode from "qrcode"
 import { Token } from "types/defi"
 import { composeButtonLink } from "ui/discord/button"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import {
+  composeEmbedMessage,
+  formatDataTable,
+  getErrorEmbed,
+} from "ui/discord/embed"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
-import { emojis, getAuthor, getEmoji, getEmojiURL } from "utils/common"
+import {
+  EmojiKey,
+  emojis,
+  getAuthor,
+  getEmoji,
+  getEmojiURL,
+} from "utils/common"
 import { MOCHI_SERVER_INVITE_URL } from "utils/constants"
 import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
@@ -50,23 +60,30 @@ export async function deposit(
   }
   if (tokens?.length > 1) {
     const options: MessageSelectOptionData[] = tokens.map((token: Token) => ({
-      label: `${token.name} ${token.chain?.name ?? ""}`,
+      label: `💎 ${token.name} ${token.chain?.name ?? ""}`,
       value: `${token.symbol}|${token.chain_id}`,
     }))
     const selectionRow = composeDiscordSelectionRow({
       customId: "deposit-select-token",
-      placeholder: "Select a token",
+      placeholder: "💎 Select a token",
       options,
     })
     const embed = composeEmbedMessage(null, {
       originalMsgAuthor: author,
-      author: ["Multiple results found", getEmojiURL(emojis.MAG)],
-      description: `There are \`${token}\` token on multiple chains: ${tokens
-        .map((t: any) => {
-          return `\`${t.chain?.name}\``
-        })
-        .filter((s: any) => Boolean(s))
-        .join(", ")}.\nPlease select one of the following`,
+      author: ["Multiple results found", getEmojiURL(emojis.ANIMATED_COIN_3)],
+      description: `We're not sure which \`${token.toUpperCase()}\`, select one:\n${
+        formatDataTable(
+          tokens.map((t: any) => ({
+            name: t.chain?.name,
+            symbol: t.symbol?.toUpperCase(),
+          })),
+          {
+            cols: ["name", "symbol"],
+            rowAfterFormatter: (f, i) =>
+              `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
+          }
+        ).joined
+      }`,
     })
     return {
       messageOptions: {

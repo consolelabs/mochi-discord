@@ -59,7 +59,7 @@ import tagme from "handlers/tagme"
 import { logger } from "logger"
 import { kafkaQueue } from "queue/kafka/queue"
 import { KafkaQueueMessage } from "types/common"
-import { composeButtonLink, composeDiscordExitButton } from "ui/discord/button"
+import { composeButtonLink } from "ui/discord/button"
 import {
   composePartnerEmbedPimp,
   getErrorEmbed,
