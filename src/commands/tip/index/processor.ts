@@ -21,7 +21,8 @@ import {
   getEmojiURL,
   msgColors,
   roundFloatNumber,
-  thumbnails,
+  shortenHashOrAddress,
+  getEmojiToken,
 } from "utils/common"
 import { isMessage, reply } from "utils/discord"
 import {
@@ -178,13 +179,17 @@ async function transfer(
     throw new APIError({ msgOrInteraction, curl, description: log })
   }
 
+  const member = await msgOrInteraction.guild?.members.fetch(payload.sender)
+  const senderStr =
+    member?.nickname || member?.displayName || member?.user.username
   // respond with successful message
-  return showSuccesfulResponse(payload, data)
+  return showSuccesfulResponse(payload, data, senderStr)
 }
 
 function showSuccesfulResponse(
   payload: any,
-  res: any
+  res: any,
+  senderStr?: string
 ): RunResult<MessageOptions> {
   const users = payload.recipients.map((r: string) => `<@${r}>`).join(", ")
   const isOnline = payload.targets.includes("online")
@@ -211,23 +216,35 @@ function showSuccesfulResponse(
     }`
   }
 
-  let description = `${userMention(
-    payload.sender
-  )} has sent ${recipientDescription} **${formatDigit({
+  const amount = `${formatDigit({
     value: res.amount_each.toString(),
     fractionDigits: payload.decimal,
-  })} ${payload.token}** (${APPROX} $${roundFloatNumber(
+  })} ${payload.token}`
+
+  const amountApprox = `(${APPROX} $${roundFloatNumber(
     res.amount_each * payload.token_price,
     4
-  )}) ${payload.recipients.length > 1 ? "each" : ""}`
+  )})`
+
+  let description = `${getEmoji("PROPOSAL")}\`Tx ID.    ${shortenHashOrAddress(
+    "0x7dff46370e9ea5f0bad3c4e29711ad50062ea7a4"
+  )}\`\n${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
+    payload.token
+  )} **${amount}** ${amountApprox} ${
+    payload.recipients.length > 1 ? "each" : ""
+  }\n${getEmoji("ANIMATED_MONEY", true)}\`Sender.   \`${userMention(
+    payload.sender
+  )}\n${getEmoji("SHARE")}\`Receiver. \`${recipientDescription}`
   if (payload.message) {
-    description += ` with message\n\n${getEmoji("ANIMATED_CHAT", true)} ${
+    description += `\n${getEmoji("ANIMATED_ROBOT", true)}\`Message.  \`${
       payload.message
     }`
   }
   const embed = composeEmbedMessage(null, {
-    thumbnail: thumbnails.TIP,
-    author: ["Tips", getEmojiURL(emojis.CASH)],
+    author: [
+      `New tip${senderStr ? ` from ${senderStr}` : ""}`,
+      getEmojiURL(emojis.CASH),
+    ],
     description,
     color: msgColors.SUCCESS,
   })

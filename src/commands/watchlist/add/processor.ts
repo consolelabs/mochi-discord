@@ -59,14 +59,13 @@ export async function addUserWatchlist(
   const { isFiat, base, target } = parseTickerQuery(symbol)
   if (isFiat) symbol = `${base}/${target}`
 
-  const { data, status, ok, error } = await defi.addToWatchlist({
+  const { data, ok, error } = await defi.addToWatchlist({
     user_id: userId,
     symbol,
     coin_gecko_id: coinId,
     is_fiat: isFiat,
   })
-  if (!ok && status !== 409)
-    await handleUpdateWlError(msgOrInteraction, symbol, error)
+  if (!ok) await handleUpdateWlError(msgOrInteraction, symbol, error)
   CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
   return data
 }
@@ -194,9 +193,7 @@ export async function addWatchlistToken({
             true
           )} View watchlist with ${await getSlashCommand(
             "wlv"
-          )} (alias for ${await getSlashCommand(
-            "watchlist view"
-          )}).\n${getEmoji(
+          )} (alias for ${await getSlashCommand("watchlist view")})\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
             true
           )} To remove, use ${await getSlashCommand("watchlist remove")}`,

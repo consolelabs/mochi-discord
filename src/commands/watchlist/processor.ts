@@ -39,11 +39,12 @@ export async function handleUpdateWlError(
             true
           )} Please choose a token supported by [Coingecko](https://www.coingecko.com/)`
       break
-    // case error.toLowerCase().startsWith("conflict") && !isRemove:
-    //   description = `**${symbol.toUpperCase()}** added to your watchlist.`
-    //   title = "Token added"
-    //   emojiUrl = getEmojiURL(emojis.ANIMATED_COIN_1)
-    //   break
+    case error.toLowerCase().startsWith("conflict") && !isRemove:
+      title = `${symbol.toUpperCase()} has already been added to your watchlist.`
+      description = `View watchlist with ${await getSlashCommand(
+        "wlv"
+      )} (alias for ${await getSlashCommand("watchlist view")})`
+      break
     default:
       break
   }
