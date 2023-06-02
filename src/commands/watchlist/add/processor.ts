@@ -9,15 +9,19 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { getEmoji, msgColors } from "utils/common"
-import { getSuccessEmbed, composeEmbedMessage } from "ui/discord/embed"
+import { EmojiKey, emojis, getEmoji, getEmojiURL } from "utils/common"
+import {
+  getSuccessEmbed,
+  composeEmbedMessage,
+  formatDataTable,
+} from "ui/discord/embed"
 import { Coin } from "types/defi"
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
 import { parseTickerQuery } from "utils/defi"
 import { handleUpdateWlError } from "../processor"
-import { composeDiscordExitButton } from "ui/discord/button"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
+import { getSlashCommand } from "utils/commands"
 
 export async function addToWatchlist(i: ButtonInteraction) {
   if (!i.deferred) i.deferUpdate()
@@ -61,7 +65,7 @@ export async function addUserWatchlist(
     coin_gecko_id: coinId,
     is_fiat: isFiat,
   })
-  if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error)
+  if (!ok) await handleUpdateWlError(msgOrInteraction, symbol, error)
   CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
   return data
 }
@@ -118,12 +122,17 @@ export async function addWatchlistToken({
     // allow selection
     const { base_suggestions, target_suggestions } = data
     let options: MessageSelectOptionData[]
+    let tokens = []
     if (!target_suggestions) {
       const opt = (coin: Coin): MessageSelectOptionData => ({
         label: `${coin.name}`,
         value: `${coin.symbol}_${coin.id}_${userId}`,
       })
       options = base_suggestions.map((b: Coin) => opt(b))
+      tokens = base_suggestions.map((b: Coin) => ({
+        name: b.name,
+        symbol: b.symbol.toUpperCase(),
+      }))
     } else {
       const opt = (base: Coin, target: Coin): MessageSelectOptionData => ({
         label: `${base.name} / ${target.name}`,
@@ -133,6 +142,12 @@ export async function addWatchlistToken({
         .map((b: Coin) => target_suggestions.map((t: Coin) => opt(b, t)))
         .flat()
         .slice(0, 25) // discord allow maximum 25 options
+      tokens = base_suggestions.map((b: Coin) =>
+        target_suggestions.map((t: Coin) => ({
+          name: `${b.name.slice(0, 10)}/${t.name.slice(0, 10)}`,
+          symbol: `${b.symbol.toUpperCase()}/${t.symbol.toUpperCase()}`,
+        }))
+      )
     }
     const selectRow = composeDiscordSelectionRow({
       customId: `watchlist_selection|${symbols.slice(i + 1).join("|")}`,
@@ -144,12 +159,20 @@ export async function addWatchlistToken({
       messageOptions: {
         embeds: [
           composeEmbedMessage(msg, {
-            title: `${getEmoji("MAG")} Multiple options found`,
-            description: `Multiple tokens found for \`${symbol}\`.\nPlease select one of the following`,
-            color: msgColors.GRAY,
+            author: [
+              "Multiple results found",
+              getEmojiURL(emojis.ANIMATED_COIN_3),
+            ],
+            description: `We're not sure which \`${symbol.toUpperCase()}\`, select one:\n${
+              formatDataTable(tokens, {
+                cols: ["name", "symbol"],
+                rowAfterFormatter: (f, i) =>
+                  `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
+              }).joined
+            }`,
           }),
         ],
-        components: [selectRow, composeDiscordExitButton(userId)],
+        components: [selectRow],
       },
       interactionOptions: {
         handler: handler(originSymbols),
@@ -162,10 +185,18 @@ export async function addWatchlistToken({
     messageOptions: {
       embeds: [
         getSuccessEmbed({
-          title: "Successfully set!",
-          description: `**${symbolString(
+          title: `${symbolString(
             originSymbols
-          )}** has been added successfully! Track it by \`$watchlist view\`.`,
+          )} has been added to the watchlist`,
+          description: `${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} View watchlist with ${await getSlashCommand(
+            "wlv"
+          )} (alias for ${await getSlashCommand("watchlist view")})\n${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} To remove, use ${await getSlashCommand("watchlist remove")}`,
         }),
       ],
       components: [],

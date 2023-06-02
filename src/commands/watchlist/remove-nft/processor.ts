@@ -17,7 +17,7 @@ export const removeWatchlistNftCollection = async ({
     userId,
     symbol,
   })
-  if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error, true)
+  if (!ok) await handleUpdateWlError(msgOrInteraction, symbol, error, true)
   CacheManager.findAndRemove("watchlist", `watchlist-nft-${userId}`)
   return {
     messageOptions: {
