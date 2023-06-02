@@ -698,6 +698,19 @@ export async function pullImage(imageUrl: string): Promise<Buffer> {
   return Buffer.from(arrayBuffer)
 }
 
+export function isHex(value: string): boolean {
+  return /^(0x|0X)?[a-fA-F0-9]+$/.test(value) && value.length % 2 === 0
+}
+
+export function getHexByteLength(value: string): number {
+  return /^(0x|0X)/.test(value) ? (value.length - 2) / 2 : value.length / 2
+}
+
+export function isValidSuiAddress(value: string): boolean {
+  const SUI_ADDRESS_LENGTH = 32
+  return isHex(value) && getHexByteLength(value) === SUI_ADDRESS_LENGTH
+}
+
 export function isAddress(address: string): { valid: boolean; type: string } {
   // standardize ronin address
   address = address.toLowerCase().startsWith("ronin:")
@@ -706,6 +719,9 @@ export function isAddress(address: string): { valid: boolean; type: string } {
   try {
     if (ethers.utils.isAddress(address)) {
       return { valid: true, type: "eth" }
+    }
+    if (isValidSuiAddress(address)) {
+      return { valid: true, type: "sui" }
     }
     if (PublicKey.isOnCurve(new PublicKey(address))) {
       return { valid: true, type: "sol" }
