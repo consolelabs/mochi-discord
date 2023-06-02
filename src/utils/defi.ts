@@ -13,14 +13,14 @@ export function formatDigit({
   withoutCommas = false,
   shorten = false,
 }: {
-  value: string
+  value: string | number
   fractionDigits?: number
   withoutCommas?: boolean
   shorten?: boolean
 }) {
-  const num = Number(value.replaceAll(COMMA, EMPTY))
+  const num = Number(String(value).replaceAll(COMMA, EMPTY))
   // invalid number -> keeps value the same and returns
-  if (!num) return value
+  if (!num) return String(value)
   const s = num.toLocaleString(undefined, { maximumFractionDigits: 18 })
   const [left, right = ""] = s.split(".")
   const numsArr = right.split("")
