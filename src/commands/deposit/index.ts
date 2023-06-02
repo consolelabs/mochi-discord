@@ -1,46 +1,16 @@
-import { Command, SlashCommand } from "types/common"
+import { SlashCommand } from "types/common"
 import { CommandInteraction } from "discord.js"
-import {
-  DEPOSIT_GITBOOK,
-  PREFIX,
-  DEFI_DEFAULT_FOOTER,
-  SLASH_PREFIX,
-} from "utils/constants"
-import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
+import { SLASH_PREFIX } from "utils/constants"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandBuilder } from "@discordjs/builders"
-import deposit from "./index/text"
 import * as depositSlash from "./index/slash"
-
-const textCmd: Command = {
-  id: "deposit",
-  command: "deposit",
-  brief: "Deposit",
-  category: "Defi",
-  run: deposit,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}deposit <currency>`,
-        description: "Offchain deposit token",
-        examples: `${PREFIX}deposit eth`,
-        footer: [DEFI_DEFAULT_FOOTER],
-        document: DEPOSIT_GITBOOK,
-      }),
-    ],
-  }),
-  canRunWithoutAction: true,
-  aliases: ["dep"],
-  allowDM: true,
-  colorType: "Defi",
-  minArguments: 2,
-}
 
 const slashCmd: SlashCommand = {
   name: "deposit",
   category: "Defi",
-  prepare: () => {
+  prepare: (alias = "deposit") => {
     return new SlashCommandBuilder()
-      .setName("deposit")
+      .setName(alias)
       .setDescription("Deposit your tokens into your discord wallet")
       .addStringOption((option) =>
         option
@@ -64,4 +34,4 @@ const slashCmd: SlashCommand = {
   colorType: "Defi",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

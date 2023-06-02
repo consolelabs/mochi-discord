@@ -29,7 +29,7 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
     collection_address: address,
     chain,
   })
-  if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error)
+  if (!ok) await handleUpdateWlError(msgOrInteraction, symbol, error)
   CacheManager.findAndRemove("watchlist", `watchlist-nft-${userId}`)
   return {
     messageOptions: {
@@ -57,7 +57,7 @@ export const addWatchlistNftCollection = async ({
     user_id: userId,
     collection_symbol: symbol,
   })
-  if (!ok) handleUpdateWlError(msgOrInteraction, symbol, error)
+  if (!ok) await handleUpdateWlError(msgOrInteraction, symbol, error)
   // no data === add successfully
   if (!data) {
     CacheManager.findAndRemove("watchlist", `watchlist-nft-${userId}`)

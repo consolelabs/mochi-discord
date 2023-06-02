@@ -28,8 +28,14 @@ describe("handleUpdateWlError", () => {
       "ANIMATED_POINTING_RIGHT",
       true
     )} Please choose a token supported by [Coingecko](https://www.coingecko.com/)`
-    expect(() =>
-      processor.handleUpdateWlError(msg, symbol, "record not found", isRemove)
+    expect(
+      async () =>
+        await processor.handleUpdateWlError(
+          msg,
+          symbol,
+          "record not found",
+          isRemove
+        )
     ).toThrow(
       new InternalError({
         msgOrInteraction: msg,
@@ -50,8 +56,14 @@ describe("handleUpdateWlError", () => {
       "ANIMATED_POINTING_RIGHT",
       true
     )} Please choose a token supported by [Coingecko](https://www.coingecko.com/)`
-    expect(() =>
-      processor.handleUpdateWlError(msg, symbol, "record not found", isRemove)
+    expect(
+      async () =>
+        await processor.handleUpdateWlError(
+          msg,
+          symbol,
+          "record not found",
+          isRemove
+        )
     ).toThrow(
       new InternalError({
         msgOrInteraction: msg,
@@ -68,8 +80,9 @@ describe("handleUpdateWlError", () => {
       "ANIMATED_POINTING_RIGHT",
       true
     )} Please choose another one listed on [CoinGecko](https://www.coingecko.com).`
-    expect(() =>
-      processor.handleUpdateWlError(msg, symbol, "conflict", isRemove)
+    expect(
+      async () =>
+        await processor.handleUpdateWlError(msg, symbol, "conflict", isRemove)
     ).toThrow(
       new InternalError({
         msgOrInteraction: msg,
