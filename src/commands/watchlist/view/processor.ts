@@ -18,6 +18,7 @@ import {
   render as renderTrackingWallets,
   collectSelection as collectViewWalletSelection,
 } from "../../wallet/list/processor"
+import { groupBy } from "lodash"
 
 // async function renderWatchlist(data: any[]) {
 //   const container: RectangleStats = {
@@ -434,6 +435,14 @@ export enum WatchListViewType {
   NFT = "nft",
 }
 
+function sortPrice(a: any, b: any) {
+  const result =
+    Math.abs(b.price_change_percentage_24h ?? 0) -
+    Math.abs(a.price_change_percentage_24h ?? 0)
+
+  return result >= 0 ? 1 : -1
+}
+
 export async function composeWatchlist(
   author: User,
   page: number,
@@ -487,11 +496,13 @@ export async function composeWatchlist(
     case WatchListViewType.TOKEN:
       {
         let tokenData = (data as ResponseGetWatchlistResponse["data"]) ?? []
-        tokenData = tokenData.sort(
-          (a, b) =>
-            Math.abs(b.price_change_percentage_24h ?? 0) -
-            Math.abs(a.price_change_percentage_24h ?? 0)
+        const group = groupBy(tokenData, (t) =>
+          Math.sign(t.price_change_percentage_24h ?? 0)
         )
+        group[1] = group[1].sort(sortPrice)
+        group["-1"] = group["-1"].sort(sortPrice)
+
+        tokenData = [...group[1], ...group[0], ...group[-1]]
         const { segments } = formatDataTable(
           tokenData.map((t) => ({
             symbol: (t.symbol ?? "").toUpperCase(),
