@@ -1,5 +1,5 @@
 ## this is stage two , where the app actually runs
-FROM node:16.11.0-alpine
+FROM node:16.20-alpine
 
 WORKDIR /usr/src/app
 RUN apk add --no-cache python3 py3-pip make build-base g++ cairo-dev jpeg-dev pango-dev giflib-dev imagemagick
