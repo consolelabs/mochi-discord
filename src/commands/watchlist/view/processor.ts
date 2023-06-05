@@ -335,7 +335,7 @@ export function buildSwitchViewActionRow(currentView: string) {
   const tokenButton = new MessageButton({
     label: "Token",
     emoji: getEmoji("CASH"),
-    customId: "view_token",
+    customId: "view_watchlist",
     style: "SECONDARY",
     disabled: currentView === "token",
   })
@@ -359,8 +359,8 @@ export function buildSwitchViewActionRow(currentView: string) {
 
 const PAGE_SIZE = 16 as const
 export enum WatchListViewType {
-  TOKEN = "token",
-  NFT = "nft",
+  Token = "token",
+  Nft = "nft",
 }
 
 function sortPrice(a: any, b: any) {
@@ -374,16 +374,16 @@ function sortPrice(a: any, b: any) {
 export async function composeWatchlist(
   author: User,
   page: number,
-  view = WatchListViewType.TOKEN,
+  view = WatchListViewType.Token,
   user: User = author
 ) {
   const { data: res, ok } = await CacheManager.get({
     pool: "watchlist",
     key: `watchlist-${author.id}-${user.id}-${page}-${view}`,
     call: () =>
-      view === WatchListViewType.TOKEN
+      view === WatchListViewType.Token
         ? defi.getUserWatchlist({ userId: user.id, page, size: PAGE_SIZE })
-        : defi.getUserNFTWatchlist({ userId: user.id, size: 12 }),
+        : defi.getUserNFTWatchlist({ userId: user.id, size: PAGE_SIZE }),
     callIfCached: async () => {
       if (author.id) {
         await community.updateQuestProgress({
@@ -414,14 +414,16 @@ export async function composeWatchlist(
     )
     return {
       embeds: [embed],
-      components: [buildSwitchViewActionRow("token")],
+      components: [buildSwitchViewActionRow(view)],
     }
   }
   switch (view) {
-    case WatchListViewType.NFT:
+    case WatchListViewType.Nft:
+      // TODO
+      embed.setDescription("NFT WIP")
       break
     default:
-    case WatchListViewType.TOKEN:
+    case WatchListViewType.Token:
       {
         let tokenData = (data as ResponseGetWatchlistResponse["data"]) ?? []
         const group = groupBy(tokenData, (t) =>
@@ -468,6 +470,6 @@ export async function composeWatchlist(
   }
   return {
     embeds: [embed],
-    components: [buildSwitchViewActionRow("token")],
+    components: [buildSwitchViewActionRow(view)],
   }
 }

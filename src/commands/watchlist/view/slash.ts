@@ -13,13 +13,15 @@ export const machineConfig: MachineConfig = {
   states: {
     watchlist: {
       on: {
-        VIEW_TOKEN: "token",
-        VIEW_NFT: "nft",
+        VIEW_NFT: "watchlistNft",
         VIEW_WALLETS: "wallets",
       },
     },
-    token: {},
-    nft: {},
+    watchlistNft: {
+      on: {
+        VIEW_WATCHLIST: "watchlist",
+      },
+    },
     wallets: {
       id: "wallets",
       on: {
@@ -54,7 +56,7 @@ const command: SlashCommand = {
     const messageOptions = await composeWatchlist(
       i.user,
       0,
-      WatchListViewType.TOKEN
+      WatchListViewType.Token
     )
     const reply = (await i.editReply(messageOptions)) as Message
 

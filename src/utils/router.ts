@@ -1,4 +1,7 @@
-import { composeWatchlist } from "commands/watchlist/view/processor"
+import {
+  composeWatchlist,
+  WatchListViewType,
+} from "commands/watchlist/view/processor"
 import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 import {
   ButtonInteraction,
@@ -74,6 +77,7 @@ function decorateWithActions(
 
 const builtinButtonHandlers: ButtonContext = {
   watchlist: (i) => composeWatchlist(i.user, 0),
+  watchlistNft: (i) => composeWatchlist(i.user, 0, WatchListViewType.Nft),
   wallets: (i) => renderTrackingWallets(i.user),
   addWallet: (i) => handleWalletAddition(i),
   qrCodes: (i, page) =>
