@@ -83,7 +83,8 @@
     "twitter-api-sdk": "^1.1.0",
     "twitter-api-v2": "^1.14.1",
     "type-fest": "^2.19.0",
-    "ws": "^8.12.0"
+    "ws": "^8.12.0",
+    "xstate": "^4.37.2"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --cache --fix",

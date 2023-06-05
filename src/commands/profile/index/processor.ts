@@ -1,18 +1,13 @@
 import profile from "adapters/profile"
 import {
-  CommandInteraction,
   GuildMember,
-  Message,
   MessageActionRow,
   MessageButton,
-  MessageComponentInteraction,
   MessageSelectMenu,
-  User,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
-  authorFilter,
   capitalizeFirst,
   EmojiKey,
   getEmoji,
@@ -31,15 +26,12 @@ import {
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
-import { wrapError } from "utils/wrap-error"
 import {
   BalanceType,
   formatView,
   getBalances,
-  renderBalances,
 } from "commands/balances/index/processor"
 import { formatDigit } from "utils/defi"
-import { runGetVaultDetail } from "commands/vault/info/processor"
 import config from "adapters/config"
 import { formatVaults } from "commands/vault/list/processor"
 import CacheManager from "cache/node-cache"
@@ -60,8 +52,8 @@ async function renderListWallet(
   return `${emoji}${title}\n${
     formatDataTable(
       wallets.map((w, i) => ({
-        chain: (w.chain || isAddress(w.value).type).toUpperCase(),
-        address: domains[i] || shortenHashOrAddress(w.value, 3, 4),
+        chain: (w.chain || isAddress(w.value).chainType).toUpperCase(),
+        address: domains[i] || shortenHashOrAddress(w.value),
         balance: w.total?.toString() ? `$${w.total.toString()}` : "",
       })),
       {
@@ -209,19 +201,19 @@ async function compose(
       new MessageActionRow().addComponents(
         new MessageSelectMenu()
           .setPlaceholder(`💰 View wallet/vault`)
-          .setCustomId("view_wallet/vault")
+          .setCustomId("view_wallet_vault")
           .addOptions(
             [
               {
-                value: "mochi_Mochi Wallet",
+                value: "wallet_mochi_Mochi Wallet",
                 type: "wallet",
                 usd: mochiBal,
                 chain: "",
               },
               ...wallets.map((w) => ({
                 ...w,
+                value: `wallet_onchain_${w.value}`,
                 type: "wallet",
-                value: `onchain_${w.value}`,
                 usd: w.total,
               })),
               ...vaults.map((v) => ({
@@ -231,8 +223,8 @@ async function compose(
                 usd: v.total,
               })),
             ].map((w, i) => {
-              const isMochi = w.value.split("_")[0] === "mochi"
-              const address = w.value.split("_")[1]
+              const isMochi = w.value.split("_")[1] === "mochi"
+              const address = w.value.split("_")[2]
               let label = ""
               if (w.type === "wallet") {
                 label = `${isMochi ? "🔸  " : "🔹  "}${w.chain} | ${
@@ -255,22 +247,22 @@ async function compose(
           .setStyle("SECONDARY")
           .setLabel("QR")
           .setEmoji(getEmoji("QRCODE"))
-          .setCustomId("profile_qrcodes"),
+          .setCustomId("view_qr_codes"),
         new MessageButton()
           .setStyle("SECONDARY")
           .setLabel("Quest")
           .setEmoji("<a:brrr:902558248907980871>")
-          .setCustomId("profile_quest"),
+          .setCustomId("view_quests"),
         new MessageButton()
           .setStyle("SECONDARY")
           .setLabel("Watchlist")
           .setEmoji(getEmoji("ANIMATED_STAR", true))
-          .setCustomId("profile_watchlist"),
+          .setCustomId("view_watchlist"),
         new MessageButton()
           .setLabel(`Connect Wallet`)
           .setEmoji(getEmoji("WALLET_1"))
           .setStyle("SECONDARY")
-          .setCustomId(`wallet_add_more-${member.user.id}`)
+          .setCustomId("view_add_wallet")
       ),
       new MessageActionRow().addComponents(
         new MessageButton()
@@ -347,113 +339,6 @@ export async function renderWallets({
   return strings.join("\n\n")
 }
 
-function collectSelection(
-  reply: Message,
-  author: User,
-  targetId: string,
-  originalMsg: OriginalMessage,
-  components: any
-) {
-  reply
-    .createMessageComponentCollector({
-      componentType: "SELECT_MENU",
-      filter: authorFilter(author.id),
-      time: 300000,
-    })
-    .on("collect", (i) => {
-      wrapError(reply, async () => {
-        if (!i.deferred) {
-          await i.deferUpdate().catch(() => null)
-        }
-        const selectedWallet = i.values[0]
-        const [prefix, addressOrVaultName] = selectedWallet.split("_")
-        const isMochi = prefix === "mochi"
-        const isVault = prefix === "vault"
-        let messageOptions
-        if (isVault) {
-          const vaultName = addressOrVaultName
-          ;({ messageOptions } = await runGetVaultDetail(
-            vaultName,
-            originalMsg
-          ))
-        } else {
-          const address = addressOrVaultName
-          ;({ messageOptions } = await renderBalances(
-            targetId,
-            originalMsg,
-            isMochi ? BalanceType.Offchain : BalanceType.Onchain,
-            address
-          ))
-        }
-
-        messageOptions.components.unshift(
-          new MessageActionRow().addComponents(
-            new MessageButton()
-              .setLabel("Back")
-              .setStyle("SECONDARY")
-              .setCustomId("back")
-          )
-        )
-        const edited = (await i.editReply(messageOptions)) as Message
-
-        edited
-          .createMessageComponentCollector({
-            filter: authorFilter(author.id),
-            componentType: "BUTTON",
-            time: 300000,
-          })
-          .on("collect", (i) => {
-            wrapError(edited, async () => {
-              if (!i.deferred) {
-                await i.deferUpdate().catch(() => null)
-              }
-              if (i.customId === "back") {
-                i.editReply({ embeds: reply.embeds, components })
-              }
-            })
-          })
-      })
-    })
-    .on("end", () => {
-      wrapError(reply, async () => {
-        await reply.edit({ components: [] }).catch(() => null)
-      })
-    })
-}
-
-function collectButton(reply: Message, author: User) {
-  reply
-    .createMessageComponentCollector({
-      componentType: "BUTTON",
-      filter: authorFilter(author.id),
-      time: 300000,
-    })
-    .on("collect", (i) => {
-      wrapError(reply, async () => {
-        if (!i.deferred) {
-          await i.deferUpdate().catch(() => null)
-        }
-        if (i.customId !== "back" && i.customId.startsWith("profile")) {
-          const [, action] = i.customId.split("_")
-          switch (action) {
-            // case "watchlist": {
-            //   await composeSlashTokenWatchlist(i, 0, author.id)
-            //   break
-            // }
-            default:
-              i.followUp({ content: "WIP!", ephemeral: true })
-              break
-          }
-        }
-      })
-    })
-    .on("end", () => {
-      wrapError(reply, async () => {
-        await reply.edit({ components: [] }).catch(() => null)
-      })
-    })
-}
-
 function sendKafka(profileId: string, username: string) {
   const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
     profileId,
@@ -465,11 +350,7 @@ function sendKafka(profileId: string, username: string) {
   sendActivityMsg(kafkaMsg)
 }
 
-export async function render(
-  msg: OriginalMessage,
-  _member?: GuildMember | null
-) {
-  const member = _member ?? msg.member
+export async function render(msg: OriginalMessage, member: GuildMember) {
   if (!(member instanceof GuildMember)) {
     throw new InternalError({
       msgOrInteraction: msg,
@@ -485,34 +366,5 @@ export async function render(
   }
   sendKafka(dataProfile.id, member.user.username)
 
-  const replyPayload = await compose(msg, member, dataProfile)
-
-  let reply
-  let author
-  if (
-    msg instanceof CommandInteraction ||
-    msg instanceof MessageComponentInteraction
-  ) {
-    author = msg.user
-    reply = await msg.editReply(replyPayload).catch(() => {
-      replyPayload.embeds[0].fields.pop()
-      return msg.editReply(replyPayload)
-    })
-  } else {
-    author = msg.member?.user
-    reply = await msg.reply({ ...replyPayload }).catch(() => {
-      replyPayload.embeds[0].fields.pop()
-      return msg.reply({ ...replyPayload })
-    })
-  }
-
-  collectSelection(
-    reply as Message,
-    author as User,
-    member.user.id,
-    msg,
-    replyPayload.components
-  )
-
-  collectButton(reply as Message, author as User)
+  return await compose(msg, member, dataProfile)
 }

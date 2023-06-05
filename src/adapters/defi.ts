@@ -294,7 +294,7 @@ class Defi extends Fetcher {
 
   async getUserTrackingWallets(userId: string) {
     return await this.jsonFetch<ResponseGetTrackingWalletsResponse>(
-      `${API_BASE_URL}/users/${userId}/wallets/tracking`
+      `${API_BASE_URL}/users/${userId}/watchlists/wallets`
     )
   }
 
@@ -320,10 +320,12 @@ class Defi extends Fetcher {
     userId: string
     address: string
     alias: string
-    type?: string
+    chainType: string
+    type: string
   }) {
+    body.type = body.type || "track"
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${body.userId}/wallets/track`,
+      `${API_BASE_URL}/users/${body.userId}/watchlists/wallets/track`,
       {
         method: "POST",
         body,

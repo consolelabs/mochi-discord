@@ -42,17 +42,7 @@ describe("balances", () => {
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
       author: ["Mochi wallet", getEmojiURL(emojis.NFT2)],
-      description: `${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} You can withdraw using ${await getSlashCommand(
-        "withdraw"
-      )}.\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} You can send tokens to other using ${await getSlashCommand(
-        "tip"
-      )}.\n\n<:cake:972205674371117126> \`10 CAKE ≈  $30\`\n<:ftm:967285237686108212> \`5 FTM   ≈ $2.5\``,
+      description: `<:cake:972205674371117126> \`10 CAKE ≈  $30\`\n<:ftm:967285237686108212> \`5 FTM   ≈ $2.5\``,
     })
     justifyEmbedFields(expected, 3)
     expected.addFields({

@@ -31,6 +31,8 @@ export function formatDigit({
     rightStr += nextDigit
   }
 
+  rightStr = rightStr.slice(0, fractionDigits)
+
   while (rightStr.endsWith("0")) {
     rightStr = rightStr.slice(0, rightStr.length - 1)
   }

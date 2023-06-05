@@ -211,7 +211,11 @@ export async function composeTickerResponse({
     },
     {
       name: "Chain",
-      value: (coin.asset_platform_id || "N/A").toUpperCase(),
+      value: (
+        coin.asset_platform?.shortname ||
+        coin.asset_platform?.name ||
+        "N/A"
+      ).toUpperCase(),
       inline: true,
     },
     {

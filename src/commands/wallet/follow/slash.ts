@@ -1,22 +1,19 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
-import { trackWallet } from "./processor"
-import { composeEmbedMessage2 } from "ui/discord/embed"
-import { thumbnails } from "utils/common"
-import { SLASH_PREFIX } from "utils/constants"
+import { followWallet } from "./processor"
 
 const command: SlashCommand = {
-  name: "track",
+  name: "follow",
   category: "Defi",
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
-      .setName("track")
-      .setDescription("Track any wallet")
+      .setName("follow")
+      .setDescription("Follow any wallet")
       .addStringOption((opt) =>
         opt
           .setName("address")
-          .setDescription("the address to track")
+          .setDescription("the address to follow")
           .setRequired(true)
       )
       .addStringOption((opt) =>
@@ -38,21 +35,10 @@ const command: SlashCommand = {
     const alias = i.options.getString("alias", false) ?? ""
 
     return {
-      messageOptions: await trackWallet(i, i.user, address, chain, alias),
+      messageOptions: await followWallet(i, i.user, address, chain, alias),
     }
   },
-  help: (interaction) =>
-    Promise.resolve({
-      embeds: [
-        composeEmbedMessage2(interaction, {
-          thumbnail: thumbnails.TOKENS,
-          title: "Show list of your favorite tokens",
-          description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
-          usage: `${SLASH_PREFIX}watchlist view`,
-          examples: `${SLASH_PREFIX}watchlist view`,
-        }),
-      ],
-    }),
+  help: () => Promise.resolve({}),
   colorType: "Defi",
 }
 

@@ -21,6 +21,7 @@ import {
 } from "utils/common"
 import { HOMEPAGE_URL } from "utils/constants"
 import { awaitMessage } from "utils/discord"
+import { WalletTrackingType } from ".."
 import profile from "../../../adapters/profile"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
@@ -79,11 +80,10 @@ export async function handleWalletAddition(msg: OriginalMessage) {
     `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${msg.guildId ?? ""}`,
     getEmoji("ANIMATED_VAULT_KEY", true)
   )
-  if (isTextMsg) {
-    const reply = (await msg.reply({ embeds: [embed] })) as Message
-    reply.edit({ components: [buttonRow] })
-  } else {
-    await msg.editReply({ embeds: [embed], components: [buttonRow] })
+
+  return {
+    embeds: [embed],
+    components: [buttonRow],
   }
 }
 
@@ -149,7 +149,8 @@ export async function renameWallet(
     userId,
     address,
     alias,
-    type: "eth",
+    chainType: "eth",
+    type: WalletTrackingType.Follow,
   })
   if (!ok && status === 409) {
     throw new InternalError({
@@ -180,7 +181,7 @@ export async function trackWallet(
   address: string,
   alias: string
 ) {
-  const { valid, type } = isAddress(address)
+  const { valid, chainType } = isAddress(address)
   if (!valid) {
     throw new InternalError({
       msgOrInteraction: msg,
@@ -193,7 +194,8 @@ export async function trackWallet(
     userId: author.id,
     address,
     alias,
-    type,
+    chainType,
+    type: WalletTrackingType.Follow,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {

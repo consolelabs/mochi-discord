@@ -1,50 +1,29 @@
-import { Command, SlashCommand } from "types/common"
-import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
-import { PREFIX, SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
-import newText from "./new/text"
-import remove from "./remove/text"
+import { SlashCommand } from "types/common"
+import { composeEmbedMessage2 } from "ui/discord/embed"
+import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
 import view from "./view/slash"
 import add from "./add/slash"
 import track from "./track/slash"
+import follow from "./follow/slash"
+import copy from "./copy/slash"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 
-const actions: Record<string, Command> = {
-  remove,
-  new: newText,
-}
-
-const textCmd: Command = {
-  id: "wallet",
-  command: "wallet",
-  brief: "",
-  category: "Defi",
-  run: async () => null,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        title: "On-chain Wallet Tracking",
-        usage: `${PREFIX}wallet <action>`,
-        examples: `${PREFIX}wallet add\n${PREFIX}wallet view\n${PREFIX}wallet new`,
-        description: "Track assets and activities of any on-chain wallet.",
-        includeCommandsList: true,
-      }),
-    ],
-  }),
-  actions,
-  aliases: ["wal"],
-  colorType: "Wallet",
-  canRunWithoutAction: false,
-  allowDM: true,
+export enum WalletTrackingType {
+  Follow = "follow",
+  Track = "track",
+  Copy = "copy",
 }
 
 const slashActions: Record<string, SlashCommand> = {
   view,
   add,
   track,
+  follow,
+  copy,
 }
 
 const slashCmd: SlashCommand = {
@@ -57,6 +36,8 @@ const slashCmd: SlashCommand = {
     data.addSubcommand(<SlashCommandSubcommandBuilder>view.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>add.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>track.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>follow.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>copy.prepare())
     return data
   },
   autocomplete: function (i) {
@@ -67,19 +48,20 @@ const slashCmd: SlashCommand = {
   run: (interaction: CommandInteraction) => {
     return slashActions[interaction.options.getSubcommand()].run(interaction)
   },
-  help: async (interaction) => ({
-    embeds: [
-      composeEmbedMessage2(interaction, {
-        title: "On-chain Wallet Tracking",
-        usage: `${SLASH_PREFIX}wallet <action>`,
-        examples: `${SLASH_PREFIX}wallet add\n${SLASH_PREFIX}wallet view`,
-        description: "Track assets and activities of any on-chain wallet.",
-        includeCommandsList: true,
-        document: WALLET_GITBOOK,
-      }),
-    ],
-  }),
+  help: (interaction) =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage2(interaction, {
+          title: "On-chain Wallet Tracking",
+          usage: `${SLASH_PREFIX}wallet <action>`,
+          examples: `${SLASH_PREFIX}wallet add\n${SLASH_PREFIX}wallet view`,
+          description: "Track assets and activities of any on-chain wallet.",
+          includeCommandsList: true,
+          document: WALLET_GITBOOK,
+        }),
+      ],
+    }),
   colorType: "Defi",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

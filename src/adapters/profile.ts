@@ -97,6 +97,19 @@ class Profile extends Fetcher {
         ?.map((w: any) => {
           const bal = Number(w.total_amount || 0)
           onchainTotal += bal
+
+          let chain = w.platform.split("-").shift().toUpperCase()
+          switch (w.platform) {
+            case "solana-chain":
+              chain = "SOL"
+              break
+            case "ronin-chain":
+              chain = "RON"
+              break
+            default:
+              break
+          }
+
           return {
             disabled: !["evm-chain", "solana-chain", "sui-chain"].includes(
               w.platform
@@ -106,10 +119,7 @@ class Profile extends Fetcher {
               value: bal.toString(),
               fractionDigits: 2,
             }),
-            chain:
-              w.platform === "solana-chain"
-                ? "SOL"
-                : w.platform.split("-").shift().toUpperCase(),
+            chain,
           }
         }) ?? []
     )
