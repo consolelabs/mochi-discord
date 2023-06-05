@@ -206,9 +206,6 @@ export const originalCommands: Record<string, Command> = {
   poe: poe.textCmd,
   sendxp: sendxp.textCmd,
 
-  // wallet
-  wallet: wallet.textCmd,
-
   //game
   game: game.textCmd,
 

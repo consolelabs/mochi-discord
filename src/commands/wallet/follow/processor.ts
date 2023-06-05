@@ -6,7 +6,7 @@ import { emojis } from "utils/common"
 import { getEmojiURL } from "utils/common"
 import { shortenHashOrAddress } from "utils/common"
 import { getEmoji, isAddress, msgColors } from "utils/common"
-import { WALLET_TRACKING_FOLLOW } from "utils/constants"
+import { WalletTrackingType } from ".."
 
 export async function followWallet(
   msg: OriginalMessage,
@@ -34,7 +34,7 @@ export async function followWallet(
     address,
     alias,
     chainType: chain,
-    type: WALLET_TRACKING_FOLLOW,
+    type: WalletTrackingType.Follow,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {

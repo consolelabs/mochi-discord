@@ -3,7 +3,7 @@ import { BalanceType, renderBalances } from "commands/balances/index/processor"
 import { User } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
 import { getEmoji, isAddress } from "utils/common"
-import { WALLET_TRACKING_COPY } from "utils/constants"
+import { WalletTrackingType } from ".."
 
 export async function copyWallet(
   msg: OriginalMessage,
@@ -31,7 +31,7 @@ export async function copyWallet(
     address,
     alias,
     chainType: chain,
-    type: WALLET_TRACKING_COPY,
+    type: WalletTrackingType.Copy,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {

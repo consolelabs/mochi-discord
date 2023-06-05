@@ -1,7 +1,6 @@
 import defi from "adapters/defi"
 import { BalanceType, renderBalances } from "commands/balances/index/processor"
 import {
-  ButtonInteraction,
   Message,
   MessageActionRow,
   MessageButton,
@@ -94,17 +93,6 @@ const emojiMap = {
   following: getEmoji("PLUS"),
   tracking: getEmoji("ANIMATED_STAR", true),
   copying: getEmoji("SWAP_ROUTE"),
-}
-
-export async function handleWatchlistWalletsInteraction(i: ButtonInteraction) {
-  i.deferUpdate()
-
-  const messsageOptions = await render(i.user)
-
-  i.editReply({
-    embeds: messsageOptions.embeds,
-    components: messsageOptions.components,
-  })
 }
 
 export async function render(user: User) {

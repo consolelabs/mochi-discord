@@ -2,9 +2,6 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { copyWallet } from "./processor"
-import { composeEmbedMessage2 } from "ui/discord/embed"
-import { thumbnails } from "utils/common"
-import { SLASH_PREFIX } from "utils/constants"
 
 const command: SlashCommand = {
   name: "copy",
@@ -41,18 +38,7 @@ const command: SlashCommand = {
       messageOptions: await copyWallet(i, i.user, address, chain, alias),
     }
   },
-  help: (interaction) =>
-    Promise.resolve({
-      embeds: [
-        composeEmbedMessage2(interaction, {
-          thumbnail: thumbnails.TOKENS,
-          title: "Show list of your favorite tokens",
-          description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,
-          usage: `${SLASH_PREFIX}watchlist view`,
-          examples: `${SLASH_PREFIX}watchlist view`,
-        }),
-      ],
-    }),
+  help: () => Promise.resolve({}),
   colorType: "Defi",
 }
 
