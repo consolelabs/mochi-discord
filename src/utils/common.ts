@@ -94,7 +94,7 @@ export const tokenEmojis = {
   ARB: "1056772215477112862",
   OKC: "1006838263165767681",
   ONUS: "1077203550075093053",
-  SUI: "1077132420500951081",
+  SUI: "1113115401132462172",
   FBOMB: "1079669535117938788",
   MCLB: "1079669537408036955",
   BSC: "972205674715054090",
@@ -345,6 +345,7 @@ export const emojis = {
   BANK: "1090902907244777542",
   BELL: "1087564962941124679",
   XP: "1058304395000938516",
+  EVM: "991657409082830858",
 
   ...animatedEmojis,
   ...tokenEmojis,
@@ -473,9 +474,9 @@ export function getAnimatedEmojiURL(emojiId: string) {
   return `https://cdn.discordapp.com/emojis/${emojiId}.gif?size=240&quality=lossless`
 }
 
-export function shortenHashOrAddress(hash: string, len = 6) {
+export function shortenHashOrAddress(hash: string, len = 3, lenRight = 4) {
   if (!hash) return ""
-  return `${hash.slice(0, len)}...${hash.slice(hash.length - len)}`
+  return `${hash.slice(0, len)}...${hash.slice(hash.length - lenRight)}`
 }
 
 export function paginate(arr: any[], size: number) {
