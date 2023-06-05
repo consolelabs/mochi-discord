@@ -79,11 +79,10 @@ export async function handleWalletAddition(msg: OriginalMessage) {
     `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${msg.guildId ?? ""}`,
     getEmoji("ANIMATED_VAULT_KEY", true)
   )
-  if (isTextMsg) {
-    const reply = (await msg.reply({ embeds: [embed] })) as Message
-    reply.edit({ components: [buttonRow] })
-  } else {
-    await msg.editReply({ embeds: [embed], components: [buttonRow] })
+
+  return {
+    embeds: [embed],
+    components: [buttonRow],
   }
 }
 

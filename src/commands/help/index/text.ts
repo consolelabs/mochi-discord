@@ -27,6 +27,7 @@ const run = async (msg: Message) => {
         i.deferUpdate()
         const pageType = i.customId as PageType
         if (pageType === "profile") {
+          if (!msg.member) return
           await renderProfile(replyMsg, msg.member)
         } else {
           const embed = getHelpEmbed(msg.author)

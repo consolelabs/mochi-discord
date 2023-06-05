@@ -14,7 +14,9 @@ const command: SlashCommand = {
       .setDescription("Save your interested wallet address with an alias.")
   },
   run: async function (interaction: CommandInteraction) {
-    return await handleWalletAddition(interaction)
+    const msgOpts = await handleWalletAddition(interaction)
+
+    interaction.editReply(msgOpts)
   },
   help: (interaction: CommandInteraction) =>
     Promise.resolve({
