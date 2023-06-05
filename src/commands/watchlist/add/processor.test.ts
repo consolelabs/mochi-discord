@@ -4,6 +4,7 @@ import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { assertAuthor, assertTitle } from "../../../../tests/assertions/discord"
 import defi from "adapters/defi"
 import mockdc from "../../../../tests/mocks/discord"
+import { emojis, getEmojiURL } from "utils/common"
 jest.mock("adapters/defi")
 jest.mock("cache/node-cache")
 
@@ -42,9 +43,10 @@ describe("viewWatchlist", () => {
     } as any)
     const output = await processor.addWatchlistToken(input)
     const expected = composeEmbedMessage(msg, {
-      title: `<:mag:1058304336842727544> Multiple options found`,
+      title: "",
       description:
         "Multiple tokens found for `eth`.\nPlease select one of the following",
+      author: ["Multiple results found", getEmojiURL(emojis.ANIMATED_COIN_3)],
     })
     assertTitle(output, expected)
     assertAuthor(output, expected)
@@ -70,7 +72,7 @@ describe("viewWatchlist", () => {
     CacheManager.findAndRemove = jest.fn().mockResolvedValue(null)
     const output = await processor.addWatchlistToken(input)
     const expected = getSuccessEmbed({
-      title: "Successfully set!",
+      title: "FTM has been added to the watchlist",
       description:
         "**FTM** has been added successfully! Track it by `$watchlist view`.",
     })
@@ -108,7 +110,7 @@ describe("viewWatchlist", () => {
     CacheManager.findAndRemove = jest.fn().mockResolvedValue(null)
     const output = await processor.addWatchlistToken(input)
     const expected = getSuccessEmbed({
-      title: "Successfully set!",
+      title: "FTM ETH has been added to the watchlist",
       description:
         "**FTM ETH** has been added successfully! Track it by `$watchlist view`.",
     })

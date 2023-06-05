@@ -23,7 +23,9 @@ describe("removeWatchlistToken", () => {
       error: null,
     } as any)
     const output = await processor.removeWatchlistToken(input)
-    const expected = getSuccessEmbed({})
+    const expected = getSuccessEmbed({
+      title: `FTM ETH has been removed from the watchlist`,
+    })
     assertTitle(output, expected)
     assertAuthor(output, expected)
   })
@@ -39,7 +41,9 @@ describe("removeWatchlistToken", () => {
       error: null,
     } as any)
     const output = await processor.removeWatchlistToken(input)
-    const expected = getSuccessEmbed({})
+    const expected = getSuccessEmbed({
+      title: `FTM ETH has been removed from the watchlist`,
+    })
     assertTitle(output, expected)
     assertAuthor(output, expected)
   })
