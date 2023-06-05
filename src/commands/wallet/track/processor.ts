@@ -24,7 +24,7 @@ export async function trackWallet(
     userId: author.id,
     address,
     alias,
-    type,
+    chain_type: type,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {

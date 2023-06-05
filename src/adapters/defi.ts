@@ -320,10 +320,12 @@ class Defi extends Fetcher {
     userId: string
     address: string
     alias: string
+    chain_type?: string
     type?: string
   }) {
+    body.type = body.type || "track"
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${body.userId}/wallets/track`,
+      `${API_BASE_URL}/users/${body.userId}/watchlists/wallets/track`,
       {
         method: "POST",
         body,
