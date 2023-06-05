@@ -152,15 +152,24 @@ export function route(
     },
     {
       ...options,
+      guards: {
+        ...options.guards,
+        isWallet: (_ctx, ev) => {
+          return ev.interaction?.values[0].startsWith("wallet")
+        },
+        isVault: (_ctx, ev) => {
+          return ev.interaction?.values[0].startsWith("vault")
+        },
+      },
       actions: {
         record: (context, event) => {
           if (!event.interaction || event.dry) return
           if (event.interaction.isButton()) {
             context.steps?.push(
-              `User clicked button ${event.interaction.component.label} (${event.interaction.customId})`
+              `Click: button ${event.interaction.component.label} (id: ${event.interaction.customId})`
             )
             context.steps?.push(
-              `Transitioned view from ${event.prevState} to ${event.state}`
+              `Transition: ${event.prevState} -> ${event.state}`
             )
           } else if (event.interaction.isSelectMenu()) {
             const [value] = event.interaction.values
@@ -168,14 +177,21 @@ export function route(
               event.interaction.component.options.find(
                 (opt: any) => opt.value === value
               )?.label ?? "___"
-            context.steps?.push(`User selected ${label} (${value})`)
+            context.steps?.push(`Select: option ${label} (value: ${value})`)
             context.steps?.push(
-              `Transitioned view from ${event.prevState} to ${event.state}`
+              `Transition: ${event.prevState} -> ${event.state}`
             )
           }
         },
         transition: (context, event) => {
-          const { canBack = false, dry, interaction, state, args = [] } = event
+          const {
+            reaction,
+            canBack = false,
+            dry,
+            interaction,
+            state,
+            args = [],
+          } = event
           if (!interaction || !state || dry || state === "steps") return
           let composer: Handler | undefined
           if (interaction.isButton()) {
@@ -188,6 +204,7 @@ export function route(
             if (!composer) return
             try {
               const msgOpts = await composer(interaction, ...args)
+              await reaction?.remove()
 
               if (canBack) {
                 if (!msgOpts.components) msgOpts.components = []
@@ -248,12 +265,18 @@ export function route(
         if (can) {
           const prevState = currentState.toStrings().at(-1)?.split(".").at(-1)
           const state = nextState.toStrings().at(-1)?.split(".").at(-1)
+
+          const reaction = await (i.message as Message)
+            .react(getEmoji("ANIMATED_MOCHI_SPIN", true))
+            .catch(() => null)
+
           machineService.send({
             type: event,
             interaction: i,
             prevState,
             state,
             canBack: nextState.can("BACK"),
+            reaction,
             args,
           })
         }

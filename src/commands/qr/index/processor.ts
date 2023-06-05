@@ -40,7 +40,7 @@ CacheManager.init({
   checkperiod: 300000,
 })
 
-async function getAll(discordId: string, findId?: string) {
+async function get(discordId: string, findId?: string) {
   const data = await CacheManager.get({
     pool: "user_qr_codes",
     key: discordId,
@@ -165,7 +165,7 @@ function mapEmoji(d: any) {
 }
 
 async function compose(user: User, page: number) {
-  const all = await getAll(user.id)
+  const all = await get(user.id)
   const paginated = chunk(all, PAGE_SIZE) as any[][]
   const data = paginated[page]
 
@@ -355,7 +355,7 @@ export async function viewQR(i: SelectMenuInteraction) {
   const buffer = await qrcode.toBuffer(qrCodeValue, {
     width: 400,
   })
-  const data = await getAll(i.user.id, selectedQRCode)
+  const data = await get(i.user.id, selectedQRCode)
   if (!data) return {}
   const {
     author: embedAuthor,
@@ -375,8 +375,9 @@ export async function viewQR(i: SelectMenuInteraction) {
       new MessageActionRow().addComponents(
         new MessageButton()
           .setLabel("Save")
-          .setStyle("SECONDARY")
-          .setCustomId("save_qr")
+          .setStyle("LINK")
+          // TODO: replace this with the pass's download link
+          .setURL(HOMEPAGE_URL)
           .setEmoji(getEmoji("QRCODE")),
         new MessageButton()
           .setLabel("Delete")
