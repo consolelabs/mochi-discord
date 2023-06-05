@@ -385,7 +385,7 @@ export function formatView(
           usdWorth,
           usdVal,
           ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
-            ? { chain }
+            ? { chain: symbol.toUpperCase() }
             : {}),
         }
       })
@@ -395,7 +395,7 @@ export function formatView(
       .filter((b) => b.text)
     const { joined: text } = formatDataTable(
       formattedBal.map((b) => ({
-        balance: `${b.text}${b.chain ? ` (${b.chain.name})` : ""}`,
+        balance: `${b.text}${b.chain ? ` (${b.chain})` : ""}`,
         usd: `$${b.usdWorth}`,
       })),
       {
@@ -434,7 +434,7 @@ export function formatView(
             tokenName +
             `${
               chain && !native && isDuplicateSymbol(symbol.toUpperCase())
-                ? ` (${chain.name})`
+                ? ` (${symbol.toUpperCase()})`
                 : ""
             } `,
           value: `${getEmojiToken(
