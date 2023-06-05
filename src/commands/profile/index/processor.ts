@@ -267,10 +267,10 @@ async function compose(
           .setEmoji(getEmoji("ANIMATED_STAR", true))
           .setCustomId("profile_watchlist"),
         new MessageButton()
-          .setLabel(`${wallets.length ? "Add" : "Connect"} Wallet`)
+          .setLabel(`Connect Wallet`)
           .setEmoji(getEmoji("WALLET_1"))
           .setStyle("SECONDARY")
-          .setCustomId("profile_connect-wallet")
+          .setCustomId(`wallet_add_more-${member.user.id}`)
       ),
       new MessageActionRow().addComponents(
         new MessageButton()
