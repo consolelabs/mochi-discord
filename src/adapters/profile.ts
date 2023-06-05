@@ -99,7 +99,7 @@ class Profile extends Fetcher {
           onchainTotal += bal
 
           let chain = w.platform.split("-").shift().toUpperCase()
-          switch (chain) {
+          switch (w.platform) {
             case "solana-chain":
               chain = "SOL"
               break
