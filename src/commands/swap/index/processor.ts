@@ -225,7 +225,9 @@ export async function handleSwap(i: ButtonInteraction) {
     const { status, ok, log, error, curl } = await defi.swap(
       i.user.id,
       chainName,
-      swapCacheData.routeSummary
+      swapCacheData.routeSummary,
+      swapCacheData.aggregator,
+      swapCacheData.swapData
     )
     if (!ok) {
       if (status === 400) {
@@ -281,6 +283,7 @@ export async function render(
   i: CommandInteraction | ButtonInteraction,
   data: {
     routeSummary: RouteSummary
+    aggregator: string
     tokenIn: { decimals: number }
     tokenOut: { decimals: number }
   },
@@ -310,28 +313,24 @@ export async function render(
   })
 
   const tradeRoutes = Object.values(routes).map((route, i) => {
-    return `${i === 0 ? "" : "\n"}${getEmoji("REPLY_3")}${
-      route.percent
-    } ${fromEmo} ${from}\n${route.hops
-      .map((hop, j) => {
-        const lastOfLast =
-          i === Object.values(routes).length - 1 && j === route.hops.length - 1
+    return `${i === 0 ? "" : "\n"}${getEmoji("REPLY_3")}${route.percent
+      } ${fromEmo} ${from}\n${route.hops
+        .map((hop, j) => {
+          const lastOfLast =
+            i === Object.values(routes).length - 1 && j === route.hops.length - 1
 
-        return `${
-          lastOfLast ? getEmoji("REPLY") : getEmoji("REPLY_2")
-        } ${getEmojiToken(hop.tokenOutSymbol as TokenEmojiKey, false)} ${
-          hop.tokenOutSymbol
-        }\n${hop.pools
-          .map((p, o) => {
-            return `${lastOfLast ? getEmoji("BLANK") : getEmoji("REPLY_3")}${
-              o === hop.pools.length - 1
-                ? getEmoji("REPLY")
-                : getEmoji("REPLY_2")
-            }[(${p.name}: ${p.percent})](${HOMEPAGE_URL})`
-          })
-          .join("\n")}`
-      })
-      .join("\n")}`
+          return `${lastOfLast ? getEmoji("REPLY") : getEmoji("REPLY_2")
+            } ${getEmojiToken(hop.tokenOutSymbol as TokenEmojiKey, false)} ${hop.tokenOutSymbol
+            }\n${hop.pools
+              .map((p, o) => {
+                return `${lastOfLast ? getEmoji("BLANK") : getEmoji("REPLY_3")}${o === hop.pools.length - 1
+                  ? getEmoji("REPLY")
+                  : getEmoji("REPLY_2")
+                  }[(${p.name}: ${p.percent})](${HOMEPAGE_URL})`
+              })
+              .join("\n")}`
+        })
+        .join("\n")}`
   })
 
   // check to see if we can combine routes without exceeding discord 1024 char limit
@@ -406,7 +405,9 @@ export async function render(
           .setStyle("PRIMARY"),
         new MessageButton()
           .setURL(
-            `https://kyberswap.com/swap/${chainName}/${from.toLowerCase()}-to-${to.toLowerCase()}`
+            data.aggregator === "jupiter"
+              ? `https://jup.ag/swap/${from.toUpperCase()}-${to.toUpperCase()}`
+              : `https://kyberswap.com/swap/${chainName}/${from.toLowerCase()}-to-${to.toLowerCase()}`
           )
           .setLabel("View in web")
           .setStyle("LINK")
