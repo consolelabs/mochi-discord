@@ -9,10 +9,11 @@ import {
 } from "discord.js"
 import { MessageButtonStyles } from "discord.js/typings/enums"
 import { APIError, InternalError, OriginalMessage } from "errors"
-import { composeButtonLink, getExitButton } from "ui/discord/button"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeButtonLink } from "ui/discord/button"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
   emojis,
+  EmojiKey,
   getEmoji,
   getEmojiURL,
   isAddress,
@@ -23,32 +24,70 @@ import { awaitMessage } from "utils/discord"
 import profile from "../../../adapters/profile"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
+const supportedChains = new Map<string, string>([
+  ["EVM", "EVM chains"],
+  ["SOL", "Solana"],
+  ["RON", "Ronin"],
+  ["SUI", "Sui"],
+  ["APT", "Aptos"],
+  ["NEAR", "Near"],
+])
+
+async function renderListPlatform(platforms: Map<string, string>) {
+  const listChains = Array.from(platforms)
+
+  if (!listChains.length) return ""
+
+  return `${
+    formatDataTable(
+      listChains.map((val) => ({
+        symbol: val[0],
+        name: val[1],
+      })),
+      {
+        cols: ["symbol", "name"],
+        rowAfterFormatter: (formatted, i) => {
+          return `${getEmoji(listChains[i][0] as EmojiKey)} ${formatted}`
+        },
+      }
+    ).joined
+  }`
+}
+
 export async function handleWalletAddition(msg: OriginalMessage) {
   const isTextMsg = msg instanceof Message
   const author = isTextMsg ? msg.author : msg.user
   const embed = composeEmbedMessage(null, {
-    author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
-    title: "Add Wallet",
-    description: `Manage your crypto wallets\n${getEmoji(
-      "ANIMATED_POINTING_DOWN",
+    author: ["Connect On-chain Wallet", getEmojiURL(emojis.WALLET_1)],
+    description: `${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
       true
-    )} Please choose "Connect Wallet" below to connect your metamask wallet.\nAlternatively, press Exit to abort.`,
+    )} Please click on \`Verify Wallet\` below to connect your cryptocurrency wallet.
+    ${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
+      true
+    )} Currently, we only support the following chains.\n
+    ${await renderListPlatform(supportedChains)}
+    `,
     originalMsgAuthor: author,
     color: msgColors.SUCCESS,
   })
-  const replyPayload = { embeds: [embed] }
-  const reply = (await (isTextMsg
-    ? msg.reply(replyPayload)
-    : msg.editReply(replyPayload))) as Message
+  console.log(embed)
   // request profile code
   const profileId = await getProfileIdByDiscord(author.id)
   const { data, ok, curl, log } = await profile.requestProfileCode(profileId)
   if (!ok) throw new APIError({ curl, description: log, msgOrInteraction: msg })
   const buttonRow = composeButtonLink(
-    "Connect Wallet",
-    `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${msg.guildId ?? ""}`
-  ).addComponents(getExitButton(author.id))
-  await reply.edit({ components: [buttonRow] })
+    "Verify Wallet",
+    `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${msg.guildId ?? ""}`,
+    getEmoji("ANIMATED_VAULT_KEY", true)
+  )
+  if (isTextMsg) {
+    const reply = (await msg.reply({ embeds: [embed] })) as Message
+    reply.edit({ components: [buttonRow] })
+  } else {
+    await msg.editReply({ embeds: [embed], components: [buttonRow] })
+  }
 }
 
 export async function redirectToAddMoreWallet(i: ButtonInteraction) {
@@ -58,7 +97,7 @@ export async function redirectToAddMoreWallet(i: ButtonInteraction) {
     await i.deferUpdate()
     return
   }
-  await i.deferReply()
+  await i.deferReply({ ephemeral: true })
   await handleWalletAddition(i)
 }
 
