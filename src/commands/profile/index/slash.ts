@@ -4,6 +4,7 @@ import { MachineConfig, route } from "utils/router"
 import { render } from "./processor"
 import { machineConfig as watchListMachineConfig } from "commands/watchlist/view/slash"
 import { machineConfig as qrCodeMachineConfig } from "commands/qr/index/slash"
+import { machineConfig as earnMachineConfig } from "commands/earn/index"
 
 export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
   id: "profile",
@@ -27,7 +28,7 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
             cond: "isWallet",
           },
         ],
-        VIEW_QUESTS: "quests",
+        VIEW_QUESTS: "earn",
         VIEW_ADD_WALLET: "addWallet",
         VIEW_QR_CODES: "qrCodes",
       },
@@ -59,10 +60,11 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
         BACK: "profile",
       },
     },
-    quests: {
+    earn: {
       on: {
         BACK: "profile",
       },
+      ...earnMachineConfig,
     },
   },
 })

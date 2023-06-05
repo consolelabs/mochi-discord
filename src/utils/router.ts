@@ -24,6 +24,10 @@ import { handleWalletAddition } from "commands/wallet/add/processor"
 import { BalanceType, renderBalances } from "commands/balances/index/processor"
 import { runGetVaultDetail } from "commands/vault/info/processor"
 import { render as renderQr, viewQR } from "commands/qr/index/processor"
+import {
+  airdropDetail,
+  run as renderAirdrops,
+} from "commands/earn/airdrop/processor"
 
 type Handler<P = any> = (
   params: P,
@@ -74,6 +78,8 @@ const builtinButtonHandlers: ButtonContext = {
   addWallet: (i) => handleWalletAddition(i),
   qrCodes: (i, page) =>
     renderQr(i, i.member as GuildMember, page ? Number(page) : undefined),
+  airdrops: (i, status, page) =>
+    renderAirdrops(i.user.id, status, page ? Number(page) : undefined),
 }
 
 const builtinSelectHandlers: SelectContext = {
@@ -94,6 +100,7 @@ const builtinSelectHandlers: SelectContext = {
       (r) => r.messageOptions
     ),
   qr: (i) => viewQR(i),
+  airdrop: (i) => airdropDetail(i),
 }
 
 export function paginationButtons(id: string, page: number, totalPage: number) {

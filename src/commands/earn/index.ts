@@ -5,11 +5,37 @@ import {
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
+import { MachineConfig } from "utils/router"
+import airdrop from "./airdrop/slash"
+import quest from "./quest/slash"
 
-import newSlash from "./new/slash"
+export const machineConfig: MachineConfig = {
+  id: "earn",
+  initial: "airdrops",
+  states: {
+    airdrops: {
+      on: {
+        VIEW_AIRDROP: "airdrop",
+        VIEW_QUEST: "quests",
+        PAGE: "airdrops",
+      },
+    },
+    airdrop: {
+      on: {
+        BACK: "airdrops",
+      },
+    },
+    quests: {
+      on: {
+        VIEW_AIRDROP: "airdrops",
+      },
+    },
+  },
+}
 
 const subCommands: Record<string, SlashCommand> = {
-  new: newSlash,
+  airdrop,
+  quest,
 }
 
 const slashCmd: SlashCommand = {
@@ -18,17 +44,15 @@ const slashCmd: SlashCommand = {
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("earn")
-      .setDescription("Earn airdrop")
+      .setDescription(
+        "view earning opportunities, from airdrop campaigns to quests"
+      )
 
-    data.addSubcommand(<SlashCommandSubcommandBuilder>newSlash.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>airdrop.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>quest.prepare())
     return data
   },
-  run: () =>
-    Promise.resolve({
-      messageOptions: {
-        content: "earn",
-      },
-    }),
+  run: (i) => subCommands[i.options.getSubcommand(true)]?.run(i),
   help: () =>
     Promise.resolve({
       embeds: [
