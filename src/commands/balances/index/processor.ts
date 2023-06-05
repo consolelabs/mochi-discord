@@ -456,7 +456,8 @@ async function switchView(
   discordId: string,
   balanceType: number
 ) {
-  const { status: isFollowed } = await defi.findWallet(discordId, props.address)
+  const wallet = await defi.findWallet(discordId, props.address)
+  const isFollowed = wallet?.status ?? false
   const { mochiWallets, wallets } = await profile.getUserWallets(discordId)
   const isOwnWallet = wallets.some(
     (w) => w.value.toLowerCase() === props.address.toLowerCase()
