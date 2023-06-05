@@ -97,6 +97,7 @@ import botManager from "./bot-manager"
 import earn from "./earn"
 import qr from "./qr"
 import defaults from "./default"
+import setting from "./setting"
 
 CacheManager.init({
   ttl: 0,
@@ -168,6 +169,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   earn: earn.slashCmd,
   qr: qr.slashCmd,
   default: defaults.slashCmd,
+  setting: setting.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
