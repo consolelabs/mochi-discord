@@ -361,7 +361,7 @@ export function formatView(
         const usdVal = price * tokenVal
         const value = formatDigit({
           value: tokenVal.toString(),
-          fractionDigits: 4,
+          fractionDigits: tokenVal >= 100000 ? 0 : 2,
         })
         const usdWorth = formatDigit({
           value: usdVal.toString(),
@@ -415,7 +415,7 @@ export function formatView(
         const usdVal = price * tokenVal
         const value = formatDigit({
           value: tokenVal.toString(),
-          fractionDigits: 4,
+          fractionDigits: tokenVal >= 100000 ? 0 : 2,
         })
         const usdWorth = formatDigit({
           value: usdVal.toString(),
