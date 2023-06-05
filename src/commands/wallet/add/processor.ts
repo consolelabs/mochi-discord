@@ -33,25 +33,23 @@ const supportedChains = new Map<string, string>([
   ["NEAR", "Near"],
 ])
 
-async function renderListPlatform(platforms: Map<string, string>) {
+function renderListPlatform(platforms: Map<string, string>) {
   const listChains = Array.from(platforms)
 
   if (!listChains.length) return ""
 
-  return `${
-    formatDataTable(
-      listChains.map((val) => ({
-        symbol: val[0],
-        name: val[1],
-      })),
-      {
-        cols: ["symbol", "name"],
-        rowAfterFormatter: (formatted, i) => {
-          return `${getEmoji(listChains[i][0] as EmojiKey)} ${formatted}`
-        },
-      }
-    ).joined
-  }`
+  return formatDataTable(
+    listChains.map((val) => ({
+      symbol: val[0],
+      name: val[1],
+    })),
+    {
+      cols: ["symbol", "name"],
+      rowAfterFormatter: (formatted, i) => {
+        return `${getEmoji(listChains[i][0] as EmojiKey)} ${formatted}`
+      },
+    }
+  ).joined
 }
 
 export async function handleWalletAddition(msg: OriginalMessage) {
@@ -67,12 +65,11 @@ export async function handleWalletAddition(msg: OriginalMessage) {
       "ANIMATED_POINTING_RIGHT",
       true
     )} Currently, we only support the following chains.\n
-    ${await renderListPlatform(supportedChains)}
+    ${renderListPlatform(supportedChains)}
     `,
     originalMsgAuthor: author,
     color: msgColors.SUCCESS,
   })
-  console.log(embed)
   // request profile code
   const profileId = await getProfileIdByDiscord(author.id)
   const { data, ok, curl, log } = await profile.requestProfileCode(profileId)
