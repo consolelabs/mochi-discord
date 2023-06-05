@@ -1,5 +1,5 @@
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { LOG_CHANNEL_GITBOOK, SLASH_PREFIX } from "utils/constants"
 
 import { SlashCommandBuilder } from "@discordjs/builders"
@@ -18,19 +18,20 @@ const slashCmd: SlashCommand = {
     await settingSlash(interaction)
     return null
   },
-  help: async (i) => ({
-    embeds: [
-      composeEmbedMessage2(i, {
-        includeCommandsList: true,
-        usage: `${SLASH_PREFIX}setting`,
-        description: "Setup for your guild and your member",
-        footer: [`Type ${SLASH_PREFIX}help setting`],
-        document: LOG_CHANNEL_GITBOOK,
-        title: "Setting",
-        examples: `${SLASH_PREFIX}setting`,
-      }),
-    ],
-  }),
+  help: () =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage(null, {
+          includeCommandsList: true,
+          usage: `${SLASH_PREFIX}setting`,
+          description: "Setup for your guild and your member",
+          footer: [`Type ${SLASH_PREFIX}help setting`],
+          document: LOG_CHANNEL_GITBOOK,
+          title: "Setting",
+          examples: `${SLASH_PREFIX}setting`,
+        }),
+      ],
+    }),
   colorType: "Server",
 }
 
