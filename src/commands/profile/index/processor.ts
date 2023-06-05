@@ -52,8 +52,8 @@ async function renderListWallet(
   return `${emoji}${title}\n${
     formatDataTable(
       wallets.map((w, i) => ({
-        chain: (w.chain || isAddress(w.value).type).toUpperCase(),
-        address: domains[i] || shortenHashOrAddress(w.value, 3, 4),
+        chain: (w.chain || isAddress(w.value).chainType).toUpperCase(),
+        address: domains[i] || shortenHashOrAddress(w.value),
         balance: w.total?.toString() ? `$${w.total.toString()}` : "",
       })),
       {

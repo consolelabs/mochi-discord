@@ -51,9 +51,9 @@ export async function getRecipient(
     timeoutResponse: { embeds: [timeoutEmbed] },
   })
   const isSolanaWithdrawal = payload.chainId === "999"
-  const { valid, type } = isAddress(address)
+  const { valid, chainType } = isAddress(address)
   const validAddress =
-    valid && (isSolanaWithdrawal ? type === "sol" : type === "eth")
+    valid && (isSolanaWithdrawal ? chainType === "sol" : chainType === "eth")
   if (first && !validAddress) {
     await first.reply({
       embeds: [

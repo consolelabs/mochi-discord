@@ -77,7 +77,7 @@ const balanceEmbedProps: Record<
     if (!ok) {
       // 1. address/alias not tracked yet
       address = addressOrAlias
-      const { valid, type } = isAddress(address)
+      const { valid, chainType } = isAddress(address)
       if (!valid) {
         throw new InternalError({
           msgOrInteraction: message,
@@ -86,11 +86,11 @@ const balanceEmbedProps: Record<
             "Your wallet address is invalid. Make sure that the wallet address is valid, you can copy-paste it to ensure the exactness of it.",
         })
       }
-      addressType = type
+      addressType = chainType
     } else {
       // 2. address/alias is being tracked
       address = wallet.address
-      addressType = wallet.type || "eth"
+      addressType = wallet.chain_type || "eth"
     }
     return {
       addressType,
@@ -549,7 +549,7 @@ async function switchView(
       wallets: {
         data: [
           {
-            chain: isAddress(props.address).type,
+            chain: isAddress(props.address).chainType,
             value: props.address,
             total: formatDigit({
               value: totalWorth.toString(),
@@ -579,7 +579,6 @@ export async function renderBalances(
   // handle name service
   const resolvedAddress = (await resolveNamingServiceDomain(address)) || address
   const profileId = await getProfileIdByDiscord(discordId)
-
   const { addressType, ...props } =
     (await balanceEmbedProps[type]?.(
       discordId,
@@ -587,7 +586,6 @@ export async function renderBalances(
       resolvedAddress,
       msg
     )) ?? {}
-
   const [balances, txns] = await Promise.all([
     getBalances(
       profileId,
@@ -606,7 +604,6 @@ export async function renderBalances(
       addressType ?? "eth"
     ),
   ])
-
   const { embed, isFollowed, isOwnWallet } = await switchView(
     view,
     props,
@@ -615,7 +612,6 @@ export async function renderBalances(
     discordId,
     type
   )
-
   return {
     messageOptions: {
       embeds: [embed],

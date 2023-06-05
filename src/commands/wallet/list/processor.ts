@@ -10,11 +10,13 @@ import {
 import { ResponseGetTrackingWalletsResponse } from "types/api"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
+import { emojis } from "utils/common"
+import { getEmojiURL } from "utils/common"
 import {
   authorFilter,
-  capitalizeFirst,
   getEmoji,
   shortenHashOrAddress,
+  capitalizeFirst,
 } from "utils/common"
 import { APPROX, VERTICAL_BAR } from "utils/constants"
 import { formatDigit } from "utils/defi"
@@ -104,12 +106,18 @@ export async function render(user: User) {
     tracking: [],
     copying: [],
   }
+
   if (ok) {
-    data.following = (res as ResponseGetTrackingWalletsResponse["data"]) ?? []
+    data.following =
+      (res as ResponseGetTrackingWalletsResponse["data"])?.following ?? []
+    data.tracking =
+      (res as ResponseGetTrackingWalletsResponse["data"])?.tracking ?? []
+    data.copying =
+      (res as ResponseGetTrackingWalletsResponse["data"])?.copying ?? []
   }
 
   const embed = composeEmbedMessage(null, {
-    author: [`${user.username}'s favorite wallets`, user.displayAvatarURL()],
+    author: [`Your favorite wallets`, getEmojiURL(emojis.ANIMATED_STAR)],
     description: [
       `${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
         "wallet follow"
@@ -133,10 +141,10 @@ export async function render(user: User) {
         e[1]
           .sort((a, b) => (b.net_worth ?? 0) - (a.net_worth ?? 0))
           .map((d) => {
-            let chain = (d.type ?? "").toUpperCase()
+            let chain = (d.chain_type ?? "").toUpperCase()
             chain = chain === "ETH" ? "EVM" : chain
             return {
-              type: chain,
+              chainType: chain,
               address: d.alias || shortenHashOrAddress(d.address ?? "", 4),
               usd: `$${formatDigit({
                 value: String(d.net_worth ?? 0),
@@ -145,9 +153,12 @@ export async function render(user: User) {
             }
           }),
         {
-          cols: ["type", "address", "usd"],
+          cols: ["chainType", "address", "usd"],
           separator: [VERTICAL_BAR, APPROX],
-          rowAfterFormatter: (f) => `${f}${getEmoji("CASH")}`,
+          rowAfterFormatter: (f, i) =>
+            `${getEmoji(e[1][i].chain_type.toUpperCase())} ${f}${getEmoji(
+              "CASH"
+            )}`,
         }
       ).joined,
       inline: false,
@@ -159,7 +170,7 @@ export async function render(user: User) {
       return e[1]
         .filter((d) => d.user_id && d.address)
         .map((d) => {
-          let chain = (d.type ?? "").toUpperCase()
+          let chain = (d.chain_type ?? "").toUpperCase()
           chain = chain === "ETH" ? "EVM" : chain
           return {
             value: `${e[0]}_${d.user_id}_${d.address}`,

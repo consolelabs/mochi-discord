@@ -21,6 +21,7 @@ import {
 } from "utils/common"
 import { HOMEPAGE_URL } from "utils/constants"
 import { awaitMessage } from "utils/discord"
+import { WalletTrackingType } from ".."
 import profile from "../../../adapters/profile"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
@@ -148,7 +149,8 @@ export async function renameWallet(
     userId,
     address,
     alias,
-    chain_type: "eth",
+    chainType: "eth",
+    type: WalletTrackingType.Follow,
   })
   if (!ok && status === 409) {
     throw new InternalError({
@@ -179,7 +181,7 @@ export async function trackWallet(
   address: string,
   alias: string
 ) {
-  const { valid, type } = isAddress(address)
+  const { valid, chainType } = isAddress(address)
   if (!valid) {
     throw new InternalError({
       msgOrInteraction: msg,
@@ -192,7 +194,8 @@ export async function trackWallet(
     userId: author.id,
     address,
     alias,
-    chain_type: type,
+    chainType,
+    type: WalletTrackingType.Follow,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {

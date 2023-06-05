@@ -5,7 +5,7 @@ import { InternalError, OriginalMessage } from "errors"
 import { getEmoji, isAddress } from "utils/common"
 import { WalletTrackingType } from ".."
 
-export async function trackWallet(
+export async function copyWallet(
   msg: OriginalMessage,
   author: User,
   address: string,
@@ -31,7 +31,7 @@ export async function trackWallet(
     address,
     alias,
     chainType: chain,
-    type: WalletTrackingType.Track,
+    type: WalletTrackingType.Copy,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {
@@ -44,7 +44,7 @@ export async function trackWallet(
   if (!ok) {
     throw new InternalError({
       msgOrInteraction: msg,
-      description: "Couldn't track wallet",
+      description: "Couldn't copy wallet",
     })
   }
   const { messageOptions } = await renderBalances(
@@ -58,7 +58,7 @@ export async function trackWallet(
   if (alias) {
     messageOptions.embeds[0].setAuthor(alias, iconURl)
   } else {
-    messageOptions.embeds[0].setAuthor("Wallet tracked", iconURl)
+    messageOptions.embeds[0].setAuthor("Wallet copied", iconURl)
   }
 
   return messageOptions

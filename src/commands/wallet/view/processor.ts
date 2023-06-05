@@ -117,7 +117,7 @@ export async function viewWalletDetails(
   if (!ok) {
     // 1. address/alias not tracked yet
     address = addressOrAlias
-    const { valid, type } = isAddress(address)
+    const { valid, chainType } = isAddress(address)
     if (!valid) {
       throw new InternalError({
         msgOrInteraction: message,
@@ -126,7 +126,7 @@ export async function viewWalletDetails(
           "Your wallet address is invalid. Make sure that the wallet address is valid, you can copy-paste it to ensure the exactness of it.",
       })
     }
-    addressType = type
+    addressType = chainType
   } else {
     // 2. address/alias is being tracked
     address = wallet.address
