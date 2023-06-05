@@ -9,6 +9,8 @@ export const machineConfig: MachineConfig = {
     qrCodes: {
       on: {
         VIEW_QR: "qr",
+        // transition to self (for implementing pagination)
+        PAGE: "qrCodes",
       },
     },
     qr: {

@@ -1,6 +1,5 @@
 import profile from "adapters/profile"
 import {
-  Message,
   MessageActionRow,
   MessageButton,
   User,
@@ -12,7 +11,6 @@ import {
 import { InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
-  authorFilter,
   capitalizeFirst,
   emojis,
   getEmoji,
@@ -26,14 +24,13 @@ import {
   TELEGRAM_USER_URL,
   HOMEPAGE_URL,
 } from "utils/constants"
-import { wrapError } from "utils/wrap-error"
 import * as qrcode from "qrcode"
 import mochiPay from "adapters/mochi-pay"
 import { formatDigit } from "utils/defi"
 import { convertString } from "utils/convert"
 import { chunk } from "lodash"
-import { getPaginationRow } from "ui/discord/button"
 import CacheManager from "cache/node-cache"
+import { paginationButtons } from "utils/router"
 
 const PAGE_SIZE = 10
 
@@ -167,7 +164,7 @@ function mapEmoji(d: any) {
   return emoji
 }
 
-export async function compose(user: User, page = 0) {
+async function compose(user: User, page: number) {
   const all = await getAll(user.id)
   const paginated = chunk(all, PAGE_SIZE) as any[][]
   const data = paginated[page]
@@ -198,6 +195,7 @@ export async function compose(user: User, page = 0) {
 
   return {
     embeds: [embed],
+    files: [],
     components: [
       new MessageActionRow().addComponents(
         new MessageSelectMenu()
@@ -218,49 +216,9 @@ export async function compose(user: User, page = 0) {
           .setEmoji(getEmoji("QRCODE"))
           .setCustomId("new_qr")
       ),
-      ...getPaginationRow(page, paginated.length, {
-        left: { emoji: getEmoji("LEFT_ARROW"), label: "\u200b" },
-        right: { emoji: getEmoji("RIGHT_ARROW"), label: "\u200b" },
-        extra: "",
-      }),
+      ...paginationButtons("page", page, paginated.length),
     ],
   }
-}
-
-function collectButton(reply: Message, author: User) {
-  reply
-    .createMessageComponentCollector({
-      componentType: "BUTTON",
-      filter: authorFilter(author.id),
-      time: 300000,
-    })
-    .on("collect", (i) => {
-      wrapError(reply, async () => {
-        if (!i.deferred) {
-          await i.deferUpdate().catch(() => null)
-        }
-
-        const [action, ...rest] = i.customId.split("_")
-        if (action === "page") {
-          const [curPage, dir] = rest
-          let nextPage = Number(curPage)
-          if (dir === "+") {
-            nextPage += 1
-          } else {
-            nextPage -= 1
-          }
-
-          const msgOpts = await compose(author, nextPage)
-
-          i.editReply(msgOpts)
-        }
-      })
-    })
-    .on("end", () => {
-      wrapError(reply, async () => {
-        await reply.edit({ components: [] }).catch(() => null)
-      })
-    })
 }
 
 function formatContent(
@@ -434,7 +392,8 @@ export async function viewQR(i: SelectMenuInteraction) {
 
 export async function render(
   msg: OriginalMessage,
-  _member?: GuildMember | null
+  _member?: GuildMember | null,
+  page = 0
 ) {
   const member = _member ?? msg.member
   if (!(member instanceof GuildMember)) {
@@ -451,7 +410,7 @@ export async function render(
     })
   }
 
-  const replyPayload = await compose(member.user)
+  const replyPayload = await compose(member.user, page)
 
   return replyPayload
 }
