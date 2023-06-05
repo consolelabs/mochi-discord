@@ -2,6 +2,7 @@ import { composeWatchlist } from "commands/watchlist/view/processor"
 import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 import {
   ButtonInteraction,
+  GuildMember,
   Message,
   MessageActionRow,
   MessageButton,
@@ -16,15 +17,17 @@ import {
   interpret,
   StatesConfig,
 } from "xstate"
-import { authorFilter } from "./common"
+import { authorFilter, getEmoji } from "./common"
 import { stack } from "./stack-trace"
 import { wrapError } from "./wrap-error"
 import { handleWalletAddition } from "commands/wallet/add/processor"
 import { BalanceType, renderBalances } from "commands/balances/index/processor"
 import { runGetVaultDetail } from "commands/vault/info/processor"
+import { render as renderQr, viewQR } from "commands/qr/index/processor"
 
 type Handler<P = any> = (
-  params: P
+  params: P,
+  ...rest: any[]
 ) => Promise<RunResult<MessageEditOptions>["messageOptions"]>
 
 type ButtonContext = {
@@ -69,6 +72,8 @@ const builtinButtonHandlers: ButtonContext = {
   watchlist: (i) => composeWatchlist(i.user, 0),
   wallets: (i) => renderTrackingWallets(i.user),
   addWallet: (i) => handleWalletAddition(i),
+  qrCodes: (i, page) =>
+    renderQr(i, i.member as GuildMember, page ? Number(page) : undefined),
 }
 
 const builtinSelectHandlers: SelectContext = {
@@ -88,6 +93,34 @@ const builtinSelectHandlers: SelectContext = {
     runGetVaultDetail(i.values[0].split("_")[1], i).then(
       (r) => r.messageOptions
     ),
+  qr: (i) => viewQR(i),
+}
+
+export function paginationButtons(id: string, page: number, totalPage: number) {
+  if (totalPage === 1) return []
+  const actionRow = new MessageActionRow()
+  if (page !== 0) {
+    actionRow.addComponents(
+      new MessageButton({
+        style: "SECONDARY",
+        emoji: getEmoji("LEFT_ARROW"),
+        label: "\u200b",
+        customId: [id, page - 1, totalPage].join("/"),
+      })
+    )
+  }
+
+  if (page !== totalPage - 1) {
+    actionRow.addComponents(
+      new MessageButton({
+        style: "SECONDARY",
+        emoji: getEmoji("RIGHT_ARROW"),
+        label: "\u200b",
+        customId: [id, page + 1, totalPage].join("/"),
+      })
+    )
+  }
+  return [actionRow]
 }
 
 export function route(
@@ -142,7 +175,7 @@ export function route(
           }
         },
         transition: (context, event) => {
-          const { canBack = false, dry, interaction, state } = event
+          const { canBack = false, dry, interaction, state, args = [] } = event
           if (!interaction || !state || dry || state === "steps") return
           let composer: Handler | undefined
           if (interaction.isButton()) {
@@ -154,7 +187,7 @@ export function route(
           wrapError(interaction, async () => {
             if (!composer) return
             try {
-              const msgOpts = await composer(interaction)
+              const msgOpts = await composer(interaction, ...args)
 
               if (canBack) {
                 if (!msgOpts.components) msgOpts.components = []
@@ -199,7 +232,9 @@ export function route(
           await i.deferUpdate().catch(() => null)
         }
 
-        let [event] = i.customId.split("/")
+        const splitted = i.customId.split("/")
+        let [event] = splitted
+        const [, ...args] = splitted
 
         event = event.toUpperCase()
 
@@ -219,6 +254,7 @@ export function route(
             prevState,
             state,
             canBack: nextState.can("BACK"),
+            args,
           })
         }
 

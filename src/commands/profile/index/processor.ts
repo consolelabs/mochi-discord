@@ -247,7 +247,7 @@ async function compose(
           .setStyle("SECONDARY")
           .setLabel("QR")
           .setEmoji(getEmoji("QRCODE"))
-          .setCustomId("view_qrcodes"),
+          .setCustomId("view_qr_codes"),
         new MessageButton()
           .setStyle("SECONDARY")
           .setLabel("Quest")

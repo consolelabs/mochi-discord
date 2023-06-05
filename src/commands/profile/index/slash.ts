@@ -3,6 +3,7 @@ import { InternalError } from "errors"
 import { MachineConfig, route } from "utils/router"
 import { render } from "./processor"
 import { machineConfig as watchListMachineConfig } from "commands/watchlist/view/slash"
+import { machineConfig as qrCodeMachineConfig } from "commands/qr/index/slash"
 
 export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
   id: "profile",
@@ -28,7 +29,14 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
         ],
         VIEW_QUESTS: "quests",
         VIEW_ADD_WALLET: "addWallet",
+        VIEW_QR_CODES: "qrCodes",
       },
+    },
+    qrCodes: {
+      on: {
+        BACK: "profile",
+      },
+      ...qrCodeMachineConfig,
     },
     addWallet: {
       on: {
