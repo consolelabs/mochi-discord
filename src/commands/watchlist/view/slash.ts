@@ -20,6 +20,7 @@ export const machineConfig: MachineConfig = {
     watchlistNft: {
       on: {
         VIEW_WATCHLIST: "watchlist",
+        VIEW_WALLETS: "wallets",
       },
     },
     wallets: {
