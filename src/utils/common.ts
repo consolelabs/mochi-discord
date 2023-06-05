@@ -477,7 +477,7 @@ export function getAnimatedEmojiURL(emojiId: string) {
 
 export function shortenHashOrAddress(hash: string, len = 3, lenRight = 4) {
   if (!hash) return ""
-  return `${hash.slice(0, len)}...${hash.slice(hash.length - lenRight)}`
+  return `${hash.slice(0, len)}..${hash.slice(hash.length - lenRight)}`
 }
 
 export function paginate(arr: any[], size: number) {
@@ -713,7 +713,10 @@ export function isValidSuiAddress(value: string): boolean {
   return isHex(value) && getHexByteLength(value) === SUI_ADDRESS_LENGTH
 }
 
-export function isAddress(address: string): { valid: boolean; chainType: string } {
+export function isAddress(address: string): {
+  valid: boolean
+  chainType: string
+} {
   // standardize ronin address
   address = address.toLowerCase().startsWith("ronin:")
     ? `0x${address.slice(6)}`
