@@ -15,7 +15,7 @@ export const machineConfig: MachineConfig = {
   states: {
     airdrops: {
       on: {
-        VIEW_AIRDROP: "airdrop",
+        VIEW_AIRDROP_DETAIL: "airdrop",
         VIEW_QUEST: "quests",
         PAGE: "airdrops",
       },

@@ -138,7 +138,7 @@ export async function run(
       new MessageActionRow().addComponents(
         new MessageSelectMenu()
           .setPlaceholder(`📦 View airdrop detail`)
-          .setCustomId(`view_airdrop/${status}`)
+          .setCustomId(`view_airdrop_detail/${status}`)
           .addOptions(
             DATA.map((data, i) => ({
               emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
