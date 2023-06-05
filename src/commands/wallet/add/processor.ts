@@ -19,7 +19,7 @@ import {
   isAddress,
   msgColors,
 } from "utils/common"
-import { HOMEPAGE_URL } from "utils/constants"
+import { HOMEPAGE_URL, WALLET_TRACKING_FOLLOW } from "utils/constants"
 import { awaitMessage } from "utils/discord"
 import profile from "../../../adapters/profile"
 import { getProfileIdByDiscord } from "../../../utils/profile"
@@ -149,7 +149,7 @@ export async function renameWallet(
     address,
     alias,
     chainType: "eth",
-    type: "follow",
+    type: WALLET_TRACKING_FOLLOW,
   })
   if (!ok && status === 409) {
     throw new InternalError({
@@ -194,7 +194,7 @@ export async function trackWallet(
     address,
     alias,
     chainType,
-    type: "follow",
+    type: WALLET_TRACKING_FOLLOW,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {

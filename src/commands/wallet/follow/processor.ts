@@ -1,8 +1,12 @@
 import defi from "adapters/defi"
-import { BalanceType, renderBalances } from "commands/balances/index/processor"
-import { User } from "discord.js"
+import { User, MessageActionRow, MessageButton } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
-import { getEmoji, isAddress } from "utils/common"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { emojis } from "utils/common"
+import { getEmojiURL } from "utils/common"
+import { shortenHashOrAddress } from "utils/common"
+import { getEmoji, isAddress, msgColors } from "utils/common"
+import { WALLET_TRACKING_FOLLOW } from "utils/constants"
 
 export async function followWallet(
   msg: OriginalMessage,
@@ -11,8 +15,6 @@ export async function followWallet(
   chain: string,
   alias = ""
 ) {
-  const type = "follow"
-
   const { valid, chainType } = isAddress(address)
   if (!valid) {
     throw new InternalError({
@@ -32,7 +34,7 @@ export async function followWallet(
     address,
     alias,
     chainType: chain,
-    type,
+    type: WALLET_TRACKING_FOLLOW,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {
@@ -48,19 +50,72 @@ export async function followWallet(
       description: "Couldn't follow wallet",
     })
   }
-  const { messageOptions } = await renderBalances(
-    author.id,
-    msg,
-    BalanceType.Onchain,
-    address
-  )
 
-  const iconURl = messageOptions.embeds[0].author?.iconURL
-  if (alias) {
-    messageOptions.embeds[0].setAuthor(alias, iconURl)
-  } else {
-    messageOptions.embeds[0].setAuthor("Wallet followed", iconURl)
-  }
+  const { messageOptions } = renderTrackingResult(msg, author.id, address)
 
   return messageOptions
+}
+
+function renderTrackingResult(
+  msg: OriginalMessage,
+  authorID: string,
+  address: string
+) {
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(null, {
+          author: [
+            `${shortenHashOrAddress(
+              address
+            )} has been added to the watchlist to follow`,
+            getEmojiURL(emojis.CHECK),
+          ],
+          color: msgColors.SUCCESS,
+          description: `
+${getEmoji(
+  "ANIMATED_POINTING_RIGHT",
+  true
+)} View wallet watchlist by clicking on button \`Watchlist\`.
+${getEmoji(
+  "ANIMATED_POINTING_RIGHT",
+  true
+)} Tracking this wallet by clicking on button \`Track\`.
+${getEmoji(
+  "ANIMATED_POINTING_RIGHT",
+  true
+)} Copy trade by clicking on button \`Copy\`.
+${getEmoji(
+  "ANIMATED_POINTING_RIGHT",
+  true
+)} To unfollow, click on button \`Unfollow\`.
+            `,
+        }),
+      ],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Watchlist")
+            .setStyle("PRIMARY")
+            .setCustomId(`watchlist_wallets_view`)
+            .setEmoji(emojis.PROPOSAL),
+          new MessageButton()
+            .setLabel("Track")
+            .setStyle("SECONDARY")
+            .setCustomId(`watchlist_wallets_track-${authorID}-${address}`)
+            .setEmoji(emojis.ANIMATED_STAR),
+          new MessageButton()
+            .setLabel("Copy")
+            .setStyle("SECONDARY")
+            .setCustomId(`watchlist_wallets_copy-${authorID}-${address}`)
+            .setEmoji(emojis.SWAP_ROUTE),
+          new MessageButton()
+            .setLabel("Unfollow")
+            .setStyle("DANGER")
+            .setCustomId(`watchlist_wallets_unfollow-${authorID}-${address}`)
+            .setEmoji(emojis.REVOKE)
+        ),
+      ],
+    },
+  }
 }

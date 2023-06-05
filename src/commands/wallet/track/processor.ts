@@ -3,6 +3,7 @@ import { BalanceType, renderBalances } from "commands/balances/index/processor"
 import { User } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
 import { getEmoji, isAddress } from "utils/common"
+import { WALLET_TRACKING_TRACK } from "utils/constants"
 
 export async function trackWallet(
   msg: OriginalMessage,
@@ -11,11 +12,7 @@ export async function trackWallet(
   chain: string,
   alias = ""
 ) {
-  const type = "track"
-
   const { valid, chainType } = isAddress(address)
-  console.log("valid", valid)
-  console.log("chainType", chainType)
   if (!valid) {
     throw new InternalError({
       msgOrInteraction: msg,
@@ -34,7 +31,7 @@ export async function trackWallet(
     address,
     alias,
     chainType: chain,
-    type,
+    type: WALLET_TRACKING_TRACK,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   if (!ok && status === 409) {

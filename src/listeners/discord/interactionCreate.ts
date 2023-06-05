@@ -79,6 +79,7 @@ import {
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
 import config from "adapters/config"
+import { handleWatchlistWalletsInteraction } from "commands/wallet/list/processor"
 
 CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
 
@@ -538,6 +539,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("loser-view"):
       await handleLoserView(i)
+      return
+    case i.customId.startsWith("watchlist_wallets_view"):
+      await handleWatchlistWalletsInteraction(i)
       return
     default: {
       return

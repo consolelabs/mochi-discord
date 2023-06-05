@@ -1,6 +1,7 @@
 import defi from "adapters/defi"
 import { BalanceType, renderBalances } from "commands/balances/index/processor"
 import {
+  ButtonInteraction,
   Message,
   MessageActionRow,
   MessageButton,
@@ -12,7 +13,12 @@ import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 import { emojis } from "utils/common"
 import { getEmojiURL } from "utils/common"
-import { authorFilter, getEmoji, shortenHashOrAddress } from "utils/common"
+import {
+  authorFilter,
+  getEmoji,
+  shortenHashOrAddress,
+  capitalizeFirst,
+} from "utils/common"
 import { APPROX, VERTICAL_BAR } from "utils/constants"
 import { formatDigit } from "utils/defi"
 import { wrapError } from "utils/wrap-error"
@@ -90,6 +96,17 @@ const emojiMap = {
   copying: getEmoji("SWAP_ROUTE"),
 }
 
+export async function handleWatchlistWalletsInteraction(i: ButtonInteraction) {
+  i.deferUpdate()
+
+  const messsageOptions = await render(i.user)
+
+  i.editReply({
+    embeds: messsageOptions.embeds,
+    components: messsageOptions.components,
+  })
+}
+
 export async function render(user: User) {
   const { data: res, ok } = await defi.getUserTrackingWallets(user.id)
   const data: {
@@ -112,7 +129,7 @@ export async function render(user: User) {
   }
 
   const embed = composeEmbedMessage(null, {
-    author: [`YOUR FAVORITE WALLETS`, getEmojiURL(emojis.ANIMATED_STAR)],
+    author: [`Your favorite wallets`, getEmojiURL(emojis.ANIMATED_STAR)],
     description: [
       `${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
         "wallet follow"
@@ -129,7 +146,9 @@ export async function render(user: User) {
   Object.entries(data).forEach((e) => {
     if (!e[1].length) return
     embed.addFields({
-      name: `${emojiMap[e[0] as keyof typeof emojiMap]} ${e[0].toUpperCase()}`,
+      name: `${emojiMap[e[0] as keyof typeof emojiMap]} ${capitalizeFirst(
+        e[0]
+      )}`,
       value: formatDataTable(
         e[1]
           .sort((a, b) => (b.net_worth ?? 0) - (a.net_worth ?? 0))
