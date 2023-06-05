@@ -140,6 +140,7 @@ export class Fetcher {
   ): Promise<(OkPayload & T) | ErrPayload> {
     let curl = "None"
     const nekoSad = getEmoji("NEKOSAD")
+    let isWebhook = false
     try {
       const mergedInit = deepmerge(defaultInit, init)
       const {
@@ -149,9 +150,10 @@ export class Fetcher {
         bodyCamelToSnake,
         body: _body,
         silent,
-        isWebhook,
+        isWebhook: _isWebhook,
         ...validInit
       } = mergedInit
+      isWebhook = _isWebhook
       let query: typeof _query = {}
 
       if (queryCamelToSnake) {
@@ -260,13 +262,20 @@ export class Fetcher {
         textCommandAsyncStore.getStore() ||
         slashCommandAsyncStore.getStore() ||
         eventAsyncStore.getStore()
-      const message = JSON.stringify({
-        ...(store ? JSON.parse(store.data) : {}),
-        error: log,
-        stack: TEST ? "" : stack.clean(e.stack || new Error().stack || ""),
-      })
+      let message = ""
+      try {
+        message = JSON.stringify({
+          ...(store ? JSON.parse(store.data) : {}),
+          error: log,
+          stack: TEST ? "" : stack.clean(e.stack || new Error().stack || ""),
+        })
+      } catch (e) {
+        message = JSON.stringify({
+          error: "Error while trying to serialize/deserialize data",
+        })
+      }
       await kafkaQueue?.produceAnalyticMsg([message])
-      if (store?.msgOrInteraction) {
+      if (store?.msgOrInteraction && !isWebhook) {
         if (store.msgOrInteraction instanceof Message) {
           await store.msgOrInteraction.reply(somethingWentWrongPayload())
         } else if (!store.msgOrInteraction.isAutocomplete()) {
