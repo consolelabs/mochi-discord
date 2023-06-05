@@ -61,7 +61,7 @@ async function renderListWallet(
     formatDataTable(
       wallets.map((w, i) => ({
         chain: (w.chain || isAddress(w.value).type).toUpperCase(),
-        address: domains[i] || shortenHashOrAddress(w.value),
+        address: domains[i] || shortenHashOrAddress(w.value, 3, 4),
         balance: w.total?.toString() ? `$${w.total.toString()}` : "",
       })),
       {
@@ -149,7 +149,7 @@ async function compose(
     color: msgColors.BLUE,
     description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
       "CASH"
-    )}\`Total Balance. $${grandTotal}\`(${getEmoji(
+    )}\`Balance. $${grandTotal}\`(${getEmoji(
       pnl.split("")[0] === "-" ? "ANIMATED_ARROW_DOWN" : "ANIMATED_ARROW_UP",
       true
     )} ${formatDigit({
@@ -236,7 +236,7 @@ async function compose(
               let label = ""
               if (w.type === "wallet") {
                 label = `${isMochi ? "🔸  " : "🔹  "}${w.chain} | ${
-                  isMochi ? address : shortenHashOrAddress(address)
+                  isMochi ? address : shortenHashOrAddress(address, 3, 4)
                 } | 💵 $${w.usd}`
               } else {
                 label = `◽ ${w.name} | 💵 $${w.usd}`
