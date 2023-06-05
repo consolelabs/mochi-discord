@@ -474,9 +474,9 @@ export function getAnimatedEmojiURL(emojiId: string) {
   return `https://cdn.discordapp.com/emojis/${emojiId}.gif?size=240&quality=lossless`
 }
 
-export function shortenHashOrAddress(hash: string, len = 6) {
+export function shortenHashOrAddress(hash: string, len = 3, lenRight = 4) {
   if (!hash) return ""
-  return `${hash.slice(0, len)}...${hash.slice(hash.length - len)}`
+  return `${hash.slice(0, len)}...${hash.slice(hash.length - lenRight)}`
 }
 
 export function paginate(arr: any[], size: number) {
