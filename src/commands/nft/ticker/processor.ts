@@ -37,7 +37,6 @@ import {
   EmojiKey,
   emojis,
   getAuthor,
-  getCompactFormatedNumber,
   getEmoji,
   getEmojiToken,
   getEmojiURL,
@@ -45,6 +44,7 @@ import {
   TokenEmojiKey,
 } from "utils/common"
 import { HOMEPAGE_URL } from "utils/constants"
+import { formatDigit } from "utils/defi"
 import { reply } from "utils/discord"
 import {
   buildSwitchViewActionRow,
@@ -168,10 +168,6 @@ async function composeCollectionTickerEmbed({
   const priceToken =
     (floor_price?.token?.symbol?.toUpperCase() as TokenEmojiKey) ?? ""
   const marketcap = floorPriceAmount * (items ?? 0)
-  const formatPrice = (amount: number) => {
-    if (!amount) return `-`
-    return `${getCompactFormatedNumber(amount)}`
-  }
   const getChangePercentage = (changeStr: string | undefined) => {
     const change = changeStr ? +changeStr : 0
     const trend =
@@ -186,7 +182,10 @@ async function composeCollectionTickerEmbed({
   const fields = [
     {
       name: `${getEmoji("CASH")} Floor price`,
-      value: `${formatPrice(floorPriceAmount)} ${getEmojiToken(priceToken)}`,
+      value: `${formatDigit({
+        value: floorPriceAmount,
+        shorten: true,
+      })} ${getEmojiToken(priceToken)}`,
     },
     {
       name: `${getEmoji("NFT2")} Holders`,
@@ -194,11 +193,17 @@ async function composeCollectionTickerEmbed({
     },
     {
       name: `${getEmoji("CHART")} Market cap`,
-      value: `${formatPrice(marketcap)} ${getEmojiToken(priceToken)}`,
+      value: `${formatDigit({
+        value: marketcap,
+        shorten: true,
+      })} ${getEmojiToken(priceToken)}`,
     },
     {
       name: `Last sale`,
-      value: `${formatPrice(lastSalePriceAmount)} ${getEmojiToken(priceToken)}`,
+      value: `${formatDigit({
+        value: lastSalePriceAmount,
+        shorten: true,
+      })} ${getEmojiToken(priceToken)}`,
     },
     {
       name: "Total supply",
@@ -206,7 +211,10 @@ async function composeCollectionTickerEmbed({
     },
     {
       name: "Volume",
-      value: `${formatPrice(totalVolumeAmount)} ${getEmojiToken(priceToken)}`,
+      value: `${formatDigit({
+        value: totalVolumeAmount,
+        shorten: true,
+      })} ${getEmojiToken(priceToken)}`,
     },
     {
       name: "Change (M1)",

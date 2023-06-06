@@ -39,7 +39,7 @@ import { untrackWallet } from "commands/wallet/remove/processor"
 type Handler<P = any> = (
   params: P,
   ...rest: any[]
-) => Promise<RunResult<MessageEditOptions>["messageOptions"]>
+) => Promise<RunResult<MessageEditOptions>["messageOptions"] | null>
 
 type ButtonContext = {
   [K: string]: Handler<ButtonInteraction>
@@ -222,22 +222,24 @@ export function route(
             if (!composer) return
             try {
               const msgOpts = await composer(interaction, ...args)
-              // await reaction?.remove().catch(() => null)
+              if (!msgOpts) {
+                interaction.message.delete()
+              } else {
+                if (canBack) {
+                  if (!msgOpts.components) msgOpts.components = []
 
-              if (canBack) {
-                if (!msgOpts.components) msgOpts.components = []
-
-                msgOpts.components.push(
-                  new MessageActionRow().addComponents(
-                    new MessageButton()
-                      .setLabel("Back")
-                      .setStyle("SECONDARY")
-                      .setCustomId("back")
+                  msgOpts.components.push(
+                    new MessageActionRow().addComponents(
+                      new MessageButton()
+                        .setLabel("Back")
+                        .setStyle("SECONDARY")
+                        .setCustomId("back")
+                    )
                   )
-                )
-              }
+                }
 
-              interaction.editReply(msgOpts).catch(() => null)
+                interaction.editReply(msgOpts).catch(() => null)
+              }
             } catch (e: any) {
               context.steps?.push(e.name)
               context.steps?.push(stack.clean(e.stack ?? ""))
@@ -263,7 +265,7 @@ export function route(
     .on("collect", (i) => {
       if (!i.isButton() && !i.isSelectMenu()) return
       wrapError(reply, async () => {
-        if (!i.deferred) {
+        if (!i.deferred && !i.customId.startsWith("modal")) {
           await i.deferUpdate().catch(() => null)
         }
 
@@ -284,17 +286,12 @@ export function route(
           const prevState = currentState.toStrings().at(-1)?.split(".").at(-1)
           const state = nextState.toStrings().at(-1)?.split(".").at(-1)
 
-          // const reaction = await (i.message as Message)
-          //   .react(getEmoji("ANIMATED_MOCHI_SPIN", true))
-          //   .catch(() => null)
-
           machineService.send({
             type: event,
             interaction: i,
             prevState,
             state,
             canBack: nextState.can("BACK"),
-            // reaction,
             args,
           })
         }
