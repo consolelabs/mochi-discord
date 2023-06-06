@@ -69,7 +69,7 @@ export async function renderSetting(embed: MessageEmbed, page: string) {
       {
         name: "Ticker",
         value: `<:_:1110865581617463346> ${await getSlashCommand(
-          "token default"
+          "default ticker"
         )} Config your default token for your server`,
         inline: false,
       }
