@@ -235,7 +235,10 @@ function buildMyNftFields(data: any): any {
 export function buildRecentTxFields(data: any): any {
   let valueRecentTx = ""
   for (let i = 0; i < data.recent_transaction.length; i++) {
-    if (data.recent_transaction[i].token.length > 5) continue
+    const tx = data.recent_transaction[i]
+    // filter out spammy tokens
+    if (tx.token.length > 10) continue
+    if (tx.token.toUpperCase() !== tx.token) continue
     valueRecentTx += formatRecentTransaction(data.recent_transaction[i])
   }
   if (!valueRecentTx) return []
