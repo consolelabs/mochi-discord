@@ -5,7 +5,7 @@ const path = require("path");
 generateApi({
   name: "api.ts",
   output: path.resolve(process.cwd(), "./src/types/"),
-  url: `${process.env.API_SERVER_HOST}/swagger/doc.json`,
+  url: "https://api.mochi.pod.town/swagger/doc.json",
   generateClient: false,
   silent: true,
 });
