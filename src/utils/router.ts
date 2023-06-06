@@ -215,7 +215,7 @@ export function route(
             if (!composer) return
             try {
               const msgOpts = await composer(interaction, ...args)
-              await reaction?.remove()
+              // await reaction?.remove().catch(() => null)
 
               if (canBack) {
                 if (!msgOpts.components) msgOpts.components = []
@@ -277,9 +277,9 @@ export function route(
           const prevState = currentState.toStrings().at(-1)?.split(".").at(-1)
           const state = nextState.toStrings().at(-1)?.split(".").at(-1)
 
-          const reaction = await (i.message as Message)
-            .react(getEmoji("ANIMATED_MOCHI_SPIN", true))
-            .catch(() => null)
+          // const reaction = await (i.message as Message)
+          //   .react(getEmoji("ANIMATED_MOCHI_SPIN", true))
+          //   .catch(() => null)
 
           machineService.send({
             type: event,
@@ -287,7 +287,7 @@ export function route(
             prevState,
             state,
             canBack: nextState.can("BACK"),
-            reaction,
+            // reaction,
             args,
           })
         }
