@@ -216,13 +216,15 @@ class Profile extends Fetcher {
     return await res?.json()
   }
 
-  public async getByDiscord(discordId: string) {
+  public async getByDiscord(discordId: string, noFetchAmount = false) {
     return await CacheManager.get({
       pool: "profile-data",
       key: discordId,
       call: async () => {
         const res = await fetch(
-          `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}`
+          `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}?${
+            noFetchAmount ? "?no-fetch-amount=true" : ""
+          }}`
         )
 
         return await res?.json()
