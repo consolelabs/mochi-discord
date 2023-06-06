@@ -621,9 +621,13 @@ export async function ticker(
         coins.map((c: any) => ({
           name: c.name,
           symbol: c.symbol.toUpperCase(),
+          price: `$${formatDigit({
+            value: c.current_price ?? 0,
+            fractionDigits: 2,
+          })}`,
         })),
         {
-          cols: ["name", "symbol"],
+          cols: ["name", "symbol", "price"],
           rowAfterFormatter: (f, i) =>
             `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
         }

@@ -9,7 +9,14 @@ import {
   MessageSelectOptionData,
   SelectMenuInteraction,
 } from "discord.js"
-import { EmojiKey, emojis, getEmoji, getEmojiURL } from "utils/common"
+import {
+  EmojiKey,
+  emojis,
+  getEmoji,
+  getEmojiToken,
+  getEmojiURL,
+  TokenEmojiKey,
+} from "utils/common"
 import {
   getSuccessEmbed,
   composeEmbedMessage,
@@ -18,7 +25,7 @@ import {
 import { Coin } from "types/defi"
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
-import { parseTickerQuery } from "utils/defi"
+import { formatDigit, parseTickerQuery } from "utils/defi"
 import { handleUpdateWlError } from "../processor"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { getSlashCommand } from "utils/commands"
@@ -114,13 +121,44 @@ export async function addWatchlistToken({
       .join(" ")
   }
 
+  const fields = []
+
   for (const [i, symbol] of symbols.entries()) {
     const data = await addUserWatchlist(msg ?? interaction, userId, symbol)
-    // no data === add successfully
     if (!data) continue
 
-    // allow selection
+    const priceChangePercentage =
+      data.base_coin?.market_data?.price_change_percentage_24h ?? 0
+    const isUp = Math.sign(priceChangePercentage)
+    const price = data.base_coin?.market_data?.current_price?.usd ?? 0
+    fields.push(
+      {
+        name: "Icon",
+        value: getEmojiToken(symbol.toUpperCase() as TokenEmojiKey),
+        inline: true,
+      },
+      {
+        name: "Price",
+        value: `$${formatDigit({
+          value: price,
+          fractionDigits: 2,
+        })}`,
+        inline: true,
+      },
+      {
+        name: "Change 1D",
+        value: `${formatDigit({
+          value: priceChangePercentage,
+          fractionDigits: 2,
+        })}% ${getEmoji(isUp ? "ARROW_UP" : "ARROW_DOWN")}`,
+        inline: true,
+      }
+    )
     const { base_suggestions, target_suggestions } = data
+    if (!base_suggestions || !target_suggestions) continue
+    if (!base_suggestions.length || !target_suggestions.length) continue
+
+    // allow selection
     let options: MessageSelectOptionData[]
     let tokens = []
     if (!target_suggestions) {
@@ -142,12 +180,14 @@ export async function addWatchlistToken({
         .map((b: Coin) => target_suggestions.map((t: Coin) => opt(b, t)))
         .flat()
         .slice(0, 25) // discord allow maximum 25 options
-      tokens = base_suggestions.map((b: Coin) =>
-        target_suggestions.map((t: Coin) => ({
-          name: `${b.name.slice(0, 10)}/${t.name.slice(0, 10)}`,
-          symbol: `${b.symbol.toUpperCase()}/${t.symbol.toUpperCase()}`,
-        }))
-      )
+      tokens = base_suggestions
+        .map((b: Coin) =>
+          target_suggestions.map((t: Coin) => ({
+            name: `${b.name}/${t.name}`,
+            symbol: `${b.symbol.toUpperCase()}/${t.symbol.toUpperCase()}`,
+          }))
+        )
+        .flat()
     }
     const selectRow = composeDiscordSelectionRow({
       customId: `watchlist_selection|${symbols.slice(i + 1).join("|")}`,
@@ -197,7 +237,7 @@ export async function addWatchlistToken({
             "ANIMATED_POINTING_RIGHT",
             true
           )} To remove, use ${await getSlashCommand("watchlist remove")}`,
-        }),
+        }).addFields(fields),
       ],
       components: [],
     },

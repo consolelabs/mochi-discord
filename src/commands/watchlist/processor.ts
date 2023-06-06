@@ -22,7 +22,7 @@ export async function handleUpdateWlError(
     })
   }
   const color = msgColors.ACTIVITY
-  let title = ""
+  let title = undefined
   const emojiUrl = getEmojiURL(emojis.ANIMATED_COIN_1)
   switch (true) {
     case error.toLowerCase().startsWith("record not found"):
@@ -46,6 +46,8 @@ export async function handleUpdateWlError(
       )} (alias for ${await getSlashCommand("watchlist view")})`
       break
     default:
+      title = `Couldn't add ${symbol} to the watchlist`
+      description = "There maybe some data error, please try again later"
       break
   }
   throw new InternalError({
