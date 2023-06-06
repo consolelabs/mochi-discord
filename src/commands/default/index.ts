@@ -1,5 +1,5 @@
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { LOG_CHANNEL_GITBOOK, SLASH_PREFIX } from "utils/constants"
 
 // slash
@@ -34,24 +34,25 @@ const slashCmd: SlashCommand = {
     data.addSubcommand(<SlashCommandSubcommandBuilder>tickerSlash.prepare())
     return data
   },
-  run: async function (interaction: CommandInteraction) {
+  run: function (interaction: CommandInteraction) {
     return slashActions[interaction.options.getSubcommand()].run(interaction)
   },
-  help: async (i) => ({
-    embeds: [
-      composeEmbedMessage2(i, {
-        includeCommandsList: true,
-        usage: `${SLASH_PREFIX}default <action>`,
-        description: "Setup default aspect for your guild",
-        footer: [
-          `Type ${SLASH_PREFIX}help default <action> for a specific action!`,
-        ],
-        document: LOG_CHANNEL_GITBOOK,
-        title: "Default",
-        examples: `${SLASH_PREFIX}default ticker ftm`,
-      }),
-    ],
-  }),
+  help: () =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage(null, {
+          includeCommandsList: true,
+          usage: `${SLASH_PREFIX}default <action>`,
+          description: "Setup default aspect for your guild",
+          footer: [
+            `Type ${SLASH_PREFIX}help default <action> for a specific action!`,
+          ],
+          document: LOG_CHANNEL_GITBOOK,
+          title: "Default",
+          examples: `${SLASH_PREFIX}default ticker ftm`,
+        }),
+      ],
+    }),
   colorType: "Server",
 }
 
