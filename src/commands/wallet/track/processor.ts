@@ -1,8 +1,11 @@
 import defi from "adapters/defi"
-import { BalanceType, renderBalances } from "commands/balances/index/processor"
-import { User } from "discord.js"
+import { User, MessageActionRow, MessageButton } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
-import { getEmoji, isAddress } from "utils/common"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { emojis } from "utils/common"
+import { getEmojiURL } from "utils/common"
+import { shortenHashOrAddress } from "utils/common"
+import { getEmoji, isAddress, msgColors } from "utils/common"
 import { WalletTrackingType } from ".."
 
 export async function trackWallet(
@@ -47,19 +50,72 @@ export async function trackWallet(
       description: "Couldn't track wallet",
     })
   }
-  const { messageOptions } = await renderBalances(
-    author.id,
-    msg,
-    BalanceType.Onchain,
-    address
-  )
 
-  const iconURl = messageOptions.embeds[0].author?.iconURL
-  if (alias) {
-    messageOptions.embeds[0].setAuthor(alias, iconURl)
-  } else {
-    messageOptions.embeds[0].setAuthor("Wallet tracked", iconURl)
-  }
+  const { messageOptions } = renderTrackingResult(msg, author.id, address)
 
   return messageOptions
+}
+
+function renderTrackingResult(
+  msg: OriginalMessage,
+  authorID: string,
+  address: string
+) {
+  return {
+    messageOptions: {
+      embeds: [
+        composeEmbedMessage(null, {
+          author: [
+            `${shortenHashOrAddress(
+              address
+            )} has been added to the watchlist to track`,
+            getEmojiURL(emojis.CHECK),
+          ],
+          color: msgColors.SUCCESS,
+          description: `
+${getEmoji(
+  "ANIMATED_POINTING_RIGHT",
+  true
+)} View wallet watchlist by clicking on button \`Watchlist\`.
+${getEmoji(
+  "ANIMATED_POINTING_RIGHT",
+  true
+)} Follow this wallet by clicking on button \`Follow\`.
+${getEmoji(
+  "ANIMATED_POINTING_RIGHT",
+  true
+)} Copy trade by clicking on button \`Copy\`.
+${getEmoji(
+  "ANIMATED_POINTING_RIGHT",
+  true
+)} To untrack, click on button \`Untrack\`.
+            `,
+        }),
+      ],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Watchlist")
+            .setStyle("PRIMARY")
+            .setCustomId(`view_wallet`)
+            .setEmoji(emojis.PROPOSAL),
+          new MessageButton()
+            .setLabel("Follow")
+            .setStyle("SECONDARY")
+            .setCustomId(`follow_wallet-${authorID}-${address}`)
+            .setEmoji(emojis.PLUS),
+          new MessageButton()
+            .setLabel("Copy")
+            .setStyle("SECONDARY")
+            .setCustomId(`copytrade_wallet-${authorID}-${address}`)
+            .setEmoji(emojis.SWAP_ROUTE),
+          new MessageButton()
+            .setLabel("Untrack")
+            .setStyle("SECONDARY")
+            .setCustomId(`untrack_wallet-${authorID}-${address}`)
+            .setEmoji(emojis.REVOKE)
+        ),
+      ],
+    },
+  }
 }
