@@ -188,6 +188,7 @@ export async function composeTickerResponse({
     : `$${formatDigit({
         value: String(current_price[currency]),
         fractionDigits: 2,
+        scientificFormat: true,
       })}`
   const marketCap = +market_cap[currency]
   const bb = getChance(20)

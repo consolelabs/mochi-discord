@@ -12,15 +12,24 @@ export function formatDigit({
   fractionDigits = 6,
   withoutCommas = false,
   shorten = false,
+  scientificFormat = false,
 }: {
   value: string | number
   fractionDigits?: number
   withoutCommas?: boolean
   shorten?: boolean
+  scientificFormat?: boolean
 }) {
   const num = Number(String(value).replaceAll(COMMA, EMPTY))
+
   // invalid number -> keeps value the same and returns
   if (!num) return String(value)
+
+  // return shorten scientific number if original value is in scientific format . e.g. 1.123e-5
+  if (String(num).includes("e") && scientificFormat) {
+    return shortenScientificNotation({ value: String(num) })
+  }
+
   const s = num.toLocaleString(undefined, { maximumFractionDigits: 18 })
   const [left, right = ""] = s.split(".")
   const numsArr = right.split("")
@@ -116,4 +125,23 @@ export async function validateBalance({
 
 export function isNaturalNumber(n: number) {
   return n >= 0 && Math.floor(n) === n
+}
+
+export function shortenScientificNotation({
+  value,
+  maximumFractionDigits = 2,
+}: {
+  value: string | number
+  maximumFractionDigits?: number
+}): string {
+  const str = String(value)
+  if (!Number(str)) return str
+  if (!str.includes("e")) return str
+
+  const delemiterIdx = str.indexOf("e")
+  const leftStr = Number(str.slice(0, delemiterIdx)).toLocaleString(undefined, {
+    maximumFractionDigits,
+  })
+  const rightStr = str.slice(delemiterIdx)
+  return leftStr + rightStr
 }
