@@ -443,6 +443,7 @@ export async function composeWatchlist(
             usd: `$${formatDigit({
               value: String(t.current_price ?? "0"),
               fractionDigits: 2,
+              scientificFormat: true,
             })}`,
           })),
           {
