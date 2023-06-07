@@ -155,8 +155,8 @@ export async function addWatchlistToken({
       }
     )
     const { base_suggestions, target_suggestions } = data
-    if (!base_suggestions || !target_suggestions) continue
-    if (!base_suggestions.length || !target_suggestions.length) continue
+    if (!base_suggestions && !target_suggestions) continue
+    if (!base_suggestions.length && !target_suggestions.length) continue
 
     // allow selection
     let options: MessageSelectOptionData[]

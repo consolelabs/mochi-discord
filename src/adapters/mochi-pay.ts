@@ -103,11 +103,7 @@ class MochiPay extends Fetcher {
     )
   }
 
-  public async deposit(body: {
-    profileId: string
-    token: string
-    chainId: string
-  }) {
+  public async deposit(body: { profileId: string; token: string }) {
     return await this.jsonFetch(
       `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/deposit`,
       {

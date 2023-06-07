@@ -385,7 +385,7 @@ export function formatView(
           usdWorth,
           usdVal,
           ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
-            ? { chain: symbol.toUpperCase() }
+            ? { chain: chain.name.toLowerCase() }
             : {}),
         }
       })
@@ -400,7 +400,7 @@ export function formatView(
       })),
       {
         cols: ["balance", "usd"],
-        separator: [APPROX],
+        separator: [` ${APPROX} `],
         rowAfterFormatter: (formatted, i) =>
           `${formattedBal[i].emoji} ${formatted}`,
       }
@@ -434,7 +434,7 @@ export function formatView(
             tokenName +
             `${
               chain && !native && isDuplicateSymbol(symbol.toUpperCase())
-                ? ` (${symbol.toUpperCase()})`
+                ? ` (${chain.name.toUpperCase()})`
                 : ""
             } `,
           value: `${getEmojiToken(
