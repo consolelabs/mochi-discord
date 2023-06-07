@@ -1,143 +1,81 @@
-import {
-  Message,
-  MessageSelectOptionData,
-  SelectMenuInteraction,
-} from "discord.js"
-import {
-  APIError,
-  DirectMessageNotAllowedError,
-  InternalError,
-  OriginalMessage,
-} from "errors"
-import fs from "fs"
-import { InteractionHandler } from "handlers/discord/select-menu"
-import * as qrcode from "qrcode"
-import { Token } from "types/defi"
+import { CommandInteraction, Message } from "discord.js"
+import { APIError, InternalError } from "errors"
 import { composeButtonLink } from "ui/discord/button"
 import {
   composeEmbedMessage,
-  formatDataTable,
+  enableDMMessage,
   getErrorEmbed,
 } from "ui/discord/embed"
-import { composeDiscordSelectionRow } from "ui/discord/select-menu"
-import {
-  EmojiKey,
-  emojis,
-  getAuthor,
-  getEmoji,
-  getEmojiURL,
-} from "utils/common"
+import { getSlashCommand } from "utils/commands"
+import { emojis, getAuthor, getEmoji, getEmojiURL } from "utils/common"
 import { MOCHI_SERVER_INVITE_URL } from "utils/constants"
 import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import * as processor from "./processor"
 
-export async function deposit(
-  msgOrInteraction: OriginalMessage,
-  token: string
-) {
-  const author = getAuthor(msgOrInteraction)
-  const isDm = msgOrInteraction.channel?.type === "DM"
+export async function deposit(interaction: CommandInteraction, token: string) {
+  const author = getAuthor(interaction)
+  const isDm = interaction.channel?.type === "DM"
   const symbol = token.toUpperCase()
-  const res: any = await mochiPay.getTokens({
+  const res = await mochiPay.getTokens({
     symbol,
   })
-  // api error
-  if (!res.ok) {
-    const { log: description, curl } = res
-    throw new APIError({ msgOrInteraction, description, curl })
+  let tokens = []
+  if (res.ok) {
+    tokens = res.data.filter((t: any) => t.chain_id !== "0" && Boolean(t.chain))
   }
-  const tokens = res.data.filter(
-    (t: any) => t.chain_id !== "0" && Boolean(t.chain)
-  )
   if (tokens?.length < 1) {
     const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     throw new InternalError({
-      msgOrInteraction,
+      msgOrInteraction: interaction,
       title: "Unsupported token",
       description: `**${symbol}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright} To add your token, run \`$token add\`.`,
     })
-  }
-  if (tokens?.length > 1) {
-    const options: MessageSelectOptionData[] = tokens.map((token: Token) => ({
-      label: `💎 ${token.name} ${token.chain?.name ?? ""}`,
-      value: `${token.symbol}|${token.chain_id}`,
-    }))
-    const selectionRow = composeDiscordSelectionRow({
-      customId: "deposit-select-token",
-      placeholder: "💎 Select a token",
-      options,
-    })
-    const embed = composeEmbedMessage(null, {
-      originalMsgAuthor: author,
-      author: ["Multiple results found", getEmojiURL(emojis.ANIMATED_COIN_3)],
-      description: `We're not sure which \`${token.toUpperCase()}\`, select one:\n${
-        formatDataTable(
-          tokens.map((t: any) => ({
-            name: t.chain?.name,
-            symbol: t.symbol?.toUpperCase(),
-          })),
-          {
-            cols: ["name", "symbol"],
-            rowAfterFormatter: (f, i) =>
-              `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
-          }
-        ).joined
-      }`,
-    })
-    return {
-      messageOptions: {
-        embeds: [embed],
-        components: [selectionRow],
-      },
-      interactionOptions: {
-        handler,
-      },
-    }
   }
 
   const profileId = await getProfileIdByDiscord(author.id)
   const { ok, curl, log, data } = await mochiPay.deposit({
     profileId,
     token: symbol,
-    chainId: tokens[0].chain_id,
   })
   if (!ok) throw new APIError({ curl, description: log })
 
   // create QR code image
-  const qrFileName = `qr_${author.id}.png`
-  await qrcode.toFile(qrFileName, data.contract.address).catch(() => null)
+  // const qrFileName = `qr_${author.id}.png`
+  // await qrcode.toFile(qrFileName, data.contract.address).catch(() => null)
   const dmEmbed = composeEmbedMessage(null, {
     author: [`Deposit ${symbol}`, getEmojiURL(emojis.WALLET)],
-    thumbnail: `attachment://${qrFileName}`,
-    description: `Below is the deposit address linked to your Discord account. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n*Please send only **${symbol}** to this address.*\n\n${getEmoji(
+    // thumbnail: `attachment://${qrFileName}`,
+    description: `Below is the deposit addresses on different chains. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n${getEmoji(
       "CLOCK"
-    )} Your deposit address is **only valid for 3 hours**.\n\n**${getEmoji(
-      "ANIMATED_POINTING_DOWN",
-      true
-    )} ${symbol} Deposit Address${
-      data.contract.chain?.name ? ` (${data.contract.chain.name})` : ""
-    }**${getEmoji("ANIMATED_POINTING_DOWN", true)}`,
-  })
-  //
+    )} These deposit addresses is **valid for 3 hours**.\n\u200b`,
+  }).addFields(
+    data
+      .filter((d: any) => d.contract?.chain?.symbol && d.contract?.address)
+      .map((d: any) => ({
+        name: String(d.contract.chain.symbol).toUpperCase(),
+        value: `\`${d.contract.address}\``,
+        inline: false,
+      }))
+  )
+
   const dm = await author
     .send({
       embeds: [dmEmbed],
-      files: [{ attachment: qrFileName }],
+      // files: [{ attachment: qrFileName }],
     })
-    .then(() => author.send(data.contract.address))
     .catch(() => null)
 
   // delete QR code image
-  fs.unlink(qrFileName, () => null)
+  // fs.unlink(qrFileName, () => null)
 
   // failed to send dm
   if (!dm) {
-    throw new DirectMessageNotAllowedError({
-      message: msgOrInteraction,
-      title: "Failed to send deposit info",
-      description: `You have to enable Direct Message to receive **${symbol}** deposit address`,
-    })
+    return {
+      messageOptions: {
+        embeds: [enableDMMessage()],
+      },
+    }
   }
 
   // replace with a msg without contract after 3 hours
@@ -147,10 +85,12 @@ export async function deposit(
 
   const dmRedirectEmbed = composeEmbedMessage(null, {
     author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
-    description: `${author}, your deposit address has been sent to you. Check your DM!`,
+    description: `${author}, check your DM for deposit details.`,
     originalMsgAuthor: author,
   })
+
   if (isDm) return null
+
   return {
     messageOptions: {
       embeds: [dmRedirectEmbed],
@@ -169,10 +109,12 @@ export async function deposit(
  * @param toEdit
  * @param token
  */
-export function handleDepositExpiration(toEdit: Message, token: string) {
+export async function handleDepositExpiration(toEdit: Message, token: string) {
   const expiredEmbed = getErrorEmbed({
-    title: `The ${token} deposit address is expired`,
-    description: `Please re-run \`$deposit token \` to get the new address. If you have deposited but the balance was not topped up, contact the team via [Mochi Server](${MOCHI_SERVER_INVITE_URL}).`,
+    title: `The ${token} deposit addresses has expired`,
+    description: `Please re-run ${await getSlashCommand(
+      "deposit"
+    )} to get the new address. If you have deposited but the balance was not topped up, contact the team via [Mochi Server](${MOCHI_SERVER_INVITE_URL}).`,
   })
   setTimeout(() => {
     toEdit.edit({
@@ -180,87 +122,4 @@ export function handleDepositExpiration(toEdit: Message, token: string) {
       files: [],
     })
   }, 10800000)
-}
-
-export const handler: InteractionHandler = async (msgOrInteraction) => {
-  const interaction = msgOrInteraction as SelectMenuInteraction
-  const [symbol, chainId] = interaction.values[0].split("|")
-
-  const author = getAuthor(msgOrInteraction)
-  const isDm = msgOrInteraction.channel?.type === "DM"
-  const profileId = await getProfileIdByDiscord(author.id)
-  const { ok, curl, log, data } = await mochiPay.deposit({
-    profileId,
-    token: symbol,
-    chainId,
-  })
-  if (!ok) throw new APIError({ curl, description: log })
-
-  // create QR code image
-  const qrFileName = `qr_${author.id}.png`
-  await qrcode.toFile(qrFileName, data.contract.address).catch(() => null)
-  const dmEmbed = composeEmbedMessage(null, {
-    author: [`Deposit ${symbol}`, getEmojiURL(emojis.WALLET)],
-    thumbnail: `attachment://${qrFileName}`,
-    description: `Below is the deposit address linked to your Discord account. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n*Please send only **${symbol}** to this address.*\n\n${getEmoji(
-      "CLOCK"
-    )} Your deposit address is **only valid for 3 hours**.\n\n**${getEmoji(
-      "ANIMATED_POINTING_DOWN",
-      true
-    )} ${symbol} Deposit Address${
-      data.contract.chain?.name ? ` (${data.contract.chain.name})` : ""
-    }**${getEmoji("ANIMATED_POINTING_DOWN", true)}`,
-  })
-  //
-  const dm = await author
-    .send({
-      embeds: [dmEmbed],
-      files: [{ attachment: qrFileName }],
-    })
-    .then(() => author.send(data.contract.address))
-    .catch(() => null)
-
-  // delete QR code image
-  fs.unlink(qrFileName, () => null)
-
-  // failed to send dm
-  if (!dm) {
-    throw new DirectMessageNotAllowedError({
-      message: msgOrInteraction,
-      title: "Failed to send deposit info",
-      description: `You have to enable Direct Message to receive **${symbol}** deposit address`,
-    })
-  }
-
-  // replace with a msg without contract after 3 hours
-  // -> force users to reuse $deposit
-  // -> prevent users from depositing to wrong / expired contract
-  processor.handleDepositExpiration(dm, symbol)
-
-  if (isDm)
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(null, {
-            author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
-            description: `${author}, your deposit address has been sent to you.`,
-            originalMsgAuthor: author,
-          }),
-        ],
-        components: [],
-      },
-    }
-
-  return {
-    messageOptions: {
-      embeds: [
-        composeEmbedMessage(null, {
-          author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
-          description: `${author}, your deposit address has been sent to you. Check your DM!`,
-          originalMsgAuthor: author,
-        }),
-      ],
-      components: [composeButtonLink("See the DM", dm.url)],
-    },
-  }
 }

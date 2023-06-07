@@ -3,7 +3,7 @@ import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { emojis, getEmoji, getEmojiURL, paginate } from "utils/common"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
-import { APPROX } from "utils/constants"
+import { APPROX, VERTICAL_BAR } from "utils/constants"
 import { formatDigit } from "utils/defi"
 import { getSlashCommand } from "utils/commands"
 
@@ -47,7 +47,7 @@ export async function handleMonikerList(
     })),
     {
       cols: ["value", "token", "usd"],
-      separator: ["|", APPROX],
+      separator: [VERTICAL_BAR, ` ${APPROX} `],
     }
   )
   const defaultDescription = defaultList.length
@@ -74,7 +74,7 @@ export async function handleMonikerList(
         })),
         {
           cols: ["value", "token", "usd"],
-          separator: ["|", APPROX],
+          separator: [VERTICAL_BAR, ` ${APPROX} `],
         }
       )
       const description = guildList.length

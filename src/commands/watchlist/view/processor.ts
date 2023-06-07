@@ -448,7 +448,7 @@ export async function composeWatchlist(
           })),
           {
             cols: ["symbol", "usd", "priceChange"],
-            separator: [VERTICAL_BAR, APPROX],
+            separator: [VERTICAL_BAR, ` ${APPROX} `],
             rowAfterFormatter: (f, i) =>
               `${getEmojiToken(
                 (tokenData[i].symbol ?? "") as TokenEmojiKey
