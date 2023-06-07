@@ -21,7 +21,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
       `Please verify your wallet address by clicking the button below.`
     )
   // request profile code
-  const profileId = await getProfileIdByDiscord(interaction.user.id, true)
+  const profileId = await getProfileIdByDiscord(interaction.user.id)
   const { data, ok, curl, log } = await profile.requestProfileCode(profileId)
   if (!ok) {
     throw new APIError({

@@ -357,7 +357,7 @@ export async function render(msg: OriginalMessage, member: GuildMember) {
       description: "Couldn't get user data",
     })
   }
-  const dataProfile = await profile.getByDiscord(member.user.id)
+  const dataProfile = await profile.getByDiscord(member.user.id, false)
   if (dataProfile.err) {
     throw new InternalError({
       msgOrInteraction: msg,
