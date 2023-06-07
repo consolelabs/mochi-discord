@@ -23,6 +23,7 @@ import {
   TWITTER_USER_URL,
   TELEGRAM_USER_URL,
   HOMEPAGE_URL,
+  API_BASE_URL,
 } from "utils/constants"
 import * as qrcode from "qrcode"
 import mochiPay from "adapters/mochi-pay"
@@ -184,10 +185,10 @@ async function compose(user: User, page: number) {
         rowAfterFormatter: (f, i) => {
           const d = data[i]
           const emoji = mapEmoji(d)
-
+          const url = d.category === "profile" ? HOMEPAGE_URL : buildQueryUrl(d)
           return `${emoji} ${f} [${
             d.category === "profile" ? "View" : "Save"
-          }](${HOMEPAGE_URL})`
+          }](${url})`
         },
       }).joined
     }`,
@@ -389,6 +390,47 @@ export async function viewQR(i: SelectMenuInteraction) {
   }
 
   return messageOptions
+}
+
+function buildQueryUrl(d: {
+  category: string
+  amount?: string
+  symbol?: string
+  content?: string
+  type?: string
+  id?: string
+  address?: string
+}) {
+  let qrValue = ""
+  const {
+    amount = "",
+    symbol = "",
+    content = "",
+    type = "",
+    category,
+    id = "",
+    address = "",
+  } = d
+
+  if (category === "social") {
+    if (type.toLowerCase() === "twitter") {
+      qrValue = `${TWITTER_USER_URL}/${content}`
+    } else if (type.toLowerCase() === "telegram") {
+      qrValue = `${TELEGRAM_USER_URL}/${content}`
+    }
+  } else if (category === "pay") {
+    qrValue = id.split("-")[2]
+  } else if (category.includes("wallet")) {
+    qrValue = address
+  }
+
+  return `${API_BASE_URL}/pk-pass?category=${encodeURIComponent(
+    category
+  )}&qr_value=${encodeURIComponent(qrValue)}&amount=${encodeURIComponent(
+    amount
+  )}&symbol=${encodeURIComponent(symbol)}&content=${encodeURIComponent(
+    content
+  )}&type=${encodeURIComponent(type)}`
 }
 
 export async function render(

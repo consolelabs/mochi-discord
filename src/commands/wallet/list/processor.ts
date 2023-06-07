@@ -1,93 +1,13 @@
 import defi from "adapters/defi"
-import { BalanceType, renderBalances } from "commands/balances/index/processor"
-import {
-  Message,
-  MessageActionRow,
-  MessageButton,
-  MessageSelectMenu,
-  User,
-} from "discord.js"
+import { MessageActionRow, MessageSelectMenu, User } from "discord.js"
 import { ResponseGetTrackingWalletsResponse } from "types/api"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 import { emojis } from "utils/common"
 import { getEmojiURL } from "utils/common"
-import {
-  authorFilter,
-  getEmoji,
-  shortenHashOrAddress,
-  capitalizeFirst,
-} from "utils/common"
+import { getEmoji, shortenHashOrAddress, capitalizeFirst } from "utils/common"
 import { APPROX, VERTICAL_BAR } from "utils/constants"
 import { formatDigit } from "utils/defi"
-import { wrapError } from "utils/wrap-error"
-
-export function collectSelection(reply: Message, author: User) {
-  reply
-    .createMessageComponentCollector({
-      componentType: "SELECT_MENU",
-      filter: authorFilter(author.id),
-      time: 300000,
-    })
-    .on("collect", (i) => {
-      wrapError(reply, async () => {
-        if (!i.deferred) {
-          await i.deferUpdate().catch(() => null)
-        }
-        if (i.customId === "wallets_view-wallet") {
-          const [userId, address] = i.values[0].split("_")
-          const walletDetailView = await renderBalances(
-            userId,
-            i,
-            BalanceType.Onchain,
-            address
-          )
-          walletDetailView.messageOptions.components.unshift(
-            new MessageActionRow().addComponents(
-              new MessageButton()
-                .setLabel("Back")
-                .setStyle("SECONDARY")
-                .setCustomId("back")
-            )
-          )
-
-          const edited = (await i.editReply(
-            walletDetailView.messageOptions
-          )) as Message
-
-          edited
-            .createMessageComponentCollector({
-              componentType: "BUTTON",
-              filter: authorFilter(author.id),
-              time: 300000,
-            })
-            .on("collect", async (i) => {
-              if (!i.deferred) {
-                await i.deferUpdate().catch(() => null)
-              }
-              wrapError(reply, async () => {
-                if (i.customId === "back") {
-                  await i.editReply({
-                    embeds: reply.embeds,
-                    components: reply.components,
-                  })
-                }
-              })
-            })
-            .on("end", () => {
-              wrapError(reply, async () => {
-                await i.editReply({ components: [] }).catch(() => null)
-              })
-            })
-        }
-      })
-    })
-    .on("end", () => {
-      wrapError(reply, async () => {
-        await reply.edit({ components: [] }).catch(() => null)
-      })
-    })
-}
 
 const emojiMap = {
   following: getEmoji("PLUS"),
@@ -196,7 +116,7 @@ export async function render(user: User) {
           new MessageActionRow().addComponents(
             new MessageSelectMenu()
               .setPlaceholder("💰 View a wallet")
-              .setCustomId("wallets_view-wallet")
+              .setCustomId("view_wallet")
               .addOptions(options)
           ),
         ]

@@ -80,7 +80,7 @@ ${getEmoji(
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
   true
-)} Tracking this wallet by clicking on button \`Track\`.
+)} Track this wallet's transaction by clicking on button \`Track\`.
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
   true
@@ -97,22 +97,22 @@ ${getEmoji(
           new MessageButton()
             .setLabel("Watchlist")
             .setStyle("PRIMARY")
-            .setCustomId(`watchlist_wallets_view`)
+            .setCustomId(`view_wallet`)
             .setEmoji(emojis.PROPOSAL),
           new MessageButton()
             .setLabel("Track")
             .setStyle("SECONDARY")
-            .setCustomId(`watchlist_wallets_track-${authorID}-${address}`)
+            .setCustomId(`track_wallet-${authorID}-${address}`)
             .setEmoji(emojis.ANIMATED_STAR),
           new MessageButton()
             .setLabel("Copy")
             .setStyle("SECONDARY")
-            .setCustomId(`watchlist_wallets_copy-${authorID}-${address}`)
+            .setCustomId(`copytrade_wallet-${authorID}-${address}`)
             .setEmoji(emojis.SWAP_ROUTE),
           new MessageButton()
             .setLabel("Unfollow")
-            .setStyle("DANGER")
-            .setCustomId(`watchlist_wallets_unfollow-${authorID}-${address}`)
+            .setStyle("SECONDARY")
+            .setCustomId(`unfollow_wallet-${authorID}-${address}`)
             .setEmoji(emojis.REVOKE)
         ),
       ],
