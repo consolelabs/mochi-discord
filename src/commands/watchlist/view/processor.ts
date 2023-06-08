@@ -237,8 +237,10 @@ export async function composeWatchlist(
       )} to add one.\n\n`
     )
     return {
-      embeds: [embed],
-      components: [buildSwitchViewActionRow(view)],
+      msgOpts: {
+        embeds: [embed],
+        components: [buildSwitchViewActionRow(view)],
+      },
     }
   }
   let files: any[] = []
@@ -304,8 +306,10 @@ export async function composeWatchlist(
       break
   }
   return {
-    embeds: [embed],
-    components: [buildSwitchViewActionRow(view)],
-    files,
+    msgOpts: {
+      embeds: [embed],
+      components: [buildSwitchViewActionRow(view)],
+      files,
+    },
   }
 }

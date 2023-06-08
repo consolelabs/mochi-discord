@@ -156,35 +156,39 @@ export async function confirmWithdraw(i: ButtonInteraction, address: string) {
   }
 
   return {
-    embeds: [
-      composeEmbedMessage(null, {
-        author: ["Confirm withdrawal", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-        description: [
-          `${getEmoji("WALLET_1")}\`Address.  ${shortenHashOrAddress(
-            address,
-            5,
-            5
-          )}\``,
-          `${getEmoji("SWAP_ROUTE")}\`Network.  \`${tokenObj.token.chain.name}`,
-          `${getEmoji("SWAP_ROUTE")}\`Source.   \`Mochi wallet`,
-          `${getEmoji("ANIMATED_COIN_1", true)}\`Coin.     \`${token}`,
-          `${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
-            token
-          )} **${amount} ${token}**`,
-          `${getEmoji("CASH")}\`Fee.      \`? ${token}`,
-        ].join("\n"),
-      }),
-    ],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageButton({
-          style: "PRIMARY",
-          label: "Submit",
-          customId: "submit",
-          disabled: !valid,
-        })
-      ),
-    ],
+    msgOpts: {
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Confirm withdrawal", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+          description: [
+            `${getEmoji("WALLET_1")}\`Address.  ${shortenHashOrAddress(
+              address,
+              5,
+              5
+            )}\``,
+            `${getEmoji("SWAP_ROUTE")}\`Network.  \`${
+              tokenObj.token.chain.name
+            }`,
+            `${getEmoji("SWAP_ROUTE")}\`Source.   \`Mochi wallet`,
+            `${getEmoji("ANIMATED_COIN_1", true)}\`Coin.     \`${token}`,
+            `${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
+              token
+            )} **${amount} ${token}**`,
+            `${getEmoji("CASH")}\`Fee.      \`? ${token}`,
+          ].join("\n"),
+        }),
+      ],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton({
+            style: "PRIMARY",
+            label: "Submit",
+            customId: "submit",
+            disabled: !valid,
+          })
+        ),
+      ],
+    },
   }
 }
 
@@ -201,12 +205,14 @@ export async function withdrawWithParams(
   } = checkCommitableOperation(bals, amount, token)
   if (!valid && error) {
     return {
-      embeds: [
-        composeEmbedMessage(null, {
-          author: ["Withdraw error", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-          description: error,
-        }),
-      ],
+      msgOpts: {
+        embeds: [
+          composeEmbedMessage(null, {
+            author: ["Withdraw error", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+            description: error,
+          }),
+        ],
+      },
     }
   }
 
@@ -224,16 +230,22 @@ export async function withdrawWithParams(
   })
 
   return {
-    embeds: [dmEmbed],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageButton({
-          label: "Enter address",
-          style: "SECONDARY",
-          customId: "modal_enter_address/custom_address/Destination Address",
-        })
-      ),
-    ],
+    msgOpts: {
+      embeds: [dmEmbed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton({
+            label: "Enter address",
+            style: "SECONDARY",
+            customId: "modal_enter_address",
+          })
+        ),
+      ],
+    },
+    context: {
+      modalId: "custom_address",
+      modalLabel: "Destination Address",
+    },
   }
 }
 
@@ -289,12 +301,14 @@ export async function preWithdraw(
 
   if (!valid && error) {
     return {
-      embeds: [
-        composeEmbedMessage(null, {
-          author: ["Withdraw error", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-          description: error,
-        }),
-      ],
+      msgOpts: {
+        embeds: [
+          composeEmbedMessage(null, {
+            author: ["Withdraw error", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+            description: error,
+          }),
+        ],
+      },
     }
   }
 
@@ -414,15 +428,20 @@ export async function withdraw(
     balances.filter((b: any) => b.token.symbol.toUpperCase() === s).length > 1
 
   return {
-    embeds: [embed],
-    components: [
-      ...(validParams.token
-        ? []
-        : [
-            new MessageActionRow().addComponents(
-              new MessageSelectMenu()
-                .setCustomId("select_token/token")
-                .setOptions(
+    context: {
+      token: validParams.token,
+      amount: validParams.amount,
+      modalId: "custom_amount",
+      modalLabel: "Amount",
+    },
+    msgOpts: {
+      embeds: [embed],
+      components: [
+        ...(validParams.token
+          ? []
+          : [
+              new MessageActionRow().addComponents(
+                new MessageSelectMenu().setCustomId("select_token").setOptions(
                   balances.map((b: any) => ({
                     label: `${b.token.symbol}${
                       isDuplicateSymbol(b.token.symbol)
@@ -434,35 +453,36 @@ export async function withdraw(
                     default: equalIgnoreCase(b.token.symbol, validParams.token),
                   }))
                 )
-            ),
-          ]),
-      new MessageActionRow().addComponents(
-        ...[10, 25, 50].map((p) =>
+              ),
+            ]),
+        new MessageActionRow().addComponents(
+          ...[10, 25, 50].map((p) =>
+            new MessageButton()
+              .setLabel(`${p}%`)
+              .setStyle("SECONDARY")
+              .setDisabled(!validParams.token)
+              .setCustomId(`input_amount_${p}`)
+          ),
           new MessageButton()
-            .setLabel(`${p}%`)
+            .setLabel("All")
             .setStyle("SECONDARY")
             .setDisabled(!validParams.token)
-            .setCustomId(`input_amount/amount/%${p}`)
+            .setCustomId(`input_amount_100`),
+          new MessageButton()
+            .setLabel("Custom")
+            .setStyle("SECONDARY")
+            .setDisabled(!validParams.token)
+            .setCustomId("modal_input_amount")
         ),
-        new MessageButton()
-          .setLabel("All")
-          .setStyle("SECONDARY")
-          .setDisabled(!validParams.token)
-          .setCustomId(`input_amount/amount/%100`),
-        new MessageButton()
-          .setLabel("Custom")
-          .setStyle("SECONDARY")
-          .setDisabled(!validParams.token)
-          .setCustomId("modal_input_amount/custom_amount/Amount")
-      ),
-      new MessageActionRow().addComponents(
-        new MessageButton()
-          .setLabel("Continue")
-          .setCustomId(`continue/${validParams.token}/${validParams.amount}`)
-          .setStyle("PRIMARY")
-          .setDisabled(!canContinue)
-      ),
-    ],
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Continue")
+            .setCustomId("continue")
+            .setStyle("PRIMARY")
+            .setDisabled(!canContinue)
+        ),
+      ],
+    },
   }
 }
 
@@ -514,12 +534,14 @@ export async function executeWithdraw(interaction: ButtonInteraction) {
 
   if (!msg)
     return {
-      embeds: [
-        enableDMMessage(
-          "Your request has been submitted and result will be sent to your DM, but "
-        ),
-      ],
+      msgOpts: {
+        embeds: [
+          enableDMMessage(
+            "Your request has been submitted and result will be sent to your DM, but "
+          ),
+        ],
+      },
     }
 
-  return null
+  return { msgOpts: null }
 }

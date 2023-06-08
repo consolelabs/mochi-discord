@@ -21,14 +21,14 @@ const machineConfig: MachineConfig = {
   initial: "withdraw",
   context: {
     button: {
-      confirmWithdraw: async (i, type, value) => {
+      confirmWithdraw: async (i, _ev, ctx) => {
         const modal = new Modal()
-          .setCustomId(`${type}-form`)
-          .setTitle(value)
+          .setCustomId(`${ctx.modalId}-form`)
+          .setTitle(ctx.modalLabel)
           .setComponents(
             new MessageActionRow<any>().setComponents([
               new TextInputComponent()
-                .setCustomId(type)
+                .setCustomId(ctx.modalId)
                 .setLabel("Value")
                 .setStyle("SHORT")
                 .setRequired(true),
@@ -45,19 +45,18 @@ const machineConfig: MachineConfig = {
           await submitted.deferUpdate().catch(() => null)
         }
 
-        const submittedVal = submitted.fields.getTextInputValue(type)
+        const submittedVal = submitted.fields.getTextInputValue(ctx.modalId)
         return confirmWithdraw(i, submittedVal)
       },
-      withdraw: async (i, first, second) => {
-        if (first.startsWith("custom")) {
-          const [, key] = first.split("_")
+      withdraw: async (i, ev, ctx) => {
+        if (ctx.modalId.startsWith("custom")) {
           const modal = new Modal()
-            .setCustomId(`${first}-form`)
-            .setTitle(second)
+            .setCustomId(`${ctx.modalId}-form`)
+            .setTitle(ctx.modalLabel)
             .setComponents(
               new MessageActionRow<any>().setComponents([
                 new TextInputComponent()
-                  .setCustomId(first)
+                  .setCustomId(ctx.modalId)
                   .setLabel("Value")
                   .setStyle("SHORT")
                   .setRequired(true),
@@ -73,19 +72,22 @@ const machineConfig: MachineConfig = {
             await submitted.deferUpdate().catch(() => null)
           }
 
-          const submittedVal = submitted.fields.getTextInputValue(first)
-          return withdraw(i, { [key]: submittedVal })
+          const submittedVal = submitted.fields.getTextInputValue(ctx.modalId)
+          return withdraw(i, { [ctx.key]: submittedVal })
         } else if (i.customId.startsWith("continue")) {
-          return withdrawWithParams(i, first, second)
+          return withdrawWithParams(i, ctx.token, ctx.amount)
         } else {
-          return withdraw(i, { [first]: second })
+          return withdraw(i, { amount: `%${ev.split("_").at(-1)}` })
         }
       },
       submitWithdrawal: (i) => executeWithdraw(i),
     },
     select: {
-      withdraw: async (i, type) =>
-        await withdraw(i, { [type]: i.values[0], amount: undefined }),
+      withdraw: async (i) =>
+        await withdraw(i, {
+          token: i.values[0] as TokenEmojiKey,
+          amount: undefined,
+        }),
     },
   },
   states: {
@@ -100,7 +102,10 @@ const machineConfig: MachineConfig = {
         MODAL_ENTER_ADDRESS: "confirmWithdraw",
         // interactive
         SELECT_TOKEN: "withdraw",
-        INPUT_AMOUNT: "withdraw",
+        INPUT_AMOUNT_10: "withdraw",
+        INPUT_AMOUNT_25: "withdraw",
+        INPUT_AMOUNT_50: "withdraw",
+        INPUT_AMOUNT_100: "withdraw",
         MODAL_INPUT_AMOUNT: "withdraw",
         CONTINUE: "withdraw",
       },
@@ -123,9 +128,13 @@ const run = async (interaction: CommandInteraction) => {
   let msgOpts
 
   if (token && amount) {
-    msgOpts = await withdrawWithParams(interaction, token.toUpperCase(), amount)
+    ;({ msgOpts } = await withdrawWithParams(
+      interaction,
+      token.toUpperCase(),
+      amount
+    ))
   } else {
-    msgOpts = await preWithdraw(interaction, { token, amount, address })
+    ;({ msgOpts } = await preWithdraw(interaction, { token, amount, address }))
   }
 
   const reply = await interaction.user.send(msgOpts)

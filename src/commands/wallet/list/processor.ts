@@ -110,16 +110,18 @@ export async function render(user: User) {
   }
 
   return {
-    embeds: [embed],
-    components: options.length
-      ? [
-          new MessageActionRow().addComponents(
-            new MessageSelectMenu()
-              .setPlaceholder("💰 View a wallet")
-              .setCustomId("view_wallet")
-              .addOptions(options)
-          ),
-        ]
-      : [],
+    msgOpts: {
+      embeds: [embed],
+      components: options.length
+        ? [
+            new MessageActionRow().addComponents(
+              new MessageSelectMenu()
+                .setPlaceholder("💰 View a wallet")
+                .setCustomId("view_wallet")
+                .addOptions(options)
+            ),
+          ]
+        : [],
+    },
   }
 }

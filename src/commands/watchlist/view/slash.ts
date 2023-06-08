@@ -60,7 +60,7 @@ const command: SlashCommand = {
       )
   },
   run: async function (i: CommandInteraction) {
-    const messageOptions = await composeWatchlist(
+    const { msgOpts } = await composeWatchlist(
       i.user,
       0,
       WatchListViewType.Token,
@@ -68,7 +68,7 @@ const command: SlashCommand = {
         ? WatchListTokenViewType.Chart
         : WatchListTokenViewType.Text
     )
-    const reply = (await i.editReply(messageOptions)) as Message
+    const reply = (await i.editReply(msgOpts)) as Message
 
     route(reply, i.user, machineConfig)
   },

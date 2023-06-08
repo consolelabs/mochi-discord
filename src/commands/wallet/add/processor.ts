@@ -82,8 +82,10 @@ export async function handleWalletAddition(msg: OriginalMessage) {
   )
 
   return {
-    embeds: [embed],
-    components: [buttonRow],
+    msgOpts: {
+      embeds: [embed],
+      components: [buttonRow],
+    },
   }
 }
 
