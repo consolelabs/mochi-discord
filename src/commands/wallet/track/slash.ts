@@ -6,33 +6,12 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
 import { MachineConfig, route } from "utils/router"
+import { machineConfig as commonStates } from "commands/wallet/common/tracking"
 
 export const machineConfig: MachineConfig = {
-  id: "wallet-track",
-  initial: "track",
-  states: {
-    track: {
-      on: {
-        VIEW_WALLET: "wallets",
-      },
-    },
-    wallets: {
-      id: "wallets",
-      initial: "wallets",
-      states: {
-        wallets: {
-          on: {
-            VIEW_WALLET: "wallet",
-          },
-        },
-        wallet: {
-          on: {
-            BACK: "wallets",
-          },
-        },
-      },
-    },
-  },
+  id: "walletTrack",
+  initial: "walletTrack",
+  states: commonStates,
 }
 
 const command: SlashCommand = {

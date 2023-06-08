@@ -54,7 +54,13 @@ export async function copyWallet(
       description: "Couldn't copy wallet",
     })
   }
-  const { messageOptions } = renderTrackingResult(msg, author.id, address)
+  const { messageOptions } = renderTrackingResult(
+    msg,
+    author.id,
+    address,
+    chain,
+    alias
+  )
 
   return messageOptions
 }
@@ -62,7 +68,9 @@ export async function copyWallet(
 function renderTrackingResult(
   msg: OriginalMessage,
   authorID: string,
-  address: string
+  address: string,
+  chain: string,
+  alias: string
 ) {
   return {
     messageOptions: {
@@ -105,17 +113,17 @@ ${getEmoji(
           new MessageButton()
             .setLabel("Follow")
             .setStyle("SECONDARY")
-            .setCustomId(`follow_wallet-${authorID}-${address}`)
+            .setCustomId(`follow_wallet/${address}/${chain}/${alias}`)
             .setEmoji(emojis.PLUS),
           new MessageButton()
             .setLabel("Track")
             .setStyle("SECONDARY")
-            .setCustomId(`track_wallet-${authorID}-${address}`)
+            .setCustomId(`track_wallet/${address}/${chain}/${alias}`)
             .setEmoji(emojis.ANIMATED_STAR),
           new MessageButton()
             .setLabel("Uncopy")
             .setStyle("SECONDARY")
-            .setCustomId(`uncopytrade_wallet-${authorID}-${address}`)
+            .setCustomId(`untrack_wallet/${address}`)
             .setEmoji(emojis.REVOKE)
         ),
       ],

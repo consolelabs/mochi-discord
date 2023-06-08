@@ -31,6 +31,10 @@ import {
   airdropDetail,
   run as renderAirdrops,
 } from "commands/earn/airdrop/processor"
+import { trackWallet } from "commands/wallet/track/processor"
+import { followWallet } from "commands/wallet/follow/processor"
+import { copyWallet } from "commands/wallet/copy/processor"
+import { untrackWallet } from "commands/wallet/remove/processor"
 
 type Handler<P = any> = (
   params: P,
@@ -84,6 +88,16 @@ const builtinButtonHandlers: ButtonContext = {
     renderQr(i, i.member as GuildMember, page ? Number(page) : undefined),
   airdrops: (i, status, page) =>
     renderAirdrops(i.user.id, status, page ? Number(page) : undefined),
+  walletFollow: (i, address, chain, alias) =>
+    followWallet(i, i.user, address, chain, alias),
+  walletTrack: (i, address, chain, alias) =>
+    trackWallet(i, i.user, address, chain, alias),
+  walletCopy: (i, address, chain, alias) =>
+    copyWallet(i, i.user, address, chain, alias),
+  walletUntrack: async (i, address) => {
+    const { messageOptions } = await untrackWallet(i, i.user, address)
+    return messageOptions
+  },
 }
 
 const builtinSelectHandlers: SelectContext = {
@@ -195,14 +209,7 @@ export function route(
           }
         },
         transition: (context, event) => {
-          const {
-            reaction,
-            canBack = false,
-            dry,
-            interaction,
-            state,
-            args = [],
-          } = event
+          const { canBack = false, dry, interaction, state, args = [] } = event
           if (!interaction || !state || dry || state === "steps") return
           let composer: Handler | undefined
           if (interaction.isButton()) {
