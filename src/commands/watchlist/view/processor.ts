@@ -443,11 +443,12 @@ export async function composeWatchlist(
             usd: `$${formatDigit({
               value: String(t.current_price ?? "0"),
               fractionDigits: 2,
+              scientificFormat: true,
             })}`,
           })),
           {
             cols: ["symbol", "usd", "priceChange"],
-            separator: [VERTICAL_BAR, APPROX],
+            separator: [VERTICAL_BAR, ` ${APPROX} `],
             rowAfterFormatter: (f, i) =>
               `${getEmojiToken(
                 (tokenData[i].symbol ?? "") as TokenEmojiKey

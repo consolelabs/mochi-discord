@@ -41,7 +41,15 @@ export async function runGetVaultDetail(
 
   const walletAddress =
     data.wallet_address !== ""
-      ? `**Wallet Address**\n\`EVM | ${data.wallet_address}\`\n\`SOL | ${data.solana_wallet_address}\``
+      ? `**Wallet Address**\n${getEmoji("NUM_1")}\`EVM | ${shortenHashOrAddress(
+          data.wallet_address,
+          5,
+          5
+        )}\`\n${getEmoji("NUM_2")}\`SOL | ${shortenHashOrAddress(
+          data.solana_wallet_address,
+          5,
+          5
+        )}\``
       : ""
 
   const titleCurrentRequest = `**Current request**\n`
@@ -94,7 +102,7 @@ export async function runGetVaultDetail(
   const embed = composeEmbedMessage2(interaction as any, {
     color: msgColors.BLUE,
     author: ["Vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
-    description: `${basicInfo}\n\n${walletAddress}${currentRequest}`,
+    description: `${basicInfo}\n\n${walletAddress}\n${currentRequest}`,
   }).addFields(fields)
 
   return {

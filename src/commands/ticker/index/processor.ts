@@ -21,13 +21,7 @@ import { getChartColorConfig } from "ui/canvas/color"
 import { drawRectangle } from "ui/canvas/draw"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
-import {
-  EmojiKey,
-  getAuthor,
-  getChance,
-  getEmoji,
-  roundFloatNumber,
-} from "utils/common"
+import { EmojiKey, getAuthor, getChance, getEmoji } from "utils/common"
 import { formatDigit } from "utils/defi"
 import config from "../../../adapters/config"
 import { getDefaultSetter } from "../../../utils/default-setters"
@@ -121,7 +115,10 @@ const getChangePercentage = (change: number) => {
       : change === 0
       ? ""
       : getEmoji("ARROW_DOWN")
-  return `${trend} ${change > 0 ? "+" : ""}${roundFloatNumber(change, 2)}%`
+  return `${trend} ${formatDigit({
+    value: change,
+    fractionDigits: 2,
+  })}%`
 }
 
 export async function composeTickerResponse({
@@ -188,6 +185,7 @@ export async function composeTickerResponse({
     : `$${formatDigit({
         value: String(current_price[currency]),
         fractionDigits: 2,
+        scientificFormat: true,
       })}`
   const marketCap = +market_cap[currency]
   const bb = getChance(20)
@@ -199,7 +197,9 @@ export async function composeTickerResponse({
   }).addFields([
     {
       name: `${getEmoji("CHART")} Market cap`,
-      value: `$${marketCap.toLocaleString()} (#${coin.market_cap_rank})`,
+      value: `$${formatDigit({ value: marketCap, shorten: true })} (#${
+        coin.market_cap_rank
+      })`,
       inline: true,
     },
     {

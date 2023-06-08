@@ -74,7 +74,7 @@ export async function render(user: User) {
           }),
         {
           cols: ["chainType", "address", "usd"],
-          separator: [VERTICAL_BAR, APPROX],
+          separator: [VERTICAL_BAR, ` ${APPROX} `],
           rowAfterFormatter: (f, i) =>
             `${getEmoji(e[1][i].chain_type.toUpperCase())} ${f}${getEmoji(
               "CASH"

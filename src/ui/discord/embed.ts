@@ -31,7 +31,13 @@ import {
   msgColors,
   roundFloatNumber,
 } from "utils/common"
-import { COMMA, DEFAULT_COLLECTION_GITBOOK, DOT, PREFIX } from "utils/constants"
+import {
+  COMMA,
+  DEFAULT_COLLECTION_GITBOOK,
+  DOT,
+  PREFIX,
+  VERTICAL_BAR,
+} from "utils/constants"
 import { zip } from "lodash"
 
 type Alignment = "left" | "center" | "right"
@@ -59,7 +65,7 @@ export function formatDataTable<DT extends Data>(
       cols: [],
       alignment: [...Array(initialCols.length - 1).fill("left"), "right"],
       rowAfterFormatter: (str: string) => str,
-      separator: Array(initialCols.length - 1).fill("|"),
+      separator: Array(initialCols.length - 1).fill(VERTICAL_BAR),
       noWrap: false,
     },
     options
@@ -116,7 +122,7 @@ export function formatDataTable<DT extends Data>(
     row = row.filter(Boolean)
 
     const line = resolvedOptions.rowAfterFormatter(
-      `${resolvedOptions.noWrap ? "" : "`"}${row.join(" ")}${
+      `${resolvedOptions.noWrap ? "" : "`"}${row.join("")}${
         resolvedOptions.noWrap ? "" : "`"
       }`,
       i

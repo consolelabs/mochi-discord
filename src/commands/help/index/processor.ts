@@ -154,14 +154,14 @@ export async function buildHelpInterface(
       },
       {
         name: "\u200b\nVisit our website",
-        value: `**[Web](${HOMEPAGE_URL})**`,
+        value: `[**Web**](${HOMEPAGE_URL})`,
         inline: true,
       },
       {
         name: "\u200b\nJoin our community",
         value: [
-          `**[Twitter](${TWITTER_URL})**`,
-          `**[Discord](${DISCORD_URL})**`,
+          `[**Twitter**](${TWITTER_URL})`,
+          `[**Discord**](${DISCORD_URL})`,
         ].join("\n"),
         inline: true,
       }
