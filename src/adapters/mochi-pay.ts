@@ -127,6 +127,19 @@ class MochiPay extends Fetcher {
       }
     )
   }
+
+  async getWithdrawTxns(query: {
+    profileId: string
+    token: string
+    chainId: string
+  }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/withdraw/transactions/recent`,
+      {
+        query,
+      }
+    )
+  }
 }
 
 export default new MochiPay()

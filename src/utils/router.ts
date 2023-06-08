@@ -45,8 +45,12 @@ const routerCache = CacheManager.init({
 type Handler<P = any> = (
   params: P,
   event: string,
-  context: Record<any, any>
-) => Promise<{ msgOpts: MessageEditOptions | null; context?: Record<any, any> }>
+  context: Record<any, any>,
+  isModal: boolean
+) => Promise<{
+  msgOpts: MessageEditOptions | null
+  context?: Record<any, any>
+}>
 
 type ButtonContext = {
   [K: string]: Handler<ButtonInteraction>
@@ -60,6 +64,8 @@ type Context = {
   button?: ButtonContext
   select?: SelectContext
   steps?: string[]
+  modal?: Record<string, true>
+  ephemeral?: Record<string, true>
   [K: string]: any
 }
 
@@ -175,13 +181,22 @@ export function route(
   options: CreateMachineParams[1] = {}
 ) {
   const cacheKey = `${author.id}-${config.id}`
-  const { button, select, ...userData } = (config.context ?? {}) as any
+  const {
+    button,
+    select,
+    modal = {},
+    ephemeral = {},
+    ...userData
+  } = (config.context ?? {}) as any
   routerCache.set(cacheKey, userData)
 
   // manually add action to each state and child states
   decorateWithActions(config.states)
 
-  config.context ??= {}
+  config.context ??= {
+    ephemeral: {},
+    modal: {},
+  }
 
   const machine = createMachine(
     {
@@ -243,12 +258,13 @@ export function route(
               const { context = {}, msgOpts } = await composer(
                 interaction,
                 event.type,
-                oldContext
+                oldContext,
+                modal[event.type]
               )
               routerCache.set(cacheKey, { ...oldContext, ...context })
 
               if (!msgOpts) {
-                interaction.message.delete()
+                interaction.message.delete().catch(() => null)
               } else {
                 if (canBack) {
                   if (!msgOpts.components) msgOpts.components = []
@@ -291,10 +307,6 @@ export function route(
     .on("collect", (i) => {
       if (!i.isButton() && !i.isSelectMenu()) return
       wrapError(reply, async () => {
-        if (!i.deferred && !i.customId.startsWith("modal")) {
-          await i.deferUpdate().catch(() => null)
-        }
-
         let event = i.customId
 
         event = event.toUpperCase()
@@ -305,10 +317,19 @@ export function route(
           interaction: i,
           dry: true,
         })
+
+        if (!i.deferred && !modal[event]) {
+          if (ephemeral[event]) {
+            await i.deferReply({ ephemeral: true }).catch(() => null)
+          } else {
+            await i.deferUpdate().catch(() => null)
+          }
+        }
+
         const can = currentState.can({ type: event, interaction: i, dry: true })
         if (can) {
           const prevState = currentState.toStrings().at(-1)?.split(".").at(-1)
-          const state = nextState.toStrings().at(-1)?.split(".").at(-1)
+          const state = nextState.toStrings().at(-1)?.split(".").at(-1) ?? ""
 
           machineService.send({
             type: event,

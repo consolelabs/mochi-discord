@@ -12,6 +12,7 @@ import withdrawSlash from "./index/slash"
 const slashCmd: SlashCommand = {
   name: "withdraw",
   category: "Defi",
+  ephemeral: true,
   prepare: (alias = "withdraw") => {
     return new SlashCommandBuilder()
       .setName(alias)

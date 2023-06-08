@@ -128,7 +128,7 @@ export async function renderChart(data: any[]) {
     }
 
     // symbol
-    ctx.font = "bold 29px"
+    ctx.font = "bold 29px sans-serif"
     ctx.fillStyle = "white"
     const symbolText = symbol.toUpperCase()
     const symbolH = heightOf(ctx, symbolText)
@@ -137,7 +137,7 @@ export async function renderChart(data: any[]) {
     ctx.fillText(symbolText, symbolX, symbolY)
 
     // price
-    ctx.font = "bold 30px"
+    ctx.font = "bold 30px sans-serif"
     ctx.fillStyle = "white"
     const currentPrice = `${
       is_pair ? "" : "$"
@@ -149,7 +149,7 @@ export async function renderChart(data: any[]) {
     ctx.fillText(currentPrice, priceX, priceY)
 
     // 7d change percentage
-    ctx.font = "25px"
+    ctx.font = "bold 25px sans-serif"
     ctx.fillStyle =
       price_change_percentage_7d_in_currency >= 0 ? ascColor : descColor
     const change = `${

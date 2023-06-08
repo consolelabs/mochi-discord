@@ -53,7 +53,9 @@ export function formatDigit({
   // if shorten mode ON -> needs to be a valid Number (no commas)
   withoutCommas = shorten || withoutCommas
   const leftStr = withoutCommas ? left.replaceAll(COMMA, EMPTY) : left
-  const result = `${leftStr}${rightStr.length ? `.${rightStr}` : ""}`
+  const result = `${leftStr}${
+    fractionDigits !== 0 && rightStr.length ? `.${rightStr}` : ""
+  }`
   if (!shorten || !Number(result)) return result
 
   // shorten number. e.g. 3000 -> 3K
