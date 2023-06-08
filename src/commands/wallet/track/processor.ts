@@ -51,7 +51,13 @@ export async function trackWallet(
     })
   }
 
-  const { messageOptions } = renderTrackingResult(msg, author.id, address)
+  const { messageOptions } = renderTrackingResult(
+    msg,
+    author.id,
+    address,
+    chain,
+    alias
+  )
 
   return messageOptions
 }
@@ -59,7 +65,9 @@ export async function trackWallet(
 function renderTrackingResult(
   msg: OriginalMessage,
   authorID: string,
-  address: string
+  address: string,
+  chain: string,
+  alias: string
 ) {
   return {
     messageOptions: {
@@ -102,17 +110,17 @@ ${getEmoji(
           new MessageButton()
             .setLabel("Follow")
             .setStyle("SECONDARY")
-            .setCustomId(`follow_wallet-${authorID}-${address}`)
+            .setCustomId(`follow_wallet/${address}/${chain}/${alias}`)
             .setEmoji(emojis.PLUS),
           new MessageButton()
             .setLabel("Copy")
             .setStyle("SECONDARY")
-            .setCustomId(`copytrade_wallet-${authorID}-${address}`)
+            .setCustomId(`copy_wallet/${address}/${chain}/${alias}`)
             .setEmoji(emojis.SWAP_ROUTE),
           new MessageButton()
             .setLabel("Untrack")
             .setStyle("SECONDARY")
-            .setCustomId(`untrack_wallet-${authorID}-${address}`)
+            .setCustomId(`untrack_wallet/${address}`)
             .setEmoji(emojis.REVOKE)
         ),
       ],

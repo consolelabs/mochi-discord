@@ -3,33 +3,12 @@ import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
 import { copyWallet } from "./processor"
 import { MachineConfig, route } from "utils/router"
+import { machineConfig as commonStates } from "commands/wallet/common/tracking"
 
 export const machineConfig: MachineConfig = {
-  id: "wallet-copy",
-  initial: "copy",
-  states: {
-    copy: {
-      on: {
-        VIEW_WALLET: "wallets",
-      },
-    },
-    wallets: {
-      id: "wallets",
-      initial: "wallets",
-      states: {
-        wallets: {
-          on: {
-            VIEW_WALLET: "wallet",
-          },
-        },
-        wallet: {
-          on: {
-            BACK: "wallets",
-          },
-        },
-      },
-    },
-  },
+  id: "walletCopy",
+  initial: "walletCopy",
+  states: commonStates,
 }
 
 const command: SlashCommand = {
