@@ -527,6 +527,17 @@ class Defi extends Fetcher {
   async getTrendingSearch() {
     return await this.jsonFetch(`${API_BASE_URL}/defi/trending`)
   }
+
+  async getRatio(base?: string, target?: string) {
+    if (!base || !target) return 0
+    let ratio = 0
+    const { data, ok } = await this.compareToken("", base, target, 1)
+    if (ok) {
+      ratio = data.ratios?.at(-1) ?? 0
+    }
+
+    return ratio
+  }
 }
 
 export default new Defi()

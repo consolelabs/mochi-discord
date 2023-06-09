@@ -18,7 +18,6 @@ import {
   handleBackToQuestList,
   handleClaimReward,
 } from "commands/quest/daily/processor"
-import { handleSwap } from "commands/swap/index/processor"
 import { handleTickerViews } from "commands/ticker/index/processor"
 import {
   handleTokenApprove,
@@ -33,7 +32,6 @@ import {
   removeWalletConfirmation,
 } from "commands/wallet/remove/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
-import { viewTickerRouteSwap } from "commands/swap/index/processor"
 import {
   AutocompleteInteraction,
   ButtonInteraction,
@@ -438,9 +436,6 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("ticker_add_wl"):
       await addToWatchlist(i)
       return
-    case i.customId.startsWith("ticker_route_swap"):
-      await viewTickerRouteSwap(i)
-      return
     case i.customId.startsWith("nft_ticker_view"):
       await handleNFTTickerViews(i)
       return
@@ -503,9 +498,6 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("tagme"):
       await tagme.editSubscribeStatus(i)
-      return
-    case i.customId.startsWith("swap-mochi-wallet"):
-      await handleSwap(i)
       return
     case i.customId.startsWith("balance"):
       await handleInteraction(i)
