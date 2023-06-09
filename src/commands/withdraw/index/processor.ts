@@ -4,6 +4,7 @@ import {
   MessageActionRow,
   MessageButton,
   MessageComponentInteraction,
+  MessageEmbed,
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
@@ -23,6 +24,7 @@ import {
   isValidAmount,
   thumbnails,
   shortenHashOrAddress,
+  msgColors,
 } from "utils/common"
 import {
   MOCHI_ACTION_WITHDRAW,
@@ -91,12 +93,12 @@ function checkCommitableOperation(
 
   const parsedAmount = parseFloat(amount)
   if (!isValidAmount({ arg: amount, exceptions: ["all"] })) {
-    return { valid: false, error: "The amount is invalid." }
+    return { valid: false, error: "The amount is invalid" }
   } else if (
     parsedAmount > convertString(tokenAmount, tokenDecimal) &&
     tokenDecimal > 0
   ) {
-    return { valid: false, error: "Insufficient balance." }
+    return { valid: false, error: "Insufficient balance" }
   } else if (parsedAmount > 0 && !isValidTipAmount(amount, tokenDecimal)) {
     return {
       valid: false,
@@ -110,43 +112,45 @@ function checkCommitableOperation(
   }
 }
 
-export function confirm(_i: ButtonInteraction, params: Required<Params>) {
+function renderPreview(params: {
+  address?: string
+  network?: string
+  token?: string
+  amount?: string
+  fee?: string
+}) {
   return {
-    msgOpts: {
-      embeds: [
-        composeEmbedMessage(null, {
-          author: ["Confirm withdrawal", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-          description: [
-            `${getEmoji("WALLET_1")}\`Address.  ${shortenHashOrAddress(
-              params.address,
-              5,
-              5
-            )}\``,
-            `${getEmoji("SWAP_ROUTE")}\`Network.  \`${
-              params.tokenObj.token.chain.name
-            }`,
-            `${getEmoji("SWAP_ROUTE")}\`Source.   \`Mochi wallet`,
-            `${getEmoji("ANIMATED_COIN_1", true)}\`Coin.     \`${params.token}`,
-            `${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
-              params.token
-            )} **${formatDigit({
-              value: params.amount ?? "0",
-              fractionDigits: 0,
-            })} ${params.token}**`,
-            `${getEmoji("CASH")}\`Fee.      \`? ${params.token}`,
-          ].join("\n"),
-        }),
-      ],
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageButton({
-            style: "PRIMARY",
-            label: "Submit",
-            customId: "submit",
-          })
-        ),
-      ],
-    },
+    name: "\u200b\nPreview",
+    value: [
+      params.address &&
+        `${getEmoji("WALLET_1")}\`Address.  ${shortenHashOrAddress(
+          params.address,
+          5,
+          5
+        )}\``,
+      params.network &&
+        `${getEmoji("SWAP_ROUTE")}\`Network.  \`${params.network}`,
+      `${getEmoji("SWAP_ROUTE")}\`Source.   \`Mochi wallet`,
+      params.token &&
+        `${getEmoji("ANIMATED_COIN_1", true)}\`Coin.     \`${params.token}`,
+      params.token &&
+        params.amount &&
+        `${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
+          params.token as TokenEmojiKey
+        )} **${formatDigit({
+          value: params.amount,
+          fractionDigits: 0,
+        })} ${params.token}**`,
+      params.fee &&
+        params.token &&
+        `${getEmoji("CASH")}\`Fee.      \`${formatDigit({
+          value: params.fee,
+          fractionDigits: 2,
+        })} ${params.token}`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    inline: false,
   }
 }
 
@@ -211,6 +215,23 @@ export async function withdrawStep3(
   }
   const [tokenObj] = filteredBals
 
+  if (!tokenObj) {
+    return {
+      overrideInitialState: "withdrawStep1",
+      context: { amount: "%0" },
+      msgOpts: {
+        embeds: [
+          new MessageEmbed({
+            description: `<:pepeno2:885513214467661834> **No token ${getEmoji(
+              params.token as TokenEmojiKey
+            )} ${params.token} found in your balance**`,
+            color: msgColors.ERROR,
+          }),
+        ],
+      },
+    }
+  }
+
   const { valid, error } = checkCommitableOperation(
     balances,
     params.amount ?? "0",
@@ -263,24 +284,18 @@ export async function withdrawStep3(
   }
 
   const embed = composeEmbedMessage(null, {
-    author: ["Withdraw", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+    author: ["Choose your address", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+    description: `${getEmoji(
+      "ANIMATED_POINTING_DOWN",
+      true
+    )} Enter or choose from list below.`,
   }).addFields(
-    {
-      name: "Amount",
-      value: `${getEmojiToken(params.token as TokenEmojiKey)} ${formatDigit({
-        value: params.amount ?? "0",
-        fractionDigits: 0,
-      })} ${params.token?.toUpperCase()}`,
-      inline: false,
-    },
-    ...(params.address
-      ? [
-          {
-            name: "Destination address",
-            value: `\`${shortenHashOrAddress(params.address ?? "", 5, 5)}\``,
-          },
-        ]
-      : [])
+    renderPreview({
+      address: params.address,
+      token: tokenObj.token.symbol,
+      amount: params.amount,
+      network: params.tokenObj.token.chain.name,
+    })
   )
 
   return {
@@ -308,9 +323,11 @@ export async function withdrawStep3(
         new MessageActionRow().addComponents(
           new MessageButton()
             .setLabel(
-              validAddress || !params.address ? "Continue" : "Address not valid"
+              validAddress || !params.address
+                ? "Confirm (3/3)"
+                : "Address not valid"
             )
-            .setCustomId("continue")
+            .setCustomId("submit")
             .setStyle("PRIMARY")
             .setDisabled(!valid || !validAddress),
           new MessageButton({
@@ -389,13 +406,10 @@ export async function withdrawStep2(
     ],
     description: isNotEmpty ? text : emptyText,
   }).addFields(
-    {
-      name: "Preview transaction",
-      value: `Withdraw \`${error ? 0 : amount}\` ${getEmojiToken(
-        tokenObj.token.symbol as TokenEmojiKey
-      )} \`${tokenObj.token.symbol || "???"}\``,
-    },
-    ...(error ? [{ name: "Error", value: `\`\`\`${error}\`\`\`` }] : [])
+    renderPreview({
+      token: tokenObj.token.symbol,
+      amount: String(error ? 0 : amount),
+    })
   )
 
   return {
@@ -406,7 +420,17 @@ export async function withdrawStep2(
       amount,
     },
     msgOpts: {
-      embeds: [embed],
+      embeds: [
+        embed,
+        ...(error
+          ? [
+              new MessageEmbed({
+                description: `<:pepeno2:885513214467661834> **${error}**`,
+                color: msgColors.ERROR,
+              }),
+            ]
+          : []),
+      ],
       components: [
         new MessageActionRow().addComponents(
           ...[10, 25, 50].map((p) =>
@@ -426,7 +450,7 @@ export async function withdrawStep2(
         ),
         new MessageActionRow().addComponents(
           new MessageButton()
-            .setLabel("Continue")
+            .setLabel("Continue (2/3)")
             .setCustomId("continue")
             .setStyle("PRIMARY")
             .setDisabled(!!error || Number(amount) <= 0)
@@ -487,7 +511,11 @@ export async function withdrawStep1(
   const embed = composeEmbedMessage(null, {
     author: ["Choose your money source", getEmojiURL(emojis.NFT2)],
     description: isNotEmpty ? text : emptyText,
-  })
+  }).addFields(
+    renderPreview({
+      token: filterSymbol,
+    })
+  )
 
   const isDuplicateSymbol = (s: string) =>
     balances.filter((b: any) => b.token.symbol.toUpperCase() === s).length > 1
@@ -501,7 +529,7 @@ export async function withdrawStep1(
       components: [
         new MessageActionRow().addComponents(
           new MessageSelectMenu()
-            .setPlaceholder("💵 Choose money source")
+            .setPlaceholder("💵 Choose money source (1/3)")
             .setCustomId("select_token")
             .setOptions(
               balances.map((b: any) => ({
@@ -531,7 +559,10 @@ function composeWithdrawEmbed() {
   })
 }
 
-export async function executeWithdraw(interaction: ButtonInteraction) {
+export async function executeWithdraw(
+  interaction: ButtonInteraction,
+  params: Params
+) {
   const payload = await CacheManager.get({
     pool: "withdraw-request-payload",
     key: interaction.user.id,
@@ -577,5 +608,23 @@ export async function executeWithdraw(interaction: ButtonInteraction) {
       },
     }
 
-  return { msgOpts: null }
+  return {
+    msgOpts: {
+      embeds: [
+        composeEmbedMessage(null, {
+          author: [
+            "Withdrawal submitted",
+            getEmojiURL(emojis.ANIMATED_WITHDRAW),
+          ],
+          description: renderPreview({
+            address: params.address,
+            network: params.tokenObj.token.chain.name,
+            token: params.token,
+            amount: params.amount,
+          }).value,
+        }),
+      ],
+      components: [],
+    },
+  }
 }

@@ -922,8 +922,8 @@ export function isValidAmount({
   if (exceptions?.map((s) => s.toLowerCase()).includes(arg.toLowerCase())) {
     return true
   }
-  const amount = parseFloat(arg)
-  return !isNaN(amount) && amount > 0
+  const amount = Number(arg)
+  return !Number.isNaN(amount) && amount > 0
 }
 
 export function equalIgnoreCase(
