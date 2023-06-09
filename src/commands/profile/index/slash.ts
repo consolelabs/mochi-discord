@@ -9,7 +9,7 @@ import {
 } from "./processor"
 import { machineConfig as watchListMachineConfig } from "commands/watchlist/view/slash"
 import { machineConfig as qrCodeMachineConfig } from "commands/qr/index/slash"
-import { machineConfig as earnMachineConfig } from "commands/earn/index"
+// import { machineConfig as earnMachineConfig } from "commands/earn/index"
 
 export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
   id: "profile",
@@ -79,7 +79,7 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
       on: {
         BACK: "profile",
       },
-      ...earnMachineConfig,
+      // ...earnMachineConfig,
     },
   },
 })

@@ -7,9 +7,30 @@ import {
 } from "@discordjs/builders"
 import daily from "./daily/text"
 import dailySlash from "./daily/slash"
+import { MachineConfig } from "utils/router"
 
 const actions: Record<string, Command> = {
   daily,
+}
+
+export const machineConfig: MachineConfig = {
+  id: "quest",
+  initial: "quests",
+  states: {
+    quests: {
+      on: {
+        VIEW_QUEST_DETAIL: "quest",
+        // special, reserved event name
+        NEXT_PAGE: "quests",
+        PREV_PAGE: "quests",
+      },
+    },
+    quest: {
+      on: {
+        BACK: "quests",
+      },
+    },
+  },
 }
 
 const textCmd: Command = {
