@@ -34,7 +34,9 @@ class Profile extends Fetcher {
 
     const socials = await Promise.all(
       dataProfile.associated_accounts
-        .filter((a: any) => ["twitter", "telegram"].includes(a.platform))
+        .filter((a: any) =>
+          ["twitter", "telegram", "binance"].includes(a.platform)
+        )
         .map(async (a: any) => {
           if (a.platform === "telegram") {
             const res = await mochiTelegram.getById(a.platform_identifier)
@@ -166,6 +168,17 @@ class Profile extends Fetcher {
         },
       }
     )
+  }
+
+  public async submitBinanceKeys(body: {
+    discordUserId: string
+    apiSecret: string
+    apiKey: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/api-key/binance`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    })
   }
 
   public async getUserNFTCollection(params: {
