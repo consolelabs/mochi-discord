@@ -29,11 +29,6 @@ import { handleTreasurerTransfer } from "commands/vault/transfer/processor"
 import { handleTreasurerRemove } from "commands/vault/remove/processor"
 import { sendVerifyURL } from "commands/verify/processor"
 import {
-  sendBinanceManualMessage,
-  showModalBinanceKeys,
-  submitBinanceKeys,
-} from "commands/profile/index/processor"
-import {
   addWallet,
   redirectToAddMoreWallet,
 } from "commands/wallet/add/processor"
@@ -54,7 +49,6 @@ import {
   CommandInteraction,
   Interaction,
   Message,
-  ModalSubmitInteraction,
   SelectMenuInteraction,
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
@@ -120,19 +114,18 @@ const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
   once: false,
   execute: async (interaction) => {
-    const id = interaction.isCommand()
-      ? interaction.toString()
-      : interaction.isSelectMenu() ||
-        interaction.isButton() ||
-        interaction.isModalSubmit()
-      ? interaction.customId
-      : interaction.isAutocomplete()
-      ? `autocomplete:${
-          interaction.commandName
-        }:${interaction.options.getSubcommand()}:${
-          interaction.options.getFocused(true).name
-        }`
-      : ""
+    let id = ""
+    if (interaction.isCommand()) {
+      id = interaction.toString()
+    } else if (interaction.isButton() || interaction.isSelectMenu()) {
+      id = interaction.customId
+    } else if (interaction.isAutocomplete()) {
+      id = `autocomplete:${
+        interaction.commandName
+      }:${interaction.options.getSubcommand()}:${
+        interaction.options.getFocused(true).name
+      }`
+    }
     if (!id) return
     if (
       !interaction.isSelectMenu() &&
@@ -159,9 +152,6 @@ const event: DiscordEvent<"interactionCreate"> = {
         wrapError(interaction, async () => {
           if (interaction.isSelectMenu()) {
             await handleSelectMenuInteraction(interaction)
-          }
-          if (interaction.isModalSubmit()) {
-            await handleModalSubmitInteraction(interaction)
           }
           if (interaction.isButton()) {
             await handleButtonInteraction(interaction)
@@ -433,17 +423,6 @@ async function handleSelectMenuInteraction(i: SelectMenuInteraction) {
   await msg.edit(messageOptions).catch(() => null)
 }
 
-async function handleModalSubmitInteraction(interaction: Interaction) {
-  const i = interaction as ModalSubmitInteraction
-  switch (true) {
-    case i.customId.startsWith("profile-connect_binance_submit"):
-      await submitBinanceKeys(i)
-      return
-    default:
-      return
-  }
-}
-
 async function handleButtonInteraction(interaction: Interaction) {
   const i = interaction as ButtonInteraction
   const msg = i.message as Message
@@ -561,12 +540,6 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("loser-view"):
       await handleLoserView(i)
-      return
-    case i.customId.startsWith("profile_connect-binance"):
-      await sendBinanceManualMessage(i)
-      return
-    case i.customId.startsWith("profile-connect_binance_show_modal"):
-      await showModalBinanceKeys(i)
       return
     default: {
       return

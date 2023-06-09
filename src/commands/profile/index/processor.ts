@@ -1,23 +1,16 @@
 import profile from "adapters/profile"
 import {
   ButtonInteraction,
-  ColorResolvable,
   GuildMember,
   MessageActionRow,
   MessageButton,
   Modal,
-  MessageEmbed,
   MessageSelectMenu,
   TextInputComponent,
   ModalActionRowComponent,
-  ModalSubmitInteraction,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
-import {
-  composeEmbedMessage,
-  formatDataTable,
-  getEmbedFooter,
-} from "ui/discord/embed"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
   capitalizeFirst,
   EmojiKey,
@@ -28,6 +21,7 @@ import {
   shortenHashOrAddress,
   getEmojiURL,
   emojis,
+  thumbnails,
 } from "utils/common"
 import {
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
@@ -36,7 +30,7 @@ import {
   TWITTER_USER_URL,
   TELEGRAM_USER_URL,
 } from "utils/constants"
-import { KafkaQueueActivityDataCommand, embedsColors } from "types/common"
+import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 import {
   BalanceType,
@@ -71,7 +65,7 @@ async function renderListWallet(
         if (!domains[i] && showCash) address = shortenHashOrAddress(w.value)
 
         return {
-          chain: (w.chain || isAddress(w.value).chainType).toUpperCase(),
+          chain: w.chain || isAddress(w.value).chainType,
           address,
           balance: w.total?.toString() ? `$${w.total.toString()}` : "",
         }
@@ -128,11 +122,11 @@ async function compose(
 
   const {
     onchainTotal,
-    dexTotal,
+    cexTotal,
     mochiWallets,
-    dexs,
+    cexes,
     wallets: _wallets,
-    pnl,
+    pnl = "0",
   } = walletsRes
   const wallets = _wallets.slice(0, 10)
   const nextLevelMinXp = userProfile.next_level?.min_xp
@@ -142,13 +136,14 @@ async function compose(
     member.roles.highest.name !== "@everyone" ? member.roles.highest : "N/A"
 
   const { totalWorth } = formatView("compact", "filter-dust", balances.data)
-  const grandTotal = formatDigit({
-    value: String(totalWorth + onchainTotal + dexTotal),
-    fractionDigits: 2,
+  const grandTotal = totalWorth + onchainTotal + cexTotal
+  const grandTotalStr = formatDigit({
+    value: String(grandTotal),
+    fractionDigits: grandTotal >= 100 ? 0 : 2,
   })
   const mochiBal = formatDigit({
     value: totalWorth.toString(),
-    fractionDigits: 2,
+    fractionDigits: totalWorth >= 100 ? 0 : 2,
   })
 
   const { data: inbox } = await CacheManager.get({
@@ -168,13 +163,17 @@ async function compose(
     color: msgColors.BLUE,
     description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
       "CASH"
-    )}\`Balance. $${grandTotal}\`(${getEmoji(
-      pnl.split("")[0] === "-" ? "ANIMATED_ARROW_DOWN" : "ANIMATED_ARROW_UP",
-      true
-    )} ${formatDigit({
-      value: pnl.slice(1),
-      fractionDigits: 2,
-    })}%)\n${getEmoji("ANIMATED_BADGE_1", true)}\`Lvl. ${
+    )}\`Balance. $${grandTotalStr}\`${
+      Number(pnl) === 0
+        ? ""
+        : `(${getEmoji(
+            pnl.at(0) === "-" ? "ANIMATED_ARROW_DOWN" : "ANIMATED_ARROW_UP",
+            true
+          )} ${formatDigit({
+            value: pnl.at(0) === "-" ? pnl.slice(1) : pnl,
+            fractionDigits: 2,
+          })}%)`
+    }\n${getEmoji("ANIMATED_BADGE_1", true)}\`Lvl. ${
       userProfile.current_level?.level ?? "N/A"
     } (${userProfile.guild_rank ?? 0}${suffixes.get(
       pr.select(userProfile.guild_rank ?? 0)
@@ -190,8 +189,8 @@ async function compose(
         wallets: {
           data: wallets,
         },
-        dexs: {
-          data: dexs,
+        cexes: {
+          data: cexes,
         },
       }),
       inline: false,
@@ -251,9 +250,9 @@ async function compose(
                 type: "wallet",
                 usd: w.total,
               })),
-              ...dexs.map((d) => ({
+              ...cexes.map((d) => ({
                 ...d,
-                value: `wallet_dex_${d.value}`,
+                value: `wallet_cex_${d.value}`,
                 type: "wallet",
                 usd: d.total,
               })),
@@ -289,9 +288,9 @@ async function compose(
       new MessageActionRow().addComponents(
         new MessageButton()
           .setStyle("SECONDARY")
-          .setLabel("QR")
-          .setEmoji(getEmoji("QRCODE"))
-          .setCustomId("view_qr_codes"),
+          .setLabel("Watchlist")
+          .setEmoji(getEmoji("ANIMATED_STAR", true))
+          .setCustomId("view_watchlist"),
         new MessageButton()
           .setStyle("SECONDARY")
           .setLabel("Quest")
@@ -299,9 +298,9 @@ async function compose(
           .setCustomId("view_quests"),
         new MessageButton()
           .setStyle("SECONDARY")
-          .setLabel("Watchlist")
-          .setEmoji(getEmoji("ANIMATED_STAR", true))
-          .setCustomId("view_watchlist"),
+          .setLabel("QR")
+          .setEmoji(getEmoji("QRCODE"))
+          .setCustomId("view_qr_codes"),
         new MessageButton()
           .setLabel(`Wallet`)
           .setEmoji(getEmoji("PLUS"))
@@ -316,7 +315,7 @@ async function compose(
                   .setLabel(`Connect ${capitalizeFirst(s)}`)
                   .setStyle("SECONDARY")
                   .setEmoji(getEmoji(s.toUpperCase() as EmojiKey))
-                  .setCustomId(`profile_connect-${s}`)
+                  .setCustomId(`connect_${s}`)
               )
             ),
           ]
@@ -337,11 +336,12 @@ async function renderSocials(socials: any[]) {
           return `${getEmoji("TELEGRAM")} **[@${
             s.platform_identifier
           }](${TELEGRAM_USER_URL}/${s.platform_identifier})**`
-        } else if (s.platform == "binance") {
-          return `${getEmoji("BNB")} **${
-            s.platform_metadata?.username ?? "Binance Connected"
-          }**`
         }
+        // else if (s.platform == "binance") {
+        //   return `${getEmoji("BNB")} **${
+        //     s.platform_metadata?.username ?? "Binance Connected"
+        //   }**`
+        // }
       })
     )
   ).join("\n")
@@ -350,7 +350,7 @@ async function renderSocials(socials: any[]) {
 export async function renderWallets({
   mochiWallets,
   wallets,
-  dexs,
+  cexes,
 }: {
   mochiWallets: {
     data: any[]
@@ -360,7 +360,7 @@ export async function renderWallets({
     data: any[]
     title?: string
   }
-  dexs: {
+  cexes: {
     data: any[]
     title?: string
   }
@@ -383,8 +383,8 @@ export async function renderWallets({
       ),
       await renderListWallet(
         getEmoji("WEB"),
-        dexs.title ?? "`DEXs`",
-        dexs.data,
+        cexes.title ?? "`CEX`",
+        cexes.data,
         mochiWallets.data.length + (wallets.data.length || 0),
         true
       ),
@@ -427,55 +427,42 @@ export async function render(msg: OriginalMessage, member: GuildMember) {
 export async function sendBinanceManualMessage(interaction: ButtonInteraction) {
   if (!interaction.member || !interaction.guildId) return
 
-  await interaction.deferReply({ ephemeral: true })
-  const embed = new MessageEmbed()
-    .setColor(embedsColors.Profile as ColorResolvable)
-    .setTitle(`${getEmoji("BNB")} Connect Binance`)
-    .setFooter({
-      text: getEmbedFooter([interaction.user.tag]),
-      iconURL: interaction.user.avatarURL() || getEmojiURL(emojis.MOCHI_CIRCLE),
-    })
-    .setTimestamp(new Date())
-    .setDescription(
-      `In order to connect with your Binance data, please follow steps below:\n\n\t${getEmoji(
-        "NUM_1"
-      )} Login to your [Binance account](https://binance.com/)\n\t${getEmoji(
-        "NUM_2"
-      )} Go to [API Management page](https://www.binance.com/en/my/settings/api-management), and create a new API key with **Read-Only permissions**\n\t${getEmoji(
-        "NUM_3"
-      )} Hit the "Connect" button below and paste your API key and secret
-    `
-    )
-    .setImage(
-      `https://media.discordapp.net/attachments/1052079279619457095/1116282037389754428/Screenshot_2023-06-08_at_15.25.40.png?width=2332&height=1390`
-    )
+  const embed = composeEmbedMessage(null, {
+    author: ["Connect Binance", getEmojiURL(emojis.BINANCE)],
+    description: `To link your Binance account, please follow steps below:\n\n${getEmoji(
+      "NUM_1"
+    )} Create a new API key with **Read-Only permissions** in the [API Management page](https://www.binance.com/en/my/settings/api-management), \n${getEmoji(
+      "NUM_2"
+    )} Back to Discord and hit **"Connect"**`,
+    image: `https://media.discordapp.net/attachments/1052079279619457095/1116282037389754428/Screenshot_2023-06-08_at_15.25.40.png?width=2332&height=1390`,
+  })
 
   const row = new MessageActionRow().addComponents(
     new MessageButton()
       .setLabel("Connect")
-      .setStyle("PRIMARY")
-      .setEmoji(getEmoji("BNB"))
-      .setCustomId("profile-connect_binance_show_modal")
+      .setStyle("SECONDARY")
+      .setEmoji(getEmoji("BINANCE"))
+      .setCustomId("enter_key")
   )
 
-  await interaction
+  return await interaction
     .editReply({ embeds: [embed], components: [row] })
     .catch(() => null)
 }
 
 export async function showModalBinanceKeys(interaction: ButtonInteraction) {
   const modal = new Modal()
-    .setCustomId("profile-connect_binance_submit")
+    .setCustomId("binance-key-form")
     .setTitle("Connect Binance")
 
   const apiKeyInput = new TextInputComponent()
-    .setCustomId("profile-connect-input_binance_api_key")
+    .setCustomId("key")
     .setLabel("API Key")
     .setRequired(true)
     .setStyle("SHORT")
 
   const apiSecretInput = new TextInputComponent()
-    .setCustomId("profile-connect-input_binance_api_secret")
+    .setCustomId("secret")
     .setLabel("Secret Key")
     .setRequired(true)
     .setStyle("SHORT")
@@ -498,29 +485,55 @@ export async function showModalBinanceKeys(interaction: ButtonInteraction) {
   if (!submitted.deferred) {
     await submitted.deferUpdate().catch(() => null)
   }
+
+  const key = submitted.fields.getTextInputValue("key")
+  const secret = submitted.fields.getTextInputValue("secret")
+
+  return { key, secret }
 }
 
-export async function submitBinanceKeys(interaction: ModalSubmitInteraction) {
-  if (!interaction.isModalSubmit()) return
-  await interaction.deferReply({ ephemeral: true })
-
-  const apiKey = interaction.fields.getTextInputValue(
-    "profile-connect-input_binance_api_key"
-  )
-  const apiSecret = interaction.fields.getTextInputValue(
-    "profile-connect-input_binance_api_secret"
-  )
-
+export async function submitBinanceKeys(
+  i: ButtonInteraction,
+  payload: {
+    key: string
+    secret: string
+  }
+) {
   // call api
   const res = await profile.submitBinanceKeys({
-    discordUserId: interaction.user.id,
-    apiSecret: apiSecret,
-    apiKey: apiKey,
+    discordUserId: i.user.id,
+    apiSecret: payload.secret,
+    apiKey: payload.key,
   })
 
-  if (res.status !== 200) {
-    const embed = new MessageEmbed()
-      .setTitle(`${getEmoji("BNB")} Invalid Binance Key`)
+  const embed = composeEmbedMessage(null, {})
+
+  if (res.status === 200) {
+    // case success
+    embed
+      .setTitle(`${getEmoji("BINANCE")} Key validated`)
+      .setDescription(
+        [
+          `${getEmoji("CHECK")} Use ${await getSlashCommand(
+            "profile"
+          )} to track your Binance portfolio.`,
+          `${getEmoji("CHECK")} We will notify when the data is ready.`,
+        ].join("\n")
+      )
+      .setImage(thumbnails.MOCHI_POSE_12)
+
+    // clear cache to get new data
+    CacheManager.findAndRemove("profile-data", i.user.id)
+
+    return {
+      msgOpts: {
+        embeds: [embed],
+        components: [],
+      },
+    }
+  } else {
+    embed
+      .setTitle(`${getEmoji("BINANCE")} Invalid Binance Key`)
       .setDescription(
         `We can't use your Binance Key, there might be a problem with\n\n\t${getEmoji(
           "NUM_1"
@@ -528,53 +541,21 @@ export async function submitBinanceKeys(interaction: ModalSubmitInteraction) {
           "NUM_2"
         )} Make sure your Key has **READ-ONLY** permission`
       )
-      .setFooter({
-        text: getEmbedFooter([interaction.user.tag]),
-        iconURL:
-          interaction.user.avatarURL() || getEmojiURL(emojis.MOCHI_CIRCLE),
-      })
       .setColor(msgColors.ERROR)
-      .setTimestamp(new Date())
 
     const row = new MessageActionRow().addComponents(
       new MessageButton()
         .setLabel("Retry")
         .setStyle("PRIMARY")
-        .setEmoji(getEmoji("BNB"))
-        .setCustomId("profile-connect_binance_show_modal")
+        .setEmoji(getEmoji("BINANCE"))
+        .setCustomId("enter_key")
     )
-    await interaction
-      .editReply({ embeds: [embed], components: [row] })
-      .catch(() => null)
-    return
+
+    return {
+      msgOpts: {
+        embeds: [embed],
+        components: [row],
+      },
+    }
   }
-
-  if (res.status === 200) {
-    // case success
-    const embed = new MessageEmbed()
-      .setTitle(`${getEmoji("BNB")} We got your Key!`)
-      .setDescription(
-        `<:_:850050324135673937> use ${await getSlashCommand(
-          "profile"
-        )} to track your Binance portfolio\n\n We will also notify you when your full historical data is ready!`
-      )
-      .setFooter({
-        text: getEmbedFooter([interaction.user.tag]),
-        iconURL:
-          interaction.user.avatarURL() || getEmojiURL(emojis.MOCHI_CIRCLE),
-      })
-      .setColor(msgColors.SUCCESS)
-      .setTimestamp(new Date())
-
-    // clear cache to get new data
-    CacheManager.findAndRemove("profile-data", interaction.user.id)
-
-    await interaction.editReply({ embeds: [embed] }).catch(() => null)
-    return
-  }
-
-  throw new APIError({
-    curl: res.curl,
-    description: res.log,
-  })
 }

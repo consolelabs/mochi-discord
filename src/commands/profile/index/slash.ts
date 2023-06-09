@@ -1,7 +1,12 @@
 import { CommandInteraction, GuildMember, Message } from "discord.js"
 import { InternalError } from "errors"
 import { MachineConfig, route } from "utils/router"
-import { render } from "./processor"
+import {
+  render,
+  sendBinanceManualMessage,
+  showModalBinanceKeys,
+  submitBinanceKeys,
+} from "./processor"
 import { machineConfig as watchListMachineConfig } from "commands/watchlist/view/slash"
 import { machineConfig as qrCodeMachineConfig } from "commands/qr/index/slash"
 import { machineConfig as earnMachineConfig } from "commands/earn/index"
@@ -12,6 +17,10 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
   context: {
     button: {
       profile: async (i) => ({ msgOpts: await render(i, member) }),
+    },
+    // indicates this action to result in ephemeral response
+    ephemeral: {
+      CONNECT_BINANCE: true,
     },
   },
   states: {
@@ -31,6 +40,12 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
         VIEW_QUESTS: "earn",
         VIEW_ADD_WALLET: "addWallet",
         VIEW_QR_CODES: "qrCodes",
+        CONNECT_BINANCE: {
+          type: "profile",
+          actions: {
+            type: "showBinanceManualMessage",
+          },
+        },
       },
     },
     qrCodes: {
@@ -82,6 +97,44 @@ const run = async (interaction: CommandInteraction) => {
   const reply = (await interaction.editReply(msgOpts)) as Message
 
   route(reply, interaction.user, machineConfig(member), {
+    actions: {
+      showBinanceManualMessage: async (_, event) => {
+        if (
+          !event.interaction ||
+          !event.interaction.isButton() ||
+          event.interaction.customId !== "connect_binance"
+        )
+          return
+
+        const reply = (await sendBinanceManualMessage(
+          event.interaction
+        )) as Message
+
+        route(reply, event.interaction.user, {
+          id: "binance",
+          initial: "binance",
+          context: {
+            ephemeral: {
+              ENTER_KEY: true,
+            },
+            modal: {
+              ENTER_KEY: true,
+            },
+            button: {
+              binance: async (i) =>
+                submitBinanceKeys(i, await showModalBinanceKeys(i)),
+            },
+          },
+          states: {
+            binance: {
+              on: {
+                ENTER_KEY: "binance",
+              },
+            },
+          },
+        })
+      },
+    },
     guards: {
       isWallet: (_ctx, ev) => {
         return ev.interaction?.values[0].startsWith("wallet")

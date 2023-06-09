@@ -191,6 +191,7 @@ export const tokenEmojis = {
   UNIDX: "1113120144793800754",
   KAI: "1113120080151199824",
   PENDLE: "1113120112485085315",
+  BINANCE: "1116727169654206595",
 }
 
 export const numberEmojis = {
@@ -483,6 +484,8 @@ export const thumbnails = {
     "https://cdn.discordapp.com/attachments/984660970624409630/1095615053434212362/Mochi_Pose_4.png",
   MOCHI_POSE_11:
     "https://cdn.discordapp.com/attachments/1003535223973224478/1115944536879939724/Mochi_Pose_11.png",
+  MOCHI_POSE_12:
+    "https://cdn.discordapp.com/attachments/1052079279619457095/1116938833888555048/Mochi_Pose_12.png",
   MOCHI_POSE_14:
     "https://cdn.discordapp.com/attachments/984660970624409630/1098472181631045742/Mochi_Pose_14.png",
   ROCKET:
