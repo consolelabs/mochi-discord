@@ -34,7 +34,9 @@ class Profile extends Fetcher {
 
     const socials = await Promise.all(
       dataProfile.associated_accounts
-        .filter((a: any) => ["twitter", "telegram"].includes(a.platform))
+        .filter((a: any) =>
+          ["twitter", "telegram", "binance"].includes(a.platform)
+        )
         .map(async (a: any) => {
           if (a.platform === "telegram") {
             const res = await mochiTelegram.getById(a.platform_identifier)
@@ -59,8 +61,10 @@ class Profile extends Fetcher {
       logger.error("Cannot get profile by discord id", discordId)
       return {
         onchainTotal: 0,
+        dexTotal: 0,
         mochiWallets: [],
         wallets: [],
+        dexs: [],
       }
     }
 
@@ -124,10 +128,34 @@ class Profile extends Fetcher {
         }) ?? []
     )
 
+    let dexTotal = 0
+    const dexs = removeDuplications(
+      dataProfile.associated_accounts
+        ?.filter((a: any) => ["binance"].includes(a.platform))
+        .sort((a: any, b: any) => {
+          return (b.total_amount || 0) - (a.total_amount || 0)
+        })
+        ?.map((w: any) => {
+          const bal = Number(w.total_amount || 0)
+          dexTotal += bal
+
+          return {
+            value: w.platform_metadata?.username || w.platform_identifier,
+            chain: w.platform,
+            total: formatDigit({
+              value: bal.toString(),
+              fractionDigits: 2,
+            }),
+          }
+        }) ?? []
+    )
+
     return {
       onchainTotal,
+      dexTotal,
       mochiWallets,
       wallets,
+      dexs,
       pnl,
     }
   }
@@ -166,6 +194,17 @@ class Profile extends Fetcher {
         },
       }
     )
+  }
+
+  public async submitBinanceKeys(body: {
+    discordUserId: string
+    apiSecret: string
+    apiKey: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/api-key/binance`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    })
   }
 
   public async getUserNFTCollection(params: {

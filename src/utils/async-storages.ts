@@ -3,6 +3,7 @@ import {
   CommandInteraction,
   Message,
   MessageComponentInteraction,
+  ModalSubmitInteraction,
 } from "discord.js"
 import { AsyncLocalStorage } from "node:async_hooks"
 
@@ -10,6 +11,7 @@ type Storage = {
   msgOrInteraction?:
     | Message
     | CommandInteraction
+    | ModalSubmitInteraction
     | MessageComponentInteraction
     | AutocompleteInteraction
   data: string
