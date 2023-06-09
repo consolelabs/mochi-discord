@@ -7,7 +7,7 @@ import community from "adapters/community"
 import { getSlashCommand } from "utils/commands"
 import { ResponseGetWatchlistResponse } from "types/api"
 import { formatDigit } from "utils/defi"
-import { APPROX, VERTICAL_BAR } from "utils/constants"
+import { VERTICAL_BAR } from "utils/constants"
 import { groupBy } from "lodash"
 import { renderChart } from "./chart"
 
@@ -279,11 +279,11 @@ export async function composeWatchlist(
             }),
             {
               cols: ["symbol", "usd", "priceChange"],
-              separator: [VERTICAL_BAR, ` ${APPROX} `],
+              separator: [VERTICAL_BAR, VERTICAL_BAR],
               rowAfterFormatter: (f, i) =>
                 `${getEmojiToken(
                   (tokenData[i].symbol ?? "") as TokenEmojiKey
-                )} ${f}${getEmoji(
+                )}${f}${getEmoji(
                   (tokenData[i].price_change_percentage_24h ?? 0) < 0
                     ? "ARROW_DOWN"
                     : "ARROW_UP"

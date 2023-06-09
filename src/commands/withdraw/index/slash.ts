@@ -8,7 +8,6 @@ import {
 import { TokenEmojiKey } from "utils/common"
 import { MachineConfig, route } from "utils/router"
 import {
-  confirm,
   executeWithdraw,
   withdrawStep1,
   withdrawStep2,
@@ -24,7 +23,6 @@ const machineConfig: (
   context: {
     ...overrideCtx,
     button: {
-      confirm: (i, _ev, ctx) => Promise.resolve(confirm(i, ctx as any)),
       withdrawStep2: async (i, ev, ctx) => {
         if (ev === "ENTER_AMOUNT") {
           const modal = new Modal()
@@ -85,10 +83,12 @@ const machineConfig: (
         }
         return withdrawStep3(i, { ...ctx, address })
       },
-      submit: (i) => executeWithdraw(i),
+      submit: (i, _ev, ctx) => executeWithdraw(i, ctx),
       cancel: () => Promise.resolve({ msgOpts: null }),
     },
     select: {
+      withdrawStep3: (i, _ev, ctx) =>
+        withdrawStep3(i, { ...ctx, address: i.values[0] }),
       withdrawStep2: (i, _ev, ctx) =>
         withdrawStep2(i, { ...ctx, token: i.values[0] as TokenEmojiKey }),
     },
@@ -98,12 +98,6 @@ const machineConfig: (
     },
   },
   states: {
-    confirm: {
-      on: {
-        SUBMIT: "submit",
-        CANCEL: "cancel",
-      },
-    },
     withdrawStep1: {
       on: {
         SELECT_TOKEN: "withdrawStep2",
@@ -123,8 +117,9 @@ const machineConfig: (
     },
     withdrawStep3: {
       on: {
+        SELECT_ADDRESS: "withdrawStep3",
         ENTER_ADDRESS: "withdrawStep3",
-        CONTINUE: "confirm",
+        SUBMIT: "submit",
         CANCEL: "cancel",
       },
     },
@@ -143,11 +138,6 @@ const run = async (interaction: CommandInteraction) => {
   const token = interaction.options
     .getString("token", false)
     ?.toUpperCase() as TokenEmojiKey
-
-  // const checkDM = composeEmbedMessage(null, {
-  //   author: ["Withdraw tokens", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-  //   description: `${interaction.user}, a withdrawal message has been sent to you. Check your DM!`,
-  // })
 
   let msgOpts
   let overrideInitialState
@@ -168,8 +158,6 @@ const run = async (interaction: CommandInteraction) => {
       token
     ))
   }
-
-  // const reply = await interaction.user.send(msgOpts)
 
   const reply = (await interaction.followUp({
     ephemeral: true,
