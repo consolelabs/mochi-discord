@@ -73,26 +73,28 @@ export async function airdropDetail(i: SelectMenuInteraction) {
   })
 
   return {
-    embeds: [embed],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageButton()
-          .setStyle("SECONDARY")
-          .setLabel("Done")
-          .setEmoji(getEmoji("CHECK"))
-          .setCustomId("mark_done"),
-        new MessageButton()
-          .setStyle("SECONDARY")
-          .setLabel("Skip")
-          .setEmoji(getEmoji("NEXT_PAGE"))
-          .setCustomId("mark_skip"),
-        new MessageButton()
-          .setStyle("SECONDARY")
-          .setLabel("Favorite")
-          .setEmoji(getEmoji("ANIMATED_STAR"))
-          .setCustomId("mark_favoriate")
-      ),
-    ],
+    msgOpts: {
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setLabel("Done")
+            .setEmoji(getEmoji("CHECK"))
+            .setCustomId("mark_done"),
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setLabel("Skip")
+            .setEmoji(getEmoji("NEXT_PAGE"))
+            .setCustomId("mark_skip"),
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setLabel("Favorite")
+            .setEmoji(getEmoji("ANIMATED_STAR"))
+            .setCustomId("mark_favoriate")
+        ),
+      ],
+    },
   }
 }
 
@@ -133,21 +135,27 @@ export async function run(
   })
 
   return {
-    embeds: [embed],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageSelectMenu()
-          .setPlaceholder(`📦 View airdrop detail`)
-          .setCustomId(`view_airdrop_detail/${status}`)
-          .addOptions(
-            DATA.map((data, i) => ({
-              emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-              label: data.title,
-              value: data.id.toString(),
-            }))
-          )
-      ),
-      ...paginationButtons(`page/${status}`, page, paginated.length),
-    ],
+    msgOpts: {
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageSelectMenu()
+            .setPlaceholder(`📦 View airdrop detail`)
+            .setCustomId("view_airdrop_detail")
+            .addOptions(
+              DATA.map((data, i) => ({
+                emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+                label: data.title,
+                value: data.id.toString(),
+              }))
+            )
+        ),
+        ...paginationButtons(page, paginated.length),
+      ],
+    },
+    context: {
+      status,
+      page,
+    },
   }
 }

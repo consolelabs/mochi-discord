@@ -71,7 +71,7 @@ ${pointingright} Click \`Watchlist\` to view all tracked wallets.
       .setCustomId(`view_wallet`)
       .setEmoji(emojis.PROPOSAL)
   )
-  return { messageOptions: { embeds: [embed], components: [btnRow] } }
+  return { msgOpts: { embeds: [embed], components: [btnRow] } }
 }
 
 export async function removeWallet(i: ButtonInteraction) {
@@ -83,7 +83,7 @@ export async function removeWallet(i: ButtonInteraction) {
   }
   const response = await untrackWallet(i, i.user, address)
   const msg = i.message as Message
-  await msg.edit(response.messageOptions)
+  await msg.edit(response.msgOpts)
 }
 
 export async function removeWalletConfirmation(i: ButtonInteraction) {

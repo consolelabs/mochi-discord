@@ -11,7 +11,7 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
   initial: "profile",
   context: {
     button: {
-      profile: (i) => render(i, member),
+      profile: async (i) => ({ msgOpts: await render(i, member) }),
     },
   },
   states: {
@@ -81,6 +81,15 @@ const run = async (interaction: CommandInteraction) => {
   const msgOpts = await render(interaction, member)
   const reply = (await interaction.editReply(msgOpts)) as Message
 
-  route(reply, interaction.user, machineConfig(member))
+  route(reply, interaction.user, machineConfig(member), {
+    guards: {
+      isWallet: (_ctx, ev) => {
+        return ev.interaction?.values[0].startsWith("wallet")
+      },
+      isVault: (_ctx, ev) => {
+        return ev.interaction?.values[0].startsWith("vault")
+      },
+    },
+  })
 }
 export default run

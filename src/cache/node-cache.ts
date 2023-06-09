@@ -13,7 +13,7 @@ export class CacheManager {
     checkperiod?: number
   }) {
     const cache = this.cachePools.get(pool)
-    if (cache) return
+    if (cache) return cache
     const newCache = new NodeCache({
       stdTTL: ttl,
       checkperiod,

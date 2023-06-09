@@ -64,7 +64,7 @@ export async function renderChartImage({
       borderColor: colorConfig.borderColor,
     },
   }
-  return chartCanvas.renderToBuffer({
+  return await chartCanvas.renderToBuffer({
     type: "line",
     data: {
       labels,

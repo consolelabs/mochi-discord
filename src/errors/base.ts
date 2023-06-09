@@ -81,7 +81,7 @@ export class BotBaseError extends Error {
           command = message.toString()
         } else {
           const msg = message.message as Message
-          if (msg.type === "DEFAULT") {
+          if (msg.type === "DEFAULT" && msg.reference) {
             this.reference = msg.fetchReference()
           }
           if (

@@ -30,7 +30,7 @@ const command: SlashCommand = {
     const status =
       interaction.options.getString("status", false) ??
       AirdropCampaignStatus.New
-    const msgOpts = await run(
+    const { msgOpts } = await run(
       interaction.user.id,
       status as AirdropCampaignStatus
     )

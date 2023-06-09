@@ -195,30 +195,35 @@ async function compose(user: User, page: number) {
   })
 
   return {
-    embeds: [embed],
-    files: [],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageSelectMenu()
-          .setPlaceholder("🎫 View one")
-          .setCustomId("view_qr")
-          .addOptions(
-            data.map((d) => ({
-              emoji: mapEmoji(d),
-              label: `${d.type} ${d.content}`,
-              value: d.id,
-            }))
-          )
-      ),
-      new MessageActionRow().addComponents(
-        new MessageButton()
-          .setLabel("New QR")
-          .setStyle("SECONDARY")
-          .setEmoji(getEmoji("QRCODE"))
-          .setCustomId("new_qr")
-      ),
-      ...paginationButtons("page", page, paginated.length),
-    ],
+    msgOpts: {
+      embeds: [embed],
+      files: [],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageSelectMenu()
+            .setPlaceholder("🎫 View one")
+            .setCustomId("view_qr")
+            .addOptions(
+              data.map((d) => ({
+                emoji: mapEmoji(d),
+                label: `${d.type} ${d.content}`,
+                value: d.id,
+              }))
+            )
+        ),
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("New QR")
+            .setStyle("SECONDARY")
+            .setEmoji(getEmoji("QRCODE"))
+            .setCustomId("new_qr")
+        ),
+        ...paginationButtons(page, paginated.length),
+      ],
+    },
+    context: {
+      page,
+    },
   }
 }
 
@@ -357,13 +362,16 @@ export async function viewQR(i: SelectMenuInteraction) {
     width: 400,
   })
   const data = await get(i.user.id, selectedQRCode)
-  if (!data) return {}
+  if (!data)
+    return {
+      msgOpts: {},
+    }
   const {
     author: embedAuthor,
     description,
     fields = [],
   } = formatContent(category, type, qrCodeValue, data)
-  const messageOptions = {
+  const msgOpts = {
     embeds: [
       composeEmbedMessage(null, {
         author: embedAuthor,
@@ -389,7 +397,9 @@ export async function viewQR(i: SelectMenuInteraction) {
     ],
   }
 
-  return messageOptions
+  return {
+    msgOpts,
+  }
 }
 
 function buildQueryUrl(d: {
