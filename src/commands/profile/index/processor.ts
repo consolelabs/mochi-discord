@@ -566,6 +566,9 @@ export async function submitBinanceKeys(interaction: ModalSubmitInteraction) {
       .setColor(msgColors.SUCCESS)
       .setTimestamp(new Date())
 
+    // clear cache to get new data
+    CacheManager.findAndRemove("profile-data", interaction.user.id)
+
     await interaction.editReply({ embeds: [embed] }).catch(() => null)
     return
   }
