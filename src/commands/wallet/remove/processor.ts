@@ -56,16 +56,20 @@ export async function untrackWallet(
   }
   // remove successfully
   const embed = getSuccessEmbed({
-    title: "Successfully untrack the wallet address",
-    description: `This wallet's balance won't be tracked anymore.\n${pointingright} You can track more wallet address by using \`$wallet add <address> [alias]\``,
+    title: "Successfully remove wallet from watchlist",
+    description: `
+${pointingright} To follow other wallets, user \`/wallet follow\`.
+${pointingright} To track other wallets, use \`/wallet track\`.
+${pointingright} To copy trade, use \`/wallet copy\`.
+${pointingright} Click \`Watchlist\` to view all tracked wallets.
+    `,
   })
   const btnRow = new MessageActionRow().addComponents(
-    new MessageButton({
-      customId: `wallet_add_more-${author.id}`,
-      emoji: getEmoji("PLUS"),
-      style: "SECONDARY",
-      label: "Add More",
-    })
+    new MessageButton()
+      .setLabel("Watchlist")
+      .setStyle("PRIMARY")
+      .setCustomId(`view_wallet`)
+      .setEmoji(emojis.PROPOSAL)
   )
   return { messageOptions: { embeds: [embed], components: [btnRow] } }
 }
