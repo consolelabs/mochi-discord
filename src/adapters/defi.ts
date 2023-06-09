@@ -333,6 +333,12 @@ class Defi extends Fetcher {
   async getDexTxns(userId: string, platform: string) {
     // TODO: remove after we support another dex
     platform = "binance"
+
+    // TODO: implement later
+    return {
+      ok: true,
+    }
+
     return await this.jsonFetch(
       `${API_BASE_URL}/users/${userId}/dexs/${platform}/transactions`
     )

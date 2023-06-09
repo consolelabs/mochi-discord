@@ -113,7 +113,7 @@ const balanceEmbedProps: Record<
   // TODO
   [BalanceType.Dex]: async () => ({
     address: "",
-    title: "Mochi wallet",
+    title: "Binance Data",
     emoji: getEmojiURL(emojis.NFT2),
     description: ``,
   }),
@@ -163,7 +163,7 @@ export async function getBalances(
     pnl = res.data.pnl
   }
   if (type === BalanceType.Dex) {
-    data = res.data.balance.filter((i: any) => Boolean(i))
+    data = res.data.filter((i: any) => Boolean(i))
     pnl = 0
   }
 
@@ -198,6 +198,10 @@ async function getTxns(
   address: string,
   addressType: string
 ) {
+  // TODO: implement later
+  if (type === BalanceType.Dex) {
+    return []
+  }
   const fetcher = txnsFetcher[type]
   const res = await fetcher(profileId, discordId, address, addressType, "")
   if (!res.ok) {
@@ -208,7 +212,7 @@ async function getTxns(
     })
   }
 
-  if (type === 1) {
+  if (type === BalanceType.Offchain) {
     const data = res.data
     const sort = (a: any, b: any) => {
       const timeA = new Date(a.created_at).getTime()
@@ -260,7 +264,8 @@ async function getTxns(
         token: tx.token?.symbol?.toUpperCase() ?? "",
       })),
     ].slice(0, 5)
-  } else {
+  }
+  if (type === BalanceType.Onchain) {
     return (res.data ?? [])
       .filter(
         (d: any) =>
@@ -296,6 +301,8 @@ async function getTxns(
       .filter(Boolean)
       .slice(0, 5)
   }
+
+  return []
 }
 
 export async function handleInteraction(i: ButtonInteraction) {
@@ -583,6 +590,32 @@ async function switchView(
             }),
           },
         ],
+      },
+    })
+    embed.spliceFields(1, 0, {
+      name: "Wallet",
+      value: value + preventEmptyVal,
+      inline: false,
+    })
+  }
+  if (balanceType === BalanceType.Dex) {
+    const value = await renderWallets({
+      mochiWallets: {
+        data: [],
+      },
+      dexs: {
+        data: [
+          {
+            chain: "Binance Assets",
+            total: formatDigit({
+              value: totalWorth.toString(),
+              fractionDigits: 2,
+            }),
+          },
+        ],
+      },
+      wallets: {
+        data: [],
       },
     })
     embed.spliceFields(1, 0, {

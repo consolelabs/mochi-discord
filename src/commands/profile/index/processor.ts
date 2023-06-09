@@ -58,7 +58,10 @@ async function renderListWallet(
 ) {
   if (!wallets.length) return ""
   const domains = await Promise.all(
-    wallets.map(async (w) => await reverseLookup(w.value))
+    wallets.map(async (w) => {
+      if (!w.value) return ""
+      return await reverseLookup(w.value)
+    })
   )
 
   return `${emoji}${title}\n${
