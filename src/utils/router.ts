@@ -138,6 +138,13 @@ const builtinSelectHandlers: SelectContext = {
         )
       ).messageOptions,
     }
+    let fetcherType = BalanceType.Offchain
+    if (type.startsWith("mochi")) fetcherType = BalanceType.Offchain
+    if (type.startsWith("wallet")) fetcherType = BalanceType.Onchain
+    if (type.startsWith("dex")) fetcherType = BalanceType.Dex
+
+    return (await renderBalances(i.user.id, i, fetcherType, address))
+      .messageOptions
   },
   vault: async (i) => ({
     msgOpts: (await runGetVaultDetail(i.values[0].split("_")[1], i))

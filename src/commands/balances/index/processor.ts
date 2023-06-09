@@ -31,6 +31,7 @@ import { getProfileIdByDiscord } from "../../../utils/profile"
 export enum BalanceType {
   Offchain = 1,
   Onchain,
+  Dex,
 }
 
 const balanceEmbedProps: Record<
@@ -109,6 +110,13 @@ const balanceEmbedProps: Record<
       )} You can send tokens to other using ${await getSlashCommand("tip")}.`,
     }
   },
+  // TODO
+  [BalanceType.Dex]: async () => ({
+    address: "",
+    title: "Mochi wallet",
+    emoji: getEmojiURL(emojis.NFT2),
+    description: ``,
+  }),
 }
 
 const balancesFetcher: Record<
@@ -117,12 +125,15 @@ const balancesFetcher: Record<
     profileId: string,
     discordId: string,
     address: string,
-    type: string
+    type: string,
+    platform: string
   ) => Promise<any>
 > = {
   [BalanceType.Offchain]: (profileId) => mochiPay.getBalances({ profileId }),
   [BalanceType.Onchain]: (_, discordId, address, type) =>
     defi.getWalletAssets(discordId, address, type),
+  [BalanceType.Dex]: (profileId, platform) =>
+    defi.getDexAssets({ profileId: profileId, platform: platform }),
 }
 
 export async function getBalances(
@@ -134,7 +145,7 @@ export async function getBalances(
   addressType: string
 ) {
   const fetcher = balancesFetcher[type]
-  const res = await fetcher(profileId, discordId, address, addressType)
+  const res = await fetcher(profileId, discordId, address, addressType, "")
   if (!res.ok) {
     throw new APIError({
       msgOrInteraction: msg,
@@ -143,12 +154,17 @@ export async function getBalances(
     })
   }
   let data, pnl
-  if (type === 1) {
+  if (type === BalanceType.Offchain) {
     data = res.data.filter((i: any) => Boolean(i))
     pnl = 0
-  } else {
+  }
+  if (type === BalanceType.Onchain) {
     data = res.data.balance.filter((i: any) => Boolean(i))
     pnl = res.data.pnl
+  }
+  if (type === BalanceType.Dex) {
+    data = res.data.balance.filter((i: any) => Boolean(i))
+    pnl = 0
   }
 
   return {
@@ -163,12 +179,15 @@ const txnsFetcher: Record<
     profileId: string,
     discordId: string,
     address: string,
-    type: string
+    type: string,
+    platform: string
   ) => Promise<any>
 > = {
   [BalanceType.Offchain]: (profile_id) => mochiPay.getListTx({ profile_id }),
   [BalanceType.Onchain]: (_, discordId, address, type) =>
     defi.getWalletTxns(discordId, address, type),
+  [BalanceType.Dex]: (profile_id, platform) =>
+    defi.getDexTxns(profile_id, platform),
 }
 
 async function getTxns(
@@ -180,7 +199,7 @@ async function getTxns(
   addressType: string
 ) {
   const fetcher = txnsFetcher[type]
-  const res = await fetcher(profileId, discordId, address, addressType)
+  const res = await fetcher(profileId, discordId, address, addressType, "")
   if (!res.ok) {
     throw new APIError({
       msgOrInteraction: msg,
