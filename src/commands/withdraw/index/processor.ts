@@ -74,24 +74,13 @@ async function getBalances(
 }
 
 function checkCommitableOperation(
-  balances: any[],
+  tokenAmount: string,
   amount: string,
-  symbol: string
+  token: any
 ) {
-  const tokens = balances.filter((b: any) =>
-    equalIgnoreCase(b.token.symbol, symbol)
-  )
+  const tokenDecimal = token.decimal ?? 0
 
-  if (!tokens) return { valid: false, error: "No token found" }
-  if (tokens.length > 1)
-    return { valid: false, error: "Duplicate symbols found" }
-
-  const [token] = tokens
-
-  const tokenAmount = token.amount ?? 0
-  const tokenDecimal = token.token.decimal ?? 0
-
-  const parsedAmount = parseFloat(amount)
+  const parsedAmount = Number(amount)
   if (!isValidAmount({ arg: amount, exceptions: ["all"] })) {
     return { valid: false, error: "The amount is invalid" }
   } else if (
@@ -102,7 +91,7 @@ function checkCommitableOperation(
   } else if (parsedAmount > 0 && !isValidTipAmount(amount, tokenDecimal)) {
     return {
       valid: false,
-      error: `${token.token.symbol} valid amount must not have more than ${tokenDecimal} fractional digits.`,
+      error: `${token.symbol} valid amount must not have more than ${tokenDecimal} fractional digits.`,
     }
   }
 
@@ -139,7 +128,7 @@ function renderPreview(params: {
           params.token as TokenEmojiKey
         )} **${formatDigit({
           value: params.amount,
-          fractionDigits: 0,
+          fractionDigits: Number(params.amount) >= 1 ? 0 : undefined,
         })} ${params.token}**`,
       params.fee &&
         params.token &&
@@ -204,6 +193,7 @@ export async function withdrawStep3(
     (b) => !params.token || equalIgnoreCase(b.token.symbol, params.token)
   )
 
+  // straight from command
   if (interaction.isCommand() && filteredBals.length > 1) {
     const { msgOpts } = await withdrawStep1(interaction, params.token)
 
@@ -213,7 +203,9 @@ export async function withdrawStep3(
       msgOpts,
     }
   }
-  const [tokenObj] = filteredBals
+
+  let tokenObj = params.tokenObj
+  tokenObj ??= filteredBals.at(0)
 
   if (!tokenObj) {
     return {
@@ -233,9 +225,9 @@ export async function withdrawStep3(
   }
 
   const { valid, error } = checkCommitableOperation(
-    balances,
+    tokenObj.amount,
     params.amount ?? "0",
-    tokenObj.token.symbol ?? ""
+    tokenObj.token
   )
   if (error) {
     const { msgOpts } = await withdrawStep2(interaction, {
@@ -294,7 +286,7 @@ export async function withdrawStep3(
       address: params.address,
       token: tokenObj.token.symbol,
       amount: params.amount,
-      network: params.tokenObj.token.chain.name,
+      network: tokenObj.token.chain.name,
     })
   )
 
@@ -363,29 +355,30 @@ export async function withdrawStep2(
     params.amount?.startsWith("%") ||
     params.amount?.toLowerCase() === "all"
   ) {
-    amount = formatDigit({
-      value: utils.formatUnits(
-        getPercentage(
-          params.amount?.toLowerCase() === "all"
-            ? 100
-            : Number(params.amount.slice(1))
-        ),
-        tokenDecimal
+    const formatted = utils.formatUnits(
+      getPercentage(
+        params.amount?.toLowerCase() === "all"
+          ? 100
+          : Number(params.amount.slice(1))
       ),
-      fractionDigits: 0,
+      tokenDecimal
+    )
+    amount = formatDigit({
+      value: formatted,
+      fractionDigits: Number(formatted) >= 1 ? 0 : undefined,
     })
   } else {
     let valid
     ;({ valid, error } = checkCommitableOperation(
-      balances,
+      tokenObj.amount,
       params.amount ?? "0",
-      tokenObj.token.symbol ?? ""
+      tokenObj.token
     ))
 
     if (valid) {
       amount = formatDigit({
         value: params.amount ?? "0",
-        fractionDigits: 0,
+        fractionDigits: Number(params.amount) >= 1 ? 0 : undefined,
       })
     }
   }
@@ -407,6 +400,7 @@ export async function withdrawStep2(
     description: isNotEmpty ? text : emptyText,
   }).addFields(
     renderPreview({
+      network: tokenObj.token.chain.name,
       token: tokenObj.token.symbol,
       amount: String(error ? 0 : amount),
     })
