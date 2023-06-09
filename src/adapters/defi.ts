@@ -310,9 +310,37 @@ class Defi extends Fetcher {
     )
   }
 
+  async getDexAssets({
+    profileId,
+    platform,
+  }: {
+    profileId: string
+    platform: string
+  }) {
+    // TODO: remove after we support another dex
+    platform = "binance"
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${profileId}/dexs/${platform}/assets`
+    )
+  }
+
   async getWalletTxns(userId: string, address: string, type: string) {
     return await this.jsonFetch(
       `${API_BASE_URL}/users/${userId}/wallets/${address}/${type}/txns`
+    )
+  }
+
+  async getDexTxns(userId: string, platform: string) {
+    // TODO: remove after we support another dex
+    platform = "binance"
+
+    // TODO: implement later
+    return {
+      ok: true,
+    }
+
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${userId}/dexs/${platform}/transactions`
     )
   }
 

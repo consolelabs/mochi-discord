@@ -127,16 +127,14 @@ const builtinButtonHandlers: ButtonContext = {
 const builtinSelectHandlers: SelectContext = {
   wallet: async (i) => {
     const [, type, address = ""] = i.values[0].split("_")
-    const isMochi = type.startsWith("mochi")
+    let fetcherType = BalanceType.Offchain
+    if (type.startsWith("mochi")) fetcherType = BalanceType.Offchain
+    if (type.startsWith("wallet")) fetcherType = BalanceType.Onchain
+    if (type.startsWith("dex")) fetcherType = BalanceType.Dex
+
     return {
-      msgOpts: (
-        await renderBalances(
-          i.user.id,
-          i,
-          isMochi ? BalanceType.Offchain : BalanceType.Onchain,
-          address
-        )
-      ).messageOptions,
+      msgOpts: (await renderBalances(i.user.id, i, fetcherType, address))
+        .messageOptions,
     }
   },
   vault: async (i) => ({
