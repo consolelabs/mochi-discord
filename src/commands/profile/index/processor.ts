@@ -225,6 +225,11 @@ async function compose(
         ]
       : []),
   ])
+
+  const notLinkedPlatforms = ["twitter", "telegram", "binance"].filter((s) =>
+    socials.every((connectedSocial) => connectedSocial.platform !== s)
+  )
+
   return {
     embeds: [embed],
     components: [
@@ -298,24 +303,24 @@ async function compose(
           .setEmoji(getEmoji("ANIMATED_STAR", true))
           .setCustomId("view_watchlist"),
         new MessageButton()
-          .setLabel(`Connect Wallet`)
-          .setEmoji(getEmoji("WALLET_1"))
+          .setLabel(`Wallet`)
+          .setEmoji(getEmoji("PLUS"))
           .setStyle("SECONDARY")
           .setCustomId("view_add_wallet")
       ),
-      new MessageActionRow().addComponents(
-        ...["twitter", "telegram", "binance"]
-          .filter((s) =>
-            socials.every((connectedSocial) => connectedSocial.platform !== s)
-          )
-          .map((s) =>
-            new MessageButton()
-              .setLabel(`Connect ${capitalizeFirst(s)}`)
-              .setStyle("SECONDARY")
-              .setEmoji(getEmoji(s.toUpperCase() as EmojiKey))
-              .setCustomId(`profile_connect-${s}`)
-          )
-      ),
+      ...(notLinkedPlatforms.length
+        ? [
+            new MessageActionRow().addComponents(
+              ...notLinkedPlatforms.map((s) =>
+                new MessageButton()
+                  .setLabel(`Connect ${capitalizeFirst(s)}`)
+                  .setStyle("SECONDARY")
+                  .setEmoji(getEmoji(s.toUpperCase() as EmojiKey))
+                  .setCustomId(`profile_connect-${s}`)
+              )
+            ),
+          ]
+        : []),
     ],
   }
 }
