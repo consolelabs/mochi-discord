@@ -115,6 +115,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   watchlist: watchlist.slashCmd,
   // alias
   wlv: watchlistView,
+  wlc: watchlistView,
   defaultrole: defaultrole.slashCmd,
   levelrole: levelrole.slashCmd,
   reactionrole: reactionrole.slashCmd,

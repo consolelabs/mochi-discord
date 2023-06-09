@@ -10,7 +10,8 @@ export const machineConfig: MachineConfig = {
       on: {
         VIEW_QR: "qr",
         // transition to self (for implementing pagination)
-        PAGE: "qrCodes",
+        PREV_PAGE: "qrCodes",
+        NEXT_PAGE: "qrCodes",
       },
     },
     qr: {
@@ -22,12 +23,12 @@ export const machineConfig: MachineConfig = {
 }
 
 const run = async (interaction: CommandInteraction) => {
-  const replyPayload = await render(
+  const { msgOpts } = await render(
     interaction,
     interaction.member as GuildMember
   )
 
-  const reply = (await interaction.editReply(replyPayload)) as Message
+  const reply = (await interaction.editReply(msgOpts)) as Message
 
   route(reply, interaction.user, machineConfig)
 }

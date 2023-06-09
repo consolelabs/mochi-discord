@@ -17,7 +17,9 @@ export const machineConfig: MachineConfig = {
       on: {
         VIEW_AIRDROP_DETAIL: "airdrop",
         VIEW_QUEST: "quests",
-        PAGE: "airdrops",
+        // special, reserved event name
+        NEXT_PAGE: "airdrops",
+        PREV_PAGE: "airdrops",
       },
     },
     airdrop: {

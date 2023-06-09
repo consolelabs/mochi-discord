@@ -13,7 +13,6 @@ import {
   SelectMenuInteraction,
   User,
 } from "discord.js"
-import { RunResult } from "types/common"
 import {
   BaseActionObject,
   createMachine,
@@ -35,11 +34,23 @@ import { trackWallet } from "commands/wallet/track/processor"
 import { followWallet } from "commands/wallet/follow/processor"
 import { copyWallet } from "commands/wallet/copy/processor"
 import { untrackWallet } from "commands/wallet/remove/processor"
+import CacheManager from "cache/node-cache"
+
+const routerCache = CacheManager.init({
+  pool: "router-store",
+  ttl: 0,
+  checkperiod: 0,
+})
 
 type Handler<P = any> = (
   params: P,
-  ...rest: any[]
-) => Promise<RunResult<MessageEditOptions>["messageOptions"]>
+  event: string,
+  context: Record<any, any>,
+  isModal: boolean
+) => Promise<{
+  msgOpts: MessageEditOptions | null
+  context?: Record<any, any>
+}>
 
 type ButtonContext = {
   [K: string]: Handler<ButtonInteraction>
@@ -53,11 +64,14 @@ type Context = {
   button?: ButtonContext
   select?: SelectContext
   steps?: string[]
+  modal?: Record<string, true>
+  ephemeral?: Record<string, true>
+  [K: string]: any
 }
 
 type CreateMachineParams = Parameters<typeof createMachine<Context, any, any>>
 
-export type MachineConfig = CreateMachineParams[0]
+export type MachineConfig = CreateMachineParams[0] & { id: string }
 
 function removeAllComponents(reply: Message) {
   wrapError(reply, async () => {
@@ -79,49 +93,61 @@ function decorateWithActions(
   }
 }
 
+const target = {
+  PREV_PAGE: -1,
+  NEXT_PAGE: 1,
+}
+
+const PAGE_MAP = new Proxy<Record<string, number>>(target, {
+  get(_, prop) {
+    if (prop === "PREV_PAGE") return -1
+    if (prop === "NEXT_PAGE") return 1
+    return 0
+  },
+})
+
 const builtinButtonHandlers: ButtonContext = {
   watchlist: (i) => composeWatchlist(i.user, 0),
   watchlistNft: (i) => composeWatchlist(i.user, 0, WatchListViewType.Nft),
   wallets: (i) => renderTrackingWallets(i.user),
   addWallet: (i) => handleWalletAddition(i),
-  qrCodes: (i, page) =>
-    renderQr(i, i.member as GuildMember, page ? Number(page) : undefined),
-  airdrops: (i, status, page) =>
-    renderAirdrops(i.user.id, status, page ? Number(page) : undefined),
-  walletFollow: (i, address, chain, alias) =>
-    followWallet(i, i.user, address, chain, alias),
-  walletTrack: (i, address, chain, alias) =>
-    trackWallet(i, i.user, address, chain, alias),
-  walletCopy: (i, address, chain, alias) =>
-    copyWallet(i, i.user, address, chain, alias),
-  walletUntrack: async (i, address) => {
-    const { messageOptions } = await untrackWallet(i, i.user, address)
-    return messageOptions
-  },
+  walletFollow: (i, _ev, ctx) =>
+    followWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
+  walletTrack: (i, _ev, ctx) =>
+    trackWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
+  walletCopy: (i, _ev, ctx) =>
+    copyWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
+  walletUntrack: (i, _ev, ctx) => untrackWallet(i, i.user, ctx.address),
+  qrCodes: (i, ev, ctx) =>
+    renderQr(i, i.member as GuildMember, Number(ctx.page ?? 0) + PAGE_MAP[ev]),
+  airdrops: (i, ev, ctx) =>
+    renderAirdrops(i.user.id, ctx.status, Number(ctx.page ?? 0) + PAGE_MAP[ev]),
 }
 
 const builtinSelectHandlers: SelectContext = {
   wallet: async (i) => {
     const [, type, address = ""] = i.values[0].split("_")
     const isMochi = type.startsWith("mochi")
-    return (
-      await renderBalances(
-        i.user.id,
-        i,
-        isMochi ? BalanceType.Offchain : BalanceType.Onchain,
-        address
-      )
-    ).messageOptions
+    return {
+      msgOpts: (
+        await renderBalances(
+          i.user.id,
+          i,
+          isMochi ? BalanceType.Offchain : BalanceType.Onchain,
+          address
+        )
+      ).messageOptions,
+    }
   },
-  vault: (i) =>
-    runGetVaultDetail(i.values[0].split("_")[1], i).then(
-      (r) => r.messageOptions
-    ),
+  vault: async (i) => ({
+    msgOpts: (await runGetVaultDetail(i.values[0].split("_")[1], i))
+      .messageOptions,
+  }),
   qr: (i) => viewQR(i),
   airdrop: (i) => airdropDetail(i),
 }
 
-export function paginationButtons(id: string, page: number, totalPage: number) {
+export function paginationButtons(page: number, totalPage: number) {
   if (totalPage === 1) return []
   const actionRow = new MessageActionRow()
   if (page !== 0) {
@@ -130,7 +156,7 @@ export function paginationButtons(id: string, page: number, totalPage: number) {
         style: "SECONDARY",
         emoji: getEmoji("LEFT_ARROW"),
         label: "\u200b",
-        customId: [id, page - 1, totalPage].join("/"),
+        customId: "prev_page",
       })
     )
   }
@@ -141,7 +167,7 @@ export function paginationButtons(id: string, page: number, totalPage: number) {
         style: "SECONDARY",
         emoji: getEmoji("RIGHT_ARROW"),
         label: "\u200b",
-        customId: [id, page + 1, totalPage].join("/"),
+        customId: "next_page",
       })
     )
   }
@@ -154,10 +180,23 @@ export function route(
   config: MachineConfig,
   options: CreateMachineParams[1] = {}
 ) {
+  const cacheKey = `${author.id}-${config.id}`
+  const {
+    button,
+    select,
+    modal = {},
+    ephemeral = {},
+    ...userData
+  } = (config.context ?? {}) as any
+  routerCache.set(cacheKey, userData)
+
   // manually add action to each state and child states
   decorateWithActions(config.states)
 
-  config.context ??= {}
+  config.context ??= {
+    ephemeral: {},
+    modal: {},
+  }
 
   const machine = createMachine(
     {
@@ -165,11 +204,11 @@ export function route(
       context: {
         button: {
           ...builtinButtonHandlers,
-          ...("button" in config.context ? config.context.button : {}),
+          ...button,
         },
         select: {
           ...builtinSelectHandlers,
-          ...("select" in config.context ? config.context.select : {}),
+          ...select,
         },
         steps: [],
       },
@@ -179,12 +218,6 @@ export function route(
       ...options,
       guards: {
         ...options.guards,
-        isWallet: (_ctx, ev) => {
-          return ev.interaction?.values[0].startsWith("wallet")
-        },
-        isVault: (_ctx, ev) => {
-          return ev.interaction?.values[0].startsWith("vault")
-        },
       },
       actions: {
         record: (context, event) => {
@@ -209,7 +242,7 @@ export function route(
           }
         },
         transition: (context, event) => {
-          const { canBack = false, dry, interaction, state, args = [] } = event
+          const { canBack = false, dry, interaction, state } = event
           if (!interaction || !state || dry || state === "steps") return
           let composer: Handler | undefined
           if (interaction.isButton()) {
@@ -221,23 +254,33 @@ export function route(
           wrapError(interaction, async () => {
             if (!composer) return
             try {
-              const msgOpts = await composer(interaction, ...args)
-              // await reaction?.remove().catch(() => null)
+              const oldContext = routerCache.get<any>(cacheKey) ?? {}
+              const { context = {}, msgOpts } = await composer(
+                interaction,
+                event.type,
+                oldContext,
+                modal[event.type]
+              )
+              routerCache.set(cacheKey, { ...oldContext, ...context })
 
-              if (canBack) {
-                if (!msgOpts.components) msgOpts.components = []
+              if (!msgOpts) {
+                interaction.message.delete().catch(() => null)
+              } else {
+                if (canBack) {
+                  if (!msgOpts.components) msgOpts.components = []
 
-                msgOpts.components.push(
-                  new MessageActionRow().addComponents(
-                    new MessageButton()
-                      .setLabel("Back")
-                      .setStyle("SECONDARY")
-                      .setCustomId("back")
+                  msgOpts.components.push(
+                    new MessageActionRow().addComponents(
+                      new MessageButton()
+                        .setLabel("Back")
+                        .setStyle("SECONDARY")
+                        .setCustomId("back")
+                    )
                   )
-                )
-              }
+                }
 
-              interaction.editReply(msgOpts).catch(() => null)
+                interaction.editReply(msgOpts).catch(() => null)
+              }
             } catch (e: any) {
               context.steps?.push(e.name)
               context.steps?.push(stack.clean(e.stack ?? ""))
@@ -249,6 +292,7 @@ export function route(
       },
     }
   )
+
   const machineService = interpret(machine).onDone(() =>
     removeAllComponents(reply)
   )
@@ -263,13 +307,7 @@ export function route(
     .on("collect", (i) => {
       if (!i.isButton() && !i.isSelectMenu()) return
       wrapError(reply, async () => {
-        if (!i.deferred) {
-          await i.deferUpdate().catch(() => null)
-        }
-
-        const splitted = i.customId.split("/")
-        let [event] = splitted
-        const [, ...args] = splitted
+        let event = i.customId
 
         event = event.toUpperCase()
 
@@ -279,14 +317,19 @@ export function route(
           interaction: i,
           dry: true,
         })
+
+        if (!i.deferred && !modal[event]) {
+          if (ephemeral[event]) {
+            await i.deferReply({ ephemeral: true }).catch(() => null)
+          } else {
+            await i.deferUpdate().catch(() => null)
+          }
+        }
+
         const can = currentState.can({ type: event, interaction: i, dry: true })
         if (can) {
           const prevState = currentState.toStrings().at(-1)?.split(".").at(-1)
-          const state = nextState.toStrings().at(-1)?.split(".").at(-1)
-
-          // const reaction = await (i.message as Message)
-          //   .react(getEmoji("ANIMATED_MOCHI_SPIN", true))
-          //   .catch(() => null)
+          const state = nextState.toStrings().at(-1)?.split(".").at(-1) ?? ""
 
           machineService.send({
             type: event,
@@ -294,8 +337,6 @@ export function route(
             prevState,
             state,
             canBack: nextState.can("BACK"),
-            // reaction,
-            args,
           })
         }
 
