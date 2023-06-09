@@ -123,7 +123,14 @@ async function compose(
 
   const vaults = vaultsRes.slice(0, 5)
 
-  const { onchainTotal, mochiWallets, wallets: _wallets, pnl } = walletsRes
+  const {
+    onchainTotal,
+    dexTotal,
+    mochiWallets,
+    dexs,
+    wallets: _wallets,
+    pnl,
+  } = walletsRes
   const wallets = _wallets.slice(0, 10)
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
@@ -133,7 +140,7 @@ async function compose(
 
   const { totalWorth } = formatView("compact", "filter-dust", balances.data)
   const grandTotal = formatDigit({
-    value: String(totalWorth + onchainTotal),
+    value: String(totalWorth + onchainTotal + dexTotal),
     fractionDigits: 2,
   })
   const mochiBal = formatDigit({
@@ -179,6 +186,9 @@ async function compose(
         },
         wallets: {
           data: wallets,
+        },
+        dexs: {
+          data: dexs,
         },
       }),
       inline: false,
@@ -233,6 +243,12 @@ async function compose(
                 type: "wallet",
                 usd: w.total,
               })),
+              ...dexs.map((d) => ({
+                ...d,
+                value: `wallet_dex_${d.value}`,
+                type: "wallet",
+                usd: d.total,
+              })),
               ...vaults.map((v) => ({
                 ...v,
                 type: "vault",
@@ -244,10 +260,13 @@ async function compose(
               const address = w.value.split("_")[2]
               let label = ""
               if (w.type === "wallet") {
-                label = `${isMochi ? "🔸  " : "🔹  "}${w.chain} | ${
+                label = `${
+                  isMochi ? "🔸  " : "🔹  "
+                }${w.chain.toUpperCase()} | ${
                   isMochi ? address : shortenHashOrAddress(address, 3, 4)
                 } | 💵 $${w.usd}`
-              } else {
+              }
+              if (w.type === "vault") {
                 label = `◽ ${w.name} | 💵 $${w.usd}`
               }
 
@@ -323,12 +342,17 @@ async function renderSocials(socials: any[]) {
 export async function renderWallets({
   mochiWallets,
   wallets,
+  dexs,
 }: {
   mochiWallets: {
     data: any[]
     title?: string
   }
   wallets: {
+    data: any[]
+    title?: string
+  }
+  dexs: {
     data: any[]
     title?: string
   }
@@ -347,6 +371,13 @@ export async function renderWallets({
         wallets.title ?? "`On-chain`",
         wallets.data,
         mochiWallets.data.length,
+        true
+      ),
+      await renderListWallet(
+        getEmoji("WEB"),
+        dexs.title ?? "`DEXs`",
+        dexs.data,
+        mochiWallets.data.length + (wallets.data.length || 0),
         true
       ),
     ])

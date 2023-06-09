@@ -510,7 +510,7 @@ async function switchView(
         value: totalWorth.toString(),
         fractionDigits: 2,
       })}\`${
-        balanceType === 2
+        balanceType === BalanceType.Onchain
           ? ` (${getEmoji(
               balances.pnl.split("")[0] === "-"
                 ? "ANIMATED_ARROW_DOWN"
@@ -527,7 +527,7 @@ async function switchView(
   ])
 
   const preventEmptyVal = "\u200b"
-  if (balanceType === 1) {
+  if (balanceType === BalanceType.Offchain) {
     embed.spliceFields(1, 0, {
       name: "Wallets",
       value:
@@ -538,12 +538,19 @@ async function switchView(
           wallets: {
             data: [],
           },
+          dexs: {
+            data: [],
+          },
         })) + preventEmptyVal,
       inline: false,
     })
-  } else {
+  }
+  if (balanceType === BalanceType.Onchain) {
     const value = await renderWallets({
       mochiWallets: {
+        data: [],
+      },
+      dexs: {
         data: [],
       },
       wallets: {

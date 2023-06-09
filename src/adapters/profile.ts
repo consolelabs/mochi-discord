@@ -61,8 +61,10 @@ class Profile extends Fetcher {
       logger.error("Cannot get profile by discord id", discordId)
       return {
         onchainTotal: 0,
+        dexTotal: 0,
         mochiWallets: [],
         wallets: [],
+        dexs: [],
       }
     }
 
@@ -126,10 +128,34 @@ class Profile extends Fetcher {
         }) ?? []
     )
 
+    let dexTotal = 0
+    const dexs = removeDuplications(
+      dataProfile.associated_accounts
+        ?.filter((a: any) => ["binance"].includes(a.platform))
+        .sort((a: any, b: any) => {
+          return (b.total_amount || 0) - (a.total_amount || 0)
+        })
+        ?.map((w: any) => {
+          const bal = Number(w.total_amount || 0)
+          dexTotal += bal
+
+          return {
+            value: w.platform_metadata?.username || w.platform_identifier,
+            chain: w.platform,
+            total: formatDigit({
+              value: bal.toString(),
+              fractionDigits: 2,
+            }),
+          }
+        }) ?? []
+    )
+
     return {
       onchainTotal,
+      dexTotal,
       mochiWallets,
       wallets,
+      dexs,
       pnl,
     }
   }

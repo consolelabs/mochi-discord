@@ -120,7 +120,6 @@ const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
   once: false,
   execute: async (interaction) => {
-    console.log(interaction.isModalSubmit())
     const id = interaction.isCommand()
       ? interaction.toString()
       : interaction.isSelectMenu() ||
@@ -436,7 +435,6 @@ async function handleSelectMenuInteraction(i: SelectMenuInteraction) {
 
 async function handleModalSubmitInteraction(interaction: Interaction) {
   const i = interaction as ModalSubmitInteraction
-  console.log("123213")
   switch (true) {
     case i.customId.startsWith("profile-connect_binance_submit"):
       await submitBinanceKeys(i)
