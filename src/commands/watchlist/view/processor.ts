@@ -442,7 +442,7 @@ export async function composeWatchlist(
             })}%`,
             usd: `$${formatDigit({
               value: String(t.current_price ?? "0"),
-              fractionDigits: 2,
+              fractionDigits: (t.current_price ?? 0) > 100 ? 0 : 2,
               scientificFormat: true,
             })}`,
           })),

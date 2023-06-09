@@ -40,7 +40,12 @@ export function formatDigit({
     rightStr += nextDigit
   }
 
-  rightStr = rightStr.slice(0, fractionDigits)
+  // only truncate to fractionDigits if the result is non zero
+  // otherwise we keep the current format because
+  // if we truncate we might accidentally make it zero
+  if (Number(rightStr.slice(0, fractionDigits)) !== 0) {
+    rightStr = rightStr.slice(0, fractionDigits)
+  }
 
   while (rightStr.endsWith("0")) {
     rightStr = rightStr.slice(0, rightStr.length - 1)
