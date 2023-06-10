@@ -96,7 +96,7 @@ const run = async (interaction: CommandInteraction) => {
   const msgOpts = await render(interaction, member)
   const reply = (await interaction.editReply(msgOpts)) as Message
 
-  route(reply, interaction.user, machineConfig(member), {
+  route(reply, interaction, machineConfig(member), {
     actions: {
       showBinanceManualMessage: async (_, event) => {
         if (
@@ -106,11 +106,13 @@ const run = async (interaction: CommandInteraction) => {
         )
           return
 
-        const reply = (await sendBinanceManualMessage(
-          event.interaction
+        const result = sendBinanceManualMessage(event.interaction)
+
+        const reply = (await event.interaction.editReply(
+          result.msgOpts
         )) as Message
 
-        route(reply, event.interaction.user, {
+        route(reply, event.interaction, {
           id: "binance",
           initial: "binance",
           context: {

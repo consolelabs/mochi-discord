@@ -51,7 +51,7 @@ const command: SlashCommand = {
     )
     const reply = await i.editReply(msgOpts)
 
-    route(reply as Message, i.user, {
+    route(reply as Message, i, {
       ...machineConfig,
       context,
     })

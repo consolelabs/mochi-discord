@@ -5,13 +5,13 @@ import {
 import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 import {
   ButtonInteraction,
+  CommandInteraction,
   GuildMember,
   Message,
   MessageActionRow,
   MessageButton,
   MessageEditOptions,
   SelectMenuInteraction,
-  User,
 } from "discord.js"
 import {
   BaseActionObject,
@@ -72,12 +72,6 @@ type Context = {
 type CreateMachineParams = Parameters<typeof createMachine<Context, any, any>>
 
 export type MachineConfig = CreateMachineParams[0] & { id: string }
-
-function removeAllComponents(reply: Message) {
-  wrapError(reply, async () => {
-    await reply.edit({ components: [] }).catch(() => null)
-  })
-}
 
 function decorateWithActions(
   states?: StatesConfig<any, any, any, BaseActionObject>
@@ -174,11 +168,13 @@ export function paginationButtons(page: number, totalPage: number) {
 
 export function route(
   reply: Message,
-  author: User,
+  interaction: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
   config: MachineConfig,
   options: CreateMachineParams[1] = {}
 ) {
+  const author = interaction.user
   const cacheKey = `${author.id}-${config.id}`
+  const lastInteractionCacheKey = `${author.id}-${config.id}-last-interaction`
   const {
     button,
     select,
@@ -292,20 +288,19 @@ export function route(
     }
   )
 
-  const machineService = interpret(machine).onDone(() =>
-    removeAllComponents(reply)
-  )
+  const machineService = interpret(machine)
   machineService.start()
 
+  routerCache.set(lastInteractionCacheKey, interaction)
   reply
     .createMessageComponentCollector({
       filter: authorFilter(author.id),
       time: 300000,
-      dispose: true,
     })
     .on("collect", (i) => {
       if (!i.isButton() && !i.isSelectMenu()) return
       wrapError(reply, async () => {
+        routerCache.set(lastInteractionCacheKey, i)
         let event = i.customId
 
         event = event.toUpperCase()
@@ -344,7 +339,11 @@ export function route(
     })
     .on("end", () => {
       machineService.stop()
-      removeAllComponents(reply)
       routerCache.del(cacheKey)
+
+      const lastInteraction = routerCache.get<
+        ButtonInteraction | SelectMenuInteraction
+      >(lastInteractionCacheKey)
+      lastInteraction?.editReply({ components: [] }).catch(() => null)
     })
 }

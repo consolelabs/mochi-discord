@@ -39,10 +39,14 @@ const machineConfig: (
             )
 
           await i.showModal(modal)
-          const submitted = await i.awaitModalSubmit({
-            time: 60000,
-            filter: (mi) => mi.user.id === i.user.id,
-          })
+          const submitted = await i
+            .awaitModalSubmit({
+              time: 300000,
+              filter: (mi) => mi.user.id === i.user.id,
+            })
+            .catch(() => null)
+
+          if (!submitted) return { msgOpts: i.message }
 
           if (!submitted.deferred) {
             await submitted.deferUpdate().catch(() => null)
@@ -70,10 +74,14 @@ const machineConfig: (
             )
 
           await i.showModal(modal)
-          const submitted = await i.awaitModalSubmit({
-            time: 60000,
-            filter: (mi) => mi.user.id === i.user.id,
-          })
+          const submitted = await i
+            .awaitModalSubmit({
+              time: 300000,
+              filter: (mi) => mi.user.id === i.user.id,
+            })
+            .catch(() => null)
+
+          if (!submitted) return { msgOpts: i.message }
 
           if (!submitted.deferred) {
             await submitted.deferUpdate().catch(() => null)
@@ -165,6 +173,6 @@ const run = async (interaction: CommandInteraction) => {
     ...msgOpts,
   })) as Message
 
-  route(reply, interaction.user, machineConfig(overrideInitialState, context))
+  route(reply, interaction, machineConfig(overrideInitialState, context))
 }
 export default run
