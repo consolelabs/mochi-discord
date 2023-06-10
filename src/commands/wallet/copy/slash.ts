@@ -42,10 +42,19 @@ const command: SlashCommand = {
     const chain = i.options.getString("chain", false) ?? "eth"
     const alias = i.options.getString("alias", false) ?? ""
 
-    const { msgOpts } = await copyWallet(i, i.user, address, chain, alias)
+    const { msgOpts, context } = await copyWallet(
+      i,
+      i.user,
+      address,
+      chain,
+      alias
+    )
     const reply = await i.editReply(msgOpts)
 
-    route(reply as Message, i.user, machineConfig)
+    route(reply as Message, i.user, {
+      ...machineConfig,
+      context,
+    })
   },
   help: () => Promise.resolve({}),
   colorType: "Defi",

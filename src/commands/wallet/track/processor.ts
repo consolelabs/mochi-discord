@@ -53,7 +53,7 @@ export async function trackWallet(
 
   const { msgOpts } = renderTrackingResult(address, chain, alias)
 
-  return { msgOpts }
+  return { msgOpts, context: { user: author, address } }
 }
 
 function renderTrackingResult(address: string, chain: string, alias: string) {
