@@ -489,35 +489,25 @@ class Defi extends Fetcher {
     from,
     to,
     amount,
-    chain_name,
-    from_token_id, // not every token exist in kyber api, this is used for backend to query and add token which kyber not have
-    to_token_id, // not every token exist in kyber api, this is used for backend to query and add token which kyber not have
   }: {
     from: string
     to: string
     amount: string
-    chain_name: string
-    from_token_id?: string
-    to_token_id?: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/swap/route`, {
       query: {
         from,
         to,
         amount,
-        chain_name,
-        from_token_id,
-        to_token_id,
       },
     })
   }
 
-  async swap(userDiscordId: string, chainName: string, routeSummary: any) {
+  async swap(userDiscordId: string, routeSummary: any) {
     return await this.jsonFetch(`${API_BASE_URL}/swap`, {
       method: "POST",
       body: {
         userDiscordId,
-        chainName,
         routeSummary,
       },
       bodyCamelToSnake: false,
@@ -526,17 +516,6 @@ class Defi extends Fetcher {
 
   async getTrendingSearch() {
     return await this.jsonFetch(`${API_BASE_URL}/defi/trending`)
-  }
-
-  async getRatio(base?: string, target?: string) {
-    if (!base || !target) return 0
-    let ratio = 0
-    const { data, ok } = await this.compareToken("", base, target, 1)
-    if (ok) {
-      ratio = data.ratios?.at(-1) ?? 0
-    }
-
-    return ratio
   }
 }
 

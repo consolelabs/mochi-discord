@@ -1,14 +1,13 @@
 import {
   ButtonInteraction,
   CommandInteraction,
-  Message,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import {
   emojis,
   getEmoji,
@@ -20,57 +19,17 @@ import {
   capitalizeFirst,
   equalIgnoreCase,
 } from "utils/common"
-import { reply } from "utils/discord"
 import { BigNumber, utils } from "ethers"
-import { APPROX, HOMEPAGE_URL } from "utils/constants"
-import { pascalCase } from "change-case"
-import NodeCache from "node-cache"
+import { APPROX } from "utils/constants"
 import defi from "adapters/defi"
-import { APIError } from "errors"
 import { formatDigit } from "utils/defi"
 import { dmUser } from "../../../utils/dm"
-import { awaitMessage } from "utils/discord"
-import { composeButtonLink } from "ui/discord/button"
-import { InternalError } from "errors"
-import CacheManager from "cache/node-cache"
-import { OriginalMessage } from "errors/base"
 import { getBalances } from "utils/tip-bot"
 import { formatView } from "commands/balances/index/processor"
 import { getSlashCommand } from "utils/commands"
 import { checkCommitableOperation } from "commands/withdraw/index/processor"
-import { aggregateTradeRoute } from "./aggregate-util"
 
-const cacheExpireTimeSeconds = 180
-
-const swapCache = new NodeCache({
-  stdTTL: cacheExpireTimeSeconds,
-  checkperiod: 1,
-  useClones: false,
-})
-
-export const chains = {
-  1: "Ethereum",
-  56: "BNB",
-  250: "Fantom",
-  137: "Polygon",
-  // 43114: "avalanche",
-  // 42161: "arbitrum",
-  // 10: "optimism",
-  // 199: "bittorrent",
-  // 42262: "oasis",
-  // 25: "cronos",
-  // 106: "velas",
-  // 1313161554: "aurora",
-}
-
-const native_asset_platform = {
-  eth: "ethereum",
-  ftm: "fantom",
-  bnb: "binancecoin",
-  matic: "matic-network",
-}
-
-const supported_coin_id = ["ethereum", "fantom", "binancecoin", "matic-network"]
+const SLIPPAGE = 0.5
 
 type Context = {
   to?: string
@@ -81,6 +40,9 @@ type Context = {
   balances?: any
   balance?: any
   wallet?: string
+  routeSummary?: any
+  isOnchain?: boolean
+  rate?: number
 }
 
 type Interaction =
@@ -94,9 +56,11 @@ function renderPreview(params: {
   wallet?: string
   network?: string
   amountIn?: string
+  amountInUsd?: string
   amountOut?: string
-  tokenFee?: string
-  amountFee?: string
+  amountOutUsd?: string
+  gasUsd?: string
+  rate?: string
 }) {
   const value = [
     params.wallet && `${getEmoji("WALLET_1")}\`Wallet.   ${params.wallet}\``,
@@ -109,13 +73,12 @@ function renderPreview(params: {
     params.to &&
       `${getEmoji("ANIMATED_COIN_2", true)}\`Out.      \`${getEmoji(
         params.to as TokenEmojiKey
-      )} **${params.amountOut ?? ""} ${params.to}**`,
-    params.tokenFee &&
-      params.amountFee &&
-      `${getEmoji("CASH")}\`Fee.      \`${formatDigit({
-        value: params.amountFee,
-        fractionDigits: 2,
-      })} ${params.tokenFee}`,
+      )} **${params.amountOut ?? ""} ${params.to} ${
+        params.amountOutUsd ? `(${APPROX} $${params.amountOutUsd})` : ""
+      }**`,
+    params.rate && `${getEmoji("SWAP_ROUTE")}\`Rate.     \`**${params.rate}**`,
+    `:playground_slide:\`Slippage. \`**${SLIPPAGE}%**`,
+    params.gasUsd && `${getEmoji("GAS")}\`Gas.      \`${params.gasUsd}`,
   ]
     .filter(Boolean)
     .join("\n")
@@ -144,22 +107,6 @@ export async function jumpToStep(
   if (propsCount <= 1) return swapStep1(i, ctx)
   const conditions = [
     [!!(propsCount >= 2 && ctx.to && ctx.from), swapStep1, swapStep2],
-    [
-      !!(propsCount >= 3 && ctx.to && ctx.from && ctx.amountIn),
-      swapStep2,
-      swapStep3,
-    ],
-    [
-      !!(
-        propsCount >= 4 &&
-        ctx.to &&
-        ctx.from &&
-        ctx.amountIn &&
-        ctx.chainName
-      ),
-      swapStep3,
-      swapStep4,
-    ],
   ] satisfies [
     boolean,
     (i: Interaction, ctx?: Context) => Promise<any>,
@@ -229,61 +176,72 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
       balances,
     },
     msgOpts: {
-      embeds: [embed],
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageSelectMenu()
-            .setPlaceholder("💵 Choose money source (1/4)")
-            .setCustomId("select_token")
-            .setOptions(
-              balances.map((b: any) => ({
-                label: `${b.token.symbol}${
-                  isDuplicateSymbol(b.token.symbol)
-                    ? ` (${b.token.chain.symbol})`
-                    : ""
-                }`,
-                value: b.id,
-                emoji: getEmojiToken(b.token.symbol),
-              }))
-            )
-        ),
+      files: [],
+      embeds: [
+        embed,
+        ...(ctx?.from && !balance
+          ? [
+              new MessageEmbed({
+                description: `${getEmoji("NO")} No token ${getEmojiToken(
+                  ctx.from as TokenEmojiKey
+                )} **${ctx.from}** found in your balance.`,
+                color: msgColors.ERROR,
+              }),
+            ]
+          : []),
       ],
+      components: balances.length
+        ? [
+            new MessageActionRow().addComponents(
+              new MessageSelectMenu()
+                .setPlaceholder("💵 Choose money source (1/2)")
+                .setCustomId("select_token")
+                .setOptions(
+                  balances
+                    .map((b: any) => ({
+                      label: `${b.token.symbol}${
+                        isDuplicateSymbol(b.token.symbol)
+                          ? ` (${b.token.chain.symbol})`
+                          : ""
+                      }`,
+                      value: `${b.id}/offchain`,
+                      emoji: getEmojiToken(b.token.symbol),
+                    }))
+                    .concat({
+                      label: `MOCK ONCHAIN`,
+                      value: `000/onchain`,
+                      emoji: getEmojiToken("" as any),
+                    })
+                )
+            ),
+          ]
+        : [],
     },
   }
 }
 
-export async function swapStep2(_i: Interaction, ctx?: Context) {
-  if (!ctx?.balance)
+enum TradeRouteDataCode {
+  NoRoute = 0,
+  RouteDataFound,
+  HighPriceImpact,
+  ProviderError,
+}
+
+export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
+  if (!ctx?.balance && !ctx?.isOnchain)
     return {
       stop: true,
-      initial: "swapStep2",
-      context: {
-        ...ctx,
-        from: undefined,
-      },
-      msgOpts: {
-        embeds: [
-          new MessageEmbed({
-            description: `<:pepeno2:885513214467661834> **No token ${getEmoji(
-              ctx?.from as TokenEmojiKey
-            )} ${ctx?.from} found in your balance**`,
-            color: msgColors.ERROR,
-          }),
-        ],
-        components: [
-          new MessageActionRow().addComponents(
-            new MessageButton({
-              label: "Select another token",
-              style: "SECONDARY",
-              customId: "go_back",
-            })
-          ),
-        ],
-      },
+      initial: "swapStep1",
+      context: ctx,
+      msgOpts: (await swapStep1(i, ctx)).msgOpts,
     }
 
-  let amount = ctx?.amountIn ?? "%0"
-  const balance = ctx.balance
+  const amountChoice = ctx.amountIn
+  let amount = ctx?.amountIn ?? "%100"
+  const balance = ctx.balance ?? {
+    amount: "1000000000000000000000",
+    token: { symbol: "XXX", decimal: 18 },
+  }
 
   const getPercentage = (percent: number) =>
     BigNumber.from(balance.amount ?? 0)
@@ -292,7 +250,8 @@ export async function swapStep2(_i: Interaction, ctx?: Context) {
       .toString()
 
   let error
-  if (amount.startsWith("%") || amount.toLowerCase() === "all") {
+  const isAll = equalIgnoreCase(amount, "all") || amount === "%100"
+  if (amount.startsWith("%") || isAll) {
     const formatted = utils.formatUnits(
       getPercentage(
         amount.toLowerCase() === "all" ? 100 : Number(amount.slice(1))
@@ -300,54 +259,148 @@ export async function swapStep2(_i: Interaction, ctx?: Context) {
       balance.token.decimal
     )
     amount = formatDigit({
-      value: formatted,
-      fractionDigits: Number(formatted) >= 1 ? 0 : undefined,
+      value: Number(formatted),
+      fractionDigits: isAll ? 2 : Number(formatted) >= 1000 ? 0 : undefined,
     })
   } else {
     let valid
     ;({ valid, error } = checkCommitableOperation(
       balance.amount,
       amount ?? "0",
-      balance
+      balance.token
     ))
 
     if (valid) {
       amount = formatDigit({
         value: amount ?? "0",
-        fractionDigits: Number(amount) >= 1 ? 0 : undefined,
+        fractionDigits: Number(amount) >= 1000 ? 0 : undefined,
       })
     }
   }
-
-  const ratio = await defi.getRatio(ctx?.from, ctx?.to)
-
-  const newContext = {
-    to: ctx?.to,
-    from: ctx?.from,
-    amountIn: amount,
-    amountOut: formatDigit({
-      value: +amount * ratio,
-      fractionDigits: +amount * ratio >= 1 ? 0 : undefined,
-    }),
-  }
-  const preview = renderPreview(newContext)
 
   const { text } = formatView("compact", "filter-dust", [balance])
 
   const embed = composeEmbedMessage(null, {
     author: ["Enter amount", getEmojiURL(emojis.SWAP_ROUTE)],
-    description: text,
+    description: text + `\n\u200b`,
   })
+
+  const { data: tradeRoute, ok } = await defi.getSwapRoute({
+    from: ctx?.from ?? "",
+    to: ctx?.to ?? "",
+    amount,
+  })
+
+  if (
+    !ok ||
+    [TradeRouteDataCode.NoRoute, TradeRouteDataCode.HighPriceImpact].includes(
+      tradeRoute.code
+    )
+  ) {
+    return {
+      initial: "noTradeRouteFound",
+      msgOpts: {
+        embeds: [
+          new MessageEmbed({
+            description: `${getEmoji(
+              "NO"
+            )} No trade route data found, please try again.`,
+            color: msgColors.ERROR,
+          }),
+        ],
+        components: [],
+      },
+    }
+  }
+
+  const routeSummary = tradeRoute.data.routeSummary
+
+  const amountInUsd = formatDigit({
+    value: routeSummary.amountInUsd,
+    fractionDigits: Number(routeSummary.amountInUsd) >= 100 ? 0 : 2,
+  })
+
+  const amountOut = utils.formatUnits(
+    BigNumber.from(routeSummary.amountOut)
+      .mul((100 - SLIPPAGE) * 10)
+      .div(1000),
+    tradeRoute.data.tokenOut.decimals
+  )
+
+  const amountOutUsd = formatDigit({
+    value: (Number(routeSummary.amountOutUsd) * (100 - SLIPPAGE)) / 100,
+    fractionDigits: Number(routeSummary.amountOutUsd) >= 100 ? 0 : 2,
+  })
+
+  let ratio = String(Number(amountOut) / Number(amount))
+  ratio = formatDigit({
+    value: ratio,
+    fractionDigits: Number(ratio) >= 100 ? 0 : 2,
+  })
+
+  const isBridged =
+    tradeRoute.data.tokenIn.chain_id !== tradeRoute.data.tokenOut.chain_id
+
+  const network = isBridged
+    ? `${capitalizeFirst(
+        tradeRoute.data.tokenIn.chain_name
+      )} -> ${capitalizeFirst(tradeRoute.data.tokenOut.chain_name)} (bridge)`
+    : `${capitalizeFirst(tradeRoute.data.tokenOut.chain_name)}`
+
+  const newContext = {
+    to: ctx?.to,
+    from: ctx?.from,
+    amountIn: amount,
+    amountInUsd,
+    amountOut: formatDigit({
+      value: amountOut.toString(),
+      fractionDigits: Number(amountOut) >= 1000 ? 0 : undefined,
+    }),
+    amountOutUsd,
+    wallet: ctx.wallet,
+    rate: ratio,
+    network,
+    gasUsd: `$${formatDigit({
+      value: routeSummary.gasUsd,
+      fractionDigits: 2,
+    })}`,
+  }
+  const preview = renderPreview(newContext)
+
+  // TODO: get id from swap route data then call search coin using coin id
+  // embed.addFields(
+  //   {
+  //     name: `${getEmoji("BLANK")}${getEmojiToken("FTM")} FTM`,
+  //     value: [
+  //       `${getEmoji("ANIMATED_TROPHY", true)} Rank: \`#56\``,
+  //       `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$0.252\``,
+  //       `🌊 Market cap: \`$705,211,531\``,
+  //     ].join("\n"),
+  //     inline: true,
+  //   },
+  //   {
+  //     name: `${getEmoji("USDC")} USDC`,
+  //     value: [
+  //       "Rank: `#5`",
+  //       "Price: `$1`",
+  //       "Market cap: `$28,306,959,947`",
+  //     ].join("\n"),
+  //     inline: true,
+  //   }
+  // )
 
   if (preview) {
     embed.addFields(preview)
   }
 
   return {
+    stop: !!error,
     initial: "swapStep2",
     context: {
       ...ctx,
       ...newContext,
+      routeSummary,
+      balance,
     },
     msgOpts: {
       embeds: [
@@ -355,7 +408,7 @@ export async function swapStep2(_i: Interaction, ctx?: Context) {
         ...(error
           ? [
               new MessageEmbed({
-                description: `<:pepeno2:885513214467661834> **${error}**`,
+                description: `${getEmoji("NO")} **${error}**`,
                 color: msgColors.ERROR,
               }),
             ]
@@ -368,11 +421,13 @@ export async function swapStep2(_i: Interaction, ctx?: Context) {
               .setLabel(`${p}%`)
               .setStyle("SECONDARY")
               .setCustomId(`select_amount_${p}`)
+              .setDisabled(amountChoice === `%${p}`)
           ),
           new MessageButton()
             .setLabel("All")
             .setStyle("SECONDARY")
-            .setCustomId(`select_amount_100`),
+            .setCustomId(`select_amount_100`)
+            .setDisabled(isAll),
           new MessageButton()
             .setLabel("Custom")
             .setStyle("SECONDARY")
@@ -380,13 +435,13 @@ export async function swapStep2(_i: Interaction, ctx?: Context) {
         ),
         new MessageActionRow().addComponents(
           new MessageButton({
-            label: "Continue (2/4)",
+            label: "Confirm (2/2)",
             style: "PRIMARY",
-            customId: "continue",
+            customId: "confirm",
             disabled:
               !ctx?.to ||
               !ctx?.from ||
-              !ctx.amountIn ||
+              !amount ||
               !!error ||
               Number(amount) === 0,
           })
@@ -396,531 +451,70 @@ export async function swapStep2(_i: Interaction, ctx?: Context) {
   }
 }
 
-export async function swapStep3(_i: Interaction, ctx?: Context) {
-  if (Number(ctx?.amountIn) === 0)
+export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
+  if (!ctx?.routeSummary) {
     return {
-      stop: true,
-      initial: "swapStep3",
-      context: {
-        ...ctx,
-        amountIn: undefined,
-      },
+      initial: "noTradeRouteFound",
       msgOpts: {
         embeds: [
           new MessageEmbed({
-            description: `<:pepeno2:885513214467661834> **You can't swap 0 tokens**`,
+            description: `${getEmoji(
+              "NO"
+            )} No trade route data found, please try again.`,
             color: msgColors.ERROR,
           }),
         ],
-        components: [
-          new MessageActionRow().addComponents(
-            new MessageButton({
-              label: "Enter amount",
-              style: "SECONDARY",
-              customId: "go_back",
-            })
-          ),
-        ],
+        components: [],
       },
     }
-
-  const preview = renderPreview({
-    to: ctx?.to,
-    from: ctx?.from,
-    amountIn: ctx?.amountIn,
-    amountOut: ctx?.amountOut,
-    network: ctx?.chainName,
-  })
-
-  const embed = composeEmbedMessage(null, {
-    author: ["Select network", getEmojiURL(emojis.ANIMATED_COIN_2)],
-  })
-
-  if (preview) {
-    embed.addFields(preview)
   }
 
-  return {
-    initial: "swapStep3",
-    context: ctx,
-    msgOpts: {
-      embeds: [embed],
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageSelectMenu()
-            .setPlaceholder("🔗 Select chain (3/4)")
-            .setCustomId("select_chain")
-            .addOptions(
-              Object.entries(chains).map((e) => ({
-                label: e[1],
-                value: e[1],
-              }))
-            )
-        ),
+  await defi.swap(i.user.id, ctx.routeSummary)
+  const dm = await dmUser(
+    {
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Swap Submitted", thumbnails.MOCHI],
+          image: thumbnails.MOCHI_POSE_17,
+          description: [
+            `${getEmoji("CHECK")} Your swap is underway.`,
+            `${getEmoji("CHECK")} Mochi will DM you with the tx link shortly.`,
+          ].join("\n"),
+        }),
       ],
     },
-  }
-}
-
-export async function swapStep4(i: Interaction, ctx?: Context) {
-  const preview = renderPreview({
-    to: ctx?.to,
-    from: ctx?.from,
-    amountIn: ctx?.amountIn,
-    amountOut: ctx?.amountOut,
-    network: ctx?.chainName,
-    wallet: ctx?.wallet,
-  })
-
-  let tradeRouteData: any = {}
-  const { data, ok } = await defi.getSwapRoute({
-    from: ctx?.from ?? "",
-    to: ctx?.to ?? "",
-    amount: ctx?.amountIn ?? "0",
-    chain_name: ctx?.chainName?.toLowerCase() ?? "",
-  })
-
-  if (ok) {
-    tradeRouteData = data.data
-  }
-
-  const routes = await aggregateTradeRoute(
-    tradeRouteData.tokenIn.symbol,
-    tradeRouteData.routeSummary
+    i.user,
+    null,
+    i,
+    "Your swap request was submitted, but ",
+    ""
   )
 
-  const embed = composeEmbedMessage(null, {
-    author: ["Here is the trade route", getEmojiURL(emojis.ANIMATED_COIN_2)],
-    description: routes.join("\n"),
-  })
-
-  if (preview) {
-    embed.addFields(preview)
-  }
-
-  const submitRow = new MessageActionRow()
-
-  if (ctx?.wallet === "Mochi wallet") {
-    submitRow.addComponents(
-      new MessageButton({
-        style: "PRIMARY",
-        label: "Swap",
-        customId: "submit",
-      })
-    )
-  } else if (ctx?.wallet === "Onchain wallet") {
-    submitRow.addComponents(
-      new MessageButton({
-        style: "PRIMARY",
-        label: "Open in web",
-        customId: "open_web",
-      })
-    )
-  }
-
   return {
-    initial: "swapStep4",
-    context: ctx,
     msgOpts: {
-      embeds: [embed],
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Swap submitted", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+          description:
+            renderPreview({
+              ...ctx,
+              rate: String(ctx.rate),
+            })?.value ?? "",
+        }),
+      ],
       components: [
-        new MessageActionRow().addComponents(
-          new MessageSelectMenu()
-            .setCustomId("select_wallet")
-            .setPlaceholder("💰 Select wallet (4/4)")
-            .addOptions(
-              { label: "🔸 Mochi wallet", value: "offchain" },
-              { label: "🔹 Onchain  wallet", value: "onchain" }
-            )
-        ),
-        ...(submitRow.components.length ? [submitRow] : []),
+        ...(dm
+          ? [
+              new MessageActionRow().addComponents(
+                new MessageButton({
+                  style: "LINK",
+                  label: "Check DM",
+                  url: dm.url,
+                })
+              ),
+            ]
+          : []),
       ],
     },
   }
 }
-
-// async function handleSwap(i: ButtonInteraction) {
-//   await i.deferUpdate()
-//   const [, chainName] = i.customId.split("_")
-//   const reply = (await i.fetchReply()) as Message
-//   const cacheKey = `swap-${reply.id}`
-//   const swapCacheData = swapCache.get(cacheKey) as any
-//   if (swapCacheData) {
-//     const { status, ok, log, error, curl } = await defi.swap(
-//       i.user.id,
-//       chainName,
-//       swapCacheData.routeSummary
-//     )
-//     if (!ok) {
-//       if (status === 400) {
-//         i.editReply({
-//           embeds: [getErrorEmbed({ description: error })],
-//           components: [],
-//         })
-//         return
-//       }
-//       throw new APIError({
-//         msgOrInteraction: reply,
-//         curl,
-//         description: log,
-//         error,
-//       })
-//     }
-//
-//     swapCache.del(cacheKey)
-//
-//     //dm user
-//     const dm = await dmUser(
-//       {
-//         embeds: [
-//           composeEmbedMessage(null, {
-//             author: ["Swap Submitted", thumbnails.MOCHI],
-//             image: thumbnails.MOCHI_POSE_4,
-//             description:
-//               "Your swap is underway, Mochi will DM you with the tx link if it succeeds or error message if it fails (often due to your trade route being expired)",
-//           }),
-//         ],
-//       },
-//       i.user,
-//       null,
-//       i,
-//       "Your swap request was submitted, but ",
-//       ""
-//     )
-//     if (!dm) return null
-//     await i.editReply({
-//       embeds: [
-//         composeEmbedMessage(null, {
-//           author: ["You're good to go!", thumbnails.MOCHI],
-//           image: thumbnails.MOCHI_POSE_2,
-//           description: `Your swap request has been submitted, [**check your DM to see the receipt**](${dm.url})`,
-//         }),
-//       ],
-//       components: [],
-//     })
-//   }
-// }
-//
-// async function render(
-//   i: CommandInteraction | ButtonInteraction,
-//   data: {
-//     routeSummary: RouteSummary
-//     tokenIn: { decimals: number }
-//     tokenOut: { decimals: number }
-//   },
-//   from: TokenEmojiKey,
-//   to: TokenEmojiKey,
-//   chainName: string
-// ) {
-//   const { routeSummary, tokenIn, tokenOut } = data
-//
-//   const routes = await aggregateTradeRoute(routeSummary)
-//
-//   const fromAmountFormatted = formatDigit({
-//     value: utils.formatUnits(routeSummary.amountIn, tokenIn.decimals),
-//   })
-//
-//   const toAmountFormatted = formatDigit({
-//     value: utils.formatUnits(routeSummary.amountOut, tokenOut.decimals),
-//   })
-//
-//   const fromEmo = getEmojiToken(from, false)
-//   const toEmo = getEmojiToken(to, false)
-//
-//   const embed = composeEmbedMessage(null, {
-//     author: ["Swap", getEmojiURL(emojis.SWAP_ROUTE)],
-//     thumbnail: getEmojiURL(emojis.SWAP_ROUTE),
-//     title: `${fromAmountFormatted} ${from} ${APPROX} ${toAmountFormatted} ${to}`,
-//   })
-//
-//   const tradeRoutes = Object.values(routes).map((route, i) => {
-//     return `${i === 0 ? "" : "\n"}${getEmoji("REPLY_3")}${
-//       route.percent
-//     } ${fromEmo} ${from}\n${route.hops
-//       .map((hop, j) => {
-//         const lastOfLast =
-//           i === Object.values(routes).length - 1 && j === route.hops.length - 1
-//
-//         return `${
-//           lastOfLast ? getEmoji("REPLY") : getEmoji("REPLY_2")
-//         } ${getEmojiToken(hop.tokenOutSymbol as TokenEmojiKey, false)} ${
-//           hop.tokenOutSymbol
-//         }\n${hop.pools
-//           .map((p, o) => {
-//             return `${lastOfLast ? getEmoji("BLANK") : getEmoji("REPLY_3")}${
-//               o === hop.pools.length - 1
-//                 ? getEmoji("REPLY")
-//                 : getEmoji("REPLY_2")
-//             }[(${p.name}: ${p.percent})](${HOMEPAGE_URL})`
-//           })
-//           .join("\n")}`
-//       })
-//       .join("\n")}`
-//   })
-//
-//   // check to see if we can combine routes without exceeding discord 1024 char limit
-//   const aggregatedRoutes = []
-//   for (let i = 0; i < tradeRoutes.length; i++) {
-//     const current = tradeRoutes[i]
-//     const next = tradeRoutes[i + 1] ?? ""
-//     const combined = !next
-//       ? current
-//       : `${current}\n${getEmoji("REPLY_3")}${next}`
-//     if (combined.length <= 1024) {
-//       aggregatedRoutes.push(combined)
-//       i++
-//       continue
-//     }
-//
-//     if (i === tradeRoutes.length - 1 || (tradeRoutes.length === 2 && i === 0))
-//       aggregatedRoutes.push(tradeRoutes[i])
-//   }
-//
-//   embed.addFields([
-//     {
-//       name: "From",
-//       value: `${fromEmo} ${fromAmountFormatted} ${from} \n\`$${formatDigit({
-//         value: routeSummary.amountInUsd,
-//       })}\``,
-//       inline: true,
-//     },
-//     {
-//       name: "\u200b",
-//       value: "\u200b",
-//       inline: true,
-//     },
-//     {
-//       name: "To",
-//       value: `${toEmo} ${toAmountFormatted} ${to}\n\`$${formatDigit({
-//         value: routeSummary.amountOutUsd,
-//       })}\``,
-//       inline: true,
-//     },
-//     {
-//       name: "Gas Fee",
-//       value: routeSummary.gasUsd
-//         ? `${APPROX} \`$${formatDigit({ value: routeSummary.gasUsd })}\``
-//         : "Unknown",
-//       inline: true,
-//     },
-//     {
-//       name: "\u200b",
-//       value: "\u200b",
-//       inline: true,
-//     },
-//     {
-//       name: "Chain",
-//       value: pascalCase(chainName),
-//       inline: true,
-//     },
-//     ...aggregatedRoutes.map<any>((p, i) => ({
-//       name: i === 0 ? "\u200b\nTrade Route" : getEmoji("REPLY_3"),
-//       value: p,
-//       inline: false,
-//     })),
-//   ])
-//
-//   const msgOptions = {
-//     embeds: [embed],
-//     components: [
-//       new MessageActionRow().addComponents(
-//         new MessageButton()
-//           .setCustomId(`swap-mochi-wallet_${chainName}`)
-//           .setLabel("Swap")
-//           .setStyle("PRIMARY"),
-//         new MessageButton()
-//           .setURL(
-//             `https://kyberswap.com/swap/${chainName}/${from.toLowerCase()}-to-${to.toLowerCase()}`
-//           )
-//           .setLabel("View in web")
-//           .setStyle("LINK")
-//       ),
-//     ],
-//   }
-//   const response = {
-//     messageOptions: msgOptions,
-//   }
-//
-//   let replyMsg
-//   if (i.type === "MESSAGE_COMPONENT") {
-//     const button = i as ButtonInteraction
-//     replyMsg = await dmUser(msgOptions, button.user, null, button)
-//     if (!replyMsg) return null
-//   } else {
-//     replyMsg = await reply(i as CommandInteraction, response)
-//   }
-//
-//   if (replyMsg) {
-//     swapCache.set(`swap-${replyMsg.id}`, data)
-//   }
-// }
-//
-// async function viewTickerRouteSwap(i: ButtonInteraction) {
-//   if (!i.deferred) i.deferUpdate()
-//   const msg = i.message as Message
-//   const author = i.user
-//   const [coinId, symbol, chainName] = i.customId.split("|").slice(1)
-//   let chain = chainName
-//   // when chain from coingecko is null -> only support native token: ftm, eth, matic, bnb. Else return no route data
-//   if (chainName == "") {
-//     if (supported_coin_id.includes(coinId)) {
-//       chain = coinId
-//     } else {
-//       throw new InternalError({
-//         msgOrInteraction: i,
-//         description:
-//           "No route data found, we're working on adding them in the future, stay tuned.",
-//         emojiUrl: getEmojiURL(emojis.SWAP_ROUTE),
-//         color: msgColors.GRAY,
-//       })
-//     }
-//   }
-//
-//   // send dm ask for from token
-//   const dmFromTokenPayload = {
-//     embeds: [
-//       composeEmbedMessage(null, {
-//         author: ["Swap", getEmojiURL(emojis.SWAP_ROUTE)],
-//         thumbnail: getEmojiURL(emojis.SWAP_ROUTE),
-//         description: `Please enter token you want to swap from`,
-//         color: msgColors.MOCHI,
-//       }),
-//     ],
-//   }
-//   const dmFromToken = await dmUser(dmFromTokenPayload, author, null, i)
-//   if (!dmFromToken) return null
-//
-//   // redirect to dm if not in DM
-//   if (i.guildId) {
-//     const replyPayload = {
-//       embeds: [
-//         composeEmbedMessage(null, {
-//           author: ["Swap tokens", getEmojiURL(emojis.SWAP_ROUTE)],
-//           description: `${author}, a swap message has been sent to you. Check your DM!`,
-//         }),
-//       ],
-//       components: [composeButtonLink("See the DM", dmFromToken.url)],
-//     }
-//     msg ? msg.reply(replyPayload) : i.editReply(replyPayload)
-//   }
-//
-//   // waiting user input from token
-//   const timeoutEmbed = getErrorEmbed({
-//     title: "Swap cancelled",
-//     description:
-//       "No input received. You can retry transaction with `/swap <amount> <from token> <to token> <chain>`",
-//   })
-//
-//   const { content: fromToken } = await awaitMessage({
-//     authorId: author.id,
-//     msg: dmFromToken,
-//     timeoutResponse: { embeds: [timeoutEmbed] },
-//   })
-//
-//   // send dm ask for amount
-//   const dmAmountPayload = {
-//     embeds: [
-//       composeEmbedMessage(null, {
-//         author: ["Swap", getEmojiURL(emojis.SWAP_ROUTE)],
-//         thumbnail: getEmojiURL(emojis.SWAP_ROUTE),
-//         description: `Please enter amount you want to swap`,
-//         color: msgColors.MOCHI,
-//       }),
-//     ],
-//   }
-//   const dmAmount = await dmUser(dmAmountPayload, author, null, i)
-//   if (!dmAmount) return null
-//
-//   // waiting user input amount
-//   const { content: amount } = await awaitMessage({
-//     authorId: author.id,
-//     msg: dmAmount,
-//     timeoutResponse: { embeds: [timeoutEmbed] },
-//   })
-//
-//   // get route data
-//   const { ok, data } = await defi.getSwapRoute({
-//     from: fromToken,
-//     to: symbol,
-//     amount: String(amount),
-//     chain_name: chain,
-//     to_token_id: coinId,
-//     from_token_id: await getFromTokenID(dmFromToken, fromToken, chain),
-//   })
-//
-//   if (!ok) {
-//     throw new InternalError({
-//       msgOrInteraction: dmFromToken,
-//       description:
-//         "No route data found, we're working on adding them in the future, stay tuned.",
-//       emojiUrl: getEmojiURL(emojis.SWAP_ROUTE),
-//       color: msgColors.GRAY,
-//     })
-//   }
-//
-//   await render(
-//     i,
-//     data?.data,
-//     fromToken.toUpperCase() as TokenEmojiKey,
-//     symbol.toUpperCase() as TokenEmojiKey,
-//     chain
-//   )
-// }
-//
-// async function getFromTokenID(
-//   msg: OriginalMessage,
-//   symbol: string,
-//   chain: string
-// ) {
-//   const errorTokenNotSp = {
-//     msgOrInteraction: msg,
-//     description:
-//       "No route data found, we're working on adding them in the future, stay tuned.",
-//     emojiUrl: getEmojiURL(emojis.SWAP_ROUTE),
-//     color: msgColors.GRAY,
-//   }
-//
-//   const { data: coins } = await CacheManager.get({
-//     pool: "ticker",
-//     key: `ticker-search-${symbol}`,
-//     call: () => defi.searchCoins(symbol, ""),
-//   })
-//   if (!coins || !coins.length) {
-//     throw new InternalError(errorTokenNotSp)
-//   }
-//
-//   let coinId = ""
-//   for (const coin of coins) {
-//     // if native token then return coinId, since coingecko not have asset_platform_id for native token. Temp used hardcode
-//     // Ex: $ticker eth -> coingecko return chain = null, but coinId = ethereum
-//     if (Object.keys(native_asset_platform).includes(coin.symbol)) {
-//       coinId =
-//         native_asset_platform[coin.symbol as keyof typeof native_asset_platform]
-//       break
-//     }
-//     // if non native token then check if chain = chain of token.
-//     // Ex: $ticker multi -> choose swap from usdt to multi -> query usdt has ethereum chain
-//     const { data: coinDetail, status } = await CacheManager.get({
-//       pool: "ticker",
-//       key: `ticker-getcoin-${coin.id}`,
-//       call: () => defi.getCoin(coin.id, false, ""),
-//     })
-//     if (status === 404) {
-//       throw new InternalError(errorTokenNotSp)
-//     }
-//
-//     // get all platform which token exist
-//     // Ex: $ticker ftm -> swap from spell to ftm -> spell exist on chain ethereum, fantom, avalanche, arbitrum-one
-//     const fromTokenplatforms = Object.keys(coinDetail.platforms)
-//     if (fromTokenplatforms.includes(chain)) {
-//       coinId = coinDetail.id
-//       break
-//     }
-//   }
-//
-//   if (coinId === "") {
-//     throw new InternalError(errorTokenNotSp)
-//   }
-//
-//   return coinId
-// }

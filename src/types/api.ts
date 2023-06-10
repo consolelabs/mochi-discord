@@ -96,6 +96,7 @@ export interface ModelChain {
 export interface ModelCoingeckoSupportedTokens {
   current_price?: number;
   id?: string;
+  most_popular?: boolean;
   name?: string;
   symbol?: string;
 }
@@ -1956,6 +1957,10 @@ export interface ResponseGetListAllChainsResponse {
   data?: ModelChain[];
 }
 
+export interface ResponseGetListGuildDefaultTickerResponse {
+  data?: ModelGuildConfigDefaultTicker[];
+}
+
 export interface ResponseGetMyInfoResponse {
   data?: DiscordgoUser;
 }
@@ -2789,6 +2794,7 @@ export interface ResponseSwapRoute {
 }
 
 export interface ResponseSwapRouteResponse {
+  chainName?: string;
   code?: number;
   data?: ResponseSwapRoute;
   message?: string;
