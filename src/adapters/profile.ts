@@ -12,7 +12,7 @@ import { Fetcher } from "./fetcher"
 import fetch from "node-fetch"
 import mochiPay from "./mochi-pay"
 import { uniqBy } from "lodash"
-import { removeDuplications } from "utils/common"
+import { capitalizeFirst, removeDuplications } from "utils/common"
 import { logger } from "logger"
 import { formatDigit } from "utils/defi"
 import CacheManager from "cache/node-cache"
@@ -61,10 +61,10 @@ class Profile extends Fetcher {
       logger.error("Cannot get profile by discord id", discordId)
       return {
         onchainTotal: 0,
-        dexTotal: 0,
+        cexTotal: 0,
         mochiWallets: [],
         wallets: [],
-        dexs: [],
+        cexes: [],
       }
     }
 
@@ -78,10 +78,10 @@ class Profile extends Fetcher {
     mochiWallets = uniqBy(mochiWallets, (mw) => mw.wallet_address)
     mochiWallets = mochiWallets.map((m) => ({
       value: m.wallet_address,
-      chain: m.chain?.is_evm ? "EVM" : m.chain?.symbol,
+      chain: String(m.chain?.is_evm ? "EVM" : m.chain?.symbol).toUpperCase(),
     }))
 
-    const pnl = dataProfile.pnl ?? "0"
+    const pnl = Number(dataProfile.pnl ?? "0").toString()
 
     let onchainTotal = 0
     const wallets = removeDuplications(
@@ -103,12 +103,17 @@ class Profile extends Fetcher {
           onchainTotal += bal
 
           let chain = w.platform.split("-").shift().toUpperCase()
+          let value = w.platform_identifier
           switch (w.platform) {
             case "solana-chain":
               chain = "SOL"
               break
             case "ronin-chain":
               chain = "RON"
+              value = value.slice(6)
+              break
+            case "near-chain":
+              value = value.slice(0, -5)
               break
             default:
               break
@@ -118,18 +123,18 @@ class Profile extends Fetcher {
             disabled: !["evm-chain", "solana-chain", "sui-chain"].includes(
               w.platform
             ),
-            value: w.platform_identifier,
+            value,
             total: formatDigit({
               value: bal.toString(),
-              fractionDigits: 2,
+              fractionDigits: bal >= 100 ? 0 : 2,
             }),
             chain,
           }
         }) ?? []
     )
 
-    let dexTotal = 0
-    const dexs = removeDuplications(
+    let cexTotal = 0
+    const cexes = removeDuplications(
       dataProfile.associated_accounts
         ?.filter((a: any) => ["binance"].includes(a.platform))
         .sort((a: any, b: any) => {
@@ -137,14 +142,14 @@ class Profile extends Fetcher {
         })
         ?.map((w: any) => {
           const bal = Number(w.total_amount || 0)
-          dexTotal += bal
+          cexTotal += bal
 
           return {
             value: w.platform_metadata?.username || w.platform_identifier,
-            chain: w.platform,
+            chain: capitalizeFirst(w.platform),
             total: formatDigit({
               value: bal.toString(),
-              fractionDigits: 2,
+              fractionDigits: bal >= 100 ? 0 : 2,
             }),
           }
         }) ?? []
@@ -152,10 +157,10 @@ class Profile extends Fetcher {
 
     return {
       onchainTotal,
-      dexTotal,
+      cexTotal,
       mochiWallets,
       wallets,
-      dexs,
+      cexes,
       pnl,
     }
   }
@@ -203,7 +208,7 @@ class Profile extends Fetcher {
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/api-key/binance`, {
       method: "POST",
-      body: JSON.stringify(body),
+      body,
     })
   }
 

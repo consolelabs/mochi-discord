@@ -218,6 +218,7 @@ export function route(
         ...options.guards,
       },
       actions: {
+        ...options.actions,
         record: (context, event) => {
           if (!event.interaction || event.dry) return
           if (event.interaction.isButton()) {
@@ -344,5 +345,6 @@ export function route(
     .on("end", () => {
       machineService.stop()
       removeAllComponents(reply)
+      routerCache.del(cacheKey)
     })
 }

@@ -547,7 +547,7 @@ function composeWithdrawEmbed() {
     author: ["Withdraw Submitted", thumbnails.MOCHI],
     image: thumbnails.MOCHI_POSE_11,
     description: [
-      `${getEmoji("CHECK")} Your withdraw is underway`,
+      `${getEmoji("CHECK")} Your withdraw is underway.`,
       `${getEmoji("CHECK")} Mochi will DM you with the tx link shortly.`,
     ].join("\n"),
   })

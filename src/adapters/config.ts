@@ -1166,16 +1166,16 @@ class Config extends Fetcher {
         k.startsWith("total_amount")
       )
 
+      const total = allTotals.reduce(
+        (acc, c) => (acc += Number(v[c as keyof typeof v])),
+        0
+      )
+
       return {
         ...v,
         total: formatDigit({
-          value: String(
-            allTotals.reduce(
-              (acc, c) => (acc += Number(v[c as keyof typeof v])),
-              0
-            )
-          ),
-          fractionDigits: 2,
+          value: String(total),
+          fractionDigits: total >= 100 ? 0 : 2,
         }),
       }
     })

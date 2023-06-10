@@ -564,7 +564,7 @@ async function switchView(
           wallets: {
             data: [],
           },
-          dexs: {
+          cexes: {
             data: [],
           },
         })) + preventEmptyVal,
@@ -576,7 +576,7 @@ async function switchView(
       mochiWallets: {
         data: [],
       },
-      dexs: {
+      cexes: {
         data: [],
       },
       wallets: {
@@ -603,7 +603,7 @@ async function switchView(
       mochiWallets: {
         data: [],
       },
-      dexs: {
+      cexes: {
         data: [
           {
             chain: "Binance Assets",
