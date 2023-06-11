@@ -91,7 +91,7 @@ export async function airdropDetail(i: SelectMenuInteraction) {
             .setStyle("SECONDARY")
             .setLabel("Favorite")
             .setEmoji(getEmoji("ANIMATED_STAR"))
-            .setCustomId("mark_favoriate")
+            .setCustomId("mark_favorite")
         ),
       ],
     },
@@ -121,14 +121,18 @@ export async function run(
 
   const embed = composeEmbedMessage(null, {
     title: "New Airdrops",
-    description: `${[`**5**/100 new airdrops you can join.`].join("\n")}`,
+    description: `${[
+      `**${PAGE_SIZE * page + data.length}**/${
+        DATA.length
+      } new airdrops you can join.`,
+    ].join("\n")}`,
     thumbnail: getEmojiURL(emojis.CHEST),
     color: msgColors.YELLOW,
   })
 
-  embed.fields = data.map((d: any, i: number) => {
+  embed.fields = data.map((d: any) => {
     return {
-      name: `\`#000${i + 1}\` ${d.title}`,
+      name: `\`#${d.id}\` ${d.title}`,
       value: `Deadline: **${d.deadline}**`,
       inline: false,
     }

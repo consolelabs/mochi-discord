@@ -42,6 +42,7 @@ const getClaimButton = (disabled = false, authorId: string) => {
   }
 }
 
+// TODO: remove this and use the new `route` function
 export async function handleBackToQuestList(i: ButtonInteraction) {
   await i.deferUpdate().catch(() => null)
   const authorId = i.customId.split("_")[1]
@@ -51,7 +52,7 @@ export async function handleBackToQuestList(i: ButtonInteraction) {
     .fetchReference()
     .catch(() => undefined)
   const {
-    messageOptions: { embeds },
+    msgOpts: { embeds },
   } = await run(i.user.id, msg)
 
   i.editReply({
@@ -60,6 +61,7 @@ export async function handleBackToQuestList(i: ButtonInteraction) {
   })
 }
 
+// TODO: remove this and use the new `route` function
 export async function handleClaimReward(i: ButtonInteraction) {
   await i.deferUpdate().catch(() => null)
   const authorId = i.customId.split("_")[1]
@@ -181,7 +183,7 @@ export async function run(userId: string, msg?: Message) {
   const claimable = res.data.some((d: any) => d.is_completed && !d.is_claimed)
 
   return {
-    messageOptions: {
+    msgOpts: {
       embeds: [embed],
       ...getClaimButton(!claimable, userId),
     },
