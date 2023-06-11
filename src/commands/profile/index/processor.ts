@@ -8,6 +8,7 @@ import {
   MessageSelectMenu,
   TextInputComponent,
   ModalActionRowComponent,
+  Message,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
@@ -424,8 +425,11 @@ export async function render(msg: OriginalMessage, member: GuildMember) {
   return await compose(msg, member, dataProfile)
 }
 
-export async function sendBinanceManualMessage(interaction: ButtonInteraction) {
-  if (!interaction.member || !interaction.guildId) return
+export function sendBinanceManualMessage(interaction: ButtonInteraction) {
+  if (!interaction.member || !interaction.guildId)
+    return {
+      msgOpts: interaction.message as Message,
+    }
 
   const embed = composeEmbedMessage(null, {
     author: ["Connect Binance", getEmojiURL(emojis.BINANCE)],
@@ -445,9 +449,12 @@ export async function sendBinanceManualMessage(interaction: ButtonInteraction) {
       .setCustomId("enter_key")
   )
 
-  return await interaction
-    .editReply({ embeds: [embed], components: [row] })
-    .catch(() => null)
+  return {
+    msgOpts: {
+      embeds: [embed],
+      components: [row],
+    },
+  }
 }
 
 export async function showModalBinanceKeys(interaction: ButtonInteraction) {
@@ -478,9 +485,13 @@ export async function showModalBinanceKeys(interaction: ButtonInteraction) {
 
   await interaction.showModal(modal)
 
-  const submitted = await interaction.awaitModalSubmit({
-    time: 1000 * 60 * 5,
-  })
+  const submitted = await interaction
+    .awaitModalSubmit({
+      time: 1000 * 60 * 5,
+    })
+    .catch(() => null)
+
+  if (!submitted) return { key: "", secret: "" }
 
   if (!submitted.deferred) {
     await submitted.deferUpdate().catch(() => null)
@@ -499,6 +510,10 @@ export async function submitBinanceKeys(
     secret: string
   }
 ) {
+  if (!payload.key || !payload.secret) {
+    return sendBinanceManualMessage(i)
+  }
+
   // call api
   const res = await profile.submitBinanceKeys({
     discordUserId: i.user.id,

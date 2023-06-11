@@ -70,7 +70,7 @@ const command: SlashCommand = {
     )
     const reply = (await i.editReply(msgOpts)) as Message
 
-    route(reply, i.user, machineConfig)
+    route(reply, i, machineConfig)
   },
   help: (interaction) =>
     Promise.resolve({
