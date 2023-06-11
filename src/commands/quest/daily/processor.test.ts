@@ -49,7 +49,7 @@ describe("run", () => {
       },
     }
 
-    const output = await processor.run("123123")
-    assertRunResult(output, expected)
+    const { msgOpts } = await processor.run("123123")
+    assertRunResult({ messageOptions: msgOpts }, expected)
   })
 })

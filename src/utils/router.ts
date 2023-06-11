@@ -30,7 +30,7 @@ import {
   airdropDetail,
   run as renderAirdrops,
 } from "commands/drop/index/processor"
-import { run as renderEarnHelp } from "commands/earn/index/processor"
+import { run as renderEarn } from "commands/earn/index/processor"
 import { run as renderQuestDaily } from "commands/quest/daily/processor"
 import { trackWallet } from "commands/wallet/track/processor"
 import { followWallet } from "commands/wallet/follow/processor"
@@ -118,12 +118,8 @@ const builtinButtonHandlers: ButtonContext = {
     renderQr(i, i.member as GuildMember, Number(ctx.page ?? 0) + PAGE_MAP[ev]),
   airdrops: (i, ev, ctx) =>
     renderAirdrops(i.user.id, ctx.status, Number(ctx.page ?? 0) + PAGE_MAP[ev]),
-  earn: (i) => renderEarnHelp(i.user),
-  quests: async (i) => {
-    return {
-      msgOpts: (await renderQuestDaily(i.user.id)).messageOptions,
-    }
-  },
+  earn: (i) => renderEarn(i.user),
+  quests: (i) => renderQuestDaily(i.user.id),
 }
 
 const builtinSelectHandlers: SelectContext = {

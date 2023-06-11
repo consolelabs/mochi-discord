@@ -4,7 +4,7 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { MachineConfig, route } from "utils/router"
 import { CommandInteraction, Message } from "discord.js"
-import { PageType, run } from "./index/processor"
+import { run } from "./index/processor"
 
 export const machineConfig: MachineConfig = {
   id: "earn",
@@ -40,8 +40,6 @@ export const machineConfig: MachineConfig = {
   },
 }
 
-export const defaultPageType: Exclude<PageType, "earn"> = "index"
-
 const slashCmd: SlashCommand = {
   name: "earn",
   category: "Defi",
@@ -56,7 +54,7 @@ const slashCmd: SlashCommand = {
   run: async function (interaction: CommandInteraction) {
     const { msgOpts } = await run(interaction.user)
     const replyMsg = (await interaction.editReply(msgOpts)) as Message
-    route(replyMsg, interaction.user, machineConfig)
+    route(replyMsg, interaction, machineConfig)
   },
   help: (interaction: CommandInteraction) =>
     Promise.resolve({

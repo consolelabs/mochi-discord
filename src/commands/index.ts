@@ -190,7 +190,6 @@ export const originalCommands: Record<string, Command> = {
   verify: verify.textCmd,
   feedback: feedback.textCmd,
   prune: prune.textCmd,
-  quest: quest.textCmd,
   alert: alert.textCmd,
   gas: gas.textCmd,
   inbox: inbox.textCmd,

@@ -29,37 +29,6 @@ export function getHelpEmbed(user: User) {
   })
 }
 
-export type PageType = "index" | "quest" | "airdrop"
-
-export const defaultPageType: Exclude<PageType, "earn"> = "index"
-
-export const pagination = (currentPage: PageType) => [
-  new MessageActionRow().addComponents(
-    ...(currentPage !== "index"
-      ? [
-          new MessageButton({
-            label: "Back",
-            style: "SECONDARY",
-            customId: "index",
-          }),
-        ]
-      : [
-          new MessageButton({
-            label: "Quest",
-            style: "SECONDARY",
-            emoji: getEmoji("MOCHI_CIRCLE"),
-            customId: "VIEW_QUESTS",
-          }),
-          new MessageButton({
-            label: "Airdrop",
-            style: "SECONDARY",
-            customId: "VIEW_AIRDROPS",
-            emoji: getEmoji("NFT2"),
-          }),
-        ])
-  ),
-]
-
 export async function run(user: User) {
   const embed = composeEmbedMessage(null, {
     author: ["Welcome to Mochi!", thumbnails.MOCHI],
@@ -107,7 +76,22 @@ export async function run(user: User) {
   return {
     msgOpts: {
       embeds: [embed],
-      components: pagination(defaultPageType),
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton({
+            label: "Quest",
+            style: "SECONDARY",
+            emoji: getEmoji("MOCHI_CIRCLE"),
+            customId: "VIEW_QUESTS",
+          }),
+          new MessageButton({
+            label: "Airdrop",
+            style: "SECONDARY",
+            customId: "VIEW_AIRDROPS",
+            emoji: getEmoji("NFT2"),
+          })
+        ),
+      ],
     },
   }
 }
