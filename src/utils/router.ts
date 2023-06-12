@@ -5,13 +5,13 @@ import {
 import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 import {
   ButtonInteraction,
+  CommandInteraction,
   GuildMember,
   Message,
   MessageActionRow,
   MessageButton,
   MessageEditOptions,
   SelectMenuInteraction,
-  User,
 } from "discord.js"
 import {
   BaseActionObject,
@@ -29,7 +29,9 @@ import { render as renderQr, viewQR } from "commands/qr/index/processor"
 import {
   airdropDetail,
   run as renderAirdrops,
-} from "commands/earn/airdrop/processor"
+} from "commands/drop/index/processor"
+import { run as renderEarn } from "commands/earn/index/processor"
+import { run as renderQuestDaily } from "commands/quest/daily/processor"
 import { trackWallet } from "commands/wallet/track/processor"
 import { followWallet } from "commands/wallet/follow/processor"
 import { copyWallet } from "commands/wallet/copy/processor"
@@ -72,12 +74,6 @@ type Context = {
 type CreateMachineParams = Parameters<typeof createMachine<Context, any, any>>
 
 export type MachineConfig = CreateMachineParams[0] & { id: string }
-
-function removeAllComponents(reply: Message) {
-  wrapError(reply, async () => {
-    await reply.edit({ components: [] }).catch(() => null)
-  })
-}
 
 function decorateWithActions(
   states?: StatesConfig<any, any, any, BaseActionObject>
@@ -122,6 +118,8 @@ const builtinButtonHandlers: ButtonContext = {
     renderQr(i, i.member as GuildMember, Number(ctx.page ?? 0) + PAGE_MAP[ev]),
   airdrops: (i, ev, ctx) =>
     renderAirdrops(i.user.id, ctx.status, Number(ctx.page ?? 0) + PAGE_MAP[ev]),
+  earn: (i) => renderEarn(i.user),
+  quests: (i) => renderQuestDaily(i.user.id),
 }
 
 const builtinSelectHandlers: SelectContext = {
@@ -174,11 +172,13 @@ export function paginationButtons(page: number, totalPage: number) {
 
 export function route(
   reply: Message,
-  author: User,
+  interaction: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
   config: MachineConfig,
   options: CreateMachineParams[1] = {}
 ) {
+  const author = interaction.user
   const cacheKey = `${author.id}-${config.id}`
+  const lastInteractionCacheKey = `${author.id}-${config.id}-last-interaction`
   const {
     button,
     select,
@@ -292,20 +292,19 @@ export function route(
     }
   )
 
-  const machineService = interpret(machine).onDone(() =>
-    removeAllComponents(reply)
-  )
+  const machineService = interpret(machine)
   machineService.start()
 
+  routerCache.set(lastInteractionCacheKey, interaction)
   reply
     .createMessageComponentCollector({
       filter: authorFilter(author.id),
       time: 300000,
-      dispose: true,
     })
     .on("collect", (i) => {
       if (!i.isButton() && !i.isSelectMenu()) return
       wrapError(reply, async () => {
+        routerCache.set(lastInteractionCacheKey, i)
         let event = i.customId
 
         event = event.toUpperCase()
@@ -344,7 +343,11 @@ export function route(
     })
     .on("end", () => {
       machineService.stop()
-      removeAllComponents(reply)
       routerCache.del(cacheKey)
+
+      const lastInteraction = routerCache.get<
+        ButtonInteraction | SelectMenuInteraction
+      >(lastInteractionCacheKey)
+      lastInteraction?.editReply({ components: [] }).catch(() => null)
     })
 }

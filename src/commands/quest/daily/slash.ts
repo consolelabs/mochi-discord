@@ -18,7 +18,10 @@ const command: SlashCommand = {
     if (!interaction.guildId) {
       throw new GuildIdNotFoundError({})
     }
-    return run(interaction.user.id)
+    const { msgOpts: messageOptions } = await run(interaction.user.id)
+    return {
+      messageOptions,
+    }
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [

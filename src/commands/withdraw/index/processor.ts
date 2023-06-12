@@ -293,6 +293,7 @@ export async function withdrawStep3(
   return {
     context: {
       ...params,
+      tokenObj,
     },
     msgOpts: {
       embeds: [embed],

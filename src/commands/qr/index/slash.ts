@@ -30,6 +30,6 @@ const run = async (interaction: CommandInteraction) => {
 
   const reply = (await interaction.editReply(msgOpts)) as Message
 
-  route(reply, interaction.user, machineConfig)
+  route(reply, interaction, machineConfig)
 }
 export default run
