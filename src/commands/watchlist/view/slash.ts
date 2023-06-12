@@ -10,10 +10,18 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
 import { MachineConfig, route } from "utils/router"
+import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 
 export const machineConfig: MachineConfig = {
   id: "watchlist",
   initial: "watchlist",
+  context: {
+    button: {
+      watchlist: (i) => composeWatchlist(i.user, 0),
+      watchlistNft: (i) => composeWatchlist(i.user, 0, WatchListViewType.Nft),
+      wallets: (i) => renderTrackingWallets(i.user),
+    },
+  },
   states: {
     watchlist: {
       on: {

@@ -440,6 +440,7 @@ export const emojis = {
   GRIM: "1115115006040756294",
   OASIS: "1113115304176922655",
   OCEAN: "1113115314113224764",
+  NO: "1112604245875765319",
 
   ...animatedEmojis,
   ...tokenEmojis,
@@ -455,7 +456,7 @@ export const emojis = {
   ...traitTypeMapping,
 }
 
-export const msgColors: Record<string, ColorResolvable> = {
+export const msgColors = {
   PRIMARY: "#E88B88",
   ERROR: "#D94F4F",
   SUCCESS: "#5cd97d",
@@ -467,7 +468,7 @@ export const msgColors: Record<string, ColorResolvable> = {
   YELLOW: "#F9F687",
   MOCHI: "#34AAFF",
   ACTIVITY: "#62A1FE",
-}
+} satisfies Record<string, ColorResolvable>
 
 export const thumbnails = {
   HELP: "https://i.imgur.com/uuQhOmH.png",

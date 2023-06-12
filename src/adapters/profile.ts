@@ -34,9 +34,7 @@ class Profile extends Fetcher {
 
     const socials = await Promise.all(
       dataProfile.associated_accounts
-        .filter((a: any) =>
-          ["twitter", "telegram", "binance"].includes(a.platform)
-        )
+        .filter((a: any) => ["twitter", "telegram"].includes(a.platform))
         .map(async (a: any) => {
           if (a.platform === "telegram") {
             const res = await mochiTelegram.getById(a.platform_identifier)

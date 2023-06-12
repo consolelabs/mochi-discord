@@ -2,13 +2,21 @@ import { SlashCommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
-import { run, AirdropCampaignStatus } from "./index/processor"
+import { run, AirdropCampaignStatus, airdropDetail } from "./index/processor"
 import { CommandInteraction, Message } from "discord.js"
 import { MachineConfig, route } from "utils/router"
 
 export const machineConfig: MachineConfig = {
   id: "drop",
   initial: "airdrops",
+  context: {
+    button: {
+      airdrops: (i, _ev, ctx) => run(i.user.id, ctx.status, ctx.page),
+    },
+    select: {
+      airdrop: (i) => airdropDetail(i),
+    },
+  },
   states: {
     airdrops: {
       on: {
