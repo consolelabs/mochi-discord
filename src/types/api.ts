@@ -75,6 +75,16 @@ export interface ModelActivity {
   xp?: number;
 }
 
+export interface ModelAirdropCampaign {
+  created_at?: string;
+  deadline_at?: string;
+  detail?: string;
+  id?: number;
+  prev_airdrop_campaign_id?: number;
+  title?: string;
+  updated_at?: string;
+}
+
 export interface ModelChain {
   coin_gecko_id?: string;
   currency?: string;
@@ -225,16 +235,6 @@ export interface ModelDiscordUserUpvoteStreak {
   last_streak_date?: string;
   streak_count?: number;
   total_count?: number;
-  updated_at?: string;
-}
-
-export interface ModelEarnInfo {
-  created_at?: string;
-  deadline_at?: string;
-  detail?: string;
-  id?: number;
-  prev_earn_id?: number;
-  title?: string;
   updated_at?: string;
 }
 
@@ -623,6 +623,15 @@ export interface ModelOnchainTipBotTransaction {
   updated_at?: string;
 }
 
+export interface ModelProfileAirdropCampaign {
+  airdrop_campaign?: ModelAirdropCampaign;
+  airdrop_campaign_id?: number;
+  id?: number;
+  is_favorite?: boolean;
+  profile_id?: string;
+  status?: string;
+}
+
 export interface ModelQuest {
   action?: string;
   frequency?: number;
@@ -788,15 +797,6 @@ export interface ModelUser {
   id?: string;
   nr_of_join?: number;
   username?: string;
-}
-
-export interface ModelUserEarn {
-  earn?: ModelEarnInfo;
-  earn_id?: number;
-  id?: number;
-  is_favorite?: boolean;
-  status?: string;
-  user_id?: string;
 }
 
 export interface ModelUserEnvelopStreak {
@@ -993,6 +993,13 @@ export interface RequestConfigureInviteRequest {
   webhook_url?: string;
 }
 
+export interface RequestCreateAirdropCampaignRequest {
+  deadline_at?: string;
+  detail?: string;
+  prev_airdrop_campaign_id?: number;
+  title?: string;
+}
+
 export interface RequestCreateCommonwealthDiscussionSubscription {
   discord_thread_id: string;
   discussion_id: number;
@@ -1016,13 +1023,6 @@ export interface RequestCreateDaoVoteRequest {
 export interface RequestCreateDefaultRoleRequest {
   guild_id: string;
   role_id: string;
-}
-
-export interface RequestCreateEarnInfoRequest {
-  deadline_at?: string;
-  detail?: string;
-  prev_earn_id?: number;
-  title?: string;
 }
 
 export interface RequestCreateEnvelop {
@@ -1073,6 +1073,12 @@ export interface RequestCreateNFTCollectionRequest {
   priority_flag?: boolean;
 }
 
+export interface RequestCreateProfileAirdropCampaignRequest {
+  airdrop_campaign_id?: number;
+  is_favorite?: boolean;
+  status?: string;
+}
+
 export interface RequestCreateProposalChannelConfig {
   address?: string;
   authority: "admin" | "token_holder";
@@ -1106,12 +1112,6 @@ export interface RequestCreateTwitterSaleConfigRequest {
   address?: string;
   chain_id?: number;
   marketplace?: string;
-}
-
-export interface RequestCreateUserEarnRequest {
-  earn_id?: number;
-  is_favorite?: boolean;
-  status?: string;
 }
 
 export interface RequestCreateUserRequest {
@@ -1471,6 +1471,17 @@ export interface ResponseAddTokenPriceAlertResponse {
   data?: ResponseTokenPriceAlertResponseData;
 }
 
+export interface ResponseAirdropCampaignResponse {
+  data?: ModelAirdropCampaign;
+}
+
+export interface ResponseAirdropCampaignsResponse {
+  data?: ModelAirdropCampaign[];
+  page?: number;
+  size?: number;
+  total?: number;
+}
+
 export interface ResponseAssetPlatformResponseData {
   chain_identifier?: number;
   id?: string;
@@ -1719,17 +1730,6 @@ export interface ResponseDiscordGuildRole {
 
 export interface ResponseDiscordUserTokenAlertResponse {
   data?: ModelDiscordUserTokenAlert[];
-}
-
-export interface ResponseEarnInfoListResponse {
-  data?: ModelEarnInfo[];
-  page?: number;
-  size?: number;
-  total?: number;
-}
-
-export interface ResponseEarnInfoResponse {
-  data?: ModelEarnInfo;
 }
 
 export interface ResponseGasTrackerResponse {
@@ -2678,6 +2678,17 @@ export interface ResponsePaginationResponse {
   total?: number;
 }
 
+export interface ResponseProfileAirdropCampaignResponse {
+  data?: ModelProfileAirdropCampaign;
+}
+
+export interface ResponseProfileAirdropCampaignsResponse {
+  data?: ModelProfileAirdropCampaign[];
+  page?: number;
+  size?: number;
+  total?: number;
+}
+
 export interface ResponseProfileApiKeyResponse {
   api_key?: string;
   created_at?: string;
@@ -2864,17 +2875,6 @@ export interface ResponseUser {
 export interface ResponseUserDeviceResponse {
   device_id?: string;
   ios_noti_token?: string;
-}
-
-export interface ResponseUserEarnListResponse {
-  data?: ModelUserEarn[];
-  page?: number;
-  size?: number;
-  total?: number;
-}
-
-export interface ResponseUserEarnResponse {
-  data?: ModelUserEarn;
 }
 
 export interface ResponseUserFeedbackResponse {
