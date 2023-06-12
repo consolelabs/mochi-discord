@@ -1,79 +1,32 @@
 import {
-  composeWatchlist,
-  WatchListViewType,
-} from "commands/watchlist/view/processor"
-import { render as renderTrackingWallets } from "commands/wallet/list/processor"
-import {
   ButtonInteraction,
   CommandInteraction,
-  GuildMember,
   Message,
   MessageActionRow,
   MessageButton,
-  MessageEditOptions,
   SelectMenuInteraction,
 } from "discord.js"
 import {
   BaseActionObject,
   createMachine,
   interpret,
+  StateNodesConfig,
   StatesConfig,
 } from "xstate"
-import { authorFilter, getEmoji } from "./common"
-import { stack } from "./stack-trace"
-import { wrapError } from "./wrap-error"
-import { handleWalletAddition } from "commands/wallet/add/processor"
-import { BalanceType, renderBalances } from "commands/balances/index/processor"
-import { runGetVaultDetail } from "commands/vault/info/processor"
-import { render as renderQr, viewQR } from "commands/qr/index/processor"
-import {
-  airdropDetail,
-  run as renderAirdrops,
-} from "commands/drop/index/processor"
-import { run as renderEarn } from "commands/earn/index/processor"
-import { run as renderQuestDaily } from "commands/quest/daily/processor"
-import { trackWallet } from "commands/wallet/track/processor"
-import { followWallet } from "commands/wallet/follow/processor"
-import { copyWallet } from "commands/wallet/copy/processor"
-import { untrackWallet } from "commands/wallet/remove/processor"
+import { authorFilter, getEmoji } from "../common"
+import { stack } from "../stack-trace"
+import { wrapError } from "../wrap-error"
 import CacheManager from "cache/node-cache"
+import { Handler, MachineConfig, MachineOptions } from "./types"
+import { merge } from "lodash"
+
+export type { MachineConfig }
 
 const routerCache = CacheManager.init({
   pool: "router-store",
   ttl: 0,
   checkperiod: 0,
 })
-
-type Handler<P = any> = (
-  params: P,
-  event: string,
-  context: Record<any, any>,
-  isModal: boolean
-) => Promise<{
-  msgOpts: MessageEditOptions | null
-  context?: Record<any, any>
-}>
-
-type ButtonContext = {
-  [K: string]: Handler<ButtonInteraction>
-}
-
-type SelectContext = {
-  [K: string]: Handler<SelectMenuInteraction>
-}
-
-type Context = {
-  button?: ButtonContext
-  select?: SelectContext
-  steps?: string[]
-  modal?: Record<string, true>
-  ephemeral?: Record<string, true>
-  [K: string]: any
-}
-
-type CreateMachineParams = Parameters<typeof createMachine<Context, any, any>>
-
-export type MachineConfig = CreateMachineParams[0] & { id: string }
 
 function decorateWithActions(
   states?: StatesConfig<any, any, any, BaseActionObject>
@@ -89,6 +42,23 @@ function decorateWithActions(
   }
 }
 
+function aggregateContext(states: StateNodesConfig<any, any, any>) {
+  if (!states) return {}
+  let context = {}
+
+  for (const s of Object.values(states)) {
+    context = merge(context, s.context, aggregateContext(s.states))
+  }
+
+  return context
+}
+
+export enum RouterSpecialAction {
+  PREV_PAGE = "PREV_PAGE",
+  NEXT_PAGE = "NEXT_PAGE",
+  BACK = "BACK",
+}
+
 const target = {
   PREV_PAGE: -1,
   NEXT_PAGE: 1,
@@ -96,52 +66,11 @@ const target = {
 
 const PAGE_MAP = new Proxy<Record<string, number>>(target, {
   get(_, prop) {
-    if (prop === "PREV_PAGE") return -1
-    if (prop === "NEXT_PAGE") return 1
+    if (prop === RouterSpecialAction.PREV_PAGE) return -1
+    if (prop === RouterSpecialAction.NEXT_PAGE) return 1
     return 0
   },
 })
-
-const builtinButtonHandlers: ButtonContext = {
-  watchlist: (i) => composeWatchlist(i.user, 0),
-  watchlistNft: (i) => composeWatchlist(i.user, 0, WatchListViewType.Nft),
-  wallets: (i) => renderTrackingWallets(i.user),
-  addWallet: (i) => handleWalletAddition(i),
-  walletFollow: (i, _ev, ctx) =>
-    followWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
-  walletTrack: (i, _ev, ctx) =>
-    trackWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
-  walletCopy: (i, _ev, ctx) =>
-    copyWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
-  walletUntrack: (i, _ev, ctx) => untrackWallet(i, i.user, ctx.address),
-  qrCodes: (i, ev, ctx) =>
-    renderQr(i, i.member as GuildMember, Number(ctx.page ?? 0) + PAGE_MAP[ev]),
-  airdrops: (i, ev, ctx) =>
-    renderAirdrops(i.user.id, ctx.status, Number(ctx.page ?? 0) + PAGE_MAP[ev]),
-  earn: (i) => renderEarn(i.user),
-  quests: (i) => renderQuestDaily(i.user.id),
-}
-
-const builtinSelectHandlers: SelectContext = {
-  wallet: async (i) => {
-    const [, type, address = ""] = i.values[0].split("_")
-    let fetcherType = BalanceType.Offchain
-    if (type.startsWith("mochi")) fetcherType = BalanceType.Offchain
-    if (type.startsWith("onchain")) fetcherType = BalanceType.Onchain
-    if (type.startsWith("cex")) fetcherType = BalanceType.Cex
-
-    return {
-      msgOpts: (await renderBalances(i.user.id, i, fetcherType, address))
-        .messageOptions,
-    }
-  },
-  vault: async (i) => ({
-    msgOpts: (await runGetVaultDetail(i.values[0].split("_")[1], i))
-      .messageOptions,
-  }),
-  qr: (i) => viewQR(i),
-  airdrop: (i) => airdropDetail(i),
-}
 
 export function paginationButtons(page: number, totalPage: number) {
   if (totalPage === 1) return []
@@ -174,7 +103,7 @@ export function route(
   reply: Message,
   interaction: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
   config: MachineConfig,
-  options: CreateMachineParams[1] = {}
+  options: MachineOptions = {}
 ) {
   const author = interaction.user
   const cacheKey = `${author.id}-${config.id}`
@@ -196,18 +125,12 @@ export function route(
     modal: {},
   }
 
-  const machine = createMachine(
+  let machine = createMachine(
     {
       ...config,
       context: {
-        button: {
-          ...builtinButtonHandlers,
-          ...button,
-        },
-        select: {
-          ...builtinSelectHandlers,
-          ...select,
-        },
+        button,
+        select,
         steps: [],
       },
       predictableActionArguments: true,
@@ -260,7 +183,23 @@ export function route(
                 oldContext,
                 modal[event.type]
               )
-              routerCache.set(cacheKey, { ...oldContext, ...context })
+              const newContext = {
+                ...oldContext,
+                ...context,
+              }
+
+              // handle pagination for user
+              if (
+                [
+                  RouterSpecialAction.PREV_PAGE,
+                  RouterSpecialAction.NEXT_PAGE,
+                ].includes(event.type) &&
+                typeof newContext.page === "number"
+              ) {
+                newContext.page += PAGE_MAP[event.type]
+              }
+
+              routerCache.set(cacheKey, newContext)
 
               if (!msgOpts) {
                 interaction.message.delete().catch(() => null)
@@ -291,6 +230,9 @@ export function route(
       },
     }
   )
+
+  const aggregatedContext = aggregateContext(machine.states)
+  machine = machine.withContext(merge(machine.context, aggregatedContext))
 
   const machineService = interpret(machine)
   machineService.start()
@@ -334,7 +276,7 @@ export function route(
             interaction: i,
             prevState,
             state,
-            canBack: nextState.can("BACK"),
+            canBack: nextState.can(RouterSpecialAction.BACK),
           })
         }
 

@@ -2,14 +2,8 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
 import { copyWallet } from "./processor"
-import { MachineConfig, route } from "utils/router"
-import { machineConfig as commonStates } from "commands/wallet/common/tracking"
-
-export const machineConfig: MachineConfig = {
-  id: "walletCopy",
-  initial: "walletCopy",
-  states: commonStates,
-}
+import { route } from "utils/router"
+import { machineConfig } from "commands/wallet/common/tracking"
 
 const command: SlashCommand = {
   name: "copy",
@@ -51,10 +45,7 @@ const command: SlashCommand = {
     )
     const reply = await i.editReply(msgOpts)
 
-    route(reply as Message, i, {
-      ...machineConfig,
-      context,
-    })
+    route(reply as Message, i, machineConfig("walletCopy", context))
   },
   help: () => Promise.resolve({}),
   colorType: "Defi",

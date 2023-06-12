@@ -1,10 +1,18 @@
 import { CommandInteraction, GuildMember, Message } from "discord.js"
 import { MachineConfig, route } from "utils/router"
-import { render } from "./processor"
+import { render, viewQR } from "./processor"
 
 export const machineConfig: MachineConfig = {
   id: "qrCodes",
   initial: "qrCodes",
+  context: {
+    button: {
+      qrCodes: (i, _ev, ctx) => render(i, i.member as GuildMember, ctx.page),
+    },
+    select: {
+      qr: (i) => viewQR(i),
+    },
+  },
   states: {
     qrCodes: {
       on: {

@@ -10,6 +10,9 @@ import {
 import { machineConfig as watchListMachineConfig } from "commands/watchlist/view/slash"
 import { machineConfig as qrCodeMachineConfig } from "commands/qr/index/slash"
 import { machineConfig as earnMachineConfig } from "commands/earn/index"
+import { handleWalletAddition } from "commands/wallet/add/processor"
+import { BalanceType, renderBalances } from "commands/balances/index/processor"
+import { runGetVaultDetail } from "commands/vault/info/processor"
 
 export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
   id: "profile",
@@ -17,6 +20,25 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
   context: {
     button: {
       profile: async (i) => ({ msgOpts: await render(i, member) }),
+      addWallet: (i) => handleWalletAddition(i),
+    },
+    select: {
+      wallet: async (i) => {
+        const [, type, address = ""] = i.values[0].split("_")
+        let fetcherType = BalanceType.Offchain
+        if (type.startsWith("mochi")) fetcherType = BalanceType.Offchain
+        if (type.startsWith("onchain")) fetcherType = BalanceType.Onchain
+        if (type.startsWith("cex")) fetcherType = BalanceType.Cex
+
+        return {
+          msgOpts: (await renderBalances(i.user.id, i, fetcherType, address))
+            .messageOptions,
+        }
+      },
+      vault: async (i) => ({
+        msgOpts: (await runGetVaultDetail(i.values[0].split("_")[1], i))
+          .messageOptions,
+      }),
     },
     // indicates this action to result in ephemeral response
     ephemeral: {
