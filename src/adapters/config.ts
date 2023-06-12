@@ -1389,6 +1389,12 @@ class Config extends Fetcher {
       }
     )
   }
+
+  public async getContent(type: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/content/${type}`, {
+      method: "GET",
+    })
+  }
 }
 
 const config = new Config()
