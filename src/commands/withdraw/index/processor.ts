@@ -126,10 +126,7 @@ function renderPreview(params: {
         params.amount &&
         `${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
           params.token as TokenEmojiKey
-        )} **${formatDigit({
-          value: params.amount,
-          fractionDigits: Number(params.amount) >= 1 ? 0 : undefined,
-        })} ${params.token}**`,
+        )} **${params.amount} ${params.token}**`,
       params.fee &&
         params.token &&
         `${getEmoji("CASH")}\`Fee.      \`${formatDigit({
@@ -345,21 +342,21 @@ export async function withdrawStep2(
   const getPercentage = (percent: number) =>
     BigNumber.from(tokenAmount).mul(percent).div(100).toString()
   let amount
-  if (
-    params.amount?.startsWith("%") ||
-    params.amount?.toLowerCase() === "all"
-  ) {
+
+  const isAll =
+    params.amount === "%100" || equalIgnoreCase(params.amount ?? "", "all")
+  if (params.amount?.startsWith("%") || isAll) {
     const formatted = utils.formatUnits(
       getPercentage(
         params.amount?.toLowerCase() === "all"
           ? 100
-          : Number(params.amount.slice(1))
+          : Number(params.amount?.slice(1))
       ),
       tokenDecimal
     )
     amount = formatDigit({
       value: formatted,
-      fractionDigits: Number(formatted) >= 1 ? 0 : undefined,
+      fractionDigits: isAll ? 2 : Number(formatted) >= 1 ? 0 : undefined,
     })
   } else {
     let valid
