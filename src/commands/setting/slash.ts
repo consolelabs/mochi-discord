@@ -14,7 +14,7 @@ const run = async (interaction: CommandInteraction) => {
 
   const replyMsg = (await interaction.editReply({
     embeds: [embed],
-    components: pagination(),
+    components: pagination(defaultPageType),
   })) as Message
 
   replyMsg
@@ -32,7 +32,7 @@ const run = async (interaction: CommandInteraction) => {
         interaction
           .editReply({
             embeds: [embed],
-            components: pagination(),
+            components: pagination(pageType),
           })
           .catch(() => null)
       })

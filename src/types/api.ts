@@ -228,6 +228,24 @@ export interface ModelDiscordUserUpvoteStreak {
   updated_at?: string;
 }
 
+export interface ModelEarnInfo {
+  created_at?: string;
+  deadline_at?: string;
+  detail?: string;
+  id?: number;
+  prev_earn_id?: number;
+  title?: string;
+  updated_at?: string;
+}
+
+export interface ModelEmojis {
+  code?: string;
+  discord_id?: string;
+  id?: number;
+  telegram_id?: string;
+  twitter_id?: string;
+}
+
 export interface ModelEnvelop {
   command?: string;
   created_at?: string;
@@ -772,6 +790,15 @@ export interface ModelUser {
   username?: string;
 }
 
+export interface ModelUserEarn {
+  earn?: ModelEarnInfo;
+  earn_id?: number;
+  id?: number;
+  is_favorite?: boolean;
+  status?: string;
+  user_id?: string;
+}
+
 export interface ModelUserEnvelopStreak {
   total_envelop?: number;
   user_id?: string;
@@ -991,6 +1018,13 @@ export interface RequestCreateDefaultRoleRequest {
   role_id: string;
 }
 
+export interface RequestCreateEarnInfoRequest {
+  deadline_at?: string;
+  detail?: string;
+  prev_earn_id?: number;
+  title?: string;
+}
+
 export interface RequestCreateEnvelop {
   command: string;
   user_id: string;
@@ -1072,6 +1106,12 @@ export interface RequestCreateTwitterSaleConfigRequest {
   address?: string;
   chain_id?: number;
   marketplace?: string;
+}
+
+export interface RequestCreateUserEarnRequest {
+  earn_id?: number;
+  is_favorite?: boolean;
+  status?: string;
 }
 
 export interface RequestCreateUserRequest {
@@ -1421,12 +1461,21 @@ export interface ResponseAddToWatchlistResponse {
 }
 
 export interface ResponseAddToWatchlistResponseData {
+  base_coin?: ResponseGetCoinResponse;
   base_suggestions?: ModelCoingeckoSupportedTokens[];
+  target_coin?: ResponseGetCoinResponse;
   target_suggestions?: ModelCoingeckoSupportedTokens[];
 }
 
 export interface ResponseAddTokenPriceAlertResponse {
   data?: ResponseTokenPriceAlertResponseData;
+}
+
+export interface ResponseAssetPlatformResponseData {
+  chain_identifier?: number;
+  id?: string;
+  name?: string;
+  shortname?: string;
 }
 
 export interface ResponseChainGasTrackerResponseData {
@@ -1672,6 +1721,17 @@ export interface ResponseDiscordUserTokenAlertResponse {
   data?: ModelDiscordUserTokenAlert[];
 }
 
+export interface ResponseEarnInfoListResponse {
+  data?: ModelEarnInfo[];
+  page?: number;
+  size?: number;
+  total?: number;
+}
+
+export interface ResponseEarnInfoResponse {
+  data?: ModelEarnInfo;
+}
+
 export interface ResponseGasTrackerResponse {
   chain?: string;
   est_fast_time?: string;
@@ -1714,6 +1774,7 @@ export interface ResponseGetAllUserSubmittedAdResponse {
 }
 
 export interface ResponseGetCoinResponse {
+  asset_platform?: ResponseAssetPlatformResponseData;
   asset_platform_id?: string;
   block_time_in_minutes?: number;
   categories?: string[];
@@ -2354,6 +2415,10 @@ export interface ResponseListConfigNotifyResponse {
   data?: ResponseConfigNotifyResponse[];
 }
 
+export interface ResponseListEmojisResponse {
+  data?: ModelEmojis[];
+}
+
 export interface ResponseListGuildAdminRoles {
   data?: ModelGuildConfigAdminRole[];
 }
@@ -2799,6 +2864,17 @@ export interface ResponseUser {
 export interface ResponseUserDeviceResponse {
   device_id?: string;
   ios_noti_token?: string;
+}
+
+export interface ResponseUserEarnListResponse {
+  data?: ModelUserEarn[];
+  page?: number;
+  size?: number;
+  total?: number;
+}
+
+export interface ResponseUserEarnResponse {
+  data?: ModelUserEarn;
 }
 
 export interface ResponseUserFeedbackResponse {

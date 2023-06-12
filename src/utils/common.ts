@@ -439,6 +439,7 @@ export const emojis = {
   GRIM: "1115115006040756294",
   OASIS: "1113115304176922655",
   OCEAN: "1113115314113224764",
+  BINANCE: "1116727169654206595",
 
   ...animatedEmojis,
   ...tokenEmojis,
