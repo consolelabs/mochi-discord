@@ -23,6 +23,7 @@ import {
   getEmojiURL,
   emojis,
   thumbnails,
+  equalIgnoreCase,
 } from "utils/common"
 import {
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
@@ -165,7 +166,7 @@ async function compose(
     description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
       "CASH"
     )}\`Balance. $${grandTotalStr}\`${
-      Number(pnl) === 0
+      Number(pnl) === 0 || Number.isNaN(Number(pnl))
         ? ""
         : `(${getEmoji(
             pnl.at(0) === "-" ? "ANIMATED_ARROW_DOWN" : "ANIMATED_ARROW_UP",
@@ -226,9 +227,15 @@ async function compose(
       : []),
   ])
 
-  const notLinkedPlatforms = ["twitter", "telegram", "binance"].filter((s) =>
-    socials.every((connectedSocial) => connectedSocial.platform !== s)
-  )
+  const notLinkedPlatforms = ["twitter", "telegram", "binance"]
+    .filter((s) =>
+      socials.every(
+        (connectedSocial) => !equalIgnoreCase(connectedSocial.platform, s)
+      )
+    )
+    .filter((s) =>
+      cexes.every((connectedCex) => !equalIgnoreCase(connectedCex.chain, s))
+    )
 
   return {
     embeds: [embed],
