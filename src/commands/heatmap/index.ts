@@ -1,36 +1,17 @@
-import { Command, SlashCommand } from "types/common"
+import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { PREFIX, SLASH_PREFIX } from "utils/constants"
-import { emojis, getAuthor, getEmojiURL } from "../../utils/common"
-import run from "./index/text"
+import { SLASH_PREFIX } from "utils/constants"
+import { getAuthor } from "../../utils/common"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import CacheManager from "../../cache/node-cache"
+import run from "./index/slash"
 
 CacheManager.init({
   ttl: 0,
   pool: "heatmap",
   checkperiod: 1,
 })
-
-const textCmd: Command = {
-  id: "heatmap",
-  command: "heatmap",
-  brief: "Show top cryptocurrencies with live prices and 24h change in price",
-  category: "Defi",
-  run,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        author: ["Heatmap Crypto", getEmojiURL(emojis.MOCHI_CIRCLE)],
-        usage: `${PREFIX}heatmap`,
-      }),
-    ],
-  }),
-  colorType: "Market",
-  canRunWithoutAction: true,
-  allowDM: true,
-}
 
 const slashCmd: SlashCommand = {
   name: "heatmap",
@@ -54,4 +35,4 @@ const slashCmd: SlashCommand = {
   colorType: "Defi",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

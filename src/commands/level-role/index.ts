@@ -1,10 +1,6 @@
-import { Command, SlashCommand } from "types/common"
-import { LEVEL_ROLE_GITBOOK, PREFIX, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
-// text
-import set from "./set/text"
-import list from "./list/text"
-import remove from "./remove/text"
+import { SlashCommand } from "types/common"
+import { SLASH_PREFIX } from "utils/constants"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 // slash
 import setSlash from "./set/slash"
 import listSlash from "./list/slash"
@@ -14,40 +10,6 @@ import {
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
-
-const actions: Record<string, Command> = {
-  set,
-  list,
-  remove,
-}
-
-const textCmd: Command = {
-  id: "levelrole",
-  command: "levelrole",
-  brief: "Level Role Configuration",
-  category: "Config",
-  onlyAdministrator: true,
-  run: async () => null,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}lr set <role> <level>\n${PREFIX}lr <action>`,
-        examples: `${PREFIX}levelrole list\n${PREFIX}levelrole set @Mochi 1\n${PREFIX}lr set @admin 2`,
-        description: "Assign a role to users when they reach a certain level",
-        document: LEVEL_ROLE_GITBOOK,
-        footer: [
-          `Type ${PREFIX}help levelrole <action> for a specific action!`,
-        ],
-        includeCommandsList: true,
-      }),
-    ],
-  }),
-  canRunWithoutAction: false,
-  aliases: ["lr"],
-  actions,
-  colorType: "Server",
-  minArguments: 3,
-}
 
 const subCommands: Record<string, SlashCommand> = {
   list: listSlash,
@@ -82,4 +44,4 @@ const slashCmd: SlashCommand = {
   colorType: "Server",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

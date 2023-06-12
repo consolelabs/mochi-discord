@@ -1,33 +1,8 @@
 import { SlashCommandBuilder } from "@discordjs/builders"
-import { Command, SlashCommand } from "types/common"
-import { FEEDBACK_GITBOOK, PREFIX, SLASH_PREFIX } from "utils/constants"
-import feedback from "./index/text"
+import { SlashCommand } from "types/common"
+import { SLASH_PREFIX } from "utils/constants"
 import feedbackSlash from "./index/slash"
 import { composeEmbedMessage } from "ui/discord/embed"
-
-const textCmd: Command = {
-  id: "feedback",
-  command: "feedback",
-  brief: "Feedback",
-  category: "Community",
-  run: feedback,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}feedback <${PREFIX}command> <description>`,
-        examples: `${PREFIX}feedback i like it\n${PREFIX}feedback $gm UI can be better`,
-        footer: [`Type ${PREFIX}help for more actions!`],
-        description:
-          "Give feedback for the Mochi team about a specific command or in general",
-        document: FEEDBACK_GITBOOK,
-      }),
-    ],
-  }),
-  colorType: "Command",
-  canRunWithoutAction: true,
-
-  allowDM: true,
-}
 
 const slashCmd: SlashCommand = {
   name: "feedback",
@@ -68,4 +43,4 @@ const slashCmd: SlashCommand = {
   colorType: "Command",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

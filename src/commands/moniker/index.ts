@@ -1,8 +1,6 @@
-import { Command, SlashCommand } from "types/common"
-import { PREFIX, SLASH_PREFIX } from "utils/constants"
+import { SlashCommand } from "types/common"
+import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
-import remove from "./remove/text"
-import set from "./set/text"
 // slash
 import infoSlash from "./info/slash"
 import listSlash from "./list/slash"
@@ -13,32 +11,6 @@ import {
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
-
-const actions: Record<string, Command> = {
-  remove,
-  set,
-}
-
-const textCmd: Command = {
-  id: "moniker",
-  command: "moniker",
-  brief: "Moniker Configuration",
-  category: "Config",
-  run: async () => null,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}moniker <action>`,
-        examples: `${PREFIX}moniker list`,
-        description: "Manage moniker configuration used in tip",
-        includeCommandsList: true,
-      }),
-    ],
-  }),
-  actions,
-  colorType: "Server",
-  canRunWithoutAction: false,
-}
 
 const subCommands: Record<string, SlashCommand> = {
   list: listSlash,
@@ -77,4 +49,4 @@ const slashCmd: SlashCommand = {
   colorType: "Server",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

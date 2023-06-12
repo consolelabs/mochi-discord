@@ -41,14 +41,12 @@ import {
 } from "ui/discord/select-menu"
 import airdrop from "./airdrop"
 import balances from "./balances"
-import claim from "./claim"
 import proposal from "./proposal"
 import defaultrole from "./default-role"
 import deposit from "./deposit"
 import feedback from "./feedback/index"
 import gm from "./gm"
 import help from "./help/index"
-import levelmessage from "./level-message"
 import levelrole from "./level-role"
 import moniker from "./moniker"
 import gas from "./gas"
@@ -56,13 +54,11 @@ import activity from "./activity"
 import inbox from "./inbox"
 import nft from "./nft"
 import nftrole from "./nft-role"
-import poe from "./poe"
 import profile from "./profile"
 import prune from "./prune"
 import quest from "./quest"
 import reactionrole from "./reaction-role"
 import sales from "./sales"
-import sendxp from "./sendxp"
 import starboard from "./starboard"
 import telegram from "./telegram"
 import ticker from "./ticker"
@@ -80,7 +76,6 @@ import wallet from "./wallet"
 import mixrole from "./mix-role"
 import alert from "./alert"
 import stats from "./stats"
-import game from "./game"
 import pay from "./pay"
 import convert from "./convert"
 import vault from "./vault"
@@ -144,7 +139,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   profile: profile.slashCmd,
   deposit: deposit.slashCmd,
   dep: deposit.slashCmd,
-  sendxp: sendxp.slashCmd,
   tokenrole: tokenrole.slashCmd,
   xprole: xprole.slashCmd,
   mixrole: mixrole.slashCmd,
@@ -152,7 +146,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   wallet: wallet.slashCmd,
   stats: stats.slashCmd,
   gas: gas.slashCmd,
-  game: game.slashCmd,
   activity: activity.slashCmd,
   inbox: inbox.slashCmd,
   convert: convert.slashCmd,
@@ -177,46 +170,25 @@ export const originalCommands: Record<string, Command> = {
   // general help
   help: help.textCmd,
   // profile section
-  profile: profile.textCmd,
   tip: tip.textCmd,
-  claim: claim.textCmd,
-  balances: balances.textCmd,
   tokens: token.textCmd,
   ticker: ticker.textCmd,
   watchlist: watchlist.textCmd,
-  gm: gm.textCmd,
   nft: nft.textCmd,
   sales: sales.textCmd,
   verify: verify.textCmd,
-  feedback: feedback.textCmd,
   prune: prune.textCmd,
-  alert: alert.textCmd,
-  gas: gas.textCmd,
-  inbox: inbox.textCmd,
   // config section
   reactionrole: reactionrole.textCmd,
-  defaultrole: defaultrole.textCmd,
-  moniker: moniker.textCmd,
-  levelrole: levelrole.textCmd,
-  nftrole: nftrole.textCmd,
   proposal: proposal.textCmd,
-  levelmessage: levelmessage.textCmd,
-  tokenrole: tokenrole.textCmd,
   xprole: xprole.textCmd,
-  mixrole: mixrole.textCmd,
-  stats: stats.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
-  poe: poe.textCmd,
-  sendxp: sendxp.textCmd,
 
   //game
-  game: game.textCmd,
 
   // pay
   pay: pay.textCmd,
-
-  heatmap: heatmap.textCmd,
 }
 
 export const commands = getAllAliases(originalCommands)

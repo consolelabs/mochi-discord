@@ -1,33 +1,7 @@
-import { Command, SlashCommand } from "types/common"
+import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { GAS_ESTIMATION_GITBOOK, PREFIX } from "utils/constants"
-import gas from "./index/text"
 import gasSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
-
-const textCmd: Command = {
-  id: "gas",
-  command: "gas",
-  brief: "Gas Tracker",
-  category: "Defi",
-  run: gas,
-  getHelpMessage: async (msg) => {
-    return {
-      embeds: [
-        composeEmbedMessage(msg, {
-          examples: `${PREFIX}gas\n${PREFIX}gas eth`,
-          usage: `${PREFIX}gas [network]`,
-          description:
-            "Display the estimated gas price for on-chain transactions on many networks.",
-          footer: [`Type ${PREFIX}gas to check gas price`],
-          document: GAS_ESTIMATION_GITBOOK,
-        }),
-      ],
-    }
-  },
-  canRunWithoutAction: true,
-  colorType: "Defi",
-}
 
 const slashCmd: SlashCommand = {
   name: "gas",
@@ -51,4 +25,4 @@ const slashCmd: SlashCommand = {
   colorType: "Defi",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

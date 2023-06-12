@@ -1,52 +1,15 @@
-import { Command, SlashCommand } from "types/common"
-// text
-import set from "./set/text"
-import list from "./list/text"
-import remove from "./remove/text"
+import { SlashCommand } from "types/common"
 // slash
 import setSlash from "./set/slash"
 import listSlash from "./list/slash"
 import removeSlash from "./remove/slash"
-import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
-
-const actions: Record<string, Command> = {
-  set,
-  list,
-  remove,
-}
-
-const textCmd: Command = {
-  id: "tokenrole",
-  command: "tokenrole",
-  brief: "Token Role configuration",
-  category: "Config",
-  onlyAdministrator: true,
-  run: async () => null,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}tr <action>\n${PREFIX}tokenrole <action>`,
-        description:
-          " Assign role to a user once they hold a certain amount of Token",
-        examples: `${PREFIX}tr list\n${PREFIX}tokenrole list\n${PREFIX}tokenrole set @Mochi 1 0x4E15361FD6b4BB609Fa63C81A2be19d873717870 eth`,
-        footer: [`Type ${PREFIX}help tr <action> for a specific action!`],
-        includeCommandsList: true,
-        document: TOKEN_ROLE_GITBOOK,
-      }),
-    ],
-  }),
-  canRunWithoutAction: true,
-  aliases: ["tr"],
-  actions,
-  colorType: "Server",
-  minArguments: 5,
-}
 
 const slashActions: Record<string, SlashCommand> = {
   set: setSlash,
@@ -88,4 +51,4 @@ const slashCmd: SlashCommand = {
   colorType: "Server",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

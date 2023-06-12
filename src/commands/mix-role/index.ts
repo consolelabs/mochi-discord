@@ -1,52 +1,15 @@
-import { Command, SlashCommand } from "types/common"
-// text
-import set from "./set/text"
-import list from "./list/text"
-import remove from "./remove/text"
+import { SlashCommand } from "types/common"
 // slash
 import setSlash from "./set/slash"
 import listSlash from "./list/slash"
 import removeSlash from "./remove/slash"
-import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
-import { PREFIX, MIX_ROLE_GITBOOK, SLASH_PREFIX } from "utils/constants"
+import { composeEmbedMessage2 } from "ui/discord/embed"
+import { MIX_ROLE_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
-
-const actions: Record<string, Command> = {
-  set,
-  list,
-  remove,
-}
-
-const textCmd: Command = {
-  id: "mixrole",
-  command: "mixrole",
-  brief: "Mix Role configuration",
-  category: "Config",
-  onlyAdministrator: true,
-  run: async () => null,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}mr <action>\n${PREFIX}mixrole <action>`,
-        description:
-          "Users can combine different thresholds (XP/level, NFT and Token) to assign a role.",
-        examples: `${PREFIX}mr list\n${PREFIX}mixrole list\n${PREFIX}mixrole set`,
-        footer: [`Type ${PREFIX}help mr <action> for a specific action!`],
-        includeCommandsList: true,
-        document: MIX_ROLE_GITBOOK,
-      }),
-    ],
-  }),
-  canRunWithoutAction: true,
-  aliases: ["mr"],
-  actions,
-  colorType: "Server",
-  minArguments: 2,
-}
 
 const slashActions: Record<string, SlashCommand> = {
   set: setSlash,
@@ -88,4 +51,4 @@ const slashCmd: SlashCommand = {
   colorType: "Server",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }
