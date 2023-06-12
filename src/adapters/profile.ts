@@ -63,6 +63,7 @@ class Profile extends Fetcher {
         mochiWallets: [],
         wallets: [],
         cexes: [],
+        pnl: 0,
       }
     }
 
@@ -79,7 +80,10 @@ class Profile extends Fetcher {
       chain: String(m.chain?.is_evm ? "EVM" : m.chain?.symbol).toUpperCase(),
     }))
 
-    const pnl = Number(dataProfile.pnl ?? "0").toString()
+    let pnl = Number(dataProfile.pnl || 0)
+    if (Number.isNaN(pnl)) {
+      pnl = 0
+    }
 
     let onchainTotal = 0
     const wallets = removeDuplications(
