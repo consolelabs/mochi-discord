@@ -128,7 +128,7 @@ async function compose(
     mochiWallets,
     cexes,
     wallets: _wallets,
-    pnl = "0",
+    pnl,
   } = walletsRes
   const wallets = _wallets.slice(0, 10)
   const nextLevelMinXp = userProfile.next_level?.min_xp
@@ -166,13 +166,13 @@ async function compose(
     description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
       "CASH"
     )}\`Balance. $${grandTotalStr}\`${
-      Number(pnl) === 0 || Number.isNaN(Number(pnl))
+      pnl === 0
         ? ""
         : `(${getEmoji(
-            pnl.at(0) === "-" ? "ANIMATED_ARROW_DOWN" : "ANIMATED_ARROW_UP",
+            Math.sign(pnl) === -1 ? "ANIMATED_ARROW_DOWN" : "ANIMATED_ARROW_UP",
             true
           )} ${formatDigit({
-            value: pnl.at(0) === "-" ? pnl.slice(1) : pnl,
+            value: Math.abs(pnl),
             fractionDigits: 2,
           })}%)`
     }\n${getEmoji("ANIMATED_BADGE_1", true)}\`Lvl. ${
