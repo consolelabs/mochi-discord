@@ -31,7 +31,7 @@ import { getProfileIdByDiscord } from "../../../utils/profile"
 export enum BalanceType {
   Offchain = 1,
   Onchain,
-  Dex,
+  Cex,
 }
 
 const balanceEmbedProps: Record<
@@ -111,7 +111,7 @@ const balanceEmbedProps: Record<
     }
   },
   // TODO
-  [BalanceType.Dex]: async () => ({
+  [BalanceType.Cex]: async () => ({
     address: "",
     title: "Binance Data",
     emoji: getEmojiURL(emojis.NFT2),
@@ -132,7 +132,7 @@ const balancesFetcher: Record<
   [BalanceType.Offchain]: (profileId) => mochiPay.getBalances({ profileId }),
   [BalanceType.Onchain]: (_, discordId, address, type) =>
     defi.getWalletAssets(discordId, address, type),
-  [BalanceType.Dex]: (profileId, platform) =>
+  [BalanceType.Cex]: (profileId, platform) =>
     defi.getDexAssets({ profileId: profileId, platform: platform }),
 }
 
@@ -162,7 +162,7 @@ export async function getBalances(
     data = res.data.balance.filter((i: any) => Boolean(i))
     pnl = res.data.pnl
   }
-  if (type === BalanceType.Dex) {
+  if (type === BalanceType.Cex) {
     data = res.data.filter((i: any) => Boolean(i))
     pnl = 0
   }
@@ -186,7 +186,7 @@ const txnsFetcher: Record<
   [BalanceType.Offchain]: (profile_id) => mochiPay.getListTx({ profile_id }),
   [BalanceType.Onchain]: (_, discordId, address, type) =>
     defi.getWalletTxns(discordId, address, type),
-  [BalanceType.Dex]: (profile_id, platform) =>
+  [BalanceType.Cex]: (profile_id, platform) =>
     defi.getDexTxns(profile_id, platform),
 }
 
@@ -199,7 +199,7 @@ async function getTxns(
   addressType: string
 ) {
   // TODO: implement later
-  if (type === BalanceType.Dex) {
+  if (type === BalanceType.Cex) {
     return []
   }
   const fetcher = txnsFetcher[type]
@@ -598,7 +598,7 @@ async function switchView(
       inline: false,
     })
   }
-  if (balanceType === BalanceType.Dex) {
+  if (balanceType === BalanceType.Cex) {
     const value = await renderWallets({
       mochiWallets: {
         data: [],
