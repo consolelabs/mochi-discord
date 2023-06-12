@@ -211,16 +211,9 @@ export async function withdrawStep3(
     return {
       overrideInitialState: "withdrawStep1",
       context: { amount: "%0" },
-      msgOpts: {
-        embeds: [
-          new MessageEmbed({
-            description: `<:pepeno2:885513214467661834> **No token ${getEmoji(
-              params.token as TokenEmojiKey
-            )} ${params.token} found in your balance**`,
-            color: msgColors.ERROR,
-          }),
-        ],
-      },
+      msgOpts: (
+        await withdrawStep1(interaction as CommandInteraction, params.token)
+      ).msgOpts,
     }
   }
 
@@ -420,7 +413,7 @@ export async function withdrawStep2(
         ...(error
           ? [
               new MessageEmbed({
-                description: `<:pepeno2:885513214467661834> **${error}**`,
+                description: `${getEmoji("NO")} **${error}**`,
                 color: msgColors.ERROR,
               }),
             ]
@@ -494,21 +487,18 @@ export async function withdrawStep1(
     }
   }
 
-  const { text } = formatView("compact", "filter-dust", filteredBals)
-  const isNotEmpty = !!text
-  const emptyText = `${getEmoji(
-    "ANIMATED_POINTING_RIGHT",
-    true
-  )} You have nothing yet, use ${await getSlashCommand(
-    "earn"
-  )} or ${await getSlashCommand("deposit")} `
+  const { text } = formatView(
+    "compact",
+    "filter-dust",
+    filteredBals.length ? filteredBals : balances
+  )
 
   const embed = composeEmbedMessage(null, {
     author: ["Choose your money source", getEmojiURL(emojis.NFT2)],
-    description: isNotEmpty ? text : emptyText,
+    description: text,
   }).addFields(
     renderPreview({
-      token: filterSymbol,
+      ...(filterSymbol && filteredBals.length ? { token: filterSymbol } : {}),
     })
   )
 
@@ -520,7 +510,19 @@ export async function withdrawStep1(
       amount: "%0",
     },
     msgOpts: {
-      embeds: [embed],
+      embeds: [
+        embed,
+        ...(!filteredBals.length && filterSymbol
+          ? [
+              new MessageEmbed({
+                description: `${getEmoji("NO")} No token ${getEmojiToken(
+                  filterSymbol as TokenEmojiKey
+                )} **${filterSymbol}** found in your balance.`,
+                color: msgColors.ERROR,
+              }),
+            ]
+          : []),
+      ],
       components: [
         new MessageActionRow().addComponents(
           new MessageSelectMenu()

@@ -5,10 +5,17 @@ import { SLASH_PREFIX } from "utils/constants"
 import { MachineConfig, route } from "utils/router"
 import { CommandInteraction, Message } from "discord.js"
 import { run } from "./index/processor"
+import { machineConfig as questsMachineConfig } from "commands/quest"
+import { machineConfig as dropMachineConfig } from "commands/drop"
 
 export const machineConfig: MachineConfig = {
   id: "earn",
   initial: "earn",
+  context: {
+    button: {
+      earn: (i) => run(i.user),
+    },
+  },
   states: {
     earn: {
       on: {
@@ -18,24 +25,16 @@ export const machineConfig: MachineConfig = {
     },
     airdrops: {
       on: {
-        VIEW_AIRDROP_DETAIL: "airdrop",
-        VIEW_QUEST: "quests",
-        // special, reserved event name
-        NEXT_PAGE: "airdrops",
-        PREV_PAGE: "airdrops",
         BACK: "earn",
       },
-    },
-    airdrop: {
-      on: {
-        BACK: "airdrops",
-      },
+      ...dropMachineConfig,
     },
     quests: {
       on: {
         VIEW_AIRDROP: "airdrops",
         BACK: "earn",
       },
+      ...questsMachineConfig,
     },
   },
 }
