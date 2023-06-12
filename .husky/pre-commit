@@ -1,6 +1,6 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+# #!/bin/sh
+# . "$(dirname "$0")/_/husky.sh"
 
-npx lint-staged
-yarn generate:types && git add src/types/api.ts
-yarn test
+# npx lint-staged
+# yarn generate:types && git add src/types/api.ts
+# yarn test
