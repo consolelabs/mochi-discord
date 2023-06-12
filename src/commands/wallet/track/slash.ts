@@ -5,14 +5,8 @@ import { trackWallet } from "./processor"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { MachineConfig, route } from "utils/router"
-import { machineConfig as commonStates } from "commands/wallet/common/tracking"
-
-export const machineConfig: MachineConfig = {
-  id: "walletTrack",
-  initial: "walletTrack",
-  states: commonStates,
-}
+import { route } from "utils/router"
+import { machineConfig } from "commands/wallet/common/tracking"
 
 const command: SlashCommand = {
   name: "track",
@@ -54,10 +48,7 @@ const command: SlashCommand = {
     )
     const reply = await i.editReply(msgOpts)
 
-    route(reply as Message, i, {
-      ...machineConfig,
-      context,
-    })
+    route(reply as Message, i, machineConfig("walletTrack", context))
   },
   help: (interaction) =>
     Promise.resolve({
