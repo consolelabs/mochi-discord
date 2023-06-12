@@ -35,8 +35,8 @@ jobs:
       # Build & Push the Docker image
       - name: Build & Push
         run: |
-          docker build -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_REF_NAME} .   
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_REF_NAME}
+          docker build -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA} .   
+          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
       # Setup kustomize
       - name: Setup kustomize
         run: |
@@ -55,6 +55,6 @@ jobs:
           cd ./infrastructure/mochi-discord/$K8S_ENVIRONMENT
           git config user.name jphuc96
           git config user.email jphuc96@gmail.com
-          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_REF_NAME}
+          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
           git commit -am "[skip ci] mochi-discord ${K8S_ENVIRONMENT} image update"
           git push origin main
