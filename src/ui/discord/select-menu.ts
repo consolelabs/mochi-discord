@@ -104,7 +104,7 @@ export function composeSimpleSelection(
     .map((o, i) =>
       customRender
         ? customRender(o, i)
-        : `${getEmoji(`NUM_${i + 1}` as EmojiKey)} ${VERTICAL_BAR} ${o}`
+        : `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${VERTICAL_BAR}${o}`
     )
     .join("\n")}`
 }

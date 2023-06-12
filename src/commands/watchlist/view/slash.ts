@@ -1,15 +1,27 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
-import { composeWatchlist, WatchListViewType } from "./processor"
+import {
+  composeWatchlist,
+  WatchListTokenViewType,
+  WatchListViewType,
+} from "./processor"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
 import { MachineConfig, route } from "utils/router"
+import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 
 export const machineConfig: MachineConfig = {
   id: "watchlist",
   initial: "watchlist",
+  context: {
+    button: {
+      watchlist: (i) => composeWatchlist(i.user, 0),
+      watchlistNft: (i) => composeWatchlist(i.user, 0, WatchListViewType.Nft),
+      wallets: (i) => renderTrackingWallets(i.user),
+    },
+  },
   states: {
     watchlist: {
       on: {
@@ -51,17 +63,22 @@ const command: SlashCommand = {
   prepare: (alias = "view") => {
     return new SlashCommandSubcommandBuilder()
       .setName(alias)
-      .setDescription("View your watchlist")
+      .setDescription(
+        "View your watchlist" + (alias === "wlc" ? " with charts" : "")
+      )
   },
   run: async function (i: CommandInteraction) {
-    const messageOptions = await composeWatchlist(
+    const { msgOpts } = await composeWatchlist(
       i.user,
       0,
-      WatchListViewType.Token
+      WatchListViewType.Token,
+      i.commandName === "wlc"
+        ? WatchListTokenViewType.Chart
+        : WatchListTokenViewType.Text
     )
-    const reply = (await i.editReply(messageOptions)) as Message
+    const reply = (await i.editReply(msgOpts)) as Message
 
-    route(reply, i.user, machineConfig)
+    route(reply, i, machineConfig)
   },
   help: (interaction) =>
     Promise.resolve({

@@ -1,16 +1,25 @@
 import { CommandInteraction, GuildMember, Message } from "discord.js"
 import { MachineConfig, route } from "utils/router"
-import { render } from "./processor"
+import { render, viewQR } from "./processor"
 
 export const machineConfig: MachineConfig = {
   id: "qrCodes",
   initial: "qrCodes",
+  context: {
+    button: {
+      qrCodes: (i, _ev, ctx) => render(i, i.member as GuildMember, ctx.page),
+    },
+    select: {
+      qr: (i) => viewQR(i),
+    },
+  },
   states: {
     qrCodes: {
       on: {
         VIEW_QR: "qr",
         // transition to self (for implementing pagination)
-        PAGE: "qrCodes",
+        PREV_PAGE: "qrCodes",
+        NEXT_PAGE: "qrCodes",
       },
     },
     qr: {
@@ -22,13 +31,13 @@ export const machineConfig: MachineConfig = {
 }
 
 const run = async (interaction: CommandInteraction) => {
-  const replyPayload = await render(
+  const { msgOpts } = await render(
     interaction,
     interaction.member as GuildMember
   )
 
-  const reply = (await interaction.editReply(replyPayload)) as Message
+  const reply = (await interaction.editReply(msgOpts)) as Message
 
-  route(reply, interaction.user, machineConfig)
+  route(reply, interaction, machineConfig)
 }
 export default run

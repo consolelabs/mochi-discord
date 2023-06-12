@@ -73,26 +73,28 @@ export async function airdropDetail(i: SelectMenuInteraction) {
   })
 
   return {
-    embeds: [embed],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageButton()
-          .setStyle("SECONDARY")
-          .setLabel("Done")
-          .setEmoji(getEmoji("CHECK"))
-          .setCustomId("mark_done"),
-        new MessageButton()
-          .setStyle("SECONDARY")
-          .setLabel("Skip")
-          .setEmoji(getEmoji("NEXT_PAGE"))
-          .setCustomId("mark_skip"),
-        new MessageButton()
-          .setStyle("SECONDARY")
-          .setLabel("Favorite")
-          .setEmoji(getEmoji("ANIMATED_STAR"))
-          .setCustomId("mark_favoriate")
-      ),
-    ],
+    msgOpts: {
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setLabel("Done")
+            .setEmoji(getEmoji("CHECK"))
+            .setCustomId("mark_done"),
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setLabel("Skip")
+            .setEmoji(getEmoji("NEXT_PAGE"))
+            .setCustomId("mark_skip"),
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setLabel("Favorite")
+            .setEmoji(getEmoji("ANIMATED_STAR"))
+            .setCustomId("mark_favorite")
+        ),
+      ],
+    },
   }
 }
 
@@ -119,35 +121,45 @@ export async function run(
 
   const embed = composeEmbedMessage(null, {
     title: "New Airdrops",
-    description: `${[`**5**/100 new airdrops you can join.`].join("\n")}`,
+    description: `${[
+      `**${PAGE_SIZE * page + data.length}**/${
+        DATA.length
+      } new airdrops you can join.`,
+    ].join("\n")}`,
     thumbnail: getEmojiURL(emojis.CHEST),
     color: msgColors.YELLOW,
   })
 
-  embed.fields = data.map((d: any, i: number) => {
+  embed.fields = data.map((d: any) => {
     return {
-      name: `\`#000${i + 1}\` ${d.title}`,
+      name: `\`#${d.id}\` ${d.title}`,
       value: `Deadline: **${d.deadline}**`,
       inline: false,
     }
   })
 
   return {
-    embeds: [embed],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageSelectMenu()
-          .setPlaceholder(`📦 View airdrop detail`)
-          .setCustomId(`view_airdrop_detail/${status}`)
-          .addOptions(
-            DATA.map((data, i) => ({
-              emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-              label: data.title,
-              value: data.id.toString(),
-            }))
-          )
-      ),
-      ...paginationButtons(`page/${status}`, page, paginated.length),
-    ],
+    msgOpts: {
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageSelectMenu()
+            .setPlaceholder(`📦 View airdrop detail`)
+            .setCustomId("view_airdrop_detail")
+            .addOptions(
+              DATA.map((data, i) => ({
+                emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+                label: data.title,
+                value: data.id.toString(),
+              }))
+            )
+        ),
+        ...paginationButtons(page, paginated.length),
+      ],
+    },
+    context: {
+      status,
+      page,
+    },
   }
 }

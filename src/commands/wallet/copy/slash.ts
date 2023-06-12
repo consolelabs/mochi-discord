@@ -1,7 +1,9 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandInteraction } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
 import { copyWallet } from "./processor"
+import { route } from "utils/router"
+import { machineConfig } from "commands/wallet/common/tracking"
 
 const command: SlashCommand = {
   name: "copy",
@@ -34,9 +36,16 @@ const command: SlashCommand = {
     const chain = i.options.getString("chain", false) ?? "eth"
     const alias = i.options.getString("alias", false) ?? ""
 
-    return {
-      messageOptions: await copyWallet(i, i.user, address, chain, alias),
-    }
+    const { msgOpts, context } = await copyWallet(
+      i,
+      i.user,
+      address,
+      chain,
+      alias
+    )
+    const reply = await i.editReply(msgOpts)
+
+    route(reply as Message, i, machineConfig("walletCopy", context))
   },
   help: () => Promise.resolve({}),
   colorType: "Defi",

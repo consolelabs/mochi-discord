@@ -103,11 +103,7 @@ class MochiPay extends Fetcher {
     )
   }
 
-  public async deposit(body: {
-    profileId: string
-    token: string
-    chainId: string
-  }) {
+  public async deposit(body: { profileId: string; token: string }) {
     return await this.jsonFetch(
       `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/deposit`,
       {
@@ -126,6 +122,19 @@ class MochiPay extends Fetcher {
   async getListTx(query: { profile_id: string }) {
     return await this.jsonFetch(
       `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/transactions`,
+      {
+        query,
+      }
+    )
+  }
+
+  async getWithdrawTxns(query: {
+    profileId: string
+    token: string
+    chainId: string
+  }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/withdraw/transactions/recent`,
       {
         query,
       }

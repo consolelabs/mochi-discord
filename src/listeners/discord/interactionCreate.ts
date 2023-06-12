@@ -114,22 +114,24 @@ const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
   once: false,
   execute: async (interaction) => {
-    const id = interaction.isCommand()
-      ? interaction.toString()
-      : interaction.isSelectMenu() || interaction.isButton()
-      ? interaction.customId
-      : interaction.isAutocomplete()
-      ? `autocomplete:${
-          interaction.commandName
-        }:${interaction.options.getSubcommand()}:${
-          interaction.options.getFocused(true).name
-        }`
-      : ""
+    let id = ""
+    if (interaction.isCommand()) {
+      id = interaction.toString()
+    } else if (interaction.isButton() || interaction.isSelectMenu()) {
+      id = interaction.customId
+    } else if (interaction.isAutocomplete()) {
+      id = `autocomplete:${
+        interaction.commandName
+      }:${interaction.options.getSubcommand()}:${
+        interaction.options.getFocused(true).name
+      }`
+    }
     if (!id) return
     if (
       !interaction.isSelectMenu() &&
       !interaction.isButton() &&
       !interaction.isCommand() &&
+      !interaction.isModalSubmit() &&
       !interaction.isAutocomplete()
     ) {
       return

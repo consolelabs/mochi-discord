@@ -51,18 +51,19 @@ export async function followWallet(
     })
   }
 
-  const { messageOptions } = renderTrackingResult(msg, author.id, address)
+  const { msgOpts } = renderTrackingResult(address, chain, alias)
 
-  return messageOptions
+  return { msgOpts, context: { user: author, address } }
 }
 
-function renderTrackingResult(
-  msg: OriginalMessage,
-  authorID: string,
-  address: string
-) {
+function renderTrackingResult(address: string, chain: string, alias: string) {
   return {
-    messageOptions: {
+    context: {
+      address,
+      chain,
+      alias,
+    },
+    msgOpts: {
       embeds: [
         composeEmbedMessage(null, {
           author: [
@@ -80,7 +81,7 @@ ${getEmoji(
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
   true
-)} Tracking this wallet by clicking on button \`Track\`.
+)} Track this wallet's transaction by clicking on button \`Track\`.
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
   true
@@ -97,22 +98,22 @@ ${getEmoji(
           new MessageButton()
             .setLabel("Watchlist")
             .setStyle("PRIMARY")
-            .setCustomId(`watchlist_wallets_view`)
+            .setCustomId(`view_wallet`)
             .setEmoji(emojis.PROPOSAL),
           new MessageButton()
             .setLabel("Track")
             .setStyle("SECONDARY")
-            .setCustomId(`watchlist_wallets_track-${authorID}-${address}`)
+            .setCustomId("track_wallet")
             .setEmoji(emojis.ANIMATED_STAR),
           new MessageButton()
             .setLabel("Copy")
             .setStyle("SECONDARY")
-            .setCustomId(`watchlist_wallets_copy-${authorID}-${address}`)
+            .setCustomId("copy_wallet")
             .setEmoji(emojis.SWAP_ROUTE),
           new MessageButton()
             .setLabel("Unfollow")
-            .setStyle("DANGER")
-            .setCustomId(`watchlist_wallets_unfollow-${authorID}-${address}`)
+            .setStyle("SECONDARY")
+            .setCustomId("untrack_wallet")
             .setEmoji(emojis.REVOKE)
         ),
       ],

@@ -95,6 +95,7 @@ import transaction from "./transaction"
 import admin from "./admin"
 import botManager from "./bot-manager"
 import earn from "./earn"
+import drop from "./drop"
 import qr from "./qr"
 import defaults from "./default"
 import setting from "./setting"
@@ -116,6 +117,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   watchlist: watchlist.slashCmd,
   // alias
   wlv: watchlistView,
+  wlc: watchlistView,
   defaultrole: defaultrole.slashCmd,
   levelrole: levelrole.slashCmd,
   reactionrole: reactionrole.slashCmd,
@@ -167,6 +169,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   "bot-manager": botManager.slashCmd,
   telegram: telegram.slashCmd,
   earn: earn.slashCmd,
+  drop: drop.slashCmd,
   qr: qr.slashCmd,
   default: defaults.slashCmd,
   setting: setting.slashCmd,
@@ -189,7 +192,6 @@ export const originalCommands: Record<string, Command> = {
   verify: verify.textCmd,
   feedback: feedback.textCmd,
   prune: prune.textCmd,
-  quest: quest.textCmd,
   alert: alert.textCmd,
   gas: gas.textCmd,
   inbox: inbox.textCmd,

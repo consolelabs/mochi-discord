@@ -86,6 +86,7 @@ const handler = (symbols: string[]) => async (msgOrInteraction: any) => {
   const value = interaction.values[0]
   const [symbol, coinGeckoId, userId] = value.split("_")
   const { message } = <{ message: Message }>interaction
+  // TODO(tuand): get coin data then display
   await addUserWatchlist(msgOrInteraction, userId, symbol, coinGeckoId)
   return {
     ...(await addWatchlistToken({
@@ -155,8 +156,8 @@ export async function addWatchlistToken({
       }
     )
     const { base_suggestions, target_suggestions } = data
-    if (!base_suggestions || !target_suggestions) continue
-    if (!base_suggestions.length || !target_suggestions.length) continue
+    if (!base_suggestions && !target_suggestions) continue
+    if (!base_suggestions.length && !target_suggestions.length) continue
 
     // allow selection
     let options: MessageSelectOptionData[]
@@ -221,6 +222,7 @@ export async function addWatchlistToken({
   }
 
   CacheManager.findAndRemove("watchlist", `watchlist-${userId}`)
+
   return {
     messageOptions: {
       embeds: [

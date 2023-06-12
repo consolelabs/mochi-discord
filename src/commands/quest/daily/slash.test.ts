@@ -51,7 +51,9 @@ describe("run", () => {
         ],
       },
     }
-    jest.spyOn(processor, "run").mockResolvedValueOnce(expected)
+    jest
+      .spyOn(processor, "run")
+      .mockResolvedValueOnce({ msgOpts: expected.messageOptions })
 
     const output = (await questCmd.run(i)) as RunResult<MessageOptions>
 

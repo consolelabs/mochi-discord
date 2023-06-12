@@ -1,41 +1,42 @@
-import {
-  SlashCommandBuilder,
-  SlashCommandSubcommandBuilder,
-} from "@discordjs/builders"
+import { SlashCommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
-import { MachineConfig } from "utils/router"
-import airdrop from "./airdrop/slash"
-import quest from "./quest/slash"
+import { MachineConfig, route } from "utils/router"
+import { CommandInteraction, Message } from "discord.js"
+import { run } from "./index/processor"
+import { machineConfig as questsMachineConfig } from "commands/quest"
+import { machineConfig as dropMachineConfig } from "commands/drop"
 
 export const machineConfig: MachineConfig = {
   id: "earn",
-  initial: "airdrops",
+  initial: "earn",
+  context: {
+    button: {
+      earn: (i) => run(i.user),
+    },
+  },
   states: {
-    airdrops: {
+    earn: {
       on: {
-        VIEW_AIRDROP_DETAIL: "airdrop",
-        VIEW_QUEST: "quests",
-        PAGE: "airdrops",
+        VIEW_AIRDROPS: "airdrops",
+        VIEW_QUESTS: "quests",
       },
     },
-    airdrop: {
+    airdrops: {
       on: {
-        BACK: "airdrops",
+        BACK: "earn",
       },
+      ...dropMachineConfig,
     },
     quests: {
       on: {
         VIEW_AIRDROP: "airdrops",
+        BACK: "earn",
       },
+      ...questsMachineConfig,
     },
   },
-}
-
-const subCommands: Record<string, SlashCommand> = {
-  airdrop,
-  quest,
 }
 
 const slashCmd: SlashCommand = {
@@ -47,21 +48,25 @@ const slashCmd: SlashCommand = {
       .setDescription(
         "view earning opportunities, from airdrop campaigns to quests"
       )
-
-    data.addSubcommand(<SlashCommandSubcommandBuilder>airdrop.prepare())
-    data.addSubcommand(<SlashCommandSubcommandBuilder>quest.prepare())
     return data
   },
-  run: (i) => subCommands[i.options.getSubcommand(true)]?.run(i),
-  help: () =>
+  run: async function (interaction: CommandInteraction) {
+    const { msgOpts } = await run(interaction.user)
+    const replyMsg = (await interaction.editReply(msgOpts)) as Message
+    route(replyMsg, interaction, machineConfig)
+  },
+  help: (interaction: CommandInteraction) =>
     Promise.resolve({
       embeds: [
-        composeEmbedMessage(null, {
+        composeEmbedMessage2(interaction, {
+          description: "Check on your quests and what rewards you can claim",
           usage: `${SLASH_PREFIX}earn`,
+          examples: `${SLASH_PREFIX}earn`,
+          footer: [`Type ${SLASH_PREFIX}earn`],
         }),
       ],
     }),
-  colorType: "Defi",
+  colorType: "Server",
 }
 
 export default { slashCmd }

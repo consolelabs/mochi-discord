@@ -41,7 +41,15 @@ export async function runGetVaultDetail(
 
   const walletAddress =
     data.wallet_address !== ""
-      ? `**Wallet Address**\n\`EVM | ${data.wallet_address}\`\n\`SOL | ${data.solana_wallet_address}\``
+      ? `**Wallet Address**\n${getEmoji("NUM_1")}\`EVM | ${shortenHashOrAddress(
+          data.wallet_address,
+          5,
+          5
+        )}\`\n${getEmoji("NUM_2")}\`SOL | ${shortenHashOrAddress(
+          data.solana_wallet_address,
+          5,
+          5
+        )}\``
       : ""
 
   const titleCurrentRequest = `**Current request**\n`
@@ -94,7 +102,7 @@ export async function runGetVaultDetail(
   const embed = composeEmbedMessage2(interaction as any, {
     color: msgColors.BLUE,
     author: ["Vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
-    description: `${basicInfo}\n\n${walletAddress}${currentRequest}`,
+    description: `${basicInfo}\n\n${walletAddress}\n${currentRequest}`,
   }).addFields(fields)
 
   return {
@@ -235,7 +243,10 @@ function buildMyNftFields(data: any): any {
 export function buildRecentTxFields(data: any): any {
   let valueRecentTx = ""
   for (let i = 0; i < data.recent_transaction.length; i++) {
-    if (data.recent_transaction[i].token.length > 5) continue
+    const tx = data.recent_transaction[i]
+    // filter out spammy tokens
+    if (tx.token.length > 10) continue
+    if (tx.token.toUpperCase() !== tx.token) continue
     valueRecentTx += formatRecentTransaction(data.recent_transaction[i])
   }
   if (!valueRecentTx) return []

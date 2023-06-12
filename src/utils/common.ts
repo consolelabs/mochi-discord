@@ -74,7 +74,7 @@ export const tokenEmojis = {
   LINK: "1005008904205385759",
   CHAINLINK: "1005008904205385759",
   NEAR: "1005008870038589460",
-  ATOM: ":atom:",
+  ATOM: "1114116090759487560",
   XLM: "1113115466727170208",
   XMR: "1005008819866312724",
   BCH: "1005008800106942525",
@@ -118,7 +118,7 @@ export const tokenEmojis = {
   TAROT: "1115116219624869918",
   METIS: "1113114980624113684",
   BEND: "1113114838391066697",
-  ICE: "1113114933064896595",
+  ICE: "1115841380883894363",
   MONERO: "1113115286489530408",
   RDNT: "1113115338192715849",
   KEK: "1113114952526483588",
@@ -191,6 +191,7 @@ export const tokenEmojis = {
   UNIDX: "1113120144793800754",
   KAI: "1113120080151199824",
   PENDLE: "1113120112485085315",
+  BINANCE: "1116727169654206595",
 }
 
 export const numberEmojis = {
@@ -440,7 +441,7 @@ export const emojis = {
   OASIS: "1113115304176922655",
   OCEAN: "1113115314113224764",
   BINANCE: "1116727169654206595",
-
+  NO: "1112604245875765319",
   ...animatedEmojis,
   ...tokenEmojis,
   ...numberEmojis,
@@ -455,7 +456,7 @@ export const emojis = {
   ...traitTypeMapping,
 }
 
-export const msgColors: Record<string, ColorResolvable> = {
+export const msgColors = {
   PRIMARY: "#E88B88",
   ERROR: "#D94F4F",
   SUCCESS: "#5cd97d",
@@ -467,7 +468,7 @@ export const msgColors: Record<string, ColorResolvable> = {
   YELLOW: "#F9F687",
   MOCHI: "#34AAFF",
   ACTIVITY: "#62A1FE",
-}
+} satisfies Record<string, ColorResolvable>
 
 export const thumbnails = {
   HELP: "https://i.imgur.com/uuQhOmH.png",
@@ -482,6 +483,10 @@ export const thumbnails = {
     "https://cdn.discordapp.com/attachments/984660970624409630/1095630891537149962/Mochi_Pose_2.png",
   MOCHI_POSE_4:
     "https://cdn.discordapp.com/attachments/984660970624409630/1095615053434212362/Mochi_Pose_4.png",
+  MOCHI_POSE_11:
+    "https://cdn.discordapp.com/attachments/1003535223973224478/1115944536879939724/Mochi_Pose_11.png",
+  MOCHI_POSE_12:
+    "https://cdn.discordapp.com/attachments/1052079279619457095/1116938833888555048/Mochi_Pose_12.png",
   MOCHI_POSE_14:
     "https://cdn.discordapp.com/attachments/984660970624409630/1098472181631045742/Mochi_Pose_14.png",
   ROCKET:
@@ -921,8 +926,8 @@ export function isValidAmount({
   if (exceptions?.map((s) => s.toLowerCase()).includes(arg.toLowerCase())) {
     return true
   }
-  const amount = parseFloat(arg)
-  return !isNaN(amount) && amount > 0
+  const amount = Number(arg)
+  return !Number.isNaN(amount) && amount > 0
 }
 
 export function equalIgnoreCase(

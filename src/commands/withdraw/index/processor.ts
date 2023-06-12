@@ -1,10 +1,16 @@
-import { CommandInteraction, Message, SelectMenuInteraction } from "discord.js"
+import {
+  ButtonInteraction,
+  CommandInteraction,
+  MessageActionRow,
+  MessageButton,
+  MessageComponentInteraction,
+  MessageEmbed,
+  MessageSelectMenu,
+  SelectMenuInteraction,
+} from "discord.js"
 import { APIError } from "errors"
-import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
-import { InsufficientBalanceError } from "errors/insufficient-balance"
 import { KafkaQueueActivityDataCommand } from "types/common"
-import { composeButtonLink } from "ui/discord/button"
-import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { defaultActivityMsg, sendActivityMsg } from "utils/activity"
 import {
   TokenEmojiKey,
@@ -16,285 +22,559 @@ import {
   getEmojiURL,
   isAddress,
   isValidAmount,
-  msgColors,
   thumbnails,
+  shortenHashOrAddress,
+  msgColors,
 } from "utils/common"
 import {
   MOCHI_ACTION_WITHDRAW,
   MOCHI_APP_SERVICE,
   MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
 } from "utils/constants"
-import { awaitMessage, isMessage, reply } from "utils/discord"
+import { enableDMMessage } from "ui/discord/embed"
 import mochiPay from "../../../adapters/mochi-pay"
-import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { convertString } from "../../../utils/convert"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import { isTokenSupported } from "../../../utils/tip-bot"
-import * as processor from "./processor"
-import { dmUser } from "../../../utils/dm"
+import { formatView } from "commands/balances/index/processor"
+import CacheManager from "cache/node-cache"
+import { BigNumber, utils } from "ethers"
+import { getSlashCommand } from "utils/commands"
 
-export async function getRecipient(
-  msg: Message | CommandInteraction,
-  dm: Message,
-  payload: any
-): Promise<string> {
-  const author = msg instanceof Message ? msg.author : msg.user
-  const timeoutEmbed = getErrorEmbed({
-    title: "Withdrawal cancelled",
-    description:
-      "No input received. You can retry transaction with `$withdraw <amount> <token>`",
-  })
-  const { first, content: address } = await awaitMessage({
-    authorId: author.id,
-    msg: dm,
-    timeoutResponse: { embeds: [timeoutEmbed] },
-  })
-  const isSolanaWithdrawal = payload.chainId === "999"
-  const { valid, chainType } = isAddress(address)
-  const validAddress =
-    valid && (isSolanaWithdrawal ? chainType === "sol" : chainType === "eth")
-  if (first && !validAddress) {
-    await first.reply({
-      embeds: [
-        getErrorEmbed({
-          title: `Invalid ${payload.token} address`,
-          description: `Please retry with \`$withdraw\` and enter a valid **${
-            isSolanaWithdrawal ? "Solana" : "EVM"
-          } wallet address**.`,
-        }),
-      ],
-    })
-    return ""
-  }
-  return address
+type Params = {
+  amount?: string
+  token?: TokenEmojiKey
+  address?: string
+  tokenObj?: any
 }
 
-export async function withdraw(
-  msgOrInteraction: Message | CommandInteraction,
-  amountArg: string,
-  tokenArg: TokenEmojiKey
+CacheManager.init({
+  pool: "withdraw-request-payload",
+  ttl: 0,
+  checkperiod: 0,
+})
+
+async function getBalances(
+  i: CommandInteraction | MessageComponentInteraction
 ) {
-  const author = getAuthor(msgOrInteraction)
+  const author = getAuthor(i)
   const profileId = await getProfileIdByDiscord(author.id)
 
-  const validAmount = isValidAmount({ arg: amountArg, exceptions: ["all"] })
-  if (!validAmount) {
-    throw new DiscordWalletTransferError({
-      discordId: author.id,
-      message: msgOrInteraction,
-      error: "The amount is invalid. Please insert a positive number.",
-    })
-  }
-  let amount = parseFloat(amountArg)
-
-  // validate token
-  const isToken = await isTokenSupported(tokenArg)
-  if (!isToken) {
-    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
-    const errorEmbed = getErrorEmbed({
-      title: "Unsupported token",
-      description: `**${tokenArg}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright} To add your token, run \`$token add\`.`,
-    })
-    reply(msgOrInteraction, { messageOptions: { embeds: [errorEmbed] } })
-    return null
-  }
-
   // validate balance
-  const { data, ok, curl, log } = await mochiPay.getBalances({
-    profileId: profileId,
-    token: tokenArg,
-  })
-  if (!ok) {
-    throw new APIError({ curl, description: log, msgOrInteraction })
-  }
-
-  const balances = data.filter((b: any) => b.amount !== "0")
-
-  // no balance -> reject
-  if (!balances.length) {
-    throw new InsufficientBalanceError({
-      msgOrInteraction,
-      params: { current: 0, required: amount, symbol: tokenArg },
-    })
-  }
-
-  const payload: any = {
-    address: "",
+  const { data, ok } = await mochiPay.getBalances({
     profileId,
-    amount: amount.toString(),
-    token: tokenArg.toUpperCase(),
-    chainId: "",
-    platform: "discord",
-    platform_user_id: author.id,
+  })
+  let balances: any[] = []
+  if (ok) {
+    balances = data.filter((b: any) => b.amount !== "0")
   }
 
-  const all = equalIgnoreCase(amountArg, "all")
+  return balances
+}
 
-  // one matching token -> proceed to send tip
-  if (balances.length === 1) {
-    const balance = balances[0]
-    const decimal = balance?.token?.decimal ?? 0
-    const current = convertString(balance?.amount, decimal) ?? 0
-    if (all) amount = current
-    payload.amount = amount.toString()
-    if (current < amount) {
-      throw new InsufficientBalanceError({
-        msgOrInteraction,
-        params: { current, required: amount, symbol: tokenArg },
-      })
+function checkCommitableOperation(
+  tokenAmount: string,
+  amount: string,
+  token: any
+) {
+  const tokenDecimal = token.decimal ?? 0
+
+  const parsedAmount = Number(amount)
+  if (!isValidAmount({ arg: amount, exceptions: ["all"] })) {
+    return { valid: false, error: "The amount is invalid" }
+  } else if (
+    parsedAmount > convertString(tokenAmount, tokenDecimal) &&
+    tokenDecimal > 0
+  ) {
+    return { valid: false, error: "Insufficient balance" }
+  } else if (parsedAmount > 0 && !isValidTipAmount(amount, tokenDecimal)) {
+    return {
+      valid: false,
+      error: `${token.symbol} valid amount must not have more than ${tokenDecimal} fractional digits.`,
     }
-    if (!isValidTipAmount(payload.amount.toString(), decimal)) {
-      throw new DiscordWalletTransferError({
-        message: msgOrInteraction,
-        error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
-      })
-    }
-    payload.amount_string = formatDigit({
+  }
+
+  return {
+    valid: true,
+    error: null,
+  }
+}
+
+function renderPreview(params: {
+  address?: string
+  network?: string
+  token?: string
+  amount?: string
+  fee?: string
+}) {
+  return {
+    name: "\u200b\nPreview",
+    value: [
+      params.address &&
+        `${getEmoji("WALLET_1")}\`Address.  ${shortenHashOrAddress(
+          params.address,
+          5,
+          5
+        )}\``,
+      params.network &&
+        `${getEmoji("SWAP_ROUTE")}\`Network.  \`${params.network}`,
+      `${getEmoji("SWAP_ROUTE")}\`Source.   \`Mochi wallet`,
+      params.token &&
+        `${getEmoji("ANIMATED_COIN_1", true)}\`Coin.     \`${params.token}`,
+      params.token &&
+        params.amount &&
+        `${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
+          params.token as TokenEmojiKey
+        )} **${formatDigit({
+          value: params.amount,
+          fractionDigits: Number(params.amount) >= 1 ? 0 : undefined,
+        })} ${params.token}**`,
+      params.fee &&
+        params.token &&
+        `${getEmoji("CASH")}\`Fee.      \`${formatDigit({
+          value: params.fee,
+          fractionDigits: 2,
+        })} ${params.token}`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    inline: false,
+  }
+}
+
+async function savePayload(
+  i: CommandInteraction | MessageComponentInteraction,
+  {
+    address,
+    amount: _amount,
+    token,
+    chainId,
+    decimal,
+  }: {
+    address?: string
+    amount: string
+    token: string
+    chainId: string
+    decimal: number
+  }
+) {
+  const profileId = await getProfileIdByDiscord(i.user.id)
+  const amount = _amount.replaceAll(",", "")
+  const payload = {
+    address,
+    profileId,
+    amount,
+    token,
+    chainId,
+    platform: "discord",
+    platform_user_id: i.user.id,
+    amount_string: formatDigit({
       value: amount.toString(),
       fractionDigits: decimal,
-    })
-    payload.chainId = balance.token?.chain?.chain_id
-    await executeWithdraw(msgOrInteraction, payload)
-    return
+    }),
   }
 
-  await selectTokenToWithdraw(msgOrInteraction, balances, payload, all)
+  await CacheManager.set({
+    pool: "withdraw-request-payload",
+    key: i.user.id,
+    val: payload as any,
+  })
+}
+
+// enter address
+export async function withdrawStep3(
+  interaction: CommandInteraction | MessageComponentInteraction,
+  params: Params = {}
+) {
+  const balances = await getBalances(interaction)
+
+  const filteredBals = balances.filter(
+    (b) => !params.token || equalIgnoreCase(b.token.symbol, params.token)
+  )
+
+  // straight from command
+  if (interaction.isCommand() && filteredBals.length > 1) {
+    const { msgOpts } = await withdrawStep1(interaction, params.token)
+
+    return {
+      overrideInitialState: "withdrawStep1",
+      context: { amount: "%0" },
+      msgOpts,
+    }
+  }
+
+  let tokenObj = params.tokenObj
+  tokenObj ??= filteredBals.at(0)
+
+  if (!tokenObj) {
+    return {
+      overrideInitialState: "withdrawStep1",
+      context: { amount: "%0" },
+      msgOpts: (
+        await withdrawStep1(interaction as CommandInteraction, params.token)
+      ).msgOpts,
+    }
+  }
+
+  const { valid, error } = checkCommitableOperation(
+    tokenObj.amount,
+    params.amount ?? "0",
+    tokenObj.token
+  )
+  if (error) {
+    const { msgOpts } = await withdrawStep2(interaction, {
+      tokenObj,
+      amount: params.amount,
+      token: tokenObj.token.symbol,
+    })
+
+    return {
+      overrideInitialState: "withdrawStep2",
+      context: {
+        tokenObj,
+        amount: params.amount,
+        token: tokenObj.token.symbol,
+      },
+      msgOpts,
+    }
+  }
+
+  const profileId = await getProfileIdByDiscord(interaction.user.id)
+  let recentTxns = []
+  const { data, ok } = await mochiPay.getWithdrawTxns({
+    profileId,
+    token: tokenObj.token.symbol,
+    chainId: tokenObj.token.chain.chain_id,
+  })
+
+  if (ok) {
+    recentTxns = data as any[]
+  }
+
+  const listWalletsRecentlyUsed = Array.from(
+    new Set(recentTxns.map((tx) => tx.address))
+  )
+
+  const { valid: validAddress } = isAddress(params.address ?? "")
+
+  if (valid && validAddress) {
+    await savePayload(interaction, {
+      address: params.address,
+      chainId: tokenObj.token.chain.chain_id,
+      decimal: tokenObj.token.decimal,
+      token: params.token ?? "",
+      amount: params.amount ?? "0",
+    })
+  }
+
+  const embed = composeEmbedMessage(null, {
+    author: ["Choose your address", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
+    description: `${getEmoji(
+      "ANIMATED_POINTING_DOWN",
+      true
+    )} Enter or choose from list below.`,
+  }).addFields(
+    renderPreview({
+      address: params.address,
+      token: tokenObj.token.symbol,
+      amount: params.amount,
+      network: tokenObj.token.chain.name,
+    })
+  )
+
+  return {
+    context: {
+      ...params,
+      tokenObj,
+    },
+    msgOpts: {
+      embeds: [embed],
+      components: [
+        ...(listWalletsRecentlyUsed.length
+          ? [
+              new MessageActionRow().addComponents(
+                new MessageSelectMenu()
+                  .setPlaceholder("💰 Recently used wallets")
+                  .setCustomId("select_address")
+                  .addOptions(
+                    listWalletsRecentlyUsed.map((a) => ({
+                      label: `🔹 ${shortenHashOrAddress(a, 5, 5)}`,
+                      value: a,
+                    }))
+                  )
+              ),
+            ]
+          : []),
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel(
+              validAddress || !params.address
+                ? "Confirm (3/3)"
+                : "Address not valid"
+            )
+            .setCustomId("submit")
+            .setStyle("PRIMARY")
+            .setDisabled(!valid || !validAddress),
+          new MessageButton({
+            label: `${params.address ? "Change" : "Enter"} address`,
+            style: "SECONDARY",
+            customId: "enter_address",
+          })
+        ),
+      ],
+    },
+  }
+}
+
+// select withdraw amount
+export async function withdrawStep2(
+  interaction: CommandInteraction | MessageComponentInteraction,
+  params: Params
+) {
+  const balances = await getBalances(interaction)
+
+  const tokenObj =
+    params.tokenObj || balances.find((b) => equalIgnoreCase(b.id, params.token))
+
+  let error: string | null = ""
+
+  const tokenAmount = tokenObj.amount
+  const tokenDecimal = tokenObj.token.decimal ?? 0
+
+  const getPercentage = (percent: number) =>
+    BigNumber.from(tokenAmount).mul(percent).div(100).toString()
+  let amount
+  if (
+    params.amount?.startsWith("%") ||
+    params.amount?.toLowerCase() === "all"
+  ) {
+    const formatted = utils.formatUnits(
+      getPercentage(
+        params.amount?.toLowerCase() === "all"
+          ? 100
+          : Number(params.amount.slice(1))
+      ),
+      tokenDecimal
+    )
+    amount = formatDigit({
+      value: formatted,
+      fractionDigits: Number(formatted) >= 1 ? 0 : undefined,
+    })
+  } else {
+    let valid
+    ;({ valid, error } = checkCommitableOperation(
+      tokenObj.amount,
+      params.amount ?? "0",
+      tokenObj.token
+    ))
+
+    if (valid) {
+      amount = formatDigit({
+        value: params.amount ?? "0",
+        fractionDigits: Number(params.amount) >= 1 ? 0 : undefined,
+      })
+    }
+  }
+
+  const { text } = formatView("compact", "filter-dust", [tokenObj])
+  const isNotEmpty = !!text
+  const emptyText = `${getEmoji(
+    "ANIMATED_POINTING_RIGHT",
+    true
+  )} You have nothing yet, use ${await getSlashCommand(
+    "earn"
+  )} or ${await getSlashCommand("deposit")} `
+
+  const embed = composeEmbedMessage(null, {
+    author: [
+      `How many ${tokenObj.token.symbol} to withdraw ? `,
+      getEmojiURL(emojis.NFT2),
+    ],
+    description: isNotEmpty ? text : emptyText,
+  }).addFields(
+    renderPreview({
+      network: tokenObj.token.chain.name,
+      token: tokenObj.token.symbol,
+      amount: String(error ? 0 : amount),
+    })
+  )
+
+  return {
+    context: {
+      ...params,
+      token: tokenObj.token.symbol,
+      tokenObj,
+      amount,
+    },
+    msgOpts: {
+      embeds: [
+        embed,
+        ...(error
+          ? [
+              new MessageEmbed({
+                description: `${getEmoji("NO")} **${error}**`,
+                color: msgColors.ERROR,
+              }),
+            ]
+          : []),
+      ],
+      components: [
+        new MessageActionRow().addComponents(
+          ...[10, 25, 50].map((p) =>
+            new MessageButton()
+              .setLabel(`${p}%`)
+              .setStyle("SECONDARY")
+              .setCustomId(`select_amount_${p}`)
+          ),
+          new MessageButton()
+            .setLabel("All")
+            .setStyle("SECONDARY")
+            .setCustomId(`select_amount_100`),
+          new MessageButton()
+            .setLabel("Custom")
+            .setStyle("SECONDARY")
+            .setCustomId("enter_amount")
+        ),
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Continue (2/3)")
+            .setCustomId("continue")
+            .setStyle("PRIMARY")
+            .setDisabled(!!error || Number(amount) <= 0)
+        ),
+      ],
+    },
+  }
+}
+
+// select token
+export async function withdrawStep1(
+  interaction: CommandInteraction | SelectMenuInteraction,
+  filterSymbol?: string
+) {
+  const balances = await getBalances(interaction)
+
+  const filteredBals = balances.filter(
+    (b) => !filterSymbol || equalIgnoreCase(b.token.symbol, filterSymbol)
+  )
+
+  if (interaction.isSelectMenu() || filteredBals.length === 1) {
+    let tokenObj
+    if (interaction.isSelectMenu()) {
+      const tokenId = interaction.values[0]
+      tokenObj = balances.find((b) => b.id === tokenId)
+    } else {
+      tokenObj = filteredBals.at(0)
+    }
+
+    await isTokenSupported(tokenObj.token.symbol)
+
+    const { msgOpts } = await withdrawStep2(interaction, {
+      token: tokenObj.token.symbol,
+      tokenObj,
+      amount: "%0",
+    })
+
+    return {
+      overrideInitialState: "withdrawStep2",
+      context: {
+        token: tokenObj.token.symbol,
+        tokenObj,
+        amount: "%0",
+      },
+      msgOpts,
+    }
+  }
+
+  const { text } = formatView(
+    "compact",
+    "filter-dust",
+    filteredBals.length ? filteredBals : balances
+  )
+
+  const embed = composeEmbedMessage(null, {
+    author: ["Choose your money source", getEmojiURL(emojis.NFT2)],
+    description: text,
+  }).addFields(
+    renderPreview({
+      ...(filterSymbol && filteredBals.length ? { token: filterSymbol } : {}),
+    })
+  )
+
+  const isDuplicateSymbol = (s: string) =>
+    balances.filter((b: any) => b.token.symbol.toUpperCase() === s).length > 1
+
+  return {
+    context: {
+      amount: "%0",
+    },
+    msgOpts: {
+      embeds: [
+        embed,
+        ...(!filteredBals.length && filterSymbol
+          ? [
+              new MessageEmbed({
+                description: `${getEmoji("NO")} No token ${getEmojiToken(
+                  filterSymbol as TokenEmojiKey
+                )} **${filterSymbol}** found in your balance.`,
+                color: msgColors.ERROR,
+              }),
+            ]
+          : []),
+      ],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageSelectMenu()
+            .setPlaceholder("💵 Choose money source (1/3)")
+            .setCustomId("select_token")
+            .setOptions(
+              balances.map((b: any) => ({
+                label: `${b.token.symbol}${
+                  isDuplicateSymbol(b.token.symbol)
+                    ? ` (${b.token.chain.symbol})`
+                    : ""
+                }`,
+                value: b.id,
+                emoji: getEmojiToken(b.token.symbol),
+              }))
+            )
+        ),
+      ],
+    },
+  }
 }
 
 function composeWithdrawEmbed() {
   return composeEmbedMessage(null, {
     author: ["Withdraw Submitted", thumbnails.MOCHI],
-    image: thumbnails.MOCHI_POSE_4,
-    description:
-      "Your withdraw is underway, Mochi will DM you with the tx link if it succeeds or error message if it fails",
-  })
-}
-
-async function selectTokenToWithdraw(
-  msgOrInteraction: Message | CommandInteraction,
-  balances: any,
-  payload: any,
-  all: boolean
-) {
-  const author = getAuthor(msgOrInteraction)
-  // select menu
-  const selectRow = composeDiscordSelectionRow({
-    customId: `withdraw-select-token`,
-    placeholder: "Select a token",
-    options: balances.map((b: any) => {
-      const chain = b.token?.chain?.name
-      return {
-        label: `${b.token.name} ${chain ? `(${chain})` : ""}`,
-        value: b.token.chain.chain_id,
-      }
-    }),
-  })
-
-  // embed
-  const embed = composeEmbedMessage(null, {
-    originalMsgAuthor: author,
-    author: ["Multiple results found", getEmojiURL(emojis.MAG)],
-    description: `You have \`${
-      payload.token
-    }\` balance on multiple chains: ${balances
-      .map((b: any) => {
-        return `\`${b.token?.chain?.name}\``
-      })
-      .filter((s: any) => Boolean(s))
-      .join(", ")}.\nPlease select one of the following`,
-  })
-
-  // select-menu handler
-  const suggestionHandler = async (i: SelectMenuInteraction) => {
-    await i.deferUpdate()
-    payload.chainId = i.values[0]
-    const balance = balances.find(
-      (b: any) =>
-        equalIgnoreCase(b.token?.symbol, payload.token) &&
-        payload.chainId === b.token?.chain?.chain_id
-    )
-    const decimal = balance?.token?.decimal ?? 0
-    const current = convertString(balance?.amount, decimal) ?? 0
-    if (all) payload.amount = current
-    if (current < payload.amount) {
-      throw new InsufficientBalanceError({
-        msgOrInteraction,
-        params: {
-          current,
-          required: payload.amount,
-          symbol: payload.token,
-        },
-      })
-    }
-    if (!isValidTipAmount(payload.amount.toString(), decimal)) {
-      throw new DiscordWalletTransferError({
-        message: msgOrInteraction,
-        error: ` ${payload.token} valid amount must not have more than ${decimal} fractional digits. Please try again!`,
-      })
-    }
-    payload.amount = payload.amount.toString()
-    payload.amount_string = formatDigit({
-      value: payload.amount.toString(),
-      fractionDigits: decimal,
-    })
-    await executeWithdraw(msgOrInteraction, payload)
-  }
-
-  // reply
-  reply(msgOrInteraction, {
-    messageOptions: { embeds: [embed], components: [selectRow] },
-    selectMenuCollector: { handler: suggestionHandler },
+    image: thumbnails.MOCHI_POSE_11,
+    description: [
+      `${getEmoji("CHECK")} Your withdraw is underway.`,
+      `${getEmoji("CHECK")} Mochi will DM you with the tx link shortly.`,
+    ].join("\n"),
   })
 }
 
 export async function executeWithdraw(
-  msgOrInteraction: Message | CommandInteraction,
-  payload: any
+  interaction: ButtonInteraction,
+  params: Params
 ) {
-  const { message, interaction } = isMessage(msgOrInteraction)
-  const author = getAuthor(msgOrInteraction)
-  // send dm
-  const dmUserPayload = {
-    embeds: [
-      composeEmbedMessage(null, {
-        author: ["Withdraw", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-        thumbnail: getEmojiURL(emojis.ANIMATED_WITHDRAW),
-        description: `**Withdrawal amount**\n${getEmojiToken(
-          (payload.token?.toUpperCase() as TokenEmojiKey) ?? ""
-        )} ${payload.amount} ${payload.token}\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT",
-          true
-        )} Please enter your **${
-          payload.token
-        }** destination address that you want to withdraw your tokens below.`,
-        color: msgColors.MOCHI,
-      }),
-    ],
-  }
-  const dm = await dmUser(dmUserPayload, author, msgOrInteraction, null)
-  if (!dm) return null
+  const payload = await CacheManager.get({
+    pool: "withdraw-request-payload",
+    key: interaction.user.id,
+    call: () => Promise.resolve(null),
+  })
 
-  // redirect to dm if not in DM
-  if (msgOrInteraction.guildId) {
-    const replyPayload = {
-      embeds: [
-        composeEmbedMessage(null, {
-          author: ["Withdraw tokens", getEmojiURL(emojis.WALLET)],
-          description: `${author}, a withdrawal message has been sent to you. Check your DM!`,
-        }),
-      ],
-      components: [composeButtonLink("See the DM", dm.url)],
-    }
-    message ? message.reply(replyPayload) : interaction.editReply(replyPayload)
-  }
-  // ask for recipient address
-  payload.address = await processor.getRecipient(msgOrInteraction, dm, payload)
-  if (!payload.address) return
   // withdraw
   const { ok, error, log, curl } = await mochiPay.withdraw(payload)
   if (!ok) {
-    throw new APIError({ msgOrInteraction, curl, description: log, error })
+    throw new APIError({
+      msgOrInteraction: interaction,
+      curl,
+      description: log,
+      error,
+    })
   }
 
   const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
@@ -308,5 +588,40 @@ export async function executeWithdraw(
   sendActivityMsg(kafkaMsg)
 
   const embed = composeWithdrawEmbed()
-  await dmUser({ embeds: [embed] }, author, msgOrInteraction, null)
+  const msg = await interaction.user
+    .send({
+      embeds: [embed],
+    })
+    .catch(() => null)
+
+  if (!msg)
+    return {
+      msgOpts: {
+        embeds: [
+          enableDMMessage(
+            "Your request has been submitted and result will be sent to your DM, but "
+          ),
+        ],
+      },
+    }
+
+  return {
+    msgOpts: {
+      embeds: [
+        composeEmbedMessage(null, {
+          author: [
+            "Withdrawal submitted",
+            getEmojiURL(emojis.ANIMATED_WITHDRAW),
+          ],
+          description: renderPreview({
+            address: params.address,
+            network: params.tokenObj.token.chain.name,
+            token: params.token,
+            amount: params.amount,
+          }).value,
+        }),
+      ],
+      components: [],
+    },
+  }
 }

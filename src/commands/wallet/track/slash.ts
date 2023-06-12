@@ -1,10 +1,12 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandInteraction } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
 import { trackWallet } from "./processor"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
+import { route } from "utils/router"
+import { machineConfig } from "commands/wallet/common/tracking"
 
 const command: SlashCommand = {
   name: "track",
@@ -37,9 +39,16 @@ const command: SlashCommand = {
     const chain = i.options.getString("chain", false) ?? "eth"
     const alias = i.options.getString("alias", false) ?? ""
 
-    return {
-      messageOptions: await trackWallet(i, i.user, address, chain, alias),
-    }
+    const { msgOpts, context } = await trackWallet(
+      i,
+      i.user,
+      address,
+      chain,
+      alias
+    )
+    const reply = await i.editReply(msgOpts)
+
+    route(reply as Message, i, machineConfig("walletTrack", context))
   },
   help: (interaction) =>
     Promise.resolve({

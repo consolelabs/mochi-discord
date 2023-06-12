@@ -23,14 +23,15 @@ const slashCmd: SlashCommand = {
     const symbol = interaction.options.getString("token", true)
     return await depositSlash.run(interaction, symbol)
   },
-  help: async (interaction: CommandInteraction) => ({
-    embeds: [
-      composeEmbedMessage2(interaction, {
-        usage: `${SLASH_PREFIX}deposit <token>`,
-        examples: `${SLASH_PREFIX}deposit ftm`,
-      }),
-    ],
-  }),
+  help: (interaction: CommandInteraction) =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage2(interaction, {
+          usage: `${SLASH_PREFIX}deposit <token>`,
+          examples: `${SLASH_PREFIX}deposit ftm`,
+        }),
+      ],
+    }),
   colorType: "Defi",
 }
 
