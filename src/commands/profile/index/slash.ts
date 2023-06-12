@@ -114,6 +114,13 @@ const run = async (interaction: CommandInteraction) => {
       description: "Couldn't get user data",
     })
   }
+  if (member !== null && member.user.bot) {
+    throw new InternalError({
+      msgOrInteraction: interaction,
+      title: "Error",
+      description: "Cannot view profile of bots",
+    })
+  }
   member = member ?? (interaction.member as GuildMember)
   const msgOpts = await render(interaction, member)
   const reply = (await interaction.editReply(msgOpts)) as Message
