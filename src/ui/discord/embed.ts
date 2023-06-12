@@ -1,5 +1,6 @@
 import profile from "adapters/profile"
 import { commands, slashCommands } from "commands"
+import config from "../../adapters/config"
 import {
   ColorResolvable,
   CommandInteraction,
@@ -174,12 +175,18 @@ export function getMultipleResultEmbed({
   })
 }
 
+const content: any = (async function () {
+  const { data } = await config.getContent("header")
+  return data
+})()
+
 // TODO: remove after slash command migration done
 export function composeEmbedMessage(
   msg: Message | null | undefined,
   props: EmbedProperties
 ) {
-  let { title, description = "", footer = [] } = props
+  let { title, description = "" } = props
+  const { footer = [] } = props
   const {
     color,
     thumbnail,
@@ -207,8 +214,6 @@ export function composeEmbedMessage(
 
   if (isSpecificHelpCommand) {
     title = (actionObj ?? commandObj)?.brief
-  } else if (!footer.length) {
-    footer = ["Type /feedback to report"]
   }
   title = title ?? ""
 
@@ -224,16 +229,6 @@ export function composeEmbedMessage(
     .setColor((color ?? getCommandColor(commandObj)) as ColorResolvable)
 
   // embed options
-  if (!withoutFooter) {
-    embed
-      .setFooter({
-        text: getEmbedFooter(
-          authorTag ? [...footer, authorTag] : [...footer, "Mochi bot"]
-        ),
-        iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
-      })
-      .setTimestamp(timestamp ?? new Date())
-  }
   if (description) embed.setDescription(description)
   if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)
@@ -266,6 +261,38 @@ export function composeEmbedMessage(
   if (TEST) {
     embed.setTimestamp(null)
   }
+
+  if (!footer.length) {
+    content.then((res: any) => {
+      const randomIdxTip = Math.floor(
+        Math.random() * res.description.tip.length
+      )
+      embed
+        .setFooter({
+          text: getEmbedFooter(
+            authorTag
+              ? [res.description.tip[randomIdxTip], authorTag]
+              : [res.description.tip[randomIdxTip], "Mochi bot"]
+          ),
+          iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
+        })
+        .setTimestamp(timestamp ?? new Date())
+      return embed
+    })
+  }
+
+  if (!withoutFooter) {
+    embed
+      .setFooter({
+        text: getEmbedFooter(
+          authorTag ? [...footer, authorTag] : [...footer, "Mochi bot"]
+        ),
+        iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
+      })
+      .setTimestamp(timestamp ?? new Date())
+    return embed
+  }
+
   return embed
 }
 
