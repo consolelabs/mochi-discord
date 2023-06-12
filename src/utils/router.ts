@@ -127,8 +127,8 @@ const builtinSelectHandlers: SelectContext = {
     const [, type, address = ""] = i.values[0].split("_")
     let fetcherType = BalanceType.Offchain
     if (type.startsWith("mochi")) fetcherType = BalanceType.Offchain
-    if (type.startsWith("wallet")) fetcherType = BalanceType.Onchain
-    if (type.startsWith("dex")) fetcherType = BalanceType.Dex
+    if (type.startsWith("onchain")) fetcherType = BalanceType.Onchain
+    if (type.startsWith("cex")) fetcherType = BalanceType.Cex
 
     return {
       msgOpts: (await renderBalances(i.user.id, i, fetcherType, address))
