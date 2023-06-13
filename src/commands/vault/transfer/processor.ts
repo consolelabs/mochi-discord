@@ -248,6 +248,9 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
                   title: `The request to ${createActionLine({
                     action: "transfer",
                     vault: dataTransferTreasurer.submission.vault.name,
+                    amount,
+                    token,
+                    transferTarget: toUser ? toUser : "",
                   })} has been approved`,
                   description: `Request has already been approved by majority of treasurers \`${
                     dataTransferTreasurer.vote_result.total_approved_submission
@@ -282,6 +285,9 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
                     title: `The request to ${createActionLine({
                       action: "transfer",
                       vault: dataTransferTreasurer?.submission.vault.name,
+                      amount,
+                      token,
+                      transferTarget: toUser ? toUser : "",
                     })} has been rejected`,
                     description: `Request has already been rejected by majority of treasurers \`${
                       dataTransferTreasurer?.vote_result
