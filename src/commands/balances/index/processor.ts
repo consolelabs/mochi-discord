@@ -97,7 +97,7 @@ const balanceEmbedProps: Record<
       addressType,
       address,
       alias: wallet?.alias,
-      title: `${wallet?.alias ?? shortenHashOrAddress(address)}'s wallet`,
+      title: `${wallet?.alias || shortenHashOrAddress(address)}'s wallet`,
       emoji: getEmojiURL(emojis.WALLET_1),
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
@@ -153,14 +153,18 @@ export async function getBalances(
       description: "Couldn't get balance",
     })
   }
-  let data, pnl
+  let data,
+    pnl = 0
   if (type === BalanceType.Offchain) {
     data = res.data.filter((i: any) => Boolean(i))
     pnl = 0
   }
   if (type === BalanceType.Onchain) {
     data = res.data.balance.filter((i: any) => Boolean(i))
-    pnl = res.data.pnl
+    pnl = Number(res.data.pnl || 0)
+    if (Number.isNaN(pnl)) {
+      pnl = 0
+    }
   }
   if (type === BalanceType.Cex) {
     data = res.data.filter((i: any) => Boolean(i))
@@ -477,7 +481,7 @@ export function formatView(
 async function switchView(
   view: "compact" | "expand",
   props: { address: string; emoji: string; title: string; description: string },
-  balances: { data: any[]; pnl: string },
+  balances: { data: any[]; pnl: number },
   txns: any,
   discordId: string,
   balanceType: number
@@ -536,14 +540,14 @@ async function switchView(
         value: totalWorth.toString(),
         fractionDigits: 2,
       })}\`${
-        balanceType === BalanceType.Onchain
+        balanceType === BalanceType.Onchain && balances.pnl !== 0
           ? ` (${getEmoji(
-              balances.pnl.split("")[0] === "-"
+              Math.sign(balances.pnl) === -1
                 ? "ANIMATED_ARROW_DOWN"
                 : "ANIMATED_ARROW_UP",
               true
             )}${formatDigit({
-              value: balances.pnl.slice(1),
+              value: Math.abs(balances.pnl),
               fractionDigits: 2,
             })}%)`
           : ""
@@ -582,7 +586,7 @@ async function switchView(
       wallets: {
         data: [
           {
-            chain: isAddress(props.address).chainType,
+            chain: isAddress(props.address).chainType.toUpperCase(),
             value: props.address,
             total: formatDigit({
               value: totalWorth.toString(),
@@ -606,7 +610,7 @@ async function switchView(
       cexes: {
         data: [
           {
-            chain: "Binance Assets",
+            chain: "Binance",
             total: formatDigit({
               value: totalWorth.toString(),
               fractionDigits: 2,
