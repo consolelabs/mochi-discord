@@ -46,6 +46,13 @@ import {
 import { TEST } from "env"
 import { ResponseDaoTrackerSpaceCountResponse } from "types/api"
 import { formatDigit } from "utils/defi"
+import CacheManager from "cache/node-cache"
+
+CacheManager.init({
+  ttl: 86400,
+  pool: "content-header-footer",
+  checkperiod: 3600,
+})
 
 class Config extends Fetcher {
   public Guilds?: Guilds
@@ -1391,8 +1398,14 @@ class Config extends Fetcher {
   }
 
   public async getContent(type: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/content/${type}`, {
-      method: "GET",
+    return await CacheManager.get({
+      pool: "content-header-footer",
+      key: "content",
+      call: async () => {
+        return await this.jsonFetch(`${API_BASE_URL}/content/${type}`, {
+          method: "GET",
+        })
+      },
     })
   }
 }
