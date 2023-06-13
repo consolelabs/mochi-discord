@@ -192,7 +192,6 @@ export async function composeTickerResponse({
   const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
-    footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
   }).addFields([
     {
@@ -454,7 +453,6 @@ export async function composeTokenInfoEmbed(
     thumbnail: coin.image.large,
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     title: "About " + coin.name,
-    footer: ["Data fetched from CoinGecko.com"],
   })
   const tdService = new TurndownService()
   const content = coin.description.en

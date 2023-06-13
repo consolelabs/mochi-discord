@@ -33,7 +33,6 @@ describe("run", () => {
             ].join("\n")}\n\n**Completion Progress**`,
             thumbnail: getEmojiURL(emojis.CHEST),
             color: msgColors.YELLOW,
-            footer: ["Daily quests reset at 00:00 UTC"],
           }),
         ],
         components: [
