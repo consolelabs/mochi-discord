@@ -40,6 +40,7 @@ import {
   VERTICAL_BAR,
 } from "utils/constants"
 import { zip } from "lodash"
+import CacheManager from "cache/node-cache"
 
 type Alignment = "left" | "center" | "right"
 type Option<C> = {
@@ -50,6 +51,11 @@ type Option<C> = {
   noWrap?: boolean
 }
 type Data = Record<string, string | number>
+const contentCache = CacheManager.init({
+  ttl: 86400,
+  pool: "content-header-footer",
+  checkperiod: 3600,
+})
 
 export function formatDataTable<DT extends Data>(
   data: Array<DT>,
@@ -176,7 +182,14 @@ export function getMultipleResultEmbed({
 }
 
 const content: any = (async function () {
-  const { data } = await config.getContent("header")
+  const { data } = await CacheManager.get({
+    pool: "content-header-footer",
+    key: `content`,
+    call: () => config.getContent("header"),
+  })
+
+  contentCache.set("content", data)
+
   return data
 })()
 
