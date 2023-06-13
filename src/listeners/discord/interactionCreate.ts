@@ -101,11 +101,10 @@ async function questReminder(userId: string, command: string) {
   }
 
   if (!isReminded) {
-    const randomIdxTip = Math.floor(Math.random() * data.description.tip.length)
     const randomIdxFact = Math.floor(
       Math.random() * data.description.fact.length
     )
-    return `> ${data.description.tip[randomIdxTip]}\n> ${data.description.fact[randomIdxFact]}`
+    return `> ${data.description.fact[randomIdxFact]}`
   }
   return undefined
 }
