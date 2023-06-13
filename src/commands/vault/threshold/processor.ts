@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import { CommandInteraction } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
-import { MessageEmbed } from "discord.js"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { APIError } from "errors"
 import { getEmoji, msgColors } from "utils/common"
 import { getSlashCommand } from "utils/commands"
@@ -45,19 +45,16 @@ export async function runCreateThreshold({
   )} Set or change vault threshold by run ${await getSlashCommand(
     "vault config threshold"
   )}`
-  const embed = new MessageEmbed()
-    .setTitle(
-      `${getEmoji("CHECK")} Vault threshold successfully changed${getEmoji(
-        "BLANK"
-      ).repeat(5)}`
-    )
-    .setDescription(description)
-    .setColor(msgColors.BLUE)
-    .setFooter({ text: "Type /feedback to report • Mochi Bot" })
-    .setTimestamp(Date.now())
-    .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1090195482506174474/1090906036464005240/image.png"
-    )
+
+  const embed = composeEmbedMessage(null, {
+    title: `${getEmoji("CHECK")} Vault threshold successfully changed${getEmoji(
+      "BLANK"
+    ).repeat(5)}`,
+    description: description,
+    color: msgColors.BLUE,
+    thumbnail:
+      "https://cdn.discordapp.com/attachments/1090195482506174474/1090906036464005240/image.png",
+  })
 
   return { messageOptions: { embeds: [embed] } }
 }

@@ -7,7 +7,6 @@ import {
   Message,
 } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
-import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, msgColors, emojis, getEmojiURL } from "utils/common"
 import { listSubmissionVault, createActionLine } from "utils/vault"
@@ -135,30 +134,23 @@ export async function runRemoveTreasurer({
   }
 
   // send DM to treasurer in vault
-
-  const embed = new MessageEmbed()
-    .setTitle(
-      `${getEmoji("PROPOSAL")} Request to ${createActionLine({
-        action: "remove",
-        vault: vaultName,
-      })} has been successfully created`
-    )
-    .setDescription(
-      `You want to remove <@${
-        user.id
-      }> from **${vaultName} vault**\n\nMessage ${getEmoji(
-        "ANIMATED_CHAT",
-        true
-      )}\n\`\`\`${
-        dataAddTreasurerReq?.request.message
-      }\`\`\`\nWe'll notify you once all treasurers have accepted the request.`
-    )
-    .setColor(msgColors.BLUE)
-    .setFooter({ text: "Type /feedback to report • Mochi Bot" })
-    .setTimestamp(Date.now())
-    .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1090195482506174474/1092755046556516394/image.png"
-    )
+  const embed = composeEmbedMessage(null, {
+    title: `${getEmoji("PROPOSAL")} Request to ${createActionLine({
+      action: "remove",
+      vault: vaultName,
+    })} has been successfully created`,
+    description: `You want to remove <@${
+      user.id
+    }> from **${vaultName} vault**\n\nMessage ${getEmoji(
+      "ANIMATED_CHAT",
+      true
+    )}\n\`\`\`${
+      dataAddTreasurerReq?.request.message
+    }\`\`\`\nWe'll notify you once all treasurers have accepted the request.`,
+    color: msgColors.BLUE,
+    thumbnail:
+      "https://cdn.discordapp.com/attachments/1090195482506174474/1092755046556516394/image.png",
+  })
 
   return { messageOptions: { embeds: [embed] } }
 }
