@@ -142,10 +142,14 @@ export async function runTransferTreasurer({
   }
 
   // send DM to treasurer in vault
+  const transferTarget = user?.username ?? shortenAddress
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("PROPOSAL")} Request to ${createActionLine({
       action: "transfer",
       vault: vaultName,
+      amount,
+      token,
+      transferTarget,
     })} has been successfully created`,
     description: `You want to send ${getEmoji(
       token.toUpperCase() as keyof typeof emojis
@@ -244,6 +248,9 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
                   title: `The request to ${createActionLine({
                     action: "transfer",
                     vault: dataTransferTreasurer.submission.vault.name,
+                    amount,
+                    token,
+                    transferTarget: toUser ? toUser : "",
                   })} has been approved`,
                   description: `Request has already been approved by majority of treasurers \`${
                     dataTransferTreasurer.vote_result.total_approved_submission
@@ -278,6 +285,9 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
                     title: `The request to ${createActionLine({
                       action: "transfer",
                       vault: dataTransferTreasurer?.submission.vault.name,
+                      amount,
+                      token,
+                      transferTarget: toUser ? toUser : "",
                     })} has been rejected`,
                     description: `Request has already been rejected by majority of treasurers \`${
                       dataTransferTreasurer?.vote_result
