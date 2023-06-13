@@ -349,19 +349,11 @@ export function formatView(
       symbol: string
       decimal: number
       price: number
-      chain: { name: string }
+      chain: { symbol: string }
       native: boolean
     }
     amount: string
-  }[],
-  customProvider?: (balance: any) => {
-    symbol: string
-    text: string
-    usd: number
-    chain?: {
-      name: string
-    }
-  }
+  }[]
 ) {
   let totalWorth = 0
   const isDuplicateSymbol = (s: string) =>
@@ -369,22 +361,6 @@ export function formatView(
   if (view === "compact") {
     const formattedBal = balances
       .map((balance) => {
-        const customVal = customProvider?.(balance)
-        if (customVal) {
-          totalWorth += customVal.usd
-          return {
-            chain: customVal.chain,
-            usdWorth: formatDigit({
-              value: customVal.usd.toString(),
-              fractionDigits: 2,
-            }),
-            usdVal: customVal.usd,
-            text: customVal.text,
-            emoji: getEmojiToken(
-              customVal.symbol.toUpperCase() as TokenEmojiKey
-            ),
-          }
-        }
         const { token, amount } = balance
         const { symbol, chain, decimal, price, native } = token
         const tokenVal = convertString(amount, decimal)
@@ -414,8 +390,10 @@ export function formatView(
           text,
           usdWorth,
           usdVal,
-          ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
-            ? { chain: chain.name.toLowerCase() }
+          ...(chain?.symbol &&
+          !native &&
+          isDuplicateSymbol(symbol.toUpperCase())
+            ? { chain: chain.symbol?.toLowerCase() }
             : {}),
         }
       })
@@ -463,8 +441,10 @@ export function formatView(
           name:
             tokenName +
             `${
-              chain && !native && isDuplicateSymbol(symbol.toUpperCase())
-                ? ` (${chain.name.toUpperCase()})`
+              chain?.symbol &&
+              !native &&
+              isDuplicateSymbol(symbol.toUpperCase())
+                ? ` (${chain.symbol?.toUpperCase()})`
                 : ""
             } `,
           value: `${getEmojiToken(
@@ -502,7 +482,7 @@ async function switchView(
   if (view === "compact") {
     const { totalWorth: _totalWorth, text: _text } = formatView(
       "compact",
-      "unfilter",
+      "filter-dust",
       balances.data
     )
     const text =
@@ -522,7 +502,7 @@ async function switchView(
   } else {
     const { totalWorth: _totalWorth, fields = [] } = formatView(
       "expand",
-      "unfilter",
+      "filter-dust",
       balances.data
     )
     totalWorth = _totalWorth
