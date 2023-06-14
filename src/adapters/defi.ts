@@ -306,7 +306,7 @@ class Defi extends Fetcher {
 
   async getWalletAssets(userId: string, address: string, type: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type}/assets`
+      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type.toLowerCase()}/assets`
     )
   }
 
@@ -326,7 +326,7 @@ class Defi extends Fetcher {
 
   async getWalletTxns(userId: string, address: string, type: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type}/txns`
+      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type.toLowerCase()}/txns`
     )
   }
 

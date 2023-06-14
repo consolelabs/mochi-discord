@@ -1,6 +1,6 @@
 import profile from "adapters/profile"
 import { commands, slashCommands } from "commands"
-import config from "../../adapters/config"
+import config from "adapters/config"
 import {
   ColorResolvable,
   CommandInteraction,
@@ -176,8 +176,8 @@ export function getMultipleResultEmbed({
 }
 
 const content: any = (async function () {
-  const { data } = await config.getContent("header")
-  return data
+  const res = await config?.getContent?.("header")
+  return res?.data
 })()
 
 // TODO: remove after slash command migration done
@@ -262,8 +262,9 @@ export function composeEmbedMessage(
     embed.setTimestamp(null)
   }
 
-  if (!footer.length) {
+  if (!footer.length && !TEST) {
     content.then((res: any) => {
+      if (!res) return
       const randomIdxTip = Math.floor(
         Math.random() * res.description.tip.length
       )
