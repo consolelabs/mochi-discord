@@ -99,16 +99,16 @@ export async function airdropDetail(i: SelectMenuInteraction) {
 }
 
 export enum AirdropCampaignStatus {
-  New = "new",
-  Done = "done",
-  Skipped = "skipped",
+  Live = "live",
+  Ended = "ended",
+  Ignored = "ignored",
 }
 
 const PAGE_SIZE = 2
 
 export async function run(
   userId: string,
-  status = AirdropCampaignStatus.New,
+  status = AirdropCampaignStatus.Live,
   page = 0
 ) {
   const paginated = chunk(DATA, PAGE_SIZE)
@@ -143,6 +143,26 @@ export async function run(
       embeds: [embed],
       components: [
         new MessageActionRow().addComponents(
+          new MessageButton({
+            style: "SECONDARY",
+            label: "Live",
+            customId: "view_live",
+            disabled: status === AirdropCampaignStatus.Live,
+          }),
+          new MessageButton({
+            style: "SECONDARY",
+            label: "Ended",
+            customId: "view_ended",
+            disabled: status === AirdropCampaignStatus.Ended,
+          }),
+          new MessageButton({
+            style: "SECONDARY",
+            label: "Ignored",
+            customId: "view_ignored",
+            disabled: status === AirdropCampaignStatus.Ignored,
+          })
+        ),
+        new MessageActionRow().addComponents(
           new MessageSelectMenu()
             .setPlaceholder(`📦 View airdrop detail`)
             .setCustomId("view_airdrop_detail")
@@ -158,7 +178,6 @@ export async function run(
       ],
     },
     context: {
-      status,
       page,
     },
   }
