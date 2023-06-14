@@ -7,32 +7,36 @@ import {
   User,
 } from "discord.js"
 
+import {
+  NameRegistryState,
+  getHashedNameSync,
+  getNameAccountKeySync,
+  reverseLookup as performReverseLookup,
+} from "@bonfida/spl-name-service"
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
+import CacheManager from "cache/node-cache"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { MARKETPLACE_BASE_URL } from "env"
+import { OriginalMessage } from "errors"
+import { ethers } from "ethers"
+import { logger } from "logger"
+import fetch from "node-fetch"
 import type { Pagination } from "types/common"
 import { TopNFTTradingVolumeItem } from "types/community"
-import { DOT, SPACE } from "./constants"
-import fetch from "node-fetch"
-import { ethers } from "ethers"
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
-import {
-  NameRegistryState,
-  getHashedName,
-  getNameAccountKey,
-  performReverseLookup,
-} from "@bonfida/spl-name-service"
-import { logger } from "logger"
 import providers from "utils/providers"
-import { OriginalMessage } from "errors"
+import { DOT, SPACE } from "./constants"
 import {
   marketplaceEmojis,
   rarityEmojis,
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
-import CacheManager from "cache/node-cache"
 dayjs.extend(relativeTime)
+
+const SOL_TLD_AUTHORITY = new PublicKey(
+  "58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx"
+)
 
 export const tokenEmojis = {
   FANTOM: "1113120054352019476",
@@ -842,11 +846,11 @@ export function isAddress(address: string): {
 }
 
 async function resolveSNSDomain(domain: string) {
-  const hashedName = await getHashedName(domain.replace(".sol", ""))
-  const nameAccountKey = await getNameAccountKey(
+  const hashedName = getHashedNameSync(domain.replace(".sol", ""))
+  const nameAccountKey = getNameAccountKeySync(
     hashedName,
     undefined,
-    new PublicKey("58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx") // SOL TLD Authority
+    SOL_TLD_AUTHORITY
   )
   const owner = await NameRegistryState.retrieve(
     new Connection(clusterApiUrl("mainnet-beta")),
