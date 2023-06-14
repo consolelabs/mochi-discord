@@ -1313,6 +1313,10 @@ export interface RequestTwitterPost {
   twitter_id?: string;
 }
 
+export interface RequestUnlinkBinance {
+  discord_user_id?: string;
+}
+
 export interface RequestUpdateDaoVoteRequest {
   choice: string;
   user_id: string;
@@ -2850,6 +2854,10 @@ export interface ResponseTwitterHashtag {
   twitter_username?: string[];
   updated_at?: string;
   user_id?: string;
+}
+
+export interface ResponseUnlinkBinance {
+  message?: string;
 }
 
 export interface ResponseUpdateGuildTokenRole {

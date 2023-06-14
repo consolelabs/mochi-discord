@@ -13,6 +13,7 @@ import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 import {
   emojis,
+  equalIgnoreCase,
   getEmoji,
   getEmojiToken,
   getEmojiURL,
@@ -91,7 +92,10 @@ const balanceEmbedProps: Record<
     } else {
       // 2. address/alias is being tracked
       address = wallet.address
-      addressType = wallet.chain_type || "eth"
+      addressType = wallet.chain_type || "evm"
+    }
+    if (equalIgnoreCase(addressType, "eth")) {
+      addressType = "evm"
     }
     return {
       addressType,
@@ -349,7 +353,7 @@ export function formatView(
       symbol: string
       decimal: number
       price: number
-      chain: { symbol: string }
+      chain: { short_name?: string; name?: string; symbol?: string }
       native: boolean
     }
     amount: string
@@ -362,7 +366,7 @@ export function formatView(
     const formattedBal = balances
       .map((balance) => {
         const { token, amount } = balance
-        const { symbol, chain, decimal, price, native } = token
+        const { symbol, chain: _chain, decimal, price, native } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
         const value = formatDigit({
@@ -373,13 +377,15 @@ export function formatView(
           value: usdVal.toString(),
           fractionDigits: 2,
         })
+        let chain = _chain?.short_name || _chain?.name || _chain?.symbol || ""
+        chain = chain.toLowerCase()
         if (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST))
           return {
             emoji: "",
             text: "",
             usdVal: 0,
             usdWorth: 0,
-            chain: { name: "" },
+            chain,
           }
 
         const text = `${value} ${symbol}`
@@ -390,10 +396,8 @@ export function formatView(
           text,
           usdWorth,
           usdVal,
-          ...(chain?.symbol &&
-          !native &&
-          isDuplicateSymbol(symbol.toUpperCase())
-            ? { chain: chain.symbol?.toLowerCase() }
+          ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
+            ? { chain }
             : {}),
         }
       })
@@ -418,7 +422,14 @@ export function formatView(
     const fields: EmbedFieldData[] = balances
       .map((balance) => {
         const { token, amount } = balance
-        const { name: tokenName, symbol, decimal, price, chain, native } = token
+        const {
+          name: tokenName,
+          symbol,
+          decimal,
+          price,
+          chain: _chain,
+          native,
+        } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
         const value = formatDigit({
@@ -429,6 +440,9 @@ export function formatView(
           value: usdVal.toString(),
           fractionDigits: 2,
         })
+        let chain = _chain?.short_name || _chain?.name || _chain?.symbol || ""
+        chain = chain.toLowerCase()
+
         totalWorth += usdVal
         if (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST)) {
           return {
@@ -441,10 +455,8 @@ export function formatView(
           name:
             tokenName +
             `${
-              chain?.symbol &&
-              !native &&
-              isDuplicateSymbol(symbol.toUpperCase())
-                ? ` (${chain.symbol?.toUpperCase()})`
+              chain && !native && isDuplicateSymbol(symbol.toUpperCase())
+                ? ` (${chain})`
                 : ""
             } `,
           value: `${getEmojiToken(
@@ -467,7 +479,7 @@ async function switchView(
   balanceType: number
 ) {
   const wallet = await defi.findWallet(discordId, props.address)
-  const isFollowed = wallet?.status ?? false
+  const isFollowed = wallet?.data?.status ?? false
   const { mochiWallets, wallets } = await profile.getUserWallets(discordId)
   const isOwnWallet = wallets.some(
     (w) => w.value.toLowerCase() === props.address.toLowerCase()
@@ -566,7 +578,7 @@ async function switchView(
       wallets: {
         data: [
           {
-            chain: isAddress(props.address).chainType.toUpperCase(),
+            chain: isAddress(props.address).chainType,
             value: props.address,
             total: formatDigit({
               value: totalWorth.toString(),
