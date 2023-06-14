@@ -13,6 +13,7 @@ import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 import {
   emojis,
+  equalIgnoreCase,
   getEmoji,
   getEmojiToken,
   getEmojiURL,
@@ -91,13 +92,16 @@ const balanceEmbedProps: Record<
     } else {
       // 2. address/alias is being tracked
       address = wallet.address
-      addressType = wallet.chain_type || "eth"
+      addressType = wallet.chain_type || "evm"
+    }
+    if (equalIgnoreCase(addressType, "eth")) {
+      addressType = "evm"
     }
     return {
       addressType,
       address,
       alias: wallet?.alias,
-      title: `${wallet?.alias ?? shortenHashOrAddress(address)}'s wallet`,
+      title: `${wallet?.alias || shortenHashOrAddress(address)}'s wallet`,
       emoji: getEmojiURL(emojis.WALLET_1),
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
@@ -153,14 +157,18 @@ export async function getBalances(
       description: "Couldn't get balance",
     })
   }
-  let data, pnl
+  let data,
+    pnl = 0
   if (type === BalanceType.Offchain) {
     data = res.data.filter((i: any) => Boolean(i))
     pnl = 0
   }
   if (type === BalanceType.Onchain) {
     data = res.data.balance.filter((i: any) => Boolean(i))
-    pnl = res.data.pnl
+    pnl = Number(res.data.pnl || 0)
+    if (Number.isNaN(pnl)) {
+      pnl = 0
+    }
   }
   if (type === BalanceType.Cex) {
     data = res.data.filter((i: any) => Boolean(i))
@@ -345,19 +353,11 @@ export function formatView(
       symbol: string
       decimal: number
       price: number
-      chain: { name: string }
+      chain: { short_name?: string; name?: string; symbol?: string }
       native: boolean
     }
     amount: string
-  }[],
-  customProvider?: (balance: any) => {
-    symbol: string
-    text: string
-    usd: number
-    chain?: {
-      name: string
-    }
-  }
+  }[]
 ) {
   let totalWorth = 0
   const isDuplicateSymbol = (s: string) =>
@@ -365,24 +365,8 @@ export function formatView(
   if (view === "compact") {
     const formattedBal = balances
       .map((balance) => {
-        const customVal = customProvider?.(balance)
-        if (customVal) {
-          totalWorth += customVal.usd
-          return {
-            chain: customVal.chain,
-            usdWorth: formatDigit({
-              value: customVal.usd.toString(),
-              fractionDigits: 2,
-            }),
-            usdVal: customVal.usd,
-            text: customVal.text,
-            emoji: getEmojiToken(
-              customVal.symbol.toUpperCase() as TokenEmojiKey
-            ),
-          }
-        }
         const { token, amount } = balance
-        const { symbol, chain, decimal, price, native } = token
+        const { symbol, chain: _chain, decimal, price, native } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
         const value = formatDigit({
@@ -393,13 +377,15 @@ export function formatView(
           value: usdVal.toString(),
           fractionDigits: 2,
         })
+        let chain = _chain?.short_name || _chain?.name || _chain?.symbol || ""
+        chain = chain.toLowerCase()
         if (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST))
           return {
             emoji: "",
             text: "",
             usdVal: 0,
             usdWorth: 0,
-            chain: { name: "" },
+            chain,
           }
 
         const text = `${value} ${symbol}`
@@ -411,7 +397,7 @@ export function formatView(
           usdWorth,
           usdVal,
           ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
-            ? { chain: chain.name.toLowerCase() }
+            ? { chain }
             : {}),
         }
       })
@@ -436,7 +422,14 @@ export function formatView(
     const fields: EmbedFieldData[] = balances
       .map((balance) => {
         const { token, amount } = balance
-        const { name: tokenName, symbol, decimal, price, chain, native } = token
+        const {
+          name: tokenName,
+          symbol,
+          decimal,
+          price,
+          chain: _chain,
+          native,
+        } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
         const value = formatDigit({
@@ -447,6 +440,9 @@ export function formatView(
           value: usdVal.toString(),
           fractionDigits: 2,
         })
+        let chain = _chain?.short_name || _chain?.name || _chain?.symbol || ""
+        chain = chain.toLowerCase()
+
         totalWorth += usdVal
         if (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST)) {
           return {
@@ -460,7 +456,7 @@ export function formatView(
             tokenName +
             `${
               chain && !native && isDuplicateSymbol(symbol.toUpperCase())
-                ? ` (${chain.name.toUpperCase()})`
+                ? ` (${chain})`
                 : ""
             } `,
           value: `${getEmojiToken(
@@ -477,13 +473,13 @@ export function formatView(
 async function switchView(
   view: "compact" | "expand",
   props: { address: string; emoji: string; title: string; description: string },
-  balances: { data: any[]; pnl: string },
+  balances: { data: any[]; pnl: number },
   txns: any,
   discordId: string,
   balanceType: number
 ) {
   const wallet = await defi.findWallet(discordId, props.address)
-  const isFollowed = wallet?.status ?? false
+  const isFollowed = wallet?.data?.status ?? false
   const { mochiWallets, wallets } = await profile.getUserWallets(discordId)
   const isOwnWallet = wallets.some(
     (w) => w.value.toLowerCase() === props.address.toLowerCase()
@@ -498,7 +494,7 @@ async function switchView(
   if (view === "compact") {
     const { totalWorth: _totalWorth, text: _text } = formatView(
       "compact",
-      "unfilter",
+      "filter-dust",
       balances.data
     )
     const text =
@@ -518,7 +514,7 @@ async function switchView(
   } else {
     const { totalWorth: _totalWorth, fields = [] } = formatView(
       "expand",
-      "unfilter",
+      "filter-dust",
       balances.data
     )
     totalWorth = _totalWorth
@@ -536,14 +532,14 @@ async function switchView(
         value: totalWorth.toString(),
         fractionDigits: 2,
       })}\`${
-        balanceType === BalanceType.Onchain
+        balanceType === BalanceType.Onchain && balances.pnl !== 0
           ? ` (${getEmoji(
-              balances.pnl.split("")[0] === "-"
+              Math.sign(balances.pnl) === -1
                 ? "ANIMATED_ARROW_DOWN"
                 : "ANIMATED_ARROW_UP",
               true
             )}${formatDigit({
-              value: balances.pnl.slice(1),
+              value: Math.abs(balances.pnl),
               fractionDigits: 2,
             })}%)`
           : ""
@@ -606,7 +602,7 @@ async function switchView(
       cexes: {
         data: [
           {
-            chain: "Binance Assets",
+            chain: "Binance",
             total: formatDigit({
               value: totalWorth.toString(),
               fractionDigits: 2,

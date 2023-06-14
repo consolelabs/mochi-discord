@@ -440,7 +440,6 @@ export const emojis = {
   GRIM: "1115115006040756294",
   OASIS: "1113115304176922655",
   OCEAN: "1113115314113224764",
-  BINANCE: "1116727169654206595",
   NO: "1112604245875765319",
   ...animatedEmojis,
   ...tokenEmojis,
@@ -811,9 +810,16 @@ export function isValidSuiAddress(value: string): boolean {
   return isHex(value) && getHexByteLength(value) === SUI_ADDRESS_LENGTH
 }
 
+export enum AddressChainType {
+  EVM = "EVM",
+  SOL = "SOl",
+  SUI = "SUI",
+  UNKNOWN = "",
+}
+
 export function isAddress(address: string): {
   valid: boolean
-  chainType: string
+  chainType: AddressChainType
 } {
   // standardize ronin address
   address = address.toLowerCase().startsWith("ronin:")
@@ -821,18 +827,18 @@ export function isAddress(address: string): {
     : address
   try {
     if (ethers.utils.isAddress(address)) {
-      return { valid: true, chainType: "eth" }
+      return { valid: true, chainType: AddressChainType.EVM }
     }
     if (isValidSuiAddress(address)) {
-      return { valid: true, chainType: "sui" }
+      return { valid: true, chainType: AddressChainType.SUI }
     }
     if (PublicKey.isOnCurve(new PublicKey(address))) {
-      return { valid: true, chainType: "sol" }
+      return { valid: true, chainType: AddressChainType.SOL }
     }
   } catch (e) {
-    return { valid: false, chainType: "" }
+    return { valid: false, chainType: AddressChainType.UNKNOWN }
   }
-  return { valid: false, chainType: "" }
+  return { valid: false, chainType: AddressChainType.UNKNOWN }
 }
 
 async function resolveSNSDomain(domain: string) {
@@ -893,11 +899,11 @@ export async function reverseLookup(address: string) {
       const { chainType } = isAddress(address)
       try {
         switch (chainType) {
-          case "sol": {
+          case AddressChainType.SOL: {
             const domainKey = new PublicKey(address)
             return await performReverseLookup(connection, domainKey)
           }
-          case "eth":
+          case AddressChainType.EVM:
             return (await providers.eth.lookupAddress(address)) || ""
           default:
             return ""

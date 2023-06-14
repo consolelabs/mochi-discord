@@ -78,7 +78,6 @@ export async function handleClaimReward(i: ButtonInteraction) {
     title: "Rewards Claimed!",
     description:
       "Congrats! Rewards sent to you, here's the summary of what you just received:",
-    footer: ["Daily quests reset at 00:00 UTC"],
     color: msgColors.YELLOW,
   })
   const data = res.data.rewards?.reduce((acc: any, d: any) => {
@@ -148,7 +147,6 @@ export async function run(userId: string, msg?: Message) {
       "Additionally, a high `$vote` streak can also increase your reward",
     ].join("\n")}\n\n**Completion Progress**`,
     thumbnail: getEmojiURL(emojis.CHEST),
-    footer: ["Daily quests reset at 00:00 UTC"],
     color: msgColors.YELLOW,
   })
 

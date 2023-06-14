@@ -1,10 +1,9 @@
 import config from "adapters/config"
 import { CommandInteraction, GuildMember } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
-import { MessageEmbed } from "discord.js"
 import { APIError } from "errors"
 import { getEmoji, hasAdministrator, msgColors } from "utils/common"
-import { getErrorEmbed } from "ui/discord/embed"
+import { getErrorEmbed, composeEmbedMessage } from "ui/discord/embed"
 
 export async function runCreateChannel({
   i,
@@ -51,16 +50,13 @@ export async function runCreateChannel({
     throw new APIError({ curl, error, description: log })
   }
 
-  const embed = new MessageEmbed()
-    .setTitle(
-      `${getEmoji("CHECK")} Vault log successfully created${getEmoji(
-        "BLANK"
-      ).repeat(5)}`
-    )
-    .setDescription(`All the requests will be posted in the <#${channel.id}>`)
-    .setColor(msgColors.BLUE)
-    .setFooter({ text: "Type /feedback to report • Mochi Bot" })
-    .setTimestamp(Date.now())
+  const embed = composeEmbedMessage(null, {
+    title: `${getEmoji("CHECK")} Vault log successfully created${getEmoji(
+      "BLANK"
+    ).repeat(5)}`,
+    description: `All the requests will be posted in the <#${channel.id}>`,
+    color: msgColors.BLUE,
+  })
 
   return { messageOptions: { embeds: [embed] } }
 }

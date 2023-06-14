@@ -7,7 +7,6 @@ import {
   Message,
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
-import { MessageEmbed } from "discord.js"
 import {
   getEmoji,
   getEmojiToken,
@@ -143,23 +142,21 @@ export async function runTransferTreasurer({
   }
 
   // send DM to treasurer in vault
-
-  const embed = new MessageEmbed()
-    .setTitle(
-      `${getEmoji("PROPOSAL")} Request to ${createActionLine({
-        action: "transfer",
-        vault: vaultName,
-      })} has been successfully created`
-    )
-    .setDescription(
-      `You want to send ${getEmoji(
-        token.toUpperCase() as keyof typeof emojis
-      )} ${amount} ${token.toUpperCase()} to ${destination} \n${msgField}We'll notify you once all treasurers have accepted the request.`
-    )
-    .setColor(msgColors.BLUE)
-    .setFooter({ text: "Type /feedback to report • Mochi Bot" })
-    .setTimestamp(Date.now())
-    .setThumbnail(getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT))
+  const transferTarget = user?.username ?? shortenAddress
+  const embed = composeEmbedMessage(null, {
+    title: `${getEmoji("PROPOSAL")} Request to ${createActionLine({
+      action: "transfer",
+      vault: vaultName,
+      amount,
+      token,
+      transferTarget,
+    })} has been successfully created`,
+    description: `You want to send ${getEmoji(
+      token.toUpperCase() as keyof typeof emojis
+    )} ${amount} ${token.toUpperCase()} to ${destination} \n${msgField}We'll notify you once all treasurers have accepted the request.`,
+    color: msgColors.BLUE,
+    thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
+  })
 
   return { messageOptions: { embeds: [embed] } }
 }
@@ -251,6 +248,9 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
                   title: `The request to ${createActionLine({
                     action: "transfer",
                     vault: dataTransferTreasurer.submission.vault.name,
+                    amount,
+                    token,
+                    transferTarget: toUser ? toUser : "",
                   })} has been approved`,
                   description: `Request has already been approved by majority of treasurers \`${
                     dataTransferTreasurer.vote_result.total_approved_submission
@@ -285,6 +285,9 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
                     title: `The request to ${createActionLine({
                       action: "transfer",
                       vault: dataTransferTreasurer?.submission.vault.name,
+                      amount,
+                      token,
+                      transferTarget: toUser ? toUser : "",
                     })} has been rejected`,
                     description: `Request has already been rejected by majority of treasurers \`${
                       dataTransferTreasurer?.vote_result

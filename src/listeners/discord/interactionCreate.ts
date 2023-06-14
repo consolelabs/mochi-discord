@@ -28,18 +28,9 @@ import { handleTreasurerTransfer } from "commands/vault/transfer/processor"
 import { handleTreasurerRemove } from "commands/vault/remove/processor"
 import { sendVerifyURL } from "commands/verify/processor"
 import {
-  addWallet,
-  redirectToAddMoreWallet,
-} from "commands/wallet/add/processor"
-import {
   removeWallet,
   removeWalletConfirmation,
 } from "commands/wallet/remove/processor"
-import {
-  handleWalletRenaming,
-  navigateWalletViews,
-  viewWallet,
-} from "commands/wallet/view/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
 import { viewTickerRouteSwap } from "commands/swap/index/processor"
 import {
@@ -52,7 +43,7 @@ import {
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
-import { CommandNotAllowedToRunError } from "errors"
+import { CommandNotAllowedToRunError, InternalError } from "errors"
 import InteractionManager from "handlers/discord/select-menu"
 import tagme from "handlers/tagme"
 import { logger } from "logger"
@@ -69,12 +60,7 @@ import {
   setDefaultMiddleware,
 } from "ui/discord/select-menu"
 import { slashCommandAsyncStore } from "utils/async-storages"
-import {
-  authorFilter,
-  getChance,
-  getEmoji,
-  hasAdministrator,
-} from "utils/common"
+import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
 import config from "adapters/config"
@@ -96,15 +82,19 @@ async function questReminder(userId: string, command: string) {
       isReminded = true
     },
   })
+
+  const { data, ok, originalError } = await config.getContent("header")
+  if (!ok) {
+    throw new InternalError({
+      description: originalError,
+    })
+  }
+
   if (!isReminded) {
-    switch (command) {
-      case "watchlist":
-        return `> Check your watchlist thrice a day to get more XP! ${getEmoji(
-          "GIFT"
-        )}`
-      case "ticker":
-        return `> Run /ticker thrice a day to get more XP! ${getEmoji("GIFT")}`
-    }
+    const randomIdxFact = Math.floor(
+      Math.random() * data.description.fact.length
+    )
+    return `> ${data.description.fact[randomIdxFact]}`
   }
   return undefined
 }
@@ -474,26 +464,11 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("proposal-info"):
       await handleDaoTrackerView(i)
       return
-    case i.customId.startsWith("wallet_view_details-"):
-      await viewWallet(i)
-      return
-    case i.customId.startsWith("wl_my_"):
-      await navigateWalletViews(i)
-      return
-    case i.customId.startsWith("wallet_rename-"):
-      await handleWalletRenaming(i)
-      return
     case i.customId.startsWith("wallet_remove_confirmation-"):
       await removeWalletConfirmation(i)
       return
     case i.customId.startsWith("wallet_remove-"):
       await removeWallet(i)
-      return
-    case i.customId.startsWith("wallet_add_more-"):
-      await redirectToAddMoreWallet(i)
-      return
-    case i.customId.startsWith("wallet_add-"):
-      await addWallet(i)
       return
     case i.customId.startsWith("proposal_join_thread_commonwealth"):
       await subscribeCommonwealthDiscussion(i)
