@@ -414,7 +414,7 @@ export function formatView(
         cols: ["balance", "usd"],
         separator: [` ${APPROX} `],
         rowAfterFormatter: (formatted, i) =>
-          `${formattedBal[i].emoji} ${formatted}`,
+          `${formattedBal[i].emoji}${formatted}`,
       }
     )
     return { totalWorth, text }
