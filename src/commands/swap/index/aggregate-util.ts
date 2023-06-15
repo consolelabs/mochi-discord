@@ -200,11 +200,11 @@ function format(tokenIn: string) {
   }
 }
 
-export function aggregateTradeRoute(
+export async function aggregateTradeRoute(
   tokenIn: string,
   routeSummary: RouteSummary
 ) {
-  const routes = parseTradeRoute(routeSummary)
+  const routes = await parseTradeRoute(routeSummary)
     .then(calculatePercentage)
     .then(format(tokenIn))
 

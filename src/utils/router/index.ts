@@ -182,6 +182,18 @@ export function route(
           wrapError(interaction, async () => {
             if (!composer) return
             try {
+              // handle pagination for user
+              if (
+                [
+                  RouterSpecialAction.PREV_PAGE,
+                  RouterSpecialAction.NEXT_PAGE,
+                ].includes(event.type) &&
+                typeof oldContext.page === "number"
+              ) {
+                oldContext.page += PAGE_MAP[event.type]
+                oldContext.page = Math.max(oldContext.page, 0)
+              }
+
               const { context = {}, msgOpts } = await composer(
                 interaction,
                 event.type,
@@ -191,17 +203,6 @@ export function route(
               const newContext = {
                 ...oldContext,
                 ...context,
-              }
-
-              // handle pagination for user
-              if (
-                [
-                  RouterSpecialAction.PREV_PAGE,
-                  RouterSpecialAction.NEXT_PAGE,
-                ].includes(event.type) &&
-                typeof newContext.page === "number"
-              ) {
-                newContext.page += PAGE_MAP[event.type]
               }
 
               routerCache.set(cacheKey, newContext)

@@ -10,145 +10,7 @@ import { formatDigit } from "utils/defi"
 import { VERTICAL_BAR } from "utils/constants"
 import { groupBy } from "lodash"
 import { renderChart } from "./chart"
-
-// async function renderNFTWatchlistChart(data: any[]) {
-//   const container: RectangleStats = {
-//     x: {
-//       from: 0,
-//       to: 900,
-//     },
-//     y: {
-//       from: 0,
-//       to: 780,
-//     },
-//     w: 0,
-//     h: 0,
-//     pt: 50,
-//     pl: 10,
-//     radius: 0,
-//     bgColor: "rgba(0, 0, 0, 0)",
-//   }
-//   container.w = container.x.to - container.x.from
-//   container.h = container.y.to - container.y.from
-//   const canvas = createCanvas(container.w, container.h)
-//   const ctx = canvas.getContext("2d")
-//   drawRectangle(ctx, container, container.bgColor)
-//
-//   const ascColor = "#56c9ac"
-//   const descColor = "#ed5565"
-//   const itemContainer: RectangleStats = {
-//     x: {
-//       from: 0,
-//       to: 0,
-//     },
-//     y: {
-//       from: 0,
-//       to: 120,
-//     },
-//     mt: 10,
-//     w: 0,
-//     h: 120,
-//     pt: 20,
-//     pl: 15,
-//     radius: 7,
-//     bgColor: "#202020",
-//   }
-//   for (const [idx, item] of Object.entries(data)) {
-//     const leftCol = +idx % 2 === 0
-//     itemContainer.x = {
-//       from: leftCol ? 0 : 455,
-//       to: leftCol ? 445 : 900,
-//     }
-//     drawRectangle(ctx, itemContainer, itemContainer.bgColor)
-//     const {
-//       symbol,
-//       floor_price,
-//       sparkline_in_7d,
-//       price_change_percentage_24h,
-//       price_change_percentage_7d_in_currency,
-//       token,
-//     } = item
-//     // image
-//     const radius = 20
-//     const image = await loadAndCacheImage(item.image, radius * 2, radius * 2)
-//     const imageX = itemContainer.x.from + (itemContainer.pl ?? 0)
-//     const imageY = itemContainer.y.from + (itemContainer.pt ?? 0)
-//     if (image) ctx.drawImage(image, imageX, imageY, radius * 2, radius * 2)
-//
-//     // symbol
-//     ctx.font = "bold 29px"
-//     ctx.fillStyle = "white"
-//     const symbolText = symbol.toUpperCase()
-//     const symbolH = heightOf(ctx, symbolText)
-//     const symbolX = imageX + radius * 2 + 10
-//     const symbolY = imageY + radius + symbolH / 2
-//     ctx.fillText(symbolText, symbolX, symbolY)
-//
-//     // Token logo
-//     const fallbackTokenLogoURL = "https://i.imgur.com/2MdXSOd.png"
-//     const tokenEmojiId =
-//       tokenEmojis[(token?.symbol as TokenEmojiKey) ?? ""] ?? ""
-//     const tokenLogoURL = getEmojiURL(tokenEmojiId)
-//     const tokenH = 25
-//     const tokenW = 25
-//     const tokenLogo = await loadAndCacheImage(
-//       tokenEmojiId ? tokenLogoURL : fallbackTokenLogoURL,
-//       tokenW,
-//       tokenH
-//     )
-//     const tokenX = imageX
-//     const tokenY = imageY + tokenH + radius + 20
-//     if (tokenLogo) ctx.drawImage(tokenLogo, tokenX, tokenY, tokenW, tokenH)
-//
-//     // price
-//     ctx.font = "bold 30px"
-//     ctx.fillStyle = "white"
-//     const currentPrice = `${floor_price}`
-//     const priceW = widthOf(ctx, currentPrice)
-//     const priceH = heightOf(ctx, currentPrice)
-//     const priceX = tokenX + tokenW + 5
-//     const priceY = tokenY + priceH
-//     ctx.fillText(currentPrice, priceX, priceY)
-//
-//     // 24h change
-//     ctx.font = "25px"
-//     ctx.fillStyle = price_change_percentage_24h >= 0 ? ascColor : descColor
-//     const change = `${
-//       price_change_percentage_24h >= 0 ? "+" : ""
-//     }${price_change_percentage_24h.toFixed(2)}%`
-//     const changeX = priceX + priceW + 10
-//     const changeY = priceY
-//     ctx.fillText(change, changeX, changeY)
-//
-//     // 7d chart
-//     const { price } = sparkline_in_7d
-//     const labels = price.map((p: number) => `${p}`)
-//     const buffer = await renderChartImage({
-//       labels,
-//       data: price,
-//       lineOnly: true,
-//       colorConfig: {
-//         borderColor:
-//           price_change_percentage_7d_in_currency >= 0 ? ascColor : descColor,
-//         backgroundColor: "#fff",
-//       },
-//     })
-//     const chart = await loadImage(buffer)
-//     const chartW = 150
-//     const chartH = 50
-//     const chartX = itemContainer.x.to - chartW - 15
-//     const chartY = itemContainer.y.from + (itemContainer.pt ?? 0) + chartH / 2
-//     ctx.drawImage(chart, chartX, chartY, chartW, chartH)
-//
-//     // next row
-//     if (!leftCol) {
-//       itemContainer.y.from += itemContainer.h + (itemContainer.mt ?? 0)
-//       itemContainer.y.to = itemContainer.y.from + itemContainer.h
-//     }
-//   }
-//
-//   return new MessageAttachment(canvas.toBuffer(), "watchlist.png")
-// }
+import { paginationButtons } from "utils/router"
 
 export function buildSwitchViewActionRow(currentView: string) {
   const tokenButton = new MessageButton({
@@ -196,7 +58,7 @@ function sortPrice(a: any, b: any) {
 
 export async function composeWatchlist(
   author: User,
-  page: number,
+  page = 0,
   view = WatchListViewType.Token,
   tokenView = WatchListTokenViewType.Text,
   user: User = author
@@ -306,9 +168,15 @@ export async function composeWatchlist(
       break
   }
   return {
+    context: {
+      page,
+    },
     msgOpts: {
       embeds: [embed],
-      components: [buildSwitchViewActionRow(view)],
+      components: [
+        buildSwitchViewActionRow(view),
+        ...paginationButtons(page, Math.ceil(res.metadata.total / PAGE_SIZE)),
+      ],
       files,
     },
   }
