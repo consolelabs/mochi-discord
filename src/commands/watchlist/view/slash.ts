@@ -9,24 +9,27 @@ import {
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { MachineConfig, route } from "utils/router"
+import { MachineConfig, route, RouterSpecialAction } from "utils/router"
 import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 
-export const machineConfig: MachineConfig = {
+export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
   id: "watchlist",
   initial: "watchlist",
   context: {
     button: {
-      watchlist: (i) => composeWatchlist(i.user, 0),
+      watchlist: (i, _ev, ctx) => composeWatchlist(i.user, ctx.page),
       watchlistNft: (i) => composeWatchlist(i.user, 0, WatchListViewType.Nft),
       wallets: (i) => renderTrackingWallets(i.user),
     },
+    ...context,
   },
   states: {
     watchlist: {
       on: {
         VIEW_NFT: "watchlistNft",
         VIEW_WALLETS: "wallets",
+        [RouterSpecialAction.NEXT_PAGE]: "watchlist",
+        [RouterSpecialAction.PREV_PAGE]: "watchlist",
       },
     },
     watchlistNft: {
@@ -55,7 +58,7 @@ export const machineConfig: MachineConfig = {
       },
     },
   },
-}
+})
 
 const command: SlashCommand = {
   name: "wlv",
@@ -68,7 +71,7 @@ const command: SlashCommand = {
       )
   },
   run: async function (i: CommandInteraction) {
-    const { msgOpts } = await composeWatchlist(
+    const { context, msgOpts } = await composeWatchlist(
       i.user,
       0,
       WatchListViewType.Token,
@@ -78,7 +81,7 @@ const command: SlashCommand = {
     )
     const reply = (await i.editReply(msgOpts)) as Message
 
-    route(reply, i, machineConfig)
+    route(reply, i, machineConfig(context))
   },
   help: (interaction) =>
     Promise.resolve({
