@@ -164,7 +164,13 @@ export function route(
           }
         },
         transition: (context, event) => {
-          const { canBack = false, dry, interaction, state } = event
+          const {
+            canBack = false,
+            dry,
+            interaction,
+            state,
+            context: oldContext,
+          } = event
           if (!interaction || !state || dry || state === "steps") return
           let composer: Handler | undefined
           if (interaction.isButton()) {
@@ -176,7 +182,6 @@ export function route(
           wrapError(interaction, async () => {
             if (!composer) return
             try {
-              const oldContext = routerCache.get<any>(cacheKey) ?? {}
               const { context = {}, msgOpts } = await composer(
                 interaction,
                 event.type,
@@ -251,11 +256,13 @@ export function route(
 
         event = event.toUpperCase()
 
+        const context = routerCache.get<any>(cacheKey) ?? {}
         const currentState = machineService.getSnapshot()
         const nextState = machineService.nextState({
           type: event,
           interaction: i,
           dry: true,
+          context,
         })
 
         if (!i.deferred && !modal[event]) {
@@ -266,7 +273,12 @@ export function route(
           }
         }
 
-        const can = currentState.can({ type: event, interaction: i, dry: true })
+        const can = currentState.can({
+          type: event,
+          interaction: i,
+          context,
+          dry: true,
+        })
         if (can) {
           const prevState = currentState.toStrings().at(-1)?.split(".").at(-1)
           const state = nextState.toStrings().at(-1)?.split(".").at(-1) ?? ""
@@ -277,6 +289,7 @@ export function route(
             prevState,
             state,
             canBack: nextState.can(RouterSpecialAction.BACK),
+            context,
           })
         }
 
@@ -291,5 +304,7 @@ export function route(
         ButtonInteraction | SelectMenuInteraction
       >(lastInteractionCacheKey)
       lastInteraction?.editReply({ components: [] }).catch(() => null)
+
+      routerCache.del(lastInteractionCacheKey)
     })
 }

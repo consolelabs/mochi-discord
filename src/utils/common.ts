@@ -492,6 +492,8 @@ export const thumbnails = {
     "https://cdn.discordapp.com/attachments/1052079279619457095/1116938833888555048/Mochi_Pose_12.png",
   MOCHI_POSE_14:
     "https://cdn.discordapp.com/attachments/984660970624409630/1098472181631045742/Mochi_Pose_14.png",
+  MOCHI_POSE_17:
+    "https://cdn.discordapp.com/attachments/1052079279619457095/1118039688922529832/Mochi_Pose_17.png",
   ROCKET:
     "https://cdn.discordapp.com/attachments/933195103273627719/1100350433295339541/rocket.webp",
 }

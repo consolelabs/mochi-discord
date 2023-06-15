@@ -201,7 +201,7 @@ async function compose(user: User, page: number) {
       components: [
         new MessageActionRow().addComponents(
           new MessageSelectMenu()
-            .setPlaceholder("🎫 View one")
+            .setPlaceholder("🎫 View an QR code")
             .setCustomId("view_qr")
             .addOptions(
               data.map((d) => ({
@@ -235,7 +235,7 @@ function formatContent(
 ) {
   switch (category) {
     case "wallet": {
-      const author = ["Deposit", getEmojiURL(emojis.WALLET)]
+      const author = ["Deposit", getEmojiURL(emojis.ANIMATED_MONEY)]
       let description = ""
 
       switch (type) {
