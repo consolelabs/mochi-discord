@@ -19,31 +19,43 @@ import { paginationButtons } from "utils/router"
 import { chunk } from "lodash"
 dayjs.extend(utc)
 
+const AIRDROP_DETAIL_STATUSES = [
+  { label: "Ignore", value: "ignored" },
+  { label: "Join", value: "joined" },
+  { label: "Claim", value: "claimed" },
+  { label: "Not Eligible", value: "not_eligible" },
+]
+
 const DATA = [
   {
     id: 1,
     title: "1 slot WL PEKACHU INU",
     deadline: "22-06-2023",
+    status: "live",
   },
   {
     id: 2,
     title: "Airdrop - Tabi (Part 02) - Chain BSC",
     deadline: "22-06-2023",
+    status: "ended",
   },
   {
     id: 3,
     title: "Update - Airdrop - Libra Incentix - Chain BSC",
     deadline: "22-06-2023",
+    status: "ended",
   },
   {
     id: 4,
     title: "Update - Airdrop - Fantasize - Chain ETH",
     deadline: "22-06-2023",
+    status: "claimed",
   },
   {
     id: 5,
     title: "Airdrop - Position Exchange - Chain BSC",
     deadline: "22-06-2023",
+    status: "live",
   },
 ]
 
@@ -67,7 +79,7 @@ export async function airdropDetail(i: SelectMenuInteraction) {
         ✅️Telegram ✅️Facebook ✅️Twitter ✅️Linktree`
 
   const embed = composeEmbedMessage(null, {
-    title: data?.title || `Can get earn detail id ${earnId}`,
+    title: data?.title || `Can't get earn detail id ${earnId}`,
     color: msgColors.PINK,
     description,
   })
@@ -77,21 +89,46 @@ export async function airdropDetail(i: SelectMenuInteraction) {
       embeds: [embed],
       components: [
         new MessageActionRow().addComponents(
-          new MessageButton()
-            .setStyle("SECONDARY")
-            .setLabel("Done")
-            .setEmoji(getEmoji("CHECK"))
-            .setCustomId("mark_done"),
-          new MessageButton()
-            .setStyle("SECONDARY")
-            .setLabel("Skip")
-            .setEmoji(getEmoji("NEXT_PAGE"))
-            .setCustomId("mark_skip"),
-          new MessageButton()
-            .setStyle("SECONDARY")
-            .setLabel("Favorite")
-            .setEmoji(getEmoji("ANIMATED_STAR"))
-            .setCustomId("mark_favorite")
+          new MessageSelectMenu()
+            .setPlaceholder(`What will you do to this airdrop?`)
+            .setCustomId("set_airdrop_status")
+            .addOptions(
+              AIRDROP_DETAIL_STATUSES.map((status) => ({
+                label: status.label,
+                value: status.value,
+              }))
+            )
+        ),
+      ],
+    },
+  }
+}
+
+export async function setCampaignStatus(i: SelectMenuInteraction) {
+  const [status] = i.values
+  const statusData = AIRDROP_DETAIL_STATUSES.find((d) => d.value === status)
+  const description = statusData?.label || "Description"
+
+  const embed = composeEmbedMessage(null, {
+    title: statusData?.label || `Can't get earn detail id ${statusData?.value}`,
+    color: msgColors.PINK,
+    description,
+  })
+
+  return {
+    msgOpts: {
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageSelectMenu()
+            .setPlaceholder(`What will you do to this airdrop?`)
+            .setCustomId("set_airdrop_status")
+            .addOptions(
+              AIRDROP_DETAIL_STATUSES.map((status) => ({
+                label: status.label,
+                value: status.value,
+              }))
+            )
         ),
       ],
     },
@@ -111,32 +148,42 @@ export async function run(
   status = AirdropCampaignStatus.Live,
   page = 0
 ) {
-  const paginated = chunk(DATA, PAGE_SIZE)
+  const embed = composeEmbedMessage(null, {
+    title: `${status} Airdrop Campaigns`,
+    description: "",
+    thumbnail: getEmojiURL(emojis.CHEST),
+    color: msgColors.YELLOW,
+  })
+
+  const filteredData = DATA.filter((d) => d.status === status) || []
+  const paginated = chunk(filteredData, PAGE_SIZE)
   const data = paginated[page]
+
+  if (filteredData.length === 0) {
+    embed.setDescription(`Can't found any ${status} airdrop campaign`)
+  } else {
+    embed.setDescription(
+      `${[
+        `**${PAGE_SIZE * page + filteredData.length}**/${
+          DATA.length
+        } new airdrops you can join.`,
+      ].join("\n")}`
+    )
+
+    embed.fields = data.map((d: any) => {
+      return {
+        name: `\`#${d.id}\` ${d.title}`,
+        value: `Deadline: **${d.deadline}**`,
+        inline: false,
+      }
+    })
+  }
+
   const res = await community.getListQuest(userId)
   if (res.ok) {
     // TODO: uncomment when using rendering real data
     // data = res.data as any[]
   }
-
-  const embed = composeEmbedMessage(null, {
-    title: "New Airdrops",
-    description: `${[
-      `**${PAGE_SIZE * page + data.length}**/${
-        DATA.length
-      } new airdrops you can join.`,
-    ].join("\n")}`,
-    thumbnail: getEmojiURL(emojis.CHEST),
-    color: msgColors.YELLOW,
-  })
-
-  embed.fields = data.map((d: any) => {
-    return {
-      name: `\`#${d.id}\` ${d.title}`,
-      value: `Deadline: **${d.deadline}**`,
-      inline: false,
-    }
-  })
 
   return {
     msgOpts: {

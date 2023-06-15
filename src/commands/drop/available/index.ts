@@ -1,6 +1,11 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
-import { run, AirdropCampaignStatus, airdropDetail } from "./processor"
+import {
+  run,
+  AirdropCampaignStatus,
+  airdropDetail,
+  setCampaignStatus,
+} from "./processor"
 import { CommandInteraction, Message } from "discord.js"
 import { MachineConfig, route } from "utils/router"
 
@@ -19,6 +24,7 @@ export const machineConfig: MachineConfig = {
     },
     select: {
       airdrop: (i) => airdropDetail(i),
+      setCampaignStatus: (i) => setCampaignStatus(i),
     },
   },
   states: {
