@@ -18,7 +18,6 @@ import {
   handleBackToQuestList,
   handleClaimReward,
 } from "commands/quest/daily/processor"
-import { handleSwap } from "commands/swap/index/processor"
 import { handleTickerViews } from "commands/ticker/index/processor"
 import {
   handleTokenApprove,
@@ -29,20 +28,10 @@ import { handleTreasurerTransfer } from "commands/vault/transfer/processor"
 import { handleTreasurerRemove } from "commands/vault/remove/processor"
 import { sendVerifyURL } from "commands/verify/processor"
 import {
-  addWallet,
-  redirectToAddMoreWallet,
-} from "commands/wallet/add/processor"
-import {
   removeWallet,
   removeWalletConfirmation,
 } from "commands/wallet/remove/processor"
-import {
-  handleWalletRenaming,
-  navigateWalletViews,
-  viewWallet,
-} from "commands/wallet/view/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
-import { viewTickerRouteSwap } from "commands/swap/index/processor"
 import {
   AutocompleteInteraction,
   ButtonInteraction,
@@ -447,9 +436,6 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("ticker_add_wl"):
       await addToWatchlist(i)
       return
-    case i.customId.startsWith("ticker_route_swap"):
-      await viewTickerRouteSwap(i)
-      return
     case i.customId.startsWith("nft_ticker_view"):
       await handleNFTTickerViews(i)
       return
@@ -477,26 +463,11 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("proposal-info"):
       await handleDaoTrackerView(i)
       return
-    case i.customId.startsWith("wallet_view_details-"):
-      await viewWallet(i)
-      return
-    case i.customId.startsWith("wl_my_"):
-      await navigateWalletViews(i)
-      return
-    case i.customId.startsWith("wallet_rename-"):
-      await handleWalletRenaming(i)
-      return
     case i.customId.startsWith("wallet_remove_confirmation-"):
       await removeWalletConfirmation(i)
       return
     case i.customId.startsWith("wallet_remove-"):
       await removeWallet(i)
-      return
-    case i.customId.startsWith("wallet_add_more-"):
-      await redirectToAddMoreWallet(i)
-      return
-    case i.customId.startsWith("wallet_add-"):
-      await addWallet(i)
       return
     case i.customId.startsWith("proposal_join_thread_commonwealth"):
       await subscribeCommonwealthDiscussion(i)
@@ -527,9 +498,6 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("tagme"):
       await tagme.editSubscribeStatus(i)
-      return
-    case i.customId.startsWith("swap-mochi-wallet"):
-      await handleSwap(i)
       return
     case i.customId.startsWith("balance"):
       await handleInteraction(i)

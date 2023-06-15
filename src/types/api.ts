@@ -96,6 +96,7 @@ export interface ModelChain {
 export interface ModelCoingeckoSupportedTokens {
   current_price?: number;
   id?: string;
+  most_popular?: boolean;
   name?: string;
   symbol?: string;
 }
@@ -1313,6 +1314,10 @@ export interface RequestTwitterPost {
   twitter_id?: string;
 }
 
+export interface RequestUnlinkBinance {
+  discord_user_id?: string;
+}
+
 export interface RequestUpdateDaoVoteRequest {
   choice: string;
   user_id: string;
@@ -1950,6 +1955,10 @@ export interface ResponseGetLinkedTelegramResponse {
 
 export interface ResponseGetListAllChainsResponse {
   data?: ModelChain[];
+}
+
+export interface ResponseGetListGuildDefaultTickerResponse {
+  data?: ModelGuildConfigDefaultTicker[];
 }
 
 export interface ResponseGetMyInfoResponse {
@@ -2785,6 +2794,7 @@ export interface ResponseSwapRoute {
 }
 
 export interface ResponseSwapRouteResponse {
+  chainName?: string;
   code?: number;
   data?: ResponseSwapRoute;
   message?: string;
@@ -2850,6 +2860,10 @@ export interface ResponseTwitterHashtag {
   twitter_username?: string[];
   updated_at?: string;
   user_id?: string;
+}
+
+export interface ResponseUnlinkBinance {
+  message?: string;
 }
 
 export interface ResponseUpdateGuildTokenRole {

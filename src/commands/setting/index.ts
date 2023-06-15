@@ -16,7 +16,6 @@ const slashCmd: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     await settingSlash(interaction)
-    return null
   },
   help: () =>
     Promise.resolve({

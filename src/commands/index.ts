@@ -99,6 +99,7 @@ import drop from "./drop"
 import qr from "./qr"
 import defaults from "./default"
 import setting from "./setting"
+import update from "./update"
 
 CacheManager.init({
   ttl: 0,
@@ -173,6 +174,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   qr: qr.slashCmd,
   default: defaults.slashCmd,
   setting: setting.slashCmd,
+  update: update.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {

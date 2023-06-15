@@ -7,32 +7,36 @@ import {
   User,
 } from "discord.js"
 
+import {
+  NameRegistryState,
+  getHashedNameSync,
+  getNameAccountKeySync,
+  reverseLookup as performReverseLookup,
+} from "@bonfida/spl-name-service"
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
+import CacheManager from "cache/node-cache"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { MARKETPLACE_BASE_URL } from "env"
+import { OriginalMessage } from "errors"
+import { ethers } from "ethers"
+import { logger } from "logger"
+import fetch from "node-fetch"
 import type { Pagination } from "types/common"
 import { TopNFTTradingVolumeItem } from "types/community"
-import { DOT, SPACE } from "./constants"
-import fetch from "node-fetch"
-import { ethers } from "ethers"
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
-import {
-  NameRegistryState,
-  getHashedName,
-  getNameAccountKey,
-  performReverseLookup,
-} from "@bonfida/spl-name-service"
-import { logger } from "logger"
 import providers from "utils/providers"
-import { OriginalMessage } from "errors"
+import { DOT, SPACE } from "./constants"
 import {
   marketplaceEmojis,
   rarityEmojis,
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
-import CacheManager from "cache/node-cache"
 dayjs.extend(relativeTime)
+
+const SOL_TLD_AUTHORITY = new PublicKey(
+  "58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx"
+)
 
 export const tokenEmojis = {
   FANTOM: "1113120054352019476",
@@ -488,6 +492,8 @@ export const thumbnails = {
     "https://cdn.discordapp.com/attachments/1052079279619457095/1116938833888555048/Mochi_Pose_12.png",
   MOCHI_POSE_14:
     "https://cdn.discordapp.com/attachments/984660970624409630/1098472181631045742/Mochi_Pose_14.png",
+  MOCHI_POSE_17:
+    "https://cdn.discordapp.com/attachments/1052079279619457095/1118039688922529832/Mochi_Pose_17.png",
   ROCKET:
     "https://cdn.discordapp.com/attachments/933195103273627719/1100350433295339541/rocket.webp",
 }
@@ -810,9 +816,16 @@ export function isValidSuiAddress(value: string): boolean {
   return isHex(value) && getHexByteLength(value) === SUI_ADDRESS_LENGTH
 }
 
+export enum AddressChainType {
+  EVM = "EVM",
+  SOL = "SOl",
+  SUI = "SUI",
+  UNKNOWN = "",
+}
+
 export function isAddress(address: string): {
   valid: boolean
-  chainType: string
+  chainType: AddressChainType
 } {
   // standardize ronin address
   address = address.toLowerCase().startsWith("ronin:")
@@ -820,26 +833,26 @@ export function isAddress(address: string): {
     : address
   try {
     if (ethers.utils.isAddress(address)) {
-      return { valid: true, chainType: "eth" }
+      return { valid: true, chainType: AddressChainType.EVM }
     }
     if (isValidSuiAddress(address)) {
-      return { valid: true, chainType: "sui" }
+      return { valid: true, chainType: AddressChainType.SUI }
     }
     if (PublicKey.isOnCurve(new PublicKey(address))) {
-      return { valid: true, chainType: "sol" }
+      return { valid: true, chainType: AddressChainType.SOL }
     }
   } catch (e) {
-    return { valid: false, chainType: "" }
+    return { valid: false, chainType: AddressChainType.UNKNOWN }
   }
-  return { valid: false, chainType: "" }
+  return { valid: false, chainType: AddressChainType.UNKNOWN }
 }
 
 async function resolveSNSDomain(domain: string) {
-  const hashedName = await getHashedName(domain.replace(".sol", ""))
-  const nameAccountKey = await getNameAccountKey(
+  const hashedName = getHashedNameSync(domain.replace(".sol", ""))
+  const nameAccountKey = getNameAccountKeySync(
     hashedName,
     undefined,
-    new PublicKey("58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx") // SOL TLD Authority
+    SOL_TLD_AUTHORITY
   )
   const owner = await NameRegistryState.retrieve(
     new Connection(clusterApiUrl("mainnet-beta")),
@@ -892,11 +905,11 @@ export async function reverseLookup(address: string) {
       const { chainType } = isAddress(address)
       try {
         switch (chainType) {
-          case "sol": {
+          case AddressChainType.SOL: {
             const domainKey = new PublicKey(address)
             return await performReverseLookup(connection, domainKey)
           }
-          case "eth":
+          case AddressChainType.EVM:
             return (await providers.eth.lookupAddress(address)) || ""
           default:
             return ""

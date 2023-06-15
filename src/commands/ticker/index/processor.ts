@@ -192,7 +192,6 @@ export async function composeTickerResponse({
   const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
-    footer: ["Data fetched from CoinGecko.com"],
     image: "attachment://chart.png",
   }).addFields([
     {
@@ -254,10 +253,7 @@ export async function composeTickerResponse({
   const buttonRow = buildSwitchViewActionRow(
     "ticker",
     { coinId: coin.id, days: days, symbol, discordId, isDominanceChart },
-    wlAdded,
-    {
-      chain_name: coin.asset_platform_id,
-    }
+    wlAdded
   )
 
   return {
@@ -334,10 +330,7 @@ export function buildSwitchViewActionRow(
     discordId: string
     isDominanceChart: boolean
   },
-  added: boolean,
-  tokenInfo?: {
-    chain_name: string
-  }
+  added: boolean
 ) {
   const { coinId, days, symbol, discordId, isDominanceChart } = params
   const tickerBtn = new MessageButton({
@@ -363,7 +356,7 @@ export function buildSwitchViewActionRow(
   const swapBtn = new MessageButton({
     label: "Swap",
     emoji: getEmoji("SWAP_ROUTE"),
-    customId: `ticker_route_swap|${coinId}|${symbol}|${tokenInfo?.chain_name}`,
+    customId: "swap",
     style: "SECONDARY",
   })
   const addAlertBtn = new MessageButton({
@@ -454,7 +447,6 @@ export async function composeTokenInfoEmbed(
     thumbnail: coin.image.large,
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     title: "About " + coin.name,
-    footer: ["Data fetched from CoinGecko.com"],
   })
   const tdService = new TurndownService()
   const content = coin.description.en

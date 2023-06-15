@@ -12,13 +12,21 @@ export function listSubmissionVault(submission: []) {
   return listSubmissionValue
 }
 
-export function createActionLine(params: { action?: string; vault?: string }) {
+export function createActionLine(params: {
+  action?: string
+  vault?: string
+  amount?: string
+  token?: string
+  transferTarget?: string
+}) {
   switch (params.action) {
     case "add":
       return `add treasurer to ${params.vault}`
     case "remove":
       return `remove treasurer from ${params.vault}`
     case "transfer":
-      return `send money from ${params.vault} to treasurer`
+      return `send ${params.amount} ${params.token?.toUpperCase()} from ${
+        params.vault
+      } to ${params.transferTarget}`
   }
 }

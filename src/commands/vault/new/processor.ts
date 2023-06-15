@@ -1,7 +1,7 @@
 import config from "adapters/config"
 import { CommandInteraction } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
-import { MessageEmbed } from "discord.js"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { getSlashCommand } from "utils/commands"
 
@@ -43,15 +43,12 @@ export async function runCreateVault({
     true
   )} See a vault detail ${await getSlashCommand("vault info")}`
 
-  const embed = new MessageEmbed()
-    .setTitle(
-      `${getEmoji("CHECK")}**${data?.name} vault successfully created**`
-    )
-    .setDescription(description)
-    .setColor(msgColors.BLUE)
-    .setFooter({ text: "Type /feedback to report • Mochi Bot" })
-    .setTimestamp(Date.now())
-    .setThumbnail(getEmojiURL(emojis.ANIMATED_OPEN_VAULT))
+  const embed = composeEmbedMessage(null, {
+    title: `${getEmoji("CHECK")}**${data?.name} vault successfully created**`,
+    description: description,
+    color: msgColors.BLUE,
+    thumbnail: getEmojiURL(emojis.ANIMATED_OPEN_VAULT),
+  })
 
   return { messageOptions: { embeds: [embed] } }
 }

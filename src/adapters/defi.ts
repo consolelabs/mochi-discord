@@ -306,7 +306,7 @@ class Defi extends Fetcher {
 
   async getWalletAssets(userId: string, address: string, type: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type}/assets`
+      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type.toLowerCase()}/assets`
     )
   }
 
@@ -326,7 +326,7 @@ class Defi extends Fetcher {
 
   async getWalletTxns(userId: string, address: string, type: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type}/txns`
+      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type.toLowerCase()}/txns`
     )
   }
 
@@ -489,35 +489,25 @@ class Defi extends Fetcher {
     from,
     to,
     amount,
-    chain_name,
-    from_token_id, // not every token exist in kyber api, this is used for backend to query and add token which kyber not have
-    to_token_id, // not every token exist in kyber api, this is used for backend to query and add token which kyber not have
   }: {
     from: string
     to: string
     amount: string
-    chain_name: string
-    from_token_id?: string
-    to_token_id?: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/swap/route`, {
       query: {
         from,
         to,
         amount,
-        chain_name,
-        from_token_id,
-        to_token_id,
       },
     })
   }
 
-  async swap(userDiscordId: string, chainName: string, routeSummary: any) {
+  async swap(userDiscordId: string, routeSummary: any) {
     return await this.jsonFetch(`${API_BASE_URL}/swap`, {
       method: "POST",
       body: {
         userDiscordId,
-        chainName,
         routeSummary,
       },
       bodyCamelToSnake: false,

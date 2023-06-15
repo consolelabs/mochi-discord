@@ -1,128 +1,163 @@
-import { MessageActionRow, MessageButton, User, MessageEmbed } from "discord.js"
-import { getEmoji, thumbnails } from "utils/common"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { MessageActionRow, MessageButton } from "discord.js"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { getSlashCommand } from "utils/commands"
+import { composeEmbedMessage } from "ui/discord/embed"
 
-export type PageType = "server" | "user"
-
-export const defaultPageType = "server"
-
-export function getSettingEmbed(user: User) {
-  return composeEmbedMessage(null, {
-    originalMsgAuthor: user,
-  })
+export enum SettingTab {
+  User = "user",
+  Server = "server",
 }
 
-export const pagination = (selectedPage: PageType) => [
+function addBullet(str: string) {
+  return `▪︎ ${str}`
+}
+
+const pagination = (currentTab: SettingTab) =>
   new MessageActionRow().addComponents([
-    new MessageButton({
-      label: "Server",
-      style: "SECONDARY",
-      emoji: getEmoji("ANIMATED_BADGE_1", true),
-      customId: "server",
-      disabled: selectedPage === "server",
-    }),
     new MessageButton({
       label: "User",
       style: "SECONDARY",
       emoji: getEmoji("MOCHI_CIRCLE"),
-      customId: "user",
-      disabled: selectedPage === "user",
+      customId: "view_user_setting",
+      disabled: currentTab === SettingTab.User,
     }),
-  ]),
-]
+    new MessageButton({
+      label: "Server",
+      style: "SECONDARY",
+      emoji: getEmoji("ANIMATED_BADGE_1", true),
+      customId: "view_server_setting",
+      disabled: currentTab === SettingTab.Server,
+    }),
+  ])
 
-export async function renderSetting(embed: MessageEmbed, page: string) {
-  if (page == "server") {
-    embed.author = {
-      name: "Server Setting",
-      iconURL: thumbnails.MOCHI,
-    }
-    embed.description = `${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )} Server related settings: DAO, PAY, WEB3\n\n`
+export async function renderSetting(tab: SettingTab = SettingTab.User) {
+  const embed = composeEmbedMessage(null, {})
+  if (tab === SettingTab.User) {
+    embed.setDescription(
+      [
+        `${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Profile includes your Mochi ID and email.`,
+        `${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Connections contain your social accounts and CEX/DEXes.`,
+        `${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Developer holds the api key for Mochi API`,
+      ].join("\n") + "\n\u200b"
+    )
+    embed.setAuthor({
+      name: "User setting",
+      iconURL: getEmojiURL(emojis.MOCHI_CIRCLE),
+    })
     embed.addFields(
       {
-        name: "DAO",
+        name: `:identification_card: **PROFILE**`,
         value: [
-          `${getEmoji("ANIMATED_CHAT", true)} ${await getSlashCommand(
-            "welcome message"
-          )} Config your welcome message to new member`,
-          `📜 ${await getSlashCommand(
-            "proposal track"
-          )} Set up a tracker of proposal voting rounds on Snapshot.`,
-          `${getEmoji("ANIMATED_OPEN_VAULT", true)} ${await getSlashCommand(
-            "vault new"
-          )} Set vault for guild.`,
-        ].join("\n"),
-        inline: false,
+          await getSlashCommand("update profile"),
+          await getSlashCommand("update email"),
+        ]
+          .map(addBullet)
+          .join("\n"),
+        inline: true,
       },
       {
-        name: "Pay",
+        name: `:link: **CONNECTIONS**`,
         value: [
-          `${getEmoji("ANIMATED_COIN_1", true)} ${await getSlashCommand(
-            "config currency"
-          )} Config default currency for your server`,
-          `${getEmoji("ANIMATED_COIN_2", true)} ${await getSlashCommand(
-            "config tiprange"
-          )} Config the amount range of USD that can be tipped`,
-          `${getEmoji("ANIMATED_COIN_3", true)} ${await getSlashCommand(
-            "moniker set"
-          )} Config your moniker`,
-        ].join("\n"),
-        inline: false,
+          await getSlashCommand("update binance"),
+          await getSlashCommand("update coinbase"),
+          await getSlashCommand("update twitter"),
+          await getSlashCommand("update telegram"),
+        ]
+          .map(addBullet)
+          .join("\n"),
+        inline: true,
       },
+      { name: "\u200b", value: "\u200b", inline: true },
       {
-        name: "Log",
-        value: `<:_:1110865581617463346> ${await getSlashCommand(
-          "config logchannel set"
-        )} Config your log channel`,
-        inline: false,
-      },
-      {
-        name: "Ticker",
-        value: `${getEmoji("ANIMATED_TOKEN_ADD", true)} ${await getSlashCommand(
-          "default ticker"
-        )} Config your default token for your server`,
-        inline: false,
+        name: `${getEmoji("ANIMATED_VAULT_KEY", true)} **DEVELOPER**`,
+        value: [await getSlashCommand("update apikey")]
+          .map(addBullet)
+          .join("\n"),
+        inline: true,
       }
     )
-  } else if (page == "user") {
-    embed.author = {
-      name: "User Setting",
-      iconURL: thumbnails.MOCHI,
-    }
-    embed.description = `${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )} Setting for user related features. Connect to social platform, like twitter, telegram.\n${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )}This will be affected in all server\n\n`
-    embed.addFields(
-      {
-        name: "Social",
-        value: [
-          `${getEmoji("TWITTER")} Twitter Connect Twitter account with Discord`,
-          `${getEmoji("TELEGRAM")} ${await getSlashCommand(
-            "telegram"
-          )} Connect Telegram account with Discord`,
-        ].join("\n"),
-        inline: false,
-      },
-      {
-        name: "Wallet",
-        value: [
-          `${getEmoji("WALLET_1")} ${await getSlashCommand(
-            "wallet add"
-          )} Connect your wallet with discord`,
-          `${getEmoji("BINANCE")} ${await getSlashCommand(
-            "binance"
-          )} Connect your Binance account with discord`,
-        ].join("\n"),
-        inline: false,
-      }
+  } else {
+    embed.setDescription(
+      [
+        `${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Default commands are used incase of duplication symbols/tickers.`,
+        `${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} DAO will assit you in running your own DAOs.`,
+        `${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Pay will affect all monetary commands.`,
+      ].join("\n") + "\n\u200b"
     )
+    embed
+      .setAuthor({
+        name: "Server setting",
+        iconURL: getEmojiURL(emojis.MOCHI_CIRCLE),
+      })
+      .addFields(
+        {
+          name: `${getEmoji("ANIMATED_VAULT", true)} **DAO**`,
+          value: [
+            `${await getSlashCommand("welcome message")} for new members`,
+            `${await getSlashCommand(
+              "proposal track"
+            )} voting rounds on Snapshot.`,
+            `${await getSlashCommand("vault new")} for guild.`,
+          ]
+            .map(addBullet)
+            .join("\n"),
+          inline: false,
+        },
+        {
+          name: `${getEmoji("ANIMATED_MONEY", true)} **PAY**`,
+          value: [
+            `${await getSlashCommand("config currency")}`,
+            `${await getSlashCommand("config tiprange")} amount in USD`,
+            `${await getSlashCommand(
+              "moniker set"
+            )} \`beer\`, \`pizza\`, etc...`,
+          ]
+            .map(addBullet)
+            .join("\n"),
+          inline: false,
+        },
+        {
+          name: `${getEmoji("PROPOSAL")} **LOG**`,
+          value: [
+            `${await getSlashCommand(
+              "config logchannel set"
+            )} for all activities`,
+          ]
+            .map(addBullet)
+            .join("\n"),
+          inline: true,
+        },
+        {
+          name: `${getEmoji("CHART")} **TICKER**`,
+          value: [`${await getSlashCommand("default ticker")}`]
+            .map(addBullet)
+            .join("\n"),
+          inline: true,
+        }
+      )
+  }
+  return {
+    msgOpts: {
+      embeds: [embed],
+      components: [pagination(tab)],
+    },
   }
 }

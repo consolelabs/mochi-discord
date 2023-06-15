@@ -7,7 +7,7 @@ import _default from "./default/text"
 import { parseTickerQuery } from "utils/defi"
 import { InternalError } from "errors"
 import { SlashCommandBuilder } from "@discordjs/builders"
-import { CommandInteraction } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import CacheManager from "cache/node-cache"
 // text cmds
 import ticker from "./index/text"
@@ -17,12 +17,31 @@ import comparefiat from "./compare-fiat/text"
 import tickerSlash from "./index/slash"
 import compareSlash from "./compare-token/slash"
 import comparefiatSlash from "./compare-fiat/slash"
+import { MachineConfig, route } from "utils/router"
+import { machineConfig as swapMachineConfig } from "commands/swap"
 
 CacheManager.init({
   ttl: 0,
   pool: "ticker",
   checkperiod: 1,
 })
+
+const machineConfig: (swapTo: string) => MachineConfig = (to) => {
+  const { context, ...nested } = swapMachineConfig("swapStep1", { to })
+  return {
+    id: "ticker",
+    initial: "ticker",
+    context,
+    states: {
+      ticker: {
+        on: {
+          SWAP: "swapStep1",
+        },
+      },
+      swapStep1: nested,
+    },
+  }
+}
 
 const actions: Record<string, Command> = {
   default: _default,
@@ -137,8 +156,20 @@ const slashCmd: SlashCommand = {
       })
     }
     switch (true) {
-      case !isCompare:
-        return tickerSlash(interaction, base, chain || "")
+      case !isCompare: {
+        const result = await tickerSlash(interaction, base, chain || "")
+
+        if ("select" in result) {
+          return result
+        }
+
+        const reply = (await interaction.editReply(
+          result.messageOptions
+        )) as Message
+
+        route(reply, interaction, machineConfig(base.toUpperCase()))
+        break
+      }
       case !isFiat:
         return compareSlash(interaction, base, target)
       case isFiat:
