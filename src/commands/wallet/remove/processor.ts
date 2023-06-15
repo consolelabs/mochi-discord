@@ -66,10 +66,10 @@ ${pointingright} Click \`Watchlist\` to view all tracked wallets.
   })
   const btnRow = new MessageActionRow().addComponents(
     new MessageButton()
-      .setLabel("Watchlist")
+      .setLabel("Wallets")
       .setStyle("PRIMARY")
-      .setCustomId(`view_wallet`)
-      .setEmoji(emojis.PROPOSAL)
+      .setCustomId(`view_wallets`)
+      .setEmoji(emojis.WALLET_1)
   )
   return { msgOpts: { embeds: [embed], components: [btnRow] } }
 }
