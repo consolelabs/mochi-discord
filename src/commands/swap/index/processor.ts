@@ -399,6 +399,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     context: {
       ...ctx,
       ...newContext,
+      chainName: tradeRoute.chainName,
       routeSummary,
       balance,
     },
@@ -452,7 +453,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
 }
 
 export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
-  if (!ctx?.routeSummary) {
+  if (!ctx?.routeSummary || !ctx.chainName) {
     return {
       initial: "noTradeRouteFound",
       msgOpts: {
@@ -469,7 +470,7 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
     }
   }
 
-  await defi.swap(i.user.id, ctx.routeSummary)
+  await defi.swap(i.user.id, ctx.chainName, ctx.routeSummary)
   const dm = await dmUser(
     {
       embeds: [
