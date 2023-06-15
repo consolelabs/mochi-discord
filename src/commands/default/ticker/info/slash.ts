@@ -16,12 +16,23 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     const cfgs = await get(interaction)
-    const output = formatDataTable(cfgs, {
-      cols: ["query", "default_ticker"],
-      alignment: ["left", "right"],
-      rowAfterFormatter: (formatted, i) =>
-        `${getEmojiToken(cfgs[i].query as TokenEmojiKey, false)} ${formatted}`,
-    })
+    const output = formatDataTable(
+      cfgs.map((cfg) => {
+        return {
+          query: cfg.query.toUpperCase(),
+          default_ticker: cfg.default_ticker,
+        }
+      }),
+      {
+        cols: ["query", "default_ticker"],
+        alignment: ["left", "right"],
+        rowAfterFormatter: (formatted, i) =>
+          `${getEmojiToken(
+            cfgs[i].query as TokenEmojiKey,
+            false
+          )} ${formatted}`,
+      }
+    )
 
     return {
       messageOptions: {
