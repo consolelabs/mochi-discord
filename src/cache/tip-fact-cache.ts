@@ -1,0 +1,35 @@
+import config from "adapters/config"
+import { TEST } from "env"
+import NodeCache from "node-cache"
+
+const contentCache = new NodeCache({
+  stdTTL: 3600,
+  checkperiod: 3600,
+  useClones: false,
+})
+
+export async function getTipsAndFacts() {
+  const { ok, data } = await config.getContent("header")
+
+  if (ok) {
+    contentCache.set("content", data)
+  }
+}
+
+export function getRandomFact() {
+  if (TEST) return undefined
+  const shouldShow = Math.random() > 0.5
+  if (!shouldShow) return undefined
+  const facts = contentCache.get<any>("content").description.fact
+  const randomIdx = Math.floor(Math.random() * facts.length)
+
+  return `> ${facts[randomIdx]}`
+}
+
+export function getRandomTip() {
+  if (TEST) return undefined
+  const tips = contentCache.get<any>("content").description.tip
+  const randomIdx = Math.floor(Math.random() * tips.length)
+
+  return tips[randomIdx]
+}

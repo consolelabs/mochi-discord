@@ -1,6 +1,5 @@
 import profile from "adapters/profile"
 import { commands, slashCommands } from "commands"
-import config from "adapters/config"
 import {
   ColorResolvable,
   CommandInteraction,
@@ -40,6 +39,7 @@ import {
   VERTICAL_BAR,
 } from "utils/constants"
 import { zip } from "lodash"
+import { getRandomTip } from "cache/tip-fact-cache"
 
 type Alignment = "left" | "center" | "right"
 type Option<C> = {
@@ -175,18 +175,12 @@ export function getMultipleResultEmbed({
   })
 }
 
-const content: any = (async function () {
-  const res = await config?.getContent?.("header")
-  return res?.data
-})()
-
 // TODO: remove after slash command migration done
 export function composeEmbedMessage(
   msg: Message | null | undefined,
   props: EmbedProperties
 ) {
-  let { title, description = "" } = props
-  const { footer = [] } = props
+  let { title, description = "", footer = [getRandomTip()] } = props
   const {
     color,
     thumbnail,
@@ -262,32 +256,11 @@ export function composeEmbedMessage(
     embed.setTimestamp(null)
   }
 
-  if (!footer.length && !TEST) {
-    content.then((res: any) => {
-      if (!res) return
-      const randomIdxTip = Math.floor(
-        Math.random() * res.description.tip.length
-      )
-      embed
-        .setFooter({
-          text: getEmbedFooter(
-            authorTag
-              ? [res.description.tip[randomIdxTip], authorTag]
-              : [res.description.tip[randomIdxTip], "Mochi bot"]
-          ),
-          iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
-        })
-        .setTimestamp(timestamp ?? new Date())
-      return embed
-    })
-  }
-
   if (!withoutFooter) {
+    if (!footer.length) footer = [getRandomTip()]
     embed
       .setFooter({
-        text: getEmbedFooter(
-          authorTag ? [...footer, authorTag] : [...footer, "Mochi bot"]
-        ),
+        text: getEmbedFooter([...footer, authorTag ? authorTag : "Mochi bot"]),
         iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
       })
       .setTimestamp(timestamp ?? new Date())
@@ -306,7 +279,6 @@ export function composeEmbedMessage2(
     description,
     color,
     thumbnail,
-    footer = ["Type /feedback to report"],
     timestamp = null,
     image,
     author: _author = [],
@@ -317,6 +289,7 @@ export function composeEmbedMessage2(
     // includeCommandsList,
     // actions,
   } = props
+  let { footer = [getRandomTip()] } = props
   const author = _author.map((a) => a ?? "").filter(Boolean)
   const commandObj = getSlashCommandObject(slashCommands, interaction)
 
@@ -343,11 +316,10 @@ export function composeEmbedMessage2(
 
   // embed options
   if (!withoutFooter) {
+    if (!footer.length) footer = [getRandomTip()]
     embed
       .setFooter({
-        text: getEmbedFooter(
-          authorTag ? [...footer, authorTag] : footer ?? ["Mochi bot"]
-        ),
+        text: getEmbedFooter([...footer, authorTag ? authorTag : "Mochi bot"]),
         iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
       })
       .setTimestamp(timestamp ?? new Date())

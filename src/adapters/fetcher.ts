@@ -31,7 +31,7 @@ function makeLog({
   url: string
   ok: boolean
   notSent?: boolean
-  status: number
+  status?: number
   method?: string
   body?: string
   query: string
@@ -141,6 +141,7 @@ export class Fetcher {
     let curl = "None"
     const nekoSad = getEmoji("NEKOSAD")
     let isWebhook = false
+    let status
     try {
       const mergedInit = deepmerge(defaultInit, init)
       const {
@@ -189,6 +190,7 @@ export class Fetcher {
       curl = toCurl(requestURL, options)
       const res = await fetch(requestURL, options)
 
+      status = res.status
       const log = makeLog({
         ok: res.ok,
         method: init.method,
@@ -249,10 +251,10 @@ export class Fetcher {
       }
     } catch (e: any) {
       const log = makeLog({
-        notSent: true,
+        notSent: typeof status !== "number",
         ok: false,
         method: init.method,
-        status: 0,
+        status,
         url,
         body: e.message,
         query: querystring.stringify({}),

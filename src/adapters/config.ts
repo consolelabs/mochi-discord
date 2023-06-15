@@ -1404,14 +1404,8 @@ class Config extends Fetcher {
   }
 
   public async getContent(type: string) {
-    return await CacheManager.get({
-      pool: "content-header-footer",
-      key: "content",
-      call: async () => {
-        return await this.jsonFetch(`${API_BASE_URL}/content/${type}`, {
-          method: "GET",
-        })
-      },
+    return await this.jsonFetch(`${API_BASE_URL}/content/${type}`, {
+      method: "GET",
     })
   }
 }

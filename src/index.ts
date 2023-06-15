@@ -9,6 +9,7 @@ import { assignKafka } from "queue/kafka/queue"
 import { run } from "queue/kafka/producer"
 import { IS_READY } from "listeners/discord/ready"
 import events from "listeners/discord"
+import { getTipsAndFacts } from "cache/tip-fact-cache"
 
 const client = new Discord.Client({
   intents: [
@@ -50,6 +51,10 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
       body,
     })
     logger.info("Successfully reloaded application (/) commands.")
+
+    logger.info("Getting tips and facts.")
+    await getTipsAndFacts()
+    logger.info("Success getting tips and facts.")
 
     runHttpServer()
   } catch (error) {
