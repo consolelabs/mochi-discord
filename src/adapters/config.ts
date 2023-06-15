@@ -797,6 +797,12 @@ class Config extends Fetcher {
     )
   }
 
+  public async getListGuildDefaultTicker(guild_id: string) {
+    return await this.jsonFetch<{
+      data: { default_ticker: string; query: string }[]
+    }>(`${API_BASE_URL}/config-defi/default-ticker/${guild_id}`)
+  }
+
   // for NFT
   public async setGuildDefaultSymbol(req: {
     guild_id: string
