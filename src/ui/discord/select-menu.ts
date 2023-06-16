@@ -144,7 +144,6 @@ export function getSuggestionComponents(
 
 export function composeDaysSelectMenu(
   customId: string,
-  optValuePrefix: string,
   days: number[],
   defaultVal?: number
 ) {
@@ -159,7 +158,7 @@ export function composeDaysSelectMenu(
   }
   const opt = (days: number): MessageSelectOptionData => ({
     label: labeling(days),
-    value: `${optValuePrefix}_${days}`,
+    value: days.toString(),
     emoji: days > 1 ? "📆" : "🕒",
     description: getDropdownOptionDescription(days),
     default: days === (defaultVal ?? 7),

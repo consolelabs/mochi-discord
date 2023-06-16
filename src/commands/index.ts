@@ -186,7 +186,6 @@ export const originalCommands: Record<string, Command> = {
   claim: claim.textCmd,
   balances: balances.textCmd,
   tokens: token.textCmd,
-  ticker: ticker.textCmd,
   watchlist: watchlist.textCmd,
   gm: gm.textCmd,
   nft: nft.textCmd,

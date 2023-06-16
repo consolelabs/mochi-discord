@@ -9,7 +9,7 @@ export enum SettingTab {
 }
 
 function addBullet(str: string) {
-  return `▪︎ ${str}`
+  return `▪︎ ${str} <:_:1119167625914748968>`
 }
 
 const pagination = (currentTab: SettingTab) =>
@@ -109,26 +109,58 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
       })
       .addFields(
         {
-          name: `${getEmoji("ANIMATED_VAULT", true)} **DAO**`,
+          name: `${getEmoji("HAMMER")} **SERVER**`,
           value: [
+            `${await getSlashCommand("verify set")} for verification`,
             `${await getSlashCommand("welcome message")} for new members`,
-            `${await getSlashCommand(
-              "proposal track"
-            )} voting rounds on Snapshot.`,
-            `${await getSlashCommand("vault new")} for guild.`,
           ]
             .map(addBullet)
             .join("\n"),
           inline: false,
         },
         {
-          name: `${getEmoji("ANIMATED_MONEY", true)} **PAY**`,
+          name: `${getEmoji("ANIMATED_VAULT", true)} **DAO**`,
+          value: [
+            `${await getSlashCommand(
+              "proposal track"
+            )} voting rounds on Snapshot.`,
+            `${await getSlashCommand(
+              "vault list"
+            )} available DAOs within your guild.`,
+            `${await getSlashCommand("vault treasurer add")} new members.`,
+          ]
+            .map(addBullet)
+            .join("\n"),
+          inline: false,
+        },
+        {
+          name: `${getEmoji("WALLET_2")} **PAY**`,
           value: [
             `${await getSlashCommand("config currency")}`,
             `${await getSlashCommand("config tiprange")} amount in USD`,
             `${await getSlashCommand(
               "moniker set"
             )} \`beer\`, \`pizza\`, etc...`,
+          ]
+            .map(addBullet)
+            .join("\n"),
+          inline: false,
+        },
+        {
+          name: `**ROLE**`,
+          value: [
+            `${await getSlashCommand("nftrole list")} grant role base on nfts.`,
+            `${await getSlashCommand(
+              "tokenrole list"
+            )} grant role base on tokens.`,
+            `${await getSlashCommand(
+              "defaultrole info"
+            )} grant role for new members.`,
+            `${await getSlashCommand("levelrole list")} grant role base on xp`,
+            `${await getSlashCommand(
+              "reactionrole list"
+            )} grant role upon reaction`,
+            `${await getSlashCommand("mixrole list")} advance role mix`,
           ]
             .map(addBullet)
             .join("\n"),
@@ -146,8 +178,8 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
           inline: true,
         },
         {
-          name: `${getEmoji("CHART")} **TICKER**`,
-          value: [`${await getSlashCommand("default ticker")}`]
+          name: `${getEmoji("ANIMATED_CHART_INCREASE", true)} **TICKER**`,
+          value: [`${await getSlashCommand("default ticker info")}`]
             .map(addBullet)
             .join("\n"),
           inline: true,

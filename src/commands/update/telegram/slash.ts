@@ -1,5 +1,6 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
+import { getEmoji } from "utils/common"
 
 const slashCmd: SlashCommand = {
   name: "telegram",
@@ -9,7 +10,13 @@ const slashCmd: SlashCommand = {
       .setName("telegram")
       .setDescription("Update Telegram")
   },
-  run: async (i) => {},
+  run: async (i) => {
+    return {
+      messageOptions: {
+        content: getEmoji("SOON"),
+      },
+    }
+  },
   help: () => Promise.resolve({}),
   colorType: "Server",
 }

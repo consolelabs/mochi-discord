@@ -18,7 +18,6 @@ import {
   handleBackToQuestList,
   handleClaimReward,
 } from "commands/quest/daily/processor"
-import { handleTickerViews } from "commands/ticker/index/processor"
 import {
   handleTokenApprove,
   handleTokenReject,
@@ -397,9 +396,9 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("globalxp"):
       await confirmGlobalXP(i, msg)
       return
-    case i.customId.startsWith("ticker_view_"):
-      await handleTickerViews(i)
-      return
+    // case i.customId.startsWith("ticker_view_"):
+    //   await handleTickerViews(i)
+    //   return
     case i.customId.startsWith("ticker_add_wl"):
       await addToWatchlist(i)
       return

@@ -288,7 +288,7 @@ export function composeEmbedMessage(
     if (!footer.length) footer = [getRandomTip()]
     embed
       .setFooter({
-        text: getEmbedFooter([...footer, authorTag ? authorTag : "Mochi bot"]),
+        text: getEmbedFooter([...footer, ...(authorTag ? [authorTag] : [])]),
         iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
       })
       .setTimestamp(timestamp ?? new Date())
@@ -347,7 +347,7 @@ export function composeEmbedMessage2(
     if (!footer.length) footer = [getRandomTip()]
     embed
       .setFooter({
-        text: getEmbedFooter([...footer, authorTag ? authorTag : "Mochi bot"]),
+        text: getEmbedFooter([...footer, ...(authorTag ? [authorTag] : [])]),
         iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
       })
       .setTimestamp(timestamp ?? new Date())
