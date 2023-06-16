@@ -4,12 +4,12 @@ import {
   run,
   AirdropCampaignStatus,
   airdropDetail,
-  setCampaignStatus,
+  setAirdropStatus,
 } from "./processor"
 import { CommandInteraction, Message } from "discord.js"
 import { MachineConfig, route } from "utils/router"
 
-export const machineConfig: MachineConfig = {
+export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
   id: "drop available",
   initial: "airdrops",
   context: {
@@ -19,13 +19,17 @@ export const machineConfig: MachineConfig = {
         if (ev === "VIEW_ENDED") status = AirdropCampaignStatus.Ended
         if (ev === "VIEW_IGNORED") status = AirdropCampaignStatus.Ignored
 
-        return run(i.user.id, status, ctx.page)
+        let page = 0
+        if (ev === "NEXT_PAGE" || ev === "PREVIOUS_PAGE") page = ctx.page
+
+        return run(i.user.id, status, page)
       },
     },
     select: {
       airdrop: (i) => airdropDetail(i),
-      setCampaignStatus: (i) => setCampaignStatus(i),
+      userAirdropStatus: (i) => setAirdropStatus(i),
     },
+    ...context,
   },
   states: {
     airdrops: {
@@ -42,10 +46,17 @@ export const machineConfig: MachineConfig = {
     airdrop: {
       on: {
         BACK: "airdrops",
+        SET_AIRDROP_STATUS: "userAirdropStatus",
+      },
+    },
+    userAirdropStatus: {
+      on: {
+        BACK: "airdrops",
+        SET_AIRDROP_STATUS: "userAirdropStatus",
       },
     },
   },
-}
+})
 
 export const slashCmd: SlashCommand = {
   name: "available",
@@ -72,14 +83,15 @@ export const slashCmd: SlashCommand = {
     const status =
       interaction.options.getString("status", false) ??
       AirdropCampaignStatus.Live
-    const { msgOpts } = await run(
+
+    const { context, msgOpts } = await run(
       interaction.user.id,
       status as AirdropCampaignStatus
     )
 
     const reply = (await interaction.editReply(msgOpts)) as Message
 
-    route(reply, interaction, machineConfig)
+    route(reply, interaction, machineConfig(context))
   },
   help: () => Promise.resolve({}),
   colorType: "Server",

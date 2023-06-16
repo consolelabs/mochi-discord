@@ -16,7 +16,10 @@ import {
 } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { paginationButtons } from "utils/router"
-import { chunk } from "lodash"
+import { getProfileIdByDiscord } from "utils/profile"
+import { ModelAirdropCampaign } from "types/api"
+import { ceil } from "lodash"
+
 dayjs.extend(utc)
 
 const AIRDROP_DETAIL_STATUSES = [
@@ -104,13 +107,13 @@ export async function airdropDetail(i: SelectMenuInteraction) {
   }
 }
 
-export async function setCampaignStatus(i: SelectMenuInteraction) {
+export async function setAirdropStatus(i: SelectMenuInteraction) {
   const [status] = i.values
   const statusData = AIRDROP_DETAIL_STATUSES.find((d) => d.value === status)
   const description = statusData?.label || "Description"
 
   const embed = composeEmbedMessage(null, {
-    title: statusData?.label || `Can't get earn detail id ${statusData?.value}`,
+    title: statusData?.label || `Status is changed to ${statusData?.value}`,
     color: msgColors.PINK,
     description,
   })
@@ -141,7 +144,32 @@ export enum AirdropCampaignStatus {
   Ignored = "ignored",
 }
 
-const PAGE_SIZE = 2
+const PAGE_SIZE = 5
+
+const renderStatusTabs = (status: AirdropCampaignStatus) => {
+  return [
+    new MessageActionRow().addComponents(
+      new MessageButton({
+        style: "SECONDARY",
+        label: "Live",
+        customId: "view_live",
+        disabled: status === AirdropCampaignStatus.Live,
+      }),
+      new MessageButton({
+        style: "SECONDARY",
+        label: "Ended",
+        customId: "view_ended",
+        disabled: status === AirdropCampaignStatus.Ended,
+      }),
+      new MessageButton({
+        style: "SECONDARY",
+        label: "Ignored",
+        customId: "view_ignored",
+        disabled: status === AirdropCampaignStatus.Ignored,
+      })
+    ),
+  ]
+}
 
 export async function run(
   userId: string,
@@ -149,79 +177,85 @@ export async function run(
   page = 0
 ) {
   const embed = composeEmbedMessage(null, {
-    title: `${status} Airdrop Campaigns`,
+    title: `Airdrop Campaigns`,
     description: "",
     thumbnail: getEmojiURL(emojis.CHEST),
     color: msgColors.YELLOW,
   })
 
-  const filteredData = DATA.filter((d) => d.status === status) || []
-  const paginated = chunk(filteredData, PAGE_SIZE)
-  const data = paginated[page]
+  const profileId = await getProfileIdByDiscord(userId)
 
-  if (filteredData.length === 0) {
+  const res =
+    status === AirdropCampaignStatus.Ignored
+      ? await community.getAirdropCampaignByUser(profileId, {
+          status,
+          page,
+          size: PAGE_SIZE,
+        })
+      : await community.getAirdropCampaign({
+          status,
+          page,
+          size: PAGE_SIZE,
+        })
+
+  if (!res.ok) {
+    embed.setDescription(`Something went wrong`)
+
+    return {
+      msgOpts: {
+        embeds: [embed],
+      },
+    }
+  }
+
+  const data = res.data as ModelAirdropCampaign[]
+  const total = res.total || 0
+  const totalPage = ceil(total / PAGE_SIZE)
+
+  if (total === 0) {
     embed.setDescription(`Can't found any ${status} airdrop campaign`)
+
+    return {
+      msgOpts: {
+        embeds: [embed],
+        components: renderStatusTabs(status),
+      },
+      context: {
+        page: 0,
+      },
+    }
   } else {
     embed.setDescription(
-      `${[
-        `**${PAGE_SIZE * page + filteredData.length}**/${
-          DATA.length
-        } new airdrops you can join.`,
-      ].join("\n")}`
+      `**${PAGE_SIZE * page + data.length}**/${total} ${status} airdrops.`
     )
 
     embed.fields = data.map((d: any) => {
       return {
         name: `\`#${d.id}\` ${d.title}`,
-        value: `Deadline: **${d.deadline}**`,
+        value: `Deadline: **${d.deadline || "TBD"}**`,
         inline: false,
       }
     })
-  }
-
-  const res = await community.getListQuest(userId)
-  if (res.ok) {
-    // TODO: uncomment when using rendering real data
-    // data = res.data as any[]
   }
 
   return {
     msgOpts: {
       embeds: [embed],
       components: [
-        new MessageActionRow().addComponents(
-          new MessageButton({
-            style: "SECONDARY",
-            label: "Live",
-            customId: "view_live",
-            disabled: status === AirdropCampaignStatus.Live,
-          }),
-          new MessageButton({
-            style: "SECONDARY",
-            label: "Ended",
-            customId: "view_ended",
-            disabled: status === AirdropCampaignStatus.Ended,
-          }),
-          new MessageButton({
-            style: "SECONDARY",
-            label: "Ignored",
-            customId: "view_ignored",
-            disabled: status === AirdropCampaignStatus.Ignored,
-          })
-        ),
+        ...renderStatusTabs(status),
         new MessageActionRow().addComponents(
           new MessageSelectMenu()
             .setPlaceholder(`📦 View airdrop detail`)
             .setCustomId("view_airdrop_detail")
             .addOptions(
-              DATA.map((data, i) => ({
+              data.map((campaign: ModelAirdropCampaign, i) => ({
                 emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-                label: data.title,
-                value: data.id.toString(),
+                label: campaign.title || "No Title",
+                value: campaign.id?.toString() || "0",
               }))
             )
         ),
-        ...paginationButtons(page, paginated.length),
+        ...paginationButtons(page, totalPage),
       ],
     },
     context: {
