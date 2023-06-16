@@ -19,7 +19,7 @@ import { wrapError } from "../wrap-error"
 import CacheManager from "cache/node-cache"
 import { Handler, MachineConfig, MachineOptions } from "./types"
 import { merge } from "lodash"
-import { getRandomFact } from "cache/tip-fact-cache"
+// import { getRandomFact } from "cache/tip-fact-cache"
 
 export type { MachineConfig }
 
@@ -107,9 +107,9 @@ export function route(
   options: MachineOptions = {}
 ) {
   // add a random fact
-  reply.edit({
-    content: getRandomFact(),
-  })
+  // reply.edit({
+  //   content: getRandomFact(),
+  // })
 
   const author = interaction.user
   const cacheKey = `${author.id}-${config.id}`
