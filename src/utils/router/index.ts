@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -114,14 +115,10 @@ export function route(
   const author = interaction.user
   const cacheKey = `${author.id}-${config.id}`
   const lastInteractionCacheKey = `${author.id}-${config.id}-last-interaction`
-  const {
-    button,
-    select,
-    modal = {},
-    ephemeral = {},
-    ...userData
-  } = (config.context ?? {}) as any
-  routerCache.set(cacheKey, userData)
+  let modal: Record<string, boolean> = {}
+  let ephemeral: Record<string, boolean> = {}
+
+  const { button, select } = (config.context ?? {}) as any
 
   // manually add action to each state and child states
   decorateWithActions(config.states)
@@ -135,6 +132,7 @@ export function route(
     {
       ...config,
       context: {
+        ...config.context,
         button,
         select,
         steps: [],
@@ -143,9 +141,7 @@ export function route(
     },
     {
       ...options,
-      guards: {
-        ...options.guards,
-      },
+      guards: options.guards,
       actions: {
         ...options.actions,
         record: (context, event) => {
@@ -200,6 +196,7 @@ export function route(
                 oldContext.page = Math.max(oldContext.page, 0)
               }
 
+              // run handler
               const { context = {}, msgOpts } = await composer(
                 interaction,
                 event.type,
@@ -229,7 +226,26 @@ export function route(
                   )
                 }
 
-                interaction.editReply(msgOpts).catch(() => null)
+                // if (msgOpts.files?.length) {
+                //   delete msgOpts.embeds
+                //
+                //   await interaction.message.removeAttachments()
+                //
+                //   for (const file of msgOpts.files as MessageAttachment[]) {
+                //     if (!file.name) continue
+                //     const embed = interaction.message.embeds?.find(
+                //       (e: MessageEmbed) =>
+                //         e.image?.url?.replace("attachment://", "") === file.name
+                //     ) as MessageEmbed
+                //     if (!embed) continue
+                //
+                //     embed.setImage(`attachment://${file.name}`)
+                //   }
+                // }
+
+                interaction.message.edit(msgOpts).catch(() => {
+                  interaction.editReply(msgOpts).catch(() => null)
+                })
               }
             } catch (e: any) {
               context.steps?.push(e.name)
@@ -245,6 +261,19 @@ export function route(
 
   const aggregatedContext = aggregateContext(machine.states)
   machine = machine.withContext(merge(machine.context, aggregatedContext))
+
+  modal = machine.context.modal ?? {}
+  ephemeral = machine.context.ephemeral ?? {}
+
+  const {
+    button: b,
+    select: s,
+    steps: _s,
+    modal: m,
+    ephemeral: e,
+    ...userData
+  } = machine.context
+  routerCache.set(cacheKey, userData)
 
   const machineService = interpret(machine)
   machineService.start()

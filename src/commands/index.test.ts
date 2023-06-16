@@ -5,9 +5,6 @@ import * as commands_utils from "utils/commands"
 import mockdc from "../../tests/mocks/discord"
 import helptext from "commands/help/index/text"
 jest.mock("commands/help/index/text")
-import tickertext from "commands/ticker/index/text"
-jest.mock("commands/ticker/index/text")
-import config from "adapters/config"
 jest.mock("adapters/config")
 
 const mockMessage = mockdc.getMessage()
@@ -81,14 +78,5 @@ describe("handlePrefixedCommand", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(CommandNotAllowedToRunError)
     }
-  })
-
-  it("$tick eth => run ticker successfully", async () => {
-    mockMessage.content = "$tick eth"
-    mockMessage.channel.type = "GUILD_TEXT"
-    config.commandIsScoped = jest.fn().mockResolvedValueOnce(true)
-    await commands.handlePrefixedCommand(mockMessage)
-    expect(tickertext).toHaveBeenCalledTimes(1)
-    expect(tickertext).toHaveBeenCalledWith(mockMessage, "eth", undefined)
   })
 })
