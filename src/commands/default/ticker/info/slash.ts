@@ -4,7 +4,13 @@ import { SlashCommand, embedsColors } from "types/common"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import get from "./processor"
-import { TokenEmojiKey, getEmojiToken, thumbnails } from "utils/common"
+import {
+  TokenEmojiKey,
+  getEmoji,
+  getEmojiToken,
+  thumbnails,
+} from "utils/common"
+import { getSlashCommand } from "utils/commands"
 
 const command: SlashCommand = {
   name: "info",
@@ -16,6 +22,30 @@ const command: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     const cfgs = await get(interaction)
+
+    if (cfgs.length === 0) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(null, {
+              color: embedsColors.Server,
+              description: `You haven't set any default ticker yet. \n\n${getEmoji(
+                "ANIMATED_POINTING_RIGHT",
+                true
+              )} To set a new one, run ${await getSlashCommand(
+                "default ticker set"
+              )}.\n${getEmoji(
+                "ANIMATED_POINTING_RIGHT",
+                true
+              )} To view all available default ticker, run ${await getSlashCommand(
+                "default ticker info"
+              )}.`,
+            }),
+          ],
+        },
+      }
+    }
+
     const output = formatDataTable(
       cfgs.map((cfg) => {
         return {
