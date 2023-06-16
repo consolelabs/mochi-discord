@@ -8,11 +8,12 @@ import CacheManager from "cache/node-cache"
 import defi from "adapters/defi"
 
 const command: SlashCommand = {
-  name: "ticker",
+  name: "set",
   category: "Config",
+  onlyAdministrator: true,
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
-      .setName("ticker")
+      .setName("set")
       .setDescription("Setup default ticker for your guild")
       .addStringOption((option) =>
         option
@@ -56,9 +57,9 @@ const command: SlashCommand = {
     Promise.resolve({
       embeds: [
         composeEmbedMessage(null, {
-          usage: `${SLASH_PREFIX}default ticker`,
-          examples: `${SLASH_PREFIX}default ticker ftm`,
-          document: `${GM_GITBOOK}&action=streak`,
+          usage: `${SLASH_PREFIX}default ticker set`,
+          examples: `${SLASH_PREFIX}default ticker set ftm`,
+          document: `${GM_GITBOOK}&action=default`,
         }),
       ],
     }),

@@ -797,6 +797,12 @@ class Config extends Fetcher {
     )
   }
 
+  public async getListGuildDefaultTicker(guild_id: string) {
+    return await this.jsonFetch<{
+      data: { default_ticker: string; query: string }[]
+    }>(`${API_BASE_URL}/config-defi/default-ticker/${guild_id}`)
+  }
+
   // for NFT
   public async setGuildDefaultSymbol(req: {
     guild_id: string
@@ -1398,14 +1404,8 @@ class Config extends Fetcher {
   }
 
   public async getContent(type: string) {
-    return await CacheManager.get({
-      pool: "content-header-footer",
-      key: "content",
-      call: async () => {
-        return await this.jsonFetch(`${API_BASE_URL}/content/${type}`, {
-          method: "GET",
-        })
-      },
+    return await this.jsonFetch(`${API_BASE_URL}/content/${type}`, {
+      method: "GET",
     })
   }
 }

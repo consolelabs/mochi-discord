@@ -2,7 +2,7 @@ import { CommandInteraction, GuildMember, Message } from "discord.js"
 import { MachineConfig, route } from "utils/router"
 import { render, viewQR } from "./processor"
 
-export const machineConfig: MachineConfig = {
+export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
   id: "qrCodes",
   initial: "qrCodes",
   context: {
@@ -12,6 +12,7 @@ export const machineConfig: MachineConfig = {
     select: {
       qr: (i) => viewQR(i),
     },
+    ...context,
   },
   states: {
     qrCodes: {
@@ -28,16 +29,16 @@ export const machineConfig: MachineConfig = {
       },
     },
   },
-}
+})
 
 const run = async (interaction: CommandInteraction) => {
-  const { msgOpts } = await render(
+  const { context, msgOpts } = await render(
     interaction,
     interaction.member as GuildMember
   )
 
   const reply = (await interaction.editReply(msgOpts)) as Message
 
-  route(reply, interaction, machineConfig)
+  route(reply, interaction, machineConfig(context))
 }
 export default run

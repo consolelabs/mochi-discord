@@ -19,6 +19,7 @@ import { wrapError } from "../wrap-error"
 import CacheManager from "cache/node-cache"
 import { Handler, MachineConfig, MachineOptions } from "./types"
 import { merge } from "lodash"
+import { getRandomFact } from "cache/tip-fact-cache"
 
 export type { MachineConfig }
 
@@ -105,6 +106,11 @@ export function route(
   config: MachineConfig,
   options: MachineOptions = {}
 ) {
+  // add a random fact
+  reply.edit({
+    content: getRandomFact(),
+  })
+
   const author = interaction.user
   const cacheKey = `${author.id}-${config.id}`
   const lastInteractionCacheKey = `${author.id}-${config.id}-last-interaction`
@@ -182,6 +188,18 @@ export function route(
           wrapError(interaction, async () => {
             if (!composer) return
             try {
+              // handle pagination for user
+              if (
+                [
+                  RouterSpecialAction.PREV_PAGE,
+                  RouterSpecialAction.NEXT_PAGE,
+                ].includes(event.type) &&
+                typeof oldContext.page === "number"
+              ) {
+                oldContext.page += PAGE_MAP[event.type]
+                oldContext.page = Math.max(oldContext.page, 0)
+              }
+
               const { context = {}, msgOpts } = await composer(
                 interaction,
                 event.type,
@@ -191,17 +209,6 @@ export function route(
               const newContext = {
                 ...oldContext,
                 ...context,
-              }
-
-              // handle pagination for user
-              if (
-                [
-                  RouterSpecialAction.PREV_PAGE,
-                  RouterSpecialAction.NEXT_PAGE,
-                ].includes(event.type) &&
-                typeof newContext.page === "number"
-              ) {
-                newContext.page += PAGE_MAP[event.type]
               }
 
               routerCache.set(cacheKey, newContext)
