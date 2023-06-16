@@ -489,16 +489,20 @@ class Defi extends Fetcher {
     from,
     to,
     amount,
+    profileId,
   }: {
     from: string
     to: string
     amount: string
+    profileId: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/swap/route`, {
+      queryCamelToSnake: false,
       query: {
         from,
         to,
         amount,
+        profileId,
       },
     })
   }

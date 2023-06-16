@@ -151,25 +151,29 @@ function calculatePercentage({
 
 function format(tokenIn: string) {
   return function (routes: AggregatedTradeRoute) {
+    const routeCount = Object.values(routes).length
     const fromEmo = getEmojiToken(tokenIn as TokenEmojiKey, false)
 
     const tradeRoutes = Object.values(routes).map((route, i) => {
+      const lastRoute = i === Object.values(routes).length - 1
       return `${i === 0 ? "" : "\n"}${getEmoji("REPLY_3")}${
         route.percent
       } ${fromEmo} ${tokenIn}\n${route.hops
         .map((hop, j) => {
-          const lastOfLast =
-            i === Object.values(routes).length - 1 &&
-            j === route.hops.length - 1
+          const lastHop = j === route.hops.length - 1
 
           return `${
-            lastOfLast ? getEmoji("REPLY") : getEmoji("REPLY_2")
+            lastRoute && j === 0
+              ? getEmoji("REPLY")
+              : lastRoute && j !== 0
+              ? getEmoji("BLANK")
+              : getEmoji("REPLY_2")
           }${getEmojiToken(hop.tokenOutSymbol as TokenEmojiKey, false)} ${
             hop.tokenOutSymbol
           }\n${hop.pools
             .map((p, o) => {
-              return `${lastOfLast ? getEmoji("BLANK") : getEmoji("REPLY_3")}${
-                o === hop.pools.length - 1
+              return `${lastRoute ? getEmoji("BLANK") : getEmoji("REPLY_3")}${
+                o === hop.pools.length - 1 && lastHop
                   ? getEmoji("REPLY")
                   : getEmoji("REPLY_2")
               }[(${p.name}: ${p.percent})](${HOMEPAGE_URL})`
@@ -196,7 +200,7 @@ function format(tokenIn: string) {
         aggregatedRoutes.push(tradeRoutes[i])
     }
 
-    return aggregatedRoutes
+    return { text: aggregatedRoutes, routeCount }
   }
 }
 

@@ -240,12 +240,7 @@ async function composeCollectionTickerEmbed({
   }).addFields(fields)
 
   const chart = await renderNftTickerChart({ data, chartStyle })
-  const selectRow = composeDaysSelectMenu(
-    "nft_ticker_selection",
-    collectionAddress,
-    dayOpts,
-    90
-  )
+  const selectRow = composeDaysSelectMenu("nft_ticker_selection", dayOpts, 90)
   const buttonRow = buildSwitchViewActionRow("ticker", {
     collectionAddress,
     days: days ?? 7,

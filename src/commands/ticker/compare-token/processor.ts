@@ -256,7 +256,6 @@ export async function composeTokenComparisonEmbed(
   })
   const selectRow = composeDaysSelectMenu(
     "compare_token_selection",
-    `${baseQ}_${targetQ}`,
     [1, 7, 30, 90, 180, 365],
     30
   )

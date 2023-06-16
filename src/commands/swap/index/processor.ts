@@ -1,6 +1,7 @@
 import {
   ButtonInteraction,
   CommandInteraction,
+  EmbedFieldData,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
@@ -28,6 +29,8 @@ import { getBalances } from "utils/tip-bot"
 import { formatView } from "commands/balances/index/processor"
 import { getSlashCommand } from "utils/commands"
 import { checkCommitableOperation } from "commands/withdraw/index/processor"
+import { getProfileIdByDiscord } from "utils/profile"
+import { aggregateTradeRoute } from "./aggregate-util"
 
 const SLIPPAGE = 0.5
 
@@ -43,6 +46,7 @@ type Context = {
   routeSummary?: any
   isOnchain?: boolean
   rate?: number
+  compareFields?: EmbedFieldData[]
 }
 
 type Interaction =
@@ -50,22 +54,44 @@ type Interaction =
   | ButtonInteraction
   | SelectMenuInteraction
 
-function renderPreview(params: {
+type Info = {
   from?: string
   to?: string
-  wallet?: string
-  network?: string
   amountIn?: string
   amountInUsd?: string
   amountOut?: string
   amountOutUsd?: string
+  wallet?: string
+  network?: string
   gasUsd?: string
-  rate?: string
-}) {
+  rate?: number
+}
+
+function renderMiscInfo(
+  params: Pick<Info, "rate" | "wallet" | "network" | "gasUsd" | "from" | "to">
+) {
   const value = [
-    params.wallet && `${getEmoji("WALLET_1")}\`Wallet.   ${params.wallet}\``,
+    `${getEmoji("WALLET_1")}\`Source.   ${params.wallet ?? "Mochi wallet"}\``,
     params.network &&
       `${getEmoji("SWAP_ROUTE")}\`Network.  \`${params.network}`,
+    params.rate &&
+      `${getEmoji("SWAP_ROUTE")}\`Rate.     \`**1 ${params.from} ${APPROX} ${
+        params.rate
+      } ${params.to}**`,
+    `:playground_slide:\`Slippage. \`**${SLIPPAGE}%**`,
+    params.gasUsd && `${getEmoji("GAS")}\`Gas.      \`${params.gasUsd}`,
+  ]
+    .filter(Boolean)
+    .join("\n")
+    .trim()
+
+  return value
+}
+
+function renderPreview(
+  params: Pick<Info, "from" | "amountIn" | "to" | "amountOut" | "amountOutUsd">
+) {
+  const value = [
     params.from &&
       `${getEmoji("ANIMATED_COIN_2", true)}\`In.       \`${getEmoji(
         params.from as TokenEmojiKey
@@ -76,19 +102,21 @@ function renderPreview(params: {
       )} **${params.amountOut ?? ""} ${params.to} ${
         params.amountOutUsd ? `(${APPROX} $${params.amountOutUsd})` : ""
       }**`,
-    params.rate && `${getEmoji("SWAP_ROUTE")}\`Rate.     \`**${params.rate}**`,
-    `:playground_slide:\`Slippage. \`**${SLIPPAGE}%**`,
-    params.gasUsd && `${getEmoji("GAS")}\`Gas.      \`${params.gasUsd}`,
   ]
     .filter(Boolean)
     .join("\n")
     .trim()
 
-  if (!value) return
+  return value
+}
+
+function renderFullInfo(params: Info) {
+  const preview = renderPreview(params)
+  const misc = renderMiscInfo(params)
 
   return {
-    name: "\u200b\nPreview",
-    value,
+    name: `\u200b\nPreview`,
+    value: [preview, misc].join("\n"),
     inline: false,
   }
 }
@@ -105,13 +133,11 @@ export async function jumpToStep(
     (e) => e[1] !== null && e[1] !== undefined
   ).length
   if (propsCount <= 1) return swapStep1(i, ctx)
-  const conditions = [
-    [!!(propsCount >= 2 && ctx.to && ctx.from), swapStep1, swapStep2],
-  ] satisfies [
+  const conditions: [
     boolean,
     (i: Interaction, ctx?: Context) => Promise<any>,
     (i: Interaction, ctx?: Context) => Promise<any>
-  ][]
+  ][] = [[!!(propsCount >= 2 && ctx.to && ctx.from), swapStep1, swapStep2]]
 
   for (const [cond, executor, next] of conditions) {
     if (cond) {
@@ -138,9 +164,11 @@ export async function jumpToStep(
   return step(i, mergedContext)
 }
 
+const divider = getEmoji("LINE").repeat(5)
+
 export async function swapStep1(i: Interaction, ctx?: Context) {
   const balances = await getBalances({ msgOrInteraction: i })
-  const preview = renderPreview({
+  const preview = renderFullInfo({
     to: ctx?.to,
   })
   const [balance, ...rest] = balances.filter((b: any) =>
@@ -197,21 +225,20 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
                 .setPlaceholder("💵 Choose money source (1/2)")
                 .setCustomId("select_token")
                 .setOptions(
-                  balances
-                    .map((b: any) => ({
-                      label: `${b.token.symbol}${
-                        isDuplicateSymbol(b.token.symbol)
-                          ? ` (${b.token.chain.symbol})`
-                          : ""
-                      }`,
-                      value: `${b.id}/offchain`,
-                      emoji: getEmojiToken(b.token.symbol),
-                    }))
-                    .concat({
-                      label: `MOCK ONCHAIN`,
-                      value: `000/onchain`,
-                      emoji: getEmojiToken("" as any),
-                    })
+                  balances.map((b: any) => ({
+                    label: `${b.token.symbol}${
+                      isDuplicateSymbol(b.token.symbol)
+                        ? ` (${b.token.chain.symbol})`
+                        : ""
+                    }`,
+                    value: `${b.id}/offchain`,
+                    emoji: getEmojiToken(b.token.symbol),
+                  }))
+                  // .concat({
+                  //   label: `MOCK ONCHAIN`,
+                  //   value: `000/onchain`,
+                  //   emoji: getEmojiToken("" as any),
+                  // })
                 )
             ),
           ]
@@ -282,13 +309,15 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
 
   const embed = composeEmbedMessage(null, {
     author: ["Enter amount", getEmojiURL(emojis.SWAP_ROUTE)],
-    description: text + `\n\u200b`,
+    description: text,
   })
 
+  const profileId = await getProfileIdByDiscord(i.user.id)
   const { data: tradeRoute, ok } = await defi.getSwapRoute({
     from: ctx?.from ?? "",
     to: ctx?.to ?? "",
-    amount,
+    amount: amount.replace(",", ""),
+    profileId,
   })
 
   if (
@@ -354,42 +383,61 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     amountInUsd,
     amountOut: formatDigit({
       value: amountOut.toString(),
-      fractionDigits: Number(amountOut) >= 1000 ? 0 : undefined,
+      fractionDigits: Number(amountOut) >= 1000 ? 0 : 2,
     }),
     amountOutUsd,
     wallet: ctx.wallet,
-    rate: ratio,
+    rate: Number(ratio),
     network,
     gasUsd: `$${formatDigit({
       value: routeSummary.gasUsd,
       fractionDigits: 2,
     })}`,
   }
-  const preview = renderPreview(newContext)
+  const preview = renderFullInfo(newContext)
 
-  // TODO: get id from swap route data then call search coin using coin id
-  // embed.addFields(
-  //   {
-  //     name: `${getEmoji("BLANK")}${getEmojiToken("FTM")} FTM`,
-  //     value: [
-  //       `${getEmoji("ANIMATED_TROPHY", true)} Rank: \`#56\``,
-  //       `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$0.252\``,
-  //       `🌊 Market cap: \`$705,211,531\``,
-  //     ].join("\n"),
-  //     inline: true,
-  //   },
-  //   {
-  //     name: `${getEmoji("USDC")} USDC`,
-  //     value: [
-  //       "Rank: `#5`",
-  //       "Price: `$1`",
-  //       "Market cap: `$28,306,959,947`",
-  //     ].join("\n"),
-  //     inline: true,
-  //   }
-  // )
+  const [fromId, toId] = [
+    tradeRoute.data.tokenIn.coingecko_id,
+    tradeRoute.data.tokenOut.coingecko_id,
+  ]
+  const compareFields: EmbedFieldData[] = []
+  if (fromId && toId) {
+    const { ok, data } = await defi.compareToken(
+      i.guildId ?? "",
+      fromId,
+      toId,
+      1
+    )
+    if (ok) {
+      ;[data.base_coin, data.target_coin].filter(Boolean).forEach((coin, i) => {
+        const price = Number(coin?.market_data?.current_price?.usd ?? 0)
+        const marketCap = Number(coin?.market_data?.market_cap?.usd ?? 0)
+
+        compareFields.push({
+          name: `${i === 0 ? `\n${divider}` : "\u200b"}\n${getEmojiToken(
+            coin?.symbol?.toUpperCase() as TokenEmojiKey
+          )} ${coin?.symbol?.toUpperCase()}`,
+          value: [
+            `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$${formatDigit({
+              value: price,
+              fractionDigits: price >= 100 ? 0 : 2,
+            })}\``,
+            `${getEmoji("CHART")} Cap: \`$${formatDigit({
+              value: marketCap,
+              fractionDigits: 0,
+              shorten: true,
+            })}\``,
+          ].join("\n"),
+          inline: true,
+        })
+      })
+
+      embed.addFields(...compareFields)
+    }
+  }
 
   if (preview) {
+    preview.name = `${divider}${preview.name}`
     embed.addFields(preview)
   }
 
@@ -402,10 +450,16 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
       chainName: tradeRoute.chainName,
       routeSummary,
       balance,
+      compareFields,
     },
     msgOpts: {
       embeds: [
         embed,
+        // composeEmbedMessage(null, {
+        //   description: (
+        //     await aggregateTradeRoute(ctx.from ?? "", routeSummary)
+        //   ).text.join("\n"),
+        // }),
         ...(error
           ? [
               new MessageEmbed({
@@ -491,16 +545,39 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
     ""
   )
 
+  const fields: EmbedFieldData[] = []
+
+  if (ctx.compareFields?.length) {
+    fields.push(...ctx.compareFields)
+  }
+
+  fields.push({
+    name: divider,
+    value: renderMiscInfo(ctx),
+    inline: false,
+  })
+
+  const amountOut = Number(ctx.amountOut)
+
+  const tradeRoute = await aggregateTradeRoute(ctx.from ?? "", ctx.routeSummary)
+
   return {
     msgOpts: {
       embeds: [
         composeEmbedMessage(null, {
-          author: ["Swap submitted", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-          description:
-            renderPreview({
-              ...ctx,
-              rate: String(ctx.rate),
-            })?.value ?? "",
+          author: ["Swap submitted", getEmojiURL(emojis.SWAP_ROUTE)],
+          description: `**You will receive ${formatDigit({
+            value: amountOut,
+            fractionDigits: amountOut >= 1000 ? 0 : 2,
+          })} ${ctx.to}**\n${renderPreview(ctx)}`,
+        }).addFields(fields),
+        composeEmbedMessage(null, {
+          author: ["Your trade route", getEmojiURL(emojis.SWAP_ROUTE)],
+          description: `Routing through ${tradeRoute.routeCount} route${
+            tradeRoute.routeCount > 1 ? "s" : ""
+          }\n${getEmoji("REPLY_3")}\n${tradeRoute.text.join(
+            "\n"
+          )}\n\n_Powered by [KyberSwap](https://kyberswap.com)_`,
         }),
       ],
       components: [

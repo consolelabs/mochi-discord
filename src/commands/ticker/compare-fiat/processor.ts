@@ -60,7 +60,6 @@ export async function composeFiatComparisonEmbed(
   })
   const selectRow = composeDaysSelectMenu(
     "compare_fiat_selection",
-    `${base}_${target}`,
     [7, 30, 90, 180, 365],
     30
   )

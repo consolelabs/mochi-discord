@@ -180,7 +180,6 @@ test.each([
   ["$asd", undefined],
   ["$help", commands["help"]],
   ["$help tip", commands["tip"]],
-  ["$ticker ftm", commands["ticker"]],
   ["$nft neko 123", commands["nft"]],
   ["$nft add", commands["nft"]],
   ["$nr set", commands["nr"]],
@@ -199,7 +198,6 @@ test.each([
   ["$nft neko 123", null],
   // case with action
   ["$nft add", commands["nft"].actions?.["add"]],
-  ["$ticker default", commands["ticker"].actions?.["default"]],
 ])("getActionCommand(%s)", (input, output) => {
   mockMessage.content = input
   expect(getActionCommand(commands, mockMessage)).toStrictEqual(output)

@@ -21,12 +21,18 @@ import { getChartColorConfig } from "ui/canvas/color"
 import { drawRectangle } from "ui/canvas/draw"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
-import { EmojiKey, getAuthor, getChance, getEmoji } from "utils/common"
+import {
+  capitalizeFirst,
+  EmojiKey,
+  getAuthor,
+  getChance,
+  getEmoji,
+} from "utils/common"
 import { formatDigit } from "utils/defi"
 import config from "../../../adapters/config"
 import { getDefaultSetter } from "../../../utils/default-setters"
 
-export async function renderHistoricalMarketChart({
+async function renderHistoricalMarketChart({
   coinId,
   bb, // show bear/bull meme
   days,
@@ -51,10 +57,9 @@ export async function renderHistoricalMarketChart({
         discordId,
         isDominanceChart,
       }),
-    ...(discordId && {
-      callIfCached: () =>
-        community.updateQuestProgress({ userId: discordId, action: "ticker" }),
-    }),
+    callIfCached: async () =>
+      discordId &&
+      community.updateQuestProgress({ userId: discordId, action: "ticker" }),
   })
   if (!ok) return null
   const { times, prices, from, to } = data
@@ -121,30 +126,38 @@ const getChangePercentage = (change: number) => {
   })}%`
 }
 
+enum ChartViewTimeOption {
+  D1 = 1,
+  W1 = 7,
+  M1 = 30,
+  D60 = 60,
+  D90 = 90,
+  Y1 = 365,
+}
+
+enum DominanceChartViewTimeOption {
+  Y1 = 365,
+  Y2 = 730,
+  Y3 = 1095,
+}
+
 export async function composeTickerResponse({
-  msgOrInteraction,
+  interaction,
   coinId,
   days,
-  discordId,
   symbol,
   isDominanceChart,
   chain,
 }: {
-  msgOrInteraction: Message | CommandInteraction
+  interaction: CommandInteraction | SelectMenuInteraction
   coinId: string
   symbol: string
-  days?: number
-  discordId: string
+  days?: ChartViewTimeOption | DominanceChartViewTimeOption
   isDominanceChart: boolean
   chain?: string
 }) {
-  const {
-    ok,
-    data: coin,
-    log,
-    curl,
-    status,
-  } = await CacheManager.get({
+  days = days ?? (isDominanceChart ? 365 : 30)
+  const { data: coin, status } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getcoin-${coinId}`,
     call: () => defi.getCoin(coinId, isDominanceChart, chain),
@@ -152,7 +165,7 @@ export async function composeTickerResponse({
   if (status === 404) {
     throw new InternalError({
       title: "Unsupported token",
-      msgOrInteraction,
+      msgOrInteraction: interaction,
       description: `Token is invalid or hasn't been supported.\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
@@ -161,9 +174,6 @@ export async function composeTickerResponse({
         true
       )} or Please choose a valid fiat currency.`,
     })
-  }
-  if (!ok) {
-    throw new APIError({ curl, description: log })
   }
 
   const currency = "usd"
@@ -210,11 +220,8 @@ export async function composeTickerResponse({
     },
     {
       name: "Chain",
-      value: (
-        coin.asset_platform?.shortname ||
-        coin.asset_platform?.name ||
-        "N/A"
-      ).toUpperCase(),
+      value:
+        coin.asset_platform?.name || coin.asset_platform?.shortname || "N/A",
       inline: true,
     },
     {
@@ -234,94 +241,98 @@ export async function composeTickerResponse({
     },
   ])
 
-  days = days ?? (isDominanceChart ? 365 : 30)
   const chart = await renderHistoricalMarketChart({
     coinId: coin.id,
     bb,
     days,
-    discordId,
+    discordId: interaction.user.id,
     isDominanceChart,
   })
   const selectRow = composeDaysSelectMenu(
-    "tickers_range_selection",
-    coin.id,
-    getChoices(isDominanceChart),
+    "change_time_option",
+    Object.values(
+      isDominanceChart ? DominanceChartViewTimeOption : ChartViewTimeOption
+    ).filter((opt) => typeof opt === "number"),
     days
   )
 
-  const wlAdded = await isTickerAddedToWl(coin.id, discordId)
+  const wlAdded = await isTickerAddedToWl(coin.id, interaction.user.id)
   const buttonRow = buildSwitchViewActionRow(
     "ticker",
-    { coinId: coin.id, days: days, symbol, discordId, isDominanceChart },
+    {
+      coinId: coin.id,
+      days: days,
+      symbol,
+      discordId: interaction.user.id,
+      isDominanceChart,
+    },
     wlAdded
   )
 
   return {
-    messageOptions: {
+    context: {
+      interaction,
+      coinId: coin.id,
+      symbol: ticker,
+      isDominanceChart,
+      chain,
+      days,
+    },
+    msgOpts: {
       ...(chart && { files: [chart] }),
       embeds: [embed],
       components: [selectRow, buttonRow],
     },
-    interactionOptions: {
-      handler: handler(isDominanceChart),
-    },
   }
 }
 
-const getChoices = (isDominanceChart: boolean) => {
-  if (isDominanceChart) {
-    return [365, 730, 1095]
-  }
-  return [1, 7, 30, 60, 90, 365]
-}
+// const handler =
+//   (isDominanceChart: boolean) => async (msgOrInteraction: any) => {
+//     const interaction = msgOrInteraction as SelectMenuInteraction
+//     await interaction.deferUpdate()
+//     const { message } = <{ message: Message }>interaction
+//     const input = interaction.values[0]
+//     const [coinId, days] = input.split("_")
+//     const bb = getChance(20)
+//     const chart = await renderHistoricalMarketChart({
+//       coinId,
+//       days: +days,
+//       bb,
+//       isDominanceChart,
+//     })
+//
+//     // update chart image
+//     const [embed] = message.embeds
+//     await message.removeAttachments()
+//     embed.setImage("attachment://chart.png")
+//
+//     const selectMenu = message.components[0].components[0] as MessageSelectMenu
+//     const choices = getChoices(isDominanceChart)
+//     selectMenu.options.forEach(
+//       (opt, i) => (opt.default = i === choices.indexOf(+days))
+//     )
+//     // this code block stores current day selection
+//     message.components[1].components.forEach((b) => {
+//       const customId = b.customId
+//       if (!customId?.startsWith("ticker_view_")) return
+//       const params = customId?.split("|")
+//       params[2] = days
+//       b.customId = params.join("|")
+//     })
+//
+//     return {
+//       messageOptions: {
+//         embeds: [embed],
+//         ...(chart && { files: [chart] }),
+//         components: message.components as MessageActionRow[],
+//       },
+//       interactionHandlerOptions: {
+//         handler,
+//       },
+//     }
+//   }
 
-const handler =
-  (isDominanceChart: boolean) => async (msgOrInteraction: any) => {
-    const interaction = msgOrInteraction as SelectMenuInteraction
-    await interaction.deferUpdate()
-    const { message } = <{ message: Message }>interaction
-    const input = interaction.values[0]
-    const [coinId, days] = input.split("_")
-    const bb = getChance(20)
-    const chart = await renderHistoricalMarketChart({
-      coinId,
-      days: +days,
-      bb,
-      isDominanceChart,
-    })
-
-    // update chart image
-    const [embed] = message.embeds
-    await message.removeAttachments()
-    embed.setImage("attachment://chart.png")
-
-    const selectMenu = message.components[0].components[0] as MessageSelectMenu
-    const choices = getChoices(isDominanceChart)
-    selectMenu.options.forEach(
-      (opt, i) => (opt.default = i === choices.indexOf(+days))
-    )
-    // this code block stores current day selection
-    message.components[1].components.forEach((b) => {
-      const customId = b.customId
-      if (!customId?.startsWith("ticker_view_")) return
-      const params = customId?.split("|")
-      params[2] = days
-      b.customId = params.join("|")
-    })
-
-    return {
-      messageOptions: {
-        embeds: [embed],
-        ...(chart && { files: [chart] }),
-        components: message.components as MessageActionRow[],
-      },
-      interactionHandlerOptions: {
-        handler,
-      },
-    }
-  }
-
-export function buildSwitchViewActionRow(
+function buildSwitchViewActionRow(
   currentView: string,
   params: {
     coinId: string
@@ -336,21 +347,21 @@ export function buildSwitchViewActionRow(
   const tickerBtn = new MessageButton({
     label: "Ticker",
     emoji: getEmoji("ANIMATED_DIAMOND", true),
-    customId: `ticker_view_chart|${coinId}|${days}|${symbol}|${isDominanceChart}|${discordId}`,
+    customId: `view_chart`,
     style: "SECONDARY",
     disabled: currentView === "ticker",
   })
   const infoBtn = new MessageButton({
     label: "Info",
     emoji: getEmoji("LEAF"),
-    customId: `ticker_view_info|${coinId}|${days}|${symbol}|${isDominanceChart}|${discordId}`,
+    customId: `view_info`,
     style: "SECONDARY",
     disabled: currentView === "info",
   })
   const wlAddBtn = new MessageButton({
     label: "\u200b",
     emoji: getEmoji("ANIMATED_STAR", true),
-    customId: `ticker_add_wl|${coinId}|${symbol}`,
+    customId: `add_to_watchlist`,
     style: "SECONDARY",
   })
   const swapBtn = new MessageButton({
@@ -374,102 +385,99 @@ export function buildSwitchViewActionRow(
   ])
 }
 
-export async function handleTickerViews(interaction: ButtonInteraction) {
-  await interaction.deferUpdate()
-  const msg = <Message>interaction.message
-  const discordId = interaction.customId.split("|").at(-1)
-  if (discordId !== interaction.user.id) {
-    return
-  }
-  if (interaction.customId.startsWith("ticker_view_chart")) {
-    await viewTickerChart(interaction, msg)
-    return
-  }
-  await viewTickerInfo(interaction, msg)
-}
+// export async function handleTickerViews(interaction: ButtonInteraction) {
+//   await interaction.deferUpdate()
+//   const msg = <Message>interaction.message
+//   const discordId = interaction.customId.split("|").at(-1)
+//   if (discordId !== interaction.user.id) {
+//     return
+//   }
+//   if (interaction.customId.startsWith("ticker_view_chart")) {
+//     await viewTickerChart(interaction, msg)
+//     return
+//   }
+//   await viewTickerInfo(interaction, msg)
+// }
 
-export async function viewTickerChart(
-  interaction: ButtonInteraction,
-  msg: Message
-) {
-  const [coinId, days, symbol, isDChart, discordId] = interaction.customId
-    .split("|")
-    .slice(1)
-  const { messageOptions } = await composeTickerResponse({
-    msgOrInteraction: msg,
-    coinId,
-    ...(days && { days: +days }),
-    symbol,
-    discordId,
-    isDominanceChart: String(isDChart).toLowerCase() === "true",
-  })
-  await msg.edit(messageOptions)
-}
+// async function viewTickerChart(interaction: ButtonInteraction, msg: Message) {
+//   const [coinId, days, symbol, isDChart, discordId] = interaction.customId
+//     .split("|")
+//     .slice(1)
+//   const { messageOptions } = await composeTickerResponse({
+//     msgOrInteraction: msg,
+//     coinId,
+//     ...(days && { days: +days }),
+//     symbol,
+//     discordId,
+//     isDominanceChart: String(isDChart).toLowerCase() === "true",
+//   })
+//   await msg.edit(messageOptions)
+// }
 
-async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
-  const [coinId, days, symbol, isDChart, discordId] = interaction.customId
-    .split("|")
-    .slice(1)
-  const { messageOptions } = await composeTokenInfoEmbed(
-    msg,
-    coinId,
-    +days,
-    symbol,
-    discordId,
-    String(isDChart).toLowerCase() === "true"
-  )
-  await msg.removeAttachments().catch(() => null)
-  await interaction.editReply(messageOptions).catch(() => null)
-}
+// async function viewTickerInfo(interaction: ButtonInteraction, msg: Message) {
+//   const [coinId, days, symbol, isDChart, discordId] = interaction.customId
+//     .split("|")
+//     .slice(1)
+//   const { messageOptions } = await composeTokenInfoEmbed(
+//     msg,
+//     coinId,
+//     +days,
+//     symbol,
+//     discordId,
+//     String(isDChart).toLowerCase() === "true"
+//   )
+//   await msg.removeAttachments().catch(() => null)
+//   await interaction.editReply(messageOptions).catch(() => null)
+// }
 
-export async function composeTokenInfoEmbed(
-  msg: Message,
-  coinId: string,
-  days: number,
-  symbol: string,
-  discordId: string,
-  isDominanceChart: boolean
-) {
-  const {
-    ok,
-    data: coin,
-    log,
-    curl,
-  } = await CacheManager.get({
-    pool: "ticker",
-    key: `ticker-getcoin-${coinId}`,
-    call: () => defi.getCoin(coinId, isDominanceChart),
-  })
-  if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, curl, description: log })
-  }
-  const embed = composeEmbedMessage(msg, {
-    thumbnail: coin.image.large,
-    color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    title: "About " + coin.name,
-  })
-  const tdService = new TurndownService()
-  const content = coin.description.en
-    .split("\r\n\r\n")
-    .map((v: any) => {
-      return tdService.turndown(v)
-    })
-    .join("\r\n\r\n")
-  embed.setDescription(content || "This token has not updated description yet")
-  const wlAdded = await isTickerAddedToWl(coinId, discordId)
-  const buttonRow = buildSwitchViewActionRow(
-    "info",
-    { coinId, days, symbol, discordId, isDominanceChart },
-    wlAdded
-  )
-
-  return {
-    messageOptions: {
-      embeds: [embed],
-      components: [buttonRow],
-    },
-  }
-}
+// async function composeTokenInfoEmbed(
+//   msg: Message,
+//   coinId: string,
+//   days: number,
+//   symbol: string,
+//   discordId: string,
+//   isDominanceChart: boolean
+// ) {
+//   const {
+//     ok,
+//     data: coin,
+//     log,
+//     curl,
+//   } = await CacheManager.get({
+//     pool: "ticker",
+//     key: `ticker-getcoin-${coinId}`,
+//     call: () => defi.getCoin(coinId, isDominanceChart),
+//   })
+//   if (!ok) {
+//     throw new APIError({ msgOrInteraction: msg, curl, description: log })
+//   }
+//   const embed = composeEmbedMessage(msg, {
+//     thumbnail: coin.image.large,
+//     color: getChartColorConfig(coin.id).borderColor as HexColorString,
+//     title: "About " + coin.name,
+//   })
+//   const tdService = new TurndownService()
+//   const content = coin.description.en
+//     .split("\r\n\r\n")
+//     .map((v: any) => {
+//       return tdService.turndown(v)
+//     })
+//     .join("\r\n\r\n")
+//   embed.setDescription(content || "This token has not updated description yet")
+//   const wlAdded = await isTickerAddedToWl(coinId, discordId)
+//   const buttonRow = buildSwitchViewActionRow(
+//     "info",
+//     { coinId, days, symbol, discordId, isDominanceChart },
+//     wlAdded
+//   )
+//
+//   return {
+//     messageOptions: {
+//       embeds: [embed],
+//       components: [buttonRow],
+//     },
+//   }
+// }
 
 async function isTickerAddedToWl(coinId: string, discordId: string) {
   const wlRes = await defi.getUserWatchlist({
@@ -483,7 +491,7 @@ async function isTickerAddedToWl(coinId: string, discordId: string) {
   )
 }
 
-export function parseQuery(query: string) {
+function parseQuery(query: string) {
   const result = {
     ticker: query,
     isDominanceChart: false,
@@ -496,136 +504,40 @@ export function parseQuery(query: string) {
 }
 
 export async function ticker(
-  msgOrInteraction: Message | CommandInteraction,
+  interaction: CommandInteraction,
   base: string,
   chain = ""
 ) {
   const { ticker, isDominanceChart } = parseQuery(base)
-  const {
-    ok,
-    data: coins,
-    log,
-    curl,
-  } = await CacheManager.get({
+  const { data: coins } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-search-${ticker}`,
     call: () => defi.searchCoins(ticker, chain),
   })
-  if (!ok) {
-    throw new APIError({ msgOrInteraction, curl, description: log })
-  }
   if (!coins || !coins.length) {
     throw new InternalError({
       title: "Unsupported token/fiat",
-      msgOrInteraction,
+      msgOrInteraction: interaction,
       description: `**${base.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
-      )} or Please choose a valid fiat currency.`,
+      )} Or choose a valid fiat currency.`,
     })
   }
 
-  const author = getAuthor(msgOrInteraction)
-  if (coins.length === 1) {
-    return await composeTickerResponse({
-      msgOrInteraction,
-      coinId: coins[0].id,
-      discordId: author.id,
-      symbol: ticker,
-      isDominanceChart,
-      chain,
-    })
+  let coin = coins.find((coin: any) => coin.most_popular)
+  if (!coin) {
+    coin = coins.at(0)
   }
 
-  // if default ticket was set then respond...
-  const { symbol } = coins[0]
-  const defaultTicker = await CacheManager.get({
-    pool: "ticker",
-    key: `ticker-default-${msgOrInteraction.guildId}-${symbol}`,
-    call: () =>
-      config.getGuildDefaultTicker({
-        guild_id: msgOrInteraction.guildId ?? "",
-        query: symbol,
-      }),
+  return await composeTickerResponse({
+    interaction,
+    coinId: coin.id,
+    symbol: ticker,
+    isDominanceChart,
+    chain,
   })
-  if (defaultTicker.ok && defaultTicker.data.default_ticker) {
-    return await composeTickerResponse({
-      msgOrInteraction,
-      coinId: defaultTicker.data.default_ticker,
-      discordId: author.id,
-      symbol: base,
-      isDominanceChart,
-      chain,
-    })
-  }
-
-  // else render embed to show multiple results
-  return {
-    select: {
-      options: Object.values(coins).map((coin: any, i: number) => {
-        return {
-          emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-          label: `💎 ${coin.name} (${coin.symbol.toUpperCase()})`,
-          value: `${coin.id}_${coin.symbol}_${coin.name}`,
-        }
-      }),
-      placeholder: "💎 Select a token",
-    },
-    onDefaultSet: async (i: ButtonInteraction) => {
-      const [coinId, symbol, name] = i.customId.split("_")
-      await getDefaultSetter({
-        updateAPI: config.setGuildDefaultTicker.bind(config, {
-          guild_id: i.guildId ?? "",
-          query: symbol,
-          default_ticker: coinId,
-        }),
-        updateCache: CacheManager.findAndRemove.bind(
-          CacheManager,
-          "ticker",
-          `ticker-default-${i.guildId}-${symbol}`
-        ),
-        description: `Next time your server members use \`$ticker\` with \`${symbol}\`, **${name}** will be the default selection.`,
-      })(i)
-    },
-    render: ({
-      msgOrInteraction,
-      value,
-    }: {
-      msgOrInteraction: Message | CommandInteraction
-      value: string
-    }) => {
-      const [coinId] = value.split("_")
-      return composeTickerResponse({
-        msgOrInteraction,
-        coinId,
-        discordId: author.id,
-        symbol: base,
-        isDominanceChart,
-        chain,
-      })
-    },
-    title: `${getEmoji("ANIMATED_COIN_3", true)} Multiple results found`,
-    description: `We're not sure which \`${base.toUpperCase()}\`, select one:\n${
-      formatDataTable(
-        coins.map((c: any) => ({
-          name: c.name,
-          symbol: c.symbol.toUpperCase(),
-          price: `$${formatDigit({
-            value: c.current_price ?? 0,
-            fractionDigits: 2,
-          })}`,
-        })),
-        {
-          cols: ["name", "symbol", "price"],
-          rowAfterFormatter: (f, i) =>
-            `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
-        }
-      ).joined
-    }`,
-    ambiguousResultText: base.toUpperCase(),
-    multipleResultText: "",
-  }
 }
