@@ -8,7 +8,7 @@ import {
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import {
   emojis,
   getEmoji,
@@ -21,7 +21,7 @@ import {
   equalIgnoreCase,
 } from "utils/common"
 import { BigNumber, utils } from "ethers"
-import { APPROX, DOT } from "utils/constants"
+import { APPROX } from "utils/constants"
 import defi from "adapters/defi"
 import { formatDigit } from "utils/defi"
 import { dmUser } from "../../../utils/dm"
@@ -124,21 +124,52 @@ function renderFullInfo(params: Info) {
   }
 }
 
-function renderNoTradeRouteData(code?: TradeRouteDataCode) {
+function renderNoTradeRouteData(
+  from?: string,
+  to?: string,
+  code?: TradeRouteDataCode
+) {
+  let reason = "N/A"
+  switch (code) {
+    case TradeRouteDataCode.NoRoute:
+      reason = "No possible route can be found."
+      break
+    case TradeRouteDataCode.HighPriceImpact:
+      reason = "This route has a high price impact."
+      break
+    case TradeRouteDataCode.ProviderError:
+    default:
+      reason = "Internal error."
+      break
+  }
+
   return {
     embeds: [
-      new MessageEmbed({
-        description: `${getEmoji(
-          "NO"
-        )} No trade route data found, please try again.`,
+      getErrorEmbed({
+        title: "Swap request failed",
         color: msgColors.ERROR,
-        footer: {
-          text: `Code ${code} ${DOT} ${
-            Object.entries(TradeRouteDataCode)
-              .find((c) => c[1] === code)
-              ?.at(0) ?? ""
-          }`,
-        },
+        description: [
+          `${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} Something went wrong when getting route data.`,
+          `${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true
+          )} Please check error detail and try again.`,
+        ].join("\n"),
+      }).addFields({
+        name: "Detail",
+        value: [
+          `${getEmoji("CONFIG")} \`Reason.   \`${reason}`,
+          `${getEmoji("INFO")} \`Code.     \`${code}`,
+          `${getEmoji("ANIMATED_COIN_2", true)} \`From.     \`${getEmojiToken(
+            from as TokenEmojiKey
+          )} **${from}**`,
+          `${getEmoji("ANIMATED_COIN_2", true)} \`To.       \`${getEmojiToken(
+            to as TokenEmojiKey
+          )} **${to}**`,
+        ].join("\n"),
       }),
     ],
     components: [],
@@ -357,7 +388,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
   ) {
     return {
       initial: "noTradeRouteFound",
-      msgOpts: renderNoTradeRouteData(tradeRoute?.code),
+      msgOpts: renderNoTradeRouteData(ctx.from, ctx.to, tradeRoute?.code),
     }
   }
 
@@ -503,7 +534,7 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
   if (!ctx?.routeSummary || !ctx.chainName) {
     return {
       initial: "noTradeRouteFound",
-      msgOpts: renderNoTradeRouteData(),
+      msgOpts: renderNoTradeRouteData(ctx?.from, ctx?.to),
     }
   }
 
