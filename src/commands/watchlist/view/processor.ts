@@ -28,7 +28,7 @@ export function buildSwitchViewActionRow(currentView: string) {
     disabled: currentView === "nft",
   })
   const viewWalletBtn = new MessageButton({
-    label: "Wallet",
+    label: "Wallets",
     emoji: getEmoji("WALLET_1"),
     customId: "view_wallets",
     style: "SECONDARY",

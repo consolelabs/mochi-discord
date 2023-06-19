@@ -102,7 +102,7 @@ const balanceEmbedProps: Record<
       address,
       alias: wallet?.alias,
       title: `${wallet?.alias || shortenHashOrAddress(address)}'s wallet`,
-      emoji: getEmojiURL(emojis.WALLET_1),
+      emoji: getEmojiURL(emojis.WALLET_2),
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
@@ -718,16 +718,6 @@ export async function renderBalances(
         !isOwnWallet && type === BalanceType.Onchain
           ? [
               new MessageActionRow().addComponents(
-                new MessageButton()
-                  .setLabel("Copy trade")
-                  .setStyle("SECONDARY")
-                  .setEmoji(getEmoji("SWAP_ROUTE"))
-                  .setCustomId("balance_copy-trade"),
-                new MessageButton()
-                  .setLabel("Track")
-                  .setStyle("SECONDARY")
-                  .setCustomId("balance_track")
-                  .setEmoji(getEmoji("ANIMATED_STAR", true)),
                 isFollowed
                   ? new MessageButton()
                       .setLabel("Unfollow")
@@ -738,7 +728,17 @@ export async function renderBalances(
                       .setLabel("Follow")
                       .setStyle("SECONDARY")
                       .setCustomId("balance_follow")
-                      .setEmoji(getEmoji("PLUS"))
+                      .setEmoji(getEmoji("PLUS")),
+                new MessageButton()
+                  .setLabel("Track")
+                  .setStyle("SECONDARY")
+                  .setCustomId("balance_track")
+                  .setEmoji(getEmoji("ANIMATED_STAR", true)),
+                new MessageButton()
+                  .setLabel("Copy trade")
+                  .setStyle("SECONDARY")
+                  .setEmoji(getEmoji("SWAP_ROUTE"))
+                  .setCustomId("balance_copy-trade")
               ),
             ]
           : [
