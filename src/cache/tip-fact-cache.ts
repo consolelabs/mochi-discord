@@ -15,6 +15,7 @@ export async function getTipsAndFacts() {
     contentCache.set("content", data)
   } else {
     contentCache.set("content", { description: { fact: [], tip: [] } })
+    getTipsAndFacts()
   }
 }
 
@@ -23,7 +24,10 @@ export function getRandomFact() {
   const shouldShow = Math.random() > 0.5
   if (!shouldShow) return undefined
   const facts = contentCache.get<any>("content")?.description?.fact
-  if (!facts || !facts.length) return undefined
+  if (!facts || !facts.length) {
+    getTipsAndFacts()
+    return undefined
+  }
   const randomIdx = Math.floor(Math.random() * facts.length)
 
   return `> ${facts[randomIdx]}`
@@ -32,7 +36,10 @@ export function getRandomFact() {
 export function getRandomTip() {
   if (TEST) return undefined
   const tips = contentCache.get<any>("content")?.description?.tip
-  if (!tips || !tips.length) return undefined
+  if (!tips || !tips.length) {
+    getTipsAndFacts()
+    return undefined
+  }
   const randomIdx = Math.floor(Math.random() * tips.length)
 
   return tips[randomIdx]
