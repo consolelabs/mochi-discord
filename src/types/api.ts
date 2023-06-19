@@ -81,6 +81,7 @@ export interface ModelAirdropCampaign {
   detail?: string;
   id?: number;
   prev_airdrop_campaign_id?: number;
+  profile_campaign_status?: string;
   reward_amount?: number;
   reward_token_symbol?: string;
   status?: string;

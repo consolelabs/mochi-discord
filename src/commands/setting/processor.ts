@@ -9,7 +9,11 @@ export enum SettingTab {
 }
 
 function addBullet(str: string) {
-  return `▪︎ ${str} <:_:1119167625914748968>`
+  return `▪︎ ${str}`
+}
+
+function addSoon(str: string) {
+  return `${str} <:_:1119167625914748968>`
 }
 
 const pagination = (currentTab: SettingTab) =>
@@ -61,6 +65,7 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
           await getSlashCommand("update email"),
         ]
           .map(addBullet)
+          .map(addSoon)
           .join("\n"),
         inline: true,
       },
@@ -73,6 +78,7 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
           await getSlashCommand("update telegram"),
         ]
           .map(addBullet)
+          .map(addSoon)
           .join("\n"),
         inline: true,
       },
@@ -81,6 +87,7 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
         name: `${getEmoji("ANIMATED_VAULT_KEY", true)} **DEVELOPER**`,
         value: [await getSlashCommand("update apikey")]
           .map(addBullet)
+          .map(addSoon)
           .join("\n"),
         inline: true,
       }

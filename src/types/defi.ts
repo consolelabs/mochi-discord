@@ -1,3 +1,6 @@
+import { ResponseGetCoinResponse } from "./api"
+import { RequiredDeep } from "type-fest"
+
 export type DiscordWalletTransferRequest = {
   sender: string // discordId
   recipients: string[] // can be array of discordIds or addresses
@@ -60,17 +63,7 @@ export type DiscordWalletBalances = {
   balances_in_usd: { [key: string]: number }
 }
 
-export type Coin = {
-  id: string
-  name: string
-  symbol: string
-  market_cap_rank: number
-  image: CoinImage
-  market_data: MarketData
-  tickers: TickerData[]
-  description: CoinDescription
-  asset_platform_id: string
-}
+export type Coin = RequiredDeep<ResponseGetCoinResponse>
 
 export type CoinPrice = {
   symbol: string
@@ -83,24 +76,6 @@ export type TickerData = {
   last: number
   coinID: string
   target_coin_id: string
-}
-
-type MarketData = {
-  current_price: { [key: string]: number }
-  market_cap: { [key: string]: number }
-  price_change_percentage_1h_in_currency: { [key: string]: number }
-  price_change_percentage_24h_in_currency: { [key: string]: number }
-  price_change_percentage_7d_in_currency: { [key: string]: number }
-}
-
-type CoinImage = {
-  thumb: string
-  small: string
-  large: string
-}
-
-type CoinDescription = {
-  en: string
 }
 
 export type CoinComparisionData = {

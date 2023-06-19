@@ -9,8 +9,6 @@ import { CommandInteraction } from "discord.js"
 import CacheManager from "cache/node-cache"
 // slash cmds
 import tickerSlash from "./index/slash"
-import compareSlash from "./compare-token/slash"
-import comparefiatSlash from "./compare-fiat/slash"
 
 CacheManager.init({
   ttl: 0,
@@ -41,21 +39,12 @@ const slashCmd: SlashCommand = {
           )
           .setRequired(false)
       )
-      .addStringOption((option) =>
-        option
-          .setName("chain")
-          .setDescription(
-            "the blockchain network of the token. Example: BSC, ETH, FTM, etc."
-          )
-          .setRequired(false)
-      )
   },
   run: async function (interaction: CommandInteraction) {
     const baseQ = interaction.options.getString("base", true)
     if (!interaction.guildId || !baseQ) return null
     const targetQ = interaction.options.getString("target")
     const query = `${baseQ}${targetQ ? `/${targetQ}` : ""}`
-    const chain = interaction.options.getString("chain")
     const { base, target, isCompare, isFiat } = parseTickerQuery(query)
     if (base === target) {
       throw new InternalError({
@@ -70,17 +59,7 @@ const slashCmd: SlashCommand = {
         )} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }
-    switch (true) {
-      case !isCompare:
-        return tickerSlash(interaction, base, chain || "")
-      case !isFiat:
-        return compareSlash(interaction, base, target)
-      case isFiat:
-        return comparefiatSlash(interaction, base, target)
-      default:
-        break
-    }
-    return null
+    await tickerSlash(interaction, base, target, isCompare, isFiat)
   },
   help: () =>
     Promise.resolve({
