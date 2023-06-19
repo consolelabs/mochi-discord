@@ -13,6 +13,7 @@ import {
   getEmojiURL,
   msgColors,
   EmojiKey,
+  capitalizeFirst,
 } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { paginationButtons } from "utils/router"
@@ -21,71 +22,19 @@ import { ModelAirdropCampaign } from "types/api"
 
 dayjs.extend(utc)
 
-const AIRDROP_DETAIL_STATUSES = [
-  { label: "Ignore", value: "ignored" },
-  { label: "Join", value: "joined" },
-  { label: "Claim", value: "claimed" },
-  { label: "Not Eligible", value: "not_eligible" },
-]
+export enum ProfileCampaignStatus {
+  Ignored = "ignored",
+  Joined = "joined",
+  Claimed = "claimed",
+  NotEligible = "not_eligible",
+}
 
-const DATA = [
-  {
-    id: 1,
-    title: "1 slot WL PEKACHU INU",
-    deadline: "22-06-2023",
-    status: "live",
-  },
-  {
-    id: 2,
-    title: "Airdrop - Tabi (Part 02) - Chain BSC",
-    deadline: "22-06-2023",
-    status: "ended",
-  },
-  {
-    id: 3,
-    title: "Update - Airdrop - Libra Incentix - Chain BSC",
-    deadline: "22-06-2023",
-    status: "ended",
-  },
-  {
-    id: 4,
-    title: "Update - Airdrop - Fantasize - Chain ETH",
-    deadline: "22-06-2023",
-    status: "claimed",
-  },
-  {
-    id: 5,
-    title: "Airdrop - Position Exchange - Chain BSC",
-    deadline: "22-06-2023",
-    status: "live",
-  },
-]
-
-export async function airdropDetail(i: SelectMenuInteraction) {
-  const [earnId] = i.values
-  const data = DATA.find((d) => d.id.toString() === earnId)
-  const description = `
-        🎁Reward: Get free claim #NFT Citizenship Pass
-
-        🎖Winner: All users I Deadline: N/A
-
-        🗞News: CoinDesk, Binance Labs,...
-
-        🔹Register #web ➡️ click here
-
-        - Connect Metamask wallet
-
-        - Claim NFT & update soon,...
-
-        -------------------------------------------------------------------------
-        ✅️Telegram ✅️Facebook ✅️Twitter ✅️Linktree`
-
+const renderAirdropCampaignDetail = (campaign: ModelAirdropCampaign) => {
   const embed = composeEmbedMessage(null, {
-    title: data?.title || `Can't get earn detail id ${earnId}`,
+    title: campaign.title,
     color: msgColors.PINK,
-    description,
+    description: campaign.detail,
   })
-
   return {
     msgOpts: {
       embeds: [embed],
@@ -95,9 +44,10 @@ export async function airdropDetail(i: SelectMenuInteraction) {
             .setPlaceholder(`What will you do to this airdrop?`)
             .setCustomId("set_airdrop_status")
             .addOptions(
-              AIRDROP_DETAIL_STATUSES.map((status) => ({
-                label: status.label,
-                value: status.value,
+              Object.values(ProfileCampaignStatus).map((status) => ({
+                label: capitalizeFirst(status.split("_").join(" ")),
+                value: `${campaign.id}|${status}`,
+                default: campaign.profile_campaign_status === status,
               }))
             )
         ),
@@ -106,33 +56,56 @@ export async function airdropDetail(i: SelectMenuInteraction) {
   }
 }
 
-export async function setAirdropStatus(i: SelectMenuInteraction) {
-  const [status] = i.values
-  const statusData = AIRDROP_DETAIL_STATUSES.find((d) => d.value === status)
-  const description = statusData?.label || "Description"
-
+export async function airdropDetail(i: SelectMenuInteraction) {
+  let data: ModelAirdropCampaign | null = null
+  const profileId = await getProfileIdByDiscord(i.user.id)
+  const [earnId] = i.values
   const embed = composeEmbedMessage(null, {
-    title: statusData?.label || `Status is changed to ${statusData?.value}`,
+    title: `Airdrop campaign not found`,
     color: msgColors.PINK,
-    description,
+    description: `Can't get airdrop campaign id ${earnId}`,
   })
+  const { data: res, ok } = await community.getAirdropCampaignById(earnId, {
+    profileId,
+  })
+
+  if (ok) {
+    data = res as ModelAirdropCampaign
+    return renderAirdropCampaignDetail(data)
+  }
 
   return {
     msgOpts: {
       embeds: [embed],
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageSelectMenu()
-            .setPlaceholder(`What will you do to this airdrop?`)
-            .setCustomId("set_airdrop_status")
-            .addOptions(
-              AIRDROP_DETAIL_STATUSES.map((status) => ({
-                label: status.label,
-                value: status.value,
-              }))
-            )
-        ),
-      ],
+      components: [],
+    },
+  }
+}
+
+export async function setAirdropStatus(i: SelectMenuInteraction) {
+  const profileId = await getProfileIdByDiscord(i.user.id)
+  const [selectedValues] = i.values
+  const [campaignId, status] = selectedValues.split("|")
+  const { ok } = await community.upsertUserAirdropCampaign(profileId, {
+    airdropCampaignId: parseInt(campaignId),
+    status,
+  })
+
+  if (ok) {
+    const { data: res, ok: getOk } = await community.getAirdropCampaignById(
+      campaignId,
+      { profileId }
+    )
+    if (getOk) {
+      const data = res as ModelAirdropCampaign
+      return renderAirdropCampaignDetail(data)
+    }
+  }
+
+  return {
+    msgOpts: {
+      embeds: [],
+      components: [],
     },
   }
 }
