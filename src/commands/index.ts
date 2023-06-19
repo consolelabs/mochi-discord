@@ -177,14 +177,13 @@ export const slashCommands: Record<string, SlashCommand> = {
   update: update.slashCmd,
 }
 
+// text commands is being deprecated, refer to slashCommands for latest version
 export const originalCommands: Record<string, Command> = {
   // general help
   help: help.textCmd,
   // profile section
-  profile: profile.textCmd,
   tip: tip.textCmd,
   claim: claim.textCmd,
-  balances: balances.textCmd,
   tokens: token.textCmd,
   watchlist: watchlist.textCmd,
   gm: gm.textCmd,
