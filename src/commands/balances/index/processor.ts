@@ -158,6 +158,7 @@ export async function getBalances(
     })
   }
   let data,
+    farming,
     pnl = 0
   if (type === BalanceType.Offchain) {
     data = res.data.filter((i: any) => Boolean(i))
@@ -169,6 +170,7 @@ export async function getBalances(
     if (Number.isNaN(pnl)) {
       pnl = 0
     }
+    farming = res.data.farming
   }
   if (type === BalanceType.Cex) {
     data = res.data.filter((i: any) => Boolean(i))
@@ -178,6 +180,7 @@ export async function getBalances(
   return {
     data,
     pnl,
+    farming,
   }
 }
 
@@ -473,7 +476,7 @@ export function formatView(
 async function switchView(
   view: "compact" | "expand",
   props: { address: string; emoji: string; title: string; description: string },
-  balances: { data: any[]; pnl: number },
+  balances: { data: any[]; farming: any[]; pnl: number },
   txns: any,
   discordId: string,
   balanceType: number
@@ -593,7 +596,48 @@ async function switchView(
       value: value + preventEmptyVal,
       inline: false,
     })
+
+    // farming
+    const farming = balances.farming
+      ?.filter((i) => i.liquidityTokenBalance !== "0")
+      .map((i) => {
+        const [symbol0, symbol1] = [i.pair.token0.symbol, i.pair.token1.symbol]
+        const text = `${formatDigit({
+          value: i.liquidityTokenBalance,
+          fractionDigits: 2,
+        })} ${symbol0}-${symbol1}`
+        const usdWorth =
+          i.pair.token0.balance * +i.pair.token0.tokenDayData[0].priceUSD +
+          i.pair.token1.balance * +i.pair.token1.tokenDayData[0].priceUSD
+        return {
+          emoji: `${getEmoji(symbol0)}${getEmoji(symbol1)}`,
+          text,
+          usdWorth: formatDigit({ value: usdWorth, fractionDigits: 0 }),
+          tokens0: `\`${formatDigit({
+            value: i.pair.token0.balance.toString(),
+            fractionDigits: 2,
+          })} ${symbol0}\``,
+          token1: `\`${formatDigit({
+            value: i.pair.token1.balance.toString(),
+            fractionDigits: 2,
+          })} ${symbol1}\``,
+        }
+      })
+      .map((i) => {
+        const replyEmoji = getEmoji("REPLY" as TokenEmojiKey)
+        return `${i.emoji} \`${i.text} ${APPROX} $${i.usdWorth}\`\n${replyEmoji} ${i.tokens0}\n${replyEmoji} ${i.token1}`
+      })
+      .join("\n\n")
+
+    if (farming) {
+      embed.addFields({
+        name: "Farming",
+        value: farming,
+        inline: false,
+      })
+    }
   }
+
   if (balanceType === BalanceType.Cex) {
     const value = await renderWallets({
       mochiWallets: {
