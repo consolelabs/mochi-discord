@@ -52,26 +52,6 @@ test.each<
 
 // isAcceptableCmdToHelp
 test.each([
-  // $nr set
-  [
-    {
-      cmd: "nftrole",
-      aliases: ["nr"],
-      action: "set",
-      msg: "$nr set",
-    },
-    true,
-  ],
-  // $nft set
-  [
-    {
-      cmd: "nftrole",
-      aliases: ["nr"],
-      action: "set",
-      msg: "$nftrole set",
-    },
-    true,
-  ],
   // $help
   [
     {
@@ -81,16 +61,6 @@ test.each([
       msg: "$help",
     },
     true,
-  ],
-  // $nr set @Mochi
-  [
-    {
-      cmd: "nftrole",
-      aliases: ["nr"],
-      action: "set",
-      msg: "$nr set @Mochi",
-    },
-    false,
   ],
   // $gm
   [
@@ -141,15 +111,6 @@ test.each([
     {
       commandKey: "tip",
       action: undefined,
-      isSpecificHelpCommand: false,
-    },
-  ],
-  // $nr
-  [
-    "$nr set @SeniorMochian 100 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73",
-    {
-      commandKey: "nr",
-      action: "set",
       isSpecificHelpCommand: false,
     },
   ],

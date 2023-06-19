@@ -43,24 +43,20 @@ import airdrop from "./airdrop"
 import balances from "./balances"
 import claim from "./claim"
 import proposal from "./proposal"
-import defaultrole from "./default-role"
 import deposit from "./deposit"
 import feedback from "./feedback/index"
 import gm from "./gm"
 import help from "./help/index"
 import levelmessage from "./level-message"
-import levelrole from "./level-role"
 import moniker from "./moniker"
 import gas from "./gas"
 import activity from "./activity"
 import inbox from "./inbox"
 import nft from "./nft"
-import nftrole from "./nft-role"
 import poe from "./poe"
 import profile from "./profile"
 import prune from "./prune"
 import quest from "./quest"
-import reactionrole from "./reaction-role"
 import sales from "./sales"
 import sendxp from "./sendxp"
 import starboard from "./starboard"
@@ -74,10 +70,8 @@ import watchlist from "./watchlist"
 import watchlistView from "./watchlist/view/slash"
 import welcome from "./welcome/index"
 import withdraw from "./withdraw"
-import tokenrole from "./token-role"
 import xprole from "./xp-role"
 import wallet from "./wallet"
-import mixrole from "./mix-role"
 import alert from "./alert"
 import stats from "./stats"
 import game from "./game"
@@ -100,6 +94,7 @@ import qr from "./qr"
 import defaults from "./default"
 import setting from "./setting"
 import update from "./update"
+import role from "./role"
 
 CacheManager.init({
   ttl: 0,
@@ -119,10 +114,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   // alias
   wlv: watchlistView,
   wlc: watchlistView,
-  defaultrole: defaultrole.slashCmd,
-  levelrole: levelrole.slashCmd,
-  reactionrole: reactionrole.slashCmd,
-  nftrole: nftrole.slashCmd,
   prune: prune.slashCmd,
   quest: quest.slashCmd,
   gm: gm.slashCmd,
@@ -147,9 +138,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   deposit: deposit.slashCmd,
   dep: deposit.slashCmd,
   sendxp: sendxp.slashCmd,
-  tokenrole: tokenrole.slashCmd,
   xprole: xprole.slashCmd,
-  mixrole: mixrole.slashCmd,
   alert: alert.slashCmd,
   wallet: wallet.slashCmd,
   stats: stats.slashCmd,
@@ -175,6 +164,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   default: defaults.slashCmd,
   setting: setting.slashCmd,
   update: update.slashCmd,
+  role: role.slashCmd,
 }
 
 export const originalCommands: Record<string, Command> = {
@@ -197,16 +187,10 @@ export const originalCommands: Record<string, Command> = {
   gas: gas.textCmd,
   inbox: inbox.textCmd,
   // config section
-  reactionrole: reactionrole.textCmd,
-  defaultrole: defaultrole.textCmd,
   moniker: moniker.textCmd,
-  levelrole: levelrole.textCmd,
-  nftrole: nftrole.textCmd,
   proposal: proposal.textCmd,
   levelmessage: levelmessage.textCmd,
-  tokenrole: tokenrole.textCmd,
   xprole: xprole.textCmd,
-  mixrole: mixrole.textCmd,
   stats: stats.textCmd,
   // globalxp,
   starboard: starboard.textCmd,

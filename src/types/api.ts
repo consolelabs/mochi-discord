@@ -81,6 +81,7 @@ export interface ModelAirdropCampaign {
   detail?: string;
   id?: number;
   prev_airdrop_campaign_id?: number;
+  profile_campaign_status?: string;
   reward_amount?: number;
   reward_token_symbol?: string;
   status?: string;
@@ -1486,9 +1487,6 @@ export interface ResponseAirdropCampaignStatResponse {
 
 export interface ResponseAirdropCampaignsResponse {
   data?: ModelAirdropCampaign[];
-  page?: number;
-  size?: number;
-  total?: number;
 }
 
 export interface ResponseAssetPlatformResponseData {
@@ -2697,9 +2695,6 @@ export interface ResponseProfileAirdropCampaignResponse {
 
 export interface ResponseProfileAirdropCampaignsResponse {
   data?: ModelProfileAirdropCampaign[];
-  page?: number;
-  size?: number;
-  total?: number;
 }
 
 export interface ResponseProfileApiKeyResponse {
