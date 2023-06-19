@@ -248,10 +248,9 @@ export async function withdrawStep3(
 
   const embed = composeEmbedMessage(null, {
     author: ["Choose your address", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-    description: `${getEmoji(
-      "ANIMATED_POINTING_DOWN",
-      true
-    )} Enter or choose from list below.`,
+    description: `${getEmoji("ANIMATED_POINTING_DOWN", true)} Enter${
+      listWalletsRecentlyUsed.length ? " or choose from list below" : ""
+    }.`,
   }).addFields(
     renderPreview({
       address: params.address,
@@ -338,7 +337,7 @@ export async function withdrawStep2(
     )
     amount = formatDigit({
       value: formatted,
-      fractionDigits: isAll ? 2 : Number(formatted) >= 1 ? 0 : undefined,
+      fractionDigits: isAll ? 2 : Number(formatted) >= 1000 ? 0 : 2,
     })
   } else {
     let valid
@@ -351,7 +350,7 @@ export async function withdrawStep2(
     if (valid) {
       amount = formatDigit({
         value: params.amount ?? "0",
-        fractionDigits: Number(params.amount) >= 1 ? 0 : undefined,
+        fractionDigits: Number(params.amount) >= 1000 ? 0 : 2,
       })
     }
   }

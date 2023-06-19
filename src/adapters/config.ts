@@ -1404,9 +1404,12 @@ class Config extends Fetcher {
   }
 
   public async getContent(type: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/content/${type}`, {
-      method: "GET",
-    })
+    return await this.jsonFetch(
+      `${API_BASE_URL}/product-metadata/copy/${type}`,
+      {
+        method: "GET",
+      }
+    )
   }
 }
 

@@ -62,8 +62,6 @@ export const machineConfig: (initial: string, context: any) => MachineConfig = (
           amountIn: `%${ev.split("_").at(-1)}`,
         })
       },
-      // swapStep3: (i, _ev, ctx) => swapStep3(i, ctx),
-      // swapStep4: (i, _ev, ctx) => swapStep4(i, ctx),
       swapOffchain: (i, _ev, ctx) => executeSwap(i, ctx),
     },
     select: {

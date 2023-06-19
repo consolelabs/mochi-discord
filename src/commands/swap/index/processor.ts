@@ -21,7 +21,7 @@ import {
   equalIgnoreCase,
 } from "utils/common"
 import { BigNumber, utils } from "ethers"
-import { APPROX } from "utils/constants"
+import { APPROX, DOT } from "utils/constants"
 import defi from "adapters/defi"
 import { formatDigit } from "utils/defi"
 import { dmUser } from "../../../utils/dm"
@@ -31,11 +31,14 @@ import { getSlashCommand } from "utils/commands"
 import { checkCommitableOperation } from "commands/withdraw/index/processor"
 import { getProfileIdByDiscord } from "utils/profile"
 import { aggregateTradeRoute } from "./aggregate-util"
+import { renderTokenComparisonFields } from "commands/ticker/index/processor"
 
 const SLIPPAGE = 0.5
+const DIVIDER = getEmoji("LINE").repeat(5)
 
 type Context = {
   to?: string
+  toId?: string
   from?: string
   amountIn?: string
   amountOut?: string
@@ -121,6 +124,27 @@ function renderFullInfo(params: Info) {
   }
 }
 
+function renderNoTradeRouteData(code?: TradeRouteDataCode) {
+  return {
+    embeds: [
+      new MessageEmbed({
+        description: `${getEmoji(
+          "NO"
+        )} No trade route data found, please try again.`,
+        color: msgColors.ERROR,
+        footer: {
+          text: `Code ${code} ${DOT} ${
+            Object.entries(TradeRouteDataCode)
+              .find((c) => c[1] === code)
+              ?.at(0) ?? ""
+          }`,
+        },
+      }),
+    ],
+    components: [],
+  }
+}
+
 // this will jump to step N if the context object has enough data to skip previous N-1 steps
 export async function jumpToStep(
   i: Interaction,
@@ -164,10 +188,15 @@ export async function jumpToStep(
   return step(i, mergedContext)
 }
 
-const divider = getEmoji("LINE").repeat(5)
-
 export async function swapStep1(i: Interaction, ctx?: Context) {
-  const balances = await getBalances({ msgOrInteraction: i })
+  let balances = await getBalances({ msgOrInteraction: i })
+  const { data: coins } = await defi.searchCoins(ctx?.to ?? "")
+  const coinId = coins?.find((c: any) => c.most_popular).id
+
+  balances = balances.filter(
+    (b: any) => b.token.coin_gecko_id !== (ctx?.toId || coinId)
+  )
+
   const preview = renderFullInfo({
     to: ctx?.to,
   })
@@ -225,20 +254,20 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
                 .setPlaceholder("💵 Choose money source (1/2)")
                 .setCustomId("select_token")
                 .setOptions(
-                  balances.map((b: any) => ({
-                    label: `${b.token.symbol}${
-                      isDuplicateSymbol(b.token.symbol)
-                        ? ` (${b.token.chain.symbol})`
-                        : ""
-                    }`,
-                    value: `${b.id}/offchain`,
-                    emoji: getEmojiToken(b.token.symbol),
-                  }))
-                  // .concat({
-                  //   label: `MOCK ONCHAIN`,
-                  //   value: `000/onchain`,
-                  //   emoji: getEmojiToken("" as any),
-                  // })
+                  balances
+                    .filter(
+                      (b: any) =>
+                        b.token.coin_gecko_id !== (ctx?.toId || coinId)
+                    )
+                    .map((b: any) => ({
+                      label: `${b.token.symbol}${
+                        isDuplicateSymbol(b.token.symbol)
+                          ? ` (${b.token.chain.symbol})`
+                          : ""
+                      }`,
+                      value: `${b.id}/offchain`,
+                      emoji: getEmojiToken(b.token.symbol),
+                    }))
                 )
             ),
           ]
@@ -287,7 +316,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     )
     amount = formatDigit({
       value: Number(formatted),
-      fractionDigits: isAll ? 2 : Number(formatted) >= 1000 ? 0 : undefined,
+      fractionDigits: isAll ? 2 : Number(formatted) >= 1000 ? 0 : 2,
     })
   } else {
     let valid
@@ -300,7 +329,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     if (valid) {
       amount = formatDigit({
         value: amount ?? "0",
-        fractionDigits: Number(amount) >= 1000 ? 0 : undefined,
+        fractionDigits: Number(amount) >= 1000 ? 0 : 2,
       })
     }
   }
@@ -328,17 +357,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
   ) {
     return {
       initial: "noTradeRouteFound",
-      msgOpts: {
-        embeds: [
-          new MessageEmbed({
-            description: `${getEmoji(
-              "NO"
-            )} No trade route data found, please try again.`,
-            color: msgColors.ERROR,
-          }),
-        ],
-        components: [],
-      },
+      msgOpts: renderNoTradeRouteData(tradeRoute?.code),
     }
   }
 
@@ -409,35 +428,14 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
       1
     )
     if (ok) {
-      ;[data.base_coin, data.target_coin].filter(Boolean).forEach((coin, i) => {
-        const price = Number(coin?.market_data?.current_price?.usd ?? 0)
-        const marketCap = Number(coin?.market_data?.market_cap?.usd ?? 0)
-
-        compareFields.push({
-          name: `${i === 0 ? `\n${divider}` : "\u200b"}\n${getEmojiToken(
-            coin?.symbol?.toUpperCase() as TokenEmojiKey
-          )} ${coin?.symbol?.toUpperCase()}`,
-          value: [
-            `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$${formatDigit({
-              value: price,
-              fractionDigits: price >= 100 ? 0 : 2,
-            })}\``,
-            `${getEmoji("CHART")} Cap: \`$${formatDigit({
-              value: marketCap,
-              fractionDigits: 0,
-              shorten: true,
-            })}\``,
-          ].join("\n"),
-          inline: true,
-        })
-      })
-
-      embed.addFields(...compareFields)
+      embed.addFields(
+        ...renderTokenComparisonFields(data.base_coin, data.target_coin)
+      )
     }
   }
 
   if (preview) {
-    preview.name = `${divider}${preview.name}`
+    preview.name = `${DIVIDER}${preview.name}`
     embed.addFields(preview)
   }
 
@@ -455,11 +453,6 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     msgOpts: {
       embeds: [
         embed,
-        // composeEmbedMessage(null, {
-        //   description: (
-        //     await aggregateTradeRoute(ctx.from ?? "", routeSummary)
-        //   ).text.join("\n"),
-        // }),
         ...(error
           ? [
               new MessageEmbed({
@@ -510,17 +503,7 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
   if (!ctx?.routeSummary || !ctx.chainName) {
     return {
       initial: "noTradeRouteFound",
-      msgOpts: {
-        embeds: [
-          new MessageEmbed({
-            description: `${getEmoji(
-              "NO"
-            )} No trade route data found, please try again.`,
-            color: msgColors.ERROR,
-          }),
-        ],
-        components: [],
-      },
+      msgOpts: renderNoTradeRouteData(),
     }
   }
 
@@ -552,7 +535,7 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
   }
 
   fields.push({
-    name: divider,
+    name: DIVIDER,
     value: renderMiscInfo(ctx),
     inline: false,
   })

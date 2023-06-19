@@ -20,7 +20,7 @@ import { wrapError } from "../wrap-error"
 import CacheManager from "cache/node-cache"
 import { Handler, MachineConfig, MachineOptions } from "./types"
 import { merge } from "lodash"
-// import { getRandomFact } from "cache/tip-fact-cache"
+import { getRandomFact } from "cache/tip-fact-cache"
 
 export type { MachineConfig }
 
@@ -108,9 +108,11 @@ export function route(
   options: MachineOptions = {}
 ) {
   // add a random fact
-  // reply.edit({
-  //   content: getRandomFact(),
-  // })
+  reply
+    .edit({
+      content: getRandomFact(),
+    })
+    .catch(() => null)
 
   const author = interaction.user
   const cacheKey = `${author.id}-${config.id}`
@@ -225,23 +227,6 @@ export function route(
                     )
                   )
                 }
-
-                // if (msgOpts.files?.length) {
-                //   delete msgOpts.embeds
-                //
-                //   await interaction.message.removeAttachments()
-                //
-                //   for (const file of msgOpts.files as MessageAttachment[]) {
-                //     if (!file.name) continue
-                //     const embed = interaction.message.embeds?.find(
-                //       (e: MessageEmbed) =>
-                //         e.image?.url?.replace("attachment://", "") === file.name
-                //     ) as MessageEmbed
-                //     if (!embed) continue
-                //
-                //     embed.setImage(`attachment://${file.name}`)
-                //   }
-                // }
 
                 interaction.message.edit(msgOpts).catch(() => {
                   interaction.editReply(msgOpts).catch(() => null)

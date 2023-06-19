@@ -29,12 +29,7 @@ type Tweet = {
   }
   includes: { users: Array<{ id: string; username: string }> }
   matching_rules: Array<{ id: string }>
-  errors: Array<{
-    title: string
-    disconnect_type: string
-    detail: string
-    type: string
-  }>
+  errors: Array<any>
 }
 
 type ProcessParam = {

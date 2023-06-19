@@ -1,6 +1,7 @@
 import config from "adapters/config"
 import { TEST } from "env"
 import NodeCache from "node-cache"
+import { getChance } from "utils/common"
 
 const contentCache = new NodeCache({
   stdTTL: 3600,
@@ -21,7 +22,7 @@ export async function getTipsAndFacts() {
 
 export function getRandomFact() {
   if (TEST) return undefined
-  const shouldShow = Math.random() > 0.5
+  const shouldShow = getChance(50)
   if (!shouldShow) return undefined
   const facts = contentCache.get<any>("content")?.description?.fact
   if (!facts || !facts.length) {
