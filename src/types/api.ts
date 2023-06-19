@@ -1486,9 +1486,6 @@ export interface ResponseAirdropCampaignStatResponse {
 
 export interface ResponseAirdropCampaignsResponse {
   data?: ModelAirdropCampaign[];
-  page?: number;
-  size?: number;
-  total?: number;
 }
 
 export interface ResponseAssetPlatformResponseData {
@@ -2697,9 +2694,6 @@ export interface ResponseProfileAirdropCampaignResponse {
 
 export interface ResponseProfileAirdropCampaignsResponse {
   data?: ModelProfileAirdropCampaign[];
-  page?: number;
-  size?: number;
-  total?: number;
 }
 
 export interface ResponseProfileApiKeyResponse {

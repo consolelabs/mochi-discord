@@ -3,7 +3,9 @@ import utc from "dayjs/plugin/utc"
 import { MessageActionRow, MessageButton, User } from "discord.js"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
-import { getEmoji, msgColors, thumbnails } from "utils/common"
+import { getEmoji, msgColors, thumbnails, capitalizeFirst } from "utils/common"
+import community from "adapters/community"
+import { getProfileIdByDiscord } from "utils/profile"
 dayjs.extend(utc)
 
 const image =
@@ -22,37 +24,32 @@ export async function run(user: User, view: EarnView = EarnView.Airdrop) {
     color: msgColors.BLUE,
   })
 
+  const profileId = await getProfileIdByDiscord(user.id)
+
   if (view === EarnView.Airdrop) {
-    embed.setDescription(
-      "Mochi is your Web3 assistant to maximize your earnings."
-    )
+    const res = await community.getAirdropCampaignStats({ profileId })
+    if (res.ok) {
+      embed.setDescription("This is your airdrop campaign dashboard")
 
-    embed.addFields([
-      {
-        name: "Live",
-        value: "10",
-        inline: true,
-      },
-      {
-        name: "Ended",
-        value: "2",
-        inline: true,
-      },
-      {
-        name: "Claimable",
-        value: "1",
-        inline: true,
-      },
-    ])
+      const data = res.data as { status: string; count: number }[]
 
-    embed.addFields({
-      name: "\u200b\nGetting Started",
-      value: [
-        `<:_:1110865581617463346> ${await getSlashCommand("drop available")}`,
-        `<:_:1093577916434104350> ${await getSlashCommand("drop claimable")}`,
-      ].join("\n"),
-      inline: false,
-    })
+      embed.addFields(
+        data.map((statusCount) => ({
+          name: capitalizeFirst(statusCount.status),
+          value: statusCount.count.toString(),
+          inline: true,
+        }))
+      )
+
+      embed.addFields({
+        name: "\u200b\nGetting Started",
+        value: [
+          `<:_:1110865581617463346> ${await getSlashCommand("drop available")}`,
+          `<:_:1093577916434104350> ${await getSlashCommand("drop claimable")}`,
+        ].join("\n"),
+        inline: false,
+      })
+    }
   } else {
     embed.setDescription(view)
   }
