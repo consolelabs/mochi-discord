@@ -36,6 +36,10 @@ const renderAirdropCampaignDetail = (campaign: ModelAirdropCampaign) => {
     description: campaign.detail,
   })
   return {
+    // update global state to use in other function
+    context: {
+      campaignId: campaign.id,
+    },
     msgOpts: {
       embeds: [embed],
       components: [
@@ -46,7 +50,7 @@ const renderAirdropCampaignDetail = (campaign: ModelAirdropCampaign) => {
             .addOptions(
               Object.values(ProfileCampaignStatus).map((status) => ({
                 label: capitalizeFirst(status.split("_").join(" ")),
-                value: `${campaign.id}|${status}`,
+                value: status,
                 default: campaign.profile_campaign_status === status,
               }))
             )
@@ -82,18 +86,17 @@ export async function airdropDetail(i: SelectMenuInteraction) {
   }
 }
 
-export async function setAirdropStatus(i: SelectMenuInteraction) {
+export async function setAirdropStatus(i: SelectMenuInteraction, ctx: any) {
   const profileId = await getProfileIdByDiscord(i.user.id)
-  const [selectedValues] = i.values
-  const [campaignId, status] = selectedValues.split("|")
+  const [status] = i.values
   const { ok } = await community.upsertUserAirdropCampaign(profileId, {
-    airdropCampaignId: parseInt(campaignId),
+    airdropCampaignId: parseInt(ctx.campaignId),
     status,
   })
 
   if (ok) {
     const { data: res, ok: getOk } = await community.getAirdropCampaignById(
-      campaignId,
+      ctx.campaignId,
       { profileId }
     )
     if (getOk) {

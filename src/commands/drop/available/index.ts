@@ -31,7 +31,7 @@ export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
     },
     select: {
       airdrop: (i) => airdropDetail(i),
-      userAirdropStatus: (i) => setAirdropStatus(i),
+      userAirdropStatus: (i, _ev, ctx) => setAirdropStatus(i, ctx),
     },
     ...context,
   },
