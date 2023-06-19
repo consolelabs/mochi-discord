@@ -18,7 +18,6 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { paginationButtons } from "utils/router"
 import { getProfileIdByDiscord } from "utils/profile"
 import { ModelAirdropCampaign } from "types/api"
-import { ceil } from "lodash"
 
 dayjs.extend(utc)
 
@@ -176,6 +175,8 @@ export async function run(
   status = AirdropCampaignStatus.Live,
   page = 0
 ) {
+  let data = [] as ModelAirdropCampaign[]
+  let total = 0
   const embed = composeEmbedMessage(null, {
     title: `Airdrop Campaigns`,
     description: "",
@@ -185,7 +186,7 @@ export async function run(
 
   const profileId = await getProfileIdByDiscord(userId)
 
-  const res =
+  const { data: res, ok } =
     status === AirdropCampaignStatus.Ignored
       ? await community.getAirdropCampaignByUser(profileId, {
           status,
@@ -198,19 +199,12 @@ export async function run(
           size: PAGE_SIZE,
         })
 
-  if (!res.ok) {
-    embed.setDescription(`Something went wrong`)
-
-    return {
-      msgOpts: {
-        embeds: [embed],
-      },
-    }
+  if (ok) {
+    data = res.data as ModelAirdropCampaign[]
+    total = res.metadata?.total || 0
   }
 
-  const data = res.data as ModelAirdropCampaign[]
-  const total = res.total || 0
-  const totalPage = ceil(total / PAGE_SIZE)
+  const totalPage = Math.ceil(total / PAGE_SIZE)
 
   if (total === 0) {
     embed.setDescription(`Can't found any ${status} airdrop campaign`)

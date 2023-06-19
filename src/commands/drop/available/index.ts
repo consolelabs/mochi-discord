@@ -7,7 +7,7 @@ import {
   setAirdropStatus,
 } from "./processor"
 import { CommandInteraction, Message } from "discord.js"
-import { MachineConfig, route } from "utils/router"
+import { MachineConfig, RouterSpecialAction, route } from "utils/router"
 
 export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
   id: "drop available",
@@ -20,7 +20,11 @@ export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
         if (ev === "VIEW_IGNORED") status = AirdropCampaignStatus.Ignored
 
         let page = 0
-        if (ev === "NEXT_PAGE" || ev === "PREVIOUS_PAGE") page = ctx.page
+        if (
+          ev === RouterSpecialAction.NEXT_PAGE ||
+          ev === RouterSpecialAction.PREV_PAGE
+        )
+          page = ctx.page
 
         return run(i.user.id, status, page)
       },
