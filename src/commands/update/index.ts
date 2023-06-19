@@ -55,6 +55,7 @@ const slashCmd: SlashCommand = {
     ]?.run(i),
   help: () => Promise.resolve({}),
   colorType: "Server",
+  ephemeral: true,
 }
 
 export default { slashCmd }
