@@ -131,30 +131,31 @@ export function formatDataTable<DT extends Data>(
       i
     )
 
-    if (line.length > MAXIMUM_CHAR_COUNT_PER_LINE) {
-      const cellCount = row.length - resolvedOptions.separator.length
-      const seperatorTotalWidth = resolvedOptions.separator.reduce(
-        (acc, c) => (acc += c.length),
-        0
-      )
-      const avgMaxCharPerCell = Math.floor(
-        (MAXIMUM_CHAR_COUNT_PER_LINE - seperatorTotalWidth) / cellCount
-      )
-      for (let i = 0; i < row.length; i += 2) {
-        const cell = row[i]
-        if (!cell) continue
-        if (cell.length > avgMaxCharPerCell) {
-          row[i] = `${cell.slice(0, avgMaxCharPerCell - 3)}...`
-        }
-      }
-
-      line = resolvedOptions.rowAfterFormatter(
-        `${resolvedOptions.noWrap ? "" : "`"}${row.join("")}${
-          resolvedOptions.noWrap ? "" : "`"
-        }`,
-        i
-      )
-    }
+    // truncate if line is longeer than mobile's maximum limit char count
+    // if (line.length > MAXIMUM_CHAR_COUNT_PER_LINE) {
+    //   const cellCount = row.length - resolvedOptions.separator.length
+    //   const seperatorTotalWidth = resolvedOptions.separator.reduce(
+    //     (acc, c) => (acc += c.length),
+    //     0
+    //   )
+    //   const avgMaxCharPerCell = Math.floor(
+    //     (MAXIMUM_CHAR_COUNT_PER_LINE - seperatorTotalWidth) / cellCount
+    //   )
+    //   for (let i = 0; i < row.length; i += 2) {
+    //     const cell = row[i]
+    //     if (!cell) continue
+    //     if (cell.length > avgMaxCharPerCell) {
+    //       row[i] = `${cell.slice(0, avgMaxCharPerCell - 3)}...`
+    //     }
+    //   }
+    //
+    //   line = resolvedOptions.rowAfterFormatter(
+    //     `${resolvedOptions.noWrap ? "" : "`"}${row.join("")}${
+    //       resolvedOptions.noWrap ? "" : "`"
+    //     }`,
+    //     i
+    //   )
+    // }
 
     if ((lines.join("\n") + line).length > 1024) {
       segments.push([...lines])
