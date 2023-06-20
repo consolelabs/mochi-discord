@@ -18,7 +18,7 @@ import {
 import { composeEmbedMessage } from "ui/discord/embed"
 import { paginationButtons } from "utils/router"
 import { getProfileIdByDiscord } from "utils/profile"
-import { ModelAirdropCampaign } from "types/api"
+import { ModelAirdropCampaign, ModelProfileAirdropCampaign } from "types/api"
 
 dayjs.extend(utc)
 
@@ -31,7 +31,7 @@ export enum ProfileCampaignStatus {
 
 const renderAirdropCampaignDetail = (campaign: ModelAirdropCampaign) => {
   const embed = composeEmbedMessage(null, {
-    title: campaign.title,
+    title: `\`#${campaign.id}\` ${campaign.title}`,
     color: msgColors.PINK,
     description: campaign.detail,
   })
@@ -176,7 +176,12 @@ export async function run(
         })
 
   if (ok) {
-    data = res.data as ModelAirdropCampaign[]
+    data =
+      status === AirdropCampaignStatus.Ignored
+        ? (res.data.map(
+            (i: ModelProfileAirdropCampaign) => i.airdrop_campaign
+          ) as ModelAirdropCampaign[])
+        : (res.data as ModelAirdropCampaign[])
     total = res.metadata?.total || 0
   }
 
@@ -220,7 +225,7 @@ export async function run(
             .addOptions(
               data.map((campaign: ModelAirdropCampaign, i) => ({
                 emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-                label: campaign.title || "No Title",
+                label: `#${campaign.id}. ${campaign.title}`,
                 value: campaign.id?.toString() || "0",
               }))
             )
