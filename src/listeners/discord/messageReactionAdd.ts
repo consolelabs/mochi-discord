@@ -17,6 +17,15 @@ const handleRepostableMessageTracking = async (
   user: User,
   msg: Message
 ) => {
+  let user_roles: string[] = []
+  await msg.guild?.members.fetch(user).then((member) => {
+    user_roles = member.roles.cache.map((r) => r.id)
+  })
+  let author_roles: string[] = []
+  await msg.guild?.members.fetch(msg.author.id).then((member) => {
+    author_roles = member.roles.cache.map((r) => r.id)
+  })
+
   const body = {
     guild_id: msg.guild?.id ?? "",
     channel_id: msg.channel.id,
@@ -28,12 +37,9 @@ const handleRepostableMessageTracking = async (
     ),
     reaction_count: reaction.count,
     user_id: user.id,
-    user_roles: [] as string[],
-  }
-
-  const member = await msg.guild?.members.fetch(user)
-  if (member) {
-    body.user_roles = Array.from(member.roles.cache.keys())
+    author_id: msg.author.id,
+    user_roles,
+    author_roles,
   }
 
   const res = await webhook.pushDiscordWebhook("messageReactionAdd", body)
