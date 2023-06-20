@@ -6,7 +6,7 @@ import { SlashCommand } from "types/common"
 import profile from "./profile/slash"
 import email from "./email/slash"
 import apiKey from "./apiKey/slash"
-import binance from "./binance/slash"
+import binance from "./binance/index"
 import coinbase from "./coinbase/slash"
 import twitter from "./twitter/slash"
 import telegram from "./telegram/slash"
@@ -55,6 +55,7 @@ const slashCmd: SlashCommand = {
     ]?.run(i),
   help: () => Promise.resolve({}),
   colorType: "Server",
+  ephemeral: true,
 }
 
 export default { slashCmd }

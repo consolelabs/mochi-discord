@@ -63,7 +63,7 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
         VIEW_ADD_WALLET: "addWallet",
         VIEW_QR_CODES: "qrCodes",
         CONNECT_BINANCE: {
-          type: "profile",
+          target: "profile",
           actions: {
             type: "showBinanceManualMessage",
           },
@@ -135,7 +135,7 @@ const run = async (interaction: CommandInteraction) => {
         )
           return
 
-        const result = sendBinanceManualMessage(event.interaction)
+        const result = sendBinanceManualMessage()
 
         const reply = (await event.interaction.editReply(
           result.msgOpts

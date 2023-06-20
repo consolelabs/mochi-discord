@@ -248,7 +248,7 @@ export async function withdrawStep3(
 
   const embed = composeEmbedMessage(null, {
     author: ["Choose your address", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-    description: `${getEmoji("ANIMATED_POINTING_DOWN", true)} Enter${
+    description: `${getEmoji("ANIMATED_POINTING_DOWN", true)} Enter address${
       listWalletsRecentlyUsed.length ? " or choose from list below" : ""
     }.`,
   }).addFields(
@@ -284,15 +284,14 @@ export async function withdrawStep3(
             ]
           : []),
         new MessageActionRow().addComponents(
-          new MessageButton()
-            .setLabel(
-              validAddress || !params.address
-                ? "Confirm (3/3)"
-                : "Address not valid"
-            )
-            .setCustomId("submit")
-            .setStyle("PRIMARY")
-            .setDisabled(!valid || !validAddress),
+          ...(validAddress && valid
+            ? [
+                new MessageButton()
+                  .setLabel("Confirm 3/3")
+                  .setCustomId("submit")
+                  .setStyle("PRIMARY"),
+              ]
+            : []),
           new MessageButton({
             label: `${params.address ? "Change" : "Enter"} address`,
             style: "SECONDARY",
