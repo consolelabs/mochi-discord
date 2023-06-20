@@ -1,7 +1,7 @@
 import { handleRoleSet } from "./processor"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { getEmoji } from "utils/common"
@@ -48,7 +48,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         description: `Don't know where to get the message link?\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
           true

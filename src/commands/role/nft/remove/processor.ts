@@ -19,7 +19,6 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
       messageOptions: {
         embeds: [
           getSuccessEmbed({
-            msg,
             title: `Successfully removed ${name}!`,
             description: `To set a new nft role, run ${await getSlashCommand(
               "role nft set"

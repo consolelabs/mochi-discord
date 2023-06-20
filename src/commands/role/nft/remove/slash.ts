@@ -3,7 +3,7 @@ import Config from "adapters/config"
 import { CommandInteraction, MessageSelectOptionData } from "discord.js"
 import { SlashCommand } from "types/common"
 import { NFT_ROLE_GITBOOK, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { handler } from "./processor"
 import { list } from "../processor"
 import { composeDiscordExitButton } from "ui/discord/button"
@@ -55,7 +55,7 @@ const command: SlashCommand = {
       })
     })
 
-    const embed = composeEmbedMessage2(interaction, {
+    const embed = composeEmbedMessage(interaction, {
       title: "Select an option",
       description: (await list(configs)).description,
     })
@@ -79,7 +79,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}role nft remove`,
         examples: `${SLASH_PREFIX}role nft remove`,
         document: `${NFT_ROLE_GITBOOK}&action=remove`,

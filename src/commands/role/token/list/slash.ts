@@ -3,7 +3,7 @@ import config from "adapters/config"
 import { CommandInteraction } from "discord.js"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { msgColors } from "utils/common"
 import { SLASH_PREFIX as PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 import { list } from "../processor"
@@ -35,7 +35,7 @@ const command: SlashCommand = {
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage2(interaction, {
+          composeEmbedMessage(interaction, {
             author: [title],
             description,
             color: msgColors.PINK,
@@ -46,7 +46,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${PREFIX}role token list`,
         examples: `${PREFIX}role token list`,
         document: `${TOKEN_ROLE_GITBOOK}&action=list`,

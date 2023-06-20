@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SLASH_PREFIX as PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 import { setConfigTokenRole } from "./processor"
 import { GuildIdNotFoundError, InternalError } from "errors"
@@ -69,7 +69,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${PREFIX}role token set <role> <amount> <address> <chain_name>`,
         examples: `${PREFIX}role token set @Mochi 1 0x4E15361FD6b4BB609Fa63C81A2be19d873717870 eth`,
         document: `${TOKEN_ROLE_GITBOOK}&action=set`,

@@ -1,6 +1,6 @@
 import { SlashCommand } from "types/common"
 import { PRICE_ALERT_GITBOOK, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import {
   SlashCommandBuilder,
@@ -34,7 +34,7 @@ const slashCmd: SlashCommand = {
   },
   help: async (interaction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}alert <action>`,
         description: "Get notifications every time the price change",
         examples: `${SLASH_PREFIX}alert list\n${SLASH_PREFIX}alert add ftm`,

@@ -24,7 +24,6 @@ export async function composeNFTListEmbed(
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            msg,
             description: "No NFT collections found",
           }),
         ],
@@ -34,7 +33,7 @@ export async function composeNFTListEmbed(
   const totalPage = Math.ceil(
     (res.data.metadata?.total || 0) / (res.data.metadata?.size || 1)
   )
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     author: ["NFT collections list", getEmojiURL(emojis.NFTS)],
     description: "To add new collection, run `$nft add <address> <chain_id>`.",
     image: `attachment://nftlist.png`,

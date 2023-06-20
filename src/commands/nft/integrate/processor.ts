@@ -54,7 +54,6 @@ export async function executeNftIntegrateCommand(
       messageOptions: {
         embeds: [
           getSuccessEmbed({
-            msg,
             title: `${data.symbol} integrated`,
             description: `${data.name} collection is now ready to take part in our verse (added + enabled)`,
             image: data.image,
@@ -68,7 +67,6 @@ export async function executeNftIntegrateCommand(
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            msg,
             description: error,
           }),
         ],

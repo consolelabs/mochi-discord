@@ -1,5 +1,4 @@
 import webhook from "adapters/webhook"
-import { handlePrefixedCommand } from "commands"
 import { Message } from "discord.js"
 import { MessageTypes } from "discord.js/typings/enums"
 import tagme from "handlers/tagme"
@@ -58,10 +57,6 @@ const events: DiscordEvent<"messageCreate"> = {
             (!message.content && !message.stickers.size)
           )
             return
-          if (message.content.startsWith(PREFIX)) {
-            await handlePrefixedCommand(message)
-            return
-          }
           tagme.handle(message)
           await handleNormalMessage(message)
         })

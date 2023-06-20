@@ -1,7 +1,7 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { GuildIdNotFoundError } from "errors"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SALE_TRACKER_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { handleSalesTrack } from "./processor"
@@ -54,7 +54,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}sales track <channel> <address> <chain_id>\n${SLASH_PREFIX}sales track <channel> <address> <chain_symbol>`,
         examples: `${SLASH_PREFIX}sales track #general 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73 250\n${SLASH_PREFIX}sales track #general 0x343f999eAACdFa1f201fb8e43ebb35c99D9aE0c1 eth`,
         document: `${SALE_TRACKER_GITBOOK}&action=track`,

@@ -1,7 +1,7 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { GuildIdNotFoundError } from "errors"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SALE_TRACKER_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { handleSalesRemove } from "./processor"
@@ -36,7 +36,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `// Interactively\n${SLASH_PREFIX}sales remove\n\n// If you already know what to remove\n${SLASH_PREFIX}sales remove <contract-address>`,
         examples: `${SLASH_PREFIX}sales remove\n${SLASH_PREFIX}sales remove 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73`,
         document: `${SALE_TRACKER_GITBOOK}&action=remove`,

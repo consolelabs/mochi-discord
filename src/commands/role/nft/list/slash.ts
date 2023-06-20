@@ -5,7 +5,7 @@ import { APIError } from "errors"
 import { SlashCommand } from "types/common"
 import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { NFT_ROLE_GITBOOK, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { list } from "../processor"
 
 const command: SlashCommand = {
@@ -43,7 +43,7 @@ const command: SlashCommand = {
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage2(interaction, {
+          composeEmbedMessage(interaction, {
             author: [title, getEmojiURL(emojis.NFTS)],
             description,
             color: msgColors.PINK,
@@ -54,7 +54,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}role nft list`,
         examples: `${SLASH_PREFIX}role nft list`,
         document: `${NFT_ROLE_GITBOOK}&action=list`,

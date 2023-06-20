@@ -88,7 +88,6 @@ export async function claim(msg: Message, args: string[]) {
     recipient_address
   )}\`! Check your wallet!\n${pointingright} You can claim another tip by using\n\`$claim <Claim ID> <your recipient address>\`.`
   const embed = getSuccessEmbed({
-    msg,
     title: "Succesfully claimed!",
     description,
   }).addFields([{ name: "Transaction", value: `[\`${tx_hash}\`](${tx_url})` }])

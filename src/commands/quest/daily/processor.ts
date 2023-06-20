@@ -74,7 +74,7 @@ export async function handleClaimReward(i: ButtonInteraction) {
   if (!res.data) return
 
   const msg = await (i.message as Message).fetchReference().catch(() => null)
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     title: "Rewards Claimed!",
     description:
       "Congrats! Rewards sent to you, here's the summary of what you just received:",
@@ -139,7 +139,7 @@ export async function run(userId: string, msg?: Message) {
   const hour = resetUtc.diff(nowUtc, "hour")
   const minute = Math.round(resetUtc.diff(nowUtc, "minute") % 60)
 
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     title: "Daily Quests",
     description: `${[
       `**Quests will refresh in \`${hour}\`h \`${minute}\`m**`,

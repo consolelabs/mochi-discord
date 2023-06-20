@@ -6,7 +6,7 @@ import {
   WatchListTokenViewType,
   WatchListViewType,
 } from "./processor"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
 import { MachineConfig, route, RouterSpecialAction } from "utils/router"
@@ -86,7 +86,7 @@ const command: SlashCommand = {
   help: (interaction) =>
     Promise.resolve({
       embeds: [
-        composeEmbedMessage2(interaction, {
+        composeEmbedMessage(interaction, {
           thumbnail: thumbnails.TOKENS,
           title: "Show list of your favorite tokens",
           description: `Data is fetched from [CoinGecko](https://coingecko.com/)`,

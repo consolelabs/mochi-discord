@@ -60,7 +60,6 @@ describe("claim", () => {
       recipient_address
     )}\`! Check your wallet!\n${pointingright} You can claim another tip by using\n\`$claim <Claim ID> <your recipient address>\`.`
     const expectedEmbed = getSuccessEmbed({
-      msg,
       title: "Succesfully claimed!",
       description: expectDesc,
     }).addFields([

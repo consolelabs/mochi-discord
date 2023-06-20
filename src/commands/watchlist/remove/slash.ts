@@ -1,7 +1,7 @@
 import { SlashCommand } from "types/common"
 import { CommandInteraction } from "discord.js"
 import { thumbnails } from "utils/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SLASH_PREFIX as PREFIX, SPACES_REGEX } from "utils/constants"
 import { removeWatchlistToken } from "./processor"
@@ -37,7 +37,7 @@ const command: SlashCommand = {
   },
   help: async (interaction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         thumbnail: thumbnails.TOKENS,
         title: "Remove a token from your watchlist.",
         usage: `${PREFIX}watchlist remove <symbol>`,

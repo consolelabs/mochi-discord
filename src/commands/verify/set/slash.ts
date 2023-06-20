@@ -2,7 +2,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { runVerifySet } from "./processor"
 
 const command: SlashCommand = {
@@ -33,7 +33,7 @@ const command: SlashCommand = {
     runVerifySet({ interaction, guildId: interaction.guildId }),
   help: async (interaction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}verify set <channel> [<verified_role>]`,
         examples: `${SLASH_PREFIX}verify set #general\n${SLASH_PREFIX}verify set #connect-wallet @verified`,
         document: `${VERIFY_WALLET_GITBOOK}&action=set`,

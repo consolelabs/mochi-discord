@@ -1,6 +1,6 @@
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX as PREFIX } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { handleRoleRemove } from "./processor"
@@ -47,7 +47,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `To remove a specific configuration in a message\n${PREFIX}role reaction remove <message_link> <emoji> <role>\n\nTo clear all configurations in a message\n${PREFIX}role reaction remove <message_link>`,
         examples: `${PREFIX}role reaction remove https://discord.com/channels/...4875 ✅ @Visitor\n${PREFIX}role reaction remove https://discord.com/channels/...4875`,
       }),

@@ -6,11 +6,7 @@ import {
 import * as processor from "./processor"
 import mockdc from "../../../../../tests/mocks/discord"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
-import {
-  composeEmbedMessage,
-  composeEmbedMessage2,
-  getErrorEmbed,
-} from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import {
   assertAuthor,
   assertDescription,
@@ -77,7 +73,7 @@ describe("getEmbedPagination", () => {
   test("with type Message", async () => {
     const msg = mockdc.cloneMessage()
     const output = await processor.getEmbedPagination(pages, msg)
-    const expected = composeEmbedMessage(msg, {
+    const expected = composeEmbedMessage(null, {
       author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
       description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
       footer: ["Page 1 / 1"],
@@ -95,7 +91,7 @@ describe("getEmbedPagination", () => {
       .spyOn(button, "listenForPaginateInteraction")
       .mockImplementationOnce(() => null)
     const output = await processor.getEmbedPagination(pages, msg)
-    const expected = composeEmbedMessage2(msg, {
+    const expected = composeEmbedMessage(msg, {
       author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
       description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
       footer: ["Page 1 / 1"],

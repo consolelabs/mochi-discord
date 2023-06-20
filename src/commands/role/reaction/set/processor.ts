@@ -103,7 +103,7 @@ export const handleRoleSet = async (
 export const handleRoleSetHelpCmd = async (msg: Message) => {
   return {
     embeds: [
-      composeEmbedMessage(msg, {
+      composeEmbedMessage(null, {
         description: `Don't know where to get the message link?${troubleshootMsg}\n\n*Note:\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
           true

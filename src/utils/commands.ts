@@ -246,7 +246,7 @@ export function parseDiscordToken(value: string) {
 
 export function getSlashCommandObject(
   slashCommands: Record<string, SlashCommand>,
-  interaction: CommandInteraction
+  interaction: CommandInteraction | null | undefined
 ): SlashCommand | null {
   if (!interaction) return null
   return slashCommands[interaction.commandName]

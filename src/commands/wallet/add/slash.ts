@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { WALLET_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { handleWalletAddition } from "./processor"
 
@@ -21,7 +21,7 @@ const command: SlashCommand = {
   help: (interaction: CommandInteraction) =>
     Promise.resolve({
       embeds: [
-        composeEmbedMessage2(interaction, {
+        composeEmbedMessage(interaction, {
           usage: `${SLASH_PREFIX}wallet add`,
           examples: `${SLASH_PREFIX}wallet add`,
           document: WALLET_GITBOOK,

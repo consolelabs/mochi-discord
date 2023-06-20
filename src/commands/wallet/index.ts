@@ -1,5 +1,5 @@
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
 import view from "./view/slash"
 import add from "./add/slash"
@@ -54,7 +54,7 @@ const slashCmd: SlashCommand = {
   help: (interaction) =>
     Promise.resolve({
       embeds: [
-        composeEmbedMessage2(interaction, {
+        composeEmbedMessage(interaction, {
           title: "On-chain Wallet Tracking",
           usage: `${SLASH_PREFIX}wallet <action>`,
           examples: `${SLASH_PREFIX}wallet add\n${SLASH_PREFIX}wallet view`,

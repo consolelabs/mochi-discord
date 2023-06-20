@@ -1,7 +1,7 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandArgumentError, GuildIdNotFoundError } from "errors"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { handleTokenInfo } from "./processor"
@@ -37,7 +37,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}tokens info <symbol>\n${SLASH_PREFIX}tokens info <id>`,
         examples: `${SLASH_PREFIX}tokens info eth\n${SLASH_PREFIX}tokens info ethereum`,
       }),

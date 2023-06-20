@@ -1,5 +1,5 @@
 import config from "adapters/config"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction, Role } from "discord.js"
 import { DefaultRoleEvent, SlashCommand } from "types/common"
@@ -45,7 +45,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         title: "Set a default role for newcomers",
         usage: `${SLASH_PREFIX}role default set <role>`,
         examples: `${SLASH_PREFIX}role default set @Mochi`,

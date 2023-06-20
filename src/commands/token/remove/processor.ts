@@ -25,7 +25,6 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            msg: message,
             description: "This command must be run in a Guild",
           }),
         ],
@@ -43,7 +42,6 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
     messageOptions: {
       embeds: [
         getSuccessEmbed({
-          msg: message,
           description: `Successfully removed **${symbol.toUpperCase()}** from server's tokens list.`,
         }),
       ],

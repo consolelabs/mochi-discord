@@ -1,9 +1,6 @@
-import { Command, SlashCommand } from "types/common"
-import { PREFIX, SLASH_PREFIX, VERIFY_WALLET_GITBOOK } from "utils/constants"
+import { SlashCommand } from "types/common"
+import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
-import info from "./info/text"
-import remove from "./remove/text"
-import set from "./set/text"
 import infoSlash from "./info/slash"
 import removeSlash from "./remove/slash"
 import setSlash from "./set/slash"
@@ -12,36 +9,6 @@ import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
-
-const actions: Record<string, Command> = {
-  set,
-  info,
-  remove,
-}
-
-const textCmd: Command = {
-  id: "verify",
-  command: "verify",
-  brief: "Verify wallet",
-  category: "Community",
-  run: async () => null,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}verify <action>`,
-        description:
-          "Verify your wallet by connecting a Metamask wallet with your Discord server to use all DeFi functions offered by Mochi",
-        examples: `${PREFIX}verify info\n${PREFIX}verify set #connect-wallet @verified`,
-        document: VERIFY_WALLET_GITBOOK,
-        footer: [`Type ${PREFIX}help verify <action> for a specific action!`],
-        includeCommandsList: true,
-      }),
-    ],
-  }),
-  actions,
-  colorType: "Server",
-  canRunWithoutAction: false,
-}
 
 const slashActions: Record<string, SlashCommand> = {
   set: setSlash,
@@ -80,4 +47,4 @@ const slashCmd: SlashCommand = {
   colorType: "Server",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

@@ -5,7 +5,7 @@ import { CommandInteraction, MessageSelectOptionData } from "discord.js"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 import { SlashCommand } from "types/common"
 import { composeDiscordExitButton } from "ui/discord/button"
-import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { SLASH_PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 import { handler } from "./processor"
@@ -64,7 +64,7 @@ const command: SlashCommand = {
       })
     }
 
-    const embed = composeEmbedMessage2(interaction, {
+    const embed = composeEmbedMessage(interaction, {
       title: "Select an option",
       description: (await list({ data })).description,
     })
@@ -88,7 +88,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}role token remove`,
         examples: `${SLASH_PREFIX}role token remove`,
         document: `${TOKEN_ROLE_GITBOOK}&action=remove`,

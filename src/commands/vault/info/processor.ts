@@ -3,7 +3,7 @@ import { formatView, getButtons } from "commands/balances/index/processor"
 import { MessageActionRow, MessageButton } from "discord.js"
 import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import {
   EmojiKey,
   emojis,
@@ -99,7 +99,7 @@ export async function runGetVaultDetail(
       fractionDigits: 2,
     })}\``,
   ].join("\n")
-  const embed = composeEmbedMessage2(interaction as any, {
+  const embed = composeEmbedMessage(interaction as any, {
     color: msgColors.BLUE,
     author: ["Vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
     description: `${basicInfo}\n\n${walletAddress}\n${currentRequest}`,

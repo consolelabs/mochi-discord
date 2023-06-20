@@ -1,6 +1,6 @@
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { handleRoleList } from "./processor"
@@ -15,7 +15,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}role reaction list`,
         examples: `${SLASH_PREFIX}role reaction list`,
       }),

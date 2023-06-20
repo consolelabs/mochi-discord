@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { MachineConfig, route } from "utils/router"
 import { CommandInteraction, Message } from "discord.js"
@@ -50,7 +50,7 @@ const slashCmd: SlashCommand = {
   help: (interaction: CommandInteraction) =>
     Promise.resolve({
       embeds: [
-        composeEmbedMessage2(interaction, {
+        composeEmbedMessage(interaction, {
           description: "Check on your quests and what rewards you can claim",
           usage: `${SLASH_PREFIX}earn`,
           examples: `${SLASH_PREFIX}earn`,

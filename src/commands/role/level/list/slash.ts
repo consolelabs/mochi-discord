@@ -1,5 +1,5 @@
 import config from "adapters/config"
-import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
@@ -42,7 +42,7 @@ const command: SlashCommand = {
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage2(interaction, {
+          composeEmbedMessage(interaction, {
             author: [title, getEmojiURL(emojis.ANIMATED_BADGE_2)],
             description,
             color: msgColors.PINK,
@@ -53,7 +53,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         title: "Get server's level role configuration",
         usage: `${SLASH_PREFIX}role level list`,
         examples: `${SLASH_PREFIX}role level set list`,

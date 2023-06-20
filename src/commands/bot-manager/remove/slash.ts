@@ -4,7 +4,7 @@ import CacheManager from "cache/node-cache"
 import { CommandInteraction } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2, getSuccessEmbed } from "ui/discord/embed"
+import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { Role } from "discord.js"
 import { getSlashCommand } from "utils/commands"
@@ -72,7 +72,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}bot-manager remove <role>`,
         examples: `${SLASH_PREFIX}bot-manager remove @role`,
       }),

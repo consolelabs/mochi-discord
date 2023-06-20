@@ -1,6 +1,6 @@
 import config from "adapters/config"
 import {
-  composeEmbedMessage2,
+  composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
 } from "ui/discord/embed"
@@ -108,7 +108,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         title: "Set a level-role configuration",
         usage: `${SLASH_PREFIX}role level set <role> <level>`,
         examples: `${SLASH_PREFIX}role level set @Mochi 1`,

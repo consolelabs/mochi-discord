@@ -3,7 +3,7 @@ import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { NFT_ROLE_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import {
-  composeEmbedMessage2,
+  composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
 } from "ui/discord/embed"
@@ -148,7 +148,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}role nft set <role> <amount> <nft_address1,nft_address2> [erc1155_token_id]`,
         examples: `${SLASH_PREFIX}role nft set @Mochi 1 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73`,
         document: `${NFT_ROLE_GITBOOK}&action=set`,

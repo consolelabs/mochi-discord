@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { runGetVaultDetail } from "./processor"
@@ -46,7 +46,7 @@ const command: SlashCommand = {
   help: (interaction: CommandInteraction) =>
     Promise.resolve({
       embeds: [
-        composeEmbedMessage2(interaction, {
+        composeEmbedMessage(interaction, {
           usage: `${SLASH_PREFIX}vault info`,
           examples: `${SLASH_PREFIX}vault info`,
           document: `${GM_GITBOOK}&action=streak`,

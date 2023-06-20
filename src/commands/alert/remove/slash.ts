@@ -3,7 +3,7 @@ import Defi from "adapters/defi"
 import { CommandInteraction, MessageSelectOptionData } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { handler } from "./processor"
 import { composeDiscordExitButton } from "ui/discord/button"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
@@ -38,7 +38,7 @@ const command: SlashCommand = {
       })
     })
 
-    const embed = composeEmbedMessage2(interaction, {
+    const embed = composeEmbedMessage(interaction, {
       title: "Select an alert to remove",
       color: msgColors.PINK,
     })
@@ -62,7 +62,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}alert remove`,
         examples: `${SLASH_PREFIX}alert remove`,
       }),

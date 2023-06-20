@@ -1,6 +1,6 @@
 import config from "adapters/config"
 import {
-  composeEmbedMessage2,
+  composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
 } from "ui/discord/embed"
@@ -62,7 +62,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         title: "Remove a level-role configuration",
         usage: `${SLASH_PREFIX}role level remove <level>`,
         examples: `${SLASH_PREFIX}role level remove 6`,

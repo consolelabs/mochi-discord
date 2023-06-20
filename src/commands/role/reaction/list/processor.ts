@@ -11,11 +11,7 @@ import {
 } from "handlers/discord/button"
 import { truncate } from "lodash"
 import { getPaginationRow } from "ui/discord/button"
-import {
-  composeEmbedMessage,
-  composeEmbedMessage2,
-  getErrorEmbed,
-} from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import {
   getEmoji,
   getEmojiURL,
@@ -72,7 +68,7 @@ export const getEmbedPagination = async (
     pages.items.forEach((arr: ReactionRoleListConfigGroup[], idx: number) => {
       const [infoColumn, jumpBtnColumn] = getDisplayInfoColumns(arr)
       embedPages.push(
-        composeEmbedMessage(msg, {
+        composeEmbedMessage(null, {
           author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
           description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
           footer: [`Page ${idx + 1} / ${pages.totalPage}`],
@@ -86,7 +82,7 @@ export const getEmbedPagination = async (
     if (!embedPages.length) {
       return {
         embeds: [
-          composeEmbedMessage(msg, {
+          composeEmbedMessage(null, {
             author: ["No reaction roles found", getEmojiURL(emojis.NEKOLOVE)],
             description: `You haven't set any reaction roles yet. To set a new one, run \`\`\`${SLASH_PREFIX}role reaction set <message_link> <emoji> <role>\`\`\``,
           }),
@@ -112,7 +108,7 @@ export const getEmbedPagination = async (
     pages.items.forEach((arr: ReactionRoleListConfigGroup[], idx: number) => {
       const [infoColumn, jumpBtnColumn] = getDisplayInfoColumns(arr)
       embedPages.push(
-        composeEmbedMessage2(msg as CommandInteraction, {
+        composeEmbedMessage(msg as CommandInteraction, {
           author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
           description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
           footer: [`Page ${idx + 1} / ${pages.totalPage}`],
@@ -126,7 +122,7 @@ export const getEmbedPagination = async (
     if (!embedPages.length) {
       return {
         embeds: [
-          composeEmbedMessage2(msg as CommandInteraction, {
+          composeEmbedMessage(msg as CommandInteraction, {
             author: ["Reaction role list", getEmojiURL(emojis.NEKOLOVE)],
             description: `Run \`$rr set <message_id> <emoji> <role>\` to add a reaction role.`,
           }),

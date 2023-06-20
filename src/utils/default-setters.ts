@@ -21,7 +21,6 @@ export function getDefaultSetter({
     await updateAPI()
     updateCache()
     const embed = getSuccessEmbed({
-      msg: i.message as Message,
       title: "Default ENABLED",
       description,
     })

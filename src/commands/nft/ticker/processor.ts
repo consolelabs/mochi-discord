@@ -570,7 +570,6 @@ async function setDefaultNFTTicker(i: ButtonInteraction) {
     chain_id: +chainId,
   })
   const embed = getSuccessEmbed({
-    msg: i.message as Message,
     title: "Default NFT ticker ENABLED",
     description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
   })

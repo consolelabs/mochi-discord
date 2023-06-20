@@ -2,7 +2,7 @@ import config from "adapters/config"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError, GuildIdNotFoundError, OriginalMessage } from "errors"
 import { emojis, getEmojiURL, msgColors } from "utils/common"
-import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 
 export async function handle(msg: OriginalMessage, statusText = "") {
@@ -39,7 +39,7 @@ export async function handle(msg: OriginalMessage, statusText = "") {
   const { description, isError } = result
   const embed =
     msg instanceof Message
-      ? composeEmbedMessage(msg, {
+      ? composeEmbedMessage(null, {
           author: [
             isError ? "No default roles found" : "Default role",
             isError ? getEmojiURL(emojis.REVOKE) : getEmojiURL(emojis.NEKO1),
@@ -47,7 +47,7 @@ export async function handle(msg: OriginalMessage, statusText = "") {
           description,
           color: msgColors.PINK,
         })
-      : composeEmbedMessage2(msg as CommandInteraction, {
+      : composeEmbedMessage(msg as CommandInteraction, {
           author: [
             isError ? "No default roles found" : "Default role",
             isError ? getEmojiURL(emojis.REVOKE) : getEmojiURL(emojis.NEKO1),

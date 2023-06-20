@@ -203,7 +203,7 @@ export async function addWatchlistToken({
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage(msg, {
+          composeEmbedMessage(null, {
             author: [
               "Multiple results found",
               getEmojiURL(emojis.ANIMATED_COIN_3),

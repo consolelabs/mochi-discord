@@ -2,7 +2,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { runVerifyRemove } from "./processor"
 
 const command: SlashCommand = {
@@ -17,7 +17,7 @@ const command: SlashCommand = {
     runVerifyRemove(interaction.guildId),
   help: async (interaction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}verify remove`,
         examples: `${SLASH_PREFIX}verify remove`,
       }),

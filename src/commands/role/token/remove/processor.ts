@@ -13,7 +13,6 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
     messageOptions: {
       embeds: [
         getSuccessEmbed({
-          msg,
           title: `Successfully removed ${name}!`,
           description: `You can set the new role by ${await getSlashCommand(
             "role token set"
