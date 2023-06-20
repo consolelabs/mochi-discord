@@ -7,16 +7,14 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { LOG_CHANNEL_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import defaultRole from "./default"
 import level from "./level"
-import mix from "./mix"
 import nft from "./nft"
 import reaction from "./reaction"
 import token from "./token"
 
-// this one to track the subcommand group only admin permission
+// this one is used to track the subcommand group only admin permission
 const subCommandGroups: Record<string, Record<string, SlashCommand>> = {
   default: defaultRole,
   level,
-  mix,
   nft,
   reaction,
   token,
@@ -58,17 +56,6 @@ const slashCmd: SlashCommand = {
         .addSubcommand(<SlashCommandSubcommandBuilder>level.list.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>level.set.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>level.remove.prepare())
-    )
-
-    data.addSubcommandGroup((subcommandGroup) =>
-      subcommandGroup
-        .setName("mix")
-        .setDescription(
-          "Combine different thresholds (XP/level, NFT and Token) to assign a role"
-        )
-        .addSubcommand(<SlashCommandSubcommandBuilder>mix.list.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>mix.set.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>mix.remove.prepare())
     )
 
     data.addSubcommandGroup((subcommandGroup) =>

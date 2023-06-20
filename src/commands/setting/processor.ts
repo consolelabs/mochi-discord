@@ -169,7 +169,6 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
             `${await getSlashCommand(
               "role reaction list"
             )} grant role upon reaction`,
-            `${await getSlashCommand("role mix list")} advance role mix`,
           ]
             .map(addBullet)
             .join("\n"),
