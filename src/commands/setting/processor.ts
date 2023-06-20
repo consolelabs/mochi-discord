@@ -156,18 +156,20 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
         {
           name: `**ROLE**`,
           value: [
-            `${await getSlashCommand("nftrole list")} grant role base on nfts.`,
             `${await getSlashCommand(
-              "tokenrole list"
+              "role nft list"
+            )} grant role base on nfts.`,
+            `${await getSlashCommand(
+              "role token list"
             )} grant role base on tokens.`,
             `${await getSlashCommand(
-              "defaultrole info"
+              "role default info"
             )} grant role for new members.`,
-            `${await getSlashCommand("levelrole list")} grant role base on xp`,
+            `${await getSlashCommand("role level list")} grant role base on xp`,
             `${await getSlashCommand(
-              "reactionrole list"
+              "role reaction list"
             )} grant role upon reaction`,
-            `${await getSlashCommand("mixrole list")} advance role mix`,
+            `${await getSlashCommand("role mix list")} advance role mix`,
           ]
             .map(addBullet)
             .join("\n"),
