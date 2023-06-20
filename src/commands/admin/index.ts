@@ -57,9 +57,6 @@ const slashCmd: SlashCommand = {
           `Assign a specific role through the number of tokens members hold: ${await getSlashCommand(
             "tokenrole list"
           )}`,
-          `Combine different conditions to assign role for users: ${await getSlashCommand(
-            "mixrole list"
-          )}`,
           `Reward their contribution by giving them roles other members don't have: ${await getSlashCommand(
             "xprole list"
           )}`,
