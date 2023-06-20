@@ -14,7 +14,6 @@ import {
   getEmoji,
   getEmojiToken,
   getEmojiURL,
-  shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
 import mochiPay from "../../../adapters/mochi-pay"
@@ -35,11 +34,14 @@ export async function deposit(
     tokens = res.data.filter((t: any) => t.chain_id !== "0" && Boolean(t.chain))
   }
   if (tokens?.length < 1) {
-    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     throw new InternalError({
       msgOrInteraction: interaction,
       title: "Unsupported token",
-      description: `**${symbol}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright} To add your token, run \`$token add\`.`,
+      descriptions: [
+        "Please choose one in our supported `$token list` or `$moniker list`!",
+        "To add your token, run `$token add`.",
+      ],
+      reason: `**${symbol}** hasn't been supported.`,
     })
   }
 
@@ -72,7 +74,10 @@ export async function deposit(
       msgOpts: {
         embeds: [
           composeEmbedMessage(null, {
-            author: ["Something went wrong", getEmojiURL(emojis.WALLET)],
+            author: [
+              "Something went wrong",
+              getEmojiURL(emojis.ANIMATED_MONEY),
+            ],
             description: "We couldn't get the list address.",
           }),
         ],
@@ -80,7 +85,7 @@ export async function deposit(
     }
 
   const embed = composeEmbedMessage(null, {
-    author: [`Deposit ${symbol}`, getEmojiURL(emojis.WALLET)],
+    author: [`Deposit ${symbol}`, getEmojiURL(emojis.ANIMATED_MONEY)],
     description: [
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
@@ -113,7 +118,7 @@ export async function deposit(
             placeholder: "💰 View an address",
             custom_id: "VIEW_DEPOSIT_ADDRESS",
             options: addresses.map((a) => ({
-              label: shortenHashOrAddress(a.address, 5, 5),
+              label: a.address,
               value: a.address,
               emoji: getEmojiToken(a.symbol as TokenEmojiKey),
             })),

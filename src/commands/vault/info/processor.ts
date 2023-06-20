@@ -41,11 +41,11 @@ export async function runGetVaultDetail(
 
   const walletAddress =
     data.wallet_address !== ""
-      ? `**Wallet Address**\n${getEmoji("NUM_1")}\`EVM | ${shortenHashOrAddress(
+      ? `**Wallet Address**\n${getEmoji("EVM")}\`EVM | ${shortenHashOrAddress(
           data.wallet_address,
           5,
           5
-        )}\`\n${getEmoji("NUM_2")}\`SOL | ${shortenHashOrAddress(
+        )}\`\n${getEmoji("SOL")}\`SOL | ${shortenHashOrAddress(
           data.solana_wallet_address,
           5,
           5
