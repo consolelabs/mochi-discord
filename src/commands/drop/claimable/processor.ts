@@ -3,7 +3,6 @@ import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import {
   MessageActionRow,
-  MessageButton,
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
@@ -116,34 +115,9 @@ export async function setAirdropStatus(i: SelectMenuInteraction, ctx: any) {
 
 const PAGE_SIZE = 5
 
-const renderStatusTabs = (status: AirdropCampaignStatus) => {
-  return [
-    new MessageActionRow().addComponents(
-      new MessageButton({
-        style: "SECONDARY",
-        label: "Live",
-        customId: "view_live",
-        disabled: status === AirdropCampaignStatus.Live,
-      }),
-      new MessageButton({
-        style: "SECONDARY",
-        label: "Ended",
-        customId: "view_ended",
-        disabled: status === AirdropCampaignStatus.Ended,
-      }),
-      new MessageButton({
-        style: "SECONDARY",
-        label: "Ignored",
-        customId: "view_ignored",
-        disabled: status === AirdropCampaignStatus.Ignored,
-      })
-    ),
-  ]
-}
-
 export async function run(
   userId: string,
-  status = AirdropCampaignStatus.Live,
+  status = AirdropCampaignStatus.Claimable,
   page = 0
 ) {
   let data = [] as ModelAirdropCampaign[]
@@ -155,20 +129,11 @@ export async function run(
     color: msgColors.YELLOW,
   })
 
-  const profileId = await getProfileIdByDiscord(userId)
-
-  const { data: res, ok } =
-    status === AirdropCampaignStatus.Ignored
-      ? await community.getAirdropCampaignByUser(profileId, {
-          status,
-          page,
-          size: PAGE_SIZE,
-        })
-      : await community.getAirdropCampaign({
-          status,
-          page,
-          size: PAGE_SIZE,
-        })
+  const { data: res, ok } = await community.getAirdropCampaign({
+    status: AirdropCampaignStatus.Claimable,
+    page,
+    size: PAGE_SIZE,
+  })
 
   if (ok) {
     data =
@@ -188,7 +153,7 @@ export async function run(
     return {
       msgOpts: {
         embeds: [embed],
-        components: renderStatusTabs(status),
+        components: [],
       },
       context: {
         page: 0,
@@ -212,7 +177,6 @@ export async function run(
     msgOpts: {
       embeds: [embed],
       components: [
-        ...renderStatusTabs(status),
         new MessageActionRow().addComponents(
           new MessageSelectMenu()
             .setPlaceholder(`📦 View airdrop detail`)

@@ -1,13 +1,9 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
-import {
-  run,
-  AirdropCampaignStatus,
-  airdropDetail,
-  setAirdropStatus,
-} from "./processor"
+import { run, airdropDetail, setAirdropStatus } from "./processor"
 import { CommandInteraction, Message } from "discord.js"
 import { MachineConfig, RouterSpecialAction, route } from "utils/router"
+import { AirdropCampaignStatus } from ".."
 
 export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
   id: "drop available",

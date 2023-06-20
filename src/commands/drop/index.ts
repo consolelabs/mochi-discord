@@ -6,6 +6,13 @@ import { SlashCommand } from "types/common"
 import { slashCmd as available } from "./available"
 import { slashCmd as claimable } from "./claimable"
 
+export enum AirdropCampaignStatus {
+  Live = "live",
+  Ended = "ended",
+  Ignored = "ignored",
+  Claimable = "claimable",
+}
+
 const slashActions = {
   available,
   claimable,

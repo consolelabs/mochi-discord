@@ -22,7 +22,7 @@ import {
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL, PT_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
-import { AirdropCampaignStatus } from "commands/drop/available/processor"
+import { AirdropCampaignStatus } from "commands/drop/"
 
 class Community extends Fetcher {
   public async getInvites({ guild_id, member_id }: InvitesInput) {
