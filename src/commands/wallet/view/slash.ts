@@ -1,10 +1,12 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import profile from "adapters/profile"
 import { BalanceType, renderBalances } from "commands/balances/index/processor"
-import { CommandInteraction } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
+import { route } from "utils/router"
+import { machineConfig } from "commands/wallet/common/tracking"
 
 const command: SlashCommand = {
   name: "view",
@@ -12,7 +14,7 @@ const command: SlashCommand = {
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
       .setName("view")
-      .setDescription("Show all your interested wallets assets and activities.")
+      .setDescription("Show the wallet's assets and activities.")
       .addStringOption((option) =>
         option
           .setName("address")
@@ -38,7 +40,7 @@ const command: SlashCommand = {
   run: async (interaction) => {
     const address = interaction.options.getString("address", true)
 
-    return await renderBalances(
+    const { messageOptions } = await renderBalances(
       // TODO: this id currently is wrong
       interaction.user.id,
       interaction,
@@ -46,6 +48,10 @@ const command: SlashCommand = {
       address,
       "compact"
     )
+
+    const reply = await interaction.editReply(messageOptions)
+
+    route(reply as Message, interaction, machineConfig("wallet", {}))
   },
   help: (interaction: CommandInteraction) =>
     Promise.resolve({

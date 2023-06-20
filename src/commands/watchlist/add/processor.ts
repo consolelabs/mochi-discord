@@ -130,7 +130,7 @@ export async function addWatchlistToken({
 
     const priceChangePercentage =
       data.base_coin?.market_data?.price_change_percentage_24h ?? 0
-    const isUp = Math.sign(priceChangePercentage)
+    const isUp = Math.sign(priceChangePercentage) === 1
     const price = data.base_coin?.market_data?.current_price?.usd ?? 0
     fields.push(
       {
@@ -151,7 +151,11 @@ export async function addWatchlistToken({
         value: `${formatDigit({
           value: priceChangePercentage,
           fractionDigits: 2,
-        })}% ${getEmoji(isUp ? "ARROW_UP" : "ARROW_DOWN")}`,
+        })}% ${
+          priceChangePercentage !== 0
+            ? getEmoji(isUp ? "ARROW_UP" : "ARROW_DOWN")
+            : ""
+        }`,
         inline: true,
       }
     )

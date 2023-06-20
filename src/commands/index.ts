@@ -42,22 +42,18 @@ import {
 import airdrop from "./airdrop"
 import balances from "./balances"
 import proposal from "./proposal"
-import defaultrole from "./default-role"
 import deposit from "./deposit"
 import feedback from "./feedback/index"
 import gm from "./gm"
 import help from "./help/index"
-import levelrole from "./level-role"
 import moniker from "./moniker"
 import gas from "./gas"
 import activity from "./activity"
 import inbox from "./inbox"
 import nft from "./nft"
-import nftrole from "./nft-role"
 import profile from "./profile"
 import prune from "./prune"
 import quest from "./quest"
-import reactionrole from "./reaction-role"
 import sales from "./sales"
 import starboard from "./starboard"
 import telegram from "./telegram"
@@ -70,10 +66,8 @@ import watchlist from "./watchlist"
 import watchlistView from "./watchlist/view/slash"
 import welcome from "./welcome/index"
 import withdraw from "./withdraw"
-import tokenrole from "./token-role"
 import xprole from "./xp-role"
 import wallet from "./wallet"
-import mixrole from "./mix-role"
 import alert from "./alert"
 import stats from "./stats"
 import pay from "./pay"
@@ -94,6 +88,8 @@ import drop from "./drop"
 import qr from "./qr"
 import defaults from "./default"
 import setting from "./setting"
+import update from "./update"
+import role from "./role"
 
 CacheManager.init({
   ttl: 0,
@@ -113,10 +109,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   // alias
   wlv: watchlistView,
   wlc: watchlistView,
-  defaultrole: defaultrole.slashCmd,
-  levelrole: levelrole.slashCmd,
-  reactionrole: reactionrole.slashCmd,
-  nftrole: nftrole.slashCmd,
   prune: prune.slashCmd,
   quest: quest.slashCmd,
   gm: gm.slashCmd,
@@ -140,9 +132,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   profile: profile.slashCmd,
   deposit: deposit.slashCmd,
   dep: deposit.slashCmd,
-  tokenrole: tokenrole.slashCmd,
   xprole: xprole.slashCmd,
-  mixrole: mixrole.slashCmd,
   alert: alert.slashCmd,
   wallet: wallet.slashCmd,
   stats: stats.slashCmd,
@@ -166,22 +156,23 @@ export const slashCommands: Record<string, SlashCommand> = {
   qr: qr.slashCmd,
   default: defaults.slashCmd,
   setting: setting.slashCmd,
+  update: update.slashCmd,
+  role: role.slashCmd,
 }
 
+// text commands is being deprecated, refer to slashCommands for latest version
 export const originalCommands: Record<string, Command> = {
   // general help
   help: help.textCmd,
   // profile section
   tip: tip.textCmd,
   tokens: token.textCmd,
-  ticker: ticker.textCmd,
   watchlist: watchlist.textCmd,
   nft: nft.textCmd,
   sales: sales.textCmd,
   verify: verify.textCmd,
   prune: prune.textCmd,
   // config section
-  reactionrole: reactionrole.textCmd,
   proposal: proposal.textCmd,
   xprole: xprole.textCmd,
   // globalxp,

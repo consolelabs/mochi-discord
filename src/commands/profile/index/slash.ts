@@ -14,7 +14,9 @@ import { handleWalletAddition } from "commands/wallet/add/processor"
 import { BalanceType, renderBalances } from "commands/balances/index/processor"
 import { runGetVaultDetail } from "commands/vault/info/processor"
 
-export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
+export const machineConfig: (member: GuildMember) => MachineConfig = (
+  member
+) => ({
   id: "profile",
   initial: "profile",
   context: {
@@ -31,8 +33,9 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
         if (type.startsWith("cex")) fetcherType = BalanceType.Cex
 
         return {
-          msgOpts: (await renderBalances(i.user.id, i, fetcherType, address))
-            .messageOptions,
+          msgOpts: (
+            await renderBalances(member.user.id, i, fetcherType, address)
+          ).messageOptions,
         }
       },
       vault: async (i) => ({
@@ -63,7 +66,7 @@ export const machineConfig: (...args: any[]) => MachineConfig = (member) => ({
         VIEW_ADD_WALLET: "addWallet",
         VIEW_QR_CODES: "qrCodes",
         CONNECT_BINANCE: {
-          type: "profile",
+          target: "profile",
           actions: {
             type: "showBinanceManualMessage",
           },
@@ -135,7 +138,7 @@ const run = async (interaction: CommandInteraction) => {
         )
           return
 
-        const result = sendBinanceManualMessage(event.interaction)
+        const result = sendBinanceManualMessage()
 
         const reply = (await event.interaction.editReply(
           result.msgOpts

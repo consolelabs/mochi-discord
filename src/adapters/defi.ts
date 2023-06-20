@@ -206,9 +206,8 @@ class Defi extends Fetcher {
   async getFiatHistoricalData(query: {
     base: string
     target: string
-    days?: string
+    days: number
   }) {
-    query.days = query.days ?? "30"
     return await this.jsonFetch(
       `${API_BASE_URL}/fiat/historical-exchange-rates`,
       {
@@ -489,25 +488,20 @@ class Defi extends Fetcher {
     from,
     to,
     amount,
-    chain_name,
-    from_token_id, // not every token exist in kyber api, this is used for backend to query and add token which kyber not have
-    to_token_id, // not every token exist in kyber api, this is used for backend to query and add token which kyber not have
+    profileId,
   }: {
     from: string
     to: string
     amount: string
-    chain_name: string
-    from_token_id?: string
-    to_token_id?: string
+    profileId: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/swap/route`, {
+      queryCamelToSnake: false,
       query: {
         from,
         to,
         amount,
-        chain_name,
-        from_token_id,
-        to_token_id,
+        profileId,
       },
     })
   }
@@ -517,8 +511,8 @@ class Defi extends Fetcher {
       method: "POST",
       body: {
         userDiscordId,
-        chainName,
         routeSummary,
+        chainName,
       },
       bodyCamelToSnake: false,
     })

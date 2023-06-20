@@ -1,77 +1,58 @@
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import {
-  ColorResolvable,
-  MessageActionRow,
-  MessageButton,
-  User,
-} from "discord.js"
-import { embedsColors } from "types/common"
+import { MessageActionRow, MessageButton, User } from "discord.js"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
-import { getEmoji, thumbnails } from "utils/common"
-import {
-  DISCORD_URL,
-  HELP_GITBOOK,
-  HOMEPAGE_URL,
-  TWITTER_URL,
-} from "utils/constants"
+import { getEmoji, msgColors, thumbnails, capitalizeFirst } from "utils/common"
+import community from "adapters/community"
+import { getProfileIdByDiscord } from "utils/profile"
 dayjs.extend(utc)
 
 const image =
   "https://cdn.discordapp.com/attachments/984660970624409630/1023869479521882193/help2.png"
 
-export function getHelpEmbed(user: User) {
-  return composeEmbedMessage(null, {
-    author: ["Welcome to Mochi!", thumbnails.MOCHI],
-    image,
-    originalMsgAuthor: user,
-  })
+export enum EarnView {
+  Airdrop = "airdrop",
+  Quest = "quest",
 }
 
-export async function run(user: User) {
+export async function run(user: User, view: EarnView = EarnView.Airdrop) {
   const embed = composeEmbedMessage(null, {
     author: ["Welcome to Mochi!", thumbnails.MOCHI],
     image,
     originalMsgAuthor: user,
+    color: msgColors.BLUE,
   })
 
-  embed.setDescription(
-    "Mochi is your Web3 assistant to maximize your earnings."
-  )
-  embed.addFields(
-    {
-      name: "\u200b\nGetting Started",
-      value: [
-        `<:_:1110865581617463346> ${await getSlashCommand(
-          "quest daily"
-        )} to check quest you can earn`,
-        `<:_:1093577916434104350> ${await getSlashCommand(
-          "drop"
-        )} see the list airdrop you can join`,
-      ].join("\n"),
-      inline: false,
-    },
-    {
-      name: "\u200b\n**Instructions**",
-      value: `[**Gitbook**](${HELP_GITBOOK}&command=help)`,
-      inline: true,
-    },
-    {
-      name: "\u200b\nVisit our website",
-      value: `[**Web**](${HOMEPAGE_URL})`,
-      inline: true,
-    },
-    {
-      name: "\u200b\nJoin our community",
-      value: [
-        `[**Twitter**](${TWITTER_URL})`,
-        `[**Discord**](${DISCORD_URL})`,
-      ].join("\n"),
-      inline: true,
+  const profileId = await getProfileIdByDiscord(user.id)
+
+  if (view === EarnView.Airdrop) {
+    const res = await community.getAirdropCampaignStats({ profileId })
+    if (res.ok) {
+      embed.setDescription("This is your airdrop campaign dashboard")
+
+      const data = res.data as { status: string; count: number }[]
+
+      embed.addFields(
+        data.map((statusCount) => ({
+          name: capitalizeFirst(statusCount.status),
+          value: statusCount.count.toString(),
+          inline: true,
+        }))
+      )
+
+      embed.addFields({
+        name: "\u200b\nGetting Started",
+        value: [
+          `<:_:1110865581617463346> ${await getSlashCommand("drop available")}`,
+          `<:_:1093577916434104350> ${await getSlashCommand("drop claimable")}`,
+        ].join("\n"),
+        inline: false,
+      })
     }
-  )
-  embed.setColor(embedsColors.Game as ColorResolvable)
+  } else {
+    embed.setDescription(view)
+  }
 
   return {
     msgOpts: {
@@ -79,16 +60,18 @@ export async function run(user: User) {
       components: [
         new MessageActionRow().addComponents(
           new MessageButton({
-            label: "Quest",
-            style: "SECONDARY",
-            emoji: getEmoji("MOCHI_CIRCLE"),
-            customId: "VIEW_QUESTS",
-          }),
-          new MessageButton({
             label: "Airdrop",
             style: "SECONDARY",
-            customId: "VIEW_AIRDROPS",
+            customId: "VIEW_AIRDROP_DASHBOARD",
             emoji: getEmoji("NFT2"),
+            disabled: view === EarnView.Airdrop,
+          }),
+          new MessageButton({
+            label: "Quest",
+            style: "SECONDARY",
+            customId: "VIEW_QUEST_DASHBOARD",
+            emoji: getEmoji("MOCHI_CIRCLE"),
+            disabled: view === EarnView.Quest,
           })
         ),
       ],

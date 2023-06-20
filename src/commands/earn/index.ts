@@ -4,37 +4,29 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { MachineConfig, route } from "utils/router"
 import { CommandInteraction, Message } from "discord.js"
-import { run } from "./index/processor"
-import { machineConfig as questsMachineConfig } from "commands/quest"
-import { machineConfig as dropMachineConfig } from "commands/drop"
+import { EarnView, run } from "./index/processor"
+// import { machineConfig as questsMachineConfig } from "commands/quest"
+// import { machineConfig as dropMachineConfig } from "commands/drop/available"
 
 export const machineConfig: MachineConfig = {
   id: "earn",
-  initial: "earn",
+  initial: "dashboardAirdrop",
   context: {
     button: {
-      earn: (i) => run(i.user),
+      dashboardAirdrop: (i) => run(i.user, EarnView.Airdrop),
+      dashboardQuest: (i) => run(i.user, EarnView.Quest),
     },
   },
   states: {
-    earn: {
+    dashboardAirdrop: {
       on: {
-        VIEW_AIRDROPS: "airdrops",
-        VIEW_QUESTS: "quests",
+        VIEW_QUEST_DASHBOARD: "dashboardQuest",
       },
     },
-    airdrops: {
+    dashboardQuest: {
       on: {
-        BACK: "earn",
+        VIEW_AIRDROP_DASHBOARD: "dashboardAirdrop",
       },
-      ...dropMachineConfig,
-    },
-    quests: {
-      on: {
-        VIEW_AIRDROP: "airdrops",
-        BACK: "earn",
-      },
-      ...questsMachineConfig,
     },
   },
 }

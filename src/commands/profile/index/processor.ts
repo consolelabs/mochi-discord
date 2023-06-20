@@ -8,7 +8,6 @@ import {
   MessageSelectMenu,
   TextInputComponent,
   ModalActionRowComponent,
-  Message,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
@@ -432,15 +431,15 @@ export async function render(msg: OriginalMessage, member: GuildMember) {
   return await compose(msg, member, dataProfile)
 }
 
-export function sendBinanceManualMessage(interaction: ButtonInteraction) {
-  if (!interaction.member || !interaction.guildId)
-    return {
-      msgOpts: interaction.message as Message,
-    }
-
+export function sendBinanceManualMessage(isUpdating = false) {
   const embed = composeEmbedMessage(null, {
-    author: ["Connect Binance", getEmojiURL(emojis.BINANCE)],
-    description: `To link your Binance account, please follow steps below:\n\n${getEmoji(
+    author: [
+      `${isUpdating ? "Update" : "Connect"} Binance`,
+      getEmojiURL(emojis.BINANCE),
+    ],
+    description: `To ${
+      isUpdating ? "update" : "link"
+    } your Binance account, please follow steps below:\n\n${getEmoji(
       "NUM_1"
     )} Create a new API key with **Read-Only permissions** in the [API Management page](https://www.binance.com/en/my/settings/api-management), \n${getEmoji(
       "NUM_2"
@@ -450,7 +449,7 @@ export function sendBinanceManualMessage(interaction: ButtonInteraction) {
 
   const row = new MessageActionRow().addComponents(
     new MessageButton()
-      .setLabel("Connect")
+      .setLabel(isUpdating ? "Update" : "Connect")
       .setStyle("SECONDARY")
       .setEmoji(getEmoji("BINANCE"))
       .setCustomId("enter_key")
@@ -464,10 +463,13 @@ export function sendBinanceManualMessage(interaction: ButtonInteraction) {
   }
 }
 
-export async function showModalBinanceKeys(interaction: ButtonInteraction) {
+export async function showModalBinanceKeys(
+  interaction: ButtonInteraction,
+  isUpdating = false
+) {
   const modal = new Modal()
     .setCustomId("binance-key-form")
-    .setTitle("Connect Binance")
+    .setTitle(`${isUpdating ? "Update" : "Connect"} Binance`)
 
   const apiKeyInput = new TextInputComponent()
     .setCustomId("key")
@@ -518,7 +520,7 @@ export async function submitBinanceKeys(
   }
 ) {
   if (!payload.key || !payload.secret) {
-    return sendBinanceManualMessage(i)
+    return sendBinanceManualMessage()
   }
 
   // call api

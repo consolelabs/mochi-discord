@@ -17,8 +17,6 @@ import {
   handleBackToQuestList,
   handleClaimReward,
 } from "commands/quest/daily/processor"
-import { handleSwap } from "commands/swap/index/processor"
-import { handleTickerViews } from "commands/ticker/index/processor"
 import {
   handleTokenApprove,
   handleTokenReject,
@@ -32,7 +30,6 @@ import {
   removeWalletConfirmation,
 } from "commands/wallet/remove/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
-import { viewTickerRouteSwap } from "commands/swap/index/processor"
 import {
   AutocompleteInteraction,
   ButtonInteraction,
@@ -43,7 +40,7 @@ import {
 } from "discord.js"
 import { MessageComponentTypes } from "discord.js/typings/enums"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
-import { CommandNotAllowedToRunError, InternalError } from "errors"
+import { CommandNotAllowedToRunError } from "errors"
 import InteractionManager from "handlers/discord/select-menu"
 import tagme from "handlers/tagme"
 import { logger } from "logger"
@@ -64,40 +61,7 @@ import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
 import config from "adapters/config"
-
-CacheManager.init({ pool: "quest", ttl: 0, checkperiod: 3600 })
-
-async function questReminder(userId: string, command: string) {
-  let isReminded = true
-  await CacheManager.get({
-    pool: "quest",
-    key: `remind-quest-${userId}-${command}`,
-    // 24h
-    ttl: 86400,
-    call: async () => {
-      isReminded = false
-      return true
-    },
-    callIfCached: async () => {
-      isReminded = true
-    },
-  })
-
-  const { data, ok, originalError } = await config.getContent("header")
-  if (!ok) {
-    throw new InternalError({
-      description: originalError,
-    })
-  }
-
-  if (!isReminded) {
-    const randomIdxFact = Math.floor(
-      Math.random() * data.description.fact.length
-    )
-    return `> ${data.description.fact[randomIdxFact]}`
-  }
-  return undefined
-}
+import { getRandomFact } from "cache/tip-fact-cache"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -285,7 +249,7 @@ function handleCommandInteraction(interaction: Interaction) {
       const { messageOptions, interactionOptions, buttonCollector } = response
       const msg = await i
         .editReply({
-          content: await questReminder(i.user.id, i.commandName),
+          content: getRandomFact(),
           ...messageOptions,
         })
         .catch(() => null)
@@ -428,14 +392,8 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("mochi_verify"):
       await sendVerifyURL(i)
       return
-    case i.customId.startsWith("ticker_view_"):
-      await handleTickerViews(i)
-      return
     case i.customId.startsWith("ticker_add_wl"):
       await addToWatchlist(i)
-      return
-    case i.customId.startsWith("ticker_route_swap"):
-      await viewTickerRouteSwap(i)
       return
     case i.customId.startsWith("nft_ticker_view"):
       await handleNFTTickerViews(i)
@@ -499,9 +457,6 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("tagme"):
       await tagme.editSubscribeStatus(i)
-      return
-    case i.customId.startsWith("swap-mochi-wallet"):
-      await handleSwap(i)
       return
     case i.customId.startsWith("balance"):
       await handleInteraction(i)

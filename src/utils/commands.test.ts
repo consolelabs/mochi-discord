@@ -52,26 +52,6 @@ test.each<
 
 // isAcceptableCmdToHelp
 test.each([
-  // $nr set
-  [
-    {
-      cmd: "nftrole",
-      aliases: ["nr"],
-      action: "set",
-      msg: "$nr set",
-    },
-    true,
-  ],
-  // $nft set
-  [
-    {
-      cmd: "nftrole",
-      aliases: ["nr"],
-      action: "set",
-      msg: "$nftrole set",
-    },
-    true,
-  ],
   // $help
   [
     {
@@ -81,16 +61,6 @@ test.each([
       msg: "$help",
     },
     true,
-  ],
-  // $nr set @Mochi
-  [
-    {
-      cmd: "nftrole",
-      aliases: ["nr"],
-      action: "set",
-      msg: "$nr set @Mochi",
-    },
-    false,
   ],
   // $gm
   [
@@ -144,15 +114,6 @@ test.each([
       isSpecificHelpCommand: false,
     },
   ],
-  // $nr
-  [
-    "$nr set @SeniorMochian 100 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73",
-    {
-      commandKey: "nr",
-      action: "set",
-      isSpecificHelpCommand: false,
-    },
-  ],
   // $nft
   [
     "$nft rabby 1",
@@ -180,7 +141,6 @@ test.each([
   ["$asd", undefined],
   ["$help", commands["help"]],
   ["$help tip", commands["tip"]],
-  ["$ticker ftm", commands["ticker"]],
   ["$nft neko 123", commands["nft"]],
   ["$nft add", commands["nft"]],
   ["$nr set", commands["nr"]],
@@ -199,7 +159,6 @@ test.each([
   ["$nft neko 123", null],
   // case with action
   ["$nft add", commands["nft"].actions?.["add"]],
-  ["$ticker default", commands["ticker"].actions?.["default"]],
 ])("getActionCommand(%s)", (input, output) => {
   mockMessage.content = input
   expect(getActionCommand(commands, mockMessage)).toStrictEqual(output)

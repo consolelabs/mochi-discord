@@ -485,14 +485,15 @@ export async function getBalances({
 }) {
   const author = getAuthor(msgOrInteraction)
   const senderPid = await getProfileIdByDiscord(author.id)
-  const { data, ok, curl, log } = await mochiPay.getBalances({
+  let balances = []
+  const { data, ok } = await mochiPay.getBalances({
     profileId: senderPid,
     token,
   })
-  if (!ok) {
-    throw new APIError({ msgOrInteraction, curl, description: log })
+  if (ok) {
+    balances = data.filter((b: any) => b.amount !== "0")
   }
-  return data.filter((b: any) => b.amount !== "0")
+  return balances
 }
 
 /**

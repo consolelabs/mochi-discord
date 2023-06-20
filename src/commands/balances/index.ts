@@ -24,18 +24,19 @@ const slashCmd: SlashCommand = {
       )
   },
   run: balanceSlash,
-  help: async () => ({
-    embeds: [
-      composeEmbedMessage(null, {
-        thumbnail: thumbnails.TOKENS,
-        usage: `${SLASH_PREFIX}balance`,
-        description: "Show your offchain balances",
-        footer: [DEFI_DEFAULT_FOOTER],
-        examples: `${SLASH_PREFIX}balance\n${SLASH_PREFIX}bals\n${SLASH_PREFIX}bal`,
-        document: BALANCE_GITBOOK,
-      }),
-    ],
-  }),
+  help: () =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage(null, {
+          thumbnail: thumbnails.TOKENS,
+          usage: `${SLASH_PREFIX}balance`,
+          description: "Show your offchain balances",
+          footer: [DEFI_DEFAULT_FOOTER],
+          examples: `${SLASH_PREFIX}balance\n${SLASH_PREFIX}bals\n${SLASH_PREFIX}bal`,
+          document: BALANCE_GITBOOK,
+        }),
+      ],
+    }),
   colorType: "Defi",
 }
 

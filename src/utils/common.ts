@@ -7,32 +7,36 @@ import {
   User,
 } from "discord.js"
 
+import {
+  NameRegistryState,
+  getHashedNameSync,
+  getNameAccountKeySync,
+  reverseLookup as performReverseLookup,
+} from "@bonfida/spl-name-service"
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
+import CacheManager from "cache/node-cache"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { MARKETPLACE_BASE_URL } from "env"
+import { OriginalMessage } from "errors"
+import { ethers } from "ethers"
+import { logger } from "logger"
+import fetch from "node-fetch"
 import type { Pagination } from "types/common"
 import { TopNFTTradingVolumeItem } from "types/community"
-import { DOT, SPACE } from "./constants"
-import fetch from "node-fetch"
-import { ethers } from "ethers"
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
-import {
-  NameRegistryState,
-  getHashedName,
-  getNameAccountKey,
-  performReverseLookup,
-} from "@bonfida/spl-name-service"
-import { logger } from "logger"
 import providers from "utils/providers"
-import { OriginalMessage } from "errors"
+import { DOT, SPACE } from "./constants"
 import {
   marketplaceEmojis,
   rarityEmojis,
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
-import CacheManager from "cache/node-cache"
 dayjs.extend(relativeTime)
+
+const SOL_TLD_AUTHORITY = new PublicKey(
+  "58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx"
+)
 
 export const tokenEmojis = {
   FANTOM: "1113120054352019476",
@@ -99,6 +103,7 @@ export const tokenEmojis = {
   APT: "1047707078183096320",
   APTOS: "1047707078183096320",
   RON: "1047707529884483614",
+  WRON: "1047707529884483614",
   ARB: "1056772215477112862",
   OKC: "1006838263165767681",
   ONUS: "1077203550075093053",
@@ -328,7 +333,7 @@ export const emojis = {
   DEFI: "933281365586227210",
   BLANK: "967287119448014868",
   CONVERSION: "1100681077808443423",
-  LINE: "1087608533614338078",
+  LINE: "1119200809880666164",
   PREV_PAGE: "967285237958705162",
   NEXT_PAGE: "967285238000676895",
   SPARKLE: "984824963112513607",
@@ -372,6 +377,7 @@ export const emojis = {
   NEKOSAD: "900363887122186310",
   HUH: "907525013417115689",
   WALLET: "933342303546929203",
+  WALLET_2: "1077631115340304495",
   OK1: "900024905842712596",
   HELLO: "899666094112010350",
   NEKO1: "897893949979652186",
@@ -488,6 +494,8 @@ export const thumbnails = {
     "https://cdn.discordapp.com/attachments/1052079279619457095/1116938833888555048/Mochi_Pose_12.png",
   MOCHI_POSE_14:
     "https://cdn.discordapp.com/attachments/984660970624409630/1098472181631045742/Mochi_Pose_14.png",
+  MOCHI_POSE_17:
+    "https://cdn.discordapp.com/attachments/1052079279619457095/1118039688922529832/Mochi_Pose_17.png",
   ROCKET:
     "https://cdn.discordapp.com/attachments/933195103273627719/1100350433295339541/rocket.webp",
 }
@@ -842,11 +850,11 @@ export function isAddress(address: string): {
 }
 
 async function resolveSNSDomain(domain: string) {
-  const hashedName = await getHashedName(domain.replace(".sol", ""))
-  const nameAccountKey = await getNameAccountKey(
+  const hashedName = getHashedNameSync(domain.replace(".sol", ""))
+  const nameAccountKey = getNameAccountKeySync(
     hashedName,
     undefined,
-    new PublicKey("58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx") // SOL TLD Authority
+    SOL_TLD_AUTHORITY
   )
   const owner = await NameRegistryState.retrieve(
     new Connection(clusterApiUrl("mainnet-beta")),
