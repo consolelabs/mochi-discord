@@ -41,7 +41,36 @@ import {
 import { zip } from "lodash"
 import { getRandomTip } from "cache/tip-fact-cache"
 
-const MAXIMUM_CHAR_COUNT_PER_LINE = 32
+export function errorEmbed(
+  title: string,
+  description: string[],
+  reason: string,
+  extra: { emoji: string; label: string; text: string }[] = []
+) {
+  const extras = [
+    { emoji: getEmoji("CONFIG"), label: "Reason.", text: reason },
+    ...extra,
+  ]
+  return composeEmbedMessage(null, {
+    color: msgColors.GRAY,
+    author: [title, getEmojiURL(emojis.REVOKE)],
+    description: `${description
+      .map((desc) => `${getEmoji("ANIMATED_POINTING_RIGHT", true)}${desc}`)
+      .join("\n")}`,
+  }).addFields({
+    name: "Detail",
+    value: formatDataTable(
+      extras.map((e) => ({ text: e.label })),
+      {
+        cols: ["text"],
+        rowAfterFormatter: (f, i) => `${extras[i].emoji}${f}${extras[i].text}`,
+      }
+    ).joined,
+    inline: true,
+  })
+}
+
+// const MAXIMUM_CHAR_COUNT_PER_LINE = 32
 
 type Alignment = "left" | "center" | "right"
 type Option<C> = {
@@ -124,37 +153,38 @@ export function formatDataTable<DT extends Data>(
     row = zip(row, resolvedOptions.separator.slice(0, row.length - 1)).flat()
     row = row.filter(Boolean)
 
-    let line = resolvedOptions.rowAfterFormatter(
+    const line = resolvedOptions.rowAfterFormatter(
       `${resolvedOptions.noWrap ? "" : "`"}${row.join("")}${
         resolvedOptions.noWrap ? "" : "`"
       }`,
       i
     )
 
-    if (line.length > MAXIMUM_CHAR_COUNT_PER_LINE) {
-      const cellCount = row.length - resolvedOptions.separator.length
-      const seperatorTotalWidth = resolvedOptions.separator.reduce(
-        (acc, c) => (acc += c.length),
-        0
-      )
-      const avgMaxCharPerCell = Math.floor(
-        (MAXIMUM_CHAR_COUNT_PER_LINE - seperatorTotalWidth) / cellCount
-      )
-      for (let i = 0; i < row.length; i += 2) {
-        const cell = row[i]
-        if (!cell) continue
-        if (cell.length > avgMaxCharPerCell) {
-          row[i] = `${cell.slice(0, avgMaxCharPerCell - 3)}...`
-        }
-      }
-
-      line = resolvedOptions.rowAfterFormatter(
-        `${resolvedOptions.noWrap ? "" : "`"}${row.join("")}${
-          resolvedOptions.noWrap ? "" : "`"
-        }`,
-        i
-      )
-    }
+    // truncate if line is longeer than mobile's maximum limit char count
+    // if (line.length > MAXIMUM_CHAR_COUNT_PER_LINE) {
+    //   const cellCount = row.length - resolvedOptions.separator.length
+    //   const seperatorTotalWidth = resolvedOptions.separator.reduce(
+    //     (acc, c) => (acc += c.length),
+    //     0
+    //   )
+    //   const avgMaxCharPerCell = Math.floor(
+    //     (MAXIMUM_CHAR_COUNT_PER_LINE - seperatorTotalWidth) / cellCount
+    //   )
+    //   for (let i = 0; i < row.length; i += 2) {
+    //     const cell = row[i]
+    //     if (!cell) continue
+    //     if (cell.length > avgMaxCharPerCell) {
+    //       row[i] = `${cell.slice(0, avgMaxCharPerCell - 3)}...`
+    //     }
+    //   }
+    //
+    //   line = resolvedOptions.rowAfterFormatter(
+    //     `${resolvedOptions.noWrap ? "" : "`"}${row.join("")}${
+    //       resolvedOptions.noWrap ? "" : "`"
+    //     }`,
+    //     i
+    //   )
+    // }
 
     if ((lines.join("\n") + line).length > 1024) {
       segments.push([...lines])
