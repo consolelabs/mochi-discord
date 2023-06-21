@@ -36,9 +36,10 @@ const slashCmd: SlashCommand = {
   run: async function (i) {
     return await convertSlash(i)
   },
-  help: async () => ({
-    embeds: [composeEmbedMessage(null, { includeCommandsList: true })],
-  }),
+  help: () =>
+    Promise.resolve({
+      embeds: [composeEmbedMessage(null, { includeCommandsList: true })],
+    }),
   colorType: "Defi",
 }
 
