@@ -5,11 +5,7 @@ import { InternalError } from "errors"
 import { SlashCommand } from "types/common"
 import { getEmoji, msgColors } from "utils/common"
 import { PRUNE_GITBOOK, SLASH_PREFIX } from "utils/constants"
-import {
-  composeEmbedMessage,
-  composeEmbedMessage2,
-  getErrorEmbed,
-} from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import {
   CONFIRM_PRUNE_WITHOUT,
   getUsersWithoutRole,
@@ -97,7 +93,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         title: "Choose a role to remove users without that one",
         description:
           "Only users who have a role in the safelist won't be removed",

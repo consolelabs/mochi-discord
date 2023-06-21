@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { runRemoveTreasurer } from "./processor"
@@ -54,7 +54,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}vault treasurer remove <vault_name> <user> <message>`,
         examples: `${SLASH_PREFIX}vault treasurer remove vault1 @user1 hello`,
         document: `${GM_GITBOOK}&action=streak`,

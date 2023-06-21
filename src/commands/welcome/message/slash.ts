@@ -5,7 +5,7 @@ import { SlashCommand } from "types/common"
 import { emojis } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
 import {
-  composeEmbedMessage2,
+  composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
 } from "ui/discord/embed"
@@ -89,7 +89,7 @@ const command: SlashCommand = {
     return { messageOptions: { embeds: [embed] } }
   },
   help: async (interaction: CommandInteraction) => ({
-    embeds: [composeEmbedMessage2(interaction, { includeCommandsList: true })],
+    embeds: [composeEmbedMessage(interaction, { includeCommandsList: true })],
   }),
   colorType: "Server",
 }

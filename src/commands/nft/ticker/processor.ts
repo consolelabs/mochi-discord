@@ -240,12 +240,7 @@ async function composeCollectionTickerEmbed({
   }).addFields(fields)
 
   const chart = await renderNftTickerChart({ data, chartStyle })
-  const selectRow = composeDaysSelectMenu(
-    "nft_ticker_selection",
-    collectionAddress,
-    dayOpts,
-    90
-  )
+  const selectRow = composeDaysSelectMenu("nft_ticker_selection", dayOpts, 90)
   const buttonRow = buildSwitchViewActionRow("ticker", {
     collectionAddress,
     days: days ?? 7,
@@ -575,7 +570,6 @@ async function setDefaultNFTTicker(i: ButtonInteraction) {
     chain_id: +chainId,
   })
   const embed = getSuccessEmbed({
-    msg: i.message as Message,
     title: "Default NFT ticker ENABLED",
     description: `Next time your server members use \`$nft ticker\` with \`${symbol}\`, **${name}** will be the default selection`,
   })

@@ -1,7 +1,7 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { GuildIdNotFoundError } from "errors"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { ADD_COLLECTION_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { CheckMarketplaceLink, SplitMarketplaceLink } from "utils/marketplace"
@@ -48,7 +48,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}nft add <address> <chain_id>`,
         examples: `${SLASH_PREFIX}nft add 0x51081a152db09d3FfF75807329A3A8b538eCf73b ftm\n${SLASH_PREFIX}mochi add 0xFBde54764f51415CB0E00765eA4383bc90EDCCE8 5\n${SLASH_PREFIX}nft add https://opensea.io/collection/tykes`,
         document: ADD_COLLECTION_GITBOOK,

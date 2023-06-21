@@ -1,6 +1,5 @@
 import profile from "adapters/profile"
-import { commands, slashCommands } from "commands"
-import config from "adapters/config"
+import { slashCommands } from "commands"
 import {
   ColorResolvable,
   CommandInteraction,
@@ -10,18 +9,12 @@ import {
   MessageSelectOptionData,
   User,
 } from "discord.js"
-import { TEST } from "env"
 import { APIError } from "errors"
 import { Command, EmbedProperties, SlashCommand } from "types/common"
 import {
-  getActionCommand,
-  getCommandColor,
-  getCommandObject,
-  getCommandsList,
   getSlashCommand,
   getSlashCommandColor,
   getSlashCommandObject,
-  specificHelpCommand,
 } from "utils/commands"
 import {
   TokenEmojiKey,
@@ -33,13 +26,15 @@ import {
   roundFloatNumber,
 } from "utils/common"
 import {
-  COMMA,
   DEFAULT_COLLECTION_GITBOOK,
   DOT,
   PREFIX,
   VERTICAL_BAR,
 } from "utils/constants"
 import { zip } from "lodash"
+import { getRandomTip } from "cache/tip-fact-cache"
+
+const MAXIMUM_CHAR_COUNT_PER_LINE = 32
 
 type Alignment = "left" | "center" | "right"
 type Option<C> = {
@@ -122,12 +117,38 @@ export function formatDataTable<DT extends Data>(
     row = zip(row, resolvedOptions.separator.slice(0, row.length - 1)).flat()
     row = row.filter(Boolean)
 
-    const line = resolvedOptions.rowAfterFormatter(
+    let line = resolvedOptions.rowAfterFormatter(
       `${resolvedOptions.noWrap ? "" : "`"}${row.join("")}${
         resolvedOptions.noWrap ? "" : "`"
       }`,
       i
     )
+
+    if (line.length > MAXIMUM_CHAR_COUNT_PER_LINE) {
+      const cellCount = row.length - resolvedOptions.separator.length
+      const seperatorTotalWidth = resolvedOptions.separator.reduce(
+        (acc, c) => (acc += c.length),
+        0
+      )
+      const avgMaxCharPerCell = Math.floor(
+        (MAXIMUM_CHAR_COUNT_PER_LINE - seperatorTotalWidth) / cellCount
+      )
+      for (let i = 0; i < row.length; i += 2) {
+        const cell = row[i]
+        if (!cell) continue
+        if (cell.length > avgMaxCharPerCell) {
+          row[i] = `${cell.slice(0, avgMaxCharPerCell - 3)}...`
+        }
+      }
+
+      line = resolvedOptions.rowAfterFormatter(
+        `${resolvedOptions.noWrap ? "" : "`"}${row.join("")}${
+          resolvedOptions.noWrap ? "" : "`"
+        }`,
+        i
+      )
+    }
+
     if ((lines.join("\n") + line).length > 1024) {
       segments.push([...lines])
       lines = [line]
@@ -175,130 +196,8 @@ export function getMultipleResultEmbed({
   })
 }
 
-const content: any = (async function () {
-  const res = await config?.getContent?.("header")
-  return res?.data
-})()
-
-// TODO: remove after slash command migration done
 export function composeEmbedMessage(
-  msg: Message | null | undefined,
-  props: EmbedProperties
-) {
-  let { title, description = "" } = props
-  const { footer = [] } = props
-  const {
-    color,
-    thumbnail,
-    timestamp = null,
-    image,
-    author: _author = [],
-    originalMsgAuthor,
-    usage,
-    examples,
-    withoutFooter,
-    includeCommandsList,
-    actions,
-    document,
-  } = props
-  const author = _author.map((a) => a ?? "").filter(Boolean)
-  const commandObj = getCommandObject(commands, msg)
-  const actionObj = getActionCommand(commands, msg)
-  const isSpecificHelpCommand = specificHelpCommand(msg)
-
-  if (includeCommandsList) {
-    description += `\n\n${getCommandsList(
-      actions ?? commandObj?.actions ?? {}
-    )}`
-  }
-
-  if (isSpecificHelpCommand) {
-    title = (actionObj ?? commandObj)?.brief
-  }
-  title = title ?? ""
-
-  let authorTag = msg?.author?.tag
-  let authorAvatarURL = msg?.author?.avatarURL()
-  if (originalMsgAuthor) {
-    authorTag = originalMsgAuthor.tag
-    authorAvatarURL = originalMsgAuthor.avatarURL()
-  }
-
-  const embed = new MessageEmbed()
-    .setTitle(title)
-    .setColor((color ?? getCommandColor(commandObj)) as ColorResolvable)
-
-  // embed options
-  if (description) embed.setDescription(description)
-  if (thumbnail) embed.setThumbnail(thumbnail)
-  if (image) embed.setImage(image)
-  if (author.length === 1) embed.setAuthor({ name: author[0] })
-  if (author.length === 2) {
-    embed.setAuthor({ name: author[0], iconURL: author[1] })
-  }
-
-  // embed fields
-  const aliases = (actionObj ?? commandObj)?.aliases
-  if (isSpecificHelpCommand && aliases)
-    embed.addFields({
-      name: "\u200B",
-      value: `**Alias**: ${aliases.map((a) => `\`${a}\``).join(COMMA)}.`,
-    })
-  if (usage) {
-    embed.addFields({ name: "**Usage**", value: `\`\`\`${usage}\`\`\`` })
-  }
-  if (examples) {
-    embed.addFields({ name: "**Examples**", value: `\`\`\`${examples}\`\`\`` })
-  }
-  if (document) {
-    embed.addFields({
-      name: "**Instructions**",
-      value: `[**Gitbook**](${document})`,
-    })
-  }
-
-  // to avoid the timestamp test fail
-  if (TEST) {
-    embed.setTimestamp(null)
-  }
-
-  if (!footer.length && !TEST) {
-    content.then((res: any) => {
-      if (!res) return
-      const randomIdxTip = Math.floor(
-        Math.random() * res.description.tip.length
-      )
-      embed
-        .setFooter({
-          text: getEmbedFooter(
-            authorTag
-              ? [res.description.tip[randomIdxTip], authorTag]
-              : [res.description.tip[randomIdxTip], "Mochi bot"]
-          ),
-          iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
-        })
-        .setTimestamp(timestamp ?? new Date())
-      return embed
-    })
-  }
-
-  if (!withoutFooter) {
-    embed
-      .setFooter({
-        text: getEmbedFooter(
-          authorTag ? [...footer, authorTag] : [...footer, "Mochi bot"]
-        ),
-        iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
-      })
-      .setTimestamp(timestamp ?? new Date())
-    return embed
-  }
-
-  return embed
-}
-
-export function composeEmbedMessage2(
-  interaction: CommandInteraction,
+  interaction: CommandInteraction | null | undefined,
   props: EmbedProperties
 ) {
   const {
@@ -306,7 +205,6 @@ export function composeEmbedMessage2(
     description,
     color,
     thumbnail,
-    footer = ["Type /feedback to report"],
     timestamp = null,
     image,
     author: _author = [],
@@ -317,6 +215,7 @@ export function composeEmbedMessage2(
     // includeCommandsList,
     // actions,
   } = props
+  let { footer = [getRandomTip()] } = props
   const author = _author.map((a) => a ?? "").filter(Boolean)
   const commandObj = getSlashCommandObject(slashCommands, interaction)
 
@@ -330,8 +229,8 @@ export function composeEmbedMessage2(
   // title =
   //   (isSpecificHelpCommand ? (actionObj ?? commandObj)?.brief : title) ?? ""
 
-  let authorTag = interaction.user.tag
-  let authorAvatarURL = interaction.user.avatarURL()
+  let authorTag = interaction?.user.tag
+  let authorAvatarURL = interaction?.user.avatarURL()
   if (originalMsgAuthor) {
     authorTag = originalMsgAuthor.tag
     authorAvatarURL = originalMsgAuthor.avatarURL()
@@ -343,11 +242,10 @@ export function composeEmbedMessage2(
 
   // embed options
   if (!withoutFooter) {
+    if (!footer.length) footer = [getRandomTip()]
     embed
       .setFooter({
-        text: getEmbedFooter(
-          authorTag ? [...footer, authorTag] : footer ?? ["Mochi bot"]
-        ),
+        text: getEmbedFooter([...footer, ...(authorTag ? [authorTag] : [])]),
         iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
       })
       .setTimestamp(timestamp ?? new Date())
@@ -392,31 +290,15 @@ export function enableDMMessage(prefixDesc = "", suffixDesc = "") {
   })
 }
 
-export function getSuggestionEmbed(params: {
-  title?: string
-  description: string
-  msg: Message
-}) {
-  const { title, description, msg } = params
-  const embed = composeEmbedMessage(msg, {
-    author: [title ?? "Hmm?", getEmojiURL(emojis.ANIMATED_QUESTION_MARK)],
-    description,
-    color: "#ffffff",
-  })
-
-  return embed
-}
-
 export function getEmbedFooter(texts: string[]): string {
   return texts.join(` ${DOT} `)
 }
 
-// TODO: remove after slash command migration done
 export function getSuccessEmbed(params: {
   title?: string
   description?: string
   thumbnail?: string
-  msg?: Message
+  interaction?: CommandInteraction
   image?: string
   originalMsgAuthor?: User
   emojiId?: string
@@ -425,12 +307,12 @@ export function getSuccessEmbed(params: {
     title,
     description,
     thumbnail,
-    msg,
+    interaction,
     image,
     originalMsgAuthor,
     emojiId,
   } = params
-  return composeEmbedMessage(msg, {
+  return composeEmbedMessage(interaction, {
     author: [title ?? "Successful", getEmojiURL(emojiId ?? emojis["CHECK"])],
     description: description ?? "The operation finished successfully",
     image,
@@ -440,12 +322,11 @@ export function getSuccessEmbed(params: {
   })
 }
 
-// TODO: remove after slash command migration done
 export function getErrorEmbed(params: {
   title?: string
   description: string
   thumbnail?: string
-  msg?: Message
+  interaction?: CommandInteraction
   image?: string
   originalMsgAuthor?: User
   emojiUrl?: string
@@ -455,12 +336,12 @@ export function getErrorEmbed(params: {
     title,
     description,
     thumbnail,
-    msg,
+    interaction,
     image,
     originalMsgAuthor,
     emojiUrl,
   } = params
-  return composeEmbedMessage(msg, {
+  return composeEmbedMessage(interaction, {
     author: [
       title ?? "Command error",
       emojiUrl ?? getEmojiURL(emojis["REVOKE"]),
@@ -470,15 +351,6 @@ export function getErrorEmbed(params: {
     thumbnail,
     color: description ? params.color ?? msgColors.GRAY : msgColors.ERROR,
     originalMsgAuthor,
-  })
-}
-
-export function getInvalidInputEmbed(msg: Message) {
-  return getErrorEmbed({
-    msg,
-    title: "Invalid input",
-    description:
-      "That is an invalid argument. Please see help message of the command",
   })
 }
 

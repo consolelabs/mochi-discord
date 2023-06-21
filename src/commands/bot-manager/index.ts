@@ -1,6 +1,6 @@
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import {
   SlashCommandBuilder,
@@ -41,7 +41,7 @@ const slashCmd: SlashCommand = {
   },
   help: async (interaction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}bot-manager <action>`,
         description: "Manage bot settings",
         examples: `${SLASH_PREFIX}bot-manager info\n${SLASH_PREFIX}bot-manager set <role>\n${SLASH_PREFIX}bot-manager remove`,

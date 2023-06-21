@@ -3,7 +3,7 @@ import config from "adapters/config"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import {
-  composeEmbedMessage2,
+  composeEmbedMessage,
   getErrorEmbed,
   getSuccessEmbed,
 } from "ui/discord/embed"
@@ -102,7 +102,7 @@ const command: SlashCommand = {
     return { messageOptions: { embeds: [embed] } }
   },
   help: async (interaction: CommandInteraction) => ({
-    embeds: [composeEmbedMessage2(interaction, { includeCommandsList: true })],
+    embeds: [composeEmbedMessage(interaction, { includeCommandsList: true })],
   }),
   colorType: "Server",
 }

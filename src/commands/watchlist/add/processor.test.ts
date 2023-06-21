@@ -42,7 +42,7 @@ describe("viewWatchlist", () => {
       ok: true,
     } as any)
     const output = await processor.addWatchlistToken(input)
-    const expected = composeEmbedMessage(msg, {
+    const expected = composeEmbedMessage(null, {
       title: "",
       description:
         "Multiple tokens found for `eth`.\nPlease select one of the following",

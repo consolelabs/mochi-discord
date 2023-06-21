@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { process } from "./processor"
 
@@ -17,7 +17,7 @@ const command: SlashCommand = {
   run: process,
   help: async (interaction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}proposal data`,
         examples: `${SLASH_PREFIX}proposal data`,
       }),

@@ -1,5 +1,5 @@
 import { BotBaseError } from "errors"
-import { mockMessage } from "../../tests/mocks"
+import { mockInteraction, mockMessage } from "../../tests/mocks"
 import ChannelLogger from "../logger/channel"
 import { wrapError } from "./wrap-error"
 
@@ -8,9 +8,9 @@ describe("wrapError", () => {
     jest.spyOn(ChannelLogger, "alert")
 
     const error = new Error("boom")
-    const expectedError = new BotBaseError(mockMessage, error.message)
+    const expectedError = new BotBaseError(mockInteraction, error.message)
 
-    await wrapError(mockMessage, async () => {
+    await wrapError(mockInteraction, async () => {
       throw error
     })
 

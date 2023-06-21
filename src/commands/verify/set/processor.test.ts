@@ -31,7 +31,6 @@ describe("runVerify", () => {
       messageOptions: {
         embeds: [
           getSuccessEmbed({
-            msg,
             title: "Channel set",
             description: `Mochi sent verify instructions to <#123123> channel. In addition, user will be assigned role <@&123456> upon successful verification`,
           }),

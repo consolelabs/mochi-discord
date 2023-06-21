@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType, Routes } from "discord-api-types/v9"
 import { CommandInteraction, Message } from "discord.js"
 import getEmojiRegex from "emoji-regex"
-import { APPLICATION_ID, DISCORD_TOKEN } from "env"
+import { APPLICATION_ID, DISCORD_TOKEN, TEST } from "env"
 
 import { utils } from "ethers"
 import { Command, SlashCommand, embedsColors } from "types/common"
@@ -26,7 +26,7 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 let cacheSlash = new Map<string, string>()
 
 export async function getSlashCommand(name: string) {
-  if (!cacheSlash.size) {
+  if (!cacheSlash.size && !TEST) {
     const result = (await rest.get(
       Routes.applicationCommands(APPLICATION_ID)
     )) as Array<any>
@@ -246,7 +246,7 @@ export function parseDiscordToken(value: string) {
 
 export function getSlashCommandObject(
   slashCommands: Record<string, SlashCommand>,
-  interaction: CommandInteraction
+  interaction: CommandInteraction | null | undefined
 ): SlashCommand | null {
   if (!interaction) return null
   return slashCommands[interaction.commandName]

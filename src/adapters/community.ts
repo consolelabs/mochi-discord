@@ -22,6 +22,7 @@ import {
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import { API_BASE_URL, PT_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
+import { AirdropCampaignStatus } from "commands/drop/"
 
 class Community extends Fetcher {
   public async getInvites({ guild_id, member_id }: InvitesInput) {
@@ -617,6 +618,62 @@ class Community extends Fetcher {
     return await this.jsonFetch(`${API_BASE_URL}/community/tagme`, {
       query,
     })
+  }
+
+  public async getAirdropCampaignStats(query: { profileId: string }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/earns/airdrop-campaigns/stats`,
+      { query }
+    )
+  }
+
+  public async getAirdropCampaign(query: {
+    page: number
+    size: number
+    status: AirdropCampaignStatus
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/earns/airdrop-campaigns`, {
+      query,
+    })
+  }
+
+  public async getAirdropCampaignByUser(
+    userId: number,
+    query: {
+      page: number
+      size: number
+      status: AirdropCampaignStatus
+    }
+  ) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${userId}/earns/airdrop-campaigns`,
+      {
+        query,
+      }
+    )
+  }
+
+  public async getAirdropCampaignById(
+    id: string,
+    query?: { profileId: string }
+  ) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/earns/airdrop-campaigns/${id}`,
+      { query }
+    )
+  }
+
+  public async upsertUserAirdropCampaign(
+    userId: string,
+    body: { status: string; airdropCampaignId: number }
+  ) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${userId}/earns/airdrop-campaigns`,
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+      }
+    )
   }
 }
 

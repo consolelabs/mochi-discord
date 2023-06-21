@@ -32,7 +32,6 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
       messageOptions: {
         embeds: [
           getSuccessEmbed({
-            msg,
             title: `Successfully remove tracker`,
             description: `You can use \`$proposal track\` to set the new proposal tracker.\n\n${description}`,
           }),

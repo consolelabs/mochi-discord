@@ -1,4 +1,12 @@
-import { Guild, Message, SnowflakeUtil, TextChannel } from "discord.js"
+import {
+  CommandInteraction,
+  Guild,
+  Interaction,
+  Message,
+  MessageComponentInteraction,
+  SnowflakeUtil,
+  TextChannel,
+} from "discord.js"
 import { mockClient } from "./client"
 
 const mockSnowflake = SnowflakeUtil.generate()
@@ -67,4 +75,24 @@ export const mockMessage = Reflect.construct(Message, [
     channel: mockChannel,
   },
   mockChannel,
+])
+
+export const mockInteraction = Reflect.construct(MessageComponentInteraction, [
+  mockClient,
+  {
+    id: mockSnowflake,
+    application_id: mockSnowflake,
+    type: 3,
+    message: mockMessage,
+    data: {
+      custom_id: "test",
+      component_type: 2,
+      values: [],
+    },
+    guild_id: mockSnowflake,
+    channel_id: mockSnowflake,
+    user: {
+      id: mockSnowflake,
+    },
+  },
 ])

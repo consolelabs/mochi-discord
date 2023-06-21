@@ -1,7 +1,7 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { GuildIdNotFoundError } from "errors"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SALE_TRACKER_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { handleSalesList } from "./processor"
@@ -22,7 +22,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}sales list`,
         examples: `${SLASH_PREFIX}sales list`,
         document: `${SALE_TRACKER_GITBOOK}&action=list`,

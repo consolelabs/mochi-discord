@@ -1,53 +1,16 @@
-import { Command, SlashCommand } from "types/common"
-import { PREFIX, PRUNE_GITBOOK, SLASH_PREFIX } from "utils/constants"
+import { SlashCommand } from "types/common"
+import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
-// text
-import inactive from "./inactive/text"
-import without from "./without/text"
-import safelist from "./whitelist/text"
-import remove from "./remove/text"
 // slash
 import inactiveSlash from "./inactive/slash"
 import withoutSlash from "./without/slash"
 // import safelistSlash from "./whitelist/slash"
 // import removeSlash from "./remove/slash"
-
-const actions: Record<string, Command> = {
-  inactive,
-  without,
-  safelist,
-  remove,
-}
-
-const textCmd: Command = {
-  id: "prune",
-  command: "prune",
-  brief: "Remove a group of users",
-  category: "Community",
-  run: async () => null,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        usage: `${PREFIX}prune <option>`,
-        description: "Remove a group of users",
-        examples: `${PREFIX}prune inactive 7\n${PREFIX}prune safelist @role1`,
-        footer: [`Type ${PREFIX}help prune for a specific action!`],
-        document: PRUNE_GITBOOK,
-        includeCommandsList: true,
-      }),
-    ],
-  }),
-  actions,
-  colorType: "Server",
-  canRunWithoutAction: false,
-  onlyAdministrator: true,
-  aliases: ["pr"],
-}
 
 const slashActions: Record<string, SlashCommand> = {
   inactive: inactiveSlash,
@@ -87,4 +50,4 @@ const slashCmd: SlashCommand = {
   colorType: "Server",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

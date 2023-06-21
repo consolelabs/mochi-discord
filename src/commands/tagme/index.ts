@@ -2,11 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders"
 import community from "adapters/community"
 import { APIError, GuildIdNotFoundError } from "errors"
 import { SlashCommand } from "types/common"
-import {
-  composeEmbedMessage,
-  composeEmbedMessage2,
-  enableDMMessage,
-} from "ui/discord/embed"
+import { composeEmbedMessage, enableDMMessage } from "ui/discord/embed"
 import { emojis, getEmojiURL, msgColors, thumbnails } from "utils/common"
 
 const slashCmd: SlashCommand = {
@@ -40,7 +36,7 @@ const slashCmd: SlashCommand = {
 
     const dm = {
       embeds: [
-        composeEmbedMessage2(i, {
+        composeEmbedMessage(i, {
           author: ["Hey there", thumbnails.MOCHI],
           thumbnail: getEmojiURL(emojis.WAVING_HAND),
           description: `Whenever someone mentions you in **${i.guild.name}**, Mochi will DM to let you know\n\nYou can always unsubcribe at any time.`,
@@ -54,7 +50,7 @@ const slashCmd: SlashCommand = {
       return {
         messageOptions: {
           embeds: [
-            composeEmbedMessage2(i, {
+            composeEmbedMessage(i, {
               author: ["You're setup", thumbnails.MOCHI],
               thumbnail: getEmojiURL(emojis.WAVING_HAND),
               description: `**[Check your DM!](${msg.url})**`,

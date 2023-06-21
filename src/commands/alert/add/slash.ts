@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { PREFIX } from "utils/constants"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import * as processor from "./processor"
@@ -25,7 +25,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${PREFIX}alert add <token>`,
         examples: `${PREFIX}alert add ftm`,
       }),

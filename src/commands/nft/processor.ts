@@ -46,7 +46,6 @@ const buildDiscordMessage = (
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            msg,
             title: title,
             description: description,
             emojiUrl,
@@ -59,7 +58,7 @@ const buildDiscordMessage = (
   return {
     messageOptions: {
       embeds: [
-        composeEmbedMessage(msg, {
+        composeEmbedMessage(null, {
           title: title,
           description: description,
         }),
@@ -195,7 +194,7 @@ export async function composeCollectionInfoEmbed(
   }))
 
   const collectionImage = data.image ?? getEmojiURL(emojis["NFTS"])
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     author: [`${name}`, collectionImage],
     description: desc,
     image: "attachment://chart.png",
@@ -241,7 +240,7 @@ export async function composeCollectionSoulboundEmbed(
     Additional access perks include entry to global SAN music events and limited-edition collectibles, such as audio hardware, physical art, and fashion apparel.
   `
 
-  const embed = composeEmbedMessage(msg, {
+  const embed = composeEmbedMessage(null, {
     author: [`${name}`, collectionImage],
     description: desc,
     image:

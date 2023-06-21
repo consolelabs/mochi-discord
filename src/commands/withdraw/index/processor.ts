@@ -16,7 +16,6 @@ import {
   TokenEmojiKey,
   emojis,
   equalIgnoreCase,
-  getAuthor,
   getEmoji,
   getEmojiToken,
   getEmojiURL,
@@ -36,7 +35,7 @@ import mochiPay from "../../../adapters/mochi-pay"
 import { convertString } from "../../../utils/convert"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
-import { isTokenSupported } from "../../../utils/tip-bot"
+import { getBalances, isTokenSupported } from "../../../utils/tip-bot"
 import { formatView } from "commands/balances/index/processor"
 import CacheManager from "cache/node-cache"
 import { BigNumber, utils } from "ethers"
@@ -55,25 +54,7 @@ CacheManager.init({
   checkperiod: 0,
 })
 
-async function getBalances(
-  i: CommandInteraction | MessageComponentInteraction
-) {
-  const author = getAuthor(i)
-  const profileId = await getProfileIdByDiscord(author.id)
-
-  // validate balance
-  const { data, ok } = await mochiPay.getBalances({
-    profileId,
-  })
-  let balances: any[] = []
-  if (ok) {
-    balances = data.filter((b: any) => b.amount !== "0")
-  }
-
-  return balances
-}
-
-function checkCommitableOperation(
+export function checkCommitableOperation(
   tokenAmount: string,
   amount: string,
   token: any
@@ -184,10 +165,10 @@ export async function withdrawStep3(
   interaction: CommandInteraction | MessageComponentInteraction,
   params: Params = {}
 ) {
-  const balances = await getBalances(interaction)
+  const balances = await getBalances({ msgOrInteraction: interaction })
 
   const filteredBals = balances.filter(
-    (b) => !params.token || equalIgnoreCase(b.token.symbol, params.token)
+    (b: any) => !params.token || equalIgnoreCase(b.token.symbol, params.token)
   )
 
   // straight from command
@@ -267,10 +248,9 @@ export async function withdrawStep3(
 
   const embed = composeEmbedMessage(null, {
     author: ["Choose your address", getEmojiURL(emojis.ANIMATED_WITHDRAW)],
-    description: `${getEmoji(
-      "ANIMATED_POINTING_DOWN",
-      true
-    )} Enter or choose from list below.`,
+    description: `${getEmoji("ANIMATED_POINTING_DOWN", true)} Enter address${
+      listWalletsRecentlyUsed.length ? " or choose from list below" : ""
+    }.`,
   }).addFields(
     renderPreview({
       address: params.address,
@@ -304,15 +284,14 @@ export async function withdrawStep3(
             ]
           : []),
         new MessageActionRow().addComponents(
-          new MessageButton()
-            .setLabel(
-              validAddress || !params.address
-                ? "Confirm (3/3)"
-                : "Address not valid"
-            )
-            .setCustomId("submit")
-            .setStyle("PRIMARY")
-            .setDisabled(!valid || !validAddress),
+          ...(validAddress && valid
+            ? [
+                new MessageButton()
+                  .setLabel("Confirm 3/3")
+                  .setCustomId("submit")
+                  .setStyle("PRIMARY"),
+              ]
+            : []),
           new MessageButton({
             label: `${params.address ? "Change" : "Enter"} address`,
             style: "SECONDARY",
@@ -329,10 +308,11 @@ export async function withdrawStep2(
   interaction: CommandInteraction | MessageComponentInteraction,
   params: Params
 ) {
-  const balances = await getBalances(interaction)
+  const balances = await getBalances({ msgOrInteraction: interaction })
 
   const tokenObj =
-    params.tokenObj || balances.find((b) => equalIgnoreCase(b.id, params.token))
+    params.tokenObj ||
+    balances.find((b: any) => equalIgnoreCase(b.id, params.token))
 
   let error: string | null = ""
 
@@ -356,7 +336,7 @@ export async function withdrawStep2(
     )
     amount = formatDigit({
       value: formatted,
-      fractionDigits: isAll ? 2 : Number(formatted) >= 1 ? 0 : undefined,
+      fractionDigits: isAll ? 2 : Number(formatted) >= 1000 ? 0 : 2,
     })
   } else {
     let valid
@@ -369,7 +349,7 @@ export async function withdrawStep2(
     if (valid) {
       amount = formatDigit({
         value: params.amount ?? "0",
-        fractionDigits: Number(params.amount) >= 1 ? 0 : undefined,
+        fractionDigits: Number(params.amount) >= 1000 ? 0 : 2,
       })
     }
   }
@@ -450,17 +430,17 @@ export async function withdrawStep1(
   interaction: CommandInteraction | SelectMenuInteraction,
   filterSymbol?: string
 ) {
-  const balances = await getBalances(interaction)
+  const balances = await getBalances({ msgOrInteraction: interaction })
 
   const filteredBals = balances.filter(
-    (b) => !filterSymbol || equalIgnoreCase(b.token.symbol, filterSymbol)
+    (b: any) => !filterSymbol || equalIgnoreCase(b.token.symbol, filterSymbol)
   )
 
   if (interaction.isSelectMenu() || filteredBals.length === 1) {
     let tokenObj
     if (interaction.isSelectMenu()) {
       const tokenId = interaction.values[0]
-      tokenObj = balances.find((b) => b.id === tokenId)
+      tokenObj = balances.find((b: any) => b.id === tokenId)
     } else {
       tokenObj = filteredBals.at(0)
     }

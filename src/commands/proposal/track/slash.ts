@@ -1,4 +1,4 @@
-import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
@@ -56,7 +56,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         title:
           "Set up a tracker of proposal voting rounds on Snapshot and Commonwealth.",
         usage: `${SLASH_PREFIX}proposal track #channel <snapshot_DAO_link>\n${SLASH_PREFIX}proposal track #channel <commonwealth_link>`,

@@ -6,7 +6,6 @@ import {
 } from "discord.js"
 import {
   composeEmbedMessage,
-  composeEmbedMessage2,
   getErrorEmbed,
   getSuccessEmbed,
 } from "ui/discord/embed"
@@ -107,7 +106,7 @@ export const addWatchlistNftCollection = async ({
     msgOrInteraction.type === "DEFAULT"
       ? {
           embeds: [
-            composeEmbedMessage(msgOrInteraction as Message, {
+            composeEmbedMessage(null, {
               title: `${getEmoji("MAG")} Multiple options found`,
               description: `Multiple collections found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
               color: msgColors.GRAY,
@@ -117,7 +116,7 @@ export const addWatchlistNftCollection = async ({
         }
       : {
           embeds: [
-            composeEmbedMessage2(msgOrInteraction as CommandInteraction, {
+            composeEmbedMessage(msgOrInteraction as CommandInteraction, {
               title: `${getEmoji("MAG")} Multiple options found`,
               description: `Multiple collections found for \`${symbol}\`: ${found}.\nPlease select one of the following`,
               color: msgColors.GRAY,

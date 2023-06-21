@@ -1,4 +1,3 @@
-import { commands } from "commands"
 import { Interaction, Message } from "discord.js"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
@@ -46,25 +45,7 @@ export async function wrapError(
           }
         }
       }
-      if (message instanceof Message) {
-        // get command info
-        const { commandKey } = getCommandMetadata(commands, message)
-        if (commandKey) {
-          const commandObject = commands[commandKey]
-          userId = message.author.id
-          commandStr = commandObject?.id
-          args = message.content
-        }
-        commandType = "$"
-        msgToKafka = message
-
-        // something went wrong
-        if (!(error instanceof BotBaseError)) {
-          error = new BotBaseError(message, e.message as string)
-        }
-        error.handle?.()
-        ChannelLogger.alert(message, error).catch(catchAll)
-      } else if (message.isCommand()) {
+      if (message instanceof Interaction && message.isCommand()) {
         // get command info
         userId = message.user.id
         commandStr = message.options.getSubcommand(false)
@@ -81,7 +62,10 @@ export async function wrapError(
         }
         error.handle?.()
         ChannelLogger.alertSlash(message, error).catch(catchAll)
-      } else if (message.isMessageComponent()) {
+      } else if (
+        message instanceof Interaction &&
+        message.isMessageComponent()
+      ) {
         if (!(error instanceof BotBaseError)) {
           error = new BotBaseError(message, e.message as string)
         }

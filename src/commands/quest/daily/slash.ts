@@ -3,7 +3,7 @@ import { CommandInteraction } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { run } from "./processor"
 
 const command: SlashCommand = {
@@ -25,7 +25,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         description: "Check on your quests and what rewards you can claim",
         usage: `${SLASH_PREFIX}quest daily`,
         examples: `${SLASH_PREFIX}quest daily`,

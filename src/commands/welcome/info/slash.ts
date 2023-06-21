@@ -3,11 +3,7 @@ import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { emojis, getEmojiURL } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
-import {
-  composeEmbedMessage,
-  composeEmbedMessage2,
-  getErrorEmbed,
-} from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { parseWelcomeMessage } from "../processor"
 import config from "adapters/config"
 
@@ -58,7 +54,7 @@ const command: SlashCommand = {
     return { messageOptions: { embeds: [embed] } }
   },
   help: async (interaction: CommandInteraction) => ({
-    embeds: [composeEmbedMessage2(interaction, { includeCommandsList: true })],
+    embeds: [composeEmbedMessage(interaction, { includeCommandsList: true })],
   }),
   colorType: "Server",
 }

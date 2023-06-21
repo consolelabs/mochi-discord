@@ -3,7 +3,7 @@ import config from "adapters/config"
 import { CommandInteraction } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2, getSuccessEmbed } from "ui/discord/embed"
+import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import CacheManager from "cache/node-cache"
 import { getSlashCommand } from "utils/commands"
@@ -69,7 +69,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}bot-manager set <role>`,
         examples: `${SLASH_PREFIX}bot-manager set @admin`,
       }),

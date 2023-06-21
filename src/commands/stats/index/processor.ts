@@ -46,7 +46,7 @@ export const countStatsHandler: InteractionHandler = async (
     throw new GuildIdNotFoundError({ message: msgOrInteraction })
   }
   await Community.createStatChannel(message.guildId, countTypeReq)
-  const successEmbeded = composeEmbedMessage(message, {
+  const successEmbeded = composeEmbedMessage(null, {
     author: ["Server Stats", getEmojiURL(emojis.AMPAWSSADORBADGE)],
     description: `${capFirst(
       type
@@ -105,7 +105,7 @@ export async function renderStatEmbed(
   return {
     messageOptions: {
       embeds: [
-        composeEmbedMessage(msg, {
+        composeEmbedMessage(null, {
           author: ["Server Stats", getEmojiURL(emojis.AMPAWSSADORBADGE)],
           description: "Please select what type you want to display",
         }),

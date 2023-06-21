@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -19,6 +20,7 @@ import { wrapError } from "../wrap-error"
 import CacheManager from "cache/node-cache"
 import { Handler, MachineConfig, MachineOptions } from "./types"
 import { merge } from "lodash"
+import { getRandomFact } from "cache/tip-fact-cache"
 
 export type { MachineConfig }
 
@@ -105,17 +107,20 @@ export function route(
   config: MachineConfig,
   options: MachineOptions = {}
 ) {
+  // add a random fact
+  reply
+    .edit({
+      content: getRandomFact(),
+    })
+    .catch(() => null)
+
   const author = interaction.user
   const cacheKey = `${author.id}-${config.id}`
   const lastInteractionCacheKey = `${author.id}-${config.id}-last-interaction`
-  const {
-    button,
-    select,
-    modal = {},
-    ephemeral = {},
-    ...userData
-  } = (config.context ?? {}) as any
-  routerCache.set(cacheKey, userData)
+  let modal: Record<string, boolean> = {}
+  let ephemeral: Record<string, boolean> = {}
+
+  const { button, select } = (config.context ?? {}) as any
 
   // manually add action to each state and child states
   decorateWithActions(config.states)
@@ -129,6 +134,7 @@ export function route(
     {
       ...config,
       context: {
+        ...config.context,
         button,
         select,
         steps: [],
@@ -137,9 +143,7 @@ export function route(
     },
     {
       ...options,
-      guards: {
-        ...options.guards,
-      },
+      guards: options.guards,
       actions: {
         ...options.actions,
         record: (context, event) => {
@@ -164,7 +168,13 @@ export function route(
           }
         },
         transition: (context, event) => {
-          const { canBack = false, dry, interaction, state } = event
+          const {
+            canBack = false,
+            dry,
+            interaction,
+            state,
+            context: oldContext,
+          } = event
           if (!interaction || !state || dry || state === "steps") return
           let composer: Handler | undefined
           if (interaction.isButton()) {
@@ -176,7 +186,19 @@ export function route(
           wrapError(interaction, async () => {
             if (!composer) return
             try {
-              const oldContext = routerCache.get<any>(cacheKey) ?? {}
+              // handle pagination for user
+              if (
+                [
+                  RouterSpecialAction.PREV_PAGE,
+                  RouterSpecialAction.NEXT_PAGE,
+                ].includes(event.type) &&
+                typeof oldContext.page === "number"
+              ) {
+                oldContext.page += PAGE_MAP[event.type]
+                oldContext.page = Math.max(oldContext.page, 0)
+              }
+
+              // run handler
               const { context = {}, msgOpts } = await composer(
                 interaction,
                 event.type,
@@ -186,17 +208,6 @@ export function route(
               const newContext = {
                 ...oldContext,
                 ...context,
-              }
-
-              // handle pagination for user
-              if (
-                [
-                  RouterSpecialAction.PREV_PAGE,
-                  RouterSpecialAction.NEXT_PAGE,
-                ].includes(event.type) &&
-                typeof newContext.page === "number"
-              ) {
-                newContext.page += PAGE_MAP[event.type]
               }
 
               routerCache.set(cacheKey, newContext)
@@ -217,7 +228,9 @@ export function route(
                   )
                 }
 
-                interaction.editReply(msgOpts).catch(() => null)
+                interaction.message.edit(msgOpts).catch(() => {
+                  interaction.editReply(msgOpts).catch(() => null)
+                })
               }
             } catch (e: any) {
               context.steps?.push(e.name)
@@ -233,6 +246,19 @@ export function route(
 
   const aggregatedContext = aggregateContext(machine.states)
   machine = machine.withContext(merge(machine.context, aggregatedContext))
+
+  modal = machine.context.modal ?? {}
+  ephemeral = machine.context.ephemeral ?? {}
+
+  const {
+    button: b,
+    select: s,
+    steps: _s,
+    modal: m,
+    ephemeral: e,
+    ...userData
+  } = machine.context
+  routerCache.set(cacheKey, userData)
 
   const machineService = interpret(machine)
   machineService.start()
@@ -251,11 +277,13 @@ export function route(
 
         event = event.toUpperCase()
 
+        const context = routerCache.get<any>(cacheKey) ?? {}
         const currentState = machineService.getSnapshot()
         const nextState = machineService.nextState({
           type: event,
           interaction: i,
           dry: true,
+          context,
         })
 
         if (!i.deferred && !modal[event]) {
@@ -266,7 +294,12 @@ export function route(
           }
         }
 
-        const can = currentState.can({ type: event, interaction: i, dry: true })
+        const can = currentState.can({
+          type: event,
+          interaction: i,
+          context,
+          dry: true,
+        })
         if (can) {
           const prevState = currentState.toStrings().at(-1)?.split(".").at(-1)
           const state = nextState.toStrings().at(-1)?.split(".").at(-1) ?? ""
@@ -277,6 +310,7 @@ export function route(
             prevState,
             state,
             canBack: nextState.can(RouterSpecialAction.BACK),
+            context,
           })
         }
 
@@ -291,5 +325,7 @@ export function route(
         ButtonInteraction | SelectMenuInteraction
       >(lastInteractionCacheKey)
       lastInteraction?.editReply({ components: [] }).catch(() => null)
+
+      routerCache.del(lastInteractionCacheKey)
     })
 }

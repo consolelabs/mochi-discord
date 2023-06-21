@@ -1,7 +1,7 @@
 import { SlashCommand } from "types/common"
 import { CommandInteraction } from "discord.js"
 import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import * as depositSlash from "./index/slash"
 
@@ -26,7 +26,7 @@ const slashCmd: SlashCommand = {
   help: (interaction: CommandInteraction) =>
     Promise.resolve({
       embeds: [
-        composeEmbedMessage2(interaction, {
+        composeEmbedMessage(interaction, {
           usage: `${SLASH_PREFIX}deposit <token>`,
           examples: `${SLASH_PREFIX}deposit ftm`,
         }),

@@ -81,8 +81,17 @@ export interface ModelAirdropCampaign {
   detail?: string;
   id?: number;
   prev_airdrop_campaign_id?: number;
+  profile_campaign_status?: string;
+  reward_amount?: number;
+  reward_token_symbol?: string;
+  status?: string;
   title?: string;
   updated_at?: string;
+}
+
+export interface ModelAirdropStatusCount {
+  count?: number;
+  status?: string;
 }
 
 export interface ModelChain {
@@ -95,7 +104,9 @@ export interface ModelChain {
 
 export interface ModelCoingeckoSupportedTokens {
   current_price?: number;
+  detail_platforms?: number[];
   id?: string;
+  most_popular?: boolean;
   name?: string;
   symbol?: string;
 }
@@ -473,19 +484,6 @@ export interface ModelJSONNullString {
   string?: string;
   /** Valid is true if String is not NULL */
   valid?: boolean;
-}
-
-export interface ModelKyberswapSupportedToken {
-  address?: string;
-  chain_id?: number;
-  chain_name?: string;
-  created_at?: string;
-  decimals?: number;
-  id?: number;
-  logo_uri?: string;
-  name?: string;
-  symbol?: string;
-  updated_at?: string;
 }
 
 export interface ModelMixRoleNFTRequirement {
@@ -996,7 +994,11 @@ export interface RequestConfigureInviteRequest {
 export interface RequestCreateAirdropCampaignRequest {
   deadline_at?: string;
   detail?: string;
+  id?: number;
   prev_airdrop_campaign_id?: number;
+  reward_amount?: number;
+  reward_token_symbol?: string;
+  status?: string;
   title?: string;
 }
 
@@ -1479,11 +1481,12 @@ export interface ResponseAirdropCampaignResponse {
   data?: ModelAirdropCampaign;
 }
 
+export interface ResponseAirdropCampaignStatResponse {
+  data?: ModelAirdropStatusCount[];
+}
+
 export interface ResponseAirdropCampaignsResponse {
   data?: ModelAirdropCampaign[];
-  page?: number;
-  size?: number;
-  total?: number;
 }
 
 export interface ResponseAssetPlatformResponseData {
@@ -1954,6 +1957,10 @@ export interface ResponseGetLinkedTelegramResponse {
 
 export interface ResponseGetListAllChainsResponse {
   data?: ModelChain[];
+}
+
+export interface ResponseGetListGuildDefaultTickerResponse {
+  data?: ModelGuildConfigDefaultTicker[];
 }
 
 export interface ResponseGetMyInfoResponse {
@@ -2688,9 +2695,6 @@ export interface ResponseProfileAirdropCampaignResponse {
 
 export interface ResponseProfileAirdropCampaignsResponse {
   data?: ModelProfileAirdropCampaign[];
-  page?: number;
-  size?: number;
-  total?: number;
 }
 
 export interface ResponseProfileApiKeyResponse {
@@ -2773,6 +2777,20 @@ export interface ResponseRouteSummary {
   tokenOutMarketPriceAvailable?: boolean;
 }
 
+export interface ResponseRouteToken {
+  address?: string;
+  chain_id?: number;
+  chain_name?: string;
+  coingecko_id?: string;
+  created_at?: string;
+  decimals?: number;
+  id?: number;
+  logo_uri?: string;
+  name?: string;
+  symbol?: string;
+  updated_at?: string;
+}
+
 export interface ResponseSearchCoinResponse {
   data?: ModelCoingeckoSupportedTokens[];
 }
@@ -2784,11 +2802,12 @@ export interface ResponseSparkLineIn7D {
 export interface ResponseSwapRoute {
   routeSummary?: ResponseRouteSummary;
   routerAddress?: string;
-  tokenIn?: ModelKyberswapSupportedToken;
-  tokenOut?: ModelKyberswapSupportedToken;
+  tokenIn?: ResponseRouteToken;
+  tokenOut?: ResponseRouteToken;
 }
 
 export interface ResponseSwapRouteResponse {
+  chainName?: string;
   code?: number;
   data?: ResponseSwapRoute;
   message?: string;

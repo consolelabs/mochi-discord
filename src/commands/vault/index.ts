@@ -1,5 +1,5 @@
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { LOG_CHANNEL_GITBOOK, SLASH_PREFIX } from "utils/constants"
 
 // slash
@@ -70,7 +70,7 @@ const slashCmd: SlashCommand = {
   },
   help: async (i) => ({
     embeds: [
-      composeEmbedMessage2(i, {
+      composeEmbedMessage(i, {
         includeCommandsList: true,
         usage: `${SLASH_PREFIX}vault <action>`,
         description: "Setup vault for your guild",

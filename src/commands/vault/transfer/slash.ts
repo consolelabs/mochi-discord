@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { runTransferTreasurer } from "./processor"
@@ -94,7 +94,7 @@ const command: SlashCommand = {
   help: async (interaction: CommandInteraction) =>
     await {
       embeds: [
-        composeEmbedMessage2(interaction, {
+        composeEmbedMessage(interaction, {
           usage: `${SLASH_PREFIX}vault treasurer transfer <address> <chain> <symbol> <amount> <message>`,
           examples: `${SLASH_PREFIX}vault treasurer transfer 0x140... ftm usdc 100 hello`,
           document: `${GM_GITBOOK}&action=streak`,

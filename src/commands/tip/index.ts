@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders"
-import { Command, SlashCommand } from "types/common"
+import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { getCommandArguments } from "utils/commands"
 import { emojis, equalIgnoreCase, getEmoji, getEmojiURL } from "utils/common"
 import {
   PREFIX,
@@ -9,10 +8,6 @@ import {
   SPACES_REGEX,
   TIP_GITBOOK,
 } from "utils/constants"
-import tip from "./index/text"
-import tipTelegram from "./telegram/text"
-import tipMail from "./mail/text"
-import tipTwitter from "./twitter/text"
 import tipSlash from "./index/slash"
 import tipTelegramSlash from "./telegram/slash"
 import tipMailSlash from "./mail/slash"
@@ -84,53 +79,6 @@ const getHelpMessage = async (isSlash?: boolean) => {
       ),
     ],
   }
-}
-
-const textCmd: Command = {
-  id: "tip",
-  command: "tip",
-  brief: "Tip Bot",
-  category: "Defi",
-  run: async (msg) => {
-    const args = getCommandArguments(msg)
-    const target = args[1].toLowerCase()
-
-    const telPrefixes = ["tg@", "tg:", "t.me/", "telegram@", "telegram:"]
-    const telPrefix = telPrefixes.find((p) => target.startsWith(p))
-    // tip telegram
-    if (telPrefix) {
-      args[1] = target.replace(telPrefix, "") // remove telegram prefix
-      await tipTelegram(msg, args)
-      return
-    }
-
-    const mailPrefixes = ["email:", "gmail:", "mail:"]
-    const mailPrefix = mailPrefixes.find((p) => target.startsWith(p))
-    // tip mail
-    if (mailPrefix) {
-      args[1] = target.replace(mailPrefix, "") // remove email prefix
-      await tipMail(msg, args)
-      return
-    }
-
-    const twPrefixes = ["tw:", "tw@", "twitter@", "twitter:"]
-    const twPrefix = twPrefixes.find((p) => target.startsWith(p))
-    // tip tw
-    if (twPrefix) {
-      args[1] = target.replace(twPrefix, "") // remove twitter prefix
-      await tipTwitter(msg, args)
-      return
-    }
-
-    // default -> tip discord
-    await tip(msg)
-    return
-  },
-  getHelpMessage: () => getHelpMessage(),
-  canRunWithoutAction: true,
-  colorType: "Defi",
-  minArguments: 3,
-  aliases: ["send"],
 }
 
 const slashCmd: SlashCommand = {
@@ -223,4 +171,4 @@ const slashCmd: SlashCommand = {
   colorType: "Defi",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

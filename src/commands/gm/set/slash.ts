@@ -2,7 +2,7 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { InternalError, GuildIdNotFoundError } from "errors"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { SlashCommand } from "types/common"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { handle } from "./processor"
@@ -69,7 +69,7 @@ const command: SlashCommand = {
   },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         usage: `${SLASH_PREFIX}gm set <channel>`,
         examples: `${SLASH_PREFIX}gm set #general`,
         document: `${GM_GITBOOK}&action=config`,

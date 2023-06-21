@@ -76,7 +76,6 @@ export async function runVerifySet({
       messageOptions: {
         embeds: [
           getErrorEmbed({
-            msg: msg ?? undefined,
             title: "Verified channel error",
             description: `The current verified channel is <#${
               existChannel.data.verify_channel_id
@@ -132,7 +131,6 @@ export async function runVerifySet({
     messageOptions: {
       embeds: [
         getSuccessEmbed({
-          msg,
           title: "Channel set",
           description: `Mochi sent verify instructions to <#${channelId}> channel${
             roleId

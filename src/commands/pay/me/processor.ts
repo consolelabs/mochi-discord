@@ -1,7 +1,7 @@
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { CommandInteraction, Message } from "discord.js"
-import { APIError } from "errors"
+import { APIError, InternalError } from "errors"
 import { KafkaNotificationMessage } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -253,6 +253,46 @@ async function sendNotification({
     sendNotificationMsg(message)
     return
   }
+}
+
+export function preprocessTarget(
+  interaction: CommandInteraction,
+  target?: string,
+  platform?: string
+): string | undefined {
+  if (!target && !platform) {
+    return
+  }
+
+  if ((!target && platform) || (!platform && target)) {
+    throw new InternalError({
+      msgOrInteraction: interaction,
+      title: "Invalid target and platform",
+      description: "Platform and target must be specified together",
+    })
+  }
+
+  if (platform === "mail") {
+    if (!isValidEmail(target)) {
+      throw new InternalError({
+        msgOrInteraction: interaction,
+        title: "Invalid email address",
+        description: "Invalid email address",
+      })
+    }
+    return target ?? ""
+  }
+
+  let processedTarget = target ?? ""
+  processedTarget = processedTarget.replace("@", "")
+
+  return processedTarget
+}
+
+function isValidEmail(target?: string): boolean {
+  if (!target) return false
+  const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+  return expression.test(target)
 }
 
 export function parseTarget(arg: string) {

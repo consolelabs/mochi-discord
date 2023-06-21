@@ -1,16 +1,13 @@
-import { Command, SlashCommand } from "types/common"
+import { SlashCommand } from "types/common"
 import { thumbnails } from "utils/common"
-import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
-import { PREFIX, WATCHLIST_GITBOOK } from "utils/constants"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { PREFIX } from "utils/constants"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import CacheManager from "cache/node-cache"
-// text
-import addNFT from "./add-nft/text"
-import removeNFT from "./remove-nft/text"
 // slash
 import addSlash from "./add/slash"
 import addNFTSlash from "./add-nft/slash"
@@ -23,41 +20,6 @@ CacheManager.init({
   pool: "watchlist",
   checkperiod: 1,
 })
-
-const actions: Record<string, Command> = {
-  "add-nft": addNFT,
-  "remove-nft": removeNFT,
-}
-
-const textCmd: Command = {
-  id: "watchlist",
-  command: "watchlist",
-  brief: "Watchlist",
-  category: "Defi",
-  run: async () => null,
-  getHelpMessage: async (msg) => ({
-    embeds: [
-      composeEmbedMessage(msg, {
-        thumbnail: thumbnails.TOKENS,
-        title: "Manage your watchlist",
-        description: "Manage your watchlist for selected tokens/nfts",
-        usage: `${PREFIX}watchlist <action>`,
-        examples: `${PREFIX}wl view\n${PREFIX}watchlist add eth\n${PREFIX}watchlist add-nft neko`,
-        document: WATCHLIST_GITBOOK,
-        footer: [
-          `Type ${PREFIX}help watchlist <action> for a specific action!.`,
-        ],
-        includeCommandsList: true,
-      }),
-    ],
-  }),
-  canRunWithoutAction: true,
-  minArguments: 1,
-  allowDM: true,
-  colorType: "Defi",
-  actions,
-  aliases: ["wl"],
-}
 
 const slashActions: Record<string, SlashCommand> = {
   view: viewSlash,
@@ -86,7 +48,7 @@ const slashCmd: SlashCommand = {
   },
   help: async (interaction) => ({
     embeds: [
-      composeEmbedMessage2(interaction, {
+      composeEmbedMessage(interaction, {
         thumbnail: thumbnails.TOKENS,
         title: "Manage your watchlist",
         usage: `${PREFIX}watchlist <sub-command>`,
@@ -97,4 +59,4 @@ const slashCmd: SlashCommand = {
   colorType: "Defi",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }
