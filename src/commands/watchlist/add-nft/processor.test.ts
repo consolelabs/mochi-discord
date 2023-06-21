@@ -74,7 +74,7 @@ describe("addWatchlistNftCollection", () => {
       ok: true,
     } as any)
     const output = await processor.addWatchlistNftCollection(input)
-    const expected = composeEmbedMessage(input.msgOrInteraction, {
+    const expected = composeEmbedMessage(null, {
       title: `${getEmoji("MAG")} Multiple options found`,
       description:
         "Multiple collections found for `rabb`: **rabby** (rabby).\nPlease select one of the following",
