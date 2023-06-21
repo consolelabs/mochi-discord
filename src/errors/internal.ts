@@ -47,10 +47,15 @@ export class InternalError extends BotBaseError {
   }
 
   handle() {
-    if (this.descriptions && this.reason) {
+    if (this.reason) {
       this.reply?.({
         embeds: [
-          errorEmbed(this.name, this.descriptions, this.reason, this.extra),
+          errorEmbed(
+            this.name,
+            this.descriptions ?? [],
+            this.reason,
+            this.extra
+          ),
         ],
       })
     } else {
