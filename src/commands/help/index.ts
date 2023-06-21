@@ -1,26 +1,11 @@
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import { Command, SlashCommand } from "types/common"
-import help from "./index/text"
+import { SlashCommand } from "types/common"
 import helpSlash from "./index/slash"
 import { slashCommands } from "commands"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandBuilder } from "@discordjs/builders"
 dayjs.extend(utc)
-
-const textCmd: Command = {
-  id: "help",
-  command: "help",
-  category: "Profile",
-  brief: "Help Menu",
-  run: async (msg) => {
-    await help(msg)
-    return null
-  },
-  getHelpMessage: help,
-  allowDM: true,
-  colorType: "Game",
-}
 
 const slashCmd: SlashCommand = {
   name: "help",
@@ -57,4 +42,4 @@ const slashCmd: SlashCommand = {
   colorType: "Command",
 }
 
-export default { textCmd, slashCmd }
+export default { slashCmd }

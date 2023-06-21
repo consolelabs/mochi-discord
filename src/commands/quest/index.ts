@@ -6,21 +6,6 @@ import {
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
 import dailySlash from "./daily/slash"
-import { run as runDaily } from "./daily/processor"
-import { MachineConfig } from "utils/router"
-
-export const machineConfig: MachineConfig = {
-  id: "quests",
-  initial: "quests",
-  context: {
-    button: {
-      quests: (i) => runDaily(i.user.id),
-    },
-  },
-  states: {
-    quests: {},
-  },
-}
 
 const slashActions: Record<string, SlashCommand> = {
   daily: dailySlash,
@@ -29,16 +14,17 @@ const slashActions: Record<string, SlashCommand> = {
 const slashCmd: SlashCommand = {
   name: "quest",
   category: "Community",
-  help: async () => {
-    const embed = composeEmbedMessage(null, {
-      description: "Check on your quests and what rewards you can claim",
-      usage: `${PREFIX}quest `,
-      footer: [`Type ${PREFIX}help quest`],
-      examples: `${PREFIX}quest`,
-    })
-
-    return { embeds: [embed] }
-  },
+  help: () =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage(null, {
+          description: "Check on your quests and what rewards you can claim",
+          usage: `${PREFIX}quest `,
+          footer: [`Type ${PREFIX}help quest`],
+          examples: `${PREFIX}quest`,
+        }),
+      ],
+    }),
   colorType: "Server",
   prepare: () => {
     const data = new SlashCommandBuilder()
@@ -48,7 +34,7 @@ const slashCmd: SlashCommand = {
 
     return data
   },
-  run: async (interaction) => {
+  run: (interaction) => {
     return slashActions[interaction.options.getSubcommand()].run(interaction)
   },
 }

@@ -21,6 +21,7 @@ import CacheManager from "cache/node-cache"
 import { Handler, MachineConfig, MachineOptions } from "./types"
 import { merge } from "lodash"
 import { getRandomFact } from "cache/tip-fact-cache"
+import { PROD } from "env"
 
 export type { MachineConfig }
 
@@ -108,11 +109,13 @@ export function route(
   options: MachineOptions = {}
 ) {
   // add a random fact
-  reply
-    .edit({
-      content: getRandomFact(),
-    })
-    .catch(() => null)
+  if (PROD) {
+    reply
+      .edit({
+        content: getRandomFact(),
+      })
+      .catch(() => null)
+  }
 
   const author = interaction.user
   const cacheKey = `${author.id}-${config.id}`

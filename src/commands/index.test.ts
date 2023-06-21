@@ -3,8 +3,6 @@ import { CommandNotAllowedToRunError } from "errors/command-not-allowed"
 import * as embed_ui from "ui/discord/embed"
 import * as commands_utils from "utils/commands"
 import mockdc from "../../tests/mocks/discord"
-import helptext from "commands/help/index/text"
-jest.mock("commands/help/index/text")
 jest.mock("adapters/config")
 
 const mockMessage = mockdc.getMessage()
@@ -51,23 +49,6 @@ describe("handlePrefixedCommand", () => {
       action: undefined,
       isSpecificHelpCommand: true,
     })
-  })
-
-  it("$help => general help", async () => {
-    mockMessage.content = "$help"
-    jest.spyOn(commands, "preauthorizeCommand")
-    jest.spyOn(commands_utils, "getCommandMetadata")
-    await commands.handlePrefixedCommand(mockMessage)
-    expect(commands_utils.getCommandMetadata).toHaveBeenCalledWith(
-      commands.commands,
-      mockMessage
-    )
-    expect(commands_utils.getCommandMetadata).toHaveReturnedWith({
-      commandKey: "help",
-      action: undefined,
-      isSpecificHelpCommand: false,
-    })
-    expect(helptext).toHaveBeenCalledTimes(1)
   })
 
   it("$tick ftm (DM) => throw CommandNotAllowedToRunError", async () => {

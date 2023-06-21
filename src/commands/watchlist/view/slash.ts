@@ -12,7 +12,7 @@ import { SLASH_PREFIX } from "utils/constants"
 import { MachineConfig, route, RouterSpecialAction } from "utils/router"
 import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 
-export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
+export const machineConfig: (ctx?: any) => MachineConfig = (context = {}) => ({
   id: "watchlist",
   initial: "watchlist",
   context: {

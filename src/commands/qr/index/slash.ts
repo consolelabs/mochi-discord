@@ -2,7 +2,7 @@ import { CommandInteraction, GuildMember, Message } from "discord.js"
 import { MachineConfig, route } from "utils/router"
 import { render, viewQR } from "./processor"
 
-export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
+export const machineConfig: (ctx?: any) => MachineConfig = (context = {}) => ({
   id: "qrCodes",
   initial: "qrCodes",
   context: {

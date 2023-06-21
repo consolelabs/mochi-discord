@@ -4,10 +4,8 @@ import { followWallet } from "../follow/processor"
 import { untrackWallet } from "../remove/processor"
 import { trackWallet } from "../track/processor"
 import { render as renderTrackingWallets } from "commands/wallet/list/processor"
-import {
-  BalanceType,
-  renderBalances as viewWalletDetail,
-} from "commands/balances/index/processor"
+import { machineConfig as balanceMachineConfig } from "commands/balances/index/slash"
+import { BalanceType } from "commands/balances/index/processor"
 
 export const machineConfig: (id: string, context?: any) => MachineConfig = (
   id,
@@ -25,17 +23,6 @@ export const machineConfig: (id: string, context?: any) => MachineConfig = (
         copyWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
       walletUntrack: (i, _ev, ctx) => untrackWallet(i, i.user, ctx.address),
       wallets: (i) => renderTrackingWallets(i.user),
-    },
-    select: {
-      wallet: async (i) => {
-        const [, , address = ""] = i.values[0].split("_")
-
-        return {
-          msgOpts: (
-            await viewWalletDetail(i.user.id, i, BalanceType.Onchain, address)
-          ).messageOptions,
-        }
-      },
     },
     ...context,
   },
@@ -70,10 +57,10 @@ export const machineConfig: (id: string, context?: any) => MachineConfig = (
       },
     },
     wallet: {
-      id: "wallet",
       on: {
         BACK: "wallets",
       },
+      ...balanceMachineConfig({ type: BalanceType.Onchain }),
     },
     wallets: {
       id: "wallets",

@@ -10,13 +10,11 @@ import {
 import { machineConfig as watchListMachineConfig } from "commands/watchlist/view/slash"
 import { machineConfig as qrCodeMachineConfig } from "commands/qr/index/slash"
 import { machineConfig as earnMachineConfig } from "commands/earn/index"
+import { machineConfig as balanceMachineConfig } from "commands/balances/index/slash"
 import { handleWalletAddition } from "commands/wallet/add/processor"
-import { BalanceType, renderBalances } from "commands/balances/index/processor"
 import { runGetVaultDetail } from "commands/vault/info/processor"
 
-export const machineConfig: (member: GuildMember) => MachineConfig = (
-  member
-) => ({
+const machineConfig: (member: GuildMember) => MachineConfig = (member) => ({
   id: "profile",
   initial: "profile",
   context: {
@@ -25,19 +23,6 @@ export const machineConfig: (member: GuildMember) => MachineConfig = (
       addWallet: (i) => handleWalletAddition(i),
     },
     select: {
-      wallet: async (i) => {
-        const [, type, address = ""] = i.values[0].split("_")
-        let fetcherType = BalanceType.Offchain
-        if (type.startsWith("mochi")) fetcherType = BalanceType.Offchain
-        if (type.startsWith("onchain")) fetcherType = BalanceType.Onchain
-        if (type.startsWith("cex")) fetcherType = BalanceType.Cex
-
-        return {
-          msgOpts: (
-            await renderBalances(member.user.id, i, fetcherType, address)
-          ).messageOptions,
-        }
-      },
       vault: async (i) => ({
         msgOpts: (await runGetVaultDetail(i.values[0].split("_")[1], i))
           .messageOptions,
@@ -77,7 +62,7 @@ export const machineConfig: (member: GuildMember) => MachineConfig = (
       on: {
         BACK: "profile",
       },
-      ...qrCodeMachineConfig,
+      ...qrCodeMachineConfig(),
     },
     addWallet: {
       on: {
@@ -88,12 +73,13 @@ export const machineConfig: (member: GuildMember) => MachineConfig = (
       on: {
         BACK: "profile",
       },
-      ...watchListMachineConfig,
+      ...watchListMachineConfig(),
     },
     wallet: {
       on: {
         BACK: "profile",
       },
+      ...balanceMachineConfig(member),
     },
     vault: {
       on: {
