@@ -9,3 +9,11 @@ generateApi({
   generateClient: false,
   silent: true,
 });
+
+generateApi({
+  name: "krystal-api.ts",
+  output: path.resolve(process.cwd(), "./src/types/"),
+  url: "https://api-docs-dev.krystal.team/docs/doc.json",
+  generateClient: false,
+  silent: true,
+});
