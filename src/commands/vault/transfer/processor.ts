@@ -61,29 +61,27 @@ export async function runTransferTreasurer({
   const amount = i.options.getString("amount", true)
   const chain = i.options.getString("chain", true)
   const userId = user?.id ?? ""
-  const {
-    data: dataTransferTreasurerReq,
-    status: statusTransferTreasurerReq,
-    originalError: originalErrorTransferTreasurerReq,
-  } = await config.createTreasureRequest({
-    guild_id: guildId,
-    vault_name: vaultName,
-    message:
-      i.options.getString("message")?.trim() || "Send money to treasurer",
-    type: "transfer",
-    requester: i.user.id,
-    user_discord_id: userId,
-    address: address,
-    chain: chain,
-    token: token,
-    amount: amount,
-  })
+  const { data: dataTransferTreasurerReq, ok } =
+    await config.createTreasureRequest({
+      guild_id: guildId,
+      vault_name: vaultName,
+      message:
+        i.options.getString("message")?.trim() || "Send money to treasurer",
+      type: "transfer",
+      requester: i.user.id,
+      user_discord_id: userId,
+      address: address,
+      chain: chain,
+      token: token,
+      amount: amount,
+    })
 
-  if (statusTransferTreasurerReq === 400 && originalErrorTransferTreasurerReq) {
+  if (!ok) {
     throw new InternalError({
       msgOrInteraction: i,
-      title: "Create transfer request failed",
-      description: originalErrorTransferTreasurerReq,
+      title: "Vault error",
+      descriptions: ["We couldn't process the request, please try again."],
+      reason: "Something wrong with our system",
     })
   }
 
@@ -103,7 +101,7 @@ export async function runTransferTreasurer({
             `${getEmoji(
               "ANIMATED_STAR",
               true
-            )}\`See request.         \` ${messageLink}`,
+            )}\`See request.   \` ${messageLink}`,
             `${getEmoji(
               "ANIMATED_VAULT",
               true

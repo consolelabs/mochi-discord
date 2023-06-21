@@ -1,194 +1,179 @@
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
-import { ButtonInteraction, CommandInteraction } from "discord.js"
-import { InternalError } from "errors"
-import { Coin } from "types/defi"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { aggregateTradeRoute } from "commands/swap/index/aggregate-util"
 import {
-  TokenEmojiKey,
-  getAuthor,
-  getEmoji,
-  getEmojiToken,
-  msgColors,
-} from "utils/common"
-import config from "../../../adapters/config"
-import { getDefaultSetter } from "../../../utils/default-setters"
+  renderRouteEmbed,
+  SLIPPAGE,
+  TradeRouteDataCode,
+} from "commands/swap/index/processor"
+import { renderTokenComparisonFields } from "commands/ticker/index/processor"
+import {
+  ButtonInteraction,
+  CommandInteraction,
+  MessageActionRow,
+  MessageButton,
+} from "discord.js"
+import { InternalError } from "errors"
+import { BigNumber, utils } from "ethers"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { capitalizeFirst, getAuthor, getEmoji, msgColors } from "utils/common"
+import { APPROX } from "utils/constants"
+import { formatDigit } from "utils/defi"
+import { getProfileIdByDiscord } from "utils/profile"
 
 export async function render(
-  interaction: CommandInteraction,
-  args: [string, number, string, string]
+  interaction: CommandInteraction | ButtonInteraction,
+  from: string,
+  to: string,
+  amount: number
 ) {
-  const amount = String(args[1])
-  const baseQ = args[2]
-  const targetQ = args[3]
+  const profileId = await getProfileIdByDiscord(interaction.user.id)
 
-  const { ok: compareTickerOk, data: compareTickerData } =
-    await CacheManager.get({
-      pool: "ticker",
-      key: `compare-${interaction.guildId}-${baseQ}-${baseQ}-30`,
-      call: () =>
-        defi.compareToken(interaction.guildId ?? "", baseQ, targetQ, 30),
-    })
+  let compareTickerData
+  const { ok: compareTickerOk, data } = await CacheManager.get({
+    pool: "ticker",
+    key: `compare-${interaction.guildId}-${from}-${to}-30`,
+    call: () => defi.compareToken(interaction.guildId ?? "", from, to, 30),
+  })
 
   if (!compareTickerOk) {
     throw new InternalError({
-      title: "Unsupported token/fiat",
-      description: `Token is invalid or hasn't been supported.\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} or Please choose a valid fiat currency.`,
+      msgOrInteraction: interaction,
+      title: "Unsupported token",
+      descriptions: [
+        "Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).",
+        "Or choose a valid fiat currency.",
+      ],
+      reason: `**${from}** or **${to}** hasn't been supported.`,
     })
   }
 
-  const { base_coin_suggestions, target_coin_suggestions } = compareTickerData
-  // multiple resutls found
-  if (base_coin_suggestions || target_coin_suggestions) {
-    return suggest(
-      interaction,
-      base_coin_suggestions,
-      target_coin_suggestions,
-      args
-    )
+  const { base_coin_suggestions, target_coin_suggestions } = data
+  if (base_coin_suggestions.length || target_coin_suggestions.length) {
+    const baseCoin = base_coin_suggestions.find((c: any) => c.most_popular).id
+    const targetCoin = target_coin_suggestions.find(
+      (c: any) => c.most_popular
+    ).id
+    const { data } = await CacheManager.get({
+      pool: "ticker",
+      key: `compare-${interaction.guildId}-${baseCoin}-${targetCoin}-30`,
+      call: () =>
+        defi.compareToken(interaction.guildId ?? "", baseCoin, targetCoin, 30),
+    })
+
+    if (data) {
+      compareTickerData = data
+    }
   }
 
   const { ratios, base_coin, target_coin } = compareTickerData
+  const comparisonFields = renderTokenComparisonFields(base_coin, target_coin)
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
-  const coinInfo = (coin: Coin | null, emoji = true) =>
-    `${emoji ? `${getEmoji("ANIMATED_TROPHY", true)}` : ""} Rank: \`#${
-      coin?.market_cap_rank ?? "?"
-    }\``
-      .concat(
-        `\n${emoji ? `${getEmoji("ANIMATED_COIN_2")}` : ""} Price: \`$${
-          coin?.market_data?.current_price["usd"]?.toLocaleString() ?? "_"
-        }\``
-      )
-      .concat(
-        `\n${emoji ? ":ocean:" : ""} Market cap: \`$${
-          coin?.market_data?.market_cap["usd"]?.toLocaleString() ?? "_"
-        }\``
-      )
+  let amountOut = String(currentRatio * +amount)
+  let ratio = String(Number(amountOut) / Number(amount))
+  ratio = formatDigit({
+    value: ratio,
+    fractionDigits: Number(ratio) >= 100 ? 0 : 2,
+  })
 
-  const from = base_coin.symbol.toUpperCase() as TokenEmojiKey
-  const to = target_coin.symbol.toUpperCase() as TokenEmojiKey
-
-  const blank = getEmoji("BLANK")
   const author = getAuthor(interaction)
   const embed = composeEmbedMessage(null, {
-    title: `${getEmoji("CONVERSION")} Conversion${blank.repeat(7)}`,
-    description: `**${amount} ${from} ≈ ${
-      currentRatio * +amount
-    } ${to}**\n\n**Ratio**: \`${currentRatio}\`\n${getEmoji("LINE").repeat(
-      10
-    )}`,
-    color: msgColors.MOCHI,
+    title: `${getEmoji("CONVERSION")} Conversion`,
+    description: [
+      `${getEmoji(
+        "SWAP_ROUTE"
+      )}\`Rate.   \`**${amount} ${from} ${APPROX} ${ratio} ${to}**`,
+    ].join("\n"),
+    color: msgColors.ACTIVITY,
     originalMsgAuthor: author,
-  }).addFields([
-    {
-      name: `${getEmoji("BLANK")}${getEmojiToken(from)} ${from}`,
-      value: coinInfo(base_coin),
-      inline: true,
-    },
-    {
-      name: `${getEmojiToken(to)} ${to}`,
-      value: coinInfo(target_coin, false),
-      inline: true,
-    },
-  ])
+  }).addFields(comparisonFields)
 
-  return {
-    messageOptions: {
-      embeds: [embed],
-    },
-  }
-}
+  const { data: tradeRouteData } = await defi.getSwapRoute({
+    from: base_coin.symbol.toUpperCase(),
+    to: target_coin.symbol.toUpperCase(),
+    amount: amount.toString().replace(",", ""),
+    profileId,
+  })
 
-function suggest(
-  i: CommandInteraction,
-  baseSuggestions: any[],
-  targetSuggestions: any[],
-  args: [string, number, string, string]
-) {
-  const from = args[2].toUpperCase() as TokenEmojiKey
-  const to = args[3].toUpperCase() as TokenEmojiKey
+  let tradeRoute
+  const routeSummary = tradeRouteData?.data.routeSummary
 
-  const bases: Record<string, any> = baseSuggestions.reduce(
-    (acc, cur) => ({
-      ...acc,
-      [cur.id]: cur,
-    }),
-    {}
-  )
-
-  const targets: Record<string, any> = targetSuggestions.reduce(
-    (acc, cur) => ({
-      ...acc,
-      [cur.id]: cur,
-    }),
-    {}
-  )
-
-  const options = baseSuggestions
-    .map((base: any) =>
-      targetSuggestions.map((target: any) => {
-        return {
-          label: `${base.name} (${base.symbol.toUpperCase()}) x ${
-            target.name
-          } (${target.symbol.toUpperCase()})`,
-          value: `${base.id}_${target.id}`,
-        }
-      })
+  if (tradeRouteData?.code === TradeRouteDataCode.RouteDataFound) {
+    tradeRoute = await aggregateTradeRoute(
+      base_coin.symbol.toUpperCase(),
+      routeSummary
     )
-    .flat()
-    .slice(0, 25)
+  }
+
+  const components = []
+  if (tradeRoute) {
+    components.push(
+      new MessageActionRow().addComponents(
+        new MessageButton({
+          label: "Swap",
+          emoji: getEmoji("SWAP_ROUTE"),
+          style: "SECONDARY",
+          customId: "swap",
+        })
+      )
+    )
+  }
+
+  const isBridged =
+    tradeRouteData?.data.tokenIn.chain_id !==
+    tradeRouteData?.data.tokenOut.chain_id
+  const network = isBridged
+    ? `${capitalizeFirst(
+        tradeRouteData?.data.tokenIn.chain_name
+      )} -> ${capitalizeFirst(
+        tradeRouteData?.data.tokenOut.chain_name
+      )} (bridge)`
+    : `${capitalizeFirst(tradeRouteData?.data.tokenOut.chain_name)}`
+
+  const amountInUsd = formatDigit({
+    value: routeSummary.amountInUsd,
+    fractionDigits: Number(routeSummary.amountInUsd) >= 100 ? 0 : 2,
+  })
+
+  if (tradeRoute) {
+    amountOut = utils.formatUnits(
+      BigNumber.from(routeSummary?.amountOut ?? 0)
+        .mul((100 - SLIPPAGE) * 10)
+        .div(1000),
+      tradeRouteData?.data.tokenOut.decimals
+    )
+  }
+
+  const amountOutUsd = formatDigit({
+    value: (Number(routeSummary.amountOutUsd) * (100 - SLIPPAGE)) / 100,
+    fractionDigits: Number(routeSummary.amountOutUsd) >= 100 ? 0 : 2,
+  })
 
   return {
-    select: {
-      options,
-      placeholder: "Select a pair",
+    context: {
+      from,
+      to,
+      amount,
+      routeSummary,
+      rate: Number(ratio),
+      network,
+      gasUsd: `$${formatDigit({
+        value: routeSummary.gasUsd,
+        fractionDigits: 2,
+      })}`,
+      chainName: tradeRouteData?.chainName,
+      amountIn: amount,
+      amountInUsd,
+      amountOut: formatDigit({
+        value: amountOut.toString(),
+        fractionDigits: Number(amountOut) >= 1000 ? 0 : 2,
+      }),
+      amountOutUsd,
+      compareFields: comparisonFields,
     },
-    onDefaultSet: async (i: ButtonInteraction) => {
-      const [baseId, targetId] = i.customId.split("_")
-      const [base, target] = [bases[baseId], targets[targetId]]
-      const { symbol: bSymbol, name: bName } = base
-      const { symbol: tSymbol, name: tName } = target
-
-      await getDefaultSetter({
-        updateAPI: async () => {
-          const tickers = [
-            {
-              guild_id: i.guildId ?? "",
-              query: base.symbol,
-              default_ticker: baseId,
-            },
-            {
-              guild_id: i.guildId ?? "",
-              query: target.symbol,
-              default_ticker: targetId,
-            },
-          ]
-          await Promise.all(tickers.map((p) => config.setGuildDefaultTicker(p)))
-        },
-        updateCache: () => {
-          ;(<Array<[string, string]>>[
-            ["ticker", `ticker-default-${i.guildId}-${bSymbol}`],
-            ["ticker", `ticker-default-${i.guildId}-${tSymbol}`],
-            ["ticker", `compare-${i.guildId}-${bSymbol}-${tSymbol}-`],
-            ["ticker", `compare-${i.guildId}-${tSymbol}-${bSymbol}-`],
-          ]).forEach((args) => {
-            CacheManager.findAndRemove(args[0], args[1])
-          })
-        },
-        description: `Next time your server members use \`$ticker\` with \`${bSymbol}\` and \`${tSymbol}\`, **${bName}** and **${tName}** will be the default selection`,
-      })(i)
+    msgOpts: {
+      embeds: [embed, ...(tradeRoute ? [renderRouteEmbed(tradeRoute)] : [])],
+      components,
     },
-    render: ({ value }: any) => {
-      const [baseCoinId, targetCoinId] = value.split("_")
-      return render(i, [args[0], args[1], baseCoinId, targetCoinId])
-    },
-    ambiguousResultText: `${from}/${to}`.toUpperCase(),
-    multipleResultText: "",
   }
 }

@@ -33,7 +33,7 @@ import { getProfileIdByDiscord } from "utils/profile"
 import { aggregateTradeRoute } from "./aggregate-util"
 import { renderTokenComparisonFields } from "commands/ticker/index/processor"
 
-const SLIPPAGE = 0.5
+export const SLIPPAGE = 0.5
 const DIVIDER = getEmoji("LINE").repeat(5)
 
 type Context = {
@@ -307,7 +307,7 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
   }
 }
 
-enum TradeRouteDataCode {
+export enum TradeRouteDataCode {
   NoRoute = 0,
   RouteDataFound,
   HighPriceImpact,
@@ -530,6 +530,23 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
   }
 }
 
+export function renderRouteEmbed({
+  text,
+  routeCount,
+}: {
+  text: string[]
+  routeCount: number
+}) {
+  return composeEmbedMessage(null, {
+    author: ["Your trade route", getEmojiURL(emojis.SWAP_ROUTE)],
+    description: `Routing through ${routeCount} route${
+      routeCount > 1 ? "s" : ""
+    }\n${getEmoji("REPLY_3")}\n${text.join(
+      "\n"
+    )}\n\n_route via [KyberSwap](https://kyberswap.com)_`,
+  })
+}
+
 export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
   if (!ctx?.routeSummary || !ctx.chainName) {
     return {
@@ -585,14 +602,7 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
             fractionDigits: amountOut >= 1000 ? 0 : 2,
           })} ${ctx.to}**\n${renderPreview(ctx)}`,
         }).addFields(fields),
-        composeEmbedMessage(null, {
-          author: ["Your trade route", getEmojiURL(emojis.SWAP_ROUTE)],
-          description: `Routing through ${tradeRoute.routeCount} route${
-            tradeRoute.routeCount > 1 ? "s" : ""
-          }\n${getEmoji("REPLY_3")}\n${tradeRoute.text.join(
-            "\n"
-          )}\n\n_Powered by [KyberSwap](https://kyberswap.com)_`,
-        }),
+        renderRouteEmbed(tradeRoute),
       ],
       components: [
         ...(dm
