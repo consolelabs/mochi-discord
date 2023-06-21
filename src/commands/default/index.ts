@@ -18,6 +18,12 @@ const subCommandGroups: Record<string, Record<string, SlashCommand>> = {
 const slashCmd: SlashCommand = {
   name: "default",
   category: "Config",
+  autocomplete: function (i) {
+    subCommandGroups[i.options.getSubcommandGroup(true)][
+      i.options.getSubcommand(true)
+    ].autocomplete?.(i)
+    return Promise.resolve()
+  },
   onlyAdministrator: function (i) {
     const onlyAdmin =
       subCommandGroups[i.options.getSubcommandGroup(true)][
