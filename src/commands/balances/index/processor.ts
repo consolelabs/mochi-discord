@@ -7,6 +7,7 @@ import {
   EmbedFieldData,
   MessageActionRow,
   MessageButton,
+  MessageEmbed,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
@@ -159,6 +160,7 @@ export async function getBalances(
   }
   let data,
     farming,
+    staking,
     pnl = 0
   if (type === BalanceType.Offchain) {
     data = res.data.filter((i: any) => Boolean(i))
@@ -171,6 +173,7 @@ export async function getBalances(
       pnl = 0
     }
     farming = res.data.farming
+    staking = res.data.staking
   }
   if (type === BalanceType.Cex) {
     data = res.data.filter((i: any) => Boolean(i))
@@ -181,6 +184,7 @@ export async function getBalances(
     data,
     pnl,
     farming,
+    staking,
   }
 }
 
@@ -476,7 +480,7 @@ export function formatView(
 async function switchView(
   view: "compact" | "expand",
   props: { address: string; emoji: string; title: string; description: string },
-  balances: { data: any[]; farming: any[]; pnl: number },
+  balances: { data: any[]; farming: any[]; staking: any[]; pnl: number },
   txns: any,
   discordId: string,
   balanceType: number
@@ -598,44 +602,10 @@ async function switchView(
     })
 
     // farming
-    const farming = balances.farming
-      ?.filter((i) => i.liquidityTokenBalance !== "0")
-      .map((i) => {
-        const [symbol0, symbol1] = [i.pair.token0.symbol, i.pair.token1.symbol]
-        const text = `${formatDigit({
-          value: i.liquidityTokenBalance,
-          fractionDigits: 2,
-        })} ${symbol0}-${symbol1}`
-        const usdWorth =
-          i.pair.token0.balance * +i.pair.token0.tokenDayData[0].priceUSD +
-          i.pair.token1.balance * +i.pair.token1.tokenDayData[0].priceUSD
-        return {
-          emoji: `${getEmoji(symbol0)}${getEmoji(symbol1)}`,
-          text,
-          usdWorth: formatDigit({ value: usdWorth, fractionDigits: 0 }),
-          tokens0: `\`${formatDigit({
-            value: i.pair.token0.balance.toString(),
-            fractionDigits: 2,
-          })} ${symbol0}\``,
-          token1: `\`${formatDigit({
-            value: i.pair.token1.balance.toString(),
-            fractionDigits: 2,
-          })} ${symbol1}\``,
-        }
-      })
-      .map((i) => {
-        const replyEmoji = getEmoji("REPLY" as TokenEmojiKey)
-        return `${i.emoji} \`${i.text} ${APPROX} $${i.usdWorth}\`\n${replyEmoji} ${i.tokens0}\n${replyEmoji} ${i.token1}`
-      })
-      .join("\n\n")
+    buildFarmingField(embed, balances.farming)
 
-    if (farming) {
-      embed.addFields({
-        name: "Farming",
-        value: farming,
-        inline: false,
-      })
-    }
+    // staking
+    buildStakingField(embed, balances.staking)
   }
 
   if (balanceType === BalanceType.Cex) {
@@ -666,6 +636,97 @@ async function switchView(
   }
 
   return { embed, isFollowed, isOwnWallet }
+}
+
+function buildFarmingField(embed: MessageEmbed, farming: any[]) {
+  const info = farming
+    ?.filter((i) => i.liquidityTokenBalance !== "0")
+    .map((i) => {
+      const [symbol0, symbol1] = [i.pair.token0.symbol, i.pair.token1.symbol]
+      const amount = `${formatDigit({
+        value: i.liquidityTokenBalance,
+        fractionDigits: 2,
+      })} ${symbol0}-${symbol1}`
+      const balanceWorth =
+        i.pair.token0.balance * +i.pair.token0.tokenDayData[0].priceUSD +
+        i.pair.token1.balance * +i.pair.token1.tokenDayData[0].priceUSD
+
+      const rewardWorth =
+        i.reward.amount * +i.reward.token.tokenDayData[0].priceUSD
+      return {
+        emoji: `${getEmoji(symbol0)}${getEmoji(symbol1)}`,
+        amount,
+        usdWorth: formatDigit({ value: balanceWorth, fractionDigits: 0 }),
+        token0: `\`${formatDigit({
+          value: i.pair.token0.balance.toString(),
+          fractionDigits: 2,
+        })} ${symbol0}\``,
+        token1: `\`${formatDigit({
+          value: i.pair.token1.balance.toString(),
+          fractionDigits: 2,
+        })} ${symbol1}\``,
+        reward: `${formatDigit({
+          value: i.reward.amount.toString(),
+          fractionDigits: 2,
+        })} ${i.reward.token.symbol} ${APPROX} $${formatDigit({
+          value: rewardWorth,
+          fractionDigits: 0,
+        })}`,
+      }
+    })
+    .map((i) => {
+      const replyEmoji = getEmoji("REPLY" as TokenEmojiKey)
+      return `${i.emoji} \`${i.amount} ${APPROX} $${i.usdWorth}\`\n${replyEmoji} ${i.token0}\n${replyEmoji} ${i.token1}\nRewards \`${i.reward}\``
+    })
+    .join("\n\n")
+
+  if (!info) return
+
+  embed.addFields({
+    name: "Farming",
+    value: info,
+    inline: false,
+  })
+}
+
+function buildStakingField(embed: MessageEmbed, staking: any[]) {
+  const info = staking
+    .map((i) => {
+      const stakingWorth = i.amount * i.price
+      const rewardWorth = i.reward * i.price
+      const balance = `${formatDigit({
+        value: i.amount,
+        fractionDigits: 2,
+      })} ${i.symbol} ${APPROX} $${formatDigit({
+        value: stakingWorth.toString(),
+        fractionDigits: 2,
+      })}`
+      return {
+        title: `**${i.token_name}**`,
+        emoji: `${getEmoji(i.symbol)}`,
+        balance,
+        reward: `${formatDigit({
+          value: i.reward.toString(),
+          fractionDigits: 2,
+        })} ${i.symbol} ${APPROX} $${formatDigit({
+          value: rewardWorth.toString(),
+          fractionDigits: 2,
+        })}`,
+      }
+    })
+    .map((i) => {
+      const replyEmoji = getEmoji("REPLY" as TokenEmojiKey)
+      return `${i.emoji} ${i.title}\n${replyEmoji} Balance \`${i.balance}\`\n${replyEmoji} Rewards \`${i.reward}\``
+    })
+    .join("\n\n")
+
+  if (!info) return
+
+  embed.addFields({
+    name: "\nStaking",
+    value: info,
+    inline: false,
+  })
 }
 
 export async function renderBalances(
