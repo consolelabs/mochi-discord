@@ -54,7 +54,7 @@ export async function runGetVaultDetail(
 
   const titleCurrentRequest = `**Current request**\n`
   let currentRequest = ""
-  data.current_request.forEach((request: any) => {
+  data.current_request.reverse().forEach((request: any) => {
     currentRequest += formatCurrentRequest(request)
   })
   currentRequest = currentRequest ? titleCurrentRequest + currentRequest : ""
@@ -123,19 +123,16 @@ export async function runGetVaultDetail(
 }
 
 function formatCurrentRequest(request: any) {
-  const address =
+  let target =
     request.address === ""
       ? "Mochi Wallet"
-      : shortenHashOrAddress(request.address)
+      : `\`${shortenHashOrAddress(request.address)}\``
+
+  if (request.target) {
+    target = `<@${request.target}>`
+  }
+
   switch (request.action) {
-    case "Sent":
-      return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
-        request.total_submission
-      }]](${HOMEPAGE_URL}) Sent to ${shortenHashOrAddress(
-        request.target
-      )} ${getEmojiToken(`${request.token as TokenEmojiKey}`)} ${
-        request.amount
-      } ${request.token}\n`
     case "Add":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
@@ -147,9 +144,9 @@ function formatCurrentRequest(request: any) {
     case "Transfer":
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
-      }]](${HOMEPAGE_URL}) Sent to ${address} ${
-        request.amount
-      } ${request.token.toUpperCase()}\n`
+      }]](${HOMEPAGE_URL}) Send ${target} ${request.amount} ${getEmojiToken(
+        request.token.toUpperCase() as TokenEmojiKey
+      )} ${request.token.toUpperCase()}\n`
   }
 }
 
@@ -159,7 +156,7 @@ function formatRecentTransaction(tx: any) {
   const amount = ["+", "-"].includes(tx.amount.split("")[0])
     ? tx.amount.slice(1)
     : tx.amount
-  const token = tx.token
+  const token = tx.token.toUpperCase()
   const tokenEmoji = getEmojiToken(token)
   // const address =
   //   tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
@@ -187,9 +184,7 @@ function formatRecentTransaction(tx: any) {
         true
       )} Set the threshold to ${tx.threshold}% for vault\n`
     case "Transfer":
-      return `${t} ${getEmoji(
-        "SHARE"
-      )} Sent \`${amount} ${token}\` ${tokenEmoji}\n`
+      return `${t} ${getEmoji("SHARE")} Sent ${amount} ${tokenEmoji} ${token}\n`
   }
 }
 
@@ -246,7 +241,7 @@ export function buildRecentTxFields(data: any): any {
     const tx = data.recent_transaction[i]
     // filter out spammy tokens
     if (tx.token.length > 10) continue
-    if (tx.token.toUpperCase() !== tx.token) continue
+    // if (tx.token.toUpperCase() !== tx.token) continue
     valueRecentTx += formatRecentTransaction(data.recent_transaction[i])
   }
   if (!valueRecentTx) return []
