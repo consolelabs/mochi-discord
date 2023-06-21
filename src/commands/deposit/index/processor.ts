@@ -1,21 +1,30 @@
-import { CommandInteraction, Message } from "discord.js"
-import { APIError, InternalError } from "errors"
-import { composeButtonLink } from "ui/discord/button"
 import {
-  composeEmbedMessage,
-  enableDMMessage,
-  getErrorEmbed,
-} from "ui/discord/embed"
-import { getSlashCommand } from "utils/commands"
-import { emojis, getAuthor, getEmoji, getEmojiURL } from "utils/common"
-import { MOCHI_SERVER_INVITE_URL } from "utils/constants"
+  ButtonInteraction,
+  CommandInteraction,
+  MessageActionRow,
+  MessageAttachment,
+  MessageSelectMenu,
+  SelectMenuInteraction,
+} from "discord.js"
+import { APIError, InternalError } from "errors"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import {
+  emojis,
+  getAuthor,
+  getEmoji,
+  getEmojiToken,
+  getEmojiURL,
+  TokenEmojiKey,
+} from "utils/common"
 import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
-import * as processor from "./processor"
+import qrcode from "qrcode"
 
-export async function deposit(interaction: CommandInteraction, token: string) {
+export async function deposit(
+  interaction: CommandInteraction | ButtonInteraction,
+  token: string
+) {
   const author = getAuthor(interaction)
-  const isDm = interaction.channel?.type === "DM"
   const symbol = token.toUpperCase()
   const res = await mochiPay.getTokens({
     symbol,
@@ -25,11 +34,14 @@ export async function deposit(interaction: CommandInteraction, token: string) {
     tokens = res.data.filter((t: any) => t.chain_id !== "0" && Boolean(t.chain))
   }
   if (tokens?.length < 1) {
-    const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     throw new InternalError({
       msgOrInteraction: interaction,
       title: "Unsupported token",
-      description: `**${symbol}** hasn't been supported.\n${pointingright} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${pointingright} To add your token, run \`$token add\`.`,
+      descriptions: [
+        "Please choose one in our supported `$token list` or `$moniker list`!",
+        "To add your token, run `$token add`.",
+      ],
+      reason: `**${symbol}** hasn't been supported.`,
     })
   }
 
@@ -40,62 +52,153 @@ export async function deposit(interaction: CommandInteraction, token: string) {
   })
   if (!ok) throw new APIError({ curl, description: log })
 
-  // create QR code image
-  // const qrFileName = `qr_${author.id}.png`
-  // await qrcode.toFile(qrFileName, data.contract.address).catch(() => null)
-  const dmEmbed = composeEmbedMessage(null, {
-    author: [`Deposit ${symbol}`, getEmojiURL(emojis.WALLET)],
-    // thumbnail: `attachment://${qrFileName}`,
-    description: `Below is the deposit addresses on different chains. Please copy your deposit address and paste it into your third-party wallet or exchange.\n\n${getEmoji(
-      "CLOCK"
-    )} These deposit addresses is **valid for 3 hours**.\n\u200b`,
-  }).addFields(
-    data
-      .filter((d: any) => d.contract?.chain?.symbol && d.contract?.address)
-      .map((d: any) => ({
-        name: String(d.contract.chain.symbol).toUpperCase(),
-        value: `\`${d.contract.address}\``,
-        inline: false,
-      }))
+  const addressesDup = data.filter(
+    (d: any) => d.contract.chain.symbol && d.contract.address
   )
 
-  const dm = await author
-    .send({
-      embeds: [dmEmbed],
-      // files: [{ attachment: qrFileName }],
-    })
-    .catch(() => null)
+  const addresses: Array<{
+    address: string
+    symbol: string
+  }> = Array.from<any>(
+    new Map(addressesDup.map((a: any) => [a.contract.address, a])).values()
+  ).map((a) => ({
+    symbol: a.contract.chain.symbol.toUpperCase(),
+    address: a.contract.address,
+    decimal: a.contract.token?.decimal,
+    chainId: a.contract.chain.chain_id ?? 1,
+    tokenAddress: a.contract.token?.address,
+  }))
 
-  // delete QR code image
-  // fs.unlink(qrFileName, () => null)
-
-  // failed to send dm
-  if (!dm) {
+  if (!addresses.length)
     return {
-      messageOptions: {
-        embeds: [enableDMMessage()],
+      msgOpts: {
+        embeds: [
+          composeEmbedMessage(null, {
+            author: [
+              "Something went wrong",
+              getEmojiURL(emojis.ANIMATED_MONEY),
+            ],
+            description: "We couldn't get the list address.",
+          }),
+        ],
       },
     }
-  }
 
-  // replace with a msg without contract after 3 hours
-  // -> force users to reuse $deposit
-  // -> prevent users from depositing to wrong / expired contract
-  processor.handleDepositExpiration(dm, symbol)
-
-  const dmRedirectEmbed = composeEmbedMessage(null, {
-    author: ["Deposit tokens", getEmojiURL(emojis.WALLET)],
-    description: `${author}, check your DM for deposit details.`,
-    originalMsgAuthor: author,
+  const embed = composeEmbedMessage(null, {
+    author: [`Deposit ${symbol}`, getEmojiURL(emojis.ANIMATED_MONEY)],
+    description: [
+      `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Below is the deposit addresses on different chains.`,
+      `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Transactions take up to 5 minutes to process.`,
+      getEmoji("LINE").repeat(5),
+      formatDataTable(addresses, {
+        cols: ["symbol", "address"],
+        alignment: ["left", "left"],
+        rowAfterFormatter: (f, i) =>
+          `${getEmojiToken(addresses[i].symbol as TokenEmojiKey)} ${f}`,
+      }).joined,
+    ].join("\n"),
   })
 
-  if (isDm) return null
+  return {
+    context: {
+      addresses,
+    },
+    msgOpts: {
+      files: [],
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageSelectMenu({
+            placeholder: "💰 View an address",
+            custom_id: "VIEW_DEPOSIT_ADDRESS",
+            options: addresses.map((a) => ({
+              label: a.address,
+              value: a.address,
+              emoji: getEmojiToken(a.symbol as TokenEmojiKey),
+            })),
+          })
+        ),
+      ],
+    },
+  }
+}
+
+function toMetamaskDeeplink(
+  address: string,
+  value: number,
+  decimal: number,
+  chainId: number,
+  tokenAddress?: string
+) {
+  let link = "https://metamask.app.link/send"
+  if (tokenAddress) {
+    link += `/${tokenAddress}@${chainId}/transfer?address=${address}`
+
+    if (value > 0) {
+      link += `&uint256=${value}e${decimal}`
+    }
+
+    return link
+  }
+
+  link += `/${address}@${chainId}`
+
+  if (value > 0) {
+    link += `?value=${value}e18`
+  }
+
+  return link
+}
+
+export async function depositDetail(
+  i: SelectMenuInteraction,
+  amount: number,
+  depositObj: any
+) {
+  // create QR code image
+  const buffer = await qrcode.toBuffer(
+    toMetamaskDeeplink(
+      i.values.at(0) ?? "",
+      amount,
+      depositObj.decimal,
+      depositObj.chainId,
+      depositObj.tokenAddress
+    )
+  )
+  const file = new MessageAttachment(buffer, "qr.png")
+
+  const embed = composeEmbedMessage(null, {
+    author: [
+      depositObj.symbol,
+      getEmojiURL(emojis[depositObj.symbol as keyof typeof emojis]),
+    ],
+    description: [
+      `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} This deposit address is linked to your Mochi wallet.`,
+      `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Transactions take up to 5 minutes to process.`,
+      getEmoji("LINE").repeat(5),
+      `${getEmoji("WALLET_2")}\`Address. ${depositObj.address}\``,
+      `:chains:\`Chain.   \`${getEmojiToken(depositObj.symbol)} **${
+        depositObj.symbol
+      }**`,
+    ].join("\n"),
+    thumbnail: `attachment://qr.png`,
+  })
 
   return {
-    messageOptions: {
-      embeds: [dmRedirectEmbed],
-      components: [composeButtonLink("See the DM", dm.url)],
-    },
+    embeds: [embed],
+    files: [file],
   }
 }
 
@@ -109,17 +212,17 @@ export async function deposit(interaction: CommandInteraction, token: string) {
  * @param toEdit
  * @param token
  */
-export async function handleDepositExpiration(toEdit: Message, token: string) {
-  const expiredEmbed = getErrorEmbed({
-    title: `The ${token} deposit addresses has expired`,
-    description: `Please re-run ${await getSlashCommand(
-      "deposit"
-    )} to get the new address. If you have deposited but the balance was not topped up, contact the team via [Mochi Server](${MOCHI_SERVER_INVITE_URL}).`,
-  })
-  setTimeout(() => {
-    toEdit.edit({
-      embeds: [expiredEmbed],
-      files: [],
-    })
-  }, 10800000)
-}
+// async function handleDepositExpiration(toEdit: Message, token: string) {
+//   const expiredEmbed = getErrorEmbed({
+//     title: `The ${token} deposit addresses has expired`,
+//     description: `Please re-run ${await getSlashCommand(
+//       "deposit"
+//     )} to get the new address. If you have deposited but the balance was not topped up, contact the team via [Mochi Server](${MOCHI_SERVER_INVITE_URL}).`,
+//   })
+//   setTimeout(() => {
+//     toEdit.edit({
+//       embeds: [expiredEmbed],
+//       files: [],
+//     })
+//   }, 10800000)
+// }

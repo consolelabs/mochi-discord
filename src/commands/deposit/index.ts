@@ -18,10 +18,17 @@ const slashCmd: SlashCommand = {
           .setDescription("the token symbol which you wanna deposit")
           .setRequired(true)
       )
+      .addNumberOption((opt) =>
+        opt
+          .setName("amount")
+          .setDescription("the amount you want to deposit")
+          .setRequired(false)
+      )
   },
   run: async function (interaction: CommandInteraction) {
     const symbol = interaction.options.getString("token", true)
-    return await depositSlash.run(interaction, symbol)
+    const amount = interaction.options.getNumber("amount", false)
+    return await depositSlash.run(interaction, symbol, amount ?? 1)
   },
   help: (interaction: CommandInteraction) =>
     Promise.resolve({
@@ -33,6 +40,7 @@ const slashCmd: SlashCommand = {
       ],
     }),
   colorType: "Defi",
+  ephemeral: true,
 }
 
 export default { slashCmd }

@@ -9,7 +9,7 @@ import {
 import { GuildIdNotFoundError } from "errors"
 import { APIError } from "errors"
 import { getEmoji, msgColors, emojis, getEmojiURL } from "utils/common"
-import { listSubmissionVault, createActionLine } from "utils/vault"
+import { listSubmissionVault } from "utils/vault"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -135,10 +135,7 @@ export async function runRemoveTreasurer({
 
   // send DM to treasurer in vault
   const embed = composeEmbedMessage(null, {
-    title: `${getEmoji("PROPOSAL")} Request to ${createActionLine({
-      action: "remove",
-      vault: vaultName,
-    })} has been successfully created`,
+    author: ["Remove treasurer", getEmojiURL(emojis.PROPOSAL)],
     description: `You want to remove <@${
       user.id
     }> from **${vaultName} vault**\n\nMessage ${getEmoji(
@@ -235,10 +232,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
           await msg.edit({
             embeds: [
               getSuccessEmbed({
-                title: `The request to ${createActionLine({
-                  action: "remove",
-                  vault: dataTreasurerSubmisison.submission.vault.name,
-                })} has been approved`,
+                title: "Remove tresurer approved",
                 description: `Request has already been approved by majority treasurers \`${
                   dataTreasurerSubmisison.vote_result.total_approved_submission
                 }/${
@@ -269,10 +263,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
             await msg.edit({
               embeds: [
                 getErrorEmbed({
-                  title: `The request to ${createActionLine({
-                    action: "remove",
-                    vault: dataTreasurerSubmisison.submission.vault.name,
-                  })} has been rejected`,
+                  title: "Remove treasurer rejected",
                   description: `Request has already rejected by majority treasurers \`${
                     dataTreasurerSubmisison.vote_result
                       .total_rejected_submisison

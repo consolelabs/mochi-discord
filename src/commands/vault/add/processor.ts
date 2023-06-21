@@ -9,7 +9,7 @@ import {
 import { GuildIdNotFoundError } from "errors"
 import { APIError } from "errors"
 import { getEmoji, msgColors, emojis, getEmojiURL } from "utils/common"
-import { listSubmissionVault, createActionLine } from "utils/vault"
+import { listSubmissionVault } from "utils/vault"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -136,10 +136,7 @@ export async function runAddTreasurer({
   // send DM to treasurer in vault
 
   const embed = composeEmbedMessage(null, {
-    title: `${getEmoji("PROPOSAL")} Request to ${createActionLine({
-      action: "add",
-      vault: vaultName,
-    })} has been successfully created`,
+    author: ["New treasurer", getEmojiURL(emojis.PROPOSAL)],
     description: `You want to add <@${
       user.id
     }> to **${vaultName} vault**\n\nMessage ${getEmoji(
@@ -235,10 +232,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
           await msg.edit({
             embeds: [
               getSuccessEmbed({
-                title: `The request to ${createActionLine({
-                  action: "add",
-                  vault: dataAddTreasurer.submission.vault.name,
-                })} has been approved`,
+                title: "New treasurer approved",
                 description: `Request has already been approved by majority treasurers \`${
                   dataAddTreasurer.vote_result.total_approved_submission
                 }/${
@@ -267,10 +261,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
             await msg.edit({
               embeds: [
                 getErrorEmbed({
-                  title: `The request to ${createActionLine({
-                    action: "add",
-                    vault: dataAddTreasurer.submission.vault.name,
-                  })} has been rejected`,
+                  title: "New treasurer rejected",
                   description: `Request has already been rejected by majority treasurers \`${
                     dataAddTreasurer.vote_result.total_rejected_submisison
                   }/${

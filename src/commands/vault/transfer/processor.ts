@@ -15,8 +15,9 @@ import {
   emojis,
   msgColors,
   shortenHashOrAddress,
+  getEmojiURL,
 } from "utils/common"
-import { listSubmissionVault, createActionLine } from "utils/vault"
+import { listSubmissionVault } from "utils/vault"
 import NodeCache from "node-cache"
 import {
   getErrorEmbed,
@@ -45,15 +46,14 @@ export async function runTransferTreasurer({
   const address = i.options.getString("address", false) ?? ""
   const user = i.options.getUser("user")
   if (!user && address === "") {
-    return {
-      messageOptions: {
-        embeds: [
-          getErrorEmbed({
-            description: "Invalid user. Please choose another one!",
-          }),
-        ],
-      },
-    }
+    i.editReply({
+      embeds: [
+        getErrorEmbed({
+          description: "Invalid user. Please choose another one!",
+        }),
+      ],
+    })
+    return
   }
 
   const vaultName = i.options.getString("name", true)
@@ -88,11 +88,46 @@ export async function runTransferTreasurer({
     })
   }
 
-  const msgField = `\nMessage ${getEmoji("ANIMATED_CHAT", true)}\n\`\`\`${
-    dataTransferTreasurerReq?.request.message
-  }\`\`\`\n`
-  const destination =
-    shortenAddress !== "" ? `\`${shortenAddress}\`` : `<@${user?.id}>`
+  const transferTarget = user?.username ?? `\`${shortenAddress}\``
+  const description = (isDm = false, messageLink?: string) =>
+    [
+      `${getEmoji("PROPOSAL")}\`Request ID.    \` ${
+        dataTransferTreasurerReq?.request.id ?? ""
+      }`,
+      `${getEmoji("NEWS")}\`Requester.     \` ${i.user}`,
+      `${getEmoji("NFT2")}\`Amount.        \` ${getEmojiToken(
+        token.toUpperCase() as TokenEmojiKey
+      )} **${amount}**`,
+      `${getEmoji("PRAY")}\`Recipient.     \` ${transferTarget}`,
+      ...(isDm
+        ? [
+            `${getEmoji(
+              "ANIMATED_STAR",
+              true
+            )}\`See request.         \` ${messageLink}`,
+            `${getEmoji(
+              "ANIMATED_VAULT",
+              true
+            )}\`Vault.         \` ${vaultName}`,
+          ]
+        : []),
+      `${getEmoji("ANIMATED_ROBOT", true)}\`Message.       \` ${
+        dataTransferTreasurerReq?.request.message ?? ""
+      }`,
+    ].join("\n")
+
+  const embed = composeEmbedMessage(null, {
+    author: ["New vault transfer request", getEmojiURL(emojis.PROPOSAL)],
+    description: description(),
+    footer: ["We'll notify you once this get approved"],
+    color: msgColors.BLUE,
+    thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
+  })
+
+  const requestMessage = (await i.editReply({
+    embeds: [embed],
+  })) as Message
+
   // send DM to submitter
   // send DM to list treasurer but not requester, requester default approve
   if (!dataTransferTreasurerReq?.is_decided_and_executed) {
@@ -120,14 +155,9 @@ export async function runTransferTreasurer({
           const msg = await treasurer.send({
             embeds: [
               composeEmbedMessage(null, {
-                title: `${getEmoji("ANIMATED_BELL", true)} Mochi Notifications`,
-                description: `<@${
-                  i.user.id
-                }> has submitted the request in ${vaultName} vault \n${getEmoji(
-                  "SHARE"
-                )} Send ${getEmojiToken(
-                  token.toUpperCase() as TokenEmojiKey
-                )} ${amount} ${token} from ${vaultName} to ${destination} ${msgField}`,
+                author: ["Vault transfer", getEmojiURL(emojis.BELL)],
+                description: description(true, requestMessage.url),
+                footer: ["We'll notify you once this get approved"],
                 color: msgColors.BLUE,
                 thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
               }),
@@ -140,25 +170,7 @@ export async function runTransferTreasurer({
       })
     })
   }
-
-  // send DM to treasurer in vault
-  const transferTarget = user?.username ?? shortenAddress
-  const embed = composeEmbedMessage(null, {
-    title: `${getEmoji("PROPOSAL")} Request to ${createActionLine({
-      action: "transfer",
-      vault: vaultName,
-      amount,
-      token,
-      transferTarget,
-    })} has been successfully created`,
-    description: `You want to send ${getEmoji(
-      token.toUpperCase() as keyof typeof emojis
-    )} ${amount} ${token.toUpperCase()} to ${destination} \n${msgField}We'll notify you once all treasurers have accepted the request.`,
-    color: msgColors.BLUE,
-    thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
-  })
-
-  return { messageOptions: { embeds: [embed] } }
+  return
 }
 
 export async function handleTreasurerTransfer(i: ButtonInteraction) {
@@ -245,13 +257,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
             await msg.edit({
               embeds: [
                 getSuccessEmbed({
-                  title: `The request to ${createActionLine({
-                    action: "transfer",
-                    vault: dataTransferTreasurer.submission.vault.name,
-                    amount,
-                    token,
-                    transferTarget: toUser ? toUser : "",
-                  })} has been approved`,
+                  title: "Transfer approved",
                   description: `Request has already been approved by majority of treasurers \`${
                     dataTransferTreasurer.vote_result.total_approved_submission
                   }/${
@@ -282,13 +288,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
               await msg.edit({
                 embeds: [
                   getErrorEmbed({
-                    title: `The request to ${createActionLine({
-                      action: "transfer",
-                      vault: dataTransferTreasurer?.submission.vault.name,
-                      amount,
-                      token,
-                      transferTarget: toUser ? toUser : "",
-                    })} has been rejected`,
+                    title: "Transfer rejected",
                     description: `Request has already been rejected by majority of treasurers \`${
                       dataTransferTreasurer?.vote_result
                         .total_rejected_submisison

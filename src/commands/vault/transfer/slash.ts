@@ -86,13 +86,13 @@ const command: SlashCommand = {
     )
   },
   run: async function (interaction: CommandInteraction) {
-    return await runTransferTreasurer({
+    await runTransferTreasurer({
       i: interaction,
       guildId: interaction.guildId ?? undefined,
     })
   },
-  help: async (interaction: CommandInteraction) =>
-    await {
+  help: (interaction: CommandInteraction) =>
+    Promise.resolve({
       embeds: [
         composeEmbedMessage2(interaction, {
           usage: `${SLASH_PREFIX}vault treasurer transfer <address> <chain> <symbol> <amount> <message>`,
@@ -100,7 +100,7 @@ const command: SlashCommand = {
           document: `${GM_GITBOOK}&action=streak`,
         }),
       ],
-    },
+    }),
   colorType: "Server",
 }
 
