@@ -11,11 +11,11 @@ import {
   PAY_LINK_GITBOOK,
 } from "utils/constants"
 import link from "./link/slash"
-// import me from "./me/slash"
+import me from "./me/slash"
 
 const actions: Record<string, SlashCommand> = {
   link,
-  //   me,
+  me,
 }
 
 const slashCmd: SlashCommand = {
@@ -26,7 +26,7 @@ const slashCmd: SlashCommand = {
       .setName("pay")
       .setDescription("Finish all due payments right in Discord")
       .addSubcommand(<SlashCommandSubcommandBuilder>link.prepare())
-    //   .addSubcommand(<SlashCommandSubcommandBuilder>me.prepare())
+      .addSubcommand(<SlashCommandSubcommandBuilder>me.prepare())
   },
   run: (interaction) => {
     return actions[interaction.options.getSubcommand()].run(interaction)

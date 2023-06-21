@@ -1,69 +1,81 @@
-// import { TokenEmojiKey, getEmoji } from "utils/common"
-// import { Message } from "discord.js"
-// import { CommandArgumentError } from "errors"
-// import { Command } from "types/common"
-// import { composeEmbedMessage } from "ui/discord/embed"
-// import { getCommandArguments } from "utils/commands"
-// import { PAY_ME_GITBOOK, PREFIX } from "utils/constants"
-// import { parseTarget, run } from "./processor"
-// import { parseMessageTip } from "../../../utils/tip-bot"
+import { TokenEmojiKey } from "utils/common"
+import { SlashCommand } from "types/common"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { PAY_ME_GITBOOK, SLASH_PREFIX as PREFIX } from "utils/constants"
+import { preprocessTarget, run } from "./processor"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-// // DO NOT EDIT: if not anhnh
-// const cmd: Command = {
-//   id: "me",
-//   command: "me",
-//   brief: "Request others to make a payment",
-//   category: "Defi",
-//   run: async function (msg: Message) {
-//     const args = getCommandArguments(msg)
-//     const { valid, hasTarget, target, platform } = parseTarget(args[2])
-//     if (!valid) {
-//       throw new CommandArgumentError({
-//         message: msg,
-//         getHelpMessage: async () => this.getHelpMessage(msg),
-//       })
-//     }
-//     const amountIdx = hasTarget ? 3 : 2
-//     const [amount, token] = args.slice(amountIdx)
-//     const note = await parseMessageTip(args, amountIdx + 2)
-//     await run({
-//       msgOrInteraction: msg,
-//       amount: +amount,
-//       token: token.toUpperCase() as TokenEmojiKey,
-//       hasTarget,
-//       target,
-//       platform,
-//       note,
-//     })
-//   },
-//   getHelpMessage: async (msg: Message) => ({
-//     embeds: [
-//       composeEmbedMessage(msg, {
-//         title: "Payment",
-//         usage: `${PREFIX}pay me <amount> <token> [message]\n${PREFIX}pay me [username] <amount> <token> [message]`,
-//         examples: `${PREFIX}pay me 25 ftm “I want my money back”"\n${PREFIX}pay me @john 15 ftm “I want my money back”"`,
-//         description: `\`[username]\` can be one of the following:\n${getEmoji(
-//           "ANIMATED_POINTING_RIGHT",
-//           true
-//         )} Discord user name (eg: @John)\n${getEmoji(
-//           "ANIMATED_POINTING_RIGHT",
-//           true
-//         )} twitter:<Twitter user name> (eg: twitter:John)\n${getEmoji(
-//           "ANIMATED_POINTING_RIGHT",
-//           true
-//         )} tg:<Telegram user name> (eg: tg:John)\n${getEmoji(
-//           "ANIMATED_POINTING_RIGHT",
-//           true
-//         )} Email:<email address> (eg: email:John@gmail.com)`,
-//         document: PAY_ME_GITBOOK,
-//         includeCommandsList: false,
-//       }),
-//     ],
-//   }),
-//   colorType: "Wallet",
-//   canRunWithoutAction: true,
-//   allowDM: true,
-//   minArguments: 4,
-// }
+const slashCmd: SlashCommand = {
+  name: "me",
+  category: "Defi",
+  prepare: () => {
+    return new SlashCommandSubcommandBuilder()
+      .setName("me")
+      .setDescription("Request others to make a payment")
+      .addNumberOption((option) =>
+        option
+          .setName("amount")
+          .setDescription("Amount of token")
+          .setRequired(true)
+      )
+      .addStringOption((option) =>
+        option.setName("token").setDescription("Token to pay").setRequired(true)
+      )
+      .addStringOption((option) =>
+        option
+          .setName("target")
+          .setDescription("Target to pay")
+          .setRequired(false)
+      )
+      .addStringOption((option) =>
+        option
+          .setName("platform")
+          .setDescription("Platform to pay")
+          .setRequired(false)
+          .addChoices([
+            ["discord", "discord"],
+            ["twitter", "twitter"],
+            ["telegram", "telegram"],
+            ["mail", "mail"],
+          ])
+      )
+      .addStringOption((option) =>
+        option
+          .setName("note")
+          .setDescription("Note for the payment")
+          .setRequired(false)
+      )
+  },
+  run: async (interaction) => {
+    const amount = interaction.options.getNumber("amount", true)
+    const token = interaction.options.getString("token", true)
+    const target = interaction.options.getString("target") ?? undefined
+    const hasTarget = !!target
+    const platform = interaction.options.getString("platform") ?? undefined
+    const note = interaction.options.getString("note") ?? undefined
+    const processedTarget = preprocessTarget(interaction, target, platform)
 
-// export default cmd
+    await run({
+      msgOrInteraction: interaction,
+      amount: amount,
+      token: token.toUpperCase() as TokenEmojiKey,
+      hasTarget,
+      target: processedTarget,
+      platform,
+      note,
+    })
+  },
+  help: async () => ({
+    embeds: [
+      composeEmbedMessage(null, {
+        title: "Payment",
+        usage: `${PREFIX}pay me <amount> <token> [message]\n${PREFIX}pay me [username] <amount> <token> [message]`,
+        examples: `${PREFIX}pay me 0.1 ftm "I want to thank you for a great collaboration"`,
+        document: PAY_ME_GITBOOK,
+      }),
+    ],
+  }),
+  colorType: "Wallet",
+}
+
+export default slashCmd
