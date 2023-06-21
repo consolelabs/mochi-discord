@@ -11,7 +11,6 @@ import {
   getEmoji,
   getEmojiToken,
   TokenEmojiKey,
-  getAnimatedEmojiURL,
   emojis,
   msgColors,
   shortenHashOrAddress,
@@ -88,7 +87,7 @@ export async function runTransferTreasurer({
     })
   }
 
-  const transferTarget = user?.username ?? `\`${shortenAddress}\``
+  const transferTarget = user ?? `\`${shortenAddress}\``
   const description = (isDm = false, messageLink?: string) =>
     [
       `${getEmoji("PROPOSAL")}\`Request ID.    \` ${
@@ -97,7 +96,7 @@ export async function runTransferTreasurer({
       `${getEmoji("NEWS")}\`Requester.     \` ${i.user}`,
       `${getEmoji("NFT2")}\`Amount.        \` ${getEmojiToken(
         token.toUpperCase() as TokenEmojiKey
-      )} **${amount}**`,
+      )} **${amount} ${token.toUpperCase()}**`,
       `${getEmoji("PRAY")}\`Recipient.     \` ${transferTarget}`,
       ...(isDm
         ? [
@@ -121,7 +120,6 @@ export async function runTransferTreasurer({
     description: description(),
     footer: ["We'll notify you once this get approved"],
     color: msgColors.BLUE,
-    thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
   })
 
   const requestMessage = (await i.editReply({
@@ -159,7 +157,6 @@ export async function runTransferTreasurer({
                 description: description(true, requestMessage.url),
                 footer: ["We'll notify you once this get approved"],
                 color: msgColors.BLUE,
-                thumbnail: getAnimatedEmojiURL(emojis.ANIMATED_OPEN_VAULT),
               }),
             ],
             components: [actionRow],
