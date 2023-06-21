@@ -90,6 +90,7 @@ type Payload = {
 type OkPayload = {
   ok: true
   data: Record<string, any>
+  result?: any
   error: null
   originalError?: string
   pagination?: Pagination
@@ -98,6 +99,7 @@ type OkPayload = {
 type ErrPayload = {
   ok: false
   data: null
+  result?: null
   error: string
   originalError?: string
   pagination?: Pagination

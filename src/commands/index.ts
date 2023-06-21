@@ -89,6 +89,7 @@ import transaction from "./transaction"
 import admin from "./admin"
 import botManager from "./bot-manager"
 import earn from "./earn"
+import invest from "./invest"
 import drop from "./drop"
 import qr from "./qr"
 import defaults from "./default"
@@ -160,6 +161,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   telegram: telegram.slashCmd,
   earn: earn.slashCmd,
   drop: drop.slashCmd,
+  invest: invest.slashCmd,
   qr: qr.slashCmd,
   default: defaults.slashCmd,
   setting: setting.slashCmd,
