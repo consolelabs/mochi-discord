@@ -63,6 +63,7 @@ import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
 import config from "adapters/config"
 import { getRandomFact } from "cache/tip-fact-cache"
+import { handleBeginVerify } from "commands/verify/captcha/processor"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -381,6 +382,9 @@ async function handleButtonInteraction(interaction: Interaction) {
   const i = interaction as ButtonInteraction
   const msg = i.message as Message
   switch (true) {
+    case i.customId.startsWith("verify-captcha"):
+      await handleBeginVerify(i)
+      break
     case i.customId.startsWith("exit-"): {
       const authorId = i.customId.split("-")[1]
       if (i.user.id !== authorId) {

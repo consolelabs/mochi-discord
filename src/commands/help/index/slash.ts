@@ -1,4 +1,9 @@
-import { CommandInteraction, GuildMember, Message } from "discord.js"
+import {
+  ButtonInteraction,
+  CommandInteraction,
+  GuildMember,
+  Message,
+} from "discord.js"
 import { wrapError } from "utils/wrap-error"
 import {
   PageType,
@@ -27,7 +32,10 @@ const run = async (interaction: CommandInteraction) => {
         i.deferUpdate()
         const pageType = i.customId as PageType
         if (pageType === "profile") {
-          await renderProfile(i, interaction.member as GuildMember)
+          await renderProfile(
+            i as ButtonInteraction,
+            interaction.member as GuildMember
+          )
         } else {
           const embed = getHelpEmbed(interaction.user)
           await buildHelpInterface(embed, pageType)

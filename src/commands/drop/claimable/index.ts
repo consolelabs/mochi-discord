@@ -5,7 +5,7 @@ import { CommandInteraction, Message } from "discord.js"
 import { MachineConfig, RouterSpecialAction, route } from "utils/router"
 import { AirdropCampaignStatus } from ".."
 
-export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
+const machineConfig: (ctx: any) => MachineConfig = (context) => ({
   id: "drop claimable",
   initial: "claimableAirdrops",
   context: {

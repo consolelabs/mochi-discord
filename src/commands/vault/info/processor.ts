@@ -1,4 +1,5 @@
 import config from "adapters/config"
+import CacheManager from "cache/node-cache"
 import { formatView, getButtons } from "commands/balances/index/processor"
 import { MessageActionRow, MessageButton } from "discord.js"
 import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
@@ -10,12 +11,14 @@ import {
   getEmoji,
   getEmojiToken,
   getEmojiURL,
+  isAddress,
   msgColors,
   shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
 import { HOMEPAGE_URL } from "utils/constants"
 import { formatDigit } from "utils/defi"
+import { getDiscordRenderableByProfileId } from "utils/profile"
 
 export async function runGetVaultDetail(
   vaultName: string,
@@ -69,7 +72,7 @@ export async function runGetVaultDetail(
   const myNftTitleFields = buildMyNftTitleFields(data)
   const myNftFields = buildMyNftFields(data)
   const treasurerFields = buildTreasurerFields(data)
-  const recentTxFields = buildRecentTxFields(data)
+  const recentTxFields = await buildRecentTxFields(data)
 
   fields = [
     ...(tokenBalanceBreakdownText
@@ -150,7 +153,13 @@ function formatCurrentRequest(request: any) {
   }
 }
 
-function formatRecentTransaction(tx: any) {
+CacheManager.init({
+  pool: "vault-recent-txns",
+  ttl: 300,
+  checkperiod: 300,
+})
+
+async function formatRecentTransaction(tx: any) {
   const date = new Date(tx.date)
   const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
   const amount = ["+", "-"].includes(tx.amount.split("")[0])
@@ -158,18 +167,20 @@ function formatRecentTransaction(tx: any) {
     : tx.amount
   const token = tx.token.toUpperCase()
   const tokenEmoji = getEmojiToken(token)
-  // const address =
-  //   tx.to_address === "" ? "Mochi Wallet" : shortenHashOrAddress(tx.to_address)
   switch (tx.action) {
-    case "Sent":
-      return `${t} ${getEmoji(
-        "SHARE"
-      )} Sent \`${amount} ${token}\` ${tokenEmoji}\n`
-    case "Received":
-      return `${t} ${getEmoji(
-        "ANIMATED_MONEY",
-        true
-      )} Received \`${amount} ${token}\` ${tokenEmoji}\n`
+    case "Received": {
+      const profileId = tx.target
+      let from = `\`${shortenHashOrAddress(profileId)}\``
+      if (!isAddress(profileId).valid) {
+        from = await CacheManager.get({
+          pool: "vault-recent-txns",
+          key: profileId,
+          call: async () => await getDiscordRenderableByProfileId(profileId),
+        })
+      }
+
+      return `${t} ${tokenEmoji} +${amount} ${token} from ${from}\n`
+    }
     case "Add":
       return `${t} ${getEmoji("TREASURER_ADD")} Add <@${
         tx.target
@@ -183,8 +194,20 @@ function formatRecentTransaction(tx: any) {
         "ANIMATED_VAULT_KEY",
         true
       )} Set the threshold to ${tx.threshold}% for vault\n`
-    case "Transfer":
-      return `${t} ${getEmoji("SHARE")} Sent ${amount} ${tokenEmoji} ${token}\n`
+    case "Sent":
+    case "Transfer": {
+      const profileId = tx.target
+      let to = `\`${shortenHashOrAddress(profileId)}\``
+      if (!isAddress(profileId).valid) {
+        to = await CacheManager.get({
+          pool: "vault-recent-txns",
+          key: profileId,
+          call: async () => await getDiscordRenderableByProfileId(profileId),
+        })
+      }
+
+      return `${t} ${tokenEmoji} -${amount} ${token} to ${to}\n`
+    }
   }
 }
 
@@ -235,20 +258,17 @@ function buildMyNftFields(data: any): any {
   return myNftFields
 }
 
-export function buildRecentTxFields(data: any): any {
-  let valueRecentTx = ""
-  for (let i = 0; i < data.recent_transaction.length; i++) {
-    const tx = data.recent_transaction[i]
-    // filter out spammy tokens
-    if (tx.token.length > 10) continue
-    // if (tx.token.toUpperCase() !== tx.token) continue
-    valueRecentTx += formatRecentTransaction(data.recent_transaction[i])
-  }
-  if (!valueRecentTx) return []
+export async function buildRecentTxFields(data: any) {
+  const formatted = await Promise.all(
+    data.recent_transaction
+      .filter((tx: any) => tx.token.length <= 10)
+      .map((tx: any) => formatRecentTransaction(tx))
+  )
+  if (!formatted.length) return []
   return [
     {
       name: `Recent Transaction`,
-      value: valueRecentTx,
+      value: formatted.join(""),
       inline: false,
     },
   ]

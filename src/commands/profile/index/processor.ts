@@ -8,8 +8,10 @@ import {
   MessageSelectMenu,
   TextInputComponent,
   ModalActionRowComponent,
+  CommandInteraction,
+  SelectMenuInteraction,
 } from "discord.js"
-import { APIError, InternalError, OriginalMessage } from "errors"
+import { APIError, InternalError } from "errors"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
   capitalizeFirst,
@@ -91,28 +93,28 @@ const suffixes = new Map([
 ])
 
 async function compose(
-  msg: OriginalMessage,
+  i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
   member: GuildMember,
   dataProfile: any
 ) {
   const [podProfileRes, vaultsRes, walletsRes, socials, balances] =
     await Promise.all([
-      profile.getUserProfile(msg.guildId ?? "", member.user.id),
-      config.vaultList(msg.guildId ?? "", false, dataProfile.id),
+      profile.getUserProfile(i.guildId ?? "", member.user.id),
+      config.vaultList(i.guildId ?? "", false, dataProfile.id),
       profile.getUserWallets(member.id),
       profile.getUserSocials(member.id),
       getBalances(
         dataProfile.id,
         member.user.id,
         BalanceType.Offchain,
-        msg,
+        i,
         "",
         ""
       ),
     ])
   if (!podProfileRes.ok) {
     throw new APIError({
-      msgOrInteraction: msg,
+      msgOrInteraction: i,
       description: podProfileRes.log,
       curl: podProfileRes.curl,
     })
@@ -412,23 +414,26 @@ function sendKafka(profileId: string, username: string) {
   sendActivityMsg(kafkaMsg)
 }
 
-export async function render(msg: OriginalMessage, member: GuildMember) {
+export async function render(
+  i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
+  member: GuildMember
+) {
   if (!(member instanceof GuildMember)) {
     throw new InternalError({
-      msgOrInteraction: msg,
+      msgOrInteraction: i,
       description: "Couldn't get user data",
     })
   }
   const dataProfile = await profile.getByDiscord(member.user.id, false)
   if (dataProfile.err) {
     throw new InternalError({
-      msgOrInteraction: msg,
+      msgOrInteraction: i,
       description: "Couldn't get profile data",
     })
   }
   sendKafka(dataProfile.id, member.user.username)
 
-  return await compose(msg, member, dataProfile)
+  return await compose(i, member, dataProfile)
 }
 
 export function sendBinanceManualMessage(isUpdating = false) {

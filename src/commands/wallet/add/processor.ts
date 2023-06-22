@@ -46,16 +46,17 @@ export async function handleWalletAddition(msg: OriginalMessage) {
   const author = isTextMsg ? msg.author : msg.user
   const embed = composeEmbedMessage(null, {
     author: ["Connect On-chain Wallet", getEmojiURL(emojis.WALLET_1)],
-    description: `${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )} Please click on \`Verify Wallet\` below to connect your cryptocurrency wallet.
-    ${getEmoji(
-      "ANIMATED_POINTING_RIGHT",
-      true
-    )} Currently, we only support the following chains.\n
-    ${renderListPlatform(supportedChains)}
-    `,
+    description: [
+      `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Please click on \`Verify Wallet\` below to connect your cryptocurrency wallet.`,
+      `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Currently, we only support the following chains.\n`,
+      renderListPlatform(supportedChains),
+    ].join("\n"),
     originalMsgAuthor: author,
     color: msgColors.SUCCESS,
   })

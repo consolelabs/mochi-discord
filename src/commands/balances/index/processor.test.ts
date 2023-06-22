@@ -1,15 +1,13 @@
-import { slashCommands } from "commands"
-import { CommandInteraction, MessageOptions } from "discord.js"
+import { CommandInteraction } from "discord.js"
 import { APIError } from "errors"
-import { RunResult } from "types/common"
 import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import mockdc from "../../../../tests/mocks/discord"
 import mochiPay from "../../../adapters/mochi-pay"
+import { BalanceType, renderBalances } from "./processor"
 
 jest.mock("adapters/defi")
-const balCmd = slashCommands["balances"]
 
 describe("balances", () => {
   let i: CommandInteraction
@@ -42,22 +40,22 @@ describe("balances", () => {
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     const expected = composeEmbedMessage(null, {
       author: ["Mochi wallet", getEmojiURL(emojis.NFT2)],
-      description: `<:cake:1113114867361120287>\`10 CAKE ≈  $30\`\n<:ftm:967285237686108212>\`5 FTM   ≈ $2.5\``,
+      description: `**Spot**\n<:cake:1113114867361120287>\`10 CAKE ≈  $30\`\n<:ftm:967285237686108212>\`5 FTM   ≈ $2.5\``,
     })
     justifyEmbedFields(expected, 3)
     expected.addFields({
       name: `Total (U.S dollar)`,
       value: `${getEmoji("CASH")} \`$32.5\``,
     })
-    const output = await balCmd.run(i)
+    const { msgOpts } = await renderBalances(i.user.id, {
+      showUsd: false,
+      type: BalanceType.Offchain,
+      interaction: i,
+      address: "",
+    })
     expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)
-    expect(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    ).toStrictEqual(expected.author)
-    expect(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    ).toStrictEqual(expected.description)
+    expect(msgOpts.embeds?.[0].author).toStrictEqual(expected.author)
+    expect(msgOpts.embeds?.[0].description).toStrictEqual(expected.description)
   })
 
   test("dont have balances", async () => {
@@ -75,15 +73,15 @@ describe("balances", () => {
         "earn"
       )} or ${await getSlashCommand("deposit")}`,
     })
-    const output = await balCmd.run(i)
+    const { msgOpts } = await renderBalances(i.user.id, {
+      showUsd: false,
+      type: BalanceType.Offchain,
+      interaction: i,
+      address: "",
+    })
     expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)
-    expect(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0].author
-    ).toStrictEqual(expected.author)
-    expect(
-      (output as RunResult<MessageOptions>)?.messageOptions?.embeds?.[0]
-        .description
-    ).toStrictEqual(expected.description)
+    expect(msgOpts.embeds?.[0].author).toStrictEqual(expected.author)
+    expect(msgOpts.embeds?.[0].description).toStrictEqual(expected.description)
   })
 
   test("balances api error", async () => {
@@ -92,7 +90,12 @@ describe("balances", () => {
     }
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     try {
-      await balCmd.run(i)
+      await renderBalances(i.user.id, {
+        showUsd: false,
+        type: BalanceType.Offchain,
+        interaction: i,
+        address: "",
+      })
     } catch (e) {
       expect(mochiPay.getBalances).toHaveBeenCalledTimes(1)
       expect(e).toBeInstanceOf(APIError)

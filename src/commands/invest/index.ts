@@ -15,13 +15,13 @@ CacheManager.init({
   checkperiod: 1,
 })
 
-export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
+const machineConfig: (ctx: any) => MachineConfig = (context) => ({
   id: "invest",
   initial: "invests",
   context: {
     button: {
       invests: (i, ev, ctx) => {
-        return renderInvestHome(ctx.page)
+        return renderInvestHome(i, ctx.page)
       },
     },
     ...context,
@@ -73,8 +73,8 @@ const slashCmd: SlashCommand = {
   run: async function (i: CommandInteraction) {
     const token = i.options.getString("token", false) ?? undefined
     const { context, msgOpts } = token
-      ? await renderInvestToken(token)
-      : await renderInvestHome()
+      ? await renderInvestToken(i, token)
+      : await renderInvestHome(i)
 
     const reply = (await i.editReply(msgOpts)) as Message
 

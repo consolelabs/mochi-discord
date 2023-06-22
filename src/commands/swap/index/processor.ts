@@ -147,7 +147,7 @@ function renderNoTradeRouteData(
     embeds: [
       getErrorEmbed({
         title: "Swap request failed",
-        color: msgColors.ERROR,
+        color: msgColors.GRAY,
         description: [
           `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
