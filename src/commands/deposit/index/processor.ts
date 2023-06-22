@@ -64,9 +64,11 @@ export async function deposit(
   ).map((a) => ({
     symbol: a.contract.chain.symbol.toUpperCase(),
     address: a.contract.address,
-    decimal: a.contract.token?.decimal,
-    chainId: a.contract.chain.chain_id ?? 1,
-    tokenAddress: a.contract.token?.address,
+    decimal: a.token.decimal,
+    chainId: Number(a.token.chain_id ?? 1),
+    tokenAddress: a.token.address,
+    isEVM: a.contract.chain.is_evm,
+    isNative: a.token.native,
   }))
 
   if (!addresses.length)
@@ -161,16 +163,21 @@ export async function depositDetail(
   amount: number,
   depositObj: any
 ) {
+  let buffer
   // create QR code image
-  const buffer = await qrcode.toBuffer(
-    toMetamaskDeeplink(
-      i.values.at(0) ?? "",
-      amount,
-      depositObj.decimal,
-      depositObj.chainId,
-      depositObj.tokenAddress
+  if (depositObj.isEVM) {
+    buffer = await qrcode.toBuffer(
+      toMetamaskDeeplink(
+        i.values.at(0) ?? "",
+        amount,
+        depositObj.decimal,
+        depositObj.chainId,
+        !depositObj.isNative ? depositObj.tokenAddress : undefined
+      )
     )
-  )
+  } else {
+    buffer = await qrcode.toBuffer(i.values.at(0) ?? "")
+  }
   const file = new MessageAttachment(buffer, "qr.png")
 
   const embed = composeEmbedMessage(null, {
@@ -187,6 +194,9 @@ export async function depositDetail(
         "ANIMATED_POINTING_RIGHT",
         true
       )} Transactions take up to 5 minutes to process.`,
+      ...(depositObj.isEVM
+        ? [`${getEmoji("METAMASK")} Scan QR to auto-fill in Metamask.`]
+        : []),
       getEmoji("LINE").repeat(5),
       `${getEmoji("WALLET_2")}\`Address. ${depositObj.address}\``,
       `:chains:\`Chain.   \`${getEmojiToken(depositObj.symbol)} **${
