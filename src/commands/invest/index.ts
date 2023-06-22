@@ -1,12 +1,12 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { SlashCommandBuilder } from "@discordjs/builders"
 import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
 import { MachineConfig, route } from "utils/router"
 import { renderInvestHome } from "./index/processor"
 import CacheManager from "cache/node-cache"
 import { renderInvestToken } from "./token/processor"
-// import community from "adapters/community"
-// import { ApiEarningOption } from "types/krystal-api"
+import community from "adapters/community"
+import { ApiEarningOption } from "types/krystal-api"
 
 CacheManager.init({
   ttl: 0,
@@ -44,7 +44,7 @@ const slashCmd: SlashCommand = {
   name: "invest",
   category: "Defi",
   prepare: () => {
-    const data = new SlashCommandSubcommandBuilder()
+    const data = new SlashCommandBuilder()
       .setName("invest")
       .setDescription("check available earn tokens")
       .addStringOption((opt) =>
@@ -52,19 +52,29 @@ const slashCmd: SlashCommand = {
           .setName("token")
           .setDescription("filter earn by token")
           .setRequired(false)
+          .setAutocomplete(true)
       )
 
     return data
   },
-  // autocomplete: async function (i) {
-  //   const { result } = await community.getEarns()
-  //   await i.respond(
-  //     result.map((d: ApiEarningOption) => ({
-  //       name: (d.token?.symbol || "").toLowerCase(),
-  //       value: (d.token?.symbol || "").toLowerCase(),
-  //     }))
-  //   )
-  // },
+  autocomplete: async function (i) {
+    const focusedValue = i.options.getFocused()
+    const { result } = await community.getEarns()
+    const options = result
+      .sort(
+        (a: ApiEarningOption, b: ApiEarningOption) =>
+          (b.apy ?? 0) - (a.apy ?? 0)
+      )
+      .filter((d: ApiEarningOption) =>
+        d?.token?.symbol?.toLowerCase()?.includes(focusedValue.toLowerCase())
+      )
+      .slice(0, 25)
+      .map((d: ApiEarningOption) => ({
+        name: d?.token?.symbol?.toLowerCase(),
+        value: d?.token?.symbol?.toLowerCase(),
+      }))
+    await i.respond(options)
+  },
   run: async function (i: CommandInteraction) {
     const token = i.options.getString("token", false) ?? undefined
     const { context, msgOpts } = token
