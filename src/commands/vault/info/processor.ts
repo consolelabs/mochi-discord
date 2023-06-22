@@ -171,16 +171,14 @@ async function formatRecentTransaction(tx: any) {
     case "Received": {
       const profileId = tx.target
       let from = `\`${shortenHashOrAddress(profileId)}\``
-      if (!isAddress(profileId).valid) {
+      if (!profileId) {
+        from = "Unknown"
+      } else if (!isAddress(profileId).valid) {
         from = await CacheManager.get({
           pool: "vault-recent-txns",
           key: profileId,
           call: async () => await getDiscordRenderableByProfileId(profileId),
         })
-      }
-
-      if (!profileId) {
-        from = "Unknown"
       }
 
       return `${t} ${tokenEmoji} +${amount} ${token} from ${from}\n`
@@ -202,15 +200,14 @@ async function formatRecentTransaction(tx: any) {
     case "Transfer": {
       const profileId = tx.target
       let to = `\`${shortenHashOrAddress(profileId)}\``
-      if (!isAddress(profileId).valid) {
+      if (!profileId) {
+        to = "Unknown"
+      } else if (!isAddress(profileId).valid) {
         to = await CacheManager.get({
           pool: "vault-recent-txns",
           key: profileId,
           call: async () => await getDiscordRenderableByProfileId(profileId),
         })
-      }
-      if (!profileId) {
-        to = "Unknown"
       }
 
       return `${t} ${tokenEmoji} -${amount} ${token} to ${to}\n`
