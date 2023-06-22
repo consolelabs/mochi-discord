@@ -448,6 +448,7 @@ export const emojis = {
   OASIS: "1113115304176922655",
   OCEAN: "1113115314113224764",
   NO: "1112604245875765319",
+  METAMASK: "1121380474766491648",
   ...animatedEmojis,
   ...tokenEmojis,
   ...numberEmojis,
