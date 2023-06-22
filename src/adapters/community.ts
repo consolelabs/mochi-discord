@@ -675,6 +675,12 @@ class Community extends Fetcher {
       }
     )
   }
+
+  public async getEarns() {
+    return await this.jsonFetch(
+      `https://api-dev.krystal.team/all/v1/earning/options`
+    )
+  }
 }
 
 export default new Community()
