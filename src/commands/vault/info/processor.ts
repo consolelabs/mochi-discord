@@ -179,6 +179,10 @@ async function formatRecentTransaction(tx: any) {
         })
       }
 
+      if (!profileId) {
+        from = "Unknown"
+      }
+
       return `${t} ${tokenEmoji} +${amount} ${token} from ${from}\n`
     }
     case "Add":
@@ -204,6 +208,9 @@ async function formatRecentTransaction(tx: any) {
           key: profileId,
           call: async () => await getDiscordRenderableByProfileId(profileId),
         })
+      }
+      if (!profileId) {
+        to = "Unknown"
       }
 
       return `${t} ${tokenEmoji} -${amount} ${token} to ${to}\n`

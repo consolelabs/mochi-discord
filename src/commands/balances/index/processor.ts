@@ -499,8 +499,7 @@ async function switchView(
   balances: { data: any[]; farming: any[]; staking: any[]; pnl: number },
   txns: any,
   discordId: string,
-  balanceType: number,
-  showUsd: boolean
+  balanceType: number
 ) {
   const wallet = await defi.findWallet(discordId, props.address)
   const isFollowed = wallet?.data?.status ?? false
@@ -600,13 +599,11 @@ async function switchView(
 
     // farming
     const { field: farmingField, total: totalFarm } = buildFarmingField(
-      balances.farming,
-      showUsd
+      balances.farming
     )
     // staking
     const { field: stakingField, total: totalStake } = buildStakingField(
-      balances.staking,
-      showUsd
+      balances.staking
     )
 
     if (farmingField) {
@@ -782,7 +779,6 @@ function buildStakingField(staking: any[], showUsd = false) {
 export async function renderBalances(
   discordId: string,
   {
-    showUsd,
     interaction,
     type,
     address,
@@ -791,7 +787,6 @@ export async function renderBalances(
     interaction: Interaction
     type: BalanceType
     address: string
-    showUsd: boolean
     view?: BalanceView
   }
 ) {
@@ -829,27 +824,18 @@ export async function renderBalances(
     balances,
     txns,
     discordId,
-    type,
-    showUsd
+    type
   )
   return {
     context: {
       address,
       type,
-      showUsd,
     },
     msgOpts: {
       embeds: [embed],
       components:
         !isOwnWallet && type === BalanceType.Onchain
           ? [
-              new MessageActionRow().addComponents(
-                new MessageButton()
-                  .setLabel(showUsd ? "Token value" : "USD value")
-                  .setEmoji(showUsd ? getEmoji("ANIMATED_COIN_1", true) : "💵")
-                  .setStyle("SECONDARY")
-                  .setCustomId("toggle_show_usd")
-              ),
               new MessageActionRow().addComponents(
                 isFollowed
                   ? new MessageButton()

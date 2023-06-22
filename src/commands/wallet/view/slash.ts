@@ -51,7 +51,6 @@ const command: SlashCommand = {
         interaction,
         type: BalanceType.Onchain,
         address,
-        showUsd: false,
         view: BalanceView.Compact,
       }
     )
