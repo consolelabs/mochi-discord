@@ -20,9 +20,14 @@ import {
   ResponseGetAllDaoProposals,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
-import { API_BASE_URL, PT_API_BASE_URL } from "utils/constants"
+import {
+  API_BASE_URL,
+  KRYSTAL_API_BASE_URL,
+  PT_API_BASE_URL,
+} from "utils/constants"
 import { Fetcher } from "./fetcher"
 import { AirdropCampaignStatus } from "commands/drop/"
+import { KRYSTAL_ACCESS_TOKEN } from "env"
 
 class Community extends Fetcher {
   public async getInvites({ guild_id, member_id }: InvitesInput) {
@@ -677,9 +682,12 @@ class Community extends Fetcher {
   }
 
   public async getEarns() {
-    return await this.jsonFetch(
-      `https://api-dev.krystal.team/all/v1/earning/options`
-    )
+    return await this.jsonFetch(`${KRYSTAL_API_BASE_URL}/earning/options`, {
+      headers: {
+        "Content-Type": "application/json",
+        "x-rate-access-token": `${KRYSTAL_ACCESS_TOKEN}`,
+      },
+    })
   }
 }
 

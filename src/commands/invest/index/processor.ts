@@ -7,6 +7,8 @@ import { VERTICAL_BAR } from "utils/constants"
 import { paginationButtons } from "utils/router"
 import { ApiEarningOption } from "types/krystal-api"
 import { chunk, groupBy, uniq } from "lodash"
+import { InternalError } from "errors"
+import { ButtonInteraction, CommandInteraction } from "discord.js"
 
 const PAGE_SIZE = 16 as const
 
@@ -43,21 +45,30 @@ function groupByToken(data: ApiEarningOption[]) {
   })
 }
 
-export async function renderInvestHome(page = 0) {
+export async function renderInvestHome(
+  i: CommandInteraction | ButtonInteraction,
+  page = 0
+) {
   let tokenData = [] as HomeEarn[]
   let totalPage = 0
-  const { result, ok } = await CacheManager.get({
+  const { result, ok, error } = await CacheManager.get({
     pool: "invest",
     key: `invest-list`,
     call: () => community.getEarns(),
   })
 
-  if (ok) {
-    const groupedData = groupByToken(result)
-    const chunks = chunk(groupedData, PAGE_SIZE)
-    tokenData = chunks[page] as HomeEarn[]
-    totalPage = Math.ceil(groupedData.length / PAGE_SIZE)
+  if (!ok) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      title: "Cannot get earn options",
+      description: error,
+    })
   }
+
+  const groupedData = groupByToken(result)
+  const chunks = chunk(groupedData, PAGE_SIZE)
+  tokenData = chunks[page] as HomeEarn[]
+  totalPage = Math.ceil(groupedData.length / PAGE_SIZE)
 
   const { segments } = formatDataTable(
     [
