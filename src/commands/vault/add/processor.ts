@@ -62,6 +62,7 @@ export async function runAddTreasurer({
       i.options.getString("message")?.trim() || "Add member as treasurer",
     type: "add",
     requester: i.user.id,
+    message_url: `https://discord.com/channels/${i.guildId}/${i.channelId}/${i.id}`,
   })
 
   if (statusAddTreasurerReq !== 200 && statusAddTreasurerReq !== 400) {

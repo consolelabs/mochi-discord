@@ -61,6 +61,7 @@ export async function runRemoveTreasurer({
     message: i.options.getString("message")?.trim() || "Remove treasurer",
     type: "remove",
     requester: i.user.id,
+    message_url: `https://discord.com/channels/${i.guildId}/${i.channelId}/${i.id}`,
   })
 
   if (statusAddTreasurerReq !== 200 && statusAddTreasurerReq !== 400) {
