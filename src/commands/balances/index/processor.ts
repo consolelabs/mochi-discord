@@ -384,7 +384,7 @@ export function formatView(
           value: usdVal.toString(),
           fractionDigits: 2,
         })
-        let chain = _chain?.short_name || _chain?.name || _chain?.symbol || ""
+        let chain = _chain?.symbol || _chain?.short_name || _chain?.name || ""
         chain = chain.toLowerCase()
         if (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST))
           return {
@@ -447,7 +447,7 @@ export function formatView(
           value: usdVal.toString(),
           fractionDigits: 2,
         })
-        let chain = _chain?.short_name || _chain?.name || _chain?.symbol || ""
+        let chain = _chain?.symbol || _chain?.short_name || _chain?.name || ""
         chain = chain.toLowerCase()
 
         totalWorth += usdVal
