@@ -74,6 +74,7 @@ export async function runTransferTreasurer({
       chain: chain,
       token: token,
       amount: amount,
+      message_url: `https://discord.com/channels/${i.guildId}/${i.channelId}/${i.id}`,
     })
 
   if (!ok) {

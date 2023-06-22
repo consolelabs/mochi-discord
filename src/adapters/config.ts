@@ -1249,6 +1249,7 @@ class Config extends Fetcher {
     chain?: string
     token?: string
     address?: string
+    message_url?: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/request`, {
       method: "POST",
