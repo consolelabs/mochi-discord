@@ -48,7 +48,6 @@ describe("balances", () => {
       value: `${getEmoji("CASH")} \`$32.5\``,
     })
     const { msgOpts } = await renderBalances(i.user.id, {
-      showUsd: false,
       type: BalanceType.Offchain,
       interaction: i,
       address: "",
@@ -74,7 +73,6 @@ describe("balances", () => {
       )} or ${await getSlashCommand("deposit")}`,
     })
     const { msgOpts } = await renderBalances(i.user.id, {
-      showUsd: false,
       type: BalanceType.Offchain,
       interaction: i,
       address: "",
@@ -91,7 +89,6 @@ describe("balances", () => {
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
     try {
       await renderBalances(i.user.id, {
-        showUsd: false,
         type: BalanceType.Offchain,
         interaction: i,
         address: "",

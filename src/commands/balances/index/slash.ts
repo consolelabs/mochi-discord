@@ -9,22 +9,6 @@ export const machineConfig: (
   id: "balance",
   initial: "balance",
   context: {
-    showUsd: false,
-    button: {
-      balance: async (i, ev, ctx) => {
-        let showUsd = ctx.showUsd ?? false
-        if (ev === "TOGGLE_SHOW_USD") {
-          showUsd = !showUsd
-        }
-
-        return await renderBalances(member?.user.id ?? i.user.id, {
-          interaction: i,
-          type: ctx.type,
-          address: ctx.address,
-          showUsd,
-        })
-      },
-    },
     select: {
       balance: async (i, _ev, ctx) => {
         const [, type, address = ""] = i.values[0].split("_")
@@ -37,18 +21,13 @@ export const machineConfig: (
           interaction: i,
           type: fetcherType,
           address,
-          showUsd: ctx.showUsd,
         })
       },
     },
     ...context,
   },
   states: {
-    balance: {
-      on: {
-        TOGGLE_SHOW_USD: "balance",
-      },
-    },
+    balance: {},
   },
 })
 
@@ -59,7 +38,6 @@ const run = async (i: CommandInteraction) => {
   const { context, msgOpts } = await renderBalances(i.user.id, {
     interaction: i,
     type: BalanceType.Offchain,
-    showUsd: false,
     address: "",
     view,
   })
