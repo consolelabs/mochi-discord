@@ -248,7 +248,7 @@ async function getTxns(
     const sort = (a: any, b: any) => {
       const timeA = new Date(a.created_at).getTime()
       const timeB = new Date(b.created_at).getTime()
-      return timeA - timeB
+      return timeB - timeA
     }
 
     return [
