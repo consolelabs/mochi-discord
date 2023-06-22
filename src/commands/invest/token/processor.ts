@@ -6,10 +6,14 @@ import { formatDigit } from "utils/defi"
 import { VERTICAL_BAR } from "utils/constants"
 import { ApiEarningOption, ApiPlatform } from "types/krystal-api"
 import { flatten } from "lodash"
+import { ButtonInteraction, CommandInteraction } from "discord.js"
 
 type EarningPlatform = ApiPlatform & { chainName: string }
 
-export async function renderInvestToken(token: string) {
+export async function renderInvestToken(
+  i: CommandInteraction | ButtonInteraction,
+  token: string
+) {
   let tokenData = [] as EarningPlatform[]
   const { result, ok } = await CacheManager.get({
     pool: "invest",
@@ -39,8 +43,8 @@ export async function renderInvestToken(token: string) {
 
   if (tokenData.length === 0) {
     const embed = composeEmbedMessage(null, {
-      title: `Can not found`,
-      description: `Can not found any earning options for ${token.toUpperCase()}`,
+      title: `Cannot found`,
+      description: `Cannot found any earning options for ${token.toUpperCase()}`,
     })
 
     return {
