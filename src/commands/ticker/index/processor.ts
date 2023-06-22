@@ -163,9 +163,55 @@ export async function renderSingle(
       inline: true,
     },
     {
+      name: "Circulating Supply",
+      value: `$${formatDigit({
+        value: coin.market_data.circulating_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "Total Supply",
+      value: `$${formatDigit({
+        value: coin.market_data.total_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "Max Supply",
+      value: `$${formatDigit({
+        value: coin.market_data.max_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "Fully Diluted Valuation",
+      value: `$${formatDigit({
+        value: coin.market_data.fully_diluted_valuation?.[CURRENCY],
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "Tags",
+      // only get items that contain "Ecosystem" and remove the word "Ecosystem"
+      value: coin.categories
+        .filter((category) => category.toLowerCase().includes("ecosystem"))
+        .map((category) => category.replace(" Ecosystem", ""))
+        .join(", "),
+      inline: true,
+    },
+    {
       name: "Chain",
       value:
         coin.asset_platform?.name || coin.asset_platform?.shortname || "N/A",
+      inline: true,
+    },
+    {
+      name: " ",
+      value: " ",
       inline: true,
     },
     {
