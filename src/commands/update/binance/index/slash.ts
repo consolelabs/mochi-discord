@@ -6,7 +6,7 @@ import {
   showModalBinanceKeys,
 } from "commands/profile/index/processor"
 
-export const machineConfig: MachineConfig = {
+const machineConfig: MachineConfig = {
   id: "update binance",
   initial: "updateBinance",
   context: {

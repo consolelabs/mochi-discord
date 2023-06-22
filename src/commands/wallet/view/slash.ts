@@ -1,6 +1,10 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import profile from "adapters/profile"
-import { BalanceType, renderBalances } from "commands/balances/index/processor"
+import {
+  BalanceType,
+  BalanceView,
+  renderBalances,
+} from "commands/balances/index/processor"
 import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
@@ -40,16 +44,19 @@ const command: SlashCommand = {
   run: async (interaction) => {
     const address = interaction.options.getString("address", true)
 
-    const { messageOptions } = await renderBalances(
+    const { msgOpts } = await renderBalances(
       // TODO: this id currently is wrong
       interaction.user.id,
-      interaction,
-      BalanceType.Onchain,
-      address,
-      "compact"
+      {
+        interaction,
+        type: BalanceType.Onchain,
+        address,
+        showUsd: false,
+        view: BalanceView.Compact,
+      }
     )
 
-    const reply = await interaction.editReply(messageOptions)
+    const reply = await interaction.editReply(msgOpts)
 
     route(reply as Message, interaction, machineConfig("wallet", {}))
   },

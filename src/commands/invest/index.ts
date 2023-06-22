@@ -15,7 +15,7 @@ CacheManager.init({
   checkperiod: 1,
 })
 
-export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
+const machineConfig: (ctx: any) => MachineConfig = (context) => ({
   id: "invest",
   initial: "invests",
   context: {
