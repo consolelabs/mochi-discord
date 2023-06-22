@@ -76,7 +76,7 @@ const event: DiscordEvent<"interactionCreate"> = {
     } else if (interaction.isAutocomplete()) {
       id = `autocomplete:${
         interaction.commandName
-      }:${interaction.options.getSubcommand()}:${
+      }:${interaction.options.getSubcommand(false)}:${
         interaction.options.getFocused(true).name
       }`
     }
