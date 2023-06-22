@@ -126,11 +126,12 @@ export async function composeWatchlist(
           const { segments } = formatDataTable(
             tokenData.map((t) => {
               const price = t.current_price ?? 0
+              const priceChange = t.price_change_percentage_24h ?? 0
               return {
                 symbol: (t.symbol ?? "").toUpperCase(),
                 priceChange: `${formatDigit({
-                  value: String(t.price_change_percentage_24h ?? 0),
-                  fractionDigits: 2,
+                  value: String(priceChange),
+                  fractionDigits: priceChange > 10 ? 0 : 2,
                 })}%`,
                 usd: `$${formatDigit({
                   value: String(price),
