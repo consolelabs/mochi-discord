@@ -44,7 +44,7 @@ const command: SlashCommand = {
   run: async (interaction) => {
     const address = interaction.options.getString("address", true)
 
-    const { msgOpts } = await renderBalances(
+    const { context, msgOpts } = await renderBalances(
       // TODO: this id currently is wrong
       interaction.user.id,
       {
@@ -57,7 +57,7 @@ const command: SlashCommand = {
 
     const reply = await interaction.editReply(msgOpts)
 
-    route(reply as Message, interaction, machineConfig("wallet", {}))
+    route(reply as Message, interaction, machineConfig("wallet", context))
   },
   help: (interaction: CommandInteraction) =>
     Promise.resolve({

@@ -321,3 +321,7 @@ export const MOCHI_ACTION_WALLET = "wallet"
 export const MOCHI_ACTION_TELEGRAM = "telegram"
 export const MOCHI_ACTION_PAY_ME = "payme"
 export const MOCHI_PLATFORM_DISCORD = "discord"
+
+export const TRACKING_TYPE_FOLLOW = "follow"
+export const TRACKING_TYPE_TRACK = "track"
+export const TRACKING_TYPE_COPY = "copy"
