@@ -402,11 +402,11 @@ export function formatView(
         const usdVal = price * tokenVal
         const value = formatDigit({
           value: tokenVal.toString(),
-          fractionDigits: tokenVal >= 100000 ? 0 : 2,
+          fractionDigits: tokenVal >= 1000 ? 0 : 2,
         })
         const usdWorth = formatDigit({
           value: usdVal.toString(),
-          fractionDigits: 2,
+          fractionDigits: usdVal > 100 ? 0 : 2,
         })
         let chain = _chain?.symbol || _chain?.short_name || _chain?.name || ""
         chain = chain.toLowerCase()
@@ -465,11 +465,11 @@ export function formatView(
         const usdVal = price * tokenVal
         const value = formatDigit({
           value: tokenVal.toString(),
-          fractionDigits: tokenVal >= 100000 ? 0 : 2,
+          fractionDigits: tokenVal >= 1000 ? 0 : 2,
         })
         const usdWorth = formatDigit({
           value: usdVal.toString(),
-          fractionDigits: 2,
+          fractionDigits: usdVal > 100 ? 0 : 2,
         })
         let chain = _chain?.symbol || _chain?.short_name || _chain?.name || ""
         chain = chain.toLowerCase()
@@ -525,26 +525,25 @@ async function switchView(
   })
 
   let totalWorth = 0
+  let emptyText = ""
+
   if (view === BalanceView.Compact) {
-    const { totalWorth: _totalWorth, text: _text } = formatView(
+    const { totalWorth: _totalWorth, text } = formatView(
       "compact",
       "filter-dust",
       balances.data
     )
-    const text = _text
-      ? `**Spot**\n${_text}`
-      : `${getEmoji(
-          "ANIMATED_POINTING_RIGHT",
-          true
-        )} You have nothing yet, use ${await getSlashCommand(
-          "earn"
-        )} or ${await getSlashCommand("deposit")}`
     totalWorth = _totalWorth
 
-    if (isOwnWallet) {
-      embed.setDescription(`${_text ? `${props.description}\n\n` : ""}${text}`)
+    if (text) {
+      embed.setDescription(`**Spot**\n${text}`)
     } else {
-      embed.setDescription(text)
+      emptyText = `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} You have nothing yet, use ${await getSlashCommand(
+        "earn"
+      )} or ${await getSlashCommand("deposit")}\n\n`
     }
   } else {
     const { totalWorth: _totalWorth, fields = [] } = formatView(
@@ -553,33 +552,26 @@ async function switchView(
       balances.data
     )
     totalWorth = _totalWorth
-    if (isOwnWallet) {
-      embed.setDescription(props.description)
-    }
 
     embed.addFields(fields)
   }
 
   let grandTotal = totalWorth
 
-  const preventEmptyVal = "\u200b"
   if (balanceType === BalanceType.Offchain) {
-    embed.spliceFields(1, 0, {
-      name: "Wallets",
-      value:
-        (await renderWallets({
-          mochiWallets: {
-            data: mochiWallets,
-          },
-          wallets: {
-            data: [],
-          },
-          cexes: {
-            data: [],
-          },
-        })) + preventEmptyVal,
-      inline: false,
+    const value = await renderWallets({
+      mochiWallets: {
+        data: mochiWallets,
+        truncate: false,
+      },
+      wallets: {
+        data: [],
+      },
+      cexes: {
+        data: [],
+      },
     })
+    embed.setDescription(`**Wallets**\n${value}\n\n${embed.description}`)
   }
   if (balanceType === BalanceType.Onchain) {
     const value = await renderWallets({
@@ -594,19 +586,13 @@ async function switchView(
           {
             chain: isAddress(props.address).chainType,
             value: props.address,
-            total: formatDigit({
-              value: totalWorth.toString(),
-              fractionDigits: 2,
-            }),
           },
         ],
+        truncate: false,
       },
     })
-    embed.spliceFields(1, 0, {
-      name: "Wallet",
-      value: value + preventEmptyVal,
-      inline: false,
-    })
+
+    embed.setDescription(`**Wallet**\n${value}\n\n${embed.description}`)
 
     // farming
     const { field: farmingField, total: totalFarm } = buildFarmingField(
@@ -619,14 +605,14 @@ async function switchView(
       showFullEarn
     )
 
-    if (farmingField) {
-      grandTotal += totalFarm
-      embed.addFields(farmingField)
-    }
-
     if (stakingField) {
       grandTotal += totalStake
       embed.addFields(stakingField)
+    }
+
+    if (farmingField) {
+      grandTotal += totalFarm
+      embed.addFields(farmingField)
     }
   }
 
@@ -645,16 +631,14 @@ async function switchView(
             }),
           },
         ],
+        truncate: false,
       },
       wallets: {
         data: [],
       },
     })
-    embed.spliceFields(1, 0, {
-      name: "Wallet",
-      value: value + preventEmptyVal,
-      inline: false,
-    })
+
+    embed.setDescription(`**Wallet**\n${value}\n\n${embed.description}`)
   }
 
   embed.addFields([
@@ -681,6 +665,13 @@ async function switchView(
       ? []
       : await buildRecentTxFields({ recent_transaction: txns })),
   ])
+
+  if (emptyText) {
+    embed.setDescription(`${emptyText}${embed.description}`)
+  } else if (isOwnWallet) {
+    embed.setDescription(`${props.description}\n\n${embed.description}`)
+  }
+
   return { embed, trackingType, isOwnWallet }
 }
 
@@ -699,10 +690,13 @@ function buildFarmingField(farming: any[], showFull = false) {
         !BigNumber.from(i.liquidityTokenBalance.replace(".", "")).isZero()
     )
     .map((i) => {
+      const liquidityBal = BigNumber.from(
+        i.liquidityTokenBalance.replace(".", "")
+      )
       const [symbol0, symbol1] = [i.pair.token0.symbol, i.pair.token1.symbol]
       const amount = `${formatDigit({
         value: i.liquidityTokenBalance,
-        fractionDigits: 2,
+        fractionDigits: liquidityBal.gte(1000) ? 0 : 2,
       })} ${symbol0}-${symbol1}`
       const balanceWorth =
         i.pair.token0.balance * +i.pair.token0.tokenDayData[0].priceUSD +
@@ -713,7 +707,7 @@ function buildFarmingField(farming: any[], showFull = false) {
 
       const usdWorth = `$${formatDigit({
         value: balanceWorth,
-        fractionDigits: 0,
+        fractionDigits: balanceWorth > 100 ? 0 : 2,
       })}`
 
       const reward = `${formatDigit({
@@ -723,7 +717,7 @@ function buildFarmingField(farming: any[], showFull = false) {
 
       const rewardUsdWorth = `$${formatDigit({
         value: rewardWorth,
-        fractionDigits: 0,
+        fractionDigits: rewardWorth > 100 ? 0 : 2,
       })}`
 
       total += balanceWorth + rewardWorth
@@ -770,10 +764,7 @@ function buildFarmingField(farming: any[], showFull = false) {
     separator: [` ${APPROX} `, VERTICAL_BAR],
     ...(showFull
       ? {
-          divider: {
-            every: 2,
-            pad: `${getEmoji("BLANK")}${getEmoji("BLANK")}`,
-          },
+          dividerEvery: 2,
         }
       : {}),
   }).joined
@@ -809,7 +800,7 @@ function buildStakingField(staking: any[], showFull = false) {
       const rewardWorth = i.reward * i.price
       const amount = `${formatDigit({
         value: i.amount,
-        fractionDigits: 2,
+        fractionDigits: i.amount > 1000 ? 0 : 2,
       })} ${i.symbol}`
 
       total += stakingWorth + rewardWorth
@@ -817,7 +808,7 @@ function buildStakingField(staking: any[], showFull = false) {
 
       const usdWorth = `$${formatDigit({
         value: stakingWorth.toString(),
-        fractionDigits: 2,
+        fractionDigits: stakingWorth > 100 ? 0 : 2,
       })}`
 
       const reward = `${formatDigit({
@@ -827,7 +818,7 @@ function buildStakingField(staking: any[], showFull = false) {
 
       const rewardUsdWorth = `$${formatDigit({
         value: rewardWorth.toString(),
-        fractionDigits: 2,
+        fractionDigits: rewardWorth > 100 ? 0 : 2,
       })}`
 
       if (showFull) {
@@ -869,7 +860,7 @@ function buildStakingField(staking: any[], showFull = false) {
     rowAfterFormatter: (f, i) =>
       `${info[i].emoji}${f}${showFull ? "" : getEmoji("GIFT")}`,
     separator: [` ${APPROX} `, VERTICAL_BAR],
-    ...(showFull ? { divider: { every: 2, pad: getEmoji("BLANK") } } : {}),
+    ...(showFull ? { dividerEvery: 2 } : {}),
   }).joined
 
   if (!value)
@@ -954,22 +945,8 @@ export async function renderBalances(
       embeds: [embed],
       components:
         !isOwnWallet && type === BalanceType.Onchain
-          ? [
-              new MessageActionRow().addComponents(
-                new MessageButton()
-                  .setStyle("SECONDARY")
-                  .setLabel(showFullEarn ? "Collapse" : "Expand")
-                  .setCustomId("toggle_show_full_earn")
-              ),
-              getGuestWalletButtons(trackingType),
-            ]
+          ? [getGuestWalletButtons(trackingType)]
           : [
-              new MessageActionRow().addComponents(
-                new MessageButton()
-                  .setStyle("SECONDARY")
-                  .setLabel(showFullEarn ? "Collapse" : "Expand")
-                  .setCustomId("toggle_show_full_earn")
-              ),
               new MessageActionRow().addComponents(
                 new MessageButton()
                   .setStyle("SECONDARY")

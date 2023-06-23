@@ -70,7 +70,7 @@ export function errorEmbed(
   })
 }
 
-const MAXIMUM_CHAR_COUNT_PER_LINE = 32
+// const MAXIMUM_CHAR_COUNT_PER_LINE = 32
 
 type Alignment = "left" | "center" | "right"
 type Option<C> = {
@@ -79,11 +79,7 @@ type Option<C> = {
   alignment?: Alignment[]
   separator?: string[]
   noWrap?: boolean
-  divider?: {
-    every: number
-    char?: string
-    pad?: string
-  }
+  dividerEvery?: number
 }
 type Data = Record<string, string | number>
 
@@ -104,11 +100,7 @@ export function formatDataTable<DT extends Data>(
       rowAfterFormatter: (str: string) => str,
       separator: Array(initialCols.length - 1).fill(VERTICAL_BAR),
       noWrap: false,
-      divider: {
-        every: 0,
-        char: "༼つ ◕__◕ ༽つ",
-        pad: "",
-      },
+      dividerEvery: 0,
     },
     options
   )
@@ -198,27 +190,10 @@ export function formatDataTable<DT extends Data>(
 
     if (
       i !== 0 &&
-      resolvedOptions.divider?.every &&
-      resolvedOptions.divider.char &&
-      i % resolvedOptions.divider.every === 0
+      resolvedOptions.dividerEvery &&
+      i % resolvedOptions.dividerEvery === 0
     ) {
-      const line = row.join("")
-      const padding = " ".repeat(
-        line.length - resolvedOptions.divider.char.length
-      )
-      const halfLength = padding.length / 2
-      const halfPadding = padding.slice(0, halfLength)
-
-      let divider = `\`${halfPadding}${
-        resolvedOptions.divider.char
-      }${halfPadding}${Number.isInteger(halfLength) ? "" : " "}\``
-
-      // only show divider if it's within mobile view limit, otherwise hide it
-      if (divider.length <= MAXIMUM_CHAR_COUNT_PER_LINE) {
-        divider = `${resolvedOptions.divider.pad}${divider}`
-
-        lines.push(divider)
-      }
+      lines.push("\u200b")
     }
 
     if ((lines.join("\n") + line).length > 1024) {

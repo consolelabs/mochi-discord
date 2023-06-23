@@ -51,7 +51,8 @@ async function renderListWallet(
   title: string,
   wallets: { value: string; chain?: string; total?: number }[],
   offset: number,
-  showCash: boolean
+  showCash: boolean,
+  truncateAddress = true
 ) {
   if (!wallets.length) return ""
   const domains = await Promise.all(
@@ -61,26 +62,32 @@ async function renderListWallet(
     })
   )
 
-  return `${emoji}${title}\n${
-    formatDataTable(
-      wallets.map((w, i) => {
-        let address = domains[i] || shortenHashOrAddress(w.value, 5, 5)
-        if (!domains[i] && showCash) address = shortenHashOrAddress(w.value)
+  const data = wallets.map((w, i) => {
+    let address = domains[i]
 
-        return {
-          chain: w.chain || isAddress(w.value).chainType,
-          address,
-          balance: w.total?.toString() ? `$${w.total.toString()}` : "",
-        }
-      }),
-      {
-        cols: ["chain", "address", "balance"],
-        rowAfterFormatter: (formatted, i) =>
-          `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)}${formatted}${
-            showCash ? getEmoji("CASH") : ""
-          } `,
+    if (!domains[i]) {
+      if (truncateAddress) {
+        address = shortenHashOrAddress(w.value)
+      } else {
+        address = w.value
       }
-    ).joined
+    }
+
+    return {
+      chain: w.chain || isAddress(w.value).chainType,
+      address,
+      balance: w.total?.toString() ? `$${w.total.toString()}` : "",
+    }
+  })
+
+  return `${emoji}${title}\n${
+    formatDataTable(data, {
+      cols: ["chain", "address", "balance"],
+      rowAfterFormatter: (formatted, i) =>
+        `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)}${formatted}${
+          showCash && data[i].balance ? getEmoji("CASH") : ""
+        } `,
+    }).joined
   }`
 }
 
@@ -364,14 +371,17 @@ export async function renderWallets({
   mochiWallets: {
     data: any[]
     title?: string
+    truncate?: boolean
   }
   wallets: {
     data: any[]
     title?: string
+    truncate?: boolean
   }
   cexes: {
     data: any[]
     title?: string
+    truncate?: boolean
   }
 }) {
   const strings = (
@@ -381,21 +391,24 @@ export async function renderWallets({
         mochiWallets.title ?? "`Mochi`",
         mochiWallets.data,
         0,
-        false
+        false,
+        mochiWallets.truncate
       ),
       await renderListWallet(
         getEmoji("WALLET_1"),
         wallets.title ?? "`On-chain`",
         wallets.data,
         mochiWallets.data.length,
-        true
+        true,
+        wallets.truncate
       ),
       await renderListWallet(
         getEmoji("WEB"),
         cexes.title ?? "`CEX`",
         cexes.data,
         mochiWallets.data.length + (wallets.data.length || 0),
-        true
+        true,
+        cexes.truncate
       ),
     ])
   ).filter(Boolean)
