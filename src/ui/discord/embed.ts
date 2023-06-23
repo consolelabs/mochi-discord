@@ -38,7 +38,7 @@ import {
   PREFIX,
   VERTICAL_BAR,
 } from "utils/constants"
-import { zip } from "lodash"
+import { zip, merge } from "lodash"
 import { getRandomTip } from "cache/tip-fact-cache"
 
 export function errorEmbed(
@@ -70,7 +70,7 @@ export function errorEmbed(
   })
 }
 
-// const MAXIMUM_CHAR_COUNT_PER_LINE = 32
+const MAXIMUM_CHAR_COUNT_PER_LINE = 32
 
 type Alignment = "left" | "center" | "right"
 type Option<C> = {
@@ -79,6 +79,11 @@ type Option<C> = {
   alignment?: Alignment[]
   separator?: string[]
   noWrap?: boolean
+  divider?: {
+    every: number
+    char?: string
+    pad?: string
+  }
 }
 type Data = Record<string, string | number>
 
@@ -89,7 +94,7 @@ export function formatDataTable<DT extends Data>(
   if (!data.length || !options.cols.length) return { segments: [], joined: "" }
   const segments = []
   const initialCols = Object.keys(data[0])
-  const resolvedOptions = Object.assign<
+  const resolvedOptions = merge<
     Required<Option<keyof DT>>,
     Partial<Option<keyof DT>>
   >(
@@ -99,6 +104,11 @@ export function formatDataTable<DT extends Data>(
       rowAfterFormatter: (str: string) => str,
       separator: Array(initialCols.length - 1).fill(VERTICAL_BAR),
       noWrap: false,
+      divider: {
+        every: 0,
+        char: "༼つ ◕__◕ ༽つ",
+        pad: "",
+      },
     },
     options
   )
@@ -185,6 +195,33 @@ export function formatDataTable<DT extends Data>(
     //     i
     //   )
     // }
+
+    if (
+      i !== 0 &&
+      resolvedOptions.divider?.every &&
+      resolvedOptions.divider.char &&
+      i % resolvedOptions.divider.every === 0
+    ) {
+      const padding = " ".repeat(
+        Array.from(longestTextByColumns.entries())
+          .filter((e) => resolvedOptions.cols.includes(e[0]))
+          .map((e) => e[1])
+          .reduce((acc, c) => (acc += c), 0) +
+          resolvedOptions.separator.reduce((acc, c) => (acc += c.length), 0) -
+          resolvedOptions.divider.char.length -
+          2
+      )
+      const halfPadding = padding.slice(0, padding.length / 2)
+
+      let divider = `\`${halfPadding}${resolvedOptions.divider.char}${halfPadding}\``
+
+      // only show divider if it's within mobile view limit, otherwise hide it
+      if (divider.length <= MAXIMUM_CHAR_COUNT_PER_LINE) {
+        divider = `${resolvedOptions.divider.pad}${divider}`
+
+        lines.push(divider)
+      }
+    }
 
     if ((lines.join("\n") + line).length > 1024) {
       segments.push([...lines])
