@@ -4,24 +4,15 @@ import {
   MessageActionRow,
   MessageButton,
   ButtonInteraction,
-  Message,
 } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { APIError } from "errors"
 import { getEmoji, msgColors, emojis, getEmojiURL } from "utils/common"
-import { listSubmissionVault } from "utils/vault"
-import NodeCache from "node-cache"
 import {
   getErrorEmbed,
   composeEmbedMessage,
   getSuccessEmbed,
 } from "ui/discord/embed"
-
-export const treasurerRemoveCache = new NodeCache({
-  stdTTL: 0,
-  checkperiod: 1,
-  useClones: false,
-})
 
 export async function runRemoveTreasurer({
   i,
@@ -104,12 +95,10 @@ export async function runRemoveTreasurer({
         })
       )
 
-      const cacheKey = `treasurerRemove-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`
-
       i.guild?.members
         .fetch(treasurer.user_discord_id)
         .then(async (treasurer) => {
-          const msg = await treasurer.send({
+          await treasurer.send({
             embeds: [
               composeEmbedMessage(null, {
                 title: `${getEmoji("ANIMATED_BELL", true)} Mochi Notifications`,
@@ -129,7 +118,6 @@ export async function runRemoveTreasurer({
             ],
             components: [actionRow],
           })
-          treasurerRemoveCache.set(cacheKey, msg)
         })
     })
   }
@@ -223,63 +211,5 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
       ],
       components: [],
     })
-
-    // get all key in cache
-    Array.from(treasurerRemoveCache.keys())
-      .filter((key) => key.includes(`treasurerRemove-${requestId}-${vaultId}`))
-      .forEach(async (key) => {
-        const msg = treasurerRemoveCache.get(key) as Message
-        if (msg) {
-          await msg.edit({
-            embeds: [
-              getSuccessEmbed({
-                title: "Remove tresurer approved",
-                description: `Request has already been approved by majority treasurers \`${
-                  dataTreasurerSubmisison.vote_result.total_approved_submission
-                }/${
-                  dataTreasurerSubmisison.vote_result.total_submission
-                }\`\n${listSubmissionVault(
-                  dataTreasurerSubmisison.total_submissions
-                )}`,
-              }),
-            ],
-            components: [],
-          })
-        }
-        treasurerRemoveCache.del(key)
-      })
-  } else {
-    if (
-      dataTreasurerSubmisison.vote_result.total_rejected_submisison >
-      dataTreasurerSubmisison.vote_result.allowed_rejected_submisison
-    ) {
-      // get all key in cache
-      Array.from(treasurerRemoveCache.keys())
-        .filter((key) =>
-          key.includes(`treasurerRemove-${requestId}-${vaultId}`)
-        )
-        .forEach(async (key) => {
-          const msg = treasurerRemoveCache.get(key) as Message
-          if (msg) {
-            await msg.edit({
-              embeds: [
-                getErrorEmbed({
-                  title: "Remove treasurer rejected",
-                  description: `Request has already rejected by majority treasurers \`${
-                    dataTreasurerSubmisison.vote_result
-                      .total_rejected_submisison
-                  }/${
-                    dataTreasurerSubmisison.vote_result.total_submission
-                  }\`\n${listSubmissionVault(
-                    dataTreasurerSubmisison.total_submissions
-                  )}`,
-                }),
-              ],
-              components: [],
-            })
-          }
-          treasurerRemoveCache.del(key)
-        })
-    }
   }
 }
