@@ -7,6 +7,7 @@ import { getEmojiURL } from "utils/common"
 import { shortenHashOrAddress } from "utils/common"
 import { getEmoji, isAddress, msgColors } from "utils/common"
 import { WalletTrackingType } from ".."
+import { getSlashCommand } from "utils/commands"
 
 export async function followWallet(
   msg: OriginalMessage,
@@ -41,7 +42,9 @@ export async function followWallet(
     throw new InternalError({
       msgOrInteraction: msg,
       title: "Alias has been used",
-      description: `This alias has been used for another address. Please enter another alias!\n${pointingright} You can see used aliases by using \`$wallet view\`.`,
+      description: `\n${pointingright} This alias has been used for another address. Please enter another alias!\n${pointingright} You can see used aliases by using ${await getSlashCommand(
+        "wallet list"
+      )}.`,
     })
   }
   if (!ok) {

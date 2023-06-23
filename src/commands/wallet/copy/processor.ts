@@ -9,6 +9,7 @@ import {
   msgColors,
   shortenHashOrAddress,
 } from "utils/common"
+import { getSlashCommand } from "utils/commands"
 import { WalletTrackingType } from ".."
 import { composeEmbedMessage } from "ui/discord/embed"
 
@@ -45,7 +46,9 @@ export async function copyWallet(
     throw new InternalError({
       msgOrInteraction: msg,
       title: "Alias has been used",
-      description: `This alias has been used for another address. Please enter another alias!\n${pointingright} You can see used aliases by using \`$wallet view\`.`,
+      description: `\n${pointingright} This alias has been used for another address. Please enter another alias!\n${pointingright} You can see used aliases by using ${await getSlashCommand(
+        "wallet list"
+      )}.`,
     })
   }
   if (!ok) {
