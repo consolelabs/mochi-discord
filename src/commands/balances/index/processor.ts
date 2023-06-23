@@ -31,11 +31,13 @@ import {
   TRACKING_TYPE_FOLLOW,
   TRACKING_TYPE_COPY,
   TRACKING_TYPE_TRACK,
+  VERTICAL_BAR,
 } from "utils/constants"
-import mochiPay from "../../../adapters/mochi-pay"
-import { convertString } from "../../../utils/convert"
-import { formatDigit } from "../../../utils/defi"
-import { getProfileIdByDiscord } from "../../../utils/profile"
+import mochiPay from "adapters/mochi-pay"
+import { convertString } from "utils/convert"
+import { formatDigit } from "utils/defi"
+import { getProfileIdByDiscord } from "utils/profile"
+import { BigNumber } from "ethers"
 
 export enum BalanceType {
   Offchain = 1,
@@ -505,7 +507,8 @@ async function switchView(
   balances: { data: any[]; farming: any[]; staking: any[]; pnl: number },
   txns: any,
   discordId: string,
-  balanceType: number
+  balanceType: number,
+  showFullEarn: boolean
 ) {
   const wallet = await defi.findWallet(discordId, props.address)
   const trackingType = wallet?.data?.type
@@ -605,11 +608,13 @@ async function switchView(
 
     // farming
     const { field: farmingField, total: totalFarm } = buildFarmingField(
-      balances.farming
+      balances.farming,
+      showFullEarn
     )
     // staking
     const { field: stakingField, total: totalStake } = buildStakingField(
-      balances.staking
+      balances.staking,
+      showFullEarn
     )
 
     if (farmingField) {
@@ -677,10 +682,14 @@ async function switchView(
   return { embed, trackingType, isOwnWallet }
 }
 
-function buildFarmingField(farming: any[], showUsd = false) {
+function buildFarmingField(farming: any[], showFull = false) {
   let total = 0
   const info = farming
-    ?.filter((i) => i.liquidityTokenBalance !== "0")
+    ?.filter(
+      (i) =>
+        i.liquidityTokenBalance !== "0" ||
+        !BigNumber.from(i.liquidityTokenBalance.replace(".", "")).isZero()
+    )
     .map((i) => {
       const [symbol0, symbol1] = [i.pair.token0.symbol, i.pair.token1.symbol]
       const amount = `${formatDigit({
@@ -694,21 +703,51 @@ function buildFarmingField(farming: any[], showUsd = false) {
       const rewardWorth =
         i.reward.amount * +i.reward.token.tokenDayData[0].priceUSD
 
+      const usdWorth = `$${formatDigit({
+        value: balanceWorth,
+        fractionDigits: 0,
+      })}`
+
+      const reward = `${formatDigit({
+        value: i.reward.amount.toString(),
+        fractionDigits: 2,
+      })} ${i.reward.token.symbol}`
+
+      const rewardUsdWorth = `$${formatDigit({
+        value: rewardWorth,
+        fractionDigits: 0,
+      })}`
+
       total += balanceWorth + rewardWorth
-      return {
-        emoji: `${getEmoji(symbol0)}${getEmoji(symbol1)}`,
-        amount,
-        usdWorth: `$${formatDigit({ value: balanceWorth, fractionDigits: 0 })}`,
-        reward: `${formatDigit({
-          value: i.reward.amount.toString(),
-          fractionDigits: 2,
-        })} ${i.reward.token.symbol}`,
-        rewardWorth: `$${formatDigit({
-          value: rewardWorth,
-          fractionDigits: 0,
-        })}`,
+      const record = []
+
+      if (showFull) {
+        record.push(
+          {
+            emoji: `${getEmoji(symbol0)}${getEmoji(symbol1)}`,
+            amount,
+            usdWorth,
+            reward: "",
+          },
+          {
+            emoji: `${getEmoji("BLANK")}${getEmoji("GIFT")}`,
+            amount: reward,
+            usdWorth: rewardUsdWorth,
+            reward: "",
+          }
+        )
+      } else {
+        record.push({
+          emoji: `${getEmoji(symbol0)}${getEmoji(symbol1)}`,
+          amount,
+          usdWorth,
+          reward: rewardUsdWorth,
+        })
       }
+
+      return record
     })
+    .flat()
 
   if (!info)
     return {
@@ -717,8 +756,18 @@ function buildFarmingField(farming: any[], showUsd = false) {
     }
 
   const value = formatDataTable(info, {
-    cols: showUsd ? ["usdWorth", "rewardWorth"] : ["amount", "reward"],
-    rowAfterFormatter: (f, i) => `${info[i].emoji}${f}`,
+    cols: showFull ? ["amount", "usdWorth"] : ["amount", "usdWorth", "reward"],
+    rowAfterFormatter: (f, i) =>
+      `${info[i].emoji}${f}${showFull ? "" : getEmoji("GIFT")}`,
+    separator: [` ${APPROX} `, VERTICAL_BAR],
+    ...(showFull
+      ? {
+          divider: {
+            every: 2,
+            pad: `${getEmoji("BLANK")}${getEmoji("BLANK")}`,
+          },
+        }
+      : {}),
   }).joined
 
   if (!value)
@@ -737,41 +786,62 @@ function buildFarmingField(farming: any[], showUsd = false) {
   }
 }
 
-function buildStakingField(staking: any[], showUsd = false) {
-  if (!staking) {
-    return {
-      total: 0,
-      field: null,
-    }
-  }
-
+function buildStakingField(staking: any[], showFull = false) {
   let total = 0
-  const info = staking.map((i) => {
-    const stakingWorth = i.amount * i.price
-    const rewardWorth = i.reward * i.price
-    const amount = `${formatDigit({
-      value: i.amount,
-      fractionDigits: 2,
-    })} ${i.symbol}`
+  const info = staking
+    .map((i) => {
+      const stakingWorth = i.amount * i.price
+      const rewardWorth = i.reward * i.price
+      const amount = `${formatDigit({
+        value: i.amount,
+        fractionDigits: 2,
+      })} ${i.symbol}`
 
-    total += stakingWorth + rewardWorth
-    return {
-      emoji: `${getEmoji(i.symbol)}`,
-      amount,
-      usdWorth: `$${formatDigit({
+      total += stakingWorth + rewardWorth
+      const record = []
+
+      const usdWorth = `$${formatDigit({
         value: stakingWorth.toString(),
         fractionDigits: 2,
-      })}`,
-      reward: `${formatDigit({
+      })}`
+
+      const reward = `${formatDigit({
         value: i.reward.toString(),
         fractionDigits: 2,
-      })} ${i.symbol}`,
-      rewardWorth: `$${formatDigit({
+      })} ${i.symbol}`
+
+      const rewardUsdWorth = `$${formatDigit({
         value: rewardWorth.toString(),
         fractionDigits: 2,
-      })}`,
-    }
-  })
+      })}`
+
+      if (showFull) {
+        record.push(
+          {
+            emoji: getEmoji(i.symbol),
+            amount,
+            usdWorth,
+            reward,
+          },
+          {
+            emoji: getEmoji("GIFT"),
+            amount: reward,
+            usdWorth: rewardUsdWorth,
+            reward: "",
+          }
+        )
+      } else {
+        record.push({
+          emoji: getEmoji(i.symbol),
+          amount,
+          usdWorth,
+          reward: rewardUsdWorth,
+        })
+      }
+
+      return record
+    })
+    .flat()
 
   if (!info)
     return {
@@ -780,8 +850,11 @@ function buildStakingField(staking: any[], showUsd = false) {
     }
 
   const value = formatDataTable(info, {
-    cols: showUsd ? ["usdWorth", "rewardWorth"] : ["amount", "reward"],
-    rowAfterFormatter: (f, i) => `${info[i].emoji}${f}`,
+    cols: showFull ? ["amount", "usdWorth"] : ["amount", "usdWorth", "reward"],
+    rowAfterFormatter: (f, i) =>
+      `${info[i].emoji}${f}${showFull ? "" : getEmoji("GIFT")}`,
+    separator: [` ${APPROX} `, VERTICAL_BAR],
+    ...(showFull ? { divider: { every: 2, pad: getEmoji("BLANK") } } : {}),
   }).joined
 
   if (!value)
@@ -807,11 +880,13 @@ export async function renderBalances(
     type,
     address,
     view = BalanceView.Compact,
+    showFullEarn = false,
   }: {
     interaction: Interaction
     type: BalanceType
     address: string
     view?: BalanceView
+    showFullEarn?: boolean
   }
 ) {
   // handle name service
@@ -848,19 +923,29 @@ export async function renderBalances(
     balances,
     txns,
     discordId,
-    type
+    type,
+    showFullEarn
   )
   return {
     context: {
       address,
       type,
       chain: addressType,
+      showFullEarn,
     },
     msgOpts: {
       embeds: [embed],
       components:
         !isOwnWallet && type === BalanceType.Onchain
-          ? [getGuestWalletButtons(trackingType)]
+          ? [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setStyle("SECONDARY")
+                  .setLabel(showFullEarn ? "Collapse" : "Expand")
+                  .setCustomId("toggle_show_full_earn")
+              ),
+              getGuestWalletButtons(trackingType),
+            ]
           : [
               new MessageActionRow().addComponents(
                 new MessageButton()
