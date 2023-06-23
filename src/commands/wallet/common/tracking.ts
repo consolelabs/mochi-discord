@@ -1,7 +1,7 @@
 import { MachineConfig } from "utils/router"
 import { copyWallet } from "../copy/processor"
 import { followWallet } from "../follow/processor"
-import { untrackWallet } from "../remove/processor"
+import { untrackWallet } from "../untrack/processor"
 import { trackWallet } from "../track/processor"
 import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 import { machineConfig as balanceMachineConfig } from "commands/balances/index/slash"
@@ -59,6 +59,10 @@ export const machineConfig: (id: string, context?: any) => MachineConfig = (
     wallet: {
       on: {
         BACK: "wallets",
+        FOLLOW_WALLET: "walletFollow",
+        TRACK_WALLET: "walletTrack",
+        COPY_WALLET: "walletCopy",
+        UNTRACK_WALLET: "walletUntrack",
       },
       ...balanceMachineConfig({ type: BalanceType.Onchain }),
     },

@@ -29,7 +29,7 @@ import { sendVerifyURL } from "commands/verify/processor"
 import {
   removeWallet,
   removeWalletConfirmation,
-} from "commands/wallet/remove/processor"
+} from "commands/wallet/untrack/processor"
 import { addToWatchlist } from "commands/watchlist/add/processor"
 import {
   AutocompleteInteraction,
@@ -68,7 +68,7 @@ import { handleBeginVerify } from "commands/verify/captcha/processor"
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
   once: false,
-  execute: async (interaction) => {
+  execute: (interaction) => {
     let id = ""
     if (interaction.isCommand()) {
       id = interaction.toString()

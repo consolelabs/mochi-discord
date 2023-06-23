@@ -25,11 +25,17 @@ import {
   shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
-import { APPROX, MIN_DUST } from "utils/constants"
-import mochiPay from "adapters/mochi-pay"
-import { convertString } from "utils/convert"
-import { formatDigit } from "utils/defi"
-import { getProfileIdByDiscord } from "utils/profile"
+import {
+  APPROX,
+  MIN_DUST,
+  TRACKING_TYPE_FOLLOW,
+  TRACKING_TYPE_COPY,
+  TRACKING_TYPE_TRACK,
+} from "utils/constants"
+import mochiPay from "../../../adapters/mochi-pay"
+import { convertString } from "../../../utils/convert"
+import { formatDigit } from "../../../utils/defi"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export enum BalanceType {
   Offchain = 1,
@@ -502,7 +508,7 @@ async function switchView(
   balanceType: number
 ) {
   const wallet = await defi.findWallet(discordId, props.address)
-  const isFollowed = wallet?.data?.status ?? false
+  const trackingType = wallet?.data?.type
   const { mochiWallets, wallets } = await profile.getUserWallets(discordId)
   const isOwnWallet = wallets.some(
     (w) => w.value.toLowerCase() === props.address.toLowerCase()
@@ -668,8 +674,7 @@ async function switchView(
       ? []
       : await buildRecentTxFields({ recent_transaction: txns })),
   ])
-
-  return { embed, isFollowed, isOwnWallet }
+  return { embed, trackingType, isOwnWallet }
 }
 
 function buildFarmingField(farming: any[], showUsd = false) {
@@ -705,6 +710,12 @@ function buildFarmingField(farming: any[], showUsd = false) {
       }
     })
 
+  if (!info)
+    return {
+      total,
+      field: null,
+    }
+
   const value = formatDataTable(info, {
     cols: showUsd ? ["usdWorth", "rewardWorth"] : ["amount", "reward"],
     rowAfterFormatter: (f, i) => `${info[i].emoji}${f}`,
@@ -727,6 +738,13 @@ function buildFarmingField(farming: any[], showUsd = false) {
 }
 
 function buildStakingField(staking: any[], showUsd = false) {
+  if (!staking) {
+    return {
+      total: 0,
+      field: null,
+    }
+  }
+
   let total = 0
   const info = staking.map((i) => {
     const stakingWorth = i.amount * i.price
@@ -754,6 +772,12 @@ function buildStakingField(staking: any[], showUsd = false) {
       })}`,
     }
   })
+
+  if (!info)
+    return {
+      total,
+      field: null,
+    }
 
   const value = formatDataTable(info, {
     cols: showUsd ? ["usdWorth", "rewardWorth"] : ["amount", "reward"],
@@ -818,7 +842,7 @@ export async function renderBalances(
       addressType ?? "eth"
     ),
   ])
-  const { embed, isFollowed, isOwnWallet } = await switchView(
+  const { embed, trackingType, isOwnWallet } = await switchView(
     view,
     props,
     balances,
@@ -830,36 +854,13 @@ export async function renderBalances(
     context: {
       address,
       type,
+      chain: addressType,
     },
     msgOpts: {
       embeds: [embed],
       components:
         !isOwnWallet && type === BalanceType.Onchain
-          ? [
-              new MessageActionRow().addComponents(
-                isFollowed
-                  ? new MessageButton()
-                      .setLabel("Unfollow")
-                      .setStyle("SECONDARY")
-                      .setCustomId("balance_unfollow")
-                      .setEmoji(getEmoji("REVOKE"))
-                  : new MessageButton()
-                      .setLabel("Follow")
-                      .setStyle("SECONDARY")
-                      .setCustomId("balance_follow")
-                      .setEmoji(getEmoji("PLUS")),
-                new MessageButton()
-                  .setLabel("Track")
-                  .setStyle("SECONDARY")
-                  .setCustomId("balance_track")
-                  .setEmoji(getEmoji("ANIMATED_STAR", true)),
-                new MessageButton()
-                  .setLabel("Copy trade")
-                  .setStyle("SECONDARY")
-                  .setEmoji(getEmoji("SWAP_ROUTE"))
-                  .setCustomId("balance_copy-trade")
-              ),
-            ]
+          ? [getGuestWalletButtons(trackingType)]
           : [
               new MessageActionRow().addComponents(
                 new MessageButton()
@@ -872,6 +873,66 @@ export async function renderBalances(
             ],
     },
   }
+}
+
+export function getGuestWalletButtons(trackingType: string) {
+  const buttons = new MessageActionRow()
+
+  if (trackingType === TRACKING_TYPE_FOLLOW) {
+    buttons.addComponents(
+      new MessageButton()
+        .setLabel("Unfollow")
+        .setStyle("SECONDARY")
+        .setCustomId("untrack_wallet")
+        .setEmoji(getEmoji("REVOKE"))
+    )
+  } else {
+    buttons.addComponents(
+      new MessageButton()
+        .setLabel("Follow")
+        .setStyle("SECONDARY")
+        .setCustomId("follow_wallet")
+        .setEmoji(getEmoji("PLUS"))
+    )
+  }
+
+  if (trackingType === TRACKING_TYPE_TRACK) {
+    buttons.addComponents(
+      new MessageButton()
+        .setLabel("Untrack")
+        .setStyle("SECONDARY")
+        .setCustomId("untrack_wallet")
+        .setEmoji(getEmoji("REVOKE"))
+    )
+  } else {
+    buttons.addComponents(
+      new MessageButton()
+        .setLabel("Track")
+        .setStyle("SECONDARY")
+        .setCustomId("track_wallet")
+        .setEmoji(getEmoji("ANIMATED_STAR", true))
+    )
+  }
+
+  if (trackingType === TRACKING_TYPE_COPY) {
+    buttons.addComponents(
+      new MessageButton()
+        .setLabel("Uncopy")
+        .setStyle("SECONDARY")
+        .setCustomId("untrack_wallet")
+        .setEmoji(getEmoji("REVOKE"))
+    )
+  } else {
+    buttons.addComponents(
+      new MessageButton()
+        .setLabel("Copy")
+        .setStyle("SECONDARY")
+        .setCustomId("copy_wallet")
+        .setEmoji(getEmoji("SWAP_ROUTE"))
+    )
+  }
+
+  return buttons
 }
 
 export function getButtons(prefix: string, suffix = "") {
