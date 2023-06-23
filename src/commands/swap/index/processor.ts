@@ -555,7 +555,25 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
     }
   }
 
-  await defi.swap(i.user.id, ctx.chainName, ctx.routeSummary)
+  const { ok, originalError } = await defi.swap(
+    i.user.id,
+    ctx.chainName,
+    ctx.routeSummary
+  )
+  if (!ok) {
+    return {
+      msgOpts: {
+        embeds: [
+          getErrorEmbed({
+            title: "Swap request failed",
+            description: originalError ?? "Internal error.",
+          }),
+        ],
+        components: [],
+      },
+    }
+  }
+
   const dm = await dmUser(
     {
       embeds: [
