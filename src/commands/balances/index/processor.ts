@@ -524,6 +524,8 @@ async function switchView(
     color: msgColors.SUCCESS,
   })
 
+  embed.setDescription("")
+
   let totalWorth = 0
   let emptyText = ""
 
@@ -687,11 +689,11 @@ function buildFarmingField(farming: any[], showFull = false) {
     ?.filter(
       (i) =>
         i.liquidityTokenBalance !== "0" ||
-        !BigNumber.from(i.liquidityTokenBalance.replace(".", "")).isZero()
+        !BigNumber.from(i.liquidityTokenBalance.split(".").at(0)).isZero()
     )
     .map((i) => {
       const liquidityBal = BigNumber.from(
-        i.liquidityTokenBalance.replace(".", "")
+        i.liquidityTokenBalance.split(".").at(0)
       )
       const [symbol0, symbol1] = [i.pair.token0.symbol, i.pair.token1.symbol]
       const amount = `${formatDigit({

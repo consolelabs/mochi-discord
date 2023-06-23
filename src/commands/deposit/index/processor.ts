@@ -198,10 +198,10 @@ export async function depositDetail(
         ? [`${getEmoji("METAMASK")} Scan QR to auto-fill in Metamask.`]
         : []),
       getEmoji("LINE").repeat(5),
-      `${getEmoji("WALLET_2")}\`Address. ${depositObj.address}\``,
       `:chains:\`Chain.   \`${getEmojiToken(depositObj.symbol)} **${
         depositObj.symbol
       }**`,
+      `${getEmoji("WALLET_2")}\`Address. ${depositObj.address}\``,
     ].join("\n"),
     thumbnail: `attachment://qr.png`,
   })
