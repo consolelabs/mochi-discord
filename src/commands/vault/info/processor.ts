@@ -271,7 +271,7 @@ export async function buildRecentTxFields(data: any) {
   if (!formatted.length) return []
   return [
     {
-      name: `Recent Transaction`,
+      name: `Recent Transactions`,
       value: formatted.join(""),
       inline: false,
     },
