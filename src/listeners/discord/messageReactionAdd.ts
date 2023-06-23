@@ -28,6 +28,12 @@ const handleRepostableMessageTracking = async (
     ),
     reaction_count: reaction.count,
     user_id: user.id,
+    user_roles: [] as string[],
+  }
+
+  const member = await msg.guild?.members.fetch(user)
+  if (member) {
+    body.user_roles = Array.from(member.roles.cache.keys())
   }
 
   const res = await webhook.pushDiscordWebhook("messageReactionAdd", body)
