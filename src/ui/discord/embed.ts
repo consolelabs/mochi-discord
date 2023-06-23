@@ -202,18 +202,16 @@ export function formatDataTable<DT extends Data>(
       resolvedOptions.divider.char &&
       i % resolvedOptions.divider.every === 0
     ) {
+      const line = row.join("")
       const padding = " ".repeat(
-        Array.from(longestTextByColumns.entries())
-          .filter((e) => resolvedOptions.cols.includes(e[0]))
-          .map((e) => e[1])
-          .reduce((acc, c) => (acc += c), 0) +
-          resolvedOptions.separator.reduce((acc, c) => (acc += c.length), 0) -
-          resolvedOptions.divider.char.length -
-          2
+        line.length - resolvedOptions.divider.char.length
       )
-      const halfPadding = padding.slice(0, padding.length / 2)
+      const halfLength = padding.length / 2
+      const halfPadding = padding.slice(0, halfLength)
 
-      let divider = `\`${halfPadding}${resolvedOptions.divider.char}${halfPadding}\``
+      let divider = `\`${halfPadding}${
+        resolvedOptions.divider.char
+      }${halfPadding}${Number.isInteger(halfLength) ? "" : " "}\``
 
       // only show divider if it's within mobile view limit, otherwise hide it
       if (divider.length <= MAXIMUM_CHAR_COUNT_PER_LINE) {
