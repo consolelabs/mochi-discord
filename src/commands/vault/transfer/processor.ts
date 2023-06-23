@@ -16,20 +16,12 @@ import {
   shortenHashOrAddress,
   getEmojiURL,
 } from "utils/common"
-import { listSubmissionVault } from "utils/vault"
-import NodeCache from "node-cache"
 import {
   getErrorEmbed,
   composeEmbedMessage,
   getSuccessEmbed,
 } from "ui/discord/embed"
 import { wrapError } from "utils/wrap-error"
-
-export const treasurerTransferCache = new NodeCache({
-  stdTTL: 0,
-  checkperiod: 1,
-  useClones: false,
-})
 
 export async function runTransferTreasurer({
   i,
@@ -145,11 +137,9 @@ export async function runTransferTreasurer({
         })
       )
 
-      const cacheKey = `treaTransfer-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${address}-${amount}-${token}-${chain}-${i.channelId}`
-
       i.guild?.members.fetch(treasurer.user_discord_id).then((treasurer) => {
         wrapError(i, async () => {
-          const msg = await treasurer.send({
+          await treasurer.send({
             embeds: [
               composeEmbedMessage(null, {
                 author: ["Vault transfer", getEmojiURL(emojis.BELL)],
@@ -160,8 +150,6 @@ export async function runTransferTreasurer({
             ],
             components: [actionRow],
           })
-
-          treasurerTransferCache.set(cacheKey, msg)
         })
       })
     })
@@ -242,65 +230,5 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
       ],
       components: [],
     })
-
-    // get all key in cache
-    Array.from(treasurerTransferCache.keys())
-      .filter((key) => key.includes(`treaTransfer-${requestId}-${vaultId}`))
-      .forEach((key) => {
-        wrapError(i, async () => {
-          const msg = treasurerTransferCache.get(key) as Message
-          if (msg) {
-            await msg.edit({
-              embeds: [
-                getSuccessEmbed({
-                  title: "Transfer approved",
-                  description: `Request has already been approved by majority of treasurers \`${
-                    dataTransferTreasurer.vote_result.total_approved_submission
-                  }/${
-                    dataTransferTreasurer.vote_result.total_submission
-                  }\`\n${listSubmissionVault(
-                    dataTransferTreasurer.total_submissions
-                  )}`,
-                }),
-              ],
-              components: [],
-            })
-          }
-          treasurerTransferCache.del(key)
-        })
-      })
-  } else {
-    if (
-      dataTransferTreasurer?.vote_result.total_rejected_submisison >
-      dataTransferTreasurer?.vote_result.allowed_rejected_submisison
-    ) {
-      // get all key in cache
-      Array.from(treasurerTransferCache.keys())
-        .filter((key) => key.includes(`treaTransfer-${requestId}-${vaultId}`))
-        .forEach((key) => {
-          wrapError(i, async () => {
-            const msg = treasurerTransferCache.get(key) as Message
-            if (msg) {
-              await msg.edit({
-                embeds: [
-                  getErrorEmbed({
-                    title: "Transfer rejected",
-                    description: `Request has already been rejected by majority of treasurers \`${
-                      dataTransferTreasurer?.vote_result
-                        .total_rejected_submisison
-                    }/${
-                      dataTransferTreasurer?.vote_result.total_submission
-                    }\`\n${listSubmissionVault(
-                      dataTransferTreasurer?.total_submissions
-                    )}`,
-                  }),
-                ],
-                components: [],
-              })
-            }
-            treasurerTransferCache.del(key)
-          })
-        })
-    }
   }
 }
