@@ -508,14 +508,16 @@ async function switchView(
   txns: any,
   discordId: string,
   balanceType: number,
-  showFullEarn: boolean
+  showFullEarn: boolean,
+  isViewingOther: boolean
 ) {
   const wallet = await defi.findWallet(discordId, props.address)
   const trackingType = wallet?.data?.type
   const { mochiWallets, wallets } = await profile.getUserWallets(discordId)
-  const isOwnWallet = wallets.some(
-    (w) => w.value.toLowerCase() === props.address.toLowerCase()
+  let isOwnWallet = wallets.some((w) =>
+    props.address.toLowerCase().includes(w.value.toLowerCase())
   )
+  isOwnWallet = isOwnWallet && !isViewingOther
 
   const embed = composeEmbedMessage(null, {
     author: [props.title, props.emoji],
@@ -684,6 +686,12 @@ async function switchView(
 
 function buildFarmingField(farming: any[], showFull = false) {
   let total = 0
+  if (!farming || !farming.length)
+    return {
+      total,
+      field: null,
+    }
+
   const info = farming
     ?.filter(
       (i) =>
@@ -788,7 +796,14 @@ function buildFarmingField(farming: any[], showFull = false) {
 
 function buildStakingField(staking: any[], showFull = false) {
   let total = 0
+  if (!staking || !staking.length)
+    return {
+      total,
+      field: null,
+    }
+
   const info = staking
+    .filter((i) => i.amount > 0)
     .map((i) => {
       const stakingWorth = i.amount * i.price
       const rewardWorth = i.reward * i.price
@@ -917,6 +932,7 @@ export async function renderBalances(
       addressType ?? "eth"
     ),
   ])
+  const isViewingOther = interaction.user.id !== discordId
   const { embed, trackingType, isOwnWallet } = await switchView(
     view,
     props,
@@ -924,7 +940,8 @@ export async function renderBalances(
     txns,
     discordId,
     type,
-    showFullEarn
+    showFullEarn,
+    isViewingOther
   )
   return {
     context: {
@@ -947,6 +964,12 @@ export async function renderBalances(
               getGuestWalletButtons(trackingType),
             ]
           : [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setStyle("SECONDARY")
+                  .setLabel(showFullEarn ? "Collapse" : "Expand")
+                  .setCustomId("toggle_show_full_earn")
+              ),
               new MessageActionRow().addComponents(
                 new MessageButton()
                   .setStyle("SECONDARY")
