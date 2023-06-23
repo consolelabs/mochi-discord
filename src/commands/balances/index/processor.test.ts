@@ -1,3 +1,4 @@
+import profile from "adapters/profile"
 import { CommandInteraction } from "discord.js"
 import { APIError } from "errors"
 import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
@@ -38,9 +39,13 @@ describe("balances", () => {
       ],
     }
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
+    profile.getUserWallets = jest.fn().mockResolvedValueOnce({
+      mochiWallets: [],
+      wallets: [],
+    })
     const expected = composeEmbedMessage(null, {
       author: ["Mochi wallet", getEmojiURL(emojis.NFT2)],
-      description: `**Spot**\n<:cake:1113114867361120287>\`10 CAKE ≈  $30\`\n<:ftm:967285237686108212>\`5 FTM   ≈ $2.5\``,
+      description: `**Wallets**\n\n\n**Spot**\n<:cake:1113114867361120287>\`10 CAKE ≈  $30\`\n<:ftm:967285237686108212>\`5 FTM   ≈ $2.5\``,
     })
     justifyEmbedFields(expected, 3)
     expected.addFields({
@@ -63,6 +68,10 @@ describe("balances", () => {
       data: [],
     }
     mochiPay.getBalances = jest.fn().mockResolvedValueOnce(balResp)
+    profile.getUserWallets = jest.fn().mockResolvedValueOnce({
+      mochiWallets: [],
+      wallets: [],
+    })
     const expected = composeEmbedMessage(null, {
       author: ["Mochi wallet", getEmojiURL(emojis.NFT2)],
       description: `${getEmoji(
@@ -70,7 +79,7 @@ describe("balances", () => {
         true
       )} You have nothing yet, use ${await getSlashCommand(
         "earn"
-      )} or ${await getSlashCommand("deposit")}`,
+      )} or ${await getSlashCommand("deposit")}\n\n**Wallets**\n\n\n`,
     })
     const { msgOpts } = await renderBalances(i.user.id, {
       type: BalanceType.Offchain,
