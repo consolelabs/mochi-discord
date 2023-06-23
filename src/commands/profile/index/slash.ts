@@ -79,7 +79,7 @@ const machineConfig: (member: GuildMember) => MachineConfig = (member) => ({
       on: {
         BACK: "profile",
       },
-      ...balanceMachineConfig(member),
+      ...balanceMachineConfig({}, member),
     },
     vault: {
       on: {

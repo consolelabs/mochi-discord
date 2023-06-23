@@ -9,6 +9,19 @@ export const machineConfig: (
   id: "balance",
   initial: "balance",
   context: {
+    button: {
+      balance: (i, ev, ctx) =>
+        renderBalances(member?.user.id ?? i.user.id, {
+          ...ctx,
+          showFullEarn:
+            ev === "TOGGLE_SHOW_FULL_EARN"
+              ? !ctx.showFullEarn
+              : ctx.showFullEarn,
+          interaction: i,
+          address: ctx.address,
+          type: ctx.type,
+        }),
+    },
     select: {
       balance: async (i, _ev, ctx) => {
         const [, type, address = ""] = i.values[0].split("_")
@@ -27,7 +40,11 @@ export const machineConfig: (
     ...context,
   },
   states: {
-    balance: {},
+    balance: {
+      on: {
+        TOGGLE_SHOW_FULL_EARN: "balance",
+      },
+    },
   },
 })
 

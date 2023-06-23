@@ -7,6 +7,7 @@ import track from "./track/slash"
 import follow from "./follow/slash"
 import copy from "./copy/slash"
 import list from "./list/slash"
+import untrack from "./untrack/slash"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
@@ -26,6 +27,7 @@ const slashActions: Record<string, SlashCommand> = {
   follow,
   copy,
   list,
+  untrack,
 }
 
 const slashCmd: SlashCommand = {
@@ -41,6 +43,7 @@ const slashCmd: SlashCommand = {
     data.addSubcommand(<SlashCommandSubcommandBuilder>follow.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>copy.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>list.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>untrack.prepare())
     return data
   },
   autocomplete: function (i) {
