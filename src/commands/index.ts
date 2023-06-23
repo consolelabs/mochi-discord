@@ -167,6 +167,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   setting: setting.slashCmd,
   update: update.slashCmd,
   role: role.slashCmd,
+  pay: pay.slashCmd,
 }
 
 // text commands is being deprecated, refer to slashCommands for latest version
@@ -197,9 +198,6 @@ export const originalCommands: Record<string, Command> = {
 
   //game
   game: game.textCmd,
-
-  // pay
-  pay: pay.textCmd,
 
   heatmap: heatmap.textCmd,
 }
