@@ -770,10 +770,7 @@ function buildFarmingField(farming: any[], showFull = false) {
     separator: [` ${APPROX} `, VERTICAL_BAR],
     ...(showFull
       ? {
-          divider: {
-            every: 2,
-            pad: `${getEmoji("BLANK")}${getEmoji("BLANK")}`,
-          },
+          dividerEvery: 2,
         }
       : {}),
   }).joined
@@ -869,7 +866,7 @@ function buildStakingField(staking: any[], showFull = false) {
     rowAfterFormatter: (f, i) =>
       `${info[i].emoji}${f}${showFull ? "" : getEmoji("GIFT")}`,
     separator: [` ${APPROX} `, VERTICAL_BAR],
-    ...(showFull ? { divider: { every: 2, pad: getEmoji("BLANK") } } : {}),
+    ...(showFull ? { dividerEvery: 2 } : {}),
   }).joined
 
   if (!value)
