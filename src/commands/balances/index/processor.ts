@@ -1041,3 +1041,36 @@ export function getButtons(prefix: string, suffix = "") {
       .setLabel("Invest"),
   ]
 }
+
+export async function getBalanceTokens(i: ButtonInteraction) {
+  const discordId = i.user.id
+  const profileId = await getProfileIdByDiscord(discordId)
+
+  const { addressType } =
+    (await balanceEmbedProps[BalanceType.Offchain]?.(
+      discordId,
+      profileId,
+      "",
+      i
+    )) ?? {}
+  const balances = await getBalances(
+    profileId,
+    discordId,
+    BalanceType.Offchain,
+    i,
+    "",
+    addressType ?? "eth"
+  )
+
+  const availableTokens = balances.data.map(
+    ({
+      token: { symbol },
+    }: {
+      token: {
+        symbol: string
+      }
+    }) => symbol
+  )
+
+  return availableTokens
+}

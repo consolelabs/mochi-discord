@@ -20,7 +20,7 @@ const machineConfig: (ctx: any) => MachineConfig = (context) => ({
   initial: "invests",
   context: {
     button: {
-      invests: (i, ev, ctx) => {
+      invests: (i, _ev, ctx) => {
         return renderInvestHome(i, ctx.page)
       },
     },
@@ -73,7 +73,7 @@ const slashCmd: SlashCommand = {
   run: async function (i: CommandInteraction) {
     const token = i.options.getString("token", false) ?? undefined
     const { context, msgOpts } = token
-      ? await renderInvestToken(i, token)
+      ? await renderInvestToken(token)
       : await renderInvestHome(i)
 
     const reply = (await i.editReply(msgOpts)) as Message

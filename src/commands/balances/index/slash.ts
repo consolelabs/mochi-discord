@@ -1,7 +1,12 @@
 import { CommandInteraction, GuildMember, Message } from "discord.js"
 import { MachineConfig, route } from "utils/router"
-import { BalanceType, BalanceView, renderBalances } from "./processor"
-import { handleInvestButton } from "../invest/processor"
+import {
+  BalanceType,
+  BalanceView,
+  getBalanceTokens,
+  renderBalances,
+} from "./processor"
+import { renderInvestHome } from "commands/invest/index/processor"
 
 export const machineConfig: (
   context: any,
@@ -23,8 +28,9 @@ export const machineConfig: (
           type: ctx.type,
         })
       },
-      invest: (i) => {
-        return handleInvestButton(i)
+      invest: async (i) => {
+        const tokens = await getBalanceTokens(i)
+        return renderInvestHome(i, 0, tokens)
       },
     },
     select: {

@@ -93,7 +93,7 @@ export async function renderInvestHome(
     ],
     {
       cols: ["symbol", "apy"],
-      separator: [VERTICAL_BAR, VERTICAL_BAR],
+      separator: [VERTICAL_BAR],
       rowAfterFormatter: (f, i) =>
         `${getEmojiToken((tokenData[i]?.symbol ?? "") as TokenEmojiKey)}${f}`,
     }
