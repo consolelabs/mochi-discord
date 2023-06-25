@@ -1,7 +1,7 @@
 import { CommandInteraction, GuildMember, Message } from "discord.js"
 import { MachineConfig, route } from "utils/router"
 import { BalanceType, BalanceView, renderBalances } from "./processor"
-import { handleInvestButton } from "../invest/processor"
+import { renderInvestHome } from "commands/invest/index/processor"
 
 export const machineConfig: (
   context: any,
@@ -11,8 +11,8 @@ export const machineConfig: (
   initial: "balance",
   context: {
     button: {
-      balance: (i, ev, ctx) => {
-        return renderBalances(member?.user.id ?? i.user.id, {
+      balance: (i, ev, ctx) =>
+        renderBalances(member?.user.id ?? i.user.id, {
           ...ctx,
           showFullEarn:
             ev === "TOGGLE_SHOW_FULL_EARN"
@@ -21,10 +21,9 @@ export const machineConfig: (
           interaction: i,
           address: ctx.address,
           type: ctx.type,
-        })
-      },
-      invest: (i) => {
-        return handleInvestButton(i)
+        }),
+      viewInvest: (i, ev, ctx) => {
+        return renderInvestHome(i, 0, ctx.availableTokens)
       },
     },
     select: {
@@ -48,12 +47,7 @@ export const machineConfig: (
     balance: {
       on: {
         TOGGLE_SHOW_FULL_EARN: "balance",
-        VIEW_INVEST: "invest",
-      },
-    },
-    invest: {
-      on: {
-        BACK: "balance",
+        VIEW_INVEST: "viewInvest",
       },
     },
   },

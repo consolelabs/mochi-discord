@@ -60,11 +60,12 @@ export async function renderInvestToken(
 
   const { segments } = formatDataTable(
     [
-      { platform: "Platform", chain: "Chain", apy: "APY(%)" },
+      { platform: "Platform", chain: "Chain", type: "Type", apy: "APY(%)" },
       ...tokenData.map((i: EarningPlatform) => {
         return {
           platform: capitalizeFirst((i.name || "").split("_").join(" ")),
           chain: i.chainName,
+          type: capitalizeFirst(i.type || ""),
           apy:
             formatDigit({
               value: String(i.apy),
@@ -74,7 +75,7 @@ export async function renderInvestToken(
       }),
     ],
     {
-      cols: ["platform", "chain", "apy"],
+      cols: ["platform", "chain", "type", "apy"],
       separator: [VERTICAL_BAR, VERTICAL_BAR],
     }
   )

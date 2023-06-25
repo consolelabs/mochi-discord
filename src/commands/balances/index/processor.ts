@@ -55,7 +55,7 @@ type Interaction =
   | SelectMenuInteraction
   | ButtonInteraction
 
-const balanceEmbedProps: Record<
+export const balanceEmbedProps: Record<
   BalanceType,
   (
     discordId: string,
@@ -1036,7 +1036,7 @@ export function getButtons(prefix: string, suffix = "") {
       .setLabel("Deposit"),
     new MessageButton()
       .setStyle("SECONDARY")
-      .setCustomId(`${prefix}_invest${suffix}`)
+      .setCustomId(`view_invest`)
       .setEmoji(getEmoji("BANK"))
       .setLabel("Invest"),
   ]
