@@ -14,7 +14,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import config from "adapters/config"
 import { getDefaultSetter } from "utils/default-setters"
 import { formatDigit } from "../../../utils/defi"
-import { ResponseCoingeckoInfoKeyValue } from "../../../types/api"
+import { ResponseCoinGeckoInfoKeyValue } from "../../../types/api"
 
 const CURRENCY = "usd"
 
@@ -52,7 +52,7 @@ async function composeTokenInfoResponse({
   //   })
   //   .join("\r\n\r\n")
 
-  const content = coin.coingecko_info.description_lines.join("\n\n")
+  const content = coin.coingecko_info.description_lines[0]
 
   embed.setDescription(content || "This token has not updated description yet")
 
@@ -100,7 +100,7 @@ async function composeTokenInfoResponse({
       // hyper link the key and value: coin.coingecko_info.explorers
       value: coin.coingecko_info.explorers
         .map(
-          (explorer: ResponseCoingeckoInfoKeyValue) =>
+          (explorer: ResponseCoinGeckoInfoKeyValue) =>
             `[${explorer.key}](${explorer.value})`
         )
         .join(", "),

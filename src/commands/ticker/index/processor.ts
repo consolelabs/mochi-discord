@@ -274,7 +274,7 @@ export async function composeTokenInfoEmbed(
     title: "About " + coin.name,
   })
   // const tdService = new TurndownService()
-  const content = coin.coingecko_info.description_lines.join("\n\n")
+  const content = coin.coingecko_info.description_lines[0]
 
   embed.setDescription(content || "This token has not updated description yet")
 
