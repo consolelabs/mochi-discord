@@ -18,11 +18,10 @@ import {
   equalIgnoreCase,
   getAuthor,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
   msgColors,
   roundFloatNumber,
-  shortenHashOrAddress,
-  getEmojiToken,
 } from "utils/common"
 import { isMessage, reply } from "utils/discord"
 import {
@@ -226,9 +225,9 @@ function showSuccesfulResponse(
     4
   )})`
 
-  let description = `${getEmoji("PROPOSAL")}\`Tx ID.    ${shortenHashOrAddress(
-    res.id ?? ""
-  )}\`\n${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
+  let description = `${getEmoji("PROPOSAL")}\`Tx ID.    ${
+    res.tx_id ?? "N/A"
+  }\`\n${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
     payload.token
   )} **${amount}** ${amountApprox} ${
     payload.recipients.length > 1 ? "each" : ""
