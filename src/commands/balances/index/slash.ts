@@ -7,6 +7,7 @@ import {
   renderBalances,
 } from "./processor"
 import { renderInvestHome } from "commands/invest/index/processor"
+import { EarnView, run as renderEarnHome } from "commands/earn/index/processor"
 
 export const machineConfig: (
   context: any,
@@ -32,6 +33,9 @@ export const machineConfig: (
         const tokens = await getBalanceTokens(i)
         return renderInvestHome(i, 0, tokens)
       },
+      earn: (i) => {
+        return renderEarnHome(i.user, EarnView.Airdrop)
+      },
     },
     select: {
       balance: async (i, _ev, ctx) => {
@@ -55,9 +59,15 @@ export const machineConfig: (
       on: {
         TOGGLE_SHOW_FULL_EARN: "balance",
         VIEW_INVEST: "invest",
+        VIEW_EARN: "earn",
       },
     },
     invest: {
+      on: {
+        BACK: "balance",
+      },
+    },
+    earn: {
       on: {
         BACK: "balance",
       },

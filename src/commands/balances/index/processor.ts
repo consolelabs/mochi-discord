@@ -953,7 +953,7 @@ export async function renderBalances(
                 new MessageButton()
                   .setStyle("SECONDARY")
                   .setEmoji("<a:brrr:902558248907980871>")
-                  .setCustomId(`balance_earn`)
+                  .setCustomId(`view_earn`)
                   .setLabel("Earn"),
                 ...getButtons("balance", `_${profileId}_${type}`)
               ),
