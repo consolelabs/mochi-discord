@@ -55,7 +55,7 @@ type Interaction =
   | SelectMenuInteraction
   | ButtonInteraction
 
-const balanceEmbedProps: Record<
+export const balanceEmbedProps: Record<
   BalanceType,
   (
     discordId: string,
@@ -953,7 +953,7 @@ export async function renderBalances(
                 new MessageButton()
                   .setStyle("SECONDARY")
                   .setEmoji("<a:brrr:902558248907980871>")
-                  .setCustomId(`balance_earn`)
+                  .setCustomId(`view_earn`)
                   .setLabel("Earn"),
                 ...getButtons("balance", `_${profileId}_${type}`)
               ),
@@ -1036,8 +1036,41 @@ export function getButtons(prefix: string, suffix = "") {
       .setLabel("Deposit"),
     new MessageButton()
       .setStyle("SECONDARY")
-      .setCustomId(`${prefix}_invest${suffix}`)
+      .setCustomId(`view_invest`)
       .setEmoji(getEmoji("BANK"))
       .setLabel("Invest"),
   ]
+}
+
+export async function getBalanceTokens(i: ButtonInteraction) {
+  const discordId = i.user.id
+  const profileId = await getProfileIdByDiscord(discordId)
+
+  const { addressType } =
+    (await balanceEmbedProps[BalanceType.Offchain]?.(
+      discordId,
+      profileId,
+      "",
+      i
+    )) ?? {}
+  const balances = await getBalances(
+    profileId,
+    discordId,
+    BalanceType.Offchain,
+    i,
+    "",
+    addressType ?? "eth"
+  )
+
+  const availableTokens = balances.data.map(
+    ({
+      token: { symbol },
+    }: {
+      token: {
+        symbol: string
+      }
+    }) => symbol
+  )
+
+  return availableTokens
 }

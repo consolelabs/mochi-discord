@@ -3,12 +3,16 @@ import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import CacheManager from "cache/node-cache"
 import community from "adapters/community"
 import { formatDigit } from "utils/defi"
-import { VERTICAL_BAR } from "utils/constants"
+import { VERTICAL_BAR, DASH, SPACE } from "utils/constants"
 import { paginationButtons } from "utils/router"
 import { ApiEarningOption } from "types/krystal-api"
 import { chunk, groupBy, uniq } from "lodash"
 import { InternalError } from "errors"
-import { ButtonInteraction, CommandInteraction } from "discord.js"
+import {
+  ButtonInteraction,
+  CommandInteraction,
+  SelectMenuInteraction,
+} from "discord.js"
 
 const PAGE_SIZE = 16 as const
 
@@ -35,7 +39,7 @@ function groupByToken(data: ApiEarningOption[]) {
         value: String(maxApy),
         fractionDigits: 2,
       }) + "%",
-    ]).join("~")
+    ]).join(`${SPACE}${DASH}${SPACE}`)
     return {
       symbol,
       minApy,
@@ -46,9 +50,11 @@ function groupByToken(data: ApiEarningOption[]) {
 }
 
 export async function renderInvestHome(
-  i: CommandInteraction | ButtonInteraction,
-  page = 0
+  i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
+  page = 0,
+  availableTokens = [] as string[]
 ) {
+  const isByUser = availableTokens.length > 0
   let tokenData = [] as HomeEarn[]
   let totalPage = 0
   const { result, ok, error } = await CacheManager.get({
@@ -66,9 +72,15 @@ export async function renderInvestHome(
   }
 
   const groupedData = groupByToken(result)
-  const chunks = chunk(groupedData, PAGE_SIZE)
+  const filteredData = groupedData.filter((d) => {
+    if (isByUser) {
+      return availableTokens.includes(d.symbol)
+    }
+    return true
+  })
+  const chunks = chunk(filteredData, PAGE_SIZE)
   tokenData = chunks[page] as HomeEarn[]
-  totalPage = Math.ceil(groupedData.length / PAGE_SIZE)
+  totalPage = Math.ceil(filteredData.length / PAGE_SIZE)
 
   const { segments } = formatDataTable(
     [
@@ -81,14 +93,16 @@ export async function renderInvestHome(
     ],
     {
       cols: ["symbol", "apy"],
-      separator: [VERTICAL_BAR, VERTICAL_BAR],
+      separator: [VERTICAL_BAR],
       rowAfterFormatter: (f, i) =>
         `${getEmojiToken((tokenData[i]?.symbol ?? "") as TokenEmojiKey)}${f}`,
     }
   )
 
   const embed = composeEmbedMessage(null, {
-    title: `Recommended Earning with APY(%)`,
+    title: `Recommended Earning with APY(%)${
+      isByUser ? " by your tokens" : ""
+    }`,
     description: `${segments.map((c) => c.join("\n"))}`,
   })
 
