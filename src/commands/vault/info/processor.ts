@@ -172,7 +172,7 @@ async function formatRecentTransaction(tx: any) {
       const profileId = tx.target
       let from = `\`${shortenHashOrAddress(profileId)}\``
       if (!profileId) {
-        from = "Unknown"
+        from = ""
       } else if (!isAddress(profileId).valid) {
         from = await CacheManager.get({
           pool: "vault-recent-txns",
@@ -181,7 +181,9 @@ async function formatRecentTransaction(tx: any) {
         })
       }
 
-      return `${t} ${tokenEmoji} +${amount} ${token} from ${from}\n`
+      return `${t} ${tokenEmoji} +${amount} ${token}${
+        from ? ` from ${from}` : ""
+      }\n`
     }
     case "Add":
       return `${t} ${getEmoji("TREASURER_ADD")} Add <@${
@@ -201,7 +203,7 @@ async function formatRecentTransaction(tx: any) {
       const profileId = tx.target
       let to = `\`${shortenHashOrAddress(profileId)}\``
       if (!profileId) {
-        to = "Unknown"
+        to = ""
       } else if (!isAddress(profileId).valid) {
         to = await CacheManager.get({
           pool: "vault-recent-txns",
@@ -210,7 +212,7 @@ async function formatRecentTransaction(tx: any) {
         })
       }
 
-      return `${t} ${tokenEmoji} -${amount} ${token} to ${to}\n`
+      return `${t} ${tokenEmoji} -${amount} ${token}${to ? ` to ${to}` : ""}\n`
     }
   }
 }
