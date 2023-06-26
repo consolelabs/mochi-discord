@@ -10,9 +10,13 @@ import { MultipleResult, RunResult } from "types/common"
 import CacheManager from "cache/node-cache"
 import { getChartColorConfig } from "ui/canvas/color"
 import { composeEmbedMessage } from "ui/discord/embed"
-import TurnDown from "turndown"
+// import TurnDown from "turndown"
 import config from "adapters/config"
 import { getDefaultSetter } from "utils/default-setters"
+import { formatDigit } from "../../../utils/defi"
+import { ResponseCoingeckoInfoKeyValue } from "../../../types/api"
+
+const CURRENCY = "usd"
 
 async function composeTokenInfoResponse({
   msg,
@@ -40,14 +44,70 @@ async function composeTokenInfoResponse({
     title: "About " + coin.name,
     footer: ["Data fetched from CoinGecko.com"],
   })
-  const tdService = new TurnDown()
-  const content = coin.description.en
-    .split("\r\n\r\n")
-    .map((v: any) => {
-      return tdService.turndown(v)
-    })
-    .join("\r\n\r\n")
+  // const tdService = new TurnDown()
+  // const content = coin.coingecko_info.description
+  //   .split("\n\n")
+  //   .map((v: any) => {
+  //     return tdService.turndown(v)
+  //   })
+  //   .join("\r\n\r\n")
+
+  const content = coin.coingecko_info.description_lines.join("\n\n")
+
   embed.setDescription(content || "This token has not updated description yet")
+
+  embed.addFields([
+    {
+      name: "Circulating",
+      value: `${formatDigit({
+        value: coin.market_data.circulating_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "Total Supply",
+      value: `${formatDigit({
+        value: coin.market_data.total_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "Max Supply",
+      value: `${formatDigit({
+        value: coin.market_data.max_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "FDV",
+      value: `$${formatDigit({
+        value: coin.market_data.fully_diluted_valuation?.[CURRENCY],
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "Tags",
+      // only get items that contain "Ecosystem" and remove the word "Ecosystem"
+      value: coin.categories.join(", "),
+      inline: true,
+    },
+    {
+      name: "Addresses",
+      // hyper link the key and value: coin.coingecko_info.explorers
+      value: coin.coingecko_info.explorers
+        .map(
+          (explorer: ResponseCoingeckoInfoKeyValue) =>
+            `[${explorer.key}](${explorer.value})`
+        )
+        .join(", "),
+      inline: true,
+    },
+  ])
+
   return {
     messageOptions: {
       embeds: [embed],
