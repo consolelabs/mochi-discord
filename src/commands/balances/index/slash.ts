@@ -17,8 +17,8 @@ export const machineConfig: (
   initial: "balance",
   context: {
     button: {
-      balance: (i, ev, ctx) => {
-        return renderBalances(member?.user.id ?? i.user.id, {
+      balance: (i, ev, ctx) =>
+        renderBalances(member?.user.id ?? i.user.id, {
           ...ctx,
           showFullEarn:
             ev === "TOGGLE_SHOW_FULL_EARN"
@@ -27,8 +27,7 @@ export const machineConfig: (
           interaction: i,
           address: ctx.address,
           type: ctx.type,
-        })
-      },
+        }),
       invest: async (i) => {
         const tokens = await getBalanceTokens(i)
         return renderInvestHome(i, 0, tokens)

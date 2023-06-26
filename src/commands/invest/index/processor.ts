@@ -3,7 +3,7 @@ import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import CacheManager from "cache/node-cache"
 import community from "adapters/community"
 import { formatDigit } from "utils/defi"
-import { VERTICAL_BAR } from "utils/constants"
+import { VERTICAL_BAR, DASH, SPACE } from "utils/constants"
 import { paginationButtons } from "utils/router"
 import { ApiEarningOption } from "types/krystal-api"
 import { chunk, groupBy, uniq } from "lodash"
@@ -39,7 +39,7 @@ function groupByToken(data: ApiEarningOption[]) {
         value: String(maxApy),
         fractionDigits: 2,
       }) + "%",
-    ]).join(" ~ ")
+    ]).join(`${SPACE}${DASH}${SPACE}`)
     return {
       symbol,
       minApy,
