@@ -54,11 +54,6 @@ const slashCmd: SlashCommand = {
         .setDescription("Configure vault")
         .addSubcommand(<SlashCommandSubcommandBuilder>thresholdSlash.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>channelSlash.prepare())
-    )
-    data.addSubcommandGroup((group) =>
-      group
-        .setName("treasurer")
-        .setDescription("Add treasurer to vault")
         .addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare())
     )
