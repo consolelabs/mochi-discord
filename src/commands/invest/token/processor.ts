@@ -6,14 +6,10 @@ import { formatDigit } from "utils/defi"
 import { VERTICAL_BAR } from "utils/constants"
 import { ApiEarningOption, ApiPlatform } from "types/krystal-api"
 import { flatten } from "lodash"
-import { ButtonInteraction, CommandInteraction } from "discord.js"
 
 type EarningPlatform = ApiPlatform & { chainName: string }
 
-export async function renderInvestToken(
-  i: CommandInteraction | ButtonInteraction,
-  token: string
-) {
+export async function renderInvestToken(token: string) {
   let tokenData = [] as EarningPlatform[]
   const { result, ok } = await CacheManager.get({
     pool: "invest",
@@ -60,11 +56,12 @@ export async function renderInvestToken(
 
   const { segments } = formatDataTable(
     [
-      { platform: "Platform", chain: "Chain", apy: "APY(%)" },
+      { platform: "Platform", chain: "Chain", type: "Type", apy: "APY(%)" },
       ...tokenData.map((i: EarningPlatform) => {
         return {
           platform: capitalizeFirst((i.name || "").split("_").join(" ")),
           chain: i.chainName,
+          type: capitalizeFirst(i.type || ""),
           apy:
             formatDigit({
               value: String(i.apy),
@@ -74,7 +71,7 @@ export async function renderInvestToken(
       }),
     ],
     {
-      cols: ["platform", "chain", "apy"],
+      cols: ["platform", "chain", "type", "apy"],
       separator: [VERTICAL_BAR, VERTICAL_BAR],
     }
   )
