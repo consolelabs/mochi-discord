@@ -9,7 +9,7 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { InternalError } from "errors"
-import TurndownService from "turndown"
+// import TurndownService from "turndown"
 import { Coin } from "types/defi"
 import { getChartColorConfig } from "ui/canvas/color"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -163,55 +163,11 @@ export async function renderSingle(
       inline: true,
     },
     {
-      name: "Circulating Supply",
-      value: `$${formatDigit({
-        value: coin.market_data.circulating_supply,
-        shorten: true,
-      })}`,
-      inline: true,
-    },
-    {
-      name: "Total Supply",
-      value: `$${formatDigit({
-        value: coin.market_data.total_supply,
-        shorten: true,
-      })}`,
-      inline: true,
-    },
-    {
-      name: "Max Supply",
-      value: `$${formatDigit({
-        value: coin.market_data.max_supply,
-        shorten: true,
-      })}`,
-      inline: true,
-    },
-    {
-      name: "Fully Diluted Valuation",
-      value: `$${formatDigit({
-        value: coin.market_data.fully_diluted_valuation?.[CURRENCY],
-        shorten: true,
-      })}`,
-      inline: true,
-    },
-    {
-      name: "Tags",
-      // only get items that contain "Ecosystem" and remove the word "Ecosystem"
-      value: coin.categories
-        .filter((category) => category.toLowerCase().includes("ecosystem"))
-        .map((category) => category.replace(" Ecosystem", ""))
-        .join(", "),
-      inline: true,
-    },
-    {
       name: "Chain",
       value:
-        coin.asset_platform?.name || coin.asset_platform?.shortname || "N/A",
-      inline: true,
-    },
-    {
-      name: " ",
-      value: " ",
+        coin.asset_platform?.name ||
+        coin.asset_platform?.shortname ||
+        coin.name,
       inline: true,
     },
     {
@@ -317,14 +273,60 @@ export async function composeTokenInfoEmbed(
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     title: "About " + coin.name,
   })
-  const tdService = new TurndownService()
-  const content = coin.description.en
-    .split("\r\n\r\n")
-    .map((v: any) => {
-      return tdService.turndown(v)
-    })
-    .join("\r\n\r\n")
+  // const tdService = new TurndownService()
+  const content = coin.coingecko_info.description_lines.join("\n\n")
+
   embed.setDescription(content || "This token has not updated description yet")
+
+  embed.addFields([
+    {
+      name: "Circulating",
+      value: `${formatDigit({
+        value: coin.market_data.circulating_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "Total Supply",
+      value: `${formatDigit({
+        value: coin.market_data.total_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "Max Supply",
+      value: `${formatDigit({
+        value: coin.market_data.max_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "FDV",
+      value: `$${formatDigit({
+        value: coin.market_data.fully_diluted_valuation?.[CURRENCY],
+        shorten: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: "Tags",
+      // only get items that contain "Ecosystem" and remove the word "Ecosystem"
+      value: coin.categories.join(", "),
+      inline: true,
+    },
+    {
+      name: "Addresses",
+      // hyper link the key and value: coin.coingecko_info.explorers
+      value: coin.coingecko_info.explorers
+        .map((explorer) => `[${explorer.key}](${explorer.value})`)
+        .join(", "),
+      inline: true,
+    },
+  ])
+
   const wlAdded = await isTickerAddedToWl(coin.id, interaction.user.id)
   const buttonRow = buildSwitchViewActionRow("info", wlAdded)
 
