@@ -141,7 +141,7 @@ export async function validateAndShowConfirmation(
     withoutCommas: true,
   })
   payload.token_price = balance.token?.price
-  return showConfirmation(ci, payload, opts)
+  return showConfirmation(payload, opts)
 }
 
 function composeAirdropButtons() {
@@ -206,13 +206,20 @@ export const describeRunTime = (duration = 0) => {
   const hours = Math.floor(duration / 3600)
   const mins = Math.floor((duration - hours * 3600) / 60)
   const secs = duration % 60
-  return `${hours === 0 ? "" : `${hours}h`}${
-    hours === 0 && mins === 0 ? "" : `${mins}m`
-  }${secs === 0 ? "" : `${secs}s`}`
+  let str = ""
+  hours
+  if (hours) {
+    str += `${hours}h`
+  } else if (mins) {
+    str += `${mins}m`
+  } else if (secs) {
+    str += `${secs}s`
+  }
+
+  return str
 }
 
 function showConfirmation(
-  i: CommandInteraction,
   payload: TransferPayload,
   opts: AirdropOptions
 ): RunResult<MessageOptions> {
@@ -294,7 +301,8 @@ export async function getAirdropArgs(i: CommandInteraction) {
   // get optional arguments (duration & max entries)
   // if duration doesn't have unit, use minute as default
   durationArg = isNaN(+durationArg) ? durationArg : `${durationArg}m`
-  let duration = parse(durationArg) / 1000
+  let duration = parse(durationArg)
+  duration = duration ? duration / 1000 : 3600
 
   // duration max = 1h
   if (duration && duration > 3600) {

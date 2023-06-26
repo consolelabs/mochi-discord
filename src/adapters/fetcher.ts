@@ -228,7 +228,9 @@ export class Fetcher {
           }
         }
 
-        const json = await (res as ErrResponse).json()
+        const json = await (res as ErrResponse)
+          .json()
+          .catch(() => ({} as ErrPayload))
         json.originalError = json.error
         if (autoWrap500Error && res.status === 500) {
           json.error = `Our team is fixing the issue. Stay tuned ${nekoSad}.`
@@ -244,7 +246,9 @@ export class Fetcher {
         if (!silent) {
           logger.info(log)
         }
-        const json = await (res as OkResponse<T>).json()
+        const json = await (res as OkResponse<T>)
+          .json()
+          .catch(() => ({} as OkPayload))
         json.ok = true
         json.log = log
         json.curl = curl

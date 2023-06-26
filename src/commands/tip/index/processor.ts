@@ -227,7 +227,7 @@ function showSuccesfulResponse(
   )})`
 
   let description = `${getEmoji("PROPOSAL")}\`Tx ID.    ${shortenHashOrAddress(
-    "0x7dff46370e9ea5f0bad3c4e29711ad50062ea7a4"
+    res.id ?? ""
   )}\`\n${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
     payload.token
   )} **${amount}** ${amountApprox} ${
