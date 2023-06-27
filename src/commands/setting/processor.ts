@@ -157,7 +157,7 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
           inline: false,
         },
         {
-          name: `**ROLE**`,
+          name: `${getEmoji("LEAF")} **ROLE**`,
           value: [
             `${await getSlashCommand(
               "role default info"
