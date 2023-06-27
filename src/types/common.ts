@@ -164,7 +164,6 @@ export type EmbedProperties = {
   originalMsgAuthor?: User
   usage?: string
   examples?: string
-  withoutFooter?: boolean
   includeCommandsList?: boolean
   actions?: Record<string, Command>
   document?: string

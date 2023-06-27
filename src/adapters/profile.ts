@@ -46,8 +46,8 @@ class Profile extends Fetcher {
     return socials
   }
 
-  public async getUserWallets(discordId: string) {
-    const dataProfile = await this.getByDiscord(discordId, false)
+  public async getUserWallets(discordId: string, noFetchAmount = false) {
+    const dataProfile = await this.getByDiscord(discordId, noFetchAmount)
     if (dataProfile.err) {
       logger.error("Cannot get profile by discord id", discordId)
       return {

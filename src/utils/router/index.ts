@@ -22,6 +22,7 @@ import { Handler, MachineConfig, MachineOptions } from "./types"
 import { merge } from "lodash"
 import { getRandomFact } from "cache/tip-fact-cache"
 import { PROD } from "env"
+import { profilingAsyncStore } from "utils/async-storages"
 
 export type { MachineConfig }
 
@@ -201,40 +202,44 @@ export function route(
                 oldContext.page = Math.max(oldContext.page, 0)
               }
 
-              // run handler
-              const { context = {}, msgOpts } = await composer(
-                interaction,
-                event.type,
-                oldContext,
-                modal[event.type]
-              )
-              const newContext = {
-                ...oldContext,
-                ...context,
-              }
-
-              routerCache.set(cacheKey, newContext)
-
-              if (!msgOpts) {
-                interaction.message.delete().catch(() => null)
-              } else {
-                if (canBack) {
-                  if (!msgOpts.components) msgOpts.components = []
-
-                  msgOpts.components.push(
-                    new MessageActionRow().addComponents(
-                      new MessageButton()
-                        .setLabel("Back")
-                        .setStyle("SECONDARY")
-                        .setCustomId("back")
-                    )
-                  )
+              // profiling
+              profilingAsyncStore.run(performance.now(), async () => {
+                if (!composer) return
+                // run handler
+                const { context = {}, msgOpts } = await composer(
+                  interaction,
+                  event.type,
+                  oldContext,
+                  modal[event.type]
+                )
+                const newContext = {
+                  ...oldContext,
+                  ...context,
                 }
 
-                interaction.message.edit(msgOpts).catch(() => {
-                  interaction.editReply(msgOpts).catch(() => null)
-                })
-              }
+                routerCache.set(cacheKey, newContext)
+
+                if (!msgOpts) {
+                  interaction.message.delete().catch(() => null)
+                } else {
+                  if (canBack) {
+                    if (!msgOpts.components) msgOpts.components = []
+
+                    msgOpts.components.push(
+                      new MessageActionRow().addComponents(
+                        new MessageButton()
+                          .setLabel("Back")
+                          .setStyle("SECONDARY")
+                          .setCustomId("back")
+                      )
+                    )
+                  }
+
+                  interaction.message.edit(msgOpts).catch(() => {
+                    interaction.editReply(msgOpts).catch(() => null)
+                  })
+                }
+              })
             } catch (e: any) {
               context.steps?.push(e.name)
               context.steps?.push(stack.clean(e.stack ?? ""))
