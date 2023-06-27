@@ -3,7 +3,7 @@ import { getSlashCommand } from "utils/commands"
 import { getEmoji, shortenHashOrAddress } from "utils/common"
 import { HOMEPAGE_URL } from "utils/constants"
 
-export async function list({ data }: ResponseListGuildTokenRoles) {
+export async function list({ data, meta }: ResponseListGuildTokenRoles) {
   if (data?.length === 0) {
     return {
       title: "Token role list",
@@ -33,10 +33,14 @@ export async function list({ data }: ResponseListGuildTokenRoles) {
     )
     .join("\n\n")
 
+  const metaDescription = meta?.next_sync
+    ? `\n\nJust a heads up, members' roles will be updated in ${meta.next_sync} minutes.`
+    : ""
+
   return {
     title: "Token role list",
     description: `You can run ${await getSlashCommand(
       "role token set"
-    )} to set the new role.\n\n${description}`,
+    )} to set the new role.\n\n${description}${metaDescription}`,
   }
 }
