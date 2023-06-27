@@ -3,9 +3,13 @@ import { MessageActionRow, MessageSelectMenu, User } from "discord.js"
 import { ResponseGetTrackingWalletsResponse } from "types/api"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
-import { emojis } from "utils/common"
-import { getEmojiURL } from "utils/common"
-import { getEmoji, shortenHashOrAddress, capitalizeFirst } from "utils/common"
+import {
+  capitalizeFirst,
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  shortenHashOrAddress,
+} from "utils/common"
 import { APPROX, VERTICAL_BAR } from "utils/constants"
 import { formatDigit } from "utils/defi"
 
@@ -64,7 +68,11 @@ export async function render(user: User) {
             const chain = (d.chain_type ?? "").toUpperCase()
             return {
               chainType: chain,
-              address: d.alias || shortenHashOrAddress(d.address ?? "", 4),
+              address: shortenHashOrAddress(d.address ?? "", 4),
+              alias:
+                (d?.alias ?? "").length >= 16
+                  ? shortenHashOrAddress(d.alias ?? "", 4)
+                  : d.alias ?? "",
               usd: `$${formatDigit({
                 value: String(d.net_worth ?? 0),
                 fractionDigits: 2,
@@ -72,8 +80,8 @@ export async function render(user: User) {
             }
           }),
         {
-          cols: ["chainType", "address", "usd"],
-          separator: [VERTICAL_BAR, ` ${APPROX} `],
+          cols: ["chainType", "address", "alias", "usd"],
+          separator: [VERTICAL_BAR, VERTICAL_BAR, ` ${APPROX} `],
           rowAfterFormatter: (f, i) =>
             `${getEmoji(e[1][i].chain_type.toUpperCase())} ${f}${getEmoji(
               "CASH"

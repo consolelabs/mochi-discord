@@ -1,3 +1,6 @@
+import CacheManager from "cache/node-cache"
+import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
 import {
   ColorResolvable,
   GuildMember,
@@ -6,17 +9,6 @@ import {
   Permissions,
   User,
 } from "discord.js"
-
-import {
-  NameRegistryState,
-  getHashedNameSync,
-  getNameAccountKeySync,
-  reverseLookup as performReverseLookup,
-} from "@bonfida/spl-name-service"
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
-import CacheManager from "cache/node-cache"
-import dayjs from "dayjs"
-import relativeTime from "dayjs/plugin/relativeTime"
 import { MARKETPLACE_BASE_URL } from "env"
 import { OriginalMessage } from "errors"
 import { ethers } from "ethers"
@@ -25,6 +17,15 @@ import fetch from "node-fetch"
 import type { Pagination } from "types/common"
 import { TopNFTTradingVolumeItem } from "types/community"
 import providers from "utils/providers"
+
+import {
+  getHashedNameSync,
+  getNameAccountKeySync,
+  NameRegistryState,
+  reverseLookup as performReverseLookup,
+} from "@bonfida/spl-name-service"
+import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js"
+
 import { DOT, SPACE } from "./constants"
 import {
   marketplaceEmojis,
@@ -32,6 +33,7 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
+
 dayjs.extend(relativeTime)
 
 const SOL_TLD_AUTHORITY = new PublicKey(
@@ -449,6 +451,7 @@ export const emojis = {
   OCEAN: "1113115314113224764",
   NO: "1112604245875765319",
   METAMASK: "1121380474766491648",
+  CHAT: "1078633889247006790",
   ...animatedEmojis,
   ...tokenEmojis,
   ...numberEmojis,
@@ -822,7 +825,7 @@ export function isValidSuiAddress(value: string): boolean {
 
 export enum AddressChainType {
   EVM = "EVM",
-  SOL = "SOl",
+  SOL = "SOL",
   SUI = "SUI",
   RON = "RON",
   UNKNOWN = "",

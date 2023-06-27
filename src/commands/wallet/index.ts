@@ -1,18 +1,21 @@
+import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
-import view from "./view/slash"
-import add from "./add/slash"
-import track from "./track/slash"
-import follow from "./follow/slash"
-import copy from "./copy/slash"
-import list from "./list/slash"
-import untrack from "./untrack/slash"
+
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders"
-import { CommandInteraction } from "discord.js"
+
+import add from "./add/slash"
+import alias from "./alias"
+import copy from "./copy/slash"
+import follow from "./follow/slash"
+import list from "./list/slash"
+import track from "./track/slash"
+import untrack from "./untrack/slash"
+import view from "./view/slash"
 
 export enum WalletTrackingType {
   Follow = "follow",
@@ -30,6 +33,10 @@ const slashActions: Record<string, SlashCommand> = {
   untrack,
 }
 
+const subCommandGroups: Record<string, Record<string, SlashCommand>> = {
+  alias,
+}
+
 const slashCmd: SlashCommand = {
   name: "wallet",
   category: "Defi",
@@ -44,15 +51,37 @@ const slashCmd: SlashCommand = {
     data.addSubcommand(<SlashCommandSubcommandBuilder>copy.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>list.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>untrack.prepare())
+    data.addSubcommandGroup((subcommandGroup) =>
+      subcommandGroup
+        .setName("alias")
+        .setDescription("Setup alias for wallet address")
+        .addSubcommand(<SlashCommandSubcommandBuilder>alias.set.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>alias.remove.prepare())
+    )
     return data
   },
   autocomplete: function (i) {
     const subCmd = i.options.getSubcommand()
-    slashActions[subCmd]?.autocomplete?.(i)
+    if (subCmd in slashActions) {
+      slashActions[subCmd]?.autocomplete?.(i)
+    } else {
+      const subCmdGroup = i.options.getSubcommandGroup(true)
+      subCommandGroups[subCmdGroup][
+        i.options.getSubcommand(true)
+      ].autocomplete?.(i)
+    }
     return Promise.resolve()
   },
   run: (interaction: CommandInteraction) => {
-    return slashActions[interaction.options.getSubcommand()].run(interaction)
+    const subCmd = interaction.options.getSubcommand()
+    if (subCmd in slashActions) {
+      return slashActions[subCmd].run(interaction)
+    } else {
+      const subCmdGroup = interaction.options.getSubcommandGroup(true)
+      return subCommandGroups[subCmdGroup][
+        interaction.options.getSubcommand(true)
+      ].run(interaction)
+    }
   },
   help: (interaction) =>
     Promise.resolve({
