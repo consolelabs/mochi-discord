@@ -1352,6 +1352,17 @@ class Config extends Fetcher {
       }
     )
   }
+
+  public async deleteDefaultCurrency(guild_id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-defi/default-currency`,
+      {
+        method: "DELETE",
+        query: { guild_id },
+      }
+    )
+  }
+
   public async getVaultDetail(vault_name: string, guild_id: string) {
     return await this.jsonFetch(
       `${API_BASE_URL}/vault/detail?vaultName=${vault_name}&guildId=${guild_id}`
@@ -1374,6 +1385,15 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config-defi/tip-range/${guildId}`,
       {
         method: "GET",
+      }
+    )
+  }
+
+  public async deleteTipRangeConfig(guild_id: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-defi/tip-range/${guild_id}`,
+      {
+        method: "DELETE",
       }
     )
   }

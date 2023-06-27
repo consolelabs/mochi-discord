@@ -8,6 +8,8 @@ import {
 } from "./processor"
 import { renderInvestHome } from "commands/invest/index/processor"
 import { EarnView, run as renderEarnHome } from "commands/earn/index/processor"
+import { machineConfig as earnMachineConfig } from "commands/earn/index"
+import { machineConfig as investMachineConfig } from "commands/invest/index"
 
 export const machineConfig: (
   context: any,
@@ -65,11 +67,13 @@ export const machineConfig: (
       on: {
         BACK: "balance",
       },
+      ...investMachineConfig,
     },
     earn: {
       on: {
         BACK: "balance",
       },
+      ...earnMachineConfig,
     },
   },
 })

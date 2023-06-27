@@ -71,15 +71,16 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
       },
       {
         name: `:link: **CONNECTIONS**`,
-        value: [
-          await getSlashCommand("update binance"),
-          await getSlashCommand("update coinbase"),
-          await getSlashCommand("update twitter"),
-          await getSlashCommand("update telegram"),
-        ]
-          .map(addBullet)
-          .map(addSoon)
-          .join("\n"),
+        value:
+          [
+            await getSlashCommand("update coinbase"),
+            await getSlashCommand("update twitter"),
+            await getSlashCommand("update telegram"),
+          ]
+            .map(addBullet)
+            .map(addSoon)
+            .join("\n") +
+          `\n${addBullet(await getSlashCommand("update binance"))}`,
         inline: true,
       },
       { name: "\u200b", value: "\u200b", inline: true },
@@ -118,8 +119,10 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
         {
           name: `${getEmoji("HAMMER")} **SERVER**`,
           value: [
-            `${await getSlashCommand("verify set")} for verification`,
-            `${await getSlashCommand("welcome message")} for new members`,
+            `${await getSlashCommand("config verify set")} for verification`,
+            `${await getSlashCommand(
+              "config welcome message"
+            )} for new members`,
           ]
             .map(addBullet)
             .join("\n"),
@@ -134,7 +137,7 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
             `${await getSlashCommand(
               "vault list"
             )} available DAOs within your guild.`,
-            `${await getSlashCommand("vault treasurer add")} new members.`,
+            `${await getSlashCommand("vault config add")} new members.`,
           ]
             .map(addBullet)
             .join("\n"),
@@ -143,10 +146,10 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
         {
           name: `${getEmoji("WALLET_2")} **PAY**`,
           value: [
-            `${await getSlashCommand("config currency")}`,
-            `${await getSlashCommand("config tiprange")} amount in USD`,
+            `${await getSlashCommand("config currency set")}`,
+            `${await getSlashCommand("config tiprange set")} amount in USD`,
             `${await getSlashCommand(
-              "moniker set"
+              "config moniker set"
             )} \`beer\`, \`pizza\`, etc...`,
           ]
             .map(addBullet)
@@ -154,7 +157,7 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
           inline: false,
         },
         {
-          name: `**ROLE**`,
+          name: `${getEmoji("LEAF")} **ROLE**`,
           value: [
             `${await getSlashCommand(
               "role default info"
