@@ -4,6 +4,7 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import { runCreateThreshold } from "./processor"
+import config from "adapters/config"
 
 const command: SlashCommand = {
   name: "threshold",
@@ -17,17 +18,34 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("name")
-          .setDescription("select vault name")
+          .setDescription("enter vault name")
           .setRequired(true)
+          .setAutocomplete(true)
       )
       .addStringOption((option) => {
         const o = option
-          .setName("value")
-          .setDescription("select percent of the approved request")
+          .setName("threshold")
+          .setDescription("enter threshold")
           .setRequired(true)
         choices.forEach((choice) => o.addChoice(choice + "%", choice))
         return o
       })
+  },
+  autocomplete: async function (i) {
+    if (!i.guildId) {
+      await i.respond([])
+      return
+    }
+    const focusedValue = i.options.getFocused()
+    const data = await config.vaultList(i.guildId, true)
+
+    await i.respond(
+      data
+        .filter((d: any) =>
+          d.name.toLowerCase().includes(focusedValue.toLowerCase())
+        )
+        .map((d: any) => ({ name: d.name, value: d.name }))
+    )
   },
   run: async function (interaction: CommandInteraction) {
     return runCreateThreshold({

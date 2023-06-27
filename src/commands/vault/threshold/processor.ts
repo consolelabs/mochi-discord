@@ -21,7 +21,7 @@ export async function runCreateThreshold({
     await config.createVaultConfigThreshold({
       guild_id: guildId,
       name: i.options.getString("name", true),
-      threshold: i.options.getString("value", true),
+      threshold: i.options.getString("threshold", true),
     })
   if (!ok) {
     if (status == 404) {

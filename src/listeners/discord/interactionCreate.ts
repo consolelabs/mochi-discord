@@ -25,7 +25,7 @@ import {
 import { handleTreasurerAdd } from "commands/vault/add/processor"
 import { handleTreasurerTransfer } from "commands/vault/transfer/processor"
 import { handleTreasurerRemove } from "commands/vault/remove/processor"
-import { sendVerifyURL } from "commands/verify/processor"
+import { sendVerifyURL } from "commands/config/verify/processor"
 import {
   removeWallet,
   removeWalletConfirmation,
@@ -63,7 +63,7 @@ import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
 import config from "adapters/config"
 import { getRandomFact } from "cache/tip-fact-cache"
-import { handleBeginVerify } from "commands/verify/captcha/processor"
+// import { handleBeginVerify } from "commands/config/verify/captcha/processor"
 
 const event: DiscordEvent<"interactionCreate"> = {
   name: "interactionCreate",
@@ -383,7 +383,7 @@ async function handleButtonInteraction(interaction: Interaction) {
   const msg = i.message as Message
   switch (true) {
     case i.customId.startsWith("verify-captcha"):
-      await handleBeginVerify(i)
+      // await handleBeginVerify(i)
       break
     case i.customId.startsWith("exit-"): {
       const authorId = i.customId.split("-")[1]
