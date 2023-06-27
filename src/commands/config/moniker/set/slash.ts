@@ -29,19 +29,19 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("moniker")
-          .setDescription("moniker you want to configure")
+          .setDescription("enter moniker you want to configure")
           .setRequired(true)
       )
       .addNumberOption((option) =>
         option
           .setName("amount")
-          .setDescription("moniker equal to amount of token")
+          .setDescription("enter amount")
           .setRequired(true)
       )
       .addStringOption((option) =>
         option
           .setName("token")
-          .setDescription("token to convert moniker")
+          .setDescription("enter token to convert moniker")
           .setRequired(true)
       )
   },

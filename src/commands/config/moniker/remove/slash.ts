@@ -18,7 +18,7 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("moniker")
-          .setDescription("moniker you want to remove")
+          .setDescription("enter moniker you want to remove")
           .setRequired(true)
       )
   },

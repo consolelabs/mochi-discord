@@ -16,17 +16,17 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("name")
-          .setDescription("enter a vault name")
+          .setDescription("enter vault name")
           .setRequired(true)
           .setAutocomplete(true)
       )
       .addUserOption((option) =>
-        option.setName("user").setDescription("enter a user").setRequired(true)
+        option.setName("user").setDescription("enter user").setRequired(true)
       )
       .addStringOption((option) =>
         option
           .setName("message")
-          .setDescription("enter a message for user")
+          .setDescription("enter message for user")
           .setRequired(false)
       )
   },

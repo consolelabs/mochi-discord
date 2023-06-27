@@ -120,9 +120,7 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
           name: `${getEmoji("HAMMER")} **SERVER**`,
           value: [
             `${await getSlashCommand("config verify set")} for verification`,
-            `${await getSlashCommand(
-              "config welcome message"
-            )} for new members`,
+            `${await getSlashCommand("config welcome set")} for new members`,
           ]
             .map(addBullet)
             .join("\n"),

@@ -26,7 +26,6 @@ import monikerSetSlash from "./moniker/set/slash"
 import monikerRemoveSlash from "./moniker/remove/slash"
 // welcome
 import welcomeInfoSlash from "./welcome/info/slash"
-import welcomeMessageSlash from "./welcome/message/slash"
 import welcomeSetSlash from "./welcome/set/slash"
 import welcomeRemoveSlash from "./welcome/remove/slash"
 // captcha
@@ -50,7 +49,6 @@ const subCommandGroups: Record<string, Record<string, SlashCommand>> = {
     info: welcomeInfoSlash,
     set: welcomeSetSlash,
     remove: welcomeRemoveSlash,
-    message: welcomeMessageSlash,
   },
   verify: {
     info: verifyInfoSlash,
@@ -121,9 +119,6 @@ const slashCmd: SlashCommand = {
         .setDescription("Welcome new members to the guild")
         .addSubcommand(
           <SlashCommandSubcommandBuilder>welcomeInfoSlash.prepare()
-        )
-        .addSubcommand(
-          <SlashCommandSubcommandBuilder>welcomeMessageSlash.prepare()
         )
         .addSubcommand(<SlashCommandSubcommandBuilder>welcomeSetSlash.prepare())
         .addSubcommand(

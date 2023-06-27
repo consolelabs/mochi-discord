@@ -64,7 +64,6 @@ import ticker from "./ticker"
 import tip from "./tip"
 import token from "./token"
 import top from "./top"
-import verify from "./verify"
 import watchlist from "./watchlist"
 import watchlistView from "./watchlist/view/slash"
 import withdraw from "./withdraw"
@@ -107,7 +106,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   ticker: ticker.slashCmd,
   help: help.slashCmd,
   top: top.slashCmd,
-  verify: verify.slashCmd,
   watchlist: watchlist.slashCmd,
   // alias
   wlv: watchlistView,
