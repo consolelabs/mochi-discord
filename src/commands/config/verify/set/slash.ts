@@ -16,7 +16,7 @@ const command: SlashCommand = {
         option
           .setName("channel")
           .setDescription(
-            "the channel which you wanna verify your wallet. Example: #general"
+            "enter the channel which you wanna verify your wallet. Example: #general"
           )
           .setRequired(true)
       )
@@ -24,7 +24,7 @@ const command: SlashCommand = {
         option
           .setName("role")
           .setDescription(
-            "the role to assign to user when they are verified. Example: @verified"
+            "enter the role to assign to user when they are verified. Example: @verified"
           )
           .setRequired(false)
       )

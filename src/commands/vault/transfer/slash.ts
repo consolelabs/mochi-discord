@@ -31,7 +31,7 @@ const command: SlashCommand = {
       .addStringOption((option) => {
         const o = option
           .setName("chain")
-          .setDescription("choose chain")
+          .setDescription("enter chain")
           .setRequired(true)
         Object.keys(chains).forEach((key) =>
           o.addChoice(key, chains[key as keyof typeof chains])
@@ -51,15 +51,12 @@ const command: SlashCommand = {
           .setRequired(true)
       )
       .addUserOption((option) =>
-        option
-          .setName("user")
-          .setDescription("enter recipient user")
-          .setRequired(false)
+        option.setName("user").setDescription("enter user").setRequired(false)
       )
       .addStringOption((option) =>
         option
           .setName("message")
-          .setDescription("enter a message for user")
+          .setDescription("enter message for user")
           .setRequired(false)
       )
       .addStringOption((option) =>

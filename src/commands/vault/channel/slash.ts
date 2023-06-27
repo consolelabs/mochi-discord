@@ -11,9 +11,9 @@ const command: SlashCommand = {
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
       .setName("channel")
-      .setDescription("Set channel log for vault")
+      .setDescription("enter channel")
       .addChannelOption((option) =>
-        option.setName("channel").setDescription("Select a channel")
+        option.setName("channel").setDescription("enter channel")
       )
   },
   run: async function (interaction: CommandInteraction) {

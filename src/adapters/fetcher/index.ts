@@ -25,6 +25,7 @@ import {
   RequestInit,
 } from "./types"
 import Redis from "ioredis"
+import { nanoid } from "nanoid"
 
 let cacheTtlSeconds = Number(CACHE_TTL_SECONDS)
 if (Number.isNaN(cacheTtlSeconds)) cacheTtlSeconds = 1800
@@ -84,7 +85,12 @@ export class Fetcher {
     url: string,
     init: RequestInit = {}
   ): FetchResult<T> {
-    const mergedInit = deepmerge(defaultInit, init)
+    let mergedInit = deepmerge(defaultInit, init)
+    mergedInit = deepmerge(mergedInit, {
+      headers: {
+        RequestId: nanoid(10),
+      },
+    })
     const query = this.normalizeQuery(mergedInit)
     const fullUrl = querystring.stringifyUrl(
       { url, query },
@@ -99,7 +105,7 @@ export class Fetcher {
     }
   }
 
-  protected cacheFetch<T>(fullUrl: string, init: Required<RequestInit>) {
+  private cacheFetch<T>(fullUrl: string, init: Required<RequestInit>) {
     const cacheKey = `${init.method} ${fullUrl}`
 
     return new Promise((resolve) => {

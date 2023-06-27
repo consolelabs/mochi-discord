@@ -16,13 +16,13 @@ const command: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("name")
-          .setDescription("enter a vault name")
+          .setDescription("enter vault name")
           .setRequired(true)
       )
       .addStringOption((option) => {
         const o = option
           .setName("threshold")
-          .setDescription("Threshold for vault")
+          .setDescription("enter threshold")
           .setRequired(true)
         choices.forEach((choice) => o.addChoice(choice + "%", choice))
         return o

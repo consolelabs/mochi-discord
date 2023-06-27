@@ -38,6 +38,7 @@ import { convertString } from "utils/convert"
 import { formatDigit } from "utils/defi"
 import { getProfileIdByDiscord } from "utils/profile"
 import { BigNumber } from "ethers"
+import { groupBy } from "lodash"
 
 export enum BalanceType {
   Offchain = 1,
@@ -183,8 +184,9 @@ export async function getBalances(
     })
   }
   let data,
-    farming,
-    staking,
+    farming: any,
+    staking: any,
+    lending: any,
     pnl = 0
   if (type === BalanceType.Offchain) {
     data = res.data.filter((i: any) => Boolean(i))
@@ -200,8 +202,26 @@ export async function getBalances(
     staking = res.data.staking
   }
   if (type === BalanceType.Cex) {
-    data = res.data.filter((i: any) => Boolean(i))
+    data = res.data.asset.filter((i: any) => Boolean(i))
     pnl = 0
+    const groupedEarn = groupBy(res.data.earn ?? [], (e) => {
+      if (e.detail_staking) return "staking"
+      if (e.detail_lending) return "lending"
+      return "unknown"
+    })
+    staking = groupedEarn.staking.map((e: any) => ({
+      amount: +e.detail_staking.amount,
+      price: e.token.price,
+      reward: +e.detail_staking.rewardAmt,
+      symbol: e.token.symbol,
+    }))
+
+    lending = groupedEarn.lending.map((e) => ({
+      amount: +e.detail_lending.amount,
+      price: e.token.price,
+      reward: 0,
+      symbol: e.token.symbol,
+    }))
   }
 
   return {
@@ -209,6 +229,7 @@ export async function getBalances(
     pnl,
     farming,
     staking,
+    lending,
   }
 }
 
@@ -504,7 +525,13 @@ export function formatView(
 async function switchView(
   view: BalanceView,
   props: { address: string; emoji: string; title: string; description: string },
-  balances: { data: any[]; farming: any[]; staking: any[]; pnl: number },
+  balances: {
+    data: any[]
+    farming: any[]
+    staking: any[]
+    lending: any[]
+    pnl: number
+  },
   txns: any,
   discordId: string,
   balanceType: number,
@@ -513,7 +540,9 @@ async function switchView(
 ) {
   const wallet = await defi.findWallet(discordId, props.address)
   const trackingType = wallet?.data?.type
-  const { mochiWallets, wallets } = await profile.getUserWallets(discordId)
+  const { mochiWallets, wallets, cexes } = await profile.getUserWallets(
+    discordId
+  )
   let isOwnWallet = wallets.some((w) =>
     props.address.toLowerCase().includes(w.value.toLowerCase())
   )
@@ -602,7 +631,8 @@ async function switchView(
       showFullEarn
     )
     // staking
-    const { field: stakingField, total: totalStake } = buildStakingField(
+    const { field: stakingField, total: totalStake } = buildEarnField(
+      "Staking",
       balances.staking,
       showFullEarn
     )
@@ -624,15 +654,7 @@ async function switchView(
         data: [],
       },
       cexes: {
-        data: [
-          {
-            chain: "Binance",
-            total: formatDigit({
-              value: totalWorth.toString(),
-              fractionDigits: 2,
-            }),
-          },
-        ],
+        data: cexes,
         truncate: false,
       },
       wallets: {
@@ -641,6 +663,28 @@ async function switchView(
     })
 
     embed.setDescription(`**Wallet**\n${value}\n\n${embed.description}`)
+
+    const { field: stakingField, total: totalStake } = buildEarnField(
+      "Staking",
+      balances.staking,
+      showFullEarn
+    )
+
+    if (stakingField) {
+      grandTotal += totalStake
+      embed.addFields(stakingField)
+    }
+
+    const { field: lendingField, total: totalLend } = buildEarnField(
+      "Lending",
+      balances.lending,
+      showFullEarn
+    )
+
+    if (lendingField) {
+      grandTotal += totalLend
+      embed.addFields(lendingField)
+    }
   }
 
   embed.addFields([
@@ -787,30 +831,31 @@ function buildFarmingField(farming: any[], showFull = false) {
   }
 }
 
-function buildStakingField(staking: any[], showFull = false) {
+function buildEarnField(title: string, earning: any[], showFull = false) {
   let total = 0
-  if (!staking || !staking.length)
+  if (!earning || !earning.length)
     return {
       total,
       field: null,
     }
 
-  const info = staking
-    .filter((i) => i.amount > 0)
+  const info = earning
+    .filter((i) => i.amount > 0 && i.price > 0)
     .map((i) => {
-      const stakingWorth = i.amount * i.price
+      // TODO: `amount` could be a very large amount, can't treat it like regular js numbers
+      const earningWorth = i.amount * i.price
       const rewardWorth = i.reward * i.price
       const amount = `${formatDigit({
         value: i.amount,
         fractionDigits: i.amount > 1000 ? 0 : 2,
       })} ${i.symbol}`
 
-      total += stakingWorth + rewardWorth
+      total += earningWorth + rewardWorth
       const record = []
 
       const usdWorth = `$${formatDigit({
-        value: stakingWorth.toString(),
-        fractionDigits: stakingWorth > 100 ? 0 : 2,
+        value: earningWorth.toString(),
+        fractionDigits: earningWorth > 100 ? 0 : 2,
       })}`
 
       const reward = `${formatDigit({
@@ -818,10 +863,12 @@ function buildStakingField(staking: any[], showFull = false) {
         fractionDigits: 2,
       })} ${i.symbol}`
 
-      const rewardUsdWorth = `$${formatDigit({
-        value: rewardWorth.toString(),
-        fractionDigits: rewardWorth > 100 ? 0 : 2,
-      })}`
+      const rewardUsdWorth = rewardWorth
+        ? `$${formatDigit({
+            value: rewardWorth.toString(),
+            fractionDigits: rewardWorth > 100 ? 0 : 2,
+          })}`
+        : ""
 
       if (showFull) {
         record.push(
@@ -860,7 +907,9 @@ function buildStakingField(staking: any[], showFull = false) {
   const value = formatDataTable(info, {
     cols: showFull ? ["amount", "usdWorth"] : ["amount", "usdWorth", "reward"],
     rowAfterFormatter: (f, i) =>
-      `${info[i].emoji}${f}${showFull ? "" : getEmoji("GIFT")}`,
+      `${info[i].emoji}${f}${
+        showFull || !info[i].reward ? "" : getEmoji("GIFT")
+      }`,
     separator: [` ${APPROX} `, VERTICAL_BAR],
     ...(showFull ? { dividerEvery: 2 } : {}),
   }).joined
@@ -874,7 +923,7 @@ function buildStakingField(staking: any[], showFull = false) {
   return {
     total,
     field: {
-      name: "\nStaking",
+      name: `\n${title}`,
       value,
       inline: false,
     },
