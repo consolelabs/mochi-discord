@@ -1,15 +1,13 @@
 import deepmerge from "deepmerge"
 import { logger } from "logger"
-import type { RequestInit as NativeRequestInit } from "node-fetch"
 import fetch from "node-fetch"
 import { capFirst, getEmoji } from "utils/common"
 import querystring from "query-string"
-import { Pagination } from "types/common"
-import { convertToSnakeCase } from "./fetcher-utils"
+import { attachAuthorization, convertToSnakeCase, makeLog } from "./utils"
 import toCurl from "fetch-to-curl"
 import { kafkaQueue } from "queue/kafka/queue"
 import { stack } from "utils/stack-trace"
-import { MOCHI_API_KEY, TEST } from "env"
+import { CACHE_TTL_SECONDS, FETCH_TIMEOUT_SECONDS, REDIS_HOST, TEST } from "env"
 import {
   eventAsyncStore,
   slashCommandAsyncStore,
@@ -17,104 +15,59 @@ import {
 } from "utils/async-storages"
 import { Message } from "discord.js"
 import { somethingWentWrongPayload } from "utils/error"
-import { MOCHI_PAY_API_BASE_URL } from "../utils/constants"
+import { createStaleWhileRevalidateCache } from "stale-while-revalidate-cache"
+import {
+  ErrPayload,
+  ErrResponse,
+  FetchResult,
+  OkPayload,
+  OkResponse,
+  RequestInit,
+} from "./types"
+import Redis from "ioredis"
 
-function makeLog({
-  query,
-  ok,
-  notSent = false,
-  body = "",
-  url,
-  status,
-  method = "GET",
-}: {
-  url: string
-  ok: boolean
-  notSent?: boolean
-  status?: number
-  method?: string
-  body?: string
-  query: string
-}) {
-  if (notSent)
-    return `[API failed ${method ?? "GET"}/request_not_sent]: ${body}`
-  return `[API ${
-    ok ? "ok" : "failed"
-  } - ${method}/${status}]: ${url} with body ${body}, query ${query}`
+let cacheTtlSeconds = Number(CACHE_TTL_SECONDS)
+if (Number.isNaN(cacheTtlSeconds)) cacheTtlSeconds = 1800
+
+let timeoutSeconds = Number(FETCH_TIMEOUT_SECONDS)
+if (Number.isNaN(timeoutSeconds)) timeoutSeconds = 5
+
+const noop = () => Promise.resolve({})
+// the one and only cache that should be used for response caching
+let cache = {
+  get: noop as any,
+  set: noop as any,
+  del: noop as any,
 }
 
-type SerializableValue = string | number | boolean | undefined | null
-
-type RequestInit = Omit<NativeRequestInit, "body"> & {
-  /**
-   * Whether to hide the 500 error with some generic message e.g "Something went wrong"
-   * */
-  autoWrap500Error?: boolean
-  /**
-   * Query string values, support array format
-   *   Default to empty object
-   * */
-  query?: Record<string, SerializableValue | Array<SerializableValue>>
-  /**
-   *   For querystring
-   * Toggle auto convert camelCase to snake_case when sending request e.g `guildId` will turn into `guild_id`
-   * Default to true
-   * */
-  queryCamelToSnake?: boolean
-  /**
-   * For body payload (POST requests)
-   * Toggle auto convert camelCase to snake_case when sending request e.g `guildId` will turn into `guild_id`
-   * Default to true
-   * */
-  bodyCamelToSnake?: boolean
-  /**
-   * The body payload
-   * */
-  body?: string | Record<string, any>
-  /**
-   * Only log when there is an error
-   * */
-  silent?: boolean
-  /**
-   * Used ONLY for webhook APIs
-   * */
-  isWebhook?: boolean
+if (!TEST) {
+  logger.info("Connecting to Redis.")
+  const redis = new Redis(`redis://${REDIS_HOST}:6379/0`)
+  redis.on("ready", () => {
+    logger.info(`Successfully connected to Redis, host=${REDIS_HOST}`)
+    cache = redis
+  })
 }
 
-type Payload = {
-  log: string
-  curl: string
-  status?: number
-}
-
-type OkPayload = {
-  ok: true
-  data: Record<string, any>
-  result?: any
-  error: null
-  originalError?: string
-  pagination?: Pagination
-} & Payload
-
-type ErrPayload = {
-  ok: false
-  data: null
-  result?: null
-  error: string
-  originalError?: string
-  pagination?: Pagination
-} & Payload
-
-type OkResponse<T> = {
-  json: () => Promise<OkPayload & T>
-}
-
-type ErrResponse = {
-  json: () => Promise<ErrPayload>
-}
+const swr = createStaleWhileRevalidateCache({
+  maxTimeToLive: cacheTtlSeconds * 1000,
+  minTimeToStale: (cacheTtlSeconds / 1.5) * 1000,
+  serialize: JSON.stringify,
+  deserialize: JSON.parse,
+  storage: {
+    async getItem(cacheKey: string) {
+      return await cache.get(cacheKey)
+    },
+    async setItem(cacheKey: string, cacheValue: any) {
+      await cache.set(cacheKey, cacheValue, "EX", cacheTtlSeconds)
+    },
+    async removeItem(cacheKey: string) {
+      await cache.del(cacheKey)
+    },
+  },
+})
 
 const defaultInit: RequestInit = {
-  autoWrap500Error: true,
   method: "GET",
   headers: {
     "Content-Type": "application/json",
@@ -126,44 +79,106 @@ const defaultInit: RequestInit = {
   isWebhook: false,
 }
 
-function attachAuthorization(url: string, options: any) {
-  // only attach token for mochi-pay's request atm
-  if (url.startsWith(MOCHI_PAY_API_BASE_URL)) {
-    options.headers = {
-      Authorization: `Basic ${MOCHI_API_KEY}`,
-    }
-  }
-}
-
 export class Fetcher {
   protected async jsonFetch<T>(
     url: string,
     init: RequestInit = {}
-  ): Promise<(OkPayload & T) | ErrPayload> {
+  ): FetchResult<T> {
+    const mergedInit = deepmerge(defaultInit, init)
+    const query = this.normalizeQuery(mergedInit)
+    const fullUrl = querystring.stringifyUrl(
+      { url, query },
+      { arrayFormat: "separator", arrayFormatSeparator: "|" }
+    )
+
+    // we only cache GET response
+    if (mergedInit.method.trim().toLowerCase() === "get") {
+      return (await this.cacheFetch<T>(fullUrl, mergedInit)) as FetchResult<T>
+    } else {
+      return await this.interalJsonFetch<T>(fullUrl, mergedInit)
+    }
+  }
+
+  protected cacheFetch<T>(fullUrl: string, init: Required<RequestInit>) {
+    const cacheKey = `${init.method} ${fullUrl}`
+
+    return new Promise((resolve) => {
+      let timedout = false
+      // after timeout, if there is still no response from api, use cache instead
+      const useCache = setTimeout(async () => {
+        timedout = true
+
+        const { value } = await swr(
+          cacheKey,
+          async () => await this.interalJsonFetch<T>(fullUrl, init)
+        )
+
+        // const isFromCache = status === "fresh" || status === "stale"
+
+        // if (value.ok) {
+        //   value.cache = {
+        //     status,
+        //     cachedAt,
+        //   }
+        //
+        //   if (isFromCache && !init.silent) {
+        //     logger.info(
+        //       makeLog({
+        //         ok: true,
+        //         method: init.method,
+        //         status: status === "fresh" ? "cache" : "cache/revalidating",
+        //         url: fullUrl,
+        //       })
+        //     )
+        //   }
+        // }
+
+        resolve(value)
+      }, timeoutSeconds * 1000)
+
+      this.interalJsonFetch<T>(fullUrl, init).then((res) => {
+        // within acceptable time -> use resposne from api
+        if (!timedout) {
+          // clear useCache
+          clearTimeout(useCache)
+          // manually update cache
+          swr.persist(cacheKey, res)
+          resolve(res)
+        }
+      })
+    })
+  }
+
+  private normalizeQuery(init: Required<RequestInit>) {
+    const { query: _query, queryCamelToSnake } = init
+    let query: typeof _query = {}
+    if (queryCamelToSnake) {
+      query = convertToSnakeCase(_query)
+    } else {
+      query = _query
+    }
+
+    return query
+  }
+
+  private async interalJsonFetch<T>(
+    url: string,
+    init: Required<RequestInit>
+  ): FetchResult<T> {
     let curl = "None"
     const nekoSad = getEmoji("NEKOSAD")
     let isWebhook = false
     let status
+
     try {
-      const mergedInit = deepmerge(defaultInit, init)
       const {
-        autoWrap500Error,
-        query: _query,
-        queryCamelToSnake,
         bodyCamelToSnake,
         body: _body,
         silent,
         isWebhook: _isWebhook,
         ...validInit
-      } = mergedInit
+      } = init
       isWebhook = _isWebhook
-      let query: typeof _query = {}
-
-      if (queryCamelToSnake) {
-        query = convertToSnakeCase(_query)
-      } else {
-        query = _query
-      }
 
       let body
       if (bodyCamelToSnake) {
@@ -180,17 +195,13 @@ export class Fetcher {
         }
       }
 
-      const requestURL = querystring.stringifyUrl(
-        { url, query },
-        { arrayFormat: "separator", arrayFormatSeparator: "|" }
-      )
       const options = {
         ...validInit,
         body,
       }
       attachAuthorization(url, options)
-      curl = toCurl(requestURL, options)
-      const res = await fetch(requestURL, options)
+      curl = toCurl(url, options)
+      const res = await fetch(url, options)
 
       status = res.status
       const log = makeLog({
@@ -199,7 +210,6 @@ export class Fetcher {
         status: res.status,
         url,
         body,
-        query: querystring.stringify(query),
       })
       if (!res.ok) {
         logger.error(log)
@@ -232,17 +242,14 @@ export class Fetcher {
           .json()
           .catch(() => ({} as ErrPayload))
         json.originalError = json.error
-        if (autoWrap500Error && res.status === 500) {
-          json.error = `Our team is fixing the issue. Stay tuned ${nekoSad}.`
-        } else {
-          json.error = capFirst(json.error)
-        }
+        json.error = capFirst(json.error)
         json.ok = false
         json.log = log
         json.curl = curl
         json.status = res.status
         return json
       } else {
+        // OK case
         if (!silent) {
           logger.info(log)
         }
@@ -263,7 +270,6 @@ export class Fetcher {
         status,
         url,
         body: e.message,
-        query: querystring.stringify({}),
       })
       logger.error(log)
       const store =
