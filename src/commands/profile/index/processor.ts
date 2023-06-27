@@ -43,7 +43,6 @@ import {
 import { formatDigit } from "utils/defi"
 import config from "adapters/config"
 import { formatVaults } from "commands/vault/list/processor"
-import CacheManager from "cache/node-cache"
 import { getSlashCommand } from "utils/commands"
 
 async function renderListWallet(
@@ -156,11 +155,7 @@ async function compose(
     fractionDigits: totalWorth >= 100 ? 0 : 2,
   })
 
-  const { data: inbox } = await CacheManager.get({
-    pool: "user_inbox",
-    key: `${member.user.id}_0`,
-    call: async () => await profile.getUserActivities(dataProfile.id),
-  })
+  const { data: inbox } = await profile.getUserActivities(dataProfile.id)
   const unreadList = inbox.filter((activity: any) => {
     return activity.status === "new"
   })
@@ -238,7 +233,7 @@ async function compose(
   const notLinkedPlatforms = ["twitter", "telegram", "binance"]
     .filter((s) =>
       socials.every(
-        (connectedSocial) => !equalIgnoreCase(connectedSocial.platform, s)
+        (connectedSocial: any) => !equalIgnoreCase(connectedSocial.platform, s)
       )
     )
     .filter((s) =>
@@ -563,9 +558,6 @@ export async function submitBinanceKeys(
         ].join("\n")
       )
       .setImage(thumbnails.MOCHI_POSE_12)
-
-    // clear cache to get new data
-    CacheManager.findAndRemove("profile-data", i.user.id)
 
     return {
       msgOpts: {

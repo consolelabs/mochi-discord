@@ -46,13 +46,6 @@ import {
 import { TEST } from "env"
 import { ResponseDaoTrackerSpaceCountResponse } from "types/api"
 import { formatDigit } from "utils/defi"
-import CacheManager from "cache/node-cache"
-
-CacheManager.init({
-  ttl: 86400,
-  pool: "content-header-footer",
-  checkperiod: 3600,
-})
 
 class Config extends Fetcher {
   public Guilds?: Guilds
@@ -429,7 +422,6 @@ class Config extends Fetcher {
     chain: string
   }) {
     return this.jsonFetch(`${API_BASE_URL}/config-defi/custom-tokens`, {
-      autoWrap500Error: false,
       method: "POST",
       body: JSON.stringify(body),
     })
@@ -439,7 +431,6 @@ class Config extends Fetcher {
     return this.jsonFetch<ResponseGetLevelRoleConfigsResponse>(
       `${API_BASE_URL}/config-roles/level-roles`,
       {
-        autoWrap500Error: false,
         method: "POST",
         body: JSON.stringify(data),
       }
@@ -486,7 +477,6 @@ class Config extends Fetcher {
     return this.jsonFetch<ResponseListGuildGroupNFTRolesResponse>(
       `${API_BASE_URL}/config-roles/nft-roles`,
       {
-        autoWrap500Error: false,
         method: "POST",
         body: JSON.stringify(body),
       }

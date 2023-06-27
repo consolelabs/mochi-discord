@@ -86,3 +86,7 @@ export const GAME_STORE_API_SERVER_HOST =
 
 export const MOCHI_API_KEY = process.env.MOCHI_API_KEY || ""
 export const KRYSTAL_ACCESS_TOKEN = process.env.KRYSTAL_ACCESS_TOKEN || ""
+
+export const FETCH_TIMEOUT_SECONDS = process.env.FETCH_TIMEOUT_SECONDS || 5
+export const CACHE_TTL_SECONDS = process.env.CACHE_TTL_SECONDS || 1800
+export const REDIS_HOST = process.env.REDIS_HOST || "localhost"

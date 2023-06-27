@@ -1,4 +1,4 @@
-import { convertToSnakeCase } from "./fetcher-utils"
+import { convertToSnakeCase } from "./utils"
 
 test.each([
   // normal case

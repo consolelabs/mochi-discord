@@ -15,14 +15,7 @@ import { uniqBy } from "lodash"
 import { capitalizeFirst, removeDuplications } from "utils/common"
 import { logger } from "logger"
 import { formatDigit } from "utils/defi"
-import CacheManager from "cache/node-cache"
 import mochiTelegram from "./mochi-telegram"
-
-CacheManager.init({
-  pool: "profile-data",
-  ttl: 300,
-  checkperiod: 150,
-})
 
 class Profile extends Fetcher {
   public async getUserSocials(discordId: string) {
@@ -54,7 +47,7 @@ class Profile extends Fetcher {
   }
 
   public async getUserWallets(discordId: string) {
-    const dataProfile = await this.getByDiscord(discordId)
+    const dataProfile = await this.getByDiscord(discordId, false)
     if (dataProfile.err) {
       logger.error("Cannot get profile by discord id", discordId)
       return {
@@ -262,20 +255,15 @@ class Profile extends Fetcher {
     return await res?.json()
   }
 
-  public async getByDiscord(discordId: string, noFetchAmount = true) {
-    return await CacheManager.get({
-      pool: "profile-data",
-      key: discordId,
-      call: async () => {
-        const data = await this.jsonFetch(
-          `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}${
-            noFetchAmount ? "?no-fetch-amount=true" : ""
-          }`
-        )
-
-        return data
-      },
-    })
+  public async getByDiscord(
+    discordId: string,
+    noFetchAmount = true
+  ): Promise<any> {
+    return await this.jsonFetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}${
+        noFetchAmount ? "?no-fetch-amount=true" : ""
+      }`
+    )
   }
 
   public async getByEmail(email: string) {
