@@ -48,7 +48,6 @@ import feedback from "./feedback/index"
 import gm from "./gm"
 import help from "./help/index"
 import levelmessage from "./level-message"
-import moniker from "./moniker"
 import gas from "./gas"
 import activity from "./activity"
 import inbox from "./inbox"
@@ -68,7 +67,6 @@ import top from "./top"
 import verify from "./verify"
 import watchlist from "./watchlist"
 import watchlistView from "./watchlist/view/slash"
-import welcome from "./welcome/index"
 import withdraw from "./withdraw"
 import xprole from "./xp-role"
 import wallet from "./wallet"
@@ -108,7 +106,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   feedback: feedback.slashCmd,
   ticker: ticker.slashCmd,
   help: help.slashCmd,
-  welcome: welcome.slashCmd,
   top: top.slashCmd,
   verify: verify.slashCmd,
   watchlist: watchlist.slashCmd,
@@ -129,7 +126,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   bals: balances.slashCmd,
   //
   proposal: proposal.slashCmd,
-  moniker: moniker.slashCmd,
   withdraw: withdraw.slashCmd,
   wd: withdraw.slashCmd,
   airdrop: airdrop.slashCmd,
@@ -186,7 +182,6 @@ export const originalCommands: Record<string, Command> = {
   gas: gas.textCmd,
   inbox: inbox.textCmd,
   // config section
-  moniker: moniker.textCmd,
   proposal: proposal.textCmd,
   levelmessage: levelmessage.textCmd,
   xprole: xprole.textCmd,
