@@ -1,5 +1,6 @@
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
+import { composeTokenInfoEmbed } from "commands/token/info/processor"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -9,7 +10,6 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { InternalError } from "errors"
-// import TurndownService from "turndown"
 import { Coin } from "types/defi"
 import { getChartColorConfig } from "ui/canvas/color"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -264,68 +264,11 @@ function buildSwitchViewActionRow(currentView: string, added: boolean) {
   ])
 }
 
-export async function composeTokenInfoEmbed(
+export async function handleTokenInfo(
   interaction: ButtonInteraction,
-  { baseCoin: coin }: Context
+  coin: Coin
 ) {
-  const embed = composeEmbedMessage(null, {
-    thumbnail: coin.image.large,
-    color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    title: "About " + coin.name,
-  })
-  // const tdService = new TurndownService()
-  const content = coin.coingecko_info.description_lines[0]
-
-  embed.setDescription(content || "This token has not updated description yet")
-
-  embed.addFields([
-    {
-      name: "Circulating",
-      value: `${formatDigit({
-        value: coin.market_data.circulating_supply,
-        shorten: true,
-      })}`,
-      inline: true,
-    },
-    {
-      name: "Total Supply",
-      value: `${formatDigit({
-        value: coin.market_data.total_supply,
-        shorten: true,
-      })}`,
-      inline: true,
-    },
-    {
-      name: "Max Supply",
-      value: `${formatDigit({
-        value: coin.market_data.max_supply,
-        shorten: true,
-      })}`,
-      inline: true,
-    },
-    {
-      name: "FDV",
-      value: `$${formatDigit({
-        value: coin.market_data.fully_diluted_valuation?.[CURRENCY],
-        shorten: true,
-      })}`,
-      inline: true,
-    },
-    {
-      name: "Tags",
-      // only get items that contain "Ecosystem" and remove the word "Ecosystem"
-      value: coin.categories.join(", "),
-      inline: true,
-    },
-    {
-      name: "Addresses",
-      // hyper link the key and value: coin.coingecko_info.explorers
-      value: coin.coingecko_info.explorers
-        .map((explorer) => `[${explorer.key}](${explorer.value})`)
-        .join(", "),
-      inline: true,
-    },
-  ])
+  const tokenInfoEmbed = composeTokenInfoEmbed({ coin })
 
   const wlAdded = await isTickerAddedToWl(coin.id, interaction.user.id)
   const buttonRow = buildSwitchViewActionRow("info", wlAdded)
@@ -333,7 +276,7 @@ export async function composeTokenInfoEmbed(
   return {
     msgOpts: {
       files: [],
-      embeds: [embed],
+      embeds: [tokenInfoEmbed],
       components: [buttonRow],
     },
   }
@@ -471,13 +414,11 @@ export async function run(
         throw new InternalError({
           title: "Unsupported token/fiat",
           msgOrInteraction: interaction,
-          description: `**${symbol.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} Or choose a valid fiat currency.`,
+          descriptions: [
+            "Please choose a token that is listed on [CoinGecko](https://www.coingecko.com)",
+            "Or choose a valid fiat currency.",
+          ],
+          reason: `**${symbol.toUpperCase()}** is invalid or hasn't been supported.`,
         })
       }
 

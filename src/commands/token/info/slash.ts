@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandArgumentError, GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError } from "errors"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
@@ -25,24 +25,26 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({ message: interaction })
     }
 
-    const symbol = await interaction.options.getString("symbol")
-    if (!symbol) {
-      throw new CommandArgumentError({
-        message: interaction,
-        getHelpMessage: () => command.help(interaction),
-      })
-    }
+    const symbol = interaction.options.getString("symbol", true)
 
-    return await handleTokenInfo(interaction, symbol)
+    const { msgOpts: messageOptions } = await handleTokenInfo(
+      interaction,
+      symbol
+    )
+
+    return {
+      messageOptions,
+    }
   },
-  help: async (interaction: CommandInteraction) => ({
-    embeds: [
-      composeEmbedMessage2(interaction, {
-        usage: `${SLASH_PREFIX}tokens info <symbol>\n${SLASH_PREFIX}tokens info <id>`,
-        examples: `${SLASH_PREFIX}tokens info eth\n${SLASH_PREFIX}tokens info ethereum`,
-      }),
-    ],
-  }),
+  help: (interaction: CommandInteraction) =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage2(interaction, {
+          usage: `${SLASH_PREFIX}tokens info <symbol>\n${SLASH_PREFIX}tokens info <id>`,
+          examples: `${SLASH_PREFIX}tokens info eth\n${SLASH_PREFIX}tokens info ethereum`,
+        }),
+      ],
+    }),
   colorType: "Defi",
 }
 

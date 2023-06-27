@@ -1,7 +1,7 @@
 import { CommandInteraction, Message } from "discord.js"
 import {
   run as runProcessor,
-  composeTokenInfoEmbed,
+  handleTokenInfo,
   renderPair,
   renderSingle,
   renderFiatPair,
@@ -20,7 +20,7 @@ const machineConfig: (
     initial,
     context: {
       select: {
-        ticker: (interaction, ev, ctx) =>
+        ticker: (interaction, _ev, ctx) =>
           renderSingle(interaction, {
             baseCoin: ctx.baseCoin,
             type: ctx.type,
@@ -51,11 +51,7 @@ const machineConfig: (
                 days: ctx.days,
               })
             case ev === "VIEW_INFO":
-              return composeTokenInfoEmbed(interaction, {
-                baseCoin: ctx.baseCoin,
-                days: ctx.days,
-                type: ctx.type,
-              })
+              return handleTokenInfo(interaction, ctx.baseCoin)
           }
         },
       },
