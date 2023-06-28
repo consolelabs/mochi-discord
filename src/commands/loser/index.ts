@@ -8,8 +8,7 @@ import {
 import { thumbnails } from "utils/common"
 import loserSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
-
-const choices = ["1h", "24h", "7d", "1y"]
+import { TimeRange } from "commands/gainer/index/processor"
 
 const slashCmd: SlashCommand = {
   name: "loser",
@@ -24,24 +23,25 @@ const slashCmd: SlashCommand = {
         option
           .setName("time")
           .setDescription("time range you want")
-          .setRequired(true)
-          .addChoices(choices.map((c) => [c, c]))
+          .setRequired(false)
+          .addChoices(Object.keys(TimeRange).map((c) => [c, c]))
       )
   },
   run: loserSlash,
-  help: async () => ({
-    embeds: [
-      composeEmbedMessage(null, {
-        thumbnail: thumbnails.TOKENS,
-        usage: `${SLASH_PREFIX}loser <time_range>`,
-        description:
-          "Show top decreasing tokens in last 1 hour, 24 hours, 7 days, 1 year",
-        footer: [DEFI_DEFAULT_FOOTER],
-        examples: `${SLASH_PREFIX}loser 1h\n${SLASH_PREFIX}loser 24h\n${SLASH_PREFIX}loser 7d`,
-        document: LOSER_GITBOOK,
-      }),
-    ],
-  }),
+  help: () =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage(null, {
+          thumbnail: thumbnails.TOKENS,
+          usage: `${SLASH_PREFIX}loser <time_range>`,
+          description:
+            "Show top decreasing tokens in last 1 hour, 24 hours, 7 days, 1 year",
+          footer: [DEFI_DEFAULT_FOOTER],
+          examples: `${SLASH_PREFIX}loser 1h\n${SLASH_PREFIX}loser 24h\n${SLASH_PREFIX}loser 7d`,
+          document: LOSER_GITBOOK,
+        }),
+      ],
+    }),
   colorType: "Defi",
 }
 

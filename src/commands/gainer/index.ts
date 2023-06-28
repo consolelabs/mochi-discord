@@ -8,8 +8,7 @@ import {
 import { thumbnails } from "utils/common"
 import gainerSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
-
-const choices = ["1h", "24h", "7d", "1y"]
+import { TimeRange } from "./index/processor"
 
 const slashCmd: SlashCommand = {
   name: "gainer",
@@ -24,24 +23,25 @@ const slashCmd: SlashCommand = {
         option
           .setName("time")
           .setDescription("time range you want")
-          .setRequired(true)
-          .addChoices(choices.map((c) => [c, c]))
+          .setRequired(false)
+          .addChoices(Object.keys(TimeRange).map((c) => [c, c]))
       )
   },
   run: gainerSlash,
-  help: async () => ({
-    embeds: [
-      composeEmbedMessage(null, {
-        thumbnail: thumbnails.TOKENS,
-        usage: `${SLASH_PREFIX}gainer <time_range>`,
-        description:
-          "Show top increasing tokens in last 1 hour, 24 hours, 7 days, 1 year",
-        footer: [DEFI_DEFAULT_FOOTER],
-        examples: `${SLASH_PREFIX}gainer 1h\n${SLASH_PREFIX}gainer 24h\n${SLASH_PREFIX}gainer 7d`,
-        document: GAINER_GITBOOK,
-      }),
-    ],
-  }),
+  help: () =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage(null, {
+          thumbnail: thumbnails.TOKENS,
+          usage: `${SLASH_PREFIX}gainer <time_range>`,
+          description:
+            "Show top increasing tokens in last 1 hour, 24 hours, 7 days, 1 year",
+          footer: [DEFI_DEFAULT_FOOTER],
+          examples: `${SLASH_PREFIX}gainer 1h\n${SLASH_PREFIX}gainer 24h\n${SLASH_PREFIX}gainer 7d`,
+          document: GAINER_GITBOOK,
+        }),
+      ],
+    }),
   colorType: "Defi",
 }
 
