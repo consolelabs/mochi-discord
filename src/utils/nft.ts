@@ -24,7 +24,7 @@ export const traitTypeMapping = {
   SPECIAL: "FALLBACK",
   CATEGORY: "FALLBACK",
   SEDIMENT: "FALLBACK",
-  TRIBE: "FALLBACK",
+  // TRIBE: "FALLBACK",
   HEAD: "FALLBACK",
   FACE: "FALLBACK",
   EYEBROWS: "EYES",
