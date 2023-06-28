@@ -36,7 +36,7 @@ const command: SlashCommand = {
   },
   run: async function (i: CommandInteraction) {
     const address = i.options.getString("address", true)
-    const chain = i.options.getString("chain", false) ?? "eth"
+    const chain = i.options.getString("chain", false) ?? "evm"
     const alias = i.options.getString("alias", false) ?? ""
 
     const { msgOpts, context } = await trackWallet(

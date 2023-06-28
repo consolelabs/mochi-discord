@@ -127,9 +127,6 @@ export const balanceEmbedProps: Record<
       address = wallet.address
       addressType = wallet.chain_type || "evm"
     }
-    if (equalIgnoreCase(addressType, "eth")) {
-      addressType = "evm"
-    }
     return {
       addressType,
       address,
@@ -180,7 +177,7 @@ export async function getBalances(
   type: BalanceType,
   msg: Interaction,
   address: string,
-  addressType: string
+  addressType = "evm"
 ) {
   const fetcher = balancesFetcher[type]
   const res = await fetcher(profileId, discordId, address, addressType, "")
@@ -267,7 +264,7 @@ async function getTxns(
   type: BalanceType,
   msg: Interaction,
   address: string,
-  addressType: string
+  addressType = "evm"
 ) {
   // TODO: implement later
   if (type === BalanceType.Cex) {
@@ -974,7 +971,7 @@ export async function renderBalances(
       type,
       interaction,
       resolvedAddress,
-      addressType ?? "eth"
+      addressType
     ),
     getTxns(
       profileId,
@@ -982,7 +979,7 @@ export async function renderBalances(
       type,
       interaction,
       resolvedAddress,
-      addressType ?? "eth"
+      addressType
     ),
   ])
   const isViewingOther = interaction.user.id !== discordId
@@ -1161,7 +1158,7 @@ export async function getBalanceTokens(i: ButtonInteraction) {
     BalanceType.Offchain,
     i,
     "",
-    addressType ?? "eth"
+    addressType
   )
 
   const availableTokens = balances.data.map(
