@@ -1,7 +1,7 @@
 import { CommandInteraction, Message } from "discord.js"
 import {
   run as runProcessor,
-  handleTokenInfo,
+  renderTokenInfo,
   renderPair,
   renderSingle,
   renderFiatPair,
@@ -9,7 +9,7 @@ import {
 import { MachineConfig, route } from "utils/router"
 import { machineConfig as swapMachineConfig } from "commands/swap"
 
-const machineConfig: (
+export const machineConfig: (
   swapTo: string,
   context: any,
   initial: string
@@ -42,17 +42,19 @@ const machineConfig: (
           }),
       },
       button: {
-        ticker: (interaction, ev, ctx) => {
-          switch (true) {
-            case ev === "VIEW_CHART":
-              return renderSingle(interaction, {
-                baseCoin: ctx.baseCoin,
-                type: ctx.type,
-                days: ctx.days,
-              })
-            case ev === "VIEW_INFO":
-              return handleTokenInfo(interaction, ctx.baseCoin)
-          }
+        ticker: (interaction, _ev, ctx) => {
+          return renderSingle(interaction, {
+            baseCoin: ctx.baseCoin,
+            type: ctx.type,
+            days: ctx.days,
+          })
+        },
+        tickerInfo: (interaction, _ev, ctx) => {
+          return renderTokenInfo(interaction, {
+            baseCoin: ctx.baseCoin,
+            type: ctx.type,
+            days: ctx.days,
+          })
         },
       },
       ...tickerCtx,
@@ -62,8 +64,7 @@ const machineConfig: (
         on: {
           SWAP: "swapStep1",
           CHANGE_TIME_OPTION: "ticker",
-          VIEW_INFO: "ticker",
-          VIEW_CHART: "ticker",
+          VIEW_INFO: "tickerInfo",
         },
       },
       tickerPair: {
@@ -74,6 +75,11 @@ const machineConfig: (
       tickerFiatPair: {
         on: {
           CHANGE_TIME_OPTION: "tickerFiatPair",
+        },
+      },
+      tickerInfo: {
+        on: {
+          VIEW_CHART: "ticker",
         },
       },
       swapStep1,

@@ -1,6 +1,6 @@
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
-import { composeTokenInfoEmbed } from "commands/token/info/processor"
+import { ResponseCoinGeckoInfoKeyValue } from "../../../types/api"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -264,19 +264,98 @@ function buildSwitchViewActionRow(currentView: string, added: boolean) {
   ])
 }
 
-export async function handleTokenInfo(
-  interaction: ButtonInteraction,
-  coin: Coin
+export async function renderTokenInfo(
+  interaction: ButtonInteraction | CommandInteraction,
+  { baseCoin: coin, ...rest }: Context
 ) {
-  const tokenInfoEmbed = composeTokenInfoEmbed({ coin })
+  const embed = composeEmbedMessage(null, {
+    thumbnail: coin.image.large,
+    color: getChartColorConfig(coin.id).borderColor as HexColorString,
+    title: "About " + coin.name,
+  })
+
+  const content = coin.coingecko_info?.description_lines[0] ?? ""
+
+  embed.setDescription(content || "This token has not updated description yet")
+
+  if (coin.market_data?.circulating_supply) {
+    embed.addFields({
+      name: "Circulating",
+      value: `${formatDigit({
+        value: coin.market_data?.circulating_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    })
+  }
+
+  if (coin.market_data?.total_supply) {
+    embed.addFields({
+      name: "Total Supply",
+      value: `${formatDigit({
+        value: coin.market_data.total_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    })
+  }
+
+  if (coin.market_data?.max_supply) {
+    embed.addFields({
+      name: "Max Supply",
+      value: `${formatDigit({
+        value: coin.market_data.max_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    })
+  }
+
+  if (coin.market_data?.fully_diluted_valuation?.[CURRENCY]) {
+    embed.addFields({
+      name: "FDV",
+      value: `$${formatDigit({
+        value: coin.market_data.fully_diluted_valuation?.[CURRENCY],
+        shorten: true,
+      })}`,
+      inline: true,
+    })
+  }
+
+  embed.addFields({
+    name: "Tags",
+    // only get items that contain "Ecosystem" and remove the word "Ecosystem"
+    value: coin.categories.join(", "),
+    inline: true,
+  })
+
+  if (coin.coingecko_info?.explorers) {
+    embed.addFields({
+      name: "Addresses",
+      // hyper link the key and value: coin.coingecko_info.explorers
+      value: coin.coingecko_info.explorers
+        .map(
+          (explorer: ResponseCoinGeckoInfoKeyValue) =>
+            `[${explorer.key}](${explorer.value})`
+        )
+        .join(", "),
+      inline: true,
+    })
+  }
 
   const wlAdded = await isTickerAddedToWl(coin.id, interaction.user.id)
   const buttonRow = buildSwitchViewActionRow("info", wlAdded)
 
   return {
+    initial: "tickerInfo",
+    context: {
+      view: TickerView.Info,
+      baseCoin: coin,
+      ...rest,
+    },
     msgOpts: {
       files: [],
-      embeds: [tokenInfoEmbed],
+      embeds: [embed],
       components: [buttonRow],
     },
   }
@@ -389,19 +468,19 @@ export async function renderFiatPair({
   }
 }
 
+export enum TickerView {
+  Chart = "chart",
+  Info = "info",
+}
+
 export async function run(
   interaction: CommandInteraction,
   baseQ: string,
   targetQ: string,
   isCompare: boolean,
-  isFiat: boolean
+  isFiat: boolean,
+  view = TickerView.Chart
 ) {
-  if (isFiat)
-    return renderFiatPair({
-      baseQ,
-      targetQ,
-      days: ChartViewTimeOption.M1,
-    })
   const [baseCoin, targetCoin] = await Promise.all(
     [baseQ, targetQ].filter(Boolean).map(async (symbol) => {
       const { ticker, isDominanceChart } = parseQuery(symbol)
@@ -451,6 +530,23 @@ export async function run(
     })
   )
 
+  const type = parseQuery(baseQ).isDominanceChart
+    ? ChartType.Dominance
+    : ChartType.Single
+  const days = parseQuery(baseQ).isDominanceChart
+    ? DominanceChartViewTimeOption.Y1
+    : ChartViewTimeOption.M1
+
+  if (view === TickerView.Info)
+    return renderTokenInfo(interaction, { baseCoin, type, days })
+
+  if (isFiat)
+    return renderFiatPair({
+      baseQ,
+      targetQ,
+      days: ChartViewTimeOption.M1,
+    })
+
   if (
     isCompare &&
     [baseQ, targetQ].map(parseQuery).every((isDominance) => !isDominance)
@@ -465,11 +561,7 @@ export async function run(
 
   return renderSingle(interaction, {
     baseCoin,
-    type: parseQuery(baseQ).isDominanceChart
-      ? ChartType.Dominance
-      : ChartType.Single,
-    days: parseQuery(baseQ).isDominanceChart
-      ? DominanceChartViewTimeOption.Y1
-      : ChartViewTimeOption.M1,
+    type,
+    days,
   })
 }
