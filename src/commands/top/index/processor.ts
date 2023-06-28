@@ -1,176 +1,84 @@
-import { createCanvas, loadImage } from "canvas"
-import { Guild, GuildMember, MessageAttachment } from "discord.js"
-import { RectangleStats } from "types/canvas"
-import { LeaderboardItem } from "types/community"
-import { heightOf, widthOf } from "ui/canvas/calculator"
-import { drawDivider, drawRectangle } from "ui/canvas/draw"
-import { emojis, getEmojiURL } from "utils/common"
+import { ButtonInteraction, CommandInteraction } from "discord.js"
+import { EmojiKey, emojis, getEmoji, getEmojiURL } from "utils/common"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import community from "adapters/community"
+import { InternalError } from "errors"
+import { paginationButtons } from "utils/router"
 
-export async function renderLeaderboard(
-  guild: Guild | null,
-  leaderboard: LeaderboardItem[]
+const topEmojis = {
+  0: getEmoji("ANIMATED_BADGE_1", true),
+  1: getEmoji("ANIMATED_BADGE_2", true),
+  2: getEmoji("ANIMATED_BADGE_3", true),
+}
+
+export async function render(
+  interaction: CommandInteraction | ButtonInteraction,
+  page = 0
 ) {
-  const container: RectangleStats = {
-    x: {
-      from: 0,
-      to: 870,
-    },
-    y: {
-      from: 0,
-      to: 670,
-    },
-    w: 0,
-    h: 0,
-    pt: 50,
-    pl: 30,
-    radius: 30,
-    bgColor: "rgba(0, 0, 0, 0)", // transparent
+  if (!interaction.guildId) {
+    throw new InternalError({
+      msgOrInteraction: interaction,
+      descriptions: ["Couldn't run this command"],
+      reason:
+        "It needs to run inside a server to render stats specific to that server.",
+    })
   }
-  container.w = container.x.to - container.x.from
-  container.h = container.y.to - container.y.from
-  const canvas = createCanvas(container.w, container.h)
-  const ctx = canvas.getContext("2d")
-  ctx.save()
-  drawRectangle(ctx, container, container.bgColor)
-  ctx.clip()
 
-  // divider
-  drawDivider(
-    ctx,
-    container.x.from + (container.pl ?? 0),
-    container.x.to - (container.pl ?? 0),
-    0
+  const res = await community.getTopXPUsers(
+    interaction.guildId,
+    interaction.user.id,
+    page,
+    10
   )
+  if (!res.ok || !res.data.leaderboard || !res.data.leaderboard.length)
+    throw new InternalError({
+      msgOrInteraction: interaction,
+      descriptions: ["We coulnd't process this command"],
+      reason: res.error || "We're investigating",
+    })
 
-  // user title
-  ctx.font = "bold 33px Manrope"
-  ctx.fillStyle = "white"
-  const userTitleStr = "Users"
-  const userTitle = {
-    x: container.x.from + (container.pl ?? 0),
-    y: container.pt ?? 0,
-    mb: 20,
+  const { author, leaderboard } = res.data
+  const member = await interaction.guild?.members.fetch(author.user_id)
+
+  const embed = composeEmbedMessage(null, {
+    author: ["Top engagement by XP", getEmojiURL(emojis.ANIMATED_TROPHY)],
+    description: [
+      `:identification_card:\`Name.      \`${member}`,
+      `${getEmoji("LEAF")}\`Role.      \`${member?.roles.highest}`,
+      `${getEmoji("ANIMATED_STAR", true)}\`Your rank.  #${author.guild_rank}\``,
+      `${getEmoji("XP")}\`Current XP. ${author.total_xp}\``,
+      `${getEmoji("ANIMATED_GEM", true)}\`Next lvl.   ${author.level + 1}\``,
+      getEmoji("LINE").repeat(10),
+      formatDataTable(
+        leaderboard.map((l: any) => ({
+          username: `${l.user.username.slice(0, 10)}${
+            l.user.username.length > 10 ? "..." : ""
+          }`,
+          level: `lvl. ${l.level}`,
+          xp: l.total_xp,
+        })),
+        {
+          cols: ["username", "level", "xp"],
+          rowAfterFormatter: (f, i) => {
+            const isFirstPage = page === 0
+
+            return `${
+              isFirstPage
+                ? topEmojis[i as keyof typeof topEmojis] ??
+                  getEmoji(`num_${i}` as EmojiKey)
+                : getEmoji(`num_${i}` as EmojiKey)
+            }${f}`
+          },
+        }
+      ).joined,
+    ].join("\n"),
+    // description: `${ blank } ** Your rank:** #${ author.guild_rank }\n${ blank } ** XP:** ${ author.total_xp }\n\u200B`,
+  })
+
+  return {
+    msgOpts: {
+      embeds: [embed],
+      components: paginationButtons(page, res.data.metadata.total),
+    },
   }
-  ctx.fillText(userTitleStr, userTitle.x, userTitle.y)
-
-  // level title
-  const lvlTitleStr = "Level (XP)"
-  const lvlTitle = {
-    x: 650,
-    y: userTitle.y,
-  }
-  ctx.fillText(lvlTitleStr, lvlTitle.x, lvlTitle.y)
-
-  // users
-  const badgeIcon = {
-    w: 30,
-    h: 40,
-    mr: 30,
-  }
-  const energyIcon = {
-    image: await loadImage(getEmojiURL(emojis.ENERGY)),
-    x: lvlTitle.x,
-    y: lvlTitle.y,
-    w: 20,
-    h: 23,
-  }
-  const line = {
-    x: userTitle.x,
-    y: userTitle.y + userTitle.mb,
-    h: 40,
-    mb: 20,
-  }
-  const username = {
-    x: line.x + badgeIcon.w + badgeIcon.mr,
-    y: line.y,
-    mr: 10,
-  }
-  ctx.font = "27px Manrope"
-  for (const item of leaderboard) {
-    const member: GuildMember | undefined = await guild?.members
-      .fetch(item.user_id)
-      .catch(() => undefined)
-    const usernameStr = member?.user?.username ?? item.user?.username
-    username.y +=
-      heightOf(ctx, usernameStr) +
-      (badgeIcon.h - heightOf(ctx, usernameStr)) / 2
-    switch (item.guild_rank) {
-      case 1:
-      case 2:
-      case 3: {
-        // icon
-        const badgeImg = await loadImage(
-          getEmojiURL(emojis[`ANIMATED_BADGE_${item.guild_rank}`])
-        )
-        ctx.drawImage(badgeImg, line.x, line.y, badgeIcon.w, badgeIcon.h)
-        break
-      }
-      default: {
-        const rankStr = `${
-          item.guild_rank < 10 ? `0${item.guild_rank}.` : `${item.guild_rank}.`
-        }`
-        ctx.fillStyle = "#898A8C"
-        ctx.fillText(rankStr, line.x, username.y)
-        break
-      }
-    }
-    // username
-    ctx.font = "bold 27px Manrope"
-    ctx.fillStyle = "white"
-    // username.y = line.y
-    ctx.fillText(usernameStr, username.x, username.y)
-
-    // discriminator
-    const discriminator = {
-      x: username.x + widthOf(ctx, usernameStr) + username.mr,
-      y: username.y,
-      mr: 20,
-    }
-    ctx.font = "27px Manrope"
-    ctx.fillStyle = "#888888"
-    ctx.fillText(
-      `#${member?.user?.discriminator}`,
-      discriminator.x,
-      discriminator.y
-    )
-
-    // level
-    const levelStr = `${item.level} `
-    ctx.font = "bold 27px Manrope"
-    ctx.fillStyle = "#BFBFBF"
-    const level = {
-      x: lvlTitle.x,
-      y: discriminator.y,
-      w: widthOf(ctx, levelStr),
-    }
-    ctx.fillText(levelStr, level.x, level.y)
-
-    // open parentheses
-    const openParenthesesStr = "( "
-    ctx.font = "27px Manrope"
-    ctx.fillText(openParenthesesStr, level.x + level.w, level.y)
-
-    // energy icon
-    energyIcon.x = level.x + level.w + widthOf(ctx, openParenthesesStr)
-    energyIcon.y = level.y - energyIcon.h + 2
-    ctx.drawImage(
-      energyIcon.image,
-      energyIcon.x,
-      energyIcon.y,
-      energyIcon.w,
-      energyIcon.h
-    )
-
-    // current guild xp
-    const xpStr = ` ${item.total_xp})`
-    const xp = {
-      x: energyIcon.x + energyIcon.w,
-      y: level.y,
-    }
-    ctx.fillText(xpStr, xp.x, xp.y)
-    line.y += line.h + line.mb
-    username.y = line.y
-  }
-
-  return new MessageAttachment(canvas.toBuffer(), "leaderboard.png")
 }
