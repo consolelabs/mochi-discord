@@ -8,6 +8,7 @@ import {
   EmbedFieldData,
   MessageActionRow,
   MessageButton,
+  MessageSelectMenu,
   SelectMenuInteraction,
   User,
 } from "discord.js"
@@ -19,6 +20,8 @@ import {
 } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 import {
+  AddressChainType,
+  EmojiKey,
   emojis,
   equalIgnoreCase,
   getEmoji,
@@ -124,9 +127,6 @@ export const balanceEmbedProps: Record<
       address = wallet.address
       addressType = wallet.chain_type || "evm"
     }
-    if (equalIgnoreCase(addressType, "eth")) {
-      addressType = "evm"
-    }
     return {
       addressType,
       address,
@@ -177,7 +177,7 @@ export async function getBalances(
   type: BalanceType,
   msg: Interaction,
   address: string,
-  addressType: string
+  addressType = "evm"
 ) {
   const fetcher = balancesFetcher[type]
   const res = await fetcher(profileId, discordId, address, addressType, "")
@@ -192,6 +192,7 @@ export async function getBalances(
     farming: any,
     staking: any,
     lending: any,
+    nfts: any,
     pnl = 0
   if (type === BalanceType.Offchain) {
     data = res.data.filter((i: any) => Boolean(i))
@@ -205,6 +206,7 @@ export async function getBalances(
     }
     farming = res.data.farming
     staking = res.data.staking
+    nfts = res.data.nfts
   }
   if (type === BalanceType.Cex) {
     data = res.data.asset.filter((i: any) => Boolean(i))
@@ -235,6 +237,7 @@ export async function getBalances(
     farming,
     staking,
     lending,
+    nfts,
   }
 }
 
@@ -261,7 +264,7 @@ async function getTxns(
   type: BalanceType,
   msg: Interaction,
   address: string,
-  addressType: string
+  addressType = "evm"
 ) {
   // TODO: implement later
   if (type === BalanceType.Cex) {
@@ -968,7 +971,7 @@ export async function renderBalances(
       type,
       interaction,
       resolvedAddress,
-      addressType ?? "eth"
+      addressType
     ),
     getTxns(
       profileId,
@@ -976,7 +979,7 @@ export async function renderBalances(
       type,
       interaction,
       resolvedAddress,
-      addressType ?? "eth"
+      addressType
     ),
   ])
   const isViewingOther = interaction.user.id !== discordId
@@ -999,8 +1002,8 @@ export async function renderBalances(
     },
     msgOpts: {
       embeds: [embed],
-      components:
-        !isOwnWallet && type === BalanceType.Onchain
+      components: [
+        ...(!isOwnWallet && type === BalanceType.Onchain
           ? [getGuestWalletButtons(trackingType)]
           : isOwnWallet && type === BalanceType.Onchain
           ? [
@@ -1023,7 +1026,25 @@ export async function renderBalances(
                   .setLabel("Earn"),
                 ...getButtons("balance", `_${profileId}_${type}`)
               ),
-            ],
+            ]),
+        ...(type === BalanceType.Onchain
+          ? [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setStyle("PRIMARY")
+                  .setEmoji(getEmoji("WALLET_2"))
+                  .setCustomId(`view_portfolio`)
+                  .setLabel("Portfolio")
+                  .setDisabled(true),
+                new MessageButton()
+                  .setStyle("PRIMARY")
+                  .setEmoji(getEmoji("NFT2"))
+                  .setCustomId(`view_nft`)
+                  .setLabel("NFT")
+              ),
+            ]
+          : []),
+      ],
     },
   }
 }
@@ -1137,7 +1158,7 @@ export async function getBalanceTokens(i: ButtonInteraction) {
     BalanceType.Offchain,
     i,
     "",
-    addressType ?? "eth"
+    addressType
   )
 
   const availableTokens = balances.data.map(
@@ -1182,4 +1203,189 @@ export async function unlinkWallet(
     ].join("\n"),
   })
   return { msgOpts: { embeds: [embed], components: [] } }
+}
+
+export async function renderInitialNftView({
+  discordId,
+  interaction,
+  type,
+  address,
+}: {
+  discordId: string
+  interaction: Interaction
+  type: BalanceType
+  address: string
+}) {
+  // handle name service
+  const resolvedAddress = (await resolveNamingServiceDomain(address)) || address
+  const profileId = await getProfileIdByDiscord(discordId)
+  const { chainType } = isAddress(address)
+  const addressType = chainType || AddressChainType.EVM
+  const data = await getBalances(
+    profileId,
+    discordId,
+    type,
+    interaction,
+    resolvedAddress,
+    addressType
+  )
+
+  const nfts: any[] = (data.nfts || [])
+    .filter((nft: any) => nft.total > 0)
+    .slice(0, 8)
+
+  const description = nfts.length
+    ? `${nfts
+        .map(
+          (nft, idx) =>
+            `${getEmoji(`NUM_${idx + 1}` as EmojiKey)} ${nft.collection_name}`
+        )
+        .join("\n")}`
+    : "No NFT data found"
+
+  const embed = composeEmbedMessage(null, {
+    author: [
+      `${shortenHashOrAddress(address)}'s NFT`,
+      getEmojiURL(emojis.NFT2),
+    ],
+    description,
+  })
+
+  return {
+    context: {
+      nfts,
+      profileId,
+      address,
+      type,
+      chain: addressType,
+    },
+    msgOpts: {
+      embeds: [embed],
+      components: [
+        ...(nfts.length > 0
+          ? [
+              new MessageActionRow().addComponents(
+                new MessageSelectMenu().setCustomId("select_nft").addOptions(
+                  nfts.map((nft, idx) => {
+                    return {
+                      emoji: getEmoji(`NUM_${idx + 1}` as EmojiKey),
+                      label: nft.collection_name,
+                      value: nft.collection_name,
+                    }
+                  })
+                )
+              ),
+            ]
+          : []),
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setEmoji("<a:brrr:902558248907980871>")
+            .setCustomId(`view_earn`)
+            .setLabel("Earn"),
+          ...getButtons("balance", `_${profileId}_${type}`)
+        ),
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("PRIMARY")
+            .setEmoji(getEmoji("WALLET_2"))
+            .setCustomId(`view_portfolio`)
+            .setLabel("Portfolio"),
+          new MessageButton()
+            .setStyle("PRIMARY")
+            .setEmoji(getEmoji("NFT2"))
+            .setCustomId(`view_nft`)
+            .setLabel("NFT")
+            .setDisabled(true)
+        ),
+      ],
+    },
+  }
+}
+
+export function renderSelectedNft({
+  nfts,
+  profileId,
+  type,
+  address,
+  collection = "",
+}: {
+  nfts: any[]
+  profileId: string
+  type: BalanceType
+  address: string
+  collection?: string
+}) {
+  const selectedNft = collection
+    ? nfts.find((nft) => equalIgnoreCase(nft.collection_name, collection))
+    : nfts?.[0]
+
+  const description = `${selectedNft?.tokens
+    .slice(0, 8)
+    .map(
+      (t: any, idx: number) =>
+        `${getEmoji(`NUM_${idx + 1}` as EmojiKey)} [${t.token_name}](${
+          t.marketplace_url
+        })`
+    )
+    .join("\n")}${
+    selectedNft.total > 8
+      ? `\n... and ${selectedNft.total - 8} more other tokens`
+      : ""
+  }`
+
+  const embed = composeEmbedMessage(null, {
+    author: [
+      `${shortenHashOrAddress(address)}'s ${selectedNft.collection_name}`,
+      getEmojiURL(emojis.NFT2),
+    ],
+    description,
+  })
+
+  return {
+    context: {
+      address,
+      type,
+      nfts,
+      collection,
+    },
+    msgOpts: {
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageSelectMenu().setCustomId("select_nft").addOptions(
+            nfts.map((nft, idx) => {
+              return {
+                emoji: getEmoji(`NUM_${idx + 1}` as EmojiKey),
+                label: nft.collection_name,
+                value: nft.collection_name,
+                default: equalIgnoreCase(nft.collection_name, collection),
+              }
+            })
+          )
+        ),
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setEmoji("<a:brrr:902558248907980871>")
+            .setCustomId(`view_earn`)
+            .setLabel("Earn"),
+          ...getButtons("balance", `_${profileId}_${type}`)
+        ),
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("PRIMARY")
+            .setEmoji(getEmoji("WALLET_2"))
+            .setCustomId(`view_portfolio`)
+            .setLabel("Portfolio"),
+          new MessageButton()
+            .setStyle("PRIMARY")
+            .setEmoji(getEmoji("NFT2"))
+            .setCustomId(`view_nft`)
+            .setLabel("NFT")
+            .setDisabled(true)
+        ),
+      ],
+    },
+  }
 }

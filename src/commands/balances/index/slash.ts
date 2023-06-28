@@ -6,6 +6,8 @@ import {
   getBalanceTokens,
   renderBalances,
   unlinkWallet,
+  renderInitialNftView,
+  renderSelectedNft,
 } from "./processor"
 import { renderInvestHome } from "commands/invest/index/processor"
 import { EarnView, run as renderEarnHome } from "commands/earn/index/processor"
@@ -41,6 +43,14 @@ export const machineConfig: (
       walletUnlink: (i, _ev, ctx) => {
         return unlinkWallet(i, i.user, ctx.address)
       },
+      viewNft: (i, _ev, ctx) =>
+        renderInitialNftView({
+          discordId: member?.user.id ?? i.user.id,
+          ...ctx,
+          interaction: i,
+          address: ctx.address,
+          type: ctx.type,
+        }),
     },
     select: {
       balance: async (i, _ev, ctx) => {
@@ -56,6 +66,14 @@ export const machineConfig: (
           address,
         })
       },
+      selectNft: (i, _ev, ctx) =>
+        renderSelectedNft({
+          address: ctx.address,
+          type: ctx.type,
+          collection: i.values[0],
+          nfts: ctx.nfts || [],
+          profileId: ctx.profileId,
+        }),
     },
     ...context,
   },
@@ -66,6 +84,8 @@ export const machineConfig: (
         VIEW_INVEST: "invest",
         VIEW_EARN: "earn",
         UNLINK_WALLET: "walletUnlink",
+        VIEW_PORTFOLIO: "balance",
+        VIEW_NFT: "viewNft",
       },
     },
     invest: {
@@ -82,6 +102,20 @@ export const machineConfig: (
     },
     walletUnlink: {
       type: "final",
+    },
+    viewNft: {
+      on: {
+        BACK: "balance",
+        VIEW_PORTFOLIO: "balance",
+        SELECT_NFT: "selectNft",
+      },
+    },
+    selectNft: {
+      on: {
+        BACK: "viewNft",
+        VIEW_PORTFOLIO: "balance",
+        SELECT_NFT: "selectNft",
+      },
     },
   },
 })
