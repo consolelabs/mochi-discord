@@ -1181,9 +1181,7 @@ export interface RequestGenerateVerificationRequest {
   user_discord_id?: string;
 }
 
-export interface RequestGetTrackingWalletsRequest {
-  userID: string;
-}
+export type RequestGetTrackingWalletsRequest = object;
 
 export interface RequestGuildConfigDefaultNftTickerRequest {
   chain_id?: number;
@@ -1336,6 +1334,11 @@ export interface RequestUpdateQuestProgressRequest {
   action?: string;
   guild_id?: string;
   user_id?: string;
+}
+
+export interface RequestUpdateTrackingInfoRequest {
+  /** Request body, only update the following fields */
+  alias?: string;
 }
 
 export interface RequestUpdateUserFeedbackRequest {

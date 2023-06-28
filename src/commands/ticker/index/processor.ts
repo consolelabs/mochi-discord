@@ -268,10 +268,32 @@ export async function renderTokenInfo(
   interaction: ButtonInteraction | CommandInteraction,
   { baseCoin: coin, ...rest }: Context
 ) {
+  const { data, status } = await CacheManager.get({
+    pool: "ticker",
+    key: `ticker-getcoin-${coin.id}-coingecko-info`,
+    call: () => defi.getCoin(coin.id, false, true),
+  })
+
+  if (status === 404) {
+    throw new InternalError({
+      title: "Unsupported token",
+      msgOrInteraction: interaction,
+      description: `Token is invalid or hasn't been supported.\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} or Please choose a valid fiat currency.`,
+    })
+  }
+
+  coin = data
+
   const embed = composeEmbedMessage(null, {
-    thumbnail: coin.image.large,
+    thumbnail: data.image.large,
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    title: "About " + coin.name,
+    title: "About " + data.name,
   })
 
   const content = coin.coingecko_info?.description_lines[0] ?? ""
@@ -537,8 +559,9 @@ export async function run(
     ? DominanceChartViewTimeOption.Y1
     : ChartViewTimeOption.M1
 
-  if (view === TickerView.Info)
+  if (view === TickerView.Info) {
     return renderTokenInfo(interaction, { baseCoin, type, days })
+  }
 
   if (isFiat)
     return renderFiatPair({
