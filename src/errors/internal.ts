@@ -27,6 +27,10 @@ export class InternalError extends BotBaseError {
     reason,
   }: {
     msgOrInteraction?: OriginalMessage
+    /**
+     * @deprecated This will soon be removed in favor of `reason` and `descriptions` (notice the s)
+     * Please use those instead - tuanddd
+     * */
     description?: string
     descriptions?: string[]
     reason?: string

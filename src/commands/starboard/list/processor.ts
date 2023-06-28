@@ -166,7 +166,6 @@ export async function composeMessage(
   const pages = paginated.map((pageData, idx: number) => {
     const embed = composeEmbedMessage(msg, {
       title: "Starboard Configuration",
-      withoutFooter: true,
       thumbnail: msg.guild?.iconURL(),
       color: msgColors.PINK,
     })

@@ -40,6 +40,7 @@ import {
 } from "utils/constants"
 import { zip, merge } from "lodash"
 import { getRandomTip } from "cache/tip-fact-cache"
+import { profilingAsyncStore } from "utils/async-storages"
 
 export function errorEmbed(
   title: string,
@@ -258,7 +259,6 @@ export function composeEmbedMessage(
     originalMsgAuthor,
     usage,
     examples,
-    withoutFooter,
     includeCommandsList,
     actions,
     document,
@@ -279,10 +279,8 @@ export function composeEmbedMessage(
   }
   title = title ?? ""
 
-  let authorTag = msg?.author?.tag
   let authorAvatarURL = msg?.author?.avatarURL()
   if (originalMsgAuthor) {
-    authorTag = originalMsgAuthor.tag
     authorAvatarURL = originalMsgAuthor.avatarURL()
   }
 
@@ -324,16 +322,21 @@ export function composeEmbedMessage(
     embed.setTimestamp(null)
   }
 
-  if (!withoutFooter) {
-    if (!footer.length) footer = [getRandomTip()]
-    embed
-      .setFooter({
-        text: getEmbedFooter([...footer, ...(authorTag ? [authorTag] : [])]),
-        iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
-      })
-      .setTimestamp(timestamp ?? new Date())
-    return embed
-  }
+  // profiling
+  const stop = performance.now()
+  const start = profilingAsyncStore.getStore() ?? 0
+  const timeInSeconds = Number((stop - start) / 1000).toFixed(3)
+
+  if (!footer.length) footer = [getRandomTip()]
+  embed
+    .setFooter({
+      text: getEmbedFooter([
+        ...footer,
+        ...(start ? [`Took ${timeInSeconds}s`] : []),
+      ]),
+      iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
+    })
+    .setTimestamp(timestamp ?? new Date())
 
   return embed
 }
@@ -353,7 +356,6 @@ export function composeEmbedMessage2(
     originalMsgAuthor,
     usage,
     examples,
-    withoutFooter,
     // includeCommandsList,
     // actions,
   } = props
@@ -371,10 +373,8 @@ export function composeEmbedMessage2(
   // title =
   //   (isSpecificHelpCommand ? (actionObj ?? commandObj)?.brief : title) ?? ""
 
-  let authorTag = interaction.user.tag
   let authorAvatarURL = interaction.user.avatarURL()
   if (originalMsgAuthor) {
-    authorTag = originalMsgAuthor.tag
     authorAvatarURL = originalMsgAuthor.avatarURL()
   }
 
@@ -382,16 +382,22 @@ export function composeEmbedMessage2(
     .setTitle(title ?? "")
     .setColor((color ?? getSlashCommandColor(commandObj)) as ColorResolvable)
 
+  // profiling
+  const stop = performance.now()
+  const start = profilingAsyncStore.getStore() ?? 0
+  const timeInSeconds = Number((stop - start) / 1000).toFixed(3)
+
   // embed options
-  if (!withoutFooter) {
-    if (!footer.length) footer = [getRandomTip()]
-    embed
-      .setFooter({
-        text: getEmbedFooter([...footer, ...(authorTag ? [authorTag] : [])]),
-        iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
-      })
-      .setTimestamp(timestamp ?? new Date())
-  }
+  if (!footer.length) footer = [getRandomTip()]
+  embed
+    .setFooter({
+      text: getEmbedFooter([
+        ...footer,
+        ...(start ? [`Took ${timeInSeconds}s`] : []),
+      ]),
+      iconURL: authorAvatarURL || getEmojiURL(emojis.MOCHI_CIRCLE),
+    })
+    .setTimestamp(timestamp ?? new Date())
   if (description) embed.setDescription(description)
   if (thumbnail) embed.setThumbnail(thumbnail)
   if (image) embed.setImage(image)
@@ -547,7 +553,6 @@ export function starboardEmbed(msg: Message) {
       description: messageContent,
       originalMsgAuthor: msg.author,
       image: imageURL,
-      withoutFooter: true,
       thumbnail: msg.guild?.iconURL(),
     }).setFields([{ name: "Source", value: `[Jump!](${msg.url})` }])
   } else {
@@ -556,7 +561,6 @@ export function starboardEmbed(msg: Message) {
       author: [msg.author.username, msg.author.avatarURL() ?? ""],
       description: messageContent,
       originalMsgAuthor: msg.author,
-      withoutFooter: true,
       thumbnail: msg.guild?.iconURL(),
     }).setFields([{ name: "Source", value: `[Jump!](${msg.url})` }])
   }

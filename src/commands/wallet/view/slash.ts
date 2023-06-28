@@ -31,7 +31,12 @@ const command: SlashCommand = {
   },
   autocomplete: async (i) => {
     const focusedValue = i.options.getFocused()
-    const { mochiWallets, wallets } = await profile.getUserWallets(i.user.id)
+    // do not fetch amount because
+    // we need to respond within 3 seconds (discord api is amazing ¯\_(ツ)_/¯)
+    const { mochiWallets, wallets } = await profile.getUserWallets(
+      i.user.id,
+      true
+    )
 
     await i.respond(
       [...mochiWallets, ...wallets]
