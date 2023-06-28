@@ -17,4 +17,6 @@ generateApi({
   url: "https://api-docs-dev.krystal.team/docs/doc.json",
   generateClient: false,
   silent: true,
+}).catch((error) => {
+  console.error("Error when generating types from krystal doc", error);
 });
