@@ -695,7 +695,7 @@ export function getCompactFormatedNumber(value: number) {
 }
 
 export const authorFilter =
-  (authorId: string) => async (i: MessageComponentInteraction) => {
+  (authorId: string) => (i: MessageComponentInteraction) => {
     // await i.deferUpdate().catch(() => null)
     return i.user.id === authorId
   }

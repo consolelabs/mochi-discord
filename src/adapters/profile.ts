@@ -319,6 +319,16 @@ class Profile extends Fetcher {
       { method: "POST" }
     )
   }
+
+  public async disconnectOnChainWallet(
+    profileId: string,
+    platformIdentifier: string
+  ) {
+    return await this.jsonFetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/accounts/disconnect-wallet/${platformIdentifier}`,
+      { method: "POST" }
+    )
+  }
 }
 
 export default new Profile()

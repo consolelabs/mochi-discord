@@ -9,9 +9,14 @@ import {
   MessageActionRow,
   MessageButton,
   SelectMenuInteraction,
+  User,
 } from "discord.js"
-import { APIError, InternalError } from "errors"
-import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import { APIError, InternalError, OriginalMessage } from "errors"
+import {
+  composeEmbedMessage,
+  formatDataTable,
+  getSuccessEmbed,
+} from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 import {
   emojis,
@@ -997,6 +1002,18 @@ export async function renderBalances(
       components:
         !isOwnWallet && type === BalanceType.Onchain
           ? [getGuestWalletButtons(trackingType)]
+          : isOwnWallet && type === BalanceType.Onchain
+          ? [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setStyle("SECONDARY")
+                  .setEmoji("<a:brrr:902558248907980871>")
+                  .setCustomId(`view_earn`)
+                  .setLabel("Earn"),
+                ...getButtons("balance", `_${profileId}_${type}`)
+              ),
+              unLinkOnChainWalletButtons(),
+            ]
           : [
               new MessageActionRow().addComponents(
                 new MessageButton()
@@ -1009,6 +1026,18 @@ export async function renderBalances(
             ],
     },
   }
+}
+
+export function unLinkOnChainWalletButtons() {
+  const buttons = new MessageActionRow()
+  buttons.addComponents(
+    new MessageButton()
+      .setLabel("Unlink")
+      .setStyle("SECONDARY")
+      .setCustomId("unlink_wallet")
+  )
+
+  return buttons
 }
 
 export function getGuestWalletButtons(trackingType: string) {
@@ -1122,4 +1151,35 @@ export async function getBalanceTokens(i: ButtonInteraction) {
   )
 
   return availableTokens
+}
+
+export async function unlinkWallet(
+  msg: OriginalMessage,
+  author: User,
+  addressOrAlias: string
+) {
+  const profileId = await getProfileIdByDiscord(author.id)
+  const { ok, status, log, curl } = await profile.disconnectOnChainWallet(
+    profileId,
+    addressOrAlias
+  )
+  // wallet not found
+  if (!ok && status === 404) {
+    throw new InternalError({
+      msgOrInteraction: msg,
+      title: " Invalid wallet information",
+      descriptions: ["We couldn't process that request"],
+      reason: "Address or alias is incorrect",
+    })
+  }
+  if (!ok) throw new APIError({ msgOrInteraction: msg, description: log, curl })
+  // remove successfully
+  const embed = getSuccessEmbed({
+    title: `${addressOrAlias} unlinked`,
+    description: [
+      "This wallet has been removed from your profile.",
+      `To add wallets, refer to ${await getSlashCommand("wallet add")}.`,
+    ].join("\n"),
+  })
+  return { msgOpts: { embeds: [embed], components: [] } }
 }
