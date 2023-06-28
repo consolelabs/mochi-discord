@@ -1,10 +1,11 @@
 import { CommandInteraction, GuildMember, Message } from "discord.js"
-import { MachineConfig, route } from "utils/router"
+import { MachineConfig, route, RouterSpecialAction } from "utils/router"
 import {
   BalanceType,
   BalanceView,
   getBalanceTokens,
   renderBalances,
+  unlinkWallet,
 } from "./processor"
 import { renderInvestHome } from "commands/invest/index/processor"
 import { EarnView, run as renderEarnHome } from "commands/earn/index/processor"
@@ -37,6 +38,9 @@ export const machineConfig: (
       earn: (i) => {
         return renderEarnHome(i.user, EarnView.Airdrop)
       },
+      walletUnlink: (i, _ev, ctx) => {
+        return unlinkWallet(i, i.user, ctx.address)
+      },
     },
     select: {
       balance: async (i, _ev, ctx) => {
@@ -61,19 +65,23 @@ export const machineConfig: (
         TOGGLE_SHOW_FULL_EARN: "balance",
         VIEW_INVEST: "invest",
         VIEW_EARN: "earn",
+        UNLINK_WALLET: "walletUnlink",
       },
     },
     invest: {
       on: {
-        BACK: "balance",
+        [RouterSpecialAction.BACK]: "balance",
       },
       ...investMachineConfig,
     },
     earn: {
       on: {
-        BACK: "balance",
+        [RouterSpecialAction.BACK]: "balance",
       },
       ...earnMachineConfig,
+    },
+    walletUnlink: {
+      type: "final",
     },
   },
 })

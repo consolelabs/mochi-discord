@@ -12,7 +12,6 @@ export async function getProfileIdByDiscord(discordId: string) {
   }
   return pf.id
 }
-
 export async function getDiscordRenderableByProfileId(profileId: string) {
   const pf = await profile.getById(profileId)
   if (pf.err) {
