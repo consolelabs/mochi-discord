@@ -681,7 +681,7 @@ async function switchView(
     }
 
     const { field: lendingField, total: totalLend } = buildEarnField(
-      "Lending",
+      "Flexible",
       balances.lending,
       showFullEarn
     )

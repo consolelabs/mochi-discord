@@ -57,7 +57,10 @@ import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
 } from "ui/discord/select-menu"
-import { slashCommandAsyncStore } from "utils/async-storages"
+import {
+  profilingAsyncStore,
+  slashCommandAsyncStore,
+} from "utils/async-storages"
 import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "."
@@ -134,202 +137,207 @@ function handleAutocompleteInteraction(interaction: AutocompleteInteraction) {
 }
 
 function handleCommandInteraction(interaction: Interaction) {
-  wrapError(interaction, async () => {
-    const benchmarkStart = process.hrtime()
-    const i = interaction as CommandInteraction
-    const command = slashCommands[i.commandName]
-    if (!command) {
-      await i.reply({
-        embeds: [getErrorEmbed({ description: "Command not found" })],
-      })
-      return
-    }
-    let subcommand = ""
-    let args = ""
-    if (interaction.isCommand()) {
-      subcommand = interaction.options.getSubcommand(false) || ""
-      args = interaction.commandName + " " + subcommand
-    }
-    const gMember = interaction?.guild?.members.cache.get(interaction?.user.id)
-    // if this command is experimental -> only allow it to run inside certain channels
-    if (command.experimental) {
-      const isTextChannel = interaction.channel?.type === "GUILD_TEXT"
-      if (!isTextChannel) return
-      const parentId = interaction.channel.parentId
-      if (!parentId || !EXPERIMENTAL_CATEGORY_CHANNEL_IDS.includes(parentId))
+  profilingAsyncStore.run(performance.now(), () => {
+    wrapError(interaction, async () => {
+      const i = interaction as CommandInteraction
+      const command = slashCommands[i.commandName]
+      if (!command) {
+        await i.reply({
+          embeds: [getErrorEmbed({ description: "Command not found" })],
+        })
         return
-    }
-
-    const { data } = await CacheManager.get({
-      pool: "bot-manager",
-      key: `guild-${interaction.guildId}`,
-      call: () =>
-        config.getGuildAdminRoles({ guildId: interaction.guildId ?? "" }),
-    })
-
-    let isAdminRoleIncluded = false
-    const memberRoles = gMember?.roles.cache
-    if (data && memberRoles) {
-      const adminConfigRoles = data.map(
-        (cfg: { role_id: number }) => cfg.role_id
+      }
+      let subcommand = ""
+      let args = ""
+      if (interaction.isCommand()) {
+        subcommand = interaction.options.getSubcommand(false) || ""
+        args = interaction.commandName + " " + subcommand
+      }
+      const gMember = interaction?.guild?.members.cache.get(
+        interaction?.user.id
       )
+      // if this command is experimental -> only allow it to run inside certain channels
+      if (command.experimental) {
+        const isTextChannel = interaction.channel?.type === "GUILD_TEXT"
+        if (!isTextChannel) return
+        const parentId = interaction.channel.parentId
+        if (!parentId || !EXPERIMENTAL_CATEGORY_CHANNEL_IDS.includes(parentId))
+          return
+      }
 
-      for (const [, role] of memberRoles) {
-        if (adminConfigRoles.includes(role.id)) {
-          isAdminRoleIncluded = true
-          break
+      const { data } = await CacheManager.get({
+        pool: "bot-manager",
+        key: `guild-${interaction.guildId}`,
+        call: () =>
+          config.getGuildAdminRoles({ guildId: interaction.guildId ?? "" }),
+      })
+
+      let isAdminRoleIncluded = false
+      const memberRoles = gMember?.roles.cache
+      if (data && memberRoles) {
+        const adminConfigRoles = data.map(
+          (cfg: { role_id: number }) => cfg.role_id
+        )
+
+        for (const [, role] of memberRoles) {
+          if (adminConfigRoles.includes(role.id)) {
+            isAdminRoleIncluded = true
+            break
+          }
         }
       }
-    }
 
-    const isAdmin = isAdminRoleIncluded || hasAdministrator(gMember)
-    let commandOnlyAdmin = false
-    if (typeof command.onlyAdministrator === "function") {
-      commandOnlyAdmin = command.onlyAdministrator(i)
-    } else {
-      commandOnlyAdmin = command.onlyAdministrator ?? false
-    }
-    if (commandOnlyAdmin && !isAdmin) {
+      const isAdmin = isAdminRoleIncluded || hasAdministrator(gMember)
+      let commandOnlyAdmin = false
+      if (typeof command.onlyAdministrator === "function") {
+        commandOnlyAdmin = command.onlyAdministrator(i)
+      } else {
+        commandOnlyAdmin = command.onlyAdministrator ?? false
+      }
+      if (commandOnlyAdmin && !isAdmin) {
+        await i.deferReply({ ephemeral: command?.ephemeral })
+        try {
+          const kafkaMsg: KafkaQueueMessage = {
+            platform: "discord",
+            data: {
+              command: command.name,
+              subcommand,
+              full_text_command: "",
+              command_type: "/",
+              channel_id: interaction.channelId || "DM",
+              guild_id: interaction.guildId || "DM",
+              author_id: interaction.user.id,
+              success: false,
+              execution_time_ms: 0,
+              interaction: interaction,
+            },
+          }
+          await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+        } catch (error) {
+          logger.error("[KafkaQueue] - failed to enqueue")
+        }
+        throw new CommandNotAllowedToRunError({
+          message: i,
+          command: i.commandName,
+          missingPermissions:
+            i.channel?.type === "DM" ? undefined : ["Administrator"],
+        })
+      }
       await i.deferReply({ ephemeral: command?.ephemeral })
+      const response = await command.run(i)
+      if (!response) return
+      const executionTime =
+        performance.now() - (profilingAsyncStore.getStore() ?? 0)
+      // send command tracking to kafka
       try {
         const kafkaMsg: KafkaQueueMessage = {
           platform: "discord",
           data: {
             command: command.name,
-            subcommand,
-            full_text_command: "",
+            subcommand: subcommand,
+            full_text_command: args,
             command_type: "/",
             channel_id: interaction.channelId || "DM",
             guild_id: interaction.guildId || "DM",
             author_id: interaction.user.id,
-            success: false,
-            execution_time_ms: 0,
+            success: true,
+            execution_time_ms: executionTime,
             interaction: interaction,
           },
         }
-        await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+        await kafkaQueue?.produceBatch([
+          JSON.stringify(kafkaMsg, (_, v) =>
+            typeof v === "bigint" ? v.toString() : v
+          ),
+        ])
       } catch (error) {
         logger.error("[KafkaQueue] - failed to enqueue")
       }
-      throw new CommandNotAllowedToRunError({
-        message: i,
-        command: i.commandName,
-        missingPermissions:
-          i.channel?.type === "DM" ? undefined : ["Administrator"],
-      })
-    }
-    await i.deferReply({ ephemeral: command?.ephemeral })
-    const response = await command.run(i)
-    if (!response) return
-    const benchmarkStop = process.hrtime(benchmarkStart)
-    // send command tracking to kafka
-    try {
-      const kafkaMsg: KafkaQueueMessage = {
-        platform: "discord",
-        data: {
-          command: command.name,
-          subcommand: subcommand,
-          full_text_command: args,
-          command_type: "/",
-          channel_id: interaction.channelId || "DM",
-          guild_id: interaction.guildId || "DM",
-          author_id: interaction.user.id,
-          success: true,
-          execution_time_ms: Math.round(benchmarkStop[1] / 1000000),
-          interaction: interaction,
-        },
-      }
-      await kafkaQueue?.produceBatch([
-        JSON.stringify(kafkaMsg, (_, v) =>
-          typeof v === "bigint" ? v.toString() : v
-        ),
-      ])
-    } catch (error) {
-      logger.error("[KafkaQueue] - failed to enqueue")
-    }
-    if ("messageOptions" in response) {
-      const { messageOptions, interactionOptions, buttonCollector } = response
-      const msg = await i
-        .editReply({
-          content: getRandomFact(),
-          ...messageOptions,
-        })
-        .catch(() => null)
-      // partner ads
-      if (getChance(4)) {
-        await i.channel?.send({
-          embeds: [composePartnerEmbedPimp()],
-          components: [
-            composeButtonLink(
-              `Customize your ad with Mochi`,
-              "https://discord.gg/SUuF8W68"
-            ),
-          ],
-        })
-      }
-      if (interactionOptions && msg) {
-        InteractionManager.add(msg.id, interactionOptions)
-      }
-      if (msg && buttonCollector) {
-        const { handler, options = {} } = buttonCollector
-        const message = <Message>msg
-        message
-          .createMessageComponentCollector({
-            componentType: MessageComponentTypes.BUTTON,
-            idle: 60000,
-            filter: authorFilter(i.user.id),
-            ...options,
-          })
-          .on("collect", async (i: ButtonInteraction) => {
-            const newRes = await handler(i)
-            if (newRes) {
-              await message.edit({
-                embeds: newRes.messageOptions.embeds,
-                components: newRes.messageOptions.components,
-              })
-            }
-          })
-          .on("end", () => {
-            message.edit({ components: [] }).catch(() => null)
-          })
-      }
-    } else if ("select" in response) {
-      // ask default case
-      const {
-        ambiguousResultText,
-        multipleResultText,
-        select,
-        onDefaultSet,
-        render,
-        title,
-        description,
-      } = response
-      const multipleEmbed = getMultipleResultEmbed({
-        title,
-        description,
-        ambiguousResultText,
-        multipleResultText,
-      })
-      const selectRow = composeDiscordSelectionRow({
-        customId: `mutliple-results-${i.id}`,
-        ...select,
-      })
-      const msg = await i.editReply({
-        embeds: [multipleEmbed],
-        components: [selectRow],
-      })
+      if ("messageOptions" in response) {
+        const { messageOptions, interactionOptions, buttonCollector } = response
 
-      if (onDefaultSet && render) {
-        InteractionManager.add(msg.id, {
-          handler: setDefaultMiddleware<CommandInteraction>({
-            onDefaultSet,
-            label: ambiguousResultText,
-            render,
-            commandInteraction: i,
-          }),
+        const msg = await i
+          .editReply({
+            content: getRandomFact(),
+            ...messageOptions,
+          })
+          .catch(() => null)
+        // partner ads
+        if (getChance(4)) {
+          await i.channel?.send({
+            embeds: [composePartnerEmbedPimp()],
+            components: [
+              composeButtonLink(
+                `Customize your ad with Mochi`,
+                "https://discord.gg/SUuF8W68"
+              ),
+            ],
+          })
+        }
+        if (interactionOptions && msg) {
+          InteractionManager.add(msg.id, interactionOptions)
+        }
+        if (msg && buttonCollector) {
+          const { handler, options = {} } = buttonCollector
+          const message = <Message>msg
+          message
+            .createMessageComponentCollector({
+              componentType: MessageComponentTypes.BUTTON,
+              idle: 60000,
+              filter: authorFilter(i.user.id),
+              ...options,
+            })
+            .on("collect", async (i: ButtonInteraction) => {
+              const newRes = await handler(i)
+              if (newRes) {
+                await message.edit({
+                  embeds: newRes.messageOptions.embeds,
+                  components: newRes.messageOptions.components,
+                })
+              }
+            })
+            .on("end", () => {
+              message.edit({ components: [] }).catch(() => null)
+            })
+        }
+      } else if ("select" in response) {
+        // ask default case
+        const {
+          ambiguousResultText,
+          multipleResultText,
+          select,
+          onDefaultSet,
+          render,
+          title,
+          description,
+        } = response
+        const multipleEmbed = getMultipleResultEmbed({
+          title,
+          description,
+          ambiguousResultText,
+          multipleResultText,
         })
+        const selectRow = composeDiscordSelectionRow({
+          customId: `mutliple-results-${i.id}`,
+          ...select,
+        })
+        const msg = await i.editReply({
+          embeds: [multipleEmbed],
+          components: [selectRow],
+        })
+
+        if (onDefaultSet && render) {
+          InteractionManager.add(msg.id, {
+            handler: setDefaultMiddleware<CommandInteraction>({
+              onDefaultSet,
+              label: ambiguousResultText,
+              render,
+              commandInteraction: i,
+            }),
+          })
+        }
       }
-    }
+    })
   })
 }
 
