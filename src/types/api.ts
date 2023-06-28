@@ -249,14 +249,6 @@ export interface ModelDiscordUserUpvoteStreak {
   updated_at?: string;
 }
 
-export interface ModelEmojis {
-  code?: string;
-  discord_id?: string;
-  id?: number;
-  telegram_id?: string;
-  twitter_id?: string;
-}
-
 export interface ModelEnvelop {
   command?: string;
   created_at?: string;
@@ -621,6 +613,14 @@ export interface ModelOnchainTipBotTransaction {
   updated_at?: string;
 }
 
+export interface ModelProductMetadataEmojis {
+  code?: string;
+  discord_id?: string;
+  id?: number;
+  telegram_id?: string;
+  twitter_id?: string;
+}
+
 export interface ModelProfileAirdropCampaign {
   airdrop_campaign?: ModelAirdropCampaign;
   airdrop_campaign_id?: number;
@@ -874,6 +874,7 @@ export interface ModelUserWalletWatchlistItem {
 
 export interface ModelVault {
   created_at?: string;
+  discord_guild?: ModelDiscordGuild;
   guild_id?: string;
   id?: number;
   name?: string;
@@ -1389,8 +1390,8 @@ export interface RequestUpsertGuildConfigTipRangeRequest {
 }
 
 export interface RequestUpsertGuildDefaultCurrencyRequest {
-  Symbol?: string;
   guild_id?: string;
+  symbol?: string;
 }
 
 export interface RequestUpsertGuildPruneExcludeRequest {
@@ -1535,6 +1536,21 @@ export interface ResponseCoin {
   small?: string;
   symbol?: string;
   thumb?: string;
+}
+
+export interface ResponseCoinGeckoInfoKeyValue {
+  key?: string;
+  value?: string;
+}
+
+export interface ResponseCoinGeckoInfoResponse {
+  communities?: ResponseCoinGeckoInfoKeyValue[];
+  contracts?: ResponseCoinGeckoInfoKeyValue[];
+  description_lines?: string[];
+  explorers?: ResponseCoinGeckoInfoKeyValue[];
+  tags?: ResponseCoinGeckoInfoKeyValue[];
+  wallets?: ResponseCoinGeckoInfoKeyValue[];
+  websites?: ResponseCoinGeckoInfoKeyValue[];
 }
 
 export interface ResponseCoinImage {
@@ -1785,6 +1801,7 @@ export interface ResponseGetCoinResponse {
   asset_platform_id?: string;
   block_time_in_minutes?: number;
   categories?: string[];
+  coingecko_info?: ResponseCoinGeckoInfoResponse;
   coingecko_rank?: number;
   coingecko_score?: number;
   community_data?: any;
@@ -2427,7 +2444,7 @@ export interface ResponseListConfigNotifyResponse {
 }
 
 export interface ResponseListEmojisResponse {
-  data?: ModelEmojis[];
+  data?: ModelProductMetadataEmojis[];
 }
 
 export interface ResponseListGuildAdminRoles {
@@ -2455,6 +2472,7 @@ export interface ResponseListGuildNFTRoleConfigsResponse {
 
 export interface ResponseListGuildTokenRoles {
   data?: ModelGuildConfigTokenRole[];
+  meta?: Record<string, any>;
 }
 
 export interface ResponseListGuildXPRoles {
@@ -2669,12 +2687,14 @@ export interface ResponseNftWatchlistSuggestResponse {
 }
 
 export interface ResponseOffchainTipBotTransferToken {
+  amount_each?: number;
   /**
    * SenderID    string  `json:"sender_id"`
    * Recipients  string  `json:"recipient_id"`
    */
-  amount_each?: number;
+  id?: string;
   total_amount?: number;
+  tx_id?: number;
 }
 
 export interface ResponseOffchainTipBotTransferTokenResponse {

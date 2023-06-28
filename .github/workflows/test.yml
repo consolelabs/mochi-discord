@@ -2,7 +2,7 @@ name: Run unit tests
 on: [pull_request]
 
 jobs:
-  commitlint:
+  unit-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -14,6 +14,8 @@ jobs:
           node-version: 16
 
       - name: Run tests
+        env:
+          SWAGGER_URL: ${{ secrets.SWAGGER_URL_DEV }}
         run: |
           yarn
           yarn test:ci

@@ -2,10 +2,9 @@ name: Build and Deploy to GKE Prod
 
 on:
   push:
-    branches:
-      - cicd
     tags:
       - "v*"
+      
 # Environment variables available to all jobs and steps in this workflow
 env:
   REGISTRY_HOSTNAME: gcr.io
