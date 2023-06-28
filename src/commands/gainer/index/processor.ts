@@ -60,7 +60,9 @@ function compose(
       ),
     ],
     description: [
-      `${getEmoji("CHART")} **Viewing in ${timeRange} time**\n`,
+      `${getEmoji("CHART")} **Viewing in timeframe ${Object.entries(TimeRange)
+        .find((e) => e[1] === timeRange)
+        ?.at(0)}**\n`,
       formatDataTable(data, {
         cols: ["name", "symbol", "usd", timeRangePropertyMap[timeRange] as any],
         rowAfterFormatter: (f, i) =>
@@ -75,15 +77,14 @@ function compose(
 function getTimeRangeSelect(currentTimeRange: TimeRange) {
   return new MessageActionRow().addComponents(
     new MessageSelectMenu()
-      .setPlaceholder("📅 Choose time")
+      .setPlaceholder("📅 Choose timeframe")
       .setCustomId("change_time")
       .addOptions(
-        Object.entries(TimeRange)
-          .filter((e: any) => e[1] !== currentTimeRange)
-          .map((t) => ({
-            label: `📅 ${t[0]}`,
-            value: t[0],
-          }))
+        Object.entries(TimeRange).map((t) => ({
+          label: `📅 ${t[0]}`,
+          value: t[1],
+          default: t[1] === currentTimeRange,
+        }))
       )
   )
 }
@@ -110,7 +111,7 @@ function getGainerLoserTab(tab: Tab) {
 export async function render(
   interaction: CommandInteraction | SelectMenuInteraction | ButtonInteraction,
   tab: Tab,
-  timeRange: TimeRange = TimeRange.H1
+  timeRange: TimeRange = TimeRange.D1
 ) {
   let data = []
   const {
@@ -164,7 +165,11 @@ export async function render(
   }
 
   return {
-    messageOptions: {
+    initial: tab,
+    context: {
+      timeRange,
+    },
+    msgOpts: {
       embeds: [compose(data, tab, timeRange)],
       components: [getTimeRangeSelect(timeRange), getGainerLoserTab(tab)],
     },
