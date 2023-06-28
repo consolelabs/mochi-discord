@@ -19,4 +19,5 @@ generateApi({
   silent: true,
 }).catch((error) => {
   console.error("Error when generating types from krystal doc", error);
+  process.exit(0);
 });
