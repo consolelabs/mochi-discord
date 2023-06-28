@@ -1002,18 +1002,6 @@ export async function renderBalances(
       components:
         !isOwnWallet && type === BalanceType.Onchain
           ? [getGuestWalletButtons(trackingType)]
-          : isOwnWallet && type === BalanceType.Onchain
-          ? [
-              new MessageActionRow().addComponents(
-                new MessageButton()
-                  .setStyle("SECONDARY")
-                  .setEmoji("<a:brrr:902558248907980871>")
-                  .setCustomId(`view_earn`)
-                  .setLabel("Earn"),
-                ...getButtons("balance", `_${profileId}_${type}`)
-              ),
-              unLinkOnChainWalletButtons(),
-            ]
           : [
               new MessageActionRow().addComponents(
                 new MessageButton()
@@ -1174,11 +1162,14 @@ export async function unlinkWallet(
   }
   if (!ok) throw new APIError({ msgOrInteraction: msg, description: log, curl })
   // remove successfully
+  const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const embed = getSuccessEmbed({
-    title: `${addressOrAlias} unlinked`,
+    title: `${shortenHashOrAddress(addressOrAlias, 9, 10)} unlinked`,
     description: [
-      "This wallet has been removed from your profile.",
-      `To add wallets, refer to ${await getSlashCommand("wallet add")}.`,
+      `${pointingright} This wallet has been removed from your profile.`,
+      `${pointingright} To add wallets, refer to ${await getSlashCommand(
+        "wallet add"
+      )}.`,
     ].join("\n"),
   })
   return { msgOpts: { embeds: [embed], components: [] } }
