@@ -8,8 +8,7 @@ import {
 import { thumbnails } from "utils/common"
 import gainerSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
-
-const choices = ["1h", "24h", "7d", "1y"]
+import { TimeRange } from "./index/processor"
 
 const slashCmd: SlashCommand = {
   name: "gainer",
@@ -24,8 +23,8 @@ const slashCmd: SlashCommand = {
         option
           .setName("time")
           .setDescription("time range you want")
-          .setRequired(true)
-          .addChoices(choices.map((c) => [c, c]))
+          .setRequired(false)
+          .addChoices(Object.keys(TimeRange).map((c) => [c, c]))
       )
   },
   run: gainerSlash,

@@ -2,7 +2,6 @@ import CacheManager from "cache/node-cache"
 import { slashCommands } from "commands"
 import { handleInteraction } from "commands/balances/index/processor"
 import { feedbackDispatcher } from "commands/feedback/index/processor"
-import { handleGainerView } from "commands/gainer/index/processor"
 import { confirmGlobalXP } from "commands/globalxp/index/processor"
 import { handleLoserView } from "commands/loser/index/processor"
 import { handleNFTTickerViews } from "commands/nft/ticker/processor"
@@ -479,9 +478,6 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("balance"):
       await handleInteraction(i)
-      return
-    case i.customId.startsWith("gainer-view"):
-      await handleGainerView(i)
       return
     case i.customId.startsWith("loser-view"):
       await handleLoserView(i)

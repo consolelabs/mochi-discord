@@ -2,173 +2,171 @@ import defi from "adapters/defi"
 import {
   emojis,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
-  msgColors,
-  roundFloatNumber,
+  TokenEmojiKey,
 } from "utils/common"
-import { APIError } from "errors"
-import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
+import { InternalError } from "errors"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
-  CommandInteraction,
   MessageActionRow,
   MessageButton,
   ButtonInteraction,
+  CommandInteraction,
+  SelectMenuInteraction,
+  MessageSelectMenu,
 } from "discord.js"
+import { formatDigit } from "utils/defi"
 
-const timeRangeType = ["1h", "24h", "7d", "1y"]
-
-export async function handleGainerView(i: ButtonInteraction) {
-  if (!i.deferred) {
-    await i.deferUpdate()
-  }
-  const [, view] = i.customId.split("_")
-
-  const { data, ok, curl, error, log } = await defi.getTopGainerLoser({
-    duration: `${view}`,
-  })
-  if (!ok) {
-    throw new APIError({ curl, error, description: log })
-  }
-  if (!data || data.top_gainers.length === 0) {
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(null, {
-            title: "No gainer token now!",
-            description: `${getEmoji(
-              "ANIMATED_POINTING_RIGHT",
-              true
-            )} Currently no token found`,
-            color: msgColors.SUCCESS,
-          }),
-        ],
-      },
-    }
-  }
-
-  const missingButton = timeRangeType.filter((t) => t !== view)
-
-  i.editReply({
-    embeds: [switchView(view as any, data)],
-    components: [
-      new MessageActionRow()
-        .addComponents(
-          new MessageButton()
-            .setStyle("SECONDARY")
-            .setCustomId(`gainer-view_${missingButton[0]}`)
-            .setLabel(`${missingButton[0]}`)
-        )
-        .addComponents(
-          new MessageButton()
-            .setStyle("SECONDARY")
-            .setCustomId(`gainer-view_${missingButton[1]}`)
-            .setLabel(`${missingButton[1]}`)
-        )
-        .addComponents(
-          new MessageButton()
-            .setStyle("SECONDARY")
-            .setCustomId(`gainer-view_${missingButton[2]}`)
-            .setLabel(`${missingButton[2]}`)
-        ),
-    ],
-  })
+export enum TimeRange {
+  H1 = "1h",
+  D1 = "24h",
+  W1 = "7d",
+  Y1 = "1y",
 }
 
-function switchView(view: "24h" | "1h" | "7d", data: any) {
-  return buildEmbed(data, view)
+export enum Tab {
+  Gainer = "gainer",
+  Loser = "loser",
 }
 
-function buildEmbed(data: any, timeRange: string) {
-  let longestStrLen = 0
-  const description = data.top_gainers
-    .slice(0, 10)
-    .map((coin: any) => {
-      const changePercentage = roundFloatNumber(
-        coin[`usd_${timeRange}_change`],
-        2
-      )
+const timeRangePropertyMap = {
+  [TimeRange.H1]: "usd_1h_change",
+  [TimeRange.D1]: "usd_24h_change",
+  [TimeRange.W1]: "usd_7d_change",
+  [TimeRange.Y1]: "usd_1y_change",
+}
 
-      const text = `${coin.name} (${coin.symbol})`
-      longestStrLen = Math.max(longestStrLen, text.length)
-      const currentPrice = roundFloatNumber(coin.usd, 4)
-
-      return {
-        text,
-        changePercentage,
-        current_price: currentPrice,
-      }
-    })
-    .map((coin: any) => {
-      const direction = coin.changePercentage > 0 ? "Up" : "Down"
-      return `\`${coin.text}${" ".repeat(
-        longestStrLen - coin.text.length
-      )} => $${coin.current_price}. ${direction}: ${coin.changePercentage}%\``
-    })
-    .join("\n")
-
+function compose(
+  data: {
+    name: string
+    symbol: string
+    usd: number
+    usd_1h_change: number
+    usd_24h_change: number
+    usd_7d_change: number
+    usd_1y_change: number
+  }[],
+  tab: Tab,
+  timeRange: TimeRange
+) {
   const embed = composeEmbedMessage(null, {
-    color: msgColors.BLUE,
-    description,
-    author: ["Top gainers", getEmojiURL(emojis.ANIMATED_FIRE)],
+    author: [
+      `Top ${tab}s`,
+      getEmojiURL(
+        tab === Tab.Gainer
+          ? emojis.ANIMATED_ARROW_UP
+          : emojis.ANIMATED_ARROW_DOWN
+      ),
+    ],
+    description: [
+      `${getEmoji("CHART")} **Viewing in ${timeRange} time**\n`,
+      formatDataTable(data, {
+        cols: ["name", "symbol", "usd", timeRangePropertyMap[timeRange] as any],
+        rowAfterFormatter: (f, i) =>
+          `${getEmojiToken(data[i].symbol as TokenEmojiKey)}${f}`,
+      }).joined,
+    ].join("\n"),
   })
+
   return embed
 }
 
-export async function render(i: CommandInteraction) {
-  const timeRange = i.options.getString("time", true)
+function getTimeRangeSelect(currentTimeRange: TimeRange) {
+  return new MessageActionRow().addComponents(
+    new MessageSelectMenu()
+      .setPlaceholder("📅 Choose time")
+      .setCustomId("change_time")
+      .addOptions(
+        Object.entries(TimeRange)
+          .filter((e: any) => e[1] !== currentTimeRange)
+          .map((t) => ({
+            label: `📅 ${t[0]}`,
+            value: t[0],
+          }))
+      )
+  )
+}
 
-  const { data, ok, curl, error, log } = await defi.getTopGainerLoser({
+function getGainerLoserTab(tab: Tab) {
+  return new MessageActionRow().addComponents(
+    new MessageButton({
+      style: "SECONDARY",
+      emoji: getEmoji("ANIMATED_ARROW_UP", true),
+      label: "Gainer",
+      customId: "view_gainer",
+      disabled: tab === Tab.Gainer,
+    }),
+    new MessageButton({
+      style: "SECONDARY",
+      emoji: getEmoji("ANIMATED_ARROW_DOWN", true),
+      label: "Loser",
+      customId: "view_loser",
+      disabled: tab === Tab.Loser,
+    })
+  )
+}
+
+export async function render(
+  interaction: CommandInteraction | SelectMenuInteraction | ButtonInteraction,
+  tab: Tab,
+  timeRange: TimeRange = TimeRange.H1
+) {
+  let data = []
+  const {
+    data: gainerLosers,
+    ok,
+    error,
+  } = await defi.getTopGainerLoser({
     duration: `${timeRange}`,
   })
-  if (!ok) {
-    throw new APIError({ curl, error, description: log })
-  }
-  if (!data || data.top_gainers.length === 0) {
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(null, {
-            title: "No gainer token now!",
-            description: `${getEmoji(
-              "ANIMATED_POINTING_RIGHT",
-              true
-            )} Currently no token found`,
-            color: msgColors.SUCCESS,
-          }),
-        ],
-      },
+  if (ok) {
+    if (tab === Tab.Gainer) {
+      data = gainerLosers.top_gainers
+    } else {
+      data = gainerLosers.top_losers
     }
   }
 
-  const missingButton = timeRangeType.filter((t) => t !== timeRange)
+  data = data.slice(0, 10)
 
-  const embed = buildEmbed(data, timeRange)
-  justifyEmbedFields(embed, 3)
+  data = data.map((d: any) => ({
+    ...d,
+    symbol: d.symbol.toUpperCase(),
+    usd: `$${formatDigit({
+      value: d.usd,
+      fractionDigits: d.usd > 100 ? 0 : 2,
+    })}`,
+    usd_1h_change: `${formatDigit({
+      value: d.usd_1h_change,
+      fractionDigits: d.usd_1h_change > 10 ? 0 : 2,
+    })}%`,
+    usd_24h_change: `${formatDigit({
+      value: d.usd_24h_change,
+      fractionDigits: d.usd_24h_change > 10 ? 0 : 2,
+    })}%`,
+    usd_7d_change: `${formatDigit({
+      value: d.usd_7d_change,
+      fractionDigits: d.usd_7d_change > 10 ? 0 : 2,
+    })}%`,
+    usd_1y_change: `${formatDigit({
+      value: d.usd_1y_change,
+      fractionDigits: d.usd_1y_change > 10 ? 0 : 2,
+    })}%`,
+  }))
+
+  if (!data.length) {
+    throw new InternalError({
+      msgOrInteraction: interaction,
+      descriptions: ["Couldn't fetch data"],
+      reason: error || "We're investigating",
+    })
+  }
 
   return {
     messageOptions: {
-      embeds: [switchView(timeRange as any, data)],
-      components: [
-        new MessageActionRow()
-          .addComponents(
-            new MessageButton()
-              .setStyle("SECONDARY")
-              .setCustomId(`gainer-view_${missingButton[0]}`)
-              .setLabel(`${missingButton[0]}`)
-          )
-          .addComponents(
-            new MessageButton()
-              .setStyle("SECONDARY")
-              .setCustomId(`gainer-view_${missingButton[1]}`)
-              .setLabel(`${missingButton[1]}`)
-          )
-          .addComponents(
-            new MessageButton()
-              .setStyle("SECONDARY")
-              .setCustomId(`gainer-view_${missingButton[2]}`)
-              .setLabel(`${missingButton[2]}`)
-          ),
-      ],
+      embeds: [compose(data, tab, timeRange)],
+      components: [getTimeRangeSelect(timeRange), getGainerLoserTab(tab)],
     },
   }
 }
