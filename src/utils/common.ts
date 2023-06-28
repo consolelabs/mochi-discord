@@ -824,6 +824,7 @@ export enum AddressChainType {
   EVM = "EVM",
   SOL = "SOl",
   SUI = "SUI",
+  RON = "RON",
   UNKNOWN = "",
 }
 
@@ -832,12 +833,14 @@ export function isAddress(address: string): {
   chainType: AddressChainType
 } {
   // standardize ronin address
-  address = address.toLowerCase().startsWith("ronin:")
-    ? `0x${address.slice(6)}`
-    : address
+  const isRonin = address.toLowerCase().startsWith("ronin:")
+  address = isRonin ? `0x${address.slice(6)}` : address
   try {
     if (ethers.utils.isAddress(address)) {
-      return { valid: true, chainType: AddressChainType.EVM }
+      return {
+        valid: true,
+        chainType: isRonin ? AddressChainType.RON : AddressChainType.EVM,
+      }
     }
     if (isValidSuiAddress(address)) {
       return { valid: true, chainType: AddressChainType.SUI }

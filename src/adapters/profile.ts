@@ -105,7 +105,6 @@ class Profile extends Fetcher {
               break
             case "ronin-chain":
               chain = "RON"
-              value = value.slice(6)
               break
             case "near-chain":
               value = value.slice(0, -5)

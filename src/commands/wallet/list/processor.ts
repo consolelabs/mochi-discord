@@ -61,8 +61,7 @@ export async function render(user: User) {
         e[1]
           .sort((a, b) => (b.net_worth ?? 0) - (a.net_worth ?? 0))
           .map((d) => {
-            let chain = (d.chain_type ?? "").toUpperCase()
-            chain = chain === "ETH" ? "EVM" : chain
+            const chain = (d.chain_type ?? "").toUpperCase()
             return {
               chainType: chain,
               address: d.alias || shortenHashOrAddress(d.address ?? "", 4),
@@ -90,8 +89,7 @@ export async function render(user: User) {
       return e[1]
         .filter((d) => d.user_id && d.address)
         .map((d) => {
-          let chain = (d.chain_type ?? "").toUpperCase()
-          chain = chain === "ETH" ? "EVM" : chain
+          const chain = (d.chain_type ?? "").toUpperCase()
           return {
             value: `${e[0]}_${d.user_id}_${d.address}`,
             label: `🔹 ${chain} | ${
