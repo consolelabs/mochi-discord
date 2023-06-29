@@ -93,6 +93,7 @@ import defaults from "./default"
 import setting from "./setting"
 import update from "./update"
 import role from "./role"
+import setup from "./setup"
 
 CacheManager.init({
   ttl: 0,
@@ -101,6 +102,7 @@ CacheManager.init({
 })
 
 export const slashCommands: Record<string, SlashCommand> = {
+  setup: setup.slashCmd,
   admin: admin.slashCmd,
   feedback: feedback.slashCmd,
   ticker: ticker.slashCmd,
