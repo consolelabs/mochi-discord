@@ -1,9 +1,11 @@
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { handleRoleList } from "./processor"
+import { renderReactionRole } from "commands/roles/index/processor"
+import config from "adapters/config"
+import { GuildIdNotFoundError } from "errors"
 
 const command: SlashCommand = {
   name: "list",
@@ -22,10 +24,20 @@ const command: SlashCommand = {
     ],
   }),
   colorType: "Server",
-  run: async (interaction: CommandInteraction) => {
+  run: async (i: CommandInteraction) => {
+    if (!i.guildId) {
+      throw new GuildIdNotFoundError({})
+    }
+    const res = await config.listAllReactionRoles(i.guildId)
+
     return {
       messageOptions: {
-        ...(await handleRoleList(interaction)),
+        embeds: [
+          composeEmbedMessage(null, {
+            author: ["Reaction role"],
+            description: renderReactionRole(res.data?.configs, i.guildId),
+          }),
+        ],
       },
     }
   },

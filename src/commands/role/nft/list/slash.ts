@@ -1,12 +1,14 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import Config from "adapters/config"
 import { CommandInteraction } from "discord.js"
-import { APIError } from "errors"
 import { SlashCommand } from "types/common"
-import { emojis, getEmojiURL, msgColors } from "utils/common"
 import { NFT_ROLE_GITBOOK, SLASH_PREFIX } from "utils/constants"
-import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
-import { list } from "../processor"
+import {
+  composeEmbedMessage,
+  composeEmbedMessage2,
+  getErrorEmbed,
+} from "ui/discord/embed"
+import { renderNftRole } from "commands/roles/index/processor"
 
 const command: SlashCommand = {
   name: "list",
@@ -31,22 +33,13 @@ const command: SlashCommand = {
     }
 
     const res = await Config.getGuildNFTRoleConfigs(interaction.guildId)
-    if (!res.ok) {
-      throw new APIError({
-        msgOrInteraction: interaction,
-        curl: res.curl,
-        description: res.log,
-      })
-    }
 
-    const { title, description } = await list(res)
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage2(interaction, {
-            author: [title, getEmojiURL(emojis.NFTS)],
-            description,
-            color: msgColors.PINK,
+          composeEmbedMessage(null, {
+            author: ["NFT role"],
+            description: renderNftRole(res.data),
           }),
         ],
       },

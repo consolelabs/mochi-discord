@@ -390,20 +390,20 @@ export async function renderWallets({
         mochiWallets.truncate
       ),
       await renderListWallet(
-        getEmoji("WALLET_1"),
-        wallets.title ?? "`On-chain`",
-        wallets.data,
-        mochiWallets.data.length,
-        true,
-        wallets.truncate
-      ),
-      await renderListWallet(
         getEmoji("WEB"),
         cexes.title ?? "`CEX`",
         cexes.data,
         mochiWallets.data.length + (wallets.data.length || 0),
         true,
         cexes.truncate
+      ),
+      await renderListWallet(
+        getEmoji("WALLET_1"),
+        wallets.title ?? "`On-chain`",
+        wallets.data,
+        mochiWallets.data.length,
+        true,
+        wallets.truncate
       ),
     ])
   ).filter(Boolean)
