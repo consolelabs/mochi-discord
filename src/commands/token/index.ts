@@ -10,7 +10,6 @@ import { CommandInteraction } from "discord.js"
 // text
 import _default from "./default/text"
 import remove from "./remove/text"
-import info from "./info/text"
 import list from "./list/text"
 // slash
 import addSlash from "./add/slash"
@@ -21,7 +20,6 @@ import listSlash from "./list/slash"
 
 const actions: Record<string, Command> = {
   default: _default,
-  info,
   list,
   remove,
 }

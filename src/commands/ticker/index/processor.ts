@@ -1,5 +1,6 @@
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
+import { ResponseCoinGeckoInfoKeyValue } from "../../../types/api"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -9,7 +10,6 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { InternalError } from "errors"
-import TurndownService from "turndown"
 import { Coin } from "types/defi"
 import { getChartColorConfig } from "ui/canvas/color"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -165,7 +165,9 @@ export async function renderSingle(
     {
       name: "Chain",
       value:
-        coin.asset_platform?.name || coin.asset_platform?.shortname || "N/A",
+        coin.asset_platform?.name ||
+        coin.asset_platform?.shortname ||
+        coin.name,
       inline: true,
     },
     {
@@ -262,27 +264,117 @@ function buildSwitchViewActionRow(currentView: string, added: boolean) {
   ])
 }
 
-export async function composeTokenInfoEmbed(
-  interaction: ButtonInteraction,
-  { baseCoin: coin }: Context
+export async function renderTokenInfo(
+  interaction: ButtonInteraction | CommandInteraction,
+  { baseCoin: coin, ...rest }: Context
 ) {
-  const embed = composeEmbedMessage(null, {
-    thumbnail: coin.image.large,
-    color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    title: "About " + coin.name,
+  const { data, status } = await CacheManager.get({
+    pool: "ticker",
+    key: `ticker-getcoin-${coin.id}-coingecko-info`,
+    call: () => defi.getCoin(coin.id, false, true),
   })
-  const tdService = new TurndownService()
-  const content = coin.description.en
-    .split("\r\n\r\n")
-    .map((v: any) => {
-      return tdService.turndown(v)
+
+  if (status === 404) {
+    throw new InternalError({
+      title: "Unsupported token",
+      msgOrInteraction: interaction,
+      description: `Token is invalid or hasn't been supported.\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} or Please choose a valid fiat currency.`,
     })
-    .join("\r\n\r\n")
+  }
+
+  coin = data
+
+  const embed = composeEmbedMessage(null, {
+    thumbnail: data.image.large,
+    color: getChartColorConfig(coin.id).borderColor as HexColorString,
+    title: "About " + data.name,
+  })
+
+  const content = coin.coingecko_info?.description_lines[0] ?? ""
+
   embed.setDescription(content || "This token has not updated description yet")
+
+  if (coin.market_data?.circulating_supply) {
+    embed.addFields({
+      name: "Circulating",
+      value: `${formatDigit({
+        value: coin.market_data?.circulating_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    })
+  }
+
+  if (coin.market_data?.total_supply) {
+    embed.addFields({
+      name: "Total Supply",
+      value: `${formatDigit({
+        value: coin.market_data.total_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    })
+  }
+
+  if (coin.market_data?.max_supply) {
+    embed.addFields({
+      name: "Max Supply",
+      value: `${formatDigit({
+        value: coin.market_data.max_supply,
+        shorten: true,
+      })}`,
+      inline: true,
+    })
+  }
+
+  if (coin.market_data?.fully_diluted_valuation?.[CURRENCY]) {
+    embed.addFields({
+      name: "FDV",
+      value: `$${formatDigit({
+        value: coin.market_data.fully_diluted_valuation?.[CURRENCY],
+        shorten: true,
+      })}`,
+      inline: true,
+    })
+  }
+
+  embed.addFields({
+    name: "Tags",
+    // only get items that contain "Ecosystem" and remove the word "Ecosystem"
+    value: coin.categories.join(", "),
+    inline: true,
+  })
+
+  if (coin.coingecko_info?.explorers) {
+    embed.addFields({
+      name: "Addresses",
+      // hyper link the key and value: coin.coingecko_info.explorers
+      value: coin.coingecko_info.explorers
+        .map(
+          (explorer: ResponseCoinGeckoInfoKeyValue) =>
+            `[${explorer.key}](${explorer.value})`
+        )
+        .join(", "),
+      inline: true,
+    })
+  }
+
   const wlAdded = await isTickerAddedToWl(coin.id, interaction.user.id)
   const buttonRow = buildSwitchViewActionRow("info", wlAdded)
 
   return {
+    initial: "tickerInfo",
+    context: {
+      view: TickerView.Info,
+      baseCoin: coin,
+      ...rest,
+    },
     msgOpts: {
       files: [],
       embeds: [embed],
@@ -398,19 +490,19 @@ export async function renderFiatPair({
   }
 }
 
+export enum TickerView {
+  Chart = "chart",
+  Info = "info",
+}
+
 export async function run(
   interaction: CommandInteraction,
   baseQ: string,
   targetQ: string,
   isCompare: boolean,
-  isFiat: boolean
+  isFiat: boolean,
+  view = TickerView.Chart
 ) {
-  if (isFiat)
-    return renderFiatPair({
-      baseQ,
-      targetQ,
-      days: ChartViewTimeOption.M1,
-    })
   const [baseCoin, targetCoin] = await Promise.all(
     [baseQ, targetQ].filter(Boolean).map(async (symbol) => {
       const { ticker, isDominanceChart } = parseQuery(symbol)
@@ -423,13 +515,11 @@ export async function run(
         throw new InternalError({
           title: "Unsupported token/fiat",
           msgOrInteraction: interaction,
-          description: `**${symbol.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} Or choose a valid fiat currency.`,
+          descriptions: [
+            "Please choose a token that is listed on [CoinGecko](https://www.coingecko.com)",
+            "Or choose a valid fiat currency.",
+          ],
+          reason: `**${symbol.toUpperCase()}** is invalid or hasn't been supported.`,
         })
       }
 
@@ -462,6 +552,24 @@ export async function run(
     })
   )
 
+  const type = parseQuery(baseQ).isDominanceChart
+    ? ChartType.Dominance
+    : ChartType.Single
+  const days = parseQuery(baseQ).isDominanceChart
+    ? DominanceChartViewTimeOption.Y1
+    : ChartViewTimeOption.M1
+
+  if (view === TickerView.Info) {
+    return renderTokenInfo(interaction, { baseCoin, type, days })
+  }
+
+  if (isFiat)
+    return renderFiatPair({
+      baseQ,
+      targetQ,
+      days: ChartViewTimeOption.M1,
+    })
+
   if (
     isCompare &&
     [baseQ, targetQ].map(parseQuery).every((isDominance) => !isDominance)
@@ -476,11 +584,7 @@ export async function run(
 
   return renderSingle(interaction, {
     baseCoin,
-    type: parseQuery(baseQ).isDominanceChart
-      ? ChartType.Dominance
-      : ChartType.Single,
-    days: parseQuery(baseQ).isDominanceChart
-      ? DominanceChartViewTimeOption.Y1
-      : ChartViewTimeOption.M1,
+    type,
+    days,
   })
 }

@@ -1,10 +1,13 @@
-import { CommandInteraction } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandArgumentError, GuildIdNotFoundError } from "errors"
+import { GuildIdNotFoundError } from "errors"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
-import { handleTokenInfo } from "./processor"
+import { run as tickerRun, TickerView } from "commands/ticker/index/processor"
+import { machineConfig as tickerMachineConfig } from "commands/ticker/index/slash"
+import { parseTickerQuery } from "utils/defi"
+import { route } from "utils/router"
 
 const command: SlashCommand = {
   name: "info",
@@ -25,24 +28,31 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({ message: interaction })
     }
 
-    const symbol = await interaction.options.getString("symbol")
-    if (!symbol) {
-      throw new CommandArgumentError({
-        message: interaction,
-        getHelpMessage: () => command.help(interaction),
-      })
-    }
+    const symbol = interaction.options.getString("symbol", true)
 
-    return await handleTokenInfo(interaction, symbol)
+    const { base, target, isCompare, isFiat } = parseTickerQuery(symbol)
+    const { initial, msgOpts, context } = await tickerRun(
+      interaction,
+      base,
+      target,
+      isCompare,
+      isFiat,
+      TickerView.Info
+    )
+
+    const reply = (await interaction.editReply(msgOpts)) as Message
+
+    route(reply, interaction, tickerMachineConfig(base, context, initial))
   },
-  help: async (interaction: CommandInteraction) => ({
-    embeds: [
-      composeEmbedMessage2(interaction, {
-        usage: `${SLASH_PREFIX}tokens info <symbol>\n${SLASH_PREFIX}tokens info <id>`,
-        examples: `${SLASH_PREFIX}tokens info eth\n${SLASH_PREFIX}tokens info ethereum`,
-      }),
-    ],
-  }),
+  help: (interaction: CommandInteraction) =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage2(interaction, {
+          usage: `${SLASH_PREFIX}tokens info <symbol>\n${SLASH_PREFIX}tokens info <id>`,
+          examples: `${SLASH_PREFIX}tokens info eth\n${SLASH_PREFIX}tokens info ethereum`,
+        }),
+      ],
+    }),
   colorType: "Defi",
 }
 
