@@ -1,20 +1,16 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
-import { run, airdropDetail, setAirdropStatus } from "./processor"
+import { airdropDetail, setAirdropStatus } from "../available/processor"
+import { run } from "./processor"
 import { CommandInteraction, Message } from "discord.js"
 import { MachineConfig, RouterSpecialAction, route } from "utils/router"
-import { AirdropCampaignStatus } from ".."
 
 export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
-  id: "drop available",
-  initial: "airdrops",
+  id: "drop search",
+  initial: "searchAirdrops",
   context: {
     button: {
-      airdrops: (i, ev, ctx) => {
-        let status = AirdropCampaignStatus.Live
-        if (ev === "VIEW_ENDED") status = AirdropCampaignStatus.Ended
-        if (ev === "VIEW_IGNORED") status = AirdropCampaignStatus.Ignored
-
+      searchAirdrops: (i, ev, ctx) => {
         let page = 0
         if (
           ev === RouterSpecialAction.NEXT_PAGE ||
@@ -22,7 +18,7 @@ export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
         )
           page = ctx.page
 
-        return run(i.user.id, status, ctx.keyword, page)
+        return run(i.user.id, ctx.keyword, page)
       },
     },
     select: {
@@ -32,26 +28,26 @@ export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
     ...context,
   },
   states: {
-    airdrops: {
+    searchAirdrops: {
       on: {
         VIEW_AIRDROP_DETAIL: "airdrop",
-        VIEW_LIVE: "airdrops",
-        VIEW_ENDED: "airdrops",
-        VIEW_IGNORED: "airdrops",
+        VIEW_LIVE: "searchAirdrops",
+        VIEW_ENDED: "searchAirdrops",
+        VIEW_IGNORED: "searchAirdrops",
         // special, reserved event name
-        NEXT_PAGE: "airdrops",
-        PREV_PAGE: "airdrops",
+        NEXT_PAGE: "searchAirdrops",
+        PREV_PAGE: "searchAirdrops",
       },
     },
     airdrop: {
       on: {
-        BACK: "airdrops",
+        BACK: "searchAirdrops",
         SET_AIRDROP_STATUS: "userAirdropStatus",
       },
     },
     userAirdropStatus: {
       on: {
-        BACK: "airdrops",
+        BACK: "searchAirdrops",
         SET_AIRDROP_STATUS: "userAirdropStatus",
       },
     },
@@ -59,44 +55,25 @@ export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
 })
 
 export const slashCmd: SlashCommand = {
-  name: "available",
+  name: "search",
   category: "Defi",
   prepare: () => {
     const data = new SlashCommandSubcommandBuilder()
-      .setName("available")
-      .setDescription("view available airdrop campaigns")
-      .addStringOption((opt) =>
-        opt
-          .setName("status")
-          .setDescription("filter airdrops by its status")
-          .setChoices([
-            ["live", "live"],
-            ["ended", "ended"],
-            ["ignored", "ignore"],
-          ])
-          .setRequired(false)
-      )
+      .setName("search")
+      .setDescription("search airdrop campaigns")
       .addStringOption((opt) =>
         opt
           .setName("keyword")
           .setDescription("search content, title, or id with prefix *#*")
-          .setRequired(false)
+          .setRequired(true)
       )
 
     return data
   },
   run: async function (interaction: CommandInteraction) {
-    const status =
-      interaction.options.getString("status", false) ??
-      AirdropCampaignStatus.Live
-
     const keyword = interaction.options.getString("keyword", false) ?? undefined
 
-    const { context, msgOpts } = await run(
-      interaction.user.id,
-      status as AirdropCampaignStatus,
-      keyword
-    )
+    const { context, msgOpts } = await run(interaction.user.id, keyword)
 
     const reply = (await interaction.editReply(msgOpts)) as Message
 

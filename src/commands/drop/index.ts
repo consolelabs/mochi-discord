@@ -5,6 +5,7 @@ import {
 import { SlashCommand } from "types/common"
 import { slashCmd as available } from "./available"
 import { slashCmd as claimable } from "./claimable"
+import { slashCmd as search } from "./search"
 
 export enum AirdropCampaignStatus {
   Live = "live",
@@ -16,6 +17,7 @@ export enum AirdropCampaignStatus {
 const slashActions = {
   available,
   claimable,
+  search,
 }
 
 const slashCmd: SlashCommand = {
@@ -28,6 +30,7 @@ const slashCmd: SlashCommand = {
 
     data.addSubcommand(<SlashCommandSubcommandBuilder>available.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>claimable.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>search.prepare())
 
     return data
   },
