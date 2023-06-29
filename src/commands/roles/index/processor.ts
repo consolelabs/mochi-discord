@@ -6,7 +6,13 @@ import {
 } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  shortenHashOrAddress,
+} from "utils/common"
+import { DOT } from "utils/constants"
 
 export function renderDefaultRole(data: any) {
   return `${
@@ -127,21 +133,31 @@ export async function render(
   }
 
   const embed = composeEmbedMessage(null, {
-    author: ["All role configs"],
+    author: ["All role configs", getEmojiURL(emojis.ANIMATED_DIAMOND)],
+    description: [
+      `Below is the complete list of role config used in this server.`,
+      `${DOT} Default role: assign upon joining server.`,
+      `${DOT} Level role: assign by level.`,
+      `${DOT} NFT role: assign to JPEG collectors.`,
+      `${DOT} Reaction role: assign upon message react.`,
+      `${DOT} Token role: assign to token holders.`,
+      getEmoji("LINE").repeat(10),
+    ].join("\n"),
+    thumbnail: i.guild?.iconURL(),
   })
-  const fields: EmbedFieldData[] = [
+  let fields: EmbedFieldData[] = [
     {
       name: "Default role",
       value: renderDefaultRole(roles.defaultRole),
       inline: false,
     },
     {
-      name: "Level role",
+      name: `${getEmoji("XP")} Level role`,
       value: renderLevelRole(roles.levelRole),
       inline: false,
     },
     {
-      name: "NFT role",
+      name: `${getEmoji("NFTS")} NFT role`,
       value: renderNftRole(roles.nftRole),
       inline: false,
     },
@@ -151,11 +167,17 @@ export async function render(
       inline: false,
     },
     {
-      name: "Token role",
+      name: `${getEmoji("ANIMATED_COIN_2", true)} Token role`,
       value: renderTokenRole(roles.tokenRole),
       inline: false,
     },
   ]
+  fields = fields.sort((a, b) => {
+    if (a.value === "Unset") return 1
+    if (b.value === "Unset") return -1
+    return 0
+  })
+
   embed.addFields(fields.filter((f) => f.value))
 
   return {

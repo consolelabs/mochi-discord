@@ -475,7 +475,7 @@ export const msgColors = {
   // BLUE: "#34AAFF",
   BLUE: "#62A1FE",
   GREEN: "#5CD97D",
-  YELLOW: "#F9F687",
+  YELLOW: "#FFCC4C",
   MOCHI: "#34AAFF",
   ACTIVITY: "#62A1FE",
 } satisfies Record<string, ColorResolvable>
