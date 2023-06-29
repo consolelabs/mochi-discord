@@ -96,21 +96,22 @@ const slashCmd: SlashCommand = {
       i.options.getSubcommand(true)
     ].run(i)
   },
-  help: async () => ({
-    embeds: [
-      composeEmbedMessage(null, {
-        includeCommandsList: true,
-        usage: `${SLASH_PREFIX}role <action>`,
-        description: "Setup role aspect for your guild",
-        footer: [
-          `Type ${SLASH_PREFIX}help role <action> for a specific action!`,
-        ],
-        document: LOG_CHANNEL_GITBOOK,
-        title: "Default",
-        examples: `${SLASH_PREFIX}role token info`,
-      }),
-    ],
-  }),
+  help: () =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage(null, {
+          includeCommandsList: true,
+          usage: `${SLASH_PREFIX}role <action>`,
+          description: "Setup role aspect for your guild",
+          footer: [
+            `Type ${SLASH_PREFIX}help role <action> for a specific action!`,
+          ],
+          document: LOG_CHANNEL_GITBOOK,
+          title: "Default",
+          examples: `${SLASH_PREFIX}role token info`,
+        }),
+      ],
+    }),
   colorType: "Server",
 }
 

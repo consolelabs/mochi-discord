@@ -1,9 +1,11 @@
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { handle } from "../processor"
+import { renderDefaultRole } from "commands/roles/index/processor"
+import config from "adapters/config"
+import { GuildIdNotFoundError } from "errors"
 
 const command: SlashCommand = {
   name: "info",
@@ -13,7 +15,22 @@ const command: SlashCommand = {
       .setName("info")
       .setDescription("Show current default role for newcomers")
   },
-  run: handle,
+  run: async (i) => {
+    if (!i.guildId) {
+      throw new GuildIdNotFoundError({})
+    }
+    const res = await config.getCurrentDefaultRole(i.guildId)
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            author: ["Default role"],
+            description: renderDefaultRole(res.data),
+          }),
+        ],
+      },
+    }
+  },
   help: async (interaction: CommandInteraction) => ({
     embeds: [
       composeEmbedMessage2(interaction, {
