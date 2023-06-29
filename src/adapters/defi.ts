@@ -18,6 +18,7 @@ import {
   INDEXER_API_BASE_URL,
   POLYGONSCAN_API,
 } from "utils/constants"
+
 import { Fetcher } from "./fetcher"
 
 class Defi extends Fetcher {
@@ -360,6 +361,20 @@ class Defi extends Fetcher {
       `${API_BASE_URL}/users/${body.userId}/watchlists/wallets/track`,
       {
         method: "POST",
+        body,
+      }
+    )
+  }
+
+  async updateTrackingInfo(body: {
+    userId: string
+    wallet: string
+    alias: string
+  }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${body.userId}/watchlists/wallets/${body.wallet}`,
+      {
+        method: "PUT",
         body,
       }
     )

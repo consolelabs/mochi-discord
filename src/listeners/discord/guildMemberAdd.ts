@@ -7,8 +7,9 @@ import { getEmoji, roundFloatNumber } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { createBEGuildMember } from "types/webhook"
 import webhook from "adapters/webhook"
-import { getErrorEmbed } from "ui/discord/embed"
+import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { eventAsyncStore } from "utils/async-storages"
+import { getSlashCommand } from "utils/commands"
 
 const event: DiscordEvent<"guildMemberAdd"> = {
   name: "guildMemberAdd",
@@ -49,21 +50,18 @@ async function setUserDefaultRoles(member: Discord.GuildMember) {
   }
 }
 
-async function welcomeNewMember(member: Discord.GuildMember) {
+export async function welcomeNewMember(member: Discord.GuildMember) {
   const welcomeChannel = await config.getCurrentWelcomeConfig(member.guild.id)
   if (!welcomeChannel.ok || !welcomeChannel.data) return
 
   const configData = welcomeChannel.data
-  if (
-    !configData.channel_id ||
-    !configData.guild_id ||
-    !configData.welcome_message
-  ) {
+  if (!configData.channel_id || !configData.guild_id) {
     logger.warn(
       `[guildMemberAdd/${member.guild.id}] - welcome channel configs invalid`
     )
     return
   }
+
   // channel id returned but cannot find in guild
   const chan = await client.channels
     .fetch(configData.channel_id)
@@ -92,12 +90,67 @@ async function welcomeNewMember(member: Discord.GuildMember) {
     return
   }
 
-  const welcomeMsg = configData.welcome_message
-    .replaceAll("$name", `<@${member.id}>`)
-    .replaceAll(`\\n`, "\n")
+  const welcomeEmbed = async (dmEnabled = true, isDM = false) =>
+    composeEmbedMessage(null, {
+      author: [`Hello ${member.user.username}!`, member.guild.iconURL()],
+      description: [
+        `<:_:1101450535346913360> Welcome to **${member.guild}** community.`,
+        ...(isDM || !dmEnabled
+          ? [
+              `This server is powered by ${getEmoji(
+                "MOCHI_CIRCLE"
+              )} Mochi Bot which grants you access to crypto utilities such as:`,
+            ]
+          : []),
+        ...(isDM || !dmEnabled
+          ? [
+              `${getEmoji("CHART")} ${await getSlashCommand(
+                "ticker"
+              )} Token chart data`,
+              `${getEmoji("SWAP_ROUTE")} ${await getSlashCommand(
+                "swap"
+              )} Swap tokens without leaving Discord`,
+              `${getEmoji("CASH")} ${await getSlashCommand(
+                "wlv"
+              )} Token watchlist`,
+
+              `...and much more!`,
+            ]
+          : []),
+        getEmoji("LINE").repeat(10),
+        `${getEmoji("ANIMATED_POINTING_RIGHT", true)} To get started:`,
+        `${getEmoji("NUM_1")} Run ${await getSlashCommand(
+          "profile"
+        )} in guild will get you setup with wallets and stuff.`,
+        `${getEmoji("NUM_2")} Run ${await getSlashCommand(
+          "balance"
+        )} to see the newly created wallets.`,
+        ...(!isDM
+          ? [
+              `${getEmoji("NUM_3")} Explore more cmds: ${await getSlashCommand(
+                "tip"
+              )}, ${await getSlashCommand("swap")}, ${await getSlashCommand(
+                "watchlist view"
+              )}, etc...`,
+            ]
+          : []),
+      ].join("\n"),
+      thumbnail: member.guild.iconURL(),
+      footer: ["/profile to get started"],
+      image:
+        "https://cdn.discordapp.com/attachments/984660970624409630/1023869479521882193/help2.png",
+    })
 
   if (chan.isText()) {
-    chan.send({ content: welcomeMsg })
+    let dmEnabled = true
+
+    await member
+      .send({
+        embeds: [await welcomeEmbed(true, true)],
+      })
+      .catch(() => (dmEnabled = false))
+
+    chan.send({ embeds: [await welcomeEmbed(dmEnabled, false)] })
   }
 }
 

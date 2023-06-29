@@ -1,12 +1,14 @@
 import config from "adapters/config"
-import { composeEmbedMessage2, getErrorEmbed } from "ui/discord/embed"
+import {
+  composeEmbedMessage,
+  composeEmbedMessage2,
+  getErrorEmbed,
+} from "ui/discord/embed"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { emojis, getEmojiURL, msgColors } from "utils/common"
-import { APIError } from "errors"
-import { list } from "./processor"
+import { renderLevelRole } from "commands/roles/index/processor"
 
 const command: SlashCommand = {
   name: "list",
@@ -30,22 +32,12 @@ const command: SlashCommand = {
     }
     const res = await config.getGuildLevelRoleConfigs(interaction.guildId)
 
-    if (!res.ok) {
-      throw new APIError({
-        msgOrInteraction: interaction,
-        curl: res.curl,
-        description: res.log,
-      })
-    }
-
-    const { title, description } = await list(res)
     return {
       messageOptions: {
         embeds: [
-          composeEmbedMessage2(interaction, {
-            author: [title, getEmojiURL(emojis.ANIMATED_BADGE_2)],
-            description,
-            color: msgColors.PINK,
+          composeEmbedMessage(null, {
+            author: ["Level role"],
+            description: renderLevelRole(res.data),
           }),
         ],
       },

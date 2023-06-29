@@ -1,4 +1,4 @@
-import { emojis, getEmoji, getEmojiURL } from "utils/common"
+import { getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { DOT } from "utils/constants"
 import { BotBaseError, OriginalMessage } from "./base"
 import { getErrorEmbed } from "ui/discord/embed"
@@ -41,9 +41,9 @@ export class CommandNotAllowedToRunError extends BotBaseError {
           }),
       }).then(async ({ data }) => {
         errorEmbed = getErrorEmbed({
-          emojiUrl: getEmojiURL(emojis.ANIMATED_STAR),
+          emojiUrl: getEmojiURL("675026602479976488"),
           title: "Holdup!",
-          description: `This command can only be used by the following:\n\n**${DOT} Administrators**${
+          description: `This command can only be used by the following:\n**${DOT} Administrators**${
             data
               ? `\n${(data ?? [])
                   .map((d: any) => `**${DOT} <@&${d.role_id}>**`)
@@ -55,6 +55,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
           )} Contact this server's owner to use ${await getSlashCommand(
             "bot-manager set"
           )} to add your role as a bot manager role.`,
+          color: msgColors.YELLOW,
         })
         const msgOptions = {
           embeds: [errorEmbed],
