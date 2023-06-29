@@ -28,9 +28,14 @@ class Defi extends Fetcher {
     )
   }
 
-  public async getCoin(id: string, isDominanceChart = false, chain?: string) {
+  public async getCoin(
+    id: string,
+    isDominanceChart = false,
+    isWithCoingeckoInfo = false,
+    chain?: string
+  ) {
     return await this.jsonFetch<Coin>(`${API_BASE_URL}/defi/coins/${id}`, {
-      query: { isDominanceChart, chain },
+      query: { isDominanceChart, isWithCoingeckoInfo, chain },
     })
   }
 
