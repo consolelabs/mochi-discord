@@ -28,7 +28,7 @@ const slashCmd: SlashCommand = {
   run: async function (interaction: CommandInteraction) {
     const symbol = interaction.options.getString("token", true)
     const amount = interaction.options.getNumber("amount", false)
-    return await depositSlash.run(interaction, symbol, amount ?? 1)
+    await depositSlash.run(interaction, symbol, amount ?? 1)
   },
   help: (interaction: CommandInteraction) =>
     Promise.resolve({

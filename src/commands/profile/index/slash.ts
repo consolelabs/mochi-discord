@@ -23,10 +23,7 @@ const machineConfig: (member: GuildMember) => MachineConfig = (member) => ({
       addWallet: (i) => handleWalletAddition(i),
     },
     select: {
-      vault: async (i) => ({
-        msgOpts: (await runGetVaultDetail(i.values[0].split("_")[1], i))
-          .messageOptions,
-      }),
+      vault: async (i) => await runGetVaultDetail(i.values[0].split("_")[1], i),
     },
     // indicates this action to result in ephemeral response
     ephemeral: {

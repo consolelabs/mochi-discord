@@ -1,4 +1,4 @@
-import { CommandInteraction, Message } from "discord.js"
+import { ButtonInteraction, CommandInteraction, Message } from "discord.js"
 import { equalIgnoreCase } from "utils/common"
 import { MachineConfig, route } from "utils/router"
 import * as processor from "./processor"
@@ -44,7 +44,7 @@ const machineConfig: (
 })
 
 export const run = async (
-  i: CommandInteraction,
+  i: CommandInteraction | ButtonInteraction,
   tokenSymbol: string,
   amount: number
 ) => {

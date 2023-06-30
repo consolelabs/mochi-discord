@@ -109,11 +109,17 @@ export async function runGetVaultDetail(
   }).addFields(fields)
 
   return {
-    messageOptions: {
+    context: {
+      deposit: {
+        evm: data.wallet_address,
+        sol: data.solana_wallet_address,
+      },
+    },
+    msgOpts: {
       embeds: [embed],
       components: [
         new MessageActionRow().addComponents(
-          ...getButtons("vault_info"),
+          ...getButtons(),
           new MessageButton()
             .setStyle("SECONDARY")
             .setEmoji(getEmoji("CONFIG"))
