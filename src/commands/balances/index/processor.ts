@@ -471,7 +471,7 @@ export function formatView(
       .filter((b) => b.text)
     const paginated = chunk(formattedBal, PAGE_SIZE)
     const { joined: text } = formatDataTable(
-      paginated[page].map((b) => ({
+      (paginated[page] ?? []).map((b) => ({
         balance: `${b.text}${b.chain ? ` (${b.chain})` : ""}`,
         usd: `$${b.usdWorth}`,
       })),
@@ -532,7 +532,11 @@ export function formatView(
       })
       .filter((f) => f?.name && f.value)
     const paginated = chunk(fields, PAGE_SIZE)
-    return { totalWorth, fields: paginated[page], totalPage: paginated.length }
+    return {
+      totalWorth,
+      fields: paginated[page] ?? [],
+      totalPage: paginated.length,
+    }
   }
 }
 
