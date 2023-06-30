@@ -18,7 +18,11 @@ const command: SlashCommand = {
 
     const reply = await i.editReply(msgOpts)
 
-    route(reply as Message, i, machineConfig("wallets", {}))
+    route(
+      reply as Message,
+      i,
+      machineConfig("wallets", { isFromWalletList: true })
+    )
   },
   help: () => Promise.resolve({}),
   colorType: "Defi",
