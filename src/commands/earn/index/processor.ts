@@ -46,6 +46,7 @@ export async function run(user: User, view: EarnView = EarnView.Airdrop) {
         value: [
           `<:_:1110865581617463346> ${await getSlashCommand("drop available")}`,
           `<:_:1093577916434104350> ${await getSlashCommand("drop claimable")}`,
+          `<:_:1093577916434104350> ${await getSlashCommand("drop search")}`,
         ].join("\n"),
         inline: false,
       })

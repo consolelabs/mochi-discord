@@ -64,10 +64,12 @@ export async function runGetVaultDetail(
 
   let fields = []
 
+  // TODO: remove hardcode 1
   const { totalWorth, text: tokenBalanceBreakdownText } = formatView(
     "compact",
     "filter-dust",
-    data.balance
+    data.balance,
+    1
   )
   const myNftTitleFields = buildMyNftTitleFields(data)
   const myNftFields = buildMyNftFields(data)

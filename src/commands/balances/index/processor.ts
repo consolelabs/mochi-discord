@@ -46,7 +46,8 @@ import { convertString } from "utils/convert"
 import { formatDigit } from "utils/defi"
 import { getProfileIdByDiscord } from "utils/profile"
 import { BigNumber } from "ethers"
-import { groupBy } from "lodash"
+import { chunk, groupBy } from "lodash"
+import { paginationButtons } from "utils/router"
 
 export enum BalanceType {
   Offchain = 1,
@@ -58,6 +59,8 @@ export enum BalanceView {
   Compact = 1,
   Expand,
 }
+
+const PAGE_SIZE = 20 as const
 
 type Interaction =
   | CommandInteraction
@@ -192,6 +195,7 @@ export async function getBalances(
     farming: any,
     staking: any,
     lending: any,
+    simple: any,
     nfts: any,
     pnl = 0
   if (type === BalanceType.Offchain) {
@@ -216,19 +220,32 @@ export async function getBalances(
       if (e.detail_lending) return "lending"
       return "unknown"
     })
-    staking = groupedEarn.staking.map((e: any) => ({
-      amount: +e.detail_staking.amount,
-      price: e.token.price,
-      reward: +e.detail_staking.rewardAmt,
-      symbol: e.token.symbol,
-    }))
+    staking =
+      groupedEarn.staking?.map((e: any) => ({
+        amount: +e.detail_staking.amount,
+        price: e.token.price,
+        reward: +e.detail_staking.rewardAmt,
+        symbol: e.token.symbol,
+      })) ?? []
 
-    lending = groupedEarn.lending.map((e) => ({
-      amount: +e.detail_lending.amount,
-      price: e.token.price,
-      reward: 0,
-      symbol: e.token.symbol,
-    }))
+    lending =
+      groupedEarn.lending?.map((e) => ({
+        amount: +e.detail_lending.amount,
+        price: e.token.price,
+        reward: 0,
+        symbol: e.token.symbol,
+      })) ?? []
+
+    if (res.data.simple_earn) {
+      simple = [
+        {
+          amount: +res.data.simple_earn.total_amount_in_btc,
+          price: +res.data.simple_earn.btc_price,
+          reward: 0,
+          symbol: "BTC",
+        },
+      ]
+    }
   }
 
   return {
@@ -237,6 +254,7 @@ export async function getBalances(
     farming,
     staking,
     lending,
+    simple,
     nfts,
   }
 }
@@ -417,7 +435,8 @@ export function formatView(
       native: boolean
     }
     amount: string
-  }[]
+  }[],
+  page: number
 ) {
   let totalWorth = 0
   const isDuplicateSymbol = (s: string) =>
@@ -465,8 +484,9 @@ export function formatView(
         return b.usdVal - a.usdVal
       })
       .filter((b) => b.text)
+    const paginated = chunk(formattedBal, PAGE_SIZE)
     const { joined: text } = formatDataTable(
-      formattedBal.map((b) => ({
+      (paginated[page] ?? []).map((b) => ({
         balance: `${b.text}${b.chain ? ` (${b.chain})` : ""}`,
         usd: `$${b.usdWorth}`,
       })),
@@ -477,7 +497,7 @@ export function formatView(
           `${formattedBal[i].emoji}${formatted}`,
       }
     )
-    return { totalWorth, text }
+    return { totalWorth, text, totalPage: paginated.length }
   } else {
     const fields: EmbedFieldData[] = balances
       .map((balance) => {
@@ -526,7 +546,12 @@ export function formatView(
         }
       })
       .filter((f) => f?.name && f.value)
-    return { totalWorth, fields }
+    const paginated = chunk(fields, PAGE_SIZE)
+    return {
+      totalWorth,
+      fields: paginated[page] ?? [],
+      totalPage: paginated.length,
+    }
   }
 }
 
@@ -538,13 +563,15 @@ async function switchView(
     farming: any[]
     staking: any[]
     lending: any[]
+    simple: any[]
     pnl: number
   },
   txns: any,
   discordId: string,
-  balanceType: number,
+  balanceType: BalanceType,
   showFullEarn: boolean,
-  isViewingOther: boolean
+  isViewingOther: boolean,
+  page: number
 ) {
   const wallet = await defi.findWallet(discordId, props.address)
   const trackingType = wallet?.data?.type
@@ -565,14 +592,16 @@ async function switchView(
 
   let totalWorth = 0
   let emptyText = ""
+  let totalPage = 1
 
   if (view === BalanceView.Compact) {
-    const { totalWorth: _totalWorth, text } = formatView(
-      "compact",
-      "filter-dust",
-      balances.data
-    )
+    const {
+      totalWorth: _totalWorth,
+      text,
+      totalPage: _totalPage,
+    } = formatView("compact", "filter-dust", balances.data, page)
     totalWorth = _totalWorth
+    totalPage = _totalPage
 
     if (text) {
       embed.setDescription(`**Spot**\n${text}`)
@@ -585,17 +614,16 @@ async function switchView(
       )} or ${await getSlashCommand("deposit")}\n\n`
     }
   } else {
-    const { totalWorth: _totalWorth, fields = [] } = formatView(
-      "expand",
-      "filter-dust",
-      balances.data
-    )
+    const {
+      totalWorth: _totalWorth,
+      fields = [],
+      totalPage: _totalPage,
+    } = formatView("expand", "filter-dust", balances.data, page)
     totalWorth = _totalWorth
+    totalPage = _totalPage
 
     embed.addFields(fields)
   }
-
-  let grandTotal = totalWorth
 
   if (balanceType === BalanceType.Offchain) {
     const value = await renderWallets({
@@ -634,24 +662,22 @@ async function switchView(
     embed.setDescription(`**Wallet**\n${value}\n\n${embed.description}`)
 
     // farming
-    const { field: farmingField, total: totalFarm } = buildFarmingField(
+    const { field: farmingField } = buildFarmingField(
       balances.farming,
       showFullEarn
     )
     // staking
-    const { field: stakingField, total: totalStake } = buildEarnField(
+    const { field: stakingField } = buildEarnField(
       "Staking",
       balances.staking,
       showFullEarn
     )
 
     if (stakingField) {
-      grandTotal += totalStake
       embed.addFields(stakingField)
     }
 
     if (farmingField) {
-      grandTotal += totalFarm
       embed.addFields(farmingField)
     }
   }
@@ -672,26 +698,30 @@ async function switchView(
 
     embed.setDescription(`**Wallet**\n${value}\n\n${embed.description}`)
 
-    const { field: stakingField, total: totalStake } = buildEarnField(
+    const { field: stakingField } = buildEarnField(
       "Staking",
       balances.staking,
       showFullEarn
     )
 
     if (stakingField) {
-      grandTotal += totalStake
       embed.addFields(stakingField)
     }
 
-    const { field: lendingField, total: totalLend } = buildEarnField(
+    const { field: lendingField } = buildEarnField(
       "Flexible",
       balances.lending,
       showFullEarn
     )
 
     if (lendingField) {
-      grandTotal += totalLend
       embed.addFields(lendingField)
+    }
+
+    const { field: simpleField } = buildEarnField("Simple", balances.simple)
+
+    if (simpleField) {
+      embed.addFields(simpleField)
     }
   }
 
@@ -699,8 +729,8 @@ async function switchView(
     {
       name: `Total (U.S dollar)`,
       value: `${getEmoji("CASH")} \`$${formatDigit({
-        value: grandTotal.toString(),
-        fractionDigits: grandTotal > 100 ? 0 : 2,
+        value: totalWorth.toString(),
+        fractionDigits: totalWorth > 100 ? 0 : 2,
       })}\`${
         balanceType === BalanceType.Onchain && balances.pnl !== 0
           ? ` (${getEmoji(
@@ -726,7 +756,7 @@ async function switchView(
     embed.setDescription(`${props.description}\n\n${embed.description}`)
   }
 
-  return { embed, trackingType, isOwnWallet }
+  return { embed, trackingType, isOwnWallet, totalPage }
 }
 
 function buildFarmingField(farming: any[], showFull = false) {
@@ -946,12 +976,18 @@ export async function renderBalances(
     address,
     view = BalanceView.Compact,
     showFullEarn = false,
+    page = 0,
+    balances: ctxBalances,
+    txns: ctxTxns,
   }: {
     interaction: Interaction
     type: BalanceType
     address: string
     view?: BalanceView
     showFullEarn?: boolean
+    balances?: any
+    txns?: any
+    page?: number
   }
 ) {
   // handle name service
@@ -965,25 +1001,31 @@ export async function renderBalances(
       interaction
     )) ?? {}
   const [balances, txns] = await Promise.all([
-    getBalances(
-      profileId,
-      discordId,
-      type,
-      interaction,
-      resolvedAddress,
-      addressType
-    ),
-    getTxns(
-      profileId,
-      discordId,
-      type,
-      interaction,
-      resolvedAddress,
-      addressType
-    ),
+    // reuse data if there is data and not on 1st page
+    ctxBalances && page !== 0
+      ? ctxBalances
+      : getBalances(
+          profileId,
+          discordId,
+          type,
+          interaction,
+          resolvedAddress,
+          addressType
+        ),
+    ctxTxns && page !== 0
+      ? ctxTxns
+      : getTxns(
+          profileId,
+          discordId,
+          type,
+          interaction,
+          resolvedAddress,
+          addressType
+        ),
   ])
   const isViewingOther = interaction.user.id !== discordId
-  const { embed, trackingType, isOwnWallet } = await switchView(
+
+  const { embed, trackingType, isOwnWallet, totalPage } = await switchView(
     view,
     props,
     balances,
@@ -991,7 +1033,8 @@ export async function renderBalances(
     discordId,
     type,
     showFullEarn,
-    isViewingOther
+    isViewingOther,
+    page
   )
   return {
     context: {
@@ -999,6 +1042,9 @@ export async function renderBalances(
       type,
       chain: addressType,
       showFullEarn,
+      page,
+      balances,
+      txns,
     },
     msgOpts: {
       embeds: [embed],
@@ -1032,6 +1078,7 @@ export async function renderBalances(
               ),
             ]
           : []),
+        ...paginationButtons(page, totalPage),
       ],
     },
   }
