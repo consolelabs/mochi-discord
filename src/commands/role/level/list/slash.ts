@@ -8,7 +8,12 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { renderLevelRole } from "commands/roles/index/processor"
+import {
+  getRoleConfigDescription,
+  renderLevelRole,
+  View,
+} from "commands/roles/index/processor"
+import { emojis, getEmojiURL } from "utils/common"
 
 const command: SlashCommand = {
   name: "list",
@@ -36,8 +41,12 @@ const command: SlashCommand = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            author: ["Level role"],
-            description: renderLevelRole(res.data),
+            author: ["Level role", getEmojiURL(emojis.XP)],
+            description: [
+              getRoleConfigDescription(View.LevelRole),
+              renderLevelRole(res.data),
+            ].join("\n"),
+            thumbnail: interaction.guild?.iconURL(),
           }),
         ],
       },

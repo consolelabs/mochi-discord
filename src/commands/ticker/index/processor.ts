@@ -14,7 +14,7 @@ import { Coin } from "types/defi"
 import { getChartColorConfig } from "ui/canvas/color"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
-import { getEmoji, getEmojiToken, TokenEmojiKey } from "utils/common"
+import { EmojiKey, getEmoji, getEmojiToken, TokenEmojiKey } from "utils/common"
 import { formatDigit } from "utils/defi"
 import {
   renderCompareTokenChart,
@@ -163,7 +163,7 @@ export async function renderSingle(
       inline: true,
     },
     {
-      name: "Chain",
+      name: `${getEmoji("ANIMATED_FLASH")} Chain`,
       value:
         coin.asset_platform?.name ||
         coin.asset_platform?.shortname ||
@@ -300,9 +300,37 @@ export async function renderTokenInfo(
 
   embed.setDescription(content || "This token has not updated description yet")
 
+  embed.addFields(
+    {
+      name: `${getEmoji("CHART")} Market cap`,
+      value: `$${formatDigit({
+        value: coin.market_data.market_cap[CURRENCY],
+        shorten: true,
+      })} (#${coin.market_cap_rank})`,
+      inline: true,
+    },
+    {
+      name: `${getEmoji("CASH")} Price`,
+      value: `$${formatDigit({
+        value: String(coin.market_data.current_price[CURRENCY]),
+        fractionDigits: 2,
+        scientificFormat: true,
+      })}`,
+      inline: true,
+    },
+    {
+      name: `${getEmoji("ANIMATED_FLASH")} Chain`,
+      value:
+        coin.asset_platform?.name ||
+        coin.asset_platform?.shortname ||
+        coin.name,
+      inline: true,
+    }
+  )
+
   if (coin.market_data?.circulating_supply) {
     embed.addFields({
-      name: "Circulating",
+      name: `${getEmoji("ANIMATED_COIN_2", true)} Circulating`,
       value: `${formatDigit({
         value: coin.market_data?.circulating_supply,
         shorten: true,
@@ -313,7 +341,7 @@ export async function renderTokenInfo(
 
   if (coin.market_data?.total_supply) {
     embed.addFields({
-      name: "Total Supply",
+      name: `${getEmoji("ANIMATED_COIN_3", true)} Total Supply`,
       value: `${formatDigit({
         value: coin.market_data.total_supply,
         shorten: true,
@@ -322,20 +350,9 @@ export async function renderTokenInfo(
     })
   }
 
-  if (coin.market_data?.max_supply) {
-    embed.addFields({
-      name: "Max Supply",
-      value: `${formatDigit({
-        value: coin.market_data.max_supply,
-        shorten: true,
-      })}`,
-      inline: true,
-    })
-  }
-
   if (coin.market_data?.fully_diluted_valuation?.[CURRENCY]) {
     embed.addFields({
-      name: "FDV",
+      name: `${getEmoji("ANIMATED_GEM", true)} FDV`,
       value: `$${formatDigit({
         value: coin.market_data.fully_diluted_valuation?.[CURRENCY],
         shorten: true,
@@ -345,15 +362,17 @@ export async function renderTokenInfo(
   }
 
   embed.addFields({
-    name: "Tags",
+    name: `${getEmoji("NFT2")} Tags`,
     // only get items that contain "Ecosystem" and remove the word "Ecosystem"
-    value: coin.categories.join(", "),
-    inline: true,
+    value: coin.categories
+      .filter((c) => !c.toLowerCase().includes("ecosystem"))
+      .join(", "),
+    inline: false,
   })
 
   if (coin.coingecko_info?.explorers) {
     embed.addFields({
-      name: "Addresses",
+      name: `${getEmoji("NEWS")} Addr`,
       // hyper link the key and value: coin.coingecko_info.explorers
       value: coin.coingecko_info.explorers
         .map(
@@ -361,6 +380,16 @@ export async function renderTokenInfo(
             `[${explorer.key}](${explorer.value})`
         )
         .join(", "),
+      inline: false,
+    })
+  }
+
+  if (coin.coingecko_info.communities.length) {
+    embed.addFields({
+      name: `${getEmoji("WAVING_HAND")} Communities`,
+      value: coin.coingecko_info.communities
+        .map((c) => `${getEmoji(c.key as EmojiKey)} [${c.key}](${c.value})`)
+        .join("\n"),
       inline: true,
     })
   }

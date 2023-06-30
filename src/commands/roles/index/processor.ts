@@ -94,6 +94,30 @@ export function renderTokenRole(data: any) {
   ).joined
 }
 
+export function getRoleConfigDescription(view?: View) {
+  const data = [`Below is the list of role config used in this server.`]
+
+  if (view === View.DefaultRole || !view) {
+    data.push(`${DOT} Default role: assign upon joining server.`)
+  }
+  if (view === View.LevelRole || !view) {
+    data.push(`${DOT} Level role: assign by level.`)
+  }
+  if (view === View.NftRole || !view) {
+    data.push(`${DOT} NFT role: assign to JPEG collectors.`)
+  }
+  if (view === View.ReactionRole || !view) {
+    data.push(`${DOT} Reaction role: assign upon message react.`)
+  }
+  if (view === View.TokenRole || !view) {
+    data.push(`${DOT} Token role: assign to token holders.`)
+  }
+
+  data.push(getEmoji("LINE").repeat(10))
+
+  return data.join("\n")
+}
+
 export enum View {
   DefaultRole = 0,
   LevelRole,
@@ -134,15 +158,7 @@ export async function render(
 
   const embed = composeEmbedMessage(null, {
     author: ["All role configs", getEmojiURL(emojis.ANIMATED_DIAMOND)],
-    description: [
-      `Below is the complete list of role config used in this server.`,
-      `${DOT} Default role: assign upon joining server.`,
-      `${DOT} Level role: assign by level.`,
-      `${DOT} NFT role: assign to JPEG collectors.`,
-      `${DOT} Reaction role: assign upon message react.`,
-      `${DOT} Token role: assign to token holders.`,
-      getEmoji("LINE").repeat(10),
-    ].join("\n"),
+    description: getRoleConfigDescription(),
     thumbnail: i.guild?.iconURL(),
   })
   let fields: EmbedFieldData[] = [

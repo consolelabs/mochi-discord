@@ -3,9 +3,14 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
-import { renderDefaultRole } from "commands/roles/index/processor"
+import {
+  getRoleConfigDescription,
+  renderDefaultRole,
+  View,
+} from "commands/roles/index/processor"
 import config from "adapters/config"
 import { GuildIdNotFoundError } from "errors"
+import { emojis, getEmojiURL } from "utils/common"
 
 const command: SlashCommand = {
   name: "info",
@@ -24,8 +29,12 @@ const command: SlashCommand = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            author: ["Default role"],
-            description: renderDefaultRole(res.data),
+            author: ["Default role", getEmojiURL(emojis.ANIMATED_DIAMOND)],
+            description: [
+              getRoleConfigDescription(View.DefaultRole),
+              renderDefaultRole(res.data),
+            ].join("\n"),
+            thumbnail: i.guild?.iconURL(),
           }),
         ],
       },
