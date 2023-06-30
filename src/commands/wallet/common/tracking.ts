@@ -58,7 +58,9 @@ export const machineConfig: (id: string, context?: any) => MachineConfig = (
     },
     wallet: {
       on: {
-        BACK: "wallets",
+        BACK: [
+          { target: "wallets", cond: (context) => !!context.isFromWalletList },
+        ],
         FOLLOW_WALLET: "walletFollow",
         TRACK_WALLET: "walletTrack",
         COPY_WALLET: "walletCopy",

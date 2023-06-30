@@ -21,6 +21,7 @@ export const machineConfig: (
   id: "balance",
   initial: "balance",
   context: {
+    page: 0,
     button: {
       balance: (i, ev, ctx) =>
         renderBalances(member?.user.id ?? i.user.id, {
@@ -32,6 +33,9 @@ export const machineConfig: (
           interaction: i,
           address: ctx.address,
           type: ctx.type,
+          page: ctx.page,
+          balances: ctx.balances,
+          txns: ctx.txns,
         }),
       invest: async (i) => {
         const tokens = await getBalanceTokens(i)
@@ -85,6 +89,8 @@ export const machineConfig: (
         UNLINK_WALLET: "walletUnlink",
         VIEW_PORTFOLIO: "balance",
         VIEW_NFT: "viewNft",
+        [RouterSpecialAction.NEXT_PAGE]: "balance",
+        [RouterSpecialAction.PREV_PAGE]: "balance",
       },
     },
     invest: {

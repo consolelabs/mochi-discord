@@ -46,7 +46,8 @@ import { convertString } from "utils/convert"
 import { formatDigit } from "utils/defi"
 import { getProfileIdByDiscord } from "utils/profile"
 import { BigNumber } from "ethers"
-import { groupBy } from "lodash"
+import { chunk, groupBy } from "lodash"
+import { paginationButtons } from "utils/router"
 
 export enum BalanceType {
   Offchain = 1,
@@ -58,6 +59,8 @@ export enum BalanceView {
   Compact = 1,
   Expand,
 }
+
+const PAGE_SIZE = 20 as const
 
 type Interaction =
   | CommandInteraction
@@ -417,7 +420,8 @@ export function formatView(
       native: boolean
     }
     amount: string
-  }[]
+  }[],
+  page: number
 ) {
   let totalWorth = 0
   const isDuplicateSymbol = (s: string) =>
@@ -465,8 +469,9 @@ export function formatView(
         return b.usdVal - a.usdVal
       })
       .filter((b) => b.text)
+    const paginated = chunk(formattedBal, PAGE_SIZE)
     const { joined: text } = formatDataTable(
-      formattedBal.map((b) => ({
+      paginated[page].map((b) => ({
         balance: `${b.text}${b.chain ? ` (${b.chain})` : ""}`,
         usd: `$${b.usdWorth}`,
       })),
@@ -477,7 +482,7 @@ export function formatView(
           `${formattedBal[i].emoji}${formatted}`,
       }
     )
-    return { totalWorth, text }
+    return { totalWorth, text, totalPage: paginated.length }
   } else {
     const fields: EmbedFieldData[] = balances
       .map((balance) => {
@@ -526,7 +531,8 @@ export function formatView(
         }
       })
       .filter((f) => f?.name && f.value)
-    return { totalWorth, fields }
+    const paginated = chunk(fields, PAGE_SIZE)
+    return { totalWorth, fields: paginated[page], totalPage: paginated.length }
   }
 }
 
@@ -542,9 +548,10 @@ async function switchView(
   },
   txns: any,
   discordId: string,
-  balanceType: number,
+  balanceType: BalanceType,
   showFullEarn: boolean,
-  isViewingOther: boolean
+  isViewingOther: boolean,
+  page: number
 ) {
   const wallet = await defi.findWallet(discordId, props.address)
   const trackingType = wallet?.data?.type
@@ -565,14 +572,16 @@ async function switchView(
 
   let totalWorth = 0
   let emptyText = ""
+  let totalPage = 1
 
   if (view === BalanceView.Compact) {
-    const { totalWorth: _totalWorth, text } = formatView(
-      "compact",
-      "filter-dust",
-      balances.data
-    )
+    const {
+      totalWorth: _totalWorth,
+      text,
+      totalPage: _totalPage,
+    } = formatView("compact", "filter-dust", balances.data, page)
     totalWorth = _totalWorth
+    totalPage = _totalPage
 
     if (text) {
       embed.setDescription(`**Spot**\n${text}`)
@@ -585,12 +594,13 @@ async function switchView(
       )} or ${await getSlashCommand("deposit")}\n\n`
     }
   } else {
-    const { totalWorth: _totalWorth, fields = [] } = formatView(
-      "expand",
-      "filter-dust",
-      balances.data
-    )
+    const {
+      totalWorth: _totalWorth,
+      fields = [],
+      totalPage: _totalPage,
+    } = formatView("expand", "filter-dust", balances.data, page)
     totalWorth = _totalWorth
+    totalPage = _totalPage
 
     embed.addFields(fields)
   }
@@ -726,7 +736,7 @@ async function switchView(
     embed.setDescription(`${props.description}\n\n${embed.description}`)
   }
 
-  return { embed, trackingType, isOwnWallet }
+  return { embed, trackingType, isOwnWallet, totalPage }
 }
 
 function buildFarmingField(farming: any[], showFull = false) {
@@ -946,12 +956,18 @@ export async function renderBalances(
     address,
     view = BalanceView.Compact,
     showFullEarn = false,
+    page = 0,
+    balances: ctxBalances,
+    txns: ctxTxns,
   }: {
     interaction: Interaction
     type: BalanceType
     address: string
     view?: BalanceView
     showFullEarn?: boolean
+    balances?: any
+    txns?: any
+    page?: number
   }
 ) {
   // handle name service
@@ -965,25 +981,31 @@ export async function renderBalances(
       interaction
     )) ?? {}
   const [balances, txns] = await Promise.all([
-    getBalances(
-      profileId,
-      discordId,
-      type,
-      interaction,
-      resolvedAddress,
-      addressType
-    ),
-    getTxns(
-      profileId,
-      discordId,
-      type,
-      interaction,
-      resolvedAddress,
-      addressType
-    ),
+    // reuse data if there is data and not on 1st page
+    ctxBalances && page !== 0
+      ? ctxBalances
+      : getBalances(
+          profileId,
+          discordId,
+          type,
+          interaction,
+          resolvedAddress,
+          addressType
+        ),
+    ctxTxns && page !== 0
+      ? ctxTxns
+      : getTxns(
+          profileId,
+          discordId,
+          type,
+          interaction,
+          resolvedAddress,
+          addressType
+        ),
   ])
   const isViewingOther = interaction.user.id !== discordId
-  const { embed, trackingType, isOwnWallet } = await switchView(
+
+  const { embed, trackingType, isOwnWallet, totalPage } = await switchView(
     view,
     props,
     balances,
@@ -991,7 +1013,8 @@ export async function renderBalances(
     discordId,
     type,
     showFullEarn,
-    isViewingOther
+    isViewingOther,
+    page
   )
   return {
     context: {
@@ -999,6 +1022,9 @@ export async function renderBalances(
       type,
       chain: addressType,
       showFullEarn,
+      page,
+      balances,
+      txns,
     },
     msgOpts: {
       embeds: [embed],
@@ -1032,6 +1058,7 @@ export async function renderBalances(
               ),
             ]
           : []),
+        ...paginationButtons(page, totalPage),
       ],
     },
   }

@@ -144,7 +144,8 @@ async function compose(
   const highestRole =
     member.roles.highest.name !== "@everyone" ? member.roles.highest : "N/A"
 
-  const { totalWorth } = formatView("compact", "filter-dust", balances.data)
+  // TODO: use pagination instead of hardcode 1, this is fine for mochi wallets (for now)
+  const { totalWorth } = formatView("compact", "filter-dust", balances.data, 1)
   const grandTotal = totalWorth + onchainTotal + cexTotal
   const grandTotalStr = formatDigit({
     value: String(grandTotal),
