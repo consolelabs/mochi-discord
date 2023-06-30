@@ -44,10 +44,14 @@ let cache = {
 if (!TEST) {
   logger.info("Connecting to Redis.")
   const redis = new Redis(`redis://${REDIS_HOST}:6379/0`)
-  redis.on("ready", () => {
-    logger.info(`Successfully connected to Redis, host=${REDIS_HOST}`)
-    cache = redis
-  })
+  redis
+    .on("ready", () => {
+      logger.info(`Successfully connected to Redis, host=${REDIS_HOST}`)
+      cache = redis
+    })
+    .on("error", (e) => {
+      logger.error(e)
+    })
 }
 
 const swr = createStaleWhileRevalidateCache({

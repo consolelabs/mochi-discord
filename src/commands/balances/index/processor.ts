@@ -192,6 +192,7 @@ export async function getBalances(
     farming: any,
     staking: any,
     lending: any,
+    simple: any,
     nfts: any,
     pnl = 0
   if (type === BalanceType.Offchain) {
@@ -216,19 +217,32 @@ export async function getBalances(
       if (e.detail_lending) return "lending"
       return "unknown"
     })
-    staking = groupedEarn.staking.map((e: any) => ({
-      amount: +e.detail_staking.amount,
-      price: e.token.price,
-      reward: +e.detail_staking.rewardAmt,
-      symbol: e.token.symbol,
-    }))
+    staking =
+      groupedEarn.staking?.map((e: any) => ({
+        amount: +e.detail_staking.amount,
+        price: e.token.price,
+        reward: +e.detail_staking.rewardAmt,
+        symbol: e.token.symbol,
+      })) ?? []
 
-    lending = groupedEarn.lending.map((e) => ({
-      amount: +e.detail_lending.amount,
-      price: e.token.price,
-      reward: 0,
-      symbol: e.token.symbol,
-    }))
+    lending =
+      groupedEarn.lending?.map((e) => ({
+        amount: +e.detail_lending.amount,
+        price: e.token.price,
+        reward: 0,
+        symbol: e.token.symbol,
+      })) ?? []
+
+    if (res.data.simple_earn) {
+      simple = [
+        {
+          amount: +res.data.simple_earn.total_amount_in_btc,
+          price: +res.data.simple_earn.btc_price,
+          reward: 0,
+          symbol: "BTC",
+        },
+      ]
+    }
   }
 
   return {
@@ -237,6 +251,7 @@ export async function getBalances(
     farming,
     staking,
     lending,
+    simple,
     nfts,
   }
 }
@@ -538,6 +553,7 @@ async function switchView(
     farming: any[]
     staking: any[]
     lending: any[]
+    simple: any[]
     pnl: number
   },
   txns: any,
@@ -595,8 +611,6 @@ async function switchView(
     embed.addFields(fields)
   }
 
-  let grandTotal = totalWorth
-
   if (balanceType === BalanceType.Offchain) {
     const value = await renderWallets({
       mochiWallets: {
@@ -634,24 +648,22 @@ async function switchView(
     embed.setDescription(`**Wallet**\n${value}\n\n${embed.description}`)
 
     // farming
-    const { field: farmingField, total: totalFarm } = buildFarmingField(
+    const { field: farmingField } = buildFarmingField(
       balances.farming,
       showFullEarn
     )
     // staking
-    const { field: stakingField, total: totalStake } = buildEarnField(
+    const { field: stakingField } = buildEarnField(
       "Staking",
       balances.staking,
       showFullEarn
     )
 
     if (stakingField) {
-      grandTotal += totalStake
       embed.addFields(stakingField)
     }
 
     if (farmingField) {
-      grandTotal += totalFarm
       embed.addFields(farmingField)
     }
   }
@@ -672,26 +684,30 @@ async function switchView(
 
     embed.setDescription(`**Wallet**\n${value}\n\n${embed.description}`)
 
-    const { field: stakingField, total: totalStake } = buildEarnField(
+    const { field: stakingField } = buildEarnField(
       "Staking",
       balances.staking,
       showFullEarn
     )
 
     if (stakingField) {
-      grandTotal += totalStake
       embed.addFields(stakingField)
     }
 
-    const { field: lendingField, total: totalLend } = buildEarnField(
+    const { field: lendingField } = buildEarnField(
       "Flexible",
       balances.lending,
       showFullEarn
     )
 
     if (lendingField) {
-      grandTotal += totalLend
       embed.addFields(lendingField)
+    }
+
+    const { field: simpleField } = buildEarnField("Simple", balances.simple)
+
+    if (simpleField) {
+      embed.addFields(simpleField)
     }
   }
 
@@ -699,8 +715,8 @@ async function switchView(
     {
       name: `Total (U.S dollar)`,
       value: `${getEmoji("CASH")} \`$${formatDigit({
-        value: grandTotal.toString(),
-        fractionDigits: grandTotal > 100 ? 0 : 2,
+        value: totalWorth.toString(),
+        fractionDigits: totalWorth > 100 ? 0 : 2,
       })}\`${
         balanceType === BalanceType.Onchain && balances.pnl !== 0
           ? ` (${getEmoji(
