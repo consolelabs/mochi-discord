@@ -1,12 +1,18 @@
 import defi from "adapters/defi"
-import { User, MessageActionRow, MessageButton } from "discord.js"
+import { MessageActionRow, MessageButton, User } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { emojis } from "utils/common"
-import { getEmojiURL } from "utils/common"
-import { shortenHashOrAddress } from "utils/common"
-import { getEmoji, isAddress, msgColors } from "utils/common"
-import { WalletTrackingType } from ".."
+import {
+  emojis,
+  getEmoji,
+  getEmojiURL,
+  isAddress,
+  msgColors,
+  resolveNamingServiceDomain,
+  shortenHashOrAddress,
+} from "utils/common"
+
+import { WalletTrackingType } from "../"
 
 export async function trackWallet(
   msg: OriginalMessage,
@@ -15,6 +21,11 @@ export async function trackWallet(
   chain: string,
   alias = ""
 ) {
+  const resolvedAddress = await resolveNamingServiceDomain(address)
+  if (resolvedAddress !== "") {
+    address = resolvedAddress
+  }
+
   const { valid, chainType } = isAddress(address)
   if (!valid) {
     throw new InternalError({

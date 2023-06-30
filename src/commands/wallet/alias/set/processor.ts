@@ -11,6 +11,7 @@ import {
   getEmojiURL,
   isAddress,
   msgColors,
+  resolveNamingServiceDomain,
   shortenHashOrAddress,
 } from "utils/common"
 
@@ -20,6 +21,11 @@ export async function updateAlias(
   wallet: string,
   alias = ""
 ) {
+  const resolvedAddress = await resolveNamingServiceDomain(wallet)
+  if (resolvedAddress !== "") {
+    wallet = resolvedAddress
+  }
+
   const { data, status } = await defi.updateTrackingInfo({
     userId: author.id,
     wallet,
