@@ -322,6 +322,7 @@ const animatedEmojis = {
   ANIMATED_DIAMOND: "1095990245876576316",
   ANIMATED_GEM: "1095990259877158964",
   ANIMATED_MOCHI_SPIN: "1098960373417250886",
+  ANIMATED_FLASH: "1093923038325653634",
 }
 
 export const emojis = {
@@ -475,7 +476,7 @@ export const msgColors = {
   // BLUE: "#34AAFF",
   BLUE: "#62A1FE",
   GREEN: "#5CD97D",
-  YELLOW: "#F9F687",
+  YELLOW: "#FFCC4C",
   MOCHI: "#34AAFF",
   ACTIVITY: "#62A1FE",
 } satisfies Record<string, ColorResolvable>

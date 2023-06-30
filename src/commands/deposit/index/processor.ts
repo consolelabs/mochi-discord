@@ -71,6 +71,10 @@ export async function deposit(
     isNative: a.token.native,
   }))
 
+  return renderListDepositAddress(addresses, symbol)
+}
+
+export function renderListDepositAddress(addresses: any[], symbol?: string) {
   if (!addresses.length)
     return {
       msgOpts: {
@@ -87,7 +91,10 @@ export async function deposit(
     }
 
   const embed = composeEmbedMessage(null, {
-    author: [`Deposit ${symbol}`, getEmojiURL(emojis.ANIMATED_MONEY)],
+    author: [
+      `Deposit${symbol ? ` ${symbol}` : ""}`,
+      getEmojiURL(emojis.ANIMATED_MONEY),
+    ],
     description: [
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
@@ -186,10 +193,6 @@ export async function depositDetail(
       getEmojiURL(emojis[depositObj.symbol as keyof typeof emojis]),
     ],
     description: [
-      `${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} This deposit address is linked to your Mochi wallet.`,
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true

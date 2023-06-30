@@ -72,7 +72,6 @@ export const machineConfig: (
           type: ctx.type,
           collection: i.values[0],
           nfts: ctx.nfts || [],
-          profileId: ctx.profileId,
         }),
     },
     ...context,
