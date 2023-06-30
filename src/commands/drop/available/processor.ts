@@ -144,6 +144,7 @@ const renderStatusTabs = (status: AirdropCampaignStatus) => {
 export async function run(
   userId: string,
   status = AirdropCampaignStatus.Live,
+  keyword = "",
   page = 0
 ) {
   let data = [] as ModelAirdropCampaign[]
@@ -167,6 +168,7 @@ export async function run(
       : await community.getAirdropCampaign({
           status,
           page,
+          keyword,
           size: PAGE_SIZE,
         })
 
@@ -183,7 +185,12 @@ export async function run(
   const totalPage = Math.ceil(total / PAGE_SIZE)
 
   if (total === 0) {
-    embed.setDescription(`Can't found any ${status} airdrop campaign`)
+    const description = [
+      `Can't found any **${status}** airdrop campaign`,
+      keyword ? ` with keyword **${keyword}**` : "",
+    ].join("")
+
+    embed.setDescription(description)
 
     return {
       msgOpts: {
@@ -191,6 +198,7 @@ export async function run(
         components: renderStatusTabs(status),
       },
       context: {
+        keyword,
         page: 0,
       },
     }
@@ -230,6 +238,7 @@ export async function run(
     },
     context: {
       page,
+      keyword,
     },
   }
 }

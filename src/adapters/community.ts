@@ -635,7 +635,8 @@ class Community extends Fetcher {
   public async getAirdropCampaign(query: {
     page: number
     size: number
-    status: AirdropCampaignStatus
+    status?: AirdropCampaignStatus
+    keyword?: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/earns/airdrop-campaigns`, {
       query,
