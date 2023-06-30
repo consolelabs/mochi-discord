@@ -401,7 +401,7 @@ export async function renderWallets({
         getEmoji("WALLET_1"),
         wallets.title ?? "`On-chain`",
         wallets.data,
-        mochiWallets.data.length + (wallets.data.length || 0),
+        mochiWallets.data.length + (cexes.data.length || 0),
         true,
         wallets.truncate
       ),
