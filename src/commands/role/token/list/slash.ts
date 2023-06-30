@@ -1,10 +1,15 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import config from "adapters/config"
-import { renderTokenRole } from "commands/roles/index/processor"
+import {
+  getRoleConfigDescription,
+  renderTokenRole,
+  View,
+} from "commands/roles/index/processor"
 import { CommandInteraction } from "discord.js"
 import { GuildIdNotFoundError } from "errors"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
+import { emojis, getEmojiURL } from "utils/common"
 import { SLASH_PREFIX as PREFIX, TOKEN_ROLE_GITBOOK } from "utils/constants"
 
 const command: SlashCommand = {
@@ -27,8 +32,12 @@ const command: SlashCommand = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            author: ["Token role"],
-            description: renderTokenRole(res.data),
+            author: ["Token role", getEmojiURL(emojis.ANIMATED_COIN_2)],
+            description: [
+              getRoleConfigDescription(View.TokenRole),
+              renderTokenRole(res.data),
+            ].join("\n"),
+            thumbnail: i.guild?.iconURL(),
           }),
         ],
       },

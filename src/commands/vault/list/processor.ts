@@ -108,9 +108,9 @@ function collectSelection(reply: Message, author: User, components: any) {
           await i.deferUpdate().catch(() => null)
         }
         const selectedVault = i.values[0]
-        const { messageOptions } = await runGetVaultDetail(selectedVault, i)
+        const { msgOpts } = await runGetVaultDetail(selectedVault, i)
 
-        messageOptions.components = [
+        msgOpts.components = [
           new MessageActionRow().addComponents(
             new MessageButton()
               .setLabel("Back")
@@ -118,7 +118,7 @@ function collectSelection(reply: Message, author: User, components: any) {
               .setCustomId("back")
           ),
         ] as any
-        const edited = (await i.editReply(messageOptions)) as Message
+        const edited = (await i.editReply(msgOpts)) as Message
 
         edited
           .createMessageComponentCollector({

@@ -1012,7 +1012,7 @@ export async function renderBalances(
                   .setEmoji("<a:brrr:902558248907980871>")
                   .setCustomId(`view_earn`)
                   .setLabel("Earn"),
-                ...getButtons("balance", `_${profileId}_${type}`)
+                ...getButtons()
               ),
             ]),
         ...(type === BalanceType.Onchain
@@ -1109,17 +1109,17 @@ export function getGuestWalletButtons(trackingType: string) {
   return buttons
 }
 
-export function getButtons(prefix: string, suffix = "") {
+export function getButtons() {
   return [
     new MessageButton()
       .setStyle("SECONDARY")
       .setEmoji(getEmoji("SHARE"))
-      .setCustomId(`${prefix}_send${suffix}`)
+      .setCustomId(`send`)
       .setLabel("Send"),
     new MessageButton()
       .setStyle("SECONDARY")
       .setEmoji(getEmoji("ANIMATED_TOKEN_ADD", true))
-      .setCustomId(`${prefix}_deposit${suffix}`)
+      .setCustomId(`deposit`)
       .setLabel("Deposit"),
     new MessageButton()
       .setStyle("SECONDARY")
@@ -1274,7 +1274,7 @@ export async function renderInitialNftView({
             .setEmoji("<a:brrr:902558248907980871>")
             .setCustomId(`view_earn`)
             .setLabel("Earn"),
-          ...getButtons("balance", `_${profileId}_${type}`)
+          ...getButtons()
         ),
         new MessageActionRow().addComponents(
           new MessageButton()
@@ -1296,13 +1296,11 @@ export async function renderInitialNftView({
 
 export function renderSelectedNft({
   nfts,
-  profileId,
   type,
   address,
   collection = "",
 }: {
   nfts: any[]
-  profileId: string
   type: BalanceType
   address: string
   collection?: string
@@ -1361,7 +1359,7 @@ export function renderSelectedNft({
             .setEmoji("<a:brrr:902558248907980871>")
             .setCustomId(`view_earn`)
             .setLabel("Earn"),
-          ...getButtons("balance", `_${profileId}_${type}`)
+          ...getButtons()
         ),
         new MessageActionRow().addComponents(
           new MessageButton()

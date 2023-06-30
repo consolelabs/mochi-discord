@@ -8,7 +8,12 @@ import {
   composeEmbedMessage2,
   getErrorEmbed,
 } from "ui/discord/embed"
-import { renderNftRole } from "commands/roles/index/processor"
+import {
+  getRoleConfigDescription,
+  renderNftRole,
+  View,
+} from "commands/roles/index/processor"
+import { emojis, getEmojiURL } from "utils/common"
 
 const command: SlashCommand = {
   name: "list",
@@ -38,8 +43,12 @@ const command: SlashCommand = {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            author: ["NFT role"],
-            description: renderNftRole(res.data),
+            author: ["NFT role", getEmojiURL(emojis.NFTS)],
+            description: [
+              getRoleConfigDescription(View.NftRole),
+              renderNftRole(res.data),
+            ].join("\n"),
+            thumbnail: interaction.guild?.iconURL(),
           }),
         ],
       },

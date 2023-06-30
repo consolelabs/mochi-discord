@@ -43,7 +43,7 @@ export class CommandNotAllowedToRunError extends BotBaseError {
         errorEmbed = getErrorEmbed({
           emojiUrl: getEmojiURL("675026602479976488"),
           title: "Holdup!",
-          description: `This command can only be used by the following:\n**${DOT} Administrators**${
+          description: `:warning: This command can only be used by the following:warning:\n**${DOT} Administrators**${
             data
               ? `\n${(data ?? [])
                   .map((d: any) => `**${DOT} <@&${d.role_id}>**`)
