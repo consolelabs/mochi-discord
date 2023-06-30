@@ -1,16 +1,18 @@
 import defi from "adapters/defi"
-import { User, MessageActionRow, MessageButton } from "discord.js"
+import { MessageActionRow, MessageButton, User } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
+import { composeEmbedMessage } from "ui/discord/embed"
 import {
-  getEmoji,
-  isAddress,
   emojis,
+  getEmoji,
   getEmojiURL,
+  isAddress,
   msgColors,
+  resolveNamingServiceDomain,
   shortenHashOrAddress,
 } from "utils/common"
-import { WalletTrackingType } from ".."
-import { composeEmbedMessage } from "ui/discord/embed"
+
+import { WalletTrackingType } from "../"
 
 export async function copyWallet(
   msg: OriginalMessage,
@@ -19,6 +21,11 @@ export async function copyWallet(
   chain: string,
   alias = ""
 ) {
+  const resolvedAddress = await resolveNamingServiceDomain(address)
+  if (resolvedAddress !== "") {
+    address = resolvedAddress
+  }
+
   const { valid, chainType } = isAddress(address)
   if (!valid) {
     throw new InternalError({

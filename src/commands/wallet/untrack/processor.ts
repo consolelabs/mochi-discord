@@ -13,6 +13,7 @@ import {
   getEmoji,
   getEmojiURL,
   msgColors,
+  resolveNamingServiceDomain,
   reverseLookup,
 } from "utils/common"
 
@@ -21,6 +22,11 @@ export async function untrackWallet(
   author: User,
   addressOrAlias: string
 ) {
+  const resolvedAddress = await resolveNamingServiceDomain(addressOrAlias)
+  if (resolvedAddress !== "") {
+    addressOrAlias = resolvedAddress
+  }
+
   const {
     data: wallet,
     ok,
