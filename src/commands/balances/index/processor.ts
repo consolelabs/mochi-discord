@@ -28,6 +28,7 @@ import {
   getEmojiToken,
   getEmojiURL,
   isAddress,
+  isValidRoninAddress,
   msgColors,
   resolveNamingServiceDomain,
   shortenHashOrAddress,
@@ -352,13 +353,14 @@ async function getTxns(
     ].slice(0, 5)
   }
   if (type === BalanceType.Onchain) {
-    return (res.data ?? [])
+    const data = res.data || []
+    return data
       .filter(
         (d: any) =>
           d.has_transfer &&
           d.successful &&
           d.actions?.some(
-            (a: any) => a.native_transfer || a.name === "Transfer"
+            (a: any) => a.native_transfer || equalIgnoreCase(a.name, "Transfer")
           )
       )
       .map((d: any) => {
@@ -366,7 +368,10 @@ async function getTxns(
         const firstAction = d.actions?.find(
           (a: any) => a.native_transfer || a.name === "Transfer"
         )
-        if (!firstAction) return ""
+        if (!firstAction) return
+        if (isValidRoninAddress(address)) {
+          address = `0x${address.slice(6)}`
+        }
         const target = firstAction.to
         const action =
           target.toLowerCase() === address.toLowerCase() ? "Received" : "Sent"
