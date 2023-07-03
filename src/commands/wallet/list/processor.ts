@@ -75,7 +75,7 @@ export async function render(user: User) {
                   : d.alias ?? "",
               usd: `$${formatDigit({
                 value: String(d.net_worth ?? 0),
-                fractionDigits: 2,
+                fractionDigits: d.net_worth > 100 ? 0 : 2,
               })}`,
             }
           }),
@@ -104,7 +104,7 @@ export async function render(user: User) {
               d.alias || shortenHashOrAddress(d.address ?? "", 4)
             } | 💵 $${formatDigit({
               value: String(d.net_worth ?? 0),
-              fractionDigits: 2,
+              fractionDigits: d.net_worth > 100 ? 0 : 2,
             })}`,
           }
         })
