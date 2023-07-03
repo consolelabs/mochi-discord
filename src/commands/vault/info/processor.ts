@@ -69,7 +69,7 @@ export async function runGetVaultDetail(
     "compact",
     "filter-dust",
     data.balance,
-    1
+    0
   )
   const myNftTitleFields = buildMyNftTitleFields(data)
   const myNftFields = buildMyNftFields(data)

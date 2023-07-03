@@ -6,6 +6,7 @@ import {
   sendBinanceManualMessage,
   showModalBinanceKeys,
   submitBinanceKeys,
+  Target,
 } from "./processor"
 import { machineConfig as watchListMachineConfig } from "commands/watchlist/view/slash"
 import { machineConfig as qrCodeMachineConfig } from "commands/qr/index/slash"
@@ -14,12 +15,12 @@ import { machineConfig as balanceMachineConfig } from "commands/balances/index/s
 import { handleWalletAddition } from "commands/wallet/add/processor"
 import { runGetVaultDetail } from "commands/vault/info/processor"
 
-const machineConfig: (member: GuildMember) => MachineConfig = (member) => ({
+const machineConfig: (target: Target) => MachineConfig = (target) => ({
   id: "profile",
   initial: "profile",
   context: {
     button: {
-      profile: async (i) => ({ msgOpts: await render(i, member) }),
+      profile: async (i) => ({ msgOpts: await render(i, target) }),
       addWallet: (i) => handleWalletAddition(i),
     },
     select: {
@@ -76,7 +77,7 @@ const machineConfig: (member: GuildMember) => MachineConfig = (member) => ({
       on: {
         BACK: "profile",
       },
-      ...balanceMachineConfig({}, member),
+      ...balanceMachineConfig({}, target.id),
     },
     vault: {
       on: {
@@ -93,13 +94,7 @@ const machineConfig: (member: GuildMember) => MachineConfig = (member) => ({
 })
 
 const run = async (interaction: CommandInteraction) => {
-  let member = interaction.options.getMember("user")
-  if (member !== null && !(member instanceof GuildMember)) {
-    throw new InternalError({
-      msgOrInteraction: interaction,
-      description: "Couldn't get user data",
-    })
-  }
+  let member = interaction.options.getMember("user") as GuildMember
   if (member !== null && member.user.bot) {
     throw new InternalError({
       msgOrInteraction: interaction,
@@ -107,11 +102,30 @@ const run = async (interaction: CommandInteraction) => {
       description: "Cannot view profile of bots",
     })
   }
-  member = member ?? (interaction.member as GuildMember)
-  const msgOpts = await render(interaction, member)
+  const target: Target = {
+    username: "",
+    name: "",
+    avatar: "",
+    id: "",
+  }
+  if (interaction.channel?.type === "DM") {
+    target.id = interaction.user.id
+    target.avatar = interaction.user.displayAvatarURL()
+    target.name = interaction.user.username
+    target.username = interaction.user.username
+  } else {
+    member = member ?? (interaction.member as GuildMember)
+
+    target.id = member.user.id
+    target.avatar = member.displayAvatarURL()
+    target.username = member.user.username
+    target.name = member.nickname || member.displayName || target.username
+    target.roles = member.roles
+  }
+  const msgOpts = await render(interaction, target)
   const reply = (await interaction.editReply(msgOpts)) as Message
 
-  route(reply, interaction, machineConfig(member), {
+  route(reply, interaction, machineConfig(target), {
     actions: {
       showBinanceManualMessage: async (_, event) => {
         if (

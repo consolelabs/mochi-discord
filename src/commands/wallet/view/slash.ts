@@ -11,6 +11,7 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
 import { route } from "utils/router"
 import { machineConfig } from "commands/wallet/common/tracking"
+import { lookUpDomains } from "utils/common"
 
 const command: SlashCommand = {
   name: "view",
@@ -33,18 +34,22 @@ const command: SlashCommand = {
     const focusedValue = i.options.getFocused()
     // do not fetch amount because
     // we need to respond within 3 seconds (discord api is amazing ¯\_(ツ)_/¯)
-    const { mochiWallets, wallets } = await profile.getUserWallets(
-      i.user.id,
-      true
-    )
+    const { wallets } = await profile.getUserWallets(i.user.id, false)
 
-    await i.respond(
-      [...mochiWallets, ...wallets]
+    const options = await Promise.all(
+      [...wallets]
         .filter((w) =>
           w.value.toLowerCase().startsWith(focusedValue.toLowerCase())
         )
-        .map((w) => ({ value: w.value, name: w.value }))
+        .map(async (w) => {
+          return {
+            value: w.value,
+            name: await lookUpDomains(w.value),
+          }
+        })
     )
+
+    await i.respond(options).catch(() => null)
   },
   run: async (interaction) => {
     const address = interaction.options.getString("address", true)

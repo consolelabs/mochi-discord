@@ -50,6 +50,7 @@ type Context = {
   isOnchain?: boolean
   rate?: number
   compareFields?: EmbedFieldData[]
+  tradeRoute?: any
 }
 
 type Interaction =
@@ -236,7 +237,7 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
   )
 
   // TODO: remove hardcode 1
-  const { text } = formatView("compact", "filter-dust", balances, 1)
+  const { text } = formatView("compact", "filter-dust", balances, 0)
   const isNotEmpty = !!text
   const emptyText = `${getEmoji(
     "ANIMATED_POINTING_RIGHT",
@@ -366,7 +367,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     }
   }
 
-  const { text } = formatView("compact", "filter-dust", [balance], 1)
+  const { text } = formatView("compact", "filter-dust", [balance], 0)
 
   const embed = composeEmbedMessage(null, {
     author: ["Enter amount", getEmojiURL(emojis.SWAP_ROUTE)],
@@ -471,6 +472,11 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     embed.addFields(preview)
   }
 
+  const tradeRouteRenderData = await aggregateTradeRoute(
+    ctx.from ?? "",
+    routeSummary
+  )
+
   return {
     stop: !!error,
     initial: "swapStep2",
@@ -481,6 +487,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
       routeSummary,
       balance,
       compareFields,
+      tradeRoute: tradeRouteRenderData,
     },
     msgOpts: {
       embeds: [
@@ -493,6 +500,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
               }),
             ]
           : []),
+        renderRouteEmbed(tradeRouteRenderData),
       ],
       components: [
         new MessageActionRow().addComponents(
@@ -549,7 +557,7 @@ export function renderRouteEmbed({
 }
 
 export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
-  if (!ctx?.routeSummary || !ctx.chainName) {
+  if (!ctx?.routeSummary || !ctx.chainName || !ctx.tradeRoute) {
     return {
       initial: "noTradeRouteFound",
       msgOpts: renderNoTradeRouteData(ctx?.from, ctx?.to),
@@ -591,8 +599,6 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
 
   const amountOut = Number(ctx.amountOut)
 
-  const tradeRoute = await aggregateTradeRoute(ctx.from ?? "", ctx.routeSummary)
-
   return {
     msgOpts: {
       embeds: [
@@ -603,7 +609,7 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
             fractionDigits: amountOut >= 1000 ? 0 : 2,
           })} ${ctx.to}**\n${renderPreview(ctx)}`,
         }).addFields(fields),
-        renderRouteEmbed(tradeRoute),
+        renderRouteEmbed(ctx.tradeRoute),
       ],
       components: [
         ...(dm

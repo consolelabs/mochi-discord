@@ -43,13 +43,13 @@ export async function render(user: User) {
   const embed = composeEmbedMessage(null, {
     author: [`Your favorite wallets`, getEmojiURL(emojis.ANIMATED_STAR)],
     description: [
-      `${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
+      `${getEmoji("ANIMATED_POINTING_RIGHT", true)} ${await getSlashCommand(
         "wallet follow"
       )} to add a wallet to favorite list`,
-      `${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
+      `${getEmoji("ANIMATED_POINTING_RIGHT", true)} ${await getSlashCommand(
         "wallet track"
       )} to be notified of this wallet's txns`,
-      `${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
+      `${getEmoji("ANIMATED_POINTING_RIGHT", true)} ${await getSlashCommand(
         "wallet copy"
       )} to copy every move this wallet makes`,
     ].join("\n"),

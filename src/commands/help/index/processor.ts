@@ -76,12 +76,6 @@ export const pagination = (currentPage: PageType) => [
         ]
       : [
           new MessageButton({
-            label: "Profile",
-            style: "SECONDARY",
-            emoji: getEmoji("MOCHI_CIRCLE"),
-            customId: "profile",
-          }),
-          new MessageButton({
             label: "Web3",
             style: "SECONDARY",
             customId: "web3",

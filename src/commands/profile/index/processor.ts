@@ -1,7 +1,6 @@
 import profile from "adapters/profile"
 import {
   ButtonInteraction,
-  GuildMember,
   MessageActionRow,
   MessageButton,
   Modal,
@@ -19,7 +18,7 @@ import {
   getEmoji,
   isAddress,
   msgColors,
-  reverseLookup,
+  lookUpDomains,
   shortenHashOrAddress,
   getEmojiURL,
   emojis,
@@ -57,7 +56,7 @@ async function renderListWallet(
   const domains = await Promise.all(
     wallets.map(async (w) => {
       if (!w.value) return ""
-      return await reverseLookup(w.value)
+      return await lookUpDomains(w.value)
     })
   )
 
@@ -98,25 +97,26 @@ const suffixes = new Map([
   ["other", "th"],
 ])
 
+export type Target = {
+  id: string
+  username: string
+  name: string
+  roles?: any
+  avatar: string
+}
+
 async function compose(
   i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
-  member: GuildMember,
+  target: Target,
   dataProfile: any
 ) {
   const [podProfileRes, vaultsRes, walletsRes, socials, balances] =
     await Promise.all([
-      profile.getUserProfile(i.guildId ?? "", member.user.id),
+      profile.getUserProfile(i.guildId ?? "", target.id),
       config.vaultList(i.guildId ?? "", false, dataProfile.id),
-      profile.getUserWallets(member.id),
-      profile.getUserSocials(member.id),
-      getBalances(
-        dataProfile.id,
-        member.user.id,
-        BalanceType.Offchain,
-        i,
-        "",
-        ""
-      ),
+      profile.getUserWallets(target.id),
+      profile.getUserSocials(target.id),
+      getBalances(dataProfile.id, target.id, BalanceType.Offchain, i, "", ""),
     ])
   if (!podProfileRes.ok) {
     throw new APIError({
@@ -141,11 +141,13 @@ async function compose(
   const nextLevelMinXp = userProfile.next_level?.min_xp
     ? userProfile.next_level?.min_xp
     : userProfile.current_level?.min_xp
-  const highestRole =
-    member.roles.highest.name !== "@everyone" ? member.roles.highest : "N/A"
+  let highestRole = "N/A"
+  if (target.roles?.highest.name !== "@everyone") {
+    highestRole = target.roles.highest
+  }
 
   // TODO: use pagination instead of hardcode 1, this is fine for mochi wallets (for now)
-  const { totalWorth } = formatView("compact", "filter-dust", balances.data, 1)
+  const { totalWorth } = formatView("compact", "filter-dust", balances.data, 0)
   const grandTotal = totalWorth + onchainTotal + cexTotal
   const grandTotalStr = formatDigit({
     value: String(grandTotal),
@@ -162,10 +164,7 @@ async function compose(
   })
 
   const embed = composeEmbedMessage(null, {
-    author: [
-      member.nickname || member.displayName,
-      member.user.displayAvatarURL(),
-    ],
+    author: [target.name, target.avatar],
     color: msgColors.BLUE,
     description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
       "CASH"
@@ -425,24 +424,18 @@ function sendKafka(profileId: string, username: string) {
 
 export async function render(
   i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
-  member: GuildMember
+  target: Target
 ) {
-  if (!(member instanceof GuildMember)) {
-    throw new InternalError({
-      msgOrInteraction: i,
-      description: "Couldn't get user data",
-    })
-  }
-  const dataProfile = await profile.getByDiscord(member.user.id, false)
+  const dataProfile = await profile.getByDiscord(target.id, false)
   if (dataProfile.err) {
     throw new InternalError({
       msgOrInteraction: i,
       description: "Couldn't get profile data",
     })
   }
-  sendKafka(dataProfile.id, member.user.username)
+  sendKafka(dataProfile.id, target.username)
 
-  return await compose(i, member, dataProfile)
+  return await compose(i, target, dataProfile)
 }
 
 export function sendBinanceManualMessage(isUpdating = false) {

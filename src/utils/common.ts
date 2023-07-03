@@ -33,6 +33,7 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
+import { swr } from "adapters/fetcher"
 
 dayjs.extend(relativeTime)
 
@@ -900,37 +901,44 @@ export async function resolveNamingServiceDomain(domain: string) {
   })
 }
 
-CacheManager.init({
-  pool: "naming-service-lookup",
-  // 1 week
-  ttl: 604800,
-  checkperiod: 604800,
-})
 const connection = new Connection(clusterApiUrl("mainnet-beta"))
-export async function reverseLookup(address: string) {
-  return await CacheManager.get({
-    pool: "naming-service-lookup",
-    key: address,
-    ttl: 604800,
-    call: async () => {
-      const { chainType } = isAddress(address)
-      try {
-        switch (chainType) {
-          case AddressChainType.SOL: {
-            const domainKey = new PublicKey(address)
-            return await performReverseLookup(connection, domainKey)
-          }
-          case AddressChainType.EVM:
-            return (await providers.eth.lookupAddress(address)) || ""
-          default:
-            return ""
-        }
-      } catch (e) {
-        logger.warn(`[reverseLookup] failed for ${address}: ${e}`)
-        return ""
-      }
-    },
+export function lookUpDomains(address: string) {
+  const cacheKey = `GET lookupDomains/${address}`
+
+  return new Promise<string>((resolve) => {
+    let api = false
+    let returnNormal = false
+    swr(cacheKey, async () => await doLookup(address)).then(({ value }) => {
+      api = true
+      if (returnNormal) return
+      resolve(value)
+    })
+
+    setTimeout(() => {
+      returnNormal = true
+      if (api) return
+      resolve(address)
+    }, 500)
   })
+}
+
+async function doLookup(address: string) {
+  const { chainType } = isAddress(address)
+  try {
+    switch (chainType) {
+      case AddressChainType.SOL: {
+        const domainKey = new PublicKey(address)
+        return await performReverseLookup(connection, domainKey)
+      }
+      case AddressChainType.EVM:
+        return (await providers.eth.lookupAddress(address)) || address
+      default:
+        return address
+    }
+  } catch (e) {
+    logger.warn(`[reverseLookup] failed for ${address}/${chainType}: ${e}`)
+    return address
+  }
 }
 
 export function getAuthor(msgOrInteraction: OriginalMessage) {

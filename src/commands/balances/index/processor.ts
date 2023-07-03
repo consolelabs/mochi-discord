@@ -662,16 +662,17 @@ async function switchView(
     embed.setDescription(`**Wallet**\n${value}\n\n${embed.description}`)
 
     // farming
-    const { field: farmingField } = buildFarmingField(
+    const { field: farmingField, total: totalFarm } = buildFarmingField(
       balances.farming,
       showFullEarn
     )
     // staking
-    const { field: stakingField } = buildEarnField(
+    const { field: stakingField, total: totalStake } = buildEarnField(
       "Staking",
       balances.staking,
       showFullEarn
     )
+    totalWorth += totalFarm + totalStake
 
     if (stakingField) {
       embed.addFields(stakingField)

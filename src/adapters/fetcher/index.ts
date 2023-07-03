@@ -54,7 +54,7 @@ if (!TEST) {
     })
 }
 
-const swr = createStaleWhileRevalidateCache({
+export const swr = createStaleWhileRevalidateCache({
   maxTimeToLive: cacheTtlSeconds * 1000,
   minTimeToStale: (cacheTtlSeconds / 1.5) * 1000,
   serialize: JSON.stringify,

@@ -3,7 +3,6 @@ import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { ActionTypeToEmoji, PlatformTypeToEmoji } from "utils/activity"
-import { HORIZONTAL_BAR } from "utils/constants"
 
 export async function render(userDiscordId: string, page: number) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
@@ -49,27 +48,16 @@ export async function render(userDiscordId: string, page: number) {
   const activityList = []
   const blank = getEmoji("BLANK")
   let col2Len = 0
+
   for (let i = 0; i < data.length; i++) {
     const activity = data[i]
     const actionEmoji = ActionTypeToEmoji(activity.action)
     const platformEmoji = PlatformTypeToEmoji(activity.platform)
-    // const xpReward = activity.action_description.reward
-    //   ? `${getEmoji("ACTIVITY_XP")} + ${activity.action_description.reward}`
-    //   : ""
-    // const coinReward = activity.action_description.coin
-    //   ? `${getEmoji("COIN2")} + ${activity.action_description.coin}`
-    //   : ""
-    // let rewardInfo = ""
-    // if (xpReward || coinReward) {
-    //   rewardInfo = `| ${xpReward} ${coinReward}`
-    // }
+
     const actionAndRewardRow = `${actionEmoji} ${activity.action_description}${blank}`
-    // const time = `${ms(Date.now() - new Date(activity.created_at).getTime(), {
-    //   long: false,
-    // })} ago`
-    const time = Math.round(new Date(activity.created_at).getTime() / 1000)
-    // col1Len = Math.max(col1Len, time.length)
+    const time = new Date(activity.created_at).getTime() / 1000
     col2Len = Math.max(col2Len, activity.platform.length)
+
     activityList.push({
       time,
       activityPlatform: activity.platform,
@@ -79,25 +67,19 @@ export async function render(userDiscordId: string, page: number) {
   }
 
   let description = ""
+
   for (let i = 0; i < activityList.length; i++) {
-    const { time, actionAndRewardRow, activityPlatform } = activityList[i]
-    description =
-      description +
-      `\`${activityPlatform}${" ".repeat(
-        col2Len - activityPlatform.length + 5
-      )}\`<t:${time}:R>\n${HORIZONTAL_BAR} ${actionAndRewardRow}\n\n`
+    const { time, actionAndRewardRow } = activityList[i]
+
+    description += `<t:${Math.floor(time)}:R> ${actionAndRewardRow}\n`
   }
+
   const embed = composeEmbedMessage(null, {
     author: ["Activity", getEmojiURL(emojis.CLOCK)],
     description,
     color: msgColors.ACTIVITY,
   })
-  // .setTitle(`${getEmoji("ACTIVITY_CLOCK")} Activity`)
-  // .setDescription(description)
-  // .setColor(msgColors.ACTIVITY)
-  // .setFooter({
-  //   text: `Page ${page + 1}/${totalPages} • Mochi Bot • ${dateNow}`,
-  // })
+
   return {
     messageOptions: {
       embeds: [embed],
