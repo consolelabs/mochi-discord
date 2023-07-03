@@ -6,8 +6,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
 import { updateAlias } from "./processor"
 import defi from "adapters/defi"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
-import { formatDigit } from "utils/defi"
+import { lookUpDomains } from "utils/common"
 
 const command: SlashCommand = {
   name: "set",
@@ -49,24 +48,20 @@ const command: SlashCommand = {
 
     wallets = [...following, ...tracking, ...copying]
 
-    await i.respond(
+    const options = await Promise.all(
       wallets
         .filter((w) =>
           w.address.toLowerCase().startsWith(focusedValue.toLowerCase())
         )
-        .map((w) => {
-          const name = `🔹 ${w.chain_type} | ${
-            w.alias || shortenHashOrAddress(w.address)
-          } | ${getEmoji("CASH")} $${formatDigit({
-            value: w.net_worth.toString(),
-            fractionDigits: w.net_worth >= 100 ? 0 : 2,
-          })}`
+        .map(async (w) => {
           return {
             value: w.address,
-            name: name,
+            name: await lookUpDomains(w.address),
           }
         })
     )
+
+    await i.respond(options).catch(() => null)
   },
   run: async function (i: CommandInteraction) {
     const wallet = i.options.getString("wallet", true)
