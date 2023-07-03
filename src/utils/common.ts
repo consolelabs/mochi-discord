@@ -33,6 +33,7 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
+import { swr } from "adapters/fetcher"
 
 dayjs.extend(relativeTime)
 
@@ -900,37 +901,51 @@ export async function resolveNamingServiceDomain(domain: string) {
   })
 }
 
-CacheManager.init({
-  pool: "naming-service-lookup",
-  // 1 week
-  ttl: 604800,
-  checkperiod: 604800,
-})
 const connection = new Connection(clusterApiUrl("mainnet-beta"))
-export async function reverseLookup(address: string) {
-  return await CacheManager.get({
-    pool: "naming-service-lookup",
-    key: address,
-    ttl: 604800,
-    call: async () => {
-      const { chainType } = isAddress(address)
-      try {
-        switch (chainType) {
-          case AddressChainType.SOL: {
-            const domainKey = new PublicKey(address)
-            return await performReverseLookup(connection, domainKey)
-          }
-          case AddressChainType.EVM:
-            return (await providers.eth.lookupAddress(address)) || ""
-          default:
-            return ""
-        }
-      } catch (e) {
-        logger.warn(`[reverseLookup] failed for ${address}: ${e}`)
-        return ""
+export function lookUpDomains(address: string) {
+  const cacheKey = `GET lookupDomains/${address}`
+
+  return new Promise<string>((resolve) => {
+    let timedout = false
+    // after timeout, if there is still no response from api, use cache instead
+    const useCache = setTimeout(async () => {
+      timedout = true
+
+      const { value } = await swr(cacheKey, async () => await doLookup(address))
+
+      resolve(value)
+    }, 0.25 * 1000)
+
+    doLookup(address).then((res) => {
+      // within acceptable time -> use resposne from api
+      if (!timedout) {
+        // clear useCache
+        clearTimeout(useCache)
+        // manually update cache
+        swr.persist(cacheKey, res)
+        resolve(res)
       }
-    },
+    })
   })
+}
+
+async function doLookup(address: string) {
+  const { chainType } = isAddress(address)
+  try {
+    switch (chainType) {
+      case AddressChainType.SOL: {
+        const domainKey = new PublicKey(address)
+        return await performReverseLookup(connection, domainKey)
+      }
+      case AddressChainType.EVM:
+        return (await providers.eth.lookupAddress(address)) || ""
+      default:
+        return ""
+    }
+  } catch (e) {
+    logger.warn(`[reverseLookup] failed for ${address}/${chainType}: ${e}`)
+    return ""
+  }
 }
 
 export function getAuthor(msgOrInteraction: OriginalMessage) {

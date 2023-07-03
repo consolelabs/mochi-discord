@@ -354,7 +354,7 @@ export async function withdrawStep2(
     }
   }
 
-  const { text } = formatView("compact", "filter-dust", [tokenObj], 1)
+  const { text } = formatView("compact", "filter-dust", [tokenObj], 0)
   const isNotEmpty = !!text
   const emptyText = `${getEmoji(
     "ANIMATED_POINTING_RIGHT",
@@ -469,7 +469,7 @@ export async function withdrawStep1(
     "compact",
     "filter-dust",
     filteredBals.length ? filteredBals : balances,
-    1
+    0
   )
 
   const embed = composeEmbedMessage(null, {
