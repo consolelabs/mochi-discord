@@ -206,12 +206,14 @@ export function route(
               profilingAsyncStore.run(performance.now(), async () => {
                 if (!composer) return
                 // run handler
-                const { context = {}, msgOpts } = await composer(
+                const result = await composer(
                   interaction,
                   event.type,
                   oldContext,
                   modal[event.type]
                 )
+                if (!result) return
+                const { context = {}, msgOpts } = result
                 const newContext = {
                   ...oldContext,
                   ...context,

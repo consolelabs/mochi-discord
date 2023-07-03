@@ -10,7 +10,7 @@ import {
   CommandInteraction,
   SelectMenuInteraction,
 } from "discord.js"
-import { APIError, InternalError } from "errors"
+import { InternalError } from "errors"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
   capitalizeFirst,
@@ -118,14 +118,10 @@ async function compose(
       profile.getUserSocials(target.id),
       getBalances(dataProfile.id, target.id, BalanceType.Offchain, i, "", ""),
     ])
-  if (!podProfileRes.ok) {
-    throw new APIError({
-      msgOrInteraction: i,
-      description: podProfileRes.log,
-      curl: podProfileRes.curl,
-    })
+  let userProfile
+  if (podProfileRes.ok) {
+    userProfile = podProfileRes.data
   }
-  const userProfile = podProfileRes.data
 
   const vaults = vaultsRes.slice(0, 5)
 
@@ -138,11 +134,11 @@ async function compose(
     pnl,
   } = walletsRes
   const wallets = _wallets.slice(0, 10)
-  const nextLevelMinXp = userProfile.next_level?.min_xp
-    ? userProfile.next_level?.min_xp
-    : userProfile.current_level?.min_xp
+  const nextLevelMinXp = userProfile?.next_level?.min_xp
+    ? userProfile?.next_level?.min_xp
+    : userProfile?.current_level?.min_xp
   let highestRole = "N/A"
-  if (target.roles?.highest.name !== "@everyone") {
+  if (target.roles?.highest.name && target.roles.highest.name !== "@everyone") {
     highestRole = target.roles.highest
   }
 
@@ -166,23 +162,38 @@ async function compose(
   const embed = composeEmbedMessage(null, {
     author: [target.name, target.avatar],
     color: msgColors.BLUE,
-    description: `${getEmoji("LEAF")}\`Role. \`${highestRole}\n${getEmoji(
-      "CASH"
-    )}\`Balance. $${grandTotalStr}\`${
-      pnl === 0
-        ? ""
-        : `(${getEmoji(
-            Math.sign(pnl) === -1 ? "ANIMATED_ARROW_DOWN" : "ANIMATED_ARROW_UP",
-            true
-          )} ${formatDigit({
-            value: Math.abs(pnl),
-            fractionDigits: 2,
-          })}%)`
-    }\n${getEmoji("ANIMATED_BADGE_1", true)}\`Lvl. ${
-      userProfile.current_level?.level ?? "N/A"
-    } (${userProfile.guild_rank ?? 0}${suffixes.get(
-      pr.select(userProfile.guild_rank ?? 0)
-    )})\`\n${getEmoji("XP")}\`Exp. ${userProfile.guild_xp}/${nextLevelMinXp}\``,
+    description: [
+      `${getEmoji("LEAF")}\`Role. \`${highestRole}`,
+      `${getEmoji("CASH")}\`Balance. $${grandTotalStr}\`${
+        pnl === 0
+          ? ""
+          : `(${getEmoji(
+              Math.sign(pnl) === -1
+                ? "ANIMATED_ARROW_DOWN"
+                : "ANIMATED_ARROW_UP",
+              true
+            )} ${formatDigit({
+              value: Math.abs(pnl),
+              fractionDigits: 2,
+            })}%)`
+      }`,
+      ...(userProfile
+        ? [
+            `${getEmoji("ANIMATED_BADGE_1", true)}\`Lvl. ${
+              userProfile.current_level?.level ?? "N/A"
+            } (${userProfile.guild_rank ?? 0}${suffixes.get(
+              pr.select(userProfile.guild_rank ?? 0)
+            )})\``,
+          ]
+        : []),
+      ...(userProfile
+        ? [
+            `${getEmoji("XP")}\`Exp. ${
+              userProfile.guild_xp
+            }/${nextLevelMinXp}\``,
+          ]
+        : []),
+    ].join("\n"),
   }).addFields([
     {
       name: "Wallets",
