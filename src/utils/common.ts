@@ -896,7 +896,7 @@ export async function resolveNamingServiceDomain(domain: string) {
         if (domain.endsWith(".sol")) {
           return await resolveSNSDomain(domain)
         }
-        return await resolveENSDomain(domain)
+        return (await resolveENSDomain(domain)) || ""
       } catch (e) {
         logger.error(`[resolveNamingServiceDomain] failed: ${e}`)
         return ""
@@ -906,28 +906,31 @@ export async function resolveNamingServiceDomain(domain: string) {
 }
 
 const connection = new Connection(clusterApiUrl("mainnet-beta"))
-export function lookUpDomains(address: string) {
+export function lookUpDomains(address: string, shorten = true) {
   const cacheKey = `GET lookupDomains/${address}`
 
   return new Promise<string>((resolve) => {
     let api = false
     let returnNormal = false
-    swr(cacheKey, async () => await doLookup(address)).then(({ value }) => {
-      api = true
-      if (returnNormal) return
-      resolve(value)
-    })
+    swr(cacheKey, async () => await doLookup(address, shorten)).then(
+      ({ value }) => {
+        api = true
+        if (returnNormal) return
+        resolve(value)
+      }
+    )
 
     setTimeout(() => {
       returnNormal = true
       if (api) return
-      resolve(shortenHashOrAddress(address, 5, 5))
+      resolve(shorten ? shortenHashOrAddress(address, 5, 5) : address)
     }, 500)
   })
 }
 
-async function doLookup(address: string) {
-  const { chainType } = isAddress(address)
+async function doLookup(_address: string, shorten: boolean) {
+  const { chainType } = isAddress(_address)
+  const address = shorten ? shortenHashOrAddress(_address, 5, 5) : _address
   try {
     switch (chainType) {
       case AddressChainType.SOL: {
@@ -935,16 +938,13 @@ async function doLookup(address: string) {
         return await performReverseLookup(connection, domainKey)
       }
       case AddressChainType.EVM:
-        return (
-          (await providers.eth.lookupAddress(address)) ||
-          shortenHashOrAddress(address, 5, 5)
-        )
+        return (await providers.eth.lookupAddress(address)) || address
       default:
-        return shortenHashOrAddress(address, 5, 5)
+        return address
     }
   } catch (e) {
     logger.warn(`[reverseLookup] failed for ${address}/${chainType}: ${e}`)
-    return shortenHashOrAddress(address, 5, 5)
+    return address
   }
 }
 

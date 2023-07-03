@@ -56,7 +56,7 @@ async function renderListWallet(
   const domains = await Promise.all(
     wallets.map(async (w) => {
       if (!w.value) return ""
-      return await lookUpDomains(w.value)
+      return await lookUpDomains(w.value, truncateAddress)
     })
   )
 
