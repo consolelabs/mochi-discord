@@ -16,7 +16,7 @@ import {
   resolveNamingServiceDomain,
   reverseLookup,
 } from "utils/common"
-
+import { getSlashCommand } from "utils/commands"
 export async function untrackWallet(
   msg: OriginalMessage,
   author: User,
@@ -62,12 +62,16 @@ export async function untrackWallet(
   }
   // remove successfully
   const embed = getSuccessEmbed({
-    title: "Successfully remove wallet from watchlist",
+    title: "Wallet removed",
     description: `
-${pointingright} To follow other wallets, user \`/wallet follow\`.
-${pointingright} To track other wallets, use \`/wallet track\`.
-${pointingright} To copy trade, use \`/wallet copy\`.
-${pointingright} Click \`Watchlist\` to view all tracked wallets.
+${pointingright} To follow other wallets, ${await getSlashCommand(
+      "wallet follow"
+    )}.
+${pointingright} To track other wallets, use ${await getSlashCommand(
+      "wallet track"
+    )}.
+${pointingright} To copy trade, use ${await getSlashCommand("wallet copy")}.
+${pointingright} Click \`Wallets\` to view all tracked wallets.
     `,
   })
   const btnRow = new MessageActionRow().addComponents(

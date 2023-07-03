@@ -13,6 +13,7 @@ import {
 } from "utils/common"
 
 import { WalletTrackingType } from "../"
+import { getSlashCommand } from "utils/commands"
 
 export async function followWallet(
   msg: OriginalMessage,
@@ -62,12 +63,16 @@ export async function followWallet(
     })
   }
 
-  const { msgOpts } = renderTrackingResult(address, chain, alias)
+  const { msgOpts } = await renderTrackingResult(address, chain, alias)
 
   return { msgOpts, context: { user: author, address } }
 }
 
-function renderTrackingResult(address: string, chain: string, alias: string) {
+async function renderTrackingResult(
+  address: string,
+  chain: string,
+  alias: string
+) {
   return {
     context: {
       address,
@@ -78,17 +83,17 @@ function renderTrackingResult(address: string, chain: string, alias: string) {
       embeds: [
         composeEmbedMessage(null, {
           author: [
-            `${shortenHashOrAddress(
-              address
-            )} has been added to the watchlist to follow`,
+            `${shortenHashOrAddress(address)} added to watchlist`,
             getEmojiURL(emojis.CHECK),
           ],
           color: msgColors.SUCCESS,
           description: `
-${getEmoji(
-  "ANIMATED_POINTING_RIGHT",
-  true
-)} View wallet watchlist by clicking on button \`Watchlist\`.
+${getEmoji("ANIMATED_POINTING_RIGHT", true)} ${await getSlashCommand(
+            "wallet list"
+          )} tracking wallets.
+${getEmoji("ANIMATED_POINTING_RIGHT", true)} ${await getSlashCommand(
+            "wallet alias set"
+          )} note to your tracking wallets.
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
   true
@@ -97,10 +102,6 @@ ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
   true
 )} Copy trade by clicking on button \`Copy\`.
-${getEmoji(
-  "ANIMATED_POINTING_RIGHT",
-  true
-)} To unfollow, click on button \`Unfollow\`.
             `,
         }),
       ],
@@ -120,12 +121,7 @@ ${getEmoji(
             .setLabel("Copy")
             .setStyle("SECONDARY")
             .setCustomId("copy_wallet")
-            .setEmoji(emojis.SWAP_ROUTE),
-          new MessageButton()
-            .setLabel("Unfollow")
-            .setStyle("SECONDARY")
-            .setCustomId("untrack_wallet")
-            .setEmoji(emojis.REVOKE)
+            .setEmoji(emojis.SWAP_ROUTE)
         ),
       ],
     },
