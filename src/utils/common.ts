@@ -825,6 +825,10 @@ export function isValidSuiAddress(value: string): boolean {
   return isHex(value) && getHexByteLength(value) === SUI_ADDRESS_LENGTH
 }
 
+export function isValidRoninAddress(value: string): boolean {
+  return value.length === 46 && value.toLowerCase().startsWith("ronin:")
+}
+
 export enum AddressChainType {
   EVM = "EVM",
   SOL = "SOL",
@@ -837,15 +841,15 @@ export function isAddress(address: string): {
   valid: boolean
   chainType: AddressChainType
 } {
-  // standardize ronin address
-  const isRonin = address.toLowerCase().startsWith("ronin:")
-  address = isRonin ? `0x${address.slice(6)}` : address
   try {
     if (ethers.utils.isAddress(address)) {
       return {
         valid: true,
-        chainType: isRonin ? AddressChainType.RON : AddressChainType.EVM,
+        chainType: AddressChainType.EVM,
       }
+    }
+    if (isValidRoninAddress(address)) {
+      return { valid: true, chainType: AddressChainType.RON }
     }
     if (isValidSuiAddress(address)) {
       return { valid: true, chainType: AddressChainType.SUI }
