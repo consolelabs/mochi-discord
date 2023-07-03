@@ -24,10 +24,15 @@ export type Handler<P = any> = (
   event: string,
   context: Record<any, any>,
   isModal: boolean
-) => Promise<{
-  msgOpts: MessageEditOptions | null
-  context?: Record<any, any>
-}>
+) => Promise<
+  | {
+      msgOpts: MessageEditOptions | null
+      context?: Record<any, any>
+    }
+  | null
+  | void
+  | undefined
+>
 
 export type ButtonContext = {
   [K: string]: Handler<ButtonInteraction>

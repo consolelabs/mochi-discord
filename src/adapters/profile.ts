@@ -114,9 +114,6 @@ class Profile extends Fetcher {
           }
 
           return {
-            disabled: !["evm-chain", "solana-chain", "sui-chain"].includes(
-              w.platform
-            ),
             value,
             total: formatDigit({
               value: bal.toString(),

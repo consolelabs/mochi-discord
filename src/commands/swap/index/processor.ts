@@ -452,20 +452,23 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     tradeRoute.data.tokenIn.coingecko_id,
     tradeRoute.data.tokenOut.coingecko_id,
   ]
-  const compareFields: EmbedFieldData[] = []
-  if (fromId && toId) {
-    const { ok, data } = await defi.compareToken(
-      i.guildId ?? "",
-      fromId,
-      toId,
-      1
-    )
-    if (ok) {
-      embed.addFields(
-        ...renderTokenComparisonFields(data.base_coin, data.target_coin)
+  let compareFields: EmbedFieldData[] = ctx.compareFields ?? []
+  if (!compareFields.length) {
+    if (fromId && toId) {
+      const { ok, data } = await defi.compareToken(
+        i.guildId ?? "",
+        fromId,
+        toId,
+        1
       )
+      if (ok) {
+        compareFields = [
+          ...renderTokenComparisonFields(data.base_coin, data.target_coin),
+        ]
+      }
     }
   }
+  embed.addFields(compareFields)
 
   if (preview) {
     preview.name = `${DIVIDER}${preview.name}`
