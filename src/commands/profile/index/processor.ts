@@ -193,11 +193,8 @@ async function compose(
             }/${nextLevelMinXp}\``,
           ]
         : []),
-    ].join("\n"),
-  }).addFields([
-    {
-      name: "Wallets",
-      value: await renderWallets({
+      `**Wallets**`,
+      await renderWallets({
         mochiWallets: {
           data: mochiWallets,
           title: `\`Mochi ($${mochiBal})\`${getEmoji("CASH")}`,
@@ -209,8 +206,8 @@ async function compose(
           data: cexes,
         },
       }),
-      inline: false,
-    },
+    ].join("\n"),
+  }).addFields([
     ...(vaults.length
       ? [
           {

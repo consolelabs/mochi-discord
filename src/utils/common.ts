@@ -921,7 +921,7 @@ export function lookUpDomains(address: string) {
     setTimeout(() => {
       returnNormal = true
       if (api) return
-      resolve(address)
+      resolve(shortenHashOrAddress(address, 5, 5))
     }, 500)
   })
 }
@@ -935,13 +935,16 @@ async function doLookup(address: string) {
         return await performReverseLookup(connection, domainKey)
       }
       case AddressChainType.EVM:
-        return (await providers.eth.lookupAddress(address)) || address
+        return (
+          (await providers.eth.lookupAddress(address)) ||
+          shortenHashOrAddress(address, 5, 5)
+        )
       default:
-        return address
+        return shortenHashOrAddress(address, 5, 5)
     }
   } catch (e) {
     logger.warn(`[reverseLookup] failed for ${address}/${chainType}: ${e}`)
-    return address
+    return shortenHashOrAddress(address, 5, 5)
   }
 }
 
