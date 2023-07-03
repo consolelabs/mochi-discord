@@ -2,6 +2,7 @@ import defi from "adapters/defi"
 import { MessageActionRow, MessageButton, User } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { getSlashCommand } from "utils/commands"
 import {
   emojis,
   getEmoji,
@@ -13,7 +14,6 @@ import {
 } from "utils/common"
 
 import { WalletTrackingType } from "../"
-import { getSlashCommand } from "utils/commands"
 
 export async function followWallet(
   msg: OriginalMessage,
@@ -23,7 +23,7 @@ export async function followWallet(
   alias = ""
 ) {
   const resolvedAddress = await resolveNamingServiceDomain(address)
-  if (resolvedAddress !== "") {
+  if (resolvedAddress) {
     address = resolvedAddress
   }
 
@@ -37,15 +37,11 @@ export async function followWallet(
     })
   }
 
-  if (chain != chainType) {
-    chain = chainType
-  }
-
   const { ok, status } = await defi.trackWallet({
     userId: author.id,
     address,
     alias,
-    chainType: chain,
+    chainType,
     type: WalletTrackingType.Follow,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
@@ -121,7 +117,12 @@ ${getEmoji(
             .setLabel("Copy")
             .setStyle("SECONDARY")
             .setCustomId("copy_wallet")
-            .setEmoji(emojis.SWAP_ROUTE)
+            .setEmoji(emojis.SWAP_ROUTE),
+          new MessageButton()
+            .setLabel("Unfollow")
+            .setStyle("SECONDARY")
+            .setCustomId("untrack_wallet")
+            .setEmoji(emojis.REVOKE)
         ),
       ],
     },
