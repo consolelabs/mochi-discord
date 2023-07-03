@@ -145,6 +145,7 @@ export async function welcomeNewMember(member: Discord.GuildMember) {
     if (configData.welcome_message) {
       const welcomeMsg = configData.welcome_message
         .replaceAll("$name", `<@${member.id}>`)
+        .replaceAll("@name", `<@${member.id}>`)
         .replaceAll(`\\n`, "\n")
       chan.send({ content: welcomeMsg })
     } else {
