@@ -56,7 +56,7 @@ async function composeAliasUpdatedMsg(
     msgOpts: {
       embeds: [
         composeEmbedMessage(null, {
-          author: [`Alias is updated`, getEmojiURL(emojis.CHECK)],
+          author: [`Alias updated`, getEmojiURL(emojis.CHECK)],
           color: msgColors.SUCCESS,
           description: `
 ${getEmoji(

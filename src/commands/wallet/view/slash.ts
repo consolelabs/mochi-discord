@@ -11,6 +11,7 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
 import { route } from "utils/router"
 import { machineConfig } from "commands/wallet/common/tracking"
+import { getEmoji, shortenHashOrAddress } from "utils/common"
 
 const command: SlashCommand = {
   name: "view",
@@ -33,17 +34,32 @@ const command: SlashCommand = {
     const focusedValue = i.options.getFocused()
     // do not fetch amount because
     // we need to respond within 3 seconds (discord api is amazing ¯\_(ツ)_/¯)
-    const { mochiWallets, wallets } = await profile.getUserWallets(
-      i.user.id,
-      true
+    const { wallets } = await profile.getUserWallets(i.user.id, false)
+
+    // TODO: use reverse lookup when vincent cache it properly
+    const formatedAddress = await Promise.all(
+      wallets.map(async (w) => {
+        if (!w.value) return ""
+        // const address = await reverseLookup(w.value)
+        const address = await shortenHashOrAddress(w.value)
+        if (address) return address
+        return shortenHashOrAddress(w.value)
+      })
     )
 
     await i.respond(
-      [...mochiWallets, ...wallets]
+      [...wallets]
         .filter((w) =>
           w.value.toLowerCase().startsWith(focusedValue.toLowerCase())
         )
-        .map((w) => ({ value: w.value, name: w.value }))
+        .map((w, i) => {
+          return {
+            value: w.value,
+            name: `🔹 ${w.chain} | ${formatedAddress[i]} | ${getEmoji(
+              "CASH"
+            )} $${w.total}`,
+          }
+        })
     )
   },
   run: async (interaction) => {
