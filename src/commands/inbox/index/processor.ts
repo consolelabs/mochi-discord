@@ -16,7 +16,6 @@ import {
   MessageSelectMenu,
   User,
 } from "discord.js"
-import { logger } from "logger"
 import CacheManager from "cache/node-cache"
 import { capitalCase } from "change-case"
 import { wrapError } from "utils/wrap-error"
@@ -67,13 +66,15 @@ export async function render(
       },
     }
 
+  const pageSize = 2
   const {
     data,
     pagination: { total },
   } = await CacheManager.get({
     pool: "user_inbox",
     key: `${userDiscordId}_${page}`,
-    call: async () => await profile.getUserActivities(dataProfile.id, page),
+    call: async () =>
+      await profile.getUnreadUserActivities(dataProfile.id, page, pageSize),
   })
 
   if (!data.length)
@@ -91,20 +92,6 @@ export async function render(
         ],
       },
     }
-
-  // const now = new Date()
-  // const unreadList = data.filter((activity: any) => {
-  //   return activity.status === "new"
-  // })
-  // const readList = data.filter((activity: any) => {
-  //   // const date = new Date(activity.created_at)
-  //   return (
-  //     activity.status === "read"
-  //     // date.getMonth() === now.getMonth() &&
-  //     // date.getFullYear() === now.getFullYear() &&
-  //     // date.getDate() === now.getDate()
-  //   )
-  // })
 
   // TODO mock
   let list = [
@@ -130,6 +117,11 @@ export async function render(
   if (view === "read") {
     // TODO mock only, replace with real logic
     list = []
+  }
+
+  // replace mock with real data
+  if (data.length) {
+    list = data
   }
 
   let description = toDescriptionList(list.slice(0, 10))
@@ -163,13 +155,15 @@ export async function render(
     )
   }
 
+  // TODO this behavior cause pagination not working, should not change page number, because page number should always be 0
   // mark read the inbox but ignore error
-  const ids = list.map((activity: any) => activity.id).filter(Boolean)
-  await profile.markReadActivities(dataProfile.id, { ids }).catch((error) => {
-    logger.error("fail to mark read inbox", error)
-  })
+  // const ids = list.map((activity: any) => activity.id).filter(Boolean)
+  // await profile.markReadActivities(dataProfile.id, { ids }).catch((error) => {
+  //   logger.error("fail to mark read inbox", error)
+  // })
 
-  const paginationBtns = getPaginationRow(page, total, {
+  const totalPage = Math.ceil(total / pageSize)
+  const paginationBtns = getPaginationRow(page, totalPage, {
     extra: view,
     left: { label: "", emoji: getEmoji("LEFT_ARROW") },
     right: { label: "", emoji: getEmoji("RIGHT_ARROW") },
@@ -184,7 +178,7 @@ export async function render(
           ? [
               new MessageActionRow().addComponents(
                 new MessageSelectMenu()
-                  .setPlaceholder("🔔 View a message")
+                  .setPlaceholder("🔔 Mark a message as read")
                   .setCustomId("inbox_view-activity")
                   .addOptions(
                     list.map((a, i: number) => ({
