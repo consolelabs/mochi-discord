@@ -14,7 +14,7 @@ import {
   getEmojiURL,
   msgColors,
   resolveNamingServiceDomain,
-  reverseLookup,
+  lookUpDomains,
 } from "utils/common"
 
 export async function untrackWallet(
@@ -101,7 +101,7 @@ export async function removeWalletConfirmation(i: ButtonInteraction) {
     return
   }
   await i.deferReply()
-  const label = alias || (await reverseLookup(address))
+  const label = alias || (await lookUpDomains(address))
   const embed = composeEmbedMessage(null, {
     author: ["mochi.gg", getEmojiURL(emojis.MOCHI_SQUARE)],
     description: `Do you want to remove wallet **${label || address}**?`,

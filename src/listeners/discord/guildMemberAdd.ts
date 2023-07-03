@@ -14,7 +14,7 @@ import { getSlashCommand } from "utils/commands"
 const event: DiscordEvent<"guildMemberAdd"> = {
   name: "guildMemberAdd",
   once: false,
-  execute: async (member) => {
+  execute: (member) => {
     const metadata = {
       sub_event_type: "guildMemberAdd",
       guild_id: member.guild.id,
@@ -142,15 +142,22 @@ export async function welcomeNewMember(member: Discord.GuildMember) {
     })
 
   if (chan.isText()) {
-    let dmEnabled = true
+    if (configData.welcome_message) {
+      const welcomeMsg = configData.welcome_message
+        .replaceAll("$name", `<@${member.id}>`)
+        .replaceAll(`\\n`, "\n")
+      chan.send({ content: welcomeMsg })
+    } else {
+      let dmEnabled = true
 
-    await member
-      .send({
-        embeds: [await welcomeEmbed(true, true)],
-      })
-      .catch(() => (dmEnabled = false))
+      await member
+        .send({
+          embeds: [await welcomeEmbed(true, true)],
+        })
+        .catch(() => (dmEnabled = false))
 
-    chan.send({ embeds: [await welcomeEmbed(dmEnabled, false)] })
+      chan.send({ embeds: [await welcomeEmbed(dmEnabled, false)] })
+    }
   }
 }
 

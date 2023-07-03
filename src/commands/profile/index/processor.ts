@@ -19,7 +19,7 @@ import {
   getEmoji,
   isAddress,
   msgColors,
-  reverseLookup,
+  lookUpDomains,
   shortenHashOrAddress,
   getEmojiURL,
   emojis,
@@ -57,7 +57,7 @@ async function renderListWallet(
   const domains = await Promise.all(
     wallets.map(async (w) => {
       if (!w.value) return ""
-      return await reverseLookup(w.value)
+      return await lookUpDomains(w.value)
     })
   )
 
@@ -145,7 +145,7 @@ async function compose(
     member.roles.highest.name !== "@everyone" ? member.roles.highest : "N/A"
 
   // TODO: use pagination instead of hardcode 1, this is fine for mochi wallets (for now)
-  const { totalWorth } = formatView("compact", "filter-dust", balances.data, 1)
+  const { totalWorth } = formatView("compact", "filter-dust", balances.data, 0)
   const grandTotal = totalWorth + onchainTotal + cexTotal
   const grandTotalStr = formatDigit({
     value: String(grandTotal),
