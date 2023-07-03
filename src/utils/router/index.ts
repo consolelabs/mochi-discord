@@ -77,7 +77,7 @@ const PAGE_MAP = new Proxy<Record<string, number>>(target, {
 })
 
 export function paginationButtons(page: number, totalPage: number) {
-  if (totalPage === 1) return []
+  if (totalPage <= 1) return []
   const actionRow = new MessageActionRow()
   if (page !== 0) {
     actionRow.addComponents(
@@ -203,7 +203,7 @@ export function route(
               }
 
               // profiling
-              profilingAsyncStore.run(performance.now(), async () => {
+              await profilingAsyncStore.run(performance.now(), async () => {
                 if (!composer) return
                 // run handler
                 const result = await composer(
