@@ -906,26 +906,19 @@ export function lookUpDomains(address: string) {
   const cacheKey = `GET lookupDomains/${address}`
 
   return new Promise<string>((resolve) => {
-    let timedout = false
-    // after timeout, if there is still no response from api, use cache instead
-    const useCache = setTimeout(async () => {
-      timedout = true
-
-      const { value } = await swr(cacheKey, async () => await doLookup(address))
-
+    let api = false
+    let returnNormal = false
+    swr(cacheKey, async () => await doLookup(address)).then(({ value }) => {
+      api = true
+      if (returnNormal) return
       resolve(value)
-    }, 0.25 * 1000)
-
-    doLookup(address).then((res) => {
-      // within acceptable time -> use resposne from api
-      if (!timedout) {
-        // clear useCache
-        clearTimeout(useCache)
-        // manually update cache
-        swr.persist(cacheKey, res)
-        resolve(res)
-      }
     })
+
+    setTimeout(() => {
+      returnNormal = true
+      if (api) return
+      resolve(address)
+    }, 500)
   })
 }
 
@@ -938,13 +931,13 @@ async function doLookup(address: string) {
         return await performReverseLookup(connection, domainKey)
       }
       case AddressChainType.EVM:
-        return (await providers.eth.lookupAddress(address)) || ""
+        return (await providers.eth.lookupAddress(address)) || address
       default:
-        return ""
+        return address
     }
   } catch (e) {
     logger.warn(`[reverseLookup] failed for ${address}/${chainType}: ${e}`)
-    return ""
+    return address
   }
 }
 

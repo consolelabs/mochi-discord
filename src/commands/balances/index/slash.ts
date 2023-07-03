@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildMember, Message } from "discord.js"
+import { CommandInteraction, Message } from "discord.js"
 import { MachineConfig, route, RouterSpecialAction } from "utils/router"
 import {
   BalanceType,
@@ -16,15 +16,15 @@ import { machineConfig as investMachineConfig } from "commands/invest/index"
 
 export const machineConfig: (
   context: any,
-  member?: GuildMember
-) => MachineConfig = (context, member) => ({
+  discordId?: string
+) => MachineConfig = (context, discordId) => ({
   id: "balance",
   initial: "balance",
   context: {
     page: 0,
     button: {
       balance: (i, ev, ctx) =>
-        renderBalances(member?.user.id ?? i.user.id, {
+        renderBalances(discordId ?? i.user.id, {
           ...ctx,
           showFullEarn:
             ev === "TOGGLE_SHOW_FULL_EARN"
@@ -49,7 +49,7 @@ export const machineConfig: (
       },
       viewNft: (i, _ev, ctx) =>
         renderInitialNftView({
-          discordId: member?.user.id ?? i.user.id,
+          discordId: discordId ?? i.user.id,
           ...ctx,
           interaction: i,
           address: ctx.address,
@@ -64,7 +64,7 @@ export const machineConfig: (
         if (type.startsWith("onchain")) fetcherType = BalanceType.Onchain
         if (type.startsWith("cex")) fetcherType = BalanceType.Cex
 
-        return await renderBalances(member?.user.id ?? i.user.id, {
+        return await renderBalances(discordId ?? i.user.id, {
           interaction: i,
           type: fetcherType,
           address,
@@ -138,6 +138,6 @@ const run = async (i: CommandInteraction) => {
 
   const reply = (await i.editReply(msgOpts)) as Message
 
-  route(reply, i, machineConfig(context, i.member as GuildMember))
+  route(reply, i, machineConfig(context, i.member?.user.id))
 }
 export default run

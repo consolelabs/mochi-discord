@@ -11,7 +11,7 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
 import { route } from "utils/router"
 import { machineConfig } from "commands/wallet/common/tracking"
-import { getEmoji, shortenHashOrAddress } from "utils/common"
+import { lookUpDomains } from "utils/common"
 
 const command: SlashCommand = {
   name: "view",
@@ -36,31 +36,20 @@ const command: SlashCommand = {
     // we need to respond within 3 seconds (discord api is amazing ¯\_(ツ)_/¯)
     const { wallets } = await profile.getUserWallets(i.user.id, false)
 
-    // TODO: use reverse lookup when vincent cache it properly
-    const formatedAddress = await Promise.all(
-      wallets.map(async (w) => {
-        if (!w.value) return ""
-        // const address = await reverseLookup(w.value)
-        const address = await shortenHashOrAddress(w.value)
-        if (address) return address
-        return shortenHashOrAddress(w.value)
-      })
-    )
-
-    await i.respond(
+    const options = await Promise.all(
       [...wallets]
         .filter((w) =>
           w.value.toLowerCase().startsWith(focusedValue.toLowerCase())
         )
-        .map((w, i) => {
+        .map(async (w) => {
           return {
             value: w.value,
-            name: `🔹 ${w.chain} | ${formatedAddress[i]} | ${getEmoji(
-              "CASH"
-            )} $${w.total}`,
+            name: await lookUpDomains(w.value),
           }
         })
     )
+
+    await i.respond(options).catch(() => null)
   },
   run: async (interaction) => {
     const address = interaction.options.getString("address", true)
