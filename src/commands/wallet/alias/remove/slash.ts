@@ -6,7 +6,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { updateAlias } from "../set/processor"
 import defi from "adapters/defi"
 import { ResponseGetTrackingWalletsResponse } from "types/api"
-import { getEmoji, lookUpDomains } from "utils/common"
+import { lookUpDomains } from "utils/common"
 import { formatDigit } from "utils/defi"
 
 const command: SlashCommand = {
@@ -53,7 +53,7 @@ const command: SlashCommand = {
             value: w.address,
             name: `🔷 ${w.chain_type.toUpperCase()} | ${
               w.alias || (await lookUpDomains(w.address))
-            } | ${getEmoji("CASH")} $${formatDigit({
+            } | $${formatDigit({
               value: w.net_worth.toString(),
               fractionDigits: w.net_worth >= 100 ? 0 : 2,
             })}`,

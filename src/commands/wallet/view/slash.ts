@@ -11,7 +11,7 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
 import { route } from "utils/router"
 import { machineConfig } from "commands/wallet/common/tracking"
-import { getEmoji, lookUpDomains } from "utils/common"
+import { lookUpDomains } from "utils/common"
 import { formatDigit } from "utils/defi"
 
 const command: SlashCommand = {
@@ -47,7 +47,7 @@ const command: SlashCommand = {
             value: w.value,
             name: `🔷 ${w.chain.toUpperCase()} | ${
               w.alias || (await lookUpDomains(w.value))
-            } | ${getEmoji("CASH")} $${formatDigit({
+            } | $${formatDigit({
               value: w.total,
               fractionDigits: +w.total >= 100 ? 0 : 2,
             })}`,
