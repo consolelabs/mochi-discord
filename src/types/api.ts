@@ -106,6 +106,7 @@ export interface ModelCoingeckoSupportedTokens {
   current_price?: number;
   detail_platforms?: number[];
   id?: string;
+  is_native?: boolean;
   most_popular?: boolean;
   name?: string;
   symbol?: string;
@@ -122,57 +123,6 @@ export interface ModelCommonwealthDiscussionSubscription {
 export interface ModelConfigXpLevel {
   level?: number;
   min_xp?: number;
-}
-
-export interface ModelDaoProposal {
-  closed_at?: string;
-  created_at?: string;
-  creator_id?: string;
-  description?: string;
-  discussion_channel_id?: string;
-  guild_config_dao_proposal_id?: number;
-  guild_id?: string;
-  id?: number;
-  title?: string;
-  updated_at?: string;
-  voting_channel_id?: string;
-}
-
-export interface ModelDaoProposalVoteCount {
-  choice?: string;
-  guild_id?: string;
-  proposal_id?: string;
-  sum?: number;
-}
-
-export interface ModelDaoProposalVoteOption {
-  address?: string;
-  chain_id?: number;
-  created_at?: string;
-  id?: number;
-  proposal_id?: number;
-  required_amount?: string;
-  symbol?: string;
-  updated_at?: string;
-  vote_option?: ModelDaoVoteOption;
-  vote_option_id?: number;
-}
-
-export interface ModelDaoVote {
-  choice?: string;
-  created_at?: string;
-  id?: number;
-  point?: number;
-  proposal_id?: number;
-  updated_at?: string;
-  user_id?: string;
-}
-
-export interface ModelDaoVoteOption {
-  created_at?: string;
-  id?: number;
-  type?: string;
-  updated_at?: string;
 }
 
 export interface ModelDiscordGuild {
@@ -237,15 +187,6 @@ export interface ModelDiscordUserTokenAlert {
   symbol?: string;
   token_id?: string;
   trend?: string;
-  updated_at?: string;
-}
-
-export interface ModelDiscordUserUpvoteStreak {
-  created_at?: string;
-  discord_id?: string;
-  last_streak_date?: string;
-  streak_count?: number;
-  total_count?: number;
   updated_at?: string;
 }
 
@@ -461,10 +402,12 @@ export interface ModelGuildUser {
 }
 
 export interface ModelGuildUserXP {
+  current_level_role?: ModelGuildConfigLevelRole;
   guild?: ModelDiscordGuild;
   guild_id?: string;
   guild_rank?: number;
   level?: number;
+  next_level_role?: ModelGuildConfigLevelRole;
   nr_of_actions?: number;
   progress?: number;
   total_xp?: number;
@@ -1008,21 +951,6 @@ export interface RequestCreateCommonwealthDiscussionSubscription {
   discussion_id: number;
 }
 
-export interface RequestCreateDaoProposalRequest {
-  creator_id?: string;
-  description?: string;
-  guild_id?: string;
-  title?: string;
-  vote_option?: RequestVoteOptionRequest;
-  voting_channel_id?: string;
-}
-
-export interface RequestCreateDaoVoteRequest {
-  choice: string;
-  proposal_id: number;
-  user_id: string;
-}
-
 export interface RequestCreateDefaultRoleRequest {
   guild_id: string;
   role_id: string;
@@ -1268,13 +1196,6 @@ export interface RequestSendUserXPRequest {
   recipients?: string[];
 }
 
-export interface RequestSetUpvoteMessageCacheRequest {
-  channel_id?: string;
-  guild_id?: string;
-  message_id?: string;
-  user_id?: string;
-}
-
 export interface RequestSwapRequest {
   chainName: string;
   routeSummary?: ModelRouteSummary;
@@ -1316,11 +1237,6 @@ export interface RequestTwitterPost {
 
 export interface RequestUnlinkBinance {
   discord_user_id?: string;
-}
-
-export interface RequestUpdateDaoVoteRequest {
-  choice: string;
-  user_id: string;
 }
 
 export interface RequestUpdateGuildRequest {
@@ -1456,14 +1372,6 @@ export interface RequestVerifyWalletAddressRequest {
   code?: string;
   signature?: string;
   wallet_address?: string;
-}
-
-export interface RequestVoteOptionRequest {
-  address?: string;
-  chain_id?: number;
-  id?: number;
-  required_amount?: number;
-  symbol?: string;
 }
 
 export interface ResponseAddToWatchlistResponse {
@@ -1643,10 +1551,6 @@ export interface ResponseCreateCommonwealthDiscussionSubscription {
   data?: ModelCommonwealthDiscussionSubscription;
 }
 
-export interface ResponseCreateDaoProposalResponse {
-  data?: ModelDaoProposal;
-}
-
 export interface ResponseCreateEnvelop {
   data?: ModelEnvelop;
 }
@@ -1683,21 +1587,6 @@ export interface ResponseCreateUserTokenSupportRequest {
   data?: ModelUserTokenSupportRequest;
 }
 
-export interface ResponseCurrentUserUpvoteStreakResponse {
-  data?: ResponseGetUserCurrentUpvoteStreakResponse;
-}
-
-export interface ResponseDaoTrackerSpaceCountData {
-  count?: number;
-  source?: string;
-  space?: string;
-}
-
-export interface ResponseDaoTrackerSpaceCountResponse {
-  data?: ResponseDaoTrackerSpaceCountData[];
-  metadata?: ResponsePaginationResponse;
-}
-
 export interface ResponseDataFilterConfigByReaction {
   data?: ResponseRoleReactionResponse;
   /** page index */
@@ -1714,10 +1603,6 @@ export interface ResponseDataListRoleReactionResponse {
   /** page size */
   size?: number;
   total?: number;
-}
-
-export interface ResponseDataMetric {
-  data?: ResponseMetric;
 }
 
 export interface ResponseDefaultRole {
@@ -1777,15 +1662,6 @@ export interface ResponseGenerateVerificationResponse {
   status?: string;
 }
 
-export interface ResponseGetAllDaoProposalVotes {
-  proposal?: ResponseGetDaoProposalData;
-  votes?: ModelDaoVote[];
-}
-
-export interface ResponseGetAllDaoProposals {
-  data?: ModelDaoProposal[];
-}
-
 export interface ResponseGetAllTwitterConfigResponse {
   data?: ModelGuildConfigTwitterFeed[];
   message?: string;
@@ -1839,21 +1715,6 @@ export interface ResponseGetCoinsMarketDataResponse {
 
 export interface ResponseGetCollectionCountResponse {
   data?: ResponseNFTCollectionCount;
-}
-
-export interface ResponseGetDaoProposalData {
-  closed_at?: string;
-  created_at?: string;
-  creator_id?: string;
-  description?: string;
-  discussion_channel_id?: string;
-  guild_config_dao_proposal_id?: number;
-  guild_id?: string;
-  id?: number;
-  points?: ModelDaoProposalVoteCount[];
-  title?: string;
-  updated_at?: string;
-  voting_channel_id?: string;
 }
 
 export interface ResponseGetDataUserProfileResponse {
@@ -2154,16 +2015,6 @@ export interface ResponseGetUserCurrentGMStreakResponse {
   data?: ModelDiscordUserGMStreak;
 }
 
-export interface ResponseGetUserCurrentUpvoteStreakResponse {
-  discord_id?: string;
-  last_streak_time?: string;
-  minutes_until_reset?: number;
-  minutes_until_reset_discordbotlist?: number;
-  minutes_until_reset_topgg?: number;
-  streak_count?: number;
-  total_count?: number;
-}
-
 export interface ResponseGetUserEnvelopStreak {
   data?: ModelUserEnvelopStreak;
 }
@@ -2202,21 +2053,12 @@ export interface ResponseGetUserSubmittedAdResponse {
   string?: string;
 }
 
-export interface ResponseGetUserUpvoteLeaderboardResponse {
-  data?: ModelDiscordUserUpvoteStreak[];
-  message?: string;
-}
-
 export interface ResponseGetUserWalletByGuildIDAddressResponse {
   data?: ModelUserWallet;
 }
 
 export interface ResponseGetVaultsResponse {
   data?: ModelVault[];
-}
-
-export interface ResponseGetVote {
-  data?: ModelDaoVote;
 }
 
 export interface ResponseGetVoteChannelConfigResponse {
@@ -2251,18 +2093,6 @@ export interface ResponseGuildConfigTipRangeResponse {
   max?: number;
   min?: number;
   updated_at?: string;
-}
-
-export interface ResponseGuildProposalUsageData {
-  guild_id?: string;
-  guild_name?: string;
-  is_active?: boolean;
-  proposal_count?: number;
-}
-
-export interface ResponseGuildProposalUsageResponse {
-  data?: ResponseGuildProposalUsageData[];
-  metadata?: ResponsePaginationResponse;
 }
 
 export interface ResponseGuildPruneExcludeList {
@@ -2548,21 +2378,6 @@ export interface ResponseMarketData {
   total_supply?: number;
   total_value_locked?: any;
   total_volume?: Record<string, number>;
-}
-
-export interface ResponseMetric {
-  nft_collections?: number;
-  server_active_users?: number;
-  server_command_usage?: number;
-  server_token?: string[];
-  server_token_supported?: number;
-  server_verified_wallets?: number;
-  total_active_users?: number;
-  total_command_usage?: number;
-  total_servers?: number;
-  total_token?: string[];
-  total_token_supported?: number;
-  total_verified_wallets?: number;
 }
 
 export interface ResponseMonikerConfigData {
@@ -2853,18 +2668,6 @@ export interface ResponseToggleActivityConfigResponse {
   message?: string;
 }
 
-export interface ResponseTokenHolderStatus {
-  data?: ResponseTokenHolderStatusData;
-}
-
-export interface ResponseTokenHolderStatusData {
-  guild_config?: ModelGuildConfigDaoProposal;
-  is_qualified?: boolean;
-  is_wallet_connected?: boolean;
-  user_holding_amount?: string;
-  vote_config?: ModelDaoProposalVoteOption;
-}
-
 export interface ResponseTokenPriceAlertResponseData {
   alert_type?: string;
   currency?: string;
@@ -2908,10 +2711,6 @@ export interface ResponseUpdateGuildTokenRole {
 
 export interface ResponseUpdateUserFeedbackResponse {
   data?: ModelUserFeedback;
-}
-
-export interface ResponseUpdateVote {
-  data?: ModelDaoVote;
 }
 
 export interface ResponseUser {

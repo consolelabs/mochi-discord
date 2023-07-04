@@ -576,7 +576,8 @@ async function switchView(
   balanceType: BalanceType,
   showFullEarn: boolean,
   isViewingOther: boolean,
-  page: number
+  page: number,
+  profileId: string
 ) {
   const wallet = await defi.findWallet(discordId, props.address)
   const trackingType = wallet?.data?.type
@@ -731,6 +732,12 @@ async function switchView(
     }
   }
 
+  // remove value target of self tx
+  for (let i = 0; i < txns.length; i++) {
+    if (txns[i].target === profileId) {
+      txns[i].target = ""
+    }
+  }
   embed.addFields([
     {
       name: `Total (U.S dollar)`,
@@ -1040,7 +1047,8 @@ export async function renderBalances(
     type,
     showFullEarn,
     isViewingOther,
-    page
+    page,
+    profileId
   )
   return {
     context: {
