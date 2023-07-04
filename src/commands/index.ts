@@ -90,6 +90,7 @@ import roles from "./roles"
 import info from "./info"
 import ecocal from "./ecocal"
 import ecocalView from "./ecocal/view/slash"
+import chotot from "./chotot"
 
 CacheManager.init({
   ttl: 0,
@@ -161,6 +162,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   info: info.slashCmd,
   ecocal: ecocal.slashCmd,
   ecalw: ecocalView,
+  chotot: chotot.slashCmd,
 }
 
 // text commands is being deprecated, refer to slashCommands for latest version
