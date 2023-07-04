@@ -55,8 +55,16 @@ async function renderListWallet(
   if (!wallets.length) return ""
   const domains = await Promise.all(
     wallets.map(async (w) => {
-      if (!w.value) return ""
-      return await lookUpDomains(w.value, truncateAddress)
+      let address = w.value
+      if (!address) return ""
+
+      if (address.startsWith("ronin:")) {
+        address = address.slice(6)
+      } else if (address.endsWith(".near")) {
+        address = address.slice(0, -5)
+      }
+
+      return await lookUpDomains(address, truncateAddress)
     })
   )
 
@@ -256,52 +264,61 @@ async function compose(
           .setPlaceholder(`💰 View wallet/vault`)
           .setCustomId("view_wallet_vault")
           .addOptions(
-            [
-              {
-                value: "wallet_mochi_Mochi Wallet",
-                type: "wallet",
-                usd: mochiBal,
-                chain: "",
-              },
-              ...wallets.map((w) => ({
-                ...w,
-                value: `wallet_onchain_${w.value}`,
-                type: "wallet",
-                usd: w.total,
-              })),
-              ...cexes.map((d) => ({
-                ...d,
-                value: `wallet_cex_${d.value}`,
-                type: "wallet",
-                usd: d.total,
-              })),
-              ...vaults.map((v) => ({
-                ...v,
-                type: "vault",
-                value: `vault_${v.name}`,
-                usd: v.total,
-              })),
-            ].map((w, i) => {
-              const isMochi = w.value.split("_")[1] === "mochi"
-              const address = w.value.split("_")[2]
-              let label = ""
-              if (w.type === "wallet") {
-                label = `${
-                  isMochi ? "🔸  " : "🔹  "
-                }${w.chain.toUpperCase()} | ${
-                  isMochi ? address : shortenHashOrAddress(address, 3, 4)
-                } | 💵 $${w.usd}`
-              }
-              if (w.type === "vault") {
-                label = `◽ ${w.name} | 💵 $${w.usd}`
-              }
+            await Promise.all(
+              [
+                {
+                  value: "wallet_mochi_Mochi Wallet",
+                  type: "wallet",
+                  usd: mochiBal,
+                  chain: "",
+                },
+                ...wallets.map((w) => ({
+                  ...w,
+                  value: `wallet_onchain_${w.value}`,
+                  type: "wallet",
+                  usd: w.total,
+                })),
+                ...cexes.map((d) => ({
+                  ...d,
+                  value: `wallet_cex_${d.value}`,
+                  type: "wallet",
+                  usd: d.total,
+                })),
+                ...vaults.map((v) => ({
+                  ...v,
+                  type: "vault",
+                  value: `vault_${v.name}`,
+                  usd: v.total,
+                })),
+              ].map(async (w, i) => {
+                const isMochi = w.value.split("_")[1] === "mochi"
+                let address = w.value.split("_")[2]
+                let label = ""
+                if (w.type === "wallet") {
+                  if (address.startsWith("ronin:")) {
+                    address = address.slice(6)
+                  } else if (address.endsWith(".near")) {
+                    address = address.slice(0, -5)
+                  }
+                  label = await lookUpDomains(address)
 
-              return {
-                emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-                label,
-                value: w.value,
-              }
-            })
+                  label = `${
+                    isMochi ? "🔸  " : "🔹  "
+                  }${w.chain.toUpperCase()} | ${
+                    isMochi ? address : label
+                  } | 💵 $${w.usd}`
+                }
+                if (w.type === "vault") {
+                  label = `◽ ${w.name} | 💵 $${w.usd}`
+                }
+
+                return {
+                  emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+                  label,
+                  value: w.value,
+                }
+              })
+            )
           )
       ),
       new MessageActionRow().addComponents(

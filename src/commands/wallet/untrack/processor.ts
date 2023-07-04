@@ -8,22 +8,23 @@ import {
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
+import { getSlashCommand } from "utils/commands"
 import {
   emojis,
   getEmoji,
   getEmojiURL,
+  lookUpDomains,
   msgColors,
   resolveNamingServiceDomain,
-  lookUpDomains,
 } from "utils/common"
-import { getSlashCommand } from "utils/commands"
+
 export async function untrackWallet(
   msg: OriginalMessage,
   author: User,
   addressOrAlias: string
 ) {
   const resolvedAddress = await resolveNamingServiceDomain(addressOrAlias)
-  if (resolvedAddress !== "") {
+  if (resolvedAddress) {
     addressOrAlias = resolvedAddress
   }
 

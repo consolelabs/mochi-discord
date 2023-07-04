@@ -22,7 +22,7 @@ export async function copyWallet(
   alias = ""
 ) {
   const resolvedAddress = await resolveNamingServiceDomain(address)
-  if (resolvedAddress !== "") {
+  if (resolvedAddress) {
     address = resolvedAddress
   }
 
@@ -36,15 +36,11 @@ export async function copyWallet(
     })
   }
 
-  if (chain != chainType) {
-    chain = chainType
-  }
-
   const { ok, status } = await defi.trackWallet({
     userId: author.id,
     address,
     alias,
-    chainType: chain,
+    chainType,
     type: WalletTrackingType.Copy,
   })
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
