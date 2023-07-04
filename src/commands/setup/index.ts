@@ -38,22 +38,22 @@ const options = [
   {
     label: "Setup verification channel",
     value: "verify-channel",
-    handler: async () => new Promise((r) => setTimeout(r, 2000)),
+    handler: async () => await new Promise((r) => setTimeout(r, 2000)),
   },
   {
     label: "Create roles",
     value: "create-roles",
-    handler: async () => new Promise((r) => setTimeout(r, 3000)),
+    handler: async () => await new Promise((r) => setTimeout(r, 3000)),
   },
   {
     label: "Create a first DAO vault",
     value: "create-dao-vault",
-    handler: async () => new Promise((r) => setTimeout(r, 4200)),
+    handler: async () => await new Promise((r) => setTimeout(r, 4200)),
   },
 ]
 
 const done: any = {}
-const running: Promise<any>[] = []
+const running: any = []
 
 async function execute(
   i: ButtonInteraction,
@@ -64,29 +64,32 @@ async function execute(
 
   opts.forEach((opt) => {
     if (done[opt.value]) return
+    if (running.length === opts.length) {
+      Promise.all(running).then(() => execute(i, currentOptions, true))
+      return
+    }
     const promise = opt.handler().then(() => {
-      execute(i, currentOptions)
       done[opt.value] = true
+      execute(i, currentOptions)
     })
+
     running.push(promise)
   })
 
-  Promise.all(running).then(() => execute(i, currentOptions, true))
-
   i.editReply({
-    content:
-      opts
-        .map(
-          (opt) =>
-            `${
-              done[opt.value] || allDone
-                ? getEmoji("CHECK")
-                : "<a:loading:647604616858566656>"
-            } ${opt.label}`
-        )
-        .join("\n") + allDone
-        ? "\nAll done!"
-        : "",
+    content: [
+      ...opts.map(
+        (opt) =>
+          `${
+            done[opt.value]
+              ? getEmoji("CHECK")
+              : "<a:loading:647604616858566656>"
+          } ${opt.label}`
+      ),
+      ...(allDone
+        ? ["All initialization finished, your server is ready."]
+        : []),
+    ].join("\n"),
     components: [],
   })
 

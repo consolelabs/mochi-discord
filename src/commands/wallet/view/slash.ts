@@ -43,6 +43,13 @@ const command: SlashCommand = {
           w.value.toLowerCase().startsWith(focusedValue.toLowerCase())
         )
         .map(async (w) => {
+          let value = w.value
+          if (value.startsWith("ronin:")) {
+            value = value.slice(6)
+          } else if (value.endsWith(".near")) {
+            value = value.slice(0, -5)
+          }
+
           return {
             value: w.value,
             name: `🔷 ${w.chain.toUpperCase()} | ${
