@@ -327,7 +327,7 @@ async function getTxns(
     }
 
     return [
-      ...data.offchain.sort(sort).map((tx: any) => ({
+      ...data.offchain.map((tx: any) => ({
         date: tx.created_at,
         action: tx.type === "credit" ? "Received" : "Sent",
         target: tx.other_profile_id,
@@ -340,8 +340,9 @@ async function getTxns(
           fractionDigits: 4,
         }),
         token: tx.token?.symbol?.toUpperCase() ?? "",
+        created_at: tx.created_at,
       })),
-      ...data.withdraw.sort(sort).map((tx: any) => ({
+      ...data.withdraw.map((tx: any) => ({
         date: tx.created_at,
         action: "Sent",
         target: tx.address,
@@ -354,8 +355,9 @@ async function getTxns(
           fractionDigits: 4,
         }),
         token: tx.token?.symbol?.toUpperCase() ?? "",
+        created_at: tx.created_at,
       })),
-      ...data.deposit.sort(sort).map((tx: any) => ({
+      ...data.deposit.map((tx: any) => ({
         date: tx.created_at,
         action: "Received",
         target: tx.from,
@@ -368,8 +370,11 @@ async function getTxns(
           fractionDigits: 4,
         }),
         token: tx.token?.symbol?.toUpperCase() ?? "",
+        created_at: tx.created_at,
       })),
-    ].slice(0, 5)
+    ]
+      .sort(sort)
+      .slice(0, 5)
   }
   if (type === BalanceType.Onchain) {
     const data = res.data || []
