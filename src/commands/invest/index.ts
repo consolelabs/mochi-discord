@@ -40,7 +40,7 @@ export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
     },
   },
 })
-
+// test
 const slashCmd: SlashCommand = {
   name: "invest",
   category: "Defi",

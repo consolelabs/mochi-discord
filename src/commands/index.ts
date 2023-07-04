@@ -42,7 +42,6 @@ import {
 import airdrop from "./airdrop"
 import balances from "./balances"
 import claim from "./claim"
-import proposal from "./proposal"
 import deposit from "./deposit"
 import feedback from "./feedback/index"
 import gm from "./gm"
@@ -126,7 +125,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   bal: balances.slashCmd,
   bals: balances.slashCmd,
   //
-  proposal: proposal.slashCmd,
   withdraw: withdraw.slashCmd,
   wd: withdraw.slashCmd,
   airdrop: airdrop.slashCmd,
@@ -184,7 +182,6 @@ export const originalCommands: Record<string, Command> = {
   gas: gas.textCmd,
   inbox: inbox.textCmd,
   // config section
-  proposal: proposal.textCmd,
   levelmessage: levelmessage.textCmd,
   xprole: xprole.textCmd,
   stats: stats.textCmd,
