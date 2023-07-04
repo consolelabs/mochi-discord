@@ -98,19 +98,13 @@ class Profile extends Fetcher {
           onchainTotal += bal
 
           let chain = w.platform.split("-").shift().toUpperCase()
-          let value = w.platform_identifier
+          const value = w.platform_identifier
           switch (w.platform) {
             case "solana-chain":
               chain = "SOL"
               break
             case "ronin-chain":
               chain = "RON"
-              if (value.startsWith("ronin:")) {
-                value = value.slice(6)
-              }
-              break
-            case "near-chain":
-              value = value.slice(0, -5)
               break
             default:
               break

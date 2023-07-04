@@ -13,6 +13,10 @@ import { renderInvestHome } from "commands/invest/index/processor"
 import { EarnView, run as renderEarnHome } from "commands/earn/index/processor"
 import { machineConfig as earnMachineConfig } from "commands/earn/index"
 import { machineConfig as investMachineConfig } from "commands/invest/index"
+import { followWallet } from "commands/wallet/follow/processor"
+import { trackWallet } from "commands/wallet/track/processor"
+import { copyWallet } from "commands/wallet/copy/processor"
+import { untrackWallet } from "commands/wallet/untrack/processor"
 
 export const machineConfig: (
   context: any,
@@ -23,6 +27,13 @@ export const machineConfig: (
   context: {
     page: 0,
     button: {
+      walletFollow: (i, _ev, ctx) =>
+        followWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
+      walletTrack: (i, _ev, ctx) =>
+        trackWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
+      walletCopy: (i, _ev, ctx) =>
+        copyWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
+      walletUntrack: (i, _ev, ctx) => untrackWallet(i, i.user, ctx.address),
       balance: (i, ev, ctx) =>
         renderBalances(discordId ?? i.user.id, {
           ...ctx,
@@ -81,6 +92,27 @@ export const machineConfig: (
     ...context,
   },
   states: {
+    walletFollow: {
+      on: {
+        BACK: "balance",
+        TRACK_WALLET: "walletTrack",
+        COPY_WALLET: "walletCopy",
+      },
+    },
+    walletTrack: {
+      on: {
+        BACK: "balance",
+        FOLLOW_WALLET: "walletFollow",
+        COPY_WALLET: "walletCopy",
+      },
+    },
+    walletCopy: {
+      on: {
+        BACK: "balance",
+        TRACK_WALLET: "walletTrack",
+        FOLLOW_WALLET: "walletFollow",
+      },
+    },
     balance: {
       on: {
         TOGGLE_SHOW_FULL_EARN: "balance",
@@ -89,6 +121,9 @@ export const machineConfig: (
         UNLINK_WALLET: "walletUnlink",
         VIEW_PORTFOLIO: "balance",
         VIEW_NFT: "viewNft",
+        FOLLOW_WALLET: "walletFollow",
+        TRACK_WALLET: "walletTrack",
+        COPY_WALLET: "walletCopy",
         [RouterSpecialAction.NEXT_PAGE]: "balance",
         [RouterSpecialAction.PREV_PAGE]: "balance",
       },

@@ -1102,7 +1102,7 @@ export function unLinkOnChainWalletButtons() {
   return buttons
 }
 
-export function getGuestWalletButtons(trackingType: string) {
+function getGuestWalletButtons(trackingType: string) {
   const buttons = new MessageActionRow()
 
   if (trackingType === TRACKING_TYPE_FOLLOW) {
