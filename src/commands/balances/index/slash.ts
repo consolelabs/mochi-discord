@@ -1,22 +1,23 @@
+import { machineConfig as earnMachineConfig } from "commands/earn/index"
+import { EarnView, run as renderEarnHome } from "commands/earn/index/processor"
+import { machineConfig as investMachineConfig } from "commands/invest/index"
+import { renderInvestHome } from "commands/invest/index/processor"
+import { copyWallet } from "commands/wallet/copy/processor"
+import { followWallet } from "commands/wallet/follow/processor"
+import { trackWallet } from "commands/wallet/track/processor"
+import { untrackWallet } from "commands/wallet/untrack/processor"
 import { CommandInteraction, Message } from "discord.js"
 import { MachineConfig, route, RouterSpecialAction } from "utils/router"
+
 import {
   BalanceType,
   BalanceView,
   getBalanceTokens,
   renderBalances,
-  unlinkWallet,
   renderInitialNftView,
   renderSelectedNft,
+  unlinkWallet,
 } from "./processor"
-import { renderInvestHome } from "commands/invest/index/processor"
-import { EarnView, run as renderEarnHome } from "commands/earn/index/processor"
-import { machineConfig as earnMachineConfig } from "commands/earn/index"
-import { machineConfig as investMachineConfig } from "commands/invest/index"
-import { followWallet } from "commands/wallet/follow/processor"
-import { trackWallet } from "commands/wallet/track/processor"
-import { copyWallet } from "commands/wallet/copy/processor"
-import { untrackWallet } from "commands/wallet/untrack/processor"
 
 export const machineConfig: (
   context: any,
@@ -28,14 +29,19 @@ export const machineConfig: (
     page: 0,
     button: {
       walletFollow: (i, _ev, ctx) =>
-        followWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
+        followWallet(i, i.user, ctx.address, ctx.alias),
       walletTrack: (i, _ev, ctx) =>
-        trackWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
+        trackWallet(i, i.user, ctx.address, ctx.alias),
       walletCopy: (i, _ev, ctx) =>
-        copyWallet(i, i.user, ctx.address, ctx.chain, ctx.alias),
+        copyWallet(i, i.user, ctx.address, ctx.alias),
       walletUntrack: (i, _ev, ctx) => untrackWallet(i, i.user, ctx.address),
-      balance: (i, ev, ctx) =>
-        renderBalances(discordId ?? i.user.id, {
+      balance: async (i, ev, ctx) => {
+        let userID = discordId ?? i.user.id
+        if (ctx.type === BalanceType.Onchain) {
+          userID = i.user.id
+        }
+
+        return await renderBalances(userID, {
           ...ctx,
           showFullEarn:
             ev === "TOGGLE_SHOW_FULL_EARN"
@@ -47,7 +53,8 @@ export const machineConfig: (
           page: ctx.page,
           balances: ctx.balances,
           txns: ctx.txns,
-        }),
+        })
+      },
       invest: async (i) => {
         const tokens = await getBalanceTokens(i)
         return renderInvestHome(i, 0, tokens)
@@ -75,7 +82,12 @@ export const machineConfig: (
         if (type.startsWith("onchain")) fetcherType = BalanceType.Onchain
         if (type.startsWith("cex")) fetcherType = BalanceType.Cex
 
-        return await renderBalances(discordId ?? i.user.id, {
+        let userID = discordId ?? i.user.id
+        if (type.startsWith("onchain")) {
+          userID = i.user.id
+        }
+
+        return await renderBalances(userID, {
           interaction: i,
           type: fetcherType,
           address,
@@ -97,6 +109,8 @@ export const machineConfig: (
         BACK: "balance",
         TRACK_WALLET: "walletTrack",
         COPY_WALLET: "walletCopy",
+        VIEW_WALLETS: "wallets",
+        UNTRACK_WALLET: "walletUntrack",
       },
     },
     walletTrack: {
@@ -104,6 +118,8 @@ export const machineConfig: (
         BACK: "balance",
         FOLLOW_WALLET: "walletFollow",
         COPY_WALLET: "walletCopy",
+        VIEW_WALLETS: "wallets",
+        UNTRACK_WALLET: "walletUntrack",
       },
     },
     walletCopy: {
@@ -111,6 +127,13 @@ export const machineConfig: (
         BACK: "balance",
         TRACK_WALLET: "walletTrack",
         FOLLOW_WALLET: "walletFollow",
+        VIEW_WALLETS: "wallets",
+        UNTRACK_WALLET: "walletUntrack",
+      },
+    },
+    walletUntrack: {
+      on: {
+        VIEW_WALLETS: "wallets",
       },
     },
     balance: {
@@ -124,8 +147,18 @@ export const machineConfig: (
         FOLLOW_WALLET: "walletFollow",
         TRACK_WALLET: "walletTrack",
         COPY_WALLET: "walletCopy",
+        UNTRACK_WALLET: "walletUntrack",
         [RouterSpecialAction.NEXT_PAGE]: "balance",
         [RouterSpecialAction.PREV_PAGE]: "balance",
+        BACK: [
+          { target: "wallets", cond: (context) => !!context.isFromWalletList },
+        ],
+      },
+    },
+    wallets: {
+      id: "wallets",
+      on: {
+        VIEW_WALLET: "balance",
       },
     },
     invest: {

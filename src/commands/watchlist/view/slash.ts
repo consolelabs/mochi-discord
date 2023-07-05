@@ -1,16 +1,20 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { BalanceType } from "commands/balances/index/processor"
+import { machineConfig as balanceMachineConfig } from "commands/balances/index/slash"
+import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
+import { composeEmbedMessage2 } from "ui/discord/embed"
+import { thumbnails } from "utils/common"
+import { SLASH_PREFIX } from "utils/constants"
+import { MachineConfig, route, RouterSpecialAction } from "utils/router"
+
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+
 import {
   composeWatchlist,
   WatchListTokenViewType,
   WatchListViewType,
 } from "./processor"
-import { composeEmbedMessage2 } from "ui/discord/embed"
-import { thumbnails } from "utils/common"
-import { SLASH_PREFIX } from "utils/constants"
-import { MachineConfig, route, RouterSpecialAction } from "utils/router"
-import { render as renderTrackingWallets } from "commands/wallet/list/processor"
 
 export const machineConfig: (ctx?: any) => MachineConfig = (context = {}) => ({
   id: "watchlist",
@@ -54,6 +58,7 @@ export const machineConfig: (ctx?: any) => MachineConfig = (context = {}) => ({
           on: {
             BACK: "wallets",
           },
+          ...balanceMachineConfig({ type: BalanceType.Onchain }),
         },
       },
     },

@@ -1,17 +1,20 @@
+import config from "adapters/config"
 import CacheManager from "cache/node-cache"
+import { getRandomFact } from "cache/tip-fact-cache"
 import { slashCommands } from "commands"
 import { handleInteraction } from "commands/balances/index/processor"
+import { sendVerifyURL } from "commands/config/verify/processor"
 import { feedbackDispatcher } from "commands/feedback/index/processor"
 import { confirmGlobalXP } from "commands/globalxp/index/processor"
 import { handleNFTTickerViews } from "commands/nft/ticker/processor"
-import { handleDaoTrackerView } from "commands/proposal/info/processor"
-import {
-  handleProposalCancel,
-  handleProposalCreate,
-  handleProposalForm,
-  handleProposalVote,
-} from "commands/proposal/processor"
-import { subscribeCommonwealthDiscussion } from "commands/proposal/track/processor"
+// import { handleDaoTrackerView } from "commands/proposal/info/processor"
+// import {
+//   handleProposalCancel,
+//   handleProposalCreate,
+//   handleProposalForm,
+//   handleProposalVote,
+// } from "commands/proposal/processor"
+// import { subscribeCommonwealthDiscussion } from "commands/proposal/track/processor"
 import {
   handleBackToQuestList,
   handleClaimReward,
@@ -21,9 +24,8 @@ import {
   handleTokenReject,
 } from "commands/token/add/processor"
 import { handleTreasurerAdd } from "commands/vault/add/processor"
-import { handleTreasurerTransfer } from "commands/vault/transfer/processor"
 import { handleTreasurerRemove } from "commands/vault/remove/processor"
-import { sendVerifyURL } from "commands/config/verify/processor"
+import { handleTreasurerTransfer } from "commands/vault/transfer/processor"
 import {
   removeWallet,
   removeWalletConfirmation,
@@ -61,9 +63,9 @@ import {
 } from "utils/async-storages"
 import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { wrapError } from "utils/wrap-error"
-import { DiscordEvent } from "."
-import config from "adapters/config"
-import { getRandomFact } from "cache/tip-fact-cache"
+
+import { DiscordEvent } from "./"
+
 // import { handleBeginVerify } from "commands/config/verify/captcha/processor"
 
 const event: DiscordEvent<"interactionCreate"> = {
@@ -424,20 +426,20 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("feedback"):
       await feedbackDispatcher(i)
       return
-    case i.customId.startsWith("create-proposal"):
-      await handleProposalForm(i)
-      return
-    case i.customId.startsWith("proposal-confirm"):
-      await handleProposalCreate(i)
-      return
-    case i.customId.startsWith("proposal-cancel"):
-      await handleProposalCancel(i)
-      return
-    case i.customId.startsWith("proposal-vote"):
-      await handleProposalVote(i)
-      return
-    case i.customId.startsWith("proposal-info"):
-      await handleDaoTrackerView(i)
+      // case i.customId.startsWith("create-proposal"):
+      //   await handleProposalForm(i)
+      //   return
+      // case i.customId.startsWith("proposal-confirm"):
+      //   await handleProposalCreate(i)
+      //   return
+      // case i.customId.startsWith("proposal-cancel"):
+      //   await handleProposalCancel(i)
+      //   return
+      // case i.customId.startsWith("proposal-vote"):
+      //   await handleProposalVote(i)
+      //   return
+      // case i.customId.startsWith("proposal-info"):
+      //   await handleDaoTrackerView(i)
       return
     case i.customId.startsWith("wallet_remove_confirmation-"):
       await removeWalletConfirmation(i)
@@ -445,8 +447,8 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("wallet_remove-"):
       await removeWallet(i)
       return
-    case i.customId.startsWith("proposal_join_thread_commonwealth"):
-      await subscribeCommonwealthDiscussion(i)
+      // case i.customId.startsWith("proposal_join_thread_commonwealth"):
+      //   await subscribeCommonwealthDiscussion(i)
       return
     case i.customId.startsWith("token-request-approve"):
       await handleTokenApprove(i)

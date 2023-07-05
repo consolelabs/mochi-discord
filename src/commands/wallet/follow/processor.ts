@@ -19,7 +19,6 @@ export async function followWallet(
   msg: OriginalMessage,
   author: User,
   address: string,
-  chain: string,
   alias = ""
 ) {
   const resolvedAddress = await resolveNamingServiceDomain(address)
@@ -59,7 +58,7 @@ export async function followWallet(
     })
   }
 
-  const { msgOpts } = await renderTrackingResult(address, chain, alias)
+  const { msgOpts } = await renderTrackingResult(address, chainType, alias)
 
   return { msgOpts, context: { user: author, address } }
 }
