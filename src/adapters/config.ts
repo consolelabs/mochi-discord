@@ -40,11 +40,9 @@ import {
   ResponseListGuildXPRoles,
   ResponseListGuildMixRoles,
   ResponseCreateGuildMixRole,
-  ResponseGuildProposalUsageResponse,
   ResponseGetVaultsResponse,
 } from "types/api"
 import { TEST } from "env"
-import { ResponseDaoTrackerSpaceCountResponse } from "types/api"
 import { formatDigit } from "utils/defi"
 
 class Config extends Fetcher {
@@ -1118,16 +1116,13 @@ class Config extends Fetcher {
   }
 
   public async getProposalUsageStats(query: { page: number; size: number }) {
-    return await this.jsonFetch<{ data: ResponseGuildProposalUsageResponse }>(
-      `${API_BASE_URL}/data/usage-stats/proposal`,
-      {
-        query,
-      }
-    )
+    return await this.jsonFetch(`${API_BASE_URL}/data/usage-stats/proposal`, {
+      query,
+    })
   }
 
   public async getDaoTrackerUsageStats(query: { page: number; size: number }) {
-    return await this.jsonFetch<{ data: ResponseDaoTrackerSpaceCountResponse }>(
+    return await this.jsonFetch(
       `${API_BASE_URL}/data/usage-stats/dao-tracker`,
       { query }
     )

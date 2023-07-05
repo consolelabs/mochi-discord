@@ -1,9 +1,11 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { machineConfig } from "commands/wallet/common/tracking"
 import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
-import { followWallet } from "./processor"
 import { route } from "utils/router"
-import { machineConfig } from "commands/wallet/common/tracking"
+
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+
+import { followWallet } from "./processor"
 
 const command: SlashCommand = {
   name: "follow",
@@ -20,12 +22,6 @@ const command: SlashCommand = {
       )
       .addStringOption((opt) =>
         opt
-          .setName("chain")
-          .setDescription("the chain of that address")
-          .setRequired(false)
-      )
-      .addStringOption((opt) =>
-        opt
           .setName("alias")
           .setDescription("something easier for you to remember")
           .setRequired(false)
@@ -33,16 +29,9 @@ const command: SlashCommand = {
   },
   run: async function (i: CommandInteraction) {
     const address = i.options.getString("address", true)
-    const chain = i.options.getString("chain", false) ?? "evm"
     const alias = i.options.getString("alias", false) ?? ""
 
-    const { msgOpts, context } = await followWallet(
-      i,
-      i.user,
-      address,
-      chain,
-      alias
-    )
+    const { msgOpts, context } = await followWallet(i, i.user, address, alias)
     const reply = await i.editReply(msgOpts)
 
     route(reply as Message, i, machineConfig("walletFollow", context))

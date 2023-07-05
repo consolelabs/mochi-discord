@@ -42,7 +42,6 @@ import {
 import airdrop from "./airdrop"
 import balances from "./balances"
 import claim from "./claim"
-import proposal from "./proposal"
 import deposit from "./deposit"
 import feedback from "./feedback/index"
 import gm from "./gm"
@@ -95,6 +94,7 @@ import update from "./update"
 import role from "./role"
 import setup from "./setup"
 import roles from "./roles"
+import info from "./info"
 
 CacheManager.init({
   ttl: 0,
@@ -126,7 +126,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   bal: balances.slashCmd,
   bals: balances.slashCmd,
   //
-  proposal: proposal.slashCmd,
   withdraw: withdraw.slashCmd,
   wd: withdraw.slashCmd,
   airdrop: airdrop.slashCmd,
@@ -166,6 +165,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   role: role.slashCmd,
   roles: roles.slashCmd,
   pay: pay.slashCmd,
+  info: info.slashCmd,
 }
 
 // text commands is being deprecated, refer to slashCommands for latest version
@@ -184,7 +184,6 @@ export const originalCommands: Record<string, Command> = {
   gas: gas.textCmd,
   inbox: inbox.textCmd,
   // config section
-  proposal: proposal.textCmd,
   levelmessage: levelmessage.textCmd,
   xprole: xprole.textCmd,
   stats: stats.textCmd,

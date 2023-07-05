@@ -3,8 +3,11 @@ import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { ActionTypeToEmoji, PlatformTypeToEmoji } from "utils/activity"
+import { paginationButtons } from "utils/router"
 
-export async function render(userDiscordId: string, page: number) {
+const pageSize = 7
+
+export async function render(userDiscordId: string, page = 0) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
   if (dataProfile.err) {
     throw new APIError({
@@ -14,7 +17,7 @@ export async function render(userDiscordId: string, page: number) {
   }
   if (!dataProfile)
     return {
-      messageOptions: {
+      msgOpts: {
         embeds: [
           composeEmbedMessage(null, {
             title: "No activities found",
@@ -28,10 +31,14 @@ export async function render(userDiscordId: string, page: number) {
       },
     }
 
-  const { data } = await profile.getUserActivities(dataProfile.id, page, 7)
+  const { data, pagination } = await profile.getUserActivities(
+    dataProfile.id,
+    page,
+    pageSize
+  )
   if (!data.length)
     return {
-      messageOptions: {
+      msgOpts: {
         embeds: [
           composeEmbedMessage(null, {
             title: "No activities found",
@@ -73,16 +80,22 @@ export async function render(userDiscordId: string, page: number) {
 
     description += `<t:${Math.floor(time)}:R> ${actionAndRewardRow}\n`
   }
+  const totalPage = Math.ceil((pagination?.total ?? 0) / pageSize)
 
   const embed = composeEmbedMessage(null, {
     author: ["Activity", getEmojiURL(emojis.CLOCK)],
     description,
     color: msgColors.ACTIVITY,
+    footer: [`Page ${page + 1}/${totalPage} • Mochi Bot • `],
   })
 
   return {
-    messageOptions: {
+    context: {
+      page,
+    },
+    msgOpts: {
       embeds: [embed],
+      components: [...paginationButtons(page, totalPage)],
     },
   }
 }

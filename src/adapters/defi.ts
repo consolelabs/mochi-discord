@@ -541,6 +541,11 @@ class Defi extends Fetcher {
   async getTrendingSearch() {
     return await this.jsonFetch(`${API_BASE_URL}/defi/trending`)
   }
+
+  public async getAllBalances({ profileId }: { profileId: string }) {
+    const url = `${API_BASE_URL}/users/${profileId}/balances`
+    return await this.jsonFetch(url)
+  }
 }
 
 export default new Defi()

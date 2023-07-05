@@ -1,12 +1,14 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { machineConfig } from "commands/wallet/common/tracking"
 import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
-import { trackWallet } from "./processor"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import { SLASH_PREFIX } from "utils/constants"
 import { route } from "utils/router"
-import { machineConfig } from "commands/wallet/common/tracking"
+
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+
+import { trackWallet } from "./processor"
 
 const command: SlashCommand = {
   name: "track",
@@ -23,12 +25,6 @@ const command: SlashCommand = {
       )
       .addStringOption((opt) =>
         opt
-          .setName("chain")
-          .setDescription("the chain of that address")
-          .setRequired(false)
-      )
-      .addStringOption((opt) =>
-        opt
           .setName("alias")
           .setDescription("something easier for you to remember")
           .setRequired(false)
@@ -36,16 +32,9 @@ const command: SlashCommand = {
   },
   run: async function (i: CommandInteraction) {
     const address = i.options.getString("address", true)
-    const chain = i.options.getString("chain", false) ?? "evm"
     const alias = i.options.getString("alias", false) ?? ""
 
-    const { msgOpts, context } = await trackWallet(
-      i,
-      i.user,
-      address,
-      chain,
-      alias
-    )
+    const { msgOpts, context } = await trackWallet(i, i.user, address, alias)
     const reply = await i.editReply(msgOpts)
 
     route(reply as Message, i, machineConfig("walletTrack", context))

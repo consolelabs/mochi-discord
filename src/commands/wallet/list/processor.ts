@@ -99,7 +99,7 @@ export async function render(user: User) {
         .map((d) => {
           const chain = (d.chain_type ?? "").toUpperCase()
           return {
-            value: `${e[0]}_${d.user_id}_${d.address}`,
+            value: `${e[0]}_onchain_${d.address}`,
             label: `🔹 ${chain} | ${
               d.alias || shortenHashOrAddress(d.address ?? "", 4)
             } | 💵 $${formatDigit({

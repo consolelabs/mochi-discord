@@ -13,11 +13,7 @@ import {
   ResponseUserFeedbackResponse,
   RequestUserFeedbackRequest,
   ResponseGetCollectionCountResponse,
-  ModelDaoProposal,
   ResponseGetGuildConfigDaoProposal,
-  ModelDaoVote,
-  ResponseGetAllDaoProposalVotes,
-  ResponseGetAllDaoProposals,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import {
@@ -413,13 +409,10 @@ class Community extends Fetcher {
       required_amount: string
     }
   }) {
-    return await this.jsonFetch<ModelDaoProposal>(
-      `${API_BASE_URL}/dao-voting/proposals`,
-      {
-        method: "POST",
-        body,
-      }
-    )
+    return await this.jsonFetch(`${API_BASE_URL}/dao-voting/proposals`, {
+      method: "POST",
+      body,
+    })
   }
 
   public async createUserProposalVote(body: {
@@ -440,7 +433,7 @@ class Community extends Fetcher {
       choice: string
     }
   ) {
-    return await this.jsonFetch<ModelDaoVote>(
+    return await this.jsonFetch(
       `${API_BASE_URL}/dao-voting/proposals/votes/${vote_id}`,
       {
         method: "PUT",
@@ -453,16 +446,13 @@ class Community extends Fetcher {
     user_discord_id: string,
     proposal_id: string
   ) {
-    return await this.jsonFetch<ModelDaoVote>(
-      `${API_BASE_URL}/dao-voting/proposals/votes`,
-      {
-        method: "GET",
-        query: {
-          user_discord_id,
-          proposal_id,
-        },
-      }
-    )
+    return await this.jsonFetch(`${API_BASE_URL}/dao-voting/proposals/votes`, {
+      method: "GET",
+      query: {
+        user_discord_id,
+        proposal_id,
+      },
+    })
   }
 
   public async getGuildConfigDaoProposal(guild_id: string) {
@@ -478,7 +468,7 @@ class Community extends Fetcher {
     proposal_id: string,
     user_discord_id: string
   ) {
-    return await this.jsonFetch<{ data: ResponseGetAllDaoProposalVotes }>(
+    return await this.jsonFetch(
       `${API_BASE_URL}/dao-voting/proposals/${proposal_id}`,
       {
         method: "GET",
@@ -491,13 +481,10 @@ class Community extends Fetcher {
     guild_id?: string
     user_discord_id?: string
   }) {
-    return await this.jsonFetch<ResponseGetAllDaoProposals>(
-      `${API_BASE_URL}/dao-voting/proposals`,
-      {
-        method: "GET",
-        query,
-      }
-    )
+    return await this.jsonFetch(`${API_BASE_URL}/dao-voting/proposals`, {
+      method: "GET",
+      query,
+    })
   }
 
   public async getDaoVoterStatus(
@@ -522,7 +509,7 @@ class Community extends Fetcher {
     amount: number
     each: boolean
   }) {
-    return await this.jsonFetch<ModelDaoVote>(`${API_BASE_URL}/users/xp`, {
+    return await this.jsonFetch(`${API_BASE_URL}/users/xp`, {
       method: "POST",
       body,
     })

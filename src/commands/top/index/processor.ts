@@ -40,6 +40,9 @@ export async function render(
   const { author, leaderboard } = res.data
   const member = await interaction.guild?.members.fetch(author.user_id)
 
+  const hasLevelRole = !!author.current_level_role.role_id
+  const hasNextLevelRole = !!author.next_level_role.role_id
+
   const embed = composeEmbedMessage(null, {
     author: ["Top engagement by XP", getEmojiURL(emojis.ANIMATED_TROPHY)],
     description: [
@@ -48,6 +51,17 @@ export async function render(
       `${getEmoji("ANIMATED_STAR", true)}\`Your rank.  #${author.guild_rank}\``,
       `${getEmoji("XP")}\`Current XP. ${author.total_xp}\``,
       `${getEmoji("ANIMATED_GEM", true)}\`Next lvl.   ${author.level + 1}\``,
+      ...(hasLevelRole
+        ? [
+            `${getEmoji("ANIMATED_HEART", true)}\`Lvl role.   \`<@&${
+              author.current_level_role.role_id
+            }>${
+              hasNextLevelRole
+                ? ` (next is <@&${author.next_level_role.role_id}>)`
+                : ""
+            }`,
+          ]
+        : []),
       getEmoji("LINE").repeat(10),
       formatDataTable(
         leaderboard.map((l: any) => ({
