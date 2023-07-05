@@ -323,8 +323,17 @@ class Profile extends Fetcher {
       size
     )
   }
+  public async getReadUserActivities(profileId: string, page = 0, size = 2) {
+    return await this.getUserActivitiesByStatus(
+      profileId,
+      "read",
+      ["withdraw", "feedback", "tip", "verify"],
+      page,
+      size
+    )
+  }
 
-  private async getUserActivitiesByStatus(
+  public async getUserActivitiesByStatus(
     profileId: string,
     status: string,
     actions: string[] = [],
