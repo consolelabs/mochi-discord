@@ -218,7 +218,7 @@ export async function getBalances(
     pnl = 0
   }
   if (type == BalanceType.All) {
-    data = res.data.filter((i: any) => Boolean(i))
+    data = res.data.summarize.filter((i: any) => Boolean(i))
     pnl = 0
   }
   if (type === BalanceType.Onchain) {
