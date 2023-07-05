@@ -1,32 +1,16 @@
 import profile from "adapters/profile"
 import {
-  authorFilter,
+  capitalizeFirst,
   EmojiKey,
   emojis,
   getEmoji,
   getEmojiURL,
-  msgColors,
 } from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
-import {
-  Message,
-  MessageActionRow,
-  MessageButton,
-  MessageSelectMenu,
-  User,
-} from "discord.js"
-import CacheManager from "cache/node-cache"
-import { capitalCase } from "change-case"
-import { wrapError } from "utils/wrap-error"
+import { MessageActionRow, MessageButton, MessageSelectMenu } from "discord.js"
 import { getSlashCommand } from "utils/commands"
-import { getPaginationRow } from "ui/discord/button"
-
-CacheManager.init({
-  pool: "user_inbox",
-  ttl: 300,
-  checkperiod: 300,
-})
+import { paginationButtons } from "utils/router"
 
 const emojisMap = {
   quest: getEmoji("QUEST"),
@@ -36,62 +20,36 @@ const emojisMap = {
   xp: getEmoji("GIFT"),
 }
 
-type View = "unread" | "read"
+const PAGE_SIZE = 2
 
-export async function render(
-  userDiscordId: string,
-  page: number,
-  view: View = "unread"
-) {
+export enum View {
+  Unread = "unread",
+  Read = "read",
+}
+
+type Context = {
+  view: View
+  page: number
+}
+
+export async function render(userDiscordId: string, ctx: Context) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
-  if (dataProfile.err) {
+  if (dataProfile.err || !dataProfile.id) {
     throw new APIError({
       description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
       curl: "",
     })
   }
-  if (!dataProfile)
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(null, {
-            title: "No activities found",
-            description: `${getEmoji(
-              "ANIMATED_POINTING_RIGHT",
-              true
-            )} This user does not have any activities yet`,
-            color: msgColors.SUCCESS,
-          }),
-        ],
-      },
-    }
 
-  const pageSize = 2
-  const {
-    data,
-    pagination: { total },
-  } = await CacheManager.get({
-    pool: "user_inbox",
-    key: `${userDiscordId}_${page}`,
-    call: async () =>
-      await profile.getUnreadUserActivities(dataProfile.id, page, pageSize),
-  })
+  const profileId = dataProfile.id
 
-  if (!data.length)
-    return {
-      messageOptions: {
-        embeds: [
-          composeEmbedMessage(null, {
-            title: "No activities found",
-            description: `${getEmoji(
-              "ANIMATED_POINTING_RIGHT",
-              true
-            )} This user does not have any activities yet`,
-            color: msgColors.SUCCESS,
-          }),
-        ],
-      },
-    }
+  const { data, pagination } = await profile.getUnreadUserActivities(
+    profileId,
+    ctx.page,
+    PAGE_SIZE
+  )
+
+  const total = pagination?.total ?? 0
 
   // TODO mock
   let list = [
@@ -114,7 +72,7 @@ export async function render(
       action_label: "baddeed tipped you 0.1 FTM",
     },
   ]
-  if (view === "read") {
+  if (ctx.view === View.Read) {
     // TODO mock only, replace with real logic
     list = []
   }
@@ -124,13 +82,7 @@ export async function render(
     list = data
   }
 
-  let description = toDescriptionList(list.slice(0, 10))
-
-  // auto switch to read view if unread is empty
-  if (!list.length) {
-    view = "read"
-    description = toDescriptionList([].slice(0, 10))
-  }
+  const description = toDescriptionList(list.slice(0, 10))
 
   const embed = composeEmbedMessage(null, {
     author: ["Inbox", getEmojiURL(emojis.BELL)],
@@ -138,7 +90,7 @@ export async function render(
 
   if (list.length) {
     embed.setFields({
-      name: `${capitalCase(view)} \`${list.length}\``,
+      name: `${capitalizeFirst(ctx.view)} \`${list.length}\``,
       value: description,
     })
   } else {
@@ -157,21 +109,14 @@ export async function render(
 
   // TODO this behavior cause pagination not working, should not change page number, because page number should always be 0
   // mark read the inbox but ignore error
-  // const ids = list.map((activity: any) => activity.id).filter(Boolean)
-  // await profile.markReadActivities(dataProfile.id, { ids }).catch((error) => {
-  //   logger.error("fail to mark read inbox", error)
-  // })
+  const ids = list.map((activity: any) => activity.id).filter(Boolean)
+  await profile.markReadActivities(dataProfile.id, { ids }).catch(() => null)
 
-  const totalPage = Math.ceil(total / pageSize)
-  const paginationBtns = getPaginationRow(page, totalPage, {
-    extra: view,
-    left: { label: "", emoji: getEmoji("LEFT_ARROW") },
-    right: { label: "", emoji: getEmoji("RIGHT_ARROW") },
-  })
-  // const [left, right] = paginationBtns.components
+  const totalPage = Math.ceil(total / PAGE_SIZE)
 
   return {
-    messageOptions: {
+    context: ctx,
+    msgOpts: {
       embeds: [embed],
       components: [
         ...(list.length
@@ -191,63 +136,38 @@ export async function render(
             ]
           : []),
         new MessageActionRow().addComponents(
-          // ...(left && right ? [left] : []),
           new MessageButton({
             label: "Unread",
             style: "SECONDARY",
             emoji: "<:pepe_ping:1028964391690965012>",
-            customId: "inbox_unread",
-            disabled: view === "unread",
+            customId: "view_unread_list",
+            disabled: ctx.view === "unread",
           }),
           new MessageButton({
             label: "Read",
             style: "SECONDARY",
             emoji: "<:pepeold:940971200044204142>",
-            customId: "inbox_read",
-            disabled: view === "read",
+            customId: "view_read_list",
+            disabled: ctx.view === "read",
           })
-          // ...(left || right ? (left && right ? [right] : [left]) : [])
         ),
-        ...paginationBtns,
+        ...(ctx.view === View.Read
+          ? paginationButtons(ctx.page, totalPage)
+          : list.length
+          ? [
+              new MessageActionRow().addComponents(
+                new MessageButton({
+                  style: "SECONDARY",
+                  label: "\u200b",
+                  customId: "see_next_unread",
+                  emoji: getEmoji("RIGHT_ARROW"),
+                })
+              ),
+            ]
+          : []),
       ],
     },
   }
-}
-
-export function collectButton(reply: Message, author: User) {
-  reply
-    .createMessageComponentCollector({
-      componentType: "BUTTON",
-      filter: authorFilter(author.id),
-      time: 300000,
-    })
-    .on("collect", (i) => {
-      wrapError(reply, async () => {
-        if (!i.deferred) {
-          await i.deferUpdate().catch(() => null)
-        }
-        const [action, ...rest] = i.customId.split("_")
-        let msgOpts
-        if (action === "page") {
-          const [curPage, dir, , view] = rest
-          if (dir === "+") {
-            msgOpts = await render(author.id, Number(curPage) + 1, view as View)
-          } else {
-            msgOpts = await render(author.id, Number(curPage) - 1, view as View)
-          }
-        } else {
-          const [view] = rest
-          msgOpts = await render(author.id, 0, view as View)
-        }
-
-        i.editReply(msgOpts.messageOptions)
-      })
-    })
-    .on("end", () => {
-      wrapError(reply, async () => {
-        await reply.edit({ components: [] }).catch(() => null)
-      })
-    })
 }
 
 function toDescriptionList(list: any[], offset = 0) {
@@ -257,7 +177,8 @@ function toDescriptionList(list: any[], offset = 0) {
       const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
 
       return `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)} ${t} ${
-        emojisMap[el.action as keyof typeof emojisMap]
+        emojisMap[el.action as keyof typeof emojisMap] ??
+        getEmoji("ANIMATED_QUESTION_MARK", true)
       } ${el.action_description}`
     })
     .join("\n")

@@ -182,7 +182,6 @@ export const originalCommands: Record<string, Command> = {
   prune: prune.textCmd,
   alert: alert.textCmd,
   gas: gas.textCmd,
-  inbox: inbox.textCmd,
   // config section
   levelmessage: levelmessage.textCmd,
   xprole: xprole.textCmd,
