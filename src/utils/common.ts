@@ -934,11 +934,11 @@ async function doLookup(_address: string, shorten: boolean) {
   try {
     switch (chainType) {
       case AddressChainType.SOL: {
-        const domainKey = new PublicKey(address)
+        const domainKey = new PublicKey(_address)
         return await performReverseLookup(connection, domainKey)
       }
       case AddressChainType.EVM:
-        return (await providers.eth.lookupAddress(address)) || address
+        return (await providers.eth.lookupAddress(_address)) || address
       default:
         return address
     }

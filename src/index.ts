@@ -4,12 +4,14 @@ import { REST } from "@discordjs/rest"
 import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
 import { slashCommands } from "commands"
-import { createServer, IncomingMessage, ServerResponse } from "http"
+import { createServer, Server, IncomingMessage, ServerResponse } from "http"
 import { assignKafka } from "queue/kafka/queue"
 import { run } from "queue/kafka/producer"
 import { IS_READY } from "listeners/discord/ready"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
+
+let server: Server | null = null
 
 const client = new Discord.Client({
   intents: [
@@ -26,7 +28,6 @@ const client = new Discord.Client({
 })
 
 // discord client
-client.login(DISCORD_TOKEN)
 for (const e of events) {
   if (e.once) {
     client.once(e.name, e.execute as any)
@@ -34,6 +35,8 @@ for (const e of events) {
     client.on(e.name, e.execute as any)
   }
 }
+
+client.login(DISCORD_TOKEN)
 
 process.on("SIGTERM", () => {
   process.exit(0)
@@ -73,7 +76,7 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 })()
 
 function runHttpServer() {
-  const server = createServer(
+  server = createServer(
     (request: IncomingMessage, response: ServerResponse) => {
       if (request.url === "/healthz") {
         if (IS_READY) {
@@ -95,6 +98,19 @@ function runHttpServer() {
 
   server.listen(PORT, () => {
     logger.info(`Server listening on port ${PORT}`)
+  })
+}
+
+// cleanup
+// @ts-ignore
+if (import.meta.hot) {
+  // @ts-ignore
+  import.meta.hot.on("vite:beforeFullReload", async () => {
+    server?.close()
+
+    for (const e of events) {
+      client.off(e.name, e.execute as any)
+    }
   })
 }
 
