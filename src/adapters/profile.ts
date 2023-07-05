@@ -298,17 +298,19 @@ class Profile extends Fetcher {
 
   public async countUserUnreadActivities(profileId: string) {
     const activities = ["withdraw", "feedback", "tip", "verify"]
-    const actionStr = activities
-      .map((a) => `actions[]=${a.toLowerCase()}`)
-      .join("&")
-    const status = "new"
 
-    const { data: res, ok } = await this.jsonFetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/count-activities?status=${status}&${actionStr}`
+    const res = await this.jsonFetch<number>(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/count-activities`,
+      {
+        query: {
+          status: "new",
+          actions: activities.map((a) => a.toLowerCase()),
+        },
+      }
     )
-    let count: any = 0
-    if (ok) {
-      count = res
+    let count = 0
+    if (res.ok) {
+      count = res as number
     }
 
     return { count }
@@ -340,16 +342,20 @@ class Profile extends Fetcher {
     page = 0,
     size = 12
   ) {
-    const actionStr = actions
-      .map((a) => `actions[]=${a.toLowerCase()}`)
-      .join("&")
-
     const {
       data: res,
       ok,
       pagination,
     } = await this.jsonFetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/activities?status=${status}&page=${page}&size=${size}&${actionStr}`
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/activities`,
+      {
+        query: {
+          status,
+          page,
+          size,
+          actions: actions.map((a) => a.toLowerCase()),
+        },
+      }
     )
     let data = []
     if (ok) {

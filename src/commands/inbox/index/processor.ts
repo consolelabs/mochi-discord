@@ -30,6 +30,8 @@ type Context = {
   page: number
 }
 
+const PAGE_SIZE = 5
+
 export async function render(userDiscordId: string, ctx: Context) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
   if (dataProfile.err || !dataProfile.id) {
@@ -43,7 +45,6 @@ export async function render(userDiscordId: string, ctx: Context) {
 
   let list = []
   let status = "new"
-  const pageSize = 10
   if (ctx.view === View.Read) {
     status = "read"
   }
@@ -53,7 +54,7 @@ export async function render(userDiscordId: string, ctx: Context) {
     status,
     ["withdraw", "feedback", "tip", "verify"], // inbox only show these activities
     ctx.page,
-    pageSize
+    PAGE_SIZE
   )
 
   if (data.length) {
@@ -62,14 +63,14 @@ export async function render(userDiscordId: string, ctx: Context) {
 
   const total = pagination?.total ?? 0
   let remaining =
-    total - (ctx.page + 1) * pageSize < 0
+    total - (ctx.page + 1) * PAGE_SIZE < 0
       ? 0
-      : total - (ctx.page + 1) * pageSize
+      : total - (ctx.page + 1) * PAGE_SIZE
   if (ctx.view === View.Read) {
     remaining = total
   }
 
-  const description = toDescriptionList(list.slice(0, 10))
+  const description = toDescriptionList(list.slice(0, PAGE_SIZE))
 
   const embed = composeEmbedMessage(null, {
     author: ["Inbox", getEmojiURL(emojis.BELL)],
@@ -85,7 +86,7 @@ export async function render(userDiscordId: string, ctx: Context) {
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
-      )} You have no notifications, why not try ${await getSlashCommand(
+      )} You don't have any new notifications, why not try ${await getSlashCommand(
         "withdraw"
       )} or ${await getSlashCommand("deposit")}\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
@@ -97,7 +98,7 @@ export async function render(userDiscordId: string, ctx: Context) {
   const ids = list.map((activity: any) => activity.id).filter(Boolean)
   await profile.markReadActivities(dataProfile.id, { ids }).catch(() => null)
 
-  const totalPage = Math.ceil(total / pageSize)
+  const totalPage = Math.ceil(total / PAGE_SIZE)
 
   return {
     context: ctx,
@@ -138,7 +139,7 @@ export async function render(userDiscordId: string, ctx: Context) {
         ),
         ...(ctx.view === View.Read
           ? paginationButtons(ctx.page, totalPage)
-          : list.length
+          : remaining > 0
           ? [
               new MessageActionRow().addComponents(
                 new MessageButton({
