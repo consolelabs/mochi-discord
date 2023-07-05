@@ -180,7 +180,6 @@ export const originalCommands: Record<string, Command> = {
   feedback: feedback.textCmd,
   alert: alert.textCmd,
   gas: gas.textCmd,
-  inbox: inbox.textCmd,
   // config section
   levelmessage: levelmessage.textCmd,
   xprole: xprole.textCmd,
