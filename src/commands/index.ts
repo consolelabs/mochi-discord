@@ -94,6 +94,7 @@ import update from "./update"
 import role from "./role"
 import setup from "./setup"
 import roles from "./roles"
+import info from "./info"
 
 CacheManager.init({
   ttl: 0,
@@ -164,6 +165,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   role: role.slashCmd,
   roles: roles.slashCmd,
   pay: pay.slashCmd,
+  info: info.slashCmd,
 }
 
 // text commands is being deprecated, refer to slashCommands for latest version
