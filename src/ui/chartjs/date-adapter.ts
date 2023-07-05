@@ -1,4 +1,4 @@
-import Chart from "chart.js"
+import * as Chart from "chart.js"
 import dayjs from "dayjs"
 import customParseFormat from "dayjs/plugin/customParseFormat"
 import isoWeek from "dayjs/plugin/isoWeek"

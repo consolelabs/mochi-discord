@@ -1,7 +1,6 @@
 import { VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
 import { DiscordEvent } from "."
 import webhook from "adapters/webhook"
-import { MessageTypes } from "discord.js/typings/enums"
 import { wrapError } from "utils/wrap-error"
 import { Message } from "discord.js"
 import { textCommandAsyncStore } from "utils/async-storages"
@@ -27,8 +26,8 @@ const event: DiscordEvent<"messageDelete"> = {
           if (message.channel.type === "DM") return
 
           const messageType = VALID_BOOST_MESSAGE_TYPES.includes(message.type)
-            ? MessageTypes["USER_PREMIUM_GUILD_SUBSCRIPTION"]
-            : MessageTypes["DEFAULT"]
+            ? 9
+            : 1
           const body = {
             author: {
               id: message.author?.id,

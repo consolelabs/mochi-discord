@@ -1,12 +1,12 @@
 import config from "adapters/config"
 import {
   ButtonInteraction,
+  Constants,
   Message,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
 } from "discord.js"
-import { MessageComponentTypes } from "discord.js/typings/enums"
 import { APIError } from "errors"
 import chunk from "lodash/chunk"
 import { ModelGuildConfigRepostReaction } from "types/api"
@@ -80,7 +80,7 @@ function buildPaginationActionRow(
   if (page !== 0) {
     row.addComponents(
       new MessageButton({
-        type: MessageComponentTypes.BUTTON,
+        type: Constants.MessageComponentTypes.BUTTON,
         style: "SECONDARY",
         emoji: getEmoji("LEFT_ARROW"),
         label: "Previous",
@@ -91,7 +91,7 @@ function buildPaginationActionRow(
 
   if (page !== totalPage - 1) {
     row.addComponents({
-      type: MessageComponentTypes.BUTTON,
+      type: Constants.MessageComponentTypes.BUTTON,
       style: "SECONDARY",
       emoji: getEmoji("RIGHT_ARROW"),
       label: "Next",
@@ -194,7 +194,7 @@ export async function composeMessage(
 export function collectButton(msg: Message, authorId: string) {
   return msg
     .createMessageComponentCollector({
-      componentType: MessageComponentTypes.BUTTON,
+      componentType: Constants.MessageComponentTypes.BUTTON,
       idle: 60000,
       filter: authorFilter(authorId),
     })

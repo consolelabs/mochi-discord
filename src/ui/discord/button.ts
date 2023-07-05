@@ -3,11 +3,8 @@ import {
   MessageActionRow,
   MessageButton,
   MessageEmbed,
+  Constants,
 } from "discord.js"
-import {
-  MessageButtonStyles,
-  MessageComponentTypes,
-} from "discord.js/typings/enums"
 import { getEmoji } from "utils/common"
 
 export function getExitButton(authorId: string, label?: string) {
@@ -33,7 +30,7 @@ export function composeButtonLink(
 ): MessageActionRow {
   const row = new MessageActionRow().addComponents(
     new MessageButton({
-      style: MessageButtonStyles.LINK,
+      style: Constants.MessageButtonStyles.LINK,
       label,
       url,
       emoji,
@@ -100,8 +97,8 @@ export function getPaginationRow(
   if (page !== 0) {
     actionRow.addComponents(
       new MessageButton({
-        type: MessageComponentTypes.BUTTON,
-        style: MessageButtonStyles.SECONDARY,
+        type: Constants.MessageComponentTypes.BUTTON,
+        style: Constants.MessageButtonStyles.SECONDARY,
         emoji: options.left.emoji || undefined,
         label: options.left.label,
         customId: `page_${page}_-_${totalPage}${
@@ -113,8 +110,8 @@ export function getPaginationRow(
 
   if (page !== totalPage - 1) {
     actionRow.addComponents({
-      type: MessageComponentTypes.BUTTON,
-      style: MessageButtonStyles.SECONDARY,
+      type: Constants.MessageComponentTypes.BUTTON,
+      style: Constants.MessageButtonStyles.SECONDARY,
       emoji: options.right.emoji || undefined,
       label: options.right.label,
       customId: `page_${page}_+_${totalPage}${
