@@ -1,5 +1,4 @@
 import config from "adapters/config"
-import CacheManager from "cache/node-cache"
 import { getRandomFact } from "cache/tip-fact-cache"
 import { slashCommands } from "commands"
 import { handleInteraction } from "commands/balances/index/processor"
@@ -147,6 +146,7 @@ function handleCommandInteraction(interaction: Interaction) {
         })
         return
       }
+      await i.deferReply({ ephemeral: command?.ephemeral })
       let subcommand = ""
       let args = ""
       if (interaction.isCommand()) {
@@ -165,12 +165,11 @@ function handleCommandInteraction(interaction: Interaction) {
           return
       }
 
-      const { data } = await CacheManager.get({
-        pool: "bot-manager",
-        key: `guild-${interaction.guildId}`,
-        call: () =>
-          config.getGuildAdminRoles({ guildId: interaction.guildId ?? "" }),
+      const { data } = await config.getGuildAdminRoles({
+        guildId: interaction.guildId ?? "",
       })
+
+      await new Promise((r) => setTimeout(r, 3000))
 
       let isAdminRoleIncluded = false
       const memberRoles = gMember?.roles.cache
@@ -195,7 +194,6 @@ function handleCommandInteraction(interaction: Interaction) {
         commandOnlyAdmin = command.onlyAdministrator ?? false
       }
       if (commandOnlyAdmin && !isAdmin) {
-        await i.deferReply({ ephemeral: command?.ephemeral })
         try {
           const kafkaMsg: KafkaQueueMessage = {
             platform: "discord",
@@ -223,7 +221,6 @@ function handleCommandInteraction(interaction: Interaction) {
             i.channel?.type === "DM" ? undefined : ["Administrator"],
         })
       }
-      await i.deferReply({ ephemeral: command?.ephemeral })
       const response = await command.run(i)
       if (!response) return
       const executionTime =
