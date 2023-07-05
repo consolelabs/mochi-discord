@@ -78,14 +78,14 @@ export const machineConfig: (
       balance: async (i, _ev, ctx) => {
         const [, type, address = ""] = i.values[0].split("_")
         let fetcherType = ctx.type ?? BalanceType.Offchain
-        if (type.startsWith("mochi")) fetcherType = BalanceType.Offchain
-        if (type.startsWith("onchain")) fetcherType = BalanceType.Onchain
-        if (type.startsWith("cex")) fetcherType = BalanceType.Cex
-
         let userID = discordId ?? i.user.id
+
+        if (type.startsWith("mochi")) fetcherType = BalanceType.Offchain
         if (type.startsWith("onchain")) {
+          fetcherType = BalanceType.Onchain
           userID = i.user.id
         }
+        if (type.startsWith("cex")) fetcherType = BalanceType.Cex
 
         return await renderBalances(userID, {
           interaction: i,
@@ -150,9 +150,6 @@ export const machineConfig: (
         UNTRACK_WALLET: "walletUntrack",
         [RouterSpecialAction.NEXT_PAGE]: "balance",
         [RouterSpecialAction.PREV_PAGE]: "balance",
-        BACK: [
-          { target: "wallets", cond: (context) => !!context.isFromWalletList },
-        ],
       },
     },
     wallets: {

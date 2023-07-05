@@ -29,9 +29,9 @@ import {
   getEmojiURL,
   isAddress,
   isValidRoninAddress,
+  lookUpDomains,
   msgColors,
   resolveNamingServiceDomain,
-  shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
 import {
@@ -136,7 +136,7 @@ export const balanceEmbedProps: Record<
       addressType,
       address,
       alias: wallet?.alias,
-      title: `${wallet?.alias || shortenHashOrAddress(address)}'s wallet`,
+      title: `${wallet?.alias || (await lookUpDomains(address))}'s wallet`,
       emoji: getEmojiURL(emojis.WALLET_2),
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
@@ -1265,7 +1265,7 @@ export async function unlinkWallet(
   // remove successfully
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const embed = getSuccessEmbed({
-    title: `${shortenHashOrAddress(addressOrAlias, 9, 10)} unlinked`,
+    title: `${await lookUpDomains(addressOrAlias)} unlinked`,
     description: [
       `${pointingright} This wallet has been removed from your profile.`,
       `${pointingright} To add wallets, refer to ${await getSlashCommand(
@@ -1315,10 +1315,7 @@ export async function renderInitialNftView({
     : "No NFT data found"
 
   const embed = composeEmbedMessage(null, {
-    author: [
-      `${shortenHashOrAddress(address)}'s NFT`,
-      getEmojiURL(emojis.NFT2),
-    ],
+    author: [`${await lookUpDomains(address)}'s NFT`, getEmojiURL(emojis.NFT2)],
     description,
   })
 
@@ -1374,7 +1371,7 @@ export async function renderInitialNftView({
   }
 }
 
-export function renderSelectedNft({
+export async function renderSelectedNft({
   nfts,
   type,
   address,
@@ -1405,7 +1402,7 @@ export function renderSelectedNft({
 
   const embed = composeEmbedMessage(null, {
     author: [
-      `${shortenHashOrAddress(address)}'s ${selectedNft.collection_name}`,
+      `${await lookUpDomains(address)}'s ${selectedNft.collection_name}`,
       getEmojiURL(emojis.NFT2),
     ],
     description,
