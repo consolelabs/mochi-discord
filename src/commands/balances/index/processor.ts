@@ -54,6 +54,7 @@ export enum BalanceType {
   Offchain = 1,
   Onchain,
   Cex,
+  All,
 }
 
 export enum BalanceView {
@@ -156,6 +157,18 @@ export const balanceEmbedProps: Record<
       emoji: getEmojiURL(emojis.NFT2),
       description: ``,
     }),
+  [BalanceType.All]: async () => ({
+    address: "",
+    title: "Mochi wallet",
+    emoji: getEmojiURL(emojis.NFT2),
+    description: `${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
+      true
+    )} You can withdraw using ${await getSlashCommand("withdraw")}.\n${getEmoji(
+      "ANIMATED_POINTING_RIGHT",
+      true
+    )} You can send tokens to other using ${await getSlashCommand("tip")}.`,
+  }),
 }
 
 const balancesFetcher: Record<
@@ -173,6 +186,7 @@ const balancesFetcher: Record<
     defi.getWalletAssets(discordId, address, type),
   [BalanceType.Cex]: (profileId, platform) =>
     defi.getDexAssets({ profileId: profileId, platform: platform }),
+  [BalanceType.All]: (profileId) => defi.getAllBalances({ profileId }),
 }
 
 export async function getBalances(
@@ -200,6 +214,10 @@ export async function getBalances(
     nfts: any,
     pnl = 0
   if (type === BalanceType.Offchain) {
+    data = res.data.filter((i: any) => Boolean(i))
+    pnl = 0
+  }
+  if (type == BalanceType.All) {
     data = res.data.filter((i: any) => Boolean(i))
     pnl = 0
   }
@@ -275,6 +293,7 @@ const txnsFetcher: Record<
     defi.getWalletTxns(discordId, address, type),
   [BalanceType.Cex]: (profile_id, platform) =>
     defi.getDexTxns(profile_id, platform),
+  [BalanceType.All]: (profile_id) => mochiPay.getListTx({ profile_id }),
 }
 
 async function getTxns(

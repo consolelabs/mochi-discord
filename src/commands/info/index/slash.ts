@@ -1,6 +1,7 @@
 import { CommandInteraction, Message } from "discord.js"
 import { MachineConfig, route } from "utils/router"
-import { BalanceView, BalanceType, renderAllBalances } from "./processor"
+import { BalanceView, BalanceType } from "../../balances/index/processor"
+import { renderBalances } from "../../balances/index/processor"
 
 export const machineConfig: (
   context: any,
@@ -10,10 +11,11 @@ export const machineConfig: (
 })
 
 const run = async (i: CommandInteraction) => {
+  console.log("in run allBalances")
   const view = i.options.getBoolean("expand", false)
     ? BalanceView.Expand
     : BalanceView.Compact
-  const { context, msgOpts } = await renderAllBalances(i.user.id, {
+  const { context, msgOpts } = await renderBalances(i.user.id, {
     interaction: i,
     type: BalanceType.All,
     address: "",
