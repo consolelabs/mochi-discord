@@ -33,6 +33,8 @@ if (Number.isNaN(cacheTtlSeconds)) cacheTtlSeconds = 1800
 let timeoutSeconds = Number(FETCH_TIMEOUT_SECONDS)
 if (Number.isNaN(timeoutSeconds)) timeoutSeconds = 5
 
+let redisError = false
+
 const noop = () => Promise.resolve({})
 // the one and only cache that should be used for response caching
 let cache = {
@@ -42,15 +44,18 @@ let cache = {
 }
 
 if (!TEST) {
-  logger.info("Connecting to Redis.")
+  logger.info("Connecting to Redis...")
   const redis = new Redis(`redis://${REDIS_HOST}:6379/0`)
+
   redis
     .on("ready", () => {
       logger.info(`Successfully connected to Redis, host=${REDIS_HOST}`)
       cache = redis
     })
     .on("error", (e) => {
-      logger.error(e)
+      logger.warn(`Redis connection error ${e}`)
+      redisError = true
+      redis.shutdown()
     })
 }
 
@@ -101,8 +106,8 @@ export class Fetcher {
       { arrayFormat: "separator", arrayFormatSeparator: "|" }
     )
 
-    // we only cache GET response
-    if (mergedInit.method.trim().toLowerCase() === "get") {
+    // we only cache GET response and only if redis is connected, otherwise no cache
+    if (mergedInit.method.trim().toLowerCase() === "get" && !redisError) {
       return (await this.cacheFetch<T>(fullUrl, mergedInit)) as FetchResult<T>
     } else {
       return await this.interalJsonFetch<T>(fullUrl, mergedInit)

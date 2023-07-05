@@ -1,6 +1,10 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandInteraction, MessageActionRow, MessageButton } from "discord.js"
-import { MessageComponentTypes } from "discord.js/typings/enums"
+import {
+  CommandInteraction,
+  Constants,
+  MessageActionRow,
+  MessageButton,
+} from "discord.js"
 import { InternalError } from "errors"
 import { SlashCommand } from "types/common"
 import { getEmoji, msgColors } from "utils/common"
@@ -88,7 +92,7 @@ const command: SlashCommand = {
       components: [actionRow],
     })
     const collector = interaction.channel?.createMessageComponentCollector({
-      componentType: MessageComponentTypes.BUTTON,
+      componentType: Constants.MessageComponentTypes.BUTTON,
       idle: 60000,
     })
     collector?.on("collect", (i) => {

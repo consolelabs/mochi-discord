@@ -35,11 +35,11 @@ import {
   AutocompleteInteraction,
   ButtonInteraction,
   CommandInteraction,
+  Constants,
   Interaction,
   Message,
   SelectMenuInteraction,
 } from "discord.js"
-import { MessageComponentTypes } from "discord.js/typings/enums"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import { CommandNotAllowedToRunError } from "errors"
 import InteractionManager from "handlers/discord/select-menu"
@@ -282,7 +282,7 @@ function handleCommandInteraction(interaction: Interaction) {
           const message = <Message>msg
           message
             .createMessageComponentCollector({
-              componentType: MessageComponentTypes.BUTTON,
+              componentType: Constants.MessageComponentTypes.BUTTON,
               idle: 60000,
               filter: authorFilter(i.user.id),
               ...options,
@@ -359,7 +359,7 @@ async function handleSelectMenuInteraction(i: SelectMenuInteraction) {
       msg
         .createMessageComponentCollector({
           time: 300000,
-          componentType: MessageComponentTypes.BUTTON,
+          componentType: Constants.MessageComponentTypes.BUTTON,
           filter: authorFilter(i.user.id),
           ...options,
         })

@@ -51,7 +51,7 @@ const event: DiscordEvent<"ready"> = {
 
       for (const cache of client.guilds.cache) {
         const guild = cache[1]
-        if (guild.me?.permissions.has("ADMINISTRATOR")) {
+        if (guild.members.me?.permissions.has("ADMINISTRATOR")) {
           const firstInvites = await guild.invites.fetch()
           invites.set(
             guild.id,

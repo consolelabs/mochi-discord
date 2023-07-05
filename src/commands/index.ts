@@ -1,5 +1,5 @@
 // external
-import { ButtonInteraction, Message } from "discord.js"
+import { ButtonInteraction, Constants, Message } from "discord.js"
 import FuzzySet from "fuzzyset"
 
 // internal
@@ -26,7 +26,6 @@ import { logger } from "../logger"
 import { isAcceptableCmdToHelp } from "../utils/commands"
 
 // commands
-import { MessageComponentTypes } from "discord.js/typings/enums"
 import { kafkaQueue } from "queue/kafka/queue"
 import { composeButtonLink, composeDiscordExitButton } from "ui/discord/button"
 import {
@@ -179,7 +178,6 @@ export const originalCommands: Record<string, Command> = {
   nft: nft.textCmd,
   sales: sales.textCmd,
   feedback: feedback.textCmd,
-  prune: prune.textCmd,
   alert: alert.textCmd,
   gas: gas.textCmd,
   inbox: inbox.textCmd,
@@ -316,7 +314,7 @@ async function executeCommand(
         const { handler, options = {} } = runResponse.buttonCollector
         msg
           .createMessageComponentCollector({
-            componentType: MessageComponentTypes.BUTTON,
+            componentType: Constants.MessageComponentTypes.BUTTON,
             idle: 60000,
             filter: authorFilter(message.author.id),
             ...options,

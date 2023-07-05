@@ -4,53 +4,11 @@ import {
   CommandInteraction,
   Message,
   MessageOptions,
-  SelectMenuInteraction,
+  Constants,
 } from "discord.js"
-import { MessageComponentTypes } from "discord.js/typings/enums"
 import { authorFilter } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { getPaginationRow } from "../../ui/discord/button"
-
-export function listenForSuggestionAction(
-  replyMsg: Message,
-  authorId: string,
-  onAction: (
-    value: string,
-    i: ButtonInteraction | SelectMenuInteraction
-  ) => Promise<void>
-) {
-  replyMsg
-    .createMessageComponentCollector({
-      componentType: MessageComponentTypes.BUTTON,
-      idle: 60000,
-      filter: authorFilter(authorId),
-    })
-    .on("collect", async (i) => {
-      const value = i.customId.split("-").pop()
-      wrapError(i, async () => {
-        await onAction(value ?? "", i)
-      })
-    })
-    .on("end", () => {
-      replyMsg.edit({ components: [] }).catch(() => null)
-    })
-
-  replyMsg
-    .createMessageComponentCollector({
-      componentType: MessageComponentTypes.SELECT_MENU,
-      idle: 60000,
-      filter: authorFilter(authorId),
-    })
-    .on("collect", async (i) => {
-      const value = i.values[0]
-      wrapError(i, async () => {
-        await onAction(value, i)
-      })
-    })
-    .on("end", () => {
-      replyMsg.edit({ components: [] }).catch(() => null)
-    })
-}
 
 export function listenForPaginateInteraction(
   interaction: CommandInteraction,
@@ -68,7 +26,7 @@ export function listenForPaginateInteraction(
 
   interaction.channel
     ?.createMessageComponentCollector({
-      componentType: MessageComponentTypes.BUTTON,
+      componentType: Constants.MessageComponentTypes.BUTTON,
       idle: 60000,
       filter: authorFilter(interaction.user.id),
     })
@@ -121,7 +79,7 @@ export function listenForPaginateAction(
   }
   replyMsg
     .createMessageComponentCollector({
-      componentType: MessageComponentTypes.BUTTON,
+      componentType: Constants.MessageComponentTypes.BUTTON,
       idle: 60000,
       filter: filter ? filter : authorFilter(originalMsg?.author.id ?? ""),
     })
