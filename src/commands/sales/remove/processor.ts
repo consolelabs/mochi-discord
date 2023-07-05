@@ -2,6 +2,7 @@ import community from "adapters/community"
 import {
   ButtonInteraction,
   CommandInteraction,
+  Constants,
   InteractionCollector,
   Message,
   MessageActionRow,
@@ -9,7 +10,6 @@ import {
   MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
-import { MessageComponentTypes } from "discord.js/typings/enums"
 import { APIError, InternalError } from "errors"
 import { embedsColors } from "types/common"
 import { parseDiscordToken } from "utils/commands"
@@ -108,7 +108,7 @@ function collectButton(msg: Message, authorId: string) {
   return msg
     .createMessageComponentCollector({
       filter: authorFilter(authorId),
-      componentType: MessageComponentTypes.BUTTON,
+      componentType: Constants.MessageComponentTypes.BUTTON,
       idle: 60000,
     })
     .once("collect", undo)
@@ -121,7 +121,7 @@ function collectSelect(msg: Message, authorId: string) {
   msg
     .createMessageComponentCollector({
       filter: authorFilter(authorId),
-      componentType: MessageComponentTypes.SELECT_MENU,
+      componentType: Constants.MessageComponentTypes.SELECT_MENU,
       idle: 60000,
     })
     .on("collect", selectRemove)

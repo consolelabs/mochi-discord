@@ -1,7 +1,6 @@
 import webhook from "adapters/webhook"
 import { handlePrefixedCommand } from "commands"
 import { Message } from "discord.js"
-import { MessageTypes } from "discord.js/typings/enums"
 import tagme from "handlers/tagme"
 import { textCommandAsyncStore } from "utils/async-storages"
 import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
@@ -11,9 +10,7 @@ import { DiscordEvent } from "./index"
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
 
-  const messageType = VALID_BOOST_MESSAGE_TYPES.includes(message.type)
-    ? MessageTypes["USER_PREMIUM_GUILD_SUBSCRIPTION"]
-    : MessageTypes["DEFAULT"]
+  const messageType = VALID_BOOST_MESSAGE_TYPES.includes(message.type) ? 9 : 1
 
   const stickers = Array.from(message.stickers.values())
 
