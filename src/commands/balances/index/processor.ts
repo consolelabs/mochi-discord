@@ -62,7 +62,7 @@ export enum BalanceView {
   Expand,
 }
 
-const PAGE_SIZE = 20 as const
+export const PAGE_SIZE = 20 as const
 
 type Interaction =
   | CommandInteraction
@@ -217,7 +217,7 @@ export async function getBalances(
     data = res.data.filter((i: any) => Boolean(i))
     pnl = 0
   }
-  if (type == BalanceType.All) {
+  if (type === BalanceType.All) {
     data = res.data.summarize.filter((i: any) => Boolean(i))
     pnl = 0
   }
@@ -513,6 +513,7 @@ export function formatView(
             usdVal: 0,
             usdWorth: 0,
             chain,
+            balance: null,
           }
 
         const text = `${value} ${symbol}`
@@ -526,13 +527,16 @@ export function formatView(
           ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
             ? { chain }
             : {}),
+          balance,
         }
       })
       .sort((a, b) => {
         return b.usdVal - a.usdVal
       })
       .filter((b) => b.text)
+    const list = formattedBal.map((b) => b.balance)
     const paginated = chunk(formattedBal, PAGE_SIZE)
+    const paginatedOriginal = chunk(list, PAGE_SIZE)
     const { joined: text } = formatDataTable(
       (paginated[page] ?? []).map((b) => ({
         balance: `${b.text}${b.chain ? ` (${b.chain})` : ""}`,
@@ -542,10 +546,15 @@ export function formatView(
         cols: ["balance", "usd"],
         separator: [` ${APPROX} `],
         rowAfterFormatter: (formatted, i) =>
-          `${formattedBal[i].emoji}${formatted}`,
+          `${paginated[page][i].emoji}${formatted}`,
       }
     )
-    return { totalWorth, text, totalPage: paginated.length }
+    return {
+      totalWorth,
+      text,
+      list: paginatedOriginal[page] ?? [],
+      totalPage: paginated.length,
+    }
   } else {
     const fields: EmbedFieldData[] = balances
       .map((balance) => {

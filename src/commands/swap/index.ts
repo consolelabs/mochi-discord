@@ -7,7 +7,7 @@ import {
 } from "discord.js"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { MachineConfig, route } from "utils/router"
+import { MachineConfig, route, RouterSpecialAction } from "utils/router"
 import { executeSwap, swapStep1, swapStep2 } from "./index/processor"
 import swapSlash from "./index/slash"
 
@@ -19,8 +19,9 @@ export const machineConfig: (initial: string, context: any) => MachineConfig = (
   initial,
   context: {
     ...context,
+    page: 0,
     button: {
-      swapStep1: (i, _ev, ctx) => swapStep1(i, ctx),
+      swapStep1: (i, _ev, ctx) => swapStep1(i, { ...ctx, page: ctx.page }),
       swapStep2: async (i, ev, ctx, isModal) => {
         if (isModal) {
           const modal = new Modal()
@@ -46,7 +47,7 @@ export const machineConfig: (initial: string, context: any) => MachineConfig = (
             .catch(() => null)
 
           if (!submitted) {
-            return swapStep2(i, ctx)
+            return swapStep2(i, { ...ctx, page: ctx.page })
           }
 
           if (!submitted.deferred) {
@@ -55,26 +56,28 @@ export const machineConfig: (initial: string, context: any) => MachineConfig = (
 
           const value = submitted.fields.getTextInputValue("amount")
 
-          return swapStep2(i, { ...ctx, amountIn: value })
+          return swapStep2(i, { ...ctx, amountIn: value, page: ctx.page })
         }
         return swapStep2(i, {
           ...ctx,
           amountIn: `%${ev.split("_").at(-1)}`,
+          page: ctx.page,
         })
       },
-      swapOffchain: (i, _ev, ctx) => executeSwap(i, ctx),
+      swapOffchain: (i, _ev, ctx) => executeSwap(i, { ...ctx, page: ctx.page }),
     },
     select: {
       swapStep2: (i, _ev, ctx) => {
-        const [id, type] = i.values.at(0)!.split("/")
-        const isOnchain = type === "onchain"
+        const id = i.values.at(0) ?? ""
         const balance = ctx.balances.find((b: any) => b.id === id)
+        const isOnchain = balance?.is_onchain ?? false
         return swapStep2(i, {
           ...ctx,
           wallet: isOnchain ? "Onchain wallet" : "Mochi wallet",
           balance,
-          from: isOnchain ? "XXX" : balance.token.symbol,
+          from: balance.token.symbol,
           isOnchain,
+          page: ctx.page,
         })
       },
     },
@@ -87,6 +90,9 @@ export const machineConfig: (initial: string, context: any) => MachineConfig = (
     swapStep1: {
       on: {
         SELECT_TOKEN: "swapStep2",
+
+        [RouterSpecialAction.NEXT_PAGE]: "swapStep1",
+        [RouterSpecialAction.PREV_PAGE]: "swapStep1",
       },
     },
     // select/enter amount

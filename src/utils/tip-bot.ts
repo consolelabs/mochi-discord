@@ -16,6 +16,8 @@ import {
 import { SPACE, SPACES_REGEX } from "./constants"
 import { getProfileIdByDiscord } from "./profile"
 import { formatDigit } from "./defi"
+import defi from "adapters/defi"
+import { nanoid } from "nanoid"
 
 const TIP_TARGET_TEXT_SELECTOR_MAPPINGS: Array<[string, string]> = [
   //
@@ -484,16 +486,45 @@ export async function getBalances({
   token?: string
 }) {
   const author = getAuthor(msgOrInteraction)
-  const senderPid = await getProfileIdByDiscord(author.id)
+  const profileId = await getProfileIdByDiscord(author.id)
   let balances = []
   const { data, ok } = await mochiPay.getBalances({
-    profileId: senderPid,
+    profileId,
     token,
   })
   if (ok) {
     balances = data.filter((b: any) => b.amount !== "0")
   }
   return balances
+}
+
+export async function getAllBalances({
+  interaction,
+}: {
+  interaction: OriginalMessage
+}) {
+  const author = getAuthor(interaction)
+  const profileId = await getProfileIdByDiscord(author.id)
+
+  const { data, ok } = await defi.getAllBalances({ profileId })
+
+  const mapOnchain = (b: any) => ({ ...b, is_onchain: true, id: nanoid(10) })
+
+  if (ok) {
+    return [
+      ...data.onchain.evm.map(mapOnchain),
+      ...data.onchain.sol.map(mapOnchain),
+      ...data.onchain.sui.map(mapOnchain),
+      ...data.onchain.ron.map(mapOnchain),
+      ...data.offchain.map((b: any) => ({
+        ...b,
+        is_onchain: false,
+        id: nanoid(10),
+      })),
+    ]
+  }
+
+  return []
 }
 
 /**
