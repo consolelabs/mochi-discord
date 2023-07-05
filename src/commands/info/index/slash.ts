@@ -11,7 +11,6 @@ export const machineConfig: (
 })
 
 const run = async (i: CommandInteraction) => {
-  console.log("in run allBalances")
   const view = i.options.getBoolean("expand", false)
     ? BalanceView.Expand
     : BalanceView.Compact
