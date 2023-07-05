@@ -162,10 +162,8 @@ async function compose(
     fractionDigits: totalWorth >= 100 ? 0 : 2,
   })
 
-  const { data: inbox } = await profile.getUserActivities(dataProfile.id)
-  const unreadList = inbox.filter((activity: any) => {
-    return activity.status === "new"
-  })
+  const { count: countUnreadActivities } =
+    await profile.countUserUnreadActivities(dataProfile.id)
 
   const embed = composeEmbedMessage(null, {
     author: [target.name, target.avatar],
@@ -234,12 +232,12 @@ async function compose(
           },
         ]
       : []),
-    ...(unreadList.length
+    ...(countUnreadActivities
       ? [
           {
             name:
-              `<:_:1028964391690965012> You have \`${unreadList.length}\` unread message` +
-              (unreadList.length > 1 ? "s" : ""),
+              `<:_:1028964391690965012> You have \`${countUnreadActivities}\` unread message` +
+              (countUnreadActivities > 1 ? "s" : ""),
             value: `Use ${await getSlashCommand("inbox")}.`,
           },
         ]
