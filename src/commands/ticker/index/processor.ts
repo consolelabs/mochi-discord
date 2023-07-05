@@ -538,7 +538,7 @@ export async function run(
       const { data: coins } = await CacheManager.get({
         pool: "ticker",
         key: `ticker-search-${ticker}`,
-        call: () => defi.searchCoins(ticker),
+        call: () => defi.searchCoins(ticker, "", interaction.guildId ?? ""),
       })
       if (!coins || !coins.length) {
         throw new InternalError({
