@@ -310,7 +310,7 @@ class Profile extends Fetcher {
     )
     let count = 0
     if (res.ok) {
-      count = res as number
+      count = res.data as unknown as number
     }
 
     return { count }
