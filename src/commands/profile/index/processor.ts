@@ -43,6 +43,7 @@ import { formatDigit } from "utils/defi"
 import config from "adapters/config"
 import { formatVaults } from "commands/vault/list/processor"
 import { getSlashCommand } from "utils/commands"
+import { chunk } from "lodash"
 
 async function renderListWallet(
   emoji: string,
@@ -244,7 +245,7 @@ async function compose(
       : []),
   ])
 
-  const notLinkedPlatforms = ["twitter", "telegram", "binance"]
+  const notLinkedPlatforms = ["twitter", "telegram", "binance", "ron", "sui"]
     .filter((s) =>
       socials.every(
         (connectedSocial: any) => !equalIgnoreCase(connectedSocial.platform, s)
@@ -253,6 +254,28 @@ async function compose(
     .filter((s) =>
       cexes.every((connectedCex) => !equalIgnoreCase(connectedCex.chain, s))
     )
+    .filter((s) =>
+      wallets.every(
+        (connectedOnchain) => !equalIgnoreCase(connectedOnchain.chain, s)
+      )
+    )
+
+  let connectButtons: MessageActionRow[] = []
+  if (notLinkedPlatforms.length) {
+    const buttons = chunk(
+      notLinkedPlatforms.map((p) => {
+        return new MessageButton()
+          .setLabel(`Connect ${capitalizeFirst(p)}`)
+          .setStyle("SECONDARY")
+          .setEmoji(getEmoji(p.toUpperCase() as EmojiKey))
+          .setCustomId(`connect_${p}`)
+      }),
+      3
+    )
+    connectButtons = buttons.map((cb) =>
+      new MessageActionRow().addComponents(...cb)
+    )
+  }
 
   return {
     embeds: [embed],
@@ -341,19 +364,7 @@ async function compose(
           .setStyle("SECONDARY")
           .setCustomId("view_add_wallet")
       ),
-      ...(notLinkedPlatforms.length
-        ? [
-            new MessageActionRow().addComponents(
-              ...notLinkedPlatforms.map((s) =>
-                new MessageButton()
-                  .setLabel(`Connect ${capitalizeFirst(s)}`)
-                  .setStyle("SECONDARY")
-                  .setEmoji(getEmoji(s.toUpperCase() as EmojiKey))
-                  .setCustomId(`connect_${s}`)
-              )
-            ),
-          ]
-        : []),
+      ...connectButtons,
     ],
   }
 }

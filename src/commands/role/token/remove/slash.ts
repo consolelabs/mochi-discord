@@ -66,7 +66,7 @@ const command: SlashCommand = {
 
     const embed = composeEmbedMessage2(interaction, {
       title: "Select an option",
-      description: (await list({ data })).description,
+      description: (await list({ data: data as any })).description,
     })
 
     return {

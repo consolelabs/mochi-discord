@@ -11,8 +11,8 @@ const slashCmd: SlashCommand = {
       .setDescription("View")
     return data
   },
-  run: async (i) => {
-    const { msgOpts } = await render(i)
+  run: async () => {
+    const { msgOpts } = await render()
 
     return { messageOptions: msgOpts }
   },

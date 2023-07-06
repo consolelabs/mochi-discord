@@ -1,7 +1,7 @@
-export async function render(i: CommandInteraction) {
-  return {
+export function render() {
+  return Promise.resolve({
     msgOpts: {
       content: "a",
     },
-  }
+  })
 }
