@@ -50,7 +50,7 @@ class TwitterStream extends InmemoryStorage {
 
   constructor() {
     super()
-    this.up()
+    // this.up()
   }
 
   set client(c: Client) {
