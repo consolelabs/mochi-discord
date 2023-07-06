@@ -19,6 +19,7 @@
     "@types/node-fetch": "2.5.12",
     "@types/pg": "^8.6.1",
     "@types/pino": "^6.3.6",
+    "@types/pino-std-serializers": "^4.0.0",
     "@types/retry": "^0.12.2",
     "@types/sharp": "^0.30.4",
     "@types/twit": "^2.2.30",
