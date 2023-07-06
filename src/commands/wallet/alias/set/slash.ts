@@ -7,7 +7,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { updateAlias } from "./processor"
 import defi from "adapters/defi"
 import { lookUpDomains } from "utils/common"
-import { formatDigit } from "utils/defi"
+import { formatUsdDigit } from "utils/defi"
 import { getProfileIdByDiscord } from "../../../../utils/profile"
 
 const command: SlashCommand = {
@@ -61,10 +61,7 @@ const command: SlashCommand = {
             value: w.address,
             name: `🔷 ${w.chain_type.toUpperCase()} | ${
               w.alias || (await lookUpDomains(w.address))
-            } | $${formatDigit({
-              value: w.net_worth.toString(),
-              fractionDigits: w.net_worth >= 100 ? 0 : 2,
-            })}`,
+            } | $${formatUsdDigit(w.net_worth.toString())}`,
           }
         })
     )

@@ -11,7 +11,7 @@ import {
   shortenHashOrAddress,
 } from "utils/common"
 import { APPROX, VERTICAL_BAR } from "utils/constants"
-import { formatDigit } from "utils/defi"
+import { formatUsdDigit } from "utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
 const emojiMap = {
@@ -75,10 +75,7 @@ export async function render(user: User) {
                 (d?.alias ?? "").length >= 16
                   ? shortenHashOrAddress(d.alias ?? "", 4)
                   : d.alias ?? "",
-              usd: `$${formatDigit({
-                value: String(d.net_worth ?? 0),
-                fractionDigits: d.net_worth > 100 ? 0 : 2,
-              })}`,
+              usd: `$${formatUsdDigit(d.net_worth ?? 0)}`,
             }
           }),
         {
@@ -104,10 +101,7 @@ export async function render(user: User) {
             value: `${e[0]}_onchain_${d.address}`,
             label: `🔹 ${chain} | ${
               d.alias || shortenHashOrAddress(d.address ?? "", 4)
-            } | 💵 $${formatDigit({
-              value: String(d.net_worth ?? 0),
-              fractionDigits: d.net_worth > 100 ? 0 : 2,
-            })}`,
+            } | 💵 $${formatUsdDigit(d.net_worth ?? 0)}`,
           }
         })
     })

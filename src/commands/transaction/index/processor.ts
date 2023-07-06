@@ -11,7 +11,7 @@ import { CommandInteraction } from "discord.js"
 import profile from "adapters/profile"
 import mochiPay from "adapters/mochi-pay"
 import { convertString } from "../../../utils/convert"
-import { formatDigit } from "utils/defi"
+import { formatTokenDigit } from "utils/defi"
 
 export async function render(i: CommandInteraction) {
   const userDiscordId = i.user.id
@@ -63,10 +63,9 @@ export async function render(i: CommandInteraction) {
       r(
         formatDataTable(
           sliced.map((s: any) => ({
-            left: `+ ${formatDigit({
-              value: convertString(s.amount, s.token.decimal, false).toString(),
-              fractionDigits: 4,
-            })} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
+            left: `+ ${formatTokenDigit(
+              convertString(s.amount, s.token.decimal, false).toString()
+            )} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
             right: shortenHashOrAddress(s.from, 4) ?? "Unknown",
           })),
           { cols: ["left", "right"], noWrap: true }
@@ -79,10 +78,9 @@ export async function render(i: CommandInteraction) {
       r(
         formatDataTable(
           sliced.map((s: any) => ({
-            left: `- ${formatDigit({
-              value: convertString(s.amount, s.token.decimal, false).toString(),
-              fractionDigits: 4,
-            })} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
+            left: `- ${formatTokenDigit(
+              convertString(s.amount, s.token.decimal, false).toString()
+            )} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
             right: shortenHashOrAddress(s.address, 4) ?? "Unknown",
           })),
           { cols: ["left", "right"], noWrap: true }
@@ -119,14 +117,9 @@ export async function render(i: CommandInteraction) {
           }
 
           return {
-            left: `${type} ${formatDigit({
-              value: convertString(
-                tx.amount,
-                tx.token.decimal,
-                false
-              ).toString(),
-              fractionDigits: 4,
-            })} ${tx.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
+            left: `${type} ${formatTokenDigit(
+              convertString(tx.amount, tx.token.decimal, false).toString()
+            )} ${tx.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
             right: targetUser ?? "someone",
           }
         })

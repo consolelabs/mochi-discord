@@ -44,7 +44,12 @@ import {
 } from "utils/constants"
 import mochiPay from "adapters/mochi-pay"
 import { convertString } from "utils/convert"
-import { formatDigit } from "utils/defi"
+import {
+  formatDigit,
+  formatPercentDigit,
+  formatTokenDigit,
+  formatUsdDigit,
+} from "utils/defi"
 import { getProfileIdByDiscord } from "utils/profile"
 import { BigNumber } from "ethers"
 import { chunk, groupBy } from "lodash"
@@ -330,42 +335,27 @@ async function getTxns(
         date: tx.created_at,
         action: tx.type === "credit" ? "Received" : "Sent",
         target: tx.other_profile_id,
-        amount: formatDigit({
-          value: convertString(
-            tx.amount,
-            tx.token?.decimal ?? 18,
-            false
-          ).toString(),
-          fractionDigits: 4,
-        }),
+        amount: formatTokenDigit(
+          convertString(tx.amount, tx.token?.decimal ?? 18, false).toString()
+        ),
         token: tx.token?.symbol?.toUpperCase() ?? "",
       })),
       ...data.withdraw.map((tx: any) => ({
         date: tx.created_at,
         action: "Sent",
         target: tx.address,
-        amount: formatDigit({
-          value: convertString(
-            tx.amount,
-            tx.token?.decimal ?? 18,
-            false
-          ).toString(),
-          fractionDigits: 4,
-        }),
+        amount: formatTokenDigit(
+          convertString(tx.amount, tx.token?.decimal ?? 18, false).toString()
+        ),
         token: tx.token?.symbol?.toUpperCase() ?? "",
       })),
       ...data.deposit.map((tx: any) => ({
         date: tx.created_at,
         action: "Received",
         target: tx.from,
-        amount: formatDigit({
-          value: convertString(
-            tx.amount,
-            tx.token?.decimal ?? 18,
-            false
-          ).toString(),
-          fractionDigits: 4,
-        }),
+        amount: formatTokenDigit(
+          convertString(tx.amount, tx.token?.decimal ?? 18, false).toString()
+        ),
         token: tx.token?.symbol?.toUpperCase() ?? "",
       })),
       ...data.swap.map((tx: any) => ({
@@ -418,10 +408,7 @@ async function getTxns(
         const target = firstAction.to
         const action =
           target.toLowerCase() === address.toLowerCase() ? "Received" : "Sent"
-        const amount = formatDigit({
-          value: firstAction.amount,
-          fractionDigits: 4,
-        })
+        const amount = formatTokenDigit(firstAction.amount)
         const token = firstAction.unit
 
         return {
@@ -496,14 +483,8 @@ export function formatView(
         const { symbol, chain: _chain, decimal, price, native } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
-        const value = formatDigit({
-          value: tokenVal.toString(),
-          fractionDigits: tokenVal >= 1000 ? 0 : 2,
-        })
-        const usdWorth = formatDigit({
-          value: usdVal.toString(),
-          fractionDigits: usdVal > 100 ? 0 : 2,
-        })
+        const value = formatTokenDigit(tokenVal.toString())
+        const usdWorth = formatUsdDigit(usdVal.toString())
         let chain = _chain?.symbol || _chain?.short_name || _chain?.name || ""
         chain = chain.toLowerCase()
         if (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST))
@@ -560,14 +541,8 @@ export function formatView(
         } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
-        const value = formatDigit({
-          value: tokenVal.toString(),
-          fractionDigits: tokenVal >= 1000 ? 0 : 2,
-        })
-        const usdWorth = formatDigit({
-          value: usdVal.toString(),
-          fractionDigits: usdVal > 100 ? 0 : 2,
-        })
+        const value = formatTokenDigit(tokenVal.toString())
+        const usdWorth = formatUsdDigit(usdVal.toString())
         let chain = _chain?.symbol || _chain?.short_name || _chain?.name || ""
         chain = chain.toLowerCase()
 
@@ -784,20 +759,16 @@ async function switchView(
   embed.addFields([
     {
       name: `Total (U.S dollar)`,
-      value: `${getEmoji("CASH")} \`$${formatDigit({
-        value: totalWorth.toString(),
-        fractionDigits: totalWorth > 100 ? 0 : 2,
-      })}\`${
+      value: `${getEmoji("CASH")} \`$${formatUsdDigit(
+        totalWorth.toString()
+      )}\`${
         balanceType === BalanceType.Onchain && balances.pnl !== 0
           ? ` (${getEmoji(
               Math.sign(balances.pnl) === -1
                 ? "ANIMATED_ARROW_DOWN"
                 : "ANIMATED_ARROW_UP",
               true
-            )}${formatDigit({
-              value: Math.abs(balances.pnl),
-              fractionDigits: 2,
-            })}%)`
+            )}${formatPercentDigit(Math.abs(balances.pnl))}%)`
           : ""
       }`,
     },
@@ -845,20 +816,13 @@ function buildFarmingField(farming: any[], showFull = false) {
       const rewardWorth =
         i.reward.amount * +i.reward.token.tokenDayData[0].priceUSD
 
-      const usdWorth = `$${formatDigit({
-        value: balanceWorth,
-        fractionDigits: balanceWorth > 100 ? 0 : 2,
-      })}`
+      const usdWorth = `$${formatUsdDigit(balanceWorth)}`
 
-      const reward = `${formatDigit({
-        value: i.reward.amount.toString(),
-        fractionDigits: 2,
-      })} ${i.reward.token.symbol}`
+      const reward = `${formatTokenDigit(i.reward.amount.toString())} ${
+        i.reward.token.symbol
+      }`
 
-      const rewardUsdWorth = `$${formatDigit({
-        value: rewardWorth,
-        fractionDigits: rewardWorth > 100 ? 0 : 2,
-      })}`
+      const rewardUsdWorth = `$${formatUsdDigit(rewardWorth)}`
 
       total += balanceWorth + rewardWorth
       const record = []
@@ -939,29 +903,17 @@ function buildEarnField(title: string, earning: any[], showFull = false) {
       // TODO: `amount` could be a very large amount, can't treat it like regular js numbers
       const earningWorth = i.amount * i.price
       const rewardWorth = i.reward * i.price
-      const amount = `${formatDigit({
-        value: i.amount,
-        fractionDigits: i.amount > 1000 ? 0 : 2,
-      })} ${i.symbol}`
+      const amount = `${formatTokenDigit(i.amount)} ${i.symbol}`
 
       total += earningWorth + rewardWorth
       const record = []
 
-      const usdWorth = `$${formatDigit({
-        value: earningWorth.toString(),
-        fractionDigits: earningWorth > 100 ? 0 : 2,
-      })}`
+      const usdWorth = `$${formatUsdDigit(earningWorth.toString())}`
 
-      const reward = `${formatDigit({
-        value: i.reward.toString(),
-        fractionDigits: 2,
-      })} ${i.symbol}`
+      const reward = `${formatTokenDigit(i.reward.toString())} ${i.symbol}`
 
       const rewardUsdWorth = rewardWorth
-        ? `$${formatDigit({
-            value: rewardWorth.toString(),
-            fractionDigits: rewardWorth > 100 ? 0 : 2,
-          })}`
+        ? `$${formatUsdDigit(rewardWorth.toString())}`
         : ""
 
       if (showFull) {

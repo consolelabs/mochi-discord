@@ -14,7 +14,7 @@ import mochiPay from "./mochi-pay"
 import { uniqBy } from "lodash"
 import { capitalizeFirst, removeDuplications } from "utils/common"
 import { logger } from "logger"
-import { formatDigit } from "utils/defi"
+import { formatUsdDigit } from "utils/defi"
 
 class Profile extends Fetcher {
   public async getUserSocials(discordId: string) {
@@ -103,10 +103,7 @@ class Profile extends Fetcher {
 
           return {
             value,
-            total: formatDigit({
-              value: bal.toString(),
-              fractionDigits: bal >= 100 ? 0 : 2,
-            }),
+            total: formatUsdDigit(bal),
             chain,
           }
         }) ?? []
@@ -126,10 +123,7 @@ class Profile extends Fetcher {
           return {
             value: w.platform_metadata?.username || w.platform_identifier,
             chain: capitalizeFirst(w.platform),
-            total: formatDigit({
-              value: bal.toString(),
-              fractionDigits: bal >= 100 ? 0 : 2,
-            }),
+            total: formatUsdDigit(bal),
           }
         }) ?? []
     )

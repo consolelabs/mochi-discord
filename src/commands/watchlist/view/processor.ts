@@ -6,7 +6,7 @@ import CacheManager from "cache/node-cache"
 import community from "adapters/community"
 import { getSlashCommand } from "utils/commands"
 import { ResponseGetWatchlistResponse } from "types/api"
-import { formatDigit } from "utils/defi"
+import { formatPercentDigit, formatUsdDigit } from "utils/defi"
 import { VERTICAL_BAR } from "utils/constants"
 import { groupBy } from "lodash"
 import { renderChart } from "./chart"
@@ -99,7 +99,7 @@ export async function composeWatchlist(
         "ANIMATED_POINTING_RIGHT",
         true
       )} No items in your watchlist.Run ${await getSlashCommand(
-        "watchlist add"
+        "watchlist add-nft"
       )} to add one.\n\n`
     )
     return {
@@ -133,15 +133,8 @@ export async function composeWatchlist(
               const priceChange = t.price_change_percentage_24h ?? 0
               return {
                 symbol: (t.symbol ?? "").toUpperCase(),
-                priceChange: `${formatDigit({
-                  value: String(priceChange),
-                  fractionDigits: priceChange > 10 ? 0 : 2,
-                })}%`,
-                usd: `$${formatDigit({
-                  value: String(price),
-                  fractionDigits: price >= 100 ? 0 : 2,
-                  scientificFormat: true,
-                })}`,
+                priceChange: `${formatPercentDigit(String(priceChange))}%`,
+                usd: `$${formatUsdDigit(String(price))}`,
               }
             }),
             {
