@@ -31,34 +31,9 @@ export class ChannelLogger {
     }
   }
 
-  log(error: BotBaseError, funcName?: string) {
-    if (this.logChannel) {
-      if (funcName) {
-        const embed = new MessageEmbed()
-          .setTimestamp()
-          .setDescription(
-            `\`\`\`bot crashed due to reason: ${funcName} ${error}\`\`\``
-          )
-        this.logChannel.send({
-          embeds: [embed],
-        })
-      } else {
-        const embed = new MessageEmbed()
-          .setTimestamp()
-          .setDescription(`\`\`\`bot crashed due to reason: ${error}\`\`\``)
-        this.logChannel.send({
-          embeds: [embed],
-        })
-      }
-    }
-  }
-
-  async alertSlash(
-    commandInteraction: CommandInteraction,
-    error: BotBaseError
-  ) {
+  alertSlash(commandInteraction: CommandInteraction, error: BotBaseError) {
     if (!this.alertChannel) {
-      return {}
+      return Promise.resolve({})
     }
 
     const isDM = !commandInteraction.guildId
@@ -82,9 +57,9 @@ export class ChannelLogger {
     })
   }
 
-  async alert<T extends BotBaseError>(msg: Message, error: T) {
+  alert<T extends BotBaseError>(msg: Message, error: T) {
     if (!this.alertChannel) {
-      return {}
+      return Promise.resolve({})
     }
 
     let description = `**Command:** \`${msg.content}\`\n**Guild:** \`${
@@ -120,9 +95,9 @@ export class ChannelLogger {
     })
   }
 
-  async alertWebhook(event: string, error: APIError) {
+  alertWebhook(event: string, error: APIError) {
     if (!this.alertChannel) {
-      return {}
+      return Promise.resolve({})
     }
     return this.alertChannel?.send({
       embeds: [
@@ -134,9 +109,9 @@ export class ChannelLogger {
     })
   }
 
-  async alertStackTrace(stack: string) {
+  alertStackTrace(stack: string) {
     if (!this.alertChannel) {
-      return {}
+      return Promise.resolve({})
     }
     return this.alertChannel?.send({
       embeds: [
