@@ -134,10 +134,6 @@ export const TOKEN_ROLE_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/token-roles" +
   "&command=tokenrole"
-export const XP_ROLE_GITBOOK =
-  USAGE_STATS_URL +
-  "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/xp-roles" +
-  "&command=xprole"
 export const MIX_ROLE_GITBOOK =
   USAGE_STATS_URL +
   "https://mochibot.gitbook.io/mochi-bot/functions/server-administration/mix-role" +

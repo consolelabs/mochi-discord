@@ -1,6 +1,5 @@
 import community from "adapters/community"
 import defi from "adapters/defi"
-import CacheManager from "cache/node-cache"
 import { createCanvas, loadImage } from "canvas"
 import { MessageAttachment } from "discord.js"
 import { RectangleStats } from "types/canvas"
@@ -22,23 +21,16 @@ export async function renderHistoricalMarketChart({
   isDominanceChart: boolean
 }) {
   const currency = "usd"
-  const { ok, data } = await CacheManager.get({
-    pool: "ticker",
-    key: `ticker-getHistoricalMarketData-${coinId}-${currency}-${days}`,
-    call: () =>
-      defi.getHistoricalMarketData({
-        coinId,
-        currency,
-        days,
-        discordId,
-        isDominanceChart,
-      }),
-    callIfCached: () =>
-      Promise.resolve(
-        discordId &&
-          community.updateQuestProgress({ userId: discordId, action: "ticker" })
-      ),
+  const { ok, data } = await defi.getHistoricalMarketData({
+    coinId,
+    currency,
+    days,
+    discordId,
+    isDominanceChart,
   })
+  if (discordId) {
+    community.updateQuestProgress({ userId: discordId, action: "ticker" })
+  }
   if (!ok) return null
   const { times, prices, from, to } = data
 
@@ -104,11 +96,12 @@ export async function renderCompareTokenChart({
   guildId: string
   days?: ChartViewTimeOption
 }) {
-  const { ok, data } = await CacheManager.get({
-    pool: "ticker",
-    key: `compare-${guildId}-${baseId}-${targetId}-${days}`,
-    call: () => defi.compareToken(guildId ?? "", baseId, targetId, days),
-  })
+  const { ok, data } = await defi.compareToken(
+    guildId ?? "",
+    baseId,
+    targetId,
+    days
+  )
   if (!ok) return { chart: null, ratio: 0 }
   const { times, ratios } = data
   if (!times || !times.length) return { chart: null, ratio: 0 }
@@ -134,11 +127,10 @@ export async function renderFiatCompareChart({
   chartLabel: string
   days?: ChartViewTimeOption
 }) {
-  const { ok, data } = await CacheManager.get({
-    pool: "ticker",
-    key: `comparefiat-${baseQ}-${targetQ}-${days}`,
-    call: () =>
-      defi.getFiatHistoricalData({ base: baseQ, target: targetQ, days }),
+  const { ok, data } = await defi.getFiatHistoricalData({
+    base: baseQ,
+    target: targetQ,
+    days,
   })
   if (!ok) return { chart: null, latest_rate: 0 }
   const { times, rates: ratios, latest_rate, from, to } = data
