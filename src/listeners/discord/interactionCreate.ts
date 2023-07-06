@@ -4,7 +4,6 @@ import { slashCommands } from "commands"
 import { handleInteraction } from "commands/balances/index/processor"
 import { sendVerifyURL } from "commands/config/verify/processor"
 import { feedbackDispatcher } from "commands/feedback/index/processor"
-import { confirmGlobalXP } from "commands/globalxp/index/processor"
 import { handleNFTTickerViews } from "commands/nft/ticker/processor"
 // import { handleDaoTrackerView } from "commands/proposal/info/processor"
 // import {
@@ -399,9 +398,6 @@ async function handleButtonInteraction(interaction: Interaction) {
     }
     case i.customId.startsWith("mochi_verify"):
       await sendVerifyURL(i)
-      return
-    case i.customId.startsWith("globalxp"):
-      await confirmGlobalXP(i, msg)
       return
     // case i.customId.startsWith("ticker_view_"):
     //   await handleTickerViews(i)

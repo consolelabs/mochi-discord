@@ -65,7 +65,6 @@ import top from "./top"
 import watchlist from "./watchlist"
 import watchlistView from "./watchlist/view/slash"
 import withdraw from "./withdraw"
-import xprole from "./xp-role"
 import wallet from "./wallet"
 import alert from "./alert"
 import stats from "./stats"
@@ -134,7 +133,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   deposit: deposit.slashCmd,
   dep: deposit.slashCmd,
   sendxp: sendxp.slashCmd,
-  xprole: xprole.slashCmd,
   alert: alert.slashCmd,
   wallet: wallet.slashCmd,
   stats: stats.slashCmd,
@@ -182,7 +180,6 @@ export const originalCommands: Record<string, Command> = {
   gas: gas.textCmd,
   // config section
   levelmessage: levelmessage.textCmd,
-  xprole: xprole.textCmd,
   stats: stats.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
