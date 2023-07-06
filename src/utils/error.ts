@@ -16,5 +16,6 @@ export function somethingWentWrongPayload() {
       },
     ],
     components: [],
+    files: [],
   }
 }

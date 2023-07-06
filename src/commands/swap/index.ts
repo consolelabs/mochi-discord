@@ -50,7 +50,7 @@ export const machineConfig: (initial: string, context: any) => MachineConfig = (
           }
 
           if (!submitted.deferred) {
-            await submitted.deferUpdate().then(() => null)
+            await submitted.deferUpdate().catch(() => null)
           }
 
           const value = submitted.fields.getTextInputValue("amount")
