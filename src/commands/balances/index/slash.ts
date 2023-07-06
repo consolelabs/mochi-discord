@@ -1,6 +1,7 @@
 import { machineConfig as earnMachineConfig } from "commands/earn/index"
 import { EarnView, run as renderEarnHome } from "commands/earn/index/processor"
 import { machineConfig as investMachineConfig } from "commands/invest/index"
+import { machineConfig as depositMachineConfig } from "commands/deposit/index/slash"
 import { renderInvestHome } from "commands/invest/index/processor"
 import { copyWallet } from "commands/wallet/copy/processor"
 import { followWallet } from "commands/wallet/follow/processor"
@@ -102,6 +103,9 @@ export const machineConfig: (
         }),
     },
     ...context,
+    modal: {
+      DEPOSIT: true,
+    },
   },
   states: {
     walletFollow: {
@@ -148,9 +152,17 @@ export const machineConfig: (
         TRACK_WALLET: "walletTrack",
         COPY_WALLET: "walletCopy",
         UNTRACK_WALLET: "walletUntrack",
+        DEPOSIT: "deposit",
         [RouterSpecialAction.NEXT_PAGE]: "balance",
         [RouterSpecialAction.PREV_PAGE]: "balance",
       },
+    },
+    deposit: {
+      on: {
+        BACK: "balance",
+        DEPOSIT: "deposit",
+      },
+      ...depositMachineConfig("ETH", 1, {}),
     },
     wallets: {
       id: "wallets",

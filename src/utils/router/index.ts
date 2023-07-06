@@ -23,6 +23,7 @@ import { merge } from "lodash"
 import { getRandomFact } from "cache/tip-fact-cache"
 import { PROD } from "env"
 import { profilingAsyncStore } from "utils/async-storages"
+import { logger } from "logger"
 
 export type { MachineConfig }
 
@@ -246,7 +247,11 @@ export function route(
               context.steps?.push(e.name)
               context.steps?.push(stack.clean(e.stack ?? ""))
 
-              throw new Error(context.steps?.join("\n"))
+              if (context.steps) {
+                logger.error(context.steps?.toString())
+              }
+
+              throw e
             }
           })
         },

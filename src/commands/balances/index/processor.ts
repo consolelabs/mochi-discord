@@ -1200,7 +1200,8 @@ export function getButtons() {
       .setStyle("SECONDARY")
       .setEmoji(getEmoji("SHARE"))
       .setCustomId(`send`)
-      .setLabel("Send"),
+      .setLabel("Send (soon)")
+      .setDisabled(true),
     new MessageButton()
       .setStyle("SECONDARY")
       .setEmoji(getEmoji("ANIMATED_TOKEN_ADD", true))

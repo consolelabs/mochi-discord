@@ -61,6 +61,8 @@ export class InternalError extends BotBaseError {
             this.extra
           ),
         ],
+        components: [],
+        files: [],
       })
     } else {
       this.reply?.({
@@ -72,6 +74,8 @@ export class InternalError extends BotBaseError {
             color: this.color,
           }),
         ],
+        components: [],
+        files: [],
       })
     }
   }
