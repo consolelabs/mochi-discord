@@ -468,7 +468,7 @@ export const emojis = {
   ...traitTypeMapping,
 }
 
-export const msgColors = {
+export const msgColors: Record<string, ColorResolvable> = {
   PRIMARY: "#E88B88",
   ERROR: "#D94F4F",
   SUCCESS: "#5cd97d",
@@ -480,7 +480,7 @@ export const msgColors = {
   YELLOW: "#FFCC4C",
   MOCHI: "#34AAFF",
   ACTIVITY: "#62A1FE",
-} satisfies Record<string, ColorResolvable>
+}
 
 export const thumbnails = {
   HELP: "https://i.imgur.com/uuQhOmH.png",
