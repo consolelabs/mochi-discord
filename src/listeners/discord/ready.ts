@@ -8,9 +8,6 @@ import defi from "adapters/defi"
 import { wrapError } from "utils/wrap-error"
 import InteractionManager from "handlers/discord/select-menu"
 import { logger } from "logger"
-import TwitterStream from "listeners/twitter"
-import Paintswap from "listeners/paintswap"
-import Opensea from "listeners/opensea"
 
 export let IS_READY = false
 
@@ -65,12 +62,7 @@ const event: DiscordEvent<"ready"> = {
       await wait(1000)
 
       // set the client so the bot can send message
-      TwitterStream.client = client
       IS_READY = true
-
-      // initial sales listeners
-      new Paintswap()
-      new Opensea()
     })
   },
 }
