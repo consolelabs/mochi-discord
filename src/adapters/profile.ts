@@ -70,7 +70,11 @@ class Profile extends Fetcher {
     mochiWallets = uniqBy(mochiWallets, (mw) => mw.wallet_address)
     mochiWallets = mochiWallets.map((m) => ({
       value: m.wallet_address,
-      chain: String(m.chain?.is_evm ? "EVM" : m.chain?.symbol).toUpperCase(),
+      chain: String(
+        m.chain?.is_evm && m.chain?.chain_id !== "2020"
+          ? "EVM"
+          : m.chain?.symbol
+      ).toUpperCase(),
     }))
 
     let pnl = Number(dataProfile.pnl || 0)
