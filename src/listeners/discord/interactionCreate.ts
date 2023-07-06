@@ -169,8 +169,6 @@ function handleCommandInteraction(interaction: Interaction) {
         guildId: interaction.guildId ?? "",
       })
 
-      await new Promise((r) => setTimeout(r, 3000))
-
       let isAdminRoleIncluded = false
       const memberRoles = gMember?.roles.cache
       if (data && memberRoles) {
