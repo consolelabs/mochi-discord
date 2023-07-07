@@ -222,16 +222,6 @@ class Defi extends Fetcher {
     )
   }
 
-  async getTransactionsHistories(query: {
-    sender_id?: string
-    receiver_id?: string
-    token: string
-  }) {
-    return await this.jsonFetch(`${API_BASE_URL}/tip/transactions`, {
-      query,
-    })
-  }
-
   async createConfigNofityTransaction(req: RequestCreateTipConfigNotify) {
     return await this.jsonFetch(`${API_BASE_URL}/config-channels/tip-notify`, {
       method: "POST",
@@ -252,37 +242,6 @@ class Defi extends Fetcher {
     return await this.jsonFetch(`${API_BASE_URL}/config-channels/tip-notify`, {
       query,
     })
-  }
-
-  async submitOnchainTransfer(req: any) {
-    return await this.jsonFetch(`${API_BASE_URL}/tip/onchain/submit`, {
-      method: "POST",
-      body: req,
-    })
-  }
-
-  async claimOnchainTransfer(req: any) {
-    return await this.jsonFetch(`${API_BASE_URL}/tip/onchain/claim`, {
-      method: "POST",
-      body: req,
-    })
-  }
-
-  async getUserOnchainTransfers(userId: string, status?: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/tip/onchain/${userId}/transfers`,
-      {
-        method: "GET",
-        query: { status },
-      }
-    )
-  }
-
-  async getUserOnchainBalances(userId: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/tip/onchain/${userId}/balances`,
-      { method: "GET" }
-    )
   }
 
   async getFtmPrice() {

@@ -31,7 +31,6 @@ const slashCmd: SlashCommand = {
           `Config channel to track member activity: ${await getSlashCommand(
             "config logchannel"
           )}`,
-          `Forward any Tweet that contains a user-specified keyword from Twitter to a channel: [\`$poe\`](${HOMEPAGE_URL})`,
           `Setup well-rated posts along with a channel to share these contents automatically: [\`$starboard\`](${HOMEPAGE_URL})`,
           `Setup a vault for the server: ${await getSlashCommand("vault new")}`,
         ]
