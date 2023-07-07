@@ -373,18 +373,18 @@ async function getTxns(
         action: "Swap",
         from_token: tx.from_token.symbol,
         to_token: tx.to_token.symbol,
-        in_amount: formatDigit({
+        amount_in: formatDigit({
           value: convertString(
             tx.amount_in,
-            tx.to_token?.decimal ?? 18,
+            tx.from_token?.decimal ?? 18,
             false
           ).toString(),
           fractionDigits: 4,
         }),
-        out_amount: formatDigit({
+        amount_out: formatDigit({
           value: convertString(
             tx.amount_out,
-            tx.from_token?.decimal ?? 18,
+            tx.to_token?.decimal ?? 18,
             false
           ).toString(),
           fractionDigits: 4,

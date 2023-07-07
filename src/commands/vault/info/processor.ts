@@ -227,8 +227,8 @@ async function formatRecentTransaction(tx: any) {
       const fromTokenEmoji = getEmojiToken(fromToken)
       const toToken = tx.to_token.toUpperCase()
       const toTokenEmoji = getEmojiToken(toToken)
-      const emojiSwap = getEmoji("SWAP")
-      return `${t} ${fromTokenEmoji} -${tx.out_amount} ${fromToken} ${emojiSwap} ${toTokenEmoji} +${tx.in_amount} ${toToken}\n`
+      const emojiSwap = getEmoji("SWAP_ROUTE")
+      return `${t} ${fromTokenEmoji} -${tx.amount_in} ${fromToken} ${emojiSwap} ${toTokenEmoji} +${tx.amount_out} ${toToken}\n`
     }
   }
 }
