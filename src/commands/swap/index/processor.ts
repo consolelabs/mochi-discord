@@ -30,7 +30,7 @@ import { formatView } from "commands/balances/index/processor"
 import { getSlashCommand } from "utils/commands"
 import { checkCommitableOperation } from "commands/withdraw/index/processor"
 import { getProfileIdByDiscord } from "utils/profile"
-import { aggregateTradeRoute } from "./aggregate-util"
+import { aggregateTradeRoute, SWAP_ROUTE_PROVIDERS } from "./aggregate-util"
 import { renderTokenComparisonFields } from "commands/ticker/index/processor"
 
 export const SLIPPAGE = 0.5
@@ -46,11 +46,15 @@ type Context = {
   balances?: any
   balance?: any
   wallet?: string
-  routeSummary?: any
+  // use as swap api request body
+  swapData?: any
+  // use as swap api request body
+  aggregator?: string
   isOnchain?: boolean
   rate?: number
   compareFields?: EmbedFieldData[]
-  tradeRoute?: any
+  // use to render UI route
+  tradeRouteRenderData?: any
 }
 
 type Interaction =
@@ -375,7 +379,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
   })
 
   const profileId = await getProfileIdByDiscord(i.user.id)
-  const { data: tradeRoute, ok } = await defi.getSwapRoute({
+  const { data: getSwapRouteRes, ok } = await defi.getSwapRoute({
     from: ctx?.from ?? "",
     to: ctx?.to ?? "",
     amount: amount.replace(",", ""),
@@ -385,16 +389,20 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
   if (
     !ok ||
     [TradeRouteDataCode.NoRoute, TradeRouteDataCode.HighPriceImpact].includes(
-      tradeRoute.code
+      getSwapRouteRes.code
     )
   ) {
     return {
       initial: "noTradeRouteFound",
-      msgOpts: renderNoTradeRouteData(ctx.from, ctx.to, tradeRoute?.code),
+      msgOpts: renderNoTradeRouteData(ctx.from, ctx.to, getSwapRouteRes?.code),
     }
   }
 
-  const routeSummary = tradeRoute.data.routeSummary
+  const routeSummary = getSwapRouteRes.data.routeSummary
+  const tokenIn = getSwapRouteRes.data.tokenIn
+  const tokenOut = getSwapRouteRes.data.tokenOut
+  const swapData = getSwapRouteRes.data.swapData
+  const aggregator = getSwapRouteRes.data.aggregator
 
   const amountInUsd = formatDigit({
     value: routeSummary.amountInUsd,
@@ -405,7 +413,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     BigNumber.from(routeSummary.amountOut)
       .mul((100 - SLIPPAGE) * 10)
       .div(1000),
-    tradeRoute.data.tokenOut.decimals
+    tokenOut.decimals
   )
 
   const amountOutUsd = formatDigit({
@@ -419,14 +427,13 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     fractionDigits: Number(ratio) >= 100 ? 0 : 2,
   })
 
-  const isBridged =
-    tradeRoute.data.tokenIn.chain_id !== tradeRoute.data.tokenOut.chain_id
+  const isBridged = tokenIn.chain_id !== tokenOut.chain_id
 
   const network = isBridged
-    ? `${capitalizeFirst(
-        tradeRoute.data.tokenIn.chain_name
-      )} -> ${capitalizeFirst(tradeRoute.data.tokenOut.chain_name)} (bridge)`
-    : `${capitalizeFirst(tradeRoute.data.tokenOut.chain_name)}`
+    ? `${capitalizeFirst(tokenIn.chain_name)} -> ${capitalizeFirst(
+        tokenOut.chain_name
+      )} (bridge)`
+    : `${capitalizeFirst(tokenOut.chain_name)}`
 
   const newContext = {
     to: ctx?.to,
@@ -448,10 +455,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
   }
   const preview = renderFullInfo(newContext)
 
-  const [fromId, toId] = [
-    tradeRoute.data.tokenIn.coingecko_id,
-    tradeRoute.data.tokenOut.coingecko_id,
-  ]
+  const [fromId, toId] = [tokenIn.coingecko_id, tokenOut.coingecko_id]
   let compareFields: EmbedFieldData[] = ctx.compareFields ?? []
   if (!compareFields.length) {
     if (fromId && toId) {
@@ -477,7 +481,8 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
 
   const tradeRouteRenderData = await aggregateTradeRoute(
     ctx.from ?? "",
-    routeSummary
+    routeSummary,
+    getSwapRouteRes.provider
   )
 
   return {
@@ -486,11 +491,12 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     context: {
       ...ctx,
       ...newContext,
-      chainName: tradeRoute.chainName,
-      routeSummary,
+      chainName: getSwapRouteRes.chainName,
+      swapData,
+      aggregator,
       balance,
       compareFields,
-      tradeRoute: tradeRouteRenderData,
+      tradeRouteRenderData,
     },
     msgOpts: {
       embeds: [
@@ -545,29 +551,31 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
 export function renderRouteEmbed({
   text,
   routeCount,
+  provider,
 }: {
   text: string[]
   routeCount: number
+  provider: keyof typeof SWAP_ROUTE_PROVIDERS
 }) {
   return composeEmbedMessage(null, {
     author: ["Your trade route", getEmojiURL(emojis.SWAP_ROUTE)],
     description: `Routing through ${routeCount} route${
       routeCount > 1 ? "s" : ""
-    }\n${getEmoji("REPLY_3")}\n${text.join(
-      "\n"
-    )}\n\n_route via [KyberSwap](https://kyberswap.com)_`,
+    }\n${getEmoji("REPLY_3")}\n${text.join("\n")}\n\n_route via [${
+      SWAP_ROUTE_PROVIDERS[provider].name
+    }](${SWAP_ROUTE_PROVIDERS[provider].url})_`,
   })
 }
 
 export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
-  if (!ctx?.routeSummary || !ctx.chainName || !ctx.tradeRoute) {
+  if (!ctx?.swapData || !ctx.chainName || !ctx.aggregator) {
     return {
       initial: "noTradeRouteFound",
       msgOpts: renderNoTradeRouteData(ctx?.from, ctx?.to),
     }
   }
 
-  await defi.swap(i.user.id, ctx.chainName, ctx.routeSummary)
+  await defi.swap(i.user.id, ctx.chainName, ctx.aggregator, ctx.swapData)
   const dm = await dmUser(
     {
       embeds: [
@@ -612,7 +620,7 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
             fractionDigits: amountOut >= 1000 ? 0 : 2,
           })} ${ctx.to}**\n${renderPreview(ctx)}`,
         }).addFields(fields),
-        renderRouteEmbed(ctx.tradeRoute),
+        renderRouteEmbed(ctx.tradeRouteRenderData),
       ],
       components: [
         ...(dm

@@ -140,6 +140,12 @@ class MochiPay extends Fetcher {
       }
     )
   }
+
+  async getListSwapTx(query: { profile_id: string }) {
+    return await this.jsonFetch(`${MOCHI_PAY_API_BASE_URL}/swap/transactions`, {
+      query,
+    })
+  }
 }
 
 export default new MochiPay()

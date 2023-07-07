@@ -176,7 +176,7 @@ function format(tokenIn: string) {
                 o === hop.pools.length - 1 && lastHop
                   ? getEmoji("REPLY")
                   : getEmoji("REPLY_2")
-              }[(${p.name}: ${p.percent})](${HOMEPAGE_URL})`
+              }[(${p.name ? `${p.name}: ` : ""}${p.percent})](${HOMEPAGE_URL})`
             })
             .join("\n")}`
         })
@@ -204,13 +204,28 @@ function format(tokenIn: string) {
   }
 }
 
+export const SWAP_ROUTE_PROVIDERS = {
+  "kyber-swap": {
+    name: "KyberSwap",
+    url: "https://kyberswap.com",
+  },
+  jupyter: {
+    name: "Jupiter",
+    url: "https://jup.ag/",
+  },
+} as const
+
 export async function aggregateTradeRoute(
   tokenIn: string,
-  routeSummary: RouteSummary
+  routeSummary: RouteSummary,
+  provider: keyof typeof SWAP_ROUTE_PROVIDERS
 ) {
   const routes = await parseTradeRoute(routeSummary)
     .then(calculatePercentage)
     .then(format(tokenIn))
 
-  return routes
+  return {
+    ...routes,
+    provider,
+  }
 }

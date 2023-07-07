@@ -170,10 +170,10 @@ CacheManager.init({
 async function formatRecentTransaction(tx: any) {
   const date = new Date(tx.date)
   const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
-  const amount = ["+", "-"].includes(tx.amount.split("")[0])
+  const amount = ["+", "-"].includes(tx.amount?.split("")[0])
     ? tx.amount.slice(1)
     : tx.amount
-  const token = tx.token.toUpperCase()
+  const token = tx.token?.toUpperCase()
   const tokenEmoji = getEmojiToken(token)
   switch (tx.action) {
     case "Received": {
@@ -221,6 +221,14 @@ async function formatRecentTransaction(tx: any) {
       }
 
       return `${t} ${tokenEmoji} -${amount} ${token}${to ? ` to ${to}` : ""}\n`
+    }
+    case "Swap": {
+      const fromToken = tx.from_token.toUpperCase()
+      const fromTokenEmoji = getEmojiToken(fromToken)
+      const toToken = tx.to_token.toUpperCase()
+      const toTokenEmoji = getEmojiToken(toToken)
+      const emojiSwap = getEmoji("SWAP")
+      return `${t} ${fromTokenEmoji} -${tx.out_amount} ${fromToken} ${emojiSwap} ${toTokenEmoji} +${tx.in_amount} ${toToken}\n`
     }
   }
 }
@@ -275,7 +283,16 @@ function buildMyNftFields(data: any): any {
 export async function buildRecentTxFields(data: any) {
   const formatted = await Promise.all(
     data.recent_transaction
-      .filter((tx: any) => tx.token.length <= 10)
+      .filter(
+        (tx: {
+          token: string | any[]
+          from_token: string | any[]
+          to_token: string | any[]
+        }) =>
+          tx.token?.length <= 10 ||
+          tx.from_token?.length <= 10 ||
+          tx.to_token?.length <= 10
+      )
       .map((tx: any) => formatRecentTransaction(tx))
   )
   if (!formatted.length) return []

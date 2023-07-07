@@ -321,11 +321,10 @@ async function getTxns(
   if (type === BalanceType.Offchain) {
     const data = res.data
     const sort = (a: any, b: any) => {
-      const timeA = new Date(a.created_at).getTime()
-      const timeB = new Date(b.created_at).getTime()
+      const timeA = new Date(a.date).getTime()
+      const timeB = new Date(b.date).getTime()
       return timeB - timeA
     }
-
     return [
       ...data.offchain.map((tx: any) => ({
         date: tx.created_at,
@@ -340,7 +339,6 @@ async function getTxns(
           fractionDigits: 4,
         }),
         token: tx.token?.symbol?.toUpperCase() ?? "",
-        created_at: tx.created_at,
       })),
       ...data.withdraw.map((tx: any) => ({
         date: tx.created_at,
@@ -355,7 +353,6 @@ async function getTxns(
           fractionDigits: 4,
         }),
         token: tx.token?.symbol?.toUpperCase() ?? "",
-        created_at: tx.created_at,
       })),
       ...data.deposit.map((tx: any) => ({
         date: tx.created_at,
@@ -370,12 +367,34 @@ async function getTxns(
           fractionDigits: 4,
         }),
         token: tx.token?.symbol?.toUpperCase() ?? "",
-        created_at: tx.created_at,
+      })),
+      ...data.swap.map((tx: any) => ({
+        date: tx.created_at,
+        action: "Swap",
+        from_token: tx.from_token.symbol,
+        to_token: tx.to_token.symbol,
+        in_amount: formatDigit({
+          value: convertString(
+            tx.amount_in,
+            tx.to_token?.decimal ?? 18,
+            false
+          ).toString(),
+          fractionDigits: 4,
+        }),
+        out_amount: formatDigit({
+          value: convertString(
+            tx.amount_out,
+            tx.from_token?.decimal ?? 18,
+            false
+          ).toString(),
+          fractionDigits: 4,
+        }),
       })),
     ]
       .sort(sort)
       .slice(0, 5)
   }
+
   if (type === BalanceType.Onchain) {
     const data = res.data || []
     return data
@@ -1200,7 +1219,8 @@ export function getButtons() {
       .setStyle("SECONDARY")
       .setEmoji(getEmoji("SHARE"))
       .setCustomId(`send`)
-      .setLabel("Send"),
+      .setLabel("Send (soon)")
+      .setDisabled(true),
     new MessageButton()
       .setStyle("SECONDARY")
       .setEmoji(getEmoji("ANIMATED_TOKEN_ADD", true))

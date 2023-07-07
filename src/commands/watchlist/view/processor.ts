@@ -48,12 +48,14 @@ export enum WatchListTokenViewType {
   Chart = "chart",
 }
 
-function sortPrice(a: any, b: any) {
-  const result =
-    Math.abs(b.price_change_percentage_24h ?? 0) -
-    Math.abs(a.price_change_percentage_24h ?? 0)
+function sortPrice(dir: 1 | -1 = 1) {
+  return function (a: any, b: any) {
+    const result =
+      Math.abs(b.price_change_percentage_24h ?? 0) -
+      Math.abs(a.price_change_percentage_24h ?? 0)
 
-  return result >= 0 ? 1 : -1
+    return (result >= 0 ? 1 : -1) * dir
+  }
 }
 
 export async function composeWatchlist(
@@ -119,8 +121,8 @@ export async function composeWatchlist(
           const group = groupBy(tokenData, (t) =>
             Math.sign(t.price_change_percentage_24h ?? 0)
           )
-          group[1] = group[1]?.sort(sortPrice) ?? []
-          group["-1"] = group["-1"]?.sort(sortPrice) ?? []
+          group[1] = group[1]?.sort(sortPrice(1)) ?? []
+          group["-1"] = group["-1"]?.sort(sortPrice(-1)) ?? []
 
           tokenData = [...group[1], ...(group[0] ?? []), ...group[-1]]
           const { segments } = formatDataTable(

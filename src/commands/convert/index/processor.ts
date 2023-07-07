@@ -97,11 +97,14 @@ export async function render(
 
   let tradeRoute
   const routeSummary = tradeRouteData?.data.routeSummary
+  const tokenIn = tradeRouteData?.data.tokenIn
+  const tokenOut = tradeRouteData?.data.tokenOut
 
   if (tradeRouteData?.code === TradeRouteDataCode.RouteDataFound) {
     tradeRoute = await aggregateTradeRoute(
       base_coin.symbol.toUpperCase(),
-      routeSummary
+      routeSummary,
+      tradeRouteData.provider
     )
   }
 
@@ -119,16 +122,12 @@ export async function render(
     )
   }
 
-  const isBridged =
-    tradeRouteData?.data.tokenIn.chain_id !==
-    tradeRouteData?.data.tokenOut.chain_id
+  const isBridged = tokenIn.chain_id !== tokenOut.chain_id
   const network = isBridged
-    ? `${capitalizeFirst(
-        tradeRouteData?.data.tokenIn.chain_name
-      )} -> ${capitalizeFirst(
-        tradeRouteData?.data.tokenOut.chain_name
+    ? `${capitalizeFirst(tokenIn.chain_name)} -> ${capitalizeFirst(
+        tokenOut.chain_name
       )} (bridge)`
-    : `${capitalizeFirst(tradeRouteData?.data.tokenOut.chain_name)}`
+    : `${capitalizeFirst(tokenOut.chain_name)}`
 
   const amountInUsd = formatDigit({
     value: routeSummary.amountInUsd,
@@ -140,7 +139,7 @@ export async function render(
       BigNumber.from(routeSummary?.amountOut ?? 0)
         .mul((100 - SLIPPAGE) * 10)
         .div(1000),
-      tradeRouteData?.data.tokenOut.decimals
+      tokenOut.decimals
     )
   }
 

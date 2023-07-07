@@ -526,12 +526,18 @@ class Defi extends Fetcher {
     })
   }
 
-  async swap(userDiscordId: string, chainName: string, routeSummary: any) {
+  async swap(
+    userDiscordId: string,
+    chainName: string,
+    aggregator: string,
+    swapData: any
+  ) {
     return await this.jsonFetch(`${API_BASE_URL}/swap`, {
       method: "POST",
       body: {
         userDiscordId,
-        routeSummary,
+        aggregator,
+        swapData,
         chainName,
       },
       bodyCamelToSnake: false,
