@@ -33,3 +33,10 @@ export function GetDateComponents(d: Date) {
     ).slice(-2),
   }
 }
+
+export function getStartEndDate(d: Date): { startDate: Date; endDate: Date } {
+  const startOfDay = new Date(d.setHours(0, 0, 0, 0))
+  const endOfDay = new Date(d.setHours(23, 59, 59, 999))
+
+  return { startDate: startOfDay, endDate: endOfDay }
+}
