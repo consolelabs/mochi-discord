@@ -84,8 +84,11 @@ export const MOCHI_TELEGRAM_API_SERVER_HOST =
 export const GAME_STORE_API_SERVER_HOST =
   process.env.GAME_STORE_API_SERVER_HOST || "https://game-store-api.console.so"
 
+export const ECOCAL_API_SERVER_HOST = process.env.ECOCAL_API_SERVER_HOST || ""
+
 export const MOCHI_API_KEY = process.env.MOCHI_API_KEY || ""
 export const KRYSTAL_ACCESS_TOKEN = process.env.KRYSTAL_ACCESS_TOKEN || ""
+export const ECOCAL_API_KEY = process.env.ECOCAL_API_KEY || ""
 
 export const FETCH_TIMEOUT_SECONDS = process.env.FETCH_TIMEOUT_SECONDS || 5
 export const CACHE_TTL_SECONDS = process.env.CACHE_TTL_SECONDS || 1800
