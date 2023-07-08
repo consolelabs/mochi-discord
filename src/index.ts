@@ -55,9 +55,7 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
     })
     logger.info("Successfully reloaded application (/) commands.")
 
-    logger.info("Getting tips and facts.")
-    await getTipsAndFacts()
-    logger.info("Success getting tips and facts.")
+    getTipsAndFacts()
 
     runHttpServer()
   } catch (error) {

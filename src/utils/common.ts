@@ -26,7 +26,7 @@ import {
 } from "@bonfida/spl-name-service"
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js"
 
-import { DOT, SPACE } from "./constants"
+import { API_BASE_URL, DOT, SPACE } from "./constants"
 import {
   marketplaceEmojis,
   rarityEmojis,
@@ -34,6 +34,68 @@ import {
   traitTypeMapping,
 } from "./nft"
 import { swr } from "adapters/fetcher"
+
+class EmojiCache {
+  private cache: Map<string, { emoji: string; url: string }>
+  public fallback: string
+
+  constructor() {
+    this.cache = new Map()
+    this.fallback = "<a:coin:1093923016691421205>"
+    this.fetch()
+  }
+
+  async fetch() {
+    try {
+      logger.info("Fetching emoji data...")
+      const res = await fetch(`${API_BASE_URL}/product-metadata/emoji`)
+      if (!res.ok) throw new Error("")
+      const json = await res.json().catch(() => null)
+      if (!json) throw new Error("")
+      const { data } = json
+      const emojis = data as any[]
+      for (const emoji of emojis) {
+        this.cache.set(emoji.code.toUpperCase(), {
+          emoji: emoji.emoji,
+          url: emoji.emoji_url,
+        })
+      }
+      logger.info("Fetch emoji data OK")
+    } catch (e: any) {
+      logger.error(e)
+      logger.error("Fetch emoji data FAIL")
+      process.exit(1)
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getEmoji(_code: string, ..._args: any[]) {
+    const code = _code.toUpperCase()
+    if (!this.cache.has(code)) return this.fallback
+
+    return this.cache.get(code)!.emoji
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getEmojiURL(_code: string, ..._args: any[]) {
+    const code = _code.toUpperCase()
+    if (!this.cache.has(code)) return this.fallback
+
+    return this.cache.get(code)!.url
+  }
+
+  getRawEmojiURL(id: string) {
+    return `https://cdn.discordapp.com/emojis/${id}.png?size=240&quality=lossless`
+  }
+}
+
+const Emoji = new EmojiCache()
+
+export const getEmoji = Emoji.getEmoji.bind(Emoji)
+export const getEmojiToken = Emoji.getEmoji.bind(Emoji)
+export const getEmojiURL = Emoji.getRawEmojiURL.bind(Emoji)
+export type EmojiKey = string
+export type TokenEmojiKey = string
 
 dayjs.extend(relativeTime)
 
@@ -507,9 +569,6 @@ export const thumbnails = {
     "https://cdn.discordapp.com/attachments/933195103273627719/1100350433295339541/rocket.webp",
 }
 
-export type EmojiKey = keyof typeof emojis
-export type TokenEmojiKey = keyof typeof tokenEmojis
-
 export function isInteraction(
   msgOrInteraction: Message | MessageComponentInteraction
 ): msgOrInteraction is MessageComponentInteraction {
@@ -546,41 +605,12 @@ export function maskAddress(str: string, minLen?: number) {
   return str
 }
 
-export function getEmoji(
-  key: EmojiKey | "",
-  animated?: boolean,
-  fallback = "<a:coin:1093923016691421205>"
-) {
-  if (!key) return fallback
-
-  const emoji = emojis[key.toUpperCase() as EmojiKey]
-  if (!emoji) return fallback
-
-  if (isNaN(+emoji)) {
-    return emoji
-  }
-
-  return `<${
-    animated || key.toUpperCase().startsWith("ANIMATED_") ? "a" : ""
-  }:${key.toUpperCase().replace(/-/g, "_").toLowerCase()}:${
-    emojis[key.toUpperCase() as EmojiKey]
-  }>`
-}
-
-export function getEmojiToken(key: TokenEmojiKey, animated?: boolean) {
-  return getEmoji(key, animated, getEmoji("ANIMATED_COIN_1", true))
-}
-
 export function roundFloatNumber(n: number, fractionDigits = 1) {
   return parseFloat(parseFloat(`${n}`).toFixed(fractionDigits))
 }
 
 export function capFirst(str = "") {
   return `${str.charAt(0).toUpperCase()}${str.slice(1)}`
-}
-
-export function getEmojiURL(emojiId: string) {
-  return `https://cdn.discordapp.com/emojis/${emojiId}.png?size=240&quality=lossless`
 }
 
 export function getAnimatedEmojiURL(emojiId: string) {

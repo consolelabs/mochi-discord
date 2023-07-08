@@ -5,7 +5,7 @@ import { heightOf, widthOf } from "ui/canvas/calculator"
 import { renderChartImage } from "ui/canvas/chart"
 import { drawCircleImage, drawRectangle } from "ui/canvas/draw"
 import { loadAndCacheImage } from "ui/canvas/image"
-import { EmojiKey, emojis, getEmojiURL } from "utils/common"
+import { emojis, getEmojiURL } from "utils/common"
 
 export async function renderChart(data: any[]) {
   const container: RectangleStats = {
@@ -73,7 +73,7 @@ export async function renderChart(data: any[]) {
     if (!imageUrl && is_pair) {
       const [base, target] = symbol
         .split("/")
-        .map((s: string) => emojis[s.toUpperCase() as EmojiKey])
+        .map((s: string) => emojis[s.toUpperCase() as keyof typeof emojis])
       imageUrl =
         base && target
           ? [getEmojiURL(base), getEmojiURL(target)].join("||")

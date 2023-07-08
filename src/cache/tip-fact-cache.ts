@@ -1,7 +1,9 @@
 import config from "adapters/config"
 import { TEST } from "env"
+import { logger } from "logger"
 import NodeCache from "node-cache"
 import { getChance } from "utils/common"
+import retry from "retry"
 
 const contentCache = new NodeCache({
   stdTTL: 3600,
@@ -9,15 +11,21 @@ const contentCache = new NodeCache({
   useClones: false,
 })
 
-export async function getTipsAndFacts() {
-  const { ok, data } = await config.getContent("header")
-
-  if (ok) {
-    contentCache.set("content", data)
-  } else {
-    contentCache.set("content", { description: { fact: [], tip: [] } })
-    getTipsAndFacts()
-  }
+export function getTipsAndFacts() {
+  const operation = retry.operation()
+  operation.attempt((currentAttempt) => {
+    logger.info(`Fetching tips and facts... (attempt ${currentAttempt})`)
+    config.getContent("header").then(({ ok, data }) => {
+      if (ok) {
+        logger.info("Fetch tips and facts OK")
+        contentCache.set("content", data)
+      } else {
+        logger.warn("Fetch tips and facts FAIL, retrying...")
+        contentCache.set("content", { description: { fact: [], tip: [] } })
+        operation.retry()
+      }
+    })
+  })
 }
 
 export function getRandomFact() {

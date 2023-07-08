@@ -26,8 +26,7 @@ export class CommandArgumentError extends BotBaseError {
     if ((embeds?.length ?? 0) > 0) {
       this.reply?.({
         content: `> It may be incorrect command, here's a help reference for you ${getEmoji(
-          "ANIMATED_POINTING_DOWN",
-          true
+          "ANIMATED_POINTING_DOWN"
         )}`,
         embeds,
       })

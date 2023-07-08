@@ -10,13 +10,7 @@ import {
 } from "discord.js"
 import { SetDefaultButtonHandler, SetDefaultRenderList } from "types/common"
 import { InteractionHandler } from "handlers/discord/select-menu"
-import {
-  EmojiKey,
-  getAuthor,
-  getDateStr,
-  getEmoji,
-  hasAdministrator,
-} from "utils/common"
+import { getAuthor, getDateStr, getEmoji, hasAdministrator } from "utils/common"
 import { VERTICAL_BAR } from "utils/constants"
 import { composeEmbedMessage } from "./embed"
 import dayjs from "dayjs"
@@ -104,7 +98,7 @@ export function composeSimpleSelection(
     .map((o, i) =>
       customRender
         ? customRender(o, i)
-        : `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${VERTICAL_BAR}${o}`
+        : `${getEmoji(`NUM_${i + 1}`)}${VERTICAL_BAR}${o}`
     )
     .join("\n")}`
 }
