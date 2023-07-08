@@ -9,37 +9,23 @@ import { Message } from "discord.js"
 import { CommandIsNotScopedError } from "errors"
 import fetch from "node-fetch"
 import { logger } from "../logger"
-import {
-  CreateMixRoleConfigRequest,
-  Guild,
-  Guilds,
-  RoleReactionEvent,
-} from "types/config"
+import { Guild, Guilds, RoleReactionEvent } from "types/config"
 import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
 import { Fetcher } from "./fetcher"
 import {
   RequestConfigGroupNFTRoleRequest,
   RequestConfigLevelRoleRequest,
-  RequestTwitterHashtag,
   ResponseGetLevelRoleConfigsResponse,
-  ResponseGetTwitterHashtagConfigResponse,
   ResponseListGuildGroupNFTRolesResponse,
   ResponseGetWelcomeChannelConfigResponse,
-  ResponseGetVoteChannelConfigResponse,
   ResponseDataListRoleReactionResponse,
-  ResponseGetGuildPruneExcludeResponse,
   ResponseGetGuildDefaultNftTickerResponse,
-  ResponseGetRepostReactionConfigsResponse,
-  ResponseGetAllTwitterHashtagConfigResponse,
   RequestUpsertGmConfigRequest,
   ResponseMonikerConfigResponse,
   RequestDeleteMonikerConfigRequest,
   RequestUpsertMonikerConfigRequest,
   ResponseListGuildTokenRoles,
-  ResponseListGuildXPRoles,
-  ResponseListGuildMixRoles,
-  ResponseCreateGuildMixRole,
   ResponseGetVaultsResponse,
 } from "types/api"
 import { TEST } from "env"
@@ -547,15 +533,6 @@ class Config extends Fetcher {
     })
   }
 
-  public async listAllRepostReactionConfigs(
-    guildId: string,
-    reactionType: string
-  ) {
-    return this.jsonFetch<ResponseGetRepostReactionConfigsResponse>(
-      `${API_BASE_URL}/community/repost-reactions/${guildId}?reaction_type=${reactionType}`
-    )
-  }
-
   public async removeSpecificRepostReactionConfig(req: RepostReactionRequest) {
     return this.jsonFetch(`${API_BASE_URL}/community/repost-reactions`, {
       method: "DELETE",
@@ -650,22 +627,6 @@ class Config extends Fetcher {
     if (res.status !== 200) {
       throw new Error(`failed to create twitter auth`)
     }
-  }
-
-  public async setTwitterConfig(data: RequestTwitterHashtag) {
-    return await this.jsonFetch<ResponseGetTwitterHashtagConfigResponse>(
-      `${API_BASE_URL}/config-community/twitter/hashtag`,
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      }
-    )
-  }
-
-  public async getTwitterConfig(guildId = "") {
-    return await this.jsonFetch<ResponseGetAllTwitterHashtagConfigResponse>(
-      `${API_BASE_URL}/config-community/twitter/hashtag/${guildId}`
-    )
   }
 
   public async removeTwitterConfig(guildId: string) {
@@ -854,28 +815,6 @@ class Config extends Fetcher {
     })
   }
 
-  public async getJoinLeaveChannel(guildId: string) {
-    return await this.jsonFetch<ResponseGetVoteChannelConfigResponse>(
-      `${API_BASE_URL}/config-channels/join-leave`,
-      {
-        query: {
-          guildId,
-        },
-      }
-    )
-  }
-
-  public async getExcludedRole({ guild_id }: { guild_id: string }) {
-    return await this.jsonFetch<ResponseGetGuildPruneExcludeResponse>(
-      `${API_BASE_URL}/configs/whitelist-prune`,
-      {
-        query: {
-          guild_id,
-        },
-      }
-    )
-  }
-
   public async createExcludedRole(role_id: string, guild_id: string) {
     return await this.jsonFetch(`${API_BASE_URL}/configs/whitelist-prune`, {
       method: "POST",
@@ -1040,17 +979,6 @@ class Config extends Fetcher {
     })
   }
 
-  public async getConfigXPRoleList(guild_id: string) {
-    return await this.jsonFetch<ResponseListGuildXPRoles>(
-      `${API_BASE_URL}/config-roles/xp-roles`,
-      {
-        query: {
-          guild_id,
-        },
-      }
-    )
-  }
-
   public async removeGuildXPRoleConfig(id: string) {
     return await this.jsonFetch(`${API_BASE_URL}/config-roles/xp-roles/${id}`, {
       method: "DELETE",
@@ -1085,25 +1013,6 @@ class Config extends Fetcher {
       method: "DELETE",
       body: req,
     })
-  }
-
-  public async setConfigMixRole(req: CreateMixRoleConfigRequest) {
-    return await this.jsonFetch<ResponseCreateGuildMixRole>(
-      `${API_BASE_URL}/config-roles/mix-roles`,
-      {
-        method: "POST",
-        body: req,
-      }
-    )
-  }
-
-  public async getConfigMixRoleList(query: { guild_id: string }) {
-    return await this.jsonFetch<ResponseListGuildMixRoles>(
-      `${API_BASE_URL}/config-roles/mix-roles`,
-      {
-        query,
-      }
-    )
   }
 
   public async removeGuildMixRoleConfig(id: string) {

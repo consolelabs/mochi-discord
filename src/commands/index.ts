@@ -50,11 +50,9 @@ import activity from "./activity"
 import inbox from "./inbox"
 import nft from "./nft"
 import profile from "./profile"
-import prune from "./prune"
 import quest from "./quest"
 import sales from "./sales"
 import sendxp from "./sendxp"
-import starboard from "./starboard"
 import telegram from "./telegram"
 import ticker from "./ticker"
 import tip from "./tip"
@@ -109,7 +107,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   // alias
   wlv: watchlistView,
   wlc: watchlistView,
-  prune: prune.slashCmd,
   quest: quest.slashCmd,
   gm: gm.slashCmd,
   nft: nft.slashCmd,
@@ -179,7 +176,6 @@ export const originalCommands: Record<string, Command> = {
   levelmessage: levelmessage.textCmd,
   stats: stats.textCmd,
   // globalxp,
-  starboard: starboard.textCmd,
   sendxp: sendxp.textCmd,
 
   //game
