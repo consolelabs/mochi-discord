@@ -37,17 +37,11 @@ export const PROPOSAL_INTERNAL_CHANNEL_ID =
 export const MOCHI_GUILD_ID = process.env.MOCHI_GUILD_ID || "962589711841525780"
 export const DISCORD_DEFAULT_AVATAR = process.env.DISCORD_DEFAULT_AVATAR || ""
 export const FIRESTORE_KEY = process.env.FIRESTORE_KEY || ""
-export const TWITTER_TOKEN = process.env.TWITTER_TOKEN || ""
-export const TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY || ""
-export const TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET || ""
-export const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN || ""
-export const TWITTER_TOKEN_SECRET = process.env.TWITTER_TOKEN_SECRET || ""
+
 export const USAGE_TRACKING_CHANNEL_ID =
   process.env.USAGE_TRACKING_CHANNEL_ID || "1083591476753211492"
 export const CONSOLE_LAB_GUILD_ID =
   process.env.CONSOLE_LAB_GUILD_ID || "891310117658705931"
-// Opensea
-export const OPENSEA_API_KEY = process.env.OPENSEA_API_KEY || ""
 
 export const MARKETPLACE_BASE_URL =
   process.env.MARKETPLACE_BASE_URL || "https://rarepepe.gg"

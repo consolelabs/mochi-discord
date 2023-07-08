@@ -40,7 +40,6 @@ import {
 } from "ui/discord/select-menu"
 import airdrop from "./airdrop"
 import balances from "./balances"
-import claim from "./claim"
 import deposit from "./deposit"
 import feedback from "./feedback/index"
 import gm from "./gm"
@@ -50,7 +49,6 @@ import gas from "./gas"
 import activity from "./activity"
 import inbox from "./inbox"
 import nft from "./nft"
-import poe from "./poe"
 import profile from "./profile"
 import prune from "./prune"
 import quest from "./quest"
@@ -169,7 +167,6 @@ export const slashCommands: Record<string, SlashCommand> = {
 export const originalCommands: Record<string, Command> = {
   // profile section
   tip: tip.textCmd,
-  claim: claim.textCmd,
   tokens: token.textCmd,
   watchlist: watchlist.textCmd,
   gm: gm.textCmd,
@@ -183,7 +180,6 @@ export const originalCommands: Record<string, Command> = {
   stats: stats.textCmd,
   // globalxp,
   starboard: starboard.textCmd,
-  poe: poe.textCmd,
   sendxp: sendxp.textCmd,
 
   //game
