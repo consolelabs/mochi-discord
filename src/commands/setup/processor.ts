@@ -72,17 +72,17 @@ async function execute(i: ButtonInteraction, ctx: Context) {
         promise = Promise.all(
           opt.steps.map(async (s: any) => {
             return await s.handler().then(() => {
-              done[s.value] = true
+              done[ctx.id][s.value] = true
               execute(i, ctx)
             })
           })
         ).then(() => {
-          done[opt.value] = true
+          done[ctx.id][opt.value] = true
           execute(i, ctx)
         })
       } else {
         promise = opt.handler().then(() => {
-          done[opt.value] = true
+          done[ctx.id][opt.value] = true
           execute(i, ctx)
         })
       }
@@ -98,18 +98,20 @@ async function execute(i: ButtonInteraction, ctx: Context) {
         }
 
         return `${
-          done[opt.value] ? getEmoji("CHECK") : "<a:loading:647604616858566656>"
-        } ${done[opt.value] ? opt.labelDone : opt.labelDoing}${
+          done[ctx.id][opt.value]
+            ? getEmoji("CHECK")
+            : "<a:loading:647604616858566656>"
+        } ${done[ctx.id][opt.value] ? opt.labelDone : opt.labelDoing}${
           opt.steps
             ? "\n" +
               opt.steps
                 .map((s: any) => {
                   return `${getEmoji("BLANK")}${
-                    done[opt.value] || done[s.value]
+                    done[ctx.id][opt.value] || done[ctx.id][s.value]
                       ? getEmoji("CHECK")
                       : "<a:loading:647604616858566656>"
                   } ${
-                    done[opt.value] || done[s.value]
+                    done[ctx.id][opt.value] || done[ctx.id][s.value]
                       ? s.labelDone
                       : s.labelDoing
                   }`
