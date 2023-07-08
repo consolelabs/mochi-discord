@@ -583,7 +583,12 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
           author: ["Swap Submitted", thumbnails.MOCHI],
           image: thumbnails.MOCHI_POSE_17,
           description: [
-            `${getEmoji("CHECK")} Your swap is underway.`,
+            `${getEmoji("SWAP_ROUTE")} **${getEmojiToken(
+              ctx.from as TokenEmojiKey
+            )} ${ctx.amountIn} ${ctx.from?.toUpperCase()} to ${getEmojiToken(
+              ctx.to as TokenEmojiKey
+            )} ${ctx.amountOut} ${ctx.to?.toUpperCase()}**`,
+            `${getEmoji("CHECK")} Your swap is underway`,
             `${getEmoji("CHECK")} Mochi will DM you with the tx link shortly.`,
           ].join("\n"),
         }),
