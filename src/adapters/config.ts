@@ -299,28 +299,28 @@ class Config extends Fetcher {
   }
 
   public async getCurrentDefaultRole(guildId: string) {
-    return this.jsonFetch(
-      `${API_BASE_URL}/config-roles/default-roles?guild_id=${guildId}`
-    )
+    return this.jsonFetch(`${API_BASE_URL}/config/role/${guildId}/default`)
   }
 
   public async configureDefaultRole(event: DefaultRoleEvent) {
-    return this.jsonFetch(`${API_BASE_URL}/config-roles/default-roles`, {
-      method: "POST",
-      body: JSON.stringify(event),
-    })
+    return this.jsonFetch(
+      `${API_BASE_URL}/config/role/${event.guild_id}/default`,
+      {
+        method: "POST",
+        body: JSON.stringify(event),
+      }
+    )
   }
 
   public async removeDefaultRoleConfig(guildId: string) {
-    return this.jsonFetch(
-      `${API_BASE_URL}/config-roles/default-roles?guild_id=${guildId}`,
-      { method: "DELETE" }
-    )
+    return this.jsonFetch(`${API_BASE_URL}/config/role/${guildId}/default`, {
+      method: "DELETE",
+    })
   }
 
   public async listAllReactionRoles(guildId: string) {
     return this.jsonFetch<ResponseDataListRoleReactionResponse>(
-      `${API_BASE_URL}/config-roles/reaction-roles`,
+      `${API_BASE_URL}/config/role/${guildId}/reaction`,
       {
         query: {
           guildId,
@@ -331,7 +331,7 @@ class Config extends Fetcher {
 
   public async handleReactionEvent(event: RoleReactionEvent) {
     const res = await fetch(
-      `${API_BASE_URL}/config-roles/reaction-roles/filter`,
+      `${API_BASE_URL}/config/role/${event.guild_id}/reaction/filter`,
       {
         method: "POST",
         body: JSON.stringify(event),
@@ -351,17 +351,23 @@ class Config extends Fetcher {
   }
 
   public async updateReactionConfig(req: RoleReactionEvent) {
-    return this.jsonFetch(`${API_BASE_URL}/config-roles/reaction-roles`, {
-      method: "POST",
-      body: JSON.stringify(req),
-    })
+    return this.jsonFetch(
+      `${API_BASE_URL}/config/role/${req.guild_id}/reaction`,
+      {
+        method: "POST",
+        body: JSON.stringify(req),
+      }
+    )
   }
 
   public async removeReactionConfig(req: RoleReactionEvent) {
-    return this.jsonFetch(`${API_BASE_URL}/config-roles/reaction-roles`, {
-      method: "DELETE",
-      body: JSON.stringify(req),
-    })
+    return this.jsonFetch(
+      `${API_BASE_URL}/config/role/${req.guild_id}/reaction`,
+      {
+        method: "DELETE",
+        body: JSON.stringify(req),
+      }
+    )
   }
 
   public async getGuildTokens(guildId: string) {
@@ -413,7 +419,7 @@ class Config extends Fetcher {
 
   public async configLevelRole(data: RequestConfigLevelRoleRequest) {
     return this.jsonFetch<ResponseGetLevelRoleConfigsResponse>(
-      `${API_BASE_URL}/config-roles/level-roles`,
+      `${API_BASE_URL}/config/role/${data.guild_id}/level`,
       {
         method: "POST",
         body: JSON.stringify(data),
@@ -423,7 +429,7 @@ class Config extends Fetcher {
 
   public async getGuildLevelRoleConfigs(guildId: string) {
     return this.jsonFetch<ResponseGetLevelRoleConfigsResponse>(
-      `${API_BASE_URL}/config-roles/level-roles/${guildId}`,
+      `${API_BASE_URL}/config/role/${guildId}/level`,
       {
         method: "GET",
       }
@@ -432,7 +438,7 @@ class Config extends Fetcher {
 
   public async removeGuildLevelRoleConfig(guildId: string, level: number) {
     return this.jsonFetch(
-      `${API_BASE_URL}/config-roles/level-roles/${guildId}?level=${level}`,
+      `${API_BASE_URL}/config/role/${guildId}/level?level=${level}`,
       {
         method: "DELETE",
       }
@@ -459,7 +465,7 @@ class Config extends Fetcher {
 
   public async newGuildNFTRoleConfig(body: RequestConfigGroupNFTRoleRequest) {
     return this.jsonFetch<ResponseListGuildGroupNFTRolesResponse>(
-      `${API_BASE_URL}/config-roles/nft-roles`,
+      `${API_BASE_URL}/config/role/${body.guild_id}/nft`,
       {
         method: "POST",
         body: JSON.stringify(body),
@@ -469,7 +475,7 @@ class Config extends Fetcher {
 
   public async getGuildNFTRoleConfigs(guildId: string) {
     return await this.jsonFetch<ResponseListGuildGroupNFTRolesResponse>(
-      `${API_BASE_URL}/config-roles/nft-roles`,
+      `${API_BASE_URL}/config/role/${guildId}/nft`,
       {
         query: {
           guildId,
@@ -479,7 +485,7 @@ class Config extends Fetcher {
   }
 
   public async removeGuildNFTRoleConfig(configIds: Array<string>) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-roles/nft-roles`, {
+    return await this.jsonFetch(`${API_BASE_URL}/config/role/guildId/nft`, {
       method: "DELETE",
       query: {
         configIds,
@@ -488,15 +494,12 @@ class Config extends Fetcher {
   }
 
   public async removeGuildNFTRoleGroupConfig(groupConfigId: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/config-roles/nft-roles/group`,
-      {
-        method: "DELETE",
-        query: {
-          groupConfigId,
-        },
-      }
-    )
+    return await this.jsonFetch(`${API_BASE_URL}/config/role/nft/group`, {
+      method: "DELETE",
+      query: {
+        groupConfigId,
+      },
+    })
   }
 
   public async getAllNFTCollections() {
@@ -947,21 +950,24 @@ class Config extends Fetcher {
     chain: string
     amount: number
   }) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-roles/token-roles`, {
-      method: "POST",
-      body: req,
-    })
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config/role/${req.guild_id}/token`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
   }
 
   public async getConfigTokenRoleList(guild_id: string) {
     return await this.jsonFetch<ResponseListGuildTokenRoles>(
-      `${API_BASE_URL}/config-roles/token-roles/${guild_id}`
+      `${API_BASE_URL}/config/role/${guild_id}/token`
     )
   }
 
   public async removeGuildTokenRoleConfig(id: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/config-roles/token-roles/${id}`,
+      `${API_BASE_URL}/config/role/guildId/token/${id}`,
       {
         method: "DELETE",
       }
@@ -1296,22 +1302,28 @@ class Config extends Fetcher {
     guild_id: string
     role_ids: string[]
   }) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-roles/admin-roles`, {
-      method: "POST",
-      body,
-    })
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config/role/${body.guild_id}/bot-manager`,
+      {
+        method: "POST",
+        body,
+      }
+    )
   }
 
   public async getGuildAdminRoles(query: { guildId: string }) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-roles/admin-roles/`, {
-      method: "GET",
-      query,
-    })
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config/role/${query.guildId}/bot-manager`,
+      {
+        method: "GET",
+        query,
+      }
+    )
   }
 
   public async removeGuildAdminRole(id: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/config-roles/admin-roles/${id}`,
+      `${API_BASE_URL}/config/role/guildId/bot-manager/${id}`,
       {
         method: "DELETE",
       }

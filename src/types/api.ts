@@ -113,14 +113,6 @@ export interface ModelCoingeckoSupportedTokens {
   symbol?: string;
 }
 
-export interface ModelCommonwealthDiscussionSubscription {
-  created_at?: string;
-  discord_thread_id?: string;
-  discussion_id?: number;
-  id?: number;
-  updated_at?: string;
-}
-
 export interface ModelConfigXpLevel {
   level?: number;
   min_xp?: number;
@@ -159,31 +151,6 @@ export interface ModelGuildConfigAdminRole {
   guild_id?: string;
   id?: number;
   role_id?: string;
-}
-
-export interface ModelGuildConfigDaoProposal {
-  address?: string;
-  authority?: string;
-  chain_id?: number;
-  created_at?: string;
-  guideline_channel_id?: string;
-  guild_id?: string;
-  id?: number;
-  proposal_channel_id?: string;
-  required_amount?: string;
-  symbol?: string;
-  type?: string;
-  updated_at?: string;
-}
-
-export interface ModelGuildConfigDaoTracker {
-  channel_id?: string;
-  created_at?: string;
-  guild_id?: string;
-  id?: string;
-  source?: string;
-  space?: string;
-  updated_at?: string;
 }
 
 export interface ModelGuildConfigDefaultCollection {
@@ -576,8 +543,8 @@ export interface ModelVault {
   threshold?: string;
   total_amount_evm?: string;
   total_amount_solana?: string;
-  treasurers?: ModelVaultTreasurer[];
   updated_at?: string;
+  vault_treasurers?: ModelVaultTreasurer[];
   wallet_address?: string;
   wallet_number?: number;
 }
@@ -676,11 +643,6 @@ export interface RequestCreateAirdropCampaignRequest {
   title?: string;
 }
 
-export interface RequestCreateCommonwealthDiscussionSubscription {
-  discord_thread_id: string;
-  discussion_id: number;
-}
-
 export interface RequestCreateDefaultRoleRequest {
   guild_id: string;
   role_id: string;
@@ -714,16 +676,6 @@ export interface RequestCreateProfileAirdropCampaignRequest {
   airdrop_campaign_id?: number;
   is_favorite?: boolean;
   status?: string;
-}
-
-export interface RequestCreateProposalChannelConfig {
-  address?: string;
-  authority: "admin" | "token_holder";
-  chain?: string;
-  channel_id: string;
-  guild_id: string;
-  required_amount?: number;
-  type?: "nft_collection" | "crypto_token";
 }
 
 export interface RequestCreateSalesTrackerConfigRequest {
@@ -760,14 +712,6 @@ export interface RequestCreateUserTokenSupportRequest {
   token_address: string;
   token_chain: string;
   user_discord_id: string;
-}
-
-export interface RequestDeleteGuildConfigDaoProposal {
-  id?: string;
-}
-
-export interface RequestDeleteGuildConfigDaoTracker {
-  id?: string;
 }
 
 export interface RequestDeleteJoinLeaveChannelConfigRequest {
@@ -929,12 +873,6 @@ export interface RequestUpsertGmConfigRequest {
   guild_id?: string;
   msg?: string;
   sticker?: string;
-}
-
-export interface RequestUpsertGuildConfigDaoTracer {
-  channel_id?: string;
-  guild_id?: string;
-  snapshot_url?: string;
 }
 
 export interface RequestUpsertGuildConfigTipRangeRequest {
@@ -1157,20 +1095,12 @@ export interface ResponseConfigNotifyResponse {
   updated_at?: string;
 }
 
-export interface ResponseCreateCommonwealthDiscussionSubscription {
-  data?: ModelCommonwealthDiscussionSubscription;
-}
-
 export interface ResponseCreateGuildTokenRole {
   data?: ModelGuildConfigTokenRole;
 }
 
 export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
-}
-
-export interface ResponseCreateProposalChannelConfigResponse {
-  data?: ModelGuildConfigDaoProposal;
 }
 
 export interface ResponseCreateTwitterSaleConfigResponse {
@@ -1316,26 +1246,6 @@ export interface ResponseGetFiatHistoricalExchangeRatesResponse {
 export interface ResponseGetGmConfigResponse {
   data?: ModelGuildConfigGmGn;
   message?: string;
-}
-
-export interface ResponseGetGuildConfigDaoProposal {
-  data?: ResponseGetGuildConfigDaoProposalData;
-}
-
-export interface ResponseGetGuildConfigDaoProposalData {
-  address?: string;
-  authority?: string;
-  chain?: string;
-  chain_id?: number;
-  created_at?: string;
-  guideline_channel_id?: string;
-  guild_id?: string;
-  id?: number;
-  proposal_channel_id?: string;
-  required_amount?: string;
-  symbol?: string;
-  type?: string;
-  updated_at?: string;
 }
 
 export interface ResponseGetGuildDefaultNftTickerResponse {
@@ -1580,10 +1490,6 @@ export interface ResponseGetWatchlistResponse {
 export interface ResponseGetWelcomeChannelConfigResponse {
   data?: ModelGuildConfigWelcomeChannel;
   message?: string;
-}
-
-export interface ResponseGuildConfigDaoTrackerResponse {
-  data?: ModelGuildConfigDaoTracker[];
 }
 
 export interface ResponseGuildConfigDefaultCurrencyResponse {
