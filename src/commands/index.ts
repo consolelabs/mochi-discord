@@ -40,7 +40,6 @@ import {
 } from "ui/discord/select-menu"
 import airdrop from "./airdrop"
 import balances from "./balances"
-import claim from "./claim"
 import deposit from "./deposit"
 import feedback from "./feedback/index"
 import gm from "./gm"
@@ -50,13 +49,10 @@ import gas from "./gas"
 import activity from "./activity"
 import inbox from "./inbox"
 import nft from "./nft"
-import poe from "./poe"
 import profile from "./profile"
-import prune from "./prune"
 import quest from "./quest"
 import sales from "./sales"
 import sendxp from "./sendxp"
-import starboard from "./starboard"
 import telegram from "./telegram"
 import ticker from "./ticker"
 import tip from "./tip"
@@ -111,7 +107,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   // alias
   wlv: watchlistView,
   wlc: watchlistView,
-  prune: prune.slashCmd,
   quest: quest.slashCmd,
   gm: gm.slashCmd,
   nft: nft.slashCmd,
@@ -169,7 +164,6 @@ export const slashCommands: Record<string, SlashCommand> = {
 export const originalCommands: Record<string, Command> = {
   // profile section
   tip: tip.textCmd,
-  claim: claim.textCmd,
   tokens: token.textCmd,
   watchlist: watchlist.textCmd,
   gm: gm.textCmd,
@@ -182,8 +176,6 @@ export const originalCommands: Record<string, Command> = {
   levelmessage: levelmessage.textCmd,
   stats: stats.textCmd,
   // globalxp,
-  starboard: starboard.textCmd,
-  poe: poe.textCmd,
   sendxp: sendxp.textCmd,
 
   //game
