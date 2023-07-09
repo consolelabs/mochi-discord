@@ -5,7 +5,7 @@ import { capFirst, getEmoji } from "utils/common"
 import querystring from "query-string"
 import { attachAuthorization, convertToSnakeCase, makeLog } from "./utils"
 import toCurl from "fetch-to-curl"
-import { kafkaQueue } from "queue/kafka/queue"
+import kafka from "queue/kafka"
 import { stack } from "utils/stack-trace"
 import { CACHE_TTL_SECONDS, FETCH_TIMEOUT_SECONDS, REDIS_HOST, TEST } from "env"
 import {
@@ -239,7 +239,7 @@ export class Fetcher {
             error: log,
             stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
           })
-          await kafkaQueue?.produceAnalyticMsg([message])
+          await kafka.queue?.produceAnalyticMsg([message])
 
           // if the error is from webhook api, we don't want to bother user with it, just kafka log is enough
           if (store?.msgOrInteraction && !isWebhook) {
@@ -303,7 +303,7 @@ export class Fetcher {
           error: "Error while trying to serialize/deserialize data",
         })
       }
-      await kafkaQueue?.produceAnalyticMsg([message])
+      await kafka.queue?.produceAnalyticMsg([message])
       if (store?.msgOrInteraction && !isWebhook) {
         if (store.msgOrInteraction instanceof Message) {
           await store.msgOrInteraction.reply(somethingWentWrongPayload())

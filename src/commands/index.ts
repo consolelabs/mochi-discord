@@ -26,7 +26,7 @@ import { logger } from "../logger"
 import { isAcceptableCmdToHelp } from "../utils/commands"
 
 // commands
-import { kafkaQueue } from "queue/kafka/queue"
+import kafka from "queue/kafka"
 import { composeButtonLink, composeDiscordExitButton } from "ui/discord/button"
 import {
   composeEmbedMessage,
@@ -268,7 +268,7 @@ async function executeCommand(
             message: message,
           },
         }
-        await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+        await kafka.queue?.produceBatch(kafkaMsg)
       } catch (error) {
         logger.error("[KafkaQueue] - failed to enqueue")
       }
@@ -380,7 +380,7 @@ async function executeCommand(
         message: message,
       },
     }
-    await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+    await kafka.queue?.produceBatch(kafkaMsg)
   } catch (error) {
     logger.error("[KafkaQueue] - failed to enqueue")
   }

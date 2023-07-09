@@ -9,6 +9,7 @@ import {
 } from "discord.js"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
+import kafka from "queue/kafka"
 import { KafkaNotificationMessage, RunResult } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
@@ -22,7 +23,6 @@ import {
 } from "utils/common"
 import { MOCHI_ACTION_TIP } from "utils/constants"
 import { isMessage, reply } from "utils/discord"
-import { sendNotificationMsg } from "utils/kafka"
 import {
   getBalances,
   isInTipRange,
@@ -120,7 +120,7 @@ export async function execute(
       },
     }
 
-    sendNotificationMsg(kafkaMsg)
+    kafka.queue?.produceNotificationMsg(kafkaMsg)
   }
 
   const embed = composeEmbedMessage(null, {

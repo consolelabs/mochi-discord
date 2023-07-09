@@ -9,65 +9,6 @@
  * ---------------------------------------------------------------
  */
 
-export interface DiscordgoUser {
-  /** User's banner color, encoded as an integer representation of hexadecimal color code */
-  accent_color?: number;
-  /**
-   * The hash of the user's avatar. Use Session.UserAvatar
-   * to retrieve the avatar itself.
-   */
-  avatar?: string;
-  /** The hash of the user's banner image. */
-  banner?: string;
-  /** Whether the user is a bot. */
-  bot?: boolean;
-  /** The discriminator of the user (4 numbers after name). */
-  discriminator?: string;
-  /**
-   * The email of the user. This is only present when
-   * the application possesses the email scope for the user.
-   */
-  email?: string;
-  /**
-   * The flags on a user's account.
-   * Only available when the request is authorized via a Bearer token.
-   */
-  flags?: number;
-  /** The ID of the user. */
-  id?: string;
-  /** The user's chosen language option. */
-  locale?: string;
-  /** Whether the user has multi-factor authentication enabled. */
-  mfa_enabled?: boolean;
-  /**
-   * The type of Nitro subscription on a user's account.
-   * Only available when the request is authorized via a Bearer token.
-   */
-  premium_type?: number;
-  /**
-   * The public flags on a user's account.
-   * This is a combination of bit masks; the presence of a certain flag can
-   * be checked by performing a bitwise AND between this int and the flag.
-   */
-  public_flags?: number;
-  /** Whether the user is an Official Discord System user (part of the urgent message system). */
-  system?: boolean;
-  /**
-   * The token of the user. This is only present for
-   * the user represented by the current session.
-   */
-  token?: string;
-  /** The user's username. */
-  username?: string;
-  /** Whether the user's email is verified. */
-  verified?: boolean;
-}
-
-export interface EntitiesLoginResponse {
-  access_token?: string;
-  expires_at?: number;
-}
-
 export interface ModelActivity {
   guild_default?: boolean;
   id?: number;
@@ -113,14 +54,6 @@ export interface ModelCoingeckoSupportedTokens {
   symbol?: string;
 }
 
-export interface ModelCommonwealthDiscussionSubscription {
-  created_at?: string;
-  discord_thread_id?: string;
-  discussion_id?: number;
-  id?: number;
-  updated_at?: string;
-}
-
 export interface ModelConfigXpLevel {
   level?: number;
   min_xp?: number;
@@ -159,31 +92,6 @@ export interface ModelGuildConfigAdminRole {
   guild_id?: string;
   id?: number;
   role_id?: string;
-}
-
-export interface ModelGuildConfigDaoProposal {
-  address?: string;
-  authority?: string;
-  chain_id?: number;
-  created_at?: string;
-  guideline_channel_id?: string;
-  guild_id?: string;
-  id?: number;
-  proposal_channel_id?: string;
-  required_amount?: string;
-  symbol?: string;
-  type?: string;
-  updated_at?: string;
-}
-
-export interface ModelGuildConfigDaoTracker {
-  channel_id?: string;
-  created_at?: string;
-  guild_id?: string;
-  id?: string;
-  source?: string;
-  space?: string;
-  updated_at?: string;
 }
 
 export interface ModelGuildConfigDefaultCollection {
@@ -362,47 +270,6 @@ export interface ModelOffchainTipBotToken {
   updated_at?: string;
 }
 
-export interface ModelOffchainTipBotTransferHistory {
-  action?: string;
-  amount?: number;
-  created_at?: string;
-  fee_amount?: number;
-  guild_id?: string;
-  id?: string;
-  log_id?: string;
-  receiver_id?: string;
-  sender_id?: string;
-  service_fee?: number;
-  status?: string;
-  token?: string;
-  tx_hash?: string;
-  updated_at?: string;
-}
-
-export interface ModelOnchainTipBotTransaction {
-  all?: boolean;
-  amount?: number;
-  channel_id?: string;
-  claimed_at?: string;
-  created_at?: string;
-  duration?: number;
-  each?: boolean;
-  full_command?: string;
-  guild_id?: string;
-  id?: number;
-  image?: string;
-  message?: string;
-  recipient_address?: string;
-  recipients?: string;
-  sender?: string;
-  /** (pending, claimed) */
-  string?: string;
-  token_symbol?: string;
-  transfer_type?: string;
-  tx_hash?: string;
-  updated_at?: string;
-}
-
 export interface ModelProductMetadataEmojis {
   code?: string;
   discord_id?: string;
@@ -576,8 +443,8 @@ export interface ModelVault {
   threshold?: string;
   total_amount_evm?: string;
   total_amount_solana?: string;
-  treasurers?: ModelVaultTreasurer[];
   updated_at?: string;
+  vault_treasurers?: ModelVaultTreasurer[];
   wallet_address?: string;
   wallet_number?: number;
 }
@@ -627,12 +494,6 @@ export interface RequestAssignVerifiedRoleRequest {
   user_discord_id: string;
 }
 
-export interface RequestClaimOnchainTransferRequest {
-  address?: string;
-  claim_id?: number;
-  user_id?: string;
-}
-
 export interface RequestClaimQuestsRewardsRequest {
   quest_id?: string;
   routine?: string;
@@ -654,13 +515,13 @@ export interface RequestConfigDefaultTokenRequest {
 export interface RequestConfigGroupNFTRoleRequest {
   collection_address?: string[];
   group_name?: string;
-  guild_id?: string;
+  guildID?: string;
   number_of_tokens?: number;
   role_id?: string;
 }
 
 export interface RequestConfigLevelRoleRequest {
-  guild_id?: string;
+  guildID?: string;
   level?: number;
   role_id?: string;
 }
@@ -676,27 +537,22 @@ export interface RequestCreateAirdropCampaignRequest {
   title?: string;
 }
 
-export interface RequestCreateCommonwealthDiscussionSubscription {
-  discord_thread_id: string;
-  discussion_id: number;
-}
-
 export interface RequestCreateDefaultRoleRequest {
-  guild_id: string;
-  role_id: string;
+  guildID?: string;
+  role_id?: string;
 }
 
 export interface RequestCreateGuildAdminRoleRequest {
-  guild_id: string;
-  role_ids: string[];
+  guildID?: string;
+  role_ids?: string[];
 }
 
 export interface RequestCreateGuildTokenRole {
-  address: string;
-  amount: number;
-  chain: string;
-  guild_id: string;
-  role_id: string;
+  address?: string;
+  amount?: number;
+  chain?: string;
+  guildID?: string;
+  role_id?: string;
 }
 
 export interface RequestCreateNFTCollectionRequest {
@@ -714,16 +570,6 @@ export interface RequestCreateProfileAirdropCampaignRequest {
   airdrop_campaign_id?: number;
   is_favorite?: boolean;
   status?: string;
-}
-
-export interface RequestCreateProposalChannelConfig {
-  address?: string;
-  authority: "admin" | "token_holder";
-  chain?: string;
-  channel_id: string;
-  guild_id: string;
-  required_amount?: number;
-  type?: "nft_collection" | "crypto_token";
 }
 
 export interface RequestCreateSalesTrackerConfigRequest {
@@ -760,14 +606,6 @@ export interface RequestCreateUserTokenSupportRequest {
   token_address: string;
   token_chain: string;
   user_discord_id: string;
-}
-
-export interface RequestDeleteGuildConfigDaoProposal {
-  id?: string;
-}
-
-export interface RequestDeleteGuildConfigDaoTracker {
-  id?: string;
 }
 
 export interface RequestDeleteJoinLeaveChannelConfigRequest {
@@ -811,10 +649,6 @@ export interface RequestGuildIDRequest {
   guild_id?: string;
 }
 
-export interface RequestLoginRequest {
-  access_token?: string;
-}
-
 export interface RequestNewGuildConfigWalletVerificationMessageRequest {
   content?: string;
   created_at?: string;
@@ -850,7 +684,7 @@ export interface RequestRoleReactionRequest {
 
 export interface RequestRoleReactionUpdateRequest {
   channel_id?: string;
-  guild_id?: string;
+  guildID?: string;
   message_id?: string;
   reaction?: string;
   role_id?: string;
@@ -929,12 +763,6 @@ export interface RequestUpsertGmConfigRequest {
   guild_id?: string;
   msg?: string;
   sticker?: string;
-}
-
-export interface RequestUpsertGuildConfigDaoTracer {
-  channel_id?: string;
-  guild_id?: string;
-  snapshot_url?: string;
 }
 
 export interface RequestUpsertGuildConfigTipRangeRequest {
@@ -1024,21 +852,6 @@ export interface ResponseAssetPlatformResponseData {
 
 export interface ResponseChainGasTrackerResponseData {
   data?: ResponseGasTrackerResponse;
-}
-
-export interface ResponseClaimOnchainTransfer {
-  amount?: number;
-  amount_in_usd?: number;
-  recipient_address?: string;
-  recipient_id?: string;
-  sender_id?: string;
-  symbol?: string;
-  tx_hash?: string;
-  tx_url?: string;
-}
-
-export interface ResponseClaimOnchainTransferResponse {
-  data?: ResponseClaimOnchainTransfer;
 }
 
 export interface ResponseClaimQuestsRewardsResponse {
@@ -1157,20 +970,12 @@ export interface ResponseConfigNotifyResponse {
   updated_at?: string;
 }
 
-export interface ResponseCreateCommonwealthDiscussionSubscription {
-  data?: ModelCommonwealthDiscussionSubscription;
-}
-
 export interface ResponseCreateGuildTokenRole {
   data?: ModelGuildConfigTokenRole;
 }
 
 export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
-}
-
-export interface ResponseCreateProposalChannelConfigResponse {
-  data?: ModelGuildConfigDaoProposal;
 }
 
 export interface ResponseCreateTwitterSaleConfigResponse {
@@ -1247,10 +1052,6 @@ export interface ResponseGasTrackerResponseData {
   data?: ResponseGasTrackerResponse[];
 }
 
-export interface ResponseGetAllUserSubmittedAdResponse {
-  data?: ResponseGetAllUserSubmittedAdResponse[];
-}
-
 export interface ResponseGetCoinResponse {
   asset_platform?: ResponseAssetPlatformResponseData;
   asset_platform_id?: string;
@@ -1318,26 +1119,6 @@ export interface ResponseGetGmConfigResponse {
   message?: string;
 }
 
-export interface ResponseGetGuildConfigDaoProposal {
-  data?: ResponseGetGuildConfigDaoProposalData;
-}
-
-export interface ResponseGetGuildConfigDaoProposalData {
-  address?: string;
-  authority?: string;
-  chain?: string;
-  chain_id?: number;
-  created_at?: string;
-  guideline_channel_id?: string;
-  guild_id?: string;
-  id?: number;
-  proposal_channel_id?: string;
-  required_amount?: string;
-  symbol?: string;
-  type?: string;
-  updated_at?: string;
-}
-
 export interface ResponseGetGuildDefaultNftTickerResponse {
   data?: ModelGuildConfigDefaultCollection;
 }
@@ -1398,10 +1179,6 @@ export interface ResponseGetListGuildDefaultTickerResponse {
   data?: ModelGuildConfigDefaultTicker[];
 }
 
-export interface ResponseGetMyInfoResponse {
-  data?: DiscordgoUser;
-}
-
 export interface ResponseGetNFTActivityData {
   data?: ResponseIndexerNFTActivityData[];
   metadata?: UtilPagination;
@@ -1448,10 +1225,6 @@ export interface ResponseGetNftWatchlist {
 
 export interface ResponseGetNftWatchlistResponse {
   data?: ResponseGetNftWatchlist[];
-}
-
-export interface ResponseGetOnchainTransfersResponse {
-  data?: ModelOnchainTipBotTransaction[];
 }
 
 export interface ResponseGetOneWalletResponse {
@@ -1518,19 +1291,6 @@ export interface ResponseGetTrendingSearchCoin {
   item?: ResponseCoin;
 }
 
-export interface ResponseGetUserBalances {
-  balances?: number;
-  balances_in_usd?: number;
-  id?: string;
-  name?: string;
-  rate_in_usd?: number;
-  symbol?: string;
-}
-
-export interface ResponseGetUserBalancesResponse {
-  data?: ResponseGetUserBalances[];
-}
-
 export interface ResponseGetUserCurrentGMStreakResponse {
   data?: ModelDiscordUserGMStreak;
 }
@@ -1556,18 +1316,6 @@ export interface ResponseGetUserResponse {
   data?: ResponseUser;
 }
 
-export interface ResponseGetUserSubmittedAdResponse {
-  ad_channel_id?: string;
-  creator_id?: string;
-  description?: string;
-  id?: number;
-  image?: string;
-  introduction?: string;
-  is_podtown_ad?: boolean;
-  name?: string;
-  string?: string;
-}
-
 export interface ResponseGetVaultsResponse {
   data?: ModelVault[];
 }
@@ -1580,10 +1328,6 @@ export interface ResponseGetWatchlistResponse {
 export interface ResponseGetWelcomeChannelConfigResponse {
   data?: ModelGuildConfigWelcomeChannel;
   message?: string;
-}
-
-export interface ResponseGuildConfigDaoTrackerResponse {
-  data?: ModelGuildConfigDaoTracker[];
 }
 
 export interface ResponseGuildConfigDefaultCurrencyResponse {
@@ -1811,11 +1555,6 @@ export interface ResponseListTokenPriceAlertResponse {
   symbol?: string;
   updated_at?: string;
   user_discord_id?: string;
-}
-
-export interface ResponseLogoutResponse {
-  message?: string;
-  status?: string;
 }
 
 export interface ResponseMarketData {
@@ -2136,16 +1875,8 @@ export interface ResponseTopUser {
   metadata?: ResponsePaginationResponse;
 }
 
-export interface ResponseTransactionsResponse {
-  data?: ModelOffchainTipBotTransferHistory[];
-}
-
 export interface ResponseUnlinkBinance {
   message?: string;
-}
-
-export interface ResponseUpdateGuildTokenRole {
-  data?: ModelGuildConfigTokenRole;
 }
 
 export interface ResponseUpdateUserFeedbackResponse {
@@ -2165,10 +1896,6 @@ export interface ResponseUserFeedbackResponse {
   page?: number;
   size?: number;
   total?: number;
-}
-
-export interface ResponseUserTransactionResponse {
-  data?: ModelOffchainTipBotTransferHistory[];
 }
 
 export interface UtilPagination {

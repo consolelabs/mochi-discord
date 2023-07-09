@@ -6,7 +6,7 @@ import {
 } from "discord.js"
 import { TEST } from "env"
 import { logger } from "logger"
-import { kafkaQueue } from "queue/kafka/queue"
+import kafka from "queue/kafka"
 import {
   eventAsyncStore,
   slashCommandAsyncStore,
@@ -117,7 +117,7 @@ export class BotBaseError extends Error {
       message: this.message,
     }
     logger.error(error)
-    kafkaQueue?.produceAnalyticMsg([this.message]).catch(() => null)
+    kafka.queue?.produceAnalyticMsg([this.message]).catch(() => null)
     this.reply(somethingWentWrongPayload())
   }
 

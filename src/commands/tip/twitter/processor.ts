@@ -20,7 +20,6 @@ import {
 } from "utils/common"
 import { MOCHI_ACTION_TIP } from "utils/constants"
 import { isMessage, reply } from "utils/discord"
-import { sendNotificationMsg } from "utils/kafka"
 import {
   getBalances,
   isInTipRange,
@@ -36,6 +35,7 @@ import profile from "../../../adapters/profile"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { DiscordWalletTransferError } from "../../../errors/discord-wallet-transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
+import kafka from "queue/kafka"
 
 type TwitterUser = {
   username: string
@@ -108,7 +108,7 @@ export async function execute(
       },
     }
 
-    sendNotificationMsg(kafkaMsg)
+    kafka.queue?.produceNotificationMsg(kafkaMsg)
   }
 
   const embed = composeEmbedMessage(null, {

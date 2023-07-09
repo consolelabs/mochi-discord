@@ -43,7 +43,7 @@ import { CommandNotAllowedToRunError } from "errors"
 import InteractionManager from "handlers/discord/select-menu"
 import tagme from "handlers/tagme"
 import { logger } from "logger"
-import { kafkaQueue } from "queue/kafka/queue"
+import kafka from "queue/kafka"
 import { KafkaQueueMessage } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
 import {
@@ -207,7 +207,7 @@ function handleCommandInteraction(interaction: Interaction) {
               interaction: interaction,
             },
           }
-          await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+          await kafka.queue?.produceBatch(kafkaMsg)
         } catch (error) {
           logger.error("[KafkaQueue] - failed to enqueue")
         }
@@ -239,11 +239,7 @@ function handleCommandInteraction(interaction: Interaction) {
             interaction: interaction,
           },
         }
-        await kafkaQueue?.produceBatch([
-          JSON.stringify(kafkaMsg, (_, v) =>
-            typeof v === "bigint" ? v.toString() : v
-          ),
-        ])
+        await kafka.queue?.produceBatch(kafkaMsg)
       } catch (error) {
         logger.error("[KafkaQueue] - failed to enqueue")
       }

@@ -2,6 +2,7 @@ import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError, InternalError } from "errors"
+import kafka from "queue/kafka"
 import { KafkaNotificationMessage } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -20,7 +21,6 @@ import {
 import { MOCHI_ACTION_PAY_ME, MOCHI_PLATFORM_DISCORD } from "utils/constants"
 import { convertToUsdValue } from "utils/convert"
 import { reply } from "utils/discord"
-import { sendNotificationMsg } from "utils/kafka"
 import mochiTelegram from "../../../adapters/mochi-telegram"
 import { dmUser } from "../../../utils/dm"
 
@@ -213,8 +213,6 @@ async function sendNotification({
     message.recipient_info = {
       discord: target,
     }
-
-    sendNotificationMsg(message)
   }
 
   // telegram
@@ -229,9 +227,6 @@ async function sendNotification({
     message.recipient_info = {
       telegram: data.id.toString(),
     }
-
-    sendNotificationMsg(message)
-    return
   }
 
   // mail
@@ -239,9 +234,6 @@ async function sendNotification({
     message.recipient_info = {
       mail: target,
     }
-
-    sendNotificationMsg(message)
-    return
   }
 
   // twitter
@@ -249,10 +241,9 @@ async function sendNotification({
     message.recipient_info = {
       twitter: target,
     }
-
-    sendNotificationMsg(message)
-    return
   }
+
+  kafka.queue?.produceNotificationMsg(message)
 }
 
 export function preprocessTarget(
@@ -291,7 +282,7 @@ export function preprocessTarget(
 
 function isValidEmail(target?: string): boolean {
   if (!target) return false
-  const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+  const expression = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
   return expression.test(target)
 }
 

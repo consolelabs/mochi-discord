@@ -5,7 +5,7 @@ import { logger } from "logger"
 import { KafkaQueueMessage } from "types/common"
 import ChannelLogger from "../logger/channel"
 import { getCommandMetadata } from "./commands"
-import { kafkaQueue } from "queue/kafka/queue"
+import kafka from "queue/kafka"
 
 function catchAll(e: any) {
   logger.error(e)
@@ -106,7 +106,7 @@ export async function wrapError(
             interaction: interactionToKafka,
           },
         }
-        await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+        await kafka.queue?.produceBatch(kafkaMsg)
       } catch (error) {
         logger.error("[wrapError] kafkaQueue?.produceBatch() failed")
       }
@@ -117,7 +117,7 @@ export async function wrapError(
     if (error.handle && typeof error.handle === "function") {
       error.handle?.()
     } else {
-      await kafkaQueue?.produceAnalyticMsg([msg]).catch(() => null)
+      await kafka.queue?.produceAnalyticMsg([msg]).catch(() => null)
     }
     if (e instanceof Error && e.stack) {
       ChannelLogger.alertStackTrace(e.stack).catch(catchAll)

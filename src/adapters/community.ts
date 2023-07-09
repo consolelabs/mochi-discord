@@ -10,7 +10,6 @@ import {
   ResponseUserFeedbackResponse,
   RequestUserFeedbackRequest,
   ResponseGetCollectionCountResponse,
-  ResponseGetGuildConfigDaoProposal,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
 import {
@@ -434,15 +433,6 @@ class Community extends Fetcher {
         proposal_id,
       },
     })
-  }
-
-  public async getGuildConfigDaoProposal(guild_id: string) {
-    return await this.jsonFetch<ResponseGetGuildConfigDaoProposal>(
-      `${API_BASE_URL}/config-channels/${guild_id}/proposal`,
-      {
-        method: "GET",
-      }
-    )
   }
 
   public async getProposalResults(

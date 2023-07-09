@@ -5,8 +5,7 @@ import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
 import { slashCommands } from "commands"
 import { createServer, Server, IncomingMessage, ServerResponse } from "http"
-import { assignKafka } from "queue/kafka/queue"
-import { run } from "queue/kafka/producer"
+import kafka from "queue/kafka"
 import { IS_READY } from "listeners/discord/ready"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
@@ -60,18 +59,10 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
     logger.info("Success getting tips and facts.")
 
     runHttpServer()
+
+    kafka.init()
   } catch (error) {
     logger.error("Failed to refresh application (/) commands.")
-  }
-})()
-;(async () => {
-  try {
-    logger.info("Connecting to Kafka.")
-    // start queue
-    assignKafka(await run())
-    logger.info("Successfully connected to Kafka.")
-  } catch (error) {
-    logger.error("Failed to connect to Kafka.")
   }
 })()
 
@@ -102,15 +93,15 @@ function runHttpServer() {
 }
 
 // cleanup
-// @ts-ignore
 if (import.meta.hot) {
-  // @ts-ignore
   import.meta.hot.on("vite:beforeFullReload", async () => {
-    server?.close()
+    await new Promise<void>((r) => {
+      for (const e of events) {
+        client.off(e.name, e.execute as any)
+      }
 
-    for (const e of events) {
-      client.off(e.name, e.execute as any)
-    }
+      server?.close(() => r())
+    })
   })
 }
 

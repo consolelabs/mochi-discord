@@ -8,6 +8,7 @@ import {
   User,
 } from "discord.js"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
+import kafka from "queue/kafka"
 import { KafkaNotificationMessage, RunResult } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
@@ -21,7 +22,6 @@ import {
 import { MOCHI_ACTION_TIP } from "utils/constants"
 import { convertToUsdValue } from "utils/convert"
 import { isMessage, reply } from "utils/discord"
-import { sendNotificationMsg } from "utils/kafka"
 import {
   getBalances,
   isInTipRange,
@@ -115,7 +115,7 @@ export async function execute(
       },
     }
 
-    sendNotificationMsg(kafkaMsg)
+    kafka.queue?.produceNotificationMsg(kafkaMsg)
   }
 
   const embed = composeEmbedMessage(null, {
