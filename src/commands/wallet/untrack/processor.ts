@@ -17,6 +17,7 @@ import {
   msgColors,
   resolveNamingServiceDomain,
 } from "utils/common"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export async function untrackWallet(
   msg: OriginalMessage,
@@ -45,12 +46,14 @@ export async function untrackWallet(
     })
   }
   if (!ok) throw new APIError({ msgOrInteraction: msg, description: log, curl })
+
+  const profileId = await getProfileIdByDiscord(author.id)
   const {
     ok: removed,
     curl: untrackCurl,
     log: untrackLog,
   } = await defi.untrackWallet({
-    userId: author.id,
+    profileId,
     address: wallet.address,
     alias: wallet.alias,
   })

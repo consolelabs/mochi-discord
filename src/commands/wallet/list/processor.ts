@@ -12,6 +12,7 @@ import {
 } from "utils/common"
 import { APPROX, VERTICAL_BAR } from "utils/constants"
 import { formatDigit } from "utils/defi"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 const emojiMap = {
   following: getEmoji("PLUS"),
@@ -20,7 +21,8 @@ const emojiMap = {
 }
 
 export async function render(user: User) {
-  const { data: res, ok } = await defi.getUserTrackingWallets(user.id)
+  const profileId = await getProfileIdByDiscord(user.id)
+  const { data: res, ok } = await defi.getUserTrackingWallets(profileId)
   const data: {
     following: any[]
     tracking: any[]

@@ -5,6 +5,7 @@ import { getSuccessEmbed } from "ui/discord/embed"
 import { getSlashCommand } from "utils/commands"
 import { getEmoji } from "utils/common"
 import { handleUpdateWlError } from "../processor"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export const removeWatchlistToken = async ({
   msgOrInteraction,
@@ -22,9 +23,11 @@ export const removeWatchlistToken = async ({
       })
       .join(" ")
   }
+
+  const profileId = await getProfileIdByDiscord(userId)
   for (const symbol of symbols) {
-    const { ok, error } = await defi.removeFromWatchlist({
-      userId,
+    const { ok, error } = await defi.untrackToken({
+      profileId,
       symbol,
     })
     if (!ok) await handleUpdateWlError(msgOrInteraction, symbol, error, true)
