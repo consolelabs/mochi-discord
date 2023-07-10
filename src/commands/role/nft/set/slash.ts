@@ -105,7 +105,7 @@ const command: SlashCommand = {
     }
 
     const res = await config.newGuildNFTRoleConfig({
-      guild_id: interaction.guildId,
+      guildID: interaction.guildId,
       role_id: role.id,
       group_name: role.name,
       collection_address: nftAddresses,

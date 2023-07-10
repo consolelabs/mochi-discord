@@ -81,7 +81,7 @@ const command: SlashCommand = {
     }
 
     const res = await config.configLevelRole({
-      guild_id: interaction.guildId,
+      guildID: interaction.guildId,
       role_id: role.id,
       level,
     })
