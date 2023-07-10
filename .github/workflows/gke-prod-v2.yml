@@ -1,3 +1,4 @@
+## TEMPORARY DISABLED , v2 will be use the same version as branch main
 name: Build and Deploy to GKE Prod
 
 on:
@@ -19,42 +20,42 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - id: "auth"
-        name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v0"
-        with:
-          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+      # - id: "auth"
+      #   name: "Authenticate to Google Cloud"
+      #   uses: "google-github-actions/auth@v0"
+      #   with:
+      #     credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
 
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v0"
+      # - name: "Set up Cloud SDK"
+      #   uses: "google-github-actions/setup-gcloud@v0"
 
-      - name: Setup Docker
-        run: |
-          gcloud auth configure-docker gcr.io
+      # - name: Setup Docker
+      #   run: |
+      #     gcloud auth configure-docker gcr.io
 
-      # Build & Push the Docker image
-      - name: Build & Push
-        run: |
-          docker build -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA} .   
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
-      # Setup kustomize
-      - name: Setup kustomize
-        run: |
-          curl -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-          chmod u+x ./kustomize
-          mv kustomize /tmp
-      - name: Checkout consolelabs/infrastructure
-        uses: actions/checkout@master
-        with:
-          repository: consolelabs/infrastructure
-          token: ${{ secrets.GH_PAT }}
-          path: ./infrastructure
-          ref: main
-      - name: Update discord version
-        run: |
-          cd ./infrastructure/mochi-discord/$K8S_ENVIRONMENT
-          git config user.name jphuc96
-          git config user.email jphuc96@gmail.com
-          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
-          git commit -am "[skip ci] mochi-discord ${K8S_ENVIRONMENT} image update"
-          git push origin main
+      # # Build & Push the Docker image
+      # - name: Build & Push
+      #   run: |
+      #     docker build -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA} .   
+      #     docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
+      # # Setup kustomize
+      # - name: Setup kustomize
+      #   run: |
+      #     curl -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+      #     chmod u+x ./kustomize
+      #     mv kustomize /tmp
+      # - name: Checkout consolelabs/infrastructure
+      #   uses: actions/checkout@master
+      #   with:
+      #     repository: consolelabs/infrastructure
+      #     token: ${{ secrets.GH_PAT }}
+      #     path: ./infrastructure
+      #     ref: main
+      # - name: Update discord version
+      #   run: |
+      #     cd ./infrastructure/mochi-discord/$K8S_ENVIRONMENT
+      #     git config user.name jphuc96
+      #     git config user.email jphuc96@gmail.com
+      #     /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
+      #     git commit -am "[skip ci] mochi-discord ${K8S_ENVIRONMENT} image update"
+      #     git push origin main
