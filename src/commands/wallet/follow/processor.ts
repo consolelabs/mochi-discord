@@ -14,6 +14,7 @@ import {
 } from "utils/common"
 
 import { WalletTrackingType } from "../"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export async function followWallet(
   msg: OriginalMessage,
@@ -36,8 +37,9 @@ export async function followWallet(
     })
   }
 
+  const profileId = await getProfileIdByDiscord(author.id)
   const { ok, status } = await defi.trackWallet({
-    userId: author.id,
+    profileId,
     address,
     alias,
     chainType,

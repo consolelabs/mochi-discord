@@ -3,6 +3,7 @@ import CacheManager from "cache/node-cache"
 import { Message, CommandInteraction } from "discord.js"
 import { getSuccessEmbed } from "ui/discord/embed"
 import { handleUpdateWlError } from "../processor"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export const removeWatchlistNftCollection = async ({
   msgOrInteraction,
@@ -13,8 +14,9 @@ export const removeWatchlistNftCollection = async ({
   userId: string
   symbol: string
 }) => {
-  const { ok, error } = await defi.removeNFTFromWatchlist({
-    userId,
+  const profileId = await getProfileIdByDiscord(userId)
+  const { ok, error } = await defi.untrackNFT({
+    profileId,
     symbol,
   })
   if (!ok) await handleUpdateWlError(msgOrInteraction, symbol, error, true)

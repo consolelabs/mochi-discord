@@ -93,50 +93,45 @@ class Defi extends Fetcher {
   }
 
   async getUserWatchlist({
-    userId,
+    profileId,
     coinGeckoId,
     page = 0,
     size = 5,
   }: {
-    userId: string
+    profileId: string
     coinGeckoId?: string
     page?: number
     size?: number
   }) {
     return await this.jsonFetch<ResponseGetWatchlistResponse>(
-      `${API_BASE_URL}/defi/watchlist`,
+      `${API_BASE_URL}/users/${profileId}/watchlists/tokens`,
       {
-        query: {
-          userId,
-          page,
-          size,
-          coinGeckoId,
-        },
+        query: { page, size, coinGeckoId },
       }
     )
   }
 
-  async addToWatchlist(req: {
-    user_id: string
+  async trackToken(body: {
+    profile_id: string
     symbol: string
     coin_gecko_id?: string
     is_fiat: boolean
   }) {
     return await this.jsonFetch<{ suggestion: Coin[] }>(
-      `${API_BASE_URL}/defi/watchlist`,
+      `${API_BASE_URL}/users/${body.profile_id}/watchlists/tokens/track`,
       {
         method: "POST",
-        body: JSON.stringify(req),
+        body,
       }
     )
   }
 
-  async removeFromWatchlist(query: { userId: string; symbol: string }) {
+  async untrackToken(body: { profileId: string; symbol: string }) {
     return await this.jsonFetch<{ suggestion: Coin[] }>(
-      `${API_BASE_URL}/defi/watchlist`,
+      `${API_BASE_URL}/users/${body.profileId}/watchlists/tokens/untrack`,
       {
-        method: "DELETE",
-        query,
+        method: "POST",
+        body,
       }
     )
   }
@@ -160,46 +155,43 @@ class Defi extends Fetcher {
   }
 
   async getUserNFTWatchlist({
-    userId,
+    profileId,
     page = 0,
     size = 5,
   }: {
-    userId: string
+    profileId: string
     page?: number
     size?: number
   }) {
     return await this.jsonFetch<ResponseGetNftWatchlistResponse>(
-      `${API_BASE_URL}/nfts/watchlist`,
-      {
-        query: {
-          userId,
-          page,
-          size,
-        },
-      }
+      `${API_BASE_URL}/users/${profileId}/watchlists/nfts`,
+      { query: { page, size } }
     )
   }
 
-  async addNFTToWatchlist(req: {
-    user_id: string
+  async trackNFT(body: {
+    profile_id: string
     collection_symbol: string
     collection_address?: string
     chain?: string
   }) {
     return await this.jsonFetch<ResponseNftWatchlistSuggestResponse>(
-      `${API_BASE_URL}/nfts/watchlist`,
+      `${API_BASE_URL}/users/${body.profile_id}/watchlists/nfts/track`,
       {
         method: "POST",
-        body: req,
+        body,
       }
     )
   }
 
-  async removeNFTFromWatchlist(query: { userId: string; symbol: string }) {
-    return await this.jsonFetch(`${API_BASE_URL}/nfts/watchlist`, {
-      method: "DELETE",
-      query,
-    })
+  async untrackNFT(body: { profileId: string; symbol: string }) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${body.profileId}/watchlists/nfts/untrack`,
+      {
+        method: "POST",
+        body,
+      }
+    )
   }
 
   async offchainDiscordTransfer(req: RequestOffchainTransferRequest) {
@@ -309,7 +301,7 @@ class Defi extends Fetcher {
   }
 
   async trackWallet(body: {
-    userId: string
+    profileId: string
     address: string
     alias: string
     chainType: string
@@ -317,7 +309,7 @@ class Defi extends Fetcher {
   }) {
     body.type = body.type || "track"
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${body.userId}/watchlists/wallets/track`,
+      `${API_BASE_URL}/users/${body.profileId}/watchlists/wallets/track`,
       {
         method: "POST",
         body,
@@ -325,13 +317,13 @@ class Defi extends Fetcher {
     )
   }
 
-  async updateTrackingInfo(body: {
-    userId: string
+  async updateTrackingWalletInfo(body: {
+    profileId: string
     wallet: string
     alias: string
   }) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${body.userId}/watchlists/wallets/${body.wallet}`,
+      `${API_BASE_URL}/users/${body.profileId}/watchlists/wallets/${body.wallet}`,
       {
         method: "PUT",
         body,
@@ -340,12 +332,12 @@ class Defi extends Fetcher {
   }
 
   async untrackWallet(body: {
-    userId: string
+    profileId: string
     address: string
     alias: string
   }) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${body.userId}/wallets/untrack`,
+      `${API_BASE_URL}/users/${body.profileId}/watchlists/wallets/untrack`,
       {
         method: "POST",
         body,

@@ -29,6 +29,7 @@ import { formatDigit, parseTickerQuery } from "utils/defi"
 import { handleUpdateWlError } from "../processor"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { getSlashCommand } from "utils/commands"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export async function addToWatchlist(i: ButtonInteraction) {
   if (!i.deferred) i.deferUpdate()
@@ -66,8 +67,9 @@ export async function addUserWatchlist(
   const { isFiat, base, target } = parseTickerQuery(symbol)
   if (isFiat) symbol = `${base}/${target}`
 
-  const { data, ok, error } = await defi.addToWatchlist({
-    user_id: userId,
+  const profileId = await getProfileIdByDiscord(userId)
+  const { data, ok, error } = await defi.trackToken({
+    profile_id: profileId,
     symbol,
     coin_gecko_id: coinId,
     is_fiat: isFiat,
