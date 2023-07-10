@@ -14,6 +14,7 @@ import {
   resolveNamingServiceDomain,
   shortenHashOrAddress,
 } from "utils/common"
+import { getProfileIdByDiscord } from "../../../../utils/profile"
 
 export async function updateAlias(
   msg: OriginalMessage,
@@ -26,8 +27,9 @@ export async function updateAlias(
     wallet = resolvedAddress
   }
 
-  const { data, status } = await defi.updateTrackingInfo({
-    userId: author.id,
+  const profileId = await getProfileIdByDiscord(author.id)
+  const { data, status } = await defi.updateTrackingWalletInfo({
+    profileId,
     wallet,
     alias,
   })

@@ -8,6 +8,7 @@ import { updateAlias } from "./processor"
 import defi from "adapters/defi"
 import { lookUpDomains } from "utils/common"
 import { formatDigit } from "utils/defi"
+import { getProfileIdByDiscord } from "../../../../utils/profile"
 
 const command: SlashCommand = {
   name: "set",
@@ -32,7 +33,8 @@ const command: SlashCommand = {
   },
   autocomplete: async (i) => {
     const focusedValue = i.options.getFocused()
-    const { data: res, ok } = await defi.getUserTrackingWallets(i.user.id)
+    const profileId = await getProfileIdByDiscord(i.user.id)
+    const { data: res, ok } = await defi.getUserTrackingWallets(profileId)
     let following: any[] = []
     let tracking: any[] = []
     let copying: any[] = []

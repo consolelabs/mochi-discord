@@ -11,6 +11,7 @@ import { VERTICAL_BAR } from "utils/constants"
 import { groupBy } from "lodash"
 import { renderChart } from "./chart"
 import { paginationButtons } from "utils/router"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export function buildSwitchViewActionRow(currentView: string) {
   const tokenButton = new MessageButton({
@@ -65,13 +66,14 @@ export async function composeWatchlist(
   tokenView = WatchListTokenViewType.Text,
   user: User = author
 ) {
+  const profileId = await getProfileIdByDiscord(user.id)
   const { data: res, ok } = await CacheManager.get({
     pool: "watchlist",
     key: `watchlist-${author.id}-${user.id}-${page}-${view}`,
     call: () =>
       view === WatchListViewType.Token
-        ? defi.getUserWatchlist({ userId: user.id, page, size: PAGE_SIZE })
-        : defi.getUserNFTWatchlist({ userId: user.id, size: PAGE_SIZE }),
+        ? defi.getUserWatchlist({ profileId, page, size: PAGE_SIZE })
+        : defi.getUserNFTWatchlist({ profileId, size: PAGE_SIZE }),
     callIfCached: async () => {
       if (author.id) {
         await community.updateQuestProgress({
@@ -178,7 +180,10 @@ export async function composeWatchlist(
       embeds: [embed],
       components: [
         buildSwitchViewActionRow(view),
-        ...paginationButtons(page, Math.ceil(res.metadata.total / PAGE_SIZE)),
+        ...paginationButtons(
+          page,
+          Math.ceil(res.metadata?.total || 0 / PAGE_SIZE)
+        ),
       ],
       files,
     },

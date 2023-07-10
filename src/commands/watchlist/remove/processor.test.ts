@@ -18,7 +18,7 @@ describe("removeWatchlistToken", () => {
       symbols: ["ftm", "eth"],
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "removeFromWatchlist").mockResolvedValue({
+    jest.spyOn(defi, "untrackToken").mockResolvedValue({
       ok: true,
       error: null,
     } as any)
@@ -36,7 +36,7 @@ describe("removeWatchlistToken", () => {
       symbols: ["ftm", "eth"],
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "removeFromWatchlist").mockResolvedValue({
+    jest.spyOn(defi, "untrackToken").mockResolvedValue({
       ok: true,
       error: null,
     } as any)

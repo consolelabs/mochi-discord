@@ -23,7 +23,7 @@ describe("viewWatchlist", () => {
       originSymbols: symbols,
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "addToWatchlist").mockResolvedValueOnce({
+    jest.spyOn(defi, "trackToken").mockResolvedValueOnce({
       data: {
         base_suggestions: [
           {
@@ -61,7 +61,7 @@ describe("viewWatchlist", () => {
       originSymbols: symbols,
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "addToWatchlist").mockResolvedValueOnce({
+    jest.spyOn(defi, "trackToken").mockResolvedValueOnce({
       data: null,
       ok: true,
       error: null,
@@ -90,7 +90,7 @@ describe("viewWatchlist", () => {
       userId: msg.author.id,
     }
     jest
-      .spyOn(defi, "addToWatchlist")
+      .spyOn(defi, "trackToken")
       .mockResolvedValueOnce({
         data: null,
         ok: true,
@@ -129,7 +129,7 @@ describe("addUserWatchlist", () => {
       data: null,
       ok: true,
     } as any
-    jest.spyOn(defi, "addToWatchlist").mockResolvedValueOnce(mockedResponse)
+    jest.spyOn(defi, "trackToken").mockResolvedValueOnce(mockedResponse)
     const output = await processor.addUserWatchlist(msg, msg.author.id, "eth")
     expect(output).toStrictEqual(mockedResponse.data)
   })
@@ -153,7 +153,7 @@ describe("addUserWatchlist", () => {
       },
       ok: true,
     } as any
-    jest.spyOn(defi, "addToWatchlist").mockResolvedValueOnce(mockedResponse)
+    jest.spyOn(defi, "trackToken").mockResolvedValueOnce(mockedResponse)
     const output = await processor.addUserWatchlist(msg, msg.author.id, "eth")
     expect(output).toStrictEqual(mockedResponse.data)
   })

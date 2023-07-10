@@ -18,7 +18,7 @@ describe("removeWatchlistNftCollection", () => {
       symbol: "rabby",
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "removeNFTFromWatchlist").mockResolvedValueOnce({
+    jest.spyOn(defi, "untrackNFT").mockResolvedValueOnce({
       ok: true,
       error: null,
     } as any)
@@ -38,7 +38,7 @@ describe("removeWatchlistNftCollection", () => {
       symbol: "rabby",
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "removeNFTFromWatchlist").mockResolvedValueOnce({
+    jest.spyOn(defi, "untrackNFT").mockResolvedValueOnce({
       ok: true,
       error: null,
     } as any)

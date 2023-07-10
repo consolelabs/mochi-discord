@@ -19,7 +19,7 @@ describe("addWatchlistNftCollection", () => {
       symbol: "rabby",
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "addNFTToWatchlist").mockResolvedValueOnce({
+    jest.spyOn(defi, "trackNFT").mockResolvedValueOnce({
       data: null,
       ok: true,
     } as any)
@@ -39,7 +39,7 @@ describe("addWatchlistNftCollection", () => {
       symbol: "rabby",
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "addNFTToWatchlist").mockResolvedValueOnce({
+    jest.spyOn(defi, "trackNFT").mockResolvedValueOnce({
       data: null,
       ok: true,
     } as any)
@@ -59,7 +59,7 @@ describe("addWatchlistNftCollection", () => {
       symbol: "rabb",
       userId: msg.author.id,
     }
-    jest.spyOn(defi, "addNFTToWatchlist").mockResolvedValueOnce({
+    jest.spyOn(defi, "trackNFT").mockResolvedValueOnce({
       data: {
         suggestions: [
           {

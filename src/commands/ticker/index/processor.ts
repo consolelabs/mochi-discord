@@ -21,6 +21,7 @@ import {
   renderFiatCompareChart,
   renderHistoricalMarketChart,
 } from "./chart"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 const CURRENCY = "usd"
 const DIVIDER = getEmoji("LINE").repeat(5)
@@ -413,8 +414,9 @@ export async function renderTokenInfo(
 }
 
 async function isTickerAddedToWl(coinId: string, discordId: string) {
+  const profileId = await getProfileIdByDiscord(discordId)
   const wlRes = await defi.getUserWatchlist({
-    userId: discordId,
+    profileId,
     coinGeckoId: coinId,
   })
   return (

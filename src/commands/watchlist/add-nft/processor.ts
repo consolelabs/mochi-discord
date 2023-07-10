@@ -18,13 +18,15 @@ import { ResponseCollectionSuggestions } from "types/api"
 import { composeDiscordExitButton } from "ui/discord/button"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { defaultEmojis, getEmoji, msgColors } from "utils/common"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const value = interaction.values[0]
   const [symbol, address, chain, userId] = value.split("_")
-  const { ok, error } = await defi.addNFTToWatchlist({
-    user_id: userId,
+  const profileId = await getProfileIdByDiscord(userId)
+  const { ok, error } = await defi.trackNFT({
+    profile_id: profileId,
     collection_symbol: symbol,
     collection_address: address,
     chain,
@@ -53,8 +55,9 @@ export const addWatchlistNftCollection = async ({
   userId: string
   symbol: string
 }) => {
-  const { data, ok, error } = await defi.addNFTToWatchlist({
-    user_id: userId,
+  const profileId = await getProfileIdByDiscord(userId)
+  const { data, ok, error } = await defi.trackNFT({
+    profile_id: profileId,
     collection_symbol: symbol,
   })
   if (!ok) await handleUpdateWlError(msgOrInteraction, symbol, error)
