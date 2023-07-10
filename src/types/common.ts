@@ -284,3 +284,22 @@ export type WalletNotification = {
   chain: string
   address: string
 }
+
+export type ResponseGetEcocalResponse = {
+  data?: ResponseGetEcocalItem[]
+}
+
+export type ResponseGetEcocalItem = {
+  id?: string
+  event_id?: number
+  event_name?: string
+  currency?: string
+  actual?: string
+  forecast?: string
+  impact?: string
+  previous?: string
+  time?: string
+  url?: string
+  country_name?: string
+  is_tentative?: boolean
+}

@@ -1,6 +1,11 @@
 version: "3.5"
 
 services:
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
     container_name: zookeeper

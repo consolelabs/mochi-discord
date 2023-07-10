@@ -7,6 +7,7 @@ import {
   MOCHI_PAY_API_SERVER_HOST,
   MOCHI_TELEGRAM_API_SERVER_HOST,
   GAME_STORE_API_SERVER_HOST,
+  ECOCAL_API_SERVER_HOST,
 } from "env"
 
 export const DOT = "•"
@@ -37,6 +38,7 @@ export const MOCHI_PAY_API_BASE_URL = `${MOCHI_PAY_API_SERVER_HOST}/api/v1`
 export const MOCHI_TELEGRAM_API_BASE_URL = `${MOCHI_TELEGRAM_API_SERVER_HOST}/api/v1`
 export const GAME_STORE_API_BASE_URL = `${GAME_STORE_API_SERVER_HOST}/api/v1`
 export const KRYSTAL_API_BASE_URL = `https://api.krystal.app/all/v1`
+export const ECOCAL_API_BASE_URL = `${ECOCAL_API_SERVER_HOST}/mochi`
 
 export const VALID_BOOST_MESSAGE_TYPES = [
   "USER_PREMIUM_GUILD_SUBSCRIPTION",
