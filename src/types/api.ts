@@ -624,7 +624,9 @@ export interface RequestEditMessageRepostRequest {
 }
 
 export interface RequestGetTrackingWalletsRequest {
+  address?: string;
   profileID?: string;
+  withBalance?: boolean;
 }
 
 export interface RequestGuildConfigDefaultNftTickerRequest {
