@@ -44,7 +44,6 @@ import deposit from "./deposit"
 import feedback from "./feedback/index"
 import gm from "./gm"
 import help from "./help/index"
-import levelmessage from "./level-message"
 import gas from "./gas"
 import activity from "./activity"
 import inbox from "./inbox"
@@ -177,7 +176,6 @@ export const originalCommands: Record<string, Command> = {
   alert: alert.textCmd,
   gas: gas.textCmd,
   // config section
-  levelmessage: levelmessage.textCmd,
   stats: stats.textCmd,
   // globalxp,
   sendxp: sendxp.textCmd,

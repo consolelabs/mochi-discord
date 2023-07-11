@@ -14,8 +14,6 @@ import { API_BASE_URL } from "utils/constants"
 import { Token } from "types/defi"
 import { Fetcher } from "./fetcher"
 import {
-  RequestConfigGroupNFTRoleRequest,
-  RequestConfigLevelRoleRequest,
   ResponseGetLevelRoleConfigsResponse,
   ResponseListGuildGroupNFTRolesResponse,
   ResponseGetWelcomeChannelConfigResponse,
@@ -417,9 +415,9 @@ class Config extends Fetcher {
     })
   }
 
-  public async configLevelRole(data: RequestConfigLevelRoleRequest) {
-    return this.jsonFetch<ResponseGetLevelRoleConfigsResponse>(
-      `${API_BASE_URL}/config/role/${data.guildID}/level`,
+  public async configLevelRole(data: any) {
+    return await this.jsonFetch<ResponseGetLevelRoleConfigsResponse>(
+      `${API_BASE_URL}/config/role/${data.guild_id}/level`,
       {
         method: "POST",
         body: JSON.stringify(data),
@@ -463,9 +461,9 @@ class Config extends Fetcher {
     })
   }
 
-  public async newGuildNFTRoleConfig(body: RequestConfigGroupNFTRoleRequest) {
-    return this.jsonFetch<ResponseListGuildGroupNFTRolesResponse>(
-      `${API_BASE_URL}/config/role/${body.guildID}/nft`,
+  public async newGuildNFTRoleConfig(body: any) {
+    return await this.jsonFetch<ResponseListGuildGroupNFTRolesResponse>(
+      `${API_BASE_URL}/config/role/${body.guild_id}/nft`,
       {
         method: "POST",
         body: JSON.stringify(body),
@@ -1333,6 +1331,28 @@ class Config extends Fetcher {
   public async getContent(type: string) {
     return await this.jsonFetch(
       `${API_BASE_URL}/product-metadata/copy/${type}`,
+      {
+        method: "GET",
+      }
+    )
+  }
+
+  public async setLogchannel(
+    guildId: string,
+    body: { channel_id: string; log_type: string }
+  ) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config/log-channel/${guildId}`,
+      {
+        method: "POST",
+        body,
+      }
+    )
+  }
+
+  public async getLogchannel(guildId: string, logType: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config/log-channel/${guildId}/${logType}`,
       {
         method: "GET",
       }

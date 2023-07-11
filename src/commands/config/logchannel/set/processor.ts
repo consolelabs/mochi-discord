@@ -1,6 +1,4 @@
 import config from "adapters/config"
-import defi from "adapters/defi"
-import community from "adapters/community"
 import { CommandInteraction } from "discord.js"
 
 export async function setOffchainTip(
@@ -8,10 +6,9 @@ export async function setOffchainTip(
   channel_id: string
 ) {
   if (!i.guildId) return
-  await defi.createConfigNofityTransaction({
-    guild_id: i.guildId,
+  await config.setLogchannel(i.guildId, {
     channel_id,
-    token: "all",
+    log_type: "tip",
   })
 }
 
@@ -25,10 +22,9 @@ export async function setLevelMessageChannel(
   logChannel: string
 ) {
   if (!i.guildId) return
-  await community.setLevelMessageConfig({
-    guild_id: i.guildId,
+  await config.setLogchannel(i.guildId, {
     channel_id: logChannel,
-    message: "Congratulation on leveling up",
+    log_type: "level",
   })
 }
 
@@ -37,8 +33,8 @@ export async function setGmGnMessageChannel(
   logChannel: string
 ) {
   if (!i.guildId) return
-  await config.updateGmConfig({
-    guild_id: i.guildId,
+  await config.setLogchannel(i.guildId, {
     channel_id: logChannel,
+    log_type: "gm",
   })
 }
