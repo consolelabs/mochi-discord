@@ -429,8 +429,8 @@ export interface ModelUserWalletWatchlistItem {
   fetched_data?: boolean;
   is_owner?: boolean;
   net_worth?: number;
+  profile_id?: string;
   type?: string;
-  user_id?: string;
 }
 
 export interface ModelVault {
@@ -465,14 +465,12 @@ export interface RequestAddNftWatchlistRequest {
   collection_address?: string;
   collection_symbol?: string;
   guild_id?: string;
-  user_id?: string;
 }
 
 export interface RequestAddToWatchlistRequest {
   coin_gecko_id?: string;
   is_fiat?: boolean;
   symbol?: string;
-  user_id?: string;
 }
 
 export interface RequestAddTokenPriceAlertRequest {
@@ -608,10 +606,6 @@ export interface RequestCreateUserTokenSupportRequest {
   user_discord_id: string;
 }
 
-export interface RequestDeleteJoinLeaveChannelConfigRequest {
-  guild_id?: string;
-}
-
 export interface RequestDeleteMonikerConfigRequest {
   guild_id: string;
   moniker: string;
@@ -629,7 +623,9 @@ export interface RequestEditMessageRepostRequest {
   repost_message_id?: string;
 }
 
-export type RequestGetTrackingWalletsRequest = object;
+export interface RequestGetTrackingWalletsRequest {
+  profileID?: string;
+}
 
 export interface RequestGuildConfigDefaultNftTickerRequest {
   chain_id?: number;
@@ -780,11 +776,6 @@ export interface RequestUpsertGuildTokenConfigRequest {
   active?: boolean;
   guild_id?: string;
   symbol?: string;
-}
-
-export interface RequestUpsertJoinLeaveChannelConfigRequest {
-  channel_id?: string;
-  guild_id?: string;
 }
 
 export interface RequestUpsertMonikerConfigRequest {
