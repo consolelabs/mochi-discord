@@ -177,14 +177,11 @@ class Profile extends Fetcher {
     })
   }
 
-  public async getUserProfile(guildId: string | null = "", userId: string) {
+  public async getUserProfile(guildId: string | null = "", profileId: string) {
     return await this.jsonFetch<ResponseGetDataUserProfileResponse>(
       `${API_BASE_URL}/users/profiles`,
       {
-        query: {
-          guildId,
-          userId,
-        },
+        query: { guildId, profileId },
       }
     )
   }
