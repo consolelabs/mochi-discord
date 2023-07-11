@@ -6,7 +6,7 @@ import { ResponseGetEcocalResponse } from "types/common"
 import { VERTICAL_BAR, DOT, SPACE } from "utils/constants"
 import moment from "moment-timezone"
 
-export function buildSwitchViewActionRow() {
+export function buildSwitchViewActionRow(selectedDate: Date) {
   const prevDateButton = new MessageButton({
     label: "",
     emoji: getEmoji("LEFT_ARROW"),
@@ -19,6 +19,7 @@ export function buildSwitchViewActionRow() {
     emoji: getEmoji("CALENDAR_NUMBER"),
     customId: "today",
     style: "SECONDARY",
+    disabled: moment(selectedDate).isSame(new Date(), "day"),
   })
 
   const nextDateButton = new MessageButton({
@@ -36,14 +37,14 @@ export function buildSwitchViewActionRow() {
 
 export function buildImpactFilterActionRow(selectedImpact: string) {
   const allImpactFilterButton = new MessageButton({
-    label: "All",
+    label: "A",
     emoji: getEmoji("CHART"),
     customId: "all_impact",
     style: "SECONDARY",
     disabled: selectedImpact === "1|2|3|Holiday",
   })
   const lowImpactFilterButton = new MessageButton({
-    label: "Low Impact",
+    label: "L",
     emoji: getEmoji("MEDIUM_BLUE_DIAMOND"),
     customId: "low_impact",
     style: "SECONDARY",
@@ -51,7 +52,7 @@ export function buildImpactFilterActionRow(selectedImpact: string) {
   })
 
   const mediumFilterButton = new MessageButton({
-    label: "Medium Impact",
+    label: "M",
     emoji: getEmoji("MEDIUM_ORANGE_DIAMOND"),
     customId: "medium_impact",
     style: "SECONDARY",
@@ -59,7 +60,7 @@ export function buildImpactFilterActionRow(selectedImpact: string) {
   })
 
   const highImpactFilterButton = new MessageButton({
-    label: "High Impact",
+    label: "H",
     emoji: getEmoji("MEDIUM_RED_TRIANGLE"),
     customId: "high_impact",
     style: "SECONDARY",
@@ -187,7 +188,7 @@ export async function composeEcocal(
       embeds: [embed],
       components: [
         buildImpactFilterActionRow(impact),
-        buildSwitchViewActionRow(),
+        buildSwitchViewActionRow(now),
       ],
     },
   }
