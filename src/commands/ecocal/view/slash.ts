@@ -28,10 +28,28 @@ export const machineConfig: (ctx?: any) => MachineConfig = (context = {}) => ({
             ctx.dateNumber--
           }
         }
-        return composeEcocal(i.user, ctx.dateNumber)
+
+        if (ev == "ALL_IMPACT") {
+          ctx.impact = "1|2|3|Holiday"
+        }
+
+        if (ev == "LOW_IMPACT") {
+          ctx.impact = "1"
+        }
+
+        if (ev == "MEDIUM_IMPACT") {
+          ctx.impact = "2"
+        }
+
+        if (ev == "HIGH_IMPACT") {
+          ctx.impact = "3"
+        }
+
+        return composeEcocal(i.user, ctx.dateNumber, ctx.impact)
       },
     },
     dateNumber: 0,
+    impact: "1|2|3|Holiday",
     ...context,
   },
   states: {
@@ -40,6 +58,10 @@ export const machineConfig: (ctx?: any) => MachineConfig = (context = {}) => ({
         NEXT_DATE: "ecocal",
         TODAY: "ecocal",
         PREV_DATE: "ecocal",
+        LOW_IMPACT: "ecocal",
+        MEDIUM_IMPACT: "ecocal",
+        HIGH_IMPACT: "ecocal",
+        ALL_IMPACT: "ecocal",
       },
     },
   },
@@ -54,7 +76,7 @@ const command: SlashCommand = {
       .setDescription("View Economic Calendar")
   },
   run: async function (i: CommandInteraction) {
-    const { context, msgOpts } = await composeEcocal(i.user, 0)
+    const { context, msgOpts } = await composeEcocal(i.user, 0, "1|2|3|Holiday")
     const reply = (await i.editReply(msgOpts)) as Message
 
     route(reply, i, machineConfig(context))

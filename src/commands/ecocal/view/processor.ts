@@ -13,24 +13,75 @@ export function buildSwitchViewActionRow() {
     customId: "prev_date",
     style: "SECONDARY",
   })
+
   const todayButton = new MessageButton({
     label: "Today ",
     emoji: getEmoji("CALENDAR_NUMBER"),
     customId: "today",
     style: "SECONDARY",
   })
+
   const nextDateButton = new MessageButton({
     label: "",
     emoji: getEmoji("RIGHT_ARROW"),
     customId: "next_date",
     style: "SECONDARY",
   })
+
   const row = new MessageActionRow()
   row.addComponents([prevDateButton, todayButton, nextDateButton])
+
   return row
 }
 
-export async function composeEcocal(author: User, dateNumber = 0) {
+export function buildImpactFilterActionRow(selectedImpact: string) {
+  const allImpactFilterButton = new MessageButton({
+    label: "All",
+    emoji: getEmoji("CHART"),
+    customId: "all_impact",
+    style: "SECONDARY",
+    disabled: selectedImpact === "1|2|3|Holiday",
+  })
+  const lowImpactFilterButton = new MessageButton({
+    label: "Low Impact",
+    emoji: getEmoji("MEDIUM_BLUE_DIAMOND"),
+    customId: "low_impact",
+    style: "SECONDARY",
+    disabled: selectedImpact === "1",
+  })
+
+  const mediumFilterButton = new MessageButton({
+    label: "Medium Impact",
+    emoji: getEmoji("MEDIUM_ORANGE_DIAMOND"),
+    customId: "medium_impact",
+    style: "SECONDARY",
+    disabled: selectedImpact === "2",
+  })
+
+  const highImpactFilterButton = new MessageButton({
+    label: "High Impact",
+    emoji: getEmoji("MEDIUM_RED_TRIANGLE"),
+    customId: "high_impact",
+    style: "SECONDARY",
+    disabled: selectedImpact === "3",
+  })
+
+  const row = new MessageActionRow()
+  row.addComponents([
+    allImpactFilterButton,
+    lowImpactFilterButton,
+    mediumFilterButton,
+    highImpactFilterButton,
+  ])
+
+  return row
+}
+
+export async function composeEcocal(
+  author: User,
+  dateNumber = 0,
+  impact: string
+) {
   const now = new Date()
   now.setDate(now.getDate() + dateNumber)
 
@@ -42,7 +93,6 @@ export async function composeEcocal(author: User, dateNumber = 0) {
   const utcStartDate = startDate.utc()
   const utcEndDate = endDate.utc()
 
-  const impact = "1|2|3|Holiday"
   const data = await ecocal.getEcocal(
     impact,
     utcStartDate.toISOString(),
@@ -55,10 +105,10 @@ export async function composeEcocal(author: User, dateNumber = 0) {
     embed.setDescription(
       `**${getEmoji(
         "CALENDAR"
-      )}️ ECONOMIC CALENDAR - *<:t${formattedDate}:D>***\n\n${getEmoji(
+      )}️ ECONOMIC CALENDAR - *<t:${formattedDate}:D>***\n\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
         true
-      )} No Economic event in this day.`
+      )} There is no Economic Event in this day.`
     )
     return {
       msgOpts: {
@@ -135,7 +185,10 @@ export async function composeEcocal(author: User, dateNumber = 0) {
     },
     msgOpts: {
       embeds: [embed],
-      components: [buildSwitchViewActionRow()],
+      components: [
+        buildImpactFilterActionRow(impact),
+        buildSwitchViewActionRow(),
+      ],
     },
   }
 }

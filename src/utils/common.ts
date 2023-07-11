@@ -335,7 +335,7 @@ const animatedEmojis = {
 export const shapes = {
   MEDIUM_RED_TRIANGLE: "🔺",
   MEDIUM_ORANGE_DIAMOND: "🔸",
-  MEDIUM_BLUE_DIAMOND: "🔸",
+  MEDIUM_BLUE_DIAMOND: "🔹",
 }
 
 export const emojis = {
