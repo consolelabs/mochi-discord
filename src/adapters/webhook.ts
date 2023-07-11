@@ -4,11 +4,16 @@ import { API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
 
 class Webhook extends Fetcher {
-  public async pushDiscordWebhook(event: string, data: unknown) {
+  public async pushDiscordWebhook(
+    event: string,
+    data: unknown,
+    profileId?: string
+  ) {
     try {
       const body = {
-        event: event,
-        data: data,
+        event,
+        data,
+        profileId,
       }
       const res = await this.jsonFetch(`${API_BASE_URL}/webhook/discord`, {
         method: "POST",

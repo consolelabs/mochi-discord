@@ -121,7 +121,7 @@ async function compose(
 ) {
   const [podProfileRes, vaultsRes, walletsRes, socials, balances] =
     await Promise.all([
-      profile.getUserProfile(i.guildId ?? "", target.id),
+      profile.getUserProfile(i.guildId ?? "", dataProfile.id),
       config.vaultList(i.guildId ?? "", false, dataProfile.id),
       profile.getUserWallets(target.id),
       profile.getUserSocials(target.id),

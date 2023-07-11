@@ -4,6 +4,7 @@ import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import community from "adapters/community"
 import { InternalError } from "errors"
 import { paginationButtons } from "utils/router"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 const topEmojis = {
   0: getEmoji("ANIMATED_BADGE_1", true),
@@ -24,24 +25,25 @@ export async function render(
     })
   }
 
+  const profileId = await getProfileIdByDiscord(interaction.user.id)
   const res = await community.getTopXPUsers(
     interaction.guildId,
-    interaction.user.id,
+    profileId,
     page,
     10
   )
   if (!res.ok || !res.data.leaderboard || !res.data.leaderboard.length)
     throw new InternalError({
       msgOrInteraction: interaction,
-      descriptions: ["We coulnd't process this command"],
+      descriptions: ["We couldn't process this command"],
       reason: res.error || "We're investigating",
     })
 
   const { author, leaderboard } = res.data
   const member = await interaction.guild?.members.fetch(author.user_id)
 
-  const hasLevelRole = !!author.current_level_role.role_id
-  const hasNextLevelRole = !!author.next_level_role.role_id
+  const hasLevelRole = !!author.current_level_role?.role_id
+  const hasNextLevelRole = !!author.next_level_role?.role_id
 
   const embed = composeEmbedMessage(null, {
     author: ["Top engagement by XP", getEmojiURL(emojis.ANIMATED_TROPHY)],

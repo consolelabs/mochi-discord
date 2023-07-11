@@ -72,14 +72,14 @@ class Community extends Fetcher {
 
   public async getTopXPUsers(
     guildId: string,
-    userId: string,
+    profileId: string,
     page: number,
     limit = 10
   ) {
-    return this.jsonFetch(`${API_BASE_URL}/users/top`, {
+    return await this.jsonFetch(`${API_BASE_URL}/users/top`, {
       query: {
         guildId,
-        userId,
+        profileId,
         page,
         limit,
       },
