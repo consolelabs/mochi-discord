@@ -41,6 +41,12 @@ const SOL_TLD_AUTHORITY = new PublicKey(
   "58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx"
 )
 
+export const countryFlagEmojis = {
+  "UNITED STATES": ":flag_us:",
+  "EURO ZONE": ":flag_eu:",
+  "UNITED KINGDOM": ":flag_gb:",
+}
+
 export const tokenEmojis = {
   FANTOM: "1113120054352019476",
   ETHEREUM: "972205674173972542",
@@ -326,6 +332,12 @@ const animatedEmojis = {
   ANIMATED_FLASH: "1093923038325653634",
 }
 
+export const shapes = {
+  MEDIUM_RED_TRIANGLE: "🔺",
+  MEDIUM_ORANGE_DIAMOND: "🔸",
+  MEDIUM_BLUE_DIAMOND: "🔸",
+}
+
 export const emojis = {
   GOOD_MORNING: "967285238306840576",
   REVOKE: "1077631119073230970",
@@ -454,6 +466,8 @@ export const emojis = {
   NO: "1112604245875765319",
   METAMASK: "1121380474766491648",
   CHAT: "1078633889247006790",
+  CALENDAR: "🗓️",
+  CALENDAR_NUMBER: "📅",
   ...animatedEmojis,
   ...tokenEmojis,
   ...numberEmojis,
@@ -466,6 +480,8 @@ export const emojis = {
   ...fiatEmojis,
   ...gameEmojis,
   ...traitTypeMapping,
+  ...countryFlagEmojis,
+  ...shapes,
 }
 
 export const msgColors: Record<string, ColorResolvable> = {

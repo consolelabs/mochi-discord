@@ -19,10 +19,14 @@ export const machineConfig: (ctx?: any) => MachineConfig = (context = {}) => ({
           ctx.dateNumber = 0
         }
         if (ev == "NEXT_DATE") {
-          ctx.dateNumber++
+          if (ctx.dateNumber <= 30) {
+            ctx.dateNumber++
+          }
         }
         if (ev == "PREV_DATE") {
-          ctx.dateNumber--
+          if (ctx.dateNumber >= -30) {
+            ctx.dateNumber--
+          }
         }
         return composeEcocal(i.user, ctx.dateNumber)
       },
@@ -47,7 +51,7 @@ const command: SlashCommand = {
   prepare: (alias = "view") => {
     return new SlashCommandSubcommandBuilder()
       .setName(alias)
-      .setDescription("View economic calendar")
+      .setDescription("View Economic Calendar")
   },
   run: async function (i: CommandInteraction) {
     const { context, msgOpts } = await composeEcocal(i.user, 0)
@@ -67,7 +71,7 @@ const command: SlashCommand = {
         }),
       ],
     }),
-  colorType: "Defi",
+  colorType: "Market",
 }
 
 export default command
