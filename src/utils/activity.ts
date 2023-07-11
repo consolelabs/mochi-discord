@@ -14,20 +14,16 @@ export function PlatformTypeToEmoji(platformType: string) {
   }
 }
 
-export function ActionTypeToEmoji(actionType: string) {
+export function ActionTypeToEmoji(actionType: number) {
   switch (actionType) {
-    case "tip":
-      return getEmoji("CASH")
-    case "withdraw":
-      return getEmoji("ANIMATED_COIN_3", true)
-    case "deposit":
+    case 8: // deposit
       return getEmoji("ANIMATED_MONEY", true)
-    case "gain_xp":
-      return getEmoji("ANIMATED_XP", true)
-    case "gm":
-      return getEmoji("ANIMATED_HEART", true)
-    case "quest":
-      return getEmoji("QUEST")
+    case 9: // withdraw
+      return getEmoji("ANIMATED_COIN_3", true)
+    case 10 || 11 || 13: // send || recieve || earn
+      return getEmoji("CASH")
+    case 12: //swap
+      return getEmoji("SWAP_ROUTE", true)
     default:
       return getEmoji("QUEST")
   }

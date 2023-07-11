@@ -2,7 +2,7 @@ import profile from "adapters/profile"
 import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { ActionTypeToEmoji, PlatformTypeToEmoji } from "utils/activity"
+import { ActionTypeToEmoji } from "utils/activity"
 import { paginationButtons } from "utils/router"
 
 const pageSize = 7
@@ -54,21 +54,16 @@ export async function render(userDiscordId: string, page = 0) {
 
   const activityList = []
   const blank = getEmoji("BLANK")
-  let col2Len = 0
 
   for (let i = 0; i < data.length; i++) {
     const activity = data[i]
-    const actionEmoji = ActionTypeToEmoji(activity.action)
-    const platformEmoji = PlatformTypeToEmoji(activity.platform)
+    const actionEmoji = ActionTypeToEmoji(activity.type)
 
-    const actionAndRewardRow = `${actionEmoji} ${activity.action_description}${blank}`
+    const actionAndRewardRow = `${actionEmoji} ${activity.content}${blank}`
     const time = new Date(activity.created_at).getTime() / 1000
-    col2Len = Math.max(col2Len, activity.platform.length)
 
     activityList.push({
       time,
-      activityPlatform: activity.platform,
-      platformEmoji,
       actionAndRewardRow,
     })
   }
