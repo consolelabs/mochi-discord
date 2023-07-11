@@ -6,6 +6,7 @@ import { textCommandAsyncStore } from "utils/async-storages"
 import { PREFIX, VALID_BOOST_MESSAGE_TYPES } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "./index"
+import { getProfileIdByDiscord } from "../../utils/profile"
 
 export const handleNormalMessage = async (message: Message) => {
   if (message.channel.type === "DM") return
@@ -14,6 +15,7 @@ export const handleNormalMessage = async (message: Message) => {
 
   const stickers = Array.from(message.stickers.values())
 
+  const profileId = await getProfileIdByDiscord(message.author.id)
   const body = {
     author: {
       id: message.author.id,
@@ -28,7 +30,7 @@ export const handleNormalMessage = async (message: Message) => {
     type: messageType,
   }
 
-  await webhook.pushDiscordWebhook("messageCreate", body)
+  await webhook.pushDiscordWebhook("messageCreate", body, profileId)
 }
 
 const events: DiscordEvent<"messageCreate"> = {
