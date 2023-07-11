@@ -416,8 +416,8 @@ class Config extends Fetcher {
   }
 
   public async configLevelRole(data: any) {
-    return this.jsonFetch<ResponseGetLevelRoleConfigsResponse>(
-      `${API_BASE_URL}/config/role/${data.guildID}/level`,
+    return await this.jsonFetch<ResponseGetLevelRoleConfigsResponse>(
+      `${API_BASE_URL}/config/role/${data.guild_id}/level`,
       {
         method: "POST",
         body: JSON.stringify(data),
@@ -462,8 +462,8 @@ class Config extends Fetcher {
   }
 
   public async newGuildNFTRoleConfig(body: any) {
-    return this.jsonFetch<ResponseListGuildGroupNFTRolesResponse>(
-      `${API_BASE_URL}/config/role/${body.guildID}/nft`,
+    return await this.jsonFetch<ResponseListGuildGroupNFTRolesResponse>(
+      `${API_BASE_URL}/config/role/${body.guild_id}/nft`,
       {
         method: "POST",
         body: JSON.stringify(body),
