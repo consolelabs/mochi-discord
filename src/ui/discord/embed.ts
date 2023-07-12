@@ -23,10 +23,8 @@ import {
   specificHelpCommand,
 } from "utils/commands"
 import {
-  TokenEmojiKey,
   emojis,
   getEmoji,
-  getEmojiToken,
   getEmojiURL,
   msgColors,
   roundFloatNumber,
@@ -642,10 +640,10 @@ export function composeInsufficientBalanceEmbed({
 }: {
   current?: number
   required?: number
-  symbol: TokenEmojiKey
+  symbol: string
   author?: User
 }) {
-  const tokenEmoji = getEmojiToken(symbol)
+  const tokenEmoji = getEmoji(symbol)
   return composeEmbedMessage(null, {
     author: ["Insufficient balance", getEmojiURL(emojis.REVOKE)],
     description: `${author}, your balance is insufficient.\nYou can deposit more by using </deposit:1063362961198030868>`,
