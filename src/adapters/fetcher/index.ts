@@ -55,15 +55,13 @@ if (!TEST) {
 
   redis
     .on("ready", () => {
-      logger.info(
-        `Successfully connected to Redis, host=${REDIS_HOST}, db=${REDIS_DB}`
-      )
+      logger.info(`Connect to Redis OK, url=redis://${REDIS_HOST}/${REDIS_DB}`)
       cache = redis
     })
     .on("error", (e) => {
-      logger.warn(`Redis connection error ${e}`)
+      logger.warn(`Connect to Redis FAIL, error ${e}`)
       redisError = true
-      redis.shutdown()
+      redis.quit()
     })
 }
 
