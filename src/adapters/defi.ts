@@ -254,9 +254,9 @@ class Defi extends Fetcher {
     )
   }
 
-  async findWallet(userId: string, query: string) {
+  async findWallet(profileId: string, query: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${userId}/wallets/${query}`
+      `${API_BASE_URL}/users/${profileId}/wallets/${query}`
     )
   }
 
