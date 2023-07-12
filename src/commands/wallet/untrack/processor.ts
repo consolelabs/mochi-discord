@@ -29,13 +29,14 @@ export async function untrackWallet(
     addressOrAlias = resolvedAddress
   }
 
+  const profileId = await getProfileIdByDiscord(author.id)
   const {
     data: wallet,
     ok,
     status,
     curl,
     log,
-  } = await defi.findWallet(author.id, addressOrAlias)
+  } = await defi.findWallet(profileId, addressOrAlias)
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   // wallet not found
   if (!ok && status === 404) {
@@ -47,7 +48,6 @@ export async function untrackWallet(
   }
   if (!ok) throw new APIError({ msgOrInteraction: msg, description: log, curl })
 
-  const profileId = await getProfileIdByDiscord(author.id)
   const {
     ok: removed,
     curl: untrackCurl,

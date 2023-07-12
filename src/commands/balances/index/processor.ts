@@ -97,14 +97,14 @@ export const balanceEmbedProps: Record<
       true
     )} You can send tokens to other using ${await getSlashCommand("tip")}.`,
   }),
-  [BalanceType.Onchain]: async (discordId, _, addressOrAlias, interaction) => {
+  [BalanceType.Onchain]: async (_, profileId, addressOrAlias, interaction) => {
     const {
       data: wallet,
       ok,
       status,
       log,
       curl,
-    } = await defi.findWallet(discordId, addressOrAlias)
+    } = await defi.findWallet(profileId, addressOrAlias)
 
     if (!ok && status !== 404) {
       throw new APIError({
@@ -182,8 +182,8 @@ const balancesFetcher: Record<
   ) => Promise<any>
 > = {
   [BalanceType.Offchain]: (profileId) => mochiPay.getBalances({ profileId }),
-  [BalanceType.Onchain]: (_, discordId, address, type) =>
-    defi.getWalletAssets(discordId, address, type),
+  [BalanceType.Onchain]: (profileId, _, address, type) =>
+    defi.getWalletAssets(profileId, address, type),
   [BalanceType.Cex]: (profileId, platform) =>
     defi.getDexAssets({ profileId: profileId, platform: platform }),
   [BalanceType.All]: (profileId) => defi.getAllBalances({ profileId }),
@@ -289,8 +289,8 @@ const txnsFetcher: Record<
   ) => Promise<any>
 > = {
   [BalanceType.Offchain]: (profile_id) => mochiPay.getListTx({ profile_id }),
-  [BalanceType.Onchain]: (_, discordId, address, type) =>
-    defi.getWalletTxns(discordId, address, type),
+  [BalanceType.Onchain]: (profileId, _, address, type) =>
+    defi.getWalletTxns(profileId, address, type),
   [BalanceType.Cex]: (profile_id, platform) =>
     defi.getDexTxns(profile_id, platform),
   [BalanceType.All]: (profile_id) => mochiPay.getListTx({ profile_id }),
@@ -622,7 +622,7 @@ async function switchView(
   page: number,
   profileId: string
 ) {
-  const wallet = await defi.findWallet(discordId, props.address)
+  const wallet = await defi.findWallet(profileId, props.address)
   const trackingType = wallet?.data?.type
   const { mochiWallets, wallets, cexes } = await profile.getUserWallets(
     discordId
