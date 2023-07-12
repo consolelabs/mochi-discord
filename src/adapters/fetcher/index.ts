@@ -7,7 +7,13 @@ import { attachAuthorization, convertToSnakeCase, makeLog } from "./utils"
 import toCurl from "fetch-to-curl"
 import { kafkaQueue } from "queue/kafka/queue"
 import { stack } from "utils/stack-trace"
-import { CACHE_TTL_SECONDS, FETCH_TIMEOUT_SECONDS, REDIS_HOST, TEST } from "env"
+import {
+  CACHE_TTL_SECONDS,
+  FETCH_TIMEOUT_SECONDS,
+  REDIS_HOST,
+  REDIS_DB,
+  TEST,
+} from "env"
 import {
   eventAsyncStore,
   slashCommandAsyncStore,
@@ -45,11 +51,13 @@ let cache = {
 
 if (!TEST) {
   logger.info("Connecting to Redis...")
-  const redis = new Redis(`redis://${REDIS_HOST}:6379/0`)
+  const redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`)
 
   redis
     .on("ready", () => {
-      logger.info(`Successfully connected to Redis, host=${REDIS_HOST}`)
+      logger.info(
+        `Successfully connected to Redis, host=${REDIS_HOST}, db=${REDIS_DB}`
+      )
       cache = redis
     })
     .on("error", (e) => {
