@@ -97,7 +97,7 @@ export async function render(user: User) {
   const options = Object.entries(data)
     .map((e) => {
       return e[1]
-        .filter((d) => d.user_id && d.address)
+        .filter((d) => d.profile_id && d.address)
         .map((d) => {
           const chain = (d.chain_type ?? "").toUpperCase()
           return {
