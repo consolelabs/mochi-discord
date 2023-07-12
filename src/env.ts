@@ -86,4 +86,5 @@ export const ECOCAL_API_KEY = process.env.ECOCAL_API_KEY || ""
 
 export const FETCH_TIMEOUT_SECONDS = process.env.FETCH_TIMEOUT_SECONDS || 5
 export const CACHE_TTL_SECONDS = process.env.CACHE_TTL_SECONDS || 1800
-export const REDIS_HOST = process.env.REDIS_HOST || "localhost"
+export const REDIS_HOST = process.env.REDIS_HOST || "localhost:6379"
+export const REDIS_DB = process.env.REDIS_DB || "0"
