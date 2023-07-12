@@ -463,7 +463,7 @@ class Config extends Fetcher {
 
   public async newGuildNFTRoleConfig(body: any) {
     return await this.jsonFetch<ResponseListGuildGroupNFTRolesResponse>(
-      `${API_BASE_URL}/config/role/${body.guild_id}/nft`,
+      `${API_BASE_URL}/config/role/${body.guildID}/nft`,
       {
         method: "POST",
         body: JSON.stringify(body),
