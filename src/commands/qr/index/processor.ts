@@ -58,7 +58,7 @@ async function get(discordId: string, findId?: string) {
           content: `mochi:${dataProfile.profile_name}`,
           category: "profile",
         },
-        ...socials.map((s) => ({
+        ...socials.map((s: any) => ({
           id: `social-${s.platform}-${s.platform_identifier}`,
           type: capitalizeFirst(s.platform),
           content: s.platform_identifier,
