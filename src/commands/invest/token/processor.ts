@@ -2,7 +2,7 @@ import { capitalizeFirst } from "utils/common"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import CacheManager from "cache/node-cache"
 import community from "adapters/community"
-import { formatDigit } from "utils/defi"
+import { formatPercentDigit } from "utils/defi"
 import { VERTICAL_BAR } from "utils/constants"
 import { ApiEarningOption, ApiPlatform } from "types/krystal-api"
 import { flatten } from "lodash"
@@ -62,11 +62,7 @@ export async function renderInvestToken(token: string) {
           platform: capitalizeFirst((i.name || "").split("_").join(" ")),
           chain: i.chainName,
           type: capitalizeFirst(i.type || ""),
-          apy:
-            formatDigit({
-              value: String(i.apy),
-              fractionDigits: 2,
-            }) + "%",
+          apy: formatPercentDigit(String(i.apy)) + "%",
         }
       }),
     ],

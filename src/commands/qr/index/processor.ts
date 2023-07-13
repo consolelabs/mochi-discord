@@ -27,7 +27,7 @@ import {
 } from "utils/constants"
 import * as qrcode from "qrcode"
 import mochiPay from "adapters/mochi-pay"
-import { formatDigit } from "utils/defi"
+import { formatTokenDigit } from "utils/defi"
 import { convertString } from "utils/convert"
 import { chunk } from "lodash"
 import CacheManager from "cache/node-cache"
@@ -100,10 +100,9 @@ async function get(discordId: string, findId?: string) {
 
         data.push(
           ...paymes.map((p) => {
-            const amount = formatDigit({
-              value: String(convertString(p.amount, p.token.decimal)),
-              fractionDigits: 2,
-            })
+            const amount = formatTokenDigit(
+              convertString(p.amount, p.token.decimal)
+            )
             const symbol = p.token.symbol
 
             return {
@@ -120,10 +119,9 @@ async function get(discordId: string, findId?: string) {
         )
         data.push(
           ...paylinks.map((p) => {
-            const amount = formatDigit({
-              value: String(convertString(p.amount, p.token.decimal)),
-              fractionDigits: 2,
-            })
+            const amount = formatTokenDigit(
+              convertString(p.amount, p.token.decimal)
+            )
             const symbol = p.token.symbol
 
             return {

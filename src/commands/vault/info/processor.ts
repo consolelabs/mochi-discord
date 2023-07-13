@@ -17,7 +17,7 @@ import {
   TokenEmojiKey,
 } from "utils/common"
 import { HOMEPAGE_URL } from "utils/constants"
-import { formatDigit } from "utils/defi"
+import { formatUsdDigit } from "utils/defi"
 import { getDiscordRenderableByProfileId } from "utils/profile"
 
 export async function runGetVaultDetail(
@@ -99,10 +99,9 @@ export async function runGetVaultDetail(
     `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${
       creator.user_discord_id ? `<@${creator.user_discord_id}>` : ""
     }`,
-    `${getEmoji("CASH")}\`Total Balance. $${formatDigit({
-      value: String(totalWorth) || "0",
-      fractionDigits: 2,
-    })}\``,
+    `${getEmoji("CASH")}\`Total Balance. $${formatUsdDigit(
+      String(totalWorth) || "0"
+    )}\``,
   ].join("\n")
   const embed = composeEmbedMessage2(interaction as any, {
     color: msgColors.BLUE,

@@ -27,7 +27,7 @@ import {
   ResponseGetVaultsResponse,
 } from "types/api"
 import { TEST } from "env"
-import { formatDigit } from "utils/defi"
+import { formatUsdDigit } from "utils/defi"
 
 class Config extends Fetcher {
   public Guilds?: Guilds
@@ -975,10 +975,7 @@ class Config extends Fetcher {
 
       return {
         ...v,
-        total: formatDigit({
-          value: String(total),
-          fractionDigits: total >= 100 ? 0 : 2,
-        }),
+        total: formatUsdDigit(total),
       }
     })
   }

@@ -15,7 +15,7 @@ import { getChartColorConfig } from "ui/canvas/color"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
 import { EmojiKey, getEmoji, getEmojiToken, TokenEmojiKey } from "utils/common"
-import { formatDigit } from "utils/defi"
+import { formatDigit, formatPercentDigit, formatUsdDigit } from "utils/defi"
 import {
   renderCompareTokenChart,
   renderFiatCompareChart,
@@ -33,10 +33,7 @@ const getChangePercentage = (change: number) => {
       : change === 0
       ? ""
       : getEmoji("ARROW_DOWN")
-  return `${trend} ${formatDigit({
-    value: change,
-    fractionDigits: 2,
-  })}%`
+  return `${trend} ${formatPercentDigit(change)}%`
 }
 
 export enum ChartViewTimeOption {
@@ -82,10 +79,9 @@ export function renderTokenComparisonFields(baseCoin: Coin, targetCoin: Coin) {
         baseCoin.symbol.toUpperCase() as TokenEmojiKey
       )} ${baseCoin.symbol.toUpperCase()}`,
       value: [
-        `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$${formatDigit({
-          value: baseCoinPrice,
-          fractionDigits: baseCoinPrice >= 100 ? 0 : 2,
-        })}\``,
+        `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$${formatUsdDigit(
+          baseCoinPrice
+        )}\``,
         `${getEmoji("CHART")} Cap: \`$${formatDigit({
           value: baseCoinCap,
           fractionDigits: 0,
@@ -99,10 +95,9 @@ export function renderTokenComparisonFields(baseCoin: Coin, targetCoin: Coin) {
         targetCoin.symbol.toUpperCase() as TokenEmojiKey
       )} ${targetCoin.symbol.toUpperCase()}`,
       value: [
-        `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$${formatDigit({
-          value: targetCoinPrice,
-          fractionDigits: targetCoinPrice >= 100 ? 0 : 2,
-        })}\``,
+        `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$${formatUsdDigit(
+          targetCoinPrice
+        )}\``,
         `${getEmoji("CHART")} Cap: \`$${formatDigit({
           value: targetCoinCap,
           fractionDigits: 0,

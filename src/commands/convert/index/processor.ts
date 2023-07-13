@@ -18,7 +18,7 @@ import { BigNumber, utils } from "ethers"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { capitalizeFirst, getAuthor, getEmoji, msgColors } from "utils/common"
 import { APPROX } from "utils/constants"
-import { formatDigit } from "utils/defi"
+import { formatTokenDigit, formatUsdDigit } from "utils/defi"
 import { getProfileIdByDiscord } from "utils/profile"
 
 export async function render(
@@ -71,10 +71,7 @@ export async function render(
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
   let amountOut = String(currentRatio * +amount)
   let ratio = String(Number(amountOut) / Number(amount))
-  ratio = formatDigit({
-    value: ratio,
-    fractionDigits: Number(ratio) >= 100 ? 0 : 2,
-  })
+  ratio = formatUsdDigit(ratio)
 
   const author = getAuthor(interaction)
   const embed = composeEmbedMessage(null, {
@@ -129,10 +126,7 @@ export async function render(
       )} (bridge)`
     : `${capitalizeFirst(tokenOut.chain_name)}`
 
-  const amountInUsd = formatDigit({
-    value: routeSummary.amountInUsd,
-    fractionDigits: Number(routeSummary.amountInUsd) >= 100 ? 0 : 2,
-  })
+  const amountInUsd = formatUsdDigit(routeSummary.amountInUsd)
 
   if (tradeRoute) {
     amountOut = utils.formatUnits(
@@ -143,10 +137,9 @@ export async function render(
     )
   }
 
-  const amountOutUsd = formatDigit({
-    value: (Number(routeSummary.amountOutUsd) * (100 - SLIPPAGE)) / 100,
-    fractionDigits: Number(routeSummary.amountOutUsd) >= 100 ? 0 : 2,
-  })
+  const amountOutUsd = formatUsdDigit(
+    (Number(routeSummary.amountOutUsd) * (100 - SLIPPAGE)) / 100
+  )
 
   return {
     context: {
@@ -156,17 +149,11 @@ export async function render(
       routeSummary,
       rate: Number(ratio),
       network,
-      gasUsd: `$${formatDigit({
-        value: routeSummary.gasUsd,
-        fractionDigits: 2,
-      })}`,
+      gasUsd: `$${formatUsdDigit(routeSummary.gasUsd)}`,
       chainName: tradeRouteData?.chainName,
       amountIn: amount,
       amountInUsd,
-      amountOut: formatDigit({
-        value: amountOut.toString(),
-        fractionDigits: Number(amountOut) >= 1000 ? 0 : 2,
-      }),
+      amountOut: formatTokenDigit(amountOut.toString()),
       amountOutUsd,
       compareFields: comparisonFields,
     },

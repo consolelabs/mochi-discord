@@ -12,7 +12,7 @@ import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
 import { route } from "utils/router"
 import { machineConfig } from "commands/wallet/common/tracking"
 import { lookUpDomains } from "utils/common"
-import { formatDigit } from "utils/defi"
+import { formatUsdDigit } from "utils/defi"
 
 const command: SlashCommand = {
   name: "view",
@@ -54,10 +54,7 @@ const command: SlashCommand = {
             value: w.value,
             name: `🔷 ${w.chain.toUpperCase()} | ${
               w.alias || (await lookUpDomains(w.value))
-            } | $${formatDigit({
-              value: w.total,
-              fractionDigits: +w.total >= 100 ? 0 : 2,
-            })}`,
+            } | $${formatUsdDigit(w.total)}`,
           }
         })
     )
