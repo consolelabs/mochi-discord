@@ -491,13 +491,19 @@ class Config extends Fetcher {
     })
   }
 
-  public async removeGuildNFTRoleGroupConfig(groupConfigId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/config/role/nft/group`, {
-      method: "DELETE",
-      query: {
-        groupConfigId,
-      },
-    })
+  public async removeGuildNFTRoleGroupConfig(
+    groupConfigId: string,
+    guildId: string
+  ) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config/role/${guildId}/nft/group`,
+      {
+        method: "DELETE",
+        query: {
+          groupConfigId,
+        },
+      }
+    )
   }
 
   public async getAllNFTCollections() {

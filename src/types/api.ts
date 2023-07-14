@@ -125,16 +125,6 @@ export interface ModelGuildConfigLevelRole {
   role_id?: string;
 }
 
-export interface ModelGuildConfigLevelupMessage {
-  channel_id?: string;
-  created_at?: string;
-  guild_id?: string;
-  id?: string;
-  image_url?: string;
-  message?: string;
-  updated_at?: string;
-}
-
 export interface ModelGuildConfigSalesTracker {
   chain?: string;
   channel_id?: string;
@@ -198,6 +188,7 @@ export interface ModelGuildUserXP {
   level?: number;
   next_level_role?: ModelGuildConfigLevelRole;
   nr_of_actions?: number;
+  profile_id?: string;
   progress?: number;
   total_xp?: number;
   user?: ModelUser;
@@ -338,24 +329,6 @@ export interface ModelQuestUserReward {
   user_id?: string;
 }
 
-export interface ModelSaleBotMarketplace {
-  id?: number;
-  name?: string;
-  url?: string;
-}
-
-export interface ModelSaleBotTwitterConfig {
-  address?: string;
-  chain_id?: number;
-  collection_name?: string;
-  created_at?: string;
-  id?: number;
-  marketplace?: ModelSaleBotMarketplace;
-  marketplace_id?: number;
-  slug?: string;
-  updated_at?: string;
-}
-
 export interface ModelToken {
   address?: string;
   chain?: ModelChain;
@@ -376,13 +349,6 @@ export interface ModelUser {
   id?: string;
   nr_of_join?: number;
   username?: string;
-}
-
-export interface ModelUserFactionXpsMapping {
-  academy_xp?: number;
-  imperial_xp?: number;
-  merchant_xp?: number;
-  rebellio_xp?: number;
 }
 
 export interface ModelUserFeedback {
@@ -519,7 +485,7 @@ export interface RequestConfigGroupNFTRoleRequest {
 }
 
 export interface RequestConfigLevelRoleRequest {
-  guildID?: string;
+  guildID: string;
   level?: number;
   role_id?: string;
 }
@@ -536,7 +502,7 @@ export interface RequestCreateAirdropCampaignRequest {
 }
 
 export interface RequestCreateDefaultRoleRequest {
-  guildID?: string;
+  guildID: string;
   role_id?: string;
 }
 
@@ -581,12 +547,6 @@ export interface RequestCreateTipConfigNotify {
   channel_id?: string;
   guild_id?: string;
   token?: string;
-}
-
-export interface RequestCreateTwitterSaleConfigRequest {
-  address?: string;
-  chain_id?: number;
-  marketplace?: string;
 }
 
 export interface RequestCreateUserRequest {
@@ -971,10 +931,6 @@ export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
 }
 
-export interface ResponseCreateTwitterSaleConfigResponse {
-  data?: ModelSaleBotTwitterConfig;
-}
-
 export interface ResponseCreateUserTokenSupportRequest {
   data?: ModelUserTokenSupportRequest;
 }
@@ -1029,6 +985,10 @@ export interface ResponseDiscordGuildRole {
   permissions?: string;
   position?: number;
   unicode_emoji?: string;
+}
+
+export interface ResponseFindTokenByContractAddressResponse {
+  data?: ResponseToken;
 }
 
 export interface ResponseGasTrackerResponse {
@@ -1118,10 +1078,6 @@ export interface ResponseGetGuildDefaultNftTickerResponse {
 
 export interface ResponseGetGuildDefaultTickerResponse {
   data?: ModelGuildConfigDefaultTicker;
-}
-
-export interface ResponseGetGuildLevelUpMessage {
-  data?: ModelGuildConfigLevelupMessage;
 }
 
 export interface ResponseGetGuildResponse {
@@ -1224,10 +1180,6 @@ export interface ResponseGetOneWalletResponse {
   data?: ModelUserWalletWatchlistItem;
 }
 
-export interface ResponseGetSaleTwitterConfigResponse {
-  data?: ModelSaleBotTwitterConfig[];
-}
-
 export interface ResponseGetSalesTrackerConfigResponse {
   data?: ModelGuildConfigSalesTracker[];
 }
@@ -1289,16 +1241,13 @@ export interface ResponseGetUserCurrentGMStreakResponse {
 }
 
 export interface ResponseGetUserProfileResponse {
-  about_me?: string;
   current_level?: ModelConfigXpLevel;
-  guild?: ModelDiscordGuild;
   guild_rank?: number;
   guild_xp?: number;
   id?: string;
   next_level?: ModelConfigXpLevel;
   nr_of_actions?: number;
   progress?: number;
-  user_faction_xps?: ModelUserFactionXpsMapping;
 }
 
 export interface ResponseGetUserQuestListResponse {
@@ -1849,6 +1798,12 @@ export interface ResponseTickerData {
 export interface ResponseToggleActivityConfigResponse {
   data?: ModelGuildConfigActivity;
   message?: string;
+}
+
+export interface ResponseToken {
+  decimal?: number;
+  name?: string;
+  symbol?: string;
 }
 
 export interface ResponseTokenPriceAlertResponseData {
