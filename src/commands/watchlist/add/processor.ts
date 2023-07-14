@@ -25,7 +25,11 @@ import {
 import { Coin } from "types/defi"
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
-import { formatDigit, parseTickerQuery } from "utils/defi"
+import {
+  formatPercentDigit,
+  formatUsdDigit,
+  parseTickerQuery,
+} from "utils/defi"
 import { handleUpdateWlError } from "../processor"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { getSlashCommand } from "utils/commands"
@@ -142,18 +146,12 @@ export async function addWatchlistToken({
       },
       {
         name: "Price",
-        value: `$${formatDigit({
-          value: price,
-          fractionDigits: 2,
-        })}`,
+        value: `$${formatUsdDigit(price)}`,
         inline: true,
       },
       {
         name: "Change 1D",
-        value: `${formatDigit({
-          value: priceChangePercentage,
-          fractionDigits: 2,
-        })}% ${
+        value: `${formatPercentDigit(priceChangePercentage)}% ${
           priceChangePercentage !== 0
             ? getEmoji(isUp ? "ARROW_UP" : "ARROW_DOWN")
             : ""

@@ -16,7 +16,7 @@ import {
   SelectMenuInteraction,
   MessageSelectMenu,
 } from "discord.js"
-import { formatDigit } from "utils/defi"
+import { formatPercentDigit, formatUsdDigit } from "utils/defi"
 
 export enum TimeRange {
   H1 = "1h",
@@ -134,26 +134,11 @@ export async function render(
   data = data.map((d: any) => ({
     ...d,
     symbol: d.symbol.toUpperCase(),
-    usd: `$${formatDigit({
-      value: d.usd,
-      fractionDigits: d.usd > 100 ? 0 : 2,
-    })}`,
-    usd_1h_change: `${formatDigit({
-      value: d.usd_1h_change,
-      fractionDigits: d.usd_1h_change > 10 ? 0 : 2,
-    })}%`,
-    usd_24h_change: `${formatDigit({
-      value: d.usd_24h_change,
-      fractionDigits: d.usd_24h_change > 10 ? 0 : 2,
-    })}%`,
-    usd_7d_change: `${formatDigit({
-      value: d.usd_7d_change,
-      fractionDigits: d.usd_7d_change > 10 ? 0 : 2,
-    })}%`,
-    usd_1y_change: `${formatDigit({
-      value: d.usd_1y_change,
-      fractionDigits: d.usd_1y_change > 10 ? 0 : 2,
-    })}%`,
+    usd: `$${formatUsdDigit(d.usd)}`,
+    usd_1h_change: `${formatPercentDigit(d.usd_1h_change)}%`,
+    usd_24h_change: `${formatPercentDigit(d.usd_24h_change)}%`,
+    usd_7d_change: `${formatPercentDigit(d.usd_7d_change)}%`,
+    usd_1y_change: `${formatPercentDigit(d.usd_1y_change)}%`,
   }))
 
   if (!data.length) {

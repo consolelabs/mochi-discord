@@ -9,7 +9,10 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const msg = msgOrInteraction as Message
   const [groupId, name] = interaction.values[0].split("|")
-  await Config.removeGuildNFTRoleGroupConfig(groupId)
+  await Config.removeGuildNFTRoleGroupConfig(
+    groupId,
+    msgOrInteraction.guildId ?? ""
+  )
   const configs = await Config.getGuildNFTRoleConfigs(
     msgOrInteraction.guildId ?? ""
   )

@@ -23,7 +23,7 @@ import {
 import { BigNumber, utils } from "ethers"
 import { APPROX } from "utils/constants"
 import defi from "adapters/defi"
-import { formatDigit } from "utils/defi"
+import { formatDigit, formatTokenDigit, formatUsdDigit } from "utils/defi"
 import { dmUser } from "../../../utils/dm"
 import { getBalances } from "utils/tip-bot"
 import { formatView } from "commands/balances/index/processor"
@@ -364,10 +364,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     ))
 
     if (valid) {
-      amount = formatDigit({
-        value: amount ?? "0",
-        fractionDigits: Number(amount) >= 1000 ? 0 : 2,
-      })
+      amount = formatTokenDigit(amount ?? 0)
     }
   }
 
@@ -404,10 +401,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
   const swapData = getSwapRouteRes.data.swapData
   const aggregator = getSwapRouteRes.data.aggregator
 
-  const amountInUsd = formatDigit({
-    value: routeSummary.amountInUsd,
-    fractionDigits: Number(routeSummary.amountInUsd) >= 100 ? 0 : 2,
-  })
+  const amountInUsd = formatUsdDigit(routeSummary.amountInUsd)
 
   const amountOut = utils.formatUnits(
     BigNumber.from(routeSummary.amountOut)
@@ -416,16 +410,12 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     tokenOut.decimals
   )
 
-  const amountOutUsd = formatDigit({
-    value: (Number(routeSummary.amountOutUsd) * (100 - SLIPPAGE)) / 100,
-    fractionDigits: Number(routeSummary.amountOutUsd) >= 100 ? 0 : 2,
-  })
+  const amountOutUsd = formatUsdDigit(
+    (Number(routeSummary.amountOutUsd) * (100 - SLIPPAGE)) / 100
+  )
 
   let ratio = String(Number(amountOut) / Number(amount))
-  ratio = formatDigit({
-    value: ratio,
-    fractionDigits: Number(ratio) >= 100 ? 0 : 2,
-  })
+  ratio = formatUsdDigit(ratio)
 
   const isBridged = tokenIn.chain_id !== tokenOut.chain_id
 
@@ -440,18 +430,12 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     from: ctx?.from,
     amountIn: amount,
     amountInUsd,
-    amountOut: formatDigit({
-      value: amountOut.toString(),
-      fractionDigits: Number(amountOut) >= 1000 ? 0 : 2,
-    }),
+    amountOut: formatTokenDigit(amountOut),
     amountOutUsd,
     wallet: ctx.wallet,
     rate: Number(ratio),
     network,
-    gasUsd: `$${formatDigit({
-      value: routeSummary.gasUsd,
-      fractionDigits: 2,
-    })}`,
+    gasUsd: `$${formatUsdDigit(routeSummary.gasUsd)}`,
   }
   const preview = renderFullInfo(newContext)
 
@@ -620,10 +604,9 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
       embeds: [
         composeEmbedMessage(null, {
           author: ["Swap submitted", getEmojiURL(emojis.SWAP_ROUTE)],
-          description: `**You will receive ${formatDigit({
-            value: amountOut,
-            fractionDigits: amountOut >= 1000 ? 0 : 2,
-          })} ${ctx.to}**\n${renderPreview(ctx)}`,
+          description: `**You will receive ${formatTokenDigit(amountOut)} ${
+            ctx.to
+          }**\n${renderPreview(ctx)}`,
         }).addFields(fields),
         renderRouteEmbed(ctx.tradeRouteRenderData),
       ],

@@ -7,6 +7,51 @@ import { convertString } from "./convert"
 import { getProfileIdByDiscord } from "./profile"
 import { COMMA, EMPTY } from "./constants"
 
+export function formatPercentDigit(
+  params: Parameters<typeof formatDigit>[0] | string | number
+) {
+  if (typeof params === "string" || typeof params === "number") {
+    return formatDigit({
+      value: +params,
+      fractionDigits: +params >= 10 ? 0 : 2,
+    })
+  }
+  return formatDigit({
+    ...params,
+    fractionDigits: +params.value >= 10 ? 0 : 2,
+  })
+}
+
+export function formatUsdDigit(
+  params: Parameters<typeof formatDigit>[0] | string | number
+) {
+  if (typeof params === "string" || typeof params === "number") {
+    return formatDigit({
+      value: +params,
+      fractionDigits: +params >= 100 ? 0 : 2,
+    })
+  }
+  return formatDigit({
+    ...params,
+    fractionDigits: +params.value >= 100 ? 0 : 2,
+  })
+}
+
+export function formatTokenDigit(
+  params: Parameters<typeof formatDigit>[0] | string | number
+) {
+  if (typeof params === "string" || typeof params === "number") {
+    return formatDigit({
+      value: +params,
+      fractionDigits: +params >= 1000 ? 0 : 2,
+    })
+  }
+  return formatDigit({
+    ...params,
+    fractionDigits: +params.value >= 1000 ? 0 : 2,
+  })
+}
+
 export function formatDigit({
   value,
   fractionDigits = 6,

@@ -39,7 +39,7 @@ import {
   formatView,
   getBalances,
 } from "commands/balances/index/processor"
-import { formatDigit } from "utils/defi"
+import { formatPercentDigit, formatUsdDigit } from "utils/defi"
 import config from "adapters/config"
 import { formatVaults } from "commands/vault/list/processor"
 import { getSlashCommand } from "utils/commands"
@@ -154,14 +154,8 @@ async function compose(
   // TODO: use pagination instead of hardcode 1, this is fine for mochi wallets (for now)
   const { totalWorth } = formatView("compact", "filter-dust", balances.data, 0)
   const grandTotal = totalWorth + onchainTotal + cexTotal
-  const grandTotalStr = formatDigit({
-    value: String(grandTotal),
-    fractionDigits: grandTotal >= 100 ? 0 : 2,
-  })
-  const mochiBal = formatDigit({
-    value: totalWorth.toString(),
-    fractionDigits: totalWorth >= 100 ? 0 : 2,
-  })
+  const grandTotalStr = formatUsdDigit(grandTotal)
+  const mochiBal = formatUsdDigit(totalWorth)
 
   const { count: countUnreadActivities } =
     await profile.countUserUnreadActivities(dataProfile.id)
@@ -179,10 +173,7 @@ async function compose(
                 ? "ANIMATED_ARROW_DOWN"
                 : "ANIMATED_ARROW_UP",
               true
-            )} ${formatDigit({
-              value: Math.abs(pnl),
-              fractionDigits: 2,
-            })}%)`
+            )} ${formatPercentDigit(Math.abs(pnl))}%)`
       }`,
       ...(userProfile
         ? [

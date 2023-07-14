@@ -14,8 +14,7 @@ import mochiPay from "./mochi-pay"
 import { uniqBy } from "lodash"
 import { capitalizeFirst, removeDuplications } from "utils/common"
 import { logger } from "logger"
-import { formatDigit } from "utils/defi"
-import mochiTelegram from "./mochi-telegram"
+import { formatUsdDigit } from "utils/defi"
 
 class Profile extends Fetcher {
   public async getUserSocials(discordId: string) {
@@ -25,23 +24,15 @@ class Profile extends Fetcher {
       return []
     }
 
-    const socials = await Promise.all(
-      dataProfile.associated_accounts
-        .filter((a: any) => ["twitter", "telegram"].includes(a.platform))
-        .map(async (a: any) => {
-          if (a.platform === "telegram") {
-            const res = await mochiTelegram.getById(a.platform_identifier)
-            if (!res.ok) return a
-
-            return {
-              ...a,
-              platform_identifier: res.data.username,
-            }
-          }
-
-          return a
-        })
-    )
+    const socials = dataProfile.associated_accounts
+      .filter((a: any) => ["twitter", "telegram"].includes(a.platform))
+      .map((a: any) => {
+        return {
+          ...a,
+          platform_identifier:
+            a.platform_metadata?.username || a.platform_identifier,
+        }
+      })
 
     return socials
   }
@@ -112,10 +103,7 @@ class Profile extends Fetcher {
 
           return {
             value,
-            total: formatDigit({
-              value: bal.toString(),
-              fractionDigits: bal >= 100 ? 0 : 2,
-            }),
+            total: formatUsdDigit(bal),
             chain,
           }
         }) ?? []
@@ -135,10 +123,7 @@ class Profile extends Fetcher {
           return {
             value: w.platform_metadata?.username || w.platform_identifier,
             chain: capitalizeFirst(w.platform),
-            total: formatDigit({
-              value: bal.toString(),
-              fractionDigits: bal >= 100 ? 0 : 2,
-            }),
+            total: formatUsdDigit(bal),
           }
         }) ?? []
     )

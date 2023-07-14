@@ -33,7 +33,12 @@ import {
 import { enableDMMessage } from "ui/discord/embed"
 import mochiPay from "../../../adapters/mochi-pay"
 import { convertString } from "../../../utils/convert"
-import { formatDigit, isValidTipAmount } from "../../../utils/defi"
+import {
+  formatDigit,
+  formatTokenDigit,
+  formatUsdDigit,
+  isValidTipAmount,
+} from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import { getBalances, isTokenSupported } from "../../../utils/tip-bot"
 import { formatView } from "commands/balances/index/processor"
@@ -110,10 +115,9 @@ function renderPreview(params: {
         )} **${params.amount} ${params.token}**`,
       params.fee &&
         params.token &&
-        `${getEmoji("CASH")}\`Fee.      \`${formatDigit({
-          value: params.fee,
-          fractionDigits: 2,
-        })} ${params.token}`,
+        `${getEmoji("CASH")}\`Fee.      \`${formatTokenDigit(params.fee)} ${
+          params.token
+        }`,
     ]
       .filter(Boolean)
       .join("\n"),
@@ -347,10 +351,7 @@ export async function withdrawStep2(
     ))
 
     if (valid) {
-      amount = formatDigit({
-        value: params.amount ?? "0",
-        fractionDigits: Number(params.amount) >= 1000 ? 0 : 2,
-      })
+      amount = formatUsdDigit(params.amount ?? "0")
     }
   }
 

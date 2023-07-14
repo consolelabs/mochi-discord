@@ -4,7 +4,7 @@ import { APIError } from "errors"
 import { emojis, getEmoji, getEmojiURL, paginate } from "utils/common"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { APPROX, VERTICAL_BAR } from "utils/constants"
-import { formatDigit } from "utils/defi"
+import { formatTokenDigit, formatUsdDigit } from "utils/defi"
 import { getSlashCommand } from "utils/commands"
 
 export async function handleMonikerList(
@@ -36,14 +36,10 @@ export async function handleMonikerList(
   const { joined: defaultList } = formatDataTable(
     defaultMonikers.map((m) => ({
       value: m.moniker?.moniker ?? "",
-      token: `${formatDigit({
-        value: String(m.moniker?.amount ?? 0),
-        fractionDigits: 4,
-      })} ${m.moniker?.token?.token_symbol?.toUpperCase() ?? "TOKEN"}`,
-      usd: `$${formatDigit({
-        value: String(m.value ?? 0),
-        fractionDigits: 2,
-      })}`,
+      token: `${formatTokenDigit(m.moniker?.amount ?? 0)} ${
+        m.moniker?.token?.token_symbol?.toUpperCase() ?? "TOKEN"
+      }`,
+      usd: `$${formatUsdDigit(m.value ?? 0)}`,
     })),
     {
       cols: ["value", "token", "usd"],
@@ -63,14 +59,10 @@ export async function handleMonikerList(
       const { joined: guildList } = formatDataTable(
         arr.map((m: any) => ({
           value: m.moniker?.moniker ?? "",
-          token: `${formatDigit({
-            value: String(m.moniker?.amount ?? 0),
-            fractionDigits: 4,
-          })} ${m.moniker?.token?.token_symbol?.toUpperCase() ?? "TOKEN"}`,
-          usd: `$${formatDigit({
-            value: String(m.value ?? 0),
-            fractionDigits: 2,
-          })}`,
+          token: `${formatTokenDigit(m.moniker?.amount ?? 0)} ${
+            m.moniker?.token?.token_symbol?.toUpperCase() ?? "TOKEN"
+          }`,
+          usd: `$${formatUsdDigit(m.value ?? 0)}`,
         })),
         {
           cols: ["value", "token", "usd"],

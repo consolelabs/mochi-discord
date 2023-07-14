@@ -27,7 +27,7 @@ import {
   ResponseGetVaultsResponse,
 } from "types/api"
 import { TEST } from "env"
-import { formatDigit } from "utils/defi"
+import { formatUsdDigit } from "utils/defi"
 
 class Config extends Fetcher {
   public Guilds?: Guilds
@@ -491,13 +491,19 @@ class Config extends Fetcher {
     })
   }
 
-  public async removeGuildNFTRoleGroupConfig(groupConfigId: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/config/role/nft/group`, {
-      method: "DELETE",
-      query: {
-        groupConfigId,
-      },
-    })
+  public async removeGuildNFTRoleGroupConfig(
+    groupConfigId: string,
+    guildId: string
+  ) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config/role/${guildId}/nft/group`,
+      {
+        method: "DELETE",
+        query: {
+          groupConfigId,
+        },
+      }
+    )
   }
 
   public async getAllNFTCollections() {
@@ -975,10 +981,7 @@ class Config extends Fetcher {
 
       return {
         ...v,
-        total: formatDigit({
-          value: String(total),
-          fractionDigits: total >= 100 ? 0 : 2,
-        }),
+        total: formatUsdDigit(total),
       }
     })
   }

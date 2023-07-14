@@ -2,7 +2,7 @@ import { getEmojiToken, TokenEmojiKey } from "utils/common"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import CacheManager from "cache/node-cache"
 import community from "adapters/community"
-import { formatDigit } from "utils/defi"
+import { formatPercentDigit } from "utils/defi"
 import { VERTICAL_BAR, DASH, SPACE } from "utils/constants"
 import { paginationButtons } from "utils/router"
 import { ApiEarningOption } from "types/krystal-api"
@@ -31,14 +31,8 @@ function groupByToken(data: ApiEarningOption[]) {
     const minApy = Math.min(...listApy)
     const maxApy = Math.max(...listApy)
     const displayApy = uniq([
-      formatDigit({
-        value: String(minApy),
-        fractionDigits: 2,
-      }) + "%",
-      formatDigit({
-        value: String(maxApy),
-        fractionDigits: 2,
-      }) + "%",
+      formatPercentDigit(String(minApy)) + "%",
+      formatPercentDigit(String(maxApy)) + "%",
     ]).join(`${SPACE}${DASH}${SPACE}`)
     return {
       symbol,
