@@ -10,15 +10,8 @@ import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { MessageActionRow, MessageButton, MessageSelectMenu } from "discord.js"
 import { getSlashCommand } from "utils/commands"
+import { ActionTypeToEmoji } from "utils/activity"
 import { paginationButtons } from "utils/router"
-
-const emojisMap = {
-  quest: getEmoji("QUEST"),
-  price_alert_up: getEmoji("ANIMATED_CHART_INCREASE", true),
-  price_alert_down: getEmoji("ANIMATED_CHART_DECREASE", true),
-  tip: getEmoji("CASH"),
-  xp: getEmoji("GIFT"),
-}
 
 export enum View {
   Unread = "unread",
@@ -114,8 +107,8 @@ export async function render(userDiscordId: string, ctx: Context) {
                   .addOptions(
                     list.map((a, i: number) => ({
                       emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-                      label: `🟩 ${a.action_label ?? a.action_description}`,
-                      value: `value-${i}-${a.action_description}`,
+                      label: `🟩 ${a.content}`,
+                      value: `value-${i}-${a.content}`,
                     }))
                   )
               ),
@@ -163,9 +156,8 @@ function toDescriptionList(list: any[], offset = 0) {
       const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
 
       return `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)} ${t} ${
-        emojisMap[el.action as keyof typeof emojisMap] ??
-        getEmoji("ANIMATED_QUESTION_MARK", true)
-      } ${el.action_description}`
+        ActionTypeToEmoji(el.type) ?? getEmoji("ANIMATED_QUESTION_MARK", true)
+      } ${el.content}`
     })
     .join("\n")
 
