@@ -279,7 +279,7 @@ export async function withdrawStep3(
                   .setPlaceholder("💰 Recently used wallets")
                   .setCustomId("select_address")
                   .addOptions(
-                    listWalletsRecentlyUsed.map((a) => ({
+                    listWalletsRecentlyUsed.slice(0, 25).map((a) => ({
                       label: `🔹 ${shortenHashOrAddress(a, 5, 5)}`,
                       value: a,
                     }))
@@ -509,7 +509,7 @@ export async function withdrawStep1(
             .setPlaceholder("💵 Choose money source (1/3)")
             .setCustomId("select_token")
             .setOptions(
-              balances.map((b: any) => ({
+              balances.slice(0, 25).map((b: any) => ({
                 label: `${b.token.symbol}${
                   isDuplicateSymbol(b.token.symbol)
                     ? ` (${b.token.chain.symbol})`
