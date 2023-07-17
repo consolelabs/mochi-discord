@@ -2,10 +2,17 @@ import { commands } from "commands"
 import { Interaction, Message } from "discord.js"
 import { BotBaseError } from "errors"
 import { logger } from "logger"
+import { SENTRY_DSN } from "env"
 import { KafkaQueueMessage } from "types/common"
 import ChannelLogger from "../logger/channel"
 import { getCommandMetadata } from "./commands"
 import { kafkaQueue } from "queue/kafka/queue"
+import * as Sentry from "@sentry/node"
+
+Sentry.init({
+  dsn: SENTRY_DSN,
+  tracesSampleRate: 1.0,
+})
 
 function catchAll(e: any) {
   logger.error(e)
@@ -18,6 +25,7 @@ export async function wrapError(
   try {
     await func()
   } catch (e: any) {
+    Sentry.captureException(e)
     let error = e as BotBaseError
     if (msg instanceof Message || msg instanceof Interaction) {
       let message = msg

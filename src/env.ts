@@ -6,6 +6,7 @@ export const TEST = process.env.NODE_ENV === "test"
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN || ""
 export const APPLICATION_ID = process.env.APPLICATION_ID || ""
 export const PORT = Number(process.env.PORT || "5001")
+export const SENTRY_DSN = process.env.SENTRY_DSN || ""
 
 export const API_SERVER_HOST =
   process.env.API_SERVER_HOST || "http://localhost:8200"
