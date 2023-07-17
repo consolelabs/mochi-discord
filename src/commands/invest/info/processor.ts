@@ -1,18 +1,103 @@
-import { getEmojiToken, TokenEmojiKey } from "utils/common"
+import { TokenEmojiKey, capitalizeFirst, getEmojiToken } from "utils/common"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import CacheManager from "cache/node-cache"
 import community from "adapters/community"
 import { formatPercentDigit } from "utils/defi"
 import { VERTICAL_BAR, DASH, SPACE } from "utils/constants"
 import { paginationButtons } from "utils/router"
-import { ApiEarningOption } from "types/krystal-api"
-import { chunk, groupBy, uniq } from "lodash"
+import { ApiEarningOption, ApiPlatform } from "types/krystal-api"
+import { chunk, flatten, groupBy, uniq } from "lodash"
 import { InternalError } from "errors"
 import {
   ButtonInteraction,
   CommandInteraction,
   SelectMenuInteraction,
 } from "discord.js"
+
+type EarningPlatform = ApiPlatform & { chainName: string }
+
+export async function renderInvestToken(token: string) {
+  let tokenData = [] as EarningPlatform[]
+  const { result, ok } = await CacheManager.get({
+    pool: "invest",
+    key: `invest-list`,
+    call: () => community.getEarns(),
+  })
+
+  if (ok) {
+    tokenData = flatten(
+      result
+        .filter(
+          (d: ApiEarningOption) =>
+            d.token?.symbol?.toLowerCase() === token.toLowerCase()
+        )
+        .map((d: ApiEarningOption) => {
+          return (d.platforms || [])
+            .filter((p) => p.status?.value === "active")
+            .map((p) => {
+              return {
+                ...p,
+                chainName: d.chain?.name,
+              }
+            })
+        })
+    ) as EarningPlatform[]
+  }
+
+  if (tokenData.length === 0) {
+    const embed = composeEmbedMessage(null, {
+      title: `Cannot found`,
+      description: `Cannot found any earning options for ${token.toUpperCase()}`,
+    })
+
+    return {
+      context: {
+        token,
+      },
+      msgOpts: {
+        embeds: [embed],
+        components: [],
+      },
+    }
+  }
+
+  const { segments } = formatDataTable(
+    [
+      { platform: "Platform", chain: "Chain", type: "Type", apy: "APY(%)" },
+      ...tokenData.map((i: EarningPlatform) => {
+        return {
+          platform: capitalizeFirst((i.name || "").split("_").join(" ")),
+          chain: i.chainName,
+          type: capitalizeFirst(i.type || ""),
+          apy:
+            formatPercentDigit({
+              value: String(i.apy),
+              fractionDigits: 2,
+            }) + "%",
+        }
+      }),
+    ],
+    {
+      cols: ["platform", "chain", "type", "apy"],
+      separator: [VERTICAL_BAR, VERTICAL_BAR],
+    }
+  )
+
+  const embed = composeEmbedMessage(null, {
+    title: `Recommended Earning for ${token.toUpperCase()}`,
+    description: `${segments.map((c) => c.join("\n"))}`,
+  })
+
+  return {
+    context: {
+      token,
+    },
+    msgOpts: {
+      embeds: [embed],
+      components: [],
+    },
+  }
+}
 
 const PAGE_SIZE = 16 as const
 

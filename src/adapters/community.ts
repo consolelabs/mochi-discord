@@ -649,12 +649,20 @@ class Community extends Fetcher {
     )
   }
 
-  public async getEarns() {
+  public async getEarns(query?: {
+    chainIds?: string
+    platforms?: string
+    types?: string
+    address?: string
+    status?: string
+  }) {
     return await this.jsonFetch(`${KRYSTAL_API_BASE_URL}/earning/options`, {
       headers: {
         "Content-Type": "application/json",
         "x-rate-access-token": `${KRYSTAL_ACCESS_TOKEN}`,
       },
+      queryCamelToSnake: false,
+      query,
     })
   }
 }

@@ -2,6 +2,40 @@ import { MOCHI_PAY_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
 import fetch from "node-fetch"
 
+type KrystalStakeRequest = {
+  chain_id: number
+  profile_id: string
+  earning_type: string
+  platform: string
+  token_amount: string
+  token: {
+    address: string
+    symbol: string
+    name: string
+    decimals: number
+  }
+}
+
+type KrystalUnstakeRequest = {
+  chain_id: number
+  profile_id: string
+  earning_type: string
+  platform: string
+  token_amount: string
+  token: {
+    address: string
+    symbol: string
+    name: string
+    decimals: number
+  }
+  receipt_token: {
+    address: string
+    symbol: string
+    name: string
+    decimals: number
+  }
+}
+
 class MochiPay extends Fetcher {
   public async getMochiWalletsByProfileId(id: string) {
     return await this.jsonFetch(
@@ -145,6 +179,68 @@ class MochiPay extends Fetcher {
     return await this.jsonFetch(`${MOCHI_PAY_API_BASE_URL}/swap/transactions`, {
       query,
     })
+  }
+
+  async krystalStake(body: KrystalStakeRequest) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/earns/krystal/stake`,
+      {
+        method: "POST",
+        body,
+      }
+    )
+  }
+
+  async krystalUnstake(body: KrystalUnstakeRequest) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/earns/krystal/unstake`,
+      {
+        method: "POST",
+        body,
+      }
+    )
+  }
+
+  async krystalClaimRewards(body: {
+    chain_id: number
+    profile_id: string
+    platform: string
+  }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/earns/krystal/claim-rewards`,
+      {
+        method: "POST",
+        body,
+      }
+    )
+  }
+
+  async getKrystalEarnPortfolio(query: {
+    profile_id: string
+    chain_id?: string
+    platform?: string
+    type?: string
+    token_address?: string
+  }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/earns/krystal/earn-balances`,
+      {
+        query,
+      }
+    )
+  }
+
+  async getKrystalEarnHistory(query: {
+    profile_id: string
+    size?: number
+    page?: number
+  }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/earns/krystal/history`,
+      {
+        query,
+      }
+    )
   }
 }
 
