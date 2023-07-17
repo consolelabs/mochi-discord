@@ -39,8 +39,15 @@ const slashCmd: SlashCommand = {
           )
           .setRequired(false)
       )
+      .addBooleanOption((option) =>
+        option
+          .setName("no-default")
+          .setDescription("option to disable default ticker. Example: true")
+          .setRequired(false)
+      )
   },
   run: async function (interaction: CommandInteraction) {
+    const noDefault = interaction.options.getBoolean("no-default") || false
     const baseQ = interaction.options.getString("base", true)
     if (!interaction.guildId || !baseQ) return null
     const targetQ = interaction.options.getString("target")
@@ -59,7 +66,7 @@ const slashCmd: SlashCommand = {
         )} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }
-    await tickerSlash(interaction, base, target, isCompare, isFiat)
+    await tickerSlash(interaction, base, target, isCompare, isFiat, noDefault)
   },
   help: () =>
     Promise.resolve({
