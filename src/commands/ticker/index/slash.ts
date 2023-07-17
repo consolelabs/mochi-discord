@@ -92,13 +92,21 @@ async function run(
   baseQ: string,
   targetQ: string,
   isCompare: boolean,
-  isFiat: boolean
+  isFiat: boolean,
+  noDefault: boolean,
 ) {
   const {
     context,
     initial = "ticker",
     msgOpts,
-  } = await runProcessor(interaction, baseQ, targetQ, isCompare, isFiat)
+  } = await runProcessor(
+    interaction,
+    baseQ,
+    targetQ,
+    isCompare,
+    isFiat,
+    noDefault,
+  )
 
   const reply = (await interaction.editReply(msgOpts)) as Message
 
