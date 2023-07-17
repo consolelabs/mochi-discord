@@ -15,7 +15,7 @@ import follow from "./follow/slash"
 import list from "./list/slash"
 import track from "./track/slash"
 import untrack from "./untrack/slash"
-import view from "./view/slash"
+import view from "./view"
 
 export enum WalletTrackingType {
   Follow = "follow",
@@ -24,7 +24,6 @@ export enum WalletTrackingType {
 }
 
 const slashActions: Record<string, SlashCommand> = {
-  view,
   add,
   track,
   follow,
@@ -35,6 +34,7 @@ const slashActions: Record<string, SlashCommand> = {
 
 const subCommandGroups: Record<string, Record<string, SlashCommand>> = {
   alias,
+  view,
 }
 
 const slashCmd: SlashCommand = {
@@ -44,7 +44,6 @@ const slashCmd: SlashCommand = {
     const data = new SlashCommandBuilder()
       .setName("wallet")
       .setDescription("Track assets and activities of any on-chain wallet.")
-    data.addSubcommand(<SlashCommandSubcommandBuilder>view.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>add.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>track.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>follow.prepare())
@@ -57,6 +56,13 @@ const slashCmd: SlashCommand = {
         .setDescription("Setup alias for wallet address")
         .addSubcommand(<SlashCommandSubcommandBuilder>alias.set.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>alias.remove.prepare())
+    )
+    data.addSubcommandGroup((subcommandGroup) =>
+      subcommandGroup
+        .setName("view")
+        .setDescription("View wallet")
+        .addSubcommand(<SlashCommandSubcommandBuilder>view.address.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>view.profile.prepare())
     )
     return data
   },
