@@ -956,7 +956,6 @@ class Config extends Fetcher {
     noFetchAmount?: boolean,
     profileId?: string
   ) {
-    if (!guildId) return []
     const { data, ok } = await this.jsonFetch<ResponseGetVaultsResponse>(
       `${API_BASE_URL}/vault`,
       {
