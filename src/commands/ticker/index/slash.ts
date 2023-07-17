@@ -93,7 +93,7 @@ async function run(
   targetQ: string,
   isCompare: boolean,
   isFiat: boolean,
-  noDefault: boolean
+  noDefault: boolean,
 ) {
   const {
     context,
@@ -105,7 +105,7 @@ async function run(
     targetQ,
     isCompare,
     isFiat,
-    noDefault
+    noDefault,
   )
 
   const reply = (await interaction.editReply(msgOpts)) as Message

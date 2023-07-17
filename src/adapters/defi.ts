@@ -50,10 +50,10 @@ class Defi extends Fetcher {
     query: string,
     chain?: string,
     guildId?: string,
-    noDefault?: boolean
+    noDefault?: boolean,
   ) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/defi/coins?query=${query}&chain=${chain}&guild_id=${guildId}&no_default=${noDefault}`
+      `${API_BASE_URL}/defi/coins?query=${query}&chain=${chain}&guild_id=${guildId}&no_default=${noDefault}`,
     )
   }
 
