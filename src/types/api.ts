@@ -48,6 +48,7 @@ export interface ModelCoingeckoSupportedTokens {
   detail_platforms?: number[];
   id?: string;
   is_native?: boolean;
+  is_not_supported?: boolean;
   is_popular?: boolean;
   most_popular?: boolean;
   name?: string;
@@ -1111,6 +1112,10 @@ export interface ResponseGetHistoricalMarketChartResponse {
   data?: ResponseCoinPriceHistoryResponse;
 }
 
+export interface ResponseGetInvestListResponse {
+  data?: ResponseInvestItem[];
+}
+
 export interface ResponseGetLevelRoleConfigsResponse {
   data?: ModelGuildConfigLevelRole[];
   /** page index */
@@ -1434,6 +1439,43 @@ export interface ResponseIndexerToken {
   address?: string;
   decimals?: number;
   is_native?: boolean;
+  symbol?: string;
+}
+
+export interface ResponseInvestChain {
+  id?: number;
+  logo?: string;
+  name?: string;
+}
+
+export interface ResponseInvestItem {
+  apy?: number;
+  chain?: ResponseInvestChain;
+  platforms?: ResponseInvestPlatforms[];
+  token?: ResponseInvestToken;
+  tvl?: number;
+}
+
+export interface ResponseInvestPlatforms {
+  apy?: number;
+  desc?: string;
+  logo?: string;
+  name?: string;
+  reward_apy?: number;
+  status?: ResponseInvestStatus;
+  tvl?: number;
+  type?: string;
+}
+
+export interface ResponseInvestStatus {
+  detail?: string;
+  value?: string;
+}
+
+export interface ResponseInvestToken {
+  address?: string;
+  decimals?: number;
+  name?: string;
   symbol?: string;
 }
 

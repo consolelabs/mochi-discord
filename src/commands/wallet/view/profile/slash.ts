@@ -5,37 +5,47 @@ import {
   BalanceView,
   renderBalances,
 } from "commands/balances/index/processor"
+import { machineConfig } from "commands/wallet/common/tracking"
 import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
-import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
-import { route } from "utils/router"
-import { machineConfig } from "commands/wallet/common/tracking"
 import { lookUpDomains } from "utils/common"
+import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
 import { formatUsdDigit } from "utils/defi"
+import { route } from "utils/router"
 
 const command: SlashCommand = {
-  name: "view",
+  name: "view-profile",
   category: "Defi",
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
-      .setName("view")
-      .setDescription("Show the wallet's assets and activities.")
+      .setName("profile")
+      .setDescription("Show other members' wallet assets and activities.")
+      .addUserOption((option) =>
+        option
+          .setName("user")
+          .setDescription(
+            "Nickname or mention of wallet's owner. Example: @John"
+          )
+          .setRequired(true)
+      )
       .addStringOption((option) =>
         option
-          .setName("address")
+          .setName("wallet")
           .setDescription(
             "The address or alias of the wallet you want to track"
           )
-          .setAutocomplete(true)
           .setRequired(true)
+          .setAutocomplete(true)
       )
   },
   autocomplete: async (i) => {
+    const user = i.options.get("user", true).value as string | undefined
+    const discordId = user ?? i.user.id
     const focusedValue = i.options.getFocused()
     // do not fetch amount because
     // we need to respond within 3 seconds (discord api is amazing ¯\_(ツ)_/¯)
-    const { wallets } = await profile.getUserWallets(i.user.id, false)
+    const { wallets } = await profile.getUserWallets(discordId, false)
 
     const options = await Promise.all(
       [...wallets]
@@ -62,7 +72,7 @@ const command: SlashCommand = {
     await i.respond(options).catch(() => null)
   },
   run: async (interaction) => {
-    const address = interaction.options.getString("address", true)
+    const address = interaction.options.getString("wallet", true)
 
     const { context, msgOpts } = await renderBalances(
       // TODO: this id currently is wrong
