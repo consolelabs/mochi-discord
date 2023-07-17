@@ -41,13 +41,13 @@ const slashCmd: SlashCommand = {
       )
       .addBooleanOption((option) =>
         option
-          .setName("no-default")
-          .setDescription("option to disable default ticker. Example: true")
+          .setName("show-all")
+          .setDescription("available tokens with given ticker")
           .setRequired(false)
       )
   },
   run: async function (interaction: CommandInteraction) {
-    const noDefault = interaction.options.getBoolean("no-default") || false
+    const noDefault = interaction.options.getBoolean("show-all") || false
     const baseQ = interaction.options.getString("base", true)
     if (!interaction.guildId || !baseQ) return null
     const targetQ = interaction.options.getString("target")
