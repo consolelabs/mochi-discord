@@ -37,6 +37,7 @@ const command: SlashCommand = {
       target,
       isCompare,
       isFiat,
+      false,
       TickerView.Info
     )
 

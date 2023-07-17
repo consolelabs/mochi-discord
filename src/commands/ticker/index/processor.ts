@@ -527,6 +527,7 @@ export async function run(
   targetQ: string,
   isCompare: boolean,
   isFiat: boolean,
+  noDefault: boolean,
   view = TickerView.Chart
 ) {
   const [baseCoin, targetCoin] = await Promise.all(
@@ -534,8 +535,9 @@ export async function run(
       const { ticker, isDominanceChart } = parseQuery(symbol)
       const { data: coins } = await CacheManager.get({
         pool: "ticker",
-        key: `ticker-search-${ticker}`,
-        call: () => defi.searchCoins(ticker, "", interaction.guildId ?? ""),
+        key: `ticker-search-${ticker}-${noDefault}`,
+        call: () =>
+          defi.searchCoins(ticker, "", interaction.guildId ?? "", noDefault),
       })
       if (!coins || !coins.length) {
         throw new InternalError({
