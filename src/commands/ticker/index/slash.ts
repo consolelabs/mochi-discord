@@ -20,12 +20,26 @@ export const machineConfig: (
     initial,
     context: {
       select: {
-        ticker: (interaction, _ev, ctx) =>
-          renderSingle(interaction, {
+        ticker: (interaction, _ev, ctx) => {
+          // this is show all token, in this case coins =[...] baseCoin == undefined
+          // coins = list defi.getCoin() of all token, baseCoin = defi.GetCoin() of 1 token
+          if (ctx.coins && !ctx.baseCoin) {
+            const data = ctx.coins.filter(
+              (c: any) => c.id === interaction.values.at(0)
+            )[0]
+
+            return renderSingle(interaction, {
+              baseCoin: data,
+              type: ctx.type,
+              days: ctx.days,
+            })
+          }
+          return renderSingle(interaction, {
             baseCoin: ctx.baseCoin,
             type: ctx.type,
             days: Number(interaction.values.at(0)),
-          }),
+          })
+        },
         tickerPair: (interaction, _ev, ctx) =>
           renderPair(interaction, {
             ...ctx,
@@ -82,6 +96,11 @@ export const machineConfig: (
           VIEW_CHART: "ticker",
         },
       },
+      tickerAll: {
+        on: {
+          VIEW_ALL_TICKER: "ticker",
+        },
+      },
       swapStep1,
     },
   }
@@ -93,7 +112,7 @@ async function run(
   targetQ: string,
   isCompare: boolean,
   isFiat: boolean,
-  noDefault: boolean,
+  showAll: boolean
 ) {
   const {
     context,
@@ -105,7 +124,7 @@ async function run(
     targetQ,
     isCompare,
     isFiat,
-    noDefault,
+    showAll
   )
 
   const reply = (await interaction.editReply(msgOpts)) as Message
