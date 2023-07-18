@@ -1,18 +1,19 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import profile from "adapters/profile"
 import {
   BalanceType,
   BalanceView,
   renderBalances,
 } from "commands/balances/index/processor"
+import { machineConfig } from "commands/wallet/common/tracking"
 import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
-import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
-import { route } from "utils/router"
-import { machineConfig } from "commands/wallet/common/tracking"
 import { lookUpDomains } from "utils/common"
+import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
 import { formatUsdDigit } from "utils/defi"
+import { route } from "utils/router"
+
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
 const command: SlashCommand = {
   name: "view-address",

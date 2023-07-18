@@ -1,3 +1,4 @@
+import { swr } from "adapters/fetcher"
 import CacheManager from "cache/node-cache"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -33,7 +34,6 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
-import { swr } from "adapters/fetcher"
 
 dayjs.extend(relativeTime)
 

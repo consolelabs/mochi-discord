@@ -60,20 +60,18 @@ export async function followWallet(
     })
   }
 
-  const { msgOpts } = await renderTrackingResult(address, chainType, alias)
-
-  return { msgOpts, context: { user: author, address } }
+  return await renderTrackingResult(author, address, alias)
 }
 
 async function renderTrackingResult(
+  user: User,
   address: string,
-  chain: string,
   alias: string
 ) {
   return {
     context: {
+      user,
       address,
-      chain,
       alias,
     },
     msgOpts: {
@@ -85,20 +83,17 @@ async function renderTrackingResult(
           ],
           color: msgColors.SUCCESS,
           description: `
-${getEmoji("ANIMATED_POINTING_RIGHT", true)} ${await getSlashCommand(
-            "wallet list"
-          )} tracking wallets.
-${getEmoji("ANIMATED_POINTING_RIGHT", true)} ${await getSlashCommand(
+${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
             "wallet alias set"
-          )} note to your tracking wallets.
+          )} to assign name for any tracking wallet.
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
   true
-)} Track this wallet's transaction by clicking on button \`Track\`.
+)} View list tracking wallet by clicking on button \`Wallets\` below.
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
   true
-)} Copy trade by clicking on button \`Copy\`.
+)} Pick any other buttons if you change your decision.
             `,
         }),
       ],
