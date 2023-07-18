@@ -82,7 +82,7 @@ const slashCmd: SlashCommand = {
           name: `${opt.token?.symbol} ${shortenHashOrAddress(
             opt.token?.address ?? ""
           )}`,
-          value: `${opt.token?.name}|${opt.token?.address}`,
+          value: `${opt.token?.name} ${opt.token?.address}`,
         }))
 
       await i.respond(options)
@@ -92,7 +92,7 @@ const slashCmd: SlashCommand = {
       const focusedValue = focused.value
       const chainId = i.options.getString("chain", true)
       const token = i.options.getString("token", true)
-      const address = token.split("|")[1]
+      const address = token.split(" ")[1]
 
       const { ok, data } = await community.getEarns({
         chainIds: chainId,
@@ -126,7 +126,7 @@ const slashCmd: SlashCommand = {
   },
   run: async function (i: CommandInteraction) {
     const chainId = i.options.getString("chain", true)
-    const [, tokenAddress] = i.options.getString("token", true).split("|")
+    const [, tokenAddress] = i.options.getString("token", true).split(" ")
     const platform = i.options.getString("platform", true)
     const amount = i.options.getNumber("amount", true)
 
