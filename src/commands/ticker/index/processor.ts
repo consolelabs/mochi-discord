@@ -529,20 +529,6 @@ export async function renderAllTicker(
   baseCoin: any,
   { days, type }: Context,
 ) {
-  const embed = composeEmbedMessage(null, {
-    author: [
-      `Ticker ${baseQ.toUpperCase()}`,
-      getEmojiURL(emojis.ANIMATED_MONEY),
-    ],
-    description: [
-      `${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true
-      )} Below is all available tokens with given ticker.`,
-      getEmoji("LINE").repeat(5),
-    ].join("\n"),
-  })
-
   const coins = []
   for (let i = 0; i < baseCoin.length; i++) {
     const { data, status } = await CacheManager.get({
@@ -567,6 +553,29 @@ export async function renderAllTicker(
     coins.push(data)
   }
 
+  const coinEmbed = coins
+    .map((coin: any) => {
+      return `${coin.name}`
+    })
+    .join("\n")
+
+  const embed = composeEmbedMessage(null, {
+    author: [
+      `Ticker ${baseQ.toUpperCase()}`,
+      getEmojiURL(emojis.ANIMATED_MONEY),
+    ],
+    description: [
+      `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Below is all available tokens with given ticker.`,
+      getEmoji("LINE").repeat(5),
+      "```",
+      coinEmbed,
+      "```",
+    ].join("\n"),
+  })
+
   return {
     initial: "tickerAll",
     context: { coins, type, days },
@@ -578,8 +587,8 @@ export async function renderAllTicker(
           new MessageSelectMenu({
             placeholder: "💰 View a token",
             custom_id: "VIEW_ALL_TICKER",
-            options: baseCoin.map((a: any) => ({
-              label: a.name,
+            options: coins.map((a: any) => ({
+              label: `${a.name} | $${a.market_data.current_price.usd}`,
               value: a.id,
             })),
           })
