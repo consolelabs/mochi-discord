@@ -48,7 +48,7 @@ class Defi extends Fetcher {
 
   public async searchCoins(query: string, chain?: string, guildId?: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/defi/coins?query=${query}&chain=${chain}&guild_id=${guildId}`
+      `${API_BASE_URL}/defi/coins?query=${query}&chain=${chain}&guild_id=${guildId}`,
     )
   }
 
