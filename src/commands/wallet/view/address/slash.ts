@@ -23,6 +23,7 @@ const command: SlashCommand = {
       .setDescription("Show the wallet's assets and activities.")
       .addStringOption((option) =>
         option
+          .setName("wallet")
           .setDescription(
             "The address or alias of the wallet you want to track"
           )
