@@ -4,6 +4,7 @@ import webhook from "adapters/webhook"
 import { getReactionIdentifier } from "utils/commands"
 import { wrapError } from "utils/wrap-error"
 import { eventAsyncStore } from "utils/async-storages"
+import { logger } from "logger"
 
 const handleMessageReactionAdd = async (
   reaction: MessageReaction,
@@ -11,13 +12,23 @@ const handleMessageReactionAdd = async (
   msg: Message
 ) => {
   let user_roles: string[] = []
-  await msg.guild?.members.fetch(user).then((member) => {
-    user_roles = member.roles.cache.map((r) => r.id)
-  })
+  await msg.guild?.members
+    .fetch(user)
+    .then((member) => {
+      user_roles = member.roles.cache.map((r) => r.id)
+    })
+    .catch((e) => {
+      logger.error(e)
+    })
   let author_roles: string[] = []
-  await msg.guild?.members.fetch(msg.author.id).then((member) => {
-    author_roles = member.roles.cache.map((r) => r.id)
-  })
+  await msg.guild?.members
+    .fetch(msg.author.id)
+    .then((member) => {
+      author_roles = member.roles.cache.map((r) => r.id)
+    })
+    .catch((e) => {
+      logger.error(e)
+    })
 
   const body = {
     guild_id: msg.guild?.id ?? "",
