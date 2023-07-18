@@ -10,16 +10,12 @@ import {
   ResponseUserFeedbackResponse,
   RequestUserFeedbackRequest,
   ResponseGetCollectionCountResponse,
+  ResponseGetInvestListResponse,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
-import {
-  API_BASE_URL,
-  KRYSTAL_API_BASE_URL,
-  PT_API_BASE_URL,
-} from "utils/constants"
+import { API_BASE_URL, PT_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
 import { AirdropCampaignStatus } from "commands/drop/"
-import { KRYSTAL_ACCESS_TOKEN } from "env"
 
 class Community extends Fetcher {
   public async getInvites({ guild_id, member_id }: InvitesInput) {
@@ -656,14 +652,13 @@ class Community extends Fetcher {
     address?: string
     status?: string
   }) {
-    return await this.jsonFetch(`${KRYSTAL_API_BASE_URL}/earning/options`, {
-      headers: {
-        "Content-Type": "application/json",
-        "x-rate-access-token": `${KRYSTAL_ACCESS_TOKEN}`,
-      },
-      queryCamelToSnake: false,
-      query,
-    })
+    return await this.jsonFetch<ResponseGetInvestListResponse>(
+      `${API_BASE_URL}/invests`,
+      {
+        queryCamelToSnake: false,
+        query,
+      }
+    )
   }
 }
 

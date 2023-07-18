@@ -5,7 +5,6 @@ import { MachineConfig, route } from "utils/router"
 import { renderInvestHome, renderInvestToken } from "./processor"
 import CacheManager from "cache/node-cache"
 import community from "adapters/community"
-import { ApiEarningOption } from "types/krystal-api"
 import uniq from "lodash/uniq"
 
 CacheManager.init({
@@ -59,9 +58,11 @@ const slashCmd: SlashCommand = {
   },
   autocomplete: async function (i) {
     const focusedValue = i.options.getFocused()
-    const { result } = await community.getEarns()
+    const { ok, data } = await community.getEarns()
+    if (!ok) return await i.respond([])
+
     const symbols = uniq<string>(
-      result.map((d: ApiEarningOption) => d.token?.symbol?.toLowerCase())
+      data.map((d) => d.token?.symbol?.toLowerCase() ?? "")
     )
     const options = symbols
       .filter((symbol: string) => symbol.includes(focusedValue.toLowerCase()))

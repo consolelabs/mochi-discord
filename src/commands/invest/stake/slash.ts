@@ -1,8 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandInteraction, Message } from "discord.js"
+import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import community from "adapters/community"
-import { ApiEarningOption, ApiPlatform } from "types/krystal-api"
 import {
   composeEmbedMessage2,
   getErrorEmbed,
@@ -65,18 +64,21 @@ const slashCmd: SlashCommand = {
       const focusedValue = focused.value
       const chainId = i.options.getString("chain", true)
 
-      const { result } = await community.getEarns({
+      const { ok, data } = await community.getEarns({
         chainIds: chainId,
         types: "lend", // get lend only
         status: "active",
       })
-
-      const options = result
-        .filter((opt: ApiEarningOption) =>
+      if (!ok) {
+        await i.respond([])
+        return
+      }
+      const options = data
+        .filter((opt) =>
           opt.token?.symbol?.toLowerCase().includes(focusedValue.toLowerCase())
         )
         .slice(0, 25)
-        .map((opt: ApiEarningOption) => ({
+        .map((opt) => ({
           name: `${opt.token?.symbol} ${shortenHashOrAddress(
             opt.token?.address ?? ""
           )}`,
@@ -92,14 +94,14 @@ const slashCmd: SlashCommand = {
       const token = i.options.getString("token", true)
       const address = token.split("|")[1]
 
-      const { result } = await community.getEarns({
+      const { ok, data } = await community.getEarns({
         chainIds: chainId,
         address,
         types: "lend", // get lend only
         status: "active",
       })
 
-      if (!result) {
+      if (!ok) {
         await i.respond([])
         return
       }
@@ -107,37 +109,47 @@ const slashCmd: SlashCommand = {
         maximumFractionDigits: 1,
         notation: "compact",
       })
-      const platforms = result[0].platforms
+      const platforms = data[0].platforms
       const options = platforms
-        .filter((p: ApiPlatform) =>
+        ?.filter((p) =>
           p?.name?.toLowerCase().includes(focusedValue.toLowerCase())
         )
-        .map((p: ApiPlatform) => ({
+        .map((p) => ({
           name: `[${p.name?.toUpperCase()}] APY: ${p.apy?.toFixed(
             2
           )}% - TVL: ${formatter.format(p.tvl ?? 0)}`,
-          value: p.name,
+          value: p.name ?? "NA",
         }))
 
-      await i.respond(options)
+      await i.respond(options ?? [])
     }
   },
   run: async function (i: CommandInteraction) {
     const chainId = i.options.getString("chain", true)
-    const [tokenName, tokenAddress] = i.options
-      .getString("token", true)
-      .split("|")
+    const [, tokenAddress] = i.options.getString("token", true).split("|")
     const platform = i.options.getString("platform", true)
     const amount = i.options.getNumber("amount", true)
 
-    const { result } = await community.getEarns({
+    const { ok, data } = await community.getEarns({
       chainIds: chainId,
       types: "lend",
       platforms: platform,
       address: tokenAddress,
       status: "active",
     })
-    if (!result) {
+    if (!ok) {
+      return {
+        messageOptions: {
+          embeds: [
+            getErrorEmbed({
+              title: "Stake failed",
+              description: `The transaction failed. Please try again later. If the problem persists, please contact us on Discord.`,
+            }),
+          ],
+        },
+      }
+    }
+    if (!data) {
       return {
         messageOptions: {
           embeds: [
@@ -149,16 +161,16 @@ const slashCmd: SlashCommand = {
         },
       }
     }
-    const { platforms, token }: ApiEarningOption = result[0]
-    const platformDetail: ApiPlatform = platforms?.at(0) ?? {}
+    const { platforms, token } = data[0]
+    const platformDetail = platforms?.at(0)
     const profileId = await getProfileIdByDiscord(i.user.id)
     const amountBN = BigInt(amount * 10 ** (token?.decimals ?? 18))
 
-    const { ok } = await mochiPay.krystalStake({
+    const { ok: stakeOk } = await mochiPay.krystalStake({
       profile_id: profileId,
       chain_id: parseInt(chainId),
       platform: platform,
-      earning_type: platformDetail.type ?? "",
+      earning_type: platformDetail?.type ?? "",
       token_amount: amountBN.toString(),
       token: {
         name: token?.name ?? "",
@@ -168,7 +180,7 @@ const slashCmd: SlashCommand = {
       },
     })
 
-    if (!ok) {
+    if (!stakeOk) {
       return {
         messageOptions: {
           embeds: [
@@ -188,10 +200,10 @@ const slashCmd: SlashCommand = {
             title: "Stake success",
             description: `You have successfully request to stake ${amount} ${
               token?.symbol ?? ""
-            } to ${platformDetail.name}. \n${getEmoji(
+            } to ${platformDetail?.name ?? "NA"}. \n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
               true
-            )} You can check the transaction status with ${getSlashCommand(
+            )} You can check the transaction status with ${await getSlashCommand(
               "invest status"
             )}`,
           }),

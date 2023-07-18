@@ -1,23 +1,21 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandInteraction, Message } from "discord.js"
+import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import community from "adapters/community"
-import { ApiEarningOption, ApiPlatform } from "types/krystal-api"
 import {
   composeEmbedMessage,
   formatDataTable,
   getErrorEmbed,
 } from "ui/discord/embed"
-import { shortenHashOrAddress } from "utils/common"
 import mochiPay from "adapters/mochi-pay"
 import { getProfileIdByDiscord } from "utils/profile"
 import { VERTICAL_BAR } from "utils/constants"
-import { BigNumber } from "ethers"
+import { ResponseInvestPlatforms } from "types/api"
 
 type InvestBalance = {
   apy: number
   chain_id: number
-  platform: ApiPlatform
+  platform: ResponseInvestPlatforms
   ratio: number
   reward_apy: number
   staking_token: {
@@ -63,13 +61,6 @@ const slashCmd: SlashCommand = {
       )
       .addStringOption((opt) =>
         opt
-          .setName("token")
-          .setDescription("filter earn by token")
-          .setRequired(false)
-          .setAutocomplete(true)
-      )
-      .addStringOption((opt) =>
-        opt
           .setName("platform")
           .setDescription("filter earn by platform")
           .setRequired(false)
@@ -79,75 +70,39 @@ const slashCmd: SlashCommand = {
     return data
   },
   autocomplete: async function (i) {
-    const focused = i.options.getFocused(true)
+    const focusedValue = i.options.getFocused()
+    const chainId = i.options.getString("chain", true)
 
-    if (focused.name === "token") {
-      const focusedValue = focused.value
-      const chainId = i.options.getString("chain", true)
+    const { ok, data } = await community.getEarns({
+      chainIds: chainId,
+      types: "lend", // get lend only
+      status: "active",
+    })
 
-      const { result } = await community.getEarns({
-        chainIds: chainId,
-        types: "lend", // get lend only
-        status: "active",
-      })
-
-      const options = result
-        .filter((opt: ApiEarningOption) =>
-          opt.token?.symbol?.toLowerCase().includes(focusedValue.toLowerCase())
-        )
-        .slice(0, 25)
-        .map((opt: ApiEarningOption) => ({
-          name: `${opt.token?.symbol} ${shortenHashOrAddress(
-            opt.token?.address ?? ""
-          )}`,
-          value: `${opt.token?.name}|${opt.token?.address}`,
-        }))
-
-      await i.respond(options)
+    if (!ok) {
+      await i.respond([])
+      return
     }
+    const formatter = Intl.NumberFormat("en-US", {
+      maximumFractionDigits: 1,
+      notation: "compact",
+    })
+    const platforms = data[0].platforms
+    const options = platforms
+      ?.filter((p: ResponseInvestPlatforms) =>
+        p?.name?.toLowerCase().includes(focusedValue.toLowerCase())
+      )
+      .map((p: ResponseInvestPlatforms) => ({
+        name: `[${p.name?.toUpperCase()}] APY: ${p.apy?.toFixed(
+          2
+        )}% - TVL: ${formatter.format(p.tvl ?? 0)}`,
+        value: p.name ?? "NA",
+      }))
 
-    if (focused.name === "platform") {
-      const focusedValue = focused.value
-      const chainId = i.options.getString("chain", true)
-      const token = i.options.getString("token", true)
-      const address = token.split("|")[1]
-
-      const { result } = await community.getEarns({
-        chainIds: chainId,
-        address,
-        types: "lend", // get lend only
-        status: "active",
-      })
-
-      if (!result) {
-        await i.respond([])
-        return
-      }
-      const formatter = Intl.NumberFormat("en-US", {
-        maximumFractionDigits: 1,
-        notation: "compact",
-      })
-      const platforms = result[0].platforms
-      const options = platforms
-        .filter((p: ApiPlatform) =>
-          p?.name?.toLowerCase().includes(focusedValue.toLowerCase())
-        )
-        .map((p: ApiPlatform) => ({
-          name: `[${p.name?.toUpperCase()}] APY: ${p.apy?.toFixed(
-            2
-          )}% - TVL: ${formatter.format(p.tvl ?? 0)}`,
-          value: p.name,
-        }))
-
-      await i.respond(options)
-    }
+    await i.respond(options ?? [])
   },
   run: async function (i: CommandInteraction) {
     const chainId = i.options.getString("chain")
-    const [_, tokenAddress] = i.options.getString("token")?.split("|") ?? [
-      "",
-      "",
-    ]
     const platform = i.options.getString("platform")
     const profileId = await getProfileIdByDiscord(i.user.id)
     const { ok, data } = await mochiPay.getKrystalEarnPortfolio({

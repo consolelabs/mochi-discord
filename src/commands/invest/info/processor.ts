@@ -5,7 +5,6 @@ import community from "adapters/community"
 import { formatPercentDigit } from "utils/defi"
 import { VERTICAL_BAR, DASH, SPACE } from "utils/constants"
 import { paginationButtons } from "utils/router"
-import { ApiEarningOption, ApiPlatform } from "types/krystal-api"
 import { chunk, flatten, groupBy, uniq } from "lodash"
 import { InternalError } from "errors"
 import {
@@ -13,12 +12,13 @@ import {
   CommandInteraction,
   SelectMenuInteraction,
 } from "discord.js"
+import { ResponseInvestItem, ResponseInvestPlatforms } from "types/api"
 
-type EarningPlatform = ApiPlatform & { chainName: string }
+type EarningPlatform = ResponseInvestPlatforms & { chainName: string }
 
 export async function renderInvestToken(token: string) {
   let tokenData = [] as EarningPlatform[]
-  const { result, ok } = await CacheManager.get({
+  const { data, ok } = await CacheManager.get({
     pool: "invest",
     key: `invest-list`,
     call: () => community.getEarns(),
@@ -26,12 +26,12 @@ export async function renderInvestToken(token: string) {
 
   if (ok) {
     tokenData = flatten(
-      result
+      data
         .filter(
-          (d: ApiEarningOption) =>
+          (d: ResponseInvestItem) =>
             d.token?.symbol?.toLowerCase() === token.toLowerCase()
         )
-        .map((d: ApiEarningOption) => {
+        .map((d: ResponseInvestItem) => {
           return (d.platforms || [])
             .filter((p) => p.status?.value === "active")
             .map((p) => {
@@ -108,7 +108,7 @@ type HomeEarn = {
   maxApy: number
 }
 
-function groupByToken(data: ApiEarningOption[]) {
+function groupByToken(data: ResponseInvestItem[]) {
   const noneZeroApyData = data.filter((d) => d.apy && d.apy > 0)
   const groupedSymbolObj = groupBy(noneZeroApyData, (d) => d.token?.symbol)
   return Object.keys(groupedSymbolObj).map((symbol) => {
@@ -136,7 +136,7 @@ export async function renderInvestHome(
   const isByUser = availableTokens.length > 0
   let tokenData = [] as HomeEarn[]
   let totalPage = 0
-  const { result, ok, error } = await CacheManager.get({
+  const { data, ok, error } = await CacheManager.get({
     pool: "invest",
     key: `invest-list`,
     call: () => community.getEarns(),
@@ -150,7 +150,7 @@ export async function renderInvestHome(
     })
   }
 
-  const groupedData = groupByToken(result)
+  const groupedData = groupByToken(data)
   const filteredData = groupedData.filter((d) => {
     if (isByUser) {
       return availableTokens.includes(d.symbol)
