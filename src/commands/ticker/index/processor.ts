@@ -527,7 +527,7 @@ export async function renderFiatPair({
 export async function renderAllTicker(
   baseQ: string,
   baseCoin: any,
-  { days, type }: Context,
+  { days, type }: Context
 ) {
   const embed = composeEmbedMessage(null, {
     author: [
@@ -624,7 +624,7 @@ export async function run(
       }
 
       if (showAll) {
-        return coins
+        return coins.filter((coin: any) => coin.is_not_supported === false)
       }
 
       let coin = coins.find((coin: any) => coin.most_popular)
