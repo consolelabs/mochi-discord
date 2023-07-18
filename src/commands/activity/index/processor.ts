@@ -31,11 +31,10 @@ export async function render(userDiscordId: string, page = 0) {
       },
     }
 
-  const { data, pagination } = await profile.getUserActivities(
-    dataProfile.id,
+  const { data, pagination } = await profile.getUserActivities(dataProfile.id, {
     page,
-    pageSize
-  )
+    size: pageSize,
+  })
   if (!data.length)
     return {
       msgOpts: {
