@@ -91,6 +91,7 @@ import info from "./info"
 import ecocal from "./ecocal"
 import ecocalView from "./ecocal/view/slash"
 import chotot from "./chotot"
+import proposal from "./proposal"
 
 CacheManager.init({
   ttl: 0,
@@ -163,6 +164,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   ecocal: ecocal.slashCmd,
   ecalw: ecocalView,
   chotot: chotot.slashCmd,
+  proposal: proposal.slashCmd,
 }
 
 // text commands is being deprecated, refer to slashCommands for latest version
@@ -177,6 +179,7 @@ export const originalCommands: Record<string, Command> = {
   feedback: feedback.textCmd,
   alert: alert.textCmd,
   gas: gas.textCmd,
+  proposal: proposal.textCmd,
   // config section
   stats: stats.textCmd,
   // globalxp,
