@@ -1,4 +1,5 @@
 import defi from "adapters/defi"
+import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { renderWallets } from "commands/profile/index/processor"
 import { buildRecentTxFields } from "commands/vault/info/processor"
@@ -13,6 +14,8 @@ import {
   User,
 } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
+import { BigNumber } from "ethers"
+import { chunk, groupBy } from "lodash"
 import {
   composeEmbedMessage,
   formatDataTable,
@@ -37,12 +40,11 @@ import {
 import {
   APPROX,
   MIN_DUST,
-  TRACKING_TYPE_FOLLOW,
   TRACKING_TYPE_COPY,
+  TRACKING_TYPE_FOLLOW,
   TRACKING_TYPE_TRACK,
   VERTICAL_BAR,
 } from "utils/constants"
-import mochiPay from "adapters/mochi-pay"
 import { convertString } from "utils/convert"
 import {
   formatDigit,
@@ -51,8 +53,6 @@ import {
   formatUsdDigit,
 } from "utils/defi"
 import { getProfileIdByDiscord } from "utils/profile"
-import { BigNumber } from "ethers"
-import { chunk, groupBy } from "lodash"
 import { paginationButtons } from "utils/router"
 
 export enum BalanceType {
@@ -1048,6 +1048,7 @@ export async function renderBalances(
   return {
     context: {
       address,
+      alias: props?.alias,
       type,
       chain: addressType,
       showFullEarn,

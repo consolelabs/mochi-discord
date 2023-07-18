@@ -45,7 +45,11 @@ export async function render(userDiscordId: string, ctx: Context) {
   const { data, pagination } = await profile.getUserActivitiesByStatus(
     profileId,
     status,
-    ["withdraw", "feedback", "tip", "verify"], // inbox only show these activities
+    // ["withdraw", "feedback", "tip", "verify"], // inbox only show these activities
+    // TODO: feedback doesn't create a new activity
+    // TODO: "verify"?
+    // check mochi-typeset for enum
+    ["9", "10"],
     ctx.page,
     PAGE_SIZE
   )

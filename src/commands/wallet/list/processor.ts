@@ -8,10 +8,12 @@ import {
   emojis,
   getEmoji,
   getEmojiURL,
+  lookUpDomains,
   shortenHashOrAddress,
 } from "utils/common"
 import { APPROX, VERTICAL_BAR } from "utils/constants"
 import { formatUsdDigit } from "utils/defi"
+
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
 const emojiMap = {
@@ -57,27 +59,29 @@ export async function render(user: User) {
     ].join("\n"),
   })
 
-  Object.entries(data).forEach((e) => {
+  Object.entries(data).forEach(async (e) => {
     if (!e[1].length) return
     embed.addFields({
       name: `${emojiMap[e[0] as keyof typeof emojiMap]} ${capitalizeFirst(
         e[0]
       )}`,
       value: formatDataTable(
-        e[1]
-          .sort((a, b) => (b.net_worth ?? 0) - (a.net_worth ?? 0))
-          .map((d) => {
-            const chain = (d.chain_type ?? "").toUpperCase()
-            return {
-              chainType: chain,
-              address: shortenHashOrAddress(d.address ?? "", 4),
-              alias:
-                (d?.alias ?? "").length >= 16
-                  ? shortenHashOrAddress(d.alias ?? "", 4)
-                  : d.alias ?? "",
-              usd: `$${formatUsdDigit(d.net_worth ?? 0)}`,
-            }
-          }),
+        await Promise.all(
+          e[1]
+            .sort((a, b) => (b.net_worth ?? 0) - (a.net_worth ?? 0))
+            .map(async (d) => {
+              const chain = (d.chain_type ?? "").toUpperCase()
+              return {
+                chainType: chain,
+                address: await lookUpDomains(d.address ?? true),
+                alias:
+                  (d?.alias ?? "").length >= 16
+                    ? shortenHashOrAddress(d.alias ?? "", 4)
+                    : d.alias ?? "",
+                usd: `$${formatUsdDigit(d.net_worth ?? 0)}`,
+              }
+            })
+        ),
         {
           cols: ["chainType", "address", "alias", "usd"],
           separator: [VERTICAL_BAR, VERTICAL_BAR, ` ${APPROX} `],
@@ -91,21 +95,23 @@ export async function render(user: User) {
     })
   })
 
-  const options = Object.entries(data)
-    .map((e) => {
-      return e[1]
-        .filter((d) => d.profile_id && d.address)
-        .map((d) => {
-          const chain = (d.chain_type ?? "").toUpperCase()
-          return {
-            value: `${e[0]}_onchain_${d.address}`,
-            label: `🔹 ${chain} | ${
-              d.alias || shortenHashOrAddress(d.address ?? "", 4)
-            } | 💵 $${formatUsdDigit(d.net_worth ?? 0)}`,
-          }
-        })
-    })
-    .flat()
+  const options = await Promise.all(
+    Object.entries(data)
+      .map((e) => {
+        return e[1]
+          .filter((d) => d.profile_id && d.address)
+          .map(async (d) => {
+            const chain = (d.chain_type ?? "").toUpperCase()
+            return {
+              value: `${e[0]}_onchain_${d.address}`,
+              label: `🔹 ${chain} | ${
+                d.alias || (await lookUpDomains(d.address))
+              } | 💵 $${formatUsdDigit(d.net_worth ?? 0)}`,
+            }
+          })
+      })
+      .flat()
+  )
 
   if (!options.length) {
     embed.description += "\n\nNo wallets yet, use commands above."
