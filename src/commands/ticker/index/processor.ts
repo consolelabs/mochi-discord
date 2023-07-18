@@ -7,6 +7,7 @@ import {
   HexColorString,
   MessageActionRow,
   MessageButton,
+  MessageSelectMenu,
   SelectMenuInteraction,
 } from "discord.js"
 import { InternalError } from "errors"
@@ -14,7 +15,14 @@ import { Coin } from "types/defi"
 import { getChartColorConfig } from "ui/canvas/color"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { composeDaysSelectMenu } from "ui/discord/select-menu"
-import { EmojiKey, getEmoji, getEmojiToken, TokenEmojiKey } from "utils/common"
+import {
+  emojis,
+  EmojiKey,
+  getEmoji,
+  getEmojiToken,
+  TokenEmojiKey,
+  getEmojiURL,
+} from "utils/common"
 import { formatDigit, formatPercentDigit, formatUsdDigit } from "utils/defi"
 import {
   renderCompareTokenChart,
@@ -516,6 +524,71 @@ export async function renderFiatPair({
   }
 }
 
+export async function renderAllTicker(
+  baseQ: string,
+  baseCoin: any,
+  { days, type }: Context,
+) {
+  const embed = composeEmbedMessage(null, {
+    author: [
+      `Ticker ${baseQ.toUpperCase()}`,
+      getEmojiURL(emojis.ANIMATED_MONEY),
+    ],
+    description: [
+      `${getEmoji(
+        "ANIMATED_POINTING_RIGHT",
+        true
+      )} Below is all available tokens with given ticker.`,
+      getEmoji("LINE").repeat(5),
+    ].join("\n"),
+  })
+
+  const coins = []
+  for (let i = 0; i < baseCoin.length; i++) {
+    const { data, status } = await CacheManager.get({
+      pool: "ticker",
+      key: `ticker-getcoin-${baseCoin[i].id}`,
+      call: () => defi.getCoin(baseCoin[i].id || "", false),
+    })
+
+    if (status === 404) {
+      throw new InternalError({
+        title: "Unsupported token",
+        // msgOrInteraction: null,
+        description: `Token is invalid or hasn't been supported.\n${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} or Please choose a valid fiat currency.`,
+      })
+    }
+    coins.push(data)
+  }
+
+  return {
+    initial: "tickerAll",
+    context: { coins, type, days },
+    msgOpts: {
+      files: [],
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageSelectMenu({
+            placeholder: "💰 View a token",
+            custom_id: "VIEW_ALL_TICKER",
+            options: baseCoin.map((a: any) => ({
+              label: a.name,
+              value: a.id,
+            })),
+          })
+        ),
+      ],
+    },
+  }
+}
+
 export enum TickerView {
   Chart = "chart",
   Info = "info",
@@ -527,7 +600,7 @@ export async function run(
   targetQ: string,
   isCompare: boolean,
   isFiat: boolean,
-  noDefault: boolean,
+  showAll: boolean,
   view = TickerView.Chart
 ) {
   const [baseCoin, targetCoin] = await Promise.all(
@@ -535,9 +608,8 @@ export async function run(
       const { ticker, isDominanceChart } = parseQuery(symbol)
       const { data: coins } = await CacheManager.get({
         pool: "ticker",
-        key: `ticker-search-${ticker}-${noDefault}`,
-        call: () =>
-          defi.searchCoins(ticker, "", interaction.guildId ?? "", noDefault),
+        key: `ticker-search-${ticker}`,
+        call: () => defi.searchCoins(ticker, "", interaction.guildId ?? ""),
       })
       if (!coins || !coins.length) {
         throw new InternalError({
@@ -549,6 +621,10 @@ export async function run(
           ],
           reason: `**${symbol.toUpperCase()}** is invalid or hasn't been supported.`,
         })
+      }
+
+      if (showAll) {
+        return coins
       }
 
       let coin = coins.find((coin: any) => coin.most_popular)
@@ -586,6 +662,10 @@ export async function run(
   const days = parseQuery(baseQ).isDominanceChart
     ? DominanceChartViewTimeOption.Y1
     : ChartViewTimeOption.M1
+
+  if (showAll) {
+    return renderAllTicker(baseQ, baseCoin, { baseCoin, type, days })
+  }
 
   if (view === TickerView.Info) {
     return renderTokenInfo(interaction, { baseCoin, type, days })
