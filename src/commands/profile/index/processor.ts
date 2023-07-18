@@ -210,7 +210,7 @@ async function compose(
       ? [
           {
             name: "Vaults",
-            value: formatVaults(vaults),
+            value: formatVaults(vaults, i.guildId ?? ""),
             inline: false,
           },
         ]
