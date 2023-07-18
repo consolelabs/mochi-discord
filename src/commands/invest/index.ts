@@ -3,7 +3,6 @@ import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import info from "./info/slash"
 import stake from "./stake/slash"
-// import unstake from "./unstake/slash"
 import portfolio from "./portfolio/slash"
 import status from "./status/slash"
 import { CommandInteraction } from "discord.js"
@@ -15,7 +14,6 @@ import {
 const slashActions: Record<string, SlashCommand> = {
   info,
   stake,
-  // unstake,
   portfolio,
   status,
 }
