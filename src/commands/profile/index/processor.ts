@@ -132,7 +132,10 @@ async function compose(
     userProfile = podProfileRes.data
   }
 
-  const vaults = vaultsRes.slice(0, 5)
+  let vaults = vaultsRes.slice(0, 5)
+  if (!i.guildId) {
+    vaults = vaultsRes.filter((v) => v.discord_guild?.name).slice(0, 5)
+  }
 
   const {
     onchainTotal,
