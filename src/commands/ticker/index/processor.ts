@@ -624,7 +624,7 @@ export async function run(
       }
 
       if (showAll) {
-        return coins
+        return coins.filter((coin: any) => !coin.is_not_supported)
       }
 
       let coin = coins.find((coin: any) => coin.most_popular)
