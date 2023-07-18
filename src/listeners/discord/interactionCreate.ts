@@ -145,7 +145,7 @@ function handleCommandInteraction(interaction: Interaction) {
         })
         return
       }
-      await i.deferReply({ ephemeral: command?.ephemeral })
+      await i.deferReply({ ephemeral: command?.ephemeral }).catch(() => null)
       let subcommand = ""
       let args = ""
       if (interaction.isCommand()) {
