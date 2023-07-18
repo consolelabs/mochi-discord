@@ -101,7 +101,9 @@ const command: SlashCommand = {
               isNative: true,
             },
           ]
-          const { context: ctx, msgOpts } = renderListDepositAddress(addresses)
+          const { context: ctx, msgOpts } = renderListDepositAddress({
+            addresses,
+          })
 
           const reply = (await event.interaction.editReply(msgOpts)) as Message
 
@@ -111,7 +113,7 @@ const command: SlashCommand = {
             context: {
               button: {
                 depositList: () =>
-                  Promise.resolve(renderListDepositAddress(addresses)),
+                  Promise.resolve(renderListDepositAddress({ addresses })),
               },
               select: {
                 depositDetail: async (i, _ev, ctx) => {

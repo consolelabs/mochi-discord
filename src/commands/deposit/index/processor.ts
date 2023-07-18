@@ -22,7 +22,8 @@ import qrcode from "qrcode"
 
 export async function deposit(
   interaction: CommandInteraction | ButtonInteraction,
-  token: string
+  token: string,
+  amount: number
 ) {
   const author = getAuthor(interaction)
   const symbol = token.toUpperCase()
@@ -52,7 +53,7 @@ export async function deposit(
   })
   if (!ok) throw new APIError({ curl, description: log })
 
-  const addressesDup = data.filter(
+  const addressesDup = (data ?? []).filter(
     (d: any) => d.contract.chain.symbol && d.contract.address
   )
 
@@ -69,12 +70,21 @@ export async function deposit(
     tokenAddress: a.token.address,
     isEVM: a.contract.chain.is_evm,
     isNative: a.token.native,
+    explorer: a.contract.chain.explorer,
   }))
 
-  return renderListDepositAddress(addresses, symbol)
+  return renderListDepositAddress({ addresses, amount, symbol })
 }
 
-export function renderListDepositAddress(addresses: any[], symbol?: string) {
+export function renderListDepositAddress({
+  addresses,
+  amount = 1,
+  symbol,
+}: {
+  addresses: any[]
+  amount?: number
+  symbol?: string
+}) {
   if (!addresses.length)
     return {
       msgOpts: {
@@ -89,6 +99,23 @@ export function renderListDepositAddress(addresses: any[], symbol?: string) {
         ],
       },
     }
+
+  const dataRows = addresses.map((a) => {
+    const link = a.isEVM
+      ? toMetamaskDeeplink(
+          a.address,
+          amount,
+          a.decimal,
+          a.chainId,
+          !a.isNative ? a.tokenAddress : undefined
+        )
+      : `${a.explorer}/address/${a.address}`
+    return {
+      ...a,
+      symbol: `\`${a.symbol}\``,
+      address: `[\`${a.address}\`](${link})`,
+    }
+  })
 
   const embed = composeEmbedMessage(null, {
     author: [
@@ -105,9 +132,10 @@ export function renderListDepositAddress(addresses: any[], symbol?: string) {
         true
       )} Transactions take up to 5 minutes to process.`,
       getEmoji("LINE").repeat(5),
-      formatDataTable(addresses, {
+      formatDataTable(dataRows, {
         cols: ["symbol", "address"],
         alignment: ["left", "left"],
+        noWrap: true,
         rowAfterFormatter: (f, i) =>
           `${getEmojiToken(addresses[i].symbol as TokenEmojiKey)} ${f}`,
       }).joined,

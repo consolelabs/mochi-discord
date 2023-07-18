@@ -20,7 +20,7 @@ export const machineConfig: (
   context: {
     button: {
       depositList: async (i, _ev, _ctx, isModal) => {
-        if (!isModal) return await processor.deposit(i, token)
+        if (!isModal) return await processor.deposit(i, token, amount)
 
         // if isModal then this is coming from /balance flow
         const modal = new Modal()
@@ -55,7 +55,7 @@ export const machineConfig: (
 
         const value = submitted.fields.getTextInputValue("token")
 
-        return processor.deposit(i, value)
+        return processor.deposit(i, value, amount)
       },
     },
     select: {
@@ -92,7 +92,7 @@ export const run = async (
   tokenSymbol: string,
   amount: number
 ) => {
-  const { msgOpts, context } = await processor.deposit(i, tokenSymbol)
+  const { msgOpts, context } = await processor.deposit(i, tokenSymbol, amount)
   const reply = (await i.followUp({
     ephemeral: true,
     fetchReply: true,
