@@ -302,7 +302,11 @@ class Profile extends Fetcher {
     return await this.getUserActivitiesByStatus(
       profileId,
       "new",
-      ["withdraw", "feedback", "tip", "verify"],
+      // ["withdraw", "feedback", "tip", "verify"], // inbox only show these activities
+      // TODO: feedback doesn't create a new activity
+      // TODO: "verify"?
+      // check mochi-typeset for enum
+      ["9", "10"],
       page,
       size
     )
@@ -311,7 +315,11 @@ class Profile extends Fetcher {
     return await this.getUserActivitiesByStatus(
       profileId,
       "read",
-      ["withdraw", "feedback", "tip", "verify"],
+      // ["withdraw", "feedback", "tip", "verify"], // inbox only show these activities
+      // TODO: feedback doesn't create a new activity
+      // TODO: "verify"?
+      // check mochi-typeset for enum
+      ["9", "10"],
       page,
       size
     )
