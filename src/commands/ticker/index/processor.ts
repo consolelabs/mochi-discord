@@ -529,7 +529,7 @@ export async function renderFiatPair({
 export async function renderAllTicker(
   baseQ: string,
   baseCoin: any,
-  { days, type }: Context
+  { days, type }: Context,
 ) {
   const coins = []
   for (let i = 0; i < baseCoin.length; i++) {
