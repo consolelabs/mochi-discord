@@ -62,7 +62,7 @@ export async function wrapError(
         // something went wrong
         if (!(error instanceof BotBaseError)) {
           error = new BotBaseError(message, e.message as string)
-          Sentry.captureException(error)
+          Sentry.captureException(e)
         }
         error.handle?.()
         ChannelLogger.alert(message, error).catch(catchAll)
@@ -80,14 +80,14 @@ export async function wrapError(
         // something went wrong
         if (!(error instanceof BotBaseError)) {
           error = new BotBaseError(message, e.message as string)
-          Sentry.captureException(error)
+          Sentry.captureException(e)
         }
         error.handle?.()
         ChannelLogger.alertSlash(message, error).catch(catchAll)
       } else if (message.isMessageComponent()) {
         if (!(error instanceof BotBaseError)) {
           error = new BotBaseError(message, e.message as string)
-          Sentry.captureException(error)
+          Sentry.captureException(e)
         }
         error.handle?.()
         ChannelLogger.alert(message.message as Message, error).catch(catchAll)
