@@ -186,7 +186,9 @@ export async function renderSingle(
     },
     {
       name: "Change (W1)",
-      value: getChangePercentage(price_change_percentage_7d_in_currency.usd),
+      value: getChangePercentage(
+        price_change_percentage_7d_in_currency.usd ?? 0
+      ),
       inline: true,
     },
   ])
