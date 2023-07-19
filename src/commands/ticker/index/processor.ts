@@ -529,7 +529,7 @@ export async function renderFiatPair({
 export async function renderAllTicker(
   baseQ: string,
   baseCoin: any,
-  { days, type }: Context,
+  { days, type }: Context
 ) {
   const coins = []
   for (let i = 0; i < baseCoin.length; i++) {
@@ -614,6 +614,13 @@ export async function run(
   showAll: boolean,
   view = TickerView.Chart
 ) {
+  if (isFiat)
+    return renderFiatPair({
+      baseQ,
+      targetQ,
+      days: ChartViewTimeOption.M1,
+    })
+
   const [baseCoin, targetCoin] = await Promise.all(
     [baseQ, targetQ].filter(Boolean).map(async (symbol) => {
       const { ticker, isDominanceChart } = parseQuery(symbol)
@@ -681,13 +688,6 @@ export async function run(
   if (view === TickerView.Info) {
     return renderTokenInfo(interaction, { baseCoin, type, days })
   }
-
-  if (isFiat)
-    return renderFiatPair({
-      baseQ,
-      targetQ,
-      days: ChartViewTimeOption.M1,
-    })
 
   if (
     isCompare &&
