@@ -1,6 +1,6 @@
 import { Command } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { PREFIX } from "utils/constants"
+import { SLASH_PREFIX } from "utils/constants"
 import { process } from "./processor"
 
 const command: Command = {
@@ -9,15 +9,15 @@ const command: Command = {
   brief: "List all dao proposal usage stats",
   category: "Config",
   run: process,
-  getHelpMessage: async (msg) => {
-    return {
+  getHelpMessage: (msg) => {
+    return Promise.resolve({
       embeds: [
         composeEmbedMessage(msg, {
-          usage: `${PREFIX}proposal data`,
-          examples: `${PREFIX}proposal data`,
+          usage: `${SLASH_PREFIX}proposal data`,
+          examples: `${SLASH_PREFIX}proposal data`,
         }),
       ],
-    }
+    })
   },
   canRunWithoutAction: true,
   colorType: "Server",

@@ -15,14 +15,16 @@ const command: SlashCommand = {
       .setDescription("Query all space and proposal created by Mochi")
   },
   run: process,
-  help: async (interaction) => ({
-    embeds: [
-      composeEmbedMessage2(interaction, {
-        usage: `${SLASH_PREFIX}proposal data`,
-        examples: `${SLASH_PREFIX}proposal data`,
-      }),
-    ],
-  }),
+  help: (interaction) => {
+    return Promise.resolve({
+      embeds: [
+        composeEmbedMessage2(interaction, {
+          usage: `${SLASH_PREFIX}proposal data`,
+          examples: `${SLASH_PREFIX}proposal data`,
+        }),
+      ],
+    })
+  },
   colorType: "Server",
 }
 
