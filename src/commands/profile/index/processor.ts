@@ -161,7 +161,7 @@ async function compose(
   const mochiBal = formatUsdDigit(totalWorth)
 
   const { pagination } = await profile.getUserActivities(dataProfile.id, {
-    actions: ["14", "15"],
+    actions: ["9", "10"],
     status: "new",
   })
 

@@ -32,6 +32,7 @@ import {
 } from "./types"
 import Redis from "ioredis"
 import { nanoid } from "nanoid"
+import { Sentry } from "sentry"
 
 let cacheTtlSeconds = Number(CACHE_TTL_SECONDS)
 if (Number.isNaN(cacheTtlSeconds)) cacheTtlSeconds = 1800
@@ -245,6 +246,7 @@ export class Fetcher {
             error: log,
             stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
           })
+          Sentry.captureMessage(log, "fatal")
           await kafkaQueue?.produceAnalyticMsg([message])
 
           // if the error is from webhook api, we don't want to bother user with it, just kafka log is enough
@@ -309,6 +311,7 @@ export class Fetcher {
           error: "Error while trying to serialize/deserialize data",
         })
       }
+      Sentry.captureMessage(log, "fatal")
       await kafkaQueue?.produceAnalyticMsg([message])
       if (store?.msgOrInteraction && !isWebhook) {
         if (store.msgOrInteraction instanceof Message) {
