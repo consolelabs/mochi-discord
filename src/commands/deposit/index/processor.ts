@@ -198,21 +198,20 @@ export async function depositDetail(
   amount: number,
   depositObj: any
 ) {
-  let buffer
+  let link
   // create QR code image
   if (depositObj.isEVM) {
-    buffer = await qrcode.toBuffer(
-      toMetamaskDeeplink(
-        i.values.at(0) ?? "",
-        amount,
-        depositObj.decimal,
-        depositObj.chainId,
-        !depositObj.isNative ? depositObj.tokenAddress : undefined
-      )
+    link = toMetamaskDeeplink(
+      i.values.at(0) ?? "",
+      amount,
+      depositObj.decimal,
+      depositObj.chainId,
+      !depositObj.isNative ? depositObj.tokenAddress : undefined
     )
   } else {
-    buffer = await qrcode.toBuffer(i.values.at(0) ?? "")
+    link = `${depositObj.explorer}/address/${depositObj.address}`
   }
+  const buffer = await qrcode.toBuffer(link)
   const file = new MessageAttachment(buffer, "qr.png")
 
   const embed = composeEmbedMessage(null, {
@@ -232,7 +231,9 @@ export async function depositDetail(
       `:chains:\`Chain.   \`${getEmojiToken(depositObj.symbol)} **${
         depositObj.symbol
       }**`,
-      `${getEmoji("WALLET_2")}\`Address. ${depositObj.address}\``,
+      `${getEmoji("WALLET_2")}\`Address. \`[\`${
+        depositObj.address
+      }\`](${link})`,
     ].join("\n"),
     thumbnail: `attachment://qr.png`,
   })
