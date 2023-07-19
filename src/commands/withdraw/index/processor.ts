@@ -465,6 +465,23 @@ export async function withdrawStep1(
     }
   }
 
+  if (!balances.length) {
+    return {
+      msgOpts: {
+        embeds: [
+          new MessageEmbed({
+            description: `${getEmoji(
+              "NO"
+            )} You have no balance. Try ${await getSlashCommand(
+              "deposit"
+            )} first`,
+            color: msgColors.ERROR,
+          }),
+        ],
+      },
+    }
+  }
+
   // TODO: remove hardcode 1
   const { text } = formatView(
     "compact",
