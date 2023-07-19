@@ -819,23 +819,29 @@ class Config extends Fetcher {
     chain?: string
     required_amount?: number
   }) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-channels/proposal`, {
-      method: "POST",
-      body: req,
-    })
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-channels/${req.guild_id}/proposal`,
+      {
+        method: "POST",
+        body: req,
+      }
+    )
   }
 
-  public async getProposalChannelConfig(guildId: string) {
+  public async getGuildConfigDaoProposal(guildId: string) {
     return await this.jsonFetch(
       `${API_BASE_URL}/config-channels/${guildId}/proposal`
     )
   }
 
   public async deleteProposalChannelConfig(req: { id: string }) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-channels/proposal`, {
-      method: "DELETE",
-      body: req,
-    })
+    return await this.jsonFetch(
+      `${API_BASE_URL}/config-channels/guildId/proposal`,
+      {
+        method: "DELETE",
+        body: req,
+      }
+    )
   }
 
   public async setConfigTokenRole(req: {
@@ -892,30 +898,6 @@ class Config extends Fetcher {
     })
   }
 
-  public async getDaoTrackerConfigs(guildId: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/config-channels/dao-tracker/${guildId}`
-    )
-  }
-
-  public async createDaoTrackerConfigs(req: {
-    guild_id: string
-    channel_id: string
-    snapshot_url: string
-  }) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-channels/dao-tracker`, {
-      method: "POST",
-      body: req,
-    })
-  }
-
-  public async deleteDaoTrackerConfigs(req: { id: string }) {
-    return await this.jsonFetch(`${API_BASE_URL}/config-channels/dao-tracker`, {
-      method: "DELETE",
-      body: req,
-    })
-  }
-
   public async removeGuildMixRoleConfig(id: string) {
     return await this.jsonFetch(
       `${API_BASE_URL}/config-roles/mix-roles/${id}`,
@@ -935,19 +917,6 @@ class Config extends Fetcher {
     return await this.jsonFetch(
       `${API_BASE_URL}/data/usage-stats/dao-tracker`,
       { query }
-    )
-  }
-
-  public async createDaoTrackerCommonwealthDiscussionSub(req: {
-    discord_thread_id: string
-    discussion_id: number
-  }) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/config-channels/dao-tracker/cw-discussion-subs`,
-      {
-        method: "POST",
-        body: req,
-      }
     )
   }
 

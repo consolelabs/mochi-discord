@@ -431,15 +431,6 @@ class Community extends Fetcher {
     })
   }
 
-  public async getGuildConfigDaoProposal(guild_id: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/config-channels/${guild_id}/proposal`,
-      {
-        method: "GET",
-      }
-    )
-  }
-
   public async getProposalResults(
     proposal_id: string,
     user_discord_id: string
