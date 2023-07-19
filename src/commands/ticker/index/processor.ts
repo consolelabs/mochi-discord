@@ -186,7 +186,9 @@ export async function renderSingle(
     },
     {
       name: "Change (W1)",
-      value: getChangePercentage(price_change_percentage_7d_in_currency.usd),
+      value: getChangePercentage(
+        price_change_percentage_7d_in_currency.usd ?? 0
+      ),
       inline: true,
     },
   ])
@@ -527,7 +529,7 @@ export async function renderFiatPair({
 export async function renderAllTicker(
   baseQ: string,
   baseCoin: any,
-  { days, type }: Context,
+  { days, type }: Context
 ) {
   const coins = []
   for (let i = 0; i < baseCoin.length; i++) {
