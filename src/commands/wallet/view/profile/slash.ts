@@ -11,7 +11,6 @@ import { SlashCommand } from "types/common"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { lookUpDomains } from "utils/common"
 import { SLASH_PREFIX, WALLET_GITBOOK } from "utils/constants"
-import { formatUsdDigit } from "utils/defi"
 import { route } from "utils/router"
 
 const command: SlashCommand = {
@@ -64,7 +63,7 @@ const command: SlashCommand = {
             value: w.value,
             name: `🔷 ${w.chain.toUpperCase()} | ${
               w.alias || (await lookUpDomains(w.value))
-            } | $${formatUsdDigit(w.total)}`,
+            } | $${w.total}`,
           }
         })
     )

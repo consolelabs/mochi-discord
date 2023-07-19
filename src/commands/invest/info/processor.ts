@@ -1,18 +1,103 @@
-import { getEmojiToken, TokenEmojiKey } from "utils/common"
+import { TokenEmojiKey, capitalizeFirst, getEmojiToken } from "utils/common"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import CacheManager from "cache/node-cache"
 import community from "adapters/community"
 import { formatPercentDigit } from "utils/defi"
 import { VERTICAL_BAR, DASH, SPACE } from "utils/constants"
 import { paginationButtons } from "utils/router"
-import { ApiEarningOption } from "types/krystal-api"
-import { chunk, groupBy, uniq } from "lodash"
+import { chunk, flatten, groupBy, uniq } from "lodash"
 import { InternalError } from "errors"
 import {
   ButtonInteraction,
   CommandInteraction,
   SelectMenuInteraction,
 } from "discord.js"
+import { ResponseInvestItem, ResponseInvestPlatforms } from "types/api"
+
+type EarningPlatform = ResponseInvestPlatforms & { chainName: string }
+
+export async function renderInvestToken(token: string) {
+  let tokenData = [] as EarningPlatform[]
+  const { data, ok } = await CacheManager.get({
+    pool: "invest",
+    key: `invest-list`,
+    call: () => community.getEarns(),
+  })
+
+  if (ok) {
+    tokenData = flatten(
+      data
+        .filter(
+          (d: ResponseInvestItem) =>
+            d.token?.symbol?.toLowerCase() === token.toLowerCase()
+        )
+        .map((d: ResponseInvestItem) => {
+          return (d.platforms || [])
+            .filter((p) => p.status?.value === "active")
+            .map((p) => {
+              return {
+                ...p,
+                chainName: d.chain?.name,
+              }
+            })
+        })
+    ) as EarningPlatform[]
+  }
+
+  if (tokenData.length === 0) {
+    const embed = composeEmbedMessage(null, {
+      title: `Cannot found`,
+      description: `Cannot found any earning options for ${token.toUpperCase()}`,
+    })
+
+    return {
+      context: {
+        token,
+      },
+      msgOpts: {
+        embeds: [embed],
+        components: [],
+      },
+    }
+  }
+
+  const { segments } = formatDataTable(
+    [
+      { platform: "Platform", chain: "Chain", type: "Type", apy: "APY(%)" },
+      ...tokenData.map((i: EarningPlatform) => {
+        return {
+          platform: capitalizeFirst((i.name || "").split("_").join(" ")),
+          chain: i.chainName,
+          type: capitalizeFirst(i.type || ""),
+          apy:
+            formatPercentDigit({
+              value: String(i.apy),
+              fractionDigits: 2,
+            }) + "%",
+        }
+      }),
+    ],
+    {
+      cols: ["platform", "chain", "type", "apy"],
+      separator: [VERTICAL_BAR, VERTICAL_BAR],
+    }
+  )
+
+  const embed = composeEmbedMessage(null, {
+    title: `Recommended Earning for ${token.toUpperCase()}`,
+    description: `${segments.map((c) => c.join("\n"))}`,
+  })
+
+  return {
+    context: {
+      token,
+    },
+    msgOpts: {
+      embeds: [embed],
+      components: [],
+    },
+  }
+}
 
 const PAGE_SIZE = 16 as const
 
@@ -23,7 +108,7 @@ type HomeEarn = {
   maxApy: number
 }
 
-function groupByToken(data: ApiEarningOption[]) {
+function groupByToken(data: ResponseInvestItem[]) {
   const noneZeroApyData = data.filter((d) => d.apy && d.apy > 0)
   const groupedSymbolObj = groupBy(noneZeroApyData, (d) => d.token?.symbol)
   return Object.keys(groupedSymbolObj).map((symbol) => {
@@ -51,7 +136,7 @@ export async function renderInvestHome(
   const isByUser = availableTokens.length > 0
   let tokenData = [] as HomeEarn[]
   let totalPage = 0
-  const { result, ok, error } = await CacheManager.get({
+  const { data, ok, error } = await CacheManager.get({
     pool: "invest",
     key: `invest-list`,
     call: () => community.getEarns(),
@@ -65,7 +150,7 @@ export async function renderInvestHome(
     })
   }
 
-  const groupedData = groupByToken(result)
+  const groupedData = groupByToken(data)
   const filteredData = groupedData.filter((d) => {
     if (isByUser) {
       return availableTokens.includes(d.symbol)

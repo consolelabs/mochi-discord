@@ -1,87 +1,60 @@
-import { SlashCommandBuilder } from "@discordjs/builders"
-import { CommandInteraction, Message } from "discord.js"
 import { SlashCommand } from "types/common"
-import { MachineConfig, route } from "utils/router"
-import { renderInvestHome } from "./index/processor"
-import CacheManager from "cache/node-cache"
-import { renderInvestToken } from "./token/processor"
-import community from "adapters/community"
-import { ApiEarningOption } from "types/krystal-api"
-import uniq from "lodash/uniq"
+import { SLASH_PREFIX } from "utils/constants"
+import { composeEmbedMessage } from "ui/discord/embed"
+import info from "./info/slash"
+import stake from "./stake/slash"
+import portfolio from "./portfolio/slash"
+import status from "./status/slash"
+import { CommandInteraction } from "discord.js"
+import {
+  SlashCommandBuilder,
+  SlashCommandSubcommandBuilder,
+} from "@discordjs/builders"
 
-CacheManager.init({
-  ttl: 0,
-  pool: "invest",
-  checkperiod: 1,
-})
-
-export const machineConfig: (ctx: any) => MachineConfig = (context) => ({
-  id: "invest",
-  initial: "invests",
-  context: {
-    button: {
-      invests: (i, _ev, ctx) => {
-        return renderInvestHome(i, ctx.page)
-      },
-    },
-    ...context,
-  },
-  states: {
-    invests: {
-      on: {
-        NEXT_PAGE: "invests",
-        PREV_PAGE: "invests",
-      },
-    },
-    invest: {
-      on: {
-        BACK: "invests",
-      },
-    },
-  },
-})
+const slashActions: Record<string, SlashCommand> = {
+  info,
+  stake,
+  portfolio,
+  status,
+}
 
 const slashCmd: SlashCommand = {
   name: "invest",
   category: "Defi",
+
+  autocomplete: async function (i) {
+    const subCmd = i.options.getSubcommand()
+    slashActions[subCmd]?.autocomplete?.(i)
+    return Promise.resolve()
+  },
   prepare: () => {
     const data = new SlashCommandBuilder()
       .setName("invest")
-      .setDescription("check available earn tokens")
-      .addStringOption((opt) =>
-        opt
-          .setName("token")
-          .setDescription("filter earn by token")
-          .setRequired(false)
-          .setAutocomplete(true)
-      )
-
+      .setDescription("Let money work for you")
+    data.addSubcommand(<SlashCommandSubcommandBuilder>info.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>stake.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>status.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>portfolio.prepare())
     return data
   },
-  autocomplete: async function (i) {
-    const focusedValue = i.options.getFocused()
-    const { result } = await community.getEarns()
-    const symbols = uniq<string>(
-      result.map((d: ApiEarningOption) => d.token?.symbol?.toLowerCase())
+  run: async function (interaction: CommandInteraction) {
+    return await slashActions[interaction.options.getSubcommand()].run(
+      interaction
     )
-    const options = symbols
-      .filter((symbol: string) => symbol.includes(focusedValue.toLowerCase()))
-      .slice(0, 25)
-      .map((symbol: string) => ({ name: symbol, value: symbol }))
-    await i.respond(options)
   },
-  run: async function (i: CommandInteraction) {
-    const token = i.options.getString("token", false) ?? undefined
-    const { context, msgOpts } = token
-      ? await renderInvestToken(token)
-      : await renderInvestHome(i)
-
-    const reply = (await i.editReply(msgOpts)) as Message
-
-    route(reply, i, machineConfig(context))
-  },
-  help: () => Promise.resolve({}),
-  colorType: "Server",
+  help: (interaction: CommandInteraction) =>
+    Promise.resolve({
+      embeds: [
+        composeEmbedMessage(null, {
+          usage: `${SLASH_PREFIX}invest <action>`,
+          examples: `${SLASH_PREFIX}invest info\n${SLASH_PREFIX}`,
+          footer: [`Type ${SLASH_PREFIX}help invest for a specific action!`],
+          includeCommandsList: true,
+          originalMsgAuthor: interaction.user,
+        }),
+      ],
+    }),
+  colorType: "Defi",
 }
 
 export default { slashCmd }

@@ -10,16 +10,12 @@ import {
   ResponseUserFeedbackResponse,
   RequestUserFeedbackRequest,
   ResponseGetCollectionCountResponse,
+  ResponseGetInvestListResponse,
 } from "types/api"
 import { InvitesInput, NFTCollection, NFTDetail } from "types/community"
-import {
-  API_BASE_URL,
-  KRYSTAL_API_BASE_URL,
-  PT_API_BASE_URL,
-} from "utils/constants"
+import { API_BASE_URL, PT_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
 import { AirdropCampaignStatus } from "commands/drop/"
-import { KRYSTAL_ACCESS_TOKEN } from "env"
 
 class Community extends Fetcher {
   public async getInvites({ guild_id, member_id }: InvitesInput) {
@@ -435,15 +431,6 @@ class Community extends Fetcher {
     })
   }
 
-  public async getGuildConfigDaoProposal(guild_id: string) {
-    return await this.jsonFetch(
-      `${API_BASE_URL}/config-channels/${guild_id}/proposal`,
-      {
-        method: "GET",
-      }
-    )
-  }
-
   public async getProposalResults(
     proposal_id: string,
     user_discord_id: string
@@ -649,13 +636,20 @@ class Community extends Fetcher {
     )
   }
 
-  public async getEarns() {
-    return await this.jsonFetch(`${KRYSTAL_API_BASE_URL}/earning/options`, {
-      headers: {
-        "Content-Type": "application/json",
-        "x-rate-access-token": `${KRYSTAL_ACCESS_TOKEN}`,
-      },
-    })
+  public async getEarns(query?: {
+    chainIds?: string
+    platforms?: string
+    types?: string
+    address?: string
+    status?: string
+  }) {
+    return await this.jsonFetch<ResponseGetInvestListResponse>(
+      `${API_BASE_URL}/invests`,
+      {
+        queryCamelToSnake: false,
+        query,
+      }
+    )
   }
 }
 

@@ -132,7 +132,10 @@ async function compose(
     userProfile = podProfileRes.data
   }
 
-  const vaults = vaultsRes.slice(0, 5)
+  let vaults = vaultsRes.slice(0, 5)
+  if (!i.guildId) {
+    vaults = vaultsRes.filter((v) => v.discord_guild?.name).slice(0, 5)
+  }
 
   const {
     onchainTotal,
@@ -157,8 +160,10 @@ async function compose(
   const grandTotalStr = formatUsdDigit(grandTotal)
   const mochiBal = formatUsdDigit(totalWorth)
 
-  const { count: countUnreadActivities } =
-    await profile.countUserUnreadActivities(dataProfile.id)
+  const { pagination } = await profile.getUserActivities(dataProfile.id, {
+    actions: ["9", "10"],
+    status: "new",
+  })
 
   const embed = composeEmbedMessage(null, {
     author: [target.name, target.avatar],
@@ -210,7 +215,7 @@ async function compose(
       ? [
           {
             name: "Vaults",
-            value: formatVaults(vaults),
+            value: formatVaults(vaults, i.guildId ?? ""),
             inline: false,
           },
         ]
@@ -224,12 +229,12 @@ async function compose(
           },
         ]
       : []),
-    ...(countUnreadActivities
+    ...(pagination?.total
       ? [
           {
             name:
-              `<:_:1028964391690965012> You have \`${countUnreadActivities}\` unread message` +
-              (countUnreadActivities > 1 ? "s" : ""),
+              `<:_:1028964391690965012> You have \`${pagination.total}\` unread message` +
+              (pagination.total > 1 ? "s" : ""),
             value: `Use ${await getSlashCommand("inbox")}.`,
           },
         ]

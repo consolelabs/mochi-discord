@@ -21,13 +21,18 @@ import { runGetVaultDetail } from "../info/processor"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import { ModelVault } from "types/api"
 
-export function formatVaults(vaults: Array<ModelVault & { total?: string }>) {
+export function formatVaults(
+  vaults: Array<ModelVault & { total?: string }>,
+  guildId: string
+) {
   return formatDataTable(
     vaults.map((v) => ({
       name: `${v.name?.slice(0, 10) ?? ""}${
         (v.name ?? "").length > 10 ? "..." : ""
       }`,
-      address: shortenHashOrAddress(v.wallet_address ?? "", 3),
+      address:
+        (!guildId && v.discord_guild?.name) ||
+        shortenHashOrAddress(v.wallet_address ?? "", 3),
       threshold: `${v.threshold ?? 0}%`,
       balance: v.total?.toString() ? `$${v.total.toString()}` : "",
     })),
@@ -65,7 +70,7 @@ export async function runVaultList(interaction: CommandInteraction) {
     true
   )} View detail of the vault ${await getSlashCommand("vault info")}\n\n`
 
-  description += formatVaults(data)
+  description += formatVaults(data, interaction.guildId)
 
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("MOCHI_CIRCLE")} Vault List`,

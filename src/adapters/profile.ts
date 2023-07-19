@@ -262,67 +262,14 @@ class Profile extends Fetcher {
     return await res?.json()
   }
 
-  public async getUserActivities(profileId: string, page = 0, size = 12) {
-    const {
-      data: res,
-      ok,
-      pagination,
-    } = await this.jsonFetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/activities?page=${page}&size=${size}`
-    )
-    let data = []
-    if (ok) {
-      data = res as any[]
-    }
-
-    return { data, pagination }
-  }
-
-  public async countUserUnreadActivities(profileId: string) {
-    const activities = ["withdraw", "feedback", "tip", "verify"]
-
-    const res = await this.jsonFetch<number>(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/count-activities`,
-      {
-        query: {
-          status: "new",
-          actions: activities.map((a) => a.toLowerCase()),
-        },
-      }
-    )
-    let count = 0
-    if (res.ok) {
-      count = res.data as unknown as number
-    }
-
-    return { count }
-  }
-
-  public async getUnreadUserActivities(profileId: string, page = 0, size = 2) {
-    return await this.getUserActivitiesByStatus(
-      profileId,
-      "new",
-      ["withdraw", "feedback", "tip", "verify"],
-      page,
-      size
-    )
-  }
-  public async getReadUserActivities(profileId: string, page = 0, size = 2) {
-    return await this.getUserActivitiesByStatus(
-      profileId,
-      "read",
-      ["withdraw", "feedback", "tip", "verify"],
-      page,
-      size
-    )
-  }
-
-  public async getUserActivitiesByStatus(
+  public async getUserActivities(
     profileId: string,
-    status: string,
-    actions: string[] = [],
-    page = 0,
-    size = 12
+    {
+      status,
+      actions = [],
+      page = 0,
+      size = 12,
+    }: { status?: string; actions?: string[]; page?: number; size?: number }
   ) {
     const {
       data: res,

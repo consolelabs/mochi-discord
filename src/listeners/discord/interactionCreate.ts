@@ -5,14 +5,12 @@ import { handleInteraction } from "commands/balances/index/processor"
 import { sendVerifyURL } from "commands/config/verify/processor"
 import { feedbackDispatcher } from "commands/feedback/index/processor"
 import { handleNFTTickerViews } from "commands/nft/ticker/processor"
-// import { handleDaoTrackerView } from "commands/proposal/info/processor"
-// import {
-//   handleProposalCancel,
-//   handleProposalCreate,
-//   handleProposalForm,
-//   handleProposalVote,
-// } from "commands/proposal/processor"
-// import { subscribeCommonwealthDiscussion } from "commands/proposal/track/processor"
+import {
+  handleProposalCancel,
+  handleProposalCreate,
+  handleProposalForm,
+  handleProposalVote,
+} from "commands/proposal/processor"
 import {
   handleBackToQuestList,
   handleClaimReward,
@@ -145,7 +143,7 @@ function handleCommandInteraction(interaction: Interaction) {
         })
         return
       }
-      await i.deferReply({ ephemeral: command?.ephemeral })
+      await i.deferReply({ ephemeral: command?.ephemeral }).catch(() => null)
       let subcommand = ""
       let args = ""
       if (interaction.isCommand()) {
@@ -417,29 +415,23 @@ async function handleButtonInteraction(interaction: Interaction) {
     case i.customId.startsWith("feedback"):
       await feedbackDispatcher(i)
       return
-      // case i.customId.startsWith("create-proposal"):
-      //   await handleProposalForm(i)
-      //   return
-      // case i.customId.startsWith("proposal-confirm"):
-      //   await handleProposalCreate(i)
-      //   return
-      // case i.customId.startsWith("proposal-cancel"):
-      //   await handleProposalCancel(i)
-      //   return
-      // case i.customId.startsWith("proposal-vote"):
-      //   await handleProposalVote(i)
-      //   return
-      // case i.customId.startsWith("proposal-info"):
-      //   await handleDaoTrackerView(i)
+    case i.customId.startsWith("create-proposal"):
+      await handleProposalForm(i)
+      return
+    case i.customId.startsWith("proposal-confirm"):
+      await handleProposalCreate(i)
+      return
+    case i.customId.startsWith("proposal-cancel"):
+      await handleProposalCancel(i)
+      return
+    case i.customId.startsWith("proposal-vote"):
+      await handleProposalVote(i)
       return
     case i.customId.startsWith("wallet_remove_confirmation-"):
       await removeWalletConfirmation(i)
       return
     case i.customId.startsWith("wallet_remove-"):
       await removeWallet(i)
-      return
-      // case i.customId.startsWith("proposal_join_thread_commonwealth"):
-      //   await subscribeCommonwealthDiscussion(i)
       return
     case i.customId.startsWith("token-request-approve"):
       await handleTokenApprove(i)

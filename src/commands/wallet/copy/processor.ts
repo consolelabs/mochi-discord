@@ -2,6 +2,7 @@ import defi from "adapters/defi"
 import { MessageActionRow, MessageButton, User } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
+import { getSlashCommand } from "utils/commands"
 import {
   emojis,
   getEmoji,
@@ -58,16 +59,18 @@ export async function copyWallet(
       description: "Couldn't copy wallet",
     })
   }
-  const { msgOpts } = renderTrackingResult(address, chainType, alias)
-
-  return { msgOpts, context: { user: author, address } }
+  return await renderTrackingResult(author, address, alias)
 }
 
-function renderTrackingResult(address: string, chain: string, alias: string) {
+async function renderTrackingResult(
+  user: User,
+  address: string,
+  alias: string
+) {
   return {
     context: {
+      user,
       address,
-      chain,
       alias,
     },
     msgOpts: {
@@ -81,22 +84,17 @@ function renderTrackingResult(address: string, chain: string, alias: string) {
           ],
           color: msgColors.SUCCESS,
           description: `
+${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
+            "wallet alias set"
+          )} to assign name for any tracking wallet.
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
   true
-)} View wallet watchlist by clicking on button \`Watchlist\`.
+)} View list tracking wallet by clicking on button \`Wallets\` below.
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
   true
-)} Follow this wallet by clicking on button \`Follow\`.
-${getEmoji(
-  "ANIMATED_POINTING_RIGHT",
-  true
-)} Track wallet's transactions by clicking on button \`Track\`.
-${getEmoji(
-  "ANIMATED_POINTING_RIGHT",
-  true
-)} To remove copy trade setting, click on button \`Uncopy\`.
+)} Pick any other buttons if you change your decision.
             `,
         }),
       ],
