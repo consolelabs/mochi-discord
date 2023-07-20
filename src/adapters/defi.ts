@@ -9,7 +9,13 @@ import {
   ResponseGetWatchlistResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
-import { Coin, CoinComparisionData, CoinPrice, GasPriceData } from "types/defi"
+import {
+  Coin,
+  CoinComparisionData,
+  CoinPrice,
+  GasPriceData,
+  TokenInfo,
+} from "types/defi"
 import {
   API_BASE_URL,
   BSCSCAN_API,
@@ -38,6 +44,12 @@ class Defi extends Fetcher {
     return await this.jsonFetch<Coin>(`${API_BASE_URL}/defi/coins/${id}`, {
       query: { isDominanceChart, isWithCoingeckoInfo, chain },
     })
+  }
+
+  public async getTokenInfo(query: string) {
+    return await this.jsonFetch<TokenInfo>(
+      `${API_BASE_URL}/defi/token/info?query=${query}`
+    )
   }
 
   public async getBinanceCoinPrice(symbol: string) {

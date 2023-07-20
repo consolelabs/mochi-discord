@@ -1,4 +1,4 @@
-import { ResponseGetCoinResponse } from "./api"
+import { ResponseGetCoinResponse, ResponseTokenInfoResponse } from "./api"
 import { RequiredDeep } from "type-fest"
 
 export type DiscordWalletTransferRequest = {
@@ -64,6 +64,8 @@ export type DiscordWalletBalances = {
 }
 
 export type Coin = RequiredDeep<ResponseGetCoinResponse>
+
+export type TokenInfo = RequiredDeep<ResponseTokenInfoResponse>
 
 export type CoinPrice = {
   symbol: string

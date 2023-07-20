@@ -95,21 +95,6 @@ export interface ModelGuildConfigAdminRole {
   role_id?: string;
 }
 
-export interface ModelGuildConfigDaoProposal {
-  address?: string;
-  authority?: string;
-  chain_id?: number;
-  created_at?: string;
-  guideline_channel_id?: string;
-  guild_id?: string;
-  id?: number;
-  proposal_channel_id?: string;
-  required_amount?: string;
-  symbol?: string;
-  type?: string;
-  updated_at?: string;
-}
-
 export interface ModelGuildConfigDefaultCollection {
   address?: string;
   chain_id?: string;
@@ -552,16 +537,6 @@ export interface RequestCreateProfileAirdropCampaignRequest {
   status?: string;
 }
 
-export interface RequestCreateProposalChannelConfig {
-  address?: string;
-  authority: "admin" | "token_holder";
-  chain?: string;
-  channel_id: string;
-  guild_id: string;
-  required_amount?: number;
-  type?: "nft_collection" | "crypto_token";
-}
-
 export interface RequestCreateSalesTrackerConfigRequest {
   chain?: string;
   channel_id?: string;
@@ -590,10 +565,6 @@ export interface RequestCreateUserTokenSupportRequest {
   token_address: string;
   token_chain: string;
   user_discord_id: string;
-}
-
-export interface RequestDeleteGuildConfigDaoProposal {
-  id?: string;
 }
 
 export interface RequestDeleteMonikerConfigRequest {
@@ -859,21 +830,6 @@ export interface ResponseCoin {
   thumb?: string;
 }
 
-export interface ResponseCoinGeckoInfoKeyValue {
-  key?: string;
-  value?: string;
-}
-
-export interface ResponseCoinGeckoInfoResponse {
-  communities?: ResponseCoinGeckoInfoKeyValue[];
-  contracts?: ResponseCoinGeckoInfoKeyValue[];
-  description_lines?: string[];
-  explorers?: ResponseCoinGeckoInfoKeyValue[];
-  tags?: ResponseCoinGeckoInfoKeyValue[];
-  wallets?: ResponseCoinGeckoInfoKeyValue[];
-  websites?: ResponseCoinGeckoInfoKeyValue[];
-}
-
 export interface ResponseCoinImage {
   large?: string;
   small?: string;
@@ -961,10 +917,6 @@ export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
 }
 
-export interface ResponseCreateProposalChannelConfigResponse {
-  data?: ModelGuildConfigDaoProposal;
-}
-
 export interface ResponseCreateUserTokenSupportRequest {
   data?: ModelUserTokenSupportRequest;
 }
@@ -1044,7 +996,7 @@ export interface ResponseGetCoinResponse {
   asset_platform_id?: string;
   block_time_in_minutes?: number;
   categories?: string[];
-  coingecko_info?: ResponseCoinGeckoInfoResponse;
+  coingecko_info?: ResponseTokenInfoResponse;
   coingecko_rank?: number;
   coingecko_score?: number;
   community_data?: any;
@@ -1104,26 +1056,6 @@ export interface ResponseGetFiatHistoricalExchangeRatesResponse {
 export interface ResponseGetGmConfigResponse {
   data?: ModelGuildConfigGmGn;
   message?: string;
-}
-
-export interface ResponseGetGuildConfigDaoProposal {
-  data?: ResponseGetGuildConfigDaoProposalData;
-}
-
-export interface ResponseGetGuildConfigDaoProposalData {
-  address?: string;
-  authority?: string;
-  chain?: string;
-  chain_id?: number;
-  created_at?: string;
-  guideline_channel_id?: string;
-  guild_id?: string;
-  id?: number;
-  proposal_channel_id?: string;
-  required_amount?: string;
-  symbol?: string;
-  type?: string;
-  updated_at?: string;
 }
 
 export interface ResponseGetGuildDefaultNftTickerResponse {
@@ -1899,6 +1831,34 @@ export interface ResponseToken {
   decimal?: number;
   name?: string;
   symbol?: string;
+}
+
+export interface ResponseTokenInfoGeckoTerminalInfo {
+  fully_diluted_valuation?: string;
+  liquidity?: string;
+  market_cap?: string;
+  pool_name?: string;
+  price_in_target_token?: string;
+  price_in_usd?: string;
+  volume_24h?: string;
+}
+
+export interface ResponseTokenInfoKeyValue {
+  key?: string;
+  value?: string;
+}
+
+export interface ResponseTokenInfoResponse {
+  communities?: ResponseTokenInfoKeyValue[];
+  contracts?: ResponseTokenInfoKeyValue[];
+  description_lines?: string[];
+  explorers?: ResponseTokenInfoKeyValue[];
+  geckoterminal_info?: ResponseTokenInfoGeckoTerminalInfo[];
+  icon?: string;
+  name?: string;
+  tags?: ResponseTokenInfoKeyValue[];
+  wallets?: ResponseTokenInfoKeyValue[];
+  websites?: ResponseTokenInfoKeyValue[];
 }
 
 export interface ResponseTokenPriceAlertResponseData {

@@ -1,6 +1,6 @@
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
-import { ResponseCoinGeckoInfoKeyValue } from "../../../types/api"
+import { ResponseTokenInfoKeyValue } from "../../../types/api"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -382,7 +382,7 @@ export async function renderTokenInfo(
       // hyper link the key and value: coin.coingecko_info.explorers
       value: coin.coingecko_info.explorers
         .map(
-          (explorer: ResponseCoinGeckoInfoKeyValue) =>
+          (explorer: ResponseTokenInfoKeyValue) =>
             `[${explorer.key}](${explorer.value})`
         )
         .join(", "),

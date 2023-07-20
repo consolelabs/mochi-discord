@@ -1,13 +1,10 @@
-import { CommandInteraction, Message } from "discord.js"
+import { CommandInteraction } from "discord.js"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { GuildIdNotFoundError } from "errors"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
-import { run as tickerRun, TickerView } from "commands/ticker/index/processor"
-import { machineConfig as tickerMachineConfig } from "commands/ticker/index/slash"
-import { parseTickerQuery } from "utils/defi"
-import { route } from "utils/router"
+import { renderTokenInfo } from "./processor"
 
 const command: SlashCommand = {
   name: "info",
@@ -18,7 +15,7 @@ const command: SlashCommand = {
       .setDescription("Information of a token.")
       .addStringOption((option) =>
         option
-          .setName("symbol")
+          .setName("token")
           .setDescription("token's symbol. Example: FTM")
           .setRequired(true)
       )
@@ -28,22 +25,23 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({ message: interaction })
     }
 
-    const symbol = interaction.options.getString("symbol", true)
+    const token = interaction.options.getString("token", true)
 
-    const { base, target, isCompare, isFiat } = parseTickerQuery(symbol)
-    const { initial, msgOpts, context } = await tickerRun(
-      interaction,
-      base,
-      target,
-      isCompare,
-      isFiat,
-      false,
-      TickerView.Info
-    )
+    const { msgOpts } = await renderTokenInfo(interaction, token)
 
-    const reply = (await interaction.editReply(msgOpts)) as Message
+    // const { base, target, isCompare, isFiat } = parseTickerQuery(symbol)
+    // const { initial, msgOpts, context } = await tickerRun(
+    //   interaction,
+    //   base,
+    //   target,
+    //   isCompare,
+    //   isFiat,
+    //   TickerView.Info
+    // )
 
-    route(reply, interaction, tickerMachineConfig(base, context, initial || ""))
+    await interaction.editReply(msgOpts)
+
+    // interaction.editReply(msgOpts)
   },
   help: (interaction: CommandInteraction) =>
     Promise.resolve({
