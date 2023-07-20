@@ -650,24 +650,47 @@ export async function run(
         coin = coins.at(0)
       }
 
-      const { data, status } = await CacheManager.get({
+      let data, status
+      ;({ data, status } = await CacheManager.get({
         pool: "ticker",
         key: `ticker-getcoin-${coin.id}`,
         call: () => defi.getCoin(coin.id, isDominanceChart),
-      })
+      }))
 
       if (status === 404) {
-        throw new InternalError({
-          title: "Unsupported token",
-          msgOrInteraction: interaction,
-          description: `Token is invalid or hasn't been supported.\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} or Please choose a valid fiat currency.`,
-        })
+        const fallBackCoins = coins.filter((c: any) => c.id != coin.id)
+        if (!fallBackCoins.length) {
+          throw new InternalError({
+            title: "Unsupported token",
+            msgOrInteraction: interaction,
+            description: `Token is invalid or hasn't been supported.\n${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} or Please choose a valid fiat currency.`,
+          })
+        }
+
+        ;({ data, status } = await CacheManager.get({
+          pool: "ticker",
+          key: `ticker-getcoin-${fallBackCoins[0].id}`,
+          call: () => defi.getCoin(fallBackCoins[0].id, isDominanceChart),
+        }))
+        if (status === 404) {
+          throw new InternalError({
+            title: "Unsupported token",
+            msgOrInteraction: interaction,
+            description: `Token is invalid or hasn't been supported.\n${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} or Please choose a valid fiat currency.`,
+          })
+        }
       }
 
       return data
