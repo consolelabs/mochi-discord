@@ -243,6 +243,20 @@ class MochiPay extends Fetcher {
       }
     )
   }
+
+  async approveTransferRequest({ requestCode }: { requestCode: string }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/requests/${requestCode}/approved`,
+      { method: "POST" }
+    )
+  }
+
+  async rejectTransferRequest({ requestCode }: { requestCode: string }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/requests/${requestCode}/rejected`,
+      { method: "POST" }
+    )
+  }
 }
 
 export default new MochiPay()
