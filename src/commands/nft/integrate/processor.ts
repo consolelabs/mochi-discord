@@ -27,7 +27,7 @@ export async function executeNftIntegrateCommand(
       chainId,
       authorId,
       guildId,
-      msg,
+      msgOrInteraction,
       false
     )
     // return early if the `add` command didn't succeed
