@@ -21,17 +21,18 @@ import {
   equalIgnoreCase,
 } from "utils/common"
 import { BigNumber, utils } from "ethers"
-import { APPROX } from "utils/constants"
+import { APPROX, HOMEPAGE_URL } from "utils/constants"
 import defi from "adapters/defi"
 import { formatDigit, formatTokenDigit, formatUsdDigit } from "utils/defi"
 import { dmUser } from "../../../utils/dm"
-import { getBalances } from "utils/tip-bot"
+import { getAllBalances } from "utils/tip-bot"
 import { formatView } from "commands/balances/index/processor"
 import { getSlashCommand } from "utils/commands"
 import { checkCommitableOperation } from "commands/withdraw/index/processor"
 import { getProfileIdByDiscord } from "utils/profile"
 import { aggregateTradeRoute, SWAP_ROUTE_PROVIDERS } from "./aggregate-util"
 import { renderTokenComparisonFields } from "commands/ticker/index/processor"
+import { paginationButtons } from "utils/router"
 
 export const SLIPPAGE = 0.5
 const DIVIDER = getEmoji("LINE").repeat(5)
@@ -55,6 +56,7 @@ type Context = {
   compareFields?: EmbedFieldData[]
   // use to render UI route
   tradeRouteRenderData?: any
+  page: number
 }
 
 type Interaction =
@@ -184,7 +186,7 @@ function renderNoTradeRouteData(
 // this will jump to step N if the context object has enough data to skip previous N-1 steps
 export async function jumpToStep(
   i: Interaction,
-  ctx: Context = {}
+  ctx: Context = { page: 0 }
 ): Promise<any> {
   let step: any = swapStep1
   let mergedContext: Context = ctx
@@ -225,7 +227,8 @@ export async function jumpToStep(
 }
 
 export async function swapStep1(i: Interaction, ctx?: Context) {
-  let balances = await getBalances({ msgOrInteraction: i })
+  let balances = ctx?.balances ?? (await getAllBalances({ interaction: i }))
+  const page = ctx?.page ?? 0
   const { data: coins } = await defi.searchCoins(ctx?.to ?? "")
   const coinId = coins?.find((c: any) => c.most_popular).id
 
@@ -240,8 +243,11 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
     equalIgnoreCase(b.token.symbol, ctx?.from)
   )
 
-  // TODO: remove hardcode 1
-  const { text } = formatView("compact", "filter-dust", balances, 0)
+  const {
+    text,
+    list = [],
+    totalPage,
+  } = formatView("compact", "filter-dust", balances, page)
   const isNotEmpty = !!text
   const emptyText = `${getEmoji(
     "ANIMATED_POINTING_RIGHT",
@@ -284,29 +290,36 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
             ]
           : []),
       ],
-      components: balances.length
+      components: list.length
         ? [
             new MessageActionRow().addComponents(
               new MessageSelectMenu()
                 .setPlaceholder("💵 Choose money source (1/2)")
                 .setCustomId("select_token")
                 .setOptions(
-                  balances
-                    .filter(
-                      (b: any) =>
-                        b.token.coin_gecko_id !== (ctx?.toId || coinId)
-                    )
-                    .map((b: any) => ({
+                  list.map((b: any) => {
+                    let chain =
+                      b.token.chain.symbol ||
+                      b.token.chain.short_name ||
+                      b.tken.chain.name ||
+                      ""
+                    chain = chain.toLowerCase()
+
+                    return {
                       label: `${b.token.symbol}${
+                        chain &&
+                        !b.token.chain.native &&
                         isDuplicateSymbol(b.token.symbol)
-                          ? ` (${b.token.chain.symbol})`
+                          ? ` (${chain})`
                           : ""
                       }`,
-                      value: `${b.id}/offchain`,
+                      value: b.id,
                       emoji: getEmojiToken(b.token.symbol),
-                    }))
+                    }
+                  })
                 )
             ),
+            ...paginationButtons(page, totalPage),
           ]
         : [],
     },
@@ -515,17 +528,23 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
             .setCustomId("enter_amount")
         ),
         new MessageActionRow().addComponents(
-          new MessageButton({
-            label: "Confirm (2/2)",
-            style: "PRIMARY",
-            customId: "confirm",
-            disabled:
-              !ctx?.to ||
-              !ctx?.from ||
-              !amount ||
-              !!error ||
-              Number(amount) === 0,
-          })
+          ctx.isOnchain
+            ? new MessageButton({
+                label: "Confirm (2/2)",
+                style: "LINK",
+                url: HOMEPAGE_URL,
+              })
+            : new MessageButton({
+                label: "Confirm (2/2)",
+                style: "PRIMARY",
+                customId: "confirm",
+                disabled:
+                  !ctx?.to ||
+                  !ctx?.from ||
+                  !amount ||
+                  !!error ||
+                  Number(amount) === 0,
+              })
         ),
       ],
     },

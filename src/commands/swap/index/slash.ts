@@ -12,5 +12,6 @@ export default async function run(i: CommandInteraction) {
     from: from?.toUpperCase(),
     amountIn: typeof amount === "number" ? amount.toString() : undefined,
     chainName,
+    page: 0,
   })
 }

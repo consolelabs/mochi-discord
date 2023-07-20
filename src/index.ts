@@ -102,15 +102,15 @@ function runHttpServer() {
 }
 
 // cleanup
-// @ts-ignore
 if (import.meta.hot) {
-  // @ts-ignore
   import.meta.hot.on("vite:beforeFullReload", async () => {
-    server?.close()
+    await new Promise<void>((r) => {
+      for (const e of events) {
+        client.off(e.name, e.execute as any)
+      }
 
-    for (const e of events) {
-      client.off(e.name, e.execute as any)
-    }
+      server?.close(() => r())
+    })
   })
 }
 
