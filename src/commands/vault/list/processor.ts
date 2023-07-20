@@ -7,7 +7,7 @@ import {
   MessageSelectMenu,
   User,
 } from "discord.js"
-import { GuildIdNotFoundError, InternalError } from "errors"
+import { InternalError } from "errors"
 import {
   authorFilter,
   EmojiKey,
@@ -19,6 +19,7 @@ import { getSlashCommand } from "utils/commands"
 import { wrapError } from "utils/wrap-error"
 import { runGetVaultDetail } from "../info/processor"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import profile from "adapters/profile"
 import { ModelVault } from "types/api"
 
 export function formatVaults(
@@ -45,11 +46,10 @@ export function formatVaults(
 }
 
 export async function runVaultList(interaction: CommandInteraction) {
-  if (!interaction.guildId) {
-    throw new GuildIdNotFoundError({ message: interaction })
-  }
-
-  const data = await config.vaultList(interaction.guildId)
+  const userProfile = await profile.getByDiscord(interaction.user.id)
+  const data = interaction.guildId
+    ? await config.vaultList(interaction.guildId)
+    : await config.vaultList("", false, userProfile.id)
 
   if (!data.length) {
     throw new InternalError({
@@ -62,7 +62,7 @@ export async function runVaultList(interaction: CommandInteraction) {
     })
   }
 
-  const vaults = data.slice(0, 9)
+  const vaults = data.filter((v: any) => v.discord_guild.name).slice(0, 9)
   let description = ""
 
   description += `${getEmoji(
@@ -70,7 +70,7 @@ export async function runVaultList(interaction: CommandInteraction) {
     true
   )} View detail of the vault ${await getSlashCommand("vault info")}\n\n`
 
-  description += formatVaults(data, interaction.guildId)
+  description += formatVaults(data, interaction.guildId || "")
 
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("MOCHI_CIRCLE")} Vault List`,
@@ -78,23 +78,36 @@ export async function runVaultList(interaction: CommandInteraction) {
     color: msgColors.BLUE,
   })
 
+  const options = interaction.guildId
+    ? vaults.map((v: any, i: number) => ({
+        emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+        label: v.name,
+        value: v.name,
+      }))
+    : vaults.map((v: any, i: number) => ({
+        emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+        label: `${v.name} - ${v.discord_guild?.name}`,
+        value: `${v.name} - ${v.discord_guild?.id}`,
+      }))
+
   const components = [
     new MessageActionRow().addComponents(
       new MessageSelectMenu()
         .setPlaceholder("💰 View a vault")
         .setCustomId("view_vault")
-        .addOptions(
-          vaults.map((v: any, i: number) => ({
-            emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
-            label: v.name,
-            value: v.name,
-          }))
-        )
+        .addOptions(options),
     ),
   ]
-  const reply = (await interaction.editReply({
+
+  const msgOpts = {
     embeds: [embed],
     components,
+  }
+
+  const reply = (await interaction.followUp({
+    ephemeral: true,
+    fetchReply: true,
+    ...msgOpts,
   })) as Message
 
   collectSelection(reply, interaction.user, components)
@@ -112,7 +125,10 @@ function collectSelection(reply: Message, author: User, components: any) {
         if (!i.deferred) {
           await i.deferUpdate().catch(() => null)
         }
-        const selectedVault = i.values[0]
+        const selectedVault = i.guildId
+          ? i.values[0]
+          : i.values[0].split(" - ")[0]
+        i.guildId = i.guildId ? i.guildId : i.values[0].split(" - ")[1]
         const { msgOpts } = await runGetVaultDetail(selectedVault, i)
 
         msgOpts.components = [

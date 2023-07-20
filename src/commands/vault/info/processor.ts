@@ -2,7 +2,7 @@ import config from "adapters/config"
 import CacheManager from "cache/node-cache"
 import { formatView, getButtons } from "commands/balances/index/processor"
 import { MessageActionRow, MessageButton } from "discord.js"
-import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
+import { InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import {
@@ -24,11 +24,8 @@ export async function runGetVaultDetail(
   vaultName: string,
   interaction: OriginalMessage
 ) {
-  if (!interaction.guildId) {
-    throw new GuildIdNotFoundError({ message: interaction })
-  }
   const { data, ok, status, curl, error, originalError, log } =
-    await config.getVaultDetail(vaultName, interaction.guildId)
+    await config.getVaultDetail(vaultName, interaction.guildId || "")
   if (!ok) {
     if (status === 400 && originalError) {
       throw new InternalError({
