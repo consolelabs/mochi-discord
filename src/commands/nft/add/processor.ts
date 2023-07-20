@@ -16,7 +16,7 @@ export async function executeNftAddCommand(
     args[3],
     author,
     msgOrInteraction.guildId ?? "",
-    msg,
+    msgOrInteraction,
     args[4] === "priority"
   )
 
