@@ -66,13 +66,15 @@ export async function render(
         : []),
       getEmoji("LINE").repeat(10),
       formatDataTable(
-        leaderboard.map((l: any) => ({
-          username: `${l.user.username.slice(0, 10)}${
-            l.user.username.length > 10 ? "..." : ""
-          }`,
-          level: `lvl. ${l.level}`,
-          xp: l.total_xp,
-        })),
+        leaderboard
+          .filter((l: any) => l.user)
+          .map((l: any) => ({
+            username: `${l.user.username.slice(0, 10)}${
+              l.user.username.length > 10 ? "..." : ""
+            }`,
+            level: `lvl. ${l.level}`,
+            xp: l.total_xp,
+          })),
         {
           cols: ["username", "level", "xp"],
           rowAfterFormatter: (f, i) => {
