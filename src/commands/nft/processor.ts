@@ -6,6 +6,7 @@ import {
   MessageButton,
   MessageActionRow,
   ColorResolvable,
+  CommandInteraction,
 } from "discord.js"
 import { APIError, InternalError } from "errors"
 import {
@@ -73,7 +74,7 @@ export async function callAPI(
   chainId: string,
   userId: string,
   guildId: string,
-  msg: Message | undefined,
+  msg: Message | CommandInteraction,
   priorityFlag: boolean
 ) {
   const respCollection = await community.addNftCollection({
