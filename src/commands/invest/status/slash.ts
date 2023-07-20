@@ -1,11 +1,10 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandInteraction, Message } from "discord.js"
+import { CommandInteraction } from "discord.js"
 import { SlashCommand } from "types/common"
 import {
   composeEmbedMessage,
   formatDataTable,
   getErrorEmbed,
-  getSuccessEmbed,
 } from "ui/discord/embed"
 import mochiPay from "adapters/mochi-pay"
 import { getProfileIdByDiscord } from "utils/profile"
@@ -68,6 +67,7 @@ const slashCmd: SlashCommand = {
         {
           id: "ID",
           chain: "Chain",
+          protocol: "Protocol",
           action: "Action",
           token: "Token",
           amount: "Amount",
@@ -81,6 +81,7 @@ const slashCmd: SlashCommand = {
           return {
             id: item.id,
             chain: item.token?.chain.name ?? item.chain_id,
+            protocol: item.platform,
             action: item.action,
             token: item.token?.symbol ?? "",
             amount: tokenAmount,
@@ -89,7 +90,15 @@ const slashCmd: SlashCommand = {
         }),
       ],
       {
-        cols: ["id", "chain", "action", "token", "amount", "status"],
+        cols: [
+          "id",
+          "chain",
+          "protocol",
+          "action",
+          "token",
+          "amount",
+          "status",
+        ],
         separator: [VERTICAL_BAR],
       }
     )

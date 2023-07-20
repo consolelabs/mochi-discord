@@ -1,6 +1,7 @@
 import { MOCHI_PAY_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
 import fetch from "node-fetch"
+import { getKrystalEarnPortfolioResponse } from "types/mochipay"
 
 type KrystalStakeRequest = {
   chain_id: number
@@ -222,7 +223,7 @@ class MochiPay extends Fetcher {
     type?: string
     token_address?: string
   }) {
-    return await this.jsonFetch(
+    return await this.jsonFetch<getKrystalEarnPortfolioResponse>(
       `${MOCHI_PAY_API_BASE_URL}/earns/krystal/earn-balances`,
       {
         query,

@@ -4,6 +4,7 @@ import { SlashCommand } from "types/common"
 import community from "adapters/community"
 import {
   composeEmbedMessage,
+  composeEmbedMessage2,
   formatDataTable,
   getErrorEmbed,
 } from "ui/discord/embed"
@@ -11,31 +12,8 @@ import mochiPay from "adapters/mochi-pay"
 import { getProfileIdByDiscord } from "utils/profile"
 import { VERTICAL_BAR } from "utils/constants"
 import { ResponseInvestPlatforms } from "types/api"
-
-type InvestBalance = {
-  apy: number
-  chain_id: number
-  platform: ResponseInvestPlatforms
-  ratio: number
-  reward_apy: number
-  staking_token: {
-    address: string
-    balance: string
-    decimals: number
-    logo: string
-    name: string
-    symbol: string
-  }
-  to_underlying_token: {
-    address: string
-    balance: string
-    decimals: number
-    logo: string
-    name: string
-    symbol: string
-  }
-  underlying_usd: number
-}
+import { getEmoji } from "utils/common"
+import { getSlashCommand } from "utils/commands"
 
 const slashCmd: SlashCommand = {
   name: "portfolio",
@@ -111,6 +89,7 @@ const slashCmd: SlashCommand = {
       platform: platform ?? "",
     })
 
+    // error
     if (!ok) {
       return {
         messageOptions: {
@@ -124,6 +103,26 @@ const slashCmd: SlashCommand = {
       }
     }
 
+    // no data
+    if (!data) {
+      return {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage2(i, {
+              title: "Your earning portfolio is empty",
+              description: `You have not invested in any earning platform yet.\n${getEmoji(
+                "ANIMATED_POINTING_RIGHT",
+                true
+              )}You can invest in earning platform by using ${await getSlashCommand(
+                "invest stake"
+              )}`,
+            }),
+          ],
+        },
+      }
+    }
+
+    // data
     const { segments } = formatDataTable(
       [
         {
@@ -133,15 +132,15 @@ const slashCmd: SlashCommand = {
           amount: "Amount",
           apy: "APY",
         },
-        ...data.map((invest: InvestBalance) => {
+        ...data.map((invest) => {
           const decimals = invest.to_underlying_token.decimals
           const tokenAmount = (
-            Number(invest.to_underlying_token.balance) /
+            Number(invest.to_underlying_token?.balance) /
             10 ** decimals
           ).toFixed(2)
           return {
             chainID: invest.chain_id,
-            platform: invest.platform.name,
+            platform: invest.platform.name ?? "NA",
             token: `${invest.to_underlying_token.symbol}`,
             amount: tokenAmount,
             apy: `${invest.apy.toFixed(2)}%`,

@@ -3,7 +3,9 @@ import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
 import info from "./info/slash"
 import stake from "./stake/slash"
+import unstake from "./unstake/slash"
 import portfolio from "./portfolio/slash"
+import claimRewards from "./claim-rewards/slash"
 import status from "./status/slash"
 import { CommandInteraction } from "discord.js"
 import {
@@ -14,6 +16,8 @@ import {
 const slashActions: Record<string, SlashCommand> = {
   info,
   stake,
+  unstake,
+  claim: claimRewards,
   portfolio,
   status,
 }
@@ -31,10 +35,11 @@ const slashCmd: SlashCommand = {
     const data = new SlashCommandBuilder()
       .setName("invest")
       .setDescription("Let money work for you")
-    data.addSubcommand(<SlashCommandSubcommandBuilder>info.prepare())
-    data.addSubcommand(<SlashCommandSubcommandBuilder>stake.prepare())
-    data.addSubcommand(<SlashCommandSubcommandBuilder>status.prepare())
-    data.addSubcommand(<SlashCommandSubcommandBuilder>portfolio.prepare())
+    for (const action in slashActions) {
+      data.addSubcommand(
+        <SlashCommandSubcommandBuilder>slashActions[action].prepare()
+      )
+    }
     return data
   },
   run: async function (interaction: CommandInteraction) {

@@ -198,14 +198,12 @@ const slashCmd: SlashCommand = {
         embeds: [
           getSuccessEmbed({
             title: "Stake success",
-            description: `You have successfully request to stake ${amount} ${
-              token?.symbol ?? ""
-            } to ${platformDetail?.name ?? "NA"}. \n${getEmoji(
+            description: `The request to stake has been sent. Please wait a few minutes for the transaction to be confirmed.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
               true
-            )} You can check the transaction status with ${await getSlashCommand(
+            )}You can check the status of the transaction using ${await getSlashCommand(
               "invest status"
-            )}`,
+            )}.`,
           }),
         ],
       },
