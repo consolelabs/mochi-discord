@@ -1,6 +1,5 @@
 import defi from "adapters/defi"
 import CacheManager from "cache/node-cache"
-import { ResponseCoinGeckoInfoKeyValue } from "../../../types/api"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -381,16 +380,13 @@ export async function renderTokenInfo(
       name: `${getEmoji("NEWS")} Addr`,
       // hyper link the key and value: coin.coingecko_info.explorers
       value: coin.coingecko_info.explorers
-        .map(
-          (explorer: ResponseCoinGeckoInfoKeyValue) =>
-            `[${explorer.key}](${explorer.value})`
-        )
+        .map((explorer: any) => `[${explorer.key}](${explorer.value})`)
         .join(", "),
       inline: false,
     })
   }
 
-  if (coin.coingecko_info.communities.length) {
+  if (coin.coingecko_info?.communities?.length) {
     embed.addFields({
       name: `${getEmoji("WAVING_HAND")} Communities`,
       value: coin.coingecko_info.communities

@@ -60,6 +60,57 @@ export interface ModelConfigXpLevel {
   min_xp?: number;
 }
 
+export interface ModelDaoProposal {
+  closed_at?: string;
+  created_at?: string;
+  creator_id?: string;
+  description?: string;
+  discussion_channel_id?: string;
+  guild_config_dao_proposal_id?: number;
+  guild_id?: string;
+  id?: number;
+  title?: string;
+  updated_at?: string;
+  voting_channel_id?: string;
+}
+
+export interface ModelDaoProposalVoteCount {
+  choice?: string;
+  guild_id?: string;
+  proposal_id?: string;
+  sum?: number;
+}
+
+export interface ModelDaoProposalVoteOption {
+  address?: string;
+  chain_id?: number;
+  created_at?: string;
+  id?: number;
+  proposal_id?: number;
+  required_amount?: string;
+  symbol?: string;
+  updated_at?: string;
+  vote_option?: ModelDaoVoteOption;
+  vote_option_id?: number;
+}
+
+export interface ModelDaoVote {
+  choice?: string;
+  created_at?: string;
+  id?: number;
+  point?: number;
+  proposal_id?: number;
+  updated_at?: string;
+  user_id?: string;
+}
+
+export interface ModelDaoVoteOption {
+  created_at?: string;
+  id?: number;
+  type?: string;
+  updated_at?: string;
+}
+
 export interface ModelDiscordGuild {
   active?: boolean;
   alias?: string;
@@ -517,6 +568,21 @@ export interface RequestCreateAirdropCampaignRequest {
   title?: string;
 }
 
+export interface RequestCreateDaoProposalRequest {
+  creator_id?: string;
+  description?: string;
+  guild_id?: string;
+  title?: string;
+  vote_option?: RequestVoteOptionRequest;
+  voting_channel_id?: string;
+}
+
+export interface RequestCreateDaoVoteRequest {
+  choice: string;
+  proposal_id: number;
+  user_id: string;
+}
+
 export interface RequestCreateDefaultRoleRequest {
   guildID: string;
   role_id?: string;
@@ -707,6 +773,11 @@ export interface RequestUnlinkBinance {
   discord_user_id?: string;
 }
 
+export interface RequestUpdateDaoVoteRequest {
+  choice: string;
+  user_id: string;
+}
+
 export interface RequestUpdateGuildRequest {
   active?: boolean;
   global_xp?: boolean;
@@ -799,6 +870,14 @@ export interface RequestUserFeedbackRequest {
   username?: string;
 }
 
+export interface RequestVoteOptionRequest {
+  address?: string;
+  chain_id?: number;
+  id?: number;
+  required_amount?: number;
+  symbol?: string;
+}
+
 export interface ResponseAddToWatchlistResponse {
   data?: ResponseAddToWatchlistResponseData;
 }
@@ -857,21 +936,6 @@ export interface ResponseCoin {
   small?: string;
   symbol?: string;
   thumb?: string;
-}
-
-export interface ResponseCoinGeckoInfoKeyValue {
-  key?: string;
-  value?: string;
-}
-
-export interface ResponseCoinGeckoInfoResponse {
-  communities?: ResponseCoinGeckoInfoKeyValue[];
-  contracts?: ResponseCoinGeckoInfoKeyValue[];
-  description_lines?: string[];
-  explorers?: ResponseCoinGeckoInfoKeyValue[];
-  tags?: ResponseCoinGeckoInfoKeyValue[];
-  wallets?: ResponseCoinGeckoInfoKeyValue[];
-  websites?: ResponseCoinGeckoInfoKeyValue[];
 }
 
 export interface ResponseCoinImage {
@@ -951,6 +1015,10 @@ export interface ResponseConfigNotifyResponse {
   token?: string;
   total_transaction?: number;
   updated_at?: string;
+}
+
+export interface ResponseCreateDaoProposalResponse {
+  data?: ModelDaoProposal;
 }
 
 export interface ResponseCreateGuildTokenRole {
@@ -1039,12 +1107,21 @@ export interface ResponseGasTrackerResponseData {
   data?: ResponseGasTrackerResponse[];
 }
 
+export interface ResponseGetAllDaoProposalVotes {
+  proposal?: ResponseGetDaoProposalData;
+  votes?: ModelDaoVote[];
+}
+
+export interface ResponseGetAllDaoProposals {
+  data?: ModelDaoProposal[];
+}
+
 export interface ResponseGetCoinResponse {
   asset_platform?: ResponseAssetPlatformResponseData;
   asset_platform_id?: string;
   block_time_in_minutes?: number;
   categories?: string[];
-  coingecko_info?: ResponseCoinGeckoInfoResponse;
+  coingecko_info?: ResponseTokenInfoResponse;
   coingecko_rank?: number;
   coingecko_score?: number;
   community_data?: any;
@@ -1079,6 +1156,21 @@ export interface ResponseGetCoinsMarketDataResponse {
 
 export interface ResponseGetCollectionCountResponse {
   data?: ResponseNFTCollectionCount;
+}
+
+export interface ResponseGetDaoProposalData {
+  closed_at?: string;
+  created_at?: string;
+  creator_id?: string;
+  description?: string;
+  discussion_channel_id?: string;
+  guild_config_dao_proposal_id?: number;
+  guild_id?: string;
+  id?: number;
+  points?: ModelDaoProposalVoteCount[];
+  title?: string;
+  updated_at?: string;
+  voting_channel_id?: string;
 }
 
 export interface ResponseGetDataUserProfileResponse {
@@ -1318,6 +1410,10 @@ export interface ResponseGetUserResponse {
 
 export interface ResponseGetVaultsResponse {
   data?: ModelVault[];
+}
+
+export interface ResponseGetVote {
+  data?: ModelDaoVote;
 }
 
 export interface ResponseGetWatchlistResponse {
@@ -1901,6 +1997,47 @@ export interface ResponseToken {
   symbol?: string;
 }
 
+export interface ResponseTokenHolderStatus {
+  data?: ResponseTokenHolderStatusData;
+}
+
+export interface ResponseTokenHolderStatusData {
+  guild_config?: ModelGuildConfigDaoProposal;
+  is_qualified?: boolean;
+  is_wallet_connected?: boolean;
+  user_holding_amount?: string;
+  vote_config?: ModelDaoProposalVoteOption;
+}
+
+export interface ResponseTokenInfoGeckoTerminalInfo {
+  fully_diluted_valuation?: string;
+  liquidity?: string;
+  market_cap?: string;
+  pool_name?: string;
+  price_in_target_token?: string;
+  price_in_usd?: string;
+  price_percent_change?: string;
+  volume_24h?: string;
+}
+
+export interface ResponseTokenInfoKeyValue {
+  key?: string;
+  value?: string;
+}
+
+export interface ResponseTokenInfoResponse {
+  communities?: ResponseTokenInfoKeyValue[];
+  contracts?: ResponseTokenInfoKeyValue[];
+  description_lines?: string[];
+  explorers?: ResponseTokenInfoKeyValue[];
+  geckoterminal_info?: ResponseTokenInfoGeckoTerminalInfo[];
+  icon?: string;
+  name?: string;
+  tags?: ResponseTokenInfoKeyValue[];
+  wallets?: ResponseTokenInfoKeyValue[];
+  websites?: ResponseTokenInfoKeyValue[];
+}
+
 export interface ResponseTokenPriceAlertResponseData {
   alert_type?: string;
   currency?: string;
@@ -1924,6 +2061,10 @@ export interface ResponseUnlinkBinance {
 
 export interface ResponseUpdateUserFeedbackResponse {
   data?: ModelUserFeedback;
+}
+
+export interface ResponseUpdateVote {
+  data?: ModelDaoVote;
 }
 
 export interface ResponseUser {
