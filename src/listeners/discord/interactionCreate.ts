@@ -61,10 +61,6 @@ import { authorFilter, getChance, hasAdministrator } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 
 import { DiscordEvent } from "./"
-import {
-  approveTransferReq,
-  rejectTransferReq,
-} from "../../commands/transfer_request/index/processor"
 
 // import { handleBeginVerify } from "commands/config/verify/captcha/processor"
 
@@ -466,12 +462,6 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("balance"):
       await handleInteraction(i)
-      return
-    case i.customId.startsWith("transfer_request_approve-"):
-      await approveTransferReq(i)
-      return
-    case i.customId.startsWith("transfer_request_reject-"):
-      await rejectTransferReq(i)
       return
     default: {
       return
