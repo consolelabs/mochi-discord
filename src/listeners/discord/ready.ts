@@ -26,7 +26,7 @@ const event: DiscordEvent<"ready"> = {
         const chain = chains.shift()
         if (chain) chains.push(chain)
         const res = await defi.getGasPrice(chain ?? "eth")
-        if (res.ok) {
+        if (res !== null && res.ok) {
           const data = res.result
           const normalGasPrice = (+data.ProposeGasPrice).toFixed()
           const fastGasPrice = (+data.FastGasPrice).toFixed()
