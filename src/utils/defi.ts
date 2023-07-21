@@ -16,6 +16,7 @@ export function formatPercentDigit(
       fractionDigits: +params >= 10 ? 0 : 2,
     })
   }
+  if (!params) return ""
   return formatDigit({
     ...params,
     fractionDigits: +params.value >= 10 ? 0 : 2,
@@ -31,6 +32,7 @@ export function formatUsdDigit(
       fractionDigits: +params >= 100 ? 0 : 2,
     })
   }
+  if (!params) return ""
   return formatDigit({
     ...params,
     fractionDigits: +params.value >= 100 ? 0 : 2,
@@ -46,6 +48,7 @@ export function formatTokenDigit(
       fractionDigits: +params >= 1000 ? 0 : 2,
     })
   }
+  if (!params) return ""
   return formatDigit({
     ...params,
     fractionDigits: +params.value >= 1000 ? 0 : 2,
