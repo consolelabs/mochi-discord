@@ -277,7 +277,7 @@ export async function renderTokenInfo(
   const { data, status } = await CacheManager.get({
     pool: "ticker",
     key: `ticker-getcoin-${coin.id}-coingecko-info`,
-    call: () => defi.getCoin(coin.id, false, true),
+    call: () => defi.getTokenInfo(coin.id),
   })
 
   if (status === 404) {
