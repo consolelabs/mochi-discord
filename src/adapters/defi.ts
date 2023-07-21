@@ -151,7 +151,7 @@ class Defi extends Fetcher {
     return await this.jsonFetch<{ result: GasPriceData }>(url, {
       query,
       silent: true,
-    })
+    }).catch(() => null)
   }
 
   async getUserNFTWatchlist({
