@@ -237,13 +237,9 @@ function checkExpiredAirdrop(
       // there are participants(s)
       // proceed to transfer
       payload.recipients = participants.map((p) => parseDiscordToken(p).value)
-      const { ok, data, curl, log } = await defi.offchainDiscordTransfer({
-        ...payload,
-        sender: await getProfileIdByDiscord(payload.sender),
-        recipients: await Promise.all(
-          payload.recipients.map((r: string) => getProfileIdByDiscord(r))
-        ),
-      })
+      const { ok, data, curl, log } = await defi.offchainDiscordTransfer(
+        payload
+      )
       if (!ok) {
         await msg
           .edit({

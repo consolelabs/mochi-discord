@@ -43,7 +43,6 @@ import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { APPROX } from "../../../utils/constants"
 import { formatDigit } from "../../../utils/defi"
-import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -174,13 +173,7 @@ async function transfer(
   payload: any
 ) {
   // send transfer request
-  const { data, ok, curl, log } = await defi.offchainDiscordTransfer({
-    ...payload,
-    sender: await getProfileIdByDiscord(payload.sender),
-    recipients: await Promise.all(
-      payload.recipients.map((r: string) => getProfileIdByDiscord(r))
-    ),
-  })
+  const { data, ok, curl, log } = await defi.offchainDiscordTransfer(payload)
   if (!ok) {
     throw new APIError({ msgOrInteraction, curl, description: log })
   }
