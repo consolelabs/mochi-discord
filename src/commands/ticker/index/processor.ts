@@ -272,12 +272,13 @@ function buildSwitchViewActionRow(currentView: string, added: boolean) {
 
 export async function renderTokenInfo(
   interaction: ButtonInteraction | CommandInteraction,
-  { baseCoin: coin, ...rest }: Context
+  token: string
+  // { baseCoin: coin, ...rest }: Context
 ) {
   const { data, status } = await CacheManager.get({
-    pool: "ticker",
-    key: `ticker-getcoin-${coin.id}-coingecko-info`,
-    call: () => defi.getTokenInfo(coin.id),
+    pool: "token-info",
+    key: `token-info-${token}`,
+    call: () => defi.getTokenInfo(token),
   })
 
   if (status === 404) {
@@ -294,15 +295,13 @@ export async function renderTokenInfo(
     })
   }
 
-  coin = data
-
   const embed = composeEmbedMessage(null, {
-    thumbnail: data.image.large,
-    color: getChartColorConfig(coin.id).borderColor as HexColorString,
+    // thumbnail: data.image.large,
+    color: getChartColorConfig(data.id).borderColor as HexColorString,
     title: "About " + data.name,
   })
 
-  const content = coin.coingecko_info?.description_lines[0] ?? ""
+  const content = data.description_lines[0] ?? ""
 
   embed.setDescription(content || "This token has not updated description yet")
 
@@ -310,15 +309,15 @@ export async function renderTokenInfo(
     {
       name: `${getEmoji("CHART")} Market cap`,
       value: `$${formatDigit({
-        value: coin.market_data.market_cap[CURRENCY],
+        value: data.market_cap[CURRENCY],
         shorten: true,
-      })} (#${coin.market_cap_rank})`,
+      })}`,
       inline: true,
     },
     {
       name: `${getEmoji("CASH")} Price`,
       value: `$${formatDigit({
-        value: String(coin.market_data.current_price[CURRENCY]),
+        value: String(data.current_price[CURRENCY]),
         fractionDigits: 2,
         scientificFormat: true,
       })}`,
@@ -327,40 +326,40 @@ export async function renderTokenInfo(
     {
       name: `${getEmoji("ANIMATED_FLASH")} Chain`,
       value:
-        coin.asset_platform?.name ||
-        coin.asset_platform?.shortname ||
-        coin.name,
+        data.asset_platform?.name ||
+        data.asset_platform?.shortname ||
+        data.name,
       inline: true,
     }
   )
 
-  if (coin.market_data?.circulating_supply) {
+  if (data.circulating_supply) {
     embed.addFields({
       name: `${getEmoji("ANIMATED_COIN_2", true)} Circulating`,
       value: `${formatDigit({
-        value: coin.market_data?.circulating_supply,
+        value: data.circulating_supply,
         shorten: true,
       })}`,
       inline: true,
     })
   }
 
-  if (coin.market_data?.total_supply) {
+  if (data.total_supply) {
     embed.addFields({
       name: `${getEmoji("ANIMATED_COIN_3", true)} Total Supply`,
       value: `${formatDigit({
-        value: coin.market_data.total_supply,
+        value: data.total_supply,
         shorten: true,
       })}`,
       inline: true,
     })
   }
 
-  if (coin.market_data?.fully_diluted_valuation?.[CURRENCY]) {
+  if (data?.fully_diluted_valuation?.[CURRENCY]) {
     embed.addFields({
       name: `${getEmoji("ANIMATED_GEM", true)} FDV`,
       value: `$${formatDigit({
-        value: coin.market_data.fully_diluted_valuation?.[CURRENCY],
+        value: data.fully_diluted_valuation?.[CURRENCY],
         shorten: true,
       })}`,
       inline: true,
@@ -370,17 +369,17 @@ export async function renderTokenInfo(
   embed.addFields({
     name: `${getEmoji("NFT2")} Tags`,
     // only get items that contain "Ecosystem" and remove the word "Ecosystem"
-    value: coin.categories
-      .filter((c) => !c.toLowerCase().includes("ecosystem"))
+    value: data.categories
+      .filter((c: any) => !c.toLowerCase().includes("ecosystem"))
       .join(", "),
     inline: false,
   })
 
-  if (coin.coingecko_info?.explorers) {
+  if (data?.explorers) {
     embed.addFields({
       name: `${getEmoji("NEWS")} Addr`,
       // hyper link the key and value: coin.coingecko_info.explorers
-      value: coin.coingecko_info.explorers
+      value: data.explorers
         .map(
           (explorer: ResponseTokenInfoKeyValue) =>
             `[${explorer.key}](${explorer.value})`
@@ -390,25 +389,24 @@ export async function renderTokenInfo(
     })
   }
 
-  if (coin.coingecko_info.communities.length) {
+  if (data.communities.length) {
     embed.addFields({
       name: `${getEmoji("WAVING_HAND")} Communities`,
-      value: coin.coingecko_info.communities
+      value: data.communities
         .map((c) => `${getEmoji(c.key as EmojiKey)} [${c.key}](${c.value})`)
         .join("\n"),
       inline: true,
     })
   }
 
-  const wlAdded = await isTickerAddedToWl(coin.id, interaction.user.id)
+  const wlAdded = await isTickerAddedToWl(data.name, interaction.user.id)
   const buttonRow = buildSwitchViewActionRow("info", wlAdded)
 
   return {
     initial: "tickerInfo",
     context: {
       view: TickerView.Info,
-      baseCoin: coin,
-      ...rest,
+      baseCoin: data,
     },
     msgOpts: {
       files: [],
@@ -614,6 +612,10 @@ export async function run(
   showAll: boolean,
   view = TickerView.Chart
 ) {
+  if (view === TickerView.Info) {
+    return renderTokenInfo(interaction, baseQ)
+  }
+
   if (isFiat)
     return renderFiatPair({
       baseQ,
@@ -706,10 +708,6 @@ export async function run(
 
   if (showAll) {
     return renderAllTicker(baseQ, baseCoin, { baseCoin, type, days })
-  }
-
-  if (view === TickerView.Info) {
-    return renderTokenInfo(interaction, { baseCoin, type, days })
   }
 
   if (
