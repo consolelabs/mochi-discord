@@ -10,7 +10,7 @@ import {
 import { FEEDBACK_PUBLIC_CHANNEL_ID } from "env"
 import { APIError, InternalError } from "errors"
 import { logger } from "logger"
-import { ModelUserFeedback, RequestUserFeedbackRequest } from "types/api"
+import { ModelUserFeedback } from "types/api"
 import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { DISCORD_URL } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
@@ -287,10 +287,7 @@ async function handleViewFeedbackList(
   })
 }
 
-export async function handleFeedback(
-  req: RequestUserFeedbackRequest,
-  message?: Message
-) {
+export async function handleFeedback(req: any, message?: Message) {
   const res = await community.sendFeedback(req)
   if (!res.ok) {
     throw new InternalError({
