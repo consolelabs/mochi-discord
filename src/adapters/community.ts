@@ -358,7 +358,11 @@ class Community extends Fetcher {
     )
   }
 
-  public async getFeedbackList(discordId?: string, page = 0) {
+  public async getFeedbackList(
+    discordId?: string,
+    page = 0,
+    profileId?: string
+  ) {
     return await this.jsonFetch<{ data: ResponseUserFeedbackResponse }>(
       `${API_BASE_URL}/community/feedback`,
       {
@@ -366,6 +370,8 @@ class Community extends Fetcher {
           ...(discordId ? { filter: "discord_id", value: discordId } : {}),
           page,
           size: 5,
+          discord_id: discordId,
+          profile_id: profileId,
         },
       }
     )

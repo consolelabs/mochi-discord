@@ -5,6 +5,7 @@ import {
   inviteUserToJoin,
 } from "./processor"
 import { getErrorEmbed } from "ui/discord/embed"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 const run = async (interaction: CommandInteraction) => {
   let commandArg = interaction.options.getString("command") ?? ""
@@ -25,6 +26,8 @@ const run = async (interaction: CommandInteraction) => {
     }
   }
 
+  const profileId = await getProfileIdByDiscord(interaction.user.id)
+
   const avatar = interaction.user.avatarURL() ?? ""
   return {
     messageOptions: {
@@ -35,6 +38,7 @@ const run = async (interaction: CommandInteraction) => {
           avatar,
           command: commandArg,
           feedback,
+          profile_id: profileId,
         }),
         inviteUserToJoin(),
       ],

@@ -2009,14 +2009,19 @@ export interface ResponseTokenHolderStatusData {
   vote_config?: ModelDaoProposalVoteOption;
 }
 
-export interface ResponseTokenInfoGeckoTerminalInfo {
+export interface ResponseTokenInfoDexPool {
+  address?: string;
+  base_token_price_native?: string;
+  base_token_price_usd?: string;
+  dex?: string;
   fully_diluted_valuation?: string;
-  liquidity?: string;
+  liquidity_usd?: string;
   market_cap?: string;
-  pool_name?: string;
-  price_in_target_token?: string;
-  price_in_usd?: string;
-  price_percent_change?: string;
+  name?: string;
+  price_change_percentage_1h?: string;
+  price_change_percentage_24h?: string;
+  quote_token_price_native?: string;
+  quote_token_price_usd?: string;
   volume_24h?: string;
 }
 
@@ -2029,8 +2034,8 @@ export interface ResponseTokenInfoResponse {
   communities?: ResponseTokenInfoKeyValue[];
   contracts?: ResponseTokenInfoKeyValue[];
   description_lines?: string[];
+  dex_pools?: ResponseTokenInfoDexPool[];
   explorers?: ResponseTokenInfoKeyValue[];
-  geckoterminal_info?: ResponseTokenInfoGeckoTerminalInfo[];
   icon?: string;
   name?: string;
   tags?: ResponseTokenInfoKeyValue[];

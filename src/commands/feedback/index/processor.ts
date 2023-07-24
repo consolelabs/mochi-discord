@@ -15,14 +15,7 @@ import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { DISCORD_URL } from "utils/constants"
 import { composeEmbedMessage, getSuccessEmbed } from "ui/discord/embed"
 import truncate from "lodash/truncate"
-import profile from "adapters/profile"
-import {
-  MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-  MOCHI_ACTION_FEEDBACK,
-  MOCHI_APP_SERVICE,
-} from "utils/constants"
-import { KafkaQueueActivityDataCommand } from "types/common"
-import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
+import { getProfileIdByDiscord } from "../../../utils/profile"
 
 const successEmbed = () =>
   getSuccessEmbed({
@@ -226,7 +219,10 @@ async function handleViewFeedbackList(
   page: number,
   discordId?: string
 ) {
-  const res = await community.getFeedbackList(discordId, page)
+  const profileId = discordId
+    ? await getProfileIdByDiscord(discordId || "")
+    : ""
+  const res = await community.getFeedbackList(discordId, page, profileId)
   if (!res.ok) {
     throw new APIError({ curl: res.curl, description: res.log })
   }
@@ -302,24 +298,6 @@ export async function handleFeedback(
       description: "Failed to send your feedback, please try again later",
     })
   }
-
-  // send activity
-  const dataProfile = await profile.getByDiscord(req.discord_id ?? "")
-  if (dataProfile.err) {
-    throw new APIError({
-      msgOrInteraction: message,
-      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
-      curl: "",
-    })
-  }
-  const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(
-    dataProfile.id,
-    MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
-    MOCHI_APP_SERVICE,
-    MOCHI_ACTION_FEEDBACK
-  )
-
-  sendActivityMsg(kafkaMsg)
 
   return successEmbed()
 }
