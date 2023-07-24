@@ -18,6 +18,7 @@ import { machineConfig as watchListMachineConfig } from "commands/watchlist/view
 import { machineConfig as qrCodeMachineConfig } from "commands/qr/index/slash"
 import { machineConfig as earnMachineConfig } from "commands/earn/index"
 import { machineConfig as balanceMachineConfig } from "commands/balances/index/slash"
+import { machineConfig as investPortfolioMachineConfig } from "commands/invest/portfolio/slash"
 import { handleWalletAddition } from "commands/wallet/add/processor"
 import { runGetVaultDetail } from "commands/vault/info/processor"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -62,6 +63,7 @@ const machineConfig: (target: Target) => MachineConfig = (target) => ({
         VIEW_QUESTS: "earn",
         VIEW_ADD_WALLET: "addWallet",
         VIEW_QR_CODES: "qrCodes",
+        VIEW_INVEST_PORTFOLIO: "investPortfolio",
         CONNECT_BINANCE: {
           target: "profile",
           actions: {
@@ -115,6 +117,12 @@ const machineConfig: (target: Target) => MachineConfig = (target) => ({
         BACK: "profile",
       },
       ...earnMachineConfig,
+    },
+    investPortfolio: {
+      on: {
+        BACK: "profile",
+      },
+      ...investPortfolioMachineConfig(),
     },
   },
 })
