@@ -4,16 +4,15 @@ import { SlashCommand } from "types/common"
 import community from "adapters/community"
 import {
   composeEmbedMessage,
-  composeEmbedMessage2,
   formatDataTable,
   getErrorEmbed,
 } from "ui/discord/embed"
 import mochiPay from "adapters/mochi-pay"
 import { getProfileIdByDiscord } from "utils/profile"
-import { VERTICAL_BAR } from "utils/constants"
+import { APPROX, VERTICAL_BAR } from "utils/constants"
 import { ResponseInvestPlatforms } from "types/api"
-import { getEmoji } from "utils/common"
-import { getSlashCommand } from "utils/commands"
+import { emojis, getEmoji, getEmojiURL, TokenEmojiKey } from "utils/common"
+import { formatTokenDigit, formatUsdDigit } from "utils/defi"
 
 const slashCmd: SlashCommand = {
   name: "portfolio",
@@ -89,7 +88,6 @@ const slashCmd: SlashCommand = {
       platform: platform ?? "",
     })
 
-    // error
     if (!ok) {
       return {
         messageOptions: {
@@ -103,61 +101,38 @@ const slashCmd: SlashCommand = {
       }
     }
 
-    // no data
-    if (!data) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage2(i, {
-              title: "Your earning portfolio is empty",
-              description: `You have not invested in any earning platform yet.\n${getEmoji(
-                "ANIMATED_POINTING_RIGHT",
-                true
-              )}You can invest in earning platform by using ${await getSlashCommand(
-                "invest stake"
-              )}`,
-            }),
-          ],
-        },
-      }
-    }
+    const info = data.map((invest) => {
+      const decimals = invest.to_underlying_token.decimals
+      const tokenAmount =
+        Number(invest.to_underlying_token?.balance) / 10 ** decimals
+      const amount = `${formatTokenDigit(tokenAmount)} ${
+        invest.to_underlying_token.symbol
+      }`
+      const apy = `${formatTokenDigit(invest.apy)}%`
+      const usdWorth = `$${formatUsdDigit(invest.underlying_usd)}`
+      const platform = invest.platform.name || ""
+      const symbol = invest.to_underlying_token?.symbol || ""
 
-    // data
-    const { segments } = formatDataTable(
-      [
-        {
-          chainID: "ChainID",
-          platform: "Platform",
-          token: "Token",
-          amount: "Amount",
-          apy: "APY",
-        },
-        ...data.map((invest) => {
-          const decimals = invest.to_underlying_token.decimals
-          const tokenAmount = (
-            Number(invest.to_underlying_token?.balance) /
-            10 ** decimals
-          ).toFixed(2)
-          return {
-            chainID: invest.chain_id,
-            platform: invest.platform.name ?? "NA",
-            token: `${invest.to_underlying_token.symbol}`,
-            amount: tokenAmount,
-            apy: `${invest.apy.toFixed(2)}%`,
-          }
-        }),
-      ],
-      {
-        cols: ["chainID", "platform", "token", "amount", "apy"],
-        separator: [VERTICAL_BAR],
+      return {
+        emoji: getEmoji(symbol as TokenEmojiKey),
+        amount,
+        usdWorth,
+        platform: platform,
+        apy: apy,
       }
-    )
+    })
+
+    const { segments } = formatDataTable(info, {
+      cols: ["amount", "usdWorth", "platform", "apy"],
+      rowAfterFormatter: (f, i) => `${info[i].emoji}${f}${getEmoji("GIFT")}`,
+      separator: [` ${APPROX} `, VERTICAL_BAR, VERTICAL_BAR],
+    })
 
     return {
       messageOptions: {
         embeds: [
           composeEmbedMessage(null, {
-            title: "Invest Portfolio",
+            author: ["Invest Portfolio", getEmojiURL(emojis.BANK)],
             description: `${segments.map((c) => c.join("\n"))}`,
           }),
         ],
