@@ -21,6 +21,12 @@ export async function getDiscordRenderableByProfileId(profileId: string) {
     })
   }
 
+  // handle case app profile
+  if (pf.type === "application") {
+    return `\`${pf.application?.name ?? "Unknown Application"}\``
+  }
+
+  // case user profile
   const discord = pf.associated_accounts.find((aa: any) =>
     equalIgnoreCase(aa.platform, "discord")
   )
