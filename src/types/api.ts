@@ -146,21 +146,6 @@ export interface ModelGuildConfigAdminRole {
   role_id?: string;
 }
 
-export interface ModelGuildConfigDaoProposal {
-  address?: string;
-  authority?: string;
-  chain_id?: number;
-  created_at?: string;
-  guideline_channel_id?: string;
-  guild_id?: string;
-  id?: number;
-  proposal_channel_id?: string;
-  required_amount?: string;
-  symbol?: string;
-  type?: string;
-  updated_at?: string;
-}
-
 export interface ModelGuildConfigDefaultCollection {
   address?: string;
   chain_id?: string;
@@ -618,16 +603,6 @@ export interface RequestCreateProfileAirdropCampaignRequest {
   status?: string;
 }
 
-export interface RequestCreateProposalChannelConfig {
-  address?: string;
-  authority: "admin" | "token_holder";
-  chain?: string;
-  channel_id: string;
-  guild_id: string;
-  required_amount?: number;
-  type?: "nft_collection" | "crypto_token";
-}
-
 export interface RequestCreateSalesTrackerConfigRequest {
   chain?: string;
   channel_id?: string;
@@ -656,10 +631,6 @@ export interface RequestCreateUserTokenSupportRequest {
   token_address: string;
   token_chain: string;
   user_discord_id: string;
-}
-
-export interface RequestDeleteGuildConfigDaoProposal {
-  id?: string;
 }
 
 export interface RequestDeleteMonikerConfigRequest {
@@ -1029,10 +1000,6 @@ export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
 }
 
-export interface ResponseCreateProposalChannelConfigResponse {
-  data?: ModelGuildConfigDaoProposal;
-}
-
 export interface ResponseCreateUserTokenSupportRequest {
   data?: ModelUserTokenSupportRequest;
 }
@@ -1196,26 +1163,6 @@ export interface ResponseGetFiatHistoricalExchangeRatesResponse {
 export interface ResponseGetGmConfigResponse {
   data?: ModelGuildConfigGmGn;
   message?: string;
-}
-
-export interface ResponseGetGuildConfigDaoProposal {
-  data?: ResponseGetGuildConfigDaoProposalData;
-}
-
-export interface ResponseGetGuildConfigDaoProposalData {
-  address?: string;
-  authority?: string;
-  chain?: string;
-  chain_id?: number;
-  created_at?: string;
-  guideline_channel_id?: string;
-  guild_id?: string;
-  id?: number;
-  proposal_channel_id?: string;
-  required_amount?: string;
-  symbol?: string;
-  type?: string;
-  updated_at?: string;
 }
 
 export interface ResponseGetGuildDefaultNftTickerResponse {
