@@ -427,6 +427,7 @@ export interface ModelUserFeedback {
   feedback?: string;
   id?: UuidNullUUID;
   message_id?: string;
+  profile_id?: string;
   status?: string;
 }
 
@@ -867,6 +868,7 @@ export interface RequestUserFeedbackRequest {
   discord_id?: string;
   feedback?: string;
   message_id?: string;
+  profile_id?: string;
   username?: string;
 }
 

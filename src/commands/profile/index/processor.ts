@@ -358,7 +358,12 @@ async function compose(
           .setLabel(`Wallet`)
           .setEmoji(getEmoji("PLUS"))
           .setStyle("SECONDARY")
-          .setCustomId("view_add_wallet")
+          .setCustomId("view_add_wallet"),
+        new MessageButton()
+          .setLabel(`Invest`)
+          .setEmoji(getEmoji("BANK"))
+          .setStyle("SECONDARY")
+          .setCustomId("view_invest_portfolio")
       ),
       ...connectButtons,
     ],
