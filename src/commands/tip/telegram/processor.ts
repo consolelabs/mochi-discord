@@ -31,7 +31,6 @@ import {
   parseMoniker,
   parseTipAmount,
 } from "utils/tip-bot"
-import mochiTelegram from "../../../adapters/mochi-telegram"
 import profile from "../../../adapters/profile"
 import { InsufficientBalanceError } from "../../../errors/insufficient-balance"
 import { UnsupportedTokenError } from "../../../errors/unsupported-token"
@@ -52,33 +51,19 @@ async function getRecipients(
   const recipients: TelegramUser[] = []
   for (const target of targets) {
     // TODO: handle for case not have username telegram
-    const { data, ok, curl, error, log } = await mochiTelegram.getByUsername(
-      target
-    )
-    if (!ok) {
-      throw new APIError({ curl, error, description: log })
-    }
-
-    const recipientPf = await profile.getByTelegram(data.id)
-    if (recipientPf.status_code === 404) {
+    const recipientProfile = await profile.getByTelegramUsername(target)
+    if (recipientProfile.status_code === 400) {
       throw new InternalError({
         msgOrInteraction,
         title: "Username not found",
         description: `We couldn't find username \`${target}\`. Check the username you entered or try again.`,
       })
     }
-    if (recipientPf.err) {
-      throw new APIError({
-        msgOrInteraction,
-        description: `[getByTelegram] failed with status ${recipientPf.status_code}: ${recipientPf.err}`,
-        curl: "",
-      })
-    }
 
     recipients.push({
-      id: data.id,
-      username: data.username,
-      profile_id: recipientPf.id,
+      id: recipientProfile.id,
+      username: target,
+      profile_id: recipientProfile.id,
     })
   }
   return recipients
@@ -94,6 +79,7 @@ export async function execute(
     amount: payload.originalAmount.toString(),
     token: payload.token,
     note: payload.note,
+    chain_id: payload.chain_id,
     type: "paylink",
     recipient_id: payload.tos[0].profile_global_id, // currently tip across platform have 1 recipient. If expand to tip many, need update api to receive list of recipients
   })
@@ -268,6 +254,9 @@ async function validateAndTransfer(
   payload: any,
   balance: any
 ) {
+  console.log("in validateAndTransfer telegram")
+  console.log("check balance", balance)
+  console.log("check payload", payload)
   const decimal = balance.token?.decimal ?? 0
   const current = +balance.amount / Math.pow(10, decimal)
 
