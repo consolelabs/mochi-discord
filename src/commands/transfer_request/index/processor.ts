@@ -8,13 +8,16 @@ export async function approveTransferReq(i: ButtonInteraction) {
   if (!requestCode) {
     return
   }
+  const msg = i.message as Message
 
-  const { ok } = await mochiPay.approveTransferRequest({
+  const { ok, status } = await mochiPay.approveTransferRequest({
     requestCode,
   })
-  if (!ok) return
+  if (!ok) {
+    handleTransferRequestErr(msg, status)
+    return
+  }
 
-  const msg = i.message as Message
   const embed = msg.embeds[0]
   embed.setAuthor({
     iconURL: getEmojiURL(emojis.APPROVE),
@@ -29,17 +32,39 @@ export async function rejectTransferReq(i: ButtonInteraction) {
   if (!requestCode) {
     return
   }
+  const msg = i.message as Message
 
-  const { ok } = await mochiPay.rejectTransferRequest({
+  const { ok, status } = await mochiPay.rejectTransferRequest({
     requestCode,
   })
-  if (!ok) return
+  if (!ok) {
+    handleTransferRequestErr(msg, status)
+    return
+  }
 
-  const msg = i.message as Message
   const embed = msg.embeds[0]
   embed.setAuthor({
     iconURL: getEmojiURL(emojis.REVOKE),
     name: "Transfer request rejected",
   })
   await msg.edit({ embeds: [embed], components: [] })
+}
+
+async function handleTransferRequestErr(
+  msg: Message,
+  status: number | undefined
+) {
+  const embed = msg.embeds[0]
+  switch (status) {
+    case 400:
+      embed.setAuthor({
+        iconURL: getEmojiURL(emojis.REVOKE),
+        name: "Invalid request",
+      })
+      embed.setDescription("Transfer request is not found or expired")
+      await msg.edit({ embeds: [embed], components: [] })
+      return
+    default:
+      return
+  }
 }

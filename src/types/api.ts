@@ -146,6 +146,21 @@ export interface ModelGuildConfigAdminRole {
   role_id?: string;
 }
 
+export interface ModelGuildConfigDaoProposal {
+  address?: string;
+  authority?: string;
+  chain_id?: number;
+  created_at?: string;
+  guideline_channel_id?: string;
+  guild_id?: string;
+  id?: number;
+  proposal_channel_id?: string;
+  required_amount?: string;
+  symbol?: string;
+  type?: string;
+  updated_at?: string;
+}
+
 export interface ModelGuildConfigDefaultCollection {
   address?: string;
   chain_id?: string;
@@ -603,6 +618,16 @@ export interface RequestCreateProfileAirdropCampaignRequest {
   status?: string;
 }
 
+export interface RequestCreateProposalChannelConfig {
+  address?: string;
+  authority: "admin" | "token_holder";
+  chain?: string;
+  channel_id: string;
+  guild_id: string;
+  required_amount?: number;
+  type?: "nft_collection" | "crypto_token";
+}
+
 export interface RequestCreateSalesTrackerConfigRequest {
   chain?: string;
   channel_id?: string;
@@ -631,6 +656,10 @@ export interface RequestCreateUserTokenSupportRequest {
   token_address: string;
   token_chain: string;
   user_discord_id: string;
+}
+
+export interface RequestDeleteGuildConfigDaoProposal {
+  id?: string;
 }
 
 export interface RequestDeleteMonikerConfigRequest {
@@ -1000,6 +1029,10 @@ export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection;
 }
 
+export interface ResponseCreateProposalChannelConfigResponse {
+  data?: ModelGuildConfigDaoProposal;
+}
+
 export interface ResponseCreateUserTokenSupportRequest {
   data?: ModelUserTokenSupportRequest;
 }
@@ -1163,6 +1196,26 @@ export interface ResponseGetFiatHistoricalExchangeRatesResponse {
 export interface ResponseGetGmConfigResponse {
   data?: ModelGuildConfigGmGn;
   message?: string;
+}
+
+export interface ResponseGetGuildConfigDaoProposal {
+  data?: ResponseGetGuildConfigDaoProposalData;
+}
+
+export interface ResponseGetGuildConfigDaoProposalData {
+  address?: string;
+  authority?: string;
+  chain?: string;
+  chain_id?: number;
+  created_at?: string;
+  guideline_channel_id?: string;
+  guild_id?: string;
+  id?: number;
+  proposal_channel_id?: string;
+  required_amount?: string;
+  symbol?: string;
+  type?: string;
+  updated_at?: string;
 }
 
 export interface ResponseGetGuildDefaultNftTickerResponse {
@@ -1956,14 +2009,19 @@ export interface ResponseTokenHolderStatusData {
   vote_config?: ModelDaoProposalVoteOption;
 }
 
-export interface ResponseTokenInfoGeckoTerminalInfo {
+export interface ResponseTokenInfoDexPool {
+  address?: string;
+  base_token_price_native?: string;
+  base_token_price_usd?: string;
+  dex?: string;
   fully_diluted_valuation?: string;
-  liquidity?: string;
+  liquidity_usd?: string;
   market_cap?: string;
-  pool_name?: string;
-  price_in_target_token?: string;
-  price_in_usd?: string;
-  price_percent_change?: string;
+  name?: string;
+  price_change_percentage_1h?: string;
+  price_change_percentage_24h?: string;
+  quote_token_price_native?: string;
+  quote_token_price_usd?: string;
   volume_24h?: string;
 }
 
@@ -1976,8 +2034,8 @@ export interface ResponseTokenInfoResponse {
   communities?: ResponseTokenInfoKeyValue[];
   contracts?: ResponseTokenInfoKeyValue[];
   description_lines?: string[];
+  dex_pools?: ResponseTokenInfoDexPool[];
   explorers?: ResponseTokenInfoKeyValue[];
-  geckoterminal_info?: ResponseTokenInfoGeckoTerminalInfo[];
   icon?: string;
   name?: string;
   tags?: ResponseTokenInfoKeyValue[];

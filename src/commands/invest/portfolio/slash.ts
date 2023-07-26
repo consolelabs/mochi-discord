@@ -1,19 +1,35 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { CommandInteraction } from "discord.js"
+import {
+  ButtonInteraction,
+  CommandInteraction,
+  Message,
+  SelectMenuInteraction,
+} from "discord.js"
 import { SlashCommand } from "types/common"
 import community from "adapters/community"
-import {
-  composeEmbedMessage,
-  composeEmbedMessage2,
-  formatDataTable,
-  getErrorEmbed,
-} from "ui/discord/embed"
+import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import mochiPay from "adapters/mochi-pay"
 import { getProfileIdByDiscord } from "utils/profile"
-import { VERTICAL_BAR } from "utils/constants"
+import { APPROX, VERTICAL_BAR } from "utils/constants"
 import { ResponseInvestPlatforms } from "types/api"
-import { getEmoji } from "utils/common"
+import { emojis, getEmoji, getEmojiURL, TokenEmojiKey } from "utils/common"
+import { formatTokenDigit, formatUsdDigit } from "utils/defi"
+import { MachineConfig, route } from "utils/router"
+import { InternalError } from "errors"
 import { getSlashCommand } from "utils/commands"
+
+export const machineConfig: (
+  filter?: InvestPortfolioFilter
+) => MachineConfig = (filter) => ({
+  id: "investPortfolio",
+  context: {
+    button: {
+      investPortfolio: (i) => {
+        return renderInvestPortfolio(i, filter)
+      },
+    },
+  },
+})
 
 const slashCmd: SlashCommand = {
   name: "portfolio",
@@ -49,10 +65,14 @@ const slashCmd: SlashCommand = {
   },
   autocomplete: async function (i) {
     const focusedValue = i.options.getFocused()
-    const chainId = i.options.getString("chain", true)
+    const chainId = i.options.getString("chain")
+    if (!chainId) {
+      await i.respond([])
+      return
+    }
 
     const { ok, data } = await community.getEarns({
-      chainIds: chainId,
+      chainIds: chainId ?? "",
       types: "lend", // get lend only
       status: "active",
     })
@@ -80,92 +100,99 @@ const slashCmd: SlashCommand = {
     await i.respond(options ?? [])
   },
   run: async function (i: CommandInteraction) {
-    const chainId = i.options.getString("chain")
-    const platform = i.options.getString("platform")
-    const profileId = await getProfileIdByDiscord(i.user.id)
-    const { ok, data } = await mochiPay.getKrystalEarnPortfolio({
-      profile_id: profileId,
-      chain_id: chainId ?? "",
-      platform: platform ?? "",
+    const chainId = i.options.getString("chain") ?? ""
+    const platform = i.options.getString("platform") ?? ""
+    const { msgOpts } = await renderInvestPortfolio(i, {
+      chainId,
+      platform,
     })
+    const reply = (await i.editReply(msgOpts)) as Message
+    route(reply, i, machineConfig({ chainId, platform }))
+  },
+  help: () => Promise.resolve({}),
+  colorType: "Server",
+}
 
-    // error
-    if (!ok) {
-      return {
-        messageOptions: {
-          embeds: [
-            getErrorEmbed({
-              title: "Failed to get earning portfolio",
-              description: `The request failed. Please try again later. If the problem persists, please contact the support team.`,
-            }),
-          ],
-        },
-      }
-    }
+export type InvestPortfolioFilter = {
+  chainId: string
+  platform: string
+}
 
-    // no data
-    if (!data) {
-      return {
-        messageOptions: {
-          embeds: [
-            composeEmbedMessage2(i, {
-              title: "Your earning portfolio is empty",
-              description: `You have not invested in any earning platform yet.\n${getEmoji(
-                "ANIMATED_POINTING_RIGHT",
-                true
-              )}You can invest in earning platform by using ${await getSlashCommand(
-                "invest stake"
-              )}`,
-            }),
-          ],
-        },
-      }
-    }
+async function renderInvestPortfolio(
+  i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
+  filter?: InvestPortfolioFilter
+) {
+  const { chainId, platform } = filter ?? { chainId: "", platform: "" }
+  const profileId = await getProfileIdByDiscord(i.user.id)
+  const { ok, data, error } = await mochiPay.getKrystalEarnPortfolio({
+    profile_id: profileId,
+    chain_id: chainId,
+    platform: platform,
+  })
 
-    // data
-    const { segments } = formatDataTable(
-      [
-        {
-          chainID: "ChainID",
-          platform: "Platform",
-          token: "Token",
-          amount: "Amount",
-          apy: "APY",
-        },
-        ...data.map((invest) => {
-          const decimals = invest.to_underlying_token.decimals
-          const tokenAmount = (
-            Number(invest.to_underlying_token?.balance) /
-            10 ** decimals
-          ).toFixed(2)
-          return {
-            chainID: invest.chain_id,
-            platform: invest.platform.name ?? "NA",
-            token: `${invest.to_underlying_token.symbol}`,
-            amount: tokenAmount,
-            apy: `${invest.apy.toFixed(2)}%`,
-          }
-        }),
-      ],
-      {
-        cols: ["chainID", "platform", "token", "amount", "apy"],
-        separator: [VERTICAL_BAR],
-      }
-    )
+  if (!ok) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      title: "Failed to get earning portfolio",
+      description: error,
+    })
+  }
 
+  if (data.length === 0) {
     return {
-      messageOptions: {
+      msgOpts: {
         embeds: [
           composeEmbedMessage(null, {
-            title: "Invest Portfolio",
-            description: `${segments.map((c) => c.join("\n"))}`,
+            title: "No earning portfolio",
+            description: `You have no earning portfolio!/n${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )}You can start earning by using the ${await getSlashCommand(
+              "invest stake"
+            )}`,
           }),
         ],
       },
     }
-  },
-  help: () => Promise.resolve({}),
-  colorType: "Server",
+  }
+
+  const info = data.map((invest) => {
+    const decimals = invest.to_underlying_token.decimals
+    const tokenAmount =
+      Number(invest.to_underlying_token?.balance) / 10 ** decimals
+    const amount = `${formatTokenDigit(tokenAmount)} ${
+      invest.to_underlying_token.symbol
+    }`
+    const apy = `${formatTokenDigit(invest.apy)}%`
+    const usdWorth = `$${formatUsdDigit(invest.underlying_usd)}`
+    const platform = invest.platform.name || ""
+    const symbol = invest.to_underlying_token?.symbol || ""
+
+    return {
+      emoji: getEmoji(symbol as TokenEmojiKey),
+      amount,
+      usdWorth,
+      platform: platform,
+      apy: apy,
+    }
+  })
+
+  const { segments } = formatDataTable(info, {
+    cols: ["amount", "usdWorth", "platform", "apy"],
+    rowAfterFormatter: (f, i) => `${info[i].emoji}${f}${getEmoji("GIFT")}`,
+    separator: [` ${APPROX} `, VERTICAL_BAR, VERTICAL_BAR],
+  })
+
+  return {
+    msgOpts: {
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Invest Portfolio", getEmojiURL(emojis.BANK)],
+          description: `${segments.map((c) => c.join("\n"))}`,
+        }),
+      ],
+    },
+  }
 }
 
 export default slashCmd

@@ -6,7 +6,7 @@ import stake from "./stake/slash"
 import unstake from "./unstake/slash"
 import portfolio from "./portfolio/slash"
 import claimRewards from "./claim-rewards/slash"
-import status from "./status/slash"
+import transaction from "./transaction/slash"
 import { CommandInteraction } from "discord.js"
 import {
   SlashCommandBuilder,
@@ -19,7 +19,7 @@ const slashActions: Record<string, SlashCommand> = {
   unstake,
   claim: claimRewards,
   portfolio,
-  status,
+  transaction,
 }
 
 const slashCmd: SlashCommand = {

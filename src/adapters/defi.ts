@@ -29,14 +29,9 @@ class Defi extends Fetcher {
     )
   }
 
-  public async getCoin(
-    id: string,
-    isDominanceChart = false,
-    isWithCoingeckoInfo = false,
-    chain?: string
-  ) {
+  public async getCoin(id: string, isDominanceChart = false, chain?: string) {
     return await this.jsonFetch<Coin>(`${API_BASE_URL}/defi/coins/${id}`, {
-      query: { isDominanceChart, isWithCoingeckoInfo, chain },
+      query: { isDominanceChart, chain },
     })
   }
 
@@ -50,6 +45,10 @@ class Defi extends Fetcher {
     return await this.jsonFetch(
       `${API_BASE_URL}/defi/coins?query=${query}&chain=${chain}&guild_id=${guildId}`
     )
+  }
+
+  public async getTokenInfo(tokenId: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/defi/tokens/info/${tokenId}`)
   }
 
   async getHistoricalMarketData({
