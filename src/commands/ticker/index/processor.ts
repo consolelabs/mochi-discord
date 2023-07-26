@@ -151,9 +151,11 @@ export async function renderSingle(
   }).addFields([
     {
       name: `${getEmoji("CHART")} Market cap`,
-      value: `$${formatDigit({ value: marketCap, shorten: true })} (#${
-        coin.market_cap_rank
-      })`,
+      value: `$${formatDigit({ value: marketCap, shorten: true })} ${
+        coin.market_data.market_cap_rank
+          ? `(#${coin.market_data.market_cap_rank})`
+          : ""
+      }`,
       inline: true,
     },
     {
