@@ -427,7 +427,6 @@ export interface ModelUserFeedback {
   feedback?: string;
   id?: UuidNullUUID;
   message_id?: string;
-  profile_id?: string;
   status?: string;
 }
 
@@ -868,7 +867,6 @@ export interface RequestUserFeedbackRequest {
   discord_id?: string;
   feedback?: string;
   message_id?: string;
-  profile_id?: string;
   username?: string;
 }
 
@@ -1123,7 +1121,7 @@ export interface ResponseGetCoinResponse {
   asset_platform_id?: string;
   block_time_in_minutes?: number;
   categories?: string[];
-  coingecko_id?: string;
+  coingecko_info?: ResponseTokenInfoResponse;
   coingecko_rank?: number;
   coingecko_score?: number;
   community_data?: any;
@@ -1713,7 +1711,6 @@ export interface ResponseMarketData {
   price_change_24h_in_currency?: Record<string, number>;
   price_change_percentage_14d?: number;
   price_change_percentage_14d_in_currency?: Record<string, number>;
-  price_change_percentage_1h?: number;
   price_change_percentage_1h_in_currency?: Record<string, number>;
   price_change_percentage_1y?: number;
   price_change_percentage_1y_in_currency?: Record<string, number>;
@@ -2012,21 +2009,34 @@ export interface ResponseTokenHolderStatusData {
   vote_config?: ModelDaoProposalVoteOption;
 }
 
+export interface ResponseTokenInfoDexPool {
+  address?: string;
+  base_token_price_native?: string;
+  base_token_price_usd?: string;
+  dex?: string;
+  fully_diluted_valuation?: string;
+  liquidity_usd?: string;
+  market_cap?: string;
+  name?: string;
+  price_change_percentage_1h?: string;
+  price_change_percentage_24h?: string;
+  quote_token_price_native?: string;
+  quote_token_price_usd?: string;
+  volume_24h?: string;
+}
+
 export interface ResponseTokenInfoKeyValue {
   key?: string;
   value?: string;
 }
 
 export interface ResponseTokenInfoResponse {
-  asset_platform?: ResponseAssetPlatformResponseData;
-  coingecko_id?: string;
   communities?: ResponseTokenInfoKeyValue[];
   contracts?: ResponseTokenInfoKeyValue[];
   description_lines?: string[];
+  dex_pools?: ResponseTokenInfoDexPool[];
   explorers?: ResponseTokenInfoKeyValue[];
-  id?: string;
-  image?: ResponseCoinImage;
-  market_data?: ResponseMarketData;
+  icon?: string;
   name?: string;
   tags?: ResponseTokenInfoKeyValue[];
   wallets?: ResponseTokenInfoKeyValue[];
