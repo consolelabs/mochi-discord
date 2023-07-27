@@ -151,9 +151,11 @@ export async function renderSingle(
   }).addFields([
     {
       name: `${getEmoji("CHART")} Market cap`,
-      value: `$${formatDigit({ value: marketCap, shorten: true })} (#${
-        coin.market_cap_rank
-      })`,
+      value: `$${formatDigit({ value: marketCap, shorten: true })} ${
+        coin.market_data.market_cap_rank
+          ? `(#${coin.market_data.market_cap_rank})`
+          : ""
+      }`,
       inline: true,
     },
     {
@@ -294,7 +296,7 @@ export async function renderTokenInfo(
   }
 
   const embed = composeEmbedMessage(null, {
-    // thumbnail: data.image?.large !== "" ? data.image?.large : null,
+    thumbnail: data.image?.large !== "" ? data.image?.large : null,
     color: getChartColorConfig(data.id).borderColor as HexColorString,
     title: "About " + data.name,
   })
@@ -374,8 +376,10 @@ export async function renderTokenInfo(
     embed.addFields({
       name: `${getEmoji("NEWS")} Addr`,
       // hyper link the key and value: coin.explorers
+      // only get 3 items
       value: data.explorers
         .map((explorer: any) => `[${explorer.key}](${explorer.value})`)
+        .slice(0, 3)
         .join(", "),
       inline: false,
     })
