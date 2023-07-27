@@ -13,6 +13,7 @@ import {
   composeEmbedMessage,
   getSuccessEmbed,
 } from "ui/discord/embed"
+import { getProfileIdByDiscord } from "utils/profile"
 
 export async function runAddTreasurer({
   i,
@@ -38,6 +39,9 @@ export async function runAddTreasurer({
     }
   }
 
+  const userProfileId = await getProfileIdByDiscord(user.id)
+  const requesterProfileId = await getProfileIdByDiscord(i.user.id)
+
   const vaultName = i.options.getString("name") ?? ""
   const {
     data: dataAddTreasurerReq,
@@ -47,12 +51,12 @@ export async function runAddTreasurer({
     originalError: originalErrorAddTreasurerReq,
   } = await config.createTreasureRequest({
     guild_id: guildId,
-    user_discord_id: user.id,
+    user_profile_id: userProfileId,
     vault_name: vaultName,
     message:
       i.options.getString("message")?.trim() || "Add member as treasurer",
     type: "add",
-    requester: i.user.id,
+    requester_profile_id: requesterProfileId,
     message_url: `https://discord.com/channels/${i.guildId}/${i.channelId}/${i.id}`,
   })
 
@@ -79,18 +83,18 @@ export async function runAddTreasurer({
   // send DM to list treasurer but not requester, requester default approve
   if (!dataAddTreasurerReq?.is_decided_and_executed) {
     dataAddTreasurerReq?.treasurer.forEach((treasurer: any) => {
-      if (treasurer.user_discord_id === i.user.id) {
+      if (treasurer.user_profile_id === requesterProfileId) {
         return
       }
 
       const actionRow = new MessageActionRow().addComponents(
         new MessageButton({
-          customId: `treasurerAdd-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
+          customId: `treasurerAdd-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_profile_id}-${dataAddTreasurerReq?.request.user_profile_id}-${i.channelId}`,
           style: "SUCCESS",
           label: "Approve",
         }),
         new MessageButton({
-          customId: `treasurerAdd-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
+          customId: `treasurerAdd-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_profile_id}-${dataAddTreasurerReq?.request.user_profile_id}-${i.channelId}`,
           style: "DANGER",
           label: "Reject",
         })
@@ -160,7 +164,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
   } = await config.createTreasurerSubmissions({
     vault_id: Number(vaultId),
     request_id: Number(requestId),
-    submitter: submitter,
+    submitter_profile_id: submitter,
     choice: choice,
     type: "add",
   })
@@ -188,7 +192,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     // add treasurer to vault
     const { data, status, curl, log } = await config.addTreasurerToVault({
       guild_id: dataAddTreasurer.submission.guild_id,
-      user_discord_id: user,
+      user_profile_id: user,
       vault_id: Number(vaultId),
       channel_id: channelId,
     })
