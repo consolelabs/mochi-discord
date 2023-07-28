@@ -13,6 +13,7 @@ import {
   composeEmbedMessage,
   getSuccessEmbed,
 } from "ui/discord/embed"
+import { getProfileIdByDiscord } from "utils/profile"
 
 export async function runRemoveTreasurer({
   i,
@@ -38,6 +39,9 @@ export async function runRemoveTreasurer({
     }
   }
 
+  const userProfileId = await getProfileIdByDiscord(user.id)
+  const requesterProfileId = await getProfileIdByDiscord(i.user.id)
+
   const vaultName = i.options.getString("name") ?? ""
   const {
     data: dataAddTreasurerReq,
@@ -47,11 +51,11 @@ export async function runRemoveTreasurer({
     originalError: originalErrorAddTreasurerReq,
   } = await config.createTreasureRequest({
     guild_id: guildId,
-    user_discord_id: user.id,
+    user_profile_id: userProfileId,
     vault_name: vaultName,
     message: i.options.getString("message")?.trim() || "Remove treasurer",
     type: "remove",
-    requester: i.user.id,
+    requester_profile_id: requesterProfileId,
     message_url: `https://discord.com/channels/${i.guildId}/${i.channelId}/${i.id}`,
   })
 
@@ -78,18 +82,18 @@ export async function runRemoveTreasurer({
   // send DM to list treasurer but not requester, requester default approve
   if (!dataAddTreasurerReq?.is_decided_and_executed) {
     dataAddTreasurerReq?.treasurer.forEach((treasurer: any) => {
-      if (treasurer.user_discord_id === i.user.id) {
+      if (treasurer.user_profile_id === requesterProfileId) {
         return
       }
 
       const actionRow = new MessageActionRow().addComponents(
         new MessageButton({
-          customId: `treasurerRemove-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
+          customId: `treasurerRemove-approved-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_profile_id}-${dataAddTreasurerReq?.request.user_profile_id}-${i.channelId}`,
           style: "SUCCESS",
           label: "Approve",
         }),
         new MessageButton({
-          customId: `treasurerRemove-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${dataAddTreasurerReq?.request.user_discord_id}-${i.channelId}`,
+          customId: `treasurerRemove-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_profile_id}-${dataAddTreasurerReq?.request.user_profile_id}-${i.channelId}`,
           style: "DANGER",
           label: "Reject",
         })
@@ -161,7 +165,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
   } = await config.createTreasurerSubmissions({
     vault_id: Number(vaultId),
     request_id: Number(requestId),
-    submitter: submitter,
+    submitter_profile_id: submitter,
     choice: choice,
     type: "remove",
   })
@@ -189,7 +193,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
     // add treasurer to vault
     const { data, status, curl, log } = await config.removeTreasurerFromVault({
       guild_id: dataTreasurerSubmisison.submission.guild_id,
-      user_discord_id: user,
+      user_profile_id: user,
       vault_id: Number(vaultId),
       channel_id: channelId,
     })
