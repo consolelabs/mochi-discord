@@ -44,6 +44,8 @@ import config from "adapters/config"
 import { formatVaults } from "commands/vault/list/processor"
 import { getSlashCommand } from "utils/commands"
 import { chunk } from "lodash"
+import mochiPay from "adapters/mochi-pay"
+import { composeInvestPortfolio } from "commands/invest/portfolio/processor"
 
 async function renderListWallet(
   emoji: string,
@@ -119,14 +121,21 @@ async function compose(
   target: Target,
   dataProfile: any
 ) {
-  const [podProfileRes, vaultsRes, walletsRes, socials, balances] =
-    await Promise.all([
-      profile.getUserProfile(i.guildId ?? "", dataProfile.id),
-      config.vaultList(i.guildId ?? "", false, dataProfile.id),
-      profile.getUserWallets(target.id),
-      profile.getUserSocials(target.id),
-      getBalances(dataProfile.id, target.id, BalanceType.Offchain, i, "", ""),
-    ])
+  const [
+    podProfileRes,
+    vaultsRes,
+    walletsRes,
+    socials,
+    balances,
+    investPortResp,
+  ] = await Promise.all([
+    profile.getUserProfile(i.guildId ?? "", dataProfile.id),
+    config.vaultList(i.guildId ?? "", false, dataProfile.id),
+    profile.getUserWallets(target.id),
+    profile.getUserSocials(target.id),
+    getBalances(dataProfile.id, target.id, BalanceType.Offchain, i, "", ""),
+    mochiPay.getKrystalEarnPortfolio({ profile_id: dataProfile.id }),
+  ])
   let userProfile
   if (podProfileRes.ok) {
     userProfile = podProfileRes.data
@@ -136,6 +145,9 @@ async function compose(
   if (!i.guildId) {
     vaults = vaultsRes.filter((v) => v.discord_guild?.name).slice(0, 5)
   }
+
+  // Get first 5 invest portfolios
+  const investPortfolios = investPortResp.data?.slice(0, 5) ?? []
 
   const {
     onchainTotal,
@@ -211,6 +223,15 @@ async function compose(
       }),
     ].join("\n"),
   }).addFields([
+    ...(investPortfolios.length
+      ? [
+          {
+            name: "Invest Portfolios",
+            value: composeInvestPortfolio(investPortfolios),
+            inline: false,
+          },
+        ]
+      : []),
     ...(vaults.length
       ? [
           {
@@ -358,12 +379,7 @@ async function compose(
           .setLabel(`Wallet`)
           .setEmoji(getEmoji("PLUS"))
           .setStyle("SECONDARY")
-          .setCustomId("view_add_wallet"),
-        new MessageButton()
-          .setLabel(`Invest`)
-          .setEmoji(getEmoji("BANK"))
-          .setStyle("SECONDARY")
-          .setCustomId("view_invest_portfolio")
+          .setCustomId("view_add_wallet")
       ),
       ...connectButtons,
     ],

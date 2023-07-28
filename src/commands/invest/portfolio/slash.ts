@@ -7,16 +7,15 @@ import {
 } from "discord.js"
 import { SlashCommand } from "types/common"
 import community from "adapters/community"
-import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import mochiPay from "adapters/mochi-pay"
 import { getProfileIdByDiscord } from "utils/profile"
-import { APPROX, VERTICAL_BAR } from "utils/constants"
 import { ResponseInvestPlatforms } from "types/api"
-import { emojis, getEmoji, getEmojiURL, TokenEmojiKey } from "utils/common"
-import { formatTokenDigit, formatUsdDigit } from "utils/defi"
+import { emojis, getEmoji, getEmojiURL } from "utils/common"
 import { MachineConfig, route } from "utils/router"
 import { InternalError } from "errors"
 import { getSlashCommand } from "utils/commands"
+import { composeInvestPortfolio } from "./processor"
 
 export const machineConfig: (
   filter?: InvestPortfolioFilter
@@ -156,39 +155,14 @@ async function renderInvestPortfolio(
     }
   }
 
-  const info = data.map((invest) => {
-    const decimals = invest.to_underlying_token.decimals
-    const tokenAmount =
-      Number(invest.to_underlying_token?.balance) / 10 ** decimals
-    const amount = `${formatTokenDigit(tokenAmount)} ${
-      invest.to_underlying_token.symbol
-    }`
-    const apy = `${formatTokenDigit(invest.apy)}%`
-    const usdWorth = `$${formatUsdDigit(invest.underlying_usd)}`
-    const platform = invest.platform.name || ""
-    const symbol = invest.to_underlying_token?.symbol || ""
-
-    return {
-      emoji: getEmoji(symbol as TokenEmojiKey),
-      amount,
-      usdWorth,
-      platform: platform,
-      apy: apy,
-    }
-  })
-
-  const { segments } = formatDataTable(info, {
-    cols: ["amount", "usdWorth", "platform", "apy"],
-    rowAfterFormatter: (f, i) => `${info[i].emoji}${f}${getEmoji("GIFT")}`,
-    separator: [` ${APPROX} `, VERTICAL_BAR, VERTICAL_BAR],
-  })
+  const description = composeInvestPortfolio(data)
 
   return {
     msgOpts: {
       embeds: [
         composeEmbedMessage(null, {
           author: ["Invest Portfolio", getEmojiURL(emojis.BANK)],
-          description: `${segments.map((c) => c.join("\n"))}`,
+          description,
         }),
       ],
     },
