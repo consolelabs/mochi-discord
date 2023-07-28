@@ -22,6 +22,7 @@ import {
   getSuccessEmbed,
 } from "ui/discord/embed"
 import { wrapError } from "utils/wrap-error"
+import { getProfileIdByDiscord } from "utils/profile"
 
 export async function runTransferTreasurer({
   i,
@@ -47,12 +48,15 @@ export async function runTransferTreasurer({
     return
   }
 
+  const userProfileId = await getProfileIdByDiscord(user?.id ?? "")
+  const requesterProfileId = await getProfileIdByDiscord(i.user.id)
+
   const vaultName = i.options.getString("name", true)
   const token = i.options.getString("token", true)
   const shortenAddress = address === "" ? "" : shortenHashOrAddress(address)
   const amount = i.options.getString("amount", true)
   const chain = i.options.getString("chain", true)
-  const userId = user?.id ?? ""
+  const userId = userProfileId
   const {
     data: dataTransferTreasurerReq,
     ok,
@@ -64,8 +68,8 @@ export async function runTransferTreasurer({
     message:
       i.options.getString("message")?.trim() || "Send money to treasurer",
     type: "transfer",
-    requester: i.user.id,
-    user_discord_id: userId,
+    requester_profile_id: requesterProfileId,
+    user_profile_id: userProfileId,
     address: address,
     chain: chain,
     token: token,
@@ -125,17 +129,17 @@ export async function runTransferTreasurer({
   // send DM to list treasurer but not requester, requester default approve
   if (!dataTransferTreasurerReq?.is_decided_and_executed) {
     dataTransferTreasurerReq?.treasurer.forEach((treasurer: any) => {
-      if (treasurer.user_discord_id === i.user.id) {
+      if (treasurer.user_profile_id === requesterProfileId) {
         return
       }
       const actionRow = new MessageActionRow().addComponents(
         new MessageButton({
-          customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
+          customId: `treaTransfer-approved-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_profile_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
           style: "SUCCESS",
           label: "Approve",
         }),
         new MessageButton({
-          customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_discord_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
+          customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_profile_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
           style: "DANGER",
           label: "Reject",
         })
@@ -197,7 +201,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
   } = await config.createTreasurerSubmissions({
     vault_id: Number(vaultId),
     request_id: Number(requestId),
-    submitter: submitter,
+    submitter_profile_id: submitter,
     choice: choice,
     type: "transfer",
   })
