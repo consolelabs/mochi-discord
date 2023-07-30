@@ -114,6 +114,7 @@ export async function composeEcocal(
     return {
       msgOpts: {
         embeds: [embed],
+        components: [buildSwitchViewActionRow(now)],
       },
     }
   }
