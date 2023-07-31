@@ -490,6 +490,7 @@ export interface ModelVaultTreasurer {
   role?: string;
   updated_at?: string;
   user_discord_id?: string;
+  user_profile_id?: string;
   vault?: ModelVault;
   vault_id?: number;
 }
@@ -755,8 +756,8 @@ export interface RequestSendUserXPRequest {
 export interface RequestSwapRequest {
   aggregator?: string;
   chainName: string;
-  routeSummary?: any;
-  swapData?: any;
+  routeSummary?: object;
+  swapData?: object;
   userDiscordId: string;
 }
 
@@ -912,6 +913,33 @@ export interface ResponseAssetPlatformResponseData {
   id?: string;
   name?: string;
   shortname?: string;
+}
+
+export interface ResponseBinanceFutureAcountPosition {
+  askNotional?: string;
+  bidNotional?: string;
+  entryPrice?: string;
+  initialMargin?: string;
+  isolated?: boolean;
+  leverage?: string;
+  maintMargin?: string;
+  maxNotional?: string;
+  openOrderInitialMargin?: string;
+  positionAmt?: string;
+  positionInitialMargin?: string;
+  positionSide?: string;
+  symbol?: string;
+  unrealizedProfit?: string;
+  updateTime?: number;
+}
+
+export interface ResponseBinanceFutureAcountPositionResponse {
+  data?: ResponseBinanceFuturePositionInformation[];
+}
+
+export interface ResponseBinanceFuturePositionInformation {
+  apiKey?: string;
+  positions?: ResponseBinanceFutureAcountPosition[];
 }
 
 export interface ResponseChainGasTrackerResponseData {
@@ -1126,21 +1154,21 @@ export interface ResponseGetCoinResponse {
   coingecko_id?: string;
   coingecko_rank?: number;
   coingecko_score?: number;
-  community_data?: any;
+  community_data?: object;
   contract_address?: string;
   description?: Record<string, string>;
   detail_platforms?: Record<string, ResponseCoinPlatformDetailData>;
-  developer_data?: any;
-  genesis_date?: any;
-  hashing_algorithm?: any;
+  developer_data?: object;
+  genesis_date?: object;
+  hashing_algorithm?: object;
   id?: string;
   image?: ResponseCoinImage;
-  links?: any;
+  links?: object;
   localization?: Record<string, string>;
   market_cap_rank?: number;
   market_data?: ResponseMarketData;
   name?: string;
-  platforms?: any;
+  platforms?: object;
   sentiment_votes_down_percentage?: number;
   sentiment_votes_up_percentage?: number;
   symbol?: string;
@@ -1381,7 +1409,7 @@ export interface ResponseGetTrackingWalletsResponse {
 export interface ResponseGetTrendingSearch {
   coins?: ResponseGetTrendingSearchCoin[];
   /** this field coingecko return empty */
-  exchanges?: any;
+  exchanges?: object;
 }
 
 export interface ResponseGetTrendingSearchCoin {
@@ -1695,11 +1723,11 @@ export interface ResponseListTokenPriceAlertResponse {
 export interface ResponseMarketData {
   ath?: Record<string, number>;
   ath_change_percentage?: Record<string, number>;
-  ath_date?: any;
+  ath_date?: object;
   atl?: Record<string, number>;
   circulating_supply?: number;
   current_price?: Record<string, number>;
-  fdv_to_tvl_ratio?: any;
+  fdv_to_tvl_ratio?: object;
   fully_diluted_valuation?: Record<string, number>;
   high_24h?: Record<string, number>;
   low_24h?: Record<string, number>;
@@ -1708,7 +1736,7 @@ export interface ResponseMarketData {
   market_cap_change_percentage_24h_in_currency?: Record<string, number>;
   market_cap_rank?: number;
   max_supply?: number;
-  mcap_to_tvl_ratio?: any;
+  mcap_to_tvl_ratio?: object;
   price_change_24h?: number;
   price_change_24h_in_currency?: Record<string, number>;
   price_change_percentage_14d?: number;
@@ -1727,10 +1755,10 @@ export interface ResponseMarketData {
   price_change_percentage_60d_in_currency?: Record<string, number>;
   price_change_percentage_7d?: number;
   price_change_percentage_7d_in_currency?: Record<string, number>;
-  roi?: any;
+  roi?: object;
   total_market_cap?: Record<string, number>;
   total_supply?: number;
-  total_value_locked?: any;
+  total_value_locked?: object;
   total_volume?: Record<string, number>;
 }
 
@@ -1873,6 +1901,14 @@ export interface ResponseOffchainTipBotTransferTokenResponse {
   data?: ResponseOffchainTipBotTransferToken[];
 }
 
+export interface ResponseOnchainInvestData {
+  tx_object?: ResponseTxObject;
+}
+
+export interface ResponseOnchainInvestDataResponse {
+  data?: ResponseOnchainInvestData;
+}
+
 export interface ResponsePaginationResponse {
   /** page index */
   page?: number;
@@ -1962,9 +1998,9 @@ export interface ResponseSparkLineIn7D {
 
 export interface ResponseSwapRoute {
   aggregator?: string;
-  routeSummary?: any;
+  routeSummary?: object;
   routerAddress?: string;
-  swapData?: any;
+  swapData?: object;
   tokenIn?: ResponseRouteToken;
   tokenOut?: ResponseRouteToken;
 }
@@ -2048,6 +2084,16 @@ export interface ResponseTopUser {
   author?: ModelGuildUserXP;
   leaderboard?: ModelGuildUserXP[];
   metadata?: ResponsePaginationResponse;
+}
+
+export interface ResponseTxObject {
+  data?: string;
+  from?: string;
+  gas_limit?: string;
+  gas_price?: string;
+  nonce?: string;
+  to?: string;
+  value?: string;
 }
 
 export interface ResponseUnlinkBinance {
