@@ -120,13 +120,13 @@ const slashCmd: SlashCommand = {
       .addStringOption((option) =>
         option
           .setName("to")
-          .setDescription("the token you want to sell")
+          .setDescription("the token you want to buy")
           .setRequired(true)
       )
       .addStringOption((option) =>
         option
           .setName("from")
-          .setDescription("the token you want to buy")
+          .setDescription("the token you want to sell")
           .setRequired(false)
       )
       .addNumberOption((option) =>
