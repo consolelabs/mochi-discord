@@ -88,7 +88,7 @@ const slashCmd: SlashCommand = {
                 .map((p: any) => {
                   const isPos = Math.sign(Number(p.result)) > 0
                   return `<@${p.player_id}> **${
-                    isPos ? `+${p.collected_amount}` : `-${p.bet_amount}`
+                    isPos ? `+${p.collected_amount}` : p.result
                   } ICY** (${getEmoji(isPos ? "ARROW_UP" : "ARROW_DOWN")}${
                     isPos ? `x${p.payout_ratio}` : ""
                   })`
