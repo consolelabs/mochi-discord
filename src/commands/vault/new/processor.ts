@@ -4,6 +4,7 @@ import { GuildIdNotFoundError, InternalError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { getSlashCommand } from "utils/commands"
+import { getProfileIdByDiscord } from "utils/profile"
 
 export async function runCreateVault({
   i,
@@ -15,13 +16,14 @@ export async function runCreateVault({
   if (!guildId) {
     throw new GuildIdNotFoundError({ message: i })
   }
+  const profileId = await getProfileIdByDiscord(i.user.id)
 
   const { data, status, originalError } = await config.createVault({
     guild_id: guildId,
     name: i.options.getString("name", true),
     threshold: i.options.getString("threshold", true),
     desig_mode: i.options.getBoolean("desig", false) ?? false,
-    vault_creator: i.user.id,
+    vault_creator: profileId,
   })
   if (status === 400 && originalError) {
     throw new InternalError({

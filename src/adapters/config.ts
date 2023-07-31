@@ -1001,9 +1001,9 @@ class Config extends Fetcher {
   public async createTreasureRequest(req: {
     guild_id: string
     vault_name: string
-    user_discord_id?: string
+    user_profile_id?: string
     message: string
-    requester: string
+    requester_profile_id: string
     type: string
     amount?: string
     chain?: string
@@ -1026,7 +1026,7 @@ class Config extends Fetcher {
   public async createTreasurerSubmissions(req: {
     vault_id: number
     request_id: number
-    submitter: string
+    submitter_profile_id: string
     choice: string
     type: string
   }) {
@@ -1039,7 +1039,7 @@ class Config extends Fetcher {
   public async addTreasurerToVault(req: {
     vault_id: number
     guild_id: string
-    user_discord_id: string
+    user_profile_id: string
     channel_id: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer`, {
@@ -1067,29 +1067,11 @@ class Config extends Fetcher {
   public async removeTreasurerFromVault(req: {
     vault_id: number
     guild_id: string
-    user_discord_id: string
+    user_profile_id: string
     channel_id: string
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer`, {
       method: "DELETE",
-      body: req,
-    })
-  }
-
-  public async createTreasurerResult(req: {
-    vault_id: number
-    guild_id: string
-    user_discord_id?: string
-    channel_id: string
-    type: string
-    status: string
-    amount?: string
-    chain?: string
-    token?: string
-    address?: string
-  }) {
-    return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/result`, {
-      method: "POST",
       body: req,
     })
   }
