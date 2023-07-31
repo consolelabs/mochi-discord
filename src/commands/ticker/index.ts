@@ -49,7 +49,7 @@ const slashCmd: SlashCommand = {
   run: async function (interaction: CommandInteraction) {
     const showAll = interaction.options.getBoolean("show-all") || false
     const baseQ = interaction.options.getString("base", true)
-    if (!interaction.guildId || !baseQ) return null
+    if (!baseQ) return null
     const targetQ = interaction.options.getString("target")
     const query = `${baseQ}${targetQ ? `/${targetQ}` : ""}`
     const { base, target, isCompare, isFiat } = parseTickerQuery(query)
