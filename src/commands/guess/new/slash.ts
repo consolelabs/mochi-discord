@@ -12,10 +12,10 @@ function renderProgress(
   code: string,
   options: any[]
 ) {
+  const time = end <= Date.now() ? Date.now() : Math.round(end / 1000)
   return [
-    `<@${referee.id}> will provide answer <t:${Math.round(
-      end / 1000
-    )}:R>, id: \`${code}\``,
+    `<@${referee.id}> to provide answer <t:${time}:R>, id: \`${code}\``,
+    "",
     ...options.map(
       (opt: any) =>
         `${opt.option}: ${
@@ -73,9 +73,12 @@ const slashCmd: SlashCommand = {
         },
       }
     }
-    const yesLabel =
-      i.options.getString("yes_label", false) || "🐮 Bullish (yes)"
-    const noLabel = i.options.getString("no_label", false) || "🐻 Bearish (no)"
+    const yesLabel = `${
+      i.options.getString("yes_label", false) || "🐮 Bullish"
+    } (yes)`
+    const noLabel = `${
+      i.options.getString("no_label", false) || "🐻 Bearish"
+    } (no)`
     const question = i.options.getString("question", true)
     const durationMin = i.options.getInteger("duration", false) || 30
     const durationMs = durationMin * 60 * 1000
@@ -160,7 +163,7 @@ const slashCmd: SlashCommand = {
       ],
     })
 
-    timers.set(data.code, setInterval(updatePlayers, 5 * 60 * 1000))
+    timers.set(data.code, setInterval(updatePlayers, 60 * 1000))
 
     msg
       .createMessageComponentCollector({
@@ -170,6 +173,12 @@ const slashCmd: SlashCommand = {
       })
       .on("collect", async (i) => {
         await i.deferReply({ ephemeral: true })
+        if (i.user.id === referee.id) {
+          await i.editReply({
+            content: "Referee cannot play",
+          })
+          return
+        }
         if (Date.now() >= end) {
           await i.editReply({
             content: "No more time to vote or game already ended",
