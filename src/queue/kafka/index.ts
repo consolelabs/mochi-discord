@@ -1,3 +1,4 @@
+import { CommandInteraction, Message } from "discord.js"
 import {
   KAFKA_BROKERS,
   KAFKA_CLIENT_ID,
@@ -5,8 +6,10 @@ import {
   KAFKA_ACTIVITY_PROFILE_TOPIC,
   KAFKA_NOTIFICATION_TOPIC,
   KAFKA_ANALYTIC_TOPIC,
+  KAFKA_AUDIT_TOPIC,
 } from "env"
 import { Kafka, Partitioners, Producer } from "kafkajs"
+import { getAuthor } from "../../utils/common"
 
 export default class Queue {
   private producer: Producer
@@ -15,6 +18,7 @@ export default class Queue {
   private analyticTopic = KAFKA_ANALYTIC_TOPIC
   private activityProfileTopic = KAFKA_ACTIVITY_PROFILE_TOPIC
   private notificationTopic = KAFKA_NOTIFICATION_TOPIC
+  private auditTopic = KAFKA_AUDIT_TOPIC
 
   constructor() {
     this.kafka = new Kafka({
@@ -90,6 +94,47 @@ export default class Queue {
     await this.producer.send({
       topic: this.notificationTopic,
       messages: messages.map((m) => ({ value: m })),
+    })
+  }
+
+  async produceAuditMsg(msgOrInteraction: Message | CommandInteraction) {
+    const author = getAuthor(msgOrInteraction)
+    const payload = {
+      type: 4,
+      discord_log: {
+        message: {
+          message_id: msgOrInteraction.id,
+          author: {
+            id: author.id,
+            is_bot: author.bot,
+            username: author.username,
+          },
+          channel: {
+            id: msgOrInteraction.channelId,
+            type: msgOrInteraction.channel?.type ?? "",
+          },
+          date: msgOrInteraction.createdTimestamp,
+          text: "",
+        },
+      },
+    }
+    const data = JSON.stringify(payload)
+    const bytes = new TextEncoder().encode(data)
+    const binaryString = Array.from(bytes, (x) => String.fromCodePoint(x)).join(
+      ""
+    )
+
+    await this.producer.send({
+      topic: this.auditTopic,
+      messages: [
+        {
+          value: JSON.stringify({
+            type: "audit",
+            sender: "mochi-discord",
+            message: btoa(binaryString),
+          }),
+        },
+      ],
     })
   }
 }

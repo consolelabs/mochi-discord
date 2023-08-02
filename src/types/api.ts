@@ -915,31 +915,31 @@ export interface ResponseAssetPlatformResponseData {
   shortname?: string;
 }
 
-export interface ResponseBinanceFutureAcountPosition {
-  askNotional?: string;
-  bidNotional?: string;
-  entryPrice?: string;
-  initialMargin?: string;
-  isolated?: boolean;
-  leverage?: string;
-  maintMargin?: string;
-  maxNotional?: string;
-  openOrderInitialMargin?: string;
-  positionAmt?: string;
-  positionInitialMargin?: string;
-  positionSide?: string;
-  symbol?: string;
-  unrealizedProfit?: string;
-  updateTime?: number;
+export interface ResponseBinanceFutureAccountPositionResponse {
+  data?: ResponseBinanceFuturePositionInformation[];
 }
 
-export interface ResponseBinanceFutureAcountPositionResponse {
-  data?: ResponseBinanceFuturePositionInformation[];
+export interface ResponseBinanceFuturePositionInfo {
+  entryPrice?: string;
+  isAutoAddMargin?: string;
+  isolatedMargin?: string;
+  isolatedWallet?: string;
+  leverage?: string;
+  liquidationPrice?: string;
+  marginType?: string;
+  markPrice?: string;
+  maxNotionalValue?: string;
+  notional?: string;
+  positionAmt?: string;
+  positionSide?: string;
+  symbol?: string;
+  unRealizedProfit?: string;
+  updateTime?: number;
 }
 
 export interface ResponseBinanceFuturePositionInformation {
   apiKey?: string;
-  positions?: ResponseBinanceFutureAcountPosition[];
+  positions?: ResponseBinanceFuturePositionInfo[];
 }
 
 export interface ResponseChainGasTrackerResponseData {
