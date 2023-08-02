@@ -210,6 +210,9 @@ function handleCommandInteraction(interaction: Interaction) {
             },
           }
           await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+          if (interaction.isCommand()) {
+            await kafkaQueue?.produceAuditMsg(interaction)
+          }
         } catch (error) {
           logger.error("[KafkaQueue] - failed to enqueue")
         }
@@ -221,6 +224,9 @@ function handleCommandInteraction(interaction: Interaction) {
         })
       }
       const response = await command.run(i)
+      if (interaction.isCommand()) {
+        await kafkaQueue?.produceAuditMsg(interaction)
+      }
       if (!response) return
       const executionTime =
         performance.now() - (profilingAsyncStore.getStore() ?? 0)
