@@ -8,6 +8,7 @@ import {
 } from "./processor"
 import { MachineConfig, route } from "utils/router"
 import { machineConfig as swapMachineConfig } from "commands/swap"
+import { addToWatchlistFromTicker } from "../../watchlist/add/processor"
 
 export const machineConfig: (
   swapTo: string,
@@ -70,6 +71,14 @@ export const machineConfig: (
             days: ctx.days,
           })
         },
+        addWatchList: async (interaction, _ev, ctx) => {
+          return await addToWatchlistFromTicker(
+            interaction,
+            interaction.user.id,
+            ctx.to,
+            ctx.baseCoin.id
+          )
+        },
       },
       ...tickerCtx,
     },
@@ -79,6 +88,7 @@ export const machineConfig: (
           SWAP: "swapStep1",
           CHANGE_TIME_OPTION: "ticker",
           VIEW_INFO: "tickerInfo",
+          ADD_TO_WATCHLIST: "addWatchList",
         },
       },
       tickerPair: {
@@ -94,6 +104,7 @@ export const machineConfig: (
       tickerInfo: {
         on: {
           VIEW_CHART: "ticker",
+          ADD_TO_WATCHLIST: "addWatchList",
         },
       },
       tickerAll: {
@@ -102,6 +113,11 @@ export const machineConfig: (
         },
       },
       swapStep1,
+      addWatchList: {
+        on: {
+          VIEW_CHART: "ticker",
+        },
+      },
     },
   }
 }

@@ -33,7 +33,7 @@ import {
 import { handleUpdateWlError } from "../processor"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { getSlashCommand } from "utils/commands"
-import { getProfileIdByDiscord } from "../../../utils/profile"
+import { getProfileIdByDiscord } from "utils/profile"
 
 export async function addToWatchlist(i: ButtonInteraction) {
   if (!i.deferred) i.deferUpdate()
@@ -55,6 +55,50 @@ export async function addToWatchlist(i: ButtonInteraction) {
 
   msg.edit({
     components: msg.components,
+  })
+}
+
+export async function addToWatchlistFromTicker(
+  i: ButtonInteraction,
+  userId: string,
+  symbol: string,
+  coingeckoId: string
+) {
+  if (!i.deferred) await i.deferUpdate().catch(() => null)
+  const msg = i.message as Message
+  const data = await addUserWatchlist(
+    msg,
+    userId,
+    symbol.toLowerCase(),
+    coingeckoId
+  )
+  if (!data) return null
+
+  const symbolString = (symbols: string[]) => {
+    return symbols
+      .map(function (s) {
+        return s.toUpperCase()
+      })
+      .join(" ")
+  }
+
+  await msg.edit({
+    attachments: [],
+    embeds: [
+      getSuccessEmbed({
+        title: `${symbolString([symbol])} has been added to the watchlist`,
+        description: `${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} View watchlist with ${await getSlashCommand(
+          "wlv"
+        )} (alias for ${await getSlashCommand("watchlist view")})\n${getEmoji(
+          "ANIMATED_POINTING_RIGHT",
+          true
+        )} To remove, use ${await getSlashCommand("watchlist remove")}`,
+      }),
+    ],
+    components: [],
   })
 }
 
