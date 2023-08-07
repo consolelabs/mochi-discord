@@ -502,6 +502,13 @@ class Defi extends Fetcher {
     const url = `${API_BASE_URL}/users/${profileId}/balances`
     return await this.jsonFetch(url)
   }
+
+  async transferV2(req: any) {
+    return await this.jsonFetch(`${API_BASE_URL}/tip/transfer-v2`, {
+      method: "POST",
+      body: req,
+    })
+  }
 }
 
 export default new Defi()
