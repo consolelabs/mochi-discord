@@ -718,7 +718,6 @@ export interface RequestNewGuildConfigWalletVerificationMessageRequest {
 export interface RequestOffchainTransferRequest {
   all?: boolean;
   amount?: number;
-  amount_string?: string;
   chain_id?: string;
   channel_id?: string;
   each?: boolean;
@@ -728,6 +727,7 @@ export interface RequestOffchainTransferRequest {
   platform?: string;
   recipients?: string[];
   sender?: string;
+  /** AmountString string   `json:"amount_string"` */
   token?: string;
   transfer_type?: string;
 }
@@ -756,8 +756,8 @@ export interface RequestSendUserXPRequest {
 export interface RequestSwapRequest {
   aggregator?: string;
   chainName: string;
-  routeSummary?: object;
-  swapData?: object;
+  routeSummary?: any;
+  swapData?: any;
   userDiscordId: string;
 }
 
@@ -769,6 +769,20 @@ export interface RequestTrackWalletRequest {
   is_owner?: boolean;
   message_id?: string;
   type: string;
+}
+
+export interface RequestTransferV2Request {
+  all?: boolean;
+  amount?: number;
+  chain_id?: string;
+  each?: boolean;
+  guild_id?: string;
+  message?: string;
+  metadata?: Record<string, any>;
+  platform?: string;
+  recipients?: string[];
+  sender?: string;
+  token?: string;
 }
 
 export interface RequestUnlinkBinance {
@@ -915,31 +929,31 @@ export interface ResponseAssetPlatformResponseData {
   shortname?: string;
 }
 
-export interface ResponseBinanceFutureAcountPosition {
-  askNotional?: string;
-  bidNotional?: string;
-  entryPrice?: string;
-  initialMargin?: string;
-  isolated?: boolean;
-  leverage?: string;
-  maintMargin?: string;
-  maxNotional?: string;
-  openOrderInitialMargin?: string;
-  positionAmt?: string;
-  positionInitialMargin?: string;
-  positionSide?: string;
-  symbol?: string;
-  unrealizedProfit?: string;
-  updateTime?: number;
+export interface ResponseBinanceFutureAccountPositionResponse {
+  data?: ResponseBinanceFuturePositionInformation[];
 }
 
-export interface ResponseBinanceFutureAcountPositionResponse {
-  data?: ResponseBinanceFuturePositionInformation[];
+export interface ResponseBinanceFuturePositionInfo {
+  entryPrice?: string;
+  isAutoAddMargin?: string;
+  isolatedMargin?: string;
+  isolatedWallet?: string;
+  leverage?: string;
+  liquidationPrice?: string;
+  marginType?: string;
+  markPrice?: string;
+  maxNotionalValue?: string;
+  notional?: string;
+  positionAmt?: string;
+  positionSide?: string;
+  symbol?: string;
+  unRealizedProfit?: string;
+  updateTime?: number;
 }
 
 export interface ResponseBinanceFuturePositionInformation {
   apiKey?: string;
-  positions?: ResponseBinanceFutureAcountPosition[];
+  positions?: ResponseBinanceFuturePositionInfo[];
 }
 
 export interface ResponseChainGasTrackerResponseData {
@@ -1154,21 +1168,21 @@ export interface ResponseGetCoinResponse {
   coingecko_id?: string;
   coingecko_rank?: number;
   coingecko_score?: number;
-  community_data?: object;
+  community_data?: any;
   contract_address?: string;
   description?: Record<string, string>;
   detail_platforms?: Record<string, ResponseCoinPlatformDetailData>;
-  developer_data?: object;
-  genesis_date?: object;
-  hashing_algorithm?: object;
+  developer_data?: any;
+  genesis_date?: any;
+  hashing_algorithm?: any;
   id?: string;
   image?: ResponseCoinImage;
-  links?: object;
+  links?: any;
   localization?: Record<string, string>;
   market_cap_rank?: number;
   market_data?: ResponseMarketData;
   name?: string;
-  platforms?: object;
+  platforms?: any;
   sentiment_votes_down_percentage?: number;
   sentiment_votes_up_percentage?: number;
   symbol?: string;
@@ -1409,7 +1423,7 @@ export interface ResponseGetTrackingWalletsResponse {
 export interface ResponseGetTrendingSearch {
   coins?: ResponseGetTrendingSearchCoin[];
   /** this field coingecko return empty */
-  exchanges?: object;
+  exchanges?: any;
 }
 
 export interface ResponseGetTrendingSearchCoin {
@@ -1723,11 +1737,11 @@ export interface ResponseListTokenPriceAlertResponse {
 export interface ResponseMarketData {
   ath?: Record<string, number>;
   ath_change_percentage?: Record<string, number>;
-  ath_date?: object;
+  ath_date?: any;
   atl?: Record<string, number>;
   circulating_supply?: number;
   current_price?: Record<string, number>;
-  fdv_to_tvl_ratio?: object;
+  fdv_to_tvl_ratio?: any;
   fully_diluted_valuation?: Record<string, number>;
   high_24h?: Record<string, number>;
   low_24h?: Record<string, number>;
@@ -1736,7 +1750,7 @@ export interface ResponseMarketData {
   market_cap_change_percentage_24h_in_currency?: Record<string, number>;
   market_cap_rank?: number;
   max_supply?: number;
-  mcap_to_tvl_ratio?: object;
+  mcap_to_tvl_ratio?: any;
   price_change_24h?: number;
   price_change_24h_in_currency?: Record<string, number>;
   price_change_percentage_14d?: number;
@@ -1755,10 +1769,10 @@ export interface ResponseMarketData {
   price_change_percentage_60d_in_currency?: Record<string, number>;
   price_change_percentage_7d?: number;
   price_change_percentage_7d_in_currency?: Record<string, number>;
-  roi?: object;
+  roi?: any;
   total_market_cap?: Record<string, number>;
   total_supply?: number;
-  total_value_locked?: object;
+  total_value_locked?: any;
   total_volume?: Record<string, number>;
 }
 
@@ -1998,9 +2012,9 @@ export interface ResponseSparkLineIn7D {
 
 export interface ResponseSwapRoute {
   aggregator?: string;
-  routeSummary?: object;
+  routeSummary?: any;
   routerAddress?: string;
-  swapData?: object;
+  swapData?: any;
   tokenIn?: ResponseRouteToken;
   tokenOut?: ResponseRouteToken;
 }
