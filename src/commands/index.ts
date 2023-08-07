@@ -278,6 +278,7 @@ async function executeCommand(
           },
         }
         await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+        await kafkaQueue?.produceAuditMsg(message)
       } catch (error) {
         logger.error("[KafkaQueue] - failed to enqueue")
       }
@@ -390,6 +391,7 @@ async function executeCommand(
       },
     }
     await kafkaQueue?.produceBatch([JSON.stringify(kafkaMsg)])
+    await kafkaQueue?.produceAuditMsg(message)
   } catch (error) {
     logger.error("[KafkaQueue] - failed to enqueue")
   }
