@@ -95,6 +95,7 @@ export async function tip(
     message,
     image,
     chain_id: "",
+    platform: "discord",
   }
 
   // only one matching token -> proceed to send tip
@@ -174,7 +175,7 @@ async function transfer(
   payload: any
 ) {
   // send transfer request
-  const { data, ok, curl, log } = await defi.offchainDiscordTransfer({
+  const { data, ok, curl, log } = await defi.transferV2({
     ...payload,
     sender: await getProfileIdByDiscord(payload.sender),
     recipients: await Promise.all(
