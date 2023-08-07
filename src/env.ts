@@ -62,6 +62,7 @@ export const KAFKA_NOTIFICATION_TOPIC =
 export const KAFKA_CLIENT_ID = process.env.KAFKA_CLIENT_ID || "mochiDiscord"
 export const KAFKA_PRODUCER_TOPIC =
   process.env.KAFKA_PRODUCER_TOPIC || "mochiDiscord.dev"
+export const KAFKA_AUDIT_TOPIC = process.env.KAFKA_AUDIT_TOPIC || "testTopic"
 
 export const FTMSCAN_API_KEY = process.env.FTMSCAN_API_KEY || ""
 
