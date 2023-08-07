@@ -2100,6 +2100,21 @@ export interface ResponseTopUser {
   metadata?: ResponsePaginationResponse;
 }
 
+export interface ResponseTransferTokenV2Data {
+  amount_each?: number;
+  /**
+   * SenderID    string  `json:"sender_id"`
+   * Recipients  string  `json:"recipient_id"`
+   */
+  id?: string;
+  total_amount?: number;
+  tx_id?: number;
+}
+
+export interface ResponseTransferTokenV2Response {
+  data?: ResponseTransferTokenV2Data;
+}
+
 export interface ResponseTxObject {
   data?: string;
   from?: string;
