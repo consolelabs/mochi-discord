@@ -208,6 +208,7 @@ async function compose(
             }/${nextLevelMinXp}\``,
           ]
         : []),
+      "",
       `**Wallets**`,
       await renderWallets({
         mochiWallets: {

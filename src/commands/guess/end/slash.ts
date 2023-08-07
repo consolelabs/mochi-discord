@@ -1,7 +1,8 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import mochiGuess from "adapters/mochi-guess"
 import { ThreadChannel } from "discord.js"
-import { truncate } from "lodash"
+import { now, truncate } from "lodash"
+import moment from "moment-timezone"
 import { SlashCommand } from "types/common"
 import { capitalizeFirst, equalIgnoreCase } from "utils/common"
 import { timeouts, timers } from ".."
@@ -22,31 +23,46 @@ const slashCmd: SlashCommand = {
       .addStringOption((opt) =>
         opt
           .setName("choice")
-          .setDescription("bullish/bearish")
-          .setChoices([
-            ["yes", "1"],
-            ["no", "2"],
-          ])
+          .setDescription("yes/no")
+          .setAutocomplete(true)
           .setRequired(true)
       )
   },
   autocomplete: async (i) => {
-    const { ok, data: games } = await mochiGuess.getGames()
-    const input = i.options.getFocused()
-    if (!ok) {
-      await i.respond([])
-      return
+    const { name, value } = i.options.getFocused(true)
+    if (name === "code") {
+      const { ok, data: games } = await mochiGuess.getGames()
+      if (!ok) {
+        await i.respond([])
+        return
+      }
+      await i.respond(
+        games
+          .filter((g: any) =>
+            g.code.toLowerCase().includes(value.toLowerCase())
+          )
+          .filter((g: any) => now() < moment(g.end_at).unix() * 1000)
+          .map((g: any) => ({
+            name: `${g.code} ${truncate(g.question, { length: 20 })}`,
+            value: g.code,
+          }))
+          .slice(0, 25)
+      )
+    } else {
+      const code = i.options.getString("code", true) || ""
+      if (!code) {
+        await i.respond([])
+        return
+      }
+      const { ok, data: game } = await mochiGuess.getGameProgress(code)
+      if (!ok) {
+        await i.respond([])
+        return
+      }
+      await i.respond(
+        game.options.map((opt: any) => ({ name: opt.option, value: opt.code }))
+      )
     }
-
-    await i.respond(
-      games
-        .filter((g: any) => g.code.toLowerCase().includes(input.toLowerCase()))
-        .map((g: any) => ({
-          name: `${g.code} ${truncate(g.question, { length: 20 })}`,
-          value: g.code,
-        }))
-        .slice(0, 25)
-    )
   },
   run: async (i) => {
     const code = i.options.getString("code", true)
@@ -79,6 +95,16 @@ const slashCmd: SlashCommand = {
         },
       }
 
+    if (
+      !game.options.find((opt: any) => equalIgnoreCase(opt.code, optionCode))
+    ) {
+      return {
+        messageOptions: {
+          content: "Please select one of game's option",
+        },
+      }
+    }
+
     const thread = (await i.client.channels.fetch(
       game.thread_id
     )) as ThreadChannel
@@ -93,7 +119,7 @@ const slashCmd: SlashCommand = {
     await mochiGuess.endGame(game.code, i.user.id, optionCode)
 
     const options = game.options.map((opt: any) => {
-      const players = opt.game_player.map(
+      const players = (opt.game_player ?? []).map(
         (player: any) => `<@${player.player_id}>`
       )
       return `${opt.option}: ${players.join(", ")}`
