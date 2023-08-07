@@ -101,10 +101,11 @@ const slashCmd: SlashCommand = {
         status: "active",
       })
 
-      if (!ok) {
+      if (!ok || !data.length) {
         await i.respond([])
         return
       }
+
       const formatter = Intl.NumberFormat("en-US", {
         maximumFractionDigits: 1,
         notation: "compact",
