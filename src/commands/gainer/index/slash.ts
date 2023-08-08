@@ -32,9 +32,10 @@ export const machineConfig: (initial: string) => MachineConfig = (initial) => ({
 })
 
 const run = async (i: CommandInteraction) => {
-  const timeRange = (i.options.getString("time") || TimeRange.D1) as TimeRange
+  const timeRange = (i.options.getString("time") ||
+    "D1") as keyof typeof TimeRange
 
-  const { msgOpts, initial } = await render(i, Tab.Gainer, timeRange)
+  const { msgOpts, initial } = await render(i, Tab.Gainer, TimeRange[timeRange])
   const reply = (await i.editReply(msgOpts)) as Message
 
   route(reply, i, machineConfig(initial))
