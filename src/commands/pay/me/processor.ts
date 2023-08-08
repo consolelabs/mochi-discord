@@ -2,7 +2,7 @@ import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { CommandInteraction, Message } from "discord.js"
 import { APIError, InternalError } from "errors"
-import { KafkaNotificationMessage } from "types/common"
+import { KafkaNotificationPayRequestMessage } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
@@ -18,12 +18,11 @@ import {
   isValidAmount,
 } from "utils/common"
 import { MOCHI_ACTION_PAY_ME, MOCHI_PLATFORM_DISCORD } from "utils/constants"
-import { convertToUsdValue } from "utils/convert"
 import { reply } from "utils/discord"
-import { sendNotificationMsg } from "utils/kafka"
-import mochiTelegram from "../../../adapters/mochi-telegram"
+import { sendNotificationPayRequestMsg } from "utils/kafka"
 import { dmUser } from "../../../utils/dm"
 
+const typePayRequest = 16
 export async function run({
   msgOrInteraction,
   amount,
@@ -143,43 +142,26 @@ export async function run({
     await dmUser(text, author, msgOrInteraction, null)
   }
 
-  //send notification to recipient if target is specified
-  const walletNotification = accounts
-    .filter(
-      (w: any) => w.platform === "solana-chain" || w.platform === "evm-chain"
-    )
-    .map((w: any) => {
-      return {
-        chain: w.platform,
-        address: w.platform_identifier,
-      }
-    })
-  if (hasTarget) {
-    const price = await convertToUsdValue(amount, token)
-
-    await sendNotification({
-      platform,
-      target,
-      // token,
-      // amount,
-      // note,
-      // payCode,
-      message: {
-        id: author.id,
-        platform: MOCHI_PLATFORM_DISCORD,
+  await sendNotification({
+    platform,
+    target,
+    message: {
+      type: typePayRequest,
+      pay_request_metadata: {
+        user_profile_id: profileId,
+        amount: amount.toString(),
+        token,
+        pay_link: paylink,
+        request_id: payCode,
         action: MOCHI_ACTION_PAY_ME,
         note: note,
-        metadata: {
-          amount: amount.toString(),
-          token,
-          price: price,
-          pay_link: paylink,
-          request_id: payCode,
-          wallet: walletNotification,
-        },
+        from_platform: MOCHI_PLATFORM_DISCORD,
+        to_platform: platform,
+        username: `${author.username}#${author.discriminator}`,
+        wallets: wallets,
       },
-    })
-  }
+    },
+  })
 
   // redirect user to DM from text channel
   const isDm = msgOrInteraction.channel?.type === "DM"
@@ -205,52 +187,49 @@ async function sendNotification({
 }: {
   platform?: string
   target?: string
-  message: KafkaNotificationMessage
+  message: KafkaNotificationPayRequestMessage
 }) {
   if (!platform || !target) return
   // discord
   if (platform === "discord") {
-    message.recipient_info = {
-      discord: target,
+    const targetId = target.replaceAll(/<|>/g, "")
+    const pfRes = await profile.getByDiscord(targetId)
+    if (pfRes.err) {
+      throw new APIError({
+        description: `[getByDiscord] API error with status ${pfRes.status_code}`,
+        curl: "",
+      })
     }
-
-    sendNotificationMsg(message)
+    message.pay_request_metadata.target_profile_id = pfRes.id
+    sendNotificationPayRequestMsg(message)
+    return
   }
 
   // telegram
   if (platform === "telegram") {
-    // get tele id from username
-    const { data, ok, curl, error, log } = await mochiTelegram.getByUsername(
-      target
-    )
-    if (!ok) {
-      throw new APIError({ curl, error, description: log })
+    const pfRes = await profile.getByTelegramUsername(target)
+    if (pfRes.err) {
+      throw new APIError({
+        description: `[getByTelegram] API error with status ${pfRes.status_code}`,
+        curl: "",
+      })
     }
-    message.recipient_info = {
-      telegram: data.id.toString(),
-    }
-
-    sendNotificationMsg(message)
+    message.pay_request_metadata.target_profile_id = pfRes.id
+    sendNotificationPayRequestMsg(message)
     return
   }
 
-  // mail
+  //email
   if (platform === "mail") {
-    message.recipient_info = {
-      mail: target,
+    const pfRes = await profile.getByEmail(target)
+    if (pfRes.err) {
+      throw new APIError({
+        description: `[getByEmail] API error with status ${pfRes.status_code}`,
+        curl: "",
+      })
     }
-
-    sendNotificationMsg(message)
-    return
-  }
-
-  // twitter
-  if (platform === "twitter") {
-    message.recipient_info = {
-      twitter: target,
-    }
-
-    sendNotificationMsg(message)
+    message.pay_request_metadata.target_profile_id = pfRes.id
+    sendNotificationPayRequestMsg(message)
     return
   }
 }

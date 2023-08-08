@@ -303,3 +303,29 @@ export type ResponseGetEcocalItem = {
   country_name?: string
   is_tentative?: boolean
 }
+
+export type KafkaNotificationPayRequestMessage = {
+  type: number
+  pay_request_metadata: KafkaNotificationPayRequestMessageMetadata
+}
+
+export type KafkaNotificationPayRequestMessageMetadata = {
+  user_profile_id?: string
+  username?: string
+  target_profile_id?: string
+  from_platform?: string
+  to_platform?: string
+  action?: string
+  note?: string
+  amount?: string
+  token?: string
+  price?: string
+  pay_link?: string
+  request_id?: string
+  wallets?: KafkaNotificationPayRequestWalletMessage[]
+}
+
+export type KafkaNotificationPayRequestWalletMessage = {
+  platform_identifier: string
+  chain: string
+}
