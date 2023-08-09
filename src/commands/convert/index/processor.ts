@@ -130,7 +130,7 @@ export async function render(
       )} (bridge)`
     : `${capitalizeFirst(tokenOut.chain_name)}`
 
-  const amountInUsd = formatUsdDigit(routeSummary.amountInUsd)
+  const amountInUsd = formatUsdDigit(routeSummary?.amountInUsd ?? 0)
 
   if (tradeRoute) {
     amountOut = utils.formatUnits(
