@@ -384,6 +384,7 @@ async function enterAirdrop(
         }),
       ],
     })
+    return
   }
 
   // new joiner (valid)
