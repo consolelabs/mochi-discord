@@ -16,7 +16,7 @@ function renderProgress(
   return [
     `<@${referee.id}> to provide answer <t:${time}:R>, id: \`${code}\``,
     "",
-    ...options.map(
+    ...(options ?? []).map(
       (opt: any) =>
         `${opt.option}: ${
           opt.game_player
