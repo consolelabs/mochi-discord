@@ -1,4 +1,7 @@
-import { MOCHI_PAY_API_BASE_URL } from "utils/constants"
+import {
+  MOCHI_PAY_API_BASE_URL,
+  MOCHI_PAY_API_BASE_URL_V2,
+} from "utils/constants"
 import { Fetcher } from "./fetcher"
 import fetch from "node-fetch"
 import { getKrystalEarnPortfolioResponse } from "types/mochipay"
@@ -143,7 +146,10 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/deposit`,
       {
         method: "POST",
-        body,
+        body: {
+          ...body,
+          platform: "discord",
+        },
       }
     )
   }
@@ -258,6 +264,30 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/requests/${requestCode}/rejected`,
       {
         method: "POST",
+      }
+    )
+  }
+
+  public async withdrawV2(body: {
+    profileId: string
+    tokenId: string
+    amount: string
+    address: string
+  }) {
+    return await this.jsonFetch(`${MOCHI_PAY_API_BASE_URL_V2}/withdraw`, {
+      method: "POST",
+      body: {
+        ...body,
+        platform: "discord",
+      },
+    })
+  }
+
+  async getWithdrawTxnsV2(query: { profileId: string; tokenId: string }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL_V2}/withdraw/transactions/recent`,
+      {
+        query,
       }
     )
   }

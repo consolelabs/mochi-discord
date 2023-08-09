@@ -45,6 +45,7 @@ import { formatView } from "commands/balances/index/processor"
 import CacheManager from "cache/node-cache"
 import { BigNumber, utils } from "ethers"
 import { getSlashCommand } from "utils/commands"
+import { parseUnits } from "ethers/lib/utils"
 
 type Params = {
   amount?: string
@@ -131,12 +132,14 @@ async function savePayload(
     address,
     amount: _amount,
     token,
+    tokenId,
     chainId,
     decimal,
   }: {
     address?: string
     amount: string
     token: string
+    tokenId: string
     chainId: string
     decimal: number
   }
@@ -148,6 +151,8 @@ async function savePayload(
     profileId,
     amount,
     token,
+    tokenId,
+    decimal,
     chainId,
     platform: "discord",
     platform_user_id: i.user.id,
@@ -224,10 +229,9 @@ export async function withdrawStep3(
 
   const profileId = await getProfileIdByDiscord(interaction.user.id)
   let recentTxns = []
-  const { data, ok } = await mochiPay.getWithdrawTxns({
+  const { data, ok } = await mochiPay.getWithdrawTxnsV2({
     profileId,
-    token: tokenObj.token.symbol,
-    chainId: tokenObj.token.chain.chain_id,
+    tokenId: tokenObj.token.id,
   })
 
   if (ok) {
@@ -235,7 +239,7 @@ export async function withdrawStep3(
   }
 
   const listWalletsRecentlyUsed = Array.from(
-    new Set(recentTxns.map((tx) => tx.address))
+    new Set(recentTxns.map((tx) => tx.other_profile_source))
   )
 
   const { valid: validAddress } = isAddress(params.address ?? "")
@@ -246,6 +250,7 @@ export async function withdrawStep3(
       chainId: tokenObj.token.chain.chain_id,
       decimal: tokenObj.token.decimal,
       token: params.token ?? "",
+      tokenId: tokenObj.token.id,
       amount: params.amount ?? "0",
     })
   }
@@ -564,7 +569,14 @@ export async function executeWithdraw(
   })
 
   // withdraw
-  const { ok, error, log, curl } = await mochiPay.withdraw(payload)
+  const amount = parseUnits(
+    payload.amount.toLocaleString().replaceAll(",", ""),
+    payload.decimal
+  ).toString()
+  const { ok, error, log, curl } = await mochiPay.withdrawV2({
+    ...payload,
+    amount,
+  })
   if (!ok) {
     throw new APIError({
       msgOrInteraction: interaction,
