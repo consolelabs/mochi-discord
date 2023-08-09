@@ -95,7 +95,9 @@ const slashCmd: SlashCommand = {
                 })
                 .join("\n"),
               getEmoji("LINE").repeat(5),
-              ...(game.result.code ? [`Answer is ${game.result.option}`] : []),
+              ...(game.result?.code
+                ? [`Answer is ${game.result?.option ?? "NA"}`]
+                : []),
             ].join("\n"),
           }),
         ],

@@ -60,7 +60,10 @@ const slashCmd: SlashCommand = {
         return
       }
       await i.respond(
-        game.options.map((opt: any) => ({ name: opt.option, value: opt.code }))
+        (game.options ?? []).map((opt: any) => ({
+          name: opt.option,
+          value: opt.code,
+        }))
       )
     }
   },
@@ -118,7 +121,7 @@ const slashCmd: SlashCommand = {
 
     await mochiGuess.endGame(game.code, i.user.id, optionCode)
 
-    const options = game.options.map((opt: any) => {
+    const options = (game.options ?? []).map((opt: any) => {
       const players = (opt.game_player ?? []).map(
         (player: any) => `<@${player.player_id}>`
       )
@@ -135,9 +138,9 @@ const slashCmd: SlashCommand = {
           ...options,
           "",
           `The answer is: ${
-            game.options.find((opt: any) =>
+            (game.options ?? []).find((opt: any) =>
               equalIgnoreCase(optionCode, opt.code)
-            ).option
+            )?.option ?? "NA"
           }`,
         ].join("\n"),
       },
