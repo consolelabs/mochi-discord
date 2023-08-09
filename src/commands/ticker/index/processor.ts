@@ -121,7 +121,6 @@ export async function renderSingle(
   { days, baseCoin: coin, type }: Context
 ) {
   days = days ?? (type === ChartType.Dominance ? 365 : 30)
-
   const {
     market_cap,
     total_market_cap,
@@ -281,7 +280,7 @@ export async function renderTokenInfo(
     call: () => defi.getTokenInfo(coin.id),
   })
 
-  if (status === 404) {
+  if (status === 404 || !data) {
     throw new InternalError({
       title: "Unsupported token",
       msgOrInteraction: interaction,
