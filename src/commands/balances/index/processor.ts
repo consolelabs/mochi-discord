@@ -368,8 +368,8 @@ async function getTxns(
           }),
           amount_out: formatDigit({
             value: convertString(
-              txOut.amount_out,
-              txOut.to_token?.decimal ?? 18,
+              txOut.amount,
+              txOut.token?.decimal ?? 18,
               false
             ).toString(),
             fractionDigits: 4,
