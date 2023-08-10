@@ -293,12 +293,12 @@ const txnsFetcher: Record<
     platform: string
   ) => Promise<any>
 > = {
-  [BalanceType.Offchain]: (profile_id) => mochiPay.getListTx({ profile_id }),
+  [BalanceType.Offchain]: (profileId) => mochiPay.getListTx(profileId),
   [BalanceType.Onchain]: (profileId, _, address, type) =>
     defi.getWalletTxns(profileId, address, type),
   [BalanceType.Cex]: (profile_id, platform) =>
     defi.getDexTxns(profile_id, platform),
-  [BalanceType.All]: (profile_id) => mochiPay.getListTx({ profile_id }),
+  [BalanceType.All]: (profileId) => mochiPay.getListTx(profileId),
 }
 
 async function getTxns(
@@ -330,56 +330,52 @@ async function getTxns(
       const timeB = new Date(b.date).getTime()
       return timeB - timeA
     }
+
+    const noneSwapTnxs = data.filter((tx: any) => tx.action !== "swap")
+    const groupedSwapTxns = groupBy(
+      data.filter((tx: any) => tx.action === "swap"),
+      "external_id"
+    )
+    const swapTxns = Object.values(groupedSwapTxns).filter(
+      (txns) => txns.length === 2
+    )
+
     return [
-      ...data.offchain.map((tx: any) => ({
+      ...noneSwapTnxs.map((tx: any) => ({
         date: tx.created_at,
-        action: tx.type === "credit" ? "Received" : "Sent",
+        action: tx.type === "in" ? "Received" : "Sent",
         target: tx.other_profile_id,
         amount: formatTokenDigit(
           convertString(tx.amount, tx.token?.decimal ?? 18, false).toString()
         ),
         token: tx.token?.symbol?.toUpperCase() ?? "",
       })),
-      ...data.withdraw.map((tx: any) => ({
-        date: tx.created_at,
-        action: "Sent",
-        target: tx.address,
-        amount: formatTokenDigit(
-          convertString(tx.amount, tx.token?.decimal ?? 18, false).toString()
-        ),
-        token: tx.token?.symbol?.toUpperCase() ?? "",
-      })),
-      ...data.deposit.map((tx: any) => ({
-        date: tx.created_at,
-        action: "Received",
-        target: tx.from,
-        amount: formatTokenDigit(
-          convertString(tx.amount, tx.token?.decimal ?? 18, false).toString()
-        ),
-        token: tx.token?.symbol?.toUpperCase() ?? "",
-      })),
-      ...data.swap.map((tx: any) => ({
-        date: tx.created_at,
-        action: "Swap",
-        from_token: tx.from_token.symbol,
-        to_token: tx.to_token.symbol,
-        amount_in: formatDigit({
-          value: convertString(
-            tx.amount_in,
-            tx.from_token?.decimal ?? 18,
-            false
-          ).toString(),
-          fractionDigits: 4,
-        }),
-        amount_out: formatDigit({
-          value: convertString(
-            tx.amount_out,
-            tx.to_token?.decimal ?? 18,
-            false
-          ).toString(),
-          fractionDigits: 4,
-        }),
-      })),
+      ...swapTxns.map((txns: any) => {
+        const txIn = txns.find((tx: any) => tx.type === "in")
+        const txOut = txns.find((tx: any) => tx.type === "out")
+        return {
+          date: txIn.created_at,
+          action: "Swap",
+          from_token: txOut.token.symbol,
+          to_token: txIn.token.symbol,
+          amount_in: formatDigit({
+            value: convertString(
+              txIn.amount,
+              txIn.token?.decimal ?? 18,
+              false
+            ).toString(),
+            fractionDigits: 4,
+          }),
+          amount_out: formatDigit({
+            value: convertString(
+              txOut.amount_out,
+              txOut.to_token?.decimal ?? 18,
+              false
+            ).toString(),
+            fractionDigits: 4,
+          }),
+        }
+      }),
     ]
       .sort(sort)
       .slice(0, 5)

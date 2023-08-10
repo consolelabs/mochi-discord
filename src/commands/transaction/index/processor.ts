@@ -36,9 +36,9 @@ export async function render(i: CommandInteraction) {
       },
     }
 
-  const { data, ok, curl, error, log } = await mochiPay.getListTx({
-    profile_id: dataProfile.id,
-  })
+  const { data, ok, curl, error, log } = await mochiPay.getListTx(
+    dataProfile.id
+  )
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
