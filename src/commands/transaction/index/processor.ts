@@ -12,6 +12,7 @@ import profile from "adapters/profile"
 import mochiPay from "adapters/mochi-pay"
 import { convertString } from "../../../utils/convert"
 import { formatTokenDigit } from "utils/defi"
+import { groupBy } from "lodash"
 
 export async function render(i: CommandInteraction) {
   const userDiscordId = i.user.id
@@ -37,12 +38,13 @@ export async function render(i: CommandInteraction) {
     }
 
   const { data, ok, curl, error, log } = await mochiPay.getListTx(
-    dataProfile.id
+    dataProfile.id,
+    {}
   )
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
-  if (!data)
+  if (!data) {
     return {
       messageOptions: {
         embed: composeEmbedMessage(null, {
@@ -55,14 +57,21 @@ export async function render(i: CommandInteraction) {
         }),
       },
     }
+  }
+
+  const noneSwapTxns = data.filter((tx: any) => tx.action !== "swap")
+  const txnsGroupByAction = groupBy(noneSwapTxns, "action")
+  console.log(txnsGroupByAction)
+  const depositTxns = (txnsGroupByAction["deposit"] ?? []).slice(0, 10)
+  const withdrawTxns = (txnsGroupByAction["withdraw"] ?? []).slice(0, 10)
+  const tipTxns = (txnsGroupByAction["transfer"] ?? []).slice(0, 10)
 
   const [dep, withdraw, tip] = await Promise.all([
-    // tip
+    // deposit
     new Promise((r) => {
-      const sliced = data.deposit.slice(0, 10)
       r(
         formatDataTable(
-          sliced.map((s: any) => ({
+          depositTxns.map((s: any) => ({
             left: `+ ${formatTokenDigit(
               convertString(s.amount, s.token.decimal, false).toString()
             )} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
@@ -74,10 +83,9 @@ export async function render(i: CommandInteraction) {
     }),
     // withdraw
     new Promise((r) => {
-      const sliced = data.withdraw.slice(0, 10)
       r(
         formatDataTable(
-          sliced.map((s: any) => ({
+          withdrawTxns.map((s: any) => ({
             left: `- ${formatTokenDigit(
               convertString(s.amount, s.token.decimal, false).toString()
             )} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
@@ -91,11 +99,11 @@ export async function render(i: CommandInteraction) {
     new Promise((resolve) => {
       const users = new Map<string, string>()
       Promise.all(
-        data.offchain.slice(0, 10).map(async (tx: any) => {
+        tipTxns.map(async (tx: any) => {
           if (!tx.other_profile_id) return null
 
           let targetUser = users.get(tx.other_profile_id)
-          const type = tx.type === "debit" ? "-" : "+"
+          const type = tx.type === "out" ? "-" : "+"
           const anonUser = {
             left: `${type} ${formatTokenDigit(
               convertString(tx.amount, tx.token.decimal, false).toString()
@@ -130,8 +138,8 @@ export async function render(i: CommandInteraction) {
         resolve(
           formatDataTable(
             tipTxs.filter(Boolean).map((txn) => ({
-              left: txn.left,
-              right: txn.right,
+              left: txn?.left ?? "",
+              right: txn?.right ?? "",
             })),
             {
               cols: ["left", "right"],
@@ -145,7 +153,7 @@ export async function render(i: CommandInteraction) {
   ])
 
   const fields = [
-    ...(data.offchain.length
+    ...(tipTxns.length
       ? [
           {
             name: "Tip",
@@ -154,7 +162,7 @@ export async function render(i: CommandInteraction) {
           },
         ]
       : []),
-    ...(data.deposit.length
+    ...(depositTxns.length
       ? [
           {
             name: "Deposit",
@@ -163,7 +171,7 @@ export async function render(i: CommandInteraction) {
           },
         ]
       : []),
-    ...(data.withdraw.length
+    ...(withdrawTxns.length
       ? [
           {
             name: "Withdraw",
