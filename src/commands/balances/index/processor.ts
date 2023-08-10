@@ -1,8 +1,8 @@
+import { Platform } from "@consolelabs/mochi-formatter"
 import defi from "adapters/defi"
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { renderWallets } from "commands/profile/index/processor"
-import { buildRecentTxFields } from "commands/vault/info/processor"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -52,6 +52,7 @@ import {
   formatTokenDigit,
   formatUsdDigit,
 } from "utils/defi"
+import { fmt } from "utils/formatter"
 import { getProfileIdByDiscord } from "utils/profile"
 import { paginationButtons } from "utils/router"
 
@@ -314,75 +315,26 @@ async function getTxns(
     return []
   }
   const fetcher = txnsFetcher[type]
-  const res = await fetcher(profileId, discordId, address, addressType, "")
-  if (!res.ok) {
+  const { data, ok, curl } = await fetcher(
+    profileId,
+    discordId,
+    address,
+    addressType,
+    ""
+  )
+  if (!ok) {
     throw new APIError({
       msgOrInteraction: msg,
-      curl: res.curl,
+      curl: curl,
       description: "Couldn't get txn",
     })
   }
 
   if (type === BalanceType.Offchain) {
-    const data = res.data
-    const sort = (a: any, b: any) => {
-      const timeA = new Date(a.date).getTime()
-      const timeB = new Date(b.date).getTime()
-      return timeB - timeA
-    }
-
-    const noneSwapTnxs = data.filter((tx: any) => tx.action !== "swap")
-    const groupedSwapTxns = groupBy(
-      data.filter((tx: any) => tx.action === "swap"),
-      "external_id"
-    )
-    const swapTxns = Object.values(groupedSwapTxns).filter(
-      (txns) => txns.length === 2
-    )
-
-    return [
-      ...noneSwapTnxs.map((tx: any) => ({
-        date: tx.created_at,
-        action: tx.type === "in" ? "Received" : "Sent",
-        target: tx.other_profile_id,
-        amount: formatTokenDigit(
-          convertString(tx.amount, tx.token?.decimal ?? 18, false).toString()
-        ),
-        token: tx.token?.symbol?.toUpperCase() ?? "",
-      })),
-      ...swapTxns.map((txns: any) => {
-        const txIn = txns.find((tx: any) => tx.type === "in")
-        const txOut = txns.find((tx: any) => tx.type === "out")
-        return {
-          date: txIn.created_at,
-          action: "Swap",
-          from_token: txOut.token.symbol,
-          to_token: txIn.token.symbol,
-          amount_in: formatDigit({
-            value: convertString(
-              txIn.amount,
-              txIn.token?.decimal ?? 18,
-              false
-            ).toString(),
-            fractionDigits: 4,
-          }),
-          amount_out: formatDigit({
-            value: convertString(
-              txOut.amount,
-              txOut.token?.decimal ?? 18,
-              false
-            ).toString(),
-            fractionDigits: 4,
-          }),
-        }
-      }),
-    ]
-      .sort(sort)
-      .slice(0, 5)
+    return data
   }
 
   if (type === BalanceType.Onchain) {
-    const data = res.data || []
     return data
       .filter(
         (d: any) =>
@@ -746,12 +698,6 @@ async function switchView(
     }
   }
 
-  // remove value target of self tx
-  for (let i = 0; i < txns.length; i++) {
-    if (txns[i].target === profileId) {
-      txns[i].target = ""
-    }
-  }
   embed.addFields([
     {
       name: `Total (U.S dollar)`,
@@ -768,9 +714,19 @@ async function switchView(
           : ""
       }`,
     },
-    ...(!txns.length
-      ? []
-      : await buildRecentTxFields({ recent_transaction: txns })),
+  ])
+
+  const { text: txnRow } = await fmt.components.txns({
+    txns,
+    on: Platform.Discord,
+    top: 5,
+  })
+  embed.addFields([
+    {
+      name: "Recent Transactions",
+      value: txnRow,
+      inline: false,
+    },
   ])
 
   if (emptyText) {

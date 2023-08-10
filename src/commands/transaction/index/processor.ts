@@ -6,13 +6,14 @@ import {
   shortenHashOrAddress,
 } from "utils/common"
 import { APIError } from "errors"
-import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import { composeEmbedMessage } from "ui/discord/embed"
 import { CommandInteraction } from "discord.js"
 import profile from "adapters/profile"
 import mochiPay from "adapters/mochi-pay"
 import { convertString } from "../../../utils/convert"
-import { formatTokenDigit } from "utils/defi"
 import { groupBy } from "lodash"
+import { fmt, utils } from "utils/formatter"
+import { Platform } from "@consolelabs/mochi-formatter"
 
 export async function render(i: CommandInteraction) {
   const userDiscordId = i.user.id
@@ -59,9 +60,10 @@ export async function render(i: CommandInteraction) {
     }
   }
 
-  const noneSwapTxns = data.filter((tx: any) => tx.action !== "swap")
-  const txnsGroupByAction = groupBy(noneSwapTxns, "action")
-  console.log(txnsGroupByAction)
+  const txnsGroupByAction = groupBy(
+    data.filter((tx: any) => tx.action !== "swap"), // filter out swap tx
+    "action"
+  )
   const depositTxns = (txnsGroupByAction["deposit"] ?? []).slice(0, 10)
   const withdrawTxns = (txnsGroupByAction["withdraw"] ?? []).slice(0, 10)
   const tipTxns = (txnsGroupByAction["transfer"] ?? []).slice(0, 10)
@@ -70,83 +72,58 @@ export async function render(i: CommandInteraction) {
     // deposit
     new Promise((r) => {
       r(
-        formatDataTable(
+        utils.mdTable(
           depositTxns.map((s: any) => ({
-            left: `+ ${formatTokenDigit(
+            left: `+ ${utils.formatTokenDigit(
               convertString(s.amount, s.token.decimal, false).toString()
             )} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
             right: shortenHashOrAddress(s.from, 4) ?? "Unknown",
           })),
-          { cols: ["left", "right"], noWrap: true }
-        ).joined
+          { cols: ["left", "right"], wrapLastCol: false }
+        )
       )
     }),
     // withdraw
     new Promise((r) => {
       r(
-        formatDataTable(
+        utils.mdTable(
           withdrawTxns.map((s: any) => ({
-            left: `- ${formatTokenDigit(
+            left: `- ${utils.formatTokenDigit(
               convertString(s.amount, s.token.decimal, false).toString()
             )} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
             right: shortenHashOrAddress(s.address, 4) ?? "Unknown",
           })),
-          { cols: ["left", "right"], noWrap: true }
-        ).joined
+          { cols: ["left", "right"], wrapLastCol: false }
+        )
       )
     }),
     // tip
     new Promise((resolve) => {
-      const users = new Map<string, string>()
       Promise.all(
         tipTxns.map(async (tx: any) => {
-          if (!tx.other_profile_id) return null
-
-          let targetUser = users.get(tx.other_profile_id)
-          const type = tx.type === "out" ? "-" : "+"
-          const anonUser = {
-            left: `${type} ${formatTokenDigit(
+          const txRow = {
+            left: `${tx.type === "out" ? "-" : "+"} ${utils.formatTokenDigit(
               convertString(tx.amount, tx.token.decimal, false).toString()
             )} ${tx.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
             right: "someone",
           }
+          const [targetUser] = await fmt.account(
+            Platform.Discord,
+            tx.other_profile_id
+          )
           if (!targetUser) {
-            const dataProfile = await profile.getById(tx.other_profile_id)
-            if (
-              dataProfile.err ||
-              !dataProfile ||
-              !dataProfile.associated_accounts ||
-              dataProfile.associated_accounts.length === 0
-            )
-              return anonUser
-
-            const discord = dataProfile.associated_accounts.find(
-              (acc: any) => acc.platform === "discord"
-            )
-            if (!discord) return anonUser
-
-            targetUser = (
-              await i.client.users.fetch(discord.platform_identifier)
-            )?.tag
-            users.set(tx.other_profile_id, targetUser)
+            return txRow
           }
-
-          anonUser.right = targetUser ?? "someone"
-          return anonUser
+          txRow.right = targetUser.value
+          return txRow
         })
-      ).then((tipTxs) => {
+      ).then((txRow) => {
         resolve(
-          formatDataTable(
-            tipTxs.filter(Boolean).map((txn) => ({
-              left: txn?.left ?? "",
-              right: txn?.right ?? "",
-            })),
-            {
-              cols: ["left", "right"],
-              noWrap: true,
-              alignment: ["left", "left"],
-            }
-          ).joined
+          utils.mdTable(txRow, {
+            cols: ["left", "right"],
+            wrapLastCol: false,
+            alignment: ["left", "left"],
+          })
         )
       })
     }),
@@ -157,7 +134,7 @@ export async function render(i: CommandInteraction) {
       ? [
           {
             name: "Tip",
-            value: `\`\`\`diff\n${tip}\`\`\``,
+            value: `${tip}`,
             inline: false,
           },
         ]
@@ -166,7 +143,7 @@ export async function render(i: CommandInteraction) {
       ? [
           {
             name: "Deposit",
-            value: `\`\`\`diff\n${dep}\`\`\``,
+            value: `${dep}`,
             inline: false,
           },
         ]
@@ -175,7 +152,7 @@ export async function render(i: CommandInteraction) {
       ? [
           {
             name: "Withdraw",
-            value: `\`\`\`diff\n${withdraw}\`\`\``,
+            value: `${withdraw}`,
             inline: false,
           },
         ]
