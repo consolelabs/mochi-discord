@@ -1,13 +1,17 @@
 import { emojis, getEmoji, getEmojiURL, msgColors } from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { CommandInteraction } from "discord.js"
+import { ButtonInteraction, CommandInteraction } from "discord.js"
 import profile from "adapters/profile"
 import mochiPay from "adapters/mochi-pay"
 import { fmt } from "utils/formatter"
-import { Platform } from "@consolelabs/mochi-formatter"
+import { PageSize, Platform } from "@consolelabs/mochi-formatter"
+import { paginationButtons } from "utils/router"
 
-export async function render(i: CommandInteraction) {
+export async function render(
+  i: CommandInteraction | ButtonInteraction,
+  page = 0
+) {
   const userDiscordId = i.user.id
   const dataProfile = await profile.getByDiscord(userDiscordId)
   if (dataProfile.err) {
@@ -18,47 +22,63 @@ export async function render(i: CommandInteraction) {
   }
   if (!dataProfile)
     return {
-      messageOptions: {
-        embed: composeEmbedMessage(null, {
-          title: "No transactions found",
-          description: `${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} This user does not have any transactions yet`,
-          color: msgColors.SUCCESS,
-        }),
+      context: {
+        page,
+      },
+      msgOpts: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "No transactions found",
+            description: `${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} This user does not have any transactions yet`,
+            color: msgColors.SUCCESS,
+          }),
+        ],
       },
     }
 
   const {
     data: txns,
+    pagination,
     ok,
     curl,
     error,
     log,
-  } = await mochiPay.getListTx(dataProfile.id, {})
+  } = await mochiPay.getListTx(dataProfile.id, { page, size: PageSize.Medium })
   if (!ok) {
     throw new APIError({ curl, error, description: log })
   }
   if (!txns) {
     return {
-      messageOptions: {
-        embed: composeEmbedMessage(null, {
-          title: "No transactions found",
-          description: `${getEmoji(
-            "ANIMATED_POINTING_RIGHT",
-            true
-          )} This user does not have any transactions yet`,
-          color: msgColors.ACTIVITY,
-        }),
+      context: {
+        page,
+      },
+      msgOpts: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: "No transactions found",
+            description: `${getEmoji(
+              "ANIMATED_POINTING_RIGHT",
+              true
+            )} This user does not have any transactions yet`,
+            color: msgColors.ACTIVITY,
+          }),
+        ],
       },
     }
   }
 
+  const total = pagination?.total
+    ? Math.ceil(pagination?.total / PageSize.Medium)
+    : 1
   const { text: description } = await fmt.components.txns({
     txns: txns as any,
     on: Platform.Discord,
     groupDate: true,
+    page,
+    total,
   })
 
   const embed = composeEmbedMessage(null, {
@@ -66,5 +86,13 @@ export async function render(i: CommandInteraction) {
     author: ["Transactions", getEmojiURL(emojis.TRANSACTIONS)],
     description,
   })
-  return { messageOptions: { embeds: [embed] } }
+  return {
+    context: {
+      page,
+    },
+    msgOpts: {
+      embeds: [embed],
+      components: [...paginationButtons(page, total)],
+    },
+  }
 }
