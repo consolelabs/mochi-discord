@@ -441,10 +441,10 @@
   resolved "https://registry.yarnpkg.com/@bonfida/utils/-/utils-0.0.5.tgz#e6086db62e1e3822257819ec2c20e933db59f419"
   integrity sha512-T4l72mwrG+tISIuRe+1qyxxKszB8DC8EH5bCKVIKEqBzazSMX087c17pA7RtsTBxcErpJ1GICCM2iVf0z4hSSw==
 
-"@consolelabs/mochi-formatter@^0.0.1-rc.28":
-  version "0.0.1-rc.33"
-  resolved "https://registry.yarnpkg.com/@consolelabs/mochi-formatter/-/mochi-formatter-0.0.1-rc.33.tgz#c1101cfece1500706a97762b33f40e145b982f3a"
-  integrity sha512-DF5tGt8emuGED92LQyIvjvO4OoPp4nD+RQIL7eynl8sMttdEJntuOt1bdWrnr/jayv4M0PB4/PbKxdKTmZGaHg==
+"@consolelabs/mochi-formatter@^0.0.1-rc.40":
+  version "0.0.1-rc.41"
+  resolved "https://registry.yarnpkg.com/@consolelabs/mochi-formatter/-/mochi-formatter-0.0.1-rc.41.tgz#989dc3d973bfbf80b28c2342753fcb801a4db6d3"
+  integrity sha512-3xOzKQbOC48elT0aCxWdtOnDyEB373+1ywC7uCoYITWPRRDUzze0/lLdJ3bKr85nhFrmKbIsqzPheg4egBoDcg==
   dependencies:
     "@bonfida/spl-name-service" "^1.0.9"
     "@solana/web3.js" "^1.78.3"
@@ -1299,7 +1299,7 @@
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.1.2.tgz#e9e035b9b166ca0af657a7848eb2718f0f22f183"
   integrity sha512-KYRCASVTv6aeUi1tsF8/vpyR7zpfs3FUzy2Jqm+MU+LmUKhQ0y2FpfwqkCcxSg2ua4GALJd8k2R76WxwZGbQpA==
 
-"@noble/hashes@1.3.1", "@noble/hashes@^1.3.0":
+"@noble/hashes@1.3.1", "@noble/hashes@^1.3.0", "@noble/hashes@^1.3.1":
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.3.1.tgz#8831ef002114670c603c458ab8b11328406953a9"
   integrity sha512-EbqwksQwz9xDRGfDST86whPBgM65E0OH/pCgqW0GBVzO22bNE+NuIbeTb714+IfSjU3aRk47EUvXIb5bTsenKA==
@@ -1458,13 +1458,13 @@
     buffer "^6.0.3"
 
 "@solana/web3.js@^1.32.0", "@solana/web3.js@^1.68.0", "@solana/web3.js@^1.78.3":
-  version "1.78.3"
-  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.78.3.tgz#1214f17f51612e403c4dc7844c7a9694938bfbab"
-  integrity sha512-qhpnyIlrj/4Czw1dBFZK6KgZBk5FwuJhvMl0C7m94jhl90yDC8b6w4svKwPjhB+OOrdQAzHyRp0+ocEs/Liw7w==
+  version "1.78.4"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.78.4.tgz#e8ca9abe4ec2af5fc540c1d272efee24aaffedb3"
+  integrity sha512-up5VG1dK+GPhykmuMIozJZBbVqpm77vbOG6/r5dS7NBGZonwHfTLdBbsYc3rjmaQ4DpCXUa3tUc4RZHRORvZrw==
   dependencies:
     "@babel/runtime" "^7.22.6"
     "@noble/curves" "^1.0.0"
-    "@noble/hashes" "^1.3.0"
+    "@noble/hashes" "^1.3.1"
     "@solana/buffer-layout" "^4.0.0"
     agentkeepalive "^4.3.0"
     bigint-buffer "^1.1.5"
