@@ -75,18 +75,9 @@ const slashCmd: SlashCommand = {
     if (!res.ok) {
       return await i.respond([])
     }
-    const options = (res.results || []).map(
-      (
-        {
-          formal,
-          url,
-        }: {
-          formal: string
-          params: any
-          url: string
-        },
-        i: number
-      ) => {
+    const options = (res.results || [])
+      .filter(({ url }: { url: string }) => url.startsWith("https://"))
+      .map(({ formal, url }: { formal: string; url: string }, i: number) => {
         const urlPaths = url.split("/").slice(3)
         const categoryName = urlPaths[urlPaths.length - 2] || urlPaths[0]
         const queryString = qs.stringify({
@@ -99,8 +90,8 @@ const slashCmd: SlashCommand = {
           )})`,
           value: queryString,
         }
-      }
-    )
+      })
+
     await i.respond(options)
   },
   run: async function (i: CommandInteraction) {

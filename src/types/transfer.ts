@@ -1,4 +1,4 @@
-type TransferType = "tip" | "airdrop"
+type TransferType = "transfer" | "airdrop"
 
 export type TransferPayload = {
   sender: string
