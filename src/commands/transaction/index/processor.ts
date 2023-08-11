@@ -96,19 +96,26 @@ export async function render(i: CommandInteraction) {
 
           let targetUser = users.get(tx.other_profile_id)
           const type = tx.type === "debit" ? "-" : "+"
+          const anonUser = {
+            left: `${type} ${formatTokenDigit(
+              convertString(tx.amount, tx.token.decimal, false).toString()
+            )} ${tx.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
+            right: "someone",
+          }
           if (!targetUser) {
             const dataProfile = await profile.getById(tx.other_profile_id)
             if (
               dataProfile.err ||
               !dataProfile ||
+              !dataProfile.associated_accounts ||
               dataProfile.associated_accounts.length === 0
             )
-              return null
+              return anonUser
 
             const discord = dataProfile.associated_accounts.find(
               (acc: any) => acc.platform === "discord"
             )
-            if (!discord) return null
+            if (!discord) return anonUser
 
             targetUser = (
               await i.client.users.fetch(discord.platform_identifier)
@@ -116,17 +123,13 @@ export async function render(i: CommandInteraction) {
             users.set(tx.other_profile_id, targetUser)
           }
 
-          return {
-            left: `${type} ${formatTokenDigit(
-              convertString(tx.amount, tx.token.decimal, false).toString()
-            )} ${tx.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
-            right: targetUser ?? "someone",
-          }
+          anonUser.right = targetUser ?? "someone"
+          return anonUser
         })
       ).then((tipTxs) => {
         resolve(
           formatDataTable(
-            tipTxs.map((txn) => ({
+            tipTxs.filter(Boolean).map((txn) => ({
               left: txn.left,
               right: txn.right,
             })),

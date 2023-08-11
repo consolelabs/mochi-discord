@@ -109,6 +109,16 @@ export async function run({
         if (!ok) {
           throw new APIError({ msgOrInteraction, description: log, curl })
         }
+        if (!balances.length) {
+          const embed = composeInsufficientBalanceEmbed({
+            author,
+            current: 0,
+            required: amount,
+            symbol: token,
+          })
+          i.deleteReply().catch(() => null)
+          return { messageOptions: { embeds: [embed], components: [] } }
+        }
         const balance = balances[0]
         const decimal = balance?.token?.decimal ?? 0
         const current = +balance?.amount / Math.pow(10, decimal)

@@ -50,9 +50,13 @@ export async function render(
 
   const { base_coin_suggestions, target_coin_suggestions } = data
   if (base_coin_suggestions.length || target_coin_suggestions.length) {
-    const baseCoin = base_coin_suggestions.find((c: any) => c.most_popular).id
-    const targetCoin = target_coin_suggestions.find(
-      (c: any) => c.most_popular
+    const baseCoin = (
+      base_coin_suggestions.find((c: any) => c.most_popular) ??
+      base_coin_suggestions[0]
+    ).id
+    const targetCoin = (
+      target_coin_suggestions.find((c: any) => c.most_popular) ??
+      target_coin_suggestions[0]
     ).id
     const { data } = await CacheManager.get({
       pool: "ticker",
@@ -126,7 +130,7 @@ export async function render(
       )} (bridge)`
     : `${capitalizeFirst(tokenOut.chain_name)}`
 
-  const amountInUsd = formatUsdDigit(routeSummary.amountInUsd)
+  const amountInUsd = formatUsdDigit(routeSummary?.amountInUsd ?? 0)
 
   if (tradeRoute) {
     amountOut = utils.formatUnits(
