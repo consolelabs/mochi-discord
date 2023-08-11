@@ -160,12 +160,13 @@ class MochiPay extends Fetcher {
     })
   }
 
-  async getListTx(query: { profile_id: string }) {
+  async getListTx(
+    profileId: string,
+    query: { action?: string; page?: number; size?: number }
+  ) {
     return await this.jsonFetch(
-      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/transactions`,
-      {
-        query,
-      }
+      `${MOCHI_PAY_API_BASE_URL}/profile/${profileId}/transactions`,
+      { query }
     )
   }
 
