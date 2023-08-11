@@ -60,10 +60,13 @@ const slashCmd: SlashCommand = {
         return
       }
       await i.respond(
-        (game.options ?? []).map((opt: any) => ({
-          name: opt.option,
-          value: opt.code,
-        }))
+        (game.options ?? []).map((opt: any) => {
+          const name = opt.option?.slice(0, 100) ?? "NA" // limit choice by 100 char
+          return {
+            name,
+            value: opt.code,
+          }
+        })
       )
     }
   },
