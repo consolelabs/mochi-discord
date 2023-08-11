@@ -91,7 +91,7 @@ export async function tip(
     token: symbol,
     each,
     all,
-    transfer_type: "tip",
+    transfer_type: "transfer",
     message,
     image,
     chain_id: "",
