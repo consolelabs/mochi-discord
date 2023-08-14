@@ -1013,7 +1013,10 @@ class Config extends Fetcher {
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/request`, {
       method: "POST",
-      body: req,
+      body: {
+        ...req,
+        platform: "discord",
+      },
     })
   }
 
@@ -1060,7 +1063,10 @@ class Config extends Fetcher {
   }) {
     return await this.jsonFetch(`${API_BASE_URL}/vault/treasurer/transfer`, {
       method: "POST",
-      body: req,
+      body: {
+        ...req,
+        platform: "discord",
+      },
     })
   }
 
