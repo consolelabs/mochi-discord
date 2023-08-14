@@ -19,7 +19,7 @@ import {
 } from "utils/common"
 import { MOCHI_ACTION_PAY_ME, MOCHI_PLATFORM_DISCORD } from "utils/constants"
 import { reply } from "utils/discord"
-import { sendNotificationPayRequestMsg } from "utils/kafka"
+import { sendNotificationMsg } from "utils/kafka"
 import { dmUser } from "../../../utils/dm"
 
 const typePayRequest = 16
@@ -201,7 +201,7 @@ async function sendNotification({
       })
     }
     message.pay_request_metadata.target_profile_id = pfRes.id
-    sendNotificationPayRequestMsg(message)
+    sendNotificationMsg(message)
     return
   }
 
@@ -215,7 +215,7 @@ async function sendNotification({
       })
     }
     message.pay_request_metadata.target_profile_id = pfRes.id
-    sendNotificationPayRequestMsg(message)
+    sendNotificationMsg(message)
     return
   }
 
@@ -229,7 +229,7 @@ async function sendNotification({
       })
     }
     message.pay_request_metadata.target_profile_id = pfRes.id
-    sendNotificationPayRequestMsg(message)
+    sendNotificationMsg(message)
     return
   }
 }
