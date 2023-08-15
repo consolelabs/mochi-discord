@@ -63,7 +63,6 @@ import withdraw from "./withdraw"
 import wallet from "./wallet"
 import alert from "./alert"
 import stats from "./stats"
-import game from "./game"
 import pay from "./pay"
 import convert from "./convert"
 import vault from "./vault"
@@ -136,7 +135,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   wallet: wallet.slashCmd,
   stats: stats.slashCmd,
   gas: gas.slashCmd,
-  game: game.slashCmd,
   activity: activity.slashCmd,
   inbox: inbox.slashCmd,
   convert: convert.slashCmd,
@@ -186,9 +184,6 @@ export const originalCommands: Record<string, Command> = {
   stats: stats.textCmd,
   // globalxp,
   sendxp: sendxp.textCmd,
-
-  //game
-  game: game.textCmd,
 
   heatmap: heatmap.textCmd,
 }
