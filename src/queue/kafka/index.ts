@@ -98,6 +98,32 @@ export default class Queue {
   }
 
   async produceAuditMsg(msgOrInteraction: Message | CommandInteraction) {
+    let text = ""
+    if (msgOrInteraction instanceof Message) {
+      text = msgOrInteraction.content
+    } else {
+      const i = msgOrInteraction as CommandInteraction
+      if (i.options.data.length <= 0) {
+        text = `/${i.commandName}`
+      } else {
+        if (i.options.data[0].type === "SUB_COMMAND") {
+          const commandParam = i.options.data[0].options
+            ? i.options.data[0].options
+                .map((param: any) => `${param.name}:${param.value}`)
+                .join(" ")
+            : ""
+          text = `/${i.commandName} ${i.options.data[0].name} ${commandParam}`
+        } else {
+          const commandParam = i.options.data
+            ? i.options.data
+                .map((param: any) => `${param.name}:${param.value}`)
+                .join(" ")
+            : ""
+          text = `/${i.commandName} ${commandParam}`
+        }
+      }
+    }
+
     const author = getAuthor(msgOrInteraction)
     const payload = {
       type: 4,
@@ -108,13 +134,19 @@ export default class Queue {
             id: author.id,
             is_bot: author.bot,
             username: author.username,
+            icon_url: author.avatarURL(),
           },
           channel: {
             id: msgOrInteraction.channelId,
             type: msgOrInteraction.channel?.type ?? "",
           },
+          guild: {
+            id: msgOrInteraction.guildId,
+            icon_url: msgOrInteraction.guild?.iconURL(),
+            title: msgOrInteraction.guild?.name,
+          },
           date: msgOrInteraction.createdTimestamp,
-          text: "",
+          text: text,
         },
       },
     }
