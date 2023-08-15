@@ -262,6 +262,13 @@ class Profile extends Fetcher {
     return await res?.json()
   }
 
+  public async getByTelegramUsername(username: string) {
+    const res = await fetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/telegram/get-by-username/${username}`
+    )
+    return await res?.json()
+  }
+
   public async getUserActivities(
     profileId: string,
     {
