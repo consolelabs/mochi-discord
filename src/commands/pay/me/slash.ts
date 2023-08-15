@@ -34,7 +34,6 @@ const slashCmd: SlashCommand = {
           .setRequired(false)
           .addChoices([
             ["discord", "discord"],
-            ["twitter", "twitter"],
             ["telegram", "telegram"],
             ["mail", "mail"],
           ])

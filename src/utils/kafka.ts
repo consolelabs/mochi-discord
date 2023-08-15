@@ -1,9 +1,12 @@
-import { KafkaNotificationMessage } from "types/common"
+import {
+  KafkaNotificationMessage,
+  KafkaNotificationPayRequestMessage,
+} from "types/common"
 import { kafkaQueue } from "queue/kafka/queue"
 import { logger } from "../logger"
 
 export async function sendNotificationMsg(
-  kafkaMessage: KafkaNotificationMessage
+  kafkaMessage: KafkaNotificationMessage | KafkaNotificationPayRequestMessage
 ) {
   try {
     await kafkaQueue?.produceNotificationMsg([
