@@ -1,4 +1,5 @@
 import { CommandInteraction, Message } from "discord.js"
+import { Guild } from "discord.js"
 import {
   KAFKA_BROKERS,
   KAFKA_CLIENT_ID,
@@ -151,6 +152,43 @@ export default class Queue {
       },
     }
     const data = JSON.stringify(payload)
+    const bytes = new TextEncoder().encode(data)
+    const bStr = Array.from(bytes, (x) => String.fromCodePoint(x)).join("")
+
+    await this.producer.send({
+      topic: this.auditTopic,
+      messages: [
+        {
+          value: JSON.stringify({
+            type: "audit",
+            sender: "mochi-discord",
+            message: btoa(bStr),
+          }),
+        },
+      ],
+    })
+  }
+
+  async produceAuditEvent(guild: Guild, status: string) {
+    const now = new Date()
+    const payload = {
+      id: guild.id,
+      name: guild.name,
+      icon: guild.iconURL(),
+      members: guild.memberCount,
+      status: status,
+      timestamp: now.toISOString(),
+    }
+    const payloadStr = JSON.stringify(payload)
+
+    const msg = {
+      type: 4,
+      discord_log: {
+        event_type: "server_join_left",
+        payload: payloadStr,
+      },
+    }
+    const data = JSON.stringify(msg)
     const bytes = new TextEncoder().encode(data)
     const bStr = Array.from(bytes, (x) => String.fromCodePoint(x)).join("")
 
