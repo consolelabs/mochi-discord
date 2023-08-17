@@ -1,11 +1,76 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { utils } from "@consolelabs/mochi-formatter"
+import { SlashCommandSubcommandBuilder, userMention } from "@discordjs/builders"
 import mochiGuess from "adapters/mochi-guess"
 import { ThreadChannel } from "discord.js"
-import { now, truncate } from "lodash"
+import { now, truncate, groupBy } from "lodash"
+import { logger } from "logger"
 import moment from "moment-timezone"
 import { SlashCommand } from "types/common"
 import { capitalizeFirst, equalIgnoreCase } from "utils/common"
 import { timeouts, timers } from ".."
+
+export async function cleanupAfterEndGame(
+  thread: ThreadChannel,
+  gameCode: string
+) {
+  try {
+    clearTimeout(timeouts.get(gameCode))
+    clearInterval(timers.get(gameCode))
+
+    await thread.setLocked(true, "game ended")
+    await thread.setArchived(true, "game ended")
+  } catch (e: any) {
+    logger.error(e)
+    logger.warn("Cannot cleanup after game end")
+  }
+}
+
+export async function announceResult(
+  thread: ThreadChannel,
+  answer: string,
+  gameResult: any
+) {
+  const group = groupBy(gameResult, (r) => {
+    const isLoser = r.final_amount.split("").at(0) === "-"
+    return isLoser ? "losers" : "winners"
+  })
+  group.winners ??= []
+  group.losers ??= []
+
+  await thread
+    .send({
+      content: [
+        "Final answer is",
+        `> ${answer}`,
+        "",
+        `Winners: ${
+          group.winners.length === 0
+            ? "no one"
+            : group.winners
+                .map(
+                  (w) =>
+                    `${userMention(w.player_id)} (+${utils.formatTokenDigit(
+                      w.final_amount
+                    )} ${w.token_name})`
+                )
+                .join(", ")
+        }`,
+        `Losers: ${
+          group.losers.length === 0
+            ? "no one"
+            : group.losers
+                .map(
+                  (w) =>
+                    `${userMention(w.player_id)} (-${utils.formatTokenDigit(
+                      w.final_amount.slice(1)
+                    )} ${w.token_name})`
+                )
+                .join(", ")
+        }`,
+      ].join("\n"),
+    })
+    .catch(() => null)
+}
 
 const slashCmd: SlashCommand = {
   name: "end",
@@ -119,9 +184,6 @@ const slashCmd: SlashCommand = {
       content: [`Time is up!`].join("\n"),
     })
 
-    clearTimeout(timeouts.get(game.code))
-    clearInterval(timers.get(game.code))
-
     await mochiGuess.endGame(game.code, i.user.id, optionCode)
 
     const options = (game.options ?? []).map((opt: any) => {
@@ -131,8 +193,7 @@ const slashCmd: SlashCommand = {
       return `${opt.option}: ${players.join(", ")}`
     })
 
-    await thread.setArchived(true, "game ended").catch(() => null)
-    await thread.setLocked(true, "game ended").catch(() => null)
+    await cleanupAfterEndGame(thread, game.code)
 
     return {
       messageOptions: {

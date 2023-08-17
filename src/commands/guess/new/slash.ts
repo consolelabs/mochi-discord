@@ -1,18 +1,13 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { Message, MessageActionRow, MessageButton, User } from "discord.js"
+import { Message, MessageActionRow, MessageButton } from "discord.js"
 import { SlashCommand } from "types/common"
 import mochiGuess from "adapters/mochi-guess"
 import { timeouts, timers } from ".."
 import { truncate } from "lodash"
 import { capitalizeFirst, equalIgnoreCase } from "utils/common"
+import { announceResult, cleanupAfterEndGame } from "../end/slash"
 
-function renderProgress(
-  game: any,
-  referee: User,
-  end: number,
-  code: string,
-  options: any[]
-) {
+function renderProgress(end: number, code: string, options: any[]) {
   const time = end <= Date.now() ? "0" : Math.round(end / 1000)
   const msg1 = `The game will be closed <t:${time}:R>.\n:warning: Please make sure you have submitted the answer and approved the mochi transaction.`
   const msg2 = `**TIME'S UP**. We hope you enjoyed the game and learned something new. 🎉`
@@ -25,7 +20,7 @@ function renderProgress(
       (opt: any) =>
         `${opt.option}${
           opt.payout_percentage !== "0"
-            ? " **" + opt.payout_percentage + "x**: "
+            ? ` **${opt.payout_percentage}x**: `
             : ": "
         } ${
           opt.game_player
@@ -133,53 +128,97 @@ const slashCmd: SlashCommand = {
 
       msg
         .edit({
-          content: renderProgress(game, referee, end, data.code, options),
+          content: renderProgress(end, data.code, options),
         })
         .catch(() => null)
     }
+
+    const yesCode = data.options.find((opt: any) =>
+      equalIgnoreCase(opt.option, yesLabel)
+    ).code
+    const noCode = data.options.find((opt: any) =>
+      equalIgnoreCase(opt.option, noLabel)
+    ).code
+
+    const choices = [
+      new MessageActionRow().addComponents(
+        new MessageButton({
+          label: yesLabel,
+          style: "SECONDARY",
+          customId: yesCode,
+        }),
+        new MessageButton({
+          label: noLabel,
+          style: "SECONDARY",
+          customId: noCode,
+        })
+      ),
+    ]
+
+    const options: Record<string, string> = {
+      [yesCode]: yesLabel,
+      [noCode]: noLabel,
+    }
+
     timeouts.set(
       data.code,
       setTimeout(async () => {
         await updatePlayers()
-        thread
+        const msg = await thread
           .send({
             content: `Hey ${referee}, time is up — please submit your result`,
+            components: choices,
           })
           .catch(() => null)
+
+        msg
+          ?.createMessageComponentCollector({
+            componentType: "BUTTON",
+            // 10 minutes to decide
+            time: 10 * 60 * 1000,
+          })
+          .on("collect", async (i) => {
+            await i.deferReply({ ephemeral: true }).catch(() => null)
+            if (i.user.id !== referee.id) {
+              await i.editReply({
+                content: "Only referee can decide the result of this game",
+              })
+              return
+            }
+
+            await i.update({ components: [] }).catch(() => null)
+
+            const gameResult = await mochiGuess
+              .endGame(data.code, i.user.id, i.customId)
+              .catch(() => null)
+            await i.deleteReply().catch(() => null)
+            if (gameResult?.data) {
+              await announceResult(
+                thread,
+                options[i.customId as keyof typeof options],
+                gameResult.data
+              )
+            }
+
+            await cleanupAfterEndGame(thread, data.code)
+          })
       }, durationMs)
     )
+
     const msg = await thread.send({
-      content: renderProgress(game, referee, end, data.code, data.options),
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageButton({
-            label: yesLabel,
-            style: "SECONDARY",
-            customId: data.options.find((opt: any) =>
-              equalIgnoreCase(opt.option, yesLabel)
-            ).code,
-          }),
-          new MessageButton({
-            label: noLabel,
-            style: "SECONDARY",
-            customId: data.options.find((opt: any) =>
-              equalIgnoreCase(opt.option, noLabel)
-            ).code,
-          })
-        ),
-      ],
+      content: renderProgress(end, data.code, data.options),
+      components: choices,
     })
 
     timers.set(data.code, setInterval(updatePlayers, 10 * 1000))
 
     msg
       .createMessageComponentCollector({
-        filter: (ci) => ci.user.id !== referee.id,
         componentType: "BUTTON",
         time: durationMs,
       })
       .on("collect", async (i) => {
-        await i.deferReply({ ephemeral: true })
+        await i.deferReply({ ephemeral: true }).catch(() => null)
         if (i.user.id === referee.id) {
           await i.editReply({
             content: "Referee cannot play",
