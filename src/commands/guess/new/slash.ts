@@ -7,18 +7,27 @@ import { truncate } from "lodash"
 import { capitalizeFirst, equalIgnoreCase } from "utils/common"
 
 function renderProgress(
+  game: any,
   referee: User,
   end: number,
   code: string,
   options: any[]
 ) {
-  const time = end <= Date.now() ? Date.now() : Math.round(end / 1000)
+  const time = end <= Date.now() ? "0" : Math.round(end / 1000)
+  const msg1 = `The game will be closed <t:${time}:R>.\n:warning: Please make sure you have submitted the answer and approved the mochi transaction.`
+  const msg2 = `**TIME'S UP**. We hope you enjoyed the game and learned something new. 🎉`
+
   return [
-    `<@${referee.id}> to provide answer <t:${time}:R>, id: \`${code}\``,
+    `:game_die: **GUESS GAME ID:** \`${code}\`\n`,
+    `${time === "0" ? msg2 : msg1}`,
     "",
     ...(options ?? []).map(
       (opt: any) =>
-        `${opt.option}: ${
+        `${opt.option}${
+          opt.payout_percentage !== "0"
+            ? " **" + opt.payout_percentage + "x**: "
+            : ": "
+        } ${
           opt.game_player
             ? opt.game_player.map((p: any) => `<@${p.player_id}>`).join(", ")
             : ""
@@ -46,7 +55,7 @@ const slashCmd: SlashCommand = {
         opt
           .setName("duration")
           .setDescription(
-            "duration to run the game in minutes (default 30mins)"
+            "duration to run the game in minutes (default 30 minutes)"
           )
           .setMaxValue(60)
           .setMinValue(1)
@@ -75,10 +84,8 @@ const slashCmd: SlashCommand = {
     }
     const yesLabel = `${
       i.options.getString("yes_label", false) || "🐮 Bullish"
-    } (yes)`
-    const noLabel = `${
-      i.options.getString("no_label", false) || "🐻 Bearish"
-    } (no)`
+    }`
+    const noLabel = `${i.options.getString("no_label", false) || "🐻 Bearish"}`
     const question = i.options.getString("question", true)
     const durationMin = i.options.getInteger("duration", false) || 30
     const durationMs = durationMin * 60 * 1000
@@ -126,7 +133,7 @@ const slashCmd: SlashCommand = {
 
       msg
         .edit({
-          content: renderProgress(referee, end, data.code, options),
+          content: renderProgress(game, referee, end, data.code, options),
         })
         .catch(() => null)
     }
@@ -142,7 +149,7 @@ const slashCmd: SlashCommand = {
       }, durationMs)
     )
     const msg = await thread.send({
-      content: renderProgress(referee, end, data.code, data.options),
+      content: renderProgress(game, referee, end, data.code, data.options),
       components: [
         new MessageActionRow().addComponents(
           new MessageButton({
@@ -163,7 +170,7 @@ const slashCmd: SlashCommand = {
       ],
     })
 
-    timers.set(data.code, setInterval(updatePlayers, 60 * 1000))
+    timers.set(data.code, setInterval(updatePlayers, 10 * 1000))
 
     msg
       .createMessageComponentCollector({
@@ -198,11 +205,9 @@ const slashCmd: SlashCommand = {
           })
           return
         }
-        const dmChannel = await i.user.createDM(true).catch(() => null)
+
         await i.editReply({
-          content: `A join request has been sent to your DM${
-            dmChannel ? `, <#${dmChannel.id}>` : ""
-          }`,
+          content: `A join request has been sent to you. Please check your DM.`,
         })
       })
   },
