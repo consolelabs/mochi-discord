@@ -441,10 +441,10 @@
   resolved "https://registry.yarnpkg.com/@bonfida/utils/-/utils-0.0.5.tgz#e6086db62e1e3822257819ec2c20e933db59f419"
   integrity sha512-T4l72mwrG+tISIuRe+1qyxxKszB8DC8EH5bCKVIKEqBzazSMX087c17pA7RtsTBxcErpJ1GICCM2iVf0z4hSSw==
 
-"@consolelabs/mochi-formatter@^0.0.1-rc.54":
-  version "0.0.1-rc.54"
-  resolved "https://registry.yarnpkg.com/@consolelabs/mochi-formatter/-/mochi-formatter-0.0.1-rc.54.tgz#2df5d522542f27817f3435c9d5aed84db1dd4460"
-  integrity sha512-//ROaHloOYhS3usFvdt2Q30ii/LgAHc25HFj5UpSPz1UXzcyq6r7++27SaQl7arhqQjANhoxYGLklu3GDgYdgg==
+"@consolelabs/mochi-formatter@^0.0.1-rc.55":
+  version "0.0.1-rc.55"
+  resolved "https://registry.yarnpkg.com/@consolelabs/mochi-formatter/-/mochi-formatter-0.0.1-rc.55.tgz#8672b8c59f893e5fc255888daf0dbe1d25bcecde"
+  integrity sha512-s+/U9l3Lqgr3XU4i5SWrAosltiz7pjJJObpljgiMn6OrKxkV6hQdiGub6S0b3g6nlTnHxT3/kg0QpIEGHGIIAA==
   dependencies:
     "@bonfida/spl-name-service" "^1.0.9"
     "@solana/web3.js" "^1.78.3"
