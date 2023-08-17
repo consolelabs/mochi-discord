@@ -14,6 +14,7 @@ import {
 } from "utils/constants"
 import { getSlashCommand } from "utils/commands"
 import { eventAsyncStore } from "utils/async-storages"
+import { kafkaQueue } from "queue/kafka/queue"
 
 const event: DiscordEvent<"guildCreate"> = {
   name: "guildCreate",
@@ -22,6 +23,8 @@ const event: DiscordEvent<"guildCreate"> = {
     logger.info(
       `Joined guild: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`
     )
+
+    await kafkaQueue?.produceAuditEvent(guild, "joined")
 
     const metadata = {
       sub_event_type: "guildCreate",

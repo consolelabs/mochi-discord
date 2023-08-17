@@ -48,8 +48,10 @@ export async function render(
     })
   }
 
+  compareTickerData = data
+
   const { base_coin_suggestions, target_coin_suggestions } = data
-  if (base_coin_suggestions.length || target_coin_suggestions.length) {
+  if (base_coin_suggestions?.length || target_coin_suggestions?.length) {
     const baseCoin = (
       base_coin_suggestions.find((c: any) => c.most_popular) ??
       base_coin_suggestions[0]
@@ -74,8 +76,7 @@ export async function render(
   const comparisonFields = renderTokenComparisonFields(base_coin, target_coin)
   const currentRatio = ratios?.[ratios?.length - 1] ?? 0
   let amountOut = String(currentRatio * +amount)
-  let ratio = String(Number(amountOut) / Number(amount))
-  ratio = formatUsdDigit(ratio)
+  const ratio = String(Number(amountOut) / Number(amount))
 
   const author = getAuthor(interaction)
   const embed = composeEmbedMessage(null, {
@@ -83,7 +84,9 @@ export async function render(
     description: [
       `${getEmoji(
         "SWAP_ROUTE"
-      )}\`Rate.   \`**${amount} ${from} ${APPROX} ${ratio} ${to}**`,
+      )}\`Rate.   \`**${amount} ${from} ${APPROX} ${formatUsdDigit(
+        Number(ratio) * Number(amount)
+      )} ${to}**`,
     ].join("\n"),
     color: msgColors.ACTIVITY,
     originalMsgAuthor: author,

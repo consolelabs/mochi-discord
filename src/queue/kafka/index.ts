@@ -1,4 +1,5 @@
 import { CommandInteraction, Message } from "discord.js"
+import { Guild } from "discord.js"
 import {
   KAFKA_BROKERS,
   KAFKA_CLIENT_ID,
@@ -98,6 +99,32 @@ export default class Queue {
   }
 
   async produceAuditMsg(msgOrInteraction: Message | CommandInteraction) {
+    let text = ""
+    if (msgOrInteraction instanceof Message) {
+      text = msgOrInteraction.content
+    } else {
+      const i = msgOrInteraction as CommandInteraction
+      if (i.options.data.length <= 0) {
+        text = `/${i.commandName}`
+      } else {
+        if (i.options.data[0].type === "SUB_COMMAND") {
+          const commandParam = i.options.data[0].options
+            ? i.options.data[0].options
+                .map((param: any) => `${param.name}:${param.value}`)
+                .join(" ")
+            : ""
+          text = `/${i.commandName} ${i.options.data[0].name} ${commandParam}`
+        } else {
+          const commandParam = i.options.data
+            ? i.options.data
+                .map((param: any) => `${param.name}:${param.value}`)
+                .join(" ")
+            : ""
+          text = `/${i.commandName} ${commandParam}`
+        }
+      }
+    }
+
     const author = getAuthor(msgOrInteraction)
     const payload = {
       type: 4,
@@ -108,17 +135,60 @@ export default class Queue {
             id: author.id,
             is_bot: author.bot,
             username: author.username,
+            icon_url: author.avatarURL(),
           },
           channel: {
             id: msgOrInteraction.channelId,
             type: msgOrInteraction.channel?.type ?? "",
           },
+          guild: {
+            id: msgOrInteraction.guildId,
+            icon_url: msgOrInteraction.guild?.iconURL(),
+            title: msgOrInteraction.guild?.name,
+          },
           date: msgOrInteraction.createdTimestamp,
-          text: "",
+          text: text,
         },
       },
     }
     const data = JSON.stringify(payload)
+    const bytes = new TextEncoder().encode(data)
+    const bStr = Array.from(bytes, (x) => String.fromCodePoint(x)).join("")
+
+    await this.producer.send({
+      topic: this.auditTopic,
+      messages: [
+        {
+          value: JSON.stringify({
+            type: "audit",
+            sender: "mochi-discord",
+            message: btoa(bStr),
+          }),
+        },
+      ],
+    })
+  }
+
+  async produceAuditEvent(guild: Guild, status: string) {
+    const now = new Date()
+    const payload = {
+      id: guild.id,
+      name: guild.name,
+      icon: guild.iconURL(),
+      members: guild.memberCount,
+      status: status,
+      timestamp: now.toISOString(),
+    }
+    const payloadStr = JSON.stringify(payload)
+
+    const msg = {
+      type: 4,
+      discord_log: {
+        event_type: "server_join_left",
+        payload: payloadStr,
+      },
+    }
+    const data = JSON.stringify(msg)
     const bytes = new TextEncoder().encode(data)
     const bStr = Array.from(bytes, (x) => String.fromCodePoint(x)).join("")
 
