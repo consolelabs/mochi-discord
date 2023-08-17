@@ -267,7 +267,9 @@ function showSuccesfulResponse(
         payload.token
       )} **${amount}** ${amountApprox}${
         payload.recipients.length > 1 ? " each" : ""
-      }! → [view receipt](${HOMEPAGE_URL}/transfer/${res.external_id})`,
+      }! .[${res.external_id.slice(0, 5)}](${HOMEPAGE_URL}/transfer/${
+        res.external_id
+      })`,
       components: [],
     },
   }
