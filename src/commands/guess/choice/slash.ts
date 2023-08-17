@@ -66,14 +66,6 @@ const slashCmd: SlashCommand = {
         },
       }
 
-    if (game.result || now() >= moment(game.end_at).unix() * 1000) {
-      return {
-        messageOptions: {
-          content: "Game already ended",
-        },
-      }
-    }
-
     if (game.referee_id === i.user.id) {
       return {
         messageOptions: {

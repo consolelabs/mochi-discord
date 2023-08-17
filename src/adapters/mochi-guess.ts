@@ -61,7 +61,7 @@ class MochiGuess extends Fetcher {
     )
   }
 
-  public async endGame(id: number, referee_id: string, option_code: string) {
+  public async endGame(id: string, referee_id: string, option_code: string) {
     return await this.jsonFetch(
       `${MOCHI_GUESS_API_BASE_URL}/games/${id}/result`,
       {

@@ -202,7 +202,7 @@ const slashCmd: SlashCommand = {
 
             await cleanupAfterEndGame(thread, data.code)
           })
-      }, durationMs)
+      }, durationMs + 30 * 1000) // + more 30s to make sure all transactions are comitted
     )
 
     const msg = await thread.send({
@@ -222,12 +222,6 @@ const slashCmd: SlashCommand = {
         if (i.user.id === referee.id) {
           await i.editReply({
             content: "Referee cannot play",
-          })
-          return
-        }
-        if (Date.now() >= end) {
-          await i.editReply({
-            content: "No more time to vote or game already ended",
           })
           return
         }

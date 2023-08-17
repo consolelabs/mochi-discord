@@ -176,39 +176,26 @@ const slashCmd: SlashCommand = {
       }
     }
 
-    const thread = (await i.client.channels.fetch(
-      game.thread_id
-    )) as ThreadChannel
+    const thread = (await i.client.channels
+      .fetch(game.thread_id)
+      .catch(() => null)) as ThreadChannel
 
-    await thread.send({
-      content: [`Time is up!`].join("\n"),
-    })
-
-    await mochiGuess.endGame(game.code, i.user.id, optionCode)
-
-    const options = (game.options ?? []).map((opt: any) => {
-      const players = (opt.game_player ?? []).map(
-        (player: any) => `<@${player.player_id}>`
+    if (!thread) return
+    const gameResult = await mochiGuess
+      .endGame(code, i.user.id, optionCode)
+      .catch(() => null)
+    await i.deleteReply().catch(() => null)
+    if (gameResult?.data) {
+      await announceResult(
+        thread,
+        (game.options ?? []).find((opt: any) =>
+          equalIgnoreCase(optionCode, opt.code)
+        )?.option ?? "NA",
+        gameResult.data
       )
-      return `${opt.option}: ${players.join(", ")}`
-    })
-
-    await cleanupAfterEndGame(thread, game.code)
-
-    return {
-      messageOptions: {
-        content: [
-          `> ${game.question}`,
-          ...options,
-          "",
-          `The answer is: ${
-            (game.options ?? []).find((opt: any) =>
-              equalIgnoreCase(optionCode, opt.code)
-            )?.option ?? "NA"
-          }`,
-        ].join("\n"),
-      },
     }
+
+    await cleanupAfterEndGame(thread, code)
   },
   category: "Game",
   help: () => Promise.resolve({}),
