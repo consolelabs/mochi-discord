@@ -84,11 +84,8 @@ const slashCmd: SlashCommand = {
 
     await mochiGuess.joinGame(game.id, i.user.id, optionCode)
 
-    const dmChannel = await i.user.createDM(true).catch(() => null)
-    i.editReply({
-      content: `A join request has been sent to your DM${
-        dmChannel ? `, <#${dmChannel.id}>` : ""
-      }`,
+    await i.editReply({
+      content: `A join request has been sent to you. Please check your inbox.`,
     })
   },
   category: "Game",
