@@ -3,7 +3,6 @@ name: Build and Deploy to GKE Dev
 on:
   push:
     branches:
-      - cicd
       - develop
 
 # Environment variables available to all jobs and steps in this workflow

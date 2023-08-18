@@ -41,7 +41,7 @@ import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { RunResult } from "../../../types/common"
 import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
-import { APPROX } from "../../../utils/constants"
+import { APPROX, HOMEPAGE_URL } from "../../../utils/constants"
 import { formatDigit } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
@@ -259,7 +259,20 @@ function showSuccesfulResponse(
     embed.setImage(payload.image)
   }
 
-  return { messageOptions: { embeds: [embed], components: [] } }
+  return {
+    messageOptions: {
+      content: `${userMention(
+        payload.sender
+      )} has sent ${recipientDescription} ${getEmojiToken(
+        payload.token
+      )} **${amount}** ${amountApprox}${
+        payload.recipients.length > 1 ? " each" : ""
+      }! .[${res.external_id.slice(0, 5)}](${HOMEPAGE_URL}/transfer/${
+        res.external_id
+      })`,
+      components: [],
+    },
+  }
 }
 
 export async function parseTipArgs(
