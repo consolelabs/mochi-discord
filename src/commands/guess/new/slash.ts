@@ -19,9 +19,7 @@ function renderProgress(end: number, code: string, options: any[]) {
     ...(options ?? []).map(
       (opt: any) =>
         `${opt.option}${
-          opt.payout_percentage !== "0"
-            ? ` **${opt.payout_percentage}x**: `
-            : ": "
+          opt.payout_ratio !== "0" ? ` **${opt.payout_ratio}x**: ` : ": "
         } ${
           opt.game_player
             ? opt.game_player.map((p: any) => `<@${p.player_id}>`).join(", ")
