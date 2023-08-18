@@ -32,7 +32,7 @@ jobs:
           cache: pnpm
           node-version: lts/*
       - name: Install dependencies
-        run: pnpm clean-install
+        run: pnpm install
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: pnpm audit signatures
       # pinned version updated automatically by Renovate.
