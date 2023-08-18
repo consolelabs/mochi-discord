@@ -24,16 +24,17 @@ jobs:
         with:
           fetch-depth: 0 # to be able to checkout any commit
           persist-credentials: false # <--- this
-      - uses: actions/setup-node@e33196f7422957bea03ed53f6fbb155025ffc7b8 # v3
+      - uses: pnpm/action-setup@v2
         with:
-          cache: npm
+          version: 6.32.9
+      - uses: actions/setup-node@v3 # v3
+        with:
+          cache: pnpm
           node-version: lts/*
       - name: Install dependencies
-        run: npm clean-install
-      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
-        run: npm audit signatures
+        run: pnpm install
       # pinned version updated automatically by Renovate.
       # details at https://semantic-release.gitbook.io/semantic-release/usage/installation#global-installation
-      - run: npx semantic-release@21.0.2
+      - run: pnpm dlx semantic-release@21.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
