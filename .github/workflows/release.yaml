@@ -24,10 +24,13 @@ jobs:
         with:
           fetch-depth: 0 # to be able to checkout any commit
           persist-credentials: false # <--- this
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6.32.9
       - uses: actions/setup-node@v3 # v3
         with:
           cache: pnpm
-          node-version: latest
+          node-version: lts/*
       - name: Install dependencies
         run: pnpm clean-install
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
