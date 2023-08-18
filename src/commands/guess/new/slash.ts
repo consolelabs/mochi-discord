@@ -1,26 +1,37 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { Message, MessageActionRow, MessageButton } from "discord.js"
+import { Message, MessageActionRow, MessageButton, User } from "discord.js"
 import { SlashCommand } from "types/common"
 import mochiGuess from "adapters/mochi-guess"
 import { timeouts, timers } from ".."
 import { truncate } from "lodash"
 import { capitalizeFirst, equalIgnoreCase } from "utils/common"
 import { announceResult, cleanupAfterEndGame } from "../end/slash"
-
-function renderProgress(end: number, code: string, options: any[]) {
+function renderProgress(
+  referee: User,
+  question: string,
+  end: number,
+  code: string,
+  options: any[]
+) {
   const time = end <= Date.now() ? "0" : Math.round(end / 1000)
-  const msg1 = `The game will be closed <t:${time}:R>.\n:warning: Please make sure you have submitted the answer and approved the mochi transaction.`
-  const msg2 = `**TIME'S UP**. We hope you enjoyed the game and learned something new. 🎉`
+  const msg1 = `:warning: The game will be closed <t:${time}:R>.\nPlease make sure you have submitted the answer and approved the mochi transaction.`
+  const msg2 = `**:hourglass:TIME'S UP**. We hope you enjoyed the game and learned something new. 🎉`
 
   return [
-    `:game_die: **GUESS GAME ID:** \`${code}\`\n`,
+    `:loudspeaker: **GUESS GAME**\n`,
+    `:game_die: \`ID.       \` **${code}**`,
+    `:police_officer: \`Referee.  \` <@${referee.id}>`,
+    `:question: \`Question. \` ${question}`,
+    "",
     `${time === "0" ? msg2 : msg1}`,
     "",
     ...(options ?? []).map(
       (opt: any) =>
-        `${opt.option}${
-          opt.payout_ratio !== "0" ? ` **${opt.payout_ratio}x**: ` : ": "
-        } ${
+        `${opt.option} ${
+          opt.payout_ratio !== "0"
+            ? `- ***${opt.payout_ratio}x Payout*** : `
+            : ": "
+        }\n${
           opt.game_player
             ? opt.game_player.map((p: any) => `<@${p.player_id}>`).join(", ")
             : ""
@@ -126,7 +137,7 @@ const slashCmd: SlashCommand = {
 
       msg
         .edit({
-          content: renderProgress(end, data.code, options),
+          content: renderProgress(referee, question, end, data.code, options),
         })
         .catch(() => null)
     }
@@ -164,7 +175,7 @@ const slashCmd: SlashCommand = {
         await updatePlayers()
         const msg = await thread
           .send({
-            content: `Hey ${referee}, time is up — please submit your result`,
+            content: `Hey ${referee}, time is up:hourglass:\nPlease submit the game result.\n`,
             components: choices,
           })
           .catch(() => null)
@@ -204,7 +215,7 @@ const slashCmd: SlashCommand = {
     )
 
     const msg = await thread.send({
-      content: renderProgress(end, data.code, data.options),
+      content: renderProgress(referee, question, end, data.code, data.options),
       components: choices,
     })
 
