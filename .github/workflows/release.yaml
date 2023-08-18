@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-node@v3 # v3
         with:
           cache: pnpm
-          node-version: lts/*
+          node-version: 16
       - name: Install dependencies
         run: pnpm install
       # pinned version updated automatically by Renovate.
