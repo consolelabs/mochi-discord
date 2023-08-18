@@ -6,6 +6,7 @@ import { timeouts, timers } from ".."
 import { truncate } from "lodash"
 import { capitalizeFirst, equalIgnoreCase } from "utils/common"
 import { announceResult, cleanupAfterEndGame } from "../end/slash"
+import { composeEmbedMessage } from "../../../ui/discord/embed"
 function renderProgress(
   referee: User,
   question: string,
@@ -18,7 +19,7 @@ function renderProgress(
   const msg2 = `**:hourglass:TIME'S UP**. We hope you enjoyed the game and learned something new. 🎉`
 
   return [
-    `:loudspeaker: **GUESS GAME**\n`,
+    `:video_game: **GUESS GAME**\n`,
     `:game_die: \`ID.       \` **${code}**`,
     `:police_officer: \`Referee.  \` <@${referee.id}>`,
     `:question: \`Question. \` ${question}`,
@@ -110,7 +111,8 @@ const slashCmd: SlashCommand = {
     const thread = await reply.startThread({
       name: truncate(question, { length: 100 }),
     })
-    thread.members.add(referee)
+
+    await thread.members.add(referee)
 
     const game = {
       duration: durationMin,
@@ -173,9 +175,18 @@ const slashCmd: SlashCommand = {
       data.code,
       setTimeout(async () => {
         await updatePlayers()
+        const embed = composeEmbedMessage(null, {
+          color: "RED",
+        })
+        embed.setTitle(":loudspeaker: Judgement")
+        embed.setDescription(
+          `Hey ${referee}, time is up:hourglass:\nPlease submit the game result to decide the winners of the game.`
+        )
+
         const msg = await thread
           .send({
-            content: `Hey ${referee}, time is up:hourglass:\nPlease submit the game result.\n`,
+            // content: `Hey ${referee}, time is up:hourglass:\nPlease submit the game result.\n`,
+            embeds: [embed],
             components: choices,
           })
           .catch(() => null)

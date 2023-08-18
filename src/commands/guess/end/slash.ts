@@ -1,13 +1,16 @@
 import { utils } from "@consolelabs/mochi-formatter"
 import { SlashCommandSubcommandBuilder, userMention } from "@discordjs/builders"
 import mochiGuess from "adapters/mochi-guess"
-import { ThreadChannel } from "discord.js"
+import { ThreadChannel, MessageOptions, EmbedFieldData } from "discord.js"
 import { now, truncate, groupBy } from "lodash"
 import { logger } from "logger"
 import moment from "moment-timezone"
 import { SlashCommand } from "types/common"
 import { capitalizeFirst, equalIgnoreCase } from "utils/common"
 import { timeouts, timers } from ".."
+
+import { composeEmbedMessage } from "ui/discord/embed"
+import { SPACE } from "utils/constants"
 
 export async function cleanupAfterEndGame(
   thread: ThreadChannel,
@@ -36,40 +39,80 @@ export async function announceResult(
   })
   group.winners ??= []
   group.losers ??= []
+  const embed = composeEmbedMessage(null, {
+    color: "GREEN",
+  })
+  embed.setTitle(":crossed_swords: Result")
+  embed.setDescription(
+    "The rewards you received include taxes and transaction fees. Please be aware when receiving rewards. Contact us if you have questions or concerns. Thank you! \nHere is the result:"
+  )
 
-  await thread
-    .send({
-      content: [
-        "Final answer is",
-        `> ${answer}`,
-        "",
-        `Winners: ${
-          group.winners.length === 0
-            ? "no one"
-            : group.winners
-                .map(
-                  (w) =>
-                    `${userMention(w.player_id)} (+${utils.formatTokenDigit(
-                      w.final_amount
-                    )} ${w.token_name})`
-                )
-                .join(", ")
-        }`,
-        `Losers: ${
-          group.losers.length === 0
-            ? "no one"
-            : group.losers
-                .map(
-                  (w) =>
-                    `${userMention(w.player_id)} (-${utils.formatTokenDigit(
-                      w.final_amount.slice(1)
-                    )} ${w.token_name})`
-                )
-                .join(", ")
-        }`,
-      ].join("\n"),
-    })
-    .catch(() => null)
+  const winners =
+    group.winners.length === 0
+      ? ["No one"]
+      : group.winners.map(
+          (t) =>
+            `> ${userMention(t.player_id)} +${t.final_amount} ${t.token_name}`
+        )
+
+  const losers =
+    group.losers.length === 0
+      ? ["No one"]
+      : group.losers.map(
+          (t) =>
+            `> ${userMention(t.player_id)} ${t.final_amount} ${t.token_name}`
+        )
+
+  const embedFields: any[] = [
+    {
+      name: ":dart: Answer",
+      value: `> ${answer}\n`,
+      inline: false,
+    },
+    {
+      name: ":star_struck: Winners",
+      value: `${winners.join("\n")}\n`,
+      inline: false,
+    },
+    {
+      name: ":face_with_symbols_over_mouth: Losers",
+      value: `${losers.join("\n")}\n`,
+      inline: false,
+    },
+  ]
+
+  embed.setFields(embedFields)
+
+  // const winnerEmbedFields = group.winners.map((t) => {
+  //   const val = `${userMention(t.player_id)} +${utils.formatTokenDigit(
+  //     t.final_amount
+  //   )} ${t.token_name}\n`
+  //   return {
+  //     name: ":star_struck: Winners",
+  //     value: val,
+  //     inline: false,
+  //   }
+  // })
+  //
+  // const loserEmbedFields = group.losers.map((t) => {
+  //   const val = `${userMention(t.player_id)} -${utils.formatTokenDigit(
+  //     t.final_amount.slice(1)
+  //   )} ${t.token_name}\n`
+  //
+  //   return {
+  //     name: ":face_with_symbols_over_mouth: Losers",
+  //     value: val,
+  //     inline: false,
+  //   }
+  // })
+  //
+  // embed.setFields(winnerEmbedFields, loserEmbedFields)
+
+  const msgOpt: MessageOptions = {
+    embeds: [embed],
+  }
+
+  await thread.send(msgOpt).catch(() => null)
 }
 
 const slashCmd: SlashCommand = {
