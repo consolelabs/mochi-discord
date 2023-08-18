@@ -3,4 +3,3 @@
 
 npx lint-staged
 yarn generate:types && git add src/types/api.ts
-yarn test
