@@ -9,8 +9,8 @@ import end from "./end/slash"
 import list from "./list/slash"
 import view from "./view/slash"
 
-export const timeouts = new Map<string, NodeJS.Timeout>()
-export const timers = new Map<string, NodeJS.Timer>()
+export const timeouts = new Map<string, any>()
+export const timers = new Map<string, any>()
 
 const subCommands: Record<string, SlashCommand> = {
   new: newSlash,

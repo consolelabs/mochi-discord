@@ -1,7 +1,6 @@
-import { utils } from "@consolelabs/mochi-formatter"
 import { SlashCommandSubcommandBuilder, userMention } from "@discordjs/builders"
 import mochiGuess from "adapters/mochi-guess"
-import { ThreadChannel, MessageOptions, EmbedFieldData } from "discord.js"
+import { ThreadChannel, MessageOptions } from "discord.js"
 import { now, truncate, groupBy } from "lodash"
 import { logger } from "logger"
 import moment from "moment-timezone"
@@ -10,7 +9,6 @@ import { capitalizeFirst, equalIgnoreCase } from "utils/common"
 import { timeouts, timers } from ".."
 
 import { composeEmbedMessage } from "ui/discord/embed"
-import { SPACE } from "utils/constants"
 
 export async function cleanupAfterEndGame(
   thread: ThreadChannel,
