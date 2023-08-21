@@ -1,3 +1,13 @@
+# [6.28.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.27.1-rc.2...v6.28.0-rc.1) (2023-08-21)
+
+### Bug Fixes
+
+- add game bet amount guess game ([#1459](https://github.com/consolelabs/mochi-discord/issues/1459)) ([5dcf284](https://github.com/consolelabs/mochi-discord/commit/5dcf284555b5b657a610699ab8df5fa58f0d41e4))
+
+### Features
+
+- add v2 preview env ([#1460](https://github.com/consolelabs/mochi-discord/issues/1460)) ([639f5c6](https://github.com/consolelabs/mochi-discord/commit/639f5c6a9633c54eb5dd2c145cb2c66b077a5187))
+
 ## [6.27.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.27.1-rc.1...v6.27.1-rc.2) (2023-08-21)
 
 ### Bug Fixes
