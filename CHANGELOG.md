@@ -1,3 +1,10 @@
+## [6.27.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.27.0...v6.27.1-rc.1) (2023-08-21)
+
+### Bug Fixes
+
+- correct packagejson config ([6b7d910](https://github.com/consolelabs/mochi-discord/commit/6b7d9108eb421a9211c9231273790de7ba5531bb))
+- improve guess game ([#1457](https://github.com/consolelabs/mochi-discord/issues/1457)) ([5d28a68](https://github.com/consolelabs/mochi-discord/commit/5d28a689f67a1f6ae1fe938b0734d93b89994f60))
+
 # [6.27.0](https://github.com/consolelabs/mochi-discord/compare/v6.26.6...v6.27.0) (2023-08-18)
 
 ### Bug Fixes

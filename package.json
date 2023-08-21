@@ -110,5 +110,6 @@
   "engines": {
     "node": "18.x"
   },
-  "name": "mochi-discord"
+  "name": "mochi-discord",
+  "version": "6.27.1-rc.1"
 }
