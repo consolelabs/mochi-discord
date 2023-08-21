@@ -1,3 +1,9 @@
+## [6.27.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.27.1-rc.1...v6.27.1-rc.2) (2023-08-21)
+
+### Bug Fixes
+
+- guess game timer/timeout typing ([8f3cc30](https://github.com/consolelabs/mochi-discord/commit/8f3cc30b563489e54e10245a28469ef0db15b252))
+
 ## [6.27.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.27.0...v6.27.1-rc.1) (2023-08-21)
 
 ### Bug Fixes
