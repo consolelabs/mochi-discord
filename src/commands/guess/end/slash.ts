@@ -9,6 +9,7 @@ import { capitalizeFirst, equalIgnoreCase } from "utils/common"
 import { timeouts, timers } from ".."
 
 import { composeEmbedMessage } from "ui/discord/embed"
+import * as console from "console"
 
 export async function cleanupAfterEndGame(
   thread: ThreadChannel,
@@ -27,7 +28,8 @@ export async function cleanupAfterEndGame(
 }
 
 export async function announceResult(
-  thread: ThreadChannel,
+  channel: any,
+  gameCode: string,
   answer: string,
   gameResult: any
 ) {
@@ -40,9 +42,9 @@ export async function announceResult(
   const embed = composeEmbedMessage(null, {
     color: "GREEN",
   })
-  embed.setTitle(":crossed_swords: Result")
+  embed.setTitle(`:crossed_swords: Result ${gameCode}`)
   embed.setDescription(
-    "The rewards you received include taxes and transaction fees. Please be aware when receiving rewards. Contact us if you have questions or concerns. Thank you! \nHere is the result:"
+    "The rewards you received include taxes and transaction fees. Please be aware when receiving rewards. Contact us if you have questions or concerns. Thank you! \n\nHere is the result:"
   )
 
   const winners =
@@ -81,36 +83,11 @@ export async function announceResult(
 
   embed.setFields(embedFields)
 
-  // const winnerEmbedFields = group.winners.map((t) => {
-  //   const val = `${userMention(t.player_id)} +${utils.formatTokenDigit(
-  //     t.final_amount
-  //   )} ${t.token_name}\n`
-  //   return {
-  //     name: ":star_struck: Winners",
-  //     value: val,
-  //     inline: false,
-  //   }
-  // })
-  //
-  // const loserEmbedFields = group.losers.map((t) => {
-  //   const val = `${userMention(t.player_id)} -${utils.formatTokenDigit(
-  //     t.final_amount.slice(1)
-  //   )} ${t.token_name}\n`
-  //
-  //   return {
-  //     name: ":face_with_symbols_over_mouth: Losers",
-  //     value: val,
-  //     inline: false,
-  //   }
-  // })
-  //
-  // embed.setFields(winnerEmbedFields, loserEmbedFields)
-
   const msgOpt: MessageOptions = {
     embeds: [embed],
   }
 
-  await thread.send(msgOpt).catch(() => null)
+  await channel.send(msgOpt).catch(() => null)
 }
 
 const slashCmd: SlashCommand = {
@@ -160,6 +137,7 @@ const slashCmd: SlashCommand = {
         await i.respond([])
         return
       }
+
       const { ok, data: game } = await mochiGuess.getGameProgress(code)
       if (!ok) {
         await i.respond([])
@@ -179,6 +157,7 @@ const slashCmd: SlashCommand = {
   run: async (i) => {
     const code = i.options.getString("code", true)
     const optionCode = i.options.getString("choice", true)
+    console.log("NBBBBBB")
     const {
       ok,
       status,
@@ -229,6 +208,7 @@ const slashCmd: SlashCommand = {
     if (gameResult?.data) {
       await announceResult(
         thread,
+        code,
         (game.options ?? []).find((opt: any) =>
           equalIgnoreCase(optionCode, opt.code)
         )?.option ?? "NA",

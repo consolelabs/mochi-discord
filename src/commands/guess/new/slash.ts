@@ -3,14 +3,13 @@ import { Message, MessageActionRow, MessageButton, User } from "discord.js"
 import { SlashCommand } from "types/common"
 import mochiGuess from "adapters/mochi-guess"
 import { timeouts, timers } from ".."
-import { truncate } from "lodash"
 import {
   capitalizeFirst,
   equalIgnoreCase,
   getEmojiToken,
   TokenEmojiKey,
 } from "utils/common"
-import { announceResult, cleanupAfterEndGame } from "../end/slash"
+import { announceResult } from "../end/slash"
 import { composeEmbedMessage } from "../../../ui/discord/embed"
 function renderProgress(
   referee: User,
@@ -115,23 +114,18 @@ const slashCmd: SlashCommand = {
       }
     }
 
-    const reply = (await i.editReply({
-      content: [`${i.user} asked:`, `> ${question}`].join("\n"),
-    })) as Message
-
-    const thread = await reply.startThread({
-      name: truncate(question, { length: 100 }),
-    })
-
-    await thread.members.add(referee)
-
+    // const thread = await reply.startThread({
+    //   name: truncate(question, { length: 100 }),
+    // })
+    //
+    // await thread.members.add(referee)
     const game = {
       duration: durationMin,
       host_id: i.user.id,
       options: [yesLabel, noLabel],
       question,
       referee_id: referee.id,
-      thread_id: thread.id,
+      thread_id: i.id,
     }
     const { ok, data, originalError, error } = await mochiGuess.createGame(game)
     if (!ok) {
@@ -141,8 +135,50 @@ const slashCmd: SlashCommand = {
         },
       }
     }
+
+    const yesCode = data.options.find((opt: any) =>
+      equalIgnoreCase(opt.option, yesLabel)
+    ).code
+    const noCode = data.options.find((opt: any) =>
+      equalIgnoreCase(opt.option, noLabel)
+    ).code
+
+    const options: Record<string, string> = {
+      [yesCode]: yesLabel,
+      [noCode]: noLabel,
+    }
+
+    const choices = [
+      new MessageActionRow().addComponents(
+        new MessageButton({
+          label: yesLabel,
+          style: "SECONDARY",
+          customId: yesCode,
+        }),
+        new MessageButton({
+          label: noLabel,
+          style: "SECONDARY",
+          customId: noCode,
+        })
+      ),
+    ]
+
     const start = Date.now(),
       end = start + durationMs
+
+    const reply = (await i.editReply({
+      content: renderProgress(
+        referee,
+        question,
+        end,
+        data.code,
+        data.options,
+        data.bet_default_value,
+        data.token_name
+      ),
+      components: choices,
+    })) as Message
+
     const updatePlayers = async function () {
       const { ok, data: game } = await mochiGuess.getGameProgress(data.code)
       if (!ok) return
@@ -163,33 +199,6 @@ const slashCmd: SlashCommand = {
         .catch(() => null)
     }
 
-    const yesCode = data.options.find((opt: any) =>
-      equalIgnoreCase(opt.option, yesLabel)
-    ).code
-    const noCode = data.options.find((opt: any) =>
-      equalIgnoreCase(opt.option, noLabel)
-    ).code
-
-    const choices = [
-      new MessageActionRow().addComponents(
-        new MessageButton({
-          label: yesLabel,
-          style: "SECONDARY",
-          customId: yesCode,
-        }),
-        new MessageButton({
-          label: noLabel,
-          style: "SECONDARY",
-          customId: noCode,
-        })
-      ),
-    ]
-
-    const options: Record<string, string> = {
-      [yesCode]: yesLabel,
-      [noCode]: noLabel,
-    }
-
     timeouts.set(
       data.code,
       setTimeout(async () => {
@@ -202,9 +211,8 @@ const slashCmd: SlashCommand = {
           `Hey ${referee}, time is up:hourglass:\nPlease submit the game result to decide the winners of the game.`
         )
 
-        const msg = await thread
+        const msg = await reply.channel
           .send({
-            // content: `Hey ${referee}, time is up:hourglass:\nPlease submit the game result.\n`,
             embeds: [embed],
             components: choices,
           })
@@ -233,18 +241,19 @@ const slashCmd: SlashCommand = {
             await i.deleteReply().catch(() => null)
             if (gameResult?.data) {
               await announceResult(
-                thread,
+                reply.channel,
+                data.code,
                 options[i.customId as keyof typeof options],
                 gameResult.data
               )
             }
 
-            await cleanupAfterEndGame(thread, data.code)
+            // await cleanupAfterEndGame(thread, data.code)
           })
-      }, durationMs + 30 * 1000) // + more 30s to make sure all transactions are comitted
+      }, durationMs + 30 * 1000) // + more 30s to make sure all transactions are committed
     )
 
-    const msg = await thread.send({
+    const msg = await reply.edit({
       content: renderProgress(
         referee,
         question,
