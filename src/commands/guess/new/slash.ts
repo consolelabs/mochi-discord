@@ -4,7 +4,12 @@ import { SlashCommand } from "types/common"
 import mochiGuess from "adapters/mochi-guess"
 import { timeouts, timers } from ".."
 import { truncate } from "lodash"
-import { capitalizeFirst, equalIgnoreCase } from "utils/common"
+import {
+  capitalizeFirst,
+  equalIgnoreCase,
+  getEmojiToken,
+  TokenEmojiKey,
+} from "utils/common"
 import { announceResult, cleanupAfterEndGame } from "../end/slash"
 import { composeEmbedMessage } from "../../../ui/discord/embed"
 function renderProgress(
@@ -12,7 +17,9 @@ function renderProgress(
   question: string,
   end: number,
   code: string,
-  options: any[]
+  options: any[],
+  bet_default_value: number,
+  token_name: string
 ) {
   const time = end <= Date.now() ? "0" : Math.round(end / 1000)
   const msg1 = `:warning: The game will be closed <t:${time}:R>.\nPlease make sure you have submitted the answer and approved the mochi transaction.`
@@ -20,9 +27,13 @@ function renderProgress(
 
   return [
     `:video_game: **GUESS GAME**\n`,
-    `:game_die: \`ID.       \` **${code}**`,
-    `:police_officer: \`Referee.  \` <@${referee.id}>`,
-    `:question: \`Question. \` ${question}`,
+    `:game_die: \`ID.         \` **${code}**`,
+    `:police_officer: \`Referee.    \` <@${referee.id}>`,
+    `:moneybag: \`Bet Amount. \` ${bet_default_value} ${getEmojiToken(
+      token_name as TokenEmojiKey,
+      false
+    )} `,
+    `:question: \`Question.   \` ${question}`,
     "",
     `${time === "0" ? msg2 : msg1}`,
     "",
@@ -139,7 +150,15 @@ const slashCmd: SlashCommand = {
 
       msg
         .edit({
-          content: renderProgress(referee, question, end, data.code, options),
+          content: renderProgress(
+            referee,
+            question,
+            end,
+            data.code,
+            options,
+            data.bet_default_value,
+            data.token_name
+          ),
         })
         .catch(() => null)
     }
@@ -226,7 +245,15 @@ const slashCmd: SlashCommand = {
     )
 
     const msg = await thread.send({
-      content: renderProgress(referee, question, end, data.code, data.options),
+      content: renderProgress(
+        referee,
+        question,
+        end,
+        data.code,
+        data.options,
+        data.bet_default_value,
+        data.token_name
+      ),
       components: choices,
     })
 
