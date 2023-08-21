@@ -1,3 +1,9 @@
+# [6.28.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.28.0-rc.1...v6.28.0-rc.2) (2023-08-21)
+
+### Bug Fixes
+
+- temp - approve and reject transfer request ([#1461](https://github.com/consolelabs/mochi-discord/issues/1461)) ([d3c8d21](https://github.com/consolelabs/mochi-discord/commit/d3c8d213baf9f1c54d36de69fc745b0fd0dbdb00))
+
 # [6.28.0](https://github.com/consolelabs/mochi-discord/compare/v6.27.0...v6.28.0) (2023-08-21)
 
 ### Bug Fixes
