@@ -251,18 +251,32 @@ class MochiPay extends Fetcher {
     )
   }
 
-  async approveTransferRequest({ requestCode }: { requestCode: string }) {
+  // [@anhnh] TODO: hard code appId for now, need a patch
+  async approveTransferRequest({
+    requestCode,
+    appId = "1",
+  }: {
+    requestCode: string
+    appId?: string
+  }) {
     return await this.jsonFetch(
-      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/requests/${requestCode}/approved`,
+      `${MOCHI_PAY_API_BASE_URL}/applications/${appId}/requests/${requestCode}/approved`,
       {
         method: "POST",
       }
     )
   }
 
-  async rejectTransferRequest({ requestCode }: { requestCode: string }) {
+  // [@anhnh] TODO: hard code appId for now, need a patch
+  async rejectTransferRequest({
+    requestCode,
+    appId = "1",
+  }: {
+    requestCode: string
+    appId?: string
+  }) {
     return await this.jsonFetch(
-      `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/requests/${requestCode}/rejected`,
+      `${MOCHI_PAY_API_BASE_URL}/applications/${appId}/requests/${requestCode}/rejected`,
       {
         method: "POST",
       }
