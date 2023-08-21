@@ -78,7 +78,7 @@ const slashCmd: SlashCommand = {
               `\`ID.         \`${game.code}`,
               `\`Author.     \`<@${game.host_id}>`,
               `\`Referee.    \`<@${game.referee_id}>`,
-              `\`Question.   \`\n> ${game.question}`,
+              `\`Question.   \`${game.question}`,
               "",
               game.players
                 .sort(

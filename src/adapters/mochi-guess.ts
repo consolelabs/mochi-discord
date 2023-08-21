@@ -30,7 +30,6 @@ class MochiGuess extends Fetcher {
     thread_id: string
     token_id?: string
   }) {
-    body.bet_default_value ||= 1
     // body.token_id ||= "61388b7c-5505-4fdf-8084-077422369a93"
     body.token_id ||= "941f0fb1-00da-49dc-a538-5e81fc874cb4"
     return await this.jsonFetch(`${MOCHI_GUESS_API_BASE_URL}/games`, {
@@ -45,7 +44,6 @@ class MochiGuess extends Fetcher {
       {
         method: "POST",
         body: {
-          bet_amount: 1,
           option_code,
           player_id,
         },
@@ -63,7 +61,7 @@ class MochiGuess extends Fetcher {
     )
   }
 
-  public async endGame(id: number, referee_id: string, option_code: string) {
+  public async endGame(id: string, referee_id: string, option_code: string) {
     return await this.jsonFetch(
       `${MOCHI_GUESS_API_BASE_URL}/games/${id}/result`,
       {
