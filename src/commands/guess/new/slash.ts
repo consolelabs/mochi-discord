@@ -99,7 +99,7 @@ const slashCmd: SlashCommand = {
     if (i.user.id === referee.id) {
       return {
         messageOptions: {
-          content: "You cannot promote yourself to referee",
+          content: "You cannot promote yourself to referee.",
         },
       }
     }
