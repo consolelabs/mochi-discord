@@ -4,21 +4,46 @@ import { SlashCommand } from "types/common"
 import mochiGuess from "adapters/mochi-guess"
 import { timeouts, timers } from ".."
 import { truncate } from "lodash"
-import { capitalizeFirst, equalIgnoreCase } from "utils/common"
-
+import {
+  capitalizeFirst,
+  equalIgnoreCase,
+  getEmojiToken,
+  TokenEmojiKey,
+} from "utils/common"
+import { announceResult, cleanupAfterEndGame } from "../end/slash"
+import { composeEmbedMessage } from "../../../ui/discord/embed"
 function renderProgress(
   referee: User,
+  question: string,
   end: number,
   code: string,
-  options: any[]
+  options: any[],
+  bet_default_value: number,
+  token_name: string
 ) {
-  const time = end <= Date.now() ? Date.now() : Math.round(end / 1000)
+  const time = end <= Date.now() ? "0" : Math.round(end / 1000)
+  const msg1 = `:warning: The game will be closed <t:${time}:R>.\nPlease make sure you have submitted the answer and approved the mochi transaction.`
+  const msg2 = `**:hourglass:TIME'S UP**. We hope you enjoyed the game and learned something new. 🎉`
+
   return [
-    `<@${referee.id}> to provide answer <t:${time}:R>, id: \`${code}\``,
+    `:video_game: **GUESS GAME**\n`,
+    `:game_die: \`ID.         \` **${code}**`,
+    `:police_officer: \`Referee.    \` <@${referee.id}>`,
+    `:moneybag: \`Bet Amount. \` ${bet_default_value} ${getEmojiToken(
+      token_name as TokenEmojiKey,
+      false
+    )} `,
+    `:question: \`Question.   \` ${question}`,
+    "",
+    `${time === "0" ? msg2 : msg1}`,
     "",
     ...(options ?? []).map(
       (opt: any) =>
-        `${opt.option}: ${
+        `${opt.option} ${
+          opt.payout_ratio !== "0"
+            ? `- ***${opt.payout_ratio}x Payout*** : `
+            : ": "
+        }\n${
           opt.game_player
             ? opt.game_player.map((p: any) => `<@${p.player_id}>`).join(", ")
             : ""
@@ -46,7 +71,7 @@ const slashCmd: SlashCommand = {
         opt
           .setName("duration")
           .setDescription(
-            "duration to run the game in minutes (default 30mins)"
+            "duration to run the game in minutes (default 30 minutes)"
           )
           .setMaxValue(60)
           .setMinValue(1)
@@ -75,10 +100,8 @@ const slashCmd: SlashCommand = {
     }
     const yesLabel = `${
       i.options.getString("yes_label", false) || "🐮 Bullish"
-    } (yes)`
-    const noLabel = `${
-      i.options.getString("no_label", false) || "🐻 Bearish"
-    } (no)`
+    }`
+    const noLabel = `${i.options.getString("no_label", false) || "🐻 Bearish"}`
     const question = i.options.getString("question", true)
     const durationMin = i.options.getInteger("duration", false) || 30
     const durationMs = durationMin * 60 * 1000
@@ -87,7 +110,7 @@ const slashCmd: SlashCommand = {
     if (i.user.id === referee.id) {
       return {
         messageOptions: {
-          content: "You cannot promote yourself to referee",
+          content: "You cannot promote yourself to referee.",
         },
       }
     }
@@ -99,7 +122,8 @@ const slashCmd: SlashCommand = {
     const thread = await reply.startThread({
       name: truncate(question, { length: 100 }),
     })
-    thread.members.add(referee)
+
+    await thread.members.add(referee)
 
     const game = {
       duration: durationMin,
@@ -126,62 +150,125 @@ const slashCmd: SlashCommand = {
 
       msg
         .edit({
-          content: renderProgress(referee, end, data.code, options),
+          content: renderProgress(
+            referee,
+            question,
+            end,
+            data.code,
+            options,
+            data.bet_default_value,
+            data.token_name
+          ),
         })
         .catch(() => null)
     }
+
+    const yesCode = data.options.find((opt: any) =>
+      equalIgnoreCase(opt.option, yesLabel)
+    ).code
+    const noCode = data.options.find((opt: any) =>
+      equalIgnoreCase(opt.option, noLabel)
+    ).code
+
+    const choices = [
+      new MessageActionRow().addComponents(
+        new MessageButton({
+          label: yesLabel,
+          style: "SECONDARY",
+          customId: yesCode,
+        }),
+        new MessageButton({
+          label: noLabel,
+          style: "SECONDARY",
+          customId: noCode,
+        })
+      ),
+    ]
+
+    const options: Record<string, string> = {
+      [yesCode]: yesLabel,
+      [noCode]: noLabel,
+    }
+
     timeouts.set(
       data.code,
       setTimeout(async () => {
         await updatePlayers()
-        thread
+        const embed = composeEmbedMessage(null, {
+          color: "RED",
+        })
+        embed.setTitle(":loudspeaker: Judgement")
+        embed.setDescription(
+          `Hey ${referee}, time is up:hourglass:\nPlease submit the game result to decide the winners of the game.`
+        )
+
+        const msg = await thread
           .send({
-            content: `Hey ${referee}, time is up — please submit your result`,
+            // content: `Hey ${referee}, time is up:hourglass:\nPlease submit the game result.\n`,
+            embeds: [embed],
+            components: choices,
           })
           .catch(() => null)
-      }, durationMs)
-    )
-    const msg = await thread.send({
-      content: renderProgress(referee, end, data.code, data.options),
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageButton({
-            label: yesLabel,
-            style: "SECONDARY",
-            customId: data.options.find((opt: any) =>
-              equalIgnoreCase(opt.option, yesLabel)
-            ).code,
-          }),
-          new MessageButton({
-            label: noLabel,
-            style: "SECONDARY",
-            customId: data.options.find((opt: any) =>
-              equalIgnoreCase(opt.option, noLabel)
-            ).code,
+
+        msg
+          ?.createMessageComponentCollector({
+            componentType: "BUTTON",
+            // 10 minutes to decide
+            time: 10 * 60 * 1000,
           })
-        ),
-      ],
+          .on("collect", async (i) => {
+            await i.deferReply({ ephemeral: true }).catch(() => null)
+            if (i.user.id !== referee.id) {
+              await i.editReply({
+                content: "Only referee can decide the result of this game",
+              })
+              return
+            }
+
+            await i.update({ components: [] }).catch(() => null)
+
+            const gameResult = await mochiGuess
+              .endGame(data.code, i.user.id, i.customId)
+              .catch(() => null)
+            await i.deleteReply().catch(() => null)
+            if (gameResult?.data) {
+              await announceResult(
+                thread,
+                options[i.customId as keyof typeof options],
+                gameResult.data
+              )
+            }
+
+            await cleanupAfterEndGame(thread, data.code)
+          })
+      }, durationMs + 30 * 1000) // + more 30s to make sure all transactions are comitted
+    )
+
+    const msg = await thread.send({
+      content: renderProgress(
+        referee,
+        question,
+        end,
+        data.code,
+        data.options,
+        data.bet_default_value,
+        data.token_name
+      ),
+      components: choices,
     })
 
-    timers.set(data.code, setInterval(updatePlayers, 60 * 1000))
+    timers.set(data.code, setInterval(updatePlayers, 10 * 1000))
 
     msg
       .createMessageComponentCollector({
-        filter: (ci) => ci.user.id !== referee.id,
         componentType: "BUTTON",
         time: durationMs,
       })
       .on("collect", async (i) => {
-        await i.deferReply({ ephemeral: true })
+        await i.deferReply({ ephemeral: true }).catch(() => null)
         if (i.user.id === referee.id) {
           await i.editReply({
             content: "Referee cannot play",
-          })
-          return
-        }
-        if (Date.now() >= end) {
-          await i.editReply({
-            content: "No more time to vote or game already ended",
           })
           return
         }
@@ -198,11 +285,9 @@ const slashCmd: SlashCommand = {
           })
           return
         }
-        const dmChannel = await i.user.createDM(true).catch(() => null)
+
         await i.editReply({
-          content: `A join request has been sent to your DM${
-            dmChannel ? `, <#${dmChannel.id}>` : ""
-          }`,
+          content: `A join request has been sent to you. Please check your DM.`,
         })
       })
   },

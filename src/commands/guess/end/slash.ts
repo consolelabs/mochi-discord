@@ -1,11 +1,117 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { SlashCommandSubcommandBuilder, userMention } from "@discordjs/builders"
 import mochiGuess from "adapters/mochi-guess"
-import { ThreadChannel } from "discord.js"
-import { now, truncate } from "lodash"
+import { ThreadChannel, MessageOptions } from "discord.js"
+import { now, truncate, groupBy } from "lodash"
+import { logger } from "logger"
 import moment from "moment-timezone"
 import { SlashCommand } from "types/common"
 import { capitalizeFirst, equalIgnoreCase } from "utils/common"
 import { timeouts, timers } from ".."
+
+import { composeEmbedMessage } from "ui/discord/embed"
+
+export async function cleanupAfterEndGame(
+  thread: ThreadChannel,
+  gameCode: string
+) {
+  try {
+    clearTimeout(timeouts.get(gameCode))
+    clearInterval(timers.get(gameCode))
+
+    await thread.setLocked(true, "game ended")
+    await thread.setArchived(true, "game ended")
+  } catch (e: any) {
+    logger.error(e)
+    logger.warn("Cannot cleanup after game end")
+  }
+}
+
+export async function announceResult(
+  thread: ThreadChannel,
+  answer: string,
+  gameResult: any
+) {
+  const group = groupBy(gameResult, (r) => {
+    const isLoser = r.final_amount.split("").at(0) === "-"
+    return isLoser ? "losers" : "winners"
+  })
+  group.winners ??= []
+  group.losers ??= []
+  const embed = composeEmbedMessage(null, {
+    color: "GREEN",
+  })
+  embed.setTitle(":crossed_swords: Result")
+  embed.setDescription(
+    "The rewards you received include taxes and transaction fees. Please be aware when receiving rewards. Contact us if you have questions or concerns. Thank you! \nHere is the result:"
+  )
+
+  const winners =
+    group.winners.length === 0
+      ? ["No one"]
+      : group.winners.map(
+          (t) =>
+            `> ${userMention(t.player_id)} +${t.final_amount} ${t.token_name}`
+        )
+
+  const losers =
+    group.losers.length === 0
+      ? ["No one"]
+      : group.losers.map(
+          (t) =>
+            `> ${userMention(t.player_id)} ${t.final_amount} ${t.token_name}`
+        )
+
+  const embedFields: any[] = [
+    {
+      name: ":dart: Answer",
+      value: `> ${answer}\n`,
+      inline: false,
+    },
+    {
+      name: ":star_struck: Winners",
+      value: `${winners.join("\n")}\n`,
+      inline: false,
+    },
+    {
+      name: ":face_with_symbols_over_mouth: Losers",
+      value: `${losers.join("\n")}\n`,
+      inline: false,
+    },
+  ]
+
+  embed.setFields(embedFields)
+
+  // const winnerEmbedFields = group.winners.map((t) => {
+  //   const val = `${userMention(t.player_id)} +${utils.formatTokenDigit(
+  //     t.final_amount
+  //   )} ${t.token_name}\n`
+  //   return {
+  //     name: ":star_struck: Winners",
+  //     value: val,
+  //     inline: false,
+  //   }
+  // })
+  //
+  // const loserEmbedFields = group.losers.map((t) => {
+  //   const val = `${userMention(t.player_id)} -${utils.formatTokenDigit(
+  //     t.final_amount.slice(1)
+  //   )} ${t.token_name}\n`
+  //
+  //   return {
+  //     name: ":face_with_symbols_over_mouth: Losers",
+  //     value: val,
+  //     inline: false,
+  //   }
+  // })
+  //
+  // embed.setFields(winnerEmbedFields, loserEmbedFields)
+
+  const msgOpt: MessageOptions = {
+    embeds: [embed],
+  }
+
+  await thread.send(msgOpt).catch(() => null)
+}
 
 const slashCmd: SlashCommand = {
   name: "end",
@@ -111,43 +217,26 @@ const slashCmd: SlashCommand = {
       }
     }
 
-    const thread = (await i.client.channels.fetch(
-      game.thread_id
-    )) as ThreadChannel
+    const thread = (await i.client.channels
+      .fetch(game.thread_id)
+      .catch(() => null)) as ThreadChannel
 
-    await thread.send({
-      content: [`Time is up!`].join("\n"),
-    })
-
-    clearTimeout(timeouts.get(game.code))
-    clearInterval(timers.get(game.code))
-
-    await mochiGuess.endGame(game.code, i.user.id, optionCode)
-
-    const options = (game.options ?? []).map((opt: any) => {
-      const players = (opt.game_player ?? []).map(
-        (player: any) => `<@${player.player_id}>`
+    if (!thread) return
+    const gameResult = await mochiGuess
+      .endGame(code, i.user.id, optionCode)
+      .catch(() => null)
+    await i.deleteReply().catch(() => null)
+    if (gameResult?.data) {
+      await announceResult(
+        thread,
+        (game.options ?? []).find((opt: any) =>
+          equalIgnoreCase(optionCode, opt.code)
+        )?.option ?? "NA",
+        gameResult.data
       )
-      return `${opt.option}: ${players.join(", ")}`
-    })
-
-    await thread.setArchived(true, "game ended").catch(() => null)
-    await thread.setLocked(true, "game ended").catch(() => null)
-
-    return {
-      messageOptions: {
-        content: [
-          `> ${game.question}`,
-          ...options,
-          "",
-          `The answer is: ${
-            (game.options ?? []).find((opt: any) =>
-              equalIgnoreCase(optionCode, opt.code)
-            )?.option ?? "NA"
-          }`,
-        ].join("\n"),
-      },
     }
+
+    await cleanupAfterEndGame(thread, code)
   },
   category: "Game",
   help: () => Promise.resolve({}),
