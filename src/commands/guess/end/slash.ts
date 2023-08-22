@@ -9,7 +9,6 @@ import { capitalizeFirst, equalIgnoreCase } from "utils/common"
 import { timeouts, timers } from ".."
 
 import { composeEmbedMessage } from "ui/discord/embed"
-import * as console from "console"
 
 export async function cleanupAfterEndGame(
   thread: ThreadChannel,
@@ -28,7 +27,7 @@ export async function cleanupAfterEndGame(
 }
 
 export async function announceResult(
-  channel: any,
+  thread: ThreadChannel,
   gameCode: string,
   answer: string,
   gameResult: any
@@ -87,7 +86,7 @@ export async function announceResult(
     embeds: [embed],
   }
 
-  await channel.send(msgOpt).catch(() => null)
+  await thread.send(msgOpt).catch(() => null)
 }
 
 const slashCmd: SlashCommand = {
@@ -157,7 +156,6 @@ const slashCmd: SlashCommand = {
   run: async (i) => {
     const code = i.options.getString("code", true)
     const optionCode = i.options.getString("choice", true)
-    console.log("NBBBBBB")
     const {
       ok,
       status,
