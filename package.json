@@ -7,7 +7,8 @@
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts .",
     "prepare": "husky install",
     "generate:types": "node ./scripts/generate-types.js",
-    "guilds:prune": "node ./scripts/leave-server.js"
+    "guilds:prune": "node ./scripts/leave-server.js",
+    "format": "npx prettier src/** --write"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.15.0",
