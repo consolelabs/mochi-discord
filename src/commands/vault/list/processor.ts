@@ -95,7 +95,7 @@ export async function runVaultList(interaction: CommandInteraction) {
       new MessageSelectMenu()
         .setPlaceholder("💰 View a vault")
         .setCustomId("view_vault")
-        .addOptions(options),
+        .addOptions(options)
     ),
   ]
 

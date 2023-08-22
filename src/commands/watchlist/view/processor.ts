@@ -6,12 +6,12 @@ import CacheManager from "cache/node-cache"
 import community from "adapters/community"
 import { getSlashCommand } from "utils/commands"
 import { ResponseGetWatchlistResponse } from "types/api"
-import { formatPercentDigit, formatUsdDigit } from "utils/defi"
-import { VERTICAL_BAR } from "utils/constants"
 import { groupBy } from "lodash"
+import { getProfileIdByDiscord } from "../../../utils/profile"
+import { utils } from "@consolelabs/mochi-formatter"
+import { VERTICAL_BAR } from "utils/constants"
 import { renderChart } from "./chart"
 import { paginationButtons } from "utils/router"
-import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export function buildSwitchViewActionRow(currentView: string) {
   const tokenButton = new MessageButton({
@@ -133,8 +133,8 @@ export async function composeWatchlist(
               const priceChange = t.price_change_percentage_24h ?? 0
               return {
                 symbol: (t.symbol ?? "").toUpperCase(),
-                priceChange: `${formatPercentDigit(String(priceChange))}%`,
-                usd: `$${formatUsdDigit(String(price))}`,
+                priceChange: utils.formatPercentDigit(priceChange),
+                usd: utils.formatUsdDigit(price),
               }
             }),
             {
