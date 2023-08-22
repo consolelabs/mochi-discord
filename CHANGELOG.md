@@ -1,3 +1,10 @@
+## [6.28.2](https://github.com/consolelabs/mochi-discord/compare/v6.28.1...v6.28.2) (2023-08-22)
+
+### Bug Fixes
+
+- add back homepageUrl to formatter ([ee3722b](https://github.com/consolelabs/mochi-discord/commit/ee3722b2bc7ed07691f46e5751f7e64bd03a6b8e))
+- wlv not using formatter ([a679134](https://github.com/consolelabs/mochi-discord/commit/a679134e8a684688f4fe8b3cfb642e70c0be746d))
+
 ## [6.28.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.28.1...v6.28.2-rc.1) (2023-08-22)
 
 ### Bug Fixes
