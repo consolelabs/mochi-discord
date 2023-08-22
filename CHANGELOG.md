@@ -1,3 +1,9 @@
+## [6.28.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.28.2...v6.28.3-rc.1) (2023-08-22)
+
+### Bug Fixes
+
+- get by discord id noFetchAmount ([1297e96](https://github.com/consolelabs/mochi-discord/commit/1297e961c99a1e1bbe3c5bd70e1f06161dbbae30))
+
 ## [6.28.2](https://github.com/consolelabs/mochi-discord/compare/v6.28.1...v6.28.2) (2023-08-22)
 
 ### Bug Fixes
