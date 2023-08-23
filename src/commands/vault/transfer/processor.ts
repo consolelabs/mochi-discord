@@ -48,7 +48,10 @@ export async function runTransferTreasurer({
     return
   }
 
-  const userProfileId = await getProfileIdByDiscord(user?.id ?? "")
+  let userProfileId = ""
+  if (user) {
+    userProfileId = await getProfileIdByDiscord(user.id)
+  }
   const requesterProfileId = await getProfileIdByDiscord(i.user.id)
 
   const vaultName = i.options.getString("name", true)
