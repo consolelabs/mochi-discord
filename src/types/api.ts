@@ -328,17 +328,6 @@ export interface ModelOffchainTipBotToken {
   updated_at?: string
 }
 
-export interface ModelProductBotCommand {
-  code?: string
-  created_at?: string
-  description?: string
-  discord_command?: string
-  id?: number
-  scope?: number
-  telegram_command?: string
-  updated_at?: string
-}
-
 export interface ModelProductMetadataEmojis {
   code?: string
   discord_id?: string
@@ -794,7 +783,6 @@ export interface RequestTransferV2Request {
   recipients?: string[]
   sender?: string
   token?: string
-  transfer_type?: "transfer" | "airdrop"
 }
 
 export interface RequestUnlinkBinance {
@@ -1914,6 +1902,10 @@ export interface ResponseNftWatchlistSuggestResponse {
 
 export interface ResponseOffchainTipBotTransferToken {
   amount_each?: number
+  /**
+   * SenderID    string  `json:"sender_id"`
+   * Recipients  string  `json:"recipient_id"`
+   */
   id?: string
   total_amount?: number
   tx_id?: number
@@ -1937,10 +1929,6 @@ export interface ResponsePaginationResponse {
   /** page size */
   size?: number
   total?: number
-}
-
-export interface ResponseProductBotCommand {
-  data?: ModelProductBotCommand[]
 }
 
 export interface ResponseProfileAirdropCampaignResponse {
@@ -2114,7 +2102,10 @@ export interface ResponseTopUser {
 
 export interface ResponseTransferTokenV2Data {
   amount_each?: number
-  external_id?: string
+  /**
+   * SenderID    string  `json:"sender_id"`
+   * Recipients  string  `json:"recipient_id"`
+   */
   id?: string
   total_amount?: number
   tx_id?: number
