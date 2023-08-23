@@ -1120,6 +1120,42 @@ export interface ResponseDefaultRoleResponse {
   data?: ResponseDefaultRole
 }
 
+export interface ResponseDexPair {
+  address?: string
+  base_token?: ResponseDexToken
+  chain_id?: string
+  created_at?: number
+  dex_id?: string
+  fdv?: number
+  holders?: ResponseDexTokenHolder[]
+  id?: string
+  liquidity_usd?: number
+  market_cap_usd?: number
+  name?: string
+  owner?: string
+  price?: number
+  price_percent_change_24h?: number
+  price_usd?: number
+  quote_token?: ResponseDexToken
+  txn_24h_buy?: number
+  txn_24h_sell?: number
+  url?: Record<string, string>
+  volume_usd_24h?: number
+}
+
+export interface ResponseDexToken {
+  address?: string
+  name?: string
+  symbol?: string
+}
+
+export interface ResponseDexTokenHolder {
+  address?: string
+  alias?: string
+  balance?: number
+  percent?: number
+}
+
 export interface ResponseDiscordGuildResponse {
   bot_addable?: boolean
   bot_arrived?: boolean
@@ -2016,6 +2052,10 @@ export interface ResponseRouteToken {
 
 export interface ResponseSearchCoinResponse {
   data?: ModelCoingeckoSupportedTokens[]
+}
+
+export interface ResponseSearchDexPairResponse {
+  pairs?: ResponseDexPair[]
 }
 
 export interface ResponseSparkLineIn7D {
