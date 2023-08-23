@@ -62,30 +62,3 @@ jobs:
           /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
           git commit -am "[skip ci] mochi-discord ${K8S_ENVIRONMENT} image update"
           git push origin main
-
-  notify:
-    name: Notify
-    needs: setup-build-publish-deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify changelog
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: 'https://chglg.fly.dev/v1/changelog'
-          method: 'POST'
-          customHeaders: '{"Content-Type": "application/json"}'
-          timeout: 30000
-          escapeData: 'true'
-          data: >-
-            {   
-              "repo": "https://github.com/${{ github.repository }}", 
-              "tag": "${{ github.ref }}",
-              "access_token": "${{ secrets.GH_PAT }}",
-              "app_name": "Discord", 
-              "discord": {
-                "webhook": "${{ secrets.DISCORD_WEBHOOK }}",
-                "footer": {
-                  "icon_url": "https://cdn.discordapp.com/emojis/1039475287169183744.webp?size=44&quality=lossless"
-                }
-              }
-            }
