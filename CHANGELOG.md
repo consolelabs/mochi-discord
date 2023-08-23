@@ -1,3 +1,9 @@
+## [6.28.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.28.3-rc.1...v6.28.3-rc.2) (2023-08-23)
+
+### Bug Fixes
+
+- vault transfer address ([#1463](https://github.com/consolelabs/mochi-discord/issues/1463)) ([795d9bb](https://github.com/consolelabs/mochi-discord/commit/795d9bbd346f2b6b97e52847874bf2dfba3658d4))
+
 ## [6.28.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.28.2...v6.28.3-rc.1) (2023-08-22)
 
 ### Bug Fixes
