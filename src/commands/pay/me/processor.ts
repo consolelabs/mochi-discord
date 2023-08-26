@@ -21,6 +21,8 @@ import { MOCHI_ACTION_PAY_ME, MOCHI_PLATFORM_DISCORD } from "utils/constants"
 import { reply } from "utils/discord"
 import { sendNotificationMsg } from "utils/kafka"
 import { dmUser } from "../../../utils/dm"
+import { parseUnits } from "ethers/lib/utils"
+import { getToken } from "../../../utils/tip-bot"
 
 const typePayRequest = 16
 export async function run({
@@ -53,9 +55,14 @@ export async function run({
   }
   const { id: profileId, profile_name, associated_accounts: accounts } = pfRes
 
+  const t = await getToken(token)
+
   const res: any = await mochiPay.generatePaymentCode({
     profileId,
-    amount: amount.toString(),
+    amount: parseUnits(
+      amount.toLocaleString().replaceAll(",", ""),
+      t?.decimal ?? 0,
+    ).toString(),
     token,
     type: "payme",
     note,
@@ -270,7 +277,7 @@ export function preprocessTarget(
 
 function isValidEmail(target?: string): boolean {
   if (!target) return false
-  const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+  const expression = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
   return expression.test(target)
 }
 

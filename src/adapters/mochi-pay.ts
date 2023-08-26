@@ -88,7 +88,10 @@ class MochiPay extends Fetcher {
   }) {
     return await this.jsonFetch(`${MOCHI_PAY_API_BASE_URL}/pay-requests`, {
       method: "POST",
-      body,
+      body: {
+        ...body,
+        from_platform: "discord",
+      },
     })
   }
 
