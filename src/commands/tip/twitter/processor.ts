@@ -36,6 +36,7 @@ import profile from "../../../adapters/profile"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { DiscordWalletTransferError } from "../../../errors/discord-wallet-transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
+import { parseUnits } from "ethers/lib/utils"
 
 type TwitterUser = {
   username: string
@@ -79,7 +80,10 @@ export async function execute(
   // create pay link
   const res: any = await mochiPay.generatePaymentCode({
     profileId: payload.from.profile_global_id,
-    amount: payload.originalAmount.toString(),
+    amount: parseUnits(
+      payload.originalAmount.toLocaleString().replaceAll(",", ""),
+      payload.decimal,
+    ).toString(),
     token: payload.token,
     note: payload.note,
     type: "paylink",
@@ -291,6 +295,7 @@ async function validateAndTransfer(
     fractionDigits: decimal,
   })
   payload.token_price = balance.token?.price
+  payload.decimal = decimal
   return execute(msgOrInteraction, payload)
 }
 
