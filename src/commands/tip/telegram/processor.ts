@@ -37,6 +37,7 @@ import { InsufficientBalanceError } from "../../../errors/insufficient-balance"
 import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
+import { parseUnits } from "ethers/lib/utils"
 
 type TelegramUser = {
   id: number
@@ -91,7 +92,10 @@ export async function execute(
   // create pay link
   const res: any = await mochiPay.generatePaymentCode({
     profileId: payload.from.profile_global_id,
-    amount: payload.originalAmount.toString(),
+    amount: parseUnits(
+      payload.originalAmount.toLocaleString().replaceAll(",", ""),
+      payload.decimal,
+    ).toString(),
     token: payload.token,
     note: payload.note,
     type: "paylink",
@@ -303,6 +307,7 @@ async function validateAndTransfer(
     fractionDigits: decimal,
   })
   payload.token_price = balance.token?.price
+  payload.deciaml = decimal
   return execute(msgOrInteraction, payload)
 }
 

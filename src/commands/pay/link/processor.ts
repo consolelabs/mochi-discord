@@ -2,6 +2,7 @@ import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { CommandInteraction, Message, MessageOptions } from "discord.js"
 import { APIError } from "errors"
+import { parseUnits } from "ethers/lib/utils"
 import fs from "fs"
 import * as qrcode from "qrcode"
 import { RunResult } from "types/common"
@@ -135,7 +136,10 @@ export async function run({
 
         const res: any = await mochiPay.generatePaymentCode({
           profileId,
-          amount: amount.toString(),
+          amount: parseUnits(
+            amount.toLocaleString().replaceAll(",", ""),
+            decimal,
+          ).toString(),
           token,
           note,
           type: "paylink",
