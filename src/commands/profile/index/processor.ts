@@ -131,7 +131,7 @@ async function compose(
   ] = await Promise.all([
     profile.getUserProfile(i.guildId ?? "", dataProfile.id),
     config.vaultList(i.guildId ?? "", false, dataProfile.id),
-    profile.getUserWallets(target.id),
+    profile.getUserWallets(target.id, false),
     profile.getUserSocials(target.id),
     getBalances(dataProfile.id, target.id, BalanceType.Offchain, i, "", ""),
     mochiPay.getKrystalEarnPortfolio({ profile_id: dataProfile.id }),
