@@ -1,17 +1,53 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { Message, MessageActionRow, MessageButton, User } from "discord.js"
+import {
+  ButtonInteraction,
+  Message,
+  MessageActionRow,
+  MessageButton,
+  User,
+} from "discord.js"
 import { SlashCommand } from "types/common"
 import mochiGuess from "adapters/mochi-guess"
 import { timeouts, timers } from ".."
-import { truncate } from "lodash"
 import {
   capitalizeFirst,
   equalIgnoreCase,
   getEmojiToken,
   TokenEmojiKey,
 } from "utils/common"
-import { announceResult, cleanupAfterEndGame } from "../end/slash"
+import { announceResult } from "../end/slash"
 import { composeEmbedMessage } from "../../../ui/discord/embed"
+import { truncate } from "lodash"
+
+function collectPlayerChoice(data: any, referee: User) {
+  return async function (i: ButtonInteraction) {
+    await i.deferReply({ ephemeral: true }).catch(() => null)
+    if (i.user.id === referee.id) {
+      await i.editReply({
+        content: "Referee cannot play",
+      })
+      return
+    }
+    const optionCode = i.customId
+
+    const { ok, error } = await mochiGuess.joinGame(
+      data.code,
+      i.user.id,
+      optionCode
+    )
+    if (!ok) {
+      await i.editReply({
+        content: capitalizeFirst(error),
+      })
+      return
+    }
+
+    await i.editReply({
+      content: `A join request has been sent to you. Please check your DM.`,
+    })
+  }
+}
+
 function renderProgress(
   referee: User,
   question: string,
@@ -141,6 +177,7 @@ const slashCmd: SlashCommand = {
         },
       }
     }
+
     const start = Date.now(),
       end = start + durationMs
     const updatePlayers = async function () {
@@ -170,6 +207,11 @@ const slashCmd: SlashCommand = {
       equalIgnoreCase(opt.option, noLabel)
     ).code
 
+    const options: Record<string, string> = {
+      [yesCode]: yesLabel,
+      [noCode]: noLabel,
+    }
+
     const choices = [
       new MessageActionRow().addComponents(
         new MessageButton({
@@ -185,10 +227,18 @@ const slashCmd: SlashCommand = {
       ),
     ]
 
-    const options: Record<string, string> = {
-      [yesCode]: yesLabel,
-      [noCode]: noLabel,
-    }
+    const msg = await thread.send({
+      content: renderProgress(
+        referee,
+        question,
+        end,
+        data.code,
+        data.options,
+        data.bet_default_value,
+        data.token_name
+      ),
+      components: choices,
+    })
 
     timeouts.set(
       data.code,
@@ -204,7 +254,6 @@ const slashCmd: SlashCommand = {
 
         const msg = await thread
           .send({
-            // content: `Hey ${referee}, time is up:hourglass:\nPlease submit the game result.\n`,
             embeds: [embed],
             components: choices,
           })
@@ -234,62 +283,39 @@ const slashCmd: SlashCommand = {
             if (gameResult?.data) {
               await announceResult(
                 thread,
+                data.code,
                 options[i.customId as keyof typeof options],
                 gameResult.data
               )
             }
 
-            await cleanupAfterEndGame(thread, data.code)
+            // await cleanupAfterEndGame(thread, data.code)
           })
-      }, durationMs + 30 * 1000) // + more 30s to make sure all transactions are comitted
+      }, durationMs + 30 * 1000) // + more 30s to make sure all transactions are committed
     )
 
-    const msg = await thread.send({
-      content: renderProgress(
-        referee,
-        question,
-        end,
-        data.code,
-        data.options,
-        data.bet_default_value,
-        data.token_name
-      ),
-      components: choices,
-    })
-
     timers.set(data.code, setInterval(updatePlayers, 10 * 1000))
+
+    const editedReply = await reply
+      .edit({
+        content: [`${i.user} asked:`, `> ${question}`].join("\n"),
+        components: choices,
+      })
+      .catch(() => null)
+
+    editedReply
+      ?.createMessageComponentCollector({
+        componentType: "BUTTON",
+        time: durationMs,
+      })
+      .on("collect", collectPlayerChoice(data, referee))
 
     msg
       .createMessageComponentCollector({
         componentType: "BUTTON",
         time: durationMs,
       })
-      .on("collect", async (i) => {
-        await i.deferReply({ ephemeral: true }).catch(() => null)
-        if (i.user.id === referee.id) {
-          await i.editReply({
-            content: "Referee cannot play",
-          })
-          return
-        }
-        const optionCode = i.customId
-
-        const { ok, error } = await mochiGuess.joinGame(
-          data.code,
-          i.user.id,
-          optionCode
-        )
-        if (!ok) {
-          await i.editReply({
-            content: capitalizeFirst(error),
-          })
-          return
-        }
-
-        await i.editReply({
-          content: `A join request has been sent to you. Please check your DM.`,
-        })
-      })
+      .on("collect", collectPlayerChoice(data, referee))
   },
   category: "Game",
   help: () => Promise.resolve({}),
