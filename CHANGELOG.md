@@ -1,3 +1,9 @@
+## [6.28.4](https://github.com/consolelabs/mochi-discord/compare/v6.28.3...v6.28.4) (2023-08-28)
+
+### Bug Fixes
+
+- /profile assoc account fetch amount ([9468340](https://github.com/consolelabs/mochi-discord/commit/94683407e2645c0cfe40aa7875219e9ecf603d97))
+
 ## [6.28.3](https://github.com/consolelabs/mochi-discord/compare/v6.28.2...v6.28.3) (2023-08-23)
 
 ### Bug Fixes
