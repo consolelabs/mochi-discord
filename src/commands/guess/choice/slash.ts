@@ -50,6 +50,7 @@ const slashCmd: SlashCommand = {
   run: async (i) => {
     const code = i.options.getString("code", true)
     const optionCode = i.options.getString("choice", true)
+
     const { ok, status, data: game } = await mochiGuess.getGameProgress(code)
     if (status === 404)
       return {
