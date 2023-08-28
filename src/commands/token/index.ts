@@ -17,6 +17,7 @@ import defaultSlash from "./default/slash"
 import removeSlash from "./remove/slash"
 import infoSlash from "./info/slash"
 import listSlash from "./list/slash"
+import verboseSlash from "./verbose/slash"
 
 const actions: Record<string, Command> = {
   default: _default,
@@ -56,6 +57,7 @@ const subCommands: Record<string, SlashCommand> = {
   info: infoSlash,
   list: listSlash,
   remove: removeSlash,
+  verbose: verboseSlash,
 }
 
 const slashCmd: SlashCommand = {
@@ -71,6 +73,7 @@ const slashCmd: SlashCommand = {
     data.addSubcommand(<SlashCommandSubcommandBuilder>infoSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>listSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare())
+    data.addSubcommand(<SlashCommandSubcommandBuilder>verboseSlash.prepare())
     return data
   },
   run: async function (interaction: CommandInteraction) {
