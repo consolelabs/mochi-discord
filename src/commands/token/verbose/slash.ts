@@ -5,7 +5,6 @@ import { composeEmbedMessage2 } from "ui/discord/embed"
 import { SLASH_PREFIX } from "utils/constants"
 import { SlashCommand } from "types/common"
 import defi from "adapters/defi"
-import { ResponseDexPair } from "types/api"
 import moment from "moment-timezone"
 
 const command: SlashCommand = {
@@ -60,7 +59,7 @@ const command: SlashCommand = {
       return
     }
 
-    const mostPopularPair: ResponseDexPair = pairs[0]
+    const mostPopularPair = pairs[0]
 
     const msgEmbed = composeEmbedMessage2(interaction, {
       title: mostPopularPair.name,
