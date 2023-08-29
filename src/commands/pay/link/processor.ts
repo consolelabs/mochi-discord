@@ -138,7 +138,7 @@ export async function run({
           profileId,
           amount: parseUnits(
             amount.toLocaleString().replaceAll(",", ""),
-            decimal
+            decimal,
           ).toString(),
           token,
           note,
