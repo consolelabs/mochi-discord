@@ -1,3 +1,10 @@
+# [6.29.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.3...v6.29.0-rc.4) (2023-08-29)
+
+### Bug Fixes
+
+- fix fail dexpair type ([#1467](https://github.com/consolelabs/mochi-discord/issues/1467)) ([d87c159](https://github.com/consolelabs/mochi-discord/commit/d87c159486ced17b1f49a34905405dd3ba854cbf))
+- remove response dexpair type ([#1469](https://github.com/consolelabs/mochi-discord/issues/1469)) ([8441788](https://github.com/consolelabs/mochi-discord/commit/844178815be22ca84f6c26b0147466d501b0922e))
+
 # [6.29.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.2...v6.29.0-rc.3) (2023-08-29)
 
 ### Bug Fixes
