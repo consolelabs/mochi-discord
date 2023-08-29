@@ -61,7 +61,7 @@ export async function run({
     profileId,
     amount: parseUnits(
       amount.toLocaleString().replaceAll(",", ""),
-      t?.decimal ?? 0,
+      t?.decimal ?? 0
     ).toString(),
     token,
     type: "payme",
