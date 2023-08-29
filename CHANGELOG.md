@@ -1,3 +1,9 @@
+# [6.29.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.1...v6.29.0-rc.2) (2023-08-29)
+
+### Bug Fixes
+
+- crash server ([#1466](https://github.com/consolelabs/mochi-discord/issues/1466)) ([f60546f](https://github.com/consolelabs/mochi-discord/commit/f60546fb6fbac64e5cd39a409f9ece5f0e8bb294))
+
 # [6.29.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.28.4...v6.29.0-rc.1) (2023-08-29)
 
 ### Bug Fixes
