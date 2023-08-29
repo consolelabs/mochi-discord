@@ -332,23 +332,10 @@ export interface ModelProductBotCommand {
   code?: string
   created_at?: string
   description?: string
-  discord_alias?: string
   discord_command?: string
   id?: number
   scope?: number
-  telegram_alias?: string
   telegram_command?: string
-  updated_at?: string
-}
-
-export interface ModelProductChangelogs {
-  content?: string
-  created_at?: string
-  github_url?: string
-  id?: number
-  product?: number
-  thumbnail_url?: string
-  title?: string
   updated_at?: string
 }
 
@@ -754,11 +741,6 @@ export interface RequestOffchainTransferRequest {
   /** AmountString string   `json:"amount_string"` */
   token?: string
   transfer_type?: string
-}
-
-export interface RequestOnboardingStartRequest {
-  platform: "discord" | "telegram"
-  profile_id: string
 }
 
 export interface RequestRoleReactionRequest {
@@ -1518,10 +1500,6 @@ export interface ResponseGetUserResponse {
   data?: ResponseUser
 }
 
-export interface ResponseGetVaultResponse {
-  data?: ModelVault
-}
-
 export interface ResponseGetVaultsResponse {
   data?: ModelVault[]
 }
@@ -1981,20 +1959,6 @@ export interface ResponseOffchainTipBotTransferTokenResponse {
   data?: ResponseOffchainTipBotTransferToken[]
 }
 
-export interface ResponseOnboardingStartData {
-  reward?: ResponseOnboardingStartReward
-  user_already_started?: boolean
-}
-
-export interface ResponseOnboardingStartResponse {
-  data?: ResponseOnboardingStartData
-}
-
-export interface ResponseOnboardingStartReward {
-  amount?: string
-  token?: string
-}
-
 export interface ResponseOnchainInvestData {
   tx_object?: ResponseTxObject
 }
@@ -2013,10 +1977,6 @@ export interface ResponsePaginationResponse {
 
 export interface ResponseProductBotCommand {
   data?: ModelProductBotCommand[]
-}
-
-export interface ResponseProductChangelogs {
-  data?: ModelProductChangelogs[]
 }
 
 export interface ResponseProfileAirdropCampaignResponse {

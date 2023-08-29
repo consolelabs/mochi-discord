@@ -18,6 +18,7 @@ export type TransferPayload = {
   amount_string?: string
   token_price?: number
   decimal?: number
+  moniker?: string
 }
 
 export type AirdropOptions = {

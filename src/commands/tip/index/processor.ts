@@ -57,7 +57,7 @@ export async function tip(
   const onchain = equalIgnoreCase(args.at(-1), "--onchain")
   args = args.slice(0, onchain ? -1 : undefined) // remove --onchain if any
 
-  const { targets, amount, symbol, each, all, message, image } =
+  const { targets, amount, symbol, each, all, message, image, moniker } =
     await parseTipArgs(msgOrInteraction, args)
 
   // get sender balances
@@ -95,11 +95,18 @@ export async function tip(
     message,
     image,
     chain_id: "",
+    moniker: "",
     platform: "discord",
   }
 
+  if (moniker !== undefined) {
+    payload.moniker = moniker.moniker.moniker
+    payload.chain_id = moniker.moniker?.token?.chain?.chain_id
+  }
+
   // only one matching token -> proceed to send tip
-  if (balances.length === 1) {
+  // if tip with moniker -> no need to select token
+  if (balances.length === 1 || moniker !== undefined) {
     const balance = balances[0]
     const result = await validateAndTransfer(msgOrInteraction, payload, balance)
     await reply(msgOrInteraction, result)
@@ -107,7 +114,10 @@ export async function tip(
   }
 
   // found multiple tokens balance with given symbol -> ask for selection
-  await selectToken(msgOrInteraction, balances, payload)
+  if (moniker === undefined) {
+    await selectToken(msgOrInteraction, balances, payload)
+  }
+
   return
 }
 
@@ -286,6 +296,7 @@ export async function parseTipArgs(
   image: string
   each: boolean
   all: boolean
+  moniker: any
 }> {
   const { valid, targets, lastIdx: lastTargetIdx } = getTargets(args)
   if (!valid) {
@@ -342,7 +353,7 @@ export async function parseTipArgs(
   const { message: msg } = isMessage(msgOrInteraction)
   const image = msg ? msg.attachments.first()?.url ?? "" : ""
 
-  return { targets, amount, symbol, each, message, all, image }
+  return { targets, amount, symbol, each, message, all, image, moniker }
 }
 
 export async function validateAndTransfer(
