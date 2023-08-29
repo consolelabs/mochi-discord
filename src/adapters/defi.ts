@@ -8,7 +8,6 @@ import {
   ResponseGetTrackingWalletsResponse,
   ResponseGetWatchlistResponse,
   ResponseNftWatchlistSuggestResponse,
-  ResponseSearchDexPairResponse,
 } from "types/api"
 import { Coin, CoinComparisionData, CoinPrice, GasPriceData } from "types/defi"
 import {
@@ -53,9 +52,7 @@ class Defi extends Fetcher {
   }
 
   public async searchDexPairs(query: string) {
-    return await this.jsonFetch<ResponseSearchDexPairResponse>(
-      `${API_BASE_URL}/dexes/search?query=${query}`
-    )
+    return await this.jsonFetch(`${API_BASE_URL}/dexes/search?query=${query}`)
   }
 
   async getHistoricalMarketData({
@@ -294,16 +291,13 @@ class Defi extends Fetcher {
 
   async getDexTxns(userId: string, platform: string) {
     // TODO: remove after we support another dex
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     platform = "binance"
 
     // TODO: implement later
     return {
       ok: true,
     }
-
-    return await this.jsonFetch(
-      `${API_BASE_URL}/users/${userId}/dexs/${platform}/transactions`
-    )
   }
 
   async trackWallet(body: {
