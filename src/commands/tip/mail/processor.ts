@@ -84,7 +84,7 @@ export async function execute(
     profileId: payload.from.profile_global_id,
     amount: parseUnits(
       payload.originalAmount.toLocaleString().replaceAll(",", ""),
-      payload.decimal,
+      payload.decimal
     ).toString(),
     token: payload.token,
     type: "paylink",
