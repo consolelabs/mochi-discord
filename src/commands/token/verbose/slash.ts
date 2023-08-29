@@ -151,7 +151,7 @@ const command: SlashCommand = {
           // keep first 5 and last 4 chars
           value: mostPopularPair.holders
             .map(
-              (holder) =>
+              (holder: any) =>
                 `\`\`\`${holder.address?.slice(0, 5)}...${holder.address?.slice(
                   -4
                 )} (${holder.percent?.toFixed(2)}%)\`\`\``
