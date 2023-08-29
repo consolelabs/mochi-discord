@@ -15,9 +15,10 @@ import {
   getEmojiToken,
   TokenEmojiKey,
 } from "utils/common"
-import { announceResult } from "../end/slash"
+import { announceResult, cleanupAfterEndGame } from "../end/slash"
 import { composeEmbedMessage } from "../../../ui/discord/embed"
 import { truncate } from "lodash"
+import moment, { now } from "moment-timezone"
 
 function collectPlayerChoice(data: any, referee: User) {
   return async function (i: ButtonInteraction) {
@@ -183,6 +184,10 @@ const slashCmd: SlashCommand = {
     const updatePlayers = async function () {
       const { ok, data: game } = await mochiGuess.getGameProgress(data.code)
       if (!ok) return
+      if (now() >= moment(game.end_at).unix() * 1000) {
+        clearInterval(timers.get(game.code))
+        return
+      }
       const options = game.options
 
       msg
@@ -289,7 +294,7 @@ const slashCmd: SlashCommand = {
               )
             }
 
-            // await cleanupAfterEndGame(thread, data.code)
+            await cleanupAfterEndGame(thread, data.code)
           })
       }, durationMs + 30 * 1000) // + more 30s to make sure all transactions are committed
     )
