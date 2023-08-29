@@ -184,10 +184,6 @@ const slashCmd: SlashCommand = {
     const updatePlayers = async function () {
       const { ok, data: game } = await mochiGuess.getGameProgress(data.code)
       if (!ok) return
-      if (now() >= moment(game.end_at).unix() * 1000) {
-        clearInterval(timers.get(game.code))
-        return
-      }
       const options = game.options
 
       msg
@@ -203,6 +199,12 @@ const slashCmd: SlashCommand = {
           ),
         })
         .catch(() => null)
+
+      // buffer 30s more to ensure all transactions are committed
+      if (now() >= moment(game.end_at).unix() * 1000 + 30 * 1000) {
+        clearInterval(timers.get(game.code))
+        return
+      }
     }
 
     const yesCode = data.options.find((opt: any) =>
