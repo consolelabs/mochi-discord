@@ -1,3 +1,14 @@
+# [6.29.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.28.4...v6.29.0-rc.1) (2023-08-29)
+
+### Bug Fixes
+
+- send more params tip moniker ([#1465](https://github.com/consolelabs/mochi-discord/issues/1465)) ([608e4a3](https://github.com/consolelabs/mochi-discord/commit/608e4a38fbaae34fc24e740c2388d44c374d9711))
+
+### Features
+
+- move game thread to channel ([#1462](https://github.com/consolelabs/mochi-discord/issues/1462)) ([e9931ad](https://github.com/consolelabs/mochi-discord/commit/e9931adce5d8ee826ec6d68e502075ed3780d148))
+- token verbose ([#1455](https://github.com/consolelabs/mochi-discord/issues/1455)) ([1ae8b26](https://github.com/consolelabs/mochi-discord/commit/1ae8b26899f57d6f7141d3e445394a5dcae9a45c))
+
 ## [6.28.4](https://github.com/consolelabs/mochi-discord/compare/v6.28.3...v6.28.4) (2023-08-28)
 
 ### Bug Fixes
