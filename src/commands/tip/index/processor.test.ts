@@ -244,6 +244,7 @@ describe("tip", () => {
       message: "test message",
       all: false,
       image: "",
+      moniker: undefined,
     }
     const getBalRes = [] as any
     jest.spyOn(tipbot, "getTargets").mockReturnValueOnce(getTargetsRes)
@@ -292,6 +293,7 @@ describe("tip", () => {
       message: "test message",
       all: false,
       image: "",
+      moniker: undefined,
     }
     const getBalRes = [] as any
     const parseRecipientsRes: string[] = []
