@@ -1,4 +1,3 @@
-import { Platform } from "@consolelabs/mochi-formatter"
 import defi from "adapters/defi"
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
@@ -52,9 +51,10 @@ import {
   formatTokenDigit,
   formatUsdDigit,
 } from "utils/defi"
-import { fmt } from "utils/formatter"
 import { getProfileIdByDiscord } from "utils/profile"
 import { paginationButtons } from "utils/router"
+import api from "api"
+import UI, { Platform } from "@consolelabs/mochi-ui"
 
 export enum BalanceType {
   Offchain = 1,
@@ -412,6 +412,7 @@ export function formatView(
     token: {
       name: string
       symbol: string
+      address: string
       decimal: number
       price: number
       chain: { short_name?: string; name?: string; symbol?: string }
@@ -428,14 +429,17 @@ export function formatView(
     const formattedBal = balances
       .map((balance) => {
         const { token, amount } = balance
-        const { symbol, chain: _chain, decimal, price, native } = token
+        const { symbol, chain: _chain, decimal, price, native, address } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
         const value = formatTokenDigit(tokenVal.toString())
         const usdWorth = formatUsdDigit(usdVal.toString())
         let chain = _chain?.symbol || _chain?.short_name || _chain?.name || ""
         chain = chain.toLowerCase()
-        if (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST))
+        if (
+          (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST)) &&
+          !api.isTokenWhitelisted(symbol, address)
+        )
           return {
             emoji: "",
             text: "",
@@ -486,6 +490,7 @@ export function formatView(
           price,
           chain: _chain,
           native,
+          address,
         } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
@@ -495,7 +500,10 @@ export function formatView(
         chain = chain.toLowerCase()
 
         totalWorth += usdVal
-        if (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST)) {
+        if (
+          (tokenVal === 0 || (mode === "filter-dust" && usdVal <= MIN_DUST)) &&
+          !api.isTokenWhitelisted(symbol, address)
+        ) {
           return {
             name: "",
             value: "",
@@ -716,7 +724,7 @@ async function switchView(
     },
   ])
 
-  const { text: txnRow } = await fmt.components.txns({
+  const { text: txnRow } = await UI.components.txns({
     txns,
     on: Platform.Discord,
     top: 5,
