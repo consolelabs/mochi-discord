@@ -1,3 +1,9 @@
+# [6.29.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.4...v6.29.0-rc.5) (2023-08-30)
+
+### Bug Fixes
+
+- **guess:** stop updating a guess game's progress after that game has ended ([c8d88ec](https://github.com/consolelabs/mochi-discord/commit/c8d88ecbb36a08aae4228e8c78e909308c4da1ae))
+
 # [6.29.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.3...v6.29.0-rc.4) (2023-08-29)
 
 ### Bug Fixes
