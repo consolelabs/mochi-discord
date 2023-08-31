@@ -4,9 +4,8 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { ButtonInteraction, CommandInteraction } from "discord.js"
 import profile from "adapters/profile"
 import mochiPay from "adapters/mochi-pay"
-import { fmt } from "utils/formatter"
-import { PageSize, Platform } from "@consolelabs/mochi-formatter"
 import { paginationButtons } from "utils/router"
+import UI, { Platform, PageSize } from "@consolelabs/mochi-ui"
 
 export async function render(
   i: CommandInteraction | ButtonInteraction,
@@ -73,7 +72,7 @@ export async function render(
   const total = pagination?.total
     ? Math.ceil(pagination?.total / PageSize.Medium)
     : 1
-  const { text: description } = await fmt.components.txns({
+  const { text: description } = await UI.components.txns({
     txns: txns as any,
     on: Platform.Discord,
     groupDate: true,
