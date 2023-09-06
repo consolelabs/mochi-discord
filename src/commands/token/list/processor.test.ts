@@ -18,7 +18,7 @@ describe("handleTokenList", () => {
       title: "No token found",
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} To add more token to the list, use \`$token add\``,
       color: msgColors.SUCCESS,
     })
@@ -26,7 +26,7 @@ describe("handleTokenList", () => {
     const output = await processor.handleTokenList()
     assertRunResult(
       { messageOptions: { embeds: [output.embed] } },
-      { messageOptions: { embeds: [expected] } }
+      { messageOptions: { embeds: [expected] } },
     )
   })
 
@@ -68,7 +68,7 @@ describe("handleTokenList", () => {
     const output = await processor.handleTokenList()
     assertRunResult(
       { messageOptions: { embeds: [output.embed] } },
-      { messageOptions: { embeds: [expected] } }
+      { messageOptions: { embeds: [expected] } },
     )
   })
 })

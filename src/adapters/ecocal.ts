@@ -5,7 +5,7 @@ class Ecocal extends Fetcher {
   public async getEcocal(
     impact: string,
     startTime: string,
-    endTime: string
+    endTime: string,
   ): Promise<any[]> {
     const url = `${ECOCAL_API_BASE_URL}/economic-calendars?impact=${impact}&start_time=${startTime}&end_time=${endTime}&api_key=${ECOCAL_API_KEY}`
     const { data: res, ok } = await this.jsonFetch(url)

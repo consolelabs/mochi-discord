@@ -17,9 +17,9 @@ const command: SlashCommand = {
         option
           .setName("symbols")
           .setDescription(
-            "The space-separated list you wanna add to your watchlist. Example: FTM ETH/USDT BTC/SOL"
+            "The space-separated list you wanna add to your watchlist. Example: FTM ETH/USDT BTC/SOL",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {

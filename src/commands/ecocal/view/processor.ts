@@ -81,7 +81,7 @@ export function buildImpactFilterActionRow(selectedImpact: string) {
 export async function composeEcocal(
   author: User,
   dateNumber = 0,
-  impact: string
+  impact: string,
 ) {
   const now = new Date()
   now.setDate(now.getDate() + dateNumber)
@@ -97,7 +97,7 @@ export async function composeEcocal(
   const data = await ecocal.getEcocal(
     impact,
     utcStartDate.toISOString(),
-    utcEndDate.toISOString()
+    utcEndDate.toISOString(),
   )
 
   const embed = composeEmbedMessage(null, {})
@@ -105,11 +105,11 @@ export async function composeEcocal(
   if (!data?.length) {
     embed.setDescription(
       `**${getEmoji(
-        "CALENDAR"
+        "CALENDAR",
       )}️ ECONOMIC CALENDAR - *<t:${formattedDate}:D>***\n\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
-      )} There is no Economic Event in this day.`
+        true,
+      )} There is no Economic Event in this day.`,
     )
     return {
       msgOpts: {
@@ -152,13 +152,13 @@ export async function composeEcocal(
         }
         return `${impactSign} ${f}`
       },
-    }
+    },
   )
 
   const embedFields = ecocalData.map((t, i) => {
     const eventTime = moment(t.time).unix()
     const val = `${getEmoji(
-      (t.country_name ?? "") as EmojiKey
+      (t.country_name ?? "") as EmojiKey,
     )} [<t:${eventTime}:t> ${DOT} **${t.event_name}**](${t.url})\n${
       segments[0][i]
     }\n
@@ -173,11 +173,11 @@ export async function composeEcocal(
 
   embed.setDescription(
     `**${getEmoji(
-      "CALENDAR"
+      "CALENDAR",
     )}️️ ECONOMIC CALENDAR - *<t:${formattedDate}:D>***\n\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
-    )} *Indicators in real-time as economic events are announced and see the immediate global market impact.*\n`
+      true,
+    )} *Indicators in real-time as economic events are announced and see the immediate global market impact.*\n`,
   )
   embed.setFields(embedFields)
 

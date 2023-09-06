@@ -27,7 +27,7 @@ const command: Command = {
       msg,
       msg.guildId,
       args[2] ?? "",
-      msg.author.id
+      msg.author.id,
     )
   },
   getHelpMessage: async (msg) => ({

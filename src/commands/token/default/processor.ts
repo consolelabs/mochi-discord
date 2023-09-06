@@ -5,7 +5,7 @@ import Config from "../../../adapters/config"
 
 export async function handleTokenDefault(
   msg: Message | CommandInteraction,
-  symbol: string
+  symbol: string,
 ) {
   if (!msg.guildId) {
     return {
@@ -28,10 +28,10 @@ export async function handleTokenDefault(
           getErrorEmbed({
             description: `\`${symbol}\` hasn't been supported.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Please choose one in our supported \`$token list\`\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )}.`,
           }),
         ],

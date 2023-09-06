@@ -71,13 +71,13 @@ const slashCmd: SlashCommand = {
         opt
           .setName("chain")
           .setDescription("chain of the collection")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((opt) =>
         opt
           .setName("address")
           .setDescription("the collection address")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   onlyAdministrator: true,

@@ -42,27 +42,27 @@ const getHelpMessage = async (isSlash?: boolean) => {
           name: "You can send to the recipient by",
           value: [
             `${getEmoji(
-              "COMMAND"
+              "COMMAND",
             )} \`@minh\` | \`@role\` | \`#channel\`: usernames, roles or #text-channel`,
             `e.g. ${prefix}tip @John 10 ftm | ${prefix}tip @role1 @role 2 1 ftm each "Thank you"`,
             `${getEmoji(
-              "NEWS"
+              "NEWS",
             )} \`in voice channel\`: to tip members currently in voice channel`,
             `e.g. ${prefix}tip in voice channel 1 ftm each`,
             `${getEmoji(
               "ANIMATED_IDEA",
-              true
+              true,
             )} \`online\`: add "online" before mentioning recipients`,
             `e.g. ${prefix}tip online #mochi 1 ftm`,
             `${getEmoji(
-              "TELEGRAM"
+              "TELEGRAM",
             )} \`tg:<telegram_username>\`: tip via Telegram`,
             `e.g. ${prefix}tip tg:John_ttb 1 ftm`,
             `${getEmoji("TWITTER")} \`tw:<username>\`: tip via Twitter`,
             `e.g. ${prefix}tip tw:John_ttb 1 ftm`,
             `${getEmoji(
               "ANIMATED_MAIL_SEND",
-              true
+              true,
             )} \`email:<email_address>\`: tip via email`,
             `e.g. ${prefix}tip email:John.mochi@gmail.com 2 ftm`,
           ].join("\n"),
@@ -71,16 +71,16 @@ const getHelpMessage = async (isSlash?: boolean) => {
           name: "Tip with token",
           value: [
             `${getEmoji(
-              "CASH"
+              "CASH",
             )} Tip by the cryptocurrencies, choose one in the \`$token list\``,
             `${getEmoji(
-              "MONIKER"
+              "MONIKER",
             )} Use \`${prefix}tip <@users> <amount> <moniker>\` to tip your friend moniker`,
             `e.g. ${prefix}tip @anna 1 cookie. Run ${prefix}moniker command to see more`,
             ``,
             `[Read instructions](${TIP_GITBOOK}) for a complete setup guide`,
           ].join("\n"),
-        }
+        },
       ),
     ],
   }
@@ -144,22 +144,22 @@ const slashCmd: SlashCommand = {
         option
           .setName("users")
           .setDescription("users or role you want to tip. Example: @John")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addNumberOption((option) =>
         option
           .setName("amount")
           .setDescription("amount of coins you want to send. Example: 5")
           .setMinValue(0)
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("token")
           .setDescription(
-            "symbol of token or moniker. e.g. token: ftm, eth - moniker: tea, cookie"
+            "symbol of token or moniker. e.g. token: ftm, eth - moniker: tea, cookie",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
@@ -167,11 +167,11 @@ const slashCmd: SlashCommand = {
           .addChoice("Same", "each")
           .addChoice("Separate", "separate")
           .setDescription(
-            "Same amount is for each recipient. Seperate amount is divided equally"
-          )
+            "Same amount is for each recipient. Seperate amount is divided equally",
+          ),
       )
       .addStringOption((option) =>
-        option.setName("message").setDescription("message when tip recipients")
+        option.setName("message").setDescription("message when tip recipients"),
       )
   },
   run: async (i: CommandInteraction) => {
@@ -184,7 +184,7 @@ const slashCmd: SlashCommand = {
     const message = `"${i.options.getString("message") ?? ""}"`
 
     const args = ["tip", ...users, amount, token, each, message].filter((s) =>
-      Boolean(s)
+      Boolean(s),
     )
     const target = args[1].toLowerCase()
 

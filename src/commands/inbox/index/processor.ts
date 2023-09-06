@@ -81,13 +81,15 @@ export async function render(userDiscordId: string, ctx: Context) {
     embed.setDescription(
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} You don't have any new notifications, why not try ${await getSlashCommand(
-        "withdraw"
+        "withdraw",
       )} or ${await getSlashCommand("deposit")}\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
-      )} After that, maybe ${await getSlashCommand("tip")} some of your friends`
+        true,
+      )} After that, maybe ${await getSlashCommand(
+        "tip",
+      )} some of your friends`,
     )
   }
 
@@ -112,8 +114,8 @@ export async function render(userDiscordId: string, ctx: Context) {
                       emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
                       label: `🟩 ${a.content}`,
                       value: `value-${i}-${a.content}`,
-                    }))
-                  )
+                    })),
+                  ),
               ),
             ]
           : []),
@@ -131,7 +133,7 @@ export async function render(userDiscordId: string, ctx: Context) {
             emoji: "<:pepeold:940971200044204142>",
             customId: "view_read_list",
             disabled: ctx.view === "read",
-          })
+          }),
         ),
         ...(ctx.view === View.Read
           ? paginationButtons(ctx.page, totalPage)
@@ -143,7 +145,7 @@ export async function render(userDiscordId: string, ctx: Context) {
                   label: "\u200b",
                   customId: "see_next_unread",
                   emoji: getEmoji("RIGHT_ARROW"),
-                })
+                }),
               ),
             ]
           : []),

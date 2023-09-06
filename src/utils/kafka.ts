@@ -6,12 +6,12 @@ import { kafkaQueue } from "queue/kafka/queue"
 import { logger } from "../logger"
 
 export async function sendNotificationMsg(
-  kafkaMessage: KafkaNotificationMessage | KafkaNotificationPayRequestMessage
+  kafkaMessage: KafkaNotificationMessage | KafkaNotificationPayRequestMessage,
 ) {
   try {
     await kafkaQueue?.produceNotificationMsg([
       JSON.stringify(kafkaMessage, (_, v) =>
-        typeof v === "bigint" ? v.toString() : v
+        typeof v === "bigint" ? v.toString() : v,
       ),
     ])
   } catch (error) {

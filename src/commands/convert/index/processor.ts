@@ -25,7 +25,7 @@ export async function render(
   interaction: CommandInteraction | ButtonInteraction,
   from: string,
   to: string,
-  amount: number
+  amount: number,
 ) {
   const profileId = await getProfileIdByDiscord(interaction.user.id)
 
@@ -83,9 +83,9 @@ export async function render(
     title: `${getEmoji("CONVERSION")} Conversion`,
     description: [
       `${getEmoji(
-        "SWAP_ROUTE"
+        "SWAP_ROUTE",
       )}\`Rate.   \`**${amount} ${from} ${APPROX} ${formatUsdDigit(
-        Number(ratio) * Number(amount)
+        Number(ratio) * Number(amount),
       )} ${to}**`,
     ].join("\n"),
     color: msgColors.ACTIVITY,
@@ -108,7 +108,7 @@ export async function render(
     tradeRoute = await aggregateTradeRoute(
       base_coin.symbol.toUpperCase(),
       routeSummary,
-      tradeRouteData.provider
+      tradeRouteData.provider,
     )
   }
 
@@ -121,15 +121,15 @@ export async function render(
           emoji: getEmoji("SWAP_ROUTE"),
           style: "SECONDARY",
           customId: "swap",
-        })
-      )
+        }),
+      ),
     )
   }
 
   const isBridged = tokenIn.chain_id !== tokenOut.chain_id
   const network = isBridged
     ? `${capitalizeFirst(tokenIn.chain_name)} -> ${capitalizeFirst(
-        tokenOut.chain_name
+        tokenOut.chain_name,
       )} (bridge)`
     : `${capitalizeFirst(tokenOut.chain_name)}`
 
@@ -140,12 +140,12 @@ export async function render(
       BigNumber.from(routeSummary?.amountOut ?? 0)
         .mul((100 - SLIPPAGE) * 10)
         .div(1000),
-      tokenOut.decimals
+      tokenOut.decimals,
     )
   }
 
   const amountOutUsd = formatUsdDigit(
-    (Number(routeSummary.amountOutUsd) * (100 - SLIPPAGE)) / 100
+    (Number(routeSummary.amountOutUsd) * (100 - SLIPPAGE)) / 100,
   )
 
   return {

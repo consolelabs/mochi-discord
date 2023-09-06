@@ -16,7 +16,7 @@ const command: SlashCommand = {
         opt
           .setName("address")
           .setDescription("Address or alias of the wallet")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (i: CommandInteraction) {

@@ -7,7 +7,7 @@ import { HOMEPAGE_URL } from "utils/constants"
 import { getSlashCommand } from "utils/commands"
 
 export const handleRemoveMoniker = async (
-  payload: RequestDeleteMonikerConfigRequest
+  payload: RequestDeleteMonikerConfigRequest,
 ) => {
   const { ok, log, curl } = await config.deleteMonikerConfig(payload)
   if (!ok) {
@@ -22,14 +22,14 @@ export const handleRemoveMoniker = async (
             payload.moniker
           }\`](${HOMEPAGE_URL}) is removed from server\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Set up a new moniker configuration ${await getSlashCommand(
-            "config moniker set"
+            "config moniker set",
           )}\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} See all moniker configurations ${await getSlashCommand(
-            "config moniker list"
+            "config moniker list",
           )}`,
           color: msgColors.SUCCESS,
         }),

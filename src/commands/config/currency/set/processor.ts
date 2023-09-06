@@ -8,7 +8,7 @@ export async function set(i: CommandInteraction, symbol: string) {
   }
 
   const { ok: getOk, data: currentData } = await config.getDefaultCurrency(
-    i.guildId
+    i.guildId,
   )
 
   let was
@@ -35,7 +35,7 @@ export async function set(i: CommandInteraction, symbol: string) {
   }
 
   const { ok: newOk, data: newData } = await config.getDefaultCurrency(
-    i.guildId
+    i.guildId,
   )
 
   let now

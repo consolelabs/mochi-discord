@@ -18,7 +18,7 @@ const command: SlashCommand = {
         option
           .setName("symbol")
           .setDescription("token's addr, pair's addr, or symbol. Example: FTM")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {
@@ -53,7 +53,7 @@ const command: SlashCommand = {
           color: "RED",
           title: "No pair found",
           description: "Please try again with another search",
-        })
+        }),
       )
       await interaction.editReply(msgOpts)
       return
@@ -152,8 +152,8 @@ const command: SlashCommand = {
             .map(
               (holder: any) =>
                 `\`\`\`${holder.address?.slice(0, 5)}...${holder.address?.slice(
-                  -4
-                )} (${holder.percent?.toFixed(2)}%)\`\`\``
+                  -4,
+                )} (${holder.percent?.toFixed(2)}%)\`\`\``,
             )
             .join("\n"),
           inline: true,

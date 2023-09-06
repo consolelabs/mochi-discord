@@ -16,19 +16,19 @@ const slashCmd: SlashCommand = {
         option
           .setName("amount")
           .setDescription("Amount to pay")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("token")
           .setDescription("Token to pay with")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("message")
           .setDescription("Message to include with the payment")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: (interaction) => {

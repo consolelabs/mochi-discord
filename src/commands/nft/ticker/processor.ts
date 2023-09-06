@@ -79,7 +79,7 @@ export async function handleNFTTickerViews(interaction: ButtonInteraction) {
 
 async function viewTickerChart(
   msg: Message,
-  params: { collectionAddress: string; chain: string; days: string }
+  params: { collectionAddress: string; chain: string; days: string },
 ) {
   const { collectionAddress, chain, days } = params
   const { messageOptions } = await composeCollectionTickerEmbed({
@@ -95,13 +95,13 @@ async function viewTickerChart(
 
 async function viewTickerInfo(
   msg: Message,
-  params: { collectionAddress: string; chain: TokenEmojiKey }
+  params: { collectionAddress: string; chain: TokenEmojiKey },
 ) {
   const { collectionAddress, chain } = params
   const { messageOptions } = await composeCollectionInfoEmbed(
     msg,
     collectionAddress,
-    chain
+    chain,
   )
   return { messageOptions: { ...messageOptions, files: [] } }
   // await msg.edit(messageOptions)
@@ -152,18 +152,18 @@ async function composeCollectionTickerEmbed({
 
   const floorPriceAmount = Number(
     (+(floor_price?.amount ?? 0) / Math.pow(10, decimals(floor_price))).toFixed(
-      3
-    )
+      3,
+    ),
   )
   const totalVolumeAmount = Number(
     (
       +(total_volume?.amount ?? 0) / Math.pow(10, decimals(floor_price))
-    ).toFixed(3)
+    ).toFixed(3),
   )
   const lastSalePriceAmount = Number(
     (
       +(last_sale_price?.amount ?? 0) / Math.pow(10, decimals(last_sale_price))
-    ).toFixed(3)
+    ).toFixed(3),
   )
   const priceToken =
     (floor_price?.token?.symbol?.toUpperCase() as TokenEmojiKey) ?? ""
@@ -292,7 +292,7 @@ async function renderNftTickerChart({
   switch (chartStyle) {
     case ChartStyle.Line: {
       const chartData = data.tickers.prices.map(
-        (p) => +(p.amount ?? 0) / Math.pow(10, decimals(p))
+        (p) => +(p.amount ?? 0) / Math.pow(10, decimals(p)),
       )
       chart = await renderChartImage({
         chartLabel: `Floor price (${token}) | ${fromLabel} - ${toLabel}`,
@@ -303,7 +303,7 @@ async function renderNftTickerChart({
     }
     case ChartStyle.Plot: {
       const prices = data.tickers.prices.map(
-        (p) => +(p.amount ?? 0) / Math.pow(10, decimals(p))
+        (p) => +(p.amount ?? 0) / Math.pow(10, decimals(p)),
       )
       const times = data.tickers.timestamps ?? []
       let plotChartData: { x: number; y: number }[]
@@ -358,7 +358,7 @@ const handler: (chartStyle: ChartStyle) => InteractionHandler =
 
     const selectMenu = message.components[0].components[0] as MessageSelectMenu
     selectMenu.options.forEach(
-      (opt, i) => (opt.default = i === dayOpts.indexOf(+days))
+      (opt, i) => (opt.default = i === dayOpts.indexOf(+days)),
     )
     // this code block stores current day selection
     message.components[1].components.forEach((b) => {
@@ -384,7 +384,7 @@ const handler: (chartStyle: ChartStyle) => InteractionHandler =
 export async function handleNftTicker(
   msg: Message | CommandInteraction,
   symbol: string,
-  chartStyle: ChartStyle
+  chartStyle: ChartStyle,
 ) {
   symbol = symbol.toUpperCase()
   originAuthorId = getAuthor(msg).id
@@ -479,7 +479,7 @@ export async function handleNftTicker(
           cols: ["name", "symbol"],
           rowAfterFormatter: (f, i) =>
             `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
-        }
+        },
       ).joined
     }`,
     ambiguousResultText: symbol,
@@ -525,7 +525,7 @@ async function askToSetDefault(
   name: string,
   symbol: string,
   address: string,
-  chainId: string
+  chainId: string,
 ) {
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
@@ -533,7 +533,7 @@ async function askToSetDefault(
       emoji: getEmoji("CHECK"),
       style: "SUCCESS",
       label: "Confirm",
-    })
+    }),
   )
   const ephemeral = await i
     .editReply({

@@ -7,7 +7,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function handleSalesList(
   msg: Message | CommandInteraction,
-  guildId: string
+  guildId: string,
 ) {
   const res = await community.getSalesTrackers(guildId)
   if (!res.ok) {
@@ -25,10 +25,10 @@ export async function handleSalesList(
             title: "No tracker found!",
             description: `You haven't set up any sales trackers yet.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} To set a new one, run \`sales track <channel> <address> <chain_id>\` (or \`<chain_symbol>\`).\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Then re-check your configuration using \`sales list\`.`,
             color: msgColors.PINK,
           }),
@@ -42,7 +42,7 @@ export async function handleSalesList(
       (c: any) =>
         `<#${c.channel_id}> \`(${shortenHashOrAddress(c.contract_address)}) ${
           c.chain
-        }\``
+        }\``,
     )
     .join("\n")
 

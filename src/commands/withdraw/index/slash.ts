@@ -16,7 +16,7 @@ import {
 
 const machineConfig: (
   initialOverride?: string,
-  overrideCtx?: any
+  overrideCtx?: any,
 ) => MachineConfig = (initial = "withdrawStep1", overrideCtx) => ({
   id: "withdraw",
   initial,
@@ -35,7 +35,7 @@ const machineConfig: (
                   .setLabel("Value")
                   .setStyle("SHORT")
                   .setRequired(true),
-              ])
+              ]),
             )
 
           await i.showModal(modal)
@@ -70,7 +70,7 @@ const machineConfig: (
                   .setLabel("Value")
                   .setStyle("SHORT")
                   .setRequired(true),
-              ])
+              ]),
             )
 
           await i.showModal(modal)
@@ -163,7 +163,7 @@ const run = async (interaction: CommandInteraction) => {
   } else {
     ;({ overrideInitialState, context, msgOpts } = await withdrawStep1(
       interaction,
-      token
+      token,
     ))
   }
 

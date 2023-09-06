@@ -79,7 +79,7 @@ class Profile extends Fetcher {
             "near-chain",
             "sui-chain",
             "ronin-chain",
-          ].includes(a.platform)
+          ].includes(a.platform),
         )
         .sort((a: any, b: any) => {
           return (b.total_amount || 0) - (a.total_amount || 0)
@@ -106,7 +106,7 @@ class Profile extends Fetcher {
             total: formatUsdDigit(bal),
             chain,
           }
-        }) ?? []
+        }) ?? [],
     )
 
     let cexTotal = 0
@@ -125,7 +125,7 @@ class Profile extends Fetcher {
             chain: capitalizeFirst(w.platform),
             total: formatUsdDigit(bal),
           }
-        }) ?? []
+        }) ?? [],
     )
 
     return {
@@ -167,7 +167,7 @@ class Profile extends Fetcher {
       `${API_BASE_URL}/users/profiles`,
       {
         query: { guildId, profileId },
-      }
+      },
     )
   }
 
@@ -195,7 +195,7 @@ class Profile extends Fetcher {
           page,
           size,
         },
-      }
+      },
     )
   }
 
@@ -214,14 +214,14 @@ class Profile extends Fetcher {
           size,
           collectionAddresses,
         },
-      }
+      },
     )
   }
 
   public async getNftCollections(query: { address: string }) {
     return await this.jsonFetch<GetUserNFTCollectionResponse>(
       `${INDEXER_API_BASE_URL}/nft`,
-      { query }
+      { query },
     )
   }
 
@@ -231,18 +231,18 @@ class Profile extends Fetcher {
 
   public async getByDiscord(
     discordId: string,
-    noFetchAmount = true
+    noFetchAmount = true,
   ): Promise<any> {
     return await this.jsonFetch(
       `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}${
         noFetchAmount ? "?no_fetch_amount=true" : ""
-      }`
+      }`,
     )
   }
 
   public async getByEmail(email: string) {
     const res = await fetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-email/${email}`
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-email/${email}`,
     )
     return await res?.json()
   }
@@ -250,21 +250,21 @@ class Profile extends Fetcher {
   // TODO: sp twitter id
   public async getByTwitter(username: string) {
     const res = await fetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-twitter/${username}`
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-twitter/${username}`,
     )
     return await res?.json()
   }
 
   public async getByTelegram(telegramId: string) {
     const res = await fetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-telegram/${telegramId}`
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-telegram/${telegramId}`,
     )
     return await res?.json()
   }
 
   public async getByTelegramUsername(username: string) {
     const res = await fetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/telegram/get-by-username/${username}`
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/telegram/get-by-username/${username}`,
     )
     return await res?.json()
   }
@@ -276,7 +276,7 @@ class Profile extends Fetcher {
       actions = [],
       page = 0,
       size = 12,
-    }: { status?: string; actions?: string[]; page?: number; size?: number }
+    }: { status?: string; actions?: string[]; page?: number; size?: number },
   ) {
     const {
       data: res,
@@ -291,7 +291,7 @@ class Profile extends Fetcher {
           size,
           actions: actions.map((a) => a.toLowerCase()),
         },
-      }
+      },
     )
     let data = []
     if (ok) {
@@ -307,24 +307,24 @@ class Profile extends Fetcher {
       {
         method: "PUT",
         body,
-      }
+      },
     )
   }
 
   public async requestProfileCode(profileId: string) {
     return await this.jsonFetch(
       `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/codes`,
-      { method: "POST" }
+      { method: "POST" },
     )
   }
 
   public async disconnectOnChainWallet(
     profileId: string,
-    platformIdentifier: string
+    platformIdentifier: string,
   ) {
     return await this.jsonFetch(
       `${MOCHI_PROFILE_API_BASE_URL}/profiles/${profileId}/accounts/disconnect-wallet/${platformIdentifier}`,
-      { method: "POST" }
+      { method: "POST" },
     )
   }
 }

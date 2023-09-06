@@ -20,13 +20,13 @@ const slashCmd: SlashCommand = {
           .setName("from")
           .setDescription("select earn vault to unstake")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
       .addNumberOption((opt) =>
         opt
           .setName("amount")
           .setDescription("amount of token to unstake (-1 for unstaking all)")
-          .setRequired(true)
+          .setRequired(true),
       )
     return data
   },
@@ -60,14 +60,14 @@ const slashCmd: SlashCommand = {
           d.platform.name?.toLowerCase().includes(focusedValue.toLowerCase()) ||
           d.to_underlying_token.symbol
             .toLowerCase()
-            .includes(focusedValue.toLowerCase())
+            .includes(focusedValue.toLowerCase()),
       )
       .map((d) => ({
         name: `[${d.platform.name?.toUpperCase()}] APY: ${d.apy.toFixed(
-          2
+          2,
         )}% Staking ${balance(
           d.to_underlying_token.balance,
-          d.to_underlying_token.decimals
+          d.to_underlying_token.decimals,
         )} ${d.to_underlying_token.symbol} `,
         value: `${d.platform.name} ${d.chain_id} ${d.to_underlying_token.address}`,
       }))
@@ -162,9 +162,9 @@ const slashCmd: SlashCommand = {
             title: "Unstake success",
             description: `The request to unstake has been sent. Please wait a few minutes for the transaction to be confirmed.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )}You can check the status of the transaction using ${await getSlashCommand(
-              "invest status"
+              "invest status",
             )}.`,
           }),
         ],

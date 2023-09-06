@@ -35,7 +35,7 @@ describe("process", () => {
         error: res.error,
         curl: res.curl,
         description: res.log,
-      })
+      }),
     )
   })
 })

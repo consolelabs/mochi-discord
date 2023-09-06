@@ -9,21 +9,21 @@ class ChoTot extends Fetcher {
         query: {
           keywords,
         },
-      }
+      },
     )
   }
   public async getListItems(
     queryString: string,
     page: number,
-    pageSize: number
+    pageSize: number,
   ) {
     return await this.jsonFetch<{ variant: number; total: number; ads: any[] }>(
-      `${CHOTOT_GATEWAY_URL}/v1/public/ad-listing?${queryString}&page=${page}&limit=${pageSize}`
+      `${CHOTOT_GATEWAY_URL}/v1/public/ad-listing?${queryString}&page=${page}&limit=${pageSize}`,
     )
   }
   public async getAdDetail(listId: string) {
     return await this.jsonFetch<{ variant: number; total: number; ads: any[] }>(
-      `${CHOTOT_GATEWAY_URL}/v1/public/ad-listing?list_id=${listId}`
+      `${CHOTOT_GATEWAY_URL}/v1/public/ad-listing?list_id=${listId}`,
     )
   }
 }

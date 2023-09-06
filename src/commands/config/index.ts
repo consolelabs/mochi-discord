@@ -85,14 +85,14 @@ const slashCmd: SlashCommand = {
       subcommandGroup
         .setName("logchannel")
         .setDescription(
-          "Keep all records of every user's activity and interaction"
+          "Keep all records of every user's activity and interaction",
         )
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>logChannelSetSlash.prepare()
+          <SlashCommandSubcommandBuilder>logChannelSetSlash.prepare(),
         )
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>logChannelInfoSlash.prepare()
-        )
+          <SlashCommandSubcommandBuilder>logChannelInfoSlash.prepare(),
+        ),
     )
 
     // moniker
@@ -101,15 +101,15 @@ const slashCmd: SlashCommand = {
         .setName("moniker")
         .setDescription("Moniker configuration")
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>monikerInfoSlash.prepare()
+          <SlashCommandSubcommandBuilder>monikerInfoSlash.prepare(),
         )
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>monikerListSlash.prepare()
+          <SlashCommandSubcommandBuilder>monikerListSlash.prepare(),
         )
         .addSubcommand(<SlashCommandSubcommandBuilder>monikerSetSlash.prepare())
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>monikerRemoveSlash.prepare()
-        )
+          <SlashCommandSubcommandBuilder>monikerRemoveSlash.prepare(),
+        ),
     )
 
     // welcome message
@@ -118,12 +118,12 @@ const slashCmd: SlashCommand = {
         .setName("welcome")
         .setDescription("Welcome new members to the guild")
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>welcomeInfoSlash.prepare()
+          <SlashCommandSubcommandBuilder>welcomeInfoSlash.prepare(),
         )
         .addSubcommand(<SlashCommandSubcommandBuilder>welcomeSetSlash.prepare())
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>welcomeRemoveSlash.prepare()
-        )
+          <SlashCommandSubcommandBuilder>welcomeRemoveSlash.prepare(),
+        ),
     )
 
     // verify
@@ -133,12 +133,12 @@ const slashCmd: SlashCommand = {
         .setDescription("Verify wallet")
         .addSubcommand(<SlashCommandSubcommandBuilder>verifyInfoSlash.prepare())
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>verifyCaptchaSlash.prepare()
+          <SlashCommandSubcommandBuilder>verifyCaptchaSlash.prepare(),
         )
         .addSubcommand(<SlashCommandSubcommandBuilder>verifySetSlash.prepare())
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>verifyRemoveSlash.prepare()
-        )
+          <SlashCommandSubcommandBuilder>verifyRemoveSlash.prepare(),
+        ),
     )
 
     // currency
@@ -147,14 +147,14 @@ const slashCmd: SlashCommand = {
         .setName("currency")
         .setDescription("Config default currency for this server")
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>currencyInfoSlash.prepare()
+          <SlashCommandSubcommandBuilder>currencyInfoSlash.prepare(),
         )
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>currencySetSlash.prepare()
+          <SlashCommandSubcommandBuilder>currencySetSlash.prepare(),
         )
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>currencyRemoveSlash.prepare()
-        )
+          <SlashCommandSubcommandBuilder>currencyRemoveSlash.prepare(),
+        ),
     )
 
     // tip range
@@ -163,14 +163,14 @@ const slashCmd: SlashCommand = {
         .setName("tiprange")
         .setDescription("Config tiprange for this server")
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>tiprangeInfoSlash.prepare()
+          <SlashCommandSubcommandBuilder>tiprangeInfoSlash.prepare(),
         )
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>tiprangeSetSlash.prepare()
+          <SlashCommandSubcommandBuilder>tiprangeSetSlash.prepare(),
         )
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>tiprangeRemoveSlash.prepare()
-        )
+          <SlashCommandSubcommandBuilder>tiprangeRemoveSlash.prepare(),
+        ),
     )
 
     // data.addSubcommand(<SlashCommandSubcommandBuilder>currencySlash.prepare())

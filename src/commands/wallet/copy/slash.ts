@@ -18,13 +18,13 @@ const command: SlashCommand = {
         opt
           .setName("address")
           .setDescription("the address to copy")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((opt) =>
         opt
           .setName("alias")
           .setDescription("something easier for you to remember")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: async function (i: CommandInteraction) {

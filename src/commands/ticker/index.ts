@@ -27,23 +27,23 @@ const slashCmd: SlashCommand = {
         option
           .setName("base")
           .setDescription(
-            "the cryptocurrency which you wanna check price. Example: FTM"
+            "the cryptocurrency which you wanna check price. Example: FTM",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("target")
           .setDescription(
-            "the second cryptocurrency for comparison. Example: BTC"
+            "the second cryptocurrency for comparison. Example: BTC",
           )
-          .setRequired(false)
+          .setRequired(false),
       )
       .addBooleanOption((option) =>
         option
           .setName("show-all")
           .setDescription("available tokens with given ticker")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: async function (interaction: CommandInteraction) {
@@ -59,10 +59,10 @@ const slashCmd: SlashCommand = {
         title: "Ticker error",
         description: `${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} You need to enter **different** tokens/fiats for the base and target.\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} You cannot use only one for pair comparison (e.g: btc/btc).`,
       })
     }

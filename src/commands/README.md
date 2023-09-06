@@ -58,7 +58,7 @@ A section = header + subheader (if any) + content, for content rendering, please
       cols: ["token", "value"],
       alignment: ["left", "right"],
       separator: ["≈"],
-    }
+    },
   );
   console.log(output);
   // 10 ICY    ≈  15 USD

@@ -17,7 +17,7 @@ const command: SlashCommand = {
         option
           .setName("symbol")
           .setDescription("NFT symbol. Example: neko")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
@@ -27,7 +27,7 @@ const command: SlashCommand = {
           .addChoices([
             ["Plot", "plot"],
             ["Line", "line"],
-          ])
+          ]),
       )
   },
   run: async function (interaction: CommandInteraction) {

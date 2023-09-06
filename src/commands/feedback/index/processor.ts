@@ -33,11 +33,11 @@ const feedbackSolvedEmbed = () =>
 async function sendProgressToPublicFeedbackChannel(
   feedback: ModelUserFeedback,
   user: User,
-  channels?: GuildChannelManager
+  channels?: GuildChannelManager,
 ) {
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji(
-      feedback.status === "COMPLETED" ? "APPROVE" : "APPROVE_GREY"
+      feedback.status === "COMPLETED" ? "APPROVE" : "APPROVE_GREY",
     )} This feedback is ${
       feedback.status === "completed" ? "resolved" : "being worked on"
     }`,
@@ -55,7 +55,7 @@ async function sendProgressToPublicFeedbackChannel(
   }
 
   logger.info(
-    `[handleFeedback] - sending update in-progress to public feedback channel ${feedback.id}`
+    `[handleFeedback] - sending update in-progress to public feedback channel ${feedback.id}`,
   )
 
   channel.send({ embeds: [embed] })
@@ -64,7 +64,7 @@ async function sendProgressToPublicFeedbackChannel(
 export const getComponentsNormalState = (
   discordId: string,
   isFromSuccess: boolean,
-  disableIndex = 0
+  disableIndex = 0,
 ) =>
   new MessageActionRow().addComponents(
     new MessageButton({
@@ -91,7 +91,7 @@ export const getComponentsNormalState = (
       style: "SECONDARY",
       customId: `feedback-view-list`,
       disabled: disableIndex === 3,
-    })
+    }),
   )
 
 export const getArrowButtons = (opts?: {
@@ -118,7 +118,7 @@ export const getArrowButtons = (opts?: {
       }`,
       style: "SECONDARY",
       disabled: opts?.disableRight ?? false,
-    })
+    }),
   )
 
 async function handleFeedbackSetInProgress(i: ButtonInteraction) {
@@ -128,12 +128,12 @@ async function handleFeedbackSetInProgress(i: ButtonInteraction) {
     return
   }
   logger.info(
-    `[handleFeedback] - updating status to in-progress of feedback ${feedbackId}`
+    `[handleFeedback] - updating status to in-progress of feedback ${feedbackId}`,
   )
   const updateRes = await community.updateFeedback(feedbackId, "confirmed")
   if (!updateRes.ok) {
     logger.error(
-      `[handleFeedback] - unable to set in-progress feedback ${feedbackId}`
+      `[handleFeedback] - unable to set in-progress feedback ${feedbackId}`,
     )
     return
   }
@@ -147,7 +147,7 @@ async function handleFeedbackSetInProgress(i: ButtonInteraction) {
           style: "SECONDARY",
           emoji: getEmoji("CHECK"),
           customId: `feedback-handle-set-resolved_${feedbackId}`,
-        })
+        }),
       ),
     ],
   })
@@ -162,12 +162,12 @@ async function handleFeedbackSetResolved(i: ButtonInteraction) {
     return
   }
   logger.info(
-    `[handleFeedback] - updating status to in-progress of feedback ${feedbackId}`
+    `[handleFeedback] - updating status to in-progress of feedback ${feedbackId}`,
   )
   const updateRes = await community.updateFeedback(feedbackId, "completed")
   if (!updateRes.ok) {
     logger.error(
-      `[handleFeedback] - unable to set in-progress feedback ${feedbackId}`
+      `[handleFeedback] - unable to set in-progress feedback ${feedbackId}`,
     )
     return
   }
@@ -182,7 +182,7 @@ async function handleFeedbackSetResolved(i: ButtonInteraction) {
           style: "SECONDARY",
           customId: `feedback-handle-already-done`,
           disabled: true,
-        })
+        }),
       ),
     ],
   })
@@ -193,16 +193,16 @@ async function handleFeedbackSetResolved(i: ButtonInteraction) {
   if (feedback.message_id) {
     const [channelId, msgId] = feedback.message_id.split("/")
     logger.info(
-      "[handleFeedback] - begin send resolved reply, fetching channel"
+      "[handleFeedback] - begin send resolved reply, fetching channel",
     )
     i.client.channels.fetch(channelId).then((channel) => {
       if (channel?.isText()) {
         logger.info(
-          "[handleFeedback] - channel found, fetching original message"
+          "[handleFeedback] - channel found, fetching original message",
         )
         channel.messages.fetch(msgId).then((msg) => {
           logger.info(
-            "[handleFeedback] - message found, sending resolved reply"
+            "[handleFeedback] - message found, sending resolved reply",
           )
           msg.reply({
             embeds: [feedbackSolvedEmbed()],
@@ -217,7 +217,7 @@ async function handleFeedbackSetResolved(i: ButtonInteraction) {
 async function handleViewFeedbackList(
   i: ButtonInteraction,
   page: number,
-  discordId?: string
+  discordId?: string,
 ) {
   const profileId = discordId
     ? await getProfileIdByDiscord(discordId || "")
@@ -334,7 +334,7 @@ export async function feedbackDispatcher(i: ButtonInteraction) {
       await handleViewFeedbackList(
         i,
         0,
-        parts.length === 2 ? parts.pop() : undefined
+        parts.length === 2 ? parts.pop() : undefined,
       )
       break
     }

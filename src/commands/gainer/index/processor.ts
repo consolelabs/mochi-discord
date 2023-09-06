@@ -48,7 +48,7 @@ function compose(
     usd_1y_change: number
   }[],
   tab: Tab,
-  timeRange: TimeRange
+  timeRange: TimeRange,
 ) {
   const embed = composeEmbedMessage(null, {
     author: [
@@ -56,7 +56,7 @@ function compose(
       getEmojiURL(
         tab === Tab.Gainer
           ? emojis.ANIMATED_ARROW_UP
-          : emojis.ANIMATED_ARROW_DOWN
+          : emojis.ANIMATED_ARROW_DOWN,
       ),
     ],
     description: [
@@ -84,8 +84,8 @@ function getTimeRangeSelect(currentTimeRange: TimeRange) {
           label: `📅 ${t[0]}`,
           value: t[1],
           default: t[1] === currentTimeRange,
-        }))
-      )
+        })),
+      ),
   )
 }
 
@@ -104,14 +104,14 @@ function getGainerLoserTab(tab: Tab) {
       label: "Loser",
       customId: "view_loser",
       disabled: tab === Tab.Loser,
-    })
+    }),
   )
 }
 
 export async function render(
   interaction: CommandInteraction | SelectMenuInteraction | ButtonInteraction,
   tab: Tab,
-  timeRange: TimeRange = TimeRange.D1
+  timeRange: TimeRange = TimeRange.D1,
 ) {
   let data = []
   const {

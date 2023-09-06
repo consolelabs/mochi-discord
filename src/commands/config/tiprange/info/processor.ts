@@ -7,7 +7,7 @@ import { getSlashCommand } from "utils/commands"
 
 export async function runTipRangeInfo(
   msg: Message | null,
-  guildId: string | null
+  guildId: string | null,
 ) {
   if (!guildId) {
     throw new GuildIdNotFoundError({ message: msg ?? undefined })
@@ -29,14 +29,14 @@ export async function runTipRangeInfo(
             author: ["Tip range", getEmojiURL(emojis.APPROVE)],
             description: `You haven't set min and max tip for server.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} To set a new one, run ${await getSlashCommand(
-              "config tiprange set"
+              "config tiprange set",
             )}.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Then re-check your configuration using ${await getSlashCommand(
-              "config tiprange info"
+              "config tiprange info",
             )}`,
             color: msgColors.PINK,
           }),

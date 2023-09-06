@@ -51,9 +51,9 @@ export class CommandNotAllowedToRunError extends BotBaseError {
               : ""
           }\n\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Contact this server's owner to use ${await getSlashCommand(
-            "bot-manager set"
+            "bot-manager set",
           )} to add your role as a bot manager role.`,
           color: msgColors.YELLOW,
         })

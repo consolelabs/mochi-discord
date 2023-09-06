@@ -29,7 +29,7 @@ class Community extends Fetcher {
 
   public async getInvitesLeaderboard(guildId: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/community/invites/leaderboard/${guildId}`
+      `${API_BASE_URL}/community/invites/leaderboard/${guildId}`,
     )
   }
 
@@ -40,7 +40,7 @@ class Community extends Fetcher {
         query: {
           guildId,
         },
-      }
+      },
     )
   }
 
@@ -62,7 +62,7 @@ class Community extends Fetcher {
           guildId,
           inviterId,
         },
-      }
+      },
     )
   }
 
@@ -70,7 +70,7 @@ class Community extends Fetcher {
     guildId: string,
     profileId: string,
     page: number,
-    limit = 10
+    limit = 10,
   ) {
     return await this.jsonFetch(`${API_BASE_URL}/users/top`, {
       query: {
@@ -99,7 +99,7 @@ class Community extends Fetcher {
     collectionSymbol: string,
     tokenId: string,
     guildId: string,
-    queryAddress: boolean
+    queryAddress: boolean,
   ) {
     return await this.jsonFetch<NFTDetail>(
       `${API_BASE_URL}/nfts/${collectionSymbol}/${tokenId}`,
@@ -108,7 +108,7 @@ class Community extends Fetcher {
           guildId,
           queryAddress,
         },
-      }
+      },
     )
   }
 
@@ -123,7 +123,7 @@ class Community extends Fetcher {
       `${API_BASE_URL}/nfts/${collectionAddress}/${tokenId}/activity`,
       {
         query: { page, size },
-      }
+      },
     )
   }
 
@@ -140,7 +140,7 @@ class Community extends Fetcher {
         query: {
           queryAddress,
         },
-      }
+      },
     )
   }
 
@@ -161,7 +161,7 @@ class Community extends Fetcher {
           from,
           to,
         },
-      }
+      },
     )
   }
 
@@ -172,7 +172,7 @@ class Community extends Fetcher {
         query: {
           query,
         },
-      }
+      },
     )
   }
 
@@ -193,7 +193,7 @@ class Community extends Fetcher {
     addr: string,
     chain: string,
     guildId: string,
-    channelId: string
+    channelId: string,
   ) {
     return await this.jsonFetch(`${API_BASE_URL}/configs/sales-tracker`, {
       method: "POST",
@@ -244,7 +244,7 @@ class Community extends Fetcher {
         query: {
           chain,
         },
-      }
+      },
     )
   }
 
@@ -272,13 +272,13 @@ class Community extends Fetcher {
 
   public async getNFTMetadataAttrIcon() {
     return await this.jsonFetch<ResponseNftMetadataAttrIconResponse>(
-      `${API_BASE_URL}/nfts/icons`
+      `${API_BASE_URL}/nfts/icons`,
     )
   }
 
   public async getCollectionCount() {
     return await this.jsonFetch<ResponseGetCollectionCountResponse>(
-      `${API_BASE_URL}/nfts/collections/stats`
+      `${API_BASE_URL}/nfts/collections/stats`,
     )
   }
 
@@ -302,7 +302,7 @@ class Community extends Fetcher {
           from,
           to,
         },
-      }
+      },
     )
   }
 
@@ -334,7 +334,7 @@ class Community extends Fetcher {
           routine,
           user_id,
         },
-      }
+      },
     )
   }
 
@@ -354,14 +354,14 @@ class Community extends Fetcher {
           id,
           status,
         },
-      }
+      },
     )
   }
 
   public async getFeedbackList(
     discordId?: string,
     page = 0,
-    profileId?: string
+    profileId?: string,
   ) {
     return await this.jsonFetch<{ data: ResponseUserFeedbackResponse }>(
       `${API_BASE_URL}/community/feedback`,
@@ -373,7 +373,7 @@ class Community extends Fetcher {
           discord_id: discordId,
           profile_id: profileId,
         },
-      }
+      },
     )
   }
 
@@ -413,20 +413,20 @@ class Community extends Fetcher {
     body: {
       user_id: string
       choice: string
-    }
+    },
   ) {
     return await this.jsonFetch(
       `${API_BASE_URL}/dao-voting/proposals/votes/${vote_id}`,
       {
         method: "PUT",
         body,
-      }
+      },
     )
   }
 
   public async getUserProposalVote(
     user_discord_id: string,
-    proposal_id: string
+    proposal_id: string,
   ) {
     return await this.jsonFetch(`${API_BASE_URL}/dao-voting/proposals/votes`, {
       method: "GET",
@@ -439,14 +439,14 @@ class Community extends Fetcher {
 
   public async getProposalResults(
     proposal_id: string,
-    user_discord_id: string
+    user_discord_id: string,
   ) {
     return await this.jsonFetch(
       `${API_BASE_URL}/dao-voting/proposals/${proposal_id}`,
       {
         method: "GET",
         query: { user_discord_id },
-      }
+      },
     )
   }
 
@@ -464,14 +464,14 @@ class Community extends Fetcher {
     proposal_id: string | null,
     user_id: string,
     guild_id: string,
-    action: string
+    action: string,
   ) {
     return await this.jsonFetch(
       `${API_BASE_URL}/dao-voting/token-holder/status`,
       {
         method: "GET",
         query: { user_id, proposal_id, guild_id, action },
-      }
+      },
     )
   }
 
@@ -524,7 +524,7 @@ class Community extends Fetcher {
       {
         method: "GET",
         query: { chainId: params.chainId },
-      }
+      },
     )
   }
 
@@ -533,7 +533,7 @@ class Community extends Fetcher {
       `${PT_API_BASE_URL}/nft/${address}/support-verse-enable`,
       {
         method: "PUT",
-      }
+      },
     )
   }
 
@@ -551,7 +551,7 @@ class Community extends Fetcher {
 
   public async getLevelMessageConfig(guildId: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/community/levelup?guild_id=${guildId}`
+      `${API_BASE_URL}/community/levelup?guild_id=${guildId}`,
     )
   }
 
@@ -588,7 +588,7 @@ class Community extends Fetcher {
   public async getAirdropCampaignStats(query: { profileId: string }) {
     return await this.jsonFetch(
       `${API_BASE_URL}/earns/airdrop-campaigns/stats`,
-      { query }
+      { query },
     )
   }
 
@@ -609,36 +609,36 @@ class Community extends Fetcher {
       page: number
       size: number
       status: AirdropCampaignStatus
-    }
+    },
   ) {
     return await this.jsonFetch(
       `${API_BASE_URL}/users/${userId}/earns/airdrop-campaigns`,
       {
         query,
-      }
+      },
     )
   }
 
   public async getAirdropCampaignById(
     id: string,
-    query?: { profileId: string }
+    query?: { profileId: string },
   ) {
     return await this.jsonFetch(
       `${API_BASE_URL}/earns/airdrop-campaigns/${id}`,
-      { query }
+      { query },
     )
   }
 
   public async upsertUserAirdropCampaign(
     userId: string,
-    body: { status: string; airdropCampaignId: number }
+    body: { status: string; airdropCampaignId: number },
   ) {
     return await this.jsonFetch(
       `${API_BASE_URL}/users/${userId}/earns/airdrop-campaigns`,
       {
         method: "POST",
         body: JSON.stringify(body),
-      }
+      },
     )
   }
 
@@ -654,7 +654,7 @@ class Community extends Fetcher {
       {
         queryCamelToSnake: false,
         query,
-      }
+      },
     )
   }
 }

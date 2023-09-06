@@ -34,10 +34,10 @@ const command: Command = {
               title: "Invalid channel",
               description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
-                true
+                true,
               )} Type # to see channel list.\n${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
-                true
+                true,
               )} To add a new channel: 1. Create channel → 2. Confirm`,
             }),
           ],
@@ -53,7 +53,7 @@ const command: Command = {
       addr,
       platform,
       msg.guildId,
-      chan ? chan.id : ""
+      chan ? chan.id : "",
     )
   },
   getHelpMessage: async (msg) => ({

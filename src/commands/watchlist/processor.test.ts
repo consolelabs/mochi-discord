@@ -13,7 +13,7 @@ describe("handleUpdateWlError", () => {
       new InternalError({
         msgOrInteraction: msg,
         description: "",
-      })
+      }),
     )
   })
 
@@ -26,16 +26,16 @@ describe("handleUpdateWlError", () => {
         : "hasn't been supported"
     }.\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} Please choose a token supported by [Coingecko](https://www.coingecko.com/)`
     await expect(
-      processor.handleUpdateWlError(msg, symbol, "record not found", isRemove)
+      processor.handleUpdateWlError(msg, symbol, "record not found", isRemove),
     ).rejects.toThrow(
       new InternalError({
         msgOrInteraction: msg,
         title: "Command Error",
         description,
-      })
+      }),
     )
   })
 
@@ -48,16 +48,16 @@ describe("handleUpdateWlError", () => {
         : "hasn't been supported"
     }.\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} Please choose a token supported by [Coingecko](https://www.coingecko.com/)`
     await expect(
-      processor.handleUpdateWlError(msg, symbol, "record not found", isRemove)
+      processor.handleUpdateWlError(msg, symbol, "record not found", isRemove),
     ).rejects.toThrow(
       new InternalError({
         msgOrInteraction: msg,
         title: "Command Error",
         description,
-      })
+      }),
     )
   })
 
@@ -66,16 +66,16 @@ describe("handleUpdateWlError", () => {
     const symbol = "ftm"
     const description = `**${symbol.toUpperCase()}** has already been added to your watchlist.\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} Please choose another one listed on [CoinGecko](https://www.coingecko.com).`
     await expect(
-      processor.handleUpdateWlError(msg, symbol, "conflict", isRemove)
+      processor.handleUpdateWlError(msg, symbol, "conflict", isRemove),
     ).rejects.toThrow(
       new InternalError({
         msgOrInteraction: msg,
         title: "Command Error",
         description,
-      })
+      }),
     )
   })
 })

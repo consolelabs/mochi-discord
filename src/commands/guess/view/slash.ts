@@ -16,7 +16,7 @@ const slashCmd: SlashCommand = {
           .setName("code")
           .setDescription("game id")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
   },
   autocomplete: async (i) => {
@@ -35,7 +35,7 @@ const slashCmd: SlashCommand = {
           name: `${g.code} ${truncate(g.question, { length: 20 })}`,
           value: g.code,
         }))
-        .slice(0, 25)
+        .slice(0, 25),
     )
   },
   run: async (i) => {
@@ -83,7 +83,7 @@ const slashCmd: SlashCommand = {
               game.players
                 .sort(
                   (a: any, b: any) =>
-                    Number(b.collected_amount) - Number(a.collected_amount)
+                    Number(b.collected_amount) - Number(a.collected_amount),
                 )
                 .map((p: any) => {
                   const isPos = Math.sign(Number(p.result)) > 0

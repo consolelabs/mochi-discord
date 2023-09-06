@@ -26,7 +26,7 @@ const command: SlashCommand = {
           .setName("name")
           .setDescription("enter vault name")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
       .addStringOption((option) => {
         const o = option
@@ -34,7 +34,7 @@ const command: SlashCommand = {
           .setDescription("enter chain")
           .setRequired(true)
         Object.keys(chains).forEach((key) =>
-          o.addChoice(key, chains[key as keyof typeof chains])
+          o.addChoice(key, chains[key as keyof typeof chains]),
         )
         return o
       })
@@ -42,28 +42,28 @@ const command: SlashCommand = {
         option
           .setName("token")
           .setDescription("enter token symbol")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("amount")
           .setDescription("enter amount")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addUserOption((option) =>
-        option.setName("user").setDescription("enter user").setRequired(false)
+        option.setName("user").setDescription("enter user").setRequired(false),
       )
       .addStringOption((option) =>
         option
           .setName("message")
           .setDescription("enter message for user")
-          .setRequired(false)
+          .setRequired(false),
       )
       .addStringOption((option) =>
         option
           .setName("address")
           .setDescription("enter wallet address")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   autocomplete: async function (i) {
@@ -77,9 +77,9 @@ const command: SlashCommand = {
     await i.respond(
       data
         .filter((d: any) =>
-          d.name.toLowerCase().includes(focusedValue.toLowerCase())
+          d.name.toLowerCase().includes(focusedValue.toLowerCase()),
         )
-        .map((d: any) => ({ name: d.name, value: d.name }))
+        .map((d: any) => ({ name: d.name, value: d.name })),
     )
   },
   run: async function (interaction: CommandInteraction) {

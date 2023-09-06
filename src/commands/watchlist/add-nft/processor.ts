@@ -94,7 +94,7 @@ export const addWatchlistNftCollection = async ({
   }
 
   const opt = (
-    collection: ResponseCollectionSuggestions
+    collection: ResponseCollectionSuggestions,
   ): MessageSelectOptionData => ({
     label: `${collection.name} (${collection.symbol})`,
     value: `${collection.symbol}_${collection.address}_${collection.chain}_${userId}`,

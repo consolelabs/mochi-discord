@@ -10,7 +10,7 @@ import { eventAsyncStore } from "utils/async-storages"
 async function repostMessage(data: any, msg: Message) {
   if (data?.repost_channel_id) {
     const channel = msg.guild?.channels.cache.find(
-      (c) => c.id === data.repost_channel_id
+      (c) => c.id === data.repost_channel_id,
     )
 
     const embed = starboardEmbed(msg)
@@ -82,7 +82,7 @@ const event: DiscordEvent<"messageReactionRemove"> = {
                         reaction: getReactionIdentifier(
                           reaction.emoji.id,
                           reaction.emoji.name,
-                          reaction.emoji.identifier.toLowerCase()
+                          reaction.emoji.identifier.toLowerCase(),
                         ),
                         reaction_count: reaction.count,
                         user_id: user.id,
@@ -90,7 +90,7 @@ const event: DiscordEvent<"messageReactionRemove"> = {
 
                       const res = await webhook.pushDiscordWebhook(
                         "messageReactionRemove",
-                        body
+                        body,
                       )
                       if (res?.ok) {
                         const data = {
@@ -101,7 +101,7 @@ const event: DiscordEvent<"messageReactionRemove"> = {
                         repostMessage(data, msg)
                       }
                     })
-                  }
+                  },
                 )
               })
               .catch(() => null)

@@ -39,10 +39,10 @@ const event: DiscordEvent<"guildMemberAdd"> = {
 
           await webhook.pushDiscordWebhook(
             "guildMemberAdd",
-            createBEGuildMember(member)
+            createBEGuildMember(member),
           )
         })
-      }
+      },
     )
   },
 }
@@ -72,7 +72,7 @@ async function welcomeFirstTimeMember(member: GuildMember) {
       `${getEmoji("ANIMATED_POINTING_RIGHT", true)} Track your portfolio`,
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Present you with earning opportunities`,
       getEmoji("LINE").repeat(10),
     ].join("\n"),
@@ -91,7 +91,7 @@ async function welcomeFirstTimeMember(member: GuildMember) {
       name: `${getEmoji("NUM_2")} Earn more with Mochi`,
       value: [
         `For starter, the quest list comes with token rewards ${await getSlashCommand(
-          "quest daily"
+          "quest daily",
         )}`,
         `As developer, [**build your app on Mochi**](${MOCHI_DOC_URL}) and monetize it`,
       ]
@@ -104,14 +104,14 @@ async function welcomeFirstTimeMember(member: GuildMember) {
       value: [
         `Here are your wallets on 10 difference chains (auto generated)`,
         `Start tracking your own wallet ${await getSlashCommand(
-          "wallet track"
+          "wallet track",
         )}`,
         `Enjoy the content at [**makeitwith.mochi**](https://mochi.gg) by the Mochi team`,
       ]
         .map((t) => `${DOT} ${t}`)
         .join("\n"),
       inline: false,
-    }
+    },
   )
 
   dmChannel.send({
@@ -122,7 +122,7 @@ async function welcomeFirstTimeMember(member: GuildMember) {
           label: "Claim your PFP",
           style: "LINK",
           url: HOMEPAGE_URL,
-        })
+        }),
       ),
     ],
   })
@@ -142,7 +142,7 @@ export async function welcomeNewMember(member: Discord.GuildMember) {
   const configData = welcomeChannel.data
   if (!configData.channel_id || !configData.guild_id) {
     logger.warn(
-      `[guildMemberAdd/${member.guild.id}] - welcome channel configs invalid`
+      `[guildMemberAdd/${member.guild.id}] - welcome channel configs invalid`,
     )
     return
   }
@@ -155,13 +155,13 @@ export async function welcomeNewMember(member: Discord.GuildMember) {
     const guild = await config.getGuild(member.guild.id)
     if (!guild) {
       logger.warn(
-        `[guildMemberAdd/${member.guild.id}] - failed to get guild data`
+        `[guildMemberAdd/${member.guild.id}] - failed to get guild data`,
       )
       return
     }
 
     const logChannel = member.guild.channels.cache.find(
-      (channel) => channel.id === guild?.log_channel_id
+      (channel) => channel.id === guild?.log_channel_id,
     )
     if (logChannel?.isText()) {
       logChannel.send({
@@ -183,20 +183,20 @@ export async function welcomeNewMember(member: Discord.GuildMember) {
         ...(isDM || !dmEnabled
           ? [
               `This server is powered by ${getEmoji(
-                "MOCHI_CIRCLE"
+                "MOCHI_CIRCLE",
               )} Mochi Bot which grants you access to crypto utilities such as:`,
             ]
           : []),
         ...(isDM || !dmEnabled
           ? [
               `${getEmoji("CHART")} ${await getSlashCommand(
-                "ticker"
+                "ticker",
               )} Token chart data`,
               `${getEmoji("SWAP_ROUTE")} ${await getSlashCommand(
-                "swap"
+                "swap",
               )} Swap tokens without leaving Discord`,
               `${getEmoji("CASH")} ${await getSlashCommand(
-                "wlv"
+                "wlv",
               )} Token watchlist`,
 
               `...and much more!`,
@@ -205,17 +205,17 @@ export async function welcomeNewMember(member: Discord.GuildMember) {
         getEmoji("LINE").repeat(10),
         `${getEmoji("ANIMATED_POINTING_RIGHT", true)} To get started:`,
         `${getEmoji("NUM_1")} Run ${await getSlashCommand(
-          "profile"
+          "profile",
         )} in guild will get you setup with wallets and stuff.`,
         `${getEmoji("NUM_2")} Run ${await getSlashCommand(
-          "balance"
+          "balance",
         )} to see the newly created wallets.`,
         ...(!isDM
           ? [
               `${getEmoji("NUM_3")} Explore more cmds: ${await getSlashCommand(
-                "tip"
+                "tip",
               )}, ${await getSlashCommand("swap")}, ${await getSlashCommand(
-                "watchlist view"
+                "watchlist view",
               )}, etc...`,
             ]
           : []),

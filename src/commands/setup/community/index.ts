@@ -34,13 +34,13 @@ const slashCmd: SlashCommand = {
         opt
           .setName("chain")
           .setDescription("the chain of your preferred token")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((opt) =>
         opt
           .setName("address")
           .setDescription("the contract address of your preferred token")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   onlyAdministrator: true,

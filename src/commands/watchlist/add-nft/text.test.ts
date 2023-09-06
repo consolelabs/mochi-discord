@@ -34,7 +34,7 @@ describe("run", () => {
       .spyOn(processor, "addWatchlistNftCollection")
       .mockResolvedValueOnce(expected)
     const output = (await watchlistCmd?.actions?.["add-nft"]?.run(
-      msg
+      msg,
     )) as RunResult<MessageOptions>
     const args = {
       msgOrInteraction: msg,

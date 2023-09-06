@@ -11,7 +11,7 @@ export async function handleUpdateWlError(
   msg: Message | MessageComponentInteraction | CommandInteraction | undefined,
   symbol: string,
   error: string | null,
-  isRemove?: boolean
+  isRemove?: boolean,
 ) {
   if (!msg) return
   let description = ""
@@ -32,17 +32,17 @@ export async function handleUpdateWlError(
       description = isRemove
         ? `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Add it by using ${await getSlashCommand("watchlist add")}`
         : `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Please choose a token supported by [Coingecko](https://www.coingecko.com/)`
       break
     case error.toLowerCase().startsWith("conflict") && !isRemove:
       title = `${symbol.toUpperCase()} has already been added to your watchlist.`
       description = `View watchlist with ${await getSlashCommand(
-        "wlv"
+        "wlv",
       )} (alias for ${await getSlashCommand("watchlist view")})`
       break
     default:

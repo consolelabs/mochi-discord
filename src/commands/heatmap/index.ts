@@ -39,7 +39,7 @@ const slashCmd: SlashCommand = {
     return new SlashCommandBuilder()
       .setName("heatmap")
       .setDescription(
-        "Show top cryptocurrencies with live prices and 24h change in price"
+        "Show top cryptocurrencies with live prices and 24h change in price",
       )
   },
   run,

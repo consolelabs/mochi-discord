@@ -31,7 +31,7 @@ const event: DiscordEvent<"guildDelete"> = {
           }
           await webhook.pushDiscordWebhook("guildDelete", data)
         })
-      }
+      },
     )
   },
 }

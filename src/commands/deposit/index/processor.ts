@@ -23,7 +23,7 @@ import qrcode from "qrcode"
 export async function deposit(
   interaction: CommandInteraction | ButtonInteraction,
   token: string,
-  amount: number
+  amount: number,
 ) {
   const author = getAuthor(interaction)
   const symbol = token.toUpperCase()
@@ -54,14 +54,14 @@ export async function deposit(
   if (!ok) throw new APIError({ curl, description: log })
 
   const addressesDup = (data ?? []).filter(
-    (d: any) => d.contract.chain.symbol && d.contract.address
+    (d: any) => d.contract.chain.symbol && d.contract.address,
   )
 
   const addresses: Array<{
     address: string
     symbol: string
   }> = Array.from<any>(
-    new Map(addressesDup.map((a: any) => [a.contract.address, a])).values()
+    new Map(addressesDup.map((a: any) => [a.contract.address, a])).values(),
   ).map((a) => ({
     symbol: a.contract.chain.symbol.toUpperCase(),
     address: a.contract.address,
@@ -107,7 +107,7 @@ export function renderListDepositAddress({
           amount,
           a.decimal,
           a.chainId,
-          !a.isNative ? a.tokenAddress : undefined
+          !a.isNative ? a.tokenAddress : undefined,
         )
       : `${a.explorer}/address/${a.address}`
     return {
@@ -125,11 +125,11 @@ export function renderListDepositAddress({
     description: [
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Below is the deposit addresses on different chains.`,
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Transactions take up to 5 minutes to process.`,
       getEmoji("LINE").repeat(5),
       formatDataTable(dataRows, {
@@ -159,7 +159,7 @@ export function renderListDepositAddress({
               value: a.address,
               emoji: getEmojiToken(a.symbol as TokenEmojiKey),
             })),
-          })
+          }),
         ),
       ],
     },
@@ -171,7 +171,7 @@ function toMetamaskDeeplink(
   value: number,
   decimal: number,
   chainId: number,
-  tokenAddress?: string
+  tokenAddress?: string,
 ) {
   let link = "https://metamask.app.link/send"
   if (tokenAddress) {
@@ -196,7 +196,7 @@ function toMetamaskDeeplink(
 export async function depositDetail(
   i: SelectMenuInteraction,
   amount: number,
-  depositObj: any
+  depositObj: any,
 ) {
   let link
   // create QR code image
@@ -206,7 +206,7 @@ export async function depositDetail(
       amount,
       depositObj.decimal,
       depositObj.chainId,
-      !depositObj.isNative ? depositObj.tokenAddress : undefined
+      !depositObj.isNative ? depositObj.tokenAddress : undefined,
     )
   } else {
     link = `${depositObj.explorer}/address/${depositObj.address}`
@@ -222,7 +222,7 @@ export async function depositDetail(
     description: [
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Transactions take up to 5 minutes to process.`,
       ...(depositObj.isEVM
         ? [`${getEmoji("METAMASK")} Scan QR to auto-fill in Metamask.`]

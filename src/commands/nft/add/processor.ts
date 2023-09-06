@@ -4,7 +4,7 @@ import { reply } from "utils/discord"
 
 export async function executeNftAddCommand(
   args: string[],
-  msgOrInteraction: Message | CommandInteraction
+  msgOrInteraction: Message | CommandInteraction,
 ) {
   const author =
     msgOrInteraction instanceof Message
@@ -17,7 +17,7 @@ export async function executeNftAddCommand(
     author,
     msgOrInteraction.guildId ?? "",
     msgOrInteraction,
-    args[4] === "priority"
+    args[4] === "priority",
   )
 
   const response = await toEmbed(storeCollectionRes, supportedChainsRes, msg)

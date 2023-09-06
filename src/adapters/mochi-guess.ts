@@ -47,7 +47,7 @@ class MochiGuess extends Fetcher {
           option_code,
           player_id,
         },
-      }
+      },
     )
   }
 
@@ -57,7 +57,7 @@ class MochiGuess extends Fetcher {
 
   public async getGameProgress(id: string) {
     return await this.jsonFetch(
-      `${MOCHI_GUESS_API_BASE_URL}/games/${id}/progress`
+      `${MOCHI_GUESS_API_BASE_URL}/games/${id}/progress`,
     )
   }
 
@@ -71,7 +71,7 @@ class MochiGuess extends Fetcher {
           referee_id,
           distribute_reward: true,
         },
-      }
+      },
     )
   }
 }

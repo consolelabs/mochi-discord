@@ -17,23 +17,23 @@ const command: SlashCommand = {
         option
           .setName("channel")
           .setDescription(
-            "channel you want to send trackers. Example: #general"
+            "channel you want to send trackers. Example: #general",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("address")
           .setDescription(
-            "collection's address. Example: 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73"
+            "collection's address. Example: 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("chain")
           .setDescription("collection's chain'. Example: eth")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {
@@ -49,7 +49,7 @@ const command: SlashCommand = {
       address,
       chain,
       interaction.guildId,
-      channel ? channel.id : ""
+      channel ? channel.id : "",
     )
   },
   help: async (interaction: CommandInteraction) => ({

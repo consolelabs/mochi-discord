@@ -18,7 +18,7 @@ export function getExitButton(authorId: string, label?: string) {
 
 export function composeDiscordExitButton(
   authorId: string,
-  label?: string
+  label?: string,
 ): MessageActionRow {
   return new MessageActionRow().addComponents(getExitButton(authorId, label))
 }
@@ -26,7 +26,7 @@ export function composeDiscordExitButton(
 export function composeButtonLink(
   label: string,
   url: string,
-  emoji?: string
+  emoji?: string,
 ): MessageActionRow {
   const row = new MessageActionRow().addComponents(
     new MessageButton({
@@ -34,7 +34,7 @@ export function composeButtonLink(
       label,
       url,
       emoji,
-    })
+    }),
   )
 
   return row
@@ -90,7 +90,7 @@ export function getPaginationRow(
     extra: "",
     left: { label: "Previous", emoji: "" },
     right: { label: "Next", emoji: "" },
-  }
+  },
 ) {
   if (totalPage === 1) return []
   const actionRow = new MessageActionRow()
@@ -104,7 +104,7 @@ export function getPaginationRow(
         customId: `page_${page}_-_${totalPage}${
           options.extra ? `_${options.extra}` : ""
         }`,
-      })
+      }),
     )
   }
 

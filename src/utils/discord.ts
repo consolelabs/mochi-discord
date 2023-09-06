@@ -13,7 +13,7 @@ export function isMessage(msgOrInteraction: Message | CommandInteraction) {
 
 export async function reply(
   msgOrInteraction: Message | CommandInteraction,
-  response: RunResult<MessageOptions>
+  response: RunResult<MessageOptions>,
 ) {
   const author = getAuthor(msgOrInteraction)
   const { message, interaction } = isMessage(msgOrInteraction)
@@ -43,7 +43,7 @@ export async function reply(
 function collectComponentInteraction(
   msg: Message,
   runResult: RunResult<MessageOptions>,
-  author: User
+  author: User,
 ) {
   const { buttonCollector, selectMenuCollector } = runResult
   // handle button interaction
@@ -94,6 +94,6 @@ function getMessageReplyPayload(result: RunResult<MessageOptions>) {
     "allowedMentions",
     "reply",
     "stickers",
-    "flags"
+    "flags",
   )
 }

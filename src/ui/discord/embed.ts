@@ -46,7 +46,7 @@ export function errorEmbed(
   title: string,
   description: string[],
   reason: string,
-  extra: { emoji: string; label: string; text: string }[] = []
+  extra: { emoji: string; label: string; text: string }[] = [],
 ) {
   const extras = [
     { emoji: getEmoji("CONFIG"), label: "Reason.", text: reason },
@@ -65,7 +65,7 @@ export function errorEmbed(
       {
         cols: ["text"],
         rowAfterFormatter: (f, i) => `${extras[i].emoji}${f}${extras[i].text}`,
-      }
+      },
     ).joined,
     inline: true,
   })
@@ -86,7 +86,7 @@ type Data = Record<string, string | number>
 
 export function formatDataTable<DT extends Data>(
   data: Array<DT>,
-  options: Option<keyof DT>
+  options: Option<keyof DT>,
 ) {
   if (!data.length || !options.cols.length) return { segments: [], joined: "" }
   const segments = []
@@ -103,7 +103,7 @@ export function formatDataTable<DT extends Data>(
       noWrap: false,
       dividerEvery: 0,
     },
-    options
+    options,
   )
   const longestTextByColumns = new Map<keyof DT, number>()
 
@@ -116,7 +116,7 @@ export function formatDataTable<DT extends Data>(
 
       longestTextByColumns.set(
         e[0],
-        Math.max(longestTextByColumns.get(e[0]) ?? 0, String(e[1]).length)
+        Math.max(longestTextByColumns.get(e[0]) ?? 0, String(e[1]).length),
       )
     })
   }
@@ -131,8 +131,8 @@ export function formatDataTable<DT extends Data>(
       const padding = " ".repeat(
         Math.max(
           (longestTextByColumns.get(col) ?? 0) - String(content).length,
-          0
-        )
+          0,
+        ),
       )
       const halfPadding = padding.slice(0, padding.length / 2)
 
@@ -160,7 +160,7 @@ export function formatDataTable<DT extends Data>(
       `${resolvedOptions.noWrap ? "" : "`"}${row.join("")}${
         resolvedOptions.noWrap ? "" : "`"
       }`,
-      i
+      i,
     )
 
     // truncate if line is longeer than mobile's maximum limit char count
@@ -247,7 +247,7 @@ export function getMultipleResultEmbed({
 // TODO: remove after slash command migration done
 export function composeEmbedMessage(
   msg: Message | null | undefined,
-  props: EmbedProperties
+  props: EmbedProperties,
 ) {
   let { title, description = "", footer = [getRandomTip()] } = props
   const {
@@ -270,7 +270,7 @@ export function composeEmbedMessage(
 
   if (includeCommandsList) {
     description += `\n\n${getCommandsList(
-      actions ?? commandObj?.actions ?? {}
+      actions ?? commandObj?.actions ?? {},
     )}`
   }
 
@@ -343,7 +343,7 @@ export function composeEmbedMessage(
 
 export function composeEmbedMessage2(
   interaction: CommandInteraction,
-  props: EmbedProperties
+  props: EmbedProperties,
 ) {
   const {
     title,
@@ -419,7 +419,7 @@ export async function workInProgress(): Promise<MessageOptions> {
       "https://cdn.discordapp.com/emojis/916737804002799699.png?size=240",
     title: `${emojis.RED_FLAG} Work In Progress`,
     description: `The command is in maintenance. Stay tuned! ${getEmoji(
-      "TOUCH"
+      "TOUCH",
     )}`,
   })
   return { embeds: [embed] }
@@ -577,7 +577,7 @@ export async function getCommandSuggestion(
   fuzzySet: FuzzySet,
   userInput: string,
   commands: Record<string, Command>,
-  slashCommands: Record<string, SlashCommand>
+  slashCommands: Record<string, SlashCommand>,
 ): Promise<EmbedProperties | null> {
   const slashCmd = slashCommands[userInput]
   if (slashCmd && (await getSlashCommand(userInput))) {
@@ -587,9 +587,9 @@ export async function getCommandSuggestion(
         getEmojiURL(emojis.MOCHI_CIRCLE),
       ],
       description: `Your command was moved to ${await getSlashCommand(
-        userInput
+        userInput,
       )}\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT"
+        "ANIMATED_POINTING_RIGHT",
       )} All existing commands are being migrated to their slash version, Mochi team appreciates for your understanding.`,
     }
   }
@@ -600,7 +600,7 @@ export async function getCommandSuggestion(
     return {
       author: ["Mochi is confused", getEmojiURL(emojis.MOCHI_CIRCLE)],
       description: `Mochi doesn't understand what command you are trying to use.\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT"
+        "ANIMATED_POINTING_RIGHT",
       )} Perhaps you can reference \`${PREFIX}help\` for more info`,
     }
   } else {
@@ -672,7 +672,7 @@ export function composeInsufficientBalanceEmbed({
 }
 
 export async function composeMyWalletSelection(
-  userId: string
+  userId: string,
 ): Promise<MessageSelectOptionData[]> {
   const pfRes = await profile.getByDiscord(userId)
   if (pfRes.err) {

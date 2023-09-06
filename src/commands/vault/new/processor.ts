@@ -33,16 +33,12 @@ export async function runCreateVault({
     })
   }
 
-  const description = `**Wallet Address**\n\`\`\`EVM | ${
-    data?.wallet_address
-  }\nSOL | ${data?.solana_wallet_address}\`\`\`\n**Vault Threshold** \`${
-    data?.threshold
-  }%\`\n\n${getEmoji(
+  const description = `**Wallet Address**\n\`\`\`EVM | ${data?.wallet_address}\nSOL | ${data?.solana_wallet_address}\`\`\`\n**Vault Threshold** \`${data?.threshold}%\`\n\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
-    true
+    true,
   )} See all vaults ${await getSlashCommand("vault list")}\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
-    true
+    true,
   )} See a vault detail ${await getSlashCommand("vault info")}`
 
   const embed = composeEmbedMessage(null, {

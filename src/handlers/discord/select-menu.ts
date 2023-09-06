@@ -9,7 +9,7 @@ import type { RunResult } from "types/common"
 export type InteractionHandlerResult = RunResult<MessageEditOptions>
 
 export type InteractionHandler = (
-  msgOrInteraction: Message | MessageComponentInteraction
+  msgOrInteraction: Message | MessageComponentInteraction,
 ) => Promise<InteractionHandlerResult>
 
 export type InteractionOptions = {

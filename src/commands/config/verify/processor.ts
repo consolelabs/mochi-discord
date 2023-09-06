@@ -18,7 +18,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
     .setColor(embedsColors.Profile as ColorResolvable)
     .setTitle("Verify your wallet address")
     .setDescription(
-      `Please verify your wallet address by clicking the button below.`
+      `Please verify your wallet address by clicking the button below.`,
     )
   // request profile code
   const profileId = await getProfileIdByDiscord(interaction.user.id)
@@ -35,8 +35,8 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
       .setLabel("Verify")
       .setStyle("LINK")
       .setURL(
-        `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${interaction.guildId}`
-      )
+        `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${interaction.guildId}`,
+      ),
   )
   await interaction
     .editReply({ embeds: [embed], components: [row] })

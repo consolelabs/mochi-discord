@@ -14,13 +14,13 @@ const formatGame = (data: any[]) =>
           playerCount: `${g.options.reduce(
             (acc: number, c: any) =>
               (acc += c.game_player ? c.game_player.length : 0),
-            0
+            0,
           )}P`,
         })),
         {
           cols: ["question", "playerCount"],
           rowAfterFormatter: (f, i) => `${f} <#${data[i].thread_id}>`,
-        }
+        },
       ).joined
     : "There are no games, yet"
 
@@ -42,7 +42,7 @@ const slashCmd: SlashCommand = {
     if (ok) {
       const sorted = data.sort(
         (a: any, b: any) =>
-          moment(b.start_at).unix() - moment(a.start_at).unix()
+          moment(b.start_at).unix() - moment(a.start_at).unix(),
       )
       for (const g of sorted as any[]) {
         if (now() >= moment(g.end_at).unix() * 1000) {

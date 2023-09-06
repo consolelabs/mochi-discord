@@ -15,7 +15,7 @@ export async function dmUser(
   msgOrInteraction: Message | CommandInteraction | null,
   button: ButtonInteraction | null,
   prefixDesc = "",
-  suffixDesc = ""
+  suffixDesc = "",
 ): Promise<Message<boolean> | null> {
   try {
     return await author.send(options)

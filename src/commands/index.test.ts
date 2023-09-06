@@ -42,7 +42,7 @@ describe("handlePrefixedCommand", () => {
     expect(mockMessage.reply).toHaveBeenCalledTimes(1)
     expect(commands_utils.getCommandMetadata).toHaveBeenCalledWith(
       commands.commands,
-      mockMessage
+      mockMessage,
     )
     expect(commands_utils.getCommandMetadata).toHaveReturnedWith({
       commandKey: "asd",

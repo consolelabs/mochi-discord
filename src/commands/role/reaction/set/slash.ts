@@ -17,21 +17,21 @@ const command: SlashCommand = {
         option
           .setName("message_link")
           .setDescription(
-            "link of message which you want to configure for role"
+            "link of message which you want to configure for role",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("emoji")
           .setDescription("emoji which you want to configure for role")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addRoleOption((option) =>
         option
           .setName("role")
           .setDescription("role which you want to configure")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async (interaction: CommandInteraction) => {
@@ -51,10 +51,10 @@ const command: SlashCommand = {
       composeEmbedMessage2(interaction, {
         description: `Don't know where to get the message link?\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} _Click “More” on your messages then choose “Copy Message Link”._\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._`,
         usage: `${PREFIX}role reaction set <message_link> <emoji> <role>`,
         examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,

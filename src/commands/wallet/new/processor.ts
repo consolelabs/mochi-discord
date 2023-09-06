@@ -55,7 +55,7 @@ export async function run({
             inline: false,
           },
         ]
-      : [])
+      : []),
   )
   const options = await composeMyWalletSelection(author.id)
   const selectionRow = composeDiscordSelectionRow({
@@ -97,7 +97,7 @@ export async function run({
           profileId,
           amount: parseUnits(
             amount.toLocaleString().replaceAll(",", ""),
-            t?.decimal ?? 0
+            t?.decimal ?? 0,
           ).toString(),
           token,
           note,
@@ -137,7 +137,7 @@ export async function run({
             note
               ? `with message ${getEmoji(
                   "ANIMATED_CHAT",
-                  true
+                  true,
                 )} \`\`\`${note}\`\`\``
               : ""
           }`,

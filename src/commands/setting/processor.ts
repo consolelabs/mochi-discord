@@ -41,17 +41,17 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
       [
         `${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Profile includes your Mochi ID and email.`,
         `${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Connections contain your social accounts and CEX/DEXes.`,
         `${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Developer holds the api key for Mochi API`,
-      ].join("\n") + "\n\u200b"
+      ].join("\n") + "\n\u200b",
     )
     embed.setAuthor({
       name: "User setting",
@@ -91,24 +91,24 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
           .map(addSoon)
           .join("\n"),
         inline: true,
-      }
+      },
     )
   } else {
     embed.setDescription(
       [
         `${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Default commands are used incase of duplication symbols/tickers.`,
         `${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} DAO will assit you in running your own DAOs.`,
         `${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Pay will affect all monetary commands.`,
-      ].join("\n") + "\n\u200b"
+      ].join("\n") + "\n\u200b",
     )
     embed
       .setAuthor({
@@ -130,10 +130,10 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
           name: `${getEmoji("ANIMATED_VAULT", true)} **DAO**`,
           value: [
             `${await getSlashCommand(
-              "proposal track"
+              "proposal track",
             )} voting rounds on Snapshot.`,
             `${await getSlashCommand(
-              "vault list"
+              "vault list",
             )} available DAOs within your guild.`,
             `${await getSlashCommand("vault config add")} new members.`,
           ]
@@ -147,7 +147,7 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
             `${await getSlashCommand("config currency set")}`,
             `${await getSlashCommand("config tiprange set")} amount in USD`,
             `${await getSlashCommand(
-              "config moniker set"
+              "config moniker set",
             )} \`beer\`, \`pizza\`, etc...`,
           ]
             .map(addBullet)
@@ -158,17 +158,17 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
           name: `${getEmoji("LEAF")} **ROLE**`,
           value: [
             `${await getSlashCommand(
-              "role default info"
+              "role default info",
             )} grant role for new members.`,
             `${await getSlashCommand(
-              "role nft list"
+              "role nft list",
             )} grant role base on nfts.`,
             `${await getSlashCommand(
-              "role token list"
+              "role token list",
             )} grant role base on tokens.`,
             `${await getSlashCommand("role level list")} grant role base on xp`,
             `${await getSlashCommand(
-              "role reaction list"
+              "role reaction list",
             )} grant role upon reaction`,
           ]
             .map(addBullet)
@@ -179,7 +179,7 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
           name: `${getEmoji("PROPOSAL")} **LOG**`,
           value: [
             `${await getSlashCommand(
-              "config logchannel set"
+              "config logchannel set",
             )} for all activities`,
           ]
             .map(addBullet)
@@ -192,7 +192,7 @@ export async function renderSetting(tab: SettingTab = SettingTab.User) {
             .map(addBullet)
             .join("\n"),
           inline: true,
-        }
+        },
       )
   }
   return {

@@ -22,7 +22,7 @@ import { getDiscordRenderableByProfileId } from "utils/profile"
 
 export async function runGetVaultDetail(
   vaultName: string,
-  interaction: OriginalMessage
+  interaction: OriginalMessage,
 ) {
   const { data, ok, status, curl, error, originalError, log } =
     await config.getVaultDetail(vaultName, interaction.guildId || "")
@@ -44,11 +44,11 @@ export async function runGetVaultDetail(
       ? `**Wallet Address**\n${getEmoji("EVM")}\`EVM | ${shortenHashOrAddress(
           data.wallet_address,
           5,
-          5
+          5,
         )}\`\n${getEmoji("SOL")}\`SOL | ${shortenHashOrAddress(
           data.solana_wallet_address,
           5,
-          5
+          5,
         )}\``
       : ""
 
@@ -66,7 +66,7 @@ export async function runGetVaultDetail(
     "compact",
     "filter-dust",
     data.balance,
-    0
+    0,
   )
   const myNftTitleFields = buildMyNftTitleFields(data)
   const myNftFields = buildMyNftFields(data)
@@ -97,7 +97,7 @@ export async function runGetVaultDetail(
       creator.user_discord_id ? `<@${creator.user_discord_id}>` : ""
     }`,
     `${getEmoji("CASH")}\`Total Balance. $${formatUsdDigit(
-      String(totalWorth) || "0"
+      String(totalWorth) || "0",
     )}\``,
   ].join("\n")
   const embed = composeEmbedMessage2(interaction as any, {
@@ -122,7 +122,7 @@ export async function runGetVaultDetail(
             .setStyle("SECONDARY")
             .setEmoji(getEmoji("CONFIG"))
             .setCustomId("vault_info_setting")
-            .setLabel("Setting")
+            .setLabel("Setting"),
         ),
       ],
     },
@@ -152,7 +152,7 @@ function formatCurrentRequest(request: any) {
       return `${getEmoji("CHECK")} [[${request.total_approved_submission}/${
         request.total_submission
       }]](${HOMEPAGE_URL}) Send ${target} ${request.amount} ${getEmojiToken(
-        request.token.toUpperCase() as TokenEmojiKey
+        request.token.toUpperCase() as TokenEmojiKey,
       )} ${request.token.toUpperCase()}\n`
   }
 }
@@ -200,7 +200,7 @@ async function formatRecentTransaction(tx: any) {
     case "Config threshold":
       return `${t} ${getEmoji(
         "ANIMATED_VAULT_KEY",
-        true
+        true,
       )} Set the threshold to ${tx.threshold}% for vault\n`
     case "Sent":
     case "Transfer": {
@@ -287,9 +287,9 @@ export async function buildRecentTxFields(data: any) {
         }) =>
           tx.token?.length <= 10 ||
           tx.from_token?.length <= 10 ||
-          tx.to_token?.length <= 10
+          tx.to_token?.length <= 10,
       )
-      .map((tx: any) => formatRecentTransaction(tx))
+      .map((tx: any) => formatRecentTransaction(tx)),
   )
   if (!formatted.length) return []
   return [

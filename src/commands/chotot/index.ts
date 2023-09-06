@@ -61,7 +61,7 @@ const slashCmd: SlashCommand = {
           .setName("keywords")
           .setDescription("search keywords")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
 
     return data
@@ -86,7 +86,7 @@ const slashCmd: SlashCommand = {
         })
         return {
           name: `${i + 1}. ${formal} (in ${capitalizeFirst(
-            categoryName.split("-").join(" ")
+            categoryName.split("-").join(" "),
           )})`,
           value: queryString,
         }
@@ -99,7 +99,7 @@ const slashCmd: SlashCommand = {
     const resultIndex = i.options.getString("keywords", true)
     const queryObj = qs.parse(resultIndex)
     const res = await chotot.getSuggestions(
-      ((queryObj.keywords as string) || "").toLowerCase()
+      ((queryObj.keywords as string) || "").toLowerCase(),
     )
 
     if (res.ok) {

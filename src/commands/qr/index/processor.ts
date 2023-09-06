@@ -77,7 +77,7 @@ async function get(discordId: string, findId?: string) {
           type: `${w.chain} wallet`,
           content: shortenHashOrAddress(w.value, 4),
           category: `wallet-${w.chain}`,
-        }))
+        })),
       )
       data.push(
         ...wallets.map((w) => ({
@@ -87,7 +87,7 @@ async function get(discordId: string, findId?: string) {
           type: `${w.chain} wallet`,
           content: shortenHashOrAddress(w.value, 4),
           category: `wallet-${w.chain}`,
-        }))
+        })),
       )
 
       if (dataProfile.err) {
@@ -101,7 +101,7 @@ async function get(discordId: string, findId?: string) {
         data.push(
           ...paymes.map((p) => {
             const amount = formatTokenDigit(
-              convertString(p.amount, p.token.decimal)
+              convertString(p.amount, p.token.decimal),
             )
             const symbol = p.token.symbol
 
@@ -115,12 +115,12 @@ async function get(discordId: string, findId?: string) {
               chain: p.token.chain.symbol,
               note: p.note,
             }
-          })
+          }),
         )
         data.push(
           ...paylinks.map((p) => {
             const amount = formatTokenDigit(
-              convertString(p.amount, p.token.decimal)
+              convertString(p.amount, p.token.decimal),
             )
             const symbol = p.token.symbol
 
@@ -134,7 +134,7 @@ async function get(discordId: string, findId?: string) {
               chain: p.token.chain.symbol,
               note: p.note,
             }
-          })
+          }),
         )
       }
 
@@ -173,10 +173,10 @@ async function compose(user: User, page: number) {
     color: msgColors.BLUE,
     description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} All your links as QR codes, ready to be shared.\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} Click view/save to view it via **_Apple Wallet_**\n\n${
       formatDataTable(data, {
         cols: ["type", "content"],
@@ -206,15 +206,15 @@ async function compose(user: User, page: number) {
                 emoji: mapEmoji(d),
                 label: `${d.type} ${d.content}`,
                 value: d.id,
-              }))
-            )
+              })),
+            ),
         ),
         new MessageActionRow().addComponents(
           new MessageButton()
             .setLabel("New QR")
             .setStyle("SECONDARY")
             .setEmoji(getEmoji("QRCODE"))
-            .setCustomId("new_qr")
+            .setCustomId("new_qr"),
         ),
         ...paginationButtons(page, paginated.length),
       ],
@@ -229,7 +229,7 @@ function formatContent(
   category: string,
   type: string,
   value: string,
-  data: any
+  data: any,
 ) {
   switch (category) {
     case "wallet": {
@@ -240,19 +240,19 @@ function formatContent(
         case "mochi": {
           description = `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Here is the deposit address linked to your Discord account.\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT"
+            "ANIMATED_POINTING_RIGHT",
           )} Transfers to this address is prioritized and processed at top of queue compare to linked wallets.`
           break
         }
         case "onchain": {
           description = `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Here is the deposit address of one of your linked wallet.\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Please note that it might take some time for Mochi to pick up tranfers to this address as we need to perform on-chain lookup.`
           break
         }
@@ -284,7 +284,7 @@ function formatContent(
           author.unshift("Pay Me")
           description = `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} You have requested to be paid ${data.amount} ${
             data.symbol
           }, share [this link](${value}) or others can scan the code to pay you.`
@@ -294,11 +294,11 @@ function formatContent(
           author.unshift("Pay Link")
           description = `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Here is the link to temp wallet of ${data.amount} ${
             data.symbol
           }\n${getEmoji(
-            "ANIMATED_POINTING_RIGHT"
+            "ANIMATED_POINTING_RIGHT",
           )} Scan the code to claim the airdrop.`
         }
       }
@@ -390,7 +390,7 @@ export async function viewQR(i: SelectMenuInteraction) {
           .setLabel("Delete")
           .setStyle("SECONDARY")
           .setCustomId("delete_qr")
-          .setEmoji(getEmoji("BIN"))
+          .setEmoji(getEmoji("BIN")),
       ),
     ],
   }
@@ -433,18 +433,18 @@ function buildQueryUrl(d: {
   }
 
   return `${API_BASE_URL}/pk-pass?category=${encodeURIComponent(
-    category
+    category,
   )}&qr_value=${encodeURIComponent(qrValue)}&amount=${encodeURIComponent(
-    amount
+    amount,
   )}&symbol=${encodeURIComponent(symbol)}&content=${encodeURIComponent(
-    content
+    content,
   )}&type=${encodeURIComponent(type)}`
 }
 
 export async function render(
   msg: OriginalMessage,
   _member?: GuildMember | null,
-  page = 0
+  page = 0,
 ) {
   const member = _member ?? msg.member
   if (!(member instanceof GuildMember)) {

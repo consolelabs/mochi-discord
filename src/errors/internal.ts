@@ -58,7 +58,7 @@ export class InternalError extends BotBaseError {
             this.name,
             this.descriptions ?? [],
             this.reason,
-            this.extra
+            this.extra,
           ),
         ],
         components: [],

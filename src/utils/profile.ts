@@ -28,7 +28,7 @@ export async function getDiscordRenderableByProfileId(profileId: string) {
 
   // case user profile
   const discord = pf.associated_accounts.find((aa: any) =>
-    equalIgnoreCase(aa.platform, "discord")
+    equalIgnoreCase(aa.platform, "discord"),
   )
 
   if (!discord) return pf.profile_name

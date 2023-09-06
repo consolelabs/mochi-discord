@@ -31,14 +31,14 @@ const command: SlashCommand = {
               color: embedsColors.Server,
               description: `You haven't set any default ticker yet. \n\n${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
-                true
+                true,
               )} To set a new one, run ${await getSlashCommand(
-                "default ticker set"
+                "default ticker set",
               )}.\n${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
-                true
+                true,
               )} To view all available default ticker, run ${await getSlashCommand(
-                "default ticker info"
+                "default ticker info",
               )}.`,
             }),
           ],
@@ -59,9 +59,9 @@ const command: SlashCommand = {
         rowAfterFormatter: (formatted, i) =>
           `${getEmojiToken(
             cfgs[i].query as TokenEmojiKey,
-            false
+            false,
           )} ${formatted}`,
-      }
+      },
     )
 
     return {

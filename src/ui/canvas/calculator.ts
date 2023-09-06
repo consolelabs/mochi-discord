@@ -15,7 +15,7 @@ export function heightOf(ctx: CanvasRenderingContext2D, text: string): number {
 export function calculateWrapperTextHeight(
   text: string,
   font: string,
-  maxWidth: number
+  maxWidth: number,
 ) {
   const canvas = createCanvas(0, 0)
   const ctx = canvas.getContext("2d")

@@ -56,7 +56,7 @@ process.on("SIGTERM", () => {
 
 // register slash commands
 const body = Object.entries(slashCommands ?? {}).map((e) =>
-  e[1].prepare(e[0]).toJSON()
+  e[1].prepare(e[0]).toJSON(),
 )
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 ;(async () => {
@@ -112,7 +112,7 @@ function runHttpServer() {
 
       response.statusCode = 404
       response.end()
-    }
+    },
   )
 
   server.listen(PORT, () => {

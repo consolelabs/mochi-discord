@@ -53,8 +53,8 @@ const event: DiscordEvent<"ready"> = {
           invites.set(
             guild.id,
             new Discord.Collection(
-              firstInvites.map((invite) => [invite.code, invite.uses ?? 0])
-            )
+              firstInvites.map((invite) => [invite.code, invite.uses ?? 0]),
+            ),
           )
         }
       }

@@ -38,7 +38,7 @@ export async function run(user: User, view: EarnView = EarnView.Airdrop) {
           name: capitalizeFirst(statusCount.status),
           value: statusCount.count.toString(),
           inline: true,
-        }))
+        })),
       )
 
       embed.addFields({
@@ -73,7 +73,7 @@ export async function run(user: User, view: EarnView = EarnView.Airdrop) {
             customId: "VIEW_QUEST_DASHBOARD",
             emoji: getEmoji("MOCHI_CIRCLE"),
             disabled: view === EarnView.Quest,
-          })
+          }),
         ),
       ],
     },

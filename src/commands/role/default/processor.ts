@@ -13,11 +13,11 @@ export async function handle(msg: OriginalMessage, statusText = "") {
   const result = {
     isError: true,
     description: `You haven't set any default roles yet! To set a new one, run ${await getSlashCommand(
-      "role default set"
+      "role default set",
     )}\nThen re-check your configuration with ${await getSlashCommand(
-      "role default info"
+      "role default info",
     )}\nOr you can remove it later using ${await getSlashCommand(
-      "role default remove"
+      "role default remove",
     )}.`,
   }
 

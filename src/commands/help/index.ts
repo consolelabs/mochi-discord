@@ -21,10 +21,10 @@ const slashCmd: SlashCommand = {
         option
           .setName("command")
           .setDescription(
-            "Command to provide details about. Example: watchlist"
+            "Command to provide details about. Example: watchlist",
           )
           .setRequired(false)
-          .setChoices(choices)
+          .setChoices(choices),
       )
   },
   run: async function (interaction: CommandInteraction) {
