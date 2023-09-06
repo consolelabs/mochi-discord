@@ -1,0 +1,11 @@
+pre-commit:
+  piped: true
+  commands:
+    1_generate-types:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: pnpm generate:types
+    2_format:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: pnpm format
+    3_git-add:
+      run: git add .
