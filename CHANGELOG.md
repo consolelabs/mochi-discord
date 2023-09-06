@@ -1,3 +1,16 @@
+# [6.29.0-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.5...v6.29.0-rc.6) (2023-09-06)
+
+
+### Bug Fixes
+
+* **balance:** user now should see the whitelisted tokens in balance ([ebe68e1](https://github.com/consolelabs/mochi-discord/commit/ebe68e1e05a65295517701d732524a58bef1e7fa))
+* **general:** no_fetch_amount param ([c117015](https://github.com/consolelabs/mochi-discord/commit/c117015808c1db2bc3a9869c4db8bbafd4f4c96c))
+
+
+### Features
+
+* **sup:** what's new command for user to check out latest changelog ([#1476](https://github.com/consolelabs/mochi-discord/issues/1476)) ([58d739d](https://github.com/consolelabs/mochi-discord/commit/58d739db6a22d201b2a43f78c354629b81dda47e))
+
 # [6.29.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.4...v6.29.0-rc.5) (2023-08-30)
 
 ### Bug Fixes
