@@ -14,7 +14,7 @@ export type Context = {
   [K: string]: any
 }
 
-type CreateMachineParams = Parameters<typeof createMachine<Context, any, any>>
+type CreateMachineParams = Parameters<typeof createMachine<Context, any, any>>;
 
 export type MachineConfig = CreateMachineParams[0] & { id: string }
 export type MachineOptions = CreateMachineParams[1]
@@ -26,9 +26,9 @@ export type Handler<P = any> = (
   isModal: boolean
 ) => Promise<
   | {
-      msgOpts: MessageEditOptions | null
-      context?: Record<any, any>
-    }
+    msgOpts: MessageEditOptions | null
+    context?: Record<any, any>
+  }
   | null
   | void
   | undefined
