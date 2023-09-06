@@ -1,4 +1,5 @@
-import Discord from "discord.js"
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import Discord, { CommandInteraction } from "discord.js"
 import {
   APPLICATION_ID,
   DISCORD_TOKEN,
@@ -19,6 +20,8 @@ import Redis from "ioredis"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
 import api from "api"
+import { DOT } from "utils/constants"
+import { getEmbedFooter } from "ui/discord/embed"
 
 let server: Server | null = null
 
@@ -115,6 +118,35 @@ function runHttpServer() {
   server.listen(PORT, () => {
     logger.info(`Server listening on port ${PORT}`)
   })
+}
+
+// monkeypatch
+const editReply = CommandInteraction.prototype.editReply
+CommandInteraction.prototype.editReply = async function (
+  ...args: Parameters<typeof editReply>
+) {
+  const [payload] = args
+  if (typeof payload === "string" || !("embeds" in payload))
+    return editReply.apply(this, args)
+
+  const { ok: okProfile, data: profile } = await api.profile.discord.getById({
+    discordId: this.user.id,
+  })
+  if (okProfile) {
+    const { changelog } = await api.getLatestChangelog(profile.id)
+    if (changelog) {
+      const embed = payload.embeds?.at(0)
+      if (embed) {
+        const parts = embed.footer?.text?.split(` ${DOT} `)
+        if (parts?.length) {
+          parts[0] = "🌈 Mochi has a new update, check out /sup"
+          embed.footer!.text = getEmbedFooter(parts)
+        }
+      }
+    }
+  }
+
+  return editReply.apply(this, args)
 }
 
 // cleanup

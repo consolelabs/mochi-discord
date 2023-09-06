@@ -123,7 +123,9 @@ async function confirmAirdrop(
   const { amount, token, token_price = 0 } = payload
   const usdAmount = token_price * amount
   const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
-  const endTime = dayjs().add(+duration, "second").toDate()
+  const endTime = dayjs()
+    .add(+duration, "second")
+    .toDate()
   const airdropEmbed = composeEmbedMessage(null, {
     author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
     description: `${author} left an airdrop of ${tokenEmoji} **${formatDigit({
