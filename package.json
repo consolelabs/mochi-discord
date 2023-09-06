@@ -5,7 +5,6 @@
     "test": "NODE_OPTIONS=--max-old-space-size=8192 jest --detectOpenHandles",
     "test:ci": "NODE_OPTIONS=--max-old-space-size=8192 jest --silent --detectOpenHandles",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts .",
-    "prepare": "husky install",
     "generate:types": "node ./scripts/generate-types.js",
     "guilds:prune": "node ./scripts/leave-server.js",
     "format": "npx prettier src/** --write"
@@ -34,7 +33,6 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "fetch-to-curl": "^0.5.2",
-    "husky": ">=6",
     "jest": "^27.3.1",
     "lint-staged": ">=10",
     "prettier": "^2.6.2",
@@ -72,6 +70,7 @@
     "fuzzyset": "^1.0.7",
     "ioredis": "^5.3.2",
     "kafkajs": "^2.2.3",
+    "lefthook": "^1.4.5",
     "lodash": "^4.17.21",
     "moment-timezone": "^0.5.43",
     "nanoid": "3",
