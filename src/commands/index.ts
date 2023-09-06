@@ -92,6 +92,7 @@ import ecocalView from "./ecocal/view/slash"
 import chotot from "./chotot"
 import proposal from "./proposal"
 import guess from "./guess"
+import dex from "./dex"
 
 CacheManager.init({
   ttl: 0,
@@ -165,6 +166,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   chotot: chotot.slashCmd,
   proposal: proposal.slashCmd,
   guess: guess.slashCmd,
+  dex: dex.slashCmd,
 }
 
 // text commands is being deprecated, refer to slashCommands for latest version
