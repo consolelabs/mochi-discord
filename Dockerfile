@@ -3,12 +3,20 @@ FROM node:18-alpine
 
 ARG SWAGGER_URL=https://api.mochi.pod.town/swagger/doc.json
 ENV SWAGGER_URL=$SWAGGER_URL 
+ARG NODE_ENV=production
+ENV NODE_ENV=$NODE_ENV
 
 WORKDIR /usr/src/app
 RUN apk add --no-cache python3 py3-pip make build-base g++ cairo-dev jpeg-dev pango-dev giflib-dev imagemagick
 
-COPY . .
-RUN yarn
-RUN yarn generate:types
+# Copy the package.json and package-lock.json files to the working directory
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+# Install the dependencies
+RUN npm install -g pnpm && \
+    pnpm install -P && \
+    pnpm generate:types
 
-CMD yarn start
+COPY . .
+
+CMD pnpm start
